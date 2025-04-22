@@ -5,54 +5,28 @@ public class PlayerController : MonoBehaviour
 {
     public float moveSpeed;
     public LayerMask solidObjectsLayer;
+    public LayerMask enemyLayer; // 👈 thêm để chọn layer Enemy
+    public float attackRange = 100f; // 👈 phạm vi chém
     public bool isMoving;
     public bool isAttacking;
     private Vector2 input;
     private Animator animator;
     private Vector2 lastMoveDir;
-
-    private Enemy enemy;
+    public Collider2D[] hitEnemies;
+    public Transform attackPoint; // 👈 điểm gốc để quét kẻ địch (empty GameObject trước mặt Player)
+    public Enemy enemy;
+    Coroutine attackRoutine;
     private void Awake()
     {
         animator = GetComponent<Animator>();
-
-    }
-
-    private void HandleAttack()
-    {
-        if (!isAttacking && Input.GetKeyDown(KeyCode.Space))
-        {
-            isAttacking = true;
-
-            // Đảm bảo animator biết hướng tấn công hiện tại
-            animator.SetFloat("moveX", lastMoveDir.x);
-            animator.SetFloat("moveY", lastMoveDir.y);
-
-            animator.SetBool("isAttacking", true);
-            StartCoroutine(StopAttack());
-        }
-        //if (!isAttacking && Input.GetKeyDown(KeyCode.Space))
-        //{
-        //    animator.SetBool("isAttacking", true);
-        //    StartCoroutine(StopAttack());
-        //}
-    }
-
-    IEnumerator StopAttack()
-    {
-        yield return new WaitForSeconds(0.2f);
-        animator.SetBool("isAttacking", false);
-        animator.SetBool("isMoving", false);
-        isAttacking = false;
-        Debug.Log("Stop");
     }
 
     private void Update()
     {
         if (!isMoving)
         {
-            input.x = Input.GetAxis("Horizontal");
-            input.y = Input.GetAxis("Vertical");
+            input.x = Input.GetAxisRaw("Horizontal");
+            input.y = Input.GetAxisRaw("Vertical");
 
             if (input.x != 0) input.y = 0;
 
@@ -61,12 +35,9 @@ public class PlayerController : MonoBehaviour
                 animator.SetFloat("moveX", input.x);
                 animator.SetFloat("moveY", input.y);
 
-                // Cập nhật hướng cuối
                 lastMoveDir = input;
 
-                var targetPos = transform.position;
-                targetPos.x += input.x;
-                targetPos.y += input.y;
+                var targetPos = transform.position + new Vector3(input.x, input.y, 0);
                 if (IsWalkable(targetPos))
                     StartCoroutine(Move(targetPos));
             }
@@ -74,6 +45,60 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("isMoving", isMoving);
         HandleAttack();
+    }
+
+    private void HandleAttack()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        // Kiểm tra nếu không phải đang ở trạng thái attack hoặc đã gần kết thúc thì cho phép chém
+        if (!isAttacking && Input.GetKeyDown(KeyCode.Space) && !stateInfo.IsTag("Attack"))
+        {
+            isAttacking = true;
+
+            animator.SetFloat("moveX", lastMoveDir.x);
+            animator.SetFloat("moveY", lastMoveDir.y);
+            animator.SetBool("isAttacking", true);
+
+            HitMonster();
+            if (attackRoutine != null) StopCoroutine(attackRoutine);
+            attackRoutine = StartCoroutine(StopAttack());
+        }
+    }
+
+    private void HitMonster()
+    {
+        Debug.Log("chém");
+        if (attackPoint == null) return;
+
+        // Tìm quái trong vùng chém
+        hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
+        Debug.Log($"hitEnemies+ {hitEnemies.Length.ToString()}");
+        foreach (Collider2D col in hitEnemies)
+        {
+            Debug.Log("enemy");
+
+            enemy = col.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                Debug.Log("có");
+
+                enemy.TakeDamage(transform.position); // Knockback từ vị trí player
+            }
+            else
+            {
+                Debug.Log("không");
+
+            }
+        }
+    }
+
+    IEnumerator StopAttack()
+    {
+        yield return new WaitForSeconds(0.7f);
+        animator.SetBool("isAttacking", false);
+        animator.SetBool("isMoving", false);
+        isAttacking = false;
     }
 
     IEnumerator Move(Vector3 targetPos)
@@ -90,24 +115,13 @@ public class PlayerController : MonoBehaviour
 
     private bool IsWalkable(Vector3 targetPos)
     {
-        if (Physics2D.OverlapCircle(targetPos, 0.3f, solidObjectsLayer) != null)
-        {
-            return false;
-        }
-
-        return true;
+        return Physics2D.OverlapCircle(targetPos, 0.3f, solidObjectsLayer) == null;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnDrawGizmosSelected()
     {
-        if (collision.CompareTag("Enemy"))
-        {
-            Debug.Log("chem");
-            Enemy enemy = collision.GetComponent<Enemy>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(10); // hoặc sát thương theo logic
-            }
-        }
+        if (attackPoint == null) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }
