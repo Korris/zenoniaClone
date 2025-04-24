@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.Log("có");
 
-                enemy.TakeDamage(transform.position); // Knockback từ vị trí player
+                enemy.TakeDamage(1, transform.position); // Knockback từ vị trí player
             }
             else
             {
