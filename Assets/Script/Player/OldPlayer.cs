@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class OldPlayer : MonoBehaviour
 {
     public float moveSpeed;
     public LayerMask solidObjectsLayer;
