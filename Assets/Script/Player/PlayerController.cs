@@ -1,25 +1,19 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : Character
 {
-    public float moveSpeed;
     public LayerMask solidObjectsLayer;
-    public LayerMask enemyLayer; // 👈 thêm để chọn layer Enemy
-    public float attackRange = 100f; // 👈 phạm vi chém
+    public LayerMask enemyLayer; // layer Enemy
+    public float attackRange = 0.5f;
     public bool isMoving;
     public bool isAttacking;
     private Vector2 input;
-    private Animator animator;
     private Vector2 lastMoveDir;
     public Collider2D[] hitEnemies;
-    public Transform attackPoint; // 👈 điểm gốc để quét kẻ địch (empty GameObject trước mặt Player)
+    public Transform attackPoint; // điểm gốc để quét kẻ địch (empty GameObject trước mặt Player)
     public Enemy enemy;
     Coroutine attackRoutine;
-    private void Awake()
-    {
-        animator = GetComponent<Animator>();
-    }
 
     private void Update()
     {
@@ -82,13 +76,11 @@ public class Player : MonoBehaviour
             if (enemy != null)
             {
                 Debug.Log("có");
-
                 enemy.TakeDamage(1, transform.position); // Knockback từ vị trí player
             }
             else
             {
                 Debug.Log("không");
-
             }
         }
     }
