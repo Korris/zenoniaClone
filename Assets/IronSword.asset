@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e66173ad6bf76964f8a62706d9266566, type: 3}
+  m_Name: IronSword
+  m_EditorClassIdentifier: 
+  DisplayName: 
+  SlotType: 2
+  Sprites:
+  - {fileID: 21300000, guid: b955578bcc8d48243997fadb99c42fdf, type: 3}
+  - {fileID: 274310859, guid: f3aad2cfd4ac6144a98b95c56e8e3050, type: 3}
+  AttackBonus: 2
+  DefenseBonus: 0

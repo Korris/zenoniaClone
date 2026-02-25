@@ -25,18 +25,18 @@ public class Enemy : Character
     public float avoidanceWeight = 1.5f;
     public LayerMask enemyLayer;
 
-    [Header("Animation Settings")]
-    public float directionThreshold = 0.5f;
-    public float flipCooldown = 0.5f;
+    // Animation Settings đã chuyển sang Blend Tree — không cần flipX thủ công
 
     // Spawn settings - NonSerialized để Unity luôn dùng giá trị code, không bị serialize = 0
     [System.NonSerialized] public int spawnExtra = 3;
     [System.NonSerialized] public Vector2 spawnAreaSize = new Vector2(10f, 10f);
 
     private Vector2 movement;
-    private float lastFlipTime = 0f;
-    private bool facingRight = true;
     private bool isClone = false;
+    private float lastAnimX = 0f;
+    private float lastAnimY = -1f; // mặc định nhìn xuống
+    private float directionLockTimer = 0f;
+    private const float directionLockDuration = 0.3f; // giữ hướng ít nhất 0.3s
 
     // Patrol state
     private Vector2 startPosition;
@@ -63,7 +63,6 @@ public class Enemy : Character
         InitPlayer();
         InitEnemyLayer();
 
-        facingRight = !spriteRenderer.flipX;
         startPosition = transform.position;
         SetNewPatrolTarget();
 
@@ -121,6 +120,7 @@ public class Enemy : Character
         }
 
         CheckForPlayerDetection();
+        UpdateAnimator();
     }
 
     private void CheckForPlayerDetection()
@@ -155,7 +155,6 @@ public class Enemy : Character
         if (isWaiting) return;
 
         Vector2 dir = (currentPatrolTarget - (Vector2)transform.position).normalized;
-        UpdateFacingDirection(dir);
         movement = dir;
 
         if (Vector2.Distance(transform.position, currentPatrolTarget) < 0.1f)
@@ -175,7 +174,6 @@ public class Enemy : Character
         Vector2 avoidance = CalculateAvoidanceDirection();
         Vector2 finalDir = (dirToPlayer + avoidance * avoidanceWeight).normalized;
 
-        UpdateFacingDirection(dirToPlayer);
         movement = dist > stopDistance ? finalDir : Vector2.zero;
     }
 
@@ -209,19 +207,41 @@ public class Enemy : Character
         }
     }
 
-    // --- Visuals ---
+    // --- Animation ---
 
-    private void UpdateFacingDirection(Vector2 direction)
+    private void UpdateAnimator()
     {
-        if (Mathf.Abs(direction.x) <= directionThreshold) return;
-        if (Time.time - lastFlipTime <= flipCooldown) return;
+        if (animator == null) return;
 
-        bool shouldFaceRight = direction.x > 0;
-        if (shouldFaceRight == facingRight) return;
+        bool isMovingNow = movement.sqrMagnitude > 0.01f;
+        animator.SetBool("isMoving", isMovingNow);
 
-        facingRight = shouldFaceRight;
-        spriteRenderer.flipX = !facingRight;
-        lastFlipTime = Time.time;
+        if (!isMovingNow)
+        {
+            // Giữ hướng cuối khi dừng
+            animator.SetFloat("moveX", lastAnimX);
+            animator.SetFloat("moveY", lastAnimY);
+            return;
+        }
+
+        // Snap hướng về trục chính
+        float ax = Mathf.Abs(movement.x);
+        float ay = Mathf.Abs(movement.y);
+        float targetX = ax >= ay ? Mathf.Sign(movement.x) : 0f;
+        float targetY = ax >= ay ? 0f : Mathf.Sign(movement.y);
+
+        // Hysteresis: chỉ đổi hướng nếu đã qua thời gian lock
+        directionLockTimer -= Time.deltaTime;
+        if (targetX != lastAnimX || targetY != lastAnimY)
+        {
+            if (directionLockTimer > 0f) return; // giữ hướng cũ
+            lastAnimX = targetX;
+            lastAnimY = targetY;
+            directionLockTimer = directionLockDuration;
+        }
+
+        animator.SetFloat("moveX", lastAnimX);
+        animator.SetFloat("moveY", lastAnimY);
     }
 
     private Vector2 CalculateAvoidanceDirection()
