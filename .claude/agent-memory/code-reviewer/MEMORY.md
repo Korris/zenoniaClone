@@ -1,0 +1,1 @@
+- [Review report format](feedback-review-report-format.md) — severity-ordered, file:line + minimal fix, score /10, terse handback; skip known/accepted gaps

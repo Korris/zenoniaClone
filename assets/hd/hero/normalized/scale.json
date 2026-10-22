@@ -1,0 +1,50 @@
+{
+  "idle": {
+    "scale": 0.27796610169491526,
+    "refHeightPx": 295.0,
+    "targetBodyHeightPx": 82,
+    "frame": 96
+  },
+  "walk": {
+    "scale": 0.34309623430962344,
+    "refHeightPx": 239.0,
+    "targetBodyHeightPx": 82,
+    "frame": 96
+  },
+  "attack1": {
+    "scale": 0.2671009771986971,
+    "refHeightPx": 307.0,
+    "targetBodyHeightPx": 82,
+    "frame": 96
+  },
+  "attack2": {
+    "scale": 0.30711610486891383,
+    "refHeightPx": 267.0,
+    "targetBodyHeightPx": 82,
+    "frame": 96
+  },
+  "attack3": {
+    "scale": 0.37104072398190047,
+    "refHeightPx": 221.0,
+    "targetBodyHeightPx": 82,
+    "frame": 96
+  },
+  "dash": {
+    "scale": 0.2751677852348993,
+    "refHeightPx": 298.0,
+    "targetBodyHeightPx": 82,
+    "frame": 96
+  },
+  "hurt": {
+    "scale": 0.19806763285024154,
+    "refHeightPx": 414.0,
+    "targetBodyHeightPx": 82,
+    "frame": 96
+  },
+  "death": {
+    "scale": 0.3203125,
+    "refHeightPx": 256.0,
+    "targetBodyHeightPx": 82,
+    "frame": 96
+  }
+}
