@@ -328,6 +328,11 @@ ChatGPT-painted (ground layer, a buildings sheet and a props sheet made in one c
 style) and processed by `tools/build-oakhaven-village-art.py` (`npm run hd:village`); its
 `GROUND_ROWS` were classified from the painting tile by tile, so repainting the backdrop means
 re-deriving them. The bottom ~1.5 tile rows sit under the HUD bar, so keep portals/NPCs above row 22.
+ChatGPT paints at most 1536x1024 but the backdrop is 2304x1536, so the painting is cut into 4
+overlapping quadrants that ChatGPT redraws at full resolution (`ground-hd-{nw,ne,sw,se}.png`);
+`tools/oakhaven_ground_stitch.py` downscales each into place, phase-correlates it to the original,
+matches its colour and feathers a 96 px seam. Without those files the build falls back to an
+upscaled + unsharp-masked single painting (visibly softer than the props).
 
 ### HD NPCs (Oakhaven villagers)
 
@@ -413,3 +418,15 @@ clamped) -- never trusts raw client JSON, same policy as skills/hotbar.
 
 **Testable (Node --test)**: tilemap.js, systems/*.js, data/*.js, save-serializer.js, entities/*.js, quest-system.js.
 **DOM/Browser Only**: graphics/*.js, ui/*.js, game/{game-controller, game-session, game-loop, input-manager}.js, main.js.
+
+### Playable classes (v0.11)
+New Game -> `GAME_STATES.CLASS_SELECT` (`ui/class-select-screen.js`) -> `session.startNewGame(classId)`.
+`Player(classId)` picks its base stats (`class-definitions.js` via `statsForLevel`), its combo config
+(`COMBO_CONFIG` melee boxes or `WIZARD_COMBO_CONFIG` bolts; `player-controller.js` dispatches combo
+'hit' events to `performComboHit` or `fireComboBolt`) and its skill tree (`CLASS_DEFINITIONS[id].branches`;
+`canUpgradeSkill` refuses other-class skills, `validateSave` drops them). Sprites: `registry.heroes[classId]`
+(wizard HD sheets over the warrior set as fallback), `registry.faces.heroByClass`, and HD spell FX in
+`registry.effects` (single canvases with `pixelsPerUnit` 4; `drawRotated` divides by it).
+HD hero sheets of any class are normalized by `tools/build-hd-hero.py <src> <out>`; per-sheet scale
+matches each sheet's head to the idle sheet's head by multi-scale template matching
+(`tools/hero_head_scale.py`), and `asset-atlas-hd-wizard.js` records which wizard rows face left/right.

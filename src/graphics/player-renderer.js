@@ -60,7 +60,7 @@ export function drawPlayer(ctx, player, registry) {
   // Blink while invulnerable after a hit (not while dying)
   if (!player.dead && player.invulnTimer > 0 && Math.floor(player.invulnTimer / 80) % 2 === 0 && player.hitFlashTimer <= 0) return;
 
-  const frame = heroFrame(registry.hero, player);
+  const frame = heroFrame(registry.heroes?.[player.classId] || registry.hero, player);
   // Dest size is always HERO_FRAME_SIZE world units -- HD frames (96px @ 4px/unit) and pixel
   // frames (24px @ 1px/unit) both render at the same world-space footprint, just crisper for HD.
   const size = HERO_FRAME_SIZE;

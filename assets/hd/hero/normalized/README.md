@@ -9,20 +9,23 @@ so the engine can draw them at the exact same world-space size as the 24x24 pixe
 
 | File | Frames/row | Size | Scale (per-sheet) |
 |------|-----------:|------|--------------------|
-| idle.png | 4 | 384x384 | 0.2780 (ref 295px) |
-| walk.png | 6 | 576x384 | 0.3431 (ref 239px) |
-| attack1.png | 4 | 384x384 | 0.2671 (ref 307px) |
-| attack2.png | 4 | 384x384 | 0.3071 (ref 267px) |
-| attack3.png | 6 | 576x384 | 0.3710 (ref 221px) |
-| dash.png | 3 | 288x384 | 0.2752 (ref 298px) |
-| hurt.png | 2 | 192x384 | 0.1981 (ref 414px) |
-| death.png | 5 | 480x384 | 0.3203 (ref 256px) |
+| idle.png | 4 | 384x384 | 0.2780 (head x1.00) |
+| walk.png | 6 | 576x384 | 0.3232 (head x0.86) |
+| attack1.png | 4 | 384x384 | 0.2836 (head x0.98) |
+| attack2.png | 4 | 384x384 | 0.3159 (head x0.88) |
+| attack3.png | 6 | 576x384 | 0.3756 (head x0.74) |
+| dash.png | 3 | 288x384 | 0.2260 (head x1.23) |
+| hurt.png | 2 | 192x384 | 0.1930 (head x1.44) |
+| death.png | 5 | 480x384 | 0.3055 (head x0.91) |
 
-- Rows: `0 = DOWN`, `1 = UP`, `2 = LEFT`, `3 = RIGHT` (same order as the pixel-art hero set).
+- Rows: `0 = DOWN`, `1 = UP`, rows 2/3 = the side views. Which side row faces left/right differs
+  per sheet (some sheets paint both facing right) -- the engine maps them via `HD_HERO_SIDE_ROWS`
+  in `src/graphics/asset-atlas.js`, mirroring the right-facing row where no left one exists.
 - Pivot: feet on the bottom row (y = 95), body centered horizontally (x = 48).
-- Scale is computed PER SHEET from that sheet's own row0/col0 (DOWN, frame 0) frame height, not
-  shared globally -- raw ChatGPT sheets arrive at different native resolutions per file, so a
-  single scale derived from idle.png would shrink/grow other animations. See `scale.json`.
+- Scale is computed PER SHEET so the HEAD is the same size in every animation: idle's front body is
+  82px tall, every other sheet is matched to idle's head by multi-scale template matching
+  (tools/hero_head_scale.py). Body height can't be used -- crouched poses (dash, lunges) have short
+  bodies and matching them inflated the head. See `scale.json`.
 - `hero_face.png` (152x152): HUD portrait + inventory faceset, centered (not bottom-pivoted).
 
 ## Rebuild

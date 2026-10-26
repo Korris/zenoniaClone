@@ -1,18 +1,5 @@
-// Hero tuning numbers in one place. Speeds are world px per second.
-export const HERO_BASE_STATS = Object.freeze({
-  maxHp: 100,
-  maxMp: 40,
-  atk: 12,
-  def: 4,
-  speed: 80,
-});
-
-export const HERO_GROWTH_PER_LEVEL = Object.freeze({
-  maxHp: 12,
-  maxMp: 5,
-  atk: 2.5,
-  def: 1,
-});
+// Hero tuning numbers shared by every class. Speeds are world px per second. Per-class base
+// stats and growth live in class-definitions.js.
 
 export const HERO_HITBOX = Object.freeze({ w: 10, h: 8 });
 export const HP_REGEN_PER_SECOND = 0.6;
@@ -30,6 +17,23 @@ export const COMBO_CONFIG = Object.freeze({
     { windupMs: 50, activeMs: 90, recoverMs: 110, mult: 1.0, reach: 18, width: 20, knockback: 40, stepPx: 6 },
     { windupMs: 50, activeMs: 90, recoverMs: 110, mult: 1.15, reach: 18, width: 20, knockback: 50, stepPx: 8 },
     { windupMs: 90, activeMs: 120, recoverMs: 220, mult: 1.8, reach: 24, width: 28, knockback: 110, stepPx: 16 },
+  ],
+  finisherMultPerLevel: 0.05,
+});
+
+// Wizard's ranged combo (J): same 3-step chain, but each step fires a magic projectile instead of a
+// melee box and the caster stands still (stepPx 0). `bolt` = projectile params: speed px/s, range px,
+// HD FX spriteKey + scale, collision size, and for the finisher an explosion radius + burst FX.
+// Per-hit multipliers sit a bit below the warrior's because the wizard hits from safety.
+export const WIZARD_COMBO_CONFIG = Object.freeze({
+  chainWindowMs: 450,
+  hits: [
+    { windupMs: 70, activeMs: 60, recoverMs: 130, mult: 0.9, knockback: 30, stepPx: 0,
+      bolt: { speed: 230, range: 120, spriteKey: 'magicBolt', scale: 0.8, w: 10, h: 10 } },
+    { windupMs: 70, activeMs: 60, recoverMs: 130, mult: 1.0, knockback: 35, stepPx: 0,
+      bolt: { speed: 230, range: 120, spriteKey: 'magicBolt', scale: 0.8, w: 10, h: 10 } },
+    { windupMs: 130, activeMs: 80, recoverMs: 260, mult: 1.6, knockback: 90, stepPx: 0,
+      bolt: { speed: 180, range: 110, spriteKey: 'magicBolt', scale: 1.3, w: 14, h: 14, explodeRadius: 26, explodeFx: 'arcaneBurst' } },
   ],
   finisherMultPerLevel: 0.05,
 });

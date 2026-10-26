@@ -16,11 +16,19 @@ export class Npc {
     return this.def.name;
   }
 
-  /** Face the hero while they are nearby so conversations feel natural. */
+  /** The NPC's resting pose (front-facing unless the definition says otherwise). */
+  resetFacing() {
+    this.dir = this.def.dir || 'down';
+  }
+
+  /**
+   * Turn toward a hero who starts talking from the side; a hero above or below is answered facing
+   * the front (Zenonia NPCs only ever turn left/right, never show their back).
+   */
   faceTowards(px, py) {
     const dx = px - this.x;
     const dy = py - this.y;
     if (Math.abs(dx) > Math.abs(dy)) this.dir = dx > 0 ? 'right' : 'left';
-    else this.dir = dy > 0 ? 'down' : 'up';
+    else this.dir = 'down';
   }
 }

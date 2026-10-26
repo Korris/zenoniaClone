@@ -1,7 +1,7 @@
 // Pure layout + formatting helpers for the skill tree panel. No DOM/canvas calls here so the
 // positions are easy to reason about; skill-tree-panel.js does the actual drawing.
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../core/constants.js';
-import { SKILL_DEFINITIONS, SKILL_ORDER, SKILL_BRANCHES, getSkillValue } from '../data/skill-definitions.js';
+import { SKILL_DEFINITIONS, SKILL_ORDER, getSkillValue } from '../data/skill-definitions.js';
 import { getSkillLevel } from '../systems/skill-system.js';
 
 export const PANEL_W = 860;
@@ -13,7 +13,8 @@ export const TIER_ROW_H = 130;
 export const TREE_TOP = PANEL_Y + 46;
 export const INFO_BOX_Y = PANEL_Y + 436;
 export const INFO_BOX_H = 76;
-export const COLUMN_W = PANEL_W / SKILL_BRANCHES.length;
+export const BRANCHES_PER_CLASS = 3;
+export const COLUMN_W = PANEL_W / BRANCHES_PER_CLASS;
 
 const SUBCOL_FRACTION = { 0: 0.30, 1: 0.70, single: 0.5 };
 
@@ -22,11 +23,12 @@ export function skillsForBranch(branch) {
   return SKILL_ORDER.filter((id) => SKILL_DEFINITIONS[id].branch === branch);
 }
 
-/** skillId -> {x, y} center of its node box, skillId -> {branchIndex, nodeIndex} for navigation. */
-export function computeSkillTreeLayout() {
+/** skillId -> {x, y} center of its node box, skillId -> {branchIndex, nodeIndex} for navigation,
+ * for one class's `branches` (CLASS_DEFINITIONS[classId].branches). */
+export function computeSkillTreeLayout(branches) {
   const positions = {};
   const navIndex = {}; // skillId -> {branchIndex, nodeIndex} (nodeIndex = order within branch, 0-4)
-  SKILL_BRANCHES.forEach((branch, branchIndex) => {
+  branches.forEach((branch, branchIndex) => {
     const ids = skillsForBranch(branch);
     const colX = PANEL_X + branchIndex * COLUMN_W;
     const seenInTier = {}; // tier -> how many siblings already placed (assigns subcol 0, then 1)

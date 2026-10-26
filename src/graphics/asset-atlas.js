@@ -4,6 +4,8 @@
 // Monster sheets are 64x64: columns = facing, rows = 4 animation frames.
 import { HD_PROP_ASSET_FILES, HD_PROPS, HD_PROP_PIXELS_PER_UNIT } from './asset-atlas-hd-props.js';
 import { HD_NPC_ASSET_FILES } from './asset-atlas-hd-npcs.js';
+import { HD_WIZARD_ASSET_FILES } from './asset-atlas-hd-wizard.js';
+import { WIZARD_ICON_FILES } from '../data/skill-definitions-wizard.js';
 
 export { HD_PROPS, HD_PROP_PIXELS_PER_UNIT };
 
@@ -57,6 +59,8 @@ export const ASSET_FILES = Object.freeze({
   hdHeroAttack3: HD_HERO_NORM_DIR + 'attack3.png', hdHeroDash: HD_HERO_NORM_DIR + 'dash.png',
   hdHeroHurt: HD_HERO_NORM_DIR + 'hurt.png', hdHeroDeath: HD_HERO_NORM_DIR + 'death.png',
   hdHeroFace: HD_HERO_NORM_DIR + 'hero_face.png',
+  ...HD_WIZARD_ASSET_FILES, // wizard class HD set, see asset-atlas-hd-wizard.js
+  ...WIZARD_ICON_FILES, // wizard skill-tree icons
   // HD hand-painted ground tiles (Zenonia 4 style), see docs/system-architecture.md "HD Assets".
   // Built by tools/build-hd-tiles.py from assets/hd/tiles/*.png into assets/hd/tiles/normalized/.
   // Same boot-resilience rule as the HD hero set: missing files just log a 404 warning and
@@ -191,14 +195,12 @@ export const HERO_ANIMATIONS = Object.freeze({
 });
 export const HERO_FRAME = 24;
 
-// Both the custom pixel hero sheets (assets/custom/hero/*.png, built from the concept art) and the
-// hand-painted HD hero sheets (assets/hd/hero/normalized/*.png) were authored with the 'left' and
-// 'right' rows physically swapped relative to CHARACTER_DIRECTIONS' order (row 2 is drawn facing
-// screen-right, row 3 facing screen-left) -- verified by cropping both sheets' row2/row3 and
-// comparing which way the character's face/sword point. Rather than re-paint committed art or
+// The custom pixel hero sheets (assets/custom/hero/*.png, built from the concept art) were authored
+// with the 'left' and 'right' rows physically swapped relative to CHARACTER_DIRECTIONS' order (row 2
+// is drawn facing screen-right, row 3 facing screen-left). Rather than re-paint committed art or
 // special-case CHARACTER_DIRECTIONS (shared with NPCs/monsters, which are NOT affected -- they use
-// a different, column-based sheet layout from the CC0 pack), sprite-registry.js's hero builders
-// read this map instead of the plain CHARACTER_DIRECTIONS index when picking a sheet row.
+// a different, column-based sheet layout from the CC0 pack), sprite-registry.js's pixel hero builder
+// reads this map when picking a sheet row. HD sheets differ per sheet: see HD_HERO_SIDE_ROWS below.
 export const HERO_SHEET_ROW = Object.freeze({ down: 0, up: 1, left: 3, right: 2 });
 
 // HD hero set: hand-painted (Zenonia 4 style) replacement for the pixel-art animations above.
@@ -209,6 +211,17 @@ export const HD_HERO_ANIMATIONS = Object.freeze({
   attack3: 'hdHeroAttack3', dash: 'hdHeroDash', hurt: 'hdHeroHurt', death: 'hdHeroDeath',
 });
 export const HD_HERO = Object.freeze({ pixelsPerUnit: 4, frame: 96, animations: HD_HERO_ANIMATIONS });
+
+// Which HD sheet row faces screen-left / screen-right differs PER SHEET (the painted sheets were not
+// consistent), so HERO_SHEET_ROW can't be applied blindly. Verified by the red scarf, which always
+// trails behind the hero: walk paints right then left; dash/hurt paint left then right;
+// idle/attack1-3/death paint BOTH side rows facing right, so 'left' is the right row mirrored.
+export const HD_HERO_SIDE_ROWS = Object.freeze({
+  idle: { right: 2, left: 'mirror' }, walk: { right: 2, left: 3 },
+  dash: { right: 3, left: 2 }, hurt: { right: 3, left: 2 },
+  attack1: { right: 2, left: 'mirror' }, attack2: { right: 2, left: 'mirror' },
+  attack3: { right: 2, left: 'mirror' }, death: { right: 2, left: 'mirror' },
+});
 
 /** World units spanned by a sprite, given its native resolution (px per world unit). Pixel-art
  * sprites default to pixelsPerUnit=1 (1 source px = 1 world unit); HD sprites set it higher. */

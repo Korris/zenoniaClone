@@ -22,8 +22,9 @@ export class GameSession {
     this.portalMessageCooldown = 0;
   }
 
-  startNewGame() {
-    this.player = new Player();
+  /** @param {string} classId hero class picked on the character-select screen */
+  startNewGame(classId) {
+    this.player = new Player(classId);
     this.world = new WorldState(this.player, this.camera);
     this.quests = createQuestState();
     this.enterMap(FIRST_MAP_ID);
@@ -33,7 +34,7 @@ export class GameSession {
   continueFromSave() {
     const save = readSave();
     if (!save) return false;
-    this.player = new Player();
+    this.player = new Player(save.player.classId);
     this.player.applySaveData(save.player);
     this.world = new WorldState(this.player, this.camera);
     this.world.bossDefeated = save.bossDefeated;

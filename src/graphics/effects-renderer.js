@@ -10,12 +10,16 @@ function pickFrame(entry, progress) {
   return entry[Math.min(entry.length - 1, Math.floor(progress * entry.length))];
 }
 
+/** Draw centred and rotated; `scale` is in world units, so an HD sprite (pixelsPerUnit > 1) is shrunk
+ * accordingly and drawn smoothed instead of pixel-crisp. */
 function drawRotated(ctx, sprite, x, y, rotation, scale = 1, alpha = 1) {
+  const ppu = sprite.pixelsPerUnit || 1;
   ctx.save();
   ctx.globalAlpha = alpha;
+  ctx.imageSmoothingEnabled = ppu > 1;
   ctx.translate(Math.round(x), Math.round(y));
   ctx.rotate(rotation);
-  ctx.scale(scale, scale);
+  ctx.scale(scale / ppu, scale / ppu);
   ctx.drawImage(sprite, -sprite.width / 2, -sprite.height / 2);
   ctx.restore();
 }
@@ -58,7 +62,7 @@ export function drawProjectiles(ctx, projectiles, registry) {
     const entry = registry.effects[p.spriteKey];
     if (!entry) continue;
     const sprite = pickFrame(entry, 0.4);
-    drawRotated(ctx, sprite, p.x, p.y - 6, p.rotation, p.owner === 'player' ? 0.7 : 0.4);
+    drawRotated(ctx, sprite, p.x, p.y - 6, p.rotation, p.scale);
   }
 }
 

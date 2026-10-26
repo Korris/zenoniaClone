@@ -10,6 +10,7 @@
     "sprites:build": "python tools/build-hero-sprites.py",
     "sprites:validate": "python tools/validate_sprites.py",
     "hd:build": "python tools/build-hd-hero.py",
+    "hd:wizard": "python tools/build-hd-hero.py assets/hd/wizard assets/hd/wizard/normalized",
     "hd:tiles": "python tools/build-hd-tiles.py",
     "hd:props": "python tools/build-hd-props.py",
     "hd:npcs": "python tools/build-hd-npcs.py",

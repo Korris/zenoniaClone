@@ -149,30 +149,3 @@ export function hitPlayer(world, damage, sourceX, sourceY) {
   player.knockback = { vx: (dx / dist) * 90, vy: (dy / dist) * 90, timer: 100 };
   if (player.dead) world.events.push({ type: 'playerDied' });
 }
-
-/** Projectile vs. target collisions for both owners. */
-export function resolveProjectileHits(world) {
-  const { player } = world;
-  for (const p of world.projectiles) {
-    if (p.dead) continue;
-    if (p.owner === 'monster') {
-      if (boxesOverlap(p.box, player.box)) {
-        hitPlayer(world, computeDamage(p.damage, player.def, 1), p.x, p.y);
-        p.dead = true;
-      }
-      continue;
-    }
-    for (const monster of world.monsters) {
-      if (monster.dead || p.hitIds.has(monster.id) || !boxesOverlap(p.box, monster.box)) continue;
-      p.hitIds.add(monster.id);
-      // p.damage was computed at cast time from heroAttack(); the crit roll happens on impact.
-      const crit = Math.random() < (player.passiveMods?.critChance || 0);
-      const damage = computeDamage(p.damage, monster.def.def, crit ? 1.6 : 1);
-      damageMonster(world, monster, damage, p.vx * 0.4, p.vy * 0.4, crit ? CRIT_COLOR : '#e0a0ff');
-      if (!p.pierce) {
-        p.dead = true;
-        break;
-      }
-    }
-  }
-}

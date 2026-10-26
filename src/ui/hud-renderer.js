@@ -43,7 +43,7 @@ function drawPortrait(ctx, player, registry) {
   ctx.beginPath(); ctx.arc(cx, cy, 36, 0, Math.PI * 2); ctx.fill();
   ctx.save();
   ctx.beginPath(); ctx.arc(cx, cy, 36, 0, Math.PI * 2); ctx.clip();
-  const face = registry.faces.hero;
+  const face = registry.faces.heroByClass?.[player.classId] || registry.faces.hero;
   ctx.imageSmoothingEnabled = Boolean(registry.faces.heroIsHd); // crisp upscale for the HD faceset only
   ctx.drawImage(face, cx - face.width, cy - face.height, face.width * 2, face.height * 2);
   ctx.restore();

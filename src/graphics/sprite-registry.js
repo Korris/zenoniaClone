@@ -4,8 +4,11 @@ import { createSprite, createTintedSprite } from './pixel-sprite-factory.js';
 import { cropSprite, cell } from './sprite-cell.js';
 import {
   CHARACTER_DIRECTIONS, FLOWER_OVERLAYS, MONSTER_SHEETS, BOSS_STRIPS, NPC_SHEETS, FX_STRIPS,
-  HERO_ANIMATIONS, HERO_FRAME, HERO_SHEET_ROW, HD_HERO, HD_HERO_ANIMATIONS, BACKDROP_FILES,
+  HERO_ANIMATIONS, HERO_FRAME, HERO_SHEET_ROW, HD_HERO, HD_HERO_ANIMATIONS, HD_HERO_SIDE_ROWS, BACKDROP_FILES,
 } from './asset-atlas.js';
+import {
+  HD_WIZARD_ANIMATIONS, HD_WIZARD_SIDE_ROWS, HD_WIZARD_FACE_KEY, HD_WIZARD_FX, HD_FX_PIXELS_PER_UNIT,
+} from './asset-atlas-hd-wizard.js';
 import { EFFECT_PALETTE, MARKER_ROWS } from './sprites/effect-sprite-data.js';
 import { buildTiles } from './tile-sprite-builder.js';
 import { buildProps } from './prop-sprite-builder.js';
@@ -47,20 +50,25 @@ function buildHeroPixel(images) {
   return set;
 }
 
-/** HD hero sheets (hand-painted, 96px frames, pixelsPerUnit=4) -> { dir: { anim[] } }, but only
- * for animations whose normalized sheet actually loaded (asset-loader.js drops missing files). */
-function buildHeroHd(images) {
+/** HD class sheets (hand-painted, 96px frames, pixelsPerUnit=4) -> { dir: { anim[] } }, but only
+ * for animations whose normalized sheet actually loaded (asset-loader.js drops missing files).
+ * `animations` maps anim -> image key, `sideRows` maps anim -> which rows face left/right. */
+function buildHeroHd(images, animations = HD_HERO_ANIMATIONS, sideRows = HD_HERO_SIDE_ROWS) {
   const set = {};
   CHARACTER_DIRECTIONS.forEach((dir) => { set[dir] = {}; });
   const { frame, pixelsPerUnit } = HD_HERO;
-  for (const [anim, imageKey] of Object.entries(HD_HERO_ANIMATIONS)) {
+  for (const [anim, imageKey] of Object.entries(animations)) {
     const img = images[imageKey];
-    if (!img) continue; // not generated yet -- buildHero() falls back to the pixel set for this anim
+    if (!img) continue; // not generated yet -- the caller falls back to another set for this anim
     const cols = Math.floor(img.width / frame);
+    const side = sideRows[anim];
     CHARACTER_DIRECTIONS.forEach((dir) => {
-      const row = HERO_SHEET_ROW[dir];
+      // down/up are rows 0/1 everywhere; side rows come from the per-sheet table ('mirror' = flip
+      // the right-facing row for sheets that never painted a left-facing one).
+      const mirror = dir === 'left' && side.left === 'mirror';
+      const row = { down: 0, up: 1 }[dir] ?? (mirror ? side.right : side[dir]);
       const frames = [];
-      for (let col = 0; col < cols; col++) frames.push(cropSprite(img, col * frame, row * frame, frame, frame, false, pixelsPerUnit));
+      for (let col = 0; col < cols; col++) frames.push(cropSprite(img, col * frame, row * frame, frame, frame, mirror, pixelsPerUnit));
       set[dir][anim] = frames;
     });
   }
@@ -121,6 +129,11 @@ function buildStrip(img, w, h) {
 function buildEffects(images) {
   const effects = {};
   for (const [name, strip] of Object.entries(FX_STRIPS)) effects[name] = buildStrip(images[strip.image], strip.w, strip.h);
+  // HD spell FX: one canvas each, tagged with pixelsPerUnit so drawRotated() sizes it in world units.
+  for (const [name, key] of Object.entries(HD_WIZARD_FX)) {
+    const img = images[key];
+    if (img) effects[name] = cropSprite(img, 0, 0, img.width, img.height, false, HD_FX_PIXELS_PER_UNIT);
+  }
   effects.coin = images.coin;
   effects.potionHp = images.lifePot;
   effects.potionMp = images.milkPot;
@@ -134,6 +147,8 @@ export function buildSpriteRegistry(images) {
   // HUD portrait: prefer the HD hero face if that sheet exists; heroIsHd flags the HUD renderer
   // to enable image smoothing only for this draw (everything else stays crisp pixel-art).
   const faces = { hero: images.hdHeroFace || images.heroFace, heroIsHd: Boolean(images.hdHeroFace), boss: images.bossFace };
+  // Per-class portrait (HUD + inventory); a class without its own face yet borrows the warrior's.
+  faces.heroByClass = { warrior: faces.hero, wizard: images[HD_WIZARD_FACE_KEY] || faces.hero };
   for (const [key, imageKey] of Object.entries(NPC_SHEETS)) {
     npcs[key] = buildCharacter(images[imageKey]);
     faces[key] = images[`${imageKey}Face`];
@@ -151,8 +166,14 @@ export function buildSpriteRegistry(images) {
 
   const npcsHd = buildNpcsHd(images, faces); // also fills faces[id] with HD portraits
 
+  const warrior = buildHero(images);
+  // Wizard: its HD sheets over the warrior set, so an animation not painted yet still shows something.
+  const wizardHd = buildHeroHd(images, HD_WIZARD_ANIMATIONS, HD_WIZARD_SIDE_ROWS);
+  const wizard = Object.fromEntries(CHARACTER_DIRECTIONS.map((dir) => [dir, { ...warrior[dir], ...wizardHd[dir] }]));
+
   return {
-    hero: buildHero(images),
+    hero: warrior, // title screen / fallback
+    heroes: { warrior, wizard }, // keyed by class id (class-definitions.js)
     heroFrameUnits: HERO_FRAME_SIZE, // world units a hero frame covers, regardless of source resolution
     npcs,
     npcsHd, // keyed by NPC id (HD, hero-scale); `npcs` stays keyed by pixel sprite name (fallback)

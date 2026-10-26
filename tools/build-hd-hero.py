@@ -21,7 +21,7 @@ ChatGPT sheets come back at different native resolutions per file (e.g. idle cel
 would shrink every other animation. So the scale is computed PER SHEET from that sheet's own
 row 0 / col 0 frame (DOWN-facing, first frame -- the neutral/standing pose, including for
 attack/death sheets where it's the wind-up stance) so every animation's body ends up ~82px tall at
-96x96. Per-animation scale is recorded in scale.json for reference/debugging.
+96x96 (superseded: scale now matches head size, see compute_scale_for_sheet). Per-animation scale is recorded in scale.json for reference/debugging.
 
 Usage: python tools/build-hd-hero.py [src_dir] [out_dir]
 """
@@ -32,12 +32,15 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
+from hero_head_scale import head_template, relative_head_scale
+
 SRC_DIR = Path(sys.argv[1] if len(sys.argv) > 1 else 'assets/hd/hero')
 OUT_DIR = Path(sys.argv[2] if len(sys.argv) > 2 else 'assets/hd/hero/normalized')
 
 ROWS = ['down', 'up', 'left', 'right']  # matches CHARACTER_DIRECTIONS order in the engine
 FRAME = 96                              # output frame size: 24 world units * pixelsPerUnit (4)
-TARGET_BODY_HEIGHT = 82                 # px, measured per-sheet from its row0/col0 (DOWN, frame 0)
+TARGET_BODY_HEIGHT = 82                 # px, row0/col0 body height of the reference (idle) sheet
+REFERENCE_ANIM = 'idle'                 # built first; its head is the size every other sheet matches
 ALPHA_THRESHOLD = 48                    # alpha <= 48 (incl. the faint 1-40 haze) -> fully transparent
 CHECKERBOARD_DISTANCE = 40              # color distance to a sampled bg tile -> treated as background
                                          # (generous: flood_from_border() guards against eating pale character colors)
@@ -244,14 +247,26 @@ def place_in_frame(img, size=FRAME):
     return frame
 
 
-def compute_scale_for_sheet(cells):
-    """Scale is derived from THIS sheet's own row0/col0 frame (DOWN, first frame -- the neutral or
-    wind-up stance) since ChatGPT sheets come back at different native resolutions per file."""
+# Set by the reference sheet (idle, built first): its scale and its head template.
+HEAD_REF = {'scale': None, 'template': None}
+
+
+def compute_scale_for_sheet(anim, cells):
+    """Per-sheet scale so the HEAD is the same size in every animation (see hero_head_scale.py).
+    The reference sheet (idle) maps its row0/col0 body to TARGET_BODY_HEIGHT; every other sheet is
+    scaled by its head size relative to that reference. Falls back to body height when there is no
+    reference yet or no frame matches. Returns (scale, relative head size or None)."""
     first = tight_bbox(cells[0][0])
     if first is None:
         raise RuntimeError('row 0 col 0 (down, frame 0) is empty -- cannot compute a scale for this sheet')
-    ref_height = float(first.shape[0])
-    return TARGET_BODY_HEIGHT / ref_height, ref_height
+    body_scale = TARGET_BODY_HEIGHT / float(first.shape[0])
+    if anim == REFERENCE_ANIM or HEAD_REF['template'] is None:
+        if anim == REFERENCE_ANIM:  # one head template per facing, from each row's first frame
+            firsts = [tight_bbox(row[0]) for row in cells]
+            HEAD_REF.update(scale=body_scale, template=[head_template(b) if b is not None else None for b in firsts])
+        return body_scale, None
+    rel = relative_head_scale(HEAD_REF['template'], [[tight_bbox(c) for c in row] for row in cells])
+    return (HEAD_REF['scale'] / rel, rel) if rel else (body_scale, None)
 
 
 def build_sheet(anim, cols):
@@ -261,8 +276,8 @@ def build_sheet(anim, cols):
         return None, None
     img = Image.open(path).convert('RGBA')
     cells = split_sheet(img, cols)
-    scale, ref_height = compute_scale_for_sheet(cells)
-    print(f'{anim}: scale {scale:.4f} (row0/col0 frame height {ref_height:.0f}px -> {TARGET_BODY_HEIGHT}px)')
+    scale, rel = compute_scale_for_sheet(anim, cells)
+    print(f'{anim}: scale {scale:.4f}' + (f' (head {rel:.2f}x the {REFERENCE_ANIM} head)' if rel else ' (body height)'))
     sheet = Image.new('RGBA', (cols * FRAME, 4 * FRAME), (0, 0, 0, 0))
     empty = []
     for r in range(4):
@@ -275,7 +290,7 @@ def build_sheet(anim, cols):
             sheet.paste(frame, (c * FRAME, r * FRAME))
     if empty:
         print(f'WARN {anim}.png: empty frames at {empty}')
-    record = {'scale': scale, 'refHeightPx': ref_height, 'targetBodyHeightPx': TARGET_BODY_HEIGHT, 'frame': FRAME}
+    record = {'scale': scale, 'headVsReference': rel, 'frame': FRAME}
     return sheet, record
 
 
@@ -322,7 +337,7 @@ def write_readme(sheets, scale_records, face):
             continue
         sheet = sheets[name]
         rec = scale_records[name]
-        rows.append(f"| {name}.png | {cols} | {sheet.width}x{sheet.height} | {rec['scale']:.4f} (ref {rec['refHeightPx']:.0f}px) |")
+        rows.append(f"| {name}.png | {cols} | {sheet.width}x{sheet.height} | {rec['scale']:.4f} (head x{rec['headVsReference'] or 1:.2f}) |")
     table = '\n'.join(rows)
     face_note = f'- `hero_face.png` ({face.width}x{face.height}): HUD portrait + inventory faceset, centered (not bottom-pivoted).' if face else ''
     content = f"""# HD hero sheets (normalized)
@@ -338,11 +353,14 @@ so the engine can draw them at the exact same world-space size as the 24x24 pixe
 |------|-----------:|------|--------------------|
 {table}
 
-- Rows: `0 = DOWN`, `1 = UP`, `2 = LEFT`, `3 = RIGHT` (same order as the pixel-art hero set).
+- Rows: `0 = DOWN`, `1 = UP`, rows 2/3 = the side views. Which side row faces left/right differs
+  per sheet (some sheets paint both facing right) -- the engine maps them via `HD_HERO_SIDE_ROWS`
+  in `src/graphics/asset-atlas.js`, mirroring the right-facing row where no left one exists.
 - Pivot: feet on the bottom row (y = 95), body centered horizontally (x = 48).
-- Scale is computed PER SHEET from that sheet's own row0/col0 (DOWN, frame 0) frame height, not
-  shared globally -- raw ChatGPT sheets arrive at different native resolutions per file, so a
-  single scale derived from idle.png would shrink/grow other animations. See `scale.json`.
+- Scale is computed PER SHEET so the HEAD is the same size in every animation: idle's front body is
+  82px tall, every other sheet is matched to idle's head by multi-scale template matching
+  (tools/hero_head_scale.py). Body height can't be used -- crouched poses (dash, lunges) have short
+  bodies and matching them inflated the head. See `scale.json`.
 {face_note}
 
 ## Rebuild

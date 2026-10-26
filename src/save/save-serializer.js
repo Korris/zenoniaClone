@@ -6,6 +6,7 @@ import { HOTBAR_SLOTS } from '../systems/skill-system.js';
 import { sanitizeQuestState } from '../systems/quest-system.js';
 import { EQUIPMENT_SLOTS } from '../data/item-definitions.js';
 import { sanitizeItem, INVENTORY_SIZE } from '../systems/equipment-system.js';
+import { CLASS_DEFINITIONS, DEFAULT_CLASS_ID, classForBranch } from '../data/class-definitions.js';
 
 export const SAVE_VERSION = 1;
 
@@ -33,10 +34,13 @@ export function validateSave(data) {
   const p = data.player;
   if (!p || !isNum(p.level) || !isNum(p.exp) || !isNum(p.skillPoints) || typeof data.mapId !== 'string') return null;
 
+  // Saves from before classes existed have no classId -> warrior (the only class back then).
+  const classId = CLASS_DEFINITIONS[p.classId] ? p.classId : DEFAULT_CLASS_ID;
   const skills = {};
   for (const [id, lvl] of Object.entries(p.skills || {})) {
     const def = SKILL_DEFINITIONS[id];
-    if (def && isNum(lvl)) skills[id] = Math.max(0, Math.min(def.maxLevel, Math.floor(lvl)));
+    // Skills of another class are dropped: a tampered save can't mix class trees.
+    if (def && isNum(lvl) && classForBranch(def.branch) === classId) skills[id] = Math.max(0, Math.min(def.maxLevel, Math.floor(lvl)));
   }
 
   // Only keep hotbar slots pointing at a known, learned active skill; never trust raw client JSON.
@@ -61,6 +65,7 @@ export function validateSave(data) {
     version: SAVE_VERSION,
     savedAt: isNum(data.savedAt) ? data.savedAt : 0,
     player: {
+      classId,
       level: Math.max(1, Math.min(MAX_LEVEL, Math.floor(p.level))),
       exp: Math.max(0, Math.floor(p.exp)),
       skillPoints: Math.max(0, Math.floor(p.skillPoints)),

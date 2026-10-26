@@ -1,7 +1,8 @@
 // Per-frame simulation of the current map: hero, monsters, projectiles, pickups, portals.
 import { updatePlayer } from './player-controller.js';
 import { updateMonsterAi } from '../systems/monster-ai-system.js';
-import { performMonsterAttack, resolveProjectileHits } from '../systems/combat-system.js';
+import { performMonsterAttack } from '../systems/combat-system.js';
+import { resolveProjectileHits } from '../systems/projectile-hit-system.js';
 import { applyPickup } from '../systems/loot-system.js';
 import { addToInventory } from '../systems/equipment-system.js';
 import { RARITIES } from '../data/item-definitions.js';

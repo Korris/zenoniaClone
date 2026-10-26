@@ -1,22 +1,22 @@
 // EXP curve, level-ups and stat scaling. Pure functions -> unit-testable with node --test.
-import {
-  HERO_BASE_STATS, HERO_GROWTH_PER_LEVEL, DEATH_EXP_PENALTY, SKILL_POINTS_PER_LEVEL, MAX_LEVEL,
-} from '../data/hero-stats-config.js';
+import { DEATH_EXP_PENALTY, SKILL_POINTS_PER_LEVEL, MAX_LEVEL } from '../data/hero-stats-config.js';
+import { getClassDefinition, DEFAULT_CLASS_ID } from '../data/class-definitions.js';
 
 /** EXP required to go from `level` to `level + 1`. */
 export function expToNext(level) {
   return Math.floor(50 * Math.pow(level, 1.5));
 }
 
-/** Base stats (before skill passives) for a hero level. */
-export function statsForLevel(level) {
+/** Base stats (before skill passives) for a hero level of the given class. */
+export function statsForLevel(level, classId = DEFAULT_CLASS_ID) {
+  const { baseStats, growth } = getClassDefinition(classId);
   const n = Math.max(0, level - 1);
   return {
-    maxHp: Math.round(HERO_BASE_STATS.maxHp + HERO_GROWTH_PER_LEVEL.maxHp * n),
-    maxMp: Math.round(HERO_BASE_STATS.maxMp + HERO_GROWTH_PER_LEVEL.maxMp * n),
-    atk: Math.round(HERO_BASE_STATS.atk + HERO_GROWTH_PER_LEVEL.atk * n),
-    def: Math.round(HERO_BASE_STATS.def + HERO_GROWTH_PER_LEVEL.def * n),
-    speed: HERO_BASE_STATS.speed,
+    maxHp: Math.round(baseStats.maxHp + growth.maxHp * n),
+    maxMp: Math.round(baseStats.maxMp + growth.maxMp * n),
+    atk: Math.round(baseStats.atk + growth.atk * n),
+    def: Math.round(baseStats.def + growth.def * n),
+    speed: baseStats.speed,
   };
 }
 

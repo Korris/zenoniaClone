@@ -4,7 +4,9 @@ let nextProjectileId = 1;
 export class Projectile {
   /**
    * @param {{x:number,y:number,vx:number,vy:number,owner:'player'|'monster',damage:number,
-   *          spriteKey:string,lifeMs:number,w:number,h:number,pierce?:boolean}} opts
+   *          spriteKey:string,lifeMs:number,w:number,h:number,pierce?:boolean,scale?:number,
+   *          explodeRadius?:number,explodeFx?:string,knockback?:number}} opts
+   * `explodeRadius` > 0 makes it burst on first contact (AoE, see projectile-hit-system.js).
    */
   constructor(opts) {
     this.id = nextProjectileId++;
@@ -19,6 +21,10 @@ export class Projectile {
     this.w = opts.w;
     this.h = opts.h;
     this.pierce = Boolean(opts.pierce);
+    this.scale = opts.scale ?? (opts.owner === 'player' ? 0.7 : 0.4);
+    this.explodeRadius = opts.explodeRadius || 0;
+    this.explodeFx = opts.explodeFx || 'arcaneBurst'; // effect drawn when it bursts
+    this.knockback = opts.knockback || 0;
     this.rotation = Math.atan2(opts.vy, opts.vx);
     this.hitIds = new Set();
     this.dead = false;

@@ -5,11 +5,14 @@ import { statsForLevel, applyExpGain, applyDeathPenalty } from '../systems/level
 import { computePassiveModifiers, HOTBAR_SLOTS } from '../systems/skill-system.js';
 import { computeEquipmentModifiers } from '../systems/equipment-system.js';
 import { EQUIPMENT_SLOTS } from '../data/item-definitions.js';
-import { HERO_HITBOX, INVULNERABLE_AFTER_HIT_MS } from '../data/hero-stats-config.js';
+import { HERO_HITBOX, INVULNERABLE_AFTER_HIT_MS, COMBO_CONFIG, WIZARD_COMBO_CONFIG } from '../data/hero-stats-config.js';
 import { entityBox } from '../systems/damage-formula.js';
+import { DEFAULT_CLASS_ID, getClassDefinition } from '../data/class-definitions.js';
 
 export class Player {
-  constructor() {
+  /** @param {string} classId key of CLASS_DEFINITIONS (fixed for the hero's lifetime) */
+  constructor(classId = DEFAULT_CLASS_ID) {
+    this.classId = getClassDefinition(classId).id;
     this.x = 0;
     this.y = 0;
     this.dir = 'down';
@@ -24,12 +27,15 @@ export class Player {
     this.equipment = Object.fromEntries(EQUIPMENT_SLOTS.map((slot) => [slot, null]));
     this.hasUnseenItem = false; // drives the HUD's "NEW" blink until the bag is opened
     this.cooldowns = {};
-    this.combo = new ComboController();
+    this.attackStyle = getClassDefinition(this.classId).attackStyle; // 'melee' | 'ranged'
+    this.combo = new ComboController(this.attackStyle === 'ranged' ? WIZARD_COMBO_CONFIG : COMBO_CONFIG);
     this.invulnTimer = 0;
     this.animTimer = 0;
     this.moving = false;
     this.dead = false;
-    this.dash = null; // { timer, dirX, dirY, speed, damageMult, hitIds:Set }
+    // Skill dash: { dirX, dirY, speed, remaining, damageMult, hitIds:Set }. Free double-tap dash is
+    // eased instead: { dirX, dirY, distance, durationMs, exitSpeed, damageMult: 0, hitIds:Set }.
+    this.dash = null;
     this.knockback = { vx: 0, vy: 0, timer: 0 };
     this.hitFlashTimer = 0;
     this.deathTimer = 0; // drives the death animation
@@ -54,7 +60,7 @@ export class Player {
     // Equipment crit folds into passiveMods so existing crit-roll call sites (player-damage.js,
     // combat-system.js) don't need to know about two separate sources.
     this.passiveMods.critChance += equipMods.critChance;
-    const base = statsForLevel(this.level);
+    const base = statsForLevel(this.level, this.classId);
     this.maxHp = Math.round(base.maxHp * this.passiveMods.hpMult) + equipMods.hpAdd;
     this.maxMp = Math.round(base.maxMp * this.passiveMods.mpMult);
     this.atk = base.atk + equipMods.atkAdd;
@@ -123,7 +129,7 @@ export class Player {
 
   toSaveData() {
     return {
-      level: this.level, exp: this.exp, skillPoints: this.skillPoints, skills: { ...this.skills },
+      classId: this.classId, level: this.level, exp: this.exp, skillPoints: this.skillPoints, skills: { ...this.skills },
       hotbar: [...this.hotbar], gold: this.gold, hp: this.hp, mp: this.mp,
       inventory: [...this.inventory], equipment: { ...this.equipment },
     };

@@ -118,16 +118,16 @@ export class InventoryPanel {
     drawPanel(ctx, PANEL_X, PANEL_Y, PANEL_W, PANEL_H);
     drawText(ctx, 'INVENTORY', PANEL_X + 16, PANEL_Y + 12, { size: 16, color: '#ffe680' });
     drawText(ctx, `${player.inventory.length}/${INVENTORY_SIZE}`, PANEL_X + PANEL_W - 16, PANEL_Y + 14, { size: 14, align: 'right', color: '#cfcfe0' });
-    this.drawPortrait(ctx, registry);
+    this.drawPortrait(ctx, registry, player);
     EQUIP_SLOT_ORDER.forEach((slot, i) => this.drawEquipSlot(ctx, player, registry, slot, i));
     for (let i = 0; i < INVENTORY_SIZE; i++) this.drawGridSlot(ctx, player, registry, i);
     this.drawInfoBox(ctx, player);
   }
 
-  drawPortrait(ctx, registry) {
+  drawPortrait(ctx, registry, player) {
     const { x, y } = PORTRAIT;
     drawPanel(ctx, x - 40, y - 40, 80, 80, { fill: '#1b1630', border: '#d9b45a' });
-    const face = registry.faces.hero;
+    const face = registry.faces.heroByClass?.[player.classId] || registry.faces.hero;
     ctx.imageSmoothingEnabled = Boolean(registry.faces.heroIsHd); // crisp upscale for the HD faceset only
     ctx.drawImage(face, x - face.width, y - face.height, face.width * 2, face.height * 2);
     ctx.imageSmoothingEnabled = false;

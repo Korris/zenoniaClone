@@ -1,11 +1,15 @@
-// Skill tree data: 3 branches (sword/body/spirit) x 5 nodes each (tiers 1-3), 15 nodes total.
+// Skill tree data: per class, 3 branches x 5 nodes each (tiers 1-3), 15 nodes per class.
 // Per-level arrays are indexed by (skillLevel - 1). `requiredLevel[i]` = hero level needed to
 // buy skill level i+1. `requires` lists prerequisite nodes {skill, level} that must already be
 // learned to that level before this node can be upgraded at all.
 // Actives carry `effect` (kind + render/behavior params consumed by skill-cast-system.js).
 // Passives carry `passive`: a map of stat name -> per-level array of bonus values, summed by
 // computePassiveModifiers() in skill-system.js (see that file for the full stat list).
-export const SKILL_DEFINITIONS = Object.freeze({
+// Warrior tree; the wizard tree lives in skill-definitions-wizard.js. Both merge into SKILL_DEFINITIONS
+// (ids are unique across classes; a skill's class is the class owning its branch, class-definitions.js).
+import { WIZARD_SKILL_DEFINITIONS, WIZARD_SKILL_ORDER } from './skill-definitions-wizard.js';
+
+const WARRIOR_SKILL_DEFINITIONS = {
   // ---- SWORD ----
   slashWave: {
     id: 'slashWave', name: 'Slash Wave', type: 'active', branch: 'sword', tier: 1,
@@ -119,16 +123,18 @@ export const SKILL_DEFINITIONS = Object.freeze({
     icon: 'iconVision', description: 'Passive: chance to land a critical strike (x1.6 damage).',
     passive: { critChance: [0.04, 0.08, 0.12, 0.16, 0.20] },
   },
-});
+};
 
-// Display/grouping order: tier 1 pair, tier 2 pair, tier 3 node, per branch.
+export const SKILL_DEFINITIONS = Object.freeze({ ...WARRIOR_SKILL_DEFINITIONS, ...WIZARD_SKILL_DEFINITIONS });
+
+// Display/grouping order: tier 1 pair, tier 2 pair, tier 3 node, per branch (warrior, then wizard).
+// Branches per class: CLASS_DEFINITIONS[classId].branches.
 export const SKILL_ORDER = Object.freeze([
   'slashWave', 'powerStrike', 'whirlwind', 'heavyBlow', 'bladeStorm',
   'vitality', 'ironSkin', 'dashStrike', 'swiftFeet', 'secondWind',
   'focus', 'healingLight', 'battleCry', 'spiritBolt', 'critEye',
+  ...WIZARD_SKILL_ORDER,
 ]);
-
-export const SKILL_BRANCHES = Object.freeze(['sword', 'body', 'spirit']);
 
 // Input action -> hotbar slot index (hotbar skills are bound dynamically, see skill-system.js).
 export const SKILL_HOTKEY_ACTIONS = Object.freeze({ skill1: 0, skill2: 1, skill3: 2 });

@@ -1,6 +1,7 @@
 // Skill upgrade rules, passive aggregation and hotbar binding. Pure -> unit-testable.
 // `player` shape used here: { level, skillPoints, skills: {skillId: level}, mp, hotbar: [id|null,...] }
 import { SKILL_DEFINITIONS, SKILL_ORDER, getSkillValue } from '../data/skill-definitions.js';
+import { classForBranch, DEFAULT_CLASS_ID } from '../data/class-definitions.js';
 
 export const HOTBAR_SLOTS = 3;
 
@@ -12,6 +13,7 @@ export function getSkillLevel(player, skillId) {
 export function canUpgradeSkill(player, skillId) {
   const def = SKILL_DEFINITIONS[skillId];
   if (!def) return { ok: false, reason: 'Unknown skill' };
+  if (classForBranch(def.branch) !== (player.classId || DEFAULT_CLASS_ID)) return { ok: false, reason: 'Other class' };
   const current = getSkillLevel(player, skillId);
   if (current >= def.maxLevel) return { ok: false, reason: 'Max level' };
   if (player.skillPoints < 1) return { ok: false, reason: 'No skill points' };

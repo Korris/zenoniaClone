@@ -1,5 +1,28 @@
 # Project Roadmap
 
+## Version 0.11 — Playable Classes: Warrior + Wizard
+
+**Status:** ✅ Delivered (2026-10-26)
+
+### Changes (v0.11)
+- [x] **Character select** on New Game (`ui/class-select-screen.js`): animated idle preview, tagline,
+  attack style and base-stat bars per class; Esc returns to the title.
+- [x] **Classes** (`data/class-definitions.js`): per-class base stats/growth, 3 skill branches,
+  attack style; `Player.classId` is saved (old saves load as warrior; other-class skills dropped).
+- [x] **Wizard**: ranged J combo (2 magic bolts + exploding finisher, `WIZARD_COMBO_CONFIG`,
+  `systems/projectile-hit-system.js`), 15-skill Fire / Frost / Arcane tree
+  (`data/skill-definitions-wizard.js`); skill trees and upgrades are class-locked.
+- [x] **Art (ChatGPT)**: original wizard design, 8 animation sheets + portrait + 6 HD spell FX
+  (`assets/hd/wizard/`, `npm run hd:wizard`, `tools/build-wizard-fx.py`).
+- [x] **Pipeline**: hero sheets are now scaled by head size via template matching
+  (`tools/hero_head_scale.py`, needs opencv-python-headless) instead of body height; shared sheet
+  cutter `tools/sprite_sheet_cutter.py`.
+- [x] **Tests**: `tests/class-system.test.js` (stats, combo, class-locked skills, saves, bolts,
+  explosion, every active skill casts). 133/133 pass; both classes play-tested in browser.
+- [ ] Class-specific equipment (staffs vs swords) -- items are shared for now.
+
+---
+
 ## Version 0.10 — Oakhaven Village v6 (painted backdrop)
 
 **Status:** ✅ Delivered (2026-10-26)

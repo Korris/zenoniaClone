@@ -11,6 +11,7 @@ import { QuestLogPanel } from '../ui/quest-log-panel.js';
 import { DialogBox } from '../ui/dialog-box.js';
 import { MessageBanner } from '../ui/message-banner.js';
 import { createTitleMenu, createPauseMenu, createDeathMenu, createVictoryMenu } from '../ui/menu-screens.js';
+import { ClassSelectScreen } from '../ui/class-select-screen.js';
 import { hasSave } from '../save/local-storage-save.js';
 import { findNearbyNpc, computeNpcMarkers, openNpcDialog, applyDialogOutcome } from './npc-interaction.js';
 import { onMonsterKilledForQuests, onMapReachedForQuests, onDialogOutcomeForQuests } from './quest-flow.js';
@@ -37,6 +38,7 @@ export class GameController {
     this.banner.update(dt);
     const handlers = {
       [S.TITLE]: () => this.updateTitle(),
+      [S.CLASS_SELECT]: () => this.updateClassSelect(),
       [S.PLAYING]: () => this.updatePlaying(dt),
       [S.PAUSED]: () => this.updatePaused(),
       [S.SKILLS]: () => this.updateSkills(),
@@ -52,9 +54,21 @@ export class GameController {
 
   updateTitle() {
     const choice = this.menu.handleInput(this.input);
-    if (choice === 'New Game') this.session.startNewGame();
-    else if (choice === 'Continue' && !this.session.continueFromSave()) this.session.startNewGame();
-    if (choice) this.state = S.PLAYING;
+    // New Game (or a Continue whose save turned out unusable) goes through hero selection first.
+    if (choice === 'New Game' || (choice === 'Continue' && !this.session.continueFromSave())) {
+      this.classSelect = new ClassSelectScreen();
+      this.state = S.CLASS_SELECT;
+    } else if (choice === 'Continue') {
+      this.state = S.PLAYING;
+    }
+  }
+
+  updateClassSelect() {
+    const { classId, back } = this.classSelect.handleInput(this.input);
+    if (back) this.state = S.TITLE;
+    if (!classId) return;
+    this.session.startNewGame(classId);
+    this.state = S.PLAYING;
   }
 
   updatePlaying(dt) {
@@ -65,8 +79,8 @@ export class GameController {
     if (input.wasPressed('inventory')) { session.player.hasUnseenItem = false; this.state = S.INVENTORY; return; }
     const previousNearby = this.nearbyNpc;
     this.nearbyNpc = findNearbyNpc(session.world);
-    if (previousNearby && previousNearby !== this.nearbyNpc) previousNearby.dir = previousNearby.def.dir; // resume the idle pose once the hero walks off
-    if (this.nearbyNpc) this.nearbyNpc.faceTowards(session.player.x, session.player.y); // turn to the approaching hero
+    if (previousNearby && previousNearby !== this.nearbyNpc) previousNearby.resetFacing(); // resume the idle pose once the hero walks off
+    // NPCs no longer track the hero while nearby; openNpcDialog() turns them only when talked to.
     if (this.nearbyNpc && input.wasPressed('interact')) {
       const { faces } = this.registry;
       openNpcDialog(this.dialog, this.nearbyNpc, session.player, session.quests, faces[this.nearbyNpc.id] || faces[this.nearbyNpc.def.sprite] || null);
@@ -162,6 +176,7 @@ export class GameController {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     if (this.state === S.TITLE) { this.menu.render(ctx, this.registry, { dim: false, showHero: true }); return; }
+    if (this.state === S.CLASS_SELECT) { this.classSelect.render(ctx, this.registry, performance.now()); return; }
 
     const { session } = this;
     const view = { npcMarkers: this.npcMarkers, nearbyNpc: this.state === S.PLAYING ? this.nearbyNpc : null, questState: session.quests };

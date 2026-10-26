@@ -62,7 +62,8 @@
 | **data/hero-stats-config.js** | Base stats, growth per level, combo timings, HP/MP regen rates. |
 | **data/monster-definitions.js** | Stat blocks for 8 enemy types (incl. `itemLevel` for equipment drop scaling). |
 | **data/item-definitions.js** | EQUIPMENT_SLOTS, RARITIES (common/uncommon/rare/epic), 9 weapon + 12 armor templates (helmet/armor/gloves/boots x 3 tiers), grouped by slot for drop rolls. |
-| **data/skill-definitions.js** | 15-node skill tree: 3 branches (sword/body/spirit) x 5 nodes (tiers 1-3), 5 levels each, `requires` prerequisites, `effect`/`passive` shape consumed by skill-cast-system/skill-system. |
+| **data/class-definitions.js** | Playable classes (warrior, wizard): base stats + growth (fed to `statsForLevel(level, classId)`), the class's 3 skill branches, attack style ('melee' / 'ranged'). `classForBranch()` maps a skill to its class. Old saves default to warrior. |
+| **data/skill-definitions.js** | Skill trees, 15 nodes per class (3 branches x 2/2/1 tiers). Warrior tree here; wizard tree in `skill-definitions-wizard.js` (Fire / Frost / Arcane, extra effect params `explodeRadius`/`explodeFx`, radial `fx`/`fxDiameter`); both merged into `SKILL_DEFINITIONS` / `SKILL_ORDER`. |
 | **data/npc-definitions.js** | 6 NPCs: name, sprite variant, idle chatter lines, quest list. |
 | **data/quest-definitions.js** | 9 quests: kill/reach objectives, prerequisites, level gates, rewards, dialogs. |
 | **game/game-controller.js** | State machine (title, playing, paused, skills, inventory, dialog, quest-log, dead, win). |
@@ -84,6 +85,8 @@
 | **ui/inventory-layout.js** | Pure layout (equipment/grid slot positions) + stat formatting/comparison helpers for the inventory panel. |
 | **ui/message-banner.js** | Floating notification (e.g., "LEVEL UP!", "QUEST ACCEPTED!"). |
 | **ui/menu-screens.js** | Title, pause, death, victory menus; input handling. |
+| **ui/class-select-screen.js** | New Game hero selection: one card per class (animated HD idle, tagline, attack style, stat bars); Left/Right/click select, Enter confirm, Esc back. |
+| **systems/projectile-hit-system.js** | Projectile impacts for both sides (moved from combat-system.js), AoE bursts for projectiles with `explodeRadius`, and `fireComboBolt()` for the wizard's ranged J combo. |
 | **save/save-serializer.js** | Serialize state (player incl. inventory/equipment, quests, map, position) → JSON; validate on load (sanitizeItem() for every item). |
 | **save/local-storage-save.js** | Read/write browser localStorage with version checking. |
 | **tools/build-hero-sprites.py** | AI → custom hero sprite pipeline: loads concept PNG, generates 8 animations (idle/walk/attack1-3/dash/hurt/death) + 4 FX strips (slash_small/big, dash_trail, hit_spark) at 24×24px, 32-color palette, feet pivot on bottom row. |

@@ -10,6 +10,7 @@ export const TILE_SIZE = 16;
 // Game state identifiers used by the state machine in game-state.js
 export const GAME_STATES = Object.freeze({
   TITLE: 'title',
+  CLASS_SELECT: 'classSelect',
   PLAYING: 'playing',
   PAUSED: 'paused',
   SKILLS: 'skills',

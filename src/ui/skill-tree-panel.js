@@ -2,14 +2,15 @@
 // Keyboard: Left/Right branch, Up/Down node, Enter upgrade, K/L/I bind to hotbar slot, Tab/Esc close.
 // Mouse: click selects a node, clicking the already-selected node upgrades it.
 import { drawText, drawPanel, drawOverlay, drawScaledSprite } from './pixel-text.js';
-import { SKILL_DEFINITIONS, SKILL_BRANCHES, HOTBAR_SLOT_KEYS, SKILL_HOTKEY_ACTIONS } from '../data/skill-definitions.js';
+import { SKILL_DEFINITIONS, HOTBAR_SLOT_KEYS, SKILL_HOTKEY_ACTIONS } from '../data/skill-definitions.js';
+import { getClassDefinition } from '../data/class-definitions.js';
 import { canUpgradeSkill, upgradeSkill, getSkillLevel, bindSkillToSlot } from '../systems/skill-system.js';
 import {
   PANEL_X, PANEL_Y, PANEL_W, PANEL_H, NODE_SIZE, TREE_TOP, INFO_BOX_Y, INFO_BOX_H,
   skillsForBranch, computeSkillTreeLayout, describeNodeState, describeNextLevel, describeRequirement,
 } from './skill-tree-layout.js';
 
-const COLUMN_TITLES = { sword: 'SWORD', body: 'BODY', spirit: 'SPIRIT' };
+const COLUMN_TITLES = { sword: 'SWORD', body: 'BODY', spirit: 'SPIRIT', fire: 'FIRE', frost: 'FROST', arcane: 'ARCANE' };
 const STATE_BORDER = { locked: '#555566', learned: '#cfcfe0', available: '#ffe680', maxed: '#8fff8f' };
 
 export class SkillTreePanel {
@@ -18,19 +19,33 @@ export class SkillTreePanel {
     this.nodeIndex = 0;
     this.message = '';
     this.messageTimer = 0;
-    this.layout = computeSkillTreeLayout();
+    this.classId = null;
+    this.branches = [];
+    this.layout = { positions: {}, navIndex: {} };
+  }
+
+  /** Rebuild the tree for the hero's class (the panel is shared across New Games). */
+  syncClass(player) {
+    if (player.classId === this.classId) return;
+    this.classId = player.classId;
+    this.branches = getClassDefinition(player.classId).branches;
+    this.layout = computeSkillTreeLayout(this.branches);
+    this.branchIndex = 0;
+    this.nodeIndex = 0;
   }
 
   get selectedSkillId() {
-    return skillsForBranch(SKILL_BRANCHES[this.branchIndex])[this.nodeIndex];
+    return skillsForBranch(this.branches[this.branchIndex])[this.nodeIndex];
   }
 
   /** @returns {{close:boolean, upgraded:string|null}} */
   handleInput(input, player) {
+    this.syncClass(player);
     const result = { close: false, upgraded: null };
+    const count = this.branches.length;
     if (input.wasPressed('skillPanel') || input.wasPressed('pause')) result.close = true;
-    if (input.wasPressed('moveLeft')) this.branchIndex = (this.branchIndex + SKILL_BRANCHES.length - 1) % SKILL_BRANCHES.length;
-    if (input.wasPressed('moveRight')) this.branchIndex = (this.branchIndex + 1) % SKILL_BRANCHES.length;
+    if (input.wasPressed('moveLeft')) this.branchIndex = (this.branchIndex + count - 1) % count;
+    if (input.wasPressed('moveRight')) this.branchIndex = (this.branchIndex + 1) % count;
     if (input.wasPressed('moveUp')) this.nodeIndex = (this.nodeIndex + 4) % 5;
     if (input.wasPressed('moveDown')) this.nodeIndex = (this.nodeIndex + 1) % 5;
 
@@ -84,12 +99,13 @@ export class SkillTreePanel {
   }
 
   render(ctx, player, icons) {
+    this.syncClass(player);
     drawOverlay(ctx, 0.65);
     drawPanel(ctx, PANEL_X, PANEL_Y, PANEL_W, PANEL_H);
     drawText(ctx, 'SKILL TREE', PANEL_X + 16, PANEL_Y + 12, { size: 16, color: '#ffe680' });
     drawText(ctx, `Skill Points: ${player.skillPoints}`, PANEL_X + PANEL_W - 16, PANEL_Y + 14, { size: 14, align: 'right', color: player.skillPoints > 0 ? '#8fff8f' : '#cfcfe0' });
-    SKILL_BRANCHES.forEach((branch, i) => {
-      drawText(ctx, COLUMN_TITLES[branch], PANEL_X + (i + 0.5) * (PANEL_W / 3), PANEL_Y + 32, { size: 14, align: 'center', color: '#8fc3ff' });
+    this.branches.forEach((branch, i) => {
+      drawText(ctx, COLUMN_TITLES[branch], PANEL_X + (i + 0.5) * (PANEL_W / this.branches.length), PANEL_Y + 32, { size: 14, align: 'center', color: '#8fc3ff' });
     });
     this.drawConnectors(ctx, player);
     for (const skillId of Object.keys(this.layout.positions)) this.drawNode(ctx, player, icons, skillId);

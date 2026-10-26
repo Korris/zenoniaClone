@@ -1,7 +1,8 @@
-// Data sanity + integration tests for the 15-node skill tree (3 branches x 5 nodes).
+// Data sanity + integration tests for the skill trees: 15 nodes per class (3 branches x 5 nodes).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SKILL_DEFINITIONS, SKILL_ORDER, SKILL_BRANCHES, HOTBAR_SLOT_KEYS, getSkillValue } from '../src/data/skill-definitions.js';
+import { SKILL_DEFINITIONS, SKILL_ORDER, HOTBAR_SLOT_KEYS, getSkillValue } from '../src/data/skill-definitions.js';
+import { CLASS_DEFINITIONS, CLASS_IDS, classForBranch } from '../src/data/class-definitions.js';
 import { ASSET_FILES } from '../src/graphics/asset-atlas.js';
 import { canUpgradeSkill, upgradeSkill, bindSkillToSlot, computePassiveModifiers, HOTBAR_SLOTS } from '../src/systems/skill-system.js';
 import { tryCastSkill } from '../src/systems/skill-cast-system.js';
@@ -11,11 +12,21 @@ const makePlayer = (overrides = {}) => ({
   cooldowns: {}, dir: 'down', atk: 20, combo: { reset() {} }, ...overrides,
 });
 
-test('exactly 15 nodes, 5 per branch, 3 tiers, maxLevel 5 everywhere', () => {
-  assert.equal(SKILL_ORDER.length, 15);
-  for (const branch of SKILL_BRANCHES) {
-    const nodes = SKILL_ORDER.filter((id) => SKILL_DEFINITIONS[id].branch === branch);
-    assert.equal(nodes.length, 5, `${branch} should have 5 nodes`);
+test('15 nodes per class, 5 per branch (2+2+1 by tier), 3 tiers, maxLevel 5 everywhere', () => {
+  assert.equal(SKILL_ORDER.length, 15 * CLASS_IDS.length);
+  assert.equal(new Set(SKILL_ORDER).size, SKILL_ORDER.length, 'skill ids must be unique across classes');
+  for (const classId of CLASS_IDS) {
+    for (const branch of CLASS_DEFINITIONS[classId].branches) {
+      const nodes = SKILL_ORDER.filter((id) => SKILL_DEFINITIONS[id].branch === branch);
+      assert.equal(nodes.length, 5, `${branch} should have 5 nodes`);
+      assert.deepEqual(nodes.map((id) => SKILL_DEFINITIONS[id].tier), [1, 1, 2, 2, 3], `${branch} tier layout`);
+    }
+  }
+  for (const id of SKILL_ORDER) {
+    assert.ok(classForBranch(SKILL_DEFINITIONS[id].branch), `${id} belongs to no class`);
+    for (const req of SKILL_DEFINITIONS[id].requires) {
+      assert.equal(classForBranch(SKILL_DEFINITIONS[req.skill].branch), classForBranch(SKILL_DEFINITIONS[id].branch), `${id} requires a skill of another class`);
+    }
   }
   for (const id of SKILL_ORDER) {
     const def = SKILL_DEFINITIONS[id];
