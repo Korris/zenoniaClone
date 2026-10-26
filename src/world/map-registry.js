@@ -1,5 +1,6 @@
 // Lookup of all map definitions by id, plus the starting map.
 import { OAKHAVEN_VILLAGE_MAP } from './maps/oakhaven-village-map.js';
+import { FROST_HOLLOW_MAP } from './maps/frost-hollow-map.js';
 import { VERDANT_MEADOW_MAP } from './maps/verdant-meadow-map.js';
 import { DARK_CAVE_MAP } from './maps/dark-cave-map.js';
 import { SCORCHED_DESERT_MAP } from './maps/scorched-desert-map.js';
@@ -7,6 +8,7 @@ import { RUINED_CASTLE_MAP } from './maps/ruined-castle-map.js';
 
 export const MAP_REGISTRY = Object.freeze({
   [OAKHAVEN_VILLAGE_MAP.id]: OAKHAVEN_VILLAGE_MAP,
+  [FROST_HOLLOW_MAP.id]: FROST_HOLLOW_MAP,
   [VERDANT_MEADOW_MAP.id]: VERDANT_MEADOW_MAP,
   [DARK_CAVE_MAP.id]: DARK_CAVE_MAP,
   [SCORCHED_DESERT_MAP.id]: SCORCHED_DESERT_MAP,

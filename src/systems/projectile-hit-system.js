@@ -1,4 +1,4 @@
-// Projectiles on impact (both owners) plus the wizard's ranged combo bolts. Split out of
+// Projectiles on impact (both owners) plus the ranged combo shots (wizard bolts, mechanic bullets). Split out of
 // combat-system.js: hero skill projectiles, monster throws and wizard bolts all resolve here, and a
 // projectile with `explodeRadius` (wizard combo finisher, fire skills) bursts on its first hit,
 // damaging every monster within that radius once.
@@ -10,11 +10,11 @@ import { heroAttack, CRIT_COLOR } from './player-damage.js';
 
 const MAGIC_HIT_COLOR = '#9fe0ff';
 
-/** Wizard combo step `step` becomes active: launch that step's bolt in the facing direction. */
+/** Ranged combo step `step` becomes active: launch that step's bolt/bullet in the facing direction. */
 export function fireComboBolt(world, step) {
   const { player } = world;
   const hit = player.combo.currentHit;
-  const { speed, range, spriteKey, scale, w, h, explodeRadius = 0, explodeFx } = hit.bolt;
+  const { speed, range, spriteKey, scale, w, h, explodeRadius = 0, explodeFx, flashFx = 'hitSpark' } = hit.bolt;
   const v = DIRECTION_VECTORS[player.dir];
   // Same bonus stack as the melee combo: per-hit mult (+ finisher scaling) x combo-damage passives.
   const mult = player.combo.multiplierFor(step, player.level) * (1 + (player.passiveMods?.comboMult || 0));
@@ -23,8 +23,8 @@ export function fireComboBolt(world, step) {
     owner: 'player', damage: heroAttack(player) * mult, spriteKey, scale,
     lifeMs: (range / speed) * 1000, w, h, explodeRadius, explodeFx, knockback: hit.knockback,
   }));
-  // Small flash at the staff tip so the cast reads even before the bolt travels.
-  world.addEffect({ x: player.x + v.x * 10, y: player.y - 10 + v.y * 6, spriteKey: 'hitSpark', lifeMs: 140, scale: explodeRadius ? 1.6 : 1 });
+  // Small flash at the staff tip / gun barrel so the shot reads even before the projectile travels.
+  world.addEffect({ x: player.x + v.x * 10, y: player.y - 10 + v.y * 6, spriteKey: flashFx, lifeMs: 140, scale: explodeRadius ? 1.6 : 1 });
 }
 
 /** One crit-rolled hit of a player projectile on a monster. */

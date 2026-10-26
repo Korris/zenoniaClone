@@ -31,6 +31,17 @@ export const MONSTER_DEFINITIONS = Object.freeze({
     name: 'Skeleton Knight', sprite: 'skeletonKnight', hp: 220, atk: 34, def: 14, speed: 38, exp: 140, gold: [8, 16],
     attackRange: 14, attackWindupMs: 450, attackCooldownMs: 1300, aggroRange: 90, hitbox: { w: 12, h: 10 }, itemLevel: 11,
   }),
+  // Frost Hollow (Lv 1-3 zone between the village and the meadow). HD painted sheets, see
+  // src/graphics/asset-atlas-hd-monsters.js; `sprite` names the pixel fallback in MONSTER_SHEETS.
+  frostSlime: base({ name: 'Frost Slime', sprite: 'frostSlime', hp: 36, atk: 7, def: 2, speed: 30, exp: 14, itemLevel: 1 }),
+  iceGoblin: base({
+    name: 'Ice Goblin', sprite: 'iceGoblin', hp: 58, atk: 11, def: 3, speed: 44, exp: 28, gold: [2, 5],
+    hitbox: { w: 12, h: 10 }, itemLevel: 2,
+  }),
+  spectralWolf: base({
+    name: 'Spectral Wolf', sprite: 'spectralWolf', hp: 48, atk: 10, def: 1, speed: 62, exp: 26, gold: [1, 4],
+    aggroRange: 95, attackCooldownMs: 900, hitbox: { w: 14, h: 8 }, itemLevel: 2,
+  }),
   golemBoss: base({
     name: 'Demon Cyclops', sprite: 'golemBoss', hp: 1500, atk: 45, def: 18, speed: 28, exp: 1200, gold: [80, 120],
     behavior: 'boss', aggroRange: 130, leashRange: 9999, attackRange: 24, attackWindupMs: 600, attackCooldownMs: 1600,

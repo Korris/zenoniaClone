@@ -5,7 +5,7 @@ import { statsForLevel, applyExpGain, applyDeathPenalty } from '../systems/level
 import { computePassiveModifiers, HOTBAR_SLOTS } from '../systems/skill-system.js';
 import { computeEquipmentModifiers } from '../systems/equipment-system.js';
 import { EQUIPMENT_SLOTS } from '../data/item-definitions.js';
-import { HERO_HITBOX, INVULNERABLE_AFTER_HIT_MS, COMBO_CONFIG, WIZARD_COMBO_CONFIG } from '../data/hero-stats-config.js';
+import { HERO_HITBOX, INVULNERABLE_AFTER_HIT_MS, COMBO_CONFIG, COMBO_CONFIG_BY_CLASS } from '../data/hero-stats-config.js';
 import { entityBox } from '../systems/damage-formula.js';
 import { DEFAULT_CLASS_ID, getClassDefinition } from '../data/class-definitions.js';
 
@@ -28,7 +28,7 @@ export class Player {
     this.hasUnseenItem = false; // drives the HUD's "NEW" blink until the bag is opened
     this.cooldowns = {};
     this.attackStyle = getClassDefinition(this.classId).attackStyle; // 'melee' | 'ranged'
-    this.combo = new ComboController(this.attackStyle === 'ranged' ? WIZARD_COMBO_CONFIG : COMBO_CONFIG);
+    this.combo = new ComboController(COMBO_CONFIG_BY_CLASS[this.classId] || COMBO_CONFIG);
     this.invulnTimer = 0;
     this.animTimer = 0;
     this.moving = false;

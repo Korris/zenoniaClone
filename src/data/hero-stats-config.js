@@ -37,3 +37,24 @@ export const WIZARD_COMBO_CONFIG = Object.freeze({
   ],
   finisherMultPerLevel: 0.05,
 });
+
+// Mechanic's gun combo (J): two quick pistol shots, then a charged hand-cannon blast that explodes.
+// Faster, longer-ranged bullets than the wizard's bolts; slightly lower per-shot multipliers.
+// `flashFx` = muzzle flash drawn at the gun barrel when the shot fires.
+export const MECHANIC_COMBO_CONFIG = Object.freeze({
+  chainWindowMs: 420,
+  hits: [
+    { windupMs: 50, activeMs: 50, recoverMs: 110, mult: 0.85, knockback: 25, stepPx: 0,
+      bolt: { speed: 340, range: 140, spriteKey: 'bullet', scale: 1, w: 8, h: 8, flashFx: 'muzzleFlash' } },
+    { windupMs: 50, activeMs: 50, recoverMs: 110, mult: 0.95, knockback: 30, stepPx: 0,
+      bolt: { speed: 340, range: 140, spriteKey: 'bullet', scale: 1, w: 8, h: 8, flashFx: 'muzzleFlash' } },
+    { windupMs: 140, activeMs: 80, recoverMs: 260, mult: 1.6, knockback: 100, stepPx: 0,
+      bolt: { speed: 240, range: 130, spriteKey: 'plasmaShot', scale: 1.2, w: 12, h: 12, explodeRadius: 24, explodeFx: 'explosion', flashFx: 'muzzleFlash' } },
+  ],
+  finisherMultPerLevel: 0.05,
+});
+
+// Basic-attack combo per class (Player picks it by classId; unknown classes use the warrior's).
+export const COMBO_CONFIG_BY_CLASS = Object.freeze({
+  warrior: COMBO_CONFIG, wizard: WIZARD_COMBO_CONFIG, mechanic: MECHANIC_COMBO_CONFIG,
+});

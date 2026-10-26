@@ -1,5 +1,25 @@
 # Project Roadmap
 
+## Version 0.13 — Mechanic Class + Walk Cycle Fix + Warrior Redesign
+
+**Status:** Complete (2026-10-27)
+
+### Changes (v0.13)
+- New playable class **Mechanic** (Zenonia 5 inspired, original design by ChatGPT): ranged gun combo (2 fast bullets with muzzle flash + exploding plasma finisher, `MECHANIC_COMBO_CONFIG`), 15-skill tree (gunnery / explosives / engineering) built only from existing cast kinds, full HD set (8 animations + portrait) and 6 gun FX (`asset-atlas-hd-mechanic.js`, `tools/build-mechanic-fx.py`, `npm run hd:mechanic`). Class select shows 3 cards; per-class `styleLabel`; combos picked via `COMBO_CONFIG_BY_CLASS`.
+- Walk fix: Warrior and Wizard walks looked like same-arm/same-leg shuffles; all three heroes now use 4-key-pose walk sheets (`<src>/frame-counts.json` override in build-hd-hero.py), animated over a fixed 560 ms step cycle (`HERO_WALK_CYCLE_MS`).
+- Warrior redesign: black ponytail + red headband (blond spiky hair was too close to the Mechanic); all 8 sheets + portrait repainted, old set kept in `assets/hd/hero/v1/`. His side rows are now consistent (row 2 left, row 3 right).
+- Tests: `mechanic-class.test.js` (stats, gun combo, HD files, 4-frame walks, side rows); 147 pass.
+
+## Version 0.12 — Frost Hollow: Cold-Palette Battle Map + HD Monsters
+
+**Status:** Complete (2026-10-26)
+
+### Changes (v0.12)
+- New map **Frost Hollow** between Oakhaven Village and Verdant Meadow: Zenonia-5-style painting by ChatGPT (cold teal/navy/ice palette), one 36x24 backdrop (`assets/hd/map/FrostHollow/`, `tools/build-frost-hollow-art.py`, `npm run hd:frost`), tile rows classified from a labelled grid preview. Entrance portal (2,20) from the village south gate, exit portal (33,3) -> Verdant Meadow gated to Lv 2. Village itself unchanged.
+- 3 new HD monsters painted in the same chat for a consistent style: Frost Slime, Ice Goblin, Spectral Wolf (4-frame walk cycles, front/left/right). Pipeline `tools/build-hd-monsters.py` (`npm run hd:monsters`), config `asset-atlas-hd-monsters.js`, slicing `hd-monster-sprite-builder.js`, HD draw path in `monster-renderer.js` with pixel fallback via `MONSTER_SHEETS`.
+- Tests: `frost-hollow-layout.test.js` (backdrop size, HUD rows blocked, spawn zones open + off the start stairs, stream solid, bridge reachable, portal chain), `hd-monsters-config.test.js`; generic map invariants cover the new map. `tools/browser-check.mjs` fixed for the class-select screen; new `tools/frost-hollow-browser-check.mjs`.
+- Known: `browser-check.mjs`'s village walk / elder-dialog assertions already failed before v0.12 (pre-existing since v0.11); not addressed here.
+
 ## Version 0.11 — Playable Classes: Warrior + Wizard
 
 **Status:** ✅ Delivered (2026-10-26)

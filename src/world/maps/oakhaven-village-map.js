@@ -94,7 +94,7 @@ export const OAKHAVEN_VILLAGE_MAP = {
   npcs: NPC_TILES,
   playerStart: PLAYER_START,
   portals: [
-    { ...PORTAL, targetMap: 'verdantMeadow', targetTx: 4, targetTy: 15, minLevel: 1 },
+    { ...PORTAL, targetMap: 'frostHollow', targetTx: 4, targetTy: 21, minLevel: 1 }, // south gate -> Frost Hollow entrance stairs
   ],
   spawnZones: [],
   boss: null,

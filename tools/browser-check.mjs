@@ -31,7 +31,9 @@ await page.reload({ waitUntil: 'load' });
 await page.waitForFunction(() => window.__zenonia && window.__zenonia.state === 'title', { timeout: 15000 });
 await page.screenshot({ path: path.join(OUT, '01-title.png') });
 
-await page.keyboard.press('Enter');
+await page.keyboard.press('Enter'); // New Game -> hero class select
+await page.waitForFunction(() => window.__zenonia.state === 'classSelect', { timeout: 5000 });
+await page.keyboard.press('Enter'); // confirm the default (warrior)
 await page.waitForFunction(() => window.__zenonia.state === 'playing');
 await new Promise((r) => setTimeout(r, 400));
 await page.screenshot({ path: path.join(OUT, '15-village.png') }); // New Game now starts in Oakhaven Village
@@ -70,6 +72,8 @@ const village = {
   north: await walk(16, 9, 'ArrowUp', 300, '20-village-north.png'), // residential lane, brown cottage + Mia
   gate: await walk(16, 20, 'ArrowDown', 200, '21-village-gate.png'), // south gate: Rook, Lena, signpost, portal
 };
+// One tile down from the gate is the portal itself, so the gate walk may already have left the village.
+if (village.gate.map !== 'oakhavenVillage') await page.evaluate(() => { window.__zenonia.session.enterMap('oakhavenVillage'); });
 // Talk to the elder: HD portrait in the dialog box, then close it (E pages through the lines).
 await page.evaluate(({ x, y }) => { const p = window.__zenonia.session.player; p.x = x; p.y = y; }, feetAt(17, 15));
 await new Promise((r) => setTimeout(r, 120));
@@ -81,10 +85,10 @@ for (let i = 0; i < 6 && (await page.evaluate(() => window.__zenonia.state)) ===
   await page.keyboard.press('KeyE');
   await new Promise((r) => setTimeout(r, 250));
 }
-village.portal = await walk(16, 21, 'ArrowDown', 700); // start tile -> south gate portal -> Verdant Meadow
+village.portal = await walk(16, 21, 'ArrowDown', 700); // start tile -> south gate portal -> Frost Hollow
 console.log('village', JSON.stringify(village));
 const villageOk = village.plazaUp.ty <= 14 && village.plazaRight.tx === 17 && village.farmGate.tx <= 9
-  && village.farmFence.tx === 11 && village.bridge.tx >= 34 && village.dock.tx === 32 && village.portal.map === 'verdantMeadow';
+  && village.farmFence.tx === 11 && village.bridge.tx >= 34 && village.dock.tx === 32 && village.portal.map === 'frostHollow';
 if (!villageOk) errors.push('village walk-check failed: ' + JSON.stringify(village));
 await new Promise((r) => setTimeout(r, 300));
 await page.screenshot({ path: path.join(OUT, '02-meadow.png') });

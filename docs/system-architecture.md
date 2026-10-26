@@ -23,7 +23,7 @@ src/
 ├── world/             # Game world (mostly pure)
 │  ├── tilemap.js      # Tile grid, collision, prop footprints
 │  ├── map-builder.js, map-registry.js, map-manager.js # Map management
-│  ├── maps/*.js, monster-spawner.js # 5 maps + spawners (Oakhaven Village is the safe starting hub, no spawners)
+│  ├── maps/*.js, monster-spawner.js # 6 maps + spawners (Oakhaven Village is the safe starting hub, no spawners; Frost Hollow is the first battle zone)
 │  ├── tile-char-info.js, prop-definitions.js # Metadata
 ├── entities/          # Game objects (pure data + methods)
 │  ├── player.js       # Hero: stats, progression, inventory/equipment, hit/heal logic
@@ -320,7 +320,7 @@ left to right) and its target world size to `PROP_TARGETS` (must match `prop-def
 in `asset-atlas-hd-props.js` -- no other code changes needed (`prop-sprite-builder.js` picks up any
 `HD_PROPS` entry whose file loaded).
 
-**Map backdrops (Oakhaven v6):** a map definition may name `backdrop: '<imageKey>'` (registered in
+**Map backdrops (Oakhaven v6, Frost Hollow v0.12):** a map definition may name `backdrop: '<imageKey>'` (registered in
 `BACKDROP_FILES`, asset-atlas.js; exposed as `registry.backdrops`). `tilemap-renderer.js` then blits
 only the on-screen slice of that map-sized painting (4 px per world unit) and draws just animated
 tiles (portals) on top; tile rows keep driving collision, minimap and reachability. Oakhaven's art is
@@ -333,6 +333,30 @@ overlapping quadrants that ChatGPT redraws at full resolution (`ground-hd-{nw,ne
 `tools/oakhaven_ground_stitch.py` downscales each into place, phase-correlates it to the original,
 matches its colour and feathers a 96 px seam. Without those files the build falls back to an
 upscaled + unsharp-masked single painting (visibly softer than the props).
+
+Frost Hollow (`frost-hollow-map.js`, `hdFrostHollowGround`) uses the same contract with the simple
+upscale path only: `tools/build-frost-hollow-art.py` turns the single 1536x1024 ChatGPT painting
+(`assets/hd/map/FrostHollow/ground-raw-v3.png`, Zenonia 5 field style researched by ChatGPT from the original Zenonia 4/5 environment artist portfolio, winter palette) into the 2304x1536 WebP and a
+labelled `tile-grid-preview.png`; its `GROUND_ROWS` (T pines / C cliff / w stream / B bridge / s stone)
+were classified from that preview by eye. Nothing else is placed: no props, no NPCs -- every rock,
+tree, pillar and crystal is part of the painting, so the tile rows are the whole collision model.
+
+### HD monsters (Frost Hollow)
+
+Same frame contract as the HD NPCs, applied to the three Frost Hollow monsters: raw ChatGPT sheets
+(`assets/hd/monsters/raw/<type>.png`, 4 columns x 3 rows: 4 walk/hover-cycle frames across, rows =
+front / screen-left / screen-right, no rear pose) are normalized by `tools/build-hd-monsters.py`
+(`npm run hd:monsters`) into `assets/hd/monsters/normalized/<type>.png` (384x288, 96px frames,
+pixelsPerUnit 4, feet on the bottom row, body 58-76 px vs the hero's 82). Config lives in
+`asset-atlas-hd-monsters.js` (`HD_MONSTERS` type -> body height, `HD_MONSTER` grid,
+`HD_MONSTER_ASSET_FILES` spread into ASSET_FILES); `hd-monster-sprite-builder.js` slices each loaded
+sheet into `registry.monstersHd[type] = { frames[dir][4], hitFlash[dir], bodyUnits }`.
+`monster-renderer.js` prefers that set per type: it draws the frame smoothed into a fixed 24-unit box
+(like the hero), shows the front row for 'up', keeps the pixel path's frame timing (idle/cooldown hold
+frame 0, everything else loops at 180 ms) and hangs the mini HP bar / wind-up marker at
+`y - bodyUnits` instead of the frame top. Every HD type still names a pack look-alike in
+`MONSTER_SHEETS` (`frostSlime` -> Slime2, `iceGoblin` -> KappaGreen, `spectralWolf` -> BlueBat), so a
+missing sheet just falls back to pixel art at boot like every other HD asset.
 
 ### HD NPCs (Oakhaven villagers)
 

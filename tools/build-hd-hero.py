@@ -52,6 +52,11 @@ FACE_SIZE = 152  # HUD portrait + inventory panel faceset
 FRAME_COUNTS = {
     'idle': 4, 'walk': 6, 'attack1': 4, 'attack2': 4, 'attack3': 6, 'dash': 3, 'hurt': 2, 'death': 5,
 }
+# A source dir may override counts with frame-counts.json, e.g. {"walk": 4} for the 4-key-pose walk
+# cycle (left step / pass / right step / pass) that replaced the original 6-frame walks.
+_OVERRIDES = SRC_DIR / 'frame-counts.json'
+if _OVERRIDES.exists():
+    FRAME_COUNTS.update(json.loads(_OVERRIDES.read_text()))
 
 
 def refine_boundaries(profile, start, end, count):

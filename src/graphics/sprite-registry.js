@@ -1,6 +1,7 @@
 // Slices the loaded Ninja Adventure images into canvases, once at boot.
 // Shape: { hero, npcs, monsters, boss, tiles, flowers, props, effects, icons, faces, ui }
-import { createSprite, createTintedSprite } from './pixel-sprite-factory.js';
+import { createSprite, createTintedSprite, HIT_FLASH_COLOR } from './pixel-sprite-factory.js';
+import { buildMonstersHd } from './hd-monster-sprite-builder.js';
 import { cropSprite, cell } from './sprite-cell.js';
 import {
   CHARACTER_DIRECTIONS, FLOWER_OVERLAYS, MONSTER_SHEETS, BOSS_STRIPS, NPC_SHEETS, FX_STRIPS,
@@ -13,12 +14,12 @@ import { EFFECT_PALETTE, MARKER_ROWS } from './sprites/effect-sprite-data.js';
 import { buildTiles } from './tile-sprite-builder.js';
 import { buildProps } from './prop-sprite-builder.js';
 import { HD_NPC, HD_NPC_IDS, sheetKey, faceKey } from './asset-atlas-hd-npcs.js';
+import { HD_MECHANIC_ANIMATIONS, HD_MECHANIC_SIDE_ROWS, HD_MECHANIC_FACE_KEY, HD_MECHANIC_FX } from './asset-atlas-hd-mechanic.js';
 import { SKILL_DEFINITIONS } from '../data/skill-definitions.js';
 import { ITEM_TEMPLATES } from '../data/item-definitions.js';
 
 export const CHARACTER_SIZE = 16; // pack NPCs/monsters
 export const HERO_FRAME_SIZE = HERO_FRAME; // custom hero sheets
-const HIT_FLASH_COLOR = 'rgba(255,255,255,0.85)';
 
 /** 64x112 character sheet -> { down/up/left/right: { idle, walk[4], attack } } */
 function buildCharacter(img) {
@@ -130,7 +131,7 @@ function buildEffects(images) {
   const effects = {};
   for (const [name, strip] of Object.entries(FX_STRIPS)) effects[name] = buildStrip(images[strip.image], strip.w, strip.h);
   // HD spell FX: one canvas each, tagged with pixelsPerUnit so drawRotated() sizes it in world units.
-  for (const [name, key] of Object.entries(HD_WIZARD_FX)) {
+  for (const [name, key] of Object.entries({ ...HD_WIZARD_FX, ...HD_MECHANIC_FX })) {
     const img = images[key];
     if (img) effects[name] = cropSprite(img, 0, 0, img.width, img.height, false, HD_FX_PIXELS_PER_UNIT);
   }
@@ -148,13 +149,16 @@ export function buildSpriteRegistry(images) {
   // to enable image smoothing only for this draw (everything else stays crisp pixel-art).
   const faces = { hero: images.hdHeroFace || images.heroFace, heroIsHd: Boolean(images.hdHeroFace), boss: images.bossFace };
   // Per-class portrait (HUD + inventory); a class without its own face yet borrows the warrior's.
-  faces.heroByClass = { warrior: faces.hero, wizard: images[HD_WIZARD_FACE_KEY] || faces.hero };
+  faces.heroByClass = {
+    warrior: faces.hero, wizard: images[HD_WIZARD_FACE_KEY] || faces.hero, mechanic: images[HD_MECHANIC_FACE_KEY] || faces.hero,
+  };
   for (const [key, imageKey] of Object.entries(NPC_SHEETS)) {
     npcs[key] = buildCharacter(images[imageKey]);
     faces[key] = images[`${imageKey}Face`];
   }
   const monsters = {};
   for (const [type, imageKey] of Object.entries(MONSTER_SHEETS)) monsters[type] = buildMonster(images[imageKey]);
+  const monstersHd = buildMonstersHd(images); // HD painted sheets (Frost Hollow), per type where loaded
   const { frameW, frameH } = BOSS_STRIPS;
   const bossIdle = buildStrip(images[BOSS_STRIPS.idle], frameW, frameH);
   // Skill icons are already-sized 24x24 PNGs from the Ninja Adventure icon pack -- used directly.
@@ -170,14 +174,17 @@ export function buildSpriteRegistry(images) {
   // Wizard: its HD sheets over the warrior set, so an animation not painted yet still shows something.
   const wizardHd = buildHeroHd(images, HD_WIZARD_ANIMATIONS, HD_WIZARD_SIDE_ROWS);
   const wizard = Object.fromEntries(CHARACTER_DIRECTIONS.map((dir) => [dir, { ...warrior[dir], ...wizardHd[dir] }]));
+  const mechanicHd = buildHeroHd(images, HD_MECHANIC_ANIMATIONS, HD_MECHANIC_SIDE_ROWS); // same fallback as the wizard
+  const mechanic = Object.fromEntries(CHARACTER_DIRECTIONS.map((dir) => [dir, { ...warrior[dir], ...mechanicHd[dir] }]));
 
   return {
     hero: warrior, // title screen / fallback
-    heroes: { warrior, wizard }, // keyed by class id (class-definitions.js)
+    heroes: { warrior, wizard, mechanic }, // keyed by class id (class-definitions.js)
     heroFrameUnits: HERO_FRAME_SIZE, // world units a hero frame covers, regardless of source resolution
     npcs,
     npcsHd, // keyed by NPC id (HD, hero-scale); `npcs` stays keyed by pixel sprite name (fallback)
     monsters,
+    monstersHd,
     boss: {
       idle: bossIdle, walk: buildStrip(images[BOSS_STRIPS.walk], frameW, frameH), hit: buildStrip(images[BOSS_STRIPS.hit], frameW, frameH),
       width: frameW, height: frameH, hitFlash: createTintedSprite(bossIdle[0], HIT_FLASH_COLOR),

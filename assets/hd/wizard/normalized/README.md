@@ -10,7 +10,7 @@ so the engine can draw them at the exact same world-space size as the 24x24 pixe
 | File | Frames/row | Size | Scale (per-sheet) |
 |------|-----------:|------|--------------------|
 | idle.png | 4 | 384x384 | 0.2929 (head x1.00) |
-| walk.png | 6 | 576x384 | 0.3571 (head x0.82) |
+| walk.png | 4 | 384x384 | 0.3149 (head x0.93) |
 | attack1.png | 4 | 384x384 | 0.2988 (head x0.98) |
 | attack2.png | 4 | 384x384 | 0.3405 (head x0.86) |
 | attack3.png | 6 | 576x384 | 0.3755 (head x0.78) |

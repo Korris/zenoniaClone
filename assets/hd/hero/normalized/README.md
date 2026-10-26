@@ -9,14 +9,14 @@ so the engine can draw them at the exact same world-space size as the 24x24 pixe
 
 | File | Frames/row | Size | Scale (per-sheet) |
 |------|-----------:|------|--------------------|
-| idle.png | 4 | 384x384 | 0.2780 (head x1.00) |
-| walk.png | 6 | 576x384 | 0.3232 (head x0.86) |
-| attack1.png | 4 | 384x384 | 0.2836 (head x0.98) |
-| attack2.png | 4 | 384x384 | 0.3159 (head x0.88) |
-| attack3.png | 6 | 576x384 | 0.3756 (head x0.74) |
-| dash.png | 3 | 288x384 | 0.2260 (head x1.23) |
-| hurt.png | 2 | 192x384 | 0.1930 (head x1.44) |
-| death.png | 5 | 480x384 | 0.3055 (head x0.91) |
+| idle.png | 4 | 384x384 | 0.2706 (head x1.00) |
+| walk.png | 4 | 384x384 | 0.3184 (head x0.85) |
+| attack1.png | 4 | 384x384 | 0.2762 (head x0.98) |
+| attack2.png | 4 | 384x384 | 0.2819 (head x0.96) |
+| attack3.png | 6 | 576x384 | 0.3222 (head x0.84) |
+| dash.png | 3 | 288x384 | 0.3075 (head x0.88) |
+| hurt.png | 2 | 192x384 | 0.3075 (head x0.88) |
+| death.png | 5 | 480x384 | 0.3222 (head x0.84) |
 
 - Rows: `0 = DOWN`, `1 = UP`, rows 2/3 = the side views. Which side row faces left/right differs
   per sheet (some sheets paint both facing right) -- the engine maps them via `HD_HERO_SIDE_ROWS`

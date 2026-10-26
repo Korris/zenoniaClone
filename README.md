@@ -10,7 +10,9 @@ The hero also has an **HD rendering path**: hand-painted, Zenonia-4-style sheets
 - Monsters with wander / chase / telegraph / attack AI, hit flash, knockback, floating damage numbers.
 - EXP and levels (`floor(50 * level^1.5)` EXP per level), stat growth, full heal and +1 skill point per level.
 - Zenonia-style skill tree (Tab): 15 nodes across 3 branches (Sword/Body/Spirit) x 3 tiers, 5 levels each, gated by hero level and prerequisite nodes. Actives (Slash Wave, Whirlwind, Heavy Blow, Blade Storm, Dash Strike, Healing Light, Battle Cry, Spirit Bolt) bind to a 3-slot hotbar (K/L/I); passives (Power Strike, Vitality, Iron Skin, Swift Feet, Second Wind, Focus, Crit Eye) boost stats like HP, defense, speed, crit chance and regen.
-- 5 maps connected by level-gated portals: Oakhaven Village (safe starting hub, no monsters) <-> Verdant Meadow -> Dark Cave (Lv 3) -> Scorched Desert (Lv 7) -> Ruined Castle (Lv 12) with the Ancient Golem boss.
+- 6 maps connected by level-gated portals: Oakhaven Village (safe starting hub, no monsters) <-> Frost Hollow (Lv 1 battle zone) -> Verdant Meadow (Lv 2) -> Dark Cave (Lv 3) -> Scorched Desert (Lv 7) -> Ruined Castle (Lv 12) with the Ancient Golem boss.
+- 3 playable classes: **Warrior** (sword combos; redesigned 2026-10-27 with a black ponytail), **Wizard** (magic bolts) and **Mechanic** (Zenonia-5-inspired gunner: two pistol shots + an exploding plasma blast, gunnery / explosives / engineering skill trees). All HD hero walks are 4-key-pose cycles (left step, pass, right step, pass) with opposite arm/leg swing.
+- **Frost Hollow**: a Zenonia-5-style, cold-palette battle map painted by ChatGPT as one 36x24 backdrop (`assets/hd/map/FrostHollow/` -> `tools/build-frost-hollow-art.py`), with 3 hand-painted HD monsters (Frost Slime, Ice Goblin, Spectral Wolf: 4-frame walk cycles, front/left/right, `assets/hd/monsters/` -> `tools/build-hd-monsters.py`) drawn through the same `pixelsPerUnit` path as the HD hero and villagers.
 - Drops (HP/MP potions, gold, equipment), respawning spawn zones, death with EXP penalty and respawn, victory screen.
 - Equipment & inventory (B): monsters have a chance to drop weapons/armor (bosses guaranteed rare+); 4 rarities (common/uncommon/rare/epic) scale item stats; 20-slot bag + 5 equipment slots (weapon/helmet/armor/gloves/boots) with a Zenonia-style panel for equipping, comparing and dropping items.
 - 10 hand-painted Oakhaven villagers (elder, hunter, Mia, merchant, fisherman, carpenter, farmer, guard, child, healer) drawn at hero scale from HD idle sheets (`assets/hd/map/Oakhaven/` -> `tools/build-hd-npcs.py` -> `assets/hd/npcs/normalized/`), with HD dialog portraits; the 3 field NPCs (miner, nomad, knight) still use the CC0 pixel pack. Merchant/fisherman/carpenter/farmer/guard/child/healer are dialogue-only for now (no shop/crafting/fishing systems exist).
@@ -62,6 +64,10 @@ npm run hd:tiles          # normalize assets/hd/tiles/*.png (HD ground tiles) in
 npm run hd:props          # normalize assets/hd/props/*.png (HD props) into assets/hd/props/normalized/
 npm run hd:npcs           # normalize assets/hd/map/Oakhaven/*.png (HD villager idle sheets) into assets/hd/npcs/normalized/
 npm run hd:village        # Oakhaven painted ground + buildings/props from the ChatGPT sheets in assets/hd/map/oakhaven-v6/
+npm run hd:mechanic       # normalize assets/hd/mechanic/*.png (Mechanic HD sheets) + cut the gun FX sheet (tools/build-mechanic-fx.py)
+npm run hd:frost          # Frost Hollow painted backdrop (ground.webp) + tile-grid preview from assets/hd/map/FrostHollow/ground-raw-v3.png
+npm run hd:monsters       # normalize assets/hd/monsters/raw/*.png (HD monster walk-cycle sheets) into assets/hd/monsters/normalized/
+node tools/frost-hollow-browser-check.mjs   # headless Frost Hollow smoke test: village portal -> entrance, bridge, clearings, combat, exit gate
 ```
 
 ## Project layout
@@ -76,6 +82,8 @@ assets/hd/tiles/         raw + normalized HD ground tile sheets + README
 assets/hd/props/         raw + normalized HD prop (trees/rocks/houses/fences...) sheets + README
 assets/hd/map/Oakhaven/  raw 4x3 HD villager idle sheets (+ village_reference.png one level up)
 assets/hd/npcs/          normalized HD villager sheets + dialog portraits + README
+assets/hd/map/FrostHollow/ ChatGPT paintings of the Frost Hollow battle map (ground-raw-v3.png) + built ground.webp backdrop
+assets/hd/monsters/      raw 4x3 HD monster walk-cycle sheets + normalized sheets + README
 tools/                   sprite build/validate scripts, headless browser smoke test
 src/
   main.js            boot

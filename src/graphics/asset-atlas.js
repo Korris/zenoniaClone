@@ -5,7 +5,10 @@
 import { HD_PROP_ASSET_FILES, HD_PROPS, HD_PROP_PIXELS_PER_UNIT } from './asset-atlas-hd-props.js';
 import { HD_NPC_ASSET_FILES } from './asset-atlas-hd-npcs.js';
 import { HD_WIZARD_ASSET_FILES } from './asset-atlas-hd-wizard.js';
+import { HD_MONSTER_ASSET_FILES } from './asset-atlas-hd-monsters.js';
 import { WIZARD_ICON_FILES } from '../data/skill-definitions-wizard.js';
+import { HD_MECHANIC_ASSET_FILES } from './asset-atlas-hd-mechanic.js';
+import { MECHANIC_ICON_FILES } from '../data/skill-definitions-mechanic.js';
 
 export { HD_PROPS, HD_PROP_PIXELS_PER_UNIT };
 
@@ -18,9 +21,11 @@ const HD_TILE_NORM_DIR = 'hd/tiles/normalized/';
 // Whole-map painted ground layers (4 px per world unit, map-sized), keyed by the image key a map
 // definition names in `backdrop`. The tile rows still drive collision and the minimap; the renderer
 // draws the backdrop instead of the tiles (tilemap-renderer.js). Built by
-// tools/build-oakhaven-village-art.py from a ChatGPT painting.
+// tools/build-oakhaven-village-art.py (village) and tools/build-frost-hollow-art.py (battle map) from
+// ChatGPT paintings.
 export const BACKDROP_FILES = Object.freeze({
   hdOakhavenGround: 'hd/map/oakhaven-v6/ground.webp',
+  hdFrostHollowGround: 'hd/map/FrostHollow/ground.webp',
 });
 
 export const ASSET_FILES = Object.freeze({
@@ -61,6 +66,8 @@ export const ASSET_FILES = Object.freeze({
   hdHeroFace: HD_HERO_NORM_DIR + 'hero_face.png',
   ...HD_WIZARD_ASSET_FILES, // wizard class HD set, see asset-atlas-hd-wizard.js
   ...WIZARD_ICON_FILES, // wizard skill-tree icons
+  ...HD_MECHANIC_ASSET_FILES, // mechanic class HD set + gun FX, see asset-atlas-hd-mechanic.js
+  ...MECHANIC_ICON_FILES, // mechanic skill-tree icons
   // HD hand-painted ground tiles (Zenonia 4 style), see docs/system-architecture.md "HD Assets".
   // Built by tools/build-hd-tiles.py from assets/hd/tiles/*.png into assets/hd/tiles/normalized/.
   // Same boot-resilience rule as the HD hero set: missing files just log a 404 warning and
@@ -74,6 +81,8 @@ export const ASSET_FILES = Object.freeze({
   ...HD_PROP_ASSET_FILES,
   // HD hand-painted NPC idle sheets + portraits (Oakhaven villagers): see asset-atlas-hd-npcs.js.
   ...HD_NPC_ASSET_FILES,
+  // HD hand-painted monster walk-cycle sheets (Frost Hollow): see asset-atlas-hd-monsters.js.
+  ...HD_MONSTER_ASSET_FILES,
   // Skill tree icons (24x24, used as-is -- no slicing needed). Keys match `icon` fields in
   // src/data/skill-definitions.js.
   iconCut: PACK + 'icons/Spell/Cut.png', iconAttackUpgrade: PACK + 'icons/Spell/AttackUpgrade.png',
@@ -183,10 +192,13 @@ export const PROP_RECTS = Object.freeze({
   torch: ['dungeon', 3, 2, 1, 2], crystal: ['dungeon', 4, 2, 1, 2],
 });
 
-// Monster type -> sheet image. Boss uses the dedicated strips below.
+// Monster type -> 16px pixel sheet image. Boss uses the dedicated strips below. Frost Hollow's HD
+// types (asset-atlas-hd-monsters.js) list a pack look-alike here as the fallback when their painted
+// sheet is missing.
 export const MONSTER_SHEETS = Object.freeze({
   slime: 'Slime2', bat: 'BlueBat', goblin: 'KappaGreen', fireSlime: 'Flam', goblinWarrior: 'Cyclope',
   skeleton: 'Skull', skeletonKnight: 'SkullBlue',
+  frostSlime: 'Slime2', iceGoblin: 'KappaGreen', spectralWolf: 'BlueBat',
 });
 // Custom hero: 24x24 frames, rows = CHARACTER_DIRECTIONS, columns = frames
 export const HERO_ANIMATIONS = Object.freeze({
@@ -212,15 +224,14 @@ export const HD_HERO_ANIMATIONS = Object.freeze({
 });
 export const HD_HERO = Object.freeze({ pixelsPerUnit: 4, frame: 96, animations: HD_HERO_ANIMATIONS });
 
-// Which HD sheet row faces screen-left / screen-right differs PER SHEET (the painted sheets were not
-// consistent), so HERO_SHEET_ROW can't be applied blindly. Verified by the red scarf, which always
-// trails behind the hero: walk paints right then left; dash/hurt paint left then right;
-// idle/attack1-3/death paint BOTH side rows facing right, so 'left' is the right row mirrored.
+// Which HD sheet row faces screen-left / screen-right. The v2 Warrior (black ponytail, 2026-10-27)
+// was painted with every sheet in the requested order -- row 2 faces screen-left, row 3 screen-right
+// -- verified by the red headband tails, which always trail behind him (see assets/hd/hero/v1 for the
+// old blond set, whose side rows were inconsistent and needed per-sheet mirroring).
+const HERO_SIDE = Object.freeze({ right: 3, left: 2 });
 export const HD_HERO_SIDE_ROWS = Object.freeze({
-  idle: { right: 2, left: 'mirror' }, walk: { right: 2, left: 3 },
-  dash: { right: 3, left: 2 }, hurt: { right: 3, left: 2 },
-  attack1: { right: 2, left: 'mirror' }, attack2: { right: 2, left: 'mirror' },
-  attack3: { right: 2, left: 'mirror' }, death: { right: 2, left: 'mirror' },
+  idle: HERO_SIDE, walk: HERO_SIDE, dash: HERO_SIDE, hurt: HERO_SIDE,
+  attack1: HERO_SIDE, attack2: HERO_SIDE, attack3: HERO_SIDE, death: HERO_SIDE,
 });
 
 /** World units spanned by a sprite, given its native resolution (px per world unit). Pixel-art

@@ -3,7 +3,10 @@
 import { HERO_FRAME_SIZE } from './sprite-registry.js';
 import { createTintedSprite } from './pixel-sprite-factory.js';
 
-const WALK_FRAME_MS = 100;
+const WALK_FRAME_MS = 100; // pack NPC walk (4 frames)
+// One full hero step cycle (left step + right step). Spread over however many frames the class's walk
+// sheet has, so the 4-key-pose walks and older 6-frame walks move at the same pace.
+const HERO_WALK_CYCLE_MS = 560;
 const IDLE_FRAME_MS = 200;
 const DASH_FRAME_MS = 55;
 const DEATH_FRAME_MS = 120;
@@ -47,7 +50,7 @@ function heroFrame(set, player) {
     return byProgress(attack, player.combo.phaseProgress);
   }
   if (player.hitFlashTimer > 0) return anims.hurt[player.hitFlashTimer > 60 ? 0 : 1];
-  if (player.moving) return cycle(anims.walk, player.animTimer, WALK_FRAME_MS);
+  if (player.moving) return cycle(anims.walk, player.animTimer, HERO_WALK_CYCLE_MS / anims.walk.length);
   return cycle(anims.idle, player.idleTimer || 0, IDLE_FRAME_MS);
 }
 

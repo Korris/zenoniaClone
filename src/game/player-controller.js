@@ -163,7 +163,7 @@ export function updatePlayer(world, input, dt, banner) {
   if (input.wasPressed('attack')) player.combo.pressAttack();
   for (const event of player.combo.update(dt)) {
     if (event.type !== 'hit') continue;
-    if (player.attackStyle === 'ranged') fireComboBolt(world, event.step); // wizard: magic bolts
+    if (player.attackStyle === 'ranged') fireComboBolt(world, event.step); // wizard bolts / mechanic bullets
     else performComboHit(world, event.step); // warrior: sword arc
   }
 

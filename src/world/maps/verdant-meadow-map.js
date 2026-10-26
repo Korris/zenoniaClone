@@ -1,7 +1,7 @@
-// Map 1: meadow fields east of Oakhaven Village. River with a bridge, pine forest, slimes and
-// bats. The village cottages/NPCs that used to live here moved to oakhaven-village-map.js; the
-// old house/fence cluster stays as flavor (now unowned cottages) and the west start clearing
-// gained a portal back to the village.
+// Map 2: meadow fields beyond Frost Hollow. River with a bridge, pine forest, slimes and bats.
+// The village cottages/NPCs that used to live here moved to oakhaven-village-map.js; the old
+// house/fence cluster stays as flavor (now unowned cottages) and the west start clearing's portal
+// leads back to Frost Hollow's exit stairs (and from there to the village).
 import {
   createGrid, fillRect, drawBorder, scatter, carvePath, placePortal, reserve, placeProp, scatterProps,
   propLine, forestBorder, gridToRows,
@@ -23,7 +23,7 @@ function build() {
   propLine(grid, 'fence', 3, 9, 6, 1, 0);
   propLine(grid, 'fence', 11, 9, 7, 1, 0);
   placeProp(grid, 'signpost', 6, 13);
-  // safe start clearing (west) + portal back to Oakhaven Village
+  // safe start clearing (west) + portal back to Frost Hollow
   reserve(grid, 2, 13, 5, 5);
   placePortal(grid, 3, 15, 'd');
   placePortal(grid, 37, 15, 'd');
@@ -50,7 +50,7 @@ export const VERDANT_MEADOW_MAP = {
   npcs: [],
   playerStart: { tx: 4, ty: 15 },
   portals: [
-    { tx: 3, ty: 15, targetMap: 'oakhavenVillage', targetTx: 16, targetTy: 19, minLevel: 1 },
+    { tx: 3, ty: 15, targetMap: 'frostHollow', targetTx: 32, targetTy: 4, minLevel: 1 },
     { tx: 37, ty: 15, targetMap: 'darkCave', targetTx: 4, targetTy: 4, minLevel: 3 },
   ],
   spawnZones: [

@@ -11,10 +11,13 @@
     "sprites:validate": "python tools/validate_sprites.py",
     "hd:build": "python tools/build-hd-hero.py",
     "hd:wizard": "python tools/build-hd-hero.py assets/hd/wizard assets/hd/wizard/normalized",
+    "hd:mechanic": "python tools/build-hd-hero.py assets/hd/mechanic assets/hd/mechanic/normalized && python tools/build-mechanic-fx.py",
     "hd:tiles": "python tools/build-hd-tiles.py",
     "hd:props": "python tools/build-hd-props.py",
     "hd:npcs": "python tools/build-hd-npcs.py",
-    "hd:village": "python tools/build-oakhaven-village-art.py"
+    "hd:village": "python tools/build-oakhaven-village-art.py",
+    "hd:frost": "python tools/build-frost-hollow-art.py",
+    "hd:monsters": "python tools/build-hd-monsters.py"
   },
   "license": "MIT",
   "devDependencies": {

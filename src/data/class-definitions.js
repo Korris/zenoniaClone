@@ -1,7 +1,8 @@
 // Playable classes, chosen on New Game. Each class has its own base stats + growth (fed to
 // statsForLevel), its own 3 skill-tree branches (skills are matched to a class through their
-// branch), its basic-attack style ('melee' sword combo or 'ranged' magic-bolt combo) and its
-// sprite set key (sprite-registry.js `heroes[classId]`).
+// branch), its basic-attack style ('melee' sword combo or 'ranged' projectile combo -- magic bolts
+// for the wizard, gunshots for the mechanic, see COMBO_CONFIG_BY_CLASS), the class-select style
+// line, and its sprite set key (sprite-registry.js `heroes[classId]`).
 export const CLASS_DEFINITIONS = Object.freeze({
   warrior: {
     id: 'warrior',
@@ -11,6 +12,7 @@ export const CLASS_DEFINITIONS = Object.freeze({
     growth: { maxHp: 12, maxMp: 5, atk: 2.5, def: 1 },
     branches: ['sword', 'body', 'spirit'],
     attackStyle: 'melee',
+    styleLabel: 'Close-range sword combos',
   },
   wizard: {
     id: 'wizard',
@@ -21,6 +23,18 @@ export const CLASS_DEFINITIONS = Object.freeze({
     growth: { maxHp: 9, maxMp: 8, atk: 2.7, def: 0.7 },
     branches: ['fire', 'frost', 'arcane'],
     attackStyle: 'ranged',
+    styleLabel: 'Long-range magic bolts',
+  },
+  mechanic: {
+    id: 'mechanic',
+    name: 'Mechanic',
+    tagline: 'Gunslinging engineer. Rapid shots, rockets and gadgets.',
+    // Between the two: sturdier than the wizard, less MP; fast low-damage shots with a cannon finisher.
+    baseStats: { maxHp: 90, maxMp: 55, atk: 12, def: 4, speed: 82 },
+    growth: { maxHp: 10, maxMp: 6, atk: 2.6, def: 0.9 },
+    branches: ['gunnery', 'explosives', 'engineering'],
+    attackStyle: 'ranged',
+    styleLabel: 'Rapid-fire gunshots',
   },
 });
 

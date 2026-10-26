@@ -6,9 +6,9 @@ import { drawText, drawPanel, UI_FONT } from './pixel-text.js';
 import { HERO_FRAME_SIZE } from '../graphics/sprite-registry.js';
 import { CLASS_DEFINITIONS, CLASS_IDS } from '../data/class-definitions.js';
 
-const CARD_W = 300;
+const CARD_W = 280;
 const CARD_H = 330;
-const CARD_GAP = 40;
+const CARD_GAP = 20;
 const CARD_Y = 150;
 const IDLE_FRAME_MS = 200;
 const STAT_BARS = [
@@ -17,7 +17,6 @@ const STAT_BARS = [
   { key: 'atk', label: 'ATK', color: '#f0b040' },
   { key: 'def', label: 'DEF', color: '#9aa8b8' },
 ];
-const STYLE_LABEL = { melee: 'Close-range sword combos', ranged: 'Long-range magic bolts' };
 
 /** Word-wrap `text` into lines no wider than `maxWidth` at the ctx's current font. */
 function wrapLines(ctx, text, maxWidth) {
@@ -100,7 +99,7 @@ export class ClassSelectScreen {
       drawText(ctx, line, x + CARD_W / 2, y, { size: 12, align: 'center', color: '#d0d0e0' });
       y += 16;
     }
-    drawText(ctx, STYLE_LABEL[def.attackStyle], x + CARD_W / 2, y + 2, { size: 12, align: 'center', color: '#ffd27a' });
+    drawText(ctx, def.styleLabel, x + CARD_W / 2, y + 2, { size: 12, align: 'center', color: '#ffd27a' });
     y += 24;
     for (const { key, label, color } of STAT_BARS) {
       const value = def.baseStats[key];
