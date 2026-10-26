@@ -61,6 +61,7 @@ npm run hd:build          # normalize assets/hd/hero/*.png (HD, hand-painted) in
 npm run hd:tiles          # normalize assets/hd/tiles/*.png (HD ground tiles) into assets/hd/tiles/normalized/
 npm run hd:props          # normalize assets/hd/props/*.png (HD props) into assets/hd/props/normalized/
 npm run hd:npcs           # normalize assets/hd/map/Oakhaven/*.png (HD villager idle sheets) into assets/hd/npcs/normalized/
+npm run hd:village        # Oakhaven painted ground + buildings/props from the ChatGPT sheets in assets/hd/map/oakhaven-v6/
 ```
 
 ## Project layout

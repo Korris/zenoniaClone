@@ -20,7 +20,8 @@ export function renderWorld(ctx, world, registry, view = {}) {
   ctx.imageSmoothingEnabled = false;
   ctx.setTransform(PIXEL_SCALE, 0, 0, PIXEL_SCALE, -camera.renderX * PIXEL_SCALE, -camera.renderY * PIXEL_SCALE);
 
-  drawTilemap(ctx, world.tilemap, camera, registry, world.elapsedMs);
+  const backdrop = registry.backdrops?.[world.mapDef?.backdrop] || null;
+  drawTilemap(ctx, world.tilemap, camera, registry, world.elapsedMs, backdrop);
   drawDrops(ctx, world.drops, registry);
 
   // Y-sort so things lower on screen draw in front (classic top-down depth)

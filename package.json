@@ -13,7 +13,7 @@
     "hd:tiles": "python tools/build-hd-tiles.py",
     "hd:props": "python tools/build-hd-props.py",
     "hd:npcs": "python tools/build-hd-npcs.py",
-    "hd:village-props": "python tools/build-village-landmarks.py"
+    "hd:village": "python tools/build-oakhaven-village-art.py"
   },
   "license": "MIT",
   "devDependencies": {

@@ -56,11 +56,7 @@ PROP_TARGETS = {
     'palm': (32, 48), 'cactus': (16, 32), 'bones': (32, 16),
     'house': (64, 48), 'house2': (64, 48), 'house3': (64, 48),
     'fence': (16, 24), 'signpost': (16, 24), 'pillar': (16, 48), 'torch': (16, 32), 'crystal': (16, 32),
-    # Optional combined source sheet for Oakhaven props. Current standalone landmark sprites are
-    # authored by tools/build-village-landmarks.py; this sheet is not required for the build.
-    'well': (32, 48), 'lanternPost': (16, 32), 'marketStall': (48, 48), 'cropPlot': (32, 16),
-    'scarecrow': (16, 32), 'woodpile': (32, 32), 'campfire': (16, 16), 'barrel': (16, 16),
-    'crate': (16, 16), 'rowboat': (32, 16),
+    # Oakhaven Village props are built separately by tools/build-oakhaven-village-art.py.
 }
 
 # filename -> how to split it into per-object segments + the prop type(s) each segment maps to,
@@ -77,11 +73,6 @@ SHEETS = {
     # palm/cactus touch by a few stray antialiased px even past the haze threshold -- split by hand
     # at the real local-minimum column (verified: alpha-column-sum dips to ~12px around x=877).
     'desert.png': {'mode': 'manual', 'splits': [877], 'outputs': ['palm', 'cactus']},
-    # Village set (TO PAINT): one RGBA sheet, transparent background, objects left-to-right in
-    # exactly this order, >= MIN_GAP_COLUMNS fully transparent columns between neighbours.
-    'village_props.png': {'mode': 'auto', 'outputs': [
-        'well', 'lanternPost', 'marketStall', 'cropPlot', 'scarecrow', 'woodpile', 'campfire', 'barrel', 'crate', 'rowboat',
-    ]},
 }
 
 CELL_NOTES = {
@@ -93,12 +84,6 @@ CELL_NOTES = {
     'village.png': ['fence', 'signpost', 'pillar', 'torch', 'crystal', 'bones (non-solid)'],
     'houses.png': ['red roof -> house', 'brown roof -> house2', 'stone roof -> house3'],
     'desert.png': ['palm', 'cactus'],
-    'village_props.png': [
-        'well (roofed stone well, 2x3 tiles)', 'lanternPost (wooden post + hanging lantern, 1x2)',
-        'marketStall (striped-awning stall with goods, 3x3)', 'cropPlot (one row of vegetables, 2x1)',
-        'scarecrow (1x2)', 'woodpile (log shelter, 2x2)', 'campfire (1x1)', 'barrel (1x1)', 'crate (1x1)',
-        'rowboat (2x1, moored on water)',
-    ],
 }
 
 

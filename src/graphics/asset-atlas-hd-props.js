@@ -8,6 +8,15 @@ const HD_PROP_NORM_DIR = 'hd/props/normalized/';
 
 export const HD_PROP_PIXELS_PER_UNIT = 4;
 
+// Oakhaven Village (v6) props, cut from ChatGPT sheets by tools/build-oakhaven-village-art.py. The
+// normalized file is named after the prop type, so both tables below are derived from this list.
+const OAKHAVEN_PROP_TYPES = [
+  'elderHouse', 'cottageRed', 'hunterLodge', 'healerCottage', 'carpenterWorkshop',
+  'well', 'lanternPost', 'marketStall', 'scarecrow', 'woodpile', 'campfire', 'barrel', 'crate', 'rowboat',
+  'villageFence', 'villageOak', 'villagePine', 'villageBush', 'villageFlowerBush', 'villageSignpost',
+];
+const oakhavenKey = (type) => `hdProp${type[0].toUpperCase()}${type.slice(1)}`;
+
 // Spread into asset-atlas.js's ASSET_FILES. Same boot-resilience rule as the other HD sets:
 // missing files just log a 404 warning and prop-sprite-builder.js falls back to PROP_RECTS.
 export const HD_PROP_ASSET_FILES = Object.freeze({
@@ -22,21 +31,13 @@ export const HD_PROP_ASSET_FILES = Object.freeze({
   hdPropPalm: HD_PROP_NORM_DIR + 'palm.png', hdPropCactus: HD_PROP_NORM_DIR + 'cactus.png',
   hdPropBones: HD_PROP_NORM_DIR + 'bones.png',
   hdPropHouse: HD_PROP_NORM_DIR + 'house.png', hdPropHouse2: HD_PROP_NORM_DIR + 'house2.png',
-  hdPropHouse3: HD_PROP_NORM_DIR + 'house3.png', hdPropElderHouse: HD_PROP_NORM_DIR + 'elderHouse.png',
+  hdPropHouse3: HD_PROP_NORM_DIR + 'house3.png',
   hdPropFence: HD_PROP_NORM_DIR + 'fence.png', hdPropSignpost: HD_PROP_NORM_DIR + 'signpost.png',
   hdPropPillar: HD_PROP_NORM_DIR + 'pillar.png', hdPropTorch: HD_PROP_NORM_DIR + 'torch.png',
   hdPropCrystal: HD_PROP_NORM_DIR + 'crystal.png',
-  hdPropWell: HD_PROP_NORM_DIR + 'well.png', hdPropLanternPost: HD_PROP_NORM_DIR + 'lanternPost.png',
-  hdPropMarketStall: HD_PROP_NORM_DIR + 'marketStall.png', hdPropCropPlot: HD_PROP_NORM_DIR + 'cropPlot.png',
-  hdPropScarecrow: HD_PROP_NORM_DIR + 'scarecrow.png', hdPropWoodpile: HD_PROP_NORM_DIR + 'woodpile.png',
-  hdPropCampfire: HD_PROP_NORM_DIR + 'campfire.png', hdPropBarrel: HD_PROP_NORM_DIR + 'barrel.png',
-  hdPropBridgeArch: HD_PROP_NORM_DIR + 'bridgeArch.png',
-  hdPropCrate: HD_PROP_NORM_DIR + 'crate.png', hdPropRowboat: HD_PROP_NORM_DIR + 'rowboat.png',
+  ...Object.fromEntries(OAKHAVEN_PROP_TYPES.map((t) => [oakhavenKey(t), `${HD_PROP_NORM_DIR}${t}.png`])),
 });
 
-// Oakhaven landmarks are authored by tools/build-village-landmarks.py as individual transparent
-// HD sprites. Their canvases match world/prop-definitions.js and can be regenerated independently
-// of the irregular source-sheet cutter above.
 export const HD_PROPS = Object.freeze({
   pine: 'hdPropPine', pineDark: 'hdPropPineDark', roundTree: 'hdPropRoundTree', bigTree: 'hdPropBigTree',
   smallTree: 'hdPropSmallTree', deadTree: 'hdPropDeadTree',
@@ -44,11 +45,8 @@ export const HD_PROPS = Object.freeze({
   rockBrown: 'hdPropRockBrown', rockGrey: 'hdPropRockGrey',
   rockSmallGrey: 'hdPropRockSmallGrey', rockSmallBrown: 'hdPropRockSmallBrown', stump: 'hdPropStump',
   palm: 'hdPropPalm', cactus: 'hdPropCactus', bones: 'hdPropBones',
-  house: 'hdPropHouse', house2: 'hdPropHouse2', house3: 'hdPropHouse3', elderHouse: 'hdPropElderHouse',
+  house: 'hdPropHouse', house2: 'hdPropHouse2', house3: 'hdPropHouse3',
   fence: 'hdPropFence', signpost: 'hdPropSignpost', pillar: 'hdPropPillar',
   torch: 'hdPropTorch', crystal: 'hdPropCrystal',
-  well: 'hdPropWell', lanternPost: 'hdPropLanternPost', marketStall: 'hdPropMarketStall',
-  cropPlot: 'hdPropCropPlot', scarecrow: 'hdPropScarecrow', woodpile: 'hdPropWoodpile',
-  campfire: 'hdPropCampfire', barrel: 'hdPropBarrel', crate: 'hdPropCrate', rowboat: 'hdPropRowboat',
-  bridgeArch: 'hdPropBridgeArch',
+  ...Object.fromEntries(OAKHAVEN_PROP_TYPES.map((t) => [t, oakhavenKey(t)])),
 });

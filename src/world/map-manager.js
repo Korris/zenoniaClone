@@ -57,15 +57,20 @@ export function placePlayerAtTile(world, tx, ty) {
   world.player.dash = null;
 }
 
-/** Place the hero at exact world coordinates if they are walkable, else at map start. */
+/**
+ * Place the hero at exact world coordinates if they are walkable, else at map start. The whole
+ * hitbox must be free too: a saved spot from an older map layout can have its feet tile open while
+ * the box overlaps a new wall, which would leave the hero unable to move.
+ */
 export function placePlayerAtWorld(world, x, y) {
-  const tilemap = world.tilemap;
+  const { tilemap, player } = world;
   const tx = Math.floor(x / TILE_SIZE);
   const ty = Math.floor((y - FEET_SAMPLE_OFFSET) / TILE_SIZE);
-  if (tilemap.charAt(tx, ty) !== null && !tilemap.isSolidTile(tx, ty) && tilemap.charAt(tx, ty) !== 'P') {
-    world.player.x = x;
-    world.player.y = y;
-  } else {
+  const tileOk = tilemap.charAt(tx, ty) !== null && !tilemap.isSolidTile(tx, ty) && tilemap.charAt(tx, ty) !== 'P';
+  player.x = x;
+  player.y = y;
+  const { x: bx, y: by, w, h } = player.box;
+  if (!tileOk || tilemap.isRectBlocked(bx, by, w, h)) {
     placePlayerAtTile(world, world.mapDef.playerStart.tx, world.mapDef.playerStart.ty);
   }
   world.camera.snapTo(world.player.x, world.player.y - CAMERA_TARGET_Y_OFFSET);

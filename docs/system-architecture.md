@@ -320,14 +320,14 @@ left to right) and its target world size to `PROP_TARGETS` (must match `prop-def
 in `asset-atlas-hd-props.js` -- no other code changes needed (`prop-sprite-builder.js` picks up any
 `HD_PROPS` entry whose file loaded).
 
-**Pending village set:** `prop-definitions.js` and `build-hd-props.py` already define 10 Oakhaven
-Village props with no art yet (well 32x48, lanternPost 16x32, marketStall 48x48, cropPlot 32x16,
-scarecrow 16x32, woodpile 32x32, campfire 16x16, barrel 16x16, crate 16x16, rowboat 32x16 -- world
-units, canvas = x4). Painting `assets/hd/props/village_props.png` (objects left-to-right in that
-order, transparent background, >= 2 empty columns between objects), running `npm run hd:props`, then
-adding the `HD_PROP_ASSET_FILES`/`HD_PROPS` keys and `placeProp()` calls at the spots commented in
-`oakhaven-village-map.js` is all that's left. `tests/hd-props-config.test.js` fails loudly if an
-`HD_PROPS` entry is added before its file exists.
+**Map backdrops (Oakhaven v6):** a map definition may name `backdrop: '<imageKey>'` (registered in
+`BACKDROP_FILES`, asset-atlas.js; exposed as `registry.backdrops`). `tilemap-renderer.js` then blits
+only the on-screen slice of that map-sized painting (4 px per world unit) and draws just animated
+tiles (portals) on top; tile rows keep driving collision, minimap and reachability. Oakhaven's art is
+ChatGPT-painted (ground layer, a buildings sheet and a props sheet made in one chat for a consistent
+style) and processed by `tools/build-oakhaven-village-art.py` (`npm run hd:village`); its
+`GROUND_ROWS` were classified from the painting tile by tile, so repainting the backdrop means
+re-deriving them. The bottom ~1.5 tile rows sit under the HUD bar, so keep portals/NPCs above row 22.
 
 ### HD NPCs (Oakhaven villagers)
 

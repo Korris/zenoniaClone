@@ -49,23 +49,5 @@ its prop type's HD canvas (world size x4, matching `src/world/prop-definitions.j
 - palm
 - cactus
 
-### village_props.png
-- well (roofed stone well, 2x3 tiles)
-- lanternPost (wooden post + hanging lantern, 1x2)
-- marketStall (striped-awning stall with goods, 3x3)
-- cropPlot (one row of vegetables, 2x1)
-- scarecrow (1x2)
-- woodpile (log shelter, 2x2)
-- campfire (1x1)
-- barrel (1x1)
-- crate (1x1)
-- rowboat (2x1, moored on water)
-
-## Rebuild
-
-```
-python tools/build-hd-props.py
-# or: npm run hd:props
-```
-
-Missing raw files are skipped with a warning -- the set can grow one sheet at a time.
+### Oakhaven Village (v6)
+Built separately by `tools/build-oakhaven-village-art.py` (`npm run hd:village`) from the ChatGPT sheets in `assets/hd/map/oakhaven-v6/`: elderHouse, cottageRed, hunterLodge, healerCottage, carpenterWorkshop, well, lanternPost, marketStall, scarecrow, woodpile, campfire, barrel, crate, rowboat, villageFence, villageOak, villagePine, villageBush, villageFlowerBush, villageSignpost.

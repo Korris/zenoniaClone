@@ -1,5 +1,23 @@
 # Project Roadmap
 
+## Version 0.10 — Oakhaven Village v6 (painted backdrop)
+
+**Status:** ✅ Delivered (2026-10-26)
+
+### Changes (v0.10)
+- [x] **Art (ChatGPT, one chat)**: whole-map painted ground (forest edge, curved roads, round cobble
+  plaza, river, bridge, dock, farm field), 5 buildings and 15 props on transparent sheets.
+- [x] **Pipeline** `tools/build-oakhaven-village-art.py` (`npm run hd:village`) replaces the
+  vector-drawn `build-village-landmarks.py`; `cropPlot`/`bridgeArch` dropped (painted into ground).
+- [x] **Engine**: map `backdrop` support in `tilemap-renderer.js`; solid forest tile `T`; minimap
+  colour override.
+- [x] **Map**: village now 36x24 (was 36x26); collision classified from the painting; portal (16,21),
+  start/arrival (16,19); 10 NPCs re-placed by their homes.
+- [x] **Tests**: `tests/oakhaven-village-layout.test.js` rewritten (backdrop size, closed forest frame,
+  well ring, districts, water). 122/122 pass; checked in-browser (all districts, portal round trip).
+
+---
+
 ## Version 0.9 — Hand-Painted Villagers (10 HD NPCs)
 
 **Status:** ✅ Delivered

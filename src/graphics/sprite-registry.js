@@ -4,7 +4,7 @@ import { createSprite, createTintedSprite } from './pixel-sprite-factory.js';
 import { cropSprite, cell } from './sprite-cell.js';
 import {
   CHARACTER_DIRECTIONS, FLOWER_OVERLAYS, MONSTER_SHEETS, BOSS_STRIPS, NPC_SHEETS, FX_STRIPS,
-  HERO_ANIMATIONS, HERO_FRAME, HERO_SHEET_ROW, HD_HERO, HD_HERO_ANIMATIONS,
+  HERO_ANIMATIONS, HERO_FRAME, HERO_SHEET_ROW, HD_HERO, HD_HERO_ANIMATIONS, BACKDROP_FILES,
 } from './asset-atlas.js';
 import { EFFECT_PALETTE, MARKER_ROWS } from './sprites/effect-sprite-data.js';
 import { buildTiles } from './tile-sprite-builder.js';
@@ -162,6 +162,7 @@ export function buildSpriteRegistry(images) {
       width: frameW, height: frameH, hitFlash: createTintedSprite(bossIdle[0], HIT_FLASH_COLOR),
     },
     ...buildTiles(images), // { tiles, tilesHd }
+    backdrops: Object.fromEntries(Object.keys(BACKDROP_FILES).filter((k) => images[k]).map((k) => [k, images[k]])),
     flowers: FLOWER_OVERLAYS.map(([image, cx, cy]) => cell(images[image], cx, cy)), // pixel-art flower overlay (non-HD fallback)
     props: buildProps(images),
     effects: buildEffects(images),

@@ -50,7 +50,7 @@ export const VERDANT_MEADOW_MAP = {
   npcs: [],
   playerStart: { tx: 4, ty: 15 },
   portals: [
-    { tx: 3, ty: 15, targetMap: 'oakhavenVillage', targetTx: 16, targetTy: 21, minLevel: 1 },
+    { tx: 3, ty: 15, targetMap: 'oakhavenVillage', targetTx: 16, targetTy: 19, minLevel: 1 },
     { tx: 37, ty: 15, targetMap: 'darkCave', targetTx: 4, targetTy: 4, minLevel: 3 },
   ],
   spawnZones: [

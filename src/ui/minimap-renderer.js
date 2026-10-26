@@ -7,7 +7,7 @@ import { getPropDefinition } from '../world/prop-definitions.js';
 const TILE_COLORS = {
   grass: '#8bc34a', dirtBlock: '#e8a860', waterBlock: '#5fc8f0', cliffWall: '#b07a48', sand: '#f0b870',
   castleFloor: '#7c8c80', caveFloor: '#4a3c30', castleWall: '#4a4a58', caveWall: '#55606a', lava: '#ff7a2a',
-  bridge: '#d89050', portal: '#e0a0ff',
+  bridge: '#d89050', portal: '#e0a0ff', forest: '#2f5e2c',
 };
 const PROP_COLORS = {
   pine: '#2f7a3a', pineDark: '#2a6a34', roundTree: '#3f9e3c', smallTree: '#3f9e3c', bigTree: '#3f9e3c', deadTree: '#7a4a30',
@@ -15,6 +15,8 @@ const PROP_COLORS = {
   rockSmallGrey: '#8a9a8a', rockSmallBrown: '#b07050', palm: '#3f9e3c', pillar: '#9aa89a',
   bush2: '#5fb850', stones: '#a0a8a0', stump: '#8a5a3a', fence: '#c89860', signpost: '#c89860',
   torch: '#ffb040', crystal: '#6fd0ff', cactus: '#3f9e3c', bones: '#e0d8c0',
+  elderHouse: '#4a6fc0', cottageRed: '#e05a3a', hunterLodge: '#8a5a3a', healerCottage: '#5f9a3c',
+  carpenterWorkshop: '#a8703c', marketStall: '#e06060', well: '#9aa0a8', villageOak: '#3f9e3c', villagePine: '#2f7a3a',
 };
 
 const SCALE = 3;
@@ -31,7 +33,8 @@ function buildMapCanvas(world) {
   const ctx = canvas.getContext('2d');
   for (let ty = 0; ty < tilemap.height; ty++) {
     for (let tx = 0; tx < tilemap.width; tx++) {
-      ctx.fillStyle = TILE_COLORS[getTileInfo(tilemap.charAt(tx, ty)).sprite] || '#000';
+      const info = getTileInfo(tilemap.charAt(tx, ty));
+      ctx.fillStyle = TILE_COLORS[info.minimap || info.sprite] || '#000';
       ctx.fillRect(tx, ty, 1, 1);
     }
   }

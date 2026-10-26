@@ -16,6 +16,9 @@ export const TILE_INFO = Object.freeze({
   x: { kind: 'variants', sprite: 'lava', solid: true },
   B: { kind: 'variants', sprite: 'bridge', solid: false },
   P: { kind: 'animated', sprite: 'portal', solid: false },
+  // Forest canopy painted into a map backdrop: blocks movement. Without the backdrop it falls back
+  // to grass art; `minimap` overrides the sprite-derived minimap colour.
+  T: { kind: 'variants', sprite: 'grass', minimap: 'forest', solid: true },
 });
 
 /** Returns tile info for a char, falling back to grass for unknown chars. */

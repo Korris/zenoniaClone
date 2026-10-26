@@ -13,6 +13,14 @@ const HD_HERO_DIR = 'hd/hero/';
 const HD_HERO_NORM_DIR = HD_HERO_DIR + 'normalized/';
 const HD_TILE_NORM_DIR = 'hd/tiles/normalized/';
 
+// Whole-map painted ground layers (4 px per world unit, map-sized), keyed by the image key a map
+// definition names in `backdrop`. The tile rows still drive collision and the minimap; the renderer
+// draws the backdrop instead of the tiles (tilemap-renderer.js). Built by
+// tools/build-oakhaven-village-art.py from a ChatGPT painting.
+export const BACKDROP_FILES = Object.freeze({
+  hdOakhavenGround: 'hd/map/oakhaven-v6/ground.webp',
+});
+
 export const ASSET_FILES = Object.freeze({
   field: PACK + 'tilesets/TilesetField.png', water: PACK + 'tilesets/TilesetWater.png', relief: PACK + 'tilesets/TilesetRelief.png',
   floor: PACK + 'tilesets/TilesetFloor.png', nature: PACK + 'tilesets/TilesetNature.png', desert: PACK + 'tilesets/TilesetDesert.png',
@@ -57,6 +65,7 @@ export const ASSET_FILES = Object.freeze({
   hdWater: HD_TILE_NORM_DIR + 'water.png', hdFloors: HD_TILE_NORM_DIR + 'floors.png',
   hdWalls: HD_TILE_NORM_DIR + 'walls.png', hdPortal: HD_TILE_NORM_DIR + 'portal.png',
   hdPlaza: HD_TILE_NORM_DIR + 'plaza.png', // seamless 2x2 stone macro drawn through the path block's silhouette
+  ...BACKDROP_FILES,
   // HD hand-painted props (trees, rocks, houses, fences...): see asset-atlas-hd-props.js.
   ...HD_PROP_ASSET_FILES,
   // HD hand-painted NPC idle sheets + portraits (Oakhaven villagers): see asset-atlas-hd-npcs.js.

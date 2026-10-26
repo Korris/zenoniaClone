@@ -38,14 +38,26 @@ function drawPortalGround(ctx, tilemap, tiles, tilesHd, tx, ty, elapsedMs) {
   else drawVariants(ctx, tiles[info.sprite], tx, ty);
 }
 
+/** Blit only the on-screen slice of the map-sized backdrop (its scale = source px per world unit). */
+function drawBackdrop(ctx, tilemap, camera, backdrop) {
+  const scale = backdrop.width / tilemap.pixelWidth;
+  const x = Math.max(0, Math.floor(camera.renderX));
+  const y = Math.max(0, Math.floor(camera.renderY));
+  const w = Math.min(VIEW_WIDTH + 1, tilemap.pixelWidth - x);
+  const h = Math.min(VIEW_HEIGHT + 1, tilemap.pixelHeight - y);
+  if (w > 0 && h > 0) ctx.drawImage(backdrop, x * scale, y * scale, w * scale, h * scale, x, y, w, h);
+}
+
 /**
  * @param {CanvasRenderingContext2D} ctx context already transformed to world space
  * @param {import('../world/tilemap.js').Tilemap} tilemap
  * @param {import('../core/camera.js').Camera} camera
  * @param {object} registry sprite registry (tiles, tilesHd, flowers)
  * @param {number} elapsedMs
+ * @param {HTMLImageElement|null} backdrop painted whole-map ground; when set, only animated tiles
+ *   (portals) are drawn on top of it -- the tile rows then only drive collision and the minimap
  */
-export function drawTilemap(ctx, tilemap, camera, registry, elapsedMs) {
+export function drawTilemap(ctx, tilemap, camera, registry, elapsedMs, backdrop = null) {
   const { tiles, flowers, tilesHd } = registry;
   const startX = Math.max(0, Math.floor(camera.renderX / TILE_SIZE));
   const startY = Math.max(0, Math.floor(camera.renderY / TILE_SIZE));
@@ -54,13 +66,15 @@ export function drawTilemap(ctx, tilemap, camera, registry, elapsedMs) {
 
   // One toggle for the whole tilemap (not per-tile): HD cells are 64px source drawn down to
   // TILE_SIZE, so they need smoothing; the rest of the world (entities) manages its own toggle.
-  ctx.imageSmoothingEnabled = tilesHd;
+  ctx.imageSmoothingEnabled = tilesHd || !!backdrop;
+  if (backdrop) drawBackdrop(ctx, tilemap, camera, backdrop);
 
   for (let ty = startY; ty <= endY; ty++) {
     for (let tx = startX; tx <= endX; tx++) {
       const ch = tilemap.charAt(tx, ty);
       if (ch === null) continue;
       const info = getTileInfo(ch);
+      if (backdrop && info.kind !== 'animated') continue;
       const px = tx * TILE_SIZE;
       const py = ty * TILE_SIZE;
       const same = (dx, dy) => sameEdgeFamily(ch, tilemap.charAt(tx + dx, ty + dy));
@@ -83,7 +97,7 @@ export function drawTilemap(ctx, tilemap, camera, registry, elapsedMs) {
         ctx.drawImage(frames[0], px, py, TILE_SIZE, TILE_SIZE);
       } else if (info.kind === 'animated') {
         const frames = tiles[info.sprite];
-        if (tilesHd) drawPortalGround(ctx, tilemap, tiles, tilesHd, tx, ty, elapsedMs);
+        if (tilesHd && !backdrop) drawPortalGround(ctx, tilemap, tiles, tilesHd, tx, ty, elapsedMs);
         ctx.drawImage(frames[Math.floor(elapsedMs / PORTAL_FRAME_MS) % frames.length], px, py, TILE_SIZE, TILE_SIZE);
       }
     }
