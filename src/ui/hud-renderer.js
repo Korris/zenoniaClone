@@ -5,6 +5,8 @@ import { SKILL_DEFINITIONS, HOTBAR_SLOT_KEYS, getSkillValue } from '../data/skil
 import { getSkillLevel } from '../systems/skill-system.js';
 import { drawMinimap } from './minimap-renderer.js';
 import { drawActivityNotice } from './activity-notice.js';
+import { itemSprite } from '../graphics/weapon-icons.js';
+import { drawSmoothImage } from '../graphics/smooth-sprite-draw.js';
 
 const BAR_H = 0;
 const GOLD = '#c3d8e3';
@@ -56,13 +58,46 @@ function drawStatBars(ctx, player) {
     if(value) { label(ctx,name,x+6,y+h/2,10); label(ctx,value,x+w-6,y+h/2,10,'#fff','right'); }
   }
 }
-function drawSkillSlots(ctx, player, icons) {
+// shadowBlur re-runs a blur pass every frame; bake the weapon's drop shadow once per sprite.
+const WEAPON_ICON_SIZE = 80;
+const WEAPON_BAKE_DENSITY = 2; // matches the max canvas density in canvas-display.js
+const shadowedWeaponCache = new WeakMap();
+function shadowedWeapon(sprite) {
+  let baked = shadowedWeaponCache.get(sprite);
+  if (baked) return baked;
+  const scale = WEAPON_ICON_SIZE / Math.max(sprite.width, sprite.height) * WEAPON_BAKE_DENSITY;
+  const pad = 8 * WEAPON_BAKE_DENSITY;
+  baked = document.createElement('canvas');
+  baked.width = Math.ceil(sprite.width * scale) + pad * 2;
+  baked.height = Math.ceil(sprite.height * scale) + pad * 2;
+  const c = baked.getContext('2d');
+  c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+  c.shadowColor = '#06111e'; c.shadowBlur = 5 * WEAPON_BAKE_DENSITY; c.shadowOffsetY = 2 * WEAPON_BAKE_DENSITY;
+  c.drawImage(sprite, pad, pad, sprite.width * scale, sprite.height * scale);
+  shadowedWeaponCache.set(sprite, baked);
+  return baked;
+}
+
+function drawAttackButton(ctx, player, registry, x, y) {
+  disc(ctx, x, y, 60, '#a7d9ef');
+  ctx.save();
+  ctx.beginPath(); ctx.arc(x, y, 51, 0, Math.PI * 2); ctx.clip();
+  const glow = ctx.createRadialGradient(x - 12, y - 17, 3, x, y, 61);
+  glow.addColorStop(0, '#365e7e'); glow.addColorStop(0.6, '#19334d'); glow.addColorStop(1, '#0b1a2b');
+  ctx.fillStyle = glow; ctx.fillRect(x - 52, y - 52, 104, 104);
+  const item = player.equipment.weapon || { slot: 'weapon', itemLevel: 1, classId: player.classId };
+  const sprite = itemSprite(registry, item, player.classId, true);
+  if (sprite) {
+    const baked = shadowedWeapon(sprite);
+    const w = baked.width / WEAPON_BAKE_DENSITY, h = baked.height / WEAPON_BAKE_DENSITY;
+    drawSmoothImage(ctx, baked, x - w / 2, y - h / 2, w, h);
+  }
+  ctx.restore();
+}
+function drawSkillSlots(ctx, player, registry) {
+  const icons = registry.icons;
   const ax=CANVAS_WIDTH-76, ay=CANVAS_HEIGHT-80;
-  disc(ctx,ax,ay,60,'#e7ca8c');
-  ctx.save(); ctx.translate(ax,ay-6); ctx.rotate(Math.PI/4);
-  ctx.fillStyle='#e2f5ff'; ctx.beginPath(); ctx.moveTo(0,-30); ctx.lineTo(7,-17); ctx.lineTo(5,14); ctx.lineTo(-5,14); ctx.lineTo(-7,-17); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#ebce96'; ctx.fillRect(-16,14,32,5); ctx.fillRect(-4,19,8,15); ctx.restore();
-  label(ctx,'J / SPACE',ax,ay+39,10,'#ecdbb8','center');
+  drawAttackButton(ctx, player, registry, ax, ay);
   const positions=[[ax-120,ay+8],[ax-99,ay-78],[ax-13,ay-120]];
   player.hotbar.forEach((id,slot)=>{
     const [x,y]=positions[slot];
@@ -132,7 +167,7 @@ export function drawHud(ctx, world, registry, view) {
   ctx.save();
   drawStatBars(ctx, world.player);
   drawPortrait(ctx, world.player, registry);
-  drawSkillSlots(ctx, world.player, registry.icons);
+  drawSkillSlots(ctx, world.player, registry);
   drawMinimap(ctx, world, view.npcMarkers);
   drawActivityNotice(ctx, world.lootFeedback, registry, world.player.classId);
   const target = world.combatTarget;

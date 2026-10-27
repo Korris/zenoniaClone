@@ -4,6 +4,7 @@ import { getPropDefinition } from '../world/prop-definitions.js';
 import { CHARACTER_SIZE, HERO_FRAME_SIZE } from './sprite-registry.js';
 import { drawShadow, characterFrame } from './player-renderer.js';
 import { drawText } from '../ui/pixel-text.js';
+import { drawSmoothImage } from './smooth-sprite-draw.js';
 
 const NPC_IDLE_FRAME_MS = 260; // slow, subtle breathing loop for the 4-frame HD idle rows
 const HD_NPC_FACING = Object.freeze({ down: 'down', up: 'down', left: 'left', right: 'right' }); // no rear pose painted
@@ -47,14 +48,16 @@ export function drawNpc(ctx, npc, registry, marker) {
   const drawY = (Math.round((npc.y - size) * transform.d + transform.f) - transform.f) / transform.d;
   drawShadow(ctx, npc.x, npc.y, hd ? 6 : 5, hd ? 2.5 : 2);
   ctx.imageSmoothingEnabled = hd;
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(frame, drawX, drawY, size, size);
+  if (hd) drawSmoothImage(ctx, frame, drawX, drawY, size, size);
+  else ctx.drawImage(frame, drawX, drawY, size, size);
   ctx.imageSmoothingEnabled = false;
   if (marker) {
     const sprite = registry.effects.markers[marker];
     if (sprite) {
       const float = Math.round(Math.sin(npc.animTimer / 250) * 1.5);
-      ctx.drawImage(sprite, Math.round(npc.x - sprite.width / 2), drawY - sprite.height - 2 + float);
+      const ppu = sprite.pixelsPerUnit || 1, w = sprite.width / ppu, h = sprite.height / ppu;
+      ctx.imageSmoothingEnabled = ppu > 1;
+      ctx.drawImage(sprite, npc.x - w / 2, drawY - h - 2 + float, w, h);
     }
   }
 }

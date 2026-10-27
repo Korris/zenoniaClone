@@ -27,7 +27,7 @@ export class MonsterSpawner {
         if (m) monsters.push(m);
       }
     });
-    if (this.mapDef.boss && !bossDefeated) {
+    if (this.mapDef.boss && (this.mapDef.boss.localBoss || !bossDefeated)) {
       const { type, tx, ty } = this.mapDef.boss;
       monsters.push(new Monster(type, (tx + 0.5) * TILE_SIZE, (ty + 1) * TILE_SIZE, -1));
     }

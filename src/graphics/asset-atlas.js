@@ -37,6 +37,16 @@ export const ASSET_FILES = Object.freeze({
   bootsIcons: 'custom/boots-icons-chibi.png',
   bagFrame: 'custom/bag-frame-v2.png',
   iceStorm: 'hd/wizard/fx/ice-storm.png',
+  ...Object.fromEntries(['charge', 'sweep', 'slam', 'fissures'].flatMap(stage =>
+    Array.from({ length: 6 }, (_, i) => [`earthBreak_${stage}_${i + 1}`, `custom/earth-break-frames/${stage}-${i + 1}.png`]))),
+  rocketBarrage: 'custom/rocket-barrage-fx.png',
+  ultimateIcons: 'custom/ultimate-icons-chibi.png',
+  paintedSkillswarrior: 'custom/skill-icons-warrior-chibi.png',
+  paintedSkillswizard: 'custom/skill-icons-wizard-chibi.png',
+  paintedSkillsmechanic: 'custom/skill-icons-mechanic-chibi.png',
+  paintedCombatFx: 'custom/combat-fx-painted.png',
+  warriorSlashFx: 'custom/warrior-slashes-chibi.png',
+  paintedUtility: 'custom/utility-icons-painted.png',
   field: PACK + 'tilesets/TilesetField.png', water: PACK + 'tilesets/TilesetWater.png', relief: PACK + 'tilesets/TilesetRelief.png',
   floor: PACK + 'tilesets/TilesetFloor.png', nature: PACK + 'tilesets/TilesetNature.png', desert: PACK + 'tilesets/TilesetDesert.png',
   house: PACK + 'tilesets/TilesetHouse.png', dungeon: PACK + 'tilesets/TilesetDungeon.png', wall: PACK + 'tilesets/TilesetWallSimple.png',
@@ -207,6 +217,7 @@ export const MONSTER_SHEETS = Object.freeze({
   slime: 'Slime2', bat: 'BlueBat', goblin: 'KappaGreen', fireSlime: 'Flam', goblinWarrior: 'Cyclope',
   skeleton: 'Skull', skeletonKnight: 'SkullBlue',
   frostSlime: 'Slime2', iceGoblin: 'KappaGreen', spectralWolf: 'BlueBat',
+  frostfangKing: 'Cyclope',
 });
 // Custom hero: 24x24 frames, rows = CHARACTER_DIRECTIONS, columns = frames
 export const HERO_ANIMATIONS = Object.freeze({

@@ -43,13 +43,13 @@ const WARRIOR_SKILL_DEFINITIONS = {
     effect: { kind: 'strike', reach: 20, width: 24, knockback: 160, label: 'Heavy Blow!', textColor: '#ffb13b' },
   },
   bladeStorm: {
-    id: 'bladeStorm', name: 'Blade Storm', type: 'active', branch: 'sword', tier: 3,
+    id: 'bladeStorm', name: 'Earth Break', type: 'active', branch: 'sword', tier: 3,
     maxLevel: 5, requiredLevel: [10, 13, 16, 19, 22],
     requires: [{ skill: 'whirlwind', level: 3 }, { skill: 'heavyBlow', level: 1 }],
-    mpCost: [16, 18, 20, 22, 25], cooldownMs: [8000, 7600, 7200, 6800, 6400],
-    damageMult: [1.4, 1.7, 2.0, 2.4, 2.8], radius: [34, 36, 38, 40, 44],
-    icon: 'iconBookWind', description: 'Three spinning strikes that batter everything nearby.',
-    effect: { kind: 'radial', knockback: 140, pulses: 3, pulseIntervalMs: 200, label: 'Blade Storm!', textColor: '#ffb13b' },
+    mpCost: [25, 27, 29, 32, 35], cooldownMs: [8000, 8000, 8000, 8000, 8000],
+    damageMult: [3.2, 3.5, 3.8, 4.1, 4.4], radius: [42, 48, 54, 60, 66], range: [32, 34, 36, 38, 40],
+    icon: 'iconBookWind', description: 'Charge, sweep and slam a giant sword of energy. Launches foes for 1.5s and leaves damaging fissures.',
+    effect: { kind: 'earthBreak', textColor: '#ffb13b' },
   },
 
   // ---- BODY ----

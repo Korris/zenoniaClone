@@ -2,6 +2,7 @@ import { cropSprite } from './sprite-cell.js';
 import { createTintedSprite } from './pixel-sprite-factory.js';
 import { itemSprite } from './weapon-icons.js';
 import { drawPotion } from './potion-renderer.js';
+import { drawSmoothImage } from './smooth-sprite-draw.js';
 
 const COLORS = { common: '#eff6ff', uncommon: '#8fff8f', rare: '#76b7ff', epic: '#d888ff', gold: '#ffd16b' };
 const STRENGTH = { common: 0.65, uncommon: 0.8, rare: 1, epic: 1, gold: 1 };
@@ -26,11 +27,10 @@ function drawLight(ctx, frame, x, y, size, alpha) {
   ctx.save();
   ctx.globalAlpha *= alpha;
   ctx.globalCompositeOperation = 'lighter';
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(frame, x - size / 2, y - size * 0.8, size, size);
+  drawSmoothImage(ctx, frame, x - size / 2, y - size * 0.8, size, size);
   // A second light pass keeps the narrow core legible over the bright daytime ground.
   ctx.globalAlpha *= 0.55;
-  ctx.drawImage(frame, x - size / 2, y - size * 0.8, size, size);
+  drawSmoothImage(ctx, frame, x - size / 2, y - size * 0.8, size, size);
   ctx.restore();
 }
 
@@ -89,8 +89,7 @@ export function drawLootPickupEffects(ctx, effects, registry, classId) {
       const sprite = itemSprite(registry, drop.item, classId, true);
       if (sprite) {
         const scale = size / Math.max(sprite.width, sprite.height);
-        ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(sprite, x - sprite.width * scale / 2, y - sprite.height * scale, sprite.width * scale, sprite.height * scale);
+        drawSmoothImage(ctx, sprite, x - sprite.width * scale / 2, y - sprite.height * scale, sprite.width * scale, sprite.height * scale);
       }
     } else if (drop.kind === 'hpPotion' || drop.kind === 'mpPotion') {
       drawPotion(ctx, drop.kind, x, y - size / 2, size);

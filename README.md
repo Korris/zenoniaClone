@@ -4,6 +4,18 @@ A Zenonia-style chibi pixel-art action RPG that runs in the browser. Vanilla Jav
 
 The hero also has an **HD rendering path**: hand-painted, Zenonia-4-style sheets in `assets/hd/`, normalized by `tools/build-hd-hero.py` into `assets/hd/hero/normalized/` (see that folder's README). World/gameplay units don't change -- HD frames just carry more source pixels per world unit and get drawn with image smoothing on, crisp instead of chunky, alongside the still-pixel-art rest of the world. See `docs/system-architecture.md` → "HD Assets". Ground tiles (grass, dirt path, water, sand/stone/cave/lava floors, cliffs, walls, portal) have the same HD path, normalized by `tools/build-hd-tiles.py` into `assets/hd/tiles/normalized/`. Props (trees, rocks, houses, fences, torches, crystals...) have it too, normalized by `tools/build-hd-props.py` into `assets/hd/props/normalized/`.
 
+## Art direction
+
+**Art style (Phong cách đồ họa): Đồ họa 2D sắc nét, thiết kế nhân vật theo phong cách anime/manga dễ thương nhưng kịch tính, kết hợp với góc nhìn từ trên xuống (top-down view) cổ điển.**
+
+Định hướng của game là **anime/manga chibi kiểu Zenonia**. Nhân vật, item, icon kỹ năng, hiệu ứng, môi trường và UI phải cùng một ngôn ngữ hình ảnh: hình khối gọn, đường nét sạch, màu sắc tươi, dễ thương nhưng chiến đấu có lực. Icon cần đọc rõ ở kích thước nhỏ; hiệu ứng có nét và chuyển động rõ, giữ nhân vật dễ nhìn.
+
+"Vẽ tay", "HD" và "sắc nét" mô tả cách thể hiện và chất lượng hình, không phải đổi sang fantasy phương Tây/châu Âu. Tránh icon như tranh sử thi thu nhỏ, giáp/viền kim loại quá nặng, hoa văn gothic/baroque hoặc chất hiện thực u tối. Luôn đối chiếu tài nguyên mới với hero chibi đang dùng và kiểm tra ở kích thước thật trong game.
+
+Bộ `assets/custom/skill-icons-*-painted.png` tạo ngày 2026-10-27 **chưa được chấp nhận về phong cách**: người dùng phản hồi bộ này trông như game châu Âu. Không dùng bộ đó làm mẫu chuẩn cho các lần thiết kế tiếp theo. Quy tắc thực thi cho agent nằm trong [AGENTS.md](AGENTS.md).
+
+Runtime đã chuyển sang bộ `assets/custom/skill-icons-{warrior,wizard,mechanic}-chibi.png` được vẽ lại theo hero và inventory chibi hiện có, với hình khối gọn, nét anime và màu sáng. Prompt của từng bộ nằm ở file `-chibi-prompt.txt` tương ứng. Ảnh kiểm tra trong game ở `tools/screenshots/skill-icons-chibi/`; bộ mới vẫn cần phản hồi thẩm mỹ từ người dùng.
+
 ## Features
 
 - Chibi hero with 4-direction walk animation, sword swings and a 3-hit combo chain (finisher does bonus damage and knockback).

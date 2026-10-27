@@ -7,6 +7,7 @@ import { buildSpriteRegistry } from './graphics/sprite-registry.js';
 import { GameController } from './game/game-controller.js';
 import { unlockCombatAudio } from './audio/combat-audio.js';
 import { configureCanvasDisplay, setScreenTransform } from './core/canvas-display.js';
+import { FpsCounter } from './ui/fps-counter.js';
 
 function drawLoading(ctx, loaded, total) {
   setScreenTransform(ctx);
@@ -23,7 +24,8 @@ async function boot() {
   const resize = () => configureCanvasDisplay(canvas, window.innerWidth, window.innerHeight, window.devicePixelRatio);
   resize();
   window.addEventListener('resize', resize);
-  const ctx = canvas.getContext('2d');
+  // Opaque canvas: every frame is painted edge to edge, so the browser can skip alpha compositing.
+  const ctx = canvas.getContext('2d', { alpha: false });
   ctx.imageSmoothingEnabled = false;
   drawLoading(ctx, 0, 1);
 
@@ -34,13 +36,16 @@ async function boot() {
   window.addEventListener('keydown', unlockCombatAudio);
   canvas.addEventListener('pointerdown', unlockCombatAudio);
   const controller = new GameController(registry, input);
+  const fps = new FpsCounter();
 
   const loop = new GameLoop({
     update: (dt) => controller.update(dt),
-    render: () => {
+    render: (alpha) => {
       // Also catch browser zoom / moving between monitors with different pixel density.
       resize();
-      controller.render(ctx);
+      controller.render(ctx, alpha);
+      fps.tick(performance.now());
+      fps.render(ctx);
     },
   });
   loop.start();

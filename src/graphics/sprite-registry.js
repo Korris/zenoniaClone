@@ -3,6 +3,8 @@
 import { createSprite, createTintedSprite, HIT_FLASH_COLOR } from './pixel-sprite-factory.js';
 import { buildMonstersHd } from './hd-monster-sprite-builder.js';
 import { buildIceStormFrames } from './ice-storm-renderer.js';
+import { buildUltimateFrames } from './ultimate-renderer.js';
+import { buildPaintedSkillIcons, buildPaintedCombatEffects } from './painted-combat-assets.js';
 import { cropSprite, cell } from './sprite-cell.js';
 import {
   CHARACTER_DIRECTIONS, FLOWER_OVERLAYS, MONSTER_SHEETS, BOSS_STRIPS, NPC_SHEETS, FX_STRIPS,
@@ -141,10 +143,13 @@ function buildEffects(images) {
   }
   effects.coin = images.coin;
   effects.iceStorm = buildIceStormFrames(images.iceStorm);
+  effects.earthBreak = buildUltimateFrames(images, 'earthBreak');
+  effects.rocketBarrage = buildUltimateFrames(images.rocketBarrage, 'rocketBarrage');
   effects.potionHp = images.lifePot;
   effects.potionMp = images.milkPot;
   effects.markers = {};
   for (const [id, rows] of Object.entries(MARKER_ROWS)) effects.markers[id] = createSprite(rows, { palette: EFFECT_PALETTE });
+  Object.assign(effects, buildPaintedCombatEffects(images));
   return effects;
 }
 
@@ -169,6 +174,7 @@ export function buildSpriteRegistry(images) {
   // Skill icons are already-sized 24x24 PNGs from the Ninja Adventure icon pack -- used directly.
   const icons = {};
   for (const [id, def] of Object.entries(SKILL_DEFINITIONS)) icons[id] = images[def.icon];
+  Object.assign(icons, buildPaintedSkillIcons(images));
   // Equipment sprites (weapons used as-is, gear icons 24x24) keyed by templateId.
   const items = {};
   for (const [id, def] of Object.entries(ITEM_TEMPLATES)) items[id] = images[def.sprite];

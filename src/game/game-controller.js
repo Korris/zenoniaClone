@@ -17,6 +17,7 @@ import { hasSave } from '../save/local-storage-save.js';
 import { usePotion } from '../systems/loot-system.js';
 import { menuHit } from '../ui/character-menu.js';
 import { findNearbyNpc, computeNpcMarkers, openNpcDialog, applyDialogOutcome } from './npc-interaction.js';
+import { captureInterpolationSnapshot, renderInterpolated } from './render-interpolation.js';
 import { onMonsterKilledForQuests, onMapReachedForQuests, onDialogOutcomeForQuests } from './quest-flow.js';
 
 const S = GAME_STATES;
@@ -38,6 +39,7 @@ export class GameController {
   }
 
   update(dt) {
+    captureInterpolationSnapshot(this.session.world);
     this.banner.update(dt);
     const handlers = {
       [S.TITLE]: () => this.updateTitle(),
@@ -212,7 +214,8 @@ export class GameController {
     this.state = S.TITLE;
   }
 
-  render(ctx) {
+  /** @param {number} [alpha] 0..1 progress into the next logic step (see render-interpolation.js) */
+  render(ctx, alpha = 0) {
     setScreenTransform(ctx);
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -221,8 +224,10 @@ export class GameController {
 
     const { session } = this;
     const view = { npcMarkers: this.npcMarkers, nearbyNpc: this.state === S.PLAYING ? this.nearbyNpc : null, questState: session.quests };
-    renderWorld(ctx, session.world, this.registry, view);
-    drawHud(ctx, session.world, this.registry, view);
+    renderInterpolated(session.world, alpha, () => {
+      renderWorld(ctx, session.world, this.registry, view);
+      drawHud(ctx, session.world, this.registry, view);
+    });
     this.banner.render(ctx);
 
     if (this.state === S.SKILLS) this.skillPanel.render(ctx, session.player, this.registry);

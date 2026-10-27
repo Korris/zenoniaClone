@@ -5,7 +5,9 @@ import { drawText } from '../ui/pixel-text.js';
 import { drawPotion } from './potion-renderer.js';
 import { itemSprite, weaponIconIndex } from './weapon-icons.js';
 import { equipmentTier } from '../data/item-definitions.js';
+import { drawSmoothImage } from './smooth-sprite-draw.js';
 import { drawIceStorm } from './ice-storm-renderer.js';
+import { drawUltimate } from './ultimate-renderer.js';
 
 const DROP_SIZE = 6.6;
 
@@ -17,15 +19,16 @@ function pickFrame(entry, progress) {
 
 /** Draw centred and rotated; `scale` is in world units, so an HD sprite (pixelsPerUnit > 1) is shrunk
  * accordingly and drawn smoothed instead of pixel-crisp. */
-function drawRotated(ctx, sprite, x, y, rotation, scale = 1, alpha = 1) {
+function drawRotated(ctx, sprite, x, y, rotation, scale = 1, alpha = 1, flipY = false) {
   const ppu = sprite.pixelsPerUnit || 1;
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.imageSmoothingEnabled = ppu > 1;
   ctx.translate(Math.round(x), Math.round(y));
   ctx.rotate(rotation);
-  ctx.scale(scale / ppu, scale / ppu);
-  ctx.drawImage(sprite, -sprite.width / 2, -sprite.height / 2);
+  ctx.scale(scale / ppu, (flipY ? -1 : 1) * scale / ppu);
+  if (ppu > 1) drawSmoothImage(ctx, sprite, -sprite.width / 2, -sprite.height / 2);
+  else ctx.drawImage(sprite, -sprite.width / 2, -sprite.height / 2);
   ctx.restore();
 }
 
@@ -40,15 +43,13 @@ function drawEquipmentDrop(ctx, drop, registry, classId) {
     ? registry.groundWeaponIcons?.[weaponIconIndex(item.itemLevel, item.classId || classId)]
     : registry.groundArmorIcons?.[item.slot]?.[equipmentTier(item.itemLevel)] || registry.groundItems?.[item.templateId];
   ctx.save();
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
   // Snap to physical canvas pixels to prevent subpixel shimmer while the camera moves.
   const transform = ctx.getTransform?.();
   const sx = transform?.a || PIXEL_SCALE, sy = transform?.d || PIXEL_SCALE;
   const tx = transform?.e || 0, ty = transform?.f || 0;
   const x = (Math.round((drop.x - w / 2) * sx + tx) - tx) / sx;
   const y = (Math.round((drop.y + drop.bobOffset - 2 - h) * sy + ty) - ty) / sy;
-  ctx.drawImage(groundSprite || sprite, x, y, w, h);
+  drawSmoothImage(ctx, groundSprite || sprite, x, y, w, h);
   ctx.restore();
 }
 
@@ -110,16 +111,27 @@ export function drawProjectiles(ctx, projectiles, registry) {
 
 export function drawEffects(ctx, effects, registry) {
   for (const e of effects) {
+    if (e.kind === 'earthBreak' || e.kind === 'rocketBarrage') { drawUltimate(ctx, e, registry.effects[e.kind]); continue; }
     if (e.kind === 'iceStorm') { drawIceStorm(ctx, e, registry.effects.iceStorm); continue; }
     const entry = registry.effects[e.spriteKey];
     if (!entry) continue;
-    drawRotated(ctx, pickFrame(entry, e.progress), e.x, e.y, e.rotation, e.scale, e.alpha);
+    drawRotated(ctx, pickFrame(entry, e.progress), e.x, e.y, e.rotation, e.scale, e.alpha, e.flipY);
   }
 }
 
-export function drawParticles(ctx, particles) {
-  ctx.fillStyle = '#ffe680';
-  for (const p of particles) ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 2);
+export function drawParticles(ctx, particles, registry) {
+  const sprite = registry?.effects.hitParticle;
+  ctx.save(); ctx.imageSmoothingEnabled = true;
+  for (const p of particles) {
+    const alpha = Math.min(1, Math.max(0, p.lifeMs / 120));
+    if (sprite) {
+      const size = 3.5;
+      ctx.globalAlpha = alpha; drawSmoothImage(ctx, sprite, p.x - size / 2, p.y - size / 2, size, size);
+    } else {
+      ctx.fillStyle = '#ffe680'; ctx.beginPath(); ctx.arc(p.x, p.y, 0.8, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.restore();
 }
 
 /** Floating text is drawn in SCREEN space so the font stays sharp. Call after resetting transform. */
@@ -144,9 +156,11 @@ function drawDamageNumber(ctx, t, sx, sy) {
   colors.forEach((color, i) => gradient.addColorStop(i / 3, color));
   ctx.strokeStyle = '#070f1e';
   ctx.lineWidth = 5;
-  ctx.shadowColor = '#000a'; ctx.shadowBlur = 3; ctx.shadowOffsetY = 3;
+  // Drop shadow as an offset stroke: same look as shadowBlur 3 at a fraction of the GPU cost.
+  ctx.strokeStyle = '#000a';
+  ctx.strokeText(t.text, 0, 3);
+  ctx.strokeStyle = '#070f1e';
   ctx.strokeText(t.text, 0, 0);
-  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
   ctx.fillStyle = gradient;
   ctx.fillText(t.text, 0, 0);
   ctx.restore();

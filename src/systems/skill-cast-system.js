@@ -10,6 +10,7 @@ import { boxesOverlap } from './damage-formula.js';
 import { Projectile } from '../entities/projectile.js';
 import { SkillPulse } from '../entities/skill-pulse.js';
 import { IceStorm } from '../entities/ice-storm.js';
+import { castUltimate } from './ultimate-skills.js';
 
 const DASH_SPEED = 420; // px/s
 const DIR_ANGLE = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
@@ -17,7 +18,7 @@ const DIR_ANGLE = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2
 /** Attempts to cast; returns {ok, reason}. Spends MP and starts cooldown on success. */
 export function tryCastSkill(world, skillId) {
   const { player } = world;
-  if (player.dead || player.dash) return { ok: false, reason: 'Busy' };
+  if (player.dead || player.dash || player.ultimateCast && !player.ultimateCast.dead && player.ultimateCast.age < player.ultimateCast.lockMs) return { ok: false, reason: 'Busy' };
   const check = canCastSkill(player, skillId, player.cooldowns);
   if (!check.ok) return check;
 
@@ -53,7 +54,7 @@ function castRadial(world, level, mult, def) {
   const radius = getSkillValue(def.id, 'radius', level);
   // fx: burst sprite. The sword arc keeps its old radius/30 sizing; HD bursts give their diameter in
   // world units (fxDiameter) so the art spans exactly the hit radius.
-  const fxScale = fxDiameter ? (2 * radius) / fxDiameter : radius / 30;
+  const fxScale = (fxDiameter ? (2 * radius) / fxDiameter : radius / 30) * (def.effect.visualScale ?? 1);
   const pulse = () => {
     performRadialHit(world, radius, mult, knockback);
     world.addEffect({ x: player.x, y: player.y - 8, spriteKey: fx, rotation: Math.random() * Math.PI * 2, lifeMs: 320, scale: fxScale, spin: 16, follow: player, offsetY: -8 });
@@ -100,6 +101,7 @@ function castBuff(world, level, mult, def) {
 }
 
 const CAST_HANDLERS = Object.freeze({
+  earthBreak: castUltimate, rocketBarrage: castUltimate,
   iceStorm: (world, level, mult, def) => {
     const p = world.player, v = DIRECTION_VECTORS[p.dir];
     const center = { x: p.x + v.x * 26, y: p.y - 6 + v.y * 26 };

@@ -18,7 +18,7 @@ test('critical damage uses the existing 1.6 multiplier', () => {
 function worldFor(monster, crit) {
   const player = new Player(); player.x = 0; player.y = 0; player.dir = 'right';
   player.passiveMods.critChance = crit ? 1 : 0;
-  return { player, monsters: [monster], addText() {}, addSparks() {}, addEffect() {} };
+  return { player, hitRoll: () => 0.5, monsters: [monster], addText() {}, addSparks() {}, addEffect() {} };
 }
 
 test('critical knockback doubles both axes without extending duration', () => {

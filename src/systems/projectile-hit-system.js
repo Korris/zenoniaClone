@@ -21,6 +21,7 @@ export function fireComboBolt(world, step) {
   world.projectiles.push(new Projectile({
     x: player.x + v.x * 12, y: player.y - 4 + v.y * 12, vx: v.x * speed, vy: v.y * speed,
     owner: 'player', damage: heroAttack(player) * mult, spriteKey, scale,
+    canMiss: true,
     lifeMs: (range / speed) * 1000, w, h, explodeRadius, explodeFx, knockback: hit.knockback,
   }));
   // Small flash at the staff tip / gun barrel so the shot reads even before the projectile travels.
@@ -31,7 +32,7 @@ export function fireComboBolt(world, step) {
 function strikeMonster(world, p, monster, knockX, knockY) {
   const crit = Math.random() < (world.player.passiveMods?.critChance || 0);
   const damage = computeDamage(p.damage, monster.def.def, crit ? 1.6 : 1);
-  damageMonster(world, monster, damage, knockX, knockY, crit ? CRIT_COLOR : MAGIC_HIT_COLOR, crit);
+  damageMonster(world, monster, damage, knockX, knockY, crit ? CRIT_COLOR : MAGIC_HIT_COLOR, crit, p.canMiss);
 }
 
 /** Burst at the projectile's position: every live monster within the radius is hit once. */
@@ -58,7 +59,7 @@ export function resolveProjectileHits(world) {
     if (p.dead) continue;
     if (p.owner === 'monster') {
       if (boxesOverlap(p.box, player.box)) {
-        hitPlayer(world, computeDamage(p.damage, player.def, 1), p.x, p.y);
+        hitPlayer(world, computeDamage(p.damage, player.def, 1), p.x, p.y, p.canMiss);
         p.dead = true;
       }
       continue;

@@ -24,7 +24,7 @@ export class Monster {
     this.knockback = { vx: 0, vy: 0, timer: 0 };
     this.dead = false;
     this.hitBySwing = new Set(); // swing ids that already damaged this monster
-    this.isBoss = this.def.behavior === 'boss';
+    this.isBoss = this.def.behavior === 'boss' || Boolean(this.def.isBoss);
   }
 
   get box() {

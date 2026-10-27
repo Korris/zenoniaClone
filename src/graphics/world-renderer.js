@@ -7,6 +7,7 @@ import { drawMonster } from './monster-renderer.js';
 import { drawProp, drawNpc, drawNameTags } from './prop-renderer.js';
 import { drawDrops, drawProjectiles, drawEffects, drawParticles, drawFloatingTexts } from './effects-renderer.js';
 import { drawIceStorm } from './ice-storm-renderer.js';
+import { drawUltimate } from './ultimate-renderer.js';
 
 const CULL_MARGIN = 64;
 
@@ -19,11 +20,15 @@ const CULL_MARGIN = 64;
 export function renderWorld(ctx, world, registry, view = {}) {
   const { camera, player } = world;
   ctx.imageSmoothingEnabled = false;
+  // 'high' re-filters every draw and costs >half the GPU frame; HD sprites go through the
+  // pre-shrunk levels in smooth-sprite-draw.js instead, so 'low' keeps the same look.
+  ctx.imageSmoothingQuality = 'low';
   setWorldTransform(ctx, camera);
 
   const backdrop = registry.backdrops?.[world.mapDef?.backdrop] || null;
   drawTilemap(ctx, world.tilemap, camera, registry, world.elapsedMs, backdrop);
   for (const effect of world.effects) if (effect.kind === 'iceStorm') drawIceStorm(ctx, effect, registry.effects.iceStorm, true);
+  for (const effect of world.effects) if (effect.kind === 'earthBreak' || effect.kind === 'rocketBarrage') drawUltimate(ctx, effect, registry.effects[effect.kind], true);
   drawDrops(ctx, world.drops, registry, player.classId);
 
   // Y-sort so things lower on screen draw in front (classic top-down depth)
@@ -45,7 +50,7 @@ export function renderWorld(ctx, world, registry, view = {}) {
 
   drawProjectiles(ctx, world.projectiles, registry);
   drawEffects(ctx, world.effects, registry);
-  drawParticles(ctx, world.particles);
+  drawParticles(ctx, world.particles, registry);
 
   setScreenTransform(ctx);
   drawNameTags(ctx, world, view.nearbyNpc || null, registry);

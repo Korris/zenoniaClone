@@ -1,0 +1,9 @@
+Use case: game-asset. ONE production hand-painted chibi RPG combat VFX atlas matching supplied ice-storm game's detailed crisp luminous art. EXACT grid FOUR equal columns x SEVEN equal rows:28 isolated animation frames on true TRANSPARENT background. Each cell square with12% transparent padding. No opaque backdrop, blue haze, smoke clouds, checkerboard, text, numbers, gridlines, characters, weapons or UI. Smooth painted sharp curves and fine sparks, NOT PIXEL ART. Each row is a short4-frame animation progressing appearance, peak, break-up, vanish. Fixed center, scale and direction per row. Preserve complete effect inside each cell.
+Row1 SMALL SWORD SLASH: thin white-hot and light cyan crescent opening toward screen right, initial small sliver, bright crescent, taper, tiny fragments.
+Row2 LARGE SWORD ARC: broad silver-white, cyan and slight gold luminous crescent opening right, strong curved motion, fuller peak and trailing sharp shards. No full circular ring.
+Row3 DASH TRAIL: horizontal turquoise-white airy speed streaks pointing RIGHT, smooth tapered narrow curves and translucent afterimage wisps, no body or smoke.
+Row4 HIT SPARK: very small warm white/gold and pale blue impact starburst, crisp long thin spokes, bright core then tiny golden sparks, NO blocky square pixels.
+Row5 CIRCULAR SHOCKWAVE: elliptical cyan-white ground ring, ring expanding and breaking into narrow blue sparks, sharp thin outline, no filled disc.
+Row6 SPIRIT BOLT: elongated turquoise/blue-gold magical projectile pointed RIGHT, small white core, flowing tapered bright flame-shaped trail, forms, grows, trails, dissolves.
+Row7 ENEMY MAGIC SPARK: small violet-magenta fiery orb projectile pointed RIGHT, white-pink core, purple tapering tail, four readable pulse frames.
+All seven rows same four columns. Bright readable shapes in otherwise empty transparent space. Need sprite sheet for replacing low-res pixel effects, not a screenshot.

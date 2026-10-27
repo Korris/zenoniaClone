@@ -14,6 +14,7 @@ export const HD_MONSTERS = Object.freeze({
   frostSlime: { bodyHeight: 104 },
   iceGoblin: { bodyHeight: 152 },
   spectralWolf: { bodyHeight: 156 },
+  frostfangKing: { bodyHeight: 170 },
 });
 
 // Sheet layout contract: four walk frames per row, with an actual rear pose for UP.

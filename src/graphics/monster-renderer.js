@@ -1,12 +1,14 @@
 // Draws monsters from 4-direction sheets (16px pixel pack, or the HD painted walk-cycle sheets of
 // Frost Hollow where loaded) and the boss from idle/walk/hit strips.
 import { drawShadow } from './player-renderer.js';
+import { drawSmoothImage } from './smooth-sprite-draw.js';
 
 const FRAME_MS = 180;
 const BOSS_FRAME_MS = 140;
 // Real rear-view frames are available; walking upward must never show the front face.
 const HD_MONSTER_FACING = Object.freeze({ down: 'down', up: 'up', left: 'left', right: 'right' });
 const HD_MONSTER_UNITS = 24; // 192px frame / pixelsPerUnit 8, matching the HD hero.
+const launchHeight = monster => monster.airborneMs > 0 ? Math.sin(Math.PI * (1 - monster.airborneMs / 1500)) * 13 : 0;
 
 function drawTelegraph(ctx, monster) {
   // Ranged/boss attackers would cover the screen, so the ring is capped to the melee reach
@@ -68,16 +70,18 @@ function pickFrame(frames, monster) {
 
 /** HD painted sheet: drawn smoothed at a fixed 24-unit box, markers hang over the painted body. */
 function drawMonsterHd(ctx, monster, hd) {
+  const renderScale = monster.def?.renderScale || 1;
+  const size = HD_MONSTER_UNITS * renderScale;
   const facing = HD_MONSTER_FACING[monster.dir] || 'down';
   const frame = monster.hitFlashTimer > 0 ? hd.hitFlash[facing] : pickFrame(hd.frames[facing], monster);
-  const drawX = Math.round(monster.x - HD_MONSTER_UNITS / 2);
-  const drawY = Math.round(monster.y - HD_MONSTER_UNITS);
-  drawShadow(ctx, monster.x, monster.y, 6, 2.5);
+  const drawX = Math.round(monster.x - size / 2);
+  const lift = launchHeight(monster);
+  const drawY = Math.round(monster.y - size - lift);
+  drawShadow(ctx, monster.x, monster.y, 6 * renderScale, 2.5);
   if (monster.isTelegraphing) drawTelegraph(ctx, monster);
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(frame, drawX, drawY, HD_MONSTER_UNITS, HD_MONSTER_UNITS);
+  drawSmoothImage(ctx, frame, drawX, drawY, size, size);
   ctx.imageSmoothingEnabled = false;
-  drawMarkers(ctx, monster, Math.round(monster.y - hd.bodyUnits));
+  drawMarkers(ctx, monster, Math.round(monster.y - hd.bodyUnits * renderScale - lift));
 }
 
 /**
@@ -86,15 +90,15 @@ function drawMonsterHd(ctx, monster, hd) {
  * @param {object} registry sprite registry
  */
 export function drawMonster(ctx, monster, registry) {
-  if (monster.isBoss) return drawBoss(ctx, monster, registry);
   const hd = registry.monstersHd?.[monster.type];
   if (hd) return drawMonsterHd(ctx, monster, hd);
-  const sprite = registry.monsters[monster.type];
+  if (monster.isBoss && !monster.def.localBoss) return drawBoss(ctx, monster, registry);
+  const sprite = registry.monsters[monster.type] || registry.monsters[monster.def.sprite];
   if (!sprite) return;
   const frames = sprite.frames[monster.dir] || sprite.frames.down;
   const frame = pickFrame(frames, monster);
   const drawX = Math.round(monster.x - sprite.width / 2);
-  const drawY = Math.round(monster.y - sprite.height);
+  const drawY = Math.round(monster.y - sprite.height - launchHeight(monster));
 
   drawShadow(ctx, monster.x, monster.y, 5, 2);
   if (monster.isTelegraphing) drawTelegraph(ctx, monster);

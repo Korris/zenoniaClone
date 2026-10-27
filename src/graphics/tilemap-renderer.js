@@ -7,6 +7,7 @@ import { TILE_SIZE, VIEW_WIDTH, VIEW_HEIGHT } from '../core/constants.js';
 import { getTileInfo, sameEdgeFamily } from '../world/tile-char-info.js';
 import { pickVariant } from './tile-variant-picker.js';
 import { drawBlockTile } from './tile-block-renderer.js';
+import { drawSmoothImageRegion } from './smooth-sprite-draw.js';
 
 const PORTAL_FRAME_MS = 140;
 // Matches the old procedural portal's opaque base fill (tile-art-generator.js PORTAL_COLORS.base).
@@ -45,7 +46,7 @@ function drawBackdrop(ctx, tilemap, camera, backdrop) {
   const y = Math.max(0, Math.floor(camera.renderY));
   const w = Math.min(VIEW_WIDTH + 1, tilemap.pixelWidth - x);
   const h = Math.min(VIEW_HEIGHT + 1, tilemap.pixelHeight - y);
-  if (w > 0 && h > 0) ctx.drawImage(backdrop, x * scale, y * scale, w * scale, h * scale, x, y, w, h);
+  if (w > 0 && h > 0) drawSmoothImageRegion(ctx, backdrop, x * scale, y * scale, w * scale, h * scale, x, y, w, h);
 }
 
 /**

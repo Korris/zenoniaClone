@@ -6,7 +6,7 @@
 src/
 ├── core/              # Low-level, framework-like utilities (pure)
 │  ├── constants.js    # Canvas size, tile size, game states, directions
-│  ├── game-loop.js    # Fixed-timestep loop wrapper (60Hz update + rAF render)
+│  ├── game-loop.js    # Fixed-timestep loop wrapper (60Hz update + rAF render, interpolated)
 │  ├── input-manager.js # Keyboard input state tracking
 │  ├── camera.js       # View following + bounds clamping
 │  └── seeded-random.js # Deterministic RNG

@@ -17,6 +17,7 @@ function updateMonsters(world, dt) {
     if (monster.dead) continue;
     monster.animTimer += dt;
     if (monster.hitFlashTimer > 0) monster.hitFlashTimer -= dt;
+    if (monster.airborneMs > 0) { monster.airborneMs = Math.max(0, monster.airborneMs - dt); continue; }
     for (const id of monster.hitBySwing) if (id < world.swingCounter - 3) monster.hitBySwing.delete(id);
 
     let dx = 0;

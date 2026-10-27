@@ -39,7 +39,7 @@ export const WIZARD_SKILL_DEFINITIONS = Object.freeze({
     mpCost: [18, 20, 22, 24, 27], cooldownMs: [9000, 8600, 8200, 7800, 7200],
     damageMult: [1.5, 1.8, 2.1, 2.5, 2.9], radius: [38, 40, 42, 44, 48],
     icon: 'iconBookRock', description: 'Call down three waves of meteors around you.',
-    effect: { kind: 'radial', fx: 'fireBurst', fxDiameter: 40, knockback: 150, pulses: 3, pulseIntervalMs: 260, label: 'Meteor Rain!', textColor: '#ff7a3a' },
+    effect: { kind: 'radial', fx: 'fireBurst', fxDiameter: 40, visualScale: 0.75, knockback: 150, pulses: 3, pulseIntervalMs: 260, label: 'Meteor Rain!', textColor: '#ff7a3a' },
   },
 
   // ---- FROST ----

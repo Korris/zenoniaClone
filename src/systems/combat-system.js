@@ -7,6 +7,7 @@ import { Projectile } from '../entities/projectile.js';
 import { ItemDrop } from '../entities/item-drop.js';
 import { rollPlayerDamage, CRIT_COLOR } from './player-damage.js';
 import { playImpactSound } from '../audio/combat-audio.js';
+import { rollHit } from './hit-chance.js';
 
 const DIR_ANGLE = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
 
@@ -21,7 +22,12 @@ export function attackBoxFor(player, reach, width) {
 }
 
 /** Apply damage to a monster, spawn feedback, and handle death rewards. */
-export function damageMonster(world, monster, damage, knockX = 0, knockY = 0, color = '#ffffff', critical = false) {
+export function damageMonster(world, monster, damage, knockX = 0, knockY = 0, color = '#ffffff', critical = false, canMiss = false) {
+  if (monster.dead) return false;
+  if (canMiss && !rollHit(world.player, monster, world.hitRoll)) {
+    world.addText(monster.x, monster.y - monster.def.hitbox.h - 10, 'MISS', '#d4e6f2', { lifeMs: 650, vy: -22 });
+    return false;
+  }
   if (!monster.dead) playImpactSound();
   if (!monster.dead) world.combatTarget = monster;
   const impulse = critical ? 2 : 1;
@@ -48,7 +54,7 @@ function onMonsterDeath(world, monster) {
     world.addText(player.x, player.y - 30, 'LEVEL UP!', '#8fff8f', { lifeMs: 1400, big: true, vy: -18 });
     world.events.push({ type: 'levelUp', levels });
   }
-  if (monster.isBoss) {
+  if (monster.isBoss && !monster.def.localBoss) {
     world.bossDefeated = true;
     world.events.push({ type: 'bossDefeated' });
   }
@@ -66,20 +72,22 @@ export function performComboHit(world, step) {
   const isFinisher = step === player.combo.config.hits.length;
 
   // Slash arc in front of the hero; alternate hits mirror the arc so the combo reads left-right-overhead
+  const fxOffset = hit.reach / 2 + 4;
   world.addEffect({
-    x: player.x + v.x * 14, y: player.y - 7 + v.y * 14, spriteKey: isFinisher ? 'arc' : 'slash',
-    rotation: DIR_ANGLE[player.dir] + (step === 2 ? Math.PI : 0), lifeMs: isFinisher ? 240 : 170,
-    scale: isFinisher ? 1.1 : 0.8,
+    x: player.x + v.x * fxOffset, y: player.y - 6 + v.y * fxOffset, spriteKey: isFinisher ? 'arc' : 'slash',
+    rotation: DIR_ANGLE[player.dir], flipY: step === 2, lifeMs: isFinisher ? 240 : 170,
+    scale: hit.fxScale ?? (isFinisher ? 1.1 : 0.8),
   });
-  if (isFinisher) world.addEffect({ x: player.x, y: player.y - 8, spriteKey: 'arc', rotation: DIR_ANGLE[player.dir] + Math.PI, lifeMs: 260, scale: 0.8, spin: 9, follow: player, offsetY: -8 });
+  if (isFinisher) world.addEffect({ x: player.x, y: player.y - 8, spriteKey: 'arc', rotation: DIR_ANGLE[player.dir] + Math.PI, lifeMs: 260, scale: 1.0, spin: 9, follow: player, offsetY: -8 });
 
   let landed = 0;
   for (const monster of world.monsters) {
     if (monster.dead || monster.hitBySwing.has(swingId) || !boxesOverlap(box, monster.box)) continue;
     monster.hitBySwing.add(swingId);
     const { damage, crit } = rollPlayerDamage(player, monster.def.def, mult);
-    damageMonster(world, monster, damage, v.x * hit.knockback, v.y * hit.knockback, crit ? CRIT_COLOR : isFinisher ? '#ffb13b' : '#ffffff', crit);
-    landed++;
+    const previousHp = monster.hp;
+    damageMonster(world, monster, damage, v.x * hit.knockback, v.y * hit.knockback, crit ? CRIT_COLOR : isFinisher ? '#ffb13b' : '#ffffff', crit, true);
+    if (monster.hp < previousHp) landed++;
   }
   if (landed > 0 && isFinisher) {
     world.camera.shake(2.5, 140);
@@ -92,6 +100,7 @@ export function performComboHit(world, step) {
 /** Area hit around the hero (Whirlwind, Blade Storm). */
 export function performRadialHit(world, radius, mult, knockback, center = null) {
   const { player } = world;
+  const connected = new Set();
   const x = center?.x ?? player.x, y = center?.y ?? player.y - 6;
   for (const monster of world.monsters) {
     if (monster.dead || !circleOverlapsBox(x, y, radius, monster.box)) continue;
@@ -99,8 +108,11 @@ export function performRadialHit(world, radius, mult, knockback, center = null) 
     const dy = monster.y - (center?.y ?? player.y);
     const dist = Math.hypot(dx, dy) || 1;
     const { damage, crit } = rollPlayerDamage(player, monster.def.def, mult);
+    const previousHp = monster.hp;
     damageMonster(world, monster, damage, (dx / dist) * knockback, (dy / dist) * knockback, crit ? CRIT_COLOR : '#bfe9ff', crit);
+    if (monster.hp < previousHp) connected.add(monster);
   }
+  return connected;
 }
 
 /** Single hit in a box in front of the hero (Heavy Blow). */
@@ -138,14 +150,22 @@ function fireMonsterProjectiles(world, monster, count) {
       x: monster.x, y: monster.y - 6, vx: Math.cos(angle) * monster.def.projectileSpeed,
       vy: Math.sin(angle) * monster.def.projectileSpeed, owner: 'monster', damage: monster.def.atk,
       spriteKey: 'spark', lifeMs: 2000, w: 6, h: 6,
+      canMiss: count === 1,
     }));
   }
 }
 
-export function hitPlayer(world, damage, sourceX, sourceY) {
+export function hitPlayer(world, damage, sourceX, sourceY, canMiss = true) {
   const { player } = world;
+  if (player.dead || player.invulnTimer > 0 || player.dash) return;
+  if (canMiss && !rollHit(null, player, world.hitRoll)) {
+    world.addText(player.x, player.y - 24, 'MISS', '#d4e6f2', { lifeMs: 650, vy: -22 });
+    return;
+  }
   const dealt = player.takeDamage(damage);
   if (dealt <= 0) return;
+  player.combo.reset();
+  player.ultimateCast = null;
   // HP regenerates in fractions, so round for display
   world.addText(player.x, player.y - 24, `-${Math.ceil(dealt)}`, '#60bdff', {
     damageStyle: 'incoming', lifeMs: 850, vy: -34,

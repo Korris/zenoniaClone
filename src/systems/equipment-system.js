@@ -59,7 +59,7 @@ export function generateItem(rand, itemLevel, slot = null, forceRarity = null, c
  * @returns {object|null} an item instance, or null when nothing dropped
  */
 export function rollEquipmentDrop(monsterDef, rand = Math.random, classId = 'warrior') {
-  const isBoss = monsterDef.behavior === 'boss';
+  const isBoss = monsterDef.behavior === 'boss' || Boolean(monsterDef.isBoss);
   if (!GUARANTEED_WEAPON_DROPS && !isBoss && rand() >= NORMAL_DROP_CHANCE) return null;
   const itemLevel = monsterDef.itemLevel || 1;
   const forceRarity = isBoss ? (rand() < 0.5 ? 'rare' : 'epic') : null;

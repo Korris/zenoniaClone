@@ -3,7 +3,7 @@
 | File | Purpose |
 |------|---------|
 | **core/constants.js** | Canvas dims, pixel scale, tile size, game state enums, direction vectors. |
-| **core/game-loop.js** | Fixed-timestep wrapper: 60Hz update, render on RAF, handles tab-switch frame clamping. |
+| **core/game-loop.js** | Fixed-timestep wrapper: 60Hz update, render on RAF with interpolation alpha (see game/render-interpolation.js), handles tab-switch frame clamping. |
 | **core/input-manager.js** | Keyboard state tracking; queues key presses for single-frame detection. |
 | **core/camera.js** | Viewport following entity, clamps to tilemap bounds. |
 | **core/seeded-random.js** | Seeded PRNG for deterministic monster spawns & drops. |

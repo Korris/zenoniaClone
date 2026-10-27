@@ -72,13 +72,13 @@ export const MECHANIC_SKILL_DEFINITIONS = Object.freeze({
     passive: { comboMult: [0.05, 0.10, 0.15, 0.20, 0.25] },
   },
   carpetBomb: {
-    id: 'carpetBomb', name: 'Carpet Bomb', type: 'active', branch: 'explosives', tier: 3,
+    id: 'carpetBomb', name: 'Rocket Barrage', type: 'active', branch: 'explosives', tier: 3,
     maxLevel: 5, requiredLevel: [10, 13, 16, 19, 22],
     requires: [{ skill: 'grenadeBurst', level: 3 }, { skill: 'demolitionExpert', level: 1 }],
-    mpCost: [18, 20, 22, 24, 27], cooldownMs: [9000, 8600, 8200, 7800, 7200],
-    damageMult: [1.4, 1.7, 2.0, 2.4, 2.8], radius: [38, 40, 42, 44, 48],
-    icon: 'iconBookFire', description: 'Call in three waves of bombs around you.',
-    effect: { kind: 'radial', fx: 'explosion', fxDiameter: 40, knockback: 140, pulses: 3, pulseIntervalMs: 260, label: 'Carpet Bomb!', textColor: '#ff7a3a' },
+    mpCost: [25, 32, 40, 50, 60], cooldownMs: [18000, 18000, 18000, 18000, 18000],
+    damageMult: [3.2, 3.6, 4.0, 4.4, 4.8], radius: [14, 16, 18, 20, 22], range: [60, 65, 70, 75, 80], rocketCount: [8, 9, 10, 11, 12],
+    icon: 'iconBookFire', description: 'Lock a forward fan, launch blue rockets, then rain them down in a chain of fiery explosions.',
+    effect: { kind: 'rocketBarrage', textColor: '#ff9a4d' },
   },
 
   // ---- ENGINEERING ----

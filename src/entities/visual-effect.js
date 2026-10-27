@@ -2,13 +2,14 @@
 export class VisualEffect {
   /**
    * @param {{x:number,y:number,spriteKey:string,rotation?:number,lifeMs?:number,
-   *          scale?:number,follow?:object,offsetX?:number,offsetY?:number,spin?:number}} opts
+   *          scale?:number,follow?:object,offsetX?:number,offsetY?:number,spin?:number,flipY?:boolean}} opts
    */
   constructor(opts) {
     this.x = opts.x;
     this.y = opts.y;
     this.spriteKey = opts.spriteKey;
     this.rotation = opts.rotation ?? 0;
+    this.flipY = Boolean(opts.flipY);
     this.lifeMs = opts.lifeMs ?? 120;
     this.maxLifeMs = this.lifeMs;
     this.scale = opts.scale ?? 1;

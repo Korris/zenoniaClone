@@ -71,5 +71,5 @@ export const FROST_HOLLOW_MAP = {
     { type: 'frostSlime', count: 2, area: { tx: 25, ty: 5, w: 8, h: 5 }, respawnMs: 8000 },
     { type: 'spectralWolf', count: 4, area: { tx: 25, ty: 14, w: 6, h: 4 }, respawnMs: 11000 }, // south-east clearing (mine cave)
   ],
-  boss: null,
+  boss: { type: 'frostfangKing', tx: 7, ty: 5, localBoss: true },
 };

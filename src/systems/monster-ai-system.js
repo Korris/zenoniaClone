@@ -28,6 +28,7 @@ export function updateMonsterAi(monster, player, dt, rand = Math.random) {
   switch (ai.state) {
     case 'idle':
       if (distToPlayer < def.aggroRange) return enter(ai, 'chase', 0, intent);
+      if (def.stationaryUntilAggro) return intent;
       if (ai.timer <= 0) {
         const angle = rand() * Math.PI * 2;
         ai.dirX = Math.cos(angle);

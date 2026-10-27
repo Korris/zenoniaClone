@@ -32,6 +32,7 @@ export class WorldState {
 
   /** Clear per-map entities (keeps player, camera, progression flags). */
   clearMapEntities() {
+    this.player.ultimateCast = null;
     this.noticeQueue = [];
     this.nearbyDrop = null;
     this.lootFeedback = null;

@@ -5,7 +5,7 @@ export class Projectile {
   /**
    * @param {{x:number,y:number,vx:number,vy:number,owner:'player'|'monster',damage:number,
    *          spriteKey:string,lifeMs:number,w:number,h:number,pierce?:boolean,scale?:number,
-   *          explodeRadius?:number,explodeFx?:string,knockback?:number}} opts
+   *          explodeRadius?:number,explodeFx?:string,knockback?:number,canMiss?:boolean}} opts
    * `explodeRadius` > 0 makes it burst on first contact (AoE, see projectile-hit-system.js).
    */
   constructor(opts) {
@@ -16,6 +16,7 @@ export class Projectile {
     this.vy = opts.vy;
     this.owner = opts.owner;
     this.damage = opts.damage;
+    this.canMiss = Boolean(opts.canMiss); // ordinary shots opt in; skill projectiles never roll MISS
     this.spriteKey = opts.spriteKey;
     this.lifeMs = opts.lifeMs;
     this.w = opts.w;

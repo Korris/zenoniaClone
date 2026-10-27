@@ -87,7 +87,7 @@ export class Player {
     const dealt = Math.min(this.hp, amount);
     this.hp -= dealt;
     this.invulnTimer = INVULNERABLE_AFTER_HIT_MS;
-    this.hitFlashTimer = 120;
+    this.hitFlashTimer = 220;
     if (this.hp <= 0) this.dead = true;
     return dealt;
   }

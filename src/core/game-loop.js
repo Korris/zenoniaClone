@@ -1,11 +1,12 @@
 // Fixed-timestep game loop: logic updates at 60Hz, rendering once per animation frame.
-// Keeps physics/combat timing deterministic regardless of monitor refresh rate.
+// Keeps physics/combat timing deterministic regardless of monitor refresh rate; render() gets
+// alpha = leftover time / step so it can interpolate between the last two logic states.
 const STEP_MS = 1000 / 60;
 const MAX_FRAME_MS = 250; // clamp after tab switch so we don't spiral
 
 export class GameLoop {
   /**
-   * @param {{update:(dt:number)=>void, render:()=>void}} handlers dt in ms
+   * @param {{update:(dt:number)=>void, render:(alpha:number)=>void}} handlers dt in ms
    */
   constructor(handlers) {
     this.handlers = handlers;
@@ -38,7 +39,7 @@ export class GameLoop {
         this.handlers.update(STEP_MS);
         this.accumulator -= STEP_MS;
       }
-      this.handlers.render();
+      this.handlers.render(this.accumulator / STEP_MS);
     } catch (err) {
       // Surface the error instead of silently freezing the rAF chain
       console.error('Game loop error:', err);

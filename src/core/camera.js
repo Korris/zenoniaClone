@@ -1,6 +1,10 @@
 // Camera in world pixels. Follows a target and clamps to map bounds; supports screen shake.
 // Pure logic (no DOM) so it is unit-testable.
-import { VIEW_WIDTH, VIEW_HEIGHT, TILE_SIZE } from './constants.js';
+import { VIEW_WIDTH, VIEW_HEIGHT, TILE_SIZE, PIXEL_SCALE } from './constants.js';
+
+// Snap to whole SCREEN pixels (1/PIXEL_SCALE world px), not whole world pixels: a 4px screen step
+// with an uneven 1-1-2 cadence made the painted HD backdrop judder while the hero stayed sub-pixel.
+const snapToScreenPixel = (v) => Math.round(v * PIXEL_SCALE) / PIXEL_SCALE;
 
 export class Camera {
   constructor() {
@@ -52,13 +56,13 @@ export class Camera {
     }
   }
 
-  /** Integer render offsets keep pixel art crisp (no sub-pixel blur). */
+  /** Render offsets aligned to screen pixels (setWorldTransform then aligns to device pixels). */
   get renderX() {
-    return Math.round(this.x + this.shakeOffsetX);
+    return snapToScreenPixel(this.x + this.shakeOffsetX);
   }
 
   get renderY() {
-    return Math.round(this.y + this.shakeOffsetY);
+    return snapToScreenPixel(this.y + this.shakeOffsetY);
   }
 
   /** Whether a world-space rectangle is at least partially visible. */

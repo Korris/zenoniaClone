@@ -14,10 +14,10 @@ export const MAX_LEVEL = 30;
 export const COMBO_CONFIG = Object.freeze({
   chainWindowMs: 400,
   hits: [
-    { windupMs: 50, activeMs: 90, recoverMs: 110, mult: 1.0, reach: 18, width: 20, knockback: 40, stepPx: 6 },
-    { windupMs: 50, activeMs: 90, recoverMs: 110, mult: 1.15, reach: 18, width: 20, knockback: 50, stepPx: 8 },
-    { windupMs: 50, activeMs: 90, recoverMs: 110, mult: 1.25, reach: 19, width: 22, knockback: 55, stepPx: 8 },
-    { windupMs: 90, activeMs: 120, recoverMs: 220, mult: 1.8, reach: 24, width: 28, knockback: 110, stepPx: 16 },
+    { windupMs: 50, activeMs: 90, recoverMs: 110, mult: 1.0, reach: 30, width: 28, knockback: 40, stepPx: 6, fxScale: 1.45 },
+    { windupMs: 50, activeMs: 90, recoverMs: 110, mult: 1.15, reach: 32, width: 30, knockback: 50, stepPx: 8, fxScale: 1.55 },
+    { windupMs: 50, activeMs: 90, recoverMs: 110, mult: 1.25, reach: 34, width: 32, knockback: 55, stepPx: 8, fxScale: 1.65 },
+    { windupMs: 90, activeMs: 120, recoverMs: 220, mult: 1.8, reach: 42, width: 40, knockback: 110, stepPx: 16, fxScale: 1.15 },
   ],
   finisherMultPerLevel: 0.05,
 });

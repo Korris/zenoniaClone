@@ -47,6 +47,13 @@ export const MONSTER_DEFINITIONS = Object.freeze({
     behavior: 'boss', aggroRange: 130, leashRange: 9999, attackRange: 24, attackWindupMs: 600, attackCooldownMs: 1600,
     projectileSpeed: 70, hitbox: { w: 22, h: 14 }, drops: { hpPotion: 1, mpPotion: 1 }, itemLevel: 14,
   }),
+  frostfangKing: base({
+    name: 'Frostfang King', sprite: 'iceGoblin', hp: 580, atk: 33, def: 3, speed: 36,
+    exp: 280, gold: [20, 50], itemLevel: 3, isBoss: true, localBoss: true,
+    stationaryUntilAggro: true, renderScale: 1.65, aggroRange: 85, leashRange: 120,
+    attackRange: 20, attackWindupMs: 650, attackCooldownMs: 1500,
+    hitbox: { w: 22, h: 14 }, drops: { hpPotion: 1, mpPotion: 1 },
+  }),
 });
 
 export const BOSS_TYPE = 'golemBoss';
