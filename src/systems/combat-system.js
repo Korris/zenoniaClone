@@ -6,6 +6,7 @@ import { rollEquipmentDrop } from './equipment-system.js';
 import { Projectile } from '../entities/projectile.js';
 import { ItemDrop } from '../entities/item-drop.js';
 import { rollPlayerDamage, CRIT_COLOR } from './player-damage.js';
+import { playImpactSound } from '../audio/combat-audio.js';
 
 const DIR_ANGLE = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
 
@@ -20,9 +21,14 @@ export function attackBoxFor(player, reach, width) {
 }
 
 /** Apply damage to a monster, spawn feedback, and handle death rewards. */
-export function damageMonster(world, monster, damage, knockX = 0, knockY = 0, color = '#ffffff') {
-  const died = monster.takeDamage(damage, knockX, knockY);
-  world.addText(monster.x, monster.y - monster.def.hitbox.h - 10, damage, color);
+export function damageMonster(world, monster, damage, knockX = 0, knockY = 0, color = '#ffffff', critical = false) {
+  if (!monster.dead) playImpactSound();
+  if (!monster.dead) world.combatTarget = monster;
+  const impulse = critical ? 2 : 1;
+  const died = monster.takeDamage(damage, knockX * impulse, knockY * impulse);
+  world.addText(monster.x, monster.y - monster.def.hitbox.h - 10, damage, color, {
+    damageStyle: 'outgoing', critical, lifeMs: 850, vy: -34,
+  });
   world.addSparks(monster.x, monster.y - 6, 4);
   world.addEffect({ x: monster.x, y: monster.y - 8, spriteKey: 'hitSpark', lifeMs: 220, scale: 1.2, rotation: Math.random() * Math.PI });
   if (died) onMonsterDeath(world, monster);
@@ -32,9 +38,8 @@ export function damageMonster(world, monster, damage, knockX = 0, knockY = 0, co
 function onMonsterDeath(world, monster) {
   const { player } = world;
   const levels = player.gainExp(monster.def.exp);
-  world.addText(monster.x, monster.y - 18, `+${monster.def.exp} EXP`, '#f2c14e', { lifeMs: 900 });
   world.drops.push(...spawnDrops(monster.def, monster.x, monster.y));
-  const equipDrop = rollEquipmentDrop(monster.def);
+  const equipDrop = rollEquipmentDrop(monster.def, Math.random, player.classId);
   if (equipDrop) world.drops.push(new ItemDrop(monster.x, monster.y, 'equipment', equipDrop));
   world.addSparks(monster.x, monster.y - 6, 10);
   if (world.spawner) world.spawner.scheduleRespawn(monster);
@@ -58,7 +63,7 @@ export function performComboHit(world, step) {
   // Power Strike passive adds a flat combo-damage bonus on top of the per-hit multiplier.
   const mult = player.combo.multiplierFor(step, player.level) * (1 + (player.passiveMods?.comboMult || 0));
   const v = DIRECTION_VECTORS[player.dir];
-  const isFinisher = step === 3;
+  const isFinisher = step === player.combo.config.hits.length;
 
   // Slash arc in front of the hero; alternate hits mirror the arc so the combo reads left-right-overhead
   world.addEffect({
@@ -73,7 +78,7 @@ export function performComboHit(world, step) {
     if (monster.dead || monster.hitBySwing.has(swingId) || !boxesOverlap(box, monster.box)) continue;
     monster.hitBySwing.add(swingId);
     const { damage, crit } = rollPlayerDamage(player, monster.def.def, mult);
-    damageMonster(world, monster, damage, v.x * hit.knockback, v.y * hit.knockback, crit ? CRIT_COLOR : isFinisher ? '#ffb13b' : '#ffffff');
+    damageMonster(world, monster, damage, v.x * hit.knockback, v.y * hit.knockback, crit ? CRIT_COLOR : isFinisher ? '#ffb13b' : '#ffffff', crit);
     landed++;
   }
   if (landed > 0 && isFinisher) {
@@ -93,7 +98,7 @@ export function performRadialHit(world, radius, mult, knockback) {
     const dy = monster.y - player.y;
     const dist = Math.hypot(dx, dy) || 1;
     const { damage, crit } = rollPlayerDamage(player, monster.def.def, mult);
-    damageMonster(world, monster, damage, (dx / dist) * knockback, (dy / dist) * knockback, crit ? CRIT_COLOR : '#bfe9ff');
+    damageMonster(world, monster, damage, (dx / dist) * knockback, (dy / dist) * knockback, crit ? CRIT_COLOR : '#bfe9ff', crit);
   }
 }
 
@@ -105,7 +110,7 @@ export function performSkillStrike(world, reach, width, mult, knockback) {
   for (const monster of world.monsters) {
     if (monster.dead || !boxesOverlap(box, monster.box)) continue;
     const { damage, crit } = rollPlayerDamage(player, monster.def.def, mult);
-    damageMonster(world, monster, damage, v.x * knockback, v.y * knockback, crit ? CRIT_COLOR : '#ffb13b');
+    damageMonster(world, monster, damage, v.x * knockback, v.y * knockback, crit ? CRIT_COLOR : '#ffb13b', crit);
   }
 }
 
@@ -141,7 +146,9 @@ export function hitPlayer(world, damage, sourceX, sourceY) {
   const dealt = player.takeDamage(damage);
   if (dealt <= 0) return;
   // HP regenerates in fractions, so round for display
-  world.addText(player.x, player.y - 24, `-${Math.ceil(dealt)}`, '#ff6b6b');
+  world.addText(player.x, player.y - 24, `-${Math.ceil(dealt)}`, '#60bdff', {
+    damageStyle: 'incoming', lifeMs: 850, vy: -34,
+  });
   world.camera.shake(2, 120);
   const dx = player.x - sourceX;
   const dy = player.y - sourceY;

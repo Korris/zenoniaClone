@@ -31,7 +31,7 @@ export function fireComboBolt(world, step) {
 function strikeMonster(world, p, monster, knockX, knockY) {
   const crit = Math.random() < (world.player.passiveMods?.critChance || 0);
   const damage = computeDamage(p.damage, monster.def.def, crit ? 1.6 : 1);
-  damageMonster(world, monster, damage, knockX, knockY, crit ? CRIT_COLOR : MAGIC_HIT_COLOR);
+  damageMonster(world, monster, damage, knockX, knockY, crit ? CRIT_COLOR : MAGIC_HIT_COLOR, crit);
 }
 
 /** Burst at the projectile's position: every live monster within the radius is hit once. */

@@ -13,6 +13,8 @@ import { MessageBanner } from '../ui/message-banner.js';
 import { createTitleMenu, createPauseMenu, createDeathMenu, createVictoryMenu } from '../ui/menu-screens.js';
 import { ClassSelectScreen } from '../ui/class-select-screen.js';
 import { hasSave } from '../save/local-storage-save.js';
+import { usePotion } from '../systems/loot-system.js';
+import { menuHit } from '../ui/character-menu.js';
 import { findNearbyNpc, computeNpcMarkers, openNpcDialog, applyDialogOutcome } from './npc-interaction.js';
 import { onMonsterKilledForQuests, onMapReachedForQuests, onDialogOutcomeForQuests } from './quest-flow.js';
 
@@ -73,10 +75,15 @@ export class GameController {
 
   updatePlaying(dt) {
     const { input, session } = this;
+    for (const kind of ['hpPotion', 'mpPotion']) {
+      if (input.wasPressed(kind) && usePotion(session.player, kind)) {
+        session.world.addText(session.player.x, session.player.y - 30, kind === 'hpPotion' ? 'HP restored' : 'MP restored', kind === 'hpPotion' ? '#ff8c9c' : '#80ceff');
+      }
+    }
     if (input.wasPressed('pause')) { this.menu = createPauseMenu(); this.state = S.PAUSED; return; }
     if (input.wasPressed('skillPanel')) { this.state = S.SKILLS; return; }
     if (input.wasPressed('questLog')) { this.state = S.QUEST_LOG; return; }
-    if (input.wasPressed('inventory')) { session.player.hasUnseenItem = false; this.state = S.INVENTORY; return; }
+    if (input.wasPressed('inventory')) { session.player.hasUnseenItem = false; this.inventoryPanel.mode = 'Inventory'; this.inventoryPanel.selection = { area: 'bag', index: 0 }; this.state = S.INVENTORY; return; }
     const previousNearby = this.nearbyNpc;
     this.nearbyNpc = findNearbyNpc(session.world);
     if (previousNearby && previousNearby !== this.nearbyNpc) previousNearby.resetFacing(); // resume the idle pose once the hero walks off
@@ -134,14 +141,46 @@ export class GameController {
   }
 
   updateSkills() {
-    const result = this.skillPanel.handleInput(this.input, this.session.player);
+    const menuInput = this.characterMenuInput();
+    if (!menuInput) return;
+    const result = this.skillPanel.handleInput(menuInput, this.session.player);
     if (result.upgraded) this.session.save(false);
     if (result.close) this.state = S.PLAYING;
   }
 
   updateInventory() {
-    const result = this.inventoryPanel.handleInput(this.input, this.session.player);
+    const menuInput = this.characterMenuInput();
+    if (!menuInput) return;
+    const result = this.inventoryPanel.handleInput(menuInput, this.session.player);
     if (result.close) { this.session.save(false); this.state = S.PLAYING; }
+  }
+
+  characterMenuInput() {
+    let tab = null;
+    if (this.state === S.SKILLS && this.input.wasPressed('inventory')) tab = 'Inventory';
+    if (this.state === S.INVENTORY && this.input.wasPressed('skillPanel')) tab = 'Skills';
+    const clicks = [];
+    for (const click of this.input.takeClicks()) {
+      const hit = menuHit(click.x, click.y);
+      if (hit) tab = hit;
+      else clicks.push(click);
+    }
+    if (tab) {
+      this.session.save(false);
+      if (tab === 'close') this.state = S.PLAYING;
+      else if (tab === 'Skills') this.state = S.SKILLS;
+      else {
+        this.state = S.INVENTORY;
+        this.session.player.hasUnseenItem = false;
+        this.inventoryPanel.mode = tab;
+        this.inventoryPanel.selection = { area: tab === 'Equipment' ? 'equipment' : 'bag', index: 0 };
+        this.inventoryPanel.lastClick = null;
+      }
+      return null;
+    }
+    const input = Object.create(this.input);
+    input.takeClicks = () => clicks;
+    return input;
   }
 
   updateDead() {

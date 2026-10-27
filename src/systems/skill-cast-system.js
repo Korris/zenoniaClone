@@ -143,7 +143,7 @@ export function updateDash(world, dt) {
     if (monster.dead || dash.hitIds.has(monster.id) || !boxesOverlap(strikeBox, monster.box)) continue;
     dash.hitIds.add(monster.id);
     const { damage, crit } = rollPlayerDamage(player, monster.def.def, dash.damageMult);
-    damageMonster(world, monster, damage, dash.dirX * 80, dash.dirY * 80, crit ? CRIT_COLOR : '#ffe680');
+    damageMonster(world, monster, damage, dash.dirX * 80, dash.dirY * 80, crit ? CRIT_COLOR : '#ffe680', crit);
     world.addEffect({ x: monster.x, y: monster.y - 7, spriteKey: 'slash', rotation: DIR_ANGLE[player.dir], lifeMs: 160, scale: 0.6 });
   }
 

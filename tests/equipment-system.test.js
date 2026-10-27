@@ -48,9 +48,10 @@ test('generateItem scales stats by rarity multiplier and item level', () => {
   assert.equal(epic.name, 'Legendary Cloth Gloves');
 });
 
-test('rollEquipmentDrop: normal monsters respect the 12% drop chance, bosses always drop rare/epic', () => {
+test('rollEquipmentDrop: normal monsters use 12% chance, bosses keep guaranteed rare/epic', () => {
   const slime = MONSTER_DEFINITIONS.slime;
-  assert.equal(rollEquipmentDrop(slime, fakeRand([0.5])), null); // 0.5 >= 0.12 -> no drop
+  assert.equal(rollEquipmentDrop(slime, fakeRand([0.12])), null);
+  assert.equal(rollEquipmentDrop(slime, fakeRand([0.99])), null);
   const dropped = rollEquipmentDrop(slime, fakeRand([0.01, 0, 0.1, 0.1]));
   assert.ok(dropped);
   assert.equal(dropped.itemLevel, slime.itemLevel);
@@ -155,7 +156,7 @@ test('sanitizeItem rejects unknown templates/slots/rarities and clamps stats', (
     uid: 'u1', templateId: 'sword', slot: 'weapon', rarity: 'rare', itemLevel: 999, name: 'Haxed Sword',
     stats: { atk: 99999, junk: 1 },
   });
-  assert.equal(sanitized.itemLevel, 30); // clamped to MAX_LEVEL
+  assert.equal(sanitized.itemLevel, 95); // highest supported weapon-art level
   assert.equal(sanitized.stats.atk, 999); // clamped
   assert.equal(sanitized.stats.junk, undefined); // not a template stat, dropped
 });

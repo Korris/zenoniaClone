@@ -4,24 +4,24 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../core/constants.js';
 import { EQUIPMENT_SLOTS } from '../data/item-definitions.js';
 
 export const PANEL_W = 860;
-export const PANEL_H = 540;
+export const PANEL_H = 568;
 export const PANEL_X = (CANVAS_WIDTH - PANEL_W) / 2;
 export const PANEL_Y = (CANVAS_HEIGHT - PANEL_H) / 2;
 export const SLOT_SIZE = 64;
-export const EQUIP_SLOT_SIZE = 52;
+export const EQUIP_SLOT_SIZE = 44;
 export const GRID_COLS = 5;
 export const GRID_ROWS = 4;
-export const INFO_BOX_Y = PANEL_Y + 420;
-export const INFO_BOX_H = 92;
+export const INFO_BOX_Y = PANEL_Y + 440;
+export const INFO_BOX_H = 94;
 
-const LEFT_X = PANEL_X + 70;
-const EQUIP_TOP = PANEL_Y + 148;
-const EQUIP_GAP = 56;
-const GRID_LEFT = PANEL_X + 300;
-const GRID_TOP = PANEL_Y + 70;
-const GRID_GAP = 18;
+const LEFT_X = PANEL_X + 75;
+const EQUIP_TOP = PANEL_Y + 176;
+const EQUIP_GAP = 60;
+const GRID_LEFT = PANEL_X + 210;
+const GRID_TOP = PANEL_Y + 154;
+const GRID_GAP = 10;
 
-export const PORTRAIT = { x: LEFT_X, y: PANEL_Y + 70 };
+export const PORTRAIT = { x: LEFT_X, y: PANEL_Y + 154 };
 export const EQUIP_SLOT_ORDER = [...EQUIPMENT_SLOTS]; // ['weapon','helmet','armor','gloves','boots']
 
 export function equipSlotPosition(index) {

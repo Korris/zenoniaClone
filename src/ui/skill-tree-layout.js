@@ -5,14 +5,14 @@ import { SKILL_DEFINITIONS, SKILL_ORDER, getSkillValue } from '../data/skill-def
 import { getSkillLevel } from '../systems/skill-system.js';
 
 export const PANEL_W = 860;
-export const PANEL_H = 540;
+export const PANEL_H = 568;
 export const PANEL_X = (CANVAS_WIDTH - PANEL_W) / 2;
 export const PANEL_Y = (CANVAS_HEIGHT - PANEL_H) / 2;
 export const NODE_SIZE = 64;
-export const TIER_ROW_H = 130;
-export const TREE_TOP = PANEL_Y + 46;
-export const INFO_BOX_Y = PANEL_Y + 436;
-export const INFO_BOX_H = 76;
+export const TIER_ROW_H = 104;
+export const TREE_TOP = PANEL_Y + 146;
+export const INFO_BOX_Y = PANEL_Y + 440;
+export const INFO_BOX_H = 94;
 export const BRANCHES_PER_CLASS = 3;
 export const COLUMN_W = PANEL_W / BRANCHES_PER_CLASS;
 

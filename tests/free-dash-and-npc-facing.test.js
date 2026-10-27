@@ -3,6 +3,18 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { easedDashTravel } from '../src/systems/skill-cast-system.js';
 import { Npc } from '../src/entities/npc.js';
+import { facingFromVector } from '../src/game/player-controller.js';
+
+test('hero faces sideways on all diagonals and vertically only for straight movement', () => {
+  for (const y of [-1, 1]) {
+    assert.equal(facingFromVector(-1, y, 'down', true), 'left');
+    assert.equal(facingFromVector(1, y, 'down', true), 'right');
+  }
+  assert.equal(facingFromVector(0, -1, 'left', true), 'up');
+  assert.equal(facingFromVector(0, 1, 'right', true), 'down');
+  assert.equal(facingFromVector(0, 0, 'left', true), 'left');
+  assert.equal(facingFromVector(0.1, 1, 'left'), 'down');
+});
 
 const DASH = { distance: 48, durationMs: 200, exitSpeed: 80 };
 const speedAt = (t) => (easedDashTravel(DASH, t + 0.5) - easedDashTravel(DASH, t - 0.5)) * 1000; // px/s

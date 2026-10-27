@@ -4,6 +4,8 @@ import { EQUIPMENT_SLOTS, RARITIES, RARITY_ORDER, ITEM_TEMPLATES, TEMPLATES_BY_S
 
 export const INVENTORY_SIZE = 20;
 const NORMAL_DROP_CHANCE = 0.12;
+// Temporary playtest switch: every kill drops a class weapon. Disable to restore normal loot.
+export const GUARANTEED_WEAPON_DROPS = false;
 
 /** Rolls a rarity id using the weighted table in RARITIES (weights sum to 1). */
 export function rollRarity(rand = Math.random) {
@@ -30,7 +32,7 @@ function pickTemplate(slot, itemLevel, rand) {
  * @param {string|null} slot fixed slot, or null to pick one at random
  * @param {string|null} forceRarity skip the rarity roll (used for guaranteed boss rare/epic drops)
  */
-export function generateItem(rand, itemLevel, slot = null, forceRarity = null) {
+export function generateItem(rand, itemLevel, slot = null, forceRarity = null, classId = 'warrior') {
   const chosenSlot = slot || EQUIPMENT_SLOTS[Math.floor(rand() * EQUIPMENT_SLOTS.length)];
   const template = pickTemplate(chosenSlot, itemLevel, rand);
   const rarity = forceRarity || rollRarity(rand);
@@ -41,23 +43,27 @@ export function generateItem(rand, itemLevel, slot = null, forceRarity = null) {
     stats[stat] = Math.round(base * rarityMult * levelMult);
   }
   const prefix = RARITIES[rarity].prefix;
-  const name = prefix ? `${prefix} ${template.name}` : template.name;
+  const weaponType = { warrior: 'Sword', wizard: 'Staff', mechanic: 'Gun' }[classId] || 'Sword';
+  const baseName = chosenSlot === 'weapon' ? weaponType : template.name;
+  const name = prefix ? `${prefix} ${baseName}` : baseName;
   const uid = `${template.id}-${Math.floor(rand() * 1e9).toString(36)}`;
-  return { uid, templateId: template.id, slot: chosenSlot, name, rarity, itemLevel, stats };
+  const item = { uid, templateId: template.id, slot: chosenSlot, name, rarity, itemLevel, stats };
+  if (chosenSlot === 'weapon') item.classId = ['warrior', 'wizard', 'mechanic'].includes(classId) ? classId : 'warrior';
+  return item;
 }
 
 /**
- * Rolls whether a monster drops equipment on death. Normal monsters have a flat chance; bosses
- * always drop a guaranteed rare-or-epic item.
+ * Rolls equipment on death; the temporary playtest switch guarantees a weapon on every kill.
+ * Bosses keep their guaranteed rare-or-epic quality.
  * @param {object} monsterDef from data/monster-definitions.js (`itemLevel`, `behavior`)
  * @returns {object|null} an item instance, or null when nothing dropped
  */
-export function rollEquipmentDrop(monsterDef, rand = Math.random) {
+export function rollEquipmentDrop(monsterDef, rand = Math.random, classId = 'warrior') {
   const isBoss = monsterDef.behavior === 'boss';
-  if (!isBoss && rand() >= NORMAL_DROP_CHANCE) return null;
+  if (!GUARANTEED_WEAPON_DROPS && !isBoss && rand() >= NORMAL_DROP_CHANCE) return null;
   const itemLevel = monsterDef.itemLevel || 1;
   const forceRarity = isBoss ? (rand() < 0.5 ? 'rare' : 'epic') : null;
-  return generateItem(rand, itemLevel, null, forceRarity);
+  return generateItem(rand, itemLevel, GUARANTEED_WEAPON_DROPS ? 'weapon' : null, forceRarity, classId);
 }
 
 /** Sums every equipped item's stats into the additive/multiplicative bundle player.recomputeStats() applies. */
@@ -129,7 +135,7 @@ export function sanitizeItem(raw) {
   if (!raw || typeof raw !== 'object') return null;
   const template = ITEM_TEMPLATES[raw.templateId];
   if (!template || raw.slot !== template.slot || !RARITIES[raw.rarity]) return null;
-  const itemLevel = Number.isFinite(raw.itemLevel) ? Math.max(1, Math.min(30, Math.floor(raw.itemLevel))) : 1;
+  const itemLevel = Number.isFinite(raw.itemLevel) ? Math.max(1, Math.min(95, Math.floor(raw.itemLevel))) : 1;
   const stats = {};
   for (const stat of Object.keys(template.baseStats)) {
     const value = raw.stats?.[stat];
@@ -137,5 +143,7 @@ export function sanitizeItem(raw) {
   }
   const uid = typeof raw.uid === 'string' && raw.uid ? raw.uid : `${template.id}-${Math.random().toString(36).slice(2, 10)}`;
   const name = typeof raw.name === 'string' && raw.name ? raw.name.slice(0, 40) : template.name;
-  return { uid, templateId: template.id, slot: template.slot, name, rarity: raw.rarity, itemLevel, stats };
+  const item = { uid, templateId: template.id, slot: template.slot, name, rarity: raw.rarity, itemLevel, stats };
+  if (template.slot === 'weapon' && ['warrior', 'wizard', 'mechanic'].includes(raw.classId)) item.classId = raw.classId;
+  return item;
 }

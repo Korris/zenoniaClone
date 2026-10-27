@@ -16,6 +16,8 @@ export const ACTION_KEYS = Object.freeze({
   interact: ['KeyE', 'Enter'],
   questLog: ['KeyQ'],
   inventory: ['KeyB'],
+  hpPotion: ['Digit1'],
+  mpPotion: ['Digit2'],
   dropItem: ['KeyX'],
 });
 

@@ -72,6 +72,9 @@ export function validateSave(data) {
       skills,
       hotbar,
       gold: isNum(p.gold) ? Math.max(0, Math.floor(p.gold)) : 0,
+      potions: Object.fromEntries(['hpPotion', 'mpPotion'].map(kind => [kind,
+        isNum(p.potions?.[kind]) ? Math.max(0, Math.min(Number.MAX_SAFE_INTEGER, Math.floor(p.potions[kind]))) : 0,
+      ])),
       hp: isNum(p.hp) && p.hp > 0 ? p.hp : undefined, // never load a dead hero
       mp: isNum(p.mp) ? p.mp : undefined,
       inventory,

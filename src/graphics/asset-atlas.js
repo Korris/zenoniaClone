@@ -29,6 +29,8 @@ export const BACKDROP_FILES = Object.freeze({
 });
 
 export const ASSET_FILES = Object.freeze({
+  inventoryIcons: 'custom/inventory-icons-chibi.png',
+  weaponIcons: 'custom/weapon-icons-chibi.png',
   field: PACK + 'tilesets/TilesetField.png', water: PACK + 'tilesets/TilesetWater.png', relief: PACK + 'tilesets/TilesetRelief.png',
   floor: PACK + 'tilesets/TilesetFloor.png', nature: PACK + 'tilesets/TilesetNature.png', desert: PACK + 'tilesets/TilesetDesert.png',
   house: PACK + 'tilesets/TilesetHouse.png', dungeon: PACK + 'tilesets/TilesetDungeon.png', wall: PACK + 'tilesets/TilesetWallSimple.png',
@@ -59,7 +61,7 @@ export const ASSET_FILES = Object.freeze({
   // (Promise.allSettled), but a 404 for a file we know isn't there is just noise. If a sheet is
   // ever removed/renamed, drop its key here too; sprite-registry.js falls back to the 24px pixel
   // set for any animation whose HD key is absent or fails to load.
-  hdHeroIdle: HD_HERO_NORM_DIR + 'idle.png', hdHeroWalk: HD_HERO_NORM_DIR + 'walk.png',
+  hdHeroIdle: HD_HERO_NORM_DIR + 'idle.png', hdHeroWalk: HD_HERO_NORM_DIR + 'walk-v2.png',
   hdHeroAttack1: HD_HERO_NORM_DIR + 'attack1.png', hdHeroAttack2: HD_HERO_NORM_DIR + 'attack2.png',
   hdHeroAttack3: HD_HERO_NORM_DIR + 'attack3.png', hdHeroDash: HD_HERO_NORM_DIR + 'dash.png',
   hdHeroHurt: HD_HERO_NORM_DIR + 'hurt.png', hdHeroDeath: HD_HERO_NORM_DIR + 'death.png',

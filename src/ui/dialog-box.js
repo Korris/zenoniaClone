@@ -107,7 +107,7 @@ export class DialogBox {
   }
 
   wrap(ctx, text, x, y, maxWidth) {
-    ctx.font = 'bold 15px "Courier New", monospace';
+    ctx.font = 'bold 15px "Segoe UI", Arial, sans-serif';
     const words = text.split(' ');
     let line = '';
     let lineY = y;

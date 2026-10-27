@@ -31,7 +31,7 @@ export const HD_MECHANIC_FX = Object.freeze({
 
 // Spread into asset-atlas.js's ASSET_FILES.
 export const HD_MECHANIC_ASSET_FILES = Object.freeze({
-  ...Object.fromEntries(Object.entries(HD_MECHANIC_ANIMATIONS).map(([anim, key]) => [key, `${HD_MECHANIC_NORM_DIR}${anim}.png`])),
+  ...Object.fromEntries(Object.entries(HD_MECHANIC_ANIMATIONS).map(([anim, key]) => [key, `${HD_MECHANIC_NORM_DIR}${anim === 'walk' ? 'walk-v2' : anim}.png`])),
   [HD_MECHANIC_FACE_KEY]: `${HD_MECHANIC_NORM_DIR}hero_face.png`,
   ...Object.fromEntries(Object.entries(HD_MECHANIC_FX).map(([name, key]) => [key, `hd/mechanic/fx/${name}.png`])),
 });

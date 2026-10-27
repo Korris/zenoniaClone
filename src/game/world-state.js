@@ -13,6 +13,7 @@ export class WorldState {
     this.props = []; // static decorations {type, x, y} drawn y-sorted with actors
     this.npcs = [];
     this.monsters = [];
+    this.combatTarget = null;
     this.projectiles = [];
     this.drops = [];
     this.effects = [];
@@ -28,6 +29,7 @@ export class WorldState {
 
   /** Clear per-map entities (keeps player, camera, progression flags). */
   clearMapEntities() {
+    this.combatTarget = null;
     this.props = [];
     this.npcs = [];
     this.monsters = [];

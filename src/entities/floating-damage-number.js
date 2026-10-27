@@ -9,6 +9,8 @@ export class FloatingText {
     this.maxLifeMs = this.lifeMs;
     this.vy = opts.vy ?? -28; // px/s upward
     this.big = Boolean(opts.big);
+    this.damageStyle = opts.damageStyle ?? null;
+    this.critical = Boolean(opts.critical);
     this.dead = false;
   }
 

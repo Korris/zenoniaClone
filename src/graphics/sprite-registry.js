@@ -17,6 +17,8 @@ import { HD_NPC, HD_NPC_IDS, sheetKey, faceKey } from './asset-atlas-hd-npcs.js'
 import { HD_MECHANIC_ANIMATIONS, HD_MECHANIC_SIDE_ROWS, HD_MECHANIC_FACE_KEY, HD_MECHANIC_FX } from './asset-atlas-hd-mechanic.js';
 import { SKILL_DEFINITIONS } from '../data/skill-definitions.js';
 import { ITEM_TEMPLATES } from '../data/item-definitions.js';
+import { buildWeaponIcons } from './weapon-icons.js';
+import { buildGroundSprite } from './ground-sprite-builder.js';
 
 export const CHARACTER_SIZE = 16; // pack NPCs/monsters
 export const HERO_FRAME_SIZE = HERO_FRAME; // custom hero sheets
@@ -167,6 +169,20 @@ export function buildSpriteRegistry(images) {
   // Equipment sprites (weapons used as-is, gear icons 24x24) keyed by templateId.
   const items = {};
   for (const [id, def] of Object.entries(ITEM_TEMPLATES)) items[id] = images[def.sprite];
+  // Painted 4x4 equipment atlas shared by the bag and ground drops.
+  const inventoryItems = {};
+  const weaponIcons = images.weaponIcons ? buildWeaponIcons(images.weaponIcons) : [];
+  const painted = images.inventoryIcons;
+  if (painted) {
+    const weapons = ['sword', 'sword2', 'rapier', 'club', 'katana', 'axe', 'lance', 'hammer', 'bigSword'];
+    const gear = { helmet: 9, armor: 10, gloves: 11, boots: 12 };
+    const cw = painted.width / 4, ch = painted.height / 4;
+    for (const [id, def] of Object.entries(ITEM_TEMPLATES)) {
+      const index = def.slot === 'weapon' ? weapons.indexOf(id) : gear[def.slot];
+      if (index === undefined || index < 0) continue;
+      inventoryItems[id] = cropSprite(painted, (index % 4) * cw, Math.floor(index / 4) * ch, cw, ch);
+    }
+  }
 
   const npcsHd = buildNpcsHd(images, faces); // also fills faces[id] with HD portraits
 
@@ -196,6 +212,10 @@ export function buildSpriteRegistry(images) {
     effects: buildEffects(images),
     icons,
     items,
+    groundItems: Object.fromEntries(Object.entries(inventoryItems).map(([id, sprite]) => [id, buildGroundSprite(sprite)])),
+    groundWeaponIcons: weaponIcons.map(sprite => buildGroundSprite(sprite)),
+    inventoryItems,
+    weaponIcons,
     faces,
     ui: { dialogBox: images.dialogBox, facesetBox: images.facesetBox },
   };

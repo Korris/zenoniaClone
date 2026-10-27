@@ -1,4 +1,4 @@
-// Three-hit combo state machine. States: idle -> windup -> active -> recover -> (next hit | idle).
+// Configurable combo state machine. States: idle -> windup -> active -> recover -> (next hit | idle).
 // A press during a swing is buffered (one press max). After a swing ends, the player has
 // `chainWindowMs` to press again and continue the chain; otherwise the combo resets.
 // Pure logic (no DOM, no rendering) -> unit-testable.
@@ -12,7 +12,7 @@ export class ComboController {
 
   reset() {
     this.state = 'idle';
-    this.step = 0; // 1..3 while swinging, 0 when idle
+    this.step = 0; // 1..config.hits.length while swinging, 0 when idle
     this.lastStep = 0; // last completed hit, used to continue the chain
     this.timer = 0;
     this.chainTimer = 0;

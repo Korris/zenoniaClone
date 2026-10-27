@@ -27,14 +27,14 @@ export function spawnDrops(monsterDef, x, y, rand = Math.random) {
 export function applyPickup(player, drop) {
   switch (drop.kind) {
     case 'hpPotion': {
-      const amount = Math.round(player.maxHp * drop.value);
-      player.heal(amount);
-      return { text: `+${amount} HP`, color: '#ff6b6b' };
+      player.potions.hpPotion += 1;
+      player.hasUnseenItem = true;
+      return { text: '+1 HP Potion', color: '#ff8c9c' };
     }
     case 'mpPotion': {
-      const amount = Math.round(player.maxMp * drop.value);
-      player.restoreMp(amount);
-      return { text: `+${amount} MP`, color: '#6ba8ff' };
+      player.potions.mpPotion += 1;
+      player.hasUnseenItem = true;
+      return { text: '+1 MP Potion', color: '#80ceff' };
     }
     case 'coin':
       player.gold += drop.value;
@@ -42,4 +42,17 @@ export function applyPickup(player, drop) {
     default:
       return { text: '', color: '#fff' };
   }
+}
+
+/** Consume one stored potion only when it can restore a resource. */
+export function usePotion(player, kind) {
+  if (!['hpPotion', 'mpPotion'].includes(kind) || player.dead || !(player.potions?.[kind] > 0)) return false;
+  const hp = kind === 'hpPotion';
+  const current = hp ? player.hp : player.mp;
+  const max = hp ? player.maxHp : player.maxMp;
+  if (current >= max) return false;
+  if (hp) player.heal(Math.round(max * POTION_HEAL_FRACTION));
+  else player.restoreMp(Math.round(max * POTION_HEAL_FRACTION));
+  player.potions[kind] -= 1;
+  return true;
 }

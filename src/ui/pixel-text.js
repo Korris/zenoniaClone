@@ -1,15 +1,15 @@
 // Text + bar drawing helpers for UI layers. UI is drawn in screen space (960x640),
-// with a monospace font and hard shadow to keep the retro look.
-export const UI_FONT = '"Courier New", Courier, monospace';
+// with a clean system sans-serif font shared across menus and dialogs.
+export const UI_FONT = '"Segoe UI", Arial, sans-serif';
 
 export function drawText(ctx, text, x, y, opts = {}) {
   const { size = 16, color = '#fff', align = 'left', bold = true, shadow = true, baseline = 'top' } = opts;
-  ctx.font = `${bold ? 'bold ' : ''}${size}px ${UI_FONT}`;
+  ctx.font = `${bold ? '600' : '400'} ${size}px ${UI_FONT}`;
   ctx.textAlign = align;
   ctx.textBaseline = baseline;
   if (shadow) {
-    ctx.fillStyle = 'rgba(0,0,0,0.8)';
-    ctx.fillText(text, x + 2, y + 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillText(text, x, y + 1);
   }
   ctx.fillStyle = color;
   ctx.fillText(text, x, y);
@@ -30,12 +30,14 @@ export function drawBar(ctx, x, y, w, h, ratio, fillColor, backColor = '#2a2a3a'
 
 /** Dark translucent panel with a light border. */
 export function drawPanel(ctx, x, y, w, h, opts = {}) {
-  const { fill = 'rgba(10,10,22,0.88)', border = '#8c8cb0' } = opts;
+  const { fill = 'rgba(13,23,36,0.96)', border = '#35485e' } = opts;
+  ctx.beginPath();
+  ctx.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, 10);
   ctx.fillStyle = fill;
-  ctx.fillRect(x, y, w, h);
+  ctx.fill();
   ctx.strokeStyle = border;
-  ctx.lineWidth = 3;
-  ctx.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
+  ctx.lineWidth = 1;
+  ctx.stroke();
 }
 
 /** Full-screen dim overlay. */

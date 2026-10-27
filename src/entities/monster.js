@@ -11,6 +11,7 @@ export class Monster {
     this.type = type;
     this.def = MONSTER_DEFINITIONS[type];
     if (!this.def) throw new Error(`Unknown monster type: ${type}`);
+    this.level = this.def.level ?? this.def.itemLevel ?? 1;
     this.x = x;
     this.y = y;
     this.zoneIndex = zoneIndex;

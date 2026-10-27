@@ -108,16 +108,16 @@ await page.screenshot({ path: path.join(OUT, '14-hd-desert.png') });
 await page.evaluate(() => { window.__zenonia.session.enterMap('verdantMeadow'); });
 await new Promise((r) => setTimeout(r, 300));
 
-// teleport next to a slime, then chain the 3-hit combo, freezing a frame mid-swing each time
+// teleport next to a slime, then chain the 4-hit combo, freezing a frame mid-swing each time
 await page.evaluate(() => {
   const g = window.__zenonia; const p = g.session.player; const w = g.session.world;
   const m = w.monsters.find((x) => x.type === 'slime' && !x.dead);
   if (m) { p.x = m.x - 26; p.y = m.y; m.ai.state = 'idle'; m.ai.timer = 9e9; m.hp = 9999; m.maxHp = 9999; }
   p.dir = 'right';
 });
-for (const step of [1, 2, 3]) {
+for (const step of [1, 2, 3, 4]) {
   await page.keyboard.press('KeyJ');
-  await new Promise((r) => setTimeout(r, step === 3 ? 150 : 80));
+  await new Promise((r) => setTimeout(r, step === 4 ? 150 : 80));
   const info = await page.evaluate(() => {
     const g = window.__zenonia; const w = g.session.world; w.hitStopMs = 60000;
     return { step: g.session.player.combo.step, progress: Number(g.session.player.combo.phaseProgress.toFixed(2)), fx: w.effects.map((e) => e.spriteKey) };
@@ -125,7 +125,7 @@ for (const step of [1, 2, 3]) {
   console.log('combo', JSON.stringify(info));
   await page.screenshot({ path: path.join(OUT, `03-combo-${step}.png`) });
   await page.evaluate(() => { window.__zenonia.session.world.hitStopMs = 0; });
-  await new Promise((r) => setTimeout(r, step === 3 ? 500 : 200));
+  await new Promise((r) => setTimeout(r, step === 4 ? 500 : 200));
 }
 
 // double-tap dash (free, no MP)

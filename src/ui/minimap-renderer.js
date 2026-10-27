@@ -1,6 +1,6 @@
-// Top-left minimap: the tilemap rendered once per map at 1px/tile, then scaled, with live dots
+// Top-right minimap: the tilemap rendered once per map at 1px/tile, then scaled, with live dots
 // for the hero (yellow), monsters (red), boss (big red) and NPCs with quests (gold).
-import { drawPanel } from './pixel-text.js';
+import { CANVAS_WIDTH } from '../core/constants.js';
 import { getTileInfo } from '../world/tile-char-info.js';
 import { getPropDefinition } from '../world/prop-definitions.js';
 
@@ -20,7 +20,7 @@ const PROP_COLORS = {
 };
 
 const SCALE = 3;
-const PANEL_X = 12;
+const PANEL_X = CANVAS_WIDTH - 154;
 const PANEL_Y = 12;
 let cachedMapId = null;
 let cachedCanvas = null;
@@ -65,11 +65,22 @@ export function drawMinimap(ctx, world, npcMarkers = {}) {
     cachedCanvas = buildMapCanvas(world);
     cachedMapId = world.mapId;
   }
+  const fit = 92 / Math.max(cachedCanvas.width * SCALE, cachedCanvas.height * SCALE);
   const w = cachedCanvas.width * SCALE;
   const h = cachedCanvas.height * SCALE;
-  drawPanel(ctx, PANEL_X, PANEL_Y, w + 12, h + 12, { fill: '#0d0d14', border: '#d9b45a' });
-  const ox = PANEL_X + 6;
-  const oy = PANEL_Y + 6;
+  ctx.save();
+  const cx = PANEL_X + 70, cy = PANEL_Y + 70;
+  const metal = ctx.createLinearGradient(0, PANEL_Y, 0, PANEL_Y + 140);
+  metal.addColorStop(0, '#dfebef'); metal.addColorStop(0.5, '#43596b'); metal.addColorStop(1, '#a0b6c4');
+  ctx.beginPath(); ctx.arc(cx, cy, 68, 0, Math.PI * 2);
+  ctx.fillStyle = '#0a1521dd'; ctx.fill();
+  ctx.lineWidth = 4; ctx.strokeStyle = metal; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, 61, 0, Math.PI * 2);
+  ctx.strokeStyle = '#9fc4d077'; ctx.lineWidth = 1; ctx.stroke(); ctx.clip();
+  ctx.translate(cx - w * fit / 2, cy - h * fit / 2);
+  ctx.scale(fit, fit);
+  const ox = 0;
+  const oy = 0;
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(cachedCanvas, ox, oy, w, h);
 
@@ -77,5 +88,9 @@ export function drawMinimap(ctx, world, npcMarkers = {}) {
   for (const n of world.npcs) dot(ctx, ox, oy, n.x, n.y, 4, npcMarkers[n.id] ? '#ffe040' : '#ffffff');
   const blink = Math.floor(performance.now() / 300) % 2 === 0;
   dot(ctx, ox, oy, world.player.x, world.player.y, 5, blink ? '#ffff80' : '#ffd000');
-  return { x: PANEL_X, y: PANEL_Y, w: w + 12, h: h + 12 };
+  ctx.restore();
+  ctx.font = '600 11px "Segoe UI", Arial, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ecf5ff';
+  ctx.fillText('N', cx, PANEL_Y + 9);
+  return { x: PANEL_X, y: PANEL_Y, w: 140, h: 140 };
 }

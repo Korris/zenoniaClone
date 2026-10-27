@@ -1,4 +1,4 @@
-// Loot on the ground: potions and coins. Auto-picked up when the hero walks over them.
+// Ground loot is picked up by pressing attack while standing over it.
 export const DROP_KINDS = Object.freeze({
   hpPotion: { spriteKey: 'potionHp', label: 'HP', color: '#ff6b6b' },
   mpPotion: { spriteKey: 'potionMp', label: 'MP', color: '#6ba8ff' },

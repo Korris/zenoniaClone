@@ -11,7 +11,7 @@ export const NPC_DEFINITIONS = Object.freeze({
   },
   hunterLena: {
     id: 'hunterLena', name: 'Hunter Lena', sprite: 'hunter', dir: 'left',
-    lines: ['The bats near the south woods keep stealing my arrows.', 'Press J three times fast for a full combo!'],
+    lines: ['The bats near the south woods keep stealing my arrows.', 'Press J four times fast for a full combo!'],
     quests: ['batWings'],
   },
   villagerMia: {

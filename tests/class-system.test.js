@@ -75,15 +75,15 @@ test('wizard combo steps fire bolts in the facing direction; the finisher explod
   const bolt = world.projectiles[0];
   assert.ok(bolt.vx > 0 && bolt.vy === 0 && bolt.owner === 'player');
   assert.equal(bolt.explodeRadius, 0);
-  combo.startHit(3);
-  fireComboBolt(world, 3);
+  combo.startHit(4);
+  fireComboBolt(world, 4);
   assert.ok(world.projectiles[1].explodeRadius > 0);
 });
 
 test('an exploding bolt damages every monster in its radius once', () => {
   const world = wizardWorld();
-  world.player.combo.startHit(3);
-  fireComboBolt(world, 3);
+  world.player.combo.startHit(4);
+  fireComboBolt(world, 4);
   const bolt = world.projectiles[0];
   const near = new Monster('slime', bolt.x + 2, bolt.y + 6);
   const nearby = new Monster('slime', bolt.x + 14, bolt.y + 10);

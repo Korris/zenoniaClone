@@ -33,7 +33,7 @@ export const HD_FX_PIXELS_PER_UNIT = 4;
 
 // Spread into asset-atlas.js's ASSET_FILES.
 export const HD_WIZARD_ASSET_FILES = Object.freeze({
-  ...Object.fromEntries(Object.entries(HD_WIZARD_ANIMATIONS).map(([anim, key]) => [key, `${HD_WIZARD_NORM_DIR}${anim}.png`])),
+  ...Object.fromEntries(Object.entries(HD_WIZARD_ANIMATIONS).map(([anim, key]) => [key, `${HD_WIZARD_NORM_DIR}${anim === 'walk' ? 'walk-v2' : anim}.png`])),
   [HD_WIZARD_FACE_KEY]: `${HD_WIZARD_NORM_DIR}hero_face.png`,
   ...Object.fromEntries(Object.entries(HD_WIZARD_FX).map(([name, key]) => [key, `hd/wizard/fx/${name}.png`])),
 });

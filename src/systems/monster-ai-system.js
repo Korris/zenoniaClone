@@ -3,6 +3,7 @@
 // Monster must carry an `ai` object: { state, timer, dirX, dirY, homeX, homeY }.
 
 const WANDER_SPEED_FACTOR = 0.5;
+const CHASE_SPEED_FACTOR = 0.5;
 
 export function createAiState(homeX, homeY) {
   return { state: 'idle', timer: 600, dirX: 0, dirY: 0, homeX, homeY };
@@ -50,6 +51,7 @@ export function updateMonsterAi(monster, player, dt, rand = Math.random) {
         intent.moveX = dx / distToPlayer;
         intent.moveY = dy / distToPlayer;
       }
+      intent.speedFactor = CHASE_SPEED_FACTOR;
       return intent;
 
     case 'windup':

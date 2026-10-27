@@ -46,7 +46,9 @@ function heroFrame(set, player) {
   if (player.dead) return byProgress(anims.death, Math.min(1, player.deathTimer / (DEATH_FRAME_MS * anims.death.length)));
   if (player.dash) return cycle(anims.dash, player.animTimer, DASH_FRAME_MS);
   if (player.combo.isAttacking) {
-    const attack = anims[`attack${player.combo.step}`] || anims.attack1;
+    const finisher = player.combo.step === player.combo.config.hits.length;
+    const animationStep = finisher ? 3 : ((player.combo.step - 1) % 2) + 1;
+    const attack = anims[`attack${animationStep}`] || anims.attack1;
     return byProgress(attack, player.combo.phaseProgress);
   }
   if (player.hitFlashTimer > 0) return anims.hurt[player.hitFlashTimer > 60 ? 0 : 1];

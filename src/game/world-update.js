@@ -95,7 +95,10 @@ export function updateWorld(world, input, dt, banner) {
   if (world.hitStopMs > 0) {
     world.hitStopMs -= dt;
     // Presses are cleared at end of frame, so buffer attack input instead of eating it
-    if (input.wasPressed('attack')) world.player.combo.pressAttack();
+    if (input.wasPressed('attack')) {
+      world.player.combo.pressAttack();
+      updatePickups(world);
+    }
     for (const t of world.texts) t.update(dt);
     for (const s of world.particles) s.update(dt);
     return world.events;
@@ -106,7 +109,7 @@ export function updateWorld(world, input, dt, banner) {
   updateMonsters(world, dt);
   resolveProjectileHits(world);
   updateLists(world, dt);
-  updatePickups(world);
+  if (input.wasPressed('attack')) updatePickups(world);
   world.monsters.push(...world.spawner.update(dt, world.player));
   world.removeDead();
 

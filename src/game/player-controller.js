@@ -7,9 +7,11 @@ import { tickCooldowns } from '../systems/skill-system.js';
 import { performComboHit } from '../systems/combat-system.js';
 import { fireComboBolt } from '../systems/projectile-hit-system.js';
 import { tryCastSkill, updateDash } from '../systems/skill-cast-system.js';
+import { playAttackSound } from '../audio/combat-audio.js';
 
-export function facingFromVector(x, y, current) {
+export function facingFromVector(x, y, current, preferHorizontal = false) {
   if (x === 0 && y === 0) return current;
+  if (preferHorizontal && x !== 0) return x > 0 ? 'right' : 'left';
   if (Math.abs(x) > Math.abs(y)) return x > 0 ? 'right' : 'left';
   return y > 0 ? 'down' : 'up';
 }
@@ -163,6 +165,7 @@ export function updatePlayer(world, input, dt, banner) {
   if (input.wasPressed('attack')) player.combo.pressAttack();
   for (const event of player.combo.update(dt)) {
     if (event.type !== 'hit') continue;
+    playAttackSound(player.classId, event.step, event.step === player.combo.config.hits.length);
     if (player.attackStyle === 'ranged') fireComboBolt(world, event.step); // wizard bolts / mechanic bullets
     else performComboHit(world, event.step); // warrior: sword arc
   }
@@ -170,7 +173,7 @@ export function updatePlayer(world, input, dt, banner) {
   if (player.combo.isAttacking) {
     // Allow turning during windup so quick direction changes still feel responsive
     const v = input.getMoveVector();
-    if (player.combo.state === 'windup') player.dir = facingFromVector(v.x, v.y, player.dir);
+    if (player.combo.state === 'windup') player.dir = facingFromVector(v.x, v.y, player.dir, true);
     lungeForward(world, dt);
     player.moving = false;
     return;
@@ -179,7 +182,7 @@ export function updatePlayer(world, input, dt, banner) {
   const move = input.getMoveVector();
   player.moving = move.x !== 0 || move.y !== 0;
   if (player.moving) {
-    player.dir = facingFromVector(move.x, move.y, player.dir);
+    player.dir = facingFromVector(move.x, move.y, player.dir, true);
     const distance = (player.speed * dt) / 1000;
     moveWithCollision(world, move.x * distance, move.y * distance);
     player.animTimer += dt;

@@ -1,6 +1,7 @@
 // Zenonia-style skill tree: 3 branches x 3 tiers of nodes with prerequisite connectors.
 // Keyboard: Left/Right branch, Up/Down node, Enter upgrade, K/L/I bind to hotbar slot, Tab/Esc close.
 // Mouse: click selects a node, clicking the already-selected node upgrades it.
+import { drawCharacterMenu } from './character-menu.js';
 import { drawText, drawPanel, drawOverlay, drawScaledSprite } from './pixel-text.js';
 import { SKILL_DEFINITIONS, HOTBAR_SLOT_KEYS, SKILL_HOTKEY_ACTIONS } from '../data/skill-definitions.js';
 import { getClassDefinition } from '../data/class-definitions.js';
@@ -10,7 +11,7 @@ import {
   skillsForBranch, computeSkillTreeLayout, describeNodeState, describeNextLevel, describeRequirement,
 } from './skill-tree-layout.js';
 
-const COLUMN_TITLES = { sword: 'SWORD', body: 'BODY', spirit: 'SPIRIT', fire: 'FIRE', frost: 'FROST', arcane: 'ARCANE' };
+const COLUMN_TITLES = { sword: 'SWORD', body: 'BODY', spirit: 'SPIRIT', fire: 'FIRE', frost: 'FROST', arcane: 'ARCANE', gunnery: 'GUNNERY', explosives: 'EXPLOSIVES', engineering: 'ENGINEERING' };
 const STATE_BORDER = { locked: '#555566', learned: '#cfcfe0', available: '#ffe680', maxed: '#8fff8f' };
 
 export class SkillTreePanel {
@@ -100,12 +101,9 @@ export class SkillTreePanel {
 
   render(ctx, player, icons) {
     this.syncClass(player);
-    drawOverlay(ctx, 0.65);
-    drawPanel(ctx, PANEL_X, PANEL_Y, PANEL_W, PANEL_H);
-    drawText(ctx, 'SKILL TREE', PANEL_X + 16, PANEL_Y + 12, { size: 16, color: '#ffe680' });
-    drawText(ctx, `Skill Points: ${player.skillPoints}`, PANEL_X + PANEL_W - 16, PANEL_Y + 14, { size: 14, align: 'right', color: player.skillPoints > 0 ? '#8fff8f' : '#cfcfe0' });
+    drawCharacterMenu(ctx, player, 'Skills');
     this.branches.forEach((branch, i) => {
-      drawText(ctx, COLUMN_TITLES[branch], PANEL_X + (i + 0.5) * (PANEL_W / this.branches.length), PANEL_Y + 32, { size: 14, align: 'center', color: '#8fc3ff' });
+      drawText(ctx, COLUMN_TITLES[branch], PANEL_X + (i + 0.5) * (PANEL_W / this.branches.length), PANEL_Y + 122, { size: 14, align: 'center', color: '#8fc3ff' });
     });
     this.drawConnectors(ctx, player);
     for (const skillId of Object.keys(this.layout.positions)) this.drawNode(ctx, player, icons, skillId);
@@ -120,7 +118,7 @@ export class SkillTreePanel {
         const from = positions[skillId];
         const to = positions[req.skill];
         if (!from || !to) continue;
-        ctx.strokeStyle = getSkillLevel(player, req.skill) >= req.level ? '#d9b45a' : '#4a4a5c';
+        ctx.strokeStyle = getSkillLevel(player, req.skill) >= req.level ? '#6fc8e3' : '#4a4a5c';
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
         ctx.lineTo(to.x, to.y);
@@ -137,11 +135,9 @@ export class SkillTreePanel {
     const blink = state.available && player.skillPoints > 0 && Math.floor(performance.now() / 350) % 2 === 0;
     const borderColor = selected ? '#ffffff' : blink ? '#fff6c8' : state.maxed ? STATE_BORDER.maxed : state.available ? STATE_BORDER.available : state.learned ? STATE_BORDER.learned : STATE_BORDER.locked;
 
-    ctx.fillStyle = state.locked ? 'rgba(10,10,18,0.9)' : 'rgba(30,26,54,0.92)';
-    ctx.fillRect(x - half, y - half, NODE_SIZE, NODE_SIZE);
-    ctx.lineWidth = selected ? 3 : 2;
-    ctx.strokeStyle = borderColor;
-    ctx.strokeRect(x - half + 1, y - half + 1, NODE_SIZE - 2, NODE_SIZE - 2);
+    drawPanel(ctx, x - half, y - half, NODE_SIZE, NODE_SIZE, {
+      fill: state.locked ? '#101a28' : '#21364b', border: selected ? '#83d9f5' : borderColor,
+    });
 
     const icon = icons[skillId];
     ctx.globalAlpha = state.locked ? 0.4 : 1;

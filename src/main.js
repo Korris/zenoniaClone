@@ -5,6 +5,7 @@ import { InputManager } from './core/input-manager.js';
 import { loadAllImages } from './graphics/asset-loader.js';
 import { buildSpriteRegistry } from './graphics/sprite-registry.js';
 import { GameController } from './game/game-controller.js';
+import { unlockCombatAudio } from './audio/combat-audio.js';
 
 function drawLoading(ctx, loaded, total) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -27,6 +28,9 @@ async function boot() {
   const images = await loadAllImages((loaded, total) => drawLoading(ctx, loaded, total));
   const registry = buildSpriteRegistry(images);
   const input = new InputManager(canvas);
+  // AudioContext must be resumed directly from a real user gesture.
+  window.addEventListener('keydown', unlockCombatAudio);
+  canvas.addEventListener('pointerdown', unlockCombatAudio);
   const controller = new GameController(registry, input);
 
   const loop = new GameLoop({

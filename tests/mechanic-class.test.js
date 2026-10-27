@@ -38,8 +38,8 @@ test('mechanic gun combo: bullets out-range and out-speed wizard bolts; finisher
   assert.ok(bullet.vx < 0 && bullet.vy === 0 && bullet.spriteKey === 'bullet' && bullet.explodeRadius === 0);
   assert.ok(MECHANIC_COMBO_CONFIG.hits[0].bolt.speed > WIZARD_COMBO_CONFIG.hits[0].bolt.speed);
   assert.equal(world.effects.at(-1).spriteKey, 'muzzleFlash');
-  player.combo.startHit(3);
-  fireComboBolt(world, 3);
+  player.combo.startHit(4);
+  fireComboBolt(world, 4);
   assert.equal(world.projectiles[1].explodeFx, 'explosion');
   assert.ok(world.projectiles[1].explodeRadius > 0);
 });

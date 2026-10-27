@@ -70,9 +70,9 @@ export function canCastSkill(player, skillId, cooldowns) {
 }
 
 // Defaults for every stat computePassiveModifiers can produce; multipliers start at 1,
-// additive/chance stats start at 0. Passives only ever add a bonus on top of these.
+// additive stats start at 0; base critical chance is 3.9%. Passives add bonuses.
 const DEFAULT_MODIFIERS = Object.freeze({
-  hpMult: 1, mpMult: 1, defAdd: 0, speedMult: 1, comboMult: 0, critChance: 0, regenMult: 1, mpRegenMult: 1,
+  hpMult: 1, mpMult: 1, defAdd: 0, speedMult: 1, comboMult: 0, critChance: 0.039, regenMult: 1, mpRegenMult: 1,
 });
 
 /** Sums every learned passive's contribution into one stat-modifier object. */

@@ -23,6 +23,7 @@ export class Player {
     this.hotbar = new Array(HOTBAR_SLOTS).fill(null);
     this.buffs = { atkMult: 1, timer: 0 };
     this.gold = 0;
+    this.potions = { hpPotion: 0, mpPotion: 0 };
     this.inventory = []; // bag of unequipped item instances, see data/item-definitions.js
     this.equipment = Object.fromEntries(EQUIPMENT_SLOTS.map((slot) => [slot, null]));
     this.hasUnseenItem = false; // drives the HUD's "NEW" blink until the bag is opened
@@ -132,6 +133,7 @@ export class Player {
       classId: this.classId, level: this.level, exp: this.exp, skillPoints: this.skillPoints, skills: { ...this.skills },
       hotbar: [...this.hotbar], gold: this.gold, hp: this.hp, mp: this.mp,
       inventory: [...this.inventory], equipment: { ...this.equipment },
+      potions: { ...this.potions },
     };
   }
 
@@ -142,6 +144,7 @@ export class Player {
     this.skills = { ...data.skills };
     this.hotbar = Array.isArray(data.hotbar) ? [...data.hotbar] : new Array(HOTBAR_SLOTS).fill(null);
     this.gold = data.gold;
+    this.potions = { hpPotion: data.potions?.hpPotion ?? 0, mpPotion: data.potions?.mpPotion ?? 0 };
     this.inventory = Array.isArray(data.inventory) ? [...data.inventory] : [];
     this.equipment = data.equipment
       ? Object.fromEntries(EQUIPMENT_SLOTS.map((slot) => [slot, data.equipment[slot] || null]))

@@ -22,7 +22,7 @@ export function renderWorld(ctx, world, registry, view = {}) {
 
   const backdrop = registry.backdrops?.[world.mapDef?.backdrop] || null;
   drawTilemap(ctx, world.tilemap, camera, registry, world.elapsedMs, backdrop);
-  drawDrops(ctx, world.drops, registry);
+  drawDrops(ctx, world.drops, registry, player.classId);
 
   // Y-sort so things lower on screen draw in front (classic top-down depth)
   const visible = (e) => camera.isVisible(e.x - CULL_MARGIN, e.y - CULL_MARGIN, CULL_MARGIN * 2, CULL_MARGIN * 2);
