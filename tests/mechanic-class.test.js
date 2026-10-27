@@ -7,7 +7,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { CLASS_DEFINITIONS } from '../src/data/class-definitions.js';
 import { MECHANIC_COMBO_CONFIG, WIZARD_COMBO_CONFIG } from '../src/data/hero-stats-config.js';
 import { MECHANIC_SKILL_DEFINITIONS } from '../src/data/skill-definitions-mechanic.js';
-import { ASSET_FILES, HD_HERO_ANIMATIONS } from '../src/graphics/asset-atlas.js';
+import { ASSET_FILES, HD_HERO_ANIMATIONS, HD_HERO } from '../src/graphics/asset-atlas.js';
 import { HD_WIZARD_ANIMATIONS } from '../src/graphics/asset-atlas-hd-wizard.js';
 import { HD_MECHANIC_ANIMATIONS, HD_MECHANIC_SIDE_ROWS, HD_MECHANIC_FX, HD_MECHANIC_FACE_KEY } from '../src/graphics/asset-atlas-hd-mechanic.js';
 import { Player } from '../src/entities/player.js';
@@ -51,9 +51,9 @@ test('every HD class sheet, portrait and gun FX file exists with the sliced size
       const path = 'assets/' + ASSET_FILES[key];
       assert.ok(existsSync(path), `${cls}/${anim}: ${path} missing`);
       const { width, height } = pngSize(path);
-      assert.equal(height, 4 * 96, `${path}: 4 facing rows of 96px`);
-      assert.equal(width % 96, 0, `${path}: whole 96px columns`);
-      if (anim === 'walk') walkCols[cls] = width / 96;
+      assert.equal(height, 4 * HD_HERO.frame, `${path}: 4 facing rows`);
+      assert.equal(width % HD_HERO.frame, 0, `${path}: whole frame columns`);
+      if (anim === 'walk') walkCols[cls] = width / HD_HERO.frame;
     }
   }
   // 4-key-pose walk (left step / pass / right step / pass) for every class -- the old 6-frame walks

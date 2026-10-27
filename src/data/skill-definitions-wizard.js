@@ -72,13 +72,13 @@ export const WIZARD_SKILL_DEFINITIONS = Object.freeze({
     passive: { hpMult: [0.08, 0.16, 0.24, 0.32, 0.40] },
   },
   blizzard: {
-    id: 'blizzard', name: 'Blizzard', type: 'active', branch: 'frost', tier: 3,
+    id: 'blizzard', name: 'Ice Storm', type: 'active', branch: 'frost', tier: 3,
     maxLevel: 5, requiredLevel: [10, 13, 16, 19, 22],
     requires: [{ skill: 'frostNova', level: 3 }, { skill: 'glacialHeart', level: 2 }],
     mpCost: [16, 18, 20, 22, 25], cooldownMs: [8500, 8100, 7700, 7300, 6800],
     damageMult: [1.0, 1.2, 1.4, 1.65, 1.9], radius: [40, 42, 44, 46, 50],
-    icon: 'iconWaterCanon', description: 'A howling storm of ice that strikes four times.',
-    effect: { kind: 'radial', fx: 'frostNova', fxDiameter: 40, knockback: 90, pulses: 4, pulseIntervalMs: 250, label: 'Blizzard!', textColor: '#bfe9ff' },
+    icon: 'iconWaterCanon', description: 'Summons falling ice meteors ahead, striking the area four times.',
+    effect: { kind: 'iceStorm', knockback: 90, textColor: '#bfe9ff' },
   },
 
   // ---- ARCANE ----

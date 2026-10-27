@@ -1,6 +1,7 @@
 // Keyboard + mouse input mapped to named actions. `isDown` = held, `wasPressed` = edge
 // triggered once per frame (cleared in endFrame). Mouse clicks are queued in canvas
 // logical coordinates (960x640) so UI code never deals with CSS scaling.
+import { logicalPointerPosition } from './canvas-display.js';
 export const ACTION_KEYS = Object.freeze({
   moveUp: ['KeyW', 'ArrowUp'],
   moveDown: ['KeyS', 'ArrowDown'],
@@ -56,10 +57,7 @@ export class InputManager {
   }
 
   onMouseDown(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const scaleX = this.canvas.width / rect.width;
-    const scaleY = this.canvas.height / rect.height;
-    this.clicks.push({ x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY });
+    this.clicks.push(logicalPointerPosition(this.canvas, e.clientX, e.clientY));
   }
 
   /** True while any key bound to the action is held. */

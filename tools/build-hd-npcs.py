@@ -9,8 +9,8 @@ snapped to the emptiest gaps the same way the hero script does. Real-alpha sheet
 threshold; a sheet that comes back fully opaque with a painted checkerboard gets color-keyed
 (both handled by build-hd-hero.py's normalize_alpha).
 
-Output (assets/hd/npcs/normalized/):
-- <npcId>.png        384x288 = 4 cols x 3 rows of 96x96 frames (24 world units * pixelsPerUnit 4,
+Output (assets/hd/npcs/normalized-hd/):
+- <npcId>.png        768x576 = 4 cols x 3 rows of 192x192 frames (24 world units * pixelsPerUnit 8,
                      same frame contract as the HD hero so NPCs stand at hero scale), feet on the
                      bottom row, body scaled so the front/first frame is TARGET_BODY_HEIGHT px tall.
 - <npcId>_face.png   152x152 portrait (head + shoulders crop of the front/first frame) for dialog.
@@ -37,13 +37,13 @@ if _missing:
     sys.exit(f'build-hd-hero.py no longer exports {_missing}; update build-hd-npcs.py')
 
 SRC_DIR = Path(sys.argv[1] if len(sys.argv) > 1 else 'assets/hd/map/Oakhaven')
-OUT_DIR = Path(sys.argv[2] if len(sys.argv) > 2 else 'assets/hd/npcs/normalized')
+OUT_DIR = Path(sys.argv[2] if len(sys.argv) > 2 else 'assets/hd/npcs/normalized-hd')
 
 ROWS = ['down', 'left', 'right']   # raw sheet row order -> engine facing (no 'up' pose exists)
 COLS = 4                           # idle frames per row
-FRAME = hero.FRAME                 # 96 px = 24 world units * 4
+FRAME = 192                        # 24 world units * 8; rebuilt from the raw sheets
 FACE_SIZE = hero.FACE_SIZE         # 152, same as hero_face.png
-TARGET_BODY_HEIGHT = hero.TARGET_BODY_HEIGHT  # 82 px -> NPCs stand at the hero's height
+TARGET_BODY_HEIGHT = 164            # same world height as the hero at 8px/unit
 FACE_CROP_FRACTION = 0.5           # top half of the front frame's bbox = head + shoulders
 
 # npcId (src/data/npc-definitions.js) -> raw file name, plus optional body-height override
@@ -53,7 +53,7 @@ NPCS = {
     'merchantDale': 'Merchant Dale.png', 'fishermanRoy': 'Fisherman Roy.png', 'carpenterBrol': 'Carpenter Brol.png',
     'farmerGuri': 'Farmer Guri.png', 'guardRook': 'Guard Rook.png', 'childTim': 'Child Tim.png', 'healerNina': 'nina.png',
 }
-BODY_HEIGHT_OVERRIDE = {'childTim': 70}
+BODY_HEIGHT_OVERRIDE = {'childTim': 140}
 
 
 def split_sheet(img):
@@ -77,7 +77,7 @@ def build_face(front_frame_arr):
     scale = min((FACE_SIZE - 4) / cropped.width, (FACE_SIZE - 4) / cropped.height)
     small = hero.downscale(cropped, scale)
     face = Image.new('RGBA', (FACE_SIZE, FACE_SIZE), (0, 0, 0, 0))
-    face.paste(small, ((FACE_SIZE - small.width) // 2, (FACE_SIZE - small.height) // 2), small)
+    face.alpha_composite(small, ((FACE_SIZE - small.width) // 2, (FACE_SIZE - small.height) // 2))
     return face
 
 
@@ -99,7 +99,12 @@ def build_npc(npc_id, file_name):
             if bbox_arr is None:
                 print(f'WARN {file_name}: empty frame row {ROWS[r]} col {c}')
                 continue
-            frame = hero.place_in_frame(hero.downscale(Image.fromarray(bbox_arr, 'RGBA'), scale))
+            image = hero.downscale(Image.fromarray(bbox_arr, 'RGBA'), scale)
+            image = image.crop(image.getbbox())
+            if image.width > FRAME or image.height > FRAME:
+                image = image.crop((max(0, image.width - FRAME), max(0, image.height - FRAME), image.width, image.height))
+            frame = Image.new('RGBA', (FRAME, FRAME), (0, 0, 0, 0))
+            frame.alpha_composite(image, ((FRAME - image.width) // 2, FRAME - image.height))
             sheet.paste(frame, (c * FRAME, r * FRAME))
     print(f'{npc_id}: {file_name} scale {scale:.4f} (front frame {first.shape[0]}px -> {target}px)')
     return sheet, build_face(first)
@@ -136,7 +141,7 @@ def write_readme(sheets):
     (OUT_DIR / 'README.md').write_text(f"""# HD NPC sheets (normalized)
 
 Generated from the hand-painted sheets in `assets/hd/map/Oakhaven/*.png` by `tools/build-hd-npcs.py`
-(`npm run hd:npcs`). Same contract as the HD hero: 96x96 frames = 24 world units x pixelsPerUnit 4,
+(`npm run hd:npcs`). Same contract as the HD hero: {FRAME}x{FRAME} frames = 24 world units x pixelsPerUnit 8,
 feet on the bottom row, body ~{TARGET_BODY_HEIGHT}px tall (child {BODY_HEIGHT_OVERRIDE['childTim']}px).
 
 | npcId | source | sheet |

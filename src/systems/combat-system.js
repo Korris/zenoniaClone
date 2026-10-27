@@ -90,12 +90,13 @@ export function performComboHit(world, step) {
 }
 
 /** Area hit around the hero (Whirlwind, Blade Storm). */
-export function performRadialHit(world, radius, mult, knockback) {
+export function performRadialHit(world, radius, mult, knockback, center = null) {
   const { player } = world;
+  const x = center?.x ?? player.x, y = center?.y ?? player.y - 6;
   for (const monster of world.monsters) {
-    if (monster.dead || !circleOverlapsBox(player.x, player.y - 6, radius, monster.box)) continue;
-    const dx = monster.x - player.x;
-    const dy = monster.y - player.y;
+    if (monster.dead || !circleOverlapsBox(x, y, radius, monster.box)) continue;
+    const dx = monster.x - (center?.x ?? player.x);
+    const dy = monster.y - (center?.y ?? player.y);
     const dist = Math.hypot(dx, dy) || 1;
     const { damage, crit } = rollPlayerDamage(player, monster.def.def, mult);
     damageMonster(world, monster, damage, (dx / dist) * knockback, (dy / dist) * knockback, crit ? CRIT_COLOR : '#bfe9ff', crit);

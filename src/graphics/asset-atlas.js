@@ -15,7 +15,7 @@ export { HD_PROPS, HD_PROP_PIXELS_PER_UNIT };
 const PACK = 'ninja-adventure/';
 const HERO = 'custom/hero/';
 const HD_HERO_DIR = 'hd/hero/';
-const HD_HERO_NORM_DIR = HD_HERO_DIR + 'normalized/';
+const HD_HERO_NORM_DIR = HD_HERO_DIR + 'normalized-hd/';
 const HD_TILE_NORM_DIR = 'hd/tiles/normalized/';
 
 // Whole-map painted ground layers (4 px per world unit, map-sized), keyed by the image key a map
@@ -31,6 +31,12 @@ export const BACKDROP_FILES = Object.freeze({
 export const ASSET_FILES = Object.freeze({
   inventoryIcons: 'custom/inventory-icons-chibi.png',
   weaponIcons: 'custom/weapon-icons-chibi.png',
+  helmetIcons: 'custom/helmet-icons-chibi.png',
+  armorIcons: 'custom/armor-icons-chibi.png',
+  glovesIcons: 'custom/gloves-icons-chibi.png',
+  bootsIcons: 'custom/boots-icons-chibi.png',
+  bagFrame: 'custom/bag-frame-v2.png',
+  iceStorm: 'hd/wizard/fx/ice-storm.png',
   field: PACK + 'tilesets/TilesetField.png', water: PACK + 'tilesets/TilesetWater.png', relief: PACK + 'tilesets/TilesetRelief.png',
   floor: PACK + 'tilesets/TilesetFloor.png', nature: PACK + 'tilesets/TilesetNature.png', desert: PACK + 'tilesets/TilesetDesert.png',
   house: PACK + 'tilesets/TilesetHouse.png', dungeon: PACK + 'tilesets/TilesetDungeon.png', wall: PACK + 'tilesets/TilesetWallSimple.png',
@@ -56,16 +62,16 @@ export const ASSET_FILES = Object.freeze({
   fxSlashSmall: HERO + 'slash_small.png', fxSlashBig: HERO + 'slash_big.png', fxDashTrail: HERO + 'dash_trail.png',
   fxHitSpark: HERO + 'hit_spark.png',
   // HD hand-painted hero set (Zenonia 4 style), see docs/system-architecture.md "HD assets".
-  // Built by tools/build-hd-hero.py from assets/hd/hero/*.png into assets/hd/hero/normalized/.
+  // Built by tools/build-hd-render.py from original artwork into normalized-hd/ (192px frames).
   // Only list keys for sheets that actually exist -- asset-loader.js tolerates a load failure fine
   // (Promise.allSettled), but a 404 for a file we know isn't there is just noise. If a sheet is
   // ever removed/renamed, drop its key here too; sprite-registry.js falls back to the 24px pixel
   // set for any animation whose HD key is absent or fails to load.
-  hdHeroIdle: HD_HERO_NORM_DIR + 'idle.png', hdHeroWalk: HD_HERO_NORM_DIR + 'walk-v2.png',
+  hdHeroIdle: HD_HERO_NORM_DIR + 'idle.png', hdHeroWalk: HD_HERO_NORM_DIR + 'walk.png',
   hdHeroAttack1: HD_HERO_NORM_DIR + 'attack1.png', hdHeroAttack2: HD_HERO_NORM_DIR + 'attack2.png',
   hdHeroAttack3: HD_HERO_NORM_DIR + 'attack3.png', hdHeroDash: HD_HERO_NORM_DIR + 'dash.png',
   hdHeroHurt: HD_HERO_NORM_DIR + 'hurt.png', hdHeroDeath: HD_HERO_NORM_DIR + 'death.png',
-  hdHeroFace: HD_HERO_NORM_DIR + 'hero_face.png',
+  hdHeroFace: HD_HERO_DIR + 'normalized/hero_face.png',
   ...HD_WIZARD_ASSET_FILES, // wizard class HD set, see asset-atlas-hd-wizard.js
   ...WIZARD_ICON_FILES, // wizard skill-tree icons
   ...HD_MECHANIC_ASSET_FILES, // mechanic class HD set + gun FX, see asset-atlas-hd-mechanic.js
@@ -224,7 +230,7 @@ export const HD_HERO_ANIMATIONS = Object.freeze({
   idle: 'hdHeroIdle', walk: 'hdHeroWalk', attack1: 'hdHeroAttack1', attack2: 'hdHeroAttack2',
   attack3: 'hdHeroAttack3', dash: 'hdHeroDash', hurt: 'hdHeroHurt', death: 'hdHeroDeath',
 });
-export const HD_HERO = Object.freeze({ pixelsPerUnit: 4, frame: 96, animations: HD_HERO_ANIMATIONS });
+export const HD_HERO = Object.freeze({ pixelsPerUnit: 8, frame: 192, animations: HD_HERO_ANIMATIONS });
 
 // Which HD sheet row faces screen-left / screen-right. The v2 Warrior (black ponytail, 2026-10-27)
 // was painted with every sheet in the requested order -- row 2 faces screen-left, row 3 screen-right

@@ -66,15 +66,17 @@ export function drawPlayer(ctx, player, registry) {
   if (!player.dead && player.invulnTimer > 0 && Math.floor(player.invulnTimer / 80) % 2 === 0 && player.hitFlashTimer <= 0) return;
 
   const frame = heroFrame(registry.heroes?.[player.classId] || registry.hero, player);
-  // Dest size is always HERO_FRAME_SIZE world units -- HD frames (96px @ 4px/unit) and pixel
+  // Dest size is always HERO_FRAME_SIZE world units -- HD frames (192px @ 8px/unit) and pixel
   // frames (24px @ 1px/unit) both render at the same world-space footprint, just crisper for HD.
   const size = HERO_FRAME_SIZE;
-  const drawX = Math.round(player.x - size / 2);
-  const drawY = Math.round(player.y - size);
+  const transform = ctx.getTransform();
+  const drawX = (Math.round((player.x - size / 2) * transform.a + transform.e) - transform.e) / transform.a;
+  const drawY = (Math.round((player.y - size) * transform.d + transform.f) - transform.f) / transform.d;
   const smooth = (frame.pixelsPerUnit || 1) > 1;
 
   drawShadow(ctx, player.x, player.y, 6, 2.5);
   ctx.imageSmoothingEnabled = smooth;
+  ctx.imageSmoothingQuality = 'high';
   if (player.dash) {
     ctx.globalAlpha = 0.35;
     ctx.drawImage(frame, drawX - player.dash.dirX * 6, drawY - player.dash.dirY * 6, size, size);

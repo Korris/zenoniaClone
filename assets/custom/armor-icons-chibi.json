@@ -1,0 +1,15 @@
+{
+  "slots": {
+    "helmet": "helmet-icons-chibi.png",
+    "armor": "armor-icons-chibi.png",
+    "gloves": "gloves-icons-chibi.png",
+    "boots": "boots-icons-chibi.png"
+  },
+  "columns": 5,
+  "rows": 2,
+  "levelPairs": [[1, 5], [10, 15], [20, 25], [30, 35], [40, 45], [50, 55], [60, 65], [70, 75], [80, 85], [90, 95]],
+  "order": "Each slot reads left-to-right across row 1 then row 2; shared across classes.",
+  "themes": ["leather", "steel", "bronze", "frost", "flame", "royal", "nature", "arcane", "celestial", "dragon"],
+  "slicing": "Runtime finds transparent gutters and trims each icon; use buildArmorIcons instead of assuming perfect painted cell spacing.",
+  "usage": "Inventory, equipment slots, activity notice and ground drops; same art tier by itemLevel. Ground icons retain HiDPI detail; loot effects stay disabled."
+}

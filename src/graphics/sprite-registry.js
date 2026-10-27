@@ -2,6 +2,7 @@
 // Shape: { hero, npcs, monsters, boss, tiles, flowers, props, effects, icons, faces, ui }
 import { createSprite, createTintedSprite, HIT_FLASH_COLOR } from './pixel-sprite-factory.js';
 import { buildMonstersHd } from './hd-monster-sprite-builder.js';
+import { buildIceStormFrames } from './ice-storm-renderer.js';
 import { cropSprite, cell } from './sprite-cell.js';
 import {
   CHARACTER_DIRECTIONS, FLOWER_OVERLAYS, MONSTER_SHEETS, BOSS_STRIPS, NPC_SHEETS, FX_STRIPS,
@@ -19,6 +20,7 @@ import { SKILL_DEFINITIONS } from '../data/skill-definitions.js';
 import { ITEM_TEMPLATES } from '../data/item-definitions.js';
 import { buildWeaponIcons } from './weapon-icons.js';
 import { buildGroundSprite } from './ground-sprite-builder.js';
+import { buildArmorIcons } from './equipment-icons.js';
 
 export const CHARACTER_SIZE = 16; // pack NPCs/monsters
 export const HERO_FRAME_SIZE = HERO_FRAME; // custom hero sheets
@@ -53,7 +55,7 @@ function buildHeroPixel(images) {
   return set;
 }
 
-/** HD class sheets (hand-painted, 96px frames, pixelsPerUnit=4) -> { dir: { anim[] } }, but only
+/** HD class sheets (hand-painted, 192px frames, pixelsPerUnit=8) -> { dir: { anim[] } }, but only
  * for animations whose normalized sheet actually loaded (asset-loader.js drops missing files).
  * `animations` maps anim -> image key, `sideRows` maps anim -> which rows face left/right. */
 function buildHeroHd(images, animations = HD_HERO_ANIMATIONS, sideRows = HD_HERO_SIDE_ROWS) {
@@ -88,7 +90,7 @@ function buildHero(images) {
   return merged;
 }
 
-/** HD NPC idle sheets (96px frames, pixelsPerUnit 4; rows down/left/right, no rear pose) ->
+/** HD NPC idle sheets (192px frames, pixelsPerUnit 8; rows down/left/right, no rear pose) ->
  * npcsHd[id] = { down|left|right: { idle[] } }, only for ids whose normalized sheet loaded. The
  * matching 152px portrait lands in `faces[id]` (stamped with pixelsPerUnit so the dialog box
  * knows to smooth-fit it instead of 3x pixel-scaling a 38px faceset). */
@@ -138,6 +140,7 @@ function buildEffects(images) {
     if (img) effects[name] = cropSprite(img, 0, 0, img.width, img.height, false, HD_FX_PIXELS_PER_UNIT);
   }
   effects.coin = images.coin;
+  effects.iceStorm = buildIceStormFrames(images.iceStorm);
   effects.potionHp = images.lifePot;
   effects.potionMp = images.milkPot;
   effects.markers = {};
@@ -172,6 +175,7 @@ export function buildSpriteRegistry(images) {
   // Painted 4x4 equipment atlas shared by the bag and ground drops.
   const inventoryItems = {};
   const weaponIcons = images.weaponIcons ? buildWeaponIcons(images.weaponIcons) : [];
+  const armorIcons = Object.fromEntries(['helmet', 'armor', 'gloves', 'boots'].map(slot => [slot, buildArmorIcons(images[`${slot}Icons`])]));
   const painted = images.inventoryIcons;
   if (painted) {
     const weapons = ['sword', 'sword2', 'rapier', 'club', 'katana', 'axe', 'lance', 'hammer', 'bigSword'];
@@ -214,9 +218,11 @@ export function buildSpriteRegistry(images) {
     items,
     groundItems: Object.fromEntries(Object.entries(inventoryItems).map(([id, sprite]) => [id, buildGroundSprite(sprite)])),
     groundWeaponIcons: weaponIcons.map(sprite => buildGroundSprite(sprite)),
+    armorIcons,
+    groundArmorIcons: Object.fromEntries(Object.entries(armorIcons).map(([slot, icons]) => [slot, icons.map(sprite => buildGroundSprite(sprite))])),
     inventoryItems,
     weaponIcons,
     faces,
-    ui: { dialogBox: images.dialogBox, facesetBox: images.facesetBox },
+    ui: { dialogBox: images.dialogBox, facesetBox: images.facesetBox, bagFrame: images.bagFrame },
   };
 }

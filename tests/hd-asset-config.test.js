@@ -9,7 +9,7 @@ test('unitsFor converts native pixel width to world units using pixelsPerUnit', 
 });
 
 test('HD_HERO frame matches the pixel hero frame scaled by pixelsPerUnit', () => {
-  assert.equal(HD_HERO.pixelsPerUnit, 4);
+  assert.equal(HD_HERO.pixelsPerUnit, 8);
   assert.equal(HD_HERO.frame, HERO_FRAME * HD_HERO.pixelsPerUnit);
   assert.equal(unitsFor({ width: HD_HERO.frame, pixelsPerUnit: HD_HERO.pixelsPerUnit }), HERO_FRAME);
 });

@@ -4,17 +4,17 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../core/constants.js';
 import { SKILL_DEFINITIONS, SKILL_ORDER, getSkillValue } from '../data/skill-definitions.js';
 import { getSkillLevel } from '../systems/skill-system.js';
 
-export const PANEL_W = 860;
+export const PANEL_W = 640;
 export const PANEL_H = 568;
-export const PANEL_X = (CANVAS_WIDTH - PANEL_W) / 2;
-export const PANEL_Y = (CANVAS_HEIGHT - PANEL_H) / 2;
-export const NODE_SIZE = 64;
-export const TIER_ROW_H = 104;
-export const TREE_TOP = PANEL_Y + 146;
-export const INFO_BOX_Y = PANEL_Y + 440;
-export const INFO_BOX_H = 94;
+export const PANEL_X = CANVAS_WIDTH - PANEL_W - 16;
+export const PANEL_Y = (CANVAS_HEIGHT - PANEL_H) / 2 - 2;
+export const NODE_SIZE = 44;
+export const TIER_ROW_H = 108;
+export const TREE_TOP = 193;
+export const INFO_BOX_Y = 154;
+export const INFO_BOX_H = 426;
 export const BRANCHES_PER_CLASS = 3;
-export const COLUMN_W = PANEL_W / BRANCHES_PER_CLASS;
+export const COLUMN_W = 376 / BRANCHES_PER_CLASS;
 
 const SUBCOL_FRACTION = { 0: 0.30, 1: 0.70, single: 0.5 };
 
@@ -30,7 +30,7 @@ export function computeSkillTreeLayout(branches) {
   const navIndex = {}; // skillId -> {branchIndex, nodeIndex} (nodeIndex = order within branch, 0-4)
   branches.forEach((branch, branchIndex) => {
     const ids = skillsForBranch(branch);
-    const colX = PANEL_X + branchIndex * COLUMN_W;
+    const colX = PANEL_X + 16 + branchIndex * COLUMN_W;
     const seenInTier = {}; // tier -> how many siblings already placed (assigns subcol 0, then 1)
     ids.forEach((id, nodeIndex) => {
       const def = SKILL_DEFINITIONS[id];
@@ -51,7 +51,7 @@ export function describeNodeState(player, skillId) {
   const level = getSkillLevel(player, skillId);
   const maxed = level >= def.maxLevel;
   const prereqsMet = (def.requires || []).every((r) => getSkillLevel(player, r.skill) >= r.level);
-  const heroLevelMet = maxed || player.level >= def.requiredLevel[level];
+  const heroLevelMet = maxed || player.skillTestMode || player.level >= def.requiredLevel[level];
   const available = !maxed && prereqsMet && heroLevelMet;
   const locked = level === 0 && !available;
   return { level, maxed, available, learned: level > 0, locked, prereqsMet, heroLevelMet };
@@ -92,7 +92,7 @@ export function describeRequirement(player, skillId) {
   const def = SKILL_DEFINITIONS[skillId];
   const level = getSkillLevel(player, skillId);
   if (level >= def.maxLevel) return 'Mastered';
-  const parts = [`Hero Lv ${def.requiredLevel[level]}`];
+  const parts = player.skillTestMode ? [] : [`Hero Lv ${def.requiredLevel[level]}`];
   for (const req of def.requires || []) parts.push(`${SKILL_DEFINITIONS[req.skill].name} Lv ${req.level}`);
-  return `Requires: ${parts.join(', ')}`;
+  return parts.length ? `Requires: ${parts.join(', ')}` : 'Ready to learn';
 }

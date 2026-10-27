@@ -9,6 +9,7 @@ import { RARITIES } from '../data/item-definitions.js';
 import { boxesOverlap } from '../systems/damage-formula.js';
 import { findPortalUnderPlayer, CAMERA_TARGET_Y_OFFSET } from '../world/map-manager.js';
 import { facingFromVector } from './player-controller.js';
+import { showActivityNotice, tickActivityNotice } from '../systems/activity-notice-system.js';
 
 function updateMonsters(world, dt) {
   const { player, tilemap } = world;
@@ -44,27 +45,56 @@ function updateMonsters(world, dt) {
   }
 }
 
-function updatePickups(world) {
+function lootLabel(drop) {
+  if (drop.kind === 'equipment') return { text: drop.item.name, color: RARITIES[drop.item.rarity].color };
+  if (drop.kind === 'coin') return { text: `${drop.value} Gold`, color: '#ffd84a' };
+  return { text: drop.kind === 'hpPotion' ? 'HP Potion' : 'MP Potion', color: drop.kind === 'hpPotion' ? '#ff8c9c' : '#80ceff' };
+}
+
+function showLootFeedback(world, drop, mode, text, subtext, color) {
+  showActivityNotice(world, { drop, mode, text, subtext, color }, 1400);
+}
+
+/** Target the nearest overlapping drop and collect at most one per attack press. */
+export function updatePickups(world, attemptPickup = false) {
   const { player } = world;
-  if (player.dead) return;
+  if (player.dead) { world.nearbyDrop = null; world.lootFeedback = null; world.noticeQueue = []; return; }
   const box = player.box;
+  let nearest = null, nearestDistance = Infinity;
   for (const drop of world.drops) {
     if (drop.dead || drop.age < 250 || !boxesOverlap(box, drop.box)) continue;
+    const distance = Math.hypot(drop.x - player.x, drop.y - player.y);
+    if (distance < nearestDistance) { nearest = drop; nearestDistance = distance; }
+  }
+  world.nearbyDrop = nearest;
+  if (attemptPickup && nearest) {
+    const drop = nearest;
+    const label = lootLabel(drop);
     if (drop.kind === 'equipment') {
       if (addToInventory(player, drop.item)) {
         drop.dead = true;
         player.hasUnseenItem = true;
-        world.addText(player.x, player.y - 22, `+ ${drop.item.name}`, RARITIES[drop.item.rarity].color, { lifeMs: 900 });
       } else if (drop.pickupMsgCooldown <= 0) {
-        drop.pickupMsgCooldown = 1000; // avoid spamming the message every frame while standing on it
-        world.addText(player.x, player.y - 22, 'Inventory full', '#ff6b6b', { lifeMs: 700 });
+        drop.pickupMsgCooldown = 1000;
+        showLootFeedback(world, drop, 'error', 'Inventory full', label.text, '#ff6b6b');
       }
-      continue;
+      if (!drop.dead) return;
+    } else {
+      drop.dead = true;
+      applyPickup(player, drop);
     }
-    drop.dead = true;
-    const feedback = applyPickup(player, drop);
-    world.addText(player.x, player.y - 22, feedback.text, feedback.color, { lifeMs: 800 });
+    world.nearbyDrop = null;
+    showLootFeedback(world, drop, 'picked', label.text, 'Picked up', label.color);
+    return;
   }
+  // Let collection/error confirmation finish before previewing the next stacked item.
+  if (world.lootFeedback?.mode !== 'preview' && world.lootFeedback?.lifeMs > 0) return;
+  if (nearest) {
+    if (world.lootFeedback?.drop !== nearest || world.lootFeedback?.mode !== 'preview') {
+      const label = lootLabel(nearest);
+      showLootFeedback(world, nearest, 'preview', label.text, '', label.color);
+    } else world.lootFeedback.lifeMs = Math.max(450, world.lootFeedback.lifeMs);
+  } else world.lootFeedback = null;
 }
 
 function updateLists(world, dt) {
@@ -90,6 +120,7 @@ function updateLists(world, dt) {
 export function updateWorld(world, input, dt, banner) {
   world.events = [];
   world.elapsedMs += dt;
+  tickActivityNotice(world, dt);
 
   // Hit-stop: freeze the simulation briefly for impact, but keep text/effects alive
   if (world.hitStopMs > 0) {
@@ -97,8 +128,8 @@ export function updateWorld(world, input, dt, banner) {
     // Presses are cleared at end of frame, so buffer attack input instead of eating it
     if (input.wasPressed('attack')) {
       world.player.combo.pressAttack();
-      updatePickups(world);
     }
+    updatePickups(world, input.wasPressed('attack'));
     for (const t of world.texts) t.update(dt);
     for (const s of world.particles) s.update(dt);
     return world.events;
@@ -109,7 +140,7 @@ export function updateWorld(world, input, dt, banner) {
   updateMonsters(world, dt);
   resolveProjectileHits(world);
   updateLists(world, dt);
-  if (input.wasPressed('attack')) updatePickups(world);
+  updatePickups(world, input.wasPressed('attack'));
   world.monsters.push(...world.spawner.update(dt, world.player));
   world.removeDead();
 

@@ -8,9 +8,27 @@ import { readFileSync, existsSync } from 'node:fs';
 import { ASSET_FILES, MONSTER_SHEETS } from '../src/graphics/asset-atlas.js';
 import { HD_MONSTER, HD_MONSTERS, monsterSheetKey } from '../src/graphics/asset-atlas-hd-monsters.js';
 import { MONSTER_DEFINITIONS } from '../src/data/monster-definitions.js';
+import { drawMonster } from '../src/graphics/monster-renderer.js';
 
 const ASSET_ROOT = 'assets/';
 const pngSize = (path) => { const buf = readFileSync(path); return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) }; };
+
+test('HD monsters select actual rear frames when chasing upward, including hit flash', () => {
+  assert.deepEqual(HD_MONSTER.rows, ['down', 'up', 'left', 'right']);
+  const images = [];
+  const ctx = { beginPath() {}, ellipse() {}, fill() {}, drawImage(frame) { images.push(frame); } };
+  const up = {}, down = {}, flash = {};
+  const registry = { monstersHd: { spectralWolf: { frames: { up: [up], down: [down] }, hitFlash: { up: flash }, bodyUnits: 19.5 } } };
+  const monster = { type: 'spectralWolf', dir: 'up', x: 0, y: 0, animTimer: 0, ai: { state: 'chase' }, hp: 10, maxHp: 10, hitFlashTimer: 0 };
+  drawMonster(ctx, monster, registry);
+  assert.equal(images.pop(), up);
+  monster.hitFlashTimer = 50;
+  drawMonster(ctx, monster, registry);
+  assert.equal(images.pop(), flash);
+  monster.dir = 'down'; monster.hitFlashTimer = 0;
+  drawMonster(ctx, monster, registry);
+  assert.equal(images.pop(), down);
+});
 
 test('every HD monster type is a defined monster with a pixel-art fallback sheet', () => {
   for (const type of Object.keys(HD_MONSTERS)) {

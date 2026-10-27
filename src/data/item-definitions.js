@@ -12,6 +12,18 @@ export const RARITIES = Object.freeze({
 });
 export const RARITY_ORDER = Object.freeze(['common', 'uncommon', 'rare', 'epic']);
 
+/** Shared art tier: 1/5, 10/15 ... 90/95. Values between each pair stay in that band. */
+export function equipmentTier(itemLevel) {
+  return Math.max(0, Math.min(9, Math.floor((Number.isFinite(itemLevel) ? itemLevel : 1) / 10)));
+}
+
+export const ARMOR_TIER_NAMES = Object.freeze({
+  helmet: ['Leather Cap', 'Steel Helm', 'Bronze Helm', 'Frost Helm', 'Flame Helm', 'Royal Helm', 'Verdant Helm', 'Arcane Helm', 'Celestial Helm', 'Dragon Helm'],
+  armor: ['Leather Vest', 'Steel Plate', 'Bronze Plate', 'Frost Plate', 'Flame Plate', 'Royal Plate', 'Verdant Armor', 'Arcane Armor', 'Celestial Armor', 'Dragon Armor'],
+  gloves: ['Cloth Gloves', 'Steel Gauntlets', 'Bronze Gauntlets', 'Frost Gauntlets', 'Flame Gauntlets', 'Royal Gauntlets', 'Verdant Gloves', 'Arcane Gauntlets', 'Celestial Gauntlets', 'Dragon Gauntlets'],
+  boots: ['Leather Boots', 'Steel Boots', 'Bronze Boots', 'Frost Boots', 'Flame Boots', 'Royal Boots', 'Verdant Boots', 'Arcane Boots', 'Celestial Boots', 'Dragon Boots'],
+});
+
 const weapon = (id, name, sprite, atk, minItemLevel) => ({
   id, slot: 'weapon', name, sprite, minItemLevel, baseStats: { atk },
 });
@@ -33,9 +45,8 @@ export const WEAPON_TEMPLATES = Object.freeze({
   bigSword: weapon('bigSword', 'Big Sword', 'itemBigSword', 15, 14),
 });
 
-// Armor: 2-3 named tiers per slot. helmet/armor give def+hp (armor bigger); gloves give
-// atk+critChance; boots give def+speedMult. Same 24x24 icon reused across tiers of a slot --
-// rarity border color communicates quality in the UI.
+// Legacy stat templates remain save-compatible. helmet/armor give def+hp; gloves atk+critChance;
+// boots def+speedMult. Painted icons and new item names use the ten shared itemLevel bands above.
 export const ARMOR_TEMPLATES = Object.freeze({
   leatherCap: gear('helmet', 'leatherCap', 'Leather Cap', 'iconHelmet', 1, { def: 1, maxHp: 5 }),
   ironHelm: gear('helmet', 'ironHelm', 'Iron Helm', 'iconHelmet', 5, { def: 3, maxHp: 12 }),

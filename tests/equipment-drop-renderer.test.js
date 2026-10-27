@@ -3,24 +3,27 @@ import assert from 'node:assert/strict';
 import { drawDrops } from '../src/graphics/effects-renderer.js';
 import { itemSprite } from '../src/graphics/weapon-icons.js';
 
-test('loot opacity pulses smoothly and never hides, including near expiration', () => {
-  const stack = [], alphas = [];
+test('loot stays fully visible without brightness filters or pickup glow', () => {
+  const stack = [], alphas = [], filters = [];
   const ctx = {
     globalAlpha: 1,
-    save() { stack.push(this.globalAlpha); }, restore() { this.globalAlpha = stack.pop(); },
-    beginPath() {}, ellipse() {}, fill() {}, drawImage() { alphas.push(this.globalAlpha); },
+    filter: 'none',
+    save() { stack.push([this.globalAlpha, this.filter]); }, restore() { [this.globalAlpha, this.filter] = stack.pop(); },
+    beginPath() {}, ellipse() {}, fill() {}, drawImage() {
+      alphas.push(this.globalAlpha);
+      filters.push(this.filter);
+    },
   };
   const registry = { items: { sword: { width: 24, height: 24 } } };
   const drop = { kind: 'equipment', item: { slot: 'weapon', templateId: 'sword', itemLevel: 1, rarity: 'common' }, x: 0, y: 0, bobOffset: 0 };
   for (const [age, lifeMs] of [[0, 20000], [225, 19775], [450, 19550], [675, 19325], [900, 19100], [18000, 2000], [18100, 1900]]) {
     drawDrops(ctx, [{ ...drop, age, lifeMs }], registry);
     assert.equal(ctx.globalAlpha, 1, 'restore opacity for the rest of the world');
+    assert.equal(ctx.filter, 'none', 'restore brightness for the rest of the world');
   }
   assert.equal(alphas.length, 7);
-  assert.ok(alphas.every(alpha => alpha >= 0.63 && alpha <= 1));
-  assert.ok(Math.abs(alphas[0] - 1) < 0.001);
-  assert.ok(Math.abs(alphas[2] - 0.64) < 0.001);
-  assert.ok(Math.abs(alphas[4] - 1) < 0.001);
+  assert.ok(alphas.every(alpha => alpha === 1));
+  assert.ok(filters.every(value => value === 'none'));
 });
 
 test('ground items use the exact inventory artwork at 10% larger size', () => {

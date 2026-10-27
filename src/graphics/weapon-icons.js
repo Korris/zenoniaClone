@@ -1,4 +1,5 @@
 import { cropSprite } from './sprite-cell.js';
+import { equipmentTier } from '../data/item-definitions.js';
 
 // Each class occupies two rows of the painted 5x6 atlas.
 export const WEAPON_CLASS_OFFSETS = Object.freeze({ warrior: 0, wizard: 10, mechanic: 20 });
@@ -42,8 +43,7 @@ export function buildWeaponIcons(sheet) {
 }
 
 export function weaponIconIndex(itemLevel, classId = 'warrior') {
-  const level = Number.isFinite(itemLevel) ? itemLevel : 1;
-  return (WEAPON_CLASS_OFFSETS[classId] ?? 0) + Math.max(0, Math.min(9, Math.floor(level / 10)));
+  return (WEAPON_CLASS_OFFSETS[classId] ?? 0) + equipmentTier(itemLevel);
 }
 
 export function itemSprite(registry, item, classId = 'warrior', inventory = false) {
@@ -51,5 +51,7 @@ export function itemSprite(registry, item, classId = 'warrior', inventory = fals
     const sprite = registry.weaponIcons?.[weaponIconIndex(item.itemLevel, item.classId || classId)];
     if (sprite) return sprite;
   }
+  const armor = registry.armorIcons?.[item.slot]?.[equipmentTier(item.itemLevel)];
+  if (armor) return armor;
   return (inventory && registry.inventoryItems?.[item.templateId]) || registry.items[item.templateId];
 }

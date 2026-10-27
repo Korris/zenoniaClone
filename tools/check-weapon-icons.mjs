@@ -28,7 +28,7 @@ try {
       if (g.registry.weaponIcons?.length !== 30) throw Error('Missing weapon atlas');
       if (g.registry.groundWeaponIcons?.length !== 30) throw Error('Missing compact drop icons');
       if (g.registry.groundWeaponIcons.some((icon, i) => icon === g.registry.weaponIcons[i]
-        || Math.max(icon.width, icon.height) !== 27)) throw Error('Invalid compact drop dimensions');
+        || Math.max(icon.width, icon.height) !== 54)) throw Error('Invalid compact drop dimensions');
       player.classId = classId;
       player.inventory = Array.from({ length: 10 }, (_, tier) =>
         sanitizeItem(generateItem(() => 0, tier ? tier * 10 + 5 : 5, 'weapon', 'rare', classId)));
@@ -41,6 +41,8 @@ try {
     }, classId);
     await page.keyboard.press('b', { delay: 100 });
     await page.waitForFunction(() => window.__zenonia.state === 'inventory');
+    await page.mouse.click(620, 116);
+    await page.waitForFunction(() => window.__zenonia.inventoryPanel.mode === 'Inventory');
     await page.screenshot({ path: `tools/screenshots/weapon-icons/${classId}-inventory.png` });
     await page.keyboard.press('b', { delay: 100 });
     await page.waitForFunction(() => window.__zenonia.state === 'playing');
@@ -57,16 +59,24 @@ try {
       ctx.clearRect(0, 0, 64, 64);
       drawDrops(ctx, [{ kind: 'equipment', item, x: 32, y: 32, bobOffset: 0, age, lifeMs: 10000 }], g.registry, 'mechanic');
       const pixels = ctx.getImageData(0, 0, 64, 64).data;
-      let alpha = 0;
-      for (let i = 3; i < pixels.length; i += 4) alpha += pixels[i];
+      let alpha = 0, luminance = 0;
+      for (let i = 0; i < pixels.length; i += 4) {
+        alpha += pixels[i + 3];
+        luminance += (pixels[i] + pixels[i + 1] + pixels[i + 2]) * pixels[i + 3] / 255;
+      }
       if (ctx.globalAlpha !== 1) throw Error('Drop pulse leaked opacity');
-      return alpha;
+      if (ctx.filter !== 'none') throw Error('Drop pulse leaked brightness');
+      return { alpha, luminance };
     });
-    if (!(samples[1] > 0 && samples[1] < samples[0] && Math.abs(samples[2] - samples[0]) < samples[0] * 0.02)) throw Error(`Invalid smooth drop pulse: ${samples}`);
+    if (!(samples[1].luminance > 0 && Math.abs(samples[1].luminance - samples[0].luminance) < samples[0].luminance * 0.03
+      && Math.abs(samples[1].alpha - samples[0].alpha) < samples[0].alpha * 0.02
+      && Math.abs(samples[2].luminance - samples[0].luminance) < samples[0].luminance * 0.03)) {
+      throw Error(`Loot must retain steady brightness: ${JSON.stringify(samples)}`);
+    }
     return samples;
   });
   if (errors.length) throw Error(errors.join('\n'));
-  console.log('Smooth pulse alpha totals:', pulse.join(', '));
+  console.log('Steady loot samples:', JSON.stringify(pulse));
   console.log('PASS: 30 atlas sprites; inventory and drops rendered for all 3 classes; no page errors.');
 } finally {
   await browser.close();

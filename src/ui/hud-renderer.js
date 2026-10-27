@@ -4,7 +4,7 @@ import { expToNext } from '../systems/leveling-system.js';
 import { SKILL_DEFINITIONS, HOTBAR_SLOT_KEYS, getSkillValue } from '../data/skill-definitions.js';
 import { getSkillLevel } from '../systems/skill-system.js';
 import { drawMinimap } from './minimap-renderer.js';
-import { drawQuestTracker } from './quest-tracker-hud.js';
+import { drawActivityNotice } from './activity-notice.js';
 
 const BAR_H = 0;
 const GOLD = '#c3d8e3';
@@ -134,7 +134,7 @@ export function drawHud(ctx, world, registry, view) {
   drawPortrait(ctx, world.player, registry);
   drawSkillSlots(ctx, world.player, registry.icons);
   drawMinimap(ctx, world, view.npcMarkers);
-  drawQuestTracker(ctx, view.questState, 180);
+  drawActivityNotice(ctx, world.lootFeedback, registry, world.player.classId);
   const target = world.combatTarget;
   const visibleTarget = target && !target.dead && world.monsters.includes(target) ? target : world.livingBoss;
   if (visibleTarget) drawTargetBar(ctx, visibleTarget);

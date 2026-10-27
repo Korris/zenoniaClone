@@ -1,8 +1,8 @@
 // HD hand-painted MECHANIC class sprites (ChatGPT sheets in assets/hd/mechanic/*.png, normalized by
-// `python tools/build-hd-hero.py assets/hd/mechanic assets/hd/mechanic/normalized` into 96px frames,
+// `python tools/build-hd-render.py mechanic` into normalized-hd/ at 192px per frame,
 // same contract as the wizard -- see asset-atlas-hd-wizard.js). Missing sheets fall back to the
 // warrior's frames for that animation (sprite-registry.js), so the class stays playable meanwhile.
-const HD_MECHANIC_NORM_DIR = 'hd/mechanic/normalized/';
+const HD_MECHANIC_NORM_DIR = 'hd/mechanic/normalized-hd/';
 
 export const HD_MECHANIC_ANIMATIONS = Object.freeze({
   idle: 'hdMechanicIdle', walk: 'hdMechanicWalk', attack1: 'hdMechanicAttack1', attack2: 'hdMechanicAttack2',
@@ -31,7 +31,7 @@ export const HD_MECHANIC_FX = Object.freeze({
 
 // Spread into asset-atlas.js's ASSET_FILES.
 export const HD_MECHANIC_ASSET_FILES = Object.freeze({
-  ...Object.fromEntries(Object.entries(HD_MECHANIC_ANIMATIONS).map(([anim, key]) => [key, `${HD_MECHANIC_NORM_DIR}${anim === 'walk' ? 'walk-v2' : anim}.png`])),
-  [HD_MECHANIC_FACE_KEY]: `${HD_MECHANIC_NORM_DIR}hero_face.png`,
+  ...Object.fromEntries(Object.entries(HD_MECHANIC_ANIMATIONS).map(([anim, key]) => [key, `${HD_MECHANIC_NORM_DIR}${anim}.png`])),
+  [HD_MECHANIC_FACE_KEY]: 'hd/mechanic/normalized/hero_face.png',
   ...Object.fromEntries(Object.entries(HD_MECHANIC_FX).map(([name, key]) => [key, `hd/mechanic/fx/${name}.png`])),
 });

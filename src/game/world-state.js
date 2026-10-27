@@ -16,6 +16,9 @@ export class WorldState {
     this.combatTarget = null;
     this.projectiles = [];
     this.drops = [];
+    this.nearbyDrop = null;
+    this.lootFeedback = null;
+    this.noticeQueue = [];
     this.effects = [];
     this.particles = [];
     this.texts = [];
@@ -29,6 +32,9 @@ export class WorldState {
 
   /** Clear per-map entities (keeps player, camera, progression flags). */
   clearMapEntities() {
+    this.noticeQueue = [];
+    this.nearbyDrop = null;
+    this.lootFeedback = null;
     this.combatTarget = null;
     this.props = [];
     this.npcs = [];

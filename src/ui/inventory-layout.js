@@ -3,38 +3,32 @@
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../core/constants.js';
 import { EQUIPMENT_SLOTS } from '../data/item-definitions.js';
 
-export const PANEL_W = 860;
+export const PANEL_W = 640;
 export const PANEL_H = 568;
-export const PANEL_X = (CANVAS_WIDTH - PANEL_W) / 2;
-export const PANEL_Y = (CANVAS_HEIGHT - PANEL_H) / 2;
-export const SLOT_SIZE = 64;
-export const EQUIP_SLOT_SIZE = 44;
-export const GRID_COLS = 5;
+export const PANEL_X = CANVAS_WIDTH - PANEL_W - 16;
+export const PANEL_Y = (CANVAS_HEIGHT - PANEL_H) / 2 - 2;
+export const SLOT_SIZE = 82;
+export const EQUIP_SLOT_SIZE = 60;
+export const GRID_COLS = 3;
 export const GRID_ROWS = 4;
-export const INFO_BOX_Y = PANEL_Y + 440;
-export const INFO_BOX_H = 94;
-
-const LEFT_X = PANEL_X + 75;
-const EQUIP_TOP = PANEL_Y + 176;
-const EQUIP_GAP = 60;
-const GRID_LEFT = PANEL_X + 210;
-const GRID_TOP = PANEL_Y + 154;
-const GRID_GAP = 10;
-
-export const PORTRAIT = { x: LEFT_X, y: PANEL_Y + 154 };
-export const EQUIP_SLOT_ORDER = [...EQUIPMENT_SLOTS]; // ['weapon','helmet','armor','gloves','boots']
-
+export const INFO_BOX_Y = 154;
+export const INFO_BOX_H = 426;
+export const PORTRAIT = { x: 510, y: 342 };
+export const EQUIP_SLOT_ORDER = [...EQUIPMENT_SLOTS];
+export const BAG_ACTIONS = Object.freeze({
+  primary: { x: 612, y: 528, w: 140, h: 32 },
+  secondary: { x: 766, y: 528, w: 146, h: 32 },
+  sort: { x: 332, y: 528, w: 76, h: 32 },
+  page: { x: 420, y: 528, w: 76, h: 32 },
+  unequip: { x: 748, y: 528, w: 160, h: 32 },
+});
 export function equipSlotPosition(index) {
-  return { x: LEFT_X, y: EQUIP_TOP + index * EQUIP_GAP };
+  const left = [0, 1, 2, 3].includes(index);
+  return { x: left ? 360 : 658, y: 202 + (left ? index : 0) * 84 };
 }
-
 export function gridSlotPosition(index) {
-  const col = index % GRID_COLS;
-  const row = Math.floor(index / GRID_COLS);
-  return {
-    x: GRID_LEFT + col * (SLOT_SIZE + GRID_GAP) + SLOT_SIZE / 2,
-    y: GRID_TOP + row * (SLOT_SIZE + GRID_GAP) + SLOT_SIZE / 2,
-  };
+  index %= GRID_COLS * GRID_ROWS;
+  return { x: 322 + (index % GRID_COLS) * 90 + SLOT_SIZE / 2, y: 164 + Math.floor(index / GRID_COLS) * 90 + SLOT_SIZE / 2 };
 }
 
 export function slotLabel(slot) {

@@ -1,6 +1,7 @@
 // Top-level state machine: title -> playing <-> (paused | skills | questLog | dialog) -> dead / win.
 // Routes input to the active screen and composes the frame.
 import { GAME_STATES, CANVAS_WIDTH, CANVAS_HEIGHT } from '../core/constants.js';
+import { setScreenTransform } from '../core/canvas-display.js';
 import { GameSession } from './game-session.js';
 import { updateWorld } from './world-update.js';
 import { renderWorld } from '../graphics/world-renderer.js';
@@ -83,7 +84,7 @@ export class GameController {
     if (input.wasPressed('pause')) { this.menu = createPauseMenu(); this.state = S.PAUSED; return; }
     if (input.wasPressed('skillPanel')) { this.state = S.SKILLS; return; }
     if (input.wasPressed('questLog')) { this.state = S.QUEST_LOG; return; }
-    if (input.wasPressed('inventory')) { session.player.hasUnseenItem = false; this.inventoryPanel.mode = 'Inventory'; this.inventoryPanel.selection = { area: 'bag', index: 0 }; this.state = S.INVENTORY; return; }
+    if (input.wasPressed('inventory')) { session.player.hasUnseenItem = false; this.inventoryPanel.mode = 'Equipment'; this.inventoryPanel.selection = { area: 'equipment', index: 0 }; this.state = S.INVENTORY; return; }
     const previousNearby = this.nearbyNpc;
     this.nearbyNpc = findNearbyNpc(session.world);
     if (previousNearby && previousNearby !== this.nearbyNpc) previousNearby.resetFacing(); // resume the idle pose once the hero walks off
@@ -173,7 +174,8 @@ export class GameController {
         this.state = S.INVENTORY;
         this.session.player.hasUnseenItem = false;
         this.inventoryPanel.mode = tab;
-        this.inventoryPanel.selection = { area: tab === 'Equipment' ? 'equipment' : 'bag', index: 0 };
+        this.inventoryPanel.page = 0;
+        this.inventoryPanel.selection = { area: tab === 'Equipment' ? 'equipment' : 'supply', index: 0 };
         this.inventoryPanel.lastClick = null;
       }
       return null;
@@ -211,7 +213,7 @@ export class GameController {
   }
 
   render(ctx) {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    setScreenTransform(ctx);
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     if (this.state === S.TITLE) { this.menu.render(ctx, this.registry, { dim: false, showHero: true }); return; }
@@ -223,7 +225,7 @@ export class GameController {
     drawHud(ctx, session.world, this.registry, view);
     this.banner.render(ctx);
 
-    if (this.state === S.SKILLS) this.skillPanel.render(ctx, session.player, this.registry.icons);
+    if (this.state === S.SKILLS) this.skillPanel.render(ctx, session.player, this.registry);
     else if (this.state === S.INVENTORY) this.inventoryPanel.render(ctx, session.player, this.registry);
     else if (this.state === S.QUEST_LOG) this.questLog.render(ctx, session.quests);
     else if (this.state === S.DIALOG) this.dialog.render(ctx);

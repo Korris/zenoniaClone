@@ -17,7 +17,7 @@
     "hd:npcs": "python tools/build-hd-npcs.py",
     "hd:village": "python tools/build-oakhaven-village-art.py",
     "hd:frost": "python tools/build-frost-hollow-art.py",
-    "hd:monsters": "python tools/build-hd-monsters.py"
+    "hd:monsters": "python tools/build-hd-monsters-v2.py"
   },
   "license": "MIT",
   "devDependencies": {

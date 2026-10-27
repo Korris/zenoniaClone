@@ -1,6 +1,6 @@
 // Equipment generation, inventory management and stat aggregation. Pure -> unit-testable
 // with an injected RNG (same `rand` convention as loot-system.js / damage-formula.js).
-import { EQUIPMENT_SLOTS, RARITIES, RARITY_ORDER, ITEM_TEMPLATES, TEMPLATES_BY_SLOT } from '../data/item-definitions.js';
+import { EQUIPMENT_SLOTS, RARITIES, RARITY_ORDER, ITEM_TEMPLATES, TEMPLATES_BY_SLOT, ARMOR_TIER_NAMES, equipmentTier } from '../data/item-definitions.js';
 
 export const INVENTORY_SIZE = 20;
 const NORMAL_DROP_CHANCE = 0.12;
@@ -44,7 +44,7 @@ export function generateItem(rand, itemLevel, slot = null, forceRarity = null, c
   }
   const prefix = RARITIES[rarity].prefix;
   const weaponType = { warrior: 'Sword', wizard: 'Staff', mechanic: 'Gun' }[classId] || 'Sword';
-  const baseName = chosenSlot === 'weapon' ? weaponType : template.name;
+  const baseName = chosenSlot === 'weapon' ? weaponType : ARMOR_TIER_NAMES[chosenSlot]?.[equipmentTier(itemLevel)] || template.name;
   const name = prefix ? `${prefix} ${baseName}` : baseName;
   const uid = `${template.id}-${Math.floor(rand() * 1e9).toString(36)}`;
   const item = { uid, templateId: template.id, slot: chosenSlot, name, rarity, itemLevel, stats };

@@ -4,9 +4,9 @@ import { drawShadow } from './player-renderer.js';
 
 const FRAME_MS = 180;
 const BOSS_FRAME_MS = 140;
-// HD sheets paint no rear pose (asset-atlas-hd-monsters.js), so 'up' shows the front row.
-const HD_MONSTER_FACING = Object.freeze({ down: 'down', up: 'down', left: 'left', right: 'right' });
-const HD_MONSTER_UNITS = 24; // 96px frame / pixelsPerUnit 4 -- the same world-space box as the HD hero
+// Real rear-view frames are available; walking upward must never show the front face.
+const HD_MONSTER_FACING = Object.freeze({ down: 'down', up: 'up', left: 'left', right: 'right' });
+const HD_MONSTER_UNITS = 24; // 192px frame / pixelsPerUnit 8, matching the HD hero.
 
 function drawTelegraph(ctx, monster) {
   // Ranged/boss attackers would cover the screen, so the ring is capped to the melee reach

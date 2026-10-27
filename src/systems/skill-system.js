@@ -23,7 +23,7 @@ export function canUpgradeSkill(player, skillId) {
     }
   }
   const needed = def.requiredLevel[current];
-  if (player.level < needed) return { ok: false, reason: `Requires Lv ${needed}` };
+  if (!player.skillTestMode && player.level < needed) return { ok: false, reason: `Requires Lv ${needed}` };
   return { ok: true, reason: '' };
 }
 

@@ -2,12 +2,12 @@
 // Keyboard: Left/Right branch, Up/Down node, Enter upgrade, K/L/I bind to hotbar slot, Tab/Esc close.
 // Mouse: click selects a node, clicking the already-selected node upgrades it.
 import { drawCharacterMenu } from './character-menu.js';
-import { drawText, drawPanel, drawOverlay, drawScaledSprite } from './pixel-text.js';
+import { bagText as drawText, bagPanel, bagButton, bagSlot, bagWrappedText } from './bag-widgets.js';
 import { SKILL_DEFINITIONS, HOTBAR_SLOT_KEYS, SKILL_HOTKEY_ACTIONS } from '../data/skill-definitions.js';
 import { getClassDefinition } from '../data/class-definitions.js';
 import { canUpgradeSkill, upgradeSkill, getSkillLevel, bindSkillToSlot } from '../systems/skill-system.js';
 import {
-  PANEL_X, PANEL_Y, PANEL_W, PANEL_H, NODE_SIZE, TREE_TOP, INFO_BOX_Y, INFO_BOX_H,
+  PANEL_X, NODE_SIZE,
   skillsForBranch, computeSkillTreeLayout, describeNodeState, describeNextLevel, describeRequirement,
 } from './skill-tree-layout.js';
 
@@ -51,6 +51,9 @@ export class SkillTreePanel {
     if (input.wasPressed('moveDown')) this.nodeIndex = (this.nodeIndex + 1) % 5;
 
     for (const click of input.takeClicks()) {
+      if (click.x >= 716 && click.x <= 914 && click.y >= 538 && click.y <= 576) { this.tryUpgrade(player, result); continue; }
+      const bind = click.y >= 526 && click.y <= 560 ? [0, 1, 2].find(i => click.x >= 334 + i * 114 && click.x <= 434 + i * 114) : undefined;
+      if (bind !== undefined) { const outcome = bindSkillToSlot(player, this.selectedSkillId, bind); this.flash(outcome.ok ? `Bound to [${HOTBAR_SLOT_KEYS[bind]}]` : outcome.reason); continue; }
       const hit = this.nodeAt(click.x, click.y);
       if (!hit) continue;
       if (hit === this.selectedSkillId) this.tryUpgrade(player, result);
@@ -99,15 +102,19 @@ export class SkillTreePanel {
     this.messageTimer = 1500;
   }
 
-  render(ctx, player, icons) {
+  render(ctx, player, registry) {
     this.syncClass(player);
-    drawCharacterMenu(ctx, player, 'Skills');
+    const icons = registry.icons || registry;
+    drawCharacterMenu(ctx, player, 'Skills', registry);
+    bagPanel(ctx, 320, 154, 376, 426); bagPanel(ctx, 702, 154, 226, 426);
     this.branches.forEach((branch, i) => {
-      drawText(ctx, COLUMN_TITLES[branch], PANEL_X + (i + 0.5) * (PANEL_W / this.branches.length), PANEL_Y + 122, { size: 14, align: 'center', color: '#8fc3ff' });
+      drawText(ctx, COLUMN_TITLES[branch], PANEL_X + 16 + (i + 0.5) * (376 / this.branches.length), 169, { size: 12, align: 'center', color: '#b7dcf3' });
     });
     this.drawConnectors(ctx, player);
     for (const skillId of Object.keys(this.layout.positions)) this.drawNode(ctx, player, icons, skillId);
-    this.drawInfoBox(ctx, player);
+    drawText(ctx, `Skill points: ${player.skillPoints}`, 334, 492, { size: 14, color: '#f3d99c' });
+    for (let i = 0; i < 3; i++) bagButton(ctx, `Bind [${HOTBAR_SLOT_KEYS[i]}]`, 334 + i * 114, 526, 100, 34);
+    this.drawInfoBox(ctx, player, icons);
   }
 
   drawConnectors(ctx, player) {
@@ -135,33 +142,29 @@ export class SkillTreePanel {
     const blink = state.available && player.skillPoints > 0 && Math.floor(performance.now() / 350) % 2 === 0;
     const borderColor = selected ? '#ffffff' : blink ? '#fff6c8' : state.maxed ? STATE_BORDER.maxed : state.available ? STATE_BORDER.available : state.learned ? STATE_BORDER.learned : STATE_BORDER.locked;
 
-    drawPanel(ctx, x - half, y - half, NODE_SIZE, NODE_SIZE, {
-      fill: state.locked ? '#101a28' : '#21364b', border: selected ? '#83d9f5' : borderColor,
-    });
+    bagSlot(ctx, x - half, y - half, NODE_SIZE, { selected, color: borderColor });
 
     const icon = icons[skillId];
     ctx.globalAlpha = state.locked ? 0.4 : 1;
-    if (icon) drawScaledSprite(ctx, icon, x - icon.width, y - icon.height - 4, 2);
+    if (icon) { ctx.imageSmoothingEnabled = true; ctx.drawImage(icon, x - 16, y - 19, 32, 32); }
     ctx.globalAlpha = 1;
 
     const levelText = state.maxed ? 'MAX' : `${state.level}/${SKILL_DEFINITIONS[skillId].maxLevel}`;
-    drawText(ctx, levelText, x, y + half - 14, { size: 11, align: 'center', color: state.maxed ? '#ffe680' : '#cfcfe0' });
+    drawText(ctx, levelText, x, y + half - 14, { size: 9, align: 'center', color: state.maxed ? '#ffe680' : '#cfcfe0' });
   }
 
-  drawInfoBox(ctx, player) {
-    const skillId = this.selectedSkillId;
-    const def = SKILL_DEFINITIONS[skillId];
-    const level = getSkillLevel(player, skillId);
-    drawPanel(ctx, PANEL_X + 16, INFO_BOX_Y, PANEL_W - 32, INFO_BOX_H, { fill: 'rgba(8,8,18,0.9)' });
-    const typeLabel = def.type === 'active' ? 'Active' : 'Passive';
-    drawText(ctx, `${def.name}  [${typeLabel}]`, PANEL_X + 28, INFO_BOX_Y + 8, { size: 15, color: '#ffffff' });
-    drawText(ctx, def.description, PANEL_X + 28, INFO_BOX_Y + 28, { size: 12, color: '#b8b8cc', bold: false });
-    drawText(ctx, describeNextLevel(skillId, level), PANEL_X + 28, INFO_BOX_Y + 46, { size: 12, color: '#8fc3ff', bold: false });
-    drawText(ctx, describeRequirement(player, skillId), PANEL_X + PANEL_W - 28, INFO_BOX_Y + 8, { size: 12, align: 'right', color: '#ff9a7a', bold: false });
-    const slot = def.type === 'active' ? player.hotbar.indexOf(skillId) : -1;
-    const boundText = def.type !== 'active' ? '' : slot >= 0 ? `Bound: [${HOTBAR_SLOT_KEYS[slot]}]` : 'Unbound - press K/L/I';
-    drawText(ctx, boundText, PANEL_X + PANEL_W - 28, INFO_BOX_Y + 28, { size: 12, align: 'right', color: '#ffe680', bold: false });
-    const footer = this.messageTimer > 0 ? this.message : 'Arrows select   Enter upgrade   K/L/I bind   Tab close';
-    drawText(ctx, footer, PANEL_X + PANEL_W / 2, INFO_BOX_Y + INFO_BOX_H + 14, { size: 12, align: 'center', color: this.messageTimer > 0 ? '#ffe680' : '#9a9ab0' });
+  drawInfoBox(ctx, player, icons) {
+    const id = this.selectedSkillId, def = SKILL_DEFINITIONS[id], level = getSkillLevel(player, id);
+    bagSlot(ctx, 716, 169, 54, { color: '#8bbedb' });
+    if (icons[id]) { ctx.imageSmoothingEnabled = true; ctx.drawImage(icons[id], 721, 174, 44, 44); }
+    bagWrappedText(ctx, def.name, 780, 172, 134, { size: 16, color: '#eef7ff', maxLines: 2 });
+    drawText(ctx, `Lv. ${level} / ${def.maxLevel}`, 780, 213, { size: 12, color: '#f0d694' });
+    bagWrappedText(ctx, def.description, 716, 251, 198, { size: 12, lineHeight: 19, maxLines: 4 });
+    bagWrappedText(ctx, describeNextLevel(id, level), 716, 345, 198, { size: 12, lineHeight: 20, maxLines: 3, color: '#98dbff' });
+    bagWrappedText(ctx, describeRequirement(player, id), 716, 419, 198, { size: 11, lineHeight: 18, maxLines: 3, color: '#d7c49e' });
+    const slot = player.hotbar.indexOf(id);
+    drawText(ctx, def.type === 'passive' ? 'Passive skill' : slot >= 0 ? `Bound: [${HOTBAR_SLOT_KEYS[slot]}]` : 'Active skill', 716, 490, { size: 12, color: '#b9d4e4' });
+    bagButton(ctx, 'Level Up', 716, 538, 198, 38, 'gold');
+    if (this.messageTimer > 0) bagWrappedText(ctx, this.message, 324, 581, 596, { size: 10, lineHeight: 13, maxLines: 1, color: '#f4dc9c' });
   }
 }

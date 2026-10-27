@@ -23,6 +23,8 @@ test('every NPC definition names a pixel-art sheet in NPC_SHEETS (drawNpc has no
 
 test('HD NPC sheet + portrait files exist with the sliced grid size', () => {
   const { frame, cols, rows } = HD_NPC;
+  assert.equal(frame, 192);
+  assert.equal(frame / HD_NPC.pixelsPerUnit, 24, 'NPC world size remains unchanged');
   for (const id of HD_NPC_IDS) {
     for (const [key, expected] of [[sheetKey(id), { width: cols * frame, height: rows.length * frame }], [faceKey(id), { width: 152, height: 152 }]]) {
       assert.ok(ASSET_FILES[key], `${id}: "${key}" missing from ASSET_FILES`);

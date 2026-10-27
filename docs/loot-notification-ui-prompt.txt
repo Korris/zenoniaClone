@@ -1,0 +1,18 @@
+FINAL USER CORRECTION: only ONE notification card visible at a time. Nearby item, pickup confirmation and quest progress share this same slot and replace one another. Remove all J/pickup prompts. The initial stacked-card direction below is superseded.
+
+Final imagegen prompt:
+Edit this in-game UI mockup. Preserve the entire scene, hero, minimap, existing HP/MP HUD, and bottom-right combat controls exactly. Keep its established dark navy inventory-style visual design.
+CRITICAL CHANGE: the current three stacked notification cards are WRONG. Remove the entire stack and reconstruct the game scene behind its lower two cards. Show ONLY ONE small notification card at the same right-edge anchor immediately beneath the circular minimap, with at least 16px right margin. At any moment this ONE slot displays EITHER the nearest item name, OR an item pickup confirmation, OR one incremental quest progress message; never display multiple cards together. This screenshot shows ONLY the nearby-item state.
+The single card should be about 220x48 pixels at original 960x640 game scale (image is higher res; scale accordingly). Use thin muted slate-blue border, translucent navy fill, modest 4px rounded corners, a slim cyan left accent. A 30px square chibi magic staff icon at left; to its right small muted heading 'NEARBY' and readable blue item name 'Superior Staff'. The card contains ONLY the icon, heading and item name. Remove '[J] Pick up' completely. No key prompts, no buttons, no action hint. No quest progress card, no pickup card, no extra title, no stacked log, no empty placeholder panels. Keep original central hero entirely uncovered. Keep restrained sizing, original simple sans-serif font and existing game's styling. One gameplay screenshot only, no comparison sheets or external explanatory annotations.
+
+Tool: built-in image_gen. One UI mockup, opaque gameplay screenshot.
+Edit target: tools/screenshots/loot-pickup/01-nearby.png.
+Style reference: tools/screenshots/character-inventory.png.
+
+Preserve the original game scene and existing HUD: HP/MP top left, circular minimap top right, action controls bottom right. Remove the large center popup covering the hero.
+Design a shared notification area at the right edge below the minimap and above action buttons: original 960x640 coordinates x704..944, y168..365, width240. Three compact cards with 5px gaps: nearby item (56px), pickup confirmation (48px), quest progress (78px). Keep the hero and center gameplay unobstructed.
+Match existing inventory UI: translucent dark navy #101e2fee, thin slate blue #4b5a6a border, 4px corners, clean Segoe UI-like type, pale gold/cyan accents. No ornate frames, parchment, huge banners or unrelated HUD redesign.
+Nearby: small chibi staff icon; NEARBY; Superior Staff; [J] Pick up; thin cyan left accent.
+Pickup: small red potion icon; green check; PICKED UP; HP Potion +1.
+Quest: small gold quest icon; QUEST PROGRESS; Slimes defeated 4 / 8; Herbs collected 2 / 5; very thin progress strokes.
+Main text13-14px, category labels9px, secondary11px at original scale. One finished screenshot, 3:2 aspect, no external annotations. This is a design preview, not an implemented new quest/material system.

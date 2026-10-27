@@ -8,8 +8,12 @@ import { FIRST_MAP_ID } from '../world/map-registry.js';
 import { serializeSave } from '../save/save-serializer.js';
 import { writeSave, readSave } from '../save/local-storage-save.js';
 import { createQuestState, sanitizeQuestState, recordMapEnter } from '../systems/quest-system.js';
+import { SKILL_DEFINITIONS } from '../data/skill-definitions.js';
+import { classForBranch } from '../data/class-definitions.js';
 
 const AUTOSAVE_INTERVAL_MS = 30000;
+// Temporary skill preview requested by the user. Turn off to restore normal progression.
+const SKILL_PREVIEW_MODE = true;
 
 export class GameSession {
   constructor(banner) {
@@ -25,6 +29,10 @@ export class GameSession {
   /** @param {string} classId hero class picked on the character-select screen */
   startNewGame(classId) {
     this.player = new Player(classId);
+    this.player.skillTestMode = SKILL_PREVIEW_MODE;
+    if (SKILL_PREVIEW_MODE) this.player.skillPoints = Object.values(SKILL_DEFINITIONS)
+      .filter(def => classForBranch(def.branch) === this.player.classId)
+      .reduce((sum, def) => sum + def.maxLevel, 0);
     this.world = new WorldState(this.player, this.camera);
     this.quests = createQuestState();
     this.enterMap(FIRST_MAP_ID);
@@ -36,6 +44,7 @@ export class GameSession {
     if (!save) return false;
     this.player = new Player(save.player.classId);
     this.player.applySaveData(save.player);
+    this.player.skillTestMode = SKILL_PREVIEW_MODE;
     this.world = new WorldState(this.player, this.camera);
     this.world.bossDefeated = save.bossDefeated;
     this.quests = sanitizeQuestState(save.quests);

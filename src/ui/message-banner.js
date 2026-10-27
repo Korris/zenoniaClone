@@ -24,15 +24,25 @@ export class MessageBanner {
   }
 
   render(ctx) {
-    if (this.lifeMs <= 0) return;
-    const fadeIn = Math.min(1, (this.maxLifeMs - this.lifeMs) / 200);
-    const fadeOut = Math.min(1, this.lifeMs / 400);
-    ctx.globalAlpha = Math.min(fadeIn, fadeOut);
-    const y = CANVAS_HEIGHT * 0.28;
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(0, y - 14, CANVAS_WIDTH, this.subtext ? 78 : 52);
-    drawText(ctx, this.text, CANVAS_WIDTH / 2, y, { size: 30, align: 'center', color: this.color });
-    if (this.subtext) drawText(ctx, this.subtext, CANVAS_WIDTH / 2, y + 40, { size: 15, align: 'center', color: '#d0d0e0' });
-    ctx.globalAlpha = 1;
+    drawMessageBanner(ctx, this);
   }
+}
+
+/** Loot shares announcement styling in a smaller card below the level/map banner. */
+export function drawMessageBanner(ctx, message, compact = false) {
+    if (!message || message.lifeMs <= 0) return;
+    const fadeIn = Math.min(1, (message.maxLifeMs - message.lifeMs) / 200);
+    const fadeOut = Math.min(1, message.lifeMs / 400);
+    ctx.save();
+    ctx.globalAlpha *= Math.min(fadeIn, fadeOut);
+    const y = CANVAS_HEIGHT * (compact ? 0.43 : 0.28);
+    const width = compact ? 420 : CANVAS_WIDTH;
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect((CANVAS_WIDTH - width) / 2, y - (compact ? 10 : 14), width, compact ? 56 : message.subtext ? 78 : 52);
+    if (compact) {
+      ctx.beginPath(); ctx.rect((CANVAS_WIDTH - width) / 2 + 8, y - 10, width - 16, 56); ctx.clip();
+    }
+    drawText(ctx, message.text, CANVAS_WIDTH / 2, y, { size: compact ? 18 : 30, align: 'center', color: message.color });
+    if (message.subtext) drawText(ctx, message.subtext, CANVAS_WIDTH / 2, y + (compact ? 27 : 40), { size: compact ? 12 : 15, align: 'center', color: '#d0d0e0' });
+    ctx.restore();
 }

@@ -1,6 +1,6 @@
 // Derive compact drop artwork from the inventory image, preserving its silhouette and palette.
 export function buildGroundSprite(source, screenSize = 26.4) {
-  const target = Math.ceil(screenSize);
+  const target = Math.ceil(screenSize) * 2; // retain native detail on 2x displays
   let image = source;
   while (Math.max(image.width, image.height) > target * 2) {
     const next = document.createElement('canvas');

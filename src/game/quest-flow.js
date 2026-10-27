@@ -1,18 +1,19 @@
 // Glue between gameplay events and the quest system: progress feedback, banners, rewards.
 import { QUEST_DEFINITIONS } from '../data/quest-definitions.js';
-import { recordKill, isReadyToTurnIn, progressText } from '../systems/quest-system.js';
+import { recordKill, isReadyToTurnIn, progressText, objectiveTarget } from '../systems/quest-system.js';
 import { NPC_DEFINITIONS } from '../data/npc-definitions.js';
+import { showActivityNotice } from '../systems/activity-notice-system.js';
 
 /** A monster died: advance kill quests and show progress / completion feedback. */
 export function onMonsterKilledForQuests(session, monsterType) {
-  const { world, quests, player } = session;
+  const { world, quests } = session;
   for (const questId of recordKill(quests, monsterType)) {
     const def = QUEST_DEFINITIONS[questId];
-    if (isReadyToTurnIn(quests, questId)) {
-      session.banner.show('Quest objective complete', `${def.title}: return to ${NPC_DEFINITIONS[def.giver].name}`, 2200, '#8fff8f');
-    } else {
-      world.addText(player.x, player.y - 34, `${def.title} ${progressText(quests, questId)}`, '#ffe680', { lifeMs: 1000, vy: -20 });
-    }
+    const ready = isReadyToTurnIn(quests, questId);
+    showActivityNotice(world, { mode: 'quest', questId, text: def.title,
+      subtext: ready ? `Return to ${NPC_DEFINITIONS[def.giver].name}` : progressText(quests, questId),
+      current: quests.active[questId].progress, total: objectiveTarget(questId), ready,
+      color: ready ? '#8fff8f' : '#ffe680' }, 2000);
   }
 }
 

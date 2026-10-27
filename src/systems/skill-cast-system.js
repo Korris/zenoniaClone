@@ -9,6 +9,7 @@ import { heroAttack, rollPlayerDamage, CRIT_COLOR } from './player-damage.js';
 import { boxesOverlap } from './damage-formula.js';
 import { Projectile } from '../entities/projectile.js';
 import { SkillPulse } from '../entities/skill-pulse.js';
+import { IceStorm } from '../entities/ice-storm.js';
 
 const DASH_SPEED = 420; // px/s
 const DIR_ANGLE = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
@@ -99,6 +100,17 @@ function castBuff(world, level, mult, def) {
 }
 
 const CAST_HANDLERS = Object.freeze({
+  iceStorm: (world, level, mult, def) => {
+    const p = world.player, v = DIRECTION_VECTORS[p.dir];
+    const center = { x: p.x + v.x * 26, y: p.y - 6 + v.y * 26 };
+    const radius = getSkillValue(def.id, 'radius', level);
+    world.effects.push(new IceStorm({ ...center, casterX: p.x, casterY: p.y, radius,
+      onWave: () => {
+        if (p.dead) return;
+        performRadialHit(world, radius, mult, def.effect.knockback, center);
+        world.camera.shake(1.2, 80);
+      } }));
+  },
   projectile: castProjectile, radial: castRadial, strike: castStrike, dash: castDash, heal: castHeal, buff: castBuff,
 });
 

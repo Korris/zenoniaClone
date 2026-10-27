@@ -1,10 +1,11 @@
 // Text + bar drawing helpers for UI layers. UI is drawn in screen space (960x640),
 // with a clean system sans-serif font shared across menus and dialogs.
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../core/constants.js';
 export const UI_FONT = '"Segoe UI", Arial, sans-serif';
 
 export function drawText(ctx, text, x, y, opts = {}) {
-  const { size = 16, color = '#fff', align = 'left', bold = true, shadow = true, baseline = 'top' } = opts;
-  ctx.font = `${bold ? '600' : '400'} ${size}px ${UI_FONT}`;
+  const { size = 16, color = '#fff', align = 'left', bold = true, shadow = true, baseline = 'top', font = UI_FONT } = opts;
+  ctx.font = `${bold ? '600' : '400'} ${size}px ${font}`;
   ctx.textAlign = align;
   ctx.textBaseline = baseline;
   if (shadow) {
@@ -43,7 +44,7 @@ export function drawPanel(ctx, x, y, w, h, opts = {}) {
 /** Full-screen dim overlay. */
 export function drawOverlay(ctx, alpha = 0.6) {
   ctx.fillStyle = `rgba(0,0,0,${alpha})`;
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 }
 
 /** Draws a sprite canvas scaled by an integer factor at screen coords. */

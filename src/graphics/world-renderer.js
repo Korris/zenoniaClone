@@ -1,11 +1,12 @@
 // Composes the world frame: tiles -> drops -> y-sorted (props, NPCs, monsters, hero) ->
 // projectiles/effects -> screen-space text (damage numbers, name tags).
-import { PIXEL_SCALE } from '../core/constants.js';
+import { setScreenTransform, setWorldTransform } from '../core/canvas-display.js';
 import { drawTilemap } from './tilemap-renderer.js';
 import { drawPlayer } from './player-renderer.js';
 import { drawMonster } from './monster-renderer.js';
 import { drawProp, drawNpc, drawNameTags } from './prop-renderer.js';
 import { drawDrops, drawProjectiles, drawEffects, drawParticles, drawFloatingTexts } from './effects-renderer.js';
+import { drawIceStorm } from './ice-storm-renderer.js';
 
 const CULL_MARGIN = 64;
 
@@ -18,10 +19,11 @@ const CULL_MARGIN = 64;
 export function renderWorld(ctx, world, registry, view = {}) {
   const { camera, player } = world;
   ctx.imageSmoothingEnabled = false;
-  ctx.setTransform(PIXEL_SCALE, 0, 0, PIXEL_SCALE, -camera.renderX * PIXEL_SCALE, -camera.renderY * PIXEL_SCALE);
+  setWorldTransform(ctx, camera);
 
   const backdrop = registry.backdrops?.[world.mapDef?.backdrop] || null;
   drawTilemap(ctx, world.tilemap, camera, registry, world.elapsedMs, backdrop);
+  for (const effect of world.effects) if (effect.kind === 'iceStorm') drawIceStorm(ctx, effect, registry.effects.iceStorm, true);
   drawDrops(ctx, world.drops, registry, player.classId);
 
   // Y-sort so things lower on screen draw in front (classic top-down depth)
@@ -45,7 +47,7 @@ export function renderWorld(ctx, world, registry, view = {}) {
   drawEffects(ctx, world.effects, registry);
   drawParticles(ctx, world.particles);
 
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  setScreenTransform(ctx);
   drawNameTags(ctx, world, view.nearbyNpc || null, registry);
   drawFloatingTexts(ctx, world.texts, camera);
 }

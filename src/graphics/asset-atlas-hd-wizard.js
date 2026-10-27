@@ -1,9 +1,9 @@
 // HD hand-painted WIZARD class sprites (ChatGPT sheets in assets/hd/wizard/*.png, normalized by
-// `python tools/build-hd-hero.py assets/hd/wizard assets/hd/wizard/normalized` into 96px frames,
+// `python tools/build-hd-render.py wizard` into normalized-hd/ at 192px per frame,
 // same pixelsPerUnit as the warrior's HD set -- see HD_HERO in asset-atlas.js). Split out of
 // asset-atlas.js to keep that file small. Missing sheets fall back to the warrior's frames for that
 // animation (sprite-registry.js), so the class stays playable while art is still being made.
-const HD_WIZARD_NORM_DIR = 'hd/wizard/normalized/';
+const HD_WIZARD_NORM_DIR = 'hd/wizard/normalized-hd/';
 
 export const HD_WIZARD_ANIMATIONS = Object.freeze({
   idle: 'hdWizardIdle', walk: 'hdWizardWalk', attack1: 'hdWizardAttack1', attack2: 'hdWizardAttack2',
@@ -33,7 +33,7 @@ export const HD_FX_PIXELS_PER_UNIT = 4;
 
 // Spread into asset-atlas.js's ASSET_FILES.
 export const HD_WIZARD_ASSET_FILES = Object.freeze({
-  ...Object.fromEntries(Object.entries(HD_WIZARD_ANIMATIONS).map(([anim, key]) => [key, `${HD_WIZARD_NORM_DIR}${anim === 'walk' ? 'walk-v2' : anim}.png`])),
-  [HD_WIZARD_FACE_KEY]: `${HD_WIZARD_NORM_DIR}hero_face.png`,
+  ...Object.fromEntries(Object.entries(HD_WIZARD_ANIMATIONS).map(([anim, key]) => [key, `${HD_WIZARD_NORM_DIR}${anim}.png`])),
+  [HD_WIZARD_FACE_KEY]: 'hd/wizard/normalized/hero_face.png',
   ...Object.fromEntries(Object.entries(HD_WIZARD_FX).map(([name, key]) => [key, `hd/wizard/fx/${name}.png`])),
 });

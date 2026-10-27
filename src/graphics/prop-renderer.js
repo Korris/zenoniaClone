@@ -42,10 +42,12 @@ export function drawNpc(ctx, npc, registry, marker) {
   const frame = npcFrame(npc, registry);
   const size = npcFrameUnits(npc, registry);
   const hd = (frame.pixelsPerUnit || 1) > 1;
-  const drawX = Math.round(npc.x - size / 2);
-  const drawY = Math.round(npc.y - size);
+  const transform = ctx.getTransform();
+  const drawX = (Math.round((npc.x - size / 2) * transform.a + transform.e) - transform.e) / transform.a;
+  const drawY = (Math.round((npc.y - size) * transform.d + transform.f) - transform.f) / transform.d;
   drawShadow(ctx, npc.x, npc.y, hd ? 6 : 5, hd ? 2.5 : 2);
   ctx.imageSmoothingEnabled = hd;
+  ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(frame, drawX, drawY, size, size);
   ctx.imageSmoothingEnabled = false;
   if (marker) {

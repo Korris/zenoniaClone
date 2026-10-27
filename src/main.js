@@ -6,9 +6,10 @@ import { loadAllImages } from './graphics/asset-loader.js';
 import { buildSpriteRegistry } from './graphics/sprite-registry.js';
 import { GameController } from './game/game-controller.js';
 import { unlockCombatAudio } from './audio/combat-audio.js';
+import { configureCanvasDisplay, setScreenTransform } from './core/canvas-display.js';
 
 function drawLoading(ctx, loaded, total) {
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  setScreenTransform(ctx);
   ctx.fillStyle = '#0b0b14';
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   ctx.fillStyle = '#ffe680';
@@ -19,8 +20,9 @@ function drawLoading(ctx, loaded, total) {
 
 async function boot() {
   const canvas = document.getElementById('game-canvas');
-  canvas.width = CANVAS_WIDTH;
-  canvas.height = CANVAS_HEIGHT;
+  const resize = () => configureCanvasDisplay(canvas, window.innerWidth, window.innerHeight, window.devicePixelRatio);
+  resize();
+  window.addEventListener('resize', resize);
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
   drawLoading(ctx, 0, 1);
@@ -35,7 +37,11 @@ async function boot() {
 
   const loop = new GameLoop({
     update: (dt) => controller.update(dt),
-    render: () => controller.render(ctx),
+    render: () => {
+      // Also catch browser zoom / moving between monitors with different pixel density.
+      resize();
+      controller.render(ctx);
+    },
   });
   loop.start();
   window.__zenonia = controller; // handy for debugging in devtools

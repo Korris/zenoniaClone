@@ -2,9 +2,10 @@
 import { PIXEL_SCALE } from '../core/constants.js';
 import { drawShadow } from './player-renderer.js';
 import { drawText } from '../ui/pixel-text.js';
-import { RARITIES } from '../data/item-definitions.js';
 import { drawPotion } from './potion-renderer.js';
 import { itemSprite, weaponIconIndex } from './weapon-icons.js';
+import { equipmentTier } from '../data/item-definitions.js';
+import { drawIceStorm } from './ice-storm-renderer.js';
 
 const DROP_SIZE = 6.6;
 
@@ -37,17 +38,7 @@ function drawEquipmentDrop(ctx, drop, registry, classId) {
   const w = sprite.width * scale, h = sprite.height * scale;
   const groundSprite = item.slot === 'weapon'
     ? registry.groundWeaponIcons?.[weaponIconIndex(item.itemLevel, item.classId || classId)]
-    : registry.groundItems?.[item.templateId];
-  if (item.rarity === 'rare' || item.rarity === 'epic') {
-    const pulse = 0.2 + 0.15 * (0.5 + 0.5 * Math.sin(drop.age / 150));
-    ctx.save();
-    ctx.globalAlpha = pulse;
-    ctx.fillStyle = RARITIES[item.rarity].color;
-    ctx.beginPath();
-    ctx.ellipse(drop.x, drop.y + drop.bobOffset - 1, DROP_SIZE * 0.6, DROP_SIZE * 0.22, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
+    : registry.groundArmorIcons?.[item.slot]?.[equipmentTier(item.itemLevel)] || registry.groundItems?.[item.templateId];
   ctx.save();
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
@@ -87,11 +78,7 @@ function drawGoldCoin(ctx, x, y, size = DROP_SIZE) {
 
 export function drawDrops(ctx, drops, registry, classId = 'warrior') {
   for (const drop of drops) {
-    // Smooth opacity pulse like a CSS animation: loot remains visible throughout.
-    const period = drop.lifeMs < 3000 ? 350 : 900;
-    const opacity = 0.82 + 0.18 * Math.cos((drop.age || 0) * Math.PI * 2 / period);
     ctx.save();
-    ctx.globalAlpha *= opacity;
     try {
       drawShadow(ctx, drop.x, drop.y, 3, 1.5);
       if (drop.kind === 'coin') {
@@ -123,6 +110,7 @@ export function drawProjectiles(ctx, projectiles, registry) {
 
 export function drawEffects(ctx, effects, registry) {
   for (const e of effects) {
+    if (e.kind === 'iceStorm') { drawIceStorm(ctx, e, registry.effects.iceStorm); continue; }
     const entry = registry.effects[e.spriteKey];
     if (!entry) continue;
     drawRotated(ctx, pickFrame(entry, e.progress), e.x, e.y, e.rotation, e.scale, e.alpha);
