@@ -2,6 +2,7 @@
 // Frost Hollow where loaded) and the boss from idle/walk/hit strips.
 import { drawShadow } from './player-renderer.js';
 import { drawSmoothImage } from './smooth-sprite-draw.js';
+import { HD_MONSTER, HD_MONSTER_ATTACK } from './asset-atlas-hd-monsters.js';
 
 const FRAME_MS = 180;
 const BOSS_FRAME_MS = 140;
@@ -68,15 +69,35 @@ function pickFrame(frames, monster) {
   return idle ? frames[0] : frames[Math.floor(monster.animTimer / FRAME_MS) % frames.length];
 }
 
+/** The strike begins exactly when the AI deals damage, then recovers without looping. */
+function attackFrameIndex(monster) {
+  const { state, timer } = monster.ai;
+  if (state === 'windup') {
+    const windup = monster.def?.attackWindupMs || 350;
+    return timer > windup / 2 ? 0 : 1;
+  }
+  if (state === 'cooldown') {
+    const elapsed = monster.def?.attackCooldownMs - timer;
+    if (elapsed >= 0 && elapsed < HD_MONSTER_ATTACK.recoveryMs) {
+      return 2 + Math.floor(elapsed / (HD_MONSTER_ATTACK.recoveryMs / 2));
+    }
+  }
+  return -1;
+}
+
 /** HD painted sheet: drawn smoothed at a fixed 24-unit box, markers hang over the painted body. */
 function drawMonsterHd(ctx, monster, hd) {
   const renderScale = monster.def?.renderScale || 1;
-  const size = HD_MONSTER_UNITS * renderScale;
   const facing = HD_MONSTER_FACING[monster.dir] || 'down';
-  const frame = monster.hitFlashTimer > 0 ? hd.hitFlash[facing] : pickFrame(hd.frames[facing], monster);
+  const attackIndex = attackFrameIndex(monster);
+  const attacking = monster.hitFlashTimer <= 0 && attackIndex >= 0 && hd.attack?.[facing];
+  const size = (attacking ? HD_MONSTER_ATTACK.frame / HD_MONSTER.pixelsPerUnit : HD_MONSTER_UNITS) * renderScale;
+  const feetY = attacking ? HD_MONSTER_ATTACK.feetY / HD_MONSTER.pixelsPerUnit * renderScale : size;
+  const frame = monster.hitFlashTimer > 0 ? hd.hitFlash[facing]
+    : attacking ? hd.attack[facing][attackIndex] : pickFrame(hd.frames[facing], monster);
   const drawX = Math.round(monster.x - size / 2);
   const lift = launchHeight(monster);
-  const drawY = Math.round(monster.y - size - lift);
+  const drawY = Math.round(monster.y - feetY - lift);
   drawShadow(ctx, monster.x, monster.y, 6 * renderScale, 2.5);
   if (monster.isTelegraphing) drawTelegraph(ctx, monster);
   drawSmoothImage(ctx, frame, drawX, drawY, size, size);

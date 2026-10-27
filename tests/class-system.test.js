@@ -82,6 +82,7 @@ test('wizard combo steps fire bolts in the facing direction; the finisher explod
 
 test('an exploding bolt damages every monster in its radius once', () => {
   const world = wizardWorld();
+  world.hitRoll = () => 0.5; // Test blast coverage independently of ordinary-attack MISS rolls.
   world.player.combo.startHit(4);
   fireComboBolt(world, 4);
   const bolt = world.projectiles[0];

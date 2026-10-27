@@ -19,10 +19,15 @@ export const HD_MONSTERS = Object.freeze({
 
 // Sheet layout contract: four walk frames per row, with an actual rear pose for UP.
 export const HD_MONSTER = Object.freeze({ frame: 192, pixelsPerUnit: 8, cols: 4, rows: ['down', 'up', 'left', 'right'] });
+// Larger transparent cells leave room for extended fists, jaws and the dagger.
+export const HD_MONSTER_ATTACK = Object.freeze({ frame: 256, feetY: 224, recoveryMs: 240 });
 
 /** Spread into ASSET_FILES: `hdMonster<Type>` -> normalized sheet. */
 export const HD_MONSTER_ASSET_FILES = Object.freeze(Object.fromEntries(
-  Object.keys(HD_MONSTERS).map((type) => [monsterSheetKey(type), `${HD_MONSTER_NORM_DIR}${type}.png`]),
+  Object.keys(HD_MONSTERS).flatMap((type) => [
+    [monsterSheetKey(type), `${HD_MONSTER_NORM_DIR}${type}.png`],
+    [monsterSheetKey(type) + 'Attack', `${HD_MONSTER_NORM_DIR}${type}-attack.png`],
+  ]),
 ));
 
 export function monsterSheetKey(type) {
