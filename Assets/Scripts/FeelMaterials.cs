@@ -35,7 +35,7 @@ namespace ZenoniaProto
             if (block == null) block = new MaterialPropertyBlock();
             if (flashAmountId < 0) flashAmountId = Shader.PropertyToID("_FlashAmount");
             r.GetPropertyBlock(block);
-            block.SetFloat(flashAmountId, amount);
+            block.SetFloat(flashAmountId, Mathf.Min(amount, FeelConfig.FlashMaxAmount));
             r.SetPropertyBlock(block);
         }
 

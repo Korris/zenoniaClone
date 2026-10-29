@@ -30,6 +30,7 @@ namespace ZenoniaProto
         public const float MaxShakeUnits = 5f, ShakeFrequency = 42f, TraumaDecayPerSecond = 1.8f;
 
         // ---- monster reaction ----
+        public const float FlashMaxAmount = 0.5f;          // cap: a full white silhouette read as a white blob on snow / white-furred monsters
         public const float FlashMs = 110f;               // white flash duration (frozen during hit-stop, so it reads through the freeze)
         public const float KnockbackMultiplier = 1.35f, KnockbackMs = 170f;
         public const float HitJitterUnits = 0.7f;
