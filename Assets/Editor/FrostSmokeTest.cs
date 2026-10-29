@@ -20,6 +20,7 @@ namespace ZenoniaProto.EditorTools
             failures = 0;
             try
             {
+                RpgLogicCheck.Run(Expect);
                 CheckMap();
                 CheckTint();
                 CheckVfxSets();
