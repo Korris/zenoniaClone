@@ -2,18 +2,35 @@ using System.Collections.Generic;
 
 namespace ZenoniaProto
 {
-    /// <summary>One swing of the combo chain (web COMBO_CONFIG warrior). Times in ms, distances in world units.</summary>
+    /// <summary>
+    /// One step of a combo chain (web COMBO_CONFIG*). Times in ms, distances in world units.
+    /// Melee steps use Reach / Width / FxScale; ranged steps fire Bolt instead (Reach 0).
+    /// </summary>
     public sealed class ComboHit
     {
         public readonly float WindupMs, ActiveMs, RecoverMs, Mult, Reach, Width, Knockback, StepPx, FxScale;
+        public readonly BoltDef Bolt; // null = melee swing
 
-        public ComboHit(float windup, float active, float recover, float mult, float reach, float width, float knockback, float stepPx, float fxScale)
+        public ComboHit(float windup, float active, float recover, float mult, float reach, float width, float knockback, float stepPx, float fxScale, BoltDef bolt = null)
         {
             WindupMs = windup; ActiveMs = active; RecoverMs = recover; Mult = mult; Reach = reach;
-            Width = width; Knockback = knockback; StepPx = stepPx; FxScale = fxScale;
+            Width = width; Knockback = knockback; StepPx = stepPx; FxScale = fxScale; Bolt = bolt;
         }
 
         public float TotalMs { get { return WindupMs + ActiveMs + RecoverMs; } }
+    }
+
+    /// <summary>Projectile parameters of a ranged combo step (web `bolt`): speed u/s, range u, FX sprite name, scale, hit box, optional AoE burst.</summary>
+    public sealed class BoltDef
+    {
+        public readonly float Speed, Range, Scale, W, H, ExplodeRadius;
+        public readonly string Sprite, ExplodeFx, FlashFx;
+
+        public BoltDef(float speed, float range, string sprite, float scale, float w, float h, float explodeRadius = 0f, string explodeFx = null, string flashFx = null)
+        {
+            Speed = speed; Range = range; Sprite = sprite; Scale = scale; W = w; H = h;
+            ExplodeRadius = explodeRadius; ExplodeFx = explodeFx; FlashFx = flashFx;
+        }
     }
 
     public enum ComboEventType { Hit, End }
@@ -28,23 +45,15 @@ namespace ZenoniaProto
 
     /// <summary>
     /// Four-hit combo state machine ported from the web ComboController: idle -> windup -> active -> recover -> (next | idle).
-    /// A press during a swing is buffered; after a swing ends there is ChainWindowMs to continue the chain.
+    /// A press during a swing is buffered; after a swing ends there is a chain window to continue the chain.
     /// Pure logic (no Unity types) so it can be unit-tested.
     /// </summary>
     public sealed class ComboSystem
     {
-        public const float ChainWindowMs = 400f;
         public const float FinisherMultPerLevel = 0.05f;
 
-        public static readonly ComboHit[] WarriorHits =
-        {
-            new ComboHit(50f, 90f, 110f, 1.0f, 30f, 28f, 40f, 6f, 1.45f),
-            new ComboHit(50f, 90f, 110f, 1.15f, 32f, 30f, 50f, 8f, 1.55f),
-            new ComboHit(50f, 90f, 110f, 1.25f, 34f, 32f, 55f, 8f, 1.65f),
-            new ComboHit(90f, 120f, 220f, 1.8f, 42f, 40f, 110f, 16f, 1.15f),
-        };
-
         readonly ComboHit[] hits;
+        readonly float chainWindowMs;
         ComboPhase phase = ComboPhase.Idle;
         int step;
         int lastStep;
@@ -52,7 +61,7 @@ namespace ZenoniaProto
         float chainTimer;
         bool queued;
 
-        public ComboSystem(ComboHit[] config) { hits = config; }
+        public ComboSystem(ComboHit[] config, float chainWindow) { hits = config; chainWindowMs = chainWindow; }
 
         public ComboPhase Phase { get { return phase; } }
         public bool IsAttacking { get { return phase != ComboPhase.Idle; } }
@@ -154,7 +163,7 @@ namespace ZenoniaProto
             step = 0;
             queued = false;
             lastStep = isLast ? 0 : finished;     // the finisher resets the chain completely
-            chainTimer = isLast ? 0f : ChainWindowMs;
+            chainTimer = isLast ? 0f : chainWindowMs;
         }
 
         /// <summary>Damage multiplier for a step; the finisher scales with hero level.</summary>

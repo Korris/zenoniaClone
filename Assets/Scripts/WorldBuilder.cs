@@ -3,79 +3,57 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Builds the ground once into a single texture (no per-tile renderers, no seams): a grass field from the web game's
-    /// seamless 2x2 grass macro with a dirt road band (auto-tile edges) across the middle.
-    /// Source tiles: 64px = 16 world units (ppu 4).
+    /// Frost Hollow ground: the web's single painted backdrop (36x24 tiles, 64 source px per 16-unit tile) as one sprite, plus an
+    /// optional F4 debug overlay that tints the solid tiles (T / C / w) so collision can be compared with the painting.
     /// </summary>
     public static class WorldBuilder
     {
-        const int Tile = 64;
-        const int PathRow = 15; // vertical tile index of the road's centre row
+        static SpriteRenderer solidOverlay;
 
         public static void Build(Transform parent)
         {
-            Texture2D grass = SpriteSheet.Load("Sprites/tiles/grass");
-            Texture2D path = SpriteSheet.Load("Sprites/tiles/path");
-            int w = GameConfig.TilesW * Tile, h = GameConfig.TilesH * Tile;
-            var ground = new Color32[w * h];
-            if (grass == null)
-            {
-                var fallback = new Color32(86, 150, 60, 255);
-                for (int i = 0; i < ground.Length; i++) ground[i] = fallback;
-            }
-            else
-            {
-                Color32[] g = SpriteSheet.ReadPixels(grass);
-                Color32[] p = path != null ? SpriteSheet.ReadPixels(path) : null;
-                for (int ty = 0; ty < GameConfig.TilesH; ty++)
-                {
-                    for (int tx = 0; tx < GameConfig.TilesW; tx++)
-                    {
-                        // Macro order: cell = (ty % 2) * 2 + (tx % 2), laid out along the first row of grass.png.
-                        int cell = (ty % 2) * 2 + (tx % 2);
-                        CopyTile(g, grass.width, grass.height, cell, 0, ground, w, tx * Tile, ty * Tile, false);
-                        if (p == null) continue;
-                        if (ty == PathRow) CopyTile(p, path.width, path.height, tx % 2 + 2 * (ty % 2), 3, ground, w, tx * Tile, ty * Tile, false);   // dirt macro row
-                        else if (ty == PathRow + 1) CopyTile(p, path.width, path.height, 1, 0, ground, w, tx * Tile, ty * Tile, true);            // top edge (grass fringe)
-                        else if (ty == PathRow - 1) CopyTile(p, path.width, path.height, 1, 2, ground, w, tx * Tile, ty * Tile, true);            // bottom edge
-                    }
-                }
-            }
-
-            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
-            tex.SetPixels32(ground);
-            tex.filterMode = FilterMode.Bilinear;
-            tex.wrapMode = TextureWrapMode.Clamp;
-            tex.Apply(false, true);
-            Sprite sprite = Sprite.Create(tex, new Rect(0, 0, w, h), Vector2.zero, Tile / (float)GameConfig.TileUnits, 0, SpriteMeshType.FullRect);
+            Texture2D tex = SpriteSheet.Load("Sprites/tiles/frost-hollow-ground");
+            Sprite sprite = tex != null
+                ? Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero, tex.width / GameConfig.MapW, 0, SpriteMeshType.FullRect)
+                : ProceduralSprites.White(false);
             SpriteRenderer sr = ProceduralSprites.Child(parent, "Ground", sprite);
             sr.sortingOrder = GameConfig.GroundOrder;
-            sr.transform.position = Vector3.zero;
+            if (tex == null)
+            {
+                sr.color = new Color(0.82f, 0.9f, 0.95f);
+                sr.transform.localScale = new Vector3(GameConfig.MapW, GameConfig.MapH, 1f);
+                sr.transform.position = new Vector3(GameConfig.MapW * 0.5f, GameConfig.MapH * 0.5f, 0f);
+            }
+            else sr.transform.position = Vector3.zero;
+            BuildSolidOverlay(parent);
         }
 
-        /// <summary>Copies one 64px cell (col,row from the top-left of the PNG) into the ground at (dx,dy) bottom-left origin.</summary>
-        static void CopyTile(Color32[] src, int srcW, int srcH, int col, int rowFromTop, Color32[] dst, int dstW, int dx, int dy, bool blend)
+        /// <summary>F4: show / hide the collision tint.</summary>
+        public static void ToggleSolidOverlay()
         {
-            int sx0 = col * Tile;
-            int sy0 = srcH - (rowFromTop + 1) * Tile;
-            if (sx0 < 0 || sy0 < 0 || sx0 + Tile > srcW) return; // cell outside the sheet: skip
-            for (int y = 0; y < Tile; y++)
+            if (solidOverlay != null) solidOverlay.enabled = !solidOverlay.enabled;
+        }
+
+        static void BuildSolidOverlay(Transform parent)
+        {
+            var px = new Color32[FrostHollowMap.TilesW * FrostHollowMap.TilesH];
+            for (int ty = 0; ty < FrostHollowMap.TilesH; ty++)
             {
-                int si = (sy0 + y) * srcW + sx0;
-                int di = (dy + y) * dstW + dx;
-                for (int x = 0; x < Tile; x++)
+                for (int tx = 0; tx < FrostHollowMap.TilesW; tx++)
                 {
-                    Color32 s = src[si + x];
-                    if (!blend || s.a == 255) { dst[di + x] = new Color32(s.r, s.g, s.b, 255); continue; }
-                    if (s.a == 0) continue;
-                    Color32 d = dst[di + x];
-                    int a = s.a;
-                    dst[di + x] = new Color32(
-                        (byte)((s.r * a + d.r * (255 - a)) / 255),
-                        (byte)((s.g * a + d.g * (255 - a)) / 255),
-                        (byte)((s.b * a + d.b * (255 - a)) / 255), 255);
+                    bool solid = FrostHollowMap.IsSolidTile(tx, ty);
+                    px[(FrostHollowMap.TilesH - 1 - ty) * FrostHollowMap.TilesW + tx] = solid ? new Color32(255, 40, 40, 110) : new Color32(0, 0, 0, 0);
                 }
             }
+            var tex = new Texture2D(FrostHollowMap.TilesW, FrostHollowMap.TilesH, TextureFormat.RGBA32, false);
+            tex.SetPixels32(px);
+            tex.filterMode = FilterMode.Point;
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.Apply(false, true);
+            Sprite s = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero, 1f / FrostHollowMap.Tile, 0, SpriteMeshType.FullRect);
+            solidOverlay = ProceduralSprites.Child(parent, "SolidOverlay", s);
+            solidOverlay.sortingOrder = FeelConfig.FxOrder - 100;
+            solidOverlay.enabled = false;
         }
     }
 }

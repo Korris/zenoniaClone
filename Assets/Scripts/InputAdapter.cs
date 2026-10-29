@@ -1,18 +1,27 @@
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
 using UnityEngine.InputSystem;
 #endif
+using System;
 using UnityEngine;
 
 namespace ZenoniaProto
 {
-    public enum GameKey { Up, Down, Left, Right, Attack, Dash, TierUp, TierDown, Enhance, Bloom, Fx }
+    public enum GameKey
+    {
+        Up, Down, Left, Right, Attack, Dash, TierUp, TierDown, Enhance, Bloom, Fx,
+        Class1, Class2, Class3,   // class select screen (1 / 2 / 3)
+        Switch1, Switch2, Switch3, // in-game class switch (F1 / F2 / F3)
+        SolidDebug                 // F4: tint the solid tiles
+    }
 
     /// <summary>
     /// Keyboard abstraction that works whichever Active Input Handling the project ends up with
     /// (legacy Input Manager preferred; falls back to the Input System package when legacy is disabled).
+    /// Bot* hooks let the screenshot demo (DebugCapture) drive the hero without a keyboard.
     /// </summary>
     public static class InputAdapter
     {
+        public static Func<GameKey, bool> BotHeld, BotPressed;
 #if ENABLE_LEGACY_INPUT_MANAGER
         static readonly KeyCode[][] Map =
         {
@@ -27,10 +36,18 @@ namespace ZenoniaProto
             new[] { KeyCode.R },
             new[] { KeyCode.B },
             new[] { KeyCode.F },
+            new[] { KeyCode.Alpha1, KeyCode.Keypad1 },
+            new[] { KeyCode.Alpha2, KeyCode.Keypad2 },
+            new[] { KeyCode.Alpha3, KeyCode.Keypad3 },
+            new[] { KeyCode.F1 },
+            new[] { KeyCode.F2 },
+            new[] { KeyCode.F3 },
+            new[] { KeyCode.F4 },
         };
 
         public static bool Held(GameKey k)
         {
+            if (BotHeld != null && BotHeld(k)) return true;
             KeyCode[] keys = Map[(int)k];
             for (int i = 0; i < keys.Length; i++) if (Input.GetKey(keys[i])) return true;
             return false;
@@ -38,6 +55,7 @@ namespace ZenoniaProto
 
         public static bool Pressed(GameKey k)
         {
+            if (BotPressed != null && BotPressed(k)) return true;
             KeyCode[] keys = Map[(int)k];
             for (int i = 0; i < keys.Length; i++) if (Input.GetKeyDown(keys[i])) return true;
             return false;
@@ -56,10 +74,18 @@ namespace ZenoniaProto
             new[] { Key.R },
             new[] { Key.B },
             new[] { Key.F },
+            new[] { Key.Digit1, Key.Numpad1 },
+            new[] { Key.Digit2, Key.Numpad2 },
+            new[] { Key.Digit3, Key.Numpad3 },
+            new[] { Key.F1 },
+            new[] { Key.F2 },
+            new[] { Key.F3 },
+            new[] { Key.F4 },
         };
 
         public static bool Held(GameKey k)
         {
+            if (BotHeld != null && BotHeld(k)) return true;
             Keyboard kb = Keyboard.current;
             if (kb == null) return false;
             Key[] keys = Map[(int)k];
@@ -69,6 +95,7 @@ namespace ZenoniaProto
 
         public static bool Pressed(GameKey k)
         {
+            if (BotPressed != null && BotPressed(k)) return true;
             Keyboard kb = Keyboard.current;
             if (kb == null) return false;
             Key[] keys = Map[(int)k];
@@ -76,8 +103,8 @@ namespace ZenoniaProto
             return false;
         }
 #else
-        public static bool Held(GameKey k) { return false; }
-        public static bool Pressed(GameKey k) { return false; }
+        public static bool Held(GameKey k) { return BotHeld != null && BotHeld(k); }
+        public static bool Pressed(GameKey k) { return BotPressed != null && BotPressed(k); }
 #endif
     }
 }

@@ -4,7 +4,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Zero-setup entry point: runs after any scene loads (Play on the default empty scene works) and builds the whole
-    /// prototype at runtime -- camera, ground, warrior, monsters, HUD.
+    /// prototype at runtime -- camera, Frost Hollow ground, monsters, HUD and the class select that spawns the hero.
     /// </summary>
     public static class Bootstrap
     {
@@ -25,6 +25,9 @@ namespace ZenoniaProto
             GameClock.ResetState();
             DamageNumber.ResetState();
             CameraFollow.ResetState();
+            GearOverlays.ResetState();
+            InputAdapter.BotHeld = null;
+            InputAdapter.BotPressed = null;
             FeelConfig.BloomOn = true;
             FeelConfig.FxOn = true;
 
@@ -37,28 +40,26 @@ namespace ZenoniaProto
             SlashEffect.Init(root.transform);
             SwordTrail.Init(root.transform);
             ImpactFx.Init(root.transform);
-
-            HeldGearData gear = HeldGearData.Load(); // null => baked armed frames only (still playable)
-            var heroGo = new GameObject("Warrior");
-            heroGo.transform.SetParent(root.transform, false);
-            var view = heroGo.AddComponent<WarriorRenderer>();
-            view.Init(gear);
-            var hero = heroGo.AddComponent<WarriorController>();
-            hero.Init(view);
-
-            MonsterSpawner.SpawnAll(root.transform);
+            BurstFx.Init(root.transform);
+            ComboProjectile.Init(root.transform);
 
             var follow = cam.GetComponent<CameraFollow>();
             if (follow == null) follow = cam.gameObject.AddComponent<CameraFollow>();
-            follow.Target = heroGo.transform;
+            follow.Target = null;
             follow.Configure();
+            // Frame the entrance behind the class select screen until a hero exists.
+            cam.transform.position = new Vector3(GameConfig.HeroStart.x + 40f, GameConfig.HeroStart.y + 30f, -10f);
+
+            MonsterSpawner.SpawnAll(root.transform);
+            GameSession session = GameSession.Create(root.transform, follow);
 
             // Bloom (Built-in pipeline OnRenderImage) + A/B hotkeys; the camera is switched to HDR by BloomEffect.
             var bloom = cam.GetComponent<BloomEffect>();
             if (bloom == null) bloom = cam.gameObject.AddComponent<BloomEffect>();
             root.AddComponent<FeelHotkeys>().Init(bloom);
 
-            root.AddComponent<Hud>().Init(hero);
+            root.AddComponent<Hud>();
+            DebugCapture.AttachIfRequested(root, session);
         }
 
         static Camera SetupCamera()

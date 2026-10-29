@@ -10,11 +10,11 @@ namespace ZenoniaProto
         public const float FramePpu = FramePx / FrameUnits; // 8 source px per world unit
         public const float ViewHeightUnits = 160f; // web: 960x640 canvas at 4x => 160 world px tall
         public const int TileUnits = 16;
-        public const int TilesW = 40;
-        public const int TilesH = 30;
+        public const int TilesW = FrostHollowMap.TilesW;
+        public const int TilesH = FrostHollowMap.TilesH;
         public const float MapW = TilesW * TileUnits;
         public const float MapH = TilesH * TileUnits;
-        public static readonly Vector2 HeroStart = new Vector2(MapW * 0.5f, MapH * 0.45f);
+        public static Vector2 HeroStart { get { return FrostHollowMap.PlayerStart; } }
 
         public const int OrderStride = 8;        // sub-orders per entity (shadow, gear behind, body, gear front, bar, fx)
         public const int GroundOrder = -32000;

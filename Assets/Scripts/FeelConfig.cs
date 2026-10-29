@@ -21,8 +21,12 @@ namespace ZenoniaProto
             return finisher ? PlainHitStopFinisherMs : PlainHitStopNormalMs;
         }
 
+        // ---- ranged combo shots (wizard bolts / mechanic bullets): lighter than a sword hit because they come in quick bursts ----
+        public const float HitStopBoltMs = 30f, HitStopBlastMs = 80f, PlainHitStopBoltMs = 20f;
+        public static float BoltHitStopMs(bool blast) { return blast ? HitStopBlastMs : FxOn ? HitStopBoltMs : PlainHitStopBoltMs; }
+
         // ---- screen shake (trauma model: offset = trauma^2 * MaxShakeUnits, camera offset only) ----
-        public const float TraumaNormal = 0.35f, TraumaCrit = 0.55f, TraumaFinisher = 0.8f, TraumaHurt = 0.45f;
+        public const float TraumaNormal = 0.35f, TraumaCrit = 0.55f, TraumaFinisher = 0.8f, TraumaHurt = 0.45f, TraumaBolt = 0.18f, TraumaBlast = 0.7f;
         public const float MaxShakeUnits = 5f, ShakeFrequency = 42f, TraumaDecayPerSecond = 1.8f;
 
         // ---- monster reaction ----

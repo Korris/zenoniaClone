@@ -47,7 +47,7 @@ namespace ZenoniaProto
             if (flash <= 0f && ai >= 0 && attackRow != null && ai < attackRow.Length) s = attackRow[ai];
             else if (walkRow != null && walkRow.Length > 0)
             {
-                bool still = state == State.Idle || state == State.Cooldown;
+                bool still = state == State.Idle || state == State.Cooldown || state == State.Windup;
                 s = walkRow[still ? 0 : Mathf.FloorToInt(animTimer / WalkFrameMs) % walkRow.Length];
             }
             body.sprite = s;
@@ -60,7 +60,7 @@ namespace ZenoniaProto
             barBack.enabled = showBar; barFill.enabled = showBar;
             if (showBar)
             {
-                float top = def.BodyHeightUnits + 2f;
+                float top = def.BodyHeightUnits * def.RenderScale + 2f;
                 barBack.transform.localPosition = new Vector3(-7f, top, 0f);
                 barBack.transform.localScale = new Vector3(14f, 2f, 1f);
                 barFill.transform.localPosition = new Vector3(-7f, top, 0f);
