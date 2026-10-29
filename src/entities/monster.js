@@ -2,6 +2,7 @@
 import { MONSTER_DEFINITIONS } from '../data/monster-definitions.js';
 import { createAiState } from '../systems/monster-ai-system.js';
 import { entityBox } from '../systems/damage-formula.js';
+import { COMBAT_FEEL } from '../data/combat-feel-config.js';
 
 let nextMonsterId = 1;
 
@@ -39,7 +40,8 @@ export class Monster {
   takeDamage(amount, knockbackX = 0, knockbackY = 0) {
     if (this.dead) return false;
     this.hp -= amount;
-    this.hitFlashTimer = 100;
+    // White silhouette flash (also drives the squash pose); 0 when the reduce-effects setting is on.
+    this.hitFlashTimer = COMBAT_FEEL.reduceEffects ? 0 : COMBAT_FEEL.hitReaction.flashMs;
     if (!this.isBoss && (knockbackX || knockbackY)) {
       this.knockback = { vx: knockbackX, vy: knockbackY, timer: 120 };
     }

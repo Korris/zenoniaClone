@@ -28,7 +28,9 @@ export function resolveHeldGear(registry, player, frame) {
     const overlay = overlays[heldTierOf(item)] || overlays[0];
     if (!overlay) continue;
     const band = heldBandOf(item);
-    layers.push({ id: part.id, anchor, band, drawScale: part.drawScale || 1, minSx: part.minSx || 0, baked: bakeStaffGlow(band >= 1 ? overlay.enhanced : overlay.base, overlay.glow, band) });
+    const art = band >= 1 ? overlay.enhanced : overlay.base;
+    // art + glowColor let the PixiJS renderer draw its live glow instead of the baked rings in `baked`.
+    layers.push({ id: part.id, anchor, band, drawScale: part.drawScale || 1, minSx: part.minSx || 0, art, glowColor: overlay.glow, baked: bakeStaffGlow(art, overlay.glow, band) });
   }
   return { body, layers };
 }

@@ -51,7 +51,10 @@ export function composeSprite(baseCanvas, overlayRows, opts = {}) {
 
 /** Tint an existing canvas by overlaying a color (used for hit flash). */
 // Hit-flash tint shared by the pixel and HD sprite builders.
-export const HIT_FLASH_COLOR = 'rgba(255,255,255,0.85)';
+// Fully opaque white: a crisp silhouette reads as a hit; 0.85 left the sprite pale/greyish.
+export const HIT_FLASH_COLOR = 'rgb(255,255,255)';
+// Warm rim drawn slightly larger behind the white flash so the silhouette still reads on snow/white ground.
+export const HIT_RIM_COLOR = 'rgb(255,120,40)';
 
 export function createTintedSprite(sourceCanvas, color) {
   const canvas = document.createElement('canvas');

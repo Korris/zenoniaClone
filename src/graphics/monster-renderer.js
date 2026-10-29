@@ -3,13 +3,21 @@
 import { drawShadow } from './player-renderer.js';
 import { drawSmoothImage } from './smooth-sprite-draw.js';
 import { HD_MONSTER, HD_MONSTER_ATTACK } from './asset-atlas-hd-monsters.js';
+import { COMBAT_FEEL } from '../data/combat-feel-config.js';
 
+export const RIM_GROW = 0.12;
 const FRAME_MS = 180;
-const BOSS_FRAME_MS = 140;
+export const BOSS_FRAME_MS = 140;
 // Real rear-view frames are available; walking upward must never show the front face.
-const HD_MONSTER_FACING = Object.freeze({ down: 'down', up: 'up', left: 'left', right: 'right' });
-const HD_MONSTER_UNITS = 24; // 192px frame / pixelsPerUnit 8, matching the HD hero.
-const launchHeight = monster => monster.airborneMs > 0 ? Math.sin(Math.PI * (1 - monster.airborneMs / 1500)) * 13 : 0;
+export const HD_MONSTER_FACING = Object.freeze({ down: 'down', up: 'up', left: 'left', right: 'right' });
+export const HD_MONSTER_UNITS = 24; // 192px frame / pixelsPerUnit 8, matching the HD hero.
+/** Impact squash: widest/flattest at the moment of the hit, relaxing as the flash timer runs out. */
+export function hitSquash(monster) {
+  const k = Math.max(0, Math.min(1, (monster.hitFlashTimer || 0) / COMBAT_FEEL.hitReaction.flashMs));
+  const a = COMBAT_FEEL.hitReaction.squashAmount * k;
+  return { sx: 1 + a, sy: 1 - a };
+}
+export const launchHeight = monster => monster.airborneMs > 0 ? Math.sin(Math.PI * (1 - monster.airborneMs / 1500)) * 13 : 0;
 
 function drawTelegraph(ctx, monster) {
   // Ranged/boss attackers would cover the screen, so the ring is capped to the melee reach
@@ -64,13 +72,13 @@ function drawMarkers(ctx, monster, topY) {
 }
 
 /** Idle/cooldown hold frame 0; every other state loops the 4-frame cycle. */
-function pickFrame(frames, monster) {
+export function pickFrame(frames, monster) {
   const idle = monster.ai.state === 'idle' || monster.ai.state === 'cooldown';
   return idle ? frames[0] : frames[Math.floor(monster.animTimer / FRAME_MS) % frames.length];
 }
 
 /** The strike begins exactly when the AI deals damage, then recovers without looping. */
-function attackFrameIndex(monster) {
+export function attackFrameIndex(monster) {
   const { state, timer } = monster.ai;
   if (state === 'windup') {
     const windup = monster.def?.attackWindupMs || 350;
@@ -100,7 +108,14 @@ function drawMonsterHd(ctx, monster, hd) {
   const drawY = Math.round(monster.y - feetY - lift);
   drawShadow(ctx, monster.x, monster.y, 6 * renderScale, 2.5);
   if (monster.isTelegraphing) drawTelegraph(ctx, monster);
-  drawSmoothImage(ctx, frame, drawX, drawY, size, size);
+  const { sx, sy } = hitSquash(monster);
+  const dx = drawX - (size * (sx - 1)) / 2, dy = drawY + size * (1 - sy), w = size * sx, h = size * sy;
+  if (monster.hitFlashTimer > 0 && hd.hitRim?.[facing]) { // orange rim: same silhouette, +12%, behind the white flash
+    const grow = RIM_GROW;
+    drawSmoothImage(ctx, hd.hitRim[facing], dx - (w * grow) / 2, dy - h * grow, w * (1 + grow), h * (1 + grow));
+  }
+  // Squash keeps the feet planted: width grows around the centre, height shrinks toward the ground.
+  drawSmoothImage(ctx, frame, dx, dy, w, h);
   ctx.imageSmoothingEnabled = false;
   drawMarkers(ctx, monster, Math.round(monster.y - hd.bodyUnits * renderScale - lift));
 }
@@ -123,6 +138,13 @@ export function drawMonster(ctx, monster, registry) {
 
   drawShadow(ctx, monster.x, monster.y, 5, 2);
   if (monster.isTelegraphing) drawTelegraph(ctx, monster);
-  ctx.drawImage(monster.hitFlashTimer > 0 ? sprite.hitFlash[monster.dir] || sprite.hitFlash.down : frame, drawX, drawY);
+  const { sx, sy } = hitSquash(monster);
+  const w = sprite.width * sx, h = sprite.height * sy;
+  if (monster.hitFlashTimer > 0 && sprite.hitRim?.[monster.dir]) {
+    ctx.drawImage(sprite.hitRim[monster.dir], Math.round(drawX - (w * (1 + RIM_GROW) - sprite.width) / 2),
+      Math.round(drawY + sprite.height - h * (1 + RIM_GROW)), Math.round(w * (1 + RIM_GROW)), Math.round(h * (1 + RIM_GROW)));
+  }
+  ctx.drawImage(monster.hitFlashTimer > 0 ? sprite.hitFlash[monster.dir] || sprite.hitFlash.down : frame,
+    Math.round(drawX - (w - sprite.width) / 2), Math.round(drawY + sprite.height - h), Math.round(w), Math.round(h));
   drawMarkers(ctx, monster, drawY);
 }

@@ -117,6 +117,8 @@ function updateLists(world, dt) {
   for (const s of world.particles) s.update(dt);
   for (const t of world.texts) t.update(dt);
   for (const sp of world.skillPulses) sp.update(dt);
+  world.feel.updateTrails(dt);
+  world.feel.updateImpacts(dt);
 }
 
 /**
@@ -138,6 +140,8 @@ export function updateWorld(world, input, dt, banner) {
     updatePickups(world, input.wasPressed('attack'));
     for (const t of world.texts) t.update(dt);
     for (const s of world.particles) s.update(dt);
+    world.feel.updateImpacts(dt); // sparks/rings keep moving through the freeze; trails and effects stay frozen
+    world.camera.update(dt); // shake starts on the frozen frame
     return world.events;
   }
 

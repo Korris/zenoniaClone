@@ -10,18 +10,19 @@ import { drawIceStorm } from './ice-storm-renderer.js';
 import { drawUltimate } from './ultimate-renderer.js';
 import { drawShadowClone } from './shadow-clone-renderer.js';
 import { tintedSprite } from './tinted-sprite-cache.js';
+import { drawDamageNumber } from './damage-number-renderer.js';
 
-const DROP_SIZE = 6.6;
+export const DROP_SIZE = 6.6;
 
 /** FX entries are either a single canvas or an array of frames (strip). */
-function pickFrame(entry, progress) {
+export function pickFrame(entry, progress) {
   if (!Array.isArray(entry)) return entry;
   return entry[Math.min(entry.length - 1, Math.floor(progress * entry.length))];
 }
 
 /** Draw centred and rotated; `scale` is in world units, so an HD sprite (pixelsPerUnit > 1) is shrunk
  * accordingly and drawn smoothed instead of pixel-crisp. */
-function drawRotated(ctx, sprite, x, y, rotation, scale = 1, alpha = 1, flipY = false) {
+function drawRotated(ctx, sprite, x, y, rotation, scale = 1, alpha = 1, flipY = false, additive = 0) {
   const ppu = sprite.pixelsPerUnit || 1;
   ctx.save();
   ctx.globalAlpha = alpha;
@@ -31,19 +32,32 @@ function drawRotated(ctx, sprite, x, y, rotation, scale = 1, alpha = 1, flipY = 
   ctx.scale(scale / ppu, (flipY ? -1 : 1) * scale / ppu);
   if (ppu > 1) drawSmoothImage(ctx, sprite, -sprite.width / 2, -sprite.height / 2);
   else ctx.drawImage(sprite, -sprite.width / 2, -sprite.height / 2);
+  if (additive > 0) { // second pass adds light on the opaque pixels only (no blur, no halo)
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = alpha * additive;
+    if (ppu > 1) drawSmoothImage(ctx, sprite, -sprite.width / 2, -sprite.height / 2);
+    else ctx.drawImage(sprite, -sprite.width / 2, -sprite.height / 2);
+  }
   ctx.restore();
+}
+
+/** Ground art for an equipment drop: `sprite` sets the footprint, `art` (ground variant when present) is what is drawn. */
+export function equipmentDropArt(drop, registry, classId) {
+  const item = drop.item;
+  const sprite = itemSprite(registry, item, classId, true);
+  if (!sprite) return null;
+  const scale = DROP_SIZE / Math.max(sprite.width, sprite.height);
+  const art = groundGearSprite(registry, item, classId) || (item.slot === 'weapon'
+    ? registry.groundWeaponIcons?.[weaponIconIndex(item.itemLevel, item.classId || classId)]
+    : registry.groundArmorIcons?.[item.slot]?.[equipmentTier(item.itemLevel)] || registry.groundItems?.[item.templateId]) || sprite;
+  return { art, w: sprite.width * scale, h: sprite.height * scale };
 }
 
 /** Ground loot preserves the exact artwork used by the inventory. */
 function drawEquipmentDrop(ctx, drop, registry, classId) {
-  const item = drop.item;
-  const sprite = itemSprite(registry, item, classId, true);
-  if (!sprite) return;
-  const scale = DROP_SIZE / Math.max(sprite.width, sprite.height);
-  const w = sprite.width * scale, h = sprite.height * scale;
-  const groundSprite = groundGearSprite(registry, item, classId) || (item.slot === 'weapon'
-    ? registry.groundWeaponIcons?.[weaponIconIndex(item.itemLevel, item.classId || classId)]
-    : registry.groundArmorIcons?.[item.slot]?.[equipmentTier(item.itemLevel)] || registry.groundItems?.[item.templateId]);
+  const found = equipmentDropArt(drop, registry, classId);
+  if (!found) return;
+  const { art, w, h } = found;
   ctx.save();
   // Snap to physical canvas pixels to prevent subpixel shimmer while the camera moves.
   const transform = ctx.getTransform?.();
@@ -51,12 +65,12 @@ function drawEquipmentDrop(ctx, drop, registry, classId) {
   const tx = transform?.e || 0, ty = transform?.f || 0;
   const x = (Math.round((drop.x - w / 2) * sx + tx) - tx) / sx;
   const y = (Math.round((drop.y + drop.bobOffset - 2 - h) * sy + ty) - ty) / sy;
-  drawSmoothImage(ctx, groundSprite || sprite, x, y, w, h);
+  drawSmoothImage(ctx, art, x, y, w, h);
   ctx.restore();
 }
 
 /** Smooth beveled gold coin, using the same size as dropped potions. */
-function drawGoldCoin(ctx, x, y, size = DROP_SIZE) {
+export function drawGoldCoin(ctx, x, y, size = DROP_SIZE) {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(size / 48, size / 48);
@@ -120,7 +134,7 @@ export function drawEffects(ctx, effects, registry) {
     const entry = registry.effects[e.spriteKey];
     if (!entry) continue;
     const frame = pickFrame(entry, e.progress);
-    drawRotated(ctx, e.tint ? tintedSprite(frame, e.tint) : frame, e.x, e.y, e.rotation, e.scale, e.alpha, e.flipY);
+    drawRotated(ctx, e.tint ? tintedSprite(frame, e.tint) : frame, e.x, e.y, e.rotation, e.scale, e.alpha, e.flipY, e.additive);
   }
 }
 
@@ -136,38 +150,6 @@ export function drawParticles(ctx, particles, registry) {
       ctx.fillStyle = '#ffe680'; ctx.beginPath(); ctx.arc(p.x, p.y, 0.8, 0, Math.PI * 2); ctx.fill();
     }
   }
-  ctx.restore();
-}
-
-/** Floating text is drawn in SCREEN space so the font stays sharp. Call after resetting transform. */
-function drawDamageNumber(ctx, t, sx, sy) {
-  const age = t.maxLifeMs - t.lifeMs;
-  // Brief impact pop, then settle while the number rises and fades.
-  const pop = age < 90 ? 0.8 + age / 90 * 0.4 : 1 + 0.2 * Math.max(0, 1 - (age - 90) / 140);
-  const size = t.critical ? 40 : 32;
-  ctx.save();
-  ctx.globalAlpha = t.alpha;
-  ctx.translate(sx, sy);
-  ctx.scale(pop, pop);
-  ctx.font = `italic 900 ${size}px "Arial Black", "Segoe UI", sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.lineJoin = 'round';
-  const gradient = ctx.createLinearGradient(0, -size / 2, 0, size / 2);
-  const colors = t.damageStyle === 'incoming'
-    ? ['#e5faff', '#65d4ff', '#1685ef', '#1546ad']
-    : t.critical ? ['#fffbd6', '#ffec62', '#ffad25', '#e35716']
-      : ['#fff1bd', '#ffc15a', '#fa5335', '#bf192d'];
-  colors.forEach((color, i) => gradient.addColorStop(i / 3, color));
-  ctx.strokeStyle = '#070f1e';
-  ctx.lineWidth = 5;
-  // Drop shadow as an offset stroke: same look as shadowBlur 3 at a fraction of the GPU cost.
-  ctx.strokeStyle = '#000a';
-  ctx.strokeText(t.text, 0, 3);
-  ctx.strokeStyle = '#070f1e';
-  ctx.strokeText(t.text, 0, 0);
-  ctx.fillStyle = gradient;
-  ctx.fillText(t.text, 0, 0);
   ctx.restore();
 }
 

@@ -1,6 +1,6 @@
 // Slicers that turn loaded character / monster / strip images into canvases (hero sheets, NPCs, monsters, FX strips).
 // Split out of sprite-registry.js; pure functions of the loaded `images` map, so missing sheets just yield fewer frames.
-import { createTintedSprite, HIT_FLASH_COLOR } from './pixel-sprite-factory.js';
+import { createTintedSprite, HIT_FLASH_COLOR, HIT_RIM_COLOR } from './pixel-sprite-factory.js';
 import { cropSprite, cell } from './sprite-cell.js';
 import {
   CHARACTER_DIRECTIONS, HERO_ANIMATIONS, HERO_FRAME, HERO_SHEET_ROW, HD_HERO, HD_HERO_ANIMATIONS, HD_HERO_SIDE_ROWS,
@@ -102,11 +102,13 @@ export function buildNpcsHd(images, faces) {
 export function buildMonster(img) {
   const frames = {};
   const hitFlash = {};
+  const hitRim = {};
   CHARACTER_DIRECTIONS.forEach((dir, col) => {
     frames[dir] = [0, 1, 2, 3].map((row) => cell(img, col, row));
     hitFlash[dir] = createTintedSprite(frames[dir][0], HIT_FLASH_COLOR);
+    hitRim[dir] = createTintedSprite(frames[dir][0], HIT_RIM_COLOR);
   });
-  return { frames, hitFlash, width: CHARACTER_SIZE, height: CHARACTER_SIZE };
+  return { frames, hitFlash, hitRim, width: CHARACTER_SIZE, height: CHARACTER_SIZE };
 }
 
 /** Horizontal strip -> frames; the count is derived from the image width so data never lies. */

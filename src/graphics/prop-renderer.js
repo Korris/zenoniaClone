@@ -30,7 +30,7 @@ export function npcFrameUnits(npc, registry) {
 
 /** Current frame for an NPC: HD idle loop (driven by npc.animTimer, never reset while standing)
  * when its sheet loaded, else the pixel-art pack frame. */
-function npcFrame(npc, registry) {
+export function npcFrame(npc, registry) {
   const hd = registry.npcsHd?.[npc.id];
   if (hd) {
     const idle = hd[HD_NPC_FACING[npc.dir] || 'down'].idle;

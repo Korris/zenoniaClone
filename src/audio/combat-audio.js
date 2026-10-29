@@ -1,4 +1,6 @@
 // Small procedural combat sounds; no downloads, speech services or external dependencies.
+import { COMBAT_FEEL } from '../data/combat-feel-config.js';
+
 let context;
 let master;
 let noiseBuffer;
@@ -87,11 +89,27 @@ export function playAttackSound(classId, step, finisher) {
   if (finisher) kiai(time);
 }
 
-export function playImpactSound() {
+/** Random pitch multiplier so repeated hits do not sound identical. */
+export function pitchJitter(random = Math.random, amount = COMBAT_FEEL.audio.pitchJitter) {
+  return 1 + (random() * 2 - 1) * amount;
+}
+
+/**
+ * Hit sound, played the moment damage lands. `heavy` (finisher / crit) adds a deeper, longer thump and crack.
+ */
+export function playImpactSound({ heavy = false } = {}) {
   if (!context || context.state !== 'running') return;
   const time = context.currentTime;
   if (time - lastImpact < 0.04) return; // area hits share one impact
   lastImpact = time;
-  noise(time, 0.07, 900, 0.4, 'lowpass');
-  tone(time, 0.08, 125, 50, 0.3);
+  const pitch = pitchJitter();
+  if (heavy) {
+    noise(time, 0.12, 1300 * pitch, 0.6, 'lowpass');
+    noise(time, 0.05, 3800 * pitch, 0.35); // bright crack on top
+    tone(time, 0.22, 95 * pitch, 38, 0.5);
+    tone(time, 0.09, 220 * pitch, 80, 0.2, 'triangle');
+  } else {
+    noise(time, 0.07, 900 * pitch, 0.4, 'lowpass');
+    tone(time, 0.08, 125 * pitch, 50, 0.3);
+  }
 }

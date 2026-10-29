@@ -15,6 +15,7 @@ function* movingThings(world) {
     const list = world[key];
     if (Array.isArray(list)) yield* list;
   }
+  if (world.feel) yield* world.feel.streaks.items; // pooled impact sparks (inactive slots are never drawn)
 }
 
 function remember(thing) {

@@ -1,7 +1,7 @@
 // Slices the HD monster walk-cycle sheets (asset-atlas-hd-monsters.js) into per-facing frame lists,
 // mirroring sprite-registry.js's buildNpcsHd(). Split out to keep sprite-registry.js under 200 lines.
 import { cropSprite } from './sprite-cell.js';
-import { createTintedSprite, HIT_FLASH_COLOR } from './pixel-sprite-factory.js';
+import { createTintedSprite, HIT_FLASH_COLOR, HIT_RIM_COLOR } from './pixel-sprite-factory.js';
 import { HD_MONSTER, HD_MONSTER_ATTACK, HD_MONSTERS, monsterSheetKey } from './asset-atlas-hd-monsters.js';
 
 /**
@@ -18,6 +18,7 @@ export function buildMonstersHd(images) {
     if (!img) continue; // not generated yet -- see tools/build-hd-monsters.py
     const frames = {};
     const hitFlash = {};
+    const hitRim = {};
     const attackImage = images[monsterSheetKey(type) + 'Attack'];
     const attack = {};
     rows.forEach((dir, row) => {
@@ -26,13 +27,14 @@ export function buildMonstersHd(images) {
         frames[dir].push(cropSprite(img, col * frame, row * frame, frame, frame, false, pixelsPerUnit));
       }
       hitFlash[dir] = createTintedSprite(frames[dir][0], HIT_FLASH_COLOR);
+      hitRim[dir] = createTintedSprite(frames[dir][0], HIT_RIM_COLOR);
       if (attackImage) {
         const size = HD_MONSTER_ATTACK.frame;
         attack[dir] = Array.from({ length: cols }, (_, col) =>
           cropSprite(attackImage, col * size, row * size, size, size, false, pixelsPerUnit));
       }
     });
-    monstersHd[type] = { frames, hitFlash, attack, bodyUnits: bodyHeight / pixelsPerUnit };
+    monstersHd[type] = { frames, hitFlash, hitRim, attack, bodyUnits: bodyHeight / pixelsPerUnit };
   }
   return monstersHd;
 }

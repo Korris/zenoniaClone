@@ -17,12 +17,15 @@ export class VisualEffect {
     this.offsetX = opts.offsetX ?? 0;
     this.offsetY = opts.offsetY ?? 0;
     this.spin = opts.spin ?? 0; // radians per second
+    this.maxAlpha = opts.maxAlpha ?? 1; // cap for effects drawn over the hero (keep the hero readable)
+    this.additive = opts.additive ?? 0; // >0: extra 'lighter' pass at this alpha for a bright core
     this.tint = opts.tint || null; // CSS colour washed over the sprite (e.g. purple Assassin slashes)
     this.dead = false;
   }
 
+  /** Full opacity for the first 65% of the life, then fade out (a linear fade from frame 1 looked washed out). */
   get alpha() {
-    return Math.max(0.2, this.lifeMs / this.maxLifeMs);
+    return Math.max(0, Math.min(this.maxAlpha, this.lifeMs / (this.maxLifeMs * 0.35)));
   }
 
   /** 0..1 fraction of the lifetime elapsed, used to pick a strip frame. */

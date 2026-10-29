@@ -31,7 +31,7 @@ const cycle = (frames, timer, ms) => frames[Math.floor(timer / ms) % frames.leng
 const byProgress = (frames, progress) => frames[Math.min(frames.length - 1, Math.floor(progress * frames.length))];
 
 /** Pick the hero frame from the custom animation set for the current state. */
-function heroFrame(set, player) {
+export function heroFrame(set, player) {
   const anims = set[player.dir] || set.down;
   if (player.dead) return byProgress(anims.death, Math.min(1, player.deathTimer / (DEATH_FRAME_MS * anims.death.length)));
   if (player.hitFlashTimer > 0) return byProgress(anims.hurt, Math.max(0, 1 - player.hitFlashTimer / 220));

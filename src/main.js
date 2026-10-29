@@ -9,14 +9,35 @@ import { unlockCombatAudio } from './audio/combat-audio.js';
 import { configureCanvasDisplay } from './core/canvas-display.js';
 import { FpsCounter } from './ui/fps-counter.js';
 import { drawLoadingScreen } from './ui/loading-screen.js';
+import { readRendererMode, switchRendererMode } from './graphics/pixi/renderer-mode.js';
+
+/** Boots the WebGL world renderer; on failure the world is not drawn (reload without ?renderer=pixi). */
+async function startPixiBackend(canvas) {
+  try {
+    const { createPixiBackend } = await import('./graphics/pixi/pixi-world-backend.js');
+    return await createPixiBackend(canvas);
+  } catch (err) {
+    console.error('PixiJS renderer failed to start:', err);
+    return null;
+  }
+}
+
+/** F9 flips renderer (reloads); F7 / F8 toggle bloom / the FX layer (PixiJS only). */
+function onRendererKey(e, backend) {
+  if (e.code === 'F9') { e.preventDefault(); switchRendererMode(); }
+  else if (backend && e.code === 'F7') { e.preventDefault(); backend.view.toggleBloom(); }
+  else if (backend && e.code === 'F8') { e.preventDefault(); backend.view.toggleFx(); }
+}
 
 async function boot() {
   const canvas = document.getElementById('game-canvas');
   const resize = () => configureCanvasDisplay(canvas, window.innerWidth, window.innerHeight, window.devicePixelRatio);
   resize();
   window.addEventListener('resize', resize);
-  // Opaque canvas: every frame is painted edge to edge, so the browser can skip alpha compositing.
-  const ctx = canvas.getContext('2d', { alpha: false });
+  // Canvas2D renderer: opaque canvas (every frame is painted edge to edge, so the browser skips alpha compositing).
+  // PixiJS renderer: the 2D canvas must be transparent so the WebGL world shows through under the HUD.
+  const rendererMode = readRendererMode();
+  const ctx = canvas.getContext('2d', { alpha: rendererMode === 'pixi' });
   ctx.imageSmoothingEnabled = false;
   drawLoadingScreen(ctx, 'Loading assets', 0, 1);
 
@@ -28,6 +49,10 @@ async function boot() {
   window.addEventListener('keydown', unlockCombatAudio);
   canvas.addEventListener('pointerdown', unlockCombatAudio);
   const controller = new GameController(registry, input, classAssets);
+  const backend = rendererMode === 'pixi' ? await startPixiBackend(canvas) : null;
+  controller.worldBackend = backend;
+  window.__pixiView = backend ? backend.view : null; // devtools / browser checks
+  window.addEventListener('keydown', (e) => onRendererKey(e, backend));
   const fps = new FpsCounter();
 
   const loop = new GameLoop({

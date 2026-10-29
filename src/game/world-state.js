@@ -1,6 +1,7 @@
 // Container for everything alive in the current map. Systems read/write through this object.
 import { FloatingText } from '../entities/floating-damage-number.js';
 import { VisualEffect, SparkParticle } from '../entities/visual-effect.js';
+import { CombatFeel, stackHitStop } from '../systems/combat-feel.js';
 
 export class WorldState {
   constructor(player, camera) {
@@ -27,6 +28,7 @@ export class WorldState {
     this.swingCounter = 0; // unique id per hero swing for per-target dedupe
     this.elapsedMs = 0; // for tile animation
     this.hitStopMs = 0; // brief freeze on heavy hits
+    this.feel = new CombatFeel(); // weapon trails + pooled impact VFX (see systems/combat-feel.js)
     this.events = []; // per-frame gameplay events (levelUp, playerDied, bossDefeated)
   }
 
@@ -46,6 +48,13 @@ export class WorldState {
     this.particles = [];
     this.texts = [];
     this.skillPulses = [];
+    this.feel.clear();
+    this.hitStopMs = 0;
+  }
+
+  /** Freeze the simulation for `ms` more; stacked requests are capped (config hitStop.maxMs). */
+  addHitStop(ms) {
+    this.hitStopMs = stackHitStop(this.hitStopMs, ms);
   }
 
   nextSwingId() {

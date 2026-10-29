@@ -7,7 +7,8 @@
 // --boss: heroes start at the map's own boss (Frost Hollow: Frostfang King; maps without one get the
 //         Demon Cyclops), boss HP is boosted and it respawns if killed so the run never stalls,
 //         and ~30 monsters keep swarming around the heroes.
-// Usage: node tools/check-combat-soak.mjs [seconds=60] [hero1=warrior] [hero2=wizard] [duo-video.mp4] [--boss]
+// Usage: node tools/check-combat-soak.mjs [seconds=60] [hero1=warrior] [hero2=wizard] [duo-video.mp4] [--boss] [--solo] [--renderer=canvas|pixi]
+//        (--renderer=pixi --solo compares the WebGL world renderer; GPU/JS % come from the same Chrome trace)
 //        (a video path skips SOLO and screen-records the DUO window at 60fps with ffmpeg gdigrab, like a
 //         player's own recorder; ffmpeg from FFMPEG_PATH or the imageio-ffmpeg binary)
 //        (server must run on http://127.0.0.1:5173)
@@ -17,6 +18,9 @@ import { spawn } from 'node:child_process';
 
 const ARGS = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const BOSS = process.argv.includes('--boss');
+const SOLO_ONLY = process.argv.includes('--solo'); // skip the DUO run (required with --renderer=pixi: the duo harness draws hero 2 through the 2D renderer)
+const RENDERER = (process.argv.find((a) => a.startsWith('--renderer=')) || '--renderer=canvas').split('=')[1]; // canvas | pixi
+if (RENDERER === 'pixi' && !SOLO_ONLY && !ARGS[3]) throw new Error('--renderer=pixi needs --solo');
 const DURATION_S = Number(ARGS[0] || 60);
 const HERO1 = ARGS[1] || 'warrior';
 const HERO2 = ARGS[2] || 'wizard';
@@ -210,7 +214,7 @@ async function run(duo) {
     new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__long.push(Math.round(e.duration))))
       .observe({ type: 'longtask', buffered: true });
   });
-  await page.goto('http://127.0.0.1:5173/index.html', { waitUntil: 'load' });
+  await page.goto(`http://127.0.0.1:5173/index.html?renderer=${RENDERER}`, { waitUntil: 'load' });
   await page.waitForFunction(() => window.__zenonia?.state === 'title', { timeout: 30000 });
   await page.keyboard.press('Shift'); // real gesture on the title: unlocks audio like a player would
   const hotbars = await page.evaluate(setupInPage,
@@ -267,13 +271,13 @@ async function run(duo) {
       bossHp: w.monsters.find((m) => m.isBoss && !m.dead)?.hp ?? null,
     };
   });
-  await page.screenshot({ path: `tools/screenshots/combat-soak-${duo ? 'duo' : 'solo'}${BOSS ? '-boss' : ''}.png` });
+  await page.screenshot({ path: `tools/screenshots/combat-soak-${duo ? 'duo' : 'solo'}${BOSS ? '-boss' : ''}${RENDERER === 'pixi' ? '-pixi' : ''}.png` });
   await browser.close();
-  return { label: `${duo ? `DUO  ${HERO1}+${HERO2}` : `SOLO ${HERO1}`}${BOSS ? ' + boss + swarm' : ''}`, hotbars, gpu: busy.CrGpuMain / windowMs * 100,
+  return { label: `[${RENDERER}] ${duo ? `DUO  ${HERO1}+${HERO2}` : `SOLO ${HERO1}`}${BOSS ? ' + boss + swarm' : ''}`, hotbars, gpu: busy.CrGpuMain / windowMs * 100,
     js: busy.CrRendererMain / windowMs * 100, r, errors };
 }
 
-for (const duo of VIDEO ? [true] : [false, true]) {
+for (const duo of VIDEO ? [true] : SOLO_ONLY ? [false] : [false, true]) {
   const { label, hotbars, gpu, js, r, errors } = await run(duo);
   console.log(`\n== ${label}  (${DURATION_S}s)  hotbars ${JSON.stringify(hotbars)}`);
   console.log(`FPS ${r.avgFps} | frame p50 ${r.p50} p95 ${r.p95} p99 ${r.p99} max ${r.max}ms | >25ms ${r.over25ms}  >50ms ${r.over50ms} of ${r.frames}`);

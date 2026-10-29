@@ -22,3 +22,19 @@ html, body {
   background: #000;
   outline: none;
 }
+
+/* PixiJS renderer (?renderer=pixi): a WebGL canvas sits exactly under the transparent 2D canvas (HUD/UI). */
+#game-container { position: relative; }
+#pixi-canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100vw;
+  max-height: 100vh;
+  image-rendering: auto;
+}
+#pixi-canvas + #game-canvas {
+  position: relative;
+  background: transparent;
+}

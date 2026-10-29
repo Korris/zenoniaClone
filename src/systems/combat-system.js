@@ -8,6 +8,7 @@ import { ItemDrop } from '../entities/item-drop.js';
 import { rollPlayerDamage, CRIT_COLOR } from './player-damage.js';
 import { playImpactSound } from '../audio/combat-audio.js';
 import { rollHit } from './hit-chance.js';
+import { COMBAT_FEEL } from '../data/combat-feel-config.js';
 import { recordMarkDamage } from './monster-status.js';
 
 
@@ -22,21 +23,26 @@ export function attackBoxFor(player, reach, width) {
 }
 
 /** Apply damage to a monster, spawn feedback, and handle death rewards. */
-export function damageMonster(world, monster, damage, knockX = 0, knockY = 0, color = '#ffffff', critical = false, canMiss = false) {
+export function damageMonster(world, monster, damage, knockX = 0, knockY = 0, color = '#ffffff', critical = false, canMiss = false, fx = {}) {
   if (monster.dead) return false;
   if (canMiss && !rollHit(world.player, monster, world.hitRoll)) {
     world.addText(monster.x, monster.y - monster.def.hitbox.h - 10, 'MISS', '#d4e6f2', { lifeMs: 650, vy: -22 });
     return false;
   }
-  if (!monster.dead) playImpactSound();
+  const heavy = Boolean(critical || fx.finisher);
+  if (!monster.dead) playImpactSound({ heavy });
   if (!monster.dead) world.combatTarget = monster;
-  const impulse = critical ? 2 : 1;
+  const impulse = (critical ? 2 : 1) * COMBAT_FEEL.hitReaction.knockbackScale;
   const died = monster.takeDamage(damage, knockX * impulse, knockY * impulse);
   recordMarkDamage(monster, damage); // Death Mark banks a share of damage taken
   world.addText(monster.x, monster.y - monster.def.hitbox.h - 10, damage, color, {
     damageStyle: 'outgoing', critical, lifeMs: 850, vy: -34,
   });
-  world.addSparks(monster.x, monster.y - 6, 4);
+  world.addSparks(monster.x, monster.y - 6, 2);
+  world.feel?.impact({
+    x: monster.x, y: monster.y - monster.def.hitbox.h / 2 - 2, finisher: Boolean(fx.finisher), crit: critical, ring: fx.ring,
+    angle: knockX || knockY ? Math.atan2(knockY, knockX) : Math.random() * Math.PI * 2,
+  });
   world.addEffect({ x: monster.x, y: monster.y - 8, spriteKey: 'hitSpark', lifeMs: 220, scale: 1.2, rotation: Math.random() * Math.PI });
   if (died) onMonsterDeath(world, monster);
   return died;

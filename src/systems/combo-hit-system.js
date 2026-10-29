@@ -4,6 +4,8 @@ import { boxesOverlap } from './damage-formula.js';
 import { attackBoxFor, damageMonster } from './combat-system.js';
 import { rollPlayerDamage, CRIT_COLOR } from './player-damage.js';
 import { SkillPulse } from '../entities/skill-pulse.js';
+import { COMBAT_FEEL } from '../data/combat-feel-config.js';
+import { startSwingTrail, applyMeleeHitFeedback } from './melee-hit-feedback.js';
 
 const DIR_ANGLE = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
 
@@ -45,24 +47,21 @@ export function swingOnce(world, step, hit, share) {
   world.addEffect({
     x: player.x + v.x * fxOffset, y: player.y - 6 + v.y * fxOffset, spriteKey: isFinisher ? 'arc' : 'slash',
     rotation: DIR_ANGLE[player.dir], flipY: step === 2, lifeMs: isFinisher ? 240 : 170,
-    scale: hit.fxScale ?? (isFinisher ? 1.1 : 0.8), tint: hit.tint,
+    scale: hit.fxScale ?? (isFinisher ? 1.1 : 0.8), tint: hit.tint, additive: COMBAT_FEEL.slashAdditiveAlpha,
   });
-  if (isFinisher) world.addEffect({ x: player.x, y: player.y - 8, spriteKey: 'arc', rotation: DIR_ANGLE[player.dir] + Math.PI, lifeMs: 260, scale: 1.0, spin: 9, follow: player, offsetY: -8 });
+  startSwingTrail(world, player, step, hit, isFinisher);
+  if (isFinisher) world.addEffect({ x: player.x, y: player.y - 8, spriteKey: 'arc', rotation: DIR_ANGLE[player.dir] + Math.PI, lifeMs: 260, scale: 1.0, spin: 9, follow: player, offsetY: -8, maxAlpha: 0.5 }); // no additive pass: it would wash out the hero it spins around
 
   const landed = [];
+  let anyCrit = false;
   for (const monster of world.monsters) {
     if (monster.dead || monster.hitBySwing.has(swingId) || !boxesOverlap(box, monster.box)) continue;
     monster.hitBySwing.add(swingId);
     const { damage, crit } = rollPlayerDamage(player, monster.def.def, mult);
     const previousHp = monster.hp;
-    damageMonster(world, monster, damage, v.x * hit.knockback, v.y * hit.knockback, crit ? CRIT_COLOR : isFinisher ? '#ffb13b' : '#ffffff', crit, true);
-    if (monster.hp < previousHp) landed.push(monster);
+    damageMonster(world, monster, damage, v.x * hit.knockback, v.y * hit.knockback, crit ? CRIT_COLOR : isFinisher ? '#ffb13b' : '#ffffff', crit, true, { finisher: isFinisher, ring: landed.length === 0 });
+    if (monster.hp < previousHp) { landed.push(monster); anyCrit ||= crit; }
   }
-  if (landed.length > 0 && isFinisher) {
-    world.camera.shake(2.5, 140);
-    world.hitStopMs = 60;
-  } else if (landed.length > 0) {
-    world.hitStopMs = 25;
-  }
+  if (landed.length > 0) applyMeleeHitFeedback(world, { finisher: isFinisher, crit: anyCrit, kill: landed.some((m) => m.dead) });
   return landed;
 }

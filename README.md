@@ -16,6 +16,21 @@ Bộ `assets/custom/skill-icons-*-painted.png` tạo ngày 2026-10-27 **chưa đ
 
 Runtime đã chuyển sang bộ `assets/custom/skill-icons-{warrior,wizard,mechanic}-chibi.png` được vẽ lại theo hero và inventory chibi hiện có, với hình khối gọn, nét anime và màu sáng. Prompt của từng bộ nằm ở file `-chibi-prompt.txt` tương ứng. Ảnh kiểm tra trong game ở `tools/screenshots/skill-icons-chibi/`; bộ mới vẫn cần phản hồi thẩm mỹ từ người dùng.
 
+## Renderers (Canvas2D default, PixiJS WebGL optional)
+
+The world can be drawn by the classic Canvas2D renderer (default) or by a **PixiJS v8 WebGL renderer** (`src/graphics/pixi/`) with bloom, GPU particles, a ribbon weapon trail, a finisher shockwave and live enhance glow. Pick with `?renderer=pixi` (remembered in `localStorage` key `zenonia.renderer`; `?renderer=canvas` goes back). Hotkeys: **F9** switch renderer (reloads), **F7** bloom on/off, **F8** FX layer + live gear glow on/off (pixi only; B is the inventory key). The WebGL canvas sits under the transparent 2D canvas, which still draws HUD, menus and a few legacy overlays; game logic is shared. Status, parity checklist and perf notes: `docs/session-handoff.md` -> "PixiJS WebGL renderer".
+
+## Vendored libs
+
+No bundler: third-party browser builds live in `vendor/pixi/` and are resolved by the import map in `index.html`.
+
+| File | Source | License |
+|------|--------|---------|
+| `vendor/pixi/pixi.min.mjs` | pixi.js 8.22.0 `dist/pixi.min.mjs` (jsDelivr) | MIT (`LICENSE-pixi.txt`) |
+| `vendor/pixi/pixi-filters.mjs` | pixi-filters 6.1.5 `dist/pixi-filters.mjs` (jsDelivr, needs pixi.js >= 8) | MIT (`LICENSE-pixi-filters.txt`) |
+
+Only loaded in pixi mode. Upgrade by re-downloading both files at matching versions.
+
 ## Features
 
 - Chibi hero with 4-direction walk animation, sword swings and a 3-hit combo chain (finisher does bonus damage and knockback).

@@ -11,6 +11,7 @@ import { drawHealingZone } from './healing-zone-renderer.js';
 import { drawUltimate } from './ultimate-renderer.js';
 import { companionVisible } from '../entities/companion-follow.js';
 import { drawCompanion, updateCompanionState } from './companion-renderer.js';
+import { drawCombatFeel } from './combat-feel-renderer.js';
 import { drawMonsterStatuses } from './monster-status-renderer.js';
 
 const CULL_MARGIN = 64;
@@ -60,6 +61,7 @@ export function renderWorld(ctx, world, registry, view = {}) {
   drawProjectiles(ctx, world.projectiles, registry);
   drawEffects(ctx, world.effects, registry);
   drawParticles(ctx, world.particles, registry);
+  drawCombatFeel(ctx, world.feel);
 
   setScreenTransform(ctx);
   drawNameTags(ctx, world, view.nearbyNpc || null, registry);

@@ -38,6 +38,7 @@ export class GameController {
     this.questLog = new QuestLogPanel();
     this.dialog = new DialogBox();
     this.state = S.TITLE;
+    this.worldBackend = null; // optional world renderer backend (PixiJS): { renderWorld(ctx, world, registry, view) }
     this.menu = createTitleMenu(hasSave());
     this.nearbyNpc = null;
     this.npcMarkers = {};
@@ -240,8 +241,14 @@ export class GameController {
   /** @param {number} [alpha] 0..1 progress into the next logic step (see render-interpolation.js) */
   render(ctx, alpha = 0) {
     setScreenTransform(ctx);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    // With a WebGL world backend (?renderer=pixi) the world shows through this canvas, so it is cleared to transparent
+    // while a world is on screen; title / class select / loading stay opaque black and hide the WebGL canvas.
+    const worldOnScreen = ![S.TITLE, S.CLASS_SELECT, S.LOADING].includes(this.state);
+    if (this.worldBackend && worldOnScreen) ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    else {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    }
     if (this.state === S.TITLE) { this.menu.render(ctx, this.registry, { dim: false, showHero: true }); return; }
     if (this.state === S.CLASS_SELECT) { this.classSelect.render(ctx, this.registry, performance.now()); return; }
     if (this.state === S.LOADING) { drawLoadingScreen(ctx, this.loading.label, this.loading.loaded, this.loading.total); return; }
@@ -249,7 +256,7 @@ export class GameController {
     const { session } = this;
     const view = { npcMarkers: this.npcMarkers, nearbyNpc: this.state === S.PLAYING ? this.nearbyNpc : null, questState: session.quests };
     renderInterpolated(session.world, alpha, () => {
-      renderWorld(ctx, session.world, this.registry, view);
+      (this.worldBackend ? this.worldBackend.renderWorld : renderWorld)(ctx, session.world, this.registry, view);
       drawHud(ctx, session.world, this.registry, view);
     });
     this.banner.render(ctx);
