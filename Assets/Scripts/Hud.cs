@@ -90,10 +90,10 @@ namespace ZenoniaProto
 
             small.normal.textColor = new Color(1f, 1f, 1f, 0.9f);
             float ly = y + h + 34f * s;
-            Fill(new Rect(x - 4f, ly - 2f, 560f * s, 76f * s), new Color(0.03f, 0.07f, 0.12f, 0.72f)); // keeps the text readable on bright snow
+            Fill(new Rect(x - 4f, ly - 2f, 560f * s, 94f * s), new Color(0.03f, 0.07f, 0.12f, 0.72f)); // keeps the text readable on bright snow
             GUI.Label(new Rect(x, ly, 600f * s, 18f * s), hero.GearLabel, small);
             GUI.Label(new Rect(x, ly + 18f * s, 600f * s, 18f * s), "Move WASD/Arrows   Attack J/Space (" + hero.Class.ComboLabel + ")   Dash K/Shift", small);
-            GUI.Label(new Rect(x, ly + 36f * s, 600f * s, 18f * s), "Switch class F1 Warrior / F2 Wizard / F3 Mechanic (respawn)   [F9] collision tint", small);
+            GUI.Label(new Rect(x, ly + 36f * s, 600f * s, 18f * s), "Switch class F1 Warrior F2 Wizard F3 Mechanic F4 Assassin F5 Cleric (respawn)   [F9] collision tint", small);
             int state = (FeelConfig.BloomOn ? 1 : 0) | (FeelConfig.FxOn ? 2 : 0);
             if (state != toggleState)
             {
@@ -102,6 +102,11 @@ namespace ZenoniaProto
             }
             small.normal.textColor = new Color(1f, 0.9f, 0.55f, 0.95f);
             GUI.Label(new Rect(x, ly + 54f * s, 600f * s, 18f * s), toggleText, small);
+            if (hero.Class.Id == HeroClass.Mechanic)
+            {
+                small.normal.textColor = ClassPalette.MechanicBlue ? new Color(0.5f, 0.8f, 1f) : new Color(1f, 0.75f, 0.35f);
+                GUI.Label(new Rect(x, ly + 72f * s, 600f * s, 18f * s), "[C] Mechanic FX: " + (ClassPalette.MechanicBlue ? "BLUE" : "ORANGE"), small);
+            }
             DrawBossBar(s);
             GUI.color = Color.white;
         }

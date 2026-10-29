@@ -4,7 +4,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Class signature skill on L: MP + cooldown bookkeeping, cast root, and dispatch to the skill effect.
-    /// Warrior = Earth Break, Wizard = Ice Storm (web ultimates, rank 3 values).
+    /// Warrior = Earth Break, Wizard = Ice Storm (web ultimates), Assassin = Shadow Step, Cleric = Heal (HeroController.ClassSkills.cs); rank 3 values.
     /// </summary>
     public partial class HeroController
     {
@@ -22,16 +22,20 @@ namespace ZenoniaProto
         public bool TryCastSkill()
         {
             if (dead || cls.SkillMp <= 0f || skillCd > 0f || mp < cls.SkillMp || castLeft > 0f || dashLeft > 0f) return false;
+            // The effect decides first (shadow step needs a target, heal needs missing HP) so a refused cast costs nothing.
+            switch (cls.Id)
+            {
+                case HeroClass.Warrior: EarthBreakUltimate.Cast(this); break;
+                case HeroClass.Wizard: IceStormUltimate.Cast(this); break;
+                case HeroClass.Assassin: if (!ShadowStep()) return false; break;
+                case HeroClass.Cleric: if (!Heal()) return false; break;
+                default: return false;
+            }
             mp -= cls.SkillMp;
             skillCd = cls.SkillCooldownMs;
             castLeft = castTotal = cls.SkillLockMs;
             combo.Reset();
             animTimer = 0f;
-            switch (cls.Id)
-            {
-                case HeroClass.Warrior: EarthBreakUltimate.Cast(this); break;
-                case HeroClass.Wizard: IceStormUltimate.Cast(this); break;
-            }
             return true;
         }
 

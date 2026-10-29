@@ -7,6 +7,9 @@ Shader "ZenoniaProto/TrailRibbon"
         _Head ("Head", Range(0,1)) = 1
         _Fade ("Fade", Range(0,1)) = 1
         _Intensity ("Intensity", Float) = 1.8
+        _Core ("Core", Color) = (1,1,1,1)
+        _Mid ("Mid", Color) = (1,0.55,0.15,1)
+        _Edge ("Edge", Color) = (0.9,0.12,0.1,1)
     }
     SubShader
     {
@@ -26,6 +29,9 @@ Shader "ZenoniaProto/TrailRibbon"
             float _Head;
             float _Fade;
             float _Intensity;
+            float4 _Core;
+            float4 _Mid;
+            float4 _Edge;
 
             struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; };
             struct v2f { float4 pos : SV_POSITION; float2 uv : TEXCOORD0; };
@@ -47,10 +53,8 @@ Shader "ZenoniaProto/TrailRibbon"
                 float tailFade = saturate(1.0 - behind * 1.15);            // older parts fade
                 float across = 1.0 - smoothstep(0.35, 1.0, p);             // soft inner edge
                 float a = reveal * tailFade * across * _Fade;
-                float3 orange = float3(1.0, 0.55, 0.15);
-                float3 red = float3(0.9, 0.12, 0.1);
-                float3 col = lerp(float3(1.0, 1.0, 1.0), orange, smoothstep(0.0, 0.45, p));
-                col = lerp(col, red, smoothstep(0.45, 1.0, p));
+                float3 col = lerp(_Core.rgb, _Mid.rgb, smoothstep(0.0, 0.2, p));   // thin white-hot core, wide saturated bands
+                col = lerp(col, _Edge.rgb, smoothstep(0.3, 0.85, p));
                 return half4(col * _Intensity, a);
             }
             ENDCG

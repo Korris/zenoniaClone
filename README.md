@@ -1,6 +1,6 @@
-# Zenonia Unity prototype (Frost Hollow, 3 classes)
+# Zenonia Unity prototype (Frost Hollow, 5 classes)
 
-Playable port of the web game's **Frost Hollow** battle map with the **Warrior, Wizard and Mechanic** classes, built to compare **smoothness**
+Playable port of the web game's **Frost Hollow** battle map with the **Warrior, Wizard, Mechanic, Assassin and Cleric** classes, built to compare **smoothness**
 (Unity, vsync-paced GPU rendering) against the web Canvas2D version in `C:\Project\zenoniaClone`.
 
 Everything is built at runtime by `Assets/Scripts/Bootstrap.cs` -- there is no scene setup. Press Play in any scene.
@@ -20,13 +20,20 @@ Everything is built at runtime by `Assets/Scripts/Bootstrap.cs` -- there is no s
 
 ## Classes, map, monsters
 
-A class select screen opens first: click a card or press **1 / 2 / 3**. **F1 / F2 / F3** respawn as Warrior / Wizard / Mechanic at any time.
+A class select screen opens first: click a card or press **1-5**. **F1-F5** respawn as Warrior / Wizard / Mechanic / Assassin / Cleric at any time.
 
 | Class | Attack (J / Space) | Art |
 |---|---|---|
-| Warrior | 4-hit sword combo, melee slash FX | sword + shield overlays (10 tiers) |
-| Wizard | 3 magic bolts + arcane-burst finisher (AoE r26), ranged | staff overlays (10 tiers), `fx/wizard` bolt + burst |
-| Mechanic | 3 rapid bullets + plasma-cannon finisher (AoE r24), muzzle flash | gun overlays (10 tiers), floating robot companion, `fx/mechanic` |
+| Warrior | 4-hit sword combo, red crescent slash + red trail; **L Earth Break** ultimate | sword + shield overlays (10 tiers) |
+| Wizard | 3 magic bolts + arcane-burst finisher (AoE r26): layered violet-blue magic missile; **L Ice Storm** ultimate | staff overlays (10 tiers) |
+| Mechanic | 3 rapid shots + plasma-cannon finisher (AoE r24): plasma bolts, muzzle blast, starburst + dust impact (orange, **C** = blue) | gun overlays (10 tiers), floating robot companion |
+| Assassin | 3 quick slashes + double-stab finisher (two hits 90 ms apart, 6% extra crit): purple X-slash / thrust-streak dagger FX; **L Shadow Step** (blink behind the nearest foe, guaranteed crit) | dagger overlays in BOTH hands (`off` + `main` parts, 10 tiers) |
+| Cleric | 3 holy shots + bursting finisher (AoE r26): green-gold light arrows, gold pillar impact; **L Heal** (38% max HP) | holy staff overlays (10 tiers), floating spirit companion |
+
+Signature skills on **L** use MP (HUD MP bar + cooldown line): Earth Break 29 MP / 8 s, Ice Storm 20 MP / 7.7 s, Shadow Step 9 MP / 3.9 s,
+Heal 12 MP / 8.5 s (web rank-3 values). Earth Break / Ice Storm are the web ultimates (`EarthBreakUltimate.cs`, `IceStormUltimate.cs`):
+charge, sweep, slam that launches non-boss monsters for 1.5 s, fissure ticks; frost waves of falling ice spears that chill. Colour identity of the
+basic attacks lives in one table, `ClassPalette.cs` (warrior red, wizard violet-blue, mechanic orange/blue, assassin purple, cleric green).
 
 Combo timings, bolt speed / range / size and damage multipliers are copied from the web `COMBO_CONFIG_BY_CLASS`
 (`ComboConfigs.cs`); class stats from `class-definitions.js` (`HeroClassDef.cs`). Ranged shots use the same game-feel layer as the sword
@@ -34,7 +41,7 @@ Combo timings, bolt speed / range / size and damage multipliers are copied from 
 
 **Frost Hollow** (`FrostHollowMap.cs`): the web map's painted backdrop (`Sprites/tiles/frost-hollow-ground.png`, 36 x 24 tiles of 16 units)
 and its tile classification (T pines / C cliffs / w river are solid, B bridge and s snow are walkable). Hero and monsters slide along the
-solid tiles (web `tilemap.moveBox`). The hero starts at the entrance stairs (tile 4,21). **F4** tints the solid tiles to compare collision with the painting.
+solid tiles (web `tilemap.moveBox`). The hero starts at the entrance stairs (tile 4,21). **F9** tints the solid tiles to compare collision with the painting.
 
 **Monsters** (`MonsterDef.cs`, `Monster.Ai.cs`, `MonsterSpawner.cs`): frost slime, ice goblin, spectral wolf in the web's five spawn zones plus the
 **Frostfang King** (HP 580, ATK 33, render scale 1.65) waiting at tile (7,5) until the hero comes within 85 units (leash 120; boss bar at the top of the HUD).
@@ -46,16 +53,18 @@ tile at least 60 units from the hero; the boss does not respawn.
 
 | Key | Action |
 |---|---|
-| 1 / 2 / 3 (or click) | Pick Warrior / Wizard / Mechanic on the start screen |
-| F1 / F2 / F3 | Respawn as Warrior / Wizard / Mechanic |
+| 1-5 (or click) | Pick Warrior / Wizard / Mechanic / Assassin / Cleric on the start screen |
+| F1-F5 | Respawn as Warrior / Wizard / Mechanic / Assassin / Cleric |
+| L | Class skill: Earth Break / Ice Storm / Shadow Step / Heal |
+| C | Mechanic only: FX colour orange / blue |
 | WASD / Arrow keys | Move (8-direction input, 4-direction facing) |
 | J / Space | Class combo (4 steps; press during a step to chain, the 4th is the finisher) |
 | K / Shift | Dash (brief invulnerability) |
-| Q / E | Previous / next weapon tier (10 tiers: sword + shield / staff / gun + robot) |
+| Q / E | Previous / next weapon tier (10 tiers: sword + shield / staff / gun + robot / two daggers / staff + spirit; Q / E / R also change the companions) |
 | R | Toggle enhanced gear art |
 | B | Toggle bloom post-process (A/B) |
 | F | Toggle all combat effects (A/B) |
-| F4 | Show / hide the collision tint |
+| F9 | Show / hide the collision tint |
 
 Die -> respawn at the entrance after 1.4 s.
 
@@ -85,7 +94,7 @@ sword ribbon / sparks / shock ring / additive slash core / blade glow / damage-n
 ```
 Assets/
   Editor/ResourceTextureImportSettings.cs   forces texture import settings (no hand-written .meta files)
-  Resources/Data/held-{gear,wizard,mechanic}.json   overlay manifests + per-frame grip anchors (+ robot) exported from the web data
+  Resources/Data/held-{gear,wizard,mechanic,assassin,cleric}.json   overlay manifests + per-frame grip anchors (+ robot) exported from the web data
   Resources/Sprites/{hero,bare,sword,shield,wizard,wizard-bare,wizard-staff,mechanic,mechanic-bare,mechanic-gun,mechanic-robot,mechanic-robot-float,monsters,tiles,fx}/   PNGs copied from the web project
   Scripts/                                  namespace ZenoniaProto (all < 200 LOC)
     Bootstrap.cs            RuntimeInitializeOnLoadMethod entry; builds camera, ground, monsters, HUD, session
@@ -93,7 +102,7 @@ Assets/
     HeroClassDef.cs / ComboConfigs.cs       class stats, sheet folders, gear parts, combo chains (web values)
     FrostHollowMap.cs / WorldBuilder.cs     Frost Hollow tile grid, collision sweep, spawn zones, painted ground
     ComboProjectile.cs / BurstFx.cs         ranged bolts / bullets / blasts + pooled FX sprites
-    RobotCompanion.cs / GearOverlays.cs     mechanic robot (follow / bob / float loop), overlay sprite cache
+    HeroCompanion.cs / GearOverlays.cs      shared companion (mechanic robot, cleric spirit: follow / bob / float loop), overlay sprite cache
     DebugCapture.cs                         command-line verification flags (see below)
     GameConfig.cs / GameClock.cs / InputAdapter.cs
     SpriteSheet.cs / ProceduralSprites.cs   runtime sprite slicing + generated shadow / bar sprites
@@ -113,6 +122,7 @@ Menu `Zenonia > Fix Texture Import Settings` re-applies the texture settings if 
 
 ## Verification flags (player build)
 
-`DebugCapture` is inert unless a flag is present: `--class warrior|wizard|mechanic`, `--tp tx,ty`, `--face down|up|left|right`, `--tier N`,
-`--enhanced`, `--bot fight|attack|walk`, `--zoom N`, `--solids`, `--shots 3,5,8 --shot-path <prefix>` (PNG at those seconds, then quit).
+`DebugCapture` is inert unless a flag is present: `--class warrior|wizard|mechanic|assassin|cleric`, `--tp tx,ty`, `--face down|up|left|right`, `--tier N`,
+`--enhanced`, `--bot fight|attack|walk`, `--zoom N`, `--solids`, `--shots 3,5,8 --shot-path <prefix>` (PNG at those seconds, then quit), `--skill-at 1.5,9` (press L), `--dummies N --dummy-dist D` (slime targets), `--god`,
+`--nobloom`, `--mech-blue`, `--perf --run-seconds N` (logs frames slower than 16 ms), `--record-ultimate warrior|wizard` (60 fps PNG sequence for ffmpeg).
 Example: `Zenonia.exe -screen-width 1280 -screen-height 720 --class wizard --tp 27,10 --bot fight --shots 4,6 --shot-path C:	mp\wiz`.

@@ -36,6 +36,14 @@ namespace ZenoniaProto
             go.AddComponent<EarthBreakUltimate>().Begin(owner);
         }
 
+        static Sprite[] ChargeArt() { return UltimateFx.Strip(Folder, "charge", 192f, 320f, Scale * 0.62f); }
+        static Sprite[] SweepArt() { return UltimateFx.Strip(Folder, "sweep", 192f, 192f, Scale * 1.05f); }
+        static Sprite[] SlamArt() { return UltimateFx.Strip(Folder, "slam", 192f, 340f, Scale); }
+        static Sprite[] FissuresArt() { return UltimateFx.Strip(Folder, "fissures", 192f, 192f, Scale * 1.35f); }
+
+        /// <summary>Loads and slices the 24 painted frames ahead of the first cast (class spawn) so the cast itself never hitches.</summary>
+        public static void Preload() { ChargeArt(); SweepArt(); SlamArt(); FissuresArt(); }
+
         void Begin(HeroController owner)
         {
             hero = owner;
@@ -43,11 +51,7 @@ namespace ZenoniaProto
             dir = owner.Facing;
             center = caster + DirVec[dir] * Range + new Vector2(0f, -6f);
             atk = owner.Class.Atk;
-            float k = Scale;
-            charge = UltimateFx.Strip(Folder, "charge", 192f, 320f, k * 0.62f);
-            sweep = UltimateFx.Strip(Folder, "sweep", 192f, 192f, k * 1.05f);
-            slam = UltimateFx.Strip(Folder, "slam", 192f, 340f, k);
-            fissure = UltimateFx.Strip(Folder, "fissures", 192f, 192f, k * 1.35f);
+            charge = ChargeArt(); sweep = SweepArt(); slam = SlamArt(); fissure = FissuresArt();
             int g = UltimateFx.GroundFxOrder;
             telegraph = ProceduralSprites.Child(transform, "Telegraph", FxSprites.Ring());
             telegraph.sortingOrder = g; // normal blend: additive washes out to white on snow

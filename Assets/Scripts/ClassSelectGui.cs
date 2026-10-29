@@ -2,12 +2,12 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>IMGUI class select screen: three cards (Warrior / Wizard / Mechanic), click or press 1 / 2 / 3.</summary>
+    /// <summary>IMGUI class select screen: five cards (Warrior / Wizard / Mechanic / Assassin / Cleric), click or press 1-5.</summary>
     public static class ClassSelectGui
     {
         static GUIStyle title, name, body, key;
 
-        /// <summary>Draws the screen and returns the clicked class index (0..2) or -1.</summary>
+        /// <summary>Draws the screen and returns the clicked class index (0..4) or -1.</summary>
         public static int Draw()
         {
             float s = Screen.height / 640f;
@@ -19,7 +19,7 @@ namespace ZenoniaProto
                 key = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
             }
             title.fontSize = Mathf.RoundToInt(26f * s);
-            name.fontSize = Mathf.RoundToInt(22f * s);
+            name.fontSize = Mathf.RoundToInt(20f * s);
             body.fontSize = Mathf.RoundToInt(13f * s);
             key.fontSize = Mathf.RoundToInt(15f * s);
 
@@ -27,8 +27,9 @@ namespace ZenoniaProto
             title.normal.textColor = Color.white;
             GUI.Label(new Rect(0f, 40f * s, Screen.width, 40f * s), "Choose your hero  -  Frost Hollow", title);
 
-            float cw = 230f * s, ch = 300f * s, gap = 24f * s;
-            float x0 = (Screen.width - (3f * cw + 2f * gap)) * 0.5f, y0 = 110f * s;
+            int n = HeroClassDef.All.Length;
+            float cw = 190f * s, ch = 330f * s, gap = 14f * s;
+            float x0 = (Screen.width - (n * cw + (n - 1) * gap)) * 0.5f, y0 = 110f * s;
             int clicked = -1;
             for (int i = 0; i < HeroClassDef.All.Length; i++)
             {
@@ -40,13 +41,13 @@ namespace ZenoniaProto
                 GUI.Label(new Rect(r.x, r.y + 14f * s, r.width, 32f * s), c.Name, name);
                 body.normal.textColor = new Color(0.9f, 0.95f, 1f);
                 var inner = new Rect(r.x + 14f * s, r.y + 60f * s, r.width - 28f * s, r.height - 120f * s);
-                GUI.Label(inner, c.Tagline + "\n\nHP " + (int)c.MaxHp + "   ATK " + (int)c.Atk + "   DEF " + (int)c.Def + "   SPD " + (int)c.Speed + "\n\nAttack: " + c.ComboLabel, body);
+                GUI.Label(inner, c.Tagline + "\n\nHP " + (int)c.MaxHp + "   ATK " + (int)c.Atk + "   DEF " + (int)c.Def + "   SPD " + (int)c.Speed + "\n\nAttack: " + c.ComboLabel + (c.SkillName != null ? "\n[L] " + c.SkillName : ""), body);
                 key.normal.textColor = new Color(0.55f, 1f, 0.7f);
                 GUI.Label(new Rect(r.x, r.yMax - 46f * s, r.width, 30f * s), "[" + (i + 1) + "]  Play", key);
                 if (GUI.Button(r, GUIContent.none, GUIStyle.none)) clicked = i;
             }
             body.normal.textColor = new Color(1f, 1f, 1f, 0.8f);
-            GUI.Label(new Rect(0f, y0 + ch + 20f * s, Screen.width, 24f * s), "Keys 1 / 2 / 3 or click.  In game: F1 / F2 / F3 respawn as Warrior / Wizard / Mechanic.", body);
+            GUI.Label(new Rect(0f, y0 + ch + 20f * s, Screen.width, 24f * s), "Keys 1-5 or click.  In game: F1-F5 respawn as Warrior / Wizard / Mechanic / Assassin / Cleric.", body);
             return clicked;
         }
 

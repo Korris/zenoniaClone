@@ -12,18 +12,19 @@ namespace ZenoniaProto
     [Serializable] public class FloatLoop { public string dir; public GripInfo[] frames; }
     /// <summary>
     /// JSON written by Tools/export-held-gear.mjs. Warrior: sword + shield. Wizard / mechanic: `weapon` (staff / gun);
-    /// mechanic also `robot` (companion tier art) + `robotFloat` (tier-1 4-facing float loop).
+    /// assassin: one dagger manifest shared by its `main` / `off` parts; mechanic / cleric also `companion` (robot / spirit tier art)
+    /// + `companionFloat` (tier-1 4-facing float loop).
     /// </summary>
     [Serializable] public class HeldGearFile
     {
         public OverlayEntry[] sword; public OverlayEntry[] shield; public OverlayEntry[] weapon;
-        public OverlayEntry[] robot; public FloatLoop[] robotFloat; public AnchorSet[] anchors;
+        public OverlayEntry[] companion; public FloatLoop[] companionFloat; public AnchorSet[] anchors;
     }
 
     /// <summary>Overlay manifests + per-frame anchors of one class, exported from the web game (Resources/Data/*.json).</summary>
     public class HeldGearData
     {
-        public OverlayEntry[] Robot;
+        public OverlayEntry[] Companion;
         readonly Dictionary<string, OverlayEntry[]> manifests = new Dictionary<string, OverlayEntry[]>();
         readonly Dictionary<string, GripInfo[]> floats = new Dictionary<string, GripInfo[]>();
         readonly Dictionary<string, HeldAnchor[]> anchors = new Dictionary<string, HeldAnchor[]>();
@@ -37,7 +38,7 @@ namespace ZenoniaProto
                 if (asset == null) { Debug.LogError("[ZenoniaProto] Resources/Data/" + cls.GearFile + ".json missing"); return null; }
                 HeldGearFile file = JsonUtility.FromJson<HeldGearFile>(asset.text);
                 if (file == null || file.anchors == null) { Debug.LogError("[ZenoniaProto] " + cls.GearFile + ".json malformed"); return null; }
-                var data = new HeldGearData { Robot = file.robot };
+                var data = new HeldGearData { Companion = file.companion };
                 if (cls.Id == HeroClass.Warrior)
                 {
                     if (file.sword == null || file.shield == null) { Debug.LogError("[ZenoniaProto] held-gear.json has no sword / shield"); return null; }
@@ -47,10 +48,10 @@ namespace ZenoniaProto
                 else
                 {
                     if (file.weapon == null) { Debug.LogError("[ZenoniaProto] " + cls.GearFile + ".json has no weapon manifest"); return null; }
-                    data.manifests[cls.Parts[0].Id] = file.weapon;
+                    foreach (GearPartSpec part in cls.Parts) data.manifests[part.Id] = file.weapon; // every part draws from the one weapon manifest
                 }
                 foreach (AnchorSet set in file.anchors) data.anchors[Key(set.part, set.anim, set.dir)] = set.frames;
-                if (file.robotFloat != null) foreach (FloatLoop loop in file.robotFloat) data.floats[loop.dir] = loop.frames;
+                if (file.companionFloat != null) foreach (FloatLoop loop in file.companionFloat) data.floats[loop.dir] = loop.frames;
                 return data;
             }
             catch (Exception e)
@@ -79,8 +80,8 @@ namespace ZenoniaProto
             }
         }
 
-        /// <summary>Tier-1 robot float loop frames for a facing ("down" / "up" / "left" / "right"), or null.</summary>
-        public GripInfo[] RobotFloat(string dir)
+        /// <summary>Tier-1 companion float loop frames for a facing ("down" / "up" / "left" / "right"), or null.</summary>
+        public GripInfo[] CompanionFloat(string dir)
         {
             GripInfo[] loop;
             return floats.TryGetValue(dir, out loop) ? loop : null;

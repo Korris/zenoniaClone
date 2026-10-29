@@ -16,6 +16,10 @@ namespace ZenoniaProto
     ///   --solids                          start with the collision tint on
     ///   --skill-at 1.5,9                  press the class skill (L) at those seconds after start
     ///   --dummies N                       spawn N frost slimes in front of the hero (skill / AoE targets)
+    ///   --nobloom                         disable the bloom post effect (A/B for blown-out FX)
+    ///   --run-seconds N                   quit after N seconds (no screenshots); with --perf logs every frame slower than 16 ms
+    ///   --mech-blue                       mechanic FX start in blue (default orange)
+    ///   --dummy-dist N                    distance of the first dummy in front of the hero (default 30)
     ///   --god                             hero ignores damage
     ///   --record-ultimate warrior|wizard  scripted video scene (monsters + King nearby, basic combo, then the skill, tail), 60 fps fixed-step,
     ///                                     writes frame_00000.png... to --shot-path (a folder), then quits; encode with ffmpeg
@@ -26,6 +30,9 @@ namespace ZenoniaProto
         string recordArg, classArg, faceArg, shotPath, botArg;
         float[] shotTimes, skillTimes;
         int dummies;
+        float dummyDist = 30f;
+        float runSeconds, lastCastTime = -100f;
+        bool perf;
         Vector2Int tpTile = new Vector2Int(-1, -1);
         int tier = -1;
         float zoom;
@@ -39,6 +46,13 @@ namespace ZenoniaProto
             d.session = gameSession;
             d.Parse(args);
             d.StartCoroutine(d.Run());
+        }
+
+        void Update()
+        {
+            if (!perf || Time.frameCount < 30) return;
+            float ms = Time.unscaledDeltaTime * 1000f;
+            if (ms > 16f) Debug.Log("[ZenoniaProto] HITCH " + ms.ToString("F0") + " ms at t=" + Time.realtimeSinceStartup.ToString("F2") + " (" + (Time.realtimeSinceStartup - lastCastTime).ToString("F2") + " s after the last skill cast)");
         }
 
         static HeroClass ParseClass(string name)
@@ -69,6 +83,12 @@ namespace ZenoniaProto
             enhanced = Array.IndexOf(a, "--enhanced") >= 0;
             solids = Array.IndexOf(a, "--solids") >= 0;
             god = Array.IndexOf(a, "--god") >= 0;
+            ClassPalette.MechanicBlue = Array.IndexOf(a, "--mech-blue") >= 0;
+            string dd = Arg(a, "--dummy-dist");
+            if (dd != null) dummyDist = float.Parse(dd, System.Globalization.CultureInfo.InvariantCulture);
+            perf = Array.IndexOf(a, "--perf") >= 0;
+            string rs = Arg(a, "--run-seconds");
+            if (rs != null) runSeconds = float.Parse(rs, System.Globalization.CultureInfo.InvariantCulture);
             string dm = Arg(a, "--dummies");
             if (dm != null) dummies = int.Parse(dm);
             shotTimes = Times(Arg(a, "--shots"));
@@ -91,6 +111,7 @@ namespace ZenoniaProto
                 while (Time.realtimeSinceStartup - start < at) yield return null;
                 HeroController h = GameSession.Hero;
                 Debug.Log("[ZenoniaProto] skill cast at " + at + " => " + (h != null && h.TryCastSkill()));
+                lastCastTime = Time.realtimeSinceStartup;
             }
         }
 
@@ -101,7 +122,7 @@ namespace ZenoniaProto
             Vector2 fwd = dirs[hero.Facing], side = new Vector2(-fwd.y, fwd.x);
             for (int i = 0; i < dummies; i++)
             {
-                Vector2 p = hero.Position + fwd * (30f + (i % 3) * 9f) + side * ((i - dummies * 0.5f) * 9f);
+                Vector2 p = hero.Position + fwd * (dummyDist + (i % 3) * 9f) + side * ((i - dummies * 0.5f) * 9f);
                 Monster.Create(root, i % 3 == 2 ? MonsterDef.IceGoblin : MonsterDef.FrostSlime, p, -1);
             }
         }
@@ -148,11 +169,13 @@ namespace ZenoniaProto
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east
                 if (zoom > 0f) Camera.main.orthographicSize = zoom;
                 HeroController.DebugGod = god;
+                if (Array.IndexOf(Environment.GetCommandLineArgs(), "--nobloom") >= 0) { FeelConfig.BloomOn = false; var b = Camera.main.GetComponent<BloomEffect>(); if (b != null) b.enabled = false; }
                 if (dummies > 0) SpawnDummies(hero);
             }
             if (solids) WorldBuilder.ToggleSolidOverlay();
             float start = Time.realtimeSinceStartup;
             if (skillTimes != null) StartCoroutine(CastSkills(start));
+            if (runSeconds > 0f) { while (Time.realtimeSinceStartup - start < runSeconds) yield return null; Application.Quit(); yield break; }
             if (shotTimes == null) yield break;
             for (int i = 0; i < shotTimes.Length; i++)
             {

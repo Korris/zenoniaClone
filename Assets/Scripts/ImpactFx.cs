@@ -12,12 +12,13 @@ namespace ZenoniaProto
         const float ArcDeg = 150f, LifeSec = 0.4f;
         static readonly List<ImpactFx> Pool = new List<ImpactFx>();
         static Transform root;
-        static Material sparkMaterial;
+        static Material sparkMaterial, ringMaterial;
         static int cursor;
 
         ParticleSystem ps;
         SpriteRenderer ring, flashQuad;
         float age, ringLife, ringRadius, flashSize;
+        Color ringColor, flashColor;
         bool ringOn;
 
         public static void Init(Transform parent)
@@ -28,7 +29,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Spawns an impact at (x, y). dir = direction the target is knocked (sparks fan out that way).</summary>
-        public static void Spawn(float x, float y, Vector2 dir, bool crit, bool finisher)
+        public static void Spawn(float x, float y, Vector2 dir, bool crit, bool finisher, ClassPalette palette = null)
         {
             if (!FeelConfig.FxOn || root == null) return;
             ImpactFx fx = null;
@@ -39,6 +40,9 @@ namespace ZenoniaProto
                 else { fx = Pool[cursor]; cursor = (cursor + 1) % Pool.Count; fx.ps.Clear(); } // recycle the oldest
             }
             bool strong = crit || finisher;
+            ClassPalette pal = palette ?? ClassPalette.Current;
+            var sparkColor = fx.ps.colorOverLifetime; sparkColor.color = pal.Sparks;
+            fx.ringColor = pal.Edge; fx.flashColor = Color.Lerp(Color.white, pal.Glow, 0.65f); // saturated so the flash does not wash out to white on snow
             fx.age = 0f;
             fx.transform.position = new Vector3(x, y, 0f);
             float angle = dir.sqrMagnitude > 0.001f ? Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg : 90f;
@@ -51,7 +55,7 @@ namespace ZenoniaProto
             fx.ps.Play();
             fx.ps.Emit(strong ? FeelConfig.SparksStrong : FeelConfig.SparksNormal + Random.Range(0, 3));
 
-            fx.flashSize = finisher ? 26f : strong ? 20f : 13f;
+            fx.flashSize = finisher ? 20f : strong ? 15f : 10f;
             fx.flashQuad.enabled = true;
             fx.ringOn = strong;
             fx.ringRadius = finisher ? 30f : 21f;
@@ -67,6 +71,8 @@ namespace ZenoniaProto
             var fx = go.AddComponent<ImpactFx>();
             fx.BuildParticles();
             fx.ring = AddSprite(go.transform, "Ring", FxSprites.Ring(), FeelConfig.FxOrder + 3, new Color(1f, 0.82f, 0.55f, 1f));
+            if (ringMaterial == null) ringMaterial = new Material(Shader.Find("Sprites/Default"));
+            fx.ring.sharedMaterial = ringMaterial; // normal blend: a saturated ring stays coloured on snow instead of washing out
             fx.flashQuad = AddSprite(go.transform, "Flash", FxSprites.Dot(), FeelConfig.FxOrder + 4, Color.white);
             Pool.Add(fx);
             return fx;
@@ -141,13 +147,13 @@ namespace ZenoniaProto
         {
             float f = Mathf.Clamp01(age / 0.07f);
             flashQuad.transform.localScale = Vector3.one * flashSize * (0.6f + 0.6f * f);
-            flashQuad.color = new Color(1f, 0.95f, 0.8f, 1f - f);
+            flashQuad.color = new Color(flashColor.r, flashColor.g, flashColor.b, 0.7f * (1f - f));
             if (flashQuad.enabled && f >= 1f) flashQuad.enabled = false;
             if (!ringOn) return;
             float t = Mathf.Clamp01(age / ringLife);
             float eased = 1f - (1f - t) * (1f - t);
             ring.transform.localScale = Vector3.one * (ringRadius * 2f * Mathf.Lerp(0.25f, 1f, eased));
-            ring.color = new Color(1f, 0.82f, 0.55f, 1f - t);
+            ring.color = new Color(ringColor.r, ringColor.g, ringColor.b, 1f - t);
             if (t >= 1f) ring.enabled = false;
         }
     }

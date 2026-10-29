@@ -11,16 +11,28 @@ namespace ZenoniaProto
             ComboHit h = combo.CurrentHit;
             if (h == null) return;
             if (h.Bolt != null) { FireBolt(h, step); return; }
+            MeleeStrike(h, step, false);
+            if (h.Stabs > 1) { stabLeft = StabGapMs; stabHit = h; stabStep = step; } // double stab: the next stab lands 90 ms later
+        }
+
+        /// <summary>One melee hit box + its FX. A multi-stab step splits its multiplier between the stabs; echo = a later stab (mirrored FX).</summary>
+        void MeleeStrike(ComboHit h, int step, bool echo)
+        {
             Vector2 v = DirVec[facing];
             float offset = h.Reach * 0.5f + 4f;
             float cx = x + v.x * offset, cy = y + 6f + v.y * offset;
             float w = v.x != 0f ? h.Reach : h.Width, ht = v.y != 0f ? h.Reach : h.Width;
             var box = new Rect(cx - w * 0.5f, cy - ht * 0.5f, w, ht);
-            bool finisher = combo.IsFinisher;
-            SlashEffect.Spawn(cx, cy, DirAngle[facing], h.FxScale, finisher, step == 2, FeelConfig.FxOrder);
-            SwordTrail.Spawn(x, y + 6f, DirAngle[facing], h.Reach, finisher, step == 2);
+            bool finisher = step == combo.HitCount;
+            bool flip = (step == 2) != echo;
+            if (cls.Id == HeroClass.Assassin) DaggerFx.Strike(new Vector2(cx, cy), DirAngle[facing], h.Reach, finisher, echo, step);
+            else
+            {
+                SlashEffect.Spawn(cx, cy, DirAngle[facing], h.FxScale, finisher, flip, FeelConfig.FxOrder);
+                SwordTrail.Spawn(x, y + 6f, DirAngle[facing], h.Reach, finisher, flip, cls.Palette);
+            }
 
-            float mult = combo.MultiplierFor(step, 1);
+            float mult = combo.MultiplierFor(step, 1) / h.Stabs;
             int landed = 0;
             bool anyCrit = false;
             IReadOnlyList<Monster> monsters = Monster.All;
@@ -28,7 +40,7 @@ namespace ZenoniaProto
             {
                 Monster m = monsters[i];
                 if (m.IsDying || !box.Overlaps(m.Box)) continue;
-                bool crit = Random.value < CritChance;
+                bool crit = Random.value < CritChance + cls.CritBonus;
                 int dmg = CombatMath.Damage(cls.Atk, mult * (crit ? 1.6f : 1f), m.Def);
                 m.TakeHit(dmg, v * h.Knockback * (crit ? 2f : 1f), crit, finisher);
                 landed++;
@@ -47,9 +59,23 @@ namespace ZenoniaProto
             Vector2 v = DirVec[facing];
             bool finisher = combo.IsFinisher;
             float mult = combo.MultiplierFor(step, 1);
-            ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, cls.Atk, mult, h.Knockback, finisher, cls.FxFolder);
-            if (h.Bolt.FlashFx != null)
-                BurstFx.Spawn(cls.FxFolder, h.Bolt.FlashFx, new Vector2(x + v.x * 10f, y + 10f + v.y * 6f), DirAngle[facing], h.Bolt.ExplodeRadius > 0f ? 1.6f : 1f, 0.14f);
+            ClassPalette pal = cls.ActivePalette;
+            var tip = new Vector2(x + v.x * 10f, y + 12f + v.y * 6f);
+            ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, cls.Atk, mult, h.Knockback, finisher, cls.FxFolder, pal);
+            bool big = h.Bolt.ExplodeRadius > 0f;
+            switch (h.Bolt.Style)
+            {
+                case BoltStyle.Arcane: RuneFx.CastFlash(tip, big, pal); break;
+                case BoltStyle.HolyArrow: // sparkles + swirling halo at the staff head and a burst of green leaves on release
+                    RuneFx.CastFlash(tip, big, pal);
+                    UltimateFx.Embers(tip, big ? 12 : 7, 5f, 26f, new Color(0.7f, 1f, 0.45f, 1f));
+                    break;
+                case BoltStyle.Plasma: MechanicFx.Muzzle(tip, DirAngle[facing], big, pal); break;
+                default:
+                    if (h.Bolt.FlashFx != null)
+                        BurstFx.Spawn(cls.FxFolder, h.Bolt.FlashFx, new Vector2(x + v.x * 10f, y + 10f + v.y * 6f), DirAngle[facing], big ? 1.6f : 1f, 0.14f, false, pal.Tint);
+                    break;
+            }
             CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick
         }
 
@@ -60,6 +86,7 @@ namespace ZenoniaProto
             hp -= dmg;
             invuln = InvulnMs;
             hurt = HurtMs;
+            stabLeft = 0f;
             castLeft = 0f; // a landed hit breaks the cast root (the already launched skill keeps playing, like the web)
             DamageNumber.Spawn(x, y + 26f, dmg.ToString(), new Color(1f, 0.35f, 0.35f), false);
             CameraFollow.AddTrauma(FeelConfig.TraumaHurt);

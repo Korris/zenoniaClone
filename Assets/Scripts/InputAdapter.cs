@@ -14,7 +14,8 @@ namespace ZenoniaProto
         SolidDebug,                // F9: tint the solid tiles
         Class4, Class5,            // class select screen (4 / 5)
         Switch4, Switch5,          // in-game class switch (F4 / F5)
-        Skill                      // L: class signature skill / ultimate
+        Skill,                     // L: class signature skill / ultimate
+        FxColor                    // C: mechanic FX colour (orange / blue)
     }
 
     /// <summary>
@@ -51,6 +52,7 @@ namespace ZenoniaProto
             new[] { KeyCode.F4 },
             new[] { KeyCode.F5 },
             new[] { KeyCode.L },
+            new[] { KeyCode.C },
         };
 
         public static bool Held(GameKey k)
@@ -94,6 +96,7 @@ namespace ZenoniaProto
             new[] { Key.F4 },
             new[] { Key.F5 },
             new[] { Key.L },
+            new[] { Key.C },
         };
 
         public static bool Held(GameKey k)

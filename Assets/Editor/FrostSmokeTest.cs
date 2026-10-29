@@ -21,6 +21,7 @@ namespace ZenoniaProto.EditorTools
             try
             {
                 CheckMap();
+                CheckTint();
                 foreach (HeroClassDef cls in HeroClassDef.All) CheckClass(cls);
             }
             catch (Exception e) { Fail("exception " + e); }
@@ -30,6 +31,18 @@ namespace ZenoniaProto.EditorTools
 
         static void Fail(string msg) { failures++; Debug.LogError("SMOKE FAIL: " + msg); }
         static void Expect(bool ok, string what) { if (ok) Debug.Log("SMOKE ok: " + what); else Fail(what); }
+
+        /// <summary>SpriteTint must keep alpha and push opaque pixels towards the tint colour (not white).</summary>
+        static void CheckTint()
+        {
+            Texture2D src = SpriteSheet.Load("Sprites/fx/warrior-slashes-chibi");
+            Texture2D red = SpriteTint.Colorize(src, ClassPalette.Red.Tint);
+            Color32[] a = SpriteSheet.ReadPixels(src), b = SpriteSheet.ReadPixels(red);
+            double r = 0, g = 0, bl = 0, n = 0, rs = 0, gs = 0, bs = 0;
+            for (int i = 0; i < a.Length; i += 7) if (a[i].a > 200) { n++; r += b[i].r; g += b[i].g; bl += b[i].b; rs += a[i].r; gs += a[i].g; bs += a[i].b; }
+            Debug.Log("SMOKE tint opaque px " + n + " src avg " + (rs / n) + "," + (gs / n) + "," + (bs / n) + " -> red avg " + (r / n) + "," + (g / n) + "," + (bl / n));
+            Expect(n > 0 && r / n > 1.5 * (g / n), "tint: slash recolours towards red (R " + (r / n) + " vs G " + (g / n) + ")");
+        }
 
         static void CheckMap()
         {
@@ -59,14 +72,28 @@ namespace ZenoniaProto.EditorTools
         static void CheckSkill(HeroClassDef cls, HeroController hero, GameObject root)
         {
             if (cls.SkillName == null) return;
-            float mp = hero.Mp;
+            Monster near = null;
+            foreach (Monster m in Monster.All) if (!m.IsBoss) { near = m; break; }
+            if (cls.Id == HeroClass.Assassin) // shadow step needs a target in range and blocks a cast with nothing to strike
+            {
+                Expect(!hero.TryCastSkill() && hero.Mp >= cls.MaxMp - 0.01f, cls.Name + ": no target => cast refused and free");
+                hero.Teleport(near.Center + new Vector2(-30f, -6f), 3);
+            }
+            if (cls.Id == HeroClass.Cleric) // heal needs missing HP
+            {
+                Expect(!hero.TryCastSkill(), cls.Name + ": full HP => heal refused");
+                hero.TakeDamage(40);
+            }
+            float mp = hero.Mp, hpBefore = hero.Hp;
             Expect(hero.TryCastSkill(), cls.Name + ": " + cls.SkillName + " cast ok");
             Expect(hero.Mp < mp && hero.SkillCooldownLeftMs > 0f && hero.IsCasting, cls.Name + ": MP spent, cooldown running, hero rooted");
             Expect(!hero.TryCastSkill(), cls.Name + ": second cast blocked by cooldown");
+            if (cls.Id == HeroClass.Cleric) Expect(hero.Hp > hpBefore, cls.Name + ": heal restored HP " + hpBefore + " -> " + hero.Hp);
+            if (cls.Id == HeroClass.Assassin) { bool any = false; foreach (Monster m in Monster.All) any |= m.Hp < m.MaxHp; Expect(any, cls.Name + ": shadow step damaged its target"); }
             string fx = cls.Id == HeroClass.Warrior ? "EarthBreak" : cls.Id == HeroClass.Wizard ? "IceStorm" : null;
             if (fx != null) Expect(root.transform.Find(fx) != null, cls.Name + ": " + fx + " effect object created");
             Monster slime = null;
-            foreach (Monster m in Monster.All) if (!m.IsBoss) { slime = m; break; }
+            foreach (Monster m in Monster.All) if (!m.IsBoss && !m.IsDying) slime = m; // last one: the shadow step test may have killed the first
             Expect(slime != null && slime.Launch() && slime.IsAirborne, cls.Name + ": regular monster can be launched");
             Expect(Monster.Boss != null && !Monster.Boss.Launch(), cls.Name + ": boss is immune to launch");
         }
@@ -104,7 +131,7 @@ namespace ZenoniaProto.EditorTools
                 }
                 Expect(shown > 0 && gearFrames > 0, cls.Name + ": drew " + shown + " frames, " + gearFrames + " with weapon overlay");
                 CheckSkill(cls, hero, root);
-                if (cls.HasRobot) Expect(root.transform.Find("Robot") != null, cls.Name + ": robot companion created");
+                if (cls.CompanionFolder != null) Expect(root.transform.Find("Companion") != null, cls.Name + ": companion created");
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }

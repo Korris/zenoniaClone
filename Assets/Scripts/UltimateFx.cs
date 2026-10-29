@@ -26,6 +26,16 @@ namespace ZenoniaProto
             sr.lengthScale = 2.5f; sr.velocityScale = 0.05f;
         }
 
+        /// <summary>Touches every particle system and the shared ring / line pools once so the first real effect does not pay for first-use setup.</summary>
+        public static void Prewarm()
+        {
+            Vector2 far = new Vector2(-9999f, -9999f);
+            Debris(far, 1, 1f, 1f); Dust(far, 1, 1f); Embers(far, 1, 1f, 1f, Color.white); Shards(far, 1, 1f, Color.white);
+            foreach (ParticleSystem ps in new[] { debris, dust, embers, shards }) if (ps != null) ps.Clear();
+            ShockRing.Spawn(far, 1f, 0.05f, Color.white, GroundFxOrder);
+            ShockRing.Spawn(far, 1f, 0.05f, Color.white, GroundFxOrder, 0.7f, 0.2f, true);
+        }
+
         static ParticleSystem Make(string name, Material mat, ParticleSystemRenderMode mode, float gravity, int max)
         {
             var go = new GameObject(name);
@@ -75,12 +85,12 @@ namespace ZenoniaProto
         }
 
         /// <summary>Soft puffs that rise a little and fade (grey-blue snow dust).</summary>
-        public static void Dust(Vector2 pos, int count, float spread)
+        public static void Dust(Vector2 pos, int count, float spread, Color? tint = null)
         {
             for (int i = 0; i < count; i++)
             {
                 Vector2 o = InDisc(spread);
-                Emit(dust, pos + o, new Vector2(o.x * 1.6f, 6f + Random.value * 10f), Random.Range(0.5f, 0.9f), Random.Range(5f, 10f), new Color(0.78f, 0.84f, 0.92f, 0.32f), Random.value * 360f, Random.Range(-40f, 40f));
+                Emit(dust, pos + o, new Vector2(o.x * 1.6f, 6f + Random.value * 10f), Random.Range(0.5f, 0.9f), Random.Range(5f, 10f), tint.HasValue ? new Color(tint.Value.r, tint.Value.g, tint.Value.b, 0.6f) : new Color(0.78f, 0.84f, 0.92f, 0.32f), Random.value * 360f, Random.Range(-40f, 40f));
             }
         }
 
@@ -93,6 +103,13 @@ namespace ZenoniaProto
                 Vector2 v = new Vector2(Random.Range(-10f, 10f), rise * Random.Range(0.5f, 1.2f)) - o.normalized * inward;
                 Emit(embers, pos + o, v, Random.Range(0.4f, 0.9f), Random.Range(0.9f, 2.0f), c);
             }
+        }
+
+        /// <summary>Tiny additive sparkles that drift and fall (comet-tail dust, cast flashes).</summary>
+        public static void Sparkles(Vector2 pos, int count, Color c)
+        {
+            for (int i = 0; i < count; i++)
+                Emit(shards, pos + InDisc(2f), new Vector2(Random.Range(-14f, 14f), Random.Range(-6f, 12f)), Random.Range(0.3f, 0.55f), Random.Range(0.9f, 1.5f), new Color(c.r, c.g, c.b, 1f), Random.value * 360f);
         }
 
         /// <summary>Additive ice shards spraying outward and up, falling back.</summary>

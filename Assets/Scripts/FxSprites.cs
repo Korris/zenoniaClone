@@ -28,7 +28,52 @@ namespace ZenoniaProto
             return ring;
         }
 
-        static Texture2D chunkTex, shardTex;
+        static Texture2D chunkTex, shardTex, starTex, pillarTex;
+        static Sprite star, pillar;
+
+        /// <summary>Vertical light pillar, 1 unit wide x 4 tall, pivot bottom-centre: bright narrow core, soft sides, fading out at the top.</summary>
+        public static Sprite Pillar()
+        {
+            if (pillar != null) return pillar;
+            const int w = 32, h = 128;
+            var px = new Color32[w * h];
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                {
+                    float u = Mathf.Abs((x + 0.5f - w * 0.5f) / (w * 0.5f)), v = (y + 0.5f) / h;
+                    float side = Mathf.Pow(Mathf.Clamp01(1f - u), 1.4f);
+                    float top = 1f - Mathf.Pow(v, 3f);
+                    float foot = Mathf.Clamp01(v / 0.04f);
+                    px[y * w + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(Mathf.Clamp01(side * top * foot) * 255f));
+                }
+            pillarTex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            pillarTex.SetPixels32(px);
+            pillarTex.filterMode = FilterMode.Bilinear;
+            pillarTex.wrapMode = TextureWrapMode.Clamp;
+            pillarTex.Apply(false, true);
+            pillar = Sprite.Create(pillarTex, new Rect(0, 0, w, h), new Vector2(0.5f, 0f), w, 0, SpriteMeshType.FullRect);
+            return pillar;
+        }
+
+        /// <summary>Eight-point arcane star (4 long spikes on the axes + 4 on the diagonals), 1 world unit wide.</summary>
+        public static Sprite Star()
+        {
+            if (star != null) return star;
+            var px = new Color32[Size * Size];
+            for (int y = 0; y < Size; y++)
+                for (int x = 0; x < Size; x++)
+                {
+                    float dx = (x + 0.5f - Size * 0.5f) / (Size * 0.5f), dy = (y + 0.5f - Size * 0.5f) / (Size * 0.5f);
+                    float d = Mathf.Sqrt(dx * dx + dy * dy), a = Mathf.Atan2(dy, dx);
+                    float spike = Mathf.Pow(Mathf.Abs(Mathf.Cos(a * 4f)), 6f);             // 8 spikes
+                    float longSpike = Mathf.Pow(Mathf.Abs(Mathf.Cos(a * 2f)), 14f) * 0.35f; // 4 of them reach further
+                    float r = 0.16f + 0.62f * spike + longSpike;
+                    px[y * Size + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(Mathf.Clamp01((r - d) / 0.12f) * 255f));
+                }
+            starTex = Finish(px);
+            star = Sprite.Create(starTex, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            return star;
+        }
 
         /// <summary>Irregular rock chunk (lit from the upper left), white-grey so particle colour tints it.</summary>
         public static Texture2D ChunkTexture

@@ -10,11 +10,12 @@ namespace ZenoniaProto
     {
         public readonly float WindupMs, ActiveMs, RecoverMs, Mult, Reach, Width, Knockback, StepPx, FxScale;
         public readonly BoltDef Bolt; // null = melee swing
+        public readonly int Stabs;    // melee hits per step: 2 = double stab (second hit 90 ms after the first, assassin finisher)
 
-        public ComboHit(float windup, float active, float recover, float mult, float reach, float width, float knockback, float stepPx, float fxScale, BoltDef bolt = null)
+        public ComboHit(float windup, float active, float recover, float mult, float reach, float width, float knockback, float stepPx, float fxScale, BoltDef bolt = null, int stabs = 1)
         {
             WindupMs = windup; ActiveMs = active; RecoverMs = recover; Mult = mult; Reach = reach;
-            Width = width; Knockback = knockback; StepPx = stepPx; FxScale = fxScale; Bolt = bolt;
+            Width = width; Knockback = knockback; StepPx = stepPx; FxScale = fxScale; Bolt = bolt; Stabs = stabs;
         }
 
         public float TotalMs { get { return WindupMs + ActiveMs + RecoverMs; } }
@@ -25,11 +26,12 @@ namespace ZenoniaProto
     {
         public readonly float Speed, Range, Scale, W, H, ExplodeRadius;
         public readonly string Sprite, ExplodeFx, FlashFx;
+        public readonly BoltStyle Style; // Arcane = wizard orb + ribbons, HolyArrow = cleric light arrow, Plasma = mechanic plasma bolt, Sprite = painted art
 
-        public BoltDef(float speed, float range, string sprite, float scale, float w, float h, float explodeRadius = 0f, string explodeFx = null, string flashFx = null)
+        public BoltDef(float speed, float range, string sprite, float scale, float w, float h, float explodeRadius = 0f, string explodeFx = null, string flashFx = null, BoltStyle style = BoltStyle.Sprite)
         {
             Speed = speed; Range = range; Sprite = sprite; Scale = scale; W = w; H = h;
-            ExplodeRadius = explodeRadius; ExplodeFx = explodeFx; FlashFx = flashFx;
+            ExplodeRadius = explodeRadius; ExplodeFx = explodeFx; FlashFx = flashFx; Style = style;
         }
     }
 

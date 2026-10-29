@@ -15,11 +15,12 @@ namespace ZenoniaProto
         static Transform root;
         static readonly Mesh[] Meshes = new Mesh[2]; // [0] normal, [1] finisher (wider)
         static MaterialPropertyBlock block;
-        static int headId, fadeId;
+        static int headId, fadeId, coreId, midId, edgeId;
 
         MeshRenderer mr;
         MeshFilter mf;
         float age, sweep;
+        ClassPalette palette = ClassPalette.Neutral;
 
         public static void Init(Transform parent)
         {
@@ -28,7 +29,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Spawns a swing ribbon centred on (x, y). angleDeg: 0 = right, 90 = up. reverse = sweep the other way (alternating swings).</summary>
-        public static void Spawn(float x, float y, float angleDeg, float reach, bool finisher, bool reverse)
+        public static void Spawn(float x, float y, float angleDeg, float reach, bool finisher, bool reverse, ClassPalette palette = null)
         {
             if (!FeelConfig.FxOn || root == null) return;
             SwordTrail t = null;
@@ -41,6 +42,7 @@ namespace ZenoniaProto
             float radius = reach + FeelConfig.TrailReachPad;
             t.sweep = finisher ? FeelConfig.TrailSweepFinisherSec : FeelConfig.TrailSweepSec;
             t.age = 0f;
+            t.palette = palette ?? ClassPalette.Neutral;
             t.transform.position = new Vector3(x, y, 0f);
             t.transform.rotation = Quaternion.Euler(0f, 0f, angleDeg);
             // Uniform scale by radius; negative Y mirrors the arc so the swing runs the other way.
@@ -64,6 +66,7 @@ namespace ZenoniaProto
             if (block == null) block = new MaterialPropertyBlock();
             headId = Shader.PropertyToID("_Head");
             fadeId = Shader.PropertyToID("_Fade");
+            coreId = Shader.PropertyToID("_Core"); midId = Shader.PropertyToID("_Mid"); edgeId = Shader.PropertyToID("_Edge");
             Pool.Add(t);
             return t;
         }
@@ -121,6 +124,9 @@ namespace ZenoniaProto
             mr.GetPropertyBlock(block);
             block.SetFloat(headId, head);
             block.SetFloat(fadeId, fade);
+            block.SetColor(coreId, palette.Core);
+            block.SetColor(midId, palette.Mid);
+            block.SetColor(edgeId, palette.Edge);
             mr.SetPropertyBlock(block);
         }
     }

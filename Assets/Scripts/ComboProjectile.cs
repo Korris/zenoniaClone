@@ -17,16 +17,20 @@ namespace ZenoniaProto
         BoltDef def;
         Vector2 pos, dir;
         string fxFolder;
+        ClassPalette pal;
+        Color? tint { get { return pal.Tint; } } // palette hue for the painted-art styles
         float atk, mult, knockback, life;
         bool finisher;
         SpriteRenderer sr, glow;
+        ArcaneBoltRig arcane;   // wizard layered missile (null until first needed)
+        StreakBoltRig streak;   // cleric light arrow / mechanic plasma bolt
 
         public static void Init(Transform parent) { root = parent; Pool.Clear(); }
 
-        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder)
+        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette)
         {
-            Sprite art = BurstFx.Art(fxFolder, bolt.Sprite);
-            if (art == null || root == null) return;
+            Sprite art = bolt.Style == BoltStyle.Sprite ? BurstFx.Art(fxFolder, bolt.Sprite, palette.Tint) : null;
+            if ((art == null && bolt.Style == BoltStyle.Sprite) || root == null) return;
             ComboProjectile p = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { p = Pool[i]; break; }
             if (p == null)
@@ -39,15 +43,43 @@ namespace ZenoniaProto
                 p.glow.sharedMaterial = FeelMaterials.Additive;
                 Pool.Add(p);
             }
-            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder;
+            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette;
             p.life = bolt.Range / bolt.Speed;
             p.sr.sprite = art; p.glow.sprite = art;
+            p.sr.enabled = p.glow.enabled = bolt.Style == BoltStyle.Sprite;
+            if (p.arcane != null) p.arcane.End();
+            if (p.streak != null) p.streak.End();
+            if (bolt.Style != BoltStyle.Sprite)
+            {
+                p.transform.localScale = Vector3.one; // the rigs size themselves
+                p.transform.position = Vector3.zero;
+                p.transform.rotation = Quaternion.identity;
+                p.gameObject.SetActive(true);
+                var at = new Vector2(pos.x, pos.y + VisualLift);
+                if (bolt.Style == BoltStyle.Arcane)
+                {
+                    if (p.arcane == null) p.arcane = new ArcaneBoltRig(p.transform);
+                    p.arcane.Begin(at, angleDeg, bolt.Scale, palette);
+                }
+                else
+                {
+                    if (p.streak == null) p.streak = new StreakBoltRig(p.transform);
+                    p.streak.Begin(at, angleDeg, bolt.ExplodeRadius > 0f ? 1.25f : 1f, bolt.Style, palette);
+                }
+                return;
+            }
             p.sr.sortingOrder = FeelConfig.FxOrder - 10;
             p.glow.sortingOrder = FeelConfig.FxOrder - 9;
             p.transform.rotation = Quaternion.Euler(0f, 0f, angleDeg); // art is painted flying to screen-right
             p.transform.localScale = new Vector3(bolt.Scale, bolt.Scale, 1f);
             p.transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
             p.gameObject.SetActive(true);
+        }
+
+        void OnDisable()
+        {
+            if (arcane != null) arcane.End();
+            if (streak != null) streak.End();
         }
 
         void Update()
@@ -65,9 +97,15 @@ namespace ZenoniaProto
                 life -= dt;
                 if (life <= 0f) { gameObject.SetActive(false); return; }
             }
+            if (def.Style != BoltStyle.Sprite)
+            {
+                var at = new Vector2(pos.x, pos.y + VisualLift);
+                if (def.Style == BoltStyle.Arcane) arcane.Tick(at, dt); else streak.Tick(at, dt);
+                return;
+            }
             transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
             glow.enabled = FeelConfig.FxOn;
-            glow.color = new Color(1f, 0.95f, 0.85f, 0.75f);
+            glow.color = tint.HasValue ? new Color(tint.Value.r, tint.Value.g, tint.Value.b, 0.5f) : new Color(1f, 0.95f, 0.85f, 0.75f);
         }
 
         bool HitSomething()
@@ -84,12 +122,25 @@ namespace ZenoniaProto
             return false;
         }
 
+        /// <summary>Impact visuals per style: wizard starburst + crystal shards, cleric gold pillar, mechanic starburst + sparks + dust.</summary>
+        void HitFx(bool blast)
+        {
+            var at = pos + new Vector2(0f, VisualLift);
+            switch (def.Style)
+            {
+                case BoltStyle.Arcane: if (blast) RuneFx.FinisherBurst(at, def.ExplodeRadius, pal); else RuneFx.Impact(at, pal); break;
+                case BoltStyle.HolyArrow: HolySmite.Impact(pos, blast); break;
+                case BoltStyle.Plasma: MechanicFx.Impact(at, blast, pal); break;
+            }
+        }
+
         /// <summary>One crit-rolled hit; the damage roll happens on impact like the web.</summary>
         void Strike(Monster m, Vector2 knock, bool blast)
         {
             bool crit = Random.value < CritChance;
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
             m.TakeHit(dmg, knock * (crit ? 2f : 1f), crit, blast);
+            if (!blast) HitFx(false);
             GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
             if (!blast) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode
         }
@@ -108,8 +159,9 @@ namespace ZenoniaProto
                 Vector2 away = dist > 0.01f ? d / dist : dir;
                 Strike(m, away * knockback, true);
             }
-            if (def.ExplodeFx != null)
-                BurstFx.Spawn(fxFolder, def.ExplodeFx, pos + new Vector2(0f, VisualLift), Random.value * 360f, 2f * def.ExplodeRadius / 40f, 0.32f, true); // burst art spans 40 units
+            HitFx(true);
+            if (def.ExplodeFx != null && (def.Style == BoltStyle.Sprite || def.Style == BoltStyle.Arcane))
+                BurstFx.Spawn(fxFolder, def.ExplodeFx, pos + new Vector2(0f, VisualLift), Random.value * 360f, 2f * def.ExplodeRadius / 40f, 0.32f, true, tint); // burst art spans 40 units
             CameraFollow.AddTrauma(FeelConfig.TraumaBlast);
         }
     }

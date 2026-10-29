@@ -4,7 +4,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Owns the playable hero: shows the class select screen first, then spawns the chosen class (hero + renderer + robot companion)
-    /// and lets F1 / F2 / F3 respawn as another class at any time.
+    /// and lets F1..F5 respawn as another class at any time.
     /// </summary>
     public class GameSession : MonoBehaviour
     {
@@ -38,9 +38,13 @@ namespace ZenoniaProto
             heroGo.transform.SetParent(root, false);
             var view = heroGo.AddComponent<HeroRenderer>();
             view.Init(def, HeldGearData.Load(def));
+            ClassPalette.Current = def.ActivePalette;
+            if (id == HeroClass.Warrior) EarthBreakUltimate.Preload(); // first-cast hitch fix: load the skill art + warm the FX pools now
+            if (id == HeroClass.Wizard) IceStormUltimate.Preload();
+            UltimateFx.Prewarm();
             hero = heroGo.AddComponent<HeroController>();
             hero.Init(view);
-            if (def.HasRobot) RobotCompanion.Create(root, hero);
+            if (def.CompanionFolder != null) HeroCompanion.Create(root, hero);
             follow.Target = heroGo.transform;
             follow.Configure();
         }
@@ -49,10 +53,10 @@ namespace ZenoniaProto
         {
             if (hero == null)
             {
-                for (int i = 0; i < 3; i++) if (InputAdapter.Pressed(GameKey.Class1 + i)) { Spawn((HeroClass)i); return; }
+                for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Class1 + i : GameKey.Class4 + (i - 3))) { Spawn((HeroClass)i); return; }
                 return;
             }
-            for (int i = 0; i < 3; i++) if (InputAdapter.Pressed(GameKey.Switch1 + i)) { Spawn((HeroClass)i); return; }
+            for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Switch1 + i : GameKey.Switch4 + (i - 3))) { Spawn((HeroClass)i); return; }
             if (InputAdapter.Pressed(GameKey.SolidDebug)) WorldBuilder.ToggleSolidOverlay();
         }
 

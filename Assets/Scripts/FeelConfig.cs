@@ -54,8 +54,8 @@ namespace ZenoniaProto
         public const int ImpactPool = 12;
 
         // ---- bloom (post-process on the camera) ----
-        public const float BloomThreshold = 1.0f;        // only HDR-bright pixels (additive FX, glow layers) pass
-        public const float BloomKnee = 0.2f;
+        public const float BloomThreshold = 1.25f;       // only HDR-bright pixels (additive FX, glow layers) pass
+        public const float BloomKnee = 0.15f;
         public const float BloomIntensity = 0.85f;
 
         // ---- damage numbers ----

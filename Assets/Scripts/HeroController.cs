@@ -29,6 +29,10 @@ namespace ZenoniaProto
         readonly List<ComboEvent> events = new List<ComboEvent>(4);
         HeroRenderer view;
         HeroClassDef cls;
+        const float StabGapMs = 90f;
+        float stabLeft;
+        ComboHit stabHit;
+        int stabStep;
         float x, y, hp;
         int facing;
         float invuln, hurt, dashLeft, dashCooldown, animTimer, idleTimer, deathTimer;
@@ -111,6 +115,7 @@ namespace ZenoniaProto
             events.Clear();
             combo.Update(dtMs, events);
             for (int i = 0; i < events.Count; i++) if (events[i].Type == ComboEventType.Hit) DoHit(events[i].Step);
+            if (stabLeft > 0f && (stabLeft -= dtMs) <= 0f) MeleeStrike(stabHit, stabStep, true);
 
             Vector2 vel = Vector2.zero;
             if (dashing)
@@ -178,6 +183,7 @@ namespace ZenoniaProto
             if (InputAdapter.Pressed(GameKey.TierUp)) { tier++; changed = true; }
             if (InputAdapter.Pressed(GameKey.TierDown)) { tier--; changed = true; }
             if (InputAdapter.Pressed(GameKey.Enhance)) { enh = !enh; changed = true; }
+            if (cls.Id == HeroClass.Mechanic && InputAdapter.Pressed(GameKey.FxColor)) { ClassPalette.MechanicBlue = !ClassPalette.MechanicBlue; ClassPalette.Current = cls.ActivePalette; }
             if (!changed) return;
             view.SetGear(tier, enh);
             UpdateGearLabel();
@@ -185,7 +191,8 @@ namespace ZenoniaProto
 
         void UpdateGearLabel()
         {
-            string what = cls.Id == HeroClass.Warrior ? "Sword + shield" : cls.Id == HeroClass.Wizard ? "Staff" : "Gun + robot";
+            string what = cls.Id == HeroClass.Warrior ? "Sword + shield" : cls.Id == HeroClass.Wizard ? "Staff" : cls.Id == HeroClass.Mechanic ? "Gun + robot"
+                : cls.Id == HeroClass.Assassin ? "Daggers" : "Staff + spirit";
             gearLabel = what + ": " + view.TierName + (view.Enhanced ? " (enhanced)" : "") + "   [Q/E tier, R enhance]";
         }
     }

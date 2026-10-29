@@ -2,6 +2,9 @@
 //   held-gear.json     warrior sword/shield overlay manifests + per-frame grip anchors
 //   held-wizard.json   wizard staff manifest + anchors (part "staff")
 //   held-mechanic.json mechanic gun manifest + anchors (part "gun") + robot companion manifest + float loop
+//   held-assassin.json dagger manifest (shared by both hands) + anchors for parts "main" (weapon slot) and "off" (offhand slot)
+//   held-cleric.json   holy staff manifest + anchors (part "staff") + spirit companion manifest + float loop
+// Companion data is exported as `companion` / `companionFloat` (shared by robot and spirit).
 // Run:  node Tools/export-held-gear.mjs
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -19,6 +22,13 @@ const { MECHANIC_GUN_ANCHORS } = await load('src/data/mechanic-held-anchors-gene
 const { MECHANIC_GUN_OVERLAYS } = await load('src/data/mechanic-gun-overlay-manifest-generated.js');
 const { MECHANIC_ROBOT_OVERLAYS } = await load('src/data/mechanic-robot-overlay-manifest-generated.js');
 const { MECHANIC_ROBOT_FLOAT } = await load('src/data/mechanic-robot-float-manifest-generated.js');
+
+const { ASSASSIN_HELD_ANCHORS } = await load('src/data/assassin-held-anchors-generated.js');
+const { ASSASSIN_DAGGER_OVERLAYS } = await load('src/data/assassin-dagger-overlay-manifest-generated.js');
+const { CLERIC_STAFF_ANCHORS } = await load('src/data/cleric-held-anchors-generated.js');
+const { CLERIC_STAFF_OVERLAYS } = await load('src/data/cleric-staff-overlay-manifest-generated.js');
+const { CLERIC_SPIRIT_OVERLAYS } = await load('src/data/cleric-spirit-overlay-manifest-generated.js');
+const { CLERIC_SPIRIT_FLOAT } = await load('src/data/cleric-spirit-float-manifest-generated.js');
 
 const grip = (v) => ({ w: v.w, h: v.h, gripX: v.gripX, gripY: v.gripY });
 const overlays = (list) => list.map((e) => ({ name: e.name, glow: e.glow, baseGrip: grip(e.base), enhancedGrip: grip(e.enhanced) }));
@@ -52,5 +62,18 @@ const gunAnchors = [];
 flatten('gun', MECHANIC_GUN_ANCHORS, gunAnchors);
 const robotFloat = Object.entries(MECHANIC_ROBOT_FLOAT).map(([dir, frames]) => ({ dir, frames: frames.map(grip) }));
 write('held-mechanic.json', {
-  weapon: overlays(MECHANIC_GUN_OVERLAYS), robot: overlays(MECHANIC_ROBOT_OVERLAYS), robotFloat, anchors: gunAnchors,
+  weapon: overlays(MECHANIC_GUN_OVERLAYS), companion: overlays(MECHANIC_ROBOT_OVERLAYS), companionFloat: robotFloat, anchors: gunAnchors,
 }, `gun ${MECHANIC_GUN_OVERLAYS.length} robot ${MECHANIC_ROBOT_OVERLAYS.length} float ${robotFloat.length} anchors ${gunAnchors.length}`);
+
+const assassinAnchors = [];
+flatten('main', ASSASSIN_HELD_ANCHORS.main, assassinAnchors);
+flatten('off', ASSASSIN_HELD_ANCHORS.off, assassinAnchors);
+write('held-assassin.json', { weapon: overlays(ASSASSIN_DAGGER_OVERLAYS), anchors: assassinAnchors },
+  `dagger ${ASSASSIN_DAGGER_OVERLAYS.length} anchors ${assassinAnchors.length}`);
+
+const staffAnchors = [];
+flatten('staff', CLERIC_STAFF_ANCHORS, staffAnchors);
+const spiritFloat = Object.entries(CLERIC_SPIRIT_FLOAT).map(([dir, frames]) => ({ dir, frames: frames.map(grip) }));
+write('held-cleric.json', {
+  weapon: overlays(CLERIC_STAFF_OVERLAYS), companion: overlays(CLERIC_SPIRIT_OVERLAYS), companionFloat: spiritFloat, anchors: staffAnchors,
+}, `staff ${CLERIC_STAFF_OVERLAYS.length} spirit ${CLERIC_SPIRIT_OVERLAYS.length} float ${spiritFloat.length} anchors ${staffAnchors.length}`);

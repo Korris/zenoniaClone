@@ -43,6 +43,9 @@ namespace ZenoniaProto
             BurstFx.Init(root.transform);
             ComboProjectile.Init(root.transform);
             ShockRing.Init(root.transform);
+            DaggerFx.Init(root.transform);
+            RuneFx.Init(root.transform);
+            HolySmite.Init(root.transform);
             UltimateFx.Init(root.transform);
             ScreenFlash.ResetState();
 

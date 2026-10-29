@@ -9,9 +9,11 @@ namespace ZenoniaProto
         static readonly List<Monster> Hits = new List<Monster>(24);
 
         /// <summary>Hits all monsters within radius of center; knockback pushes away from the centre. Returns the reused list of monsters hit.</summary>
-        public static List<Monster> Radial(Vector2 center, float radius, float atk, float mult, float knockback, bool big)
+        public static List<Monster> Radial(Vector2 center, float radius, float atk, float mult, float knockback, bool big, ClassPalette sparks = null, float critChance = 0f)
         {
             Hits.Clear();
+            ClassPalette hero = ClassPalette.Current;
+            ClassPalette.Current = sparks ?? ClassPalette.Neutral; // skills keep their element colour for the impact sparks
             IReadOnlyList<Monster> all = Monster.All;
             for (int i = 0; i < all.Count; i++)
             {
@@ -22,9 +24,11 @@ namespace ZenoniaProto
                 if ((nearest - center).sqrMagnitude > radius * radius) continue;
                 Vector2 away = m.Center - center;
                 Vector2 knock = knockback > 0f && away.sqrMagnitude > 0.01f ? away.normalized * knockback : Vector2.zero;
-                m.TakeHit(CombatMath.Damage(atk, mult, m.Def), knock, false, big);
+                bool crit = critChance > 0f && Random.value < critChance;
+                m.TakeHit(CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def), knock * (crit ? 2f : 1f), crit, big);
                 Hits.Add(m);
             }
+            ClassPalette.Current = hero;
             return Hits;
         }
     }

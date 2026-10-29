@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>Anime slash crescent (warrior-slashes-chibi.png: row 0 = normal slash, row 1 = finisher arc). Pooled.</summary>
+    /// <summary>Anime slash crescent (warrior-slashes-chibi.png recoloured to the warrior red palette: row 0 = normal slash, row 1 = finisher arc). Pooled.</summary>
     public class SlashEffect : MonoBehaviour
     {
         static readonly List<SlashEffect> Pool = new List<SlashEffect>();
@@ -20,7 +20,7 @@ namespace ZenoniaProto
             Pool.Clear();
             // 4 columns x 2 rows; each cell becomes a 1-unit sprite (scaled per use: slash 32u, arc 48u like the web FX strips).
             Texture2D tex = SpriteSheet.Load("Sprites/fx/warrior-slashes-chibi");
-            frames = tex != null ? SpriteSheet.GridByCount("Sprites/fx/warrior-slashes-chibi", 4, 2, tex.width / 4, new Vector2(0.5f, 0.5f)) : null;
+            frames = tex != null ? SpriteTint.Slice(SpriteTint.Colorize(tex, ClassPalette.Red.Tint), 4, 2, tex.width / 4, new Vector2(0.5f, 0.5f)) : null;
         }
 
         /// <summary>Spawns a slash. angleDeg: 0 = right, 90 = up (counter-clockwise).</summary>
@@ -69,7 +69,8 @@ namespace ZenoniaProto
             sr.color = new Color(1f, 1f, 1f, fade);
             core.enabled = FeelConfig.FxOn;
             core.sprite = sr.sprite;
-            core.color = finisherLook ? new Color(1f, 0.82f, 0.55f, fade) : new Color(1f, 0.95f, 0.85f, fade * 0.9f);
+            Color g = ClassPalette.Red.Glow;
+            core.color = new Color(g.r, g.g, g.b, fade * (finisherLook ? 1f : 0.85f));
         }
     }
 }

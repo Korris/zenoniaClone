@@ -47,14 +47,18 @@ namespace ZenoniaProto
             return g;
         }
 
+        const float SpearPpu = 192f / 64f, HitPpu = 192f / 34f, CirclePpu = 192f / (Radius * 2.5f);
+
+        /// <summary>Loads and slices the ice storm sheet ahead of the first cast (class spawn) so the cast itself never hitches.</summary>
+        public static void Preload() { Rows(0, CirclePpu); Rows(1, SpearPpu); Rows(2, HitPpu); Rows(3, HitPpu); }
+
         void Begin(HeroController owner)
         {
             hero = owner;
             caster = owner.Position;
             center = caster + DirVec[owner.Facing] * Range + new Vector2(0f, -6f);
             atk = owner.Class.Atk;
-            const float spearPpu = 192f / 64f, hitPpu = 192f / 34f, circlePpu = 192f / (Radius * 2.5f);
-            cast = Rows(0, circlePpu); meteor = Rows(1, spearPpu); impact = Rows(2, hitPpu); fade = Rows(3, hitPpu);
+            cast = Rows(0, CirclePpu); meteor = Rows(1, SpearPpu); impact = Rows(2, HitPpu); fade = Rows(3, HitPpu);
             int g = UltimateFx.GroundFxOrder;
             circle = UltimateFx.Layer(transform, "Circle", out circleGlow);
             circle.sortingOrder = g + 2; circleGlow.sortingOrder = g + 3;
@@ -97,7 +101,7 @@ namespace ZenoniaProto
 
         void Strike(int w)
         {
-            List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 90f, w == Waves - 1);
+            List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 90f, w == Waves - 1, ClassPalette.Blue);
             for (int i = 0; i < hit.Count; i++) hit[i].Chill(ChillMs);
             CameraFollow.AddTrauma(w == Waves - 1 ? 0.55f : 0.3f);
             GameClock.HitStop(w == Waves - 1 ? 60f : 30f);
