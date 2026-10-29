@@ -84,6 +84,9 @@ namespace ZenoniaProto
 
         void Update()
         {
+            // A script recompile during Play mode wipes runtime-built references (body, HP bar):
+            // drop the stale monster instead of throwing a NullReferenceException every frame.
+            if (body == null || barBack == null || barFill == null) { Destroy(gameObject); return; }
             float dt = GameClock.Dt, dtMs = dt * 1000f;
             animTimer += dtMs;
             flash = Mathf.Max(0f, flash - dtMs);
