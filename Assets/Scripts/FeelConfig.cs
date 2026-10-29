@@ -8,7 +8,7 @@ namespace ZenoniaProto
     /// </summary>
     public static class FeelConfig
     {
-        // ---- runtime toggles (B = bloom, F = effects) ----
+        // ---- runtime toggles (F6 = bloom, F = effects) ----
         public static bool BloomOn = true;
         public static bool FxOn = true;
 

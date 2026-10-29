@@ -15,7 +15,10 @@ namespace ZenoniaProto
         Class4, Class5,            // class select screen (4 / 5)
         Switch4, Switch5,          // in-game class switch (F4 / F5)
         Skill,                     // L: class signature skill / ultimate
-        FxColor                    // C: mechanic FX colour (orange / blue)
+        FxColor,                   // C: mechanic FX colour (orange / blue)
+        Inventory,                 // B: inventory / equipment panel
+        HpPotion, MpPotion,        // 1 / 2 in game (the same keys pick a class on the select screen)
+        Close                      // Esc: close a panel
     }
 
     /// <summary>
@@ -38,7 +41,7 @@ namespace ZenoniaProto
             new[] { KeyCode.E },
             new[] { KeyCode.Q },
             new[] { KeyCode.R },
-            new[] { KeyCode.B },
+            new[] { KeyCode.F6 },
             new[] { KeyCode.F },
             new[] { KeyCode.Alpha1, KeyCode.Keypad1 },
             new[] { KeyCode.Alpha2, KeyCode.Keypad2 },
@@ -53,6 +56,10 @@ namespace ZenoniaProto
             new[] { KeyCode.F5 },
             new[] { KeyCode.L },
             new[] { KeyCode.C },
+            new[] { KeyCode.B, KeyCode.I },
+            new[] { KeyCode.Alpha1, KeyCode.Keypad1 },
+            new[] { KeyCode.Alpha2, KeyCode.Keypad2 },
+            new[] { KeyCode.Escape },
         };
 
         public static bool Held(GameKey k)
@@ -82,7 +89,7 @@ namespace ZenoniaProto
             new[] { Key.E },
             new[] { Key.Q },
             new[] { Key.R },
-            new[] { Key.B },
+            new[] { Key.F6 },
             new[] { Key.F },
             new[] { Key.Digit1, Key.Numpad1 },
             new[] { Key.Digit2, Key.Numpad2 },
@@ -97,6 +104,10 @@ namespace ZenoniaProto
             new[] { Key.F5 },
             new[] { Key.L },
             new[] { Key.C },
+            new[] { Key.B, Key.I },
+            new[] { Key.Digit1, Key.Numpad1 },
+            new[] { Key.Digit2, Key.Numpad2 },
+            new[] { Key.Escape },
         };
 
         public static bool Held(GameKey k)

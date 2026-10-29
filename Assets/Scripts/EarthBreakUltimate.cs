@@ -50,7 +50,7 @@ namespace ZenoniaProto
             caster = owner.Position;
             dir = owner.Facing;
             center = caster + DirVec[dir] * Range + new Vector2(0f, -6f);
-            atk = owner.Class.Atk;
+            atk = owner.AtkStat;
             charge = ChargeArt(); sweep = SweepArt(); slam = SlamArt(); fissure = FissuresArt();
             int g = UltimateFx.GroundFxOrder;
             telegraph = ProceduralSprites.Child(transform, "Telegraph", FxSprites.Ring());

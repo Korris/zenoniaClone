@@ -2,13 +2,15 @@ using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto.EditorTools
 {
     /// <summary>
     /// Headless smoke test:  Unity -batchmode -quit -projectPath P -executeMethod ZenoniaProto.EditorTools.FrostSmokeTest.Run
     /// For each class it builds the whole world in edit mode (Bootstrap.Start via reflection), spawns the hero, draws every
-    /// animation / direction / frame through HeroRenderer.Show and checks the Frost Hollow map, spawner and art. Logs "SMOKE ..." lines
+    /// animation / direction / frame through HeroRenderer.Show and checks the Frost Hollow map, spawner, art and the RPG wiring
+    /// (kill => EXP + ground loot, pickup, equipment => paper doll, inventory pause). Saving is disabled for the run. Logs "SMOKE ..." lines
     /// and exits with code 1 on any failure.
     /// </summary>
     public static class FrostSmokeTest
@@ -18,6 +20,8 @@ namespace ZenoniaProto.EditorTools
         public static void Run()
         {
             failures = 0;
+            bool saves = SaveStore.Enabled;
+            SaveStore.Enabled = false; // never read or overwrite the developer's own saves
             try
             {
                 RpgLogicCheck.Run(Expect);
@@ -27,6 +31,7 @@ namespace ZenoniaProto.EditorTools
                 foreach (HeroClassDef cls in HeroClassDef.All) CheckClass(cls);
             }
             catch (Exception e) { Fail("exception " + e); }
+            finally { SaveStore.Enabled = saves; GameClock.Paused = false; }
             Debug.Log("SMOKE RESULT: " + (failures == 0 ? "PASS" : "FAIL (" + failures + ")"));
             EditorApplication.Exit(failures == 0 ? 0 : 1);
         }
@@ -91,7 +96,7 @@ namespace ZenoniaProto.EditorTools
             foreach (Monster m in Monster.All) if (!m.IsBoss) { near = m; break; }
             if (cls.Id == HeroClass.Assassin) // shadow step needs a target in range and blocks a cast with nothing to strike
             {
-                Expect(!hero.TryCastSkill() && hero.Mp >= cls.MaxMp - 0.01f, cls.Name + ": no target => cast refused and free");
+                Expect(!hero.TryCastSkill() && hero.Mp >= hero.MaxMp - 0.01f, cls.Name + ": no target => cast refused and free");
                 hero.Teleport(near.Center + new Vector2(-30f, -6f), 3);
             }
             if (cls.Id == HeroClass.Cleric) // heal needs missing HP
@@ -111,6 +116,45 @@ namespace ZenoniaProto.EditorTools
             foreach (Monster m in Monster.All) if (!m.IsBoss && !m.IsDying) slime = m; // last one: the shadow step test may have killed the first
             Expect(slime != null && slime.Launch() && slime.IsAirborne, cls.Name + ": regular monster can be launched");
             Expect(Monster.Boss != null && !Monster.Boss.Launch(), cls.Name + ": boss is immune to launch");
+        }
+
+        /// <summary>RPG wiring: stats come from the PlayerState, a kill grants EXP and scatters loot, pickups apply, equipment drives the held art.</summary>
+        static void CheckRpg(HeroClassDef cls, HeroController hero, GameObject root)
+        {
+            PlayerState p = hero.Rpg;
+            Expect(p != null && p.ClassId == RpgSession.ClassId(cls.Id) && RpgSession.Player == p, cls.Name + ": hero bound to its RPG state");
+            Expect(Mathf.Approximately(hero.MaxHp, p.MaxHp) && Mathf.Approximately(hero.AtkStat, p.Atk) && p.GetEquipped(Slots.Weapon) != null, cls.Name + ": stats from PlayerState, starter weapon equipped");
+
+            Monster target = null;
+            foreach (Monster m in Monster.All) if (!m.IsBoss && !m.IsDying) target = m;
+            int exp = p.Exp, level = p.Level, drops = LootDrop.All.Count;
+            target.TakeHit(99999, Vector2.zero, false, true);
+            Expect(p.Exp > exp || p.Level > level, cls.Name + ": kill grants EXP (" + exp + " -> " + p.Exp + ")");
+            Expect(LootDrop.All.Count > drops, cls.Name + ": kill scatters loot (" + (LootDrop.All.Count - drops) + " drops)");
+
+            int gold = p.Gold;
+            Expect(RpgSession.Pickup(new LootEntry { Kind = LootKind.Coin, Value = 7 }).Ok && p.Gold == gold + 7, cls.Name + ": coin pickup adds gold");
+            int pots = p.HpPotions;
+            Expect(RpgSession.Pickup(new LootEntry { Kind = LootKind.HpPotion, Value = 1 }).Ok && p.HpPotions == pots + 1, cls.Name + ": potion pickup");
+
+            // Paper doll: a tier 9 (+9) weapon of this class shows tier 9 enhanced art; unequipping the offhand hides that hand / companion.
+            Item best = ItemFactory.Generate(RpgRandom.Default, 95, Slots.Weapon, "epic", p.ClassId);
+            best.enhance = 9;
+            p.Inventory.Clear();
+            Expect(p.Equip(best).Ok, cls.Name + ": equip a tier 9 weapon");
+            RpgSession.SyncGear();
+            HeroRenderer view = hero.View;
+            int maxTier = view.Gear != null ? view.Gear.TierCount - 1 : 0;
+            Expect(!view.DebugLook && view.Tier >= Mathf.Min(9, maxTier) && view.Enhanced, cls.Name + ": weapon art follows the equipped item (tier " + view.Tier + ", enhanced " + view.Enhanced + ")");
+            Expect(p.Unequip(Slots.Offhand).Ok, cls.Name + ": unequip offhand");
+            RpgSession.SyncGear();
+            Expect(view.CompanionEmpty, cls.Name + ": no offhand => companion / offhand hidden");
+            view.Show("idle", 0, 0, 0, 1f); // draws with an empty hand without throwing
+
+            InventoryPanel.Open(root.transform);
+            Expect(InventoryPanel.IsOpen && GameClock.Paused, cls.Name + ": inventory opens and pauses the game");
+            InventoryPanel.Close();
+            Expect(!InventoryPanel.IsOpen && !GameClock.Paused, cls.Name + ": inventory closes and resumes");
         }
 
         static void CheckClass(HeroClassDef cls)
@@ -146,6 +190,7 @@ namespace ZenoniaProto.EditorTools
                 }
                 Expect(shown > 0 && gearFrames > 0, cls.Name + ": drew " + shown + " frames, " + gearFrames + " with weapon overlay");
                 CheckSkill(cls, hero, root);
+                CheckRpg(cls, hero, root);
                 if (cls.CompanionFolder != null) Expect(root.transform.Find("Companion") != null, cls.Name + ": companion created");
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }

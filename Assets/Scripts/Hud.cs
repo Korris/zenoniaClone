@@ -3,8 +3,9 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// IMGUI HUD (top-left): class + HP bar + FPS readout identical in spirit to the web one (avg FPS and worst frame, refreshed twice a second),
-    /// controls, and the Frostfang King boss bar (top centre) while the boss is alive.
+    /// IMGUI HUD (top-left, below the UGUI RpgHud block with level / HP / MP / EXP / potions): class skill line, FPS readout identical in spirit
+    /// to the web one (avg FPS and worst frame, refreshed twice a second), controls, and the Frostfang King boss bar (top centre) while the boss is alive.
+    /// Hidden (except the boss bar) while the inventory window is open.
     /// Strings are rebuilt only when their value changes, so the HUD itself does not generate per-frame garbage.
     /// </summary>
     public class Hud : MonoBehaviour
@@ -14,12 +15,10 @@ namespace ZenoniaProto
         int frames, shownFps;
         int shownWorstMs;
         string fpsText = "FPS --";
-        string hpText = "";
         string toggleText = "";
         string bossText = "";
         int toggleState = -1;
-        int lastHp = -1, lastBossHp = -1;
-        HeroClass lastClass = (HeroClass)(-1);
+        int lastBossHp = -1;
         GUIStyle label, small, center;
 
         void Update()
@@ -54,33 +53,20 @@ namespace ZenoniaProto
             small.fontSize = Mathf.RoundToInt(12f * s);
             center.fontSize = Mathf.RoundToInt(14f * s);
 
-            // HP bar
-            float x = 12f * s, y = 12f * s, w = 230f * s, h = 20f * s;
-            int hp = Mathf.CeilToInt(hero.Hp);
-            if (hp != lastHp || hero.Class.Id != lastClass)
-            {
-                lastHp = hp; lastClass = hero.Class.Id;
-                hpText = hero.Class.Name + "  HP " + hp + " / " + (int)hero.MaxHp;
-            }
-            float frac = Mathf.Clamp01(hero.Hp / hero.MaxHp);
-            Fill(new Rect(x - 2f, y - 2f, w + 4f, h + 4f), new Color(0.03f, 0.06f, 0.1f, 0.85f));
-            Fill(new Rect(x, y, w * frac, h), frac > 0.3f ? new Color(0.2f, 0.78f, 0.35f) : new Color(0.9f, 0.25f, 0.25f));
-            label.normal.textColor = Color.white;
-            GUI.Label(new Rect(x + 6f * s, y, w, h), hpText, label);
+            if (InventoryPanel.IsOpen) { DrawBossBar(s); GUI.color = Color.white; return; }
 
-            // MP bar + signature skill (L) with cooldown
-            float my = y + h + 4f * s, mh = 10f * s;
-            Fill(new Rect(x - 2f, my - 1f, w + 4f, mh + 2f), new Color(0.03f, 0.06f, 0.1f, 0.85f));
-            Fill(new Rect(x, my, w * Mathf.Clamp01(hero.Mp / hero.MaxMp), mh), new Color(0.3f, 0.55f, 1f));
+            // Signature skill (L) with cooldown, under the UGUI level / HP / MP / EXP block
+            float x = 12f * s, w = 236f * s, h = 20f * s;
+            float y = (RpgHud.BlockHeight + 12f) * s;
             if (hero.Class.SkillName != null)
             {
                 float cd = hero.SkillCooldownLeftMs;
                 string txt = "[L] " + hero.Class.SkillName + "  MP " + (int)hero.Class.SkillMp + (cd > 0f ? "   cooldown " + (cd / 1000f).ToString("F1") + "s" : hero.Mp >= hero.Class.SkillMp ? "   READY" : "   (not enough MP)");
                 small.normal.textColor = cd > 0f || hero.Mp < hero.Class.SkillMp ? new Color(1f, 0.7f, 0.5f) : new Color(0.6f, 1f, 0.7f);
-                Fill(new Rect(x - 2f, my + mh + 3f * s, w + 4f, 18f * s), new Color(0.03f, 0.06f, 0.1f, 0.8f));
-                GUI.Label(new Rect(x + 4f * s, my + mh + 3f * s, w, 18f * s), txt, small);
+                Fill(new Rect(x - 2f, y, w + 4f, 18f * s), new Color(0.03f, 0.06f, 0.1f, 0.8f));
+                GUI.Label(new Rect(x + 4f * s, y, w, 18f * s), txt, small);
             }
-            y += 30f * s;
+            y -= 6f * s;
 
             // FPS (green near 60+, amber when dipping, red when laggy)
             Color fpsColor = shownFps >= 55 ? new Color(0.49f, 1f, 0.6f) : shownFps >= 40 ? new Color(1f, 0.84f, 0.42f) : new Color(1f, 0.42f, 0.42f);
@@ -90,15 +76,17 @@ namespace ZenoniaProto
 
             small.normal.textColor = new Color(1f, 1f, 1f, 0.9f);
             float ly = y + h + 34f * s;
-            Fill(new Rect(x - 4f, ly - 2f, 560f * s, 94f * s), new Color(0.03f, 0.07f, 0.12f, 0.72f)); // keeps the text readable on bright snow
+            Fill(new Rect(x - 4f, ly - 2f, 560f * s, 112f * s), new Color(0.03f, 0.07f, 0.12f, 0.72f)); // keeps the text readable on bright snow
             GUI.Label(new Rect(x, ly, 600f * s, 18f * s), hero.GearLabel, small);
             GUI.Label(new Rect(x, ly + 18f * s, 600f * s, 18f * s), "Move WASD/Arrows   Attack J/Space (" + hero.Class.ComboLabel + ")   Dash K/Shift", small);
-            GUI.Label(new Rect(x, ly + 36f * s, 600f * s, 18f * s), "Switch class F1 Warrior F2 Wizard F3 Mechanic F4 Assassin F5 Cleric (respawn)   [F9] collision tint", small);
+            GUI.Label(new Rect(x, ly + 36f * s, 600f * s, 18f * s), "[B] Inventory / enhance   [1] HP potion   [2] MP potion   Loot: walk over it", small);
+            GUI.Label(new Rect(x, ly + 54f * s, 600f * s, 18f * s), "Switch class F1 Warrior F2 Wizard F3 Mechanic F4 Assassin F5 Cleric (own save)   [F9] collision tint", small);
+            ly += 18f * s;
             int state = (FeelConfig.BloomOn ? 1 : 0) | (FeelConfig.FxOn ? 2 : 0);
             if (state != toggleState)
             {
                 toggleState = state;
-                toggleText = "[B] Bloom: " + (FeelConfig.BloomOn ? "ON" : "OFF") + "    [F] Effects: " + (FeelConfig.FxOn ? "ON" : "OFF") + "    (toggle to A/B compare)";
+                toggleText = "[F6] Bloom: " + (FeelConfig.BloomOn ? "ON" : "OFF") + "    [F] Effects: " + (FeelConfig.FxOn ? "ON" : "OFF") + "    (toggle to A/B compare)";
             }
             small.normal.textColor = new Color(1f, 0.9f, 0.55f, 0.95f);
             GUI.Label(new Rect(x, ly + 54f * s, 600f * s, 18f * s), toggleText, small);

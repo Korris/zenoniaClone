@@ -32,7 +32,7 @@ namespace ZenoniaProto
             Vector2 toTarget = feet - dest;
             facing = Mathf.Abs(toTarget.x) >= Mathf.Abs(toTarget.y) ? (toTarget.x >= 0f ? 3 : 2) : (toTarget.y >= 0f ? 1 : 0);
             invuln = Mathf.Max(invuln, StepInvulnMs);
-            int dmg = CombatMath.Damage(cls.Atk, StepMult * 1.6f, target.Def); // guaranteed crit
+            int dmg = CombatMath.Damage(AtkStat, StepMult * 1.6f, target.Def); // guaranteed crit
             target.TakeHit(dmg, toTarget.normalized * 40f * 2f, true, true);
             Vector2 hit = new Vector2(target.Center.x, target.Center.y + 4f);
             float angle = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
@@ -58,16 +58,16 @@ namespace ZenoniaProto
         /// <summary>Tiny cosmetic heal pulse (cleric finisher): a few percent of max HP and a green sparkle around the hero.</summary>
         public void HealPulse(float fraction)
         {
-            if (dead || hp >= cls.MaxHp) return;
-            hp = Mathf.Min(cls.MaxHp, hp + cls.MaxHp * fraction);
+            if (dead || hp >= MaxHp) return;
+            hp = Mathf.Min(MaxHp, hp + MaxHp * fraction);
             UltimateFx.Embers(new Vector2(x, y + 6f), 8, 7f, 30f, new Color(0.7f, 1f, 0.5f, 1f));
         }
 
         /// <summary>Restores 38% of max HP with rising green-gold sparkles and a holy ring. False when already at full HP.</summary>
         bool Heal()
         {
-            if (hp >= cls.MaxHp - 0.5f) return false;
-            float healed = Mathf.Min(cls.MaxHp - hp, cls.MaxHp * HealFraction);
+            if (hp >= MaxHp - 0.5f) return false;
+            float healed = Mathf.Min(MaxHp - hp, MaxHp * HealFraction);
             hp += healed;
             DamageNumber.Spawn(x, y + 30f, "+" + Mathf.RoundToInt(healed), new Color(0.55f, 1f, 0.55f), true);
             var feet = new Vector2(x, y);

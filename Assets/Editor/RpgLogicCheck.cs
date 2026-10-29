@@ -45,6 +45,13 @@ namespace ZenoniaProto.EditorTools
             MonsterLootDef king = LootTable.For("frostfangKing");
             bool gear = LootTable.RollAll(king, new SeededRng(1).AsRand()).Exists(d => d.Kind == LootKind.Equipment);
             expect(gear, "rpg: boss always drops equipment");
+
+            // Presentation helpers (icons / stat lines / enhance preview) used by the HUD, inventory and ground loot
+            Item gl = ItemFactory.Generate(() => 0.5, 25, "gloves", "rare", "mechanic");
+            expect(ItemInfo.IconName(weapon) == "weapon-warrior-0" && ItemInfo.IconName(wiz) == "weapon-wizard-0" && ItemInfo.IconName(gl) == "gloves-2", "rpg: icon names (class gear + armor tier)");
+            var lines = ItemInfo.Lines(ItemFactory.Generate(() => 0.0, 1, "weapon", "epic", "warrior"), weapon);
+            expect(lines.Count == 1 && lines[0].Label == "ATK" && lines[0].Delta > 0 && ItemInfo.FormatDelta(lines[0]).StartsWith("(+"), "rpg: stat compare vs equipped");
+            expect(ItemInfo.EnhancePreview(weapon).StartsWith("+1 -> +2  100%") && ItemInfo.EnhancePreview(gl) == "", "rpg: enhance preview (weapon only)");
             p.Gold = 50; p.AddToInventory(wiz);
             PlayerState back = SaveSerializer.Restore(SaveSerializer.Parse(SaveSerializer.ToJson(SaveSerializer.Capture(p, true, 10f, 20f, false))));
             expect(back.Gold == 50 && back.Inventory.Count == 1 && back.GetEquipped("weapon").enhance == 1 && back.Atk == p.Atk, "rpg: save round-trip");

@@ -4,7 +4,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Zero-setup entry point: runs after any scene loads (Play on the default empty scene works) and builds the whole
-    /// prototype at runtime -- camera, Frost Hollow ground, monsters, HUD and the class select that spawns the hero.
+    /// prototype at runtime -- camera, Frost Hollow ground, monsters, HUD (IMGUI + UGUI RPG block) and the class select that spawns the hero.
     /// </summary>
     public static class Bootstrap
     {
@@ -26,6 +26,10 @@ namespace ZenoniaProto
             DamageNumber.ResetState();
             CameraFollow.ResetState();
             GearOverlays.ResetState();
+            LootDrop.ResetStatics();
+            LootSprites.ResetState();
+            UiKit.ResetState();
+            ClassSelectGui.ResetState();
             InputAdapter.BotHeld = null;
             InputAdapter.BotPressed = null;
             FeelConfig.BloomOn = true;
@@ -60,12 +64,13 @@ namespace ZenoniaProto
             MonsterSpawner.SpawnAll(root.transform);
             GameSession session = GameSession.Create(root.transform, follow);
 
-            // Bloom (Built-in pipeline OnRenderImage) + A/B hotkeys; the camera is switched to HDR by BloomEffect.
+            // Bloom (Built-in pipeline OnRenderImage) + F6 / F hotkeys; the camera is switched to HDR by BloomEffect.
             var bloom = cam.GetComponent<BloomEffect>();
             if (bloom == null) bloom = cam.gameObject.AddComponent<BloomEffect>();
             root.AddComponent<FeelHotkeys>().Init(bloom);
 
             root.AddComponent<Hud>();
+            RpgHud.Create(root.transform);
             DebugCapture.AttachIfRequested(root, session);
         }
 

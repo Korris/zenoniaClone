@@ -11,6 +11,8 @@ namespace ZenoniaProto
         public readonly string Id, Folder;
         public readonly float DrawScale, MinSx;
         public readonly bool Glow; // additive copy of the enhanced art (weapon only)
+        /// <summary>Drawn from the offhand slot (warrior shield, assassin off-hand dagger); every other part is the weapon.</summary>
+        public bool IsOffhand { get { return Id == "shield" || Id == "off"; } }
 
         public GearPartSpec(string id, string folder, float drawScale = 1f, float minSx = 0f, bool glow = false)
         {

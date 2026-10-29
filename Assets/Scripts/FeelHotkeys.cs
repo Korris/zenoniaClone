@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>B toggles bloom, F toggles all combat effects, for A/B comparison with the web build.</summary>
+    /// <summary>F6 toggles bloom, F toggles all combat effects, for A/B comparison with the web build.</summary>
     public class FeelHotkeys : MonoBehaviour
     {
         BloomEffect bloom;

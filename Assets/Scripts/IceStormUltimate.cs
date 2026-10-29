@@ -57,7 +57,7 @@ namespace ZenoniaProto
             hero = owner;
             caster = owner.Position;
             center = caster + DirVec[owner.Facing] * Range + new Vector2(0f, -6f);
-            atk = owner.Class.Atk;
+            atk = owner.AtkStat;
             cast = Rows(0, CirclePpu); meteor = Rows(1, SpearPpu); impact = Rows(2, HitPpu); fade = Rows(3, HitPpu);
             int g = UltimateFx.GroundFxOrder;
             circle = UltimateFx.Layer(transform, "Circle", out circleGlow);

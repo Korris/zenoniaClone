@@ -40,8 +40,8 @@ namespace ZenoniaProto
             {
                 Monster m = monsters[i];
                 if (m.IsDying || !box.Overlaps(m.Box)) continue;
-                bool crit = Random.value < CritChance + cls.CritBonus;
-                int dmg = CombatMath.Damage(cls.Atk, mult * (crit ? 1.6f : 1f), m.Def);
+                bool crit = Random.value < CritChance + CritBonus;
+                int dmg = CombatMath.Damage(AtkStat, mult * (crit ? 1.6f : 1f), m.Def);
                 m.TakeHit(dmg, v * h.Knockback * (crit ? 2f : 1f), crit, finisher);
                 landed++;
                 anyCrit |= crit;
@@ -84,7 +84,7 @@ namespace ZenoniaProto
             float mult = combo.MultiplierFor(step, 1);
             ClassPalette pal = cls.ActivePalette;
             var tip = CastTip;
-            ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, cls.Atk, mult, h.Knockback, finisher, cls.FxFolder, pal);
+            ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus);
             if (VfxSprites.For(h.Bolt.Style) != null)
             {
                 if (castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast

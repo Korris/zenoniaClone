@@ -1,11 +1,29 @@
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
-    /// <summary>IMGUI class select screen: five cards (Warrior / Wizard / Mechanic / Assassin / Cleric), click or press 1-5.</summary>
+    /// <summary>IMGUI class select screen: five cards (Warrior / Wizard / Mechanic / Assassin / Cleric), click or press 1-5. Classes with a save show "Continue Lv N".</summary>
     public static class ClassSelectGui
     {
         static GUIStyle title, name, body, key;
+        static string[] savedLabels; // per class: "Continue  Lv 5" or null, read once per Bootstrap
+
+        public static void ResetState() { savedLabels = null; }
+
+        static string SavedLabel(int i)
+        {
+            if (savedLabels == null)
+            {
+                savedLabels = new string[HeroClassDef.All.Length];
+                for (int c = 0; c < savedLabels.Length; c++)
+                {
+                    SaveData d = SaveStore.Load(RpgSession.ClassId(HeroClassDef.All[c].Id));
+                    savedLabels[c] = d != null ? "Continue  Lv " + d.level : null;
+                }
+            }
+            return savedLabels[i];
+        }
 
         /// <summary>Draws the screen and returns the clicked class index (0..4) or -1.</summary>
         public static int Draw()
@@ -43,11 +61,12 @@ namespace ZenoniaProto
                 var inner = new Rect(r.x + 14f * s, r.y + 60f * s, r.width - 28f * s, r.height - 120f * s);
                 GUI.Label(inner, c.Tagline + "\n\nHP " + (int)c.MaxHp + "   ATK " + (int)c.Atk + "   DEF " + (int)c.Def + "   SPD " + (int)c.Speed + "\n\nAttack: " + c.ComboLabel + (c.SkillName != null ? "\n[L] " + c.SkillName : ""), body);
                 key.normal.textColor = new Color(0.55f, 1f, 0.7f);
-                GUI.Label(new Rect(r.x, r.yMax - 46f * s, r.width, 30f * s), "[" + (i + 1) + "]  Play", key);
+                string saved = SavedLabel(i);
+                GUI.Label(new Rect(r.x, r.yMax - 46f * s, r.width, 30f * s), "[" + (i + 1) + "]  " + (saved ?? "New hero"), key);
                 if (GUI.Button(r, GUIContent.none, GUIStyle.none)) clicked = i;
             }
             body.normal.textColor = new Color(1f, 1f, 1f, 0.8f);
-            GUI.Label(new Rect(0f, y0 + ch + 20f * s, Screen.width, 24f * s), "Keys 1-5 or click.  In game: F1-F5 respawn as Warrior / Wizard / Mechanic / Assassin / Cleric.", body);
+            GUI.Label(new Rect(0f, y0 + ch + 20f * s, Screen.width, 24f * s), "Keys 1-5 or click.  Each class keeps its own save.  In game: F1-F5 switch to Warrior / Wizard / Mechanic / Assassin / Cleric.", body);
             return clicked;
         }
 

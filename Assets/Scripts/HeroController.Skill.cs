@@ -9,14 +9,15 @@ namespace ZenoniaProto
     public partial class HeroController
     {
         const float MpRegenPerSecond = 2.2f;
-        float mp, skillCd, castLeft, castTotal;
+        float skillCd, castLeft, castTotal;
+        float mp { get { return rpg.Mp; } set { rpg.Mp = value; } }
 
         public float Mp { get { return mp; } }
-        public float MaxMp { get { return cls.MaxMp; } }
+        public float MaxMp { get { return rpg.MaxMp; } }
         public float SkillCooldownLeftMs { get { return skillCd; } }
         public bool IsCasting { get { return castLeft > 0f; } }
 
-        void ResetSkillState() { mp = cls.MaxMp; skillCd = 0f; castLeft = 0f; }
+        void ResetSkillState() { skillCd = 0f; castLeft = 0f; }
 
         /// <summary>Starts the class skill when off cooldown and affordable. Returns true when cast.</summary>
         public bool TryCastSkill()
@@ -42,7 +43,7 @@ namespace ZenoniaProto
         /// <summary>Regen + cooldown ticks; returns true while the hero is rooted by a cast (no movement / attacks this step).</summary>
         bool TickSkill(float dt, float dtMs)
         {
-            mp = Mathf.Min(cls.MaxMp, mp + MpRegenPerSecond * dt);
+            mp = Mathf.Min(MaxMp, mp + MpRegenPerSecond * dt);
             skillCd = Mathf.Max(0f, skillCd - dtMs);
             if (castLeft <= 0f) return false;
             castLeft = Mathf.Max(0f, castLeft - dtMs);

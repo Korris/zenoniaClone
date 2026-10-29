@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
@@ -7,13 +8,15 @@ namespace ZenoniaProto
     /// Paper-doll hero for every class: gear-less "bare" body + overlays (sword + shield / staff / gun) placed at per-frame grip anchors
     /// (mirrors the web held-weapon-renderer). Frames with no bare sheet or a fallback anchor draw the baked armed frame instead.
     /// Direction index: 0 down, 1 up, 2 left, 3 right (sheet row; classes list the anims whose left row is a mirrored right row).
+    /// Each part shows its own equipped item (SetEquipmentGear: tier from the item level, enhanced art from +7, brighter glow per +7/+9/+11/+13 band);
+    /// SetGear is the Q / E / R debug look that applies one tier to every part.
     /// </summary>
     public class HeroRenderer : MonoBehaviour
     {
         public static readonly string[] DirNames = { "down", "up", "left", "right" };
         static readonly string[] AnimNames = { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt", "death" };
 
-        sealed class Part { public GearPartSpec Spec; public SpriteRenderer Sr, Glow; }
+        sealed class Part { public GearPartSpec Spec; public SpriteRenderer Sr, Glow; public int Tier, Band; public bool Enhanced, Empty; }
 
         readonly Dictionary<string, Sprite[][]> armed = new Dictionary<string, Sprite[][]>();
         readonly Dictionary<string, Sprite[][]> bare = new Dictionary<string, Sprite[][]>();
@@ -23,12 +26,20 @@ namespace ZenoniaProto
         HeldGearData gear;
         SpriteRenderer body, shadow;
         int tier;
-        bool enhanced;
+        bool enhanced, debugLook;
+        int companionTier;
+        bool companionEnhanced, companionEmpty;
 
         public HeroClassDef Class { get { return cls; } }
         public HeldGearData Gear { get { return gear; } }
         public int Tier { get { return tier; } }
         public bool Enhanced { get { return enhanced; } }
+        /// <summary>True after a Q / E / R debug override, until the equipment is synced again.</summary>
+        public bool DebugLook { get { return debugLook; } }
+        /// <summary>Companion art (mechanic robot / cleric spirit) follows the offhand item; Empty = no offhand equipped.</summary>
+        public int CompanionTier { get { return companionTier; } }
+        public bool CompanionEnhanced { get { return companionEnhanced; } }
+        public bool CompanionEmpty { get { return companionEmpty; } }
         public string TierName
         {
             get
@@ -87,6 +98,35 @@ namespace ZenoniaProto
             int max = gear != null ? gear.TierCount : 1;
             tier = ((newTier % max) + max) % max;
             enhanced = newEnhanced;
+            debugLook = true;
+            foreach (Part p in parts) { p.Tier = tier; p.Enhanced = enhanced; p.Band = enhanced ? 1 : 0; p.Empty = false; }
+            companionTier = tier; companionEnhanced = enhanced; companionEmpty = false;
+        }
+
+        /// <summary>Paper doll from the equipment: every part draws its own slot's item (null = nothing in that hand).</summary>
+        public void SetEquipmentGear(Item weapon, Item offhand)
+        {
+            debugLook = false;
+            foreach (Part p in parts)
+            {
+                Item item = p.Spec.IsOffhand ? offhand : weapon;
+                p.Empty = item == null;
+                p.Tier = ClampTier(p.Spec.Id, ItemInfo.ArtTier(item));
+                p.Band = EnhanceStats.VisualBand(item);
+                p.Enhanced = p.Band > 0;
+            }
+            Part main = parts.Find(p => !p.Spec.IsOffhand) ?? (parts.Count > 0 ? parts[0] : null);
+            tier = main != null ? main.Tier : 0;
+            enhanced = main != null && main.Enhanced;
+            companionEmpty = offhand == null;
+            companionTier = ItemInfo.ArtTier(offhand);
+            companionEnhanced = EnhanceStats.VisualBand(offhand) > 0;
+        }
+
+        int ClampTier(string part, int t)
+        {
+            OverlayEntry[] m = gear != null ? gear.Manifest(part) : null;
+            return m != null && m.Length > 0 ? Mathf.Clamp(t, 0, m.Length - 1) : 0;
         }
 
         /// <summary>Draws one frame. orderBase = GameConfig.OrderBase(feetY).</summary>
@@ -132,7 +172,7 @@ namespace ZenoniaProto
         void ApplyPart(Part p, HeldAnchor a, int orderBehind, int orderFront, int orderBase, Color tint, float alpha)
         {
             OverlayEntry[] manifest = gear != null ? gear.Manifest(p.Spec.Id) : null;
-            Sprite sprite = (a != null && !a.hidden && manifest != null && tier < manifest.Length) ? GearOverlays.Get(p.Spec.Folder, manifest[tier], enhanced) : null;
+            Sprite sprite = (a != null && !a.hidden && !p.Empty && manifest != null && p.Tier < manifest.Length) ? GearOverlays.Get(p.Spec.Folder, manifest[p.Tier], p.Enhanced) : null;
             p.Sr.sprite = sprite;
             if (sprite == null) { if (p.Glow != null) p.Glow.enabled = false; return; }
             p.Sr.color = tint;
@@ -145,12 +185,13 @@ namespace ZenoniaProto
             t.localScale = new Vector3(k * sx, k, 1f);
             if (p.Glow == null) return;
             // Enhanced art only, and only when drawn in front of the body (sorting slot +6 is unused by the other parts).
-            bool glow = enhanced && FeelConfig.FxOn && !a.behind;
+            bool glow = p.Enhanced && FeelConfig.FxOn && !a.behind;
             p.Glow.enabled = glow;
             if (!glow) return;
             p.Glow.sprite = sprite;
             p.Glow.sortingOrder = orderBase + 6;
-            p.Glow.color = new Color(1f, 0.85f, 0.6f, FeelConfig.EnhancedGlowAlpha * alpha);
+            float bandAlpha = Mathf.Min(1f, FeelConfig.EnhancedGlowAlpha + 0.15f * (Mathf.Max(1, p.Band) - 1)); // +7 / +9 / +11 / +13 glow brighter
+            p.Glow.color = new Color(1f, 0.85f, 0.6f, bandAlpha * alpha);
         }
     }
 }

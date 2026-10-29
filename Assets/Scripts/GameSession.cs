@@ -1,10 +1,11 @@
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
     /// <summary>
     /// Owns the playable hero: shows the class select screen first, then spawns the chosen class (hero + renderer + robot companion)
-    /// and lets F1..F5 respawn as another class at any time.
+    /// and lets F1..F5 respawn as another class at any time. Each class has its own RPG save (RpgSession): switching saves the current hero first.
     /// </summary>
     public class GameSession : MonoBehaviour
     {
@@ -17,21 +18,25 @@ namespace ZenoniaProto
         CameraFollow follow;
         HeroController hero;
         GameObject heroGo;
+        RpgSession rpg;
 
         public static GameSession Create(Transform parent, CameraFollow cameraFollow)
         {
             var s = parent.gameObject.AddComponent<GameSession>();
             s.root = parent;
             s.follow = cameraFollow;
+            s.rpg = RpgSession.Create(parent);
             Instance = s;
             return s;
         }
 
         void OnDestroy() { if (Instance == this) Instance = null; }
 
-        /// <summary>Destroys the current hero (if any) and starts a fresh one of the given class at the entrance.</summary>
+        /// <summary>Saves + destroys the current hero (if any) and spawns the given class from its save (or a new character at the entrance).</summary>
         public void Spawn(HeroClass id)
         {
+            SaveData save;
+            PlayerState state = rpg.Begin(id, out save);
             if (heroGo != null) Destroy(heroGo);
             HeroClassDef def = HeroClassDef.Get(id);
             heroGo = new GameObject("Hero_" + def.Name);
@@ -44,7 +49,8 @@ namespace ZenoniaProto
             VfxSprites.Preload(id);
             UltimateFx.Prewarm();
             hero = heroGo.AddComponent<HeroController>();
-            hero.Init(view);
+            hero.Init(view, state);
+            rpg.Attach(hero, save);
             if (def.CompanionFolder != null) HeroCompanion.Create(root, hero);
             follow.Target = heroGo.transform;
             follow.Configure();
@@ -57,6 +63,7 @@ namespace ZenoniaProto
                 for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Class1 + i : GameKey.Class4 + (i - 3))) { Spawn((HeroClass)i); return; }
                 return;
             }
+            if (InventoryPanel.IsOpen) return;
             for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Switch1 + i : GameKey.Switch4 + (i - 3))) { Spawn((HeroClass)i); return; }
             if (InputAdapter.Pressed(GameKey.SolidDebug)) WorldBuilder.ToggleSolidOverlay();
         }

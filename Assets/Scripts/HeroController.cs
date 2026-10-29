@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
     /// <summary>
     /// Playable hero (warrior / wizard / mechanic): movement on the Frost Hollow collision grid (8-dir input, 4-dir facing),
     /// class combo (melee swing or ranged bolts), dash, hurt / death / respawn at the entrance.
+    /// HP / MP and the combat stats live in the RPG PlayerState (level + equipment); RpgSession owns it and saves it.
     /// Everything advances with GameClock.Dt in Update (vsync-paced, camera follows in LateUpdate).
     /// World units == web world pixels; y points up (web y points down).
     /// </summary>
@@ -33,7 +35,9 @@ namespace ZenoniaProto
         float stabLeft;
         ComboHit stabHit;
         int stabStep;
-        float x, y, hp;
+        float x, y;
+        PlayerState rpg;
+        float hp { get { return rpg.Hp; } set { rpg.Hp = value; } }
         int facing;
         float invuln, hurt, dashLeft, dashCooldown, animTimer, idleTimer, deathTimer;
         Vector2 dashDir;
@@ -43,25 +47,28 @@ namespace ZenoniaProto
         public HeroClassDef Class { get { return cls; } }
         public HeroRenderer View { get { return view; } }
         public float Hp { get { return hp; } }
-        public float MaxHp { get { return cls.MaxHp; } }
-        public float DefStat { get { return cls.Def; } }
+        public float MaxHp { get { return rpg.MaxHp; } }
+        public float AtkStat { get { return rpg.Atk; } }
+        public float DefStat { get { return rpg.Def; } }
+        public float CritBonus { get { return rpg.CritBonus; } }
+        public PlayerState Rpg { get { return rpg; } }
         public Vector2 Position { get { return new Vector2(x, y); } }
         public int Facing { get { return facing; } }
         public bool IsDead { get { return dead; } }
         public string GearLabel { get { return gearLabel; } }
 
-        public void Init(HeroRenderer renderer)
+        public void Init(HeroRenderer renderer, PlayerState state)
         {
             Instance = this;
             view = renderer;
             cls = renderer.Class;
+            rpg = state ?? PlayerState.NewGame(RpgSession.ClassId(cls.Id));
             combo = new ComboSystem(cls.Hits, cls.ChainMs);
-            hp = cls.MaxHp;
             ResetSkillState();
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
             transform.position = new Vector3(x, y, 0f);
-            UpdateGearLabel();
+            RefreshGearLabel();
             Render();
         }
 
@@ -74,6 +81,7 @@ namespace ZenoniaProto
         {
             float dt = GameClock.Dt;
             float dtMs = dt * 1000f;
+            if (GameClock.Paused) { Render(); return; } // inventory open: frozen, no input
             HandleGearKeys();
             if (dead)
             {
@@ -94,7 +102,7 @@ namespace ZenoniaProto
             hurt = Mathf.Max(0f, hurt - dtMs);
             dashCooldown = Mathf.Max(0f, dashCooldown - dtMs);
             idleTimer += dtMs;
-            hp = Mathf.Min(cls.MaxHp, hp + HpRegenPerSecond * dt);
+            hp = Mathf.Min(MaxHp, hp + HpRegenPerSecond * dt);
             if (TickSkill(dt, dtMs)) return; // rooted by a skill cast
 
             Vector2 input = ReadMove();
@@ -133,7 +141,7 @@ namespace ZenoniaProto
             }
             else
             {
-                vel = input * cls.Speed;
+                vel = input * rpg.Speed;
             }
             moving = !combo.IsAttacking && vel != Vector2.zero;
             if (moving && !dashing) animTimer += dtMs;
@@ -165,7 +173,7 @@ namespace ZenoniaProto
         void Respawn()
         {
             dead = false;
-            hp = cls.MaxHp;
+            int lost = rpg.Revive(); // -10% of the current-level EXP, full HP / MP
             ResetSkillState();
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
@@ -174,6 +182,7 @@ namespace ZenoniaProto
             hurt = 0f;
             dashLeft = 0f;
             combo.Reset();
+            RpgSession.NotifyRespawn(lost);
         }
 
         void HandleGearKeys()
@@ -186,15 +195,20 @@ namespace ZenoniaProto
             if (InputAdapter.Pressed(GameKey.Enhance)) { enh = !enh; changed = true; }
             if (cls.Id == HeroClass.Mechanic && InputAdapter.Pressed(GameKey.FxColor)) { ClassPalette.MechanicBlue = !ClassPalette.MechanicBlue; ClassPalette.Current = cls.ActivePalette; }
             if (!changed) return;
-            view.SetGear(tier, enh);
-            UpdateGearLabel();
+            view.SetGear(tier, enh); // debug look override until the equipment changes again
+            RefreshGearLabel();
         }
 
-        void UpdateGearLabel()
+        /// <summary>HUD gear line: the equipped weapon (+ offhand) names, or the debug look picked with Q / E / R.</summary>
+        public void RefreshGearLabel()
         {
-            string what = cls.Id == HeroClass.Warrior ? "Sword + shield" : cls.Id == HeroClass.Wizard ? "Staff" : cls.Id == HeroClass.Mechanic ? "Gun + robot"
-                : cls.Id == HeroClass.Assassin ? "Daggers" : "Staff + spirit";
-            gearLabel = what + ": " + view.TierName + (view.Enhanced ? " (enhanced)" : "") + "   [Q/E tier, R enhance]";
+            if (view.DebugLook)
+            {
+                gearLabel = "Debug look: " + view.TierName + (view.Enhanced ? " (enhanced)" : "") + "   [Q/E tier, R enhance]";
+                return;
+            }
+            Item w = rpg.GetEquipped(Slots.Weapon), o = rpg.GetEquipped(Slots.Offhand);
+            gearLabel = (w != null ? EnhanceStats.DisplayName(w) : "No weapon") + (o != null ? " + " + EnhanceStats.DisplayName(o) : "") + "   [B] inventory   [Q/E/R] debug look";
         }
     }
 }

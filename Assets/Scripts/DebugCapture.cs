@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
@@ -21,6 +23,9 @@ namespace ZenoniaProto
     ///   --mech-blue                       mechanic FX start in blue (default orange)
     ///   --dummy-dist N                    distance of the first dummy in front of the hero (default 30)
     ///   --god                             hero ignores damage
+    ///   --level N / --give-stones N       RPG state for screenshots: hero level, upgrade stones (saving is always off in capture runs)
+    ///   --drop-loot                       scatter a boss-sized pile of loot (gold, potions, stones, 3 items) in front of the hero
+    ///   --open-inventory                  open the inventory window (B) after spawning
     ///   --record-combo wizard|mechanic|cleric  scripted basic-attack video: hero holds attack at dummies (3 s lead-in of idle, then ~6 s of combos), same frame dump as below
     ///                                     (--mech-blue for the blue mechanic, --zoom for a close-up)
     ///   --record-ultimate warrior|wizard  scripted video scene (monsters + King nearby, basic combo, then the skill, tail), 60 fps fixed-step,
@@ -38,12 +43,14 @@ namespace ZenoniaProto
         Vector2Int tpTile = new Vector2Int(-1, -1);
         int tier = -1;
         float zoom;
-        bool enhanced, solids, god;
+        bool enhanced, solids, god, dropLoot, openInventory;
+        int level, giveStones;
 
         public static void AttachIfRequested(GameObject root, GameSession gameSession)
         {
             string[] args = Environment.GetCommandLineArgs();
             if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0 && Array.IndexOf(args, "--record-combo") < 0) return;
+            SaveStore.Enabled = false; // capture runs never touch the player's saves
             var d = root.AddComponent<DebugCapture>();
             d.session = gameSession;
             d.Parse(args);
@@ -92,6 +99,12 @@ namespace ZenoniaProto
             perf = Array.IndexOf(a, "--perf") >= 0;
             string rs = Arg(a, "--run-seconds");
             if (rs != null) runSeconds = float.Parse(rs, System.Globalization.CultureInfo.InvariantCulture);
+            string lv = Arg(a, "--level");
+            if (lv != null) level = int.Parse(lv);
+            string gs = Arg(a, "--give-stones");
+            if (gs != null) giveStones = int.Parse(gs);
+            dropLoot = Array.IndexOf(a, "--drop-loot") >= 0;
+            openInventory = Array.IndexOf(a, "--open-inventory") >= 0;
             string dm = Arg(a, "--dummies");
             if (dm != null) dummies = int.Parse(dm);
             shotTimes = Times(Arg(a, "--shots"));
@@ -105,6 +118,25 @@ namespace ZenoniaProto
             var t = new float[parts.Length];
             for (int i = 0; i < parts.Length; i++) t[i] = float.Parse(parts[i], System.Globalization.CultureInfo.InvariantCulture);
             return t;
+        }
+
+        void ApplyRpgFlags(HeroController hero)
+        {
+            PlayerState p = hero.Rpg;
+            if (level > 1) { p.Level = Mathf.Min(level, Leveling.MaxLevel); p.RecomputeStats(); p.Hp = p.MaxHp; p.Mp = p.MaxMp; }
+            if (giveStones > 0) p.UpgradeStone = Mathf.Min(PlayerState.MaxStones, giveStones);
+            if (dropLoot)
+            {
+                Rand rand = RpgRandom.Default;
+                List<LootEntry> drops = LootTable.RollDrops(LootTable.For("frostfangKing"), rand);
+                string[] slots = { Slots.Weapon, Slots.Armor, Slots.Offhand };
+                string[] rarities = { "rare", "epic", "uncommon" };
+                for (int i = 0; i < slots.Length; i++)
+                    drops.Add(new LootEntry { Kind = LootKind.Equipment, Item = ItemFactory.Generate(rand, 3, slots[i], rarities[i], p.ClassId) });
+                Vector2[] dirs = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
+                LootDrop.SpawnAll(GameObject.Find("ZenoniaProto").transform, drops, hero.Position + dirs[hero.Facing] * 34f);
+            }
+            if (openInventory) InventoryPanel.Open(GameObject.Find("ZenoniaProto").transform);
         }
 
         IEnumerator CastSkills(float start)
@@ -175,6 +207,7 @@ namespace ZenoniaProto
                 HeroController.DebugGod = god;
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--nobloom") >= 0) { FeelConfig.BloomOn = false; var b = Camera.main.GetComponent<BloomEffect>(); if (b != null) b.enabled = false; }
                 if (dummies > 0) SpawnDummies(hero);
+                ApplyRpgFlags(hero);
             }
             if (solids) WorldBuilder.ToggleSolidOverlay();
             float start = Time.realtimeSinceStartup;

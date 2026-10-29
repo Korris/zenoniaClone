@@ -33,6 +33,9 @@ namespace ZenoniaProto
         SpriteRenderer body, shadow, barBack, barFill;
 
         public float Def { get { return def.Def; } }
+        /// <summary>Web monster type id (frostSlime, iceGoblin ...), the key of the RPG loot table.</summary>
+        public string Type { get { return def.Sheet; } }
+        public Vector2 Feet { get { return new Vector2(x, y); } }
         public string DisplayName { get { return def.Name; } }
         public float Hp { get { return hp; } }
         public float MaxHp { get { return def.Hp; } }
@@ -172,6 +175,7 @@ namespace ZenoniaProto
             Kills++;
             if (Boss == this) Boss = null;
             MonsterSpawner.NotifyDeath(zone);
+            RpgSession.NotifyKill(this);
         }
     }
 }

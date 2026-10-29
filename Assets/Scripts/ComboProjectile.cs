@@ -19,7 +19,7 @@ namespace ZenoniaProto
         string fxFolder;
         ClassPalette pal;
         Color? tint { get { return pal.Tint; } } // palette hue for the painted-art styles
-        float atk, mult, knockback, life;
+        float atk, mult, knockback, life, critBonus;
         bool finisher;
         SpriteRenderer sr, glow;
         ArcaneBoltRig arcane;   // wizard layered missile (null until first needed)
@@ -29,7 +29,7 @@ namespace ZenoniaProto
 
         public static void Init(Transform parent) { root = parent; Pool.Clear(); }
 
-        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette)
+        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f)
         {
             Sprite art = bolt.Style == BoltStyle.Sprite ? BurstFx.Art(fxFolder, bolt.Sprite, palette.Tint) : null;
             if ((art == null && bolt.Style == BoltStyle.Sprite) || root == null) return;
@@ -45,7 +45,7 @@ namespace ZenoniaProto
                 p.glow.sharedMaterial = FeelMaterials.Additive;
                 Pool.Add(p);
             }
-            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette;
+            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus;
             p.life = bolt.Range / bolt.Speed;
             p.sr.sprite = art; p.glow.sprite = art;
             p.sr.enabled = p.glow.enabled = bolt.Style == BoltStyle.Sprite;
@@ -148,7 +148,7 @@ namespace ZenoniaProto
         /// <summary>One crit-rolled hit; the damage roll happens on impact like the web.</summary>
         void Strike(Monster m, Vector2 knock, bool blast)
         {
-            bool crit = Random.value < CritChance;
+            bool crit = Random.value < CritChance + critBonus;
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
             m.TakeHit(dmg, knock * (crit ? 2f : 1f), crit, blast, vfx != null);
             if (!blast) HitFx(false);

@@ -5,7 +5,8 @@ namespace ZenoniaProto
     /// <summary>
     /// Shared offhand companion (mechanic robot / cleric spirit; web companion-follow.js + companion-renderer.js, scale + art folders from HeroClassDef): hovers on the shoulder the hero's back is turned to,
     /// eases toward that spot, bobs, and is y-sorted by its own ground point. Tier 1 unenhanced plays the 4-facing float loop;
-    /// every other tier shows the static tier art (base / enhanced) with a slightly bigger code bob.
+    /// every other tier shows the static tier art (base / enhanced) with a slightly bigger code bob. Tier / enhanced follow the equipped offhand;
+    /// with no offhand equipped the companion is hidden.
     /// </summary>
     public class HeroCompanion : MonoBehaviour
     {
@@ -46,9 +47,9 @@ namespace ZenoniaProto
         {
             HeroRenderer view = hero.View;
             HeldGearData gear = view.Gear;
-            if (gear == null || gear.Companion == null || gear.Companion.Length == 0) { sr.sprite = null; return; }
-            int tier = Mathf.Clamp(view.Tier, 0, gear.Companion.Length - 1);
-            bool animated = tier == 0 && !view.Enhanced;
+            if (gear == null || gear.Companion == null || gear.Companion.Length == 0 || view.CompanionEmpty) { sr.sprite = null; return; }
+            int tier = Mathf.Clamp(view.CompanionTier, 0, gear.Companion.Length - 1);
+            bool animated = tier == 0 && !view.CompanionEnhanced;
             string dir = HeroRenderer.DirNames[hero.Facing];
             GripInfo[] loop = animated ? gear.CompanionFloat(dir) : null;
             Sprite sprite;
@@ -60,7 +61,7 @@ namespace ZenoniaProto
             else
             {
                 animated = false;
-                sprite = GearOverlays.Get(view.Class.CompanionFolder, gear.Companion[tier], view.Enhanced);
+                sprite = GearOverlays.Get(view.Class.CompanionFolder, gear.Companion[tier], view.CompanionEnhanced);
             }
             sr.sprite = sprite;
             float bob = Mathf.Sin(ageMs / BobPeriodMs * Mathf.PI * 2f) * (animated ? 0.6f : 1.3f);
