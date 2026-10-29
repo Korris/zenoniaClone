@@ -11,9 +11,10 @@ import { InventoryPanel } from '../ui/inventory-panel.js';
 import { QuestLogPanel } from '../ui/quest-log-panel.js';
 import { DialogBox } from '../ui/dialog-box.js';
 import { MessageBanner } from '../ui/message-banner.js';
-import { createTitleMenu, createPauseMenu, createDeathMenu, createVictoryMenu } from '../ui/menu-screens.js';
+import { createTitleMenu, createPauseMenu, createVictoryMenu } from '../ui/menu-screens.js';
 import { ClassSelectScreen } from '../ui/class-select-screen.js';
-import { hasSave } from '../save/local-storage-save.js';
+import { hasSave, readSave } from '../save/local-storage-save.js';
+import { drawLoadingScreen } from '../ui/loading-screen.js';
 import { usePotion } from '../systems/loot-system.js';
 import { menuHit } from '../ui/character-menu.js';
 import { findNearbyNpc, computeNpcMarkers, openNpcDialog, applyDialogOutcome } from './npc-interaction.js';
@@ -21,10 +22,14 @@ import { captureInterpolationSnapshot, renderInterpolated } from './render-inter
 import { onMonsterKilledForQuests, onMapReachedForQuests, onDialogOutcomeForQuests } from './quest-flow.js';
 
 const S = GAME_STATES;
+const DEATH_ANIMATION_MS = 1400;
 
 export class GameController {
-  constructor(registry, input) {
+  /** @param {{ensure:(classId:string, onProgress?:Function)=>Promise<unknown>}|null} classAssets lazy per-class art loader (null => already in the registry) */
+  constructor(registry, input, classAssets = null) {
     this.registry = registry;
+    this.classAssets = classAssets;
+    this.loading = { label: '', loaded: 0, total: 0 };
     this.input = input;
     this.banner = new MessageBanner();
     this.session = new GameSession(this.banner);
@@ -44,6 +49,7 @@ export class GameController {
     const handlers = {
       [S.TITLE]: () => this.updateTitle(),
       [S.CLASS_SELECT]: () => this.updateClassSelect(),
+      [S.LOADING]: () => {}, // the pending class-asset promise advances the state
       [S.PLAYING]: () => this.updatePlaying(dt),
       [S.PAUSED]: () => this.updatePaused(),
       [S.SKILLS]: () => this.updateSkills(),
@@ -59,21 +65,42 @@ export class GameController {
 
   updateTitle() {
     const choice = this.menu.handleInput(this.input);
-    // New Game (or a Continue whose save turned out unusable) goes through hero selection first.
-    if (choice === 'New Game' || (choice === 'Continue' && !this.session.continueFromSave())) {
-      this.classSelect = new ClassSelectScreen();
-      this.state = S.CLASS_SELECT;
+    if (choice === 'New Game') {
+      this.openClassSelect();
     } else if (choice === 'Continue') {
-      this.state = S.PLAYING;
+      const saved = readSave();
+      // An unusable save goes through hero selection like a new game.
+      if (!saved) this.openClassSelect();
+      else this.loadClassThen(saved.player.classId, () => {
+        if (this.session.continueFromSave()) this.state = S.PLAYING;
+        else this.openClassSelect();
+      });
     }
+  }
+
+  openClassSelect() {
+    this.classSelect = new ClassSelectScreen();
+    this.state = S.CLASS_SELECT;
   }
 
   updateClassSelect() {
     const { classId, back } = this.classSelect.handleInput(this.input);
     if (back) this.state = S.TITLE;
     if (!classId) return;
-    this.session.startNewGame(classId);
-    this.state = S.PLAYING;
+    this.loadClassThen(classId, () => {
+      this.session.startNewGame(classId);
+      this.state = S.PLAYING;
+    });
+  }
+
+  /** Shows the loading screen while the class's art streams in, then runs `onReady` (also when the art failed: the loader falls back). */
+  loadClassThen(classId, onReady) {
+    if (!this.classAssets) { onReady(); return; }
+    this.state = S.LOADING;
+    this.loading = { label: `Preparing ${classId}`, loaded: 0, total: 0 };
+    const finish = () => { if (this.state === S.LOADING) onReady(); };
+    this.classAssets.ensure(classId, (loaded, total) => { this.loading.loaded = loaded; this.loading.total = total; })
+      .then(finish, (err) => { console.error('Class asset load failed:', err); finish(); });
   }
 
   updatePlaying(dt) {
@@ -118,7 +145,7 @@ export class GameController {
       this.menu = createVictoryMenu(session.player);
       this.state = S.WIN;
     } else if (event.type === 'playerDied') {
-      this.deathDelay = 900;
+      this.deathDelay = DEATH_ANIMATION_MS;
       this.state = S.DEAD;
       this.menu = null;
     }
@@ -187,19 +214,15 @@ export class GameController {
     return input;
   }
 
+  /** Death animation plays for DEATH_ANIMATION_MS, then the hero wakes up in Oakhaven Village (no menu). */
   updateDead() {
     this.session.player.deathTimer += 16; // world is frozen, so drive the death animation here
-    if (this.menu === null) {
-      this.deathDelay -= 16; // short delay so the death animation plays before the menu
-      if (this.deathDelay > 0) return;
-      this.menu = createDeathMenu(Math.floor(this.session.player.exp * 0.1));
-      return;
-    }
-    if (this.menu.handleInput(this.input) === 'Respawn') {
-      this.session.respawn();
-      this.session.save(false);
-      this.state = S.PLAYING;
-    }
+    this.deathDelay -= 16;
+    if (this.deathDelay > 0) return;
+    const lost = this.session.respawn();
+    this.session.save(false);
+    this.state = S.PLAYING;
+    this.banner.show('You fainted...', lost > 0 ? `Returned to Oakhaven Village (-${lost} EXP)` : 'Returned to Oakhaven Village', 3000, '#ff9a7a');
   }
 
   updateWin() {
@@ -221,6 +244,7 @@ export class GameController {
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     if (this.state === S.TITLE) { this.menu.render(ctx, this.registry, { dim: false, showHero: true }); return; }
     if (this.state === S.CLASS_SELECT) { this.classSelect.render(ctx, this.registry, performance.now()); return; }
+    if (this.state === S.LOADING) { drawLoadingScreen(ctx, this.loading.label, this.loading.loaded, this.loading.total); return; }
 
     const { session } = this;
     const view = { npcMarkers: this.npcMarkers, nearbyNpc: this.state === S.PLAYING ? this.nearbyNpc : null, questState: session.quests };
@@ -234,7 +258,6 @@ export class GameController {
     else if (this.state === S.INVENTORY) this.inventoryPanel.render(ctx, session.player, this.registry);
     else if (this.state === S.QUEST_LOG) this.questLog.render(ctx, session.quests);
     else if (this.state === S.DIALOG) this.dialog.render(ctx);
-    else if (this.state === S.DEAD && this.menu) this.menu.render(ctx, this.registry, { dimAlpha: 0.75 });
     else if (this.state === S.PAUSED || this.state === S.WIN) this.menu.render(ctx, this.registry);
   }
 }

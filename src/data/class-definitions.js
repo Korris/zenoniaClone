@@ -1,7 +1,7 @@
 // Playable classes, chosen on New Game. Each class has its own base stats + growth (fed to
 // statsForLevel), its own 3 skill-tree branches (skills are matched to a class through their
 // branch), its basic-attack style ('melee' sword combo or 'ranged' projectile combo -- magic bolts
-// for the wizard, gunshots for the mechanic, see COMBO_CONFIG_BY_CLASS), the class-select style
+// for the wizard, gunshots for the mechanic, holy orbs for the cleric, a fast dagger combo for the assassin, see COMBO_CONFIG_BY_CLASS), the class-select style
 // line, and its sprite set key (sprite-registry.js `heroes[classId]`).
 export const CLASS_DEFINITIONS = Object.freeze({
   warrior: {
@@ -35,6 +35,29 @@ export const CLASS_DEFINITIONS = Object.freeze({
     branches: ['gunnery', 'explosives', 'engineering'],
     attackStyle: 'ranged',
     styleLabel: 'Rapid-fire gunshots',
+  },
+  cleric: {
+    id: 'cleric',
+    name: 'Cleric',
+    tagline: 'Holy support caster. Heals and blesses with a spirit companion, smites foes with holy light.',
+    // MP-rich and sturdier than the wizard; modest damage, strong self-sustain (heals, shields, buffs).
+    baseStats: { maxHp: 85, maxMp: 75, atk: 11, def: 4, speed: 80 },
+    growth: { maxHp: 10, maxMp: 8, atk: 2.5, def: 0.8 },
+    branches: ['holy', 'restoration', 'blessing'],
+    attackStyle: 'ranged',
+    styleLabel: 'Holy light orbs + support',
+  },
+  assassin: {
+    id: 'assassin',
+    name: 'Assassin',
+    tagline: 'Dual-dagger striker. Speed, crits and shadow strikes.',
+    // Glass cannon: least HP/DEF, fastest, extra base crit (critBonus, added in Player.recomputeStats).
+    baseStats: { maxHp: 88, maxMp: 50, atk: 13, def: 3, speed: 92 },
+    growth: { maxHp: 10, maxMp: 5, atk: 2.7, def: 0.7 },
+    critBonus: 0.06,
+    branches: ['shadow', 'venom', 'agility'],
+    attackStyle: 'melee',
+    styleLabel: 'Fast dual-dagger combos',
   },
 });
 

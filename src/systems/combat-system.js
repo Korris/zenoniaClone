@@ -8,8 +8,8 @@ import { ItemDrop } from '../entities/item-drop.js';
 import { rollPlayerDamage, CRIT_COLOR } from './player-damage.js';
 import { playImpactSound } from '../audio/combat-audio.js';
 import { rollHit } from './hit-chance.js';
+import { recordMarkDamage } from './monster-status.js';
 
-const DIR_ANGLE = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
 
 /** Rectangle in front of the hero for melee hits. */
 export function attackBoxFor(player, reach, width) {
@@ -32,6 +32,7 @@ export function damageMonster(world, monster, damage, knockX = 0, knockY = 0, co
   if (!monster.dead) world.combatTarget = monster;
   const impulse = critical ? 2 : 1;
   const died = monster.takeDamage(damage, knockX * impulse, knockY * impulse);
+  recordMarkDamage(monster, damage); // Death Mark banks a share of damage taken
   world.addText(monster.x, monster.y - monster.def.hitbox.h - 10, damage, color, {
     damageStyle: 'outgoing', critical, lifeMs: 850, vy: -34,
   });
@@ -45,7 +46,7 @@ function onMonsterDeath(world, monster) {
   const { player } = world;
   const levels = player.gainExp(monster.def.exp);
   world.drops.push(...spawnDrops(monster.def, monster.x, monster.y));
-  const equipDrop = rollEquipmentDrop(monster.def, Math.random, player.classId);
+  const equipDrop = rollEquipmentDrop(monster.def, Math.random);
   if (equipDrop) world.drops.push(new ItemDrop(monster.x, monster.y, 'equipment', equipDrop));
   world.addSparks(monster.x, monster.y - 6, 10);
   if (world.spawner) world.spawner.scheduleRespawn(monster);
@@ -57,43 +58,6 @@ function onMonsterDeath(world, monster) {
   if (monster.isBoss && !monster.def.localBoss) {
     world.bossDefeated = true;
     world.events.push({ type: 'bossDefeated' });
-  }
-}
-
-/** Called when a combo swing becomes active: hit every monster in the arc once. */
-export function performComboHit(world, step) {
-  const { player } = world;
-  const hit = player.combo.currentHit;
-  const box = attackBoxFor(player, hit.reach, hit.width);
-  const swingId = world.nextSwingId();
-  // Power Strike passive adds a flat combo-damage bonus on top of the per-hit multiplier.
-  const mult = player.combo.multiplierFor(step, player.level) * (1 + (player.passiveMods?.comboMult || 0));
-  const v = DIRECTION_VECTORS[player.dir];
-  const isFinisher = step === player.combo.config.hits.length;
-
-  // Slash arc in front of the hero; alternate hits mirror the arc so the combo reads left-right-overhead
-  const fxOffset = hit.reach / 2 + 4;
-  world.addEffect({
-    x: player.x + v.x * fxOffset, y: player.y - 6 + v.y * fxOffset, spriteKey: isFinisher ? 'arc' : 'slash',
-    rotation: DIR_ANGLE[player.dir], flipY: step === 2, lifeMs: isFinisher ? 240 : 170,
-    scale: hit.fxScale ?? (isFinisher ? 1.1 : 0.8),
-  });
-  if (isFinisher) world.addEffect({ x: player.x, y: player.y - 8, spriteKey: 'arc', rotation: DIR_ANGLE[player.dir] + Math.PI, lifeMs: 260, scale: 1.0, spin: 9, follow: player, offsetY: -8 });
-
-  let landed = 0;
-  for (const monster of world.monsters) {
-    if (monster.dead || monster.hitBySwing.has(swingId) || !boxesOverlap(box, monster.box)) continue;
-    monster.hitBySwing.add(swingId);
-    const { damage, crit } = rollPlayerDamage(player, monster.def.def, mult);
-    const previousHp = monster.hp;
-    damageMonster(world, monster, damage, v.x * hit.knockback, v.y * hit.knockback, crit ? CRIT_COLOR : isFinisher ? '#ffb13b' : '#ffffff', crit, true);
-    if (monster.hp < previousHp) landed++;
-  }
-  if (landed > 0 && isFinisher) {
-    world.camera.shake(2.5, 140);
-    world.hitStopMs = 60;
-  } else if (landed > 0) {
-    world.hitStopMs = 25;
   }
 }
 
@@ -163,6 +127,7 @@ export function hitPlayer(world, damage, sourceX, sourceY, canMiss = true) {
     return;
   }
   const dealt = player.takeDamage(damage);
+  if (player.lastAbsorbed > 0) world.addText(player.x, player.y - 30, 'Absorbed', '#fff0a0', { lifeMs: 500 });
   if (dealt <= 0) return;
   player.combo.reset();
   player.ultimateCast = null;
@@ -175,5 +140,9 @@ export function hitPlayer(world, damage, sourceX, sourceY, canMiss = true) {
   const dy = player.y - sourceY;
   const dist = Math.hypot(dx, dy) || 1;
   player.knockback = { vx: (dx / dist) * 90, vy: (dy / dist) * 90, timer: 100 };
+  if (player.graceFlash) {
+    player.graceFlash = false;
+    world.addText(player.x, player.y - 36, 'Resurrection Grace!', '#ffe680', { lifeMs: 1200, big: true, vy: -18 });
+  }
   if (player.dead) world.events.push({ type: 'playerDied' });
 }

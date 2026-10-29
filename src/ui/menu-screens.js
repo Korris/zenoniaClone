@@ -72,15 +72,6 @@ export function createPauseMenu() {
   return new MenuScreen({ title: 'PAUSED', options: ['Resume', 'Save Game', 'Quit to Title'], hint: 'Esc to resume' });
 }
 
-export function createDeathMenu(lostExp) {
-  return new MenuScreen({
-    title: 'YOU DIED',
-    subtitle: lostExp > 0 ? `Lost ${lostExp} EXP` : 'The world fades to black...',
-    options: ['Respawn'],
-    color: '#ff5a5a',
-  });
-}
-
 export function createVictoryMenu(player) {
   return new MenuScreen({
     title: 'VICTORY!',

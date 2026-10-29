@@ -2,6 +2,7 @@
 // walk / idle, chosen from game state. NPCs share the shadow + characterFrame helpers.
 import { HERO_FRAME_SIZE } from './sprite-registry.js';
 import { drawSmoothImage } from './smooth-sprite-draw.js';
+import { resolveHeldGear, drawHeldHero } from './held-weapon-renderer.js';
 
 const WALK_FRAME_MS = 100; // pack NPC walk (4 frames)
 // One full hero step cycle (left step + right step). Spread over however many frames the class's walk
@@ -67,7 +68,12 @@ export function drawPlayer(ctx, player, registry) {
 
   drawShadow(ctx, player.x, player.y, 6, 2.5);
   ctx.imageSmoothingEnabled = smooth;
-  const draw = smooth ? drawSmoothImage : (c, f, x, y, w, h) => c.drawImage(f, x, y, w, h);
+  const drawFrame = smooth ? drawSmoothImage : (c, f, x, y, w, h) => c.drawImage(f, x, y, w, h);
+  // Wizard / warrior: gear-less body + overlay gear (null => the baked frame, exactly as before).
+  const held = resolveHeldGear(registry, player, frame);
+  const draw = held
+    ? (c, f, x, y, w) => drawHeldHero(c, held, (bare, bx, by) => drawFrame(c, bare, bx, by, w, w), x, y, w, performance.now())
+    : drawFrame;
   if (player.dash) {
     ctx.globalAlpha = 0.35;
     draw(ctx, frame, drawX - player.dash.dirX * 6, drawY - player.dash.dirY * 6, size, size);
@@ -75,6 +81,9 @@ export function drawPlayer(ctx, player, registry) {
     draw(ctx, frame, drawX - player.dash.dirX * 12, drawY - player.dash.dirY * 12, size, size);
     ctx.globalAlpha = 1;
   }
+  const alpha = ctx.globalAlpha;
+  if (player.stealth) ctx.globalAlpha = alpha * 0.5; // Smoke Bomb stealth: half-transparent hero
   draw(ctx, frame, drawX, drawY, size, size);
+  ctx.globalAlpha = alpha;
   ctx.imageSmoothingEnabled = false; // restore the pixel-art default for whatever draws next in world space
 }

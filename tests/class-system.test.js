@@ -13,8 +13,8 @@ import { canUpgradeSkill } from '../src/systems/skill-system.js';
 import { fireComboBolt, resolveProjectileHits } from '../src/systems/projectile-hit-system.js';
 import { WIZARD_COMBO_CONFIG } from '../src/data/hero-stats-config.js';
 
-test('warrior, wizard and mechanic exist; wizard trades HP/DEF for MP', () => {
-  assert.deepEqual([...CLASS_IDS].sort(), ['mechanic', 'warrior', 'wizard']);
+test('warrior, wizard, mechanic, cleric and assassin exist; wizard trades HP/DEF for MP', () => {
+  assert.deepEqual([...CLASS_IDS].sort(), ['assassin', 'cleric', 'mechanic', 'warrior', 'wizard']);
   const w = statsForLevel(10, 'warrior');
   const m = statsForLevel(10, 'wizard');
   assert.ok(m.maxMp > w.maxMp && m.maxHp < w.maxHp && m.def < w.def);

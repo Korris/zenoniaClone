@@ -7,6 +7,7 @@ import { computeEquipmentModifiers } from '../systems/equipment-system.js';
 import { EQUIPMENT_SLOTS } from '../data/item-definitions.js';
 import { HERO_HITBOX, INVULNERABLE_AFTER_HIT_MS, COMBO_CONFIG, COMBO_CONFIG_BY_CLASS } from '../data/hero-stats-config.js';
 import { entityBox } from '../systems/damage-formula.js';
+import { absorbWithShield, tickStatuses, tryResurrectionGrace, clearStatuses, evasionOf } from '../systems/player-status.js';
 import { DEFAULT_CLASS_ID, getClassDefinition } from '../data/class-definitions.js';
 
 export class Player {
@@ -22,8 +23,16 @@ export class Player {
     this.skills = {};
     this.hotbar = new Array(HOTBAR_SLOTS).fill(null);
     this.buffs = { atkMult: 1, timer: 0 };
+    this.shield = null; // Sacred Shield { amount, timer }, see systems/player-status.js
+    this.haste = null; // Haste Hymn { mult, timer }
+    this.stealth = null; // Smoke Bomb { evasion, timer }
+    this.poisonBlade = null; // Poison Blade { pct, charges, timer, poisonMs }
+    this.graceCooldown = 0; // Resurrection Grace recharge (ms)
+    this.lastAbsorbed = 0; // damage soaked by the shield in the latest hit
+    this.graceFlash = false; // set when Resurrection Grace just saved the hero
     this.gold = 0;
     this.potions = { hpPotion: 0, mpPotion: 0 };
+    this.materials = { upgradeStone: 0 }; // crafting materials; separate from potions (HUD/usePotion iterate potions)
     this.inventory = []; // bag of unequipped item instances, see data/item-definitions.js
     this.equipment = Object.fromEntries(EQUIPMENT_SLOTS.map((slot) => [slot, null]));
     this.hasUnseenItem = false; // drives the HUD's "NEW" blink until the bag is opened
@@ -54,16 +63,21 @@ export class Player {
     return entityBox(this, HERO_HITBOX);
   }
 
+  /** Dodge chance vs ordinary hits (Evasion passive + stealth); hit-chance.js reads it as defender.evasion. */
+  get evasion() {
+    return evasionOf(this);
+  }
+
   /** Recalculate max stats from level + passives + equipment, clamping current HP/MP. */
   recomputeStats() {
     this.passiveMods = computePassiveModifiers(this);
     const equipMods = computeEquipmentModifiers(this);
     // Equipment crit folds into passiveMods so existing crit-roll call sites (player-damage.js,
     // combat-system.js) don't need to know about two separate sources.
-    this.passiveMods.critChance += equipMods.critChance;
+    this.passiveMods.critChance += equipMods.critChance + (getClassDefinition(this.classId).critBonus || 0);
     const base = statsForLevel(this.level, this.classId);
     this.maxHp = Math.round(base.maxHp * this.passiveMods.hpMult) + equipMods.hpAdd;
-    this.maxMp = Math.round(base.maxMp * this.passiveMods.mpMult);
+    this.maxMp = Math.round(base.maxMp * this.passiveMods.mpMult) + equipMods.mpAdd;
     this.atk = base.atk + equipMods.atkAdd;
     this.def = Math.round(base.def + this.passiveMods.defAdd) + equipMods.defAdd;
     this.speed = base.speed * this.passiveMods.speedMult * equipMods.speedMult;
@@ -73,6 +87,7 @@ export class Player {
 
   /** Counts down a temporary buff (e.g. Battle Cry) and resets it on expiry. */
   tickBuffs(dt) {
+    tickStatuses(this, dt);
     if (this.buffs.timer <= 0) return;
     this.buffs.timer -= dt;
     if (this.buffs.timer <= 0) {
@@ -84,11 +99,12 @@ export class Player {
   /** Returns actual damage taken (0 when invulnerable). */
   takeDamage(amount) {
     if (this.dead || this.invulnTimer > 0 || this.dash) return 0;
-    const dealt = Math.min(this.hp, amount);
+    this.lastAbsorbed = absorbWithShield(this, amount);
+    const dealt = Math.min(this.hp, amount - this.lastAbsorbed);
     this.hp -= dealt;
     this.invulnTimer = INVULNERABLE_AFTER_HIT_MS;
-    this.hitFlashTimer = 220;
-    if (this.hp <= 0) this.dead = true;
+    if (dealt > 0) this.hitFlashTimer = 220;
+    if (this.hp <= 0 && !tryResurrectionGrace(this)) this.dead = true;
     return dealt;
   }
 
@@ -124,6 +140,7 @@ export class Player {
     this.mp = this.maxMp;
     this.invulnTimer = 1000;
     this.dash = null;
+    clearStatuses(this);
     this.combo.reset();
     return penalized.lost;
   }
@@ -134,6 +151,7 @@ export class Player {
       hotbar: [...this.hotbar], gold: this.gold, hp: this.hp, mp: this.mp,
       inventory: [...this.inventory], equipment: { ...this.equipment },
       potions: { ...this.potions },
+      materials: { ...this.materials },
     };
   }
 
@@ -145,6 +163,7 @@ export class Player {
     this.hotbar = Array.isArray(data.hotbar) ? [...data.hotbar] : new Array(HOTBAR_SLOTS).fill(null);
     this.gold = data.gold;
     this.potions = { hpPotion: data.potions?.hpPotion ?? 0, mpPotion: data.potions?.mpPotion ?? 0 };
+    this.materials = { upgradeStone: data.materials?.upgradeStone ?? 0 };
     this.inventory = Array.isArray(data.inventory) ? [...data.inventory] : [];
     this.equipment = data.equipment
       ? Object.fromEntries(EQUIPMENT_SLOTS.map((slot) => [slot, data.equipment[slot] || null]))

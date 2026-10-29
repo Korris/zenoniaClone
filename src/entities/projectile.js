@@ -5,7 +5,7 @@ export class Projectile {
   /**
    * @param {{x:number,y:number,vx:number,vy:number,owner:'player'|'monster',damage:number,
    *          spriteKey:string,lifeMs:number,w:number,h:number,pierce?:boolean,scale?:number,
-   *          explodeRadius?:number,explodeFx?:string,knockback?:number,canMiss?:boolean}} opts
+   *          explodeRadius?:number,explodeFx?:string,knockback?:number,canMiss?:boolean,tint?:string}} opts
    * `explodeRadius` > 0 makes it burst on first contact (AoE, see projectile-hit-system.js).
    */
   constructor(opts) {
@@ -26,6 +26,7 @@ export class Projectile {
     this.explodeRadius = opts.explodeRadius || 0;
     this.explodeFx = opts.explodeFx || 'arcaneBurst'; // effect drawn when it bursts
     this.knockback = opts.knockback || 0;
+    this.tint = opts.tint || null; // CSS colour washed over the sprite and its burst (holy green-gold Cleric orbs)
     this.rotation = Math.atan2(opts.vy, opts.vx);
     this.hitIds = new Set();
     this.dead = false;

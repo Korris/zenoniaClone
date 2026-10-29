@@ -1,0 +1,182 @@
+[
+  {
+    "name": "acolyte",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/acolyte-base.png",
+      "w": 76,
+      "h": 264,
+      "gripX": 38,
+      "gripY": 172
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/acolyte-enhanced.png",
+      "w": 85,
+      "h": 247,
+      "gripX": 42,
+      "gripY": 163
+    },
+    "glow": "#fff159"
+  },
+  {
+    "name": "blossom",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/blossom-base.png",
+      "w": 118,
+      "h": 263,
+      "gripX": 58,
+      "gripY": 172
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/blossom-enhanced.png",
+      "w": 112,
+      "h": 248,
+      "gripX": 54,
+      "gripY": 164
+    },
+    "glow": "#ffe359"
+  },
+  {
+    "name": "dawn",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/dawn-base.png",
+      "w": 134,
+      "h": 264,
+      "gripX": 68,
+      "gripY": 172
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/dawn-enhanced.png",
+      "w": 124,
+      "h": 257,
+      "gripX": 63,
+      "gripY": 168
+    },
+    "glow": "#ffe959"
+  },
+  {
+    "name": "seraph",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/seraph-base.png",
+      "w": 152,
+      "h": 265,
+      "gripX": 77,
+      "gripY": 173
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/seraph-enhanced.png",
+      "w": 143,
+      "h": 259,
+      "gripX": 73,
+      "gripY": 170
+    },
+    "glow": "#eeff59"
+  },
+  {
+    "name": "moonlit",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/moonlit-base.png",
+      "w": 128,
+      "h": 267,
+      "gripX": 75,
+      "gripY": 174
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/moonlit-enhanced.png",
+      "w": 118,
+      "h": 250,
+      "gripX": 74,
+      "gripY": 165
+    },
+    "glow": "#ffec59"
+  },
+  {
+    "name": "radiant",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/radiant-base.png",
+      "w": 154,
+      "h": 265,
+      "gripX": 77,
+      "gripY": 173
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/radiant-enhanced.png",
+      "w": 147,
+      "h": 262,
+      "gripX": 74,
+      "gripY": 170
+    },
+    "glow": "#ffe659"
+  },
+  {
+    "name": "halo",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/halo-base.png",
+      "w": 151,
+      "h": 265,
+      "gripX": 75,
+      "gripY": 173
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/halo-enhanced.png",
+      "w": 136,
+      "h": 254,
+      "gripX": 65,
+      "gripY": 165
+    },
+    "glow": "#ffc559"
+  },
+  {
+    "name": "verdant",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/verdant-base.png",
+      "w": 128,
+      "h": 264,
+      "gripX": 63,
+      "gripY": 172
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/verdant-enhanced.png",
+      "w": 150,
+      "h": 254,
+      "gripX": 88,
+      "gripY": 167
+    },
+    "glow": "#ffe359"
+  },
+  {
+    "name": "celestial",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/celestial-base.png",
+      "w": 153,
+      "h": 264,
+      "gripX": 77,
+      "gripY": 173
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/celestial-enhanced.png",
+      "w": 143,
+      "h": 263,
+      "gripX": 75,
+      "gripY": 171
+    },
+    "glow": "#ffd859"
+  },
+  {
+    "name": "archangel",
+    "base": {
+      "src": "assets/custom/cleric-staff-overlays/archangel-base.png",
+      "w": 175,
+      "h": 264,
+      "gripX": 86,
+      "gripY": 173
+    },
+    "enhanced": {
+      "src": "assets/custom/cleric-staff-overlays/archangel-enhanced.png",
+      "w": 161,
+      "h": 262,
+      "gripX": 77,
+      "gripY": 170
+    },
+    "glow": "#ffe659"
+  }
+]

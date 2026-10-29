@@ -1,23 +1,14 @@
 // Entry point: loads the asset images, slices sprites, wires input, starts the fixed-step loop.
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from './core/constants.js';
 import { GameLoop } from './core/game-loop.js';
 import { InputManager } from './core/input-manager.js';
-import { loadAllImages } from './graphics/asset-loader.js';
+import { loadSharedImages } from './graphics/asset-loader.js';
 import { buildSpriteRegistry } from './graphics/sprite-registry.js';
+import { createClassAssetLoader } from './graphics/class-asset-loader.js';
 import { GameController } from './game/game-controller.js';
 import { unlockCombatAudio } from './audio/combat-audio.js';
-import { configureCanvasDisplay, setScreenTransform } from './core/canvas-display.js';
+import { configureCanvasDisplay } from './core/canvas-display.js';
 import { FpsCounter } from './ui/fps-counter.js';
-
-function drawLoading(ctx, loaded, total) {
-  setScreenTransform(ctx);
-  ctx.fillStyle = '#0b0b14';
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  ctx.fillStyle = '#ffe680';
-  ctx.font = 'bold 24px "Courier New", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText(`Loading assets ${loaded}/${total}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-}
+import { drawLoadingScreen } from './ui/loading-screen.js';
 
 async function boot() {
   const canvas = document.getElementById('game-canvas');
@@ -27,15 +18,16 @@ async function boot() {
   // Opaque canvas: every frame is painted edge to edge, so the browser can skip alpha compositing.
   const ctx = canvas.getContext('2d', { alpha: false });
   ctx.imageSmoothingEnabled = false;
-  drawLoading(ctx, 0, 1);
+  drawLoadingScreen(ctx, 'Loading assets', 0, 1);
 
-  const images = await loadAllImages((loaded, total) => drawLoading(ctx, loaded, total));
+  const images = await loadSharedImages((loaded, total) => drawLoadingScreen(ctx, 'Loading assets', loaded, total));
   const registry = buildSpriteRegistry(images);
+  const classAssets = createClassAssetLoader(registry, images); // the chosen class's art streams in after the hero pick
   const input = new InputManager(canvas);
   // AudioContext must be resumed directly from a real user gesture.
   window.addEventListener('keydown', unlockCombatAudio);
   canvas.addEventListener('pointerdown', unlockCombatAudio);
-  const controller = new GameController(registry, input);
+  const controller = new GameController(registry, input, classAssets);
   const fps = new FpsCounter();
 
   const loop = new GameLoop({

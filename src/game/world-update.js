@@ -10,6 +10,8 @@ import { boxesOverlap } from '../systems/damage-formula.js';
 import { findPortalUnderPlayer, CAMERA_TARGET_Y_OFFSET } from '../world/map-manager.js';
 import { facingFromVector } from './player-controller.js';
 import { showActivityNotice, tickActivityNotice } from '../systems/activity-notice-system.js';
+import { tickMonsterStatus } from '../systems/monster-status-tick.js';
+import { slowFactor, isBlinded } from '../systems/monster-status.js';
 
 function updateMonsters(world, dt) {
   const { player, tilemap } = world;
@@ -17,6 +19,8 @@ function updateMonsters(world, dt) {
     if (monster.dead) continue;
     monster.animTimer += dt;
     if (monster.hitFlashTimer > 0) monster.hitFlashTimer -= dt;
+    tickMonsterStatus(world, monster, dt); // Assassin debuffs: poison ticks, Death Mark, slow/blind timers
+    if (monster.dead) continue;
     if (monster.airborneMs > 0) { monster.airborneMs = Math.max(0, monster.airborneMs - dt); continue; }
     for (const id of monster.hitBySwing) if (id < world.swingCounter - 3) monster.hitBySwing.delete(id);
 
@@ -28,10 +32,10 @@ function updateMonsters(world, dt) {
       dy = (monster.knockback.vy * dt) / 1000;
     } else if (!player.dead) {
       const intent = updateMonsterAi(monster, player, dt);
-      const speed = monster.def.speed * intent.speedFactor;
+      const speed = monster.def.speed * intent.speedFactor * slowFactor(monster);
       dx = (intent.moveX * speed * dt) / 1000;
       dy = (intent.moveY * speed * dt) / 1000;
-      if (intent.attack) performMonsterAttack(world, monster);
+      if (intent.attack && !isBlinded(monster)) performMonsterAttack(world, monster); // blinded monsters whiff
       if (intent.moveX !== 0 || intent.moveY !== 0) monster.dir = facingFromVector(intent.moveX, intent.moveY, monster.dir);
       else if (monster.ai.state === 'windup') monster.dir = facingFromVector(player.x - monster.x, player.y - monster.y, monster.dir);
     }
@@ -49,6 +53,7 @@ function updateMonsters(world, dt) {
 function lootLabel(drop) {
   if (drop.kind === 'equipment') return { text: drop.item.name, color: RARITIES[drop.item.rarity].color };
   if (drop.kind === 'coin') return { text: `${drop.value} Gold`, color: '#ffd84a' };
+  if (drop.kind === 'upgradeStone') return { text: drop.value > 1 ? `${drop.value} Upgrade Stones` : 'Upgrade Stone', color: '#9fd8ff' };
   return { text: drop.kind === 'hpPotion' ? 'HP Potion' : 'MP Potion', color: drop.kind === 'hpPotion' ? '#ff8c9c' : '#80ceff' };
 }
 

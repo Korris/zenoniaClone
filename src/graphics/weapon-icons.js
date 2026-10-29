@@ -1,8 +1,9 @@
 import { cropSprite } from './sprite-cell.js';
 import { equipmentTier } from '../data/item-definitions.js';
+import { gearIconRef } from './gear-icons.js';
 
 // Each class occupies two rows of the painted 5x6 atlas.
-export const WEAPON_CLASS_OFFSETS = Object.freeze({ warrior: 0, wizard: 10, mechanic: 20 });
+export const WEAPON_CLASS_OFFSETS = Object.freeze({ warrior: 0, wizard: 10, mechanic: 20, cleric: 10, assassin: 0 }); // cleric reuses the wizard staff icons; assassin daggers use the cut overlay icons (gear-icons.js), these offsets are only the painted fallback
 
 /** Find isolated silhouettes: painted rows have slightly uneven spacing. */
 export function buildWeaponIcons(sheet) {
@@ -46,7 +47,20 @@ export function weaponIconIndex(itemLevel, classId = 'warrior') {
   return (WEAPON_CLASS_OFFSETS[classId] ?? 0) + equipmentTier(itemLevel);
 }
 
+/** Cut-overlay art for class gear (registry.gearIcons[classId][slot][tier], see gear-icons.js), or undefined when that class's art is not loaded. */
+function classGearSprite(registry, item, classId, ground) {
+  const ref = gearIconRef(item, classId);
+  return ref ? (ground ? registry.groundGearIcons : registry.gearIcons)?.[ref.classId]?.[ref.slot]?.[ref.tier] : undefined;
+}
+
+/** Ground-drop variant of itemSprite's choice (undefined => caller falls back to its own ground icon lookup). */
+export function groundGearSprite(registry, item, classId = 'warrior') {
+  return classGearSprite(registry, item, classId, true);
+}
+
 export function itemSprite(registry, item, classId = 'warrior', inventory = false) {
+  const gear = classGearSprite(registry, item, classId, false);
+  if (gear) return gear;
   if (item.slot === 'weapon') {
     const sprite = registry.weaponIcons?.[weaponIconIndex(item.itemLevel, item.classId || classId)];
     if (sprite) return sprite;

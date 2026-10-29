@@ -1,5 +1,9 @@
+import { drawUpgradeStone } from './upgrade-stone-renderer.js';
+
 // Compact, short-necked flask with a clean silhouette at small drop sizes.
+// Also the single supply/drop icon entry point: 'upgradeStone' delegates to its own renderer.
 export function drawPotion(ctx, kind, x, y, size = 40) {
+  if (kind === 'upgradeStone') { drawUpgradeStone(ctx, x, y, size); return; }
   const hp = kind === 'hpPotion';
   ctx.save();
   ctx.translate(x, y); ctx.scale(size / 48, size / 48);

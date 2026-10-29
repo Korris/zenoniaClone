@@ -9,6 +9,8 @@
 // (ids are unique across classes; a skill's class is the class owning its branch, class-definitions.js).
 import { WIZARD_SKILL_DEFINITIONS, WIZARD_SKILL_ORDER } from './skill-definitions-wizard.js';
 import { MECHANIC_SKILL_DEFINITIONS, MECHANIC_SKILL_ORDER } from './skill-definitions-mechanic.js';
+import { CLERIC_SKILL_DEFINITIONS, CLERIC_SKILL_ORDER } from './skill-definitions-cleric.js';
+import { ASSASSIN_SKILL_DEFINITIONS, ASSASSIN_SKILL_ORDER } from './skill-definitions-assassin.js';
 
 const WARRIOR_SKILL_DEFINITIONS = {
   // ---- SWORD ----
@@ -126,9 +128,9 @@ const WARRIOR_SKILL_DEFINITIONS = {
   },
 };
 
-export const SKILL_DEFINITIONS = Object.freeze({ ...WARRIOR_SKILL_DEFINITIONS, ...WIZARD_SKILL_DEFINITIONS, ...MECHANIC_SKILL_DEFINITIONS });
+export const SKILL_DEFINITIONS = Object.freeze({ ...WARRIOR_SKILL_DEFINITIONS, ...WIZARD_SKILL_DEFINITIONS, ...MECHANIC_SKILL_DEFINITIONS, ...CLERIC_SKILL_DEFINITIONS, ...ASSASSIN_SKILL_DEFINITIONS });
 
-// Display/grouping order: tier 1 pair, tier 2 pair, tier 3 node, per branch (warrior, wizard, mechanic).
+// Display/grouping order: tier 1 pair, tier 2 pair, tier 3 node, per branch (warrior, wizard, mechanic, cleric, assassin).
 // Branches per class: CLASS_DEFINITIONS[classId].branches.
 export const SKILL_ORDER = Object.freeze([
   'slashWave', 'powerStrike', 'whirlwind', 'heavyBlow', 'bladeStorm',
@@ -136,6 +138,8 @@ export const SKILL_ORDER = Object.freeze([
   'focus', 'healingLight', 'battleCry', 'spiritBolt', 'critEye',
   ...WIZARD_SKILL_ORDER,
   ...MECHANIC_SKILL_ORDER,
+  ...CLERIC_SKILL_ORDER,
+  ...ASSASSIN_SKILL_ORDER,
 ]);
 
 // Input action -> hotbar slot index (hotbar skills are bound dynamically, see skill-system.js).

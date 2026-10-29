@@ -11,6 +11,7 @@ export class ComboController {
   }
 
   reset() {
+    this.serial = (this.serial || 0) + 1; // identifies the current swing; delayed effects (stab pulses) cancel when it changes
     this.state = 'idle';
     this.step = 0; // 1..config.hits.length while swinging, 0 when idle
     this.lastStep = 0; // last completed hit, used to continue the chain
@@ -57,6 +58,7 @@ export class ComboController {
   }
 
   startHit(step) {
+    this.serial = (this.serial || 0) + 1;
     this.step = step;
     this.state = 'windup';
     this.timer = 0;
@@ -67,8 +69,10 @@ export class ComboController {
   /**
    * Advance time. Returns an array of events: {type:'hit', step} when a swing becomes active,
    * {type:'end', step} when the swing finishes.
+   * @param {number} dt real elapsed ms (the chain window always uses this)
+   * @param {number} speed attack-speed factor; scales windup/active/recover only
    */
-  update(dt) {
+  update(dt, speed = 1) {
     const events = [];
     if (this.state === 'idle') {
       if (this.chainTimer > 0) {
@@ -79,7 +83,7 @@ export class ComboController {
     }
 
     const hit = this.currentHit;
-    this.timer += dt;
+    this.timer += dt * speed;
     if (this.state === 'windup' && this.timer >= hit.windupMs) {
       this.state = 'active';
       this.timer -= hit.windupMs;

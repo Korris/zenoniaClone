@@ -3,7 +3,7 @@ import { cropSprite } from './sprite-cell.js';
 import { SKILL_ORDER } from '../data/skill-definitions.js';
 import { FX_STRIPS } from './asset-atlas.js';
 
-export const PAINTED_CLASS_IDS = ['warrior', 'wizard', 'mechanic'];
+export const PAINTED_CLASS_IDS = ['warrior', 'wizard', 'mechanic', 'cleric', 'assassin']; // order = SKILL_ORDER groups of 15
 export const PAINTED_FX_ORDER = ['slash', 'arc', 'dashTrail', 'hitSpark', 'circular', 'flame', 'spark'];
 // The generated atlas has uneven row spacing; use its transparent gutters, not height / 7.
 const FX_ROW_EDGES = [0, 170, 380, 520, 690, 850, 995, 1168];
@@ -73,9 +73,9 @@ export function buildPaintedSkillIcons(images) {
       icons[id] = frames[i];
     });
   });
-  if (images.ultimateIcons) ['bladeStorm', 'carpetBomb'].forEach((id, col) => {
-    icons[id] = cell(images.ultimateIcons, col, 0, 2, 1, true);
-  });
+  // Earth Break (bladeStorm) and Rocket Barrage (carpetBomb) use their class roster icons; the ultimate sheet is only the fallback.
+  if (images.ultimateIcons && !images.paintedSkillsmechanic) icons.carpetBomb = cell(images.ultimateIcons, 1, 0, 2, 1, true);
+  if (images.ultimateIcons && !images.paintedSkillswarrior) icons.bladeStorm = cell(images.ultimateIcons, 0, 0, 2, 1, true);
   return icons;
 }
 export function buildPaintedCombatEffects(images) {

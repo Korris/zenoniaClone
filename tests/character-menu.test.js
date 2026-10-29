@@ -12,15 +12,15 @@ test('Bag tabs, close and paged cells match rendered positions', () => {
   assert.equal(menuHit(820, 118), 'Skills');
   assert.equal(menuHit(910, 64), 'close');
   const panel = new InventoryPanel();
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) { // weapon, helmet, armor, gloves, boots, offhand
     const p = equipSlotPosition(i);
     assert.deepEqual(panel.hitTest(p.x, p.y), { area: 'equipment', index: i });
   }
   panel.mode = 'Inventory';
-  for (let i = 0; i < 23; i++) {
+  for (let i = 0; i < 24; i++) {
     panel.page = Math.floor(i / 12);
     const p = gridSlotPosition(i);
-    assert.deepEqual(panel.hitTest(p.x, p.y), i < 3 ? { area: 'supply', index: i } : { area: 'bag', index: i - 3 });
+    assert.deepEqual(panel.hitTest(p.x, p.y), i < 4 ? { area: 'supply', index: i } : { area: 'bag', index: i - 4 });
   }
 });
 test('Inventory equips and discards gear; Equipment unequips without a Detail view', () => {

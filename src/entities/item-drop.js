@@ -2,6 +2,7 @@
 export const DROP_KINDS = Object.freeze({
   hpPotion: { spriteKey: 'potionHp', label: 'HP', color: '#ff6b6b' },
   mpPotion: { spriteKey: 'potionMp', label: 'MP', color: '#6ba8ff' },
+  upgradeStone: { spriteKey: 'upgradeStone', label: 'Stone', color: '#9fd8ff' },
   coin: { spriteKey: 'coin', label: 'Gold', color: '#ffd84a' },
 });
 

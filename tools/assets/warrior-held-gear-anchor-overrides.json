@@ -1,0 +1,58 @@
+{
+  "sword.attack2.left.1": {
+    "x": 43,
+    "y": 118,
+    "angle": -21,
+    "s": 0.3,
+    "sx": 1.0,
+    "behind": false
+  },
+  "sword.attack3.left.1": {
+    "x": 38,
+    "y": 72,
+    "angle": 62,
+    "s": 0.33,
+    "sx": 1.0,
+    "behind": false
+  },
+  "sword.hurt.down.0": {
+    "x": 60,
+    "y": 142,
+    "angle": -140,
+    "s": 0.34,
+    "sx": 1.0,
+    "behind": false
+  },
+  "sword.hurt.down.1": {
+    "x": 46,
+    "y": 138,
+    "angle": -148,
+    "s": 0.34,
+    "sx": 1.0,
+    "behind": false
+  },
+  "sword.attack3.down.2": {
+    "x": 82,
+    "y": 112,
+    "angle": -72,
+    "s": 0.335,
+    "sx": 1.0,
+    "behind": false
+  },
+  "sword.walk.right.3": {
+    "x": 104,
+    "y": 134,
+    "angle": 126,
+    "s": 0.335,
+    "sx": 1.0,
+    "behind": false
+  },
+  "sword.attack2.right.3": {
+    "x": 99,
+    "y": 143,
+    "angle": 117,
+    "s": 0.37,
+    "sx": 1.0,
+    "behind": false
+  }
+}

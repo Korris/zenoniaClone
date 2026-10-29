@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { Player } from '../src/entities/player.js';
 import { Monster } from '../src/entities/monster.js';
 import { WorldState } from '../src/game/world-state.js';
-import { performComboHit } from '../src/systems/combat-system.js';
+import { performComboHit } from '../src/systems/combo-hit-system.js';
 import { DIRECTION_VECTORS } from '../src/core/constants.js';
 
 test('warrior hits beyond the previous reach in all four directions but excludes distant and rear enemies', () => {

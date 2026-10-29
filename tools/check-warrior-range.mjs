@@ -15,7 +15,7 @@ try {
   await page.evaluate(() => { const g = window.__zenonia; g.update = () => {}; g.banner.lifeMs = 0; });
   for (const dir of ['right', 'left', 'up', 'down']) for (const step of [1, 2, 4]) {
     const result = await page.evaluate(async ({ dir, step }) => {
-      const { performComboHit } = await import('/src/systems/combat-system.js');
+      const { performComboHit } = await import('/src/systems/combo-hit-system.js');
       const { Monster } = await import('/src/entities/monster.js');
       const { DIRECTION_VECTORS } = await import('/src/core/constants.js');
       const g = window.__zenonia, w = g.session.world, p = w.player, v = DIRECTION_VECTORS[dir];

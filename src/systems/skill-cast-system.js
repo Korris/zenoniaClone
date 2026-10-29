@@ -11,6 +11,8 @@ import { Projectile } from '../entities/projectile.js';
 import { SkillPulse } from '../entities/skill-pulse.js';
 import { IceStorm } from '../entities/ice-storm.js';
 import { castUltimate } from './ultimate-skills.js';
+import { CLERIC_CAST_HANDLERS, SUPPORT_EFFECT_KINDS } from './cleric-skill-handlers.js';
+import { ASSASSIN_CAST_HANDLERS, ASSASSIN_SUPPORT_KINDS } from './assassin-skill-handlers.js';
 
 const DASH_SPEED = 420; // px/s
 const DIR_ANGLE = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
@@ -26,38 +28,44 @@ export function tryCastSkill(world, skillId) {
   player.cooldowns[skillId] = getSkillValue(skillId, 'cooldownMs', check.level);
   const def = SKILL_DEFINITIONS[skillId];
   const mult = getSkillValue(skillId, 'damageMult', check.level);
-  // Non-damage skills (heal/buff) don't interrupt an in-progress combo chain.
-  if (def.effect.kind !== 'heal' && def.effect.kind !== 'buff') player.combo.reset();
+  // Non-damage skills (heal/buff/shield/...) don't interrupt an in-progress combo chain.
+  if (!SUPPORT_EFFECT_KINDS.includes(def.effect.kind) && !ASSASSIN_SUPPORT_KINDS.includes(def.effect.kind)) player.combo.reset();
 
-  CAST_HANDLERS[def.effect.kind](world, check.level, mult, def);
+  // A handler may return false when there is nothing to act on (no target for Shadow Step / Death Mark):
+  // the cast is refunded (MP back, no cooldown) instead of wasted.
+  if (CAST_HANDLERS[def.effect.kind](world, check.level, mult, def) === false) {
+    player.mp += check.cost;
+    player.cooldowns[skillId] = 0;
+    return { ok: false, reason: 'No target' };
+  }
   return { ok: true, reason: '' };
 }
 
 function castProjectile(world, level, mult, def) {
   const { player } = world;
   const v = DIRECTION_VECTORS[player.dir];
-  const { speed, spriteKey, w, h, scale, pierceFromLevel, label, textColor, explodeFx } = def.effect;
+  const { speed, spriteKey, w, h, scale, pierceFromLevel, label, textColor, explodeFx, tint } = def.effect;
   const range = getSkillValue(def.id, 'range', level);
   world.projectiles.push(new Projectile({
     x: player.x + v.x * 10, y: player.y - 6 + v.y * 10, vx: v.x * speed, vy: v.y * speed,
     owner: 'player', damage: heroAttack(player) * mult, spriteKey, scale,
     lifeMs: (range / speed) * 1000, w, h, pierce: level >= pierceFromLevel,
     // Fireball-style skills burst on impact (projectile-hit-system.js); 0 for plain projectiles.
-    explodeRadius: getSkillValue(def.id, 'explodeRadius', level), explodeFx, knockback: 110,
+    explodeRadius: getSkillValue(def.id, 'explodeRadius', level), explodeFx, knockback: 110, tint,
   }));
   world.addText(player.x, player.y - 26, label, textColor, { lifeMs: 500 });
 }
 
 function castRadial(world, level, mult, def) {
   const { player } = world;
-  const { knockback, pulses = 1, pulseIntervalMs, label, textColor, fx = 'arc', fxDiameter } = def.effect;
+  const { knockback, pulses = 1, pulseIntervalMs, label, textColor, fx = 'arc', fxDiameter, tint } = def.effect;
   const radius = getSkillValue(def.id, 'radius', level);
   // fx: burst sprite. The sword arc keeps its old radius/30 sizing; HD bursts give their diameter in
   // world units (fxDiameter) so the art spans exactly the hit radius.
   const fxScale = (fxDiameter ? (2 * radius) / fxDiameter : radius / 30) * (def.effect.visualScale ?? 1);
   const pulse = () => {
     performRadialHit(world, radius, mult, knockback);
-    world.addEffect({ x: player.x, y: player.y - 8, spriteKey: fx, rotation: Math.random() * Math.PI * 2, lifeMs: 320, scale: fxScale, spin: 16, follow: player, offsetY: -8 });
+    world.addEffect({ x: player.x, y: player.y - 8, spriteKey: fx, rotation: Math.random() * Math.PI * 2, lifeMs: 320, scale: fxScale, spin: 16, follow: player, offsetY: -8, tint });
   };
   pulse();
   if (pulses > 1) world.skillPulses.push(new SkillPulse({ remaining: pulses - 1, intervalMs: pulseIntervalMs, onPulse: pulse }));
@@ -67,10 +75,10 @@ function castRadial(world, level, mult, def) {
 
 function castStrike(world, level, mult, def) {
   const { player } = world;
-  const { reach, width, knockback, label, textColor } = def.effect;
+  const { reach, width, knockback, label, textColor, tint } = def.effect;
   performSkillStrike(world, reach, width, mult, knockback);
   const v = DIRECTION_VECTORS[player.dir];
-  world.addEffect({ x: player.x + v.x * 14, y: player.y - 7 + v.y * 14, spriteKey: 'arc', rotation: DIR_ANGLE[player.dir], lifeMs: 260, scale: 1.3 });
+  world.addEffect({ x: player.x + v.x * 14, y: player.y - 7 + v.y * 14, spriteKey: def.effect.fx || 'arc', rotation: DIR_ANGLE[player.dir], lifeMs: 260, scale: def.effect.fxScale ?? 1.3, tint });
   world.hitStopMs = 40;
   world.addText(player.x, player.y - 26, label, textColor, { lifeMs: 500 });
 }
@@ -101,6 +109,8 @@ function castBuff(world, level, mult, def) {
 }
 
 const CAST_HANDLERS = Object.freeze({
+  ...CLERIC_CAST_HANDLERS,
+  ...ASSASSIN_CAST_HANDLERS,
   earthBreak: castUltimate, rocketBarrage: castUltimate,
   iceStorm: (world, level, mult, def) => {
     const p = world.player, v = DIRECTION_VECTORS[p.dir];

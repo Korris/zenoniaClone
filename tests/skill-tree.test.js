@@ -55,7 +55,8 @@ test('every skill icon is registered in the asset manifest', () => {
 });
 
 test('active skills carry a valid effect.kind; passives carry a passive stat map', () => {
-  const kinds = new Set(['projectile', 'radial', 'strike', 'dash', 'heal', 'buff', 'iceStorm', 'earthBreak', 'rocketBarrage']);
+  const kinds = new Set(['projectile', 'radial', 'strike', 'dash', 'heal', 'buff', 'iceStorm', 'earthBreak', 'rocketBarrage', 'holyBlast', 'healZone', 'purify', 'shield', 'haste', 'angelsDescent',
+    'shadowStep', 'backstab', 'smokeBomb', 'phantomAssault', 'shadowClone', 'poisonBlade', 'venomCloud', 'crippleStrike', 'deathMark']);
   for (const id of SKILL_ORDER) {
     const def = SKILL_DEFINITIONS[id];
     if (def.type === 'active') {

@@ -14,10 +14,12 @@ export function heroAttack(player) {
  * @param {number} targetDef defender's defense
  * @param {number} mult skill/combo multiplier (NOT including the crit multiplier)
  * @param {() => number} rand injectable RNG for deterministic tests
+ * @param {number} critBonus extra crit chance for this hit only (e.g. Backstab)
  */
-export function rollPlayerDamage(player, targetDef, mult, rand = Math.random) {
-  const crit = rand() < (player.passiveMods?.critChance || 0);
-  const damage = computeDamage(heroAttack(player), targetDef, mult * (crit ? 1.6 : 1), rand);
+export function rollPlayerDamage(player, targetDef, mult, rand = Math.random, critBonus = 0) {
+  const crit = rand() < (player.passiveMods?.critChance || 0) + critBonus;
+  // Crit multiplier is x1.6, raised by the critDamage passive (Assassin's Shadow Mastery).
+  const damage = computeDamage(heroAttack(player), targetDef, mult * (crit ? 1.6 + (player.passiveMods?.critDamage || 0) : 1), rand);
   return { damage, crit };
 }
 

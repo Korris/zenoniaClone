@@ -11,6 +11,7 @@ export const TILE_SIZE = 16;
 export const GAME_STATES = Object.freeze({
   TITLE: 'title',
   CLASS_SELECT: 'classSelect',
+  LOADING: 'loading',
   PLAYING: 'playing',
   PAUSED: 'paused',
   SKILLS: 'skills',

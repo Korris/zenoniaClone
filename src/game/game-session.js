@@ -4,11 +4,12 @@ import { Player } from '../entities/player.js';
 import { Camera } from '../core/camera.js';
 import { WorldState } from './world-state.js';
 import { loadMap, placePlayerAtWorld } from '../world/map-manager.js';
-import { FIRST_MAP_ID } from '../world/map-registry.js';
+import { FIRST_MAP_ID, getMapDefinition as loadMapDef } from '../world/map-registry.js';
 import { serializeSave } from '../save/save-serializer.js';
 import { writeSave, readSave } from '../save/local-storage-save.js';
 import { createQuestState, sanitizeQuestState, recordMapEnter } from '../systems/quest-system.js';
 import { SKILL_DEFINITIONS } from '../data/skill-definitions.js';
+import { equipStarterGear } from '../systems/starter-gear.js';
 import { classForBranch } from '../data/class-definitions.js';
 
 const AUTOSAVE_INTERVAL_MS = 30000;
@@ -33,6 +34,8 @@ export class GameSession {
     if (SKILL_PREVIEW_MODE) this.player.skillPoints = Object.values(SKILL_DEFINITIONS)
       .filter(def => classForBranch(def.branch) === this.player.classId)
       .reduce((sum, def) => sum + def.maxLevel, 0);
+    equipStarterGear(this.player);
+    this.player.hp = this.player.maxHp; this.player.mp = this.player.maxMp; // include starter bonuses
     this.world = new WorldState(this.player, this.camera);
     this.quests = createQuestState();
     this.enterMap(FIRST_MAP_ID);
@@ -44,6 +47,7 @@ export class GameSession {
     if (!save) return false;
     this.player = new Player(save.player.classId);
     this.player.applySaveData(save.player);
+    equipStarterGear(this.player); // older saves may have empty weapon/offhand slots
     this.player.skillTestMode = SKILL_PREVIEW_MODE;
     this.world = new WorldState(this.player, this.camera);
     this.world.bossDefeated = save.bossDefeated;
@@ -84,11 +88,11 @@ export class GameSession {
     return { travelled: false, reached: [] };
   }
 
-  /** Revive at the current map's start; returns EXP lost. */
+  /** Revive in Oakhaven Village (loadMap clears monsters, effects, zones, clones and pulses); returns EXP lost. */
   respawn() {
     const lost = this.player.revive();
-    const { playerStart } = this.world.mapDef;
-    this.enterMap(this.world.mapId, playerStart.tx, playerStart.ty);
+    const { playerStart } = loadMapDef(FIRST_MAP_ID);
+    this.enterMap(FIRST_MAP_ID, playerStart.tx, playerStart.ty);
     return lost;
   }
 

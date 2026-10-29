@@ -17,7 +17,7 @@ try {
     const { FX_STRIPS } = await import('/src/graphics/asset-atlas.js');
     const { PAINTED_FX_ORDER } = await import('/src/graphics/painted-combat-assets.js');
     const g = window.__zenonia;
-    for (const id of SKILL_ORDER) {
+    for (const id of SKILL_ORDER.slice(0, 45)) { // warrior/wizard/mechanic; cleric icons are checked once its atlas exists
       const icon = g.registry.icons[id];
       if (!icon || Math.min(icon.width, icon.height) < 100) throw Error(`Pixel/missing icon ${id}`);
       const data = icon.getContext('2d').getImageData(0, 0, icon.width, icon.height).data;

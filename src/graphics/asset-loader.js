@@ -1,5 +1,5 @@
-// Loads the image files listed in the asset atlas before the game starts.
-import { ASSET_FILES } from './asset-atlas.js';
+// Loads image files listed in the asset atlas: the shared set before the title screen and, later, one class set.
+import { SHARED_ASSET_FILES } from './asset-atlas.js';
 
 const ASSET_ROOT = 'assets/';
 
@@ -13,26 +13,29 @@ function loadImage(path) {
 }
 
 /**
- * Loads every file in ASSET_FILES. A failed load (e.g. an HD sheet not generated yet) does NOT
- * reject the whole boot -- it's logged as a warning and simply dropped from the returned map, so
- * callers (sprite-registry.js) must treat any `images[key]` as possibly undefined.
+ * Loads the files of `files` (key -> path) that `images` does not hold yet, adding them in place. A failed load
+ * (e.g. an HD sheet not generated yet) does NOT reject: it is logged as a warning and the key is simply absent,
+ * so callers (sprite builders) must treat any `images[key]` as possibly undefined.
+ * @param {Record<string,string>} files image key -> path under assets/
+ * @param {Record<string, HTMLImageElement>} images accumulating map (shared + loaded class images)
  * @param {(loaded:number, total:number) => void} onProgress optional progress callback
- * @returns {Promise<Record<string, HTMLImageElement>>} images keyed by atlas name (missing keys omitted)
+ * @param {(path:string) => Promise<HTMLImageElement>} loader injectable for tests
+ * @returns {Promise<Record<string, HTMLImageElement>>} the same `images` map
  */
-export async function loadAllImages(onProgress = null) {
-  const entries = Object.entries(ASSET_FILES);
-  const images = {};
+export async function loadImageSet(files, images = {}, onProgress = null, loader = loadImage) {
+  const entries = Object.entries(files).filter(([key]) => !images[key]);
   let loaded = 0;
-  const results = await Promise.allSettled(entries.map(([, path]) => loadImage(path)));
-  results.forEach((result, i) => {
-    const [key, path] = entries[i];
-    if (result.status === 'fulfilled') {
-      images[key] = result.value;
-    } else {
-      console.warn(`[asset-loader] missing asset "${key}" (${path}): ${result.reason?.message || result.reason}`);
-    }
+  await Promise.all(entries.map(([key, path]) => loader(path).then(
+    (img) => { images[key] = img; },
+    (reason) => console.warn(`[asset-loader] missing asset "${key}" (${path}): ${reason?.message || reason}`),
+  ).then(() => {
     loaded++;
     if (onProgress) onProgress(loaded, entries.length);
-  });
+  })));
   return images;
+}
+
+/** The shared set (everything except class-owned art). */
+export function loadSharedImages(onProgress = null) {
+  return loadImageSet(SHARED_ASSET_FILES, {}, onProgress);
 }

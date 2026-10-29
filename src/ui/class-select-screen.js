@@ -1,4 +1,4 @@
-// New Game -> "Choose your hero": one card per playable class with an animated idle preview,
+// New Game -> "Choose your hero": one card per playable class with a portrait preview,
 // tagline, attack style and base-stat bars. Left/Right (or click) select, Enter/J confirm,
 // Esc back to the title.
 import { CANVAS_WIDTH, CANVAS_HEIGHT, PIXEL_SCALE } from '../core/constants.js';
@@ -6,11 +6,10 @@ import { drawText, drawPanel, UI_FONT } from './pixel-text.js';
 import { HERO_FRAME_SIZE } from '../graphics/sprite-registry.js';
 import { CLASS_DEFINITIONS, CLASS_IDS } from '../data/class-definitions.js';
 
-const CARD_W = 280;
-const CARD_H = 330;
-const CARD_GAP = 20;
+const CARD_W = 178; // five cards must fit the 960px canvas
+const CARD_H = 346;
+const CARD_GAP = 10;
 const CARD_Y = 150;
-const IDLE_FRAME_MS = 200;
 const STAT_BARS = [
   { key: 'maxHp', label: 'HP', color: '#e85050' },
   { key: 'maxMp', label: 'MP', color: '#4f8ff0' },
@@ -79,23 +78,23 @@ export class ClassSelectScreen {
       ? { fill: 'rgba(60,50,20,0.92)', border: '#ffe680' }
       : { fill: 'rgba(16,16,30,0.92)', border: '#55557a' });
 
-    // Animated idle preview, drawn at the same world-unit size as in game (x PIXEL_SCALE) -- the
-    // selected class faces the viewer, the other one looks toward it.
-    const set = registry.heroes?.[classId] || registry.hero;
-    const frames = set.down.idle;
-    const frame = frames[Math.floor(nowMs / IDLE_FRAME_MS) % frames.length];
+    // Portrait preview (the class's sheets only load after the pick, so the cards use the small per-class face).
+    // Sized like the in-game hero frame (x PIXEL_SCALE x 1.3) so the card layout below is unchanged.
+    const face = registry.faces?.heroByClass?.[classId] || registry.faces?.hero;
     const size = HERO_FRAME_SIZE * PIXEL_SCALE * 1.3;
-    ctx.imageSmoothingEnabled = (frame.pixelsPerUnit || 1) > 1;
-    ctx.globalAlpha = selected ? 1 : 0.55;
-    ctx.drawImage(frame, x + CARD_W / 2 - size / 2, CARD_Y + 14, size, size);
-    ctx.globalAlpha = 1;
-    ctx.imageSmoothingEnabled = false;
+    if (face) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.globalAlpha = selected ? 1 : 0.55;
+      ctx.drawImage(face, x + CARD_W / 2 - size / 2, CARD_Y + 14, size, size);
+      ctx.globalAlpha = 1;
+      ctx.imageSmoothingEnabled = false;
+    }
 
     let y = CARD_Y + 14 + size + 4;
     drawText(ctx, def.name, x + CARD_W / 2, y, { size: 24, align: 'center', color: selected ? '#ffffff' : '#b8b8cc' });
     y += 32;
     ctx.font = `bold 12px ${UI_FONT}`; // same font drawText uses, so wrapping measures true widths
-    for (const line of wrapLines(ctx, def.tagline, CARD_W - 32)) {
+    for (const line of wrapLines(ctx, def.tagline, CARD_W - 24)) {
       drawText(ctx, line, x + CARD_W / 2, y, { size: 12, align: 'center', color: '#d0d0e0' });
       y += 16;
     }
@@ -103,12 +102,12 @@ export class ClassSelectScreen {
     y += 24;
     for (const { key, label, color } of STAT_BARS) {
       const value = def.baseStats[key];
-      drawText(ctx, label, x + 24, y, { size: 12, color: '#c8c8dc' });
+      drawText(ctx, label, x + 14, y, { size: 12, color: '#c8c8dc' });
       ctx.fillStyle = 'rgba(255,255,255,0.12)';
-      ctx.fillRect(x + 70, y + 2, CARD_W - 130, 9);
+      ctx.fillRect(x + 52, y + 2, CARD_W - 92, 9);
       ctx.fillStyle = color;
-      ctx.fillRect(x + 70, y + 2, (CARD_W - 130) * (value / maxStat[key]), 9);
-      drawText(ctx, String(value), x + CARD_W - 24, y, { size: 12, align: 'right', color: '#ffffff' });
+      ctx.fillRect(x + 52, y + 2, (CARD_W - 92) * (value / maxStat[key]), 9);
+      drawText(ctx, String(value), x + CARD_W - 12, y, { size: 12, align: 'right', color: '#ffffff' });
       y += 17;
     }
   }

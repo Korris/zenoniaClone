@@ -5,7 +5,7 @@ import { SKILL_DEFINITIONS } from '../data/skill-definitions.js';
 import { HOTBAR_SLOTS } from '../systems/skill-system.js';
 import { sanitizeQuestState } from '../systems/quest-system.js';
 import { EQUIPMENT_SLOTS } from '../data/item-definitions.js';
-import { sanitizeItem, INVENTORY_SIZE } from '../systems/equipment-system.js';
+import { sanitizeItem, canEquipForClass, INVENTORY_SIZE } from '../systems/equipment-system.js';
 import { CLASS_DEFINITIONS, DEFAULT_CLASS_ID, classForBranch } from '../data/class-definitions.js';
 
 export const SAVE_VERSION = 1;
@@ -59,6 +59,12 @@ export function validateSave(data) {
   for (const slot of EQUIPMENT_SLOTS) {
     const item = p.equipment?.[slot] ? sanitizeItem(p.equipment[slot]) : null;
     equipment[slot] = item && item.slot === slot ? item : null;
+    // Class lock: gear tagged for another class can't stay equipped (tampered/legacy save). It goes
+    // back to the bag when there is room, otherwise it is dropped; equipStarterGear refills the slot.
+    if (equipment[slot] && !canEquipForClass({ classId }, equipment[slot])) {
+      if (inventory.length < INVENTORY_SIZE) inventory.push(equipment[slot]);
+      equipment[slot] = null;
+    }
   }
 
   return {
@@ -75,6 +81,7 @@ export function validateSave(data) {
       potions: Object.fromEntries(['hpPotion', 'mpPotion'].map(kind => [kind,
         isNum(p.potions?.[kind]) ? Math.max(0, Math.min(Number.MAX_SAFE_INTEGER, Math.floor(p.potions[kind]))) : 0,
       ])),
+      materials: { upgradeStone: isNum(p.materials?.upgradeStone) ? Math.max(0, Math.min(9999, Math.floor(p.materials.upgradeStone))) : 0 },
       hp: isNum(p.hp) && p.hp > 0 ? p.hp : undefined, // never load a dead hero
       mp: isNum(p.mp) ? p.mp : undefined,
       inventory,

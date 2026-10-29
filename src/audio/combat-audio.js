@@ -74,7 +74,10 @@ export function playAttackSound(classId, step, finisher) {
   if (classId === 'mechanic') {
     noise(time, 0.12, 2400, 0.65 * force, 'lowpass');
     tone(time, 0.13, 140, 45, 0.45 * force);
-  } else if (classId === 'wizard') {
+  } else if (classId === 'assassin') { // quick high dagger whisks
+    noise(time, finisher ? 0.16 : 0.08, 3600 + step * 200, 0.5 * force);
+    tone(time + 0.01, 0.05, 260, 90, 0.12 * force);
+  } else if (classId === 'wizard' || classId === 'cleric') {
     noise(time, 0.15, 3000, 0.32 * force);
     tone(time, 0.18, 600 + step * 70, 220, 0.2 * force, 'triangle');
   } else {

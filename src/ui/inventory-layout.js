@@ -2,6 +2,7 @@
 // No DOM/canvas calls here; inventory-panel.js does the actual drawing.
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../core/constants.js';
 import { EQUIPMENT_SLOTS } from '../data/item-definitions.js';
+import { effectiveItemStats } from '../systems/weapon-enhance-stats.js';
 
 export const PANEL_W = 640;
 export const PANEL_H = 568;
@@ -21,10 +22,13 @@ export const BAG_ACTIONS = Object.freeze({
   sort: { x: 332, y: 528, w: 76, h: 32 },
   page: { x: 420, y: 528, w: 76, h: 32 },
   unequip: { x: 748, y: 528, w: 160, h: 32 },
+  loadoutEnhance: { x: 540, y: 528, w: 150, h: 32 },
 });
 export function equipSlotPosition(index) {
-  const left = [0, 1, 2, 3].includes(index);
-  return { x: left ? 360 : 658, y: 202 + (left ? index : 0) * 84 };
+  // Left column: weapon/helmet/armor/gloves. Right column: boots, offhand (5), then locked slots.
+  const left = index < 4;
+  const row = left ? index : index === 5 ? 1 : 0;
+  return { x: left ? 360 : 658, y: 202 + row * 84 };
 }
 export function gridSlotPosition(index) {
   index %= GRID_COLS * GRID_ROWS;
@@ -35,7 +39,7 @@ export function slotLabel(slot) {
   return slot.charAt(0).toUpperCase() + slot.slice(1);
 }
 
-const STAT_LABELS = { atk: 'ATK', def: 'DEF', maxHp: 'Max HP', speedMult: 'Speed', critChance: 'Crit' };
+const STAT_LABELS = { atk: 'ATK', def: 'DEF', maxHp: 'Max HP', maxMp: 'Max MP', speedMult: 'Speed', critChance: 'Crit' };
 const PERCENT_STATS = new Set(['speedMult', 'critChance']);
 
 export function formatStatValue(stat, value) {
@@ -45,13 +49,18 @@ export function formatStatValue(stat, value) {
 
 /** Absolute stat lines for the selected item, e.g. ["ATK 7", "Crit 4%"]. */
 export function describeItemStats(item) {
-  return Object.entries(item.stats).map(([stat, value]) => `${STAT_LABELS[stat] || stat} ${formatStatValue(stat, value)}`);
+  const effective = effectiveItemStats(item);
+  return Object.entries(effective).map(([stat, value]) => {
+    const bonus = value - (item.stats[stat] || 0);
+    return `${STAT_LABELS[stat] || stat} ${formatStatValue(stat, value)}${bonus > 0 ? ` (+${formatStatValue(stat, bonus)})` : ''}`;
+  });
 }
 
 /** Per-stat deltas vs. the currently equipped item in the same slot (or none, if nothing equipped). */
 export function compareToEquipped(item, equipped) {
-  return Object.entries(item.stats).map(([stat, value]) => {
-    const prev = equipped?.stats?.[stat] || 0;
+  const prevStats = equipped ? effectiveItemStats(equipped) : {};
+  return Object.entries(effectiveItemStats(item)).map(([stat, value]) => {
+    const prev = prevStats[stat] || 0;
     const delta = value - prev;
     const sign = delta > 0 ? '+' : delta < 0 ? '-' : '';
     const magnitude = formatStatValue(stat, Math.abs(delta));

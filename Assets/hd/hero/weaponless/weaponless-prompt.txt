@@ -1,0 +1,8 @@
+Tool: ChatGPT Plus (chatgpt.com, image gen), chat "Gen ảnh vũ khí nhân vật". One sheet per message.
+Attach: the matching baked raw sheet from assets/hd/hero/<anim>.png (walk uses walk-v2.png).
+
+Template:
+Edit the attached sprite sheet. Keep EVERYTHING identical: same character (black ponytail, red headband warrior), same anime/manga chibi style, same top-down classic view, same grid (4 rows: facing down, up, screen-left, screen-right; {N} frames per row, same order), same poses, body positions, proportions, outline weight and colors. ONLY change: remove the sword completely. The hands stay exactly where they are, closed in a gripping fist as if still holding an invisible handle (fingers wrapped around an empty hilt). Do not move arms. Fill any body/cloth area previously hidden behind the blade with matching clothing. No weapon, no slash effects, no glow, no motion lines, no shadow, no text. Transparent background, crisp 2D cel shading. This is the {anim} animation, {N} frames per row.
+
+Attack sheets append: Fists keep the swing pose; wrist angle unchanged.
+Frame counts: idle4 walk4 attack1 4 attack2 4 attack3 6 dash3 hurt2 death5.

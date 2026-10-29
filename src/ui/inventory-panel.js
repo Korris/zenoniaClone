@@ -1,11 +1,13 @@
 // Equipment shows the loadout; Inventory holds both supplies and unequipped gear.
 import { drawCharacterMenu } from './character-menu.js';
 import { bagText as drawText, bagPanel, bagButton, bagSlot, bagWrappedText, bagPortraitBackdrop } from './bag-widgets.js';
-import { RARITIES } from '../data/item-definitions.js';
+import { RARITIES, OFFHAND_BY_CLASS } from '../data/item-definitions.js';
 import { getClassDefinition } from '../data/class-definitions.js';
-import { drawPotion } from '../graphics/potion-renderer.js';
 import { itemSprite } from '../graphics/weapon-icons.js';
 import { usePotion } from '../systems/loot-system.js';
+import { displayItemName, isEnhanceable } from '../systems/weapon-enhance-stats.js';
+import { enhancePreview, drawEnhancePreview, drawEnhanceButton, runEnhance } from './inventory-enhance-actions.js';
+import { supplyCount, drawSupplyIcon, drawSupplyDetails } from './inventory-supply-cells.js';
 import { equipItem, unequipItem, removeFromInventory, INVENTORY_SIZE } from '../systems/equipment-system.js';
 import { SLOT_SIZE, EQUIP_SLOT_SIZE, GRID_COLS, GRID_ROWS, BAG_ACTIONS, EQUIP_SLOT_ORDER,
   equipSlotPosition, gridSlotPosition, slotLabel, describeItemStats, compareToEquipped } from './inventory-layout.js';
@@ -13,14 +15,14 @@ import { SLOT_SIZE, EQUIP_SLOT_SIZE, GRID_COLS, GRID_ROWS, BAG_ACTIONS, EQUIP_SL
 const PAGE_SIZE = GRID_COLS * GRID_ROWS;
 const inside = (p, r) => p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h;
 const drawAction = (ctx, text, bounds, tone) => bagButton(ctx, text, bounds.x, bounds.y, bounds.w, bounds.h, tone);
-const SUPPLY_NAMES = { coin: 'Gold', hpPotion: 'HP Potion', mpPotion: 'MP Potion' };
 
 export class InventoryPanel {
   constructor() {
     this.mode = 'Equipment';
     this.selection = { area: 'equipment', index: 0 };
     this.page = 0;
-    this.supplyOrder = ['coin', 'hpPotion', 'mpPotion'];
+    this.supplyOrder = ['coin', 'hpPotion', 'mpPotion', 'upgradeStone'];
+    this.enhanceRoll = Math.random; // overridable by checks/tests for deterministic outcomes
     this.message = ''; this.messageTimer = 0; this.lastClick = null;
   }
   handleInput(input, player) {
@@ -30,8 +32,10 @@ export class InventoryPanel {
     for (const kind of ['hpPotion', 'mpPotion']) if (input.wasPressed(kind)) this.flash(usePotion(player, kind) ? 'Restored 30%' : 'No potion or resource full');
     for (const click of input.takeClicks()) {
       if (this.mode === 'Equipment' && inside(click, BAG_ACTIONS.unequip)) { this.activate(player); continue; }
+      if (this.mode === 'Equipment' && inside(click, BAG_ACTIONS.loadoutEnhance) && isEnhanceable(this.selectedItem(player))) { runEnhance(this, player, this.selectedItem(player)); continue; }
       if (this.mode === 'Inventory') {
         if (inside(click, BAG_ACTIONS.primary)) { this.activate(player); continue; }
+        if (inside(click, BAG_ACTIONS.secondary) && this.selection.area === 'bag' && this.selectedItem(player)) { runEnhance(this, player, this.selectedItem(player)); continue; }
         if (inside(click, BAG_ACTIONS.page)) { this.page = (this.page + 1) % this.pageCount; this.selection = this.cellSelection(this.page * PAGE_SIZE); continue; }
         if (inside(click, BAG_ACTIONS.sort)) {
           player.inventory.sort((a, b) => EQUIP_SLOT_ORDER.indexOf(a.slot) - EQUIP_SLOT_ORDER.indexOf(b.slot) || b.itemLevel - a.itemLevel);
@@ -54,8 +58,8 @@ export class InventoryPanel {
   navigate(input) {
     if (this.mode === 'Equipment') {
       if (this.selection.area !== 'equipment') this.selection = { area: 'equipment', index: 0 };
-      if (input.wasPressed('moveUp')) this.selection.index = (this.selection.index + 4) % 5;
-      if (input.wasPressed('moveDown')) this.selection.index = (this.selection.index + 1) % 5;
+      if (input.wasPressed('moveUp')) this.selection.index = (this.selection.index + EQUIP_SLOT_ORDER.length - 1) % EQUIP_SLOT_ORDER.length;
+      if (input.wasPressed('moveDown')) this.selection.index = (this.selection.index + 1) % EQUIP_SLOT_ORDER.length;
       return;
     }
     let i = this.selection.area === 'bag' ? this.selection.index + this.supplyOrder.length : this.selection.index;
@@ -100,7 +104,7 @@ export class InventoryPanel {
     removeFromInventory(player, item.uid); this.flash(`Discarded ${item.name}`);
   }
   flash(text) { this.message = text; this.messageTimer = 1500; }
-  supplyCount(player, kind) { return kind === 'coin' ? player.gold : player.potions?.[kind] || 0; }
+  supplyCount(player, kind) { return supplyCount(player, kind); }
   render(ctx, player, registry) {
     drawCharacterMenu(ctx, player, this.mode, registry);
     if (this.mode === 'Inventory') this.drawEquipmentBag(ctx, player, registry);
@@ -125,16 +129,16 @@ export class InventoryPanel {
       if (item) this.drawItemIcon(ctx, registry, item, p.x, p.y, 0.85, player.classId);
       else {
         ctx.save(); ctx.globalAlpha = 0.22; ctx.filter = 'grayscale(1)';
-        this.drawItemIcon(ctx, registry, { slot, itemLevel: 1 }, p.x, p.y, 0.72, player.classId); ctx.restore();
+        this.drawItemIcon(ctx, registry, { slot, itemLevel: 1, templateId: slot === 'offhand' ? OFFHAND_BY_CLASS[player.classId]?.type : undefined }, p.x, p.y, 0.72, player.classId); ctx.restore();
       }
     });
-    for (let i = 1; i < 4; i++) bagSlot(ctx, 628, 172 + i * 84, 60, { locked: true, color: '#4e667d' });
+    for (let i = 2; i < 4; i++) bagSlot(ctx, 628, 172 + i * 84, 60, { locked: true, color: '#4e667d' });
     const frame = (registry.heroes?.[player.classId] || registry.hero)?.down.idle[0];
     if (frame) { ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(frame, 399, 240, 216, 216); ctx.restore(); }
     drawText(ctx, `${getClassDefinition(player.classId).name}  Lv. ${player.level}`, 508, 490, { size: 12, align: 'center', color: '#b0cadb' });
     drawText(ctx, '+ Status', 716, 165, { size: 17 });
     const stats = [['HP', player.maxHp], ['MP', player.maxMp], ['ATK', player.atk], ['DEF', player.def],
-      ['Magic ATK', player.classId === 'wizard' ? player.atk : 0], ['Magic DEF', player.def], ['CRI Rate', `${(player.passiveMods.critChance * 100).toFixed(1)}%`],
+      ['Magic ATK', player.classId === 'wizard' || player.classId === 'cleric' ? player.atk : 0], ['Magic DEF', player.def], ['CRI Rate', `${(player.passiveMods.critChance * 100).toFixed(1)}%`],
       ['Move Speed', `${Math.round(player.speed / getClassDefinition(player.classId).baseStats.speed * 100)}%`]];
     stats.forEach(([label, value], i) => {
       const y = 204 + i * 33;
@@ -143,7 +147,13 @@ export class InventoryPanel {
       drawText(ctx, label, 716, y, { size: 13, color: '#bbdaed', bold: false });
       drawText(ctx, `${value}`, 914, y, { size: 14, align: 'right' });
     });
-    if (this.selectedItem(player)) drawAction(ctx, 'Unequip', BAG_ACTIONS.unequip, 'blue');
+    const held = this.selectedItem(player);
+    if (held) drawAction(ctx, 'Unequip', BAG_ACTIONS.unequip, 'blue');
+    if (isEnhanceable(held)) {
+      const preview = enhancePreview(player, held);
+      drawText(ctx, preview.to === preview.from ? preview.reason : `+${preview.from} -> +${preview.to}  ${Math.round(preview.chance * 100)}%  Stone x${preview.owned}`, 332, 538, { size: 12, color: '#f0d39a' });
+      drawEnhanceButton(ctx, preview, BAG_ACTIONS.loadoutEnhance);
+    }
   }
   drawEquipmentBag(ctx, player, registry) {
     bagPanel(ctx, 320, 154, 278, 414); bagPanel(ctx, 600, 154, 328, 414);
@@ -151,17 +161,17 @@ export class InventoryPanel {
       const index = this.page * PAGE_SIZE + i, p = gridSlotPosition(i), entry = this.cellSelection(index);
       const item = entry.area === 'bag' ? player.inventory[entry.index] : null;
       bagSlot(ctx, p.x - SLOT_SIZE / 2, p.y - SLOT_SIZE / 2, SLOT_SIZE, { selected: this.selection.area === entry.area && this.selection.index === entry.index, color: item ? RARITIES[item.rarity].color : '#607b91', locked: index >= this.cellCount });
-      if (entry.area === 'supply') this.drawSupplyIcon(ctx, player, this.supplyOrder[entry.index], p.x, p.y);
+      if (entry.area === 'supply') drawSupplyIcon(ctx, player, this.supplyOrder[entry.index], p.x, p.y);
       if (item) this.drawItemIcon(ctx, registry, item, p.x, p.y, 1.12, player.classId);
     }
     drawAction(ctx, 'Sort', BAG_ACTIONS.sort); drawAction(ctx, `${this.page + 1} / ${this.pageCount} >`, BAG_ACTIONS.page);
     drawText(ctx, `${player.inventory.length}/${INVENTORY_SIZE}`, 581, 538, { size: 13, align: 'right', color: '#bfd1dc' });
     const item = this.selectedItem(player);
-    if (this.selection.area === 'supply') { this.drawSupplyDetails(ctx, player); return; }
+    if (this.selection.area === 'supply') { drawSupplyDetails(ctx, player, this.supplyOrder[this.selection.index]); return; }
     if (!item) { drawText(ctx, 'Select equipment', 764, 300, { size: 18, align: 'center', color: '#b4d0e0' }); return; }
     bagSlot(ctx, 615, 169, 76, { color: RARITIES[item.rarity].color });
     this.drawItemIcon(ctx, registry, item, 653, 207, 1.15, player.classId);
-    bagWrappedText(ctx, item.name, 704, 170, 210, { size: 17, color: '#f2deae', lineHeight: 21, maxLines: 2 });
+    bagWrappedText(ctx, displayItemName(item), 704, 170, 210, { size: 17, color: '#f2deae', lineHeight: 21, maxLines: 2 });
     drawText(ctx, slotLabel(item.slot), 704, 219, { size: 12, color: '#c7e2f2' });
     drawText(ctx, `Lv. ${item.itemLevel}`, 704, 239, { size: 13 });
     const comparisons = compareToEquipped(item, player.equipment[item.slot]);
@@ -170,31 +180,10 @@ export class InventoryPanel {
       drawText(ctx, line, 616, y, { size: 14, color: '#c2e3f4', bold: false });
       if (this.selection.area === 'bag') drawText(ctx, comparisons[i].text.split(' ').slice(1).join(' '), 910, y, { size: 12, align: 'right', color: comparisons[i].color });
     });
-    bagWrappedText(ctx, `${RARITIES[item.rarity].prefix || 'Normal'} ${slotLabel(item.slot).toLowerCase()} from the level ${item.itemLevel} equipment set.`, 616, 403, 288, { size: 13, lineHeight: 21 });
+    const preview = isEnhanceable(item) ? enhancePreview(player, item) : null;
+    if (preview) drawEnhancePreview(ctx, preview, 616, 403);
+    else bagWrappedText(ctx, `${RARITIES[item.rarity].prefix || 'Normal'} ${slotLabel(item.slot).toLowerCase()} from the level ${item.itemLevel} equipment set.`, 616, 403, 288, { size: 13, lineHeight: 21 });
     drawAction(ctx, 'Equip', BAG_ACTIONS.primary, 'blue');
-    ctx.save(); ctx.globalAlpha = 0.45; drawAction(ctx, 'Enhance', BAG_ACTIONS.secondary, 'gold'); ctx.restore();
-  }
-  drawSupplyIcon(ctx, player, kind, x, y) {
-    if (!kind) return;
-    const count = this.supplyCount(player, kind);
-    ctx.save(); if (count === 0) ctx.globalAlpha = 0.4;
-    if (kind === 'coin') {
-      const gold = ctx.createLinearGradient(x - 20, y, x + 20, y);
-      gold.addColorStop(0, '#b67e22'); gold.addColorStop(0.5, '#fff0a4'); gold.addColorStop(1, '#edaa2e');
-      ctx.beginPath(); ctx.ellipse(x, y - 4, 21, 24, 0.2, 0, Math.PI * 2); ctx.fillStyle = gold; ctx.fill();
-      ctx.strokeStyle = '#ffe7a0'; ctx.lineWidth = 3; ctx.stroke();
-      drawText(ctx, 'G', x, y - 17, { size: 24, align: 'center', color: '#a8771d' });
-    } else drawPotion(ctx, kind, x, y - 5, 48);
-    ctx.restore();
-    drawText(ctx, `${count}`, x + 31, y + 25, { size: 14, align: 'right' });
-  }
-  drawSupplyDetails(ctx, player) {
-    const kind = this.supplyOrder[this.selection.index];
-    bagSlot(ctx, 615, 169, 76);
-    this.drawSupplyIcon(ctx, player, kind, 653, 207);
-    drawText(ctx, SUPPLY_NAMES[kind], 704, 175, { size: 19, color: '#f2deae' });
-    drawText(ctx, `Quantity: ${this.supplyCount(player, kind)}`, 616, 285, { size: 15 });
-    bagWrappedText(ctx, kind === 'coin' ? 'Gold used for trading.' : `Restores 30% ${kind === 'hpPotion' ? 'HP' : 'MP'}.`, 616, 340, 288, { size: 14 });
-    if (kind !== 'coin') drawAction(ctx, 'Use', BAG_ACTIONS.primary, 'gold');
+    drawEnhanceButton(ctx, preview || enhancePreview(player, null), BAG_ACTIONS.secondary);
   }
 }

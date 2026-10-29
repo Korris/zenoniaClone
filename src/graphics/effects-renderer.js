@@ -3,11 +3,13 @@ import { PIXEL_SCALE } from '../core/constants.js';
 import { drawShadow } from './player-renderer.js';
 import { drawText } from '../ui/pixel-text.js';
 import { drawPotion } from './potion-renderer.js';
-import { itemSprite, weaponIconIndex } from './weapon-icons.js';
+import { itemSprite, weaponIconIndex, groundGearSprite } from './weapon-icons.js';
 import { equipmentTier } from '../data/item-definitions.js';
 import { drawSmoothImage } from './smooth-sprite-draw.js';
 import { drawIceStorm } from './ice-storm-renderer.js';
 import { drawUltimate } from './ultimate-renderer.js';
+import { drawShadowClone } from './shadow-clone-renderer.js';
+import { tintedSprite } from './tinted-sprite-cache.js';
 
 const DROP_SIZE = 6.6;
 
@@ -39,9 +41,9 @@ function drawEquipmentDrop(ctx, drop, registry, classId) {
   if (!sprite) return;
   const scale = DROP_SIZE / Math.max(sprite.width, sprite.height);
   const w = sprite.width * scale, h = sprite.height * scale;
-  const groundSprite = item.slot === 'weapon'
+  const groundSprite = groundGearSprite(registry, item, classId) || (item.slot === 'weapon'
     ? registry.groundWeaponIcons?.[weaponIconIndex(item.itemLevel, item.classId || classId)]
-    : registry.groundArmorIcons?.[item.slot]?.[equipmentTier(item.itemLevel)] || registry.groundItems?.[item.templateId];
+    : registry.groundArmorIcons?.[item.slot]?.[equipmentTier(item.itemLevel)] || registry.groundItems?.[item.templateId]);
   ctx.save();
   // Snap to physical canvas pixels to prevent subpixel shimmer while the camera moves.
   const transform = ctx.getTransform?.();
@@ -86,7 +88,7 @@ export function drawDrops(ctx, drops, registry, classId = 'warrior') {
         drawGoldCoin(ctx, drop.x, drop.y + drop.bobOffset - DROP_SIZE / 2);
         continue;
       }
-      if (drop.kind === 'hpPotion' || drop.kind === 'mpPotion') {
+      if (drop.kind === 'hpPotion' || drop.kind === 'mpPotion' || drop.kind === 'upgradeStone') {
         drawPotion(ctx, drop.kind, drop.x, drop.y + drop.bobOffset - DROP_SIZE / 2, DROP_SIZE);
         continue;
       }
@@ -105,7 +107,7 @@ export function drawProjectiles(ctx, projectiles, registry) {
     const entry = registry.effects[p.spriteKey];
     if (!entry) continue;
     const sprite = pickFrame(entry, 0.4);
-    drawRotated(ctx, sprite, p.x, p.y - 6, p.rotation, p.scale);
+    drawRotated(ctx, p.tint ? tintedSprite(sprite, p.tint) : sprite, p.x, p.y - 6, p.rotation, p.scale);
   }
 }
 
@@ -113,9 +115,12 @@ export function drawEffects(ctx, effects, registry) {
   for (const e of effects) {
     if (e.kind === 'earthBreak' || e.kind === 'rocketBarrage') { drawUltimate(ctx, e, registry.effects[e.kind]); continue; }
     if (e.kind === 'iceStorm') { drawIceStorm(ctx, e, registry.effects.iceStorm); continue; }
+    if (e.kind === 'healingZone' || e.kind === 'venomZone') continue; // drawn on the ground layer (world-renderer.js)
+    if (e.kind === 'shadowClone') { drawShadowClone(ctx, e, registry); continue; }
     const entry = registry.effects[e.spriteKey];
     if (!entry) continue;
-    drawRotated(ctx, pickFrame(entry, e.progress), e.x, e.y, e.rotation, e.scale, e.alpha, e.flipY);
+    const frame = pickFrame(entry, e.progress);
+    drawRotated(ctx, e.tint ? tintedSprite(frame, e.tint) : frame, e.x, e.y, e.rotation, e.scale, e.alpha, e.flipY);
   }
 }
 

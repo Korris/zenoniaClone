@@ -14,7 +14,7 @@ const MAGIC_HIT_COLOR = '#9fe0ff';
 export function fireComboBolt(world, step) {
   const { player } = world;
   const hit = player.combo.currentHit;
-  const { speed, range, spriteKey, scale, w, h, explodeRadius = 0, explodeFx, flashFx = 'hitSpark' } = hit.bolt;
+  const { speed, range, spriteKey, scale, w, h, explodeRadius = 0, explodeFx, flashFx = 'hitSpark', tint } = hit.bolt;
   const v = DIRECTION_VECTORS[player.dir];
   // Same bonus stack as the melee combo: per-hit mult (+ finisher scaling) x combo-damage passives.
   const mult = player.combo.multiplierFor(step, player.level) * (1 + (player.passiveMods?.comboMult || 0));
@@ -22,10 +22,10 @@ export function fireComboBolt(world, step) {
     x: player.x + v.x * 12, y: player.y - 4 + v.y * 12, vx: v.x * speed, vy: v.y * speed,
     owner: 'player', damage: heroAttack(player) * mult, spriteKey, scale,
     canMiss: true,
-    lifeMs: (range / speed) * 1000, w, h, explodeRadius, explodeFx, knockback: hit.knockback,
+    lifeMs: (range / speed) * 1000, w, h, explodeRadius, explodeFx, knockback: hit.knockback, tint,
   }));
   // Small flash at the staff tip / gun barrel so the shot reads even before the projectile travels.
-  world.addEffect({ x: player.x + v.x * 10, y: player.y - 10 + v.y * 6, spriteKey: flashFx, lifeMs: 140, scale: explodeRadius ? 1.6 : 1 });
+  world.addEffect({ x: player.x + v.x * 10, y: player.y - 10 + v.y * 6, spriteKey: flashFx, lifeMs: 140, scale: explodeRadius ? 1.6 : 1, tint });
 }
 
 /** One crit-rolled hit of a player projectile on a monster. */
@@ -48,7 +48,7 @@ function explode(world, p) {
     strikeMonster(world, p, monster, dx * k, dy * k);
   }
   // Burst sprites are 40 world units across (build-wizard-fx.py): scale so the art spans the blast.
-  world.addEffect({ x: p.x, y: p.y - 4, spriteKey: p.explodeFx, lifeMs: 320, scale: (2 * r) / 40, rotation: Math.random() * Math.PI * 2 });
+  world.addEffect({ x: p.x, y: p.y - 4, spriteKey: p.explodeFx, lifeMs: 320, scale: (2 * r) / 40, rotation: Math.random() * Math.PI * 2, tint: p.tint });
   world.camera.shake(2, 120);
 }
 

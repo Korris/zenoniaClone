@@ -11,7 +11,7 @@ import {
   skillsForBranch, computeSkillTreeLayout, describeNodeState, describeNextLevel, describeRequirement,
 } from './skill-tree-layout.js';
 
-const COLUMN_TITLES = { sword: 'SWORD', body: 'BODY', spirit: 'SPIRIT', fire: 'FIRE', frost: 'FROST', arcane: 'ARCANE', gunnery: 'GUNNERY', explosives: 'EXPLOSIVES', engineering: 'ENGINEERING' };
+const COLUMN_TITLES = { sword: 'SWORD', body: 'BODY', spirit: 'SPIRIT', fire: 'FIRE', frost: 'FROST', arcane: 'ARCANE', gunnery: 'GUNNERY', explosives: 'EXPLOSIVES', engineering: 'ENGINEERING', holy: 'HOLY', restoration: 'RESTORATION', blessing: 'BLESSING', shadow: 'SHADOW', venom: 'VENOM', agility: 'AGILITY' };
 const STATE_BORDER = { locked: '#555566', learned: '#cfcfe0', available: '#ffe680', maxed: '#8fff8f' };
 
 export class SkillTreePanel {

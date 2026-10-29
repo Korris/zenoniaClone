@@ -91,7 +91,7 @@ export function drawLootPickupEffects(ctx, effects, registry, classId) {
         const scale = size / Math.max(sprite.width, sprite.height);
         drawSmoothImage(ctx, sprite, x - sprite.width * scale / 2, y - sprite.height * scale, sprite.width * scale, sprite.height * scale);
       }
-    } else if (drop.kind === 'hpPotion' || drop.kind === 'mpPotion') {
+    } else if (drop.kind === 'hpPotion' || drop.kind === 'mpPotion' || drop.kind === 'upgradeStone') {
       drawPotion(ctx, drop.kind, x, y - size / 2, size);
     } else if (drop.kind === 'coin') {
       ctx.beginPath(); ctx.ellipse(x, y - size / 2, size * 0.38, size * 0.45, 0, 0, Math.PI * 2);

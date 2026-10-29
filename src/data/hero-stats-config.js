@@ -1,5 +1,6 @@
 // Hero tuning numbers shared by every class. Speeds are world px per second. Per-class base
 // stats and growth live in class-definitions.js.
+import { HOLY_FX_TINT } from './cleric-fx-config.js';
 
 export const HERO_HITBOX = Object.freeze({ w: 10, h: 8 });
 export const HP_REGEN_PER_SECOND = 0.6;
@@ -59,7 +60,36 @@ export const MECHANIC_COMBO_CONFIG = Object.freeze({
   finisherMultPerLevel: 0.05,
 });
 
+// Cleric's holy combo (J): three quick light orbs, then a heavier orb that bursts (4-step chain like the wizard).
+// Reuses the wizard bolt art until cleric FX exist; slightly gentler multipliers (support class).
+const CLERIC_BOLT = { speed: 220, range: 120, spriteKey: 'magicBolt', scale: 0.8, w: 10, h: 10, tint: HOLY_FX_TINT };
+export const CLERIC_COMBO_CONFIG = Object.freeze({
+  chainWindowMs: 450,
+  hits: [
+    { windupMs: 70, activeMs: 60, recoverMs: 130, mult: 0.85, knockback: 30, stepPx: 0, bolt: CLERIC_BOLT },
+    { windupMs: 70, activeMs: 60, recoverMs: 130, mult: 1.0, knockback: 35, stepPx: 0, bolt: CLERIC_BOLT },
+    { windupMs: 70, activeMs: 60, recoverMs: 130, mult: 1.1, knockback: 40, stepPx: 0, bolt: CLERIC_BOLT },
+    { windupMs: 130, activeMs: 80, recoverMs: 250, mult: 1.6, knockback: 80, stepPx: 0,
+      bolt: { speed: 180, range: 110, spriteKey: 'magicBolt', scale: 1.3, w: 14, h: 14, explodeRadius: 26, explodeFx: 'arcaneBurst', tint: HOLY_FX_TINT } },
+  ],
+  finisherMultPerLevel: 0.05,
+});
+
+// Assassin's dual-dagger combo (J): three quick slashes with short reach, then a double-stab finisher
+// (`stabs: 2` -> two hits 90ms apart sharing the finisher multiplier). `tint` recolours the warrior slash FX purple.
+const DAGGER_TINT = '#b57cff';
+export const ASSASSIN_COMBO_CONFIG = Object.freeze({
+  chainWindowMs: 380,
+  hits: [
+    { windupMs: 30, activeMs: 60, recoverMs: 70, mult: 0.75, reach: 22, width: 24, knockback: 25, stepPx: 5, fxScale: 1.1, tint: DAGGER_TINT },
+    { windupMs: 30, activeMs: 60, recoverMs: 70, mult: 0.85, reach: 24, width: 26, knockback: 30, stepPx: 6, fxScale: 1.2, tint: DAGGER_TINT },
+    { windupMs: 30, activeMs: 60, recoverMs: 80, mult: 0.95, reach: 26, width: 28, knockback: 35, stepPx: 6, fxScale: 1.25, tint: DAGGER_TINT },
+    { windupMs: 60, activeMs: 100, recoverMs: 150, mult: 1.6, reach: 30, width: 30, knockback: 70, stepPx: 10, fxScale: 1.0, tint: DAGGER_TINT, stabs: 2 },
+  ],
+  finisherMultPerLevel: 0.05,
+});
+
 // Basic-attack combo per class (Player picks it by classId; unknown classes use the warrior's).
 export const COMBO_CONFIG_BY_CLASS = Object.freeze({
-  warrior: COMBO_CONFIG, wizard: WIZARD_COMBO_CONFIG, mechanic: MECHANIC_COMBO_CONFIG,
+  warrior: COMBO_CONFIG, wizard: WIZARD_COMBO_CONFIG, mechanic: MECHANIC_COMBO_CONFIG, cleric: CLERIC_COMBO_CONFIG, assassin: ASSASSIN_COMBO_CONFIG,
 });

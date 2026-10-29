@@ -2,7 +2,7 @@
 export class VisualEffect {
   /**
    * @param {{x:number,y:number,spriteKey:string,rotation?:number,lifeMs?:number,
-   *          scale?:number,follow?:object,offsetX?:number,offsetY?:number,spin?:number,flipY?:boolean}} opts
+   *          scale?:number,follow?:object,offsetX?:number,offsetY?:number,spin?:number,flipY?:boolean,tint?:string}} opts
    */
   constructor(opts) {
     this.x = opts.x;
@@ -17,6 +17,7 @@ export class VisualEffect {
     this.offsetX = opts.offsetX ?? 0;
     this.offsetY = opts.offsetY ?? 0;
     this.spin = opts.spin ?? 0; // radians per second
+    this.tint = opts.tint || null; // CSS colour washed over the sprite (e.g. purple Assassin slashes)
     this.dead = false;
   }
 

@@ -13,6 +13,8 @@ export function rollDrops(monsterDef, rand = Math.random) {
   if (gold > 0) drops.push({ kind: 'coin', value: gold });
   if (rand() < monsterDef.drops.hpPotion) drops.push({ kind: 'hpPotion', value: POTION_HEAL_FRACTION });
   if (rand() < monsterDef.drops.mpPotion) drops.push({ kind: 'mpPotion', value: POTION_HEAL_FRACTION });
+  // Appended last so seeded rand() sequences for the earlier rolls are unchanged.
+  if (rand() < (monsterDef.drops.upgradeStone || 0)) drops.push({ kind: 'upgradeStone', value: monsterDef.drops.upgradeStoneCount || 1 });
   return drops;
 }
 
@@ -35,6 +37,12 @@ export function applyPickup(player, drop) {
       player.potions.mpPotion += 1;
       player.hasUnseenItem = true;
       return { text: '+1 MP Potion', color: '#80ceff' };
+    }
+    case 'upgradeStone': {
+      const count = Math.max(1, Math.floor(drop.value) || 1);
+      player.materials.upgradeStone = Math.min(9999, player.materials.upgradeStone + count);
+      player.hasUnseenItem = true;
+      return { text: `+${count} Upgrade Stone${count > 1 ? 's' : ''}`, color: '#9fd8ff' };
     }
     case 'coin':
       player.gold += drop.value;

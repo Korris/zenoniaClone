@@ -1,7 +1,7 @@
 // Equipment data: slots, rarities, and the weapon/armor templates drops are rolled from.
 // Pure config, no DOM. Item instance shape produced by equipment-system.js:
 // { uid, templateId, slot, name, rarity, itemLevel, stats }
-export const EQUIPMENT_SLOTS = Object.freeze(['weapon', 'helmet', 'armor', 'gloves', 'boots']);
+export const EQUIPMENT_SLOTS = Object.freeze(['weapon', 'helmet', 'armor', 'gloves', 'boots', 'offhand']);
 
 // mult scales stat rolls; weight is the drop-chance share (sums to 1); prefix decorates the name.
 export const RARITIES = Object.freeze({
@@ -65,8 +65,32 @@ export const ARMOR_TEMPLATES = Object.freeze({
   knightGreaves: gear('boots', 'knightGreaves', 'Knight Greaves', 'iconBoot', 10, { def: 4, speedMult: 0.09 }),
 });
 
+// Second weapon slot. Every class has one offhand type (OFFHAND_BY_CLASS); template id === type.
+// baseStats are ~50-60% of an equivalent weapon's primary stat. `enhanceStat` is the stat the
+// +0..+15 enhance bonus scales (weapons always use atk).
+// Placeholder art: no offhand icons are painted yet, so `sprite` reuses existing generic icons.
+const offhand = (id, name, sprite, enhanceStat, baseStats) => ({
+  id, slot: 'offhand', name, sprite, minItemLevel: 1, enhanceStat, baseStats,
+});
+export const OFFHAND_TEMPLATES = Object.freeze({
+  shield: offhand('shield', 'Shield', 'iconGuard', 'def', { def: 3, maxHp: 10 }),
+  dagger: offhand('dagger', 'Off-hand Dagger', 'itemRapier', 'atk', { atk: 2, critChance: 0.02 }),
+  robot: offhand('robot', 'Robot', 'iconHelmet', 'atk', { atk: 3 }),
+  spirit: offhand('spirit', 'Spirit', 'iconBoot', 'maxHp', { maxHp: 12, maxMp: 8 }),
+  spellbook: offhand('spellbook', 'Spellbook', 'iconArmor', 'atk', { atk: 2, maxMp: 10 }),
+});
+
+/** Offhand type + display name per class id (all five playable classes). */
+export const OFFHAND_BY_CLASS = Object.freeze({
+  warrior: { type: 'shield', name: 'Shield' },
+  assassin: { type: 'dagger', name: 'Off-hand Dagger' },
+  mechanic: { type: 'robot', name: 'Robot' },
+  cleric: { type: 'spirit', name: 'Spirit' },
+  wizard: { type: 'spellbook', name: 'Spellbook' },
+});
+
 /** All templates keyed by id (flat lookup for sanitize/sprite registry). */
-export const ITEM_TEMPLATES = Object.freeze({ ...WEAPON_TEMPLATES, ...ARMOR_TEMPLATES });
+export const ITEM_TEMPLATES = Object.freeze({ ...WEAPON_TEMPLATES, ...ARMOR_TEMPLATES, ...OFFHAND_TEMPLATES });
 
 /** Templates grouped by slot, used by generateItem() to pick a candidate pool. */
 export const TEMPLATES_BY_SLOT = Object.freeze(

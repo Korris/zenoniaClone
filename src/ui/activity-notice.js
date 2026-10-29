@@ -30,7 +30,7 @@ export function drawActivityNotice(ctx, notice, registry, classId) {
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(sprite, x + 30 - sprite.width * scale / 2, y + 28 - sprite.height * scale / 2, sprite.width * scale, sprite.height * scale);
     }
-  } else if (drop?.kind === 'hpPotion' || drop?.kind === 'mpPotion') {
+  } else if (drop?.kind === 'hpPotion' || drop?.kind === 'mpPotion' || drop?.kind === 'upgradeStone') {
     drawPotion(ctx, drop.kind, x + 30, y + 28, 27);
   } else if (drop?.kind === 'coin') {
     ctx.beginPath(); ctx.arc(x + 30, y + 28, 11, 0, Math.PI * 2);

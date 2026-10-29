@@ -1,0 +1,182 @@
+[
+  {
+    "name": "iron-kunai",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/iron-kunai-base.png",
+      "w": 80,
+      "h": 267,
+      "gripX": 39,
+      "gripY": 205
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/iron-kunai-enhanced.png",
+      "w": 118,
+      "h": 251,
+      "gripX": 53,
+      "gripY": 197
+    },
+    "glow": "#ff8859"
+  },
+  {
+    "name": "bronze-fang",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/bronze-fang-base.png",
+      "w": 91,
+      "h": 266,
+      "gripX": 50,
+      "gripY": 204
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/bronze-fang-enhanced.png",
+      "w": 128,
+      "h": 251,
+      "gripX": 65,
+      "gripY": 196
+    },
+    "glow": "#ffba59"
+  },
+  {
+    "name": "violet-edge",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/violet-edge-base.png",
+      "w": 88,
+      "h": 268,
+      "gripX": 44,
+      "gripY": 206
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/violet-edge-enhanced.png",
+      "w": 125,
+      "h": 252,
+      "gripX": 64,
+      "gripY": 198
+    },
+    "glow": "#cb59ff"
+  },
+  {
+    "name": "venom",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/venom-base.png",
+      "w": 91,
+      "h": 267,
+      "gripX": 46,
+      "gripY": 205
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/venom-enhanced.png",
+      "w": 131,
+      "h": 269,
+      "gripX": 64,
+      "gripY": 213
+    },
+    "glow": "#b4ff59"
+  },
+  {
+    "name": "frost-shard",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/frost-shard-base.png",
+      "w": 95,
+      "h": 267,
+      "gripX": 47,
+      "gripY": 205
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/frost-shard-enhanced.png",
+      "w": 130,
+      "h": 249,
+      "gripX": 64,
+      "gripY": 195
+    },
+    "glow": "#599cff"
+  },
+  {
+    "name": "ember",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/ember-base.png",
+      "w": 101,
+      "h": 268,
+      "gripX": 48,
+      "gripY": 206
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/ember-enhanced.png",
+      "w": 137,
+      "h": 247,
+      "gripX": 68,
+      "gripY": 193
+    },
+    "glow": "#ff8e59"
+  },
+  {
+    "name": "storm",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/storm-base.png",
+      "w": 100,
+      "h": 268,
+      "gripX": 48,
+      "gripY": 206
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/storm-enhanced.png",
+      "w": 136,
+      "h": 246,
+      "gripX": 64,
+      "gripY": 190
+    },
+    "glow": "#5988ff"
+  },
+  {
+    "name": "shadow",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/shadow-base.png",
+      "w": 96,
+      "h": 266,
+      "gripX": 44,
+      "gripY": 204
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/shadow-enhanced.png",
+      "w": 154,
+      "h": 249,
+      "gripX": 68,
+      "gripY": 195
+    },
+    "glow": "#b459ff"
+  },
+  {
+    "name": "moonlight",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/moonlight-base.png",
+      "w": 98,
+      "h": 267,
+      "gripX": 46,
+      "gripY": 205
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/moonlight-enhanced.png",
+      "w": 143,
+      "h": 250,
+      "gripX": 62,
+      "gripY": 195
+    },
+    "glow": "#ffac59"
+  },
+  {
+    "name": "void-reaper",
+    "base": {
+      "src": "assets/custom/assassin-dagger-overlays/void-reaper-base.png",
+      "w": 121,
+      "h": 266,
+      "gripX": 47,
+      "gripY": 204
+    },
+    "enhanced": {
+      "src": "assets/custom/assassin-dagger-overlays/void-reaper-enhanced.png",
+      "w": 155,
+      "h": 246,
+      "gripX": 61,
+      "gripY": 193
+    },
+    "glow": "#c259ff"
+  }
+]

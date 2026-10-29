@@ -8,7 +8,7 @@ const base = (overrides) => ({
   attackCooldownMs: 1200,
   behavior: 'melee',
   hitbox: { w: 12, h: 8 },
-  drops: { hpPotion: 0.15, mpPotion: 0.1 },
+  drops: { hpPotion: 0.15, mpPotion: 0.1, upgradeStone: 0.05 },
   gold: [1, 3],
   ...overrides,
 });
@@ -45,14 +45,14 @@ export const MONSTER_DEFINITIONS = Object.freeze({
   golemBoss: base({
     name: 'Demon Cyclops', sprite: 'golemBoss', hp: 1500, atk: 45, def: 18, speed: 28, exp: 1200, gold: [80, 120],
     behavior: 'boss', aggroRange: 130, leashRange: 9999, attackRange: 24, attackWindupMs: 600, attackCooldownMs: 1600,
-    projectileSpeed: 70, hitbox: { w: 22, h: 14 }, drops: { hpPotion: 1, mpPotion: 1 }, itemLevel: 14,
+    projectileSpeed: 70, hitbox: { w: 22, h: 14 }, drops: { hpPotion: 1, mpPotion: 1, upgradeStone: 1, upgradeStoneCount: 2 }, itemLevel: 14,
   }),
   frostfangKing: base({
     name: 'Frostfang King', sprite: 'iceGoblin', hp: 580, atk: 33, def: 3, speed: 36,
     exp: 280, gold: [20, 50], itemLevel: 3, isBoss: true, localBoss: true,
     stationaryUntilAggro: true, renderScale: 1.65, aggroRange: 85, leashRange: 120,
     attackRange: 20, attackWindupMs: 650, attackCooldownMs: 1500,
-    hitbox: { w: 22, h: 14 }, drops: { hpPotion: 1, mpPotion: 1 },
+    hitbox: { w: 22, h: 14 }, drops: { hpPotion: 1, mpPotion: 1, upgradeStone: 1, upgradeStoneCount: 2 },
   }),
 });
 
