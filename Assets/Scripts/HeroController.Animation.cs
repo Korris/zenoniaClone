@@ -23,6 +23,7 @@ namespace ZenoniaProto
                 anim = "hurt";
                 frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), 1f - hurt / HurtMs);
             }
+            else if (CastPose(out anim, out frame)) { }
             else if (dashLeft > 0f)
             {
                 anim = "dash";

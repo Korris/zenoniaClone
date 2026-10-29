@@ -7,7 +7,9 @@ namespace ZenoniaProto
     public class CameraFollow : MonoBehaviour
     {
         const float SmoothTime = 0.09f;
-        static float trauma;
+        static float trauma, punch;
+        const float PunchZoom = 0.09f, PunchDecayPerSecond = 2.2f; // ultimate slam: orthographic size shrinks up to 9% then eases back
+        float baseSize;
 
         public Transform Target;
         public float TargetYOffset = 10f; // aim at the torso, not the feet
@@ -22,13 +24,20 @@ namespace ZenoniaProto
             trauma = Mathf.Min(1f, trauma + amount);
         }
 
-        public static void ResetState() { trauma = 0f; }
+        /// <summary>Camera punch-in (0..1): a quick zoom pulse that eases back, for ultimate impacts. No-op when effects are off.</summary>
+        public static void Punch(float amount)
+        {
+            if (!FeelConfig.FxOn) return;
+            punch = Mathf.Min(1f, punch + amount);
+        }
+
+        public static void ResetState() { trauma = 0f; punch = 0f; }
 
         public void Configure()
         {
             cam = GetComponent<Camera>();
             cam.orthographic = true;
-            cam.orthographicSize = GameConfig.ViewHeightUnits * 0.5f;
+            cam.orthographicSize = baseSize = GameConfig.ViewHeightUnits * 0.5f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.06f, 0.09f, 0.13f);
             cam.nearClipPlane = 0.1f;
@@ -56,6 +65,12 @@ namespace ZenoniaProto
         {
             if (Target == null || cam == null) return;
             float dt = Time.deltaTime;
+            if (punch > 0f)
+            {
+                punch = Mathf.Max(0f, punch - PunchDecayPerSecond * dt);
+                cam.orthographicSize = baseSize * (1f - PunchZoom * punch * punch);
+            }
+            else baseSize = cam.orthographicSize; // adopt any external zoom change while idle
             Vector2 goal = Clamp(TargetPos());
             pos = Vector2.SmoothDamp(pos, goal, ref velocity, SmoothTime, Mathf.Infinity, dt);
             Vector2 shown = pos;

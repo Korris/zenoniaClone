@@ -56,10 +56,11 @@ namespace ZenoniaProto
         /// <summary>Called by monsters when a strike connects.</summary>
         public void TakeDamage(int dmg)
         {
-            if (dead || invuln > 0f || dashLeft > 0f) return;
+            if (dead || DebugGod || invuln > 0f || dashLeft > 0f) return;
             hp -= dmg;
             invuln = InvulnMs;
             hurt = HurtMs;
+            castLeft = 0f; // a landed hit breaks the cast root (the already launched skill keeps playing, like the web)
             DamageNumber.Spawn(x, y + 26f, dmg.ToString(), new Color(1f, 0.35f, 0.35f), false);
             CameraFollow.AddTrauma(FeelConfig.TraumaHurt);
             if (hp <= 0f)

@@ -12,6 +12,8 @@ namespace ZenoniaProto
     public partial class HeroController : MonoBehaviour
     {
         public static HeroController Instance { get; private set; }
+        /// <summary>Screenshot tooling only (--god): ignore all incoming damage.</summary>
+        public static bool DebugGod;
 
         const float DashMs = 165f, DashSpeed = 220f, DashCooldownMs = 600f;
         const float HurtMs = 220f, InvulnMs = 500f, RespawnMs = 1400f;
@@ -51,6 +53,7 @@ namespace ZenoniaProto
             cls = renderer.Class;
             combo = new ComboSystem(cls.Hits, cls.ChainMs);
             hp = cls.MaxHp;
+            ResetSkillState();
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
             transform.position = new Vector3(x, y, 0f);
@@ -88,11 +91,13 @@ namespace ZenoniaProto
             dashCooldown = Mathf.Max(0f, dashCooldown - dtMs);
             idleTimer += dtMs;
             hp = Mathf.Min(cls.MaxHp, hp + HpRegenPerSecond * dt);
+            if (TickSkill(dt, dtMs)) return; // rooted by a skill cast
 
             Vector2 input = ReadMove();
             bool dashing = dashLeft > 0f;
             if (!combo.IsAttacking && !dashing && input != Vector2.zero) UpdateFacing(input);
 
+            if (!dashing && InputAdapter.Pressed(GameKey.Skill) && TryCastSkill()) return;
             if (!dashing && InputAdapter.Pressed(GameKey.Attack)) combo.PressAttack();
             if (!dashing && !combo.IsAttacking && dashCooldown <= 0f && InputAdapter.Pressed(GameKey.Dash))
             {
@@ -155,6 +160,7 @@ namespace ZenoniaProto
         {
             dead = false;
             hp = cls.MaxHp;
+            ResetSkillState();
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
             facing = 0;

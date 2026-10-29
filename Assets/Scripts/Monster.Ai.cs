@@ -54,7 +54,7 @@ namespace ZenoniaProto
             }
             if (dir == Vector2.zero) return Vector2.zero;
             FaceTowards(dir);
-            return dir * (def.Speed * factor);
+            return dir * (def.Speed * factor * SpeedScale);
         }
 
         void Enter(State next, float ms) { state = next; timer = ms; }

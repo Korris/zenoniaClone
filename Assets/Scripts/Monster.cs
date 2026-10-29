@@ -102,6 +102,7 @@ namespace ZenoniaProto
         {
             HeroController hero = HeroController.Instance;
             float dx = 0f, dy = 0f;
+            if (TickStatus(dtMs)) return;
             if (knockLeft > 0f)
             {
                 // Fx on: ease-out slide (fast start, soft stop) with the same average speed; off: constant velocity.

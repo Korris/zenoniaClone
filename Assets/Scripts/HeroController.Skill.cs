@@ -1,0 +1,59 @@
+using UnityEngine;
+
+namespace ZenoniaProto
+{
+    /// <summary>
+    /// Class signature skill on L: MP + cooldown bookkeeping, cast root, and dispatch to the skill effect.
+    /// Warrior = Earth Break, Wizard = Ice Storm (web ultimates, rank 3 values).
+    /// </summary>
+    public partial class HeroController
+    {
+        const float MpRegenPerSecond = 2.2f;
+        float mp, skillCd, castLeft, castTotal;
+
+        public float Mp { get { return mp; } }
+        public float MaxMp { get { return cls.MaxMp; } }
+        public float SkillCooldownLeftMs { get { return skillCd; } }
+        public bool IsCasting { get { return castLeft > 0f; } }
+
+        void ResetSkillState() { mp = cls.MaxMp; skillCd = 0f; castLeft = 0f; }
+
+        /// <summary>Starts the class skill when off cooldown and affordable. Returns true when cast.</summary>
+        public bool TryCastSkill()
+        {
+            if (dead || cls.SkillMp <= 0f || skillCd > 0f || mp < cls.SkillMp || castLeft > 0f || dashLeft > 0f) return false;
+            mp -= cls.SkillMp;
+            skillCd = cls.SkillCooldownMs;
+            castLeft = castTotal = cls.SkillLockMs;
+            combo.Reset();
+            animTimer = 0f;
+            switch (cls.Id)
+            {
+                case HeroClass.Warrior: EarthBreakUltimate.Cast(this); break;
+                case HeroClass.Wizard: IceStormUltimate.Cast(this); break;
+            }
+            return true;
+        }
+
+        /// <summary>Regen + cooldown ticks; returns true while the hero is rooted by a cast (no movement / attacks this step).</summary>
+        bool TickSkill(float dt, float dtMs)
+        {
+            mp = Mathf.Min(cls.MaxMp, mp + MpRegenPerSecond * dt);
+            skillCd = Mathf.Max(0f, skillCd - dtMs);
+            if (castLeft <= 0f) return false;
+            castLeft = Mathf.Max(0f, castLeft - dtMs);
+            moving = false;
+            return true;
+        }
+
+        /// <summary>Cast pose: the class's overhead attack frames stretched over the root time.</summary>
+        bool CastPose(out string anim, out int frame)
+        {
+            anim = "attack3";
+            frame = 0;
+            if (castLeft <= 0f) return false;
+            frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), 1f - castLeft / castTotal);
+            return true;
+        }
+    }
+}

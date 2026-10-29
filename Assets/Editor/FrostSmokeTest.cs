@@ -55,6 +55,22 @@ namespace ZenoniaProto.EditorTools
             Expect(by && q.y >= (FrostHollowMap.TilesH - 13) * 16f, "river banks block (y=" + q.y + ")");
         }
 
+        /// <summary>Signature skill: casts (MP / cooldown / root), builds its effect object without exceptions, and the monster status hooks behave.</summary>
+        static void CheckSkill(HeroClassDef cls, HeroController hero, GameObject root)
+        {
+            if (cls.SkillName == null) return;
+            float mp = hero.Mp;
+            Expect(hero.TryCastSkill(), cls.Name + ": " + cls.SkillName + " cast ok");
+            Expect(hero.Mp < mp && hero.SkillCooldownLeftMs > 0f && hero.IsCasting, cls.Name + ": MP spent, cooldown running, hero rooted");
+            Expect(!hero.TryCastSkill(), cls.Name + ": second cast blocked by cooldown");
+            string fx = cls.Id == HeroClass.Warrior ? "EarthBreak" : cls.Id == HeroClass.Wizard ? "IceStorm" : null;
+            if (fx != null) Expect(root.transform.Find(fx) != null, cls.Name + ": " + fx + " effect object created");
+            Monster slime = null;
+            foreach (Monster m in Monster.All) if (!m.IsBoss) { slime = m; break; }
+            Expect(slime != null && slime.Launch() && slime.IsAirborne, cls.Name + ": regular monster can be launched");
+            Expect(Monster.Boss != null && !Monster.Boss.Launch(), cls.Name + ": boss is immune to launch");
+        }
+
         static void CheckClass(HeroClassDef cls)
         {
             var start = typeof(Bootstrap).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Static);
@@ -87,6 +103,7 @@ namespace ZenoniaProto.EditorTools
                     }
                 }
                 Expect(shown > 0 && gearFrames > 0, cls.Name + ": drew " + shown + " frames, " + gearFrames + " with weapon overlay");
+                CheckSkill(cls, hero, root);
                 if (cls.HasRobot) Expect(root.transform.Find("Robot") != null, cls.Name + ": robot companion created");
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }

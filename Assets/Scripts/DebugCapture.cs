@@ -14,16 +14,20 @@ namespace ZenoniaProto
     ///   --zoom N                          camera orthographic half-height (default 80) for close-ups
     ///   --shots 2,5,8 --shot-path P       ScreenCapture to P_1.png, P_2.png ... at those seconds, then quit
     ///   --solids                          start with the collision tint on
+    ///   --skill-at 1.5,9                  press the class skill (L) at those seconds after start
+    ///   --dummies N                       spawn N frost slimes in front of the hero (skill / AoE targets)
+    ///   --god                             hero ignores damage
     /// </summary>
     public class DebugCapture : MonoBehaviour
     {
         GameSession session;
         string classArg, faceArg, shotPath, botArg;
-        int[] shotTimes;
+        float[] shotTimes, skillTimes;
+        int dummies;
         Vector2Int tpTile = new Vector2Int(-1, -1);
         int tier = -1;
         float zoom;
-        bool enhanced, solids;
+        bool enhanced, solids, god;
 
         public static void AttachIfRequested(GameObject root, GameSession gameSession)
         {
@@ -33,6 +37,12 @@ namespace ZenoniaProto
             d.session = gameSession;
             d.Parse(args);
             d.StartCoroutine(d.Run());
+        }
+
+        static HeroClass ParseClass(string name)
+        {
+            foreach (HeroClassDef d in HeroClassDef.All) if (string.Equals(d.Name, name, StringComparison.OrdinalIgnoreCase)) return d.Id;
+            return HeroClass.Warrior;
         }
 
         static string Arg(string[] a, string key)
@@ -55,12 +65,41 @@ namespace ZenoniaProto
             if (t != null) tier = int.Parse(t);
             enhanced = Array.IndexOf(a, "--enhanced") >= 0;
             solids = Array.IndexOf(a, "--solids") >= 0;
-            string shots = Arg(a, "--shots");
-            if (shots != null)
+            god = Array.IndexOf(a, "--god") >= 0;
+            string dm = Arg(a, "--dummies");
+            if (dm != null) dummies = int.Parse(dm);
+            shotTimes = Times(Arg(a, "--shots"));
+            skillTimes = Times(Arg(a, "--skill-at"));
+        }
+
+        static float[] Times(string list)
+        {
+            if (list == null) return null;
+            string[] parts = list.Split(',');
+            var t = new float[parts.Length];
+            for (int i = 0; i < parts.Length; i++) t[i] = float.Parse(parts[i], System.Globalization.CultureInfo.InvariantCulture);
+            return t;
+        }
+
+        IEnumerator CastSkills(float start)
+        {
+            foreach (float at in skillTimes)
             {
-                string[] parts = shots.Split(',');
-                shotTimes = new int[parts.Length];
-                for (int i = 0; i < parts.Length; i++) shotTimes[i] = int.Parse(parts[i]);
+                while (Time.realtimeSinceStartup - start < at) yield return null;
+                HeroController h = GameSession.Hero;
+                Debug.Log("[ZenoniaProto] skill cast at " + at + " => " + (h != null && h.TryCastSkill()));
+            }
+        }
+
+        void SpawnDummies(HeroController hero)
+        {
+            Transform root = GameObject.Find("ZenoniaProto").transform;
+            Vector2[] dirs = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
+            Vector2 fwd = dirs[hero.Facing], side = new Vector2(-fwd.y, fwd.x);
+            for (int i = 0; i < dummies; i++)
+            {
+                Vector2 p = hero.Position + fwd * (30f + (i % 3) * 9f) + side * ((i - dummies * 0.5f) * 9f);
+                Monster.Create(root, i % 3 == 2 ? MonsterDef.IceGoblin : MonsterDef.FrostSlime, p, -1);
             }
         }
 
@@ -69,7 +108,7 @@ namespace ZenoniaProto
             yield return null;
             if (classArg != null)
             {
-                HeroClass c = classArg == "wizard" ? HeroClass.Wizard : classArg == "mechanic" ? HeroClass.Mechanic : HeroClass.Warrior;
+                HeroClass c = ParseClass(classArg);
                 session.Spawn(c);
                 yield return null;
                 HeroController hero = GameSession.Hero;
@@ -79,9 +118,12 @@ namespace ZenoniaProto
                 else if (botArg == "attack") InputAdapter.BotPressed = k => k == GameKey.Attack;   // hold attack in place (art / FX close-ups)
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east
                 if (zoom > 0f) Camera.main.orthographicSize = zoom;
+                HeroController.DebugGod = god;
+                if (dummies > 0) SpawnDummies(hero);
             }
             if (solids) WorldBuilder.ToggleSolidOverlay();
             float start = Time.realtimeSinceStartup;
+            if (skillTimes != null) StartCoroutine(CastSkills(start));
             if (shotTimes == null) yield break;
             for (int i = 0; i < shotTimes.Length; i++)
             {

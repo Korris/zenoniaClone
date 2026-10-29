@@ -42,6 +42,9 @@ namespace ZenoniaProto
             ImpactFx.Init(root.transform);
             BurstFx.Init(root.transform);
             ComboProjectile.Init(root.transform);
+            ShockRing.Init(root.transform);
+            UltimateFx.Init(root.transform);
+            ScreenFlash.ResetState();
 
             var follow = cam.GetComponent<CameraFollow>();
             if (follow == null) follow = cam.gameObject.AddComponent<CameraFollow>();

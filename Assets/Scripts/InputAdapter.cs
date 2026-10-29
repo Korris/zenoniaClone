@@ -11,7 +11,10 @@ namespace ZenoniaProto
         Up, Down, Left, Right, Attack, Dash, TierUp, TierDown, Enhance, Bloom, Fx,
         Class1, Class2, Class3,   // class select screen (1 / 2 / 3)
         Switch1, Switch2, Switch3, // in-game class switch (F1 / F2 / F3)
-        SolidDebug                 // F4: tint the solid tiles
+        SolidDebug,                // F9: tint the solid tiles
+        Class4, Class5,            // class select screen (4 / 5)
+        Switch4, Switch5,          // in-game class switch (F4 / F5)
+        Skill                      // L: class signature skill / ultimate
     }
 
     /// <summary>
@@ -42,7 +45,12 @@ namespace ZenoniaProto
             new[] { KeyCode.F1 },
             new[] { KeyCode.F2 },
             new[] { KeyCode.F3 },
+            new[] { KeyCode.F9 },
+            new[] { KeyCode.Alpha4, KeyCode.Keypad4 },
+            new[] { KeyCode.Alpha5, KeyCode.Keypad5 },
             new[] { KeyCode.F4 },
+            new[] { KeyCode.F5 },
+            new[] { KeyCode.L },
         };
 
         public static bool Held(GameKey k)
@@ -80,7 +88,12 @@ namespace ZenoniaProto
             new[] { Key.F1 },
             new[] { Key.F2 },
             new[] { Key.F3 },
+            new[] { Key.F9 },
+            new[] { Key.Digit4, Key.Numpad4 },
+            new[] { Key.Digit5, Key.Numpad5 },
             new[] { Key.F4 },
+            new[] { Key.F5 },
+            new[] { Key.L },
         };
 
         public static bool Held(GameKey k)

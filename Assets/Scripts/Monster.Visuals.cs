@@ -25,10 +25,11 @@ namespace ZenoniaProto
         void ApplyHitReaction(float alpha)
         {
             bool fx = FeelConfig.FxOn && flash > 0f;
-            body.color = !fx && flash > 0f ? new Color(1f, 0.55f, 0.55f, alpha) : new Color(1f, 1f, 1f, alpha);
+            Color tint = ChillTint;
+            body.color = !fx && flash > 0f ? new Color(1f, 0.55f, 0.55f, alpha) : new Color(tint.r, tint.g, tint.b, alpha);
             FeelMaterials.SetFlash(body, fx ? Mathf.Clamp01(flash / (FeelConfig.FlashMs * 0.6f)) : 0f);
             float jitter = fx ? (Time.frameCount % 2 == 0 ? FeelConfig.HitJitterUnits : -FeelConfig.HitJitterUnits) : 0f;
-            body.transform.localPosition = new Vector3(jitter, 0f, 0f);
+            body.transform.localPosition = new Vector3(jitter, AirLift(), 0f);
         }
 
         void Render()
@@ -60,7 +61,7 @@ namespace ZenoniaProto
             barBack.enabled = showBar; barFill.enabled = showBar;
             if (showBar)
             {
-                float top = def.BodyHeightUnits * def.RenderScale + 2f;
+                float top = def.BodyHeightUnits * def.RenderScale + 2f + AirLift();
                 barBack.transform.localPosition = new Vector3(-7f, top, 0f);
                 barBack.transform.localScale = new Vector3(14f, 2f, 1f);
                 barFill.transform.localPosition = new Vector3(-7f, top, 0f);

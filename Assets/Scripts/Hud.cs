@@ -42,6 +42,7 @@ namespace ZenoniaProto
             if (Event.current.type != EventType.Repaint) return;
             HeroController hero = GameSession.Hero;
             if (hero == null) return; // class select screen is showing
+            ScreenFlash.Draw(); // under the HUD
             if (label == null)
             {
                 label = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
@@ -67,6 +68,20 @@ namespace ZenoniaProto
             label.normal.textColor = Color.white;
             GUI.Label(new Rect(x + 6f * s, y, w, h), hpText, label);
 
+            // MP bar + signature skill (L) with cooldown
+            float my = y + h + 4f * s, mh = 10f * s;
+            Fill(new Rect(x - 2f, my - 1f, w + 4f, mh + 2f), new Color(0.03f, 0.06f, 0.1f, 0.85f));
+            Fill(new Rect(x, my, w * Mathf.Clamp01(hero.Mp / hero.MaxMp), mh), new Color(0.3f, 0.55f, 1f));
+            if (hero.Class.SkillName != null)
+            {
+                float cd = hero.SkillCooldownLeftMs;
+                string txt = "[L] " + hero.Class.SkillName + "  MP " + (int)hero.Class.SkillMp + (cd > 0f ? "   cooldown " + (cd / 1000f).ToString("F1") + "s" : hero.Mp >= hero.Class.SkillMp ? "   READY" : "   (not enough MP)");
+                small.normal.textColor = cd > 0f || hero.Mp < hero.Class.SkillMp ? new Color(1f, 0.7f, 0.5f) : new Color(0.6f, 1f, 0.7f);
+                Fill(new Rect(x - 2f, my + mh + 3f * s, w + 4f, 18f * s), new Color(0.03f, 0.06f, 0.1f, 0.8f));
+                GUI.Label(new Rect(x + 4f * s, my + mh + 3f * s, w, 18f * s), txt, small);
+            }
+            y += 30f * s;
+
             // FPS (green near 60+, amber when dipping, red when laggy)
             Color fpsColor = shownFps >= 55 ? new Color(0.49f, 1f, 0.6f) : shownFps >= 40 ? new Color(1f, 0.84f, 0.42f) : new Color(1f, 0.42f, 0.42f);
             Fill(new Rect(x - 2f, y + h + 8f * s, 190f * s, 20f * s), new Color(0.03f, 0.07f, 0.12f, 0.8f));
@@ -78,7 +93,7 @@ namespace ZenoniaProto
             Fill(new Rect(x - 4f, ly - 2f, 560f * s, 76f * s), new Color(0.03f, 0.07f, 0.12f, 0.72f)); // keeps the text readable on bright snow
             GUI.Label(new Rect(x, ly, 600f * s, 18f * s), hero.GearLabel, small);
             GUI.Label(new Rect(x, ly + 18f * s, 600f * s, 18f * s), "Move WASD/Arrows   Attack J/Space (" + hero.Class.ComboLabel + ")   Dash K/Shift", small);
-            GUI.Label(new Rect(x, ly + 36f * s, 600f * s, 18f * s), "Switch class F1 Warrior / F2 Wizard / F3 Mechanic (respawn)   [F4] collision tint", small);
+            GUI.Label(new Rect(x, ly + 36f * s, 600f * s, 18f * s), "Switch class F1 Warrior / F2 Wizard / F3 Mechanic (respawn)   [F9] collision tint", small);
             int state = (FeelConfig.BloomOn ? 1 : 0) | (FeelConfig.FxOn ? 2 : 0);
             if (state != toggleState)
             {

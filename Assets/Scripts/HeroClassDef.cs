@@ -33,6 +33,9 @@ namespace ZenoniaProto
         public float ChainMs;
         public GearPartSpec[] Parts;
         public bool HasRobot;
+        public float MaxMp = 60f;
+        public string SkillName;                       // class signature skill on L (null = none)
+        public float SkillMp, SkillCooldownMs, SkillLockMs;
         public bool Ranged { get { return Hits[0].Bolt != null; } }
 
         static readonly string[] AllBare = { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" };
@@ -44,6 +47,7 @@ namespace ZenoniaProto
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
             MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f,
             Parts = new[] { new GearPartSpec("shield", "shield"), new GearPartSpec("sword", "sword", 1.4f, 0.85f, true) },
+            SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = 1450f,
         };
 
         public static readonly HeroClassDef Wizard = new HeroClassDef
@@ -54,6 +58,7 @@ namespace ZenoniaProto
             MirrorLeft = new HashSet<string> { "attack1", "attack2" },
             MaxHp = 80f, Atk = 13f, Def = 3f, Speed = 80f, Hits = ComboConfigs.WizardHits, ChainMs = 450f,
             Parts = new[] { new GearPartSpec("staff", "wizard-staff", 1f, 0f, true) },
+            SkillName = "Ice Storm", SkillMp = 20f, SkillCooldownMs = 7700f, SkillLockMs = 650f,
         };
 
         public static readonly HeroClassDef Mechanic = new HeroClassDef
