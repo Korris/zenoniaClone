@@ -17,7 +17,8 @@ namespace ZenoniaProto
 
             // Smoothness first: present on every vblank, never throttle, keep running when the Editor loses focus.
             QualitySettings.vSyncCount = 1;
-            Application.targetFrameRate = -1;
+            Application.targetFrameRate = Application.isMobilePlatform ? 60 : -1; // phones ignore vSyncCount and default to 30 fps
+            if (Application.isMobilePlatform) Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Application.runInBackground = true;
 
             // Static state survives play sessions when Domain Reload is disabled in Editor settings.
@@ -71,6 +72,7 @@ namespace ZenoniaProto
 
             root.AddComponent<Hud>();
             RpgHud.Create(root.transform);
+            TouchControls.Create(root.transform);
             DebugCapture.AttachIfRequested(root, session);
         }
 

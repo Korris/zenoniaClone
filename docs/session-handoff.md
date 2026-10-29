@@ -18,6 +18,8 @@ The user said they will continue "tối nay" (tonight, 2026-10-29). On resume, r
   - UI: the UGUI `RpgHud` shows level, HP/MP/EXP bars, gold, potions and stones, plus a level-up banner and toasts. `InventoryPanel` has 6 equipment slots, a 20-slot bag, stats and an item detail pane with Equip, Enhance and Discard. The IMGUI `Hud` keeps the skill line, FPS and help.
   - The held weapon, offhand and companion art follow the equipped items (tier from item level, enhanced art from +7, brighter glow at +9/+11/+13).
   - Next time in Unity: run FrostSmokeTest (it gained CheckRpg), then play-test and tweak the UI layout. Phase 7 (test assembly, build, screenshots) is still open. Details are in plans/261029-1720-unity-rpg-systems/plan.md.
+  - Touch controls (TouchControls + UiSprites, web HUD style): D-pad bottom-left, attack disc + Dash [K] / skill [L] (cooldown sweep, MP) / Bag [B] arc bottom-right, potion buttons; F7 hides them. Skill icons sliced from the painted rosters by Tools/build-skill-icons.py into Resources/Sprites/skill-icons.
+  - Android: menu Zenonia > Build Android APK (or -executeMethod ZenoniaProto.EditorTools.PlayerBuildScript.BuildAndroid -buildOut X.apk); landscape, IL2CPP ARM64, debug-signed; needs the Android Build Support module. 60 fps target on phones.
   - Decisions: random-class drops stay (the user chose this for trading). Pickup is auto on touch.
 
 **Next steps:**

@@ -80,7 +80,7 @@ namespace ZenoniaProto
             GUI.Label(new Rect(x, ly, 600f * s, 18f * s), hero.GearLabel, small);
             GUI.Label(new Rect(x, ly + 18f * s, 600f * s, 18f * s), "Move WASD/Arrows   Attack J/Space (" + hero.Class.ComboLabel + ")   Dash K/Shift", small);
             GUI.Label(new Rect(x, ly + 36f * s, 600f * s, 18f * s), "[B] Inventory / enhance   [1] HP potion   [2] MP potion   Loot: walk over it", small);
-            GUI.Label(new Rect(x, ly + 54f * s, 600f * s, 18f * s), "Switch class F1 Warrior F2 Wizard F3 Mechanic F4 Assassin F5 Cleric (own save)   [F9] collision tint", small);
+            GUI.Label(new Rect(x, ly + 54f * s, 600f * s, 18f * s), "Switch class F1 Warrior F2 Wizard F3 Mechanic F4 Assassin F5 Cleric (own save)   [F7] touch buttons   [F9] collision", small);
             ly += 18f * s;
             int state = (FeelConfig.BloomOn ? 1 : 0) | (FeelConfig.FxOn ? 2 : 0);
             if (state != toggleState)

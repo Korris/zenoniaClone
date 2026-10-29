@@ -58,7 +58,7 @@ namespace ZenoniaProto
             bannerSub = UiKit.Label(banner, "Sub", 0f, 52f, 420f, 30f, "", 18, Color.white, TextAnchor.MiddleCenter, true);
             banner.gameObject.SetActive(false);
 
-            RectTransform toast = UiKit.Rect(canvas, "Toast", 0f, 230f, 560f, 28f, true);
+            RectTransform toast = UiKit.Rect(canvas, "Toast", 0f, 165f, 420f, 28f, true); // clear of the touch buttons along the bottom edge
             toastBack = UiKit.Panel(toast, new Color(0.03f, 0.06f, 0.1f, 0.75f));
             toastText = UiKit.Label(UiKit.Fill(toast, "Text", 2f), "", 14, Color.white, TextAnchor.MiddleCenter, true);
             toast.gameObject.SetActive(false);

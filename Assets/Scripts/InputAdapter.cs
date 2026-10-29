@@ -18,13 +18,15 @@ namespace ZenoniaProto
         FxColor,                   // C: mechanic FX colour (orange / blue)
         Inventory,                 // B: inventory / equipment panel
         HpPotion, MpPotion,        // 1 / 2 in game (the same keys pick a class on the select screen)
-        Close                      // Esc: close a panel
+        Close,                     // Esc: close a panel
+        TouchToggle                // F7: show / hide the on-screen D-pad + buttons
     }
 
     /// <summary>
     /// Keyboard abstraction that works whichever Active Input Handling the project ends up with
     /// (legacy Input Manager preferred; falls back to the Input System package when legacy is disabled).
-    /// Bot* hooks let the screenshot demo (DebugCapture) drive the hero without a keyboard.
+    /// Bot* hooks let the screenshot demo (DebugCapture) drive the hero without a keyboard; the on-screen TouchControls (D-pad + buttons)
+    /// feed the same keys.
     /// </summary>
     public static class InputAdapter
     {
@@ -60,19 +62,18 @@ namespace ZenoniaProto
             new[] { KeyCode.Alpha1, KeyCode.Keypad1 },
             new[] { KeyCode.Alpha2, KeyCode.Keypad2 },
             new[] { KeyCode.Escape },
+            new[] { KeyCode.F7 },
         };
 
-        public static bool Held(GameKey k)
+        static bool KeyHeld(GameKey k)
         {
-            if (BotHeld != null && BotHeld(k)) return true;
             KeyCode[] keys = Map[(int)k];
             for (int i = 0; i < keys.Length; i++) if (Input.GetKey(keys[i])) return true;
             return false;
         }
 
-        public static bool Pressed(GameKey k)
+        static bool KeyPressed(GameKey k)
         {
-            if (BotPressed != null && BotPressed(k)) return true;
             KeyCode[] keys = Map[(int)k];
             for (int i = 0; i < keys.Length; i++) if (Input.GetKeyDown(keys[i])) return true;
             return false;
@@ -108,11 +109,11 @@ namespace ZenoniaProto
             new[] { Key.Digit1, Key.Numpad1 },
             new[] { Key.Digit2, Key.Numpad2 },
             new[] { Key.Escape },
+            new[] { Key.F7 },
         };
 
-        public static bool Held(GameKey k)
+        static bool KeyHeld(GameKey k)
         {
-            if (BotHeld != null && BotHeld(k)) return true;
             Keyboard kb = Keyboard.current;
             if (kb == null) return false;
             Key[] keys = Map[(int)k];
@@ -120,9 +121,8 @@ namespace ZenoniaProto
             return false;
         }
 
-        public static bool Pressed(GameKey k)
+        static bool KeyPressed(GameKey k)
         {
-            if (BotPressed != null && BotPressed(k)) return true;
             Keyboard kb = Keyboard.current;
             if (kb == null) return false;
             Key[] keys = Map[(int)k];
@@ -130,8 +130,18 @@ namespace ZenoniaProto
             return false;
         }
 #else
-        public static bool Held(GameKey k) { return BotHeld != null && BotHeld(k); }
-        public static bool Pressed(GameKey k) { return BotPressed != null && BotPressed(k); }
+        static bool KeyHeld(GameKey k) { return false; }
+        static bool KeyPressed(GameKey k) { return false; }
 #endif
+
+        public static bool Held(GameKey k)
+        {
+            return (BotHeld != null && BotHeld(k)) || TouchControls.Held(k) || KeyHeld(k);
+        }
+
+        public static bool Pressed(GameKey k)
+        {
+            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k);
+        }
     }
 }

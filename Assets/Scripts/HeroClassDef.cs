@@ -44,6 +44,9 @@ namespace ZenoniaProto
         public float MaxMp = 60f;
         public string SkillName;                       // class signature skill on L (null = none)
         public float SkillMp, SkillCooldownMs, SkillLockMs;
+        /// <summary>Touch button art: index in Resources/Sprites/skill-icons/&lt;class&gt;-N.png (web SKILL_ORDER slot; see Tools/build-skill-icons.py).</summary>
+        public int SkillIcon = -1, DashIcon = -1;
+        public string IconClass { get { return Name.ToLowerInvariant(); } }
         public bool Ranged { get { return Hits[0].Bolt != null; } }
 
         static readonly string[] AllBare = { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" };
@@ -55,7 +58,7 @@ namespace ZenoniaProto
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
             MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f,
             Parts = new[] { new GearPartSpec("shield", "shield"), new GearPartSpec("sword", "sword", 1.4f, 0.85f, true) },
-            SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = 1450f,
+            SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = 1450f, SkillIcon = 4, DashIcon = 7, // bladeStorm, dashStrike
         };
 
         public static readonly HeroClassDef Wizard = new HeroClassDef
@@ -66,7 +69,7 @@ namespace ZenoniaProto
             MirrorLeft = new HashSet<string> { "attack1", "attack2" },
             MaxHp = 80f, Atk = 13f, Def = 3f, Speed = 80f, Hits = ComboConfigs.WizardHits, ChainMs = 450f,
             Parts = new[] { new GearPartSpec("staff", "wizard-staff", 1f, 0f, true) },
-            SkillName = "Ice Storm", SkillMp = 20f, SkillCooldownMs = 7700f, SkillLockMs = 650f,
+            SkillName = "Ice Storm", SkillMp = 20f, SkillCooldownMs = 7700f, SkillLockMs = 650f, SkillIcon = 9, DashIcon = 12, // blizzard, blink
         };
 
         public static readonly HeroClassDef Mechanic = new HeroClassDef
@@ -78,6 +81,7 @@ namespace ZenoniaProto
             MaxHp = 90f, Atk = 12f, Def = 4f, Speed = 82f, Hits = ComboConfigs.MechanicHits, ChainMs = 420f,
             Parts = new[] { new GearPartSpec("gun", "mechanic-gun", 1f, 0f, true) },
             CompanionFolder = "mechanic-robot", CompanionFloatFolder = "mechanic-robot-float", CompanionScale = 0.26f,
+            DashIcon = 12, // jetBoots
         };
 
         // Assassin: two daggers (offhand part drawn behind, main hand in front), warrior slash FX recoloured purple, double-stab finisher.
@@ -89,7 +93,7 @@ namespace ZenoniaProto
             MirrorLeft = new HashSet<string>(),
             MaxHp = 88f, MaxMp = 50f, Atk = 13f, Def = 3f, Speed = 92f, CritBonus = 0.06f, Hits = ComboConfigs.AssassinHits, ChainMs = 380f,
             Parts = new[] { new GearPartSpec("off", "assassin-dagger", 1f, 0f, true), new GearPartSpec("main", "assassin-dagger", 1f, 0f, true) },
-            SkillName = "Shadow Step", SkillMp = 9f, SkillCooldownMs = 3900f, SkillLockMs = 260f,
+            SkillName = "Shadow Step", SkillMp = 9f, SkillCooldownMs = 3900f, SkillLockMs = 260f, SkillIcon = 0, DashIcon = 10, // shadowStep, evasion
         };
 
         // Cleric: holy staff + spirit companion, green-gold recoloured wizard orbs.
@@ -102,7 +106,7 @@ namespace ZenoniaProto
             MaxHp = 85f, MaxMp = 75f, Atk = 11f, Def = 4f, Speed = 80f, Hits = ComboConfigs.ClericHits, ChainMs = 450f,
             Parts = new[] { new GearPartSpec("staff", "cleric-staff", 1f, 0f, true) },
             CompanionFolder = "cleric-spirit", CompanionFloatFolder = "cleric-spirit-float", CompanionScale = 0.3f,
-            SkillName = "Heal", SkillMp = 12f, SkillCooldownMs = 8500f, SkillLockMs = 350f,
+            SkillName = "Heal", SkillMp = 12f, SkillCooldownMs = 8500f, SkillLockMs = 350f, SkillIcon = 5, DashIcon = 12, // heal, hasteHymn
         };
 
         public static readonly HeroClassDef[] All = { Warrior, Wizard, Mechanic, Assassin, Cleric };
