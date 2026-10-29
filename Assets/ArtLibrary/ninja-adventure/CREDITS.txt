@@ -1,0 +1,4 @@
+Art assets in this folder come from "Ninja Adventure - Asset Pack" by pixel-boy & AAA
+https://pixel-boy.itch.io/ninja-adventure-asset-pack
+License: Creative Commons Zero (CC0) - free for personal and commercial use, no attribution required.
+Only the files used by the game were copied; see src/graphics/asset-atlas.js for how they are sliced.

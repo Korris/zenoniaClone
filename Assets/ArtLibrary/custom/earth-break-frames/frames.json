@@ -1,0 +1,322 @@
+{
+  "charge": [
+    {
+      "file": "charge-1.png",
+      "anchorX": 192,
+      "anchorY": 320,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        0,
+        0,
+        256,
+        270
+      ]
+    },
+    {
+      "file": "charge-2.png",
+      "anchorX": 192,
+      "anchorY": 320,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        256,
+        0,
+        512,
+        270
+      ]
+    },
+    {
+      "file": "charge-3.png",
+      "anchorX": 192,
+      "anchorY": 320,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        512,
+        0,
+        768,
+        270
+      ]
+    },
+    {
+      "file": "charge-4.png",
+      "anchorX": 192,
+      "anchorY": 320,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        768,
+        0,
+        1024,
+        270
+      ]
+    },
+    {
+      "file": "charge-5.png",
+      "anchorX": 192,
+      "anchorY": 320,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        1024,
+        0,
+        1280,
+        270
+      ]
+    },
+    {
+      "file": "charge-6.png",
+      "anchorX": 192,
+      "anchorY": 320,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        1280,
+        0,
+        1536,
+        270
+      ]
+    }
+  ],
+  "sweep": [
+    {
+      "file": "sweep-1.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-sweep-source.png",
+      "sourceRect": [
+        0,
+        0,
+        512,
+        512
+      ]
+    },
+    {
+      "file": "sweep-2.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-sweep-source.png",
+      "sourceRect": [
+        512,
+        0,
+        1024,
+        512
+      ]
+    },
+    {
+      "file": "sweep-3.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-sweep-source.png",
+      "sourceRect": [
+        1024,
+        0,
+        1536,
+        512
+      ]
+    },
+    {
+      "file": "sweep-4.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-sweep-source.png",
+      "sourceRect": [
+        0,
+        512,
+        512,
+        1024
+      ]
+    },
+    {
+      "file": "sweep-5.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-sweep-source.png",
+      "sourceRect": [
+        512,
+        512,
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "sweep-6.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-sweep-source.png",
+      "sourceRect": [
+        1024,
+        512,
+        1536,
+        1024
+      ]
+    }
+  ],
+  "slam": [
+    {
+      "file": "slam-1.png",
+      "anchorX": 192,
+      "anchorY": 340,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        0,
+        475,
+        256,
+        795
+      ]
+    },
+    {
+      "file": "slam-2.png",
+      "anchorX": 192,
+      "anchorY": 340,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        256,
+        475,
+        496,
+        795
+      ]
+    },
+    {
+      "file": "slam-3.png",
+      "anchorX": 192,
+      "anchorY": 340,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        496,
+        468,
+        767,
+        795
+      ]
+    },
+    {
+      "file": "slam-4.png",
+      "anchorX": 192,
+      "anchorY": 340,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        767,
+        472,
+        1046,
+        795
+      ]
+    },
+    {
+      "file": "slam-5.png",
+      "anchorX": 192,
+      "anchorY": 340,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        1046,
+        477,
+        1282,
+        795
+      ]
+    },
+    {
+      "file": "slam-6.png",
+      "anchorX": 192,
+      "anchorY": 340,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        1282,
+        475,
+        1536,
+        795
+      ]
+    }
+  ],
+  "fissures": [
+    {
+      "file": "fissures-1.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        0,
+        795,
+        256,
+        1024
+      ]
+    },
+    {
+      "file": "fissures-2.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        256,
+        795,
+        509,
+        1024
+      ]
+    },
+    {
+      "file": "fissures-3.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        509,
+        795,
+        768,
+        1024
+      ]
+    },
+    {
+      "file": "fissures-4.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        768,
+        795,
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "fissures-5.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        1024,
+        795,
+        1280,
+        1024
+      ]
+    },
+    {
+      "file": "fissures-6.png",
+      "anchorX": 192,
+      "anchorY": 192,
+      "referenceWidth": 256,
+      "sourceFile": "earth-break-fx.png",
+      "sourceRect": [
+        1280,
+        795,
+        1536,
+        1024
+      ]
+    }
+  ]
+}

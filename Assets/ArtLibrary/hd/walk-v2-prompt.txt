@@ -1,0 +1,7 @@
+Tool: built-in image_gen. Transparent background requested.
+Inputs per class: normalized/walk.png as identity reference, followed by walk-v2-draft.png as edit target for refinement.
+Final direction: preserve exact character identity, costume, scale, head shapes and weapon. Four columns by four rows; rows DOWN, UP, LEFT, RIGHT. Replace static armed poses with a contralateral walking gait. Column 1: right leg and left arm forward, right arm back. Column 2: passing with arms low. Column 3: left leg and right arm forward, left arm back. Column 4: opposite passing. Strong forward/backward hand displacement in profile views, roughly 40-degree arm swing, weapon carried low and following its arm. Same anatomical weapon hand in every frame. Steady head and foot baseline, gentle scarf/cape follow-through. No attack poses, grid, text or motion lines.
+Warrior: black ponytail, red headband, blue/brown armor, silver sword in anatomical LEFT hand (screen RIGHT in front view).
+Wizard: silver hair, blue/gold cloak, blue crystal staff.
+Mechanic: blond hair, blue goggles, red scarf, brown/blue outfit, pistol.
+Normalize using python tools/build-hd-walk.py; keeps original walk.png and writes normalized/walk-v2.png.

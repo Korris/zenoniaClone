@@ -1,0 +1,18 @@
+Tool: built-in image_gen; transparent_background=true.
+Reference: inventory-icons-chibi.png (style).
+Shared prompt:
+Use case: stylized-concept. Production chibi RPG equipment icon atlas. Reference image is STYLE reference only: match its chunky cute proportions, clean dark-brown outlines, polished hand-painted metal, warm leather, saturated colored gems and simple readable shapes. Transparent background, no UI, no frames, no labels, no lettering, no numbers, no shadows outside icons.
+EXACTLY TEN separate icons arranged FIVE equal columns by TWO equal rows. One isolated equipment icon per cell. Generous transparent padding at least18% around each item, no overlap or clipping, consistently centered. Main icons must not cross cell boundaries. Keep clear empty gutters between rows/columns for slicing. No weapons, potions, coins or characters.
+Read left-to-right first row then second row: 10 tiers corresponding to level pairs1/5,10/15,20/25,30/35,40/45,50/55,60/65,70/75,80/85,90/95. Each tier changes material and silhouette, not just recolors. Tier styles:1 brown leather with small iron fasteners (starter, red cloth accent);2 polished steel with blue fabric;3 bronze plates with green gem;4 icy silver cyan crystal;5 crimson flame red metal;6 royal gold sapphire;7 emerald green nature leaves;8 dark violet arcane amethyst;9 ivory white gold celestial with small wings;10 ultimate crimson gold dragon scale with dragon details. More elaborate later tiers but still legible at small game icon size. All ten use consistent visual scale and viewing angle.
+
+HELMET:
+Subject: exactly10 HELMETS/CAPS, no heads or faces inside. Progress from simple leather adventurer cap with red band to steel knight helmet, bronze knight helmet, frost crown-helmet, red flame helm, royal gold helm, nature leaf helm, purple arcane helm, white winged celestial helm, gold/red dragon helm. Cute broad chibi helmet silhouettes, front-three-quarter view.
+
+ARMOR:
+Subject: exactly10 BODY ARMORS/CHESTPIECES, torso garments only, no bodies, arms, legs or mannequin. Progress from simple brown leather adventurer vest with red neck cloth to steel breastplate blue undershirt, bronze chestplate, frost crystal chestplate, red flame chestplate, royal gold breastplate, emerald leaf chestpiece, purple arcane cuirass, white winged celestial chestplate, gold/red dragon-scale breastplate. Chunky chibi torso proportions, front view.
+
+GLOVES:
+Subject: exactly10 GAUNTLET/GLOVE icons. ONE single glove per cell, no pairs and no hands or bare skin inside. Progress from brown leather glove blue wristband to steel gauntlet blue cuff, bronze gauntlet green gem, icy cyan crystal glove, crimson flame gauntlet, royal gold sapphire gauntlet, emerald leaf glove, dark purple arcane gauntlet, ivory winged celestial gauntlet, crimson gold dragon-claw gauntlet. Cute rounded fingers, clenched relaxed glove silhouette, consistent three-quarter view.
+
+BOOTS:
+Subject: exactly10 BOOT icons. ONE single boot per cell, no pairs or feet/legs inside. Progress from brown leather adventurer boot with tan folded cuff to steel armored blue boot, bronze armored green-gem boot, ice crystal cyan boot, crimson flame boot, royal gold sapphire boot, emerald leaf boot, purple arcane boot, ivory gold celestial winged boot, crimson gold dragon-scale boot. Cute chunky chibi sole and broad toe, consistent three-quarter side view.

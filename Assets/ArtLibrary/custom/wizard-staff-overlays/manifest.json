@@ -1,0 +1,182 @@
+[
+  {
+    "name": "apprentice",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/apprentice-base.png",
+      "w": 64,
+      "h": 263,
+      "gripX": 32,
+      "gripY": 145
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/apprentice-enhanced.png",
+      "w": 84,
+      "h": 274,
+      "gripX": 40,
+      "gripY": 156
+    },
+    "glow": "#5972ff"
+  },
+  {
+    "name": "wood",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/wood-base.png",
+      "w": 123,
+      "h": 262,
+      "gripX": 53,
+      "gripY": 143
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/wood-enhanced.png",
+      "w": 124,
+      "h": 266,
+      "gripX": 54,
+      "gripY": 148
+    },
+    "glow": "#deff59"
+  },
+  {
+    "name": "crystal",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/crystal-base.png",
+      "w": 127,
+      "h": 263,
+      "gripX": 63,
+      "gripY": 145
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/crystal-enhanced.png",
+      "w": 132,
+      "h": 270,
+      "gripX": 66,
+      "gripY": 152
+    },
+    "glow": "#596aff"
+  },
+  {
+    "name": "moon",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/moon-base.png",
+      "w": 108,
+      "h": 263,
+      "gripX": 56,
+      "gripY": 144
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/moon-enhanced.png",
+      "w": 138,
+      "h": 269,
+      "gripX": 68,
+      "gripY": 150
+    },
+    "glow": "#596aff"
+  },
+  {
+    "name": "arcane",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/arcane-base.png",
+      "w": 111,
+      "h": 258,
+      "gripX": 55,
+      "gripY": 142
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/arcane-enhanced.png",
+      "w": 112,
+      "h": 258,
+      "gripX": 55,
+      "gripY": 142
+    },
+    "glow": "#9959ff"
+  },
+  {
+    "name": "flame",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/flame-base.png",
+      "w": 112,
+      "h": 262,
+      "gripX": 52,
+      "gripY": 143
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/flame-enhanced.png",
+      "w": 114,
+      "h": 280,
+      "gripX": 56,
+      "gripY": 164
+    },
+    "glow": "#ff7a59"
+  },
+  {
+    "name": "ice",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/ice-base.png",
+      "w": 118,
+      "h": 263,
+      "gripX": 60,
+      "gripY": 145
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/ice-enhanced.png",
+      "w": 133,
+      "h": 290,
+      "gripX": 68,
+      "gripY": 172
+    },
+    "glow": "#5996ff"
+  },
+  {
+    "name": "nature",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/nature-base.png",
+      "w": 124,
+      "h": 263,
+      "gripX": 63,
+      "gripY": 144
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/nature-enhanced.png",
+      "w": 137,
+      "h": 289,
+      "gripX": 68,
+      "gripY": 171
+    },
+    "glow": "#eeff59"
+  },
+  {
+    "name": "holy",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/holy-base.png",
+      "w": 133,
+      "h": 263,
+      "gripX": 66,
+      "gripY": 145
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/holy-enhanced.png",
+      "w": 149,
+      "h": 285,
+      "gripX": 78,
+      "gripY": 167
+    },
+    "glow": "#ffba59"
+  },
+  {
+    "name": "void",
+    "base": {
+      "src": "assets/custom/wizard-staff-overlays/void-base.png",
+      "w": 132,
+      "h": 263,
+      "gripX": 63,
+      "gripY": 144
+    },
+    "enhanced": {
+      "src": "assets/custom/wizard-staff-overlays/void-enhanced.png",
+      "w": 157,
+      "h": 291,
+      "gripX": 79,
+      "gripY": 171
+    },
+    "glow": "#c559ff"
+  }
+]

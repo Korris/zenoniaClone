@@ -1,0 +1,42 @@
+{
+  "idle": {
+    "scale": 0.5857142857142857,
+    "headVsReference": null,
+    "frame": 192
+  },
+  "walk": {
+    "scale": 0.5976676384839648,
+    "headVsReference": 0.9800000000000004,
+    "frame": 192
+  },
+  "attack1": {
+    "scale": 0.5976676384839648,
+    "headVsReference": 0.9800000000000004,
+    "frame": 192
+  },
+  "attack2": {
+    "scale": 0.6810631229235878,
+    "headVsReference": 0.8600000000000003,
+    "frame": 192
+  },
+  "attack3": {
+    "scale": 0.7509157509157507,
+    "headVsReference": 0.7800000000000002,
+    "frame": 192
+  },
+  "dash": {
+    "scale": 0.563186813186813,
+    "headVsReference": 1.0400000000000005,
+    "frame": 192
+  },
+  "hurt": {
+    "scale": 0.4306722689075628,
+    "headVsReference": 1.3600000000000008,
+    "frame": 192
+  },
+  "death": {
+    "scale": 0.6810631229235878,
+    "headVsReference": 0.8600000000000003,
+    "frame": 192
+  }
+}

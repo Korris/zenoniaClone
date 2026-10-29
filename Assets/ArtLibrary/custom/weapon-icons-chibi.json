@@ -1,0 +1,15 @@
+{
+  "image": "weapon-icons-chibi.png",
+  "columns": 5,
+  "rows": 6,
+  "indexOrder": "row-major",
+  "usage": "Inventory, equipment and ground-drop artwork; selected by item classId and itemLevel, with player-class fallback for legacy inventory items.",
+  "levelPairs": [[1, 5], [10, 15], [20, 25], [30, 35], [40, 45], [50, 55], [60, 65], [70, 75], [80, 85], [90, 95]],
+  "classes": {
+    "warrior": { "startIndex": 0, "count": 10, "type": "sword" },
+    "wizard": { "startIndex": 10, "count": 10, "type": "staff" },
+    "mechanic": { "startIndex": 20, "count": 10, "type": "gun" }
+  },
+  "themes": ["training", "steel", "bronze", "frost", "flame", "royal", "nature", "arcane", "celestial", "dragon"],
+  "cellBounds": "Runtime buildWeaponIcons extracts the 30 isolated alpha silhouettes, orders rows by vertical center, then sorts each group of five left to right. Painted spacing is uneven; do not crop as equal cells."
+}

@@ -1,0 +1,6 @@
+Tool: built-in image_gen; transparent_background=true.
+Reference: assets/custom/inventory-icons-chibi.png (style only).
+Final prompt specification: create exactly 30 isolated chibi fantasy RPG weapon icons on a transparent atlas, 5 columns by 6 rows. Match the reference's chunky proportions, dark brown outlines, polished painted highlights, saturated gems and beveled metal. No text, frames or grid lines. Consistent diagonal orientation and readable small silhouettes.
+Rows 1-2: Warrior swords. Rows 3-4: Wizard staves. Rows 5-6: Mechanic guns. Each class reads left to right across its two rows.
+Tier level pairs: 1/5, 10/15, 20/25, 30/35, 40/45, 50/55, 60/65, 70/75, 80/85, 90/95.
+Tier designs: training iron/wood; steel blue; bronze green gem; cyan frost crystal; crimson flame; royal gold sapphire; emerald nature; dark violet arcane; ivory gold celestial; gold crimson dragon. Change silhouettes and materials as tiers rise.
