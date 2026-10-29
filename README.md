@@ -27,8 +27,23 @@ Everything is built at runtime by `Assets/Scripts/Bootstrap.cs` -- there is no s
 | K / Shift | Dash (brief invulnerability) |
 | Q / E | Previous / next sword + shield tier (10 tiers) |
 | R | Toggle enhanced gear art |
+| B | Toggle bloom post-process (A/B) |
+| F | Toggle all combat effects (A/B) |
 
 Monsters (ice goblins + frost slimes) chase and strike. Die -> respawn at the start after 1.4 s. Killed monsters respawn after 6 s.
+
+## Game feel / VFX layer
+
+All tuning lives in `Assets/Scripts/FeelConfig.cs` (hit-stop 45/80 ms, shake trauma, flash, trail, sparks, bloom threshold/intensity).
+The HUD shows `[B] Bloom` and `[F] Effects` state under the controls. **F off** = plain hits (25/60 ms stop, red tint, no shake / white flash /
+sword ribbon / sparks / shock ring / additive slash core / blade glow / damage-number pop). **B off** = no bloom.
+
+- Hit-stop: `GameClock.Dt` is 0 for the stop, so hero + monsters freeze while camera, damage numbers, trail and sparks keep animating.
+- Shake: trauma model (offset = trauma^2), camera offset only. White flash: `ZenoniaProto/SpriteFlash` shader (`_FlashAmount`).
+- Sword ribbon: shared crescent mesh + `TrailRibbon` shader (white core to orange to red). Sparks: pooled code-built ParticleSystem
+  (stretched additive) + flash quad + shock ring (crit / finisher). Slash and enhanced blade get an additive copy.
+- Bloom: Built-in pipeline `OnRenderImage` (`BloomEffect` + `BloomLite` shader), camera runs HDR; additive FX are pushed above 1.0 so only they glow.
+- Shaders live in `Assets/Resources/Shaders/` (loaded by name, so they are included in builds; missing shader falls back to a built-in one).
 
 ## What to compare with the web version
 
@@ -53,6 +68,9 @@ Assets/
     WarriorController.cs / ComboSystem.cs   movement, dash, 4-hit combo (web COMBO_CONFIG), hurt/death/respawn
     Monster.cs / MonsterDef.cs / MonsterSpawner.cs
     DamageNumber.cs / SlashEffect.cs / CameraFollow.cs / Hud.cs / WorldBuilder.cs
+    FeelConfig.cs / FeelMaterials.cs / FeelHotkeys.cs / FxSprites.cs   feel tuning, runtime materials, B/F toggles, generated FX sprites
+    SwordTrail.cs / ImpactFx.cs / BloomEffect.cs                       swing ribbon, hit sparks + ring, camera bloom
+  Resources/Shaders/                        SpriteFlash, SpriteAdditive, TrailRibbon, BloomLite (Built-in pipeline)
 Tools/export-held-gear.mjs                  re-exports held-gear.json from the web project (node Tools/export-held-gear.mjs)
 ```
 

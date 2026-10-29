@@ -18,6 +18,19 @@ namespace ZenoniaProto
             return -1;
         }
 
+        /// <summary>
+        /// Hit reaction: with effects on the sprite flashes pure white via the SpriteFlash shader (held through the hit-stop freeze)
+        /// and jitters a little; off = the old red tint.
+        /// </summary>
+        void ApplyHitReaction(float alpha)
+        {
+            bool fx = FeelConfig.FxOn && flash > 0f;
+            body.color = !fx && flash > 0f ? new Color(1f, 0.55f, 0.55f, alpha) : new Color(1f, 1f, 1f, alpha);
+            FeelMaterials.SetFlash(body, fx ? Mathf.Clamp01(flash / (FeelConfig.FlashMs * 0.6f)) : 0f);
+            float jitter = fx ? (Time.frameCount % 2 == 0 ? FeelConfig.HitJitterUnits : -FeelConfig.HitJitterUnits) : 0f;
+            body.transform.localPosition = new Vector3(jitter, 0f, 0f);
+        }
+
         void Render()
         {
             int order = GameConfig.OrderBase(y);
@@ -38,7 +51,7 @@ namespace ZenoniaProto
                 s = walkRow[still ? 0 : Mathf.FloorToInt(animTimer / WalkFrameMs) % walkRow.Length];
             }
             body.sprite = s;
-            body.color = flash > 0f ? new Color(1f, 0.55f, 0.55f, alpha) : new Color(1f, 1f, 1f, alpha);
+            ApplyHitReaction(alpha);
             body.sortingOrder = order + 3;
             shadow.sortingOrder = order;
             shadow.color = new Color(1f, 1f, 1f, 0.3f * alpha);

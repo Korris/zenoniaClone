@@ -25,6 +25,8 @@ namespace ZenoniaProto
             GameClock.ResetState();
             DamageNumber.ResetState();
             CameraFollow.ResetState();
+            FeelConfig.BloomOn = true;
+            FeelConfig.FxOn = true;
 
             var root = new GameObject(RootName);
             root.AddComponent<GameClock>();
@@ -33,6 +35,8 @@ namespace ZenoniaProto
             Camera cam = SetupCamera();
             WorldBuilder.Build(root.transform);
             SlashEffect.Init(root.transform);
+            SwordTrail.Init(root.transform);
+            ImpactFx.Init(root.transform);
 
             HeldGearData gear = HeldGearData.Load(); // null => baked armed frames only (still playable)
             var heroGo = new GameObject("Warrior");
@@ -48,6 +52,11 @@ namespace ZenoniaProto
             if (follow == null) follow = cam.gameObject.AddComponent<CameraFollow>();
             follow.Target = heroGo.transform;
             follow.Configure();
+
+            // Bloom (Built-in pipeline OnRenderImage) + A/B hotkeys; the camera is switched to HDR by BloomEffect.
+            var bloom = cam.GetComponent<BloomEffect>();
+            if (bloom == null) bloom = cam.gameObject.AddComponent<BloomEffect>();
+            root.AddComponent<FeelHotkeys>().Init(bloom);
 
             root.AddComponent<Hud>().Init(hero);
         }

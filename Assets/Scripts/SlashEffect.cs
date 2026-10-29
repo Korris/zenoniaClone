@@ -9,7 +9,8 @@ namespace ZenoniaProto
         static readonly List<SlashEffect> Pool = new List<SlashEffect>();
         static Transform root;
         static Sprite[][] frames;
-        SpriteRenderer sr;
+        SpriteRenderer sr, core; // core = additive copy of the same frame (bright centre, feeds the bloom)
+        bool finisherLook;
         Sprite[] row;
         float age, life;
 
@@ -34,6 +35,8 @@ namespace ZenoniaProto
                 go.transform.SetParent(root, false);
                 fx = go.AddComponent<SlashEffect>();
                 fx.sr = go.AddComponent<SpriteRenderer>();
+                fx.core = ProceduralSprites.Child(go.transform, "Core", null);
+                fx.core.sharedMaterial = FeelMaterials.Additive;
                 Pool.Add(fx);
             }
             fx.row = SpriteSheet.Row(frames, finisher ? 1 : 0);
@@ -44,6 +47,8 @@ namespace ZenoniaProto
             fx.transform.rotation = Quaternion.Euler(0f, 0f, angleDeg);
             fx.transform.localScale = new Vector3(size, flipY ? -size : size, 1f);
             fx.sr.sortingOrder = order;
+            fx.core.sortingOrder = order + 1;
+            fx.finisherLook = finisher;
             fx.gameObject.SetActive(true);
             fx.Apply();
         }
@@ -60,7 +65,11 @@ namespace ZenoniaProto
             if (row == null || row.Length == 0) { sr.sprite = null; return; }
             int i = Mathf.Min(row.Length - 1, Mathf.FloorToInt(age / life * row.Length));
             sr.sprite = row[i];
-            sr.color = new Color(1f, 1f, 1f, Mathf.Clamp01((life - age) / (life * 0.35f)));
+            float fade = Mathf.Clamp01((life - age) / (life * 0.35f));
+            sr.color = new Color(1f, 1f, 1f, fade);
+            core.enabled = FeelConfig.FxOn;
+            core.sprite = sr.sprite;
+            core.color = finisherLook ? new Color(1f, 0.82f, 0.55f, fade) : new Color(1f, 0.95f, 0.85f, fade * 0.9f);
         }
     }
 }

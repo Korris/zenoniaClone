@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    public enum GameKey { Up, Down, Left, Right, Attack, Dash, TierUp, TierDown, Enhance }
+    public enum GameKey { Up, Down, Left, Right, Attack, Dash, TierUp, TierDown, Enhance, Bloom, Fx }
 
     /// <summary>
     /// Keyboard abstraction that works whichever Active Input Handling the project ends up with
@@ -25,6 +25,8 @@ namespace ZenoniaProto
             new[] { KeyCode.E },
             new[] { KeyCode.Q },
             new[] { KeyCode.R },
+            new[] { KeyCode.B },
+            new[] { KeyCode.F },
         };
 
         public static bool Held(GameKey k)
@@ -52,6 +54,8 @@ namespace ZenoniaProto
             new[] { Key.E },
             new[] { Key.Q },
             new[] { Key.R },
+            new[] { Key.B },
+            new[] { Key.F },
         };
 
         public static bool Held(GameKey k)

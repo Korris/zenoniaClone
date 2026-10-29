@@ -16,10 +16,12 @@ namespace ZenoniaProto
             float w = v.x != 0f ? h.Reach : h.Width, ht = v.y != 0f ? h.Reach : h.Width;
             var box = new Rect(cx - w * 0.5f, cy - ht * 0.5f, w, ht);
             bool finisher = combo.IsFinisher;
-            SlashEffect.Spawn(cx, cy, DirAngle[facing], h.FxScale, finisher, step == 2, GameConfig.OrderBase(y) + 7);
+            SlashEffect.Spawn(cx, cy, DirAngle[facing], h.FxScale, finisher, step == 2, FeelConfig.FxOrder);
+            SwordTrail.Spawn(x, y + 6f, DirAngle[facing], h.Reach, finisher, step == 2);
 
             float mult = combo.MultiplierFor(step, 1);
             int landed = 0;
+            bool anyCrit = false;
             IReadOnlyList<Monster> monsters = Monster.All;
             for (int i = 0; i < monsters.Count; i++)
             {
@@ -29,11 +31,12 @@ namespace ZenoniaProto
                 int dmg = CombatMath.Damage(Atk, mult * (crit ? 1.6f : 1f), m.Def);
                 m.TakeHit(dmg, v * h.Knockback * (crit ? 2f : 1f), crit, finisher);
                 landed++;
+                anyCrit |= crit;
             }
             if (landed > 0)
             {
-                GameClock.HitStop(finisher ? 60f : 25f);
-                if (finisher) CameraFollow.Shake(2.5f, 140f);
+                GameClock.HitStop(FeelConfig.HitStopMs(finisher));
+                CameraFollow.AddTrauma(finisher ? FeelConfig.TraumaFinisher : anyCrit ? FeelConfig.TraumaCrit : FeelConfig.TraumaNormal);
             }
         }
 
@@ -45,7 +48,7 @@ namespace ZenoniaProto
             invuln = InvulnMs;
             hurt = HurtMs;
             DamageNumber.Spawn(x, y + 26f, dmg.ToString(), new Color(1f, 0.35f, 0.35f), false);
-            CameraFollow.Shake(1.5f, 100f);
+            CameraFollow.AddTrauma(FeelConfig.TraumaHurt);
             if (hp <= 0f)
             {
                 hp = 0f;

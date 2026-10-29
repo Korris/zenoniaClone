@@ -21,7 +21,7 @@ namespace ZenoniaProto
         readonly Dictionary<string, Sprite[][]> bare = new Dictionary<string, Sprite[][]>();
         readonly Dictionary<string, Sprite> overlayCache = new Dictionary<string, Sprite>();
         HeldGearData gear;
-        SpriteRenderer body, sword, shield, shadow;
+        SpriteRenderer body, sword, shield, shadow, swordGlow;
         int tier;
         bool enhanced;
 
@@ -44,6 +44,8 @@ namespace ZenoniaProto
             shield = ProceduralSprites.Child(transform, "Shield", null);
             body = ProceduralSprites.Child(transform, "Body", null);
             sword = ProceduralSprites.Child(transform, "Sword", null);
+            swordGlow = ProceduralSprites.Child(sword.transform, "SwordGlow", null); // additive copy: bright pixels of the enhanced blade bloom
+            swordGlow.sharedMaterial = FeelMaterials.Additive;
         }
 
         public int FrameCount(string anim, int dir)
@@ -65,7 +67,7 @@ namespace ZenoniaProto
             Sprite[] armedRow;
             if (!armed.ContainsKey(anim) || (armedRow = SpriteSheet.Row(armed[anim], dir)) == null || armedRow.Length == 0)
             {
-                body.sprite = null; sword.sprite = null; shield.sprite = null;
+                body.sprite = null; sword.sprite = null; shield.sprite = null; swordGlow.enabled = false;
                 return;
             }
             frame = Mathf.Clamp(frame, 0, armedRow.Length - 1);
@@ -90,6 +92,18 @@ namespace ZenoniaProto
             body.sortingOrder = orderBase + 3;
             ApplyPart(shield, "shield", gear != null ? gear.Shield : null, shieldAnchor, 1f, 0f, orderBase + 1, orderBase + 4, tint);
             ApplyPart(sword, "sword", gear != null ? gear.Sword : null, swordAnchor, SwordDrawScale, SwordMinSx, orderBase + 2, orderBase + 5, tint);
+            UpdateSwordGlow(orderBase, alpha);
+        }
+
+        /// <summary>Enhanced blade only, and only when drawn in front of the body (sorting slot +6 is unused by the other parts).</summary>
+        void UpdateSwordGlow(int orderBase, float alpha)
+        {
+            bool on = enhanced && FeelConfig.FxOn && sword.sprite != null && sword.sortingOrder == orderBase + 5;
+            swordGlow.enabled = on;
+            if (!on) return;
+            swordGlow.sprite = sword.sprite;
+            swordGlow.sortingOrder = orderBase + 6;
+            swordGlow.color = new Color(1f, 0.85f, 0.6f, FeelConfig.EnhancedGlowAlpha * alpha);
         }
 
         void ApplyPart(SpriteRenderer sr, string part, OverlayEntry[] manifest, HeldAnchor a, float drawScale, float minSx, int orderBehind, int orderFront, Color tint)

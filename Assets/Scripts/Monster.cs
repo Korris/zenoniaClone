@@ -24,6 +24,7 @@ namespace ZenoniaProto
         Vector2 home;
         float x, y, hp, timer, animTimer, flash, knockLeft, deathTimer;
         Vector2 knock;
+        float knockTotal;
         int facing;
         State state = State.Idle;
         Sprite[][] walk, attack;
@@ -55,6 +56,7 @@ namespace ZenoniaProto
             float sw = def.HitW + 2f;
             shadow.transform.localScale = new Vector3(sw, sw, 1f);
             body = ProceduralSprites.Child(transform, "Body", null);
+            body.sharedMaterial = FeelMaterials.SpriteFlash; // white-flash capable sprite shader
             barBack = ProceduralSprites.Child(transform, "BarBack", ProceduralSprites.White(true));
             barFill = ProceduralSprites.Child(transform, "BarFill", ProceduralSprites.White(true));
             barBack.color = new Color(0f, 0f, 0f, 0.7f);
@@ -91,7 +93,12 @@ namespace ZenoniaProto
             }
             else
             {
-                if (knockLeft > 0f) { x += knock.x * dt; y += knock.y * dt; knockLeft -= dtMs; }
+                if (knockLeft > 0f)
+                {
+                    // Fx on: ease-out slide (fast start, soft stop) with the same average speed; off: constant velocity.
+                    float k = FeelConfig.FxOn ? 2f * knockLeft / knockTotal : 1f;
+                    x += knock.x * k * dt; y += knock.y * k * dt; knockLeft -= dtMs;
+                }
                 Think(dt, dtMs, heroAlive, toHero, dist, hero);
                 x = Mathf.Clamp(x, 8f, GameConfig.MapW - 8f);
                 y = Mathf.Clamp(y, 4f, GameConfig.MapH - 4f);
@@ -158,11 +165,17 @@ namespace ZenoniaProto
         {
             if (IsDying) return;
             hp -= dmg;
-            flash = HitFlashMs;
-            if (knockVel != Vector2.zero) { knock = knockVel; knockLeft = KnockbackMs; }
+            bool fx = FeelConfig.FxOn;
+            flash = fx ? FeelConfig.FlashMs : HitFlashMs;
+            if (knockVel != Vector2.zero)
+            {
+                knock = fx ? knockVel * FeelConfig.KnockbackMultiplier : knockVel;
+                knockTotal = knockLeft = fx ? FeelConfig.KnockbackMs : KnockbackMs;
+            }
             if (state == State.Idle) state = State.Chase;
             Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
-            DamageNumber.Spawn(x, y + def.BodyHeightUnits + 4f, dmg.ToString(), c, crit || finisher);
+            DamageNumber.Spawn(x, y + def.BodyHeightUnits + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
+            ImpactFx.Spawn(x, y + def.BodyHeightUnits * 0.5f, knockVel, crit, finisher);
             if (hp <= 0f)
             {
                 hp = 0f;

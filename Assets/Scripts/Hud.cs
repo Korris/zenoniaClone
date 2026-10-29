@@ -14,6 +14,8 @@ namespace ZenoniaProto
         int shownWorstMs;
         string fpsText = "FPS --";
         string hpText = "";
+        string toggleText = "";
+        int toggleState = -1;
         int lastHp = -1;
         GUIStyle label, small;
         WarriorController hero;
@@ -67,6 +69,14 @@ namespace ZenoniaProto
             string line = hero != null ? hero.GearLabel : "";
             GUI.Label(new Rect(x, y + h + 34f * s, 520f * s, 18f * s), line, small);
             GUI.Label(new Rect(x, y + h + 52f * s, 520f * s, 18f * s), "Move WASD/Arrows   Attack J/Space (4-hit combo)   Dash K/Shift", small);
+            int state = (FeelConfig.BloomOn ? 1 : 0) | (FeelConfig.FxOn ? 2 : 0);
+            if (state != toggleState)
+            {
+                toggleState = state;
+                toggleText = "[B] Bloom: " + (FeelConfig.BloomOn ? "ON" : "OFF") + "    [F] Effects: " + (FeelConfig.FxOn ? "ON" : "OFF") + "    (toggle to A/B compare)";
+            }
+            small.normal.textColor = new Color(1f, 0.9f, 0.55f, 0.95f);
+            GUI.Label(new Rect(x, y + h + 70f * s, 520f * s, 18f * s), toggleText, small);
             GUI.color = Color.white;
         }
 

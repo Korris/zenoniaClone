@@ -2,12 +2,12 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>Orthographic follow camera: smooth-damped, clamped to the map, with a decaying screen shake.</summary>
+    /// <summary>Orthographic follow camera: smooth-damped, clamped to the map, with trauma-based screen shake (camera offset only).</summary>
     [RequireComponent(typeof(Camera))]
     public class CameraFollow : MonoBehaviour
     {
         const float SmoothTime = 0.09f;
-        static float shakeStrength, shakeLeft;
+        static float trauma;
 
         public Transform Target;
         public float TargetYOffset = 10f; // aim at the torso, not the feet
@@ -15,13 +15,14 @@ namespace ZenoniaProto
         Vector2 velocity;
         Vector2 pos;
 
-        public static void Shake(float strength, float ms)
+        /// <summary>Adds shake trauma (0..1, clamped). Offset grows with trauma squared and decays linearly. No-op when effects are off.</summary>
+        public static void AddTrauma(float amount)
         {
-            shakeStrength = Mathf.Max(shakeStrength, strength);
-            shakeLeft = Mathf.Max(shakeLeft, ms / 1000f);
+            if (!FeelConfig.FxOn) return;
+            trauma = Mathf.Min(1f, trauma + amount);
         }
 
-        public static void ResetState() { shakeStrength = 0f; shakeLeft = 0f; }
+        public static void ResetState() { trauma = 0f; }
 
         public void Configure()
         {
@@ -58,11 +59,12 @@ namespace ZenoniaProto
             Vector2 goal = Clamp(TargetPos());
             pos = Vector2.SmoothDamp(pos, goal, ref velocity, SmoothTime, Mathf.Infinity, dt);
             Vector2 shown = pos;
-            if (shakeLeft > 0f)
+            if (trauma > 0f)
             {
-                shakeLeft -= dt;
-                shown += Random.insideUnitCircle * shakeStrength;
-                if (shakeLeft <= 0f) shakeStrength = 0f;
+                trauma = Mathf.Max(0f, trauma - FeelConfig.TraumaDecayPerSecond * dt);
+                float t = Time.unscaledTime * FeelConfig.ShakeFrequency;
+                var noise = new Vector2(Mathf.PerlinNoise(t, 0.37f) * 2f - 1f, Mathf.PerlinNoise(7.91f, t) * 2f - 1f);
+                shown += noise * (trauma * trauma * FeelConfig.MaxShakeUnits);
             }
             Apply(shown);
         }
