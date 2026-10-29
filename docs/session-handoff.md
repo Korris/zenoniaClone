@@ -12,7 +12,11 @@ The user said they will continue "tối nay" (tonight, 2026-10-29). On resume, r
 - Colours: warrior red, wizard violet, mechanic orange (C for blue), assassin purple X-slashes, cleric green-gold.
 - Monster hit flash is capped at 50%.
 - Assets/ArtLibrary holds all the web art (806 files).
-- RPG systems port (stats/EXP, loot, 6-slot equipment, enhance +15, potions, save, inventory UI on B): an agent was told to wrap up and commit. Check plans/261029-1720-unity-rpg-systems/plan.md for what is done and what remains.
+- RPG systems port is PARTIAL (commit 93339be, pushed).
+  - Done: the pure-C# core in Assets/Scripts/Rpg (stats/EXP, items, enhance with a swappable IUpgradeMethod, loot, per-class JSON save), 140 icons in Resources/Sprites/icons, and 16 parity checks (numbers match the web). Nothing is wired into gameplay yet.
+  - Next is phase 3 in plans/261029-1720-unity-rpg-systems/plan.md: RpgSession load/new/autosave; hero stats from PlayerState; monsters grant EXP/gold/loot; death penalty; key remap (bloom B→F6, inventory on B, potions on 1/2).
+  - Then: phase 4 ground pickups, phase 5 UGUI HUD + inventory/enhance panel, phase 6 gear sync to HeroRenderer, phase 7 test assembly + build + screenshots.
+  - Decisions: random-class drops stay (the user chose this for trading). Pickup on touch vs. on attack is still open; default to auto-pickup on touch unless the user objects.
 
 **Next steps:**
 1. ChatGPT art. The quota resets 2026-10-30 at 11:42, so tonight it may still be blocked. The list is in C:\Project\zenoniaUnity\plans\261029-1720-chatgpt-pending-art\plan.md: assassin attack2/3 solid-blade fix, and weaponless sheets for warrior attack1/3/4 and assassin attack1-4.
