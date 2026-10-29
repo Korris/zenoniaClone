@@ -112,6 +112,7 @@ namespace ZenoniaProto
                 dashing = true;
             }
 
+            UpdateRangedCastFx();
             events.Clear();
             combo.Update(dtMs, events);
             for (int i = 0; i < events.Count; i++) if (events[i].Type == ComboEventType.Hit) DoHit(events[i].Step);

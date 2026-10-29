@@ -1,0 +1,59 @@
+# VFX sprite sheet generation log (ChatGPT Plus image gen via chatgpt.com, 2026-10-29)
+# Common rules sent with every sheet: transparent background, effects only, 4 cols x 3 rows strict grid, wide gutters, crisp anime VFX readable on snow.
+
+## COMMON SUFFIX (appended to sheets 1,2,3,5,6)
+STRICT RULES (very important):
+- Output a PNG with a FULLY TRANSPARENT background (real alpha channel). NO background colour, NO fake checkerboard pattern, NO ground, NO scenery.
+- Effects ONLY: NO characters, NO staffs/guns/weapons, NO text, NO labels, NO numbers, NO frame borders or grid lines.
+- Layout: a strict grid of 4 columns x 3 rows of EQUAL square cells. Each effect is centred in its cell and stays well inside it, with WIDE empty transparent gaps between all cells (no effect touches a neighbour). Frames read left to right as an animation.
+- Style: bright 2D anime/chibi mobile-game VFX (Zenonia-like), hand-painted but CRISP: clean defined shapes, white-hot cores, saturated colour edges, sharp sparkles. It must still read clearly on a SNOW-WHITE background, so avoid big soft white haze, fog or blurry glow clouds.
+- Match the look of the attached reference sheet.
+
+## 1. cleric/cleric-attack-vfx.png  (ref attached: ranged-attack-fx-reference.png as JPG)
+Create a game VFX SPRITE SHEET for the CLERIC's basic ranged attack, in the same style as the cleric row (green + gold holy light) in the attached reference image.
+Row 1 - CAST at the staff head (4 frames): 1) small gold-green sparkles gathering to a point; 2) a swirling green-gold light ribbon spiralling around a glowing core; 3) bloom - bright green-gold orb with radiating leaf-shaped rays; 4) release flash - a sharp 4-point star flash.
+Row 2 - PROJECTILE flying to the RIGHT (4 looping frames): a green-gold light arrow/spear with leaf/flame-shaped tips at its head, pointing right, with a long thin gold sparkle trail behind it to the left; small variations between frames so it loops.
+Row 3 - IMPACT (4 frames): 1) bright flash; 2) a tall gold vertical light pillar with 4-point star flares; 3) green crystal shards bursting outward plus a green glowing ground halo ring (ellipse); 4) fading scattered gold-green sparkles.
++ COMMON SUFFIX
+
+Result: accepted first try (1536x1024 RGBA, real alpha).
+
+## 2. wizard/wizard-attack-vfx.png  (same chat; ref = wizard row of the attached reference)
+Now create the WIZARD's basic attack VFX sprite sheet, same rules, in the style of the wizard row (violet / blue-violet arcane magic) of the reference image I attached earlier.
+Row 1 - CAST (4 frames): 1) a few violet sparkles and a thin arc appearing; 2) swirling blue-violet magic arcs forming a ring; 3) a glowing rune circle fully formed with orbiting arcs and a white-violet core; 4) bright release flash with the circle breaking into arcs.
+Row 2 - PROJECTILE flying to the RIGHT (4 looping frames): a bright white-violet energy orb at the right end with spiralling violet energy ribbons around it and a bright tapered beam tail stretching to the left, plus small diamond sparkles; slight variation per frame so it loops.
+Row 3 - IMPACT (4 frames): 1) white-violet flash; 2) a sharp violet starburst with long spiky rays; 3) violet crystal shards flying outward with diamond-shaped sparkles; 4) fading small crystals and sparkles.
++ COMMON SUFFIX
+Result: accepted first try (1536x1024 RGBA, real alpha).
+
+## 3. mechanic/mechanic-attack-vfx-blue.png  (same chat; ref = mechanic row of the attached reference)
+Now create the MECHANIC's basic gun attack VFX sprite sheet, same rules, in the style of the mechanic row (blue plasma cannon) of the reference image I attached earlier.
+Row 1 - MUZZLE (4 frames, everything points to the RIGHT, no gun drawn): 1) small blue charge glow with tiny sparks; 2) brighter blue energy charge ball with crackling arcs; 3) BIG muzzle blast - blue-white cone flash bursting to the right with spikes; 4) muzzle blast fading into a few streaks and sparks.
+Row 2 - PROJECTILE flying to the RIGHT (4 looping frames): an elongated blue plasma bolt with a white-hot rounded head on the right and a tapered tail to the left, with thin motion streak lines; slight variation per frame.
+Row 3 - IMPACT (4 frames): 1) blue-white flash; 2) sharp blue-white starburst with orange hot sparks flying out; 3) starburst breaking apart plus a brown dust cloud and small rock debris chunks at its base; 4) settling brown dust puffs and a few rocks and fading sparks.
++ COMMON SUFFIX
+Result: accepted first try (1536x1024 RGBA, real alpha). (Tab dropped out of the MCP group mid-generation; reopened chat URL and downloaded.)
+
+## 4. mechanic/mechanic-attack-vfx-orange.png  (same chat, edit of sheet #3 which is the previous image in the chat)
+Now make an EXACT RECOLOUR of the mechanic sheet you just made (the previous image): keep every shape, position, frame, size and the 4x3 layout identical, only change the blue plasma / blue-white energy to ORANGE-HOT / amber plasma (white-hot cores, yellow-orange glow, deep orange-red edges). Keep the brown dust clouds and rock debris brown. Keep the orange sparks. Same fully transparent background (real alpha, no checkerboard), no text, no characters, no borders.
+Result: accepted first try (1536x1024 RGBA, real alpha; layout matches #3 closely).
+
+## 5. warrior/warrior-slash-vfx.png  (NEW chat; refs attached: warrior-slashes-chibi.png (shape) + five-class-roster-style-ref.png (style), JPG copies)
+Create a game VFX SPRITE SHEET for the WARRIOR's sword basic attack. Image 1 = existing warrior slash art: use it for the SHAPE language of the crescents. Image 2 = overall game style (warrior = red).
+Row 1 - HORIZONTAL CRESCENT SWORD SLASH (4 frames): 1) a thin starting arc; 2) full wide horizontal crescent slash; 3) trailing crescent getting thinner, breaking into streaks; 4) dissipating thin streaks and a few sparks. Colours: crimson / blood-red outer edges, a red-orange band, and a thin white-hot core line along the inner edge.
+Row 2 - FINISHER (4 frames): a bigger DOUBLE crescent / spinning circular arc slash: 1) first big arc; 2) second arc crossing it, almost a full spinning ring; 3) full double ring at peak with sparks; 4) fading arcs.
+Row 3 - IMPACT HIT SPARK (4 frames): 1) small white-red flash; 2) sharp red-white starburst with small sparks; 3) bigger burst breaking into spark shards; 4) fading sparks.
++ COMMON SUFFIX (last line: "Match the look of the attached reference images.")
+Result attempt 1: good colours but effects crossed cell boundaries (row1 f2 into cell 1; row2/row3 nearly touching) and row-1 crescents tall ')' not horizontal. Retry:
+RETRY PROMPT: Good look and colours, but please fix the layout and redo the whole sheet:
+- Several effects cross their cell boundaries (row 1 frame 2 overlaps frame 1's cell, the finisher rings in row 2 almost touch each other, row 2 and row 3 nearly touch). Make every effect SMALLER: each must fit inside the central 75% of its 384x341 cell, so there is a clearly visible empty transparent gutter around every cell. All 12 effects centred in their own cells.
+- Row 1 should read as a HORIZONTAL sweep: make the crescent wider and flatter (a wide arc lying sideways like a smile/frown sweeping left-to-right), not a tall ')' shape.
+- Keep the crimson edges, red-orange band and thin white-hot core, crisp shapes, fully transparent background, no text, no characters, no borders.
+Result attempt 2: ACCEPTED. Rows separate cleanly; each row splits into 4 by transparent gutters, but row-1 frame 2 (x 378-804) slightly overhangs the strict 384px grid -> slice by detected gutters, not fixed grid.
+
+## 6. assassin/assassin-slash-vfx.png  (same chat as #5)
+Now the ASSASSIN's dagger basic attack VFX sheet, same strict rules (4x3, effects only, transparent, each effect inside the central 75% of its cell). Colour: PURPLE / violet (white-hot cores, vivid violet edges, a touch of magenta), matching the assassin in the attached style image. It must look clearly DIFFERENT from the warrior's wide red crescents: THIN, FAST, SHARP, needle-like streaks, not wide bands.
+Row 1 - X CROSS-SLASH (4 frames): 1) first thin diagonal dagger streak appears; 2) second thin streak crosses it forming a sharp X; 3) full bright X with tiny spark flecks at the crossing; 4) X breaking into thin fading slivers.
+Row 2 - THRUST / STAB pointing RIGHT (4 frames): 1) a short sharp needle streak; 2) long piercing horizontal streak pointing right with parallel afterimage speed lines behind it; 3) peak - bright needle tip flash at the right end with afterimage lines; 4) afterimage lines fading.
+Row 3 - IMPACT (4 frames): 1) small violet-white flash; 2) sharp violet star-burst sparks; 3) burst with small dark purple-black shadow wisps curling outward; 4) fading sparks and wisps.
+Result: accepted first try (1536x1024 RGBA, real alpha; clean 4x3 gutters).

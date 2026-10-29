@@ -81,6 +81,13 @@ sword ribbon / sparks / shock ring / additive slash core / blade glow / damage-n
 - Bloom: Built-in pipeline `OnRenderImage` (`BloomEffect` + `BloomLite` shader), camera runs HDR; additive FX are pushed above 1.0 so only they glow.
 - Shaders live in `Assets/Resources/Shaders/` (loaded by name, so they are included in builds; missing shader falls back to a built-in one).
 
+**Painted ranged FX** (wizard / cleric / mechanic): hand-painted sprite sheets in `Assets/ArtLibrary/vfx/` are sliced by `Tools/slice-vfx-sheets.py`
+(transparent-gutter detection, per-row pivots) into `Resources/Sprites/fx/vfx/<set>/{cast,proj,impact}_<n>.png` + `Resources/Data/vfx-<set>.json`.
+`VfxSprites` loads a set, `VfxAnim` plays cast (at staff tip / barrel, windup) and impact rows, `ComboProjectile.Painted.cs` loops the 4-frame projectile
+rotated to travel (pivot on the bright head). Base sprite = normal alpha blend, plus a faint additive copy (`FeelConfig.PaintedGlowAlpha`) for bloom. Finisher = 1.35x.
+Mechanic C swaps `mechanic-orange` / `mechanic-blue`. Missing art falls back to the procedural rigs. Re-run the slicer after changing a sheet.
+Video: `--record-combo wizard|cleric|mechanic [--mech-blue] [--zoom N]` (60 fps frame dump, like `--record-ultimate`).
+
 ## What to compare with the web version
 
 - **FPS / max** readout (top-left): same format as the web (`FPS 60 · max 17ms`, refreshed every 0.5 s). "max" is the worst frame in

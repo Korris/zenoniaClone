@@ -41,6 +41,7 @@ namespace ZenoniaProto
             ClassPalette.Current = def.ActivePalette;
             if (id == HeroClass.Warrior) EarthBreakUltimate.Preload(); // first-cast hitch fix: load the skill art + warm the FX pools now
             if (id == HeroClass.Wizard) IceStormUltimate.Preload();
+            VfxSprites.Preload(id);
             UltimateFx.Prewarm();
             hero = heroGo.AddComponent<HeroController>();
             hero.Init(view);

@@ -21,10 +21,12 @@ namespace ZenoniaProto
     ///   --mech-blue                       mechanic FX start in blue (default orange)
     ///   --dummy-dist N                    distance of the first dummy in front of the hero (default 30)
     ///   --god                             hero ignores damage
+    ///   --record-combo wizard|mechanic|cleric  scripted basic-attack video: hero holds attack at dummies (3 s lead-in of idle, then ~6 s of combos), same frame dump as below
+    ///                                     (--mech-blue for the blue mechanic, --zoom for a close-up)
     ///   --record-ultimate warrior|wizard  scripted video scene (monsters + King nearby, basic combo, then the skill, tail), 60 fps fixed-step,
     ///                                     writes frame_00000.png... to --shot-path (a folder), then quits; encode with ffmpeg
     /// </summary>
-    public class DebugCapture : MonoBehaviour
+    public partial class DebugCapture : MonoBehaviour
     {
         GameSession session;
         string recordArg, classArg, faceArg, shotPath, botArg;
@@ -41,7 +43,7 @@ namespace ZenoniaProto
         public static void AttachIfRequested(GameObject root, GameSession gameSession)
         {
             string[] args = Environment.GetCommandLineArgs();
-            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0) return;
+            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0 && Array.IndexOf(args, "--record-combo") < 0) return;
             var d = root.AddComponent<DebugCapture>();
             d.session = gameSession;
             d.Parse(args);
@@ -71,6 +73,7 @@ namespace ZenoniaProto
         {
             classArg = Arg(a, "--class");
             recordArg = Arg(a, "--record-ultimate");
+            comboArg = Arg(a, "--record-combo");
             faceArg = Arg(a, "--face");
             botArg = Arg(a, "--bot");
             shotPath = Arg(a, "--shot-path") ?? Path.Combine(Application.persistentDataPath, "shot");
@@ -154,6 +157,7 @@ namespace ZenoniaProto
         IEnumerator Run()
         {
             yield return null;
+            if (comboArg != null) { yield return RecordCombo(comboArg); yield break; }
             string rec = recordArg;
             if (rec != null) { yield return RecordUltimate(rec); yield break; }
             if (classArg != null)

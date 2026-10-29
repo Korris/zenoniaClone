@@ -40,6 +40,7 @@ namespace ZenoniaProto
         // ---- additive glow ----
         public const float AdditiveIntensity = 1.7f;     // > 1 so bright pixels exceed the bloom threshold in the HDR buffer
         public const float TrailIntensity = 1.9f;
+        public const float PaintedGlowAlpha = 0.22f;      // additive copy of the painted ranged-FX sprites (base sprite is normal alpha blend)
         public const float EnhancedGlowAlpha = 0.6f;
 
         // ---- sword trail ribbon ----

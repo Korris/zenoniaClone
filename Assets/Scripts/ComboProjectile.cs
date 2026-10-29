@@ -8,7 +8,7 @@ namespace ZenoniaProto
     /// cannon. Hits the first monster it touches; a bolt with ExplodeRadius bursts and damages everything inside the radius.
     /// Game feel: hit-stop, camera trauma, impact sparks + white flash (via Monster.TakeHit), additive glow copy, blast FX.
     /// </summary>
-    public class ComboProjectile : MonoBehaviour
+    public partial class ComboProjectile : MonoBehaviour
     {
         const float CritChance = 0.08f, StepUnits = 4f, VisualLift = 6f;
         static readonly List<ComboProjectile> Pool = new List<ComboProjectile>();
@@ -24,6 +24,8 @@ namespace ZenoniaProto
         SpriteRenderer sr, glow;
         ArcaneBoltRig arcane;   // wizard layered missile (null until first needed)
         StreakBoltRig streak;   // cleric light arrow / mechanic plasma bolt
+        VfxSet vfx;             // painted projectile sheet (null = procedural rig / sprite fallback)
+        float animT;
 
         public static void Init(Transform parent) { root = parent; Pool.Clear(); }
 
@@ -49,6 +51,8 @@ namespace ZenoniaProto
             p.sr.enabled = p.glow.enabled = bolt.Style == BoltStyle.Sprite;
             if (p.arcane != null) p.arcane.End();
             if (p.streak != null) p.streak.End();
+            p.vfx = bolt.Style == BoltStyle.Sprite ? null : VfxSprites.For(bolt.Style);
+            if (p.vfx != null) { p.BeginPainted(angleDeg, finisher); return; }
             if (bolt.Style != BoltStyle.Sprite)
             {
                 p.transform.localScale = Vector3.one; // the rigs size themselves
@@ -97,6 +101,12 @@ namespace ZenoniaProto
                 life -= dt;
                 if (life <= 0f) { gameObject.SetActive(false); return; }
             }
+            if (vfx != null)
+            {
+                transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
+                Animate();
+                return;
+            }
             if (def.Style != BoltStyle.Sprite)
             {
                 var at = new Vector2(pos.x, pos.y + VisualLift);
@@ -126,6 +136,7 @@ namespace ZenoniaProto
         void HitFx(bool blast)
         {
             var at = pos + new Vector2(0f, VisualLift);
+            if (vfx != null) { PaintedHitFx(at, blast); return; }
             switch (def.Style)
             {
                 case BoltStyle.Arcane: if (blast) RuneFx.FinisherBurst(at, def.ExplodeRadius, pal); else RuneFx.Impact(at, pal); break;
@@ -139,7 +150,7 @@ namespace ZenoniaProto
         {
             bool crit = Random.value < CritChance;
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
-            m.TakeHit(dmg, knock * (crit ? 2f : 1f), crit, blast);
+            m.TakeHit(dmg, knock * (crit ? 2f : 1f), crit, blast, vfx != null);
             if (!blast) HitFx(false);
             GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
             if (!blast) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode
@@ -160,7 +171,7 @@ namespace ZenoniaProto
                 Strike(m, away * knockback, true);
             }
             HitFx(true);
-            if (def.ExplodeFx != null && (def.Style == BoltStyle.Sprite || def.Style == BoltStyle.Arcane))
+            if (vfx == null && def.ExplodeFx != null && (def.Style == BoltStyle.Sprite || def.Style == BoltStyle.Arcane))
                 BurstFx.Spawn(fxFolder, def.ExplodeFx, pos + new Vector2(0f, VisualLift), Random.value * 360f, 2f * def.ExplodeRadius / 40f, 0.32f, true, tint); // burst art spans 40 units
             CameraFollow.AddTrauma(FeelConfig.TraumaBlast);
         }

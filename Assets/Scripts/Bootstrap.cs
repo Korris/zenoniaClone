@@ -42,6 +42,7 @@ namespace ZenoniaProto
             ImpactFx.Init(root.transform);
             BurstFx.Init(root.transform);
             ComboProjectile.Init(root.transform);
+            VfxAnim.Init(root.transform);
             ShockRing.Init(root.transform);
             DaggerFx.Init(root.transform);
             RuneFx.Init(root.transform);

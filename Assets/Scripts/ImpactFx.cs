@@ -29,7 +29,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Spawns an impact at (x, y). dir = direction the target is knocked (sparks fan out that way).</summary>
-        public static void Spawn(float x, float y, Vector2 dir, bool crit, bool finisher, ClassPalette palette = null)
+        public static void Spawn(float x, float y, Vector2 dir, bool crit, bool finisher, ClassPalette palette = null, bool quiet = false)
         {
             if (!FeelConfig.FxOn || root == null) return;
             ImpactFx fx = null;
@@ -56,11 +56,11 @@ namespace ZenoniaProto
             fx.ps.Emit(strong ? FeelConfig.SparksStrong : FeelConfig.SparksNormal + Random.Range(0, 3));
 
             fx.flashSize = finisher ? 20f : strong ? 15f : 10f;
-            fx.flashQuad.enabled = true;
-            fx.ringOn = strong;
+            fx.flashQuad.enabled = !quiet; // quiet = a painted impact sprite plays at the hit: sparks only, no white flash quad / ring
+            fx.ringOn = strong && !quiet;
             fx.ringRadius = finisher ? 30f : 21f;
             fx.ringLife = finisher ? 0.26f : 0.2f;
-            fx.ring.enabled = strong;
+            fx.ring.enabled = strong && !quiet;
             fx.Animate();
         }
 

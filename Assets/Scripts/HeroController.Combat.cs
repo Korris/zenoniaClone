@@ -53,6 +53,29 @@ namespace ZenoniaProto
             }
         }
 
+        int castFxStep; // combo step whose painted cast FX already played (0 = none)
+
+        /// <summary>Staff-tip / barrel position of the ranged cast and its aim angle.</summary>
+        Vector2 CastTip { get { Vector2 v = DirVec[facing]; return new Vector2(x + v.x * 10f, y + 12f + v.y * 6f); } }
+
+        /// <summary>Plays the painted cast animation (swirl at the staff, muzzle blast at the gun) once per ranged step, as the windup starts.</summary>
+        void UpdateRangedCastFx()
+        {
+            if (!combo.IsAttacking) { castFxStep = 0; return; }
+            ComboHit h = combo.CurrentHit;
+            if (h == null || h.Bolt == null || combo.Phase != ComboPhase.Windup || castFxStep == combo.Step) return;
+            PlayCastFx(h);
+        }
+
+        void PlayCastFx(ComboHit h)
+        {
+            castFxStep = combo.Step;
+            VfxSet set = VfxSprites.For(h.Bolt.Style);
+            if (set == null) return;
+            float angle = h.Bolt.Style == BoltStyle.Plasma ? DirAngle[facing] : 0f; // the muzzle blast points along the aim, swirls are round
+            VfxAnim.Cast(set, CastTip, angle, combo.IsFinisher);
+        }
+
         /// <summary>Web fireComboBolt: the shot leaves 12 units in front of the hero, with a flash at the staff tip / gun barrel.</summary>
         void FireBolt(ComboHit h, int step)
         {
@@ -60,13 +83,25 @@ namespace ZenoniaProto
             bool finisher = combo.IsFinisher;
             float mult = combo.MultiplierFor(step, 1);
             ClassPalette pal = cls.ActivePalette;
-            var tip = new Vector2(x + v.x * 10f, y + 12f + v.y * 6f);
+            var tip = CastTip;
             ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, cls.Atk, mult, h.Knockback, finisher, cls.FxFolder, pal);
+            if (VfxSprites.For(h.Bolt.Style) != null)
+            {
+                if (castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast
+            }
+            else FallbackCastFx(h, tip, finisher, pal); // painted art missing: procedural flash
+            CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick
+        }
+
+        /// <summary>Procedural cast flash, used only when the painted VFX sprites are missing.</summary>
+        void FallbackCastFx(ComboHit h, Vector2 tip, bool finisher, ClassPalette pal)
+        {
+            Vector2 v = DirVec[facing];
             bool big = h.Bolt.ExplodeRadius > 0f;
             switch (h.Bolt.Style)
             {
                 case BoltStyle.Arcane: RuneFx.CastFlash(tip, big, pal); break;
-                case BoltStyle.HolyArrow: // sparkles + swirling halo at the staff head and a burst of green leaves on release
+                case BoltStyle.HolyArrow:
                     RuneFx.CastFlash(tip, big, pal);
                     UltimateFx.Embers(tip, big ? 12 : 7, 5f, 26f, new Color(0.7f, 1f, 0.45f, 1f));
                     break;
@@ -76,7 +111,6 @@ namespace ZenoniaProto
                         BurstFx.Spawn(cls.FxFolder, h.Bolt.FlashFx, new Vector2(x + v.x * 10f, y + 10f + v.y * 6f), DirAngle[facing], big ? 1.6f : 1f, 0.14f, false, pal.Tint);
                     break;
             }
-            CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick
         }
 
         /// <summary>Called by monsters when a strike connects.</summary>

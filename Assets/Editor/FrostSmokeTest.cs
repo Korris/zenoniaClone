@@ -22,6 +22,7 @@ namespace ZenoniaProto.EditorTools
             {
                 CheckMap();
                 CheckTint();
+                CheckVfxSets();
                 foreach (HeroClassDef cls in HeroClassDef.All) CheckClass(cls);
             }
             catch (Exception e) { Fail("exception " + e); }
@@ -42,6 +43,19 @@ namespace ZenoniaProto.EditorTools
             for (int i = 0; i < a.Length; i += 7) if (a[i].a > 200) { n++; r += b[i].r; g += b[i].g; bl += b[i].b; rs += a[i].r; gs += a[i].g; bs += a[i].b; }
             Debug.Log("SMOKE tint opaque px " + n + " src avg " + (rs / n) + "," + (gs / n) + "," + (bs / n) + " -> red avg " + (r / n) + "," + (g / n) + "," + (bl / n));
             Expect(n > 0 && r / n > 1.5 * (g / n), "tint: slash recolours towards red (R " + (r / n) + " vs G " + (g / n) + ")");
+        }
+
+        /// <summary>The sliced painted ranged-FX sets must load completely (3 rows x 4 frames each, pivots inside the sprite).</summary>
+        static void CheckVfxSets()
+        {
+            foreach (string id in new[] { "cleric", "wizard", "mechanic-orange", "mechanic-blue" })
+            {
+                VfxSet set = VfxSprites.Get(id);
+                bool ok = set != null && set.Rows.Length == 3;
+                for (int r = 0; ok && r < 3; r++)
+                    for (int f = 0; ok && f < 4; f++) { Sprite sp = set.Rows[r][f]; ok = sp != null && sp.pivot.x > 0f && sp.pivot.x < sp.rect.width && sp.pivot.y >= 0f && sp.pivot.y < sp.rect.height; }
+                Expect(ok, "painted VFX set " + id + " loads 3x4 frames with pivots");
+            }
         }
 
         static void CheckMap()

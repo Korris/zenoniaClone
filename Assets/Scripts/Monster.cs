@@ -146,7 +146,7 @@ namespace ZenoniaProto
             return push;
         }
 
-        public void TakeHit(int dmg, Vector2 knockVel, bool crit, bool finisher)
+        public void TakeHit(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx = false)
         {
             if (IsDying) return;
             hp -= dmg;
@@ -161,7 +161,7 @@ namespace ZenoniaProto
             float bodyH = def.BodyHeightUnits * def.RenderScale;
             Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
             DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
-            ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher);
+            ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher, null, quietFx);
             if (hp > 0f) return;
             hp = 0f;
             state = State.Dying;
