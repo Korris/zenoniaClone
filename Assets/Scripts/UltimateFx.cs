@@ -80,7 +80,7 @@ namespace ZenoniaProto
             for (int i = 0; i < count; i++)
             {
                 Vector2 o = InDisc(spread);
-                Emit(dust, pos + o, new Vector2(o.x * 1.6f, 6f + Random.value * 10f), Random.Range(0.5f, 0.9f), Random.Range(5f, 10f), new Color(0.78f, 0.84f, 0.92f, 0.55f), Random.value * 360f, Random.Range(-40f, 40f));
+                Emit(dust, pos + o, new Vector2(o.x * 1.6f, 6f + Random.value * 10f), Random.Range(0.5f, 0.9f), Random.Range(5f, 10f), new Color(0.78f, 0.84f, 0.92f, 0.32f), Random.value * 360f, Random.Range(-40f, 40f));
             }
         }
 

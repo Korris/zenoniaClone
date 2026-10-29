@@ -17,11 +17,13 @@ namespace ZenoniaProto
     ///   --skill-at 1.5,9                  press the class skill (L) at those seconds after start
     ///   --dummies N                       spawn N frost slimes in front of the hero (skill / AoE targets)
     ///   --god                             hero ignores damage
+    ///   --record-ultimate warrior|wizard  scripted video scene (monsters + King nearby, basic combo, then the skill, tail), 60 fps fixed-step,
+    ///                                     writes frame_00000.png... to --shot-path (a folder), then quits; encode with ffmpeg
     /// </summary>
     public class DebugCapture : MonoBehaviour
     {
         GameSession session;
-        string classArg, faceArg, shotPath, botArg;
+        string recordArg, classArg, faceArg, shotPath, botArg;
         float[] shotTimes, skillTimes;
         int dummies;
         Vector2Int tpTile = new Vector2Int(-1, -1);
@@ -32,7 +34,7 @@ namespace ZenoniaProto
         public static void AttachIfRequested(GameObject root, GameSession gameSession)
         {
             string[] args = Environment.GetCommandLineArgs();
-            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0) return;
+            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0) return;
             var d = root.AddComponent<DebugCapture>();
             d.session = gameSession;
             d.Parse(args);
@@ -54,6 +56,7 @@ namespace ZenoniaProto
         void Parse(string[] a)
         {
             classArg = Arg(a, "--class");
+            recordArg = Arg(a, "--record-ultimate");
             faceArg = Arg(a, "--face");
             botArg = Arg(a, "--bot");
             shotPath = Arg(a, "--shot-path") ?? Path.Combine(Application.persistentDataPath, "shot");
@@ -103,9 +106,35 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Fixed 60 fps scripted scene: idle, basic combo, skill, then hold until the effect has played out. One PNG per frame.</summary>
+        IEnumerator RecordUltimate(string who)
+        {
+            Time.captureFramerate = 60;
+            Directory.CreateDirectory(shotPath);
+            session.Spawn(ParseClass(who));
+            yield return null;
+            HeroController hero = GameSession.Hero;
+            HeroController.DebugGod = true;
+            hero.Teleport(FrostHollowMap.TileFeet(11, 6, 2f), 2); // facing west: group ahead, Frostfang King beyond
+            dummies = 5;
+            SpawnDummies(hero);
+            int frame = 0, attackFrom = 45, attackTo = 135, castAt = 150, endAt = castAt + 160 + 100;
+            InputAdapter.BotPressed = k => k == GameKey.Attack && frame >= attackFrom && frame < attackTo;
+            for (; frame < endAt; frame++)
+            {
+                if (frame == castAt) Debug.Log("[ZenoniaProto] record cast => " + hero.TryCastSkill());
+                yield return new WaitForEndOfFrame();
+                Save(Path.Combine(shotPath, "frame_" + frame.ToString("D5") + ".png"));
+            }
+            Debug.Log("[ZenoniaProto] recorded " + frame + " frames");
+            Application.Quit();
+        }
+
         IEnumerator Run()
         {
             yield return null;
+            string rec = recordArg;
+            if (rec != null) { yield return RecordUltimate(rec); yield break; }
             if (classArg != null)
             {
                 HeroClass c = ParseClass(classArg);
