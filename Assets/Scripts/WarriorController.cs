@@ -8,7 +8,7 @@ namespace ZenoniaProto
     /// Everything advances with GameClock.Dt in Update (vsync-paced, camera follows in LateUpdate).
     /// World units == web world pixels; y points up (web y points down).
     /// </summary>
-    public class WarriorController : MonoBehaviour
+    public partial class WarriorController : MonoBehaviour
     {
         public static WarriorController Instance { get; private set; }
 
@@ -136,56 +136,6 @@ namespace ZenoniaProto
             else if (h && v && facing != hf && facing != vf) facing = hf; // diagonal: keep facing if it matches a pressed axis
         }
 
-        void DoHit(int step)
-        {
-            ComboHit h = combo.CurrentHit;
-            if (h == null) return;
-            Vector2 v = DirVec[facing];
-            float offset = h.Reach * 0.5f + 4f;
-            float cx = x + v.x * offset, cy = y + 6f + v.y * offset;
-            float w = v.x != 0f ? h.Reach : h.Width, ht = v.y != 0f ? h.Reach : h.Width;
-            var box = new Rect(cx - w * 0.5f, cy - ht * 0.5f, w, ht);
-            bool finisher = combo.IsFinisher;
-            SlashEffect.Spawn(cx, cy, DirAngle[facing], h.FxScale, finisher, step == 2, GameConfig.OrderBase(y) + 7);
-
-            float mult = combo.MultiplierFor(step, 1);
-            int landed = 0;
-            IReadOnlyList<Monster> monsters = Monster.All;
-            for (int i = 0; i < monsters.Count; i++)
-            {
-                Monster m = monsters[i];
-                if (m.IsDying || !box.Overlaps(m.Box)) continue;
-                bool crit = Random.value < CritChance;
-                int dmg = CombatMath.Damage(Atk, mult * (crit ? 1.6f : 1f), m.Def);
-                m.TakeHit(dmg, v * h.Knockback * (crit ? 2f : 1f), crit, finisher);
-                landed++;
-            }
-            if (landed > 0)
-            {
-                GameClock.HitStop(finisher ? 60f : 25f);
-                if (finisher) CameraFollow.Shake(2.5f, 140f);
-            }
-        }
-
-        /// <summary>Called by monsters when a strike connects.</summary>
-        public void TakeDamage(int dmg)
-        {
-            if (dead || invuln > 0f || dashLeft > 0f) return;
-            hp -= dmg;
-            invuln = InvulnMs;
-            hurt = HurtMs;
-            DamageNumber.Spawn(x, y + 26f, dmg.ToString(), new Color(1f, 0.35f, 0.35f), false);
-            CameraFollow.Shake(1.5f, 100f);
-            if (hp <= 0f)
-            {
-                hp = 0f;
-                dead = true;
-                deathTimer = 0f;
-                dashLeft = 0f;
-                combo.Reset();
-            }
-        }
-
         void Respawn()
         {
             dead = false;
@@ -217,45 +167,5 @@ namespace ZenoniaProto
             gearLabel = "Gear: " + view.TierName + (view.Enhanced ? " (enhanced)" : "") + "   [Q/E tier, R enhance]";
         }
 
-        static int ByProgress(int n, float p) { return Mathf.Min(n - 1, Mathf.FloorToInt(Mathf.Clamp01(p) * n)); }
-
-        void Render()
-        {
-            string anim;
-            int frame;
-            if (dead)
-            {
-                anim = "death";
-                int n = Mathf.Max(1, view.FrameCount(anim, facing));
-                frame = ByProgress(n, deathTimer / (120f * n));
-            }
-            else if (hurt > 0f)
-            {
-                anim = "hurt";
-                frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), 1f - hurt / HurtMs);
-            }
-            else if (dashLeft > 0f)
-            {
-                anim = "dash";
-                frame = Mathf.FloorToInt(animTimer / 55f) % Mathf.Max(1, view.FrameCount(anim, facing));
-            }
-            else if (combo.IsAttacking)
-            {
-                anim = combo.IsFinisher ? "attack3" : (((combo.Step - 1) % 2) + 1 == 1 ? "attack1" : "attack2");
-                frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), combo.PhaseProgress);
-            }
-            else if (moving)
-            {
-                anim = "walk";
-                int n = Mathf.Max(1, view.FrameCount(anim, facing));
-                frame = Mathf.FloorToInt(animTimer / (560f / n)) % n; // one full step cycle = 560 ms regardless of frame count
-            }
-            else
-            {
-                anim = "idle";
-                frame = Mathf.FloorToInt(idleTimer / 200f) % Mathf.Max(1, view.FrameCount(anim, facing));
-            }
-            view.Show(anim, facing, frame, GameConfig.OrderBase(y), 1f);
-        }
     }
 }
