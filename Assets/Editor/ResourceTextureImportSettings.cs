@@ -1,3 +1,4 @@
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,8 +18,31 @@ namespace ZenoniaProto.EditorTools
         {
             if (!assetPath.StartsWith(Root)) return;
             var importer = assetImporter as TextureImporter;
-            if (importer != null) Apply(importer, assetPath);
+            if (importer == null) return;
+            Apply(importer, assetPath);
+            DropMipsForAndroidNpot(importer);
         }
+
+        // Bump when the in-memory (non-.meta) import logic changes so Unity re-imports cached artifacts.
+        public override uint GetVersion() { return 2; }
+
+        /// <summary>
+        /// Unity silently refuses to compress a non-power-of-two texture that has mipmaps and npotScale None: whatever the platform
+        /// override says (ASTC, ETC2, DXT5 all tested) the build ships raw RGBA32 + mips (a 1331x1181 sheet = 8.4 MB instead of ~0.9 MB).
+        /// 511 of our 591 sprites are NPOT, so for the Android import only (in memory, the .meta keeps the PC setting) mipmaps are dropped
+        /// for NPOT textures; they then compress to ASTC. Standalone keeps mips + uncompressed.
+        /// </summary>
+        static void DropMipsForAndroidNpot(TextureImporter i)
+        {
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android || !i.mipmapEnabled) return;
+            int w = 0, h = 0;
+            var args = new object[] { w, h };
+            MethodInfo size = typeof(TextureImporter).GetMethod("GetWidthAndHeight", BindingFlags.Instance | BindingFlags.NonPublic); // no public source-size API
+            if (size != null) { size.Invoke(i, args); w = (int)args[0]; h = (int)args[1]; }
+            if (!IsPowerOfTwo(w) || !IsPowerOfTwo(h)) i.mipmapEnabled = false; // unknown size counts as NPOT
+        }
+
+        static bool IsPowerOfTwo(int v) { return v > 0 && (v & (v - 1)) == 0; }
 
         static bool WantsMips(string path) { return !path.Contains("/tiles/"); }
 
