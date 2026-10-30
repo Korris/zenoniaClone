@@ -40,10 +40,10 @@ namespace ZenoniaProto
                 Shot = new[] { "wizard/cast-a", "wizard/cast-b" }, Shout = new[] { "wizard/shout4-a", "wizard/shout4-b" },
                 Impact = new[] { "wizard/hit-a", "wizard/hit-b" }, Burst = new[] { "wizard/burst-a", "wizard/burst-b" },
             };
-            s[(int)HeroClass.Cleric] = new Set // female voice
+            s[(int)HeroClass.Cleric] = new Set // female voice; casts low-passed (the raw chimes were shrill), no per-orb impact sound (too noisy)
             {
                 Shot = new[] { "cleric/cast-a", "cleric/cast-b" }, Shout = new[] { "cleric/shout4-a", "cleric/shout4-b" },
-                Impact = new[] { "cleric/hit-a", "cleric/hit-b" }, Burst = new[] { "cleric/burst-a", "cleric/burst-b" },
+                Burst = new[] { "cleric/burst-a", "cleric/burst-b" },
             };
             return s;
         }
