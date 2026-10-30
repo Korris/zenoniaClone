@@ -43,6 +43,7 @@ namespace ZenoniaProto
             string cid = ClassId(id);
             save = SaveStore.Load(cid);
             player = save != null ? SaveSerializer.Restore(save) : PlayerState.NewGame(cid);
+            DevStartConfig.Apply(player); // Resources/Data/dev-start.json: test stones / gold / potions (editor + dev builds)
             bossDefeated = save != null && save.bossDefeated;
             saveTimer = 0f;
             beganFrame = Time.frameCount;
