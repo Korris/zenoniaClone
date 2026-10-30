@@ -9,24 +9,14 @@ namespace ZenoniaProto
     /// </summary>
     public static class HeroFx
     {
-        static readonly string[] HitSfx = { "warrior/hit-a", "warrior/hit-b" };
-        static readonly string[] CritSfx = { "warrior/crit-a", "warrior/crit-b" };
-        static readonly string[] MechanicShotSfx = { "mechanic/shot-a", "mechanic/shot-b", "mechanic/shot-c" };
-        static readonly string[] MechanicCannonSfx = { "mechanic/cannon-a", "mechanic/cannon-b" };
-        static readonly string[] MechanicShoutSfx = { "mechanic/shout4-a", "mechanic/shout4-b" };
-
         /// <summary>Melee swing visuals at the hit box centre: dagger flurry, or slash arc + class whoosh + sword trail. `echo` = a later stab (mirrored).</summary>
         public static void Swing(HeroClassDef cls, Vector2 center, Vector2 feet, float angle, ComboHit h, int step, bool finisher, bool echo)
         {
             if (!NetMode.RendersFx) return;
             bool flip = (step == 2) != echo;
+            if (!echo) ClassSfx.Swing(cls.Id, step, finisher); // one whoosh per combo step (+ finisher shout), not again for the echo stab
             if (cls.Id == HeroClass.Assassin) { DaggerFx.Strike(center, angle, h.Reach, finisher, echo, step); return; }
             SlashEffect.Spawn(center.x, center.y, angle, h.FxScale, finisher, flip, FeelConfig.FxOrder);
-            if (cls.Id == HeroClass.Warrior)
-            {
-                GameSfx.Play("warrior/slash" + Mathf.Clamp(step, 1, 4)); // one whoosh per combo step (ElevenLabs, picked by ear)
-                if (finisher) GameSfx.Play("warrior/shout4-a", 0.9f, 0.02f);
-            }
             SwordTrail.Spawn(feet.x, feet.y + 6f, angle, h.Reach, finisher, flip, cls.Palette);
         }
 
@@ -34,7 +24,7 @@ namespace ZenoniaProto
         public static void MeleeLanded(HeroClassDef cls, bool anyCrit, bool finisher)
         {
             if (!NetMode.RendersFx) return;
-            if (cls.Id == HeroClass.Warrior) GameSfx.PlayAny(anyCrit ? CritSfx : HitSfx, 0.85f);
+            ClassSfx.MeleeHit(cls.Id, anyCrit);
             CameraFollow.AddTrauma(finisher ? FeelConfig.TraumaFinisher : anyCrit ? FeelConfig.TraumaCrit : FeelConfig.TraumaNormal);
         }
 
@@ -52,11 +42,7 @@ namespace ZenoniaProto
         public static void BoltLaunched(HeroClassDef cls, ComboHit h, bool finisher, ClassPalette pal, Vector2 feet, Vector2 tip, Vector2 dir, float angle, bool paintedCastArt)
         {
             if (!NetMode.RendersFx) return;
-            if (cls.Id == HeroClass.Mechanic)
-            {
-                if (!finisher) GameSfx.PlayAny(MechanicShotSfx, 0.8f);
-                else { GameSfx.PlayAny(MechanicCannonSfx); GameSfx.PlayAny(MechanicShoutSfx, 0.9f); }
-            }
+            ClassSfx.BoltLaunched(cls.Id, finisher);
             if (!paintedCastArt) FallbackCast(cls, h, feet, tip, dir, angle, pal);
             CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick
         }

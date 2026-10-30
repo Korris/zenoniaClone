@@ -22,7 +22,8 @@ namespace ZenoniaProto
         TouchToggle,               // F7: show / hide the on-screen D-pad + buttons
         DebugHudToggle,            // F8: show / hide the debug HUD (skill line, FPS, key help)
         Interact,                  // E: talk to a nearby NPC / advance a dialogue (UiWindows)
-        Chat                       // Enter: focus the chat input / confirm a dialogue step (UiWindows)
+        Chat,                      // Enter: focus the chat input / confirm a dialogue step (UiWindows)
+        SkillPage                  // Tab: next page of the touch skill magazine
     }
 
     /// <summary>
@@ -69,6 +70,7 @@ namespace ZenoniaProto
             new[] { KeyCode.F8 },
             new[] { KeyCode.E },
             new[] { KeyCode.Return, KeyCode.KeypadEnter },
+            new[] { KeyCode.Tab },
         };
 
         static bool KeyHeld(GameKey k)
@@ -119,6 +121,7 @@ namespace ZenoniaProto
             new[] { Key.F8 },
             new[] { Key.E },
             new[] { Key.Enter, Key.NumpadEnter },
+            new[] { Key.Tab },
         };
 
         static bool KeyHeld(GameKey k)

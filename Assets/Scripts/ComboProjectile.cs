@@ -146,16 +146,16 @@ namespace ZenoniaProto
             return false;
         }
 
-        static readonly string[] PlasmaBlastSfx = { "mechanic/explosion-a", "mechanic/explosion-b" };
-
         /// <summary>Impact visuals per style: wizard starburst + crystal shards, cleric gold pillar, mechanic starburst + sparks + dust.</summary>
         void HitFx(bool blast)
         {
             if (!NetMode.RendersFx) return;
             var at = pos + new Vector2(0f, VisualLift);
-            if (def.Style == BoltStyle.Plasma) // mechanic: plasma zap on a bullet hit, explosion for the cannon blast
+            switch (def.Style) // impact sound per class: zap / chime on a hit, explosion / burst for the finisher blast
             {
-                if (blast) GameSfx.PlayAny(PlasmaBlastSfx); else GameSfx.Play("mechanic/hit-a", 0.7f, 0.08f);
+                case BoltStyle.Plasma: ClassSfx.BoltImpact(HeroClass.Mechanic, blast); break;
+                case BoltStyle.Arcane: ClassSfx.BoltImpact(HeroClass.Wizard, blast); break;
+                case BoltStyle.HolyArrow: ClassSfx.BoltImpact(HeroClass.Cleric, blast); break;
             }
             if (vfx != null) { PaintedHitFx(at, blast); return; }
             switch (def.Style)

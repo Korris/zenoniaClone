@@ -8,8 +8,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// On-screen controls, gold-trimmed dark-navy style: a floating joystick bottom-left (gold ring, diamond studs, steel knob), HP / MP potion buttons
-    /// to its right, bottom-right the big attack disc (equipped weapon icon) with the skill slots on an arc around it: Dash [K], class skill [L] with
-    /// the cooldown sweep and MP cost; top-right the Bag [B] and Settings (hero change) buttons (TouchControls.Menu.cs). Works with touch and mouse (multi-touch: move + attack at once).
+    /// to its right, bottom-right the big attack disc (equipped weapon icon) with the 3-slot skill magazine on an arc around it (SkillMagazineView:
+    /// Dash [K], class skill [L] with the cooldown sweep and MP cost, locked slots; swipe up / down or Tab changes the page); top-right the Bag [B] and Settings (hero change) buttons (TouchControls.Menu.cs). Works with touch and mouse (multi-touch: move + attack at once).
     /// It only feeds GameKeys into InputAdapter, so the game logic is the same as the keyboard. Holding attack keeps the combo going.
     /// Shown while a hero plays and no menu is open; F7 hides / shows it (remembered in PlayerPrefs).
     /// </summary>
@@ -20,12 +20,12 @@ namespace ZenoniaProto
         static readonly int KeyCount = Enum.GetValues(typeof(GameKey)).Length;
         static readonly bool[] held = new bool[KeyCount], pending = new bool[KeyCount], pressed = new bool[KeyCount];
         static TouchControls instance;
-        static readonly Color Ready = new Color(1f, 1f, 1f, 0f), NotReady = new Color(0.45f, 0.52f, 0.62f, 0.95f); // accent ring: hidden when ready, grey when not
+        internal static readonly Color Ready = new Color(1f, 1f, 1f, 0f), NotReady = new Color(0.45f, 0.52f, 0.62f, 0.95f); // accent ring: hidden when ready, grey when not
 
         RectTransform layer;
-        Image attackIcon, skillIcon, skillCd, skillRing, dashIcon;
-        Text skillCdText, skillMpText, hpCount, mpCount;
-        GameObject skillButton;
+        Image attackIcon;
+        Text hpCount, mpCount;
+        SkillMagazineView magazine;
         Item shownWeapon;
         int shownWeaponEnhance = -1, shownHp = -1, shownMp = -1;
         HeroClass shownClass = (HeroClass)(-1);
@@ -41,7 +41,7 @@ namespace ZenoniaProto
             return pressed[(int)k] || (k == GameKey.Attack && held[(int)GameKey.Attack]);
         }
 
-        static void Press(GameKey k) { pending[(int)k] = true; }
+        internal static void Press(GameKey k) { pending[(int)k] = true; }
         static void SetHeld(GameKey k, bool on) { held[(int)k] = on; }
 
         public static TouchControls Create(Transform parent)
@@ -82,12 +82,13 @@ namespace ZenoniaProto
                 layer.gameObject.SetActive(show);
                 if (!show) { for (int i = 0; i < KeyCount; i++) held[i] = false; } // never leave a direction stuck
             }
+            if (show && InputAdapter.Pressed(GameKey.SkillPage)) magazine.Cycle(1); // Tab: next skill page (same as a swipe up)
             if (show) Refresh(hero);
         }
 
         // ---- build ----
 
-        static RectTransform Place(Transform parent, string name, Vector2 corner, float x, float y, float size)
+        internal static RectTransform Place(Transform parent, string name, Vector2 corner, float x, float y, float size)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
@@ -98,20 +99,20 @@ namespace ZenoniaProto
             return rt;
         }
 
-        static Image Img(RectTransform rt, Sprite s, Color c, bool raycast = false)
+        internal static Image Img(RectTransform rt, Sprite s, Color c, bool raycast = false)
         {
             Image i = rt.gameObject.AddComponent<Image>();
             i.sprite = s; i.color = c; i.raycastTarget = raycast;
             return i;
         }
 
-        static Image Child(Transform parent, string name, Sprite s, float size, Color c)
+        internal static Image Child(Transform parent, string name, Sprite s, float size, Color c)
         {
             return Img(Place(parent, name, new Vector2(0.5f, 0.5f), 0f, 0f, size), s, c);
         }
 
         /// <summary>Web disc + accent ring + a circular icon mask; returns the button root.</summary>
-        static RectTransform DiscButton(Transform parent, string name, Vector2 corner, float x, float y, float radius, Sprite frame, out Image icon, out Image ring, out Transform masked)
+        internal static RectTransform DiscButton(Transform parent, string name, Vector2 corner, float x, float y, float radius, Sprite frame, out Image icon, out Image ring, out Transform masked)
         {
             RectTransform rt = Place(parent, name, corner, x, y, radius * 2f);
             Img(rt, frame, Color.white, true);
@@ -152,20 +153,7 @@ namespace ZenoniaProto
             attackIcon.rectTransform.sizeDelta = new Vector2(110f, 110f);
             TouchButton.Add(attack.gameObject, GameKey.Attack, true);
 
-            RectTransform dash = DiscButton(layer, "Dash", br, -284f, 104f, 36f, UiArt.SkillFrame(), out dashIcon, out ring, out masked);
-            TouchButton.Add(dash.gameObject, GameKey.Dash, false);
-
-            RectTransform skill = DiscButton(layer, "Skill", br, -259f, 201f, 36f, UiArt.SkillFrame(), out skillIcon, out skillRing, out masked);
-            skillCd = Child(masked, "Cooldown", UiSprites.Circle(), 58f, new Color(0.01f, 0.05f, 0.1f, 0.73f));
-            skillCd.type = Image.Type.Filled;
-            skillCd.fillMethod = Image.FillMethod.Radial360;
-            skillCd.fillOrigin = (int)Image.Origin360.Top;
-            skillCd.fillClockwise = true;
-            skillCdText = UiKit.Label(UiKit.Fill(skill, "CdText"), "", 17, Color.white, TextAnchor.MiddleCenter, true);
-            skillMpText = UiKit.Label(Place(skill, "Mp", new Vector2(0.5f, 0.5f), 0f, -46f, 70f), "", 10, Color.white, TextAnchor.MiddleCenter, true);
-            skillMpText.rectTransform.sizeDelta = new Vector2(70f, 14f);
-            TouchButton.Add(skill.gameObject, GameKey.Skill, false);
-            skillButton = skill.gameObject;
+            magazine = SkillMagazineView.Build(layer); // Dash / class skill / locked slots on the arc, swipe up / down to change page
 
             BuildMenuButtons(layer);
         }
@@ -197,10 +185,6 @@ namespace ZenoniaProto
             if (cls.Id != shownClass)
             {
                 shownClass = cls.Id;
-                skillIcon.sprite = SkillSprite(cls, cls.SkillIcon);
-                dashIcon.sprite = SkillSprite(cls, cls.DashIcon);
-                skillButton.SetActive(cls.SkillName != null);
-                skillMpText.text = cls.SkillName != null ? (int)cls.SkillMp + " MP" : "";
                 shownWeapon = null; shownWeaponEnhance = -1;
             }
             PlayerState p = hero.Rpg;
@@ -212,17 +196,7 @@ namespace ZenoniaProto
                 attackIcon.sprite = weapon != null ? LootSprites.Icon(weapon) : null;
                 attackIcon.enabled = attackIcon.sprite != null;
             }
-            if (cls.SkillName != null)
-            {
-                float cd = hero.SkillCooldownLeftMs;
-                bool enoughMp = hero.Mp >= cls.SkillMp, ready = cd <= 0f && enoughMp;
-                skillIcon.color = new Color(1f, 1f, 1f, ready ? 1f : 0.4f);
-                skillRing.color = ready ? Ready : NotReady;
-                skillCd.fillAmount = cd > 0f ? Mathf.Clamp01(cd / cls.SkillCooldownMs) : 0f;
-                skillCd.enabled = cd > 0f;
-                skillCdText.text = cd > 0f ? (cd / 1000f).ToString("F1") : "";
-                skillMpText.color = enoughMp ? new Color(0.67f, 0.88f, 0.98f) : new Color(1f, 0.54f, 0.59f);
-            }
+            magazine.Tick(hero);
             if (p != null && (p.HpPotions != shownHp || p.MpPotions != shownMp))
             {
                 shownHp = p.HpPotions; shownMp = p.MpPotions;
