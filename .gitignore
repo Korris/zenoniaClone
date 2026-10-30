@@ -28,3 +28,5 @@ crashlytics-build.session.json
 
 # Player builds
 /Build/
+
+__pycache__/

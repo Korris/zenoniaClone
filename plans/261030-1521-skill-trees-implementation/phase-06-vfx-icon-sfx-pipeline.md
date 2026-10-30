@@ -67,8 +67,8 @@ Prompt template: "<description>, short 0.6-1.2 s game sound effect, punchy, no m
 6. ElevenLabs per class after the VFX batch; user picks; normalize; drop unused variants.
 
 ## Todo
-- [ ] common helpers + regression diff
-- [ ] slice-skill-vfx.py (+from-black, contact sheet)
+- [x] common helpers + regression diff (vfx-*.json + 48 PNGs byte-identical)
+- [x] slice-skill-vfx.py (+from-black, contact sheet; touching frames cut at emptiest line near grid)
 - [ ] build-skill-tree-icons.py (+from-preview)
 - [ ] normalize-skill-sfx.ps1
 - [ ] wizard batch (VFX, icons, SFX) -> then warrior, assassin, cleric, mechanic
