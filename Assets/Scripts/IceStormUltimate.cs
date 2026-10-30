@@ -34,11 +34,14 @@ namespace ZenoniaProto
         Sprite[][] cast, meteor, impact, fade;
         SpriteRenderer circle, circleGlow, castSmall;
 
-        public static void Cast(HeroController owner)
+        public static void Cast(HeroController owner) { Cast(owner, 1f); }
+
+        /// <summary>Skill-tree cast: `damageScale` is the rank multiplier (SkillDef.DamageMul) applied to the caster ATK of this cast.</summary>
+        public static void Cast(HeroController owner, float damageScale)
         {
             var go = new GameObject("IceStorm");
             go.transform.SetParent(owner.transform.parent, false);
-            go.AddComponent<IceStormUltimate>().Begin(owner);
+            go.AddComponent<IceStormUltimate>().Begin(owner, damageScale);
         }
 
         static Sprite[][] Rows(int row, float ppu)
@@ -52,12 +55,12 @@ namespace ZenoniaProto
         /// <summary>Loads and slices the ice storm sheet ahead of the first cast (class spawn) so the cast itself never hitches.</summary>
         public static void Preload() { Rows(0, CirclePpu); Rows(1, SpearPpu); Rows(2, HitPpu); Rows(3, HitPpu); }
 
-        void Begin(HeroController owner)
+        void Begin(HeroController owner, float damageScale)
         {
             hero = owner;
             caster = owner.Position;
             center = caster + DirVec[owner.Facing] * Range + new Vector2(0f, -6f);
-            atk = owner.AtkStat;
+            atk = owner.AtkStat * damageScale;
             if (!NetMode.RendersFx) return; // headless server: damage waves only, no art / layers
             cast = Rows(0, CirclePpu); meteor = Rows(1, SpearPpu); impact = Rows(2, HitPpu); fade = Rows(3, HitPpu);
             int g = UltimateFx.GroundFxOrder;

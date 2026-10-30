@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
@@ -12,6 +13,7 @@ namespace ZenoniaProto
         public RectTransform root, face;
         public SkillSlot entry = SkillSlot.Lock;
         public bool swapped;                 // content already switched during the current page animation
+        SkillDef def; int mpCost;            // tree skill shown (null for Dash / empty) and its MP at the learned rank
         CanvasGroup group;
         Image icon, ring, cd, lockImg;
         Text cdText, mpText;
@@ -46,20 +48,31 @@ namespace ZenoniaProto
             icon.enabled = !locked;
             icon.sprite = null;
             mpText.text = ""; cdText.text = ""; cd.enabled = false; ring.color = TouchControls.Ready; icon.color = Color.white;
+            def = SkillMagazine.Def(e);
             if (locked) return;
-            if (e.Key == GameKey.Dash) icon.sprite = TouchControls.SkillSprite(cls, cls.DashIcon);
-            else if (e.Key == GameKey.Skill) { icon.sprite = TouchControls.SkillSprite(cls, cls.SkillIcon); mpText.text = (int)cls.SkillMp + " MP"; }
+            if (def != null)
+            {
+                PlayerState p = RpgSession.Player;
+                mpCost = def.MpAt(p != null ? p.Skills[def.Index] : 1);
+                icon.sprite = SkillIcons.Get(def);
+                mpText.text = mpCost + " MP";
+            }
+            else if (e.Key == GameKey.Dash) icon.sprite = TouchControls.SkillSprite(cls, cls.DashIcon);
         }
 
-        /// <summary>Per-frame cooldown / MP state of the bound action (only the class skill has them today).</summary>
+        /// <summary>
+        /// Per-frame cooldown / MP state of a tree skill. Cooldowns are only tracked for the original signature skills (hero L skill) until the
+        /// skill executor lands; every other skill shows MP only.
+        /// </summary>
         public void Live(HeroController hero, HeroClassDef cls)
         {
-            if (entry.Locked || entry.Key != GameKey.Skill) return;
-            float left = hero.SkillCooldownLeftMs;
-            bool enoughMp = hero.Mp >= cls.SkillMp, ready = left <= 0f && enoughMp;
+            if (def == null) return;
+            bool legacy = def.Legacy != LegacySkill.None;
+            float left = legacy ? hero.SkillCooldownLeftMs : 0f;
+            bool enoughMp = hero.Mp >= mpCost, ready = left <= 0f && enoughMp;
             icon.color = new Color(1f, 1f, 1f, ready ? 1f : 0.4f);
             ring.color = ready ? TouchControls.Ready : TouchControls.NotReady;
-            cd.fillAmount = left > 0f ? Mathf.Clamp01(left / cls.SkillCooldownMs) : 0f;
+            cd.fillAmount = left > 0f ? Mathf.Clamp01(left / Mathf.Max(1f, cls.SkillCooldownMs)) : 0f;
             cd.enabled = left > 0f;
             cdText.text = left > 0f ? (left / 1000f).ToString("F1") : "";
             mpText.color = enoughMp ? new Color(0.67f, 0.88f, 0.98f) : new Color(1f, 0.54f, 0.59f);

@@ -44,6 +44,7 @@ namespace ZenoniaProto.Rpg
         {
             var p = new PlayerState(classId);
             p.EquipStarterGear();
+            p.Hp = p.MaxHp; p.Mp = p.MaxMp; // starter gear can raise the maxima: start full
             p.LearnSkill(0); // the Lv 1 point goes into the first skill so the skill button is never empty
             return p;
         }

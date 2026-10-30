@@ -23,7 +23,8 @@ namespace ZenoniaProto
         DebugHudToggle,            // F8: show / hide the debug HUD (skill line, FPS, key help)
         Interact,                  // E: talk to a nearby NPC / advance a dialogue (UiWindows)
         Chat,                      // Enter: focus the chat input / confirm a dialogue step (UiWindows)
-        SkillPage                  // Tab: next page of the touch skill magazine
+        SkillPage,                 // Tab: next page of the touch skill magazine
+        SkillTree                  // T: skill tree window
     }
 
     /// <summary>
@@ -71,6 +72,7 @@ namespace ZenoniaProto
             new[] { KeyCode.E },
             new[] { KeyCode.Return, KeyCode.KeypadEnter },
             new[] { KeyCode.Tab },
+            new[] { KeyCode.T },
         };
 
         static bool KeyHeld(GameKey k)
@@ -163,7 +165,11 @@ namespace ZenoniaProto
         static bool PhysicalHeld(GameKey k) { return TouchControls.Held(k) || KeyHeld(k); }
 
         /// <summary>Keys that still work while a window owns the keyboard (dialogue, quest offer, chat typing): the window keys themselves.</summary>
-        static bool Gated(GameKey k) { return UiWindows.BlocksGameplay && k != GameKey.Close && k != GameKey.Interact && k != GameKey.Chat; }
+        static bool Gated(GameKey k)
+        {
+            if (k == GameKey.SkillTree) return UiWindows.ChatTyping || UiWindows.DialogueOpen; // T also closes the tree, but never while typing / in a dialogue
+            return UiWindows.BlocksGameplay && k != GameKey.Close && k != GameKey.Interact && k != GameKey.Chat;
+        }
 
         public static bool Held(GameKey k)
         {

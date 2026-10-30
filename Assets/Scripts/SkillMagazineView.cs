@@ -19,7 +19,7 @@ namespace ZenoniaProto
         readonly SkillMagazineSlot[] slots = new SkillMagazineSlot[SkillMagazine.SlotCount];
         readonly Image[] dots = new Image[SkillMagazine.MaxPages];
         HeroClassDef cls;
-        int page, animDir;
+        int page, animDir, version;
         float animT = -1f;
 
         public static SkillMagazineView Build(RectTransform layer)
@@ -64,16 +64,18 @@ namespace ZenoniaProto
         void Tap(SkillMagazineSlot s)
         {
             if (animT >= 0f || s.entry.Locked) return;
-            TouchControls.Press(s.entry.Key);
+            if (s.entry.IsSkill) SkillMagazine.CastRequested(s.entry.SkillIndex);
+            else TouchControls.Press(s.entry.Key);
         }
 
         /// <summary>Per frame while the touch layer is shown.</summary>
         public void Tick(HeroController hero)
         {
             HeroClassDef c = hero.Class;
-            if (c != cls)
+            int v = SkillMagazine.Version(); // ranks / loadout / class changed (skill tree, server push): rebind without animation
+            if (c != cls || v != version)
             {
-                cls = c; page = SkillMagazine.CurrentPage(c); animT = -1f;
+                cls = c; version = v; page = SkillMagazine.CurrentPage(c); animT = -1f;
                 for (int i = 0; i < slots.Length; i++) { slots[i].Bind(SkillMagazine.Slot(c, page, i), c); slots[i].Pose(0f, 1f, 1f); }
                 ShowDots();
             }

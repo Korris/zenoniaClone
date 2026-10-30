@@ -33,7 +33,7 @@ namespace ZenoniaProto.EditorTools
                 foreach (HeroClassDef cls in HeroClassDef.All) CheckClass(cls);
             }
             catch (Exception e) { Fail("exception " + e); }
-            finally { SaveStore.Enabled = saves; GameClock.Paused = false; }
+            finally { SaveStore.Enabled = saves; GameClock.Paused = false; MapRegistry.TestStartMap = null; MapRegistry.ResetState(); }
             Debug.Log("SMOKE RESULT: " + (failures == 0 ? "PASS" : "FAIL (" + failures + ")"));
             EditorApplication.Exit(failures == 0 ? 0 : 1);
         }
@@ -162,6 +162,7 @@ namespace ZenoniaProto.EditorTools
         static void CheckClass(HeroClassDef cls)
         {
             var start = typeof(Bootstrap).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Static);
+            MapRegistry.TestStartMap = FrostHollowLayout.MapId; // the offline default is the monster-free village; the checks below need Frost Hollow's spawner
             start.Invoke(null, null);
             GameObject root = GameObject.Find("ZenoniaProto");
             Expect(root != null, cls.Name + ": world built");
@@ -193,6 +194,7 @@ namespace ZenoniaProto.EditorTools
                 Expect(shown > 0 && gearFrames > 0, cls.Name + ": drew " + shown + " frames, " + gearFrames + " with weapon overlay");
                 if (cls.Id == HeroClass.Warrior) StatusLogicCheck.RunWorld(Expect, hero, root);
                 CheckSkill(cls, hero, root);
+                SkillExecutorCheck.RunWorld(Expect, hero, root);
                 CheckRpg(cls, hero, root);
                 if (cls.Id == HeroClass.Warrior) { ZoneLogicCheck.RunWorld(Expect, hero, root); NetLogicCheck.RunWorld(Expect, hero, root); }
                 if (cls.CompanionFolder != null) Expect(root.transform.Find("Companion") != null, cls.Name + ": companion created");

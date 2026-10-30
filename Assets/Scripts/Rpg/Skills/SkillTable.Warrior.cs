@@ -16,7 +16,7 @@ namespace ZenoniaProto.Rpg
                 Def(C, 4, "Charging Strike", 26, 24, 12f, SkillTargeting.Facing,
                     Fx(Move(MotionKind.Dash, 5f, 250), Strike(AreaShape.Line, 300f, length: 5f, width: 2f, atMs: 250)), Req(2, 3)),
                 Def(C, 5, "Blade Cyclone", 32, 32, 18f, SkillTargeting.AroundSelf,
-                    Fx(new SkillEffect { Kind = EffectKind.Zone, Shape = AreaShape.Circle, Radius = 2.5f, Pct = 90f, Hits = 5, IntervalMs = 500, DurationMs = 2500 }), Req(1, 5), lockMs: 450),
+                    Fx(new SkillEffect { Kind = EffectKind.Zone, Shape = AreaShape.Circle, Radius = 2.5f, Pct = 90f, Hits = 5, IntervalMs = 500, DurationMs = 2500, Attached = true }), Req(1, 5), lockMs: 450),
                 Def(C, 6, "Inferno Crash", 40, 40, 22f, SkillTargeting.Facing,
                     Fx(Move(MotionKind.Leap, 4f, 400), Strike(AreaShape.Circle, 520f, radius: 3f, atMs: 400, status: burn)), Req(3, 3, 4, 3), lockMs: 700),
                 Def(C, 7, "Berserker Awakening", 50, 75, 50f, SkillTargeting.Self,

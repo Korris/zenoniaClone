@@ -28,6 +28,7 @@ namespace ZenoniaProto.Rpg
         public float Pct;                         // damage or heal, % ATK (scaled by SkillDef.DamageMul)
         public StatusSpec Status;                 // applied to every monster hit
         public BuffSpec Buff;
+        public bool Attached;                     // Zone: follows the caster instead of staying on the ground
         public bool Ally;                         // Heal / Buff / Zone: affects heroes in the area instead of monsters
         public int Count = 1;                     // projectiles / rain drops; for a Strike with Pct 0 and a Status: max monsters affected
         public float SpreadDeg, Speed, ImpactRadius; // Speed = tiles/s; ImpactRadius > 0: projectile / rain drop explodes in a circle of that radius

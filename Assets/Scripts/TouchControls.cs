@@ -197,6 +197,7 @@ namespace ZenoniaProto
                 attackIcon.enabled = attackIcon.sprite != null;
             }
             magazine.Tick(hero);
+            UpdateSkillBadge(p);
             if (p != null && (p.HpPotions != shownHp || p.MpPotions != shownMp))
             {
                 shownHp = p.HpPotions; shownMp = p.MpPotions;

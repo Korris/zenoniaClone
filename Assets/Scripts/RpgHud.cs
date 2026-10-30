@@ -70,7 +70,7 @@ namespace ZenoniaProto
         public static void LevelUp(int level)
         {
             if (instance == null) return;
-            instance.bannerSub.text = "Level " + level + "  -  HP / MP restored, stats up";
+            instance.bannerSub.text = "Level " + level + "  -  HP / MP restored, +1 skill point [T]";
             instance.bannerLeft = BannerSeconds;
             instance.banner.gameObject.SetActive(true);
         }

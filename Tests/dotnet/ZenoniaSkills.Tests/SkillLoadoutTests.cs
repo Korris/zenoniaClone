@@ -79,3 +79,63 @@ public class SkillLoadoutTests
         Assert.Equal(l.ToList(), l2.ToList());
     }
 }
+
+public class SkillPlaceAndRespecTests
+{
+    static PlayerState Leveled(int level, int gold)
+    {
+        var p = new PlayerState("warrior") { Level = level, Gold = gold };
+        for (int i = 0; i < 3; i++) p.LearnSkill(0);
+        p.LearnSkill(1);
+        return p; // skill 0 in slot 0, skill 1 in slot 1
+    }
+
+    [Fact]
+    public void PlaceSwapsWithTheOccupantWhenTheSkillWasAlreadyPlaced()
+    {
+        PlayerState p = Leveled(20, 0);
+        Assert.True(p.Loadout.Place(1, 0, p.Skills));
+        Assert.Equal(0, p.Loadout[1]);
+        Assert.Equal(1, p.Loadout[0]);
+    }
+
+    [Fact]
+    public void PlaceIntoEmptySlotMovesAndRejectsUnlearned()
+    {
+        PlayerState p = Leveled(20, 0);
+        Assert.True(p.Loadout.Place(5, 1, p.Skills));
+        Assert.Equal(-1, p.Loadout[1]);
+        Assert.Equal(1, p.Loadout[5]);
+        Assert.False(p.Loadout.Place(2, 3, p.Skills));
+        Assert.False(p.Loadout.Place(8, 0, p.Skills));
+    }
+
+    [Fact]
+    public void RespecCostScalesWithLevel()
+    {
+        Assert.Equal(50, SkillRespec.Cost(1));
+        Assert.Equal(1000, SkillRespec.Cost(20));
+        Assert.Equal(3000, SkillRespec.Cost(60));
+    }
+
+    [Fact]
+    public void RespecChargesGoldRefundsPointsAndClearsMagazine()
+    {
+        PlayerState p = Leveled(20, 1500);
+        ActionResult r = SkillRespec.Apply(p);
+        Assert.True(r.Ok);
+        Assert.Equal(500, p.Gold);
+        Assert.Equal(20, p.SkillPointsFree);
+        Assert.Equal(-1, p.Loadout[0]);
+    }
+
+    [Fact]
+    public void RespecNeedsGoldAndSomethingToReset()
+    {
+        PlayerState poor = Leveled(20, 999);
+        Assert.False(SkillRespec.Apply(poor).Ok);
+        Assert.Equal(999, poor.Gold);
+        Assert.Equal(4, poor.Skills.Sum);
+        Assert.False(SkillRespec.Apply(new PlayerState("wizard") { Gold = 9999 }).Ok);
+    }
+}

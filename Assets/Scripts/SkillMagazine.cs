@@ -1,37 +1,36 @@
+using System;
 using System.Collections.Generic;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
-    /// <summary>One slot of a magazine page: a bound GameKey (Dash, Skill ...) or locked / empty.</summary>
+    /// <summary>One slot of a magazine page: the fixed Dash, a learned tree skill (SkillIndex) or empty / locked.</summary>
     public struct SkillSlot
     {
         public GameKey Key;
+        public int SkillIndex;   // tree index 0-7 when this slot holds a skill, else -1
         public bool Locked;
-        public static readonly SkillSlot Lock = new SkillSlot { Locked = true };
-        public static SkillSlot Of(GameKey key) { return new SkillSlot { Key = key }; }
+        public static readonly SkillSlot Lock = new SkillSlot { Locked = true, SkillIndex = -1 };
+        public static SkillSlot Of(GameKey key) { return new SkillSlot { Key = key, SkillIndex = -1 }; }
+        public static SkillSlot Skill(int index) { return new SkillSlot { Key = GameKey.Skill, SkillIndex = index }; }
+        public bool IsSkill { get { return !Locked && SkillIndex >= 0; } }
     }
 
     /// <summary>
-    /// Data for the touch "skill magazine": per class a list of pages, each page = SlotCount entries. Swiping the cluster cycles pages.
-    /// New skills: add a GameKey (or skill id) and put a SkillSlot.Of(...) in the table below; nothing else in the UI changes.
-    /// Keyboard keys (K / L) always work regardless of the visible page. The selected page is remembered per class for the session.
+    /// Data for the touch "skill magazine": 3 pages x 3 slots = the fixed Dash (page 1 slot 1) + the 8 player-assigned loadout slots
+    /// (PlayerState.Loadout, edited in the skill tree window). Swiping the cluster cycles pages; the selected page is remembered per class for
+    /// the session. Casting a tapped skill goes through `CastRequested` (phase 04 plugs the skill executor in).
     /// </summary>
     public static class SkillMagazine
     {
-        public const int SlotCount = 3, MaxPages = 2;
+        public const int SlotCount = 3, MaxPages = 3;
 
-        // Default loadout for every class. A Skill entry becomes a locked slot for classes without a signature skill (Mechanic).
-        static readonly SkillSlot[][] Default =
-        {
-            new[] { SkillSlot.Of(GameKey.Dash), SkillSlot.Of(GameKey.Skill), SkillSlot.Lock },
-            new[] { SkillSlot.Lock, SkillSlot.Lock, SkillSlot.Lock },
-        };
+        /// <summary>A skill slot was tapped (tree index). Default: the original L skill for the signature skills, a toast otherwise.</summary>
+        public static Action<int> CastRequested = DefaultCast;
 
-        // Per-class overrides (empty for now): Overrides[HeroClass.Wizard] = new[] { page1, page2 };
-        static readonly Dictionary<HeroClass, SkillSlot[][]> Overrides = new Dictionary<HeroClass, SkillSlot[][]>();
         static readonly Dictionary<HeroClass, int> Selected = new Dictionary<HeroClass, int>();
 
-        public static int PageCount(HeroClassDef cls) { return Table(cls).Length; }
+        public static int PageCount(HeroClassDef cls) { return MaxPages; }
 
         public static int CurrentPage(HeroClassDef cls)
         {
@@ -49,18 +48,40 @@ namespace ZenoniaProto
             return p;
         }
 
+        /// <summary>Slot of a page: flat index 0 = Dash, 1-8 = loadout slot (empty = locked look).</summary>
         public static SkillSlot Slot(HeroClassDef cls, int page, int slot)
         {
-            SkillSlot[][] t = Table(cls);
-            SkillSlot s = t[page % t.Length][slot];
-            if (!s.Locked && s.Key == GameKey.Skill && cls.SkillName == null) return SkillSlot.Lock;
-            return s;
+            int flat = (page % MaxPages) * SlotCount + slot;
+            if (flat == 0) return SkillSlot.Of(GameKey.Dash);
+            PlayerState p = RpgSession.Player;
+            if (p == null || p.ClassId != RpgSession.ClassId(cls.Id)) return SkillSlot.Lock;
+            int index = p.Loadout[flat - 1];
+            return index >= 0 && p.Skills[index] > 0 ? SkillSlot.Skill(index) : SkillSlot.Lock;
         }
 
-        static SkillSlot[][] Table(HeroClassDef cls)
+        /// <summary>Changes whenever ranks / loadout / class change, so the view rebinds its slots.</summary>
+        public static int Version()
         {
-            SkillSlot[][] t;
-            return Overrides.TryGetValue(cls.Id, out t) ? t : Default;
+            PlayerState p = RpgSession.Player;
+            if (p == null) return 0;
+            int h = p.ClassId.GetHashCode();
+            for (int i = 0; i < SkillDef.PerClass; i++) h = h * 31 + p.Loadout[i] * 11 + p.Skills[i];
+            return h;
+        }
+
+        /// <summary>Tree skill in a slot, or null.</summary>
+        public static SkillDef Def(SkillSlot s)
+        {
+            PlayerState p = RpgSession.Player;
+            return s.IsSkill && p != null ? SkillTable.Get(p.ClassId, s.SkillIndex) : null;
+        }
+
+        static void DefaultCast(int index)
+        {
+            SkillDef d = Def(SkillSlot.Skill(index));
+            if (d == null) return;
+            if (d.Legacy != LegacySkill.None) TouchControls.Press(GameKey.Skill); // Ice Storm / Earth Break keep the original cast
+            else RpgHud.Toast(d.Name + ": casting arrives with the skill executor", new UnityEngine.Color(1f, 0.85f, 0.5f));
         }
     }
 }

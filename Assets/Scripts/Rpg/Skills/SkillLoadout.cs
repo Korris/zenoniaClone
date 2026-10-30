@@ -31,6 +31,16 @@ namespace ZenoniaProto.Rpg
             return true;
         }
 
+        /// <summary>Like Assign, but when the skill already sat in another slot the displaced occupant moves there (a swap instead of a replace).</summary>
+        public bool Place(int slot, int skillIndex, SkillRanks ranks)
+        {
+            if (slot < 0 || slot >= Slots) return false;
+            int old = SlotOf(skillIndex), occupant = slots[slot];
+            if (!Assign(slot, skillIndex, ranks)) return false;
+            if (old >= 0 && old != slot) slots[old] = (sbyte)occupant;
+            return true;
+        }
+
         public void Unassign(int slot) { if (slot >= 0 && slot < Slots) slots[slot] = -1; }
 
         /// <summary>Newly learned skill goes into the first empty slot (no-op when already placed or the magazine is full). Returns the slot or -1.</summary>

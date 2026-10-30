@@ -29,11 +29,14 @@ namespace ZenoniaProto
         Sprite[] charge, sweep, slam, fissure;
         SpriteRenderer chargeSr, chargeGlow, sweepSr, sweepGlow, slamSr, slamGlow, fissureSr, fissureGlow, telegraph, groundGlow;
 
-        public static void Cast(HeroController owner)
+        public static void Cast(HeroController owner) { Cast(owner, 1f); }
+
+        /// <summary>Skill-tree cast: `damageScale` is the rank multiplier (SkillDef.DamageMul) applied to the caster ATK of this cast.</summary>
+        public static void Cast(HeroController owner, float damageScale)
         {
             var go = new GameObject("EarthBreak");
             go.transform.SetParent(owner.transform.parent, false);
-            go.AddComponent<EarthBreakUltimate>().Begin(owner);
+            go.AddComponent<EarthBreakUltimate>().Begin(owner, damageScale);
         }
 
         static Sprite[] ChargeArt() { return UltimateFx.Strip(Folder, "charge", 192f, 320f, Scale * 0.62f); }
@@ -44,13 +47,13 @@ namespace ZenoniaProto
         /// <summary>Loads and slices the 24 painted frames ahead of the first cast (class spawn) so the cast itself never hitches.</summary>
         public static void Preload() { ChargeArt(); SweepArt(); SlamArt(); FissuresArt(); }
 
-        void Begin(HeroController owner)
+        void Begin(HeroController owner, float damageScale)
         {
             hero = owner;
             caster = owner.Position;
             dir = owner.Facing;
             center = caster + DirVec[dir] * Range + new Vector2(0f, -6f);
-            atk = owner.AtkStat;
+            atk = owner.AtkStat * damageScale;
             if (!NetMode.RendersFx) return; // headless server: damage timeline only, no art / layers
             charge = ChargeArt(); sweep = SweepArt(); slam = SlamArt(); fissure = FissuresArt();
             int g = UltimateFx.GroundFxOrder;

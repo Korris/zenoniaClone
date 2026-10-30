@@ -175,7 +175,7 @@ namespace ZenoniaProto
         {
             if (IsDying || proxy) return;
             if (src == null) src = LocalPlayer.Hero;
-            dmg = SkillHitHooks.Modify(src, this, dmg); // mark multiplier (+ hero-side skill hooks in phase 03)
+            dmg = SkillHitHooks.Modify(src, this, dmg, quietFx); // mark multiplier, Death Mark charges, next-hit buffs
             Credit(src, Mathf.Min(dmg, Mathf.Max(1, Mathf.CeilToInt(hp)))); // overkill does not count towards the damage share
             if (src != null && !src.IsDead) target = src; // whoever hurts it becomes the sticky target
             hp -= dmg;

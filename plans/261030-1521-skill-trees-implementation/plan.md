@@ -21,9 +21,9 @@ Design: [skill-tree-chatgpt.md](../261030-1508-skill-tree-design/skill-tree-chat
 |---|---|---|---|---|---|
 | 01 | [Skill data, SP/ranks, save + API, Lv cap 60](phase-01-skill-data-sp-ranks-save-api.md) | 9h | - | A (now) | completed |
 | 02 | [Monster status effects + area damage](phase-02-monster-status-effects-area-damage.md) | 7h | 01 step 1 (enums) | B (now) | completed |
-| 03 | [Skill executor runtime + effect behaviours](phase-03-skill-executor-runtime-effects.md) | 15h | 01, 02 | A | pending |
+| 03 | [Skill executor runtime + effect behaviours](phase-03-skill-executor-runtime-effects.md) | 15h | 01, 02 | A | completed |
 | 04 | [Hero + netcode integration (touch points)](phase-04-hero-netcode-integration.md) | 12h | 03 + **netcode agent landed** | A | pending |
-| 05 | [Skill tree window + magazine binding](phase-05-skill-tree-ui-magazine-binding.md) | 12h | 01 (04 for live keys) | C | pending |
+| 05 | [Skill tree window + magazine binding](phase-05-skill-tree-ui-magazine-binding.md) | 12h | 01 (04 for live keys) | C | in progress (window done, online + live casting wait for 04) |
 | 06 | [VFX / icon / SFX pipeline tooling](phase-06-vfx-icon-sfx-pipeline.md) | 8h | - | D (now) | pending |
 | 07 | [Wizard vertical slice + APK #1](phase-07-wizard-vertical-slice.md) | 11h | 04, 05, 06 | - | pending |
 | 08 | [Warrior](phase-08-warrior-skills.md) | 8h | 07 | - | pending |

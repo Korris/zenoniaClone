@@ -104,12 +104,12 @@ Modify (not netcode-owned): `EarthBreakUltimate.cs`, `IceStormUltimate.cs` (add 
 7. Compile check; dotnet tests.
 
 ## Todo
-- [ ] ISkillBody / context / targeting
-- [ ] HeroSkills / HeroBuffs / SkillSchedule (+tests)
-- [ ] SkillRun + 8 effect kinds + legacy adapters
-- [ ] SkillVfx (fallback) + SkillSfx
-- [ ] caps + preload
-- [ ] compile + tests green
+- [x] ISkillBody / context / targeting
+- [x] HeroSkills (= pure `SkillCooldowns`) / HeroBuffs / SkillSchedule (+tests)
+- [x] SkillRun + 8 effect kinds + legacy adapters
+- [x] SkillVfx (fallback) + SkillSfx
+- [x] caps + preload
+- [x] compile + tests green
 
 ## Success criteria
 Compiles; `SkillScheduleTests` green; every `SkillTable` row maps to supported effect kinds (table test: no unsupported kind/shape combo).
@@ -130,3 +130,19 @@ Phase 04 implements `ISkillBody` on HeroController and wires input/net.
 ## Unresolved questions
 1. Party restriction for ally skills: until phase 6 (party) of the MMO plan lands, "ally" = any hero in radius. OK?
 2. Can heroes move while channeling Blade Cyclone / Sanctuary? Default: Cyclone yes (attached zone, short cast lock), Sanctuary fixed on ground.
+
+## Implementation notes (2026-10-30)
+Files: `Assets/Scripts/Skills/` = `ISkillBody`, `HeroSkillBody` (adapter over HeroController public API), `SkillContext` (+`SkillAim`: targeting, wall clamp), `SkillExecutor` (entry `Cast(hero, index, rankOverride, salt)`; legacy Earth Break / Ice Storm adapters live here, no separate SkillLegacy file), `SkillRun`, `SkillEffects` (dispatch, Strike, Rain, Motion), `SkillSupport` (Buff/Heal), `SkillBolt`, `SkillMinion`, `SkillGroundZone`, `SkillMotion`, `HeroBuffs`, `SkillCaps`, `SkillVfx` + `SkillFxAnim`, `SkillSfx`.
+Pure (`Rpg/Skills/`): `SkillSchedule`, `SkillScatter` (rain seed / points / fan), `BuffState`, `SkillCooldowns` (the "HeroSkills" cd[8] + Capture/Restore). Tests: `ZenoniaSkills.Tests/SkillScheduleTests.cs` (65 total green, includes a table test: every skill row maps to supported effects).
+Other edits: `SkillEffect.Attached` (Blade Cyclone follows the caster), `SkillHitHooks.Modify(src, target, dmg, damageOverTime)` (mark mult + Death Mark charges only for the marker + `NextHitsPct`; DoT never spends charges), `Monster.TakeHit` passes `quietFx`, `EarthBreak/IceStormUltimate.Cast(owner, damageScale)` overloads, `PlayerState.NewGame` starts at full HP/MP (starter gear raised maxima: Cleric started 85/97).
+Smoke: `FrostSmokeTest` forces Frost Hollow through `MapRegistry.TestStartMap`; `StatusLogicCheck` no longer clobbers `Zone.Boss` / leaves destroyed dummies in the monster list; new `SkillExecutorCheck` (8 skills per class cast, around-self strike hurts, shield lands). Smoke PASS (all classes, monsters present).
+Art: `SkillVfx` follows phase 06 (`Data/skills/<class>-<skill>.json`, `Sprites/skills/<class>/<skill>/{cast,loop,impact}_<n>.png`); missing set / row = tinted ShockRing (cast / impact) or glow orb (projectile) fallback. Verified on Frost Hollow dummies with the sliced wizard art (reports/phase-03-wizard-skills-sheet-*.png).
+Decisions: Line strike right after a Dash/Leap sweeps the travelled path (anchored at the motion start); Single strike centres on the locked target; Zone `Attached` for Cyclone, Sanctuary fixed; Summon = mechanic -> area pulse, others -> chase + single strike; projectiles ignore walls (as ComboProjectile); sounds by convention, silent when missing.
+
+### Hooks phase 04 must add (no netcode file touched here)
+1. `HeroController.Skill.cs`: replace `TryCastSkill` body by `HeroSkills` logic: learned (`Rpg.Skills[i] > 0`), `SkillCooldowns.Ready(i)`, MP `def.MpAt(rank)`, not casting/dashing/dead, then `SkillExecutor.Cast(this, i)` (returns false = refused target, no cost); start cd `def.CooldownMs`, MP, `castLeft = def.CastLockMs`. Replaying clients call `SkillExecutor.Cast` with `NetMode` non-authority (it already skips damage / heal / motion / buffs) and pass `salt` = the event's tick so rain matches.
+2. `HeroController` combat: `AtkStat` x `HeroBuffs.AtkMul(this)`, attack speed x `HeroBuffs.AtkSpeedMul(this)`, `TakeDamage`: `dmg = HeroBuffs.Absorb(this, dmg)` before HP loss (Mana Shield / Guardian Spirit shields).
+3. `HeroSkillBody.AddInvuln` is a no-op: expose `invuln` (public method) so Shadow Step's 300 ms i-frames work; `SkillMotion` uses `Teleport` per frame: on a predicting client motion skills must wait for the server (`PredictsSkill` false for Motion / NearestEnemy / LowestAlly).
+4. Net: SkillCast event = (caster NetId, skill index, rank, salt); NearestEnemy targets are re-resolved on each client from its proxies (small drift accepted, damage is server side). Replicate `HeroBuffs` shield / buffs (HP bar overlay) if wanted.
+5. Spawn: call `SkillExecutor.Preload(classId)` next to `EarthBreakUltimate.Preload()`.
+6. Mana Shield / buff auras: only an impact flash today (no persistent aura); add a follow loop in phase 07 if the art needs it.

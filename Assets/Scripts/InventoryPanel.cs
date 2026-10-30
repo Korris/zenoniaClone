@@ -141,7 +141,7 @@ namespace ZenoniaProto
 
         void SwitchMode(Mode m)
         {
-            if (m == Mode.Skill) { Flash("The skill tree is not in the Unity port yet"); return; }
+            if (m == Mode.Skill) { Close(); SkillTreeWindow.Open(transform.parent); return; }
             mode = m;
             lastClickIndex = -1;
             confirmDiscard = false;

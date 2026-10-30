@@ -27,6 +27,7 @@ namespace ZenoniaProto
     ///   --level N / --give-stones N       RPG state for screenshots: hero level, upgrade stones (saving is always off in capture runs)
     ///   --drop-loot                       scatter a boss-sized pile of loot (gold, potions, stones, 3 items) in front of the hero
     ///   --open-inventory                  open the inventory window (B) after spawning
+    ///   --skill-ui "1=open;2=learn:0;3=slot:2"  skill tree UI script, see DebugCapture.Skills.cs
     ///   --record-combo wizard|mechanic|cleric  scripted basic-attack video: hero holds attack at dummies (3 s lead-in of idle, then ~6 s of combos), same frame dump as below
     ///                                     (--mech-blue for the blue mechanic, --zoom for a close-up)
     ///   --record-ultimate warrior|wizard  scripted video scene (monsters + King nearby, basic combo, then the skill, tail), 60 fps fixed-step,
@@ -125,6 +126,7 @@ namespace ZenoniaProto
             if (dm != null) dummies = int.Parse(dm);
             shotTimes = Times(Arg(a, "--shots"));
             skillTimes = Times(Arg(a, "--skill-at"));
+            skillUi = Arg(a, "--skill-ui");
         }
 
         static float[] Times(string list)
@@ -237,6 +239,7 @@ namespace ZenoniaProto
             if (solids) WorldBuilder.ToggleSolidOverlay();
             float start = Time.realtimeSinceStartup;
             if (skillTimes != null) StartCoroutine(CastSkills(start));
+            if (skillUi != null) StartCoroutine(RunSkillUi(start));
             if (runSeconds > 0f) { while (Time.realtimeSinceStartup - start < runSeconds) yield return null; Application.Quit(); yield break; }
             if (shotTimes == null) yield break;
             for (int i = 0; i < shotTimes.Length; i++)

@@ -75,13 +75,13 @@ namespace ZenoniaProto
             // Signature skill (L) with cooldown, under the UGUI level / HP / MP / EXP block
             float x = 12f * s, w = 236f * s, h = 20f * s;
             float y = (RpgHud.BlockHeight + 12f) * s;
-            if (hero.Class.SkillName != null)
+            if (hero.Rpg != null)
             {
                 float cd = hero.SkillCooldownLeftMs;
-                string txt = "[L] " + hero.Class.SkillName + "  MP " + (int)hero.Class.SkillMp + (cd > 0f ? "   cooldown " + (cd / 1000f).ToString("F1") + "s" : hero.Mp >= hero.Class.SkillMp ? "   READY" : "   (not enough MP)");
-                small.normal.textColor = cd > 0f || hero.Mp < hero.Class.SkillMp ? new Color(1f, 0.7f, 0.5f) : new Color(0.6f, 1f, 0.7f);
-                Fill(new Rect(x - 2f, y, w + 4f, 18f * s), new Color(0.03f, 0.06f, 0.1f, 0.8f));
-                GUI.Label(new Rect(x + 4f * s, y, w, 18f * s), txt, small);
+                string txt = "[T] skills  " + MagazineLine(hero.Rpg) + (cd > 0f ? "   [L] cd " + (cd / 1000f).ToString("F1") + "s" : "");
+                small.normal.textColor = new Color(0.6f, 1f, 0.7f);
+                Fill(new Rect(x - 2f, y, 560f * s, 18f * s), new Color(0.03f, 0.06f, 0.1f, 0.8f));
+                GUI.Label(new Rect(x + 4f * s, y, 556f * s, 18f * s), txt, small);
             }
             y -= 6f * s;
 
@@ -127,6 +127,18 @@ namespace ZenoniaProto
             Fill(new Rect(x, y, w * Mathf.Clamp01(boss.Hp / boss.MaxHp), h), new Color(0.35f, 0.7f, 1f));
             center.normal.textColor = Color.white;
             GUI.Label(new Rect(x, y, w, h), bossText, center);
+        }
+
+        /// <summary>Magazine slots 1-8 as "1 Arcane Bolt  2 -  3 Fireball ..." (skill tree loadout; "-" = empty).</summary>
+        static string MagazineLine(Rpg.PlayerState p)
+        {
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < Rpg.SkillLoadout.Slots; i++)
+            {
+                Rpg.SkillDef d = Rpg.SkillTable.Get(p.ClassId, p.Loadout[i]);
+                sb.Append(i + 1).Append(' ').Append(d != null ? d.Name : "-").Append("  ");
+            }
+            return sb.ToString();
         }
 
         static void Fill(Rect r, Color c)

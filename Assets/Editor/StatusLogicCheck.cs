@@ -11,12 +11,16 @@ namespace ZenoniaProto.EditorTools
         public static void RunWorld(Action<bool, string> expect, HeroController hero, GameObject root)
         {
             // Own dummies (the start map may be the village without monsters): a slime and a boss beside the hero.
+            Monster realBoss = Monster.Boss; // creating / destroying the dummy boss would clear the zone's real one
             Vector2 at0 = hero.Position + new Vector2(0f, 40f);
             Monster slime = Monster.Create(root.transform, MonsterDef.FrostSlime, at0, -1);
             Monster boss = Monster.Create(root.transform, MonsterDef.FrostfangKing, at0 + new Vector2(40f, 0f), -1);
             try { Run(expect, hero, slime, boss); }
-            finally { UnityEngine.Object.DestroyImmediate(slime.gameObject); UnityEngine.Object.DestroyImmediate(boss.gameObject); }
+            finally { UnityEngine.Object.DestroyImmediate(slime.gameObject); UnityEngine.Object.DestroyImmediate(boss.gameObject); Forget(slime); Forget(boss); if (Zone.Main != null) Zone.Main.Boss = realBoss; }
         }
+
+        /// <summary>Edit mode never runs OnDestroy, so a destroyed dummy would stay in the zone's monster list: unregister it by hand.</summary>
+        static void Forget(Monster m) { if (Zone.Main != null) Zone.Main.Monsters.Remove(m); }
 
         static void Run(Action<bool, string> expect, HeroController hero, Monster slime, Monster boss)
         {

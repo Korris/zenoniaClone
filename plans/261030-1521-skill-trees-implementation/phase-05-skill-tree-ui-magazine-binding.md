@@ -45,12 +45,12 @@ Modify: `SkillMagazine.cs` (table from loadout, 3 pages, `SkillSlot.SkillIndex`)
 5. Screenshots via DebugCapture `--shots` at 960x640 and 1280x720 (`--open-skill-tree` flag in a new `DebugCapture.Skills.cs` partial, shared with phase 07).
 
 ## Todo
-- [ ] icons + actions seam
-- [ ] window, nodes, links, detail
-- [ ] assign strip + magazine 3 pages
-- [ ] entry points (tab, T, touch button), SP toasts
-- [ ] online path
-- [ ] screenshots reviewed by user
+- [x] icons (`Tools/build-skill-tree-icons.py --from-preview`, 40 icons from the preview crops) + actions seam (`ISkillTreeActions`)
+- [x] window, nodes, links, detail (+ respec: 50 G x level, two-tap confirm)
+- [x] assign strip + magazine 3 pages (slot 1 page 1 = Dash, loadout slots 1-8; swap on assign)
+- [x] entry points (bag Skill tab, T, touch "Skills" button + SP badge), "+1 skill point [T]" on the level-up banner
+- [ ] online path: `OnlineActions` refuses with a message until phase 04 adds the InvOp ops (seam in `SkillTreeActions.cs`); magazine cast hook `SkillMagazine.CastRequested`
+- [ ] screenshots reviewed by user (`visuals/skill-ui-*.png`, 960x444 Windows player; 960x640 / 1280x720 not shot, window is 920x540 on the 640-high canvas)
 
 ## Success criteria
 - Learn/rank-up/assign work offline and online, persist after reload; disabled buttons always state the reason.

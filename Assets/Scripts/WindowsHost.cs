@@ -12,6 +12,7 @@ namespace ZenoniaProto
     public sealed class WindowsHost : MonoBehaviour
     {
         GameObject talkPrompt;
+        Transform root;
         bool pausedByUs;
 
         public static void Create(Transform parent)
@@ -21,7 +22,9 @@ namespace ZenoniaProto
             QuestTracker.Init();
             var go = new GameObject("WindowsHost");
             go.transform.SetParent(parent, false);
-            go.AddComponent<WindowsHost>().Build(parent, UiKit.Canvas(parent).transform);
+            var host = go.AddComponent<WindowsHost>();
+            host.root = parent;
+            host.Build(parent, UiKit.Canvas(parent).transform);
         }
 
         void Build(Transform root, Transform canvas)
@@ -50,7 +53,7 @@ namespace ZenoniaProto
             bool modal = UiWindows.ModalOpen;
             if (hero == null)
             {
-                if (modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); }
+                if (modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); SkillTreeWindow.Close(); }
                 UiWindows.InteractPrompt = false;
                 talkPrompt.SetActive(false);
                 SetPaused(false);
@@ -62,8 +65,16 @@ namespace ZenoniaProto
             talkPrompt.SetActive(inRange && !modal && !ChatWindow.RecentlyTyping);
             SetPaused(modal);
 
+            if (InputAdapter.Pressed(GameKey.SkillTree))
+            {
+                if (HeroChangeScreen.IsOpen) return;
+                if (!SkillTreeWindow.IsOpen) InventoryPanel.Close();
+                SkillTreeWindow.Toggle(root);
+                return;
+            }
             bool interact = InputAdapter.Pressed(GameKey.Interact), enter = InputAdapter.Pressed(GameKey.Chat);
-            if (InputAdapter.Pressed(GameKey.Close) && modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); return; }
+            if (InputAdapter.Pressed(GameKey.Close) && modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); SkillTreeWindow.Close(); return; }
+            if (SkillTreeWindow.IsOpen) return; // E / Enter must not talk or focus the chat behind the tree
             if (!interact && !enter) return;
             if (QuestOfferWindow.IsOpen) QuestOfferWindow.Accept();
             else if (NpcDialogueBox.IsOpen) NpcDialogueBox.Advance();

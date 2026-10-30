@@ -15,6 +15,8 @@ namespace ZenoniaProto
         public static IGameMap Current { get; private set; }
         /// <summary>True when the launch fixed the start map (`--map`, or a capture run): saved maps and "new characters start in the village" do not override it.</summary>
         public static bool Forced { get; private set; }
+        /// <summary>Editor tests only: when set, ParseLaunch starts this map (as if `--map` said so) so the smoke test gets Frost Hollow's monsters.</summary>
+        public static string TestStartMap;
 
         static MapRegistry() { Current = Maps[0]; }
 
@@ -52,6 +54,8 @@ namespace ZenoniaProto
         {
             ResetState();
             if (!NetMode.IsOffline) return; // the zone server only knows Frost Hollow for now
+            IGameMap test = TestStartMap != null ? Get(TestStartMap) : null;
+            if (test != null) { Current = test; Forced = true; return; }
             int i = Array.IndexOf(args, "--map");
             if (i >= 0 && i + 1 < args.Length)
             {
