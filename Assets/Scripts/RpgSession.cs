@@ -18,6 +18,9 @@ namespace ZenoniaProto
         /// <summary>The live RPG state of the current hero, or null on the class select screen.</summary>
         public static PlayerState Player { get { return Instance != null ? Instance.player : null; } }
 
+        /// <summary>This save already killed the Frostfang King (offline he does not return): MapTransfer removes him when Frost Hollow is rebuilt.</summary>
+        public static bool BossDefeated { get { return Instance != null && Instance.bossDefeated; } }
+
         Transform root;
         PlayerState player;
         PlayerRpg owner;
@@ -61,10 +64,24 @@ namespace ZenoniaProto
         public void Attach(HeroController hero, SaveData save)
         {
             hero.Owner = owner;
-            if (save != null && save.hasPosition && !FrostHollowMap.RectBlocked(save.x - 5f, save.y, 10f, 8f)) hero.Teleport(new Vector2(save.x, save.y), 0);
+            RestoreMapAndPosition(hero, save);
             if (bossDefeated && NetMode.IsOffline && Monster.Boss != null && Application.isPlaying) Destroy(Monster.Boss.gameObject);
             SyncGear();
             if (save == null) SaveNow(); // a new character gets its file right away
+        }
+
+        /// <summary>
+        /// Offline: a saved hero resumes on the map it was saved on (older saves have no village and were in Frost Hollow), a new character starts in the
+        /// village; `--map` and online play keep the current map. The saved spot is used only on its own map and only while still walkable.
+        /// </summary>
+        void RestoreMapAndPosition(HeroController hero, SaveData save)
+        {
+            string savedMap = save != null && save.hasPosition ? (string.IsNullOrEmpty(save.mapId) ? FrostHollowLayout.MapId : save.mapId) : null;
+            string want = NetMode.IsOffline && !MapRegistry.Forced ? (savedMap ?? OakhavenVillageMap.MapId) : MapRegistry.Current.Id;
+            bool switched = want != MapRegistry.Current.Id;
+            if (switched) MapTransfer.Instant(want);
+            if (savedMap == MapRegistry.Current.Id && !FrostHollowMap.RectBlocked(save.x - 5f, save.y, 10f, 8f)) hero.Teleport(new Vector2(save.x, save.y), 0);
+            else if (switched) hero.Teleport(GameConfig.HeroStart, 0);
         }
 
         /// <summary>Online client: adopts the mirrored state the server pushed (the bag, equipment and HUD all read Player), re-binds the hero's owner and refreshes its gear.</summary>
@@ -85,7 +102,7 @@ namespace ZenoniaProto
             HeroController hero = GameSession.Hero;
             if (player == null || hero == null || hero.Rpg != player || hero.IsDead) return;
             Vector2 p = hero.Position;
-            SaveStore.Write(SaveSerializer.Capture(player, true, p.x, p.y, bossDefeated));
+            SaveStore.Write(SaveSerializer.Capture(player, true, p.x, p.y, bossDefeated, 0, MapRegistry.Current.Id));
             saveTimer = 0f;
         }
 

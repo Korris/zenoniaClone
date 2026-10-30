@@ -14,7 +14,7 @@ namespace ZenoniaProto
         public const int TilesH = FrostHollowMap.TilesH;
         public const float MapW = TilesW * TileUnits;
         public const float MapH = TilesH * TileUnits;
-        public static Vector2 HeroStart { get { return FrostHollowMap.PlayerStart; } }
+        public static Vector2 HeroStart { get { return MapRegistry.Current.PlayerStart; } } // start tile of the map the sim runs
 
         public const int OrderStride = 8;        // sub-orders per entity (shadow, gear behind, body, gear front, bar, fx)
         public const int GroundOrder = -32000;

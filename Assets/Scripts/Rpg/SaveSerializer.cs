@@ -27,12 +27,12 @@ namespace ZenoniaProto.Rpg
         public const int SaveVersion = 1;
         public const string MapId = "frostHollow";
 
-        public static SaveData Capture(PlayerState p, bool hasPosition, float x, float y, bool bossDefeated, long savedAt = 0)
+        public static SaveData Capture(PlayerState p, bool hasPosition, float x, float y, bool bossDefeated, long savedAt = 0, string mapId = null)
         {
             var d = new SaveData
             {
                 version = SaveVersion, savedAt = savedAt != 0 ? savedAt : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                classId = p.ClassId, mapId = MapId, level = p.Level, exp = p.Exp, gold = p.Gold, hpPotion = p.HpPotions, mpPotion = p.MpPotions,
+                classId = p.ClassId, mapId = string.IsNullOrEmpty(mapId) ? MapId : mapId, level = p.Level, exp = p.Exp, gold = p.Gold, hpPotion = p.HpPotions, mpPotion = p.MpPotions,
                 upgradeStone = p.UpgradeStone, hp = p.Hp, mp = p.Mp, hasPosition = hasPosition, x = x, y = y, bossDefeated = bossDefeated,
             };
             d.inventory.AddRange(p.Inventory);

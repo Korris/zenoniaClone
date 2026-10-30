@@ -29,9 +29,8 @@ namespace ZenoniaProto
             NpcDialogueBox.Create(canvas);
             QuestOfferWindow.Create(canvas);
             ChatWindow.Create(canvas);
-            if (NetMode.IsOffline) ElderNpc.Create(root); // the quest counts the local hero's kills: only where the sim is local
             RectTransform t = UiWinKit.Anchored(canvas, "TalkPrompt", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), 0f, 76f, 150f, 42f);
-            UiWinKit.ArtButton(t, "Talk", "btn-gold", 0f, 0f, 150f, 42f, Application.isMobilePlatform ? "Talk" : "Talk  [E]", 19, new Color(0.25f, 0.12f, 0.02f), ElderNpc.Talk);
+            UiWinKit.ArtButton(t, "Talk", "btn-gold", 0f, 0f, 150f, 42f, Application.isMobilePlatform ? "Talk" : "Talk  [E]", 19, new Color(0.25f, 0.12f, 0.02f), TownNpc.Talk);
             talkPrompt = t.gameObject;
             talkPrompt.SetActive(false);
         }
@@ -58,7 +57,7 @@ namespace ZenoniaProto
                 return;
             }
             bool menuOpen = InventoryPanel.IsOpen || HeroChangeScreen.IsOpen;
-            bool inRange = ElderNpc.InRange && !menuOpen;
+            bool inRange = TownNpc.InRange && !menuOpen;
             UiWindows.InteractPrompt = inRange;
             talkPrompt.SetActive(inRange && !modal && !ChatWindow.RecentlyTyping);
             SetPaused(modal);
@@ -68,7 +67,7 @@ namespace ZenoniaProto
             if (!interact && !enter) return;
             if (QuestOfferWindow.IsOpen) QuestOfferWindow.Accept();
             else if (NpcDialogueBox.IsOpen) NpcDialogueBox.Advance();
-            else if (inRange && !ChatWindow.RecentlyTyping) ElderNpc.Talk();
+            else if (inRange && !ChatWindow.RecentlyTyping) TownNpc.Talk();
             else if (enter && !menuOpen) ChatWindow.FocusFromKey();
         }
     }

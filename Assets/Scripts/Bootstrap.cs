@@ -5,7 +5,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Zero-setup entry point: runs after any scene loads (Play on the default empty scene works) and builds the whole
-    /// prototype at runtime -- camera, Frost Hollow ground, monsters, HUD (IMGUI + UGUI RPG block) and the class select that spawns the hero.
+    /// prototype at runtime -- camera, the start map's ground / props / villagers, monsters, HUD (IMGUI + UGUI RPG block) and the class select that spawns the hero.
     /// </summary>
     public static class Bootstrap
     {
@@ -19,6 +19,7 @@ namespace ZenoniaProto
             string[] cmd = Environment.GetCommandLineArgs();
             NetMode.Current = NetMode.ParseMode(cmd);
             NetLaunchArgs.Parse(cmd);
+            MapRegistry.ParseLaunch(cmd, DebugCapture.Requested(cmd)); // --map frost-hollow|oakhaven-village; offline normal start = the village
             bool headless = NetMode.IsHeadless;
             bool paced = headless || (Application.isBatchMode && !NetMode.IsOffline); // dedicated server and unattended bot clients run at 30 fps, no vsync
             if (!NetMode.IsOffline) ZenoniaProto.Rpg.SaveStore.Enabled = false; // online play never touches the offline saves
@@ -70,7 +71,7 @@ namespace ZenoniaProto
             UltimateFx.Init(root.transform);
             GameSfx.Init(root.transform);
             GameMusic.Init(root.transform);
-            GameMusic.Play("frost-hollow"); // the only map so far; oakhaven-village waits for the village map
+            GameMusic.Play(MapRegistry.Current.Music);
             ScreenFlash.ResetState();
 
             var follow = cam.GetComponent<CameraFollow>();
@@ -80,7 +81,7 @@ namespace ZenoniaProto
             // Frame the entrance behind the class select screen until a hero exists.
             cam.transform.position = new Vector3(GameConfig.HeroStart.x + 40f, GameConfig.HeroStart.y + 30f, -10f);
 
-            if (!NetMode.IsClient) MonsterSpawner.SpawnAll(root.transform); // a client shows the server's monsters instead
+            if (!NetMode.IsClient && MapRegistry.Current.Hostile) MonsterSpawner.SpawnAll(root.transform); // a client shows the server's monsters instead; the village is a safe town
             GameSession session = GameSession.Create(root.transform, follow);
             root.AddComponent<NameTags>();
 
@@ -92,7 +93,8 @@ namespace ZenoniaProto
             root.AddComponent<Hud>();
             RpgHud.Create(root.transform);
             TouchControls.Create(root.transform);
-            WindowsHost.Create(root.transform); // dialogue, quest offer, chat, Elder Thomas (above the touch layer)
+            MapTransfer.Create(root.transform); // portals + fade between maps (offline)
+            WindowsHost.Create(root.transform); // dialogue, quest offer, chat windows + the Talk prompt (above the touch layer)
             session.StartFromCommandLine();
             DebugCapture.AttachIfRequested(root, session);
         }

@@ -62,6 +62,7 @@ namespace ZenoniaProto
             NetMode.Current = RunMode.Offline;
             SaveStore.Enabled = true;
             ClassSelectGui.ResetState();
+            WorldBuilder.Rebuild(); // offline again: the portal circle comes back
             MonsterSpawner.SpawnAll(root);
         }
 
@@ -75,6 +76,7 @@ namespace ZenoniaProto
             localName = DevLoginStub.SanitizeName(name);
             if (!wasOffline) return;
             WipeWorld();
+            MapTransfer.Instant(FrostHollowLayout.MapId); // the zone server only knows Frost Hollow: leave the village (online has no portals / villagers)
             if (mode == RunMode.Host) MonsterSpawner.SpawnAll(root);
         }
 

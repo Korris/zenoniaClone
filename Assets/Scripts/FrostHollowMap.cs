@@ -3,44 +3,15 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Frost Hollow layout copied from the web src/world/maps/frost-hollow-map.js: 36x24 tiles of 16 units, painted backdrop
-    /// (Sprites/tiles/frost-hollow-ground.png) plus the tile classification that drives collision.
-    /// T snowy pines (solid)  C cliff / rock / ruin (solid)  w frozen river (solid)  B bridge  s snow / stone ground.
-    /// Rows are listed top-down like the web (row 0 = top of the map); world y points up, so the row of a point is TilesH-1-floor(y/16).
+    /// Frost Hollow spawn data (web src/world/maps/frost-hollow-map.js) and the collision entry point used by heroes, monsters, loot and the net code.
+    /// The tile layout itself lives in FrostHollowLayout (an IGameMap, like the village); IsSolidTile / RectBlocked / Move forward to
+    /// MapRegistry.Current so every existing caller collides with the map the sim is running without knowing which one it is.
     /// </summary>
     public static class FrostHollowMap
     {
-        static readonly string[] Rows =
-        {
-            "CCCCCCCCCCCCCCCCCwwwCCCTTTTTTCCCCCCC",
-            "CCCCCCCCCCCCCCCCCwwwCCCTTTTTTCCCCCCC",
-            "CCCCCCCCCCsTTCTTTwwwCCCTTCCCCCCCssCC",
-            "CCCCsssCCsssCCCTTwwwCCCTssCssCCCssCC",
-            "TCCCsssssssssssTTTwwCCCTsssssCCsssCC",
-            "TssCsssssssssssTTTwwCCCTssssssssssCC",
-            "TCCCCsssssssssTTTCwwCCCTTsssssssssTT",
-            "TTCCTCCssssssCCCCCwwwCCTTsCsssssssTT",
-            "TTTTTsssssTssCCCCCwwwCCTTsCssssssCTT",
-            "TTTCCssssCCCCCCCCCwwwCCsCCsssssssCTT",
-            "TTTCCssCCCCssCCCCCwwwCCsssssssCCCCTT",
-            "TTTTCsssCsssssssssCCCCCssssssssCCTTT",
-            "TTCCCCsssssssssCCBBBBBsssssCCssCCCCC",
-            "TTTTCCssssssCCTCCCwwwCCTsssCCssTCCCC",
-            "TTTCCssssssssCTTCCwwCCTTsssCsssTCCCC",
-            "TTTCCsssssssCCTTCCwwCCCTCssssssTCCCT",
-            "TTTCCssssssssCCCCCwwCCCTssssssssCCCT",
-            "TTTCCssCsCsssCCCCCwwCCCTssssssssssTT",
-            "TCCCssCCCCTTTTTTTTwwCCCCCTssssssCCCT",
-            "TCCsssCCCCTTTTTTTTwwCCCCTTsssCCCCCCT",
-            "TTssssCCCTTTTTTTTTwwCCCCCCCCCCCCCCCC",
-            "TTssssCsTTTTTTTTTTwwCCCCCCCCCCCCCCCC",
-            "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
-            "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
-        };
-
-        public const int TilesW = 36, TilesH = 24;
-        public const float Tile = 16f;
-        public static readonly Vector2Int PlayerStartTile = new Vector2Int(4, 21);
+        public const int TilesW = TileMapBase.W, TilesH = TileMapBase.H;
+        public const float Tile = TileMapBase.Tile;
+        public static readonly Vector2Int PlayerStartTile = FrostHollowLayout.PlayerStartTile;
 
         public struct Zone
         {
@@ -66,55 +37,25 @@ namespace ZenoniaProto
             return new Vector2((tx + 0.5f) * Tile, GameConfig.MapH - ((ty + 1) * Tile - lift));
         }
 
+        /// <summary>Frost Hollow's own start (GameConfig.HeroStart is the current map's).</summary>
         public static Vector2 PlayerStart { get { return TileFeet(PlayerStartTile.x, PlayerStartTile.y, 2f); } }
 
+        /// <summary>Tile char of the current map's rows (Frost Hollow's chars; the village has its own set).</summary>
         public static char CharAt(int tx, int ty)
         {
-            if (tx < 0 || ty < 0 || tx >= TilesW || ty >= TilesH) return 'C';
-            return Rows[ty][tx];
+            var map = MapRegistry.Current as TileMapBase;
+            return map != null ? map.CharAt(tx, ty) : 'C';
         }
 
-        public static bool IsSolidTile(int tx, int ty)
-        {
-            char c = CharAt(tx, ty);
-            return c == 'T' || c == 'C' || c == 'w';
-        }
+        public static bool IsSolidTile(int tx, int ty) { return MapRegistry.Current.IsSolidTile(tx, ty); }
 
-        /// <summary>True when a y-up rect (bottom-left x,y; size w,h) touches a solid tile or leaves the map.</summary>
-        public static bool RectBlocked(float x, float y, float w, float h)
-        {
-            if (x < 0f || y < 0f || x + w > GameConfig.MapW || y + h > GameConfig.MapH) return true;
-            int tx0 = Mathf.FloorToInt(x / Tile), tx1 = Mathf.FloorToInt((x + w - 0.001f) / Tile);
-            int ty0 = Mathf.FloorToInt(y / Tile), ty1 = Mathf.FloorToInt((y + h - 0.001f) / Tile);
-            for (int ty = ty0; ty <= ty1; ty++)
-                for (int tx = tx0; tx <= tx1; tx++)
-                    if (IsSolidTile(tx, TilesH - 1 - ty)) return true;
-            return false;
-        }
+        /// <summary>True when a y-up rect (bottom-left x,y; size w,h) touches a solid tile or leaves the current map.</summary>
+        public static bool RectBlocked(float x, float y, float w, float h) { return MapRegistry.Current.RectBlocked(x, y, w, h); }
 
-        /// <summary>
-        /// Moves a feet-anchored box (width w centred on feet, height h above feet) by (dx,dy), sweeping each axis in 1-unit steps
-        /// like the web tilemap.moveBox so it slides along walls. Returns the new feet position.
-        /// </summary>
+        /// <summary>Moves a feet-anchored box on the current map, sliding along walls (see TileMapBase.Move). Returns the new feet position.</summary>
         public static Vector2 Move(Vector2 feet, float dx, float dy, float w, float h, out bool blockedX, out bool blockedY)
         {
-            float x = feet.x, y = feet.y, hw = w * 0.5f;
-            blockedX = blockedY = false;
-            float remaining = Mathf.Abs(dx), sign = Mathf.Sign(dx);
-            while (remaining > 1e-4f)
-            {
-                float step = Mathf.Min(1f, remaining), next = x + step * sign;
-                if (RectBlocked(next - hw, y, w, h)) { blockedX = true; break; }
-                x = next; remaining -= step;
-            }
-            remaining = Mathf.Abs(dy); sign = Mathf.Sign(dy);
-            while (remaining > 1e-4f)
-            {
-                float step = Mathf.Min(1f, remaining), next = y + step * sign;
-                if (RectBlocked(x - hw, next, w, h)) { blockedY = true; break; }
-                y = next; remaining -= step;
-            }
-            return new Vector2(x, y);
+            return MapRegistry.Current.Move(feet, dx, dy, w, h, out blockedX, out blockedY);
         }
 
         /// <summary>Random walkable spot inside a zone (web: random tile, feet 2 units above the tile bottom). False after 30 failed tries.</summary>

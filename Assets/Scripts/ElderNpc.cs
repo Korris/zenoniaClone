@@ -3,56 +3,22 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Elder Thomas, the quest giver, standing near the hero spawn: the win-portrait-elder bust as a world sprite with a ground shadow and a bobbing
-    /// marker above him ("!" = quest available, "?" = ready to turn in). InRange tells WindowsHost when "Talk" / E works; Talk() picks the
-    /// dialogue for the quest state and chains into the quest offer / reward. Offline only (the quest counts local kills).
+    /// Elder Thomas' quest side: the bobbing marker above his TownNpc body ("!" = quest available, "?" = ready to turn in) and Talk(), which picks
+    /// the dialogue for the quest state and chains into the quest offer / reward. Offline only (the quest counts local kills); the body, shadow and
+    /// talk range belong to TownNpc.
     /// </summary>
     public sealed class ElderNpc : MonoBehaviour
     {
-        const float TalkRange = 30f, BodyHeight = 26f;
-        public static readonly Vector2Int Tile = new Vector2Int(4, 19);
-        static ElderNpc instance;
+        const float BodyHeight = 24f;
 
         Transform markerAvailable, markerReady;
-        Vector2 feet;
 
-        /// <summary>The local hero stands close enough to talk.</summary>
-        public static bool InRange { get { return instance != null && instance.CheckRange(); } }
-
-        public static void Create(Transform parent)
-        {
-            var go = new GameObject("ElderThomas");
-            go.transform.SetParent(parent, false);
-            instance = go.AddComponent<ElderNpc>();
-            instance.Build();
-        }
-
-        void OnDestroy() { if (instance == this) instance = null; }
-
-        bool CheckRange()
-        {
-            HeroController h = GameSession.Hero;
-            return h != null && !h.IsDead && Vector2.Distance(h.Position, feet) <= TalkRange;
-        }
+        /// <summary>Adds the quest markers to the villager that runs the quest.</summary>
+        public static void Attach(TownNpc npc) { npc.gameObject.AddComponent<ElderNpc>().Build(); }
 
         void Build()
         {
-            feet = FrostHollowMap.TileFeet(Tile.x, Tile.y, 0f);
-            transform.position = new Vector3(feet.x, feet.y, 0f);
-            int order = GameConfig.OrderBase(feet.y);
-            SpriteRenderer shadow = ProceduralSprites.Child(transform, "Shadow", ProceduralSprites.Shadow());
-            shadow.transform.localScale = new Vector3(18f, 18f, 1f);
-            shadow.color = new Color(0f, 0f, 0f, 0.45f);
-            shadow.sortingOrder = order;
-
-            var tex = Resources.Load<Texture2D>("Sprites/ui/win-portrait-elder");
-            if (tex != null)
-            {
-                Sprite body = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.04f), tex.height / BodyHeight, 0, SpriteMeshType.FullRect);
-                ProceduralSprites.Child(transform, "Body", body).sortingOrder = order + 3;
-            }
-            else Debug.LogWarning("[ZenoniaProto] missing Sprites/ui/win-portrait-elder");
-
+            int order = GameConfig.OrderBase(transform.position.y);
             markerAvailable = QuestMarker("MarkerAvailable", false, order + 5);
             markerReady = QuestMarker("MarkerReady", true, order + 5);
         }

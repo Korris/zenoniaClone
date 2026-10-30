@@ -50,10 +50,18 @@ namespace ZenoniaProto
         bool enhanced, solids, god, dropLoot, openInventory;
         int level, giveStones, plus = -1;
 
+        /// <summary>True when the command line asks for a capture / bot run (these default to Frost Hollow: their tiles and scripts are written for it).</summary>
+        public static bool Requested(string[] args)
+        {
+            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-boss", "--record-party", "--net-bot", "--record-net" })
+                if (Array.IndexOf(args, flag) >= 0) return true;
+            return false;
+        }
+
         public static void AttachIfRequested(GameObject root, GameSession gameSession)
         {
             string[] args = Environment.GetCommandLineArgs();
-            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0 && Array.IndexOf(args, "--record-combo") < 0 && Array.IndexOf(args, "--record-boss") < 0 && Array.IndexOf(args, "--record-party") < 0 && Array.IndexOf(args, "--net-bot") < 0 && Array.IndexOf(args, "--record-net") < 0) return;
+            if (!Requested(args)) return;
             SaveStore.Enabled = false; // capture runs never touch the player's saves
             var d = root.AddComponent<DebugCapture>();
             d.session = gameSession;

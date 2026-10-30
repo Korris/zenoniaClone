@@ -49,6 +49,16 @@ AI = web `updateMonsterAi`: idle -> wander -> chase -> windup -> strike -> coold
 (attack frames 0/1 during the windup, 2/3 over the first 240 ms of the cooldown). Dead monsters respawn per zone (8-11 s) at a random walkable
 tile at least 60 units from the hero; the boss does not respawn.
 
+## Maps
+
+Two maps, both 36x24 tiles of 16 units: **Oakhaven Village** (safe start hub: painted backdrop, HD props with footprint collision, 10 villagers, village music, no monsters)
+and **Frost Hollow** (the battle map). `Maps/IGameMap` + `Maps/TileMapBase` hold the shared collision; `MapRegistry.Current` is the map the sim runs
+(`FrostHollowMap.RectBlocked / Move / IsSolidTile` forward to it). The south gate of the village and the blue circle at the Frost Hollow entrance are portals:
+walking onto one fades out, swaps the map (`Maps/MapTransfer`) and fades in with the same hero. New offline characters start in the village; a save
+resumes on the map it was saved on. Offline only for now: online (host / client / server) always plays Frost Hollow with no portals or villagers.
+Launch arg `--map frost-hollow|oakhaven-village` picks the start map (capture / bot runs default to Frost Hollow). Village art: `Resources/Sprites/village/`
+(ground + portal in `tiles/`, props, NPC idle sheets + faces), copied from the web `Assets/hd/`.
+
 ## Controls
 
 | Key | Action |
