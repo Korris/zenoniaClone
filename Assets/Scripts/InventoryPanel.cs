@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -8,37 +6,33 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Inventory / equipment / enhance window (B or I toggles, Esc closes; the game is paused while it is open).
-    /// Left: the six equipment slots + hero stats. Middle: the 20-slot bag. Right: details of the selected item (stats compared with the
-    /// equipped one, enhance preview) with Equip / Unequip, Enhance and Discard. Click selects, double-click equips / unequips.
-    /// Built once with UGUI, then only refreshed after each action.
+    /// The bag window, a port of the web character menu (character-menu.js + inventory-panel.js): the painted bag frame on the right of the
+    /// screen with Equipment / Inventory / Skill tabs. Equipment = the six worn slots around the hero portrait + a Status table, Unequip and
+    /// Enhance. Inventory = a 3 x 4 paged grid (gold, potions and stones first, then the 20 bag slots) with the selected item's details,
+    /// Equip / Use, Enhance, Sort and Discard. Click selects, double-click or J / Space activates, arrows move the selection.
+    /// B / I toggles (RpgSession), Esc closes; the game is paused while it is open. Layout uses the web 960 x 640 canvas coordinates.
+    /// Partial: InventoryPanel.Loadout.cs (Equipment tab), InventoryPanel.Bag.cs (Inventory tab).
     /// </summary>
-    public class InventoryPanel : MonoBehaviour
+    public partial class InventoryPanel : MonoBehaviour
     {
-        const float W = 800f, H = 470f, Cell = 60f, Stride = 66f, DoubleClickSeconds = 0.35f;
-        static readonly string[][] EquipGrid = { new[] { Slots.Helmet, Slots.Weapon }, new[] { Slots.Armor, Slots.Offhand }, new[] { Slots.Gloves, Slots.Boots } };
-        static readonly Color Frame = new Color(0.3f, 0.38f, 0.48f, 1f), SelectedFrame = new Color(1f, 0.92f, 0.45f, 1f), Good = new Color(0.55f, 1f, 0.55f), Bad = new Color(1f, 0.5f, 0.45f);
+        const float BagX = 304f, BagY = 34f, BagW = 640f, BagH = 568f, DoubleClickSeconds = 0.35f, MessageSeconds = 1.5f;
+        enum Mode { Equipment, Inventory, Skill }
+        static readonly string[] TabNames = { "Equipment", "Inventory", "Skill" };
         static InventoryPanel instance;
 
-        sealed class SlotView
-        {
-            public Image Frame, Icon;
-            public Text Corner, Caption;
-            public Item Item;
-            public string EquipSlot; // null for bag cells
-        }
-
-        readonly List<SlotView> equipViews = new List<SlotView>(6);
-        readonly List<SlotView> bagViews = new List<SlotView>(PlayerState.InventorySize);
-        RectTransform window;
-        Text title, statsText, bagTitle, nameText, infoText, linesText, enhanceText, resultText;
-        Button primaryButton, enhanceButton, discardButton;
-        Text primaryLabel, enhanceLabel, discardLabel;
-        Item selected;
+        RectTransform overlay;
+        Mode mode = Mode.Equipment;
+        readonly BagWidgets.BagButton[] tabs = new BagWidgets.BagButton[3];
+        readonly Image[] tabIcons = new Image[3];
+        Image tabArrow;
+        Text messageText;
+        float messageUntil;
         float lastClickTime;
+        int lastClickIndex = -1;
         bool confirmDiscard;
+        string shownClass;
 
-        public static bool IsOpen { get { return instance != null && instance.window.gameObject.activeSelf; } }
+        public static bool IsOpen { get { return instance != null && instance.overlay.gameObject.activeSelf; } }
 
         public static void Toggle(Transform root) { if (IsOpen) Close(); else Open(root); }
 
@@ -52,9 +46,9 @@ namespace ZenoniaProto
                 instance = go.AddComponent<InventoryPanel>();
                 instance.Build(UiKit.Canvas(root).transform);
             }
-            instance.window.gameObject.SetActive(true);
-            instance.window.SetAsLastSibling();
-            instance.resultText.text = "";
+            instance.overlay.gameObject.SetActive(true);
+            instance.overlay.SetAsLastSibling();
+            instance.messageUntil = 0f;
             instance.Refresh();
             GameClock.Paused = true;
         }
@@ -62,8 +56,7 @@ namespace ZenoniaProto
         public static void Close()
         {
             if (instance == null) return;
-            instance.window.gameObject.SetActive(false);
-            instance.selected = null;
+            instance.overlay.gameObject.SetActive(false);
             instance.confirmDiscard = false;
             GameClock.Paused = false;
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
@@ -80,123 +73,158 @@ namespace ZenoniaProto
 
         void Build(Transform canvas)
         {
-            window = UiKit.Rect(canvas, "InventoryWindow", 0f, 0f, W, H, true);
-            UiKit.Panel(window, new Color(0.04f, 0.07f, 0.12f, 0.94f), true); // raycast target: clicks never fall through to the game
-            RectTransform header = UiKit.Rect(window, "Header", 0f, 0f, W, 34f);
-            UiKit.Panel(header, new Color(0.1f, 0.16f, 0.25f, 1f));
-            title = UiKit.Label(header, "Title", 14f, 0f, W - 80f, 34f, "", 17, Color.white, TextAnchor.MiddleLeft, true);
-            Text closeLabel;
-            UiKit.Button(header, "Close", W - 40f, 4f, 32f, 26f, "X", Close, out closeLabel);
+            overlay = UiKit.Fill(canvas, "BagOverlay");
+            UiKit.Panel(overlay, new Color(0f, 0f, 0f, 0.14f), true); // web drawOverlay(0.14); also stops clicks reaching the game
+            // The web canvas (960 x 640) pinned to the right edge, so wide phone screens keep the hero visible on the left.
+            RectTransform web = UiKit.Rect(overlay, "WebCanvas", 0f, 0f, UiKit.RefWidth, UiKit.RefHeight);
+            web.anchorMin = web.anchorMax = web.pivot = new Vector2(1f, 0.5f);
+            web.anchoredPosition = Vector2.zero;
 
-            UiKit.Label(window, "EquipTitle", 16f, 40f, 150f, 22f, "Equipment", 14, new Color(0.75f, 0.85f, 1f), TextAnchor.MiddleLeft, true);
-            for (int r = 0; r < EquipGrid.Length; r++)
-                for (int c = 0; c < 2; c++)
-                {
-                    SlotView v = MakeCell(window, "Equip_" + EquipGrid[r][c], 16f + c * (Cell + 14f), 64f + r * (Cell + 18f));
-                    v.EquipSlot = EquipGrid[r][c];
-                    equipViews.Add(v);
-                }
-            statsText = UiKit.Label(window, "Stats", 16f, 300f, 160f, 160f, "", 13, Color.white, TextAnchor.UpperLeft);
+            BagWidgets.Img(web, "FrameTitle", BagX, BagY, BagW, 60f, BagSprites.FrameTitle(), Color.white, true);
+            BagWidgets.Img(web, "FrameBody", BagX, BagY + 60f, BagW, BagH - 60f, BagSprites.FrameBody(), Color.white, true);
+            BagWidgets.Text(web, "Title", BagX + 98f, BagY + 18f, "Bag", 24, "#ffffff", TextAnchor.UpperLeft, 200f, true);
+            Image close = BagWidgets.Img(web, "Close", BagX + BagW - 50f, BagY + 14f, 34f, 34f, null, Color.clear, true);
+            close.gameObject.AddComponent<Button>().onClick.AddListener(Close);
+            BagWidgets.Text(close.transform, "X", 17f, 3f, "X", 22, "#fff5e9", TextAnchor.UpperCenter, 34f, true);
 
-            bagTitle = UiKit.Label(window, "BagTitle", 190f, 40f, 330f, 22f, "", 14, new Color(0.75f, 0.85f, 1f), TextAnchor.MiddleLeft, true);
-            for (int i = 0; i < PlayerState.InventorySize; i++)
-                bagViews.Add(MakeCell(window, "Bag_" + i, 190f + (i % 5) * Stride, 64f + (i / 5) * Stride));
-            UiKit.Label(window, "Hint", 190f, 334f, 330f, 60f, "Click an item to select it, double-click to equip / unequip.\nEnhance weapons and offhands with Upgrade Stones (they drop from monsters).\n[1] / [2] potions also work here.   B / Esc closes.", 11, new Color(0.65f, 0.72f, 0.82f), TextAnchor.UpperLeft);
+            for (int i = 0; i < TabNames.Length; i++)
+            {
+                float x = BagX + 16f + i * 202f, y = BagY + 62f;
+                Mode m = (Mode)i;
+                tabs[i] = new BagWidgets.BagButton(web, "Tab" + TabNames[i], x, y, 198f, 46f, "", BagSprites.Tone.Steel, () => SwitchMode(m));
+                tabIcons[i] = UiKit.Icon(tabs[i].Root, "Icon", 22f, 6f, 34f);
+                BagWidgets.Text(tabs[i].Root, "Name", 62f, 14f, TabNames[i], 16, "#f2f5ff", TextAnchor.UpperLeft, 130f, true);
+            }
+            tabArrow = BagWidgets.Img(web, "TabArrow", 0f, BagY + 62f + 45f, 20f, 10f, BagSprites.TabArrow(), Color.white);
 
-            RectTransform detail = UiKit.Rect(window, "Detail", 536f, 40f, 248f, 416f);
-            UiKit.Panel(detail, new Color(0.08f, 0.12f, 0.19f, 0.95f));
-            nameText = UiKit.Label(detail, "Name", 10f, 6f, 228f, 40f, "", 15, Color.white, TextAnchor.UpperLeft, true);
-            infoText = UiKit.Label(detail, "Info", 10f, 48f, 228f, 36f, "", 12, new Color(0.75f, 0.8f, 0.88f), TextAnchor.UpperLeft);
-            linesText = UiKit.Label(detail, "Lines", 10f, 86f, 228f, 110f, "", 13, Color.white, TextAnchor.UpperLeft);
-            enhanceText = UiKit.Label(detail, "Enhance", 10f, 196f, 228f, 44f, "", 12, new Color(0.6f, 0.95f, 1f), TextAnchor.UpperLeft);
-            primaryButton = UiKit.Button(detail, "Primary", 10f, 244f, 228f, 30f, "Equip", Primary, out primaryLabel);
-            enhanceButton = UiKit.Button(detail, "EnhanceBtn", 10f, 280f, 228f, 30f, "Enhance", EnhanceSelected, out enhanceLabel);
-            discardButton = UiKit.Button(detail, "Discard", 10f, 316f, 228f, 30f, "Discard", DiscardSelected, out discardLabel);
-            resultText = UiKit.Label(detail, "Result", 10f, 352f, 228f, 58f, "", 13, Color.white, TextAnchor.UpperLeft, true);
-            window.gameObject.SetActive(false);
+            BuildLoadout(web);
+            BuildBag(web);
+            messageText = BagWidgets.Text(web, "Message", 616f, 503f, "", 12, "#f0d39a", TextAnchor.UpperLeft, 300f);
+            overlay.gameObject.SetActive(false);
         }
 
-        SlotView MakeCell(Transform parent, string name, float x, float y)
+        // ---- input ----
+
+        void Update()
         {
-            var v = new SlotView();
-            RectTransform rt = UiKit.Rect(parent, name, x, y, Cell, Cell);
-            v.Frame = UiKit.Panel(rt, Frame, true);
-            UiKit.Panel(UiKit.Fill(rt, "Inner", 2f), new Color(0.06f, 0.09f, 0.14f, 1f));
-            v.Icon = UiKit.Icon(rt, "Icon", 4f, 4f, Cell - 8f);
-            v.Caption = UiKit.Label(UiKit.Fill(rt, "Caption", 3f), "", 10, new Color(0.55f, 0.62f, 0.72f), TextAnchor.MiddleCenter);
-            v.Corner = UiKit.Label(rt, "Corner", 2f, 1f, Cell - 6f, 16f, "", 12, new Color(1f, 0.9f, 0.5f), TextAnchor.UpperRight, true);
-            Button b = rt.gameObject.AddComponent<Button>();
-            b.targetGraphic = v.Frame;
-            b.navigation = new Navigation { mode = Navigation.Mode.None };
-            b.onClick.AddListener(() => OnCellClick(v));
-            return v;
+            if (!IsOpen) return;
+            if (messageText.text.Length > 0 && Time.unscaledTime > messageUntil) messageText.text = "";
+            int dx = (InputAdapter.Pressed(GameKey.Right) ? 1 : 0) - (InputAdapter.Pressed(GameKey.Left) ? 1 : 0);
+            int dy = (InputAdapter.Pressed(GameKey.Down) ? 1 : 0) - (InputAdapter.Pressed(GameKey.Up) ? 1 : 0);
+            if (dx != 0 || dy != 0) { Navigate(dx, dy); Refresh(); }
+            if (InputAdapter.Pressed(GameKey.Attack)) Activate();
         }
 
-        // ---- interaction ----
-
-        void OnCellClick(SlotView v)
+        void Navigate(int dx, int dy)
         {
-            Deselect();
-            if (v.Item == null) { selected = null; Refresh(); return; }
-            bool same = v.Item == selected && Time.unscaledTime - lastClickTime < DoubleClickSeconds;
+            confirmDiscard = false;
+            if (mode == Mode.Equipment) { equipSel = (equipSel + dy + dx + Slots.All.Length) % Slots.All.Length; return; }
+            if (mode != Mode.Inventory) return;
+            cellSel = Mathf.Clamp(cellSel + dx + dy * GridCols, 0, CellCount - 1);
+            page = cellSel / PageSize;
+        }
+
+        /// <summary>Click on a cell: select it; a second click on the same cell within 0.35 s activates it (web double click).</summary>
+        void OnCellClick(int index)
+        {
+            bool same = index == lastClickIndex && Time.unscaledTime - lastClickTime < DoubleClickSeconds;
+            lastClickIndex = index;
             lastClickTime = Time.unscaledTime;
-            if (v.Item != selected) { selected = v.Item; confirmDiscard = false; resultText.text = ""; }
-            if (same) Primary();
-            else Refresh();
+            if (mode == Mode.Equipment) equipSel = index; else cellSel = index;
+            confirmDiscard = false;
+            if (same) Activate(); else Refresh();
         }
 
-        static void Deselect() { if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null); } // Space / Enter must never re-press a button
+        void SwitchMode(Mode m)
+        {
+            if (m == Mode.Skill) { Flash("The skill tree is not in the Unity port yet"); return; }
+            mode = m;
+            lastClickIndex = -1;
+            confirmDiscard = false;
+            Refresh();
+        }
+
+        // ---- actions ----
 
         static bool IsEquipped(PlayerState p, Item item) { return item != null && p.GetEquipped(item.slot) == item; }
 
-        void Primary()
+        Item SelectedItem(PlayerState p)
         {
-            Deselect();
+            if (mode == Mode.Equipment) return p.GetEquipped(Slots.All[equipSel]);
+            int bag = cellSel - supplyOrder.Length;
+            return mode == Mode.Inventory && bag >= 0 && bag < p.Inventory.Count ? p.Inventory[bag] : null;
+        }
+
+        /// <summary>Web activate(): drink a selected potion, equip a bag item, unequip a worn one.</summary>
+        void Activate()
+        {
             PlayerState p = RpgSession.Player;
-            if (p == null || selected == null) return;
-            ActionResult r = IsEquipped(p, selected) ? p.Unequip(selected.slot) : p.Equip(selected);
-            if (r.Ok) { Result(IsEquipped(p, selected) ? "Equipped " + EnhanceStats.DisplayName(selected) : "Moved to the bag", Good); RpgSession.SyncGear(); }
-            else Result(r.Text, Bad);
+            if (p == null) return;
+            if (mode == Mode.Inventory && cellSel < supplyOrder.Length)
+            {
+                Supply kind = supplyOrder[cellSel];
+                if (kind == Supply.HpPotion || kind == Supply.MpPotion)
+                {
+                    ActionResult used = p.UsePotion(kind == Supply.HpPotion);
+                    Flash(used.Ok ? "Restored 30%" : used.Text);
+                }
+                Refresh();
+                return;
+            }
+            Item item = SelectedItem(p);
+            if (item == null) return;
+            bool equipped = IsEquipped(p, item);
+            ActionResult r = equipped ? p.Unequip(item.slot) : p.Equip(item);
+            if (r.Ok) RpgSession.SyncGear();
+            Flash(r.Ok ? equipped ? "Unequipped" : "Equipped " + item.name : r.Text);
             Refresh();
         }
 
         void EnhanceSelected()
         {
-            Deselect();
             PlayerState p = RpgSession.Player;
-            if (p == null || selected == null) return;
-            int bandBefore = EnhanceStats.VisualBand(selected);
-            EnhanceResult r = EnhanceSystem.Attempt(p, selected);
-            if (!r.Ok)
-            {
-                Result(r.Reason == "no-cost" ? "Need an Upgrade Stone (monsters drop them)" : r.Reason == "max-level" ? "Already at the maximum +" + EnhanceConfig.MaxEnhance
-                    : r.Reason == "not-weapon" ? "Only weapons and offhands can be enhanced" : "Can't enhance this item", Bad);
-            }
+            Item item = p != null ? SelectedItem(p) : null;
+            EnhanceView view = Preview(p, item);
+            if (!view.Can) { Flash(view.Reason); return; }
+            int bandBefore = EnhanceStats.VisualBand(item);
+            EnhanceResult r = EnhanceSystem.Attempt(p, item);
+            if (!r.Ok) Flash("Cannot enhance");
             else if (r.Success)
             {
-                bool newLook = EnhanceStats.VisualBand(selected) > bandBefore;
-                Result("Success! " + EnhanceStats.DisplayName(selected) + (newLook ? "\nNew look unlocked!" : ""), Good);
-                if (IsEquipped(p, selected)) RpgSession.SyncGear();
+                Flash("Success! " + EnhanceStats.DisplayName(item) + (EnhanceStats.VisualBand(item) > bandBefore ? "  New look!" : ""));
+                if (IsEquipped(p, item)) RpgSession.SyncGear();
             }
-            else Result("Failed... the stone was used up (still +" + r.Level + ")", Bad);
+            else Flash("Failed... stone lost (+" + r.Level + " kept)");
             Refresh();
         }
 
-        void DiscardSelected()
+        void Flash(string text)
         {
-            Deselect();
-            PlayerState p = RpgSession.Player;
-            if (p == null || selected == null || IsEquipped(p, selected)) return;
-            if (!confirmDiscard) { confirmDiscard = true; Refresh(); return; }
-            string name = EnhanceStats.DisplayName(selected);
-            p.RemoveFromInventory(selected.uid);
-            selected = null;
-            confirmDiscard = false;
-            Result("Discarded " + name, new Color(0.85f, 0.85f, 0.85f));
-            Refresh();
+            messageText.text = text;
+            messageUntil = Time.unscaledTime + MessageSeconds;
         }
 
-        void Result(string text, Color c) { resultText.text = text; resultText.color = c; }
+        /// <summary>Web enhancePreview(): the next +level, its success chance and the stat it raises, or why it cannot be enhanced.</summary>
+        struct EnhanceView { public bool Can, Max; public string Reason, StatLabel; public int From, To, StatFrom, StatTo, Owned, Chance; }
+
+        static EnhanceView Preview(PlayerState p, Item item)
+        {
+            var v = new EnhanceView { Owned = p != null ? p.UpgradeStone : 0, StatLabel = "ATK" };
+            if (p == null || !EnhanceStats.IsEnhanceable(item)) { v.Reason = "Weapons only"; return v; }
+            string key = EnhanceStats.StatKey(item);
+            int baseValue = item.stats.GetInt(key);
+            v.StatLabel = key == "atk" ? "ATK" : key == "def" ? "DEF" : key == "maxHp" ? "Max HP" : key == "maxMp" ? "Max MP" : key;
+            v.From = EnhanceStats.Level(item);
+            v.StatFrom = baseValue + EnhanceStats.Bonus(baseValue, v.From, EnhanceStats.Scale(item));
+            if (v.From >= EnhanceConfig.MaxEnhance) { v.Max = true; v.To = v.From; v.StatTo = v.StatFrom; v.Reason = "Max +" + EnhanceConfig.MaxEnhance; return v; }
+            IUpgradeMethod method = StoneUpgradeMethod.Instance;
+            v.To = v.From + 1;
+            v.StatTo = baseValue + EnhanceStats.Bonus(baseValue, v.To, EnhanceStats.Scale(item));
+            v.Chance = RpgMath.Round(method.SuccessChance(v.From) * 100.0);
+            v.Can = method.CanPay(p, v.From);
+            if (!v.Can) v.Reason = "Need Upgrade Stone";
+            return v;
+        }
 
         // ---- refresh ----
 
@@ -204,74 +232,25 @@ namespace ZenoniaProto
         {
             PlayerState p = RpgSession.Player;
             HeroController hero = GameSession.Hero;
-            if (p == null) { Close(); return; }
-            if (selected != null && !IsEquipped(p, selected) && !p.Inventory.Contains(selected)) selected = null;
-            title.text = "Inventory  -  " + (hero != null ? hero.Class.Name : RpgClasses.Get(p.ClassId).Name) + "  Lv " + p.Level;
-            foreach (SlotView v in equipViews) Show(v, p.GetEquipped(v.EquipSlot), p, ItemInfo.SlotLabel(v.EquipSlot));
-            for (int i = 0; i < bagViews.Count; i++) Show(bagViews[i], i < p.Inventory.Count ? p.Inventory[i] : null, p, "");
-            bagTitle.text = "Bag  " + p.Inventory.Count + " / " + PlayerState.InventorySize;
-            statsText.text = "ATK " + p.Atk + "     DEF " + p.Def + "\nHP " + Mathf.CeilToInt(p.Hp) + " / " + p.MaxHp + "\nMP " + Mathf.FloorToInt(p.Mp) + " / " + p.MaxMp
-                + "\nSpeed " + Mathf.RoundToInt(p.Speed) + "     Crit " + Mathf.RoundToInt((0.08f + p.CritBonus) * 100f) + "%"
-                + "\n\n<color=#ffd84d>" + p.Gold + " G</color>\nUpgrade Stones " + p.UpgradeStone + "\nPotions HP " + p.HpPotions + "  MP " + p.MpPotions;
-            ShowDetail(p);
+            if (p == null || hero == null) { Close(); return; }
+            if (shownClass != p.ClassId) { shownClass = p.ClassId; RefreshClassArt(p, hero.Class); }
+            for (int i = 0; i < tabs.Length; i++) { tabs[i].SetSelected((int)mode == i); tabs[i].Set(true, null, i == (int)Mode.Skill); }
+            RectTransform active = tabs[(int)mode].Root;
+            ((RectTransform)tabArrow.transform).anchoredPosition = new Vector2(active.anchoredPosition.x + 89f, -(BagY + 62f + 45f));
+            loadoutRoot.gameObject.SetActive(mode == Mode.Equipment);
+            bagRoot.gameObject.SetActive(mode == Mode.Inventory);
+            if (mode == Mode.Equipment) RefreshLoadout(p, hero);
+            else RefreshBag(p);
         }
 
-        void Show(SlotView v, Item item, PlayerState p, string emptyCaption)
+        /// <summary>Class-dependent art: tab icons and the portrait (rebuilt when the class changes).</summary>
+        void RefreshClassArt(PlayerState p, HeroClassDef cls)
         {
-            v.Item = item;
-            v.Icon.sprite = item != null ? LootSprites.Icon(item) : null;
-            v.Icon.enabled = v.Icon.sprite != null;
-            bool usable = item == null || p.CanEquip(item);
-            v.Icon.color = usable ? Color.white : new Color(1f, 0.6f, 0.6f, 0.55f); // other class's gear: dimmed red
-            v.Caption.text = item == null ? emptyCaption : v.Icon.enabled ? "" : item.name;
-            int level = EnhanceStats.Level(item);
-            v.Corner.text = level > 0 ? "+" + level : "";
-            Color rc = item != null ? LootSprites.RarityColor(item) : Frame;
-            v.Frame.color = item != null && item == selected ? SelectedFrame : item != null ? Color.Lerp(Frame, rc, 0.7f) : Frame;
-        }
-
-        void ShowDetail(PlayerState p)
-        {
-            bool has = selected != null;
-            primaryButton.gameObject.SetActive(has);
-            enhanceButton.gameObject.SetActive(has && EnhanceStats.IsEnhanceable(selected));
-            discardButton.gameObject.SetActive(has && !IsEquipped(p, selected));
-            if (!has)
-            {
-                nameText.text = "Select an item";
-                nameText.color = new Color(0.7f, 0.75f, 0.82f);
-                infoText.text = "";
-                linesText.text = "";
-                enhanceText.text = "";
-                return;
-            }
-            bool equipped = IsEquipped(p, selected);
-            nameText.text = EnhanceStats.DisplayName(selected);
-            nameText.color = LootSprites.RarityColor(selected);
-            string owner = string.IsNullOrEmpty(selected.classId) ? "All classes" : RpgClasses.Get(selected.classId).Name + " only";
-            bool usable = p.CanEquip(selected);
-            infoText.text = ItemInfo.RarityLabel(selected.rarity) + " " + ItemInfo.SlotLabel(selected.slot) + "   iLv " + selected.itemLevel
-                + "\n" + (usable ? owner : "<color=#ff8070>" + owner + "</color>") + (equipped ? "   <color=#9effa0>(equipped)</color>" : "");
-
-            Item current = equipped ? null : p.GetEquipped(selected.slot);
-            var sb = new StringBuilder();
-            foreach (StatLine l in ItemInfo.Lines(selected, current))
-            {
-                sb.Append(ItemInfo.Format(l));
-                string d = ItemInfo.FormatDelta(l);
-                if (d.Length > 0) sb.Append("  <color=").Append(l.Delta > 0 ? "#8dff8d" : "#ff8070").Append(">").Append(d).Append("</color>");
-                sb.Append('\n');
-            }
-            if (current != null) sb.Append("<color=#8a96a6>vs ").Append(EnhanceStats.DisplayName(current)).Append("</color>");
-            linesText.text = sb.ToString();
-            enhanceText.text = EnhanceStats.IsEnhanceable(selected) ? ItemInfo.EnhancePreview(selected) : "";
-
-            primaryLabel.text = equipped ? "Unequip" : usable ? "Equip" : RpgClasses.Get(selected.classId).Name + " only";
-            primaryButton.interactable = equipped || usable;
-            int level = EnhanceStats.Level(selected);
-            enhanceLabel.text = level >= EnhanceConfig.MaxEnhance ? "Max level" : "Enhance  (" + p.UpgradeStone + " stone" + (p.UpgradeStone == 1 ? "" : "s") + ")";
-            enhanceButton.interactable = level < EnhanceConfig.MaxEnhance && p.UpgradeStone > 0;
-            discardLabel.text = confirmDiscard ? "Click again to discard" : "Discard";
+            tabIcons[0].sprite = LootSprites.Icon(new Item { slot = Slots.Weapon, classId = p.ClassId, itemLevel = 1 });
+            tabIcons[1].sprite = BagSprites.BagIcon();
+            tabIcons[2].sprite = TouchControls.SkillSprite(cls, cls.SkillIcon >= 0 ? cls.SkillIcon : 0);
+            foreach (Image icon in tabIcons) icon.enabled = icon.sprite != null;
+            SetPortrait(cls);
         }
     }
 }
