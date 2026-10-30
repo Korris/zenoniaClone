@@ -77,6 +77,14 @@ namespace ZenoniaProto.EditorTools
         }
 
         /// <summary>Re-imports every Resources sprite whose settings drifted (also called right before an Android build).</summary>
+        /// <summary>Android target only: the imported texture is not ASTC yet (a cached artifact from before the override existed).</summary>
+        static bool StaleForAndroid(string path)
+        {
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) return false;
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            return tex != null && tex.format != TextureFormat.ASTC_6x6;
+        }
+
         [MenuItem("Zenonia/Fix Texture Import Settings")]
         internal static void Run()
         {
@@ -86,9 +94,12 @@ namespace ZenoniaProto.EditorTools
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                if (importer == null || !ResourceTextureImportSettings.NeedsChange(importer, path)) continue;
+                if (importer == null) continue;
+                bool settings = ResourceTextureImportSettings.NeedsChange(importer, path);
+                if (!settings && !StaleForAndroid(path)) continue;
                 ResourceTextureImportSettings.Apply(importer, path);
-                importer.SaveAndReimport();
+                if (settings) importer.SaveAndReimport();
+                else AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate); // meta is right but the imported artifact is not
                 fixedCount++;
             }
             if (fixedCount > 0) Debug.Log("[ZenoniaProto] Re-imported " + fixedCount + " textures with prototype import settings.");
