@@ -30,8 +30,8 @@ DIRS = ["down", "up", "right"]  # sheet rows; "left" is the mirrored right row
 # Per class: sprite folders, the anchor file, the weapon part + its tier-0 art (grip-to-tip length), parts hidden during the anim,
 # and the reference body (bare idle, facing down) whose height and feet the new frames are scaled to.
 CLASSES = {
-    "warrior": dict(armed="hero", bare="bare", gear="held-gear", part="sword", art="sword/iron-base.png", grip=(54, 221),
-                    draw_scale=1.4, hidden=["shield"], gold=True),
+    "warrior": dict(armed="hero", bare="bare", gear="held-gear", part="sword", art="sword/iron-base.png", grip=None,
+                    draw_scale=2.1, hidden=["shield"], gold=True),  # draw_scale = HeroClassDef sword GearPartSpec
     "assassin": dict(armed="assassin", bare="assassin-bare", gear="held-assassin", part="main", art="assassin-dagger/t1-base.png",
                      grip=None, draw_scale=1.0, hidden=[], gold=False),
 }
@@ -117,7 +117,21 @@ def weapon_line(armed, bare, gold, body_centre):
     runs.append((start, order[-1]))
     t0, t1 = max(runs, key=lambda r: ((t >= r[0]) & (t <= r[1])).sum())
     end0, end1 = centre + u * t0, centre + u * t1
-    # Grip end: nearest the gold crossguard if there is one, else nearest the body centre.
+    # Grip end, first choice: the cross-guard makes the hilt end clearly WIDER across the blade axis than the pointed tip.
+    nrm_u = np.array([-u[1], u[0]])
+    seg = pts[(np.abs((pts - centre) @ nrm_u) < 40)]
+    ts, ws = (seg - centre) @ u, np.abs((seg - centre) @ nrm_u)
+    span = t1 - t0
+    def spread(lo, hi):
+        sel = (ts >= lo) & (ts <= hi)
+        return np.percentile(ws[sel], 90) if sel.sum() > 10 else 0.0
+    w0, w1 = spread(t0, t0 + 0.3 * span), spread(t1 - 0.3 * span, t1)
+    if max(w0, w1) > 1.35 * max(1.0, min(w0, w1)):
+        if w1 > w0:
+            end0, end1 = end1, end0
+        grip = end0 + (end1 - end0) * 0.06
+        return finish(armed, b_al, diff, grip, end1)
+    # Fallback: nearest the gold cross-guard if there is one, else nearest the body centre.
     anchor = body_centre
     if gold:
         r, g, b = armed[..., 0], armed[..., 1], armed[..., 2]
@@ -131,7 +145,12 @@ def weapon_line(armed, bare, gold, body_centre):
     if np.linalg.norm(end0 - anchor) > np.linalg.norm(end1 - anchor):
         end0, end1 = end1, end0
     grip = end0 + (end1 - end0) * 0.06  # the hand sits a little inside the pommel end
-    # Behind: along the blade, the weaponless body is opaque and unchanged in the armed frame => the body covers it.
+    return finish(armed, b_al, diff, grip, end1)
+
+
+def finish(armed, b_al, diff, grip, tip):
+    """(grip, tip, behind): behind = along the blade the weaponless body is opaque and unchanged in the armed frame (body covers it)."""
+    end1 = tip
     behind = front = 0
     for k in np.linspace(0.15, 0.95, 24):
         x, y = (grip + (end1 - grip) * k).round().astype(int)
@@ -166,6 +185,10 @@ def main():
     scale = ref_h / (ready[3] - ready[2])
 
     art = Image.open(os.path.join(RES, "Sprites", cfg["art"])).convert("RGBA")
+    if cfg["grip"] is None:  # tier-0 grip from the manifest, so new weapon art never needs a code change here
+        manifest = json.load(open(os.path.join(RES, "Data", cfg["gear"] + ".json")))
+        g = manifest[cfg["part"]][0]["baseGrip"]
+        cfg["grip"] = (g["gripX"], g["gripY"])
     gx, gy = cfg["grip"]
     art_len = gy  # tier-0 art: tip at the top edge, grip at gy
 
