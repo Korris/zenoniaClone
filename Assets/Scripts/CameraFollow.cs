@@ -7,7 +7,7 @@ namespace ZenoniaProto
     public class CameraFollow : MonoBehaviour
     {
         const float SmoothTime = 0.09f;
-        static float trauma, punch;
+        static float trauma, punch, punchDecay = PunchDecayPerSecond;
         const float PunchZoom = 0.09f, PunchDecayPerSecond = 2.2f; // ultimate slam: orthographic size shrinks up to 9% then eases back
         float baseSize;
 
@@ -30,10 +30,19 @@ namespace ZenoniaProto
         {
             if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (!FeelConfig.FxOn) return;
+            punchDecay = PunchDecayPerSecond;
             punch = Mathf.Min(1f, punch + amount);
         }
 
-        public static void ResetState() { trauma = 0f; punch = 0f; }
+        /// <summary>Punch-in by a wanted zoom fraction (0.05 = view shrinks 5 %) that eases back over `ms` (skill choreography). Capped at the ultimate punch (9 %).</summary>
+        public static void ZoomPulse(float zoomFraction, float ms)
+        {
+            if (!NetMode.RendersFx || !FeelConfig.FxOn || zoomFraction <= 0f) return;
+            punch = Mathf.Max(punch, Mathf.Min(1f, Mathf.Sqrt(zoomFraction / PunchZoom)));
+            punchDecay = punch / Mathf.Max(0.05f, ms / 1000f);
+        }
+
+        public static void ResetState() { trauma = 0f; punch = 0f; punchDecay = PunchDecayPerSecond; }
 
         public void Configure()
         {
@@ -69,7 +78,7 @@ namespace ZenoniaProto
             float dt = Time.deltaTime;
             if (punch > 0f)
             {
-                punch = Mathf.Max(0f, punch - PunchDecayPerSecond * dt);
+                punch = Mathf.Max(0f, punch - punchDecay * dt);
                 cam.orthographicSize = baseSize * (1f - PunchZoom * punch * punch);
             }
             else baseSize = cam.orthographicSize; // adopt any external zoom change while idle
