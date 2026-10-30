@@ -111,15 +111,15 @@ namespace ZenoniaProto
         }
 
         /// <summary>Web disc + accent ring + a circular icon mask; returns the button root.</summary>
-        static RectTransform DiscButton(Transform parent, string name, Vector2 corner, float x, float y, float radius, out Image icon, out Image ring, out Transform masked)
+        static RectTransform DiscButton(Transform parent, string name, Vector2 corner, float x, float y, float radius, Sprite frame, out Image icon, out Image ring, out Transform masked)
         {
             RectTransform rt = Place(parent, name, corner, x, y, radius * 2f);
-            Img(rt, UiSprites.GoldDisc(), Color.white, true);
+            Img(rt, frame, Color.white, true);
             ring = Child(rt, "Ring", UiSprites.Ring(), radius * 2f, Ready);
-            Image mask = Child(rt, "Mask", UiSprites.Circle(), radius * 2f * 0.8f, Color.white);
+            Image mask = Child(rt, "Mask", UiSprites.Circle(), radius * 2f * 0.82f, Color.white);
             mask.gameObject.AddComponent<Mask>().showMaskGraphic = false;
             masked = mask.transform;
-            icon = Child(masked, "Icon", null, radius * 2f * 0.8f, Color.white);
+            icon = Child(masked, "Icon", null, radius * 2f * 0.82f, Color.white);
             icon.preserveAspect = true;
             return rt;
         }
@@ -136,8 +136,8 @@ namespace ZenoniaProto
             zone.offsetMin = zone.offsetMax = Vector2.zero; zone.pivot = Vector2.zero;
             Img(zone, null, new Color(0f, 0f, 0f, 0f), true); // invisible, but catches touches
             RectTransform stickBase = Place(zone, "Base", Vector2.zero, 128f, 128f, 200f); // rest spot like the mockup: bottom-left, clear of the edge
-            Img(stickBase, UiSprites.JoystickBase(), Color.white);
-            Image knob = Child(stickBase, "Knob", UiSprites.JoystickKnob(), 80f, Color.white);
+            Img(stickBase, UiArt.JoystickBase(), Color.white);
+            Image knob = Child(stickBase, "Knob", UiArt.JoystickKnob(), 80f, Color.white);
             zone.gameObject.AddComponent<TouchJoystick>().Init(zone, stickBase, knob.rectTransform, 62f,
                 (up, right, down, left) => { SetHeld(GameKey.Up, up); SetHeld(GameKey.Right, right); SetHeld(GameKey.Down, down); SetHeld(GameKey.Left, left); });
 
@@ -148,14 +148,14 @@ namespace ZenoniaProto
             // Attack + skill arc (bottom-right): a big attack disc (r78) kept off the screen edge, the small buttons on an arc around it
             Vector2 br = new Vector2(1f, 0f);
             Image ring; Transform masked;
-            RectTransform attack = DiscButton(layer, "Attack", br, -146f, 112f, 78f, out attackIcon, out ring, out masked);
+            RectTransform attack = DiscButton(layer, "Attack", br, -146f, 112f, 78f, UiArt.AttackFrame(), out attackIcon, out ring, out masked);
             attackIcon.rectTransform.sizeDelta = new Vector2(110f, 110f);
             TouchButton.Add(attack.gameObject, GameKey.Attack, true);
 
-            RectTransform dash = DiscButton(layer, "Dash", br, -284f, 104f, 36f, out dashIcon, out ring, out masked);
+            RectTransform dash = DiscButton(layer, "Dash", br, -284f, 104f, 36f, UiArt.SkillFrame(), out dashIcon, out ring, out masked);
             TouchButton.Add(dash.gameObject, GameKey.Dash, false);
 
-            RectTransform skill = DiscButton(layer, "Skill", br, -259f, 201f, 36f, out skillIcon, out skillRing, out masked);
+            RectTransform skill = DiscButton(layer, "Skill", br, -259f, 201f, 36f, UiArt.SkillFrame(), out skillIcon, out skillRing, out masked);
             skillCd = Child(masked, "Cooldown", UiSprites.Circle(), 58f, new Color(0.01f, 0.05f, 0.1f, 0.73f));
             skillCd.type = Image.Type.Filled;
             skillCd.fillMethod = Image.FillMethod.Radial360;
@@ -173,7 +173,7 @@ namespace ZenoniaProto
         Text PotionButton(string name, float x, float y, bool hp)
         {
             Image icon, ring; Transform masked;
-            RectTransform b = DiscButton(layer, name, Vector2.zero, x, y, 29f, out icon, out ring, out masked);
+            RectTransform b = DiscButton(layer, name, Vector2.zero, x, y, 29f, UiArt.PotionFrame(), out icon, out ring, out masked);
             icon.sprite = LootSprites.Potion(hp);
             icon.rectTransform.sizeDelta = new Vector2(36f, 36f);
             Text count = UiKit.Label(Place(b, "Count", new Vector2(0.5f, 0.5f), 26f, -24f, 40f), "", 12, Color.white, TextAnchor.MiddleCenter, true);

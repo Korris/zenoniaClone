@@ -143,11 +143,18 @@ namespace ZenoniaProto
             public readonly Image FillImage;
             public readonly Text Caption;
 
-            public Bar(Transform parent, string name, float x, float y, float w, float h, Color fill, int fontSize)
+            /// <summary>track = optional sliced art (gold-outlined track): the fill is then drawn inside it, inset so the outline stays visible.</summary>
+            public Bar(Transform parent, string name, float x, float y, float w, float h, Color fill, int fontSize, Sprite track = null)
             {
                 Root = Rect(parent, name, x, y, w, h);
-                Panel(Root, new Color(0.03f, 0.06f, 0.1f, 0.85f));
+                if (track != null)
+                {
+                    Image back = Panel(Root, Color.white);
+                    back.sprite = track; back.type = Image.Type.Sliced; back.pixelsPerUnitMultiplier = track.rect.height / h;
+                }
+                else Panel(Root, new Color(0.03f, 0.06f, 0.1f, 0.85f));
                 FillRt = Fill(Root, "Fill", 1.5f);
+                if (track != null) { FillRt.offsetMin = new Vector2(h * 0.3f, h * 0.17f); FillRt.offsetMax = new Vector2(-h * 0.3f, -h * 0.17f); }
                 FillImage = Panel(FillRt, fill);
                 FillRt.anchorMax = new Vector2(1f, 1f);
                 Caption = fontSize > 0 ? Label(Fill(Root, "Caption"), "", fontSize, Color.white, TextAnchor.MiddleCenter, true) : null;

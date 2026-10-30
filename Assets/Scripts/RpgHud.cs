@@ -11,7 +11,7 @@ namespace ZenoniaProto
     public class RpgHud : MonoBehaviour
     {
         /// <summary>Height of the HUD block in UI units: the IMGUI Hud starts below it.</summary>
-        public const float BlockHeight = 112f;
+        public const float BlockHeight = 126f;
         const float BannerSeconds = 2.4f, ToastSeconds = 2.6f;
         static RpgHud instance;
 
@@ -38,20 +38,20 @@ namespace ZenoniaProto
         void Build(Transform canvas)
         {
             // Gold-bordered navy panel (9-sliced procedural frame); content sits inside the ~6 unit border.
-            block = UiKit.Rect(canvas, "HudBlock", 8f, 6f, 252f, BlockHeight);
+            block = UiKit.Rect(canvas, "HudBlock", 8f, 6f, 262f, BlockHeight);
             Image frame = UiKit.Panel(block, Color.white);
-            frame.sprite = UiSprites.Panel(); frame.type = Image.Type.Sliced; frame.pixelsPerUnitMultiplier = 1.4f;
-            title = UiKit.Label(block, "Title", 11f, 5f, 150f, 20f, "", 15, Color.white, TextAnchor.MiddleLeft, true);
-            gold = UiKit.Label(block, "Gold", 150f, 5f, 92f, 20f, "", 15, new Color(1f, 0.82f, 0.2f), TextAnchor.MiddleRight, true);
-            hpBar = new UiKit.Bar(block, "Hp", 9f, 28f, 234f, 17f, new Color(0.13f, 0.78f, 0.16f), 12);
-            mpBar = new UiKit.Bar(block, "Mp", 9f, 47f, 234f, 17f, new Color(0.1f, 0.42f, 0.98f), 12);
-            expBar = new UiKit.Bar(block, "Exp", 9f, 66f, 234f, 17f, new Color(0.58f, 0.2f, 0.92f), 11);
-            UiKit.Icon(block, "HpIcon", 12f, 87f, 20f).sprite = LootSprites.Potion(true);
-            UiKit.Icon(block, "MpIcon", 90f, 87f, 20f).sprite = LootSprites.Potion(false);
-            UiKit.Icon(block, "StoneIcon", 168f, 87f, 20f).sprite = LootSprites.Stone();
-            hpPotText = UiKit.Label(block, "HpCount", 36f, 86f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
-            mpPotText = UiKit.Label(block, "MpCount", 114f, 86f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
-            stoneText = UiKit.Label(block, "StoneCount", 192f, 86f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
+            frame.sprite = UiArt.Panel(); frame.type = Image.Type.Sliced; frame.pixelsPerUnitMultiplier = 3.2f;
+            title = UiKit.Label(block, "Title", 16f, 7f, 150f, 20f, "", 15, Color.white, TextAnchor.MiddleLeft, true);
+            gold = UiKit.Label(block, "Gold", 150f, 7f, 96f, 20f, "", 15, new Color(1f, 0.82f, 0.2f), TextAnchor.MiddleRight, true);
+            hpBar = new UiKit.Bar(block, "Hp", 12f, 30f, 238f, 19f, new Color(0.13f, 0.78f, 0.16f), 12, UiArt.BarTrack());
+            mpBar = new UiKit.Bar(block, "Mp", 12f, 50f, 238f, 19f, new Color(0.1f, 0.42f, 0.98f), 12, UiArt.BarTrack());
+            expBar = new UiKit.Bar(block, "Exp", 12f, 70f, 238f, 19f, new Color(0.58f, 0.2f, 0.92f), 11, UiArt.BarTrack());
+            UiKit.Icon(block, "HpIcon", 16f, 95f, 20f).sprite = LootSprites.Potion(true);
+            UiKit.Icon(block, "MpIcon", 94f, 95f, 20f).sprite = LootSprites.Potion(false);
+            UiKit.Icon(block, "StoneIcon", 172f, 95f, 20f).sprite = LootSprites.Stone();
+            hpPotText = UiKit.Label(block, "HpCount", 40f, 94f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
+            mpPotText = UiKit.Label(block, "MpCount", 118f, 94f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
+            stoneText = UiKit.Label(block, "StoneCount", 196f, 94f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
 
             banner = UiKit.Rect(canvas, "LevelUp", 0f, -150f, 420f, 90f, true);
             bannerGroup = banner.gameObject.AddComponent<CanvasGroup>();
