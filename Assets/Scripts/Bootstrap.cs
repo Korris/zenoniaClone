@@ -27,6 +27,7 @@ namespace ZenoniaProto
             DamageNumber.ResetState();
             CameraFollow.ResetState();
             GearOverlays.ResetState();
+            HeldGlowBaker.ResetState();
             LootDrop.ResetStatics();
             LootSprites.ResetState();
             BagSprites.ResetState();

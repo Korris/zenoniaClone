@@ -19,10 +19,10 @@ namespace ZenoniaProto.EditorTools
             ExpResult r = Leveling.ApplyExpGain(1, 0, 50 + 141);
             expect(r.Level == 3 && r.Exp == 0 && r.LevelsGained == 2, "rpg: multi level-up");
 
-            // Enhance (web weapon-enhance-stats.js): 4@1=1 4@15=8 12@15=17 10@7=7 2@3=1 15@10=10, offhand 3@15 half = 6
-            expect(EnhanceStats.Bonus(4, 1) == 1 && EnhanceStats.Bonus(4, 15) == 8 && EnhanceStats.Bonus(12, 15) == 17 && EnhanceStats.Bonus(10, 7) == 7, "rpg: enhance bonus parity");
-            expect(EnhanceStats.Bonus(2, 3) == 1 && EnhanceStats.Bonus(15, 10) == 10 && EnhanceStats.Bonus(3, 15, 0.5) == 6, "rpg: enhance scaled floor + offhand half");
-            expect(Math.Abs(EnhanceConfig.AtkPct[15] - 1.44) < 1e-9 && Math.Abs(EnhanceConfig.AtkPct[7] - 0.38) < 1e-9, "rpg: cumulative ATK % table");
+            // Enhance (Unity balance 2026-10-30, 10 / 20 / 35 / 60 % per level, floor +1 per level): 4@1=1 4@15=16 12@15=49 10@7=8 2@3=2 15@10=23, offhand 3@15 half = 6
+            expect(EnhanceStats.Bonus(4, 1) == 1 && EnhanceStats.Bonus(4, 15) == 16 && EnhanceStats.Bonus(12, 15) == 49 && EnhanceStats.Bonus(10, 7) == 8, "rpg: enhance bonus curve");
+            expect(EnhanceStats.Bonus(2, 3) == 2 && EnhanceStats.Bonus(15, 10) == 23 && EnhanceStats.Bonus(3, 15, 0.5) == 6, "rpg: enhance scaled floor + offhand half");
+            expect(Math.Abs(EnhanceConfig.AtkPct[15] - 4.05) < 1e-9 && Math.Abs(EnhanceConfig.AtkPct[7] - 0.8) < 1e-9, "rpg: cumulative ATK % table");
 
             // Generation (seeded rand() = 0 / 0.5 sequences from the web)
             Item sword = ItemFactory.Generate(() => 0.0, 1, "weapon", "common", "warrior");

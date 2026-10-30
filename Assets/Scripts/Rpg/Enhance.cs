@@ -10,7 +10,10 @@ namespace ZenoniaProto.Rpg
         public const int EnhancedArtMinLevel = 7;
         public static readonly int[] VisualBandMins = { 7, 9, 11, 13 };
 
-        /// <summary>Cumulative fraction of base ATK at each level (index = level): +1..6 5%, +7..9 8%, +10..12 12%, +13..15 18% per level.</summary>
+        /// <summary>
+        /// Cumulative fraction of the weapon's base stat at each level (index = level): +1..6 10%, +7..9 20%, +10..12 35%, +13..15 60% per level,
+        /// so +15 adds 405% (Unity balance 2026-10-30; the web used 5 / 8 / 12 / 18% = 144%, which made +15 feel like nothing).
+        /// </summary>
         public static readonly double[] AtkPct = Build();
 
         static double[] Build()
@@ -19,7 +22,7 @@ namespace ZenoniaProto.Rpg
             double total = 0;
             for (int level = 1; level <= MaxEnhance; level++)
             {
-                total += level <= 6 ? 0.05 : level <= 9 ? 0.08 : level <= 12 ? 0.12 : 0.18;
+                total += level <= 6 ? 0.10 : level <= 9 ? 0.20 : level <= 12 ? 0.35 : 0.60;
                 t[level] = Math.Floor(total * 1000 + 0.5) / 1000;
             }
             return t;
@@ -45,14 +48,14 @@ namespace ZenoniaProto.Rpg
         public static double Scale(Item item) { return item != null && item.slot == Slots.Offhand ? OffhandScale : 1.0; }
 
         /// <summary>
-        /// Bonus for `level`: % of the base primary stat, with a per-level floor that scales with the base (full +1/level only for base >= 8)
-        /// so weak items cannot gain more than their own base.
+        /// Bonus for `level`: % of the base primary stat, at least +1 per level (scaled down for bases under 4, and by pctScale for offhands)
+        /// so even the starter weapon visibly gains from every level. A better base weapon still gains far more at high levels.
         /// </summary>
         public static int Bonus(int baseValue, int level, double pctScale = 1.0)
         {
             int lvl = RpgMath.Clamp(level, 0, EnhanceConfig.MaxEnhance);
             if (lvl == 0) return 0;
-            int floor = (int)Math.Ceiling(lvl * Math.Min(1.0, baseValue / 8.0));
+            int floor = (int)Math.Ceiling(lvl * Math.Min(1.0, baseValue / 4.0) * pctScale);
             return Math.Max(floor, RpgMath.Round(baseValue * EnhanceConfig.AtkPct[lvl] * pctScale));
         }
 

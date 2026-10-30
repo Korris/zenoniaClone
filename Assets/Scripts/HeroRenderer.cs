@@ -174,7 +174,10 @@ namespace ZenoniaProto
         void ApplyPart(Part p, HeldAnchor a, int orderBehind, int orderFront, int orderBase, Color tint, float alpha)
         {
             OverlayEntry[] manifest = gear != null ? gear.Manifest(p.Spec.Id) : null;
-            Sprite sprite = (a != null && !a.hidden && !p.Empty && manifest != null && p.Tier < manifest.Length) ? GearOverlays.Get(p.Spec.Folder, manifest[p.Tier], p.Enhanced) : null;
+            OverlayEntry entry = (a != null && !a.hidden && !p.Empty && manifest != null && p.Tier < manifest.Length) ? manifest[p.Tier] : null;
+            // Enhanced (+7 and up): the web's baked glow outline in the tier colour; the blade keeps its painted colours.
+            HeldGlowBaker.Baked baked = entry != null && p.Enhanced ? HeldGlowBaker.Get(p.Spec.Folder, entry, Mathf.Max(1, p.Band)) : default(HeldGlowBaker.Baked);
+            Sprite sprite = entry == null ? null : baked.Body != null ? baked.Body : GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced);
             p.Sr.sprite = sprite;
             if (sprite == null) { if (p.Glow != null) p.Glow.enabled = false; return; }
             p.Sr.color = tint;
@@ -186,14 +189,14 @@ namespace ZenoniaProto
             t.localRotation = Quaternion.Euler(0f, 0f, -a.angle); // web angle is clockwise on a y-down canvas
             t.localScale = new Vector3(k * sx, k, 1f);
             if (p.Glow == null) return;
-            // Enhanced art only, and only when drawn in front of the body (sorting slot +6 is unused by the other parts).
-            bool glow = p.Enhanced && FeelConfig.FxOn && !a.behind;
+            // +13 and up: the outer glow rings pulse on their own additive layer (web band-4 aura); drawn only in front of the body.
+            bool glow = baked.Aura != null && FeelConfig.FxOn && !a.behind;
             p.Glow.enabled = glow;
             if (!glow) return;
-            p.Glow.sprite = sprite;
+            p.Glow.sprite = baked.Aura;
             p.Glow.sortingOrder = orderBase + 6;
-            float bandAlpha = Mathf.Min(1f, FeelConfig.EnhancedGlowAlpha + 0.15f * (Mathf.Max(1, p.Band) - 1)); // +7 / +9 / +11 / +13 glow brighter
-            p.Glow.color = new Color(1f, 0.85f, 0.6f, bandAlpha * alpha);
+            float pulse = 0.7f + 0.3f * Mathf.Sin(Time.time * 5f); // outside the silhouette only, so it can be strong without whitening the blade
+            p.Glow.color = new Color(1f, 1f, 1f, pulse * alpha);
         }
     }
 }
