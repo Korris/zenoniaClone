@@ -167,22 +167,6 @@ namespace ZenoniaProto
             if (def.IsBoss) CameraFollow.AddTrauma(0.5f);
         }
 
-        /// <summary>Gentle push so monsters do not stack on one pixel.</summary>
-        Vector2 Separation()
-        {
-            Vector2 push = Vector2.zero;
-            IReadOnlyList<Monster> all = All;
-            for (int i = 0; i < all.Count; i++)
-            {
-                Monster o = all[i];
-                if (o == this || o.IsDying) continue;
-                Vector2 d = new Vector2(x - o.x, y - o.y);
-                float m = d.magnitude;
-                if (m < 10f && m > 0.001f) push += d / m * 30f;
-            }
-            return push;
-        }
-
         /// <summary>
         /// Applies a hit. `src` is the attacking hero (kill credit, damage table, aggro); null credits the local player so single-player
         /// call sites without an attacker keep working.
@@ -191,6 +175,7 @@ namespace ZenoniaProto
         {
             if (IsDying || proxy) return;
             if (src == null) src = LocalPlayer.Hero;
+            dmg = SkillHitHooks.Modify(src, this, dmg); // mark multiplier (+ hero-side skill hooks in phase 03)
             Credit(src, Mathf.Min(dmg, Mathf.Max(1, Mathf.CeilToInt(hp)))); // overkill does not count towards the damage share
             if (src != null && !src.IsDead) target = src; // whoever hurts it becomes the sticky target
             hp -= dmg;
@@ -209,18 +194,6 @@ namespace ZenoniaProto
             deathTimer = 0f;
             target = null;
             if (Zone.Main != null) Zone.Main.OnMonsterDied(this, zone);
-        }
-
-        /// <summary>Hit presentation shared by the real hit (authority) and the replayed MonsterHit event (client): white flash, damage number, sparks.</summary>
-        void HitFx(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx, bool otherPlayer = false)
-        {
-            bool fx = FeelConfig.FxOn;
-            flash = fx ? FeelConfig.FlashMs : HitFlashMs;
-            float bodyH = def.BodyHeightUnits * def.RenderScale;
-            Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
-            if (otherPlayer) DamageNumber.Spawn(x, y + bodyH + 4f, dmg.ToString(), Color.white, false, false, true); // another player's hit: small, white, half alpha
-            else DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
-            ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher, null, quietFx);
         }
     }
 }

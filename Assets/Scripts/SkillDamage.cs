@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>Radial skill damage (web performRadialHit): every live monster whose box touches the circle takes one hit.</summary>
-    public static class SkillDamage
+    public static partial class SkillDamage
     {
         static readonly List<Monster> Hits = new List<Monster>(24);
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
@@ -80,6 +81,22 @@ namespace ZenoniaProto
             if (d == Vector2.zero) return;
             if (Mathf.Abs(d.x) > Mathf.Abs(d.y)) facing = d.x > 0f ? 3 : 2;
             else facing = d.y > 0f ? 1 : 0;
+        }
+
+        /// <summary>Gentle push so monsters do not stack on one pixel.</summary>
+        Vector2 Separation()
+        {
+            Vector2 push = Vector2.zero;
+            IReadOnlyList<Monster> all = All;
+            for (int i = 0; i < all.Count; i++)
+            {
+                Monster o = all[i];
+                if (o == this || o.IsDying) continue;
+                Vector2 d = new Vector2(x - o.x, y - o.y);
+                float m = d.magnitude;
+                if (m < 10f && m > 0.001f) push += d / m * 30f;
+            }
+            return push;
         }
     }
 }

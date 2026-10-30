@@ -6,7 +6,7 @@
 - `IceStormUltimate.cs:106` (`Chill`), `EarthBreakUltimate.cs:98` (`Launch`) - must keep working unchanged
 
 ## Overview
-Priority P1 | Lane B | Starts once phase 01 step 1 is committed (`SkillEnums.cs`, `SkillEffect.cs` with `StatusSpec`; ~1 h), then runs parallel to 01. Status system on monsters (sim side only) + shape-based area damage used by every skill.
+Status: completed 2026-10-30 (see implementation notes at the end). Priority P1 | Lane B | Starts once phase 01 step 1 is committed (`SkillEnums.cs`, `SkillEffect.cs` with `StatusSpec`; ~1 h), then runs parallel to 01. Status system on monsters (sim side only) + shape-based area damage used by every skill.
 Replication of statuses to clients is done in phase 04 (it needs `Net/**` + `Monster.Net.cs`).
 
 ## Key insights
@@ -61,13 +61,13 @@ Modify
 5. FrostSmokeTest scratch check: apply each status to a dummy, assert speed/disabled/DoT damage; boss immunity.
 
 ## Todo
-- [ ] SkillGeometry + tests
-- [ ] StatusRules + tests
-- [ ] MonsterStatus + Monster.Status.cs
-- [ ] Monster hooks (TakeHit, Ai, Update), file size back < 200
-- [ ] SkillDamage.Area / Single
-- [ ] visuals (tints, mark reticle, stun stars) gated by RendersFx
-- [ ] Ice Storm chill + Earth Break launch regression check
+- [x] SkillGeometry + tests
+- [x] StatusRules + tests
+- [x] MonsterStatus + Monster.Status.cs
+- [x] Monster hooks (TakeHit, Ai, Update), file size back < 200
+- [x] SkillDamage.Area / Single
+- [x] visuals (tints, mark reticle, stun stars) gated by RendersFx
+- [x] Ice Storm chill + Earth Break launch regression check
 
 ## Success criteria
 - dotnet geometry/status tests green; Ice Storm still slows, Earth Break still launches (record `--record-ultimate wizard|warrior` unchanged look).
@@ -88,3 +88,10 @@ Phase 03 uses `SkillDamage.Area`; phase 04 replicates `DominantCode` in MonsterS
 
 ## Unresolved questions
 1. Boss freeze/stun: convert to slow (default) or full immunity?
+
+## Implementation notes (2026-10-30)
+- Pure code lives in `Rpg/Skills/` (`SkillGeometry`, `StatusRules`, `MonsterStatus`) so dotnet tests it; `MonsterStatus.cs` is there, not in `Assets/Scripts`. Cone and Arc share one sector test (exact box-vs-wedge by half-plane clipping).
+- Boss rule per user decision: freeze/stun -> 50% slow (same duration), slow/chill value halved (Ice Storm chill on the boss is now 25%), launch/knockback ignored. Ally effects are phase 03.
+- `SkillDamage.Area(SkillDamageCtx, effect, center, dir)` / `Single(...)`; ctx built with `SkillDamageCtx.For(hero, damageMul, palette)`. `SkillHitHooks.Modify` = mark multiplier only (phase 03 adds Death Mark charges via `Status.ConsumeMarkCharge()`, Overcharge energy, buffs).
+- Deferred to phase 04: `Monster.Net.cs` still reads/writes `chillLeft` (kept as a bridge property in `Monster.Status.cs`: any slowing status counts as "chilled"); replicate `Status.Dominant` / `MarkCharges` in MonsterSnap and drop the bridge; proxies never show burn/poison/mark/stun visuals until then.
+- Smoke: `StatusLogicCheck` (Editor) runs inside `FrostSmokeTest` for the Warrior with its own dummies; the 5 pre-existing smoke failures (no monsters on the village start map) are unrelated.

@@ -20,7 +20,7 @@ Design: [skill-tree-chatgpt.md](../261030-1508-skill-tree-design/skill-tree-chat
 | # | Phase | Effort | Depends on | Lane | Status |
 |---|---|---|---|---|---|
 | 01 | [Skill data, SP/ranks, save + API, Lv cap 60](phase-01-skill-data-sp-ranks-save-api.md) | 9h | - | A (now) | completed |
-| 02 | [Monster status effects + area damage](phase-02-monster-status-effects-area-damage.md) | 7h | 01 step 1 (enums) | B (now) | pending |
+| 02 | [Monster status effects + area damage](phase-02-monster-status-effects-area-damage.md) | 7h | 01 step 1 (enums) | B (now) | completed |
 | 03 | [Skill executor runtime + effect behaviours](phase-03-skill-executor-runtime-effects.md) | 15h | 01, 02 | A | pending |
 | 04 | [Hero + netcode integration (touch points)](phase-04-hero-netcode-integration.md) | 12h | 03 + **netcode agent landed** | A | pending |
 | 05 | [Skill tree window + magazine binding](phase-05-skill-tree-ui-magazine-binding.md) | 12h | 01 (04 for live keys) | C | pending |

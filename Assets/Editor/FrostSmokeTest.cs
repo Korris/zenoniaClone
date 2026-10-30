@@ -191,6 +191,7 @@ namespace ZenoniaProto.EditorTools
                     }
                 }
                 Expect(shown > 0 && gearFrames > 0, cls.Name + ": drew " + shown + " frames, " + gearFrames + " with weapon overlay");
+                if (cls.Id == HeroClass.Warrior) StatusLogicCheck.RunWorld(Expect, hero, root);
                 CheckSkill(cls, hero, root);
                 CheckRpg(cls, hero, root);
                 if (cls.Id == HeroClass.Warrior) { ZoneLogicCheck.RunWorld(Expect, hero, root); NetLogicCheck.RunWorld(Expect, hero, root); }

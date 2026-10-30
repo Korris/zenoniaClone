@@ -25,7 +25,7 @@ namespace ZenoniaProto
         void ApplyHitReaction(float alpha)
         {
             bool fx = FeelConfig.FxOn && flash > 0f;
-            Color tint = ChillTint;
+            Color tint = StatusTint;
             body.color = !fx && flash > 0f ? new Color(1f, 0.55f, 0.55f, alpha) : new Color(tint.r, tint.g, tint.b, alpha);
             FeelMaterials.SetFlash(body, fx ? Mathf.Clamp01(flash / (FeelConfig.FlashMs * 0.6f)) : 0f);
             float jitter = fx ? (Time.frameCount % 2 == 0 ? FeelConfig.HitJitterUnits : -FeelConfig.HitJitterUnits) : 0f;
@@ -57,6 +57,7 @@ namespace ZenoniaProto
             body.sortingOrder = order + 3;
             shadow.sortingOrder = order;
             shadow.color = new Color(1f, 1f, 1f, 0.3f * alpha);
+            UpdateStatusOverlays(order);
 
             bool showBar = state != State.Dying && hp < def.Hp;
             barBack.enabled = showBar; barFill.enabled = showBar;
@@ -70,6 +71,18 @@ namespace ZenoniaProto
                 barBack.sortingOrder = order + 6;
                 barFill.sortingOrder = order + 7;
             }
+        }
+
+        /// <summary>Hit presentation shared by the real hit (authority) and the replayed MonsterHit event (client): white flash, damage number, sparks.</summary>
+        void HitFx(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx, bool otherPlayer = false)
+        {
+            bool fx = FeelConfig.FxOn;
+            flash = fx ? FeelConfig.FlashMs : HitFlashMs;
+            float bodyH = def.BodyHeightUnits * def.RenderScale;
+            Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
+            if (otherPlayer) DamageNumber.Spawn(x, y + bodyH + 4f, dmg.ToString(), Color.white, false, false, true); // another player's hit: small, white, half alpha
+            else DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
+            ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher, null, quietFx);
         }
     }
 }
