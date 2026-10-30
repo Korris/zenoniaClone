@@ -7,7 +7,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// On-screen controls in the web HUD style: an 8-way D-pad bottom-left, and bottom-right the big attack disc (equipped weapon icon) with the
+    /// On-screen controls in the web HUD style: an floating joystick bottom-left, and bottom-right the big attack disc (equipped weapon icon) with the
     /// skill slots on an arc around it (web hud-renderer drawSkillSlots positions): Dash [K], class skill [L] with the cooldown sweep and MP cost,
     /// Bag [B]; HP / MP potion buttons next to the D-pad. Works with touch and mouse (multi-touch: move + attack at once).
     /// It only feeds GameKeys into InputAdapter, so the game logic is the same as the keyboard. Holding attack keeps the combo going.
@@ -136,37 +136,39 @@ namespace ZenoniaProto
             layer = UiKit.Fill(canvas, "Touch");
             layer.SetAsFirstSibling(); // under the HUD block, toasts and the inventory window
 
-            // D-pad (bottom-left)
-            RectTransform pad = Place(layer, "DPad", Vector2.zero, 112f, 112f, 168f);
-            Img(pad, UiSprites.Circle(), new Color(0.03f, 0.08f, 0.14f, 0.28f), true); // round touch area behind the cross
-            Child(pad, "Cross", UiSprites.DPad(), 150f, Color.white);
-            var arms = new Image[4];
-            for (int i = 0; i < 4; i++)
-            {
-                arms[i] = Child(pad, "Arm" + i, UiSprites.DPadArm(), 150f, new Color(0.7f, 0.92f, 1f, 0f));
-                arms[i].rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f * i); // up, right, down, left
-            }
-            pad.gameObject.AddComponent<TouchStick>().Init(pad, 84f, arms);
+            // Floating joystick (Zenonia 5): the whole lower-left area is the touch zone; the base rests in the corner and jumps
+            // under the finger. Added first so the potion buttons (later siblings) still win their own touches.
+            RectTransform zone = UiKit.Fill(layer, "JoystickZone");
+            zone.anchorMin = Vector2.zero; zone.anchorMax = new Vector2(0.42f, 0.72f);
+            zone.offsetMin = zone.offsetMax = Vector2.zero; zone.pivot = Vector2.zero;
+            Img(zone, null, new Color(0f, 0f, 0f, 0f), true); // invisible, but catches touches
+            RectTransform stickBase = Place(zone, "Base", Vector2.zero, 120f, 120f, 176f);
+            Img(stickBase, UiSprites.Circle(), new Color(0.03f, 0.08f, 0.14f, 0.35f));
+            Child(stickBase, "Rim", UiSprites.Ring(), 176f, new Color(0.65f, 0.85f, 0.94f, 0.9f));
+            Image knob = Child(stickBase, "Knob", UiSprites.Disc(), 84f, Color.white);
+            Child(knob.transform, "KnobRing", UiSprites.Ring(), 84f, Ready);
+            zone.gameObject.AddComponent<TouchJoystick>().Init(zone, stickBase, knob.rectTransform, 64f,
+                (up, right, down, left) => { SetHeld(GameKey.Up, up); SetHeld(GameKey.Right, right); SetHeld(GameKey.Down, down); SetHeld(GameKey.Left, left); });
 
             // Potions (right of the D-pad)
             hpCount = PotionButton("HpPotion", 240f, 140f, true);
             mpCount = PotionButton("MpPotion", 240f, 76f, false);
 
-            // Attack + skill arc (bottom-right), web: attack (W-76, H-80) r60, slots at (-120, +8) (-99, -78) (-13, -120) r36
+            // Attack + skill arc (bottom-right): a big attack disc (r78) kept off the screen edge, the small buttons on an arc around it
             Vector2 br = new Vector2(1f, 0f);
             Image ring; Transform masked;
-            RectTransform attack = DiscButton(layer, "Attack", br, -76f, 80f, 60f, out attackIcon, out ring, out masked);
+            RectTransform attack = DiscButton(layer, "Attack", br, -146f, 112f, 78f, out attackIcon, out ring, out masked);
             ring.color = new Color(0.65f, 0.85f, 0.94f);
-            attackIcon.rectTransform.sizeDelta = new Vector2(84f, 84f);
-            UiKit.Label(Place(attack, "Caption", new Vector2(0.5f, 0.5f), 0f, -38f, 100f), "J / SPACE", 9, new Color(1f, 1f, 1f, 0.85f), TextAnchor.MiddleCenter, true)
+            attackIcon.rectTransform.sizeDelta = new Vector2(110f, 110f);
+            UiKit.Label(Place(attack, "Caption", new Vector2(0.5f, 0.5f), 0f, -50f, 100f), "J / SPACE", 10, new Color(1f, 1f, 1f, 0.85f), TextAnchor.MiddleCenter, true)
                 .rectTransform.sizeDelta = new Vector2(100f, 14f);
             TouchButton.Add(attack.gameObject, GameKey.Attack, true);
 
-            RectTransform dash = DiscButton(layer, "Dash", br, -196f, 72f, 36f, out dashIcon, out ring, out masked);
+            RectTransform dash = DiscButton(layer, "Dash", br, -284f, 104f, 36f, out dashIcon, out ring, out masked);
             KeyBadge(dash, 36f, "K");
             TouchButton.Add(dash.gameObject, GameKey.Dash, false);
 
-            RectTransform skill = DiscButton(layer, "Skill", br, -175f, 158f, 36f, out skillIcon, out skillRing, out masked);
+            RectTransform skill = DiscButton(layer, "Skill", br, -259f, 201f, 36f, out skillIcon, out skillRing, out masked);
             skillCd = Child(masked, "Cooldown", UiSprites.Circle(), 58f, new Color(0.01f, 0.05f, 0.1f, 0.73f));
             skillCd.type = Image.Type.Filled;
             skillCd.fillMethod = Image.FillMethod.Radial360;
@@ -180,7 +182,7 @@ namespace ZenoniaProto
             skillButton = skill.gameObject;
 
             Image bagIcon;
-            RectTransform bag = DiscButton(layer, "Bag", br, -89f, 200f, 30f, out bagIcon, out ring, out masked);
+            RectTransform bag = DiscButton(layer, "Bag", br, -160f, 243f, 30f, out bagIcon, out ring, out masked);
             bagIcon.enabled = false;
             UiKit.Label(UiKit.Fill(bag, "Text"), "BAG", 13, new Color(0.95f, 0.88f, 0.6f), TextAnchor.MiddleCenter, true);
             KeyBadge(bag, 30f, "B");
@@ -283,63 +285,6 @@ namespace ZenoniaProto
             }
 
             void OnDisable() { if (pointer != int.MinValue) Release(); }
-        }
-
-        /// <summary>8-way D-pad: the finger's direction from the centre (dead zone 22 %) holds Up / Down / Left / Right; drag to change.</summary>
-        sealed class TouchStick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
-        {
-            const float DeadZone = 0.22f;
-            RectTransform area;
-            float radius;
-            Image[] arms;
-            int pointer = int.MinValue;
-
-            public void Init(RectTransform rt, float r, Image[] armImages) { area = rt; radius = r; arms = armImages; }
-
-            public void OnPointerDown(PointerEventData e)
-            {
-                if (pointer != int.MinValue) return;
-                pointer = e.pointerId;
-                Steer(e);
-            }
-
-            public void OnDrag(PointerEventData e) { if (e.pointerId == pointer) Steer(e); }
-
-            public void OnPointerUp(PointerEventData e) { if (e.pointerId == pointer) Release(); }
-
-            void OnDisable() { Release(); }
-
-            void Steer(PointerEventData e)
-            {
-                Vector2 local;
-                if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(area, e.position, e.pressEventCamera, out local)) return;
-                Vector2 v = local / radius;
-                bool up = false, down = false, left = false, right = false;
-                if (v.magnitude >= DeadZone)
-                {
-                    // 8 sectors of 45 degrees: each axis is on when the direction is within 67.5 degrees of it.
-                    float a = Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg;
-                    right = Mathf.Abs(Mathf.DeltaAngle(a, 0f)) < 67.5f;
-                    up = Mathf.Abs(Mathf.DeltaAngle(a, 90f)) < 67.5f;
-                    left = Mathf.Abs(Mathf.DeltaAngle(a, 180f)) < 67.5f;
-                    down = Mathf.Abs(Mathf.DeltaAngle(a, -90f)) < 67.5f;
-                }
-                Set(up, right, down, left);
-            }
-
-            void Release()
-            {
-                pointer = int.MinValue;
-                Set(false, false, false, false);
-            }
-
-            void Set(bool up, bool right, bool down, bool left)
-            {
-                SetHeld(GameKey.Up, up); SetHeld(GameKey.Right, right); SetHeld(GameKey.Down, down); SetHeld(GameKey.Left, left);
-                bool[] on = { up, right, down, left };
-                if (arms == null) return;
-                for (int i = 0; i < 4; i++) if (arms[i] != null) arms[i].color = new Color(0.7f, 0.92f, 1f, on[i] ? 0.45f : 0f);
-            }
         }
     }
 }

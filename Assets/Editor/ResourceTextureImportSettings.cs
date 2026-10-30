@@ -29,7 +29,7 @@ namespace ZenoniaProto.EditorTools
                 || i.filterMode != (mips ? FilterMode.Trilinear : FilterMode.Bilinear)
                 || i.wrapMode != TextureWrapMode.Clamp
                 || i.maxTextureSize != 4096
-                || i.textureCompression != DefaultCompression
+                || i.textureCompression != TextureImporterCompression.Uncompressed
                 || !i.alphaIsTransparency
                 || i.npotScale != TextureImporterNPOTScale.None
                 || !AndroidOk(i);
@@ -43,7 +43,7 @@ namespace ZenoniaProto.EditorTools
             i.filterMode = mips ? FilterMode.Trilinear : FilterMode.Bilinear;
             i.wrapMode = TextureWrapMode.Clamp;
             i.maxTextureSize = 4096;
-            i.textureCompression = DefaultCompression;
+            i.textureCompression = TextureImporterCompression.Uncompressed;
             i.alphaIsTransparency = true;
             i.npotScale = TextureImporterNPOTScale.None;
             i.isReadable = false;
@@ -51,6 +51,7 @@ namespace ZenoniaProto.EditorTools
             a.overridden = true;
             a.maxTextureSize = AndroidMaxSize;
             a.format = AndroidFormat;
+            a.textureCompression = TextureImporterCompression.Compressed; // with Uncompressed here Unity 6 ignores the ASTC format
             a.compressionQuality = 50;
             i.SetPlatformTextureSettings(a);
         }
@@ -59,21 +60,13 @@ namespace ZenoniaProto.EditorTools
         // uncompressed PC size. Standalone keeps the uncompressed RGBA above.
         const string Android = "Android";
 
-        /// <summary>
-        /// Uncompressed for the PC / editor; compressed while the active target is Android. The Android platform override alone was
-        /// ignored by this Unity version (imports stayed RGBA32 and the APK held raw 8 MB textures), the default compression is honoured.
-        /// </summary>
-        static TextureImporterCompression DefaultCompression
-        {
-            get { return EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android ? TextureImporterCompression.Compressed : TextureImporterCompression.Uncompressed; }
-        }
         const int AndroidMaxSize = 2048;
         const TextureImporterFormat AndroidFormat = TextureImporterFormat.ASTC_6x6;
 
         static bool AndroidOk(TextureImporter i)
         {
             TextureImporterPlatformSettings a = i.GetPlatformTextureSettings(Android);
-            return a.overridden && a.maxTextureSize == AndroidMaxSize && a.format == AndroidFormat;
+            return a.overridden && a.maxTextureSize == AndroidMaxSize && a.format == AndroidFormat && a.textureCompression == TextureImporterCompression.Compressed;
         }
     }
 
@@ -86,14 +79,6 @@ namespace ZenoniaProto.EditorTools
         }
 
         /// <summary>Re-imports every Resources sprite whose settings drifted (also called right before an Android build).</summary>
-        /// <summary>Android target only: the imported texture is not ASTC yet (a cached artifact from before the override existed).</summary>
-        static bool StaleForAndroid(string path)
-        {
-            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) return false;
-            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            return tex != null && tex.format != TextureFormat.ASTC_6x6;
-        }
-
         [MenuItem("Zenonia/Fix Texture Import Settings")]
         internal static void Run()
         {
@@ -104,11 +89,9 @@ namespace ZenoniaProto.EditorTools
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var importer = AssetImporter.GetAtPath(path) as TextureImporter;
                 if (importer == null) continue;
-                bool settings = ResourceTextureImportSettings.NeedsChange(importer, path);
-                if (!settings && !StaleForAndroid(path)) continue;
+                if (!ResourceTextureImportSettings.NeedsChange(importer, path)) continue;
                 ResourceTextureImportSettings.Apply(importer, path);
-                if (settings) importer.SaveAndReimport();
-                else AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate); // meta is right but the imported artifact is not
+                importer.SaveAndReimport();
                 fixedCount++;
             }
             if (fixedCount > 0) Debug.Log("[ZenoniaProto] Re-imported " + fixedCount + " textures with prototype import settings.");
