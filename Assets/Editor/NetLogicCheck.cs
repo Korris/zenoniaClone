@@ -57,8 +57,15 @@ namespace ZenoniaProto.EditorTools
                 SpawnMsg spawn;
                 expect(ServerReplication.TryBuildSpawn(m, m.NetId, out spawn) && spawn.Kind == EntityKind.Monster && MonsterDef.ByIndex(spawn.Type) != null && spawn.MaxHp == 36, "net: monster spawn message names its definition and hp");
                 Monster proxy = Monster.CreateProxy(root.transform, MonsterDef.ByIndex(spawn.Type), new Vector2(1f, 1f), 40000);
-                proxy.ProxyApply(new Vector2(NetQuantize.Pos(ms.X), NetQuantize.Pos(ms.Y)), NetQuantize.Facing(ms.FacingState), NetQuantize.Bits(ms.FacingState), (ms.AttackBits & 7) - 1, false, false, ms.HpPct, 0f);
+                proxy.ProxyApply(new Vector2(NetQuantize.Pos(ms.X), NetQuantize.Pos(ms.Y)), NetQuantize.Facing(ms.FacingState), NetQuantize.Bits(ms.FacingState), (ms.AttackBits & 7) - 1, false, MonsterBits.Status(ms.AttackBits), (ms.AttackBits & MonsterBits.Marked) != 0, ms.HpPct, 0f);
                 expect(proxy.IsProxy && Vector2.Distance(proxy.Feet, m.Feet) < 0.2f && Mathf.Abs(proxy.Hp - m.Hp) < 1f && zone.Ids.Get(40000) == proxy, "net: a client proxy reads the monster snapshot back (position, hp, id registered)");
+                m.ApplyStatus(new StatusSpec(StatusKind.Freeze, 0f, 2000), null);
+                m.ApplyStatus(new StatusSpec(StatusKind.Mark, 25f, 5000, 3), null);
+                MonsterSnap st = m.ToSnap();
+                expect(MonsterBits.Status(st.AttackBits) == 1 && (st.AttackBits & MonsterBits.Marked) != 0, "net: a frozen + marked monster packs status code 1 and the mark bit");
+                proxy.ProxyApply(new Vector2(NetQuantize.Pos(st.X), NetQuantize.Pos(st.Y)), NetQuantize.Facing(st.FacingState), NetQuantize.Bits(st.FacingState), -1, false, MonsterBits.Status(st.AttackBits), (st.AttackBits & MonsterBits.Marked) != 0, st.HpPct, 0f);
+                expect(proxy.Status.Dominant == StatusKind.Freeze && proxy.Status.Has(StatusKind.Mark), "net: the client proxy shows the replicated freeze and mark");
+                m.Status.Clear();
                 proxy.ProxyHit(5, 20, Vector2.zero, false, false, true);
                 expect(Mathf.Approximately(proxy.Hp, 20f), "net: a MonsterHit event sets the exact hp on the proxy");
                 int before = zone.Monsters.Count;

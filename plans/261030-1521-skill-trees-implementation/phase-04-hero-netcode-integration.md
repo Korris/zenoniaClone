@@ -63,14 +63,28 @@ learn: UI -> [offline] PlayerRpg.ApplyInvAction ; [online] InvAction(SkillLearn)
 8. Online check: `Tools/net-local-test.ps1` host + 2 clients, `--bot fight` + a new `--bot skills` (cycles skill presses) -> no desync storms (`NetStats` corrections/min within the netcode baseline).
 
 ## Todo
-- [ ] rebase + re-verify touch list
-- [ ] protocol + dotnet net tests
-- [ ] HeroController partials + ISkillBody
-- [ ] input mapping
-- [ ] learn/assign via InvOp
-- [ ] monster status replication
-- [ ] FrostSmokeTest CheckSkills
-- [ ] host/client lag matrix run (`Tools/net-lag-matrix.ps1`)
+- [x] rebase + re-verify touch list
+- [x] protocol (version 3) + dotnet net tests (70 pass)
+- [x] HeroController partials (ISkillBody stays the `HeroSkillBody` adapter, no new partial)
+- [x] input mapping (Skill1..8 keys, U/I/O + L slot keys, sampler, predictor, driver)
+- [x] learn / assign / respec via InvOp (3 new ops)
+- [x] monster status replication (3-bit status code + mark bit, chillLeft bridge removed)
+- [x] FrostSmokeTest CheckSkills (`Assets/Editor/SkillHeroCheck.cs`, all 5 classes, Lv 60, 8 skills each)
+- [x] online run: dedicated server + 5 skills bots (0 and 50 ms one-way latency / 2% loss), all checks pass
+- [ ] full `Tools/net-lag-matrix.ps1` matrix (only the 100 ms RTT / 2% loss cell was run)
+
+## Implementation notes (2026-10-30)
+Protocol version **3**. Deviations from the table above:
+- Input frame: `InputBits.Skill` (64) + 3-bit index at bits 9-11 (`AllMask` 4095), still 2 B. Cut frames merge presses with `InputBits.Merge` (indexes are never OR-ed). New file `Net/Protocol/InputBits.cs`.
+- `OwnerSim` keeps its 3-byte idle cost (8-bit base mask) and gets an optional extension block (flag bit 7 of byte 0): cast skill index, 8 cooldowns, attack-speed buff (left + percent). `SkillCd` field removed. `MoveLeft` was NOT added: forced motion (Dash / Leap / Blink) is server-confirmed and the owner sees it as snapshot corrections (see report).
+- `SelfStateMsg.SkillCdLeft` -> `ushort[8] SkillCds` (energy byte for the mechanic left to phase 11).
+- `SkillCast` event: Step = (rank << 3) | index, Other = salt (low 16 bits of the casting input step: server, owner and every client seed rain drops alike; the rain seed no longer uses the position), X/Y/Facing as before. `NetEventPlayer` skips the owner's own event only for skills `SkillPrediction.Predicts` (no Motion, not NearestEnemy / LowestAlly).
+- `InvOp.SkillLearn = 6` (Slot = index), `SkillAssign = 7` (Slot = skill or 255 = clear, ItemUid = magazine slot), `SkillRespec = 8` (three ops, not two: respec needed its own). `PlayerRpg.ApplyInvAction` validates with the same rules as the offline window.
+- `MonsterBits`: bits 4-6 = dominant status code (0 none, 1 freeze, 2 stun, 3 burn, 4 poison, 5 slow / chill), bit 7 = marked (mark charges are not replicated: nothing on the client uses them). `MonsterStatus.ShowReplicated` replaces `ForceChill`.
+- Hero: `TryCastSkill(int)` + `TryCastSkill()` (primary = first magazine slot), `AtkStat` includes `HeroBuffs.AtkMul`, combo speed x `AtkSpeedMul`, `TakeDamage` absorbs through the shield, `AddInvuln`. `ShadowStep` / `Heal` / `skillArg` deleted; `HealPulse` kept.
+- Keys: `GameKey.Skill1..8` (no physical key), `SlotKey1..3` = U / I+L / O = the visible magazine slots of the current page (Dash or a skill), `GameKey.Skill` stays as the primary-skill alias for bots. `I` no longer opens the bag (B only). Magazine taps press `Skill1+index`.
+- SFX: whirlwind / blade-cyclone / blade-dance / sanctuary clips renamed `-loop`, played by `SkillSfx.Loop` for the run / zone length; earth-break-impact / ice-storm-impact are played from the legacy ultimates.
+- Test tooling: `--dev-level N` (server), `--net-bot skills` (learns through InvOp, then cycles the skill keys), `net-local-test.ps1 -Bot skills`, `stateDiff<bit>` telemetry in the predictor, `--skill-ui` steps `cast:I`, `face:D`, `mp`.
 
 ## Success criteria
 - Offline: all 40 skills cast via keys and `TryCastSkill(i)`; existing combo/dash/ultimate recordings unchanged.

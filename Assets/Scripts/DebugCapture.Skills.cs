@@ -9,7 +9,7 @@ namespace ZenoniaProto
     /// <summary>
     /// --skill-ui "t=step;t=step": runs skill tree / magazine steps at t seconds after start (screenshots via --shots at the right moments).
     /// Steps: open | close | level:N | learn:I[:times] | select:I | assign | slot:K (flat magazine slot 0-8, 0 = Dash) | page:D (touch magazine, window closed)
-    ///        | respec | gold:N. Learn / assign go through the real window handlers (SkillTreeWindow.Tap*), so the UI path is exercised.
+    ///        | respec | gold:N | mp (refill HP / MP) | cast:I (hero.TryCastSkill) | face:D. Learn / assign go through the real window handlers (SkillTreeWindow.Tap*), so the UI path is exercised.
     /// </summary>
     public partial class DebugCapture
     {
@@ -40,11 +40,14 @@ namespace ZenoniaProto
                 case "close": SkillTreeWindow.Close(); break;
                 case "level": rpg.Level = a; rpg.RecomputeStats(); break;
                 case "gold": rpg.Gold = a; break;
+                case "mp": rpg.Mp = rpg.MaxMp; rpg.Hp = rpg.MaxHp; break;
                 case "learn": SkillTreeWindow.TapNode(a); for (int i = 0; i < b; i++) SkillTreeWindow.TapLearn(); break;
                 case "select": SkillTreeWindow.TapNode(a); break;
                 case "assign": SkillTreeWindow.TapAssign(); break;
                 case "slot": SkillTreeWindow.TapSlot(a); break;
                 case "respec": SkillTreeWindow.TapRespec(); break;
+                case "cast": Debug.Log("[ZenoniaProto] cast " + a + " => " + hero.TryCastSkill(a)); break;
+                case "face": hero.Teleport(hero.Position, a); break;
                 case "page": TouchControls.CycleMagazine(a); break;
                 default: Debug.LogError("[ZenoniaProto] unknown --skill-ui step " + step); break;
             }

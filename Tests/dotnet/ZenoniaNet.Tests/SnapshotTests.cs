@@ -58,7 +58,7 @@ public class SnapshotTests
         int full = link.Send(h, m, out s, out res);
         int delta = link.Send(h, m, out s, out res);
         Assert.Equal(SnapshotReadResult.Ok, res);
-        Assert.Equal(SnapshotPacker.HeaderBytes + 8 + 50 * 3, delta);      // header + owner block (4 B + the dash timer as a float) + 50 entities * 3 B
+        Assert.Equal(SnapshotPacker.HeaderBytes + 7 + 50 * 3, delta);      // header + owner block (3 B + the dash timer as a float) + 50 entities * 3 B
         Assert.True(delta < full / 3, "delta " + delta + " full " + full);
         Assert.Equal(h[7].Y, s.Heroes[7].Y); Assert.Equal(m[29].HpPct, s.Monsters[29].HpPct);
         Assert.Equal(1u, s.BaselineSeq);
@@ -166,18 +166,41 @@ public class SnapshotTests
     }
 
     [Fact]
-    public void OwnerSimRoundTripsAndIdleCostsFourBytes()
+    public void OwnerSimRoundTripsAndIdleCostsThreeBytes()
     {
         var w = new NetDataWriter();
         var idle = default(OwnerSim);
         idle.Write(w);
-        Assert.Equal(4, w.Length);
-        var s = new OwnerSim { DashDir = 5, ComboPhase = 2, ComboStep = 3, ComboLast = 2, ComboQueued = true, DashLeft = 100.25f, DashCooldown = 600, ComboTimer = 55.5f, ChainTimer = 300, Invuln = 499.99997f, Hurt = 20, CastLeft = 700, SkillCd = 9000, StabLeft = 40 };
+        Assert.Equal(3, w.Length);
+        var s = new OwnerSim { DashDir = 5, ComboPhase = 2, ComboStep = 3, ComboLast = 2, ComboQueued = true, DashLeft = 100.25f, DashCooldown = 600, ComboTimer = 55.5f, ChainTimer = 300, Invuln = 499.99997f, Hurt = 20, CastLeft = 700, StabLeft = 40 };
         w.Reset(); s.Write(w);
         var r = new NetDataReader(); r.SetSource(w.CopyData());
         OwnerSim got;
         Assert.True(OwnerSim.TryRead(r, out got));
         Assert.Equal(s.DashDir, got.DashDir); Assert.Equal(s.ComboPhase, got.ComboPhase); Assert.True(got.ComboQueued); Assert.Equal(3, got.ComboStep); Assert.Equal(2, got.ComboLast);
-        Assert.Equal(s.SkillCd, got.SkillCd); Assert.Equal(s.ComboTimer, got.ComboTimer); Assert.Equal(s.Invuln, got.Invuln); Assert.Equal(s.StabLeft, got.StabLeft); Assert.Equal(s.CastLeft, got.CastLeft); Assert.Equal(s.Hurt, got.Hurt); Assert.Equal(s.Invuln, got.Invuln);
+        Assert.Null(got.Cd); Assert.Equal(0f, got.AtkSpeedLeft); Assert.Equal(s.ComboTimer, got.ComboTimer); Assert.Equal(s.Invuln, got.Invuln); Assert.Equal(s.StabLeft, got.StabLeft); Assert.Equal(s.CastLeft, got.CastLeft); Assert.Equal(s.Hurt, got.Hurt); Assert.Equal(s.Invuln, got.Invuln);
+    }
+
+    [Fact]
+    public void OwnerSimSkillBlockRoundTripsAndStaysOffTheWireWhenIdle()
+    {
+        var w = new NetDataWriter();
+        var s = new OwnerSim { CastLeft = 450, CastSkill = 5, AtkSpeedLeft = 8000, AtkSpeedPct = 15, Cd = new float[] { 0, 9000.5f, 0, 0, 120, 0, 0, 33000 } };
+        s.Write(w);
+        var r = new NetDataReader(); r.SetSource(w.CopyData());
+        OwnerSim got;
+        Assert.True(OwnerSim.TryRead(r, out got));
+        Assert.Equal(0, r.AvailableBytes);
+        Assert.Equal(5, got.CastSkill); Assert.Equal(450f, got.CastLeft); Assert.Equal(8000f, got.AtkSpeedLeft); Assert.Equal(15f, got.AtkSpeedPct);
+        for (int i = 0; i < 8; i++) Assert.Equal(s.Cd[i], got.CdOf(i));
+        // a cast of skill 0 with nothing else on cooldown needs no extension block
+        w.Reset(); new OwnerSim { CastLeft = 300 }.Write(w);
+        Assert.Equal(7, w.Length);
+        // a hostile extension (skill index 9) is rejected
+        w.Reset(); s.Write(w);
+        byte[] bad = w.CopyData();
+        bad[7] = 9;
+        r.SetSource(bad);
+        Assert.False(OwnerSim.TryRead(r, out got));
     }
 }

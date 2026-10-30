@@ -34,7 +34,7 @@ namespace ZenoniaProto.EditorTools
                     expect(HeroBuffs.For(hero).ShieldLeft > 0f, "wizard: Mana Shield adds an absorbing shield (" + HeroBuffs.For(hero).ShieldLeft + " HP)");
                 }
             }
-            finally { UnityEngine.Object.DestroyImmediate(dummy.gameObject); if (Zone.Main != null) Zone.Main.Monsters.Remove(dummy); }
+            finally { HeroBuffs.For(hero).Clear(); UnityEngine.Object.DestroyImmediate(dummy.gameObject); if (Zone.Main != null) Zone.Main.Monsters.Remove(dummy); }
         }
     }
 }

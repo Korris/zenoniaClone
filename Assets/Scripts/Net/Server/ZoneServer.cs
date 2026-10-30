@@ -267,7 +267,7 @@ namespace ZenoniaProto
             {
                 HeroController h = p.Hero;
                 SelfStateMsg l = p.LastSelf;
-                bool changed = Mathf.CeilToInt(h.Hp) != l.Hp || Mathf.CeilToInt(h.Mp) != l.Mp || h.Rpg.Exp != (int)l.Exp || h.Rpg.Level != l.Level || h.SkillCooldownLeftMs > 0f || now - p.LastSelfSentMs >= 1000f;
+                bool changed = Mathf.CeilToInt(h.Hp) != l.Hp || Mathf.CeilToInt(h.Mp) != l.Mp || h.Rpg.Exp != (int)l.Exp || h.Rpg.Level != l.Level || h.AnySkillCooldown || now - p.LastSelfSentMs >= 1000f;
                 if (changed) { repl.SendSelfState(p); p.LastSelfSentMs = now; }
             }
             if (p.RpgDirty && now - p.LastRpgSentMs >= RpgPushMs) { repl.SendRpgState(p, 0, true, ""); p.RpgDirty = false; p.LastRpgSentMs = now; }
@@ -285,6 +285,7 @@ namespace ZenoniaProto
             stats.Add("inputStepsStarved", p.Input.State.Starved);  // steps the hero froze because the next frame was late
             stats.Add("inputCatchUps", p.Input.State.CatchUps);     // frozen steps repaid with a second step in one tick
             stats.Add("inputSteps", p.Input.State.LastSeq);
+            stats.Add("skillCastsServer", p.Hero.SkillCasts);      // tree skills cast by the players (all accepted by the server rules)
         }
 
         void Finish()

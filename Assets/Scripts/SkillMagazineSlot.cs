@@ -60,19 +60,15 @@ namespace ZenoniaProto
             else if (e.Key == GameKey.Dash) icon.sprite = TouchControls.SkillSprite(cls, cls.DashIcon);
         }
 
-        /// <summary>
-        /// Per-frame cooldown / MP state of a tree skill. Cooldowns are only tracked for the original signature skills (hero L skill) until the
-        /// skill executor lands; every other skill shows MP only.
-        /// </summary>
+        /// <summary>Per-frame cooldown sweep / MP state of a tree skill, read from the hero's own cooldowns (server-confirmed online).</summary>
         public void Live(HeroController hero, HeroClassDef cls)
         {
             if (def == null) return;
-            bool legacy = def.Legacy != LegacySkill.None;
-            float left = legacy ? hero.SkillCooldownLeftMs : 0f;
+            float left = hero.SkillCdLeftMs(def.Index);
             bool enoughMp = hero.Mp >= mpCost, ready = left <= 0f && enoughMp;
             icon.color = new Color(1f, 1f, 1f, ready ? 1f : 0.4f);
             ring.color = ready ? TouchControls.Ready : TouchControls.NotReady;
-            cd.fillAmount = left > 0f ? Mathf.Clamp01(left / Mathf.Max(1f, cls.SkillCooldownMs)) : 0f;
+            cd.fillAmount = left > 0f ? Mathf.Clamp01(left / Mathf.Max(1f, def.CooldownMs)) : 0f;
             cd.enabled = left > 0f;
             cdText.text = left > 0f ? (left / 1000f).ToString("F1") : "";
             mpText.color = enoughMp ? new Color(0.67f, 0.88f, 0.98f) : new Color(1f, 0.54f, 0.59f);

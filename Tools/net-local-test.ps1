@@ -13,8 +13,8 @@ param(
   [int]$Seconds = 90,                 # run time of every bot client
   [int]$Port = 7790,
   [string]$OutDir = "net-test-out",
-  [ValidateSet("boss", "fight", "wander", "twitch")][string]$Bot = "boss",
-  [ValidateSet("boss", "fight", "wander", "twitch")][string]$CamBot = "boss",   # brain of the visible recording client
+  [ValidateSet("boss", "fight", "wander", "twitch", "skills")][string]$Bot = "boss",   # skills = fight + learn every skill online + cycle the skill keys (server gets --dev-level)
+  [ValidateSet("boss", "fight", "wander", "twitch", "skills")][string]$CamBot = "boss",   # brain of the visible recording client
   [string]$DevKey = "k",
   [int]$MaxPlayers = 200,
   [string]$VideoDir = "",             # set = one extra visible client records frames here
@@ -29,6 +29,7 @@ param(
   [int]$TwitchBots = 0,               # the LAST n bot clients run the "twitch" brain (run / stop / swing in place): input-latency probe, stresses the prediction
   [int]$ToleranceMs = 200,            # boss-death sync window of the checker (widen it for lag runs)
   [string[]]$ServerArgs = @(),        # extra command line for the server, e.g. --net-no-delta
+  [int]$DevLevel = 0,                 # server --dev-level: new heroes start at this level (the skills bot sets 60 itself)
   [switch]$NoCheck
 )
 $ErrorActionPreference = "Stop"
@@ -48,6 +49,8 @@ function Start-Unity([string]$name, [string[]]$arguments, [string]$style = "Hidd
 
 # --- server ---
 $serverSeconds = $Seconds + 30 + [int]($Clients * 0.25)
+if ($DevLevel -eq 0 -and ($Bot -eq "skills" -or $CamBot -eq "skills")) { $DevLevel = 60 }
+if ($DevLevel -gt 0) { $ServerArgs += @("--dev-level", $DevLevel) }
 $server = Start-Unity "server" (@("-batchmode", "-nographics", "--mode", "server", "--port", $Port, "--dev-key", $DevKey, "--max-players", $MaxPlayers,
   "--run-seconds", $serverSeconds, "--net-stats", "$OutDir\server.json", "-logFile", "$OutDir\server.log") + $ServerArgs)
 $deadline = (Get-Date).AddSeconds(30)

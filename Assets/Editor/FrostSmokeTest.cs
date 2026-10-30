@@ -90,32 +90,12 @@ namespace ZenoniaProto.EditorTools
             Expect(by && q.y >= (FrostHollowMap.TilesH - 13) * 16f, "river banks block (y=" + q.y + ")");
         }
 
-        /// <summary>Signature skill: casts (MP / cooldown / root), builds its effect object without exceptions, and the monster status hooks behave.</summary>
+        /// <summary>Skill tree casting (SkillHeroCheck) plus the launch / boss immunity rules of the monsters.</summary>
         static void CheckSkill(HeroClassDef cls, HeroController hero, GameObject root)
         {
-            if (cls.SkillName == null) return;
-            Monster near = null;
-            foreach (Monster m in Monster.All) if (!m.IsBoss) { near = m; break; }
-            if (cls.Id == HeroClass.Assassin) // shadow step needs a target in range and blocks a cast with nothing to strike
-            {
-                Expect(!hero.TryCastSkill() && hero.Mp >= hero.MaxMp - 0.01f, cls.Name + ": no target => cast refused and free");
-                hero.Teleport(near.Center + new Vector2(-30f, -6f), 3);
-            }
-            if (cls.Id == HeroClass.Cleric) // heal needs missing HP
-            {
-                Expect(!hero.TryCastSkill(), cls.Name + ": full HP => heal refused");
-                hero.TakeDamage(40);
-            }
-            float mp = hero.Mp, hpBefore = hero.Hp;
-            Expect(hero.TryCastSkill(), cls.Name + ": " + cls.SkillName + " cast ok");
-            Expect(hero.Mp < mp && hero.SkillCooldownLeftMs > 0f && hero.IsCasting, cls.Name + ": MP spent, cooldown running, hero rooted");
-            Expect(!hero.TryCastSkill(), cls.Name + ": second cast blocked by cooldown");
-            if (cls.Id == HeroClass.Cleric) Expect(hero.Hp > hpBefore, cls.Name + ": heal restored HP " + hpBefore + " -> " + hero.Hp);
-            if (cls.Id == HeroClass.Assassin) { bool any = false; foreach (Monster m in Monster.All) any |= m.Hp < m.MaxHp; Expect(any, cls.Name + ": shadow step damaged its target"); }
-            string fx = cls.Id == HeroClass.Warrior ? "EarthBreak" : cls.Id == HeroClass.Wizard ? "IceStorm" : null;
-            if (fx != null) Expect(root.transform.Find(fx) != null, cls.Name + ": " + fx + " effect object created");
+            SkillHeroCheck.RunWorld(Expect, hero, root);
             Monster slime = null;
-            foreach (Monster m in Monster.All) if (!m.IsBoss && !m.IsDying) slime = m; // last one: the shadow step test may have killed the first
+            foreach (Monster m in Monster.All) if (!m.IsBoss && !m.IsDying) slime = m;
             Expect(slime != null && slime.Launch() && slime.IsAirborne, cls.Name + ": regular monster can be launched");
             Expect(Monster.Boss != null && !Monster.Boss.Launch(), cls.Name + ": boss is immune to launch");
         }
@@ -125,7 +105,7 @@ namespace ZenoniaProto.EditorTools
         {
             PlayerState p = hero.Rpg;
             Expect(p != null && p.ClassId == RpgSession.ClassId(cls.Id) && RpgSession.Player == p, cls.Name + ": hero bound to its RPG state");
-            Expect(Mathf.Approximately(hero.MaxHp, p.MaxHp) && Mathf.Approximately(hero.AtkStat, p.Atk) && p.GetEquipped(Slots.Weapon) != null, cls.Name + ": stats from PlayerState, starter weapon equipped");
+            Expect(Mathf.Approximately(hero.MaxHp, p.MaxHp) && Mathf.Approximately(hero.AtkStat, p.Atk) && p.GetEquipped(Slots.Weapon) != null, cls.Name + ": stats from PlayerState (hp " + hero.MaxHp + "/" + p.MaxHp + ", atk " + hero.AtkStat + "/" + p.Atk + "), starter weapon equipped");
 
             Monster target = null;
             foreach (Monster m in Monster.All) if (!m.IsBoss && !m.IsDying) target = m;

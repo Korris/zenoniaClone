@@ -31,6 +31,19 @@ namespace ZenoniaProto.Rpg
             e.Value = Math.Max(e.Value, value); e.LeftMs = Math.Max(e.LeftMs, ms); e.Charges = Math.Max(e.Charges, charges);
         }
 
+        /// <summary>Remaining ms of a buff (0 when absent) and its value: what a predicting client mirrors from the server.</summary>
+        public float LeftMs(BuffKind k) { Entry e = Find(k); return e != null ? e.LeftMs : 0f; }
+        public float ValueOf(BuffKind k) { return Sum(k); }
+
+        /// <summary>Forces a buff to exactly this value / time (server state restore); ms &lt;= 0 removes it.</summary>
+        public void Set(BuffKind kind, float value, float ms)
+        {
+            Entry e = Find(kind);
+            if (ms <= 0f || value <= 0f) { if (e != null) list.Remove(e); return; }
+            if (e == null) list.Add(new Entry { Kind = kind, Value = value, LeftMs = ms });
+            else { e.Value = value; e.LeftMs = ms; }
+        }
+
         public void Tick(float dtMs)
         {
             for (int i = list.Count - 1; i >= 0; i--)

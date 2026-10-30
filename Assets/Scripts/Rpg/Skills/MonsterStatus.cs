@@ -77,8 +77,25 @@ namespace ZenoniaProto.Rpg
             dots.Clear();
         }
 
-        /// <summary>Client proxy: shows chill from the snapshot flag without any rules (no boss conversion, no timer).</summary>
-        public void ForceChill(float ms) { chillMs = ms; chillPct = ms > 0f ? 50f : 0f; }
+        /// <summary>
+        /// Client proxy: shows what the snapshot says (the dominant status plus the mark) without any rules: no boss conversion, no real timers.
+        /// A dominant Burn / Poison becomes a placeholder DoT source so Has() reports it for the tint.
+        /// </summary>
+        public void ShowReplicated(StatusKind dominant, bool marked)
+        {
+            Clear();
+            const float Show = 1000f;
+            switch (dominant)
+            {
+                case StatusKind.Freeze: freezeMs = Show; break;
+                case StatusKind.Stun: stunMs = Show; break;
+                case StatusKind.Slow: slowMs = Show; slowPct = 50f; break;
+                case StatusKind.Chill: chillMs = Show; chillPct = 50f; break;
+                case StatusKind.Burn:
+                case StatusKind.Poison: dots.Add(new Dot { Kind = dominant, Ms = Show }); break;
+            }
+            if (marked) { markMs = Show; markPct = 0f; MarkCharges = 1; }
+        }
 
         /// <summary>Applies a status. Returns false when ignored (boss immunity, knockback / launch, empty spec).</summary>
         public bool Apply(StatusSpec s, object src, bool boss, float casterAtk)

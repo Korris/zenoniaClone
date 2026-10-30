@@ -5,12 +5,12 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Entry point of the data-driven skills: resolves aim / target and starts the timeline (or the legacy Earth Break / Ice Storm adapter).
-    /// It does NOT check learned / cooldown / MP / cast lock: HeroSkills (phase 04, called from HeroController input) does, then calls Cast.
+    /// It does NOT check learned / cooldown / MP / cast lock: HeroController.TryCastSkill does, then calls Cast.
     /// Returns false (nothing happened, nothing to charge) when the skill needs a target and none is in range.
     /// </summary>
     public static class SkillExecutor
     {
-        /// <summary>Casts skill `skillIndex` (0-7) of the hero's class at its learned rank (min 1; `rankOverride` &gt; 0 forces one). `salt` varies the rain pattern.</summary>
+        /// <summary>Casts skill `skillIndex` (0-7) of the hero's class at its learned rank (min 1; `rankOverride` &gt; 0 forces one). `salt` (the cast's input step, identical on server and clients) seeds the rain pattern.</summary>
         public static bool Cast(HeroController hero, int skillIndex, int rankOverride = 0, int salt = 0)
         {
             if (hero == null || hero.IsDead) return false;

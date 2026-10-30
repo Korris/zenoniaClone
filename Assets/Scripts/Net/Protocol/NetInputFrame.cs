@@ -2,17 +2,6 @@ using System;
 
 namespace ZenoniaProto.Net
 {
-    /// <summary>
-    /// Bits of one input frame (one client sim step, 1/30 s). Up..Right are the held direction keys; Attack..MpPotion are PRESSES that happened
-    /// during this step (edge, not held), so a frame is self-contained and a replay of the same frames gives the same result.
-    /// </summary>
-    public static class InputBits
-    {
-        public const ushort Up = 1, Down = 2, Left = 4, Right = 8, Attack = 16, Dash = 32, Skill = 64, HpPotion = 128, MpPotion = 256;
-        public const ushort MoveMask = Up | Down | Left | Right;
-        public const ushort AllMask = 511;
-    }
-
     /// <summary>One client input sample: the client's step sequence number and its bits. On the wire only the low 16 bits of Seq travel.</summary>
     public struct InputFrame
     {
@@ -114,7 +103,7 @@ namespace ZenoniaProto.Net
 
         void Enqueue(uint seq, ushort bits)
         {
-            if (qCount == Capacity) { carry |= (ushort)(queue[qHead].Bits & ~InputBits.MoveMask); qHead = (qHead + 1) % Capacity; qCount--; Dropped++; }
+            if (qCount == Capacity) { carry = InputBits.Merge(carry, (ushort)(queue[qHead].Bits & ~InputBits.MoveMask)); qHead = (qHead + 1) % Capacity; qCount--; Dropped++; }
             queue[(qHead + qCount) % Capacity] = new InputFrame { Seq = seq, Bits = bits };
             qCount++;
         }
@@ -129,7 +118,7 @@ namespace ZenoniaProto.Net
             if (qCount > MaxQueue)
                 while (qCount > KeepAfterDrop)
                 {
-                    carry |= (ushort)(queue[qHead].Bits & ~InputBits.MoveMask);
+                    carry = InputBits.Merge(carry, (ushort)(queue[qHead].Bits & ~InputBits.MoveMask));
                     qHead = (qHead + 1) % Capacity; qCount--; Dropped++;
                 }
             if (qCount > 0) { Consume(); return true; }
@@ -143,7 +132,7 @@ namespace ZenoniaProto.Net
         {
             InputFrame f = queue[qHead];
             qHead = (qHead + 1) % Capacity; qCount--;
-            Current = (ushort)(f.Bits | carry);
+            Current = InputBits.Merge(f.Bits, carry);
             carry = 0;
             LastSeq = f.Seq;
             if ((Current & InputBits.HpPotion) != 0) potionHp++;

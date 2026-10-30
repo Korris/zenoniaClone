@@ -10,18 +10,40 @@ namespace ZenoniaProto
     /// </summary>
     public static class SkillSfx
     {
-        public const string Cast = "cast", Impact = "impact", Loop = "loop";
+        public const string Cast = "cast", Impact = "impact", LoopClip = "loop";
         const float MinGapSeconds = 0.07f;
         static readonly Dictionary<string, bool> Exists = new Dictionary<string, bool>();
         static readonly Dictionary<string, float> LastAt = new Dictionary<string, float>();
 
+        static string PathOf(SkillContext ctx, string kind) { return "skills/" + ctx.Def.Class + "/" + ctx.Def.Id.Substring(ctx.Def.Class.Length + 1) + "-" + kind; }
+
+        static bool HasClip(string path)
+        {
+            bool ok;
+            if (!Exists.TryGetValue(path, out ok)) Exists[path] = ok = Resources.Load<AudioClip>("Audio/sfx/" + path) != null;
+            return ok;
+        }
+
+        /// <summary>Spins and zones (whirlwind, blade cyclone / dance, sanctuary): the skill's -loop clip repeats for `seconds`, then goes away. Silent without a clip.</summary>
+        public static void Loop(SkillContext ctx, float seconds, float volume = 0.55f)
+        {
+            if (ctx == null || !ctx.View || seconds <= 0f || !ctx.Body.IsLocal && !NearListener(ctx)) return;
+            string path = PathOf(ctx, LoopClip);
+            if (!HasClip(path)) return;
+            var go = new GameObject("SkillSfxLoop");
+            go.transform.SetParent(ctx.Body.Hero.transform.parent, false); // not under the run / zone: those may end before the sound should
+            AudioSource src = go.AddComponent<AudioSource>();
+            src.clip = Resources.Load<AudioClip>("Audio/sfx/" + path);
+            src.loop = true; src.spatialBlend = 0f; src.volume = volume; src.playOnAwake = false;
+            src.Play();
+            Object.Destroy(go, seconds);
+        }
+
         public static void Play(SkillContext ctx, string kind, float volume = 0.9f)
         {
             if (ctx == null || !ctx.View || !ctx.Body.IsLocal && !NearListener(ctx)) return;
-            string path = "skills/" + ctx.Def.Class + "/" + ctx.Def.Id.Substring(ctx.Def.Class.Length + 1) + "-" + kind;
-            bool ok;
-            if (!Exists.TryGetValue(path, out ok)) Exists[path] = ok = Resources.Load<AudioClip>("Audio/sfx/" + path) != null;
-            if (!ok) return;
+            string path = PathOf(ctx, kind);
+            if (!HasClip(path)) return;
             float last;
             if (LastAt.TryGetValue(path, out last) && Time.unscaledTime - last < MinGapSeconds) return;
             LastAt[path] = Time.unscaledTime;

@@ -92,6 +92,8 @@ namespace ZenoniaProto
         public void TakeDamage(int dmg)
         {
             if (dead || God || invuln > 0f || dashLeft > 0f) return;
+            dmg = HeroBuffs.Absorb(this, dmg); // Mana Shield / Guardian Spirit soak first
+            if (dmg <= 0) { invuln = InvulnMs; return; } // fully absorbed: no HP loss, no hurt reaction
             hp -= dmg;
             invuln = InvulnMs;
             hurt = HurtMs;

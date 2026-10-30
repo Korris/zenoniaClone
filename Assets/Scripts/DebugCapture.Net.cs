@@ -8,7 +8,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Online client test tooling (command line only):
-    ///   --net-bot fight|boss|wander   drive the joined hero through InputAdapter, so the real NetInputSender / server path is exercised
+    ///   --net-bot fight|boss|wander|twitch|skills   drive the joined hero through InputAdapter, so the real NetInputSender / server path is exercised
     ///                                 (fight = nearest monsters, boss = the Frostfang King first, wander = random walking)
     ///   --record-net S                record S seconds of THIS client's screen in real time (jpg frames + fps.txt + audio.wav in --shot-path),
     ///                                 optional --record-lead L waits L seconds after joining first; encode with ffmpeg afterwards
@@ -37,6 +37,7 @@ namespace ZenoniaProto
             switch (bot)
             {
                 case "fight": EnableNavBot(false, offset); break;
+                case "skills": StartCoroutine(LearnSkillsOnline()); EnableNavBot(false, offset, true); break;
                 case "boss": EnableNavBot(true, offset); break;
                 case "wander": EnableWanderBot(); break;
                 case "twitch": EnableTwitchBot(); break;

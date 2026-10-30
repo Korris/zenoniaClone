@@ -24,6 +24,8 @@ namespace ZenoniaProto
         public static int SimLatencyMs, SimJitterMs, SimLossPct, SimSeed = 1;
         /// <summary>Test hook (--net-test-version N): the client announces a wrong protocol version to check the server rejects it.</summary>
         public static int TestVersion;
+        /// <summary>Server test hook (--dev-level N): new heroes start at this level (skill points to spend); 0 = off. Never set on a public server.</summary>
+        public static int DevLevel;
 
         public static string Arg(string[] a, string key)
         {
@@ -57,6 +59,7 @@ namespace ZenoniaProto
             NetBot = Arg(a, "--net-bot");
             StatsPath = Arg(a, "--net-stats");
             TestVersion = Int(a, "--net-test-version", 0);
+            DevLevel = Math.Max(0, Math.Min(Rpg.Leveling.MaxLevel, Int(a, "--dev-level", 0)));
             float pa;
             PredictAfter = float.TryParse(Arg(a, "--predict-after"), NumberStyles.Float, CultureInfo.InvariantCulture, out pa) ? pa : 0f;
             Predict = Array.IndexOf(a, "--no-predict") < 0 && PredictAfter <= 0f;

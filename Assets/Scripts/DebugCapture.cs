@@ -54,7 +54,7 @@ namespace ZenoniaProto
         /// <summary>True when the command line asks for a capture / bot run (these default to Frost Hollow: their tiles and scripts are written for it).</summary>
         public static bool Requested(string[] args)
         {
-            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-boss", "--record-party", "--net-bot", "--record-net" })
+            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net" })
                 if (Array.IndexOf(args, flag) >= 0) return true;
             return false;
         }
@@ -95,6 +95,7 @@ namespace ZenoniaProto
             recordArg = Arg(a, "--record-ultimate");
             comboArg = Arg(a, "--record-combo");
             bossArg = Arg(a, "--record-boss");
+            choreoArg = Arg(a, "--record-choreo");
             party = Array.IndexOf(a, "--record-party") >= 0;
             faceArg = Arg(a, "--face");
             botArg = Arg(a, "--bot");
@@ -216,6 +217,7 @@ namespace ZenoniaProto
             if (NetMode.IsClient) { yield return RunNetClient(); yield break; } // online: the server owns the world, the bot only drives the controls
             if (comboArg != null) { yield return RecordCombo(comboArg); yield break; }
             if (bossArg != null) { yield return RecordBoss(bossArg); yield break; }
+            if (choreoArg != null) { yield return RecordChoreo(choreoArg); yield break; }
             if (party) { yield return RecordParty(); yield break; }
             string rec = recordArg;
             if (rec != null) { yield return RecordUltimate(rec); yield break; }

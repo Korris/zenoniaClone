@@ -73,13 +73,15 @@ namespace ZenoniaProto
             Add(new NetEvent { Type = NetEventType.HeroHit, Id = h.NetId, Dmg = Clamp16(dmg) }, h.Position);
         }
 
-        /// <summary>Class skill cast. `at` = where it lands (shadow step destination), `arg` = skill specific (target monster id / healed amount).</summary>
-        public static void SkillCast(HeroController h, Vector2 at, ushort arg)
+        /// <summary>Tree skill cast (see SkillCastCode): `salt` = the input step that pressed the key, shared by every side so rain drops land alike.</summary>
+        public static void SkillCast(HeroController h, int index, int rank, int salt)
         {
             if (!Active) return;
+            Vector2 at = h.Position;
             Add(new NetEvent
             {
-                Type = NetEventType.SkillCast, Id = h.NetId, Step = (byte)h.Class.Id, X = NetQuantize.Pos(at.x), Y = NetQuantize.Pos(at.y), Facing = (byte)h.Facing, Other = arg,
+                Type = NetEventType.SkillCast, Id = h.NetId, Step = SkillCastCode.Pack(index, rank), X = NetQuantize.Pos(at.x), Y = NetQuantize.Pos(at.y), Facing = (byte)h.Facing,
+                Other = (ushort)(salt & 0xFFFF),
             }, at);
         }
 

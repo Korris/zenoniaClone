@@ -11,10 +11,16 @@ namespace ZenoniaProto.Net
         public const int Dead = 1, Dash = 2, Moving = 4, Invuln = 8, Hurt = 16;
     }
 
-    /// <summary>Monster snapshot byte bits: AirChill = attackIdx+1 (bits 0-2), airborne (bit 3), chilled (bit 4).</summary>
+    /// <summary>
+    /// Monster snapshot byte bits: attackIdx+1 (bits 0-2), airborne (bit 3), dominant status code (bits 4-6, see StatusCode), marked (bit 7).
+    /// The code drives the tint / stars on clients; the mark bit the reticle (a marked monster can also be frozen, burning ...).
+    /// </summary>
     public static class MonsterBits
     {
-        public const int Airborne = 8, Chilled = 16;
+        public const int Airborne = 8, StatusShift = 4, StatusMask = 7 << StatusShift, Marked = 128;
+
+        public static int Status(int attackBits) { return (attackBits & StatusMask) >> StatusShift; }
+        public static int WithStatus(int attackBits, int code) { return (attackBits & ~StatusMask) | ((code & 7) << StatusShift); }
     }
 
     /// <summary>11 B on the wire: id, x, y (1/8 unit), facing | flags, pose, combo step, pose progress, hp percent.</summary>
@@ -36,7 +42,7 @@ namespace ZenoniaProto.Net
         }
     }
 
-    /// <summary>10 B on the wire: id, x, y, facing | state, attackIdx | airborne | chilled, hp percent, death progress.</summary>
+    /// <summary>10 B on the wire: id, x, y, facing | state, attackIdx | airborne | status | marked, hp percent, death progress.</summary>
     public struct MonsterSnap
     {
         public ushort Id;

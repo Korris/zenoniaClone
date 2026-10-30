@@ -34,6 +34,8 @@ else {
   // The server-side figure counts a datagram that carries merged packets (input + acks) once per packet, so it over-reports upstream by ~1.2-1.5x: informational only.
   check(`client up <= ${upBudget * 1.5} KB/s (server view, over-counts merged datagrams)`, num(server.clientUpKBps?.max) <= upBudget * 1.5, `avg ${fmt(server.clientUpKBps?.avg)} max ${fmt(server.clientUpKBps?.max)} KB/s`);
   check('boss killed at least once', num(server.bossDeaths) >= 1, `bossDeaths ${num(server.bossDeaths)}, zone kills ${num(server.zoneKills)}`);
+  if (num(server.skillCastsServer) > 0) // skills bot run: casts happened on the server and every client replayed other players' casts
+    check('skills cast and replayed', clients.every((c) => num(c.skillCastsSeen) > 0), `${num(server.skillCastsServer)} casts on the server, seen by clients: ${clients.map((c) => num(c.skillCastsSeen)).join(',')}`);
   check('events batched', num(server.eventsSent) > 0, `${num(server.eventsSent)} events, ${fmt(num(server.eventBytes) / Math.max(1, num(server.eventBatchesSent)), 1)} B per batch`);
 }
 

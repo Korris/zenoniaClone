@@ -12,20 +12,20 @@ namespace ZenoniaProto
         public bool Locked;
         public static readonly SkillSlot Lock = new SkillSlot { Locked = true, SkillIndex = -1 };
         public static SkillSlot Of(GameKey key) { return new SkillSlot { Key = key, SkillIndex = -1 }; }
-        public static SkillSlot Skill(int index) { return new SkillSlot { Key = GameKey.Skill, SkillIndex = index }; }
+        public static SkillSlot Skill(int index) { return new SkillSlot { Key = GameKey.Skill1 + index, SkillIndex = index }; }
         public bool IsSkill { get { return !Locked && SkillIndex >= 0; } }
     }
 
     /// <summary>
     /// Data for the touch "skill magazine": 3 pages x 3 slots = the fixed Dash (page 1 slot 1) + the 8 player-assigned loadout slots
     /// (PlayerState.Loadout, edited in the skill tree window). Swiping the cluster cycles pages; the selected page is remembered per class for
-    /// the session. Casting a tapped skill goes through `CastRequested` (phase 04 plugs the skill executor in).
+    /// the session. A tapped skill presses GameKey.Skill1+index, the same key the keyboard slots and the network input frame use.
     /// </summary>
     public static class SkillMagazine
     {
         public const int SlotCount = 3, MaxPages = 3;
 
-        /// <summary>A skill slot was tapped (tree index). Default: the original L skill for the signature skills, a toast otherwise.</summary>
+        /// <summary>A skill slot was tapped (tree index). Default: press that skill key for the hero (HeroController.TryCastSkill, offline and online alike).</summary>
         public static Action<int> CastRequested = DefaultCast;
 
         static readonly Dictionary<HeroClass, int> Selected = new Dictionary<HeroClass, int>();
@@ -76,13 +76,6 @@ namespace ZenoniaProto
             return s.IsSkill && p != null ? SkillTable.Get(p.ClassId, s.SkillIndex) : null;
         }
 
-        static void DefaultCast(int index)
-        {
-            SkillDef d = Def(SkillSlot.Skill(index));
-            if (d == null) return;
-            if (d.Legacy != LegacySkill.None) TouchControls.Press(GameKey.Skill); // Ice Storm / Earth Break keep the original cast
-            else if (NetMode.IsOffline) SkillOfflineCast.Try(d, index); // preview cast until phase 04 (no MP cost yet)
-            else RpgHud.Toast(d.Name + ": online skill casting arrives with the netcode update", new UnityEngine.Color(1f, 0.85f, 0.5f));
-        }
+        static void DefaultCast(int index) { TouchControls.Press(GameKey.Skill1 + index); }
     }
 }

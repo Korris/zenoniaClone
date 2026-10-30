@@ -97,6 +97,7 @@ namespace ZenoniaProto
 
         void Slam()
         {
+            if (NetMode.RendersFx) GameSfx.Play("skills/warrior/earth-break-impact", 0.9f);
             List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 0f, true, null, 0f, hero);
             for (int i = 0; i < hit.Count; i++) hit[i].Launch();
             GameClock.HitStop(110f);

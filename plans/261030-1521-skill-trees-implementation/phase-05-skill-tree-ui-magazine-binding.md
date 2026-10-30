@@ -49,7 +49,7 @@ Modify: `SkillMagazine.cs` (table from loadout, 3 pages, `SkillSlot.SkillIndex`)
 - [x] window, nodes, links, detail (+ respec: 50 G x level, two-tap confirm)
 - [x] assign strip + magazine 3 pages (slot 1 page 1 = Dash, loadout slots 1-8; swap on assign)
 - [x] entry points (bag Skill tab, T, touch "Skills" button + SP badge), "+1 skill point [T]" on the level-up banner
-- [ ] online path: `OnlineActions` refuses with a message until phase 04 adds the InvOp ops (seam in `SkillTreeActions.cs`); magazine cast hook `SkillMagazine.CastRequested`
+- [x] online path: `OnlineActions` sends InvOp.SkillLearn / SkillAssign / SkillRespec (phase 04); magazine taps press `GameKey.Skill1+index`, cooldown overlay reads the hero cooldowns
 - [ ] screenshots reviewed by user (`visuals/skill-ui-*.png`, 960x444 Windows player; 960x640 / 1280x720 not shot, window is 920x540 on the 640-high canvas)
 
 ## Success criteria

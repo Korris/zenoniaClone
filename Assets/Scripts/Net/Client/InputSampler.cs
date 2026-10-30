@@ -15,13 +15,23 @@ namespace ZenoniaProto
 
         static void Latch(ref ushort bits, GameKey key, ushort bit) { if (InputAdapter.Pressed(key)) bits |= bit; }
 
+        /// <summary>One skill press per step fits the frame (3 index bits); a second press before the step goes out is dropped, the first one wins.</summary>
+        void LatchSkill()
+        {
+            if (InputBits.SkillIndex(latched) >= 0) return;
+            for (int i = 0; i < 8; i++)
+                if (InputAdapter.Pressed(GameKey.Skill1 + i)) { latched = InputBits.WithSkill(latched, i); return; }
+            HeroController hero = LocalPlayer.Hero;
+            if (hero != null && InputAdapter.Pressed(GameKey.Skill)) latched = InputBits.WithSkill(latched, hero.PrimarySkillIndex); // L / bots: the primary skill
+        }
+
         /// <summary>Every render frame.</summary>
         public void Poll()
         {
             if (!Live) { latched = 0; return; }
             Latch(ref latched, GameKey.Attack, InputBits.Attack);
             Latch(ref latched, GameKey.Dash, InputBits.Dash);
-            Latch(ref latched, GameKey.Skill, InputBits.Skill);
+            LatchSkill();
             Latch(ref latched, GameKey.HpPotion, InputBits.HpPotion);
             Latch(ref latched, GameKey.MpPotion, InputBits.MpPotion);
         }

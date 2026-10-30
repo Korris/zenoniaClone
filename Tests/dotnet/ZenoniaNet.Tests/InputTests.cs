@@ -12,6 +12,40 @@ public class InputTests
     }
 
     [Fact]
+    public void SkillIndexHelpersRoundTripAndIgnoreBadIndexes()
+    {
+        for (int i = 0; i < 8; i++) { ushort b = InputBits.WithSkill(InputBits.Left, i); Assert.Equal(i, InputBits.SkillIndex(b)); Assert.True((b & InputBits.Left) != 0); Assert.True(b <= InputBits.AllMask); }
+        Assert.Equal(-1, InputBits.SkillIndex(InputBits.Attack));
+        Assert.Equal(InputBits.Up, InputBits.WithSkill(InputBits.Up, 8));
+        Assert.Equal(InputBits.Up, InputBits.WithSkill(InputBits.Up, -1));
+        Assert.Equal(3, InputBits.SkillIndex(InputBits.WithSkill(InputBits.WithSkill(0, 6), 3))); // replacing, never OR-ing
+    }
+
+    [Fact]
+    public void ServerHeroSeesTheSkillPressForExactlyItsFrame()
+    {
+        var s = new ServerInputState();
+        s.Accept(new[] { F(1, InputBits.Right), F(2, InputBits.WithSkill(InputBits.Right, 5)), F(3, InputBits.Right) }, 3, 0);
+        Consume(s); Assert.Equal(-1, InputBits.SkillIndex(s.Current));
+        Consume(s); Assert.Equal(5, InputBits.SkillIndex(s.Current));
+        Consume(s); Assert.Equal(-1, InputBits.SkillIndex(s.Current));
+    }
+
+    [Fact]
+    public void CutFramesKeepTheirSkillPressAndNeverMergeIndexes()
+    {
+        var s = new ServerInputState();
+        // 14 frames in two packets: the buffer cuts the oldest ones; frames 2 (skill 3) and 3 (skill 6) are cut, the first press survives intact
+        s.Accept(new[] { F(1), F(2, InputBits.WithSkill(0, 3)), F(3, InputBits.WithSkill(0, 6)), F(4), F(5) }, 5, 0);
+        s.Accept(new[] { F(6), F(7), F(8), F(9), F(10) }, 5, 1);
+        s.Accept(new[] { F(11), F(12), F(13) }, 3, 2);
+        Consume(s);
+        int idx = InputBits.SkillIndex(s.Current);
+        Assert.True(idx == 3 || idx == -1, "an index must be one of the pressed ones, never an OR of both, got " + idx);
+        Assert.NotEqual(7, idx);
+    }
+
+    [Fact]
     public void RedundancyRepeatsTheLastFiveFramesOldestFirst()
     {
         var r = new InputRedundancy();

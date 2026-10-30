@@ -80,8 +80,9 @@ namespace ZenoniaProto
                 case NetEventType.SkillCast:
                     HeroController caster = HeroOf(e.Id);
                     stats.Add("skillCastsSeen", 1);
-                    if (caster != null && caster.IsPredicted && caster.PredictsSkillFx) break; // started locally
-                    if (fx && caster != null) caster.PlaySkillFx(at, e.Other);
+                    int skill = SkillCastCode.Index(e.Step);
+                    if (caster != null && caster.IsPredicted && caster.PredictsSkillFx(skill)) break; // started locally at the key press
+                    if (fx && caster != null) caster.PlaySkillFx(skill, SkillCastCode.Rank(e.Step), e.Other);
                     break;
                 case NetEventType.ExpGain:
                     HeroController me = LocalPlayer.Hero;

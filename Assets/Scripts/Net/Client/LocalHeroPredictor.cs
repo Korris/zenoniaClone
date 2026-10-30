@@ -59,8 +59,7 @@ namespace ZenoniaProto
             {
                 case GameKey.Attack: return (bits & InputBits.Attack) != 0;
                 case GameKey.Dash: return (bits & InputBits.Dash) != 0;
-                case GameKey.Skill: return (bits & InputBits.Skill) != 0;
-                default: return false;
+                default: return k >= GameKey.Skill1 && k <= GameKey.Skill8 && InputBits.PressesSkill(bits, k - GameKey.Skill1);
             }
         }
 
@@ -110,6 +109,12 @@ namespace ZenoniaProto
 
         // ---- reconciliation ----
 
+        /// <summary>Counts every bit of a state disagreement under stateDiff&lt;bit&gt; (0 dead, 1 dash, 2 cast, 3-4 combo phase, 5-8 combo step, 9-10 facing, 12 attack-speed buff).</summary>
+        void CountStateDiff(int diff)
+        {
+            for (int b = 0; b < 13; b++) if ((diff & (1 << b)) != 0) stats.Add("stateDiff" + b, 1);
+        }
+
         /// <summary>Applies the owner block of a snapshot: `lastInput` = low 16 bits of the last frame the server simulated, `me` = its entry for this hero.</summary>
         public void OnServerState(ushort lastInput, HeroSnap me, OwnerSim s)
         {
@@ -124,6 +129,7 @@ namespace ZenoniaProto
             bool known = r.Seq == last;
             float err = known ? Vector2.Distance(server, new Vector2(r.X, r.Y)) : float.MaxValue;
             stats.Add("reconciles", 1);
+            if (known && err <= PositionTolerance && serverState != r.State) CountStateDiff(r.State ^ serverState); // telemetry: which part of the discrete state disagreed
             if (known && err <= PositionTolerance && serverState == r.State) { stats.Sample("correctionUnits", 0f); return; }
 
             Vector2 before = hero.SimPosition;

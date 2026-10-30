@@ -5,7 +5,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// What the skill tree window can ask for. Offline it edits the local PlayerState and saves; online the server owns the state and the
-    /// window only sends requests (phase 04 wires the real InvOp messages into OnlineActions; until then it refuses with a clear message).
+    /// window only sends requests (InvOp.SkillLearn / SkillAssign / SkillRespec) and redraws when the server's RpgState arrives.
     /// </summary>
     public interface ISkillTreeActions
     {
@@ -69,12 +69,30 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Online: requests travel as inventory ops; the server validates, applies and answers with the full RpgState (toast + redraw).</summary>
         sealed class OnlineActions : ISkillTreeActions
         {
-            const string NotYet = "Skill changes online arrive with the netcode update";
-            public ActionResult Learn(int skillIndex) { return ActionResult.Fail(NotYet); }
-            public ActionResult Assign(int slot, int skillIndex) { return ActionResult.Fail(NotYet); }
-            public ActionResult Respec() { return ActionResult.Fail(NotYet); }
+            public ActionResult Learn(int skillIndex)
+            {
+                PlayerState p = RpgSession.Player;
+                if (p == null) return ActionResult.Fail("No character");
+                string why = Reason(p, SkillTable.Get(p.ClassId, skillIndex));
+                if (why != null) return ActionResult.Fail(why);
+                NetClient.SendInvAction(InvOp.SkillLearn, "", (byte)skillIndex);
+                return ActionResult.Success("Learning...");
+            }
+
+            public ActionResult Assign(int slot, int skillIndex)
+            {
+                NetClient.SendInvAction(InvOp.SkillAssign, slot.ToString(), skillIndex < 0 ? PlayerRpg.NoSkill : (byte)skillIndex);
+                return ActionResult.Success(skillIndex < 0 ? "Clearing..." : "Assigning...");
+            }
+
+            public ActionResult Respec()
+            {
+                NetClient.SendInvAction(InvOp.SkillRespec, "", 0);
+                return ActionResult.Success("Resetting...");
+            }
         }
     }
 }

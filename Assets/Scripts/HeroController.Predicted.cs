@@ -25,10 +25,6 @@ namespace ZenoniaProto
 
         public bool IsPredicted { get { return predicted; } }
         public LocalHeroPredictor Predictor { get { return predictor; } }
-        /// <summary>The warrior / wizard skills are pictures + damage the server decides, so they start at once; blink and heal wait for the server.</summary>
-        public bool PredictsSkillFx { get { return PredictsSkill; } }
-        bool PredictsSkill { get { return cls.Id == HeroClass.Warrior || cls.Id == HeroClass.Wizard; } }
-
         /// <summary>Online local hero: from now on it simulates itself in fixed steps from the player's own controls and is corrected by the server.</summary>
         public void AttachPredictor(LocalHeroPredictor p)
         {

@@ -55,7 +55,7 @@ namespace ZenoniaProto.Net
             try
             {
                 m.ReqId = r.GetUInt(); byte op = r.GetByte(); m.ItemUid = r.GetString(NetProtocol.MaxItemUidLength); m.Slot = r.GetByte();
-                if (op > (byte)InvOp.Enhance) return false;
+                if (op > (byte)InvOp.SkillRespec) return false;
                 m.Op = (InvOp)op;
                 return true;
             }
@@ -104,8 +104,10 @@ namespace ZenoniaProto.Net
             m = default(SelfStateMsg);
             try
             {
-                m.Hp = r.GetUShort(); m.MaxHp = r.GetUShort(); m.Mp = r.GetUShort(); m.MaxMp = r.GetUShort(); m.Exp = r.GetUInt(); m.Level = r.GetByte(); m.SkillCdLeft = r.GetFloat();
-                return !float.IsNaN(m.SkillCdLeft) && !float.IsInfinity(m.SkillCdLeft);
+                m.Hp = r.GetUShort(); m.MaxHp = r.GetUShort(); m.Mp = r.GetUShort(); m.MaxMp = r.GetUShort(); m.Exp = r.GetUInt(); m.Level = r.GetByte();
+                m.SkillCds = new ushort[OwnerSim.CdSlots];
+                for (int i = 0; i < m.SkillCds.Length; i++) m.SkillCds[i] = r.GetUShort();
+                return true;
             }
             catch (Exception) { return false; }
         }

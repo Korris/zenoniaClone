@@ -33,13 +33,6 @@ namespace ZenoniaProto
         /// <summary>Ice Storm: slows movement and tints the sprite blue for the given time.</summary>
         public void Chill(float ms) { ApplyStatus(new StatusSpec(StatusKind.Chill, ChillPct, Mathf.RoundToInt(ms)), null); }
 
-        /// <summary>Snapshot flag bridge for Monster.Net.cs (phase 04 replaces it with the dominant status code): any slowing status counts as chilled.</summary>
-        float chillLeft
-        {
-            get { return status.Has(StatusKind.Chill) || status.Has(StatusKind.Slow) || status.Has(StatusKind.Freeze) ? 1f : 0f; }
-            set { status.ForceChill(value); }
-        }
-
         float SpeedScale { get { return status.SpeedFactor; } }
 
         /// <summary>One damage-over-time tick: a quiet hit credited to the caster (EXP and loot ownership follow the damage table).</summary>

@@ -38,7 +38,7 @@ namespace ZenoniaProto
                 Body = body, Def = def, Rank = Mathf.Max(1, rank), CastFrom = feet, Dir = HeroSkillBody.DirOf(body.Facing),
                 Authority = NetMode.IsAuthority, View = NetMode.RendersFx,
             };
-            ctx.Seed = SkillScatter.Seed(body.NetId, def.Index, feet.x, feet.y, salt);
+            ctx.Seed = SkillScatter.Seed(body.NetId, def.Index, 0f, 0f, salt); // position free: the proxy a client sees stands a hair off the server hero
             float reach = def.TargetRange * GameConfig.TileUnits;
             if (def.Targeting == SkillTargeting.NearestEnemy)
             {

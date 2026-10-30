@@ -10,7 +10,7 @@ namespace ZenoniaProto.Net
     /// <summary>Protocol constants shared by server and clients (bump Version on any wire change).</summary>
     public static class NetProtocol
     {
-        public const ushort Version = 2;
+        public const ushort Version = 3;
         public const int MaxNameLength = 16, MaxTokenLength = 64, MaxTextLength = 120, MaxItemUidLength = 40, MaxSaveJsonLength = 60000;
         /// <summary>Largest unfragmented snapshot: LiteNetLib refuses an unreliable packet over 1023 B (MTU 1024), so 1000 B.</summary>
         public const int SnapshotMaxBytes = 1000;
@@ -22,5 +22,5 @@ namespace ZenoniaProto.Net
 
     public enum RejectReason : byte { Full = 0, Version = 1, BadToken = 2, AlreadyOnline = 3 }
 
-    public enum InvOp : byte { Equip = 0, Unequip = 1, Use = 2, Discard = 3, Sort = 4, Enhance = 5 }
+    public enum InvOp : byte { Equip = 0, Unequip = 1, Use = 2, Discard = 3, Sort = 4, Enhance = 5, SkillLearn = 6, SkillAssign = 7, SkillRespec = 8 }
 }

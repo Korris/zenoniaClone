@@ -4,8 +4,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// ISkillBody over a HeroController using only its public API, so the executor runs without any hero-controller edit.
-    /// Gaps closed by phase 04 (HeroController implements ISkillBody itself): AddInvuln, cast-lock, MP / cooldown, prediction-aware motion.
+    /// ISkillBody over a HeroController (public API only). Cast lock, MP and cooldowns are HeroController.TryCastSkill's job, not the body's.
     /// </summary>
     public sealed class HeroSkillBody : ISkillBody
     {
@@ -23,7 +22,7 @@ namespace ZenoniaProto
         public ClassPalette Palette { get { return hero.Class.ActivePalette; } }
         public bool IsDead { get { return hero == null || hero.IsDead; } }
         public bool IsLocal { get { return hero == LocalPlayer.Hero; } }
-        public float Atk { get { return hero.AtkStat * HeroBuffs.AtkMul(hero); } }
+        public float Atk { get { return hero.AtkStat; } } // AtkStat already includes the buffs
         public BuffState Buffs { get { return HeroBuffs.For(hero); } }
 
         public static int FacingOf(Vector2 dir)
@@ -44,7 +43,7 @@ namespace ZenoniaProto
 
         public void BeginForcedMove(Vector2 dir, float units, float ms) { SkillMotion.Begin(this, dir, units, ms); }
 
-        public void AddInvuln(float ms) { /* phase 04: HeroController.invuln = Max(invuln, ms) */ }
+        public void AddInvuln(float ms) { hero.AddInvuln(ms); }
 
         public float Heal(float amount)
         {

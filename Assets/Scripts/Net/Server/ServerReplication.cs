@@ -193,7 +193,7 @@ namespace ZenoniaProto
             {
                 Hp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.Hp), 0, 65535), MaxHp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.MaxHp), 1, 65535),
                 Mp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.Mp), 0, 65535), MaxMp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.MaxMp), 1, 65535),
-                Exp = (uint)Mathf.Max(0, h.Rpg.Exp), Level = (byte)Mathf.Clamp(h.Rpg.Level, 1, 255), SkillCdLeft = h.SkillCooldownLeftMs,
+                Exp = (uint)Mathf.Max(0, h.Rpg.Exp), Level = (byte)Mathf.Clamp(h.Rpg.Level, 1, 255), SkillCds = h.SkillCooldownsMs(),
             };
             NetMessageWriter.SelfState(w, m);
             p.LastSelf = m;

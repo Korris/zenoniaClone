@@ -50,7 +50,7 @@ namespace ZenoniaProto
                     MonsterDef md = MonsterDef.ByIndex(m.Type);
                     if (md == null) return;
                     Monster mo = Monster.CreateProxy(root, md, at, m.Id);
-                    mo.ProxyApply(at, m.Facing, m.State, -1, false, false, NetQuantize.HpPct(m.Hp, m.MaxHp), 0f);
+                    mo.ProxyApply(at, m.Facing, m.State, -1, false, 0, false, NetQuantize.HpPct(m.Hp, m.MaxHp), 0f);
                     break;
                 case EntityKind.Loot:
                     LootEntry e;
@@ -97,7 +97,7 @@ namespace ZenoniaProto
                 if (!m.IsProxy || !buffer.TryMonster(m.NetId, renderTime, out s)) continue;
                 int ai = (s.AttackBits & 7) - 1;
                 m.ProxyApply(new Vector2(s.X, s.Y), NetQuantize.Facing(s.FacingState), NetQuantize.Bits(s.FacingState), ai,
-                    (s.AttackBits & MonsterBits.Airborne) != 0, (s.AttackBits & MonsterBits.Chilled) != 0, s.HpPct, s.DeathProgress);
+                    (s.AttackBits & MonsterBits.Airborne) != 0, MonsterBits.Status(s.AttackBits), (s.AttackBits & MonsterBits.Marked) != 0, s.HpPct, s.DeathProgress);
             }
         }
 

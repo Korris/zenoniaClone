@@ -63,6 +63,21 @@ public class MessageRoundTripTests
     }
 
     [Fact]
+    public void SkillInvActionsRoundTripAndOneBeyondTheLastIsRejected()
+    {
+        var w = new NetDataWriter();
+        foreach (InvOp op in new[] { InvOp.SkillLearn, InvOp.SkillAssign, InvOp.SkillRespec })
+        {
+            NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 5, Op = op, ItemUid = "3", Slot = 255 });
+            InvActionMsg m; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out m));
+            Assert.Equal(op, m.Op); Assert.Equal("3", m.ItemUid); Assert.Equal(255, m.Slot);
+        }
+        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.SkillRespec + 1); w.Put("x"); w.Put((byte)0);
+        InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
+        Assert.Equal(3, NetProtocol.Version);
+    }
+
+    [Fact]
     public void InvActionRoundTripAndBadOpRejected()
     {
         var w = new NetDataWriter();
@@ -71,6 +86,25 @@ public class MessageRoundTripTests
         Assert.Equal(99u, m.ReqId); Assert.Equal(InvOp.Enhance, m.Op); Assert.Equal("abc-123", m.ItemUid); Assert.Equal(2, m.Slot);
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)77); w.Put("x"); w.Put((byte)0);
         Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out m));
+    }
+
+    [Fact]
+    public void InputFrameCarriesTheSkillIndexInTheSameTwoBytes()
+    {
+        var w = new NetDataWriter();
+        var frames = new[]
+        {
+            new InputFrame { Seq = 1, Bits = InputBits.WithSkill(InputBits.Right, 7) },
+            new InputFrame { Seq = 2, Bits = InputBits.WithSkill(InputBits.Attack | InputBits.MpPotion, 0) },
+            new InputFrame { Seq = 3, Bits = InputBits.Up },
+        };
+        NetMessageWriter.Input(w, 0, frames, 3);
+        Assert.Equal(1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes, w.Length);
+        var buf = new InputFrame[NetProtocol.MaxInputFrames]; ushort ack; int n;
+        Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
+        Assert.Equal(7, InputBits.SkillIndex(buf[0].Bits)); Assert.True((buf[0].Bits & InputBits.Right) != 0);
+        Assert.Equal(0, InputBits.SkillIndex(buf[1].Bits)); Assert.True((buf[1].Bits & InputBits.MpPotion) != 0);
+        Assert.Equal(-1, InputBits.SkillIndex(buf[2].Bits));
     }
 
     [Fact]
@@ -89,9 +123,9 @@ public class MessageRoundTripTests
         DespawnMsg dm; Assert.True(NetMessageReader.TryDespawn(Reader(w, NetOp.Despawn), out dm));
         Assert.Equal(55, dm.Id); Assert.Equal(DespawnCause.PickedUp, dm.Cause);
 
-        NetMessageWriter.SelfState(w, new SelfStateMsg { Hp = 120, MaxHp = 200, Mp = 30, MaxMp = 60, Exp = 4000, Level = 9, SkillCdLeft = 1.5f });
+        NetMessageWriter.SelfState(w, new SelfStateMsg { Hp = 120, MaxHp = 200, Mp = 30, MaxMp = 60, Exp = 4000, Level = 9, SkillCds = new ushort[] { 0, 1500, 0, 0, 0, 0, 0, 65535 } });
         SelfStateMsg sm; Assert.True(NetMessageReader.TrySelfState(Reader(w, NetOp.SelfState), out sm));
-        Assert.Equal(120, sm.Hp); Assert.Equal(4000u, sm.Exp); Assert.Equal(1.5f, sm.SkillCdLeft);
+        Assert.Equal(120, sm.Hp); Assert.Equal(4000u, sm.Exp); Assert.Equal(8, sm.SkillCds.Length); Assert.Equal(1500, sm.SkillCds[1]); Assert.Equal(65535, sm.SkillCds[7]);
 
         NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = 4, Result = 1, Text = "ok", SaveJson = "{\"a\":1}" });
         RpgStateMsg pm; Assert.True(NetMessageReader.TryRpgState(Reader(w, NetOp.RpgState), out pm));
@@ -134,7 +168,7 @@ public class MessageRoundTripTests
             new NetEvent { Type = NetEventType.BoltEnd, Id = 2, X = 10, Y = 20, Flags = 1 },
             new NetEvent { Type = NetEventType.MonsterHit, Id = 300, Other = 1, Dmg = 65000, HpLeft = 12, Flags = HitFlags.Crit | HitFlags.Quiet, KnockX = -30, KnockY = 127 },
             new NetEvent { Type = NetEventType.HeroHit, Id = 1, Dmg = 14, Other = 300 },
-            new NetEvent { Type = NetEventType.SkillCast, Id = 1, Step = 2, X = 7, Y = 8, Facing = 1, Other = 301 },
+            new NetEvent { Type = NetEventType.SkillCast, Id = 1, Step = SkillCastCode.Pack(6, 4), X = 7, Y = 8, Facing = 1, Other = 65001 },
             new NetEvent { Type = NetEventType.HeroDied, Id = 1, X = 5, Y = 6 },
             new NetEvent { Type = NetEventType.HeroRespawned, Id = 1, X = 5, Y = 6 },
             new NetEvent { Type = NetEventType.ExpGain, Value = 123456, Step = 2 },
@@ -155,6 +189,7 @@ public class MessageRoundTripTests
         Assert.Equal(65000, got[3].Dmg); Assert.Equal(-30, got[3].KnockX); Assert.Equal(127, got[3].KnockY);
         Assert.Equal(123456u, got[8].Value); Assert.Equal("Inventory full", got[12].Text); Assert.Equal(0xFF8855FFu, got[12].Value);
         Assert.Equal(7, got[11].Look.WeaponTier);
+        Assert.Equal(6, SkillCastCode.Index(got[5].Step)); Assert.Equal(4, SkillCastCode.Rank(got[5].Step)); Assert.Equal(65001, got[5].Other); Assert.Equal(1, got[5].Facing);
     }
 
     [Fact]

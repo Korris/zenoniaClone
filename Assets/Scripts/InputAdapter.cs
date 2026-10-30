@@ -14,7 +14,7 @@ namespace ZenoniaProto
         SolidDebug,                // F9: tint the solid tiles
         Class4, Class5,            // class select screen (4 / 5)
         Switch4, Switch5,          // in-game class switch (F4 / F5)
-        Skill,                     // L: class signature skill / ultimate
+        Skill,                     // alias of the primary skill (bots, debug tools); the L key is SlotKey2
         FxColor,                   // C: mechanic FX colour (orange / blue)
         Inventory,                 // B: inventory / equipment panel
         HpPotion, MpPotion,        // 1 / 2 in game (the same keys pick a class on the select screen)
@@ -24,7 +24,9 @@ namespace ZenoniaProto
         Interact,                  // E: talk to a nearby NPC / advance a dialogue (UiWindows)
         Chat,                      // Enter: focus the chat input / confirm a dialogue step (UiWindows)
         SkillPage,                 // Tab: next page of the touch skill magazine
-        SkillTree                  // T: skill tree window
+        SkillTree,                 // T: skill tree window
+        Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill7, Skill8, // tree skill 1-8 (touch magazine taps, bots, resolved slot keys); no physical key
+        SlotKey1, SlotKey2, SlotKey3 // U / I(L) / O: the three visible magazine slots of the current page (Dash or a skill)
     }
 
     /// <summary>
@@ -33,7 +35,7 @@ namespace ZenoniaProto
     /// Bot* hooks let the screenshot demo (DebugCapture) drive the hero without a keyboard; the on-screen TouchControls (D-pad + buttons)
     /// feed the same keys.
     /// </summary>
-    public static class InputAdapter
+    public static partial class InputAdapter
     {
         public static Func<GameKey, bool> BotHeld, BotPressed;
 #if ENABLE_LEGACY_INPUT_MANAGER
@@ -61,9 +63,9 @@ namespace ZenoniaProto
             new[] { KeyCode.Alpha5, KeyCode.Keypad5 },
             new[] { KeyCode.F4 },
             new[] { KeyCode.F5 },
-            new[] { KeyCode.L },
+            new KeyCode[0],
             new[] { KeyCode.C },
-            new[] { KeyCode.B, KeyCode.I },
+            new[] { KeyCode.B },
             new[] { KeyCode.Alpha1, KeyCode.Keypad1 },
             new[] { KeyCode.Alpha2, KeyCode.Keypad2 },
             new[] { KeyCode.Escape },
@@ -73,6 +75,10 @@ namespace ZenoniaProto
             new[] { KeyCode.Return, KeyCode.KeypadEnter },
             new[] { KeyCode.Tab },
             new[] { KeyCode.T },
+            new KeyCode[0], new KeyCode[0], new KeyCode[0], new KeyCode[0], new KeyCode[0], new KeyCode[0], new KeyCode[0], new KeyCode[0],
+            new[] { KeyCode.U },
+            new[] { KeyCode.I, KeyCode.L },
+            new[] { KeyCode.O },
         };
 
         static bool KeyHeld(GameKey k)
@@ -113,9 +119,9 @@ namespace ZenoniaProto
             new[] { Key.Digit5, Key.Numpad5 },
             new[] { Key.F4 },
             new[] { Key.F5 },
-            new[] { Key.L },
+            new Key[0],
             new[] { Key.C },
-            new[] { Key.B, Key.I },
+            new[] { Key.B },
             new[] { Key.Digit1, Key.Numpad1 },
             new[] { Key.Digit2, Key.Numpad2 },
             new[] { Key.Escape },
@@ -124,6 +130,11 @@ namespace ZenoniaProto
             new[] { Key.E },
             new[] { Key.Enter, Key.NumpadEnter },
             new[] { Key.Tab },
+            new[] { Key.T },
+            new Key[0], new Key[0], new Key[0], new Key[0], new Key[0], new Key[0], new Key[0], new Key[0],
+            new[] { Key.U },
+            new[] { Key.I, Key.L },
+            new[] { Key.O },
         };
 
         static bool KeyHeld(GameKey k)
@@ -180,7 +191,7 @@ namespace ZenoniaProto
         public static bool Pressed(GameKey k)
         {
             if (Gated(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
-            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || (k == GameKey.Dash && DoubleTapDash());
+            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || (k == GameKey.Dash && DoubleTapDash()) || SlotKeyPressed(k);
         }
     }
 }

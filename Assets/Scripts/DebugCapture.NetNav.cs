@@ -88,7 +88,7 @@ namespace ZenoniaProto
             return TileCenter(new Vector2Int(z.Tx + z.W / 2, z.Ty + z.H / 2));
         }
 
-        void EnableNavBot(bool boss, Vector2 offset)
+        void EnableNavBot(bool boss, Vector2 offset, bool cycleSkills = false)
         {
             int slot = 0;
             foreach (char c in NetLaunchArgs.Name ?? "") slot = slot * 7 + c;
@@ -129,7 +129,14 @@ namespace ZenoniaProto
                 decide();
                 if (k == GameKey.Attack) return attack;
                 HeroController h = GameSession.Hero;
-                if (k == GameKey.Skill && attack && Time.time >= nextSkill) { nextSkill = Time.time + 4.5f + Random.value; return true; }
+                if (cycleSkills && h != null && k >= GameKey.Skill1 && k <= GameKey.Skill8)
+                {
+                    int next = NextBotSkill(h.Rpg);
+                    if (!attack || Time.time < nextSkill || next != k - GameKey.Skill1) return false;
+                    botSkillCursor = next; nextSkill = Time.time + 1.2f;
+                    return true;
+                }
+                if (!cycleSkills && k == GameKey.Skill && attack && Time.time >= nextSkill) { nextSkill = Time.time + 4.5f + Random.value; return true; }
                 if (k == GameKey.HpPotion && h != null && h.Hp < h.MaxHp * 0.4f && Time.time >= nextPotion) { nextPotion = Time.time + 2f; return true; }
                 return false;
             };

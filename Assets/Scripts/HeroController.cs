@@ -57,7 +57,7 @@ namespace ZenoniaProto
         public HeroRenderer View { get { return view; } }
         public float Hp { get { return hp; } }
         public float MaxHp { get { return rpg.MaxHp; } }
-        public float AtkStat { get { return rpg.Atk; } }
+        public float AtkStat { get { return rpg.Atk * HeroBuffs.AtkMul(this); } } // temporary ATK buffs included
         public float DefStat { get { return rpg.Def; } }
         public float CritBonus { get { return rpg.CritBonus; } }
         public PlayerState Rpg { get { return rpg; } }
@@ -90,6 +90,7 @@ namespace ZenoniaProto
             rpg = state ?? PlayerState.NewGame(RpgSession.ClassId(cls.Id));
             combo = new ComboSystem(cls.Hits, cls.ChainMs);
             ResetSkillState();
+            if (view != null) SkillExecutor.Preload(rpg.ClassId); // first-cast hitch fix: load the painted skill art now
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
             transform.position = new Vector3(x, y, 0f);
@@ -156,7 +157,7 @@ namespace ZenoniaProto
             bool dashing = dashLeft > 0f;
             if (!combo.IsAttacking && !dashing && input != Vector2.zero) UpdateFacing(input);
 
-            if (!dashing && Pressed(GameKey.Skill) && TryCastSkill()) return;
+            if (!dashing) { int skill = PressedSkill(); if (skill >= 0 && TryCastSkill(skill)) return; }
             if (!dashing && Pressed(GameKey.Attack)) combo.PressAttack();
             if (!dashing && !combo.IsAttacking && dashCooldown <= 0f && Pressed(GameKey.Dash))
             {
@@ -169,7 +170,7 @@ namespace ZenoniaProto
 
             UpdateRangedCastFx();
             events.Clear();
-            combo.Update(dtMs, events);
+            combo.Update(dtMs * HeroBuffs.AtkSpeedMul(this), events);
             for (int i = 0; i < events.Count; i++) if (events[i].Type == ComboEventType.Hit) DoHit(events[i].Step);
             if (stabLeft > 0f && (stabLeft -= dtMs) <= 0f) MeleeStrike(stabHit, stabStep, true);
 

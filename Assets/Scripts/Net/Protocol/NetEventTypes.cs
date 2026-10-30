@@ -16,6 +16,17 @@ namespace ZenoniaProto.Net
         public static NetAppearance Read(NetDataReader r) { return new NetAppearance { WeaponTier = r.GetByte(), OffTier = r.GetByte(), EnhanceBand = r.GetByte(), Flags = r.GetByte() }; }
     }
 
+    /// <summary>
+    /// SkillCast event packing: Step = (rank &lt;&lt; 3) | skill index (0-7), Other = cast salt (low 16 bits of the caster's input step: server and every
+    /// client seed the same rain pattern from it), X/Y = where the caster stood, Facing = its facing.
+    /// </summary>
+    public static class SkillCastCode
+    {
+        public static byte Pack(int index, int rank) { return (byte)((System.Math.Min(15, System.Math.Max(1, rank)) << 3) | (index & 7)); }
+        public static int Index(byte step) { return step & 7; }
+        public static int Rank(byte step) { return System.Math.Max(1, step >> 3); }
+    }
+
     /// <summary>MonsterHit flag bits.</summary>
     public static class HitFlags { public const byte Crit = 1, Finisher = 2, Quiet = 4; }
 

@@ -97,7 +97,7 @@ namespace ZenoniaProto
             rpg.Hp = m.Hp; rpg.Mp = m.Mp;
             if (m.Level != rpg.Level || m.MaxHp != rpg.MaxHp) { rpg.Level = Mathf.Max(1, m.Level); rpg.Exp = (int)m.Exp; rpg.RecomputeStats(); rpg.Hp = m.Hp; rpg.Mp = m.Mp; }
             rpg.Exp = (int)m.Exp;
-            if (!predicted) skillCd = m.SkillCdLeft; // the predicted hero gets its cooldown with the sim state
+            if (!predicted) ApplySelfCooldowns(m.SkillCds); // the predicted hero gets its cooldowns with the sim state
         }
 
         /// <summary>Client: the server says this hero was hit / healed / died (pure presentation hooks for events).</summary>
@@ -144,26 +144,8 @@ namespace ZenoniaProto
             HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), tip, dir, angle, painted);
         }
 
-        /// <summary>The class skill picture: ultimates play their timeline (damage is the server's), blink / heal show their own FX.</summary>
-        public void PlaySkillFx(Vector2 at, ushort arg)
-        {
-            switch (cls.Id)
-            {
-                case HeroClass.Warrior: EarthBreakUltimate.Cast(this); break;
-                case HeroClass.Wizard: IceStormUltimate.Cast(this); break;
-                case HeroClass.Assassin:
-                    {
-                        Vector2 from = new Vector2(x, y);
-                        Monster target = Zone.Main != null ? Zone.Main.Ids.Get(arg) as Monster : null;
-                        Vector2 hit = target != null ? new Vector2(target.Center.x, target.Center.y + 4f) : at;
-                        Vector2 toTarget = hit - at;
-                        HeroFx.ShadowTrail(from, at);
-                        HeroFx.ShadowStrike(hit, Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg, at, at);
-                        break;
-                    }
-                case HeroClass.Cleric: HeroFx.Heal(new Vector2(x, y), arg); break;
-            }
-        }
+        /// <summary>Another player's (or the server-confirmed own) skill cast: replays the skill with the server's rank and cast salt (view only, the server owns the effects).</summary>
+        public void PlaySkillFx(int index, int rank, int salt) { SkillExecutor.Cast(this, index, rank, salt); }
     }
 }
 

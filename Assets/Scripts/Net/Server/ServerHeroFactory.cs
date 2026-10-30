@@ -15,6 +15,12 @@ namespace ZenoniaProto
             go.transform.SetParent(zone.Root, false);
             HeroController hero = go.AddComponent<HeroController>();
             PlayerState state = PlayerState.NewGame(RpgSession.ClassId(def.Id));
+            if (NetLaunchArgs.DevLevel > state.Level)
+            {
+                state.Level = NetLaunchArgs.DevLevel; // test servers only (--dev-level): skill points to spend
+                state.RecomputeStats();
+                state.Hp = state.MaxHp; state.Mp = state.MaxMp;
+            }
             if (NetMode.IsHeadless) hero.InitHeadless(def, state);
             else
             {
@@ -30,6 +36,7 @@ namespace ZenoniaProto
             hero.AiPressed = p.Input.Pressed;
             hero.StepGate = p.Input.Advance;
             hero.ExtraStepGate = p.Input.AdvanceExtra;
+            hero.InputSeq = () => p.Input.State.LastSeq;
             hero.Teleport(EntrancePoint(), 0);
             p.Hero = hero;
             p.Rpg = hero.Owner;

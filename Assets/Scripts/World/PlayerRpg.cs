@@ -94,11 +94,37 @@ namespace ZenoniaProto
                     EnhanceResult er = EnhanceSystem.Attempt(State, target);
                     r = er.Ok ? (er.Success ? ActionResult.Success("Enhanced to +" + er.Level) : ActionResult.Fail("Enhance failed (+" + er.Level + " kept)")) : ActionResult.Fail("Cannot enhance");
                     break;
+                case InvOp.SkillLearn: r = LearnSkill(slot); break;
+                case InvOp.SkillAssign: r = AssignSkill(slot, itemUid); break;
+                case InvOp.SkillRespec: r = SkillRespec.Apply(State); break;
                 default: r = ActionResult.Fail("Unknown action"); break;
             }
             Touch();
             return r;
         }
+
+        /// <summary>Skill tree request: spend 1 SP on tree skill `index` (learn or rank up), validated by the same rules as the offline window.</summary>
+        ActionResult LearnSkill(int index)
+        {
+            SkillDef def = SkillTable.Get(State.ClassId, index);
+            if (def == null) return ActionResult.Fail("No such skill");
+            string why = SkillTreeActions.Reason(State, def);
+            if (why != null) return ActionResult.Fail(why);
+            State.LearnSkill(index);
+            return ActionResult.Success(State.Skills[index] == 1 ? "Learned " + def.Name : def.Name + " rank " + State.Skills[index]);
+        }
+
+        /// <summary>Skill tree request: put tree skill `skill` (255 = clear) into magazine slot `slotText` (0-7, sent in the item uid field).</summary>
+        ActionResult AssignSkill(byte skill, string slotText)
+        {
+            int slot;
+            if (!int.TryParse(slotText, out slot) || slot < 0 || slot >= SkillLoadout.Slots) return ActionResult.Fail("Invalid slot");
+            if (skill == NoSkill) { State.Loadout.Unassign(slot); return ActionResult.Success("Slot cleared"); }
+            return State.Loadout.Place(slot, skill, State.Skills) ? ActionResult.Success("Assigned") : ActionResult.Fail("Learn the skill first");
+        }
+
+        /// <summary>Slot byte of an Assign request that clears the magazine slot.</summary>
+        public const byte NoSkill = 255;
 
         Item Find(string uid) { return State.Inventory.Find(i => i.uid == uid); }
 

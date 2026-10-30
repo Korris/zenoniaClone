@@ -22,7 +22,7 @@ namespace ZenoniaProto
             run.ctx = ctx;
             run.steps = SkillSchedule.Build(ctx.Def.Effects);
             SkillCaps.Add(ctx.Body.Hero, SkillCaps.MaxRuns, run);
-            if (ctx.View) CastArt(ctx);
+            if (ctx.View) { CastArt(ctx); SkillSfx.Loop(ctx, LoopSeconds(ctx.Def, run.steps)); }
             run.Fire(); // step 0 lands on the cast frame, not one frame later
             return run;
         }
@@ -36,6 +36,15 @@ namespace ZenoniaProto
             float w = self && first != null && first.Radius > 0f ? Mathf.Max(1.6f, first.Radius * 1.6f) * ctx.Units : 1.8f * ctx.Units;
             SkillVfx.Play(ctx, SkillVfxSet.Cast, ctx.Feet, 0f, w);
             SkillSfx.Play(ctx, SkillSfx.Cast);
+        }
+
+        /// <summary>How long a looped sound should run: until the last timeline step, or the end of the longest zone.</summary>
+        static float LoopSeconds(SkillDef def, SkillStep[] steps)
+        {
+            float ms = steps.Length > 0 ? steps[steps.Length - 1].AtMs + 200f : 0f;
+            for (int i = 0; i < def.Effects.Length; i++)
+                if (def.Effects[i].Kind == EffectKind.Zone) ms = Mathf.Max(ms, def.Effects[i].AtMs + def.Effects[i].DurationMs);
+            return ms / 1000f;
         }
 
         void Update()

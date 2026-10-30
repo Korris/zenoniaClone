@@ -35,8 +35,7 @@ namespace ZenoniaProto
             {
                 case GameKey.Attack: return State.Has(InputBits.Attack);
                 case GameKey.Dash: return State.Has(InputBits.Dash);
-                case GameKey.Skill: return State.Has(InputBits.Skill);
-                default: return false;
+                default: return k >= GameKey.Skill1 && k <= GameKey.Skill8 && InputBits.PressesSkill(State.Current, k - GameKey.Skill1);
             }
         }
     }
