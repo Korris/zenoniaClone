@@ -32,11 +32,11 @@ namespace ZenoniaProto
         public static void Init(Transform parent) { root = parent; Pool.Clear(); }
 
         /// <summary>Launches a bolt. On a headless server it is a plain moving hitbox (no renderers); `src` is credited for every hit.</summary>
-        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f, HeroController src = null, ushort boltId = 0)
+        public static ComboProjectile Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f, HeroController src = null, ushort boltId = 0)
         {
             bool fx = NetMode.RendersFx;
             Sprite art = fx && bolt.Style == BoltStyle.Sprite ? BurstFx.Art(fxFolder, bolt.Sprite, palette.Tint) : null;
-            if (root == null || (fx && art == null && bolt.Style == BoltStyle.Sprite)) return;
+            if (root == null || (fx && art == null && bolt.Style == BoltStyle.Sprite)) return null;
             ComboProjectile p = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { p = Pool[i]; break; }
             if (p == null)
@@ -52,15 +52,15 @@ namespace ZenoniaProto
                 }
                 Pool.Add(p);
             }
-            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus; p.src = src; p.netId = boltId;
+            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus; p.src = src; p.netId = boltId; p.predictedOwner = null;
             p.life = bolt.Range / bolt.Speed;
-            if (!fx) { p.vfx = null; p.gameObject.SetActive(true); return; } // headless: hitbox only
+            if (!fx) { p.vfx = null; p.gameObject.SetActive(true); return p; } // headless: hitbox only
             p.sr.sprite = art; p.glow.sprite = art;
             p.sr.enabled = p.glow.enabled = bolt.Style == BoltStyle.Sprite;
             if (p.arcane != null) p.arcane.End();
             if (p.streak != null) p.streak.End();
             p.vfx = bolt.Style == BoltStyle.Sprite ? null : VfxSprites.For(bolt.Style);
-            if (p.vfx != null) { p.BeginPainted(angleDeg, finisher); return; }
+            if (p.vfx != null) { p.BeginPainted(angleDeg, finisher); return p; }
             if (bolt.Style != BoltStyle.Sprite)
             {
                 p.transform.localScale = Vector3.one; // the rigs size themselves
@@ -78,7 +78,7 @@ namespace ZenoniaProto
                     if (p.streak == null) p.streak = new StreakBoltRig(p.transform);
                     p.streak.Begin(at, angleDeg, bolt.ExplodeRadius > 0f ? 1.25f : 1f, bolt.Style, palette);
                 }
-                return;
+                return p;
             }
             p.sr.sortingOrder = FeelConfig.FxOrder - 10;
             p.glow.sortingOrder = FeelConfig.FxOrder - 9;
@@ -86,6 +86,7 @@ namespace ZenoniaProto
             p.transform.localScale = new Vector3(bolt.Scale, bolt.Scale, 1f);
             p.transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
             p.gameObject.SetActive(true);
+            return p;
         }
 
         void OnDisable()
@@ -104,7 +105,7 @@ namespace ZenoniaProto
                 for (int i = 0; i < steps; i++)
                 {
                     pos += dir * (dist / steps);
-                    if (NetMode.IsAuthority && HitSomething()) { gameObject.SetActive(false); return; } // a client bolt is only a picture: the server decides what it hits
+                    if ((NetMode.IsAuthority ? HitSomething() : predictedOwner != null && PredictedImpact())) { gameObject.SetActive(false); return; } // a client bolt is only a picture: the server decides what it hits
                 }
                 life -= dt;
                 if (life <= 0f)

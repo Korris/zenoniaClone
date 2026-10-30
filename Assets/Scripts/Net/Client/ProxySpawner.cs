@@ -14,11 +14,12 @@ namespace ZenoniaProto
         readonly Transform root;
         readonly ushort myHeroId;
         readonly NetStats stats;
+        readonly NetInputSender sender;
         readonly System.Collections.Generic.HashSet<ushort> seenPlayers = new System.Collections.Generic.HashSet<ushort>();
 
-        public ProxySpawner(SnapshotBuffer snapshotBuffer, Transform worldRoot, ushort localHeroId, NetStats netStats)
+        public ProxySpawner(SnapshotBuffer snapshotBuffer, Transform worldRoot, ushort localHeroId, NetStats netStats, NetInputSender inputSender)
         {
-            buffer = snapshotBuffer; root = worldRoot; myHeroId = localHeroId; stats = netStats;
+            buffer = snapshotBuffer; root = worldRoot; myHeroId = localHeroId; stats = netStats; sender = inputSender;
         }
 
         public void OnSpawn(SpawnMsg m)
@@ -37,6 +38,7 @@ namespace ZenoniaProto
                         if (def == null) return;
                         h = GameSession.Instance.CreateProxyHero(def, m.Id, m.Id == myHeroId);
                         h.Teleport(at, m.Facing & 3);
+                        if (m.Id == myHeroId && NetLaunchArgs.Predict) h.AttachPredictor(new LocalHeroPredictor(h, sender, stats)); // the local hero simulates itself
                         if (seenPlayers.Add(m.Id)) stats.Max("heroesSeenDistinct", seenPlayers.Count);
                     }
                     h.PlayerId = m.PlayerId;

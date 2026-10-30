@@ -55,60 +55,17 @@ namespace ZenoniaProto.Net
         }
     }
 
-    /// <summary>Decoded snapshot (client side). Lists are reused by the caller between reads.</summary>
+    /// <summary>
+    /// Decoded snapshot (client side, entries are always FULL states: deltas are resolved against the baseline while reading). Lists are reused by
+    /// the caller between reads. LastInputSeq is the 16-bit sequence of the last input frame the server simulated for the receiving player.
+    /// </summary>
     public sealed class SnapshotMsg
     {
-        public uint Seq, ServerTimeMs, LastInputSeq;
+        public uint Seq, ServerTimeMs, BaselineSeq;
+        public ushort LastInputSeq;
+        public bool HasOwner;
+        public OwnerSim Owner;
         public readonly List<HeroSnap> Heroes = new List<HeroSnap>();
         public readonly List<MonsterSnap> Monsters = new List<MonsterSnap>();
-    }
-
-    /// <summary>
-    /// Builds a size-capped snapshot from entity lists the caller already sorted by priority (nearest first). When everything does not fit,
-    /// each list is written starting at its cursor and the cursor advances past the last entry sent, so overflowed entities lead the next snapshot.
-    /// </summary>
-    public static class SnapshotPacker
-    {
-        public const int HeaderBytes = 1 + 4 + 4 + 4 + 1 + 1;
-
-        public static void Write(NetDataWriter w, uint seq, uint serverTimeMs, uint lastInputSeq, IList<HeroSnap> heroes, IList<MonsterSnap> monsters,
-            ref int heroCursor, ref int monsterCursor, int capBytes = NetProtocol.SnapshotMaxBytes)
-        {
-            int budget = capBytes - HeaderBytes;
-            int monsterWish = System.Math.Min(monsters.Count, NetProtocol.MaxSnapshotEntities) * MonsterSnap.WireBytes;
-            int heroN = System.Math.Min(System.Math.Min(heroes.Count, NetProtocol.MaxSnapshotEntities), (budget - System.Math.Min(monsterWish, budget / 2)) / HeroSnap.WireBytes);
-            int monsterN = System.Math.Min(System.Math.Min(monsters.Count, NetProtocol.MaxSnapshotEntities), (budget - heroN * HeroSnap.WireBytes) / MonsterSnap.WireBytes);
-            if (heroN < 0) heroN = 0;
-            if (monsterN < 0) monsterN = 0;
-
-            w.Reset();
-            w.Put(NetOp.Snapshot); w.Put(seq); w.Put(serverTimeMs); w.Put(lastInputSeq);
-            w.Put((byte)heroN);
-            int hc = heroes.Count == 0 ? 0 : heroCursor % heroes.Count;
-            for (int i = 0; i < heroN; i++) heroes[(hc + i) % heroes.Count].Write(w);
-            heroCursor = heroN >= heroes.Count ? 0 : (hc + heroN) % heroes.Count;
-            w.Put((byte)monsterN);
-            int mc = monsters.Count == 0 ? 0 : monsterCursor % monsters.Count;
-            for (int i = 0; i < monsterN; i++) monsters[(mc + i) % monsters.Count].Write(w);
-            monsterCursor = monsterN >= monsters.Count ? 0 : (mc + monsterN) % monsters.Count;
-        }
-
-        /// <summary>Reads the body after the opcode. Returns false on truncated / oversized data.</summary>
-        public static bool TryRead(NetDataReader r, SnapshotMsg into)
-        {
-            try
-            {
-                into.Heroes.Clear(); into.Monsters.Clear();
-                into.Seq = r.GetUInt(); into.ServerTimeMs = r.GetUInt(); into.LastInputSeq = r.GetUInt();
-                int hn = r.GetByte();
-                if (r.AvailableBytes < hn * HeroSnap.WireBytes + 1) return false;
-                for (int i = 0; i < hn; i++) into.Heroes.Add(HeroSnap.Read(r));
-                int mn = r.GetByte();
-                if (r.AvailableBytes < mn * MonsterSnap.WireBytes) return false;
-                for (int i = 0; i < mn; i++) into.Monsters.Add(MonsterSnap.Read(r));
-                return true;
-            }
-            catch (System.Exception) { return false; }
-        }
     }
 }

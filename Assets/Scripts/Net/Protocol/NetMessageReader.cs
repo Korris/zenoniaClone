@@ -31,16 +31,18 @@ namespace ZenoniaProto.Net
         }
 
         /// <summary>Fills `frames` (capacity 3); count 0 or &gt; 3 is rejected.</summary>
-        public static bool TryInput(NetDataReader r, out uint ackSnapshotSeq, InputFrame[] frames, out int count)
+        /// <summary>Reads an input packet; frame Seq values are the low 16 bits (the server expands them against its own counter).</summary>
+        public static bool TryInput(NetDataReader r, out ushort ackSnapshotSeq, InputFrame[] frames, out int count)
         {
             ackSnapshotSeq = 0; count = 0;
             try
             {
-                ackSnapshotSeq = r.GetUInt();
+                ackSnapshotSeq = r.GetUShort();
+                ushort newest = r.GetUShort();
                 int n = r.GetByte();
                 if (n < 1 || n > NetProtocol.MaxInputFrames || n > frames.Length || r.AvailableBytes < n * InputFrame.WireBytes) return false;
                 for (int i = 0; i < n; i++)
-                    frames[i] = new InputFrame { Seq = r.GetUInt(), Held = r.GetByte(), AttackCnt = r.GetByte(), DashCnt = r.GetByte(), SkillCnt = r.GetByte(), HpPotCnt = r.GetByte(), MpPotCnt = r.GetByte(), Facing = r.GetByte() };
+                    frames[i] = new InputFrame { Seq = (ushort)(newest - (n - 1 - i)), Bits = (ushort)(r.GetUShort() & InputBits.AllMask) };
                 count = n;
                 return true;
             }

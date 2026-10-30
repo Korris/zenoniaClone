@@ -61,7 +61,8 @@ namespace ZenoniaProto
         public float DefStat { get { return rpg.Def; } }
         public float CritBonus { get { return rpg.CritBonus; } }
         public PlayerState Rpg { get { return rpg; } }
-        public Vector2 Position { get { return new Vector2(x, y); } }
+        /// <summary>Where the hero is DRAWN: the sim spot, or for the online local hero the smoothed (interpolated + error blended) one.</summary>
+        public Vector2 Position { get { return predicted ? predictor.VisualPos : new Vector2(x, y); } }
         public int Facing { get { return facing; } }
         public bool IsDead { get { return dead; } }
         public string GearLabel { get { return gearLabel; } }
@@ -110,7 +111,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Debug / screenshot helper: put the hero on a tile (feet) and face a direction.</summary>
-        public void Teleport(Vector2 feet, int dir) { x = feet.x; y = feet.y; facing = dir; transform.position = new Vector3(x, y, 0f); }
+        public void Teleport(Vector2 feet, int dir) { x = feet.x; y = feet.y; facing = dir; if (predicted) predictor.OnTeleport(); transform.position = new Vector3(x, y, 0f); }
 
         void Update()
         {
@@ -119,17 +120,27 @@ namespace ZenoniaProto
             if (proxy) { ProxyTick(dtMs); return; }
             if (GameClock.Paused) { Render(); return; } // inventory open: frozen, no input
             HandleGearKeys();
+            if (predicted) predictor.Tick(dt);          // online local hero: fixed 1/30 s steps, drawn smoothed
+            else if (StepGate != null) GatedSteps(dt);  // server-side hero of a remote player: one input frame per fixed step
+            else StepOnce(dt);
+            Vector2 at = Position;
+            transform.position = new Vector3(at.x, at.y, 0f);
+            Render();
+        }
+
+        /// <summary>One sim step of `dt` seconds: death timer + respawn, or the living hero's rules.</summary>
+        void StepOnce(float dt)
+        {
+            float dtMs = dt * 1000f;
             if (dead)
             {
                 deathTimer += dtMs;
-                if (deathTimer >= RespawnMs) Respawn();
+                if (!predicted && deathTimer >= RespawnMs) Respawn(); // a predicting client waits for the server's respawn
             }
             else
             {
                 Simulate(dt, dtMs);
             }
-            transform.position = new Vector3(x, y, 0f);
-            Render();
         }
 
         void Simulate(float dt, float dtMs)
@@ -138,7 +149,7 @@ namespace ZenoniaProto
             hurt = Mathf.Max(0f, hurt - dtMs);
             dashCooldown = Mathf.Max(0f, dashCooldown - dtMs);
             idleTimer += dtMs;
-            hp = Mathf.Min(MaxHp, hp + HpRegenPerSecond * dt);
+            if (!predicted) hp = Mathf.Min(MaxHp, hp + HpRegenPerSecond * dt); // a predicting client shows the server's HP
             if (TickSkill(dt, dtMs)) return; // rooted by a skill cast
 
             Vector2 input = ReadMove();

@@ -58,3 +58,8 @@ host + 2 clients: offhand enhance + all 5 combos visible, damage once; APK 60 fp
 ## Unresolved questions
 See phase files; top: mechanic robot companion stays passive (drone stats only feed Robot Assault + combo volley)? phases 01/05 could start
 before skill p04 (file-disjoint) - allowed? spellbook art missing (icon only).
+
+## Decisions 2026-10-30 (ChatGPT Tan Pham, user delegated)
+- Mechanic drone gets an auto-attack from Lv1: 20% ATK per shot every 2 s, range 5 tiles, nearest monster (prefer the mechanic's current target), 0 MP, small blue laser, no explosion. Drone +15 = +60% dmg, +40% fire rate (32% ATK / 1.43 s). Target 5-10% (max 15%) of mechanic DPS. Robot Assault replaces the auto-shot while active (no stacking). Server-authoritative: server picks target/timing/damage; clients render from the event.
+- Wizard gets a floating spellbook: 4 idle (bob) + 4 cast (opens, glows) frames from ChatGPT; follows the wizard; opens on Mana Shield / Elemental Burst; enhance glow by code (+0-5 soft blue, +6-10 cyan + particles, +11-14 blue-violet + small rotating rune, +15 gold-blue).
+- Priority: drone auto-attack first, spellbook right after.

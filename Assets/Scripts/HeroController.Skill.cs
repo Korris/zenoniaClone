@@ -24,18 +24,19 @@ namespace ZenoniaProto
         public bool TryCastSkill()
         {
             if (dead || cls.SkillMp <= 0f || skillCd > 0f || mp < cls.SkillMp || castLeft > 0f || dashLeft > 0f) return false;
+            if (predicted && !PredictsSkill) return false; // blink / heal need the target / HP check of the server: wait for its SkillCast
             // The effect decides first (shadow step needs a target, heal needs missing HP) so a refused cast costs nothing.
             switch (cls.Id)
             {
-                case HeroClass.Warrior: EarthBreakUltimate.Cast(this); break;
-                case HeroClass.Wizard: IceStormUltimate.Cast(this); break;
+                case HeroClass.Warrior: if (!replaying) EarthBreakUltimate.Cast(this); break;
+                case HeroClass.Wizard: if (!replaying) IceStormUltimate.Cast(this); break;
                 case HeroClass.Assassin: if (!ShadowStep()) return false; break;
                 case HeroClass.Cleric: if (!Heal()) return false; break;
                 default: return false;
             }
             NetEventBus.SkillCast(this, new Vector2(x, y), skillArg);
             skillArg = 0;
-            mp -= cls.SkillMp;
+            if (!replaying) mp -= cls.SkillMp;
             skillCd = cls.SkillCooldownMs;
             castLeft = castTotal = cls.SkillLockMs;
             combo.Reset();
@@ -46,7 +47,7 @@ namespace ZenoniaProto
         /// <summary>Regen + cooldown ticks; returns true while the hero is rooted by a cast (no movement / attacks this step).</summary>
         bool TickSkill(float dt, float dtMs)
         {
-            mp = Mathf.Min(MaxMp, mp + MpRegenPerSecond * dt);
+            if (!predicted) mp = Mathf.Min(MaxMp, mp + MpRegenPerSecond * dt);
             skillCd = Mathf.Max(0f, skillCd - dtMs);
             if (castLeft <= 0f) return false;
             castLeft = Mathf.Max(0f, castLeft - dtMs);

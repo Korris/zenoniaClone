@@ -13,13 +13,22 @@ param(
   [int]$Seconds = 90,                 # run time of every bot client
   [int]$Port = 7790,
   [string]$OutDir = "net-test-out",
-  [ValidateSet("boss", "fight", "wander")][string]$Bot = "boss",
+  [ValidateSet("boss", "fight", "wander", "twitch")][string]$Bot = "boss",
+  [ValidateSet("boss", "fight", "wander", "twitch")][string]$CamBot = "boss",   # brain of the visible recording client
   [string]$DevKey = "k",
   [int]$MaxPlayers = 200,
   [string]$VideoDir = "",             # set = one extra visible client records frames here
   [int]$VideoSeconds = 12,
   [int]$VideoLead = 0,                # seconds after joining before the recording starts
   [int]$BotDelay = 0,                 # every bot waits this long after joining before it moves (so the whole party sets off together)
+  [int]$SimLatency = 0,               # lag harness (bot clients only): one-way ms each direction, +-jitter ms, loss percent each direction
+  [int]$SimJitter = 0,
+  [int]$SimLoss = 0,
+  [string[]]$ClientArgs = @(),        # extra command line for every bot client, e.g. --no-predict
+  [string[]]$CamArgs = @(),           # extra command line for the visible recording client (sim options are NOT applied to it unless added here)
+  [int]$TwitchBots = 0,               # the LAST n bot clients run the "twitch" brain (run / stop / swing in place): input-latency probe, stresses the prediction
+  [int]$ToleranceMs = 200,            # boss-death sync window of the checker (widen it for lag runs)
+  [string[]]$ServerArgs = @(),        # extra command line for the server, e.g. --net-no-delta
   [switch]$NoCheck
 )
 $ErrorActionPreference = "Stop"
@@ -39,8 +48,8 @@ function Start-Unity([string]$name, [string[]]$arguments, [string]$style = "Hidd
 
 # --- server ---
 $serverSeconds = $Seconds + 30 + [int]($Clients * 0.25)
-$server = Start-Unity "server" @("-batchmode", "-nographics", "--mode", "server", "--port", $Port, "--dev-key", $DevKey, "--max-players", $MaxPlayers,
-  "--run-seconds", $serverSeconds, "--net-stats", "$OutDir\server.json", "-logFile", "$OutDir\server.log")
+$server = Start-Unity "server" (@("-batchmode", "-nographics", "--mode", "server", "--port", $Port, "--dev-key", $DevKey, "--max-players", $MaxPlayers,
+  "--run-seconds", $serverSeconds, "--net-stats", "$OutDir\server.json", "-logFile", "$OutDir\server.log") + $ServerArgs)
 $deadline = (Get-Date).AddSeconds(30)
 while ((Get-Date) -lt $deadline) {
   if ((Test-Path "$OutDir\server.log") -and (Select-String -Path "$OutDir\server.log" -Pattern "listening on UDP" -Quiet -ErrorAction SilentlyContinue)) { break }
@@ -50,18 +59,20 @@ while ((Get-Date) -lt $deadline) {
 # --- one visible recording client (small window) ---
 if ($VideoDir -ne "") {
   New-Item -ItemType Directory -Force -Path $VideoDir | Out-Null
-  $procs += Start-Unity "camera client" @("-screen-width", 640, "-screen-height", 400, "-screen-fullscreen", 0, "--mode", "client", "--host", "127.0.0.1", "--port", $Port,
-    "--name", "Cam", "--class", "warrior", "--dev-key", $DevKey, "--net-bot", "boss", "--bot-delay", $BotDelay, "--record-net", $VideoSeconds, "--record-lead", $VideoLead,
-    "--shot-path", $VideoDir, "-logFile", "$OutDir\camera.log") "Normal"
+  $procs += Start-Unity "camera client" (@("-screen-width", 640, "-screen-height", 400, "-screen-fullscreen", 0, "--mode", "client", "--host", "127.0.0.1", "--port", $Port,
+    "--name", "Cam", "--class", "warrior", "--dev-key", $DevKey, "--net-bot", $CamBot, "--bot-delay", $BotDelay, "--record-net", $VideoSeconds, "--record-lead", $VideoLead,
+    "--shot-path", $VideoDir, "-logFile", "$OutDir\camera.log") + $CamArgs) "Normal"
 }
 
 if ($VideoDir -ne "") { Start-Sleep -Seconds 4 }  # the camera client is in the world before the bots arrive
 
 # --- bot clients (headless) ---
+$sim = @()
+if ($SimLatency -gt 0 -or $SimLoss -gt 0) { $sim = @("--sim-latency", $SimLatency, "--sim-jitter", $SimJitter, "--sim-loss", $SimLoss, "--sim-seed", 7) }
 for ($i = 1; $i -le $Clients; $i++) {
   $cls = $classes[($i - 1) % $classes.Count]
-  $procs += Start-Unity "bot$i ($cls)" @("-batchmode", "-nographics", "--mode", "client", "--host", "127.0.0.1", "--port", $Port, "--name", "Bot$i", "--class", $cls,
-    "--dev-key", $DevKey, "--net-bot", $Bot, "--bot-delay", $BotDelay, "--run-seconds", $Seconds, "--net-stats", "$OutDir\c$i.json", "-logFile", "$OutDir\c$i.log")
+  $procs += Start-Unity "bot$i ($cls)" (@("-batchmode", "-nographics", "--mode", "client", "--host", "127.0.0.1", "--port", $Port, "--name", "Bot$i", "--class", $cls,
+    "--dev-key", $DevKey, "--net-bot", $(if ($i -gt $Clients - $TwitchBots) { "twitch" } else { $Bot }), "--bot-delay", $BotDelay, "--run-seconds", $Seconds, "--net-stats", "$OutDir\c$i.json", "-logFile", "$OutDir\c$i.log") + $sim + $ClientArgs)
   Start-Sleep -Milliseconds 250
 }
 
@@ -75,5 +86,5 @@ if (-not $server.WaitForExit(60000)) { Write-Warning "server did not exit in tim
 
 if ($NoCheck) { exit 0 }
 $checker = Join-Path $PSScriptRoot "net-check-summary.mjs"
-node $checker $OutDir --clients $Clients
+node $checker $OutDir --clients $Clients --tolerance-ms $ToleranceMs
 exit $LASTEXITCODE

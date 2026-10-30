@@ -39,6 +39,7 @@ namespace ZenoniaProto
                 case "fight": EnableNavBot(false, offset); break;
                 case "boss": EnableNavBot(true, offset); break;
                 case "wander": EnableWanderBot(); break;
+                case "twitch": EnableTwitchBot(); break;
             }
             Debug.Log("[ZenoniaProto] net bot: " + (bot ?? "off") + " as " + GameSession.Hero.PlayerName + " (hero " + GameSession.Hero.NetId + ")");
         }
@@ -75,6 +76,35 @@ namespace ZenoniaProto
                 return (dir == 0 && k == GameKey.Up) || (dir == 1 && k == GameKey.Down) || (dir == 2 && k == GameKey.Left) || (dir == 3 && k == GameKey.Right);
             };
             InputAdapter.BotPressed = k => k == GameKey.Attack && dir == 4;
+        }
+
+        /// <summary>
+        /// Responsiveness demo / input latency probe: runs 0.5 s in one direction, stands 0.7 s (swinging the weapon twice), then turns around.
+        /// The felt latency shows as the delay between the key going down and the hero moving.
+        /// </summary>
+        void EnableTwitchBot()
+        {
+            float t0 = Time.time;
+            const float cycle = 1.2f;
+            System.Func<int> phase = () => (int)((Time.time - t0) / cycle);
+            InputAdapter.BotHeld = k =>
+            {
+                float t = (Time.time - t0) % cycle;
+                if (t > 0.5f) return false;
+                int dirIndex = phase() % 4; // right, up, left, down
+                return (dirIndex == 0 && k == GameKey.Right) || (dirIndex == 1 && k == GameKey.Up) || (dirIndex == 2 && k == GameKey.Left) || (dirIndex == 3 && k == GameKey.Down);
+            };
+            int lastSwing = -1;
+            InputAdapter.BotPressed = k =>
+            {
+                if (k != GameKey.Attack) return false;
+                float t = (Time.time - t0) % cycle;
+                int slot = t > 0.62f && t < 0.78f ? 1 : t > 0.9f && t < 1.05f ? 2 : 0;
+                int id = phase() * 4 + slot;
+                if (slot == 0 || id == lastSwing) return false;
+                lastSwing = id;
+                return true;
+            };
         }
 
         /// <summary>Real-time capture at ~30 fps: this is a live network client, so frames follow the wall clock (fps.txt holds the achieved rate).</summary>

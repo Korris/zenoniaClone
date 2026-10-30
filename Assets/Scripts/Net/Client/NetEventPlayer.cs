@@ -51,10 +51,12 @@ namespace ZenoniaProto
             {
                 case NetEventType.AttackStep:
                     HeroController swinger = HeroOf(e.Id);
+                    if (swinger != null && swinger.IsPredicted) break; // the local hero swung the moment the key went down
                     if (fx && swinger != null) swinger.PlaySwingFx(e.Step & 0x7F, (e.Step & 0x80) != 0, e.Facing);
                     break;
                 case NetEventType.BoltFired:
                     HeroController shooter = HeroOf(e.Other);
+                    if (shooter != null && shooter.AdoptPredictedBolt(e.Id)) break; // already flying: it only needed the server's id
                     if (fx && shooter != null) shooter.PlayBoltFx(e.Step, at, NetQuantize.Angle(e.Angle), (e.Flags & 1) != 0, e.Id);
                     break;
                 case NetEventType.BoltEnd:
@@ -78,6 +80,7 @@ namespace ZenoniaProto
                 case NetEventType.SkillCast:
                     HeroController caster = HeroOf(e.Id);
                     stats.Add("skillCastsSeen", 1);
+                    if (caster != null && caster.IsPredicted && caster.PredictsSkillFx) break; // started locally
                     if (fx && caster != null) caster.PlaySkillFx(at, e.Other);
                     break;
                 case NetEventType.ExpGain:

@@ -19,6 +19,9 @@ namespace ZenoniaProto
         public readonly System.Collections.Generic.List<NetEvent> OutEvents = new System.Collections.Generic.List<NetEvent>(32);
         public int HeroCursor, MonsterCursor;
         public uint SnapSeq, AckSnapSeq;
+        /// <summary>Snapshots as sent to this client (delta baselines) and the id lookup of the baseline in use.</summary>
+        public readonly SnapshotRing SentRing = new SnapshotRing();
+        public readonly SnapshotLookup BaselineLookup = new SnapshotLookup();
         public bool RpgDirty;
         public float LastRpgSentMs, LastSelfSentMs;
         public SelfStateMsg LastSelf;
@@ -27,6 +30,15 @@ namespace ZenoniaProto
         public float ConnectedAtRealtime;
 
         public bool Alive { get { return Hero != null; } }
+
+        /// <summary>Folds the 16-bit snapshot ack of an input packet into the 32-bit sequence; acks from the future or older than the current one are ignored.</summary>
+        public void AcceptAck(ushort ack16)
+        {
+            ushort back = (ushort)(SnapSeq - ack16);
+            if (back > SnapSeq) return; // claims a snapshot that was never sent
+            uint ack = SnapSeq - back;
+            if (ack != 0 && !NetQuantize.IsNewer(ack, SnapSeq) && (AckSnapSeq == 0 || NetQuantize.IsNewer(ack, AckSnapSeq))) AckSnapSeq = ack;
+        }
 
         /// <summary>Wires the RPG events of this player to network events (EXP, level-up ring, pickup / death toasts) and the dirty flag for RpgState pushes.</summary>
         public void BindRpgEvents()

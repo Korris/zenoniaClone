@@ -32,7 +32,9 @@ namespace ZenoniaProto
         readonly Dictionary<NetPlayer, float> nextSnapMs = new Dictionary<NetPlayer, float>();
         readonly InputFrame[] frameBuf = new InputFrame[NetProtocol.MaxInputFrames];
         readonly NetDataWriter scratch = new NetDataWriter();
-        readonly Stopwatch tickWatch = new Stopwatch();
+        readonly Stopwatch tickWatch = new Stopwatch(), phaseWatch = new Stopwatch();
+        long simStart;
+        double snapshotTicks, flushTicks;   // Stopwatch ticks spent this tick building / sending snapshots and flushing events
         ushort nextPlayerId = 1;
         int maxPlayers, tickRate, snapDiv;
         string devKey;
@@ -117,11 +119,11 @@ namespace ZenoniaProto
             {
                 case NetOp.Hello: if (p != null) Kick(peer, "second hello"); else OnHello(peer, reader); break;
                 case NetOp.Input:
-                    uint ack;
+                    ushort ack;
                     int n;
                     if (p == null) { Kick(peer, "input before hello"); break; }
                     if (!NetMessageReader.TryInput(reader, out ack, frameBuf, out n)) { Kick(peer, "bad input"); break; }
-                    p.AckSnapSeq = ack;
+                    p.AcceptAck(ack);
                     p.Input.State.Accept(frameBuf, n, ServerMs);
                     break;
                 case NetOp.InvAction:
@@ -191,19 +193,22 @@ namespace ZenoniaProto
         {
             tickWatch.Restart();
             net.PollEvents();
+            stats.Sample("tickPollMs", (float)tickWatch.Elapsed.TotalMilliseconds);
             float now = Time.realtimeSinceStartup;
+            // A frame hitch (GC, disk, a busy machine) delays the hero steps while the clients keep sending: the lost ticks become catch-up credit.
+            int lostTicks = Mathf.FloorToInt(Time.unscaledDeltaTime * tickRate + 0.3f) - 1;
+            if (lostTicks > 0) for (int i = 0; i < players.Count; i++) players[i].Input.State.AddCredit(lostTicks);
             if (unauthenticated.Count > 0) DropSilentPeers(now);
-            uint nowMs = ServerMs;
             for (int i = 0; i < players.Count; i++)
             {
                 NetPlayer p = players[i];
                 if (p.Hero == null) continue;
                 ServerInputState st = p.Input.State;
-                st.Tick(nowMs);
-                if (st.TakePress(PressKind.HpPotion) && p.Rpg.UsePotion(true).Ok) NetEventBus.Potion(p.Hero, true);
-                if (st.TakePress(PressKind.MpPotion) && p.Rpg.UsePotion(false).Ok) NetEventBus.Potion(p.Hero, false);
-                st.ClampPending(3);
+                if (st.TakePotion(true) && p.Rpg.UsePotion(true).Ok) NetEventBus.Potion(p.Hero, true);
+                if (st.TakePotion(false) && p.Rpg.UsePotion(false).Ok) NetEventBus.Potion(p.Hero, false);
+                st.ClampPotions(3);
             }
+            simStart = Stopwatch.GetTimestamp();
         }
 
         /// <summary>A connection that never says Hello within 5 s is cut (it would otherwise hold a slot).</summary>
@@ -219,10 +224,14 @@ namespace ZenoniaProto
         void LateUpdate()
         {
             Zone zone = Zone.Main;
+            if (simStart != 0) stats.Sample("tickSimMs", (float)((Stopwatch.GetTimestamp() - simStart) * 1000.0 / Stopwatch.Frequency)); // heroes, monsters, projectiles (everything between Update and LateUpdate)
             lastDtMs = Mathf.Max(1f, GameClock.Dt * 1000f);
             uint serverMs = ServerMs;
+            phaseWatch.Restart();
             repl.RebuildGrid(zone);
             repl.RouteEvents(players);
+            stats.Sample("tickGridEventsMs", (float)phaseWatch.Elapsed.TotalMilliseconds);
+            snapshotTicks = flushTicks = 0.0;
             for (int i = 0; i < players.Count; i++)
             {
                 NetPlayer p = players[i];
@@ -230,16 +239,22 @@ namespace ZenoniaProto
                 float next = nextSnapMs[p];
                 if (zone.TimeMs + lastDtMs * 0.5f >= next)
                 {
+                    long t0 = Stopwatch.GetTimestamp();
                     repl.UpdateInterest(zone, p);
                     repl.SendSnapshot(zone, p, serverMs);
+                    snapshotTicks += Stopwatch.GetTimestamp() - t0;
                     float interval = snapDiv * 1000f / tickRate;
                     next += interval;
                     if (next < zone.TimeMs) next = zone.TimeMs + interval;
                     nextSnapMs[p] = next;
                 }
+                long t1 = Stopwatch.GetTimestamp();
                 repl.FlushEvents(p, serverMs);
                 PushPlayerState(zone, p);
+                flushTicks += Stopwatch.GetTimestamp() - t1;
             }
+            stats.Sample("tickSnapshotMs", (float)(snapshotTicks * 1000.0 / Stopwatch.Frequency));
+            stats.Sample("tickFlushMs", (float)(flushTicks * 1000.0 / Stopwatch.Frequency));
             tickWatch.Stop();
             stats.Sample("tickMs", (float)tickWatch.Elapsed.TotalMilliseconds);
             if (!finished && runSeconds > 0f && Time.realtimeSinceStartup - startTime >= runSeconds) Finish();
@@ -266,6 +281,10 @@ namespace ZenoniaProto
             stats.Sample("clientDownKBps", p.Peer.Statistics.BytesSent / 1024f / secs); // what the server sent = what the client downloaded
             stats.Sample("clientUpKBps", p.Peer.Statistics.BytesReceived / 1024f / secs);
             stats.Sample("clientRttMs", p.Peer.RoundTripTime);
+            stats.Add("inputFramesDropped", p.Input.State.Dropped); // frames the jitter buffer cut (client ahead / bursts)
+            stats.Add("inputStepsStarved", p.Input.State.Starved);  // steps the hero froze because the next frame was late
+            stats.Add("inputCatchUps", p.Input.State.CatchUps);     // frozen steps repaid with a second step in one tick
+            stats.Add("inputSteps", p.Input.State.LastSeq);
         }
 
         void Finish()

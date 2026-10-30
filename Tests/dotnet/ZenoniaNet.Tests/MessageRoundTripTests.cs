@@ -22,31 +22,43 @@ public class MessageRoundTripTests
     }
 
     [Fact]
-    public void InputPacketCarriesThreeFramesInElevenBytesEach()
+    public void InputPacketCarriesFramesAtTwoBytesEach()
     {
         var w = new NetDataWriter();
         var frames = new[]
         {
-            new InputFrame { Seq = 7, Held = InputBits.Left | InputBits.Skill, AttackCnt = 1, DashCnt = 2, SkillCnt = 3, HpPotCnt = 4, MpPotCnt = 5, Facing = 2 },
-            new InputFrame { Seq = 8, Facing = 255 }, new InputFrame { Seq = 9, Held = InputBits.Up, Facing = 1 },
+            new InputFrame { Seq = 7, Bits = InputBits.Left | InputBits.Skill },
+            new InputFrame { Seq = 8 }, new InputFrame { Seq = 9, Bits = InputBits.Up | InputBits.Attack | InputBits.MpPotion },
         };
         NetMessageWriter.Input(w, 41, frames, 3);
-        Assert.Equal(1 + 4 + 1 + 3 * InputFrame.WireBytes, w.Length);
-        var buf = new InputFrame[3]; uint ack; int n;
+        Assert.Equal(1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes, w.Length);
+        var buf = new InputFrame[NetProtocol.MaxInputFrames]; ushort ack; int n;
         Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
-        Assert.Equal(41u, ack); Assert.Equal(3, n);
-        Assert.Equal(frames[0].Seq, buf[0].Seq); Assert.Equal(frames[0].Held, buf[0].Held); Assert.Equal(5, buf[0].MpPotCnt); Assert.Equal(255, buf[1].Facing);
+        Assert.Equal(41, ack); Assert.Equal(3, n);
+        Assert.Equal(7u, buf[0].Seq); Assert.Equal(8u, buf[1].Seq); Assert.Equal(9u, buf[2].Seq);
+        Assert.Equal(frames[0].Bits, buf[0].Bits); Assert.Equal(frames[2].Bits, buf[2].Bits);
+    }
+
+    [Fact]
+    public void InputSequenceWrapsAtSixteenBits()
+    {
+        var w = new NetDataWriter();
+        var frames = new[] { new InputFrame { Seq = 65535 }, new InputFrame { Seq = 65536 }, new InputFrame { Seq = 65537 } };
+        NetMessageWriter.Input(w, 0, frames, 3);
+        var buf = new InputFrame[NetProtocol.MaxInputFrames]; ushort ack; int n;
+        Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
+        Assert.Equal(65535u, buf[0].Seq); Assert.Equal(0u, buf[1].Seq); Assert.Equal(1u, buf[2].Seq);
     }
 
     [Fact]
     public void InputRejectsBadFrameCountsAndTruncation()
     {
-        var w = new NetDataWriter(); var buf = new InputFrame[3]; uint ack; int n;
-        w.Put(NetOp.Input); w.Put(1u); w.Put((byte)0);
+        var w = new NetDataWriter(); var buf = new InputFrame[NetProtocol.MaxInputFrames]; ushort ack; int n;
+        w.Put(NetOp.Input); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)0);
         Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
-        w.Reset(); w.Put(NetOp.Input); w.Put(1u); w.Put((byte)4);
+        w.Reset(); w.Put(NetOp.Input); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)(NetProtocol.MaxInputFrames + 1));
         Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
-        w.Reset(); w.Put(NetOp.Input); w.Put(1u); w.Put((byte)2); w.Put(5u);
+        w.Reset(); w.Put(NetOp.Input); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)2); w.Put((ushort)5);
         Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
     }
 
@@ -167,14 +179,14 @@ public class MessageRoundTripTests
         {
             var data = new byte[rng.Next(0, 40)]; rng.NextBytes(data);
             var r = new NetDataReader(); r.SetSource(data);
-            HelloMsg h; SpawnMsg s; WelcomeMsg wm; SelfStateMsg sm; uint a; int n; uint t; var snap = new SnapshotMsg();
+            HelloMsg h; SpawnMsg s; WelcomeMsg wm; SelfStateMsg sm; ushort a; int n; uint t; var snap = new SnapshotMsg();
             NetMessageReader.TryHello(r, out h); r.SetPosition(0);
             SpawnMsg.TryRead(r, out s); r.SetPosition(0);
             NetMessageReader.TryWelcome(r, out wm); r.SetPosition(0);
             NetMessageReader.TrySelfState(r, out sm); r.SetPosition(0);
             NetMessageReader.TryInput(r, out a, buf, out n); r.SetPosition(0);
             NetMessageReader.TryEventBatch(r, out t, new List<NetEvent>()); r.SetPosition(0);
-            SnapshotPacker.TryRead(r, snap);
+            SnapshotPacker.TryRead(r, snap, new SnapshotRing(), new SnapshotLookup());
         }
     }
 }

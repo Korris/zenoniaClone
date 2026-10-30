@@ -5,9 +5,10 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Network face of a hero. Server / host: packs pose, position and hp percent into a snapshot entry. Client: every hero (the local one too, no
-    /// prediction in phase 1) is a proxy -- no input, no combat rules -- whose position and pose come from interpolated snapshots and whose
-    /// animation frame is chosen from pose / combo step / progress by the same Render code the simulated hero uses.
+    /// Network face of a hero. Server / host: packs pose, position and hp percent into a snapshot entry. Client: every remote hero is a proxy -- no
+    /// input, no combat rules -- whose position and pose come from interpolated snapshots and whose animation frame is chosen from pose / combo
+    /// step / progress by the same Render code the simulated hero uses. The local hero starts as a proxy too, then AttachPredictor (see
+    /// HeroController.Predicted.cs) makes it simulate itself.
     /// </summary>
     public partial class HeroController
     {
@@ -96,7 +97,7 @@ namespace ZenoniaProto
             rpg.Hp = m.Hp; rpg.Mp = m.Mp;
             if (m.Level != rpg.Level || m.MaxHp != rpg.MaxHp) { rpg.Level = Mathf.Max(1, m.Level); rpg.Exp = (int)m.Exp; rpg.RecomputeStats(); rpg.Hp = m.Hp; rpg.Mp = m.Mp; }
             rpg.Exp = (int)m.Exp;
-            skillCd = m.SkillCdLeft;
+            if (!predicted) skillCd = m.SkillCdLeft; // the predicted hero gets its cooldown with the sim state
         }
 
         /// <summary>Client: the server says this hero was hit / healed / died (pure presentation hooks for events).</summary>

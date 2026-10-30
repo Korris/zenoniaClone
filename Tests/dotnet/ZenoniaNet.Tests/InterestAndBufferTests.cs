@@ -109,7 +109,7 @@ public class SnapshotBufferTests
         var b = new SnapshotBuffer();
         b.Push(Msg(1, 1000, 16), 0); b.Push(Msg(2, 1066, 32), 66);
         HeroSample s;
-        Assert.True(b.TryHero(1, 5000, out s)); Assert.InRange(s.X, 3.99f, 4.01f);
+        Assert.True(b.TryHero(1, 5000, out s)); Assert.InRange(s.X, 6.9f, 7.1f); // held at the end of the 100 ms extrapolation window (4 + 2 * 100/66)
         Assert.True(b.TryHero(1, 10, out s)); Assert.InRange(s.X, 1.99f, 2.01f);
         Assert.False(b.TryHero(2, 1000, out s));
     }
@@ -145,7 +145,28 @@ public class SnapshotBufferTests
         Assert.InRange(b.ServerNow(200) - 200, 899.9, 902.0);
         b.Push(Msg(3, 1132, 0), 140);                // faster packet (offset 992)? no, slower again
         b.Push(Msg(4, 1198, 0), 280);                // offset 918: still above 900
-        Assert.Equal(b.ServerNow(1000) - SnapshotBuffer.RenderDelayMs, b.RenderTime(1000), 6);
+        Assert.Equal(b.ServerNow(1000) - b.RenderDelayMs, b.RenderTime(1000), 6);
+    }
+
+    [Fact]
+    public void ExtrapolatesAlongTheLastTwoSamplesForAtMostAHundredMilliseconds()
+    {
+        var b = new SnapshotBuffer();
+        b.Push(Msg(1, 1000, 0), 0); b.Push(Msg(2, 1100, 80), 100);   // 10 units per 100 ms
+        HeroSample s;
+        b.TryHero(1, 1150, out s); Assert.InRange(s.X, 14.9f, 15.1f);
+        b.TryHero(1, 1200, out s); Assert.InRange(s.X, 19.9f, 20.1f);
+        b.TryHero(1, 3000, out s); Assert.InRange(s.X, 19.9f, 20.1f); // stays at the limit, never runs away
+    }
+
+    [Fact]
+    public void ExtrapolationUsesTheNewestPoseNotTheOlderOne()
+    {
+        var b = new SnapshotBuffer();
+        b.Push(Msg(1, 1000, 0, 0, pose: 1), 0); b.Push(Msg(2, 1066, 8, 0, pose: 3), 66);
+        HeroSample s;
+        b.TryHero(1, 1100, out s); Assert.Equal(3, s.Pose);
+        b.TryHero(1, 1030, out s); Assert.Equal(1, s.Pose);
     }
 
     [Fact]

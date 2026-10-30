@@ -4,7 +4,7 @@
 - P1 protocol/client/server files; `HeroController.cs` (Simulate), `ComboSystem.cs`, `FrostHollowMap.Move`; LiteNetLib `SimulateLatency/SimulatePacketLoss`
 
 ## Overview
-Priority P1, pending, 28h. Own hero predicted + reconciled; remote interpolation adaptive; per-client delta snapshots vs acked baseline;
+Priority P1, implemented (see reports/fullstack-developer-261030-1352-phase02-prediction-delta-load.md), 28h. Own hero predicted + reconciled; remote interpolation adaptive; per-client delta snapshots vs acked baseline;
 lag/loss matrix; dotnet console bot swarm (200 bots, one process) reusing `ZenoniaProto.Net` to load-test a zone.
 
 ## Key insights
@@ -41,14 +41,26 @@ Ownership: P2 owns `Net/Client/*` (except chat), `Net/Server/SnapshotBuilder.cs`
 8. Profile + fix hot spots (likely: InterestGrid queries, per-client snapshot write, MonoBehaviour Update count).
 
 ## Todo
-- [ ] Fixed step
-- [ ] SimState
-- [ ] Predictor + dedupe
-- [ ] Adaptive delay
-- [ ] Delta snapshots
-- [ ] Bot swarm + load script
-- [ ] Lag matrix
-- [ ] Profiling fixes
+- [x] Fixed step (online local hero + server heroes of remote players; offline / host-own hero keep the variable-dt update, deliberately unchanged)
+- [x] SimState (`OwnerSim` in every snapshot to its owner, `HeroController.SimState.cs` capture / restore)
+- [x] Predictor + dedupe (`LocalHeroPredictor`, own AttackStep / BoltFired / SkillCast events skipped or adopted)
+- [x] Adaptive delay (120..250 ms) + extrapolation <= 100 ms
+- [x] Delta snapshots (per-entity field masks vs the acked baseline, 16-slot rings both sides) + dotnet tests (63 pass)
+- [x] Bot swarm + load script (`Tests/dotnet/ZenoniaSwarm` extended instead of a new `Tools/ZenoniaBots`; `Tools/net-load-test.ps1`)
+- [x] Lag matrix (`Tools/net-lag-matrix.ps1`, 8 headless Unity clients per scenario, results in the report)
+- [x] Profiling fixes (server tick split into poll / grid / snapshots / flush / sim; no single hot spot, targets met with margin, no code change needed)
+
+## Implementation notes (as built)
+- Protocol v2. Input = one frame per 1/30 s step (2 B: 4 held direction bits + 5 press bits), last 5 frames repeated in every 16 B packet, 16-bit seq. Server keeps a small
+  jitter buffer per player and consumes exactly one frame per hero step (`ServerInputState`): the hero walks the same steps the client predicted. A late frame freezes the
+  hero and earns one catch-up step (so jitter costs no movement, a flooding client gains nothing); the queue is cut only beyond 6 frames.
+- Reconciliation compares the server position / dash / cast / combo state at the acked frame (`LastInputSeq`) with what the client predicted for that frame; beyond 0.4 units or
+  on a discrete mismatch the hero is restored to the server state and the newer frames are replayed (FX / resources suppressed while replaying); the visible jump fades out in ~100 ms.
+- Not predicted: damage, crits, loot, shadow step / heal (wait for the SkillCast event). Warrior / wizard skills start at once (picture only).
+- Own shots are launched at once; the server's BoltFired names the matching bolt (BoltEnd finds it); a predicted bolt stops cosmetically on a monster proxy.
+- Delta: entry = id + 1 B field mask (+ changed fields, position as signed bytes when small); a snapshot names its baseline (= newest snapshot the client acked, <= 14 old, else full);
+  new entities are always full. `--net-no-delta` forces full snapshots for comparisons.
+- Test switches: `--sim-latency/--sim-jitter/--sim-loss` (client, both directions), `--no-predict`, `--predict-after S`, `--net-no-delta`, bot `--net-bot twitch`.
 
 ## Success criteria
 - Load test 200 bots 10 min: tick p99 < 33 ms, no disconnects, avg down <= 24 KB/s, server RAM logged.

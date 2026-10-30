@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define ZENONIA_NETSIM
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -120,7 +121,7 @@ namespace LiteNetLib
             object IEnumerator.Current => _p;
         }
 
-#if DEBUG
+#if DEBUG || ZENONIA_NETSIM
         private struct IncomingData
         {
             public NetPacket Data;
@@ -599,10 +600,10 @@ namespace LiteNetLib
             stopwatch.Stop();
         }
 
-        [Conditional("DEBUG")]
+        [Conditional("ZENONIA_NETSIM")]
         private void ProcessDelayedPackets()
         {
-#if DEBUG
+#if DEBUG || ZENONIA_NETSIM
             if (!SimulateLatency)
                 return;
 
@@ -785,7 +786,7 @@ namespace LiteNetLib
                 PoolRecycle(packet);
                 return;
             }
-#if DEBUG
+#if DEBUG || ZENONIA_NETSIM
             if (SimulatePacketLoss && _randomGenerator.NextDouble() * 100 < SimulationPacketLossChance)
             {
                 //drop packet
@@ -1575,7 +1576,7 @@ namespace LiteNetLib
             ClearPeerSet();
             _peerIds = new ConcurrentQueue<int>();
             _lastPeerId = 0;
-#if DEBUG
+#if DEBUG || ZENONIA_NETSIM
             lock (_pingSimulationList)
                 _pingSimulationList.Clear();
 #endif

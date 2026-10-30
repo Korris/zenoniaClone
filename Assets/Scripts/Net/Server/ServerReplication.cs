@@ -120,8 +120,19 @@ namespace ZenoniaProto
             heroSnaps.Clear(); monsterSnaps.Clear();
             for (int i = 0; i < heroKeys.Count; i++) heroSnaps.Add(heroKeys[i].S);
             for (int i = 0; i < monsterKeys.Count; i++) monsterSnaps.Add(monsterKeys[i].S);
-            SnapshotPacker.Write(w, ++p.SnapSeq, serverMs, p.Input.State.LastSeq, heroSnaps, monsterSnaps, ref p.HeroCursor, ref p.MonsterCursor);
+            // Delta against the newest snapshot the client acked, while the ring of sent snapshots still has it (otherwise a full snapshot).
+            uint seq = ++p.SnapSeq, baseSeq = 0;
+            SnapshotRing.Slot baseSlot;
+            if (!NetLaunchArgs.NoDelta && p.AckSnapSeq != 0 && seq - p.AckSnapSeq < SnapshotRing.Size - 2 && p.SentRing.TryGet(p.AckSnapSeq, out baseSlot))
+            {
+                baseSeq = p.AckSnapSeq;
+                p.BaselineLookup.Load(baseSlot);
+            }
+            SnapshotRing.Slot sent = p.SentRing.Begin(seq);
+            SnapshotPacker.Write(w, seq, serverMs, (ushort)p.Input.State.LastSeq, baseSeq, baseSeq != 0 ? p.BaselineLookup : null, true, p.Hero.CaptureSim(),
+                heroSnaps, monsterSnaps, ref p.HeroCursor, ref p.MonsterCursor, sent.Heroes, sent.Monsters);
             stats.OnSnapshotSent(w.Length);
+            if (baseSeq == 0) stats.Add("snapshotsFull", 1);
             Send(p, false);
         }
 

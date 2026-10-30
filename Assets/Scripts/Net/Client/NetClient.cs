@@ -29,8 +29,17 @@ namespace ZenoniaProto
         NetManager net;
         NetPeer server;
         EventBasedNetListener listener;
-        readonly SnapshotBuffer buffer = new SnapshotBuffer();
+        SnapshotBuffer buffer = new SnapshotBuffer();
         readonly SnapshotMsg snapMsg = new SnapshotMsg();
+        readonly SnapshotRing ring = new SnapshotRing();
+        readonly SnapshotLookup lookup = new SnapshotLookup();
+        uint ackSeq;                       // newest snapshot decoded (the delta baseline the server may use)
+        bool ownerPending;                 // a snapshot with the owner block arrived: reconcile at the next frame
+        ushort ownerLastInput;
+        HeroSnap ownerSnap;
+        OwnerSim ownerSim;
+        ushort myHeroId;
+        float predictAt = -1f;             // --predict-after: when to switch the local hero to prediction
         readonly List<NetEvent> eventBuf = new List<NetEvent>(64);
         readonly NetDataWriter w = new NetDataWriter();
         NetStats stats;
@@ -67,7 +76,9 @@ namespace ZenoniaProto
             listener.PeerDisconnectedEvent += OnDisconnected;
             listener.NetworkReceiveEvent += OnReceive;
             net = new NetManager(listener) { UpdateTime = 15, DisconnectTimeout = 8000, PingInterval = 1000, ChannelsCount = 3, AutoRecycle = true, EnableStatistics = true, IPv6Enabled = false, MaxConnectAttempts = 8 };
+            NetLinkSimulator.ConfigureReceive(net);
             buffer.Clear();
+            ring.Clear(); ackSeq = 0; ownerPending = false;
             if (!net.Start()) { Fail("Cannot open a network socket"); return; }
             try { server = net.Connect(host, port, ConnectionKey); }
             catch (System.Exception e) { Fail("Cannot connect: " + e.Message); return; }
@@ -149,9 +160,18 @@ namespace ZenoniaProto
                     if ((ok = NetMessageReader.TryDespawn(r, out dm)) && spawner != null) spawner.OnDespawn(dm);
                     break;
                 case NetOp.Snapshot:
-                    if (!(ok = SnapshotPacker.TryRead(r, snapMsg))) break;
-                    if (buffer.Push(snapMsg, ClientMs)) { stats.Add("snapshotsReceived", 1); stats.Max("heroesInSnapshotMax", snapMsg.Heroes.Count); stats.Max("monstersInSnapshotMax", snapMsg.Monsters.Count); }
                     stats.Max("snapshotMaxBytes", r.RawDataSize);
+                    SnapshotReadResult read = SnapshotPacker.TryRead(r, snapMsg, ring, lookup);
+                    if (read == SnapshotReadResult.MissingBaseline) { stats.Add("snapshotBaselineMisses", 1); break; } // not acked: the server falls back to older / full
+                    if (!(ok = read == SnapshotReadResult.Ok)) break;
+                    SnapshotPacker.Remember(ring, snapMsg);
+                    if (ackSeq == 0 || NetQuantize.IsNewer(snapMsg.Seq, ackSeq)) ackSeq = snapMsg.Seq;
+                    stats.Add("snapshotBytesTotal", r.RawDataSize);
+                    if (buffer.Push(snapMsg, ClientMs))
+                    {
+                        stats.Add("snapshotsReceived", 1); stats.Max("heroesInSnapshotMax", snapMsg.Heroes.Count); stats.Max("monstersInSnapshotMax", snapMsg.Monsters.Count);
+                        if (snapMsg.HasOwner) CaptureOwner();
+                    }
                     break;
                 case NetOp.SelfState:
                     SelfStateMsg ss;
@@ -170,10 +190,23 @@ namespace ZenoniaProto
             if (!ok) { stats.Add("malformedPackets", 1); Debug.LogWarning("[ZenoniaProto] net: malformed packet, opcode " + op); }
         }
 
+        void CaptureOwner()
+        {
+            for (int i = 0; i < snapMsg.Heroes.Count; i++)
+            {
+                if (snapMsg.Heroes[i].Id != myHeroId) continue;
+                ownerSnap = snapMsg.Heroes[i]; ownerSim = snapMsg.Owner; ownerLastInput = snapMsg.LastInputSeq; ownerPending = true;
+                return;
+            }
+        }
+
         void OnWelcome(WelcomeMsg m)
         {
             Zone zone = Zone.Main;
-            spawner = new ProxySpawner(buffer, zone.Root, m.HeroNetId, stats);
+            myHeroId = m.HeroNetId;
+            if (NetLaunchArgs.PredictAfter > 0f) predictAt = Time.realtimeSinceStartup + NetLaunchArgs.PredictAfter;
+            buffer = new SnapshotBuffer(1000.0 * Mathf.Max(1, (int)m.SnapDiv) / Mathf.Max(1, (int)m.TickRate));
+            spawner = new ProxySpawner(buffer, zone.Root, m.HeroNetId, stats, sender);
             events = new NetEventPlayer(m.HeroNetId, stats);
             State = ClientState.Joined;
             Status = "Joined";
@@ -194,10 +227,24 @@ namespace ZenoniaProto
                     spawner.Apply(rt);
                     events.Play(rt);
                 }
-                sender.Tick(Time.unscaledDeltaTime, server, buffer.LastSeq);
+                sender.Peer = server; sender.Ack = ackSeq;
+                if (predictAt > 0f && Time.realtimeSinceStartup >= predictAt && LocalPlayer.Hero != null && !LocalPlayer.Hero.IsPredicted)
+                {
+                    LocalPlayer.Hero.AttachPredictor(new LocalHeroPredictor(LocalPlayer.Hero, sender, stats));
+                    predictAt = -1f;
+                    Debug.Log("[ZenoniaProto] net: client prediction switched on");
+                }
+                LocalHeroPredictor predictor = LocalPlayer.Hero != null ? LocalPlayer.Hero.Predictor : null;
+                if (ownerPending && predictor != null) predictor.OnServerState(ownerLastInput, ownerSnap, ownerSim);
+                ownerPending = false;
+                sender.Tick(Time.unscaledDeltaTime, predictor != null);
                 TrackLocalHero();
             }
-            if (stats != null && Time.frameCount % 60 == 0) stats.Sample("clientFrameMs", Time.unscaledDeltaTime * 1000f);
+            if (stats != null && Time.frameCount % 60 == 0)
+            {
+                stats.Sample("clientFrameMs", Time.unscaledDeltaTime * 1000f);
+                if (State == ClientState.Joined) { stats.Sample("interpDelayMs", (float)buffer.RenderDelayMs); stats.Sample("arrivalJitterMs", (float)buffer.JitterMs); }
+            }
             if (!finished && runSeconds > 0f && Time.realtimeSinceStartup - startTime >= runSeconds) Finish();
         }
 
@@ -205,10 +252,28 @@ namespace ZenoniaProto
         bool hasLastPos;
 
         /// <summary>Stats only: distance the local hero covered (proves the input stream moves the server hero).</summary>
+        bool moveWatch;
+        float moveWatchStart;
+        Vector2 moveWatchFrom;
+
+        /// <summary>Stats: time from a direction key going down to the local hero visibly moving (0.5 units): the felt input latency.</summary>
+        void TrackInputToMotion(HeroController me)
+        {
+            bool held = InputSampler.Live && (InputAdapter.Held(GameKey.Up) || InputAdapter.Held(GameKey.Down) || InputAdapter.Held(GameKey.Left) || InputAdapter.Held(GameKey.Right));
+            if (!held) { moveWatch = false; return; }
+            if (!moveWatch && !hasLastPos) return;
+            if (!moveWatch) { moveWatch = true; moveWatchStart = Time.realtimeSinceStartup; moveWatchFrom = me.Position; return; }
+            if (moveWatchStart < 0f) return; // already measured for this press
+            if (Vector2.Distance(me.Position, moveWatchFrom) < 0.5f) return;
+            stats.Sample("inputToMotionMs", (Time.realtimeSinceStartup - moveWatchStart) * 1000f);
+            moveWatchStart = -1f;
+        }
+
         void TrackLocalHero()
         {
             HeroController me = LocalPlayer.Hero;
             if (me == null) return;
+            TrackInputToMotion(me);
             Vector2 p = me.Position;
             if (hasLastPos) stats.Add("localDistance", Vector2.Distance(p, lastPos));
             lastPos = p; hasLastPos = true;

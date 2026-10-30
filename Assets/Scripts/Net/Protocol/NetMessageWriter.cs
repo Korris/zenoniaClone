@@ -22,16 +22,15 @@ namespace ZenoniaProto.Net
             w.Reset(); w.Put(NetOp.Hello); w.Put(m.Version); w.Put(m.Name ?? "", NetProtocol.MaxNameLength); w.Put(m.HeroClass); w.Put(m.Token ?? "", NetProtocol.MaxTokenLength);
         }
 
-        /// <summary>Input packet: ack + the last (up to 3) frames, oldest first.</summary>
-        public static void Input(NetDataWriter w, uint ackSnapshotSeq, InputFrame[] frames, int count)
+        /// <summary>
+        /// Input packet (12 B for 3 frames): ack (low 16 bits of the newest decoded snapshot seq), seq of the newest frame (low 16 bits), count,
+        /// then the frame bits oldest first. Frames are consecutive, so only the newest seq travels.
+        /// </summary>
+        public static void Input(NetDataWriter w, ushort ackSnapshotSeq, InputFrame[] frames, int count)
         {
             if (count > NetProtocol.MaxInputFrames) count = NetProtocol.MaxInputFrames;
-            w.Reset(); w.Put(NetOp.Input); w.Put(ackSnapshotSeq); w.Put((byte)count);
-            for (int i = 0; i < count; i++)
-            {
-                InputFrame f = frames[i];
-                w.Put(f.Seq); w.Put(f.Held); w.Put(f.AttackCnt); w.Put(f.DashCnt); w.Put(f.SkillCnt); w.Put(f.HpPotCnt); w.Put(f.MpPotCnt); w.Put(f.Facing);
-            }
+            w.Reset(); w.Put(NetOp.Input); w.Put(ackSnapshotSeq); w.Put((ushort)frames[count - 1].Seq); w.Put((byte)count);
+            for (int i = 0; i < count; i++) w.Put(frames[i].Bits);
         }
 
         public static void InvAction(NetDataWriter w, InvActionMsg m)

@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using LiteNetLib;
 using LiteNetLib.Utils;
@@ -9,33 +12,45 @@ using ZenoniaProto.Net;
 using NetEvent = ZenoniaProto.Net.NetEvent;
 
 /// <summary>
-/// Scale smoke without Unity: --clients N light bots (hello, join, random walk + attack presses at 30 Hz, parse every snapshot / event) against a running
-/// zone server; prints per-client bandwidth, snapshot sizes and rejections. Pair it with a headless server: its --net-stats gives the tick time.
-///   dotnet run -c Release -- --host 127.0.0.1 --port 7790 --key k --clients 50 --seconds 40 [--stagger-ms 40] [--version N]
+/// Load test without Unity: N light protocol clients in one process against a running zone server. Each bot joins, sends one input frame per 1/30 s
+/// (like the game client), decodes every delta snapshot against its own baseline ring and acks it, and runs a simple brain:
+/// fighters walk to the nearest monster in their snapshots and press attack, wanderers walk randomly and swing now and then, idlers stand still.
+///   dotnet run -c Release -- --host 127.0.0.1 --port 7790 --key k --clients 200 --seconds 600 [--stagger-ms 40] [--mix 50:30:20] [--stats out.json]
+///        [--sim-latency MS --sim-jitter MS --sim-loss PCT] [--version N]
 /// </summary>
 static class Program
 {
+    enum Brain { Fighter, Wanderer, Idler }
+
     sealed class Bot
     {
         public int Index;
+        public Brain Brain;
         public NetManager Net;
         public NetPeer Peer;
-        public bool Joined, Rejected;
+        public bool Joined, Rejected, EverJoined, Lost;
         public string RejectText = "";
-        public int SnapshotCount, SnapshotMax, HeroesMax, MonstersMax, EventBatches, Spawns, Despawns, RpgStates;
-        public long SnapshotBytes, EventBytes;
+        public ushort HeroId;
+        public int SnapshotCount, FullSnapshots, SnapshotMax, HeroesMax, MonstersMax, EventBatches, Spawns, Despawns, RpgStates, BaselineMisses, Malformed;
+        public long SnapshotBytes;
         public readonly SnapshotMsg Snap = new SnapshotMsg();
-        public readonly List<NetEvent> Events = new List<NetEvent>();
+        public readonly SnapshotRing Ring = new SnapshotRing();
+        public readonly SnapshotLookup Lookup = new SnapshotLookup();
         public readonly InputRedundancy Redundancy = new InputRedundancy();
         public readonly InputFrame[] Frames = new InputFrame[NetProtocol.MaxInputFrames];
         public readonly NetDataWriter W = new NetDataWriter();
-        public byte Held, AttackCnt;
-        public double NextTurn, NextSend;
-        public uint LastSnapSeq;
+        public double NextSend, NextTurn, NextAttack;
+        public ushort Move;
+        public uint Ack;
+        public float X, Y;
+        public bool HasPos;
+        public readonly List<MonsterSnap> Monsters = new List<MonsterSnap>();
         public Stopwatch Connected = new Stopwatch();
+        public double DownKBps, UpKBps;
     }
 
     static string Arg(string[] a, string k, string d) { int i = Array.IndexOf(a, k); return i >= 0 && i + 1 < a.Length ? a[i + 1] : d; }
+    static string F(double v, int d = 2) { return v.ToString("F" + d, CultureInfo.InvariantCulture); }
 
     static int Main(string[] args)
     {
@@ -43,13 +58,17 @@ static class Program
         int port = int.Parse(Arg(args, "--port", "7790")), n = int.Parse(Arg(args, "--clients", "50")), stagger = int.Parse(Arg(args, "--stagger-ms", "40"));
         double seconds = double.Parse(Arg(args, "--seconds", "40"), CultureInfo.InvariantCulture);
         int version = int.Parse(Arg(args, "--version", NetProtocol.Version.ToString()));
+        int simLat = int.Parse(Arg(args, "--sim-latency", "0")), simJit = int.Parse(Arg(args, "--sim-jitter", "0")), simLoss = int.Parse(Arg(args, "--sim-loss", "0"));
+        string statsPath = Arg(args, "--stats", null);
+        int[] mix = Arg(args, "--mix", "50:30:20").Split(':').Select(int.Parse).ToArray();
         var rng = new Random(1234);
         var bots = new List<Bot>();
         var clock = Stopwatch.StartNew();
 
         for (int i = 0; i < n; i++)
         {
-            var b = new Bot { Index = i };
+            int roll = i % 100;
+            var b = new Bot { Index = i, Brain = roll < mix[0] ? Brain.Fighter : roll < mix[0] + mix[1] ? Brain.Wanderer : Brain.Idler };
             var listener = new EventBasedNetListener();
             listener.PeerConnectedEvent += peer =>
             {
@@ -62,10 +81,13 @@ static class Program
                 RejectMsg rej; byte op;
                 if (info.AdditionalData != null && info.AdditionalData.AvailableBytes > 0 && NetMessageReader.ReadOpcode(info.AdditionalData, out op) && op == NetOp.Reject && NetMessageReader.TryReject(info.AdditionalData, out rej))
                 { b.Rejected = true; b.RejectText = rej.Reason + ": " + rej.Text; }
+                else if (b.Joined) b.Lost = true;
                 b.Joined = false;
             };
             listener.NetworkReceiveEvent += (peer, r, ch, m) => OnReceive(b, r);
             b.Net = new NetManager(listener) { UpdateTime = 15, ChannelsCount = 3, AutoRecycle = true, EnableStatistics = true, IPv6Enabled = false, DisconnectTimeout = 8000 };
+            if (simLat > 0) { b.Net.SimulateLatency = true; b.Net.SimulationMinLatency = Math.Max(0, simLat - simJit); b.Net.SimulationMaxLatency = simLat + simJit + 1; }
+            if (simLoss > 0) { b.Net.SimulatePacketLoss = true; b.Net.SimulationPacketLossChance = simLoss; }
             b.Net.Start();
             b.Net.Connect(host, port, "zenonia-net");
             bots.Add(b);
@@ -73,32 +95,47 @@ static class Program
         }
 
         double end = clock.Elapsed.TotalSeconds + seconds;
-        while (clock.Elapsed.TotalSeconds < end) Pump(bots, rng, clock, 15);
+        double nextReport = clock.Elapsed.TotalSeconds + 30;
+        while (clock.Elapsed.TotalSeconds < end)
+        {
+            Pump(bots, rng, clock, 1);
+            if (clock.Elapsed.TotalSeconds >= nextReport)
+            {
+                nextReport += 30;
+                Console.WriteLine("[" + F(clock.Elapsed.TotalSeconds, 0) + " s] joined " + bots.Count(x => x.Joined) + "/" + n + " lost " + bots.Count(x => x.Lost));
+            }
+        }
 
-        int joined = 0, rejected = 0;
-        double downSum = 0, upSum = 0, downMax = 0, upMax = 0, avgSnap = 0;
-        int snapMax = 0, heroesMax = 0;
-        foreach (Bot b in bots)
+        var good = bots.Where(b => b.Peer != null && b.SnapshotCount > 0).ToList();
+        foreach (Bot b in good)
         {
-            if (b.Rejected) rejected++;
-            if (b.Peer == null || b.SnapshotCount == 0) continue;
-            joined++;
             double secs = Math.Max(1.0, b.Connected.Elapsed.TotalSeconds);
-            double down = b.Peer.Statistics.BytesReceived / 1024.0 / secs, up = b.Peer.Statistics.BytesSent / 1024.0 / secs;
-            downSum += down; upSum += up; downMax = Math.Max(downMax, down); upMax = Math.Max(upMax, up);
-            snapMax = Math.Max(snapMax, b.SnapshotMax); heroesMax = Math.Max(heroesMax, b.HeroesMax);
-            avgSnap += b.SnapshotBytes / (double)Math.Max(1, b.SnapshotCount);
+            b.DownKBps = b.Peer.Statistics.BytesReceived / 1024.0 / secs; b.UpKBps = b.Peer.Statistics.BytesSent / 1024.0 / secs;
         }
-        Console.WriteLine("swarm result: clients=" + n + " receivingSnapshots=" + joined + " rejected=" + rejected);
-        if (joined > 0)
+        int rejected = bots.Count(b => b.Rejected), lost = bots.Count(b => b.Lost), stillJoined = bots.Count(b => b.Joined);
+        Console.WriteLine("swarm result: clients=" + n + " receivingSnapshots=" + good.Count + " stillJoined=" + stillJoined + " lostConnection=" + lost + " rejected=" + rejected);
+        string json = "{}";
+        if (good.Count > 0)
         {
-            Console.WriteLine("  down KB/s per client: avg " + (downSum / joined).ToString("F2", CultureInfo.InvariantCulture) + " max " + downMax.ToString("F2", CultureInfo.InvariantCulture));
-            Console.WriteLine("  up   KB/s per client: avg " + (upSum / joined).ToString("F2", CultureInfo.InvariantCulture) + " max " + upMax.ToString("F2", CultureInfo.InvariantCulture));
-            Console.WriteLine("  snapshot bytes: avg " + (avgSnap / joined).ToString("F0", CultureInfo.InvariantCulture) + " max " + snapMax + " (cap " + NetProtocol.SnapshotMaxBytes + "), most heroes in one snapshot " + heroesMax);
+            var down = good.Select(b => b.DownKBps).OrderBy(v => v).ToList(); var up = good.Select(b => b.UpKBps).OrderBy(v => v).ToList();
+            double avgSnap = good.Sum(b => b.SnapshotBytes) / (double)Math.Max(1, good.Sum(b => b.SnapshotCount));
+            Console.WriteLine("  down KB/s per client: avg " + F(down.Average()) + " p95 " + F(down[(int)(down.Count * 0.95)]) + " max " + F(down.Last()));
+            Console.WriteLine("  up   KB/s per client: avg " + F(up.Average()) + " p95 " + F(up[(int)(up.Count * 0.95)]) + " max " + F(up.Last()));
+            Console.WriteLine("  snapshot bytes: avg " + F(avgSnap, 0) + " max " + good.Max(b => b.SnapshotMax) + " (cap " + NetProtocol.SnapshotMaxBytes + "), full snapshots " + good.Sum(b => b.FullSnapshots) + " of " + good.Sum(b => b.SnapshotCount)
+                + ", baseline misses " + good.Sum(b => b.BaselineMisses) + ", malformed " + good.Sum(b => b.Malformed));
+            Console.WriteLine("  most heroes in one snapshot " + good.Max(b => b.HeroesMax) + ", most monsters " + good.Max(b => b.MonstersMax));
+            var sb = new StringBuilder();
+            sb.Append("{\n  \"clients\": " + n + ", \"receivingSnapshots\": " + good.Count + ", \"stillJoined\": " + stillJoined + ", \"lostConnection\": " + lost + ", \"rejected\": " + rejected + ",\n");
+            sb.Append("  \"downKBps\": { \"avg\": " + F(down.Average(), 3) + ", \"p95\": " + F(down[(int)(down.Count * 0.95)], 3) + ", \"max\": " + F(down.Last(), 3) + " },\n");
+            sb.Append("  \"upKBps\": { \"avg\": " + F(up.Average(), 3) + ", \"p95\": " + F(up[(int)(up.Count * 0.95)], 3) + ", \"max\": " + F(up.Last(), 3) + " },\n");
+            sb.Append("  \"snapshotAvgBytes\": " + F(avgSnap, 1) + ", \"snapshotMaxBytes\": " + good.Max(b => b.SnapshotMax) + ", \"snapshotsFull\": " + good.Sum(b => b.FullSnapshots) + ", \"snapshotsTotal\": " + good.Sum(b => b.SnapshotCount) + ",\n");
+            sb.Append("  \"baselineMisses\": " + good.Sum(b => b.BaselineMisses) + ", \"malformed\": " + good.Sum(b => b.Malformed) + ", \"heroesInSnapshotMax\": " + good.Max(b => b.HeroesMax) + " }\n");
+            json = sb.ToString();
         }
-        foreach (Bot b in bots) if (b.Rejected) { Console.WriteLine("  rejected: bot " + b.Index + " -> " + b.RejectText); }
+        foreach (Bot b in bots) if (b.Rejected) Console.WriteLine("  rejected: bot " + b.Index + " -> " + b.RejectText);
+        if (statsPath != null) File.WriteAllText(statsPath, json);
         foreach (Bot b in bots) b.Net.Stop();
-        return 0;
+        return lost > 0 ? 3 : 0;
     }
 
     static void Pump(List<Bot> bots, Random rng, Stopwatch clock, int sleepMs)
@@ -107,21 +144,60 @@ static class Program
         foreach (Bot b in bots)
         {
             b.Net.PollEvents();
-            if (!b.Joined || b.Peer == null || now < b.NextSend) continue;
-            b.NextSend = now + 1.0 / 30.0; // input at 30 Hz like the game client
-            if (now >= b.NextTurn) // new random walk direction every 0.8 - 2 s, press attack now and then
+            if (!b.Joined || b.Peer == null) continue;
+            if (b.NextSend == 0) b.NextSend = now;
+            for (int catchUp = 0; now >= b.NextSend && catchUp < 3; catchUp++) // input at 30 Hz like the game client, one frame per step
             {
-                b.NextTurn = now + 0.8 + rng.NextDouble() * 1.2;
-                int d = rng.Next(0, 6);
-                b.Held = d == 0 ? InputBits.Up : d == 1 ? InputBits.Down : d == 2 ? InputBits.Left : d == 3 ? InputBits.Right : (byte)0;
+                b.NextSend += 1.0 / 30.0;
+                ushort bits = Think(b, rng, now);
+                b.Redundancy.Push(bits);
+                int cnt = b.Redundancy.Fill(b.Frames);
+                NetMessageWriter.Input(b.W, (ushort)b.Ack, b.Frames, cnt);
+                b.Peer.Send(b.W, NetProtocol.ChannelUnreliable, DeliveryMethod.Unreliable);
             }
-            if (rng.NextDouble() < 0.08) b.AttackCnt++;
-            b.Redundancy.Push(new InputFrame { Held = b.Held, AttackCnt = b.AttackCnt, Facing = 255 });
-            int cnt = b.Redundancy.Fill(b.Frames);
-            NetMessageWriter.Input(b.W, b.LastSnapSeq, b.Frames, cnt);
-            b.Peer.Send(b.W, NetProtocol.ChannelUnreliable, DeliveryMethod.Unreliable);
         }
         Thread.Sleep(sleepMs);
+    }
+
+    /// <summary>One input frame for the bot's brain.</summary>
+    static ushort Think(Bot b, Random rng, double now)
+    {
+        ushort bits = 0;
+        switch (b.Brain)
+        {
+            case Brain.Idler: return 0;
+            case Brain.Wanderer:
+                if (now >= b.NextTurn)
+                {
+                    b.NextTurn = now + 0.8 + rng.NextDouble() * 1.7;
+                    int d = rng.Next(0, 6);
+                    b.Move = d == 0 ? InputBits.Up : d == 1 ? InputBits.Down : d == 2 ? InputBits.Left : d == 3 ? InputBits.Right : (ushort)0;
+                }
+                bits = b.Move;
+                if (rng.NextDouble() < 0.03) bits |= InputBits.Attack;
+                return bits;
+            default:
+                if (!b.HasPos || b.Monsters.Count == 0)
+                {
+                    if (now >= b.NextTurn) { b.NextTurn = now + 1.0 + rng.NextDouble(); int d = rng.Next(0, 4); b.Move = (ushort)(1 << d); }
+                    return b.Move;
+                }
+                MonsterSnap best = default(MonsterSnap); float bd = float.MaxValue;
+                foreach (MonsterSnap m in b.Monsters)
+                {
+                    float dx = NetQuantize.Pos(m.X) - b.X, dy = NetQuantize.Pos(m.Y) - b.Y, d2 = dx * dx + dy * dy;
+                    if (m.DeathProgress == 0 && d2 < bd) { bd = d2; best = m; }
+                }
+                if (bd == float.MaxValue) return b.Move;
+                float tx = NetQuantize.Pos(best.X) - b.X, ty = NetQuantize.Pos(best.Y) - b.Y;
+                if (bd > 28f * 28f)
+                {
+                    if (tx > 3f) bits |= InputBits.Right; else if (tx < -3f) bits |= InputBits.Left;
+                    if (ty > 3f) bits |= InputBits.Up; else if (ty < -3f) bits |= InputBits.Down;
+                }
+                else if (now >= b.NextAttack) { bits |= InputBits.Attack; b.NextAttack = now + 0.3; }
+                return bits;
+        }
     }
 
     static void OnReceive(Bot b, NetPacketReader r)
@@ -131,14 +207,24 @@ static class Program
         if (!NetMessageReader.ReadOpcode(r, out op)) return;
         switch (op)
         {
-            case NetOp.Welcome: b.Joined = true; break;
-            case NetOp.Snapshot:
-                if (!SnapshotPacker.TryRead(r, b.Snap)) { Console.WriteLine("bot " + b.Index + ": malformed snapshot"); break; }
-                b.SnapshotCount++; b.SnapshotBytes += size; b.SnapshotMax = Math.Max(b.SnapshotMax, size);
-                b.HeroesMax = Math.Max(b.HeroesMax, b.Snap.Heroes.Count); b.MonstersMax = Math.Max(b.MonstersMax, b.Snap.Monsters.Count);
-                b.LastSnapSeq = b.Snap.Seq;
+            case NetOp.Welcome:
+                WelcomeMsg wm;
+                if (NetMessageReader.TryWelcome(r, out wm)) { b.HeroId = wm.HeroNetId; b.Joined = b.EverJoined = true; }
                 break;
-            case NetOp.EventBatch: b.EventBatches++; b.EventBytes += size; break;
+            case NetOp.Snapshot:
+                SnapshotReadResult res = SnapshotPacker.TryRead(r, b.Snap, b.Ring, b.Lookup);
+                if (res == SnapshotReadResult.MissingBaseline) { b.BaselineMisses++; break; }
+                if (res != SnapshotReadResult.Ok) { b.Malformed++; break; }
+                SnapshotPacker.Remember(b.Ring, b.Snap);
+                if (b.Ack == 0 || NetQuantize.IsNewer(b.Snap.Seq, b.Ack)) b.Ack = b.Snap.Seq;
+                b.SnapshotCount++; b.SnapshotBytes += size; b.SnapshotMax = Math.Max(b.SnapshotMax, size);
+                if (b.Snap.BaselineSeq == 0) b.FullSnapshots++;
+                b.HeroesMax = Math.Max(b.HeroesMax, b.Snap.Heroes.Count); b.MonstersMax = Math.Max(b.MonstersMax, b.Snap.Monsters.Count);
+                b.HasPos = false;
+                foreach (HeroSnap h in b.Snap.Heroes) if (h.Id == b.HeroId) { b.X = NetQuantize.Pos(h.X); b.Y = NetQuantize.Pos(h.Y); b.HasPos = true; break; }
+                b.Monsters.Clear(); b.Monsters.AddRange(b.Snap.Monsters);
+                break;
+            case NetOp.EventBatch: b.EventBatches++; break;
             case NetOp.Spawn: b.Spawns++; break;
             case NetOp.Despawn: b.Despawns++; break;
             case NetOp.RpgState: b.RpgStates++; break;

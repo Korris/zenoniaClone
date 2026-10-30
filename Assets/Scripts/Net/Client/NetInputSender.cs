@@ -5,65 +5,53 @@ using ZenoniaProto.Net;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Turns the local controls (keyboard, touch buttons or a scripted bot, all through InputAdapter) into the 30 Hz input stream: held keys as a
-    /// bitmask, one-shot presses as wrapping counters, the last 3 frames repeated in every packet so a lost datagram never drops a press.
-    /// With the bag open or no hero the stream carries zero input (the hero stands still).
+    /// Upstream input stream: one frame per 1/30 s sim step, the last 5 frames repeated in every packet (16 B + transport header, ~0.6 KB/s) so a lost
+    /// datagram never drops a key or a press. The frames come from the local hero's predictor; when prediction is off the sender steps by itself with the
+    /// same sampler. Packets can go through the lag / loss simulator of the test harness.
     /// </summary>
     public sealed class NetInputSender
     {
-        const float SendInterval = 1f / 30f;
         readonly InputRedundancy redundancy = new InputRedundancy();
         readonly InputFrame[] frames = new InputFrame[NetProtocol.MaxInputFrames];
         readonly NetDataWriter w = new NetDataWriter();
+        readonly InputSampler sampler = new InputSampler();
         readonly NetStats stats;
-        byte attackCnt, dashCnt, skillCnt, hpCnt, mpCnt;
-        float timer, sinceSend;
-        InputFrame lastSent;
-        bool hasLast;
-        const float KeepAliveInterval = 0.1f; // an unchanged input is repeated at 10 Hz (the server releases keys after 250 ms of silence)
+        readonly NetLinkSimulator link;
+        float timer;
 
-        public NetInputSender(NetStats netStats) { stats = netStats; }
+        /// <summary>Set by the client every frame: the connection and the newest snapshot sequence it decoded (low 16 bits go up as the ack).</summary>
+        public NetPeer Peer;
+        public uint Ack;
 
-        static bool Same(InputFrame a, InputFrame b)
+        public NetInputSender(NetStats netStats)
         {
-            return a.Held == b.Held && a.AttackCnt == b.AttackCnt && a.DashCnt == b.DashCnt && a.SkillCnt == b.SkillCnt && a.HpPotCnt == b.HpPotCnt && a.MpPotCnt == b.MpPotCnt;
+            stats = netStats;
+            if (NetLinkSimulator.Wanted) link = new NetLinkSimulator();
         }
 
-        /// <summary>Called every frame: counts presses as they happen, sends a packet when the 30 Hz timer is due.</summary>
-        public void Tick(float dt, NetPeer server, uint ackSnapshotSeq)
+        /// <summary>Stamps the sim step's input bits with a sequence number and sends the packet. Returns the stamped frame.</summary>
+        public InputFrame Push(ushort bits)
         {
-            bool live = LocalPlayer.Hero != null && !InventoryPanel.IsOpen;
-            if (live)
-            {
-                if (InputAdapter.Pressed(GameKey.Attack)) attackCnt++;
-                if (InputAdapter.Pressed(GameKey.Dash)) dashCnt++;
-                if (InputAdapter.Pressed(GameKey.Skill)) skillCnt++;
-                if (InputAdapter.Pressed(GameKey.HpPotion)) hpCnt++;
-                if (InputAdapter.Pressed(GameKey.MpPotion)) mpCnt++;
-            }
-            timer += dt;
-            if (timer < SendInterval) return;
-            timer -= SendInterval;
-            if (timer > SendInterval) timer = 0f; // a long frame hitch: do not burst-send
-            var f = new InputFrame { AttackCnt = attackCnt, DashCnt = dashCnt, SkillCnt = skillCnt, HpPotCnt = hpCnt, MpPotCnt = mpCnt, Facing = 255 };
-            if (live)
-            {
-                if (InputAdapter.Held(GameKey.Up)) f.Held |= InputBits.Up;
-                if (InputAdapter.Held(GameKey.Down)) f.Held |= InputBits.Down;
-                if (InputAdapter.Held(GameKey.Left)) f.Held |= InputBits.Left;
-                if (InputAdapter.Held(GameKey.Right)) f.Held |= InputBits.Right;
-                if (InputAdapter.Held(GameKey.Attack)) f.Held |= InputBits.Attack;
-                if (InputAdapter.Held(GameKey.Dash)) f.Held |= InputBits.Dash;
-                if (InputAdapter.Held(GameKey.Skill)) f.Held |= InputBits.Skill;
-            }
-            sinceSend += SendInterval;
-            if (hasLast && sinceSend < KeepAliveInterval && Same(f, lastSent)) return; // nothing new: save the bandwidth
-            sinceSend = 0f;
-            lastSent = f; hasLast = true;
-            redundancy.Push(f);
+            InputFrame f = redundancy.Push(bits);
+            if (Peer == null || Peer.ConnectionState != ConnectionState.Connected) return f;
             int n = redundancy.Fill(frames);
-            NetMessageWriter.Input(w, ackSnapshotSeq, frames, n);
-            if (server != null && server.ConnectionState == ConnectionState.Connected) { server.Send(w, NetProtocol.ChannelUnreliable, DeliveryMethod.Unreliable); stats.Add("inputPacketsSent", 1); }
+            NetMessageWriter.Input(w, (ushort)Ack, frames, n);
+            if (link != null) link.Send(Peer, w, DeliveryMethod.Unreliable, NetClient.ClientMs);
+            else Peer.Send(w, NetProtocol.ChannelUnreliable, DeliveryMethod.Unreliable);
+            stats.Add("inputPacketsSent", 1);
+            return f;
+        }
+
+        /// <summary>Every frame: releases delayed packets (simulator) and, when the hero does not predict, produces the frames itself.</summary>
+        public void Tick(float dt, bool predicting)
+        {
+            if (link != null) link.Flush(Peer, NetClient.ClientMs);
+            if (predicting) return;
+            sampler.Poll();
+            timer += dt;
+            int n = 0;
+            while (timer >= HeroController.FixedDt && n++ < 4) { timer -= HeroController.FixedDt; Push(sampler.Take()); }
+            if (timer >= HeroController.FixedDt) timer = 0f;
         }
     }
 }

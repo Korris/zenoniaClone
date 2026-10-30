@@ -18,6 +18,7 @@ namespace ZenoniaProto
         /// <summary>One melee hit box + its FX. A multi-stab step splits its multiplier between the stabs; echo = a later stab (mirrored FX).</summary>
         void MeleeStrike(ComboHit h, int step, bool echo)
         {
+            if (predicted) { if (!replaying) PlaySwingFx(step, echo, facing); return; } // online: the swing shows now, the server decides what it hits
             Vector2 v = DirVec[facing];
             float offset = h.Reach * 0.5f + 4f;
             float cx = x + v.x * offset, cy = y + 6f + v.y * offset;
@@ -65,19 +66,22 @@ namespace ZenoniaProto
         void PlayCastFx(ComboHit h)
         {
             castFxStep = combo.Step;
+            if (replaying) return;
             HeroFx.CastWindup(cls, h, CastTip, DirAngle[facing], combo.IsFinisher);
         }
 
         /// <summary>Web fireComboBolt: the shot leaves 12 units in front of the hero, with a flash at the staff tip / gun barrel.</summary>
         void FireBolt(ComboHit h, int step)
         {
+            if (replaying) return; // a re-simulated step never fires a second picture
             Vector2 v = DirVec[facing];
             bool finisher = combo.IsFinisher;
             float mult = combo.MultiplierFor(step, 1);
             ClassPalette pal = cls.ActivePalette;
             Vector2 muzzle = new Vector2(x + v.x * 12f, y + 4f + v.y * 12f);
             ushort boltId = NetEventBus.BoltFired(this, step, muzzle, DirAngle[facing], finisher);
-            ComboProjectile.Fire(muzzle, v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus, this, boltId);
+            ComboProjectile shot = ComboProjectile.Fire(muzzle, v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus, this, boltId);
+            if (predicted) RememberPredictedBolt(shot);
             if (!NetMode.RendersFx) return;
             bool painted = VfxSprites.For(h.Bolt.Style) != null;
             if (painted && castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast

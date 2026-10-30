@@ -1,5 +1,7 @@
 ﻿<Solution>
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="LiteNetLib.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="ZenoniaProto.Net.csproj" />
   <Project Path="ZenoniaProto.Rpg.csproj" />
 </Solution>

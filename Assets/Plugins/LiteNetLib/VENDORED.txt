@@ -1,1 +1,3 @@
 LiteNetLib v1.2.0 (MIT) vendored from https://github.com/RevenantX/LiteNetLib (tag v1.2.0). Library source only; asmdef is the upstream one.
+
+Local patch (Phase 2): NetManager.cs always compiles the SimulateLatency / SimulatePacketLoss code (#define ZENONIA_NETSIM at the top, #if DEBUG || ZENONIA_NETSIM) so the lag harness works in release player builds. The simulation stays off unless a test harness sets the fields.

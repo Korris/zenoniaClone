@@ -18,3 +18,12 @@ Enhance curve proposal: +2.5%/lvl to +10, +4%/lvl +11..+15 => +15 = 1.45x weapon
   !! CONFLICT: the game's current enhance curve (user-approved earlier) gives +15 = +405% damage; ChatGPT's curve would be a big nerf. Keep current curve unless the user decides otherwise.
   !! Today only the main weapon is enhanceable; second weapons (shield, book, drone, spirit, off-hand) need their own enhance slot/item.
 Synergy bonuses (no new input): Shield Charge -> Earth Break = more stagger; Shadow Step -> Blade Dance = +crit; Robot Assault -> Plasma Barrage = +Overcharge.
+
+## Follow-up (honest A vs B review, same chat) — ChatGPT recommends HYBRID (~80% B)
+- Keep the single tree, all 40 skills + VFX; no 2 branches, no Warrior shield-skill swap. Main weapon drives skill damage (+405% at +15 kept).
+- Second weapon enhanceable +1..+15 for specialised stats (NOT the +405% damage curve):
+  Warrior shield = DEF/HP/damage reduction; Wizard spellbook = MP, cast speed, MP cost; Mechanic drone = robot damage + robot fire rate; Assassin off-hand = crit rate/crit damage; Cleric spirit = healing + shield strength.
+- 1-2 signature interactions per class with existing skills: Earth Break multi-hit -> small HP shield 3 s; Ice Storm -> longer slow (spellbook); Plasma Barrage -> robot extra volley; Shadow Step -> next hit +crit (off-hand); Heal -> spirit adds small shield.
+- Reasons: no double +15 damage stacking (MMO/PvP balance), keep finished skills/art and spend time on combat feel, still creates stone demand for the second item.
+- Warning: +405% with fail chance = pay-to-win risk for PvP -> add fail protection/pity, farmable stones, PvP power cap.
+- Two branches can come later as a big update if data shows players want more depth.

@@ -19,12 +19,13 @@ namespace ZenoniaProto.Net
 
     /// <summary>
     /// Client side entity history: a short ring of timestamped samples per entity plus the server clock estimate. The renderer asks for the state
-    /// at (server now - 150 ms), so there are almost always two samples to blend; positions are interpolated (a jump over 48 units is a teleport and
-    /// snaps), discrete fields (facing, pose, state) come from the older sample. Past the newest sample the entity holds its last state.
+    /// at (server now - adaptive delay), so there are almost always two samples to blend; positions are interpolated (a jump over 48 units is a
+    /// teleport and snaps), discrete fields (facing, pose, state) come from the older sample. Past the newest sample the position is extrapolated
+    /// along the last two samples for at most 100 ms (a lost snapshot), then the entity holds its last state.
     /// </summary>
     public sealed class SnapshotBuffer
     {
-        public const double RenderDelayMs = 150.0;
+        public const double MaxExtrapolateMs = 100.0;
         public const float TeleportUnits = 48f;
         const int RingSize = 8;
 
@@ -53,7 +54,8 @@ namespace ZenoniaProto.Net
                     int ia = (head - k - 1 + RingSize * 2) % RingSize, ib = (head - k + RingSize * 2) % RingSize;
                     if (times[ia] > t) continue;
                     double span = times[ib] - times[ia];
-                    result = lerp(samples[ia], samples[ib], span > 0.0 ? (float)Math.Min(1.0, (t - times[ia]) / span) : 1f);
+                    double maxU = k == 0 && span > 0.0 ? 1.0 + MaxExtrapolateMs / span : 1.0; // only past the newest sample may u exceed 1
+                    result = lerp(samples[ia], samples[ib], span > 0.0 ? (float)Math.Min(maxU, (t - times[ia]) / span) : 1f);
                     return true;
                 }
                 result = samples[head]; // newer than every sample: hold the latest state
@@ -63,17 +65,23 @@ namespace ZenoniaProto.Net
 
         readonly Dictionary<ushort, Track<HeroSample>> heroes = new Dictionary<ushort, Track<HeroSample>>();
         readonly Dictionary<ushort, Track<MonsterSample>> monsters = new Dictionary<ushort, Track<MonsterSample>>();
+        readonly AdaptiveInterpolationDelay delay;
         double offset; // server time minus client time, ms
         bool hasClock;
         uint lastSeq;
         bool hasSeq;
 
+        public SnapshotBuffer(double snapshotIntervalMs = 1000.0 / 15.0) { delay = new AdaptiveInterpolationDelay(snapshotIntervalMs); }
+
+        /// <summary>How far behind the server clock other entities are drawn right now (120..250 ms, grows with arrival jitter).</summary>
+        public double RenderDelayMs { get { return delay.DelayMs; } }
+        public double JitterMs { get { return delay.JitterMs; } }
         public bool HasClock { get { return hasClock; } }
         public uint LastSeq { get { return lastSeq; } }
 
         /// <summary>Estimated server clock for a client clock reading.</summary>
         public double ServerNow(double clientNowMs) { return clientNowMs + offset; }
-        public double RenderTime(double clientNowMs) { return ServerNow(clientNowMs) - RenderDelayMs; }
+        public double RenderTime(double clientNowMs) { return ServerNow(clientNowMs) - delay.DelayMs; }
 
         /// <summary>Adds a snapshot received at `clientNowMs`; false when it is older than one already applied (unreliable packets reorder).</summary>
         public bool Push(SnapshotMsg m, double clientNowMs)
@@ -81,6 +89,7 @@ namespace ZenoniaProto.Net
             if (hasSeq && !NetQuantize.IsNewer(m.Seq, lastSeq)) return false;
             hasSeq = true; lastSeq = m.Seq;
             double sample = m.ServerTimeMs - clientNowMs;
+            delay.OnSnapshot(sample);
             if (!hasClock) { offset = sample; hasClock = true; }
             else if (sample < offset) offset = sample; // a faster packet shows the true delay
             else offset += (sample - offset) * 0.02;   // otherwise creep up slowly (clock drift, jitter)
@@ -107,10 +116,10 @@ namespace ZenoniaProto.Net
         static readonly Func<HeroSample, HeroSample, float, HeroSample> LerpHero = (a, b, u) =>
         {
             bool jump = Math.Abs(b.X - a.X) > TeleportUnits || Math.Abs(b.Y - a.Y) > TeleportUnits;
-            HeroSample r = a;
+            HeroSample r = u > 1f ? b : a; // extrapolating: the newest sample's pose / step win
             r.X = jump ? (u >= 0.5f ? b.X : a.X) : Mix(a.X, b.X, u);
             r.Y = jump ? (u >= 0.5f ? b.Y : a.Y) : Mix(a.Y, b.Y, u);
-            if (a.Pose == b.Pose && a.Step == b.Step) r.Progress = Mix(a.Progress, b.Progress, u);
+            if (a.Pose == b.Pose && a.Step == b.Step) r.Progress = Math.Max(0f, Math.Min(1f, Mix(a.Progress, b.Progress, u)));
             if (jump && u >= 0.5f) r.FacingFlags = b.FacingFlags;
             return r;
         };
@@ -118,10 +127,10 @@ namespace ZenoniaProto.Net
         static readonly Func<MonsterSample, MonsterSample, float, MonsterSample> LerpMonster = (a, b, u) =>
         {
             bool jump = Math.Abs(b.X - a.X) > TeleportUnits || Math.Abs(b.Y - a.Y) > TeleportUnits;
-            MonsterSample r = a;
+            MonsterSample r = u > 1f ? b : a;
             r.X = jump ? (u >= 0.5f ? b.X : a.X) : Mix(a.X, b.X, u);
             r.Y = jump ? (u >= 0.5f ? b.Y : a.Y) : Mix(a.Y, b.Y, u);
-            r.DeathProgress = Mix(a.DeathProgress, b.DeathProgress, u);
+            r.DeathProgress = Math.Max(0f, Math.Min(1f, Mix(a.DeathProgress, b.DeathProgress, u)));
             r.HpPct = u >= 0.5f ? b.HpPct : a.HpPct;
             return r;
         };

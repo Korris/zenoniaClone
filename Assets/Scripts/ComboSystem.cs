@@ -45,6 +45,15 @@ namespace ZenoniaProto
 
     public enum ComboPhase { Idle, Windup, Active, Recover }
 
+    /// <summary>Everything the combo state machine remembers (prediction restores it from the server's copy).</summary>
+    public struct ComboState
+    {
+        public ComboPhase Phase;
+        public int Step, LastStep;
+        public float Timer, ChainTimer;
+        public bool Queued;
+    }
+
     /// <summary>
     /// Four-hit combo state machine ported from the web ComboController: idle -> windup -> active -> recover -> (next | idle).
     /// A press during a swing is buffered; after a swing ends there is a chain window to continue the chain.
@@ -71,6 +80,16 @@ namespace ZenoniaProto
         public int HitCount { get { return hits.Length; } }
         public bool IsFinisher { get { return step == hits.Length; } }
         public ComboHit CurrentHit { get { return step > 0 ? hits[step - 1] : null; } }
+
+        public ComboState Capture()
+        {
+            return new ComboState { Phase = phase, Step = step, LastStep = lastStep, Timer = timer, ChainTimer = chainTimer, Queued = queued };
+        }
+
+        public void Restore(ComboState s)
+        {
+            phase = s.Phase; step = s.Step; lastStep = s.LastStep; timer = s.Timer; chainTimer = s.ChainTimer; queued = s.Queued;
+        }
 
         public void Reset()
         {

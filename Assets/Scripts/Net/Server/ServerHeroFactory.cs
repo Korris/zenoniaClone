@@ -28,6 +28,8 @@ namespace ZenoniaProto
             hero.PlayerName = name;
             hero.AiHeld = p.Input.Held;
             hero.AiPressed = p.Input.Pressed;
+            hero.StepGate = p.Input.Advance;
+            hero.ExtraStepGate = p.Input.AdvanceExtra;
             hero.Teleport(EntrancePoint(), 0);
             p.Hero = hero;
             p.Rpg = hero.Owner;
