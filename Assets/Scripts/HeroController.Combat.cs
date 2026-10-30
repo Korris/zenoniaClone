@@ -15,6 +15,12 @@ namespace ZenoniaProto
             if (h.Stabs > 1) { stabLeft = StabGapMs; stabHit = h; stabStep = step; } // double stab: the next stab lands 90 ms later
         }
 
+        static readonly string[] HitSfx = { "warrior/hit-a", "warrior/hit-b" };
+        static readonly string[] CritSfx = { "warrior/crit-a", "warrior/crit-b" };
+        static readonly string[] MechanicShotSfx = { "mechanic/shot-a", "mechanic/shot-b", "mechanic/shot-c" };
+        static readonly string[] MechanicCannonSfx = { "mechanic/cannon-a", "mechanic/cannon-b" };
+        static readonly string[] MechanicShoutSfx = { "mechanic/shout4-a", "mechanic/shout4-b" };
+
         /// <summary>One melee hit box + its FX. A multi-stab step splits its multiplier between the stabs; echo = a later stab (mirrored FX).</summary>
         void MeleeStrike(ComboHit h, int step, bool echo)
         {
@@ -29,6 +35,11 @@ namespace ZenoniaProto
             else
             {
                 SlashEffect.Spawn(cx, cy, DirAngle[facing], h.FxScale, finisher, flip, FeelConfig.FxOrder);
+                if (cls.Id == HeroClass.Warrior)
+                {
+                    GameSfx.Play("warrior/slash" + Mathf.Clamp(step, 1, 4)); // one whoosh per combo step (ElevenLabs, picked by ear)
+                    if (finisher) GameSfx.Play("warrior/shout4-a", 0.9f, 0.02f);
+                }
                 SwordTrail.Spawn(x, y + 6f, DirAngle[facing], h.Reach, finisher, flip, cls.Palette);
             }
 
@@ -48,6 +59,7 @@ namespace ZenoniaProto
             }
             if (landed > 0)
             {
+                if (cls.Id == HeroClass.Warrior) GameSfx.PlayAny(anyCrit ? CritSfx : HitSfx, 0.85f);
                 GameClock.HitStop(FeelConfig.HitStopMs(finisher));
                 CameraFollow.AddTrauma(finisher ? FeelConfig.TraumaFinisher : anyCrit ? FeelConfig.TraumaCrit : FeelConfig.TraumaNormal);
             }
@@ -85,6 +97,11 @@ namespace ZenoniaProto
             ClassPalette pal = cls.ActivePalette;
             var tip = CastTip;
             ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus);
+            if (cls.Id == HeroClass.Mechanic)
+            {
+                if (!finisher) GameSfx.PlayAny(MechanicShotSfx, 0.8f);
+                else { GameSfx.PlayAny(MechanicCannonSfx); GameSfx.PlayAny(MechanicShoutSfx, 0.9f); }
+            }
             if (VfxSprites.For(h.Bolt.Style) != null)
             {
                 if (castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast

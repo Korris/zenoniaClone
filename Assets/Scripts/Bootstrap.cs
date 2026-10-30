@@ -29,6 +29,7 @@ namespace ZenoniaProto
             GearOverlays.ResetState();
             LootDrop.ResetStatics();
             LootSprites.ResetState();
+            BagSprites.ResetState();
             UiKit.ResetState();
             ClassSelectGui.ResetState();
             InputAdapter.BotHeld = null;
@@ -53,6 +54,9 @@ namespace ZenoniaProto
             RuneFx.Init(root.transform);
             HolySmite.Init(root.transform);
             UltimateFx.Init(root.transform);
+            GameSfx.Init(root.transform);
+            GameMusic.Init(root.transform);
+            GameMusic.Play("frost-hollow"); // the only map so far; oakhaven-village waits for the village map
             ScreenFlash.ResetState();
 
             var follow = cam.GetComponent<CameraFollow>();
