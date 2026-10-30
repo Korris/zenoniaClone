@@ -20,7 +20,9 @@ namespace ZenoniaProto
         HpPotion, MpPotion,        // 1 / 2 in game (the same keys pick a class on the select screen)
         Close,                     // Esc: close a panel
         TouchToggle,               // F7: show / hide the on-screen D-pad + buttons
-        DebugHudToggle             // F8: show / hide the debug HUD (skill line, FPS, key help)
+        DebugHudToggle,            // F8: show / hide the debug HUD (skill line, FPS, key help)
+        Interact,                  // E: talk to a nearby NPC / advance a dialogue (UiWindows)
+        Chat                       // Enter: focus the chat input / confirm a dialogue step (UiWindows)
     }
 
     /// <summary>
@@ -65,6 +67,8 @@ namespace ZenoniaProto
             new[] { KeyCode.Escape },
             new[] { KeyCode.F7 },
             new[] { KeyCode.F8 },
+            new[] { KeyCode.E },
+            new[] { KeyCode.Return, KeyCode.KeypadEnter },
         };
 
         static bool KeyHeld(GameKey k)
@@ -113,6 +117,8 @@ namespace ZenoniaProto
             new[] { Key.Escape },
             new[] { Key.F7 },
             new[] { Key.F8 },
+            new[] { Key.E },
+            new[] { Key.Enter, Key.NumpadEnter },
         };
 
         static bool KeyHeld(GameKey k)
@@ -153,13 +159,18 @@ namespace ZenoniaProto
 
         static bool PhysicalHeld(GameKey k) { return TouchControls.Held(k) || KeyHeld(k); }
 
+        /// <summary>Keys that still work while a window owns the keyboard (dialogue, quest offer, chat typing): the window keys themselves.</summary>
+        static bool Gated(GameKey k) { return UiWindows.BlocksGameplay && k != GameKey.Close && k != GameKey.Interact && k != GameKey.Chat; }
+
         public static bool Held(GameKey k)
         {
+            if (Gated(k)) return false;
             return (BotHeld != null && BotHeld(k)) || TouchControls.Held(k) || KeyHeld(k);
         }
 
         public static bool Pressed(GameKey k)
         {
+            if (Gated(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
             return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || (k == GameKey.Dash && DoubleTapDash());
         }
     }

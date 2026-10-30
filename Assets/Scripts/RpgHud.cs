@@ -12,15 +12,14 @@ namespace ZenoniaProto
     {
         /// <summary>Height of the HUD block in UI units: the IMGUI Hud starts below it.</summary>
         public const float BlockHeight = 126f;
-        const float BannerSeconds = 2.4f, ToastSeconds = 2.6f;
+        const float BannerSeconds = 2.4f;
         static RpgHud instance;
 
         RectTransform block, banner;
-        Text title, gold, hpPotText, mpPotText, stoneText, toastText, bannerTitle, bannerSub;
+        Text title, gold, hpPotText, mpPotText, stoneText, bannerTitle, bannerSub;
         UiKit.Bar hpBar, mpBar, expBar;
-        Image toastBack;
         CanvasGroup bannerGroup;
-        float bannerLeft, toastLeft;
+        float bannerLeft;
         int lastHp = -1, lastMaxHp, lastMp = -1, lastMaxMp, lastLevel, lastExp = -1, lastGold = -1, lastHpPot = -1, lastMpPot = -1, lastStones = -1;
         string lastClass;
 
@@ -59,22 +58,14 @@ namespace ZenoniaProto
             bannerTitle = UiKit.Label(banner, "Title", 0f, 0f, 420f, 54f, "LEVEL UP!", 40, new Color(1f, 0.88f, 0.35f), TextAnchor.MiddleCenter, true);
             bannerSub = UiKit.Label(banner, "Sub", 0f, 52f, 420f, 30f, "", 18, Color.white, TextAnchor.MiddleCenter, true);
             banner.gameObject.SetActive(false);
-
-            RectTransform toast = UiKit.Rect(canvas, "Toast", 0f, 165f, 420f, 28f, true); // clear of the touch buttons along the bottom edge
-            toastBack = UiKit.Panel(toast, new Color(0.03f, 0.06f, 0.1f, 0.75f));
-            toastText = UiKit.Label(UiKit.Fill(toast, "Text", 2f), "", 14, Color.white, TextAnchor.MiddleCenter, true);
-            toast.gameObject.SetActive(false);
+            NotificationToast.Create(canvas); // top-centre banner for Toast(...)
         }
 
-        /// <summary>Short message line at the bottom centre (pickups, "Inventory full", potion refused ...).</summary>
-        public static void Toast(string text, Color color)
-        {
-            if (instance == null || string.IsNullOrEmpty(text)) return;
-            instance.toastText.text = text;
-            instance.toastText.color = color;
-            instance.toastLeft = ToastSeconds;
-            instance.toastBack.transform.gameObject.SetActive(true);
-        }
+        /// <summary>Short message banner at the top centre (pickups, "Inventory full", potion refused ...).</summary>
+        public static void Toast(string text, Color color) { NotificationToast.ShowLine(text, color); }
+
+        /// <summary>Full banner with an icon slot, a title and a sub line (win-toast).</summary>
+        public static void Toast(string title, string sub, Sprite icon) { NotificationToast.Show(title, sub, icon); }
 
         public static void LevelUp(int level)
         {
@@ -98,14 +89,6 @@ namespace ZenoniaProto
                 banner.localScale = new Vector3(pop, pop, 1f);
                 bannerGroup.alpha = Mathf.Clamp01(bannerLeft / 0.6f);
                 if (bannerLeft <= 0f) banner.gameObject.SetActive(false);
-            }
-            if (toastLeft > 0f)
-            {
-                toastLeft -= dt;
-                float a = Mathf.Clamp01(toastLeft / 0.5f);
-                Color c = toastText.color; c.a = a; toastText.color = c;
-                toastBack.color = new Color(0.03f, 0.06f, 0.1f, 0.75f * a);
-                if (toastLeft <= 0f) toastBack.transform.gameObject.SetActive(false);
             }
             if (p != null) Refresh(hero, p);
         }

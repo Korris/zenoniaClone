@@ -65,8 +65,15 @@ tile at least 60 units from the hero; the boss does not respawn.
 | B | Toggle bloom post-process (A/B) |
 | F | Toggle all combat effects (A/B) |
 | F9 | Show / hide the collision tint |
+| E / Enter | Talk to Elder Thomas (near the spawn) / advance the dialogue / accept the quest; Enter otherwise focuses the chat (Enter sends, Esc leaves the field) |
+| Esc | Close the dialogue / quest window |
 
 Die -> respawn at the entrance after 1.4 s.
+
+**In-game windows** (`WindowsHost.cs`, art `Sprites/ui/win-*`): top-centre toast banner (`NotificationToast`, `RpgHud.Toast`), NPC dialogue strip with typewriter
+(`NpcDialogueBox`), quest offer window (`QuestOfferWindow`), local-only chat (`ChatWindow` / `ChatHub`, `IChatTransport` is the network seam; collapsed by default on phones).
+Elder Thomas (`ElderNpc`) offers "Ancient Crystal Survey" (defeat 5 Frost Slimes, reward 150 G + 3 stones + 2 HP potions; `QuestTracker`, in memory, offline only).
+While a window owns the keyboard `UiWindows.BlocksGameplay` makes `InputAdapter` drop the hero's keys.
 
 ## Game feel / VFX layer
 

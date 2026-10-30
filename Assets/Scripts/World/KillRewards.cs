@@ -14,6 +14,9 @@ namespace ZenoniaProto
         static readonly List<HeroController> Winners = new List<HeroController>(8);
         static readonly List<int> Damage = new List<int>(8);
 
+        /// <summary>The local hero (LocalPlayer.Hero) got credit for this kill: the quest tracker counts it. Raised where the kill is resolved (offline / host).</summary>
+        public static event Action<Monster> LocalKill;
+
         public static void Resolve(Zone zone, Monster m)
         {
             MonsterLootDef def = LootTable.For(m.Type);
@@ -38,6 +41,7 @@ namespace ZenoniaProto
             if (!NetMode.IsOffline && top != null) { ownerId = top.NetId; freeAt = LootOwnership.FreeAtMs(zone.TimeMs, false); }
             LootDrop.SpawnAll(zone.Root, LootTable.RollAll(def, RpgRandom.Default), m.Feet, ownerId, freeAt);
 
+            if (LocalKill != null) for (int i = 0; i < Winners.Count; i++) if (Winners[i] == LocalPlayer.Hero) LocalKill(m);
             if (m.IsBoss) for (int i = 0; i < Winners.Count; i++) Winners[i].Owner.RaiseBossKilled();
         }
 

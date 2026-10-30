@@ -21,6 +21,22 @@ namespace ZenoniaProto
         public static Sprite SkillFrame() { return Get("hud-skill-frame"); }
         public static Sprite PotionFrame() { return Get("hud-potion-frame"); }
 
+        // 9-slice borders (native pixels: left, bottom, right, top) of the win-* window pieces; anything not listed is drawn unsliced.
+        static readonly Dictionary<string, Vector4> WinBorders = new Dictionary<string, Vector4>
+        {
+            { "panel", new Vector4(72f, 72f, 72f, 72f) }, { "dialogue", new Vector4(80f, 70f, 80f, 70f) }, { "toast", new Vector4(80f, 60f, 80f, 60f) },
+            { "nameplate", new Vector4(85f, 0f, 85f, 0f) }, { "section", new Vector4(28f, 28f, 28f, 28f) }, { "slot", new Vector4(45f, 45f, 45f, 45f) },
+            { "btn-gold", new Vector4(50f, 0f, 50f, 0f) }, { "btn-navy", new Vector4(50f, 0f, 50f, 0f) }, { "chat-input", new Vector4(40f, 0f, 40f, 0f) },
+        };
+
+        /// <summary>Window piece Resources/Sprites/ui/win-{name}.png (panel, dialogue, toast, nameplate, section, slot, btn-gold, btn-navy, close, tab-active ...), 9-sliced when it has a border.</summary>
+        public static Sprite Win(string name)
+        {
+            Vector4 b;
+            WinBorders.TryGetValue(name, out b);
+            return Get("win-" + name, b);
+        }
+
         /// <summary>Sprite of Resources/Sprites/ui/{name}.png (null + warning when missing).</summary>
         public static Sprite Get(string name, Vector4 border = default(Vector4))
         {

@@ -92,6 +92,7 @@ namespace ZenoniaProto
             root.AddComponent<Hud>();
             RpgHud.Create(root.transform);
             TouchControls.Create(root.transform);
+            WindowsHost.Create(root.transform); // dialogue, quest offer, chat, Elder Thomas (above the touch layer)
             session.StartFromCommandLine();
             DebugCapture.AttachIfRequested(root, session);
         }
