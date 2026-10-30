@@ -16,6 +16,7 @@ namespace ZenoniaProto
         public bool enabled = true;
         public int upgradeStones, gold, hpPotions, mpPotions;
         public int level; // 0 = keep; otherwise the character is raised to this level (skill tests need SP), never lowered
+        public int offhandPlus = -1; // -1 = keep; otherwise the worn offhand is set to this enhance level (second-weapon captures / tests)
 
         /// <summary>
         /// A dev-start.json next to the player executable (testers drop it there; a shipped build has none) wins; otherwise the bundled
@@ -54,6 +55,8 @@ namespace ZenoniaProto
                 p.RecomputeStats();
                 p.Hp = p.MaxHp; p.Mp = p.MaxMp;
             }
+            Item off = p.GetEquipped(Slots.Offhand);
+            if (c.offhandPlus >= 0 && off != null) { off.enhance = Mathf.Clamp(c.offhandPlus, 0, EnhanceConfig.MaxEnhance); p.RecomputeStats(); }
             Debug.Log("[ZenoniaProto] dev-start: stones " + p.UpgradeStone + ", gold " + p.Gold + ", potions " + p.HpPotions + "/" + p.MpPotions);
         }
     }

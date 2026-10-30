@@ -32,7 +32,8 @@ namespace ZenoniaProto.Rpg
     /// <summary>Pure helpers deriving enhanced values; item.stats is never mutated (web systems/weapon-enhance-stats.js).</summary>
     public static class EnhanceStats
     {
-        public const double OffhandScale = 0.5; // offhands get half of the weapon % table
+        /// <summary>0 = offhand base stats stay flat: its enhance level feeds SecondWeapon (specialised stats) instead of scaling a base stat.</summary>
+        public const double OffhandScale = 0;
 
         public static bool IsEnhanceable(Item item) { return item != null && (item.slot == Slots.Weapon || item.slot == Slots.Offhand); }
 

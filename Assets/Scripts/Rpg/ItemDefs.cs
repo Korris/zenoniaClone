@@ -56,10 +56,10 @@ namespace ZenoniaProto.Rpg
             G(Slots.Boots, "leatherBoots", "Leather Boots", 1, new ItemStats { def = 1, speedMult = 0.03f });
             G(Slots.Boots, "swiftBoots", "Swift Boots", 5, new ItemStats { def = 2, speedMult = 0.06f });
             G(Slots.Boots, "knightGreaves", "Knight Greaves", 10, new ItemStats { def = 4, speedMult = 0.09f });
-            // Offhands: one type per class; `enhanceStat` is the stat the +N bonus scales.
-            O("shield", "Shield", "def", new ItemStats { def = 3, maxHp = 10 });
+            // Offhands: one type per class; `enhanceStat` is legacy (offhand +N now feeds SecondWeapon; display names only changed, ids kept for saves).
+            O("shield", "Kite Shield", "def", new ItemStats { def = 3, maxHp = 10 });
             O("dagger", "Off-hand Dagger", "atk", new ItemStats { atk = 2, critChance = 0.02f });
-            O("robot", "Robot", "atk", new ItemStats { atk = 3 });
+            O("robot", "Drone", "atk", new ItemStats { atk = 3 });
             O("spirit", "Spirit", "maxHp", new ItemStats { maxHp = 12, maxMp = 8 });
             O("spellbook", "Spellbook", "atk", new ItemStats { atk = 2, maxMp = 10 });
         }

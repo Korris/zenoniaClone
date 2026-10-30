@@ -87,20 +87,18 @@ namespace ZenoniaProto.Rpg
             return "(" + (d > 0 ? "+" : "") + d + (l.Percent ? "%" : "") + ")";
         }
 
-        /// <summary>Enhance preview of a weapon / offhand: current level, next level, success chance and the stat it raises (before -> after).</summary>
+        /// <summary>Enhance preview of a weapon / offhand: current level, next level, success chance and the stat(s) it raises (before -> after).</summary>
         public static string EnhancePreview(Item item, IUpgradeMethod method = null)
         {
             if (!EnhanceStats.IsEnhanceable(item)) return "";
             method = method ?? StoneUpgradeMethod.Instance;
             int level = EnhanceStats.Level(item);
             if (level >= EnhanceConfig.MaxEnhance) return "+" + level + " (max)";
-            string key = EnhanceStats.StatKey(item);
-            int baseValue = item.stats.GetInt(key);
-            int now = baseValue + EnhanceStats.Bonus(baseValue, level, EnhanceStats.Scale(item));
-            int next = baseValue + EnhanceStats.Bonus(baseValue, level + 1, EnhanceStats.Scale(item));
-            int chance = RpgMath.Round(method.SuccessChance(level) * 100.0);
-            string label = key == "atk" ? "ATK" : key == "def" ? "DEF" : key == "maxHp" ? "HP" : key == "maxMp" ? "MP" : key;
-            return "+" + level + " -> +" + (level + 1) + "  " + chance + "%\n" + label + " " + now + " -> " + next + "  (" + method.CostLabel + ")";
+            string head = "+" + level + " -> +" + (level + 1) + "  " + RpgMath.Round(method.SuccessChance(level) * 100.0) + "%\n";
+            if (item.slot == Slots.Offhand) return head + SecondWeaponText.Preview(item) + "\n(" + method.CostLabel + ")";
+            int baseValue = item.stats.GetInt("atk");
+            int now = baseValue + EnhanceStats.Bonus(baseValue, level), next = baseValue + EnhanceStats.Bonus(baseValue, level + 1);
+            return head + "ATK " + now + " -> " + next + "  (" + method.CostLabel + ")";
         }
     }
 }
