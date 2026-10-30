@@ -106,6 +106,12 @@ namespace ZenoniaProto.Net
 
         public bool HeldBit(byte bit) { return (Held & bit) != 0; }
 
+        /// <summary>Drops queued presses beyond `max` per kind (a rooted hero must not replay a long burst of old presses later).</summary>
+        public void ClampPending(int max)
+        {
+            for (int k = 0; k < Kinds; k++) if (pending[k] > max) pending[k] = max;
+        }
+
         /// <summary>True once per queued press; call at most once per kind per tick so a burst plays out one press per tick.</summary>
         public bool TakePress(PressKind kind)
         {

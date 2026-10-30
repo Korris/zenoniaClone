@@ -10,6 +10,7 @@ namespace ZenoniaProto
     {
         const float MpRegenPerSecond = 2.2f;
         float skillCd, castLeft, castTotal;
+        ushort skillArg; // skill specific payload for the SkillCast event: shadow step target id / healed amount
         float mp { get { return rpg.Mp; } set { rpg.Mp = value; } }
 
         public float Mp { get { return mp; } }
@@ -32,6 +33,8 @@ namespace ZenoniaProto
                 case HeroClass.Cleric: if (!Heal()) return false; break;
                 default: return false;
             }
+            NetEventBus.SkillCast(this, new Vector2(x, y), skillArg);
+            skillArg = 0;
             mp -= cls.SkillMp;
             skillCd = cls.SkillCooldownMs;
             castLeft = castTotal = cls.SkillLockMs;

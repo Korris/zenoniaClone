@@ -1,0 +1,5 @@
+# the repo-wide *.csproj ignore is for Unity generated projects; these dotnet projects are hand written
+!*.csproj
+!**/*.csproj
+bin/
+obj/

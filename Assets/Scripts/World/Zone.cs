@@ -14,7 +14,9 @@ namespace ZenoniaProto
         public static Zone Main { get; private set; }
 
         public readonly Transform Root;
-        public readonly ZoneHeroes Heroes = new ZoneHeroes();
+        /// <summary>Shared NetId space of this zone (heroes, monsters, loot) and id -> entity lookup.</summary>
+        public readonly NetEntityRegistry Ids = new NetEntityRegistry();
+        public readonly ZoneHeroes Heroes;
         public readonly List<Monster> Monsters = new List<Monster>();
         public readonly List<LootDrop> Loot = new List<LootDrop>();
         public readonly BossRespawnTimer BossTimer = new BossRespawnTimer();
@@ -27,7 +29,7 @@ namespace ZenoniaProto
         /// <summary>Raised when the boss dies (online: zone-wide notification; offline: the save flag).</summary>
         public event Action<Monster> BossDied;
 
-        Zone(Transform root) { Root = root; }
+        Zone(Transform root) { Root = root; Heroes = new ZoneHeroes(Ids); }
 
         public static Zone CreateMain(Transform root) { Main = new Zone(root); return Main; }
         public static void ResetMain() { Main = null; }
@@ -37,6 +39,7 @@ namespace ZenoniaProto
         {
             float ms = dt * 1000f;
             TimeMs += ms;
+            Ids.Tick(TimeMs);
             if (BossTimer.Tick(ms) && Spawner != null) Spawner.SpawnBoss();
         }
 
@@ -48,7 +51,8 @@ namespace ZenoniaProto
             if (Spawner != null) Spawner.OnDeath(spawnZone);
             KillRewards.Resolve(this, m);
             if (!m.IsBoss) return;
-            if (!NetMode.IsOffline) BossTimer.Start();
+            if (!NetMode.IsOffline && NetMode.IsAuthority) BossTimer.Start();
+            NetEventBus.BossDied(m);
             if (BossDied != null) BossDied(m);
         }
     }

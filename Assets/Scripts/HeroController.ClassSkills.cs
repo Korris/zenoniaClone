@@ -35,6 +35,7 @@ namespace ZenoniaProto
             facing = Mathf.Abs(toTarget.x) >= Mathf.Abs(toTarget.y) ? (toTarget.x >= 0f ? 3 : 2) : (toTarget.y >= 0f ? 1 : 0);
             invuln = Mathf.Max(invuln, StepInvulnMs);
             int dmg = CombatMath.Damage(AtkStat, StepMult * 1.6f, target.Def); // guaranteed crit
+            skillArg = target.NetId;
             target.TakeHit(dmg, toTarget.normalized * 40f * 2f, true, true, false, this);
             Vector2 hit = new Vector2(target.Center.x, target.Center.y + 4f);
             float angle = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
@@ -57,6 +58,7 @@ namespace ZenoniaProto
             if (hp >= MaxHp - 0.5f) return false;
             float healed = Mathf.Min(MaxHp - hp, MaxHp * HealFraction);
             hp += healed;
+            skillArg = (ushort)Mathf.Clamp(Mathf.RoundToInt(healed), 0, 65535);
             HeroFx.Heal(new Vector2(x, y), Mathf.RoundToInt(healed));
             return true;
         }

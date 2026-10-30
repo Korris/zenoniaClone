@@ -12,8 +12,8 @@ namespace ZenoniaProto.Net
     {
         public const ushort Version = 1;
         public const int MaxNameLength = 16, MaxTokenLength = 64, MaxTextLength = 120, MaxItemUidLength = 40, MaxSaveJsonLength = 60000;
-        /// <summary>Largest unfragmented snapshot (below a typical 1200 B path MTU minus UDP / LiteNetLib headers).</summary>
-        public const int SnapshotMaxBytes = 1100;
+        /// <summary>Largest unfragmented snapshot: LiteNetLib refuses an unreliable packet over 1023 B (MTU 1024), so 1000 B.</summary>
+        public const int SnapshotMaxBytes = 1000;
         public const int MaxInputFrames = 3, MaxPressesPerFrame = 4, MaxEventsPerBatch = 64, MaxSnapshotEntities = 255;
         public const int InputStaleMs = 250;
         /// <summary>LiteNetLib channels: 0 unreliable, 1 reliable ordered gameplay, 2 reliable ordered chat (P5).</summary>

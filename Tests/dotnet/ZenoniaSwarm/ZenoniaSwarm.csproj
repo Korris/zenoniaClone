@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Scale smoke: N light protocol clients in ONE process (no Unity) against a real zone server. Run: dotnet run -c Release, then pass the swarm options after a double dash separator -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CS0618;CS0649;CS0169;CS8632</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="*.cs" />
+    <Compile Include="..\..\..\Assets\Plugins\LiteNetLib\**\*.cs" />
+    <Compile Include="..\..\..\Assets\Scripts\Net\Protocol\**\*.cs" />
+  </ItemGroup>
+</Project>

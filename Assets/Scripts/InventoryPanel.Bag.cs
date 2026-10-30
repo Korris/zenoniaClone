@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using ZenoniaProto.Net;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
@@ -103,6 +104,7 @@ namespace ZenoniaProto
         {
             PlayerState p = RpgSession.Player;
             if (p == null) return;
+            if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Sort, "", 0); return; }
             p.Inventory.Sort((a, b) =>
             {
                 int bySlot = Slots.Index(a.slot).CompareTo(Slots.Index(b.slot));
@@ -127,6 +129,7 @@ namespace ZenoniaProto
             if (item == null || IsEquipped(p, item)) return;
             if (!confirmDiscard) { confirmDiscard = true; Refresh(); return; }
             confirmDiscard = false;
+            if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Discard, item.uid, 0); return; }
             p.RemoveFromInventory(item.uid);
             Flash("Discarded " + item.name);
             Refresh();

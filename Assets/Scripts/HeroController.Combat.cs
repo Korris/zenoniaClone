@@ -25,6 +25,7 @@ namespace ZenoniaProto
             var box = new Rect(cx - w * 0.5f, cy - ht * 0.5f, w, ht);
             bool finisher = step == combo.HitCount;
             HeroFx.Swing(cls, new Vector2(cx, cy), new Vector2(x, y), DirAngle[facing], h, step, finisher, echo);
+            NetEventBus.AttackStep(this, step, echo);
 
             float mult = combo.MultiplierFor(step, 1) / h.Stabs;
             int landed = 0;
@@ -74,7 +75,9 @@ namespace ZenoniaProto
             bool finisher = combo.IsFinisher;
             float mult = combo.MultiplierFor(step, 1);
             ClassPalette pal = cls.ActivePalette;
-            ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus, this);
+            Vector2 muzzle = new Vector2(x + v.x * 12f, y + 4f + v.y * 12f);
+            ushort boltId = NetEventBus.BoltFired(this, step, muzzle, DirAngle[facing], finisher);
+            ComboProjectile.Fire(muzzle, v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus, this, boltId);
             if (!NetMode.RendersFx) return;
             bool painted = VfxSprites.For(h.Bolt.Style) != null;
             if (painted && castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast
@@ -91,6 +94,7 @@ namespace ZenoniaProto
             stabLeft = 0f;
             castLeft = 0f; // a landed hit breaks the cast root (the already launched skill keeps playing, like the web)
             HeroFx.Hurt(new Vector2(x, y), dmg);
+            NetEventBus.HeroHit(this, dmg);
             if (hp <= 0f)
             {
                 hp = 0f;
@@ -98,6 +102,7 @@ namespace ZenoniaProto
                 deathTimer = 0f;
                 dashLeft = 0f;
                 combo.Reset();
+                NetEventBus.HeroDied(this);
             }
         }
     }

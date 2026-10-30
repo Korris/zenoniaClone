@@ -36,7 +36,7 @@ Functional
 - Inventory actions round-trip to server (no local mutation online).
 - Reject when full / bad version / bad key.
 Non-functional
-- 50 players: server tick p99 < 20 ms (Windows batchmode), down <= 20 KB/s/client, up <= 1 KB/s/client, snapshot packet <= 1100 B (unfragmented).
+- 50 players: server tick p99 < 20 ms (Windows batchmode), down <= 20 KB/s/client, up <= 1 KB/s/client, snapshot packet <= 1000 B (LiteNetLib max unreliable = 1023 B; was 1100).
 - Offline feel unchanged (hit-stop, pause, saves).
 
 ## Architecture
@@ -183,15 +183,15 @@ clients `--mode client --connect 127.0.0.1:7777 --dev-key k --class <i%5> --net-
 - [x] PlayerRpg + boss respawn timer
 - [x] Cosmetic split + clock rules
 - [x] Headless heroes/monsters (no views)
-- [ ] NetMode/args/Bootstrap
-- [ ] ZoneServer, NetPlayer, InputDriver, dev login stub
-- [ ] InterestGrid, ClientInterest, SnapshotBuilder, EventBus
-- [ ] Client: NetClient, ProxySpawner, SnapshotBuffer, EventPlayer, RpgMirror
-- [ ] Proxy hero/monster/loot
-- [ ] InputSender + InvAction
-- [ ] Connect screen + host mode
-- [ ] Harness, NetStats, checker, record-net
-- [ ] Android LAN smoke
+- [x] NetMode/args/Bootstrap (+ -nographics bot clients: NetMode.NoViews)
+- [x] ZoneServer, NetPlayer, InputDriver, dev login stub
+- [x] InterestGrid/InterestSet (dotnet tests), ServerReplication (spawn diff, snapshot, events), NetEventBus
+- [x] Client: NetClient, ProxySpawner, SnapshotBuffer (dotnet tests), EventPlayer, RpgMirror (no extrapolation: holds last state)
+- [x] Proxy hero/monster/loot
+- [x] InputSender (dedupes idle frames, 10 Hz keep-alive) + InvAction round-trip
+- [x] Connect screen + host mode
+- [x] Harness (Tools/net-local-test.ps1), NetStats, checker, record-net, dotnet swarm (Tests/dotnet/ZenoniaSwarm)
+- [ ] Android LAN smoke (skipped: no device in this run; LiteNetLib IL2CPP still unverified)
 
 ## Success criteria
 - 8-client E2E passes checker; 50-client scale smoke: server tick p99 < 20 ms, down <= 20 KB/s/client, no snapshot > 1100 B.

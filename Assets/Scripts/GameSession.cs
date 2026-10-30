@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using ZenoniaProto.Rpg;
 
@@ -6,8 +7,9 @@ namespace ZenoniaProto
     /// <summary>
     /// Owns the playable hero: shows the class select screen first, then spawns the chosen class (hero + renderer + robot companion)
     /// and lets F1..F5 respawn as another class at any time. Each class has its own RPG save (RpgSession): switching saves the current hero first.
+    /// Online (host / client) the class is fixed for the session and there are no saves; GameSession.Online.cs switches the process between modes.
     /// </summary>
-    public class GameSession : MonoBehaviour
+    public partial class GameSession : MonoBehaviour
     {
         public static GameSession Instance { get; private set; }
         public static HeroController Hero { get { return LocalPlayer.Hero; } }
@@ -19,6 +21,8 @@ namespace ZenoniaProto
         HeroController hero;
         GameObject heroGo;
         RpgSession rpg;
+        /// <summary>Name shown above the local hero when hosting.</summary>
+        string localName = "";
 
         public static GameSession Create(Transform parent, CameraFollow cameraFollow)
         {
@@ -51,6 +55,7 @@ namespace ZenoniaProto
             UltimateFx.Prewarm();
             hero = heroGo.AddComponent<HeroController>();
             hero.Init(view, state);
+            hero.PlayerName = localName; // host: remote players see this name above the hero
             rpg.Attach(hero, save);
             if (def.CompanionFolder != null) HeroCompanion.Create(root, hero);
             follow.Target = heroGo.transform;
@@ -75,23 +80,61 @@ namespace ZenoniaProto
             return h;
         }
 
+        /// <summary>
+        /// Online client: a hero the server drives. `local` = the hero this player controls (camera, HUD, inventory); remote ones are just drawn.
+        /// The server's Spawn message supplies the id; the mirrored RPG state starts as a new character until the first RpgState push.
+        /// </summary>
+        public HeroController CreateProxyHero(HeroClassDef def, ushort netId, bool local)
+        {
+            var go = new GameObject((local ? "Hero_" : "Remote_") + def.Name);
+            go.transform.SetParent(root, false);
+            bool views = NetMode.RendersFx;
+            HeroRenderer view = null;
+            if (views)
+            {
+                view = go.AddComponent<HeroRenderer>();
+                view.Init(def, HeldGearData.Load(def));
+                if (def.Id == HeroClass.Warrior) EarthBreakUltimate.Preload();
+                if (def.Id == HeroClass.Wizard) IceStormUltimate.Preload();
+                VfxSprites.Preload(def.Id);
+            }
+            PlayerState state = PlayerState.NewGame(RpgSession.ClassId(def.Id));
+            HeroController h = go.AddComponent<HeroController>();
+            h.InitProxy(def, view, state, netId, local);
+            if (views && def.CompanionFolder != null) HeroCompanion.Create(root, h);
+            if (!local) return h;
+            if (hero != null) { hero.Retire(); Destroy(heroGo); }
+            hero = h;
+            heroGo = go;
+            ClassPalette.Current = def.ActivePalette;
+            if (views) UltimateFx.Prewarm();
+            rpg.AttachRemote(state, h);
+            if (follow != null) { follow.Target = go.transform; follow.Configure(); }
+            return h;
+        }
+
         void Update()
         {
             if (hero == null)
             {
+                if (ConnectScreenGui.Visible || NetMode.IsClient) return; // typing a name / waiting for the server: the digit keys must not pick a class
                 for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Class1 + i : GameKey.Class4 + (i - 3))) { Spawn((HeroClass)i); return; }
                 return;
             }
             if (InventoryPanel.IsOpen) return;
-            for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Switch1 + i : GameKey.Switch4 + (i - 3))) { Spawn((HeroClass)i); return; }
+            if (NetMode.IsOffline)
+                for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Switch1 + i : GameKey.Switch4 + (i - 3))) { Spawn((HeroClass)i); return; }
             if (InputAdapter.Pressed(GameKey.SolidDebug)) WorldBuilder.ToggleSolidOverlay();
         }
 
         void OnGUI()
         {
             if (hero != null) return;
+            if (ConnectScreenGui.Visible) { ConnectScreenGui.Draw(this); return; }
+            if (NetMode.IsClient) return;
             int picked = ClassSelectGui.Draw();
-            if (picked >= 0) Spawn((HeroClass)picked);
+            if (picked >= 0) { Spawn((HeroClass)picked); return; }
+            ConnectScreenGui.DrawOpenButton();
         }
     }
 }

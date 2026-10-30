@@ -83,7 +83,7 @@ namespace ZenoniaProto
             Setup(def, state);
         }
 
-        void Setup(HeroClassDef def, PlayerState state)
+        void Setup(HeroClassDef def, PlayerState state, ushort serverId = 0)
         {
             cls = def;
             rpg = state ?? PlayerState.NewGame(RpgSession.ClassId(cls.Id));
@@ -92,7 +92,7 @@ namespace ZenoniaProto
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
             transform.position = new Vector3(x, y, 0f);
-            if (Zone.Main != null) Zone.Main.Heroes.Add(this);
+            if (Zone.Main != null) Zone.Main.Heroes.Add(this, serverId);
         }
 
         /// <summary>Takes this hero out of play right away (class switch): leaves the zone and drops its RPG owner so nothing can still target or pay it.</summary>
@@ -116,6 +116,7 @@ namespace ZenoniaProto
         {
             float dt = GameClock.Dt;
             float dtMs = dt * 1000f;
+            if (proxy) { ProxyTick(dtMs); return; }
             if (GameClock.Paused) { Render(); return; } // inventory open: frozen, no input
             HandleGearKeys();
             if (dead)
@@ -218,6 +219,7 @@ namespace ZenoniaProto
             combo.Reset();
             // -10% of the current-level EXP, full HP / MP. Last, so the revive event (toast + save) sees the respawn position.
             if (Owner != null) Owner.Revive(); else rpg.Revive();
+            NetEventBus.HeroRespawned(this);
         }
 
         void HandleGearKeys()

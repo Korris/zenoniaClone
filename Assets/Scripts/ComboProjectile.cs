@@ -22,6 +22,7 @@ namespace ZenoniaProto
         float atk, mult, knockback, life, critBonus;
         bool finisher;
         HeroController src;     // who fired it (kill credit, damage table)
+        ushort netId;           // bolt id of the BoltFired / BoltEnd events (0 = no server)
         SpriteRenderer sr, glow;
         ArcaneBoltRig arcane;   // wizard layered missile (null until first needed)
         StreakBoltRig streak;   // cleric light arrow / mechanic plasma bolt
@@ -31,7 +32,7 @@ namespace ZenoniaProto
         public static void Init(Transform parent) { root = parent; Pool.Clear(); }
 
         /// <summary>Launches a bolt. On a headless server it is a plain moving hitbox (no renderers); `src` is credited for every hit.</summary>
-        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f, HeroController src = null)
+        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f, HeroController src = null, ushort boltId = 0)
         {
             bool fx = NetMode.RendersFx;
             Sprite art = fx && bolt.Style == BoltStyle.Sprite ? BurstFx.Art(fxFolder, bolt.Sprite, palette.Tint) : null;
@@ -51,7 +52,7 @@ namespace ZenoniaProto
                 }
                 Pool.Add(p);
             }
-            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus; p.src = src;
+            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus; p.src = src; p.netId = boltId;
             p.life = bolt.Range / bolt.Speed;
             if (!fx) { p.vfx = null; p.gameObject.SetActive(true); return; } // headless: hitbox only
             p.sr.sprite = art; p.glow.sprite = art;
@@ -103,10 +104,15 @@ namespace ZenoniaProto
                 for (int i = 0; i < steps; i++)
                 {
                     pos += dir * (dist / steps);
-                    if (HitSomething()) { gameObject.SetActive(false); return; }
+                    if (NetMode.IsAuthority && HitSomething()) { gameObject.SetActive(false); return; } // a client bolt is only a picture: the server decides what it hits
                 }
                 life -= dt;
-                if (life <= 0f) { gameObject.SetActive(false); return; }
+                if (life <= 0f)
+                {
+                    if (NetMode.IsAuthority) NetEventBus.BoltEnd(netId, pos, false, true);
+                    gameObject.SetActive(false);
+                    return;
+                }
             }
             if (!NetMode.RendersFx) return;
             if (vfx != null)
@@ -166,7 +172,7 @@ namespace ZenoniaProto
             bool crit = Random.value < CritChance + critBonus;
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
             m.TakeHit(dmg, knock * (crit ? 2f : 1f), crit, blast, vfx != null, src);
-            if (!blast) HitFx(false);
+            if (!blast) { HitFx(false); NetEventBus.BoltEnd(netId, pos, false); }
             GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
             if (!blast) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode
         }
@@ -185,10 +191,31 @@ namespace ZenoniaProto
                 Vector2 away = dist > 0.01f ? d / dist : dir;
                 Strike(m, away * knockback, true);
             }
+            ExplodeVisuals();
+            NetEventBus.BoltEnd(netId, pos, true);
+            CameraFollow.AddTrauma(FeelConfig.TraumaBlast);
+        }
+
+        void ExplodeVisuals()
+        {
             HitFx(true);
             if (vfx == null && def.ExplodeFx != null && (def.Style == BoltStyle.Sprite || def.Style == BoltStyle.Arcane))
                 BurstFx.Spawn(fxFolder, def.ExplodeFx, pos + new Vector2(0f, VisualLift), Random.value * 360f, 2f * def.ExplodeRadius / 40f, 0.32f, true, tint); // burst art spans 40 units
-            CameraFollow.AddTrauma(FeelConfig.TraumaBlast);
+        }
+
+        /// <summary>Client: the server says bolt `id` ended at `at` (hit, burst, or expired in the air): play the impact picture and retire the bolt.</summary>
+        public static void EndRemote(ushort id, Vector2 at, bool exploded, bool expired)
+        {
+            if (id == 0) return;
+            for (int i = 0; i < Pool.Count; i++)
+            {
+                ComboProjectile p = Pool[i];
+                if (!p.gameObject.activeSelf || p.netId != id) continue;
+                p.pos = at;
+                if (!expired) { if (exploded) p.ExplodeVisuals(); else p.HitFx(false); }
+                p.gameObject.SetActive(false);
+                return;
+            }
         }
     }
 }

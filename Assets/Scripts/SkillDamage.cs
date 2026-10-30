@@ -12,6 +12,7 @@ namespace ZenoniaProto
         public static List<Monster> Radial(Vector2 center, float radius, float atk, float mult, float knockback, bool big, ClassPalette sparks = null, float critChance = 0f, HeroController src = null)
         {
             Hits.Clear();
+            if (!NetMode.IsAuthority) return Hits; // client: the skill picture plays, the server applies the damage
             ClassPalette hero = ClassPalette.Current;
             ClassPalette.Current = sparks ?? ClassPalette.Neutral; // skills keep their element colour for the impact sparks
             IReadOnlyList<Monster> all = Monster.All;

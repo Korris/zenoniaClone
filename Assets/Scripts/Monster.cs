@@ -34,6 +34,9 @@ namespace ZenoniaProto
         SpriteRenderer body, shadow, barBack, barFill;
         bool headless;                             // dedicated server: simulation only, no sprites / renderers
         HeroController target;                     // sticky aggro target (Monster.Ai.cs)
+        bool proxy;                                // client view of a server monster (Monster.Net.cs)
+        /// <summary>Per-zone entity id (server assigned on a client).</summary>
+        public ushort NetId;
 
         public float Def { get { return def.Def; } }
         /// <summary>Web monster type id (frostSlime, iceGoblin ...), the key of the RPG loot table.</summary>
@@ -47,18 +50,27 @@ namespace ZenoniaProto
         /// <summary>Body centre used for AoE distance (web: feet - 6).</summary>
         public Vector2 Center { get { return new Vector2(x, y + 6f); } }
 
-        public static Monster Create(Transform parent, MonsterDef definition, Vector2 feet, int zoneIndex)
+        public static Monster Create(Transform parent, MonsterDef definition, Vector2 feet, int zoneIndex) { return Build(parent, definition, feet, zoneIndex, false, 0); }
+
+        /// <summary>Client side view of a server monster (no AI: Monster.Net.cs drives it from snapshots / events).</summary>
+        public static Monster CreateProxy(Transform parent, MonsterDef definition, Vector2 feet, ushort netId) { return Build(parent, definition, feet, -2, true, netId); }
+
+        static Monster Build(Transform parent, MonsterDef definition, Vector2 feet, int zoneIndex, bool asProxy, ushort netId)
         {
             var go = new GameObject("Monster_" + definition.Sheet);
             go.transform.SetParent(parent, false);
             var m = go.AddComponent<Monster>();
+            m.proxy = asProxy;
             m.Init(definition, feet, zoneIndex);
             Zone zone = Zone.Main;
             if (zone != null)
             {
                 zone.Monsters.Add(m);
+                if (asProxy) { m.NetId = netId; zone.Ids.Register(netId, m); }
+                else m.NetId = zone.Ids.Alloc(m);
                 if (definition.IsBoss) zone.Boss = m;
             }
+            if (!asProxy && definition.IsBoss) NetEventBus.BossSpawned(m);
             return m;
         }
 
@@ -69,7 +81,7 @@ namespace ZenoniaProto
             hp = def.Hp;
             timer = 600f;
             animTimer = Random.value * 1000f;
-            headless = NetMode.IsHeadless;
+            headless = NetMode.NoViews;
             transform.position = new Vector3(x, y, 0f);
             if (headless) return; // server: no sprite sheets, shadow, body or HP bar
             walk = SpriteSheet.Grid("Sprites/monsters/" + def.Sheet, 192, 192, GameConfig.FramePpu, new Vector2(0.5f, 0f));
@@ -94,6 +106,7 @@ namespace ZenoniaProto
             Zone zone = Zone.Main;
             if (zone == null) return;
             zone.Monsters.Remove(this);
+            zone.Ids.Release(NetId, zone.TimeMs);
             if (zone.Boss == this) zone.Boss = null;
         }
 
@@ -105,6 +118,7 @@ namespace ZenoniaProto
             float dt = GameClock.Dt, dtMs = dt * 1000f;
             animTimer += dtMs;
             flash = Mathf.Max(0f, flash - dtMs);
+            if (proxy) { ProxyUpdate(dtMs); return; }
             if (state == State.Dying)
             {
                 deathTimer += dtMs;
@@ -175,29 +189,38 @@ namespace ZenoniaProto
         /// </summary>
         public void TakeHit(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx = false, HeroController src = null)
         {
-            if (IsDying) return;
+            if (IsDying || proxy) return;
             if (src == null) src = LocalPlayer.Hero;
             Credit(src, Mathf.Min(dmg, Mathf.Max(1, Mathf.CeilToInt(hp)))); // overkill does not count towards the damage share
             if (src != null && !src.IsDead) target = src; // whoever hurts it becomes the sticky target
             hp -= dmg;
             bool fx = FeelConfig.FxOn;
-            flash = fx ? FeelConfig.FlashMs : HitFlashMs;
             if (knockVel != Vector2.zero && !def.IsBoss) // the boss is too heavy to be shoved around
             {
                 knock = fx ? knockVel * FeelConfig.KnockbackMultiplier : knockVel;
                 knockTotal = knockLeft = fx ? FeelConfig.KnockbackMs : KnockbackMs;
             }
             if (state == State.Idle || state == State.Wander || state == State.Return) { state = State.Chase; timer = 0f; }
-            float bodyH = def.BodyHeightUnits * def.RenderScale;
-            Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
-            DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
-            ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher, null, quietFx);
+            HitFx(dmg, knockVel, crit, finisher, quietFx, !NetMode.IsOffline && src != LocalPlayer.Hero);
+            NetEventBus.MonsterHit(this, src, dmg, knockVel, crit, finisher, quietFx);
             if (hp > 0f) return;
             hp = 0f;
             state = State.Dying;
             deathTimer = 0f;
             target = null;
             if (Zone.Main != null) Zone.Main.OnMonsterDied(this, zone);
+        }
+
+        /// <summary>Hit presentation shared by the real hit (authority) and the replayed MonsterHit event (client): white flash, damage number, sparks.</summary>
+        void HitFx(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx, bool otherPlayer = false)
+        {
+            bool fx = FeelConfig.FxOn;
+            flash = fx ? FeelConfig.FlashMs : HitFlashMs;
+            float bodyH = def.BodyHeightUnits * def.RenderScale;
+            Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
+            if (otherPlayer) DamageNumber.Spawn(x, y + bodyH + 4f, dmg.ToString(), Color.white, false, false, true); // another player's hit: small, white, half alpha
+            else DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
+            ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher, null, quietFx);
         }
     }
 }

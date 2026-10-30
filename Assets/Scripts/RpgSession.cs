@@ -67,6 +67,18 @@ namespace ZenoniaProto
             if (save == null) SaveNow(); // a new character gets its file right away
         }
 
+        /// <summary>Online client: adopts the mirrored state the server pushed (the bag, equipment and HUD all read Player), re-binds the hero's owner and refreshes its gear.</summary>
+        public void AttachRemote(PlayerState state, HeroController hero)
+        {
+            player = state;
+            owner = new PlayerRpg(state);
+            hero.ProxyReplaceState(state);
+            hero.Owner = owner;
+            beganFrame = Time.frameCount;
+            SyncGear();
+            InventoryPanel.RefreshIfOpen();
+        }
+
         /// <summary>Writes the current hero to its class save (no-op without a hero, while dead, or when saving is disabled).</summary>
         public void SaveNow()
         {
@@ -97,7 +109,7 @@ namespace ZenoniaProto
             }
             if (Time.frameCount == beganFrame) return;
             if (InputAdapter.Pressed(GameKey.Inventory) || (InventoryPanel.IsOpen && InputAdapter.Pressed(GameKey.Close))) InventoryPanel.Toggle(root);
-            if (!hero.IsDead)
+            if (!hero.IsDead && NetMode.IsAuthority) // online clients send the potion keys to the server instead (NetInputSender)
             {
                 if (InputAdapter.Pressed(GameKey.HpPotion)) Drink(hero, true);
                 if (InputAdapter.Pressed(GameKey.MpPotion)) Drink(hero, false);
@@ -111,6 +123,7 @@ namespace ZenoniaProto
             ActionResult r = owner.UsePotion(hp);
             if (!r.Ok) { RpgHud.Toast(r.Text, new Color(1f, 0.7f, 0.5f)); return; }
             HeroFx.Potion(hero.Position, hp, r.Text);
+            NetEventBus.Potion(hero, hp); // host: the other players see the drink too
         }
 
         void OnApplicationQuit() { SaveNow(); }
@@ -124,7 +137,7 @@ namespace ZenoniaProto
             DamageNumber.Spawn(at.x + 6f, at.y + 20f, "+" + exp + " EXP", ExpColor, false);
             if (levels <= 0) return;
             HeroController hero = GameSession.Hero;
-            if (hero != null) HeroFx.LevelUp(hero.Position, player.Level);
+            if (hero != null) { HeroFx.LevelUp(hero.Position, player.Level); NetEventBus.LevelUp(hero, player.Level); }
             SaveNow();
         }
 

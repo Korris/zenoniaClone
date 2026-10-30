@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using ZenoniaProto.Net;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
@@ -34,6 +35,9 @@ namespace ZenoniaProto
 
         public static bool IsOpen { get { return instance != null && instance.overlay.gameObject.activeSelf; } }
 
+        /// <summary>Online: the server pushed a new state, redraw the open bag.</summary>
+        public static void RefreshIfOpen() { if (IsOpen) instance.Refresh(); }
+
         public static void Toggle(Transform root) { if (IsOpen) Close(); else Open(root); }
 
         public static void Open(Transform root)
@@ -50,7 +54,7 @@ namespace ZenoniaProto
             instance.overlay.SetAsLastSibling();
             instance.messageUntil = 0f;
             instance.Refresh();
-            GameClock.Paused = true;
+            GameClock.Paused = NetMode.UsesLocalTimeBending; // a shared zone cannot freeze for one player
         }
 
         public static void Close()
@@ -165,6 +169,7 @@ namespace ZenoniaProto
                 Supply kind = supplyOrder[cellSel];
                 if (kind == Supply.HpPotion || kind == Supply.MpPotion)
                 {
+                    if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Use, "", (byte)(kind == Supply.HpPotion ? 0 : 1)); return; }
                     ActionResult used = p.UsePotion(kind == Supply.HpPotion);
                     Flash(used.Ok ? "Restored 30%" : used.Text);
                 }
@@ -174,6 +179,7 @@ namespace ZenoniaProto
             Item item = SelectedItem(p);
             if (item == null) return;
             bool equipped = IsEquipped(p, item);
+            if (NetMode.IsClient) { NetClient.SendInvAction(equipped ? InvOp.Unequip : InvOp.Equip, item.uid, (byte)Mathf.Max(0, Slots.Index(item.slot))); return; }
             ActionResult r = equipped ? p.Unequip(item.slot) : p.Equip(item);
             if (r.Ok) RpgSession.SyncGear();
             Flash(r.Ok ? equipped ? "Unequipped" : "Equipped " + item.name : r.Text);
@@ -186,6 +192,7 @@ namespace ZenoniaProto
             Item item = p != null ? SelectedItem(p) : null;
             EnhanceView view = Preview(p, item);
             if (!view.Can) { Flash(view.Reason); return; }
+            if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Enhance, item.uid, 0); return; }
             int bandBefore = EnhanceStats.VisualBand(item);
             EnhanceResult r = EnhanceSystem.Attempt(p, item);
             if (!r.Ok) Flash("Cannot enhance");

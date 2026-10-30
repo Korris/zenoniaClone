@@ -44,7 +44,7 @@ namespace ZenoniaProto
             }
             Sprite[] attackRow = SpriteSheet.Row(attack, facing);
             Sprite[] walkRow = SpriteSheet.Row(walk, facing);
-            int ai = AttackIndex();
+            int ai = proxy ? proxyAttack : AttackIndex();
             Sprite s = null;
             if (flash <= 0f && ai >= 0 && attackRow != null && ai < attackRow.Length) s = attackRow[ai];
             else if (walkRow != null && walkRow.Length > 0)

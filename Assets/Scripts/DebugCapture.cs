@@ -53,7 +53,7 @@ namespace ZenoniaProto
         public static void AttachIfRequested(GameObject root, GameSession gameSession)
         {
             string[] args = Environment.GetCommandLineArgs();
-            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0 && Array.IndexOf(args, "--record-combo") < 0 && Array.IndexOf(args, "--record-boss") < 0 && Array.IndexOf(args, "--record-party") < 0) return;
+            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0 && Array.IndexOf(args, "--record-combo") < 0 && Array.IndexOf(args, "--record-boss") < 0 && Array.IndexOf(args, "--record-party") < 0 && Array.IndexOf(args, "--net-bot") < 0 && Array.IndexOf(args, "--record-net") < 0) return;
             SaveStore.Enabled = false; // capture runs never touch the player's saves
             var d = root.AddComponent<DebugCapture>();
             d.session = gameSession;
@@ -203,6 +203,7 @@ namespace ZenoniaProto
         IEnumerator Run()
         {
             yield return null;
+            if (NetMode.IsClient) { yield return RunNetClient(); yield break; } // online: the server owns the world, the bot only drives the controls
             if (comboArg != null) { yield return RecordCombo(comboArg); yield break; }
             if (bossArg != null) { yield return RecordBoss(bossArg); yield break; }
             if (party) { yield return RecordParty(); yield break; }
@@ -265,16 +266,25 @@ namespace ZenoniaProto
         }
 
         /// <summary>Walks toward the nearest living monster (aligning on one axis first so the facing is right) and attacks in range.</summary>
-        void EnableFightBot(bool boss = false)
+        void EnableFightBot(bool boss = false, Vector2 offset = default(Vector2), bool extras = false)
         {
             Vector2 move = Vector2.zero;
             bool attack = false;
+            float nextSkill = Time.time + 3f + UnityEngine.Random.value * 3f, nextPotion = 0f;
             InputAdapter.BotHeld = k =>
             {
-                Think(GameSession.Hero, Vector2.zero, ref move, ref attack, boss);
+                Think(GameSession.Hero, offset, ref move, ref attack, boss);
                 return (k == GameKey.Left && move.x < 0f) || (k == GameKey.Right && move.x > 0f) || (k == GameKey.Down && move.y < 0f) || (k == GameKey.Up && move.y > 0f);
             };
-            InputAdapter.BotPressed = k => k == GameKey.Attack && attack;
+            InputAdapter.BotPressed = k =>
+            {
+                if (k == GameKey.Attack) return attack;
+                if (!extras) return false;
+                HeroController h = GameSession.Hero;
+                if (k == GameKey.Skill && attack && Time.time >= nextSkill) { nextSkill = Time.time + 4.5f + UnityEngine.Random.value; return true; }   // class skill while fighting
+                if (k == GameKey.HpPotion && h != null && h.Hp < h.MaxHp * 0.4f && Time.time >= nextPotion) { nextPotion = Time.time + 2f; return true; } // drink when low
+                return false;
+            };
         }
 
         /// <summary>boss = target the Frostfang King while it lives (otherwise the King is skipped); offset = where around the target to stand.</summary>

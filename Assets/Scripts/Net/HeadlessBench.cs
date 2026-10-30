@@ -17,17 +17,18 @@ namespace ZenoniaProto
         bool brawl;
         readonly List<float> samples = new List<float>(4096);
 
-        public static void AttachIfRequested(GameObject root)
+        public static bool AttachIfRequested(GameObject root)
         {
             string[] args = Environment.GetCommandLineArgs();
             int i = Array.IndexOf(args, "--headless-bench");
-            if (i < 0 || i + 1 >= args.Length) return;
+            if (i < 0 || i + 1 >= args.Length) return false;
             var b = root.AddComponent<HeadlessBench>();
             int.TryParse(args[i + 1], out b.heroCount);
             int s = Array.IndexOf(args, "--bench-seconds");
             if (s >= 0 && s + 1 < args.Length) float.TryParse(args[s + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out b.seconds);
             b.brawl = Array.IndexOf(args, "--bench-brawl") >= 0;
             Application.targetFrameRate = -1; // measure the work, not the 30 Hz sleep
+            return true;
         }
 
         void Start()

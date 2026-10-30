@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using ZenoniaProto.Net;
 
 namespace ZenoniaProto
 {
@@ -13,6 +14,11 @@ namespace ZenoniaProto
             if (view == null) return; // headless server hero: nothing to draw
             string anim;
             int frame;
+            // A client proxy has no combo state machine: pose / step / progress come from the server snapshot.
+            bool attacking = proxy ? proxyPose == HeroPose.Attack : combo.IsAttacking;
+            int comboStep = proxy ? proxyStep : combo.Step;
+            bool finisherStep = proxy ? comboStep == combo.HitCount : combo.IsFinisher;
+            float phase = proxy ? proxyProgress : combo.PhaseProgress;
             if (dead)
             {
                 anim = "death";
@@ -30,12 +36,12 @@ namespace ZenoniaProto
                 anim = "dash";
                 frame = Mathf.FloorToInt(animTimer / 55f) % Mathf.Max(1, view.FrameCount(anim, facing));
             }
-            else if (combo.IsAttacking)
+            else if (attacking)
             {
                 string[] steps = cls.ComboAnims;
-                anim = steps != null && combo.Step >= 1 && combo.Step <= steps.Length ? steps[combo.Step - 1]
-                    : combo.IsFinisher ? "attack3" : (((combo.Step - 1) % 2) + 1 == 1 ? "attack1" : "attack2");
-                frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), combo.PhaseProgress);
+                anim = steps != null && comboStep >= 1 && comboStep <= steps.Length ? steps[comboStep - 1]
+                    : finisherStep ? "attack3" : (((comboStep - 1) % 2) + 1 == 1 ? "attack1" : "attack2");
+                frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), phase);
             }
             else if (moving)
             {

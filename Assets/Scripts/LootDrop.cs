@@ -22,6 +22,12 @@ namespace ZenoniaProto
         /// <summary>Hero NetId that has pickup priority (0 = nobody) and the zone time (ms) at which the drop turns free.</summary>
         public ushort OwnerId { get { return ownerId; } }
         public float FreeAtMs { get { return freeAtMs; } }
+        /// <summary>Per-zone entity id (server assigned on a client).</summary>
+        public ushort NetId;
+        public Vector2 Position { get { return transform.position; } }
+        /// <summary>Where the drop comes to rest (the pop animation ends here).</summary>
+        public Vector2 Target { get { return to; } }
+        bool proxy;  // client view of a server drop: no pickup, no despawn timer (the server decides)
 
         LootEntry entry;
         Vector2 from, to;
@@ -53,9 +59,25 @@ namespace ZenoniaProto
             var d = go.AddComponent<LootDrop>();
             d.entry = e; d.from = from; d.to = to; d.phase = Random.value * 10f;
             d.ownerId = ownerId; d.freeAtMs = freeAtMs;
-            d.headless = NetMode.IsHeadless;
+            d.headless = NetMode.NoViews;
             d.Build();
-            if (Zone.Main != null) Zone.Main.Loot.Add(d);
+            if (Zone.Main != null) { Zone.Main.Loot.Add(d); d.NetId = Zone.Main.Ids.Alloc(d); }
+            return d;
+        }
+
+        /// <summary>Client: shows a drop the server announced (fresh = just dropped, so it pops out of the corpse instead of lying there).</summary>
+        public static LootDrop SpawnProxy(Transform parent, LootEntry e, Vector2 at, ushort id, ushort ownerId, float freeAtMs, bool fresh)
+        {
+            var go = new GameObject("Loot_" + e.Kind);
+            go.transform.SetParent(parent, false);
+            var d = go.AddComponent<LootDrop>();
+            d.entry = e; d.from = d.to = at; d.phase = Random.value * 10f;
+            d.ownerId = ownerId; d.freeAtMs = freeAtMs;
+            d.proxy = true;
+            d.headless = NetMode.NoViews;
+            d.age = fresh ? 0f : PopMs;
+            d.Build();
+            if (Zone.Main != null) { Zone.Main.Loot.Add(d); d.NetId = id; Zone.Main.Ids.Register(id, d); }
             return d;
         }
 
@@ -81,6 +103,7 @@ namespace ZenoniaProto
         {
             if (!headless && icon == null) { Destroy(gameObject); return; } // recompile during Play mode
             age += GameClock.Dt * 1000f;
+            if (proxy) { if (age > LifeMs) age = LifeMs - BlinkMs - 1f; Place(); return; } // the server decides when it vanishes
             if (age >= LifeMs) { Destroy(gameObject); return; }
             Place();
             if (age >= PickupDelayMs) TryPickup();
@@ -103,7 +126,8 @@ namespace ZenoniaProto
             bool visible = LifeMs - age > BlinkMs || Mathf.FloorToInt(age / 120f) % 2 == 0;
             icon.enabled = visible;
             glow.enabled = glowOn && visible;
-            if (glowOn) { Color c = glow.color; c.a = (0.45f + 0.2f * Mathf.Sin(age / 1000f * 4f + phase)) * (entry.Kind == LootKind.Equipment && entry.Item.rarity == "common" ? 0.6f : 1f); glow.color = c; }
+            if (glowOn) { Color c = glow.color; c.a = (0.45f + 0.2f * Mathf.Sin(age / 1000f * 4f + phase)) * (entry.Kind == LootKind.Equipment && entry.Item.rarity == "common" ? 0.6f : 1f) * (proxy && OwnedByOtherNow() ? 0.25f : 1f); glow.color = c; }
+            if (proxy) icon.color = OwnedByOtherNow() ? new Color(1f, 1f, 1f, 0.55f) : Color.white; // another player still has the priority
         }
 
         /// <summary>First living hero in reach that may take it (owner priority) applies the pickup; heroes without a PlayerRpg (debug party) never do.</summary>
@@ -125,6 +149,13 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Client: another player still has the loot priority (dims the glow until the server clock passes freeAt).</summary>
+        bool OwnedByOtherNow()
+        {
+            HeroController me = LocalPlayer.Hero;
+            return ownerId != 0 && (me == null || me.NetId != ownerId) && NetClient.ServerNowMs < freeAtMs;
+        }
+
         void ToastFullBag()
         {
             if (entry.Kind != LootKind.Equipment || !NetMode.RendersFx || Time.unscaledTime * 1000f - lastFullToast <= FullBagToastMs) return;
@@ -132,6 +163,12 @@ namespace ZenoniaProto
             RpgHud.Toast("Inventory full", new Color(1f, 0.55f, 0.45f));
         }
 
-        void OnDestroy() { if (Zone.Main != null) Zone.Main.Loot.Remove(this); }
+        void OnDestroy()
+        {
+            Zone z = Zone.Main;
+            if (z == null) return;
+            z.Loot.Remove(this);
+            z.Ids.Release(NetId, z.TimeMs);
+        }
     }
 }

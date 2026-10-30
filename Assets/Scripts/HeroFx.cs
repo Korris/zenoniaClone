@@ -81,11 +81,12 @@ namespace ZenoniaProto
         }
 
         /// <summary>Red damage number over the hero and a camera shake.</summary>
-        public static void Hurt(Vector2 feet, int dmg)
+        public static void Hurt(Vector2 feet, int dmg, bool shake = true)
         {
             if (!NetMode.RendersFx) return;
-            DamageNumber.Spawn(feet.x, feet.y + 26f, dmg.ToString(), new Color(1f, 0.35f, 0.35f), false);
-            CameraFollow.AddTrauma(FeelConfig.TraumaHurt);
+            if (shake) DamageNumber.Spawn(feet.x, feet.y + 26f, dmg.ToString(), new Color(1f, 0.35f, 0.35f), false);
+            else DamageNumber.Spawn(feet.x, feet.y + 26f, dmg.ToString(), new Color(1f, 0.6f, 0.6f), false, false, true); // another hero was hit: small, faded
+            if (shake) CameraFollow.AddTrauma(FeelConfig.TraumaHurt);
         }
 
         /// <summary>Violet afterimage streak along the blink line plus smoke where the hero vanished.</summary>
@@ -138,10 +139,10 @@ namespace ZenoniaProto
         }
 
         /// <summary>Level-up: HUD banner, gold rings, embers and a flash.</summary>
-        public static void LevelUp(Vector2 feet, int level)
+        public static void LevelUp(Vector2 feet, int level, bool banner = true)
         {
             if (!NetMode.RendersFx) return;
-            RpgHud.LevelUp(level);
+            if (banner) RpgHud.LevelUp(level);
             ShockRing.Spawn(feet, 26f, 0.6f, new Color(1f, 0.85f, 0.35f, 0.95f), UltimateFx.GroundFxOrder + 6, 0.72f, 0.25f);
             ShockRing.Spawn(feet, 16f, 0.45f, new Color(1f, 1f, 0.7f, 0.85f), UltimateFx.GroundFxOrder + 7, 0.72f, 0.2f, true);
             UltimateFx.Embers(feet + new Vector2(0f, 6f), 36, 12f, 60f, new Color(1f, 0.9f, 0.45f, 1f));

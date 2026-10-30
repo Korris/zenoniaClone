@@ -16,7 +16,22 @@ namespace ZenoniaProto
         public static bool IsAuthority { get { return Current != RunMode.Client; } }
         /// <summary>Dedicated server: no cameras, sprites, UI or audio are created at all.</summary>
         public static bool IsHeadless { get { return Current == RunMode.Server; } }
-        public static bool RendersFx { get { return Current != RunMode.Server; } }
+        public static bool RendersFx { get { return !NoViews; } }
+        /// <summary>No sprites / renderers / FX are created: a dedicated server, or any process started with -nographics (unattended bot clients).</summary>
+        public static bool NoViews { get { return Current == RunMode.Server || NoGraphics; } }
+        static int graphicsNull = -1;
+        /// <summary>True when Unity runs without a graphics device (-nographics): shaders and materials do not exist.</summary>
+        public static bool NoGraphics
+        {
+            get
+            {
+                if (graphicsNull < 0) graphicsNull = UnityEngine.SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null ? 1 : 0;
+                return graphicsNull == 1;
+            }
+        }
+        /// <summary>Runs a ZoneServer in this process (server, host): remote players connect to it.</summary>
+        public static bool IsServerSide { get { return Current == RunMode.Server || Current == RunMode.Host; } }
+        public static bool IsClient { get { return Current == RunMode.Client; } }
         /// <summary>Hit-stop and the inventory pause freeze the whole sim: offline only.</summary>
         public static bool UsesLocalTimeBending { get { return Current == RunMode.Offline; } }
 

@@ -18,7 +18,7 @@ namespace ZenoniaProto
             public string Text;
             public Color Color;
             public float X, Y, Age;
-            public bool Big, Crit;
+            public bool Big, Crit, Faint;
             public float DriftX;
         }
 
@@ -28,12 +28,12 @@ namespace ZenoniaProto
         GUIStyle style;
         Camera cam;
 
-        public static void Spawn(float x, float y, string text, Color color, bool big, bool crit = false)
+        public static void Spawn(float x, float y, string text, Color color, bool big, bool crit = false, bool faint = false)
         {
             if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (instance == null) return;
             cursor = (cursor + 1) % Capacity; // overwrite the oldest slot when saturated
-            Pool[cursor] = new Entry { Active = true, Text = text, Color = color, X = x, Y = y, Age = 0f, Big = big, Crit = crit, DriftX = Random.Range(-7f, 7f) };
+            Pool[cursor] = new Entry { Active = true, Text = text, Color = color, X = x, Y = y, Age = 0f, Big = big, Crit = crit && !faint, Faint = faint, DriftX = Random.Range(-7f, 7f) };
         }
 
         public static void ResetState()
@@ -92,9 +92,9 @@ namespace ZenoniaProto
                 if (!Pool[i].Active) continue;
                 Vector3 sp = cam.WorldToScreenPoint(new Vector3(Pool[i].X, Pool[i].Y, 0f));
                 if (sp.z < 0f) continue;
-                float fade = 1f - Mathf.Clamp01((Pool[i].Age - 0.45f) / (LifeSeconds - 0.45f));
+                float fade = (1f - Mathf.Clamp01((Pool[i].Age - 0.45f) / (LifeSeconds - 0.45f))) * (Pool[i].Faint ? 0.5f : 1f); // other players' numbers: half alpha
                 bool crit = Pool[i].Crit && FeelConfig.FxOn;
-                style.fontSize = Mathf.RoundToInt((Pool[i].Big ? 26f : 19f) * (crit ? 1.15f : 1f) * PopScale(Pool[i].Age, crit) * scale);
+                style.fontSize = Mathf.RoundToInt((Pool[i].Big ? 26f : 19f) * (Pool[i].Faint ? 0.7f : 1f) * (crit ? 1.15f : 1f) * PopScale(Pool[i].Age, crit) * scale);
                 var rect = new Rect(sp.x - 80f, Screen.height - sp.y - 20f, 160f, 40f);
                 GUI.color = new Color(0f, 0f, 0f, 0.85f * fade);
                 style.normal.textColor = crit ? new Color(0.75f, 0.22f, 0.05f) : Color.black;

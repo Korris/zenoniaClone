@@ -30,6 +30,11 @@ namespace ZenoniaProto
         public static readonly MonsterDef FrostfangKing = new MonsterDef("Frostfang King", "frostfangKing", 580f, 33f, 3f, 36f, 3, aggro: 85f, leash: 120f,
             attackRange: 20f, windupMs: 650f, cooldownMs: 1500f, hitW: 22f, hitH: 14f, bodyHeightPx: 170f) { RenderScale = 1.65f, Stationary = true, IsBoss = true };
 
+        /// <summary>Wire index of a definition (Spawn message Type byte).</summary>
+        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing };
+        public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
+        public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
+
         public static MonsterDef ByType(string type)
         {
             switch (type)

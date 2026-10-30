@@ -26,6 +26,7 @@ namespace ZenoniaProto.EditorTools
             {
                 RpgLogicCheck.Run(Expect);
                 ZoneLogicCheck.RunPure(Expect);
+                NetLogicCheck.RunPure(Expect);
                 CheckMap();
                 CheckTint();
                 CheckVfxSets();
@@ -192,7 +193,7 @@ namespace ZenoniaProto.EditorTools
                 Expect(shown > 0 && gearFrames > 0, cls.Name + ": drew " + shown + " frames, " + gearFrames + " with weapon overlay");
                 CheckSkill(cls, hero, root);
                 CheckRpg(cls, hero, root);
-                if (cls.Id == HeroClass.Warrior) ZoneLogicCheck.RunWorld(Expect, hero, root);
+                if (cls.Id == HeroClass.Warrior) { ZoneLogicCheck.RunWorld(Expect, hero, root); NetLogicCheck.RunWorld(Expect, hero, root); }
                 if (cls.CompanionFolder != null) Expect(root.transform.Find("Companion") != null, cls.Name + ": companion created");
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
