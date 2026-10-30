@@ -1,0 +1,36 @@
+# Local dev stack: API + MongoDB.   docker compose up --build
+# Secrets come from the shell / an untracked .env next to this file (see .env.example). The defaults below are DEV ONLY.
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017"   # loopback only
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: zenonia
+      JWT_SECRET: ${JWT_SECRET:-dev-only-jwt-secret-dev-only-jwt-secret-0000}
+      SERVICE_KEY: ${SERVICE_KEY:-dev-only-service-key}
+      ZONE_ID: ${ZONE_ID:-frost-hollow}
+      ZONE_HOST: ${ZONE_HOST:-127.0.0.1}
+      ZONE_PORT: ${ZONE_PORT:-9050}
+
+volumes:
+  mongo-data:
