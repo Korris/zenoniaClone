@@ -29,7 +29,7 @@ namespace ZenoniaProto.EditorTools
                 || i.filterMode != (mips ? FilterMode.Trilinear : FilterMode.Bilinear)
                 || i.wrapMode != TextureWrapMode.Clamp
                 || i.maxTextureSize != 4096
-                || i.textureCompression != TextureImporterCompression.Uncompressed
+                || i.textureCompression != DefaultCompression
                 || !i.alphaIsTransparency
                 || i.npotScale != TextureImporterNPOTScale.None
                 || !AndroidOk(i);
@@ -43,7 +43,7 @@ namespace ZenoniaProto.EditorTools
             i.filterMode = mips ? FilterMode.Trilinear : FilterMode.Bilinear;
             i.wrapMode = TextureWrapMode.Clamp;
             i.maxTextureSize = 4096;
-            i.textureCompression = TextureImporterCompression.Uncompressed;
+            i.textureCompression = DefaultCompression;
             i.alphaIsTransparency = true;
             i.npotScale = TextureImporterNPOTScale.None;
             i.isReadable = false;
@@ -58,6 +58,15 @@ namespace ZenoniaProto.EditorTools
         // Android: ASTC 6x6 (~3.6 bits/px, every ARM64 phone supports it) and at most 2048 px, so the APK is a fraction of the
         // uncompressed PC size. Standalone keeps the uncompressed RGBA above.
         const string Android = "Android";
+
+        /// <summary>
+        /// Uncompressed for the PC / editor; compressed while the active target is Android. The Android platform override alone was
+        /// ignored by this Unity version (imports stayed RGBA32 and the APK held raw 8 MB textures), the default compression is honoured.
+        /// </summary>
+        static TextureImporterCompression DefaultCompression
+        {
+            get { return EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android ? TextureImporterCompression.Compressed : TextureImporterCompression.Uncompressed; }
+        }
         const int AndroidMaxSize = 2048;
         const TextureImporterFormat AndroidFormat = TextureImporterFormat.ASTC_6x6;
 
