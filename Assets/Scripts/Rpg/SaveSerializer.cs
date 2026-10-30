@@ -16,6 +16,8 @@ namespace ZenoniaProto.Rpg
         public bool hasPosition, bossDefeated;
         public List<Item> inventory = new List<Item>();
         public List<Item> equipment = new List<Item>();
+        public List<int> skillRanks = new List<int>(); // 8 ranks (0-10) by tree index; missing in old saves = nothing learned
+        public List<int> skillSlots = new List<int>(); // 8 magazine slots: tree index or -1
     }
 
     /// <summary>
@@ -37,6 +39,7 @@ namespace ZenoniaProto.Rpg
             };
             d.inventory.AddRange(p.Inventory);
             foreach (string slot in Slots.All) { Item e = p.GetEquipped(slot); if (e != null) d.equipment.Add(e); }
+            d.skillRanks = p.Skills.ToList(); d.skillSlots = p.Loadout.ToList();
             return d;
         }
 
@@ -68,6 +71,9 @@ namespace ZenoniaProto.Rpg
                 Item s = ItemFactory.Sanitize(i);
                 if (s != null && seen.Add(s.slot)) d.equipment.Add(s); // one item per slot
             }
+            var ranks = new SkillRanks(d.classId); ranks.Load(raw.skillRanks, d.level); // illegal ranks (tampering, class / level change) are trimmed
+            var loadout = new SkillLoadout(); loadout.Load(raw.skillSlots, ranks);
+            d.skillRanks = ranks.ToList(); d.skillSlots = loadout.ToList();
             return d;
         }
 
@@ -84,6 +90,7 @@ namespace ZenoniaProto.Rpg
                 else if (p.Inventory.Count < PlayerState.InventorySize) p.Inventory.Add(e); // class lock: back to the bag, else dropped
             }
             p.EquipStarterGear();
+            p.Skills.Load(d.skillRanks, d.level); p.Loadout.Load(d.skillSlots, p.Skills);
             p.RecomputeStats();
             p.Hp = Math.Min(p.MaxHp, d.hp > 0f ? d.hp : p.MaxHp); // never load a dead hero
             p.Mp = Math.Min(p.MaxMp, d.mp > 0f ? d.mp : p.MaxMp);

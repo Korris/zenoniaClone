@@ -8,7 +8,7 @@ namespace ZenoniaProto.Rpg
     /// <summary>EXP curve, level-ups and stat scaling (web systems/leveling-system.js + data/hero-stats-config.js).</summary>
     public static class Leveling
     {
-        public const int MaxLevel = 30;
+        public const int MaxLevel = 60;
         public const double DeathExpPenalty = 0.1; // lose 10% of current-level EXP, never a level
 
         /// <summary>EXP required to go from `level` to `level + 1`.</summary>

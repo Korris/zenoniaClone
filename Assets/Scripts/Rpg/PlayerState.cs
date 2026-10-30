@@ -24,6 +24,8 @@ namespace ZenoniaProto.Rpg
         public float Hp, Mp;
         public readonly List<Item> Inventory = new List<Item>();
         readonly Item[] equipment = new Item[Slots.All.Length];
+        public readonly SkillRanks Skills;      // learned skill ranks; SP is derived (SkillPointsFree), never stored
+        public readonly SkillLoadout Loadout;   // skill magazine slots
 
         // Derived by RecomputeStats().
         public int MaxHp, MaxMp, Atk, Def;
@@ -32,6 +34,7 @@ namespace ZenoniaProto.Rpg
         public PlayerState(string classId)
         {
             ClassId = RpgClasses.Get(classId).Id;
+            Skills = new SkillRanks(ClassId); Loadout = new SkillLoadout();
             RecomputeStats();
             Hp = MaxHp; Mp = MaxMp;
         }
@@ -41,7 +44,18 @@ namespace ZenoniaProto.Rpg
         {
             var p = new PlayerState(classId);
             p.EquipStarterGear();
+            p.LearnSkill(0); // the Lv 1 point goes into the first skill so the skill button is never empty
             return p;
+        }
+
+        public int SkillPointsFree { get { return Skills.Free(Level); } }
+
+        /// <summary>Spends 1 SP on a skill (learn or rank up) and auto-places a newly learned one in the magazine.</summary>
+        public LearnResult LearnSkill(int index)
+        {
+            LearnResult r = Skills.Learn(SkillTable.Get(ClassId, index), Level);
+            if (r == LearnResult.Ok && Skills[index] == 1) Loadout.AutoFill(index);
+            return r;
         }
 
         public Item GetEquipped(string slot) { int i = Slots.Index(slot); return i >= 0 ? equipment[i] : null; }

@@ -16,6 +16,7 @@ describe('character rules', () => {
     expect(ch.state).toMatchObject({
       version: 1, classId: 'wizard', mapId: 'frostHollow', level: 1, exp: 0, gold: 0, hpPotion: 0, mpPotion: 0, upgradeStone: 0,
       hp: 0, mp: 0, x: 0, y: 0, hasPosition: false, bossDefeated: false, inventory: [], equipment: [],
+      skillRanks: [1, 0, 0, 0, 0, 0, 0, 0], skillSlots: [0, -1, -1, -1, -1, -1, -1, -1],
     });
   });
 

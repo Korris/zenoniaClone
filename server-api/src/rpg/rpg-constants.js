@@ -5,7 +5,9 @@ export const SLOTS = ['weapon', 'helmet', 'armor', 'gloves', 'boots', 'offhand']
 export const RARITIES = ['common', 'uncommon', 'rare', 'epic'];
 export const ENHANCEABLE_SLOTS = ['weapon', 'offhand'];
 
-export const MAX_LEVEL = 30; // Leveling.MaxLevel
+export const MAX_LEVEL = 60; // Leveling.MaxLevel
+export const SKILL_COUNT = 8; // SkillDef.PerClass: skills per class tree
+export const SKILL_MAX_RANK = 10; // SkillDef.MaxRank
 export const INVENTORY_SIZE = 20; // PlayerState.InventorySize
 export const MAX_STONES = 9999; // PlayerState.MaxStones
 export const MAX_INT = 2_000_000_000; // C# int fields (gold, exp, potions) must stay inside Int32

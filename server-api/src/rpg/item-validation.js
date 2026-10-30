@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, RARITIES, SLOTS } from './rpg-constants.js';
+import { CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
 
 // Field names match Assets/Scripts/Rpg/Item.cs (Item, ItemStats) and SaveSerializer.cs (SaveData) so Unity's JsonUtility reads them as-is.
 
@@ -42,6 +42,9 @@ export const stateSchema = z
     bossDefeated: z.boolean().default(false),
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
+    // Skill tree (SaveData.skillRanks / skillSlots): ranks by tree index, magazine slot -> tree index or -1. Absent in old saves = nothing learned.
+    skillRanks: z.array(z.number().int().min(0).max(SKILL_MAX_RANK)).max(SKILL_COUNT).default([]),
+    skillSlots: z.array(z.number().int().min(-1).max(SKILL_COUNT - 1)).max(SKILL_COUNT).default([]),
   })
   .superRefine((s, ctx) => {
     const slots = new Set();
@@ -54,6 +57,14 @@ export const stateSchema = z
       if (uids.has(i.uid)) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `duplicate item uid ${i.uid}` });
       uids.add(i.uid);
     }
+    // 1 SP per level: spent points can never exceed the level (the zone server re-sanitizes prerequisites via SkillRanks.Sanitize).
+    const spent = s.skillRanks.reduce((a, b) => a + b, 0);
+    if (spent > s.level) ctx.addIssue({ code: 'custom', path: ['skillRanks'], message: `${spent} skill ranks exceed level ${s.level}` });
+    const placed = s.skillSlots.filter((v) => v >= 0);
+    if (new Set(placed).size !== placed.length) ctx.addIssue({ code: 'custom', path: ['skillSlots'], message: 'duplicate skill in magazine' });
+    for (const v of placed) {
+      if (!(s.skillRanks[v] > 0)) ctx.addIssue({ code: 'custom', path: ['skillSlots'], message: `skill ${v} is not learned` });
+    }
   });
 
 /** Brand-new level-1 character; empty equipment (the Unity SaveSerializer.Restore refills starter gear, hp/mp 0 => full). */
@@ -61,5 +72,6 @@ export function newCharacterState(classId, mapId = 'frostHollow') {
   return stateSchema.parse({
     version: 1, savedAt: 0, classId, mapId, level: 1, exp: 0, gold: 0, hpPotion: 0, mpPotion: 0, upgradeStone: 0,
     hp: 0, mp: 0, x: 0, y: 0, hasPosition: false, bossDefeated: false, inventory: [], equipment: [],
+    skillRanks: [1, 0, 0, 0, 0, 0, 0, 0], skillSlots: [0, -1, -1, -1, -1, -1, -1, -1], // new characters start with skill 1 learned (Lv 1 point)
   });
 }

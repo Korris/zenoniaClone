@@ -24,6 +24,20 @@ describe('save snapshot', () => {
     expect(loaded.state.equipment[0].uid).toBe('w-1');
   });
 
+  it('round-trips skill ranks + magazine slots and rejects illegal ones', async () => {
+    const o = await c.online();
+    const skills = { skillRanks: [3, 1, 0, 0, 0, 0, 0, 0], skillSlots: [0, 1, -1, -1, -1, -1, -1, -1] };
+    expect((await save(o, { ...o.state, level: 5, ...skills })).status).toBe(200);
+    const loaded = (await c.call('GET', `/characters/${o.char.id}`, { token: o.user.accessToken })).body.character;
+    expect(loaded.state).toMatchObject(skills);
+    const bad = async (patch) => (await save(o, { ...o.state, level: 5, ...patch }, 1)).status;
+    expect(await bad({ skillRanks: [3, 3, 0, 0, 0, 0, 0, 0] })).toBe(400); // 6 ranks > level 5
+    expect(await bad({ skillRanks: [11, 0, 0, 0, 0, 0, 0, 0] })).toBe(400); // rank > 10
+    expect(await bad({ skillRanks: [1, 0, 0, 0, 0, 0, 0, 0, 0] })).toBe(400); // 9 entries
+    expect(await bad({ skillRanks: [1, 0], skillSlots: [1, -1] })).toBe(400); // skill 1 not learned
+    expect(await bad({ skillRanks: [1, 1], skillSlots: [1, 1] })).toBe(400); // duplicate slot
+  });
+
   it('rejects a stale rev (409 rev_conflict with currentRev) and a wrong session', async () => {
     const o = await c.online();
     expect((await save(o, o.state, 0)).status).toBe(200);
@@ -45,7 +59,7 @@ describe('save snapshot', () => {
   it('validates the payload: caps, duplicates, class change', async () => {
     const o = await c.online();
     const bad = async (patch) => (await save(o, { ...o.state, ...patch })).status;
-    expect(await bad({ level: 31 })).toBe(400);
+    expect(await bad({ level: 61 })).toBe(400);
     expect(await bad({ gold: -1 })).toBe(400);
     expect(await bad({ upgradeStone: 10000 })).toBe(400);
     expect(await bad({ x: 1e12 })).toBe(400);
