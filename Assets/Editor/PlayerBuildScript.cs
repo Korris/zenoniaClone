@@ -58,6 +58,7 @@ namespace ZenoniaProto.EditorTools
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             EditorUserBuildSettings.buildAppBundle = false; // .apk you can install directly, not .aab
+            EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ASTC; // compress every texture to ASTC (the per-texture override alone was not honoured)
         }
 
         /// <returns>0 on success, 1 on failure.</returns>
