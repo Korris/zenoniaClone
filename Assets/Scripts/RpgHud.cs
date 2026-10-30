@@ -11,7 +11,7 @@ namespace ZenoniaProto
     public class RpgHud : MonoBehaviour
     {
         /// <summary>Height of the HUD block in UI units: the IMGUI Hud starts below it.</summary>
-        public const float BlockHeight = 108f;
+        public const float BlockHeight = 112f;
         const float BannerSeconds = 2.4f, ToastSeconds = 2.6f;
         static RpgHud instance;
 
@@ -37,19 +37,21 @@ namespace ZenoniaProto
 
         void Build(Transform canvas)
         {
-            block = UiKit.Rect(canvas, "HudBlock", 10f, 8f, 240f, BlockHeight);
-            UiKit.Panel(block, new Color(0.03f, 0.07f, 0.12f, 0.55f));
-            title = UiKit.Label(block, "Title", 6f, 2f, 150f, 20f, "", 15, Color.white, TextAnchor.MiddleLeft, true);
-            gold = UiKit.Label(block, "Gold", 150f, 2f, 84f, 20f, "", 13, new Color(1f, 0.85f, 0.3f), TextAnchor.MiddleRight, true);
-            hpBar = new UiKit.Bar(block, "Hp", 4f, 24f, 232f, 20f, new Color(0.2f, 0.78f, 0.35f), 13);
-            mpBar = new UiKit.Bar(block, "Mp", 4f, 46f, 232f, 14f, new Color(0.3f, 0.55f, 1f), 11);
-            expBar = new UiKit.Bar(block, "Exp", 4f, 62f, 232f, 12f, new Color(0.7f, 0.5f, 1f), 10);
-            UiKit.Icon(block, "HpIcon", 6f, 79f, 22f).sprite = LootSprites.Potion(true);
-            UiKit.Icon(block, "MpIcon", 76f, 79f, 22f).sprite = LootSprites.Potion(false);
-            UiKit.Icon(block, "StoneIcon", 146f, 79f, 22f).sprite = LootSprites.Stone();
-            hpPotText = UiKit.Label(block, "HpCount", 30f, 79f, 46f, 22f, "", 12, Color.white);
-            mpPotText = UiKit.Label(block, "MpCount", 100f, 79f, 46f, 22f, "", 12, Color.white);
-            stoneText = UiKit.Label(block, "StoneCount", 170f, 79f, 66f, 22f, "", 12, Color.white);
+            // Gold-bordered navy panel (9-sliced procedural frame); content sits inside the ~6 unit border.
+            block = UiKit.Rect(canvas, "HudBlock", 8f, 6f, 252f, BlockHeight);
+            Image frame = UiKit.Panel(block, Color.white);
+            frame.sprite = UiSprites.Panel(); frame.type = Image.Type.Sliced; frame.pixelsPerUnitMultiplier = 1.4f;
+            title = UiKit.Label(block, "Title", 11f, 5f, 150f, 20f, "", 15, Color.white, TextAnchor.MiddleLeft, true);
+            gold = UiKit.Label(block, "Gold", 150f, 5f, 92f, 20f, "", 15, new Color(1f, 0.82f, 0.2f), TextAnchor.MiddleRight, true);
+            hpBar = new UiKit.Bar(block, "Hp", 9f, 28f, 234f, 17f, new Color(0.13f, 0.78f, 0.16f), 12);
+            mpBar = new UiKit.Bar(block, "Mp", 9f, 47f, 234f, 17f, new Color(0.1f, 0.42f, 0.98f), 12);
+            expBar = new UiKit.Bar(block, "Exp", 9f, 66f, 234f, 17f, new Color(0.58f, 0.2f, 0.92f), 11);
+            UiKit.Icon(block, "HpIcon", 12f, 87f, 20f).sprite = LootSprites.Potion(true);
+            UiKit.Icon(block, "MpIcon", 90f, 87f, 20f).sprite = LootSprites.Potion(false);
+            UiKit.Icon(block, "StoneIcon", 168f, 87f, 20f).sprite = LootSprites.Stone();
+            hpPotText = UiKit.Label(block, "HpCount", 36f, 86f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
+            mpPotText = UiKit.Label(block, "MpCount", 114f, 86f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
+            stoneText = UiKit.Label(block, "StoneCount", 192f, 86f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
 
             banner = UiKit.Rect(canvas, "LevelUp", 0f, -150f, 420f, 90f, true);
             bannerGroup = banner.gameObject.AddComponent<CanvasGroup>();
@@ -134,9 +136,9 @@ namespace ZenoniaProto
             if (p.HpPotions != lastHpPot || p.MpPotions != lastMpPot || p.UpgradeStone != lastStones)
             {
                 lastHpPot = p.HpPotions; lastMpPot = p.MpPotions; lastStones = p.UpgradeStone;
-                hpPotText.text = "x" + p.HpPotions + " <color=#9aa7b5>[1]</color>";
-                mpPotText.text = "x" + p.MpPotions + " <color=#9aa7b5>[2]</color>";
-                stoneText.text = "x" + p.UpgradeStone + " <color=#9aa7b5>stone</color>";
+                hpPotText.text = "x" + p.HpPotions;
+                mpPotText.text = "x" + p.MpPotions;
+                stoneText.text = "x" + p.UpgradeStone;
             }
         }
     }

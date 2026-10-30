@@ -11,7 +11,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class TouchJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
-        const float DeadZone = 0.22f, IdleAlpha = 0.65f;
+        const float DeadZone = 0.22f, IdleAlpha = 0.92f;
         RectTransform zone, stick, knob;
         CanvasGroup group;
         Vector2 rest;

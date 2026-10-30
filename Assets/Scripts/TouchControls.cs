@@ -7,20 +7,20 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// On-screen controls in the web HUD style: an floating joystick bottom-left, and bottom-right the big attack disc (equipped weapon icon) with the
-    /// skill slots on an arc around it (web hud-renderer drawSkillSlots positions): Dash [K], class skill [L] with the cooldown sweep and MP cost,
-    /// Bag [B]; HP / MP potion buttons next to the D-pad. Works with touch and mouse (multi-touch: move + attack at once).
+    /// On-screen controls, gold-trimmed dark-navy style: a floating joystick bottom-left (gold ring, diamond studs, steel knob), HP / MP potion buttons
+    /// to its right, bottom-right the big attack disc (equipped weapon icon) with the skill slots on an arc around it: Dash [K], class skill [L] with
+    /// the cooldown sweep and MP cost; top-right the Bag [B] and Settings (hero change) buttons (TouchControls.Menu.cs). Works with touch and mouse (multi-touch: move + attack at once).
     /// It only feeds GameKeys into InputAdapter, so the game logic is the same as the keyboard. Holding attack keeps the combo going.
     /// Shown while a hero plays and no menu is open; F7 hides / shows it (remembered in PlayerPrefs).
     /// </summary>
     [DefaultExecutionOrder(-900)] // after GameClock, before the hero: latches this frame's button presses
-    public class TouchControls : MonoBehaviour
+    public partial class TouchControls : MonoBehaviour
     {
         const string PrefKey = "zenonia.touchControls";
         static readonly int KeyCount = Enum.GetValues(typeof(GameKey)).Length;
         static readonly bool[] held = new bool[KeyCount], pending = new bool[KeyCount], pressed = new bool[KeyCount];
         static TouchControls instance;
-        static readonly Color Ready = new Color(0.61f, 0.89f, 1f), NotReady = new Color(0.4f, 0.49f, 0.55f);
+        static readonly Color Ready = new Color(1f, 1f, 1f, 0f), NotReady = new Color(0.45f, 0.52f, 0.62f, 0.95f); // accent ring: hidden when ready, grey when not
 
         RectTransform layer;
         Image attackIcon, skillIcon, skillCd, skillRing, dashIcon;
@@ -51,6 +51,7 @@ namespace ZenoniaProto
             instance = go.AddComponent<TouchControls>();
             try { instance.visible = PlayerPrefs.GetInt(PrefKey, 1) == 1; } catch (Exception) { instance.visible = true; }
             instance.Build(UiKit.Canvas(parent).transform);
+            HeroChangeScreen.Create(parent); // the Settings button opens it
             return instance;
         }
 
@@ -75,7 +76,7 @@ namespace ZenoniaProto
                 try { PlayerPrefs.SetInt(PrefKey, visible ? 1 : 0); } catch (Exception) { /* prefs are a convenience */ }
             }
             HeroController hero = GameSession.Hero;
-            bool show = visible && hero != null && !InventoryPanel.IsOpen && !Hud.CaptureClean;
+            bool show = visible && hero != null && !InventoryPanel.IsOpen && !HeroChangeScreen.IsOpen && !Hud.CaptureClean;
             if (layer.gameObject.activeSelf != show)
             {
                 layer.gameObject.SetActive(show);
@@ -113,7 +114,7 @@ namespace ZenoniaProto
         static RectTransform DiscButton(Transform parent, string name, Vector2 corner, float x, float y, float radius, out Image icon, out Image ring, out Transform masked)
         {
             RectTransform rt = Place(parent, name, corner, x, y, radius * 2f);
-            Img(rt, UiSprites.Disc(), Color.white, true);
+            Img(rt, UiSprites.GoldDisc(), Color.white, true);
             ring = Child(rt, "Ring", UiSprites.Ring(), radius * 2f, Ready);
             Image mask = Child(rt, "Mask", UiSprites.Circle(), radius * 2f * 0.8f, Color.white);
             mask.gameObject.AddComponent<Mask>().showMaskGraphic = false;
@@ -121,14 +122,6 @@ namespace ZenoniaProto
             icon = Child(masked, "Icon", null, radius * 2f * 0.8f, Color.white);
             icon.preserveAspect = true;
             return rt;
-        }
-
-        static void KeyBadge(Transform button, float radius, string key)
-        {
-            RectTransform b = Place(button, "Key", new Vector2(0.5f, 0.5f), radius * 0.7f, -radius * 0.67f, 24f);
-            Img(b, UiSprites.Circle(), new Color(0.09f, 0.16f, 0.23f, 1f));
-            Child(b, "Ring", UiSprites.Ring(), 28f, new Color(0.65f, 0.74f, 0.79f));
-            UiKit.Label(UiKit.Fill(b, "Text"), key, 11, Color.white, TextAnchor.MiddleCenter, true);
         }
 
         void Build(Transform canvas)
@@ -142,30 +135,24 @@ namespace ZenoniaProto
             zone.anchorMin = Vector2.zero; zone.anchorMax = new Vector2(0.42f, 0.72f);
             zone.offsetMin = zone.offsetMax = Vector2.zero; zone.pivot = Vector2.zero;
             Img(zone, null, new Color(0f, 0f, 0f, 0f), true); // invisible, but catches touches
-            RectTransform stickBase = Place(zone, "Base", Vector2.zero, 120f, 120f, 176f);
-            Img(stickBase, UiSprites.Circle(), new Color(0.03f, 0.08f, 0.14f, 0.35f));
-            Child(stickBase, "Rim", UiSprites.Ring(), 176f, new Color(0.65f, 0.85f, 0.94f, 0.9f));
-            Image knob = Child(stickBase, "Knob", UiSprites.Disc(), 84f, Color.white);
-            Child(knob.transform, "KnobRing", UiSprites.Ring(), 84f, Ready);
-            zone.gameObject.AddComponent<TouchJoystick>().Init(zone, stickBase, knob.rectTransform, 64f,
+            RectTransform stickBase = Place(zone, "Base", Vector2.zero, 128f, 128f, 200f); // rest spot like the mockup: bottom-left, clear of the edge
+            Img(stickBase, UiSprites.JoystickBase(), Color.white);
+            Image knob = Child(stickBase, "Knob", UiSprites.JoystickKnob(), 80f, Color.white);
+            zone.gameObject.AddComponent<TouchJoystick>().Init(zone, stickBase, knob.rectTransform, 62f,
                 (up, right, down, left) => { SetHeld(GameKey.Up, up); SetHeld(GameKey.Right, right); SetHeld(GameKey.Down, down); SetHeld(GameKey.Left, left); });
 
             // Potions (right of the D-pad)
-            hpCount = PotionButton("HpPotion", 240f, 140f, true);
-            mpCount = PotionButton("MpPotion", 240f, 76f, false);
+            hpCount = PotionButton("HpPotion", 272f, 162f, true);
+            mpCount = PotionButton("MpPotion", 272f, 92f, false);
 
             // Attack + skill arc (bottom-right): a big attack disc (r78) kept off the screen edge, the small buttons on an arc around it
             Vector2 br = new Vector2(1f, 0f);
             Image ring; Transform masked;
             RectTransform attack = DiscButton(layer, "Attack", br, -146f, 112f, 78f, out attackIcon, out ring, out masked);
-            ring.color = new Color(0.65f, 0.85f, 0.94f);
             attackIcon.rectTransform.sizeDelta = new Vector2(110f, 110f);
-            UiKit.Label(Place(attack, "Caption", new Vector2(0.5f, 0.5f), 0f, -50f, 100f), "J / SPACE", 10, new Color(1f, 1f, 1f, 0.85f), TextAnchor.MiddleCenter, true)
-                .rectTransform.sizeDelta = new Vector2(100f, 14f);
             TouchButton.Add(attack.gameObject, GameKey.Attack, true);
 
             RectTransform dash = DiscButton(layer, "Dash", br, -284f, 104f, 36f, out dashIcon, out ring, out masked);
-            KeyBadge(dash, 36f, "K");
             TouchButton.Add(dash.gameObject, GameKey.Dash, false);
 
             RectTransform skill = DiscButton(layer, "Skill", br, -259f, 201f, 36f, out skillIcon, out skillRing, out masked);
@@ -177,28 +164,20 @@ namespace ZenoniaProto
             skillCdText = UiKit.Label(UiKit.Fill(skill, "CdText"), "", 17, Color.white, TextAnchor.MiddleCenter, true);
             skillMpText = UiKit.Label(Place(skill, "Mp", new Vector2(0.5f, 0.5f), 0f, -46f, 70f), "", 10, Color.white, TextAnchor.MiddleCenter, true);
             skillMpText.rectTransform.sizeDelta = new Vector2(70f, 14f);
-            KeyBadge(skill, 36f, "L");
             TouchButton.Add(skill.gameObject, GameKey.Skill, false);
             skillButton = skill.gameObject;
 
-            Image bagIcon;
-            RectTransform bag = DiscButton(layer, "Bag", br, -160f, 243f, 30f, out bagIcon, out ring, out masked);
-            bagIcon.enabled = false;
-            UiKit.Label(UiKit.Fill(bag, "Text"), "BAG", 13, new Color(0.95f, 0.88f, 0.6f), TextAnchor.MiddleCenter, true);
-            KeyBadge(bag, 30f, "B");
-            TouchButton.Add(bag.gameObject, GameKey.Inventory, false);
+            BuildMenuButtons(layer);
         }
 
         Text PotionButton(string name, float x, float y, bool hp)
         {
             Image icon, ring; Transform masked;
-            RectTransform b = DiscButton(layer, name, Vector2.zero, x, y, 26f, out icon, out ring, out masked);
+            RectTransform b = DiscButton(layer, name, Vector2.zero, x, y, 29f, out icon, out ring, out masked);
             icon.sprite = LootSprites.Potion(hp);
-            icon.rectTransform.sizeDelta = new Vector2(34f, 34f);
-            ring.color = hp ? new Color(1f, 0.55f, 0.6f) : new Color(0.5f, 0.75f, 1f);
-            Text count = UiKit.Label(Place(b, "Count", new Vector2(0.5f, 0.5f), 22f, -18f, 40f), "", 12, Color.white, TextAnchor.MiddleCenter, true);
+            icon.rectTransform.sizeDelta = new Vector2(36f, 36f);
+            Text count = UiKit.Label(Place(b, "Count", new Vector2(0.5f, 0.5f), 26f, -24f, 40f), "", 12, Color.white, TextAnchor.MiddleCenter, true);
             count.rectTransform.sizeDelta = new Vector2(40f, 16f);
-            KeyBadge(b, 26f, hp ? "1" : "2");
             TouchButton.Add(b.gameObject, hp ? GameKey.HpPotion : GameKey.MpPotion, false);
             return count;
         }

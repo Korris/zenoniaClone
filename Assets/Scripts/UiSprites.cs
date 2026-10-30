@@ -7,7 +7,7 @@ namespace ZenoniaProto
     /// light-dark-light gradient around a dark centre, a thin accent ring, a plain white disc (mask / cooldown pie) and the D-pad cross.
     /// All 128px, anti-aliased, built once.
     /// </summary>
-    public static class UiSprites
+    public static partial class UiSprites
     {
         const int Size = 128;
         static Sprite disc, ring, circle, dpad, dpadArm;

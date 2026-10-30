@@ -25,8 +25,14 @@ namespace ZenoniaProto
             return savedLabels[i];
         }
 
-        /// <summary>Draws the screen and returns the clicked class index (0..4) or -1.</summary>
-        public static int Draw()
+        /// <summary>Returned by Draw(true) when the Back button was clicked.</summary>
+        public const int Back = -2;
+
+        /// <summary>
+        /// Draws the screen and returns the clicked class index (0..4), -1 for nothing or <see cref="Back"/>.
+        /// inGame = shown over a running game (settings button): the current hero is tagged, no digit-key hints (1 / 2 are potions) and a Back button.
+        /// </summary>
+        public static int Draw(bool inGame = false)
         {
             float s = Screen.height / 640f;
             if (title == null)
@@ -43,12 +49,13 @@ namespace ZenoniaProto
 
             Fill(new Rect(0f, 0f, Screen.width, Screen.height), new Color(0.02f, 0.05f, 0.1f, 0.78f));
             title.normal.textColor = Color.white;
-            GUI.Label(new Rect(0f, 40f * s, Screen.width, 40f * s), "Choose your hero  -  Frost Hollow", title);
+            GUI.Label(new Rect(0f, 40f * s, Screen.width, 40f * s), inGame ? "Change hero" : "Choose your hero  -  Frost Hollow", title);
 
             int n = HeroClassDef.All.Length;
             float cw = 190f * s, ch = 330f * s, gap = 14f * s;
             float x0 = (Screen.width - (n * cw + (n - 1) * gap)) * 0.5f, y0 = 110f * s;
             int clicked = -1;
+            HeroController current = inGame ? GameSession.Hero : null;
             for (int i = 0; i < HeroClassDef.All.Length; i++)
             {
                 HeroClassDef c = HeroClassDef.All[i];
@@ -62,10 +69,19 @@ namespace ZenoniaProto
                 GUI.Label(inner, c.Tagline + "\n\nHP " + (int)c.MaxHp + "   ATK " + (int)c.Atk + "   DEF " + (int)c.Def + "   SPD " + (int)c.Speed + "\n\nAttack: " + c.ComboLabel + (c.SkillName != null ? "\n[L] " + c.SkillName : ""), body);
                 key.normal.textColor = new Color(0.55f, 1f, 0.7f);
                 string saved = SavedLabel(i);
-                GUI.Label(new Rect(r.x, r.yMax - 46f * s, r.width, 30f * s), "[" + (i + 1) + "]  " + (saved ?? "New hero"), key);
+                GUI.Label(new Rect(r.x, r.yMax - 46f * s, r.width, 30f * s), (inGame ? "" : "[" + (i + 1) + "]  ") + (current != null && current.Class == c ? "Playing" : saved ?? "New hero"), key);
                 if (GUI.Button(r, GUIContent.none, GUIStyle.none)) clicked = i;
             }
             body.normal.textColor = new Color(1f, 1f, 1f, 0.8f);
+            if (inGame)
+            {
+                GUI.Label(new Rect(0f, y0 + ch + 14f * s, Screen.width, 24f * s), "Click a hero to switch (progress is saved per class).  Esc or Back returns to the game.", body);
+                var back = new Rect((Screen.width - 140f * s) * 0.5f, y0 + ch + 46f * s, 140f * s, 36f * s);
+                Fill(back, back.Contains(Event.current.mousePosition) ? new Color(0.4f, 0.33f, 0.14f, 0.96f) : new Color(0.17f, 0.15f, 0.1f, 0.94f));
+                name.normal.textColor = new Color(1f, 0.9f, 0.55f);
+                GUI.Label(back, "Back", name);
+                return GUI.Button(back, GUIContent.none, GUIStyle.none) ? Back : clicked;
+            }
             GUI.Label(new Rect(0f, y0 + ch + 20f * s, Screen.width, 24f * s), "Keys 1-5 or click.  Each class keeps its own save.  In game: F1-F5 switch to Warrior / Wizard / Mechanic / Assassin / Cleric.", body);
             return clicked;
         }
