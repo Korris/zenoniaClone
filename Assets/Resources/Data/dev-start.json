@@ -3,5 +3,6 @@
     "upgradeStones": 500,
     "gold": 0,
     "hpPotions": 20,
-    "mpPotions": 20
+    "mpPotions": 20,
+    "level": 60
 }

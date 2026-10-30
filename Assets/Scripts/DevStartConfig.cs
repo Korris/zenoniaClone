@@ -15,6 +15,7 @@ namespace ZenoniaProto
     {
         public bool enabled = true;
         public int upgradeStones, gold, hpPotions, mpPotions;
+        public int level; // 0 = keep; otherwise the character is raised to this level (skill tests need SP), never lowered
 
         /// <summary>
         /// A dev-start.json next to the player executable (testers drop it there; a shipped build has none) wins; otherwise the bundled
@@ -46,6 +47,13 @@ namespace ZenoniaProto
             p.Gold = Mathf.Max(p.Gold, c.gold);
             p.HpPotions = Mathf.Max(p.HpPotions, c.hpPotions);
             p.MpPotions = Mathf.Max(p.MpPotions, c.mpPotions);
+            if (c.level > p.Level)
+            {
+                p.Level = Mathf.Min(c.level, Leveling.MaxLevel);
+                p.Exp = 0;
+                p.RecomputeStats();
+                p.Hp = p.MaxHp; p.Mp = p.MaxMp;
+            }
             Debug.Log("[ZenoniaProto] dev-start: stones " + p.UpgradeStone + ", gold " + p.Gold + ", potions " + p.HpPotions + "/" + p.MpPotions);
         }
     }

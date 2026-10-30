@@ -81,7 +81,8 @@ namespace ZenoniaProto
             SkillDef d = Def(SkillSlot.Skill(index));
             if (d == null) return;
             if (d.Legacy != LegacySkill.None) TouchControls.Press(GameKey.Skill); // Ice Storm / Earth Break keep the original cast
-            else RpgHud.Toast(d.Name + ": casting arrives with the skill executor", new UnityEngine.Color(1f, 0.85f, 0.5f));
+            else if (NetMode.IsOffline) SkillOfflineCast.Try(d, index); // preview cast until phase 04 (no MP cost yet)
+            else RpgHud.Toast(d.Name + ": online skill casting arrives with the netcode update", new UnityEngine.Color(1f, 0.85f, 0.5f));
         }
     }
 }
