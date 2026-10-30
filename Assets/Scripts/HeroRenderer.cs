@@ -54,10 +54,12 @@ namespace ZenoniaProto
             cls = classDef;
             gear = gearData; // null => baked armed frames only (still playable)
             var pivot = new Vector2(0.5f, 0f); // feet = bottom centre of the frame
-            foreach (string anim in AnimNames)
+            var names = new List<string>(AnimNames);
+            if (cls.ComboAnims != null) foreach (string a in cls.ComboAnims) if (!names.Contains(a)) names.Add(a);
+            foreach (string anim in names)
             {
                 armed[anim] = SpriteSheet.Grid("Sprites/" + cls.SheetFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
-                if (System.Array.IndexOf(cls.BareAnims, anim) >= 0)
+                if (System.Array.IndexOf(cls.BareAnims, anim) >= 0 || anim.StartsWith("melee"))
                     bare[anim] = SpriteSheet.Grid("Sprites/" + cls.BareFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
             }
             shadow = ProceduralSprites.Child(transform, "Shadow", ProceduralSprites.Shadow());

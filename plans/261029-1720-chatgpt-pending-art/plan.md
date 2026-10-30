@@ -41,3 +41,12 @@ Optional, if quota is left: a spacing retry on warrior attack1 (in row 2 the swo
 - Integrate the new warrior and assassin attack animations in Unity: weaponless body, then the tier weapon overlay at the per-frame anchors measured from the armed sheets, then a smear/slash VFX layer from `vfx/warrior/warrior-slash-vfx.png` and `vfx/assassin/assassin-slash-vfx.png`. Trigger the VFX on the exact swing frame, oriented along the swing direction.
 - Make the assassin daggers larger, about 40% of body height.
 - Record combo videos for warrior and assassin.
+
+## 2026-10-30: integration pipeline built (warrior attack2 = first sheet in game)
+- `Tools/build-melee-sheets.py <class> <N>`: slices `anim/<class>/attack<N>-armed.png` + `-weaponless.png` (6x3, gutter-aware cuts),
+  scales to the bare idle body height, writes `Resources/Sprites/<armed>/melee<N>.png` + `<bare>/melee<N>.png` (192px, rows down/up/left(mirrored right)/right),
+  measures the weapon per frame (RANSAC line on armed-minus-weaponless pixels, grip = gold crossguard end, behind = body covers blade)
+  into `Resources/Data/<gearFile>-melee.json` (shield hidden: it is baked into the warrior weaponless body), preview in `plans/reports/melee-shots/`.
+- Unity: `HeroClassDef.ComboAnims` (warrior = attack1, melee2, attack1, attack3), HeroRenderer loads them, HeldGearData merges `-melee.json`.
+- SlashEffect now uses the painted `vfx/warrior/warrior-slash-vfx.png` (copied to Resources/Sprites/fx): row 0 slash turned +90 deg, row 1 finisher ring.
+- When a new weaponless sheet lands: run the tool, check the preview, put `meleeN` in `ComboAnims`. Assassin needs `grip` / dagger art values in the tool's CLASSES table (two daggers = two parts: `main` + `off`).

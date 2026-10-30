@@ -51,6 +51,10 @@ namespace ZenoniaProto
                     foreach (GearPartSpec part in cls.Parts) data.manifests[part.Id] = file.weapon; // every part draws from the one weapon manifest
                 }
                 foreach (AnchorSet set in file.anchors) data.anchors[Key(set.part, set.anim, set.dir)] = set.frames;
+                // Painted melee sheets (Tools/build-melee-sheets.py) keep their measured anchors in a separate file.
+                var melee = Resources.Load<TextAsset>("Data/" + cls.GearFile + "-melee");
+                HeldGearFile extra = melee != null ? JsonUtility.FromJson<HeldGearFile>(melee.text) : null;
+                if (extra != null && extra.anchors != null) foreach (AnchorSet set in extra.anchors) data.anchors[Key(set.part, set.anim, set.dir)] = set.frames;
                 if (file.companionFloat != null) foreach (FloatLoop loop in file.companionFloat) data.floats[loop.dir] = loop.frames;
                 return data;
             }

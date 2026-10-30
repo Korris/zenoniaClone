@@ -31,7 +31,9 @@ namespace ZenoniaProto
             }
             else if (combo.IsAttacking)
             {
-                anim = combo.IsFinisher ? "attack3" : (((combo.Step - 1) % 2) + 1 == 1 ? "attack1" : "attack2");
+                string[] steps = cls.ComboAnims;
+                anim = steps != null && combo.Step >= 1 && combo.Step <= steps.Length ? steps[combo.Step - 1]
+                    : combo.IsFinisher ? "attack3" : (((combo.Step - 1) % 2) + 1 == 1 ? "attack1" : "attack2");
                 frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), combo.PhaseProgress);
             }
             else if (moving)
