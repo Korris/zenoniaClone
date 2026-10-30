@@ -75,7 +75,7 @@ namespace ZenoniaProto
                 try { PlayerPrefs.SetInt(PrefKey, visible ? 1 : 0); } catch (Exception) { /* prefs are a convenience */ }
             }
             HeroController hero = GameSession.Hero;
-            bool show = visible && hero != null && !InventoryPanel.IsOpen;
+            bool show = visible && hero != null && !InventoryPanel.IsOpen && !Hud.CaptureClean;
             if (layer.gameObject.activeSelf != show)
             {
                 layer.gameObject.SetActive(show);

@@ -36,6 +36,9 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Video capture: only the boss bar from this IMGUI layer (no skill line / FPS / help); the touch controls hide too.</summary>
+        public static bool CaptureClean;
+
         void OnGUI()
         {
             if (Event.current.type != EventType.Repaint) return;
@@ -53,7 +56,7 @@ namespace ZenoniaProto
             small.fontSize = Mathf.RoundToInt(12f * s);
             center.fontSize = Mathf.RoundToInt(14f * s);
 
-            if (InventoryPanel.IsOpen) { DrawBossBar(s); GUI.color = Color.white; return; }
+            if (InventoryPanel.IsOpen || CaptureClean) { DrawBossBar(s); GUI.color = Color.white; return; }
 
             // Signature skill (L) with cooldown, under the UGUI level / HP / MP / EXP block
             float x = 12f * s, w = 236f * s, h = 20f * s;

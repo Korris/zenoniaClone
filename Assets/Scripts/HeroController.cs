@@ -14,6 +14,10 @@ namespace ZenoniaProto
     public partial class HeroController : MonoBehaviour
     {
         public static HeroController Instance { get; private set; }
+        /// <summary>Party member input (debug capture: several heroes fighting together). Null = the keyboard / touch controls.</summary>
+        public System.Func<GameKey, bool> AiHeld, AiPressed;
+        bool Held(GameKey k) { return AiHeld != null ? AiHeld(k) : InputAdapter.Held(k); }
+        bool Pressed(GameKey k) { return AiPressed != null ? AiPressed(k) : InputAdapter.Pressed(k); }
         /// <summary>Screenshot tooling only (--god): ignore all incoming damage.</summary>
         public static bool DebugGod;
 
@@ -57,9 +61,10 @@ namespace ZenoniaProto
         public bool IsDead { get { return dead; } }
         public string GearLabel { get { return gearLabel; } }
 
-        public void Init(HeroRenderer renderer, PlayerState state)
+        /// <summary>party = an extra AI-driven hero: it never becomes Instance (monsters, loot and the HUD keep following the player).</summary>
+        public void Init(HeroRenderer renderer, PlayerState state, bool party = false)
         {
-            Instance = this;
+            if (!party) Instance = this;
             view = renderer;
             cls = renderer.Class;
             rpg = state ?? PlayerState.NewGame(RpgSession.ClassId(cls.Id));
@@ -109,9 +114,9 @@ namespace ZenoniaProto
             bool dashing = dashLeft > 0f;
             if (!combo.IsAttacking && !dashing && input != Vector2.zero) UpdateFacing(input);
 
-            if (!dashing && InputAdapter.Pressed(GameKey.Skill) && TryCastSkill()) return;
-            if (!dashing && InputAdapter.Pressed(GameKey.Attack)) combo.PressAttack();
-            if (!dashing && !combo.IsAttacking && dashCooldown <= 0f && InputAdapter.Pressed(GameKey.Dash))
+            if (!dashing && Pressed(GameKey.Skill) && TryCastSkill()) return;
+            if (!dashing && Pressed(GameKey.Attack)) combo.PressAttack();
+            if (!dashing && !combo.IsAttacking && dashCooldown <= 0f && Pressed(GameKey.Dash))
             {
                 dashDir = input != Vector2.zero ? input.normalized : DirVec[facing];
                 dashLeft = DashMs;
@@ -153,10 +158,10 @@ namespace ZenoniaProto
             x = p.x; y = p.y;
         }
 
-        static Vector2 ReadMove()
+        Vector2 ReadMove()
         {
-            float ix = (InputAdapter.Held(GameKey.Right) ? 1f : 0f) - (InputAdapter.Held(GameKey.Left) ? 1f : 0f);
-            float iy = (InputAdapter.Held(GameKey.Up) ? 1f : 0f) - (InputAdapter.Held(GameKey.Down) ? 1f : 0f);
+            float ix = (Held(GameKey.Right) ? 1f : 0f) - (Held(GameKey.Left) ? 1f : 0f);
+            float iy = (Held(GameKey.Up) ? 1f : 0f) - (Held(GameKey.Down) ? 1f : 0f);
             var v = new Vector2(ix, iy);
             return v.sqrMagnitude > 1f ? v.normalized : v;
         }
@@ -187,6 +192,7 @@ namespace ZenoniaProto
 
         void HandleGearKeys()
         {
+            if (AiPressed != null) return; // party members ignore the debug look keys
             bool changed = false;
             int tier = view.Tier;
             bool enh = view.Enhanced;

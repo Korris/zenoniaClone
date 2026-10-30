@@ -23,6 +23,7 @@ namespace ZenoniaProto
     ///   --mech-blue                       mechanic FX start in blue (default orange)
     ///   --dummy-dist N                    distance of the first dummy in front of the hero (default 30)
     ///   --god                             hero ignores damage
+    ///   --plus N                          worn weapon + offhand at +N (enhance glow bands)
     ///   --level N / --give-stones N       RPG state for screenshots: hero level, upgrade stones (saving is always off in capture runs)
     ///   --drop-loot                       scatter a boss-sized pile of loot (gold, potions, stones, 3 items) in front of the hero
     ///   --open-inventory                  open the inventory window (B) after spawning
@@ -30,6 +31,9 @@ namespace ZenoniaProto
     ///                                     (--mech-blue for the blue mechanic, --zoom for a close-up)
     ///   --record-ultimate warrior|wizard  scripted video scene (monsters + King nearby, basic combo, then the skill, tail), 60 fps fixed-step,
     ///                                     writes frame_00000.png... to --shot-path (a folder), then quits; encode with ffmpeg
+    ///   --record-boss warrior|wizard|mechanic|assassin|cleric  12 s at 60 fps of the hero fighting the Frostfang King (god mode, skill every 4 s),
+    ///                                     frames + audio.wav (game sound) to --shot-path
+    ///   --record-party                    same, with all five classes fighting the King together (warrior is the player, the rest are AI)
     /// </summary>
     public partial class DebugCapture : MonoBehaviour
     {
@@ -44,12 +48,12 @@ namespace ZenoniaProto
         int tier = -1;
         float zoom;
         bool enhanced, solids, god, dropLoot, openInventory;
-        int level, giveStones;
+        int level, giveStones, plus = -1;
 
         public static void AttachIfRequested(GameObject root, GameSession gameSession)
         {
             string[] args = Environment.GetCommandLineArgs();
-            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0 && Array.IndexOf(args, "--record-combo") < 0) return;
+            if (Array.IndexOf(args, "--class") < 0 && Array.IndexOf(args, "--shots") < 0 && Array.IndexOf(args, "--record-ultimate") < 0 && Array.IndexOf(args, "--record-combo") < 0 && Array.IndexOf(args, "--record-boss") < 0 && Array.IndexOf(args, "--record-party") < 0) return;
             SaveStore.Enabled = false; // capture runs never touch the player's saves
             var d = root.AddComponent<DebugCapture>();
             d.session = gameSession;
@@ -81,6 +85,8 @@ namespace ZenoniaProto
             classArg = Arg(a, "--class");
             recordArg = Arg(a, "--record-ultimate");
             comboArg = Arg(a, "--record-combo");
+            bossArg = Arg(a, "--record-boss");
+            party = Array.IndexOf(a, "--record-party") >= 0;
             faceArg = Arg(a, "--face");
             botArg = Arg(a, "--bot");
             shotPath = Arg(a, "--shot-path") ?? Path.Combine(Application.persistentDataPath, "shot");
@@ -101,6 +107,8 @@ namespace ZenoniaProto
             if (rs != null) runSeconds = float.Parse(rs, System.Globalization.CultureInfo.InvariantCulture);
             string lv = Arg(a, "--level");
             if (lv != null) level = int.Parse(lv);
+            string pl = Arg(a, "--plus");
+            if (pl != null) plus = int.Parse(pl);
             string gs = Arg(a, "--give-stones");
             if (gs != null) giveStones = int.Parse(gs);
             dropLoot = Array.IndexOf(a, "--drop-loot") >= 0;
@@ -125,6 +133,12 @@ namespace ZenoniaProto
             PlayerState p = hero.Rpg;
             if (level > 1) { p.Level = Mathf.Min(level, Leveling.MaxLevel); p.RecomputeStats(); p.Hp = p.MaxHp; p.Mp = p.MaxMp; }
             if (giveStones > 0) p.UpgradeStone = Mathf.Min(PlayerState.MaxStones, giveStones);
+            if (plus >= 0) // enhance level of the worn weapon + offhand (glow band screenshots)
+            {
+                foreach (string slot in new[] { Slots.Weapon, Slots.Offhand }) { Item it = p.GetEquipped(slot); if (it != null) it.enhance = plus; }
+                p.RecomputeStats();
+                RpgSession.SyncGear();
+            }
             if (dropLoot)
             {
                 Rand rand = RpgRandom.Default;
@@ -190,6 +204,8 @@ namespace ZenoniaProto
         {
             yield return null;
             if (comboArg != null) { yield return RecordCombo(comboArg); yield break; }
+            if (bossArg != null) { yield return RecordBoss(bossArg); yield break; }
+            if (party) { yield return RecordParty(); yield break; }
             string rec = recordArg;
             if (rec != null) { yield return RecordUltimate(rec); yield break; }
             if (classArg != null)
@@ -249,32 +265,32 @@ namespace ZenoniaProto
         }
 
         /// <summary>Walks toward the nearest living monster (aligning on one axis first so the facing is right) and attacks in range.</summary>
-        void EnableFightBot()
+        void EnableFightBot(bool boss = false)
         {
             Vector2 move = Vector2.zero;
             bool attack = false;
             InputAdapter.BotHeld = k =>
             {
-                Think(ref move, ref attack);
+                Think(GameSession.Hero, Vector2.zero, ref move, ref attack, boss);
                 return (k == GameKey.Left && move.x < 0f) || (k == GameKey.Right && move.x > 0f) || (k == GameKey.Down && move.y < 0f) || (k == GameKey.Up && move.y > 0f);
             };
             InputAdapter.BotPressed = k => k == GameKey.Attack && attack;
         }
 
-        static void Think(ref Vector2 move, ref bool attack)
+        /// <summary>boss = target the Frostfang King while it lives (otherwise the King is skipped); offset = where around the target to stand.</summary>
+        static void Think(HeroController hero, Vector2 offset, ref Vector2 move, ref bool attack, bool boss = false)
         {
             move = Vector2.zero; attack = false;
-            HeroController hero = GameSession.Hero;
             if (hero == null || hero.IsDead) return;
-            Monster best = null; float bestD = float.MaxValue;
-            foreach (Monster m in Monster.All)
+            Monster best = boss && Monster.Boss != null && !Monster.Boss.IsDying ? Monster.Boss : null; float bestD = best != null ? 0f : float.MaxValue;
+            if (best == null) foreach (Monster m in Monster.All)
             {
                 if (m.IsDying || m.MaxHp > 300f || !HasLineOfSight(hero.Position, m.Center)) continue; // skip the boss and anything behind a cliff
                 float d = Vector2.Distance(m.Center, hero.Position);
                 if (d < bestD) { bestD = d; best = m; }
             }
             if (best == null) return;
-            Vector2 diff = best.Center - hero.Position - new Vector2(0f, 4f);
+            Vector2 diff = best.Center + offset - hero.Position - new Vector2(0f, 4f);
             float range = hero.Class.Ranged ? 80f : 24f;
             bool horizontal = Mathf.Abs(diff.x) >= Mathf.Abs(diff.y);
             float along = horizontal ? diff.x : diff.y, across = horizontal ? diff.y : diff.x;

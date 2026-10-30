@@ -56,6 +56,24 @@ namespace ZenoniaProto
             follow.Configure();
         }
 
+        /// <summary>Debug capture: an extra AI-driven hero of another class at `feet` (no save, not followed by the camera or the monsters).</summary>
+        public HeroController SpawnPartyMember(HeroClass id, Vector2 feet, int dir)
+        {
+            HeroClassDef def = HeroClassDef.Get(id);
+            var go = new GameObject("Party_" + def.Name);
+            go.transform.SetParent(root, false);
+            var view = go.AddComponent<HeroRenderer>();
+            view.Init(def, HeldGearData.Load(def));
+            if (id == HeroClass.Warrior) EarthBreakUltimate.Preload();
+            if (id == HeroClass.Wizard) IceStormUltimate.Preload();
+            VfxSprites.Preload(id);
+            HeroController h = go.AddComponent<HeroController>();
+            h.Init(view, null, true);
+            h.Teleport(feet, dir);
+            if (def.CompanionFolder != null) HeroCompanion.Create(root, h);
+            return h;
+        }
+
         void Update()
         {
             if (hero == null)
