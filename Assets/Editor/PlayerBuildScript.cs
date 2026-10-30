@@ -64,7 +64,7 @@ namespace ZenoniaProto.EditorTools
         static int Build(BuildTarget target, string output)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(output));
-            if (target == BuildTarget.Android) ConfigureAndroid();
+            if (target == BuildTarget.Android) { ConfigureAndroid(); ResourceTextureAudit.Run(); } // ASTC overrides before the APK packs textures
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             EditorSceneManager.SaveScene(scene, TempScene);
             try

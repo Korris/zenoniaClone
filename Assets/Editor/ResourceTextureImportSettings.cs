@@ -31,7 +31,8 @@ namespace ZenoniaProto.EditorTools
                 || i.maxTextureSize != 4096
                 || i.textureCompression != TextureImporterCompression.Uncompressed
                 || !i.alphaIsTransparency
-                || i.npotScale != TextureImporterNPOTScale.None;
+                || i.npotScale != TextureImporterNPOTScale.None
+                || !AndroidOk(i);
         }
 
         internal static void Apply(TextureImporter i, string path)
@@ -46,6 +47,24 @@ namespace ZenoniaProto.EditorTools
             i.alphaIsTransparency = true;
             i.npotScale = TextureImporterNPOTScale.None;
             i.isReadable = false;
+            TextureImporterPlatformSettings a = i.GetPlatformTextureSettings(Android);
+            a.overridden = true;
+            a.maxTextureSize = AndroidMaxSize;
+            a.format = AndroidFormat;
+            a.compressionQuality = 50;
+            i.SetPlatformTextureSettings(a);
+        }
+
+        // Android: ASTC 6x6 (~3.6 bits/px, every ARM64 phone supports it) and at most 2048 px, so the APK is a fraction of the
+        // uncompressed PC size. Standalone keeps the uncompressed RGBA above.
+        const string Android = "Android";
+        const int AndroidMaxSize = 2048;
+        const TextureImporterFormat AndroidFormat = TextureImporterFormat.ASTC_6x6;
+
+        static bool AndroidOk(TextureImporter i)
+        {
+            TextureImporterPlatformSettings a = i.GetPlatformTextureSettings(Android);
+            return a.overridden && a.maxTextureSize == AndroidMaxSize && a.format == AndroidFormat;
         }
     }
 
@@ -57,8 +76,9 @@ namespace ZenoniaProto.EditorTools
             EditorApplication.delayCall += Run;
         }
 
+        /// <summary>Re-imports every Resources sprite whose settings drifted (also called right before an Android build).</summary>
         [MenuItem("Zenonia/Fix Texture Import Settings")]
-        static void Run()
+        internal static void Run()
         {
             string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { "Assets/Resources/Sprites" });
             int fixedCount = 0;
