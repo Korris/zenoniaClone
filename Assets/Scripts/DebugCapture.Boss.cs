@@ -22,7 +22,7 @@ namespace ZenoniaProto
             session.Spawn(ParseClass(who));
             yield return null;
             HeroController hero = GameSession.Hero;
-            HeroController.DebugGod = true;
+            hero.God = true;
             Hud.CaptureClean = true;
             hero.Teleport(FrostHollowMap.TileFeet(11, 6, 2f), 2); // facing west, inside the King's aggro radius
             EnableFightBot(true);
@@ -35,7 +35,6 @@ namespace ZenoniaProto
         {
             session.Spawn(HeroClass.Warrior);
             yield return null;
-            HeroController.DebugGod = true;
             Hud.CaptureClean = true;
             var heroes = new List<HeroController> { GameSession.Hero };
             Vector2 home = FrostHollowMap.TileFeet(11, 6, 2f);
@@ -47,7 +46,7 @@ namespace ZenoniaProto
             for (int i = 0; i < others.Length; i++)
                 heroes.Add(session.SpawnPartyMember(others[i], FreeSpotNear(home, home + starts[i]), 2));
             Vector2[] offsets = { new Vector2(16f, 0f), new Vector2(56f, 14f), new Vector2(60f, -10f), new Vector2(14f, -12f), new Vector2(72f, 2f) };
-            for (int i = 0; i < heroes.Count; i++) DriveByAi(heroes[i], offsets[i]);
+            for (int i = 0; i < heroes.Count; i++) { heroes[i].God = true; DriveByAi(heroes[i], offsets[i]); }
             if (zoom > 0f) Camera.main.orthographicSize = zoom;
             yield return RecordFrames(frame =>
             {

@@ -10,7 +10,7 @@ namespace ZenoniaProto
     public class GameSession : MonoBehaviour
     {
         public static GameSession Instance { get; private set; }
-        public static HeroController Hero { get { return Instance != null ? Instance.hero : null; } }
+        public static HeroController Hero { get { return LocalPlayer.Hero; } }
         /// <summary>True while the class select screen is up (no hero yet).</summary>
         public static bool Selecting { get { return Instance != null && Instance.hero == null; } }
 
@@ -37,6 +37,7 @@ namespace ZenoniaProto
         {
             SaveData save;
             PlayerState state = rpg.Begin(id, out save);
+            if (hero != null) hero.Retire(); // Destroy is deferred: the old hero must not take loot / aggro for the rest of this frame
             if (heroGo != null) Destroy(heroGo);
             HeroClassDef def = HeroClassDef.Get(id);
             heroGo = new GameObject("Hero_" + def.Name);

@@ -31,6 +31,7 @@ namespace ZenoniaProto
         /// <summary>Spawns a swing ribbon centred on (x, y). angleDeg: 0 = right, 90 = up. reverse = sweep the other way (alternating swings).</summary>
         public static void Spawn(float x, float y, float angleDeg, float reach, bool finisher, bool reverse, ClassPalette palette = null)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (!FeelConfig.FxOn || root == null) return;
             SwordTrail t = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { t = Pool[i]; break; }

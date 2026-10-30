@@ -15,13 +15,14 @@ namespace ZenoniaProto
         const float WalkFrameMs = 160f, HitFlashMs = 100f, KnockbackMs = 120f;
         const float RecoveryMs = 240f;            // attack follow-through frames after the strike (web HD_MONSTER_ATTACK)
         const float FadeMs = 700f;
-        static readonly List<Monster> AllList = new List<Monster>();
+        static readonly List<Monster> NoMonsters = new List<Monster>();
 
-        public static IReadOnlyList<Monster> All { get { return AllList; } }
-        public static int Kills { get; private set; }
+        // The monster list, kill counter and boss live in the Zone; these getters keep the old call sites working.
+        public static IReadOnlyList<Monster> All { get { return Zone.Main != null ? Zone.Main.Monsters : NoMonsters; } }
+        public static int Kills { get { return Zone.Main != null ? Zone.Main.Kills : 0; } }
         /// <summary>The living Frostfang King (HUD boss bar), or null.</summary>
-        public static Monster Boss { get; private set; }
-        public static void ResetStatics() { AllList.Clear(); Kills = 0; Boss = null; }
+        public static Monster Boss { get { return Zone.Main != null ? Zone.Main.Boss : null; } }
+        public static void ResetStatics() { Zone.ResetMain(); }
 
         MonsterDef def;
         Vector2 home, wanderDir, knock;
@@ -31,6 +32,8 @@ namespace ZenoniaProto
         State state = State.Idle;
         Sprite[][] walk, attack;
         SpriteRenderer body, shadow, barBack, barFill;
+        bool headless;                             // dedicated server: simulation only, no sprites / renderers
+        HeroController target;                     // sticky aggro target (Monster.Ai.cs)
 
         public float Def { get { return def.Def; } }
         /// <summary>Web monster type id (frostSlime, iceGoblin ...), the key of the RPG loot table.</summary>
@@ -50,8 +53,12 @@ namespace ZenoniaProto
             go.transform.SetParent(parent, false);
             var m = go.AddComponent<Monster>();
             m.Init(definition, feet, zoneIndex);
-            AllList.Add(m);
-            if (definition.IsBoss) Boss = m;
+            Zone zone = Zone.Main;
+            if (zone != null)
+            {
+                zone.Monsters.Add(m);
+                if (definition.IsBoss) zone.Boss = m;
+            }
             return m;
         }
 
@@ -62,6 +69,9 @@ namespace ZenoniaProto
             hp = def.Hp;
             timer = 600f;
             animTimer = Random.value * 1000f;
+            headless = NetMode.IsHeadless;
+            transform.position = new Vector3(x, y, 0f);
+            if (headless) return; // server: no sprite sheets, shadow, body or HP bar
             walk = SpriteSheet.Grid("Sprites/monsters/" + def.Sheet, 192, 192, GameConfig.FramePpu, new Vector2(0.5f, 0f));
             // Attack cells are 256px with the feet 224px down => pivot 32px above the bottom.
             attack = SpriteSheet.Grid("Sprites/monsters/" + def.Sheet + "-attack", 256, 256, GameConfig.FramePpu, new Vector2(0.5f, 32f / 256f));
@@ -81,15 +91,17 @@ namespace ZenoniaProto
 
         void OnDestroy()
         {
-            AllList.Remove(this);
-            if (Boss == this) Boss = null;
+            Zone zone = Zone.Main;
+            if (zone == null) return;
+            zone.Monsters.Remove(this);
+            if (zone.Boss == this) zone.Boss = null;
         }
 
         void Update()
         {
             // A script recompile during Play mode wipes runtime-built references (body, HP bar):
             // drop the stale monster instead of throwing a NullReferenceException every frame.
-            if (body == null || barBack == null || barFill == null) { Destroy(gameObject); return; }
+            if (!headless && (body == null || barBack == null || barFill == null)) { Destroy(gameObject); return; }
             float dt = GameClock.Dt, dtMs = dt * 1000f;
             animTimer += dtMs;
             flash = Mathf.Max(0f, flash - dtMs);
@@ -103,10 +115,12 @@ namespace ZenoniaProto
             Render();
         }
 
-        /// <summary>One simulation step: knockback slide, or the AI intent (frozen while the hero is dead, like the web).</summary>
+        /// <summary>
+        /// One simulation step: knockback slide, or the AI intent. The AI only runs while a living hero is within ActiveRadius (dormancy: far
+        /// monsters freeze in place and resume on wake, which also matches the old "frozen while the hero is dead").
+        /// </summary>
         void Step(float dt, float dtMs)
         {
-            HeroController hero = HeroController.Instance;
             float dx = 0f, dy = 0f;
             if (TickStatus(dtMs)) return;
             if (knockLeft > 0f)
@@ -115,8 +129,10 @@ namespace ZenoniaProto
                 float k = FeelConfig.FxOn ? 2f * knockLeft / knockTotal : 1f;
                 dx = knock.x * k * dt; dy = knock.y * k * dt; knockLeft -= dtMs;
             }
-            else if (hero != null && !hero.IsDead)
+            else
             {
+                HeroController hero = AcquireTarget();
+                if (hero == null) return;
                 bool strike;
                 Vector2 move = Think(dtMs, hero, out strike);
                 dx = move.x * dt; dy = move.y * dt;
@@ -141,9 +157,10 @@ namespace ZenoniaProto
         Vector2 Separation()
         {
             Vector2 push = Vector2.zero;
-            for (int i = 0; i < AllList.Count; i++)
+            IReadOnlyList<Monster> all = All;
+            for (int i = 0; i < all.Count; i++)
             {
-                Monster o = AllList[i];
+                Monster o = all[i];
                 if (o == this || o.IsDying) continue;
                 Vector2 d = new Vector2(x - o.x, y - o.y);
                 float m = d.magnitude;
@@ -152,9 +169,16 @@ namespace ZenoniaProto
             return push;
         }
 
-        public void TakeHit(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx = false)
+        /// <summary>
+        /// Applies a hit. `src` is the attacking hero (kill credit, damage table, aggro); null credits the local player so single-player
+        /// call sites without an attacker keep working.
+        /// </summary>
+        public void TakeHit(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx = false, HeroController src = null)
         {
             if (IsDying) return;
+            if (src == null) src = LocalPlayer.Hero;
+            Credit(src, Mathf.Min(dmg, Mathf.Max(1, Mathf.CeilToInt(hp)))); // overkill does not count towards the damage share
+            if (src != null && !src.IsDead) target = src; // whoever hurts it becomes the sticky target
             hp -= dmg;
             bool fx = FeelConfig.FxOn;
             flash = fx ? FeelConfig.FlashMs : HitFlashMs;
@@ -172,10 +196,8 @@ namespace ZenoniaProto
             hp = 0f;
             state = State.Dying;
             deathTimer = 0f;
-            Kills++;
-            if (Boss == this) Boss = null;
-            MonsterSpawner.NotifyDeath(zone);
-            RpgSession.NotifyKill(this);
+            target = null;
+            if (Zone.Main != null) Zone.Main.OnMonsterDied(this, zone);
         }
     }
 }

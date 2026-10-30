@@ -39,6 +39,7 @@ namespace ZenoniaProto
         /// <summary>Spawns a slash. angleDeg: 0 = right, 90 = up (counter-clockwise).</summary>
         public static void Spawn(float x, float y, float angleDeg, float scale, bool finisher, bool flipY, int order)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (frames == null || root == null) return;
             SlashEffect fx = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { fx = Pool[i]; break; }

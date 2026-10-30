@@ -58,6 +58,7 @@ namespace ZenoniaProto
             caster = owner.Position;
             center = caster + DirVec[owner.Facing] * Range + new Vector2(0f, -6f);
             atk = owner.AtkStat;
+            if (!NetMode.RendersFx) return; // headless server: damage waves only, no art / layers
             cast = Rows(0, CirclePpu); meteor = Rows(1, SpearPpu); impact = Rows(2, HitPpu); fade = Rows(3, HitPpu);
             int g = UltimateFx.GroundFxOrder;
             circle = UltimateFx.Layer(transform, "Circle", out circleGlow);
@@ -101,10 +102,11 @@ namespace ZenoniaProto
 
         void Strike(int w)
         {
-            List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 90f, w == Waves - 1, ClassPalette.Blue);
+            List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 90f, w == Waves - 1, ClassPalette.Blue, 0f, hero);
             for (int i = 0; i < hit.Count; i++) hit[i].Chill(ChillMs);
-            CameraFollow.AddTrauma(w == Waves - 1 ? 0.55f : 0.3f);
             GameClock.HitStop(w == Waves - 1 ? 60f : 30f);
+            if (!NetMode.RendersFx) return;
+            CameraFollow.AddTrauma(w == Waves - 1 ? 0.55f : 0.3f);
             ScreenFlash.Trigger(new Color(0.2f, 0.55f, 1f, w == Waves - 1 ? 0.12f : 0.07f), 0.22f);
             ShockRing.Spawn(center, Radius * 1.05f, 0.4f, new Color(0.4f, 0.85f, 1f, 0.9f), UltimateFx.GroundFxOrder + 6, 0.72f, 0.3f);
             if (w == Waves - 1) CameraFollow.Punch(0.6f);
@@ -133,6 +135,7 @@ namespace ZenoniaProto
 
         void Apply()
         {
+            if (!NetMode.RendersFx) return;
             // frozen circle: builds up over the cast, then holds on its full frame and shimmers until the tail fades it
             float castT = age / CastMs;
             float endFade = Mathf.Clamp01((CastMs + 3f * WaveMs + TailMs - age) / 600f);

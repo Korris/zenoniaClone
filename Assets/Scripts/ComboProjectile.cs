@@ -21,6 +21,7 @@ namespace ZenoniaProto
         Color? tint { get { return pal.Tint; } } // palette hue for the painted-art styles
         float atk, mult, knockback, life, critBonus;
         bool finisher;
+        HeroController src;     // who fired it (kill credit, damage table)
         SpriteRenderer sr, glow;
         ArcaneBoltRig arcane;   // wizard layered missile (null until first needed)
         StreakBoltRig streak;   // cleric light arrow / mechanic plasma bolt
@@ -29,10 +30,12 @@ namespace ZenoniaProto
 
         public static void Init(Transform parent) { root = parent; Pool.Clear(); }
 
-        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f)
+        /// <summary>Launches a bolt. On a headless server it is a plain moving hitbox (no renderers); `src` is credited for every hit.</summary>
+        public static void Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f, HeroController src = null)
         {
-            Sprite art = bolt.Style == BoltStyle.Sprite ? BurstFx.Art(fxFolder, bolt.Sprite, palette.Tint) : null;
-            if ((art == null && bolt.Style == BoltStyle.Sprite) || root == null) return;
+            bool fx = NetMode.RendersFx;
+            Sprite art = fx && bolt.Style == BoltStyle.Sprite ? BurstFx.Art(fxFolder, bolt.Sprite, palette.Tint) : null;
+            if (root == null || (fx && art == null && bolt.Style == BoltStyle.Sprite)) return;
             ComboProjectile p = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { p = Pool[i]; break; }
             if (p == null)
@@ -40,13 +43,17 @@ namespace ZenoniaProto
                 var go = new GameObject("Bolt");
                 go.transform.SetParent(root, false);
                 p = go.AddComponent<ComboProjectile>();
-                p.sr = go.AddComponent<SpriteRenderer>();
-                p.glow = ProceduralSprites.Child(go.transform, "Glow", null);
-                p.glow.sharedMaterial = FeelMaterials.Additive;
+                if (fx)
+                {
+                    p.sr = go.AddComponent<SpriteRenderer>();
+                    p.glow = ProceduralSprites.Child(go.transform, "Glow", null);
+                    p.glow.sharedMaterial = FeelMaterials.Additive;
+                }
                 Pool.Add(p);
             }
-            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus;
+            p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus; p.src = src;
             p.life = bolt.Range / bolt.Speed;
+            if (!fx) { p.vfx = null; p.gameObject.SetActive(true); return; } // headless: hitbox only
             p.sr.sprite = art; p.glow.sprite = art;
             p.sr.enabled = p.glow.enabled = bolt.Style == BoltStyle.Sprite;
             if (p.arcane != null) p.arcane.End();
@@ -101,6 +108,7 @@ namespace ZenoniaProto
                 life -= dt;
                 if (life <= 0f) { gameObject.SetActive(false); return; }
             }
+            if (!NetMode.RendersFx) return;
             if (vfx != null)
             {
                 transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
@@ -137,6 +145,7 @@ namespace ZenoniaProto
         /// <summary>Impact visuals per style: wizard starburst + crystal shards, cleric gold pillar, mechanic starburst + sparks + dust.</summary>
         void HitFx(bool blast)
         {
+            if (!NetMode.RendersFx) return;
             var at = pos + new Vector2(0f, VisualLift);
             if (def.Style == BoltStyle.Plasma) // mechanic: plasma zap on a bullet hit, explosion for the cannon blast
             {
@@ -156,7 +165,7 @@ namespace ZenoniaProto
         {
             bool crit = Random.value < CritChance + critBonus;
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
-            m.TakeHit(dmg, knock * (crit ? 2f : 1f), crit, blast, vfx != null);
+            m.TakeHit(dmg, knock * (crit ? 2f : 1f), crit, blast, vfx != null, src);
             if (!blast) HitFx(false);
             GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
             if (!blast) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode

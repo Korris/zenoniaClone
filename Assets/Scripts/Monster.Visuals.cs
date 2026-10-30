@@ -34,6 +34,7 @@ namespace ZenoniaProto
 
         void Render()
         {
+            if (headless) return;
             int order = GameConfig.OrderBase(y);
             float alpha = 1f;
             if (state == State.Dying)

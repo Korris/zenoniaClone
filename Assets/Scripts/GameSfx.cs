@@ -43,6 +43,7 @@ namespace ZenoniaProto
         /// <summary>Plays a clip (path under Resources/Audio/sfx, no extension) with a small random pitch so repeats don't sound identical.</summary>
         public static void Play(string path, float volume = 1f, float pitchJitter = 0.05f)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (Pool.Count == 0) return;
             AudioClip clip = Clip(path);
             if (clip == null) return;
@@ -57,6 +58,7 @@ namespace ZenoniaProto
         /// <summary>Plays one of `variants` (e.g. "warrior/hit-a", "warrior/hit-b") at random.</summary>
         public static void PlayAny(string[] variants, float volume = 1f)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (variants != null && variants.Length > 0) Play(variants[Random.Range(0, variants.Length)], volume);
         }
     }

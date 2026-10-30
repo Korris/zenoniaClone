@@ -39,6 +39,7 @@ namespace ZenoniaProto
         /// <summary>Plays the FX once. grow = scales up from 55% (blast), otherwise static (flash).</summary>
         public static void Spawn(string folder, string name, Vector2 pos, float angleDeg, float scale, float lifeSec, bool grow = false, Color? tint = null)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             Sprite art = folder != null ? Art(folder, name, tint) : null;
             if (art == null || root == null) return;
             BurstFx fx = null;

@@ -30,6 +30,7 @@ namespace ZenoniaProto
 
         public static void Spawn(float x, float y, string text, Color color, bool big, bool crit = false)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (instance == null) return;
             cursor = (cursor + 1) % Capacity; // overwrite the oldest slot when saturated
             Pool[cursor] = new Entry { Active = true, Text = text, Color = color, X = x, Y = y, Age = 0f, Big = big, Crit = crit, DriftX = Random.Range(-7f, 7f) };

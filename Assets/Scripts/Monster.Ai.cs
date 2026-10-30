@@ -6,6 +6,22 @@ namespace ZenoniaProto
     public partial class Monster
     {
         const float WanderSpeedFactor = 0.5f, ChaseSpeedFactor = 0.5f; // web: wander / chase at half speed, return at full speed
+        /// <summary>Dormancy: a monster only thinks while a living hero is this close (a bit over the camera diagonal), so empty map parts cost nothing.</summary>
+        public const float ActiveRadius = 320f;
+
+        /// <summary>
+        /// Picks who to fight. The current target is sticky while it lives, is still within ActiveRadius and the monster is mid-fight (chase /
+        /// windup / cooldown); a monster that gave up (idle, wander, return) takes the nearest living hero in range. Null = dormant.
+        /// </summary>
+        HeroController AcquireTarget()
+        {
+            Vector2 here = new Vector2(x, y);
+            bool fighting = state == State.Chase || state == State.Windup || state == State.Cooldown;
+            if (target != null && fighting && !target.IsDead && (target.Position - here).sqrMagnitude <= ActiveRadius * ActiveRadius) return target;
+            Zone zone = Zone.Main;
+            target = zone != null ? zone.Heroes.NearestAlive(here, ActiveRadius) : null;
+            return target;
+        }
 
         Vector2 Think(float dtMs, HeroController hero, out bool strike)
         {

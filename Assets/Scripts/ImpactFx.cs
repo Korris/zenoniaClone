@@ -31,6 +31,7 @@ namespace ZenoniaProto
         /// <summary>Spawns an impact at (x, y). dir = direction the target is knocked (sparks fan out that way).</summary>
         public static void Spawn(float x, float y, Vector2 dir, bool crit, bool finisher, ClassPalette palette = null, bool quiet = false)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (!FeelConfig.FxOn || root == null) return;
             ImpactFx fx = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { fx = Pool[i]; break; }

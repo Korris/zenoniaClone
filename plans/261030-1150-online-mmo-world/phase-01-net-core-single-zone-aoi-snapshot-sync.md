@@ -175,14 +175,14 @@ clients `--mode client --connect 127.0.0.1:7777 --dev-key k --class <i%5> --net-
 `--net-bot` reuses `DebugCapture.Think` against proxy monsters, feeding `InputAdapter.BotHeld/BotPressed` -> exercises the real NetInputSender path.
 
 ## Todo
-- [ ] LiteNetLib + asmdef (Win + Android)
-- [ ] Protocol asmdef + dotnet tests
-- [ ] Zone object + LocalPlayer + compat getters
-- [ ] Monster targeting + dormancy
-- [ ] Attribution, damage table, EXP split, loot owner/priority
-- [ ] PlayerRpg + boss respawn timer
-- [ ] Cosmetic split + clock rules
-- [ ] Headless heroes/monsters (no views)
+- [x] LiteNetLib v1.2.0 + asmdef (Win compiled + built; Android IL2CPP build verification TODO)
+- [x] Protocol asmdef + dotnet tests (34 pass)
+- [x] Zone object + LocalPlayer + compat getters
+- [x] Monster targeting + dormancy
+- [x] Attribution, damage table, EXP split, loot owner/priority
+- [x] PlayerRpg + boss respawn timer
+- [x] Cosmetic split + clock rules
+- [x] Headless heroes/monsters (no views)
 - [ ] NetMode/args/Bootstrap
 - [ ] ZoneServer, NetPlayer, InputDriver, dev login stub
 - [ ] InterestGrid, ClientInterest, SnapshotBuilder, EventBus

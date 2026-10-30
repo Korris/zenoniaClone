@@ -20,6 +20,7 @@ namespace ZenoniaProto
         /// <summary>Adds shake trauma (0..1, clamped). Offset grows with trauma squared and decays linearly. No-op when effects are off.</summary>
         public static void AddTrauma(float amount)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (!FeelConfig.FxOn) return;
             trauma = Mathf.Min(1f, trauma + amount);
         }
@@ -27,6 +28,7 @@ namespace ZenoniaProto
         /// <summary>Camera punch-in (0..1): a quick zoom pulse that eases back, for ultimate impacts. No-op when effects are off.</summary>
         public static void Punch(float amount)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (!FeelConfig.FxOn) return;
             punch = Mathf.Min(1f, punch + amount);
         }

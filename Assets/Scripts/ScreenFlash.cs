@@ -10,6 +10,7 @@ namespace ZenoniaProto
 
         public static void Trigger(Color c, float seconds)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (!FeelConfig.FxOn) return;
             color = c; life = left = Mathf.Max(0.01f, seconds);
         }

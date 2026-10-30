@@ -51,6 +51,7 @@ namespace ZenoniaProto
             dir = owner.Facing;
             center = caster + DirVec[dir] * Range + new Vector2(0f, -6f);
             atk = owner.AtkStat;
+            if (!NetMode.RendersFx) return; // headless server: damage timeline only, no art / layers
             charge = ChargeArt(); sweep = SweepArt(); slam = SlamArt(); fissure = FissuresArt();
             int g = UltimateFx.GroundFxOrder;
             telegraph = ProceduralSprites.Child(transform, "Telegraph", FxSprites.Ring());
@@ -85,7 +86,7 @@ namespace ZenoniaProto
 
         void Sweep()
         {
-            SkillDamage.Radial(center, Radius * 0.75f, atk, Mult * 0.2f, 20f, false);
+            SkillDamage.Radial(center, Radius * 0.75f, atk, Mult * 0.2f, 20f, false, null, 0f, hero);
             CameraFollow.AddTrauma(0.3f);
             Vector2 mid = (caster + center) * 0.5f + new Vector2(0f, 6f);
             UltimateFx.Embers(mid, 26, 16f, 40f, new Color(1f, 0.72f, 0.25f, 1f));
@@ -93,7 +94,7 @@ namespace ZenoniaProto
 
         void Slam()
         {
-            List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 0f, true);
+            List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 0f, true, null, 0f, hero);
             for (int i = 0; i < hit.Count; i++) hit[i].Launch();
             GameClock.HitStop(110f);
             CameraFollow.AddTrauma(1f);
@@ -109,7 +110,7 @@ namespace ZenoniaProto
 
         void Burn()
         {
-            SkillDamage.Radial(center, Radius, atk, Mult * 0.12f, 0f, false);
+            SkillDamage.Radial(center, Radius, atk, Mult * 0.12f, 0f, false, null, 0f, hero);
             CameraFollow.AddTrauma(0.14f);
             UltimateFx.Embers(center, 22, Radius * 0.7f, 60f, new Color(1f, 0.5f, 0.12f, 1f));
         }
@@ -118,6 +119,7 @@ namespace ZenoniaProto
 
         void Apply()
         {
+            if (!NetMode.RendersFx) return;
             // charge ring (0-500) + red ground telegraph for the coming slam (grows 500-1450, then fades out)
             ShowStrip(chargeSr, chargeGlow, charge, age / 500f, 1f, 0.45f);
             float tel = Mathf.Clamp01((age - 400f) / 1050f);

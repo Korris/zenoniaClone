@@ -4,14 +4,15 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Glue between the pure RPG state (ZenoniaProto.Rpg) and the running game: loads / creates the PlayerState of the chosen class,
-    /// autosaves (every 30 s, on respawn, on boss kill, on class switch and on quit), turns kills into EXP + ground loot, applies pickups,
+    /// Offline adapter around one PlayerRpg: loads / creates the PlayerState of the chosen class, autosaves (every 30 s, on respawn, on level-up,
+    /// on boss kill, on class switch and on quit), turns the PlayerRpg events (EXP, pickups, death penalty) into toasts / floating text / FX,
     /// handles the potion keys (1 / 2) and the inventory key (B), and keeps the hero's held gear in sync with the equipment.
+    /// Kill rewards themselves are computed by the Zone (KillRewards); online there is no RpgSession, the server owns the PlayerRpg.
     /// </summary>
     public class RpgSession : MonoBehaviour
     {
         const float AutosaveSeconds = 30f;
-        static readonly Color ExpColor = new Color(0.75f, 0.6f, 1f), GoldColor = new Color(1f, 0.85f, 0.3f), LevelColor = new Color(1f, 0.9f, 0.4f);
+        static readonly Color ExpColor = new Color(0.75f, 0.6f, 1f), GoldColor = new Color(1f, 0.85f, 0.3f);
 
         public static RpgSession Instance { get; private set; }
         /// <summary>The live RPG state of the current hero, or null on the class select screen.</summary>
@@ -19,6 +20,7 @@ namespace ZenoniaProto
 
         Transform root;
         PlayerState player;
+        PlayerRpg owner;
         bool bossDefeated;
         float saveTimer;
         int beganFrame = -1; // keys 1 / 2 that picked the class on the select screen must not also drink a potion
@@ -47,14 +49,20 @@ namespace ZenoniaProto
             bossDefeated = save != null && save.bossDefeated;
             saveTimer = 0f;
             beganFrame = Time.frameCount;
+            owner = new PlayerRpg(player);
+            owner.ExpGained += OnExpGained;
+            owner.LootPicked += OnLootPicked;
+            owner.Revived += OnRevived;
+            owner.BossKilled += OnBossKilled;
             return player;
         }
 
-        /// <summary>After the hero exists: restore the saved spot (when still walkable), remove a boss this save already killed, sync gear.</summary>
+        /// <summary>After the hero exists: bind its PlayerRpg, restore the saved spot (when still walkable), remove a boss this save already killed, sync gear.</summary>
         public void Attach(HeroController hero, SaveData save)
         {
+            hero.Owner = owner;
             if (save != null && save.hasPosition && !FrostHollowMap.RectBlocked(save.x - 5f, save.y, 10f, 8f)) hero.Teleport(new Vector2(save.x, save.y), 0);
-            if (bossDefeated && Monster.Boss != null && Application.isPlaying) Destroy(Monster.Boss.gameObject);
+            if (bossDefeated && NetMode.IsOffline && Monster.Boss != null && Application.isPlaying) Destroy(Monster.Boss.gameObject);
             SyncGear();
             if (save == null) SaveNow(); // a new character gets its file right away
         }
@@ -74,7 +82,7 @@ namespace ZenoniaProto
         {
             HeroController hero = GameSession.Hero;
             PlayerState p = Player;
-            if (hero == null || p == null) return;
+            if (hero == null || p == null || hero.View == null) return;
             hero.View.SetEquipmentGear(p.GetEquipped(Slots.Weapon), p.GetEquipped(Slots.Offhand));
             hero.RefreshGearLabel();
         }
@@ -100,69 +108,60 @@ namespace ZenoniaProto
 
         void Drink(HeroController hero, bool hp)
         {
-            ActionResult r = player.UsePotion(hp);
+            ActionResult r = owner.UsePotion(hp);
             if (!r.Ok) { RpgHud.Toast(r.Text, new Color(1f, 0.7f, 0.5f)); return; }
-            DamageNumber.Spawn(hero.Position.x, hero.Position.y + 28f, r.Text, hp ? new Color(0.5f, 1f, 0.55f) : new Color(0.5f, 0.75f, 1f), false);
-            UltimateFx.Embers(hero.Position + new Vector2(0f, 6f), 10, 6f, 30f, hp ? new Color(1f, 0.45f, 0.45f, 1f) : new Color(0.45f, 0.65f, 1f, 1f));
+            HeroFx.Potion(hero.Position, hp, r.Text);
         }
 
         void OnApplicationQuit() { SaveNow(); }
         void OnApplicationPause(bool paused) { if (paused) SaveNow(); }
 
-        // ---- hooks called by the game ----
+        // ---- PlayerRpg events -> presentation ----
 
-        /// <summary>Monster.TakeHit on a kill: EXP (level-ups heal), then the drops scatter on the ground.</summary>
-        public static void NotifyKill(Monster m)
+        /// <summary>Kill EXP: floating "+N EXP", level-up celebration (which also saves).</summary>
+        void OnExpGained(int exp, int levels, Vector2 at)
         {
-            RpgSession s = Instance;
+            DamageNumber.Spawn(at.x + 6f, at.y + 20f, "+" + exp + " EXP", ExpColor, false);
+            if (levels <= 0) return;
             HeroController hero = GameSession.Hero;
-            if (s == null || s.player == null || hero == null || hero.Rpg != s.player) return;
-            MonsterLootDef def = LootTable.For(m.Type);
-            if (def == null) return;
-            Vector2 feet = m.Feet;
-            int levels = s.player.GainExp(def.Exp);
-            DamageNumber.Spawn(feet.x + 6f, feet.y + 20f, "+" + def.Exp + " EXP", ExpColor, false);
-            if (levels > 0) s.LevelUp(hero);
-            LootDrop.SpawnAll(s.root, LootTable.RollAll(def, RpgRandom.Default), feet);
-            if (m.IsBoss) { s.bossDefeated = true; s.SaveNow(); }
-        }
-
-        void LevelUp(HeroController hero)
-        {
-            Vector2 feet = hero.Position;
-            RpgHud.LevelUp(player.Level);
-            ShockRing.Spawn(feet, 26f, 0.6f, new Color(1f, 0.85f, 0.35f, 0.95f), UltimateFx.GroundFxOrder + 6, 0.72f, 0.25f);
-            ShockRing.Spawn(feet, 16f, 0.45f, new Color(1f, 1f, 0.7f, 0.85f), UltimateFx.GroundFxOrder + 7, 0.72f, 0.2f, true);
-            UltimateFx.Embers(feet + new Vector2(0f, 6f), 36, 12f, 60f, new Color(1f, 0.9f, 0.45f, 1f));
-            ScreenFlash.Trigger(new Color(1f, 0.95f, 0.6f, 0.08f), 0.3f);
+            if (hero != null) HeroFx.LevelUp(hero.Position, player.Level);
             SaveNow();
         }
 
-        /// <summary>LootDrop touched by the hero: applies it and shows the pickup text. Fails (stays on the ground) only for equipment with a full bag.</summary>
-        public static ActionResult Pickup(LootEntry e)
+        /// <summary>LootDrop touched by the hero: shows the pickup text. A failed pickup (full bag) is silent here; LootDrop toasts it.</summary>
+        void OnLootPicked(LootEntry e, ActionResult r)
         {
-            PlayerState p = Player;
             HeroController hero = GameSession.Hero;
-            if (p == null || hero == null) return ActionResult.Fail("");
-            ActionResult r = p.ApplyPickup(e);
-            if (!r.Ok) return r;
+            if (!r.Ok || hero == null) return;
             Color c = e.Kind == LootKind.Coin ? GoldColor : e.Kind == LootKind.Equipment ? LootSprites.RarityColor(e.Item)
                 : e.Kind == LootKind.UpgradeStone ? new Color(0.5f, 0.95f, 1f) : e.Kind == LootKind.HpPotion ? new Color(1f, 0.55f, 0.55f) : new Color(0.55f, 0.75f, 1f);
             DamageNumber.Spawn(hero.Position.x, hero.Position.y + 26f, r.Text, c, e.Kind == LootKind.Equipment);
-            if (e.Kind == LootKind.Equipment)
-            {
-                string note = p.CanEquip(e.Item) ? "" : "  (" + RpgClasses.Get(e.Item.classId).Name + " gear)";
-                RpgHud.Toast("Got " + EnhanceStats.DisplayName(e.Item) + note + "  [B] inventory", c);
-            }
-            return r;
+            if (e.Kind != LootKind.Equipment) return;
+            string note = player.CanEquip(e.Item) ? "" : "  (" + RpgClasses.Get(e.Item.classId).Name + " gear)";
+            RpgHud.Toast("Got " + EnhanceStats.DisplayName(e.Item) + note + "  [B] inventory", c);
         }
 
-        /// <summary>HeroController.Respawn: shows the death penalty and saves the revived hero.</summary>
-        public static void NotifyRespawn(int expLost)
+        /// <summary>Respawn after death: shows the EXP penalty and saves the revived hero.</summary>
+        void OnRevived(int expLost)
         {
-            if (Instance == null) return;
             if (expLost > 0) RpgHud.Toast("You were defeated: -" + expLost + " EXP", new Color(1f, 0.5f, 0.45f));
-            Instance.SaveNow();
+            SaveNow();
+        }
+
+        /// <summary>Offline the king never returns for this save: remember the kill right away.</summary>
+        void OnBossKilled()
+        {
+            bossDefeated = true;
+            SaveNow();
+        }
+
+        // ---- compat for existing call sites ----
+
+        /// <summary>Applies a pickup to the current hero's RPG state (used by tools / tests; LootDrop goes through the hero's PlayerRpg).</summary>
+        public static ActionResult Pickup(LootEntry e)
+        {
+            RpgSession s = Instance;
+            return s != null && s.owner != null ? s.owner.Pickup(e) : ActionResult.Fail("");
         }
     }
 }

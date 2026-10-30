@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>Hero combat: melee swing resolution, ranged bolt launch and incoming damage.</summary>
+    /// <summary>Hero combat rules: melee swing resolution, ranged bolt launch and incoming damage. Visuals / sound live in HeroFx.</summary>
     public partial class HeroController
     {
         void DoHit(int step)
@@ -15,12 +15,6 @@ namespace ZenoniaProto
             if (h.Stabs > 1) { stabLeft = StabGapMs; stabHit = h; stabStep = step; } // double stab: the next stab lands 90 ms later
         }
 
-        static readonly string[] HitSfx = { "warrior/hit-a", "warrior/hit-b" };
-        static readonly string[] CritSfx = { "warrior/crit-a", "warrior/crit-b" };
-        static readonly string[] MechanicShotSfx = { "mechanic/shot-a", "mechanic/shot-b", "mechanic/shot-c" };
-        static readonly string[] MechanicCannonSfx = { "mechanic/cannon-a", "mechanic/cannon-b" };
-        static readonly string[] MechanicShoutSfx = { "mechanic/shout4-a", "mechanic/shout4-b" };
-
         /// <summary>One melee hit box + its FX. A multi-stab step splits its multiplier between the stabs; echo = a later stab (mirrored FX).</summary>
         void MeleeStrike(ComboHit h, int step, bool echo)
         {
@@ -30,18 +24,7 @@ namespace ZenoniaProto
             float w = v.x != 0f ? h.Reach : h.Width, ht = v.y != 0f ? h.Reach : h.Width;
             var box = new Rect(cx - w * 0.5f, cy - ht * 0.5f, w, ht);
             bool finisher = step == combo.HitCount;
-            bool flip = (step == 2) != echo;
-            if (cls.Id == HeroClass.Assassin) DaggerFx.Strike(new Vector2(cx, cy), DirAngle[facing], h.Reach, finisher, echo, step);
-            else
-            {
-                SlashEffect.Spawn(cx, cy, DirAngle[facing], h.FxScale, finisher, flip, FeelConfig.FxOrder);
-                if (cls.Id == HeroClass.Warrior)
-                {
-                    GameSfx.Play("warrior/slash" + Mathf.Clamp(step, 1, 4)); // one whoosh per combo step (ElevenLabs, picked by ear)
-                    if (finisher) GameSfx.Play("warrior/shout4-a", 0.9f, 0.02f);
-                }
-                SwordTrail.Spawn(x, y + 6f, DirAngle[facing], h.Reach, finisher, flip, cls.Palette);
-            }
+            HeroFx.Swing(cls, new Vector2(cx, cy), new Vector2(x, y), DirAngle[facing], h, step, finisher, echo);
 
             float mult = combo.MultiplierFor(step, 1) / h.Stabs;
             int landed = 0;
@@ -53,15 +36,14 @@ namespace ZenoniaProto
                 if (m.IsDying || !box.Overlaps(m.Box)) continue;
                 bool crit = Random.value < CritChance + CritBonus;
                 int dmg = CombatMath.Damage(AtkStat, mult * (crit ? 1.6f : 1f), m.Def);
-                m.TakeHit(dmg, v * h.Knockback * (crit ? 2f : 1f), crit, finisher);
+                m.TakeHit(dmg, v * h.Knockback * (crit ? 2f : 1f), crit, finisher, false, this);
                 landed++;
                 anyCrit |= crit;
             }
             if (landed > 0)
             {
-                if (cls.Id == HeroClass.Warrior) GameSfx.PlayAny(anyCrit ? CritSfx : HitSfx, 0.85f);
+                HeroFx.MeleeLanded(cls, anyCrit, finisher);
                 GameClock.HitStop(FeelConfig.HitStopMs(finisher));
-                CameraFollow.AddTrauma(finisher ? FeelConfig.TraumaFinisher : anyCrit ? FeelConfig.TraumaCrit : FeelConfig.TraumaNormal);
             }
         }
 
@@ -82,10 +64,7 @@ namespace ZenoniaProto
         void PlayCastFx(ComboHit h)
         {
             castFxStep = combo.Step;
-            VfxSet set = VfxSprites.For(h.Bolt.Style);
-            if (set == null) return;
-            float angle = h.Bolt.Style == BoltStyle.Plasma ? DirAngle[facing] : 0f; // the muzzle blast points along the aim, swirls are round
-            VfxAnim.Cast(set, CastTip, angle, combo.IsFinisher);
+            HeroFx.CastWindup(cls, h, CastTip, DirAngle[facing], combo.IsFinisher);
         }
 
         /// <summary>Web fireComboBolt: the shot leaves 12 units in front of the hero, with a flash at the staff tip / gun barrel.</summary>
@@ -95,52 +74,23 @@ namespace ZenoniaProto
             bool finisher = combo.IsFinisher;
             float mult = combo.MultiplierFor(step, 1);
             ClassPalette pal = cls.ActivePalette;
-            var tip = CastTip;
-            ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus);
-            if (cls.Id == HeroClass.Mechanic)
-            {
-                if (!finisher) GameSfx.PlayAny(MechanicShotSfx, 0.8f);
-                else { GameSfx.PlayAny(MechanicCannonSfx); GameSfx.PlayAny(MechanicShoutSfx, 0.9f); }
-            }
-            if (VfxSprites.For(h.Bolt.Style) != null)
-            {
-                if (castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast
-            }
-            else FallbackCastFx(h, tip, finisher, pal); // painted art missing: procedural flash
-            CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick
-        }
-
-        /// <summary>Procedural cast flash, used only when the painted VFX sprites are missing.</summary>
-        void FallbackCastFx(ComboHit h, Vector2 tip, bool finisher, ClassPalette pal)
-        {
-            Vector2 v = DirVec[facing];
-            bool big = h.Bolt.ExplodeRadius > 0f;
-            switch (h.Bolt.Style)
-            {
-                case BoltStyle.Arcane: RuneFx.CastFlash(tip, big, pal); break;
-                case BoltStyle.HolyArrow:
-                    RuneFx.CastFlash(tip, big, pal);
-                    UltimateFx.Embers(tip, big ? 12 : 7, 5f, 26f, new Color(0.7f, 1f, 0.45f, 1f));
-                    break;
-                case BoltStyle.Plasma: MechanicFx.Muzzle(tip, DirAngle[facing], big, pal); break;
-                default:
-                    if (h.Bolt.FlashFx != null)
-                        BurstFx.Spawn(cls.FxFolder, h.Bolt.FlashFx, new Vector2(x + v.x * 10f, y + 10f + v.y * 6f), DirAngle[facing], big ? 1.6f : 1f, 0.14f, false, pal.Tint);
-                    break;
-            }
+            ComboProjectile.Fire(new Vector2(x + v.x * 12f, y + 4f + v.y * 12f), v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus, this);
+            if (!NetMode.RendersFx) return;
+            bool painted = VfxSprites.For(h.Bolt.Style) != null;
+            if (painted && castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast
+            HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), CastTip, v, DirAngle[facing], painted);
         }
 
         /// <summary>Called by monsters when a strike connects.</summary>
         public void TakeDamage(int dmg)
         {
-            if (dead || DebugGod || invuln > 0f || dashLeft > 0f) return;
+            if (dead || God || invuln > 0f || dashLeft > 0f) return;
             hp -= dmg;
             invuln = InvulnMs;
             hurt = HurtMs;
             stabLeft = 0f;
             castLeft = 0f; // a landed hit breaks the cast root (the already launched skill keeps playing, like the web)
-            DamageNumber.Spawn(x, y + 26f, dmg.ToString(), new Color(1f, 0.35f, 0.35f), false);
-            CameraFollow.AddTrauma(FeelConfig.TraumaHurt);
+            HeroFx.Hurt(new Vector2(x, y), dmg);
             if (hp <= 0f)
             {
                 hp = 0f;

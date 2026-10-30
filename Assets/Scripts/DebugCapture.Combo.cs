@@ -16,7 +16,7 @@ namespace ZenoniaProto
             session.Spawn(ParseClass(who));
             yield return null;
             HeroController hero = GameSession.Hero;
-            HeroController.DebugGod = true;
+            hero.God = true;
             hero.Teleport(FrostHollowMap.TileFeet(11, 6, 2f), 2);
             if (zoom > 0f) Camera.main.orthographicSize = zoom;
             if (dummies <= 0) dummies = 2;

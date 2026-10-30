@@ -1,0 +1,1 @@
+LiteNetLib v1.2.0 (MIT) vendored from https://github.com/RevenantX/LiteNetLib (tag v1.2.0). Library source only; asmdef is the upstream one.

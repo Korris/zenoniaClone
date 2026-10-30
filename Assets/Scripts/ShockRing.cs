@@ -18,6 +18,7 @@ namespace ZenoniaProto
         /// <summary>additive = false uses normal alpha blending: saturated colour that stays visible on bright snow (additive washes out to white). Ring growing from startFrac*radius to radius over lifeSec; order = sorting order (ground FX use the ground range).</summary>
         public static void Spawn(Vector2 pos, float radius, float lifeSec, Color color, int order, float squash = 0.72f, float startFrac = 0.2f, bool additive = false)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (root == null || !FeelConfig.FxOn) return;
             ShockRing r = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { r = Pool[i]; break; }

@@ -57,9 +57,9 @@ namespace ZenoniaProto
             Id = HeroClass.Warrior, Name = "Warrior", Tagline = "Sword master. Tough, fast combos up close.", ComboLabel = "4-hit sword combo",
             SheetFolder = "hero", BareFolder = "bare", GearFile = "held-gear", FxFolder = null, Palette = ClassPalette.Red,
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
-            ComboAnims = new[] { "attack1", "melee2", "attack1", "attack3" }, // melee1/3/4 follow when their weaponless sheets exist
+            ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // horizontal slash, diagonal cut, spin, jump cleave (Tools/build-melee-sheets.py)
             MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f,
-            Parts = new[] { new GearPartSpec("shield", "shield"), new GearPartSpec("sword", "sword", 1.4f, 0.85f, true) },
+            Parts = new[] { new GearPartSpec("shield", "shield"), new GearPartSpec("sword", "sword", 2.1f, 0.85f, true) },
             SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = 1450f, SkillIcon = 4, DashIcon = 7, // bladeStorm, dashStrike
         };
 

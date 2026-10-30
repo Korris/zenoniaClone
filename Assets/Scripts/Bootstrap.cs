@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace ZenoniaProto
@@ -9,20 +10,26 @@ namespace ZenoniaProto
     public static class Bootstrap
     {
         const string RootName = "ZenoniaProto";
+        const int ServerTickRate = 30;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Start()
         {
             if (GameObject.Find(RootName) != null) return; // already built (e.g. scene reloaded)
 
+            NetMode.Current = NetMode.ParseMode(Environment.GetCommandLineArgs());
+            bool headless = NetMode.IsHeadless;
+
             // Smoothness first: present on every vblank, never throttle, keep running when the Editor loses focus.
-            QualitySettings.vSyncCount = 1;
-            Application.targetFrameRate = Application.isMobilePlatform ? 60 : -1; // phones ignore vSyncCount and default to 30 fps
+            // A dedicated server has no display: it paces itself at the 30 Hz sim tick instead.
+            QualitySettings.vSyncCount = headless ? 0 : 1;
+            Application.targetFrameRate = headless ? ServerTickRate : Application.isMobilePlatform ? 60 : -1; // phones ignore vSyncCount and default to 30 fps
             if (Application.isMobilePlatform) Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Application.runInBackground = true;
 
             // Static state survives play sessions when Domain Reload is disabled in Editor settings.
             Monster.ResetStatics();
+            LocalPlayer.ResetState();
             GameClock.ResetState();
             DamageNumber.ResetState();
             CameraFollow.ResetState();
@@ -39,7 +46,9 @@ namespace ZenoniaProto
             FeelConfig.FxOn = true;
 
             var root = new GameObject(RootName);
+            Zone.CreateMain(root.transform);
             root.AddComponent<GameClock>();
+            if (headless) { StartHeadless(root); return; }
             root.AddComponent<DamageNumber>();
 
             Camera cam = SetupCamera();
@@ -79,6 +88,17 @@ namespace ZenoniaProto
             RpgHud.Create(root.transform);
             TouchControls.Create(root.transform);
             DebugCapture.AttachIfRequested(root, session);
+        }
+
+        /// <summary>
+        /// Dedicated server world: the zone, its monsters and the bolt pool, with no camera, ground sprite, FX, audio, HUD, touch controls or
+        /// class select. Heroes arrive later as headless entities (HeroController.InitHeadless).
+        /// </summary>
+        static void StartHeadless(GameObject root)
+        {
+            ComboProjectile.Init(root.transform);
+            MonsterSpawner.SpawnAll(root.transform);
+            HeadlessBench.AttachIfRequested(root);
         }
 
         static Camera SetupCamera()

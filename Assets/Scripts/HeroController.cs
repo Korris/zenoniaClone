@@ -13,13 +13,18 @@ namespace ZenoniaProto
     /// </summary>
     public partial class HeroController : MonoBehaviour
     {
-        public static HeroController Instance { get; private set; }
-        /// <summary>Party member input (debug capture: several heroes fighting together). Null = the keyboard / touch controls.</summary>
+        /// <summary>The hero this process plays (offline hero, host / client own hero), or null on a dedicated server. Lives in LocalPlayer.</summary>
+        public static HeroController Instance { get { return LocalPlayer.Hero; } }
+        /// <summary>Scripted input: debug party members and network-driven heroes. Null = the keyboard / touch controls.</summary>
         public System.Func<GameKey, bool> AiHeld, AiPressed;
         bool Held(GameKey k) { return AiHeld != null ? AiHeld(k) : InputAdapter.Held(k); }
         bool Pressed(GameKey k) { return AiPressed != null ? AiPressed(k) : InputAdapter.Pressed(k); }
-        /// <summary>Screenshot tooling only (--god): ignore all incoming damage.</summary>
-        public static bool DebugGod;
+        /// <summary>Screenshot tooling only (--god): this hero ignores all incoming damage.</summary>
+        public bool God;
+        /// <summary>Per-zone entity id (assigned when the hero joins a Zone; 0 = not in a zone).</summary>
+        public ushort NetId;
+        /// <summary>RPG progress owner (EXP, pickups, potions, death penalty); null for debug party members.</summary>
+        public PlayerRpg Owner;
 
         const float DashMs = 165f, DashSpeed = 220f, DashCooldownMs = 600f;
         const float HurtMs = 220f, InvulnMs = 500f, RespawnMs = 1400f;
@@ -33,7 +38,7 @@ namespace ZenoniaProto
 
         ComboSystem combo;
         readonly List<ComboEvent> events = new List<ComboEvent>(4);
-        HeroRenderer view;
+        HeroRenderer view;                       // null on a headless server: no sprites, Render is a no-op
         HeroClassDef cls;
         const float StabGapMs = 90f;
         float stabLeft;
@@ -61,23 +66,48 @@ namespace ZenoniaProto
         public bool IsDead { get { return dead; } }
         public string GearLabel { get { return gearLabel; } }
 
-        /// <summary>party = an extra AI-driven hero: it never becomes Instance (monsters, loot and the HUD keep following the player).</summary>
+        /// <summary>party = an extra AI-driven hero: it never becomes the LocalPlayer (the HUD, camera and touch controls keep following the player).</summary>
         public void Init(HeroRenderer renderer, PlayerState state, bool party = false)
         {
-            if (!party) Instance = this;
+            if (!party) LocalPlayer.Set(this);
             view = renderer;
-            cls = renderer.Class;
+            Setup(renderer.Class, state);
+            RefreshGearLabel();
+            Render();
+        }
+
+        /// <summary>Dedicated-server hero: same simulation, no HeroRenderer, no sprites; Render and the gear label are skipped.</summary>
+        public void InitHeadless(HeroClassDef def, PlayerState state)
+        {
+            view = null;
+            Setup(def, state);
+        }
+
+        void Setup(HeroClassDef def, PlayerState state)
+        {
+            cls = def;
             rpg = state ?? PlayerState.NewGame(RpgSession.ClassId(cls.Id));
             combo = new ComboSystem(cls.Hits, cls.ChainMs);
             ResetSkillState();
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
             transform.position = new Vector3(x, y, 0f);
-            RefreshGearLabel();
-            Render();
+            if (Zone.Main != null) Zone.Main.Heroes.Add(this);
         }
 
-        void OnDestroy() { if (Instance == this) Instance = null; }
+        /// <summary>Takes this hero out of play right away (class switch): leaves the zone and drops its RPG owner so nothing can still target or pay it.</summary>
+        public void Retire()
+        {
+            Owner = null;
+            LocalPlayer.Clear(this);
+            if (Zone.Main != null) Zone.Main.Heroes.Remove(this);
+        }
+
+        void OnDestroy()
+        {
+            LocalPlayer.Clear(this);
+            if (Zone.Main != null) Zone.Main.Heroes.Remove(this);
+        }
 
         /// <summary>Debug / screenshot helper: put the hero on a tile (feet) and face a direction.</summary>
         public void Teleport(Vector2 feet, int dir) { x = feet.x; y = feet.y; facing = dir; transform.position = new Vector3(x, y, 0f); }
@@ -178,7 +208,6 @@ namespace ZenoniaProto
         void Respawn()
         {
             dead = false;
-            int lost = rpg.Revive(); // -10% of the current-level EXP, full HP / MP
             ResetSkillState();
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
@@ -187,12 +216,13 @@ namespace ZenoniaProto
             hurt = 0f;
             dashLeft = 0f;
             combo.Reset();
-            RpgSession.NotifyRespawn(lost);
+            // -10% of the current-level EXP, full HP / MP. Last, so the revive event (toast + save) sees the respawn position.
+            if (Owner != null) Owner.Revive(); else rpg.Revive();
         }
 
         void HandleGearKeys()
         {
-            if (AiPressed != null) return; // party members ignore the debug look keys
+            if (view == null || AiPressed != null) return; // headless / scripted heroes ignore the debug look keys
             bool changed = false;
             int tier = view.Tier;
             bool enh = view.Enhanced;
@@ -208,6 +238,7 @@ namespace ZenoniaProto
         /// <summary>HUD gear line: the equipped weapon (+ offhand) names, or the debug look picked with Q / E / R.</summary>
         public void RefreshGearLabel()
         {
+            if (view == null) return;
             if (view.DebugLook)
             {
                 gearLabel = "Debug look: " + view.TierName + (view.Enhanced ? " (enhanced)" : "") + "   [Q/E tier, R enhance]";

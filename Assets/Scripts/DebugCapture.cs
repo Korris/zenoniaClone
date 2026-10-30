@@ -184,7 +184,7 @@ namespace ZenoniaProto
             session.Spawn(ParseClass(who));
             yield return null;
             HeroController hero = GameSession.Hero;
-            HeroController.DebugGod = true;
+            hero.God = true;
             hero.Teleport(FrostHollowMap.TileFeet(11, 6, 2f), 2); // facing west: group ahead, Frostfang King beyond
             dummies = 5;
             SpawnDummies(hero);
@@ -220,7 +220,7 @@ namespace ZenoniaProto
                 else if (botArg == "attack") InputAdapter.BotPressed = k => k == GameKey.Attack;   // hold attack in place (art / FX close-ups)
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east
                 if (zoom > 0f) Camera.main.orthographicSize = zoom;
-                HeroController.DebugGod = god;
+                hero.God = god;
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--nobloom") >= 0) { FeelConfig.BloomOn = false; var b = Camera.main.GetComponent<BloomEffect>(); if (b != null) b.enabled = false; }
                 if (dummies > 0) SpawnDummies(hero);
                 ApplyRpgFlags(hero);

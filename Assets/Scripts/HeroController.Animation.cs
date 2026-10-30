@@ -10,6 +10,7 @@ namespace ZenoniaProto
 
         void Render()
         {
+            if (view == null) return; // headless server hero: nothing to draw
             string anim;
             int frame;
             if (dead)

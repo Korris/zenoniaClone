@@ -75,6 +75,7 @@ namespace ZenoniaProto
         /// <summary>Rock chunks flung up and out, tumbling, falling back under gravity.</summary>
         public static void Debris(Vector2 pos, int count, float spread, float speed)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             for (int i = 0; i < count; i++)
             {
                 Vector2 o = InDisc(spread);
@@ -87,6 +88,7 @@ namespace ZenoniaProto
         /// <summary>Soft puffs that rise a little and fade (grey-blue snow dust).</summary>
         public static void Dust(Vector2 pos, int count, float spread, Color? tint = null)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             for (int i = 0; i < count; i++)
             {
                 Vector2 o = InDisc(spread);
@@ -97,6 +99,7 @@ namespace ZenoniaProto
         /// <summary>Additive glowing motes. rise: initial upward speed; inward = pull towards the centre (charge-up).</summary>
         public static void Embers(Vector2 pos, int count, float spread, float rise, Color c, float inward = 0f)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             for (int i = 0; i < count; i++)
             {
                 Vector2 o = InDisc(spread);
@@ -115,6 +118,7 @@ namespace ZenoniaProto
         /// <summary>Additive ice shards spraying outward and up, falling back.</summary>
         public static void Shards(Vector2 pos, int count, float speed, Color c)
         {
+            if (!NetMode.RendersFx) return; // headless server: no cosmetics
             for (int i = 0; i < count; i++)
             {
                 float a = Random.value * Mathf.PI * 2f, sp = speed * Random.Range(0.4f, 1f);
