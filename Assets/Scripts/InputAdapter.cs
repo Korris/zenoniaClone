@@ -19,7 +19,8 @@ namespace ZenoniaProto
         Inventory,                 // B: inventory / equipment panel
         HpPotion, MpPotion,        // 1 / 2 in game (the same keys pick a class on the select screen)
         Close,                     // Esc: close a panel
-        TouchToggle                // F7: show / hide the on-screen D-pad + buttons
+        TouchToggle,               // F7: show / hide the on-screen D-pad + buttons
+        DebugHudToggle             // F8: show / hide the debug HUD (skill line, FPS, key help)
     }
 
     /// <summary>
@@ -63,6 +64,7 @@ namespace ZenoniaProto
             new[] { KeyCode.Alpha2, KeyCode.Keypad2 },
             new[] { KeyCode.Escape },
             new[] { KeyCode.F7 },
+            new[] { KeyCode.F8 },
         };
 
         static bool KeyHeld(GameKey k)
@@ -110,6 +112,7 @@ namespace ZenoniaProto
             new[] { Key.Digit2, Key.Numpad2 },
             new[] { Key.Escape },
             new[] { Key.F7 },
+            new[] { Key.F8 },
         };
 
         static bool KeyHeld(GameKey k)
@@ -134,6 +137,22 @@ namespace ZenoniaProto
         static bool KeyPressed(GameKey k) { return false; }
 #endif
 
+        // Double-tap a direction = dash. Polled once per frame (first reader wins), from touch + keyboard only (bots / AI drive their own dash).
+        static readonly DoubleTapDetector tapDetector = new DoubleTapDetector();
+        static int tapFrame = -1;
+        static bool tapDash;
+
+        static bool DoubleTapDash()
+        {
+            int frame = Time.frameCount;
+            if (frame == tapFrame) return tapDash;
+            tapFrame = frame;
+            tapDash = tapDetector.Update(PhysicalHeld(GameKey.Up), PhysicalHeld(GameKey.Down), PhysicalHeld(GameKey.Left), PhysicalHeld(GameKey.Right), Time.unscaledTime);
+            return tapDash;
+        }
+
+        static bool PhysicalHeld(GameKey k) { return TouchControls.Held(k) || KeyHeld(k); }
+
         public static bool Held(GameKey k)
         {
             return (BotHeld != null && BotHeld(k)) || TouchControls.Held(k) || KeyHeld(k);
@@ -141,7 +160,7 @@ namespace ZenoniaProto
 
         public static bool Pressed(GameKey k)
         {
-            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k);
+            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || (k == GameKey.Dash && DoubleTapDash());
         }
     }
 }

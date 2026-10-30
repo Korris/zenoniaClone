@@ -5,7 +5,7 @@ namespace ZenoniaProto
     /// <summary>
     /// IMGUI HUD (top-left, below the UGUI RpgHud block with level / HP / MP / EXP / potions): class skill line, FPS readout identical in spirit
     /// to the web one (avg FPS and worst frame, refreshed twice a second), controls, and the Frostfang King boss bar (top centre) while the boss is alive.
-    /// Hidden (except the boss bar) while the inventory window is open.
+    /// Everything but the boss bar is hidden by default (F8 shows it) and while the inventory window is open.
     /// Strings are rebuilt only when their value changes, so the HUD itself does not generate per-frame garbage.
     /// </summary>
     public class Hud : MonoBehaviour
@@ -21,8 +21,22 @@ namespace ZenoniaProto
         int lastBossHp = -1;
         GUIStyle label, small, center;
 
+        const string DebugPrefKey = "zenonia.debugHud";
+        /// <summary>Debug HUD (skill line, FPS, key help) is hidden by default; F8 toggles it, remembered in PlayerPrefs.</summary>
+        bool debugHud = ReadDebugPref();
+
+        static bool ReadDebugPref()
+        {
+            try { return PlayerPrefs.GetInt(DebugPrefKey, 0) == 1; } catch (System.Exception) { return false; }
+        }
+
         void Update()
         {
+            if (InputAdapter.Pressed(GameKey.DebugHudToggle))
+            {
+                debugHud = !debugHud;
+                try { PlayerPrefs.SetInt(DebugPrefKey, debugHud ? 1 : 0); } catch (System.Exception) { /* prefs are a convenience */ }
+            }
             float dt = Time.unscaledDeltaTime; // real frame time (hit-stop does not hide hitches)
             frames++;
             windowTime += dt;
@@ -56,7 +70,7 @@ namespace ZenoniaProto
             small.fontSize = Mathf.RoundToInt(12f * s);
             center.fontSize = Mathf.RoundToInt(14f * s);
 
-            if (InventoryPanel.IsOpen || CaptureClean) { DrawBossBar(s); GUI.color = Color.white; return; }
+            if (InventoryPanel.IsOpen || CaptureClean || !debugHud) { DrawBossBar(s); GUI.color = Color.white; return; }
 
             // Signature skill (L) with cooldown, under the UGUI level / HP / MP / EXP block
             float x = 12f * s, w = 236f * s, h = 20f * s;
