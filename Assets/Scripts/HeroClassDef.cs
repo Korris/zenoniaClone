@@ -93,8 +93,9 @@ namespace ZenoniaProto
             SheetFolder = "assassin", BareFolder = "assassin-bare", GearFile = "held-assassin", FxFolder = null, Palette = ClassPalette.Violet,
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked art
             MirrorLeft = new HashSet<string>(),
+            ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // right slash, left slash, X cross-slash, dash double stab (Tools/build-melee-sheets.py assassin N)
             MaxHp = 88f, MaxMp = 50f, Atk = 13f, Def = 3f, Speed = 92f, CritBonus = 0.06f, Hits = ComboConfigs.AssassinHits, ChainMs = 380f,
-            Parts = new[] { new GearPartSpec("off", "assassin-dagger", 1f, 0f, true), new GearPartSpec("main", "assassin-dagger", 1f, 0f, true) },
+            Parts = new[] { new GearPartSpec("off", "assassin-dagger", 1.3f, 0f, true), new GearPartSpec("main", "assassin-dagger", 1.3f, 0f, true) }, // 1.3 = daggers ~40% of body height (keep Tools/build-melee-sheets.py draw_scale in sync)
             SkillName = "Shadow Step", SkillMp = 9f, SkillCooldownMs = 3900f, SkillLockMs = 260f, SkillIcon = 0, DashIcon = 10, // shadowStep, evasion
         };
 
