@@ -1,35 +1,31 @@
-# Session handoff — 2026-10-29
+# Session handoff — 2026-10-30 (evening)
 
+The user (Tay Gân) continues on ANOTHER machine. Read this file first, then the plans named below. Branch `unity` on github.com/Korris/zenoniaClone.
+Reply in Vietnamese. Never build/edit through the user's open Unity Editor project: build from a copy (Tools/build-from-copy.ps1 / a HEAD export into a scratch copy).
+ChatGPT accounts: art/skills on "Tan Pham" (also "Tay" is the user's); never "xaochai" or "Tieu Duy Phuong".
 
-The user said they will continue "tối nay" (tonight, 2026-10-29). On resume, read this file first, then C:\Project\zenoniaUnity\docs\session-handoff.md and the plans in C:\Project\zenoniaUnity\plans\.
+## Done (all committed + pushed, last commit 5ce520c "skills wired into the hero and the netcode")
+- Oakhaven village map (offline only), portal to/from Frost Hollow, 10 villagers, Elder Thomas Frost Slime quest; quest offer / NPC dialogue / chat / toast windows (ChatGPT gold sprites); gold mobile HUD, floating joystick, 3-slot swipe skill magazine.
+- Class combat SFX for all 5 classes (ClassSfx); 45 ElevenLabs skill SFX.
+- Skill trees (plans/261030-1521-skill-trees-implementation/): 40 skills (8/class, Lv cap 60, SP, ranks, respec 50 G x level), monster statuses (bosses: freeze/stun -> slow), data-driven skill executor, skill tree window (T), 38 skill VFX sheets sliced + 40 icons, phase 04 = TryCastSkill offline + online (protocol v3: skill index in input frames, SkillCast event, replicated cooldowns + monster status, online learn/assign/respec). Tests: ZenoniaNet 70, ZenoniaSkills 82 pass.
+- Online phase 2 (plans/261030-1150-online-mmo-world/): prediction + reconciliation, delta snapshots, lag harness, 200-bot load test (tick 4.85 ms).
+- Second weapon (hybrid design, plans/261030-1630-second-weapon-enhance/): phase 01 stat core done.
+- Wizard VFX choreography layer (Assets/Scripts/SkillChoreo/*, spec plans/261030-1521-skill-trees-implementation/vfx-choreography-wizard.md, video .../visuals/wizard-choreo-vs-earthbreak.mp4). NOT hooked in yet.
 
-**State at stop (Unity, C:\Project\zenoniaUnity, branch `unity`, pushed to github.com/Korris/zenoniaClone):**
-- Classes: all 5 playable. Class select on keys 1-5; F1-F5 switch class.
-- Map: Frost Hollow, with wandering monsters and the Frostfang King boss.
-- Game feel: hit-stop, shake, sword trail, bloom (F6 toggles it), F toggles all effects.
-- Ultimates on L: warrior Earth Break, wizard Ice Storm. Class skills on L: assassin Shadow Step, cleric Heal. Recording flags: `--record-ultimate`, `--record-combo`.
-- Ranged basic attacks (cleric, wizard, mechanic) use painted VFX sprite sheets (Assets/ArtLibrary/vfx). Mechanic C toggles orange/blue.
-- Colours: warrior red, wizard violet, mechanic orange (C for blue), assassin purple X-slashes, cleric green-gold.
-- Monster hit flash is capped at 50%.
-- Assets/ArtLibrary holds all the web art (806 files).
-- RPG systems: phases 1-6 are written (2026-10-29 cloud session) but have NOT been run in Unity yet; they were only compile-checked.
-  - The hero's HP/MP/ATK/DEF/speed/crit now come from PlayerState (level + equipment). `RpgSession` loads or creates a per-class save, autosaves every 30 s and also saves on respawn, level-up, boss kill, class switch and quit. Kills grant EXP and drop loot on the ground (`LootDrop`), picked up by touch. Death costs 10% of EXP.
-  - Keys: B/I opens the inventory (game paused), 1/2 are HP/MP potions, F6 toggles bloom (moved off B), Esc closes the panel. Q/E/R are now only a debug look override.
-  - UI: the UGUI `RpgHud` shows level, HP/MP/EXP bars, gold, potions and stones, plus a level-up banner and toasts. `InventoryPanel` (+ .Loadout / .Bag partials, BagWidgets, BagSprites) is a port of the web bag: painted bag frame (Resources/Sprites/ui/bag-frame), Equipment / Inventory / Skill tabs (Skill = not ported yet), Equipment = worn slots around the hero portrait + Status table + Unequip / Enhance, Inventory = 3x4 paged grid (gold, potions, stones, then the bag) + item detail with Equip / Use, Enhance, Sort, Discard. Pinned to the right edge in web 960x640 coordinates; not yet seen in the editor. The IMGUI `Hud` keeps the skill line, FPS and help.
-  - The held weapon, offhand and companion art follow the equipped items (tier from item level, enhanced art from +7, brighter glow at +9/+11/+13).
-  - Next time in Unity: run FrostSmokeTest (it gained CheckRpg), then play-test and tweak the UI layout. Phase 7 (test assembly, build, screenshots) is still open. Details are in plans/261029-1720-unity-rpg-systems/plan.md.
-  - Touch controls (TouchControls + UiSprites, web HUD style): D-pad bottom-left, attack disc + Dash [K] / skill [L] (cooldown sweep, MP) / Bag [B] arc bottom-right, potion buttons; F7 hides them. Skill icons sliced from the painted rosters by Tools/build-skill-icons.py into Resources/Sprites/skill-icons.
-  - Music (2026-10-30): GameMusic (2 AudioSources, crossfade, unscaled) plays Resources/Audio/music/frost-hollow.mp3 (45 s loop, user-made in ElevenLabs) from Bootstrap; oakhaven-village.mp3 is ready for the village map. Editor/AudioImportSettings: music = Vorbis Streaming, sfx = DecompressOnLoad mono.
-  - Sound (2026-10-30): GameSfx (Bootstrap-inited AudioSource pool, clips from Resources/Audio/sfx). Warrior combo: slash1-4.mp3 per step (ElevenLabs, user picked 1d 2d 3a 4b), shout4-a on the finisher, hit-a/b or crit-a/b when a swing lands. Unused variants moved out of the project.
-  - Melee anim pipeline (2026-10-30): Tools/build-melee-sheets.py -> Sprites/<folder>/meleeN.png + Data/<gear>-melee.json; warrior combo step 2 = melee2 (weaponless body + equipped sword at measured anchors). SlashEffect = painted warrior-slash-vfx. See plans/261029-1720-chatgpt-pending-art/plan.md.
-  - Android: menu Zenonia > Build Android APK (or -executeMethod ZenoniaProto.EditorTools.PlayerBuildScript.BuildAndroid -buildOut X.apk); landscape, IL2CPP ARM64, debug-signed; needs the Android Build Support module. 60 fps target on phones.
-  - Decisions: random-class drops stay (the user chose this for trading). Pickup is auto on touch.
+## Next, in order
+1. Apply the choreography hook, build from a copy, play-test:
+   - Skills/SkillExecutor.Cast(ISkillBody ...): after `SkillRun.Begin(ctx);` add `SkillChoreoCastHook.Play(ctx);`
+   - Skills/SkillVfx.Play: after `if (!ctx.View) return;` add `if (SkillChoreo.Has(ctx.Def.Class, ctx.Def.Id)) return;`
+   - SkillVfx.Loop: first line also returns null when `SkillChoreo.Has(...)`
+   - Skills/SkillBolt.StartArt: return when `SkillChoreo.Has(...)` (else the tinted dot fallback draws)
+   - Mana Shield: keep the player from SkillChoreoCastHook.Play; End(true) on break, End(false) on expire.
+   - Note: the sim bolt's own hit-stop/trauma stack with the choreography; consider syncing bolt speed to the script (~33 tiles/s).
+2. Show the user the wizard video. If approved, ask ChatGPT (Tan Pham, skill chat https://chatgpt.com/c/6ae450c1-7638-83ec-a5ea-717aa58678ea) for the same spec for warrior / assassin / cleric / mechanic. Rule: self-buff VFX (Mana Shield, Heal, Sanctuary, Spirit Blessing, Guardian Spirit, Berserker) must be translucent and never hide the hero (user complaint). Implement as SkillChoreoDefs<Class>.cs, record videos (`--record-choreo`).
+3. Skill phases 07-12 (per-class polish, balance, APK). Open items: dash/leap/blink rubber-band online (OwnerSim MoveLeft not built); key I is now skill slot 2 (bag = B); `--dev-level N` server hook must never be set on a public server; HeroController.cs is 265 lines (split it).
+4. Second-weapon phases 02-07 (decisions in that plan.md: mechanic drone auto-attack from Lv1, 20% ATK / 2 s; floating wizard spellbook, 8 frames via ChatGPT; server-api OFFHAND_SCALE still 0.5 -> phase 06).
+5. Online: multi-zone (village has no zone server yet: zone id per map + transfer), ApiClient wiring to the connect screen, Android IL2CPP check of the new netcode, then a new APK.
 
-**Next steps:**
-1. ChatGPT art. The quota resets 2026-10-30 at 11:42, so tonight it may still be blocked. The list is in C:\Project\zenoniaUnity\plans\261029-1720-chatgpt-pending-art\plan.md: assassin attack2/3 solid-blade fix, and weaponless sheets for warrior attack1/3/4 and assassin attack1-4.
-2. Integrate the new warrior and assassin melee attack animations (art in Assets/ArtLibrary/anim). The pipeline is the weaponless body, then the EQUIPPED weapon overlay at per-frame anchors measured from the armed sheets, then the slash VFX (vfx/warrior, vfx/assassin) on the swing frame, oriented along the swing. Make the assassin daggers bigger. Record combo videos.
-3. Verify the RPG port in Unity (smoke test + play) and finish phase 7. Then: other maps (Oakhaven and the rest), NPCs and quests, the skill trees (15 skills per class), the rest of the ultimates, a real UI, a URP switch, and a WebGL build test.
-
-The web repo (C:\Project\zenoniaClone, branch `web`) is a read-only reference. Never commit or push without the user asking (they have asked each time so far).
-
-Related: [[unity-is-main-workspace]], [[unity-prototype-preferred-visuals]], [[chatgpt-art-via-chrome]], [[weapon-art-match-hero-sprites]], [[five-class-art-overhaul]], [[work-autonomously-no-questions]].
+## Machine notes
+- Unity 6000.3.9f1 (+ Android Build Support), dotnet SDK (net10 tests), node (server-api), Python with PIL/numpy/cv2, ImageMagick, ffmpeg are needed on the new machine.
+- Scratch build copies (zu-copy*) and raw art/SFX variants lived in the old machine's temp folder and are NOT in git; recreate a copy with robocopy (exclude Library/Temp/Logs/Build/UserSettings).
+- Build outputs (Build/) are gitignored.
