@@ -103,10 +103,9 @@ namespace ZenoniaProto
 
         void OnDestroy()
         {
-            if (hero == null) return;
-            if (posing) hero.ClearSkillPose();
             ShadowCloneFx fx;
-            if (Latest.TryGetValue(hero, out fx) && fx == this) Latest.Remove(hero);
+            if ((object)hero != null && Latest.TryGetValue(hero, out fx) && fx == this) Latest.Remove(hero); // a despawned hero's key still hashes, like SkillCaps.Prune: its entry goes too
+            if (hero != null && posing) hero.ClearSkillPose();
         }
 
         /// <summary>SkillMinion: one strike. `foe` is the enemy in its reach by this side's view, null when it swings at nothing (then no swing is drawn).</summary>
@@ -129,6 +128,7 @@ namespace ZenoniaProto
             dissolving = true;
             dissolveAge = 0f;
             minion = null;
+            lastPos = clonePos; // it stops here: the last step must not keep it walking in place while it fades
             UltimateFx.Dust(clonePos, 6, 10f, new Color(0.3f, 0.14f, 0.46f));
             UltimateFx.Embers(clonePos + new Vector2(0f, 8f), 10, 8f, 34f, new Color(Violet.r, Violet.g, Violet.b, 1f));
         }
@@ -152,7 +152,7 @@ namespace ZenoniaProto
                     if ((clonePos - hero.Position).sqrMagnitude > FarUnits * FarUnits) { Destroy(gameObject); return; } // left behind on another map: nothing to dissolve there
                     Finish();
                 }
-                else
+                else if (dt > 0f) // a hit-stop or an open menu holds the walking frame instead of flashing idle
                 {
                     lastPos = clonePos;
                     clonePos = minion.Pos;

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// What Shadow Strike, Shadow Step and Phantom Rush share: dispatch, preload, frame strips, and a painted layer that points along the aim.
+    /// The dispatch and preload of the assassin's hand-made skill pictures, and what Shadow Strike, Shadow Step and Phantom Rush share: frame strips and a painted layer that points along the aim.
     /// The art is painted aiming right in the game's tilted view: left mirrors it, up and down turn it a quarter and press it flat by the view tilt so the picture stays on the ground plane.
     /// </summary>
     public static class AssassinSkillArt
@@ -27,13 +27,17 @@ namespace ZenoniaProto
             hero.ClearSkillPose();
         }
 
-        public static bool Handles(string id) { return id == ShadowStrikeFx.SkillId || id == ShadowStepFx.SkillId || id == PhantomRushFx.SkillId; }
+        public static bool Handles(string id) { return id == ShadowStrikeFx.SkillId || id == ShadowStepFx.SkillId || id == PhantomRushFx.SkillId || id == BladeDanceFx.SkillId || id == VenomDaggersFx.SkillId || id == ShadowCloneFx.SkillId || id == DeathMarkFx.SkillId; }
 
         public static void Cast(SkillContext ctx)
         {
             if (ctx.Def.Id == ShadowStrikeFx.SkillId) ShadowStrikeFx.Cast(ctx);
             else if (ctx.Def.Id == ShadowStepFx.SkillId) ShadowStepFx.Cast(ctx);
             else if (ctx.Def.Id == PhantomRushFx.SkillId) PhantomRushFx.Cast(ctx);
+            else if (ctx.Def.Id == BladeDanceFx.SkillId) BladeDanceFx.Cast(ctx);
+            else if (ctx.Def.Id == VenomDaggersFx.SkillId) VenomDaggersFx.Cast(ctx);
+            else if (ctx.Def.Id == ShadowCloneFx.SkillId) ShadowCloneFx.Cast(ctx);
+            else if (ctx.Def.Id == DeathMarkFx.SkillId) DeathMarkFx.Cast(ctx);
         }
 
         /// <summary>Loads and slices the painted frames ahead of the first cast (hero spawn) so the cast itself never hitches.</summary>
@@ -43,6 +47,7 @@ namespace ZenoniaProto
             ShadowStrikeFx.Preload();
             ShadowStepFx.Preload();
             PhantomRushFx.Preload();
+            AssassinBoardFx.Preload();
         }
 
         /// <summary>Six frames of one stage; the pivot is given in painted pixels from the frame's top left.</summary>

@@ -33,8 +33,8 @@ namespace ZenoniaProto
             SkillCaps.Add(ctx.Body.Hero, SkillCaps.MaxMinions, m);
             if (!ctx.View) return;
             SkillVfx.Play(ctx, SkillVfxSet.Cast, m.pos, 0f, 2.6f * ctx.Units);
+            if (ctx.Def.Id == ShadowCloneFx.SkillId) { m.clone = ShadowCloneFx.Bind(ctx, m); return; } // the hand-made picture draws the clone; SkillRun already played its cast sound at the start of the cast
             SkillSfx.Play(ctx, SkillSfx.Cast);
-            if (ctx.Def.Id == ShadowCloneFx.SkillId) { m.clone = ShadowCloneFx.Bind(ctx, m); return; } // the hand-made picture draws the clone
             m.body = SkillVfx.Loop(ctx, m.pos, 0f, 1.6f * ctx.Units, e.DurationMs / 1000f);
             if (m.body != null) return;
             m.dot = ProceduralSprites.Child(m.transform, "Body", FxSprites.Dot());
@@ -71,10 +71,11 @@ namespace ZenoniaProto
         void Strike()
         {
             SkillEffect e = SkillEffects.Derive(fx, pulse ? AreaShape.Circle : AreaShape.Single, fx.Radius);
+            Monster foe = ctx.View && clone != null ? SkillAim.NearestMonster(pos, fx.Radius * ctx.Units) : null; // before the damage: a foe this hit kills is already dying and would not be found, and its killing blow would show no swing
             bool hit = false;
             if (ctx.Authority) hit = SkillDamage.Area(ctx.Dmg, e, pos, ctx.Dir).Count > 0;
             if (!ctx.View) return;
-            if (clone != null) clone.OnStrike(SkillAim.NearestMonster(pos, fx.Radius * ctx.Units));
+            if (clone != null) clone.OnStrike(foe);
             float w = pulse ? 2f * fx.Radius * ctx.Units : 2f * ctx.Units;
             if (pulse || hit) SkillVfx.Play(ctx, SkillVfxSet.Impact, pos, 0f, w);
             if (pulse || hit) SkillSfx.Play(ctx, SkillSfx.Impact, 0.5f);

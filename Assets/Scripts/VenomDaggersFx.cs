@@ -81,8 +81,8 @@ namespace ZenoniaProto
         void OnDestroy()
         {
             foreach (Victim v in victims) DropSkull(v);
-            if (hero == null) return;
-            if (posing) hero.ClearSkillPose();
+            if ((object)hero == null) return; // a destroyed hero compares == null but is still a dictionary key: its entry must go too
+            if (posing && hero != null) hero.ClearSkillPose();
             VenomDaggersFx fx;
             if (Posing.TryGetValue(hero, out fx) && fx == this) Posing.Remove(hero);
         }
@@ -90,7 +90,7 @@ namespace ZenoniaProto
         void DropSkull(Victim v)
         {
             VenomDaggersFx o;
-            if (v.M != null && SkullOwner.TryGetValue(v.M, out o) && o == this) SkullOwner.Remove(v.M);
+            if ((object)v.M != null && SkullOwner.TryGetValue(v.M, out o) && o == this) SkullOwner.Remove(v.M); // also for a monster destroyed without dying (despawn, map change)
         }
 
         void Update()
@@ -202,7 +202,9 @@ namespace ZenoniaProto
                 v.Burst.sprite = burstArt[AssassinBoardFx.ByProgress(f)];
                 if (burstGlow != null) burstGlow.sprite = v.Burst.sprite;
                 v.Burst.transform.position = v.At;
-                v.Burst.color = new Color(1f, 1f, 1f, Mathf.Min(1f, (1f - f) * 4f));
+                float burstA = Mathf.Min(1f, (1f - f) * 4f);
+                v.Burst.color = new Color(1f, 1f, 1f, burstA);
+                if (burstGlow != null) burstGlow.color = new Color(Green.r, Green.g, Green.b, 0.4f * burstA);
             }
             if (v.Gone) return;
             bool dead = v.M == null || v.M.IsDying;
@@ -225,7 +227,7 @@ namespace ZenoniaProto
             v.Skull.transform.position = v.M.Feet + new Vector2(0f, v.M.OverheadUnits + SkullGap + Mathf.Sin(since * 0.005f) * 0.8f);
             v.Skull.color = new Color(1f, 1f, 1f, a);
             v.SkullGlow.color = new Color(0.6f, 0.3f, 1f, 0.35f * a);
-            int order = GameConfig.OrderBase(v.M.Feet.y) + 8;
+            int order = GameConfig.OrderBase(v.M.Feet.y) + 5; // under the HP bar (+6, +7): the skull's tail hangs over it for the whole poison
             v.Skull.sortingOrder = order; v.SkullGlow.sortingOrder = order;
         }
 

@@ -66,9 +66,8 @@ namespace ZenoniaProto
 
         void OnDestroy()
         {
-            if (hero == null) return;
-            if (posing) hero.ClearSkillPose();
-            BladeDanceFx fx;
+            if (posing && hero != null) hero.ClearSkillPose();
+            BladeDanceFx fx; // a despawned proxy's entry goes too: `hero` only reads as null, the key still matches
             if (Live.TryGetValue(hero, out fx) && fx == this) Live.Remove(hero);
         }
 

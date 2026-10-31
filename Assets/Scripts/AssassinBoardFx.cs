@@ -83,6 +83,9 @@ namespace ZenoniaProto
         public static void Preload()
         {
             BladeDanceFx.Preload();
+            VenomDaggersFx.Preload();
+            ShadowCloneFx.Preload();
+            DeathMarkFx.Preload();
         }
     }
 }

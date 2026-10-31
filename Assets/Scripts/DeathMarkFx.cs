@@ -17,9 +17,12 @@ namespace ZenoniaProto
         public const float LandMs = 300f; // keep equal to the strike's AtMs in SkillTable.Assassin
         const string Folder = "Sprites/fx/deathmark/", RaiseAnim = "attack3", PointAnim = "melee4";
         const float RaiseToMs = 170f, PoseToMs = 350f, BeamFadeMs = 120f, StarFrameMs = 120f, RingFrameMs = 130f, SeenGraceMs = 900f, ShatterLenMs = 420f, FadeLenMs = 260f, ExpiryMarginMs = 300f, EndMarginMs = 800f;
-        const float BeamUnitsPerPx = 0.04f, BeamFullPx = 1010f, BeamPivotX = 60f / 1086f, StarUnitsPerPx = 0.04f, RingUnitsPerPx = 0.065f, RingPivotY = 112f / 512f, ShatterUnitsPerPx = 0.11f, SparkScale = 0.42f, StarGap = 11f, TipRaise = 22f, TipOut = 10f, HandHeight = 9f, HandOut = 14f, RebindRadius = 40f;
+        const float BeamUnitsPerPx = 0.04f, BeamFullPx = 1010f, BeamPivotX = 60f / 1086f, StarUnitsPerPx = 0.04f, RingUnitsPerPx = 0.065f, RingPivotY = 112f / 512f, ShatterUnitsPerPx = 0.11f, SparkScale = 0.42f, StarGap = 11f, RebindRadius = 40f;
         const int RaiseFrame = 1, PointFrame = 3;
         static readonly Color Violet = new Color(0.72f, 0.3f, 1f);
+        // Measured on the assassin's sheets, from the feet, by the row the pose draws (0 down, 1 up, 2 left, 3 right): the raised dagger's tip on RaiseFrame, the pointing blades' tips on PointFrame (they point sideways on rows 0 and 1 too).
+        static readonly Vector2[] TipByFacing = { new Vector2(0.9f, 21.1f), new Vector2(-2.9f, 19f), new Vector2(-3.1f, 18.1f), new Vector2(4.6f, 17.1f) };
+        static readonly Vector2[] HandByFacing = { new Vector2(10.1f, 4.3f), new Vector2(10.5f, 8.6f), new Vector2(-11.6f, 5.6f), new Vector2(11.5f, 5.6f) };
         static readonly Dictionary<Monster, DeathMarkFx> Live = new Dictionary<Monster, DeathMarkFx>();
         static readonly Dictionary<HeroController, DeathMarkFx> Posing = new Dictionary<HeroController, DeathMarkFx>();
         static Sprite[] beamArt, starArt, ringArt, shatterArt;
@@ -87,16 +90,15 @@ namespace ZenoniaProto
         void OnDestroy()
         {
             ReleaseTarget();
-            if (hero == null) return;
-            if (posing) hero.ClearSkillPose();
+            if (hero != null && posing) hero.ClearSkillPose();
             DeathMarkFx fx;
-            if (Posing.TryGetValue(hero, out fx) && fx == this) Posing.Remove(hero);
+            if ((object)hero != null && Posing.TryGetValue(hero, out fx) && fx == this) Posing.Remove(hero); // a destroyed hero is still a key: Unity's == says null, the dictionary finds it
         }
 
         void ReleaseTarget()
         {
             DeathMarkFx fx;
-            if (target != null && Live.TryGetValue(target, out fx) && fx == this) Live.Remove(target);
+            if ((object)target != null && Live.TryGetValue(target, out fx) && fx == this) Live.Remove(target); // also a target Unity already destroyed
         }
 
         void Update()
@@ -135,7 +137,8 @@ namespace ZenoniaProto
 
         void Hold()
         {
-            if (target == null || target.IsDying) { ToShatter(); return; }
+            if (target == null) { Destroy(gameObject); return; } // gone without dying (a client's map transfer clears its monsters, the local hero stays): no burst or camera kick on the new map
+            if (target.IsDying) { ToShatter(); return; }
             bool marked = target.Status.Has(StatusKind.Mark);
             if (marked) { seen = true; }
             else if (!seen)
@@ -204,16 +207,17 @@ namespace ZenoniaProto
             s.transform.position = at;
             s.transform.localScale = scale;
             s.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-            s.sortingOrder = g.sortingOrder = order;
+            s.sortingOrder = order;
+            g.sortingOrder = order + 1;
         }
 
         void ApplyAim()
         {
             Vector2 feet = hero.Position;
-            Vector2 hand = feet + new Vector2(0f, HandHeight) + dir * HandOut;
+            Vector2 hand = feet + HandByFacing[facing];
             if (age < RaiseToMs && starArt != null)
             {
-                Vector2 tip = feet + new Vector2(dir.x >= 0f ? TipOut : -TipOut, TipRaise);
+                Vector2 tip = feet + TipByFacing[facing];
                 float grow = Mathf.Clamp01(age / RaiseToMs);
                 Draw(star, starGlow, starArt[AssassinBoardFx.ByProgress(age / RaiseToMs)], tip, Mathf.Clamp01(age / 50f), 0.5f, Vector3.one * SparkScale * (0.5f + 0.5f * grow), 0f, FeelConfig.FxOrder - 3);
             }
@@ -238,7 +242,7 @@ namespace ZenoniaProto
                 float pulse = 1f + 0.05f * Mathf.Sin(stageAge * 0.009f);
                 int order = GameConfig.OrderBase(lastFeet.y);
                 // The star keeps reading from the side of a crowd: above every y-sorted body.
-                Draw(star, starGlow, starArt != null ? starArt[Mathf.FloorToInt(stageAge / StarFrameMs) % AssassinBoardFx.Frames] : null, top, a, 0.45f, Vector3.one * pulse, 0f, order + 8);
+                Draw(star, starGlow, starArt != null ? starArt[Mathf.FloorToInt(stageAge / StarFrameMs) % AssassinBoardFx.Frames] : null, top, a, 0.45f, Vector3.one * pulse, 0f, FeelConfig.FxOrder - 3);
                 Draw(ring, ringGlow, ringArt != null ? ringArt[Mathf.FloorToInt(stageAge / RingFrameMs) % AssassinBoardFx.Frames] : null, lastFeet, a * 0.95f, 0.4f, Vector3.one, 0f, order - 2);
                 shatter.enabled = shatterGlow.enabled = false;
                 return;
