@@ -15,7 +15,7 @@ namespace ZenoniaProto
         const float GatherUnitsPerPx = 0.16f, RushUnitsPerPx = 0.15f, BurstUnitsPerPx = 0.17f, BurstBehind = 26f, BodyLift = 8f, GroundLift = 1f;
         const string CrouchAnim = "nightfall", RushAnim = "melee4";
         const int CrouchFrame = 0, ReadyFrame = 1, LungeFrame = 2, ThrustFrame = 3, RecoverFrame = 4, Dashes = 3;
-        const string Folder = "Sprites/fx/phantomrush/";
+        const string Folder = "Sprites/classes/assassin/fx/phantomrush/";
         static readonly Color Violet = new Color(0.72f, 0.3f, 1f), Dark = new Color(0.3f, 0.08f, 0.5f);
 
         static Sprite[] gatherArt, rushArt, burstArt;

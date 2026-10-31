@@ -17,7 +17,7 @@ namespace ZenoniaProto
         const float BurstUnitsPerPx = 0.068f, LoopUnitsPerPx = 0.045f, EmbersUnitsPerPx = 0.055f, AnchorX = 256f, AnchorY = 428f;
         const int Frames = 6, FistsFrame = 0, RoarFrame = 1, SettleFrame = 2;
         static readonly int[] LoopOrder = { 5, 0, 1, 2, 1, 0 }; // back and forth over the even-height frames: painted frames 3 and 4 are much taller, so the fire jumped
-        const string Folder = "Sprites/fx/berserker/";
+        const string Folder = "Sprites/classes/warrior/fx/berserker/";
         static readonly Color Hot = new Color(1f, 0.42f, 0.12f);
         static readonly Dictionary<HeroController, BerserkerAwakeningFx> Live = new Dictionary<HeroController, BerserkerAwakeningFx>();
 

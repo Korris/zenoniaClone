@@ -49,7 +49,9 @@ const out = { sword: overlays(WARRIOR_SWORD_OVERLAYS), shield: overlays(WARRIOR_
 const dataDir = path.join(import.meta.dirname, '..', 'Assets', 'Resources', 'Data');
 mkdirSync(dataDir, { recursive: true });
 const write = (file, obj, summary) => {
-  writeFileSync(path.join(dataDir, file), JSON.stringify(obj));
+  const cls = { 'held-gear.json': 'warrior', 'held-wizard.json': 'wizard', 'held-mechanic.json': 'mechanic', 'held-assassin.json': 'assassin', 'held-cleric.json': 'cleric' }[file];
+  mkdirSync(path.join(dataDir, 'classes', cls), { recursive: true });
+  writeFileSync(path.join(dataDir, 'classes', cls, file), JSON.stringify(obj));
   console.log('wrote', file, summary);
 };
 write('held-gear.json', out, `sword ${out.sword.length} shield ${out.shield.length} anchors ${anchors.length}`);

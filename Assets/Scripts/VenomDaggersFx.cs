@@ -14,7 +14,7 @@ namespace ZenoniaProto
     {
         public const string SkillId = "assassin.venom-daggers";
         public const float LandMs = 330f; // keep equal to the strike's AtMs in SkillTable.Assassin
-        const string Folder = "Sprites/fx/venomdaggers/", WindAnim = "melee3", ThrowAnim = "melee4";
+        const string Folder = "Sprites/classes/assassin/fx/venomdaggers/", WindAnim = "melee3", ThrowAnim = "melee4";
         const float WindToMs = 170f, StabToMs = 230f, PoseToMs = 350f, CastToMs = 230f, DaggerFadeMs = 70f, StaggerMs = 14f, BurstLenMs = 380f, SkullDelayMs = 170f, SkullFrameMs = 130f, SkullFadeMs = 220f, SeenGraceMs = 900f, EndMarginMs = 400f;
         const float CastUnitsPerPx = 0.075f, DaggerUnitsPerPx = 0.042f, BurstUnitsPerPx = 0.085f, SkullUnitsPerPx = 0.04f, SkullGap = 7f, CastLift = 0f, HandHeight = 8f, HandOut = 6f;
         const int Daggers = 7, MaxTargets = 8, WindFrame = 1, StabFrame = 2, ThrowFrame = 3;

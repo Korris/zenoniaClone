@@ -13,7 +13,7 @@ namespace ZenoniaProto
     public class EarthBreakUltimate : MonoBehaviour
     {
         public const float Radius = Rpg.LegacySkillNumbers.EarthBreakRadius, Mult = Rpg.LegacySkillNumbers.EarthBreakMult, Range = Rpg.LegacySkillNumbers.EarthBreakRange, TotalMs = 2500f, SlamMs = 1450f;
-        const string Folder = "fx/earthbreak";
+        const string Folder = "classes/warrior/fx/earthbreak";
         const float Scale = 0.245f * 1.1f; // world units per source px (web: size 62.4 / 256 at the radius 54 slam, slightly bigger for impact)
         static readonly float[] BurnAt = { 1700f, 1950f, 2200f, 2450f };
         static readonly Vector2[] DirVec = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };

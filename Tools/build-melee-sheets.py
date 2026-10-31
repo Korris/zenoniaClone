@@ -1,7 +1,7 @@
 """
 Builds a melee attack animation for the Unity hero from a pair of ChatGPT sheets (6 frames x 3 rows: down, up, right):
-  Assets/ArtLibrary/anim/<class>/attack<N>-armed.png       (weapon drawn solid, only used to MEASURE the weapon)
-  Assets/ArtLibrary/anim/<class>/attack<N>-weaponless.png  (the body the game draws)
+  Assets/ArtLibrary/classes/<class>/anim/attack<N>-armed.png       (weapon drawn solid, only used to MEASURE the weapon)
+  Assets/ArtLibrary/classes/<class>/anim/attack<N>-weaponless.png  (the body the game draws)
 Outputs, in the game's 192px frame format (6 columns x 4 rows: down, up, left = mirrored right, right):
   Resources/Sprites/<armedFolder>/melee<N>.png   baked armed frames (renderer fallback when an anchor is missing)
   Resources/Sprites/<bareFolder>/melee<N>.png    weaponless body frames
@@ -25,7 +25,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ART = os.path.join(ROOT, "Assets", "ArtLibrary", "anim")
+ART = os.path.join(ROOT, "Assets", "ArtLibrary", "classes")
 RES = os.path.join(ROOT, "Assets", "Resources")
 FRAME = 192
 COLS, ROWS = 6, 3
@@ -34,7 +34,7 @@ DIRS = ["down", "up", "right"]  # sheet rows; "left" is the mirrored right row
 # Per class: sprite folders, the anchor file, the weapon part + its tier-0 art (grip-to-tip length), parts hidden during the anim,
 # and the reference body (bare idle, facing down) whose height and feet the new frames are scaled to.
 CLASSES = {
-    "warrior": dict(armed="hero", bare="bare", gear="held-gear", part="sword", art="sword/iron-base.png", grip=None,
+    "warrior": dict(armed="classes/warrior/body/armed", bare="classes/warrior/body/bare", gear="classes/warrior/held-gear", part="sword", art="classes/warrior/weapons/sword/iron-base.png", grip=None,
                     draw_scale=1.6, hidden=["shield"], gold=True,  # draw_scale = HeroClassDef sword GearPartSpec (keep in sync)
                     # Height, feet and centre of the bare idle these sheets were cut against. Pinned: idle.png has been re-cut since, and
                     # following it would rescale every melee frame.
@@ -62,8 +62,8 @@ CLASSES = {
                     }),
     # Two daggers: parts main (character's right hand, drawn in front) + off (left hand). draw_scale = HeroClassDef dagger GearPartSpec;
     # dagger_frac = grip-to-tip dagger length (what shows beyond the fist) as a fraction of the idle body height (the user wants ~40%).
-    "assassin": dict(armed="assassin", bare="assassin-bare", gear="held-assassin", part="main", parts=["main", "off"],
-                     art="assassin-dagger/iron-kunai-base.png", manifest_key="weapon", grip=None, draw_scale=1.3, hidden=[], gold=False,
+    "assassin": dict(armed="classes/assassin/body/armed", bare="classes/assassin/body/bare", gear="classes/assassin/held-assassin", part="main", parts=["main", "off"],
+                     art="classes/assassin/weapons/dagger/iron-kunai-base.png", manifest_key="weapon", grip=None, draw_scale=1.3, hidden=[], gold=False,
                      dagger_frac=0.40,
                      # Hand corrections where detection cannot tell (motion streaks, blades over the torso). Keys: (melee n, dir, frame).
                      # "copy": frame index whose lines replace this one; "flip": parts whose grip/tip are swapped.
@@ -577,8 +577,8 @@ def resolve_ambiguous(slots):
 def main():
     cls, n = sys.argv[1], int(sys.argv[2])
     cfg = CLASSES[cls]
-    armed = load(os.path.join(ART, cls, f"attack{n}-armed.png"))
-    bare = load(os.path.join(ART, cls, f"attack{n}-weaponless.png"))
+    armed = load(os.path.join(ART, cls, "anim", f"attack{n}-armed.png"))
+    bare = load(os.path.join(ART, cls, "anim", f"attack{n}-weaponless.png"))
     if armed.shape != bare.shape:
         sys.exit("armed / weaponless sizes differ")
     H, W = armed.shape[:2]

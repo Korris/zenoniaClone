@@ -18,7 +18,7 @@ namespace ZenoniaProto
         const float CastUnitsPerPx = 0.135f, AirUnitsPerPx = 0.125f, SlamUnitsPerPx = 0.17f, BoomUnitsPerPx = 0.234f; // the crater's outer ring spans its real 3 tile radius at the peak frame
         const float CastAnchorY = 405f, AirAnchorY = 200f, SlamAnchorY = 420f, BoomAnchorY = 240f;
         const int Frames = 6, Land = 4;
-        const string Folder = "Sprites/fx/infernocrash/";
+        const string Folder = "Sprites/classes/warrior/fx/infernocrash/";
         static readonly float[] PoseUntil = { 70f, 190f, 300f, LandMs };
         static readonly Color Hot = new Color(1f, 0.56f, 0.16f), Red = new Color(1f, 0.3f, 0.08f);
 

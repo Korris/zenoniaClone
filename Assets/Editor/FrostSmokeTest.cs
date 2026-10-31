@@ -44,7 +44,7 @@ namespace ZenoniaProto.EditorTools
         /// <summary>SpriteTint must keep alpha and push opaque pixels towards the tint colour (not white).</summary>
         static void CheckTint()
         {
-            Texture2D src = SpriteSheet.Load("Sprites/fx/warrior-slashes-chibi");
+            Texture2D src = SpriteSheet.Load("Sprites/classes/warrior/fx/warrior-slashes-chibi");
             Texture2D red = SpriteTint.Colorize(src, ClassPalette.Red.Tint);
             Color32[] a = SpriteSheet.ReadPixels(src), b = SpriteSheet.ReadPixels(red);
             double r = 0, g = 0, bl = 0, n = 0, rs = 0, gs = 0, bs = 0;
@@ -167,7 +167,7 @@ namespace ZenoniaProto.EditorTools
                             {
                                 int n = view.FrameCount(a, d);
                                 if (n == 0) { Fail(cls.Name + ": no frames " + a + "/" + d); continue; }
-                                for (int f = 0; f < n; f++) { view.Show(a, d, f, 0, 1f); shown++; if (view.transform.Find(cls.Parts[0].Id).GetComponent<SpriteRenderer>().sprite != null) gearFrames++; }
+                                for (int f = 0; f < n; f++) { view.Show(a, d, f, 0, 1f); shown++; if (view.transform.Find("Lean/" + cls.Parts[0].Id).GetComponent<SpriteRenderer>().sprite != null) gearFrames++; }
                             }
                     }
                 }

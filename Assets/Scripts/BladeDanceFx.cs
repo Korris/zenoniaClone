@@ -12,7 +12,7 @@ namespace ZenoniaProto
     public class BladeDanceFx : MonoBehaviour
     {
         public const string SkillId = "assassin.blade-dance";
-        const string Folder = "Sprites/fx/bladedance/", SpinAnim = NightfallExecutionUltimate.PoseAnim, StopAnim = "melee1";
+        const string Folder = "Sprites/classes/assassin/fx/bladedance/", SpinAnim = NightfallExecutionUltimate.PoseAnim, StopAnim = "melee1";
         const float RingToMs = 520f, HitEveryMs = 150f, BurstMs = 450f, FinishLenMs = 350f, SpinToMs = 480f, TurnMs = 70f, PoseToMs = 600f, TotalMs = 800f;
         const float RingUnitsPerPx = 0.165f, FinishUnitsPerPx = 0.155f, AnchorY = 160f, Lift = 2f;
         const int Hits = 4, SpinFrame = 1, StopFrame = 4;

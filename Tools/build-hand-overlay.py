@@ -1,8 +1,8 @@
 """Warrior hands for idle and walk seen from the side. The left row is the right row mirrored, which would swap his hands, so the gear goes on the other arms there:
 facing right the sword is in the near hand (above the body, the fist drawn over its handle) and the shield on the far arm;
 facing left the shield is on the near arm (above the body) and the sword in the far hand (behind the body, which draws that fist over the handle).
-Writes Assets/Resources/Sprites/bare-hand/{idle,walk}.png (same grid as bare/, only the near fist in the right row; HeroRenderer draws it above the sword)
-and sets the sword and shield anchors of those rows in Assets/Resources/Data/held-gear-melee.json. Safe to run again.
+Writes Assets/Resources/Sprites/classes/warrior/body/hand/{idle,walk}.png (same grid as body/bare/, only the near fist in the right row; HeroRenderer draws it above the sword)
+and sets the sword and shield anchors of those rows in Assets/Resources/Data/classes/warrior/held-gear-melee.json. Safe to run again.
 Usage: python Tools/build-hand-overlay.py   (from the project root; needs Pillow and numpy)"""
 import json, math, os
 import numpy as np
@@ -28,22 +28,22 @@ def fist_mask(cx, cy):
 
 
 def build_sheet(anim):
-    bare = np.array(Image.open(f"{RES}/Sprites/bare/{anim}.png").convert("RGBA")).astype(np.float64)
+    bare = np.array(Image.open(f"{RES}/Sprites/classes/warrior/body/bare/{anim}.png").convert("RGBA")).astype(np.float64)
     out = np.zeros_like(bare)
     for c, (cx, cy) in enumerate(FISTS[anim]):
         x0, y0 = c * FRAME, RIGHT * FRAME
         cell = bare[y0:y0 + FRAME, x0:x0 + FRAME].copy()
         cell[..., 3] *= fist_mask(cx, cy)
         out[y0:y0 + FRAME, x0:x0 + FRAME] = cell
-    os.makedirs(f"{RES}/Sprites/bare-hand", exist_ok=True)
-    Image.fromarray(out.round().astype(np.uint8), "RGBA").save(f"{RES}/Sprites/bare-hand/{anim}.png")
+    os.makedirs(f"{RES}/Sprites/classes/warrior/body/hand", exist_ok=True)
+    Image.fromarray(out.round().astype(np.uint8), "RGBA").save(f"{RES}/Sprites/classes/warrior/body/hand/{anim}.png")
 
 
 def move_anchors():
-    path = f"{RES}/Data/held-gear-melee.json"
+    path = f"{RES}/Data/classes/warrior/held-gear-melee.json"
     raw = open(path, "rb").read()
     data = json.loads(raw)
-    grip_y = json.load(open(f"{RES}/Data/held-gear.json"))["sword"][0]["baseGrip"]["gripY"]
+    grip_y = json.load(open(f"{RES}/Data/classes/warrior/held-gear.json"))["sword"][0]["baseGrip"]["gripY"]
     for a in data["anchors"]:
         if a["anim"] not in FISTS or a["dir"] not in ("left", "right"):
             continue

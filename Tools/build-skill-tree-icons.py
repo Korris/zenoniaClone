@@ -1,7 +1,7 @@
-"""Skill tree icons: Assets/Resources/Sprites/skills/<class>/<skill-id>/icon.png (128 px, Lanczos).
+"""Skill tree icons: Assets/Resources/Sprites/classes/<class>/skills/<skill-id>/icon.png (128 px, Lanczos).
 
   py -3 -E Tools/build-skill-tree-icons.py --from-preview [--class wizard]
-      crops the icon at the bottom-left of each panel of Assets/ArtLibrary/custom/skill-vfx-preview/<class>.png (4x2 panels, order = tree index)
+      crops the icon at the bottom-left of each panel of Assets/ArtLibrary/classes/<class>/skill-vfx-preview.png (4x2 panels, order = tree index)
   py -3 -E Tools/build-skill-tree-icons.py --sheet <class> <sheet.png>
       8-icon sheet (2 rows x 4, transparent) from the art pipeline -> same output files
 
@@ -12,8 +12,8 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-PREVIEW = ROOT / "Assets/ArtLibrary/custom/skill-vfx-preview"
-OUT = ROOT / "Assets/Resources/Sprites/skills"
+PREVIEW = ROOT / "Assets/ArtLibrary/classes"
+OUT = ROOT / "Assets/Resources/Sprites/classes"
 TABLES = ROOT / "Assets/Scripts/Rpg/Skills"
 CLASSES = ["warrior", "wizard", "mechanic", "cleric", "assassin"]
 SIZE = 128
@@ -32,14 +32,14 @@ def skill_ids(cls):
 
 
 def save(icon, cls, sid):
-    d = OUT / cls / sid.split(".", 1)[1]  # folder = skill slug, same as the VFX slicer
+    d = OUT / cls / "skills" / sid.split(".", 1)[1]  # folder = skill slug, same as the VFX slicer
     d.mkdir(parents=True, exist_ok=True)
     icon.convert("RGBA").resize((SIZE, SIZE), Image.LANCZOS).save(d / "icon.png")
     print("wrote", d / "icon.png")
 
 
 def from_preview(cls):
-    im = Image.open(PREVIEW / (cls + ".png")).convert("RGB")
+    im = Image.open(PREVIEW / cls / "skill-vfx-preview.png").convert("RGB")
     for i, sid in enumerate(skill_ids(cls)):
         x0, y0 = PANEL_X[i % 4] + ICON_X, PANEL_Y[i // 4] + ICON_Y
         save(im.crop((x0, y0, x0 + ICON_W, y0 + ICON_W)), cls, sid)

@@ -17,7 +17,7 @@ namespace ZenoniaProto
         const float RingLift = 5f;        // ring centre above the feet: around the hero's legs
         const float CastAnchorY = 340f, RingAnchorY = 192f, AnchorX = 192f;
         const int Frames = 6;
-        const string Folder = "Sprites/fx/bladecyclone/";
+        const string Folder = "Sprites/classes/warrior/fx/bladecyclone/";
         const string LoopClip = "Audio/sfx/skills/warrior/blade-cyclone-loop";
         static readonly float[] WaveAt = { 500f, 850f, 1200f, 1550f, 1900f, 2250f };
         static readonly Color Red = new Color(1f, 0.28f, 0.1f), Hot = new Color(1f, 0.62f, 0.2f);

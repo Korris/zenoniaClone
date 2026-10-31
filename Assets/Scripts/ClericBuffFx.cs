@@ -14,7 +14,7 @@ namespace ZenoniaProto
     public sealed class ClericBuffFx : MonoBehaviour
     {
         public const string BlessingId = "cleric.spirit-blessing", AegisId = "cleric.divine-aegis", PoseAnim = "clericcast";
-        const string Folder = "Sprites/fx/clericbuff/";
+        const string Folder = "Sprites/classes/cleric/fx/clericbuff/";
         const int Frames = 6, PoseLowered = 0, PoseRaised = 1, PoseReach = 2, MaxStreams = 8;
         const float CastMs = 620f, StreamFromMs = 180f, StreamToMs = 460f, RaiseFromMs = 110f, ReachFromMs = 430f, CastUnitsPerPx = 0.09f, RingLift = 1f;
         const float AnchorX = 256f, AnchorY = 520f, StreamLength = 13f, StreamWidth = 3.2f, StreamArc = 7f, StreamHeight = 10f;

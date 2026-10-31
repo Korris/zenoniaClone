@@ -13,7 +13,28 @@ Trả lời người dùng bằng tiếng Việt.
   - Vũ khí đè lên tay, sai hướng, đổi tay khi quay trái, đổi cỡ giữa lúc cầm và lúc đánh.
   - Art ChatGPT bị vẽ cứng ô caro hoặc quá trong suốt nên trông nhạt.
   - Thời gian trong `*Fx.cs` không khớp `SkillTable`.
-- Sửa xong phải tự xem ảnh: ghép đúng cách game vẽ (sheet `bare/` + overlay), xem từng frame. Báo cáo "xong" của agent hay chỉ số không đủ. Chỉ nói đã sửa khi đã thấy, và nói rõ phần chưa xem trong game.
+- Sửa xong phải tự xem ảnh: ghép đúng cách game vẽ (sheet `body/bare/` + overlay), xem từng frame. Báo cáo "xong" của agent hay chỉ số không đủ. Chỉ nói đã sửa khi đã thấy, và nói rõ phần chưa xem trong game.
+
+## Asset để đúng chỗ, không thả lung tung
+
+Asset của class nào nằm trong folder class đó (warrior, wizard, mechanic, assassin, cleric):
+
+```
+Assets/Resources/Sprites/classes/<class>/
+  body/        armed, bare, hand (sheet nhân vật)
+  weapons/     sword, shield, staff, gun, dagger
+  companion/   art, float (robot, spirit)
+  fx/          <tên-skill>, combat, attack (hình hiệu ứng)
+  skills/      <skill>/ (frame và icon của skill)
+  skill-icons/ <index>.png
+Assets/Resources/Data/classes/<class>/   held-*.json, vfx-attack*.json, skills/<skill>.json
+Assets/ArtLibrary/classes/<class>/       ảnh gốc: anim, frames, overlays, skill-vfx, vfx, skill-icons-src
+```
+
+- Dùng chung mới để ngoài `classes/`: `Sprites/{monsters,village,tiles,ui,icons,fx}`, `Data/dev-start.json`.
+- Âm thanh: `Assets/Resources/Audio/sfx/<class>`, `Audio/sfx/skills/<class>`.
+- Ảnh tham khảo: `docs/reference/`, đặt tên có nghĩa. Không để ảnh ở thư mục gốc repo.
+- `Resources.Load` dùng đường dẫn chuỗi: chuyển file phải sửa cả code và `Tools/`, và chuyển kèm `.meta` bằng `git mv`.
 
 ## Art trên ChatGPT
 

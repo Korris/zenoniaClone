@@ -14,7 +14,7 @@ namespace ZenoniaProto
         public const float LockMs = 1400f, LaunchMs = 400f, LaunchGapMs = 40f, ClimbMs = 600f, ImpactMs = 1550f, ImpactGapMs = 85f, DescendMs = 520f, BlastMs = 500f, SmokeDelayMs = 280f, SmokeMs = 570f, TailMs = 850f;
         const int Rockets = Rpg.LegacySkillNumbers.RocketBarrageRockets;
         const float TotalMs = ImpactMs + (Rockets - 1) * ImpactGapMs + TailMs;
-        const string Folder = "fx/rocketbarrage";
+        const string Folder = "classes/mechanic/fx/rocketbarrage";
         const float SourcePx = 229f;   // nominal atlas column width: a web stamp `size` wide spans this many source px
         const float BlastSize = Radius * 2.6f;
         const float ClimbHeight = 52f; // the climb ends this far above the target, where the descent art takes over (web)

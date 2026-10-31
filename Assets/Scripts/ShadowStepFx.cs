@@ -17,7 +17,7 @@ namespace ZenoniaProto
         const string CrouchAnim = "nightfall", StabAnim = "melee4";
         const int CrouchFrame = 0, ReadyFrame = 1, StabFrame = 2, ThrustFrame = 3, RecoverFrame = 4;
         const float ThrustFromMs = 380f, RecoverFromMs = 450f;
-        const string Folder = "Sprites/fx/shadowstep/";
+        const string Folder = "Sprites/classes/assassin/fx/shadowstep/";
         static readonly Color Violet = new Color(0.72f, 0.3f, 1f), Dark = new Color(0.3f, 0.08f, 0.5f);
 
         static CutStrip vanishArt, appearArt;

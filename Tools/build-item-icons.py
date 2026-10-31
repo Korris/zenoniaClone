@@ -73,11 +73,11 @@ for slot, f in {"helmet": "helmet-icons-chibi.png", "armor": "armor-icons-chibi.
     slice_atlas(slot, f)
 
 specs = [  # class, weapon (manifest file, key, folder, tilt), offhand (...)
-    ("warrior", ("held-gear", "sword", "sword", -45), ("held-gear", "shield", "shield", 0)),
-    ("wizard", ("held-wizard", "weapon", "wizard-staff", -45), None),
-    ("mechanic", ("held-mechanic", "weapon", "mechanic-gun", 45), ("held-mechanic", "companion", "mechanic-robot", 0)),
-    ("assassin", ("held-assassin", "weapon", "assassin-dagger", -45), ("held-assassin", "weapon", "assassin-dagger", 45)),
-    ("cleric", ("held-cleric", "weapon", "cleric-staff", -45), ("held-cleric", "companion", "cleric-spirit", 0)),
+    ("warrior", ("classes/warrior/held-gear", "sword", "classes/warrior/weapons/sword", -45), ("classes/warrior/held-gear", "shield", "classes/warrior/weapons/shield", 0)),
+    ("wizard", ("classes/wizard/held-wizard", "weapon", "classes/wizard/weapons/staff", -45), None),
+    ("mechanic", ("classes/mechanic/held-mechanic", "weapon", "classes/mechanic/weapons/gun", 45), ("classes/mechanic/held-mechanic", "companion", "classes/mechanic/companion/art", 0)),
+    ("assassin", ("classes/assassin/held-assassin", "weapon", "classes/assassin/weapons/dagger", -45), ("classes/assassin/held-assassin", "weapon", "classes/assassin/weapons/dagger", 45)),
+    ("cleric", ("classes/cleric/held-cleric", "weapon", "classes/cleric/weapons/staff", -45), ("classes/cleric/held-cleric", "companion", "classes/cleric/companion/art", 0)),
 ]
 for cls, w, o in specs:
     for tier, name in enumerate(load_names(w[0], w[1])): overlay(w[2], name, w[3]).save(os.path.join(OUT, "weapon-%s-%d.png" % (cls, tier)))

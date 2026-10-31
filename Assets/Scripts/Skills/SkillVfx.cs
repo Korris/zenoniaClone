@@ -14,8 +14,8 @@ namespace ZenoniaProto
     }
 
     /// <summary>
-    /// Skill art loader + player (phase 06 layout): Resources/Data/skills/&lt;class&gt;-&lt;skill&gt;.json lists the frames (name "row_n", w, h, pivot px/py),
-    /// Resources/Sprites/skills/&lt;class&gt;/&lt;skill&gt;/&lt;row&gt;_&lt;n&gt;.png holds them. Rows: cast (at the caster), loop (flying / lingering body), impact (at the hit).
+    /// Skill art loader + player (phase 06 layout): Resources/Data/classes/&lt;class&gt;/skills/&lt;skill&gt;.json lists the frames (name "row_n", w, h, pivot px/py),
+    /// Resources/Sprites/classes/&lt;class&gt;/skills/&lt;skill&gt;/&lt;row&gt;_&lt;n&gt;.png holds them. Rows: cast (at the caster), loop (flying / lingering body), impact (at the hit).
     /// A missing set or row degrades to a tinted procedural ring so skills are playable before their art lands. Art is drawn only where RendersFx.
     /// </summary>
     public static class SkillVfx
@@ -30,7 +30,7 @@ namespace ZenoniaProto
         [Serializable] class Meta { public Frame[] frames; public Fps fps; }
 
         /// <summary>Resource key of a skill: "wizard.fireball" -> ("wizard-fireball", "wizard/fireball").</summary>
-        static void Keys(SkillDef def, out string data, out string folder) { data = def.Class + "-" + def.Id.Substring(def.Class.Length + 1); folder = def.Class + "/" + def.Id.Substring(def.Class.Length + 1); }
+        static void Keys(SkillDef def, out string data, out string folder) { data = folder = def.Class + "/skills/" + def.Id.Substring(def.Class.Length + 1); }
 
         /// <summary>Loads (once) the painted set of a skill; null when it has no art yet.</summary>
         public static SkillVfxSet Get(SkillDef def)
@@ -51,7 +51,7 @@ namespace ZenoniaProto
             Keys(def, out data, out folder);
             try
             {
-                TextAsset json = Resources.Load<TextAsset>("Data/skills/" + data);
+                TextAsset json = Resources.Load<TextAsset>("Data/classes/" + data);
                 if (json == null) return null; // no art yet: procedural fallback, nothing to log
                 Meta meta = JsonUtility.FromJson<Meta>(json.text);
                 var set = new SkillVfxSet();
@@ -62,7 +62,7 @@ namespace ZenoniaProto
                     string[] parts = f.name.Split('_');
                     int r = Array.IndexOf(RowNames, parts[0]), n;
                     if (r < 0 || parts.Length != 2 || !int.TryParse(parts[1], out n)) continue;
-                    Texture2D tex = Resources.Load<Texture2D>("Sprites/skills/" + folder + "/" + f.name);
+                    Texture2D tex = Resources.Load<Texture2D>("Sprites/classes/" + folder + "/" + f.name);
                     if (tex == null) continue;
                     tex.wrapMode = TextureWrapMode.Clamp;
                     while (rows[r].Count <= n) rows[r].Add(null);

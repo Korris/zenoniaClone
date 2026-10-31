@@ -17,7 +17,7 @@ namespace ZenoniaProto
         const float CastUnitsPerPx = 0.13f, RingUnitsPerPx = 0.285f, ShadowUnitsPerPx = 0.11f, CrossUnitsPerPx = 0.27f; // the ring's outer edge spans the real 3 tile radius
         const float CastAnchorY = 370f, RingAnchorY = 150f, RingLift = 4f, CrossLift = 10f, ShadowRadius = 34f;
         const int Frames = 6, Shadows = 6, PoseCrouch = 0, PoseSpin = 1, PoseLunge = 3, PoseSlash = 4, PoseRecover = 5;
-        const string Folder = "Sprites/fx/nightfall/";
+        const string Folder = "Sprites/classes/assassin/fx/nightfall/";
         static readonly int[] TurnOrder = { 0, 3, 1, 2 }; // down, right, up, left: one clockwise turn
         static readonly float[] ShadowAt = { 240f, 340f, 430f, 520f, 600f, 680f };
         static readonly float[] ShadowDeg = { 200f, 20f, 300f, 130f, 250f, 70f };

@@ -103,7 +103,7 @@ sword ribbon / sparks / shock ring / additive slash core / blade glow / damage-n
 - Shaders live in `Assets/Resources/Shaders/` (loaded by name, so they are included in builds; missing shader falls back to a built-in one).
 
 **Painted ranged FX** (wizard / cleric / mechanic): hand-painted sprite sheets in `Assets/ArtLibrary/vfx/` are sliced by `Tools/slice-vfx-sheets.py`
-(transparent-gutter detection, per-row pivots) into `Resources/Sprites/fx/vfx/<set>/{cast,proj,impact}_<n>.png` + `Resources/Data/vfx-<set>.json`.
+(transparent-gutter detection, per-row pivots) into `Resources/Sprites/classes/<class>/fx/attack[-<colour>]/{cast,proj,impact}_<n>.png` + `Resources/Data/classes/<class>/vfx-attack[-<colour>].json`.
 `VfxSprites` loads a set, `VfxAnim` plays cast (at staff tip / barrel, windup) and impact rows, `ComboProjectile.Painted.cs` loops the 4-frame projectile
 rotated to travel (pivot on the bright head). Base sprite = normal alpha blend, plus a faint additive copy (`FeelConfig.PaintedGlowAlpha`) for bloom. Finisher = 1.35x.
 Mechanic C swaps `mechanic-orange` / `mechanic-blue`. Missing art falls back to the procedural rigs. Re-run the slicer after changing a sheet.
@@ -122,8 +122,8 @@ Video: `--record-combo wizard|cleric|mechanic [--mech-blue] [--zoom N]` (60 fps 
 ```
 Assets/
   Editor/ResourceTextureImportSettings.cs   forces texture import settings (no hand-written .meta files)
-  Resources/Data/held-{gear,wizard,mechanic,assassin,cleric}.json   overlay manifests + per-frame grip anchors (+ robot) exported from the web data
-  Resources/Sprites/{hero,bare,sword,shield,wizard,wizard-bare,wizard-staff,mechanic,mechanic-bare,mechanic-gun,mechanic-robot,mechanic-robot-float,monsters,tiles,fx}/   PNGs copied from the web project
+  Resources/Data/classes/<class>/held-*.json   overlay manifests + per-frame grip anchors (+ robot) exported from the web data
+  Resources/Sprites/classes/<class>/{body,weapons,companion}/   PNGs copied from the web project
   Scripts/                                  namespace ZenoniaProto (all < 200 LOC)
     Bootstrap.cs            RuntimeInitializeOnLoadMethod entry; builds camera, ground, monsters, HUD, session
     GameSession.cs / ClassSelectGui.cs      class select screen, hero spawn + F1/F2/F3 switch

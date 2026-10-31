@@ -12,7 +12,7 @@ namespace ZenoniaProto
         public const string SkillId = "assassin.shadow-strike";
         const float Slash1To = 240f, Slash2From = 120f, Slash2To = 360f, CrossFrom = 210f, CrossPeak = 250f, CrossTo = 640f, TotalMs = 660f, PoseEndMs = 320f;
         const float SlashUnitsPerPx = 0.127f, CrossUnitsPerPx = 0.165f, BodyLift = 8f, CrossAhead = 25f, StepUnits = 7f, StepInMs = 90f, StepBackFromMs = 240f;
-        const string Folder = "Sprites/fx/shadowstrike/";
+        const string Folder = "Sprites/classes/assassin/fx/shadowstrike/";
         static readonly Color Violet = new Color(0.72f, 0.3f, 1f), Dark = new Color(0.3f, 0.08f, 0.5f);
         // Right slash, left slash, then the crossed-arms frame of the X.
         static readonly float[] PoseTo = { 30f, 80f, 120f, 150f, 200f, 240f };

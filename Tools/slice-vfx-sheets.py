@@ -1,5 +1,5 @@
 """Slice the hand-painted ranged-attack VFX sheets (3 rows x 4 cols, RGBA) by transparent gutters (not a fixed grid).
-Writes Assets/Resources/Sprites/fx/vfx/<class>/<row>_<n>.png (trimmed) and Assets/Resources/Data/vfx-<class>.json
+Writes Assets/Resources/Sprites/classes/<class>/fx/attack[-<colour>]/<row>_<n>.png (trimmed) and Assets/Resources/Data/classes/<class>/vfx-attack[-<colour>].json
 (per-frame size + pivot in pixels from the bottom-left of the trimmed frame). Rows: cast, proj, impact.
 Usage: python Tools/slice-vfx-sheets.py   (run from the project root; helpers in Tools/vfx_slice_common.py)"""
 import os, sys
@@ -8,12 +8,12 @@ from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from vfx_slice_common import clean_mask, spans, trim_box, head_pivot, write_frame, write_json
 
-SRC = "Assets/ArtLibrary/vfx"
-OUT = "Assets/Resources/Sprites/fx/vfx"
-DATA = "Assets/Resources/Data"
+SRC = "Assets/ArtLibrary/classes"
+OUT = "Assets/Resources/Sprites/classes"
+DATA = "Assets/Resources/Data/classes"
 # (json/folder id, source sheet) ; the two mechanic sheets are separate colour variants
-SHEETS = [("cleric", "cleric/cleric-attack-vfx.png"), ("wizard", "wizard/wizard-attack-vfx.png"),
-          ("mechanic-blue", "mechanic/mechanic-attack-vfx-blue.png"), ("mechanic-orange", "mechanic/mechanic-attack-vfx-orange.png")]
+SHEETS = [("cleric", "cleric/vfx/cleric-attack-vfx.png"), ("wizard", "wizard/vfx/wizard-attack-vfx.png"),
+          ("mechanic-blue", "mechanic/vfx/mechanic-attack-vfx-blue.png"), ("mechanic-orange", "mechanic/vfx/mechanic-attack-vfx-orange.png")]
 ROWS = ["cast", "proj", "impact"]
 def process(cid, rel):
     img = np.array(Image.open(os.path.join(SRC, rel)).convert("RGBA"))
@@ -22,7 +22,7 @@ def process(cid, rel):
     # color bleed from removed specks is irrelevant (alpha 0)
     rows = spans(mask.sum(axis=1), 3)
     cls = cid.split("-")[0]
-    folder = os.path.join(OUT, cid); os.makedirs(folder, exist_ok=True)
+    folder = os.path.join(OUT, cid.split("-")[0], "fx", "attack" + cid[len(cid.split("-")[0]):]); os.makedirs(folder, exist_ok=True)
     meta = {"frames": []}
     for rname, (y0, y1) in zip(ROWS, rows):
         for c, (x0, x1) in enumerate(spans(mask[y0:y1].sum(axis=0), 4)):
@@ -41,5 +41,5 @@ def process(cid, rel):
 
 for cid, rel in SHEETS:
     meta = process(cid, rel)
-    write_json(os.path.join(DATA, "vfx-%s.json" % cid), meta)
+    write_json(os.path.join(DATA, cid.split("-")[0], "vfx-attack%s.json" % cid[len(cid.split("-")[0]):]), meta)
     print(cid, len(meta["frames"]), "frames")

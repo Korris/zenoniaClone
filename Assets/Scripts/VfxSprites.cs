@@ -12,7 +12,7 @@ namespace ZenoniaProto
     }
 
     /// <summary>
-    /// Loader for the hand-painted ranged FX frames (Resources/Sprites/fx/vfx/SET/ROW_N.png + Resources/Data/vfx-SET.json with per-frame pivots).
+    /// Loader for the hand-painted ranged FX frames (Resources/Sprites/classes/CLASS/fx/attack[-COLOUR]/ROW_N.png + Resources/Data/vfx-SET.json with per-frame pivots).
     /// Sets: cleric, wizard, mechanic-orange, mechanic-blue (C toggles). For() returns null when art is missing, callers then fall back to the procedural FX.
     /// </summary>
     public static class VfxSprites
@@ -55,12 +55,17 @@ namespace ZenoniaProto
             else if (id == HeroClass.Mechanic) { Get("mechanic-orange"); Get("mechanic-blue"); }
         }
 
+        /// <summary>"mechanic-blue" -> class "mechanic", set "attack-blue"; "wizard" -> "wizard", "attack".</summary>
+        static void Split(string id, out string cls, out string set) { int d = id.IndexOf('-'); cls = d < 0 ? id : id.Substring(0, d); set = d < 0 ? "attack" : "attack" + id.Substring(d); }
+
         static VfxSet Load(string id)
         {
             try
             {
-                TextAsset json = Resources.Load<TextAsset>("Data/vfx-" + id);
-                if (json == null) { Debug.LogWarning("[ZenoniaProto] Missing Resources/Data/vfx-" + id + ".json, using procedural FX"); return null; }
+                string cls, set;
+                Split(id, out cls, out set);
+                TextAsset json = Resources.Load<TextAsset>("Data/classes/" + cls + "/vfx-" + set);
+                if (json == null) { Debug.LogWarning("[ZenoniaProto] Missing Resources/Data/classes/" + cls + "/vfx-" + set + ".json, using procedural FX"); return null; }
                 Meta meta = JsonUtility.FromJson<Meta>(json.text);
                 var rows = new Sprite[RowNames.Length][];
                 for (int r = 0; r < rows.Length; r++) rows[r] = new Sprite[4];
@@ -68,7 +73,7 @@ namespace ZenoniaProto
                 {
                     string[] parts = f.name.Split('_');
                     int r = Array.IndexOf(RowNames, parts[0]), n = int.Parse(parts[1]);
-                    Texture2D tex = SpriteSheet.Load("Sprites/fx/vfx/" + id + "/" + f.name);
+                    Texture2D tex = SpriteSheet.Load("Sprites/classes/" + cls + "/fx/" + set + "/" + f.name);
                     if (r < 0 || n < 0 || n > 3 || tex == null) return null;
                     // Sprite pivot is per frame (head / centre / bottom-centre set by the slicer); ppu = 1 / UnitsPerPx so one source pixel = UnitsPerPx world units
                     rows[r][n] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(f.px / tex.width, f.py / tex.height), 1f / UnitsPerPx, 0, SpriteMeshType.FullRect);

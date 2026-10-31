@@ -13,7 +13,7 @@ namespace ZenoniaProto
     public class ShadowCloneFx : MonoBehaviour
     {
         public const string SkillId = "assassin.shadow-clone";
-        const string Folder = "Sprites/fx/shadowclone/", SurgeAnim = NightfallExecutionUltimate.PoseAnim;
+        const string Folder = "Sprites/classes/assassin/fx/shadowclone/", SurgeAnim = NightfallExecutionUltimate.PoseAnim;
         const float CastToMs = 400f, CrouchToMs = 90f, SurgeLenMs = 520f, RiseMs = 260f, SwingMs = 320f, WalkCycleMs = 480f, IdleFrameMs = 200f, DissolveMs = 560f, SlashLenMs = 240f;
         const float SurgeUnitsPerPx = 0.085f, DissolveUnitsPerPx = 0.05f, SlashUnitsPerPx = 0.085f, SurgeAnchorY = 430f, SlashOut = 16f, SlashLift = 8f, MoveEps = 0.02f, FarUnits = 300f;
         const int CrouchFrame = 0, CrossFrame = 4;

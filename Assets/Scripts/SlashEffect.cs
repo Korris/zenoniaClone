@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Painted warrior slash (Sprites/fx/warrior-slash-vfx.png = ArtLibrary/vfx/warrior, already red; 4 x 3 cells: row 0 = crescent slash,
+    /// Painted warrior slash (Sprites/classes/warrior/fx/warrior-slash-vfx.png = ArtLibrary/vfx/warrior, already red; 4 x 3 cells: row 0 = crescent slash,
     /// row 1 = finisher ring, row 2 = impact burst). Row 0 is painted as a horizontal arc bulging down, so it turns +90 deg to face the swing.
     /// Falls back to the older recoloured warrior-slashes-chibi.png (4 x 2). Pooled.
     /// </summary>
@@ -24,14 +24,14 @@ namespace ZenoniaProto
             root = parent;
             Pool.Clear();
             // Each cell becomes a 1-unit-wide sprite (scaled per use: slash 32u, arc 48u like the web FX strips).
-            Texture2D painted = Resources.Load<Texture2D>("Sprites/fx/warrior-slash-vfx");
+            Texture2D painted = Resources.Load<Texture2D>("Sprites/classes/warrior/fx/warrior-slash-vfx");
             if (painted != null)
             {
                 frames = SpriteTint.Slice(painted, 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f));
                 slashTurn = 90f;
                 return;
             }
-            Texture2D tex = SpriteSheet.Load("Sprites/fx/warrior-slashes-chibi");
+            Texture2D tex = SpriteSheet.Load("Sprites/classes/warrior/fx/warrior-slashes-chibi");
             frames = tex != null ? SpriteTint.Slice(SpriteTint.Colorize(tex, ClassPalette.Red.Tint), 4, 2, tex.width / 4, new Vector2(0.5f, 0.5f)) : null;
             slashTurn = 0f;
         }

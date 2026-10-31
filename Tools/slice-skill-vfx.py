@@ -1,7 +1,7 @@
 """Slice ChatGPT skill VFX sheets (3 rows x 4 cols: cast / loop / impact) by transparent gutters.
-Source:  Assets/ArtLibrary/custom/skill-vfx/<class>/<skill-id>.png
-Sprites: Assets/Resources/Sprites/skills/<class>/<skill-id>/{cast,loop,impact}_<n>.png (trimmed, max side --max px)
-Data:    Assets/Resources/Data/skills/<class>-<skill-id>.json  (frames: name, w, h, px, py from bottom; rows; fps)
+Source:  Assets/ArtLibrary/classes/<class>/skill-vfx/<skill-id>.png
+Sprites: Assets/Resources/Sprites/classes/<class>/skills/<skill-id>/{cast,loop,impact}_<n>.png (trimmed, max side --max px)
+Data:    Assets/Resources/Data/classes/<class>/skills/<skill-id>.json  (frames: name, w, h, px, py from bottom; rows; fps)
 Usage:   py -3 Tools/slice-skill-vfx.py <class> [skill-id ...] [--from-black] [--max 256] [--contact]
          (run from the project root; no skill ids = every sheet in the source folder; non-zero exit on a wrong grid)
 --from-black forces the black-background path; it is also used automatically when a sheet has no real transparency.
@@ -12,9 +12,9 @@ from PIL import Image, ImageDraw
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from vfx_slice_common import clean_mask, raw_spans, trim_box, from_black, write_frame, write_json
 
-SRC = "Assets/ArtLibrary/custom/skill-vfx"
-OUT = "Assets/Resources/Sprites/skills"
-DATA = "Assets/Resources/Data/skills"
+SRC = "Assets/ArtLibrary/classes"
+OUT = "Assets/Resources/Sprites/classes"
+DATA = "Assets/Resources/Data/classes"
 CONTACT = "plans/261030-1521-skill-trees-implementation/visuals"
 ROWS = ["cast", "loop", "impact"]
 COLS = 4
@@ -74,12 +74,12 @@ def downscale(fr, max_px):
 
 
 def process(cls, sid, force_black, max_px):
-    path = os.path.join(SRC, cls, sid + ".png")
+    path = os.path.join(SRC, cls, "skill-vfx", sid + ".png")
     img, keyed = load_rgba(path, force_black)
     mask = clean_mask(img[..., 3], alpha_t=24 if keyed else 10)
     img[..., 3] = np.where(mask, img[..., 3], 0)
     rows, grid_ok = grid_cuts(mask.sum(axis=1), 3)
-    folder = os.path.join(OUT, cls, sid)
+    folder = os.path.join(OUT, cls, "skills", sid)
     os.makedirs(folder, exist_ok=True)
     for old in glob.glob(os.path.join(folder, "*_*.png")): os.remove(old)
     meta = {"skill": sid, "class": cls, "rows": [], "fps": FPS, "frames": []}
@@ -95,7 +95,7 @@ def process(cls, sid, force_black, max_px):
             h, w = fr.shape[:2]
             meta["frames"].append(write_frame(folder, "%s_%d" % (rname, c), fr, w / 2.0, h / 2.0))
             frames_by_row[rname].append(fr)
-    write_json(os.path.join(DATA, "%s-%s.json" % (cls, sid)), meta)
+    write_json(os.path.join(DATA, cls, "skills", sid + ".json"), meta)
     return counts, keyed, grid_ok, frames_by_row
 
 
@@ -135,8 +135,8 @@ def main():
     ap.add_argument("--max", type=int, default=256)
     ap.add_argument("--contact", action="store_true")
     a = ap.parse_args()
-    skills = a.skills or sorted(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(SRC, a.cls, "*.png")))
-    if not skills: sys.exit("no sheets in %s" % os.path.join(SRC, a.cls))
+    skills = a.skills or sorted(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(SRC, a.cls, "skill-vfx", "*.png")))
+    if not skills: sys.exit("no sheets in %s" % os.path.join(SRC, a.cls, "skill-vfx"))
     bad, results = [], []
     for sid in skills:
         try:

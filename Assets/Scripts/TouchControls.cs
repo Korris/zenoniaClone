@@ -176,7 +176,7 @@ namespace ZenoniaProto
         internal static Sprite SkillSprite(HeroClassDef cls, int index)
         {
             if (index < 0) return null;
-            var tex = Resources.Load<Texture2D>("Sprites/skill-icons/" + cls.IconClass + "-" + index);
+            var tex = Resources.Load<Texture2D>("Sprites/classes/" + cls.IconClass + "/skill-icons/" + index);
             return tex != null ? Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f) : null;
         }
 

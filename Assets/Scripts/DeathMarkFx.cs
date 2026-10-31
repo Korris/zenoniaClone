@@ -15,7 +15,7 @@ namespace ZenoniaProto
     {
         public const string SkillId = "assassin.death-mark";
         public const float LandMs = 300f; // keep equal to the strike's AtMs in SkillTable.Assassin
-        const string Folder = "Sprites/fx/deathmark/", RaiseAnim = "attack3", PointAnim = "melee4";
+        const string Folder = "Sprites/classes/assassin/fx/deathmark/", RaiseAnim = "attack3", PointAnim = "melee4";
         const float RaiseToMs = 170f, PoseToMs = 350f, BeamFadeMs = 120f, StarFrameMs = 120f, RingFrameMs = 130f, SeenGraceMs = 900f, ShatterLenMs = 420f, FadeLenMs = 260f, ExpiryMarginMs = 300f, EndMarginMs = 800f;
         const float BeamUnitsPerPx = 0.04f, BeamFullPx = 1010f, BeamPivotX = 60f / 1086f, StarUnitsPerPx = 0.04f, RingUnitsPerPx = 0.065f, RingPivotY = 112f / 512f, ShatterUnitsPerPx = 0.11f, SparkScale = 0.42f, StarGap = 11f, RebindRadius = 40f;
         const int RaiseFrame = 1, PointFrame = 3;

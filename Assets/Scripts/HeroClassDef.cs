@@ -49,7 +49,7 @@ namespace ZenoniaProto
         public float WalkCycleMs = 560f;               // one full step cycle, whatever the sheet's frame count
         public string SkillName;                       // class signature skill on L (null = none)
         public float SkillMp, SkillCooldownMs, SkillLockMs;
-        /// <summary>Touch button art: index in Resources/Sprites/skill-icons/&lt;class&gt;-N.png (web SKILL_ORDER slot; see Tools/build-skill-icons.py).</summary>
+        /// <summary>Touch button art: index in Resources/Sprites/classes/&lt;class&gt;-N.png (web SKILL_ORDER slot; see Tools/build-skill-icons.py).</summary>
         public int SkillIcon = -1, DashIcon = -1;
         public string IconClass { get { return Name.ToLowerInvariant(); } }
         public bool Ranged { get { return Hits[0].Bolt != null; } }
@@ -59,35 +59,35 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Warrior = new HeroClassDef
         {
             Id = HeroClass.Warrior, Name = "Warrior", Tagline = "Sword master. Tough, fast combos up close.", ComboLabel = "4-hit sword combo",
-            SheetFolder = "hero", BareFolder = "bare", HandFolder = "bare-hand", HandAnims = new[] { "idle", "walk" }, GearFile = "held-gear", FxFolder = null, Palette = ClassPalette.Red,
+            SheetFolder = "classes/warrior/body/armed", BareFolder = "classes/warrior/body/bare", HandFolder = "classes/warrior/body/hand", HandAnims = new[] { "idle", "walk" }, GearFile = "classes/warrior/held-gear", FxFolder = null, Palette = ClassPalette.Red,
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
             ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // horizontal slash, diagonal cut, spin, jump cleave (Tools/build-melee-sheets.py)
             ExtraAnims = new[] { InfernoCrashUltimate.PoseAnim, BerserkerAwakeningFx.PoseAnim },
             MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f, WalkCycleMs = 640f, // 4 pose walk sheet, slowed so each pose reads; the feet slide a little at Speed 80
-            Parts = new[] { new GearPartSpec("shield", "shield", 0.8f), new GearPartSpec("sword", "sword", 1.6f, 0.85f, true) },
+            Parts = new[] { new GearPartSpec("shield", "classes/warrior/weapons/shield", 0.8f), new GearPartSpec("sword", "classes/warrior/weapons/sword", 1.6f, 0.85f, true) },
             SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = 1450f, SkillIcon = 4, DashIcon = 7, // bladeStorm, dashStrike
         };
 
         public static readonly HeroClassDef Wizard = new HeroClassDef
         {
             Id = HeroClass.Wizard, Name = "Wizard", Tagline = "Spellcaster. Strikes from range with magic bolts.", ComboLabel = "3 magic bolts + arcane burst",
-            SheetFolder = "wizard", BareFolder = "wizard-bare", GearFile = "held-wizard", FxFolder = "wizard", Palette = ClassPalette.Arcane,
+            SheetFolder = "classes/wizard/body/armed", BareFolder = "classes/wizard/body/bare", GearFile = "classes/wizard/held-wizard", FxFolder = "classes/wizard/fx/combat", Palette = ClassPalette.Arcane,
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt", "death" },
             MirrorLeft = new HashSet<string> { "attack1", "attack2" },
             MaxHp = 80f, Atk = 13f, Def = 3f, Speed = 80f, Hits = ComboConfigs.WizardHits, ChainMs = 450f,
-            Parts = new[] { new GearPartSpec("staff", "wizard-staff", 1f, 0f, true) },
+            Parts = new[] { new GearPartSpec("staff", "classes/wizard/weapons/staff", 1f, 0f, true) },
             SkillName = "Ice Storm", SkillMp = 20f, SkillCooldownMs = 7700f, SkillLockMs = 650f, SkillIcon = 9, DashIcon = 12, // blizzard, blink
         };
 
         public static readonly HeroClassDef Mechanic = new HeroClassDef
         {
             Id = HeroClass.Mechanic, Name = "Mechanic", Tagline = "Gunslinging engineer. Rapid shots, cannon finisher, robot buddy.", ComboLabel = "3 rapid shots + cannon blast",
-            SheetFolder = "mechanic", BareFolder = "mechanic-bare", HandFolder = "mechanic-hand", HandAnims = new[] { "idle", "walk", "attack1", "attack3", "dash", "hurt" }, GearFile = "held-mechanic", FxFolder = "mechanic", Palette = ClassPalette.Orange,
+            SheetFolder = "classes/mechanic/body/armed", BareFolder = "classes/mechanic/body/bare", HandFolder = "classes/mechanic/body/hand", HandAnims = new[] { "idle", "walk", "attack1", "attack3", "dash", "hurt" }, GearFile = "classes/mechanic/held-mechanic", FxFolder = "classes/mechanic/fx/combat", Palette = ClassPalette.Orange,
             BareAnims = new[] { "idle", "walk", "attack1", "attack3", "dash", "hurt" }, // attack2 / death: baked armed art
             MirrorLeft = new HashSet<string> { "attack3", "dash", "hurt", "death" },
             MaxHp = 90f, Atk = 12f, Def = 4f, Speed = 82f, Hits = ComboConfigs.MechanicHits, ChainMs = 420f,
-            Parts = new[] { new GearPartSpec("gun", "mechanic-gun", 1f, 0f, true) },
-            CompanionFolder = "mechanic-robot", CompanionFloatFolder = "mechanic-robot-float", CompanionScale = 0.26f,
+            Parts = new[] { new GearPartSpec("gun", "classes/mechanic/weapons/gun", 1f, 0f, true) },
+            CompanionFolder = "classes/mechanic/companion/art", CompanionFloatFolder = "classes/mechanic/companion/float", CompanionScale = 0.26f,
             DashIcon = 12, // jetBoots
         };
 
@@ -95,13 +95,13 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Assassin = new HeroClassDef
         {
             Id = HeroClass.Assassin, Name = "Assassin", Tagline = "Dual-dagger striker. Speed, crits and shadow strikes.", ComboLabel = "3 slashes + double stab",
-            SheetFolder = "assassin", BareFolder = "assassin-bare", GearFile = "held-assassin", FxFolder = null, Palette = ClassPalette.Violet,
+            SheetFolder = "classes/assassin/body/armed", BareFolder = "classes/assassin/body/bare", GearFile = "classes/assassin/held-assassin", FxFolder = null, Palette = ClassPalette.Violet,
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked art
             MirrorLeft = new HashSet<string>(),
             ExtraAnims = new[] { NightfallExecutionUltimate.PoseAnim },
             ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // right slash, left slash, X cross-slash, dash double stab (Tools/build-melee-sheets.py assassin N)
             MaxHp = 88f, MaxMp = 50f, Atk = 13f, Def = 3f, Speed = 92f, CritBonus = 0.06f, Hits = ComboConfigs.AssassinHits, ChainMs = 380f,
-            Parts = new[] { new GearPartSpec("off", "assassin-dagger", 1.3f, 0f, true), new GearPartSpec("main", "assassin-dagger", 1.3f, 0f, true) }, // 1.3 = daggers ~40% of body height (keep Tools/build-melee-sheets.py draw_scale in sync)
+            Parts = new[] { new GearPartSpec("off", "classes/assassin/weapons/dagger", 1.3f, 0f, true), new GearPartSpec("main", "classes/assassin/weapons/dagger", 1.3f, 0f, true) }, // 1.3 = daggers ~40% of body height (keep Tools/build-melee-sheets.py draw_scale in sync)
             SkillName = "Shadow Step", SkillMp = 9f, SkillCooldownMs = 3900f, SkillLockMs = 260f, SkillIcon = 0, DashIcon = 10, // shadowStep, evasion
         };
 
@@ -109,13 +109,13 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Cleric = new HeroClassDef
         {
             Id = HeroClass.Cleric, Name = "Cleric", Tagline = "Holy support caster. Heals, with a spirit companion and holy light.", ComboLabel = "3 holy orbs + burst",
-            SheetFolder = "cleric", BareFolder = "cleric-bare", GearFile = "held-cleric", FxFolder = "wizard", Palette = ClassPalette.Green,
+            SheetFolder = "classes/cleric/body/armed", BareFolder = "classes/cleric/body/bare", GearFile = "classes/cleric/held-cleric", FxFolder = "classes/wizard/fx/combat", Palette = ClassPalette.Green,
             ExtraAnims = new[] { ClericBuffFx.PoseAnim },
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked art
             MirrorLeft = new HashSet<string>(),
             MaxHp = 85f, MaxMp = 75f, Atk = 11f, Def = 4f, Speed = 80f, Hits = ComboConfigs.ClericHits, ChainMs = 450f,
-            Parts = new[] { new GearPartSpec("staff", "cleric-staff", 1f, 0f, true) },
-            CompanionFolder = "cleric-spirit", CompanionFloatFolder = "cleric-spirit-float", CompanionScale = 0.3f,
+            Parts = new[] { new GearPartSpec("staff", "classes/cleric/weapons/staff", 1f, 0f, true) },
+            CompanionFolder = "classes/cleric/companion/art", CompanionFloatFolder = "classes/cleric/companion/float", CompanionScale = 0.3f,
             SkillName = "Heal", SkillMp = 12f, SkillCooldownMs = 8500f, SkillLockMs = 350f, SkillIcon = 5, DashIcon = 12, // heal, hasteHymn
         };
 

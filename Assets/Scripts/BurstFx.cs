@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Pooled one-shot FX sprite from the web class FX art (Sprites/fx/&lt;class&gt;/&lt;name&gt;.png, 4 source px per world unit):
+    /// Pooled one-shot FX sprite from the web class FX art (Sprites/classes/&lt;class&gt;/fx/combat/&lt;name&gt;.png, 4 source px per world unit):
     /// muzzle flash, arcane burst, explosion. A normal sprite plus an additive copy (pushed above 1.0 so it feeds the bloom).
     /// </summary>
     public class BurstFx : MonoBehaviour
@@ -23,7 +23,7 @@ namespace ZenoniaProto
         /// <summary>FX sprite (pivot centre, 4 px per unit); null when the PNG is missing.</summary>
         public static Sprite Art(string folder, string name, Color? tint = null)
         {
-            Sprite plain = SpriteSheet.Whole("Sprites/fx/" + folder + "/" + name, SourcePpu, new Vector2(0.5f, 0.5f));
+            Sprite plain = SpriteSheet.Whole("Sprites/" + folder + "/" + name, SourcePpu, new Vector2(0.5f, 0.5f));
             if (plain == null || !tint.HasValue) return plain;
             string key = folder + "/" + name + "/" + ColorUtility.ToHtmlStringRGB(tint.Value);
             Sprite s;

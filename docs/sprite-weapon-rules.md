@@ -6,30 +6,30 @@
 
 ## Cách hero được vẽ
 
-Thân `bare/` (không vũ khí) + ảnh vũ khí/khiên đặt theo anchor từng frame. Thứ tự: khiên hoặc kiếm phía sau, thân, khiên hoặc kiếm phía trước, nắm tay `bare-hand/`.
+Thân `body/bare/` (không vũ khí) + ảnh vũ khí/khiên đặt theo anchor từng frame. Thứ tự: khiên hoặc kiếm phía sau, thân, khiên hoặc kiếm phía trước, nắm tay `body/hand/`.
 
 | Dữ liệu | File |
 |---|---|
-| Anchor từng frame (`x`, `y`, `angle`, `s`, `behind`, `hidden`, `fallback`) | `Assets/Resources/Data/held-gear-melee.json` |
-| Art và điểm cầm của từng loại vũ khí (`baseGrip`, `enhancedGrip`) | `Assets/Resources/Data/held-gear.json` |
+| Anchor từng frame (`x`, `y`, `angle`, `s`, `behind`, `hidden`, `fallback`) | `Assets/Resources/Data/classes/warrior/held-gear-melee.json` |
+| Art và điểm cầm của từng loại vũ khí (`baseGrip`, `enhancedGrip`) | `Assets/Resources/Data/classes/warrior/held-gear.json` |
 | Cắt sheet chém, tính anchor melee | `Tools/build-melee-sheets.py` |
 | Nắm tay đè lên chuôi, anchor đứng yên/đi hai hướng ngang | `Tools/build-hand-overlay.py` |
-| Anchor súng Mechanic (`held-mechanic.json`) và lớp nắm tay `mechanic-hand/` | `Tools/build-mechanic-gun.py` (`Tools/export-held-gear.mjs` sẽ ghi đè, không chạy lại cho Mechanic) |
+| Anchor súng Mechanic (`held-mechanic.json`) và lớp nắm tay `classes/mechanic/body/hand/` | `Tools/build-mechanic-gun.py` (`Tools/export-held-gear.mjs` sẽ ghi đè, không chạy lại cho Mechanic) |
 | Danh sách động tác có lớp nắm tay của từng class | `HeroClassDef.HandFolder`, `HandAnims` |
 | Code vẽ | `Assets/Scripts/HeroRenderer.cs` |
 
 ## Quy tắc tư thế cầm
 
-1. **Khi cầm vũ khí, vũ khí không được đè lên tay (mọi class, mọi loại vũ khí).** Tay phải nắm qua chuôi: bàn tay vẽ trên vũ khí, chuôi nhô ra hai đầu nắm tay. Nếu vũ khí vẽ trước thân thì phải có lớp nắm tay đè lên (`bare-hand/`); nếu vũ khí ở tay phía xa thì vẽ sau thân. Kiểm tra trên sheet `bare/` mà game thật sự vẽ, vì tay trong sheet `hero/` có kiếm thường ở chỗ khác.
+1. **Khi cầm vũ khí, vũ khí không được đè lên tay (mọi class, mọi loại vũ khí).** Tay phải nắm qua chuôi: bàn tay vẽ trên vũ khí, chuôi nhô ra hai đầu nắm tay. Nếu vũ khí vẽ trước thân thì phải có lớp nắm tay đè lên (`body/hand/`); nếu vũ khí ở tay phía xa thì vẽ sau thân. Kiểm tra trên sheet `body/bare/` mà game thật sự vẽ, vì tay trong sheet `body/armed/` có kiếm thường ở chỗ khác.
 2. **Lưỡi vũ khí đúng chiều ở mọi frame:** tay nắm ở chuôi, mũi hướng ra ngoài.
 3. **Một vũ khí chỉ có một cỡ.** Warrior dùng `s = 0.34` cho đứng yên, đi, chém và skill. Không lấy cỡ theo sheet vẽ sẵn, vì kiếm trong đó nhỏ hơn.
 4. **Không được đổi tay khi quay trái/phải.** Warrior cầm kiếm tay phải, khiên tay trái:
    - Quay phải: kiếm ở tay gần camera, khiên ở tay xa.
    - Quay trái: khiên ở tay gần và vẽ trước thân; kiếm ở tay xa và vẽ sau thân.
    - Lật ảnh hướng phải sẽ đổi tay, nên phải đặt lại vũ khí riêng cho hướng trái.
-5. **Cắt lại hoặc vẽ lại sheet `bare/` thì phải đọc lại vị trí nắm tay** (`FISTS`, `FAR_FISTS` trong `build-hand-overlay.py`, `fixes` trong `build-melee-sheets.py`), rồi chạy lại tool.
+5. **Cắt lại hoặc vẽ lại sheet `body/bare/` thì phải đọc lại vị trí nắm tay** (`FISTS`, `FAR_FISTS` trong `build-hand-overlay.py`, `fixes` trong `build-melee-sheets.py`), rồi chạy lại tool.
 6. **Sửa xong phải xem từng frame** ở ảnh ghép giống cách game vẽ, rồi xem lại trong game. Không tin báo cáo "xong" hay chỉ số.
-7. **Vũ khí đang cầm và vũ khí lúc đánh phải là cùng một khẩu/thanh:** cùng art, cùng cỡ, không méo (`sx` không bóp tỉ lệ), trừ khi không có sheet `bare/` cho động tác đó.
+7. **Vũ khí đang cầm và vũ khí lúc đánh phải là cùng một khẩu/thanh:** cùng art, cùng cỡ, không méo (`sx` không bóp tỉ lệ), trừ khi không có sheet `body/bare/` cho động tác đó.
 8. **Hạn chế `fallback`:** frame này dùng vũ khí vẽ sẵn, nên khác cỡ và không theo đồ. Chỉ dùng khi không còn cách khác và phải báo lại.
 
 ## Quy tắc art lấy từ ChatGPT
@@ -65,9 +65,9 @@ Thân `bare/` (không vũ khí) + ảnh vũ khí/khiên đặt theo anchor từn
 
 | Ngày | Class | Lỗi | Nguyên nhân | Cách sửa |
 |---|---|---|---|---|
-| 2026-10-31 | Warrior | Kiếm chĩa ngược, tay nắm giữa lưỡi kiếm | Script nhận sai đầu kiếm; bản sửa cũ đảo grip/tip theo danh sách mà không xem ảnh | Dò góc từ sheet có kiếm, đặt tay nắm theo nắm tay ở `bare/` |
+| 2026-10-31 | Warrior | Kiếm chĩa ngược, tay nắm giữa lưỡi kiếm | Script nhận sai đầu kiếm; bản sửa cũ đảo grip/tip theo danh sách mà không xem ảnh | Dò góc từ sheet có kiếm, đặt tay nắm theo nắm tay ở `body/bare/` |
 | 2026-10-31 | Warrior | Kiếm lúc chém bé hơn lúc đứng yên | Lấy cỡ theo kiếm vẽ sẵn trong sheet | Cố định `s = 0.34` |
-| 2026-10-31 | Warrior | Chuôi đè lên bàn tay khi đứng yên/đi ngang | Kiếm vẽ trước toàn bộ thân, chuôi lệch nắm tay | Lớp `bare-hand/` đè lên chuôi, dời chuôi vào tâm nắm tay |
+| 2026-10-31 | Warrior | Chuôi đè lên bàn tay khi đứng yên/đi ngang | Kiếm vẽ trước toàn bộ thân, chuôi lệch nắm tay | Lớp `body/hand/` đè lên chuôi, dời chuôi vào tâm nắm tay |
 | 2026-10-31 | Warrior | Quay trái thì khiên và kiếm đổi tay | Hướng trái là ảnh lật của hướng phải | Đặt riêng: khiên tay gần, kiếm tay xa vẽ sau thân. Combo chém chưa sửa |
 | 2026-10-31 | Assassin | Bóng Shadow Clone không có động tác chém | Tìm quái sau khi gây sát thương nên nhát giết không có mục tiêu | Tìm quái trước khi gây sát thương |
 | 2026-10-31 | Assassin | Dao độc trông nhạt | `cast`, `dagger` bị trong suốt, độ đục khoảng 0,35 | Vẽ lại hình đặc, lõi sáng |
@@ -88,7 +88,7 @@ Mỗi loại kiếm có điểm cầm riêng và anchor dùng chung, nên art m�
 | Chỗ | Hiện trạng | Hậu quả |
 |---|---|---|
 | Frame `fallback` (`melee4` hướng phải/trái, frame 3) | Dùng frame vẽ sẵn cầm kiếm | Khoảnh khắc đó kiếm không theo đồ |
-| Khiên lúc chém (`melee1-4`, `inferno`) | Anchor khiên ẩn, khiên vẽ sẵn trong sheet `bare/` | Đổi khiên hay tháo khiên thì lúc chém vẫn là khiên cũ |
+| Khiên lúc chém (`melee1-4`, `inferno`) | Anchor khiên ẩn, khiên vẽ sẵn trong sheet `body/bare/` | Đổi khiên hay tháo khiên thì lúc chém vẫn là khiên cũ |
 | Bóng Shadow Clone | Vẽ từ sheet `assassin/` nhuộm tối | Không theo dao đang cầm; `walk.png` không có dao nên bóng mất dao khi đi |
 
 **Chưa kiểm tra:**

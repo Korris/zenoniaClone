@@ -1,6 +1,6 @@
 """Mechanic gun anchors and fist layer, from a per-frame table read by eye off the bare and armed sheets.
-Writes the "gun" entries of Assets/Resources/Data/held-mechanic.json (no other part of the file changes) and
-Assets/Resources/Sprites/mechanic-hand/<anim>.png: same grid as mechanic-bare, only the fist of the frames where the gun is drawn in front of the body
+Writes the "gun" entries of Assets/Resources/Data/classes/mechanic/held-mechanic.json (no other part of the file changes) and
+Assets/Resources/Sprites/classes/mechanic/body/hand/<anim>.png: same grid as body/bare, only the fist of the frames where the gun is drawn in front of the body
 (HeroRenderer draws that sheet above the gun). Safe to run again.
 Usage: python Tools/build-mechanic-gun.py   (from the project root; needs Pillow and numpy)
 
@@ -11,7 +11,7 @@ A table row is (fist_x, fist_y, aim, flip, behind) in frame pixels of the bare s
 HeroRenderer rotates a sprite that was scaled first, so angle = aim with flip 1 and aim - 180 with flip -1.
 The gun is in the hero's right hand, the arm opposite the gauntlet with the blue eye: viewer's left facing the camera, viewer's right from behind,
 the near hand facing right, the far hand facing left. Anims in MIRRORED draw the right row flipped in the game, so their left anchors are the right ones mirrored.
-Re-read the table whenever a mechanic-bare sheet is repainted (docs/sprite-weapon-rules.md rule 5)."""
+Re-read the table whenever a mechanic body/bare sheet is repainted (docs/sprite-weapon-rules.md rule 5)."""
 import json, math, os, re, uuid
 import numpy as np
 from PIL import Image
@@ -85,7 +85,7 @@ def anchor(row):
 
 
 def write_anchors():
-    path = f"{RES}/Data/held-mechanic.json"
+    path = f"{RES}/Data/classes/mechanic/held-mechanic.json"
     raw = open(path, "rb").read().decode()
     head, sep, tail = raw.partition('"anchors":')
     old = json.loads("{" + sep + tail[: tail.rindex("}")] + "}")["anchors"]
@@ -105,7 +105,7 @@ def fist_mask(cx, cy):
 
 
 def write_meta(anim, folder):
-    src = open(f"{RES}/Sprites/mechanic-bare/{anim}.png.meta", "rb").read().decode()
+    src = open(f"{RES}/Sprites/classes/mechanic/body/bare/{anim}.png.meta", "rb").read().decode()
     path = f"{RES}/Sprites/{folder}/{anim}.png.meta"
     if os.path.exists(path):  # keep the guid Unity already knows
         return
@@ -113,13 +113,13 @@ def write_meta(anim, folder):
 
 
 def write_hand_sheets():
-    folder = "mechanic-hand"
+    folder = "classes/mechanic/body/hand"
     os.makedirs(f"{RES}/Sprites/{folder}", exist_ok=True)
     if not os.path.exists(f"{RES}/Sprites/{folder}.meta"):
-        src = open(f"{RES}/Sprites/mechanic-bare.meta", "rb").read().decode()
+        src = open(f"{RES}/Sprites/classes/mechanic/body/bare.meta", "rb").read().decode()
         open(f"{RES}/Sprites/{folder}.meta", "wb").write(re.sub(r"guid: [0-9a-f]{32}", "guid: " + uuid.uuid4().hex, src, count=1).encode())
     for anim in FRAMES:
-        bare = np.array(Image.open(f"{RES}/Sprites/mechanic-bare/{anim}.png").convert("RGBA")).astype(np.float64)
+        bare = np.array(Image.open(f"{RES}/Sprites/classes/mechanic/body/bare/{anim}.png").convert("RGBA")).astype(np.float64)
         out = np.zeros_like(bare)
         table = rows(anim)
         for dir_name, frames in table.items():

@@ -14,7 +14,7 @@ namespace ZenoniaProto
     {
         public const float Radius = Rpg.LegacySkillNumbers.IceStormRadius, Mult = Rpg.LegacySkillNumbers.IceStormMult, Range = Rpg.LegacySkillNumbers.IceStormRange, CastMs = 650f, FallMs = 560f, WaveMs = 400f, TailMs = 850f, ChillMs = Rpg.LegacySkillNumbers.IceStormChillMs;
         const int Spears = 12, Waves = Rpg.LegacySkillNumbers.IceStormWaves;
-        const string Sheet = "Sprites/fx/wizard/ice-storm";
+        const string Sheet = "Sprites/classes/wizard/fx/combat/ice-storm";
         static readonly Vector2[] DirVec = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
         static readonly Color Cyan = new Color(0.45f, 0.85f, 1f);
         static readonly float[] Anchor = { 0.8f, 0.92f, 0.84f, 0.5f }; // web per-row anchor (fraction from the top of the 192px cell)

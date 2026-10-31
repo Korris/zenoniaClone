@@ -1,13 +1,13 @@
-"""Slices the painted skill rosters (ArtLibrary/custom/skill-icons-<class>-roster.png, 3 rows x 5 icons) into the 128px touch-button icons.
+"""Slices the painted skill rosters (ArtLibrary/classes/<class>/skill-icons-src/skill-icons-<class>-roster.png, 3 rows x 5 icons) into the 128px touch-button icons.
 Run from the project root (Python 3 + Pillow). Cells are found from the alpha ink (gutters between icons), like the web painted-combat-assets.js.
-Output: Assets/Resources/Sprites/skill-icons/<class>-<index>.png, index = row * 5 + column (the web SKILL_ORDER slot of that class).
+Output: Assets/Resources/Sprites/classes/<class>/skill-icons/<index>.png, index = row * 5 + column (the web SKILL_ORDER slot of that class).
 """
 import os
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "Assets", "ArtLibrary", "custom")
-OUT = os.path.join(ROOT, "Assets", "Resources", "Sprites", "skill-icons")
+SRC = os.path.join(ROOT, "Assets", "ArtLibrary", "classes")
+OUT = os.path.join(ROOT, "Assets", "Resources", "Sprites", "classes")
 SIZE = 128
 
 def bands(counts, min_ink, n):
@@ -20,7 +20,7 @@ def bands(counts, min_ink, n):
     return sorted(runs[:n])
 
 def slice_roster(cls):
-    im = Image.open(os.path.join(SRC, "skill-icons-%s-roster.png" % cls)).convert("RGBA")
+    im = Image.open(os.path.join(SRC, cls, "skill-icons-src", "skill-icons-%s-roster.png" % cls)).convert("RGBA")
     w, h = im.size
     a = im.getchannel("A").load()
     rows = bands([sum(1 for x in range(0, w, 2) if a[x, y] > 80) for y in range(h)], w * 0.1, 3)
@@ -33,8 +33,8 @@ def slice_roster(cls):
             side = max(cell.size)
             sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
             sq.paste(cell, ((side - cell.size[0]) // 2, (side - cell.size[1]) // 2))
-            sq.resize((SIZE, SIZE), Image.LANCZOS).save(os.path.join(OUT, "%s-%d.png" % (cls, r * 5 + c)))
+            sq.resize((SIZE, SIZE), Image.LANCZOS).save(os.path.join(OUT, cls, "skill-icons", "%d.png" % (r * 5 + c)))
 
 os.makedirs(OUT, exist_ok=True)
 for cls in ["warrior", "wizard", "mechanic", "cleric", "assassin"]: slice_roster(cls)
-print("skill icons written to", OUT, len(os.listdir(OUT)))
+print("skill icons written under", OUT)
