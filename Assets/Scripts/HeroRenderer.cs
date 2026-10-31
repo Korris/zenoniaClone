@@ -24,11 +24,12 @@ namespace ZenoniaProto
 
         readonly Dictionary<string, Sprite[][]> armed = new Dictionary<string, Sprite[][]>();
         readonly Dictionary<string, Sprite[][]> bare = new Dictionary<string, Sprite[][]>();
+        readonly Dictionary<string, Sprite[][]> hand = new Dictionary<string, Sprite[][]>();
         readonly List<Part> parts = new List<Part>(2);
         readonly HeldAnchor[] anchorBuffer = new HeldAnchor[4];
         HeroClassDef cls;
         HeldGearData gear;
-        SpriteRenderer body, shadow;
+        SpriteRenderer body, shadow, handOver;
         Transform lean;
         const float LeanDegrees = 6f, LeanSideDip = 0.02f, LeanFrontDip = 0.05f, LeanInSeconds = 0.06f, LeanOutSeconds = 0.09f;
         float leanAngle, leanDip;
@@ -74,13 +75,17 @@ namespace ZenoniaProto
             shadow = ProceduralSprites.Child(transform, "Shadow", ProceduralSprites.Shadow());
             shadow.transform.localScale = new Vector3(12f, 12f, 1f); // 12 x 6 units, web radius 6 x 2.5 (slightly taller reads better)
             shadow.color = new Color(1f, 1f, 1f, 0.3f);
-            // Draw order within an entity (stride 8): shadow 0, behind parts 1-2, body 3, front parts 4-5, enhance stars + motes 6 (halo and shine share their part's order).
+            // Draw order within an entity (stride 8): shadow 0, behind parts 1-2, body 3, front parts 4-5, the fist over the handle and enhance stars + motes 6 (halo and shine share their part's order).
             var parts0 = new List<Part>();
             lean = new GameObject("Lean").transform; // pivots on the feet; the shadow stays out of it
             lean.SetParent(transform, false);
             foreach (GearPartSpec spec in cls.Parts)
                 parts0.Add(new Part { Spec = spec, Sr = ProceduralSprites.Child(lean, spec.Id, null) });
             body = ProceduralSprites.Child(lean, "Body", null);
+            handOver = ProceduralSprites.Child(lean, "HandOver", null);
+            if (cls.HandFolder != null)
+                foreach (string anim in cls.HandAnims)
+                    hand[anim] = SpriteSheet.Grid("Sprites/" + cls.HandFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
             parts.AddRange(parts0);
         }
 
@@ -159,6 +164,7 @@ namespace ZenoniaProto
             if (!armed.ContainsKey(anim) || (armedRow = SpriteSheet.Row(armed[anim], row)) == null || armedRow.Length == 0)
             {
                 body.sprite = null;
+                handOver.sprite = null;
                 foreach (Part p in parts) { p.Sr.sprite = null; if (p.Fx != null) p.Fx.Hide(); }
                 return;
             }
@@ -186,6 +192,11 @@ namespace ZenoniaProto
             body.flipX = mirror;
             body.color = tint;
             body.sortingOrder = orderBase + 3;
+            Sprite[] handRow = useGear && hand.ContainsKey(anim) ? SpriteSheet.Row(hand[anim], row) : null;
+            handOver.sprite = handRow != null && frame < handRow.Length ? handRow[frame] : null;
+            handOver.flipX = mirror;
+            handOver.color = tint;
+            handOver.sortingOrder = orderBase + 6;
             for (int i = 0; i < parts.Count; i++)
                 ApplyPart(parts[i], useGear ? anchorBuffer[i] : null, orderBase + 1 + i, orderBase + 4 + i, orderBase, tint, alpha);
         }

@@ -29,6 +29,8 @@ namespace ZenoniaProto
         public HeroClass Id;
         public string Name, Tagline, ComboLabel;
         public string SheetFolder, BareFolder, GearFile, FxFolder;
+        public string HandFolder; // only the weapon fist, drawn above the weapon; null = none
+        public string[] HandAnims; // anims with a sheet in HandFolder; a blank frame there draws nothing
         public string[] BareAnims;
         public string[] ExtraAnims;            // skill poses only this class has (null = none); loaded armed + bare like the rest
         public string[] ComboAnims;            // per combo step anim (null = attack1 / attack2 alternate + attack3 finisher); "meleeN" = Tools/build-melee-sheets.py output
@@ -57,7 +59,7 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Warrior = new HeroClassDef
         {
             Id = HeroClass.Warrior, Name = "Warrior", Tagline = "Sword master. Tough, fast combos up close.", ComboLabel = "4-hit sword combo",
-            SheetFolder = "hero", BareFolder = "bare", GearFile = "held-gear", FxFolder = null, Palette = ClassPalette.Red,
+            SheetFolder = "hero", BareFolder = "bare", HandFolder = "bare-hand", HandAnims = new[] { "idle", "walk" }, GearFile = "held-gear", FxFolder = null, Palette = ClassPalette.Red,
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
             ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // horizontal slash, diagonal cut, spin, jump cleave (Tools/build-melee-sheets.py)
             ExtraAnims = new[] { InfernoCrashUltimate.PoseAnim, BerserkerAwakeningFx.PoseAnim },
@@ -80,7 +82,7 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Mechanic = new HeroClassDef
         {
             Id = HeroClass.Mechanic, Name = "Mechanic", Tagline = "Gunslinging engineer. Rapid shots, cannon finisher, robot buddy.", ComboLabel = "3 rapid shots + cannon blast",
-            SheetFolder = "mechanic", BareFolder = "mechanic-bare", GearFile = "held-mechanic", FxFolder = "mechanic", Palette = ClassPalette.Orange,
+            SheetFolder = "mechanic", BareFolder = "mechanic-bare", HandFolder = "mechanic-hand", HandAnims = new[] { "idle", "walk", "attack1", "attack3", "dash", "hurt" }, GearFile = "held-mechanic", FxFolder = "mechanic", Palette = ClassPalette.Orange,
             BareAnims = new[] { "idle", "walk", "attack1", "attack3", "dash", "hurt" }, // attack2 / death: baked armed art
             MirrorLeft = new HashSet<string> { "attack3", "dash", "hurt", "death" },
             MaxHp = 90f, Atk = 12f, Def = 4f, Speed = 82f, Hits = ComboConfigs.MechanicHits, ChainMs = 420f,
