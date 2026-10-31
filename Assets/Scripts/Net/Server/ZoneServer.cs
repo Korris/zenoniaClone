@@ -29,6 +29,7 @@ namespace ZenoniaProto
         ZoneHost host;
         ZoneTransferService transfers;
         PartyService party;
+        TradeService trade;
         NetStats stats;
         readonly List<NetPlayer> players = new List<NetPlayer>();
         readonly Dictionary<NetPeer, float> unauthenticated = new Dictionary<NetPeer, float>(); // peer -> connect time (waiting for Hello)
@@ -72,6 +73,7 @@ namespace ZenoniaProto
             host = NetMode.IsHeadless ? ZoneHost.CreateDedicated(transform, NetLaunchArgs.StartMap) : ZoneHost.CreateSingle(Zone.Main);
             transfers = new ZoneTransferService(host, repl, stats);
             party = new PartyService(stats);
+            trade = new TradeService(repl, stats);
             for (int i = 0; i < host.Zones.Count; i++) host.Zones[i].BossDied += OnBossDied;
             NetEventBus.ResetState();
             NetEventBus.Active = true;
@@ -110,6 +112,7 @@ namespace ZenoniaProto
             if (p == null) return;
             RecordClientStats(p);
             party.OnLeave(p);
+            trade.OnLeave(p);
             players.Remove(p);
             if (p.Hero != null && p.Hero.HomeZone != null) p.Hero.HomeZone.Players.Remove(p);
             nextSnapMs.Remove(p);
@@ -147,6 +150,11 @@ namespace ZenoniaProto
                     if (p == null || !PartyRequestMsg.TryRead(reader, out pr)) { Kick(peer, "bad party request"); break; }
                     party.OnRequest(p, pr, host.ClockMs);
                     break;
+                case NetOp.TradeRequest:
+                    TradeRequestMsg tr;
+                    if (p == null || !TradeRequestMsg.TryRead(reader, out tr)) { Kick(peer, "bad trade request"); break; }
+                    trade.OnRequest(p, tr, host.ClockMs);
+                    break;
                 default: Kick(peer, "unknown opcode " + op); break;
             }
         }
@@ -173,6 +181,7 @@ namespace ZenoniaProto
             players.Add(p);
             zone.Players.Add(p);
             party.OnJoin(p);
+            trade.OnJoin(p);
             nextSnapMs[p] = host.ClockMs + (p.PlayerId % snapDiv) * (1000f / tickRate);
             stats.Max("playersPeak", players.Count);
             repl.SendWelcome(p, zone.Map.Id, transfers.PortalsLive, ServerMs, tickRate, snapDiv);
@@ -224,8 +233,9 @@ namespace ZenoniaProto
                 Zone.Enter(p.Hero.HomeZone);
                 ServerInputState st = p.Input.State;
                 int hpSize = p.Rpg.State.QuickPotionSize(true), mpSize = p.Rpg.State.QuickPotionSize(false);
-                if (st.TakePotion(true) && p.Rpg.UsePotion(true).Ok) NetEventBus.Potion(p.Hero, true, hpSize);
-                if (st.TakePotion(false) && p.Rpg.UsePotion(false).Ok) NetEventBus.Potion(p.Hero, false, mpSize);
+                bool drinks = !TradeService.IsTrading(p); // the keys are spent either way: a press during a trade must not fire when it ends
+                if (st.TakePotion(true) && drinks && p.Rpg.UsePotion(true).Ok) NetEventBus.Potion(p.Hero, true, hpSize);
+                if (st.TakePotion(false) && drinks && p.Rpg.UsePotion(false).Ok) NetEventBus.Potion(p.Hero, false, mpSize);
                 st.ClampPotions(3);
             }
             simStart = Stopwatch.GetTimestamp();
@@ -274,6 +284,7 @@ namespace ZenoniaProto
             stats.Sample("zonesAwake", host.ZonesAwake);
             Zone.Enter(host.Start);
             party.Tick(host.ClockMs);
+            trade.Tick(host.ClockMs);
             tickWatch.Stop();
             stats.Sample("tickMs", (float)tickWatch.Elapsed.TotalMilliseconds);
             if (!finished && runSeconds > 0f && Time.realtimeSinceStartup - startTime >= runSeconds) Finish();
@@ -350,6 +361,7 @@ namespace ZenoniaProto
         {
             if (Instance == this) Instance = null;
             if (party != null) party.Stop();
+            if (trade != null) trade.Stop();
             if (host != null)
             {
                 for (int i = 0; i < host.Zones.Count; i++) host.Zones[i].BossDied -= OnBossDied;

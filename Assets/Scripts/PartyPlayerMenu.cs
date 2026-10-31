@@ -7,19 +7,20 @@ using ZenoniaProto.Net;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// How a player picks someone to invite: a tap (or click) on another player, or on their name above them, opens a small box with their name and Invite. A quick tap only, so a
+    /// How a player picks someone to invite or trade with: a tap (or click) on another player, or on their name above them, opens a small box with their name, Invite and Trade. A quick tap only, so a
     /// drag on the joystick never counts. The joystick's touch zone is the one piece of UI a tap passes through, because it covers the lower left of the world around the hero; every
     /// other control keeps its taps. Tapping elsewhere closes the box, and so does the target going away. Any finger counts, so this works with the other thumb on the stick.
     /// Reads the input module's BaseInput, the same source the buttons use.
     /// </summary>
     public sealed class PartyPlayerMenu : MonoBehaviour
     {
-        const float AboveHead = 38f, W = 130f, H = 60f, TapSeconds = 0.35f, TapMovePixels = 24f, OpenSeconds = 6f, MinHitPixels = 48f;
+        const float AboveHead = 38f, W = 226f, H = 60f, ButtonW = 110f, ButtonGap = 6f, TapSeconds = 0.35f, TapMovePixels = 24f, OpenSeconds = 6f, MinHitPixels = 48f;
         const int MouseFinger = -100, NoFinger = -1;
         static PartyPlayerMenu instance;
 
         readonly List<RaycastResult> uiHits = new List<RaycastResult>(8);
-        RectTransform layer, box;
+        RectTransform layer, box, tradeButton;
+        GameObject inviteButton;
         Text nameLabel;
         HeroController target;
         float closeAt, downAt;
@@ -44,13 +45,20 @@ namespace ZenoniaProto
         {
             box = UiWinKit.Anchored(transform, "Box", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f), 0f, 0f, W, H);
             nameLabel = UiKit.Label(box, "Name", 0f, 0f, W, 22f, "", 15, Color.white, TextAnchor.MiddleCenter, true);
-            PartyArt.ArtButton(box, "Invite", "btn-invite", (W - 110f) * 0.5f, 24f, 110f, 36f, "Invite", 15, UiWinKit.Cream, Invite);
+            inviteButton = PartyArt.ArtButton(box, "Invite", "btn-invite", 0f, 24f, ButtonW, 36f, "Invite", 15, UiWinKit.Cream, Invite).gameObject;
+            tradeButton = (RectTransform)PartyArt.ArtButton(box, "Trade", "btn-invite", ButtonW + ButtonGap, 24f, ButtonW, 36f, "Trade", 15, UiWinKit.Cream, Trade).transform;
             box.gameObject.SetActive(false);
         }
 
         void Invite()
         {
             if (target != null) NetClient.SendParty(PartyOp.Invite, target.PlayerId);
+            Close();
+        }
+
+        void Trade()
+        {
+            if (target != null) NetClient.SendTrade(TradeOp.Request, target.PlayerId);
             Close();
         }
 
@@ -63,6 +71,9 @@ namespace ZenoniaProto
             instance.target = hero;
             instance.closeAt = Time.unscaledTime + OpenSeconds;
             instance.nameLabel.text = hero.PlayerName;
+            bool member = NetClient.Party.Contains(hero.PlayerId); // nothing to invite a member to, but you can trade with one
+            instance.inviteButton.SetActive(!member);
+            instance.tradeButton.anchoredPosition = new Vector2(member ? (W - ButtonW) * 0.5f : ButtonW + ButtonGap, instance.tradeButton.anchoredPosition.y);
             Vector2 local;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(instance.layer, screen, null, out local);
             Vector2 half = instance.layer.rect.size * 0.5f;
@@ -128,7 +139,7 @@ namespace ZenoniaProto
             return uiHits.Count > 0 && uiHits[0].gameObject.GetComponent<TouchJoystick>() == null;
         }
 
-        /// <summary>The player under a screen point, by body or name tag; generous on small screens, the nearest body or tag wins an overlap. Your own party is not offered.</summary>
+        /// <summary>The player under a screen point, by body or name tag; generous on small screens, the nearest body or tag wins an overlap.</summary>
         static HeroController HeroAt(Vector2 screen)
         {
             Camera cam = Camera.main;
@@ -141,7 +152,7 @@ namespace ZenoniaProto
             for (int i = 0; i < heroes.Count; i++)
             {
                 HeroController h = heroes[i];
-                if (h == null || h == LocalPlayer.Hero || h.IsDead || h.PlayerId == 0 || NetClient.Party.Contains(h.PlayerId)) continue;
+                if (h == null || h == LocalPlayer.Hero || h.IsDead || h.PlayerId == 0) continue;
                 Vector2 feet = cam.WorldToScreenPoint(new Vector3(h.Position.x, h.Position.y, 0f));
                 Vector2 head = cam.WorldToScreenPoint(new Vector3(h.Position.x, h.Position.y + 26f, 0f));
                 Vector2 tag = cam.WorldToScreenPoint(new Vector3(h.Position.x, h.Position.y + 30f, 0f));

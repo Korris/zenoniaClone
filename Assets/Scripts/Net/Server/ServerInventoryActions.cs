@@ -14,7 +14,7 @@ namespace ZenoniaProto
             if (p.Hero == null) return;
             Zone.Enter(p.Hero.HomeZone); // a network callback: the events it raises belong to this hero's zone
             string before = LookKey(p);
-            string refusal = m.Op == InvOp.PotionBuy ? ShopRefusal(p, m) : null;
+            string refusal = TradeService.IsTrading(p) && TradeBook.BlocksInventoryOp(m.Op) ? "Not while trading" : m.Op == InvOp.PotionBuy ? ShopRefusal(p, m) : null;
             ActionResult r = refusal != null ? ActionResult.Fail(refusal) : p.Rpg.ApplyInvAction(m.Op, m.ItemUid, m.Slot);
             if (LookKey(p) != before)
             {

@@ -8,7 +8,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Online client test tooling (command line only):
-    ///   --net-bot fight|boss|wander|twitch|skills|portal|party   drive the joined hero through InputAdapter, so the real NetInputSender / server path is exercised
+    ///   --net-bot fight|boss|wander|twitch|skills|portal|party|trade   drive the joined hero through InputAdapter, so the real NetInputSender / server path is exercised
     ///                                 (fight = nearest monsters, boss = the Frostfang King first, wander = random walking, portal = walks from portal to portal)
     ///   --record-net S                record S seconds of THIS client's screen in real time (jpg frames + fps.txt + audio.wav in --shot-path),
     ///                                 optional --record-lead L waits L seconds after joining first; encode with ffmpeg afterwards
@@ -43,6 +43,7 @@ namespace ZenoniaProto
                 case "twitch": EnableTwitchBot(); break;
                 case "portal": EnablePortalBot(); break;
                 case "party": StartPartyBot(); break;
+                case "trade": StartTradeBot(); break;
             }
             Debug.Log("[ZenoniaProto] net bot: " + (bot ?? "off") + " as " + GameSession.Hero.PlayerName + " (hero " + GameSession.Hero.NetId + ")");
         }

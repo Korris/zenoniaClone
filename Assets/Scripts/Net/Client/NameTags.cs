@@ -9,7 +9,7 @@ namespace ZenoniaProto
 
         void OnGUI()
         {
-            if (Event.current.type != EventType.Repaint || NetMode.IsOffline) return;
+            if (Event.current.type != EventType.Repaint || NetMode.IsOffline || TradeWindow.IsOpen) return; // IMGUI draws over the UGUI canvas: the tags would sit on the trade window's items
             Camera cam = Camera.main;
             Zone zone = Zone.Main;
             if (cam == null || zone == null) return;

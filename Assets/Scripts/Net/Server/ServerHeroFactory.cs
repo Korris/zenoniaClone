@@ -22,6 +22,7 @@ namespace ZenoniaProto
                 state.Hp = state.MaxHp; state.Mp = state.MaxMp;
             }
             if (NetLaunchArgs.DevHurtPct > 0 && def.Id != HeroClass.Cleric) state.Hp = state.MaxHp * NetLaunchArgs.DevHurtPct / 100f; // test servers only: somebody for a cleric to heal
+            GrantDevGoods(state);
             if (NetMode.IsHeadless) hero.InitHeadless(def, state);
             else
             {
@@ -47,6 +48,20 @@ namespace ZenoniaProto
             // Same as an offline save positioned past a gate: a hero that begins beyond it (--map) can walk back through it.
             string passed = zone.Map != null ? MapSpawnTable.GatePassedOn(zone.Map.Id) : null;
             if (passed != null) p.Bosses.Mark(passed, MapSpawnTable.HasOwnBoss(passed));
+        }
+
+        /// <summary>Test servers only (--dev-gold, --dev-items): something to trade. The first item is a +9 weapon of the hero's class, the rest one of each slot in turn at rising rarity.</summary>
+        static void GrantDevGoods(PlayerState state)
+        {
+            state.Gold += NetLaunchArgs.DevGold;
+            string[] rarities = ItemDefs.RarityOrder;
+            for (int i = 0; i < NetLaunchArgs.DevItems; i++)
+            {
+                string slot = i == 0 ? Slots.Weapon : Slots.All[i % Slots.All.Length];
+                Item item = ItemFactory.Generate(RpgRandom.Default, 10 + i * 5, slot, rarities[(i + 1) % rarities.Length], state.ClassId);
+                if (i == 0) item.enhance = 9;
+                state.AddToInventory(item);
+            }
         }
 
         /// <summary>Spawn point near the entrance, spread so arriving players do not stack on one pixel.</summary>

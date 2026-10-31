@@ -7,7 +7,7 @@ namespace ZenoniaProto
     /// Command line of the network modes (parsed once at startup):
     ///   --mode offline|server|host|client   --port N (default 7777)   --host H | --connect H:P   --name X   --class warrior|wizard|...
     ///   --sim-latency MS --sim-jitter MS --sim-loss PCT --sim-seed N (client lag harness)   --no-predict   --predict-after S   --net-no-delta
-    ///   --max-players N (200)   --tick 30   --snap-div 2   --dev-key K   --run-seconds N   --net-bot fight|wander|portal   --net-stats file.json
+    ///   --max-players N (200)   --tick 30   --snap-div 2   --dev-key K   --run-seconds N   --net-bot fight|wander|portal   --net-stats file.json   --dev-gold N --dev-items N (test servers: goods to trade)
     ///   --map NAME (server: the zone new heroes begin in, default Frost Hollow)   --no-portals (server: load tests keep everybody on one zone)
     /// </summary>
     public static class NetLaunchArgs
@@ -29,6 +29,10 @@ namespace ZenoniaProto
         public static int DevLevel;
         /// <summary>Server test hook (--dev-hurt PCT): every new hero but a Cleric starts at this percent of its HP; 0 = off. Never set on a public server.</summary>
         public static int DevHurtPct;
+        /// <summary>Server test hook (--dev-gold N): every new hero starts with this much gold; 0 = off. Never set on a public server.</summary>
+        public static int DevGold;
+        /// <summary>Server test hook (--dev-items N, at most a full bag): every new hero starts with this many bag items, the first an enhanced weapon of its class; 0 = off. Never set on a public server.</summary>
+        public static int DevItems;
         /// <summary>Server: --map, the zone new heroes begin in (null = the default map, Frost Hollow).</summary>
         public static string StartMap;
         /// <summary>Server test hook (--no-portals): no hero is ever moved between zones.</summary>
@@ -68,6 +72,8 @@ namespace ZenoniaProto
             TestVersion = Int(a, "--net-test-version", 0);
             DevLevel = Math.Max(0, Math.Min(Rpg.Leveling.MaxLevel, Int(a, "--dev-level", 0)));
             DevHurtPct = Math.Max(0, Math.Min(100, Int(a, "--dev-hurt", 0)));
+            DevGold = Math.Max(0, Int(a, "--dev-gold", 0));
+            DevItems = Math.Max(0, Math.Min(Rpg.PlayerState.InventorySize, Int(a, "--dev-items", 0)));
             float pa;
             PredictAfter = float.TryParse(Arg(a, "--predict-after"), NumberStyles.Float, CultureInfo.InvariantCulture, out pa) ? pa : 0f;
             Predict = Array.IndexOf(a, "--no-predict") < 0 && PredictAfter <= 0f;

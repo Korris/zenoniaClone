@@ -3,14 +3,14 @@ namespace ZenoniaProto.Net
     /// <summary>Wire opcodes (first byte of every packet) and protocol-wide constants. Client -> server 1..9, server -> client 10..29.</summary>
     public static class NetOp
     {
-        public const byte Hello = 1, Input = 2, InvAction = 3, Revive = 4, PartyRequest = 5;
-        public const byte Welcome = 10, Reject = 11, Spawn = 12, Despawn = 13, Snapshot = 14, SelfState = 15, RpgState = 17, ZoneChanged = 18, EventBatch = 20, PartyNotice = 21, PartyRoster = 22;
+        public const byte Hello = 1, Input = 2, InvAction = 3, Revive = 4, PartyRequest = 5, TradeRequest = 6;
+        public const byte Welcome = 10, Reject = 11, Spawn = 12, Despawn = 13, Snapshot = 14, SelfState = 15, RpgState = 17, ZoneChanged = 18, EventBatch = 20, PartyNotice = 21, PartyRoster = 22, TradeNotice = 23, TradeState = 24;
     }
 
     /// <summary>Protocol constants shared by server and clients (bump Version on any wire change).</summary>
     public static class NetProtocol
     {
-        public const ushort Version = 7;
+        public const ushort Version = 8;
         public const int MaxSelfBuffs = 8;
         public const int MaxNameLength = 16, MaxTokenLength = 64, MaxTextLength = 120, MaxItemUidLength = 40, MaxSaveJsonLength = 60000, MaxMapIdLength = 32;
         /// <summary>Largest unfragmented snapshot: LiteNetLib refuses an unreliable packet over 1023 B (MTU 1024), so 1000 B.</summary>
