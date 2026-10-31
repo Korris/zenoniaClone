@@ -8,8 +8,12 @@ Outputs, in the game's 192px frame format (6 columns x 4 rows: down, up, left = 
   Resources/Data/<gearFile>-melee.json            per-frame weapon anchors (merged: other anims kept)
   plans/reports/melee-shots/<class>-melee<N>.png  preview: armed | weaponless + measured weapon overlay
 
-Weapon anchor = straight line fitted (RANSAC + PCA) to the pixels the armed sheet adds over the weaponless one; the grip end is the end
-nearest the gold crossguard (warrior) or the fist; s = weapon length / art grip-to-tip length; behind = the body covers the blade.
+Weapon anchor, warrior (fit="sword", see sword_lines): a sword-shaped matched filter (red core, silver edges, gold cross-guard at one end) finds the
+blade's angle on the armed frame, so the guard end cannot be mistaken for the tip and the curved swing trails do not match. The grip then goes on the
+fist of the WEAPONLESS frame, because that is the body the game draws and its arm is not always where the armed sheet has it. s = the drawn blade
+length measured on the armed sheet / (art length * draw_scale), the same for every frame of the anim.
+Other single-weapon classes: straight line fitted (RANSAC + PCA) to the pixels the armed sheet adds over the weaponless one; the grip end is the end
+nearest the gold crossguard or the fist; s = weapon length / art grip-to-tip length; behind = the body covers the blade.
 Usage: python Tools/build-melee-sheets.py warrior 2
 """
 import json
@@ -31,7 +35,31 @@ DIRS = ["down", "up", "right"]  # sheet rows; "left" is the mirrored right row
 # and the reference body (bare idle, facing down) whose height and feet the new frames are scaled to.
 CLASSES = {
     "warrior": dict(armed="hero", bare="bare", gear="held-gear", part="sword", art="sword/iron-base.png", grip=None,
-                    draw_scale=2.1, hidden=["shield"], gold=True),  # draw_scale = HeroClassDef sword GearPartSpec
+                    draw_scale=1.6, hidden=["shield"], gold=True,  # draw_scale = HeroClassDef sword GearPartSpec (keep in sync)
+                    # Height, feet and centre of the bare idle these sheets were cut against. Pinned: idle.png has been re-cut since, and
+                    # following it would rescale every melee frame.
+                    ref=(156, 186, 100.5),
+                    fit="sword", guard_y=192, hand_y=230,  # iron-base art rows: cross-guard, middle of the handle
+                    sword_s=0.34,  # same s as the idle and walk anchors in held-gear-melee.json
+                    # Frames the detection cannot read. Keys: (melee n, dir, frame). "search": blade angle range to look in (trail or a ghost blade
+                    # scores higher elsewhere). "angle": no blade drawn at all, use this angle. "fist": the bare fist, where it cannot be told from armour.
+                    # "behind": override the measured draw order.
+                    fixes={
+                        (1, "up", 0): dict(search=(40, 60), fist=(185, 84)), (1, "up", 1): dict(search=(75, 95)), (1, "up", 2): dict(search=(65, 90), fist=(168, 98)),
+                        (1, "right", 5): dict(fist=(107, 129)),
+                        (2, "down", 0): dict(fist=(65, 45)), (2, "down", 1): dict(fist=(65, 67)), (2, "down", 2): dict(fist=(73, 100)), (2, "down", 3): dict(fist=(97, 140)), (2, "down", 5): dict(fist=(53, 135)),
+                        (2, "up", 0): dict(fist=(172, 50)), (2, "up", 3): dict(fist=(152, 135)), (2, "up", 4): dict(fist=(175, 131)), (2, "up", 5): dict(fist=(160, 131)),
+                        (2, "right", 0): dict(fist=(113, 70)), (2, "right", 1): dict(fist=(138, 76)), (2, "right", 2): dict(search=(-55, -30), fist=(125, 120)),
+                        (2, "right", 3): dict(fist=(128, 140)), (2, "right", 4): dict(fist=(140, 138)), (2, "right", 5): dict(fist=(118, 137)),
+                        (3, "down", 0): dict(fist=(65, 135)), (3, "down", 5): dict(fist=(55, 135)),
+                        (3, "up", 0): dict(fist=(175, 125)), (3, "up", 5): dict(fist=(162, 128)),
+                        (3, "right", 0): dict(fist=(93, 133)), (3, "right", 2): dict(fist=(140, 125)), (3, "right", 3): dict(angle=95, behind=True, fist=(112, 124)),
+                        (3, "right", 4): dict(fist=(118, 132)), (3, "right", 5): dict(fist=(115, 134)),
+                        (4, "down", 0): dict(fist=(67, 18)), (4, "down", 1): dict(fist=(73, 6)), (4, "down", 2): dict(search=(15, 40), fist=(86, 50)), (4, "down", 3): dict(fist=(117, 137)), (4, "down", 4): dict(fist=(140, 138)),
+                        (4, "up", 0): dict(fist=(168, 18)), (4, "up", 1): dict(fist=(133, 4)), (4, "up", 2): dict(fist=(165, 33)), (4, "up", 3): dict(fist=(136, 130)), (4, "up", 4): dict(fist=(80, 125)), (4, "up", 5): dict(fist=(170, 115)),
+                        (4, "right", 0): dict(fist=(92, 36)), (4, "right", 1): dict(fist=(116, 26)), (4, "right", 2): dict(fist=(134, 128), behind=True, fallback=True),  # armed and bare arms disagree at the swing's peak: draw the baked armed frame
+                        (4, "right", 3): dict(fist=(140, 141)), (4, "right", 4): dict(fist=(148, 132)), (4, "right", 5): dict(fist=(122, 137)),
+                    }),
     # Two daggers: parts main (character's right hand, drawn in front) + off (left hand). draw_scale = HeroClassDef dagger GearPartSpec;
     # dagger_frac = grip-to-tip dagger length (what shows beyond the fist) as a fraction of the idle body height (the user wants ~40%).
     "assassin": dict(armed="assassin", bare="assassin-bare", gear="held-assassin", part="main", parts=["main", "off"],
@@ -167,6 +195,180 @@ def finish(armed, b_al, diff, grip, tip):
             else:
                 front += 1
     return grip, end1, behind > front and behind >= 4
+
+
+def sword_masks(frame, bare):
+    """Blade colours in an armed frame: red core, silver edges, gold guard, plus `same` = pixels the weaponless frame also has (the body)."""
+    rgb = frame[..., :3].astype(np.float32)
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    mx, mn = rgb.max(-1), rgb.min(-1)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    op = frame[..., 3] > 170
+    red = op & (r > 130) & (g < 110) & (b < 110) & (sat > 0.5)
+    silver = op & (mn > 110) & (sat < 0.3)
+    gold = op & (r > 110) & (g > 70) & (b < 120) & (r > g * 1.12) & (g > b * 1.2)
+    same = (np.abs(frame[..., :3].astype(int) - bare[..., :3].astype(int)).sum(-1) < 40) & (bare[..., 3] > 180)
+    return red, silver, gold, same
+
+
+SWORD_PAD = 96  # the blade may leave the 192px frame (the sheets clip it); pixels outside count for nothing
+SWORD_SIZE = FRAME + 2 * SWORD_PAD
+SWORD_FILTERS = {}
+
+
+def sword_filter(length, angle):
+    """Frequency domain sword (3 channels: core, edge, guard) of guard-to-tip `length`, guard centre at the origin, and its total weight."""
+    key = (length, angle)
+    if key not in SWORD_FILTERS:
+        th = math.radians(angle)
+        ux, uy = math.sin(th), -math.cos(th)
+        rad = int(length + 24)
+        xs, ys = np.meshgrid(np.arange(-rad, rad + 1), np.arange(-rad, rad + 1))
+        t = xs * ux + ys * uy
+        w = np.abs(ys * ux - xs * uy)
+        taper = np.clip((length - t) * 0.75, 0, 9)  # half width, narrowing to the point
+        core = (w <= np.minimum(3.5, taper - 3)) & (t >= 8) & (t <= length - 10)
+        edge = ((w >= 5.5) & (w <= np.maximum(5.6, taper)) & (t >= 2) & (t <= length)) | ((t > length - 12) & (w <= taper) & (t <= length))
+        guard = (np.abs(t) <= 4.5) & (w <= 19)
+        weights = (1.0, 1.0, 1.6)
+        T = np.zeros((3, SWORD_SIZE, SWORD_SIZE), np.float32)
+        for i, m in enumerate((core, edge, guard)):
+            iy, ix = np.nonzero(m)
+            T[i, ys[iy, ix] % SWORD_SIZE, xs[iy, ix] % SWORD_SIZE] = weights[i]
+        SWORD_FILTERS[key] = (np.conj(np.fft.rfft2(T)), float(T.sum()))
+    return SWORD_FILTERS[key]
+
+
+def fit_sword(frame, bare, angles):
+    """Matched filter over `angles` (coarse then fine). Returns (guard centre, angle in degrees) of the sword in an armed frame."""
+    red, silver, gold, same = sword_masks(frame, bare)
+    W = np.where(same, 0.15, 1.0)
+    G = np.zeros((3, SWORD_SIZE, SWORD_SIZE), np.float32)
+    for i, (ch, miss) in enumerate(((red, 0.35), (silver, 0.35), (gold, 0.25))):
+        G[i, SWORD_PAD:SWORD_PAD + FRAME, SWORD_PAD:SWORD_PAD + FRAME] = (ch * 1.0 - miss * (~ch)) * W
+    fg = np.fft.rfft2(G)
+
+    def search(lengths, angs):
+        best = None
+        for length in lengths:
+            for ang in angs:
+                ft, mass = sword_filter(length, ang)
+                sc = np.fft.irfft2((fg * ft).sum(0), s=(SWORD_SIZE, SWORD_SIZE)) / mass
+                m = SWORD_PAD - 14
+                sc = sc[m:SWORD_SIZE - m, m:SWORD_SIZE - m]
+                y, x = np.unravel_index(int(np.argmax(sc)), sc.shape)
+                if best is None or sc[y, x] > best[0]:
+                    best = (float(sc[y, x]), x - 14.0, y - 14.0, float(ang), length)
+        return best
+
+    _, _, _, ang, length = search((50, 60, 70, 80, 90), angles)
+    _, x, y, ang, _ = search(range(length - 10, length + 11, 4), np.arange(ang - 4, ang + 5, 2))
+    return np.array([x, y]), ang
+
+
+def blade_reach(frame, bare, guard, u):
+    """Guard-to-tip length of the drawn blade along axis u, and whether the frame edge cut it off."""
+    red, silver, _, same = sword_masks(frame, bare)
+    blade = (red | silver) & ~same
+    v = np.array([-u[1], u[0]])
+    reach, gap = 0.0, 0
+    for t in np.arange(8.0, 170.0):
+        p = guard + u * t
+        if not (0 <= p[0] < FRAME and 0 <= p[1] < FRAME):
+            return reach, True
+        if any(blade[int(q[1]), int(q[0])] for q in (p + v * w for w in (-5, -2.5, 0, 2.5, 5)) if 0 <= q[0] < FRAME and 0 <= q[1] < FRAME):
+            reach, gap = t, 0
+        else:
+            gap += 1
+            if gap > 6:
+                break
+    return reach, False
+
+
+def disk_sum(mask, r):
+    """Per pixel count of mask pixels within radius r, and the disk's area."""
+    y, x = np.ogrid[-r:r + 1, -r:r + 1]
+    d = (x * x + y * y <= r * r).astype(np.float32)
+    n = FRAME + 2 * r + 1
+    out = np.fft.irfft2(np.fft.rfft2(mask.astype(np.float32), s=(n, n)) * np.fft.rfft2(d, s=(n, n)), s=(n, n))
+    return out[r:r + FRAME, r:r + FRAME], float(d.sum())
+
+
+def find_fist(bare, hint):
+    """Centre of the gauntlet in a weaponless frame, near hint (where the armed frame holds the handle). A fist is a dark metal blob, usually at the
+    end of the arm and so sticking out of the silhouette. Below the knees the same metal is the boots. Falls back to hint when nothing qualifies."""
+    rgb = bare[..., :3].astype(np.float32)
+    mx, mn = rgb.max(-1), rgb.min(-1)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    dark = (bare[..., 3] > 180) & (sat < 0.38) & (mx > 25) & (mx < 150)
+    opaque = bare[..., 3] > 120
+    inner, n_inner = disk_sum(dark, 8)
+    inner = inner / n_inner
+    big, n_big = disk_sum(opaque, 19)
+    mid_, n_mid = disk_sum(opaque, 13)
+    ys, xs = np.mgrid[0:FRAME, 0:FRAME]
+    dist = np.hypot(xs - hint[0], ys - hint[1])
+    score = inner - 0.55 * (big - mid_) / (n_big - n_mid) - dist / 80.0
+    score[(dist > 55) | (ys > 150) | (inner < 0.45)] = -9
+    if score.max() <= -9:
+        return np.array(hint, dtype=np.float64)
+    y, x = np.unravel_index(int(np.argmax(score)), score.shape)
+    near = dark & (np.hypot(xs - x, ys - y) <= 10)
+    return np.array([xs[near].mean(), ys[near].mean()])
+
+
+def sword_lines(cfg, n, cells, gy):
+    """{dir: [(grip, tip, behind)]} in frame px for the armed / bare frame pairs in cells. One blade length per anim, measured on the frames where
+    the sheet shows the whole blade; art rows guard_y, hand_y and gy (the art's grip) turn it into the grip offset from the fist."""
+    fits, reaches = {}, []
+    for d, row in cells.items():
+        for c, (a, b) in enumerate(row):
+            fx = cfg["fixes"].get((n, d, c), {})
+            if "angle" in fx:
+                fits[d, c] = (None, fx["angle"], fx)
+                continue
+            lo, hi = fx.get("search", (-180, 175))
+            guard, ang = fit_sword(a, b, range(lo, hi + 1, 5))
+            fits[d, c] = (guard, ang, fx)
+            th = math.radians(ang)
+            reach, clipped = blade_reach(a, b, guard, np.array([math.sin(th), -math.cos(th)]))
+            if not clipped:
+                reaches.append(reach)
+    # A reach only ever falls short (foreshortening, a dark outline breaking the scan), so take a high percentile rather than the median.
+    k = float(np.percentile(reaches, 85)) / cfg["guard_y"]  # frame px per art px
+    if "sword_s" in cfg:  # the sword keeps one size through idle, walk and every swing; the baked blade only gives the angle
+        k = cfg["sword_s"] * cfg["draw_scale"]
+    length = gy * k
+    out = {}
+    for d, row in cells.items():
+        out[d] = []
+        for c, (a, b) in enumerate(row):
+            guard, ang, fx = fits[d, c]
+            th = math.radians(ang)
+            u = np.array([math.sin(th), -math.cos(th)])
+            if "fist" in fx:
+                fist = np.array(fx["fist"], dtype=np.float64)
+            else:
+                fist = find_fist(b, guard - u * (cfg["hand_y"] - cfg["guard_y"]) * k)
+            grip = fist + u * (cfg["hand_y"] - gy) * k  # the handle's middle in the fist; art rows grow towards the pommel, gy is above hand_y
+            behind = fx.get("behind")
+            if behind is None:
+                behind = guard is not None and sword_behind(a, b, guard, u, length)
+            out[d].append((grip, grip + u * length, behind))
+    return out
+
+
+def sword_behind(frame, bare, guard, u, length):
+    """The armed frame shows the body, not the blade, along most of the blade's stretch over the body."""
+    red, silver, _, same = sword_masks(frame, bare)
+    blade = (red | silver) & ~same
+    over = shown = 0
+    for t in np.linspace(0.1, 0.9, 24) * length:
+        x, y = (guard + u * t).astype(int)
+        if 0 <= x < FRAME and 0 <= y < FRAME and bare[y, x, 3] > 200:
+            over += 1
+            shown += int(blade[y, x])
+    return over >= 6 and shown < over * 0.25
 
 
 def fit_blade(pts, rng, exclude=None):
@@ -384,9 +586,12 @@ def main():
     xcuts = split_bounds(alpha.sum(0), COLS, W)
     ycuts = split_bounds(alpha.sum(1), ROWS, H)
 
-    ref = np.asarray(Image.open(os.path.join(RES, "Sprites", cfg["bare"], "idle.png")).convert("RGBA"))[:FRAME, :FRAME, 3]
-    rx0, rx1, ry0, ry1 = bbox(ref)
-    ref_h, ref_feet, ref_cx = ry1 - ry0, ry1, (rx0 + rx1) / 2
+    if "ref" in cfg:
+        ref_h, ref_feet, ref_cx = cfg["ref"]
+    else:
+        ref = np.asarray(Image.open(os.path.join(RES, "Sprites", cfg["bare"], "idle.png")).convert("RGBA"))[:FRAME, :FRAME, 3]
+        rx0, rx1, ry0, ry1 = bbox(ref)
+        ref_h, ref_feet, ref_cx = ry1 - ry0, ry1, (rx0 + rx1) / 2
 
     def cell(img, r, c):
         return img[ycuts[r]:ycuts[r + 1], xcuts[c]:xcuts[c + 1]]
@@ -412,6 +617,8 @@ def main():
     out_bare = Image.new("RGBA", (FRAME * COLS, FRAME * 4))
     preview = Image.new("RGBA", (FRAME * COLS * 2, FRAME * 3), (40, 48, 60, 255))
     lines = {}
+    sword_fit = cfg.get("fit") == "sword"
+    cells = {d: [] for d in DIRS}  # sword_fit: (armed, bare) frame pairs
     for r, d in enumerate(DIRS):
         rb = bbox(cell(bare, r, COLS - 1)[..., 3])  # this row's ready frame sets the row's feet line and centre
         feet, cx = rb[3], (rb[0] + rb[1]) / 2
@@ -427,16 +634,21 @@ def main():
                 raw = orient_grip_first(raw, b[..., 3], body_centre)
                 raw_cells.append(raw)
                 line = None
+            elif sword_fit:
+                line = None
             else:
                 line = weapon_line(a, b, cfg["gold"], body_centre)
             # cell px -> frame px
             ox, oy = ref_cx - cx * scale, ref_feet - feet * scale
             size = (max(1, round(a.shape[1] * scale)), max(1, round(a.shape[0] * scale)))
+            pair = []
             for src, dst in ((a, out_armed), (b, out_bare)):
                 im = Image.fromarray(src.astype(np.uint8)).resize(size, Image.LANCZOS)
                 frame = Image.new("RGBA", (FRAME, FRAME))
                 place(frame, im, ox, oy)
                 dst.paste(frame, (c * FRAME, out_row * FRAME))
+                pair.append(np.asarray(frame))
+            cells[d].append(pair)
             if dual:
                 continue
             if line is None:
@@ -474,6 +686,8 @@ def main():
                     fr[name] = (g0, t0, bh)
                 frames.append(fr)
         lines[d] = frames
+    if sword_fit:
+        lines = sword_lines(cfg, n, cells, gy)
     # Left row = mirrored right row.
     for dst in (out_armed, out_bare):
         right = dst.crop((0, 3 * FRAME, FRAME * COLS, 4 * FRAME))
@@ -502,6 +716,9 @@ def main():
             ang = math.degrees(math.atan2(t[0] - g[0], -(t[1] - g[1])))  # clockwise from straight up, y-down canvas
             frames.append(dict(x=round(float(g[0]), 1), y=round(float(g[1]), 1), angle=round(ang, 1), s=s,
                                sx=-1 if d == "left" else 1, behind=bool(behind), hidden=False, fallback=False))
+        for (fn, fd, ff), fx in cfg.get("fixes", {}).items():
+            if fn == n and (fd == d or (fd == "right" and d == "left")) and fx.get("fallback"):
+                frames[ff]["fallback"] = True  # HeroRenderer draws the baked armed frame here
         anchors.append(dict(part=part, anim=f"melee{n}", dir=d, frames=frames))
         for hidden in cfg["hidden"]:
             anchors.append(dict(part=hidden, anim=f"melee{n}", dir=d,
@@ -510,9 +727,16 @@ def main():
     out_armed.save(os.path.join(RES, "Sprites", cfg["armed"], f"melee{n}.png"))
     out_bare.save(os.path.join(RES, "Sprites", cfg["bare"], f"melee{n}.png"))
     data_path = os.path.join(RES, "Data", f"{cfg['gear']}-melee.json")
-    data = json.load(open(data_path)) if os.path.exists(data_path) else {"anchors": []}
-    data["anchors"] = [a for a in data["anchors"] if a["anim"] != f"melee{n}"] + anchors
-    json.dump(data, open(data_path, "w"), indent=1)
+    text = open(data_path).read() if os.path.exists(data_path) else '{"anchors": []}'
+    data = json.loads(text)
+    # New anchors take the place of the old ones, so a re-run only changes what moved.
+    keep = [i for i, a in enumerate(data["anchors"]) if a["anim"] == f"melee{n}"]
+    at = keep[0] if keep else len(data["anchors"])
+    data["anchors"] = [a for a in data["anchors"][:at] if a["anim"] != f"melee{n}"] + anchors + [a for a in data["anchors"][at:] if a["anim"] != f"melee{n}"]
+    with open(data_path, "w") as f:
+        json.dump(data, f, indent=1)
+        if text.endswith("\n"):
+            f.write("\n")
 
     # Preview: armed frame | weaponless + overlay drawn the way HeroRenderer.ApplyPart places it.
     for r, d in enumerate(["down", "up", "right"]):

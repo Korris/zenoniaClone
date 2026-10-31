@@ -6,60 +6,60 @@
    "dir": "down",
    "frames": [
     {
-     "x": 163.6,
-     "y": 164.5,
-     "angle": -48.7,
-     "s": 0.283,
+     "x": 65.7,
+     "y": 87.0,
+     "angle": -55.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 102.6,
-     "y": 112.6,
-     "angle": -98.7,
-     "s": 0.283,
-     "sx": 1,
-     "behind": true,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 18.7,
-     "y": 137.8,
-     "angle": 104.3,
-     "s": 0.283,
+     "x": 51.8,
+     "y": 106.5,
+     "angle": -114.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 150,
-     "y": 148,
-     "angle": -77.4,
-     "s": 0.283,
+     "x": 46.7,
+     "y": 101.7,
+     "angle": -72.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 54.9,
-     "y": 133.3,
-     "angle": 118.7,
-     "s": 0.283,
+     "x": 32.9,
+     "y": 109.3,
+     "angle": -83.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 61.5,
-     "y": 97.2,
-     "angle": -145.9,
-     "s": 0.283,
+     "x": 65.4,
+     "y": 131.1,
+     "angle": 120.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 38.7,
+     "y": 133.9,
+     "angle": -135.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
@@ -140,60 +140,60 @@
    "dir": "up",
    "frames": [
     {
-     "x": 141.2,
-     "y": 121.6,
-     "angle": 44.4,
-     "s": 0.283,
+     "x": 190.6,
+     "y": 79.6,
+     "angle": 52.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 139.4,
-     "y": 93.2,
-     "angle": 90.7,
-     "s": 0.283,
+     "x": 185.7,
+     "y": 92.1,
+     "angle": 75.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 215.5,
-     "y": 110.8,
-     "angle": -112.5,
-     "s": 0.283,
+     "x": 175.0,
+     "y": 96.7,
+     "angle": 80.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 146.1,
-     "y": 120.8,
-     "angle": 47.8,
-     "s": 0.283,
+     "x": 167.8,
+     "y": 92.3,
+     "angle": 60.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 142.6,
-     "y": 120.5,
-     "angle": 106.1,
-     "s": 0.283,
+     "x": 169.4,
+     "y": 107.4,
+     "angle": 117.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 139.2,
-     "y": 95.3,
-     "angle": 141.5,
-     "s": 0.283,
+     "x": 168.9,
+     "y": 121.3,
+     "angle": 137.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
@@ -274,596 +274,60 @@
    "dir": "left",
    "frames": [
     {
-     "x": 14.2,
-     "y": 171.3,
-     "angle": 43.7,
-     "s": 0.283,
-     "sx": -1,
-     "behind": true,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 163.2,
-     "y": 126.6,
-     "angle": -72.9,
-     "s": 0.283,
+     "x": 104.3,
+     "y": 88.7,
+     "angle": 42.0,
+     "s": 0.34,
      "sx": -1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 159.5,
-     "y": 126,
-     "angle": -99.3,
-     "s": 0.283,
+     "x": 124.2,
+     "y": 109.1,
+     "angle": 105.0,
+     "s": 0.34,
      "sx": -1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 168.3,
-     "y": 110,
-     "angle": -88.3,
-     "s": 0.283,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 98.7,
-     "y": 126.4,
-     "angle": -111.5,
-     "s": 0.283,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 100.6,
-     "y": 121.7,
-     "angle": -117.9,
-     "s": 0.283,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee1",
-   "dir": "left",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee1",
-   "dir": "right",
-   "frames": [
-    {
-     "x": 177.8,
-     "y": 171.3,
-     "angle": -43.7,
-     "s": 0.283,
-     "sx": 1,
-     "behind": true,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 28.8,
-     "y": 126.6,
-     "angle": 72.9,
-     "s": 0.283,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 32.5,
-     "y": 126,
-     "angle": 99.3,
-     "s": 0.283,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 23.7,
-     "y": 110,
-     "angle": 88.3,
-     "s": 0.283,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 93.3,
-     "y": 126.4,
-     "angle": 111.5,
-     "s": 0.283,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 91.4,
-     "y": 121.7,
-     "angle": 117.9,
-     "s": 0.283,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee1",
-   "dir": "right",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee2",
-   "dir": "down",
-   "frames": [
-    {
-     "x": 60.3,
-     "y": 78.7,
-     "angle": 33.3,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 53.2,
-     "y": 86.8,
-     "angle": 41.6,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 42.2,
+     "x": 136.9,
      "y": 101.6,
-     "angle": 126.7,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 34.4,
-     "y": 132.9,
-     "angle": 106.9,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 71.8,
-     "y": 141.7,
-     "angle": 115.2,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 80.4,
-     "y": 94.2,
-     "angle": -141.6,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee2",
-   "dir": "down",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee2",
-   "dir": "up",
-   "frames": [
-    {
-     "x": 148.9,
-     "y": 107.9,
-     "angle": 27.8,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 201.2,
-     "y": 87.9,
-     "angle": -32.8,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 114.2,
-     "y": 171.8,
-     "angle": 44,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 133.3,
-     "y": 111.2,
-     "angle": 138.1,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 140.2,
-     "y": 102.1,
-     "angle": 129.7,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 138.3,
-     "y": 107.9,
-     "angle": 144,
-     "s": 0.264,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee2",
-   "dir": "up",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee2",
-   "dir": "left",
-   "frames": [
-    {
-     "x": 20.7,
-     "y": 168.3,
-     "angle": 30.4,
-     "s": 0.264,
+     "angle": 72.0,
+     "s": 0.34,
      "sx": -1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 0.3,
-     "y": 131.1,
-     "angle": 42.4,
-     "s": 0.264,
+     "x": 139.1,
+     "y": 104.4,
+     "angle": 96.0,
+     "s": 0.34,
      "sx": -1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 118.1,
-     "y": 84.8,
-     "angle": -127.1,
-     "s": 0.264,
+     "x": 86.4,
+     "y": 130.5,
+     "angle": -112.0,
+     "s": 0.34,
      "sx": -1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 124.4,
-     "y": 110.1,
-     "angle": -116,
-     "s": 0.264,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 82.8,
-     "y": 132.4,
-     "angle": -109.9,
-     "s": 0.264,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 99,
-     "y": 131.3,
-     "angle": -112.4,
-     "s": 0.264,
+     "x": 78.6,
+     "y": 132.0,
+     "angle": -115.0,
+     "s": 0.34,
      "sx": -1,
      "behind": false,
      "hidden": false,
@@ -873,7 +337,7 @@
   },
   {
    "part": "shield",
-   "anim": "melee2",
+   "anim": "melee1",
    "dir": "left",
    "frames": [
     {
@@ -940,64 +404,64 @@
   },
   {
    "part": "sword",
-   "anim": "melee2",
+   "anim": "melee1",
    "dir": "right",
    "frames": [
     {
-     "x": 171.3,
-     "y": 168.3,
-     "angle": -30.4,
-     "s": 0.264,
+     "x": 87.7,
+     "y": 88.7,
+     "angle": -42.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 191.7,
-     "y": 131.1,
-     "angle": -42.4,
-     "s": 0.264,
+     "x": 67.8,
+     "y": 109.1,
+     "angle": -105.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 73.9,
-     "y": 84.8,
-     "angle": 127.1,
-     "s": 0.264,
+     "x": 55.1,
+     "y": 101.6,
+     "angle": -72.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 67.6,
-     "y": 110.1,
-     "angle": 116,
-     "s": 0.264,
+     "x": 52.9,
+     "y": 104.4,
+     "angle": -96.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 109.2,
-     "y": 132.4,
-     "angle": 109.9,
-     "s": 0.264,
+     "x": 105.6,
+     "y": 130.5,
+     "angle": 112.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 93,
-     "y": 131.3,
-     "angle": 112.4,
-     "s": 0.264,
+     "x": 113.4,
+     "y": 132.0,
+     "angle": 115.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
@@ -1007,7 +471,7 @@
   },
   {
    "part": "shield",
-   "anim": "melee2",
+   "anim": "melee1",
    "dir": "right",
    "frames": [
     {
@@ -1074,952 +538,24 @@
   },
   {
    "part": "sword",
-   "anim": "melee3",
+   "anim": "melee2",
    "dir": "down",
    "frames": [
     {
-     "x": 96,
-     "y": 90,
-     "angle": -142.2,
-     "s": 0.285,
+     "x": 69.1,
+     "y": 39.2,
+     "angle": 35.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 30.9,
-     "y": 81.3,
-     "angle": 110.5,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 5.8,
-     "y": 133.1,
-     "angle": 97.1,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 10,
-     "y": 91.9,
-     "angle": 122.9,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 12.4,
-     "y": 108.2,
-     "angle": 113.5,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 99.4,
-     "y": 91.4,
-     "angle": -136.7,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee3",
-   "dir": "down",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee3",
-   "dir": "up",
-   "frames": [
-    {
-     "x": 152.9,
-     "y": 91.7,
-     "angle": 142.3,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 175.6,
-     "y": 37.4,
-     "angle": 147,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 52.5,
-     "y": 149.1,
-     "angle": 80.9,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 128.6,
-     "y": 150,
-     "angle": 55.8,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 142.3,
-     "y": 138.2,
-     "angle": 44.5,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 137.2,
-     "y": 110,
-     "angle": 136.8,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee3",
-   "dir": "up",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee3",
-   "dir": "left",
-   "frames": [
-    {
-     "x": 109,
-     "y": 125.8,
-     "angle": -118.5,
-     "s": 0.285,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 149.4,
-     "y": 95.2,
-     "angle": -98.3,
-     "s": 0.285,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 4.3,
-     "y": 137.9,
-     "angle": 88.1,
-     "s": 0.285,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 160.3,
-     "y": 114.5,
-     "angle": -101.3,
-     "s": 0.285,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 110.8,
-     "y": 133.6,
-     "angle": -98.6,
-     "s": 0.285,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 114.9,
-     "y": 104,
-     "angle": -124.9,
-     "s": 0.285,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee3",
-   "dir": "left",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee3",
-   "dir": "right",
-   "frames": [
-    {
-     "x": 83,
-     "y": 125.8,
-     "angle": 118.5,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 42.6,
-     "y": 95.2,
-     "angle": 98.3,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 187.7,
-     "y": 137.9,
-     "angle": -88.1,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 31.7,
-     "y": 114.5,
-     "angle": 101.3,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 81.2,
-     "y": 133.6,
-     "angle": 98.6,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 77.1,
-     "y": 104,
-     "angle": 124.9,
-     "s": 0.285,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee3",
-   "dir": "right",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee4",
-   "dir": "down",
-   "frames": [
-    {
-     "x": 49.8,
-     "y": 78.4,
-     "angle": 24.3,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 70.5,
-     "y": -13.1,
-     "angle": 113.4,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 108.1,
-     "y": -0.8,
-     "angle": -167.4,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 100,
-     "y": 104.8,
-     "angle": 161.2,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 81.5,
-     "y": 83.6,
-     "angle": 126.7,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 62.4,
-     "y": 144.6,
-     "angle": -126.6,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee4",
-   "dir": "down",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee4",
-   "dir": "up",
-   "frames": [
-    {
-     "x": 181,
-     "y": 68.9,
-     "angle": -24,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 143.4,
-     "y": -7.5,
-     "angle": -116,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 209.7,
-     "y": 128.3,
-     "angle": -31.9,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 136.6,
-     "y": 103.5,
-     "angle": 176.6,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 92.2,
-     "y": 125.2,
-     "angle": -124.6,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 145.7,
-     "y": 87.6,
-     "angle": 142.6,
-     "s": 0.365,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee4",
-   "dir": "up",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee4",
-   "dir": "left",
-   "frames": [
-    {
-     "x": 6,
-     "y": 129.8,
-     "angle": 49,
-     "s": 0.365,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 122.8,
-     "y": 8.1,
-     "angle": -133.4,
-     "s": 0.365,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": -7.8,
-     "y": 165.2,
-     "angle": 34,
-     "s": 0.365,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": -12.2,
-     "y": 180.1,
-     "angle": 51.2,
-     "s": 0.365,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 89.4,
-     "y": 81.3,
-     "angle": -126.4,
-     "s": 0.365,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 97.6,
-     "y": 112.7,
-     "angle": -120.7,
-     "s": 0.365,
-     "sx": -1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "shield",
-   "anim": "melee4",
-   "dir": "left",
-   "frames": [
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    },
-    {
-     "x": 96,
-     "y": 96,
-     "angle": 0,
-     "s": 0.3,
-     "sx": 1,
-     "behind": false,
-     "hidden": true,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "sword",
-   "anim": "melee4",
-   "dir": "right",
-   "frames": [
-    {
-     "x": 186,
-     "y": 129.8,
-     "angle": -49,
-     "s": 0.365,
+     "x": 69.8,
+     "y": 61.8,
+     "angle": 42.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
@@ -2027,49 +563,1513 @@
     },
     {
      "x": 69.2,
-     "y": 8.1,
-     "angle": 133.4,
-     "s": 0.365,
+     "y": 94.1,
+     "angle": -33.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 199.8,
-     "y": 165.2,
-     "angle": -34,
-     "s": 0.365,
+     "x": 103.5,
+     "y": 142.8,
+     "angle": 113.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 204.2,
-     "y": 180.1,
-     "angle": -51.2,
-     "s": 0.365,
+     "x": 90.7,
+     "y": 140.2,
+     "angle": 117.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 102.6,
-     "y": 81.3,
-     "angle": 126.4,
-     "s": 0.365,
+     "x": 48.2,
+     "y": 140.2,
+     "angle": -137.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee2",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee2",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 176.2,
+     "y": 44.3,
+     "angle": 37.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 94.4,
-     "y": 112.7,
-     "angle": 120.7,
-     "s": 0.365,
+     "x": 179.7,
+     "y": 74.4,
+     "angle": -35.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 178.3,
+     "y": 99.9,
+     "angle": 43.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 157.2,
+     "y": 139.8,
+     "angle": 132.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 181.0,
+     "y": 134.8,
+     "angle": 122.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 164.4,
+     "y": 136.5,
+     "angle": 142.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee2",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee2",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 83.1,
+     "y": 64.2,
+     "angle": 35.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 58.8,
+     "y": 70.8,
+     "angle": 43.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 71.8,
+     "y": 114.8,
+     "angle": 42.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 57.5,
+     "y": 142.6,
+     "angle": -112.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 45.7,
+     "y": 141.2,
+     "angle": -117.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 67.7,
+     "y": 140.2,
+     "angle": -117.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee2",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee2",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 108.9,
+     "y": 64.2,
+     "angle": -35.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 133.2,
+     "y": 70.8,
+     "angle": -43.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 120.2,
+     "y": 114.8,
+     "angle": -42.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 134.5,
+     "y": 142.6,
+     "angle": 112.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 146.3,
+     "y": 141.2,
+     "angle": 117.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 124.3,
+     "y": 140.2,
+     "angle": 117.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee2",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee3",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 59.8,
+     "y": 139.9,
+     "angle": -133.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 49.5,
+     "y": 108.1,
+     "angle": -108.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 34.4,
+     "y": 117.7,
+     "angle": -112.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 38.0,
+     "y": 102.8,
+     "angle": -83.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 40.9,
+     "y": 112.0,
+     "angle": -78.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 50.4,
+     "y": 140.3,
+     "angle": -139.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee3",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee3",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 180.1,
+     "y": 129.9,
+     "angle": 134.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 184.7,
+     "y": 83.6,
+     "angle": 115.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 179.5,
+     "y": 101.4,
+     "angle": 117.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 184.3,
+     "y": 87.2,
+     "angle": 78.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 166.5,
+     "y": 95.4,
+     "angle": 79.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 166.7,
+     "y": 133.3,
+     "angle": 138.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee3",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee3",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 92.8,
+     "y": 136.4,
+     "angle": -118.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 124.5,
+     "y": 99.2,
+     "angle": 88.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 45.0,
+     "y": 124.3,
+     "angle": -85.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 73.0,
+     "y": 124.7,
+     "angle": -95.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 67.1,
+     "y": 133.6,
+     "angle": -103.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 71.0,
+     "y": 137.8,
+     "angle": -122.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee3",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee3",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 99.2,
+     "y": 136.4,
+     "angle": 118.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 67.5,
+     "y": 99.2,
+     "angle": -88.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 147.0,
+     "y": 124.3,
+     "angle": 85.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 119.0,
+     "y": 124.7,
+     "angle": 95.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 124.9,
+     "y": 133.6,
+     "angle": 103.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 121.0,
+     "y": 137.8,
+     "angle": 122.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee3",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee4",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 70.0,
+     "y": 11.6,
+     "angle": 25.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 79.6,
+     "y": 8.4,
+     "angle": 110.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 89.6,
+     "y": 43.9,
+     "angle": 30.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 118.8,
+     "y": 143.9,
+     "angle": 165.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 146.3,
+     "y": 141.2,
+     "angle": 117.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 114.9,
+     "y": 136.3,
+     "angle": -138.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee4",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee4",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 165.0,
+     "y": 11.6,
+     "angle": -25.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 126.7,
+     "y": 7.2,
+     "angle": -117.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 160.9,
+     "y": 27.2,
+     "angle": -35.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 136.1,
+     "y": 137.1,
+     "angle": 179.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 74.8,
+     "y": 129.8,
+     "angle": -133.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 174.3,
+     "y": 120.5,
+     "angle": 142.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee4",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee4",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 105.3,
+     "y": 31.2,
+     "angle": 48.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 82.9,
+     "y": 24.2,
+     "angle": 75.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 63.2,
+     "y": 123.2,
+     "angle": 47.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": true,
+     "hidden": false,
+     "fallback": true
+    },
+    {
+     "x": 45.9,
+     "y": 144.6,
+     "angle": -120.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 38.1,
+     "y": 135.8,
+     "angle": -123.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 63.7,
+     "y": 140.2,
+     "angle": -117.0,
+     "s": 0.34,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "shield",
+   "anim": "melee4",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 96,
+     "angle": 0,
+     "s": 0.3,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "sword",
+   "anim": "melee4",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 86.7,
+     "y": 31.2,
+     "angle": -48.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 109.1,
+     "y": 24.2,
+     "angle": -75.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 128.8,
+     "y": 123.2,
+     "angle": -47.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": true
+    },
+    {
+     "x": 146.1,
+     "y": 144.6,
+     "angle": 120.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 153.9,
+     "y": 135.8,
+     "angle": 123.0,
+     "s": 0.34,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 128.3,
+     "y": 140.2,
+     "angle": 117.0,
+     "s": 0.34,
      "sx": 1,
      "behind": false,
      "hidden": false,
@@ -2244,42 +2244,42 @@
    "dir": "left",
    "frames": [
     {
-     "x": 63.166,
-     "y": 129.573,
+     "x": 119.5,
+     "y": 129,
      "angle": -10,
      "s": 0.371,
      "sx": 0.9,
-     "behind": true,
+     "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 63.166,
-     "y": 123.778,
+     "x": 114,
+     "y": 128,
      "angle": -8,
      "s": 0.371,
      "sx": 0.9,
-     "behind": true,
+     "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 66.643,
-     "y": 123.778,
+     "x": 114,
+     "y": 129.5,
      "angle": -6,
      "s": 0.371,
      "sx": 0.9,
-     "behind": true,
+     "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 66.643,
-     "y": 123.778,
+     "x": 114,
+     "y": 128,
      "angle": -8,
      "s": 0.371,
      "sx": 0.9,
-     "behind": true,
+     "behind": false,
      "hidden": false,
      "fallback": false
     }
@@ -2432,42 +2432,42 @@
    "dir": "left",
    "frames": [
     {
-     "x": 115.321,
-     "y": 133.05,
+     "x": 58.137,
+     "y": 133.955,
      "angle": -124,
      "s": 0.34,
      "sx": 1,
-     "behind": false,
+     "behind": true,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 114.162,
-     "y": 130.732,
+     "x": 56.875,
+     "y": 131.536,
      "angle": -120,
      "s": 0.34,
      "sx": 1,
-     "behind": false,
+     "behind": true,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 110.685,
-     "y": 127.255,
+     "x": 61.644,
+     "y": 132.1,
      "angle": -116,
      "s": 0.34,
      "sx": 1,
-     "behind": false,
+     "behind": true,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 115.321,
-     "y": 131.891,
+     "x": 59.875,
+     "y": 130.536,
      "angle": -120,
      "s": 0.34,
      "sx": 1,
-     "behind": false,
+     "behind": true,
      "hidden": false,
      "fallback": false
     }
@@ -2479,8 +2479,8 @@
    "dir": "right",
    "frames": [
     {
-     "x": 75.52,
-     "y": 133.05,
+     "x": 78.363,
+     "y": 140.955,
      "angle": 124,
      "s": 0.34,
      "sx": 1,
@@ -2489,8 +2489,8 @@
      "fallback": false
     },
     {
-     "x": 76.679,
-     "y": 130.732,
+     "x": 84.125,
+     "y": 139.536,
      "angle": 120,
      "s": 0.34,
      "sx": 1,
@@ -2499,8 +2499,8 @@
      "fallback": false
     },
     {
-     "x": 80.156,
-     "y": 127.255,
+     "x": 84.356,
+     "y": 140.6,
      "angle": 116,
      "s": 0.34,
      "sx": 1,
@@ -2509,8 +2509,8 @@
      "fallback": false
     },
     {
-     "x": 75.52,
-     "y": 131.891,
+     "x": 84.125,
+     "y": 139.536,
      "angle": 120,
      "s": 0.34,
      "sx": 1,
@@ -2526,8 +2526,8 @@
    "dir": "right",
    "frames": [
     {
-     "x": 87.143,
-     "y": 134.271,
+     "x": 92.562,
+     "y": 140.142,
      "angle": 121,
      "s": 0.34,
      "sx": 1,
@@ -2536,8 +2536,8 @@
      "fallback": false
     },
     {
-     "x": 88.35,
-     "y": 133.064,
+     "x": 95.125,
+     "y": 140.036,
      "angle": 120,
      "s": 0.34,
      "sx": 1,
@@ -2546,8 +2546,8 @@
      "fallback": false
     },
     {
-     "x": 88.954,
-     "y": 132.461,
+     "x": 95.185,
+     "y": 139.929,
      "angle": 119,
      "s": 0.34,
      "sx": 1,
@@ -2556,8 +2556,8 @@
      "fallback": false
     },
     {
-     "x": 87.747,
-     "y": 133.668,
+     "x": 94.125,
+     "y": 140.036,
      "angle": 120,
      "s": 0.34,
      "sx": 1,
@@ -2573,42 +2573,42 @@
    "dir": "left",
    "frames": [
     {
-     "x": 104.857,
-     "y": 134.271,
+     "x": 57.938,
+     "y": 135.642,
      "angle": -121,
      "s": 0.34,
      "sx": -1,
-     "behind": false,
+     "behind": true,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 103.65,
-     "y": 133.064,
+     "x": 56.875,
+     "y": 133.536,
      "angle": -120,
      "s": 0.34,
      "sx": -1,
-     "behind": false,
+     "behind": true,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 103.046,
-     "y": 132.461,
+     "x": 58.815,
+     "y": 134.429,
      "angle": -119,
      "s": 0.34,
      "sx": -1,
-     "behind": false,
+     "behind": true,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 104.253,
-     "y": 133.668,
+     "x": 60.875,
+     "y": 134.536,
      "angle": -120,
      "s": 0.34,
      "sx": -1,
-     "behind": false,
+     "behind": true,
      "hidden": false,
      "fallback": false
     }
@@ -2667,42 +2667,42 @@
    "dir": "left",
    "frames": [
     {
-     "x": 63.215,
-     "y": 131.857,
+     "x": 105.5,
+     "y": 128.5,
      "angle": -10,
      "s": 0.386,
      "sx": -0.9,
-     "behind": true,
+     "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 63.819,
-     "y": 131.254,
+     "x": 103,
+     "y": 128.5,
      "angle": -9,
      "s": 0.386,
      "sx": -0.9,
-     "behind": true,
+     "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 64.422,
-     "y": 130.65,
+     "x": 103,
+     "y": 128.5,
      "angle": -8,
      "s": 0.386,
      "sx": -0.9,
-     "behind": true,
+     "behind": false,
      "hidden": false,
      "fallback": false
     },
     {
-     "x": 65.026,
-     "y": 131.254,
+     "x": 104,
+     "y": 128.5,
      "angle": -9,
      "s": 0.386,
      "sx": -0.9,
-     "behind": true,
+     "behind": false,
      "hidden": false,
      "fallback": false
     }
