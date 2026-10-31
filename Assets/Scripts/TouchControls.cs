@@ -7,7 +7,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// On-screen controls, gold-trimmed dark-navy style: a floating joystick bottom-left (gold ring, diamond studs, steel knob), HP / MP potion buttons
+    /// On-screen controls, gold-trimmed dark-navy style: a fixed joystick bottom-left (gold ring, diamond studs, steel knob), HP / MP potion buttons
     /// to its right, bottom-right the big attack disc (equipped weapon icon) with the 3-slot skill magazine on an arc around it (SkillMagazineView:
     /// Dash [K], class skill [L] with the cooldown sweep and MP cost, locked slots; swipe up / down or Tab changes the page); top-right the Bag [B] and Settings (hero change) buttons (TouchControls.Menu.cs). Works with touch and mouse (multi-touch: move + attack at once).
     /// It only feeds GameKeys into InputAdapter, so the game logic is the same as the keyboard. Holding attack keeps the combo going.
@@ -131,16 +131,17 @@ namespace ZenoniaProto
             layer = UiKit.Fill(canvas, "Touch");
             layer.SetAsFirstSibling(); // under the HUD block, toasts and the inventory window
 
-            // Floating joystick (Zenonia 5): the whole lower-left area is the touch zone; the base rests in the corner and jumps
-            // under the finger. Added first so the potion buttons (later siblings) still win their own touches.
+            // Fixed joystick: the base stays in the corner and only a touch around it steers, so a tap elsewhere on the left side is free for the world.
+            // Added first so the potion buttons (later siblings) still win their own touches.
             RectTransform zone = UiKit.Fill(layer, "JoystickZone");
-            zone.anchorMin = Vector2.zero; zone.anchorMax = new Vector2(0.42f, 0.72f);
-            zone.offsetMin = zone.offsetMax = Vector2.zero; zone.pivot = Vector2.zero;
+            zone.anchorMin = zone.anchorMax = zone.pivot = Vector2.zero;
+            zone.anchoredPosition = Vector2.zero;
+            zone.sizeDelta = new Vector2(256f, 256f);
             Img(zone, null, new Color(0f, 0f, 0f, 0f), true); // invisible, but catches touches
-            RectTransform stickBase = Place(zone, "Base", Vector2.zero, 128f, 128f, 200f); // rest spot like the mockup: bottom-left, clear of the edge
+            RectTransform stickBase = Place(zone, "Base", Vector2.zero, 128f, 128f, 200f); // like the mockup: bottom-left, clear of the edge
             Img(stickBase, UiArt.JoystickBase(), Color.white);
             Image knob = Child(stickBase, "Knob", UiArt.JoystickKnob(), 80f, Color.white);
-            zone.gameObject.AddComponent<TouchJoystick>().Init(zone, stickBase, knob.rectTransform, 62f,
+            zone.gameObject.AddComponent<TouchJoystick>().Init(stickBase, knob.rectTransform, 62f,
                 (up, right, down, left) => { SetHeld(GameKey.Up, up); SetHeld(GameKey.Right, right); SetHeld(GameKey.Down, down); SetHeld(GameKey.Left, left); });
 
             // Potions (right of the D-pad)

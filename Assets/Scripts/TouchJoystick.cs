@@ -5,25 +5,23 @@ using UnityEngine.UI;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Floating joystick (Zenonia 5 style): touching anywhere in the left touch zone moves the base under the finger, the knob follows the
-    /// drag inside the base radius and the direction drives Up / Down / Left / Right (8-way, 22 % dead zone). Released, the knob recentres
-    /// and the base fades back to its rest spot in the corner. Feeds the same keys as the keyboard, so gameplay code is unchanged.
+    /// Fixed joystick: the base stays in its corner; a touch on it moves the knob, which follows the drag inside the base radius, and the direction
+    /// drives Up / Down / Left / Right (8-way, 22 % dead zone). The finger may leave the zone while it holds. Released, the knob recentres.
+    /// Feeds the same keys as the keyboard, so gameplay code is unchanged.
     /// </summary>
     public sealed class TouchJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         const float DeadZone = 0.22f, IdleAlpha = 0.92f;
-        RectTransform zone, stick, knob;
+        RectTransform stick, knob;
         CanvasGroup group;
-        Vector2 rest;
         float radius;
         int pointer = int.MinValue;
         System.Action<bool, bool, bool, bool> output;
 
-        /// <summary>zone = invisible raycast area; stick = base (child of zone) at its rest position; knob = child of stick.</summary>
-        public void Init(RectTransform touchZone, RectTransform baseRt, RectTransform knobRt, float r, System.Action<bool, bool, bool, bool> setKeys)
+        /// <summary>This component sits on the invisible raycast area around the base; stick = base (child of that area); knob = child of stick.</summary>
+        public void Init(RectTransform baseRt, RectTransform knobRt, float r, System.Action<bool, bool, bool, bool> setKeys)
         {
-            zone = touchZone; stick = baseRt; knob = knobRt; radius = r; output = setKeys;
-            rest = stick.anchoredPosition;
+            stick = baseRt; knob = knobRt; radius = r; output = setKeys;
             group = stick.gameObject.AddComponent<CanvasGroup>();
             group.blocksRaycasts = false;
             group.alpha = IdleAlpha;
@@ -32,12 +30,7 @@ namespace ZenoniaProto
         public void OnPointerDown(PointerEventData e)
         {
             if (pointer != int.MinValue) return;
-            Vector2 local;
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(zone, e.position, e.pressEventCamera, out local)) return;
             pointer = e.pointerId;
-            // The base jumps under the finger (kept fully on screen), anchored like the rest spot (bottom-left of the zone).
-            Vector2 p = local - zone.rect.min;
-            stick.anchoredPosition = new Vector2(Mathf.Max(p.x, radius), Mathf.Max(p.y, radius));
             group.alpha = 1f;
             Steer(e);
         }
@@ -72,7 +65,6 @@ namespace ZenoniaProto
         {
             pointer = int.MinValue;
             if (knob != null) knob.anchoredPosition = Vector2.zero;
-            if (stick != null) stick.anchoredPosition = rest;
             if (group != null) group.alpha = IdleAlpha;
             if (output != null) output(false, false, false, false);
         }
