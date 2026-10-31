@@ -62,7 +62,8 @@ namespace ZenoniaProto
             NetMode.Current = RunMode.Offline;
             SaveStore.Enabled = true;
             ClassSelectGui.ResetState();
-            WorldBuilder.Rebuild(); // offline again: the portal circle comes back
+            MapRegistry.SetCurrent(FrostHollowLayout.MapId); // a client may have left on any map; the class select picks up from Frost Hollow as it always has
+            WorldBuilder.Rebuild(); // offline again: the portal lights come back
             MonsterSpawner.SpawnAll(root);
         }
 
@@ -76,7 +77,7 @@ namespace ZenoniaProto
             localName = DevLoginStub.SanitizeName(name);
             if (!wasOffline) return;
             WipeWorld();
-            MapTransfer.Instant(FrostHollowLayout.MapId); // the zone server only knows Frost Hollow: leave the village (online has no portals / villagers)
+            MapTransfer.Instant(FrostHollowLayout.MapId); // a host runs Frost Hollow alone; a client starts here until the server's Welcome names the hero's map
             if (mode == RunMode.Host) MonsterSpawner.SpawnAll(root);
         }
 

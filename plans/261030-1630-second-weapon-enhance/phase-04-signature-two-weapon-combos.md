@@ -4,7 +4,7 @@
 - `EarthBreakUltimate.cs:100` (main slam `List<Monster> hit = SkillDamage.Radial(...)`), `IceStormUltimate.cs:108` (per wave hits),
   `Skills/SkillRun.cs` (Begin/Fire/Destroy; steps from `ctx.Def.Effects`), `Skills/SkillSupport.cs` (Heal/HealOne), `Skills/SkillBolt.cs`
   (Launch(ctx, effect)), `Monster.Status.cs` (`Chill(ms)`, StatusRules boss handling), skill tables: Warrior 2 Earth Break, Wizard 2 Ice Storm,
-  Mechanic 2 Plasma Barrage, Assassin 1 Shadow Step, Cleric 0 Heal.
+  Mechanic 1 Plasma Barrage (moved from slot 2 when Rocket Barrage replaced Homing Rockets), Assassin 1 Shadow Step, Cleric 0 Heal.
 - Numbers: phase 01 table (`SecondWeapon.Combo*`).
 
 ## Overview

@@ -12,8 +12,9 @@ namespace ZenoniaProto
     {
         readonly List<HeroController> all = new List<HeroController>();
         readonly NetEntityRegistry ids;
+        readonly Zone zone;
 
-        public ZoneHeroes(NetEntityRegistry registry) { ids = registry; }
+        public ZoneHeroes(NetEntityRegistry registry, Zone owner) { ids = registry; zone = owner; }
 
         public IReadOnlyList<HeroController> All { get { return all; } }
         public int Count { get { return all.Count; } }
@@ -30,8 +31,7 @@ namespace ZenoniaProto
         public void Remove(HeroController hero)
         {
             if (!all.Remove(hero)) return;
-            Zone z = Zone.Main;
-            ids.Release(hero.NetId, z != null ? z.TimeMs : 0f);
+            ids.Release(hero.NetId, zone.TimeMs);
         }
 
         public HeroController ById(ushort id)

@@ -9,8 +9,9 @@ namespace ZenoniaProto.Rpg
             return new[]
             {
                 Def(C, 0, "Power Shot", 1, 8, 3f, SkillTargeting.Facing, Fx(Proj(150f, 7f, 24f, pierce: true))),
-                Def(C, 1, "Homing Rockets", 8, 16, 7f, SkillTargeting.Facing, Fx(Proj(75f, 6f, 10f, count: 3, spread: 30f, homing: true, impact: 1f)), Req(0, 3)),
-                Def(C, 2, "Plasma Barrage", 15, 22, 9f, SkillTargeting.Facing, Fx(Proj(55f, 6f, 16f, width: 0.6f, count: 6, spread: 60f)), Req(0, 5)),
+                Def(C, 1, "Plasma Barrage", 8, 22, 9f, SkillTargeting.Facing, Fx(Proj(55f, 6f, 16f, width: 0.6f, count: 6, spread: 60f)), Req(0, 3)),
+                // Kept signature: RocketBarrageUltimate (web carpetBomb, 10 rockets x 400% over a 60-degree fan). MP/CD in line with Ice Storm and Earth Break, not the web's 40 MP / 18 s.
+                Def(C, 2, "Rocket Barrage", 15, 28, 12f, SkillTargeting.Facing, NoFx(), Req(0, 5), lockMs: 850, legacy: LegacySkill.RocketBarrage),
                 Def(C, 3, "Target Lock", 20, 18, 15f, SkillTargeting.AroundSelf,
                     Fx(new SkillEffect { Kind = EffectKind.Strike, Shape = AreaShape.Circle, Radius = 7f, Count = 5, Status = new StatusSpec(StatusKind.Mark, 15f, 8000) }), Req(1, 3)),
                 Def(C, 4, "Rocket Punch", 26, 24, 11f, SkillTargeting.Facing,

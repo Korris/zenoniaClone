@@ -8,7 +8,7 @@ namespace ZenoniaProto.Rpg
         public const int MaxEnhance = 15;
         /// <summary>First level whose held-weapon art / glow switches to the enhanced look.</summary>
         public const int EnhancedArtMinLevel = 7;
-        public static readonly int[] VisualBandMins = { 7, 9, 11, 13 };
+        public static readonly int[] VisualBandMins = { 7, 9, 11, 13, 15 };
 
         /// <summary>
         /// Cumulative fraction of the weapon's base stat at each level (index = level): +1..6 10%, +7..9 20%, +10..12 35%, +13..15 60% per level,
@@ -76,7 +76,7 @@ namespace ZenoniaProto.Rpg
 
         public static string DisplayName(Item item) { int l = Level(item); return l > 0 ? item.name + " +" + l : item.name; }
 
-        /// <summary>0 = base look, 1..4 for the +7 / +9 / +11 / +13 thresholds.</summary>
+        /// <summary>0 = base look, 1..5 for the +7 / +9 / +11 / +13 / +15 thresholds.</summary>
         public static int VisualBand(Item item)
         {
             int level = Level(item), band = 0;

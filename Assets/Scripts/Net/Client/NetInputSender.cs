@@ -18,10 +18,24 @@ namespace ZenoniaProto
         readonly NetStats stats;
         readonly NetLinkSimulator link;
         float timer;
+        byte epoch;
+        bool muted;
 
         /// <summary>Set by the client every frame: the connection and the newest snapshot sequence it decoded (low 16 bits go up as the ack).</summary>
         public NetPeer Peer;
         public uint Ack;
+
+        /// <summary>The hero is in another zone now: from here on packets carry its epoch, none repeats a frame of the old map, and nothing is sent until Resume.</summary>
+        public void BeginEpoch(byte newEpoch)
+        {
+            epoch = newEpoch;
+            muted = true;
+            timer = 0f;
+            redundancy.Clear();
+        }
+
+        /// <summary>The new map is up: the controls count again.</summary>
+        public void Resume() { muted = false; }
 
         public NetInputSender(NetStats netStats)
         {
@@ -32,10 +46,11 @@ namespace ZenoniaProto
         /// <summary>Stamps the sim step's input bits with a sequence number and sends the packet. Returns the stamped frame.</summary>
         public InputFrame Push(ushort bits)
         {
+            if (muted) return new InputFrame { Seq = redundancy.NextSeq, Bits = 0 }; // fading between maps: not a frame of either zone
             InputFrame f = redundancy.Push(bits);
             if (Peer == null || Peer.ConnectionState != ConnectionState.Connected) return f;
             int n = redundancy.Fill(frames);
-            NetMessageWriter.Input(w, (ushort)Ack, frames, n);
+            NetMessageWriter.Input(w, epoch, (ushort)Ack, frames, n);
             if (link != null) link.Send(Peer, w, DeliveryMethod.Unreliable, NetClient.ClientMs);
             else Peer.Send(w, NetProtocol.ChannelUnreliable, DeliveryMethod.Unreliable);
             stats.Add("inputPacketsSent", 1);
@@ -46,7 +61,7 @@ namespace ZenoniaProto
         public void Tick(float dt, bool predicting)
         {
             if (link != null) link.Flush(Peer, NetClient.ClientMs);
-            if (predicting) return;
+            if (predicting || muted) return;
             sampler.Poll();
             timer += dt;
             int n = 0;

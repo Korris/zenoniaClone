@@ -78,7 +78,8 @@ namespace ZenoniaProto.EditorTools
                     scenes = new[] { TempScene },
                     locationPathName = output,
                     target = target,
-                    options = BuildOptions.None,
+                    // -development: a test build, which also reads the bundled Resources/Data/dev-start.json (test stones, level, SP, gear)
+                    options = Array.IndexOf(Environment.GetCommandLineArgs(), "-development") >= 0 ? BuildOptions.Development : BuildOptions.None,
                 };
                 var report = BuildPipeline.BuildPlayer(options);
                 Debug.Log("BUILD RESULT: " + report.summary.result + " errors " + report.summary.totalErrors + " -> " + output);

@@ -4,14 +4,14 @@ namespace ZenoniaProto.Net
     public static class NetOp
     {
         public const byte Hello = 1, Input = 2, InvAction = 3, Revive = 4;
-        public const byte Welcome = 10, Reject = 11, Spawn = 12, Despawn = 13, Snapshot = 14, SelfState = 15, RpgState = 17, EventBatch = 20;
+        public const byte Welcome = 10, Reject = 11, Spawn = 12, Despawn = 13, Snapshot = 14, SelfState = 15, RpgState = 17, ZoneChanged = 18, EventBatch = 20;
     }
 
     /// <summary>Protocol constants shared by server and clients (bump Version on any wire change).</summary>
     public static class NetProtocol
     {
-        public const ushort Version = 3;
-        public const int MaxNameLength = 16, MaxTokenLength = 64, MaxTextLength = 120, MaxItemUidLength = 40, MaxSaveJsonLength = 60000;
+        public const ushort Version = 4;
+        public const int MaxNameLength = 16, MaxTokenLength = 64, MaxTextLength = 120, MaxItemUidLength = 40, MaxSaveJsonLength = 60000, MaxMapIdLength = 32;
         /// <summary>Largest unfragmented snapshot: LiteNetLib refuses an unreliable packet over 1023 B (MTU 1024), so 1000 B.</summary>
         public const int SnapshotMaxBytes = 1000;
         public const int MaxInputFrames = 5, MaxEventsPerBatch = 64, MaxSnapshotEntities = 255;

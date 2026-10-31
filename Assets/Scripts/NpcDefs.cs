@@ -6,6 +6,8 @@ namespace ZenoniaProto
     public sealed class NpcDef
     {
         public string Id, Name;
+        /// <summary>File name of the idle sheet and face in Sprites/village/npcs: the Id.</summary>
+        public string Art;
         public int Facing;
         public string[] Lines;
         /// <summary>True = talking opens QuestTracker's quest dialogue (ElderNpc) instead of the idle chatter.</summary>
@@ -13,8 +15,8 @@ namespace ZenoniaProto
     }
 
     /// <summary>
-    /// Oakhaven villagers from the web src/data/npc-definitions.js (Oakhaven ids only; the other maps' NPCs come with their maps). Roles without a
-    /// game system yet (shop, healing, fishing, crafting) are dialogue-only, as in the web; the merchant says so. The web's village elder Rowan is
+    /// Oakhaven villagers from the web src/data/npc-definitions.js, then Sunspire's townsfolk (the other maps' NPCs come with their maps). Roles without a
+    /// game system yet (shop, healing, fishing, crafting, bounties) are dialogue-only, as in the web; the merchants say so. The web's village elder Rowan is
     /// the quest giver Elder Thomas here: same spot, same HD art, the existing Frost Slime quest and dialogue window.
     /// </summary>
     public static class NpcDefs
@@ -42,11 +44,20 @@ namespace ZenoniaProto
                 "Are you a real adventurer? Can I see your sword?", "Mum says I am not allowed past the bridge.") },
             { "healerNina", Def("healerNina", "Nina", Down, false,
                 "Herbs from the riverbank, honey from the woods. Rest here if you are hurt.", "Red potions mend the body, blue ones the spirit.") },
+            // Sunspire Oasis
+            { "elderSahir", Def("elderSahir", "Elder Sahir", Down, false,
+                "Peace on your road, traveller. The pool has never run dry, and neither has our welcome.", "Caravans still leave at dawn, though fewer come back from the dunes.") },
+            { "apothecaryNara", Def("apothecaryNara", "Nara", Down, false,
+                "Desert aloe and date syrup: nothing better when the heat gets into your bones.", "Fresh bottles are still steeping, friend. Come back soon.\n(Shop: coming soon)") },
+            { "blacksmithKhaled", Def("blacksmithKhaled", "Khaled", Left, false,
+                "Sand gets into everything, even the bellows. Clean your blade every night.", "The forge is cooling until the next ore caravan arrives.\n(Blacksmith: coming soon)") },
+            { "bountyLeila", Def("bountyLeila", "Leila", Left, false,
+                "Every name on this board once cost a merchant his cargo.", "Nothing worth your time is posted today. Ask me again later.\n(Bounties: coming soon)") },
         };
 
         static NpcDef Def(string id, string name, int facing, bool questGiver, params string[] lines)
         {
-            return new NpcDef { Id = id, Name = name, Facing = facing, QuestGiver = questGiver, Lines = lines };
+            return new NpcDef { Id = id, Name = name, Art = id, Facing = facing, QuestGiver = questGiver, Lines = lines };
         }
 
         public static NpcDef Get(string id)

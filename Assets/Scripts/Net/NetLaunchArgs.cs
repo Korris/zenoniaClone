@@ -7,7 +7,8 @@ namespace ZenoniaProto
     /// Command line of the network modes (parsed once at startup):
     ///   --mode offline|server|host|client   --port N (default 7777)   --host H | --connect H:P   --name X   --class warrior|wizard|...
     ///   --sim-latency MS --sim-jitter MS --sim-loss PCT --sim-seed N (client lag harness)   --no-predict   --predict-after S   --net-no-delta
-    ///   --max-players N (200)   --tick 30   --snap-div 2   --dev-key K   --run-seconds N   --net-bot fight|wander   --net-stats file.json
+    ///   --max-players N (200)   --tick 30   --snap-div 2   --dev-key K   --run-seconds N   --net-bot fight|wander|portal   --net-stats file.json
+    ///   --map NAME (server: the zone new heroes begin in, default Frost Hollow)   --no-portals (server: load tests keep everybody on one zone)
     /// </summary>
     public static class NetLaunchArgs
     {
@@ -26,6 +27,10 @@ namespace ZenoniaProto
         public static int TestVersion;
         /// <summary>Server test hook (--dev-level N): new heroes start at this level (skill points to spend); 0 = off. Never set on a public server.</summary>
         public static int DevLevel;
+        /// <summary>Server: --map, the zone new heroes begin in (null = the default map, Frost Hollow).</summary>
+        public static string StartMap;
+        /// <summary>Server test hook (--no-portals): no hero is ever moved between zones.</summary>
+        public static bool NoPortals;
 
         public static string Arg(string[] a, string key)
         {
@@ -64,6 +69,8 @@ namespace ZenoniaProto
             PredictAfter = float.TryParse(Arg(a, "--predict-after"), NumberStyles.Float, CultureInfo.InvariantCulture, out pa) ? pa : 0f;
             Predict = Array.IndexOf(a, "--no-predict") < 0 && PredictAfter <= 0f;
             NoDelta = Array.IndexOf(a, "--net-no-delta") >= 0;
+            StartMap = Arg(a, "--map");
+            NoPortals = Array.IndexOf(a, "--no-portals") >= 0;
             SimLatencyMs = Math.Max(0, Math.Min(2000, Int(a, "--sim-latency", 0)));
             SimJitterMs = Math.Max(0, Math.Min(1000, Int(a, "--sim-jitter", 0)));
             SimLossPct = Math.Max(0, Math.Min(90, Int(a, "--sim-loss", 0)));

@@ -5,8 +5,9 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// A villager standing on a tile of the current map: the web's HD idle sheet (192 px frames at 8 px per unit = hero height, 4 idle frames per
-    /// facing row down / left / right) with a ground shadow. Offline only. InRange tells WindowsHost when "Talk" / E works for the nearest one;
-    /// Talk() opens the quest dialogue for the quest giver and the idle chatter (NpcDialogueBox, the villager's face as portrait) for the rest.
+    /// facing row down / left / right) with a ground shadow. View-only client code, also online: no server state. InRange tells WindowsHost when "Talk" / E works for the
+    /// nearest one; Talk() opens the idle chatter (NpcDialogueBox, the villager's face as portrait), and offline the quest dialogue for the quest giver: a quest counts kills
+    /// and pays rewards, which online would need server state, so online the quest giver only chats like everybody else.
     /// </summary>
     public sealed class TownNpc : MonoBehaviour
     {
@@ -43,14 +44,14 @@ namespace ZenoniaProto
             shadow.transform.localScale = new Vector3(14f, 14f, 1f);
             shadow.color = new Color(0f, 0f, 0f, 0.45f);
             shadow.sortingOrder = order;
-            Sprite[][] sheet = SpriteSheet.Grid("Sprites/village/npcs/" + def.Id, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, new Vector2(0.5f, 0f));
+            Sprite[][] sheet = SpriteSheet.Grid("Sprites/village/npcs/" + def.Art, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, new Vector2(0.5f, 0f));
             if (sheet != null && sheet.Length > 0)
             {
                 idle = sheet[Mathf.Min(def.Facing, sheet.Length - 1)];
                 body = ProceduralSprites.Child(transform, "Body", idle[0]);
                 body.sortingOrder = order + 3;
             }
-            if (def.QuestGiver) ElderNpc.Attach(this);
+            if (def.QuestGiver && NetMode.IsOffline) ElderNpc.Attach(this);
             All.Add(this);
         }
 
@@ -84,19 +85,19 @@ namespace ZenoniaProto
         {
             TownNpc n = Nearest();
             if (n == null) return;
-            if (n.Def.QuestGiver) { ElderNpc.Talk(); return; }
-            NpcDialogueBox.Open(n.Def.Name, Portrait(n.Def.Id), n.Def.Lines, null);
+            if (n.Def.QuestGiver && NetMode.IsOffline) { ElderNpc.Talk(); return; }
+            NpcDialogueBox.Open(n.Def.Name, Portrait(n.Def.Art), n.Def.Lines, null);
         }
 
         /// <summary>The 152 px face of a villager (cached; null when the file is missing).</summary>
-        static Sprite Portrait(string id)
+        static Sprite Portrait(string art)
         {
             Sprite s;
-            if (Portraits.TryGetValue(id, out s) && s != null) return s;
-            var face = Resources.Load<Texture2D>("Sprites/village/npcs/" + id + "_face");
+            if (Portraits.TryGetValue(art, out s) && s != null) return s;
+            var face = Resources.Load<Texture2D>("Sprites/village/npcs/" + art + "_face");
             if (face == null) return null;
             s = Sprite.Create(face, new Rect(0, 0, face.width, face.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
-            Portraits[id] = s;
+            Portraits[art] = s;
             return s;
         }
     }

@@ -4,5 +4,8 @@
     "gold": 0,
     "hpPotions": 20,
     "mpPotions": 20,
-    "level": 60
+    "level": 60,
+    "skillPointBonus": 20,
+    "allSkills": true,
+    "allWeapons": true
 }

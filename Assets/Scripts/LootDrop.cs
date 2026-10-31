@@ -35,6 +35,7 @@ namespace ZenoniaProto
         ushort ownerId;
         SpriteRenderer icon, glow, shadow;
         bool glowOn, headless;
+        Zone homeZone;
 
         public static void ResetStatics() { lastFullToast = -99999f; }
 
@@ -61,6 +62,7 @@ namespace ZenoniaProto
             d.ownerId = ownerId; d.freeAtMs = freeAtMs;
             d.headless = NetMode.NoViews;
             d.Build();
+            d.homeZone = Zone.Main;
             if (Zone.Main != null) { Zone.Main.Loot.Add(d); d.NetId = Zone.Main.Ids.Alloc(d); }
             return d;
         }
@@ -77,6 +79,7 @@ namespace ZenoniaProto
             d.headless = NetMode.NoViews;
             d.age = fresh ? 0f : PopMs;
             d.Build();
+            d.homeZone = Zone.Main;
             if (Zone.Main != null) { Zone.Main.Loot.Add(d); d.NetId = id; Zone.Main.Ids.Register(id, d); }
             return d;
         }
@@ -99,8 +102,12 @@ namespace ZenoniaProto
             Place();
         }
 
+        /// <summary>The zone slept for `ms`: the drop aged all the same and is gone on the next tick when its minute is over.</summary>
+        public void FastForward(float ms) { age += ms; }
+
         void Update()
         {
+            Zone.Enter(homeZone);
             if (!headless && icon == null) { Destroy(gameObject); return; } // recompile during Play mode
             age += GameClock.Dt * 1000f;
             if (proxy) { if (age > LifeMs) age = LifeMs - BlinkMs - 1f; Place(); return; } // the server decides when it vanishes
@@ -165,7 +172,7 @@ namespace ZenoniaProto
 
         void OnDestroy()
         {
-            Zone z = Zone.Main;
+            Zone z = homeZone;
             if (z == null) return;
             z.Loot.Remove(this);
             z.Ids.Release(NetId, z.TimeMs);

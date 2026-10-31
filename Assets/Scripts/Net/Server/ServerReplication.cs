@@ -9,6 +9,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Server -> client replication, run per player from ZoneServer: area-of-interest membership (Spawn / Despawn messages), the prioritised
     /// size-capped Snapshot of everything the player sees, and the AOI filtered event batches. All sends go through here so NetStats can count them.
+    /// Every query is about one zone: the cell index and the events live in the Zone, so a player only ever hears of the zone it stands in.
     /// </summary>
     public sealed class ServerReplication
     {
@@ -16,7 +17,6 @@ namespace ZenoniaProto
         struct DistKey<T> { public float D; public T S; }
 
         readonly NetDataWriter w = new NetDataWriter();
-        readonly InterestGrid grid = new InterestGrid(GameConfig.MapW, GameConfig.MapH);
         readonly List<ushort> entered = new List<ushort>(32), left = new List<ushort>(32), gone = new List<ushort>(8);
         readonly List<DistKey<HeroSnap>> heroKeys = new List<DistKey<HeroSnap>>(64);
         readonly List<DistKey<MonsterSnap>> monsterKeys = new List<DistKey<MonsterSnap>>(64);
@@ -30,6 +30,7 @@ namespace ZenoniaProto
         /// <summary>Rebuilds the cell index from every entity of the zone (a few hundred inserts per tick).</summary>
         public void RebuildGrid(Zone zone)
         {
+            InterestGrid grid = zone.Grid;
             grid.Clear();
             IReadOnlyList<HeroController> heroes = zone.Heroes.All;
             for (int i = 0; i < heroes.Count; i++) grid.Set(heroes[i].NetId, heroes[i].Position.x, heroes[i].Position.y);
@@ -37,20 +38,13 @@ namespace ZenoniaProto
             for (int i = 0; i < zone.Loot.Count; i++) { Vector2 f = zone.Loot[i].Target; grid.Set(zone.Loot[i].NetId, f.x, f.y); }
         }
 
-        public bool InInterest(NetPlayer p, Vector2 at)
-        {
-            int cx, cy;
-            if (p.Hero == null || !grid.TryCellOf(p.Hero.NetId, out cx, out cy)) return false;
-            return System.Math.Max(System.Math.Abs(grid.CellX(at.x) - cx), System.Math.Abs(grid.CellY(at.y) - cy)) <= InterestSet.DropRadius;
-        }
-
         // ---- Spawn / Despawn ----
 
         public void UpdateInterest(Zone zone, NetPlayer p)
         {
             int cx, cy;
-            if (p.Hero == null || !grid.TryCellOf(p.Hero.NetId, out cx, out cy)) return;
-            p.Interest.Update(grid, cx, cy, entered, left, gone);
+            if (p.Hero == null || !zone.Grid.TryCellOf(p.Hero.NetId, out cx, out cy)) return;
+            p.Interest.Update(zone.Grid, cx, cy, entered, left, gone);
             for (int i = 0; i < entered.Count; i++)
             {
                 SpawnMsg m;
@@ -130,7 +124,7 @@ namespace ZenoniaProto
             }
             SnapshotRing.Slot sent = p.SentRing.Begin(seq);
             SnapshotPacker.Write(w, seq, serverMs, (ushort)p.Input.State.LastSeq, baseSeq, baseSeq != 0 ? p.BaselineLookup : null, true, p.Hero.CaptureSim(),
-                heroSnaps, monsterSnaps, ref p.HeroCursor, ref p.MonsterCursor, sent.Heroes, sent.Monsters);
+                heroSnaps, monsterSnaps, ref p.HeroCursor, ref p.MonsterCursor, sent.Heroes, sent.Monsters, epoch: p.Epoch);
             stats.OnSnapshotSent(w.Length);
             if (baseSeq == 0) stats.Add("snapshotsFull", 1);
             Send(p, false);
@@ -138,9 +132,11 @@ namespace ZenoniaProto
 
         // ---- Events ----
 
-        public void RouteEvents(IReadOnlyList<NetPlayer> players)
+        public void RouteEvents(Zone zone)
         {
-            List<NetEventBus.Queued> pending = NetEventBus.Pending;
+            List<NetEventBus.Queued> pending = zone.Events;
+            List<NetPlayer> players = zone.Players;
+            InterestGrid grid = zone.Grid;
             if (pending.Count == 0) return;
             if (cellX.Length < players.Count) { cellX = new int[players.Count * 2]; cellY = new int[players.Count * 2]; }
             for (int pi = 0; pi < players.Count; pi++)
@@ -180,9 +176,17 @@ namespace ZenoniaProto
 
         // ---- plain messages ----
 
-        public void SendWelcome(NetPlayer p, uint serverMs, int tickRate, int snapDiv)
+        public void SendWelcome(NetPlayer p, string mapId, bool portalsLive, uint serverMs, int tickRate, int snapDiv)
         {
-            NetMessageWriter.Welcome(w, new WelcomeMsg { PlayerId = p.PlayerId, HeroNetId = p.Hero.NetId, ZoneId = 0, MapId = 0, ServerTimeMs = serverMs, TickRate = (byte)tickRate, SnapDiv = (byte)snapDiv });
+            NetMessageWriter.Welcome(w, new WelcomeMsg { PlayerId = p.PlayerId, HeroNetId = p.Hero.NetId, Epoch = p.Epoch, MapId = mapId, ServerTimeMs = serverMs, TickRate = (byte)tickRate, SnapDiv = (byte)snapDiv, PortalsLive = portalsLive });
+            Send(p, true);
+        }
+
+        public void SendZoneChanged(NetPlayer p, string mapId)
+        {
+            HeroController h = p.Hero;
+            Vector2 feet = h.Position;
+            NetMessageWriter.ZoneChanged(w, new ZoneChangedMsg { Epoch = p.Epoch, HeroNetId = h.NetId, MapId = mapId, X = NetQuantize.Pos(feet.x), Y = NetQuantize.Pos(feet.y), Facing = (byte)h.Facing });
             Send(p, true);
         }
 
@@ -203,7 +207,8 @@ namespace ZenoniaProto
         public void SendRpgState(NetPlayer p, uint reqId, bool ok, string text)
         {
             HeroController h = p.Hero;
-            var save = ZenoniaProto.Rpg.SaveSerializer.Capture(h.Rpg, true, h.Position.x, h.Position.y, false);
+            string mapId = h.HomeZone != null && h.HomeZone.Map != null ? h.HomeZone.Map.Id : null;
+            var save = ZenoniaProto.Rpg.SaveSerializer.Capture(h.Rpg, true, h.Position.x, h.Position.y, p.Bosses.KingDefeated, 0, mapId, p.Bosses.OwnBossMaps);
             NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = reqId, Result = (byte)(ok ? 1 : 0), Text = text, SaveJson = JsonUtility.ToJson(save) });
             Send(p, true);
         }

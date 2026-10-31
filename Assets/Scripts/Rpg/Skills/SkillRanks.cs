@@ -20,7 +20,10 @@ namespace ZenoniaProto.Rpg
 
         public int Sum { get { int s = 0; foreach (byte r in ranks) s += r; return s; } }
 
-        public int Free(int level) { return level - Sum; }
+        /// <summary>Extra SP on top of the level, test builds only (DevStartConfig.skillPointBonus). Always 0 on a server and in a shipped build.</summary>
+        public static int DevBonus;
+
+        public int Free(int level) { return level + DevBonus - Sum; }
 
         /// <summary>Why a skill can (not) be learned / ranked up right now. Checked in the order max rank, level, prerequisites, SP.</summary>
         public LearnResult CanLearn(SkillDef def, int level)
@@ -58,7 +61,7 @@ namespace ZenoniaProto.Rpg
             if (defs.Length == 0) { Reset(); return; }
             for (int i = 0; i < ranks.Length; i++) ranks[i] = (byte)Math.Min((int)ranks[i], SkillDef.MaxRank);
             DropIllegal(defs, level);
-            while (Sum > level)
+            while (Sum > level + DevBonus)
             {
                 SkillDef newest = null;
                 foreach (SkillDef d in defs)

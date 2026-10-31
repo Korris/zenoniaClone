@@ -12,6 +12,22 @@ public class SecondWeaponTests
         return p;
     }
 
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(6, 0)]
+    [InlineData(7, 1)]
+    [InlineData(8, 1)]
+    [InlineData(9, 2)]
+    [InlineData(11, 3)]
+    [InlineData(13, 4)]
+    [InlineData(14, 4)]
+    [InlineData(15, 5)]
+    public void EnhanceLookBandsCoverEveryThreshold(int plus, int band)
+    {
+        Assert.Equal(band, EnhanceStats.VisualBand(new Item { slot = Slots.Weapon, enhance = plus }));
+        Assert.Equal(band, EnhanceStats.VisualBand(new Item { slot = Slots.Offhand, enhance = plus }));
+    }
+
     [Fact]
     public void CurveIsMonotonicWithFixedEnds()
     {

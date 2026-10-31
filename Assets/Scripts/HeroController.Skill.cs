@@ -70,6 +70,7 @@ namespace ZenoniaProto
             int salt = CastSalt();
             // The executor decides first (a skill that needs a target refuses when none is in range) so a refused cast costs nothing.
             if (!replaying && !SkillExecutor.Cast(this, index, rank, salt)) { SkillCastFeedback.Refused(this, def, SkillCastFeedback.Reason.NoTarget); return false; }
+            if (HomeZone != null && HomeZone.Pump != null) HomeZone.Pump.Adopt();
             NetEventBus.SkillCast(this, index, rank, salt);
             if (!replaying) mp -= cost;
             cds.Start(index, def.CooldownMs);

@@ -44,7 +44,8 @@ namespace ZenoniaProto
             {
                 Dt = raw;
             }
-            if (Zone.Main != null) Zone.Main.Advance(Dt);
+            if (ZoneHost.Active != null) ZoneHost.Active.Advance(Dt);
+            else if (Zone.Main != null) Zone.Main.Advance(Dt);
         }
     }
 }

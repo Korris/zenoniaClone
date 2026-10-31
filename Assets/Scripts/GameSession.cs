@@ -51,6 +51,7 @@ namespace ZenoniaProto
             ClassPalette.Current = def.ActivePalette;
             if (id == HeroClass.Warrior) EarthBreakUltimate.Preload(); // first-cast hitch fix: load the skill art + warm the FX pools now
             if (id == HeroClass.Wizard) IceStormUltimate.Preload();
+            if (id == HeroClass.Mechanic) RocketBarrageUltimate.Preload();
             VfxSprites.Preload(id);
             UltimateFx.Prewarm();
             hero = heroGo.AddComponent<HeroController>();
@@ -72,6 +73,7 @@ namespace ZenoniaProto
             view.Init(def, HeldGearData.Load(def));
             if (id == HeroClass.Warrior) EarthBreakUltimate.Preload();
             if (id == HeroClass.Wizard) IceStormUltimate.Preload();
+            if (id == HeroClass.Mechanic) RocketBarrageUltimate.Preload();
             VfxSprites.Preload(id);
             HeroController h = go.AddComponent<HeroController>();
             h.Init(view, null, true);
@@ -96,6 +98,7 @@ namespace ZenoniaProto
                 view.Init(def, HeldGearData.Load(def));
                 if (def.Id == HeroClass.Warrior) EarthBreakUltimate.Preload();
                 if (def.Id == HeroClass.Wizard) IceStormUltimate.Preload();
+                if (def.Id == HeroClass.Mechanic) RocketBarrageUltimate.Preload();
                 VfxSprites.Preload(def.Id);
             }
             PlayerState state = PlayerState.NewGame(RpgSession.ClassId(def.Id));

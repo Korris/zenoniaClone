@@ -6,6 +6,8 @@
 .EXAMPLE
   .\Tools\net-local-test.ps1 -Exe C:\path\Zenonia.exe -Clients 8 -Seconds 90 -OutDir C:\temp\net8
   .\Tools\net-local-test.ps1 -Exe ... -Clients 5 -Seconds 80 -VideoDir C:\temp\frames   # + one 640x400 recording client
+  .\Tools\net-local-test.ps1 -Exe ... -Clients 2 -Seconds 120 -Bot portal -NoCheck -OutDir C:\temp\portal   # two bots walking from portal to portal: read zoneTransfers in server.json, zoneChanges in c1.json
+  Every other bot stays on one map (--no-portals on the server): they are written for Frost Hollow's tiles and the budget checks count one zone.
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Exe,
@@ -13,8 +15,8 @@ param(
   [int]$Seconds = 90,                 # run time of every bot client
   [int]$Port = 7790,
   [string]$OutDir = "net-test-out",
-  [ValidateSet("boss", "fight", "wander", "twitch", "skills")][string]$Bot = "boss",   # skills = fight + learn every skill online + cycle the skill keys (server gets --dev-level)
-  [ValidateSet("boss", "fight", "wander", "twitch", "skills")][string]$CamBot = "boss",   # brain of the visible recording client
+  [ValidateSet("boss", "fight", "wander", "twitch", "skills", "portal")][string]$Bot = "boss",   # skills = fight + learn every skill online + cycle the skill keys (server gets --dev-level); portal = walk from portal to portal
+  [ValidateSet("boss", "fight", "wander", "twitch", "skills", "portal")][string]$CamBot = "boss",   # brain of the visible recording client
   [string]$DevKey = "k",
   [int]$MaxPlayers = 200,
   [string]$VideoDir = "",             # set = one extra visible client records frames here
@@ -51,6 +53,7 @@ function Start-Unity([string]$name, [string[]]$arguments, [string]$style = "Hidd
 $serverSeconds = $Seconds + 30 + [int]($Clients * 0.25)
 if ($DevLevel -eq 0 -and ($Bot -eq "skills" -or $CamBot -eq "skills")) { $DevLevel = 60 }
 if ($DevLevel -gt 0) { $ServerArgs += @("--dev-level", $DevLevel) }
+if ($Bot -ne "portal" -and ($VideoDir -eq "" -or $CamBot -ne "portal")) { $ServerArgs += "--no-portals" }
 $server = Start-Unity "server" (@("-batchmode", "-nographics", "--mode", "server", "--port", $Port, "--dev-key", $DevKey, "--max-players", $MaxPlayers,
   "--run-seconds", $serverSeconds, "--net-stats", "$OutDir\server.json", "-logFile", "$OutDir\server.log") + $ServerArgs)
 $deadline = (Get-Date).AddSeconds(30)

@@ -107,6 +107,21 @@ namespace ZenoniaProto
             error = Vector2.zero;
         }
 
+        /// <summary>
+        /// The server moved the hero to another zone and the client just placed it: nothing recorded so far can be compared with the new zone. Starting over (seq 0, no history) means no
+        /// reconciliation until the first frame this predictor makes from here has come back from the server.
+        /// </summary>
+        public void OnZoneChanged()
+        {
+            started = false;
+            seq = firstSeq = 0;
+            bits = 0;
+            acc = sinceStep = 0f;
+            error = Vector2.zero;
+            System.Array.Clear(history, 0, history.Length);
+            System.Array.Clear(frames, 0, frames.Length);
+        }
+
         // ---- reconciliation ----
 
         /// <summary>Counts every bit of a state disagreement under stateDiff&lt;bit&gt; (0 dead, 1 dash, 2 cast, 3-4 combo phase, 5-8 combo step, 9-10 facing, 12 attack-speed buff).</summary>

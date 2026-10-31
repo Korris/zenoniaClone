@@ -73,7 +73,10 @@ namespace ZenoniaProto
 
         static readonly Vector2Int PlayerStartTile = new Vector2Int(16, 19);
         /// <summary>South gate: leads to the Frost Hollow entrance stairs (that map's start tile).</summary>
-        static readonly MapPortal[] PortalList = { new MapPortal(16, 21, FrostHollowLayout.MapId, FrostHollowLayout.PlayerStartTile.x, FrostHollowLayout.PlayerStartTile.y) };
+        static readonly MapPortal[] PortalList =
+        {
+            new MapPortal(16, 21, FrostHollowLayout.MapId, FrostHollowLayout.PlayerStartTile.x, FrostHollowLayout.PlayerStartTile.y),
+        };
 
         public OakhavenVillageMap() : base(Rows, "Tw")
         {

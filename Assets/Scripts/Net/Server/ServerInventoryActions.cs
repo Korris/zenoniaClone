@@ -12,6 +12,7 @@ namespace ZenoniaProto
         public static void Apply(ServerReplication repl, NetPlayer p, InvActionMsg m)
         {
             if (p.Hero == null) return;
+            Zone.Enter(p.Hero.HomeZone); // a network callback: the events it raises belong to this hero's zone
             string before = LookKey(p);
             ActionResult r = p.Rpg.ApplyInvAction(m.Op, m.ItemUid, m.Slot);
             if (LookKey(p) != before)

@@ -24,13 +24,13 @@ namespace ZenoniaProto.Rpg
             return lines;
         }
 
-        static int Percent(SkillDef d, SkillEffect e, int rank)
+        internal static int Percent(SkillDef d, SkillEffect e, int rank)
         {
             return (int)Math.Round(e.Kind == EffectKind.Buff ? d.BuffAt(e, rank) : d.PctAt(e, rank));
         }
 
         /// <summary>Label of the scaling number an effect carries, null when it has none (fixed buffs / pure status / motion).</summary>
-        static string Label(SkillEffect e)
+        internal static string Label(SkillEffect e)
         {
             switch (e.Kind)
             {
@@ -43,7 +43,7 @@ namespace ZenoniaProto.Rpg
             }
         }
 
-        static string Line(string label, int now, int next, int rank, string unit, int shown)
+        internal static string Line(string label, int now, int next, int rank, string unit, int shown)
         {
             if (rank <= 0 || rank >= SkillDef.MaxRank) return label + " " + shown + unit;
             return label + " " + now + unit + " -> " + next + unit;

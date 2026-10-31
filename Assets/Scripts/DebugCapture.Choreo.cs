@@ -24,10 +24,11 @@ namespace ZenoniaProto
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Frost Nova", Ahead = 0f, Spread = 40f, Count = 6, Hold = 2.6f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Elemental Burst", Ahead = 64f, Spread = 20f, Count = 5, Hold = 2.8f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Astral Cataclysm", Ahead = 80f, Spread = 46f, Count = 7, Hold = 4.0f },
+            new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Rocket Barrage", Ahead = 55f, Spread = 28f, Count = 6, Hold = 3.6f },
         };
 
         /// <summary>
-        /// --record-choreo [filter]: scripted comparison video. Earth Break (warrior) then each wizard tree skill is cast at a monster group, one after the other.
+        /// --record-choreo [filter]: scripted comparison video. Earth Break (warrior), each wizard tree skill, then Rocket Barrage (mechanic) are cast at a monster group, one after the other.
         /// filter = comma list of skill names to keep (default all). 60 fps fixed step: frame_#####.png + audio.wav (AudioRenderer) to --shot-path.
         /// </summary>
         IEnumerator RecordChoreo(string filter)

@@ -69,6 +69,8 @@ namespace ZenoniaProto.Net
     {
         public uint Seq, ServerTimeMs, BaselineSeq;
         public ushort LastInputSeq;
+        /// <summary>Which of the receiver's zone stays this snapshot belongs to (ZoneChangedMsg).</summary>
+        public byte Epoch;
         public bool HasOwner;
         public OwnerSim Owner;
         public readonly List<HeroSnap> Heroes = new List<HeroSnap>();

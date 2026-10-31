@@ -58,7 +58,8 @@ namespace ZenoniaProto
             if (!ctx.View) return;
             StrikeArt(ctx, e, center);
             SkillSfx.Play(ctx, SkillSfx.Impact);
-            if (hits > 0 && ctx.Body.IsLocal && e.Pct >= 300f) { CameraFollow.AddTrauma(0.22f); GameClock.HitStop(FeelConfig.HitStopFinisherMs); }
+            // A choreography brings its own hit feel; trauma would stack with it.
+            if (hits > 0 && ctx.Body.IsLocal && e.Pct >= 300f && !SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) { CameraFollow.AddTrauma(0.22f); GameClock.HitStop(FeelConfig.HitStopFinisherMs); }
         }
 
         /// <summary>Impact art laid over the shape: centred on a circle, at the middle of an arc / cone, repeated along a line.</summary>

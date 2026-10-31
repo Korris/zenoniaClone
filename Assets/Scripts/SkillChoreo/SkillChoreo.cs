@@ -21,6 +21,10 @@ namespace ZenoniaProto
                 if (table != null) return table;
                 var list = new List<Choreo>();
                 SkillChoreoDefsWizard.Register(list);
+                SkillChoreoDefsWarrior.Register(list);
+                SkillChoreoDefsAssassin.Register(list);
+                SkillChoreoDefsCleric.Register(list);
+                SkillChoreoDefsMechanic.Register(list);
                 table = new Dictionary<string, Choreo>();
                 foreach (Choreo c in list) table[c.ClassId + "." + c.SkillId] = c;
                 return table;
@@ -32,14 +36,18 @@ namespace ZenoniaProto
 
         public static bool Has(string classId, string skillId) { return classId != null && skillId != null && Table.ContainsKey(classId + "." + Short(skillId)); }
 
+        /// <summary>True when the choreography replaces the sim's own art (SkillVfx, bolt and zone bodies); false for no entry and for KeepsSimArt skills.</summary>
+        public static bool DrawsBody(string classId, string skillId) { return Has(classId, skillId) && !Table[classId + "." + Short(skillId)].KeepsSimArt; }
+
         /// <summary>
         /// Starts the choreography (no-op + null where !RendersFx or the skill has none). origin = caster centre; target = aim point (area centre / projectile aim);
         /// follow = caster transform (shield, cast rings follow it; the choreography ends if it is destroyed); projectilePos = live bolt position (optional);
-        /// hits = positions the bolt struck, nearest first (pierce: every pierced target); sfx = cue callback ("cast", "loop", "impact", "break").
+        /// hits = positions the bolt struck, nearest first (pierce: every pierced target); sfx = cue callback ("cast", "loop", "impact", "break");
+        /// aimDir = the caster's aim when the aim point cannot give it (around-self skills); screenFx = false for another player's cast (no shake, flash, hit-stop, zoom).
         /// Keep the returned player for sustained skills: End(true) on shield break, End(false) on expiry.
         /// </summary>
         public static SkillChoreoPlayer Play(string classId, string skillId, Vector2 origin, Vector2 target, Transform follow = null,
-            Func<Vector2> projectilePos = null, IList<Vector2> hits = null, Action<string> sfx = null)
+            Func<Vector2> projectilePos = null, IList<Vector2> hits = null, Action<string> sfx = null, Vector2 aimDir = default(Vector2), bool screenFx = true)
         {
             if (!NetMode.RendersFx || !Has(classId, skillId)) return null;
             Transform root = Zone.Main != null ? Zone.Main.Root : null;
@@ -48,7 +56,7 @@ namespace ZenoniaProto
             SkillDef def = null;
             foreach (SkillDef d in SkillTable.ForClass(classId)) if (d.Id == classId + "." + id) { def = d; break; }
             Vector2 to = target - origin;
-            var env = new ChoreoEnv { Origin = origin, Dir = to.sqrMagnitude > 0.01f ? to.normalized : Vector2.right, Follow = follow, Head = projectilePos, Sfx = sfx, Art = def != null ? SkillVfx.Get(def) : null };
+            var env = new ChoreoEnv { Origin = origin, Dir = aimDir.sqrMagnitude > 0.01f ? aimDir : to.sqrMagnitude > 0.01f ? to.normalized : Vector2.right, ScreenFx = screenFx, Follow = follow, Head = projectilePos, Sfx = sfx, Art = def != null ? SkillVfx.Get(def) : null };
             if (env.Art == null) return null; // no painted art: caller keeps its fallback
             try { return SkillChoreoPlayer.Begin(Table[classId + "." + id], env, target, hits, root); }
             catch (Exception e) { Debug.LogError("[ZenoniaProto] skill choreo " + id + " failed: " + e.Message); return null; }

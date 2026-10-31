@@ -43,6 +43,9 @@ namespace ZenoniaProto
             p.Name = name;
             p.BindRpgEvents();
             p.RpgDirty = true;
+            // Same as an offline save positioned past a gate: a hero that begins beyond it (--map) can walk back through it.
+            string passed = zone.Map != null ? MapSpawnTable.GatePassedOn(zone.Map.Id) : null;
+            if (passed != null) p.Bosses.Mark(passed, MapSpawnTable.HasOwnBoss(passed));
         }
 
         /// <summary>Spawn point near the entrance, spread so arriving players do not stack on one pixel.</summary>
@@ -59,6 +62,13 @@ namespace ZenoniaProto
         public static void Destroy(NetPlayer p)
         {
             if (p.Hero == null) return;
+            Zone zone = p.Hero.HomeZone;
+            if (zone != null && zone.Pump != null)
+            {
+                Zone.Enter(zone);
+                zone.Pump.DestroyOwnedBy(p.Hero);
+                ComboProjectile.RetireFor(p.Hero);
+            }
             p.Hero.Retire();
             Object.Destroy(p.Hero.gameObject);
             p.Hero = null;

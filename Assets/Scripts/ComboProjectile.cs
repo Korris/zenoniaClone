@@ -28,8 +28,27 @@ namespace ZenoniaProto
         StreakBoltRig streak;   // cleric light arrow / mechanic plasma bolt
         VfxSet vfx;             // painted projectile sheet (null = procedural rig / sprite fallback)
         float animT;
+        Zone homeZone;          // the pool is shared; a bolt flies in the zone that fired it
 
         public static void Init(Transform parent) { root = parent; Pool.Clear(); }
+
+        /// <summary>Ends the bolts `hero` fired: it just left the zone, and its id means nothing there any more.</summary>
+        public static void RetireFor(HeroController hero)
+        {
+            for (int i = 0; i < Pool.Count; i++) if (Pool[i].gameObject.activeSelf && Pool[i].src == hero) Pool[i].gameObject.SetActive(false);
+        }
+
+        /// <summary>Ends every bolt in flight in `zone` (it is about to pause).</summary>
+        public static void RetireIn(Zone zone)
+        {
+            for (int i = 0; i < Pool.Count; i++) if (Pool[i].gameObject.activeSelf && Pool[i].homeZone == zone) Pool[i].gameObject.SetActive(false);
+        }
+
+        /// <summary>Client, arriving on another map: every picture of a bolt belongs to the old one.</summary>
+        public static void RetireAll()
+        {
+            for (int i = 0; i < Pool.Count; i++) if (Pool[i].gameObject.activeSelf) Pool[i].gameObject.SetActive(false);
+        }
 
         /// <summary>Launches a bolt. On a headless server it is a plain moving hitbox (no renderers); `src` is credited for every hit.</summary>
         public static ComboProjectile Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f, HeroController src = null, ushort boltId = 0)
@@ -54,6 +73,7 @@ namespace ZenoniaProto
             }
             p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus; p.src = src; p.netId = boltId; p.predictedOwner = null;
             p.life = bolt.Range / bolt.Speed;
+            p.homeZone = Zone.Main;
             if (!fx) { p.vfx = null; p.gameObject.SetActive(true); return p; } // headless: hitbox only
             p.sr.sprite = art; p.glow.sprite = art;
             p.sr.enabled = p.glow.enabled = bolt.Style == BoltStyle.Sprite;
@@ -97,6 +117,7 @@ namespace ZenoniaProto
 
         void Update()
         {
+            Zone.Enter(homeZone);
             float dt = GameClock.Dt;
             if (dt > 0f)
             {

@@ -15,6 +15,7 @@ namespace ZenoniaProto
         Sprite[] frames;
         float age, fps, life;
         bool looping, stopped;
+        public float Alpha = 1f; // reset by Play; lower it for art drawn over a hero
 
         public static void Init(Transform parent) { root = parent; Pool.Clear(); }
 
@@ -36,7 +37,7 @@ namespace ZenoniaProto
                 a.glow.sharedMaterial = FeelMaterials.Additive;
                 Pool.Add(a);
             }
-            a.frames = frames; a.fps = Mathf.Max(1f, fps); a.age = 0f; a.looping = looping; a.stopped = false;
+            a.frames = frames; a.fps = Mathf.Max(1f, fps); a.age = 0f; a.looping = looping; a.stopped = false; a.Alpha = 1f;
             a.life = looping ? (life > 0f ? life : 60f) : frames.Length / a.fps;
             a.sr.sortingOrder = order; a.glow.sortingOrder = order + 1;
             a.transform.position = new Vector3(at.x, at.y, 0f);
@@ -70,8 +71,8 @@ namespace ZenoniaProto
             sr.sprite = frames[f];
             glow.sprite = frames[f];
             float tail = looping ? Mathf.Clamp01((life - age) * 4f) : Mathf.Clamp01((life - age) * fps * 2f);
-            sr.color = new Color(1f, 1f, 1f, tail);
-            glow.color = new Color(1f, 1f, 1f, tail * FeelConfig.PaintedGlowAlpha);
+            sr.color = new Color(1f, 1f, 1f, tail * Alpha);
+            glow.color = new Color(1f, 1f, 1f, tail * Alpha * FeelConfig.PaintedGlowAlpha);
         }
     }
 }

@@ -8,6 +8,8 @@
   .\Tools\net-load-test.ps1 -Exe C:\path\Zenonia.exe -Steps 50,100,200 -StepSeconds 60 -OutDir C:\temp\load
   .\Tools\net-load-test.ps1 -Exe ... -Steps 200 -StepSeconds 600 -OutDir C:\temp\soak          # the 10 minute soak
   .\Tools\net-load-test.ps1 -Exe ... -Steps 200 -StepSeconds 60 -NoDelta -OutDir C:\temp\full   # same load with full snapshots only (comparison)
+  .\Tools\net-load-test.ps1 -Exe ... -Steps 200 -StepSeconds 60 -Portals -OutDir C:\temp\spread  # wanderers may leave through portals and the bots spread over the zones
+  The server hosts every map, but by default it runs --no-portals: all bots stay on Frost Hollow, which is the worst case the budget was set for (the other zones sit paused).
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Exe,
@@ -17,7 +19,8 @@ param(
   [int]$Port = 7800,
   [string]$Mix = "50:30:20",          # fighters : wanderers : idlers
   [int]$SimLatency = 0, [int]$SimJitter = 0, [int]$SimLoss = 0,
-  [switch]$NoDelta
+  [switch]$NoDelta,
+  [switch]$Portals
 )
 $ErrorActionPreference = "Stop"
 $Exe = (Resolve-Path $Exe).Path
@@ -39,6 +42,7 @@ foreach ($n in $Steps) {
   $serverArgs = @("-batchmode", "-nographics", "--mode", "server", "--port", $Port, "--dev-key", "k", "--max-players", ($n + 5), "--run-seconds", $serverSeconds,
     "--net-stats", "$dir\server.json", "-logFile", "$dir\server.log")
   if ($NoDelta) { $serverArgs += "--net-no-delta" }
+  if (-not $Portals) { $serverArgs += "--no-portals" }
   $server = Start-Process -FilePath $Exe -ArgumentList $serverArgs -PassThru -WindowStyle Hidden
   $deadline = (Get-Date).AddSeconds(40)
   while ((Get-Date) -lt $deadline) {

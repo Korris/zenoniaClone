@@ -38,6 +38,14 @@ describe('save snapshot', () => {
     expect(await bad({ skillRanks: [1, 1], skillSlots: [1, 1] })).toBe(400); // duplicate slot
   });
 
+  it('keeps defeated boss maps and rejects malformed ids', async () => {
+    const o = await c.online();
+    expect((await save(o, { ...o.state, defeatedBossMaps: ['frostfangDen'] })).status).toBe(200);
+    const loaded = (await c.call('GET', `/characters/${o.char.id}`, { token: o.user.accessToken })).body.character;
+    expect(loaded.state.defeatedBossMaps).toEqual(['frostfangDen']);
+    expect((await save(o, { ...o.state, defeatedBossMaps: ['bad id!'] }, 1)).status).toBe(400);
+  });
+
   it('rejects a stale rev (409 rev_conflict with currentRev) and a wrong session', async () => {
     const o = await c.online();
     expect((await save(o, o.state, 0)).status).toBe(200);

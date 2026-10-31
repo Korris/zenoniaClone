@@ -10,8 +10,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// The authoritative zone host (server and host modes). Update (before the sim) polls the network and feeds hero input; LateUpdate (after the
-    /// sim) replicates: AOI spawns, prioritised snapshots at 15 Hz per client, AOI filtered events every tick, self state and RPG pushes.
-    /// Clients are never trusted: bounded reads, press counters, rate limit, name / class validation.
+    /// sim) moves heroes through portals (ZoneTransferService) and replicates each awake zone to its own players: AOI spawns, prioritised snapshots at 15 Hz per client,
+    /// AOI filtered events every tick, self state and RPG pushes. Clients are never trusted: bounded reads, press counters, rate limit, name / class validation.
     /// </summary>
     [DefaultExecutionOrder(-900)]
     public sealed class ZoneServer : MonoBehaviour
@@ -26,6 +26,8 @@ namespace ZenoniaProto
         NetManager net;
         EventBasedNetListener listener;
         ServerReplication repl;
+        ZoneHost host;
+        ZoneTransferService transfers;
         NetStats stats;
         readonly List<NetPlayer> players = new List<NetPlayer>();
         readonly Dictionary<NetPeer, float> unauthenticated = new Dictionary<NetPeer, float>(); // peer -> connect time (waiting for Hello)
@@ -66,15 +68,17 @@ namespace ZenoniaProto
             };
             if (!net.Start(port)) { Debug.LogError("[ZenoniaProto] net: cannot listen on UDP port " + port); return false; }
             Instance = this;
-            Zone.Main.BossDied += OnBossDied;
+            host = NetMode.IsHeadless ? ZoneHost.CreateDedicated(transform, NetLaunchArgs.StartMap) : ZoneHost.CreateSingle(Zone.Main);
+            transfers = new ZoneTransferService(host, repl, stats);
+            for (int i = 0; i < host.Zones.Count; i++) host.Zones[i].BossDied += OnBossDied;
             NetEventBus.ResetState();
             NetEventBus.Active = true;
             startTime = Time.realtimeSinceStartup;
-            Debug.Log("[ZenoniaProto] net: " + (NetMode.IsHeadless ? "server" : "host") + " listening on UDP " + port + " (max " + maxPlayers + " players, tick " + tickRate + " Hz, snapshots " + (tickRate / snapDiv) + " Hz)");
+            Debug.Log("[ZenoniaProto] net: " + (NetMode.IsHeadless ? "server" : "host") + " listening on UDP " + port + " (max " + maxPlayers + " players, tick " + tickRate + " Hz, snapshots " + (tickRate / snapDiv) + " Hz, " + host.Zones.Count + " zones, heroes begin on " + host.Start.Map.Id + (transfers.PortalsLive ? "" : ", portals off") + ")");
             return true;
         }
 
-        uint ServerMs { get { return (uint)Zone.Main.TimeMs; } }
+        uint ServerMs { get { return (uint)host.ClockMs; } }
 
         void OnBossDied(Monster boss)
         {
@@ -104,6 +108,7 @@ namespace ZenoniaProto
             if (p == null) return;
             RecordClientStats(p);
             players.Remove(p);
+            if (p.Hero != null && p.Hero.HomeZone != null) p.Hero.HomeZone.Players.Remove(p);
             nextSnapMs.Remove(p);
             ServerHeroFactory.Destroy(p);
             Debug.Log("[ZenoniaProto] net: " + p.Name + " left (" + info.Reason + "), " + players.Count + " online");
@@ -119,10 +124,12 @@ namespace ZenoniaProto
             {
                 case NetOp.Hello: if (p != null) Kick(peer, "second hello"); else OnHello(peer, reader); break;
                 case NetOp.Input:
+                    byte epoch;
                     ushort ack;
                     int n;
                     if (p == null) { Kick(peer, "input before hello"); break; }
-                    if (!NetMessageReader.TryInput(reader, out ack, frameBuf, out n)) { Kick(peer, "bad input"); break; }
+                    if (!NetMessageReader.TryInput(reader, out epoch, out ack, frameBuf, out n)) { Kick(peer, "bad input"); break; }
+                    if (epoch != p.Epoch) { stats.Add("inputStaleEpoch", 1); break; } // pressed on the map the hero just left, or before the client heard: its ack is void too
                     p.AcceptAck(ack);
                     p.Input.State.Accept(frameBuf, n, ServerMs);
                     break;
@@ -151,13 +158,15 @@ namespace ZenoniaProto
             unauthenticated.Remove(peer);
             var p = new NetPlayer { Peer = peer, PlayerId = nextPlayerId++, ConnectedAtRealtime = Time.realtimeSinceStartup };
             if (nextPlayerId == 0) nextPlayerId = 1;
+            Zone zone = host.Start;
+            host.Wake(zone); // also makes it the current zone: the factory builds the hero there
             ServerHeroFactory.Create(p, def, name);
             peer.Tag = p;
             players.Add(p);
-            nextSnapMs[p] = Zone.Main.TimeMs + (p.PlayerId % snapDiv) * (1000f / tickRate);
+            zone.Players.Add(p);
+            nextSnapMs[p] = host.ClockMs + (p.PlayerId % snapDiv) * (1000f / tickRate);
             stats.Max("playersPeak", players.Count);
-            Zone zone = Zone.Main;
-            repl.SendWelcome(p, ServerMs, tickRate, snapDiv);
+            repl.SendWelcome(p, zone.Map.Id, transfers.PortalsLive, ServerMs, tickRate, snapDiv);
             repl.RebuildGrid(zone);
             repl.UpdateInterest(zone, p);
             repl.SendSelfState(p);
@@ -203,6 +212,7 @@ namespace ZenoniaProto
             {
                 NetPlayer p = players[i];
                 if (p.Hero == null) continue;
+                Zone.Enter(p.Hero.HomeZone);
                 ServerInputState st = p.Input.State;
                 if (st.TakePotion(true) && p.Rpg.UsePotion(true).Ok) NetEventBus.Potion(p.Hero, true);
                 if (st.TakePotion(false) && p.Rpg.UsePotion(false).Ok) NetEventBus.Potion(p.Hero, false);
@@ -223,18 +233,47 @@ namespace ZenoniaProto
 
         void LateUpdate()
         {
-            Zone zone = Zone.Main;
-            if (simStart != 0) stats.Sample("tickSimMs", (float)((Stopwatch.GetTimestamp() - simStart) * 1000.0 / Stopwatch.Frequency)); // heroes, monsters, projectiles (everything between Update and LateUpdate)
+            host.TickPumps();
+            if (simStart != 0) stats.Sample("tickSimMs", (float)((Stopwatch.GetTimestamp() - simStart) * 1000.0 / Stopwatch.Frequency)); // heroes, monsters, projectiles, skills (everything between Update and here)
             lastDtMs = Mathf.Max(1f, GameClock.Dt * 1000f);
             uint serverMs = ServerMs;
+            transfers.CheckPortals(lastDtMs);
             phaseWatch.Restart();
-            repl.RebuildGrid(zone);
-            repl.RouteEvents(players);
+            IReadOnlyList<Zone> zones = host.Zones;
+            for (int z = 0; z < zones.Count; z++)
+            {
+                Zone zone = zones[z];
+                if (zone.Paused) continue;
+                if (zone.Players.Count == 0) { zone.Events.Clear(); continue; } // nobody here to tell
+                repl.RebuildGrid(zone);
+                repl.RouteEvents(zone);
+            }
             stats.Sample("tickGridEventsMs", (float)phaseWatch.Elapsed.TotalMilliseconds);
             snapshotTicks = flushTicks = 0.0;
-            for (int i = 0; i < players.Count; i++)
+            for (int z = 0; z < zones.Count; z++)
             {
-                NetPlayer p = players[i];
+                Zone zone = zones[z];
+                if (zone.Paused || zone.Players.Count == 0) continue;
+                Zone.Enter(zone);
+                ReplicateZone(zone, serverMs);
+            }
+            stats.Sample("tickSnapshotMs", (float)(snapshotTicks * 1000.0 / Stopwatch.Frequency));
+            stats.Sample("tickFlushMs", (float)(flushTicks * 1000.0 / Stopwatch.Frequency));
+            int paused = host.PauseEmptyZones(lastDtMs);
+            if (paused > 0) stats.Add("zonePauses", paused);
+            stats.Sample("zonesAwake", host.ZonesAwake);
+            Zone.Enter(host.Start);
+            tickWatch.Stop();
+            stats.Sample("tickMs", (float)tickWatch.Elapsed.TotalMilliseconds);
+            if (!finished && runSeconds > 0f && Time.realtimeSinceStartup - startTime >= runSeconds) Finish();
+        }
+
+        void ReplicateZone(Zone zone, uint serverMs)
+        {
+            List<NetPlayer> here = zone.Players;
+            for (int i = 0; i < here.Count; i++)
+            {
+                NetPlayer p = here[i];
                 if (p.Hero == null || p.Peer.ConnectionState != ConnectionState.Connected) continue;
                 float next = nextSnapMs[p];
                 if (zone.TimeMs + lastDtMs * 0.5f >= next)
@@ -253,11 +292,6 @@ namespace ZenoniaProto
                 PushPlayerState(zone, p);
                 flushTicks += Stopwatch.GetTimestamp() - t1;
             }
-            stats.Sample("tickSnapshotMs", (float)(snapshotTicks * 1000.0 / Stopwatch.Frequency));
-            stats.Sample("tickFlushMs", (float)(flushTicks * 1000.0 / Stopwatch.Frequency));
-            tickWatch.Stop();
-            stats.Sample("tickMs", (float)tickWatch.Elapsed.TotalMilliseconds);
-            if (!finished && runSeconds > 0f && Time.realtimeSinceStartup - startTime >= runSeconds) Finish();
         }
 
         void PushPlayerState(Zone zone, NetPlayer p)
@@ -293,7 +327,9 @@ namespace ZenoniaProto
             finished = true;
             for (int i = 0; i < players.Count; i++) RecordClientStats(players[i]);
             stats.Set("playersAtEnd", players.Count);
-            stats.Set("zoneKills", Zone.Main.Kills);
+            int kills = 0;
+            for (int i = 0; i < host.Zones.Count; i++) kills += host.Zones[i].Kills;
+            stats.Set("zoneKills", kills);
             stats.Write(statsPath);
             Debug.Log("[ZenoniaProto] net: run finished, stats written to " + statsPath);
             Application.Quit();
@@ -302,7 +338,11 @@ namespace ZenoniaProto
         void OnDestroy()
         {
             if (Instance == this) Instance = null;
-            if (Zone.Main != null) Zone.Main.BossDied -= OnBossDied;
+            if (host != null)
+            {
+                for (int i = 0; i < host.Zones.Count; i++) host.Zones[i].BossDied -= OnBossDied;
+                host.Stop();
+            }
             NetEventBus.Active = false;
             if (net != null) net.Stop();
             if (stats != null) stats.Dispose();

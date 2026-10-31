@@ -33,6 +33,7 @@ namespace ZenoniaProto
 
             // Static state survives play sessions when Domain Reload is disabled in Editor settings.
             Monster.ResetStatics();
+            ZoneHost.ResetState();
             LocalPlayer.ResetState();
             GameClock.ResetState();
             DamageNumber.ResetState();
@@ -93,6 +94,7 @@ namespace ZenoniaProto
             root.AddComponent<Hud>();
             RpgHud.Create(root.transform);
             TouchControls.Create(root.transform);
+            Minimap.Create(root.transform); // above the touch layer, under the windows
             MapTransfer.Create(root.transform); // portals + fade between maps (offline)
             WindowsHost.Create(root.transform); // dialogue, quest offer, chat windows + the Talk prompt (above the touch layer)
             session.StartFromCommandLine();
@@ -100,7 +102,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>
-        /// Dedicated server world: the zone, its monsters and the bolt pool, with no camera, ground sprite, FX, audio, HUD, touch controls or
+        /// Dedicated server world: the zones of every map, their monsters (ZoneHost) and the bolt pool, with no camera, ground sprite, FX, audio, HUD, touch controls or
         /// class select. Heroes arrive later as headless entities (HeroController.InitHeadless).
         /// </summary>
         static void StartWithoutViews(GameObject root)
@@ -115,8 +117,7 @@ namespace ZenoniaProto
                 return;
             }
             if (!NetMode.IsHeadless) { Debug.LogError("[ZenoniaProto] --nographics needs --mode server or --mode client"); Application.Quit(); return; }
-            MonsterSpawner.SpawnAll(root.transform);
-            if (HeadlessBench.AttachIfRequested(root)) return; // benchmark runs its own heroes, no network
+            if (HeadlessBench.AttachIfRequested(root)) { MonsterSpawner.SpawnAll(root.transform); return; } // benchmark: Frost Hollow in the plain single zone, its own heroes, no network
             if (ZoneServer.Begin(root) == null) Application.Quit();
         }
 

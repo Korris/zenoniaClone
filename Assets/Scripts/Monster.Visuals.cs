@@ -6,6 +6,35 @@ namespace ZenoniaProto
     /// <summary>Monster sprite / bar presentation.</summary>
     public partial class Monster
     {
+        const int WalkCell = 192, AttackCell = 256, SheetRows = 4; // rows: 0 down, 1 up, 2 left, 3 right (the facing code)
+        const string SheetFolder = "Sprites/monsters/";
+
+        /// <summary>
+        /// Loads the walk and attack sheets. A missing sheet would not crash (Render draws nothing, SpriteSheet logs an error), but the monster would be
+        /// invisible, so a definition with a FallbackSheet draws that one tinted until its own walk sheet exists in the 4-row layout. Its own walk sheet
+        /// without an attack sheet just plays no attack frames.
+        /// </summary>
+        void LoadSheets()
+        {
+            string sheet = def.Sheet;
+            bool hasFallback = def.FallbackSheet != null;
+            if (hasFallback && !WalkSheetUsable(def.Sheet)) { sheet = def.FallbackSheet; artTint = def.FallbackTint; }
+            walk = SpriteSheet.Grid(SheetFolder + sheet, WalkCell, WalkCell, GameConfig.FramePpu, new Vector2(0.5f, 0f));
+            if (hasFallback && Resources.Load<Texture2D>(SheetFolder + sheet + "-attack") == null) return;
+            // Attack cells are 256px with the feet 224px down => pivot 32px above the bottom.
+            attack = SpriteSheet.Grid(SheetFolder + sheet + "-attack", AttackCell, AttackCell, GameConfig.FramePpu, new Vector2(0.5f, 32f / AttackCell));
+        }
+
+        /// <summary>True when the sheet exists and slices into all the facing rows (a smaller sheet leaves whole facings invisible).</summary>
+        static bool WalkSheetUsable(string sheet)
+        {
+            Texture2D tex = Resources.Load<Texture2D>(SheetFolder + sheet);
+            if (tex == null) return false;
+            if (tex.height / WalkCell >= SheetRows && tex.width >= WalkCell) return true;
+            Debug.LogWarning("[ZenoniaProto] Resources/" + SheetFolder + sheet + ".png is " + tex.width + "x" + tex.height + ", expected 768x768 (4x4 cells of 192): using the fallback sheet");
+            return false;
+        }
+
         /// <summary>Attack frame index (0..3) like the web renderer, or -1 when not striking.</summary>
         int AttackIndex()
         {
@@ -25,7 +54,7 @@ namespace ZenoniaProto
         void ApplyHitReaction(float alpha)
         {
             bool fx = FeelConfig.FxOn && flash > 0f;
-            Color tint = StatusTint;
+            Color tint = StatusTint * artTint;
             body.color = !fx && flash > 0f ? new Color(1f, 0.55f, 0.55f, alpha) : new Color(tint.r, tint.g, tint.b, alpha);
             FeelMaterials.SetFlash(body, fx ? Mathf.Clamp01(flash / (FeelConfig.FlashMs * 0.6f)) : 0f);
             float jitter = fx ? (Time.frameCount % 2 == 0 ? FeelConfig.HitJitterUnits : -FeelConfig.HitJitterUnits) : 0f;

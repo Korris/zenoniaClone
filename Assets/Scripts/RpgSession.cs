@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using ZenoniaProto.Rpg;
 
@@ -18,13 +19,21 @@ namespace ZenoniaProto
         /// <summary>The live RPG state of the current hero, or null on the class select screen.</summary>
         public static PlayerState Player { get { return Instance != null ? Instance.player : null; } }
 
-        /// <summary>This save already killed the Frostfang King (offline he does not return): MapTransfer removes him when Frost Hollow is rebuilt.</summary>
-        public static bool BossDefeated { get { return Instance != null && Instance.bossDefeated; } }
+        /// <summary>
+        /// This save already killed the boss of `mapId` (offline a boss does not return): MapTransfer removes it when the map is rebuilt. A boss gate map opens its forward portal on this
+        /// too. Maps with a boss of their own are listed by id, every other map shares the Frostfang King's flag.
+        /// </summary>
+        public static bool BossDefeatedOn(string mapId)
+        {
+            if (Instance == null) return false;
+            return MapSpawnTable.HasOwnBoss(mapId) ? Instance.defeatedBossMaps.Contains(mapId) : Instance.bossDefeated;
+        }
 
         Transform root;
         PlayerState player;
         PlayerRpg owner;
         bool bossDefeated;
+        List<string> defeatedBossMaps = new List<string>();
         float saveTimer;
         int beganFrame = -1; // keys 1 / 2 that picked the class on the select screen must not also drink a potion
 
@@ -47,9 +56,14 @@ namespace ZenoniaProto
             SaveNow();
             string cid = ClassId(id);
             save = SaveStore.Load(cid);
+            DevStartConfig.ApplySkillBonus();
             player = save != null ? SaveSerializer.Restore(save) : PlayerState.NewGame(cid);
             DevStartConfig.Apply(player); // Resources/Data/dev-start.json: test stones / gold / potions (editor + dev builds)
             bossDefeated = save != null && save.bossDefeated;
+            defeatedBossMaps = save != null ? new List<string>(save.defeatedBossMaps) : new List<string>();
+            // A save already past a gate (older saves walked to Sunspire before the Den existed) counts as having opened it, so it can never be shut out going back.
+            string passed = save != null ? MapSpawnTable.GatePassedOn(save.mapId) : null;
+            if (passed != null && !defeatedBossMaps.Contains(passed)) defeatedBossMaps.Add(passed);
             saveTimer = 0f;
             beganFrame = Time.frameCount;
             owner = new PlayerRpg(player);
@@ -65,7 +79,10 @@ namespace ZenoniaProto
         {
             hero.Owner = owner;
             RestoreMapAndPosition(hero, save);
-            if (bossDefeated && NetMode.IsOffline && Monster.Boss != null && Application.isPlaying) Destroy(Monster.Boss.gameObject);
+            string here = MapRegistry.Current.Id;
+            if (BossDefeatedOn(here) && NetMode.IsOffline && Monster.Boss != null && Application.isPlaying) Destroy(Monster.Boss.gameObject);
+            // F1..F5 on the same map: another class's save may still owe this boss, and its gate stays shut until the boss can be killed.
+            else if (!BossDefeatedOn(here) && MapSpawnTable.HasOwnBoss(here) && NetMode.IsOffline && Application.isPlaying && Zone.Main != null && Zone.Main.Spawner != null) Zone.Main.Spawner.SpawnBoss();
             SyncGear();
             if (save == null) SaveNow(); // a new character gets its file right away
         }
@@ -80,6 +97,7 @@ namespace ZenoniaProto
             string want = NetMode.IsOffline && !MapRegistry.Forced ? (savedMap ?? OakhavenVillageMap.MapId) : MapRegistry.Current.Id;
             bool switched = want != MapRegistry.Current.Id;
             if (switched) MapTransfer.Instant(want);
+            else if (NetMode.IsOffline && MapSpawnTable.HasBossGate(want)) WorldBuilder.Rebuild(); // same map, another save: its gate may differ, so the portal lights do too
             if (savedMap == MapRegistry.Current.Id && !FrostHollowMap.RectBlocked(save.x - 5f, save.y, 10f, 8f)) hero.Teleport(new Vector2(save.x, save.y), 0);
             else if (switched) hero.Teleport(GameConfig.HeroStart, 0);
         }
@@ -96,13 +114,23 @@ namespace ZenoniaProto
             InventoryPanel.RefreshIfOpen();
         }
 
+        /// <summary>Online client: this hero's boss flags from the server's RpgState (what BossDefeatedOn answers, so the gated portal). The server decides; a gate that just opened shows at once.</summary>
+        public void ApplyRemoteBossFlags(SaveData save)
+        {
+            string map = MapRegistry.Current.Id;
+            bool wasOpen = BossDefeatedOn(map);
+            bossDefeated = save.bossDefeated;
+            defeatedBossMaps = new List<string>(save.defeatedBossMaps);
+            if (!wasOpen && BossDefeatedOn(map) && MapSpawnTable.HasBossGate(map)) WorldBuilder.Rebuild();
+        }
+
         /// <summary>Writes the current hero to its class save (no-op without a hero, while dead, or when saving is disabled).</summary>
         public void SaveNow()
         {
             HeroController hero = GameSession.Hero;
             if (player == null || hero == null || hero.Rpg != player || hero.IsDead) return;
             Vector2 p = hero.Position;
-            SaveStore.Write(SaveSerializer.Capture(player, true, p.x, p.y, bossDefeated, 0, MapRegistry.Current.Id));
+            SaveStore.Write(SaveSerializer.Capture(player, true, p.x, p.y, bossDefeated, 0, MapRegistry.Current.Id, defeatedBossMaps));
             saveTimer = 0f;
         }
 
@@ -178,10 +206,20 @@ namespace ZenoniaProto
             SaveNow();
         }
 
-        /// <summary>Offline the king never returns for this save: remember the kill right away.</summary>
+        /// <summary>Offline a boss never returns for this save: remember the kill right away. On a gate map the forward portal opens at once: its light appears and the toast says so.</summary>
         void OnBossKilled()
         {
-            bossDefeated = true;
+            string map = MapRegistry.Current.Id;
+            if (!MapSpawnTable.HasOwnBoss(map)) bossDefeated = true;
+            else if (!defeatedBossMaps.Contains(map))
+            {
+                defeatedBossMaps.Add(map);
+                if (MapSpawnTable.HasBossGate(map) && NetMode.IsOffline)
+                {
+                    WorldBuilder.Rebuild();
+                    RpgHud.Toast("The way forward is open", new Color(0.5f, 0.95f, 1f));
+                }
+            }
             SaveNow();
         }
 

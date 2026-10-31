@@ -20,6 +20,9 @@ namespace ZenoniaProto
 
         public int Pending { get { return queue.Count; } }
 
+        /// <summary>Drops what has not played yet (the entities it talks about stayed behind on the old map).</summary>
+        public void Clear() { queue.Clear(); }
+
         public void Enqueue(uint serverMs, List<NetEvent> events)
         {
             for (int i = 0; i < events.Count; i++)
@@ -113,7 +116,8 @@ namespace ZenoniaProto
                 case NetEventType.BossDied:
                     stats.Add("bossDiedSeen", 1);
                     stats.Mark("bossDiedPlayedUtcMs", NetStats.UtcMs.ToString());
-                    if (fx) RpgHud.Toast("The Frostfang King has fallen!", new Color(1f, 0.9f, 0.5f));
+                    Monster fallen = MonsterOf(e.Id);
+                    if (fx) RpgHud.Toast((fallen != null ? "The " + fallen.DisplayName : "The boss") + " has fallen!", new Color(1f, 0.9f, 0.5f));
                     break;
             }
         }

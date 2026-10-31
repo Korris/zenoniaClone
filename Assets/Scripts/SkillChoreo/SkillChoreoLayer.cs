@@ -10,6 +10,7 @@ namespace ZenoniaProto
         public Transform Follow;
         public Func<Vector2> Head;      // live projectile position (optional; otherwise the Travel anchor interpolates Origin -> end)
         public Action<string> Sfx;      // cue names: cast / loop / impact / break (optional)
+        public bool ScreenFx = true;    // shake, flash, hit-stop and zoom: only for the local caster, another player's cast must not move your camera
         public SkillVfxSet Art;
     }
 
@@ -42,7 +43,7 @@ namespace ZenoniaProto
 
         Vector2 Centre(float t)
         {
-            var off = new Vector2(P.OffX, P.OffY) * SkillChoreoPrimitives.Tile;
+            Vector2 off = (new Vector2(P.OffX, P.OffY) + env.Dir * P.AlongTiles) * SkillChoreoPrimitives.Tile;
             switch (P.At)
             {
                 case ChoreoAnchor.Caster: return (env.Follow != null ? (Vector2)env.Follow.position + new Vector2(0f, 6f) : env.Origin) + off;
@@ -80,7 +81,7 @@ namespace ZenoniaProto
             Vector2 c = Centre(0f), ground = c - new Vector2(0f, GroundDrop);
             if (!P.Stream) foreach (ChoreoBurst b in P.Bursts) SkillChoreoPrimitives.Burst(b, b.Kind == ChoreoParticle.Embers ? c : ground, RadiusTiles, Converges);
             foreach (ChoreoRing r in P.Rings) SkillChoreoPrimitives.Ring(r, ground);
-            SkillChoreoPrimitives.Impact(P);
+            if (env.ScreenFx) SkillChoreoPrimitives.Impact(P);
             if (P.Sfx != null && env.Sfx != null) env.Sfx(P.Sfx);
         }
 
@@ -113,7 +114,7 @@ namespace ZenoniaProto
             Sprite[] frames = env.Art.Rows[row];
             int f = P.F0 + (P.Loop ? (int)(ms / 1000f * Fps) % count : Mathf.Min(count - 1, (int)(t * count)));
             float s = P.Width * SkillChoreoPrimitives.Tile / (env.Art.WidestPx[row] * 0.01f);
-            float ang = P.At == ChoreoAnchor.Travel ? Mathf.Atan2(env.Dir.y, env.Dir.x) * Mathf.Rad2Deg : 0f;
+            float ang = P.At == ChoreoAnchor.Travel || P.FaceAim ? Mathf.Atan2(env.Dir.y, env.Dir.x) * Mathf.Rad2Deg : 0f;
             sr.sprite = frames[Mathf.Min(f, frames.Length - 1)]; glow.sprite = sr.sprite;
             sr.transform.SetPositionAndRotation(c, Quaternion.Euler(0f, 0f, ang)); sr.transform.localScale = new Vector3(s, s, 1f);
             sr.color = new Color(1f, 1f, 1f, fade * P.SpriteAlpha);

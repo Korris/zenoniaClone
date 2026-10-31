@@ -101,6 +101,44 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>
+        /// Arriving on another map: every proxy goes and so does the client's copy of the id space, because the new zone uses the same numbers for other entities. Destroy only happens at the
+        /// end of the frame, so each proxy lets go of its id now (0 releases nothing later). The local hero stays and gets its new id from the caller. Skill replays go too.
+        /// </summary>
+        public void ClearForTransfer()
+        {
+            Zone zone = Zone.Main;
+            if (zone == null) return;
+            for (int i = zone.Monsters.Count - 1; i >= 0; i--)
+            {
+                Monster m = zone.Monsters[i];
+                if (m == null) continue;
+                m.NetId = 0;
+                Object.Destroy(m.gameObject);
+            }
+            for (int i = zone.Loot.Count - 1; i >= 0; i--)
+            {
+                LootDrop l = zone.Loot[i];
+                if (l == null) continue;
+                l.NetId = 0;
+                Object.Destroy(l.gameObject);
+            }
+            zone.Monsters.Clear(); zone.Loot.Clear();
+            zone.Boss = null;
+            for (int i = zone.Heroes.All.Count - 1; i >= 0; i--)
+            {
+                HeroController h = zone.Heroes.All[i];
+                if (h == null) continue;
+                if (h == LocalPlayer.Hero) { zone.Heroes.Remove(h); continue; }
+                h.Retire();
+                Object.Destroy(h.gameObject);
+            }
+            zone.Ids.Clear();
+            ComboProjectile.RetireAll();
+            foreach (MonoBehaviour b in root.GetComponentsInChildren<MonoBehaviour>())
+                if (b is SkillRun || b is SkillBolt || b is SkillGroundZone || b is SkillMinion || b is SkillMotion || b is SkillChoreoPlayer) Object.Destroy(b.gameObject);
+        }
+
         /// <summary>Removes every proxy (disconnect / leaving the online game).</summary>
         public void DestroyAll()
         {

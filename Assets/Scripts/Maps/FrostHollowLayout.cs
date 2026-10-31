@@ -39,8 +39,15 @@ namespace ZenoniaProto
             "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
         };
 
-        /// <summary>Entrance circle (web 'P' at 5,19) back to the village gate; arrival is the tile north of the village's south portal.</summary>
-        static readonly MapPortal[] PortalList = { new MapPortal(5, 19, OakhavenVillageMap.MapId, 16, 19) };
+        /// <summary>
+        /// Portals sit at the ends of the map: the bottom-left corner goes back to the village gate (arrival north of the village's south portal), the top of the
+        /// north-east stairs goes on to the Frostfang Den boss map, the way to Sunspire Oasis.
+        /// </summary>
+        static readonly MapPortal[] PortalList =
+        {
+            new MapPortal(2, 21, OakhavenVillageMap.MapId, 16, 19),
+            new MapPortal(33, 2, FrostfangDenMap.MapId, 2, 10),
+        };
 
         public const string MapId = "frostHollow"; // the web / save id; the launch arg spells it frost-hollow
         public static readonly Vector2Int PlayerStartTile = new Vector2Int(4, 21);

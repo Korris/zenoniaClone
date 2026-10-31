@@ -53,6 +53,11 @@ public class SkillTableTests
         SkillDef ice = SkillTable.Get("wizard", 2);
         Assert.Equal("Ice Storm", ice.Name); Assert.Equal(28, ice.Mp); Assert.Equal(12000, ice.CooldownMs); Assert.Equal(LegacySkill.IceStorm, ice.Legacy);
         Assert.Equal(LegacySkill.EarthBreak, SkillTable.Get("warrior", 2).Legacy);
+        SkillDef plasma = SkillTable.Get("mechanic", 1);
+        Assert.Equal("mechanic.plasma-barrage", plasma.Id); Assert.Equal(8, plasma.UnlockLevel); Assert.Equal(22, plasma.Mp); Assert.Equal(9000, plasma.CooldownMs); Assert.Equal(6, plasma.Effects[0].Count);
+        SkillDef rockets = SkillTable.Get("mechanic", 2);
+        Assert.Equal("mechanic.rocket-barrage", rockets.Id); Assert.Equal(15, rockets.UnlockLevel); Assert.Equal(28, rockets.Mp); Assert.Equal(12000, rockets.CooldownMs); Assert.Equal(LegacySkill.RocketBarrage, rockets.Legacy);
+        Assert.Null(SkillTable.ById("mechanic.homing-rockets"));
         SkillDef orbital = SkillTable.Get("mechanic", 7);
         Assert.Equal(50, orbital.UnlockLevel); Assert.Equal(80, orbital.Mp); Assert.Equal(45000, orbital.CooldownMs);
         Assert.Equal(6, orbital.Effects[0].Count); Assert.Equal(140f, orbital.Effects[0].Pct); Assert.Equal(EffectKind.Rain, orbital.Effects[0].Kind);

@@ -23,11 +23,13 @@ namespace ZenoniaProto
         public bool God;
         /// <summary>Per-zone entity id (assigned when the hero joins a Zone; 0 = not in a zone).</summary>
         public ushort NetId;
+        /// <summary>The zone this hero stands in (a server runs several; a portal changes it).</summary>
+        public Zone HomeZone { get; private set; }
         /// <summary>RPG progress owner (EXP, pickups, potions, death penalty); null for debug party members.</summary>
         public PlayerRpg Owner;
 
         const float DashMs = 165f, DashSpeed = 220f, DashCooldownMs = 600f;
-        const float HurtMs = 220f, InvulnMs = 500f, RespawnMs = 1400f;
+        const float HurtMs = 220f, InvulnMs = 500f, RespawnMs = 1400f, ZoneArrivalInvulnMs = 2000f;
         const float HpRegenPerSecond = 0.6f;
         const float CritChance = 0.08f;
         const float BoxW = 10f, BoxH = 8f;       // web HERO_HITBOX, feet-anchored
@@ -94,7 +96,27 @@ namespace ZenoniaProto
             x = GameConfig.HeroStart.x;
             y = GameConfig.HeroStart.y;
             transform.position = new Vector3(x, y, 0f);
-            if (Zone.Main != null) Zone.Main.Heroes.Add(this, serverId);
+            HomeZone = Zone.Main;
+            if (HomeZone != null) HomeZone.Heroes.Add(this, serverId);
+        }
+
+        /// <summary>
+        /// A portal put this hero on another map: nothing of the old map's action carries over (dash, swing, cast lock; cooldowns, buffs and HP stay). Same on the server and on the
+        /// predicting client, so both start the new zone in one state. The hero cannot react until the client has faded in, so it is invulnerable for that long.
+        /// </summary>
+        public void ArriveInZone(Vector2 feet, int dir)
+        {
+            dashLeft = 0f; hurt = 0f; stabLeft = 0f; castLeft = 0f; castSkill = 0; moving = false; animTimer = 0f;
+            combo.Reset();
+            invuln = Mathf.Max(invuln, ZoneArrivalInvulnMs);
+            Teleport(feet, dir);
+        }
+
+        /// <summary>Server: moves this hero's zone membership (the caller already left the old zone); a client re-binds its id the same way.</summary>
+        public void JoinZone(Zone zone, ushort serverId = 0)
+        {
+            HomeZone = zone;
+            zone.Heroes.Add(this, serverId);
         }
 
         /// <summary>Takes this hero out of play right away (class switch): leaves the zone and drops its RPG owner so nothing can still target or pay it.</summary>
@@ -102,13 +124,13 @@ namespace ZenoniaProto
         {
             Owner = null;
             LocalPlayer.Clear(this);
-            if (Zone.Main != null) Zone.Main.Heroes.Remove(this);
+            if (HomeZone != null) HomeZone.Heroes.Remove(this);
         }
 
         void OnDestroy()
         {
             LocalPlayer.Clear(this);
-            if (Zone.Main != null) Zone.Main.Heroes.Remove(this);
+            if (HomeZone != null) HomeZone.Heroes.Remove(this);
         }
 
         /// <summary>Debug / screenshot helper: put the hero on a tile (feet) and face a direction.</summary>
@@ -116,6 +138,7 @@ namespace ZenoniaProto
 
         void Update()
         {
+            Zone.Enter(HomeZone);
             float dt = GameClock.Dt;
             float dtMs = dt * 1000f;
             if (proxy) { ProxyTick(dtMs); return; }

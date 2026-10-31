@@ -44,6 +44,25 @@ namespace ZenoniaProto
         public const float PaintedGlowAlpha = 0.22f;      // additive copy of the painted ranged-FX sprites (base sprite is normal alpha blend)
         public const float EnhancedGlowAlpha = 0.6f;
 
+        // ---- held-item enhance effect (HeldEnhanceFx), index = EnhanceStats.VisualBand - 1 ----
+        public struct EnhanceLook
+        {
+            public float SweepPeriod, SweepSec, SweepWidth, ShineAlpha, ShineLift; // light band: seconds between starts, seconds to cross the art, half width (art = 1), peak strength, constant surface lift
+            public float HaloAlpha, HaloBreath, BreathHz;                          // 0 alpha = no halo
+            public int Stars, Motes;                                               // live at once on a main weapon; offhands and companions get a share
+            public float StarGapMin, StarGapMax, StarSize;                         // seconds between twinkles of one star slot, world units
+        }
+        public static readonly EnhanceLook[] EnhanceLooks =
+        {
+            new EnhanceLook { SweepPeriod = 5f, SweepSec = 2.4f, SweepWidth = 0.1f, ShineAlpha = 0.28f },                                                                                                                    // +7  faint slow shine
+            new EnhanceLook { SweepPeriod = 3.4f, SweepSec = 1.6f, SweepWidth = 0.13f, ShineAlpha = 0.45f, ShineLift = 0.03f, HaloAlpha = 0.3f, HaloBreath = 0.05f, BreathHz = 0.35f },                                      // +9  stronger shine, soft halo
+            new EnhanceLook { SweepPeriod = 3f, SweepSec = 1.4f, SweepWidth = 0.14f, ShineAlpha = 0.5f, ShineLift = 0.05f, HaloAlpha = 0.42f, HaloBreath = 0.08f, BreathHz = 0.4f, Stars = 1, StarGapMin = 1.2f, StarGapMax = 2.6f, StarSize = 3.5f }, // +11 occasional stars
+            new EnhanceLook { SweepPeriod = 2.4f, SweepSec = 1.1f, SweepWidth = 0.16f, ShineAlpha = 0.6f, ShineLift = 0.07f, HaloAlpha = 0.7f, HaloBreath = 0.16f, BreathHz = 0.5f, Stars = 2, StarGapMin = 0.7f, StarGapMax = 1.6f, StarSize = 4f, Motes = 4 }, // +13 coloured halo, drifting motes
+            new EnhanceLook { SweepPeriod = 1.2f, SweepSec = 0.55f, SweepWidth = 0.22f, ShineAlpha = 0.85f, ShineLift = 0.12f, HaloAlpha = 1f, HaloBreath = 0.2f, BreathHz = 0.8f, Stars = 5, StarGapMin = 0.1f, StarGapMax = 0.6f, StarSize = 5f, Motes = 10 }, // +15 fast bright sweeps, many stars, strong aura
+        };
+        public const int EnhanceSparkBudget = 60;         // stars + motes alive on screen across all heroes (APK frame budget)
+        public const float EnhanceHaloIntensity = 1.2f;   // below AdditiveIntensity: only the top bands reach the bloom threshold
+
         // ---- sword trail ribbon ----
         public const float TrailSpanDeg = 72f;           // arc half-angle around the facing direction
         public const float TrailReachPad = 2f;           // ribbon radius = combo reach + pad

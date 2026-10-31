@@ -15,7 +15,7 @@ namespace ZenoniaProto
     /// up to date when the frame's hero / monster / camera updates read them.
     /// </summary>
     [DefaultExecutionOrder(-800)]
-    public sealed class NetClient : MonoBehaviour
+    public sealed partial class NetClient : MonoBehaviour
     {
         const string ConnectionKey = "zenonia-net";
         public static NetClient Active { get; private set; }
@@ -93,6 +93,7 @@ namespace ZenoniaProto
             server = null;
             if (spawner != null) { spawner.DestroyAll(); spawner = null; }
             events = null;
+            transferring = false; heldSpawns.Clear();
             if (State != ClientState.Failed) State = ClientState.Idle;
         }
 
@@ -136,6 +137,7 @@ namespace ZenoniaProto
             server = null;
             if (wasJoined && stats != null) stats.Add("disconnects", 1);
             Debug.Log("[ZenoniaProto] net: " + why);
+            transferring = false; heldSpawns.Clear();
             if (wasJoined) { spawner = null; events = null; if (GameSession.Instance != null) GameSession.Instance.OnConnectionLost(); }
         }
 
@@ -153,15 +155,24 @@ namespace ZenoniaProto
                     break;
                 case NetOp.Spawn:
                     SpawnMsg sm;
-                    if ((ok = SpawnMsg.TryRead(r, out sm)) && spawner != null) spawner.OnSpawn(sm);
+                    if (!(ok = SpawnMsg.TryRead(r, out sm))) break;
+                    if (transferring) heldSpawns.Add(sm); // the new zone's, while the old map is still fading out
+                    else if (spawner != null) spawner.OnSpawn(sm);
                     break;
                 case NetOp.Despawn:
                     DespawnMsg dm;
-                    if ((ok = NetMessageReader.TryDespawn(r, out dm)) && spawner != null) spawner.OnDespawn(dm);
+                    if (!(ok = NetMessageReader.TryDespawn(r, out dm))) break;
+                    if (transferring) HoldDespawn(dm.Id);
+                    else if (spawner != null) spawner.OnDespawn(dm);
+                    break;
+                case NetOp.ZoneChanged:
+                    ZoneChangedMsg zc;
+                    if ((ok = NetMessageReader.TryZoneChanged(r, out zc)) && spawner != null) OnZoneChanged(zc);
                     break;
                 case NetOp.Snapshot:
                     stats.Max("snapshotMaxBytes", r.RawDataSize);
-                    SnapshotReadResult read = SnapshotPacker.TryRead(r, snapMsg, ring, lookup);
+                    SnapshotReadResult read = SnapshotPacker.TryRead(r, snapMsg, ring, lookup, epoch);
+                    if (read == SnapshotReadResult.StaleEpoch) { stats.Add("snapshotsStaleEpoch", 1); break; } // another zone stay: unreliable packets do not wait for ZoneChanged
                     if (read == SnapshotReadResult.MissingBaseline) { stats.Add("snapshotBaselineMisses", 1); break; } // not acked: the server falls back to older / full
                     if (!(ok = read == SnapshotReadResult.Ok)) break;
                     SnapshotPacker.Remember(ring, snapMsg);
@@ -170,7 +181,7 @@ namespace ZenoniaProto
                     if (buffer.Push(snapMsg, ClientMs))
                     {
                         stats.Add("snapshotsReceived", 1); stats.Max("heroesInSnapshotMax", snapMsg.Heroes.Count); stats.Max("monstersInSnapshotMax", snapMsg.Monsters.Count);
-                        if (snapMsg.HasOwner) CaptureOwner();
+                        if (snapMsg.HasOwner && !transferring) CaptureOwner();
                     }
                     break;
                 case NetOp.SelfState:
@@ -202,6 +213,7 @@ namespace ZenoniaProto
 
         void OnWelcome(WelcomeMsg m)
         {
+            ApplyWelcomeMap(m);
             Zone zone = Zone.Main;
             myHeroId = m.HeroNetId;
             if (NetLaunchArgs.PredictAfter > 0f) predictAt = Time.realtimeSinceStartup + NetLaunchArgs.PredictAfter;
@@ -221,7 +233,7 @@ namespace ZenoniaProto
             if (net != null) net.PollEvents();
             if (State == ClientState.Joined && server != null)
             {
-                if (buffer.HasClock)
+                if (buffer.HasClock && !transferring)
                 {
                     double rt = buffer.RenderTime(ClientMs);
                     spawner.Apply(rt);
@@ -238,7 +250,7 @@ namespace ZenoniaProto
                 if (ownerPending && predictor != null) predictor.OnServerState(ownerLastInput, ownerSnap, ownerSim);
                 ownerPending = false;
                 sender.Tick(Time.unscaledDeltaTime, predictor != null);
-                TrackLocalHero();
+                if (!transferring) TrackLocalHero();
             }
             if (stats != null && Time.frameCount % 60 == 0)
             {

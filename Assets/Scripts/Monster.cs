@@ -20,7 +20,7 @@ namespace ZenoniaProto
         // The monster list, kill counter and boss live in the Zone; these getters keep the old call sites working.
         public static IReadOnlyList<Monster> All { get { return Zone.Main != null ? Zone.Main.Monsters : NoMonsters; } }
         public static int Kills { get { return Zone.Main != null ? Zone.Main.Kills : 0; } }
-        /// <summary>The living Frostfang King (HUD boss bar), or null.</summary>
+        /// <summary>The current map's living boss (HUD boss bar), or null.</summary>
         public static Monster Boss { get { return Zone.Main != null ? Zone.Main.Boss : null; } }
         public static void ResetStatics() { Zone.ResetMain(); }
 
@@ -31,10 +31,12 @@ namespace ZenoniaProto
         int facing;                                // 0 down, 1 up, 2 left, 3 right
         State state = State.Idle;
         Sprite[][] walk, attack;
+        Color artTint = Color.white;               // only tinted while drawing a fallback sheet (Monster.Visuals.cs)
         SpriteRenderer body, shadow, barBack, barFill;
         bool headless;                             // dedicated server: simulation only, no sprites / renderers
         HeroController target;                     // sticky aggro target (Monster.Ai.cs)
         bool proxy;                                // client view of a server monster (Monster.Net.cs)
+        Zone homeZone;                             // the zone this monster lives in (a server runs several)
         /// <summary>Per-zone entity id (server assigned on a client).</summary>
         public ushort NetId;
 
@@ -63,6 +65,7 @@ namespace ZenoniaProto
             m.proxy = asProxy;
             m.Init(definition, feet, zoneIndex);
             Zone zone = Zone.Main;
+            m.homeZone = zone;
             if (zone != null)
             {
                 zone.Monsters.Add(m);
@@ -84,9 +87,7 @@ namespace ZenoniaProto
             headless = NetMode.NoViews;
             transform.position = new Vector3(x, y, 0f);
             if (headless) return; // server: no sprite sheets, shadow, body or HP bar
-            walk = SpriteSheet.Grid("Sprites/monsters/" + def.Sheet, 192, 192, GameConfig.FramePpu, new Vector2(0.5f, 0f));
-            // Attack cells are 256px with the feet 224px down => pivot 32px above the bottom.
-            attack = SpriteSheet.Grid("Sprites/monsters/" + def.Sheet + "-attack", 256, 256, GameConfig.FramePpu, new Vector2(0.5f, 32f / 256f));
+            LoadSheets();
             shadow = ProceduralSprites.Child(transform, "Shadow", ProceduralSprites.Shadow());
             float sw = def.HitW + 2f;
             shadow.transform.localScale = new Vector3(sw, sw, 1f);
@@ -103,15 +104,19 @@ namespace ZenoniaProto
 
         void OnDestroy()
         {
-            Zone zone = Zone.Main;
+            Zone zone = homeZone;
             if (zone == null) return;
             zone.Monsters.Remove(this);
             zone.Ids.Release(NetId, zone.TimeMs);
             if (zone.Boss == this) zone.Boss = null;
         }
 
+        /// <summary>The zone slept for `ms`: a corpse finished fading meanwhile. The living stay as they were (they would have been dormant without a hero anyway).</summary>
+        public void FastForwardDeath(float ms) { if (state == State.Dying) deathTimer += ms; }
+
         void Update()
         {
+            Zone.Enter(homeZone);
             // A script recompile during Play mode wipes runtime-built references (body, HP bar):
             // drop the stale monster instead of throwing a NullReferenceException every frame.
             if (!headless && (body == null || barBack == null || barFill == null)) { Destroy(gameObject); return; }
@@ -193,7 +198,7 @@ namespace ZenoniaProto
             state = State.Dying;
             deathTimer = 0f;
             target = null;
-            if (Zone.Main != null) Zone.Main.OnMonsterDied(this, zone);
+            if (homeZone != null) homeZone.OnMonsterDied(this, zone);
         }
     }
 }

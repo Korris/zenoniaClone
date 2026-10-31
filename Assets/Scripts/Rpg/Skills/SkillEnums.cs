@@ -17,5 +17,5 @@ namespace ZenoniaProto.Rpg
     public enum MotionKind { None, Dash, Blink, Leap }
 
     /// <summary>Skills kept as hand-written adapters (existing ultimates); their SkillEffect list is empty.</summary>
-    public enum LegacySkill { None, EarthBreak, IceStorm }
+    public enum LegacySkill { None, EarthBreak, IceStorm, RocketBarrage }
 }

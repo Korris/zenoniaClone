@@ -30,6 +30,7 @@ namespace ZenoniaProto
         public abstract bool Hostile { get; }
         public abstract Vector2 PlayerStart { get; }
         public abstract MapPortal[] Portals { get; }
+        public virtual MapPortal[] PortalsFor(bool gateOpen) { return Portals; }
         public virtual MapProp[] Props { get { return NoProps; } }
         public virtual MapNpc[] Npcs { get { return NoNpcs; } }
 

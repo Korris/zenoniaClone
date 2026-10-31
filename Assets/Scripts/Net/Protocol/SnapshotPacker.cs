@@ -3,28 +3,28 @@ using LiteNetLib.Utils;
 
 namespace ZenoniaProto.Net
 {
-    public enum SnapshotReadResult { Ok, Malformed, MissingBaseline }
+    public enum SnapshotReadResult { Ok, Malformed, MissingBaseline, StaleEpoch }
 
     /// <summary>
-    /// Builds / reads the size-capped, delta coded snapshot. Layout: op, seq (4), server ms (4), last simulated input seq of the receiver (2), baseline
+    /// Builds / reads the size-capped, delta coded snapshot. Layout: op, seq (4), server ms (4), last simulated input seq of the receiver (2), zone epoch (1), baseline
     /// distance (1, 0 = none), flags (1: bit 0 owner sim follows), [owner sim], hero count, hero entries, monster count, monster entries.
     /// Entries come from lists the caller sorted by priority (nearest first); when they do not all fit, each list is written from its cursor and the
     /// cursor advances past the last entry sent, so overflowed entities lead the next snapshot. Entities missing from the baseline are sent full.
     /// </summary>
     public static class SnapshotPacker
     {
-        public const int HeaderBytes = 1 + 4 + 4 + 2 + 1 + 1 + 1 + 1;
+        public const int HeaderBytes = 1 + 4 + 4 + 2 + 1 + 1 + 1 + 1 + 1;
 
         public static void Write(NetDataWriter w, uint seq, uint serverMs, ushort lastInputSeq, uint baselineSeq, SnapshotLookup baseline, bool hasOwner, OwnerSim owner,
             IList<HeroSnap> heroes, IList<MonsterSnap> monsters, ref int heroCursor, ref int monsterCursor, List<HeroSnap> sentHeroes, List<MonsterSnap> sentMonsters,
-            int capBytes = NetProtocol.SnapshotMaxBytes)
+            int capBytes = NetProtocol.SnapshotMaxBytes, byte epoch = 0)
         {
             if (sentHeroes != null) sentHeroes.Clear();
             if (sentMonsters != null) sentMonsters.Clear();
             Dictionary<ushort, HeroSnap> hb = baseline != null ? baseline.Heroes : null;
             Dictionary<ushort, MonsterSnap> mb = baseline != null ? baseline.Monsters : null;
             w.Reset();
-            w.Put(NetOp.Snapshot); w.Put(seq); w.Put(serverMs); w.Put(lastInputSeq);
+            w.Put(NetOp.Snapshot); w.Put(seq); w.Put(serverMs); w.Put(lastInputSeq); w.Put(epoch);
             w.Put((byte)(baselineSeq == 0 ? 0 : seq - baselineSeq));
             w.Put((byte)(hasOwner ? 1 : 0));
             if (hasOwner) owner.Write(w);
@@ -70,15 +70,17 @@ namespace ZenoniaProto.Net
 
         /// <summary>
         /// Reads the body after the opcode into `into` (entries resolved to full states). MissingBaseline = a delta against a snapshot the ring no longer
-        /// has: the caller must not ack it. `lookup` is scratch space.
+        /// has: the caller must not ack it. `lookup` is scratch space. With `expectedEpoch` set, a snapshot of another zone stay stops at the header (StaleEpoch): it is
+        /// never resolved against a baseline, never acked and never reaches the interpolation buffer.
         /// </summary>
-        public static SnapshotReadResult TryRead(NetDataReader r, SnapshotMsg into, SnapshotRing ring, SnapshotLookup lookup)
+        public static SnapshotReadResult TryRead(NetDataReader r, SnapshotMsg into, SnapshotRing ring, SnapshotLookup lookup, int expectedEpoch = -1)
         {
             try
             {
                 into.Heroes.Clear(); into.Monsters.Clear();
                 if (r.AvailableBytes < HeaderBytes - 1) return SnapshotReadResult.Malformed;
-                into.Seq = r.GetUInt(); into.ServerTimeMs = r.GetUInt(); into.LastInputSeq = r.GetUShort();
+                into.Seq = r.GetUInt(); into.ServerTimeMs = r.GetUInt(); into.LastInputSeq = r.GetUShort(); into.Epoch = r.GetByte();
+                if (expectedEpoch >= 0 && into.Epoch != expectedEpoch) return SnapshotReadResult.StaleEpoch;
                 int dist = r.GetByte();
                 into.HasOwner = (r.GetByte() & 1) != 0;
                 into.BaselineSeq = dist == 0 ? 0 : into.Seq - (uint)dist;

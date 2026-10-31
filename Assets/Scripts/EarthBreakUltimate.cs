@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// </summary>
     public class EarthBreakUltimate : MonoBehaviour
     {
-        public const float Radius = 54f, Mult = 3.8f, Range = 36f, TotalMs = 2500f, SlamMs = 1450f;
+        public const float Radius = Rpg.LegacySkillNumbers.EarthBreakRadius, Mult = Rpg.LegacySkillNumbers.EarthBreakMult, Range = Rpg.LegacySkillNumbers.EarthBreakRange, TotalMs = 2500f, SlamMs = 1450f;
         const string Folder = "fx/earthbreak";
         const float Scale = 0.245f * 1.1f; // world units per source px (web: size 62.4 / 256 at the radius 54 slam, slightly bigger for impact)
         static readonly float[] BurnAt = { 1700f, 1950f, 2200f, 2450f };
@@ -89,7 +89,7 @@ namespace ZenoniaProto
 
         void Sweep()
         {
-            SkillDamage.Radial(center, Radius * 0.75f, atk, Mult * 0.2f, 20f, false, null, 0f, hero);
+            SkillDamage.Radial(center, Radius * 0.75f, atk, Mult * Rpg.LegacySkillNumbers.EarthBreakSweep, 20f, false, null, 0f, hero);
             CameraFollow.AddTrauma(0.3f);
             Vector2 mid = (caster + center) * 0.5f + new Vector2(0f, 6f);
             UltimateFx.Embers(mid, 26, 16f, 40f, new Color(1f, 0.72f, 0.25f, 1f));
@@ -114,7 +114,7 @@ namespace ZenoniaProto
 
         void Burn()
         {
-            SkillDamage.Radial(center, Radius, atk, Mult * 0.12f, 0f, false, null, 0f, hero);
+            SkillDamage.Radial(center, Radius, atk, Mult * Rpg.LegacySkillNumbers.EarthBreakBurn, 0f, false, null, 0f, hero);
             CameraFollow.AddTrauma(0.14f);
             UltimateFx.Embers(center, 22, Radius * 0.7f, 60f, new Color(1f, 0.5f, 0.12f, 1f));
         }

@@ -30,11 +30,11 @@ public class MessageRoundTripTests
             new InputFrame { Seq = 7, Bits = InputBits.Left | InputBits.Skill },
             new InputFrame { Seq = 8 }, new InputFrame { Seq = 9, Bits = InputBits.Up | InputBits.Attack | InputBits.MpPotion },
         };
-        NetMessageWriter.Input(w, 41, frames, 3);
-        Assert.Equal(1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes, w.Length);
-        var buf = new InputFrame[NetProtocol.MaxInputFrames]; ushort ack; int n;
-        Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
-        Assert.Equal(41, ack); Assert.Equal(3, n);
+        NetMessageWriter.Input(w, 9, 41, frames, 3);
+        Assert.Equal(1 + 1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes, w.Length);
+        var buf = new InputFrame[NetProtocol.MaxInputFrames]; byte epoch; ushort ack; int n;
+        Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out epoch, out ack, buf, out n));
+        Assert.Equal(9, epoch); Assert.Equal(41, ack); Assert.Equal(3, n);
         Assert.Equal(7u, buf[0].Seq); Assert.Equal(8u, buf[1].Seq); Assert.Equal(9u, buf[2].Seq);
         Assert.Equal(frames[0].Bits, buf[0].Bits); Assert.Equal(frames[2].Bits, buf[2].Bits);
     }
@@ -44,22 +44,22 @@ public class MessageRoundTripTests
     {
         var w = new NetDataWriter();
         var frames = new[] { new InputFrame { Seq = 65535 }, new InputFrame { Seq = 65536 }, new InputFrame { Seq = 65537 } };
-        NetMessageWriter.Input(w, 0, frames, 3);
-        var buf = new InputFrame[NetProtocol.MaxInputFrames]; ushort ack; int n;
-        Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
+        NetMessageWriter.Input(w, 0, 0, frames, 3);
+        var buf = new InputFrame[NetProtocol.MaxInputFrames]; byte epoch; ushort ack; int n;
+        Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out epoch, out ack, buf, out n));
         Assert.Equal(65535u, buf[0].Seq); Assert.Equal(0u, buf[1].Seq); Assert.Equal(1u, buf[2].Seq);
     }
 
     [Fact]
     public void InputRejectsBadFrameCountsAndTruncation()
     {
-        var w = new NetDataWriter(); var buf = new InputFrame[NetProtocol.MaxInputFrames]; ushort ack; int n;
-        w.Put(NetOp.Input); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)0);
-        Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
-        w.Reset(); w.Put(NetOp.Input); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)(NetProtocol.MaxInputFrames + 1));
-        Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
-        w.Reset(); w.Put(NetOp.Input); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)2); w.Put((ushort)5);
-        Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
+        var w = new NetDataWriter(); var buf = new InputFrame[NetProtocol.MaxInputFrames]; byte epoch; ushort ack; int n;
+        w.Put(NetOp.Input); w.Put((byte)0); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)0);
+        Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out epoch, out ack, buf, out n));
+        w.Reset(); w.Put(NetOp.Input); w.Put((byte)0); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)(NetProtocol.MaxInputFrames + 1));
+        Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out epoch, out ack, buf, out n));
+        w.Reset(); w.Put(NetOp.Input); w.Put((byte)0); w.Put((ushort)1); w.Put((ushort)1); w.Put((byte)2); w.Put((ushort)5);
+        Assert.False(NetMessageReader.TryInput(Reader(w, NetOp.Input), out epoch, out ack, buf, out n));
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class MessageRoundTripTests
         }
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.SkillRespec + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(3, NetProtocol.Version);
+        Assert.Equal(4, NetProtocol.Version);
     }
 
     [Fact]
@@ -98,10 +98,10 @@ public class MessageRoundTripTests
             new InputFrame { Seq = 2, Bits = InputBits.WithSkill(InputBits.Attack | InputBits.MpPotion, 0) },
             new InputFrame { Seq = 3, Bits = InputBits.Up },
         };
-        NetMessageWriter.Input(w, 0, frames, 3);
-        Assert.Equal(1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes, w.Length);
-        var buf = new InputFrame[NetProtocol.MaxInputFrames]; ushort ack; int n;
-        Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out ack, buf, out n));
+        NetMessageWriter.Input(w, 0, 0, frames, 3);
+        Assert.Equal(1 + 1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes, w.Length);
+        var buf = new InputFrame[NetProtocol.MaxInputFrames]; byte epoch; ushort ack; int n;
+        Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out epoch, out ack, buf, out n));
         Assert.Equal(7, InputBits.SkillIndex(buf[0].Bits)); Assert.True((buf[0].Bits & InputBits.Right) != 0);
         Assert.Equal(0, InputBits.SkillIndex(buf[1].Bits)); Assert.True((buf[1].Bits & InputBits.MpPotion) != 0);
         Assert.Equal(-1, InputBits.SkillIndex(buf[2].Bits));
@@ -111,9 +111,9 @@ public class MessageRoundTripTests
     public void WelcomeRejectDespawnSelfStateRpgState()
     {
         var w = new NetDataWriter();
-        NetMessageWriter.Welcome(w, new WelcomeMsg { PlayerId = 12, HeroNetId = 300, ZoneId = 1, MapId = 2, ServerTimeMs = 123456, TickRate = 30, SnapDiv = 2 });
+        NetMessageWriter.Welcome(w, new WelcomeMsg { PlayerId = 12, HeroNetId = 300, Epoch = 1, MapId = "frostHollow", ServerTimeMs = 123456, TickRate = 30, SnapDiv = 2, PortalsLive = true });
         WelcomeMsg wm; Assert.True(NetMessageReader.TryWelcome(Reader(w, NetOp.Welcome), out wm));
-        Assert.Equal(300, wm.HeroNetId); Assert.Equal(123456u, wm.ServerTimeMs); Assert.Equal(2, wm.SnapDiv);
+        Assert.Equal(300, wm.HeroNetId); Assert.Equal(123456u, wm.ServerTimeMs); Assert.Equal(2, wm.SnapDiv); Assert.Equal(1, wm.Epoch); Assert.Equal("frostHollow", wm.MapId); Assert.True(wm.PortalsLive);
 
         NetMessageWriter.Reject(w, new RejectMsg { Reason = RejectReason.Version, Text = "old client" });
         RejectMsg rm; Assert.True(NetMessageReader.TryReject(Reader(w, NetOp.Reject), out rm));
@@ -214,12 +214,13 @@ public class MessageRoundTripTests
         {
             var data = new byte[rng.Next(0, 40)]; rng.NextBytes(data);
             var r = new NetDataReader(); r.SetSource(data);
-            HelloMsg h; SpawnMsg s; WelcomeMsg wm; SelfStateMsg sm; ushort a; int n; uint t; var snap = new SnapshotMsg();
+            HelloMsg h; SpawnMsg s; WelcomeMsg wm; ZoneChangedMsg zc; SelfStateMsg sm; byte e; ushort a; int n; uint t; var snap = new SnapshotMsg();
             NetMessageReader.TryHello(r, out h); r.SetPosition(0);
             SpawnMsg.TryRead(r, out s); r.SetPosition(0);
             NetMessageReader.TryWelcome(r, out wm); r.SetPosition(0);
+            NetMessageReader.TryZoneChanged(r, out zc); r.SetPosition(0);
             NetMessageReader.TrySelfState(r, out sm); r.SetPosition(0);
-            NetMessageReader.TryInput(r, out a, buf, out n); r.SetPosition(0);
+            NetMessageReader.TryInput(r, out e, out a, buf, out n); r.SetPosition(0);
             NetMessageReader.TryEventBatch(r, out t, new List<NetEvent>()); r.SetPosition(0);
             SnapshotPacker.TryRead(r, snap, new SnapshotRing(), new SnapshotLookup());
         }

@@ -31,6 +31,8 @@ static class Program
         public bool Joined, Rejected, EverJoined, Lost;
         public string RejectText = "";
         public ushort HeroId;
+        public byte Epoch;
+        public int ZoneChanges, StaleSnapshots;
         public int SnapshotCount, FullSnapshots, SnapshotMax, HeroesMax, MonstersMax, EventBatches, Spawns, Despawns, RpgStates, BaselineMisses, Malformed;
         public long SnapshotBytes;
         public readonly SnapshotMsg Snap = new SnapshotMsg();
@@ -124,6 +126,7 @@ static class Program
             Console.WriteLine("  snapshot bytes: avg " + F(avgSnap, 0) + " max " + good.Max(b => b.SnapshotMax) + " (cap " + NetProtocol.SnapshotMaxBytes + "), full snapshots " + good.Sum(b => b.FullSnapshots) + " of " + good.Sum(b => b.SnapshotCount)
                 + ", baseline misses " + good.Sum(b => b.BaselineMisses) + ", malformed " + good.Sum(b => b.Malformed));
             Console.WriteLine("  most heroes in one snapshot " + good.Max(b => b.HeroesMax) + ", most monsters " + good.Max(b => b.MonstersMax));
+            Console.WriteLine("  zone changes " + good.Sum(b => b.ZoneChanges) + ", snapshots of an earlier zone dropped " + good.Sum(b => b.StaleSnapshots));
             var sb = new StringBuilder();
             sb.Append("{\n  \"clients\": " + n + ", \"receivingSnapshots\": " + good.Count + ", \"stillJoined\": " + stillJoined + ", \"lostConnection\": " + lost + ", \"rejected\": " + rejected + ",\n");
             sb.Append("  \"downKBps\": { \"avg\": " + F(down.Average(), 3) + ", \"p95\": " + F(down[(int)(down.Count * 0.95)], 3) + ", \"max\": " + F(down.Last(), 3) + " },\n");
@@ -152,7 +155,7 @@ static class Program
                 ushort bits = Think(b, rng, now);
                 b.Redundancy.Push(bits);
                 int cnt = b.Redundancy.Fill(b.Frames);
-                NetMessageWriter.Input(b.W, (ushort)b.Ack, b.Frames, cnt);
+                NetMessageWriter.Input(b.W, b.Epoch, (ushort)b.Ack, b.Frames, cnt);
                 b.Peer.Send(b.W, NetProtocol.ChannelUnreliable, DeliveryMethod.Unreliable);
             }
         }
@@ -209,10 +212,17 @@ static class Program
         {
             case NetOp.Welcome:
                 WelcomeMsg wm;
-                if (NetMessageReader.TryWelcome(r, out wm)) { b.HeroId = wm.HeroNetId; b.Joined = b.EverJoined = true; }
+                if (NetMessageReader.TryWelcome(r, out wm)) { b.HeroId = wm.HeroNetId; b.Epoch = wm.Epoch; b.Joined = b.EverJoined = true; }
+                break;
+            case NetOp.ZoneChanged: // a wanderer walked through a portal: same rules as the game client, no fade to wait for
+                ZoneChangedMsg zc;
+                if (!NetMessageReader.TryZoneChanged(r, out zc)) { b.Malformed++; break; }
+                b.Epoch = zc.Epoch; b.HeroId = zc.HeroNetId; b.Ack = 0; b.ZoneChanges++;
+                b.Ring.Clear(); b.Redundancy.Clear(); b.Monsters.Clear(); b.HasPos = false;
                 break;
             case NetOp.Snapshot:
-                SnapshotReadResult res = SnapshotPacker.TryRead(r, b.Snap, b.Ring, b.Lookup);
+                SnapshotReadResult res = SnapshotPacker.TryRead(r, b.Snap, b.Ring, b.Lookup, b.Epoch);
+                if (res == SnapshotReadResult.StaleEpoch) { b.StaleSnapshots++; break; }
                 if (res == SnapshotReadResult.MissingBaseline) { b.BaselineMisses++; break; }
                 if (res != SnapshotReadResult.Ok) { b.Malformed++; break; }
                 SnapshotPacker.Remember(b.Ring, b.Snap);

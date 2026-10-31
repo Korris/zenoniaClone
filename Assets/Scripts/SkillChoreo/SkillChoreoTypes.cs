@@ -24,8 +24,8 @@ namespace ZenoniaProto
     {
         public int From, To;
         public ChoreoAnchor At = ChoreoAnchor.Target;
-        public float OffX, OffY, SkyTiles = 7f;          // offset from the anchor (tiles, y up); starting height of a Sky drop
-        public ChoreoRow Row = ChoreoRow.None; public int F0, F1; public float Width = 2f; public bool Loop, PerHit; public float SpriteAlpha = 1f;   // normal-blend sprite opacity (low for bubbles / ground blasts that overlap the caster)
+        public float OffX, OffY, AlongTiles, SkyTiles = 7f; // offset from the anchor (tiles, y up), offset along the aim (tiles); starting height of a Sky drop
+        public ChoreoRow Row = ChoreoRow.None; public int F0, F1; public float Width = 2f; public bool Loop, PerHit, FaceAim; public float SpriteAlpha = 1f;   // normal-blend sprite opacity (low for bubbles / ground blasts that overlap the caster)
         public uint GlowColor; public float GlowAlpha;
         public uint TeleColor; public float TeleR0, TeleR1; public bool TeleLine;   // line: length TeleR1 tiles, 1 tile wide, along the aim
         public uint DecalColor; public float DecalR0, DecalR1, DecalAlpha = 0.4f;
@@ -41,6 +41,8 @@ namespace ZenoniaProto
         public ChoreoPhase Alpha(float a) { SpriteAlpha = a; return this; }
         public ChoreoPhase Cycle() { Loop = true; return this; }
         public ChoreoPhase Hits() { PerHit = true; return this; }
+        public ChoreoPhase Face() { FaceAim = true; return this; }   // the sprite turns to the aim (arcs, cones, lines)
+        public ChoreoPhase Along(float tiles) { AlongTiles = tiles; return this; }   // offset along the aim, for bursts spread over a line
         public ChoreoPhase Glow(uint rgb, float alpha) { GlowColor = rgb; GlowAlpha = alpha; return this; }
         public ChoreoPhase Tele(uint rgb, float r0, float r1) { TeleColor = rgb; TeleR0 = r0; TeleR1 = r1; return this; }
         public ChoreoPhase Line(uint rgb, float length) { TeleColor = rgb; TeleR0 = TeleR1 = length; TeleLine = true; return this; }
@@ -65,6 +67,7 @@ namespace ZenoniaProto
         public string ClassId, SkillId;
         public int TotalMs;
         public float TravelTiles;                        // > 0 = projectile: phases anchored Travel fly this far
+        public bool KeepsSimArt;                         // the sim still draws its bodies at their real positions (fans of homing bolts, minions, scattered rain); this only adds to them
         public List<ChoreoPhase> Phases = new List<ChoreoPhase>(), OnBreak = new List<ChoreoPhase>(), OnExpire = new List<ChoreoPhase>();
 
         public Choreo(string classId, string skillId, int totalMs, float travelTiles = 0f) { ClassId = classId; SkillId = skillId; TotalMs = totalMs; TravelTiles = travelTiles; }

@@ -10,6 +10,7 @@ namespace ZenoniaProto
     /// </summary>
     public static class SkillSupport
     {
+        const float SparkleTiles = 2.4f;
         static readonly List<HeroController> Targets = new List<HeroController>(8);
 
         /// <summary>Heroes an Ally effect reaches: heroes inside the circle, else the locked ally, else the caster. Non-ally effects: the caster only.</summary>
@@ -37,7 +38,7 @@ namespace ZenoniaProto
             for (int i = 0; i < to.Count; i++)
             {
                 if (ctx.Authority) HeroBuffs.For(to[i]).Add(e.Buff.Kind, value, e.Buff.Ms, e.Count);
-                if (ctx.View) SkillVfx.Play(ctx, SkillVfxSet.Impact, to[i].Position, 0f, 2.4f * ctx.Units);
+                if (ctx.View) Sparkle(ctx, to[i]);
             }
             if (ctx.View) SkillSfx.Play(ctx, SkillSfx.Cast, 0.8f);
         }
@@ -55,7 +56,14 @@ namespace ZenoniaProto
         public static void HealOne(SkillContext ctx, HeroController h, float amount)
         {
             float healed = ctx.Authority ? new HeroSkillBody(h).Heal(amount) : Mathf.Min(amount, h.MaxHp - h.Hp);
-            if (ctx.View && healed > 0.5f) { HeroFx.Heal(h.Position, Mathf.RoundToInt(healed)); SkillVfx.Play(ctx, SkillVfxSet.Impact, h.Position, 0f, 2.4f * ctx.Units); }
+            if (ctx.View && healed > 0.5f) { HeroFx.Heal(h.Position, Mathf.RoundToInt(healed)); Sparkle(ctx, h); }
+        }
+
+        /// <summary>The target's sparkle. A choreography draws the caster and its one target itself, so only the other allies get the translucent one.</summary>
+        static void Sparkle(SkillContext ctx, HeroController h)
+        {
+            if (!SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) SkillVfx.Play(ctx, SkillVfxSet.Impact, h.Position, 0f, SparkleTiles * ctx.Units);
+            else if (h != ctx.Body.Hero && h != ctx.Ally) SkillVfx.PlayOnAlly(ctx, h.Position, SparkleTiles * ctx.Units);
         }
     }
 }

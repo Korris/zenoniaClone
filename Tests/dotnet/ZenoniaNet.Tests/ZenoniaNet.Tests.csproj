@@ -12,6 +12,9 @@
     <Compile Include="*.cs" />
     <Compile Include="..\..\..\Assets\Plugins\LiteNetLib\**\*.cs" />
     <Compile Include="..\..\..\Assets\Scripts\Net\Protocol\**\*.cs" />
+    <Compile Include="..\..\..\Assets\Scripts\World\BossRespawnTimer.cs" />
+    <!-- The real map data, against the small engine stand-ins in MapGraphStubs.cs: portal graph checks for every registered map. -->
+    <Compile Include="..\..\..\Assets\Scripts\Maps\*.cs" Exclude="..\..\..\Assets\Scripts\Maps\MapScenery.cs;..\..\..\Assets\Scripts\Maps\MapTransfer.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />

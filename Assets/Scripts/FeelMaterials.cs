@@ -8,9 +8,13 @@ namespace ZenoniaProto
     /// </summary>
     public static class FeelMaterials
     {
-        static Material flash, additive, trail;
+        // Same sorting order as the art they belong to: the render queue then draws the halo right before it and the shine right after it.
+        const int HaloQueue = 2999, ShineQueue = 3001;
+
+        static Material flash, additive, trail, enhanceHalo, enhanceShine;
         static MaterialPropertyBlock block;
-        static int flashAmountId = -1;
+        static int flashAmountId = -1, shineId = -1;
+        static bool shineMissing;
 
         /// <summary>Alpha sprite shader with a per-renderer white flash (_FlashAmount).</summary>
         public static Material SpriteFlash { get { return Get(ref flash, "SpriteFlash", "Sprites/Default", 0f); } }
@@ -20,6 +24,46 @@ namespace ZenoniaProto
 
         /// <summary>Sword ribbon material (shared; _Head / _Fade are set per renderer through a property block).</summary>
         public static Material Trail { get { return Get(ref trail, "TrailRibbon", "Legacy Shaders/Particles/Additive", FeelConfig.TrailIntensity); } }
+
+        /// <summary>Additive halo of an enhanced item, drawn behind the art so the painted blade covers it.</summary>
+        public static Material EnhanceHalo
+        {
+            get
+            {
+                if (enhanceHalo != null) return enhanceHalo;
+                enhanceHalo = new Material(Additive) { name = "Feel_EnhanceHalo", renderQueue = HaloQueue };
+                if (enhanceHalo.HasProperty("_Intensity")) enhanceHalo.SetFloat("_Intensity", FeelConfig.EnhanceHaloIntensity);
+                return enhanceHalo;
+            }
+        }
+
+        /// <summary>Light band clipped to an enhanced item (shader in Resources, so builds include it); null when missing or unsupported, as no fallback can clip to the art.</summary>
+        public static Material EnhanceShine
+        {
+            get
+            {
+                if (enhanceShine != null || shineMissing) return enhanceShine;
+                Shader s = Resources.Load<Shader>("Shaders/SpriteShine");
+                if (s == null || !s.isSupported)
+                {
+                    Debug.LogWarning("ZenoniaProto: shader 'SpriteShine' missing or unsupported, enhanced items draw without the light band.");
+                    shineMissing = true;
+                    return null;
+                }
+                enhanceShine = new Material(s) { name = "Feel_SpriteShine", renderQueue = ShineQueue };
+                return enhanceShine;
+            }
+        }
+
+        /// <summary>Sets the light band (x centre, y half width, z lift) on one shine renderer without allocating.</summary>
+        public static void SetShine(Renderer r, Vector4 shine)
+        {
+            if (block == null) block = new MaterialPropertyBlock();
+            if (shineId < 0) shineId = Shader.PropertyToID("_Shine");
+            r.GetPropertyBlock(block);
+            block.SetVector(shineId, shine);
+            r.SetPropertyBlock(block);
+        }
 
         /// <summary>Separate additive material instance (own texture), e.g. for the spark particle system.</summary>
         public static Material NewAdditive(Texture tex)

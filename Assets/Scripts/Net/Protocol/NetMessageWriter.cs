@@ -5,7 +5,12 @@ namespace ZenoniaProto.Net
 {
     public struct HelloMsg { public ushort Version; public string Name; public byte HeroClass; public string Token; }
     public struct InvActionMsg { public uint ReqId; public InvOp Op; public string ItemUid; public byte Slot; }
-    public struct WelcomeMsg { public ushort PlayerId, HeroNetId; public byte ZoneId, MapId; public uint ServerTimeMs; public byte TickRate, SnapDiv; }
+    public struct WelcomeMsg { public ushort PlayerId, HeroNetId; public byte Epoch; public string MapId; public uint ServerTimeMs; public byte TickRate, SnapDiv; public bool PortalsLive; }
+    /// <summary>
+    /// The server moved this player's hero to another zone. Epoch counts the player's zone changes: snapshots and input packets carry it, so neither side ever acts on a packet of
+    /// the zone before. Map ids travel as text: a new map needs no number assigned, and a client too old to know it says so instead of showing another map.
+    /// </summary>
+    public struct ZoneChangedMsg { public byte Epoch; public ushort HeroNetId; public string MapId; public short X, Y; public byte Facing; }
     public struct RejectMsg { public RejectReason Reason; public string Text; }
     public struct DespawnMsg { public ushort Id; public DespawnCause Cause; }
     public struct SelfStateMsg { public ushort Hp, MaxHp, Mp, MaxMp; public uint Exp; public byte Level; public ushort[] SkillCds; }
@@ -23,13 +28,13 @@ namespace ZenoniaProto.Net
         }
 
         /// <summary>
-        /// Input packet (12 B for 3 frames): ack (low 16 bits of the newest decoded snapshot seq), seq of the newest frame (low 16 bits), count,
+        /// Input packet (13 B for 3 frames): zone epoch, ack (low 16 bits of the newest decoded snapshot seq), seq of the newest frame (low 16 bits), count,
         /// then the frame bits oldest first. Frames are consecutive, so only the newest seq travels.
         /// </summary>
-        public static void Input(NetDataWriter w, ushort ackSnapshotSeq, InputFrame[] frames, int count)
+        public static void Input(NetDataWriter w, byte epoch, ushort ackSnapshotSeq, InputFrame[] frames, int count)
         {
             if (count > NetProtocol.MaxInputFrames) count = NetProtocol.MaxInputFrames;
-            w.Reset(); w.Put(NetOp.Input); w.Put(ackSnapshotSeq); w.Put((ushort)frames[count - 1].Seq); w.Put((byte)count);
+            w.Reset(); w.Put(NetOp.Input); w.Put(epoch); w.Put(ackSnapshotSeq); w.Put((ushort)frames[count - 1].Seq); w.Put((byte)count);
             for (int i = 0; i < count; i++) w.Put(frames[i].Bits);
         }
 
@@ -42,7 +47,12 @@ namespace ZenoniaProto.Net
 
         public static void Welcome(NetDataWriter w, WelcomeMsg m)
         {
-            w.Reset(); w.Put(NetOp.Welcome); w.Put(m.PlayerId); w.Put(m.HeroNetId); w.Put(m.ZoneId); w.Put(m.MapId); w.Put(m.ServerTimeMs); w.Put(m.TickRate); w.Put(m.SnapDiv);
+            w.Reset(); w.Put(NetOp.Welcome); w.Put(m.PlayerId); w.Put(m.HeroNetId); w.Put(m.Epoch); w.Put(m.MapId ?? "", NetProtocol.MaxMapIdLength); w.Put(m.ServerTimeMs); w.Put(m.TickRate); w.Put(m.SnapDiv); w.Put(m.PortalsLive);
+        }
+
+        public static void ZoneChanged(NetDataWriter w, ZoneChangedMsg m)
+        {
+            w.Reset(); w.Put(NetOp.ZoneChanged); w.Put(m.Epoch); w.Put(m.HeroNetId); w.Put(m.MapId ?? "", NetProtocol.MaxMapIdLength); w.Put(m.X); w.Put(m.Y); w.Put(m.Facing);
         }
 
         public static void Reject(NetDataWriter w, RejectMsg m)

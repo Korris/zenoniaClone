@@ -59,7 +59,7 @@ namespace ZenoniaProto
             GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
             GUI.color = Color.white;
             title.normal.textColor = Color.white;
-            GUI.Label(new Rect(0f, 36f * s, Screen.width, 40f * s), "Play online  -  Frost Hollow", title);
+            GUI.Label(new Rect(0f, 36f * s, Screen.width, 40f * s), "Play online", title);
 
             NetClient client = NetClient.Active;
             bool busy = client != null && client.State == ClientState.Connecting;

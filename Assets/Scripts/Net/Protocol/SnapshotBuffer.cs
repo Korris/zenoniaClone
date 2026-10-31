@@ -151,5 +151,7 @@ namespace ZenoniaProto.Net
 
         public void Forget(ushort id) { heroes.Remove(id); monsters.Remove(id); }
         public void Clear() { heroes.Clear(); monsters.Clear(); hasClock = false; hasSeq = false; }
+        /// <summary>Forgets every entity but keeps the clock and the sequence: ids mean something else in another zone, while the server clock and its snapshot numbers go on.</summary>
+        public void ClearEntities() { heroes.Clear(); monsters.Clear(); }
     }
 }

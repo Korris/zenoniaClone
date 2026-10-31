@@ -32,11 +32,12 @@ namespace ZenoniaProto.Net
 
         /// <summary>Fills `frames` (capacity 3); count 0 or &gt; 3 is rejected.</summary>
         /// <summary>Reads an input packet; frame Seq values are the low 16 bits (the server expands them against its own counter).</summary>
-        public static bool TryInput(NetDataReader r, out ushort ackSnapshotSeq, InputFrame[] frames, out int count)
+        public static bool TryInput(NetDataReader r, out byte epoch, out ushort ackSnapshotSeq, InputFrame[] frames, out int count)
         {
-            ackSnapshotSeq = 0; count = 0;
+            epoch = 0; ackSnapshotSeq = 0; count = 0;
             try
             {
+                epoch = r.GetByte();
                 ackSnapshotSeq = r.GetUShort();
                 ushort newest = r.GetUShort();
                 int n = r.GetByte();
@@ -67,8 +68,19 @@ namespace ZenoniaProto.Net
             m = default(WelcomeMsg);
             try
             {
-                m.PlayerId = r.GetUShort(); m.HeroNetId = r.GetUShort(); m.ZoneId = r.GetByte(); m.MapId = r.GetByte(); m.ServerTimeMs = r.GetUInt(); m.TickRate = r.GetByte(); m.SnapDiv = r.GetByte();
-                return m.TickRate > 0 && m.SnapDiv > 0;
+                m.PlayerId = r.GetUShort(); m.HeroNetId = r.GetUShort(); m.Epoch = r.GetByte(); m.MapId = r.GetString(NetProtocol.MaxMapIdLength); m.ServerTimeMs = r.GetUInt(); m.TickRate = r.GetByte(); m.SnapDiv = r.GetByte(); m.PortalsLive = r.GetBool();
+                return m.TickRate > 0 && m.SnapDiv > 0 && !string.IsNullOrEmpty(m.MapId);
+            }
+            catch (Exception) { return false; }
+        }
+
+        public static bool TryZoneChanged(NetDataReader r, out ZoneChangedMsg m)
+        {
+            m = default(ZoneChangedMsg);
+            try
+            {
+                m.Epoch = r.GetByte(); m.HeroNetId = r.GetUShort(); m.MapId = r.GetString(NetProtocol.MaxMapIdLength); m.X = r.GetShort(); m.Y = r.GetShort(); m.Facing = r.GetByte();
+                return m.HeroNetId != 0 && !string.IsNullOrEmpty(m.MapId);
             }
             catch (Exception) { return false; }
         }

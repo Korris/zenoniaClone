@@ -8,7 +8,7 @@ namespace ZenoniaProto
     /// Paper-doll hero for every class: gear-less "bare" body + overlays (sword + shield / staff / gun) placed at per-frame grip anchors
     /// (mirrors the web held-weapon-renderer). Frames with no bare sheet or a fallback anchor draw the baked armed frame instead.
     /// Direction index: 0 down, 1 up, 2 left, 3 right (sheet row; classes list the anims whose left row is a mirrored right row).
-    /// Each part shows its own equipped item (SetEquipmentGear: tier from the item level, enhanced art from +7, brighter glow per +7/+9/+11/+13 band);
+    /// Each part shows its own equipped item (SetEquipmentGear: tier from the item level, enhanced art from +7, HeldEnhanceFx escalating per +7/+9/+11/+13/+15 band);
     /// SetGear is the Q / E / R debug look that applies one tier to every part.
     /// </summary>
     public class HeroRenderer : MonoBehaviour
@@ -16,7 +16,11 @@ namespace ZenoniaProto
         public static readonly string[] DirNames = { "down", "up", "left", "right" };
         static readonly string[] AnimNames = { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt", "death" };
 
-        sealed class Part { public GearPartSpec Spec; public SpriteRenderer Sr, Glow; public int Tier, Band; public bool Enhanced, Empty; }
+        sealed class Part
+        {
+            public GearPartSpec Spec; public SpriteRenderer Sr; public HeldEnhanceFx Fx; public int Tier, Band; public bool Enhanced, Empty;
+            public OverlayEntry ArtEntry; public bool ArtEnhanced; public Sprite Art; // resolved art, so the resource path is not rebuilt per frame
+        }
 
         readonly Dictionary<string, Sprite[][]> armed = new Dictionary<string, Sprite[][]>();
         readonly Dictionary<string, Sprite[][]> bare = new Dictionary<string, Sprite[][]>();
@@ -27,7 +31,7 @@ namespace ZenoniaProto
         SpriteRenderer body, shadow;
         int tier;
         bool enhanced, debugLook;
-        int companionTier;
+        int companionTier, companionBand;
         bool companionEnhanced, companionEmpty;
 
         public HeroClassDef Class { get { return cls; } }
@@ -39,6 +43,7 @@ namespace ZenoniaProto
         /// <summary>Companion art (mechanic robot / cleric spirit) follows the offhand item; Empty = no offhand equipped.</summary>
         public int CompanionTier { get { return companionTier; } }
         public bool CompanionEnhanced { get { return companionEnhanced; } }
+        public int CompanionBand { get { return companionBand; } }
         public bool CompanionEmpty { get { return companionEmpty; } }
         public string TierName
         {
@@ -65,18 +70,10 @@ namespace ZenoniaProto
             shadow = ProceduralSprites.Child(transform, "Shadow", ProceduralSprites.Shadow());
             shadow.transform.localScale = new Vector3(12f, 12f, 1f); // 12 x 6 units, web radius 6 x 2.5 (slightly taller reads better)
             shadow.color = new Color(1f, 1f, 1f, 0.3f);
-            // Draw order within an entity (stride 8): shadow 0, behind parts 1-2, body 3, front parts 4-5, glow 6.
+            // Draw order within an entity (stride 8): shadow 0, behind parts 1-2, body 3, front parts 4-5, enhance stars + motes 6 (halo and shine share their part's order).
             var parts0 = new List<Part>();
             foreach (GearPartSpec spec in cls.Parts)
-            {
-                var part = new Part { Spec = spec, Sr = ProceduralSprites.Child(transform, spec.Id, null) };
-                if (spec.Glow)
-                {
-                    part.Glow = ProceduralSprites.Child(part.Sr.transform, spec.Id + "Glow", null); // additive copy: bright pixels of the enhanced art bloom
-                    part.Glow.sharedMaterial = FeelMaterials.Additive;
-                }
-                parts0.Add(part);
-            }
+                parts0.Add(new Part { Spec = spec, Sr = ProceduralSprites.Child(transform, spec.Id, null) });
             body = ProceduralSprites.Child(transform, "Body", null);
             parts.AddRange(parts0);
         }
@@ -102,7 +99,7 @@ namespace ZenoniaProto
             enhanced = newEnhanced;
             debugLook = true;
             foreach (Part p in parts) { p.Tier = tier; p.Enhanced = enhanced; p.Band = enhanced ? 1 : 0; p.Empty = false; }
-            companionTier = tier; companionEnhanced = enhanced; companionEmpty = false;
+            companionTier = tier; companionEnhanced = enhanced; companionBand = enhanced ? 1 : 0; companionEmpty = false;
         }
 
         /// <summary>Paper doll from the equipment: every part draws its own slot's item (null = nothing in that hand).</summary>
@@ -122,7 +119,8 @@ namespace ZenoniaProto
             enhanced = main != null && main.Enhanced;
             companionEmpty = offhand == null;
             companionTier = ItemInfo.ArtTier(offhand);
-            companionEnhanced = EnhanceStats.VisualBand(offhand) > 0;
+            companionBand = EnhanceStats.VisualBand(offhand);
+            companionEnhanced = companionBand > 0;
         }
 
         int ClampTier(string part, int t)
@@ -140,7 +138,7 @@ namespace ZenoniaProto
             if (!armed.ContainsKey(anim) || (armedRow = SpriteSheet.Row(armed[anim], row)) == null || armedRow.Length == 0)
             {
                 body.sprite = null;
-                foreach (Part p in parts) { p.Sr.sprite = null; if (p.Glow != null) p.Glow.enabled = false; }
+                foreach (Part p in parts) { p.Sr.sprite = null; if (p.Fx != null) p.Fx.Hide(); }
                 return;
             }
             frame = Mathf.Clamp(frame, 0, armedRow.Length - 1);
@@ -175,11 +173,15 @@ namespace ZenoniaProto
         {
             OverlayEntry[] manifest = gear != null ? gear.Manifest(p.Spec.Id) : null;
             OverlayEntry entry = (a != null && !a.hidden && !p.Empty && manifest != null && p.Tier < manifest.Length) ? manifest[p.Tier] : null;
-            // Enhanced (+7 and up): the web's baked glow outline in the tier colour; the blade keeps its painted colours.
-            HeldGlowBaker.Baked baked = entry != null && p.Enhanced ? HeldGlowBaker.Get(p.Spec.Folder, entry, Mathf.Max(1, p.Band)) : default(HeldGlowBaker.Baked);
-            Sprite sprite = entry == null ? null : baked.Body != null ? baked.Body : GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced);
+            if (entry != null && (entry != p.ArtEntry || p.Enhanced != p.ArtEnhanced))
+            {
+                p.ArtEntry = entry;
+                p.ArtEnhanced = p.Enhanced;
+                p.Art = GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced);
+            }
+            Sprite sprite = entry != null ? p.Art : null;
             p.Sr.sprite = sprite;
-            if (sprite == null) { if (p.Glow != null) p.Glow.enabled = false; return; }
+            if (sprite == null) { if (p.Fx != null) p.Fx.Hide(); return; }
             p.Sr.color = tint;
             p.Sr.sortingOrder = a.behind ? orderBehind : orderFront;
             float k = a.s * GearOverlays.FrameUnit * p.Spec.DrawScale * GearOverlays.Ppu; // sprite scale: world units per overlay px / (1 / ppu)
@@ -188,15 +190,10 @@ namespace ZenoniaProto
             t.localPosition = new Vector3((a.x - GameConfig.FramePx * 0.5f) * GearOverlays.FrameUnit, (GameConfig.FramePx - a.y) * GearOverlays.FrameUnit, 0f);
             t.localRotation = Quaternion.Euler(0f, 0f, -a.angle); // web angle is clockwise on a y-down canvas
             t.localScale = new Vector3(k * sx, k, 1f);
-            if (p.Glow == null) return;
-            // +13 and up: the outer glow rings pulse on their own additive layer (web band-4 aura); drawn only in front of the body.
-            bool glow = baked.Aura != null && FeelConfig.FxOn && !a.behind;
-            p.Glow.enabled = glow;
-            if (!glow) return;
-            p.Glow.sprite = baked.Aura;
-            p.Glow.sortingOrder = orderBase + 6;
-            float pulse = 0.7f + 0.3f * Mathf.Sin(Time.time * 5f); // outside the silhouette only, so it can be strong without whitening the blade
-            p.Glow.color = new Color(1f, 1f, 1f, pulse * alpha);
+            // Enhanced (+7 and up): the blade keeps its painted colours, HeldEnhanceFx lights it per band in the tier colour.
+            if (!p.Enhanced || !HeldEnhanceFx.Enabled) { if (p.Fx != null) p.Fx.Hide(); return; }
+            if (p.Fx == null) p.Fx = new HeldEnhanceFx(p.Sr, transform, !p.Spec.Glow ? 0f : p.Spec.IsOffhand ? 0.5f : 1f, 1f);
+            p.Fx.Draw(p.Spec.Folder, entry, p.Band, p.Sr.sortingOrder, orderBase + 6, a.behind, alpha);
         }
     }
 }

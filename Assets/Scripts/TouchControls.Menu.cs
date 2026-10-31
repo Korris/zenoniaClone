@@ -11,34 +11,30 @@ namespace ZenoniaProto
         Text spBadgeText;
         int shownSp = -1;
 
-        /// <summary>Top-right round menu buttons (art cut from hud-bag-settings-buttons.png): Bag opens the inventory, Settings the hero change screen.</summary>
+        /// <summary>Small round menu buttons under the minimap (art cut from hud-bag-settings-buttons.png): Bag opens the inventory, Settings the hero change screen.</summary>
         void BuildMenuButtons(Transform parent)
         {
             Vector2 tr = new Vector2(1f, 1f);
-            const float size = 80f;
-            RectTransform bag = Place(parent, "Bag", tr, -142f, -50f, size);
+            const float size = 40f, y = -178f;
+            RectTransform bag = Place(parent, "Bag", tr, -74f, y, size);
             Img(bag, MenuSprite("hud-bag"), Color.white, true);
             TouchButton.Add(bag.gameObject, GameKey.Inventory, false);
 
-            RectTransform settings = Place(parent, "Settings", tr, -52f, -50f, size);
+            RectTransform settings = Place(parent, "Settings", tr, -28f, y, size);
             Img(settings, MenuSprite("hud-settings"), Color.white, true);
             settings.gameObject.AddComponent<TapButton>().onTap = HeroChangeScreen.Open;
 
-            // Skills (skill tree window): gold-trimmed disc left of the Bag with a red badge counting the free skill points.
-            RectTransform skills = Place(parent, "Skills", tr, -232f, -50f, size);
-            Img(skills, UiArt.SkillFrame(), Color.white, true);
-            UiKit.Label(UiKit.Fill(skills, "Label"), "Skills", 15, UiWinKit.Gold, TextAnchor.MiddleCenter, true);
-            skills.gameObject.AddComponent<TapButton>().onTap = () => SkillTreeWindow.Toggle(transform.parent);
-            RectTransform badge = Place(skills, "Badge", tr, -8f, -8f, 28f);
+            // The skill tree opens from the bag's Skill tab, so the Bag carries the red badge counting the free skill points.
+            RectTransform badge = Place(bag, "Badge", tr, -4f, -4f, 18f);
             Img(badge, UiSprites.Circle(), new Color(0.85f, 0.15f, 0.15f, 1f));
-            spBadgeText = UiKit.Label(UiKit.Fill(badge, "Count"), "", 15, Color.white, TextAnchor.MiddleCenter, true);
+            spBadgeText = UiKit.Label(UiKit.Fill(badge, "Count"), "", 11, Color.white, TextAnchor.MiddleCenter, true);
             spBadge = badge.gameObject;
         }
 
         /// <summary>Swipes the skill magazine one page (dir +1 / -1), like a swipe on the cluster (scripted captures, tests).</summary>
         public static void CycleMagazine(int dir) { if (instance != null && instance.magazine != null) instance.magazine.Cycle(dir); }
 
-        /// <summary>Shows the free skill points on the Skills button badge (hidden at 0).</summary>
+        /// <summary>Shows the free skill points on the Bag button badge (hidden at 0).</summary>
         void UpdateSkillBadge(PlayerState p)
         {
             int sp = p != null ? p.SkillPointsFree : 0;

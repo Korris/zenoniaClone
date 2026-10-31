@@ -40,6 +40,8 @@ export const stateSchema = z
     hp: f0, mp: f0, x: coord, y: coord,
     hasPosition: z.boolean().default(false),
     bossDefeated: z.boolean().default(false),
+    // SaveData.defeatedBossMaps: map ids whose boss this save killed. Absent in old saves = none. Listed so the strip below keeps it.
+    defeatedBossMaps: z.array(z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/)).max(32).default([]),
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
     // Skill tree (SaveData.skillRanks / skillSlots): ranks by tree index, magazine slot -> tree index or -1. Absent in old saves = nothing learned.

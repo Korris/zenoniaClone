@@ -21,6 +21,7 @@ namespace ZenoniaProto
     public static class SkillVfx
     {
         const float SourceUnitsPerPx = 0.01f; // sprites are created at 100 ppu; scale is set from the wanted world width
+        const float AllySparkleAlpha = 0.5f;
         static readonly string[] RowNames = { "cast", "loop", "impact" };
         static readonly Dictionary<string, SkillVfxSet> Cache = new Dictionary<string, SkillVfxSet>();
 
@@ -81,6 +82,7 @@ namespace ZenoniaProto
         public static void Play(SkillContext ctx, int row, Vector2 at, float angleDeg, float widthUnits)
         {
             if (!ctx.View) return;
+            if (SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) return; // the choreography draws this skill
             SkillVfxSet s = Get(ctx.Def);
             if (s != null && s.Rows[row] != null)
             {
@@ -92,10 +94,23 @@ namespace ZenoniaProto
             ShockRing.Spawn(at, Mathf.Max(4f, widthUnits * 0.5f), row == SkillVfxSet.Cast ? 0.28f : 0.4f, Tint(ctx), FeelConfig.FxOrder - 8, 0.7f, 0.25f, true);
         }
 
+        /// <summary>
+        /// Translucent impact sparkle on a hero the choreography does not follow (it stays on the caster or its one target): an ally reached by a buff or a heal. Plays even
+        /// though the choreography replaced the rest of the skill's art.
+        /// </summary>
+        public static void PlayOnAlly(SkillContext ctx, Vector2 at, float widthUnits)
+        {
+            if (!ctx.View) return;
+            SkillVfxSet s = Get(ctx.Def);
+            if (s == null || s.Rows[SkillVfxSet.Impact] == null) return;
+            SkillFxAnim a = SkillFxAnim.Play(s.Rows[SkillVfxSet.Impact], s.Fps[SkillVfxSet.Impact], at, 0f, widthUnits / (s.WidestPx[SkillVfxSet.Impact] * SourceUnitsPerPx), FeelConfig.FxOrder + 2);
+            if (a != null) a.Alpha = AllySparkleAlpha;
+        }
+
         /// <summary>Starts the looping body (projectile / zone) or null when the skill has no loop art (callers draw the fallback).</summary>
         public static SkillFxAnim Loop(SkillContext ctx, Vector2 at, float angleDeg, float widthUnits, float seconds)
         {
-            if (!ctx.View || !Painted(ctx.Def, SkillVfxSet.Loop)) return null;
+            if (!ctx.View || SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id) || !Painted(ctx.Def, SkillVfxSet.Loop)) return null;
             SkillVfxSet s = Get(ctx.Def);
             return SkillFxAnim.Play(s.Rows[SkillVfxSet.Loop], s.Fps[SkillVfxSet.Loop], at, angleDeg, widthUnits / (s.WidestPx[SkillVfxSet.Loop] * SourceUnitsPerPx), FeelConfig.FxOrder, true, seconds);
         }

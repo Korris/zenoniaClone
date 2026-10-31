@@ -18,7 +18,7 @@ namespace ZenoniaProto
         {
             Vector2 here = new Vector2(x, y);
             bool fighting = state == State.Chase || state == State.Windup || state == State.Cooldown;
-            if (target != null && fighting && !target.IsDead && (target.Position - here).sqrMagnitude <= ActiveRadius * ActiveRadius) return target;
+            if (target != null && fighting && !target.IsDead && target.HomeZone == homeZone && (target.Position - here).sqrMagnitude <= ActiveRadius * ActiveRadius) return target; // a hero who took a portal is not on this map any more
             Zone zone = Zone.Main;
             target = zone != null ? zone.Heroes.NearestAlive(here, ActiveRadius) : null;
             return target;

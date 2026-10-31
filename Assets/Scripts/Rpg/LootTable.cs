@@ -30,6 +30,17 @@ namespace ZenoniaProto.Rpg
             { "iceGoblin", new MonsterLootDef { Type = "iceGoblin", Exp = 28, GoldMin = 2, GoldMax = 5, ItemLevel = 2 } },
             { "spectralWolf", new MonsterLootDef { Type = "spectralWolf", Exp = 26, GoldMin = 1, GoldMax = 4, ItemLevel = 2 } },
             { "frostfangKing", new MonsterLootDef { Type = "frostfangKing", Exp = 280, GoldMin = 20, GoldMax = 50, ItemLevel = 3, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            // Amber Dunes monsters: Frost Slime (Lv 1) and Ice Goblin (Lv 2) give EXP 14L and gold L..2L+1, times the same role factor as the stat block (MonsterDef).
+            { "duneScarab", new MonsterLootDef { Type = "duneScarab", Exp = 235, GoldMin = 17, GoldMax = 34, ItemLevel = 21 } },
+            { "sandRaider", new MonsterLootDef { Type = "sandRaider", Exp = 385, GoldMin = 28, GoldMax = 56, ItemLevel = 24 } },
+            { "amberWisp", new MonsterLootDef { Type = "amberWisp", Exp = 455, GoldMin = 33, GoldMax = 66, ItemLevel = 26 } },
+            // Emberfen Marsh and Sunken Reliquary monsters: the same line. Bosses take the king's factor on it (x6.67) and his sure drops.
+            { "bogSlime", new MonsterLootDef { Type = "bogSlime", Exp = 275, GoldMin = 20, GoldMax = 40, ItemLevel = 28 } },
+            { "mireToad", new MonsterLootDef { Type = "mireToad", Exp = 434, GoldMin = 31, GoldMax = 63, ItemLevel = 31 } },
+            { "marshStalker", new MonsterLootDef { Type = "marshStalker", Exp = 620, GoldMin = 44, GoldMax = 90, ItemLevel = 34 } },
+            { "ruinWisp", new MonsterLootDef { Type = "ruinWisp", Exp = 545, GoldMin = 39, GoldMax = 79, ItemLevel = 34 } },
+            { "glacierWarden", new MonsterLootDef { Type = "glacierWarden", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 20, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            { "mirefangHydra", new MonsterLootDef { Type = "mirefangHydra", Exp = 3270, GoldMin = 233, GoldMax = 473, ItemLevel = 35, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
         };
 
         public static MonsterLootDef For(string type) { MonsterLootDef d; return type != null && Table.TryGetValue(type, out d) ? d : null; }

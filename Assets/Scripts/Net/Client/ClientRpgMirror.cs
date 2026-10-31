@@ -31,7 +31,7 @@ namespace ZenoniaProto
             SaveData save = SaveSerializer.Parse(m.SaveJson);
             if (save == null) return false;
             PlayerState state = SaveSerializer.Restore(save);
-            if (RpgSession.Instance != null) RpgSession.Instance.AttachRemote(state, hero);
+            if (RpgSession.Instance != null) { RpgSession.Instance.AttachRemote(state, hero); RpgSession.Instance.ApplyRemoteBossFlags(save); }
             if (NetMode.RendersFx && m.ReqId != 0 && !string.IsNullOrEmpty(m.Text)) RpgHud.Toast(m.Text, m.Result == 1 ? new Color(0.7f, 1f, 0.7f) : new Color(1f, 0.7f, 0.5f));
             return true;
         }

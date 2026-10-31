@@ -37,6 +37,9 @@ namespace ZenoniaProto.Net
             for (int i = 0; i < n; i++) into[i] = ring[(head - (n - 1 - i) + ring.Length * 2) % ring.Length];
             return n;
         }
+
+        /// <summary>Forgets the stored frames (the sequence goes on): after a zone change no packet may repeat a frame made on the old map.</summary>
+        public void Clear() { count = 0; }
     }
 
     /// <summary>
@@ -60,6 +63,7 @@ namespace ZenoniaProto.Net
         ushort carry;              // press bits of dropped frames, delivered with the next applied frame
         int potionHp, potionMp;
         int credit;                // frozen ticks not yet repaid with a catch-up step
+        bool restarted;            // RestartStream ran: the next frame starts over, whatever its sequence number
 
         /// <summary>Sequence of the last frame the hero consumed (what snapshots report back to the client).</summary>
         public uint LastSeq { get; private set; }
@@ -83,7 +87,7 @@ namespace ZenoniaProto.Net
                 uint seq = hasNewest ? Expand((ushort)frames[i].Seq, newest) : frames[i].Seq;
                 if (hasNewest && !NetQuantize.IsNewer(seq, newest)) continue;
                 ushort bits = (ushort)(frames[i].Bits & InputBits.AllMask);
-                if (hasNewest)
+                if (hasNewest && !restarted)
                 {
                     uint gap = seq - newest - 1;
                     if (gap > MaxGapFill) { qCount = 0; carry = 0; }             // long outage: restart the stream, no catch-up
@@ -94,7 +98,7 @@ namespace ZenoniaProto.Net
                     }
                 }
                 Enqueue(seq, bits);
-                newest = seq; newestBits = bits; hasNewest = true;
+                newest = seq; newestBits = bits; hasNewest = true; restarted = false;
                 applied++;
             }
             if (applied > 0) lastRecvMs = nowMs;
@@ -137,6 +141,20 @@ namespace ZenoniaProto.Net
             LastSeq = f.Seq;
             if ((Current & InputBits.HpPotion) != 0) potionHp++;
             if ((Current & InputBits.MpPotion) != 0) potionMp++;
+        }
+
+        /// <summary>
+        /// The hero changed zone: everything queued was pressed on the old map and is dropped, moves and presses alike, and so are the potion presses and the catch-up credit. The next
+        /// frame the client sends starts the stream again without filling the gap; until then the hero idles. LastSeq stays, so a snapshot never claims a frame of the new stream early.
+        /// </summary>
+        public void RestartStream()
+        {
+            qHead = qCount = 0;
+            carry = 0; newestBits = 0; Current = 0;
+            potionHp = potionMp = 0;
+            credit = 0;
+            lastRecvMs = 0;
+            restarted = true;
         }
 
         /// <summary>The server loop skipped `ticks` ticks (frame hitch): the hero may repay them with extra steps once frames are queued.</summary>

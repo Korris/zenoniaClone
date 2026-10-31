@@ -18,6 +18,7 @@ namespace ZenoniaProto.Rpg
         public List<Item> equipment = new List<Item>();
         public List<int> skillRanks = new List<int>(); // 8 ranks (0-10) by tree index; missing in old saves = nothing learned
         public List<int> skillSlots = new List<int>(); // 8 magazine slots: tree index or -1
+        public List<string> defeatedBossMaps = new List<string>(); // map ids whose boss this save killed (the Frostfang King stays in bossDefeated); missing in old saves = none
     }
 
     /// <summary>
@@ -28,8 +29,9 @@ namespace ZenoniaProto.Rpg
     {
         public const int SaveVersion = 1;
         public const string MapId = "frostHollow";
+        const int MaxBossMaps = 32, MaxMapIdLength = 32; // same limits as the server-api schema, which rejects the whole save otherwise
 
-        public static SaveData Capture(PlayerState p, bool hasPosition, float x, float y, bool bossDefeated, long savedAt = 0, string mapId = null)
+        public static SaveData Capture(PlayerState p, bool hasPosition, float x, float y, bool bossDefeated, long savedAt = 0, string mapId = null, List<string> defeatedBossMaps = null)
         {
             var d = new SaveData
             {
@@ -40,6 +42,7 @@ namespace ZenoniaProto.Rpg
             d.inventory.AddRange(p.Inventory);
             foreach (string slot in Slots.All) { Item e = p.GetEquipped(slot); if (e != null) d.equipment.Add(e); }
             d.skillRanks = p.Skills.ToList(); d.skillSlots = p.Loadout.ToList();
+            if (defeatedBossMaps != null) d.defeatedBossMaps.AddRange(defeatedBossMaps);
             return d;
         }
 
@@ -74,10 +77,21 @@ namespace ZenoniaProto.Rpg
             var ranks = new SkillRanks(d.classId); ranks.Load(raw.skillRanks, d.level); // illegal ranks (tampering, class / level change) are trimmed
             var loadout = new SkillLoadout(); loadout.Load(raw.skillSlots, ranks);
             d.skillRanks = ranks.ToList(); d.skillSlots = loadout.ToList();
+            foreach (string m in raw.defeatedBossMaps ?? new List<string>())
+                if (IsMapId(m) && !d.defeatedBossMaps.Contains(m) && d.defeatedBossMaps.Count < MaxBossMaps) d.defeatedBossMaps.Add(m);
             return d;
         }
 
         static float Finite(float v) { return float.IsNaN(v) || float.IsInfinity(v) ? 0f : v; }
+
+        /// <summary>The characters the server-api schema allows in a map id, so a hand-edited entry is dropped here and cannot make the server refuse the save.</summary>
+        static bool IsMapId(string id)
+        {
+            if (string.IsNullOrEmpty(id) || id.Length > MaxMapIdLength) return false;
+            foreach (char c in id)
+                if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_' || c == '-')) return false;
+            return true;
+        }
 
         /// <summary>Builds the live PlayerState from a validated save (class lock, starter repair, hp clamp).</summary>
         public static PlayerState Restore(SaveData d)

@@ -5,8 +5,8 @@ using UnityEngine.UI;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Top-centre banner in the win-toast frame: optional icon slot on the left, a title and a sub line. Short messages (RpgHud.Toast(text, color))
-    /// use a compact one-line banner; Show(title, sub, icon) the full two-line one. Messages queue (max 4) and each is shown at least ~1 s,
+    /// Short messages (RpgHud.Toast(text, color): pickups, warnings) are a plain dark strip below the centre of the screen. Show(title, sub, icon) is the full
+    /// top-centre banner in the win-toast frame with an optional icon slot, a title and a sub line. Messages queue (max 4) and each is shown at least ~1 s,
     /// fading in / out; a long queue shortens the current one. Runs on unscaled time so it keeps working while a dialogue pauses the sim.
     /// </summary>
     public sealed class NotificationToast : MonoBehaviour
@@ -15,11 +15,14 @@ namespace ZenoniaProto
 
         const float FadeIn = 0.15f, FadeOut = 0.45f, HoldFull = 2.8f, HoldCompact = 2.2f, MinHold = 1.0f;
         const int MaxQueue = 4;
+        static readonly Color StripColor = new Color(0.03f, 0.06f, 0.1f, 0.75f);
+        const float StripW = 420f, StripH = 28f, StripBelowCentre = 165f; // clear of the touch buttons along the bottom edge
         static NotificationToast instance;
 
         readonly Queue<Entry> queue = new Queue<Entry>();
         RectTransform root, iconSlot;
         Image frame, icon;
+        Sprite frameSprite;
         Text title, sub;
         CanvasGroup group;
         float age, hold = -1f;
@@ -54,6 +57,7 @@ namespace ZenoniaProto
             group = root.gameObject.AddComponent<CanvasGroup>();
             group.blocksRaycasts = false; group.interactable = false; group.alpha = 0f;
             frame = UiWinKit.Sliced(root, "toast", 0.57f);
+            frameSprite = frame.sprite;
             iconSlot = UiKit.Rect(root, "IconSlot", 26f, 19f, 54f, 54f);
             UiWinKit.Sliced(iconSlot, "slot", 0.34f);
             icon = UiKit.Icon(iconSlot, "Icon", 8f, 8f, 38f);
@@ -67,8 +71,14 @@ namespace ZenoniaProto
         {
             bool full = e.Sub != null; // Show(...) always carries a sub line (possibly empty); ShowLine does not
             bool hasIcon = full && e.Icon != null;
-            float w = full ? 360f : 270f, h = full ? 92f : 52f;
+            float w = full ? 360f : StripW, h = full ? 92f : StripH;
             root.sizeDelta = new Vector2(w, h);
+            Vector2 anchor = full ? new Vector2(0.5f, 1f) : new Vector2(0.5f, 0.5f);
+            root.anchorMin = anchor; root.anchorMax = anchor; root.pivot = anchor;
+            root.anchoredPosition = new Vector2(0f, full ? -50f : -StripBelowCentre);
+            frame.sprite = full ? frameSprite : null;
+            frame.type = full ? Image.Type.Sliced : Image.Type.Simple;
+            frame.color = full ? Color.white : StripColor;
             frame.pixelsPerUnitMultiplier = 630f / w; // corners keep a constant on-screen size relative to the width
             iconSlot.gameObject.SetActive(hasIcon);
             icon.sprite = e.Icon;
@@ -76,7 +86,7 @@ namespace ZenoniaProto
             title.text = e.Title; title.color = e.TitleColor;
             sub.text = full ? e.Sub : "";
             title.alignment = sub.alignment = hasIcon ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter;
-            title.fontSize = full ? 20 : 15;
+            title.fontSize = full ? 20 : 14;
             bool twoLines = full && !string.IsNullOrEmpty(e.Sub);
             title.rectTransform.anchoredPosition = new Vector2(tx, -(twoLines ? 16f : 0f));
             title.rectTransform.sizeDelta = new Vector2(tw, twoLines ? 28f : h);

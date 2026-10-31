@@ -4,7 +4,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Entry point of the data-driven skills: resolves aim / target and starts the timeline (or the legacy Earth Break / Ice Storm adapter).
+    /// Entry point of the data-driven skills: resolves aim / target and starts the timeline (or the legacy Earth Break / Ice Storm / Rocket Barrage adapter).
     /// It does NOT check learned / cooldown / MP / cast lock: HeroController.TryCastSkill does, then calls Cast.
     /// Returns false (nothing happened, nothing to charge) when the skill needs a target and none is in range.
     /// </summary>
@@ -27,15 +27,17 @@ namespace ZenoniaProto
             SkillContext ctx = SkillAim.Resolve(def, rank, body, salt);
             if (ctx == null) return false;
             SkillRun.Begin(ctx);
+            SkillChoreoCastHook.Play(ctx);
             return true;
         }
 
-        /// <summary>Earth Break / Ice Storm keep their hand-made timelines; the rank only scales their damage.</summary>
+        /// <summary>Earth Break / Ice Storm / Rocket Barrage keep their hand-made timelines; the rank only scales their damage.</summary>
         static bool CastLegacy(ISkillBody body, SkillDef def, int rank)
         {
             float scale = def.DamageMul(rank);
             if (def.Legacy == LegacySkill.EarthBreak) EarthBreakUltimate.Cast(body.Hero, scale);
             else if (def.Legacy == LegacySkill.IceStorm) IceStormUltimate.Cast(body.Hero, scale);
+            else if (def.Legacy == LegacySkill.RocketBarrage) RocketBarrageUltimate.Cast(body.Hero, scale);
             return true;
         }
 

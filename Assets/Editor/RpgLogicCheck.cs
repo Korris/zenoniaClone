@@ -23,6 +23,7 @@ namespace ZenoniaProto.EditorTools
             expect(EnhanceStats.Bonus(4, 1) == 1 && EnhanceStats.Bonus(4, 15) == 16 && EnhanceStats.Bonus(12, 15) == 49 && EnhanceStats.Bonus(10, 7) == 8, "rpg: enhance bonus curve");
             expect(EnhanceStats.Bonus(2, 3) == 2 && EnhanceStats.Bonus(15, 10) == 23 && EnhanceStats.Bonus(3, 15, 0.5) == 6, "rpg: enhance scaled floor + offhand half");
             expect(Math.Abs(EnhanceConfig.AtkPct[15] - 4.05) < 1e-9 && Math.Abs(EnhanceConfig.AtkPct[7] - 0.8) < 1e-9, "rpg: cumulative ATK % table");
+            expect(EnhanceStats.VisualBand(new Item { slot = Slots.Weapon, enhance = 6 }) == 0 && EnhanceStats.VisualBand(new Item { slot = Slots.Weapon, enhance = 7 }) == 1 && EnhanceStats.VisualBand(new Item { slot = Slots.Offhand, enhance = 14 }) == 4 && EnhanceStats.VisualBand(new Item { slot = Slots.Offhand, enhance = 15 }) == 5, "rpg: enhance look bands +7 .. +15");
 
             // Generation (seeded rand() = 0 / 0.5 sequences from the web)
             Item sword = ItemFactory.Generate(() => 0.0, 1, "weapon", "common", "warrior");
@@ -56,6 +57,10 @@ namespace ZenoniaProto.EditorTools
             PlayerState back = SaveSerializer.Restore(SaveSerializer.Parse(SaveSerializer.ToJson(SaveSerializer.Capture(p, true, 10f, 20f, false))));
             expect(back.Gold == 50 && back.Inventory.Count == 1 && back.GetEquipped("weapon").enhance == 1 && back.Atk == p.Atk, "rpg: save round-trip");
             expect(SaveSerializer.Parse("{\"level\":3}") != null && SaveSerializer.Parse("not json") == null && SaveSerializer.Parse("{\"version\":9,\"level\":3}") == null, "rpg: old save tolerated, garbage / future version rejected");
+            SaveData bosses = SaveSerializer.Parse(SaveSerializer.ToJson(SaveSerializer.Capture(p, true, 10f, 20f, false, 0, null, new System.Collections.Generic.List<string> { "frostfangDen" })));
+            expect(bosses.defeatedBossMaps.Count == 1 && bosses.defeatedBossMaps[0] == "frostfangDen" && !bosses.bossDefeated, "rpg: defeated boss maps round-trip, apart from the king's flag");
+            expect(SaveSerializer.Parse("{\"level\":3}").defeatedBossMaps.Count == 0, "rpg: an old save has no defeated boss maps");
+            expect(SaveSerializer.Parse("{\"level\":3,\"defeatedBossMaps\":[\"frostfangDen\",\"frostfangDen\",\"bad id!\",\"\"]}").defeatedBossMaps.Count == 1, "rpg: duplicate and malformed boss map ids are dropped");
         }
     }
 }

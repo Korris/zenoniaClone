@@ -56,7 +56,7 @@ namespace ZenoniaProto
 
         void StartArt()
         {
-            if (!ctx.View) return;
+            if (!ctx.View || SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) return; // the choreography draws the flight (no tinted dot fallback)
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg, width = Mathf.Max(1.2f * ctx.Units, radius * 2.4f);
             body = SkillVfx.Loop(ctx, pos, angle, width, left / Mathf.Max(1f, speed) + 0.2f);
             if (body != null) return;
@@ -120,7 +120,7 @@ namespace ZenoniaProto
                 {
                     SkillVfx.Play(ctx, SkillVfxSet.Impact, pos, 0f, 2f * fx.ImpactRadius * ctx.Units);
                     SkillSfx.Play(ctx, SkillSfx.Impact, 0.7f);
-                    if (ctx.Body.IsLocal) CameraFollow.AddTrauma(0.08f);
+                    if (ctx.Body.IsLocal && !SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) CameraFollow.AddTrauma(0.08f);
                 }
             }
             else if (ctx.View && !hit && !fx.Pierce) SkillVfx.Play(ctx, SkillVfxSet.Impact, pos, 0f, 1.4f * ctx.Units);

@@ -14,6 +14,7 @@ namespace ZenoniaProto
         readonly int[] dist = new int[TW * TH];
         readonly Queue<int> bfs = new Queue<int>(TW * TH);
         Vector2Int distGoal = new Vector2Int(-1, -1);
+        IGameMap distMap;
         float distStamp;
         int patrolIndex;
         float patrolSince;
@@ -61,7 +62,7 @@ namespace ZenoniaProto
         Vector2 StepToward(Vector2 from, Vector2 goalWorld)
         {
             Vector2Int goal = TileOf(goalWorld);
-            if (goal != distGoal || Time.time - distStamp > 3f) { ComputeDistanceField(goal); distStamp = Time.time; }
+            if (goal != distGoal || distMap != MapRegistry.Current || Time.time - distStamp > 3f) { ComputeDistanceField(goal); distStamp = Time.time; distMap = MapRegistry.Current; }
             Vector2Int here = TileOf(from);
             int best = dist[here.y * TW + here.x];
             Vector2Int next = here;
@@ -86,6 +87,38 @@ namespace ZenoniaProto
             if (Time.time - patrolSince > 12f) { patrolSince = Time.time; patrolIndex++; }
             FrostHollowMap.Zone z = FrostHollowMap.Zones[(botSlot + patrolIndex) % FrostHollowMap.Zones.Length];
             return TileCenter(new Vector2Int(z.Tx + z.W / 2, z.Ty + z.H / 2));
+        }
+
+        /// <summary>
+        /// Portal soak: walks to a portal of whatever map the server put it on, takes the next one along on each new map, and fights nothing. The server does the moving,
+        /// so the stats (zoneChanges here, zoneTransfers on the server) count real transfers. Works for any map a new portal leads to.
+        /// </summary>
+        void EnablePortalBot()
+        {
+            int slot = 0;
+            foreach (char c in NetLaunchArgs.Name ?? "") slot = slot * 7 + c;
+            slot = Mathf.Abs(slot);
+            IGameMap lastMap = null;
+            MapPortal goal = default(MapPortal);
+            Vector2 move = Vector2.zero;
+            int decidedFrame = -1;
+            InputAdapter.BotHeld = k =>
+            {
+                if (decidedFrame != Time.frameCount)
+                {
+                    decidedFrame = Time.frameCount;
+                    move = Vector2.zero;
+                    HeroController hero = GameSession.Hero;
+                    MapPortal[] portals = MapRegistry.Current.Portals;
+                    if (hero != null && !hero.IsDead && portals.Length > 0)
+                    {
+                        if (lastMap != MapRegistry.Current) { lastMap = MapRegistry.Current; slot++; goal = portals[slot % portals.Length]; }
+                        move = StepToward(hero.Position, TileCenter(new Vector2Int(goal.Tx, goal.Ty)));
+                    }
+                }
+                return (k == GameKey.Left && move.x < 0f) || (k == GameKey.Right && move.x > 0f) || (k == GameKey.Down && move.y < 0f) || (k == GameKey.Up && move.y > 0f);
+            };
+            InputAdapter.BotPressed = k => false;
         }
 
         void EnableNavBot(bool boss, Vector2 offset, bool cycleSkills = false)

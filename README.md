@@ -32,7 +32,7 @@ A class select screen opens first: click a card or press **1-5**. **F1-F5** resp
 
 Signature skills on **L** use MP (HUD MP bar + cooldown line): Earth Break 29 MP / 8 s, Ice Storm 20 MP / 7.7 s, Shadow Step 9 MP / 3.9 s,
 Heal 12 MP / 8.5 s (web rank-3 values). Earth Break / Ice Storm are the web ultimates (`EarthBreakUltimate.cs`, `IceStormUltimate.cs`):
-charge, sweep, slam that launches non-boss monsters for 1.5 s, fissure ticks; frost waves of falling ice spears that chill. Colour identity of the
+charge, sweep, slam that launches non-boss monsters for 1.5 s, fissure ticks; frost waves of falling ice spears that chill. The Mechanic's tree skill Rocket Barrage (`RocketBarrageUltimate.cs`) is the third: a cyan lock-on, then 10 rockets chain-exploding over a forward fan. Colour identity of the
 basic attacks lives in one table, `ClassPalette.cs` (warrior red, wizard violet-blue, mechanic orange/blue, assassin purple, cleric green).
 
 Combo timings, bolt speed / range / size and damage multipliers are copied from the web `COMBO_CONFIG_BY_CLASS`
@@ -55,8 +55,10 @@ Two maps, both 36x24 tiles of 16 units: **Oakhaven Village** (safe start hub: pa
 and **Frost Hollow** (the battle map). `Maps/IGameMap` + `Maps/TileMapBase` hold the shared collision; `MapRegistry.Current` is the map the sim runs
 (`FrostHollowMap.RectBlocked / Move / IsSolidTile` forward to it). The south gate of the village and the blue circle at the Frost Hollow entrance are portals:
 walking onto one fades out, swaps the map (`Maps/MapTransfer`) and fades in with the same hero. New offline characters start in the village; a save
-resumes on the map it was saved on. Offline only for now: online (host / client / server) always plays Frost Hollow with no portals or villagers.
-Launch arg `--map frost-hollow|oakhaven-village` picks the start map (capture / bot runs default to Frost Hollow). Village art: `Resources/Sprites/village/`
+resumes on the map it was saved on. Online a dedicated server hosts every map of `MapRegistry` as its own `Zone` (`World/ZoneHost`): heroes begin on Frost Hollow, the server decides when
+feet are on a portal tile (`Net/Server/ZoneTransferService`), a boss gate is per hero, zones without heroes are paused, and a client rebuilds the map behind the same fade; villagers are drawn
+client side and only chat (quests stay offline). A dev host still runs one zone, Frost Hollow, without portals or villagers. Registering a map in `MapRegistry` is all it takes to play it online.
+Launch arg `--map frost-hollow|oakhaven-village` picks the start map (capture / bot runs default to Frost Hollow; on a server, the zone new heroes begin in). Village art: `Resources/Sprites/village/`
 (ground + portal in `tiles/`, props, NPC idle sheets + faces), copied from the web `Assets/hd/`.
 
 ## Controls
@@ -84,6 +86,8 @@ Die -> respawn at the entrance after 1.4 s.
 (`NpcDialogueBox`), quest offer window (`QuestOfferWindow`), local-only chat (`ChatWindow` / `ChatHub`, `IChatTransport` is the network seam; collapsed by default on phones).
 Elder Thomas (`ElderNpc`) offers "Ancient Crystal Survey" (defeat 5 Frost Slimes, reward 150 G + 3 stones + 2 HP potions; `QuestTracker`, in memory, offline only).
 While a window owns the keyboard `UiWindows.BlocksGameplay` makes `InputAdapter` drop the hero's keys.
+
+**Minimap** (`Minimap.cs`): top-right under Bag and Settings, the map's painted ground scaled down with dots for the hero, monsters, boss, other players and, offline, villagers and portals.
 
 ## Game feel / VFX layer
 

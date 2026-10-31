@@ -10,7 +10,7 @@ namespace ZenoniaProto
     {
         public readonly string Id, Folder;
         public readonly float DrawScale, MinSx;
-        public readonly bool Glow; // additive copy of the enhanced art (weapon only)
+        public readonly bool Glow; // enhance effect includes stars + motes (every part gets the shine and halo)
         /// <summary>Drawn from the offhand slot (warrior shield, assassin off-hand dagger); every other part is the weapon.</summary>
         public bool IsOffhand { get { return Id == "shield" || Id == "off"; } }
 

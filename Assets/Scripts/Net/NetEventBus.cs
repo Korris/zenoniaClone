@@ -7,8 +7,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Server side collector of gameplay events (attack swings, bolts, hits, deaths, level-ups ...). Gameplay code calls the typed Emit helpers
-    /// at the moment something visible happens; they cost one branch when no server runs (offline / client). ZoneServer drains Pending once per
-    /// tick and routes each item: zone-wide, owner only, or to every client whose area of interest contains the event position.
+    /// at the moment something visible happens; they cost one branch when no server runs (offline / client). Events are kept per zone; ZoneServer drains
+    /// each zone once per tick and routes each item: zone-wide, owner only, or to every client whose area of interest contains the event position.
     /// </summary>
     public static class NetEventBus
     {
@@ -16,7 +16,9 @@ namespace ZenoniaProto
 
         /// <summary>True while a ZoneServer runs in this process (server / host).</summary>
         public static bool Active;
-        public static readonly List<Queued> Pending = new List<Queued>(128);
+        static readonly List<Queued> NoZoneEvents = new List<Queued>();
+        /// <summary>This tick's events of the zone the running code belongs to: heroes in other zones can never receive them.</summary>
+        public static List<Queued> Pending { get { return Zone.Main != null ? Zone.Main.Events : NoZoneEvents; } }
         static ushort boltSeq;
 
         public static void ResetState() { Active = false; Pending.Clear(); boltSeq = 0; }

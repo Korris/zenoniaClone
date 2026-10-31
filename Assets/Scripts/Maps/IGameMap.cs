@@ -42,6 +42,8 @@ namespace ZenoniaProto
         bool Hostile { get; }
         Vector2 PlayerStart { get; }
         MapPortal[] Portals { get; }
+        /// <summary>The portals for a hero whose boss gate on this map is open or shut (Portals asks the local save; the server asks per hero). Without a gate: Portals.</summary>
+        MapPortal[] PortalsFor(bool gateOpen);
         MapProp[] Props { get; }
         MapNpc[] Npcs { get; }
 

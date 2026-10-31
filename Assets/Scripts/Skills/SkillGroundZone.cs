@@ -28,7 +28,7 @@ namespace ZenoniaProto
             SkillSfx.Play(ctx, SkillSfx.Cast);
             float width = 2f * e.Radius * ctx.Units;
             z.body = SkillVfx.Loop(ctx, z.center, 0f, width, e.DurationMs / 1000f);
-            if (z.body != null) return;
+            if (z.body != null || SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) return;
             z.ring = ProceduralSprites.Child(z.transform, "Ring", FxSprites.Ring()); // no painted loop yet: pulsing tinted ring on the ground
             z.ring.color = e.Ally ? new Color(0.9f, 0.95f, 0.5f, 0.8f) : SkillVfx.Tint(ctx);
             z.ring.sortingOrder = UltimateFx.GroundFxOrder;
