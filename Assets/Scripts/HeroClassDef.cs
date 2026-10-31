@@ -30,6 +30,7 @@ namespace ZenoniaProto
         public string Name, Tagline, ComboLabel;
         public string SheetFolder, BareFolder, GearFile, FxFolder;
         public string[] BareAnims;
+        public string[] ExtraAnims;            // skill poses only this class has (null = none); loaded armed + bare like the rest
         public string[] ComboAnims;            // per combo step anim (null = attack1 / attack2 alternate + attack3 finisher); "meleeN" = Tools/build-melee-sheets.py output
         public HashSet<string> MirrorLeft;     // anims whose left row is the right row mirrored
         public float MaxHp, Atk, Def, Speed;
@@ -43,6 +44,7 @@ namespace ZenoniaProto
         /// <summary>Palette in use right now (the mechanic can switch orange / blue with C).</summary>
         public ClassPalette ActivePalette { get { return Id == HeroClass.Mechanic && ClassPalette.MechanicBlue ? ClassPalette.Blue : Palette; } }
         public float MaxMp = 60f;
+        public float WalkCycleMs = 560f;               // one full step cycle, whatever the sheet's frame count
         public string SkillName;                       // class signature skill on L (null = none)
         public float SkillMp, SkillCooldownMs, SkillLockMs;
         /// <summary>Touch button art: index in Resources/Sprites/skill-icons/&lt;class&gt;-N.png (web SKILL_ORDER slot; see Tools/build-skill-icons.py).</summary>
@@ -58,8 +60,9 @@ namespace ZenoniaProto
             SheetFolder = "hero", BareFolder = "bare", GearFile = "held-gear", FxFolder = null, Palette = ClassPalette.Red,
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
             ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // horizontal slash, diagonal cut, spin, jump cleave (Tools/build-melee-sheets.py)
-            MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f,
-            Parts = new[] { new GearPartSpec("shield", "shield"), new GearPartSpec("sword", "sword", 2.1f, 0.85f, true) },
+            ExtraAnims = new[] { InfernoCrashUltimate.PoseAnim, BerserkerAwakeningFx.PoseAnim },
+            MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f, WalkCycleMs = 640f, // 4 pose walk sheet, slowed so each pose reads; the feet slide a little at Speed 80
+            Parts = new[] { new GearPartSpec("shield", "shield", 0.8f), new GearPartSpec("sword", "sword", 1.6f, 0.85f, true) },
             SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = 1450f, SkillIcon = 4, DashIcon = 7, // bladeStorm, dashStrike
         };
 
@@ -93,6 +96,7 @@ namespace ZenoniaProto
             SheetFolder = "assassin", BareFolder = "assassin-bare", GearFile = "held-assassin", FxFolder = null, Palette = ClassPalette.Violet,
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked art
             MirrorLeft = new HashSet<string>(),
+            ExtraAnims = new[] { NightfallExecutionUltimate.PoseAnim },
             ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // right slash, left slash, X cross-slash, dash double stab (Tools/build-melee-sheets.py assassin N)
             MaxHp = 88f, MaxMp = 50f, Atk = 13f, Def = 3f, Speed = 92f, CritBonus = 0.06f, Hits = ComboConfigs.AssassinHits, ChainMs = 380f,
             Parts = new[] { new GearPartSpec("off", "assassin-dagger", 1.3f, 0f, true), new GearPartSpec("main", "assassin-dagger", 1.3f, 0f, true) }, // 1.3 = daggers ~40% of body height (keep Tools/build-melee-sheets.py draw_scale in sync)
@@ -104,6 +108,7 @@ namespace ZenoniaProto
         {
             Id = HeroClass.Cleric, Name = "Cleric", Tagline = "Holy support caster. Heals, with a spirit companion and holy light.", ComboLabel = "3 holy orbs + burst",
             SheetFolder = "cleric", BareFolder = "cleric-bare", GearFile = "held-cleric", FxFolder = "wizard", Palette = ClassPalette.Green,
+            ExtraAnims = new[] { ClericBuffFx.PoseAnim },
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked art
             MirrorLeft = new HashSet<string>(),
             MaxHp = 85f, MaxMp = 75f, Atk = 11f, Def = 4f, Speed = 80f, Hits = ComboConfigs.ClericHits, ChainMs = 450f,

@@ -167,11 +167,10 @@ namespace ZenoniaProto
             if (mode == Mode.Inventory && cellSel < supplyOrder.Length)
             {
                 Supply kind = supplyOrder[cellSel];
-                if (kind == Supply.HpPotion || kind == Supply.MpPotion)
+                if (IsPotion(kind))
                 {
-                    if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Use, "", (byte)(kind == Supply.HpPotion ? 0 : 1)); return; }
-                    ActionResult used = p.UsePotion(kind == Supply.HpPotion);
-                    Flash(used.Ok ? "Restored 30%" : used.Text);
+                    if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Use, "", PotionCatalog.PackSlot(PotionIsHp(kind), PotionSize(kind))); return; }
+                    Flash(p.UsePotion(PotionIsHp(kind), PotionSize(kind)).Text);
                 }
                 Refresh();
                 return;

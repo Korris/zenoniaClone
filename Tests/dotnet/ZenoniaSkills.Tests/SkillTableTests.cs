@@ -53,6 +53,10 @@ public class SkillTableTests
         SkillDef ice = SkillTable.Get("wizard", 2);
         Assert.Equal("Ice Storm", ice.Name); Assert.Equal(28, ice.Mp); Assert.Equal(12000, ice.CooldownMs); Assert.Equal(LegacySkill.IceStorm, ice.Legacy);
         Assert.Equal(LegacySkill.EarthBreak, SkillTable.Get("warrior", 2).Legacy);
+        SkillDef cyclone = SkillTable.Get("warrior", 5);
+        Assert.Equal("warrior.blade-cyclone", cyclone.Id); Assert.Equal(40, cyclone.Mp); Assert.Equal(12000, cyclone.CooldownMs); Assert.Equal(LegacySkill.BladeCyclone, cyclone.Legacy);
+        Assert.Contains("6 waves of 150% ATK within 2.5 tiles", SkillDescribe.Description(cyclone, 1));
+        Assert.Contains("KNOCKBACK", SkillDescribe.StatusLines(cyclone));
         SkillDef plasma = SkillTable.Get("mechanic", 1);
         Assert.Equal("mechanic.plasma-barrage", plasma.Id); Assert.Equal(8, plasma.UnlockLevel); Assert.Equal(22, plasma.Mp); Assert.Equal(9000, plasma.CooldownMs); Assert.Equal(6, plasma.Effects[0].Count);
         SkillDef rockets = SkillTable.Get("mechanic", 2);

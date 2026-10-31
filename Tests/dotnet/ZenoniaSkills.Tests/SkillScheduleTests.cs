@@ -21,7 +21,7 @@ public class SkillScheduleTests
         Assert.Equal(8, rain.Length);
         Assert.Equal(1400, SkillSchedule.LastStepMs(rain));
         SkillStep[] rush = SkillSchedule.Build(Skill("assassin", "phantom-rush").Effects);
-        Assert.Equal(new[] { 0, 180, 180, 360, 360, 540 }, rush.Select(x => x.AtMs).ToArray());
+        Assert.Equal(new[] { 140, 320, 320, 500, 500, 680 }, rush.Select(x => x.AtMs).ToArray());
         Assert.True(rush.Zip(rush.Skip(1), (a, b) => a.AtMs <= b.AtMs).All(x => x));
     }
 

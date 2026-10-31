@@ -68,18 +68,6 @@ namespace ZenoniaProto.Rpg
 
         // ---- consumables ----
 
-        /// <summary>Drinks a potion only when it can restore something. Heals 30% of max.</summary>
-        public ActionResult UsePotion(bool hp)
-        {
-            int count = hp ? HpPotions : MpPotions;
-            if (count <= 0) return ActionResult.Fail("No potion");
-            float cur = hp ? Hp : Mp, max = hp ? MaxHp : MaxMp;
-            if (cur >= max) return ActionResult.Fail(hp ? "HP full" : "MP full");
-            float v = System.Math.Min(max, cur + RpgMath.Round(max * PotionHealFraction));
-            if (hp) { Hp = v; HpPotions--; } else { Mp = v; MpPotions--; }
-            return ActionResult.Success((hp ? "HP +" : "MP +") + RpgMath.Round(max * PotionHealFraction));
-        }
-
         /// <summary>Applies a picked-up drop (web applyPickup). Equipment fails with "Inventory full" when the bag has no room.</summary>
         public ActionResult ApplyPickup(LootEntry drop)
         {

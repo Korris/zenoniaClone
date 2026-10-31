@@ -49,7 +49,8 @@ namespace ZenoniaProto
             var view = heroGo.AddComponent<HeroRenderer>();
             view.Init(def, HeldGearData.Load(def));
             ClassPalette.Current = def.ActivePalette;
-            if (id == HeroClass.Warrior) EarthBreakUltimate.Preload(); // first-cast hitch fix: load the skill art + warm the FX pools now
+            if (id == HeroClass.Warrior) { EarthBreakUltimate.Preload(); BladeCycloneUltimate.Preload(); InfernoCrashUltimate.Preload(); BerserkerAwakeningFx.Preload(); } else if (id == HeroClass.Assassin) NightfallExecutionUltimate.Preload(); // first-cast hitch fix: load the skill art + warm the FX pools now
+            if (id == HeroClass.Cleric) ClericBuffFx.Preload();
             if (id == HeroClass.Wizard) IceStormUltimate.Preload();
             if (id == HeroClass.Mechanic) RocketBarrageUltimate.Preload();
             VfxSprites.Preload(id);
@@ -71,7 +72,8 @@ namespace ZenoniaProto
             go.transform.SetParent(root, false);
             var view = go.AddComponent<HeroRenderer>();
             view.Init(def, HeldGearData.Load(def));
-            if (id == HeroClass.Warrior) EarthBreakUltimate.Preload();
+            if (id == HeroClass.Warrior) { EarthBreakUltimate.Preload(); BladeCycloneUltimate.Preload(); InfernoCrashUltimate.Preload(); BerserkerAwakeningFx.Preload(); } else if (id == HeroClass.Assassin) NightfallExecutionUltimate.Preload();
+            if (id == HeroClass.Cleric) ClericBuffFx.Preload();
             if (id == HeroClass.Wizard) IceStormUltimate.Preload();
             if (id == HeroClass.Mechanic) RocketBarrageUltimate.Preload();
             VfxSprites.Preload(id);
@@ -96,7 +98,8 @@ namespace ZenoniaProto
             {
                 view = go.AddComponent<HeroRenderer>();
                 view.Init(def, HeldGearData.Load(def));
-                if (def.Id == HeroClass.Warrior) EarthBreakUltimate.Preload();
+                if (def.Id == HeroClass.Warrior) { EarthBreakUltimate.Preload(); BladeCycloneUltimate.Preload(); InfernoCrashUltimate.Preload(); BerserkerAwakeningFx.Preload(); } else if (def.Id == HeroClass.Assassin) NightfallExecutionUltimate.Preload();
+                if (def.Id == HeroClass.Cleric) ClericBuffFx.Preload();
                 if (def.Id == HeroClass.Wizard) IceStormUltimate.Preload();
                 if (def.Id == HeroClass.Mechanic) RocketBarrageUltimate.Preload();
                 VfxSprites.Preload(def.Id);

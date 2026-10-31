@@ -15,8 +15,8 @@ namespace ZenoniaProto
     }
 
     /// <summary>
-    /// Oakhaven villagers from the web src/data/npc-definitions.js, then Sunspire's townsfolk (the other maps' NPCs come with their maps). Roles without a
-    /// game system yet (shop, healing, fishing, crafting, bounties) are dialogue-only, as in the web; the merchants say so. The web's village elder Rowan is
+    /// Oakhaven villagers from the web src/data/npc-definitions.js, then Sunspire's townsfolk (the other maps' NPCs come with their maps). Potion sellers
+    /// (PotionShops) open the shop; roles without a game system yet (healing, fishing, crafting, bounties) are dialogue-only, as in the web. The web's village elder Rowan is
     /// the quest giver Elder Thomas here: same spot, same HD art, the existing Frost Slime quest and dialogue window.
     /// </summary>
     public static class NpcDefs
@@ -31,7 +31,7 @@ namespace ZenoniaProto
             { "hunterLena", Def("hunterLena", "Hunter Lena", Left, false,
                 "The bats near the south woods keep stealing my arrows.", "Press J four times fast for a full combo!") },
             { "merchantDale", Def("merchantDale", "Merchant Dale", Down, false,
-                "Potions, trinkets, odds and ends... the stall opens as soon as my cart arrives.", "Gold from the slimes spends just fine here.\n(Shop: coming soon)") },
+                "Potions, trinkets, odds and ends...", "Gold from the slimes spends just fine here.") },
             { "fishermanRoy", Def("fishermanRoy", "Fisherman Roy", Right, false,
                 "The river runs clear past the dock. Best bite is at dawn.", "Mind the current east of the bridge.") },
             { "carpenterBrol", Def("carpenterBrol", "Carpenter Brol", Left, false,
@@ -48,7 +48,7 @@ namespace ZenoniaProto
             { "elderSahir", Def("elderSahir", "Elder Sahir", Down, false,
                 "Peace on your road, traveller. The pool has never run dry, and neither has our welcome.", "Caravans still leave at dawn, though fewer come back from the dunes.") },
             { "apothecaryNara", Def("apothecaryNara", "Nara", Down, false,
-                "Desert aloe and date syrup: nothing better when the heat gets into your bones.", "Fresh bottles are still steeping, friend. Come back soon.\n(Shop: coming soon)") },
+                "Desert aloe and date syrup: nothing better when the heat gets into your bones.", "Fresh bottles every morning, friend.") },
             { "blacksmithKhaled", Def("blacksmithKhaled", "Khaled", Left, false,
                 "Sand gets into everything, even the bellows. Clean your blade every night.", "The forge is cooling until the next ore caravan arrives.\n(Blacksmith: coming soon)") },
             { "bountyLeila", Def("bountyLeila", "Leila", Left, false,

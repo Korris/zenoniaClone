@@ -72,9 +72,12 @@ public class MessageRoundTripTests
             InvActionMsg m; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out m));
             Assert.Equal(op, m.Op); Assert.Equal("3", m.ItemUid); Assert.Equal(255, m.Slot);
         }
-        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.SkillRespec + 1); w.Put("x"); w.Put((byte)0);
+        NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 6, Op = InvOp.PotionBuy, ItemUid = "apothecaryNara", Slot = 5 });
+        InvActionMsg buy; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out buy));
+        Assert.Equal(InvOp.PotionBuy, buy.Op); Assert.Equal("apothecaryNara", buy.ItemUid); Assert.Equal((byte)5, buy.Slot);
+        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.PotionBuy + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(4, NetProtocol.Version);
+        Assert.Equal(6, NetProtocol.Version);
     }
 
     [Fact]
@@ -126,6 +129,22 @@ public class MessageRoundTripTests
         NetMessageWriter.SelfState(w, new SelfStateMsg { Hp = 120, MaxHp = 200, Mp = 30, MaxMp = 60, Exp = 4000, Level = 9, SkillCds = new ushort[] { 0, 1500, 0, 0, 0, 0, 0, 65535 } });
         SelfStateMsg sm; Assert.True(NetMessageReader.TrySelfState(Reader(w, NetOp.SelfState), out sm));
         Assert.Equal(120, sm.Hp); Assert.Equal(4000u, sm.Exp); Assert.Equal(8, sm.SkillCds.Length); Assert.Equal(1500, sm.SkillCds[1]); Assert.Equal(65535, sm.SkillCds[7]);
+        Assert.Empty(sm.Buffs);
+
+        NetMessageWriter.SelfState(w, new SelfStateMsg { Hp = 1, MaxHp = 2, Level = 1, Buffs = new[] { new NetBuff { Source = 33, Kind = 1, LeftMs = 9000, TotalMs = 12000 }, new NetBuff { Source = 34, Kind = 5, LeftMs = 65535, TotalMs = 65535 } } });
+        Assert.True(NetMessageReader.TrySelfState(Reader(w, NetOp.SelfState), out sm));
+        Assert.Equal(2, sm.Buffs.Length); Assert.Equal(33, sm.Buffs[0].Source); Assert.Equal(1, sm.Buffs[0].Kind); Assert.Equal(9000, sm.Buffs[0].LeftMs); Assert.Equal(12000, sm.Buffs[0].TotalMs); Assert.Equal(5, sm.Buffs[1].Kind);
+
+        var manyBuffs = new NetBuff[NetProtocol.MaxSelfBuffs + 3];
+        NetMessageWriter.SelfState(w, new SelfStateMsg { Buffs = manyBuffs });
+        Assert.True(NetMessageReader.TrySelfState(Reader(w, NetOp.SelfState), out sm));
+        Assert.Equal(NetProtocol.MaxSelfBuffs, sm.Buffs.Length);
+
+        var evBuf = new NetDataWriter();
+        new NetEvent { Type = NetEventType.AllyBuff, Id = 7, Other = 9, Step = 2, Value = 12000 }.Write(evBuf);
+        var evRead = new NetDataReader(evBuf.CopyData());
+        NetEvent ally; Assert.True(NetEvent.TryRead(evRead, out ally));
+        Assert.Equal(NetEventType.AllyBuff, ally.Type); Assert.Equal(7, ally.Id); Assert.Equal(9, ally.Other); Assert.Equal(2, ally.Step); Assert.Equal(12000u, ally.Value);
 
         NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = 4, Result = 1, Text = "ok", SaveJson = "{\"a\":1}" });
         RpgStateMsg pm; Assert.True(NetMessageReader.TryRpgState(Reader(w, NetOp.RpgState), out pm));

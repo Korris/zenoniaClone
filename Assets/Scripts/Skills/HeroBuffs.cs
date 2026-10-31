@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using ZenoniaProto.Net;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
@@ -13,11 +14,19 @@ namespace ZenoniaProto
         static readonly Dictionary<HeroController, BuffState> States = new Dictionary<HeroController, BuffState>();
         static HeroBuffs ticker;
         static readonly List<HeroController> Dead = new List<HeroController>();
+        static readonly List<BuffView> Views = new List<BuffView>(4);
+        static NetBuff[] clientView;
+        static float clientViewAt;
 
         public static BuffState For(HeroController hero)
         {
             if (hero == null) return new BuffState();
-            if (ticker == null) { States.Clear(); ticker = new GameObject("HeroBuffs").AddComponent<HeroBuffs>(); ticker.transform.SetParent(hero.transform.parent, false); }
+            if (ticker == null)
+            {
+                States.Clear();
+                ticker = new GameObject("HeroBuffs").AddComponent<HeroBuffs>();
+                if (!NetMode.IsHeadless) ticker.transform.SetParent(hero.transform.parent, false); // a server pauses empty zones: under one, every zone's buffs would stop ticking
+            }
             BuffState s;
             if (!States.TryGetValue(hero, out s)) { s = new BuffState(); States[hero] = s; }
             return s;
@@ -35,6 +44,41 @@ namespace ZenoniaProto
 
         public static float AtkMul(HeroController hero) { BuffState s; return hero != null && States.TryGetValue(hero, out s) ? s.AtkMul : 1f; }
         public static float AtkSpeedMul(HeroController hero) { BuffState s; return hero != null && States.TryGetValue(hero, out s) ? s.AtkSpeedMul : 1f; }
+        public static float DefMul(HeroController hero) { BuffState s; return hero != null && States.TryGetValue(hero, out s) ? s.DefMul : 1f; }
+        public static bool AnyOn(HeroController hero) { BuffState s; return hero != null && States.TryGetValue(hero, out s) && s.Any; }
+
+        /// <summary>Server -> SelfState: the hero's buffs for its own player; null when it has none. Does not create state.</summary>
+        public static NetBuff[] ToNet(HeroController hero)
+        {
+            BuffState s;
+            if (hero == null || !States.TryGetValue(hero, out s) || !s.Any) return null;
+            s.CopyViews(Views);
+            var net = new NetBuff[Mathf.Min(Views.Count, NetProtocol.MaxSelfBuffs)];
+            for (int i = 0; i < net.Length; i++)
+                net[i] = new NetBuff { Source = Views[i].Source, Kind = (byte)Views[i].Kind, LeftMs = Ms16(Views[i].LeftMs), TotalMs = Ms16(Views[i].TotalMs) };
+            return net;
+        }
+
+        static ushort Ms16(float ms) { return (ushort)Mathf.Clamp(Mathf.CeilToInt(ms), 0, 65535); }
+
+        /// <summary>Client: the server's list for the local hero, kept apart from BuffState so nothing here can change how the client simulates.</summary>
+        public static void SetClientView(NetBuff[] buffs) { clientView = buffs; clientViewAt = Time.unscaledTime; }
+
+        /// <summary>The buffs the HUD shows for a hero, on any side: the authority reads the real state, a client counts down the last list the server sent.</summary>
+        public static void ActiveFor(HeroController hero, List<BuffView> into)
+        {
+            into.Clear();
+            if (NetMode.IsClient)
+            {
+                if (clientView == null) return;
+                float passed = (Time.unscaledTime - clientViewAt) * 1000f;
+                foreach (NetBuff b in clientView)
+                    if (b.LeftMs > passed) into.Add(new BuffView { Kind = (BuffKind)b.Kind, Source = b.Source, LeftMs = b.LeftMs - passed, TotalMs = b.TotalMs });
+                return;
+            }
+            BuffState s;
+            if (hero != null && States.TryGetValue(hero, out s)) s.CopyViews(into);
+        }
 
         /// <summary>Attack-speed buff of a hero for the owner sim block: percent and remaining ms (0, 0 when none). Does not create state.</summary>
         public static void AtkSpeedOf(HeroController hero, out float pct, out float leftMs)

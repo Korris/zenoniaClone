@@ -25,9 +25,10 @@ namespace ZenoniaProto
         RectTransform layer;
         Image attackIcon;
         Text hpCount, mpCount;
+        Image hpIcon, mpIcon;
         SkillMagazineView magazine;
         Item shownWeapon;
-        int shownWeaponEnhance = -1, shownHp = -1, shownMp = -1;
+        int shownWeaponEnhance = -1, shownHp = -1, shownMp = -1, shownHpSize = -1, shownMpSize = -1;
         HeroClass shownClass = (HeroClass)(-1);
         bool visible = true;
 
@@ -143,8 +144,8 @@ namespace ZenoniaProto
                 (up, right, down, left) => { SetHeld(GameKey.Up, up); SetHeld(GameKey.Right, right); SetHeld(GameKey.Down, down); SetHeld(GameKey.Left, left); });
 
             // Potions (right of the D-pad)
-            hpCount = PotionButton("HpPotion", 272f, 162f, true);
-            mpCount = PotionButton("MpPotion", 272f, 92f, false);
+            hpCount = PotionButton("HpPotion", 272f, 162f, true, out hpIcon);
+            mpCount = PotionButton("MpPotion", 272f, 92f, false, out mpIcon);
 
             // Attack + skill arc (bottom-right): a big attack disc (r78) kept off the screen edge, the small buttons on an arc around it
             Vector2 br = new Vector2(1f, 0f);
@@ -158,9 +159,9 @@ namespace ZenoniaProto
             BuildMenuButtons(layer);
         }
 
-        Text PotionButton(string name, float x, float y, bool hp)
+        Text PotionButton(string name, float x, float y, bool hp, out Image icon)
         {
-            Image icon, ring; Transform masked;
+            Image ring; Transform masked;
             RectTransform b = DiscButton(layer, name, Vector2.zero, x, y, 29f, UiArt.PotionFrame(), out icon, out ring, out masked);
             icon.sprite = LootSprites.Potion(hp);
             icon.rectTransform.sizeDelta = new Vector2(36f, 36f);
@@ -198,12 +199,19 @@ namespace ZenoniaProto
             }
             magazine.Tick(hero);
             UpdateSkillBadge(p);
-            if (p != null && (p.HpPotions != shownHp || p.MpPotions != shownMp))
+            if (p != null)
             {
-                shownHp = p.HpPotions; shownMp = p.MpPotions;
-                hpCount.text = "x" + p.HpPotions;
-                mpCount.text = "x" + p.MpPotions;
+                ShowPotion(p, true, hpIcon, hpCount, ref shownHpSize, ref shownHp);
+                ShowPotion(p, false, mpIcon, mpCount, ref shownMpSize, ref shownMp);
             }
+        }
+
+        /// <summary>The quick button shows the size it would drink and how many of that size are left.</summary>
+        static void ShowPotion(PlayerState p, bool hp, Image icon, Text count, ref int shownSize, ref int shownCount)
+        {
+            int size = p.QuickPotionSize(hp), n = p.PotionCount(hp, size);
+            if (size != shownSize) { shownSize = size; icon.sprite = LootSprites.Potion(hp, size); }
+            if (n != shownCount) { shownCount = n; count.text = "x" + n; }
         }
 
         // ---- input components ----

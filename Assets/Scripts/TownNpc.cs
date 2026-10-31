@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
@@ -86,6 +87,7 @@ namespace ZenoniaProto
             TownNpc n = Nearest();
             if (n == null) return;
             if (n.Def.QuestGiver && NetMode.IsOffline) { ElderNpc.Talk(); return; }
+            if (PotionShops.IsSeller(n.Def.Id)) { PotionShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }
             NpcDialogueBox.Open(n.Def.Name, Portrait(n.Def.Art), n.Def.Lines, null);
         }
 

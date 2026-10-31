@@ -3,18 +3,41 @@ using System.Collections.Generic;
 
 namespace ZenoniaProto.Rpg
 {
+    /// <summary>One running buff as the HUD sees it.</summary>
+    public struct BuffView { public BuffKind Kind; public byte Source; public float LeftMs, TotalMs; }
+
+    /// <summary>Which skill a buff came from, in one byte (class &lt;&lt; 3 | tree slot), so the HUD can show that skill's icon on any side.</summary>
+    public static class BuffSource
+    {
+        public const byte None = 255;
+
+        public static byte Pack(string classId, int skillIndex)
+        {
+            int c = Array.IndexOf(RpgClasses.Ids, classId);
+            return c < 0 || skillIndex < 0 || skillIndex >= SkillDef.PerClass ? None : (byte)((c << 3) | skillIndex);
+        }
+
+        /// <summary>The skill behind a packed source; null for None or anything out of range.</summary>
+        public static SkillDef Def(byte source)
+        {
+            int c = source >> 3;
+            return source == None || c >= RpgClasses.Ids.Length ? null : SkillTable.Get(RpgClasses.Ids[c], source & 7);
+        }
+    }
+
     /// <summary>
     /// Temporary buffs of one hero (engine-free). Same kind refreshes: the stronger value wins and the timer restarts at the longer time.
-    /// AtkPct / AtkSpeedPct are percent, Shield is an absolute HP amount that soaks damage, NextHitsPct is a % bonus for the next `charges` hits.
+    /// AtkPct / AtkSpeedPct / DefPct are percent, Shield is an absolute HP amount that soaks damage, NextHitsPct is a % bonus for the next `charges` hits.
     /// </summary>
     public sealed class BuffState
     {
-        sealed class Entry { public BuffKind Kind; public float Value, LeftMs; public int Charges; }
+        sealed class Entry { public BuffKind Kind; public float Value, LeftMs, TotalMs; public int Charges; public byte Source = BuffSource.None; }
         readonly List<Entry> list = new List<Entry>(4);
 
         public bool Any { get { return list.Count > 0; } }
         public float AtkMul { get { return 1f + Sum(BuffKind.AtkPct) / 100f; } }
         public float AtkSpeedMul { get { return 1f + Sum(BuffKind.AtkSpeedPct) / 100f; } }
+        public float DefMul { get { return 1f + Sum(BuffKind.DefPct) / 100f; } }
         public float ShieldLeft { get { return Sum(BuffKind.Shield); } }
 
         float Sum(BuffKind k) { Entry e = Find(k); return e != null ? e.Value : 0f; }
@@ -23,12 +46,21 @@ namespace ZenoniaProto.Rpg
 
         public bool Has(BuffKind k) { return Find(k) != null; }
 
-        public void Add(BuffKind kind, float value, int ms, int charges = 0)
+        public void Add(BuffKind kind, float value, int ms, int charges = 0, byte source = BuffSource.None)
         {
             if (kind == BuffKind.None || ms <= 0 || value <= 0f) return;
             Entry e = Find(kind);
-            if (e == null) { list.Add(new Entry { Kind = kind, Value = value, LeftMs = ms, Charges = charges }); return; }
-            e.Value = Math.Max(e.Value, value); e.LeftMs = Math.Max(e.LeftMs, ms); e.Charges = Math.Max(e.Charges, charges);
+            if (e == null) { list.Add(new Entry { Kind = kind, Value = value, LeftMs = ms, TotalMs = ms, Charges = charges, Source = source }); return; }
+            e.Value = Math.Max(e.Value, value); e.LeftMs = Math.Max(e.LeftMs, ms); e.TotalMs = e.LeftMs; e.Charges = Math.Max(e.Charges, charges);
+            if (source != BuffSource.None) e.Source = source;
+        }
+
+        /// <summary>The running buffs for display, without touching them; `into` is cleared first.</summary>
+        public void CopyViews(List<BuffView> into)
+        {
+            into.Clear();
+            for (int i = 0; i < list.Count; i++)
+                into.Add(new BuffView { Kind = list[i].Kind, Source = list[i].Source, LeftMs = list[i].LeftMs, TotalMs = list[i].TotalMs });
         }
 
         /// <summary>Remaining ms of a buff (0 when absent) and its value: what a predicting client mirrors from the server.</summary>
@@ -40,7 +72,7 @@ namespace ZenoniaProto.Rpg
         {
             Entry e = Find(kind);
             if (ms <= 0f || value <= 0f) { if (e != null) list.Remove(e); return; }
-            if (e == null) list.Add(new Entry { Kind = kind, Value = value, LeftMs = ms });
+            if (e == null) list.Add(new Entry { Kind = kind, Value = value, LeftMs = ms, TotalMs = ms });
             else { e.Value = value; e.LeftMs = ms; }
         }
 

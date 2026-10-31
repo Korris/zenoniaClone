@@ -36,6 +36,9 @@ export const stateSchema = z
     mapId: z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/).default('frostHollow'),
     level: z.number().int().min(1).max(MAX_LEVEL),
     exp: int0, gold: int0, hpPotion: int0, mpPotion: int0,
+    // Larger potions and the size on the quick buttons (PotionCatalog). hpPotion / mpPotion stay the Small stacks; absent in old saves = none, Small.
+    hpPotionMedium: int0.default(0), hpPotionLarge: int0.default(0), mpPotionMedium: int0.default(0), mpPotionLarge: int0.default(0),
+    hpPotionPick: z.number().int().min(0).max(2).default(0), mpPotionPick: z.number().int().min(0).max(2).default(0),
     upgradeStone: z.number().int().min(0).max(MAX_STONES),
     hp: f0, mp: f0, x: coord, y: coord,
     hasPosition: z.boolean().default(false),

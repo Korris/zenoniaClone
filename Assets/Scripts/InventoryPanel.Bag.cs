@@ -13,12 +13,15 @@ namespace ZenoniaProto
     /// </summary>
     public partial class InventoryPanel
     {
-        enum Supply { Coin, HpPotion, MpPotion, Stone }
+        enum Supply { Coin, HpSmall, HpMedium, HpLarge, MpSmall, MpMedium, MpLarge, Stone }
         const int GridCols = 3, PageSize = 12, MaxStatLines = 6;
-        static readonly string[] SupplyNames = { "Gold", "HP Potion", "MP Potion", "Upgrade Stone" };
-        static readonly string[] SupplyBlurbs = { "Gold used for trading.", "Restores 30% HP.", "Restores 30% MP.", "Used to enhance weapons. Success drops at higher +." };
+        const string GoldBlurb = "Gold used for trading.", StoneBlurb = "Used to enhance weapons. Success drops at higher +.";
 
-        readonly Supply[] supplyOrder = { Supply.Coin, Supply.HpPotion, Supply.MpPotion, Supply.Stone };
+        static bool IsPotion(Supply kind) { return kind >= Supply.HpSmall && kind <= Supply.MpLarge; }
+        static bool PotionIsHp(Supply kind) { return kind <= Supply.HpLarge; }
+        static int PotionSize(Supply kind) { return PotionIsHp(kind) ? kind - Supply.HpSmall : kind - Supply.MpSmall; }
+
+        readonly Supply[] supplyOrder = { Supply.Coin, Supply.HpSmall, Supply.HpMedium, Supply.HpLarge, Supply.MpSmall, Supply.MpMedium, Supply.MpLarge, Supply.Stone };
         readonly BagWidgets.Slot[] gridSlots = new BagWidgets.Slot[PageSize];
         readonly Text[] statTexts = new Text[MaxStatLines], compareTexts = new Text[MaxStatLines], extraTexts = new Text[3];
         readonly Image[] statRules = new Image[MaxStatLines];
@@ -36,15 +39,14 @@ namespace ZenoniaProto
             switch (kind)
             {
                 case Supply.Coin: return p.Gold;
-                case Supply.HpPotion: return p.HpPotions;
-                case Supply.MpPotion: return p.MpPotions;
-                default: return p.UpgradeStone;
+                case Supply.Stone: return p.UpgradeStone;
+                default: return p.PotionCount(PotionIsHp(kind), PotionSize(kind));
             }
         }
 
         static Sprite SupplySprite(Supply kind)
         {
-            return kind == Supply.Coin ? LootSprites.Coin() : kind == Supply.Stone ? LootSprites.Stone() : LootSprites.Potion(kind == Supply.HpPotion);
+            return kind == Supply.Coin ? LootSprites.Coin() : kind == Supply.Stone ? LootSprites.Stone() : LootSprites.Potion(PotionIsHp(kind), PotionSize(kind));
         }
 
         void BuildBag(RectTransform web)
@@ -177,10 +179,12 @@ namespace ZenoniaProto
             detailSlot.SetFrame(false, BagWidgets.Hex("#70899d"));
             detailSlot.SetIcon(SupplySprite(kind), 48f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
             detailSlot.Count.text = count.ToString();
-            supplyName.text = SupplyNames[(int)kind];
-            supplyQuantity.text = "Quantity: " + count;
-            supplyBlurb.text = SupplyBlurbs[(int)kind];
-            useButton.Set(kind == Supply.HpPotion || kind == Supply.MpPotion);
+            bool potion = IsPotion(kind);
+            bool quick = potion && p.PotionPick(PotionIsHp(kind)) == PotionSize(kind);
+            supplyName.text = potion ? PotionCatalog.Name(PotionIsHp(kind), PotionSize(kind)) : kind == Supply.Coin ? "Gold" : "Upgrade Stone";
+            supplyQuantity.text = "Quantity: " + count + (quick ? "   (quick button)" : "");
+            supplyBlurb.text = potion ? PotionCatalog.Effect(PotionIsHp(kind), PotionSize(kind)) + " Use: drink it and set it on the quick button." : kind == Supply.Coin ? GoldBlurb : StoneBlurb;
+            useButton.Set(potion);
         }
 
         void ShowItem(PlayerState p, Item item)

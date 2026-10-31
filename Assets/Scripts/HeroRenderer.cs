@@ -29,6 +29,9 @@ namespace ZenoniaProto
         HeroClassDef cls;
         HeldGearData gear;
         SpriteRenderer body, shadow;
+        Transform lean;
+        const float LeanDegrees = 6f, LeanSideDip = 0.02f, LeanFrontDip = 0.05f, LeanInSeconds = 0.06f, LeanOutSeconds = 0.09f;
+        float leanAngle, leanDip;
         int tier;
         bool enhanced, debugLook;
         int companionTier, companionBand;
@@ -61,10 +64,11 @@ namespace ZenoniaProto
             var pivot = new Vector2(0.5f, 0f); // feet = bottom centre of the frame
             var names = new List<string>(AnimNames);
             if (cls.ComboAnims != null) foreach (string a in cls.ComboAnims) if (!names.Contains(a)) names.Add(a);
+            if (cls.ExtraAnims != null) names.AddRange(cls.ExtraAnims);
             foreach (string anim in names)
             {
                 armed[anim] = SpriteSheet.Grid("Sprites/" + cls.SheetFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
-                if (System.Array.IndexOf(cls.BareAnims, anim) >= 0 || anim.StartsWith("melee"))
+                if (System.Array.IndexOf(cls.BareAnims, anim) >= 0 || anim.StartsWith("melee") || (cls.ExtraAnims != null && System.Array.IndexOf(cls.ExtraAnims, anim) >= 0))
                     bare[anim] = SpriteSheet.Grid("Sprites/" + cls.BareFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
             }
             shadow = ProceduralSprites.Child(transform, "Shadow", ProceduralSprites.Shadow());
@@ -72,10 +76,27 @@ namespace ZenoniaProto
             shadow.color = new Color(1f, 1f, 1f, 0.3f);
             // Draw order within an entity (stride 8): shadow 0, behind parts 1-2, body 3, front parts 4-5, enhance stars + motes 6 (halo and shine share their part's order).
             var parts0 = new List<Part>();
+            lean = new GameObject("Lean").transform; // pivots on the feet; the shadow stays out of it
+            lean.SetParent(transform, false);
             foreach (GearPartSpec spec in cls.Parts)
-                parts0.Add(new Part { Spec = spec, Sr = ProceduralSprites.Child(transform, spec.Id, null) });
-            body = ProceduralSprites.Child(transform, "Body", null);
+                parts0.Add(new Part { Spec = spec, Sr = ProceduralSprites.Child(lean, spec.Id, null) });
+            body = ProceduralSprites.Child(lean, "Body", null);
             parts.AddRange(parts0);
+        }
+
+        /// <summary>Raises the whole figure (body + gear) off the ground, or steps it sideways; the shadow stays down.</summary>
+        public void Lift(float units, float sideways = 0f) { lean.localPosition = new Vector3(sideways, units, 0f); }
+
+        /// <summary>Eases the whole figure (body + gear) into its walking lean, or back upright: tips toward the side it walks to, dips when walking to or from the camera.</summary>
+        public void Lean(bool walking, int dir, float dt)
+        {
+            float wantAngle = !walking ? 0f : dir == 2 ? LeanDegrees : dir == 3 ? -LeanDegrees : 0f;
+            float wantDip = !walking ? 0f : dir == 2 || dir == 3 ? LeanSideDip : LeanFrontDip;
+            float k = 1f - Mathf.Exp(-dt / (walking ? LeanInSeconds : LeanOutSeconds));
+            leanAngle += (wantAngle - leanAngle) * k;
+            leanDip += (wantDip - leanDip) * k;
+            lean.localRotation = Quaternion.Euler(0f, 0f, leanAngle);
+            lean.localScale = new Vector3(1f, 1f - leanDip, 1f);
         }
 
         /// <summary>Sheet row for a direction + animation; mirror = draw the right row flipped.</summary>

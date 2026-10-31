@@ -19,6 +19,8 @@ namespace ZenoniaProto
         public MonsterStatus Status { get { return status; } }
         /// <summary>Facing code 0 down, 1 up, 2 left, 3 right (the "behind" bonus test).</summary>
         public int FacingCode { get { return facing; } }
+        /// <summary>Height of the painted head above the feet (where an overhead mark sits).</summary>
+        public float OverheadUnits { get { return def.BodyHeightUnits * def.RenderScale + AirLift(); } }
 
         /// <summary>
         /// Applies a status (authority only; bosses convert freeze / stun into a slow). Knockback and launch are not statuses: use TakeHit / Launch.
@@ -69,7 +71,7 @@ namespace ZenoniaProto
             }
             if (markSr != null)
             {
-                markSr.enabled = mark;
+                markSr.enabled = mark && !DeathMarkFx.Covers(this); // the painted Death Mark replaces the reticle while it stands here
                 markSr.transform.localPosition = new Vector3(0f, def.BodyHeightUnits * def.RenderScale * 0.45f + AirLift(), 0f);
                 markSr.transform.localScale = Vector3.one * (1f + 0.08f * Mathf.Sin(animTimer * 0.012f));
                 markSr.sortingOrder = order + 8;

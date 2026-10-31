@@ -10,7 +10,7 @@ namespace ZenoniaProto
         public static bool DialogueOpen { get { return NpcDialogueBox.IsOpen || QuestOfferWindow.IsOpen; } }
 
         /// <summary>A modal window is open (dialogue, quest offer or skill tree): hero frozen, touch controls hidden, Esc closes it.</summary>
-        public static bool ModalOpen { get { return DialogueOpen || SkillTreeWindow.IsOpen; } }
+        public static bool ModalOpen { get { return DialogueOpen || SkillTreeWindow.IsOpen || PotionShopWindow.IsOpen; } }
 
         /// <summary>The chat input field owns the keyboard.</summary>
         public static bool ChatTyping;

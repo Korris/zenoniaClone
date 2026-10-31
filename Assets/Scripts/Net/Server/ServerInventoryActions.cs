@@ -14,7 +14,8 @@ namespace ZenoniaProto
             if (p.Hero == null) return;
             Zone.Enter(p.Hero.HomeZone); // a network callback: the events it raises belong to this hero's zone
             string before = LookKey(p);
-            ActionResult r = p.Rpg.ApplyInvAction(m.Op, m.ItemUid, m.Slot);
+            string refusal = m.Op == InvOp.PotionBuy ? ShopRefusal(p, m) : null;
+            ActionResult r = refusal != null ? ActionResult.Fail(refusal) : p.Rpg.ApplyInvAction(m.Op, m.ItemUid, m.Slot);
             if (LookKey(p) != before)
             {
                 p.Hero.SyncGearView();
@@ -22,6 +23,16 @@ namespace ZenoniaProto
             }
             repl.SendRpgState(p, m.ReqId, r.Ok, r.Text);
             p.RpgDirty = false;
+        }
+
+        /// <summary>A purchase counts only with the seller on the map this hero is on, in reach of where the server has the hero. Never the client's word.</summary>
+        static string ShopRefusal(NetPlayer p, InvActionMsg m)
+        {
+            IGameMap map = p.Hero.HomeZone != null && p.Hero.HomeZone.Map != null ? p.Hero.HomeZone.Map : MapRegistry.Current;
+            float distance = float.MaxValue;
+            foreach (MapNpc n in map.Npcs)
+                if (n.Id == m.ItemUid) distance = UnityEngine.Vector2.Distance(p.Hero.Position, FrostHollowMap.TileFeet(n.Tx, n.Ty, 2f));
+            return PotionShops.Refusal(m.ItemUid, map.Id, PotionCatalog.SlotSize(m.Slot), distance);
         }
 
         /// <summary>Weapon / offhand identity + enhance level: changes when the visible gear changes.</summary>

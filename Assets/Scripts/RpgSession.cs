@@ -165,10 +165,11 @@ namespace ZenoniaProto
 
         void Drink(HeroController hero, bool hp)
         {
+            int size = owner.State.QuickPotionSize(hp);
             ActionResult r = owner.UsePotion(hp);
             if (!r.Ok) { RpgHud.Toast(r.Text, new Color(1f, 0.7f, 0.5f)); return; }
             HeroFx.Potion(hero.Position, hp, r.Text);
-            NetEventBus.Potion(hero, hp); // host: the other players see the drink too
+            NetEventBus.Potion(hero, hp, size); // host: the other players see the drink too
         }
 
         void OnApplicationQuit() { SaveNow(); }

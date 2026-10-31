@@ -13,7 +13,7 @@ namespace ZenoniaProto
 
         public static void Register(List<Choreo> into)
         {
-            into.Add(Heal()); into.Add(SpiritBlessing()); into.Add(HolyRay()); into.Add(DivineLight());
+            into.Add(Heal()); into.Add(DivineLight());
             into.Add(Sanctuary()); into.Add(GuardianSpirit()); into.Add(Purification()); into.Add(DivineAscension());
         }
 
@@ -24,35 +24,6 @@ namespace ZenoniaProto
             c.Add(100, 270).Spr(L, 0, 3, 2f).Alpha(0.32f).Glow(0xFFE8A5, 0.30f).Embers(16, 0xFFF6D6).Ring(1.1f, 180, 0xD7F5D8).Trail();
             c.Add(270, 420).Spr(I, 1, 3, 1.8f).Alpha(0.22f).Glow(0xE7F9D9, 0.18f).Decal(0xBCE8C6, 0.8f, 0.5f, 0.16f).Embers(9, 0xF9F4DC).Trail();
             c.Add(420, 550).Spr(I, 3, 3, 1.5f).Alpha(0.08f).Glow(0xFFF0BE, 0.08f).Embers(4, 0xF4F5D8).Trail();
-            return c;
-        }
-
-        static Choreo SpiritBlessing()
-        {
-            var c = new Choreo("cleric", "spirit-blessing", 12000);
-            c.Add(0, 180).Anchor(Cas).Spr(C, 0, 3, 3.2f).Alpha(0.45f).Glow(0xFFF1AD, 0.45f).Decal(0xD8EEC4, 0.5f, 2f, 0.22f).Embers(18, 0xFFF3C5).Ring(2.5f, 190, 0xF5E6AA);
-            c.Add(180, 450).Anchor(Cas).Spr(I, 0, 2, 4f).Alpha(0.45f).Glow(0xF8E9B0, 0.38f).Decal(0xD8F2C8, 2f, 4f, 0.18f).Ring(4f, 270, 0xE9F4C8).Embers(18, 0xFFF4D2).Trail();
-            c.Add(450, 800).Anchor(Cas).Spr(I, 2, 3, 3f).Alpha(0.25f).Glow(0xFFF0C8, 0.20f).Decal(0xD4EBC1, 4f, 1.2f, 0.12f).Embers(10, 0xF5F3D8).Trail();
-            c.Add(800, 11000).Anchor(Cas).Spr(L, 0, 3, 2.4f).Cycle().Alpha(0.16f).Glow(0xF6E9B8, 0.12f).Decal(0xCFE8BC, 1.2f, 1.2f, 0.08f).Embers(29, 0xFFF1D0).Trail();
-            c.Add(11000, 12000).Anchor(Cas).Spr(I, 2, 3, 2f).Alpha(0.12f).Glow(0xF2E4B3, 0.10f).Decal(0xCFE8BC, 1.2f, 0f, 0.08f).Embers(4, 0xF4ECCC).Trail();
-            return c;
-        }
-
-        static Choreo HolyRay()
-        {
-            var c = new Choreo("cleric", "holy-ray", 560);
-            c.Add(0, 90).Line(0xFFF0B8, 7f).Decal(0xE5DDB2, 0f, 0.7f, 0.20f).Embers(10, 0xFFF5D7).HitStop(25).Quake(85, 0.12f).Flare(0xFFF3D7, 45).Zoom(0.015f, 90);
-            c.Add(0, 115).Along(-2.5f).Spr(I, 0, 2, 1.5f).Alpha(0.85f).Glow(0xFFF2C2, 0.55f).Embers(10, 0xFFF7DF).Ring(0.7f, 100, 0xF4E5A8);
-            c.Add(0, 115).Spr(I, 0, 2, 1.6f).Alpha(0.85f).Glow(0xFFFFFF, 0.60f).Embers(12, 0xFFF5CB).Ring(0.8f, 110, 0xF9E9B4);
-            c.Add(0, 115).Along(2.5f).Spr(I, 0, 2, 1.5f).Alpha(0.85f).Glow(0xFFF2C2, 0.55f).Embers(10, 0xFFF7DF).Ring(0.7f, 100, 0xF4E5A8);
-            c.Add(115, 270).Line(0xEADFAE, 7f).Embers(15, 0xFFF5D6).Trail();
-            c.Add(115, 270).Along(-2.5f).Spr(L, 0, 2, 1.2f).Alpha(0.4f).Glow(0xFCE9AF, 0.22f);
-            c.Add(115, 270).Spr(L, 0, 2, 1.3f).Alpha(0.45f).Glow(0xFFF0BC, 0.25f);
-            c.Add(115, 270).Along(2.5f).Spr(L, 0, 2, 1.2f).Alpha(0.4f).Glow(0xFCE9AF, 0.22f);
-            c.Add(270, 420).Along(-2.5f).Spr(I, 2, 3, 1.1f).Alpha(0.22f).Glow(0xE9DBA9, 0.12f);
-            c.Add(270, 420).Spr(I, 2, 3, 1.2f).Alpha(0.25f).Glow(0xF2E6B5, 0.15f).Embers(10, 0xF7EDD0).Trail();
-            c.Add(270, 420).Along(2.5f).Spr(I, 2, 3, 1.1f).Alpha(0.22f).Glow(0xE9DBA9, 0.12f);
-            c.Add(420, 560).Spr(I, 3, 3, 1f).Alpha(0.08f).Glow(0xF4E7C0, 0.05f).Embers(5, 0xF5EBCD).Trail();
             return c;
         }
 

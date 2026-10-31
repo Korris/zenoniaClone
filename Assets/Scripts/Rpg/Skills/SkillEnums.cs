@@ -12,10 +12,10 @@ namespace ZenoniaProto.Rpg
 
     public enum StatusKind { None, Slow, Freeze, Stun, Burn, Poison, Mark, Knockback, Launch, Chill }
 
-    public enum BuffKind { None, AtkPct, AtkSpeedPct, Shield, NextHitsPct }
+    public enum BuffKind { None, AtkPct, AtkSpeedPct, Shield, NextHitsPct, DefPct } // sent as a number: append only
 
     public enum MotionKind { None, Dash, Blink, Leap }
 
     /// <summary>Skills kept as hand-written adapters (existing ultimates); their SkillEffect list is empty.</summary>
-    public enum LegacySkill { None, EarthBreak, IceStorm, RocketBarrage }
+    public enum LegacySkill { None, EarthBreak, IceStorm, RocketBarrage, BladeCyclone }
 }

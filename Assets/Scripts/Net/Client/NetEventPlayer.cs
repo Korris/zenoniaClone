@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ZenoniaProto.Net;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
@@ -99,7 +100,8 @@ namespace ZenoniaProto
                     break;
                 case NetEventType.PotionUsed:
                     HeroController dr = HeroOf(e.Id);
-                    if (fx && dr != null) HeroFx.Potion(dr.Position, e.Step == 1, e.Step == 1 ? "HP +30%" : "MP +30%");
+                    bool drankHp = PotionCatalog.EventIsHp(e.Step);
+                    if (fx && dr != null) HeroFx.Potion(dr.Position, drankHp, (drankHp ? "HP +" : "MP +") + PotionCatalog.Percent(PotionCatalog.EventSize(e.Step)) + "%");
                     break;
                 case NetEventType.AppearanceChanged:
                     HeroController look = HeroOf(e.Id);

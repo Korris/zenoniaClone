@@ -37,7 +37,7 @@ namespace ZenoniaProto
             if (e.Buff.Kind == BuffKind.Shield) value = value / 100f * ctx.Body.Atk; // shield = % of the CASTER's attack, stored as HP
             for (int i = 0; i < to.Count; i++)
             {
-                if (ctx.Authority) HeroBuffs.For(to[i]).Add(e.Buff.Kind, value, e.Buff.Ms, e.Count);
+                if (ctx.Authority) HeroBuffs.For(to[i]).Add(e.Buff.Kind, value, e.Buff.Ms, e.Count, BuffSource.Pack(ctx.Def.Class, ctx.Def.Index));
                 if (ctx.View) Sparkle(ctx, to[i]);
             }
             if (ctx.View) SkillSfx.Play(ctx, SkillSfx.Cast, 0.8f);
@@ -62,6 +62,7 @@ namespace ZenoniaProto
         /// <summary>The target's sparkle. A choreography draws the caster and its one target itself, so only the other allies get the translucent one.</summary>
         static void Sparkle(SkillContext ctx, HeroController h)
         {
+            if (ClericBuffFx.Handles(ctx.Def.Id)) return; // every target wears its own aura
             if (!SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) SkillVfx.Play(ctx, SkillVfxSet.Impact, h.Position, 0f, SparkleTiles * ctx.Units);
             else if (h != ctx.Body.Hero && h != ctx.Ally) SkillVfx.PlayOnAlly(ctx, h.Position, SparkleTiles * ctx.Units);
         }

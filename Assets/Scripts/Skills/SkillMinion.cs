@@ -9,14 +9,18 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class SkillMinion : MonoBehaviour
     {
-        const float FollowSpeed = 110f, ChaseSpeed = 90f, ChaseTiles = 5f, Reach = 14f;
+        const float FollowSpeed = 110f, ChaseSpeed = 90f, ChaseTiles = 5f, Reach = 14f, CloneRiseMs = 250f;
         SkillContext ctx;
         SkillEffect fx;
         Vector2 pos;
-        float lifeMs, strikeInMs;
+        float lifeMs, strikeInMs, holdMs;
         bool pulse;
         SkillFxAnim body;
         SpriteRenderer dot;
+        ShadowCloneFx clone;
+
+        /// <summary>Where the minion stands (the Shadow Clone picture follows it).</summary>
+        public Vector2 Pos { get { return pos; } }
 
         public static void Spawn(SkillContext ctx, SkillEffect e)
         {
@@ -25,10 +29,12 @@ namespace ZenoniaProto
             SkillMinion m = go.AddComponent<SkillMinion>();
             m.ctx = ctx; m.fx = e; m.pos = ctx.Feet + new Vector2(-ctx.Dir.x, -ctx.Dir.y) * 12f;
             m.lifeMs = e.DurationMs; m.strikeInMs = 250f; m.pulse = ctx.Def.Class == "mechanic";
+            m.holdMs = m.pulse ? 0f : CloneRiseMs; // the clone stands up before it runs
             SkillCaps.Add(ctx.Body.Hero, SkillCaps.MaxMinions, m);
             if (!ctx.View) return;
             SkillVfx.Play(ctx, SkillVfxSet.Cast, m.pos, 0f, 2.6f * ctx.Units);
             SkillSfx.Play(ctx, SkillSfx.Cast);
+            if (ctx.Def.Id == ShadowCloneFx.SkillId) { m.clone = ShadowCloneFx.Bind(ctx, m); return; } // the hand-made picture draws the clone
             m.body = SkillVfx.Loop(ctx, m.pos, 0f, 1.6f * ctx.Units, e.DurationMs / 1000f);
             if (m.body != null) return;
             m.dot = ProceduralSprites.Child(m.transform, "Body", FxSprites.Dot());
@@ -53,6 +59,7 @@ namespace ZenoniaProto
         /// <summary>Clone: chase the nearest monster within 5 tiles, else stay near the caster. Drone: hover beside the caster.</summary>
         void Move(float dt)
         {
+            if (holdMs > 0f) { holdMs -= dt * 1000f; return; }
             Vector2 home = ctx.Body.Feet + new Vector2(-ctx.Dir.x * 14f + ctx.Dir.y * 10f, -ctx.Dir.y * 14f - ctx.Dir.x * 10f);
             Monster foe = pulse ? null : SkillAim.NearestMonster(pos, ChaseTiles * ctx.Units);
             Vector2 goal = foe != null ? foe.Feet : home;
@@ -67,6 +74,7 @@ namespace ZenoniaProto
             bool hit = false;
             if (ctx.Authority) hit = SkillDamage.Area(ctx.Dmg, e, pos, ctx.Dir).Count > 0;
             if (!ctx.View) return;
+            if (clone != null) clone.OnStrike(SkillAim.NearestMonster(pos, fx.Radius * ctx.Units));
             float w = pulse ? 2f * fx.Radius * ctx.Units : 2f * ctx.Units;
             if (pulse || hit) SkillVfx.Play(ctx, SkillVfxSet.Impact, pos, 0f, w);
             if (pulse || hit) SkillSfx.Play(ctx, SkillSfx.Impact, 0.5f);
@@ -75,6 +83,7 @@ namespace ZenoniaProto
         void End()
         {
             if (body != null) body.Stop();
+            if (clone != null) clone.Finish();
             if (ctx.View) SkillVfx.Play(ctx, SkillVfxSet.Cast, pos, 0f, 1.8f * ctx.Units);
             Destroy(gameObject);
         }

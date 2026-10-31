@@ -5,7 +5,7 @@ namespace ZenoniaProto.Net
     public enum NetEventType : byte
     {
         AttackStep = 1, BoltFired = 2, BoltEnd = 3, MonsterHit = 4, HeroHit = 5, SkillCast = 6, HeroDied = 7, HeroRespawned = 8,
-        ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15,
+        ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16,
     }
 
     /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band and flag bits (1 = mechanic blue).</summary>
@@ -69,6 +69,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.Toast: w.Put(Text ?? "", NetProtocol.MaxTextLength); w.Put(Value); break;
                 case NetEventType.BossSpawned:
                 case NetEventType.BossDied: w.Put(Id); break;
+                case NetEventType.AllyBuff: w.Put(Id); w.Put(Other); w.Put(Step); w.Put(Value); break;
             }
         }
 
@@ -93,6 +94,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.Toast: e.Text = r.GetString(NetProtocol.MaxTextLength); e.Value = r.GetUInt(); break;
                 case NetEventType.BossSpawned:
                 case NetEventType.BossDied: e.Id = r.GetUShort(); break;
+                case NetEventType.AllyBuff: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.Step = r.GetByte(); e.Value = r.GetUInt(); break;
                 default: return false;
             }
             return true;

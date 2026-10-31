@@ -13,7 +13,9 @@ namespace ZenoniaProto.Net
     public struct ZoneChangedMsg { public byte Epoch; public ushort HeroNetId; public string MapId; public short X, Y; public byte Facing; }
     public struct RejectMsg { public RejectReason Reason; public string Text; }
     public struct DespawnMsg { public ushort Id; public DespawnCause Cause; }
-    public struct SelfStateMsg { public ushort Hp, MaxHp, Mp, MaxMp; public uint Exp; public byte Level; public ushort[] SkillCds; }
+    /// <summary>One buff on the player's own hero: Source = the skill it came from (the client picks the icon), times in ms.</summary>
+    public struct NetBuff { public byte Source, Kind; public ushort LeftMs, TotalMs; }
+    public struct SelfStateMsg { public ushort Hp, MaxHp, Mp, MaxMp; public uint Exp; public byte Level; public ushort[] SkillCds; public NetBuff[] Buffs; }
     public struct RpgStateMsg { public uint ReqId; public byte Result; public string Text, SaveJson; }
 
     /// <summary>
@@ -68,6 +70,9 @@ namespace ZenoniaProto.Net
         public static void SelfState(NetDataWriter w, SelfStateMsg m)
         {
             w.Reset(); w.Put(NetOp.SelfState); w.Put(m.Hp); w.Put(m.MaxHp); w.Put(m.Mp); w.Put(m.MaxMp); w.Put(m.Exp); w.Put(m.Level); for (int i = 0; i < OwnerSim.CdSlots; i++) w.Put(m.SkillCds != null && i < m.SkillCds.Length ? m.SkillCds[i] : (ushort)0);
+            int buffs = m.Buffs != null ? System.Math.Min(m.Buffs.Length, NetProtocol.MaxSelfBuffs) : 0;
+            w.Put((byte)buffs);
+            for (int i = 0; i < buffs; i++) { w.Put(m.Buffs[i].Source); w.Put(m.Buffs[i].Kind); w.Put(m.Buffs[i].LeftMs); w.Put(m.Buffs[i].TotalMs); }
         }
 
         public static void RpgState(NetDataWriter w, RpgStateMsg m)

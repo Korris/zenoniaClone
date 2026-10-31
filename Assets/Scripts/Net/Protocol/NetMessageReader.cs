@@ -56,7 +56,7 @@ namespace ZenoniaProto.Net
             try
             {
                 m.ReqId = r.GetUInt(); byte op = r.GetByte(); m.ItemUid = r.GetString(NetProtocol.MaxItemUidLength); m.Slot = r.GetByte();
-                if (op > (byte)InvOp.SkillRespec) return false;
+                if (op > (byte)InvOp.PotionBuy) return false;
                 m.Op = (InvOp)op;
                 return true;
             }
@@ -119,6 +119,10 @@ namespace ZenoniaProto.Net
                 m.Hp = r.GetUShort(); m.MaxHp = r.GetUShort(); m.Mp = r.GetUShort(); m.MaxMp = r.GetUShort(); m.Exp = r.GetUInt(); m.Level = r.GetByte();
                 m.SkillCds = new ushort[OwnerSim.CdSlots];
                 for (int i = 0; i < m.SkillCds.Length; i++) m.SkillCds[i] = r.GetUShort();
+                int buffs = r.GetByte();
+                if (buffs > NetProtocol.MaxSelfBuffs) return false;
+                m.Buffs = new NetBuff[buffs];
+                for (int i = 0; i < buffs; i++) m.Buffs[i] = new NetBuff { Source = r.GetByte(), Kind = r.GetByte(), LeftMs = r.GetUShort(), TotalMs = r.GetUShort() };
                 return true;
             }
             catch (Exception) { return false; }

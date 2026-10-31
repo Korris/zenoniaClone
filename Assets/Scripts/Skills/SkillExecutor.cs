@@ -4,7 +4,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Entry point of the data-driven skills: resolves aim / target and starts the timeline (or the legacy Earth Break / Ice Storm / Rocket Barrage adapter).
+    /// Entry point of the data-driven skills: resolves aim / target and starts the timeline (or the legacy Earth Break / Ice Storm / Rocket Barrage / Blade Cyclone adapter).
     /// It does NOT check learned / cooldown / MP / cast lock: HeroController.TryCastSkill does, then calls Cast.
     /// Returns false (nothing happened, nothing to charge) when the skill needs a target and none is in range.
     /// </summary>
@@ -27,21 +27,27 @@ namespace ZenoniaProto
             SkillContext ctx = SkillAim.Resolve(def, rank, body, salt);
             if (ctx == null) return false;
             SkillRun.Begin(ctx);
-            SkillChoreoCastHook.Play(ctx);
+            if (def.Id == InfernoCrashUltimate.SkillId) InfernoCrashUltimate.Cast(ctx);
+            else if (def.Id == BerserkerAwakeningFx.SkillId) BerserkerAwakeningFx.Cast(ctx);
+            else if (def.Id == NightfallExecutionUltimate.SkillId) NightfallExecutionUltimate.Cast(ctx);
+            else if (AssassinSkillArt.Handles(def.Id)) AssassinSkillArt.Cast(ctx);
+            else if (ClericBuffFx.Handles(def.Id)) ClericBuffFx.Cast(ctx);
+            else SkillChoreoCastHook.Play(ctx);
             return true;
         }
 
-        /// <summary>Earth Break / Ice Storm / Rocket Barrage keep their hand-made timelines; the rank only scales their damage.</summary>
+        /// <summary>Earth Break / Ice Storm / Rocket Barrage / Blade Cyclone keep their hand-made timelines; the rank only scales their damage.</summary>
         static bool CastLegacy(ISkillBody body, SkillDef def, int rank)
         {
             float scale = def.DamageMul(rank);
             if (def.Legacy == LegacySkill.EarthBreak) EarthBreakUltimate.Cast(body.Hero, scale);
             else if (def.Legacy == LegacySkill.IceStorm) IceStormUltimate.Cast(body.Hero, scale);
             else if (def.Legacy == LegacySkill.RocketBarrage) RocketBarrageUltimate.Cast(body.Hero, scale);
+            else if (def.Legacy == LegacySkill.BladeCyclone) BladeCycloneUltimate.Cast(body.Hero, scale);
             return true;
         }
 
         /// <summary>Loads the painted art of a class's skills ahead of the first cast (call when the hero spawns).</summary>
-        public static void Preload(string classId) { SkillVfx.Preload(classId); }
+        public static void Preload(string classId) { SkillVfx.Preload(classId); if (classId == "assassin") AssassinSkillArt.Preload(); }
     }
 }

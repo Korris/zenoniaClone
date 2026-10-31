@@ -60,7 +60,7 @@ namespace ZenoniaProto
         public float Hp { get { return hp; } }
         public float MaxHp { get { return rpg.MaxHp; } }
         public float AtkStat { get { return rpg.Atk * HeroBuffs.AtkMul(this); } } // temporary ATK buffs included
-        public float DefStat { get { return rpg.Def; } }
+        public float DefStat { get { return rpg.Def * HeroBuffs.DefMul(this); } }
         public float CritBonus { get { return rpg.CritBonus; } }
         public PlayerState Rpg { get { return rpg; } }
         /// <summary>Where the hero is DRAWN: the sim spot, or for the online local hero the smoothed (interpolated + error blended) one.</summary>

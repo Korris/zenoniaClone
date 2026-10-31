@@ -8,6 +8,11 @@ namespace ZenoniaProto.Rpg
         public const int Slots = SkillDef.PerClass;
         readonly float[] left = new float[Slots];
 
+        /// <summary>Casts start no cooldown, test builds only (DevStartConfig.noCooldowns). Always false on a server and in a shipped build.</summary>
+        public static bool DevNone;
+        /// <summary>Casts cost no MP, test builds only (DevStartConfig.noMpCost). Always false on a server and in a shipped build.</summary>
+        public static bool DevFreeMp;
+
         public bool Ready(int index) { return index >= 0 && index < Slots && left[index] <= 0f; }
         public float LeftMs(int index) { return index >= 0 && index < Slots ? left[index] : 0f; }
 

@@ -28,6 +28,9 @@ namespace ZenoniaProto.Rpg
             if (d.Legacy == LegacySkill.RocketBarrage)
                 return LegacySkillNumbers.RocketBarrageRockets + " rockets rain on a " + Num(LegacySkillNumbers.RocketBarrageFanDeg) + "-degree fan up to " + Tiles(LegacySkillNumbers.RocketBarrageReach / LegacySkillNumbers.TileUnits) + " ahead: "
                     + Atk(LegacySkillNumbers.RocketBarrageMult * 100f * d.DamageMul(rank)) + " each within " + Tiles(LegacySkillNumbers.RocketBarrageRadius / LegacySkillNumbers.TileUnits) + ".";
+            if (d.Legacy == LegacySkill.BladeCyclone)
+                return "Spin your blade: " + LegacySkillNumbers.BladeCycloneWaves + " waves of " + Atk(LegacySkillNumbers.BladeCycloneMult * 100f * d.DamageMul(rank)) + " within "
+                    + Tiles(LegacySkillNumbers.BladeCycloneRadius / LegacySkillNumbers.TileUnits) + ". The last wave pushes enemies back.";
 
             var sb = new StringBuilder();
             SkillEffect[] fx = d.Effects;
@@ -64,6 +67,7 @@ namespace ZenoniaProto.Rpg
                 lines.Add(Tag("CHILL", StatusCold) + " 50% slow, " + Secs((int)LegacySkillNumbers.IceStormChillMs));
                 lines.Add(Boss(Num(StatusRules.ForBoss(new StatusSpec(StatusKind.Chill, 50f, 0)).Value) + "% slow"));
             }
+            if (d.Legacy == LegacySkill.BladeCyclone) { lines.Add(Tag("KNOCKBACK", StatusPurple) + " last wave"); lines.Add(Boss("immune")); }
             foreach (SkillEffect e in d.Effects)
             {
                 if (e.Status.Kind != StatusKind.None) AddOnce(lines, StatusText(e.Status));
@@ -86,6 +90,7 @@ namespace ZenoniaProto.Rpg
             if (d.Legacy == LegacySkill.EarthBreak) lines.Add(ScaledLine("Slam", LegacySkillNumbers.EarthBreakMult * 100f, d, rank));
             else if (d.Legacy == LegacySkill.IceStorm) lines.Add(ScaledLine("Per wave", LegacySkillNumbers.IceStormMult * 100f, d, rank));
             else if (d.Legacy == LegacySkill.RocketBarrage) lines.Add(ScaledLine("Per rocket", LegacySkillNumbers.RocketBarrageMult * 100f, d, rank));
+            else if (d.Legacy == LegacySkill.BladeCyclone) lines.Add(ScaledLine("Per wave", LegacySkillNumbers.BladeCycloneMult * 100f, d, rank));
             else
                 foreach (SkillEffect e in d.Effects)
                 {
@@ -173,6 +178,7 @@ namespace ZenoniaProto.Rpg
                 {
                     case BuffKind.AtkPct: parts.Add("+" + Num(v) + "% ATK"); break;
                     case BuffKind.AtkSpeedPct: parts.Add("+" + Num(v) + "% attack speed"); break;
+                    case BuffKind.DefPct: parts.Add("+" + Num(v) + "% DEF"); break;
                     case BuffKind.Shield: parts.Add("a shield worth " + Atk(v)); break;
                     case BuffKind.NextHitsPct: parts.Add("+" + Num(v) + "% damage on the next hits"); break;
                 }

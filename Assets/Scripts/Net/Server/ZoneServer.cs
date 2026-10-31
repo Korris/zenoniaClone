@@ -214,8 +214,9 @@ namespace ZenoniaProto
                 if (p.Hero == null) continue;
                 Zone.Enter(p.Hero.HomeZone);
                 ServerInputState st = p.Input.State;
-                if (st.TakePotion(true) && p.Rpg.UsePotion(true).Ok) NetEventBus.Potion(p.Hero, true);
-                if (st.TakePotion(false) && p.Rpg.UsePotion(false).Ok) NetEventBus.Potion(p.Hero, false);
+                int hpSize = p.Rpg.State.QuickPotionSize(true), mpSize = p.Rpg.State.QuickPotionSize(false);
+                if (st.TakePotion(true) && p.Rpg.UsePotion(true).Ok) NetEventBus.Potion(p.Hero, true, hpSize);
+                if (st.TakePotion(false) && p.Rpg.UsePotion(false).Ok) NetEventBus.Potion(p.Hero, false, mpSize);
                 st.ClampPotions(3);
             }
             simStart = Stopwatch.GetTimestamp();
@@ -301,7 +302,7 @@ namespace ZenoniaProto
             {
                 HeroController h = p.Hero;
                 SelfStateMsg l = p.LastSelf;
-                bool changed = Mathf.CeilToInt(h.Hp) != l.Hp || Mathf.CeilToInt(h.Mp) != l.Mp || h.Rpg.Exp != (int)l.Exp || h.Rpg.Level != l.Level || h.AnySkillCooldown || now - p.LastSelfSentMs >= 1000f;
+                bool changed = Mathf.CeilToInt(h.Hp) != l.Hp || Mathf.CeilToInt(h.Mp) != l.Mp || h.Rpg.Exp != (int)l.Exp || h.Rpg.Level != l.Level || h.AnySkillCooldown || HeroBuffs.AnyOn(h) || (l.Buffs != null && l.Buffs.Length > 0) || now - p.LastSelfSentMs >= 1000f;
                 if (changed) { repl.SendSelfState(p); p.LastSelfSentMs = now; }
             }
             if (p.RpgDirty && now - p.LastRpgSentMs >= RpgPushMs) { repl.SendRpgState(p, 0, true, ""); p.RpgDirty = false; p.LastRpgSentMs = now; }

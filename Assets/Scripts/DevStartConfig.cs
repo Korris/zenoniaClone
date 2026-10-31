@@ -18,6 +18,8 @@ namespace ZenoniaProto
         public int level; // 0 = keep; otherwise the character is raised to this level (skill tests need SP), never lowered
         public int offhandPlus = -1; // -1 = keep; otherwise the worn offhand is set to this enhance level (second-weapon captures / tests)
         public int skillPointBonus; // extra SP on top of the level (SP is level - ranks, so the level cap alone cannot give more)
+        public bool noCooldowns; // skills start no cooldown (the cast lock still applies)
+        public bool noMpCost; // skills cost no MP
         public bool allSkills; // learn every skill as far as the SP allow (Lv 60 + 20 bonus = all 8 at rank 10, 0 SP left)
         public bool allWeapons; // every art tier of the class's weapon and offhand (epic, +0 so stones stay testable); the best ones are worn on the first grant
 
@@ -29,6 +31,8 @@ namespace ZenoniaProto
             try { if (json != null) c = JsonUtility.FromJson<DevStartConfig>(json); }
             catch (Exception e) { Debug.LogWarning("[ZenoniaProto] dev-start.json ignored: " + e.Message); }
             SkillRanks.DevBonus = c != null && c.enabled ? Mathf.Max(0, c.skillPointBonus) : 0;
+            SkillCooldowns.DevNone = c != null && c.enabled && c.noCooldowns;
+            SkillCooldowns.DevFreeMp = c != null && c.enabled && c.noMpCost;
         }
 
         /// <summary>

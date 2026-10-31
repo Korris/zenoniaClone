@@ -64,7 +64,7 @@ namespace ZenoniaProto
             int rank = rpg.Skills[index];
             if (rank <= 0) { SkillCastFeedback.Refused(this, def, SkillCastFeedback.Reason.NotLearned); return false; }
             if (!cds.Ready(index)) return false;
-            int cost = def.MpAt(rank);
+            int cost = SkillCooldowns.DevFreeMp ? 0 : def.MpAt(rank);
             if (mp < cost) { SkillCastFeedback.Refused(this, def, SkillCastFeedback.Reason.NoMp); return false; }
             if (predicted && !SkillPrediction.Predicts(def)) return false; // motion / targeted skills: the server decides, its SkillCast shows it
             int salt = CastSalt();
@@ -73,7 +73,7 @@ namespace ZenoniaProto
             if (HomeZone != null && HomeZone.Pump != null) HomeZone.Pump.Adopt();
             NetEventBus.SkillCast(this, index, rank, salt);
             if (!replaying) mp -= cost;
-            cds.Start(index, def.CooldownMs);
+            cds.Start(index, SkillCooldowns.DevNone ? 0f : def.CooldownMs);
             castLeft = castTotal = Mathf.Max(1f, def.CastLockMs);
             castSkill = index;
             if (!replaying) SkillCasts++;

@@ -16,7 +16,6 @@ namespace ZenoniaProto.Rpg
     public sealed partial class PlayerState
     {
         public const int InventorySize = 20;
-        public const double PotionHealFraction = 0.3;
         public const int MaxStones = 9999;
 
         public string ClassId { get; private set; }

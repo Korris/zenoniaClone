@@ -111,10 +111,10 @@ namespace ZenoniaProto
             Add(new NetEvent { Type = NetEventType.LevelUp, Id = h.NetId, Step = (byte)Mathf.Clamp(level, 0, 255) }, h.Position);
         }
 
-        public static void Potion(HeroController h, bool hp)
+        public static void Potion(HeroController h, bool hp, int size)
         {
             if (!Active) return;
-            Add(new NetEvent { Type = NetEventType.PotionUsed, Id = h.NetId, Step = (byte)(hp ? 1 : 0) }, h.Position);
+            Add(new NetEvent { Type = NetEventType.PotionUsed, Id = h.NetId, Step = Rpg.PotionCatalog.PackEvent(hp, size) }, h.Position);
         }
 
         public static void Appearance(HeroController h)

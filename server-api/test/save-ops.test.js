@@ -24,6 +24,22 @@ describe('save snapshot', () => {
     expect(loaded.state.equipment[0].uid).toBe('w-1');
   });
 
+  it('keeps potion sizes, defaults them for old saves and rejects a bad quick size', async () => {
+    const o = await c.online();
+    const sizes = { hpPotion: 3, hpPotionMedium: 2, hpPotionLarge: 1, mpPotionMedium: 4, mpPotionLarge: 5, hpPotionPick: 2, mpPotionPick: 1 };
+    expect((await save(o, { ...o.state, ...sizes })).status).toBe(200);
+    const loaded = (await c.call('GET', `/characters/${o.char.id}`, { token: o.user.accessToken })).body.character;
+    expect(loaded.state).toMatchObject(sizes);
+
+    const fresh = await c.online();
+    const { hpPotionMedium, hpPotionPick, ...oldSave } = fresh.state;
+    expect((await save(fresh, oldSave)).status).toBe(200);
+    const old = (await c.call('GET', `/characters/${fresh.char.id}`, { token: fresh.user.accessToken })).body.character;
+    expect(old.state).toMatchObject({ hpPotionMedium: 0, hpPotionPick: 0 });
+
+    expect((await save(fresh, { ...fresh.state, hpPotionPick: 3 }, fresh.rev + 1)).status).not.toBe(200);
+  });
+
   it('round-trips skill ranks + magazine slots and rejects illegal ones', async () => {
     const o = await c.online();
     const skills = { skillRanks: [3, 1, 0, 0, 0, 0, 0, 0], skillSlots: [0, 1, -1, -1, -1, -1, -1, -1] };

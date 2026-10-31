@@ -12,6 +12,7 @@ namespace ZenoniaProto.Rpg
         public long savedAt;
         public string classId, mapId;
         public int level, exp, gold, hpPotion, mpPotion, upgradeStone;
+        public int hpPotionMedium, hpPotionLarge, mpPotionMedium, mpPotionLarge, hpPotionPick, mpPotionPick; // hpPotion / mpPotion are the Small stacks; missing in old saves = none, Small picked
         public float hp, mp, x, y;
         public bool hasPosition, bossDefeated;
         public List<Item> inventory = new List<Item>();
@@ -37,6 +38,7 @@ namespace ZenoniaProto.Rpg
             {
                 version = SaveVersion, savedAt = savedAt != 0 ? savedAt : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 classId = p.ClassId, mapId = string.IsNullOrEmpty(mapId) ? MapId : mapId, level = p.Level, exp = p.Exp, gold = p.Gold, hpPotion = p.HpPotions, mpPotion = p.MpPotions,
+                hpPotionMedium = p.HpPotionsMedium, hpPotionLarge = p.HpPotionsLarge, mpPotionMedium = p.MpPotionsMedium, mpPotionLarge = p.MpPotionsLarge, hpPotionPick = p.HpPotionPick, mpPotionPick = p.MpPotionPick,
                 upgradeStone = p.UpgradeStone, hp = p.Hp, mp = p.Mp, hasPosition = hasPosition, x = x, y = y, bossDefeated = bossDefeated,
             };
             d.inventory.AddRange(p.Inventory);
@@ -60,7 +62,10 @@ namespace ZenoniaProto.Rpg
             {
                 version = SaveVersion, savedAt = raw.savedAt, classId = RpgClasses.IsValid(raw.classId) ? raw.classId : RpgClasses.Default, mapId = string.IsNullOrEmpty(raw.mapId) ? MapId : raw.mapId,
                 level = RpgMath.Clamp(raw.level, 1, Leveling.MaxLevel), exp = Math.Max(0, raw.exp), gold = Math.Max(0, raw.gold),
-                hpPotion = Math.Max(0, raw.hpPotion), mpPotion = Math.Max(0, raw.mpPotion), upgradeStone = RpgMath.Clamp(raw.upgradeStone, 0, PlayerState.MaxStones),
+                hpPotion = Math.Max(0, raw.hpPotion), mpPotion = Math.Max(0, raw.mpPotion),
+                hpPotionMedium = Math.Max(0, raw.hpPotionMedium), hpPotionLarge = Math.Max(0, raw.hpPotionLarge), mpPotionMedium = Math.Max(0, raw.mpPotionMedium), mpPotionLarge = Math.Max(0, raw.mpPotionLarge),
+                hpPotionPick = RpgMath.Clamp(raw.hpPotionPick, 0, PotionCatalog.Sizes - 1), mpPotionPick = RpgMath.Clamp(raw.mpPotionPick, 0, PotionCatalog.Sizes - 1),
+                upgradeStone = RpgMath.Clamp(raw.upgradeStone, 0, PlayerState.MaxStones),
                 hp = Finite(raw.hp), mp = Finite(raw.mp), x = Finite(raw.x), y = Finite(raw.y), hasPosition = raw.hasPosition, bossDefeated = raw.bossDefeated,
             };
             foreach (Item i in raw.inventory ?? new List<Item>())
@@ -96,7 +101,8 @@ namespace ZenoniaProto.Rpg
         /// <summary>Builds the live PlayerState from a validated save (class lock, starter repair, hp clamp).</summary>
         public static PlayerState Restore(SaveData d)
         {
-            var p = new PlayerState(d.classId) { Level = d.level, Exp = d.exp, Gold = d.gold, HpPotions = d.hpPotion, MpPotions = d.mpPotion, UpgradeStone = d.upgradeStone };
+            var p = new PlayerState(d.classId) { Level = d.level, Exp = d.exp, Gold = d.gold, HpPotions = d.hpPotion, MpPotions = d.mpPotion, UpgradeStone = d.upgradeStone,
+                HpPotionsMedium = d.hpPotionMedium, HpPotionsLarge = d.hpPotionLarge, MpPotionsMedium = d.mpPotionMedium, MpPotionsLarge = d.mpPotionLarge, HpPotionPick = d.hpPotionPick, MpPotionPick = d.mpPotionPick };
             foreach (Item i in d.inventory) p.Inventory.Add(i);
             foreach (Item e in d.equipment)
             {

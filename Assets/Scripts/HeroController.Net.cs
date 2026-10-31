@@ -98,6 +98,7 @@ namespace ZenoniaProto
             if (m.Level != rpg.Level || m.MaxHp != rpg.MaxHp) { rpg.Level = Mathf.Max(1, m.Level); rpg.Exp = (int)m.Exp; rpg.RecomputeStats(); rpg.Hp = m.Hp; rpg.Mp = m.Mp; }
             rpg.Exp = (int)m.Exp;
             if (!predicted) ApplySelfCooldowns(m.SkillCds); // the predicted hero gets its cooldowns with the sim state
+            HeroBuffs.SetClientView(m.Buffs);
         }
 
         /// <summary>Client: the server says this hero was hit / healed / died (pure presentation hooks for events).</summary>

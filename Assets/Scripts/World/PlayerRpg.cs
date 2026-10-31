@@ -55,6 +55,14 @@ namespace ZenoniaProto
             return r;
         }
 
+        /// <summary>The bag's Use: this size becomes the quick one even when nothing could be drunk.</summary>
+        public ActionResult UsePotion(bool hp, int size)
+        {
+            ActionResult r = State.UsePotion(hp, size);
+            Touch();
+            return r;
+        }
+
         /// <summary>Death: -10% of the current-level EXP, full HP / MP. Returns the EXP lost.</summary>
         public int Revive()
         {
@@ -66,7 +74,7 @@ namespace ZenoniaProto
 
         /// <summary>
         /// Server-side inventory request (the same rules the offline bag panel uses). Equip / Discard need the item uid; Unequip uses the slot
-        /// index into Slots.All; Use drinks a potion (slot 0 = HP, 1 = MP); Enhance rolls the stone upgrade; Sort orders the bag.
+        /// index into Slots.All; Use drinks a potion and PotionBuy buys one (PotionCatalog.PackSlot); Enhance rolls the stone upgrade; Sort orders the bag.
         /// </summary>
         public ActionResult ApplyInvAction(InvOp op, string itemUid, byte slot)
         {
@@ -80,7 +88,10 @@ namespace ZenoniaProto
                 case InvOp.Unequip:
                     r = slot < Slots.All.Length ? State.Unequip(Slots.All[slot]) : ActionResult.Fail("Invalid slot");
                     break;
-                case InvOp.Use: return UsePotion(slot == 0);
+                case InvOp.Use:
+                    int useSize = PotionCatalog.SlotSize(slot);
+                    return useSize < 0 ? UsePotion(PotionCatalog.SlotIsHp(slot)) : UsePotion(PotionCatalog.SlotIsHp(slot), useSize);
+                case InvOp.PotionBuy: r = State.BuyPotion(PotionCatalog.SlotIsHp(slot), PotionCatalog.SlotSize(slot)); break;
                 case InvOp.Discard:
                     r = State.RemoveFromInventory(itemUid) ? ActionResult.Success("Discarded") : ActionResult.Fail("No such item");
                     break;

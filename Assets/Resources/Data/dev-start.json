@@ -1,11 +1,13 @@
 {
     "enabled": true,
     "upgradeStones": 500,
-    "gold": 0,
+    "gold": 100000,
     "hpPotions": 20,
     "mpPotions": 20,
     "level": 60,
     "skillPointBonus": 20,
     "allSkills": true,
+    "noCooldowns": true,
+    "noMpCost": true,
     "allWeapons": true
 }

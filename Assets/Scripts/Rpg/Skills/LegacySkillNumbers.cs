@@ -1,7 +1,7 @@
 namespace ZenoniaProto.Rpg
 {
     /// <summary>
-    /// Damage and area numbers of the hand-written ultimates, shared by IceStormUltimate / EarthBreakUltimate / RocketBarrageUltimate and the skill tree text so the two cannot
+    /// Damage and area numbers of the hand-written ultimates, shared by IceStormUltimate / EarthBreakUltimate / RocketBarrageUltimate / BladeCycloneUltimate and the skill tree text so the two cannot
     /// drift apart. Multipliers are x ATK, distances are world units as the ultimates use them.
     /// </summary>
     public static class LegacySkillNumbers
@@ -18,5 +18,8 @@ namespace ZenoniaProto.Rpg
         public const float RocketBarrageRadius = 18f, RocketBarrageMult = 4f, RocketBarrageRange = 70f, RocketBarrageFanDeg = 60f, RocketBarrageNear = 0.65f, RocketBarrageStep = 0.16f, RocketBarrageKnockback = 35f;
         public const float RocketBarrageReach = RocketBarrageRange * (RocketBarrageNear + 2f * RocketBarrageStep);
         public const int RocketBarrageRockets = 10;
+
+        public const float BladeCycloneRadius = 40f, BladeCycloneMult = 1.5f, BladeCycloneKnockback = 45f;
+        public const int BladeCycloneWaves = 6;
     }
 }

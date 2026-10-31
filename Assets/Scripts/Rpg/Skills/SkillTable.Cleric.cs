@@ -10,7 +10,7 @@ namespace ZenoniaProto.Rpg
                 // Redone Heal: 220% ATK on the lowest-HP ally within 6 tiles (the caster counts).
                 Def(C, 0, "Heal", 1, 12, 5f, SkillTargeting.LowestAlly, Fx(HealFx(220f)), targetRange: 6f),
                 Def(C, 1, "Spirit Blessing", 8, 18, 18f, SkillTargeting.Self, Fx(BuffFx(BuffKind.AtkPct, 15f, 12000, ally: true, radius: 4f)), Req(0, 3)),
-                Def(C, 2, "Holy Ray", 15, 20, 7f, SkillTargeting.Facing, Fx(Strike(AreaShape.Line, 260f, length: 7f, width: 1.5f)), Req(0, 5)),
+                Def(C, 2, "Divine Aegis", 15, 20, 18f, SkillTargeting.Self, Fx(BuffFx(BuffKind.DefPct, 15f, 12000, ally: true, radius: 4f)), Req(0, 5)),
                 Def(C, 3, "Divine Light", 20, 24, 12f, SkillTargeting.Facing, Fx(Strike(AreaShape.Circle, 300f, radius: 2f, range: 3f), HealFx(100f, radius: 2f, range: 3f)), Req(1, 3)),
                 Def(C, 4, "Sanctuary", 26, 30, 20f, SkillTargeting.Self,
                     Fx(new SkillEffect { Kind = EffectKind.Zone, Shape = AreaShape.Circle, Radius = 3f, Pct = 35f, Ally = true, Hits = 8, IntervalMs = 1000, DurationMs = 8000 }), Req(0, 5)),

@@ -5,8 +5,9 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// UGUI player HUD (top-left): level + class, gold, HP / MP / EXP bars, potion + upgrade stone counters; a "LEVEL UP" banner and a
-    /// one-line toast for pickups / warnings. Texts are rebuilt only when their value changes. The IMGUI Hud draws the rest (skill, FPS, help).
+    /// UGUI player HUD (top-left): round portrait of the current hero, level, HP / MP bars with the numbers at the right, a thin EXP bar, the icons of the buffs on the hero
+    /// (HudBuffRow); a "LEVEL UP" banner and a one-line toast for pickups / warnings. Texts are rebuilt only when their value
+    /// changes. The IMGUI Hud draws the rest (skill, FPS, help).
     /// </summary>
     public class RpgHud : MonoBehaviour
     {
@@ -16,11 +17,13 @@ namespace ZenoniaProto
         static RpgHud instance;
 
         RectTransform block, banner;
-        Text title, gold, hpPotText, mpPotText, stoneText, bannerTitle, bannerSub;
+        Text title, bannerTitle, bannerSub, hpValue, mpValue;
         UiKit.Bar hpBar, mpBar, expBar;
+        Image face;
+        HudBuffRow buffRow;
         CanvasGroup bannerGroup;
         float bannerLeft;
-        int lastHp = -1, lastMaxHp, lastMp = -1, lastMaxMp, lastLevel, lastExp = -1, lastGold = -1, lastHpPot = -1, lastMpPot = -1, lastStones = -1;
+        int lastHp = -1, lastMaxHp, lastMp = -1, lastMaxMp, lastLevel, lastExp = -1;
         string lastClass;
 
         public static RpgHud Create(Transform parent)
@@ -36,21 +39,28 @@ namespace ZenoniaProto
 
         void Build(Transform canvas)
         {
-            // Gold-bordered navy panel (9-sliced procedural frame); content sits inside the ~6 unit border.
-            block = UiKit.Rect(canvas, "HudBlock", 8f, 6f, 262f, BlockHeight);
-            Image frame = UiKit.Panel(block, Color.white);
-            frame.sprite = UiArt.Panel(); frame.type = Image.Type.Sliced; frame.pixelsPerUnitMultiplier = 3.2f;
-            title = UiKit.Label(block, "Title", 16f, 7f, 150f, 20f, "", 15, Color.white, TextAnchor.MiddleLeft, true);
-            gold = UiKit.Label(block, "Gold", 150f, 7f, 96f, 20f, "", 15, new Color(1f, 0.82f, 0.2f), TextAnchor.MiddleRight, true);
-            hpBar = new UiKit.Bar(block, "Hp", 12f, 30f, 238f, 19f, new Color(0.13f, 0.78f, 0.16f), 12, UiArt.BarTrack());
-            mpBar = new UiKit.Bar(block, "Mp", 12f, 50f, 238f, 19f, new Color(0.1f, 0.42f, 0.98f), 12, UiArt.BarTrack());
-            expBar = new UiKit.Bar(block, "Exp", 12f, 70f, 238f, 19f, new Color(0.58f, 0.2f, 0.92f), 11, UiArt.BarTrack());
-            UiKit.Icon(block, "HpIcon", 16f, 95f, 20f).sprite = LootSprites.Potion(true);
-            UiKit.Icon(block, "MpIcon", 94f, 95f, 20f).sprite = LootSprites.Potion(false);
-            UiKit.Icon(block, "StoneIcon", 172f, 95f, 20f).sprite = LootSprites.Stone();
-            hpPotText = UiKit.Label(block, "HpCount", 40f, 94f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
-            mpPotText = UiKit.Label(block, "MpCount", 118f, 94f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
-            stoneText = UiKit.Label(block, "StoneCount", 196f, 94f, 50f, 22f, "", 13, Color.white, TextAnchor.MiddleLeft, true);
+            block = UiKit.Rect(canvas, "HudBlock", 8f, 6f, 304f, BlockHeight);
+            UiKit.Panel(UiKit.Rect(block, "Back", 40f, 3f, 262f, 67f), new Color(0.03f, 0.05f, 0.1f, 0.68f));
+
+            // Portrait: gold ring, dark inner disc, the face masked to a circle.
+            Image ring = UiKit.Panel(UiKit.Rect(block, "PortraitRing", 0f, 0f, 76f, 76f), new Color(0.86f, 0.67f, 0.29f));
+            ring.sprite = UiSprites.Circle();
+            Image disc = UiKit.Panel(UiKit.Rect(block, "PortraitBack", 3f, 3f, 70f, 70f), new Color(0.05f, 0.07f, 0.12f));
+            disc.sprite = UiSprites.Circle();
+            RectTransform mask = UiKit.Rect(block, "PortraitMask", 4f, 4f, 68f, 68f);
+            Image maskImage = UiKit.Panel(mask, Color.white);
+            maskImage.sprite = UiSprites.Circle();
+            mask.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            face = UiKit.Fill(mask, "Face").gameObject.AddComponent<Image>();
+            face.raycastTarget = false;
+
+            title = UiKit.Label(block, "Title", 84f, 4f, 210f, 19f, "", 15, Color.white, TextAnchor.MiddleLeft, true);
+            hpBar = new UiKit.Bar(block, "Hp", 82f, 24f, 214f, 17f, new Color(0.86f, 0.17f, 0.22f), 0);
+            hpValue = BarTexts(hpBar, "HP");
+            mpBar = new UiKit.Bar(block, "Mp", 82f, 42f, 214f, 17f, new Color(0.11f, 0.5f, 0.95f), 0);
+            mpValue = BarTexts(mpBar, "MP");
+            expBar = new UiKit.Bar(block, "Exp", 82f, 61f, 214f, 6f, new Color(0.96f, 0.64f, 0.14f), 0);
+            buffRow = new HudBuffRow(block, 82f, 73f);
 
             banner = UiKit.Rect(canvas, "LevelUp", 0f, -150f, 420f, 90f, true);
             bannerGroup = banner.gameObject.AddComponent<CanvasGroup>();
@@ -59,6 +69,20 @@ namespace ZenoniaProto
             bannerSub = UiKit.Label(banner, "Sub", 0f, 52f, 420f, 30f, "", 18, Color.white, TextAnchor.MiddleCenter, true);
             banner.gameObject.SetActive(false);
             NotificationToast.Create(canvas); // top-centre banner for Toast(...)
+        }
+
+        /// <summary>The bar's name at its left end; returns the text for current / max at its right end.</summary>
+        static Text BarTexts(UiKit.Bar bar, string name)
+        {
+            UiKit.Label(UiKit.Fill(bar.Root, "Name", 1f), " " + name, 11, Color.white, TextAnchor.MiddleLeft, true);
+            return UiKit.Label(UiKit.Fill(bar.Root, "Value", 1f), "", 11, Color.white, TextAnchor.MiddleRight, true);
+        }
+
+        /// <summary>The class's portrait from Resources/Sprites/ui/faces; null when the art is missing (the dark disc shows).</summary>
+        static Sprite FaceOf(HeroClassDef cls)
+        {
+            Texture2D tex = Resources.Load<Texture2D>("Sprites/ui/faces/" + RpgSession.ClassId(cls.Id));
+            return tex != null ? Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f) : null;
         }
 
         /// <summary>Short message banner at the top centre (pickups, "Inventory full", potion refused ...).</summary>
@@ -90,7 +114,7 @@ namespace ZenoniaProto
                 bannerGroup.alpha = Mathf.Clamp01(bannerLeft / 0.6f);
                 if (bannerLeft <= 0f) banner.gameObject.SetActive(false);
             }
-            if (p != null) Refresh(hero, p);
+            if (p != null) { Refresh(hero, p); DevBuffKey.Tick(hero); }
         }
 
         void Refresh(HeroController hero, PlayerState p)
@@ -98,31 +122,23 @@ namespace ZenoniaProto
             if (p.Level != lastLevel || hero.Class.Name != lastClass)
             {
                 lastLevel = p.Level; lastClass = hero.Class.Name;
-                title.text = "Lv " + p.Level + "  " + hero.Class.Name;
+                title.text = "Lv. " + p.Level;
+                face.sprite = FaceOf(hero.Class);
+                face.enabled = face.sprite != null;
                 lastExp = -1;
             }
             int hp = Mathf.CeilToInt(p.Hp), mp = Mathf.FloorToInt(p.Mp);
-            if (hp != lastHp || p.MaxHp != lastMaxHp) { lastHp = hp; lastMaxHp = p.MaxHp; hpBar.Caption.text = "HP " + hp + " / " + p.MaxHp; }
-            if (mp != lastMp || p.MaxMp != lastMaxMp) { lastMp = mp; lastMaxMp = p.MaxMp; mpBar.Caption.text = "MP " + mp + " / " + p.MaxMp; }
-            float hpFrac = p.MaxHp > 0 ? p.Hp / p.MaxHp : 0f;
-            hpBar.Set(hpFrac);
-            hpBar.FillImage.color = hpFrac > 0.3f ? new Color(0.2f, 0.78f, 0.35f) : new Color(0.9f, 0.25f, 0.25f);
+            if (hp != lastHp || p.MaxHp != lastMaxHp) { lastHp = hp; lastMaxHp = p.MaxHp; hpValue.text = hp + " / " + p.MaxHp + " "; }
+            if (mp != lastMp || p.MaxMp != lastMaxMp) { lastMp = mp; lastMaxMp = p.MaxMp; mpValue.text = mp + " / " + p.MaxMp + " "; }
+            hpBar.Set(p.MaxHp > 0 ? p.Hp / p.MaxHp : 0f);
             mpBar.Set(p.MaxMp > 0 ? p.Mp / p.MaxMp : 0f);
             if (p.Exp != lastExp)
             {
                 lastExp = p.Exp;
                 bool max = p.Level >= Leveling.MaxLevel;
-                expBar.Caption.text = max ? "MAX LEVEL" : "EXP " + p.Exp + " / " + Leveling.ExpToNext(p.Level);
                 expBar.Set(max ? 1f : Leveling.ProgressRatio(p.Level, p.Exp));
             }
-            if (p.Gold != lastGold) { lastGold = p.Gold; gold.text = p.Gold + " G"; }
-            if (p.HpPotions != lastHpPot || p.MpPotions != lastMpPot || p.UpgradeStone != lastStones)
-            {
-                lastHpPot = p.HpPotions; lastMpPot = p.MpPotions; lastStones = p.UpgradeStone;
-                hpPotText.text = "x" + p.HpPotions;
-                mpPotText.text = "x" + p.MpPotions;
-                stoneText.text = "x" + p.UpgradeStone;
-            }
+            buffRow.Refresh(hero);
         }
     }
 }

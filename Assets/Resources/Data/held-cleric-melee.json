@@ -1,0 +1,152 @@
+{
+ "anchors": [
+  {
+   "part": "staff",
+   "anim": "clericcast",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 132,
+     "y": 133,
+     "angle": 8,
+     "s": 0.52,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 145,
+     "y": 50,
+     "angle": 4,
+     "s": 0.52,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 123,
+     "y": 120,
+     "angle": 10,
+     "s": 0.52,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "clericcast",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 57,
+     "y": 133,
+     "angle": 8,
+     "s": 0.52,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 53,
+     "y": 47,
+     "angle": -4,
+     "s": 0.52,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 153,
+     "y": 103,
+     "angle": 14,
+     "s": 0.52,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "clericcast",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 60,
+     "y": 144,
+     "angle": -12,
+     "s": 0.52,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 49,
+     "y": 51,
+     "angle": -6,
+     "s": 0.52,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 26,
+     "y": 101,
+     "angle": -24,
+     "s": 0.52,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "clericcast",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 132,
+     "y": 144,
+     "angle": 12,
+     "s": 0.52,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 143,
+     "y": 51,
+     "angle": 6,
+     "s": 0.52,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 166,
+     "y": 101,
+     "angle": 24,
+     "s": 0.52,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  }
+ ]
+}

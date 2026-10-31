@@ -17,6 +17,15 @@ namespace ZenoniaProto
         static readonly ChoreoShot[] ChoreoShots =
         {
             new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Earth Break", Ahead = 36f, Spread = 22f, Count = 5, Hold = 3.4f },
+            new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Blade Cyclone", Ahead = 0f, Spread = 34f, Count = 6, Hold = 3.4f },
+            new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Inferno Crash", Ahead = 64f, Spread = 30f, Count = 6, Hold = 2.6f },
+            new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Berserker Awakening", Ahead = 0f, Spread = 40f, Count = 3, Hold = 3.2f },
+            new ChoreoShot { Cls = HeroClass.Assassin, Skill = "Shadow Strike", Ahead = 24f, Spread = 14f, Count = 4, Hold = 1.6f },
+            new ChoreoShot { Cls = HeroClass.Assassin, Skill = "Shadow Step", Ahead = 76f, Spread = 4f, Count = 1, Hold = 1.8f },
+            new ChoreoShot { Cls = HeroClass.Assassin, Skill = "Phantom Rush", Ahead = 48f, Spread = 14f, Count = 5, Hold = 2.2f },
+            new ChoreoShot { Cls = HeroClass.Assassin, Skill = "Nightfall Execution", Ahead = 0f, Spread = 36f, Count = 6, Hold = 2.4f },
+            new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Spirit Blessing", Ahead = 0f, Spread = 40f, Count = 3, Hold = 2.4f },
+            new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Divine Aegis", Ahead = 0f, Spread = 40f, Count = 3, Hold = 2.4f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Arcane Bolt", Ahead = 76f, Spread = 8f, Count = 3, Hold = 2.0f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Fireball", Ahead = 84f, Spread = 16f, Count = 4, Hold = 2.2f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Arcane Lance", Ahead = 44f, Spread = 90f, Count = 4, Line = true, Hold = 2.2f },

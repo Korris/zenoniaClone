@@ -15,6 +15,9 @@ namespace ZenoniaProto
         public const float SmallPpu = 4.5f; // 32px coin / potion / stone => about 7 units
         static readonly Dictionary<string, Sprite> Icons = new Dictionary<string, Sprite>();
         static Sprite coin, hpPotion, mpPotion, stone, glow;
+        static readonly Sprite[] PotionArt = new Sprite[PotionCatalog.Sizes * 2];
+        static readonly string[] PotionFiles = { "small", "medium", "large" };
+        const float PotionArtPpu = SmallPpu * 4f; // the 128 px icons draw as large as the 32 px drops
 
         public static void ResetState() { Icons.Clear(); }
 
@@ -87,8 +90,19 @@ namespace ZenoniaProto
             return coin;
         }
 
+        /// <summary>Painted icon of one potion size (Resources/Sprites/ui/potions); the Small one is also the ground pickup.</summary>
+        public static Sprite Potion(bool hp, int size = PotionCatalog.Small)
+        {
+            int i = (hp ? 0 : PotionCatalog.Sizes) + size;
+            if (PotionArt[i] != null) return PotionArt[i];
+            var tex = Resources.Load<Texture2D>("Sprites/ui/potions/" + (hp ? "hp-" : "mp-") + PotionFiles[size]);
+            if (tex == null) return Flask(hp);
+            PotionArt[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.06f), PotionArtPpu, 0, SpriteMeshType.FullRect);
+            return PotionArt[i];
+        }
+
         /// <summary>Round flask: glass outline, cork, red (HP) or blue (MP) liquid with a shine.</summary>
-        public static Sprite Potion(bool hp)
+        static Sprite Flask(bool hp)
         {
             if (hp && hpPotion != null) return hpPotion;
             if (!hp && mpPotion != null) return mpPotion;
