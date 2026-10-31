@@ -21,7 +21,7 @@ foreach ($d in "Scripts", "Plugins", "Editor", "Resources") {
 }
 if ($Log -eq "") { $Log = Join-Path (Split-Path $OutExe -Parent) "build.log" }
 New-Item -ItemType Directory -Force -Path (Split-Path $OutExe -Parent) | Out-Null
-& $Unity -batchmode -quit -projectPath $CopyDir -executeMethod ZenoniaProto.EditorTools.PlayerBuildScript.BuildWindows -buildOut $OutExe -logFile $Log
+& $Unity -batchmode -quit -projectPath $CopyDir -executeMethod ZenoniaProto.EditorTools.PlayerBuildScript.BuildWindows -buildOut $OutExe -logFile $Log | Out-Null # the pipe makes PowerShell wait: Unity.exe is a GUI program
 $result = Select-String -Path $Log -Pattern "BUILD RESULT" | Select-Object -Last 1
 Write-Host $result.Line
 if ($result.Line -notmatch "Succeeded") { exit 1 }

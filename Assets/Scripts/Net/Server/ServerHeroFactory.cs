@@ -21,6 +21,7 @@ namespace ZenoniaProto
                 state.RecomputeStats();
                 state.Hp = state.MaxHp; state.Mp = state.MaxMp;
             }
+            if (NetLaunchArgs.DevHurtPct > 0 && def.Id != HeroClass.Cleric) state.Hp = state.MaxHp * NetLaunchArgs.DevHurtPct / 100f; // test servers only: somebody for a cleric to heal
             if (NetMode.IsHeadless) hero.InitHeadless(def, state);
             else
             {

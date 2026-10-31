@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>Player names above every named hero (online client and host), IMGUI over the world: the local hero in gold, the others in white.</summary>
+    /// <summary>Player names above every named hero (online client and host), IMGUI over the world: the local hero in gold, party members in green, the others in white.</summary>
     public class NameTags : MonoBehaviour
     {
         GUIStyle style;
@@ -27,7 +27,7 @@ namespace ZenoniaProto
                 style.normal.textColor = Color.black;
                 var shadow = rect; shadow.x += 1f; shadow.y += 1f;
                 GUI.Label(shadow, h.PlayerName, style);
-                style.normal.textColor = me ? new Color(1f, 0.9f, 0.5f) : Color.white;
+                style.normal.textColor = me ? new Color(1f, 0.9f, 0.5f) : NetClient.Party.Contains(h.PlayerId) ? new Color(0.6f, 1f, 0.65f) : Color.white;
                 GUI.Label(rect, h.PlayerName, style);
             }
         }

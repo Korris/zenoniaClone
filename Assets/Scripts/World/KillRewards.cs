@@ -5,8 +5,8 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// What a kill pays out (decided rules): EXP is split by damage share among the heroes that hit the monster and are still alive in the zone,
-    /// the top damage dealer owns the drops for 3 s (online only), and every contributor is told when it was the boss. Offline the player keeps
+    /// What a kill pays out (decided rules): EXP is split by damage share among the heroes that hit the monster and are still alive in the zone, a party
+    /// sharing what its members earned (PartyKillShare), the top damage dealer owns the drops for 3 s (online only), and every contributor is told when it was the boss. Offline the player keeps
     /// the whole reward even when a debug party member made the kill (party members have no PlayerRpg).
     /// </summary>
     public static class KillRewards
@@ -33,8 +33,7 @@ namespace ZenoniaProto
             HeroController top = topIdx >= 0 ? Winners[topIdx] : null;
 
             int[] exp = Split(def.Exp, Damage, total, topIdx);
-            for (int i = 0; i < Winners.Count; i++)
-                if (exp[i] > 0 || Winners.Count == 1) Winners[i].Owner.GainExp(exp[i], m.Feet);
+            PartyKillShare.Pay(zone, m, Winners, exp);
 
             ushort ownerId = 0;
             float freeAt = 0f;

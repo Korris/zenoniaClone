@@ -5,7 +5,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Buff and Heal effects. Allies are every hero of the zone in the area until a party system exists (user decision 2026-10-30).
+    /// Buff and Heal effects. Allies are the caster and its party members in the area (PartyAllies).
     /// The authority changes HP / buffs; every side that renders draws the sparkle on each target.
     /// </summary>
     public static class SkillSupport
@@ -13,7 +13,7 @@ namespace ZenoniaProto
         const float SparkleTiles = 2.4f;
         static readonly List<HeroController> Targets = new List<HeroController>(8);
 
-        /// <summary>Heroes an Ally effect reaches: heroes inside the circle, else the locked ally, else the caster. Non-ally effects: the caster only.</summary>
+        /// <summary>Heroes an Ally effect reaches: allies inside the circle, else the locked ally, else the caster. Non-ally effects: the caster only.</summary>
         public static List<HeroController> Collect(SkillContext ctx, SkillEffect e)
         {
             Targets.Clear();
@@ -24,7 +24,7 @@ namespace ZenoniaProto
                 Vector2 c = e.Range > 0f ? SkillAim.ClampToWalls(ctx.Feet, ctx.Feet + ctx.Dir * e.Range * ctx.Units) : ctx.Feet;
                 float r = e.Radius * ctx.Units;
                 foreach (HeroController h in SkillAim.Heroes(ctx.Body))
-                    if (h != null && !h.IsDead && (h.Position - c).sqrMagnitude <= r * r) Targets.Add(h);
+                    if (h != null && !h.IsDead && PartyAllies.Are(self, h) && (h.Position - c).sqrMagnitude <= r * r) Targets.Add(h);
             }
             else Targets.Add(ctx.Ally != null ? ctx.Ally : self);
             return Targets;

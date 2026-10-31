@@ -63,6 +63,62 @@ public class MessageRoundTripTests
     }
 
     [Fact]
+    public void PartyRequestRoundTripsAndABadOpIsRejected()
+    {
+        var w = new NetDataWriter();
+        foreach (PartyOp op in new[] { PartyOp.Invite, PartyOp.CancelInvite, PartyOp.Accept, PartyOp.Decline, PartyOp.Leave, PartyOp.Kick })
+        {
+            new PartyRequestMsg { Op = op, Target = 513 }.Write(w);
+            PartyRequestMsg m; Assert.True(PartyRequestMsg.TryRead(Reader(w, NetOp.PartyRequest), out m));
+            Assert.Equal(op, m.Op); Assert.Equal(513, m.Target);
+        }
+        w.Reset(); w.Put(NetOp.PartyRequest); w.Put((byte)((byte)PartyOp.Kick + 1)); w.Put((ushort)1);
+        PartyRequestMsg bad; Assert.False(PartyRequestMsg.TryRead(Reader(w, NetOp.PartyRequest), out bad));
+        w.Reset(); w.Put(NetOp.PartyRequest); w.Put((byte)PartyOp.Kick);
+        Assert.False(PartyRequestMsg.TryRead(Reader(w, NetOp.PartyRequest), out bad)); // truncated
+    }
+
+    [Fact]
+    public void PartyNoticeRoundTripsAndBadDetailsAreRejected()
+    {
+        var w = new NetDataWriter();
+        new PartyNoticeMsg { Kind = PartyNoticeKind.InviteIn, Other = 77, Name = "Tay", MsLeft = PartyBook.InviteMs }.Write(w);
+        PartyNoticeMsg m; Assert.True(PartyNoticeMsg.TryRead(Reader(w, NetOp.PartyNotice), out m));
+        Assert.Equal(PartyNoticeKind.InviteIn, m.Kind); Assert.Equal(77, m.Other); Assert.Equal("Tay", m.Name); Assert.Equal(30000, m.MsLeft);
+
+        new PartyNoticeMsg { Kind = PartyNoticeKind.Disbanded }.Write(w);
+        Assert.True(PartyNoticeMsg.TryRead(Reader(w, NetOp.PartyNotice), out m)); Assert.Equal(PartyNoticeKind.Disbanded, m.Kind); Assert.Equal("", m.Name);
+
+        new PartyNoticeMsg { Kind = PartyNoticeKind.OutClosed, Detail = (byte)PartyInviteEnd.Offline + 1 }.Write(w);
+        Assert.False(PartyNoticeMsg.TryRead(Reader(w, NetOp.PartyNotice), out m));
+        new PartyNoticeMsg { Kind = PartyNoticeKind.Failed, Detail = (byte)PartyFail.NotMember + 1 }.Write(w);
+        Assert.False(PartyNoticeMsg.TryRead(Reader(w, NetOp.PartyNotice), out m));
+        new PartyNoticeMsg { Kind = (PartyNoticeKind)((byte)PartyNoticeKind.Disbanded + 1) }.Write(w);
+        Assert.False(PartyNoticeMsg.TryRead(Reader(w, NetOp.PartyNotice), out m));
+    }
+
+    [Fact]
+    public void PartyRosterRoundTripsCapsAndRefusesTooMany()
+    {
+        var w = new NetDataWriter();
+        var members = new PartyMemberInfo[PartyBook.MaxMembers + 2];
+        for (int i = 0; i < members.Length; i++) members[i] = new PartyMemberInfo { PlayerId = (ushort)(i + 1), Name = "Member" + i, HeroClass = 4, Level = 60, Hp = 1200, MaxHp = 65535, MapId = "emberfenMarsh" };
+        new PartyRosterMsg { Members = members }.Write(w);
+        PartyRosterMsg m; Assert.True(PartyRosterMsg.TryRead(Reader(w, NetOp.PartyRoster), out m));
+        Assert.Equal(PartyBook.MaxMembers, m.Members.Length);
+        Assert.Equal(1, m.Members[0].PlayerId); Assert.Equal("Member4", m.Members[4].Name); Assert.Equal(4, m.Members[1].HeroClass); Assert.Equal(60, m.Members[1].Level);
+        Assert.Equal(1200, m.Members[2].Hp); Assert.Equal(65535, m.Members[2].MaxHp); Assert.Equal("emberfenMarsh", m.Members[3].MapId);
+
+        new PartyRosterMsg().Write(w);
+        Assert.True(PartyRosterMsg.TryRead(Reader(w, NetOp.PartyRoster), out m)); Assert.Empty(m.Members);
+
+        w.Reset(); w.Put(NetOp.PartyRoster); w.Put((byte)(PartyBook.MaxMembers + 1));
+        Assert.False(PartyRosterMsg.TryRead(Reader(w, NetOp.PartyRoster), out m));
+        w.Reset(); w.Put(NetOp.PartyRoster); w.Put((byte)1); w.Put((ushort)1);
+        Assert.False(PartyRosterMsg.TryRead(Reader(w, NetOp.PartyRoster), out m)); // truncated
+    }
+
+    [Fact]
     public void SkillInvActionsRoundTripAndOneBeyondTheLastIsRejected()
     {
         var w = new NetDataWriter();
@@ -77,7 +133,7 @@ public class MessageRoundTripTests
         Assert.Equal(InvOp.PotionBuy, buy.Op); Assert.Equal("apothecaryNara", buy.ItemUid); Assert.Equal((byte)5, buy.Slot);
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.PotionBuy + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(6, NetProtocol.Version);
+        Assert.Equal(7, NetProtocol.Version);
     }
 
     [Fact]

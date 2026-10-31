@@ -27,6 +27,8 @@ namespace ZenoniaProto
         public static int TestVersion;
         /// <summary>Server test hook (--dev-level N): new heroes start at this level (skill points to spend); 0 = off. Never set on a public server.</summary>
         public static int DevLevel;
+        /// <summary>Server test hook (--dev-hurt PCT): every new hero but a Cleric starts at this percent of its HP; 0 = off. Never set on a public server.</summary>
+        public static int DevHurtPct;
         /// <summary>Server: --map, the zone new heroes begin in (null = the default map, Frost Hollow).</summary>
         public static string StartMap;
         /// <summary>Server test hook (--no-portals): no hero is ever moved between zones.</summary>
@@ -65,6 +67,7 @@ namespace ZenoniaProto
             StatsPath = Arg(a, "--net-stats");
             TestVersion = Int(a, "--net-test-version", 0);
             DevLevel = Math.Max(0, Math.Min(Rpg.Leveling.MaxLevel, Int(a, "--dev-level", 0)));
+            DevHurtPct = Math.Max(0, Math.Min(100, Int(a, "--dev-hurt", 0)));
             float pa;
             PredictAfter = float.TryParse(Arg(a, "--predict-after"), NumberStyles.Float, CultureInfo.InvariantCulture, out pa) ? pa : 0f;
             Predict = Array.IndexOf(a, "--no-predict") < 0 && PredictAfter <= 0f;

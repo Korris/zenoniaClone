@@ -28,6 +28,7 @@ namespace ZenoniaProto
         ServerReplication repl;
         ZoneHost host;
         ZoneTransferService transfers;
+        PartyService party;
         NetStats stats;
         readonly List<NetPlayer> players = new List<NetPlayer>();
         readonly Dictionary<NetPeer, float> unauthenticated = new Dictionary<NetPeer, float>(); // peer -> connect time (waiting for Hello)
@@ -70,6 +71,7 @@ namespace ZenoniaProto
             Instance = this;
             host = NetMode.IsHeadless ? ZoneHost.CreateDedicated(transform, NetLaunchArgs.StartMap) : ZoneHost.CreateSingle(Zone.Main);
             transfers = new ZoneTransferService(host, repl, stats);
+            party = new PartyService(stats);
             for (int i = 0; i < host.Zones.Count; i++) host.Zones[i].BossDied += OnBossDied;
             NetEventBus.ResetState();
             NetEventBus.Active = true;
@@ -107,6 +109,7 @@ namespace ZenoniaProto
             NetPlayer p = peer.Tag as NetPlayer;
             if (p == null) return;
             RecordClientStats(p);
+            party.OnLeave(p);
             players.Remove(p);
             if (p.Hero != null && p.Hero.HomeZone != null) p.Hero.HomeZone.Players.Remove(p);
             nextSnapMs.Remove(p);
@@ -139,6 +142,11 @@ namespace ZenoniaProto
                     ServerInventoryActions.Apply(repl, p, inv);
                     break;
                 case NetOp.Revive: break; // phase 1 respawns automatically
+                case NetOp.PartyRequest:
+                    PartyRequestMsg pr;
+                    if (p == null || !PartyRequestMsg.TryRead(reader, out pr)) { Kick(peer, "bad party request"); break; }
+                    party.OnRequest(p, pr, host.ClockMs);
+                    break;
                 default: Kick(peer, "unknown opcode " + op); break;
             }
         }
@@ -164,6 +172,7 @@ namespace ZenoniaProto
             peer.Tag = p;
             players.Add(p);
             zone.Players.Add(p);
+            party.OnJoin(p);
             nextSnapMs[p] = host.ClockMs + (p.PlayerId % snapDiv) * (1000f / tickRate);
             stats.Max("playersPeak", players.Count);
             repl.SendWelcome(p, zone.Map.Id, transfers.PortalsLive, ServerMs, tickRate, snapDiv);
@@ -264,6 +273,7 @@ namespace ZenoniaProto
             if (paused > 0) stats.Add("zonePauses", paused);
             stats.Sample("zonesAwake", host.ZonesAwake);
             Zone.Enter(host.Start);
+            party.Tick(host.ClockMs);
             tickWatch.Stop();
             stats.Sample("tickMs", (float)tickWatch.Elapsed.TotalMilliseconds);
             if (!finished && runSeconds > 0f && Time.realtimeSinceStartup - startTime >= runSeconds) Finish();
@@ -339,6 +349,7 @@ namespace ZenoniaProto
         void OnDestroy()
         {
             if (Instance == this) Instance = null;
+            if (party != null) party.Stop();
             if (host != null)
             {
                 for (int i = 0; i < host.Zones.Count; i++) host.Zones[i].BossDied -= OnBossDied;

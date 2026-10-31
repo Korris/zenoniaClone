@@ -30,6 +30,8 @@ namespace ZenoniaProto
         public bool RpgDirty;
         public float LastRpgSentMs, LastSelfSentMs;
         public SelfStateMsg LastSelf;
+        /// <summary>The party roster this client has, as sent (null = none).</summary>
+        public byte[] LastPartyRoster;
         public float RateWindowStartMs;
         public int PacketsInWindow;
         public float ConnectedAtRealtime;

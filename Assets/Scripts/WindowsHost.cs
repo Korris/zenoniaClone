@@ -33,6 +33,9 @@ namespace ZenoniaProto
             QuestOfferWindow.Create(canvas);
             PotionShopWindow.Create(canvas);
             ChatWindow.Create(canvas);
+            PartyPanel.Create(canvas);
+            PartyPlayerMenu.Create(canvas);
+            PartyInviteWindow.Create(canvas);
             RectTransform t = UiWinKit.Anchored(canvas, "TalkPrompt", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), 0f, 76f, 150f, 42f);
             UiWinKit.ArtButton(t, "Talk", "btn-gold", 0f, 0f, 150f, 42f, Application.isMobilePlatform ? "Talk" : "Talk  [E]", 19, new Color(0.25f, 0.12f, 0.02f), TownNpc.Talk);
             talkPrompt = t.gameObject;

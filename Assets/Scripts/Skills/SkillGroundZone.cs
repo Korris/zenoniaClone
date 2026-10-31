@@ -5,7 +5,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Lingering area (Blade Cyclone follows the caster, Sanctuary stays on the ground). Pulses `Hits` times, `IntervalMs` apart, for DurationMs:
-    /// monsters in the circle take a strike, or (Ally zones) heroes in it are healed. At most 4 per caster.
+    /// monsters in the circle take a strike, or (Ally zones) the caster's allies in it are healed. At most 4 per caster.
     /// </summary>
     public sealed class SkillGroundZone : MonoBehaviour
     {
@@ -59,7 +59,7 @@ namespace ZenoniaProto
         {
             float r = fx.Radius * ctx.Units, amount = ctx.Pct(fx) / 100f * ctx.Body.Atk;
             foreach (HeroController h in SkillAim.Heroes(ctx.Body))
-                if (h != null && !h.IsDead && (h.Position - center).sqrMagnitude <= r * r) SkillSupport.HealOne(ctx, h, amount);
+                if (h != null && !h.IsDead && PartyAllies.Are(ctx.Body.Hero, h) && (h.Position - center).sqrMagnitude <= r * r) SkillSupport.HealOne(ctx, h, amount);
         }
     }
 }

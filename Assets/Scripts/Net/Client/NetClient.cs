@@ -94,6 +94,7 @@ namespace ZenoniaProto
             if (spawner != null) { spawner.DestroyAll(); spawner = null; }
             events = null;
             transferring = false; heldSpawns.Clear();
+            Party.Clear();
             if (State != ClientState.Failed) State = ClientState.Idle;
         }
 
@@ -138,6 +139,7 @@ namespace ZenoniaProto
             if (wasJoined && stats != null) stats.Add("disconnects", 1);
             Debug.Log("[ZenoniaProto] net: " + why);
             transferring = false; heldSpawns.Clear();
+            Party.Clear();
             if (wasJoined) { spawner = null; events = null; if (GameSession.Instance != null) GameSession.Instance.OnConnectionLost(); }
         }
 
@@ -197,6 +199,14 @@ namespace ZenoniaProto
                     eventBuf.Clear();
                     if ((ok = NetMessageReader.TryEventBatch(r, out t, eventBuf)) && events != null) events.Enqueue(t, eventBuf);
                     break;
+                case NetOp.PartyNotice:
+                    PartyNoticeMsg pn;
+                    if (ok = PartyNoticeMsg.TryRead(r, out pn)) OnPartyNotice(pn);
+                    break;
+                case NetOp.PartyRoster:
+                    PartyRosterMsg pr;
+                    if (ok = PartyRosterMsg.TryRead(r, out pr)) Party.Apply(pr);
+                    break;
             }
             if (!ok) { stats.Add("malformedPackets", 1); Debug.LogWarning("[ZenoniaProto] net: malformed packet, opcode " + op); }
         }
@@ -216,6 +226,7 @@ namespace ZenoniaProto
             ApplyWelcomeMap(m);
             Zone zone = Zone.Main;
             myHeroId = m.HeroNetId;
+            Party.MyId = m.PlayerId;
             if (NetLaunchArgs.PredictAfter > 0f) predictAt = Time.realtimeSinceStartup + NetLaunchArgs.PredictAfter;
             buffer = new SnapshotBuffer(1000.0 * Mathf.Max(1, (int)m.SnapDiv) / Mathf.Max(1, (int)m.TickRate));
             spawner = new ProxySpawner(buffer, zone.Root, m.HeroNetId, stats, sender);

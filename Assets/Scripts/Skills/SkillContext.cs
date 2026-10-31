@@ -73,21 +73,21 @@ namespace ZenoniaProto
             return best;
         }
 
-        /// <summary>Hurt hero (the caster included) with the lowest HP fraction within reach; null when everybody is at full HP.</summary>
+        /// <summary>Hurt ally (the caster included) with the lowest HP fraction within reach; null when all of them are at full HP.</summary>
         static HeroController LowestAlly(ISkillBody body, float reach)
         {
             HeroController best = null;
             float bestFrac = 0.999f;
             foreach (HeroController h in Heroes(body))
             {
-                if (h == null || h.IsDead || (h.Position - body.Feet).sqrMagnitude > reach * reach) continue;
+                if (h == null || h.IsDead || !PartyAllies.Are(body.Hero, h) || (h.Position - body.Feet).sqrMagnitude > reach * reach) continue;
                 float frac = h.Hp / Mathf.Max(1f, h.MaxHp);
                 if (frac < bestFrac) { bestFrac = frac; best = h; }
             }
             return best;
         }
 
-        /// <summary>Every hero of the zone (any hero counts as an ally until a party system exists); just the caster outside a zone.</summary>
+        /// <summary>Every hero of the zone (ally effects check PartyAllies on each); just the caster outside a zone.</summary>
         public static System.Collections.Generic.IEnumerable<HeroController> Heroes(ISkillBody body)
         {
             if (Zone.Main != null && Zone.Main.Heroes.Count > 0) return Zone.Main.Heroes.All;
