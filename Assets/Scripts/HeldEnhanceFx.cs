@@ -4,16 +4,18 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Enhance effect of one held item or companion, drawn around its art by the owner each frame (tuning per band: FeelConfig.EnhanceLooks):
-    /// a light band sweeping over the surface (clipped to the art by the SpriteShine shader), a soft halo behind the art, twinkling stars on its
+    /// a light band sweeping over the surface (clipped to the art by the SpriteShine shader), a soft halo behind the art, twinkling stars beside its
     /// bright spots and motes drifting off it. Halo and shine are children of the art and share its sorting order, the render queue puts them
-    /// right before / after it; so the halo can be strong without whitening the blade. Stars and motes are placed in world space under `holderParent`.
+    /// right before / after it; so the halo can be strong without whitening the blade. Stars use the halo's order and material, so the painted art
+    /// always covers them and the weapon's shape stays readable. Stars and motes are placed in world space under `holderParent`.
     /// Slots are created the first time a band needs them and then reused; nothing allocates per frame.
     /// </summary>
     public sealed class HeldEnhanceFx
     {
-        sealed class Spark { public SpriteRenderer Sr; public Vector2 Pos, Vel; public float Age, Life, Wait, Size, Spin; public int Point; }
+        sealed class Spark { public SpriteRenderer Sr; public Vector2 Pos, Vel; public float Age, Life, Wait, Size, Spin, Side; public int Point; }
 
-        const float MaxStep = 0.05f, StarLife = 0.5f, StarSpinPerSec = 70f, StarWhite = 0.35f;
+        const float MaxStep = 0.05f, StarLife = 0.5f, StarSpinPerSec = 70f, StarWhite = 0.15f;
+        const float StarPeak = 0.6f, StarOffBlade = 3f, StarRefScale = 6.8f; // peak alpha; world units beside the blade; art scale of the Warrior sword: smaller weapons get smaller stars, closer in
         const float MoteLifeMin = 0.9f, MoteLifeMax = 1.5f, MoteRiseMin = 5f, MoteRiseMax = 10f, MoteSide = 3f, MoteSizeMin = 1.2f, MoteSizeMax = 2.1f, MoteGapMax = 0.5f, MoteWhite = 0.15f;
 
         static int budgetFrame = -1, budgetUsed;
@@ -83,18 +85,19 @@ namespace ZenoniaProto
                 halo.color = new Color(glow.r, glow.g, glow.b, breath * alpha);
             }
 
-            DrawStars(look, Mathf.CeilToInt(look.Stars * share), Color.Lerp(glow, Color.white, StarWhite), topOrder, behind, dt, alpha);
+            DrawStars(look, Mathf.CeilToInt(look.Stars * share), Color.Lerp(glow, Color.white, StarWhite), order, behind, dt, alpha);
             DrawMotes(Mathf.CeilToInt(look.Motes * share), Color.Lerp(glow, Color.white, MoteWhite), topOrder, dt, alpha);
         }
 
         void DrawStars(FeelConfig.EnhanceLook look, int count, Color tint, int order, bool behind, float dt, float alpha)
         {
             Vector2[] points = baked.Points;
+            float fit = Mathf.Min(1f, Mathf.Abs(art.lossyScale.y) / StarRefScale) * sizeK;
             for (int i = 0; i < stars.Length; i++)
             {
                 Spark s = stars[i];
                 if (i >= count) { if (s != null) { s.Sr.enabled = false; s.Life = 0f; } continue; }
-                if (s == null) s = stars[i] = NewSpark(FxSprites.Star(), Random.Range(0f, look.StarGapMax));
+                if (s == null) s = stars[i] = NewSpark(FxSprites.Star(), FeelMaterials.EnhanceHalo, Random.Range(0f, look.StarGapMax));
                 if (s.Life <= 0f)
                 {
                     s.Wait -= dt;
@@ -103,17 +106,20 @@ namespace ZenoniaProto
                     s.Age = 0f;
                     s.Point = Random.Range(0, points.Length);
                     s.Spin = Random.Range(0f, 90f);
+                    s.Side = Random.value < 0.5f ? -1f : 1f;
                 }
                 s.Age += dt;
                 if (s.Age >= s.Life) { s.Life = 0f; s.Wait = Random.Range(look.StarGapMin, look.StarGapMax); s.Sr.enabled = false; continue; }
                 s.Sr.enabled = !behind && TakeBudget(); // a star on a blade the body hides would float over the body
                 if (!s.Sr.enabled) continue;
-                float env = Mathf.Sin(s.Age / s.Life * Mathf.PI), size = look.StarSize * sizeK * (0.6f + 0.4f * env);
+                float env = Mathf.Sin(s.Age / s.Life * Mathf.PI), size = look.StarSize * fit * (0.6f + 0.4f * env);
                 Transform t = s.Sr.transform;
-                t.position = art.TransformPoint(points[s.Point]);
+                Vector3 spot = art.TransformPoint(points[s.Point]), along = spot - art.position;
+                float reach = Mathf.Max(0.001f, ((Vector2)along).magnitude), off = StarOffBlade * fit * s.Side / reach; // across the grip -> spot line, computed in world so a mirrored or squeezed art still gets a true sideways step
+                t.position = new Vector3(spot.x - along.y * off, spot.y + along.x * off, spot.z);
                 t.localScale = new Vector3(size, size, 1f);
                 t.rotation = Quaternion.Euler(0f, 0f, s.Spin + s.Age * StarSpinPerSec);
-                tint.a = env * alpha;
+                tint.a = env * StarPeak * alpha;
                 s.Sr.color = tint;
                 s.Sr.sortingOrder = order;
             }
@@ -126,7 +132,7 @@ namespace ZenoniaProto
             {
                 Spark s = motes[i];
                 if (i >= count) { if (s != null) { s.Sr.enabled = false; s.Life = 0f; } continue; }
-                if (s == null) s = motes[i] = NewSpark(FxSprites.Dot(), Random.Range(0f, MoteLifeMax));
+                if (s == null) s = motes[i] = NewSpark(FxSprites.Dot(), FeelMaterials.Additive, Random.Range(0f, MoteLifeMax));
                 if (s.Life <= 0f)
                 {
                     s.Wait -= dt;
@@ -159,7 +165,7 @@ namespace ZenoniaProto
             return budgetUsed++ < FeelConfig.EnhanceSparkBudget;
         }
 
-        Spark NewSpark(Sprite sprite, float wait)
+        Spark NewSpark(Sprite sprite, Material material, float wait)
         {
             if (holder == null)
             {
@@ -168,7 +174,7 @@ namespace ZenoniaProto
                 holder.SetParent(holderParent, false);
             }
             SpriteRenderer sr = ProceduralSprites.Child(holder, "Spark", sprite);
-            sr.sharedMaterial = FeelMaterials.Additive;
+            sr.sharedMaterial = material;
             sr.enabled = false;
             return new Spark { Sr = sr, Wait = wait };
         }

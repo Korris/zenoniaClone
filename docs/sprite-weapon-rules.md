@@ -14,6 +14,8 @@ Thân `bare/` (không vũ khí) + ảnh vũ khí/khiên đặt theo anchor từn
 | Art và điểm cầm của từng loại vũ khí (`baseGrip`, `enhancedGrip`) | `Assets/Resources/Data/held-gear.json` |
 | Cắt sheet chém, tính anchor melee | `Tools/build-melee-sheets.py` |
 | Nắm tay đè lên chuôi, anchor đứng yên/đi hai hướng ngang | `Tools/build-hand-overlay.py` |
+| Anchor súng Mechanic (`held-mechanic.json`) và lớp nắm tay `mechanic-hand/` | `Tools/build-mechanic-gun.py` (`Tools/export-held-gear.mjs` sẽ ghi đè, không chạy lại cho Mechanic) |
+| Danh sách động tác có lớp nắm tay của từng class | `HeroClassDef.HandFolder`, `HandAnims` |
 | Code vẽ | `Assets/Scripts/HeroRenderer.cs` |
 
 ## Quy tắc tư thế cầm
@@ -71,7 +73,11 @@ Thân `bare/` (không vũ khí) + ảnh vũ khí/khiên đặt theo anchor từn
 | 2026-10-31 | Assassin | Dao độc trông nhạt | `cast`, `dagger` bị trong suốt, độ đục khoảng 0,35 | Vẽ lại hình đặc, lõi sáng |
 | 2026-10-31 | Assassin | Khói và quầng còn vân caro | ChatGPT vẽ cứng caro vào ảnh RGB | Vẽ lại trên nền một màu rồi tách nền |
 | 2026-10-31 | Assassin | Tay đầu tiên tách nền vẫn thấy caro in vào quầng | Trừ nền bằng một màu xám cố định | Lấy màu theo độ bão hoà, hoặc vẽ lại trên nền đơn sắc |
-| 2026-10-31 | Mechanic | Súng lúc đứng yên/đi sai hướng; lúc bắn thành khẩu khác | Anchor sinh tự động: cỡ đổi liên tục (`s` 0,11–0,29), `sx` làm méo, nhiều frame `fallback` | Đang sửa: dựng lại anchor, cỡ cố định |
+| 2026-10-31 | Mechanic | Súng lúc đứng yên/đi sai hướng; lúc bắn thành khẩu khác | Anchor sinh tự động: cỡ đổi liên tục (`s` 0,11–0,29), `sx` làm méo, nhiều frame `fallback` | Bảng từng frame trong `Tools/build-mechanic-gun.py`: `s = 0.23`, `sx = ±1`, không còn `fallback` |
+| 2026-10-31 | Mechanic | Chuôi súng vẫn đè lên nắm tay dù đã có lớp nắm tay | Hình ellipse nhỏ (bán kính 9) không phủ hết nắm tay, thành viền chuôi quanh tay | Bán kính 12,5: lớp này chỉ lặp lại pixel của thân, chỗ `bare` trống thì chuôi vẫn lộ |
+| 2026-10-31 | Mechanic | Sheet `mechanic-bare` `attack3` (và tay trước ở `attack1` hướng lên) không có bàn tay rõ, chỉ là khúc tay hình ống, còn vệt nòng súng | Sheet `bare` được xoá súng từ sheet có súng nên giữ lại hình khẩu pháo lớn | Chưa vẽ lại; đặt súng theo vị trí chuôi vẽ sẵn, nòng đè lên khúc ống. Muốn đẹp hơn phải vẽ lại sheet |
+| 2026-10-31 | Mechanic | Tay cầm súng ở `mechanic-bare` khác sheet có súng: `walk` hướng trái và hướng lên, sheet có súng vung súng theo một tay ra sau rồi ra trước, còn ở `bare` cánh tay trơn (tay cầm súng) không vung như vậy | Hai sheet vẽ riêng | Anchor lấy theo nắm tay ở `bare`, súng luôn ở tay phải. Các frame này (`walk` trái 0, 1, 3; `walk` lên 0, 1, 3) không khớp hướng nòng với sheet có súng. Muốn khớp phải vẽ lại sheet |
+| 2026-10-31 | Mọi class | Ở +15, sao hình bông hoa loé trắng phủ lên vũ khí, nhất là súng và dao | `HeldEnhanceFx` vẽ sao ngay trên chỗ sáng nhất của art, ở lớp trên cùng, cường độ 1,7 vượt ngưỡng bloom; 5 sao cỡ 5 đơn vị và không co theo vũ khí nhỏ | Sao đặt lệch sang cạnh lưỡi và vẽ sau art (dùng material của quầng, cường độ 1,2), độ đục tối đa 0,6, ít trắng hơn, co theo cỡ art; +15 còn 3 sao cỡ 4. Thứ tự vẽ và vị trí áp dụng cho cả +11 và +13 để +13 không sáng hơn +15 |
 
 ## Khi đổi vũ khí
 
@@ -87,10 +93,12 @@ Mỗi loại kiếm có điểm cầm riêng và anchor dùng chung, nên art m�
 
 **Chưa kiểm tra:**
 - Mới xem kiếm `iron` loại thường. Các loại khác có `gripX` 47–69 và `gripY` 217–222, nên chuôi có thể lệch vài pixel; cần xem lại cả bản cường hoá vì nó dùng `enhancedGrip` riêng.
-- Lớp nắm tay chỉ mới có cho Warrior, đứng yên và đi hướng trái/phải. Đi tay không thì lớp này vẫn vẽ nhưng trùng với thân nên không lộ.
+- Lớp nắm tay chỉ mới có cho Warrior (đứng yên và đi hướng trái/phải) và Mechanic. Đi tay không thì lớp này vẫn vẽ nhưng trùng với thân nên không lộ.
 
 ## Việc còn tồn
 
 - Combo chém hướng trái (`melee1-4`) vẫn lật ảnh hướng phải nên đổi tay. Muốn đúng phải vẽ riêng 4 sheet hướng trái.
-- Hướng lên/xuống và lúc chém chưa có lớp nắm tay.
-- Các class khác chưa soát theo các quy tắc trên.
+- Warrior: hướng lên/xuống và lúc chém chưa có lớp nắm tay.
+- Mechanic: `attack2`, `death` không có sheet `bare` nên vẫn dùng súng vẽ sẵn, không theo đồ. `attack3`, `dash`, `hurt` hướng trái lật ảnh hướng phải nên súng đổi tay.
+- Mechanic: súng vẽ sẵn chĩa thẳng vào màn hình (`attack1` và `attack3` hướng xuống, `attack3` hướng lên) không vẽ lại được bằng art nhìn ngang, nên đặt súng chĩa ngang.
+- Wizard, Assassin, Cleric chưa soát theo các quy tắc trên.
