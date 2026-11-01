@@ -2,7 +2,7 @@
 Writes row 0 of each class's body/armed/idle.png, and marks idle/down `fallback` in its held-*-melee.json so the game draws that row whole: weapons are painted in and do not follow the equipment at this pose.
 The Warrior is repainted alone with a long sword (warrior-long-sword-src.png). The sword passes the 192 px cell, so its frames go to body/armed/idle-down-big.png (288 x 240 cells, HeroClassDef.BigIdleDown), drawn only when the hero has no gear data. Its armed row and idle/down anchors are NOT written here: Tools/build-warrior-idle-down-doll.py owns them, so running this cannot undo the paper doll.
 The Mechanic is repainted alone with one gun, an empty hand and the turret beside him (mechanic-turret-src.png; the turret is cut away for the sprite).
-The Cleric is repainted alone without wings (cleric-no-wings-src.png): wings will be an item for every class.
+The Cleric is repainted alone without wings, with her shield and no spirit (cleric-no-wings-src.png, the same picture as hero-select/cleric.png): wings and pets are items for every class. The shield is painted into this row, so here it does not follow the equipment.
 The robot and spirit in the painting are erased: HeroCompanion draws its own. The painted ground shadow too: HeroRenderer draws its own. Boxing has no class yet: it only goes to idle-down-set/boxing.png.
 Old rows are kept in idle-down-set/old-<class>-armed-idle.png. Needs Pillow, numpy and scipy; run from the project root.
 """
@@ -41,7 +41,7 @@ spec.loader.exec_module(hs)
 
 
 def solo_art(cfg, with_companion=False):
-    rgba = hs.key_out(SET / cfg["solo"], hs.GREEN)
+    rgba = hs.key_out(SET / (cfg.get("reference", cfg["solo"]) if with_companion else cfg["solo"]), hs.GREEN)
     if cfg.get("largest") and not with_companion:  # in the game the robot beside him is drawn by HeroCompanion
         labels, count = ndimage.label(rgba[..., 3] > 128)  # solid pixels only: the faint key halo joins everything
         keep = 1 + int(np.argmax(ndimage.sum(np.ones(labels.shape), labels, range(1, count + 1))))

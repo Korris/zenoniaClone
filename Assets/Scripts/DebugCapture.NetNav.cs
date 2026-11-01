@@ -113,7 +113,10 @@ namespace ZenoniaProto
                     if (hero != null && !hero.IsDead && portals.Length > 0)
                     {
                         if (lastMap != MapRegistry.Current) { lastMap = MapRegistry.Current; slot++; goal = portals[slot % portals.Length]; }
-                        move = StepToward(hero.Position, TileCenter(new Vector2Int(goal.Tx, goal.Ty)));
+                        Vector2 center = TileCenter(new Vector2Int(goal.Tx, goal.Ty));
+                        move = StepToward(hero.Position, center);
+                        // On the goal tile by the feet, but the trigger samples a little above them (PortalTile.OfFeet): walking from above it would stop just short. On to the middle.
+                        if (move == Vector2.zero) move = new Vector2(Mathf.Abs(center.x - hero.Position.x) > 1f ? Mathf.Sign(center.x - hero.Position.x) : 0f, Mathf.Abs(center.y - hero.Position.y) > 1f ? Mathf.Sign(center.y - hero.Position.y) : 0f);
                     }
                 }
                 return (k == GameKey.Left && move.x < 0f) || (k == GameKey.Right && move.x > 0f) || (k == GameKey.Down && move.y < 0f) || (k == GameKey.Up && move.y > 0f);

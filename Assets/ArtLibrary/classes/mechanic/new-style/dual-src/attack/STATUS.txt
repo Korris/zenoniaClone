@@ -1,0 +1,25 @@
+2026-11-01, renderer agent. All four attack rows are ALREADY DRAWN (4 images spent, opened and viewed). Nothing more is needed here unless the renderer agent reports a problem after seeing them in the game.
+
+attack3-down.png   6 frames, both arms out, fists well apart. Good. Chat: https://chatgpt.com/c/6ae70a66-8904-83ec-96a6-af3d9fcfdc6e
+attack4-right.png  6 frames, hit 4 (name used in code: attack4). Good. Chat: https://chatgpt.com/c/6ae70af7-1008-83ec-b698-51a562f88558
+attack4-down.png   6 frames, good. Head about 14% smaller against body than other rows by measure, installed at a mean scale. Chat: https://chatgpt.com/c/6ae70b65-5d84-83ec-a677-1cf3c6b7e905
+attack4-up.png     6 frames, good. Chat: https://chatgpt.com/c/6ae70bcc-d228-83ec-af67-d31216487669
+
+Frame plan of hit 4 (the bolt leaves at 140 of 480 ms, about frame 1): 1 reach back, 2 swing, 3 fire stance, 4 recoil with kicked leg, 5 as 3, 6 lift back. Left row is the right row mirrored. Empty fists, no cannon painted, the cannon is an overlay.
+The tool reads body/ in this folder's parent, so a replacement must also tell the renderer agent. Do not redraw on a guess: it costs shared quota.
+
+[attack agent, 2026-11-01 17:02] For about 3 minutes this file wrongly read "in progress: attack rows being drawn, nothing cut yet": I overwrote the note above by mistake. It is restored word for word. Ignore that line if you read it. No image has been sent by me.
+
+[attack agent, 2026-11-01 17:12] Correction to my line above: one image was sent since (hit4-down redraw). OUT OF QUOTA: "Try again tomorrow at 3:30 PM" on account Tay. Drawing stopped.
+Names: the rows above are now raw-attack3-down.png, raw-attack4-*.png (copies; the renderer's originals in ../body/ are untouched). Cut sheets, 192 px cells, 6 frames, sole row 188: attack3-down.png, hit4-down.png, hit4-up.png, hit4-right.png, plus fists.txt. Tool: Tools/build-mechanic-dual-attack.py.
+
+USABLE: attack3-down, hit4-right.
+USER REJECTED, NOT FIXED: hit4-down.png (from raw-attack4-down-v2.png, head size now right, 0.965 of idle down) holds the cannon sideways. Must be vertical, muzzle down, fists in a vertical line near the centre, frames 2-5.
+SAME FAULT, NOT FIXED: hit4-up.png, fists on a diagonal. Must be vertical, muzzle up.
+NOT DRAWN: rocket-down.png, rocket-up.png, rocket-right.png. Skill: hero locked 850 ms (SkillTable lockMs), rockets launch at 400, 440, 480 ms, any of 4 facings (owner.Facing). Plan 4 frames: lift, aimed, recoil, aimed.
+Do not install hit4-down or hit4-up as final.
+
+Order when quota returns: hit4-down, hit4-up, rocket-right, rocket-down, rocket-up. New chat each. Attach: the row named as image 1, custom/hero-select/mechanic.png, docs/reference/hero-idle-down-5-classes.png. Then cut, read fists, compose WITH the cannon and view before calling it done.
+hit4-down, image 1 raw-attack4-down-v2.png: "Generate an image. Draw a brand new row of 6 animation frames of this hero, facing the camera, in one horizontal row. Character, head size and frames 1, 2 come only from image 1, line style only from image 2. Image 2 shows an old gun and a turret: do not draw them. Image 3 only shows proportions. Frames 3 to 6: he holds a large invisible cannon that runs straight down the front of his body with the muzzle pointing at the ground below him, the cannon is NOT drawn. Both hands are closed empty fists in one vertical line on the centre of the body: upper fist in front of the chest, lower fist in front of the waist, a clear gap between them. Legs braced wide apart. Frame 4 is firing recoil: squeezed eyes, shouting, torso leaning back, feet on the ground. Frames 5 and 6 as frame 3. No weapons, no gauntlet, no extra straps. Same scale, feet on one line. Flat #00FF00 background, no shadow, no effects, frames apart, not touching the image edge."
+hit4-up, image 1 raw-attack4-up.png: the same text, seen from behind, back of the head, no face; "muzzle pointing straight up the screen", fists in one vertical line in front of the body, the raised fist showing above the shoulder line beside the head and not hidden by the hair; frame 4 recoil without a face.
+rocket-*, image 1 raw-attack4-right.png, raw-attack4-down-v2.png, raw-attack4-up.png: 4 frames, large invisible cannon aimed diagonally up at the sky, not drawn, both closed fists far apart on one rising diagonal line; braced stance leaning back. Frame 1 lifting, frame 2 aimed, frame 3 recoil leaning back further, frame 4 as frame 2. Right: truly side-on, one eye. Up: back of the head, no face.

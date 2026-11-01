@@ -1,0 +1,20 @@
+2026-11-01, move agent. STOPPED: account Tay hit the dated image limit ("Try again tomorrow at 3:30 PM", resets in 22 hours). 2 images spent by this agent, both opened and viewed.
+
+DONE, ready for the code agent (nothing installed by me):
+idle-right.png  4 cells (one painted frame, breathing by script as wm.breathe), raw/mech-move-idle-right-1.png. Chat: https://chatgpt.com/c/6ae70e1c-08d4-83ec-9f10-1e0dea31877c
+walk-right.png  4 cells, same count as the old row, raw/mech-move-walk-right-1.png. Chat: https://chatgpt.com/c/6ae70f47-93e0-83ec-923f-f1086dd88988
+fists.txt       both fist centres per frame, including the left mirror
+Measured: sole 188 on every frame, top 24-26, head width 75-77 px in the column of the installed rows (installed idle 75, walk 79-80), hair and skin within 2 levels of installed idle right.
+
+Left rows: the mirror is allowed for idle and walk. Hand rule 4 protects items that differ; here both hands hold the same pistol art, and both fists are holding fists, so nothing visibly changes hand. Mirror the fists too and swap the labels (fists.txt does this). If the pistols ever differ between hands, this stops being true.
+
+NOT DRAWN:
+attack2 right   limit hit on this request, no image came back. The old row stays. Keep LEFT[("attack2", "right")] = None until it is drawn.
+idle down row 0 not sent. User correction 2026-11-01: NOT the approved arms-out pose. Arms relaxed down at the sides, slightly away from the body, a fist at each hip. Pistols point DOWN at the ground; suggested aim clockwise from +x: screen-left fist about 100 (flip -1), screen-right fist about 80 (flip +1). Weapons not painted.
+idle-down.png in this folder was NOT made by this agent and is the arms-out pose the user has now rejected for this row (same size as ../body/idle-down.png). Do not install it as the new row.
+
+To resume after the limit, in a new chat each:
+attack2 right: attach src/attack2-right.png, raw/mech-move-idle-right-1.png, docs/reference/hero-idle-down-5-classes.png. Prompt as sent: Redraw this row of 4 frames exactly, pose, stance, near arm, legs, cape, outfit, faces and frame order only from image 1, line style and colours only from image 2; one change: paint the hidden far arm, bent, forearm forward, whole closed fist ahead of the belly at waist height, below the near arm, clear gap between fists, clear of the belt, same position every frame; empty fists, no weapons, no gauntlet, no extra straps; flat #00FF00, no shadow, not touching the edge.
+idle down: then add both rows to ROWS, FISTS and HEAD_COL in Tools/build-mechanic-dual-move.py, run cut, grid, fists, contact.
+
+Costume question for the user, not changed by me: torso differs between rows. idle and walk right are sleeveless with a small harness; attack2 right installed has brown sleeves and a shoulder gem; attack3 and attack4 have white short sleeves and a vest; the approved image is sleeveless with big straps.

@@ -2,13 +2,13 @@ using LiteNetLib.Utils;
 
 namespace ZenoniaProto.Net
 {
-    public enum EntityKind : byte { Hero = 0, Monster = 1, Loot = 2 }
+    public enum EntityKind : byte { Hero = 0, Monster = 1, Loot = 2, Turret = 3 }
 
     public enum DespawnCause : byte { LeftAoi = 0, Died = 1, Removed = 2, PickedUp = 3, Logout = 4 }
 
     /// <summary>
     /// Spawn message (reliable): creates a proxy on a client. Common header + a payload chosen by Kind (union struct, unused fields stay 0):
-    /// Hero = PlayerId, Name, Level, Look; Monster = Hp, MaxHp, State; Loot = Amount, ItemDefId, Rarity, Enhance, OwnerPlayerId, FreeAtMs.
+    /// Hero = PlayerId, Name, Level, Look; Monster = Hp, MaxHp, State; Loot = Amount, ItemDefId, Rarity, Enhance, OwnerPlayerId, FreeAtMs; Turret = OwnerPlayerId (the caster's hero id), Amount (ms of life left), Facing 1 = faces right.
     /// </summary>
     public struct SpawnMsg
     {
@@ -38,6 +38,7 @@ namespace ZenoniaProto.Net
                 case EntityKind.Hero: w.Put(PlayerId); w.Put(Name ?? "", NetProtocol.MaxNameLength); w.Put(Level); Look.Write(w); break;
                 case EntityKind.Monster: w.Put(Hp); w.Put(MaxHp); w.Put(State); break;
                 case EntityKind.Loot: w.Put(Amount); w.Put(ItemDefId); w.Put(Rarity); w.Put(Enhance); w.Put(OwnerPlayerId); w.Put(FreeAtMs); break;
+                case EntityKind.Turret: w.Put(OwnerPlayerId); w.Put(Amount); break;
             }
         }
 
@@ -48,13 +49,14 @@ namespace ZenoniaProto.Net
             try
             {
                 m.Id = r.GetUShort(); byte kind = r.GetByte(); m.Type = r.GetByte(); m.X = r.GetShort(); m.Y = r.GetShort(); m.Facing = r.GetByte();
-                if (kind > (byte)EntityKind.Loot) return false;
+                if (kind > (byte)EntityKind.Turret) return false;
                 m.Kind = (EntityKind)kind;
                 switch (m.Kind)
                 {
                     case EntityKind.Hero: m.PlayerId = r.GetUShort(); m.Name = r.GetString(NetProtocol.MaxNameLength); m.Level = r.GetByte(); m.Look = NetAppearance.Read(r); break;
                     case EntityKind.Monster: m.Hp = r.GetUShort(); m.MaxHp = r.GetUShort(); m.State = r.GetByte(); break;
                     case EntityKind.Loot: m.Amount = r.GetInt(); m.ItemDefId = r.GetUShort(); m.Rarity = r.GetByte(); m.Enhance = r.GetByte(); m.OwnerPlayerId = r.GetUShort(); m.FreeAtMs = r.GetUInt(); break;
+                    case EntityKind.Turret: m.OwnerPlayerId = r.GetUShort(); m.Amount = r.GetInt(); break;
                 }
                 return true;
             }

@@ -58,6 +58,11 @@ namespace ZenoniaProto
                     bool fresh = m.OwnerPlayerId != 0 && NetClient.ServerNowMs < m.FreeAtMs - LootOwnership.PriorityMs + 800f;
                     LootDrop.SpawnProxy(root, e, at, m.Id, m.OwnerPlayerId, m.FreeAtMs, fresh);
                     break;
+                case EntityKind.Turret:
+                    if (existing != null) return;
+                    DeployedTurret.SpawnProxy(root, m.Id, at, m.OwnerPlayerId, m.Facing != 0, m.Amount);
+                    stats.Add("turretSpawnsSeen", 1);
+                    break;
             }
         }
 
@@ -73,7 +78,9 @@ namespace ZenoniaProto
             Monster mo = o as Monster;
             if (mo != null) { Object.Destroy(mo.gameObject); return; }
             LootDrop l = o as LootDrop;
-            if (l != null) Object.Destroy(l.gameObject);
+            if (l != null) { Object.Destroy(l.gameObject); return; }
+            DeployedTurret t = o as DeployedTurret;
+            if (t != null) t.End(m.Cause == DespawnCause.Removed); // walked out of its range of interest: no vanishing picture
         }
 
         /// <summary>Pushes the state at `renderTime` into every proxy that has snapshot data.</summary>
@@ -123,6 +130,7 @@ namespace ZenoniaProto
                 l.NetId = 0;
                 Object.Destroy(l.gameObject);
             }
+            DeployedTurret.ClearZone(zone);
             zone.Monsters.Clear(); zone.Loot.Clear();
             zone.Boss = null;
             for (int i = zone.Heroes.All.Count - 1; i >= 0; i--)
@@ -136,7 +144,7 @@ namespace ZenoniaProto
             zone.Ids.Clear();
             ComboProjectile.RetireAll();
             foreach (MonoBehaviour b in root.GetComponentsInChildren<MonoBehaviour>())
-                if (b is SkillRun || b is SkillBolt || b is SkillGroundZone || b is SkillMinion || b is SkillMotion || b is SkillChoreoPlayer || b is BladeDanceFx || b is VenomDaggersFx || b is ShadowCloneFx || b is DeathMarkFx) Object.Destroy(b.gameObject);
+                if (b is SkillRun || b is SkillBolt || b is SkillGroundZone || b is SkillMinion || b is SkillMotion || b is SkillChoreoPlayer || b is BladeDanceFx || b is VenomDaggersFx || b is ShadowCloneFx || b is DeathMarkFx || b is MechanicCannonBlastFx) Object.Destroy(b.gameObject);
         }
 
         /// <summary>Removes every proxy (disconnect / leaving the online game).</summary>
@@ -146,6 +154,7 @@ namespace ZenoniaProto
             if (zone == null) return;
             for (int i = zone.Monsters.Count - 1; i >= 0; i--) if (zone.Monsters[i] != null) Object.Destroy(zone.Monsters[i].gameObject);
             for (int i = zone.Loot.Count - 1; i >= 0; i--) if (zone.Loot[i] != null) Object.Destroy(zone.Loot[i].gameObject);
+            DeployedTurret.ClearZone(zone);
             for (int i = zone.Heroes.All.Count - 1; i >= 0; i--)
             {
                 HeroController h = zone.Heroes.All[i];

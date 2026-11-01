@@ -1,5 +1,8 @@
 namespace ZenoniaProto.Rpg
 {
+    /// <summary>What one drain did to the worn pet: nothing to tell, it just crossed the warning line, or it is gone.</summary>
+    public enum PetWear { None, Low, WornOut }
+
     /// <summary>PlayerState: bag, equipment slots, starter gear, consumables and pickups.</summary>
     public sealed partial class PlayerState
     {
@@ -64,6 +67,58 @@ namespace ZenoniaProto.Rpg
             }
             if (changed) RecomputeStats();
             return changed;
+        }
+
+        long petAttackWindowEndsMs;
+
+        /// <summary>A monster hit this hero, who survives it. Only a pet that drains on hits taken (the spirit) loses anything. The caller checks the hero is alive.</summary>
+        public PetWear PetHitTaken()
+        {
+            PetDef pet = PetConfig.Of(GetEquipped(Slots.Pet));
+            return pet != null ? DrainPet(pet.DrainPerHitTaken) : PetWear.None;
+        }
+
+        /// <summary>This hero landed a hit. Only a pet that drains on attacks (the imp) loses anything, and only once per attack event (PetConfig.AttackWindowMs). The caller checks the hero is alive.</summary>
+        public PetWear PetAttackLanded(long nowMs)
+        {
+            PetDef pet = PetConfig.Of(GetEquipped(Slots.Pet));
+            if (pet == null || pet.DrainPerAttack <= 0 || nowMs < petAttackWindowEndsMs) return PetWear.None;
+            petAttackWindowEndsMs = nowMs + PetConfig.AttackWindowMs;
+            return DrainPet(pet.DrainPerAttack);
+        }
+
+        PetWear DrainPet(int amount)
+        {
+            if (amount <= 0) return PetWear.None;
+            Item worn = GetEquipped(Slots.Pet);
+            int before = worn.durability;
+            worn.durability = System.Math.Max(0, before - amount);
+            if (worn.durability > 0) return PetConfig.IsLow(worn.durability) && !PetConfig.IsLow(before) ? PetWear.Low : PetWear.None;
+            SetEquippedRaw(Slots.Pet, null); // gone for good: it is in no list any more, so no save can bring it back
+            RecomputeStats(); // the bonus stops now, and HP comes down to the new maximum
+            return PetWear.WornOut;
+        }
+
+        /// <summary>How many of this pet the hero has: in the bag and worn.</summary>
+        public int PetCount(PetDef def)
+        {
+            int n = PetConfig.Of(GetEquipped(Slots.Pet)) == def ? 1 : 0;
+            foreach (Item i in Inventory) if (PetConfig.Of(i) == def) n++;
+            return n;
+        }
+
+        /// <summary>Pays and puts a new pet in the bag. Whether this seller may sell it is the caller's check (PetConfig.Refusal).</summary>
+        public ActionResult BuyPet(PetDef def, Rand rand = null)
+        {
+            if (def == null) return ActionResult.Fail("Not sold here");
+            if (Inventory.Count >= InventorySize) return ActionResult.Fail("Inventory full");
+            if (Gold < def.Price) return ActionResult.Fail("Not enough gold");
+            Item pet;
+            do pet = ItemFactory.CreatePet(def, rand ?? RpgRandom.Default);
+            while (Inventory.Exists(i => i.uid == pet.uid) || (GetEquipped(Slots.Pet) != null && GetEquipped(Slots.Pet).uid == pet.uid));
+            Gold -= def.Price;
+            Inventory.Add(pet);
+            return ActionResult.Success("Bought " + def.Name);
         }
 
         // ---- consumables ----

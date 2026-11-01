@@ -11,23 +11,28 @@ cd server-api
 npm install
 cp .env.example .env        # then edit JWT_SECRET / SERVICE_KEY. NEVER commit .env
 npm start                   # needs MongoDB at MONGO_URI
-npm test                    # in-memory MongoDB (mongodb-memory-server), no Docker needed
+npm test                    # in-memory MongoDB replica set (mongodb-memory-server), no Docker needed
 ```
 
+**MongoDB must be a replica set** (one node is enough): a trade writes two characters in one transaction, and the server refuses to start on a standalone mongod. `docker compose` sets that up. Without Docker, `node scripts/dev-mongo.mjs --port 27117 --db-path .dev-data` runs a real mongod as a one-node set on loopback (dev only; `Tools/play-online.ps1` does all of this and starts the game too).
+
 Docker (API + Mongo): `docker compose up --build` (dev-only default secrets; override via env / untracked `.env`). API on http://localhost:3000, `GET /health`.
-Tests against a real Mongo instead: `TEST_MONGO_URI=mongodb://localhost:27017 npm test` (each test file uses its own throw-away database).
+Tests against a real Mongo instead: `TEST_MONGO_URI="mongodb://localhost:27017/?replicaSet=rs0" npm test` (each test file uses its own throw-away database).
+
+The zone server finds the API with `--api-url URL --zone-id <ZONE_ID>` and reads the service key from its environment variable `ZENONIA_SERVICE_KEY`, never from a command line or a file in the repo. `ZONE_PORT` must be the port the zone listens on.
 
 ## Environment
 
-See `.env.example`. Required: `MONGO_URI`, `JWT_SECRET` (>= 32 chars), `SERVICE_KEY` (>= 16 chars). The process refuses to start on invalid config.
+See `.env.example`. Required: `MONGO_URI`, `JWT_SECRET` (>= 32 chars), `SERVICE_KEY` (>= 16 chars). The process refuses to start on invalid config, and with `NODE_ENV=production` also on the placeholder secrets of the example files.
+Password reset mail: `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` all filled = mailed. Otherwise the link is logged outside production; in production a warning at startup says no mail goes out and nothing about the token is logged. Query strings never reach the log.
 `ZONE_ID/ZONE_HOST/ZONE_PORT` = the address handed to clients by `/characters/:id/enter` (phase 4 replaces it with a zone registry).
-Behind a reverse proxy set `TRUST_PROXY=true`, otherwise IP rate limits see the proxy address.
+Behind a reverse proxy set `TRUST_PROXY=true`, otherwise IP rate limits see the proxy address. The proxy must then OVERWRITE `X-Forwarded-For` with the real client address (`deploy/nginx/zenonia.conf.template` does), because the API believes its leftmost entry.
 
 ## Conventions
 
 - Errors: `{ "error": { "code": "snake_case", "message": "...", "details"?: [...] } }`. 400 validation_error (details = per-field), 401 unauthenticated, 403 bad service key, 404 not_found (also "not yours"), 409 conflict, 422 rule violation, 429 rate_limited (+ `Retry-After`).
 - Public routes: `Authorization: Bearer <accessToken>`. Internal routes: `x-service-key: <SERVICE_KEY>` (zone servers only; keep the API's internal routes off the public internet / behind the firewall).
-- Character `state` is exactly Unity `SaveData` (`Assets/Scripts/Rpg/SaveSerializer.cs`) with `Item` / `ItemStats` field names, so `JsonUtility` reads it as-is. `rev` (optimistic version, starts 0, +1 per write) is separate from `state.version` (save format, 1).
+- Character `state` is exactly Unity `SaveData` (`Assets/Scripts/Rpg/SaveSerializer.cs`) with `Item` / `ItemStats` field names, so `JsonUtility` reads it as-is. `rev` (optimistic version, starts 0, +1 per write) is separate from `state.version` (save format, 2 since pets carry durability; older stored states are 1).
 
 ## Public endpoints
 
@@ -37,7 +42,8 @@ Behind a reverse proxy set `TRUST_PROXY=true`, otherwise IP rate limits see the 
 | `POST /auth/login` | `{login (username or email), password}` | 200 same shape; 401 `invalid_credentials`; 429 lockout / IP limit |
 | `POST /auth/refresh` | `{refreshToken}` | 200 new pair (old token revoked; reuse of a revoked token revokes the whole family) |
 | `POST /auth/logout` | `{refreshToken}` | `{ok}` |
-| `POST /auth/password-reset/request` | `{email}` | 202 always. STUB: the reset link is logged, not mailed |
+| `POST /auth/password-reset/request` | `{email}` | 202 always (never waits for SMTP). At most one mail per account per `RESET_MAIL_COOLDOWN_SEC`. The link is `PASSWORD_RESET_URL#token=...` |
+| `GET /reset` | | Static page the link lands on; reads the token from the `#fragment`, posts to confirm |
 | `POST /auth/password-reset/confirm` | `{token, password}` | `{ok}`; signs out every device |
 | `GET /characters` | | `{characters:[{id,name,classId,level,mapId,rev,online,createdAt}]}` |
 | `POST /characters` | `{name 3-16 [A-Za-z0-9_], classId}` | 201 `{character}`; one per class (warrior, wizard, mechanic, cleric, assassin) = max 5; names unique case-insensitively |
@@ -53,15 +59,19 @@ Behind a reverse proxy set `TRUST_PROXY=true`, otherwise IP rate limits see the 
 | `POST /internal/characters/:id/save {sessionId, rev, state}` | Full snapshot. -> `{rev, savedAt}`. Needs the lock + current rev, refreshes the heartbeat. 409 `session_mismatch` / `rev_conflict`(details.currentRev), 422 `enhance_tamper` / `class_mismatch` |
 | `POST /internal/characters/:id/ops {sessionId, rev, reqId, ops[]}` | Atomic, idempotent batch: `addItem`, `removeItem`, `equip`, `unequip`, `adjust {gold,hpPotion,mpPotion,upgradeStone deltas}`. -> `{ok, rev, state, replayed}`; 422 `inventory_full`, `wrong_class`, `insufficient_funds`, ... |
 | `POST /internal/characters/:id/enhance {sessionId, rev, reqId, itemUid}` | One attempt rolled by the API. -> `{ok, success, level, reason, upgradeStone, rev, state, replayed}`. `ok:false` = refused (`not-owned`, `not-weapon`, `max-level`, `no-cost`), nothing changes |
+| `POST /internal/trades/commit {tradeId, a, b}` | One trade, both characters in one transaction. Each side: `{characterId, sessionId, rev, state, giveUids, giveGold}`, `state` = what the zone holds now. The goods move here. -> `{replayed, a:{rev}, b:{rev}}`. Retrying a `tradeId` never applies twice. 409 `rev_conflict` / `session_mismatch`, 422 `trade_item_missing`, `insufficient_funds`, `trade_invalid`, `trade_starter`, `trade_empty`, `enhance_tamper`, ... : nothing changed on either side |
 | `POST /internal/sessions/:sessionId/end {characterId}` | Release the lock after the final save. Idempotent -> `{released}` |
+| `POST /internal/zones/:zoneId/reset-sessions` | A zone process just started: frees the locks of its earlier run, so a crash does not hold its players for 90 s. Must be this API's `ZONE_ID` (404 otherwise) -> `{released}` |
 | `GET /internal/zones` | Registry stub |
 
 ### Rules worth knowing
 
 - **One session per character.** `redeem` takes the lock; a second `enter`/`redeem` gets 409 `already_online` (the first session is NOT kicked). The lock is refreshed by every save/ops/enhance and expires 90 s after the last one (crashed zone). A session that lost the lock can never write again (`session_mismatch`).
 - **Enhance** uses the C# numbers (`Enhance.cs`): success by target level `[+1..+3: 100 %, 90, 85, 80, 70, 65, 60, 50, 45, 40, 30, 25, 20 %]` (+15 max), cost 1 Upgrade Stone (also spent on failure), ATK curve 10/20/35/60 % per level with a +1/level floor (`src/rpg/enhance-logic.js` ports it, incl. `enhanceBonus`). The roll is `rand() < chance` with a CSPRNG; tests inject the RNG. Idempotent per `reqId` (stored atomically with the result in the character document, last 30 ids), audited in the `ledger` collection.
+- **Pets** (`slot: 'pet'`, `templateId` from `PET_TEMPLATE_IDS`) carry no stats and stay +0: enhance refuses them (`not-weapon`) and a state with an enhanced or class-tied pet is invalid. `durability` is 0..1000 and only goes down: a save above the stored value gets 422 `durability_tamper`, `ops.addItem` needs a full pet. The zone drains it and removes a worn-out pet. The zone sells them and saves the gold and the item in one snapshot. Bonuses and prices are in `Assets/Scripts/Rpg/PetConfig.cs`, only the zone uses them.
 - **Only the API raises enhance levels.** A saved snapshot may not carry a higher `enhance` than stored; unseen items must be +0 (`enhance_tamper`). Granted items (`ops.addItem`) must be +0.
 - **Loot** is rolled by the zone server in C#; persist it with `ops`/`save`.
+- **Trades** are written before the zone moves anything or tells a player, so a trade a player saw is durable, and a refused one moved nothing. The `ledger` entry (`type: 'trade'`, unique `tradeId`) is both the audit trail and what makes a retry safe.
 - Writes carry `rev`. After enhance/ops the zone must adopt the returned `rev` (and `state`) before its next save; flush pending changes with `save` BEFORE calling enhance/ops so the stored state is current.
 
 ## Rate limits (in-memory, per process)
@@ -75,8 +85,11 @@ src/app.js            build Fastify app (injectable db/cfg/now/rand/mailer)   sr
 src/routes/*          auth / character / internal routes                      src/schemas.js zod request schemas
 src/services/*        character persistence + session lock
 src/auth/*            jwt, bcrypt, refresh tokens, tickets, rate limiter, guards
-src/rpg/*             constants, item/state validation, enhance logic, inventory ops (mirror Assets/Scripts/Rpg)
+src/rpg/*             constants, item/state validation, enhance logic, inventory ops, trade move (mirror Assets/Scripts/Rpg)
+scripts/*             DEV ONLY: dev-mongo (local replica set), dev-seed (test goods, loopback only)
 test/*                vitest + mongodb-memory-server
 ```
 
-Not covered yet (see plan): item template catalog export for stricter item validation, email delivery, email verification, social login, metrics.
+Production deployment: `docs/deploy.md` and `deploy/`.
+
+Not covered yet (see plan): item template catalog export for stricter item validation, email verification, social login, metrics.

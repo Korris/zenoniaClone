@@ -3,7 +3,7 @@ import { conflict, parse, tooMany, unauthorized } from '../errors.js';
 import { randomToken, sha256 } from '../auth/refresh-token-service.js';
 import { loginSchema, refreshSchema, registerSchema, resetConfirmSchema, resetRequestSchema } from '../schemas.js';
 
-/** /auth/*: register, login (lockout + IP limit), refresh (rotating), logout, password reset (stub: link is logged). */
+/** /auth/*: register, login (lockout + IP limit), refresh (rotating), logout, password reset (mail through the injected mailer). */
 export function authRoutes(app, { db, cfg, now, jwt, passwords, refreshTokens, limiters, mailer }) {
   const users = db.collection('users');
   const resets = db.collection('password_resets');
@@ -81,10 +81,15 @@ export function authRoutes(app, { db, cfg, now, jwt, passwords, refreshTokens, l
     limit(limiters.login, req.ip);
     const { email } = parse(resetRequestSchema, req.body);
     const user = await users.findOne({ emailLower: email });
-    if (user) {
+    const userId = user ? String(user._id) : null;
+    // One mail per account per cooldown: the IP limit alone would let anyone flood somebody's mailbox and use up the sender's daily quota.
+    const recent = user && await resets.findOne({ userId, createdAt: { $gt: new Date(now() - cfg.RESET_MAIL_COOLDOWN_SEC * 1000) } });
+    if (user && !recent) {
       const token = randomToken(32);
-      await resets.insertOne({ _id: sha256(token), userId: String(user._id), expiresAt: new Date(now() + cfg.RESET_TTL_SEC * 1000) });
-      await mailer.sendPasswordReset({ email, username: user.username, link: `${cfg.PASSWORD_RESET_URL}?token=${token}`, token });
+      await resets.insertOne({ _id: sha256(token), userId, createdAt: new Date(now()), expiresAt: new Date(now() + cfg.RESET_TTL_SEC * 1000) });
+      // Not awaited: an answer that waits for SMTP, or a 500 when SMTP fails, would tell who has an account. The token is in a #fragment so it reaches no server log.
+      (async () => mailer.sendPasswordReset({ email, username: user.username, link: `${cfg.PASSWORD_RESET_URL}#token=${token}`, token }))()
+        .catch((err) => req.log.error({ code: err.code, responseCode: err.responseCode, command: err.command }, 'password reset mail could not be sent'));
     }
     return reply.status(202).send({ ok: true });
   });
@@ -98,6 +103,7 @@ export function authRoutes(app, { db, cfg, now, jwt, passwords, refreshTokens, l
       { _id: new ObjectId(doc.userId) },
       { $set: { passHash: await passwords.hash(password), failedLogins: 0, lockUntil: null } },
     );
+    await resets.deleteMany({ userId: doc.userId }); // an older mail must not work after this
     await refreshTokens.revokeAllForUser(doc.userId); // every device must log in again
     return { ok: true };
   });

@@ -54,7 +54,7 @@ namespace ZenoniaProto
             bool usable = me == null || me.CanEquip(item);
             string locked = string.IsNullOrEmpty(item.classId) ? "" : "   " + (usable ? "" : "<color=#ff8070>") + RpgClasses.Get(item.classId).Name + " only" + (usable ? "" : "</color>");
             slotLine.text = ItemInfo.SlotLabel(item.slot) + locked;
-            levelLine.text = "Lv. " + item.itemLevel + "   " + ItemInfo.RarityLabel(item.rarity);
+            levelLine.text = item.slot == Slots.Pet ? ItemInfo.DurabilityLine(item) + (PetConfig.IsLow(item.durability) ? "   <color=#ff7060>Almost worn out!</color>" : "") : "Lv. " + item.itemLevel + "   " + ItemInfo.RarityLabel(item.rarity);
 
             Item worn = me != null ? me.GetEquipped(item.slot) : null;
             rule.text = worn != null ? "Against your " + EnhanceStats.DisplayName(worn) : "You wear nothing in this slot";

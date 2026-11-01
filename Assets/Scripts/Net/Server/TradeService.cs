@@ -10,8 +10,8 @@ namespace ZenoniaProto
     /// <summary>
     /// The trade rules (TradeBook) on the wire, over the real PlayerState of each connected player. Requests are applied as they arrive and all their consequences go out in the same tick:
     /// a finished trade pushes both players' full RPG state first, so the bag mirrors are already right when the window closes. Every completed trade goes to the server log, standing in
-    /// for the ledger of the world server. Nothing is saved here because nothing on the server path saves at all: heroes live and die with the connection (ServerHeroFactory).
-    /// When characters get loaded from the API, this is the point that must become its transaction, see plans/261030-1150-online-mmo-world/phase-06-party-guild-trade-vendor.md.
+    /// next to the ledger of the world server. With real accounts (ZonePersistence) a confirmed trade is written first, both characters in one API transaction, and only then moves here:
+    /// the players are told once it is durable, a refusal moves nothing, and a player leaving meanwhile changes nothing (TradeBook.FinishCommit). On a dev server it moves at once and nothing is saved.
     /// </summary>
     public sealed class TradeService
     {
@@ -23,9 +23,14 @@ namespace ZenoniaProto
         readonly NetDataWriter w = new NetDataWriter();
         readonly ServerReplication repl;
         readonly NetStats stats;
+        readonly ZonePersistence persistence;
         float nextRefusalLog;
 
-        public TradeService(ServerReplication replication, NetStats netStats) { repl = replication; stats = netStats; Active = this; }
+        public TradeService(ServerReplication replication, NetStats netStats, ZonePersistence zonePersistence = null)
+        {
+            repl = replication; stats = netStats; persistence = zonePersistence; Active = this;
+            Book.CommitFirst = persistence != null;
+        }
 
         public void Stop() { if (Active == this) Active = null; }
 
@@ -70,8 +75,33 @@ namespace ZenoniaProto
             Flush();
         }
 
+        void StartCommit(TradeCommitRequest c)
+        {
+            NetPlayer a, b;
+            if (!online.TryGetValue(c.A, out a) || !online.TryGetValue(c.B, out b) || a.Saved == null || b.Saved == null || !persistence.ApiHealthy)
+            {
+                stats.Add("tradeCommitNotStarted", 1);
+                Book.FinishCommit(c.Token, false); // cannot be written now: better a clear no than a window that hangs. Nothing went out, so nothing can have happened.
+                return;
+            }
+            a.Rpg.BagHeld = b.Rpg.BagHeld = true;
+            persistence.CommitTrade(a, b, c, ok =>
+            {
+                a.Rpg.BagHeld = b.Rpg.BagHeld = false;
+                if (!Book.FinishCommit(c.Token, ok)) Debug.LogError("[ZenoniaProto] trade: written by the API but not moved here: " + a.Name + " / " + b.Name);
+                if (!ok) Debug.LogWarning("[ZenoniaProto] trade: refused by the API, nothing moved: " + a.Name + " / " + b.Name);
+                Flush();
+            });
+        }
+
         void Flush()
         {
+            if (Book.Commits.Count > 0)
+            {
+                TradeCommitRequest[] commits = Book.Commits.ToArray();
+                Book.Commits.Clear();
+                foreach (TradeCommitRequest c in commits) StartCommit(c);
+            }
             foreach (TradeDone d in Book.Completed) Finish(d);
             Book.Completed.Clear();
             foreach (TradeStateNote n in Book.States)
@@ -161,7 +191,7 @@ namespace ZenoniaProto
                 ItemStats s = i.stats ?? new ItemStats();
                 return new TradeItemView
                 {
-                    Uid = i.uid, TemplateId = i.templateId, Slot = i.slot, Name = i.name, Rarity = i.rarity, ClassId = i.classId, ItemLevel = i.itemLevel, Enhance = i.enhance,
+                    Uid = i.uid, TemplateId = i.templateId, Slot = i.slot, Name = i.name, Rarity = i.rarity, ClassId = i.classId, ItemLevel = i.itemLevel, Enhance = i.enhance, Durability = i.durability,
                     Atk = s.atk, Def = s.def, MaxHp = s.maxHp, MaxMp = s.maxMp, CritChance = s.critChance, SpeedMult = s.speedMult,
                 };
             }

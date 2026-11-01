@@ -38,6 +38,7 @@ namespace ZenoniaProto.Rpg
                 case EffectKind.Buff: return e.Buff.Kind == BuffKind.Shield ? "Shield" : null;
                 case EffectKind.Zone: return e.Ally ? "Heal per tick" : "Damage per tick";
                 case EffectKind.Summon: return "Damage per pulse";
+                case EffectKind.Turret: return "Damage per shot";
                 case EffectKind.Motion: return null;
                 default: return e.Pct > 0f ? (e.Hits > 1 || e.Count > 1 ? "Damage per hit" : "Damage") : null;
             }

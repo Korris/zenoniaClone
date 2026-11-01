@@ -20,6 +20,8 @@ namespace ZenoniaProto
         public readonly ZoneHeroes Heroes;
         public readonly List<Monster> Monsters = new List<Monster>();
         public readonly List<LootDrop> Loot = new List<LootDrop>();
+        /// <summary>Deploy Turrets standing on this map, one per caster.</summary>
+        public readonly Rpg.TurretRoster<DeployedTurret> Turrets = new Rpg.TurretRoster<DeployedTurret>();
         public readonly BossRespawnTimer BossTimer = new BossRespawnTimer();
         /// <summary>Server only: who plays here, what happened this tick (NetEventBus) and the cell index of this zone's entities.</summary>
         public readonly List<NetPlayer> Players = new List<NetPlayer>();

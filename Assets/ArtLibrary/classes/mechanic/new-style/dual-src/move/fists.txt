@@ -1,0 +1,23 @@
+# Mechanic dual pistols: fist centres in the 192 px cell, read from a 4x grid, about 2 px accurate.
+# Facing right: near = hero's right hand, far = hero's left hand. Idle: painted once, add the breathing lift wm.LIFT[f] * wm.lift_at(y) per frame, as anchors do.
+# Left may be the mirror of right, because both pistols are the same art: x -> 192 - x, near = hero's left hand, far = hero's right hand. Near pistol in front of the body, far pistol behind it, in both directions.
+
+idle right
+  frame 0: near 123 128   far 150 102
+idle left (mirror)
+  frame 0: near 69 128   far 42 102
+
+walk right
+  frame 0: near 65 139   far 144 112
+  frame 1: near 114 134   far 145 103
+  frame 2: near 135 110   far 127 136
+  frame 3: near 113 135   far 144 103
+walk left (mirror)
+  frame 0: near 127 139   far 48 112
+  frame 1: near 78 134   far 47 103
+  frame 2: near 57 110   far 65 136
+  frame 3: near 79 135   far 48 103
+
+attack2 right: NOT DRAWN, image limit reached.
+idle down (row 0): NOT DRAWN, image limit reached. User correction 2026-11-01: arms relaxed down at the sides, slightly away from the body, a fist at each hip, pistols point DOWN at the ground, not out sideways.
+  Suggested pistol aim once drawn, clockwise from +x: screen-left fist about 100, screen-right fist about 80 (muzzle down, very slightly outward). Fist centres to be read after drawing.

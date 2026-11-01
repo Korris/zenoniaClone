@@ -36,12 +36,12 @@ EYE_TO_FEET = 388
 # key, boot column window for feet and centre, eye row (source pixels), and the face for the portrait or None:
 # (x between the eyes, eye row, distance between the eyes), read off the finished 768 px hero. Portraits are framed by it, so every head is the same size.
 HEROES = {
-    "mechanic": dict(key=GREEN, boots=(440, 810), eye=490, face=(381, 356, 97)),
+    "mechanic": dict(key=GREEN, boots=(435, 820), eye=480, face=(381, 356, 97)),
     "wizard": dict(key=GREEN, boots=(415, 870), eye=465, face=(416, 400, 64)),
     "warrior": dict(key=GREEN, boots=(305, 830), eye=415, face=(446, 352, 85)),
     "assassin": dict(key=GREEN, boots=(285, 990), eye=570, face=(426, 360, 100)),
     "boxing": dict(key=GREEN, boots=(235, 1020), eye=490, face=None),
-    "cleric": dict(key=MAGENTA, boots=(608, 795), eye=585, face=(364, 343, 76)),
+    "cleric": dict(key=GREEN, boots=(590, 800), eye=555, face=(379, 356, 90)),
 }
 # Each banner is its own original, copied from its own crop of the mock, so each keeps that crop's proportions.
 BANNER_KEYS = {"mechanic": GREEN, "wizard": GREEN, "warrior": GREEN, "assassin": GREEN, "boxing": GREEN, "cleric": MAGENTA}

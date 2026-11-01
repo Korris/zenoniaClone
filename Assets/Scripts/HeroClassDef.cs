@@ -12,7 +12,7 @@ namespace ZenoniaProto
         public readonly float DrawScale, MinSx;
         public readonly bool Glow; // enhance effect includes stars + motes (every part gets the shine and halo)
         /// <summary>Drawn from the offhand slot (warrior shield, assassin off-hand dagger); every other part is the weapon.</summary>
-        public bool IsOffhand { get { return Id == "shield" || Id == "off"; } }
+        public bool IsOffhand { get { return Id == "shield" || Id == "off" || Id == "cannon"; } }
 
         public GearPartSpec(string id, string folder, float drawScale = 1f, float minSx = 0f, bool glow = false)
         {
@@ -84,12 +84,14 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Mechanic = new HeroClassDef
         {
             Id = HeroClass.Mechanic, Name = "Mechanic", Tagline = "Gunslinging engineer. Rapid shots, cannon finisher, a turret at his side.", ComboLabel = "3 rapid shots + cannon blast",
-            SheetFolder = "classes/mechanic/body/armed", BareFolder = "classes/mechanic/body/bare", HandFolder = "classes/mechanic/body/hand", HandAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, GearFile = "classes/mechanic/held-mechanic", FxFolder = "classes/mechanic/fx/combat", Palette = ClassPalette.Orange,
-            BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked armed art
-            MirrorLeft = new HashSet<string> { "attack3", "dash", "hurt", "death" },
+            SheetFolder = "classes/mechanic/body/armed", BareFolder = "classes/mechanic/body/bare", HandFolder = "classes/mechanic/body/hand", HandAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "rocket", "dash", "hurt" }, GearFile = "classes/mechanic/held-mechanic-dual", FxFolder = "classes/mechanic/fx/combat", Palette = ClassPalette.Orange,
+            BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "dash", "hurt" }, // death: baked armed art
+            ComboAnims = new[] { "attack1", "attack2", "attack3", "attack4" }, // left pistol, right pistol, both, cannon off the back (Tools/build-mechanic-dual.py; way back in its docstring)
+            ExtraAnims = new[] { MechanicRocketPose.PoseAnim },
+            MirrorLeft = new HashSet<string> { "attack3", "attack4", "rocket", "dash", "hurt", "death" },
             MaxHp = 90f, Atk = 12f, Def = 4f, Speed = 82f, Hits = ComboConfigs.MechanicHits, ChainMs = 420f,
-            Parts = new[] { new GearPartSpec("gun", "classes/mechanic/weapons/gun", 1f, 0f, true) },
-            CompanionFolder = "classes/mechanic/companion/art", CompanionFloatFolder = "classes/mechanic/companion/float", CompanionScale = 0.26f,
+            Parts = new[] { new GearPartSpec("cannon", "classes/mechanic/weapons/cannon"), new GearPartSpec("gunL", "classes/mechanic/weapons/pistol", 1f, 0f, true), new GearPartSpec("gun", "classes/mechanic/weapons/pistol", 1f, 0f, true) }, // both pistols are the one weapon item; the cannon is the offhand, its art per facing in the anchors
+            CompanionFolder = null, CompanionFloatFolder = null, CompanionScale = 0.26f, // the floating robot is off for the two-pistol trial
             DashIcon = 12, // jetBoots
         };
 
@@ -107,17 +109,16 @@ namespace ZenoniaProto
             SkillName = "Shadow Step", SkillMp = 9f, SkillCooldownMs = 3900f, SkillLockMs = 260f, SkillIcon = 0, DashIcon = 10, // shadowStep, evasion
         };
 
-        // Cleric: holy staff + spirit companion, green-gold recoloured wizard orbs.
+        // Cleric: holy staff + soft holy shield (offhand), green-gold recoloured wizard orbs.
         public static readonly HeroClassDef Cleric = new HeroClassDef
         {
-            Id = HeroClass.Cleric, Name = "Cleric", Tagline = "Holy support caster. Heals, with a spirit companion and holy light.", ComboLabel = "3 holy orbs + burst",
+            Id = HeroClass.Cleric, Name = "Cleric", Tagline = "Holy support caster. Heals, with a holy shield and holy light.", ComboLabel = "3 holy orbs + burst",
             SheetFolder = "classes/cleric/body/armed", BareFolder = "classes/cleric/body/bare", HandFolder = "classes/cleric/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "attack1", "attack2", "attack3" }, GearFile = "classes/cleric/held-cleric", FxFolder = "classes/wizard/fx/combat", Palette = ClassPalette.Green,
             ExtraAnims = new[] { ClericBuffFx.PoseAnim },
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked art
             MirrorLeft = new HashSet<string>(),
             MaxHp = 85f, MaxMp = 75f, Atk = 11f, Def = 4f, Speed = 80f, Hits = ComboConfigs.ClericHits, ChainMs = 450f,
-            Parts = new[] { new GearPartSpec("staff", "classes/cleric/weapons/staff", 1f, 0f, true) },
-            CompanionFolder = "classes/cleric/companion/art", CompanionFloatFolder = "classes/cleric/companion/float", CompanionScale = 0.3f,
+            Parts = new[] { new GearPartSpec("shield", "classes/cleric/weapons/shield", 0.8f), new GearPartSpec("staff", "classes/cleric/weapons/staff", 1f, 0f, true) },
             SkillName = "Heal", SkillMp = 12f, SkillCooldownMs = 8500f, SkillLockMs = 350f, SkillIcon = 5, DashIcon = 12, // heal, hasteHymn
         };
 

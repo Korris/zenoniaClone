@@ -16,8 +16,9 @@ namespace ZenoniaProto.Rpg
                     Fx(new SkillEffect { Kind = EffectKind.Strike, Shape = AreaShape.Circle, Radius = 7f, Count = 5, Status = new StatusSpec(StatusKind.Mark, 15f, 8000) }), Req(1, 3)),
                 Def(C, 4, "Rocket Punch", 26, 24, 11f, SkillTargeting.Facing,
                     Fx(Proj(280f, 4f, 14f, width: 2f, pierce: true, status: new StatusSpec(StatusKind.Knockback, 2f, 0))), Req(2, 3)),
-                Def(C, 5, "Robot Assault", 32, 28, 18f, SkillTargeting.Self,
-                    Fx(new SkillEffect { Kind = EffectKind.Summon, DurationMs = 8000, Pct = 65f, Radius = 6f, IntervalMs = 1000 }), Req(3, 3), lockMs: 450),
+                // Replaced Robot Assault (drone pulsing an area beside the caster): same slot, level, MP, cooldown, prerequisite, cast lock and damage per hit. Numbers: TurretConfig.
+                Def(C, 5, "Deploy Turret", 32, 28, 18f, SkillTargeting.Self,
+                    Fx(new SkillEffect { Kind = EffectKind.Turret, DurationMs = TurretConfig.DurationMs, Pct = TurretConfig.ShotPct, Radius = TurretConfig.RangeTiles, IntervalMs = TurretConfig.FireIntervalMs }), Req(3, 3), lockMs: 450),
                 Def(C, 6, "EMP Burst", 40, 35, 20f, SkillTargeting.AroundSelf, Fx(Strike(AreaShape.Circle, 350f, radius: 3f, status: stun)), Req(4, 3), lockMs: 450),
                 Def(C, 7, "Orbital Cannon", 50, 80, 45f, SkillTargeting.Facing, Fx(Rain(140f, 6, 7f, 4f, 250, 1.5f)), Req(5, 5, 6, 5), lockMs: 900),
             };

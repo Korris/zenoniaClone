@@ -21,7 +21,7 @@ namespace ZenoniaProto
         public uint SnapSeq, AckSnapSeq;
         /// <summary>Zone changes so far (wraps): stamped on snapshots, required on input packets, so neither side acts on a packet of the zone before.</summary>
         public byte Epoch;
-        /// <summary>When this hero may use a portal, and which bosses it has killed (a boss gate is per hero; lost with the session until accounts are wired).</summary>
+        /// <summary>When this hero may use a portal, and which bosses it has killed (a boss gate is per hero; saved with the character on a real server).</summary>
         public readonly PortalGate Portals = new PortalGate();
         public readonly BossProgress Bosses = new BossProgress();
         /// <summary>Snapshots as sent to this client (delta baselines) and the id lookup of the baseline in use.</summary>
@@ -35,6 +35,13 @@ namespace ZenoniaProto
         public float RateWindowStartMs;
         public int PacketsInWindow;
         public float ConnectedAtRealtime;
+        /// <summary>The persisted character behind this player; null on a dev server.</summary>
+        public SavedCharacter Saved;
+        /// <summary>One enhance at a time goes to the API.</summary>
+        public bool EnhancePending;
+        /// <summary>Where the hero stood when it left the world: the last write of the character happens after the hero is gone.</summary>
+        public float LastX, LastY;
+        public string LastMapId;
 
         public bool Alive { get { return Hero != null; } }
 
@@ -79,6 +86,14 @@ namespace ZenoniaProto
             };
             Rpg.Revived += lost => { if (lost > 0) NetEventBus.Toast(Hero, "You were defeated: -" + lost + " EXP", new Color(1f, 0.5f, 0.45f)); };
             Rpg.BossKilled += OnBossKilled;
+            Rpg.PetLow += () => NetEventBus.Toast(Hero, PetConfig.LowText, new Color(1f, 0.75f, 0.35f));
+            Rpg.PetWornOut += () =>
+            {
+                NetEventBus.Toast(Hero, PetConfig.WornOutText, new Color(1f, 0.5f, 0.45f));
+                ServerInventoryActions.LookChanged(this); // everyone in sight sees it vanish
+                LastRpgSentMs = -10000f; // the owner gets the new state now, not at the next push
+                if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(this); // written at once, so it cannot come back after a crash
+            };
         }
 
         /// <summary>Same rule as RpgSession offline, per hero: this hero hit the boss, so the gate is open for it; the client learns from the next RpgState (pushed at once).</summary>

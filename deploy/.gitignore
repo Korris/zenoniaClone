@@ -1,0 +1,8 @@
+# Real secrets. Only the *.example file is tracked.
+.env
+.env.prod
+# Dumps of the production database.
+backups/
+# The Unity Linux player uploaded to the VPS.
+zone/build/
+test/.work/

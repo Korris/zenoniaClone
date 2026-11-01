@@ -180,6 +180,7 @@ namespace ZenoniaProto
         {
             if (IsDying || proxy) return;
             if (src == null) src = LocalPlayer.Hero;
+            if (src != null && !dotTick) src.PetAttackLanded();
             dmg = SkillHitHooks.Modify(src, this, dmg, quietFx); // mark multiplier, Death Mark charges, next-hit buffs
             Credit(src, Mathf.Min(dmg, Mathf.Max(1, Mathf.CeilToInt(hp)))); // overkill does not count towards the damage share
             if (src != null && !src.IsDead) target = src; // whoever hurts it becomes the sticky target

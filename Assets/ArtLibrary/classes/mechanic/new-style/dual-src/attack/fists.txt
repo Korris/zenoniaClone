@@ -1,0 +1,34 @@
+Fist centres, cell pixels in a 192 px cell, read from a grid by eye (about 3 px), checked on a marked sheet. The row note says which fist is A and which is B.
+
+attack3-down: facing the camera: A is on the left of the picture (the hero's right hand), B on the right of the picture (his left hand)
+  frame 0: A 45 120  B 137 120
+  frame 1: A 50 120  B 143 120
+  frame 2: A 51 125  B 139 125
+  frame 3: A 53 106  B 133 117
+  frame 4: A 51 122  B 143 122
+  frame 5: A 46 120  B 138 120
+
+hit4-down: facing the camera: frames 2-4 A is the low arm on the left of the picture (his right hand), B the raised fist (his left hand). Frames 0, 1, 5 both fists are pressed together on the right of the picture, so A and B are close and their centres are the least certain
+  frame 0: A 132 80  B 146 84
+  frame 1: A 118 127  B 128 117
+  frame 2: A 51 147  B 121 118
+  frame 3: A 47 135  B 115 118
+  frame 4: A 55 148  B 125 118
+  frame 5: A 124 128  B 134 118
+
+hit4-up: seen from behind: frames 2-4 A is on the left of the picture (his left hand), B the raised arm (his right hand). Frames 0, 1, 5 both fists are on one side, A lower, B upper. Most of a fist is hidden in this view, the centre is the round glove end
+  frame 0: A 55 85  B 59 62
+  frame 1: A 135 93  B 135 73
+  frame 2: A 51 92  B 149 63
+  frame 3: A 45 92  B 143 60
+  frame 4: A 53 92  B 150 63
+  frame 5: A 59 92  B 58 72
+
+hit4-right: side view: A is the near arm, B the far arm
+  frame 0: A 83 75  B 53 72
+  frame 1: A 138 100  B 140 75
+  frame 2: A 78 120  B 141 114
+  frame 3: A 93 118  B 145 112
+  frame 4: A 78 120  B 141 113
+  frame 5: A 93 113  B 131 110
+

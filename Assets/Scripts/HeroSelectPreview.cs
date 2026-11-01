@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Live preview on the hero select: the real paper-doll HeroRenderer in starter gear on a painted ground, filmed far off the map by its own camera, so the player sees the hero as the
-    /// game draws it (the painted heroes above are fancier than the sprites). Loops idle, walk and the combo. The floating companion is not shown here.
+    /// Preview on the hero select: a looping clip of the hero fighting with real effects (Resources/Video/hero-select/<class>, recorded from the game by Tools/record-hero-previews.ps1).
+    /// Without a clip it falls back to the live paper-doll HeroRenderer in starter gear on a painted ground, filmed far off the map by its own camera.
     /// </summary>
     public sealed class HeroSelectPreview : MonoBehaviour
     {
@@ -27,11 +28,20 @@ namespace ZenoniaProto
         int step, loop, frame;
         float clock;
 
+        VideoPlayer video;
+
         public void Init(RawImage image)
         {
             target = image;
             texture = new RenderTexture(TextureW, TextureH, 0, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Bilinear };
             target.texture = texture;
+            video = gameObject.AddComponent<VideoPlayer>();
+            video.playOnAwake = false;
+            video.isLooping = true;
+            video.renderMode = VideoRenderMode.RenderTexture;
+            video.targetTexture = texture;
+            video.audioOutputMode = VideoAudioOutputMode.None;
+            video.timeUpdateMode = VideoTimeUpdateMode.UnscaledGameTime;
             var go = new GameObject("HeroSelectPreviewCamera");
             go.transform.SetParent(transform, false);
             go.transform.position = Stage + new Vector3(0f, FeetBelowCentre, -10f);
@@ -60,7 +70,17 @@ namespace ZenoniaProto
         public void Show(HeroClassDef def)
         {
             if (view != null) view.gameObject.SetActive(false);
+            view = null;
             steps.Clear();
+            VideoClip clip = Resources.Load<VideoClip>("Video/hero-select/" + def.Name.ToLowerInvariant());
+            if (clip != null)
+            {
+                cam.enabled = false;
+                video.clip = clip;
+                video.Play();
+                return;
+            }
+            video.Stop();
             cam.enabled = true;
             int i = (int)def.Id;
             if (views[i] == null)
@@ -82,12 +102,13 @@ namespace ZenoniaProto
         /// <summary>Starts the loop over (the play button).</summary>
         public void Replay()
         {
+            if (video.clip != null && video.isPlaying) { video.time = 0; return; }
             if (view == null || steps.Count == 0) return;
             step = 0; loop = 0; frame = 0; clock = 0f;
             view.Show(steps[0].Anim, steps[0].Dir, 0, 0, 1f);
         }
 
-        public void Stop() { cam.enabled = false; }
+        public void Stop() { cam.enabled = false; video.Stop(); }
 
         void BuildSteps(HeroClassDef def)
         {

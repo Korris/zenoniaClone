@@ -88,6 +88,11 @@ namespace ZenoniaProto
                     if (caster != null && caster.IsPredicted && caster.PredictsSkillFx(skill)) break; // started locally at the key press
                     if (fx && caster != null) caster.PlaySkillFx(skill, SkillCastCode.Rank(e.Step), e.Other);
                     break;
+                case NetEventType.TurretShot:
+                    stats.Add("turretShotsSeen", 1);
+                    DeployedTurret turret = Zone.Main != null ? Zone.Main.Ids.Get(e.Id) as DeployedTurret : null;
+                    if (fx && turret != null) turret.PlayShot(MonsterOf(e.Other), at);
+                    break;
                 case NetEventType.ExpGain:
                     HeroController me = LocalPlayer.Hero;
                     stats.Add("expGained", e.Value);

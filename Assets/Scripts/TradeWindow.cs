@@ -225,6 +225,9 @@ namespace ZenoniaProto
 
         void OnBagCell(Cell c) { if (c.Uid != null && !MyOfferLocked()) Send(TradeOp.AddItem, c.Uid); }
 
+        /// <summary>Capture runs: opens the look at the other side's first item, as a tap on it does.</summary>
+        public static void TestInspectFirst() { if (instance != null) instance.OnTheirCell(instance.theirs.Cells[0]); }
+
         void OnTheirCell(Cell c) { if (c.Item != null) inspect.Open(c.Item, RpgSession.Player); }
 
         void OpenPad()
@@ -366,7 +369,7 @@ namespace ZenoniaProto
             c.Icon.sprite = item != null ? LootSprites.Icon(item) : null;
             c.Icon.enabled = c.Icon.sprite != null;
             int plus = item != null ? EnhanceStats.Level(item) : 0;
-            c.Plus.text = plus > 0 ? "+" + plus : "";
+            c.Plus.text = item != null && item.slot == ZenoniaProto.Rpg.Slots.Pet ? ItemInfo.DurabilityPercent(item) : plus > 0 ? "+" + plus : "";
             if (c.Name != null)
             {
                 c.Name.text = item != null ? item.name : "";
@@ -379,7 +382,7 @@ namespace ZenoniaProto
         {
             return new Item
             {
-                uid = v.Uid, templateId = v.TemplateId, slot = v.Slot, name = v.Name, rarity = v.Rarity, classId = string.IsNullOrEmpty(v.ClassId) ? null : v.ClassId, itemLevel = v.ItemLevel, enhance = v.Enhance,
+                uid = v.Uid, templateId = v.TemplateId, slot = v.Slot, name = v.Name, rarity = v.Rarity, classId = string.IsNullOrEmpty(v.ClassId) ? null : v.ClassId, itemLevel = v.ItemLevel, enhance = v.Enhance, durability = v.Durability,
                 stats = new ItemStats { atk = v.Atk, def = v.Def, maxHp = v.MaxHp, maxMp = v.MaxMp, critChance = v.CritChance, speedMult = v.SpeedMult },
             };
         }

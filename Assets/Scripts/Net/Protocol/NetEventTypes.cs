@@ -5,15 +5,15 @@ namespace ZenoniaProto.Net
     public enum NetEventType : byte
     {
         AttackStep = 1, BoltFired = 2, BoltEnd = 3, MonsterHit = 4, HeroHit = 5, SkillCast = 6, HeroDied = 7, HeroRespawned = 8,
-        ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16,
+        ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16, TurretShot = 17,
     }
 
-    /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band and flag bits (1 = mechanic blue).</summary>
+    /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band, flag bits (1 = mechanic blue) and the pet (0 = none, see PetConfig.WireId).</summary>
     public struct NetAppearance
     {
-        public byte WeaponTier, OffTier, EnhanceBand, Flags;
-        public void Write(NetDataWriter w) { w.Put(WeaponTier); w.Put(OffTier); w.Put(EnhanceBand); w.Put(Flags); }
-        public static NetAppearance Read(NetDataReader r) { return new NetAppearance { WeaponTier = r.GetByte(), OffTier = r.GetByte(), EnhanceBand = r.GetByte(), Flags = r.GetByte() }; }
+        public byte WeaponTier, OffTier, EnhanceBand, Flags, PetId;
+        public void Write(NetDataWriter w) { w.Put(WeaponTier); w.Put(OffTier); w.Put(EnhanceBand); w.Put(Flags); w.Put(PetId); }
+        public static NetAppearance Read(NetDataReader r) { return new NetAppearance { WeaponTier = r.GetByte(), OffTier = r.GetByte(), EnhanceBand = r.GetByte(), Flags = r.GetByte(), PetId = r.GetByte() }; }
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ namespace ZenoniaProto.Net
         public NetEventType Type;
         /// <summary>Subject entity: hero / monster / bolt id depending on Type.</summary>
         public ushort Id;
-        /// <summary>Second entity: source hero (MonsterHit), source monster (HeroHit), owner hero (BoltFired), target (SkillCast).</summary>
+        /// <summary>Second entity: source hero (MonsterHit), source monster (HeroHit), owner hero (BoltFired), target (SkillCast), target monster (TurretShot, Id = the turret).</summary>
         public ushort Other;
         public ushort Dmg, HpLeft;
         public short X, Y;
@@ -70,6 +70,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.BossSpawned:
                 case NetEventType.BossDied: w.Put(Id); break;
                 case NetEventType.AllyBuff: w.Put(Id); w.Put(Other); w.Put(Step); w.Put(Value); break;
+                case NetEventType.TurretShot: w.Put(Id); w.Put(Other); w.Put(X); w.Put(Y); break;
             }
         }
 
@@ -95,6 +96,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.BossSpawned:
                 case NetEventType.BossDied: e.Id = r.GetUShort(); break;
                 case NetEventType.AllyBuff: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.Step = r.GetByte(); e.Value = r.GetUInt(); break;
+                case NetEventType.TurretShot: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); break;
                 default: return false;
             }
             return true;

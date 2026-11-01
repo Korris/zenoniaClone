@@ -1,0 +1,6 @@
+# These run in Linux containers: a CRLF checkout on Windows would break them.
+*.sh text eol=lf
+*.yml text eol=lf
+*.template text eol=lf
+*.example text eol=lf
+Dockerfile text eol=lf

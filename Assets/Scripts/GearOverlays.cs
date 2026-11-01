@@ -19,6 +19,18 @@ namespace ZenoniaProto
             return Pivoted(path, enhanced ? entry.enhancedGrip : entry.baseGrip);
         }
 
+        /// <summary>Resources/Sprites/&lt;folder&gt;/&lt;art&gt; with the pivot at its centre: art named by the anchor instead of the tier manifest.</summary>
+        public static Sprite Centered(string folder, string art)
+        {
+            string path = "Sprites/" + folder + "/" + art;
+            Sprite s;
+            if (Cache.TryGetValue(path, out s) && s != null) return s;
+            Texture2D tex = SpriteSheet.Load(path);
+            s = tex != null ? Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), Ppu, 0, SpriteMeshType.FullRect) : null;
+            Cache[path] = s;
+            return s;
+        }
+
         /// <summary>Sprite from an explicit resource path with the pivot at (gripX, gripY) pixels from the top-left.</summary>
         public static Sprite Pivoted(string path, GripInfo grip)
         {

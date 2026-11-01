@@ -27,6 +27,9 @@ namespace ZenoniaProto
     ///   --level N / --give-stones N       RPG state for screenshots: hero level, upgrade stones (saving is always off in capture runs)
     ///   --drop-loot                       scatter a boss-sized pile of loot (gold, potions, stones, 3 items) in front of the hero
     ///   --open-inventory                  open the inventory window (B) after spawning
+    ///   --pet spirit|imp / --give-pets    wear that pet / one of each pet in the bag
+    ///   --bag-item N / --open-shop NPC    Inventory tab on bag item N (with --open-inventory) / that seller's window
+    ///   --pet-durability N / --select-pet every pet at N / Equipment tab on the worn pet (with --open-inventory)
     ///   --skill-ui "1=open;2=learn:0;3=slot:2"  skill tree UI script, see DebugCapture.Skills.cs
     ///   --record-combo wizard|mechanic|cleric  scripted basic-attack video: hero holds attack at dummies (3 s lead-in of idle, then ~6 s of combos), same frame dump as below
     ///                                     (--mech-blue for the blue mechanic, --zoom for a close-up)
@@ -39,7 +42,7 @@ namespace ZenoniaProto
     public partial class DebugCapture : MonoBehaviour
     {
         GameSession session;
-        string recordArg, classArg, faceArg, shotPath, botArg;
+        string recordArg, classArg, faceArg, shotPath, botArg, petArg;
         float[] shotTimes, skillTimes;
         int dummies;
         float dummyDist = 30f;
@@ -54,7 +57,8 @@ namespace ZenoniaProto
         /// <summary>True when the command line asks for a capture / bot run (these default to Frost Hollow: their tiles and scripts are written for it).</summary>
         public static bool Requested(string[] args)
         {
-            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare" })
+            if (ReleaseBuild.IsRelease) return false; // bots and captures are test tools: a player must not be able to start them from the command line
+            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--login-shots" })
                 if (Array.IndexOf(args, flag) >= 0) return true;
             return false;
         }
@@ -124,6 +128,7 @@ namespace ZenoniaProto
             if (gs != null) giveStones = int.Parse(gs);
             dropLoot = Array.IndexOf(a, "--drop-loot") >= 0;
             openInventory = Array.IndexOf(a, "--open-inventory") >= 0;
+            petArg = Arg(a, "--pet");
             string dm = Arg(a, "--dummies");
             if (dm != null) dummies = int.Parse(dm);
             shotTimes = Times(Arg(a, "--shots"));
@@ -151,6 +156,18 @@ namespace ZenoniaProto
                 p.RecomputeStats();
                 RpgSession.SyncGear();
             }
+            if (petArg != null)
+            {
+                PetDef def = PetConfig.Get(petArg);
+                if (def != null) { p.Equip(ItemFactory.CreatePet(def, RpgRandom.Default)); p.Hp = p.MaxHp; RpgSession.SyncGear(); }
+            }
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--give-pets") >= 0) foreach (PetDef def in PetConfig.All) p.AddToInventory(ItemFactory.CreatePet(def, RpgRandom.Default));
+            string petDurability = Arg(Environment.GetCommandLineArgs(), "--pet-durability");
+            if (petDurability != null)
+            {
+                if (p.GetEquipped(Slots.Pet) != null) p.GetEquipped(Slots.Pet).durability = int.Parse(petDurability);
+                foreach (Item it in p.Inventory) if (it.slot == Slots.Pet) it.durability = int.Parse(petDurability);
+            }
             if (dropLoot)
             {
                 Rand rand = RpgRandom.Default;
@@ -163,6 +180,11 @@ namespace ZenoniaProto
                 LootDrop.SpawnAll(GameObject.Find("ZenoniaProto").transform, drops, hero.Position + dirs[hero.Facing] * 34f);
             }
             if (openInventory) InventoryPanel.Open(GameObject.Find("ZenoniaProto").transform);
+            string bagItem = Arg(Environment.GetCommandLineArgs(), "--bag-item");
+            if (bagItem != null) InventoryPanel.TestSelectBagItem(int.Parse(bagItem));
+            string shop = Arg(Environment.GetCommandLineArgs(), "--open-shop");
+            if (shop != null) { NpcDef seller = NpcDefs.Get(shop); PotionShopWindow.Open(shop, seller.Name, seller.Lines[0]); } // what TownNpc.Talk passes
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--select-pet") >= 0) InventoryPanel.TestSelectWorn(Slots.Pet);
         }
 
         IEnumerator CastSkills(float start)

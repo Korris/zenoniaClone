@@ -8,7 +8,7 @@ namespace ZenoniaProto.Rpg
     public enum AreaShape { Single, Circle, Cone, Arc, Line }
 
     /// <summary>The composable building blocks a skill timeline is made of (executor: phase 03).</summary>
-    public enum EffectKind { Strike, Projectile, Motion, Buff, Heal, Summon, Rain, Zone }
+    public enum EffectKind { Strike, Projectile, Motion, Buff, Heal, Summon, Rain, Zone, Turret }
 
     public enum StatusKind { None, Slow, Freeze, Stun, Burn, Poison, Mark, Knockback, Launch, Chill }
 

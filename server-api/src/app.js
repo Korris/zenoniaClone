@@ -10,10 +10,12 @@ import { errorHandler } from './errors.js';
 import { authRoutes } from './routes/auth-routes.js';
 import { characterRoutes } from './routes/character-routes.js';
 import { internalRoutes } from './routes/internal-routes.js';
+import { resetPageRoutes } from './routes/reset-page.js';
+import { createMailer } from './mail/mailer.js';
 import { createCharacterService } from './services/character-service.js';
 
-/** Uniform [0,1) with 53 bits from the OS CSPRNG (enhance rolls must not be predictable). */
-export const secureRandom = () => crypto.randomInt(0, 2 ** 48) / 2 ** 48;
+/** Uniform [0,1) with 48 bits from the OS CSPRNG (enhance rolls must not be predictable). randomInt's range stops just short of 2^48, so the bytes are read directly. */
+export const secureRandom = () => crypto.randomBytes(6).readUIntBE(0, 6) / 2 ** 48;
 
 /**
  * Builds the Fastify app. All side-effecting dependencies are injectable so tests are deterministic:
@@ -36,11 +38,12 @@ export function buildApp({ db, cfg, now = Date.now, rand = secureRandom, mailer,
     refreshTokens: createRefreshTokenService({ db, ttlSec: cfg.REFRESH_TTL_SEC, now }),
     tickets: createTicketService({ db, ttlSec: cfg.TICKET_TTL_SEC, now }),
     characters: createCharacterService({ db, now, sessionLockSec: cfg.SESSION_LOCK_SEC }),
-    // Password reset stub: no email is sent; the link is only logged (the reset token is never returned over HTTP).
-    mailer: mailer ?? { sendPasswordReset: async ({ email, link }) => app.log.info({ email, link }, 'password reset requested (email stub)') },
+    // Real SMTP when SMTP_* is complete. The reset token is never returned over HTTP.
+    mailer: mailer ?? createMailer({ cfg, log: app.log }),
   };
 
   app.get('/health', async () => ({ ok: true }));
+  resetPageRoutes(app);
   authRoutes(app, deps);
   characterRoutes(app, deps);
   internalRoutes(app, deps);

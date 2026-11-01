@@ -1,10 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
+using ZenoniaProto.Api;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// IMGUI connect screen of the class-select flow: player name, server address, hero class, then [Join] a server, [Host (dev)] (this process runs the
-    /// zone and plays in it) or [Offline] (back to the single-player class select). Dev login: name + class only, no passwords yet.
+    /// The online screen: normally the account flow (AccountScreenGui: log in, character list, new hero through HeroSelectScreen). Behind it, in dev builds or with --dev-key, the old IMGUI dev page:
+    /// player name, server address, hero class, then [Join] a server with the shared key, [Host (dev)] (this process runs the zone and plays in it) or [Offline]. Nothing done on that page is saved.
     /// </summary>
     public static class ConnectScreenGui
     {
@@ -14,10 +16,18 @@ namespace ZenoniaProto
         static string playerName, address;
         static int heroClass = -1;
         static GUIStyle title, label, field, button, status;
+        static bool devPage;
+
+        /// <summary>The dev page exists in the editor, in a development build, and for whoever starts the game with --dev-key. Never in a release build.</summary>
+        public static bool DevPageAvailable { get { return !ReleaseBuild.IsRelease && (Application.isEditor || Debug.isDebugBuild || !string.IsNullOrEmpty(NetLaunchArgs.DevKey)); } }
+
+        public static void ShowDevPage() { devPage = DevPageAvailable; }
 
         public static void Open()
         {
             Visible = true;
+            devPage = false;
+            AccountFlow.Open();
             if (heroClass < 0)
             {
                 heroClass = Mathf.Clamp(PlayerPrefs.GetInt(PrefClass, GameSession.ClassIndex(NetLaunchArgs.ClassName)), 0, HeroClassDef.All.Length - 1);
@@ -43,15 +53,40 @@ namespace ZenoniaProto
             status.fontSize = Mathf.RoundToInt(13f * s);
         }
 
+        /// <summary>The new-hero step: the hero select takes over the screen, in its online mode, and comes back here with the class.</summary>
+        public static void CreateHero(List<CharacterSummary> owned)
+        {
+            var taken = new bool[HeroClassDef.All.Length];
+            foreach (CharacterSummary c in owned)
+            {
+                int i = GameSession.ClassIndex(c.classId);
+                if (i >= 0 && i < taken.Length) taken[i] = true;
+            }
+            Visible = false;
+            HeroSelectScreen.OpenOnlineCreate(i => taken[i],
+                id => { AccountFlow.ShowNaming(id); Visible = true; },
+                () => { AccountFlow.ShowCharacters(); Visible = true; });
+        }
+
+        public static void LeaveToOffline(GameSession session)
+        {
+            Visible = false;
+            devPage = false;
+            session.ExitOnline();
+        }
+
         public static void Draw(GameSession session)
         {
+            NetClient joined = NetClient.Active;
+            if (joined != null && joined.State == ClientState.Joined) { Visible = false; return; }
+            if (!devPage) { AccountScreenGui.Draw(session); return; }
             float s = Screen.height / 640f;
             EnsureStyles(s);
             GUI.color = new Color(0.02f, 0.05f, 0.1f, 0.88f);
             GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
             GUI.color = Color.white;
             title.normal.textColor = Color.white;
-            GUI.Label(new Rect(0f, 36f * s, Screen.width, 40f * s), "Play online", title);
+            GUI.Label(new Rect(0f, 36f * s, Screen.width, 40f * s), "Direct connect (dev: nothing is saved)", title);
 
             NetClient client = NetClient.Active;
             bool busy = client != null && client.State == ClientState.Connecting;
@@ -83,11 +118,7 @@ namespace ZenoniaProto
             if (GUI.Button(new Rect(x, y, bw, rowH * 1.3f), "Join", button)) TryJoin(session);
             if (GUI.Button(new Rect(x + bw + 8f * s, y, bw, rowH * 1.3f), "Host (dev)", button)) { Save(); Visible = false; session.HostServer(playerName); }
             GUI.enabled = true;
-            if (GUI.Button(new Rect(x + 2f * (bw + 8f * s), y, bw, rowH * 1.3f), busy ? "Cancel" : "Offline", button))
-            {
-                Visible = false;
-                session.ExitOnline();
-            }
+            if (GUI.Button(new Rect(x + 2f * (bw + 8f * s), y, bw, rowH * 1.3f), busy ? "Cancel" : "Offline", button)) LeaveToOffline(session);
             y += rowH * 1.3f + 18f * s;
 
             string text = client != null ? client.Status : "Join a server by address (host:port), host one from this window for friends on the LAN, or play offline.";

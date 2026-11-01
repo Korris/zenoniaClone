@@ -15,6 +15,10 @@ Usage (from the project root; needs Pillow, numpy and scipy):
   python Tools/build-assassin-new-style.py fists OUT_DIR        frames with the chosen fists marked
   python Tools/build-assassin-new-style.py preview OUT_DIR      sheets and composites as copies; Resources untouched
   python Tools/build-assassin-new-style.py write                bare, armed, hand sheets of complete anims, anchors in held-assassin-melee.json
+  python Tools/build-assassin-new-style.py dagger-sheet OUT_DIR all tiers with a pair image in dagger-src/, grips measured; Resources untouched
+  python Tools/build-assassin-new-style.py dagger-preview OUT_DIR TIER [base|enhanced]   one tier on the hero, every direction; Resources untouched
+  python Tools/build-assassin-new-style.py dagger-install [TIER ...]  art, grips and icons of tiers with a pair image, default all of them
+  python Tools/build-assassin-new-style.py armed                armed sheets only, from the first tier as installed (Shadow Clone); prints what the 192 px cell cuts
 """
 import importlib.util, json, math, os, sys, uuid
 import numpy as np
@@ -494,8 +498,232 @@ def debug_fists(out):
         w.save(f"{out}/fists-{anim}.png")
 
 
+# ---------------------------------------------------------------- daggers
+# One ChatGPT image per tier, two daggers side by side (base left, enhanced right), in new-style/dagger-src/<tier>-pair-chatgpt.png.
+# Standard silhouette: dagger-src/dagger-standard-sample.png, the blade cut from hero-select/assassin.png with placeholder hilt bars.
+DAGGERS = f"{RES}/Sprites/classes/assassin/weapons/dagger"
+DAGGER_SRC = f"{LIB}/dagger-src"
+ICONS = f"{RES}/Sprites/icons"
+DAGGER_LEN = 258  # art px, tip to pommel: the old daggers' length, so the size on screen stays (s and DrawScale do not change)
+DAGGER_PAD = 4
+MAGENTA_KEY = {"venom"}  # green art: drawn on #FF00FF
+
+
+def key_pair(path, tier):
+    """Premultiplied art off a flat key. Same green rule as key_green; magenta for the tier whose art is green, holes between the hooks too."""
+    if tier not in MAGENTA_KEY:
+        return key_green(path)
+    rgb = np.asarray(Image.open(path).convert("RGB")).astype(np.float64)
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    alpha = 1 - np.clip((np.minimum(r, b) - g - 12) / 60, 0, 1)
+    alpha[:6], alpha[-6:], alpha[:, :6], alpha[:, -6:] = 0, 0, 0, 0
+    fg, n = ndimage.label(alpha > 0.5)
+    if n:
+        sizes = ndimage.sum(np.ones_like(fg), fg, range(1, n + 1))
+        alpha = alpha * ndimage.binary_dilation(np.isin(fg, 1 + np.where(sizes >= 400)[0]), iterations=3)
+    return np.dstack([np.minimum(r, np.maximum(g, b)) * alpha, g * alpha, np.minimum(b, np.maximum(r, g)) * alpha, alpha * 255])  # spill off the edge pixels
+
+
+def measure_grip(a):
+    """(gripX, gripY) middle of the handle, read from the alpha of an upright dagger: between the bottom of the crossguard and the top of the pommel."""
+    mask = a > 128
+    widths = mask.sum(1)
+    rows = np.where(widths > 0)[0]
+    top, bottom = rows[0], rows[-1]
+    h = bottom - top + 1
+    low = int(top + 0.6 * h)  # the crossguard and handle are in the lower part of the art
+    guard = low + int(np.argmax(widths[low:]))
+    hand = int(np.median(widths[guard + int(0.05 * h):bottom - int(0.08 * h)]))
+    y = guard
+    while widths[y] > 1.35 * hand:
+        y += 1
+    guard_bottom = y
+    while y < bottom and widths[y] <= 1.35 * hand:
+        y += 1
+    pommel_top = y
+    grip_y = (guard_bottom + pommel_top) // 2
+    xs = np.where(mask[grip_y])[0]
+    return int(round((xs[0] + xs[-1]) / 2)), int(grip_y), {"guard": int(guard), "guardBottom": int(guard_bottom), "pommelTop": int(pommel_top), "handle": hand}
+
+
+def cut_pair(tier):
+    """{'base': (RGBA image, grip dict), 'enhanced': ...}: left and right dagger, one scale each, length DAGGER_LEN."""
+    pm = key_pair(f"{DAGGER_SRC}/{tier}-pair-chatgpt.png", tier)
+    labels, n = ndimage.label(ndimage.binary_dilation(pm[..., 3] > 128, iterations=2))
+    sizes = ndimage.sum(pm[..., 3] > 128, labels, range(1, n + 1))
+    big = sorted([(o, i + 1) for i, (o, s) in enumerate(zip(ndimage.find_objects(labels), sizes)) if s > 0.25 * max(sizes)], key=lambda t: t[0][1].start)
+    if len(big) != 2:
+        raise SystemExit(f"{tier}: {len(big)} blobs, expected 2")
+    out = {}
+    for kind, (o, label) in zip(("base", "enhanced"), big):
+        part = pm[o] * (labels[o] == label)[..., None]
+        small = resize_pm(part, DAGGER_LEN / part.shape[0])
+        canvas = np.zeros((small.shape[0] + 2 * DAGGER_PAD, small.shape[1] + 2 * DAGGER_PAD, 4))
+        canvas[DAGGER_PAD:DAGGER_PAD + small.shape[0], DAGGER_PAD:DAGGER_PAD + small.shape[1]] = small
+        gx, gy, info = measure_grip(canvas[..., 3])
+        out[kind] = (Image.fromarray(to_rgba(canvas), "RGBA"), {"w": canvas.shape[1], "h": canvas.shape[0], "gripX": gx, "gripY": gy}, info)
+    return out
+
+
+def dagger_tiers():
+    return [e["name"] for e in json.load(open(GEAR, encoding="utf-8"))["weapon"]]
+
+
+def complete_tiers():
+    return [t for t in dagger_tiers() if os.path.exists(f"{DAGGER_SRC}/{t}-pair-chatgpt.png")]
+
+
+def hero_row(comp, art, grip, anim, direction, anchors, pad):
+    """Every frame of a row drawn as the game draws it, with this dagger in both hands."""
+    frames = []
+    bare, hand = f"{BODY}/bare/{anim}.png", f"{BODY}/hand/{anim}.png"
+    n = len(anchors[("main", anim, direction)])
+    for f in range(n):
+        pair = (anchors[("off", anim, direction)][f], anchors[("main", anim, direction)][f])
+        canvas = Image.new("RGBA", (FRAME + 2 * pad, FRAME + 2 * pad), (58, 62, 70, 255))
+        if not os.path.exists(bare) or any(a.get("fallback") for a in pair):
+            canvas.alpha_composite(comp.cell(f"{BODY}/armed/{anim}.png", ROWS[direction], f), (pad, pad))
+            frames.append(canvas)
+            continue
+        for behind in (True, False):
+            for a in pair:
+                if bool(a.get("behind")) == behind and not a.get("hidden"):
+                    comp.place(canvas, art, grip, a, 1.3, 0.0, pad)
+            if behind:
+                canvas.alpha_composite(comp.cell(bare, ROWS[direction], f), (pad, pad))
+        if os.path.exists(hand):
+            canvas.alpha_composite(comp.cell(hand, ROWS[direction], f), (pad, pad))
+        frames.append(canvas)
+    return frames
+
+
+def dagger_preview(out, tier, kind="base", anims=("idle", "walk", "hurt", "melee1", "melee2", "melee3", "melee4")):
+    """Composites of one tier on the hero, all four directions, from the cut art: Resources untouched. Zoomed 2x, a row per direction."""
+    comp = load_compose()
+    os.makedirs(out, exist_ok=True)
+    art, grip, _ = cut_pair(tier)[kind]
+    _, anchors = comp.load_gear("assassin")
+    pad = 50
+    size = FRAME + 2 * pad
+    for anim in anims:
+        rows = [(d, hero_row(comp, art, grip, anim, d, anchors, pad)) for d in ROWS if ("main", anim, d) in anchors]
+        cols = max(len(r) for _, r in rows)
+        sheet = Image.new("RGB", (size * cols, size * len(rows)), (58, 62, 70))
+        for r, (d, frames) in enumerate(rows):
+            for f, c in enumerate(frames):
+                sheet.paste(c.convert("RGB"), (f * size, r * size))
+            ImageDraw.Draw(sheet).text((4, r * size + 4), f"{anim} {d}", fill=(255, 255, 0))
+        sheet.save(f"{out}/hero-{tier}-{kind}-{anim}.png")
+    print("previews in", out)
+
+
+def dagger_sheet(out):
+    """All tiers drawn so far, base over enhanced, on dark and on light; their grips marked, at the size the game draws them beside it."""
+    tiers = complete_tiers()
+    cuts = {t: cut_pair(t) for t in tiers}
+    cw, ch = 150, 290
+    for bg, name in (((58, 62, 70), "dark"), ((205, 205, 200), "light")):
+        w = Image.new("RGB", (cw * len(tiers), ch * 2), bg)
+        d = ImageDraw.Draw(w)
+        for i, t in enumerate(tiers):
+            for j, kind in enumerate(("base", "enhanced")):
+                art, g, _ = cuts[t][kind]
+                w.paste(art, (i * cw + 5, j * ch + 12), art)
+                x, y = i * cw + 5 + g["gripX"], j * ch + 12 + g["gripY"]
+                d.line([(x - 4, y), (x + 4, y)], fill=(0, 255, 255))
+                d.line([(x, y - 4), (x, y + 4)], fill=(0, 255, 255))
+            d.text((i * cw + 4, 0), t, fill=(255, 255, 0) if name == "dark" else (0, 0, 0))
+        w.save(f"{out}/tiers-{name}.png")
+    for t in tiers:
+        print(t, {k: (v[1], v[2]) for k, v in cuts[t].items()})
+
+
+def install_icons(names):
+    all_names = dagger_tiers()
+    for tier in names:
+        i = all_names.index(tier)
+        art = Image.open(f"{DAGGERS}/{tier}-base.png").convert("RGBA")
+        for prefix, tilt in (("weapon", -45), ("offhand", 45)):  # build-item-icons.py: overlay(), fit()
+            im = art.rotate(tilt, expand=True, resample=Image.BICUBIC)
+            im = im.crop(im.getbbox())
+            k = 88 / max(im.width, im.height)
+            im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+            icon = Image.new("RGBA", (96, 96), (0, 0, 0, 0))
+            icon.paste(im, ((96 - im.width) // 2, (96 - im.height) // 2), im)
+            icon.save(f"{ICONS}/{prefix}-assassin-{i}.png")
+
+
+def dagger_install(names):
+    """Art, grips, icons of complete tiers; the rest keep their old art. Old art is in new-style/old/dagger, old icons in new-style/old/icons."""
+    os.makedirs(f"{OLD}/icons", exist_ok=True)
+    for i in range(10):
+        for prefix in ("weapon", "offhand"):
+            backup = f"{OLD}/icons/{prefix}-assassin-{i}.png"
+            if not os.path.exists(backup):
+                Image.open(f"{ICONS}/{prefix}-assassin-{i}.png").save(backup)
+    raw = open(GEAR, "rb").read()
+    data = json.loads(raw)
+    for tier in names:
+        cut_ = cut_pair(tier)
+        entry = next(e for e in data["weapon"] if e["name"] == tier)
+        for kind, field in (("base", "baseGrip"), ("enhanced", "enhancedGrip")):
+            cut_[kind][0].save(f"{DAGGERS}/{tier}-{kind}.png")
+            entry[field] = cut_[kind][1]
+    text = json.dumps(data, separators=(",", ":"))
+    open(GEAR, "wb").write(text.encode())
+    install_icons(names)
+    print("installed", names)
+
+
+def write_armed():
+    """Only the armed sheets, rebuilt with the first tier's dagger as it now is: the Shadow Clone is cut from them. bare, hand and anchors are not touched."""
+    comp = load_compose()
+    file = json.load(open(GEAR, encoding="utf-8"))
+    sheets, hands, anchors = build()
+    clipped = {}
+    for anim, rows in sheets.items():
+        if anim not in ("idle", "walk", "melee1", "melee2", "melee3"):
+            continue
+        armed = Image.open(f"{BODY}/armed/{anim}.png").convert("RGBA")
+        for row, cells in rows.items():
+            direction = [k for k, v in ROWS.items() if v == row][0]
+            for f, cell in enumerate(cells):
+                at = (f * FRAME, row * FRAME)
+                pair = (anchors[("off", anim, direction)][f], anchors[("main", anim, direction)][f])
+                pic = armed_cell(comp, Image.fromarray(to_rgba(cell), "RGBA"), pair, Image.fromarray(to_rgba(hands[anim][row][f]), "RGBA"), file)
+                armed.paste((0, 0, 0, 0), at + (at[0] + FRAME, at[1] + FRAME))
+                armed.paste(pic, at)
+                big = dagger_outside(comp, pair, file)
+                if big:
+                    clipped[(anim, direction, f)] = big
+        armed.save(f"{BODY}/armed/{anim}.png")
+    print("armed written;", len(clipped), "frames with dagger past the 192 px cell, art px cut:", clipped)
+
+
+def dagger_outside(comp, pair, file):
+    """Dagger pixels that fall outside the cell, so the Shadow Clone, cut from that cell, loses them."""
+    entry = file["weapon"][0]
+    art = Image.open(f"{DAGGERS}/{entry['name']}-base.png").convert("RGBA")
+    pad = 80
+    canvas = Image.new("RGBA", (FRAME + 2 * pad, FRAME + 2 * pad), (0, 0, 0, 0))
+    for a in pair:
+        if not a["hidden"]:
+            comp.place(canvas, art, entry["baseGrip"], a, 1.3, 0.0, pad)
+    al = np.asarray(canvas)[..., 3] > 128
+    inside = al[pad:pad + FRAME, pad:pad + FRAME].sum()
+    return int(al.sum() - inside)
+
+
 if __name__ == "__main__":
-    if sys.argv[1] == "measure":
+    if sys.argv[1] == "dagger-sheet":
+        dagger_sheet(sys.argv[2])
+    elif sys.argv[1] == "dagger-preview":
+        dagger_preview(sys.argv[2], sys.argv[3], *(sys.argv[4:5]))
+    elif sys.argv[1] == "dagger-install":
+        dagger_install(sys.argv[2:] or complete_tiers())
+    elif sys.argv[1] == "armed":
+        write_armed()
+    elif sys.argv[1] == "measure":
         measure()
     elif sys.argv[1] == "cut":
         cut(sys.argv[2])

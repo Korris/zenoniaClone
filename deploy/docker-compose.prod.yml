@@ -1,0 +1,125 @@
+# Production stack for one Linux VPS that already runs nginx on the host. Guide: docs/deploy.md
+#   cd deploy
+#   docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build                     API, Mongo, backups
+#   docker compose --env-file .env.prod -f docker-compose.prod.yml --profile zone up -d --build      the same plus the zone server
+#
+# What is reachable from outside: only the zone's UDP port. The API listens on the host's loopback for nginx (deploy/nginx/zenonia.conf.template);
+# Mongo publishes nothing and sits on a network with no route out.
+# ${VAR:?} = no default on purpose: the stack refuses to start until it is filled in.
+name: zenonia
+
+x-logging: &logging
+  driver: json-file
+  options: # the default keeps logs forever and fills the disk
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    # One-node replica set: trades need transactions.
+    command: ["--replSet", "rs0", "--bind_ip_all", "--wiredTigerCacheSizeGB", "${MONGO_CACHE_GB:-0.5}"]
+    networks: [backend]
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      # Initiates the replica set the first time, healthy once it has a primary.
+      test: ["CMD", "mongosh", "--quiet", "--eval", "try { rs.status() } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }) }; if (!db.hello().isWritablePrimary) quit(1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    stop_grace_period: 30s
+    logging: *logging
+
+  api:
+    build: ../server-api
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks: [backend, public]
+    ports:
+      - "127.0.0.1:${API_PORT:-3000}:3000" # loopback only: nginx on the host is the way in
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      MONGO_URI: mongodb://mongo:27017/?replicaSet=rs0
+      MONGO_DB: zenonia
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is empty, see deploy/.env.prod.example}
+      SERVICE_KEY: ${SERVICE_KEY:?SERVICE_KEY is empty, see deploy/.env.prod.example}
+      TRUST_PROXY: "true"
+      ZONE_ID: ${ZONE_ID:-frost-hollow}
+      ZONE_HOST: ${ZONE_HOST:-${DOMAIN:?DOMAIN is empty, put the domain of this server in .env.prod}}
+      ZONE_PORT: ${ZONE_PORT:-9050}
+      PASSWORD_RESET_URL: ${PASSWORD_RESET_URL:-https://${DOMAIN:?DOMAIN is empty, put the domain of this server in .env.prod}/reset}
+      # Empty SMTP_USER / SMTP_PASS / SMTP_FROM: the API starts and warns that reset mails are not sent.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      LOGIN_IP_MAX: ${LOGIN_IP_MAX:-30}
+      REGISTER_IP_MAX: ${REGISTER_IP_MAX:-5}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+    logging: *logging
+
+  backup:
+    image: mongo:7 # the image already holds mongodump and mongorestore
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks: [backend]
+    entrypoint: ["bash", "/backup-scripts/backup-loop.sh"]
+    init: true
+    environment:
+      MONGO_URI: mongodb://mongo:27017/?replicaSet=rs0
+      BACKUP_DIR: /backups
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      BACKUP_TIME_UTC: ${BACKUP_TIME_UTC:-19:00} # 19:00 UTC = 02:00 in Vietnam
+    volumes:
+      - ./backup:/backup-scripts:ro
+      - ${BACKUP_DIR:-./backups}:/backups
+    logging: *logging
+
+  # Only with --profile zone: it needs the Unity Linux player in ZONE_BUILD_DIR.
+  zone:
+    profiles: [zone]
+    build: ./zone
+    restart: unless-stopped
+    depends_on: # also the stop order: the zone stops first and its final save still reaches the API
+      api:
+        condition: service_healthy
+    networks: [public]
+    ports:
+      - "${ZONE_PORT:-9050}:${ZONE_PORT:-9050}/udp"
+    environment:
+      ZENONIA_SERVICE_KEY: ${SERVICE_KEY:?SERVICE_KEY is empty, see deploy/.env.prod.example}
+      ZONE_PORT: ${ZONE_PORT:-9050}
+      ZONE_ID: ${ZONE_ID:-frost-hollow}
+      ZONE_API_URL: http://api:3000
+      ZONE_EXECUTABLE: ${ZONE_EXECUTABLE:-Zenonia.x86_64}
+      ZONE_EXTRA_ARGS: ${ZONE_EXTRA_ARGS:-}
+    volumes:
+      - ${ZONE_BUILD_DIR:-./zone/build}:/opt/zenonia:ro
+      - zone-data:/data # saves the API refused wait here for a person (save-failed/)
+    # The zone gives up on its final saves after 30 s (DrainSeconds in ZoneServer.cs). entrypoint.sh waits 45 s, then Docker kills at 60 s.
+    stop_grace_period: 60s
+    logging: *logging
+
+networks:
+  backend:
+    internal: true # no route out, and nothing but the containers here reaches Mongo
+  public: {}
+
+volumes:
+  mongo-data:
+  zone-data:

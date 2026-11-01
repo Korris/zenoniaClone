@@ -24,7 +24,7 @@ namespace ZenoniaProto
 
         public static void Tick(HeroController hero)
         {
-            if (!Application.isEditor && !Debug.isDebugBuild) return;
+            if (ReleaseBuild.IsRelease || (!Application.isEditor && !Debug.isDebugBuild)) return;
             if (NetMode.IsClient || !Pressed()) return;
             ClericBuffFx.DevGrantBoth(hero);
         }

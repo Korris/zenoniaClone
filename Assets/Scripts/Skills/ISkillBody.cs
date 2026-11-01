@@ -21,6 +21,8 @@ namespace ZenoniaProto
         bool IsLocal { get; }
         /// <summary>Attack stat with the temporary buffs applied.</summary>
         float Atk { get; }
+        /// <summary>The attack stat heals and shields scale from (without the pet's damage bonus).</summary>
+        float SupportAtk { get; }
         BuffState Buffs { get; }
         void Face(Vector2 dir);
         /// <summary>Jumps to `dest` (caller checked the rect is free). False when refused.</summary>

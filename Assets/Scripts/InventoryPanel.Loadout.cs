@@ -5,8 +5,8 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Equipment tab (web drawLoadout): the hero portrait on a lit dais with the six worn slots around it (weapon / helmet / armor / gloves on
-    /// the left, boots / offhand + two locked slots on the right), the "+ Status" table, Unequip and Enhance with its preview line.
+    /// Equipment tab (web drawLoadout): the hero portrait on a lit dais with the worn slots around it (weapon / helmet / armor / gloves on
+    /// the left, boots / offhand / pet + one locked slot on the right), the "+ Status" table, Unequip and Enhance with its preview line.
     /// </summary>
     public partial class InventoryPanel
     {
@@ -14,7 +14,7 @@ namespace ZenoniaProto
 
         RectTransform loadoutRoot;
         int equipSel;
-        readonly BagWidgets.Slot[] equipSlots = new BagWidgets.Slot[6];
+        readonly BagWidgets.Slot[] equipSlots = new BagWidgets.Slot[Slots.All.Length];
         readonly Text[] statusValues = new Text[8];
         Image portrait;
         Text classLevelText, loadoutEnhanceText;
@@ -24,7 +24,7 @@ namespace ZenoniaProto
         static Vector2 EquipSlotCentre(int i)
         {
             bool left = i < 4;
-            int row = left ? i : i == 5 ? 1 : 0;
+            int row = left ? i : i - 4; // right column: boots, offhand, pet
             return new Vector2(left ? 360f : 658f, 202f + row * 84f);
         }
 
@@ -43,7 +43,7 @@ namespace ZenoniaProto
                 int index = i;
                 equipSlots[i] = new BagWidgets.Slot(loadoutRoot, "Equip_" + Slots.All[i], c.x - 30f, c.y - 30f, 60f, () => OnCellClick(index));
             }
-            for (int i = 2; i < 4; i++)
+            for (int i = 3; i < 4; i++)
             {
                 var locked = new BagWidgets.Slot(loadoutRoot, "Locked" + i, 628f, 172f + i * 84f, 60f, null);
                 locked.SetFrame(false, BagWidgets.Hex("#4e667d"), true);
@@ -65,6 +65,29 @@ namespace ZenoniaProto
             unequipButton = new BagWidgets.BagButton(loadoutRoot, "Unequip", 748f, 528f, 160f, 32f, "Unequip", BagSprites.Tone.Blue, Activate);
         }
 
+        /// <summary>"95%" for a pet's cell, red near the end; null for anything else.</summary>
+        static string PetDurabilityText(Item item)
+        {
+            if (item == null || item.slot != Slots.Pet) return null;
+            string text = ItemInfo.DurabilityPercent(item);
+            return PetConfig.IsLow(item.durability) ? "<color=#ff7060>" + text + "</color>" : text;
+        }
+
+        /// <summary>"Durability 80 / 1000" and the warning near the end.</summary>
+        static string PetDurabilityLine(Item item)
+        {
+            string text = ItemInfo.DurabilityLine(item);
+            return PetConfig.IsLow(item.durability) ? "<color=#ff7060>" + text + "  Almost worn out!</color>" : text;
+        }
+
+        /// <summary>Capture runs: the Equipment tab with this worn slot selected.</summary>
+        public static void TestSelectWorn(string slot)
+        {
+            if (instance == null) return;
+            instance.equipSel = Slots.Index(slot);
+            instance.SwitchMode(Mode.Equipment);
+        }
+
         /// <summary>Armed idle frame, facing down (web registry.heroes[classId].down.idle[0]).</summary>
         void SetPortrait(HeroClassDef cls)
         {
@@ -83,21 +106,23 @@ namespace ZenoniaProto
                 BagWidgets.Slot v = equipSlots[i];
                 v.SetFrame(i == equipSel, item != null ? LootSprites.RarityColor(item) : BagWidgets.Hex("#8398a9"));
                 int plus = EnhanceStats.Level(item);
-                v.Count.text = plus > 0 ? "+" + plus : "";
+                v.Count.text = PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
                 if (item != null) v.SetIcon(LootSprites.Icon(item), 46f, Color.white);
                 else // greyed outline of what belongs there (web: grayscale at 22% alpha)
                 {
                     bool classGear = slot == Slots.Weapon || slot == Slots.Offhand;
-                    v.SetIcon(LootSprites.Icon(new Item { slot = slot, itemLevel = 1, classId = classGear ? p.ClassId : null }), 39f, new Color(0.62f, 0.66f, 0.7f, 0.22f));
+                    string template = slot == Slots.Pet ? PetConfig.All[0].TemplateId : null; // the first pet's outline; no icon yet = a bare frame
+                    v.SetIcon(LootSprites.Icon(new Item { slot = slot, templateId = template, itemLevel = 1, classId = classGear ? p.ClassId : null }), 39f, new Color(0.62f, 0.66f, 0.7f, 0.22f));
                 }
             }
 
             float crit = (0.08f + p.CritBonus) * 100f;
             bool magic = p.ClassId == "wizard" || p.ClassId == "cleric";
             float baseSpeed = RpgClasses.Get(p.ClassId).Speed;
+            int atk = Mathf.RoundToInt(p.DamageAtk);
             string[] values =
             {
-                p.MaxHp.ToString(), p.MaxMp.ToString(), p.Atk.ToString(), p.Def.ToString(), (magic ? p.Atk : 0).ToString(), p.Def.ToString(),
+                p.MaxHp.ToString(), p.MaxMp.ToString(), atk.ToString(), p.Def.ToString(), (magic ? atk : 0).ToString(), p.Def.ToString(),
                 crit.ToString("0.0") + "%", Mathf.RoundToInt(baseSpeed > 0f ? p.Speed / baseSpeed * 100f : 100f) + "%",
             };
             for (int i = 0; i < values.Length; i++) statusValues[i].text = values[i];
@@ -107,7 +132,7 @@ namespace ZenoniaProto
             bool enhanceable = EnhanceStats.IsEnhanceable(held);
             EnhanceView e = Preview(p, held);
             loadoutEnhanceButton.Set(enhanceable, null, !e.Can);
-            loadoutEnhanceText.text = !enhanceable ? "" : e.Max ? e.Reason : "+" + e.From + " -> +" + e.To + "  " + e.Chance + "%  Stone x" + e.Owned;
+            loadoutEnhanceText.text = held != null && held.slot == Slots.Pet ? PetDurabilityLine(held) : !enhanceable ? "" : e.Max ? e.Reason : "+" + e.From + " -> +" + e.To + "  " + e.Chance + "%  Stone x" + e.Owned;
         }
     }
 }

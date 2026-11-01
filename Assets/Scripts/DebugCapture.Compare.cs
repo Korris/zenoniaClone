@@ -9,12 +9,24 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// --record-compare attack|skills --shot-path DIR: the same fixed scene for comparing Warrior art between two builds, wearing the starter weapon and shield at +15.
-    /// --class picks the hero (default Warrior). dash = a dash left, right, down, up; attack = the combo facing left, right, down; skills = Earth Break, then Inferno Crash, facing left. 60 fps fixed step: frame_#####.png + audio.wav.
+    /// --class picks the hero (default Warrior). preview = the hero select's clip; dash = a dash left, right, down, up; attack = the combo facing left, right, down; skills = Earth Break, then Inferno Crash, facing left. 60 fps fixed step: frame_#####.png + audio.wav.
     /// </summary>
     public partial class DebugCapture
     {
         public const int CompareAttackSegment = 216, CompareAttackHold = 170;
         string compareArg;
+
+        static string PreviewSkill(HeroClass id)
+        {
+            switch (id)
+            {
+                case HeroClass.Warrior: return "Earth Break";
+                case HeroClass.Wizard: return "Astral Cataclysm";
+                case HeroClass.Mechanic: return "Rocket Barrage";
+                case HeroClass.Assassin: return "Phantom Rush";
+                default: return "Divine Aegis";
+            }
+        }
 
         IEnumerator RecordCompare(string what)
         {
@@ -26,7 +38,7 @@ namespace ZenoniaProto
             HeroController hero = GameSession.Hero;
             hero.God = true;
             PlayerState p = hero.Rpg;
-            foreach (string slot in new[] { Slots.Weapon, Slots.Offhand }) { Item it = p.GetEquipped(slot); if (it != null) it.enhance = 15; }
+            if (what != "preview" && what != "combo4") foreach (string slot in new[] { Slots.Weapon, Slots.Offhand }) { Item it = p.GetEquipped(slot); if (it != null) it.enhance = 15; }
             p.RecomputeStats();
             RpgSession.SyncGear();
             Debug.Log("[ZenoniaProto] compare gear: tier " + ItemInfo.ArtTier(p.GetEquipped(Slots.Weapon)) + " +" + p.GetEquipped(Slots.Weapon).enhance);
@@ -44,7 +56,29 @@ namespace ZenoniaProto
                 for (int i = 0; i < n; i++) audio.Add(buf[i]);
                 buf.Dispose();
             };
-            if (what == "dash")
+            if (what == "preview")
+            {
+                // The clip behind the hero select's preview window: the combo at a group of monsters, then the class's showpiece skill. Tools/record-hero-previews.ps1.
+                LootDrop.NoDrops = true;
+                Camera.main.orthographicSize = zoom > 0f ? zoom : 46f; // the group stands ahead of the hero (left); the clip crops the right edge
+                string skill = PreviewSkill(hero.Class.Id);
+                ChoreoShot shot = default(ChoreoShot);
+                foreach (ChoreoShot c in ChoreoShots) if (c.Skill == skill) shot = c;
+                foreach (Monster m in new List<Monster>(Monster.All)) Destroy(m.gameObject);
+                hero.Teleport(spot, 2);
+                PlaceGroup(hero, shot);
+                yield return null;
+                int castAt = 130, endAt = castAt + Mathf.RoundToInt(Mathf.Min(shot.Hold, 3.4f) * 60f), local = 0;
+                InputAdapter.BotPressed = k => k == GameKey.Attack && local >= 15 && local < castAt - 25;
+                for (; local < endAt; local++, frame++)
+                {
+                    if (local == castAt) Debug.Log("[ZenoniaProto] preview cast " + skill + " => " + CastByName(hero, skill));
+                    yield return new WaitForEndOfFrame();
+                    capture();
+                }
+                InputAdapter.BotPressed = null;
+            }
+            else if (what == "dash")
             {
                 Camera.main.orthographicSize = zoom > 0f ? zoom : 42f;
                 foreach (GameKey key in new[] { GameKey.Left, GameKey.Right, GameKey.Down, GameKey.Up })
@@ -62,6 +96,44 @@ namespace ZenoniaProto
                 }
                 InputAdapter.BotHeld = null;
                 InputAdapter.BotPressed = null;
+            }
+            else if (what == "combo4")
+            {
+                // Idle, then the whole combo, in all four directions.
+                Camera.main.orthographicSize = zoom > 0f ? zoom : 42f;
+                foreach (int dir in new[] { 0, 1, 2, 3 })
+                {
+                    hero.Teleport(spot, dir);
+                    int local = 0;
+                    InputAdapter.BotPressed = k => k == GameKey.Attack && local >= 40 && local < 110;
+                    for (; local < 170; local++, frame++)
+                    {
+                        if (local % 20 == 0) foreach (Monster m in new List<Monster>(Monster.All)) Destroy(m.gameObject);
+                        yield return new WaitForEndOfFrame();
+                        capture();
+                    }
+                }
+                InputAdapter.BotPressed = null;
+                // attack3 is also the cast pose: one skill facing the camera.
+                hero.Teleport(spot, 0);
+                for (int local = 0; local < 220; local++, frame++)
+                {
+                    if (local == 20) Debug.Log("[ZenoniaProto] compare cast => " + CastByName(hero, PreviewSkill(hero.Class.Id)));
+                    yield return new WaitForEndOfFrame();
+                    capture();
+                }
+                foreach (GameKey key in new[] { GameKey.Left, GameKey.Right, GameKey.Down, GameKey.Up })
+                {
+                    hero.Teleport(spot, 0);
+                    int local = 0;
+                    InputAdapter.BotHeld = k => k == key;
+                    for (; local < 40; local++, frame++)
+                    {
+                        yield return new WaitForEndOfFrame();
+                        capture();
+                    }
+                }
+                InputAdapter.BotHeld = null;
             }
             else if (what == "attack")
             {

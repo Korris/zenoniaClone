@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ApiError } from '../errors.js';
 import { itemSchema } from './item-validation.js';
-import { INVENTORY_SIZE, MAX_INT, MAX_STONES, SLOTS } from './rpg-constants.js';
+import { INVENTORY_SIZE, MAX_INT, MAX_STONES, PET_MAX_DURABILITY, SLOTS } from './rpg-constants.js';
 
 const delta = z.number().int().min(-MAX_INT).max(MAX_INT);
 
@@ -21,6 +21,7 @@ const hasUid = (s, uid) => [...s.inventory, ...s.equipment].some((i) => i.uid ==
 const handlers = {
   addItem(s, op) {
     if (op.item.enhance !== 0) throw reject('enhance_not_allowed', 'Granted items must be +0; only the enhance endpoint raises levels');
+    if (op.item.slot === 'pet' && op.item.durability !== PET_MAX_DURABILITY) throw reject('durability_not_allowed', 'A new pet starts at full durability');
     if (hasUid(s, op.item.uid)) throw reject('duplicate_item', `Item ${op.item.uid} already exists`);
     if (s.inventory.length >= INVENTORY_SIZE) throw reject('inventory_full', 'Inventory full');
     s.inventory.push(op.item);

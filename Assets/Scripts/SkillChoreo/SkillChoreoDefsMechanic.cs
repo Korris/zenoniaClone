@@ -4,7 +4,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Mechanic choreographies, transcribed from plans/261030-1521-skill-trees-implementation/vfx-choreography-mechanic.md (times ms, radii tiles). Power Shot and Rocket Punch
-    /// fly at the sim's real speed so their pops land on the real hits. Plasma Barrage, Robot Assault and Orbital Cannon only add to the bodies the sim keeps drawing.
+    /// fly at the sim's real speed so their pops land on the real hits. Plasma Barrage, Deploy Turret and Orbital Cannon only add to the bodies the sim keeps drawing.
     /// Rocket Barrage keeps RocketBarrageUltimate and has no entry.
     /// </summary>
     public static class SkillChoreoDefsMechanic
@@ -15,7 +15,7 @@ namespace ZenoniaProto
         public static void Register(List<Choreo> into)
         {
             into.Add(PowerShot()); into.Add(RocketPunch()); into.Add(PlasmaBarrage());
-            into.Add(RobotAssault()); into.Add(TargetLock()); into.Add(EmpBurst()); into.Add(OrbitalCannon());
+            into.Add(DeployTurret()); into.Add(TargetLock()); into.Add(EmpBurst()); into.Add(OrbitalCannon());
         }
 
         static Choreo PowerShot()
@@ -50,9 +50,9 @@ namespace ZenoniaProto
             return c;
         }
 
-        static Choreo RobotAssault()
+        static Choreo DeployTurret()
         {
-            var c = new Choreo("mechanic", "robot-assault", 580) { KeepsSimArt = true };
+            var c = new Choreo("mechanic", "deploy-turret", 580) { KeepsSimArt = true };
             c.Add(0, 120).Anchor(Cas).Ring(0.6f, 120, 0x55DFFF).Embers(8, 0x83E9FF);
             c.Add(120, 280).Anchor(Cas).Ring(1.1f, 160, 0x6BDFFF).Embers(12, 0x7BD8FF).Embers(10, 0xFFB75B).Quake(90, 0.06f);
             c.Add(280, 430).Anchor(Cas).Decal(0x3C8EA8, 0.4f, 1.2f, 0.14f).Ring(1.4f, 170, 0x64CFFF).Embers(10, 0x8BEFFF).Trail();

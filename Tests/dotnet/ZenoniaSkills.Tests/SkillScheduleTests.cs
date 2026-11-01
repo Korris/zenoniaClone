@@ -56,6 +56,7 @@ public class SkillScheduleTests
                     case EffectKind.Buff: Assert.True(e.Buff.Kind != BuffKind.None && e.Buff.Ms > 0, d.Id); break;
                     case EffectKind.Heal: Assert.True(e.Pct > 0f, d.Id); break;
                     case EffectKind.Summon: Assert.True(e.DurationMs > 0 && e.IntervalMs > 0 && e.Pct > 0f, d.Id); break;
+                    case EffectKind.Turret: Assert.True(e.DurationMs > 0 && e.IntervalMs > 0 && e.Pct > 0f && e.Radius > 0f, d.Id); break;
                     case EffectKind.Rain: Assert.True(e.Count > 0 && e.ImpactRadius > 0f && e.IntervalMs > 0, d.Id); break;
                     case EffectKind.Zone: Assert.True(e.DurationMs > 0 && e.IntervalMs > 0 && e.Hits > 0 && e.Radius > 0f, d.Id); break;
                 }

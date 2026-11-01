@@ -8,6 +8,9 @@ namespace ZenoniaProto.Api
     [Serializable] public class RegisterRequest { public string username, email, password; }
     [Serializable] public class LoginRequest { public string login, password; } // login = username or email
     [Serializable] public class RefreshRequest { public string refreshToken; }
+    [Serializable] public class PasswordResetRequest { public string email; }
+    /// <summary>The whole answer of a call that only says it worked.</summary>
+    [Serializable] public class ApiOk { public bool ok = true; }
 
     [Serializable] public class ApiUser { public string id, username, email; }
 
@@ -57,6 +60,11 @@ namespace ZenoniaProto.Api
     [Serializable] public class ApiErrorEnvelope { public ApiErrorInfo error; }
     [Serializable] public class ApiErrorInfo { public string code, message; }
 
+    /// <summary>The same envelope for a validation_error, whose details are a list. Other errors have an object there, so this is only read for that code.</summary>
+    [Serializable] public class ApiValidationEnvelope { public ApiValidationInfo error; }
+    [Serializable] public class ApiValidationInfo { public ApiValidationDetail[] details; }
+    [Serializable] public class ApiValidationDetail { public string path, message; }
+
     /// <summary>Stable error codes the UI may branch on (anything else: show the message).</summary>
     public static class ApiErrorCodes
     {
@@ -71,6 +79,8 @@ namespace ZenoniaProto.Api
         public const string NameTaken = "name_taken";
         public const string ClassTaken = "class_taken";
         public const string AlreadyOnline = "already_online";
+        public const string CharacterOnline = "character_online"; // delete refused: the character holds a live session
+        public const string NotFound = "not_found";
         public const string InvalidRefreshToken = "invalid_refresh_token";
     }
 }

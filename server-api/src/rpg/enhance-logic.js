@@ -1,4 +1,4 @@
-import { ENHANCEABLE_SLOTS, MAX_ENHANCE, OFFHAND_SCALE, STONE_COST, SUCCESS_BY_TARGET } from './rpg-constants.js';
+import { ENHANCEABLE_SLOTS, MAX_ENHANCE, OFFHAND_SCALE, PET_MAX_DURABILITY, STONE_COST, SUCCESS_BY_TARGET } from './rpg-constants.js';
 
 // Port of Assets/Scripts/Rpg/Enhance.cs (EnhanceConfig / EnhanceStats / StoneUpgradeMethod / EnhanceSystem). Same numbers, same order of checks.
 
@@ -50,6 +50,18 @@ export function attemptEnhance(state, itemUid, rand) {
   const success = rand() < successChance(level);
   if (success) item.enhance = level + 1;
   return { ok: true, success, level: success ? level + 1 : level, reason: '', state: next, slot: item.slot, equipped: !!equipped };
+}
+
+/**
+ * Anti-tamper for snapshots: a pet's durability only ever goes down, so a saved value above the stored one is refused. An old stored pet without the field counts as full.
+ * A pet the API has not seen may be under the maximum: the zone can drain it before its first save reaches here. Returns the offending uid or null.
+ */
+export function findDurabilityTamper(oldState, newState) {
+  const known = new Map([...oldState.inventory, ...oldState.equipment].filter((i) => i.slot === 'pet').map((i) => [i.uid, i.durability ?? PET_MAX_DURABILITY]));
+  for (const i of [...newState.inventory, ...newState.equipment]) {
+    if (i.slot === 'pet' && known.has(i.uid) && i.durability > known.get(i.uid)) return i.uid;
+  }
+  return null;
 }
 
 /**

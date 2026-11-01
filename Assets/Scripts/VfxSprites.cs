@@ -52,7 +52,7 @@ namespace ZenoniaProto
         {
             if (id == HeroClass.Cleric) Get("cleric");
             else if (id == HeroClass.Wizard) Get("wizard");
-            else if (id == HeroClass.Mechanic) { Get("mechanic-orange"); Get("mechanic-blue"); }
+            else if (id == HeroClass.Mechanic) { Get("mechanic-orange"); Get("mechanic-blue"); MechanicCannonBlastFx.Preload(); }
         }
 
         /// <summary>"mechanic-blue" -> class "mechanic", set "attack-blue"; "wizard" -> "wizard", "attack".</summary>

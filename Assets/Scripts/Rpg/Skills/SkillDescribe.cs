@@ -119,6 +119,8 @@ namespace ZenoniaProto.Rpg
                 case EffectKind.Motion: return Motion(d, e);
                 case EffectKind.Heal: return Heal(d, e, rank);
                 case EffectKind.Summon: return Summon(d, e, rank);
+                case EffectKind.Turret:
+                    return "Place a turret where you stand for " + Secs(e.DurationMs) + ": it shoots the nearest enemy within " + Tiles(e.Radius) + " for " + Atk(d.PctAt(e, rank)) + " every " + Secs(e.IntervalMs) + ". A new one replaces the old one";
                 case EffectKind.Rain:
                     return e.Count + " strikes fall around a spot " + Tiles(e.Range) + " ahead, one every " + Secs(e.IntervalMs) + ": " + Atk(d.PctAt(e, rank)) + " each in a " + Num(e.ImpactRadius) + "-tile blast";
                 case EffectKind.Zone:

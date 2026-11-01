@@ -40,8 +40,12 @@ namespace ZenoniaProto
         public static void ResetStatics() { lastFullToast = -99999f; }
 
         /// <summary>Scatters `drops` around a point (index i of n spreads them on a ring so they never stack).</summary>
+        /// <summary>Capture runs: kills drop nothing, for clips where loot would only clutter the shot.</summary>
+        public static bool NoDrops;
+
         public static void SpawnAll(Transform parent, List<LootEntry> drops, Vector2 at, ushort ownerId = 0, float freeAtMs = 0f)
         {
+            if (NoDrops) return;
             float start = Random.value * 360f;
             for (int i = 0; i < drops.Count; i++)
             {

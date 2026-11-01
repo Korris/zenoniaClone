@@ -131,9 +131,9 @@ public class MessageRoundTripTests
         NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 6, Op = InvOp.PotionBuy, ItemUid = "apothecaryNara", Slot = 5 });
         InvActionMsg buy; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out buy));
         Assert.Equal(InvOp.PotionBuy, buy.Op); Assert.Equal("apothecaryNara", buy.ItemUid); Assert.Equal((byte)5, buy.Slot);
-        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.PotionBuy + 1); w.Put("x"); w.Put((byte)0);
+        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.PetBuy + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(8, NetProtocol.Version);
+        Assert.Equal(12, NetProtocol.Version);
     }
 
     [Fact]
@@ -182,8 +182,9 @@ public class MessageRoundTripTests
         DespawnMsg dm; Assert.True(NetMessageReader.TryDespawn(Reader(w, NetOp.Despawn), out dm));
         Assert.Equal(55, dm.Id); Assert.Equal(DespawnCause.PickedUp, dm.Cause);
 
-        NetMessageWriter.SelfState(w, new SelfStateMsg { Hp = 120, MaxHp = 200, Mp = 30, MaxMp = 60, Exp = 4000, Level = 9, SkillCds = new ushort[] { 0, 1500, 0, 0, 0, 0, 0, 65535 } });
+        NetMessageWriter.SelfState(w, new SelfStateMsg { Hp = 120, MaxHp = 200, Mp = 30, MaxMp = 60, Exp = 4000, Level = 9, SkillCds = new ushort[] { 0, 1500, 0, 0, 0, 0, 0, 65535 }, PetDurability = 987 });
         SelfStateMsg sm; Assert.True(NetMessageReader.TrySelfState(Reader(w, NetOp.SelfState), out sm));
+        Assert.Equal(987, sm.PetDurability);
         Assert.Equal(120, sm.Hp); Assert.Equal(4000u, sm.Exp); Assert.Equal(8, sm.SkillCds.Length); Assert.Equal(1500, sm.SkillCds[1]); Assert.Equal(65535, sm.SkillCds[7]);
         Assert.Empty(sm.Buffs);
 
@@ -211,9 +212,9 @@ public class MessageRoundTripTests
     public void SpawnPayloadsPerKind()
     {
         var w = new NetDataWriter(); SpawnMsg m;
-        new SpawnMsg { Id = 1, Kind = EntityKind.Hero, Type = 2, X = NetQuantize.Pos(100.5f), Y = NetQuantize.Pos(50f), Facing = 3, PlayerId = 8, Name = "Bob", Level = 17, Look = new NetAppearance { WeaponTier = 3, OffTier = 2, EnhanceBand = 4, Flags = 1 } }.Write(w);
+        new SpawnMsg { Id = 1, Kind = EntityKind.Hero, Type = 2, X = NetQuantize.Pos(100.5f), Y = NetQuantize.Pos(50f), Facing = 3, PlayerId = 8, Name = "Bob", Level = 17, Look = new NetAppearance { WeaponTier = 3, OffTier = 2, EnhanceBand = 4, Flags = 1, PetId = 2 } }.Write(w);
         Assert.True(SpawnMsg.TryRead(Reader(w, NetOp.Spawn), out m));
-        Assert.Equal("Bob", m.Name); Assert.Equal(17, m.Level); Assert.Equal(4, m.Look.EnhanceBand); Assert.Equal(100.5f, NetQuantize.Pos(m.X));
+        Assert.Equal("Bob", m.Name); Assert.Equal(17, m.Level); Assert.Equal(4, m.Look.EnhanceBand); Assert.Equal(2, m.Look.PetId); Assert.Equal(100.5f, NetQuantize.Pos(m.X));
 
         new SpawnMsg { Id = 2, Kind = EntityKind.Monster, Type = 5, Hp = 90, MaxHp = 120, State = 2 }.Write(w);
         Assert.True(SpawnMsg.TryRead(Reader(w, NetOp.Spawn), out m));
@@ -222,6 +223,12 @@ public class MessageRoundTripTests
         new SpawnMsg { Id = 3, Kind = EntityKind.Loot, Type = 4, Amount = 250, ItemDefId = 77, Rarity = 3, Enhance = 5, OwnerPlayerId = 9, FreeAtMs = 987654 }.Write(w);
         Assert.True(SpawnMsg.TryRead(Reader(w, NetOp.Spawn), out m));
         Assert.Equal(250, m.Amount); Assert.Equal(9, m.OwnerPlayerId); Assert.Equal(987654u, m.FreeAtMs);
+
+        new SpawnMsg { Id = 4, Kind = EntityKind.Turret, X = -8, Y = 96, Facing = 1, OwnerPlayerId = 12, Amount = 7350 }.Write(w);
+        Assert.True(SpawnMsg.TryRead(Reader(w, NetOp.Spawn), out m));
+        Assert.Equal(EntityKind.Turret, m.Kind); Assert.Equal(-8, m.X); Assert.Equal(96, m.Y); Assert.Equal(1, m.Facing); Assert.Equal(12, m.OwnerPlayerId); Assert.Equal(7350, m.Amount);
+        w.Reset(); w.Put(NetOp.Spawn); w.Put((ushort)5); w.Put((byte)((byte)EntityKind.Turret + 1)); w.Put((byte)0); w.Put((short)0); w.Put((short)0); w.Put((byte)0);
+        Assert.False(SpawnMsg.TryRead(Reader(w, NetOp.Spawn), out m));
     }
 
     [Fact]
@@ -249,10 +256,11 @@ public class MessageRoundTripTests
             new NetEvent { Type = NetEventType.ExpGain, Value = 123456, Step = 2 },
             new NetEvent { Type = NetEventType.LevelUp, Id = 1, Step = 30 },
             new NetEvent { Type = NetEventType.PotionUsed, Id = 1, Step = 1 },
-            new NetEvent { Type = NetEventType.AppearanceChanged, Id = 1, Look = new NetAppearance { WeaponTier = 7, Flags = 1 } },
+            new NetEvent { Type = NetEventType.AppearanceChanged, Id = 1, Look = new NetAppearance { WeaponTier = 7, Flags = 1, PetId = 1 } },
             new NetEvent { Type = NetEventType.Toast, Text = "Inventory full", Value = 0xFF8855FF },
             new NetEvent { Type = NetEventType.BossSpawned, Id = 400 },
             new NetEvent { Type = NetEventType.BossDied, Id = 400 },
+            new NetEvent { Type = NetEventType.TurretShot, Id = 500, Other = 301, X = -12, Y = 345 },
         };
         var w = new NetDataWriter();
         int written = NetMessageWriter.EventBatch(w, 5000, events, 0);
@@ -263,8 +271,10 @@ public class MessageRoundTripTests
         for (int i = 0; i < events.Count; i++) { Assert.Equal(events[i].Type, got[i].Type); Assert.Equal(events[i].Id, got[i].Id); }
         Assert.Equal(65000, got[3].Dmg); Assert.Equal(-30, got[3].KnockX); Assert.Equal(127, got[3].KnockY);
         Assert.Equal(123456u, got[8].Value); Assert.Equal("Inventory full", got[12].Text); Assert.Equal(0xFF8855FFu, got[12].Value);
-        Assert.Equal(7, got[11].Look.WeaponTier);
+        Assert.Equal(7, got[11].Look.WeaponTier); Assert.Equal(1, got[11].Look.PetId);
         Assert.Equal(6, SkillCastCode.Index(got[5].Step)); Assert.Equal(4, SkillCastCode.Rank(got[5].Step)); Assert.Equal(65001, got[5].Other); Assert.Equal(1, got[5].Facing);
+        NetEvent shot = got[got.Count - 1];
+        Assert.Equal(500, shot.Id); Assert.Equal(301, shot.Other); Assert.Equal(-12, shot.X); Assert.Equal(345, shot.Y);
     }
 
     [Fact]

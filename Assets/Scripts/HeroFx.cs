@@ -29,13 +29,40 @@ namespace ZenoniaProto
         }
 
         /// <summary>Painted cast animation (swirl at the staff, muzzle blast at the gun) once per ranged step, as the windup starts.</summary>
-        public static void CastWindup(HeroClassDef cls, ComboHit h, Vector2 tip, float facingAngle, bool finisher)
+        public static void CastWindup(HeroClassDef cls, ComboHit h, Vector2 tip, float facingAngle, bool finisher, HeroController shooter = null)
         {
             if (!NetMode.RendersFx) return;
+            if (finisher && cls.Id == HeroClass.Mechanic && MechanicCannonBlastFx.Play(shooter, tip, facingAngle)) return;
             VfxSet set = VfxSprites.For(h.Bolt.Style);
             if (set == null) return;
             float angle = h.Bolt.Style == BoltStyle.Plasma ? facingAngle : 0f; // the muzzle blast points along the aim, swirls are round
             VfxAnim.Cast(set, tip, angle, finisher);
+        }
+
+        // Mechanic: where each muzzle is, world units from the feet (down, up, left, right), measured by Tools/build-mechanic-dual.py muzzles. Pictures only: the bolt's own start stays in FireBolt.
+        static readonly Vector2[] MuzzleLeftHand = { new Vector2(7.6f, 12.4f), new Vector2(-8.6f, 14.3f), new Vector2(-9.9f, 13.5f), new Vector2(10.7f, 12.1f) };
+        static readonly Vector2[] MuzzleRightHand = { new Vector2(-9.1f, 13.3f), new Vector2(8f, 15.8f), new Vector2(-9.6f, 13.1f), new Vector2(10.8f, 12.5f) };
+        static readonly Vector2[] MuzzleBothRight = { new Vector2(-9.6f, 10.9f), new Vector2(8.8f, 13.3f), new Vector2(-8.8f, 11.4f), new Vector2(8.8f, 11.4f) };
+        static readonly Vector2[] MuzzleBothLeft = { new Vector2(9.8f, 10.9f), new Vector2(-9f, 12f), new Vector2(-9.3f, 12f), new Vector2(9.3f, 12f) };
+        static readonly Vector2[] MuzzleCannon = { new Vector2(3.4f, -2.2f), new Vector2(4.9f, 27.3f), new Vector2(-13f, 10.5f), new Vector2(13f, 10.5f) };
+
+        /// <summary>The flash of combo step `step` (1-4): left pistol, right pistol, both (the right one here), cannon. `fallback` for every other class.</summary>
+        public static Vector2 CastTipFor(HeroClassDef cls, int step, int facing, Vector2 feet, Vector2 fallback)
+        {
+            if (cls.Id != HeroClass.Mechanic || step < 1 || step > 4) return fallback;
+            Vector2[] table = step == 1 ? MuzzleLeftHand : step == 2 ? MuzzleRightHand : step == 3 ? MuzzleBothRight : MuzzleCannon;
+            return feet + table[facing & 3];
+        }
+
+        /// <summary>Hit 3's other pistol: a flash and a tracer, no damage.</summary>
+        static void SecondPistol(HeroClassDef cls, ComboHit h, Vector2 feet, Vector2 dir, float angle)
+        {
+            if (cls.Id != HeroClass.Mechanic || cls.Hits.Length < 3 || !ReferenceEquals(h, cls.Hits[2])) return;
+            int facing = Mathf.Abs(dir.x) > Mathf.Abs(dir.y) ? (dir.x < 0f ? 2 : 3) : (dir.y > 0f ? 1 : 0);
+            Vector2 at = feet + MuzzleBothLeft[facing];
+            VfxSet set = VfxSprites.For(h.Bolt.Style);
+            if (set != null) VfxAnim.Cast(set, at, angle, false);
+            MechanicTracer.Fire(at, dir, angle, h.Bolt.Speed);
         }
 
         /// <summary>Shot sounds, the procedural flash when the painted cast art is missing, and the recoil kick.</summary>
@@ -43,8 +70,9 @@ namespace ZenoniaProto
         {
             if (!NetMode.RendersFx) return;
             ClassSfx.BoltLaunched(cls.Id, finisher);
+            SecondPistol(cls, h, feet, dir, angle);
             if (!paintedCastArt) FallbackCast(cls, h, feet, tip, dir, angle, pal);
-            CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick
+            if (!finisher || cls.Id != HeroClass.Mechanic) CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick; the Mechanic's cannon shakes in MechanicCannonBlastFx, for its shooter only
         }
 
         /// <summary>Procedural cast flash, used only when the painted VFX sprites are missing.</summary>

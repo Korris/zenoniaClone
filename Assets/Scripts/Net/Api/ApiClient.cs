@@ -72,6 +72,12 @@ namespace ZenoniaProto.Api
             if (!string.IsNullOrEmpty(token)) await SendAsync<ApiOk>("POST", "/auth/logout", JsonUtility.ToJson(new RefreshRequest { refreshToken = token }), false);
         }
 
+        /// <summary>Asks for a password reset mail. The API answers the same for any well-formed email, so a success says nothing about whether the account exists. The new password is set on the web page in the mail.</summary>
+        public Task<ApiResult<ApiOk>> RequestPasswordResetAsync(string email)
+        {
+            return SendAsync<ApiOk>("POST", "/auth/password-reset/request", JsonUtility.ToJson(new PasswordResetRequest { email = email }), false);
+        }
+
         // ---- characters ----
 
         public async Task<ApiResult<CharacterListResponse>> ListCharactersAsync()
@@ -84,6 +90,12 @@ namespace ZenoniaProto.Api
             return await SendAsync<CharacterDetailResponse>("POST", "/characters", JsonUtility.ToJson(new CreateCharacterRequest { name = name, classId = classId }), true);
         }
 
+        /// <summary>Deletes a character for good. Fails with character_online while it holds a live session.</summary>
+        public Task<ApiResult<ApiOk>> DeleteCharacterAsync(string characterId)
+        {
+            return SendAsync<ApiOk>("DELETE", "/characters/" + UnityWebRequest.EscapeURL(characterId), null, true);
+        }
+
         /// <summary>Asks for a single-use 60 s zone ticket + the zone address; the client then sends the ticket in its zone Hello.</summary>
         public async Task<ApiResult<EnterResponse>> EnterAsync(string characterId)
         {
@@ -91,8 +103,6 @@ namespace ZenoniaProto.Api
         }
 
         // ---- plumbing ----
-
-        [Serializable] class ApiOk { public bool ok = true; }
 
         void ClearSession()
         {
@@ -136,7 +146,10 @@ namespace ZenoniaProto.Api
                 }
                 if (authed) req.SetRequestHeader("Authorization", "Bearer " + AccessToken);
 
-                UnityWebRequestAsyncOperation op = req.SendWebRequest();
+                UnityWebRequestAsyncOperation op;
+                try { op = req.SendWebRequest(); }
+                catch (InvalidOperationException e) { return ApiResult<T>.Fail(0, ApiErrorCodes.Network, "Cannot reach the server: " + e.Message); } // Unity refuses a plain http address outright on some players
+
                 while (!op.isDone) await Task.Yield();
 
                 int status = (int)req.responseCode;
@@ -144,7 +157,10 @@ namespace ZenoniaProto.Api
                 if (req.result == UnityWebRequest.Result.ConnectionError)
                     return ApiResult<T>.Fail(0, ApiErrorCodes.Network, "Cannot reach the server: " + req.error);
                 if (status >= 200 && status < 300) return Parse<T>(text, status);
-                return ParseError<T>(text, status, req.error);
+                ApiResult<T> failed = ParseError<T>(text, status, req.error);
+                int seconds;
+                if (status == 429 && int.TryParse(req.GetResponseHeader("Retry-After"), out seconds)) failed.RetryAfterSec = seconds;
+                return failed;
             }
         }
 
@@ -164,7 +180,16 @@ namespace ZenoniaProto.Api
             try
             {
                 ApiErrorEnvelope env = JsonUtility.FromJson<ApiErrorEnvelope>(text);
-                if (env != null && env.error != null && !string.IsNullOrEmpty(env.error.code)) return ApiResult<T>.Fail(status, env.error.code, env.error.message);
+                if (env != null && env.error != null && !string.IsNullOrEmpty(env.error.code))
+                {
+                    ApiResult<T> r = ApiResult<T>.Fail(status, env.error.code, env.error.message);
+                    if (env.error.code == ApiErrorCodes.ValidationError)
+                    {
+                        ApiValidationEnvelope v = JsonUtility.FromJson<ApiValidationEnvelope>(text);
+                        if (v != null && v.error != null && v.error.details != null && v.error.details.Length > 0) r.InvalidField = v.error.details[0].path;
+                    }
+                    return r;
+                }
             }
             catch (Exception) { /* not our envelope (proxy page, HTML...) */ }
             return ApiResult<T>.Fail(status, status == 0 ? ApiErrorCodes.Network : "http_" + status, string.IsNullOrEmpty(transportError) ? "Request failed" : transportError);

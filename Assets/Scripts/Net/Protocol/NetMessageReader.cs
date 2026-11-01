@@ -56,7 +56,7 @@ namespace ZenoniaProto.Net
             try
             {
                 m.ReqId = r.GetUInt(); byte op = r.GetByte(); m.ItemUid = r.GetString(NetProtocol.MaxItemUidLength); m.Slot = r.GetByte();
-                if (op > (byte)InvOp.PotionBuy) return false;
+                if (op > (byte)InvOp.PetBuy) return false;
                 m.Op = (InvOp)op;
                 return true;
             }
@@ -91,7 +91,7 @@ namespace ZenoniaProto.Net
             try
             {
                 byte reason = r.GetByte(); m.Text = r.GetString(NetProtocol.MaxTextLength);
-                if (reason > (byte)RejectReason.AlreadyOnline) return false;
+                if (reason > (byte)RejectReason.Unavailable) return false;
                 m.Reason = (RejectReason)reason;
                 return true;
             }
@@ -123,6 +123,7 @@ namespace ZenoniaProto.Net
                 if (buffs > NetProtocol.MaxSelfBuffs) return false;
                 m.Buffs = new NetBuff[buffs];
                 for (int i = 0; i < buffs; i++) m.Buffs[i] = new NetBuff { Source = r.GetByte(), Kind = r.GetByte(), LeftMs = r.GetUShort(), TotalMs = r.GetUShort() };
+                m.PetDurability = r.GetUShort();
                 return true;
             }
             catch (Exception) { return false; }

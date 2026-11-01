@@ -60,6 +60,7 @@ namespace ZenoniaProto
             hero.PlayerName = localName; // host: remote players see this name above the hero
             rpg.Attach(hero, save);
             if (def.CompanionFolder != null) HeroCompanion.Create(root, hero);
+            HeroPet.Create(root, hero);
             follow.Target = heroGo.transform;
             follow.Configure();
         }
@@ -108,6 +109,7 @@ namespace ZenoniaProto
             HeroController h = go.AddComponent<HeroController>();
             h.InitProxy(def, view, state, netId, local);
             if (views && def.CompanionFolder != null) HeroCompanion.Create(root, h);
+            if (views) HeroPet.Create(root, h);
             if (!local) return h;
             if (hero != null) { hero.Retire(); Destroy(heroGo); }
             hero = h;
@@ -123,7 +125,7 @@ namespace ZenoniaProto
         {
             if (hero == null)
             {
-                if (ConnectScreenGui.Visible || NetMode.IsClient) return; // typing a name / waiting for the server: the digit keys must not pick a class
+                if (ConnectScreenGui.Visible || HeroSelectScreen.OnlineCreating || NetMode.IsClient) return; // typing a name / waiting for the server: the digit keys must not pick a class
                 for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Class1 + i : GameKey.Class4 + (i - 3))) { Spawn((HeroClass)i); return; }
                 return;
             }
@@ -135,7 +137,7 @@ namespace ZenoniaProto
 
         void OnGUI()
         {
-            if (hero != null) return;
+            if (hero != null) { if (AccountScreenGui.MenuOpen) AccountScreenGui.DrawMenu(); return; }
             if (ConnectScreenGui.Visible) ConnectScreenGui.Draw(this); // the hero select itself is HeroSelectScreen
         }
     }

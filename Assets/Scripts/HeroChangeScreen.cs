@@ -24,10 +24,11 @@ namespace ZenoniaProto
             instance = go.AddComponent<HeroChangeScreen>();
         }
 
-        /// <summary>Opens the screen; online it only shows a hint because the hero cannot change there.</summary>
+        /// <summary>Opens the screen. Online with an account the Settings button is the account menu instead (change character, log out); on a dev connection it only shows a hint because the hero cannot change there.</summary>
         public static void Open()
         {
             if (instance == null || GameSession.Hero == null || IsOpen) return;
+            if (NetMode.IsClient && AccountFlow.LoggedIn) { AccountScreenGui.OpenMenu(); return; }
             if (!NetMode.IsOffline) { RpgHud.Toast("Hero cannot be changed while online", new Color(1f, 0.85f, 0.5f)); return; }
             instance.open = true;
             GameClock.Paused = NetMode.UsesLocalTimeBending;

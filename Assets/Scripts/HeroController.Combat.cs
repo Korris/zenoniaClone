@@ -60,6 +60,7 @@ namespace ZenoniaProto
             if (!combo.IsAttacking) { castFxStep = 0; return; }
             ComboHit h = combo.CurrentHit;
             if (h == null || h.Bolt == null || combo.Phase != ComboPhase.Windup || castFxStep == combo.Step) return;
+            if (cls.Id == HeroClass.Mechanic && combo.IsFinisher) return; // the cannon is still on his back: FireBolt plays the flash as it fires
             PlayCastFx(h);
         }
 
@@ -67,7 +68,7 @@ namespace ZenoniaProto
         {
             castFxStep = combo.Step;
             if (replaying) return;
-            HeroFx.CastWindup(cls, h, CastTip, DirAngle[facing], combo.IsFinisher);
+            HeroFx.CastWindup(cls, h, HeroFx.CastTipFor(cls, combo.Step, facing, new Vector2(x, y), CastTip), DirAngle[facing], combo.IsFinisher, this);
         }
 
         /// <summary>Web fireComboBolt: the shot leaves 12 units in front of the hero, with a flash at the staff tip / gun barrel.</summary>
@@ -89,11 +90,17 @@ namespace ZenoniaProto
         }
 
         /// <summary>Called by monsters when a strike connects.</summary>
+        /// <summary>Durability is the authority's. Called only for a hero that survives the hit: the blow that kills it costs the pet nothing, and neither does death.</summary>
+        void PetHitTaken() { if (Owner != null && NetMode.IsAuthority && !dead) Owner.PetHitTaken(); }
+
+        /// <summary>This hero's attack hit a monster (not a damage-over-time tick).</summary>
+        public void PetAttackLanded() { if (Owner != null && NetMode.IsAuthority && !dead) Owner.PetAttackLanded((long)(Time.unscaledTimeAsDouble * 1000.0)); }
+
         public void TakeDamage(int dmg)
         {
             if (dead || God || invuln > 0f || dashLeft > 0f) return;
             dmg = HeroBuffs.Absorb(this, dmg); // Mana Shield / Guardian Spirit soak first
-            if (dmg <= 0) { invuln = InvulnMs; return; } // fully absorbed: no HP loss, no hurt reaction
+            if (dmg <= 0) { invuln = InvulnMs; PetHitTaken(); return; } // fully absorbed: no HP loss, no hurt reaction, still a hit the pet took
             hp -= dmg;
             invuln = InvulnMs;
             hurt = HurtMs;
@@ -110,6 +117,7 @@ namespace ZenoniaProto
                 combo.Reset();
                 NetEventBus.HeroDied(this);
             }
+            else PetHitTaken();
         }
     }
 }

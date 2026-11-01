@@ -20,6 +20,16 @@ async function geared(stones = 5, enhance = 0) {
 }
 const enhance_ = (o, itemUid, reqId) => c.svc('POST', `/internal/characters/${o.char.id}/enhance`, { sessionId: o.sessionId, rev: o.rev, reqId, itemUid });
 
+describe('the real enhance roll', () => {
+  it('secureRandom works and stays in [0,1)', async () => {
+    const { secureRandom } = await import('../src/app.js');
+    const rolls = Array.from({ length: 2000 }, () => secureRandom());
+    expect(rolls.every((v) => v >= 0 && v < 1)).toBe(true);
+    expect(new Set(rolls).size).toBeGreaterThan(1990);
+    expect(rolls.reduce((a, b) => a + b, 0) / rolls.length).toBeGreaterThan(0.4);
+  });
+});
+
 describe('POST /internal/characters/:id/enhance', () => {
   it('success: +1 level, -1 stone, rev bumped, persisted', async () => {
     const o = await geared(5);

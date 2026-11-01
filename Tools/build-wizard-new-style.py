@@ -9,8 +9,12 @@ Usage (from the project root; needs Pillow, numpy, scipy):
   python Tools/build-wizard-new-style.py cut OUT_DIR      frames with a pixel grid, for reading the fists; Resources untouched
   python Tools/build-wizard-new-style.py preview OUT_DIR  sheets and anchors as copies, composited the way the game draws; Resources untouched
   python Tools/build-wizard-new-style.py write            bare, armed, hand sheets and the anchors in held-wizard-melee.json
+
+Staff, cut from new-style/staff-src/<tier>-src.png (ChatGPT, base left and enhanced right in one image, on a flat key). Every tier has the outline of sample-src.png; the old art stays in new-style/old/staff/:
+  python Tools/build-wizard-new-style.py staff-check OUT_DIR [tier...]   cut, measure, composite on the hero in OUT_DIR; Resources untouched
+  python Tools/build-wizard-new-style.py staff-write tier...             sprites, grips in held-wizard.json and weapon-wizard-<n> icons of these tiers
 """
-import importlib.util, json, math, os, sys
+import importlib.util, json, math, os, shutil, sys
 import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage
@@ -351,8 +355,176 @@ def preview(out, tier=0, pad=60):
         sheet.convert("RGB").save(f"{out}/{anim}.png")
 
 
+# ---- Staff. Size on screen stays the old one: 263 art px at S; art height fixed, S and DrawScale untouched.
+STAFF_SRC = f"{NS}/staff-src"
+STAFF_LIVE = f"{RES}/Sprites/classes/wizard/weapons/staff"
+GEAR = f"{RES}/Data/classes/wizard/held-wizard.json"
+ICONS = f"{RES}/Sprites/icons"
+STAFF_H, STAFF_PAD = 263, 3
+SHAFT_MAX_W = 13  # art px: rows narrower than this are bare shaft
+STAFF_KEY = {"wood": "magenta", "nature": "magenta"}  # green art on the magenta key, the rest on green
+
+
+def load_hs():
+    spec = importlib.util.spec_from_file_location("hs", "Tools/build-hero-select-art.py")
+    hs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(hs)
+    return hs
+
+
+def staff_names():
+    return [e["name"] for e in json.load(open(GEAR, encoding="utf-8"))["weapon"]]
+
+
+def staff_figures(path, count, key):
+    """The count biggest pieces, left to right, each trimmed."""
+    hs = load_hs()
+    a = hs.key_out(path, hs.MAGENTA if key == "magenta" else hs.GREEN)
+    lab, n = ndimage.label(a[..., 3] > 8, structure=np.ones((3, 3)))
+    sizes = ndimage.sum_labels(np.ones_like(lab), lab, index=np.arange(1, n + 1))
+    big = np.argsort(sizes)[::-1][:count]
+    objs = ndimage.find_objects(lab)
+    out = []
+    for i in sorted(big, key=lambda i: objs[i][1].start):
+        o = objs[i]
+        out.append(a[o] * (lab[o] == i + 1)[..., None])
+    return out
+
+
+def staff_grip(rgba):
+    """The middle of the longest run of bare shaft: the fist closes there, with plain shaft showing on both sides."""
+    solid = rgba[..., 3] > 128
+    widths = solid.sum(1)
+    best, run = (0, 0), None
+    limit = min(SHAFT_MAX_W, np.median(widths[rgba.shape[0] // 2:rgba.shape[0] * 4 // 5]) + 1)  # rings are wider than the bare shaft
+    for y in range(rgba.shape[0] // 3, rgba.shape[0] + 1):
+        narrow = y < rgba.shape[0] and 0 < widths[y] <= limit
+        if narrow and run is None:
+            run = y
+        elif not narrow and run is not None:
+            if y - run > best[1] - best[0]:
+                best = (run, y)
+            run = None
+    gy = (best[0] + best[1]) // 2
+    cols = np.flatnonzero(solid[gy])
+    return (cols.min() + cols.max() + 1) // 2, gy, best[1] - best[0], int(widths[gy])
+
+
+def staff_sprite(fig):
+    """STAFF_H rows of art, one scale, on a canvas with a small margin."""
+    hs = load_hs()
+    k = STAFF_H / fig.shape[0]
+    small = hs.resize(fig, (round(fig.shape[1] * k), STAFF_H))
+    canvas = np.zeros((STAFF_H + 2 * STAFF_PAD, small.shape[1] + 2 * STAFF_PAD, 4), np.float32)
+    canvas[STAFF_PAD:STAFF_PAD + STAFF_H, STAFF_PAD:STAFF_PAD + small.shape[1]] = small
+    gx, gy, run, w = staff_grip(canvas)
+    return canvas, {"w": canvas.shape[1], "h": canvas.shape[0], "gripX": int(gx), "gripY": int(gy)}, run, w
+
+
+def staff_cut(tier):
+    if tier == "sample":
+        figs = staff_figures(f"{STAFF_SRC}/sample-src.png", 1, "green") * 2
+    else:
+        figs = staff_figures(f"{STAFF_SRC}/{tier}-src.png", 2, STAFF_KEY.get(tier, "green"))
+    return dict(zip(("base", "enhanced"), (staff_sprite(f) for f in figs)))
+
+
+def staff_on_hero(path, tier):
+    """Every direction of every anim the way HeroRenderer draws: behind, bare, front, hand. Odd frames show the enhanced art."""
+    spec = importlib.util.spec_from_file_location("compose_hero_frame", "Tools/compose-hero-frame.py")
+    comp = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(comp)
+    hs = load_hs()
+    _, anchors = comp.load_gear("wizard")
+    cut_ = staff_cut(tier)
+    pad, bg = 40, (58, 62, 70, 255)
+    size = FRAME + 2 * pad
+    rows = [(a, d) for a in COUNT for d in ROWS]
+    sheet = Image.new("RGBA", (size * 7, size * len(rows)), bg)
+    draw = ImageDraw.Draw(sheet)
+    for r, (anim, d) in enumerate(rows):
+        for f in range(COUNT[anim]):
+            a = anchors.get(("staff", anim, d))[f]
+            kind = "base" if f % 2 == 0 else "enhanced"
+            art, grip = hs.to_image(cut_[kind][0]), cut_[kind][1]
+            if a.get("fallback"):
+                c = comp.compose("wizard", anim, d, f, pad=pad)
+            else:
+                c = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+                if a.get("behind") and not a.get("hidden"):
+                    comp.place(c, art, grip, a, DRAW, 0.0, pad)
+                c.alpha_composite(comp.cell(f"{BODY}/bare/{anim}.png", ROWS[d], f), (pad, pad))
+                if not a.get("behind") and not a.get("hidden"):
+                    comp.place(c, art, grip, a, DRAW, 0.0, pad)
+                if os.path.exists(f"{BODY}/hand/{anim}.png"):
+                    c.alpha_composite(comp.cell(f"{BODY}/hand/{anim}.png", ROWS[d], f), (pad, pad))
+            sheet.alpha_composite(c, (f * size, r * size))
+        draw.text((4, r * size + 4), f"{anim} {d}", fill=(255, 255, 0))
+    sheet.convert("RGB").save(path)
+
+
+def staff_sheet(path, tiers):
+    n = len(tiers)
+    w = Image.new("RGBA", (130 * n + 10, 2 * 290 + 10), (58, 62, 70, 255))
+    d = ImageDraw.Draw(w)
+    hs = load_hs()
+    for i, t in enumerate(tiers):
+        cut_ = staff_cut(t)
+        for j, kind in enumerate(("base", "enhanced")):
+            rgba, g, _, _ = cut_[kind]
+            im = hs.to_image(rgba)
+            w.alpha_composite(im, (i * 130 + 65 - g["gripX"], j * 290 + 12))
+        d.text((i * 130 + 6, 2), t, fill=(255, 255, 0))
+    w.convert("RGB").save(path)
+
+
+def staff_check(out, tiers):
+    os.makedirs(out, exist_ok=True)
+    tiers = tiers or [t for t in staff_names() if os.path.exists(f"{STAFF_SRC}/{t}-src.png")]
+    for t in tiers:
+        for kind, (rgba, g, run, w) in staff_cut(t).items():
+            print(t, kind, g, "shaft run", run, "shaft w", w)
+        staff_on_hero(f"{out}/hero-{t}.png", t)
+    staff_sheet(f"{out}/tiers.png", tiers)
+
+
+def staff_write(tiers):
+    """Only tiers with both variants reach this. The file is one line: only these tiers' grips change. The old art is in new-style/old/."""
+    import re
+    hs = load_hs()
+    names = staff_names()
+    os.makedirs(f"{NS}/old/icons", exist_ok=True)
+    for t in tiers:
+        cut_ = staff_cut(t)
+        for kind, (rgba, _, _, _) in cut_.items():
+            hs.to_image(rgba).save(f"{STAFF_LIVE}/{t}-{kind}.png")
+        raw = open(GEAR, "rb").read().decode("utf-8")
+        entry = lambda m: m.group(1) + json.dumps(cut_["base"][1], separators=(",", ":")) + ',"enhancedGrip":' + json.dumps(cut_["enhanced"][1], separators=(",", ":")) + "}"
+        raw, n = re.subn(r'(\{"name":"' + t + r'","glow":"#[0-9a-f]+","baseGrip":)\{[^}]*\},"enhancedGrip":\{[^}]*\}\}', entry, raw, count=1)
+        if n != 1:
+            raise SystemExit(f"{t} entry not found")
+        open(GEAR, "wb").write(raw.encode("utf-8"))
+        # As overlay() and fit() in build-item-icons.py, which rebuilds every class's icons when run.
+        tier = names.index(t)
+        icon = f"{ICONS}/weapon-wizard-{tier}.png"
+        keep = f"{NS}/old/icons/weapon-wizard-{tier}.png"
+        if not os.path.exists(keep):
+            shutil.copy2(icon, keep)
+        im = hs.to_image(cut_["base"][0]).rotate(-45, expand=True, resample=Image.BICUBIC)
+        im = im.crop(im.getbbox())
+        k = 88 / max(im.size)
+        im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+        out = Image.new("RGBA", (96, 96), (0, 0, 0, 0))
+        out.paste(im, ((96 - im.width) // 2, (96 - im.height) // 2), im)
+        out.save(icon)
+
+
 if __name__ == "__main__":
-    if sys.argv[1] == "cut":
+    if sys.argv[1] == "staff-check":
+        staff_check(sys.argv[2], sys.argv[3:])
+    elif sys.argv[1] == "staff-write":
+        staff_write(sys.argv[2:])
+    elif sys.argv[1] == "cut":
         cut(sys.argv[2], sys.argv[3:] or None)
     elif sys.argv[1] == "preview":
         preview(sys.argv[2])

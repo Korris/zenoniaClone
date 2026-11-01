@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
+import { CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, PET_MAX_DURABILITY, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
 
 // Field names match Assets/Scripts/Rpg/Item.cs (Item, ItemStats) and SaveSerializer.cs (SaveData) so Unity's JsonUtility reads them as-is.
 
@@ -21,7 +21,8 @@ export const itemSchema = z.object({
   itemLevel: z.number().int().min(1).max(999).default(1),
   enhance: z.number().int().min(0).max(MAX_ENHANCE).default(0),
   stats: itemStatsSchema.default({}),
-});
+  durability: z.number().int().min(0).max(PET_MAX_DURABILITY).optional(), // pets; a pet without it is an old one, at the maximum
+}).transform((i) => ({ ...i, durability: i.durability ?? (i.slot === 'pet' ? PET_MAX_DURABILITY : 0) }));
 
 const int0 = z.number().int().min(0).max(MAX_INT);
 const f0 = z.number().finite().min(0).max(1e9);
@@ -30,7 +31,7 @@ const coord = z.number().finite().min(-1e6).max(1e6);
 /** SaveData: the whole persisted character state. Unknown keys are stripped. */
 export const stateSchema = z
   .object({
-    version: z.number().int().min(0).max(1).default(1),
+    version: z.number().int().min(0).max(2).default(1), // SaveSerializer.SaveVersion; 2: pets carry durability
     savedAt: z.number().int().min(0).default(0),
     classId: z.enum(CLASS_IDS),
     mapId: z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/).default('frostHollow'),
@@ -61,6 +62,10 @@ export const stateSchema = z
     for (const i of [...s.inventory, ...s.equipment]) {
       if (uids.has(i.uid)) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `duplicate item uid ${i.uid}` });
       uids.add(i.uid);
+      // Pets: a known kind, any class, never enhanced (ItemFactory.Sanitize drops the rest on the C# side).
+      const isPetTemplate = PET_TEMPLATE_IDS.includes(i.templateId);
+      if ((i.slot === 'pet') !== isPetTemplate) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `item ${i.uid}: template ${i.templateId} does not fit slot ${i.slot}` });
+      if (i.slot === 'pet' && (i.enhance !== 0 || i.classId !== '')) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `pet ${i.uid} cannot be enhanced or tied to a class` });
     }
     // 1 SP per level: spent points can never exceed the level (the zone server re-sanitizes prerequisites via SkillRanks.Sanitize).
     const spent = s.skillRanks.reduce((a, b) => a + b, 0);
@@ -72,8 +77,11 @@ export const stateSchema = z
     }
   });
 
-/** Brand-new level-1 character; empty equipment (the Unity SaveSerializer.Restore refills starter gear, hp/mp 0 => full). */
-export function newCharacterState(classId, mapId = 'frostHollow') {
+/**
+ * Brand-new level-1 character; empty equipment (the Unity SaveSerializer.Restore refills starter gear, hp/mp 0 => full). Begins in Oakhaven, like an offline hero.
+ * Only a new character gets this: stored characters keep their mapId, and the schema's 'frostHollow' default above stays for old saves that have none.
+ */
+export function newCharacterState(classId, mapId = 'oakhavenVillage') {
   return stateSchema.parse({
     version: 1, savedAt: 0, classId, mapId, level: 1, exp: 0, gold: 0, hpPotion: 0, mpPotion: 0, upgradeStone: 0,
     hp: 0, mp: 0, x: 0, y: 0, hasPosition: false, bossDefeated: false, inventory: [], equipment: [],

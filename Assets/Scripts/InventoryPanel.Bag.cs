@@ -91,6 +91,15 @@ namespace ZenoniaProto
             useButton = new BagWidgets.BagButton(supplyDetail, "Use", 612f, 528f, 140f, 32f, "Use", BagSprites.Tone.Gold, Activate);
         }
 
+        /// <summary>Capture runs: the Inventory tab with this bag item selected.</summary>
+        public static void TestSelectBagItem(int bagIndex)
+        {
+            if (instance == null) return;
+            instance.cellSel = instance.supplyOrder.Length + bagIndex;
+            instance.page = instance.cellSel / PageSize;
+            instance.SwitchMode(Mode.Inventory);
+        }
+
         // ---- actions ----
 
         void NextPage()
@@ -157,7 +166,7 @@ namespace ZenoniaProto
                 {
                     v.SetIcon(item != null ? LootSprites.Icon(item) : null, 60f, item == null || p.CanEquip(item) ? Color.white : new Color(1f, 0.6f, 0.6f, 0.55f));
                     int plus = EnhanceStats.Level(item);
-                    v.Count.text = plus > 0 ? "+" + plus : "";
+                    v.Count.text = PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
                 }
             }
             pageButton.Set(true, (page + 1) + " / " + PageCount + " >");
@@ -196,7 +205,8 @@ namespace ZenoniaProto
             itemName.text = EnhanceStats.DisplayName(item);
             string owner = string.IsNullOrEmpty(item.classId) ? "" : "   " + (usable ? "" : "<color=#ff8070>") + RpgClasses.Get(item.classId).Name + " only" + (usable ? "" : "</color>");
             itemSlotText.text = ItemInfo.SlotLabel(item.slot) + owner;
-            itemLevelText.text = "Lv. " + item.itemLevel;
+            bool isPet = item.slot == Slots.Pet;
+            itemLevelText.text = isPet ? "" : "Lv. " + item.itemLevel;
 
             Item worn = p.GetEquipped(item.slot);
             Item compare = worn != item ? worn : null;
@@ -218,7 +228,13 @@ namespace ZenoniaProto
             bool enhanceable = EnhanceStats.IsEnhanceable(item);
             foreach (Text t in extraTexts) t.text = "";
             extraTexts[0].horizontalOverflow = enhanceable ? HorizontalWrapMode.Overflow : HorizontalWrapMode.Wrap;
-            if (!enhanceable)
+            if (isPet)
+            {
+                SetExtra(0, "Flies at your side. Any class can have one, one at a time. Cannot be enhanced.", "#b4d5e7");
+                extraTexts[2].text = PetDurabilityLine(item);
+                extraTexts[2].color = BagWidgets.Hex("#f2deae");
+            }
+            else if (!enhanceable)
             {
                 RarityDef r = ItemDefs.Rarity(item.rarity);
                 string prefix = r != null && !string.IsNullOrEmpty(r.Prefix) ? r.Prefix : "Normal";

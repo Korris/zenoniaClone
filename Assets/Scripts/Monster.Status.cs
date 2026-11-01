@@ -38,9 +38,13 @@ namespace ZenoniaProto
         float SpeedScale { get { return status.SpeedFactor; } }
 
         /// <summary>One damage-over-time tick: a quiet hit credited to the caster (EXP and loot ownership follow the damage table).</summary>
+        bool dotTick;
+
         void OnDot(object src, float dmg)
         {
+            dotTick = true; // ticks go on with the hero idle or dead: they are not attacks, the hit that applied them was
             TakeHit(Mathf.Max(1, Mathf.RoundToInt(dmg)), Vector2.zero, false, false, true, src as HeroController);
+            dotTick = false;
         }
 
         /// <summary>Sprite tint: freeze blue > burn orange > poison green > slow / chill light blue.</summary>

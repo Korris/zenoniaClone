@@ -36,6 +36,7 @@ namespace ZenoniaProto
             for (int i = 0; i < heroes.Count; i++) grid.Set(heroes[i].NetId, heroes[i].Position.x, heroes[i].Position.y);
             for (int i = 0; i < zone.Monsters.Count; i++) { Vector2 f = zone.Monsters[i].Feet; grid.Set(zone.Monsters[i].NetId, f.x, f.y); }
             for (int i = 0; i < zone.Loot.Count; i++) { Vector2 f = zone.Loot[i].Target; grid.Set(zone.Loot[i].NetId, f.x, f.y); }
+            for (int i = 0; i < zone.Turrets.Count; i++) { Vector2 f = zone.Turrets[i].Feet; grid.Set(zone.Turrets[i].NetId, f.x, f.y); }
         }
 
         // ---- Spawn / Despawn ----
@@ -89,6 +90,14 @@ namespace ZenoniaProto
                 m.X = NetQuantize.Pos(p.x); m.Y = NetQuantize.Pos(p.y);
                 m.OwnerPlayerId = l.OwnerId; // the owning hero's NetId (0 = free for all)
                 m.FreeAtMs = (uint)Mathf.Max(0f, l.FreeAtMs);
+                return true;
+            }
+            DeployedTurret t = entity as DeployedTurret;
+            if (t != null)
+            {
+                Vector2 p = t.Feet;
+                m.Kind = EntityKind.Turret; m.X = NetQuantize.Pos(p.x); m.Y = NetQuantize.Pos(p.y); m.Facing = (byte)(t.FacesRight ? 1 : 0);
+                m.OwnerPlayerId = t.Owner; m.Amount = t.RemainingMs; // late arrivals see how much of its time is left
                 return true;
             }
             return false;
@@ -197,7 +206,7 @@ namespace ZenoniaProto
             {
                 Hp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.Hp), 0, 65535), MaxHp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.MaxHp), 1, 65535),
                 Mp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.Mp), 0, 65535), MaxMp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.MaxMp), 1, 65535),
-                Exp = (uint)Mathf.Max(0, h.Rpg.Exp), Level = (byte)Mathf.Clamp(h.Rpg.Level, 1, 255), SkillCds = h.SkillCooldownsMs(), Buffs = HeroBuffs.ToNet(h),
+                Exp = (uint)Mathf.Max(0, h.Rpg.Exp), Level = (byte)Mathf.Clamp(h.Rpg.Level, 1, 255), SkillCds = h.SkillCooldownsMs(), Buffs = HeroBuffs.ToNet(h), PetDurability = h.PetDurability,
             };
             NetMessageWriter.SelfState(w, m);
             p.LastSelf = m;

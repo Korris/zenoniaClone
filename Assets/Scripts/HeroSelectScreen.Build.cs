@@ -79,7 +79,7 @@ namespace ZenoniaProto
             titleArt.color = Gold;
             titleImage.enabled = false;
             titleRt.anchorMin = titleRt.anchorMax = titleRt.pivot = new Vector2(0f, 1f);
-            gearButton = IconButton(root, "Gear", UiArt.Get("hud-settings"), 0f, 0f, 34f, ConnectScreenGui.Open); // the mock's gear: online / host (dev) lives behind it
+            gearButton = IconButton(root, "Gear", UiArt.Get("hud-settings"), 0f, 0f, 46f, ConnectScreenGui.Open); // the mock's gear: online / host (dev) lives behind it
             gearRt = (RectTransform)gearButton.transform;
             gearRt.anchorMin = gearRt.anchorMax = gearRt.pivot = new Vector2(1f, 1f);
             FitStage();
@@ -224,7 +224,7 @@ namespace ZenoniaProto
 
         void BuildInfoPanel()
         {
-            RectTransform p = Plate("Info", 24f, 459f, 355f, 157f);
+            RectTransform p = Plate("Info", 10f, 459f, 355f, 157f);
             portrait = ArtRect(p, "Portrait", null, 10f, 8f, 133f, 141f);
             infoName = ArtRect(p, "InfoName", null, 158f, 9f, 150f, 20f);
             tagline = UiKit.Label(p, "Tagline", 158f, 33f, 190f, 34f, "", 11, new Color(0.88f, 0.92f, 1f), TextAnchor.UpperLeft);
@@ -245,7 +245,7 @@ namespace ZenoniaProto
         void BuildSkillsPanel()
         {
             const float W = 288f;
-            RectTransform p = Plate("Skills", 395f, 495f, W, 121f);
+            RectTransform p = Plate("Skills", 381f, 495f, W, 121f);
             skillHeader = ArtRect(p, "Header", "label-skill-preview", 44f, 12f, 200f, 12f);
             skillHeader.color = Gold;
             skillNameText = UiKit.Label(p, "SkillName", 8f, 8f, W - 16f, 20f, "", 12, Gold, TextAnchor.MiddleCenter, true);
@@ -279,33 +279,33 @@ namespace ZenoniaProto
 
         void BuildPreviewPanel()
         {
-            RectTransform p = Plate("Preview", 706f, 467f, 228f, 147f);
-            RectTransform view = UiKit.Rect(p, "View", 5f, 5f, 218f, 137f);
+            RectTransform p = Plate("Preview", 677f, 454f, 255f, 164f);
+            RectTransform view = UiKit.Rect(p, "View", 5f, 5f, 245f, 154f);
             RawImage raw = view.gameObject.AddComponent<RawImage>();
             raw.raycastTarget = false;
             preview = gameObject.AddComponent<HeroSelectPreview>();
             preview.Init(raw);
-            IconButton(p, "Replay", Art("play-button"), 186f, 106f, 34f, () => preview.Replay());
+            IconButton(p, "Replay", Art("play-button"), 213f, 123f, 34f, () => preview.Replay());
         }
 
         void BuildStartPanel()
         {
-            stateText = UiKit.Label(stage, "State", 946f, 511f, 174f, 20f, "", 12, Color.white, TextAnchor.MiddleCenter, true);
-            RectTransform rt = UiKit.Rect(stage, "StartButton", 946f, 533f, 174f, 44f);
+            stateText = UiKit.Label(stage, "State", 940f, 503f, 190f, 20f, "", 12, Color.white, TextAnchor.MiddleCenter, true);
+            RectTransform rt = UiKit.Rect(stage, "StartButton", 940f, 525f, 190f, 54f);
             Image plate = rt.gameObject.AddComponent<Image>();
             plate.sprite = Art("btn-start");
             startButton = rt.gameObject.AddComponent<Button>();
             startButton.targetGraphic = plate;
             startButton.navigation = new Navigation { mode = Navigation.Mode.None };
             startButton.onClick.AddListener(OnStart);
-            startLabel = ArtRect(rt, "Label", null, 87f, 22f, 116f, 18f, new Vector2(0.5f, 0.5f));
-            backButton = IconButton(stage, "BackButton", UiArt.Win("btn-navy"), 972f, 582f, 122f, HeroChangeScreen.Close);
+            startLabel = ArtRect(rt, "Label", null, 95f, 27f, 134f, 22f, new Vector2(0.5f, 0.5f));
+            backButton = IconButton(stage, "BackButton", UiArt.Win("btn-navy"), 972f, 583f, 158f, OnBack);
             var backRt = (RectTransform)backButton.transform;
-            backRt.sizeDelta = new Vector2(122f, 30f);
+            backRt.sizeDelta = new Vector2(158f, 38f);
             backButton.GetComponent<Image>().preserveAspect = false;
             backButton.GetComponent<Image>().type = Image.Type.Sliced;
-            backButton.GetComponent<Image>().pixelsPerUnitMultiplier = backButton.GetComponent<Image>().sprite.rect.height / 30f;
-            UiKit.Label(backRt, "BackLabel", 0f, 0f, 122f, 30f, "BACK", 13, Color.white, TextAnchor.MiddleCenter, true);
+            backButton.GetComponent<Image>().pixelsPerUnitMultiplier = backButton.GetComponent<Image>().sprite.rect.height / 38f;
+            UiKit.Label(backRt, "BackLabel", 0f, 0f, 158f, 38f, "BACK", 16, Color.white, TextAnchor.MiddleCenter, true);
         }
 
         static Button IconButton(Transform parent, string name, Sprite art, float x, float y, float size, UnityEngine.Events.UnityAction onClick)

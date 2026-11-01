@@ -1,11 +1,17 @@
 import { ApiError, parse } from '../errors.js';
 import { applyOps } from '../rpg/inventory-ops.js';
-import { attemptEnhance, findEnhanceTamper } from '../rpg/enhance-logic.js';
-import { endSessionSchema, enhanceSchema, opsRequestSchema, redeemSchema, saveSchema } from '../schemas.js';
+import { attemptEnhance, findDurabilityTamper, findEnhanceTamper } from '../rpg/enhance-logic.js';
+import { endSessionSchema, enhanceSchema, opsRequestSchema, redeemSchema, saveSchema, tradeCommitSchema } from '../schemas.js';
 
 /** Zone-server routes, guarded by the shared service key (x-service-key). Every write needs the session lock + the current rev. */
 export function internalRoutes(app, { cfg, characters, tickets, guards, rand }) {
   const opts = { preHandler: guards.requireService };
+  const noEnhanceTamper = (oldState, newState) => {
+    const uid = findEnhanceTamper(oldState, newState);
+    if (uid) throw new ApiError(422, 'enhance_tamper', `Item ${uid} carries an enhance level the API never granted`);
+    const pet = findDurabilityTamper(oldState, newState);
+    if (pet) throw new ApiError(422, 'durability_tamper', `Pet ${pet} carries more durability than the API has stored`);
+  };
 
   // Consumes the ticket, takes the one-session lock and returns the character to load.
   app.post('/internal/tickets/redeem', opts, async (req) => {
@@ -18,10 +24,13 @@ export function internalRoutes(app, { cfg, characters, tickets, guards, rand }) 
   // Periodic / event snapshot (level-up, rare drop, zone change, logout). Returns the new rev.
   app.post('/internal/characters/:id/save', opts, async (req) => {
     const { sessionId, rev, state } = parse(saveSchema, req.body);
-    return characters.save(req.params.id, sessionId, rev, state, (oldState, newState) => {
-      const uid = findEnhanceTamper(oldState, newState);
-      if (uid) throw new ApiError(422, 'enhance_tamper', `Item ${uid} carries an enhance level the API never granted`);
-    });
+    return characters.save(req.params.id, sessionId, rev, state, noEnhanceTamper);
+  });
+
+  // One trade: both characters change together or not at all. Retrying a tradeId is safe.
+  app.post('/internal/trades/commit', opts, async (req) => {
+    const { tradeId, a, b } = parse(tradeCommitSchema, req.body);
+    return characters.commitTrade(tradeId, a, b, noEnhanceTamper);
   });
 
   // Atomic batch of inventory / equipment / currency changes (e.g. rare drop pickup, potion purchase).
@@ -47,6 +56,12 @@ export function internalRoutes(app, { cfg, characters, tickets, guards, rand }) 
   app.post('/internal/sessions/:sessionId/end', opts, async (req) => {
     const { characterId } = parse(endSessionSchema, req.body);
     return { released: await characters.endSession(characterId, req.params.sessionId) };
+  });
+
+  // A zone process just started: nobody can be online on it any more, whatever the locks say.
+  app.post('/internal/zones/:zoneId/reset-sessions', opts, async (req) => {
+    if (req.params.zoneId !== cfg.ZONE_ID) throw new ApiError(404, 'not_found', 'No such zone');
+    return { released: await characters.releaseZoneSessions(cfg.ZONE_ID) };
   });
 
   // Zone registry stub (phase 4 fills it).

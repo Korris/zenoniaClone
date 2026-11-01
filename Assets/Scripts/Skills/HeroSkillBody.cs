@@ -23,6 +23,7 @@ namespace ZenoniaProto
         public bool IsDead { get { return hero == null || hero.IsDead; } }
         public bool IsLocal { get { return hero == LocalPlayer.Hero; } }
         public float Atk { get { return hero.AtkStat; } } // AtkStat already includes the buffs
+        public float SupportAtk { get { return hero.SupportAtkStat; } }
         public BuffState Buffs { get { return HeroBuffs.For(hero); } }
 
         public static int FacingOf(Vector2 dir)

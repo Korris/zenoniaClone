@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import { ApiError, conflict, notFound } from '../errors.js';
 import { CLASS_IDS } from '../rpg/rpg-constants.js';
 import { newCharacterState } from '../rpg/item-validation.js';
+import { moveTradeGoods } from '../rpg/trade-move.js';
 
 const RECENT_OPS = 30; // idempotency window per character
 
@@ -106,6 +107,59 @@ export function createCharacterService({ db, now, sessionLockSec }) {
       );
       if (!r) throw rev409((await col.findOne({ _id: doc._id }))?.rev);
       return { rev: r.rev, savedAt: saved.savedAt };
+    },
+
+    /**
+     * The two characters of one trade, both or neither, in one MongoDB transaction (needs a replica set, see README):
+     * each side sends its current state (what its zone holds) and what it gives; the goods move HERE, so nothing the zone
+     * says can create or drop them. Both revs must be current and both sessions must hold their locks. Idempotent per tradeId:
+     * a retry after a lost answer finds the ledger entry and is told the trade happened, it can never apply twice.
+     * `guard(oldState, newState)` runs on each pre-trade state, like a save.
+     */
+    async commitTrade(tradeId, a, b, guard) {
+      const ledger = db.collection('ledger');
+      const load = async (side, session) => {
+        const doc = await col.findOne({ _id: toObjectId(side.characterId) }, { session });
+        if (!doc) throw notFound('Character');
+        if (!doc.session || doc.session.id !== side.sessionId) throw conflict('session_mismatch', 'This session does not own the character');
+        return doc;
+      };
+      if (a.characterId === b.characterId) throw new ApiError(422, 'trade_self', 'A character cannot trade with itself');
+      return db.client.withSession((session) => session.withTransaction(async () => {
+        const docA = await load(a, session);
+        const docB = await load(b, session);
+        const prior = await ledger.findOne({ tradeId }, { session });
+        if (prior) return { replayed: true, a: { rev: docA.rev }, b: { rev: docB.rev } };
+        for (const [side, doc] of [[a, docA], [b, docB]]) {
+          if (doc.rev !== side.rev) throw rev409(doc.rev);
+          if (side.state.classId !== doc.classId) throw new ApiError(422, 'class_mismatch', 'classId cannot change');
+          guard?.(doc.state, side.state);
+        }
+        const moved = moveTradeGoods(a, b);
+        const at = now();
+        const write = async (doc, side, state) => {
+          const r = await col.updateOne(
+            { _id: doc._id, rev: side.rev, 'session.id': side.sessionId },
+            { $set: { state: { ...state, savedAt: at }, 'session.at': new Date(at) }, $inc: { rev: 1 } },
+            { session },
+          );
+          if (r.modifiedCount !== 1) throw rev409(doc.rev);
+        };
+        await write(docA, a, moved.a);
+        await write(docB, b, moved.b);
+        await ledger.insertOne({
+          tradeId, type: 'trade', at: new Date(at), characterId: String(docA._id), otherCharacterId: String(docB._id),
+          userId: docA.userId, otherUserId: docB.userId,
+          after: { a: { rev: a.rev + 1, gold: moved.a.gold, gave: moved.aGave, goldGiven: a.giveGold }, b: { rev: b.rev + 1, gold: moved.b.gold, gave: moved.bGave, goldGiven: b.giveGold } },
+        }, { session });
+        return { replayed: false, a: { rev: a.rev + 1 }, b: { rev: b.rev + 1 } };
+      }));
+    },
+
+    /** A zone that restarted holds nobody any more: frees the locks it had, so its players need not wait out the 90 s heartbeat. Returns how many. */
+    async releaseZoneSessions(zoneId) {
+      const r = await col.updateMany({ 'session.zone': zoneId }, { $set: { session: null } });
+      return r.modifiedCount;
     },
 
     /**

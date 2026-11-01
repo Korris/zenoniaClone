@@ -39,6 +39,7 @@ namespace ZenoniaProto
         {
             if (view == null) return;
             view.SetEquipmentGear(rpg.GetEquipped(Slots.Weapon), rpg.GetEquipped(Slots.Offhand));
+            view.SetPet(PetConfig.IdOf(rpg.GetEquipped(Slots.Pet)));
             RefreshGearLabel();
         }
 
@@ -49,6 +50,7 @@ namespace ZenoniaProto
             Item w, o;
             NetEventBus.ItemsFromAppearance(look, RpgSession.ClassId(cls.Id), out w, out o);
             view.SetEquipmentGear(w, o);
+            view.SetPet(PetConfig.IdOfWire(look.PetId));
         }
 
         /// <summary>Client: swaps the mirrored RPG state for a fresh one from an RpgState push.</summary>
@@ -97,6 +99,8 @@ namespace ZenoniaProto
             rpg.Hp = m.Hp; rpg.Mp = m.Mp;
             if (m.Level != rpg.Level || m.MaxHp != rpg.MaxHp) { rpg.Level = Mathf.Max(1, m.Level); rpg.Exp = (int)m.Exp; rpg.RecomputeStats(); rpg.Hp = m.Hp; rpg.Mp = m.Mp; }
             rpg.Exp = (int)m.Exp;
+            Item pet = rpg.GetEquipped(Slots.Pet);
+            if (pet != null && m.PetDurability > 0 && pet.durability != m.PetDurability) { pet.durability = m.PetDurability; InventoryPanel.RefreshIfOpen(); }
             if (!predicted) ApplySelfCooldowns(m.SkillCds); // the predicted hero gets its cooldowns with the sim state
             HeroBuffs.SetClientView(m.Buffs);
         }
@@ -140,8 +144,9 @@ namespace ZenoniaProto
             ClassPalette pal = cls.ActivePalette;
             ComboProjectile.Fire(muzzle, dir, angle, h.Bolt, 0f, 0f, 0f, finisher, cls.FxFolder, pal, 0f, null, boltId);
             bool painted = VfxSprites.For(h.Bolt.Style) != null;
-            Vector2 tip = new Vector2(x + dir.x * 10f, y + 12f + dir.y * 6f);
-            if (painted) HeroFx.CastWindup(cls, h, tip, angle, finisher);
+            int shotFacing = Mathf.Abs(dir.x) > Mathf.Abs(dir.y) ? (dir.x < 0f ? 2 : 3) : (dir.y > 0f ? 1 : 0);
+            Vector2 tip = HeroFx.CastTipFor(cls, step, shotFacing, new Vector2(x, y), new Vector2(x + dir.x * 10f, y + 12f + dir.y * 6f));
+            if (painted) HeroFx.CastWindup(cls, h, tip, angle, finisher, this);
             HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), tip, dir, angle, painted);
         }
 

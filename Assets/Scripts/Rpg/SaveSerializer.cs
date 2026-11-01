@@ -28,7 +28,7 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public static class SaveSerializer
     {
-        public const int SaveVersion = 1;
+        public const int SaveVersion = 2; // 2: pets carry durability
         public const string MapId = "frostHollow";
         const int MaxBossMaps = 32, MaxMapIdLength = 32; // same limits as the server-api schema, which rejects the whole save otherwise
 
@@ -70,13 +70,13 @@ namespace ZenoniaProto.Rpg
             };
             foreach (Item i in raw.inventory ?? new List<Item>())
             {
-                Item s = ItemFactory.Sanitize(i);
+                Item s = ItemFactory.Sanitize(i, raw.version < 2);
                 if (s != null && d.inventory.Count < PlayerState.InventorySize) d.inventory.Add(s);
             }
             var seen = new HashSet<string>();
             foreach (Item i in raw.equipment ?? new List<Item>())
             {
-                Item s = ItemFactory.Sanitize(i);
+                Item s = ItemFactory.Sanitize(i, raw.version < 2);
                 if (s != null && seen.Add(s.slot)) d.equipment.Add(s); // one item per slot
             }
             var ranks = new SkillRanks(d.classId); ranks.Load(raw.skillRanks, d.level); // illegal ranks (tampering, class / level change) are trimmed

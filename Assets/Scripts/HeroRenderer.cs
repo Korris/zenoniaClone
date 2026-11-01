@@ -51,6 +51,9 @@ namespace ZenoniaProto
         public bool CompanionEnhanced { get { return companionEnhanced; } }
         public int CompanionBand { get { return companionBand; } }
         public bool CompanionEmpty { get { return companionEmpty; } }
+        /// <summary>Art id of the pet flying with this hero (HeroPet); null = none.</summary>
+        public string PetId { get; private set; }
+        public void SetPet(string petId) { PetId = petId; }
         public string TierName
         {
             get
@@ -215,7 +218,7 @@ namespace ZenoniaProto
             handOver.color = tint;
             handOver.sortingOrder = orderBase + 6;
             for (int i = 0; i < parts.Count; i++)
-                ApplyPart(parts[i], useGear ? anchorBuffer[i] : null, orderBase + 1 + i, orderBase + 4 + i, orderBase, tint, alpha);
+                ApplyPart(parts[i], useGear ? anchorBuffer[i] : null, orderBase + 1 + Mathf.Min(i, 1), orderBase + 4 + Mathf.Min(i, 1), orderBase, tint, alpha); // two slots each side of the body: a third part shares the second, the two hands do not cross
         }
 
         void ApplyPart(Part p, HeldAnchor a, int orderBehind, int orderFront, int orderBase, Color tint, float alpha)
@@ -228,7 +231,8 @@ namespace ZenoniaProto
                 p.ArtEnhanced = p.Enhanced;
                 p.Art = GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced);
             }
-            Sprite sprite = entry != null ? p.Art : null;
+            bool ownArt = entry != null && !string.IsNullOrEmpty(a.art);
+            Sprite sprite = ownArt ? GearOverlays.Centered(p.Spec.Folder, a.art) : entry != null ? p.Art : null;
             p.Sr.sprite = sprite;
             if (sprite == null) { if (p.Fx != null) p.Fx.Hide(); return; }
             p.Sr.color = tint;
@@ -240,7 +244,7 @@ namespace ZenoniaProto
             t.localRotation = Quaternion.Euler(0f, 0f, -a.angle); // web angle is clockwise on a y-down canvas
             t.localScale = new Vector3(k * sx, k, 1f);
             // Enhanced (+7 and up): the blade keeps its painted colours, HeldEnhanceFx lights it per band in the tier colour.
-            if (!p.Enhanced || !HeldEnhanceFx.Enabled) { if (p.Fx != null) p.Fx.Hide(); return; }
+            if (!p.Enhanced || ownArt || !HeldEnhanceFx.Enabled) { if (p.Fx != null) p.Fx.Hide(); return; } // the glow is baked from the manifest art, which per-frame art is not
             if (p.Fx == null) p.Fx = new HeldEnhanceFx(p.Sr, transform, !p.Spec.Glow ? 0f : p.Spec.IsOffhand ? 0.5f : 1f, 1f);
             p.Fx.Draw(p.Spec.Folder, entry, p.Band, p.Sr.sortingOrder, orderBase + 6, a.behind, alpha);
         }

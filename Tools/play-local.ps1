@@ -2,7 +2,7 @@
 .SYNOPSIS
   Local multiplayer test without typing commands: starts a hidden local server and N game windows, and stops the server when the last window closes.
   Double-click Tools\play-local.cmd, or run it with arguments. Uses the newest C:\temp\*\Zenonia.exe unless -Exe is given.
-  The server runs with dev cheats (level, gold, items), so this is for local testing only.
+  DEV ONLY: shared key, no accounts, nothing is saved, and the server runs with dev cheats (level, gold, items). For real login and saving: Tools\play-online.ps1.
 .EXAMPLE
   .\Tools\play-local.ps1 -Classes warrior,cleric,assassin
 #>

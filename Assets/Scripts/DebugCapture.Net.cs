@@ -21,6 +21,10 @@ namespace ZenoniaProto
             string[] a = Environment.GetCommandLineArgs();
             string bot = NetLaunchArgs.NetBot;
             string rec = NetLaunchArgs.Arg(a, "--record-net");
+            string account = NetLaunchArgs.Arg(a, "--account");
+            if (NetLaunchArgs.Arg(a, "--login-shots") != null) { yield return LoginShots(NetLaunchArgs.Arg(a, "--login-shots")); yield break; }
+            if (NetLaunchArgs.Arg(a, "--account-script") != null) { yield return AccountScript(NetLaunchArgs.Arg(a, "--account-script"), account); Application.Quit(); yield break; }
+            if (account != null) StartCoroutine(AccountBot(account)); // real login: DebugCapture.NetPersist.cs
             if (shotTimes != null && NetLaunchArgs.Host == null) { yield return NetShots(); yield break; } // connect screen screenshots
             float t0 = Time.realtimeSinceStartup;
             while ((NetClient.Active == null || NetClient.Active.State != ClientState.Joined || GameSession.Hero == null) && Time.realtimeSinceStartup - t0 < 60f) yield return null;
@@ -44,6 +48,8 @@ namespace ZenoniaProto
                 case "portal": EnablePortalBot(); break;
                 case "party": StartPartyBot(); break;
                 case "trade": StartTradeBot(); break;
+                case "persist": StartPersistBot(); break;
+                case "turret": StartTurretBot(); break;
             }
             Debug.Log("[ZenoniaProto] net bot: " + (bot ?? "off") + " as " + GameSession.Hero.PlayerName + " (hero " + GameSession.Hero.NetId + ")");
         }

@@ -59,10 +59,13 @@ namespace ZenoniaProto
         public HeroRenderer View { get { return view; } }
         public float Hp { get { return hp; } }
         public float MaxHp { get { return rpg.MaxHp; } }
-        public float AtkStat { get { return rpg.Atk * HeroBuffs.AtkMul(this); } } // temporary ATK buffs included
+        public float AtkStat { get { return rpg.DamageAtk * HeroBuffs.AtkMul(this); } } // what hits are rolled from: pet bonus and temporary ATK buffs included
+        public float SupportAtkStat { get { return rpg.Atk * HeroBuffs.AtkMul(this); } } // what heals and shields scale from: a damage pet does not raise them
         public float DefStat { get { return rpg.Def * HeroBuffs.DefMul(this); } }
         public float CritBonus { get { return rpg.CritBonus; } }
         public PlayerState Rpg { get { return rpg; } }
+        /// <summary>Durability of the worn pet, 0 for none: what SelfState tells the owner, and nobody else.</summary>
+        public ushort PetDurability { get { Item pet = rpg.GetEquipped(Slots.Pet); return pet != null ? (ushort)Mathf.Clamp(pet.durability, 0, 65535) : (ushort)0; } }
         /// <summary>Where the hero is DRAWN: the sim spot, or for the online local hero the smoothed (interpolated + error blended) one.</summary>
         public Vector2 Position { get { return predicted ? predictor.VisualPos : new Vector2(x, y); } }
         public int Facing { get { return facing; } }

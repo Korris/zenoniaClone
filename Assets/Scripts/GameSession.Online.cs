@@ -50,6 +50,16 @@ namespace ZenoniaProto
             ConnectScreenGui.Open();
         }
 
+        /// <summary>The player left the world on purpose (change character, log out): the connection goes down cleanly, which is what makes the zone save and release the hero, and the account screen comes back. The process stays an online client.</summary>
+        public void LeaveWorld()
+        {
+            AccountScreenGui.CloseMenu();
+            NetClient client = NetClient.Active;
+            if (client != null) client.Disconnect();
+            WipeWorld();
+            ConnectScreenGui.Open();
+        }
+
         /// <summary>Leaves online play: stops the server / client, clears the shared world and restores the normal offline game.</summary>
         public void ExitOnline()
         {

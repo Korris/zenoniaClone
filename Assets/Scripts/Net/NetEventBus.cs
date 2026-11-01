@@ -87,6 +87,13 @@ namespace ZenoniaProto
             }, at);
         }
 
+        /// <summary>A Deploy Turret fired at `foe`, whose centre is at `aim` now. Heard by whoever has the turret in its area of interest; the hit itself is a MonsterHit when the shot arrives.</summary>
+        public static void TurretShot(DeployedTurret t, Monster foe, Vector2 aim)
+        {
+            if (!Active) return;
+            Add(new NetEvent { Type = NetEventType.TurretShot, Id = t.NetId, Other = foe.NetId, X = NetQuantize.Pos(aim.x), Y = NetQuantize.Pos(aim.y) }, t.Feet);
+        }
+
         public static void HeroDied(HeroController h)
         {
             if (!Active) return;
@@ -153,6 +160,7 @@ namespace ZenoniaProto
                 OffTier = o != null ? (byte)ItemInfo.ArtTier(o) : (byte)255,
                 EnhanceBand = (byte)(Mathf.Clamp(w != null ? w.enhance : 0, 0, 15) | (Mathf.Clamp(o != null ? o.enhance : 0, 0, 15) << 4)),
                 Flags = (byte)(h.Class.Id == HeroClass.Mechanic && ClassPalette.MechanicBlue ? 1 : 0),
+                PetId = PetConfig.WireId(p.GetEquipped(Slots.Pet)),
             };
         }
 

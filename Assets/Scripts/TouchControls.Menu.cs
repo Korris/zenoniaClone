@@ -15,19 +15,19 @@ namespace ZenoniaProto
         void BuildMenuButtons(Transform parent)
         {
             Vector2 tr = new Vector2(1f, 1f);
-            const float size = 40f, y = -178f;
-            RectTransform bag = Place(parent, "Bag", tr, -74f, y, size);
+            const float size = 50f, y = -185f;
+            RectTransform bag = Place(parent, "Bag", tr, -88f, y, size);
             Img(bag, MenuSprite("hud-bag"), Color.white, true);
             TouchButton.Add(bag.gameObject, GameKey.Inventory, false);
 
-            RectTransform settings = Place(parent, "Settings", tr, -28f, y, size);
+            RectTransform settings = Place(parent, "Settings", tr, -32f, y, size);
             Img(settings, MenuSprite("hud-settings"), Color.white, true);
             settings.gameObject.AddComponent<TapButton>().onTap = HeroChangeScreen.Open;
 
             // The skill tree opens from the bag's Skill tab, so the Bag carries the red badge counting the free skill points.
-            RectTransform badge = Place(bag, "Badge", tr, -4f, -4f, 18f);
+            RectTransform badge = Place(bag, "Badge", tr, -5f, -5f, 26f);
             Img(badge, UiSprites.Circle(), new Color(0.85f, 0.15f, 0.15f, 1f));
-            spBadgeText = UiKit.Label(UiKit.Fill(badge, "Count"), "", 11, Color.white, TextAnchor.MiddleCenter, true);
+            spBadgeText = UiKit.Label(UiKit.Fill(badge, "Count"), "", 15, Color.white, TextAnchor.MiddleCenter, true);
             spBadge = badge.gameObject;
         }
 

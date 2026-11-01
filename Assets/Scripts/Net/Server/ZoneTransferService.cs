@@ -73,6 +73,7 @@ namespace ZenoniaProto
             repl.UpdateInterest(to, p);
             repl.SendSelfState(p);
             p.RpgDirty = true; // the mirrored save names the map the hero is on
+            if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p);
             stats.Add("zoneTransfers", 1);
             Debug.Log("[ZenoniaProto] net: " + p.Name + " " + from.Map.Id + " -> " + to.Map.Id + " (epoch " + p.Epoch + ")");
         }

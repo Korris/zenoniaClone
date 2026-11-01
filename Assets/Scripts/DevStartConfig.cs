@@ -8,7 +8,7 @@ namespace ZenoniaProto
     /// Test resources on start, read from Assets/Resources/Data/dev-start.json (edit the numbers, save, press Play).
     /// Player builds read dev-start.json placed next to Zenonia.exe instead (see ReadJson).
     /// Every time a class is loaded or created, its upgrade stones / gold / potions are topped UP to these values (never lowered),
-    /// so enhancing can be tested right away. The bundled Resources copy only works in the editor and development builds.
+    /// so enhancing can be tested right away. Test builds always read it; release builds never do.
     /// </summary>
     [Serializable]
     public class DevStartConfig
@@ -22,6 +22,7 @@ namespace ZenoniaProto
         public bool noMpCost; // skills cost no MP
         public bool allSkills; // learn every skill as far as the SP allow (Lv 60 + 20 bonus = all 8 at rank 10, 0 SP left)
         public bool allWeapons; // every art tier of the class's weapon and offhand (epic, +0 so stones stay testable); the best ones are worn on the first grant
+        public bool allPets; // one of each pet in the bag, if there is room
 
         /// <summary>Call before a save is restored: loading trims ranks above the SP budget, so the bonus must already count.</summary>
         public static void ApplySkillBonus()
@@ -36,18 +37,18 @@ namespace ZenoniaProto
         }
 
         /// <summary>
-        /// A dev-start.json next to the player executable (testers drop it there; a shipped build has none) wins; otherwise the bundled
-        /// Resources copy, but only in the editor and development builds.
+        /// A dev-start.json next to the player executable (testers drop it there) wins; otherwise the bundled Resources copy.
+        /// Every test build reads it, development or not; only a release build (ReleaseBuild.IsRelease) ignores both.
         /// </summary>
         static string ReadJson()
         {
+            if (ReleaseBuild.IsRelease) return null; // neither the bundled copy nor one dropped beside the exe
             try
             {
                 string beside = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Application.dataPath) ?? ".", "dev-start.json");
                 if (!Application.isEditor && System.IO.File.Exists(beside)) return System.IO.File.ReadAllText(beside);
             }
             catch (Exception e) { Debug.LogWarning("[ZenoniaProto] dev-start.json next to the game unreadable: " + e.Message); }
-            if (!Application.isEditor && !Debug.isDebugBuild) return null;
             var asset = Resources.Load<TextAsset>("Data/dev-start");
             return asset != null ? asset.text : null;
         }
@@ -106,6 +107,15 @@ namespace ZenoniaProto
             }
             if (c.allSkills) LearnAllSkills(p);
             if (c.allWeapons) { GrantAllWeapons(p); p.Hp = p.MaxHp; p.Mp = p.MaxMp; }
+            if (c.allPets)
+            {
+                if (c.allWeapons) p.Inventory.RemoveAll(i => i.uid == "starter-" + Slots.Weapon || i.uid == "starter-" + Slots.Offhand); // all tiers plus the two starters fill the 20 slots: the pets need the room
+                foreach (PetDef def in PetConfig.All)
+                {
+                    if (p.PetCount(def) > 0) continue;
+                    if (!p.AddToInventory(ItemFactory.CreatePet(def, RpgRandom.Default))) Debug.LogWarning("[ZenoniaProto] dev-start: bag full, pet " + def.Id + " not granted");
+                }
+            }
             Item off = p.GetEquipped(Slots.Offhand);
             if (c.offhandPlus >= 0 && off != null) { off.enhance = Mathf.Clamp(c.offhandPlus, 0, EnhanceConfig.MaxEnhance); p.RecomputeStats(); }
             Debug.Log("[ZenoniaProto] dev-start: stones " + p.UpgradeStone + ", gold " + p.Gold + ", potions " + p.HpPotions + "/" + p.MpPotions);

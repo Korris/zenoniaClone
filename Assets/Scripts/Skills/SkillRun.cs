@@ -33,7 +33,7 @@ namespace ZenoniaProto
             bool self = ctx.Def.Targeting == SkillTargeting.Self || ctx.Def.Targeting == SkillTargeting.AroundSelf;
             SkillEffect first = ctx.Def.Effects.Length > 0 ? ctx.Def.Effects[0] : null;
             if (first != null && first.Kind == EffectKind.Projectile) return; // SkillBolt plays the muzzle art
-            float w = self && first != null && first.Radius > 0f ? Mathf.Max(1.6f, first.Radius * 1.6f) * ctx.Units : 1.8f * ctx.Units;
+            float w = self && first != null && first.Radius > 0f && first.Kind != EffectKind.Turret ? Mathf.Max(1.6f, first.Radius * 1.6f) * ctx.Units : 1.8f * ctx.Units; // a turret's Radius is its firing range, not the size of its placing
             SkillVfx.Play(ctx, SkillVfxSet.Cast, ctx.Feet, 0f, w);
             SkillSfx.Play(ctx, SkillSfx.Cast);
         }

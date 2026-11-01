@@ -10,7 +10,7 @@ namespace ZenoniaProto.Rpg
     }
 
     /// <summary>
-    /// The hero's RPG data and rules: level / EXP, base + equipment stat aggregation, resources, potions, materials, bag and the six equipment
+    /// The hero's RPG data and rules: level / EXP, base + equipment stat aggregation, resources, potions, materials, bag and the equipment
     /// slots (web entities/player.js + equipment-system.js + loot-system.js applyPickup/usePotion). No Unity types: fully unit-testable.
     /// </summary>
     public sealed partial class PlayerState
@@ -30,6 +30,7 @@ namespace ZenoniaProto.Rpg
         public int MaxHp, MaxMp, Atk, Def;
         public float Speed, CritBonus; // CritBonus = equipment crit + class bonus + second-weapon crit rate, added to the hero's base crit chance
         public SecondWeaponStats Second; // offhand-derived specialised stats (Zero when no offhand is worn)
+        public float DamageAtk; // Atk with the pet's damage bonus, what hits are rolled from; heals and shields read Atk (PetConfig)
 
         public PlayerState(string classId)
         {
@@ -76,8 +77,10 @@ namespace ZenoniaProto.Rpg
             }
             Item off = GetEquipped(Slots.Offhand);
             Second = off != null ? SecondWeapon.For(ClassId, EnhanceStats.Level(off)) : SecondWeaponStats.Zero;
-            MaxHp = RpgMath.Round((b.MaxHp + hpAdd) * (1 + Second.HpPct)); MaxMp = RpgMath.Round((b.MaxMp + mpAdd) * (1 + Second.MpPct));
+            PetDef pet = PetConfig.Of(GetEquipped(Slots.Pet));
+            MaxHp = RpgMath.Round((b.MaxHp + hpAdd) * (1 + Second.HpPct) * (1 + (pet != null ? pet.MaxHpPct : 0))); MaxMp = RpgMath.Round((b.MaxMp + mpAdd) * (1 + Second.MpPct));
             Atk = b.Atk + atkAdd; Def = RpgMath.Round((b.Def + defAdd) * (1 + Second.DefPct));
+            DamageAtk = (float)(Atk * (1 + (pet != null ? pet.DamagePct : 0)));
             Speed = (float)(b.Speed * speedMult);
             CritBonus = (float)(crit + RpgClasses.Get(ClassId).CritBonus + Second.CritRate);
             if (Hp > MaxHp) Hp = MaxHp;

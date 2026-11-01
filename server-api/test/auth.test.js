@@ -85,8 +85,8 @@ describe('login / refresh / logout', () => {
   });
 });
 
-describe('password reset stub', () => {
-  it('logs a link instead of mailing, answers 202 for unknown emails too, and the token works once', async () => {
+describe('password reset', () => {
+  it('hands a link to the mailer, answers 202 for unknown emails too, and the token works once', async () => {
     const unknown = await c.call('POST', '/auth/password-reset/request', { body: { email: 'ghost@example.com' } });
     expect(unknown.status).toBe(202);
     expect(c.resets).toHaveLength(0);

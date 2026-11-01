@@ -1,0 +1,14 @@
+# Used only by verify-stack.sh: adds a throwaway nginx that runs the real site file, on a high port, in place of the host's nginx.
+services:
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [public]
+    ports:
+      - "127.0.0.1:${VERIFY_HTTPS_PORT:-18443}:443"
+    volumes:
+      - ./test/.work/site.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./test/.work/cert.pem:/etc/nginx/cert.pem:ro
+      - ./test/.work/key.pem:/etc/nginx/key.pem:ro

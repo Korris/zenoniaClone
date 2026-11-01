@@ -60,8 +60,9 @@ namespace ZenoniaProto.Rpg
             O("shield", "Kite Shield", "def", new ItemStats { def = 3, maxHp = 10 });
             O("dagger", "Off-hand Dagger", "atk", new ItemStats { atk = 2, critChance = 0.02f });
             O("robot", "Drone", "atk", new ItemStats { atk = 3 });
-            O("spirit", "Spirit", "maxHp", new ItemStats { maxHp = 12, maxMp = 8 });
+            O("spirit", "Holy Shield", "maxHp", new ItemStats { def = 2, maxHp = 10, maxMp = 6 }); // the cleric's shield: softer than the warrior's, id kept for saves
             O("spellbook", "Spellbook", "atk", new ItemStats { atk = 2, maxMp = 10 });
+            foreach (PetDef p in PetConfig.All) G(Slots.Pet, p.TemplateId, p.Name, 1, new ItemStats()); // no stats of their own: the bonus is in PetConfig
         }
 
         static void Add(ItemTemplate t) { All.Add(t); ById[t.Id] = t; }

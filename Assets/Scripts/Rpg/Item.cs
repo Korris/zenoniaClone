@@ -32,13 +32,16 @@ namespace ZenoniaProto.Rpg
     {
         public string uid, templateId, slot, name, rarity, classId;
         public int itemLevel, enhance;
+        public int durability; // pets only (PetConfig.MaxDurability when new, gone at 0); 0 on everything else
         public ItemStats stats = new ItemStats();
     }
 
     public static class Slots
     {
-        public const string Weapon = "weapon", Helmet = "helmet", Armor = "armor", Gloves = "gloves", Boots = "boots", Offhand = "offhand";
-        public static readonly string[] All = { Weapon, Helmet, Armor, Gloves, Boots, Offhand };
+        public const string Weapon = "weapon", Helmet = "helmet", Armor = "armor", Gloves = "gloves", Boots = "boots", Offhand = "offhand", Pet = "pet";
+        public static readonly string[] All = { Weapon, Helmet, Armor, Gloves, Boots, Offhand, Pet };
+        /// <summary>What monsters drop and the level-scaled generator makes. Pets only come from the shop (PetConfig).</summary>
+        public static readonly string[] Generated = { Weapon, Helmet, Armor, Gloves, Boots, Offhand };
         public static int Index(string slot) { return Array.IndexOf(All, slot); }
     }
 }

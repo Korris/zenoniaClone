@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS } from './rpg/rpg-constants.js';
+import { CLASS_IDS, MAX_INT } from './rpg/rpg-constants.js';
 import { opsSchema } from './rpg/inventory-ops.js';
 import { stateSchema } from './rpg/item-validation.js';
 
@@ -37,4 +37,10 @@ export const redeemSchema = z.object({ ticket: z.string().min(20).max(200) });
 export const saveSchema = z.object({ sessionId, rev, state: stateSchema });
 export const opsRequestSchema = z.object({ sessionId, rev, reqId, ops: opsSchema });
 export const enhanceSchema = z.object({ sessionId, rev, reqId, itemUid: z.string().min(1).max(64) });
+const tradeSide = z.object({
+  characterId: z.string().length(24), sessionId, rev, state: stateSchema,
+  giveUids: z.array(z.string().min(1).max(64)).max(6), // TradeBook.MaxItems
+  giveGold: z.number().int().min(0).max(MAX_INT),
+});
+export const tradeCommitSchema = z.object({ tradeId: reqId, a: tradeSide, b: tradeSide });
 export const endSessionSchema = z.object({ characterId: z.string().length(24) });

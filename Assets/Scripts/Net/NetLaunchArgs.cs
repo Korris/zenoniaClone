@@ -9,6 +9,8 @@ namespace ZenoniaProto
     ///   --sim-latency MS --sim-jitter MS --sim-loss PCT --sim-seed N (client lag harness)   --no-predict   --predict-after S   --net-no-delta
     ///   --max-players N (200)   --tick 30   --snap-div 2   --dev-key K   --run-seconds N   --net-bot fight|wander|portal   --net-stats file.json   --dev-gold N --dev-items N (test servers: goods to trade)
     ///   --map NAME (server: the zone new heroes begin in, default Frost Hollow)   --no-portals (server: load tests keep everybody on one zone)
+    ///   --api-url URL (server: real accounts, characters load from and save to server-api, the service key comes from the environment variable ZENONIA_SERVICE_KEY; client: where to log in)
+    ///   --zone-id ID (server, default frost-hollow, the API's ZONE_ID)   --save-interval S (server, default 30)   --save-spool DIR (server: where a save that cannot be written is kept)   --shutdown-file F (server: F appearing = save everybody and stop)
     /// </summary>
     public static class NetLaunchArgs
     {
@@ -29,6 +31,8 @@ namespace ZenoniaProto
         public static int DevLevel;
         /// <summary>Server test hook (--dev-hurt PCT): every new hero but a Cleric starts at this percent of its HP; 0 = off. Never set on a public server.</summary>
         public static int DevHurtPct;
+        /// <summary>Test hook (--dev-no-cooldowns, on the server and the test client): skills have no cooldown, so a recast can overlap. Never set on a public server.</summary>
+        public static bool DevNoCooldowns;
         /// <summary>Server test hook (--dev-gold N): every new hero starts with this much gold; 0 = off. Never set on a public server.</summary>
         public static int DevGold;
         /// <summary>Server test hook (--dev-items N, at most a full bag): every new hero starts with this many bag items, the first an enhanced weapon of its class; 0 = off. Never set on a public server.</summary>
@@ -37,6 +41,10 @@ namespace ZenoniaProto
         public static string StartMap;
         /// <summary>Server test hook (--no-portals): no hero is ever moved between zones.</summary>
         public static bool NoPortals;
+        /// <summary>--api-url: the server-api address. On a server this is what turns real accounts on; every --dev-* cheat is then off.</summary>
+        public static string ApiUrl;
+        public static string ZoneId = "frost-hollow", SaveSpool, ShutdownFile;
+        public static int SaveIntervalSeconds = 30;
 
         public static string Arg(string[] a, string key)
         {
@@ -72,6 +80,7 @@ namespace ZenoniaProto
             TestVersion = Int(a, "--net-test-version", 0);
             DevLevel = Math.Max(0, Math.Min(Rpg.Leveling.MaxLevel, Int(a, "--dev-level", 0)));
             DevHurtPct = Math.Max(0, Math.Min(100, Int(a, "--dev-hurt", 0)));
+            DevNoCooldowns = HasFlag("--dev-no-cooldowns");
             DevGold = Math.Max(0, Int(a, "--dev-gold", 0));
             DevItems = Math.Max(0, Math.Min(Rpg.PlayerState.InventorySize, Int(a, "--dev-items", 0)));
             float pa;
@@ -80,6 +89,11 @@ namespace ZenoniaProto
             NoDelta = Array.IndexOf(a, "--net-no-delta") >= 0;
             StartMap = Arg(a, "--map");
             NoPortals = Array.IndexOf(a, "--no-portals") >= 0;
+            ApiUrl = Arg(a, "--api-url");
+            ZoneId = Arg(a, "--zone-id") ?? "frost-hollow";
+            SaveSpool = Arg(a, "--save-spool");
+            ShutdownFile = Arg(a, "--shutdown-file");
+            SaveIntervalSeconds = Math.Max(1, Math.Min(60, Int(a, "--save-interval", 30))); // the session lock needs a heartbeat well inside its 90 s
             SimLatencyMs = Math.Max(0, Math.Min(2000, Int(a, "--sim-latency", 0)));
             SimJitterMs = Math.Max(0, Math.Min(1000, Int(a, "--sim-jitter", 0)));
             SimLossPct = Math.Max(0, Math.Min(90, Int(a, "--sim-loss", 0)));

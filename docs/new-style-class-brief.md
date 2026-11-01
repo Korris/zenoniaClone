@@ -14,10 +14,11 @@ Làm theo đúng cách đã chốt với Warrior. Người dùng duyệt ngày 2
 - **Idle và walk hướng trái, phải:** thiết kế mới theo hình mẫu, không tải sprite cũ, người dùng không thích bản cũ. Giữ số frame.
 - **Walk xuống, walk lên, idle lên, hurt:** vẽ theo hàng cũ.
 - **Hướng ngang phải nhìn ngang thật:** mặt, ngực, chân quay về hướng đó, không nhìn vào camera. Hướng lên thấy gáy. Kiểm tra từng frame, sai thì vẽ lại.
-- **Prompt ngắn.** Không vũ khí, nắm tay rõ, nền `#00FF00` phẳng (`#FF00FF` nếu art có xanh lá, như Cleric), không bóng, không hiệu ứng, không chạm mép. Cleric không có cánh: sau này cánh là item riêng. Không vẽ companion.
+- **Prompt ngắn.** Không vũ khí, nắm tay rõ, nền `#00FF00` phẳng (`#FF00FF` nếu art có xanh lá, như Cleric), không bóng, không hiệu ứng, không chạm mép. Cleric không có cánh: sau này cánh là item riêng. Sprite trong game không vẽ companion vì game vẽ riêng; ảnh giới thiệu và ảnh mẫu thì có.
 - **Idle thở:** một frame vẽ, uốn thở nhỏ bằng script (cách trong `Tools/build-warrior-move.py`), không vẽ 4 lần, nếu không sẽ giật.
 
 ## Vũ khí và đồ bổ trợ
+- **Mọi lần nhờ ChatGPT vẽ vũ khí đều tải kèm ảnh màn chọn tướng của class đó (`Assets/ArtLibrary/custom/hero-select/<class>.png`) để style bám sát ảnh này (người dùng dặn).** Không dùng `mechanic-gauntlet-old.png`, `cleric-wings-old.png`: đó là bản cũ.
 - Theo cách đã làm với kiếm và khiên Warrior: mẫu chuẩn cắt hoặc đo từ vũ khí trong `docs/reference/hero-idle-down-5-classes.png` (ảnh thân `idle-down-set/<class>.png`), rồi mọi tier cùng hình bóng, giữ màu và họa tiết riêng của từng tier từ art cũ. Xem `Tools/build-warrior-sword.py`, `Tools/build-warrior-shield.py`.
 - Làm cả 10 tier, mỗi tier bản thường và cường hoá. Bản cường hoá cùng hình bóng, mạnh hơn rõ, không thò ra ngoài viền. Sao lưu art cũ trước khi ghi đè. Cập nhật `baseGrip`, `enhancedGrip` của class trong file `held-*.json`, đo từ art; `gripX, gripY` đúng giữa cán. Giữ độ dài trên màn hình như cũ.
 - Làm theo thứ tự tier từ thấp lên, tier đầu kiểm tra kỹ trên nhân vật rồi mới làm tiếp. Hết lượt vẽ thì dừng và báo tier nào xong.

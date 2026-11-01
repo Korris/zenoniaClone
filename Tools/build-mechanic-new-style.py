@@ -376,11 +376,11 @@ def gun_box():
 
 
 def turret_box():
-    """Grip: middle of the bottom of the base, the feet row."""
+    """Grip: middle of the base (front foot, measured at x = 645 in the sample; the muzzle makes the box lopsided), on the feet row."""
     x0, x1, y0, y1 = bbox(key_any(TURRET_SAMPLE))
     h = TURRET_HEIGHT
     w = round((x1 - x0) * h / (y1 - y0))
-    return w, h, {"w": w + 2 * PAD, "h": h + 2 * PAD, "gripX": w // 2 + PAD, "gripY": h + PAD}
+    return w, h, {"w": w + 2 * PAD, "h": h + 2 * PAD, "gripX": round((645 - x0) * w / (x1 - x0)) + PAD, "gripY": h + PAD}
 
 
 def write_tiers(tiers, prefix, folder, key, box):

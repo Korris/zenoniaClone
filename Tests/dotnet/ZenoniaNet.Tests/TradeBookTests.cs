@@ -286,6 +286,17 @@ public class TradeBookTests
     }
 
     [Fact]
+    public void APetGoesOverTheWireLikeOtherGear()
+    {
+        var msg = new TradeStateMsg { Mine = new TradeOfferView { Items = new[] { new TradeItemView { Uid = "pet-spirit-zzzzzz", TemplateId = "pet-spirit", Slot = "pet", Name = "Spirit", Rarity = "rare", ClassId = "", ItemLevel = 1, Durability = 73 } } }, Theirs = new TradeOfferView { Items = new TradeItemView[0] }, Name = "x" };
+        var w = new NetDataWriter();
+        msg.Write(w);
+        TradeStateMsg m;
+        Assert.True(TradeStateMsg.TryRead(Reader(w, NetOp.TradeState), out m));
+        Assert.Equal("pet", m.Mine.Items[0].Slot); Assert.Equal("pet-spirit", m.Mine.Items[0].TemplateId); Assert.Equal("pet-spirit-zzzzzz", m.Mine.Items[0].Uid); Assert.Equal(73, m.Mine.Items[0].Durability);
+    }
+
+    [Fact]
     public void ItemsThatCannotBeOfferedAreRefused()
     {
         World w = Trading();
@@ -661,7 +672,7 @@ public class TradeBookTests
     [Fact]
     public void ThereIsARefusalForTheFixedInventoryRequests()
     {
-        foreach (InvOp op in new[] { InvOp.Equip, InvOp.Unequip, InvOp.Use, InvOp.Discard, InvOp.Sort, InvOp.Enhance, InvOp.SkillRespec, InvOp.PotionBuy })
+        foreach (InvOp op in new[] { InvOp.Equip, InvOp.Unequip, InvOp.Use, InvOp.Discard, InvOp.Sort, InvOp.Enhance, InvOp.SkillRespec, InvOp.PotionBuy, InvOp.PetBuy })
             Assert.True(TradeBook.BlocksInventoryOp(op), op.ToString());
         Assert.False(TradeBook.BlocksInventoryOp(InvOp.SkillLearn));
         Assert.False(TradeBook.BlocksInventoryOp(InvOp.SkillAssign));
@@ -839,7 +850,7 @@ public class TradeBookTests
         Assert.True(TradeNoticeMsg.TryRead(Reader(w, NetOp.TradeNotice), out m));
         Assert.Equal(TradeNoticeKind.Failed, m.Kind); Assert.Equal((byte)TradeFail.NoRoom, m.Detail); Assert.Equal(9, m.Other); Assert.Equal("Luna", m.Name); Assert.Equal(12, m.MsLeft);
 
-        foreach (var (kind, top) in new[] { (TradeNoticeKind.OutClosed, 6), (TradeNoticeKind.InClosed, 6), (TradeNoticeKind.Failed, 30), (TradeNoticeKind.Changed, 5), (TradeNoticeKind.Ended, 7) })
+        foreach (var (kind, top) in new[] { (TradeNoticeKind.OutClosed, 6), (TradeNoticeKind.InClosed, 6), (TradeNoticeKind.Failed, (int)TradeFail.SaveFailed + 1), (TradeNoticeKind.Changed, 5), (TradeNoticeKind.Ended, 7) })
         {
             new TradeNoticeMsg { Kind = kind, Detail = (byte)top, Name = "" }.Write(w);
             Assert.False(TradeNoticeMsg.TryRead(Reader(w, NetOp.TradeNotice), out m), kind.ToString());

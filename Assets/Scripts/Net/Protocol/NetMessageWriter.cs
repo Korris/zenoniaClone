@@ -15,7 +15,7 @@ namespace ZenoniaProto.Net
     public struct DespawnMsg { public ushort Id; public DespawnCause Cause; }
     /// <summary>One buff on the player's own hero: Source = the skill it came from (the client picks the icon), times in ms.</summary>
     public struct NetBuff { public byte Source, Kind; public ushort LeftMs, TotalMs; }
-    public struct SelfStateMsg { public ushort Hp, MaxHp, Mp, MaxMp; public uint Exp; public byte Level; public ushort[] SkillCds; public NetBuff[] Buffs; }
+    public struct SelfStateMsg { public ushort Hp, MaxHp, Mp, MaxMp; public uint Exp; public byte Level; public ushort[] SkillCds; public NetBuff[] Buffs; public ushort PetDurability; }
     public struct RpgStateMsg { public uint ReqId; public byte Result; public string Text, SaveJson; }
 
     /// <summary>
@@ -73,6 +73,7 @@ namespace ZenoniaProto.Net
             int buffs = m.Buffs != null ? System.Math.Min(m.Buffs.Length, NetProtocol.MaxSelfBuffs) : 0;
             w.Put((byte)buffs);
             for (int i = 0; i < buffs; i++) { w.Put(m.Buffs[i].Source); w.Put(m.Buffs[i].Kind); w.Put(m.Buffs[i].LeftMs); w.Put(m.Buffs[i].TotalMs); }
+            w.Put(m.PetDurability);
         }
 
         public static void RpgState(NetDataWriter w, RpgStateMsg m)

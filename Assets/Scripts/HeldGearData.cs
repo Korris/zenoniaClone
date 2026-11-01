@@ -6,8 +6,8 @@ namespace ZenoniaProto
 {
     [Serializable] public class GripInfo { public int w; public int h; public int gripX; public int gripY; }
     [Serializable] public class OverlayEntry { public string name; public string glow; public GripInfo baseGrip; public GripInfo enhancedGrip; }
-    /// <summary>Per-frame grip anchor in the 192px frame (x,y px from top-left; angle deg clockwise; s = frame px per art px).</summary>
-    [Serializable] public class HeldAnchor { public float x; public float y; public float angle; public float s = 1f; public float sx = 1f; public bool behind; public bool hidden; public bool fallback; }
+    /// <summary>Per-frame grip anchor in the 192px frame (x,y px from top-left; angle deg clockwise; s = frame px per art px). art: this frame draws folder/art.png, pivot at its centre, on every tier (the mechanic's cannon, one art per facing).</summary>
+    [Serializable] public class HeldAnchor { public float x; public float y; public float angle; public float s = 1f; public float sx = 1f; public bool behind; public bool hidden; public bool fallback; public string art; }
     [Serializable] public class AnchorSet { public string part; public string anim; public string dir; public HeldAnchor[] frames; }
     [Serializable] public class FloatLoop { public string dir; public GripInfo[] frames; }
     /// <summary>
@@ -48,7 +48,7 @@ namespace ZenoniaProto
                 else
                 {
                     if (file.weapon == null) { Debug.LogError("[ZenoniaProto] " + cls.GearFile + ".json has no weapon manifest"); return null; }
-                    foreach (GearPartSpec part in cls.Parts) data.manifests[part.Id] = file.weapon; // every part draws from the one weapon manifest
+                    foreach (GearPartSpec part in cls.Parts) data.manifests[part.Id] = part.Id == "shield" && file.shield != null ? file.shield : file.weapon; // every part draws from the one weapon manifest, except the cleric's shield
                 }
                 foreach (AnchorSet set in file.anchors) data.anchors[Key(set.part, set.anim, set.dir)] = set.frames;
                 // Painted melee sheets (Tools/build-melee-sheets.py) keep their measured anchors in a separate file.

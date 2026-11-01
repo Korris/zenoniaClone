@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="*.cs" />
-    <Compile Include="..\..\..\Assets\Scripts\Rpg\**\*.cs" Exclude="..\..\..\Assets\Scripts\Rpg\SaveSerializer.cs;..\..\..\Assets\Scripts\Rpg\SaveStore.cs" />
+    <Compile Include="..\..\..\Assets\Scripts\Rpg\**\*.cs" Exclude="..\..\..\Assets\Scripts\Rpg\SaveStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />

@@ -25,6 +25,7 @@ namespace ZenoniaProto
                 case EffectKind.Heal: SkillSupport.Heal(ctx, e); break;
                 case EffectKind.Summon: SkillMinion.Spawn(ctx, e); break;
                 case EffectKind.Zone: SkillGroundZone.Spawn(ctx, e); break;
+                case EffectKind.Turret: DeployedTurret.Place(ctx, e); break;
             }
         }
 

@@ -1,108 +1,126 @@
 # Việc đang dở
 
-Cập nhật 2026-11-01 khoảng 10:45. Đọc file này trước khi làm tiếp, rồi đối chiếu `git status` và ảnh thật: file có thể đã cũ. Xong việc nào thì xoá dòng đó.
+Cập nhật 2026-11-01 khoảng 18:20. Đọc file này trước khi làm tiếp, rồi đối chiếu `git log` và ảnh thật. Xong việc nào thì xoá dòng đó.
 
 Quy tắc khi làm tiếp: `CLAUDE.md`, `docs/sprite-weapon-rules.md`, `docs/new-style-class-brief.md`.
 
-**Chưa commit gì từ commit `810bef8` (branch `unity`).** Toàn bộ việc dưới đây, cả phần đã xong, đang nằm trong working tree.
+## Việc design: mở đúng tài khoản nào, chat nào
 
-## ChatGPT: tài khoản và cách liên lạc
+Khi người dùng nói "làm tiếp": tra bảng này, `select_browser` đúng deviceId, đọc tên qua `/api/auth/session` rồi mới gửi. Tay hiện tên phiên là "Tân Korris" (sidebar ghi Tay). deviceId có thể đổi sau khi tải lại extension: khi đó dùng `list_connected_browsers` và mở từng trình duyệt để đọc tên. Một bộ art vẽ trên một tài khoản, không đổi giữa chừng. Không có lượt thì dừng và báo.
 
-| Tài khoản | Chrome | Hạn mức |
+| Tài khoản | deviceId | Có lại lượt |
 |---|---|---|
-| Tan Pham (Plus) | deviceId `7fd3e286-b745-4da0-b1ff-cecfb5c78fc7` | Hết lượt, thử lại được **07:41 ngày 2026-11-02** |
-| Tay (Plus) | deviceId `a75d77ec-120f-404a-a622-c9961a3cd94c` | Báo có lại từ **15:14 ngày 2026-11-01**, chưa thử lại |
-| Tieu Duy Phuong, xaochai | | Không dùng. `661fd420-...` đang đăng nhập Tieu Duy Phuong |
+| **Tay (Plus)** | `a75d77ec-120f-404a-a622-c9961a3cd94c` | 15:30 ngày 2026-11-02 |
+| **Tan Pham (Plus)** | `7fd3e286-b745-4da0-b1ff-cecfb5c78fc7` | 07:41 ngày 2026-11-02 |
+| Tieu Duy Phuong, xaochai | `661fd420-...` đang đăng nhập Tieu Duy Phuong | Không dùng |
 
-- deviceId có thể đổi sau khi tải lại extension. Luôn đọc tên qua `/api/auth/session` trước khi gửi.
-- Không có lượt thì dừng và báo, không đổi sang tài khoản cấm.
-- Mỗi agent vẽ một hàng sprite trong một chat riêng nên có rất nhiều chat tên chung như "Create Image Redraw", "Redraw Six Frames". Không cần tìm lại: mở chat mới, tải ảnh tham chiếu trong repo là đủ. Bảng dưới chỉ ghi những chat đáng quay lại.
-
-### Chat đáng quay lại (tài khoản Tan Pham)
-
-| Tiêu đề trong Recents | Link | Dùng cho |
+| Việc design còn dở | Tài khoản | Chat |
 |---|---|---|
-| Vẽ trụ súng chibi | https://chatgpt.com/c/6ae6ab25-a210-83ec-8aa8-b966ef90a57c | Mẫu trụ bắn Mechanic đã duyệt; ChatGPT có 2 ảnh để chọn, repo lưu 1 ảnh |
-| Khuyến nghị vẽ lại | https://chatgpt.com/c/6ae6a84c-4fac-83ec-8693-f5f3bc1cf76b | Dáng Mechanic một súng; ChatGPT giải thích vì sao chọn đồ bổ trợ thay vì bom |
-| Create Gun Image | https://chatgpt.com/c/6ae6afbb-1f28-83ec-bcdf-4d3ddbf2778b | Súng Mechanic. Agent đã dùng, chưa đối chiếu ảnh nào trong đây là `gun-scrap-base` |
-| Tạo lại súng | https://chatgpt.com/c/6ae6b130-54c8-83ec-983f-10cb9916c4bf | Có vẻ là súng Mechanic, tạo lúc 10:25, chưa xác nhận của agent nào |
-| Create shield image | https://chatgpt.com/c/6ae6ae1b-27b0-83ec-aa78-66d544aa811e | Khiên Warrior tier sau: viết tiếp ở đây để giữ hình bóng |
-| Generate Shield Image | (mã bắt đầu `6ae6ad94`) | Khiên Warrior `bronze` |
-| Tạo khiên RPG chibi | (mã bắt đầu `6ae6959f`) | Mẫu khiên `iron` |
-| Vẽ kiếm game 2D | https://chatgpt.com/c/6ae68a74-d94c-83ec-b644-d617b67a150d | Kiếm `holy`, `dragon` |
-| Thiết kế sprite 2D | https://chatgpt.com/c/6ae6908e-40d8-83ec-96f7-024bc648cece | Bộ 6 tướng hàng ngang, nguồn của hình mẫu, cả Warrior kiếm dài |
-| Vẽ lại nhân vật** | https://chatgpt.com/c/6ae69365-92f8-83ec-bb4e-418cf5f6810e | Cleric không cánh |
-| Vẽ lại nhân vật ngang trái | https://chatgpt.com/c/6ae69bbd-31d4-83ec-a67d-9d43bfe7d84b | Warrior idle trái: tay cầm kiếm xuôi xuống |
-| Khuyến nghị tỉ lệ kiếm chém | https://chatgpt.com/c/6ae69433-af08-83ec-be55-f41ac8d6ddc7 | Hỏi về độ dài kiếm. Người dùng sau đó chọn giữ kiếm cỡ cũ |
-| Tạo hình ảnh sprite wizard | (mã bắt đầu `6ae6ae0a`) | Một hàng Wizard, chưa rõ hàng nào |
+| Mechanic idle và `attack1-3` hướng xuống (chi tiết bên dưới) | **Tay** | Chat mới |
+| Mechanic `hit4-down`, `hit4-up` | **Tay** | Chat mới. Bản cũ: https://chatgpt.com/c/6ae70b65-5d84-83ec-a677-1cf3c6b7e905, https://chatgpt.com/c/6ae70bcc-d228-83ec-af67-d31216487669 |
+| Mechanic `rocket-right`, `rocket-down`, `rocket-up` | **Tay** | Chat mới; tham khảo `hit4-right` https://chatgpt.com/c/6ae70af7-1008-83ec-b698-51a562f88558 |
+| Mechanic `attack2` phải | **Tay** | Chat mới, prompt ở `dual-src/move/STATUS.txt` |
+| Mechanic trang phục: chờ người dùng chốt | **Tay** | Chat mới |
+| Mechanic art tia lửa đầu nòng pháo | **Tay** | "Generate Blast Sprite Sheet" https://chatgpt.com/c/6ae7106f-a52c-83ec-b2d7-1bbbaef3e34d: có prompt và ảnh tham chiếu, chưa ra ảnh |
+| Mechanic pháo các hướng, súng lục mẫu | **Tay** | https://chatgpt.com/c/6ae704e9-21fc-83ec-a957-e02a9128798d |
+| Mechanic hình màn chọn tướng: vẽ lại dáng giơ súng tự nhiên, đồng bộ trang phục | **Tay** | "Create hero image" https://chatgpt.com/c/6ae702cb-0f78-83ec-9428-5d9a1e1ba8a1 |
+| Mechanic 10 tier súng lục, 10 tier pháo, sau khi duyệt bản thử | **Tay** | Chat mới, tải kèm mẫu `dual-src/` |
+| Khiên Warrior 5 tier còn lại | **Tan Pham** | "Create shield image" https://chatgpt.com/c/6ae6ae1b-27b0-83ec-aa78-66d544aa811e |
+| Wizard, Assassin các hàng thân còn lại | **Tan Pham** | Chat mới |
+| Cleric `clericcast`, tư thế `attack3`, `attack1` | **Tan Pham** | Chat mới |
+| Pet mới, khiên Cleric thêm | **Tay** | "Create Holy Shield Design" https://chatgpt.com/c/6ae701c0-e12c-83ec-93fe-e6b3a1c83e59; `imp` ở `Assets/ArtLibrary/pets/` |
+| Tinh linh các tier, để dành làm pet | **Tay** | "Generate Creature Image" https://chatgpt.com/c/6ae6fa3f-426c-83ec-9ad4-7885e446362b |
 
-### Chat trên tài khoản Tay
+Mechanic ưu tiên số 1 nhưng art `dual-src` ở Tay, nên chờ Tay lúc 15:30 để giữ đồng nhất. Muốn vẽ sớm trên Tan Pham thì hỏi người dùng và so kỹ nét, màu.
 
-| Tiêu đề | Link | Dùng cho |
-|---|---|---|
-| Chưa ghi lại tiêu đề | https://chatgpt.com/c/6ae61667-9900-83ec-a607-145b6d0e7347 | Thảo luận màn chọn tướng, art màn chọn tướng, kiếm dáng song song |
+Các chat tham khảo khác trên Tan Pham: "Thiết kế sprite 2D" https://chatgpt.com/c/6ae6908e-40d8-83ec-96f7-024bc648cece (bộ 6 tướng, nguồn hình mẫu), "Vẽ kiếm game 2D" https://chatgpt.com/c/6ae68a74-d94c-83ec-b644-d617b67a150d (kiếm `holy`, `dragon`), "Vẽ lại nhân vật ngang trái" https://chatgpt.com/c/6ae69bbd-31d4-83ec-a67d-9d43bfe7d84b (Warrior idle trái). Trên Tay: https://chatgpt.com/c/6ae61667-9900-83ec-a607-145b6d0e7347 (màn chọn tướng).
 
-## Chia tài khoản cho phần còn lại
+## Mechanic: ưu tiên số 1
 
-- **Tay, từ 15:14 ngày 2026-11-01:** súng Mechanic, gậy Wizard, dao Assassin, gậy Cleric, trụ Mechanic, linh thú Cleric. Hẹn trong phiên lúc 15:21.
-- **Tan Pham, từ 07:41 ngày 2026-11-02:** 5 khiên Warrior, `attack3` Wizard, `melee3`, `melee4`, `nightfall` Assassin, `clericcast` Cleric và các hàng vẽ lại.
+Người dùng dặn: thêm agent thoải mái miễn đồng nhất. Thiết kế: 2 súng lục (một món, chỉ số tính một lần) + pháo đeo chéo sau lưng. Mẫu `Assets/ArtLibrary/classes/mechanic/new-style/dual-src/hero-test-2-back.png`. Combo: tay trái, tay phải, hai tay (một lần sát thương, tia thứ 2 chỉ là hình), móc pháo ra bắn. Trụ là skill, một hình, không tier.
 
-## Art đang dở: cần lượt vẽ
+Trong game đang là bản thử: chỉ tier đầu cho mọi tier. Duyệt xong mới vẽ tier. Cài art khi có: `python Tools/build-mechanic-dual.py write` (xem docstring), đặt lại `FISTS`, cập nhật `HeroFx.MuzzleCannon`.
 
-Người dùng duyệt style mới cho cả 5 class. Hiệu ứng skill không đổi. Dash không vẽ riêng: dùng sprite đi kèm 4 dư ảnh (`HeroDashTrail.cs`), cho mọi class.
+Thứ tự vẽ khi Tay có lượt (prompt ở `dual-src/attack/STATUS.txt`):
+1. **Idle và attack hướng xuống, người dùng chê 2 tay bè ra 2 bên nhìn hài.** Idle xuống: cầm 2 súng lục giơ lên tự nhiên trước ngực và vai, khuỷu tay gập, sát người, nòng chĩa lên. `attack1`, `attack2`, `attack3` xuống: 2 tay đưa về phía trước, sát nhau hơn, súng chĩa theo hướng bắn. `attack3` là tư thế cast chung của skill: xem cả skill hướng xuống. Không cài `dual-src/move/idle-down.png`: dáng bị chê.
+2. `hit4-down`: cầm pháo dọc, nòng chĩa xuống, 2 nắm tay trên một đường dọc giữa thân. `hit4-up`: tương tự, nòng chĩa lên, thấy gáy.
+3. `rocket-*`: 2 tay ôm pháo chĩa xéo lên trời, ngả người ra sau, 4 frame. Hero khoá 850 ms, tên lửa phóng ở 400, 440, 480 ms. Thân đang là bản tạm.
+4. `attack2` phải: thấy cả tay xa cầm súng thứ 2.
+5. Art tia lửa đầu nòng nhát 4: phóng thẳng từ nòng theo hình nón, lõi trắng xanh, không cầu lửa, khói tròn, mảnh vỡ, rất mạnh. Đang dùng hình tạm; đổi ở khối `ART` đầu `MechanicCannonBlastFx.cs`.
+6. Hình màn chọn tướng dáng giơ súng tự nhiên, rồi idle-down cùng dáng. Quay lại clip preview nếu đổi.
+7. 10 tier súng lục (khoảng 10 ảnh), 10 tier pháo (20-30 ảnh), icon `weapon-mechanic-*`, `offhand-mechanic-*`.
 
-### Mechanic (`Tools/build-mechanic-new-style.py`, `Assets/ArtLibrary/classes/mechanic/new-style/`)
-- [ ] Súng: mẫu `src/gun-scrap-base.png` đã có, grip đo (39, 110), chưa cài. Còn `scrap` cường hoá và 9 tier, khoảng 19 ảnh.
-- [ ] Trụ bắn 10 tier, khoảng 20 ảnh, theo `Assets/ArtLibrary/classes/mechanic/turret-src/turret-sample.png`, nòng chĩa trái, grip giữa đế.
-- [ ] Khi có art trụ: bật `CompanionGrounded = true` ở dòng Mechanic trong `HeroClassDef.cs`. Đang tắt vì robot cũ sẽ bị cắm xuống đất.
-- [ ] Icon súng và trụ.
-- [ ] `death` vẫn dáng cũ có găng.
-- [ ] Người dùng chưa quyết: súng các động tác (`s` 0,23) nhỏ hơn hẳn súng trong hình mẫu.
+Còn lại không cần vẽ:
+- Đuôi đạn nhát 1 che mặt; viên đạn nhát 4 đè tóc khi bắn lên, qua hông chân khi bắn xuống.
+- Đạn hướng lên, xuống lệch súng 10-18 đơn vị. Trên ảnh hướng ngang lệch 1-3,5 đơn vị.
+- Tagline, tên món phụ, icon Mechanic còn ghi trụ. `death` còn dáng cũ.
+- Súng lên, xuống vẫn nằm ngang khi đạn bay thẳng. `hurt` mất một súng ở nhiều frame. `attack1` lật ảnh nên hộp ở hông đổi bên 200 ms.
+- Chưa xác nhận người khác thấy Mechanic mới khi online.
+- Skill trụ `mechanic.deploy-turret` (`TurretRules.cs`): chưa thử offline, chưa nghe âm thanh, chưa thấy ảnh quay trái; hero che trụ khi đứng lên nó; trụ hơi nhỏ. Bỏ được `skills/robot-assault/`, `robot-assault.json`, nhánh drone trong `SkillMinion`, `SkillDescribe`.
 
-### Wizard (`Tools/build-wizard-new-style.py`, `Assets/ArtLibrary/classes/wizard/new-style/`)
-- [ ] `attack3` xuống, lên, trái (phải đã xong).
-- [ ] `attack1`, `attack2` hàng trái vẽ riêng rồi bỏ khỏi `MirrorLeft`: đang đổi tay khi quay trái.
-- [ ] Vẽ lại `idle` phải: pha lê nằm trên ngực.
-- [ ] Gậy 10 tier, mẫu chuẩn, grip, icon `weapon-wizard-*`, khoảng 20 ảnh. Cỡ cố định `s = 0.447`.
+**Cần người dùng chốt:**
+- Cỡ súng `s` 0,15 (đề xuất giữ).
+- Trang phục đang lệch: `idle`, `walk` không tay áo; `attack1`, `attack2` tay áo nâu; `attack3`, nhát 4 tay áo trắng và áo gi-lê; mẫu có đai lớn. Đề xuất theo `idle`, `walk`, vẽ lại khoảng 12 hàng attack.
+- Nhát 4 tăng windup 140 lên khoảng 260 ms để thấy móc pháo (đề xuất có, phải build lại server).
+- Tên lửa Rocket Barrage bay từ nòng pháo: đang lệch 19-22 đơn vị và phủ hero sau nửa giây. Phải sửa hiệu ứng skill, chỉ làm nếu người dùng đồng ý.
+- Pháo các tier: đề xuất hướng lưng tô màu bằng script.
+- Đạn nhát 4 nhìn 32x20, vùng trúng 12x12: đề xuất giữ, chơi thử rồi tính.
+- Skill trụ: số liệu tạm 12 giây, 15 phát 65%, tầm 6 ô, đánh một mục tiêu (Robot Assault cũ đánh diện rộng); trụ tiếp tục bắn khi chủ chết, hết khi chủ rời vùng.
 
-### Assassin (`Tools/build-assassin-new-style.py`, `Assets/ArtLibrary/classes/assassin/new-style/`)
-- [ ] `melee3`, `melee4`, `nightfall`, khoảng 10 ảnh. Combo đang lẫn nét mới và cũ.
-- [ ] Dao 10 tier, khoảng 20 ảnh, kèm icon.
-- [ ] Vẽ lại `hurt` xuống: mắt đang mở, bản cũ nhắm.
-- [ ] Bóng Shadow Clone: mũi dao bị cắt ở ô 192 px, chưa xem trong game.
+## Việc trên Tan Pham từ 07:41 ngày 2026-11-02
 
-### Cleric (`Tools/build-cleric-new-style.py`, `Assets/ArtLibrary/classes/cleric/new-style/`)
-- [ ] `clericcast` 4 hướng, giữ gậy đúng tay sheet cũ, rồi thêm vào `HandAnims`. Hiện lúc cast còn hiện cánh và áo xanh.
-- [ ] Vẽ lại `attack3` trái frame 3-5: áo phải che chân. Nhân vật có dáng trẻ con, mọi frame phải kín đáo, áo che tới gối.
-- [ ] Gậy 10 tier, linh thú 10 tier (`companion/art`, `companion/float`), icon.
+- **Warrior:** 5 khiên `thunder`, `verdant`, `shadow`, `holy`, `dragon`: tải từ `shield-src/ref/`, lưu `<tier>-pair-chatgpt.png`, chạy `Tools/build-warrior-shield.py <tier>`, rồi `icons`.
+- **Wizard:** `attack3` xuống, lên, trái; `attack1`, `attack2` trái rồi bỏ khỏi `MirrorLeft`; vẽ lại `idle` phải (`Tools/build-wizard-new-style.py`).
+- **Assassin:** `melee3`, `melee4`, `nightfall`, `hurt` xuống (`Tools/build-assassin-new-style.py`). Combo đang lẫn nét.
+- **Cleric** (`Tools/build-cleric-new-style.py`): `clericcast` 4 hướng, bỏ cánh và áo cũ, thêm vào `HandAnims`, thêm tay vào `FREE_FIST` của `Tools/build-cleric-shield.py`. Vẽ lại tư thế `attack3` trái frame 3-5, `attack1` phải frame 2-3, soi `attack3` xuống và phải: nhân vật dáng trẻ con nên tư thế không được lộ đùi hay dưới váy. Trang phục giữ váy ngắn, người dùng không yêu cầu áo dài: không tự đổi. `hurt` đang áo dài do Claude tự vẽ, hỏi người dùng có đổi không.
 
-### Warrior (`Tools/build-warrior-shield.py`, `Assets/ArtLibrary/classes/warrior/shield-src/`)
-- [ ] 5 khiên `thunder`, `verdant`, `shadow`, `holy`, `dragon`: tải ảnh từ `shield-src/ref/`, lưu `<tier>-pair-chatgpt.png`, chạy `Tools/build-warrior-shield.py <tier>`, rồi `icons`.
-- [ ] `melee2` các frame giữa tay còn lệch tới 57 px so với sheet cũ.
-- [ ] `iron` bản thường và cường hoá đang chung một ảnh, nên kiếm khởi đầu cũng có vết nứt đỏ.
-- [ ] 8 mẫu kiếm từ `bronze` có hai dáng: `iron`, `bronze` theo cây cắt từ hình gốc, 8 mẫu còn lại dáng song song. Người dùng đã chấp nhận.
+## Xem trong game, chưa ai xem
 
-## Code và kiểm tra, không cần lượt vẽ
-- [ ] Đo cỡ đầu mọi hàng của cả 5 class so với idle hướng xuống rồi chỉnh (`grow_head`).
-- [ ] Xem chuyển động thật trong game từng class: giật frame, vũ khí trong tay, đường chém. Mới xem ảnh tĩnh, phần lớn trên ảnh ghép.
-- [ ] Assassin: frame đánh chụp được trong game trông tối và mờ, chưa rõ là hiệu ứng sẵn có hay lỗi sprite mới.
-- [ ] Màn chọn tướng: robot đã đổi thành trụ, chưa xem trong game có đè cột bên cạnh không. Ảnh chân dung Mechanic cắt nòng súng ở mép.
-- [ ] Kiểm tra khung "In game" ở màn chọn tướng còn cắt mũi kiếm không, sau khi idle hướng xuống dùng kiếm cỡ cũ.
-- [ ] Bản build và smoke test `FrostSmokeTest` trong Unity chưa chạy lại từ đầu đợt này.
-- [ ] Đánh giá trên điện thoại thật: sprite chi tiết hơn có rối không.
+Mới xem ảnh ghép hoặc ảnh tĩnh:
+- Gậy Wizard, gậy và khiên Cleric, dao Assassin (tier đầu trông tối và mảnh trên người; frame đánh cũng tối, chưa rõ nguyên nhân), cường hoá từ +7.
+- Pet khi di chuyển, bấm thật nút Mua và Trang bị, Trade có pet, pet biến mất trên máy người khác, hết độ bền khi offline, hero chết khi đeo pet.
+- Đăng nhập và quên mật khẩu trên điện thoại, gửi mail Gmail thật. APK `C:\temp\apk\Zenonia.apk` chưa cài thử trên máy thật: nút, chữ, video màn chọn tướng.
+- Chuyển động từng class: giật frame, vũ khí trong tay, đường chém. Đo cỡ đầu mọi hàng so với idle hướng xuống (`grow_head`).
+- Smoke test `FrostSmokeTest` trong Unity chưa chạy lại.
+
+## Lỗi đã biết, chưa sửa
+
+- Gậy `archangel` có chấm đỏ nhỏ. Gậy Cleric đè tay khiên ở `attack2` xuống frame 1, `attack3` xuống frame 1 và 3. Hướng phải `attack1` frame 2, 3 khiên nằm sau lưng. Cast và dash ẩn khiên. Idle xuống của 3 class Wizard, Assassin, Cleric vẽ liền vũ khí nên không theo đồ.
+- Wizard: 6 tier đá xanh dễ nhầm, pha lê chạm cằm ở `walk` phải frame 1. Assassin: nhiều tier cùng tím; bóng Shadow Clone cắt mũi dao ở 59 frame, nhát `melee3` còn dao cũ.
+- Warrior: `melee2` frame giữa tay lệch tới 57 px; `iron` thường và cường hoá chung một ảnh.
+- Nhân vật cũ có thể còn tên món phụ "Spirit". Xem lại "Việc còn tồn" trong `docs/sprite-weapon-rules.md`.
+- **Chỉ số món phụ không có tác dụng:** `DmgReduction`, `RobotDmg`, `RobotRate`, `CastSpeed`, `MpCostCut`, `CritDmg`, `HealPower`, `ShieldPower` chỉ được đọc trong các file món phụ, mô tả đồ vẫn quảng cáo. Làm thật sau khi xong art.
+
+## Số liệu chỉnh sau khi chơi thử
+
+- Pet (`PetConfig.cs`): `spirit` +15% máu, `imp` +10% sát thương, 3000 vàng, độ bền 1000. `imp` ước tính chỉ 8-17 phút nếu đánh liên tục: có lẽ phải tăng. Chưa có sửa độ bền. `imp` không tăng hồi máu.
+- "Holy Shield" Cleric: +2 DEF, +10 HP, +6 MP.
+
+## Deploy: người dùng chưa cần ngay
+
+Tên game Pocket Valor, tên miền `pocketvalor.luckyday.io.vn`, VPS Ubuntu có sẵn nginx, MongoDB riêng ngoài VPS.
+1. Cài Linux Build Support và Linux Dedicated Server cho Unity 6000.3.9f1.
+2. DNS bản ghi `A` `pocketvalor` về IP VPS, chế độ DNS only nếu dùng Cloudflare.
+3. Điền `MONGO_URI`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` trong `deploy/.env.prod` (git đã bỏ qua, không commit).
+4. `.\Tools\package-server.ps1`, chép lên VPS, `bash start.sh`, theo `docs/deploy.md`. Deploy `server-api` trước zone vì save lên bản 2.
+5. Bản phát hành: `Tools/build-from-copy.ps1 -Release -ApiUrl https://pocketvalor.luckyday.io.vn`.
+
+Chưa chạy thật trên Ubuntu, chưa có bản server Linux, nginx và certbot chưa chạy lần nào, mongodump thật chưa chạy. Protocol đang 12: build lại client và server cùng lúc. Chờ người dùng chốt: bản phát hành mở thẳng màn đăng nhập (đề xuất có; hiện mở màn chọn tướng offline).
 
 ## Tính năng chờ làm
-- [ ] **Trụ bắn đặt tại chỗ (cách B, người dùng dặn nhớ):** Mechanic đặt trụ xuống, trụ đứng yên tự bắn, hết giờ biến mất. Cần logic phía server và đồng bộ online. Xem lại tên, hình skill "Robot Assault".
-- [ ] Bom của Mechanic làm thành skill (ChatGPT gợi ý, người dùng chưa quyết).
-- [ ] Cánh thành item cho mọi class. Sprite class không vẽ cánh.
-- [ ] Boxing: chỉ có art trên màn chọn tướng và bị khoá. Art ở `Assets/ArtLibrary/custom/idle-down-set/boxing.png`, chưa có class.
-- [ ] Màn đăng nhập, đăng ký có hình riêng. Lưu nhân vật online và đăng nhập thật: hiện server tạo nhân vật mới mỗi lần vào, người online chọn class ở màn Connect cũ.
-- [ ] Từ trước: party chat chưa qua mạng; deploy server chưa làm vì thiếu Linux server module; hero của mình có thể bị che trong đám đông; `combo` Warrior hướng trái lật ảnh đổi tay nay đã vẽ lại, cần xem lại mục "Việc còn tồn" trong `docs/sprite-weapon-rules.md`.
+
+- Bom Mechanic làm skill (người dùng chưa quyết).
+- Cánh thành item cho mọi class. Sprite class không vẽ cánh.
+- Boxing: chỉ có art màn chọn tướng và bị khoá. Art ở `Assets/ArtLibrary/custom/idle-down-set/boxing.png`.
+- Màn đăng nhập, đăng ký có hình riêng: đang dùng tạm UI kit (`AccountScreenGui.cs`).
+- Party chat chưa qua mạng; hero của mình có thể bị che trong đám đông.
 
 ## Trước khi phát hành
-`Assets/Resources/Data/dev-start.json` đang bật cheat. Phím F10 là phím test tạm.
 
-## Bản build và video để xem
-- Bản chơi: `C:\temp\player-kiem-goc\Zenonia.exe`, đủ 5 class đến thời điểm cập nhật file này. Không còn được build từ file mới sẽ cũ dần.
-- Video so sánh Warrior cũ và mới: `C:\temp\compare\warrior-cu-vs-moi-1-danh-thuong.mp4`, `warrior-cu-vs-moi-2-skill.mp4`. Quay lại bằng cờ `--record-compare attack|skills`.
-- Bản Warrior cũ để quay lại: `C:\temp\cmp-old\Zenonia.exe`.
+`Assets/Resources/Data/dev-start.json` đang bật cheat: level 60, thêm 100 điểm skill, đủ vũ khí, đá 9999, 2 pet. Bản test luôn đọc file này (người dùng dặn), bản phát hành không đọc. Phím F10 là phím test tạm.
+
+## Bản build để xem
+
+- APK test: `C:\temp\apk\Zenonia.apk`. Build từ `C:\temp\zu-copy-sel` bằng Unity `6000.3.9f1-x86_64`, bản này mới có module Android.
+- Bản Windows test: `C:\temp\player-ui\Zenonia.exe`. Mechanic bản thử: `C:\temp\mech-build\Zenonia.exe`.
+- Video so sánh Warrior cũ và mới: `C:\temp\compare\warrior-cu-vs-moi-1-danh-thuong.mp4`, `warrior-cu-vs-moi-2-skill.mp4`. Bản Warrior cũ: `C:\temp\cmp-old\Zenonia.exe`.

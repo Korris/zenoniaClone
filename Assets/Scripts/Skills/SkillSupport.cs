@@ -34,7 +34,7 @@ namespace ZenoniaProto
         {
             List<HeroController> to = Collect(ctx, e);
             float value = ctx.Def.BuffAt(e, ctx.Rank);
-            if (e.Buff.Kind == BuffKind.Shield) value = value / 100f * ctx.Body.Atk; // shield = % of the CASTER's attack, stored as HP
+            if (e.Buff.Kind == BuffKind.Shield) value = value / 100f * ctx.Body.SupportAtk; // shield = % of the CASTER's attack, stored as HP
             for (int i = 0; i < to.Count; i++)
             {
                 if (ctx.Authority) HeroBuffs.For(to[i]).Add(e.Buff.Kind, value, e.Buff.Ms, e.Count, BuffSource.Pack(ctx.Def.Class, ctx.Def.Index));
@@ -47,7 +47,7 @@ namespace ZenoniaProto
         public static void Heal(SkillContext ctx, SkillEffect e)
         {
             List<HeroController> to = Collect(ctx, e);
-            float amount = ctx.Pct(e) / 100f * ctx.Body.Atk;
+            float amount = ctx.Pct(e) / 100f * ctx.Body.SupportAtk;
             for (int i = 0; i < to.Count; i++) HealOne(ctx, to[i], amount);
             if (ctx.View) SkillSfx.Play(ctx, SkillSfx.Impact, 0.8f);
         }

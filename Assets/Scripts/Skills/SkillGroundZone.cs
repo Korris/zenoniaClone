@@ -57,7 +57,7 @@ namespace ZenoniaProto
 
         void HealPulse()
         {
-            float r = fx.Radius * ctx.Units, amount = ctx.Pct(fx) / 100f * ctx.Body.Atk;
+            float r = fx.Radius * ctx.Units, amount = ctx.Pct(fx) / 100f * ctx.Body.SupportAtk;
             foreach (HeroController h in SkillAim.Heroes(ctx.Body))
                 if (h != null && !h.IsDead && PartyAllies.Are(ctx.Body.Hero, h) && (h.Position - center).sqrMagnitude <= r * r) SkillSupport.HealOne(ctx, h, amount);
         }

@@ -13,7 +13,7 @@ namespace ZenoniaProto.Rpg
         public double MpPct, CastSpeed, MpCostCut;          // wizard Spellbook (CastSpeed = cast lock reduction)
         public double RobotDmg, RobotRate;                  // mechanic Drone (RobotRate: interval / (1 + x))
         public double CritRate, CritDmg;                    // assassin Off-hand Dagger (points added)
-        public double HealPower, ShieldPower;               // cleric Spirit
+        public double HealPower, ShieldPower;               // cleric Holy Shield
 
         public static readonly SecondWeaponStats Zero = new SecondWeaponStats();
     }

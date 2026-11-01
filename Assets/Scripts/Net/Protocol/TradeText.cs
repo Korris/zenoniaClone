@@ -109,6 +109,8 @@ namespace ZenoniaProto.Net
                 case TradeFail.AlreadyConfirmed: return "You have already confirmed";
                 case TradeFail.StaleOffer: return "The offers just changed: check them again";
                 case TradeFail.EmptyTrade: return "Add an item or gold first";
+                case TradeFail.Committing: return "The trade is being saved";
+                case TradeFail.SaveFailed: return "The trade could not be saved: nothing moved";
                 default: return "";
             }
         }

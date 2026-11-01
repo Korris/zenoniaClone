@@ -38,7 +38,7 @@ namespace ZenoniaProto.Rpg
         /// </summary>
         public static Item Generate(Rand rand, int itemLevel, string slot = null, string forceRarity = null, string classId = "warrior")
         {
-            string chosen = slot ?? Slots.All[(int)Math.Floor(rand() * Slots.All.Length)];
+            string chosen = slot ?? Slots.Generated[(int)Math.Floor(rand() * Slots.Generated.Length)];
             ItemTemplate t = PickTemplate(chosen, itemLevel, rand, classId);
             string rarity = forceRarity ?? RollRarity(rand);
             RarityDef r = ItemDefs.Rarity(rarity);
@@ -96,8 +96,17 @@ namespace ZenoniaProto.Rpg
             return item;
         }
 
-        /// <summary>Validates an item from untrusted save JSON; null when it cannot be trusted (unknown template, slot mismatch, bad rarity).</summary>
-        public static Item Sanitize(Item raw)
+        /// <summary>A pet instance: no stats of its own (the bonus comes from PetConfig), no class, level 1.</summary>
+        public static Item CreatePet(PetDef def, Rand rand)
+        {
+            return new Item { uid = def.TemplateId + "-" + ToBase36((long)Math.Floor(rand() * 1e9)), templateId = def.TemplateId, slot = Slots.Pet, name = def.Name, rarity = PetConfig.Rarity, itemLevel = 1, stats = new ItemStats(), durability = PetConfig.MaxDurability };
+        }
+
+        /// <summary>
+        /// Validates an item from untrusted save JSON; null when it cannot be trusted (unknown template, slot mismatch, bad rarity) or is a pet at 0, which is gone.
+        /// oldFormat = a save from before durability existed: there a pet without the field reads 0 and loads at the maximum (SaveSerializer.SaveVersion 2 always writes it).
+        /// </summary>
+        public static Item Sanitize(Item raw, bool oldFormat = false)
         {
             if (raw == null) return null;
             ItemTemplate t = ItemDefs.Template(raw.templateId);
@@ -119,6 +128,11 @@ namespace ZenoniaProto.Rpg
             if (t.Slot == Slots.Weapon && RpgClasses.IsValid(raw.classId)) item.classId = raw.classId;
             if (t.Slot == Slots.Offhand) item.classId = RpgClasses.ClassForOffhand(t.Id) ?? RpgClasses.Default; // the template decides, never the raw tag
             if (t.Slot == Slots.Weapon || t.Slot == Slots.Offhand) item.enhance = RpgMath.Clamp(raw.enhance, 0, EnhanceConfig.MaxEnhance);
+            if (t.Slot == Slots.Pet)
+            {
+                if (raw.durability <= 0 && !oldFormat) return null;
+                item.durability = raw.durability <= 0 ? PetConfig.MaxDurability : Math.Min(raw.durability, PetConfig.MaxDurability);
+            }
             return item;
         }
 

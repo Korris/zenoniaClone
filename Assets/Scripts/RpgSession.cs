@@ -71,6 +71,14 @@ namespace ZenoniaProto
             owner.LootPicked += OnLootPicked;
             owner.Revived += OnRevived;
             owner.BossKilled += OnBossKilled;
+            owner.PetLow += () => RpgHud.Toast(PetConfig.LowText, new Color(1f, 0.75f, 0.35f));
+            owner.PetWornOut += () =>
+            {
+                RpgHud.Toast(PetConfig.WornOutText, new Color(1f, 0.5f, 0.45f));
+                SyncGear();
+                InventoryPanel.RefreshIfOpen();
+                SaveNow();
+            };
             return player;
         }
 
@@ -141,6 +149,7 @@ namespace ZenoniaProto
             PlayerState p = Player;
             if (hero == null || p == null || hero.View == null) return;
             hero.View.SetEquipmentGear(p.GetEquipped(Slots.Weapon), p.GetEquipped(Slots.Offhand));
+            hero.View.SetPet(PetConfig.IdOf(p.GetEquipped(Slots.Pet)));
             hero.RefreshGearLabel();
         }
 

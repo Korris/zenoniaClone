@@ -42,12 +42,12 @@ namespace ZenoniaProto
             float scale = def.DamageMul(rank);
             if (def.Legacy == LegacySkill.EarthBreak) EarthBreakUltimate.Cast(body.Hero, scale);
             else if (def.Legacy == LegacySkill.IceStorm) IceStormUltimate.Cast(body.Hero, scale);
-            else if (def.Legacy == LegacySkill.RocketBarrage) RocketBarrageUltimate.Cast(body.Hero, scale);
+            else if (def.Legacy == LegacySkill.RocketBarrage) { RocketBarrageUltimate.Cast(body.Hero, scale); MechanicRocketPose.Begin(body.Hero); }
             else if (def.Legacy == LegacySkill.BladeCyclone) BladeCycloneUltimate.Cast(body.Hero, scale);
             return true;
         }
 
         /// <summary>Loads the painted art of a class's skills ahead of the first cast (call when the hero spawns).</summary>
-        public static void Preload(string classId) { SkillVfx.Preload(classId); if (classId == "assassin") AssassinSkillArt.Preload(); }
+        public static void Preload(string classId) { SkillVfx.Preload(classId); if (classId == "assassin") AssassinSkillArt.Preload(); if (classId == "mechanic") DeployedTurret.Preload(); }
     }
 }

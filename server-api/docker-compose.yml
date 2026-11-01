@@ -4,12 +4,14 @@ services:
   mongo:
     image: mongo:7
     restart: unless-stopped
+    command: ["--replSet", "rs0", "--bind_ip_all"] # one-node replica set: trades need transactions
     ports:
       - "127.0.0.1:27017:27017"   # loopback only
     volumes:
       - mongo-data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      # Initiates the replica set the first time, healthy once it has a primary.
+      test: ["CMD", "mongosh", "--quiet", "--eval", "try { rs.status() } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }) }; if (!db.hello().isWritablePrimary) quit(1)"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -23,8 +25,9 @@ services:
     ports:
       - "3000:3000"
     environment:
+      NODE_ENV: development # the image defaults to production, which refuses the dev secrets below and never logs the reset link
       PORT: 3000
-      MONGO_URI: mongodb://mongo:27017
+      MONGO_URI: mongodb://mongo:27017/?replicaSet=rs0
       MONGO_DB: zenonia
       JWT_SECRET: ${JWT_SECRET:-dev-only-jwt-secret-dev-only-jwt-secret-0000}
       SERVICE_KEY: ${SERVICE_KEY:-dev-only-service-key}

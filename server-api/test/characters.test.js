@@ -1,4 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { ObjectId } from 'mongodb';
+import { stateSchema } from '../src/rpg/item-validation.js';
 import { makeCtx } from './helpers.js';
 
 let c, a, b;
@@ -14,10 +16,21 @@ describe('character rules', () => {
     const ch = r.body.character;
     expect(ch).toMatchObject({ name: 'Aria', classId: 'wizard', level: 1, rev: 0, online: false });
     expect(ch.state).toMatchObject({
-      version: 1, classId: 'wizard', mapId: 'frostHollow', level: 1, exp: 0, gold: 0, hpPotion: 0, mpPotion: 0, upgradeStone: 0,
+      version: 1, classId: 'wizard', mapId: 'oakhavenVillage', level: 1, exp: 0, gold: 0, hpPotion: 0, mpPotion: 0, upgradeStone: 0,
       hp: 0, mp: 0, x: 0, y: 0, hasPosition: false, bossDefeated: false, inventory: [], equipment: [],
       skillRanks: [1, 0, 0, 0, 0, 0, 0, 0], skillSlots: [0, -1, -1, -1, -1, -1, -1, -1],
     });
+  });
+
+  it('leaves the map of a stored character alone: only a new one begins in Oakhaven', async () => {
+    const made = (await create(a.accessToken, 'OldMap', 'mechanic')).body.character;
+    const id = new ObjectId(made.id);
+    await c.db.collection('characters').updateOne({ _id: id }, { $set: { 'state.mapId': 'frostHollow' } }); // as the API used to create them
+    const read = await c.call('GET', `/characters/${made.id}`, { token: a.accessToken });
+    expect(read.body.character.mapId).toBe('frostHollow');
+    expect(read.body.character.state.mapId).toBe('frostHollow');
+    expect(stateSchema.parse({ classId: 'wizard', level: 1, exp: 0, gold: 0, hpPotion: 0, mpPotion: 0, upgradeStone: 0, hp: 0, mp: 0, x: 0, y: 0 }).mapId).toBe('frostHollow'); // an old save without a map
+    await c.call('DELETE', `/characters/${made.id}`, { token: a.accessToken });
   });
 
   it('allows one character per class and max 5 per account', async () => {

@@ -2,7 +2,11 @@ import { z } from 'zod';
 
 const num = (def) => z.coerce.number().int().positive().default(def);
 
+const bool = (def) => z.enum(['true', 'false']).default(def).transform((v) => v === 'true');
+const PLACEHOLDER = /change-me|dev-only/;
+
 const schema = z.object({
+  NODE_ENV: z.string().default('development'),
   PORT: z.coerce.number().int().min(0).max(65535).default(3000),
   HOST: z.string().default('0.0.0.0'),
   MONGO_URI: z.string().min(1),
@@ -12,13 +16,22 @@ const schema = z.object({
   ZONE_ID: z.string().default('frost-hollow'),
   ZONE_HOST: z.string().default('127.0.0.1'),
   ZONE_PORT: z.coerce.number().int().min(1).max(65535).default(9050),
-  TRUST_PROXY: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
+  TRUST_PROXY: bool('false'),
   PASSWORD_RESET_URL: z.string().default('http://localhost:3000/reset'),
   ACCESS_TTL_SEC: num(900),
   REFRESH_TTL_SEC: num(30 * 24 * 3600),
   TICKET_TTL_SEC: num(60),
   SESSION_LOCK_SEC: num(90),
   RESET_TTL_SEC: num(3600),
+  RESET_MAIL_COOLDOWN_SEC: num(60),
+  // Password reset mail. Empty = no mail (see src/mail/mailer.js). 587 + SMTP_SECURE=false is STARTTLS.
+  SMTP_HOST: z.string().default(''),
+  SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
+  SMTP_SECURE: bool('false'),
+  SMTP_REQUIRE_TLS: bool('true'),
+  SMTP_USER: z.string().default(''),
+  SMTP_PASS: z.string().default(''),
+  SMTP_FROM: z.string().default(''),
   BCRYPT_COST: z.coerce.number().int().min(4).max(15).default(11),
   LOGIN_MAX_FAILURES: num(5),
   LOGIN_LOCKOUT_SEC: num(900),
@@ -26,6 +39,11 @@ const schema = z.object({
   LOGIN_IP_WINDOW_SEC: num(60),
   REGISTER_IP_MAX: num(5),
   REGISTER_IP_WINDOW_SEC: num(3600),
+}).superRefine((c, ctx) => {
+  if (c.NODE_ENV !== 'production') return;
+  for (const k of ['JWT_SECRET', 'SERVICE_KEY']) {
+    if (PLACEHOLDER.test(c[k])) ctx.addIssue({ code: 'custom', path: [k], message: 'is still a placeholder from an example file, generate a real secret' });
+  }
 });
 
 /** Validates env-like input; throws one readable error listing every bad variable (fail fast at boot). */

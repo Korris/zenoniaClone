@@ -14,7 +14,7 @@ namespace ZenoniaProto
             sr.color = Color.white;
             sr.sortingOrder = FeelConfig.FxOrder - 10;
             glow.sortingOrder = FeelConfig.FxOrder - 9;
-            float s = (big ? VfxAnim.FinisherScale : 1f);
+            float s = big ? (def.Style == BoltStyle.Plasma ? MechanicCannonBlastFx.BoltScale : VfxAnim.FinisherScale) : 1f;
             transform.rotation = Quaternion.Euler(0f, 0f, angleDeg);
             transform.localScale = new Vector3(s, s, 1f);
             transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
@@ -29,6 +29,7 @@ namespace ZenoniaProto
             sr.sprite = glow.sprite = f;
             glow.enabled = FeelConfig.FxOn;
             glow.color = new Color(1f, 1f, 1f, VfxAnim.GlowAlpha);
+            if (finisher && def.Style == BoltStyle.Plasma) transform.localScale = MechanicCannonBlastFx.BoltFlightScale(def.Range - life * def.Speed);
         }
 
         /// <summary>Painted impact row at the hit point (cleric pillar anchored on the ground, others centred); the finisher is 1.35x with the monster-hit ring / white flash and embers on top.</summary>

@@ -34,11 +34,21 @@ namespace ZenoniaProto.Net
         public int AGaveGold, BGaveGold;
     }
 
+    /// <summary>A confirmed trade waiting for the world server (TradeBook.CommitFirst). Nothing has moved yet; the caller answers with FinishCommit(Token, ok).</summary>
+    public struct TradeCommitRequest
+    {
+        public ulong Token;
+        public ushort A, B;
+        public string[] AGaveUids, BGaveUids;
+        public int AGaveGold, BGaveGold;
+    }
+
     /// <summary>
     /// The trade rules, with no engine and no network. Each player has at most one request open, sent or received, or one trade, never both. Every change queues what to tell whom: the
     /// caller sends States, then Notes, after flushing Completed trades. Two steps: both lock, then both confirm against the same Revision; any offer change or an unlock clears every lock
     /// and confirm and moves Revision on, so what a player agreed to is always exactly what moves. Execution checks both sides against their current state, then moves everything or nothing,
-    /// inside one call. Only uids and amounts come from a client; what an item is always comes from its holder.
+    /// inside one call. Only uids and amounts come from a client; what an item is always comes from its holder. With CommitFirst, execution has two steps: once both confirmed and validated, the session is
+    /// frozen (no request changes it, and it survives a player leaving) until the caller says the world server has written the trade; only then do the goods move here. A trade a player was told about is always durable.
     /// </summary>
     public sealed class TradeBook
     {
@@ -61,6 +71,9 @@ namespace ZenoniaProto.Net
         {
             public Side A, B;
             public uint Revision = 1;
+            public ulong CommitToken;                  // non zero: waiting for FinishCommit
+            public List<ushort> Departed;              // went offline during that wait
+            public bool Committing { get { return CommitToken != 0; } }
             public Side Of(ushort id) { return A.Id == id ? A : B; }
             public Side Against(ushort id) { return A.Id == id ? B : A; }
         }
@@ -76,6 +89,11 @@ namespace ZenoniaProto.Net
         public readonly List<TradeStateNote> States = new List<TradeStateNote>();
         /// <summary>Trades executed since the caller last emptied this list.</summary>
         public readonly List<TradeDone> Completed = new List<TradeDone>();
+        /// <summary>Trades waiting for the world server, since the caller last emptied this list. Only with CommitFirst.</summary>
+        public readonly List<TradeCommitRequest> Commits = new List<TradeCommitRequest>();
+        /// <summary>A real world server is behind this book: see the class summary. Off, a confirmed trade moves at once (dev servers, nothing is saved there).</summary>
+        public bool CommitFirst;
+        ulong nextCommitToken;
 
         public void AddPlayer(ushort id, string name, byte heroClass, ITradeHolder holder) { players[id] = new Player { Name = name ?? "", HeroClass = heroClass, Holder = holder }; }
 
@@ -85,7 +103,15 @@ namespace ZenoniaProto.Net
             for (int i = requests.Count - 1; i >= 0; i--)
                 if (requests[i].From == id || requests[i].To == id) Close(requests[i], TradeRequestEnd.Offline);
             Session s;
-            if (sessionOf.TryGetValue(id, out s)) End(s, TradeEnd.Offline);
+            if (sessionOf.TryGetValue(id, out s))
+            {
+                if (s.Committing)
+                {
+                    (s.Departed ?? (s.Departed = new List<ushort>(2))).Add(id); // its holder must stay: the goods may still move. FinishCommit lets go of it.
+                    return;
+                }
+                End(s, TradeEnd.Offline);
+            }
             players.Remove(id);
         }
 
@@ -95,6 +121,12 @@ namespace ZenoniaProto.Net
             string about = "";
             TradeFail fail;
             if (!players.ContainsKey(from)) return TradeFail.NoSuchPlayer;
+            Session mine;
+            if (sessionOf.TryGetValue(from, out mine) && mine.Committing)
+            {
+                Note(from, TradeNoticeKind.Failed, (byte)TradeFail.Committing, m.Target, about);
+                return TradeFail.Committing;
+            }
             switch (m.Op)
             {
                 case TradeOp.Request: fail = TryRequest(from, m.Target, nowMs, ref about); break;
@@ -125,6 +157,7 @@ namespace ZenoniaProto.Net
             }
             for (int i = sessions.Count - 1; i >= 0; i--)
             {
+                if (sessions[i].Committing) continue; // agreed and on its way: walking off no longer changes that
                 TradeFail why = ReachFail(sessions[i].A.Id, sessions[i].B.Id);
                 if (why != TradeFail.None) End(sessions[i], EndFor(why));
             }
@@ -343,6 +376,13 @@ namespace ZenoniaProto.Net
         {
             ushort who;
             TradeFail fail = Validate(s, out who);
+            if (fail == TradeFail.None && CommitFirst)
+            {
+                s.CommitToken = ++nextCommitToken;
+                Commits.Add(new TradeCommitRequest { Token = s.CommitToken, A = s.A.Id, B = s.B.Id, AGaveUids = UidsOf(s.A), BGaveUids = UidsOf(s.B), AGaveGold = s.A.Gold, BGaveGold = s.B.Gold });
+                SendStates(s);
+                return;
+            }
             if (fail == TradeFail.None && !Move(s)) { fail = TradeFail.ItemGone; who = s.A.Id; }
             if (fail != TradeFail.None)
             {
@@ -353,6 +393,35 @@ namespace ZenoniaProto.Net
                 SendStates(s);
                 return;
             }
+            Complete(s);
+        }
+
+        /// <summary>The world server answered a commit. ok = it is written: the goods move here too (false returned only if a holder could not hand them over, which the freeze rules out). Not ok: nothing moved anywhere, the offers stand unlocked.</summary>
+        public bool FinishCommit(ulong token, bool ok)
+        {
+            Session s = sessions.Find(x => x.CommitToken == token);
+            if (s == null) return false;
+            bool moved = true;
+            if (ok)
+            {
+                moved = Move(s);
+                Complete(s);
+            }
+            else if (s.Departed != null) End(s, TradeEnd.Offline);
+            else
+            {
+                s.CommitToken = 0;
+                ClearAgreement(s);
+                Note(s.A.Id, TradeNoticeKind.Failed, (byte)TradeFail.SaveFailed, s.B.Id, players[s.B.Id].Name);
+                Note(s.B.Id, TradeNoticeKind.Failed, (byte)TradeFail.SaveFailed, s.A.Id, players[s.A.Id].Name);
+                SendStates(s);
+            }
+            if (s.Departed != null) foreach (ushort id in s.Departed) players.Remove(id);
+            return moved;
+        }
+
+        void Complete(Session s)
+        {
             Player a = players[s.A.Id], b = players[s.B.Id];
             Completed.Add(new TradeDone { A = s.A.Id, B = s.B.Id, AName = a.Name, BName = b.Name, AGaveUids = UidsOf(s.A), BGaveUids = UidsOf(s.B), AGaveGold = s.A.Gold, BGaveGold = s.B.Gold });
             Drop(s);

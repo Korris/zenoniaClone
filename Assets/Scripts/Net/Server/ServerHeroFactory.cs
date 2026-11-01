@@ -8,12 +8,9 @@ namespace ZenoniaProto
     {
         const float EntranceJitter = 18f;
 
-        public static void Create(NetPlayer p, HeroClassDef def, string name)
+        /// <summary>Dev server: a new character on every join, with whatever cheats the server was started with. Never used for an account.</summary>
+        public static void CreateDev(NetPlayer p, HeroClassDef def, string name)
         {
-            Zone zone = Zone.Main;
-            var go = new GameObject("Net_" + name);
-            go.transform.SetParent(zone.Root, false);
-            HeroController hero = go.AddComponent<HeroController>();
             PlayerState state = PlayerState.NewGame(RpgSession.ClassId(def.Id));
             if (NetLaunchArgs.DevLevel > state.Level)
             {
@@ -21,8 +18,36 @@ namespace ZenoniaProto
                 state.RecomputeStats();
                 state.Hp = state.MaxHp; state.Mp = state.MaxMp;
             }
+            if (NetLaunchArgs.DevNoCooldowns) ZenoniaProto.Rpg.SkillCooldowns.DevNone = true; // test servers only
             if (NetLaunchArgs.DevHurtPct > 0 && def.Id != HeroClass.Cleric) state.Hp = state.MaxHp * NetLaunchArgs.DevHurtPct / 100f; // test servers only: somebody for a cleric to heal
             GrantDevGoods(state);
+            Build(p, def, name, state, EntrancePoint());
+            // Same as an offline save positioned past a gate: a hero that begins beyond it (--map) can walk back through it.
+            Zone zone = Zone.Main;
+            string passed = zone.Map != null ? MapSpawnTable.GatePassedOn(zone.Map.Id) : null;
+            if (passed != null) p.Bosses.Mark(passed, MapSpawnTable.HasOwnBoss(passed));
+        }
+
+        /// <summary>A character from the API, already restored and validated, in the current zone: at its saved spot if that spot is free, else at the entrance. Its boss gates come from the save.</summary>
+        public static void CreateLoaded(NetPlayer p, HeroClassDef def, string name, PlayerState state, SaveData save)
+        {
+            Zone zone = Zone.Main;
+            bool sameMap = zone.Map != null && save.mapId == zone.Map.Id;
+            Vector2 at = save.hasPosition && sameMap && !FrostHollowMap.RectBlocked(save.x - 5f, save.y, 10f, 8f) ? new Vector2(save.x, save.y) : EntrancePoint();
+            Build(p, def, name, state, at);
+            p.Bosses.KingDefeated = save.bossDefeated;
+            foreach (string map in save.defeatedBossMaps) if (!p.Bosses.OwnBossMaps.Contains(map)) p.Bosses.OwnBossMaps.Add(map);
+            string passed = zone.Map != null ? MapSpawnTable.GatePassedOn(zone.Map.Id) : null;
+            if (passed != null) p.Bosses.Mark(passed, MapSpawnTable.HasOwnBoss(passed));
+            p.Portals.Disarm(); // saved standing on a portal: it has to step off first
+        }
+
+        static void Build(NetPlayer p, HeroClassDef def, string name, PlayerState state, Vector2 at)
+        {
+            Zone zone = Zone.Main;
+            var go = new GameObject("Net_" + name);
+            go.transform.SetParent(zone.Root, false);
+            HeroController hero = go.AddComponent<HeroController>();
             if (NetMode.IsHeadless) hero.InitHeadless(def, state);
             else
             {
@@ -39,15 +64,12 @@ namespace ZenoniaProto
             hero.StepGate = p.Input.Advance;
             hero.ExtraStepGate = p.Input.AdvanceExtra;
             hero.InputSeq = () => p.Input.State.LastSeq;
-            hero.Teleport(EntrancePoint(), 0);
+            hero.Teleport(at, 0);
             p.Hero = hero;
             p.Rpg = hero.Owner;
             p.Name = name;
             p.BindRpgEvents();
             p.RpgDirty = true;
-            // Same as an offline save positioned past a gate: a hero that begins beyond it (--map) can walk back through it.
-            string passed = zone.Map != null ? MapSpawnTable.GatePassedOn(zone.Map.Id) : null;
-            if (passed != null) p.Bosses.Mark(passed, MapSpawnTable.HasOwnBoss(passed));
         }
 
         /// <summary>Test servers only (--dev-gold, --dev-items): something to trade. The first item is a +9 weapon of the hero's class, the rest one of each slot in turn at rising rarity.</summary>
@@ -57,7 +79,7 @@ namespace ZenoniaProto
             string[] rarities = ItemDefs.RarityOrder;
             for (int i = 0; i < NetLaunchArgs.DevItems; i++)
             {
-                string slot = i == 0 ? Slots.Weapon : Slots.All[i % Slots.All.Length];
+                string slot = i == 0 ? Slots.Weapon : Slots.Generated[i % Slots.Generated.Length];
                 Item item = ItemFactory.Generate(RpgRandom.Default, 10 + i * 5, slot, rarities[(i + 1) % rarities.Length], state.ClassId);
                 if (i == 0) item.enhance = 9;
                 state.AddToInventory(item);
