@@ -26,6 +26,10 @@ namespace ZenoniaProto
         float age, atk;
         bool swept, slammed;
         int burns;
+        const string SwingAnim = "melee1"; // the combo's horizontal slash
+        const int CutFrame = 4; // frames before it hold the sword back; it and the next are forward
+        const float SwingFromMs = 450f, SwingFollowMs = 600f;
+        bool poseDone;
         Sprite[] charge, sweep, slam, fissure;
         SpriteRenderer chargeSr, chargeGlow, sweepSr, sweepGlow, slamSr, slamGlow, fissureSr, fissureGlow, telegraph, groundGlow;
 
@@ -119,11 +123,23 @@ namespace ZenoniaProto
             UltimateFx.Embers(center, 22, Radius * 0.7f, 60f, new Color(1f, 0.5f, 0.12f, 1f));
         }
 
+        /// <summary>The hero swings with the golden sweep: melee1's windup (sword back) over the charge, its forward cut as the sweep starts, held until the slam. View only.</summary>
+        void Pose()
+        {
+            if (poseDone) return;
+            if (age >= SlamMs) { poseDone = true; hero.ClearSkillPose(); return; }
+            int frame = age < SwingFromMs ? Mathf.FloorToInt(age / SwingFromMs * CutFrame) : age < SwingFollowMs ? CutFrame : CutFrame + 1;
+            hero.SetSkillPose(SwingAnim, frame, 0f);
+        }
+
+        void OnDestroy() { if (hero != null && !poseDone) hero.ClearSkillPose(); }
+
         static int Frame(float t, int n = 6) { return Mathf.Clamp(Mathf.FloorToInt(t * n), 0, n - 1); }
 
         void Apply()
         {
             if (!NetMode.RendersFx) return;
+            Pose();
             // charge ring (0-500) + red ground telegraph for the coming slam (grows 500-1450, then fades out)
             ShowStrip(chargeSr, chargeGlow, charge, age / 500f, 1f, 0.45f);
             float tel = Mathf.Clamp01((age - 400f) / 1050f);

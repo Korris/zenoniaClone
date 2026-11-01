@@ -57,7 +57,7 @@ namespace ZenoniaProto
         {
             if (Event.current.type != EventType.Repaint) return;
             HeroController hero = GameSession.Hero;
-            if (hero == null) return; // class select screen is showing
+            if (hero == null || HeroChangeScreen.IsOpen) return; // the hero select is showing; IMGUI would draw on top of it
             ScreenFlash.Draw(); // under the HUD
             if (label == null)
             {

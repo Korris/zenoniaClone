@@ -1,0 +1,51 @@
+{
+ "anchors": [
+  {
+   "part": "staff",
+   "anim": "idle",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 52.5,
+     "y": 124,
+     "angle": -18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": true
+    },
+    {
+     "x": 51.5,
+     "y": 124,
+     "angle": -18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": true
+    },
+    {
+     "x": 50.4,
+     "y": 116.5,
+     "angle": -18,
+     "s": 0.389,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": true
+    },
+    {
+     "x": 52.5,
+     "y": 124,
+     "angle": -18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": true
+    }
+   ]
+  }
+ ]
+}

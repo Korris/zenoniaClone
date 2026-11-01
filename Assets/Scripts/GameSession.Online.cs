@@ -61,7 +61,6 @@ namespace ZenoniaProto
             WipeWorld();
             NetMode.Current = RunMode.Offline;
             SaveStore.Enabled = true;
-            ClassSelectGui.ResetState();
             MapRegistry.SetCurrent(FrostHollowLayout.MapId); // a client may have left on any map; the class select picks up from Frost Hollow as it always has
             WorldBuilder.Rebuild(); // offline again: the portal lights come back
             MonsterSpawner.SpawnAll(root);

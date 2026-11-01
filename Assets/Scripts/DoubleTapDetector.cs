@@ -31,7 +31,7 @@ namespace ZenoniaProto
             if (!edge) return false;
             if (now - lastTap[i] <= WindowSeconds)
             {
-                lastTap[i] = float.NegativeInfinity; // a third tap starts a new pair
+                lastTap[i] = now; // keep tapping to keep dashing: each further quick tap counts
                 return true;
             }
             lastTap[i] = now;

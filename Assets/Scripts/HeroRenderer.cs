@@ -29,6 +29,8 @@ namespace ZenoniaProto
         readonly HeldAnchor[] anchorBuffer = new HeldAnchor[4];
         HeroClassDef cls;
         HeldGearData gear;
+        Sprite[] bigIdleDown;
+        HeroDashTrail dashTrail;
         SpriteRenderer body, shadow, handOver;
         Transform lean;
         const float LeanDegrees = 6f, LeanSideDip = 0.02f, LeanFrontDip = 0.05f, LeanInSeconds = 0.06f, LeanOutSeconds = 0.09f;
@@ -72,6 +74,12 @@ namespace ZenoniaProto
                 if (System.Array.IndexOf(cls.BareAnims, anim) >= 0 || anim.StartsWith("melee") || (cls.ExtraAnims != null && System.Array.IndexOf(cls.ExtraAnims, anim) >= 0))
                     bare[anim] = SpriteSheet.Grid("Sprites/" + cls.BareFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
             }
+            if (cls.BigIdleDown != null)
+            {
+                // 288 x 240 cells; the 192 cell's bottom, where the feet are measured from, sits 48 rows up.
+                Sprite[][] big = SpriteSheet.Grid("Sprites/" + cls.BigIdleDown, 288, 240, GameConfig.FramePpu, new Vector2(0.5f, 48f / 240f));
+                bigIdleDown = big != null ? big[0] : null;
+            }
             shadow = ProceduralSprites.Child(transform, "Shadow", ProceduralSprites.Shadow());
             shadow.transform.localScale = new Vector3(12f, 12f, 1f); // 12 x 6 units, web radius 6 x 2.5 (slightly taller reads better)
             shadow.color = new Color(1f, 1f, 1f, 0.3f);
@@ -87,7 +95,14 @@ namespace ZenoniaProto
                 foreach (string anim in cls.HandAnims)
                     hand[anim] = SpriteSheet.Grid("Sprites/" + cls.HandFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
             parts.AddRange(parts0);
+            var figure = new List<SpriteRenderer> { body, handOver };
+            foreach (Part p in parts) figure.Add(p.Sr);
+            dashTrail = gameObject.AddComponent<HeroDashTrail>();
+            dashTrail.Init(figure.ToArray());
         }
+
+        /// <summary>Leaves and fades the dash afterimages; call after the figure is drawn.</summary>
+        public void TickDashTrail(bool dashing, float dtMs) { dashTrail.Tick(dashing, dtMs); }
 
         /// <summary>Raises the whole figure (body + gear) off the ground, or steps it sideways; the shadow stays down.</summary>
         public void Lift(float units, float sideways = 0f) { lean.localPosition = new Vector3(sideways, units, 0f); }
@@ -184,6 +199,8 @@ namespace ZenoniaProto
                 }
                 if (useGear) bodySprite = bareRow[frame];
             }
+
+            if (!useGear && bigIdleDown != null && dir == 0 && anim == "idle" && frame < bigIdleDown.Length) bodySprite = bigIdleDown[frame]; // art wider than the 192 cell
 
             var tint = new Color(1f, 1f, 1f, alpha);
             shadow.sortingOrder = orderBase;

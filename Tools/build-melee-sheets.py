@@ -35,7 +35,7 @@ DIRS = ["down", "up", "right"]  # sheet rows; "left" is the mirrored right row
 # and the reference body (bare idle, facing down) whose height and feet the new frames are scaled to.
 CLASSES = {
     "warrior": dict(armed="classes/warrior/body/armed", bare="classes/warrior/body/bare", gear="classes/warrior/held-gear", part="sword", art="classes/warrior/weapons/sword/iron-base.png", grip=None,
-                    draw_scale=1.6, hidden=["shield"], gold=True,  # draw_scale = HeroClassDef sword GearPartSpec (keep in sync)
+                    draw_scale=2.0, hidden=["shield"], gold=True,  # draw_scale = HeroClassDef sword GearPartSpec (keep in sync)
                     # Height, feet and centre of the bare idle these sheets were cut against. Pinned: idle.png has been re-cut since, and
                     # following it would rescale every melee frame.
                     ref=(156, 186, 100.5),

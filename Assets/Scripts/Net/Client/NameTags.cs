@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>Player names above every named hero (online client and host), IMGUI over the world: the local hero in gold, party members in green, the others in white.</summary>
+    /// <summary>Names above other players only (online client and host), IMGUI over the world: no name on the local hero or on party members, so a name means a stranger.</summary>
     public class NameTags : MonoBehaviour
     {
         GUIStyle style;
@@ -19,15 +19,14 @@ namespace ZenoniaProto
             for (int i = 0; i < zone.Heroes.All.Count; i++)
             {
                 HeroController h = zone.Heroes.All[i];
-                if (h == null || h.IsDead || string.IsNullOrEmpty(h.PlayerName)) continue;
+                if (h == null || h.IsDead || string.IsNullOrEmpty(h.PlayerName) || h == LocalPlayer.Hero || NetClient.Party.Contains(h.PlayerId)) continue;
                 Vector3 sp = cam.WorldToScreenPoint(new Vector3(h.Position.x, h.Position.y + 30f, 0f));
                 if (sp.z < 0f || sp.x < -80f || sp.x > Screen.width + 80f) continue;
                 rect.center = new Vector2(sp.x, Screen.height - sp.y);
-                bool me = h == LocalPlayer.Hero;
                 style.normal.textColor = Color.black;
                 var shadow = rect; shadow.x += 1f; shadow.y += 1f;
                 GUI.Label(shadow, h.PlayerName, style);
-                style.normal.textColor = me ? new Color(1f, 0.9f, 0.5f) : NetClient.Party.Contains(h.PlayerId) ? new Color(0.6f, 1f, 0.65f) : Color.white;
+                style.normal.textColor = Color.white;
                 GUI.Label(rect, h.PlayerName, style);
             }
         }

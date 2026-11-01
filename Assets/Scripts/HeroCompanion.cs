@@ -56,7 +56,8 @@ namespace ZenoniaProto
             HeldGearData gear = view.Gear;
             if (gear == null || gear.Companion == null || gear.Companion.Length == 0 || view.CompanionEmpty) { sr.sprite = null; if (fx != null) fx.Hide(); return; }
             int tier = Mathf.Clamp(view.CompanionTier, 0, gear.Companion.Length - 1);
-            bool animated = tier == 0 && !view.CompanionEnhanced;
+            bool grounded = view.Class.CompanionGrounded;
+            bool animated = tier == 0 && !view.CompanionEnhanced && !grounded;
             string dir = HeroRenderer.DirNames[hero.Facing];
             GripInfo[] loop = animated ? gear.CompanionFloat(dir) : null;
             Sprite sprite;
@@ -77,8 +78,9 @@ namespace ZenoniaProto
                 sprite = art;
             }
             sr.sprite = sprite;
-            float bob = Mathf.Sin(ageMs / BobPeriodMs * Mathf.PI * 2f) * (animated ? 0.6f : 1.3f);
-            transform.position = new Vector3(pos.x, pos.y + Hover + bob, 0f);
+            float bob = grounded ? 0f : Mathf.Sin(ageMs / BobPeriodMs * Mathf.PI * 2f) * (animated ? 0.6f : 1.3f);
+            transform.position = new Vector3(pos.x, pos.y + (grounded ? 0f : Hover) + bob, 0f);
+            if (grounded && hero.Facing >= 2) sr.flipX = hero.Facing == 3; // the art points left
             float k = view.Class.CompanionScale * GearOverlays.FrameUnit * GearOverlays.Ppu;
             transform.localScale = new Vector3(k, k, 1f);
             sr.color = new Color(1f, 1f, 1f, 0.96f);

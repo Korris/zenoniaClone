@@ -10,7 +10,7 @@ from PIL import Image
 
 FRAME, COLS = 192, 4
 RX, RY, FEATHER = 10.5, 9.5, 1.5  # fist ellipse in frame px; generous is safe, the layer repeats the body's own pixels
-HAND_Y, DRAW_SCALE = 230, 1.6     # sword art row of the middle of the handle; HeroClassDef sword DrawScale
+HAND_Y, DRAW_SCALE = 230, 2.0     # sword art row of the middle of the handle; HeroClassDef sword DrawScale
 # Fist centres in the RIGHT row, read from the bare sheets at 5x (the left row is that row mirrored).
 FISTS = {"idle": [(86.5, 136.5), (89, 136.5), (89, 136.5), (88, 136.5)],
          "walk": [(72.5, 137), (78, 136), (78, 137.5), (78, 136)]}
@@ -29,7 +29,10 @@ def fist_mask(cx, cy):
 
 def build_sheet(anim):
     bare = np.array(Image.open(f"{RES}/Sprites/classes/warrior/body/bare/{anim}.png").convert("RGBA")).astype(np.float64)
+    path = f"{RES}/Sprites/classes/warrior/body/hand/{anim}.png"
     out = np.zeros_like(bare)
+    if os.path.exists(path):  # row 0 of idle belongs to Tools/build-warrior-idle-down-doll.py; keep it
+        out[:FRAME] = np.array(Image.open(path).convert("RGBA")).astype(np.float64)[:FRAME]
     for c, (cx, cy) in enumerate(FISTS[anim]):
         x0, y0 = c * FRAME, RIGHT * FRAME
         cell = bare[y0:y0 + FRAME, x0:x0 + FRAME].copy()

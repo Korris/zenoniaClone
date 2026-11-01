@@ -61,7 +61,7 @@ namespace ZenoniaProto
             else if (CastPose(out anim, out frame)) { }
             else if (dashLeft > 0f)
             {
-                anim = "dash";
+                anim = "walk"; // the walk at dash speed, with afterimages behind (HeroDashTrail); no dash sheet
                 frame = Mathf.FloorToInt(animTimer / 55f) % Mathf.Max(1, view.FrameCount(anim, facing));
             }
             else if (spinLeftMs > 0f)
@@ -93,6 +93,7 @@ namespace ZenoniaProto
             view.Show(anim, drawFacing, frame, GameConfig.OrderBase(y - skillPoseLift), skillPoseAnim != null && anim == skillPoseAnim ? skillPoseAlpha : 1f);
             view.Lean(anim == "walk", facing, GameClock.Dt);
             view.Lift(skillPoseLift, skillPoseSideways);
+            view.TickDashTrail(!dead && dashLeft > 0f, GameClock.Dt * 1000f);
         }
     }
 }

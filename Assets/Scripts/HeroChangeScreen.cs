@@ -4,9 +4,9 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// "Change hero" screen over the running game, opened by the Settings button: reuses ClassSelectGui (in-game mode with a Back button),
-    /// picking another class respawns like F1-F5 (GameSession.Spawn saves the current hero first). Esc closes. Offline only: online the class
-    /// is fixed for the session. The simulation is frozen while it is open (same pause as the inventory).
+    /// "Change hero" state over the running game, opened by the Settings button: HeroSelectScreen draws it with a Back button, and picking another class
+    /// respawns like F1-F5 (GameSession.Spawn saves the current hero first). Esc closes. Offline only: online the class is fixed for the session.
+    /// The simulation is frozen while it is open (same pause as the inventory).
     /// </summary>
     public sealed class HeroChangeScreen : MonoBehaviour
     {
@@ -53,14 +53,5 @@ namespace ZenoniaProto
             if (GameSession.Hero == null || InventoryPanel.IsOpen || InputAdapter.Pressed(GameKey.Close)) Close();
         }
 
-        void OnGUI()
-        {
-            if (!open) return;
-            int picked = ClassSelectGui.Draw(true);
-            if (picked == -1) return;
-            Close();
-            if (picked >= 0 && GameSession.Instance != null && (int)GameSession.Hero.Class.Id != picked)
-                GameSession.Instance.Spawn((HeroClass)picked);
-        }
     }
 }

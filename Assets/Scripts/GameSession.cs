@@ -136,11 +136,7 @@ namespace ZenoniaProto
         void OnGUI()
         {
             if (hero != null) return;
-            if (ConnectScreenGui.Visible) { ConnectScreenGui.Draw(this); return; }
-            if (NetMode.IsClient) return;
-            int picked = ClassSelectGui.Draw();
-            if (picked >= 0) { Spawn((HeroClass)picked); return; }
-            ConnectScreenGui.DrawOpenButton();
+            if (ConnectScreenGui.Visible) ConnectScreenGui.Draw(this); // the hero select itself is HeroSelectScreen
         }
     }
 }

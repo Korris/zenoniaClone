@@ -26,14 +26,6 @@ namespace ZenoniaProto
             }
         }
 
-        /// <summary>Small button under the class select cards that opens this screen.</summary>
-        public static void DrawOpenButton()
-        {
-            float s = Screen.height / 640f;
-            EnsureStyles(s);
-            if (GUI.Button(new Rect((Screen.width - 260f * s) * 0.5f, Screen.height - 54f * s, 260f * s, 34f * s), "Play online / host (dev)", button)) Open();
-        }
-
         static void EnsureStyles(float s)
         {
             if (title == null)

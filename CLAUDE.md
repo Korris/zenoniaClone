@@ -39,6 +39,9 @@ Assets/ArtLibrary/classes/<class>/       ảnh gốc: anim, frames, overlays, sk
 ## Art trên ChatGPT
 
 Dùng tài khoản Tay (Plus), viết tiếp trong các chat skill ở Recents. Không dùng tài khoản "xaochai" hay "Tieu Duy Phuong".
+Khi Tay hết lượt vẽ thì dùng tài khoản Tan Pham (Plus) (người dùng cho phép ngày 2026-11-01), mở chat mới và kiểm tra đúng tên tài khoản trước khi gửi.
+
+Vẽ sprite mới cho class nào cũng tải kèm hình mẫu `docs/reference/hero-idle-down-5-classes.png`.
 
 ## Unity
 
@@ -62,4 +65,4 @@ Các test này không chạy phần hình ảnh. Bảng skill dùng chung với 
 
 ## Tiếp tục việc cũ
 
-`docs/session-handoff.md` ghi việc dở, nhưng có thể đã cũ: đối chiếu với `git log` trước khi làm theo.
+`docs/pending-tasks.md` ghi việc đang dở và chat ChatGPT của từng việc: đọc trước. `docs/session-handoff.md` ghi việc dở, nhưng có thể đã cũ: đối chiếu với `git log` trước khi làm theo.

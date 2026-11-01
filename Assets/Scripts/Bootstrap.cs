@@ -45,7 +45,6 @@ namespace ZenoniaProto
             LootSprites.ResetState();
             BagSprites.ResetState();
             UiKit.ResetState();
-            ClassSelectGui.ResetState();
             InputAdapter.BotHeld = null;
             InputAdapter.BotPressed = null;
             FeelConfig.BloomOn = true;
@@ -97,6 +96,7 @@ namespace ZenoniaProto
             Minimap.Create(root.transform); // above the touch layer, under the windows
             MapTransfer.Create(root.transform); // portals + fade between maps (offline)
             WindowsHost.Create(root.transform); // dialogue, quest offer, chat windows + the Talk prompt (above the touch layer)
+            HeroSelectScreen.Create(root.transform);
             session.StartFromCommandLine();
             DebugCapture.AttachIfRequested(root, session);
         }

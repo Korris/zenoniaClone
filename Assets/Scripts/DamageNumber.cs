@@ -79,7 +79,7 @@ namespace ZenoniaProto
 
         void OnGUI()
         {
-            if (Event.current.type != EventType.Repaint) return;
+            if (Event.current.type != EventType.Repaint || HeroChangeScreen.IsOpen) return; // IMGUI would draw on top of the hero select
             if (cam == null) cam = Camera.main;
             if (cam == null) return;
             if (style == null)

@@ -163,13 +163,17 @@ namespace ZenoniaProto
         static readonly DoubleTapDetector tapDetector = new DoubleTapDetector();
         static int tapFrame = -1;
         static bool tapDash;
+        static float tapDashUntil;
+        const float TapDashBufferSeconds = 0.25f; // a double-tap during the cooldown dashes as soon as it ends; shorter than the cooldown, so one tap never dashes twice
 
         static bool DoubleTapDash()
         {
             int frame = Time.frameCount;
             if (frame == tapFrame) return tapDash;
             tapFrame = frame;
-            tapDash = tapDetector.Update(PhysicalHeld(GameKey.Up), PhysicalHeld(GameKey.Down), PhysicalHeld(GameKey.Left), PhysicalHeld(GameKey.Right), Time.unscaledTime);
+            if (tapDetector.Update(PhysicalHeld(GameKey.Up), PhysicalHeld(GameKey.Down), PhysicalHeld(GameKey.Left), PhysicalHeld(GameKey.Right), Time.unscaledTime))
+                tapDashUntil = Time.unscaledTime + TapDashBufferSeconds;
+            tapDash = Time.unscaledTime < tapDashUntil;
             return tapDash;
         }
 

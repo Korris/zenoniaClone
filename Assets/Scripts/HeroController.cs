@@ -28,7 +28,7 @@ namespace ZenoniaProto
         /// <summary>RPG progress owner (EXP, pickups, potions, death penalty); null for debug party members.</summary>
         public PlayerRpg Owner;
 
-        const float DashMs = 165f, DashSpeed = 220f, DashCooldownMs = 600f;
+        const float DashMs = 165f, DashSpeed = 220f, DashCooldownMs = 400f;
         const float HurtMs = 220f, InvulnMs = 500f, RespawnMs = 1400f, ZoneArrivalInvulnMs = 2000f;
         const float HpRegenPerSecond = 0.6f;
         const float CritChance = 0.08f;

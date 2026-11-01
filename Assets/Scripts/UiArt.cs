@@ -18,6 +18,8 @@ namespace ZenoniaProto
         public static Sprite JoystickBase() { return Get("hud-joystick-base"); }
         public static Sprite JoystickKnob() { return Get("hud-joystick-knob"); }
         public static Sprite AttackFrame() { return Get("hud-attack-frame"); }
+        /// <summary>Crossed swords on the attack button: the same for every class and weapon.</summary>
+        public static Sprite AttackIcon() { return Get("hud-attack-icon"); }
         public static Sprite SkillFrame() { return Get("hud-skill-frame"); }
         public static Sprite PotionFrame() { return Get("hud-potion-frame"); }
 

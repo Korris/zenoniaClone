@@ -8,7 +8,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// On-screen controls, gold-trimmed dark-navy style: a fixed joystick bottom-left (gold ring, diamond studs, steel knob), HP / MP potion buttons
-    /// to its right, bottom-right the big attack disc (equipped weapon icon) with the 3-slot skill magazine on an arc around it (SkillMagazineView:
+    /// to its right, bottom-right the big attack disc (one fixed crossed-swords icon) with the 3-slot skill magazine on an arc around it (SkillMagazineView:
     /// Dash [K], class skill [L] with the cooldown sweep and MP cost, locked slots; swipe up / down or Tab changes the page); top-right the Bag [B] and Settings (hero change) buttons (TouchControls.Menu.cs). Works with touch and mouse (multi-touch: move + attack at once).
     /// It only feeds GameKeys into InputAdapter, so the game logic is the same as the keyboard. Holding attack keeps the combo going.
     /// Shown while a hero plays and no menu is open; F7 hides / shows it (remembered in PlayerPrefs).
@@ -23,13 +23,10 @@ namespace ZenoniaProto
         internal static readonly Color Ready = new Color(1f, 1f, 1f, 0f), NotReady = new Color(0.45f, 0.52f, 0.62f, 0.95f); // accent ring: hidden when ready, grey when not
 
         RectTransform layer;
-        Image attackIcon;
         Text hpCount, mpCount;
         Image hpIcon, mpIcon;
         SkillMagazineView magazine;
-        Item shownWeapon;
-        int shownWeaponEnhance = -1, shownHp = -1, shownMp = -1, shownHpSize = -1, shownMpSize = -1;
-        HeroClass shownClass = (HeroClass)(-1);
+        int shownHp = -1, shownMp = -1, shownHpSize = -1, shownMpSize = -1;
         bool visible = true;
 
         /// <summary>True while an on-screen control holds the key (D-pad direction, attack ...).</summary>
@@ -150,8 +147,9 @@ namespace ZenoniaProto
 
             // Attack + skill arc (bottom-right): a big attack disc (r78) kept off the screen edge, the small buttons on an arc around it
             Vector2 br = new Vector2(1f, 0f);
-            Image ring; Transform masked;
+            Image attackIcon, ring; Transform masked;
             RectTransform attack = DiscButton(layer, "Attack", br, -146f, 112f, 78f, UiArt.AttackFrame(), out attackIcon, out ring, out masked);
+            attackIcon.sprite = UiArt.AttackIcon(); // the same emblem for every class and weapon
             attackIcon.rectTransform.sizeDelta = new Vector2(110f, 110f);
             TouchButton.Add(attack.gameObject, GameKey.Attack, true);
 
@@ -183,21 +181,7 @@ namespace ZenoniaProto
 
         void Refresh(HeroController hero)
         {
-            HeroClassDef cls = hero.Class;
-            if (cls.Id != shownClass)
-            {
-                shownClass = cls.Id;
-                shownWeapon = null; shownWeaponEnhance = -1;
-            }
             PlayerState p = hero.Rpg;
-            Item weapon = p != null ? p.GetEquipped(Slots.Weapon) : null;
-            int enh = weapon != null ? weapon.enhance : 0;
-            if (weapon != shownWeapon || enh != shownWeaponEnhance)
-            {
-                shownWeapon = weapon; shownWeaponEnhance = enh;
-                attackIcon.sprite = weapon != null ? LootSprites.Icon(weapon) : null;
-                attackIcon.enabled = attackIcon.sprite != null;
-            }
             magazine.Tick(hero);
             UpdateSkillBadge(p);
             if (p != null)

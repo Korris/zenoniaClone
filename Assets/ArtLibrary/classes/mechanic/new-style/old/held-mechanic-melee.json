@@ -1,0 +1,51 @@
+{
+ "anchors": [
+  {
+   "part": "gun",
+   "anim": "idle",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 59,
+     "y": 128,
+     "angle": 48,
+     "s": 0.23,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": true
+    },
+    {
+     "x": 59,
+     "y": 127.5,
+     "angle": 48,
+     "s": 0.23,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": true
+    },
+    {
+     "x": 55,
+     "y": 128,
+     "angle": 48,
+     "s": 0.23,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": true
+    },
+    {
+     "x": 59,
+     "y": 128,
+     "angle": 48,
+     "s": 0.23,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": true
+    }
+   ]
+  }
+ ]
+}
