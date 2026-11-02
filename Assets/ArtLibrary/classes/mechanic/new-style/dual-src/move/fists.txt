@@ -18,6 +18,11 @@ walk left (mirror)
   frame 2: near 57 110   far 65 136
   frame 3: near 79 135   far 48 103
 
+idle down
+  frame 0: near 81 127   far 116 107
+
+idle up
+  frame 0: near 57 114   far 132 92
+
 attack2 right: NOT DRAWN, image limit reached.
-idle down (row 0): NOT DRAWN, image limit reached. User correction 2026-11-01: arms relaxed down at the sides, slightly away from the body, a fist at each hip, pistols point DOWN at the ground, not out sideways.
-  Suggested pistol aim once drawn, clockwise from +x: screen-left fist about 100, screen-right fist about 80 (muzzle down, very slightly outward). Fist centres to be read after drawing.
+idle down, idle up: near = screen-left fist, far = screen-right fist.

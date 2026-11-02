@@ -29,6 +29,7 @@ BODY = f"{RES}/Sprites/classes/mechanic/body"
 WEAPONS = f"{RES}/Sprites/classes/mechanic/weapons"
 GEAR = f"{RES}/Data/classes/mechanic/held-mechanic.json"
 GEAR_DUAL = f"{RES}/Data/classes/mechanic/held-mechanic-dual.json"
+TIER_GRIPS = f"{SRC}/tiers/grips.json"
 ROWS = {"down": 0, "up": 1, "left": 2, "right": 3}
 DIRS = ["down", "up", "left", "right"]
 COUNT = {"idle": 4, "walk": 4, "attack1": 4, "attack2": 4, "attack3": 6, "attack4": 6, "rocket": 1, "dash": 3, "hurt": 2}
@@ -41,12 +42,13 @@ CANNON_LEN = 168.0  # frame px, tip to tail
 CANNON_S = 0.5  # art is cut at twice its size on screen
 SIDE_SX = 0.9  # the barrel lies across the back: a little shorter seen from the side
 FIST_R = 9.5
+VIEW_W, VIEW_GRIP = 125, 0.67  # pistol seen along the barrel: art px wide, fist's place down the height (just under the trigger guard, keeps the ring off the chin)
 GRIP_PAINTED = (185, 640, 933)  # middle of the pistol's handle in the 933 px wide cut
 
 
 def key(path):
     """Straight RGBA from flat #00FF00; edges unmixed; only what joins the biggest piece stays."""
-    rgb = np.asarray(Image.open(path).convert("RGB")).astype(np.float32)
+    rgb = np.asarray((path if isinstance(path, Image.Image) else Image.open(path)).convert("RGB")).astype(np.float32)
     k = np.array([0, 255, 0], np.float32)
     r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
     alpha = 1 - np.clip((g - np.maximum(r, b) - 30) / 150, 0, 1)
@@ -72,8 +74,22 @@ def axis_length(im):
     return p.max() - p.min()
 
 
+def pistol_view(raw, half):
+    """A pistol seen along its barrel, from one half of pistol-front-back.png, padded so the fist's place on the handle is the image centre: anchors with `art` pivot at the centre."""
+    w, h = raw.size
+    im = key(raw.crop((0, 0, w // 2, h) if half == 0 else (w // 2, 0, w, h)))
+    k = VIEW_W / im.width
+    im = im.resize((VIEW_W, round(im.height * k)), Image.LANCZOS)
+    grip = round(im.height * VIEW_GRIP)
+    out = Image.new("RGBA", (im.width, 2 * max(grip, im.height - grip)), (0, 0, 0, 0))
+    out.alpha_composite(im, (0, out.height // 2 - grip))
+    return out
+
+
 def arts():
     a = {}
+    raw = Image.open(f"{SRC}/pistol-front-back.png")
+    a["pistol-front"], a["pistol-back"] = pistol_view(raw, 0), pistol_view(raw, 1)
     for n in ("front", "back", "side"):
         im = key(f"{SRC}/cannon-{n}.png")
         k = 2 * CANNON_LEN / axis_length(im)
@@ -159,8 +175,10 @@ def cells_of(name, count, scale_key):
 def new_bodies():
     """{(anim, row): premultiplied cells} for every row the trial changes."""
     b = {}
-    idle = cells_of("idle-down", 1, "height")[0]  # move/idle-down.png once the relaxed row is final: copy it to body/ and read IDLE_DOWN again
-    b[("idle", 0)] = [wm.breathe(idle, f) for f in range(4)]
+    # idle down, up: arms as idle right, seen from the front and the back (user, 2026-11-02). Cut with its breathing by build-mechanic-dual-move.py.
+    for d, row in (("down", 0), ("up", 1)):
+        s = np.array(Image.open(f"{SRC}/move/idle-{d}.png").convert("RGBA"))
+        b[("idle", row)] = [premul(s[:FRAME, i:i + FRAME]) for i in range(0, s.shape[1], FRAME)]
     b[("attack3", 0)] = load_cut("attack3-down")
     cuts = {d: load_cut(f"hit4-{d}") for d in ("down", "up", "right")}
     for d, row in (("down", 0), ("up", 1), ("right", 3)):
@@ -194,7 +212,6 @@ def mirror(a):
 
 
 LEFT = {  # the hero's left hand, read from grids
-    ("idle", "up"): [A(57, 137, 115, -1, T)] * 4,
     ("idle", "right"): [A(130, 136, 35, 1, T)] * 4,
     ("idle", "left"): [A(100, 143, 145, -1, F)] * 4,
     ("walk", "down"): [A(127, 137, 60, 1, F), A(124, 134, 62, 1, F), A(123, 132, 60, 1, F), A(121, 134, 62, 1, F)],
@@ -230,13 +247,14 @@ RIGHT_FIX = {("attack3", "up", 4): dict(x=135, y=106, angle=-5, sx=1, behind=T),
 # Screen-left is the hero's right hand on a down row.
 ATTACK3_DOWN = {"right": [], "left": []}
 IDLE_DOWN = {"right": None, "left": None}
-IDLE_DOWN_AIM = (105, 75)  # both muzzles at the ground, a little outward (user, 2026-11-01): screen-left pistol, screen-right pistol
+# Facing the camera or away the pistols point along the facing (user, 2026-11-02): one art seen along the barrel, on every tier until each tier has its own.
+IDLE_UP = {"left": (57, 114), "right": (132, 92)}  # from behind screen-left is the hero's left hand
 
 
 def load_fists():
     """Read from Tools grids of the new rows, about 3 px accurate."""
     global ATTACK3_DOWN, IDLE_DOWN
-    IDLE_DOWN = {"right": (56, 118), "left": (143, 118)}
+    IDLE_DOWN = {"right": (81, 127), "left": (116, 107)}
     ATTACK3_DOWN = {"right": [p[0] for p in FISTS["attack3-down"]], "left": [p[1] for p in FISTS["attack3-down"]]}
 
 
@@ -266,7 +284,10 @@ def head_of(cell):
 def full(a, s):
     if a is None:
         return dict(x=96, y=96, angle=0, s=s, sx=1, behind=False, hidden=True, fallback=False)
-    return dict(x=a["x"], y=a["y"], angle=a["angle"], s=s, sx=a.get("sx", 1), behind=a["behind"], hidden=False, fallback=False)
+    out = dict(x=a["x"], y=a["y"], angle=a["angle"], s=s, sx=a.get("sx", 1), behind=a["behind"], hidden=False, fallback=False)
+    if a.get("art"):
+        out["art"] = a["art"]
+    return out
 
 
 def build_anchors(bodies):
@@ -297,7 +318,9 @@ def build_anchors(bodies):
                     if d == "left":
                         r, l = mirror(l), mirror(r)  # near is the left hand now, far the right
                 elif anim == "idle" and d == "down":
-                    r, l = A(IDLE_DOWN["right"][0], bm.lifted("idle", IDLE_DOWN["right"][1], f), IDLE_DOWN_AIM[0], -1, F), A(IDLE_DOWN["left"][0], bm.lifted("idle", IDLE_DOWN["left"][1], f), IDLE_DOWN_AIM[1], 1, F)
+                    r, l = [dict(A(p[0], bm.lifted("idle", p[1], f), 0, 1, F), art="pistol-front") for p in (IDLE_DOWN["right"], IDLE_DOWN["left"])]
+                elif anim == "idle" and d == "up":
+                    r, l = [dict(A(p[0], bm.lifted("idle", p[1], f), 0, 1, F), art="pistol-back") for p in (IDLE_UP["right"], IDLE_UP["left"])]
                 elif anim == "attack3" and d == "down":
                     r, l = A(*ATTACK3_DOWN["right"][f], 180, -1, F), A(*ATTACK3_DOWN["left"][f], 0, 1, F)
                 else:
@@ -396,6 +419,13 @@ def fronts_of(anchors, anim, d, f):
     return fr
 
 
+def weapon_manifest(live, pistol):
+    """One entry per tier under the tier's name: pistol/<name>-base|enhanced.png, and the cannon's cannon/<name>/ follows it. Grips measured by Tools/build-mechanic-pistol-tiers.py; a tier not drawn yet holds the master, so the master's grip."""
+    grip = {"w": pistol.width, "h": pistol.height, "gripX": PISTOL_GRIP[0], "gripY": PISTOL_GRIP[1]}
+    tiers = json.load(open(TIER_GRIPS, encoding="utf-8")) if os.path.exists(TIER_GRIPS) else {}
+    return [{"name": e["name"], "glow": e["glow"], "baseGrip": tiers.get(e["name"], {}).get("base", grip), "enhancedGrip": tiers.get(e["name"], {}).get("enhanced", grip)} for e in live["weapon"]]
+
+
 def write_all(root, bodies, anchors, art):
     """root/Sprites-style layout under root; game paths when root is RES."""
     body = f"{root}/Sprites/classes/mechanic/body"
@@ -434,12 +464,13 @@ def write_all(root, bodies, anchors, art):
     os.makedirs(f"{root}/Sprites/classes/mechanic/weapons/cannon", exist_ok=True)
     art["pistol"].save(f"{root}/Sprites/classes/mechanic/weapons/pistol/pistol-base.png")
     art["pistol"].save(f"{root}/Sprites/classes/mechanic/weapons/pistol/pistol-enhanced.png")
+    for n in ("pistol-front", "pistol-back"):
+        art[n].save(f"{root}/Sprites/classes/mechanic/weapons/pistol/{n}.png")
     for n in ("front", "back", "side"):
         art[n].save(f"{root}/Sprites/classes/mechanic/weapons/cannon/{n}.png")
     live = json.load(open(GEAR, encoding="utf-8"))
-    grip = {"w": art["pistol"].width, "h": art["pistol"].height, "gripX": PISTOL_GRIP[0], "gripY": PISTOL_GRIP[1]}
-    weapon = [{"name": "pistol", "glow": e["glow"], "baseGrip": grip, "enhancedGrip": grip} for e in live["weapon"]]
-    sets = [{"part": k[0], "anim": k[1], "dir": k[2], "frames": v} for k, v in anchors.items()]
+    weapon = weapon_manifest(live, art["pistol"])
+    sets =[{"part": k[0], "anim": k[1], "dir": k[2], "frames": v} for k, v in anchors.items()]
     os.makedirs(f"{root}/Data/classes/mechanic", exist_ok=True)
     with open(f"{root}/Data/classes/mechanic/held-mechanic-dual.json", "w", encoding="utf-8") as fp:
         json.dump({"weapon": weapon, "companion": live["companion"], "companionFloat": live.get("companionFloat", []), "anchors": sets}, fp, separators=(",", ":"))
@@ -448,7 +479,7 @@ def write_all(root, bodies, anchors, art):
 def write_meta():
     """New files take a neighbour's settings with their own guid; a guid Unity already knows stays."""
     pairs = [(f"{BODY}/{l}/{a}.png", f"{BODY}/{l}/attack1.png.meta") for l in ("bare", "armed", "hand") for a in HELD_ANIMS]
-    for n in ("pistol/pistol-base", "pistol/pistol-enhanced", "cannon/front", "cannon/back", "cannon/side"):
+    for n in ("pistol/pistol-base", "pistol/pistol-enhanced", "pistol/pistol-front", "pistol/pistol-back", "cannon/front", "cannon/back", "cannon/side"):
         pairs.append((f"{WEAPONS}/{n}.png", f"{WEAPONS}/gun/scrap-base.png.meta"))
     pairs.append((GEAR_DUAL, GEAR + ".meta"))
     for path, src in pairs:
@@ -489,7 +520,8 @@ def compose(root, art, anchors, anim, d, f, pad=70):
             im = art[a["art"]]
             place(canvas, im, (im.width / 2, im.height / 2), a, pad)
         else:
-            place(canvas, art["pistol"], PISTOL_GRIP, a, pad)
+            im = art[a["art"]] if a.get("art") else art["pistol"]
+            place(canvas, im, (im.width / 2, im.height / 2) if a.get("art") else PISTOL_GRIP, a, pad)
     for behind in (True, False):
         for p in ("cannon", "gunL", "gun"):
             part(p, behind)

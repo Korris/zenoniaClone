@@ -16,7 +16,7 @@ Khi người dùng nói "làm tiếp": tra bảng này, `select_browser` đúng 
 
 | Việc design còn dở | Tài khoản | Chat |
 |---|---|---|
-| Mechanic idle và `attack1-3` hướng xuống (chi tiết bên dưới) | **Tay** | Chat mới |
+| Mechanic `attack1-3` hướng xuống (chi tiết bên dưới). Idle xuống, lên đã vẽ 2026-11-02 ở https://chatgpt.com/c/6ae84d8a-4a1c-83ec-8063-dcadf178c2f8 | **Tay** | Chat mới |
 | Mechanic `hit4-down`, `hit4-up` | **Tay** | Chat mới. Bản cũ: https://chatgpt.com/c/6ae70b65-5d84-83ec-a677-1cf3c6b7e905, https://chatgpt.com/c/6ae70bcc-d228-83ec-af67-d31216487669 |
 | Mechanic `rocket-right`, `rocket-down`, `rocket-up` | **Tay** | Chat mới; tham khảo `hit4-right` https://chatgpt.com/c/6ae70af7-1008-83ec-b698-51a562f88558 |
 | Mechanic `attack2` phải | **Tay** | Chat mới, prompt ở `dual-src/move/STATUS.txt` |
@@ -24,7 +24,7 @@ Khi người dùng nói "làm tiếp": tra bảng này, `select_browser` đúng 
 | Mechanic art tia lửa đầu nòng pháo | **Tay** | "Generate Blast Sprite Sheet" https://chatgpt.com/c/6ae7106f-a52c-83ec-b2d7-1bbbaef3e34d: có prompt và ảnh tham chiếu, chưa ra ảnh |
 | Mechanic pháo các hướng, súng lục mẫu | **Tay** | https://chatgpt.com/c/6ae704e9-21fc-83ec-a957-e02a9128798d |
 | Mechanic hình màn chọn tướng: vẽ lại dáng giơ súng tự nhiên, đồng bộ trang phục | **Tay** | "Create hero image" https://chatgpt.com/c/6ae702cb-0f78-83ec-9428-5d9a1e1ba8a1 |
-| Mechanic 10 tier súng lục, 10 tier pháo, sau khi duyệt bản thử | **Tay** | Chat mới, tải kèm mẫu `dual-src/` |
+| Mechanic 9 tier súng nhìn dọc nòng cho idle xuống, lên, sau khi người dùng duyệt dáng này. 30 hình pháo cường hoá nếu người dùng muốn | **Tay** | Chat mới |
 | Khiên Warrior 5 tier còn lại | **Tan Pham** | "Create shield image" https://chatgpt.com/c/6ae6ae1b-27b0-83ec-aa78-66d544aa811e |
 | Wizard, Assassin các hàng thân còn lại | **Tan Pham** | Chat mới |
 | Cleric `clericcast`, tư thế `attack3`, `attack1` | **Tan Pham** | Chat mới |
@@ -39,16 +39,18 @@ Các chat tham khảo khác trên Tan Pham: "Thiết kế sprite 2D" https://cha
 
 Người dùng dặn: thêm agent thoải mái miễn đồng nhất. Thiết kế: 2 súng lục (một món, chỉ số tính một lần) + pháo đeo chéo sau lưng. Mẫu `Assets/ArtLibrary/classes/mechanic/new-style/dual-src/hero-test-2-back.png`. Combo: tay trái, tay phải, hai tay (một lần sát thương, tia thứ 2 chỉ là hình), móc pháo ra bắn. Trụ là skill, một hình, không tier.
 
-Trong game đang là bản thử: chỉ tier đầu cho mọi tier. Duyệt xong mới vẽ tier. Cài art khi có: `python Tools/build-mechanic-dual.py write` (xem docstring), đặt lại `FISTS`, cập nhật `HeroFx.MuzzleCannon`.
+Trong game đang là bản thử: súng lục đã có đủ 10 tier, tên trong `held-mechanic-dual.json` là tên tier. Duyệt xong mới vẽ tier. Cài art khi có: `python Tools/build-mechanic-dual.py write` (xem docstring), đặt lại `FISTS`, cập nhật `HeroFx.MuzzleCannon`.
 
 Thứ tự vẽ khi Tay có lượt (prompt ở `dual-src/attack/STATUS.txt`):
-1. **Idle và attack hướng xuống, người dùng chê 2 tay bè ra 2 bên nhìn hài.** Idle xuống: cầm 2 súng lục giơ lên tự nhiên trước ngực và vai, khuỷu tay gập, sát người, nòng chĩa lên. `attack1`, `attack2`, `attack3` xuống: 2 tay đưa về phía trước, sát nhau hơn, súng chĩa theo hướng bắn. `attack3` là tư thế cast chung của skill: xem cả skill hướng xuống. Không cài `dual-src/move/idle-down.png`: dáng bị chê.
+1. **Attack hướng xuống, người dùng chê 2 tay bè ra 2 bên nhìn hài.** `attack1`, `attack2`, `attack3` xuống: 2 tay đưa về phía trước, sát nhau hơn, súng chĩa theo hướng bắn. `attack3` là tư thế cast chung của skill: xem cả skill hướng xuống. Mẫu nhân vật: `dual-src/ref/hero-select-five-heroes.png` (người dùng dặn). Idle xuống, lên đã vẽ lại theo mẫu này và đã cài, chờ người dùng xem trong game; trang phục theo màn chọn tướng nên các hàng attack xuống đang lệch với idle.
+   **Idle xuống, lên: súng đã chĩa theo hướng mặt (2026-11-02), chờ người dùng xem trong game.** Dùng art nhìn dọc nòng `weapons/pistol/pistol-front.png`, `pistol-back.png` (nguồn `dual-src/pistol-front-back.png`, chat https://chatgpt.com/c/6ae85922-b950-83ec-be6a-8e6c4942f5ca) qua `art` của anchor. Mọi tier đang dùng chung hình tier đầu, không có hiệu ứng cường hoá ở 2 hàng này; muốn theo tier thì vẽ thêm 9 ảnh, đặt ở `weapons/pistol/<tier>/pistol-front.png`, `pistol-back.png`, game tự lấy.
 2. `hit4-down`: cầm pháo dọc, nòng chĩa xuống, 2 nắm tay trên một đường dọc giữa thân. `hit4-up`: tương tự, nòng chĩa lên, thấy gáy.
 3. `rocket-*`: 2 tay ôm pháo chĩa xéo lên trời, ngả người ra sau, 4 frame. Hero khoá 850 ms, tên lửa phóng ở 400, 440, 480 ms. Thân đang là bản tạm.
 4. `attack2` phải: thấy cả tay xa cầm súng thứ 2.
 5. Art tia lửa đầu nòng nhát 4: phóng thẳng từ nòng theo hình nón, lõi trắng xanh, không cầu lửa, khói tròn, mảnh vỡ, rất mạnh. Đang dùng hình tạm; đổi ở khối `ART` đầu `MechanicCannonBlastFx.cs`.
 6. Hình màn chọn tướng dáng giơ súng tự nhiên, rồi idle-down cùng dáng. Quay lại clip preview nếu đổi.
-7. 10 tier súng lục (khoảng 10 ảnh), 10 tier pháo (20-30 ảnh), icon `weapon-mechanic-*`, `offhand-mechanic-*`.
+7. 10 tier súng lục: đã cài ngày 2026-11-02, gồm bản thường, bản cường hoá và icon `weapon-mechanic-*`, chưa xem trong game (`Tools/build-mechanic-pistol-tiers.py`, ảnh gốc ở `dual-src/tiers/`).
+   **10 tier pháo: đã cài ngày 2026-11-02**, 9 tier `cannon/<tier>/{front,back,side}.png` (scrap giữ art hiện có) và 10 icon `offhand-mechanic-*`, chưa xem trong game (`Tools/build-mechanic-cannon-tiers.py`, ảnh gốc ở `dual-src/tiers/cannon/`, icon cũ ở `tiers/cannon/old-icons/`, chat ChatGPT `https://chatgpt.com/c/6ae854ff-b5f4-83ec-aa3c-c865549cecf3`, tài khoản Tay). Pháo chưa có bản cường hoá: code chưa vẽ hiệu ứng cường hoá trên art của anchor. Người dùng sẽ cho hiện hiệu ứng cường hoá trong ô đồ, nên icon để lề khoảng 10%, không có quầng.
 
 Còn lại không cần vẽ:
 - Đuôi đạn nhát 1 che mặt; viên đạn nhát 4 đè tóc khi bắn lên, qua hông chân khi bắn xuống.
@@ -124,6 +126,18 @@ Thứ tự làm khi được chốt: gate và cảnh báo, EXP, đồ, quái, v�
 - **Warden:** giữ lại. Tính ra đường vòng cách 107 đơn vị, aggro 85, đi qua (19,14), (24,19), (33,17) tới (34,10). Chưa thử trong game.
 
 **Cấp tối đa** (người dùng hỏi sao không nâng): nâng được, đổi cùng lúc `Leveling.MaxLevel` và `MAX_LEVEL` trong `server-api/src/rpg/rpg-constants.js`; EXP không tràn số (tới Lv 100 là 1.975.018). Vướng ở skill tree: học full cần 80 SP, cấp 60 cho 60 SP nên phải chọn hướng; lên 80 thì hết phải chọn, trên 80 thì dư SP. Quái hiện cao nhất Lv 35. Đề xuất giữ 60, nâng khi có map cao và thêm skill hoặc rank. Người dùng chưa trả lời.
+
+## Warrior dáng kiếm dựng thẳng (2026-11-02): chờ người dùng chốt bản
+
+Người dùng thấy Warrior đứng lệch trong màn Bag, nên nhờ ChatGPT thiết kế lại: kiếm dựng thẳng sát chân, nhân vật đứng giữa. Chat https://chatgpt.com/c/6ae8644a-23f8-83ec-a15f-4e32aa0e5b50 (tài khoản Tay). Hình thử, chưa cài: `Assets/ArtLibrary/classes/warrior/new-style/idle-down/design-centered-1.png` (xuống), `design-centered-side-1.png`, `design-centered-side-2.png` (trái, phải). Đề xuất bản 1. Người dùng đã bác việc chỉ đổi idle xuống vì lệch với trái, phải: phải đổi cả bộ.
+
+Khi chốt: vẽ thử hướng lên, rồi idle 4 hướng và đi 4 hướng bản tay không (khoảng 8-10 lượt), giữ tỉ lệ đầu, thân như trong game vì hình thử chân dài hơn; đặt lại anchor kiếm, khiên; bỏ `WarriorShiftX` trong `HeroPortraitView.cs` và có thể phóng to lại nhân vật (`CameraHalfHeight`).
+
+Câu hỏi còn chờ về viền ô đồ: giữ màu độ hiếm nhưng làm mờ hơn (đề xuất) hay bỏ hẳn cho giống hình thử. Ở ô trống không có đồ hợp loại, dòng "Pick an item from the list" cần đổi chữ.
+
+## Màn Bag mới (2026-11-02): đã làm, chờ người dùng xem
+
+Trang bị và túi đồ chung một màn kiểu Mu, khung `win-panel`, hình thử `Assets/ArtLibrary/custom/inventory-ui-ref/bag-layout-mock-1.png`, ChatGPT https://chatgpt.com/c/6ae85e92-4e1c-83ec-a0c9-58c911146787. Code: `InventoryPanel.cs`, `.Loadout.cs`, `.Bag.cs`, `.Detail.cs`, `HeroPortraitView.cs`. Chạm ô đang mặc thì túi lọc đúng loại, chỉ món class đó đeo được. Chưa xem: popup Stats, chạy online, trên điện thoại. `BagSprites.FrameTitle`, `FrameBody`, `TabArrow`, `PortraitBackdrop` và `bag-frame` không còn dùng ở màn này.
 
 ## Tính năng chờ làm
 

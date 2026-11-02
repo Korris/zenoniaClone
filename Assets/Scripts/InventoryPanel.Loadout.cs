@@ -4,65 +4,63 @@ using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
-    /// <summary>
-    /// Equipment tab (web drawLoadout): the hero portrait on a lit dais with the worn slots around it (weapon / helmet / armor / gloves on
-    /// the left, boots / offhand / pet + one locked slot on the right), the "+ Status" table, Unequip and Enhance with its preview line.
-    /// </summary>
+    /// <summary>Left panel: the hero wearing the real gear between the 7 worn slots, the class line and the Stats popup. Coordinates are local to the panel.</summary>
     public partial class InventoryPanel
     {
+        const float WornSize = 64f, WornIcon = 50f;
         static readonly string[] StatusLabels = { "HP", "MP", "ATK", "DEF", "Magic ATK", "Magic DEF", "CRI Rate", "Move Speed" };
 
-        RectTransform loadoutRoot;
-        int equipSel;
         readonly BagWidgets.Slot[] equipSlots = new BagWidgets.Slot[Slots.All.Length];
         readonly Text[] statusValues = new Text[8];
-        Image portrait;
-        Text classLevelText, loadoutEnhanceText;
-        BagWidgets.BagButton unequipButton, loadoutEnhanceButton;
+        int wornSel; // index in Slots.All, -1 = a grid cell is selected
+        HeroPortraitView heroView;
+        Text classLevelText;
+        RectTransform statsPopup;
 
-        /// <summary>Web equipSlotPosition(): centre of worn slot i (Slots.All order).</summary>
-        static Vector2 EquipSlotCentre(int i)
+        /// <summary>Top-left of worn slot i, Slots.All order. Two rows, armour above and weapons below the hero, with nothing beside him: the Warrior's sword reaches far past his body.</summary>
+        static Vector2 WornPosition(int i)
         {
-            bool left = i < 4;
-            int row = left ? i : i - 4; // right column: boots, offhand, pet
-            return new Vector2(left ? 360f : 658f, 202f + row * 84f);
+            const float Top = 10f, Bottom = 376f;
+            switch (Slots.All[i])
+            {
+                case Slots.Helmet: return new Vector2(WornColumn(0), Top);
+                case Slots.Armor: return new Vector2(WornColumn(1), Top);
+                case Slots.Gloves: return new Vector2(WornColumn(2), Top);
+                case Slots.Boots: return new Vector2(WornColumn(3), Top);
+                case Slots.Weapon: return new Vector2(WornColumn(0), Bottom);
+                case Slots.Offhand: return new Vector2(WornColumn(1), Bottom);
+                default: return new Vector2(WornColumn(2), Bottom); // pet; the fourth cell of this row is the Stats button
+            }
         }
 
-        void BuildLoadout(RectTransform web)
+        static float WornColumn(int column) { return 10f + column * 68f; }
+
+        void BuildLoadout(RectTransform left)
         {
-            loadoutRoot = UiKit.Rect(web, "Loadout", 0f, 0f, UiKit.RefWidth, UiKit.RefHeight);
-            BagWidgets.Panel(loadoutRoot, "Left", 320f, 154f, 376f, 414f);
-            BagWidgets.Panel(loadoutRoot, "Right", 702f, 154f, 226f, 414f);
-            BagWidgets.Img(loadoutRoot, "Backdrop", 400f, 186f, 218f, 306f, BagSprites.PortraitBackdrop(), Color.white);
-            portrait = UiKit.Icon(loadoutRoot, "Portrait", 399f, 240f, 216f);
-            classLevelText = BagWidgets.Text(loadoutRoot, "ClassLevel", 508f, 490f, "", 12, "#b0cadb", TextAnchor.UpperCenter, 200f);
+            RectTransform heroRect = UiKit.Rect(left, "Hero", 0f, 76f, 288f, 264f); // the whole panel width: a strong halo must not end on a straight edge
+            RawImage heroImage = heroRect.gameObject.AddComponent<RawImage>();
+            heroView = gameObject.AddComponent<HeroPortraitView>();
+            heroView.Init(heroImage);
+            classLevelText = BagWidgets.Text(left, "ClassLevel", 144f, 344f, "", 13, "#d9d3bd", TextAnchor.UpperCenter, 260f);
 
             for (int i = 0; i < equipSlots.Length; i++)
             {
-                Vector2 c = EquipSlotCentre(i);
+                Vector2 at = WornPosition(i);
                 int index = i;
-                equipSlots[i] = new BagWidgets.Slot(loadoutRoot, "Equip_" + Slots.All[i], c.x - 30f, c.y - 30f, 60f, () => OnCellClick(index));
-            }
-            for (int i = 3; i < 4; i++)
-            {
-                var locked = new BagWidgets.Slot(loadoutRoot, "Locked" + i, 628f, 172f + i * 84f, 60f, null);
-                locked.SetFrame(false, BagWidgets.Hex("#4e667d"), true);
-                locked.SetIcon(null, 0f, Color.white);
+                equipSlots[i] = new BagWidgets.Slot(left, "Equip_" + Slots.All[i], at.x, at.y, WornSize, () => OnWornClick(index));
             }
 
-            BagWidgets.Text(loadoutRoot, "StatusTitle", 716f, 165f, "+ Status", 17, "#ffffff", TextAnchor.UpperLeft, 200f, true);
+            new BagWidgets.BagButton(left, "Stats", WornColumn(3), 376f, WornSize, WornSize, "Stats", BagSprites.Tone.Blue, () => statsPopup.gameObject.SetActive(!statsPopup.gameObject.activeSelf));
+            statsPopup = UiKit.Rect(left, "StatsPopup", 8f, 8f, 272f, 360f);
+            UiWinKit.Sliced(statsPopup, "panel", 0.4f, true);
+            BagWidgets.Text(statsPopup, "Title", 24f, 18f, "Stats", 18, "#ffedb3", TextAnchor.UpperLeft, 200f, true);
             for (int i = 0; i < StatusLabels.Length; i++)
             {
-                float y = 204f + i * 33f;
-                BagWidgets.Img(loadoutRoot, "Row" + i, 714f, y - 6f, 200f, 31f, null, BagWidgets.Hex(i % 2 == 1 ? "#0b192c33" : "#45648319"));
-                BagWidgets.Img(loadoutRoot, "Rule" + i, 714f, y - 8f, 200f, 1f, null, BagWidgets.Hex("#91acc322"));
-                BagWidgets.Text(loadoutRoot, "Label" + i, 716f, y, StatusLabels[i], 13, "#bbdaed", TextAnchor.UpperLeft, 120f);
-                statusValues[i] = BagWidgets.Text(loadoutRoot, "Value" + i, 914f, y, "", 14, "#ffffff", TextAnchor.UpperRight, 100f, true);
+                float y = 54f + i * 36f;
+                BagWidgets.Text(statsPopup, "Label" + i, 24f, y, StatusLabels[i], 15, "#c2e3f4", TextAnchor.UpperLeft, 140f);
+                statusValues[i] = BagWidgets.Text(statsPopup, "Value" + i, 248f, y, "", 16, "#ffffff", TextAnchor.UpperRight, 100f, true);
             }
-
-            loadoutEnhanceText = BagWidgets.Text(loadoutRoot, "EnhanceLine", 332f, 538f, "", 12, "#f0d39a", TextAnchor.UpperLeft, 205f);
-            loadoutEnhanceButton = new BagWidgets.BagButton(loadoutRoot, "Enhance", 540f, 528f, 150f, 32f, "Enhance", BagSprites.Tone.Gold, EnhanceSelected);
-            unequipButton = new BagWidgets.BagButton(loadoutRoot, "Unequip", 748f, 528f, 160f, 32f, "Unequip", BagSprites.Tone.Blue, Activate);
+            statsPopup.gameObject.SetActive(false);
         }
 
         /// <summary>"95%" for a pet's cell, red near the end; null for anything else.</summary>
@@ -80,40 +78,33 @@ namespace ZenoniaProto
             return PetConfig.IsLow(item.durability) ? "<color=#ff7060>" + text + "  Almost worn out!</color>" : text;
         }
 
-        /// <summary>Capture runs: the Equipment tab with this worn slot selected.</summary>
+        /// <summary>Capture runs: this worn slot selected, the grid filtered to it.</summary>
         public static void TestSelectWorn(string slot)
         {
             if (instance == null) return;
-            instance.equipSel = Slots.Index(slot);
-            instance.SwitchMode(Mode.Equipment);
-        }
-
-        /// <summary>Armed idle frame, facing down (web registry.heroes[classId].down.idle[0]).</summary>
-        void SetPortrait(HeroClassDef cls)
-        {
-            Sprite[] row = SpriteSheet.Row(SpriteSheet.Grid("Sprites/" + cls.SheetFolder + "/idle", GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, new Vector2(0.5f, 0f)), 0);
-            portrait.sprite = row != null && row.Length > 0 ? row[0] : null;
-            portrait.enabled = portrait.sprite != null;
+            instance.OnWornClick(Slots.Index(slot));
         }
 
         void RefreshLoadout(PlayerState p, HeroController hero)
         {
             classLevelText.text = hero.Class.Name + "  Lv. " + p.Level;
+            heroView.Show(hero.Class, p.GetEquipped(Slots.Weapon), p.GetEquipped(Slots.Offhand));
             for (int i = 0; i < equipSlots.Length; i++)
             {
                 string slot = Slots.All[i];
                 Item item = p.GetEquipped(slot);
                 BagWidgets.Slot v = equipSlots[i];
-                v.SetFrame(i == equipSel, item != null ? LootSprites.RarityColor(item) : BagWidgets.Hex("#8398a9"));
+                v.SetFrame(i == wornSel, item != null ? LootSprites.RarityColor(item) : BagWidgets.Hex("#8398a9"));
                 int plus = EnhanceStats.Level(item);
                 v.Count.text = PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
-                if (item != null) v.SetIcon(LootSprites.Icon(item), 46f, Color.white);
-                else // greyed outline of what belongs there (web: grayscale at 22% alpha)
+                if (item != null) v.SetIcon(LootSprites.Icon(item), WornIcon, Color.white);
+                else // greyed outline of what belongs there
                 {
                     bool classGear = slot == Slots.Weapon || slot == Slots.Offhand;
                     string template = slot == Slots.Pet ? PetConfig.All[0].TemplateId : null; // the first pet's outline; no icon yet = a bare frame
-                    v.SetIcon(LootSprites.Icon(new Item { slot = slot, templateId = template, itemLevel = 1, classId = classGear ? p.ClassId : null }), 39f, new Color(0.62f, 0.66f, 0.7f, 0.22f));
+                    v.SetIcon(LootSprites.Icon(new Item { slot = slot, templateId = template, itemLevel = 1, classId = classGear ? p.ClassId : null }), WornIcon - 8f, new Color(0.62f, 0.66f, 0.7f, 0.22f));
                 }
+                v.SetEnhance(item);
             }
 
             float crit = (0.08f + p.CritBonus) * 100f;
@@ -126,13 +117,6 @@ namespace ZenoniaProto
                 crit.ToString("0.0") + "%", Mathf.RoundToInt(baseSpeed > 0f ? p.Speed / baseSpeed * 100f : 100f) + "%",
             };
             for (int i = 0; i < values.Length; i++) statusValues[i].text = values[i];
-
-            Item held = SelectedItem(p);
-            unequipButton.Set(held != null);
-            bool enhanceable = EnhanceStats.IsEnhanceable(held);
-            EnhanceView e = Preview(p, held);
-            loadoutEnhanceButton.Set(enhanceable, null, !e.Can);
-            loadoutEnhanceText.text = held != null && held.slot == Slots.Pet ? PetDurabilityLine(held) : !enhanceable ? "" : e.Max ? e.Reason : "+" + e.From + " -> +" + e.To + "  " + e.Chance + "%  Stone x" + e.Owned;
         }
     }
 }

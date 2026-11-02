@@ -10,7 +10,21 @@ namespace ZenoniaProto
         public const float FrameUnit = GameConfig.FrameUnits / GameConfig.FramePx; // world units per 192px-frame pixel
         static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
 
-        public static void ResetState() { Cache.Clear(); }
+        // (folder, art, tier) -> sprite. A tier with no art of its own is stored too, so the missing file is only looked for once and no path is built per frame.
+        static readonly Dictionary<(string, string, string), Sprite> TierCache = new Dictionary<(string, string, string), Sprite>();
+
+        public static void ResetState() { Cache.Clear(); TierCache.Clear(); }
+
+        /// <summary>Resources/Sprites/&lt;folder&gt;/&lt;tier&gt;/&lt;art&gt; with the pivot at its centre, or the shared &lt;folder&gt;/&lt;art&gt; while that tier has no art yet (the mechanic's cannon, one art per facing and tier).</summary>
+        public static Sprite CenteredTier(string folder, string art, string tier)
+        {
+            var key = (folder, art, tier);
+            Sprite s;
+            if (TierCache.TryGetValue(key, out s)) return s;
+            s = Centered(folder + "/" + tier, art) ?? Centered(folder, art);
+            TierCache[key] = s;
+            return s;
+        }
 
         /// <summary>Sprite for Resources/Sprites/&lt;folder&gt;/&lt;name&gt;-base|enhanced, pivot at the manifest grip. Null when the PNG is missing.</summary>
         public static Sprite Get(string folder, OverlayEntry entry, bool enhanced)

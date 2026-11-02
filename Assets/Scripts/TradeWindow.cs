@@ -368,6 +368,7 @@ namespace ZenoniaProto
             c.Uid = item != null ? item.uid : null;
             c.Icon.sprite = item != null ? LootSprites.Icon(item) : null;
             c.Icon.enabled = c.Icon.sprite != null;
+            ItemEnhanceSlotFx.Show(c.Icon, item);
             int plus = item != null ? EnhanceStats.Level(item) : 0;
             c.Plus.text = item != null && item.slot == ZenoniaProto.Rpg.Slots.Pet ? ItemInfo.DurabilityPercent(item) : plus > 0 ? "+" + plus : "";
             if (c.Name != null)

@@ -1,4 +1,4 @@
-"""Mechanic dual pistols: body rows with no weapons and clear fists (idle right, walk right; attack2 right and idle down still to draw). Decided 2026-11-01.
+"""Mechanic dual pistols: body rows with no weapons and clear fists (idle right, down, up, walk right; attack2 right still to draw). Decided 2026-11-01.
 Sources: Assets/ArtLibrary/classes/mechanic/new-style/dual-src/move/raw/, ChatGPT art on flat #00FF00. Output goes to move/ only: nothing here writes to Assets/Resources, json or code; the code agent installs.
 
 Usage (project root; Pillow, numpy, scipy):
@@ -22,17 +22,20 @@ MOVE = "Assets/ArtLibrary/classes/mechanic/new-style/dual-src/move"
 RAW = f"{MOVE}/raw"
 BARE = "Assets/Resources/Sprites/classes/mechanic/body/bare"
 # (anim, dir): (raw file, painted frames, frames in the cut sheet)
-ROWS = {("idle", "right"): ("mech-move-idle-right-1", 1, 4), ("walk", "right"): ("mech-move-walk-right-1", 4, 4)}
+ROWS = {("idle", "right"): ("mech-move-idle-right-1", 1, 4), ("walk", "right"): ("mech-move-walk-right-1", 4, 4), ("idle", "down"): ("mech-move-idle-down-1", 1, 4), ("idle", "up"): ("mech-move-idle-up-1", 1, 4)}
 # Head grown after cutting, as HEAD_GROW in build-warrior-move.py: (k, neck row). A row scaled to 164 px can come out with a smaller head than idle down.
 HEAD_GROW = {}
 # Column of the middle of the head in the cell, as the installed row of the same anim, so nothing jumps when the rows change.
-HEAD_COL = {("idle", "right"): 96, ("walk", "right"): 96}
+HEAD_COL = {("idle", "right"): 96, ("walk", "right"): 96, ("idle", "down"): 96, ("idle", "up"): 96}
 # Colours of the installed idle right row, the anchor: hair and skin are pulled to these medians.
 HAIR_RGB, SKIN_RGB = (253, 205, 95), (254, 219, 185)
 # (near fist, far fist) per frame, cell px, read from the grid. Facing right the near hand is the hero's right hand.
 FISTS = {
     ("idle", "right"): [((123, 128), (150, 102))],
     ("walk", "right"): [((65, 139), (144, 112)), ((114, 134), (145, 103)), ((135, 110), (127, 136)), ((113, 135), (144, 103))],
+    # Facing the camera or away there is no near and far: (screen-left fist, screen-right fist).
+    ("idle", "down"): [((81, 127), (116, 107))],
+    ("idle", "up"): [((57, 114), (132, 92))],
 }
 
 
@@ -184,12 +187,12 @@ def write_fists():
     for key, rows in FISTS.items():
         L.append(f"{key[0]} {key[1]}")
         L += [f"  frame {f}: near {n[0]} {n[1]}   far {fr[0]} {fr[1]}" for f, (n, fr) in enumerate(rows)]
-        L.append(f"{key[0]} left (mirror)")
-        L += [f"  frame {f}: near {n[0]} {n[1]}   far {fr[0]} {fr[1]}" for f, (n, fr) in enumerate(mirrored_fists(key))]
+        if key[1] == "right":
+            L.append(f"{key[0]} left (mirror)")
+            L += [f"  frame {f}: near {n[0]} {n[1]}   far {fr[0]} {fr[1]}" for f, (n, fr) in enumerate(mirrored_fists(key))]
         L.append("")
     L += ["attack2 right: NOT DRAWN, image limit reached.",
-          "idle down (row 0): NOT DRAWN, image limit reached. User correction 2026-11-01: arms relaxed down at the sides, slightly away from the body, a fist at each hip, pistols point DOWN at the ground, not out sideways.",
-          "  Suggested pistol aim once drawn, clockwise from +x: screen-left fist about 100, screen-right fist about 80 (muzzle down, very slightly outward). Fist centres to be read after drawing.",
+          "idle down, idle up: near = screen-left fist, far = screen-right fist.",
           ""]
     with open(f"{MOVE}/fists.txt", "w", newline="\n") as fh:
         fh.write("\n".join(L))

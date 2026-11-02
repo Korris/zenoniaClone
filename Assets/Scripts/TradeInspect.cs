@@ -49,6 +49,7 @@ namespace ZenoniaProto
         {
             icon.sprite = LootSprites.Icon(item);
             icon.enabled = icon.sprite != null;
+            ItemEnhanceSlotFx.Show(icon, item);
             itemName.text = EnhanceStats.DisplayName(item);
             itemName.color = LootSprites.RarityColor(item);
             bool usable = me == null || me.CanEquip(item);

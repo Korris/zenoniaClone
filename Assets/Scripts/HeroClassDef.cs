@@ -90,7 +90,7 @@ namespace ZenoniaProto
             ExtraAnims = new[] { MechanicRocketPose.PoseAnim },
             MirrorLeft = new HashSet<string> { "attack3", "attack4", "rocket", "dash", "hurt", "death" },
             MaxHp = 90f, Atk = 12f, Def = 4f, Speed = 82f, Hits = ComboConfigs.MechanicHits, ChainMs = 420f,
-            Parts = new[] { new GearPartSpec("cannon", "classes/mechanic/weapons/cannon"), new GearPartSpec("gunL", "classes/mechanic/weapons/pistol", 1f, 0f, true), new GearPartSpec("gun", "classes/mechanic/weapons/pistol", 1f, 0f, true) }, // both pistols are the one weapon item; the cannon is the offhand, its art per facing in the anchors
+            Parts = new[] { new GearPartSpec("cannon", "classes/mechanic/weapons/cannon", 1f, 0f, true), new GearPartSpec("gunL", "classes/mechanic/weapons/pistol", 1f, 0f, true), new GearPartSpec("gun", "classes/mechanic/weapons/pistol", 1f, 0f, true) }, // both pistols are the one weapon item; the cannon is the offhand, its art per facing in the anchors
             CompanionFolder = null, CompanionFloatFolder = null, CompanionScale = 0.26f, // the floating robot is off for the two-pistol trial
             DashIcon = 12, // jetBoots
         };

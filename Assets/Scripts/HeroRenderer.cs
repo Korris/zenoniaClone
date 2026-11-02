@@ -232,7 +232,7 @@ namespace ZenoniaProto
                 p.Art = GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced);
             }
             bool ownArt = entry != null && !string.IsNullOrEmpty(a.art);
-            Sprite sprite = ownArt ? GearOverlays.Centered(p.Spec.Folder, a.art) : entry != null ? p.Art : null;
+            Sprite sprite = ownArt ? GearOverlays.CenteredTier(p.Spec.Folder, a.art, entry.name) : entry != null ? p.Art : null;
             p.Sr.sprite = sprite;
             if (sprite == null) { if (p.Fx != null) p.Fx.Hide(); return; }
             p.Sr.color = tint;
@@ -244,9 +244,9 @@ namespace ZenoniaProto
             t.localRotation = Quaternion.Euler(0f, 0f, -a.angle); // web angle is clockwise on a y-down canvas
             t.localScale = new Vector3(k * sx, k, 1f);
             // Enhanced (+7 and up): the blade keeps its painted colours, HeldEnhanceFx lights it per band in the tier colour.
-            if (!p.Enhanced || ownArt || !HeldEnhanceFx.Enabled) { if (p.Fx != null) p.Fx.Hide(); return; } // the glow is baked from the manifest art, which per-frame art is not
+            if (!p.Enhanced || !HeldEnhanceFx.Enabled) { if (p.Fx != null) p.Fx.Hide(); return; }
             if (p.Fx == null) p.Fx = new HeldEnhanceFx(p.Sr, transform, !p.Spec.Glow ? 0f : p.Spec.IsOffhand ? 0.5f : 1f, 1f);
-            p.Fx.Draw(p.Spec.Folder, entry, p.Band, p.Sr.sortingOrder, orderBase + 6, a.behind, alpha);
+            p.Fx.Draw(p.Spec.Folder, entry, p.Band, p.Sr.sortingOrder, orderBase + 6, a.behind, alpha, ownArt ? sprite : null);
         }
     }
 }

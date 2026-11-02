@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using ZenoniaProto.Net;
@@ -7,15 +7,14 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Inventory tab (web drawEquipmentBag + inventory-supply-cells.js): a 3 x 4 paged grid whose first cells are gold, HP / MP potions and
-    /// upgrade stones, then the 20 bag slots; Sort / page buttons and the bag count; on the right the selected item (icon, name, slot, level,
-    /// stat lines compared with the worn item, enhance preview or set blurb) with Equip / Use, Enhance and Discard.
+    /// Centre panel: a 5 x 4 paged grid. Unfiltered: gold, potions and stones first, then the 20 bag slots. Filtered by a worn slot: only the items the hero can put in that slot.
+    /// Coordinates are local to the panel.
     /// </summary>
     public partial class InventoryPanel
     {
         enum Supply { Coin, HpSmall, HpMedium, HpLarge, MpSmall, MpMedium, MpLarge, Stone }
-        const int GridCols = 3, PageSize = 12, MaxStatLines = 6;
-        const string GoldBlurb = "Gold used for trading.", StoneBlurb = "Used to enhance weapons. Success drops at higher +.";
+        const int GridCols = 5, PageSize = 20;
+        const float CellSize = 72f, CellStep = 76f, CellIcon = 58f;
 
         static bool IsPotion(Supply kind) { return kind >= Supply.HpSmall && kind <= Supply.MpLarge; }
         static bool PotionIsHp(Supply kind) { return kind <= Supply.HpLarge; }
@@ -23,16 +22,32 @@ namespace ZenoniaProto
 
         readonly Supply[] supplyOrder = { Supply.Coin, Supply.HpSmall, Supply.HpMedium, Supply.HpLarge, Supply.MpSmall, Supply.MpMedium, Supply.MpLarge, Supply.Stone };
         readonly BagWidgets.Slot[] gridSlots = new BagWidgets.Slot[PageSize];
-        readonly Text[] statTexts = new Text[MaxStatLines], compareTexts = new Text[MaxStatLines], extraTexts = new Text[3];
-        readonly Image[] statRules = new Image[MaxStatLines];
-        RectTransform bagRoot, itemDetail, supplyDetail;
+        readonly List<Item> filtered = new List<Item>();
+        string filterSlot; // null = everything
         int cellSel, page;
-        BagWidgets.Slot detailSlot;
-        Text bagCountText, selectHint, itemName, itemSlotText, itemLevelText, supplyName, supplyQuantity, supplyBlurb;
-        BagWidgets.BagButton pageButton, equipButton, useButton, bagEnhanceButton, discardButton;
+        BagWidgets.BagButton filterChip;
+        Text allItemsText, bagCountText, pageText;
 
-        int CellCount { get { return supplyOrder.Length + PlayerState.InventorySize; } }
-        int PageCount { get { return (CellCount + PageSize - 1) / PageSize; } }
+        int CellCount(PlayerState p)
+        {
+            return filterSlot == null ? supplyOrder.Length + PlayerState.InventorySize : Mathf.Max(PageSize, filtered.Count);
+        }
+
+        int PageCount(PlayerState p) { return (CellCount(p) + PageSize - 1) / PageSize; }
+
+        bool SupplyAtCell(int cell, out Supply kind)
+        {
+            bool has = filterSlot == null && cell >= 0 && cell < supplyOrder.Length;
+            kind = has ? supplyOrder[cell] : Supply.Coin;
+            return has;
+        }
+
+        Item ItemAtCell(PlayerState p, int cell)
+        {
+            if (filterSlot != null) return cell >= 0 && cell < filtered.Count ? filtered[cell] : null;
+            int bag = cell - supplyOrder.Length;
+            return bag >= 0 && bag < p.Inventory.Count ? p.Inventory[bag] : null;
+        }
 
         static int SupplyCount(PlayerState p, Supply kind)
         {
@@ -49,68 +64,65 @@ namespace ZenoniaProto
             return kind == Supply.Coin ? LootSprites.Coin() : kind == Supply.Stone ? LootSprites.Stone() : LootSprites.Potion(PotionIsHp(kind), PotionSize(kind));
         }
 
-        void BuildBag(RectTransform web)
+        void BuildBag(RectTransform centre)
         {
-            bagRoot = UiKit.Rect(web, "Bag", 0f, 0f, UiKit.RefWidth, UiKit.RefHeight);
-            BagWidgets.Panel(bagRoot, "Grid", 320f, 154f, 278f, 414f);
-            BagWidgets.Panel(bagRoot, "Detail", 600f, 154f, 328f, 414f);
+            allItemsText = BagWidgets.Text(centre, "AllItems", 16f, 16f, "All items", 15, "#d9d3bd", TextAnchor.UpperLeft, 200f, true);
+            filterChip = new BagWidgets.BagButton(centre, "FilterChip", 12f, 10f, 150f, 34f, "", BagSprites.Tone.Blue, () => { SetFilter(null); lastClickIndex = -1; Refresh(); });
+            filterChip.Label.fontSize = 14;
+            bagCountText = BagWidgets.Text(centre, "Count", 384f, 18f, "", 14, "#d9d3bd", TextAnchor.UpperRight, 100f);
             for (int i = 0; i < PageSize; i++)
             {
                 int cell = i;
-                gridSlots[i] = new BagWidgets.Slot(bagRoot, "Cell" + i, 322f + (i % GridCols) * 90f, 164f + (i / GridCols) * 90f, 82f, () => OnCellClick(page * PageSize + cell));
+                gridSlots[i] = new BagWidgets.Slot(centre, "Cell" + i, 12f + (i % GridCols) * CellStep, 52f + (i / GridCols) * CellStep, CellSize, () => OnCellClick(page * PageSize + cell));
             }
-            new BagWidgets.BagButton(bagRoot, "Sort", 332f, 528f, 76f, 32f, "Sort", BagSprites.Tone.Steel, SortBag);
-            pageButton = new BagWidgets.BagButton(bagRoot, "Page", 420f, 528f, 76f, 32f, "", BagSprites.Tone.Steel, NextPage);
-            bagCountText = BagWidgets.Text(bagRoot, "Count", 581f, 538f, "", 13, "#bfd1dc", TextAnchor.UpperRight, 80f);
-            selectHint = BagWidgets.Text(bagRoot, "Hint", 764f, 300f, "Select equipment", 18, "#b4d0e0", TextAnchor.UpperCenter, 300f);
-            detailSlot = new BagWidgets.Slot(bagRoot, "DetailSlot", 615f, 169f, 76f, null);
-
-            itemDetail = UiKit.Rect(bagRoot, "ItemDetail", 0f, 0f, UiKit.RefWidth, UiKit.RefHeight);
-            itemName = BagWidgets.Text(itemDetail, "Name", 704f, 170f, "", 17, "#f2deae", TextAnchor.UpperLeft, 210f, true);
-            itemSlotText = BagWidgets.Text(itemDetail, "Slot", 704f, 219f, "", 12, "#c7e2f2", TextAnchor.UpperLeft, 210f);
-            itemLevelText = BagWidgets.Text(itemDetail, "Level", 704f, 239f, "", 13, "#ffffff", TextAnchor.UpperLeft, 120f, true);
-            for (int i = 0; i < MaxStatLines; i++)
-            {
-                float y = 285f + i * 29f;
-                statRules[i] = BagWidgets.Img(itemDetail, "Rule" + i, 616f, y - 9f, 295f, 1f, null, BagWidgets.Hex("#6f9ab355"));
-                statTexts[i] = BagWidgets.Text(itemDetail, "Stat" + i, 616f, y, "", 14, "#c2e3f4", TextAnchor.UpperLeft, 220f);
-                compareTexts[i] = BagWidgets.Text(itemDetail, "Compare" + i, 910f, y, "", 12, "#cfcfe0", TextAnchor.UpperRight, 90f, true);
-            }
-            for (int i = 0; i < extraTexts.Length; i++) extraTexts[i] = BagWidgets.Text(itemDetail, "Extra" + i, 616f, 403f + i * 21f, "", 13, "#f2deae", TextAnchor.UpperLeft, 290f);
-            extraTexts[0].lineSpacing = 1.45f; // the set blurb wraps over several 21px lines
-            equipButton = new BagWidgets.BagButton(itemDetail, "Equip", 612f, 528f, 140f, 32f, "Equip", BagSprites.Tone.Blue, Activate);
-            bagEnhanceButton = new BagWidgets.BagButton(itemDetail, "Enhance", 766f, 528f, 146f, 32f, "Enhance", BagSprites.Tone.Gold, EnhanceSelected);
-            discardButton = new BagWidgets.BagButton(itemDetail, "Discard", 836f, 236f, 76f, 26f, "Discard", BagSprites.Tone.Steel, DiscardSelected);
-            discardButton.Label.fontSize = 12;
-
-            supplyDetail = UiKit.Rect(bagRoot, "SupplyDetail", 0f, 0f, UiKit.RefWidth, UiKit.RefHeight);
-            supplyName = BagWidgets.Text(supplyDetail, "Name", 704f, 175f, "", 19, "#f2deae", TextAnchor.UpperLeft, 210f, true);
-            supplyQuantity = BagWidgets.Text(supplyDetail, "Quantity", 616f, 285f, "", 15, "#ffffff", TextAnchor.UpperLeft, 290f, true);
-            supplyBlurb = BagWidgets.Text(supplyDetail, "Blurb", 616f, 340f, "", 14, "#b4d5e7", TextAnchor.UpperLeft, 288f);
-            supplyBlurb.lineSpacing = 1.3f;
-            useButton = new BagWidgets.BagButton(supplyDetail, "Use", 612f, 528f, 140f, 32f, "Use", BagSprites.Tone.Gold, Activate);
+            new BagWidgets.BagButton(centre, "Sort", 12f, 362f, 84f, 44f, "Sort", BagSprites.Tone.Blue, SortBag);
+            new BagWidgets.BagButton(centre, "Prev", 176f, 362f, 52f, 44f, "<", BagSprites.Tone.Gold, () => TurnPage(-1));
+            pageText = BagWidgets.Text(centre, "Page", 268f, 374f, "", 15, "#ffffff", TextAnchor.UpperCenter, 70f, true);
+            new BagWidgets.BagButton(centre, "Next", 308f, 362f, 52f, 44f, ">", BagSprites.Tone.Gold, () => TurnPage(1));
+            messageText = BagWidgets.Text(centre, "Message", 199f, 420f, "", 14, "#ffe08a", TextAnchor.UpperCenter, 374f, true);
         }
 
-        /// <summary>Capture runs: the Inventory tab with this bag item selected.</summary>
+        /// <summary>Capture runs: this bag item selected, no filter.</summary>
         public static void TestSelectBagItem(int bagIndex)
         {
             if (instance == null) return;
+            instance.SetFilter(null);
+            instance.wornSel = -1;
             instance.cellSel = instance.supplyOrder.Length + bagIndex;
             instance.page = instance.cellSel / PageSize;
-            instance.SwitchMode(Mode.Inventory);
+            instance.Refresh();
+        }
+
+        void SetFilter(string slot)
+        {
+            if (filterSlot == slot) return;
+            filterSlot = slot;
+            page = 0;
+            cellSel = wornSel >= 0 ? cellSel : 0;
+            confirmDiscard = false;
+        }
+
+        void RebuildFiltered(PlayerState p)
+        {
+            filtered.Clear();
+            if (filterSlot == null) return;
+            foreach (Item item in p.Inventory) if (item.slot == filterSlot && p.CanEquip(item)) filtered.Add(item);
         }
 
         // ---- actions ----
 
-        void NextPage()
+        void TurnPage(int by)
         {
-            page = (page + 1) % PageCount;
-            cellSel = page * PageSize;
+            PlayerState p = RpgSession.Player;
+            if (p == null) return;
+            int pages = PageCount(p);
+            page = (page + by + pages) % pages;
+            if (wornSel < 0) cellSel = page * PageSize;
             confirmDiscard = false;
             Refresh();
         }
 
-        /// <summary>Web Sort: gear by slot order then item level (highest first); supplies by count.</summary>
+        /// <summary>Gear by slot order then item level (highest first); supplies by count.</summary>
         void SortBag()
         {
             PlayerState p = RpgSession.Player;
@@ -127,22 +139,8 @@ namespace ZenoniaProto
                     Supply t = supplyOrder[j]; supplyOrder[j] = supplyOrder[j - 1]; supplyOrder[j - 1] = t;
                 }
             page = 0;
-            cellSel = 0;
+            if (wornSel < 0) cellSel = 0;
             lastClickIndex = -1;
-            Refresh();
-        }
-
-        /// <summary>Bag items only; the first click arms it, the second discards.</summary>
-        void DiscardSelected()
-        {
-            PlayerState p = RpgSession.Player;
-            Item item = p != null ? SelectedItem(p) : null;
-            if (item == null || IsEquipped(p, item)) return;
-            if (!confirmDiscard) { confirmDiscard = true; Refresh(); return; }
-            confirmDiscard = false;
-            if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Discard, item.uid, 0); return; }
-            p.RemoveFromInventory(item.uid);
-            Flash("Discarded " + item.name);
             Refresh();
         }
 
@@ -150,119 +148,38 @@ namespace ZenoniaProto
 
         void RefreshBag(PlayerState p)
         {
+            RebuildFiltered(p);
+            int pages = PageCount(p);
+            if (page >= pages) page = pages - 1;
+            if (wornSel < 0 && cellSel >= CellCount(p)) cellSel = CellCount(p) - 1;
+
+            allItemsText.enabled = filterSlot == null;
+            filterChip.Set(filterSlot != null, filterSlot != null ? ItemInfo.SlotLabel(filterSlot) + "   X" : null);
+            bagCountText.text = p.Inventory.Count + "/" + PlayerState.InventorySize;
+            pageText.text = (page + 1) + " / " + pages;
+
             for (int i = 0; i < PageSize; i++)
             {
-                int index = page * PageSize + i, bag = index - supplyOrder.Length;
+                int cell = page * PageSize + i;
                 BagWidgets.Slot v = gridSlots[i];
-                Item item = bag >= 0 && bag < p.Inventory.Count ? p.Inventory[bag] : null;
-                v.SetFrame(index == cellSel, item != null ? LootSprites.RarityColor(item) : BagWidgets.Hex("#607b91"), index >= CellCount);
-                if (index < supplyOrder.Length)
+                Supply kind;
+                if (SupplyAtCell(cell, out kind))
                 {
-                    int count = SupplyCount(p, supplyOrder[index]);
-                    v.SetIcon(SupplySprite(supplyOrder[index]), 48f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
+                    int count = SupplyCount(p, kind);
+                    v.SetFrame(wornSel < 0 && cell == cellSel, BagWidgets.Hex("#70899d"));
+                    v.SetIcon(SupplySprite(kind), CellIcon - 12f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
+                    v.SetEnhance(null);
                     v.Count.text = count.ToString();
+                    continue;
                 }
-                else
-                {
-                    v.SetIcon(item != null ? LootSprites.Icon(item) : null, 60f, item == null || p.CanEquip(item) ? Color.white : new Color(1f, 0.6f, 0.6f, 0.55f));
-                    int plus = EnhanceStats.Level(item);
-                    v.Count.text = PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
-                }
+                Item item = ItemAtCell(p, cell);
+                bool beyond = filterSlot == null && cell >= CellCount(p);
+                v.SetFrame(wornSel < 0 && cell == cellSel, item != null ? LootSprites.RarityColor(item) : BagWidgets.Hex("#607b91"), beyond);
+                v.SetIcon(item != null ? LootSprites.Icon(item) : null, CellIcon, item == null || p.CanEquip(item) ? Color.white : new Color(1f, 0.6f, 0.6f, 0.55f));
+                v.SetEnhance(item);
+                int plus = EnhanceStats.Level(item);
+                v.Count.text = PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
             }
-            pageButton.Set(true, (page + 1) + " / " + PageCount + " >");
-            bagCountText.text = p.Inventory.Count + "/" + PlayerState.InventorySize;
-
-            bool supply = cellSel < supplyOrder.Length;
-            Item selected = SelectedItem(p);
-            supplyDetail.gameObject.SetActive(supply);
-            itemDetail.gameObject.SetActive(!supply && selected != null);
-            detailSlot.Root.gameObject.SetActive(supply || selected != null);
-            selectHint.enabled = !supply && selected == null;
-            if (supply) ShowSupply(p, supplyOrder[cellSel]);
-            else if (selected != null) ShowItem(p, selected);
-        }
-
-        void ShowSupply(PlayerState p, Supply kind)
-        {
-            int count = SupplyCount(p, kind);
-            detailSlot.SetFrame(false, BagWidgets.Hex("#70899d"));
-            detailSlot.SetIcon(SupplySprite(kind), 48f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
-            detailSlot.Count.text = count.ToString();
-            bool potion = IsPotion(kind);
-            bool quick = potion && p.PotionPick(PotionIsHp(kind)) == PotionSize(kind);
-            supplyName.text = potion ? PotionCatalog.Name(PotionIsHp(kind), PotionSize(kind)) : kind == Supply.Coin ? "Gold" : "Upgrade Stone";
-            supplyQuantity.text = "Quantity: " + count + (quick ? "   (quick button)" : "");
-            supplyBlurb.text = potion ? PotionCatalog.Effect(PotionIsHp(kind), PotionSize(kind)) + " Use: drink it and set it on the quick button." : kind == Supply.Coin ? GoldBlurb : StoneBlurb;
-            useButton.Set(potion);
-        }
-
-        void ShowItem(PlayerState p, Item item)
-        {
-            bool usable = p.CanEquip(item);
-            detailSlot.SetFrame(false, LootSprites.RarityColor(item));
-            detailSlot.SetIcon(LootSprites.Icon(item), 62f, usable ? Color.white : new Color(1f, 0.6f, 0.6f, 0.55f));
-            detailSlot.Count.text = "";
-            itemName.text = EnhanceStats.DisplayName(item);
-            string owner = string.IsNullOrEmpty(item.classId) ? "" : "   " + (usable ? "" : "<color=#ff8070>") + RpgClasses.Get(item.classId).Name + " only" + (usable ? "" : "</color>");
-            itemSlotText.text = ItemInfo.SlotLabel(item.slot) + owner;
-            bool isPet = item.slot == Slots.Pet;
-            itemLevelText.text = isPet ? "" : "Lv. " + item.itemLevel;
-
-            Item worn = p.GetEquipped(item.slot);
-            Item compare = worn != item ? worn : null;
-            var lines = ItemInfo.Lines(item, compare);
-            for (int i = 0; i < MaxStatLines; i++)
-            {
-                bool has = i < lines.Count;
-                statRules[i].enabled = has;
-                statTexts[i].text = has ? StatText(item, lines[i]) : "";
-                compareTexts[i].text = "";
-                if (!has) continue;
-                double d = compare != null ? lines[i].Delta : lines[i].Value; // nothing worn: the whole stat is a gain (web compareToEquipped)
-                double shown = lines[i].Percent ? Math.Round(d * 100.0) : Math.Round(d);
-                compareTexts[i].text = (shown > 0 ? "+" : "") + shown + (lines[i].Percent ? "%" : "");
-                compareTexts[i].color = BagWidgets.Hex(shown > 0 ? "#8fff8f" : shown < 0 ? "#ff7070" : "#cfcfe0");
-            }
-
-            EnhanceView e = Preview(p, item);
-            bool enhanceable = EnhanceStats.IsEnhanceable(item);
-            foreach (Text t in extraTexts) t.text = "";
-            extraTexts[0].horizontalOverflow = enhanceable ? HorizontalWrapMode.Overflow : HorizontalWrapMode.Wrap;
-            if (isPet)
-            {
-                SetExtra(0, "Flies at your side. Any class can have one, one at a time. Cannot be enhanced.", "#b4d5e7");
-                extraTexts[2].text = PetDurabilityLine(item);
-                extraTexts[2].color = BagWidgets.Hex("#f2deae");
-            }
-            else if (!enhanceable)
-            {
-                RarityDef r = ItemDefs.Rarity(item.rarity);
-                string prefix = r != null && !string.IsNullOrEmpty(r.Prefix) ? r.Prefix : "Normal";
-                SetExtra(0, prefix + " " + ItemInfo.SlotLabel(item.slot).ToLowerInvariant() + " from the level " + item.itemLevel + " equipment set.", "#b4d5e7");
-            }
-            else if (e.Max) SetExtra(0, "Enhance " + e.Reason, "#f2deae");
-            else
-            {
-                SetExtra(0, "Enhance  +" + e.From + " -> +" + e.To + "   Success " + e.Chance + "%", "#f2deae");
-                SetExtra(1, e.StatLabel + " " + e.StatFrom + " -> " + e.StatTo, "#8fff8f");
-                SetExtra(2, "Cost: 1 Upgrade Stone (have " + e.Owned + ")", e.Can ? "#c7e2f2" : "#ff8f8f");
-            }
-
-            equipButton.Set(true, usable ? "Equip" : RpgClasses.Get(item.classId).Name + " only", !usable);
-            bagEnhanceButton.Set(true, null, !e.Can);
-            discardButton.Set(true, confirmDiscard ? "Sure?" : "Discard");
-        }
-
-        void SetExtra(int i, string text, string color) { extraTexts[i].text = text; extraTexts[i].color = BagWidgets.Hex(color); }
-
-        /// <summary>"ATK 21 (+4)": the effective value, plus the part that comes from enhancing (web describeItemStats).</summary>
-        static string StatText(Item item, StatLine l)
-        {
-            string text = ItemInfo.Format(l);
-            if (l.Percent || EnhanceStats.Level(item) == 0) return text;
-            string key = l.Label == "ATK" ? "atk" : l.Label == "DEF" ? "def" : l.Label == "HP" ? "maxHp" : l.Label == "MP" ? "maxMp" : null;
-            int bonus = key != null ? RpgMath.Round(l.Value) - item.stats.GetInt(key) : 0;
-            return bonus > 0 ? text + " (+" + bonus + ")" : text;
         }
     }
 }

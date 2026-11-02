@@ -7,31 +7,25 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The bag window, a port of the web character menu (character-menu.js + inventory-panel.js): the painted bag frame on the right of the
-    /// screen with Equipment / Inventory / Skill tabs. Equipment = the six worn slots around the hero portrait + a Status table, Unequip and
-    /// Enhance. Inventory = a 3 x 4 paged grid (gold, potions and stones first, then the 20 bag slots) with the selected item's details,
-    /// Equip / Use, Enhance, Sort and Discard. Click selects, double-click or J / Space activates, arrows move the selection.
-    /// B / I toggles (RpgSession), Esc closes; the game is paused while it is open. Layout uses the web 960 x 640 canvas coordinates.
-    /// Partial: InventoryPanel.Loadout.cs (Equipment tab), InventoryPanel.Bag.cs (Inventory tab).
+    /// The bag window, MU Online style: worn gear and the inventory on one screen, in the gold-and-navy frame of the quest windows.
+    /// Left: the hero between two rows of worn slots, Stats behind a button. Centre: 5 x 4 paged grid. Right: the selected item, compared with what is worn, with Equip / Unequip and Enhance.
+    /// Tapping a worn slot filters the grid to what fits it; the chip clears the filter. A second tap within 0.35 s activates; arrows move the selection and J / Space activates.
+    /// B / I toggles (RpgSession), Esc closes; the game is paused while it is open.
+    /// Partial: InventoryPanel.Loadout.cs (left), InventoryPanel.Bag.cs (centre), InventoryPanel.Detail.cs (right). Mock: ArtLibrary/custom/inventory-ui-ref/bag-layout-mock-1.png.
     /// </summary>
     public partial class InventoryPanel : MonoBehaviour
     {
-        const float BagX = 304f, BagY = 34f, BagW = 640f, BagH = 568f, DoubleClickSeconds = 0.35f, MessageSeconds = 1.5f;
-        enum Mode { Equipment, Inventory, Skill }
-        static readonly string[] TabNames = { "Equipment", "Inventory", "Skill" };
+        const float W = 956f, H = 556f, PanelY = 70f, PanelH = 460f;
+        const float DoubleClickSeconds = 0.35f, MessageSeconds = 1.5f;
+        const int WornClickBase = 1000; // keeps worn slots and grid cells apart in the double-tap check
         static InventoryPanel instance;
 
         RectTransform overlay;
-        Mode mode = Mode.Equipment;
-        readonly BagWidgets.BagButton[] tabs = new BagWidgets.BagButton[3];
-        readonly Image[] tabIcons = new Image[3];
-        Image tabArrow;
         Text messageText;
         float messageUntil;
         float lastClickTime;
         int lastClickIndex = -1;
         bool confirmDiscard;
-        string shownClass;
 
         public static bool IsOpen { get { return instance != null && instance.overlay.gameObject.activeSelf; } }
 
@@ -62,6 +56,7 @@ namespace ZenoniaProto
             if (instance == null) return;
             instance.overlay.gameObject.SetActive(false);
             instance.confirmDiscard = false;
+            instance.heroView.Stop();
             GameClock.Paused = false;
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
         }
@@ -78,33 +73,36 @@ namespace ZenoniaProto
         void Build(Transform canvas)
         {
             overlay = UiKit.Fill(canvas, "BagOverlay");
-            UiKit.Panel(overlay, new Color(0f, 0f, 0f, 0.14f), true); // web drawOverlay(0.14); also stops clicks reaching the game
-            // The web canvas (960 x 640) pinned to the right edge, so wide phone screens keep the hero visible on the left.
-            RectTransform web = UiKit.Rect(overlay, "WebCanvas", 0f, 0f, UiKit.RefWidth, UiKit.RefHeight);
-            web.anchorMin = web.anchorMax = web.pivot = new Vector2(1f, 0.5f);
-            web.anchoredPosition = Vector2.zero;
+            UiKit.Panel(overlay, new Color(0f, 0f, 0f, 0.5f), true); // also stops taps reaching the game
+            RectTransform win = UiWinKit.Anchored(overlay, "Window", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), 0f, 0f, W, H);
+            UiWinKit.Sliced(win, "panel", 0.9f, true);
 
-            BagWidgets.Img(web, "FrameTitle", BagX, BagY, BagW, 60f, BagSprites.FrameTitle(), Color.white, true);
-            BagWidgets.Img(web, "FrameBody", BagX, BagY + 60f, BagW, BagH - 60f, BagSprites.FrameBody(), Color.white, true);
-            BagWidgets.Text(web, "Title", BagX + 98f, BagY + 18f, "Bag", 24, "#ffffff", TextAnchor.UpperLeft, 200f, true);
-            Image close = BagWidgets.Img(web, "Close", BagX + BagW - 50f, BagY + 14f, 34f, 34f, null, Color.clear, true);
-            close.gameObject.AddComponent<Button>().onClick.AddListener(Close);
-            BagWidgets.Text(close.transform, "X", 17f, 3f, "X", 22, "#fff5e9", TextAnchor.UpperCenter, 34f, true);
+            Image bagIcon = UiKit.Icon(win, "BagIcon", 26f, 15f, 40f);
+            bagIcon.sprite = BagSprites.BagIcon();
+            UiKit.Label(win, "Title", 72f, 14f, 80f, 42f, "Bag", 24, new Color(1f, 0.93f, 0.7f), TextAnchor.MiddleLeft, true);
+            BuildTab(win, 150f, "tab-active", "Bag", null);
+            BuildTab(win, 286f, "tab-inactive", "Skill", () => { Close(); SkillTreeWindow.Open(transform.parent); });
+            UiWinKit.CloseButton(win, W - 62f, 14f, 42f, Close);
 
-            for (int i = 0; i < TabNames.Length; i++)
-            {
-                float x = BagX + 16f + i * 202f, y = BagY + 62f;
-                Mode m = (Mode)i;
-                tabs[i] = new BagWidgets.BagButton(web, "Tab" + TabNames[i], x, y, 198f, 46f, "", BagSprites.Tone.Steel, () => SwitchMode(m));
-                tabIcons[i] = UiKit.Icon(tabs[i].Root, "Icon", 22f, 6f, 34f);
-                BagWidgets.Text(tabs[i].Root, "Name", 62f, 14f, TabNames[i], 16, "#f2f5ff", TextAnchor.UpperLeft, 130f, true);
-            }
-            tabArrow = BagWidgets.Img(web, "TabArrow", 0f, BagY + 62f + 45f, 20f, 10f, BagSprites.TabArrow(), Color.white);
-
-            BuildLoadout(web);
-            BuildBag(web);
-            messageText = BagWidgets.Text(web, "Message", 616f, 503f, "", 12, "#f0d39a", TextAnchor.UpperLeft, 300f);
+            BuildLoadout(Section(win, "Left", 24f, 288f));
+            BuildBag(Section(win, "Centre", 318f, 398f));
+            BuildDetail(Section(win, "Right", 722f, 210f));
             overlay.gameObject.SetActive(false);
+        }
+
+        static void BuildTab(RectTransform win, float x, string piece, string text, System.Action onClick)
+        {
+            RectTransform rt = UiKit.Rect(win, "Tab" + text, x, 16f, 128f, 40f);
+            Image img = UiWinKit.Sliced(rt, piece, 0f);
+            UiKit.Label(UiKit.Fill(rt, "Label"), text, 16, UiWinKit.Cream, TextAnchor.MiddleCenter, true);
+            if (onClick != null) UiWinKit.MakeButton(img, onClick);
+        }
+
+        static RectTransform Section(RectTransform win, string name, float x, float w)
+        {
+            RectTransform rt = UiKit.Rect(win, name, x, PanelY, w, PanelH);
+            UiWinKit.Sliced(rt, "panel", 0.18f); // thin line and small corners: only the outer frame is heavy
+            return rt;
         }
 
         // ---- input ----
@@ -113,60 +111,70 @@ namespace ZenoniaProto
         {
             if (!IsOpen) return;
             if (messageText.text.Length > 0 && Time.unscaledTime > messageUntil) messageText.text = "";
+            heroView.Tick(Time.unscaledDeltaTime);
             int dx = (InputAdapter.Pressed(GameKey.Right) ? 1 : 0) - (InputAdapter.Pressed(GameKey.Left) ? 1 : 0);
             int dy = (InputAdapter.Pressed(GameKey.Down) ? 1 : 0) - (InputAdapter.Pressed(GameKey.Up) ? 1 : 0);
             if (dx != 0 || dy != 0) { Navigate(dx, dy); Refresh(); }
             if (InputAdapter.Pressed(GameKey.Attack)) Activate();
         }
 
+        /// <summary>Arrows: worn slots cycle, Right leaves them for the grid; in the grid, Left from the first column goes back to them.</summary>
         void Navigate(int dx, int dy)
         {
             confirmDiscard = false;
-            if (mode == Mode.Equipment) { equipSel = (equipSel + dy + dx + Slots.All.Length) % Slots.All.Length; return; }
-            if (mode != Mode.Inventory) return;
-            cellSel = Mathf.Clamp(cellSel + dx + dy * GridCols, 0, CellCount - 1);
+            PlayerState p = RpgSession.Player;
+            if (wornSel >= 0)
+            {
+                if (dx > 0) { wornSel = -1; cellSel = page * PageSize; return; }
+                wornSel = (wornSel + dy + dx + Slots.All.Length) % Slots.All.Length;
+                return;
+            }
+            if (dx < 0 && cellSel % GridCols == 0) { wornSel = 0; return; }
+            cellSel = Mathf.Clamp(cellSel + dx + dy * GridCols, 0, CellCount(p) - 1);
             page = cellSel / PageSize;
         }
 
-        /// <summary>Click on a cell: select it; a second click on the same cell within 0.35 s activates it (web double click).</summary>
-        void OnCellClick(int index)
+        bool IsDoubleTap(int index)
         {
             bool same = index == lastClickIndex && Time.unscaledTime - lastClickTime < DoubleClickSeconds;
             lastClickIndex = index;
             lastClickTime = Time.unscaledTime;
-            if (mode == Mode.Equipment) equipSel = index; else cellSel = index;
             confirmDiscard = false;
-            if (same) Activate(); else Refresh();
+            return same;
         }
 
-        void SwitchMode(Mode m)
+        void OnCellClick(int cell)
         {
-            if (m == Mode.Skill) { Close(); SkillTreeWindow.Open(transform.parent); return; }
-            mode = m;
-            lastClickIndex = -1;
-            confirmDiscard = false;
-            Refresh();
+            bool twice = IsDoubleTap(cell);
+            wornSel = -1;
+            cellSel = cell;
+            if (twice) Activate(); else Refresh();
+        }
+
+        /// <summary>A worn slot: select it and list what can go in it.</summary>
+        void OnWornClick(int index)
+        {
+            bool twice = IsDoubleTap(WornClickBase + index);
+            wornSel = index;
+            SetFilter(Slots.All[index]);
+            if (twice) Activate(); else Refresh();
         }
 
         // ---- actions ----
 
-        static bool IsEquipped(PlayerState p, Item item) { return item != null && p.GetEquipped(item.slot) == item; }
-
         Item SelectedItem(PlayerState p)
         {
-            if (mode == Mode.Equipment) return p.GetEquipped(Slots.All[equipSel]);
-            int bag = cellSel - supplyOrder.Length;
-            return mode == Mode.Inventory && bag >= 0 && bag < p.Inventory.Count ? p.Inventory[bag] : null;
+            return wornSel >= 0 ? p.GetEquipped(Slots.All[wornSel]) : ItemAtCell(p, cellSel);
         }
 
-        /// <summary>Web activate(): drink a selected potion, equip a bag item, unequip a worn one.</summary>
+        /// <summary>Drink a selected potion, equip a bag item, unequip a worn one.</summary>
         void Activate()
         {
             PlayerState p = RpgSession.Player;
             if (p == null) return;
-            if (mode == Mode.Inventory && cellSel < supplyOrder.Length)
+            Supply kind;
+            if (wornSel < 0 && SupplyAtCell(cellSel, out kind))
             {
-                Supply kind = supplyOrder[cellSel];
                 if (IsPotion(kind))
                 {
                     if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Use, "", PotionCatalog.PackSlot(PotionIsHp(kind), PotionSize(kind))); return; }
@@ -177,11 +185,17 @@ namespace ZenoniaProto
             }
             Item item = SelectedItem(p);
             if (item == null) return;
-            bool equipped = IsEquipped(p, item);
-            if (NetMode.IsClient) { NetClient.SendInvAction(equipped ? InvOp.Unequip : InvOp.Equip, item.uid, (byte)Mathf.Max(0, Slots.Index(item.slot))); return; }
-            ActionResult r = equipped ? p.Unequip(item.slot) : p.Equip(item);
-            if (r.Ok) RpgSession.SyncGear();
-            Flash(r.Ok ? equipped ? "Unequipped" : "Equipped " + item.name : r.Text);
+            bool worn = wornSel >= 0;
+            int slotIndex = Mathf.Max(0, Slots.Index(item.slot));
+            if (NetMode.IsClient)
+            {
+                NetClient.SendInvAction(worn ? InvOp.Unequip : InvOp.Equip, item.uid, (byte)slotIndex);
+                if (!worn && p.CanEquip(item)) wornSel = slotIndex; // the server's reply redraws
+                return;
+            }
+            ActionResult r = worn ? p.Unequip(item.slot) : p.Equip(item);
+            if (r.Ok) { RpgSession.SyncGear(); if (!worn) wornSel = slotIndex; }
+            Flash(r.Ok ? worn ? "Unequipped" : "Equipped " + item.name : r.Text);
             Refresh();
         }
 
@@ -198,7 +212,7 @@ namespace ZenoniaProto
             else if (r.Success)
             {
                 Flash("Success! " + EnhanceStats.DisplayName(item) + (EnhanceStats.VisualBand(item) > bandBefore ? "  New look!" : ""));
-                if (IsEquipped(p, item)) RpgSession.SyncGear();
+                if (p.GetEquipped(item.slot) == item) RpgSession.SyncGear();
             }
             else Flash("Failed... stone lost (+" + r.Level + " kept)");
             Refresh();
@@ -210,28 +224,6 @@ namespace ZenoniaProto
             messageUntil = Time.unscaledTime + MessageSeconds;
         }
 
-        /// <summary>Web enhancePreview(): the next +level, its success chance and the stat it raises, or why it cannot be enhanced.</summary>
-        struct EnhanceView { public bool Can, Max; public string Reason, StatLabel; public int From, To, StatFrom, StatTo, Owned, Chance; }
-
-        static EnhanceView Preview(PlayerState p, Item item)
-        {
-            var v = new EnhanceView { Owned = p != null ? p.UpgradeStone : 0, StatLabel = "ATK" };
-            if (p == null || !EnhanceStats.IsEnhanceable(item)) { v.Reason = "Weapons only"; return v; }
-            string key = EnhanceStats.StatKey(item);
-            int baseValue = item.stats.GetInt(key);
-            v.StatLabel = key == "atk" ? "ATK" : key == "def" ? "DEF" : key == "maxHp" ? "Max HP" : key == "maxMp" ? "Max MP" : key;
-            v.From = EnhanceStats.Level(item);
-            v.StatFrom = baseValue + EnhanceStats.Bonus(baseValue, v.From, EnhanceStats.Scale(item));
-            if (v.From >= EnhanceConfig.MaxEnhance) { v.Max = true; v.To = v.From; v.StatTo = v.StatFrom; v.Reason = "Max +" + EnhanceConfig.MaxEnhance; return v; }
-            IUpgradeMethod method = StoneUpgradeMethod.Instance;
-            v.To = v.From + 1;
-            v.StatTo = baseValue + EnhanceStats.Bonus(baseValue, v.To, EnhanceStats.Scale(item));
-            v.Chance = RpgMath.Round(method.SuccessChance(v.From) * 100.0);
-            v.Can = method.CanPay(p, v.From);
-            if (!v.Can) v.Reason = "Need Upgrade Stone";
-            return v;
-        }
-
         // ---- refresh ----
 
         void Refresh()
@@ -239,24 +231,9 @@ namespace ZenoniaProto
             PlayerState p = RpgSession.Player;
             HeroController hero = GameSession.Hero;
             if (p == null || hero == null) { Close(); return; }
-            if (shownClass != p.ClassId) { shownClass = p.ClassId; RefreshClassArt(p, hero.Class); }
-            for (int i = 0; i < tabs.Length; i++) { tabs[i].SetSelected((int)mode == i); tabs[i].Set(true, null, i == (int)Mode.Skill); }
-            RectTransform active = tabs[(int)mode].Root;
-            ((RectTransform)tabArrow.transform).anchoredPosition = new Vector2(active.anchoredPosition.x + 89f, -(BagY + 62f + 45f));
-            loadoutRoot.gameObject.SetActive(mode == Mode.Equipment);
-            bagRoot.gameObject.SetActive(mode == Mode.Inventory);
-            if (mode == Mode.Equipment) RefreshLoadout(p, hero);
-            else RefreshBag(p);
-        }
-
-        /// <summary>Class-dependent art: tab icons and the portrait (rebuilt when the class changes).</summary>
-        void RefreshClassArt(PlayerState p, HeroClassDef cls)
-        {
-            tabIcons[0].sprite = LootSprites.Icon(new Item { slot = Slots.Weapon, classId = p.ClassId, itemLevel = 1 });
-            tabIcons[1].sprite = BagSprites.BagIcon();
-            tabIcons[2].sprite = TouchControls.SkillSprite(cls, cls.SkillIcon >= 0 ? cls.SkillIcon : 0);
-            foreach (Image icon in tabIcons) icon.enabled = icon.sprite != null;
-            SetPortrait(cls);
+            RefreshLoadout(p, hero);
+            RefreshBag(p);
+            RefreshDetail(p);
         }
     }
 }

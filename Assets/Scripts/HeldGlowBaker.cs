@@ -21,8 +21,9 @@ namespace ZenoniaProto
 
         public struct Baked { public Sprite Shine, Halo; public Vector2[] Points; public Color Glow; }
         static readonly Dictionary<string, Baked> Cache = new Dictionary<string, Baked>();
+        static readonly Dictionary<Sprite, Baked> SpriteCache = new Dictionary<Sprite, Baked>();
 
-        public static void ResetState() { Cache.Clear(); }
+        public static void ResetState() { Cache.Clear(); SpriteCache.Clear(); }
 
         /// <summary>Effect layers of the enhanced art; Shine is null when the PNG is missing.</summary>
         public static Baked Get(string folder, OverlayEntry entry)
@@ -32,15 +33,30 @@ namespace ZenoniaProto
             if (Cache.TryGetValue(path, out b)) return b;
             b = new Baked();
             Texture2D tex = SpriteSheet.Load(path);
-            if (tex != null)
-            {
-                if (!ColorUtility.TryParseHtmlString(entry.glow, out b.Glow)) b.Glow = new Color(0.35f, 0.48f, 1f);
-                Color32[] src = SpriteSheet.ReadPixels(tex);
-                b.Shine = BakeShine(src, tex.width, tex.height, entry.enhancedGrip);
-                b.Halo = BakeHalo(src, tex.width, tex.height, entry.enhancedGrip);
-                b.Points = PickPoints(src, tex.width, tex.height, entry.enhancedGrip);
-            }
+            if (tex != null) b = Bake(tex, entry.enhancedGrip, entry.glow);
             Cache[path] = b;
+            return b;
+        }
+
+        /// <summary>Effect layers of art named by an anchor instead of the tier manifest (the mechanic's cannon per facing): pivot at its centre, as GearOverlays.Centered makes it.</summary>
+        public static Baked Get(Sprite art, string glow)
+        {
+            Baked b;
+            if (SpriteCache.TryGetValue(art, out b)) return b;
+            Texture2D tex = art.texture;
+            b = Bake(tex, new GripInfo { w = tex.width, h = tex.height, gripX = tex.width / 2, gripY = tex.height / 2 }, glow);
+            SpriteCache[art] = b;
+            return b;
+        }
+
+        static Baked Bake(Texture2D tex, GripInfo grip, string glow)
+        {
+            var b = new Baked();
+            if (!ColorUtility.TryParseHtmlString(glow, out b.Glow)) b.Glow = new Color(0.35f, 0.48f, 1f);
+            Color32[] src = SpriteSheet.ReadPixels(tex);
+            b.Shine = BakeShine(src, tex.width, tex.height, grip);
+            b.Halo = BakeHalo(src, tex.width, tex.height, grip);
+            b.Points = PickPoints(src, tex.width, tex.height, grip);
             return b;
         }
 

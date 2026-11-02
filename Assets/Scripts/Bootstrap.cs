@@ -43,6 +43,7 @@ namespace ZenoniaProto
             LootDrop.ResetStatics();
             NetEventBus.ResetState();
             LootSprites.ResetState();
+            ItemEnhanceSlotFx.ResetState();
             BagSprites.ResetState();
             UiKit.ResetState();
             InputAdapter.BotHeld = null;

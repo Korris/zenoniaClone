@@ -1,0 +1,142 @@
+{
+ "scrap": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 51,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 52,
+   "gripY": 177
+  }
+ },
+ "brass": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  }
+ },
+ "copper": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 52,
+   "gripY": 177
+  }
+ },
+ "plasma": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 52,
+   "gripY": 177
+  }
+ },
+ "ember": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  }
+ },
+ "frost": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  }
+ },
+ "volt": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 52,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 53,
+   "gripY": 177
+  }
+ },
+ "gatling": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 52,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 52,
+   "gripY": 177
+  }
+ },
+ "star": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 52,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 52,
+   "gripY": 177
+  }
+ },
+ "dragon": {
+  "base": {
+   "w": 258,
+   "h": 238,
+   "gripX": 51,
+   "gripY": 177
+  },
+  "enhanced": {
+   "w": 258,
+   "h": 238,
+   "gripX": 51,
+   "gripY": 177
+  }
+ }
+}

@@ -6,8 +6,7 @@ using UnityEngine.UI;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// UGUI building blocks of the bag window, the web bag-widgets.js look: bagPanel, bagSlot (rarity border, corner brackets, gold glow
-    /// when selected, padlock), bagButton (steel / blue / gold, dimmed when unusable) and web-positioned text (x, y = the web drawText anchor).
+    /// UGUI building blocks of the bag window: cell (dark backing, thin rarity edge, gold glow when selected, padlock), art button and text anchored by its align side.
     /// </summary>
     public static class BagWidgets
     {
@@ -55,7 +54,7 @@ namespace ZenoniaProto
         public sealed class Slot
         {
             public RectTransform Root;
-            public Image Glow, Back, Edge, Brackets, Icon, Lock;
+            public Image Glow, Back, Edge, Icon, Lock;
             public Text Count;
 
             public Slot(Transform parent, string name, float x, float y, float size, UnityAction onClick)
@@ -64,7 +63,6 @@ namespace ZenoniaProto
                 Glow = Img(Root, "Glow", -10f, -10f, size + 20f, size + 20f, BagSprites.Glow(), Hex("#ffd576"));
                 Back = Img(Root, "Back", 0f, 0f, size, size, BagSprites.SlotBack(), Color.white, true);
                 Edge = Img(Root, "Edge", 0f, 0f, size, size, BagSprites.SlotEdge(), Color.white);
-                Brackets = Img(Root, "Brackets", 0f, 0f, size, size, BagSprites.SlotBrackets(), Color.white);
                 Icon = UiKit.Icon(Root, "Icon", 0f, 0f, size);
                 Lock = Img(Root, "Lock", size * 0.25f, size * 0.25f, size * 0.5f, size * 0.5f, BagSprites.Lock(), Hex("#43596d"));
                 Count = Text(Root, "Count", size - 10f, size - 17f, "", 14, "#ffffff", TextAnchor.UpperRight, size);
@@ -76,7 +74,6 @@ namespace ZenoniaProto
             {
                 Glow.enabled = selected;
                 Edge.color = selected ? Hex("#ffe7a5") : edge;
-                Brackets.color = selected ? Hex("#fff2c4") : Hex("#b6c8d499");
                 Lock.enabled = locked;
             }
 
@@ -91,41 +88,31 @@ namespace ZenoniaProto
                 rt.anchoredPosition = new Vector2((size - boxPx) * 0.5f, -(size - boxPx) * 0.5f);
                 rt.sizeDelta = new Vector2(boxPx, boxPx);
             }
+
+            /// <summary>Enhance effect of the item drawn in this cell; call after SetIcon, null = none.</summary>
+            public void SetEnhance(Rpg.Item item) { ItemEnhanceSlotFx.Show(Icon, item); }
         }
 
-        /// <summary>Web bagButton: tone gradient, centred bold label; Dim = 45% alpha (still clickable, the click explains why).</summary>
+        /// <summary>Gold-and-navy art button with a centred bold label (Gold = btn-gold, the rest btn-navy); Dim = 45% alpha, still tappable: the tap explains why.</summary>
         public sealed class BagButton
         {
-            public readonly Image Bg, Glow;
             public readonly Text Label;
+            public readonly RectTransform Root;
             readonly CanvasGroup group;
-            readonly BagSprites.Tone tone;
 
             public BagButton(Transform parent, string name, float x, float y, float w, float h, string text, BagSprites.Tone tone, UnityAction onClick)
             {
-                this.tone = tone;
-                RectTransform rt = UiKit.Rect(parent, name, x, y, w, h);
-                group = rt.gameObject.AddComponent<CanvasGroup>();
-                Glow = Img(rt, "Glow", -10f, -10f, w + 20f, h + 20f, BagSprites.Glow(), Hex("#58caff"));
-                Glow.enabled = false;
-                Bg = Img(rt, "Bg", 0f, 0f, w, h, BagSprites.Button(tone), Color.white, true);
-                Label = UiKit.Label(UiKit.Fill(rt, "Label"), text, 16, Hex("#f4f7ff"), TextAnchor.MiddleCenter, true);
-                Clickable(rt.gameObject, Bg, onClick);
+                Button b = UiWinKit.ArtButton(parent, name, tone == BagSprites.Tone.Gold ? "btn-gold" : "btn-navy", x, y, w, h, text, 16, tone == BagSprites.Tone.Gold ? new Color(0.25f, 0.13f, 0.03f) : new Color(0.96f, 0.97f, 1f), () => onClick());
+                Root = (RectTransform)b.transform;
+                Label = b.GetComponentInChildren<Text>();
+                group = Root.gameObject.AddComponent<CanvasGroup>();
             }
-
-            public RectTransform Root { get { return (RectTransform)Bg.transform.parent; } }
 
             public void Set(bool visible, string text = null, bool dim = false)
             {
                 Root.gameObject.SetActive(visible);
                 if (text != null) Label.text = text;
                 group.alpha = dim ? 0.45f : 1f;
-            }
-
-            public void SetSelected(bool selected)
-            {
-                Glow.enabled = selected;
-                Bg.sprite = BagSprites.Button(selected ? BagSprites.Tone.Blue : tone, selected);
             }
         }
     }

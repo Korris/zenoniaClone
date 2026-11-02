@@ -26,6 +26,7 @@ namespace ZenoniaProto
         readonly Spark[] stars, motes;
         Transform holder;
         OverlayEntry bakedEntry;
+        Sprite bakedArt;
         HeldGlowBaker.Baked baked;
         bool shown;
 
@@ -55,10 +56,11 @@ namespace ZenoniaProto
             motes = new Spark[Mathf.CeilToInt(top.Motes * share)];
         }
 
-        /// <summary>Draws one frame, after the art's transform is final. order = the art's sorting order, topOrder = above the hero's body and gear.</summary>
-        public void Draw(string folder, OverlayEntry entry, int band, int order, int topOrder, bool behind, float alpha)
+        /// <summary>Draws one frame, after the art's transform is final. order = the art's sorting order, topOrder = above the hero's body and gear. ownArt = the frame draws art named by its anchor, so the layers come from that art; it can change with the facing.</summary>
+        public void Draw(string folder, OverlayEntry entry, int band, int order, int topOrder, bool behind, float alpha, Sprite ownArt = null)
         {
-            if (entry != bakedEntry) { bakedEntry = entry; baked = HeldGlowBaker.Get(folder, entry); } // bakes once per art; the string key is not rebuilt per frame
+            if (ownArt != null) { if (ownArt != bakedArt) { bakedArt = ownArt; bakedEntry = null; baked = HeldGlowBaker.Get(ownArt, entry.glow); } }
+            else if (entry != bakedEntry) { bakedEntry = entry; bakedArt = null; baked = HeldGlowBaker.Get(folder, entry); } // bakes once per art; the string key is not rebuilt per frame
             if (baked.Shine == null) { Hide(); return; }
             shown = true;
             FeelConfig.EnhanceLook look = FeelConfig.EnhanceLooks[Mathf.Clamp(band, 1, FeelConfig.EnhanceLooks.Length) - 1];
