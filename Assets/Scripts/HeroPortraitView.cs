@@ -10,9 +10,9 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class HeroPortraitView : MonoBehaviour
     {
-        const int TextureW = 576, TextureH = 528;      // twice the 288 x 264 box: the art is 8 px per world unit, so it never gets softer than the game
+        const int TextureW = 672, TextureH = 528;      // twice the 336 x 264 box: the art is 8 px per world unit, so it never gets softer than the game
         const float CameraHalfHeight = 16f, FeetAboveBottom = 7f, IdleFps = 6f; // the Warrior's sword tip hangs below his feet
-        const float WarriorShiftX = -3.5f; // his sword reaches far to the left, his body stays right of centre so the tip fits
+        const float WarriorShiftX = 0f; // the box is wide enough for his body to stand in the middle with the sword beside him
         static readonly Vector3 Stage = new Vector3(-34000f, -30000f, 0f); // far outside every map, apart from HeroSelectPreview's stage
 
         readonly HeroRenderer[] views = new HeroRenderer[HeroClassDef.All.Length];

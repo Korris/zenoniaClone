@@ -17,13 +17,28 @@ mv = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mv)
 
 SRC = "Assets/ArtLibrary/classes/warrior/new-style/idle-down"
-PAINTING = f"{SRC}/warrior-idle-down-bare-1.png"
 FRAME, HEIGHT, SOLE_ROW, HEAD_X = mv.FRAME, mv.HEIGHT, mv.SOLE_ROW, mv.HEAD_X
-SWORD_S, SHIELD_S = mv.SWORD_S, mv.SHIELD_S
-SWORD_ANGLE, SHIELD_ANGLE = -135, 4  # walk down is -135, so the sword does not jump; the approved shield leans 4
+SWORD_S, SHIELD_S = float(os.environ.get("DOLL_SWORD_S", mv.SWORD_S)), mv.SHIELD_S  # DOLL_SWORD_S only to preview another sword size: the game keeps one size
+
+
+def _env(name, default, parse=lambda v: v):
+    """Another pose can be built without editing this file: DOLL_PAINTING, DOLL_SWORD_FIST=x,y, DOLL_SHIELD_FIST=x,y, DOLL_SWORD_ANGLE, DOLL_SHIELD_ANGLE, DOLL_SWORD_BEHIND=1."""
+    v = os.environ.get(name)
+    return default if v is None else parse(v)
+
+
+def _pair(v):
+    a, b = v.split(",")
+    return float(a), float(b)
+
+
+PAINTING = _env("DOLL_PAINTING", f"{SRC}/warrior-idle-down-bare-1.png")
+SWORD_ANGLE, SHIELD_ANGLE = _env("DOLL_SWORD_ANGLE", -135, float), _env("DOLL_SHIELD_ANGLE", 4, float)  # walk down is -135, so the sword does not jump; the approved shield leans 4
+SWORD_BEHIND = _env("DOLL_SWORD_BEHIND", False, lambda v: v == "1")
 # Fist centres in the upright pose, frame px, read from the `preview` grid. The shield strap sits on the forearm, as on the other rows.
-SWORD_FIST = (55.5, 133.0)
-SHIELD_FIST = (129.5, 129.0)
+SWORD_FIST = _env("DOLL_SWORD_FIST", (55.5, 133.0), _pair)
+SHIELD_FIST = _env("DOLL_SHIELD_FIST", (129.5, 129.0), _pair)
+HEAD_GROW = _env("DOLL_HEAD_GROW", None, _pair)
 
 
 def pose():
@@ -41,6 +56,8 @@ def pose():
     cell = np.zeros((FRAME, FRAME, 4))
     cell[y:y + scaled.shape[0], x:x + scaled.shape[1]] = scaled
     print(f"scale {scale:.4f} x {x}..{x + scaled.shape[1]} y {y}..{y + scaled.shape[0] - 1}")
+    if HEAD_GROW:  # DOLL_HEAD_GROW=k,neckRow: the head alone k times bigger, when a repaint came out with a smaller head than the rows in the game
+        cell = mv.grow_head(cell, HEAD_GROW[0], int(HEAD_GROW[1]))
     return cell
 
 
@@ -52,7 +69,7 @@ def anchors():
     sword, shield = [], []
     for f in range(4):
         x, y = lifted(SWORD_FIST, f)
-        sword.append({"x": round(x, 3), "y": round(y, 3), "angle": SWORD_ANGLE, "s": SWORD_S, "sx": 1, "behind": False, "hidden": False, "fallback": False})
+        sword.append({"x": round(x, 3), "y": round(y, 3), "angle": SWORD_ANGLE, "s": SWORD_S, "sx": 1, "behind": SWORD_BEHIND, "hidden": False, "fallback": False})
         x, y = lifted(SHIELD_FIST, f)
         shield.append({"x": round(x, 3), "y": round(y - mv.SHIELD_ABOVE_FIST, 3), "angle": SHIELD_ANGLE, "s": SHIELD_S, "sx": 1, "behind": False, "hidden": False, "fallback": False})
     return sword, shield
@@ -69,7 +86,7 @@ def write_sheets(bare_dir, armed_dir, hand_dir, cell):
         for f in range(4):
             frame = mv.breathe(cell, f)
             if layer == "hand":
-                frame = frame * mv.fist_mask(*lifted(SWORD_FIST, f))[..., None]
+                frame = np.zeros_like(frame) if SWORD_BEHIND else frame * mv.fist_mask(*lifted(SWORD_FIST, f))[..., None]
             px[0:FRAME, f * FRAME:(f + 1) * FRAME] = mv.to_rgba(frame)
         Image.fromarray(px, "RGBA").save(f"{folder}/idle.png")
 

@@ -29,6 +29,22 @@ namespace ZenoniaProto.Rpg
         /// <summary>Shared art tier: itemLevel 1/5 -> 0, 10/15 -> 1 ... 90/95 -> 9.</summary>
         public static int EquipmentTier(int itemLevel) { return RpgMath.Clamp(itemLevel / 10, 0, 9); }
 
+        /// <summary>Weapon and offhand names per class and art tier (the user's MU-style set for the Warrior, 2026-11-03); classes missing here keep ClassStatDef.WeaponName / OffhandName.</summary>
+        public static readonly Dictionary<string, string[]> WeaponTierNames = new Dictionary<string, string[]>
+        {
+            { "warrior", new[] { "Lightning Blade", "Star Lance", "Crimson Blade", "Balrog", "Frost Blade", "Thunder Hammer", "Chaos Axe", "Dark Reaper", "Divine Sword", "Dragon Slayer" } },
+        };
+        public static readonly Dictionary<string, string[]> OffhandTierNames = new Dictionary<string, string[]>
+        {
+            { "warrior", new[] { "Lightning Shield", "Star Shield", "Crimson Shield", "Balrog Shield", "Frost Shield", "Thunder Shield", "Chaos Shield", "Reaper Shield", "Divine Shield", "Dragon Shield" } },
+        };
+
+        public static string TierName(Dictionary<string, string[]> table, string classId, int itemLevel, string fallback)
+        {
+            string[] names;
+            return classId != null && table.TryGetValue(classId, out names) ? names[EquipmentTier(itemLevel)] : fallback;
+        }
+
         public static readonly Dictionary<string, string[]> ArmorTierNames = new Dictionary<string, string[]>
         {
             { Slots.Helmet, new[] { "Leather Cap", "Steel Helm", "Bronze Helm", "Frost Helm", "Flame Helm", "Royal Helm", "Verdant Helm", "Arcane Helm", "Celestial Helm", "Dragon Helm" } },

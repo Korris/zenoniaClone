@@ -16,6 +16,7 @@ namespace ZenoniaProto
     public partial class InventoryPanel : MonoBehaviour
     {
         const float W = 956f, H = 556f, PanelY = 70f, PanelH = 460f;
+        const float LeftW = 336f, CentreW = 350f, RightW = 210f, Gap = 6f; // the hero panel is wide enough for the Warrior to stand in its middle with his sword beside him
         const float DoubleClickSeconds = 0.35f, MessageSeconds = 1.5f;
         const int WornClickBase = 1000; // keeps worn slots and grid cells apart in the double-tap check
         static InventoryPanel instance;
@@ -84,9 +85,9 @@ namespace ZenoniaProto
             BuildTab(win, 286f, "tab-inactive", "Skill", () => { Close(); SkillTreeWindow.Open(transform.parent); });
             UiWinKit.CloseButton(win, W - 62f, 14f, 42f, Close);
 
-            BuildLoadout(Section(win, "Left", 24f, 288f));
-            BuildBag(Section(win, "Centre", 318f, 398f));
-            BuildDetail(Section(win, "Right", 722f, 210f));
+            BuildLoadout(Section(win, "Left", 24f, LeftW));
+            BuildBag(Section(win, "Centre", 24f + LeftW + Gap, CentreW));
+            BuildDetail(Section(win, "Right", 24f + LeftW + Gap + CentreW + Gap, RightW));
             overlay.gameObject.SetActive(false);
         }
 

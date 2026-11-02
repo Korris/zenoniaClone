@@ -8,6 +8,9 @@
   build-warrior-sword.py cut-template        write sword-src/template-cut.png, the cut iron with its crack neutralised, for the paint prompts
   build-warrior-sword.py parallel [check] <tier>...   cut sword-src/parallel-<tier>-<kind>-src.png, painted to the first iron's shape, keeping their own width
   build-warrior-sword.py icons               rebuild only the weapon-warrior-<tier> icons, as Tools/build-item-icons.py does
+  build-warrior-sword.py mu [check] <tier>...   cut sword-src/mu-<tier>-src.png, one image holding the normal sword (left) and the enhanced one (right),
+                                             each with its own silhouette (MU-style redesign, 2026-11-03): keyed, levelled, scaled so the handle centre
+                                             sits on GRIP_ROW, pommel squeezed into the rows left; writes w, h, gripX, gripY. Old sprites go to sword-src/old-<date>/
 
 Painted tiers are fitted to the frame of the cut iron-base.png: same canvas, placed where their alpha overlaps iron's most.
 
@@ -421,6 +424,114 @@ def main_parallel(tiers, write):
         update_gear(entries)
 
 
+def split_pair(rgba):
+    """Left and right sword of a two-sword sheet: the widest empty column band near the middle separates them. Specks are already dropped by key_out."""
+    cols = rgba[..., 3].max(axis=0) > 8
+    w = len(cols)
+    gaps, start = [], None
+    for x in range(w):
+        if not cols[x] and start is None:
+            start = x
+        elif cols[x] and start is not None:
+            gaps.append((start, x)); start = None
+    mid = [(a, b) for a, b in gaps if a > w * 0.25 and b < w * 0.75]
+    if not mid:
+        raise SystemExit("no empty column between the two swords")
+    a, b = max(mid, key=lambda g: g[1] - g[0])
+    cut = (a + b) // 2
+    return rgba[:, :cut], rgba[:, cut:]
+
+
+def level(rgba):
+    """Rotates the sword so its long axis stands vertical, found from the alpha's principal axis. Small tilts only; the art is drawn upright."""
+    ys, xs = np.nonzero(rgba[..., 3] > 128)
+    cov = np.cov(np.vstack([xs - xs.mean(), ys - ys.mean()]))
+    val, vec = np.linalg.eigh(cov)
+    vx, vy = vec[:, int(np.argmax(val))]
+    deg = math.degrees(math.atan2(vx, vy))  # 0 when the long axis is vertical
+    if deg > 90:
+        deg -= 180
+    if deg < -90:
+        deg += 180
+    if abs(deg) < 0.3:
+        return rgba, 0.0
+    im = hs.to_image(rgba).rotate(-deg, resample=Image.BICUBIC, expand=True)
+    return np.asarray(im).astype(np.float32), deg
+
+
+def handle_run(solid):
+    """Rows of the plain grip, between the guard and the pommel: the guard is the widest row in the lower half, the grip the narrowest row
+    below it (the pommel's rounded end, the last 8% of rows, does not count), and the run is every row around that narrowest one
+    no wider than 1.3 times it. Returns (top, bottom) inclusive."""
+    h = solid.shape[0]
+    widths = solid.sum(axis=1)
+    lo = int(h * 0.5)
+    guard = lo + int(np.argmax(widths[lo: int(h * 0.92)]))
+    tail = int(h * 0.08)
+    narrowest = guard + int(np.argmin(np.where(widths[guard: h - tail] > 0, widths[guard: h - tail], 10 ** 6)))
+    limit = widths[narrowest] * 1.3
+    top = narrowest
+    while top > guard and 0 < widths[top - 1] <= limit:
+        top -= 1
+    bottom = narrowest
+    while bottom < h - 1 and 0 < widths[bottom + 1] <= limit:
+        bottom += 1
+    return top, bottom
+
+
+def cut_mu_one(rgba):
+    """One sword, its own silhouette: one scale from tip to grip centre so that centre lands on GRIP_ROW; what hangs below (grip bottom, pommel)
+    keeps that scale when it fits, else is squeezed into the rows left, as the parallel cut does."""
+    rgba, deg = level(rgba)
+    ys, xs = np.nonzero(rgba[..., 3] > 8)
+    part = rgba[ys.min(): ys.max() + 1, xs.min(): xs.max() + 1]
+    solid = part[..., 3] > 128
+    top, bottom = handle_run(solid)
+    centre = (top + bottom + 1) / 2
+    k = GRIP_ROW / centre
+    w = round(part.shape[1] * k)
+    upper_h = round((bottom + 1) * k)
+    upper = hs.resize(part[: bottom + 1], (w, upper_h))
+    rest = part.shape[0] - (bottom + 1)
+    lower_h = min(HEIGHT - upper_h, round(rest * k))
+    lower = hs.resize(part[bottom + 1:], (w, lower_h))
+    canvas = np.zeros((HEIGHT, w, 4), np.float32)
+    canvas[:upper_h] = upper
+    canvas[upper_h: upper_h + lower_h] = lower
+    mid = int(round(centre * k))
+    cols = np.flatnonzero(canvas[mid, :, 3] > 128)
+    entry = {"w": w, "h": HEIGHT, "gripX": int(cols.min() + cols.max() + 1) // 2, "gripY": GRIP_ROW}
+    info = dict(tilt=round(deg, 2), src_h=int(part.shape[0]), src_w=int(part.shape[1]), scale=round(k, 4), handle_rows=[int(round(top * k)), int(round(bottom * k))],
+                handle_w=int(cols.max() - cols.min() + 1), pommel_squeeze=round(lower_h / max(rest * k, 1), 3), art_rows=upper_h + lower_h)
+    return canvas, entry, info
+
+
+def main_mu(tiers, write):
+    from datetime import date
+    backup = ART / f"sword-src/old-{date.today():%Y%m%d}"
+    entries = {}
+    for tier in tiers:
+        src = ART / f"sword-src/mu-{tier}-src.png"
+        if not src.exists():
+            print(tier, "no source yet"); continue
+        sheet = hs.key_out(src, KEYS.get(tier, hs.GREEN))
+        done = {}
+        for kind, half in zip(("base", "enhanced"), split_pair(sheet)):
+            rgba, entry, info = cut_mu_one(half)
+            print(tier, kind, json.dumps(entry), json.dumps(info))
+            done[kind] = (rgba, entry)
+        if write:
+            backup.mkdir(exist_ok=True)
+            for kind, (rgba, entry) in done.items():
+                old = SPRITES / f"{tier}-{kind}.png"
+                if old.exists() and not (backup / old.name).exists():
+                    shutil.copy2(old, backup / old.name)
+                hs.to_image(rgba).save(old)
+            entries[tier] = {kind: entry for kind, (_, entry) in done.items()}
+    if write and entries:
+        update_gear(entries)
+
+
 def update_gear(entries):
     """Only baseGrip and enhancedGrip of these tiers in the sword list; the shield list has the same names."""
     text = GEAR.read_text(encoding="utf-8")
@@ -475,6 +586,11 @@ if __name__ == "__main__":
             main_parallel(args[2:], False)
         else:
             main_parallel(args[1:], True)
+    elif args[:1] == ["mu"]:
+        if args[1:2] == ["check"]:
+            main_mu(args[2:], False)
+        else:
+            main_mu(args[1:], True)
     elif args == ["cut-template"]:
         write_cut_template()
     elif args == ["icons"]:

@@ -50,8 +50,8 @@ namespace ZenoniaProto.Rpg
                 speedMult = t.Base.speedMult > 0f ? RpgMath.Round3(t.Base.speedMult * scale) : 0f,
             };
             ClassStatDef cls = RpgClasses.Get(classId);
-            string baseName = chosen == Slots.Weapon ? cls.WeaponName
-                : chosen == Slots.Offhand ? RpgClasses.Get(OffhandClass(classId)).OffhandName
+            string baseName = chosen == Slots.Weapon ? ItemDefs.TierName(ItemDefs.WeaponTierNames, classId, itemLevel, cls.WeaponName)
+                : chosen == Slots.Offhand ? ItemDefs.TierName(ItemDefs.OffhandTierNames, OffhandClass(classId), itemLevel, RpgClasses.Get(OffhandClass(classId)).OffhandName)
                 : ItemDefs.ArmorTierNames.ContainsKey(chosen) ? ItemDefs.ArmorTierNames[chosen][ItemDefs.EquipmentTier(itemLevel)] : t.Name;
             var item = new Item
             {

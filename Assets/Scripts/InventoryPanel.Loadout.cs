@@ -33,15 +33,15 @@ namespace ZenoniaProto
             }
         }
 
-        static float WornColumn(int column) { return 10f + column * 68f; }
+        static float WornColumn(int column) { return (LeftW - 3f * 68f - WornSize) * 0.5f + column * 68f; } // 4 cells centred in the panel
 
         void BuildLoadout(RectTransform left)
         {
-            RectTransform heroRect = UiKit.Rect(left, "Hero", 0f, 76f, 288f, 264f); // the whole panel width: a strong halo must not end on a straight edge
+            RectTransform heroRect = UiKit.Rect(left, "Hero", 0f, 76f, LeftW, 264f); // the whole panel width: a strong halo must not end on a straight edge
             RawImage heroImage = heroRect.gameObject.AddComponent<RawImage>();
             heroView = gameObject.AddComponent<HeroPortraitView>();
             heroView.Init(heroImage);
-            classLevelText = BagWidgets.Text(left, "ClassLevel", 144f, 344f, "", 13, "#d9d3bd", TextAnchor.UpperCenter, 260f);
+            classLevelText = BagWidgets.Text(left, "ClassLevel", LeftW * 0.5f, 344f, "", 13, "#d9d3bd", TextAnchor.UpperCenter, 260f);
 
             for (int i = 0; i < equipSlots.Length; i++)
             {
@@ -51,7 +51,7 @@ namespace ZenoniaProto
             }
 
             new BagWidgets.BagButton(left, "Stats", WornColumn(3), 376f, WornSize, WornSize, "Stats", BagSprites.Tone.Blue, () => statsPopup.gameObject.SetActive(!statsPopup.gameObject.activeSelf));
-            statsPopup = UiKit.Rect(left, "StatsPopup", 8f, 8f, 272f, 360f);
+            statsPopup = UiKit.Rect(left, "StatsPopup", 8f, 8f, LeftW - 16f, 360f);
             UiWinKit.Sliced(statsPopup, "panel", 0.4f, true);
             BagWidgets.Text(statsPopup, "Title", 24f, 18f, "Stats", 18, "#ffedb3", TextAnchor.UpperLeft, 200f, true);
             for (int i = 0; i < StatusLabels.Length; i++)
