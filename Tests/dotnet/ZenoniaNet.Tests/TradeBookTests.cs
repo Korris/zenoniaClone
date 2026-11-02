@@ -672,7 +672,7 @@ public class TradeBookTests
     [Fact]
     public void ThereIsARefusalForTheFixedInventoryRequests()
     {
-        foreach (InvOp op in new[] { InvOp.Equip, InvOp.Unequip, InvOp.Use, InvOp.Discard, InvOp.Sort, InvOp.Enhance, InvOp.SkillRespec, InvOp.PotionBuy, InvOp.PetBuy })
+        foreach (InvOp op in new[] { InvOp.Equip, InvOp.Unequip, InvOp.Use, InvOp.Discard, InvOp.Sort, InvOp.Enhance, InvOp.SkillRespec, InvOp.PotionBuy, InvOp.PetBuy, InvOp.QuestAccept, InvOp.QuestTurnIn })
             Assert.True(TradeBook.BlocksInventoryOp(op), op.ToString());
         Assert.False(TradeBook.BlocksInventoryOp(InvOp.SkillLearn));
         Assert.False(TradeBook.BlocksInventoryOp(InvOp.SkillAssign));

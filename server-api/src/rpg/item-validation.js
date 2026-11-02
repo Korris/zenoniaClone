@@ -46,6 +46,12 @@ export const stateSchema = z
     bossDefeated: z.boolean().default(false),
     // SaveData.defeatedBossMaps: map ids whose boss this save killed. Absent in old saves = none. Listed so the strip below keeps it.
     defeatedBossMaps: z.array(z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/)).max(32).default([]),
+    // SaveData.quests (QuestLog): quests taken so far; 1 Active, 2 ReadyToTurnIn, 3 Done. Absent in old saves = none. Listed so the strip below keeps it.
+    quests: z.array(z.object({
+      id: z.string().min(1).max(64).regex(/^[A-Za-z0-9._-]+$/),
+      state: z.number().int().min(1).max(3),
+      progress: z.number().int().min(0).max(MAX_INT),
+    })).max(64).default([]),
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
     // Skill tree (SaveData.skillRanks / skillSlots): ranks by tree index, magazine slot -> tree index or -1. Absent in old saves = nothing learned.

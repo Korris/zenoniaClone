@@ -62,6 +62,16 @@ describe('save snapshot', () => {
     expect((await save(o, { ...o.state, defeatedBossMaps: ['bad id!'] }, 1)).status).toBe(400);
   });
 
+  it('keeps quest progress and rejects a malformed entry', async () => {
+    const o = await c.online();
+    const quests = [{ id: 'crystal-survey', state: 1, progress: 3 }];
+    expect((await save(o, { ...o.state, quests })).status).toBe(200);
+    const loaded = (await c.call('GET', `/characters/${o.char.id}`, { token: o.user.accessToken })).body.character;
+    expect(loaded.state.quests).toEqual(quests);
+    expect((await save(o, { ...o.state, quests: [{ id: 'crystal-survey', state: 9, progress: 0 }] }, 1)).status).toBe(400);
+    expect((await save(o, { ...o.state, quests: [{ id: 'bad id!', state: 1, progress: 0 }] }, 1)).status).toBe(400);
+  });
+
   it('rejects a stale rev (409 rev_conflict with currentRev) and a wrong session', async () => {
     const o = await c.online();
     expect((await save(o, o.state, 0)).status).toBe(200);

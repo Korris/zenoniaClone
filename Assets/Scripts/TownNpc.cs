@@ -7,8 +7,7 @@ namespace ZenoniaProto
     /// <summary>
     /// A villager standing on a tile of the current map: the web's HD idle sheet (192 px frames at 8 px per unit = hero height, 4 idle frames per
     /// facing row down / left / right) with a ground shadow. View-only client code, also online: no server state. InRange tells WindowsHost when "Talk" / E works for the
-    /// nearest one; Talk() opens the idle chatter (NpcDialogueBox, the villager's face as portrait), and offline the quest dialogue for the quest giver: a quest counts kills
-    /// and pays rewards, which online would need server state, so online the quest giver only chats like everybody else.
+    /// nearest one; Talk() opens the idle chatter (NpcDialogueBox, the villager's face as portrait), or the quest dialogue for a quest giver (ElderNpc, online too: the zone server owns the quest state).
     /// </summary>
     public sealed class TownNpc : MonoBehaviour
     {
@@ -52,7 +51,7 @@ namespace ZenoniaProto
                 body = ProceduralSprites.Child(transform, "Body", idle[0]);
                 body.sortingOrder = order + 3;
             }
-            if (def.QuestGiver && NetMode.IsOffline) ElderNpc.Attach(this);
+            if (def.QuestGiver) ElderNpc.Attach(this);
             All.Add(this);
         }
 
@@ -86,7 +85,7 @@ namespace ZenoniaProto
         {
             TownNpc n = Nearest();
             if (n == null) return;
-            if (n.Def.QuestGiver && NetMode.IsOffline) { ElderNpc.Talk(); return; }
+            if (n.Def.QuestGiver && ElderNpc.Talk(n.Def.Id)) return;
             if (PotionShops.IsSeller(n.Def.Id)) { PotionShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }
             NpcDialogueBox.Open(n.Def.Name, Portrait(n.Def.Art), n.Def.Lines, null);
         }

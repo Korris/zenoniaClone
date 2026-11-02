@@ -82,6 +82,7 @@ Mới xem ảnh ghép hoặc ảnh tĩnh:
 - Đăng nhập và quên mật khẩu trên điện thoại, gửi mail Gmail thật. APK `C:\temp\apk\Zenonia.apk` chưa cài thử trên máy thật: nút, chữ, video màn chọn tướng.
 - Chuyển động từng class: giật frame, vũ khí trong tay, đường chém. Đo cỡ đầu mọi hàng so với idle hướng xuống (`grow_head`).
 - Smoke test `FrostSmokeTest` trong Unity chưa chạy lại.
+- Quest online, dấu `?`, `!` trên đầu NPC và minimap, cửa sổ danh sách quest (`QuestLogWindow`, nút Quests): có unit test, build được, chưa chạy thử trong game, chưa xem dấu minimap cỡ 15 có rõ không (`QuestSize` trong `Minimap.cs`). Người dùng tự test.
 
 ## Lỗi đã biết, chưa sửa
 
@@ -105,7 +106,24 @@ Tên game Pocket Valor, tên miền `pocketvalor.luckyday.io.vn`, VPS Ubuntu có
 4. `.\Tools\package-server.ps1`, chép lên VPS, `bash start.sh`, theo `docs/deploy.md`. Deploy `server-api` trước zone vì save lên bản 2.
 5. Bản phát hành: `Tools/build-from-copy.ps1 -Release -ApiUrl https://pocketvalor.luckyday.io.vn`.
 
-Chưa chạy thật trên Ubuntu, chưa có bản server Linux, nginx và certbot chưa chạy lần nào, mongodump thật chưa chạy. Protocol đang 12: build lại client và server cùng lúc. Chờ người dùng chốt: bản phát hành mở thẳng màn đăng nhập (đề xuất có; hiện mở màn chọn tướng offline).
+Chưa chạy thật trên Ubuntu, chưa có bản server Linux, nginx và certbot chưa chạy lần nào, mongodump thật chưa chạy. Protocol đang 13: build lại client và server cùng lúc. Chờ người dùng chốt: bản phát hành mở thẳng màn đăng nhập (đề xuất có; hiện mở màn chọn tướng offline).
+
+## Đang bàn dở (2026-11-02): map tự do kiểu MU, chưa sửa code
+
+Người dùng muốn: bỏ Boss Gate, đi map tự do, độ khó nằm ở quái chứ không cấm khám phá. Giữ quest Elder (tuỳ chọn) và phần quest. Không đổi dungeon, không sửa hệ thống không liên quan. Đã báo cáo audit, **chưa code gì, chờ người dùng chốt 3 điểm rồi mới làm**:
+
+1. Cấp đeo đồ = tier × 10, tối đa 60 (`MaxLevel` = 60). Chỉ kiểm tra lúc Equip, đồ đang đeo giữ nguyên. Vẫn trade và giữ đồ cao cấp được, cường hoá không tăng yêu cầu.
+2. Frostfang King giữ Lv 3 (đứng ở (7,5) giữa bãi slime đầu game).
+3. Nút "Return to Town" hiện khoảng 10 giây sau khi hồi sinh.
+
+Thứ tự làm khi được chốt: gate và cảnh báo, EXP, đồ, quái, về thành.
+
+- **Gate:** chỉ có một chỗ, portal Den sang Sunspire. Bỏ gate, boss vẫn ở đó để lấy đồ, có thể thêm cấp đề xuất hoặc cảnh báo.
+- **EXP:** nhân theo cấp quái trừ cấp người nhận, 100/60/25/10%. Không cấm kéo cấp. Khoảng 240 con để lên Lv 20, so với 200 khi đánh một mình và 90 khi chưa nhân.
+- **Quái:** Frost Hollow Lv 1-10, Den Lv 13-18, theo công thức HP 14+22L, Atk 3+4L, Def 1+L, EXP 14L, vàng L..2L+1.
+- **Warden:** giữ lại. Tính ra đường vòng cách 107 đơn vị, aggro 85, đi qua (19,14), (24,19), (33,17) tới (34,10). Chưa thử trong game.
+
+**Cấp tối đa** (người dùng hỏi sao không nâng): nâng được, đổi cùng lúc `Leveling.MaxLevel` và `MAX_LEVEL` trong `server-api/src/rpg/rpg-constants.js`; EXP không tràn số (tới Lv 100 là 1.975.018). Vướng ở skill tree: học full cần 80 SP, cấp 60 cho 60 SP nên phải chọn hướng; lên 80 thì hết phải chọn, trên 80 thì dư SP. Quái hiện cao nhất Lv 35. Đề xuất giữ 60, nâng khi có map cao và thêm skill hoặc rank. Người dùng chưa trả lời.
 
 ## Tính năng chờ làm
 

@@ -1,30 +1,33 @@
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Elder Thomas' quest side: the bobbing marker above his TownNpc body ("!" = quest available, "?" = ready to turn in) and Talk(), which picks
-    /// the dialogue for the quest state and chains into the quest offer / reward. Offline only (the quest counts local kills); the body, shadow and
+    /// A quest giver's quest side: the bobbing marker above his TownNpc body ("?" = quest available, "!" = ready to turn in) and Talk(), which picks
+    /// the dialogue for the quest state and chains into the quest offer / reward. Online and offline: the state comes from the hero's QuestLog; the body, shadow and
     /// talk range belong to TownNpc.
     /// </summary>
     public sealed class ElderNpc : MonoBehaviour
     {
         const float BodyHeight = 24f;
 
+        string npcId;
         Transform markerAvailable, markerReady;
 
-        /// <summary>Adds the quest markers to the villager that runs the quest.</summary>
-        public static void Attach(TownNpc npc) { npc.gameObject.AddComponent<ElderNpc>().Build(); }
+        /// <summary>Adds the quest markers to a villager that gives quests.</summary>
+        public static void Attach(TownNpc npc) { npc.gameObject.AddComponent<ElderNpc>().Build(npc.Def.Id); }
 
-        void Build()
+        void Build(string id)
         {
+            npcId = id;
             int order = GameConfig.OrderBase(transform.position.y);
-            markerAvailable = QuestMarker("MarkerAvailable", false, order + 5);
-            markerReady = QuestMarker("MarkerReady", true, order + 5);
+            markerAvailable = BuildMarker("MarkerAvailable", true, order + 5);
+            markerReady = BuildMarker("MarkerReady", false, order + 5);
         }
 
         /// <summary>"!" = the win-quest-icon ring; "?" = a navy disc with a gold rim + a pixel "?" glyph, since the art only has the "!".</summary>
-        Transform QuestMarker(string name, bool question, int order)
+        Transform BuildMarker(string name, bool question, int order)
         {
             var go = new GameObject(name);
             go.transform.SetParent(transform, false);
@@ -60,27 +63,30 @@ namespace ZenoniaProto
             return questionMark;
         }
 
-        /// <summary>Starts the conversation that fits the quest state.</summary>
-        public static void Talk()
+        /// <summary>Starts the conversation that fits the quest state. False = this villager has no quest to talk about (or no hero yet).</summary>
+        public static bool Talk(string npcId)
         {
-            QuestDef q = QuestTracker.Def;
-            switch (QuestTracker.State)
+            QuestLog log = QuestTracker.Log;
+            QuestDef q = log != null ? log.TalkAbout(npcId) : null;
+            if (q == null) return false;
+            switch (log.StateOf(q))
             {
                 case QuestState.Available:
-                    NpcDialogueBox.Open(q.GiverName, Portrait(), q.OfferLines, () => QuestOfferWindow.Open(q, QuestTracker.Accept));
+                    NpcDialogueBox.Open(q.GiverName, Portrait(), q.OfferLines, () => QuestOfferWindow.Open(q, () => QuestTracker.Accept(q)));
                     break;
                 case QuestState.Active:
                     var lines = (string[])q.ActiveLines.Clone();
-                    lines[lines.Length - 1] += "\n(" + q.MonsterName + "  " + QuestTracker.Progress + " / " + q.Count + ")";
+                    lines[lines.Length - 1] += "\n(" + q.MonsterName + "  " + log.ProgressOf(q) + " / " + q.Count + ")";
                     NpcDialogueBox.Open(q.GiverName, Portrait(), lines, null);
                     break;
                 case QuestState.ReadyToTurnIn:
-                    NpcDialogueBox.Open(q.GiverName, Portrait(), q.ReadyLines, QuestTracker.TurnIn);
+                    NpcDialogueBox.Open(q.GiverName, Portrait(), q.ReadyLines, () => QuestTracker.TurnIn(q));
                     break;
                 default:
                     NpcDialogueBox.Open(q.GiverName, Portrait(), q.DoneLines, null);
                     break;
             }
+            return true;
         }
 
         static Sprite Portrait() { return UiArt.Win("portrait-elder"); }
@@ -90,8 +96,10 @@ namespace ZenoniaProto
             float bob = Mathf.Sin(Time.time * 3f) * 1.2f;
             markerAvailable.localPosition = new Vector3(0f, BodyHeight + 9f + bob, 0f);
             markerReady.localPosition = markerAvailable.localPosition;
-            markerAvailable.gameObject.SetActive(QuestTracker.State == QuestState.Available);
-            markerReady.gameObject.SetActive(QuestTracker.State == QuestState.ReadyToTurnIn);
+            QuestLog log = QuestTracker.Log;
+            QuestMarker marker = log != null ? log.MarkerFor(npcId) : QuestMarker.None;
+            markerAvailable.gameObject.SetActive(marker == QuestMarker.Available);
+            markerReady.gameObject.SetActive(marker == QuestMarker.Ready);
         }
     }
 }

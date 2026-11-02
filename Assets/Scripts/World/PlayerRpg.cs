@@ -28,6 +28,8 @@ namespace ZenoniaProto
         public event Action PetLow;
         /// <summary>The worn pet reached 0: already out of the slot, stats recomputed.</summary>
         public event Action PetWornOut;
+        /// <summary>A quest moved: accepted, a kill counted, handed in.</summary>
+        public event Action QuestChanged;
 
         public PlayerRpg(PlayerState state) { State = state; }
 
@@ -43,6 +45,20 @@ namespace ZenoniaProto
         }
 
         public void RaiseBossKilled() { if (BossKilled != null) BossKilled(); }
+
+        /// <summary>This player got credit for a kill. Nothing is raised when no quest wants this monster.</summary>
+        public void QuestKill(string monsterType)
+        {
+            if (!State.Quests.CountKill(monsterType)) return;
+            if (QuestChanged != null) QuestChanged();
+            Touch();
+        }
+
+        ActionResult QuestStep(ActionResult r)
+        {
+            if (r.Ok && QuestChanged != null) QuestChanged();
+            return r;
+        }
 
         public void PetHitTaken() { ReportPet(State.PetHitTaken()); }
         public void PetAttackLanded(long nowMs) { ReportPet(State.PetAttackLanded(nowMs)); }
@@ -129,6 +145,8 @@ namespace ZenoniaProto
                 case InvOp.SkillLearn: r = LearnSkill(slot); break;
                 case InvOp.SkillAssign: r = AssignSkill(slot, itemUid); break;
                 case InvOp.SkillRespec: r = SkillRespec.Apply(State); break;
+                case InvOp.QuestAccept: r = QuestStep(State.AcceptQuest(itemUid)); break;
+                case InvOp.QuestTurnIn: r = QuestStep(State.TurnInQuest(itemUid)); break;
                 default: r = ActionResult.Fail("Unknown action"); break;
             }
             Touch();

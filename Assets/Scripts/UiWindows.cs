@@ -9,8 +9,8 @@ namespace ZenoniaProto
         /// <summary>The NPC dialogue or the quest offer is open.</summary>
         public static bool DialogueOpen { get { return NpcDialogueBox.IsOpen || QuestOfferWindow.IsOpen; } }
 
-        /// <summary>A modal window is open (dialogue, quest offer, skill tree, potion shop or trade): hero frozen, touch controls hidden, Esc closes it.</summary>
-        public static bool ModalOpen { get { return DialogueOpen || SkillTreeWindow.IsOpen || PotionShopWindow.IsOpen || TradeWindow.IsOpen; } }
+        /// <summary>A modal window is open (dialogue, quest offer, quest list, skill tree, potion shop or trade): hero frozen, touch controls hidden, Esc closes it.</summary>
+        public static bool ModalOpen { get { return DialogueOpen || QuestLogWindow.IsOpen || SkillTreeWindow.IsOpen || PotionShopWindow.IsOpen || TradeWindow.IsOpen; } }
 
         /// <summary>The chat input field owns the keyboard.</summary>
         public static bool ChatTyping;

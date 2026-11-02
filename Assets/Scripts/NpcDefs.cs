@@ -10,7 +10,7 @@ namespace ZenoniaProto
         public string Art;
         public int Facing;
         public string[] Lines;
-        /// <summary>True = talking opens QuestTracker's quest dialogue (ElderNpc) instead of the idle chatter.</summary>
+        /// <summary>True = talking opens the quest dialogue (ElderNpc) instead of the idle chatter, and he shows quest markers. QuestDef.GiverNpcId says which quests.</summary>
         public bool QuestGiver;
     }
 

@@ -71,6 +71,8 @@ namespace ZenoniaProto
             owner.LootPicked += OnLootPicked;
             owner.Revived += OnRevived;
             owner.BossKilled += OnBossKilled;
+            QuestTracker.Observe(player.Quests, false);
+            owner.QuestChanged += () => QuestTracker.Observe(player.Quests, true);
             owner.PetLow += () => RpgHud.Toast(PetConfig.LowText, new Color(1f, 0.75f, 0.35f));
             owner.PetWornOut += () =>
             {

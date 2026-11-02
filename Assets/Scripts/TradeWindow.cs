@@ -256,7 +256,7 @@ namespace ZenoniaProto
                 SetShown(show);
                 if (show)
                 {
-                    InventoryPanel.Close(); PotionShopWindow.Close(); SkillTreeWindow.Close(); NpcDialogueBox.Close(); QuestOfferWindow.Close();
+                    InventoryPanel.Close(); PotionShopWindow.Close(); SkillTreeWindow.Close(); NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close();
                     transform.SetAsLastSibling();
                     page = 0; shownVersion = -1; shownWarnings = trade.WarningCount; sentAtVersion = -1;
                 }

@@ -65,4 +65,6 @@ Các test này không chạy phần hình ảnh. Bảng skill dùng chung với 
 
 ## Tiếp tục việc cũ
 
+Người dùng hay đổi máy: lịch sử, việc dở và nội dung đang bàn phải ghi vào file trong git (`docs/pending-tasks.md`), không ghi vào memory.
+
 `docs/pending-tasks.md` ghi việc đang dở và chat ChatGPT của từng việc: đọc trước. `docs/session-handoff.md` ghi việc dở, nhưng có thể đã cũ: đối chiếu với `git log` trước khi làm theo.

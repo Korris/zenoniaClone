@@ -20,6 +20,7 @@ namespace ZenoniaProto.Rpg
         public List<int> skillRanks = new List<int>(); // 8 ranks (0-10) by tree index; missing in old saves = nothing learned
         public List<int> skillSlots = new List<int>(); // 8 magazine slots: tree index or -1
         public List<string> defeatedBossMaps = new List<string>(); // map ids whose boss this save killed (the Frostfang King stays in bossDefeated); missing in old saves = none
+        public List<QuestEntry> quests = new List<QuestEntry>(); // quests taken so far (QuestLog); missing in old saves = none taken
     }
 
     /// <summary>
@@ -45,6 +46,7 @@ namespace ZenoniaProto.Rpg
             foreach (string slot in Slots.All) { Item e = p.GetEquipped(slot); if (e != null) d.equipment.Add(e); }
             d.skillRanks = p.Skills.ToList(); d.skillSlots = p.Loadout.ToList();
             if (defeatedBossMaps != null) d.defeatedBossMaps.AddRange(defeatedBossMaps);
+            d.quests = p.Quests.ToList();
             return d;
         }
 
@@ -84,6 +86,7 @@ namespace ZenoniaProto.Rpg
             d.skillRanks = ranks.ToList(); d.skillSlots = loadout.ToList();
             foreach (string m in raw.defeatedBossMaps ?? new List<string>())
                 if (IsMapId(m) && !d.defeatedBossMaps.Contains(m) && d.defeatedBossMaps.Count < MaxBossMaps) d.defeatedBossMaps.Add(m);
+            d.quests = QuestLog.Sanitize(raw.quests);
             return d;
         }
 
@@ -111,6 +114,7 @@ namespace ZenoniaProto.Rpg
             }
             p.EquipStarterGear();
             p.Skills.Load(d.skillRanks, d.level); p.Loadout.Load(d.skillSlots, p.Skills);
+            p.Quests.Load(d.quests);
             p.RecomputeStats();
             p.Hp = Math.Min(p.MaxHp, d.hp > 0f ? d.hp : p.MaxHp); // never load a dead hero
             p.Mp = Math.Min(p.MaxMp, d.mp > 0f ? d.mp : p.MaxMp);

@@ -11,11 +11,15 @@ namespace ZenoniaProto
         Text spBadgeText;
         int shownSp = -1;
 
-        /// <summary>Small round menu buttons under the minimap (art cut from hud-bag-settings-buttons.png): Bag opens the inventory, Settings the hero change screen.</summary>
+        /// <summary>Small round menu buttons under the minimap (art cut from hud-bag-settings-buttons.png): Quests opens the quest list, Bag the inventory, Settings the hero change screen.</summary>
         void BuildMenuButtons(Transform parent)
         {
             Vector2 tr = new Vector2(1f, 1f);
             const float size = 50f, y = -185f;
+            RectTransform quests = Place(parent, "Quests", tr, -144f, y, size);
+            Img(quests, MenuSprite("win-quest-icon"), Color.white, true);
+            quests.gameObject.AddComponent<TapButton>().onTap = QuestLogWindow.Open;
+
             RectTransform bag = Place(parent, "Bag", tr, -88f, y, size);
             Img(bag, MenuSprite("hud-bag"), Color.white, true);
             TouchButton.Add(bag.gameObject, GameKey.Inventory, false);

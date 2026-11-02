@@ -12,6 +12,7 @@ namespace ZenoniaProto
     public sealed class ClientRpgMirror
     {
         readonly NetStats stats;
+        bool questsKnown;
         public ClientRpgMirror(NetStats netStats) { stats = netStats; }
 
         public void OnSelfState(SelfStateMsg m)
@@ -32,6 +33,8 @@ namespace ZenoniaProto
             if (save == null) return false;
             PlayerState state = SaveSerializer.Restore(save);
             if (RpgSession.Instance != null) { RpgSession.Instance.AttachRemote(state, hero); RpgSession.Instance.ApplyRemoteBossFlags(save); }
+            if (NetMode.RendersFx) QuestTracker.Observe(state.Quests, questsKnown);
+            questsKnown = true; // the first push of a connection is the character arriving, not news
             if (NetMode.RendersFx && m.ReqId != 0 && !string.IsNullOrEmpty(m.Text)) RpgHud.Toast(m.Text, m.Result == 1 ? new Color(0.7f, 1f, 0.7f) : new Color(1f, 0.7f, 0.5f));
             return true;
         }

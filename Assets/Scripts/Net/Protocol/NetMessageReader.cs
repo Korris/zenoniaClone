@@ -56,7 +56,7 @@ namespace ZenoniaProto.Net
             try
             {
                 m.ReqId = r.GetUInt(); byte op = r.GetByte(); m.ItemUid = r.GetString(NetProtocol.MaxItemUidLength); m.Slot = r.GetByte();
-                if (op > (byte)InvOp.PetBuy) return false;
+                if (op > (byte)InvOp.QuestTurnIn) return false;
                 m.Op = (InvOp)op;
                 return true;
             }

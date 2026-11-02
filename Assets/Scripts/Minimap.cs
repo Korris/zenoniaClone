@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
     /// <summary>
     /// Top-right minimap under the Bag and Settings buttons (web minimap-renderer.js, but the background is the map's own painted ground scaled down, so a new map
     /// needs no per-map work). Live dots: hero yellow (blinking), monsters red, boss big red, other players cyan; also villagers gold and portals white diamonds
-    /// wherever the map draws them (MapScenery). Dots come from pools and move at 10 Hz, so nothing is allocated once the pools have grown.
+    /// wherever the map draws them (MapScenery); a villager with a quest also gets "?" (quest to take) or "!" (quest to hand in) over his dot, from the hero's own QuestLog, so this sends nothing over the network.
+    /// Dots come from pools and move at 10 Hz, so nothing is allocated once the pools have grown.
     /// Only built with views (never on a server or a -nographics client). Display only: it takes no touches, so tapping it does nothing yet.
     /// </summary>
     public sealed class Minimap : MonoBehaviour
@@ -17,7 +19,7 @@ namespace ZenoniaProto
         const float RightMargin = 8f, TopOffset = 8f;                      // same edge gap as the status plate; the Bag and Settings buttons sit below it
         const int BakePxPerTile = 12, BakeW = TileMapBase.W * BakePxPerTile, BakeH = TileMapBase.H * BakePxPerTile; // sharp up to a 1400 px tall screen
         const float TickSeconds = 0.1f, BlinkSeconds = 0.3f;               // web: hero blink 300 ms
-        const float HeroSize = 9f, MonsterSize = 6f, BossSize = 12f, OtherSize = 7f, NpcSize = 7f, PortalSize = 6f;
+        const float HeroSize = 9f, MonsterSize = 6f, BossSize = 12f, OtherSize = 7f, NpcSize = 7f, PortalSize = 6f, QuestSize = 15f;
         static readonly Color HeroOn = new Color(1f, 1f, 0.5f), HeroOff = new Color(1f, 0.82f, 0f);
         static readonly Color MonsterColor = new Color(0.88f, 0.25f, 0.25f), BossColor = new Color(1f, 0.19f, 0.19f);
         static readonly Color OtherColor = new Color(0.35f, 0.85f, 1f), NpcColor = new Color(1f, 0.72f, 0.12f), PortalColor = new Color(0.95f, 1f, 1f);
@@ -27,7 +29,9 @@ namespace ZenoniaProto
         RectTransform root, bossDot, heroDot;
         RawImage ground;
         Image heroImage;
-        DotPool portalDots, npcDots, monsterDots, otherDots;
+        DotPool portalDots, npcDots, monsterDots, otherDots, questTakeDots, questHandInDots;
+        struct QuestGiver { public string Id; public Vector2 Feet; }
+        readonly List<QuestGiver> questGivers = new List<QuestGiver>(); // the villagers of this map who give quests; which marker they show changes with the quest
         Texture2D baked;
         IGameMap shownMap;
         bool shownPortalDots, shownVillagerDots;
@@ -65,6 +69,8 @@ namespace ZenoniaProto
             npcDots = new DotPool(map, "Npcs", UiSprites.Circle(), NpcSize, NpcColor);
             monsterDots = new DotPool(map, "Monsters", UiSprites.Circle(), MonsterSize, MonsterColor);
             otherDots = new DotPool(map, "OtherHeroes", UiSprites.Circle(), OtherSize, OtherColor);
+            questTakeDots = new DotPool(map, "QuestTake", QuestMarkerSprite(QuestionGlyph), QuestSize, Color.white);
+            questHandInDots = new DotPool(map, "QuestHandIn", QuestMarkerSprite(ExclaimGlyph), QuestSize, Color.white);
             bossDot = NewDot(map, "Boss", UiSprites.Circle(), BossSize, BossColor);
             heroDot = NewDot(map, "Hero", UiSprites.Circle(), HeroSize, HeroOn);
             heroImage = heroDot.GetComponent<Image>();
@@ -100,12 +106,19 @@ namespace ZenoniaProto
 
             portalDots.Begin();
             npcDots.Begin();
+            questGivers.Clear();
             if (shownPortalDots)
                 foreach (MapPortal p in map.Portals)
                     if (!LowerOfPair(map, p)) portalDots.Put(new Vector2((p.Tx + 0.5f) * GameConfig.TileUnits, GameConfig.MapH - (p.Ty + 0.5f) * GameConfig.TileUnits));
             if (shownVillagerDots)
                 foreach (MapNpc n in map.Npcs)
-                    if (NpcDefs.Get(n.Id) != null) npcDots.Put(FrostHollowMap.TileFeet(n.Tx, n.Ty, 2f));
+                {
+                    NpcDef def = NpcDefs.Get(n.Id);
+                    if (def == null) continue;
+                    Vector2 feet = FrostHollowMap.TileFeet(n.Tx, n.Ty, 2f);
+                    npcDots.Put(feet);
+                    if (def.QuestGiver) questGivers.Add(new QuestGiver { Id = n.Id, Feet = feet });
+                }
             portalDots.End();
             npcDots.End();
         }
@@ -170,6 +183,19 @@ namespace ZenoniaProto
             monsterDots.End();
             otherDots.End();
 
+            questTakeDots.Begin();
+            questHandInDots.Begin();
+            QuestLog quests = hero.Rpg != null ? hero.Rpg.Quests : null;
+            if (quests != null)
+                for (int i = 0; i < questGivers.Count; i++)
+                {
+                    QuestMarker marker = quests.MarkerFor(questGivers[i].Id);
+                    if (marker == QuestMarker.Available) questTakeDots.Put(questGivers[i].Feet);
+                    else if (marker == QuestMarker.Ready) questHandInDots.Put(questGivers[i].Feet);
+                }
+            questTakeDots.End();
+            questHandInDots.End();
+
             Monster boss = Monster.Boss;
             bool bossUp = boss != null && !boss.IsDying;
             if (bossDot.gameObject.activeSelf != bossUp) bossDot.gameObject.SetActive(bossUp);
@@ -183,6 +209,31 @@ namespace ZenoniaProto
         static Vector2 MapPoint(Vector2 world)
         {
             return new Vector2(Mathf.Clamp01(world.x / GameConfig.MapW) * InnerW, Mathf.Clamp01(world.y / GameConfig.MapH) * InnerH);
+        }
+
+        static readonly string[] QuestionGlyph = { ".#####.", "##...##", "##...##", "....##.", "...##..", "...##..", ".......", "...##..", "...##.." };
+        static readonly string[] ExclaimGlyph = { "..###..", "..###..", "..###..", "..###..", "..###..", "..###..", ".......", "..###..", "..###.." };
+
+        /// <summary>The look of the "?" above a quest giver's head, at minimap size: gold rim, navy disc, gold 7 x 9 glyph. Drawn at 4x so it stays smooth when the HUD is scaled.</summary>
+        static Sprite QuestMarkerSprite(string[] glyph)
+        {
+            const int Grid = 15, Scale = 4, Px = Grid * Scale;
+            Color32 clear = new Color32(0, 0, 0, 0), rim = new Color(1f, 0.8f, 0.3f), disc = new Color(0.04f, 0.08f, 0.17f), ink = new Color(1f, 0.85f, 0.35f);
+            var pixels = new Color32[Px * Px];
+            float centre = Px * 0.5f, outer = centre, inner = centre - 1.2f * Scale;
+            int glyphX = (Grid - 7) / 2, glyphTop = (Grid - 9) / 2;
+            for (int y = 0; y < Px; y++)
+                for (int x = 0; x < Px; x++)
+                {
+                    float dx = x + 0.5f - centre, dy = y + 0.5f - centre, d = Mathf.Sqrt(dx * dx + dy * dy);
+                    int gx = x / Scale - glyphX, gy = (Px - 1 - y) / Scale - glyphTop; // glyph rows run top down, the texture bottom up
+                    bool inked = gx >= 0 && gx < 7 && gy >= 0 && gy < 9 && glyph[gy][gx] == '#';
+                    pixels[y * Px + x] = d > outer ? clear : d > inner ? rim : inked ? ink : disc;
+                }
+            var tex = new Texture2D(Px, Px, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+            tex.SetPixels32(pixels);
+            tex.Apply(false, true);
+            return Sprite.Create(tex, new Rect(0, 0, Px, Px), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
         }
 
         /// <summary>One marker; no sprite = a white square turned into a diamond.</summary>

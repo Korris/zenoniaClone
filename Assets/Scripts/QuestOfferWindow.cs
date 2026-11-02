@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {

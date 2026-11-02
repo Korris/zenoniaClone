@@ -1,83 +1,75 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
+using ZenoniaProto.Net;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
-    /// <summary>Static description of one kill quest (text, monster type to hunt, rewards).</summary>
-    public sealed class QuestDef
-    {
-        public string Id, Title, Description, MonsterType, MonsterName, GiverName;
-        public int Count, RewardGold, RewardStones, RewardHpPotions;
-        public string[] OfferLines, ActiveLines, ReadyLines, DoneLines;
-
-        public static readonly QuestDef CrystalSurvey = new QuestDef
-        {
-            Id = "crystal-survey", Title = "Ancient Crystal Survey", GiverName = "Elder Thomas",
-            Description = "The village elder is worried about the strange monsters near the crystal mines. Thin out the slimes and report back.",
-            MonsterType = "frostSlime", MonsterName = "Frost Slime", Count = 5, RewardGold = 150, RewardStones = 3, RewardHpPotions = 2,
-            OfferLines = new[]
-            {
-                "These crystal mines have always been peaceful,\nbut lately, strange monsters have started to appear...",
-                "The Frost Slimes are the worst of it. Could you help us investigate and thin them out?",
-            },
-            ActiveLines = new[] { "Any luck with the Frost Slimes? They are all over the hollow.\nCome back when you have dealt with five of them." },
-            ReadyLines = new[] { "You did it! The mines are quiet again.", "Please take this as thanks. Use the stones well, traveller." },
-            DoneLines = new[] { "Thank you again. The hollow is safer thanks to you." },
-        };
-    }
-
-    public enum QuestState { Available, Active, ReadyToTurnIn, Done }
-
     /// <summary>
-    /// Local (offline / host) progress of the one quest: counts kills of the local hero (KillRewards.LocalKill), moves Available -> Active ->
-    /// ReadyToTurnIn -> Done and pays the reward through the hero's PlayerRpg. State is in memory only for now (not in the save file).
+    /// The player's side of the quests. Requests go through the same InvOp rules everywhere: online to the zone server, which owns the state and saves it with the character; offline straight to the hero's PlayerRpg.
+    /// Whatever then changes in the QuestLog is told to the player here, by comparing it with what was seen last, so online and offline say the same things. Client only: a zone server has no player to tell.
     /// </summary>
     public static class QuestTracker
     {
-        public static readonly QuestDef Def = QuestDef.CrystalSurvey;
-        public static QuestState State { get; private set; }
-        public static int Progress { get; private set; }
+        struct Seen { public QuestState State; public int Progress; }
+        static readonly Dictionary<string, Seen> LastSeen = new Dictionary<string, Seen>();
 
-        public static void Init()
-        {
-            State = QuestState.Available; Progress = 0;
-            KillRewards.LocalKill -= OnKill; // static event: survives play sessions when Domain Reload is off
-            KillRewards.LocalKill += OnKill;
-        }
+        /// <summary>Goes up whenever a quest was seen to change: the quest list redraws on it.</summary>
+        public static int Stamp { get; private set; }
 
-        public static void Accept()
-        {
-            if (State != QuestState.Available) return;
-            State = QuestState.Active; Progress = 0;
-            ChatHub.System("Quest accepted: " + Def.Title);
-            NotificationToast.Show("Quest Accepted", Def.Title, UiArt.Win("quest-icon"));
-        }
+        /// <summary>This hero's quests. Null without a hero.</summary>
+        public static QuestLog Log { get { HeroController h = GameSession.Hero; return h != null && h.Rpg != null ? h.Rpg.Quests : null; } }
 
-        static void OnKill(Monster m)
-        {
-            if (State != QuestState.Active || m == null || m.Type != Def.MonsterType) return;
-            Progress = Mathf.Min(Def.Count, Progress + 1);
-            if (Progress >= Def.Count)
-            {
-                State = QuestState.ReadyToTurnIn;
-                ChatHub.System("Objective complete: return to " + Def.GiverName);
-                NotificationToast.Show("Objective Complete", "Return to " + Def.GiverName, UiArt.Win("quest-icon"));
-            }
-            else NotificationToast.Show(Def.Title, "Defeat " + Def.MonsterName + "  " + Progress + " / " + Def.Count, UiArt.Win("quest-icon"));
-        }
+        public static void Accept(QuestDef q) { Send(InvOp.QuestAccept, q); }
+        public static void TurnIn(QuestDef q) { Send(InvOp.QuestTurnIn, q); }
 
-        /// <summary>Pays the reward (gold + upgrade stones + HP potions) and closes the quest.</summary>
-        public static void TurnIn()
+        static void Send(InvOp op, QuestDef q)
         {
+            if (NetMode.IsClient) { NetClient.SendInvAction(op, q.Id, 0); return; } // the answer's RpgState brings the change
             PlayerRpg rpg = LocalPlayer.Rpg;
-            if (State != QuestState.ReadyToTurnIn || rpg == null) return;
-            State = QuestState.Done;
-            rpg.Pickup(new LootEntry { Kind = LootKind.Coin, Value = Def.RewardGold });
-            rpg.Pickup(new LootEntry { Kind = LootKind.UpgradeStone, Value = Def.RewardStones });
-            for (int i = 0; i < Def.RewardHpPotions; i++) rpg.Pickup(new LootEntry { Kind = LootKind.HpPotion, Value = 1 });
-            ChatHub.System("Quest complete: " + Def.Title + " (+" + Def.RewardGold + " G, +" + Def.RewardStones + " stones, +" + Def.RewardHpPotions + " HP potions)");
-            NotificationToast.Show("Quest Complete!", Def.Title + "  +" + Def.RewardGold + " G", UiArt.Win("quest-icon"));
+            if (rpg != null) rpg.ApplyInvAction(op, q.Id, 0);
+        }
+
+        /// <summary>
+        /// The state of the quests as they are now. `announce` is false when this is a character just arrived (a loaded save, the first RpgState of a connection):
+        /// that only sets what the next comparison starts from, a quest finished last week is not news.
+        /// </summary>
+        public static void Observe(QuestLog log, bool announce)
+        {
+            foreach (QuestDef q in QuestCatalog.All)
+            {
+                var now = new Seen { State = log.StateOf(q), Progress = log.ProgressOf(q) };
+                Seen before;
+                if (!LastSeen.TryGetValue(q.Id, out before)) before = new Seen { State = QuestState.Available };
+                LastSeen[q.Id] = now;
+                if (now.State == before.State && now.Progress == before.Progress) continue;
+                Stamp++;
+                if (announce) Tell(q, now);
+            }
+        }
+
+        static void Tell(QuestDef q, Seen now)
+        {
+            Sprite icon = UiArt.Win("quest-icon");
+            switch (now.State)
+            {
+                case QuestState.Active:
+                    if (now.Progress == 0)
+                    {
+                        ChatHub.System("Quest accepted: " + q.Title);
+                        NotificationToast.Show("Quest Accepted", q.Title, icon);
+                    }
+                    else NotificationToast.Show(q.Title, "Defeat " + q.MonsterName + "  " + now.Progress + " / " + q.Count, icon);
+                    break;
+                case QuestState.ReadyToTurnIn:
+                    ChatHub.System("Objective complete: return to " + q.GiverName);
+                    NotificationToast.Show("Objective Complete", "Return to " + q.GiverName, icon);
+                    break;
+                case QuestState.Done:
+                    ChatHub.System("Quest complete: " + q.Title + " (+" + q.RewardGold + " G, +" + q.RewardStones + " stones, +" + q.RewardHpPotions + " HP potions)");
+                    NotificationToast.Show("Quest Complete!", q.Title + "  +" + q.RewardGold + " G", icon);
+                    break;
+            }
         }
     }
 }
