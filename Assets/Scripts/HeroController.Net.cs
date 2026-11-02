@@ -131,7 +131,7 @@ namespace ZenoniaProto
             int f = facingDir & 3;
             Vector2 v = DirVec[f];
             float offset = h.Reach * 0.5f + 4f;
-            HeroFx.Swing(cls, new Vector2(x + v.x * offset, y + 6f + v.y * offset), new Vector2(x, y), DirAngle[f], h, step, step == combo.HitCount, echo);
+            HeroFx.Swing(cls, new Vector2(x + v.x * offset, y + 6f + v.y * offset), new Vector2(x, y), DirAngle[f], h, step, step == combo.HitCount, echo, view != null ? view.WeaponGlow : null);
         }
 
         /// <summary>Cast flash + bolt picture of a ranged shot that left `muzzle` at `angle`; the bolt id lets BoltEnd find it again.</summary>

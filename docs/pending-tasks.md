@@ -145,6 +145,10 @@ Idle hướng xuống: người dùng bác thân mới theo hình mẫu (`center
 
 Thêm 2026-11-03 (sau 02:40): idle hướng xuống đổi góc kiếm -135 thành 145 (lưỡi chéo vào trong, qua trước chân về góc dưới phải, theo `cccc.png` người dùng gửi; chỉ đổi `angle` trong `held-gear-melee.json`). Khiên 10 set cùng hình mẫu: chat "Shield lineup image" https://chatgpt.com/c/6ae8e8da-104c-83ec-ae50-2b4d46885af3, 5 ảnh `shield-src/mu-ref-v2/shield-pair1..5-*.png`, cài bằng `PART=shield python Tools/build-warrior-weapons-from-sheet.py write` (art cao 380, grip giữa, icon `offhand-warrior-*` qua `build-warrior-shield.py icons`), art cũ ở `shield-src/old-mu-shield-20261103/`. Tên món theo set: `ItemDefs.WeaponTierNames`, `OffhandTierNames` (Warrior) dùng trong `ItemFactory.Generate`; đồ đã có trong save giữ tên cũ ("Legendary Sword") vì tên lưu trong item; tên hiện ở ô chi tiết bên phải màn Bag khi chọn món. Chưa làm: tên trên ô lưới, đổi tên đồ cũ trong save, các class khác.
 
+## Màu đường chém theo vũ khí (2026-11-03): đã làm phương án C, chờ người dùng xem
+
+ChatGPT (chat "Thiết kế màu chém vũ khí" https://chatgpt.com/c/6ae91e29-4910-83ec-879e-dcc7ad4ecc43) khuyên C: lõi trắng và hình theo class, viền theo màu vũ khí; người dùng chốt C. Code: `SpriteTint.ColorizeBody` (lõi trắng giữ, phần còn lại nhuộm màu `glow` của vũ khí, cường độ 0,85), `SlashEffect` cache frame theo màu glow và lớp additive pha 60% màu vũ khí, `HeroRenderer.WeaponGlow` lấy `glow` của tier vũ khí đang đeo, `HeroFx.Swing` nhận thêm `weaponGlow` từ cả đường offline (`HeroController.Combat`) và online (`HeroController.Net.PlaySwingFx`). Áp dụng cho mọi class dùng `SlashEffect` (trừ Assassin). Màu từng tier ở `held-gear.json` (`glow`); muốn chỉnh màu chém thì đổi ở đó. Chưa xem: đánh đông người online, tier cao có hiệu ứng riêng (D) chưa làm.
+
 ## Màn Bag mới (2026-11-02): đã làm, chờ người dùng xem
 
 2026-11-03: ô nhân vật rộng 336 (trước 288), lưới giữa 350 với ô 62 (trước 398, ô 72), ô phải 210; Warrior đứng giữa ô (`WarriorShiftX` 0, texture 672 x 528). Chưa xem trên điện thoại.

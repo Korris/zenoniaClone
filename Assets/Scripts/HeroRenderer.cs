@@ -42,6 +42,21 @@ namespace ZenoniaProto
 
         public HeroClassDef Class { get { return cls; } }
         public HeldGearData Gear { get { return gear; } }
+        /// <summary>Glow colour (hex) of the worn main weapon's art tier, for the slash tint; null when bare-handed or without a manifest.</summary>
+        public string WeaponGlow
+        {
+            get
+            {
+                if (gear == null) return null;
+                foreach (Part p in parts)
+                {
+                    if (p.Spec.IsOffhand || p.Empty) continue;
+                    OverlayEntry[] manifest = gear.Manifest(p.Spec.Id);
+                    return manifest != null && p.Tier < manifest.Length ? manifest[p.Tier].glow : null;
+                }
+                return null;
+            }
+        }
         public int Tier { get { return tier; } }
         public bool Enhanced { get { return enhanced; } }
         /// <summary>True after a Q / E / R debug override, until the equipment is synced again.</summary>

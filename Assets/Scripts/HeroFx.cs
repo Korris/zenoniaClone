@@ -10,13 +10,13 @@ namespace ZenoniaProto
     public static class HeroFx
     {
         /// <summary>Melee swing visuals at the hit box centre: dagger flurry, or slash arc + class whoosh + sword trail. `echo` = a later stab (mirrored).</summary>
-        public static void Swing(HeroClassDef cls, Vector2 center, Vector2 feet, float angle, ComboHit h, int step, bool finisher, bool echo)
+        public static void Swing(HeroClassDef cls, Vector2 center, Vector2 feet, float angle, ComboHit h, int step, bool finisher, bool echo, string weaponGlow = null)
         {
             if (!NetMode.RendersFx) return;
             bool flip = (step == 2) != echo;
             if (!echo) ClassSfx.Swing(cls.Id, step, finisher); // one whoosh per combo step (+ finisher shout), not again for the echo stab
             if (cls.Id == HeroClass.Assassin) { DaggerFx.Strike(center, angle, h.Reach, finisher, echo, step); return; }
-            SlashEffect.Spawn(center.x, center.y, angle, h.FxScale, finisher, flip, FeelConfig.FxOrder);
+            SlashEffect.Spawn(center.x, center.y, angle, h.FxScale, finisher, flip, FeelConfig.FxOrder, weaponGlow);
             SwordTrail.Spawn(feet.x, feet.y + 6f, angle, h.Reach, finisher, flip, cls.Palette);
         }
 

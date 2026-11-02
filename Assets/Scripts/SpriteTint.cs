@@ -33,6 +33,33 @@ namespace ZenoniaProto
             return tex;
         }
 
+        /// <summary>
+        /// Weapon tint of a slash: the white-hot core stays white and keeps the class shape, the coloured body and fringe take the weapon hue
+        /// (luminance kept) at `strength` (0.85 = option C agreed on 2026-11-03: core white, edge in the weapon's glow colour).
+        /// </summary>
+        public static Texture2D ColorizeBody(Texture2D src, Color tint, float strength)
+        {
+            Color32[] px = SpriteSheet.ReadPixels(src);
+            for (int i = 0; i < px.Length; i++)
+            {
+                Color32 c = px[i];
+                float bright = Mathf.Max(c.r, Mathf.Max(c.g, c.b)) / 255f;
+                float white = Mathf.Min(c.r, Mathf.Min(c.g, c.b)) / 255f;
+                float w = (1f - Smooth(0.80f, 1f, white)) * strength;
+                float k = Mathf.Min(1f, bright * 1.1f);
+                px[i] = new Color32(
+                    (byte)(255f * Mathf.Lerp(c.r / 255f, tint.r * k, w)),
+                    (byte)(255f * Mathf.Lerp(c.g / 255f, tint.g * k, w)),
+                    (byte)(255f * Mathf.Lerp(c.b / 255f, tint.b * k, w)), c.a);
+            }
+            var tex = new Texture2D(src.width, src.height, TextureFormat.RGBA32, true);
+            tex.SetPixels32(px);
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.filterMode = FilterMode.Bilinear;
+            tex.Apply(true, true);
+            return tex;
+        }
+
         /// <summary>HLSL-style smoothstep (Mathf.SmoothStep interpolates values, not an edge range).</summary>
         static float Smooth(float e0, float e1, float x)
         {

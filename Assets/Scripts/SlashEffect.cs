@@ -13,18 +13,23 @@ namespace ZenoniaProto
         static readonly List<SlashEffect> Pool = new List<SlashEffect>();
         static Transform root;
         static Sprite[][] frames;
+        static Texture2D painted; // the untinted sheet, source of the per-weapon recolours
+        static readonly Dictionary<string, Sprite[][]> byWeapon = new Dictionary<string, Sprite[][]>(); // weapon glow hex -> frames (option C: white core, weapon-coloured edge)
+        const float WeaponTintStrength = 0.85f;
         static float slashTurn; // extra rotation of the normal-slash row so its bulge points along the swing
         SpriteRenderer sr, core; // core = additive copy of the same frame (bright centre, feeds the bloom)
         bool finisherLook;
         Sprite[] row;
+        Color coreGlow;
         float age, life;
 
         public static void Init(Transform parent)
         {
             root = parent;
             Pool.Clear();
+            byWeapon.Clear();
             // Each cell becomes a 1-unit-wide sprite (scaled per use: slash 32u, arc 48u like the web FX strips).
-            Texture2D painted = Resources.Load<Texture2D>("Sprites/classes/warrior/fx/warrior-slash-vfx");
+            painted = Resources.Load<Texture2D>("Sprites/classes/warrior/fx/warrior-slash-vfx");
             if (painted != null)
             {
                 frames = SpriteTint.Slice(painted, 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f));
@@ -36,11 +41,29 @@ namespace ZenoniaProto
             slashTurn = 0f;
         }
 
-        /// <summary>Spawns a slash. angleDeg: 0 = right, 90 = up (counter-clockwise).</summary>
-        public static void Spawn(float x, float y, float angleDeg, float scale, bool finisher, bool flipY, int order)
+        /// <summary>Frames recoloured for a weapon glow (hex like "#59a7ff"); the painted class frames when null or unparsable. Built once per colour.</summary>
+        static Sprite[][] FramesFor(string weaponGlow)
+        {
+            if (string.IsNullOrEmpty(weaponGlow) || painted == null) return frames;
+            Sprite[][] f;
+            if (byWeapon.TryGetValue(weaponGlow, out f)) return f;
+            Color tint;
+            f = ColorUtility.TryParseHtmlString(weaponGlow, out tint)
+                ? SpriteTint.Slice(SpriteTint.ColorizeBody(painted, tint, WeaponTintStrength), 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f))
+                : frames;
+            byWeapon[weaponGlow] = f;
+            return f;
+        }
+
+        /// <summary>Spawns a slash. angleDeg: 0 = right, 90 = up (counter-clockwise). weaponGlow = the worn weapon's glow colour (null = class colour only).</summary>
+        public static void Spawn(float x, float y, float angleDeg, float scale, bool finisher, bool flipY, int order, string weaponGlow = null)
         {
             if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (frames == null || root == null) return;
+            Sprite[][] sheet = FramesFor(weaponGlow);
+            Color weapon;
+            Color classGlow = ClassPalette.Red.Glow;
+            Color core = !string.IsNullOrEmpty(weaponGlow) && ColorUtility.TryParseHtmlString(weaponGlow, out weapon) ? Color.Lerp(classGlow, weapon, 0.6f) : classGlow;
             SlashEffect fx = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { fx = Pool[i]; break; }
             if (fx == null)
@@ -53,7 +76,8 @@ namespace ZenoniaProto
                 fx.core.sharedMaterial = FeelMaterials.Additive;
                 Pool.Add(fx);
             }
-            fx.row = SpriteSheet.Row(frames, finisher ? 1 : 0);
+            fx.row = SpriteSheet.Row(sheet, finisher ? 1 : 0);
+            fx.coreGlow = core;
             fx.age = 0f;
             fx.life = finisher ? 0.24f : 0.17f;
             float size = (finisher ? 48f : 32f) * scale;
@@ -85,7 +109,7 @@ namespace ZenoniaProto
             sr.color = new Color(1f, 1f, 1f, fade);
             core.enabled = FeelConfig.FxOn;
             core.sprite = sr.sprite;
-            Color g = ClassPalette.Red.Glow;
+            Color g = coreGlow;
             core.color = new Color(g.r, g.g, g.b, fade * (finisherLook ? 1f : 0.85f));
         }
     }

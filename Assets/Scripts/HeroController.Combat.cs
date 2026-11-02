@@ -25,7 +25,7 @@ namespace ZenoniaProto
             float w = v.x != 0f ? h.Reach : h.Width, ht = v.y != 0f ? h.Reach : h.Width;
             var box = new Rect(cx - w * 0.5f, cy - ht * 0.5f, w, ht);
             bool finisher = step == combo.HitCount;
-            HeroFx.Swing(cls, new Vector2(cx, cy), new Vector2(x, y), DirAngle[facing], h, step, finisher, echo);
+            HeroFx.Swing(cls, new Vector2(cx, cy), new Vector2(x, y), DirAngle[facing], h, step, finisher, echo, view != null ? view.WeaponGlow : null);
             NetEventBus.AttackStep(this, step, echo);
 
             float mult = combo.MultiplierFor(step, 1) / h.Stabs;
