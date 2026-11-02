@@ -49,10 +49,18 @@ namespace ZenoniaProto
             if (byWeapon.TryGetValue(weaponGlow, out f)) return f;
             Color tint;
             f = ColorUtility.TryParseHtmlString(weaponGlow, out tint)
-                ? SpriteTint.Slice(SpriteTint.ColorizeBody(painted, tint, WeaponTintStrength), 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f))
+                ? SpriteTint.Slice(SpriteTint.ColorizeBody(painted, Saturated(tint), WeaponTintStrength), 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f))
                 : frames;
             byWeapon[weaponGlow] = f;
             return f;
+        }
+
+        /// <summary>The glow colours are pale (halo tints); on the slash, over snow and bloom, a pale blue reads as white, so the hue is pushed to full saturation.</summary>
+        static Color Saturated(Color c)
+        {
+            float h, s, v;
+            Color.RGBToHSV(c, out h, out s, out v);
+            return Color.HSVToRGB(h, Mathf.Max(s, 0.9f), 1f);
         }
 
         /// <summary>Spawns a slash. angleDeg: 0 = right, 90 = up (counter-clockwise). weaponGlow = the worn weapon's glow colour (null = class colour only).</summary>
@@ -63,7 +71,7 @@ namespace ZenoniaProto
             Sprite[][] sheet = FramesFor(weaponGlow);
             Color weapon;
             Color classGlow = ClassPalette.Red.Glow;
-            Color core = !string.IsNullOrEmpty(weaponGlow) && ColorUtility.TryParseHtmlString(weaponGlow, out weapon) ? Color.Lerp(classGlow, weapon, 0.6f) : classGlow;
+            Color core = !string.IsNullOrEmpty(weaponGlow) && ColorUtility.TryParseHtmlString(weaponGlow, out weapon) ? Color.Lerp(classGlow, Saturated(weapon), 0.6f) : classGlow;
             SlashEffect fx = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { fx = Pool[i]; break; }
             if (fx == null)
