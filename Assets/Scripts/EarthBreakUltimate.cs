@@ -94,7 +94,7 @@ namespace ZenoniaProto
         void Sweep()
         {
             SkillDamage.Radial(center, Radius * 0.75f, atk, Mult * Rpg.LegacySkillNumbers.EarthBreakSweep, 20f, false, null, 0f, hero);
-            CameraFollow.AddTrauma(0.3f);
+            CameraFollow.SkillShake(0.3f);
             Vector2 mid = (caster + center) * 0.5f + new Vector2(0f, 6f);
             UltimateFx.Embers(mid, 26, 16f, 40f, new Color(1f, 0.72f, 0.25f, 1f));
         }
@@ -105,8 +105,8 @@ namespace ZenoniaProto
             List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 0f, true, null, 0f, hero);
             for (int i = 0; i < hit.Count; i++) hit[i].Launch();
             GameClock.HitStop(110f);
-            CameraFollow.AddTrauma(1f);
-            CameraFollow.Punch(1f);
+            CameraFollow.SkillShake(1f);
+            CameraFollow.SkillPunch(1f);
             ScreenFlash.Trigger(new Color(1f, 0.55f, 0.15f, 0.1f), 0.18f);
             int g = UltimateFx.GroundFxOrder + 6;
             ShockRing.Spawn(center, Radius * 1.45f, 0.5f, new Color(1f, 0.62f, 0.18f, 0.9f), g);
@@ -119,7 +119,7 @@ namespace ZenoniaProto
         void Burn()
         {
             SkillDamage.Radial(center, Radius, atk, Mult * Rpg.LegacySkillNumbers.EarthBreakBurn, 0f, false, null, 0f, hero);
-            CameraFollow.AddTrauma(0.14f);
+            CameraFollow.SkillShake(0.14f);
             UltimateFx.Embers(center, 22, Radius * 0.7f, 60f, new Color(1f, 0.5f, 0.12f, 1f));
         }
 

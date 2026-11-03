@@ -123,8 +123,8 @@ namespace ZenoniaProto
             UltimateFx.Dust(hero.Position, 8, 12f);
             ShockRing.Spawn(feet, 26f, 0.36f, new Color(1f, 0.35f, 0.1f, 0.75f), UltimateFx.GroundFxOrder + 6);
             if (!local) return; // another player's roar never moves this player's camera
-            CameraFollow.AddTrauma(0.22f);
-            CameraFollow.Punch(0.25f);
+            CameraFollow.SkillShake(0.22f);
+            CameraFollow.SkillPunch(0.25f);
             ScreenFlash.Trigger(new Color(1f, 0.3f, 0.1f, 0.06f), 0.16f);
         }
 

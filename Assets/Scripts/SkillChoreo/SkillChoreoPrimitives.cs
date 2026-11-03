@@ -32,8 +32,8 @@ namespace ZenoniaProto
         public static void Impact(ChoreoPhase p)
         {
             if (p.HitStopMs > 0) GameClock.HitStop(p.HitStopMs);
-            if (p.Shake > 0f) CameraFollow.AddTrauma(p.Shake);
-            if (p.Punch > 0f) CameraFollow.ZoomPulse(p.Punch, p.PunchMs);
+            if (p.Shake > 0f) CameraFollow.SkillShake(p.Shake);
+            if (p.Punch > 0f) CameraFollow.SkillZoomPulse(p.Punch, p.PunchMs);
             if (p.FlashMs > 0) ScreenFlash.Trigger(Rgb(p.FlashColor, FlashAlpha), p.FlashMs / 1000f);
         }
 

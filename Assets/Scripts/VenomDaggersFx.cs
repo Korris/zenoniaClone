@@ -131,7 +131,7 @@ namespace ZenoniaProto
                 SkullOwner[m] = this; // the newest cast draws this enemy's skull
                 UltimateFx.Embers(v.At, 10, 8f, 45f, Sour);
             }
-            if (local && victims.Count > 0) { CameraFollow.AddTrauma(0.18f); GameClock.HitStop(25f); CameraFollow.Punch(0.12f); }
+            if (local && victims.Count > 0) { CameraFollow.SkillShake(0.18f); GameClock.HitStop(25f); CameraFollow.SkillPunch(0.12f); }
         }
 
         void ApplyPose()

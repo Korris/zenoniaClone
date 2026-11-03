@@ -86,7 +86,7 @@ namespace ZenoniaProto
             Vector2 at = hero.Position + new Vector2(0f, Lift);
             UltimateFx.Embers(at, 6 + i * 2, 18f + i * 4f, 40f, new Color(Violet.r, Violet.g, Violet.b, 1f));
             ShockRing.Spawn(at, 20f + i * 4f, 0.22f, new Color(Violet.r, Violet.g, Violet.b, 0.5f), UltimateFx.GroundFxOrder + 6);
-            if (local) CameraFollow.AddTrauma(0.05f + i * 0.02f);
+            if (local) CameraFollow.SkillShake(0.05f + i * 0.02f);
         }
 
         void Burst()
@@ -97,9 +97,9 @@ namespace ZenoniaProto
             UltimateFx.Debris(at, 10, 24f, 70f);
             UltimateFx.Dust(hero.Position, 5, 18f);
             if (!local) return; // another player's strikes never move this player's camera
-            CameraFollow.AddTrauma(0.28f);
+            CameraFollow.SkillShake(0.28f);
             GameClock.HitStop(35f);
-            CameraFollow.Punch(0.25f);
+            CameraFollow.SkillPunch(0.25f);
             ScreenFlash.Trigger(new Color(0.65f, 0.3f, 1f, 0.07f), 0.14f);
         }
 

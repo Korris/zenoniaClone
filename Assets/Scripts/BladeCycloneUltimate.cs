@@ -128,11 +128,11 @@ namespace ZenoniaProto
                 ShockRing.Spawn(ring, Radius * 0.9f, 0.3f, new Color(1f, 0.8f, 0.4f, 0.6f), UltimateFx.GroundFxOrder + 7, 0.72f, 0.1f, true);
             }
             if (!local) return; // another player's cyclone never moves this player's camera
-            CameraFollow.AddTrauma(last ? 0.5f : i >= 2 ? 0.14f : 0.07f);
+            CameraFollow.SkillShake(last ? 0.5f : i >= 2 ? 0.14f : 0.07f);
             if (i == WaveAt.Length - 2) GameClock.HitStop(18f);
             if (!last) return;
             GameClock.HitStop(55f);
-            CameraFollow.Punch(0.5f);
+            CameraFollow.SkillPunch(0.5f);
             ScreenFlash.Trigger(new Color(1f, 0.4f, 0.12f, 0.08f), 0.18f);
         }
 

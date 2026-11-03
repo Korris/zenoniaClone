@@ -81,7 +81,7 @@ namespace ZenoniaProto
             groundGlow.sortingOrder = UltimateFx.GroundFxOrder + 1;
             cast = MakePair("Cast"); air = MakePair("Air"); slam = MakePair("Slam"); boom = MakePair("Boom");
             UltimateFx.Dust(takeOff, 8, 10f);
-            if (local) CameraFollow.AddTrauma(0.08f);
+            if (local) CameraFollow.SkillShake(0.08f);
             Apply();
         }
 
@@ -116,9 +116,9 @@ namespace ZenoniaProto
             ShockRing.Spawn(ring, r * 1.15f, 0.34f, new Color(1f, 0.55f, 0.18f, 0.85f), UltimateFx.GroundFxOrder + 6);
             ShockRing.Spawn(ring, r * 1.45f, 0.5f, new Color(1f, 0.32f, 0.1f, 0.7f), UltimateFx.GroundFxOrder + 6);
             if (!local) return; // another player's slam never moves this player's camera
-            CameraFollow.AddTrauma(0.62f);
+            CameraFollow.SkillShake(0.62f);
             GameClock.HitStop(90f);
-            CameraFollow.Punch(0.6f);
+            CameraFollow.SkillPunch(0.6f);
             ScreenFlash.Trigger(new Color(1f, 0.45f, 0.14f, 0.1f), 0.2f);
         }
 

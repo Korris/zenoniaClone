@@ -102,7 +102,7 @@ namespace ZenoniaProto
                 shadows[i].flipX = shadowPos[i].x > hero.Position.x; // the art rushes to the right: everyone rushes at the hero
             }
             UltimateFx.Dust(hero.Position, 8, 12f);
-            if (local) CameraFollow.AddTrauma(0.1f);
+            if (local) CameraFollow.SkillShake(0.1f);
             Apply();
         }
 
@@ -130,7 +130,7 @@ namespace ZenoniaProto
         {
             shadowHit[i] = true;
             UltimateFx.Embers(shadowPos[i], 10, 8f, 60f, new Color(Violet.r, Violet.g, Violet.b, 1f));
-            if (local) CameraFollow.AddTrauma(0.1f);
+            if (local) CameraFollow.SkillShake(0.1f);
         }
 
         void Burst()
@@ -141,9 +141,9 @@ namespace ZenoniaProto
             UltimateFx.Debris(at, 18, 26f, 110f);
             ShockRing.Spawn(at, 60f, 0.36f, new Color(Violet.r, Violet.g, Violet.b, 0.85f), UltimateFx.GroundFxOrder + 6);
             if (!local) return; // another player's finisher never moves this player's camera
-            CameraFollow.AddTrauma(0.5f);
+            CameraFollow.SkillShake(0.5f);
             GameClock.HitStop(70f);
-            CameraFollow.Punch(0.5f);
+            CameraFollow.SkillPunch(0.5f);
             ScreenFlash.Trigger(new Color(0.65f, 0.25f, 1f, 0.12f), 0.2f);
         }
 

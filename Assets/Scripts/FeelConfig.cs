@@ -73,6 +73,7 @@ namespace ZenoniaProto
         public const int EnhanceSparkBudget = 60;         // gems alive on screen across all heroes (APK frame budget)
         public const float EnhanceHaloIntensity = 1f;     // below AdditiveIntensity: the weapon glow should barely feed the bloom
         public const bool EnhanceUsesBaseArt = true;      // held gear keeps its base art when enhanced: the painted enhanced art had a thick neon outline and a wider shape
+        public const bool SkillCameraShake = false;      // skills do not shake or punch-zoom the camera (CameraFollow.SkillShake); combo, hurt and boss still do
         public const float EnhanceAuraInAction = 0.7f;
         public const float EnhanceSurgeBoost = 0.6f, EnhanceFlameAlpha = 0.5f;    // the +15 aura stays strong in combat: it is the item's signature
         public const float EnhancePulseWidth = 0.12f, EnhanceFlowWidth = 0.16f, EnhanceRimSaturation = 0.85f, EnhanceSecondaryHueShift = 0.07f, EnhanceFadeSec = 0.1f;

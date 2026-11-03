@@ -129,14 +129,14 @@ namespace ZenoniaProto
             SkillDamage.Radial(r.Target, Radius, atk, Mult, Rpg.LegacySkillNumbers.RocketBarrageKnockback, last, ClassPalette.Orange, 0f, hero);
             if (!NetMode.RendersFx) return;
             if (i % 2 == 0 || last) GameSfx.Play("skills/mechanic/homing-rockets-impact", last ? 0.9f : 0.7f); // every other rocket: 85 ms apart they would stack into noise
-            CameraFollow.AddTrauma(last ? 0.55f : 0.16f);
+            CameraFollow.SkillShake(last ? 0.55f : 0.16f);
             ShockRing.Spawn(r.Target, Radius * 1.1f, 0.3f, new Color(1f, 0.62f, 0.2f, 0.85f), UltimateFx.GroundFxOrder + 6);
             UltimateFx.Embers(r.Target, 12, Radius * 0.5f, 60f, new Color(1f, 0.6f, 0.15f, 1f));
             UltimateFx.Debris(r.Target, 5, Radius * 0.5f, 80f);
             UltimateFx.Dust(r.Target, 3, Radius * 0.6f);
             if (!last) return;
             GameClock.HitStop(60f);
-            CameraFollow.Punch(0.6f);
+            CameraFollow.SkillPunch(0.6f);
             ScreenFlash.Trigger(new Color(1f, 0.55f, 0.15f, 0.1f), 0.2f);
         }
 

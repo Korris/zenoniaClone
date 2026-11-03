@@ -63,7 +63,7 @@ namespace ZenoniaProto
             cross = new AimedLayer(transform, "Cross");
             UltimateFx.Dust(feet, 4, 6f);
             UltimateFx.Embers(Ahead(18f), 10, 10f, 50f, AssassinSkillArt.Solid(Violet));
-            if (local) CameraFollow.AddTrauma(0.1f);
+            if (local) CameraFollow.SkillShake(0.1f);
             Apply();
         }
 
@@ -84,7 +84,7 @@ namespace ZenoniaProto
         {
             secondHit = true;
             UltimateFx.Embers(Ahead(20f), 12, 12f, 60f, AssassinSkillArt.Solid(Violet));
-            if (local) CameraFollow.AddTrauma(0.14f);
+            if (local) CameraFollow.SkillShake(0.14f);
         }
 
         void Crossed()
@@ -95,9 +95,9 @@ namespace ZenoniaProto
             UltimateFx.Debris(at, 10, 16f, 80f);
             ShockRing.Spawn(feet + dir * CrossAhead, 34f, 0.3f, new Color(Violet.r, Violet.g, Violet.b, 0.75f), UltimateFx.GroundFxOrder + 6);
             if (!local) return; // another player's strike never moves this player's camera
-            CameraFollow.AddTrauma(0.26f);
+            CameraFollow.SkillShake(0.26f);
             GameClock.HitStop(35f);
-            CameraFollow.ZoomPulse(0.02f, 110f);
+            CameraFollow.SkillZoomPulse(0.02f, 110f);
             ScreenFlash.Trigger(new Color(0.65f, 0.25f, 1f, 0.07f), 0.14f);
         }
 

@@ -42,6 +42,14 @@ namespace ZenoniaProto.Rpg
 
         // ---- builders used by the data files ----
 
+        /// <summary>Grind-style play (user decision 2026-11-03): no skill cooldown, skills can be spammed; MP cost and the cast lock are the only limits.
+        /// Shared with the server: change it on both sides (rebuild the server). Set to 1 to restore the designed cooldowns (BaseCooldownMs).</summary>
+        public const float CooldownScale = 0f;
+
+        /// <summary>Longest time a cast holds the hero (MU-style spam, user decision 2026-11-03). Damage and FX keep their own AtMs timing, so only the
+        /// hero's lock gets shorter; a skill that moves the hero (dash, leap, blink) still holds until the move is over. 0 = no cap (BaseCastLockMs).</summary>
+        public const int MaxCastLockMs = 450;
+
         /// <summary>MP added per rank: basic +1, advanced +2 (Lv 20-31) / +3, ultimates +5 (Lv 50).</summary>
         static int MpPerRankFor(int unlock) { return unlock < 20 ? 1 : unlock < 32 ? 2 : unlock < 50 ? 3 : 5; }
 
@@ -51,9 +59,18 @@ namespace ZenoniaProto.Rpg
             return new SkillDef
             {
                 Id = cls + "." + name.ToLowerInvariant().Replace(' ', '-'), Class = cls, Index = index, Name = name, UnlockLevel = unlock,
-                Prereqs = prereqs ?? new SkillReq[0], Mp = mp, MpPerRank = MpPerRankFor(unlock), CooldownMs = (int)(cdSec * 1000f), CastLockMs = lockMs,
+                Prereqs = prereqs ?? new SkillReq[0], Mp = mp, MpPerRank = MpPerRankFor(unlock), BaseCooldownMs = (int)(cdSec * 1000f), CooldownMs = (int)(cdSec * 1000f * CooldownScale), BaseCastLockMs = lockMs, CastLockMs = CappedLock(lockMs, fx),
                 Targeting = targeting, TargetRange = targetRange, Effects = fx, Legacy = legacy,
             };
+        }
+
+        /// <summary>lockMs capped at MaxCastLockMs, but never shorter than the end of a Motion effect (the hero must not walk away mid-dash).</summary>
+        static int CappedLock(int lockMs, SkillEffect[] fx)
+        {
+            if (MaxCastLockMs <= 0 || lockMs <= MaxCastLockMs) return lockMs;
+            int moveEnd = 0;
+            if (fx != null) foreach (SkillEffect e in fx) if (e.Kind == EffectKind.Motion) moveEnd = System.Math.Max(moveEnd, e.AtMs + e.DurationMs);
+            return System.Math.Min(lockMs, System.Math.Max(MaxCastLockMs, moveEnd));
         }
 
         static SkillReq[] Req(int a, int ra) { return new[] { new SkillReq(a, ra) }; }

@@ -32,7 +32,7 @@ public class TurretTests
         SkillDef d = SkillTable.Get("mechanic", 5);
         Assert.Equal("Deploy Turret", d.Name);
         Assert.Equal("mechanic.deploy-turret", d.Id);
-        Assert.Equal(32, d.UnlockLevel); Assert.Equal(28, d.Mp); Assert.Equal(18000, d.CooldownMs); Assert.Equal(450, d.CastLockMs);
+        Assert.Equal(32, d.UnlockLevel); Assert.Equal(28, d.Mp); Assert.Equal(18000, d.BaseCooldownMs); Assert.Equal(450, d.CastLockMs);
         Assert.Equal(SkillTargeting.Self, d.Targeting);
         Assert.Equal(3, d.Prereqs[0].Index);
         SkillEffect e = Assert.Single(d.Effects);

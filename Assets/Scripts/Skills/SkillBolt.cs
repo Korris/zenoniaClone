@@ -120,7 +120,7 @@ namespace ZenoniaProto
                 {
                     SkillVfx.Play(ctx, SkillVfxSet.Impact, pos, 0f, 2f * fx.ImpactRadius * ctx.Units);
                     SkillSfx.Play(ctx, SkillSfx.Impact, 0.7f);
-                    if (ctx.Body.IsLocal && !SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) CameraFollow.AddTrauma(0.08f);
+                    if (ctx.Body.IsLocal && !SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) CameraFollow.SkillShake(0.08f);
                 }
             }
             else if (ctx.View && !hit && !fx.Pierce) SkillVfx.Play(ctx, SkillVfxSet.Impact, pos, 0f, 1.4f * ctx.Units);

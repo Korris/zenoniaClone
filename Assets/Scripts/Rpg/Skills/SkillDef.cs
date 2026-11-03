@@ -20,7 +20,9 @@ namespace ZenoniaProto.Rpg
         public int UnlockLevel;
         public SkillReq[] Prereqs = new SkillReq[0];
         public int Mp, MpPerRank;
-        public int CooldownMs, CastLockMs = 350;
+        public int CooldownMs, CastLockMs = 350; // CooldownMs = BaseCooldownMs x SkillTable.CooldownScale (0 = skills can be spammed, MP is the limit)
+        public int BaseCooldownMs;
+        public int BaseCastLockMs;               // cast lock as designed in the data files; CastLockMs is capped by SkillTable.MaxCastLockMs               // cooldown as designed in the data files, kept so it can be brought back
         public SkillTargeting Targeting;
         public float TargetRange;               // tiles: NearestEnemy / LowestAlly search radius or blink range
         public SkillEffect[] Effects = new SkillEffect[0];

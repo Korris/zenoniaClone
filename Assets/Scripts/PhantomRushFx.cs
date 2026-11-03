@@ -87,7 +87,7 @@ namespace ZenoniaProto
             Vector2 at = hero.Position + dir * 6f + new Vector2(0f, BodyLift);
             UltimateFx.Embers(at, 14, 8f, 70f, AssassinSkillArt.Solid(Violet));
             UltimateFx.Dust(hero.Position, 3, 5f);
-            if (local) CameraFollow.AddTrauma(0.14f);
+            if (local) CameraFollow.SkillShake(0.14f);
         }
 
         void Burst()
@@ -101,9 +101,9 @@ namespace ZenoniaProto
             UltimateFx.Dust(feet, 8, 10f);
             ShockRing.Spawn(burstAt, 44f, 0.34f, new Color(Violet.r, Violet.g, Violet.b, 0.8f), UltimateFx.GroundFxOrder + 6);
             if (!local) return; // another player's rush never moves this player's camera
-            CameraFollow.AddTrauma(0.42f);
+            CameraFollow.SkillShake(0.42f);
             GameClock.HitStop(40f);
-            CameraFollow.ZoomPulse(0.04f, 150f);
+            CameraFollow.SkillZoomPulse(0.04f, 150f);
             ScreenFlash.Trigger(new Color(0.65f, 0.25f, 1f, 0.1f), 0.18f);
         }
 

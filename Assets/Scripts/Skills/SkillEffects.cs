@@ -60,7 +60,7 @@ namespace ZenoniaProto
             StrikeArt(ctx, e, center);
             SkillSfx.Play(ctx, SkillSfx.Impact);
             // A choreography brings its own hit feel; trauma would stack with it.
-            if (hits > 0 && ctx.Body.IsLocal && e.Pct >= 300f && !SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) { CameraFollow.AddTrauma(0.22f); GameClock.HitStop(FeelConfig.HitStopFinisherMs); }
+            if (hits > 0 && ctx.Body.IsLocal && e.Pct >= 300f && !SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) { CameraFollow.SkillShake(0.22f); GameClock.HitStop(FeelConfig.HitStopFinisherMs); }
         }
 
         /// <summary>Impact art laid over the shape: centred on a circle, at the middle of an arc / cone, repeated along a line.</summary>
@@ -93,7 +93,7 @@ namespace ZenoniaProto
             if (!ctx.View) return;
             SkillVfx.Play(ctx, SkillVfxSet.Impact, at, 0f, 2f * e.ImpactRadius * u);
             SkillSfx.Play(ctx, SkillSfx.Impact, 0.6f);
-            if (ctx.Body.IsLocal) CameraFollow.AddTrauma(0.06f);
+            if (ctx.Body.IsLocal) CameraFollow.SkillShake(0.06f);
         }
 
         /// <summary>Dash / Leap push the caster along the aim; Blink jumps (behind the locked target when there is one). Authority only.</summary>

@@ -42,6 +42,12 @@ namespace ZenoniaProto
             punchDecay = punch / Mathf.Max(0.05f, ms / 1000f);
         }
 
+        // Skills call these instead of AddTrauma / Punch / ZoomPulse: no screen shake or zoom jolt while casting (user decision 2026-11-03,
+        // skills are spammed now). Combo hits, getting hurt and boss deaths still shake. Flip FeelConfig.SkillCameraShake to bring it back.
+        public static void SkillShake(float amount) { if (FeelConfig.SkillCameraShake) AddTrauma(amount); }
+        public static void SkillPunch(float amount) { if (FeelConfig.SkillCameraShake) Punch(amount); }
+        public static void SkillZoomPulse(float zoomFraction, float ms) { if (FeelConfig.SkillCameraShake) ZoomPulse(zoomFraction, ms); }
+
         public static void ResetState() { trauma = 0f; punch = 0f; punchDecay = PunchDecayPerSecond; }
 
         public void Configure()

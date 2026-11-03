@@ -6,7 +6,7 @@ namespace ZenoniaProto.Rpg
     /// <summary>Tooltip lines for the skill tree: "current -> next rank" per scaling value. Rank 0 (unlearned) shows the rank 1 values alone.</summary>
     public static class SkillText
     {
-        public static string Cooldown(SkillDef d) { return "Cooldown " + (d.CooldownMs / 1000f).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + "s"; }
+        public static string Cooldown(SkillDef d) { return d.CooldownMs <= 0 ? "No cooldown" : "Cooldown " + (d.CooldownMs / 1000f).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + "s"; }
 
         public static string Mp(SkillDef d, int rank) { return Line("MP", d.MpAt(rank), d.MpAt(rank + 1), rank, "", d.MpAt(Math.Max(1, rank))); }
 

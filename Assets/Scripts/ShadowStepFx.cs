@@ -99,9 +99,9 @@ namespace ZenoniaProto
             UltimateFx.Debris(at, 10, 12f, 80f);
             ShockRing.Spawn(dest, 20f, 0.28f, new Color(Violet.r, Violet.g, Violet.b, 0.8f), UltimateFx.GroundFxOrder + 6);
             if (!local) return; // another player's stab never moves this player's camera
-            CameraFollow.AddTrauma(0.36f);
+            CameraFollow.SkillShake(0.36f);
             GameClock.HitStop(45f);
-            CameraFollow.ZoomPulse(0.025f, 120f);
+            CameraFollow.SkillZoomPulse(0.025f, 120f);
             ScreenFlash.Trigger(new Color(0.65f, 0.25f, 1f, 0.09f), 0.16f);
         }
 

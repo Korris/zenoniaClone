@@ -97,7 +97,7 @@ namespace ZenoniaProto
             groundGlow = ProceduralSprites.Child(transform, "GroundGlow", FxSprites.Dot());
             groundGlow.sortingOrder = UltimateFx.GroundFxOrder + 1;
             UltimateFx.Dust(hero.Position, 5, 10f, new Color(0.25f, 0.12f, 0.4f));
-            if (local) CameraFollow.AddTrauma(0.1f);
+            if (local) CameraFollow.SkillShake(0.1f);
             Apply();
         }
 

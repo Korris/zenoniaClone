@@ -132,7 +132,7 @@ namespace ZenoniaProto
             Vector2 at = target.Center;
             UltimateFx.Embers(at, 14, 8f, 50f, new Color(Violet.r, Violet.g, Violet.b, 1f));
             ShockRing.Spawn(target.Feet, 18f, 0.3f, new Color(Violet.r, Violet.g, Violet.b, 0.8f), UltimateFx.GroundFxOrder + 6);
-            if (local) { CameraFollow.AddTrauma(0.12f); ScreenFlash.Trigger(new Color(0.6f, 0.25f, 1f, 0.05f), 0.1f); }
+            if (local) { CameraFollow.SkillShake(0.12f); ScreenFlash.Trigger(new Color(0.6f, 0.25f, 1f, 0.05f), 0.1f); }
         }
 
         void Hold()
@@ -181,9 +181,9 @@ namespace ZenoniaProto
             UltimateFx.Embers(at, 22, 12f, 80f, new Color(Violet.r, Violet.g, Violet.b, 1f));
             UltimateFx.Debris(at, 8, 12f, 60f);
             if (!local) return; // another player's mark never moves this player's camera
-            CameraFollow.AddTrauma(0.3f);
+            CameraFollow.SkillShake(0.3f);
             GameClock.HitStop(30f);
-            CameraFollow.Punch(0.2f);
+            CameraFollow.SkillPunch(0.2f);
             ScreenFlash.Trigger(new Color(0.65f, 0.25f, 1f, 0.07f), 0.14f);
         }
 
