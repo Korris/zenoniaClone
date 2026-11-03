@@ -44,12 +44,18 @@ FISTS = {
     ("hurt", "down"): [((61, 133), (115, 143)), ((56, 127), (120, 150))],
     ("hurt", "up"): [((117, 149), (41, 142)), ((123, 148), (50, 143))],
     ("hurt", "right"): [((85, 151), (135, 147)), ((81, 152), (135, 151))],
-    ("melee1", "down"): [((76, 145), (142, 145)), ((66, 107), (145, 145)), ((77, 139), (143, 149)), ((82, 103), (144, 145)), ((76, 134), (139, 141)), ((75, 145), (137, 145))],
-    ("melee1", "up"): [((138, 151), (63, 151)), ((151, 115), (58, 150)), ((151, 135), (55, 138)), ((147, 118), (54, 149)), ((139, 138), (63, 151)), ((141, 151), (62, 151))],
-    ("melee1", "right"): [((98, 156), (143, 157)), ((82, 126), (141, 149)), ((88, 126), (150, 149)), ((98, 141), (150, 147)), ((93, 151), (143, 153)), ((97, 151), (137, 156))],
-    ("melee2", "down"): [((68, 153), (144, 154)), ((59, 122), (145, 145)), ((55, 144), (157, 134)), ((45, 128), (151, 139)), ((60, 151), (151, 153)), ((66, 151), (141, 151))],
-    ("melee2", "up"): [((137, 151), (53, 151)), ((151, 130), (55, 147)), ((130, 149), (38, 117)), ((144, 128), (41, 123)), ((142, 149), (46, 149)), ((136, 151), (51, 151))],
-    ("melee2", "right"): [((92, 156), (151, 160)), ((57, 137), (145, 157)), ((91, 141), (134, 154)), ((95, 144), (144, 160)), ((88, 151), (148, 160)), ((74, 158), (149, 160))],
+    ("melee1", "down"): [((100, 137), (122, 137)), ((141, 112), (130, 142)), ((98, 125), (136, 147)), ((57, 126), (137, 149)), ((68, 155), (138, 148)), ((93, 137), (119, 137))],
+    ("melee1", "up"): [((128, 138), (87, 138)), ((150, 102), (86, 140)), ((156, 122), (89, 147)), ((172, 122), (88, 149)), ((150, 155), (81, 147)), ((123, 132), (86, 138))],
+    ("melee1", "right"): [((136, 137), (128, 134)), ((86, 113), (136, 137)), ((146, 123), (89, 148)), ((167, 128), (87, 148)), ((143, 157), (110, 150)), ((134, 137), (128, 134))],
+    ("melee2", "down"): [((43, 117), (125, 147)), ((91, 145), (110, 175)), ((86, 140), (146, 103)), ((80, 130), (143, 55)), ((80, 138), (140, 80)), ((81, 130), (106, 130))],
+    ("melee2", "up"): [((150, 112), (68, 145)), ((130, 130), (71, 163)), ((131, 128), (51, 88)), ((128, 122), (48, 45)), ((141, 72), (75, 138)), ((123, 125), (83, 125))],
+    ("melee2", "right"): [((180, 118), (90, 147)), ((101, 147), (141, 175)), ((96, 142), (163, 90)), ((100, 128), (165, 47)), ((95, 137), (166, 63)), ((124, 135), (144, 128))],
+    ("melee3", "down"): [((97, 138), (155, 62)), ((100, 45), (130, 45)), ((103, 118), (131, 118)), ((68, 183), (163, 183)), ((68, 183), (165, 183)), ((106, 127), (124, 127))],
+    ("melee3", "up"): [((132, 135), (60, 55)), ((120, 53), (91, 53)), ((136, 120), (86, 115)), ((160, 180), (55, 180)), ((161, 178), (56, 180)), ((131, 130), (79, 132))],
+    ("melee3", "right"): [((92, 138), (140, 45)), ((130, 27), (108, 30)), ((148, 112), (113, 110)), ((150, 182), (65, 163)), ((148, 182), (66, 172)), ((141, 122), (124, 125))],
+    ("melee4", "down"): [((73, 148), (125, 148)), ((70, 141), (128, 136)), ((70, 141), (114, 147)), ((95, 152), (112, 152)), ((72, 133), (122, 133)), ((84, 124), (100, 124))],
+    ("melee4", "up"): [((123, 137), (67, 138)), ((146, 92), (80, 133)), ((123, 135), (66, 95)), ((147, 92), (73, 98)), ((130, 128), (79, 132)), ((121, 127), (76, 132))],
+    ("melee4", "right"): [((78, 147), (70, 145)), ((165, 124), (78, 148)), ((62, 147), (180, 122)), ((162, 121), (160, 133)), ((117, 135), (102, 134)), ((126, 118), (114, 124))],
 }
 NEW_DESIGN = {"right": ("idle", "walk")}  # designed fresh, not laid on the old row
 RES = "Assets/Resources"
@@ -138,6 +144,8 @@ def old_row(anim, direction):
 
 
 def row_scale(anim, direction, parts, walk_hair):
+    if anim in REDRAWN:  # painted fresh at one size per strip: the ready stance (frame 0) stands READY_H tall
+        return READY_H * HEAD_FIT.get((anim, direction), 1.0) / parts[0][0].shape[0]
     if anim in ("walk", "idle"):
         return HEIGHT / max(p.shape[0] for p, _ in parts)
     # Crouched poses would come out with a bigger head at 164 px: same hair width as walk in this direction, then HEAD_FIT, read against idle down.
@@ -172,7 +180,10 @@ def row_dx(cells, olds):
 
 def row_cells(anim, direction, walk_hair):
     """[192 px premultiplied cells] of a painted row. Heights between frames stay as painted; a sole within 6 px of the ground snaps to it."""
-    parts = split(key_green(source(anim, direction)), COUNT[anim])
+    pm = key_green(source(anim, direction))
+    if anim in REDRAWN:
+        pm = match_purple(pm)
+    parts = split(pm, COUNT[anim])
     k = row_scale(anim, direction, parts, walk_hair)
     bottom = max(y + p.shape[0] for p, y in parts)
     small = [(resize_pm(p, k), (bottom - (y + p.shape[0])) * k) for p, y in parts]
@@ -188,13 +199,41 @@ def row_cells(anim, direction, walk_hair):
         return [breathe(cells[0], i) for i in range(4)], k, 0
     olds = old_row(anim, direction)
     dx = row_dx(cells, olds) if anim not in NEW_DESIGN.get(direction, ()) else 0
+    if anim in REDRAWN:
+        # A lunge reaches past the cell when centred on the feet (and np.roll would wrap it round): place again at the row's dx,
+        # slid back inside, 3 px from the edge. Frames that fit land exactly where the roll put them.
+        out = []
+        for (f, air) in small:
+            y = SOLE_ROW + 1 - f.shape[0] - (round(air) if air > 6 else 0)
+            xs = np.where((f[..., 3] > 8).any(0))[0]
+            x = int(np.clip(round(FRAME / 2 - centre_x(f)) + dx, 3 - xs[0], FRAME - 4 - xs[-1]))
+            out.append(place(f, y, x))
+        if (anim, direction) not in HEAD_GROW:
+            out = grow_redrawn_heads(out)
+        return out, k, dx
     return [np.roll(c, dx, axis=1) for c in cells], k, dx
 
 
-def grow_head(pm, k, neck, cx):
+def grow_redrawn_heads(cells):
+    # measured on the most upright frame (not always frame 0: hit 4 starts crouched)
+    tall = [np.where((c[..., 3] > 128).any(1))[0][-1] - hair_top(c) for c in cells]
+    up = int(np.argmax(tall))
+    drop = int(NECK_FRAC * tall[up])
+    heads = [head_of(c, drop) for c in cells]
+    widths = [head_width(c, h[0], drop) for c, h in zip(cells, heads)]
+    ref = float(np.median(widths))  # not one frame: arms raised beside the head widen a jump frame's measure
+    # ChatGPT paints the head bigger in a crouch: every frame's head comes to the strip's median size, then REDRAWN_HEAD bigger
+    ks = [REDRAWN_HEAD * float(np.clip(ref / w, 0.75, 1.0)) for w in widths]
+    cells = [grow_head(c, k, *h, half=HEAD_HALF) for c, k, h in zip(cells, ks, heads)]
+    return cells
+
+
+def grow_head(pm, k, neck, cx, half=None):
     """Head alone k times bigger, growing up from the neck; the size eases back to 1 over NECK_BLEND rows below it, so arms and fists stay put."""
     y, x = np.mgrid[0:FRAME, 0:FRAME].astype(np.float64)
     t = np.clip((neck + NECK_BLEND - y) / NECK_BLEND, 0, 1)
+    if half is not None:  # only the head's columns: an arm stretched out at shoulder height stays as painted
+        t = t * np.clip((half + NECK_BLEND - np.abs(x - cx)) / NECK_BLEND, 0, 1)
     src_x = cx + (x - cx) / (1 + (k - 1) * t)
     src_y = np.where(y < neck, neck - (neck - y) / k, y)
     return np.stack([ndimage.map_coordinates(pm[..., c], [src_y, src_x], order=3, mode="constant") for c in range(4)], axis=-1).clip(0, 255)
@@ -260,6 +299,101 @@ def trim(c):
 ANGLE_FIX = {("melee1", "down", 1): (None, 120), ("melee1", "down", 3): (None, 120), ("melee2", "down", 3): (None, 125), ("melee2", "down", 4): (None, 125), ("melee2", "up", 2): (125, None)}
 
 
+# Combo hits drawn fresh on 2026-11-03 (clear slashes, chat https://chatgpt.com/c/6ae991ac-a098-83ec-9910-5a4320ecabba): the old angles
+# no longer fit the poses, so a dagger points along its arm, from the chest out through the fist. A fist close to the chest (guard) holds its
+# dagger tip up and forward. NEW_ANGLE overrides single frames: (anim, dir, frame): (main or None, off or None).
+REDRAWN = ("melee1", "melee2", "melee3", "melee4")
+CHEST_Y, GUARD_R, READY_H = 112.0, 22.0, 158
+GUARD = {"right": (40, 25), "down": (-30, 30), "up": (30, -30)}  # (main, off) tip angles at guard, clockwise from straight up
+NEW_ANGLE = {
+    # hit 1: wind-up and mid-sweep fists sit by the face: blade out, not across it
+    ("melee1", "down", 2): (-80, None), ("melee1", "right", 1): (-95, None),
+    # hit 2 wind-up: the fist by the knee trails its blade back, not down through the floor
+    ("melee2", "down", 1): (None, -115), ("melee2", "up", 1): (None, -115), ("melee2", "right", 1): (None, 115),
+    ("melee2", "down", 5): (-150, 150),
+    ("melee3", "down", 2): (-150, 150), ("melee3", "down", 5): (-150, 150),  # chop and ready: blades down past the fists, not up at the face  # ready stance: blades down, not across the face
+    # hit 3 crouch: fists by the floor sweep their blades out level, not into the ground
+    ("melee3", "right", 3): (100, -100), ("melee3", "right", 4): (100, -100), ("melee3", "down", 3): (-100, 100), ("melee3", "down", 4): (-100, 100), ("melee3", "up", 3): (100, -100), ("melee3", "up", 4): (100, -100),
+    # hit 4 coil: fists back at the hip, blades already pointing at the target
+    ("melee4", "down", 5): (-150, 150), ("melee4", "up", 5): (150, -150),  # ready stance: blades down, not across the face
+    ("melee4", "right", 0): (70, 70), ("melee4", "right", 1): (None, 70), ("melee4", "right", 2): (70, None),  # fist at the hip waits with its blade forward
+}
+
+
+REDRAWN_HEAD, NECK_FRAC, HEAD_HALF = 1.2, 0.5, 40  # these strips came with a smaller head than idle down; the chin sits about half way down the figure
+
+
+def hair_top(cell):
+    """First row where the figure is wide enough to be the head; thinner rows above are raised fists or hair spikes."""
+    return int(np.where((cell[..., 3] > 128).sum(1) >= 34)[0][0])
+
+
+def head_width(cell, neck, drop):
+    """Width of the head at eye level (the widest run of filled columns), the size measure between frames of one strip."""
+    y = neck - int(drop * 0.4)
+    full = (cell[y - 6:y + 6, :, 3] > 128).sum(0) >= 10
+    runs, n = ndimage.label(full)
+    return float(ndimage.sum(full, runs, range(1, n + 1)).max())
+
+
+def head_of(cell, drop):
+    """(neck row, head centre x) of one frame: the neck sits a fixed drop below the top of the head (the head keeps its size when he
+    crouches or jumps); the centre is found per frame because the head moves with the lunge."""
+    neck = hair_top(cell) + drop
+    full = (cell[neck - 25:neck, :, 3] > 128).sum(0) >= 15  # face columns; an arm across this band is too thin to count
+    runs, n = ndimage.label(full)
+    biggest = 1 + int(np.argmax(ndimage.sum(full, runs, range(1, n + 1))))
+    xs = np.where(runs == biggest)[0]
+    return neck, (xs[0] + xs[-1]) / 2
+
+
+PURPLE_HUE, PURPLE_V = 305.0, 0.42  # mean hue and value of the hair and cloth purple in the walk, idle and hurt strips
+
+
+def match_purple(pm):
+    """The combo strips came out pinker and brighter than the rest of the set: shift their purples (hue 280-345) to the set's mean
+    hue and value. Red scarf, skin and gold are outside that band and stay."""
+    a = np.maximum(pm[..., 3:4], 1e-3) / 255
+    rgb = np.clip(pm[..., :3] / a / 255, 0, 1)
+    mx, mn = rgb.max(-1), rgb.min(-1)
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    d = np.maximum(mx - mn, 1e-6)
+    hue = np.where(mx == r, ((g - b) / d) % 6, np.where(mx == g, (b - r) / d + 2, (r - g) / d + 4)) * 60
+    band = (hue > 280) & (hue < 345) & (mx - mn > 0.08) & (pm[..., 3] > 128)
+    shift = PURPLE_HUE - hue[band].mean()
+    scale = min(1.0, PURPLE_V / mx[band].mean())  # only ever darkens: the strips drawn from the hero-select art are already darker, as that art is
+    w = np.clip(np.minimum(hue - 270, 355 - hue) / 10, 0, 1) * ((mx - mn) > 0.08)  # fade out at the edges of the band
+    h2 = (hue + shift * w) % 360
+    v2 = np.clip(mx * (1 + (scale - 1) * w), 0, 1)
+    s2 = (mx - mn) / np.maximum(mx, 1e-6)
+    c = v2 * s2
+    x = c * (1 - np.abs((h2 / 60) % 2 - 1))
+    k = (h2 // 60).astype(int)
+    zero = np.zeros_like(c)
+    table = [(c, x, zero), (x, c, zero), (zero, c, x), (zero, x, c), (x, zero, c), (c, zero, x)]
+    out = np.zeros_like(rgb)
+    for i, (rr, gg, bb) in enumerate(table):
+        sel = k == i
+        out[sel] = np.stack([rr[sel], gg[sel], bb[sel]], -1)
+    out += (v2 - c)[..., None]
+    res = pm.copy()
+    res[..., :3] = out * 255 * a
+    return res
+
+
+def chest_x(cell):
+    xs = np.where((cell[95:130, :, 3] > 128).any(0))[0]
+    return (xs[0] + xs[-1]) / 2
+
+
+def arm_angle(cell, x, y, guard):
+    """Tip angle (clockwise from up) pointing from the chest out through the fist; guard angle when the fist is tucked in."""
+    dx, dy = x - chest_x(cell), y - CHEST_Y
+    if math.hypot(dx, dy) < GUARD_R:
+        return guard
+    return round(math.degrees(math.atan2(dx, -dy)), 1)
+
+
 def directions(anim):
     return ("up", "right") if anim == "idle" else ("down", "up", "right")  # idle down is done: row 0 stays
 
@@ -317,7 +451,7 @@ def angle_of(frames, f):
 
 
 def anchor(x, y, angle, behind):
-    return {"x": round(x, 3), "y": round(y, 3), "angle": angle, "s": DAGGER_S, "sx": 1, "behind": behind, "hidden": False, "fallback": False}
+    return {"x": round(float(x), 3), "y": round(float(y), 3), "angle": float(angle), "s": DAGGER_S, "sx": 1, "behind": bool(behind), "hidden": False, "fallback": False}
 
 
 def flipped(a, behind):
@@ -341,12 +475,20 @@ def build():
                 (mx, my), (ox, oy) = fists[f]
                 # Sideways the off hand is the far hand: behind the body unless the fist is across the chest (rule 4 and its on_body exception).
                 far_behind = direction == "right" and not on_body(cells[f], ox, oy)
-                am, ao = angles_of_frame(om, oo, f, mx, ox)
+                main_behind = False
+                if anim in REDRAWN and direction == "up":  # seen from the back, a fist held in front of the chest hides its dagger behind the body
+                    main_behind, far_behind = on_body(cells[f], mx, my), on_body(cells[f], ox, oy)
+                if anim in REDRAWN:
+                    am, ao = arm_angle(cells[f], mx, my, GUARD[direction][0]), arm_angle(cells[f], ox, oy, GUARD[direction][1])
+                else:
+                    am, ao = angles_of_frame(om, oo, f, mx, ox)
+                fix = NEW_ANGLE.get((anim, direction, f), (None, None))
+                am, ao = am if fix[0] is None else fix[0], ao if fix[1] is None else fix[1]
                 fix = ANGLE_FIX.get((anim, direction, f), (None, None))
                 am, ao = am if fix[0] is None else fix[0], ao if fix[1] is None else fix[1]
-                mains.append(anchor(mx, my, am, False))
+                mains.append(anchor(mx, my, am, main_behind))
                 offs.append(anchor(ox, oy, ao, far_behind))
-                mask = np.maximum(fist_mask(mx, my), 0 if far_behind else fist_mask(ox, oy))
+                mask = np.maximum(0 if main_behind else fist_mask(mx, my), 0 if far_behind else fist_mask(ox, oy))
                 hand.append(cells[f] * mask[..., None])
             anchors[("main", anim, direction)], anchors[("off", anim, direction)] = mains, offs
             sheets.setdefault(anim, {})[ROWS[direction]] = cells
@@ -506,7 +648,8 @@ DAGGER_SRC = f"{LIB}/dagger-src"
 ICONS = f"{RES}/Sprites/icons"
 DAGGER_LEN = 258  # art px, tip to pommel: the old daggers' length, so the size on screen stays (s and DrawScale do not change)
 DAGGER_PAD = 4
-MAGENTA_KEY = {"venom"}  # green art: drawn on #FF00FF
+MAGENTA_KEY = {"venom"}
+CHARM_TIERS = {"moonlight"}  # a charm hangs beside the handle: grip measured on the handle axis only  # green art: drawn on #FF00FF
 
 
 def key_pair(path, tier):
@@ -524,12 +667,19 @@ def key_pair(path, tier):
     return np.dstack([np.minimum(r, np.maximum(g, b)) * alpha, g * alpha, np.minimum(b, np.maximum(r, g)) * alpha, alpha * 255])  # spill off the edge pixels
 
 
-def measure_grip(a):
+def measure_grip(a, axis_only=False):
     """(gripX, gripY) middle of the handle, read from the alpha of an upright dagger: between the bottom of the crossguard and the top of the pommel."""
     mask = a > 128
-    widths = mask.sum(1)
-    rows = np.where(widths > 0)[0]
+    rows = np.where(mask.any(1))[0]
     top, bottom = rows[0], rows[-1]
+    # axis_only: only the columns of the handle axis (centred on the pommel), so a charm hanging beside the handle (moonlight) does not widen its rows
+    pommel = np.where(mask[bottom - max(3, int(0.03 * (bottom - top))):bottom + 1].any(0))[0]
+    cx, half = (pommel[0] + pommel[-1]) / 2, (pommel[-1] - pommel[0]) / 2 + 3
+    cols = np.abs(np.arange(mask.shape[1]) - cx) <= half
+    low_rows = np.arange(mask.shape[0]) >= top + 0.6 * (bottom - top)
+    if axis_only:
+        mask = mask & (cols[None, :] | ~low_rows[:, None])
+    widths = mask.sum(1)
     h = bottom - top + 1
     low = int(top + 0.6 * h)  # the crossguard and handle are in the lower part of the art
     guard = low + int(np.argmax(widths[low:]))
@@ -560,7 +710,7 @@ def cut_pair(tier):
         small = resize_pm(part, DAGGER_LEN / part.shape[0])
         canvas = np.zeros((small.shape[0] + 2 * DAGGER_PAD, small.shape[1] + 2 * DAGGER_PAD, 4))
         canvas[DAGGER_PAD:DAGGER_PAD + small.shape[0], DAGGER_PAD:DAGGER_PAD + small.shape[1]] = small
-        gx, gy, info = measure_grip(canvas[..., 3])
+        gx, gy, info = measure_grip(canvas[..., 3], tier in CHARM_TIERS)
         out[kind] = (Image.fromarray(to_rgba(canvas), "RGBA"), {"w": canvas.shape[1], "h": canvas.shape[0], "gripX": gx, "gripY": gy}, info)
     return out
 
