@@ -21,7 +21,7 @@ SWORDS = os.path.join(RES, "Sprites/classes/warrior/weapons", PART)
 GEAR = os.path.join(RES, "Data/classes/warrior/held-gear.json")
 # art px tall. Swords: 250 = 170 on screen (x 0.34 x 2), about the hero's height as in ref-mu-weapons-wanted.png; the first set used 200.
 # Shields: 380 = 82 on screen (x 0.27 x 0.8), a little bigger than the old 336 (72), as the reference shields reach the shoulder.
-ART_H = int(os.environ.get("ART_H", 380 if PART == "shield" else 250))
+ART_H = int(os.environ.get("ART_H", 330 if PART == "shield" else 250))  # shield 330 (was 380): at 380 it hid the face in idle down
 # sheet file: the two tiers it holds, in column order (normal, enhanced, normal, enhanced)
 SHEETS = {
     "pair1-lightning-lance.png": ["iron", "bronze"],
