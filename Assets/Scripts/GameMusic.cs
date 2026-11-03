@@ -51,7 +51,7 @@ namespace ZenoniaProto
         void Update()
         {
             float step = Time.unscaledDeltaTime / FadeSeconds * Volume;
-            current.volume = Mathf.MoveTowards(current.volume, Volume, step);
+            current.volume = Mathf.MoveTowards(current.volume, AudioPrefs.MusicOn ? Volume : 0f, step); // Settings switch: fades out / back in, the track keeps its place
             previous.volume = Mathf.MoveTowards(previous.volume, 0f, step);
             if (previous.isPlaying && previous.volume <= 0f) previous.Stop();
         }

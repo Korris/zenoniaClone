@@ -85,7 +85,7 @@ namespace ZenoniaProto
             groundGlow.transform.localScale = new Vector3(Radius * 2.3f, Radius * 1.35f, 1f);
             cast = MakePair("Cast"); spin = MakePair("Spin"); peak = MakePair("Peak"); finish = MakePair("Finish");
             AudioClip clip = Resources.Load<AudioClip>(LoopClip);
-            if (clip != null)
+            if (clip != null && AudioPrefs.SfxOn) // sound effects switched off in Settings: no loop
             {
                 loop = gameObject.AddComponent<AudioSource>();
                 loop.clip = clip; loop.loop = true; loop.volume = local ? 0.55f : 0.25f; loop.Play();

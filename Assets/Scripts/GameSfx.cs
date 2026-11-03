@@ -26,8 +26,15 @@ namespace ZenoniaProto
                 AudioSource s = go.AddComponent<AudioSource>();
                 s.playOnAwake = false;
                 s.spatialBlend = 0f;
+                s.mute = !AudioPrefs.SfxOn;
                 Pool.Add(s);
             }
+        }
+
+        /// <summary>Settings switch: mutes (or unmutes) the pool at once, so a clip already playing stops being heard too.</summary>
+        public static void ApplyMute(bool mute)
+        {
+            foreach (AudioSource s in Pool) if (s != null) s.mute = mute;
         }
 
         static AudioClip Clip(string path)
@@ -44,7 +51,7 @@ namespace ZenoniaProto
         public static void Play(string path, float volume = 1f, float pitchJitter = 0.05f)
         {
             if (!NetMode.RendersFx) return; // headless server: no cosmetics
-            if (Pool.Count == 0) return;
+            if (Pool.Count == 0 || !AudioPrefs.SfxOn) return; // sound effects switched off in Settings
             AudioClip clip = Clip(path);
             if (clip == null) return;
             AudioSource s = Pool[next];

@@ -27,7 +27,7 @@ namespace ZenoniaProto
         /// <summary>Spins and zones (whirlwind, blade cyclone / dance, sanctuary): the skill's -loop clip repeats for `seconds`, then goes away. Silent without a clip.</summary>
         public static void Loop(SkillContext ctx, float seconds, float volume = 0.55f)
         {
-            if (ctx == null || !ctx.View || seconds <= 0f || !ctx.Body.IsLocal && !NearListener(ctx)) return;
+            if (ctx == null || !ctx.View || seconds <= 0f || !AudioPrefs.SfxOn || !ctx.Body.IsLocal && !NearListener(ctx)) return;
             string path = PathOf(ctx, LoopClip);
             if (!HasClip(path)) return;
             var go = new GameObject("SkillSfxLoop");

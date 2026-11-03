@@ -11,7 +11,7 @@ namespace ZenoniaProto
         Text spBadgeText;
         int shownSp = -1;
 
-        /// <summary>Small round menu buttons under the minimap (art cut from hud-bag-settings-buttons.png): Quests opens the quest list, Bag the inventory, Settings the hero change screen.</summary>
+        /// <summary>Small round menu buttons under the minimap (art cut from hud-bag-settings-buttons.png): Quests opens the quest list, Bag the inventory, Settings the settings window (sound switches, Change hero).</summary>
         void BuildMenuButtons(Transform parent)
         {
             Vector2 tr = new Vector2(1f, 1f);
@@ -26,7 +26,7 @@ namespace ZenoniaProto
 
             RectTransform settings = Place(parent, "Settings", tr, -32f, y, size);
             Img(settings, MenuSprite("hud-settings"), Color.white, true);
-            settings.gameObject.AddComponent<TapButton>().onTap = HeroChangeScreen.Open;
+            settings.gameObject.AddComponent<TapButton>().onTap = SettingsWindow.Open; // music / sound switches and Change hero (HeroChangeScreen.Open)
 
             // The skill tree opens from the bag's Skill tab, so the Bag carries the red badge counting the free skill points.
             RectTransform badge = Place(bag, "Badge", tr, -5f, -5f, 26f);

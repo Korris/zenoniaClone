@@ -38,6 +38,7 @@ namespace ZenoniaProto
             PartyInviteWindow.Create(canvas);
             TradeRequestWindow.Create(canvas);
             TradeWindow.Create(canvas);
+            SettingsWindow.Create(canvas);
             RectTransform t = UiWinKit.Anchored(canvas, "TalkPrompt", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), 0f, 76f, 150f, 42f);
             UiWinKit.ArtButton(t, "Talk", "btn-gold", 0f, 0f, 150f, 42f, Application.isMobilePlatform ? "Talk" : "Talk  [E]", 19, new Color(0.25f, 0.12f, 0.02f), TownNpc.Talk);
             talkPrompt = t.gameObject;
@@ -59,7 +60,7 @@ namespace ZenoniaProto
             bool modal = UiWindows.ModalOpen;
             if (hero == null)
             {
-                if (modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close(); SkillTreeWindow.Close(); PotionShopWindow.Close(); }
+                if (modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close(); SkillTreeWindow.Close(); PotionShopWindow.Close(); SettingsWindow.Close(); }
                 UiWindows.InteractPrompt = false;
                 talkPrompt.SetActive(false);
                 SetPaused(false);
@@ -79,8 +80,8 @@ namespace ZenoniaProto
                 return;
             }
             bool interact = InputAdapter.Pressed(GameKey.Interact), enter = InputAdapter.Pressed(GameKey.Chat);
-            if (InputAdapter.Pressed(GameKey.Close) && modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close(); SkillTreeWindow.Close(); PotionShopWindow.Close(); TradeWindow.CloseKey(); return; }
-            if (SkillTreeWindow.IsOpen || QuestLogWindow.IsOpen || PotionShopWindow.IsOpen || TradeWindow.IsOpen) return; // E / Enter must not talk or focus the chat behind the tree
+            if (InputAdapter.Pressed(GameKey.Close) && modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close(); SkillTreeWindow.Close(); PotionShopWindow.Close(); SettingsWindow.Close(); TradeWindow.CloseKey(); return; }
+            if (SkillTreeWindow.IsOpen || QuestLogWindow.IsOpen || PotionShopWindow.IsOpen || TradeWindow.IsOpen || SettingsWindow.IsOpen) return; // E / Enter must not talk or focus the chat behind the tree
             if (!interact && !enter) return;
             if (QuestOfferWindow.IsOpen) QuestOfferWindow.Accept();
             else if (NpcDialogueBox.IsOpen) NpcDialogueBox.Advance();
