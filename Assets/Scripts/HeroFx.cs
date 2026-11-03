@@ -15,7 +15,7 @@ namespace ZenoniaProto
             if (!NetMode.RendersFx) return;
             bool flip = (step == 2) != echo;
             if (!echo) ClassSfx.Swing(cls.Id, step, finisher); // one whoosh per combo step (+ finisher shout), not again for the echo stab
-            if (cls.Id == HeroClass.Assassin) { DaggerFx.Strike(center, angle, h.Reach, finisher, echo, step); return; }
+            if (cls.Id == HeroClass.Assassin) { DaggerFx.Swing(center, feet, angle, h, step, finisher, echo); return; }
             // Both swing effects in the class colours, as originally (user decision 2026-11-03 after trying weapon-coloured variants):
             // pass weaponGlow to SlashEffect.Spawn / ClassPalette.ForWeapon(weaponGlow, cls.Palette) to colour them by the worn weapon again.
             bool rising = step == cls.RisingStep && !finisher, chop = finisher && cls.RisingStep > 0; // Warrior: hit 3 rises, hit 4 (jump cleave) falls
@@ -144,10 +144,11 @@ namespace ZenoniaProto
         public static void ShadowStrike(Vector2 hitAt, float angle, Vector2 landed, Vector2 heroFeet)
         {
             if (!NetMode.RendersFx) return;
-            DaggerFx.Strike(hitAt, angle, 30f, true, false, 4);
+            DaggerFx.Stab(hitAt, angle, 30f, false);
+            DaggerFx.Stab(hitAt, angle, 30f, true);
             ShockRing.Spawn(landed, 16f, 0.3f, new Color(0.62f, 0.3f, 1f, 0.95f), UltimateFx.GroundFxOrder + 6, 0.72f, 0.15f);
             UltimateFx.Embers(hitAt, 26, 8f, 40f, new Color(0.7f, 0.45f, 1f, 1f));
-            CameraFollow.AddTrauma(0.45f);
+            CameraFollow.SkillShake(0.45f);
             DamageNumber.Spawn(heroFeet.x, heroFeet.y + 30f, "Shadow Step!", new Color(0.85f, 0.66f, 1f), false);
         }
 

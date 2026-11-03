@@ -100,11 +100,11 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Assassin = new HeroClassDef
         {
             Id = HeroClass.Assassin, Name = "Assassin", Tagline = "Dual-dagger striker. Speed, crits and shadow strikes.", ComboLabel = "3 slashes + double stab",
-            SheetFolder = "classes/assassin/body/armed", BareFolder = "classes/assassin/body/bare", HandFolder = "classes/assassin/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "melee1", "melee2" }, GearFile = "classes/assassin/held-assassin", FxFolder = null, Palette = ClassPalette.Violet,
+            SheetFolder = "classes/assassin/body/armed", BareFolder = "classes/assassin/body/bare", HandFolder = "classes/assassin/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "melee1", "melee2", "melee3", "melee4" }, GearFile = "classes/assassin/held-assassin", FxFolder = null, Palette = ClassPalette.Violet,
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked art
             MirrorLeft = new HashSet<string>(),
             ExtraAnims = new[] { NightfallExecutionUltimate.PoseAnim },
-            ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // right slash, left slash, X cross-slash, dash double stab (Tools/build-melee-sheets.py assassin N)
+            ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // forehand slash, rising backhand, jumping X chop, dash double stab (Tools/build-assassin-new-style.py)
             MaxHp = 88f, MaxMp = 50f, Atk = 13f, Def = 3f, Speed = 92f, CritBonus = 0.06f, Hits = ComboConfigs.AssassinHits, ChainMs = 380f,
             Parts = new[] { new GearPartSpec("off", "classes/assassin/weapons/dagger", 1.3f, 0f, true), new GearPartSpec("main", "classes/assassin/weapons/dagger", 1.3f, 0f, true) }, // 1.3 = daggers ~40% of body height (keep Tools/build-melee-sheets.py draw_scale in sync)
             SkillName = "Shadow Step", SkillMp = 9f, SkillCooldownMs = 3900f, SkillLockMs = 260f, SkillIcon = 0, DashIcon = 10, // shadowStep, evasion

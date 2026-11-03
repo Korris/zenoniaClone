@@ -15,11 +15,13 @@ namespace ZenoniaProto
         static Sprite[][] frames;
         static Texture2D painted; // the untinted sheet, source of the per-weapon recolours
         static readonly Dictionary<string, Sprite[][]> byWeapon = new Dictionary<string, Sprite[][]>(); // weapon glow hex -> frames (option C: white core, weapon-coloured edge)
+        const float ClassTintStrength = 0.85f; // class recolour (Assassin violet): the Warrior's look, white-hot core kept, only the edge recoloured
         const float WeaponTintStrength = 1f; // whole arc in the weapon colour, no white core (user decision 2026-11-03)
         static float slashTurn; // extra rotation of the normal-slash row so its bulge points along the swing
         static Sprite[] cleave;  // warrior-cleave-vfx.png (1 x 4): the finisher as a vertical top-to-bottom chop; null = the old finisher ring
         SpriteRenderer sr, core; // core = additive copy of the same frame (bright centre, feeds the bloom)
         bool finisherLook;
+        float coreAlpha = 1f; // class-tint slashes glow at half strength, so the recoloured arc does not bloom into a pink band
         Sprite[] row;
         const float CleaveScale = 1f; // the chop cell is drawn at the finisher size (48u)
         Color coreGlow;
@@ -46,16 +48,17 @@ namespace ZenoniaProto
         }
 
         /// <summary>Frames recoloured for a weapon glow (hex like "#59a7ff"); the painted class frames when null or unparsable. Built once per colour.</summary>
-        static Sprite[][] FramesFor(string weaponGlow)
+        static Sprite[][] FramesFor(string weaponGlow, bool keepCore = false)
         {
             if (string.IsNullOrEmpty(weaponGlow) || painted == null) return frames;
             Sprite[][] f;
-            if (byWeapon.TryGetValue(weaponGlow, out f)) return f;
+            string key = keepCore ? weaponGlow + "+core" : weaponGlow;
+            if (byWeapon.TryGetValue(key, out f)) return f;
             Color tint;
             f = ColorUtility.TryParseHtmlString(weaponGlow, out tint)
-                ? SpriteTint.Slice(SpriteTint.ColorizeBody(painted, Saturated(tint), WeaponTintStrength, false), 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f))
+                ? SpriteTint.Slice(SpriteTint.ColorizeBody(painted, keepCore ? tint : Saturated(tint), keepCore ? ClassTintStrength : WeaponTintStrength, keepCore), 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f))
                 : frames;
-            byWeapon[weaponGlow] = f;
+            byWeapon[key] = f;
             return f;
         }
 
@@ -68,14 +71,15 @@ namespace ZenoniaProto
         }
 
         /// <summary>Spawns a slash. angleDeg: 0 = right, 90 = up (counter-clockwise). weaponGlow = the worn weapon's glow colour (null = class colour only).</summary>
-        public static void Spawn(float x, float y, float angleDeg, float scale, bool finisher, bool flipY, int order, string weaponGlow = null)
+        /// <param name="classTint">weaponGlow is a class colour: keep the white core, as the Warrior's own red slash does.</param>
+        public static void Spawn(float x, float y, float angleDeg, float scale, bool finisher, bool flipY, int order, string weaponGlow = null, bool classTint = false)
         {
             if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (frames == null || root == null) return;
-            Sprite[][] sheet = FramesFor(weaponGlow);
+            Sprite[][] sheet = FramesFor(weaponGlow, classTint);
             Color weapon;
             Color classGlow = ClassPalette.Red.Glow;
-            Color core = !string.IsNullOrEmpty(weaponGlow) && ColorUtility.TryParseHtmlString(weaponGlow, out weapon) ? Saturated(weapon) : classGlow;
+            Color core = !string.IsNullOrEmpty(weaponGlow) && ColorUtility.TryParseHtmlString(weaponGlow, out weapon) ? (classTint ? weapon : Saturated(weapon)) : classGlow;
             SlashEffect fx = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { fx = Pool[i]; break; }
             if (fx == null)
@@ -103,6 +107,7 @@ namespace ZenoniaProto
             fx.sr.sortingOrder = order;
             fx.core.sortingOrder = order + 1;
             fx.finisherLook = finisher;
+            fx.coreAlpha = classTint ? 0.45f : 1f;
             fx.gameObject.SetActive(true);
             fx.Apply();
         }
@@ -124,7 +129,7 @@ namespace ZenoniaProto
             core.enabled = FeelConfig.FxOn;
             core.sprite = sr.sprite;
             Color g = coreGlow;
-            core.color = new Color(g.r, g.g, g.b, fade * (finisherLook ? 1f : 0.85f));
+            core.color = new Color(g.r, g.g, g.b, fade * (finisherLook ? 1f : 0.85f) * coreAlpha);
         }
     }
 }

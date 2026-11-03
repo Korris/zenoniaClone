@@ -33,13 +33,15 @@ namespace ZenoniaProto
             new ComboHit(140f, 80f, 260f, 1.6f, 0f, 0f, 100f, 0f, 1f, Plasma),
         };
 
-        // Assassin: three quick short slashes, then a double-stab finisher (stabs 2, purple FX).
+        // Assassin: three quick slashes, then a double-stab finisher (stabs 2, purple FX).
+        // 2026-11-03: each hit 1.3x longer (0.16 s was ~27 ms per frame of the new 6-frame sprites: the poses did not read), still faster than
+        // the Warrior's 0.25 s; multipliers 1.3x too, so the combo's damage per second is unchanged.
         public static readonly ComboHit[] AssassinHits =
         {
-            new ComboHit(30f, 60f, 70f, 0.75f, 22f, 24f, 25f, 5f, 1.1f, null, 1),
-            new ComboHit(30f, 60f, 70f, 0.85f, 24f, 26f, 30f, 6f, 1.2f, null, 1),
-            new ComboHit(30f, 60f, 80f, 0.95f, 26f, 28f, 35f, 6f, 1.25f, null, 1),
-            new ComboHit(60f, 100f, 150f, 1.6f, 30f, 30f, 70f, 10f, 1.0f, null, 2),
+            new ComboHit(45f, 75f, 100f, 0.98f, 22f, 24f, 25f, 5f, 1.1f, null, 1),
+            new ComboHit(45f, 75f, 100f, 1.1f, 24f, 26f, 30f, 6f, 1.2f, null, 1),
+            new ComboHit(50f, 75f, 105f, 1.24f, 26f, 28f, 35f, 6f, 1.25f, null, 1),
+            new ComboHit(80f, 110f, 180f, 2.08f, 30f, 30f, 70f, 10f, 1.0f, null, 2),
         };
 
         // Cleric: light arrows (HolyArrow) with a gold pillar impact; three quick shots then a bursting one (AoE r26).

@@ -4,9 +4,8 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Assassin basic-attack FX, deliberately unlike the warrior crescent and the wizard orbs: quick thin twin cross-slashes (an X), short sharp
-    /// afterimage lines, dark violet shadow wisps and a fast star-burst; the double-stab finisher adds two piercing thrust streaks and a bigger X flash.
-    /// Every line is a tapered diamond sprite (violet body + white-hot additive core) drawn by one pooled manager.
+    /// Assassin basic-attack FX: violet crescent and ribbon arcs shaped per combo hit (see Swing), and straight thrust streaks for the stabs.
+    /// Each stab line is a tapered diamond sprite (violet body + white-hot additive core) drawn by one pooled manager.
     /// </summary>
     public class DaggerFx : MonoBehaviour
     {
@@ -33,31 +32,42 @@ namespace ZenoniaProto
             diamond = Sprite.Create(t, new Rect(0, 0, t.width, t.height), new Vector2(0.5f, 0.5f), t.width, 0, SpriteMeshType.FullRect);
         }
 
-        /// <summary>One melee dagger hit at pos. angle = facing (deg, 0 = right, 90 = up); echo = second stab of the finisher.</summary>
-        public static void Strike(Vector2 pos, float angle, float reach, bool finisher, bool echo, int step)
+        const string VioletHex = "#6a3fc4"; // deep violet, not pushed to full saturation (a hot #9a4dff bloomed pink, 2026-11-03), white core kept (SlashEffect classTint)
+
+        /// <summary>
+        /// Assassin combo swing: the Warrior's painted crescent in violet (user, 2026-11-03: "giống warrior"), one placement per hit to match the
+        /// sprites (Tools/build-assassin-new-style.py): 1 forehand slash across the front; 2 rising backhand, the arc turned upward;
+        /// 3 jumping X chop, two crescents crossing; 4 dash double stab, one narrow crescent per stab, the second mirrored.
+        /// angle = facing (deg, 0 = right, 90 = up, counter-clockwise); echo = the second stab of hit 4.
+        /// </summary>
+        public static void Swing(Vector2 center, Vector2 feet, float angle, ComboHit h, int step, bool finisher, bool echo)
+        {
+            if (root == null) return;
+            if (finisher) { Slash(center, angle, h.FxScale * 1.15f, echo); return; }
+            if (step == 2) { Slash(center, angle + 35f, h.FxScale, true); return; } // tilted up: the left hand rises from low to high
+            if (step == 3)
+            {
+                Slash(center, angle - 30f, h.FxScale, false);
+                Slash(center, angle + 30f, h.FxScale, true);
+                return;
+            }
+            Slash(center, angle, h.FxScale, false);
+        }
+
+        const float SlashSize = 0.8f; // daggers reach less than the sword: a smaller crescent than the Warrior's
+
+        static void Slash(Vector2 at, float angle, float scale, bool mirror)
+        {
+            SlashEffect.Spawn(at.x, at.y, angle, scale * SlashSize, false, mirror, FeelConfig.FxOrder, VioletHex, true);
+        }
+
+        /// <summary>One stab of the dash finisher: a broad straight streak shooting forward through the target, the second one beside the first.</summary>
+        public static void Stab(Vector2 pos, float angle, float reach, bool second)
         {
             if (root == null || !FeelConfig.FxOn) return;
-            ClassPalette p = ClassPalette.Violet;
-            float len = reach * (finisher ? 1.9f : 1.5f);
-            float spread = finisher ? 38f : 30f;
-            float flip = (step % 2 == 0) != echo ? -1f : 1f; // alternate which diagonal leads
-            // twin cross-slashes: two thin lines crossing at the hit point
-            Add(pos, angle + spread * flip, len, finisher ? 4.4f : 3.2f, 0.16f, 0.35f, 0f, p.Edge, Color.white);
-            Add(pos, angle - spread * flip, len, finisher ? 4.4f : 3.2f, 0.16f, 0.35f, 0.02f, p.Mid, Color.white);
-            // short afterimage speed lines trailing behind the strike
             Vector2 fwd = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)), side = new Vector2(-fwd.y, fwd.x);
-            for (int i = -1; i <= 1; i++)
-                Add(pos - fwd * (len * 0.45f) + side * (i * 4f), angle, len * 0.55f, 1.1f, 0.2f, 0.4f, 0f, p.Mid, p.Core);
-            if (finisher)
-            {
-                // two piercing thrust streaks shooting forward past the target, plus a bigger X flash
-                for (int i = -1; i <= 1; i += 2)
-                    Add(pos + side * (i * 3f) - fwd * 6f, angle, len * 1.2f, 3f, 0.18f, 0.2f, 0f, p.Edge, Color.white, 70f);
-                Add(pos, angle + 45f, len * 1.15f, 4f, 0.2f, 0.5f, 0.03f, p.Mid, Color.white);
-                Add(pos, angle - 45f, len * 1.15f, 4f, 0.2f, 0.5f, 0.03f, p.Mid, Color.white);
-            }
-            UltimateFx.Dust(pos, finisher ? 5 : 3, 5f, p.Wisp);
-            UltimateFx.Embers(pos, finisher ? 22 : 12, 3f, 18f, new Color(p.Glow.r, p.Glow.g, p.Glow.b, 1f));
+            ClassPalette p = ClassPalette.Violet;
+            Add(pos + side * (second ? -3f : 3f) - fwd * 8f, angle, reach * 2f, 5f, 0.16f, 0.25f, 0f, p.Edge, Color.white, 40f);
         }
 
         /// <summary>Public one-off light ray (wizard finisher): tapered line from pos along angle with a white-hot core.</summary>
