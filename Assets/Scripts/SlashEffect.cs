@@ -15,7 +15,7 @@ namespace ZenoniaProto
         static Sprite[][] frames;
         static Texture2D painted; // the untinted sheet, source of the per-weapon recolours
         static readonly Dictionary<string, Sprite[][]> byWeapon = new Dictionary<string, Sprite[][]>(); // weapon glow hex -> frames (option C: white core, weapon-coloured edge)
-        const float WeaponTintStrength = 0.85f;
+        const float WeaponTintStrength = 1f; // whole arc in the weapon colour, no white core (user decision 2026-11-03)
         static float slashTurn; // extra rotation of the normal-slash row so its bulge points along the swing
         SpriteRenderer sr, core; // core = additive copy of the same frame (bright centre, feeds the bloom)
         bool finisherLook;
@@ -49,7 +49,7 @@ namespace ZenoniaProto
             if (byWeapon.TryGetValue(weaponGlow, out f)) return f;
             Color tint;
             f = ColorUtility.TryParseHtmlString(weaponGlow, out tint)
-                ? SpriteTint.Slice(SpriteTint.ColorizeBody(painted, Saturated(tint), WeaponTintStrength), 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f))
+                ? SpriteTint.Slice(SpriteTint.ColorizeBody(painted, Saturated(tint), WeaponTintStrength, false), 4, 3, painted.width / 4, new Vector2(0.5f, 0.5f))
                 : frames;
             byWeapon[weaponGlow] = f;
             return f;
@@ -71,7 +71,7 @@ namespace ZenoniaProto
             Sprite[][] sheet = FramesFor(weaponGlow);
             Color weapon;
             Color classGlow = ClassPalette.Red.Glow;
-            Color core = !string.IsNullOrEmpty(weaponGlow) && ColorUtility.TryParseHtmlString(weaponGlow, out weapon) ? Color.Lerp(classGlow, Saturated(weapon), 0.6f) : classGlow;
+            Color core = !string.IsNullOrEmpty(weaponGlow) && ColorUtility.TryParseHtmlString(weaponGlow, out weapon) ? Saturated(weapon) : classGlow;
             SlashEffect fx = null;
             for (int i = 0; i < Pool.Count; i++) if (!Pool[i].gameObject.activeSelf) { fx = Pool[i]; break; }
             if (fx == null)
@@ -84,16 +84,18 @@ namespace ZenoniaProto
                 fx.core.sharedMaterial = FeelMaterials.Additive;
                 Pool.Add(fx);
             }
-            fx.row = SpriteSheet.Row(sheet, finisher ? 1 : 0);
+            // Hit 4 (finisher) is one long downward chop since 2026-11-03 (user decision): the same crescent as the other hits, taller and slower, no ring.
+            fx.row = SpriteSheet.Row(sheet, 0);
             fx.coreGlow = core;
             fx.age = 0f;
             fx.life = finisher ? 0.24f : 0.17f;
-            float size = (finisher ? 48f : 32f) * scale;
+            float size = (finisher ? 40f : 32f) * scale;
             fx.transform.position = new Vector3(x, y, 0f);
-            fx.transform.rotation = Quaternion.Euler(0f, 0f, angleDeg + (finisher ? 0f : slashTurn));
-            bool flip = flipY && (finisher || slashTurn == 0f);
-            bool mirror = flipY && !finisher && slashTurn != 0f; // turned art: the swing-direction flip is a horizontal mirror
-            fx.transform.localScale = new Vector3(mirror ? -size : size, flip ? -size : size, 1f);
+            fx.transform.rotation = Quaternion.Euler(0f, 0f, angleDeg + slashTurn);
+            bool flip = flipY && slashTurn == 0f;
+            bool mirror = flipY && slashTurn != 0f; // turned art: the swing-direction flip is a horizontal mirror
+            float tall = finisher ? 1.35f : 1f; // the chop reads as a vertical stroke
+            fx.transform.localScale = new Vector3(mirror ? -size : size, (flip ? -size : size) * tall, 1f);
             fx.sr.sortingOrder = order;
             fx.core.sortingOrder = order + 1;
             fx.finisherLook = finisher;

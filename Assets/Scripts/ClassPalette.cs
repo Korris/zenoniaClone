@@ -30,6 +30,24 @@ namespace ZenoniaProto
         /// <summary>Mechanic FX colour (hotkey C): false = orange (default), true = blue.</summary>
         public static bool MechanicBlue;
 
+        /// <summary>Palette of a worn weapon's glow colour: light core of the same hue (no white), the hue itself as band, a darker edge. Cached per hex.</summary>
+        public static ClassPalette ForWeapon(string glowHex, ClassPalette fallback)
+        {
+            Color c;
+            if (string.IsNullOrEmpty(glowHex) || !ColorUtility.TryParseHtmlString(glowHex, out c)) return fallback;
+            ClassPalette p;
+            if (weaponPalettes.TryGetValue(glowHex, out p)) return p;
+            float h, s, v;
+            Color.RGBToHSV(c, out h, out s, out v);
+            Color mid = Color.HSVToRGB(h, Mathf.Max(s, 0.9f), 1f);
+            Color core = Color.HSVToRGB(h, 0.45f, 1f);
+            Color edge = Color.HSVToRGB(h, 1f, 0.65f);
+            p = Make(mid, core, mid, edge, mid);
+            weaponPalettes[glowHex] = p;
+            return p;
+        }
+        static readonly System.Collections.Generic.Dictionary<string, ClassPalette> weaponPalettes = new System.Collections.Generic.Dictionary<string, ClassPalette>();
+
         static ClassPalette Make(Color tint, Color core, Color mid, Color edge, Color glow, Color? wisp = null)
         {
             var g = new Gradient();

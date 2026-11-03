@@ -16,7 +16,8 @@ namespace ZenoniaProto
             bool flip = (step == 2) != echo;
             if (!echo) ClassSfx.Swing(cls.Id, step, finisher); // one whoosh per combo step (+ finisher shout), not again for the echo stab
             if (cls.Id == HeroClass.Assassin) { DaggerFx.Strike(center, angle, h.Reach, finisher, echo, step); return; }
-            SlashEffect.Spawn(center.x, center.y, angle, h.FxScale, finisher, flip, FeelConfig.FxOrder, weaponGlow);
+            // One swing effect only (user decision 2026-11-03): the sword trail ribbon in the class colours, as before. The painted slash arc
+            // (SlashEffect, weapon-coloured) was tried and dropped; the weapon colour is still available through weaponGlow if it comes back.
             SwordTrail.Spawn(feet.x, feet.y + 6f, angle, h.Reach, finisher, flip, cls.Palette);
         }
 

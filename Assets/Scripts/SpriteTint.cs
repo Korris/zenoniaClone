@@ -37,7 +37,7 @@ namespace ZenoniaProto
         /// Weapon tint of a slash: the white-hot core stays white and keeps the class shape, the coloured body and fringe take the weapon hue
         /// (luminance kept) at `strength` (0.85 = option C agreed on 2026-11-03: core white, edge in the weapon's glow colour).
         /// </summary>
-        public static Texture2D ColorizeBody(Texture2D src, Color tint, float strength)
+        public static Texture2D ColorizeBody(Texture2D src, Color tint, float strength, bool keepCore = true)
         {
             Color32[] px = SpriteSheet.ReadPixels(src);
             for (int i = 0; i < px.Length; i++)
@@ -45,7 +45,7 @@ namespace ZenoniaProto
                 Color32 c = px[i];
                 float bright = Mathf.Max(c.r, Mathf.Max(c.g, c.b)) / 255f;
                 float white = Mathf.Min(c.r, Mathf.Min(c.g, c.b)) / 255f;
-                float w = (1f - Smooth(0.80f, 1f, white)) * strength;
+                float w = (keepCore ? 1f - Smooth(0.80f, 1f, white) : 1f) * strength; // keepCore = false: the white-hot core takes the hue too (user: no white streak, 2026-11-03)
                 float k = Mathf.Min(1f, bright * 1.1f);
                 px[i] = new Color32(
                     (byte)(255f * Mathf.Lerp(c.r / 255f, tint.r * k, w)),
