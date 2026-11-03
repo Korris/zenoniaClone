@@ -18,8 +18,32 @@ namespace ZenoniaProto
             if (cls.Id == HeroClass.Assassin) { DaggerFx.Strike(center, angle, h.Reach, finisher, echo, step); return; }
             // Both swing effects in the class colours, as originally (user decision 2026-11-03 after trying weapon-coloured variants):
             // pass weaponGlow to SlashEffect.Spawn / ClassPalette.ForWeapon(weaponGlow, cls.Palette) to colour them by the worn weapon again.
-            SlashEffect.Spawn(center.x, center.y, angle, h.FxScale, finisher, flip, FeelConfig.FxOrder);
-            SwordTrail.Spawn(feet.x, feet.y + 6f, angle, h.Reach, finisher, flip, cls.Palette);
+            bool rising = step == cls.RisingStep && !finisher, chop = finisher && cls.RisingStep > 0; // Warrior: hit 3 rises, hit 4 (jump cleave) falls
+            float lift = 6f, trailAngle = angle;
+            bool trailFlip = flip;
+            if (rising || chop)
+            {
+                RisingArc(angle, out trailAngle, out trailFlip);
+                if (chop) trailFlip = !trailFlip; // same arc on the weapon side, run from high to low
+                lift = RisingLift;
+                if (rising) { angle = trailAngle; flip = trailFlip; }
+            }
+            SlashEffect.Spawn(center.x, center.y, angle, h.FxScale, finisher, flip, FeelConfig.FxOrder); // the chop art picks its own upright pose from the facing angle
+            SwordTrail.Spawn(feet.x, feet.y + lift, trailAngle, h.Reach, finisher, trailFlip, cls.Palette);
+        }
+
+        /// <summary>
+        /// Rising slash (Warrior hit 3): the arc stands on the weapon side and runs from low to high, instead of across the facing.
+        /// The trail ribbon runs from +span to -span (clockwise) unless reversed. Facing down the sword is on screen-left (art of melee3up),
+        /// facing up on screen-right; sideways it rises in front.
+        /// </summary>
+        const float RisingLift = 12f; // ribbon centre at mid-body, so the rising arc climbs from the feet to above the head
+
+        static void RisingArc(float facingAngle, out float angle, out bool reverse)
+        {
+            bool leftSide = facingAngle < -45f || facingAngle > 135f; // down or left
+            angle = leftSide ? 180f : 0f;
+            reverse = !leftSide; // left side: 252 -> 108 deg is clockwise; right side: -72 -> 72 is counter-clockwise
         }
 
         /// <summary>A swing connected: impact sound and camera trauma (hit-stop is the sim's call, offline only).</summary>

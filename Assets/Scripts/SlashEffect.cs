@@ -17,9 +17,11 @@ namespace ZenoniaProto
         static readonly Dictionary<string, Sprite[][]> byWeapon = new Dictionary<string, Sprite[][]>(); // weapon glow hex -> frames (option C: white core, weapon-coloured edge)
         const float WeaponTintStrength = 1f; // whole arc in the weapon colour, no white core (user decision 2026-11-03)
         static float slashTurn; // extra rotation of the normal-slash row so its bulge points along the swing
+        static Sprite[] cleave;  // warrior-cleave-vfx.png (1 x 4): the finisher as a vertical top-to-bottom chop; null = the old finisher ring
         SpriteRenderer sr, core; // core = additive copy of the same frame (bright centre, feeds the bloom)
         bool finisherLook;
         Sprite[] row;
+        const float CleaveScale = 1f; // the chop cell is drawn at the finisher size (48u)
         Color coreGlow;
         float age, life;
 
@@ -29,6 +31,8 @@ namespace ZenoniaProto
             Pool.Clear();
             byWeapon.Clear();
             // Each cell becomes a 1-unit-wide sprite (scaled per use: slash 32u, arc 48u like the web FX strips).
+            Texture2D cleaveTex = Resources.Load<Texture2D>("Sprites/classes/warrior/fx/warrior-cleave-vfx");
+            cleave = cleaveTex != null ? SpriteTint.Slice(cleaveTex, 4, 1, cleaveTex.width / 4, new Vector2(0.5f, 0.5f))[0] : null;
             painted = Resources.Load<Texture2D>("Sprites/classes/warrior/fx/warrior-slash-vfx");
             if (painted != null)
             {
@@ -84,15 +88,17 @@ namespace ZenoniaProto
                 fx.core.sharedMaterial = FeelMaterials.Additive;
                 Pool.Add(fx);
             }
-            fx.row = SpriteSheet.Row(sheet, finisher ? 1 : 0); // hit 4 = the finisher ring, as originally
+            bool chop = finisher && cleave != null && string.IsNullOrEmpty(weaponGlow);
+            fx.row = chop ? cleave : SpriteSheet.Row(sheet, finisher ? 1 : 0); // hit 4 = the jump cleave: a vertical chop (the old finisher ring without the art)
             fx.coreGlow = core;
             fx.age = 0f;
             fx.life = finisher ? 0.24f : 0.17f;
             float size = (finisher ? 48f : 32f) * scale;
             fx.transform.position = new Vector3(x, y, 0f);
-            fx.transform.rotation = Quaternion.Euler(0f, 0f, angleDeg + (finisher ? 0f : slashTurn));
-            bool flip = flipY && (finisher || slashTurn == 0f);
-            bool mirror = flipY && !finisher && slashTurn != 0f; // turned art: the swing-direction flip is a horizontal mirror
+            fx.transform.rotation = Quaternion.Euler(0f, 0f, chop ? 0f : angleDeg + (finisher ? 0f : slashTurn)); // a chop falls down the screen whatever the facing
+            bool flip = !chop && flipY && (finisher || slashTurn == 0f);
+            bool mirror = chop ? Mathf.Abs(Mathf.DeltaAngle(angleDeg, 180f)) < 45f : flipY && !finisher && slashTurn != 0f; // turned art: the swing-direction flip is a horizontal mirror; the chop faces the way the hero does
+            if (chop) size *= CleaveScale;
             fx.transform.localScale = new Vector3(mirror ? -size : size, flip ? -size : size, 1f);
             fx.sr.sortingOrder = order;
             fx.core.sortingOrder = order + 1;

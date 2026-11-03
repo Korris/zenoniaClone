@@ -25,7 +25,7 @@ OUT = os.environ.get("ATK_OUT", os.path.join(SRC, "cut"))
 FRAME, FEET_Y = 192, 186
 STAND_H = 164.0
 ROWS = {"down": 0, "up": 1, "left": 2, "right": 3}
-COUNT = {"melee1": 6, "melee2": 6, "melee3": 6, "melee4": 6, "attack1": 4, "attack2": 4, "attack3": 6}
+COUNT = {"melee3up": 6, "melee1": 6, "melee2": 6, "melee3": 6, "melee4": 6, "attack1": 4, "attack2": 4, "attack3": 6}
 SWORD_S, SHIELD_S = 0.34, 0.27
 SWORD_FIST_R = 8  # hand layer radius: tight on the fist, a wide mask repaints arm and cape over the handle
 
@@ -35,6 +35,10 @@ SWORD_FIST_R = 8  # hand layer radius: tight on the fist, a wide mask repaints a
 def R(*frames, sb=False, lb=True, la=10):
     return [(f[0], f[1], f[2], f[3], sb, lb, la) for f in frames]
 FISTS = {
+    ("melee3up", "down"): R((57, 170, 134, 150), (95, 168, 136, 150), (80, 133, 126, 142), (75, 108, 127, 108), (60, 33, 128, 105), (63, 80, 127, 108), lb=False, la=4),
+    ("melee3up", "up"): R((150, 158, 37, 120), (162, 148, 45, 113), (150, 105, 45, 113), (150, 62, 42, 98), (155, 13, 45, 85), (153, 57, 44, 103), la=-10),
+    ("melee3up", "left"): R((133, 160, 40, 140), (32, 155, 40, 138), (25, 128, 42, 113), (15, 80, 55, 112), (100, 15, 55, 98), (30, 82, 52, 113), sb=True, lb=False, la=-10),
+    ("melee3up", "right"): R((57, 155, 130, 137), (106, 162, 127, 134), (117, 138, 131, 118), (155, 82, 132, 121), (131, 15, 130, 100), (157, 80, 128, 123)),
     ("melee1", "right"): R((60, 95, 131, 135), (57, 106, 133, 136), (52, 103, 141, 136), (50, 104, 143, 133), (110, 139, 146, 136), (108, 139, 143, 136)),
     ("melee1", "down"): R((51, 96, 140, 135), (48, 116, 141, 136), (52, 108, 143, 136), (60, 116, 150, 135), (74, 135, 138, 135), (66, 133, 136, 133), lb=False, la=4),
     ("melee2", "right"): R((94, 78, 147, 127), (96, 63, 144, 135), (62, 103, 137, 135), (88, 130, 138, 138), (101, 138, 138, 136), (108, 136, 146, 139)),
@@ -56,6 +60,19 @@ FISTS = {
     ("attack3", "left"): R((41, 132, 93.5, 144), (48, 132, 99, 144), (13.5, 66, 99, 143), (31, 133, 101, 138), (20, 114, 102, 141), (41.5, 132, 102, 141), sb=True, lb=False, la=-10),
     ("melee4", "down"): R((51, 50, 131, 134), (52, 22, 127, 113), (63.5, 73, 138.5, 145), (107, 146, 134, 139), (139, 148, 136, 136), (113.5, 146.5, 134, 136), lb=False, la=4),
 }
+# melee3up (combo hit 3, rising slash, drawn new 2026-11-03): no old row, so the sword angle per frame is set here
+# (degrees clockwise on screen, 0 = blade up, 90 = right, 180 = down). Fists go into FISTS after reading the cut frames.
+NEW_ANGLES = {
+    ("melee3up", "right"): [-150, 150, 110, 50, -5, 35],
+    ("melee3up", "left"): [150, -150, -110, -50, 5, -35],
+    ("melee3up", "down"): [180, -160, -120, -70, -15, -35],
+    ("melee3up", "up"): [170, 150, 100, 55, 10, 35],
+}
+
+# melee3up: crouched frames have the shield fist at the chin, so the shield sits lower and further out there (values above),
+# and frames whose raised far arm is painted over the hair draw the sword in front of the body.
+SWORD_FRONT = {("melee3up", "left", 3), ("melee3up", "left", 4), ("melee3up", "left", 5)}
+
 # (anim, dir, frame): frame to reuse when ChatGPT moved the arm against the old row.
 COPY = {("melee1", "up", 1): 2, ("melee1", "up", 4): 3, ("melee1", "up", 5): 3, ("melee3", "right", 2): 3, ("melee3", "down", 4): 3}
 # (anim, dir): art scale when the row's tallest art is not a standing pose. (anim, dir, frame): dx, dy.
@@ -163,6 +180,8 @@ def feet_cx(a):
 
 def old_fist(anim, direction, c):
     """Where the old sheet's fist was: the handle's middle, back along the blade by (230 - 217) art px at the old s."""
+    if ("sword", anim, direction) not in OLD:
+        return FISTS[(anim, direction)][c][:2]
     a = OLD[("sword", anim, direction)][c]
     th = math.radians(a["angle"])
     return a["x"] - math.sin(th) * 8.84, a["y"] + math.cos(th) * 8.84
@@ -264,7 +283,8 @@ def write(anim, direction):
     data = json.load(open(GEAR, encoding="utf-8"))
     for part in ("sword", "shield"):
         if not any(e["part"] == part and e["anim"] == anim and e["dir"] == direction for e in data["anchors"]):
-            data["anchors"].append({"part": part, "anim": anim, "dir": direction, "frames": [dict(f) for f in OLD[(part, anim, direction)]]})
+            seed = OLD.get((part, anim, direction)) or [{"s": 0.34, "behind": False} for _ in range(COUNT[anim])]
+            data["anchors"].append({"part": part, "anim": anim, "dir": direction, "frames": [dict(f) for f in seed]})
     for a in data["anchors"]:
         if a["anim"] != anim or a["dir"] != direction:
             continue
@@ -273,10 +293,13 @@ def write(anim, direction):
             fr.update(fallback=False, hidden=False, sx=1)
             if a["part"] == "sword":
                 # Draw order stays the old one too; facing left the sword hand is the far hand (rule 4), so always behind.
-                was = old[("sword", anim, direction)][c]
+                was = old.get(("sword", anim, direction), [{"behind": direction == "left", "angle": 0}] * COUNT[anim])[c]
+                if (anim, direction) in NEW_ANGLES:
+                    was = dict(was, angle=NEW_ANGLES[(anim, direction)][c])
                 # A far fist that crosses in front of the chest must be seen gripping: the blade goes over the body there, under the fist layer.
                 across = direction == "left" and on_body(frames[c], sx, sy)
-                fr.update(x=sx, y=sy, s=SWORD_S, behind=(sb and not across) if direction == "left" else was["behind"], angle=was["angle"])
+                front = (anim, direction, c) in SWORD_FRONT
+                fr.update(x=sx, y=sy, s=SWORD_S, behind=(sb and not across and not front) if direction == "left" else was["behind"], angle=was["angle"])
             else:
                 fr.update(x=lx, y=ly, s=SHIELD_S, behind=lb, angle=la)
     with open(GEAR, "w", encoding="utf-8") as f:
