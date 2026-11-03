@@ -10,7 +10,7 @@ Python 3 + Pillow + numpy + scipy.
 """
 import importlib.util, json, os, shutil, subprocess, sys, datetime
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from scipy import ndimage
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,9 +19,12 @@ SRC = os.path.join(ROOT, "Assets/ArtLibrary/classes/warrior", "shield-src" if PA
 RES = os.path.join(ROOT, "Assets/Resources")
 SWORDS = os.path.join(RES, "Sprites/classes/warrior/weapons", PART)
 GEAR = os.path.join(RES, "Data/classes/warrior/held-gear.json")
-# art px tall. Swords: 250 = 170 on screen (x 0.34 x 2), about the hero's height as in ref-mu-weapons-wanted.png; the first set used 200.
-# Shields: 380 = 82 on screen (x 0.27 x 0.8), a little bigger than the old 336 (72), as the reference shields reach the shoulder.
-ART_H = int(os.environ.get("ART_H", 330 if PART == "shield" else 250))  # shield 330 (was 380): at 380 it hid the face in idle down
+# Art px tall. The size on screen is art px x s x DrawScale, so the art height IS the weapon size: sword 250 = 170 frame px = 21 units (about the hero),
+# shield 330 = 71 frame px = 9 units (380 hid the face in idle down). In the game (4 screen px per unit) that is a 0.34x / 0.11x downscale through
+# the GPU mipmaps, which looks soft; the art gets an unsharp mask to compensate (tried cutting at 2x the screen size on 2026-11-03: it just shrank the gear).
+ART_H = int(os.environ.get("ART_H", 330 if PART == "shield" else 250))
+ICON_PX = 104  # icons draw at 50-52 px in the bag: 104 is their mip level 1
+
 # sheet file: the two tiers it holds, in column order (normal, enhanced, normal, enhanced)
 SHEETS = {
     "pair1-lightning-lance.png": ["iron", "bronze"],
@@ -94,11 +97,28 @@ def straighten(rgba):
     return arr[ys.min():ys.max() + 1, xs.min():xs.max() + 1], angle
 
 
+def shrink(im, height):
+    """Lanczos to `height` px tall plus a light unsharp mask: a GPU mipmap chain would blur the small art."""
+    k = height / im.height
+    im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+    return im.filter(ImageFilter.UnsharpMask(radius=1, percent=60, threshold=2))
+
+
 def fit(rgba):
+    return shrink(Image.fromarray(rgba.round().astype(np.uint8), "RGBA"), ART_H)
+
+
+def icon_of(rgba):
+    """Bag icon straight from the ChatGPT crop (not from the small game art): fitted in an ICON_PX square with a 4 px margin."""
     im = Image.fromarray(rgba.round().astype(np.uint8), "RGBA")
-    k = ART_H / im.height
-    im = im.resize((max(1, round(im.width * k)), ART_H), Image.LANCZOS)
-    return im
+    if PART != "shield":
+        im = im.rotate(-45, expand=True, resample=Image.BICUBIC)  # weapons lie diagonally in the bag, as the other classes' icons (build-item-icons.py)
+    im = im.crop(im.getbbox())
+    k = (ICON_PX - 8) / max(im.width, im.height)
+    im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS).filter(ImageFilter.UnsharpMask(radius=1, percent=60, threshold=2))
+    icon = Image.new("RGBA", (ICON_PX, ICON_PX), (0, 0, 0, 0))
+    icon.paste(im, ((ICON_PX - im.width) // 2, (ICON_PX - im.height) // 2), im)
+    return icon
 
 
 def grip_of(im):
@@ -138,7 +158,7 @@ def cut_all():
             base, a1 = straighten(parts[2 * k])
             enh, a2 = straighten(parts[2 * k + 1])
             bi, ei = fit(base), fit(enh)
-            out[tier] = (bi, ei, grip_of(bi), grip_of(ei), (round(a1, 1), round(a2, 1)))
+            out[tier] = (bi, ei, grip_of(bi), grip_of(ei), (round(a1, 1), round(a2, 1)), icon_of(base))
     return out
 
 
@@ -162,7 +182,7 @@ def check(out_dir):
     d = ImageDraw.Draw(sheet)
     # composite with the cut art: write it to a scratch weapon folder that compose reads through a patched RES
     scratch = os.path.join(out_dir, "res")
-    for tier, (bi, ei, gb, ge, tilt) in cut.items():
+    for tier, (bi, ei, gb, ge, tilt, _) in cut.items():
         folder = os.path.join(scratch, "Sprites/classes/warrior/weapons", PART)
         os.makedirs(folder, exist_ok=True)
         bi.save(os.path.join(folder, f"{tier}-base.png"))
@@ -195,7 +215,9 @@ def write():
     os.makedirs(backup, exist_ok=True)
     gear_raw = open(GEAR, "rb").read()
     gear = json.loads(gear_raw)
-    for tier, (bi, ei, gb, ge, _) in cut.items():
+    names = [e["name"] for e in gear[PART]]
+    for tier, (bi, ei, gb, ge, _, icon) in cut.items():
+        icon.save(os.path.join(RES, "Sprites/icons", f"{'offhand' if PART == 'shield' else 'weapon'}-warrior-{names.index(tier)}.png"))
         for kind, im in (("base", bi), ("enhanced", ei)):
             dst = os.path.join(SWORDS, f"{tier}-{kind}.png")
             keep = os.path.join(backup, f"{tier}-{kind}.png")
@@ -207,8 +229,7 @@ def write():
                 e["baseGrip"], e["enhancedGrip"] = gb, ge
     text = json.dumps(gear, separators=(",", ":")) if b"\n" not in gear_raw.strip() else json.dumps(gear, indent=1)
     open(GEAR, "wb").write(text.encode("utf-8"))
-    print("sprites and grips written:", ", ".join(cut))
-    subprocess.run([sys.executable, os.path.join(ROOT, "Tools/build-warrior-shield.py" if PART == "shield" else "Tools/build-warrior-sword.py"), "icons"], check=False, cwd=ROOT)
+    print("sprites, grips and icons written:", ", ".join(cut))
 
 
 if __name__ == "__main__":

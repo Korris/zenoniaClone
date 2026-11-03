@@ -84,18 +84,16 @@ namespace ZenoniaProto
                 fx.core.sharedMaterial = FeelMaterials.Additive;
                 Pool.Add(fx);
             }
-            // Hit 4 (finisher) is one long downward chop since 2026-11-03 (user decision): the same crescent as the other hits, taller and slower, no ring.
-            fx.row = SpriteSheet.Row(sheet, 0);
+            fx.row = SpriteSheet.Row(sheet, finisher ? 1 : 0); // hit 4 = the finisher ring, as originally
             fx.coreGlow = core;
             fx.age = 0f;
             fx.life = finisher ? 0.24f : 0.17f;
-            float size = (finisher ? 40f : 32f) * scale;
+            float size = (finisher ? 48f : 32f) * scale;
             fx.transform.position = new Vector3(x, y, 0f);
-            fx.transform.rotation = Quaternion.Euler(0f, 0f, angleDeg + slashTurn);
-            bool flip = flipY && slashTurn == 0f;
-            bool mirror = flipY && slashTurn != 0f; // turned art: the swing-direction flip is a horizontal mirror
-            float tall = finisher ? 1.35f : 1f; // the chop reads as a vertical stroke
-            fx.transform.localScale = new Vector3(mirror ? -size : size, (flip ? -size : size) * tall, 1f);
+            fx.transform.rotation = Quaternion.Euler(0f, 0f, angleDeg + (finisher ? 0f : slashTurn));
+            bool flip = flipY && (finisher || slashTurn == 0f);
+            bool mirror = flipY && !finisher && slashTurn != 0f; // turned art: the swing-direction flip is a horizontal mirror
+            fx.transform.localScale = new Vector3(mirror ? -size : size, flip ? -size : size, 1f);
             fx.sr.sortingOrder = order;
             fx.core.sortingOrder = order + 1;
             fx.finisherLook = finisher;
