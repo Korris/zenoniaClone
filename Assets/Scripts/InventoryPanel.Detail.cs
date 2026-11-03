@@ -46,7 +46,8 @@ namespace ZenoniaProto
             discardButton = new BagWidgets.BagButton(itemDetail, "Discard", Left, 312f, Inner, 36f, "Discard", BagSprites.Tone.Steel, DiscardSelected);
             discardButton.Label.fontSize = 13;
             equipButton = new BagWidgets.BagButton(itemDetail, "Equip", Left, 354f, Inner, 46f, "Equip", BagSprites.Tone.Blue, Activate);
-            enhanceButton = new BagWidgets.BagButton(itemDetail, "Enhance", Left, 404f, Inner, 46f, "Enhance", BagSprites.Tone.Gold, EnhanceSelected);
+            enhanceButton = new BagWidgets.BagButton(itemDetail, "Enhance", Left, 404f, EnhanceWidth(Inner), 46f, "Enhance", BagSprites.Tone.Gold, EnhanceSelected);
+            BuildDowngrade(Left, 404f, Inner); // TEMPORARY test button, InventoryPanel.DevDowngrade.cs
 
             supplyDetail = UiKit.Rect(right, "SupplyDetail", 0f, 0f, Width, PanelH);
             supplyName = BagWidgets.Text(supplyDetail, "Name", 84f, 18f, "", 15, "#ffedb3", TextAnchor.UpperLeft, 118f, true);
@@ -174,6 +175,7 @@ namespace ZenoniaProto
 
             equipButton.Set(true, worn ? "Unequip" : usable ? "Equip" : RpgClasses.Get(item.classId).Name + " only", !worn && !usable);
             enhanceButton.Set(enhanceable, null, !e.Can);
+            RefreshDowngrade(item); // TEMPORARY test button
             discardButton.Set(!worn, confirmDiscard ? "Sure?" : "Discard");
         }
 

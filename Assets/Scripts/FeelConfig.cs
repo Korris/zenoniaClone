@@ -49,19 +49,36 @@ namespace ZenoniaProto
         {
             public float SweepPeriod, SweepSec, SweepWidth, ShineAlpha, ShineLift; // light band: seconds between starts, seconds to cross the art, half width (art = 1), peak strength, constant surface lift
             public float HaloAlpha, HaloBreath, BreathHz;                          // 0 alpha = no halo
-            public int Stars, Motes;                                               // live at once on a main weapon; offhands and companions get a share
-            public float StarGapMin, StarGapMax, StarSize;                         // seconds between twinkles of one star slot, world units
+            public float RimAlpha, RimWidth, PulsePeriod, PulseSec;                // rim light; width = share of the 22 art px aura reach (0.16 ~ 1.3 screen px); pulse every PulsePeriod s (0 = none)
+            public float InnerAlpha, FlowAlpha, FlowSec;                           // inner energy (the art's energy-coloured pixels), flow wave through them (0 s = none)
+            public int Gems;                                                       // diamond gems beside the blade, live at once on a main weapon; offhands get a share
+            public float GemGapMin, GemGapMax, GemSize;                            // seconds between gems of one slot, world units
+            public bool Secondary, Crest;                                          // second colour in the flow; floating crest gem (main weapon only)
+            public float AuraAlpha, AuraReach, AuraSpeed;                          // animated energy tongues around the silhouette (SpriteAura), 0 alpha = none; reach 1 = 22 art px
+            public bool Afterimage;                                                // glowing copies trail the weapon while it moves
+            public float SurgeEvery, SurgeSec;                                     // short bright surge of rim + inner energy (0 = none)
+            public bool Tip;                                                       // +15 energy blade beyond the weapon tip (HeldEnhanceFx.Tip)
         }
+        // Light aura as the base plus one bright moving feature per band (ChatGPT 2026-11-03: large transparent shape + small bright focal point + motion). One new visible feature per band, not just more alpha (2026-11-03, docs/pending-tasks.md): +7 rim, +9 inner energy, +11 flow,
+        // +13 gems, +15 second colour + rim pulse + crest. The weapon's own drawing stays readable at every band.
         public static readonly EnhanceLook[] EnhanceLooks =
         {
-            new EnhanceLook { SweepPeriod = 5f, SweepSec = 2.4f, SweepWidth = 0.1f, ShineAlpha = 0.28f },                                                                                                                    // +7  faint slow shine
-            new EnhanceLook { SweepPeriod = 3.4f, SweepSec = 1.6f, SweepWidth = 0.13f, ShineAlpha = 0.45f, ShineLift = 0.03f, HaloAlpha = 0.3f, HaloBreath = 0.05f, BreathHz = 0.35f },                                      // +9  stronger shine, soft halo
-            new EnhanceLook { SweepPeriod = 3f, SweepSec = 1.4f, SweepWidth = 0.14f, ShineAlpha = 0.5f, ShineLift = 0.05f, HaloAlpha = 0.42f, HaloBreath = 0.08f, BreathHz = 0.4f, Stars = 1, StarGapMin = 1.2f, StarGapMax = 2.6f, StarSize = 3.5f }, // +11 occasional stars
-            new EnhanceLook { SweepPeriod = 2.4f, SweepSec = 1.1f, SweepWidth = 0.16f, ShineAlpha = 0.6f, ShineLift = 0.07f, HaloAlpha = 0.7f, HaloBreath = 0.16f, BreathHz = 0.5f, Stars = 2, StarGapMin = 0.7f, StarGapMax = 1.6f, StarSize = 4f, Motes = 4 }, // +13 coloured halo, drifting motes
-            new EnhanceLook { SweepPeriod = 1.2f, SweepSec = 0.55f, SweepWidth = 0.22f, ShineAlpha = 0.85f, ShineLift = 0.12f, HaloAlpha = 1f, HaloBreath = 0.2f, BreathHz = 0.8f, Stars = 3, StarGapMin = 0.1f, StarGapMax = 0.6f, StarSize = 4f, Motes = 10 }, // +15 fast bright sweeps, strong aura, frequent stars beside the blade (more stars read as covering the weapon)
+            new EnhanceLook { SweepPeriod = 5f, SweepSec = 1f, SweepWidth = 0.07f, ShineAlpha = 0.25f, RimAlpha = 0.35f, RimWidth = 0.14f, InnerAlpha = 0.35f, AuraAlpha = 0.2f, AuraReach = 0.25f, AuraSpeed = 0.8f }, // +7  soft aura + thin rim
+
+            new EnhanceLook { SweepPeriod = 4f, SweepSec = 0.9f, SweepWidth = 0.075f, ShineAlpha = 0.22f, RimAlpha = 0.5f, RimWidth = 0.19f, PulsePeriod = 2.4f, PulseSec = 2.4f, InnerAlpha = 0.7f, AuraAlpha = 0.26f, AuraReach = 0.38f, AuraSpeed = 1f }, // +9  bright energy line along the edge, flowing
+            new EnhanceLook { SweepPeriod = 3.5f, SweepSec = 0.8f, SweepWidth = 0.08f, ShineAlpha = 0.26f, RimAlpha = 0.65f, RimWidth = 0.25f, PulsePeriod = 1.7f, PulseSec = 1.7f, SurgeEvery = 3f, SurgeSec = 0.3f, InnerAlpha = 0.8f, FlowAlpha = 1f, FlowSec = 1.5f, AuraAlpha = 0.3f, AuraReach = 0.5f, AuraSpeed = 1.3f }, // +11 faster line + surges
+            new EnhanceLook { SweepPeriod = 3f, SweepSec = 0.7f, SweepWidth = 0.085f, ShineAlpha = 0.3f, RimAlpha = 0.8f, RimWidth = 0.31f, PulsePeriod = 1.2f, PulseSec = 1.2f, SurgeEvery = 2.2f, SurgeSec = 0.35f, InnerAlpha = 0.9f, FlowAlpha = 1.1f, FlowSec = 1.2f, Gems = 1, GemGapMin = 0.2f, GemGapMax = 0.8f, GemSize = 1.6f, AuraAlpha = 0.36f, AuraReach = 0.69f, AuraSpeed = 1.6f }, // +13 one detached flame
+            new EnhanceLook { SweepPeriod = 2.5f, SweepSec = 0.6f, SweepWidth = 0.095f, ShineAlpha = 0.34f, RimAlpha = 0.65f, RimWidth = 0.375f, PulsePeriod = 0.9f, PulseSec = 0.9f, SurgeEvery = 1.5f, SurgeSec = 0.4f, InnerAlpha = 0.7f, FlowAlpha = 0.9f, FlowSec = 0.9f, Gems = 2, GemGapMin = 0.1f, GemGapMax = 0.6f, GemSize = 1.8f, Secondary = true, AuraAlpha = 0.28f, AuraReach = 1f, AuraSpeed = 1.8f, Afterimage = true, Tip = true }, // +15 two flames + energy blade past the tip + afterimages
         };
-        public const int EnhanceSparkBudget = 60;         // stars + motes alive on screen across all heroes (APK frame budget)
-        public const float EnhanceHaloIntensity = 1.2f;   // below AdditiveIntensity: only the top bands reach the bloom threshold
+        public const int EnhanceSparkBudget = 60;         // gems alive on screen across all heroes (APK frame budget)
+        public const float EnhanceHaloIntensity = 1f;     // below AdditiveIntensity: the weapon glow should barely feed the bloom
+        public const bool EnhanceUsesBaseArt = true;      // held gear keeps its base art when enhanced: the painted enhanced art had a thick neon outline and a wider shape
+        public const float EnhanceAuraInAction = 0.7f;
+        public const float EnhanceSurgeBoost = 0.6f, EnhanceFlameAlpha = 0.5f;    // the +15 aura stays strong in combat: it is the item's signature
+        public const float EnhancePulseWidth = 0.12f, EnhanceFlowWidth = 0.16f, EnhanceRimSaturation = 0.85f, EnhanceSecondaryHueShift = 0.07f, EnhanceFadeSec = 0.1f;
+        // Per motion (idle, walk, action): rim, halo, shine, gems, inner, flow. Rim and inner energy carry the level and stay in combat;
+        // the decorative layers ease down so the swing effect reads.
+        public static readonly float[,] EnhanceMotionK = { { 1f, 1f, 1f, 1f, 1f, 1f }, { 1f, 0.7f, 0.7f, 0.6f, 1f, 0.85f }, { 1f, 0.35f, 0.25f, 0f, 1f, 0.75f } };
 
         // ---- sword trail ribbon ----
         public const float TrailSpanDeg = 72f;           // arc half-angle around the facing direction

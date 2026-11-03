@@ -23,6 +23,40 @@ namespace ZenoniaProto
         public bool allSkills; // learn every skill as far as the SP allow (Lv 60 + 20 bonus = all 8 at rank 10, 0 SP left)
         public bool allWeapons; // every art tier of the class's weapon and offhand (epic, +0 so stones stay testable); the best ones are worn on the first grant
         public bool allPets; // one of each pet in the bag, if there is room
+        public float cameraViewHeight; // TEST: world units the camera shows top to bottom (0 = GameConfig.ViewHeightUnits, 160); smaller = closer, bigger hero
+        public float heroScale;        // TEST: heroes in the world drawn this much larger, body + gear + enhance effect (0 or 1 = normal); hitboxes unchanged
+
+        static DevStartConfig visual;
+        static bool visualRead;
+
+        /// <summary>dev-start.json parsed once for the visual test switches (null in release builds or when missing / disabled).</summary>
+        static DevStartConfig Visual()
+        {
+            if (visualRead) return visual;
+            visualRead = true;
+            try
+            {
+                string json = ReadJson();
+                DevStartConfig c = json != null ? JsonUtility.FromJson<DevStartConfig>(json) : null;
+                visual = c != null && c.enabled ? c : null;
+            }
+            catch (Exception e) { Debug.LogWarning("[ZenoniaProto] dev-start.json ignored: " + e.Message); }
+            return visual;
+        }
+
+        /// <summary>Camera view height for this test build: dev-start.json cameraViewHeight when set, else GameConfig.ViewHeightUnits.</summary>
+        public static float CameraViewHeight()
+        {
+            DevStartConfig c = Visual();
+            return c != null && c.cameraViewHeight > 0f ? Mathf.Clamp(c.cameraViewHeight, 60f, 240f) : GameConfig.ViewHeightUnits;
+        }
+
+        /// <summary>Drawing scale of heroes in the world for this test build: dev-start.json heroScale when set, else 1.</summary>
+        public static float HeroScale()
+        {
+            DevStartConfig c = Visual();
+            return c != null && c.heroScale > 0f ? Mathf.Clamp(c.heroScale, 0.5f, 2f) : 1f;
+        }
 
         /// <summary>Call before a save is restored: loading trims ranks above the SP budget, so the bonus must already count.</summary>
         public static void ApplySkillBonus()

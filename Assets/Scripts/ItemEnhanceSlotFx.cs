@@ -104,9 +104,21 @@ namespace ZenoniaProto
             SweepShine(look, now);
             float size = icon.rectTransform.rect.width;
             Color tint = Color.Lerp(glow, Color.white, 0.3f);
-            DrawStars(look, size, tint, dt, fade);
-            DrawMotes(look, size, tint, dt, fade);
+            DrawStars(CellLooks[band - 1], size, tint, dt, fade);
+            DrawMotes(CellLooks[band - 1], size, tint, dt, fade);
         }
+
+        /// <summary>Twinkles of the item cell per band. The held weapon dropped stars and motes for its own per-band features (HeldEnhanceFx);
+        /// the cell keeps its stars as they were, they read well on a still icon.</summary>
+        struct CellSparks { public int Stars, Motes; public float StarGapMin, StarGapMax, StarSize; }
+        static readonly CellSparks[] CellLooks =
+        {
+            new CellSparks(),
+            new CellSparks(),
+            new CellSparks { Stars = 1, StarGapMin = 1.2f, StarGapMax = 2.6f, StarSize = 3.5f },
+            new CellSparks { Stars = 2, StarGapMin = 0.7f, StarGapMax = 1.6f, StarSize = 4f, Motes = 4 },
+            new CellSparks { Stars = 3, StarGapMin = 0.1f, StarGapMax = 0.6f, StarSize = 4f, Motes = 10 },
+        };
 
         void SweepShine(FeelConfig.EnhanceLook look, float now)
         {
@@ -119,7 +131,7 @@ namespace ZenoniaProto
             ShineByBand[i].SetVector(shineId, new Vector4(head, look.SweepWidth, look.ShineLift, 0f));
         }
 
-        void DrawStars(FeelConfig.EnhanceLook look, float size, Color tint, float dt, float fade)
+        void DrawStars(CellSparks look, float size, Color tint, float dt, float fade)
         {
             while (stars.Count < look.Stars) stars.Add(NewSpark("EnhanceStar", FxSprites.Star(), Random.Range(0f, look.StarGapMax)));
             for (int i = 0; i < stars.Count; i++)
@@ -142,7 +154,7 @@ namespace ZenoniaProto
             }
         }
 
-        void DrawMotes(FeelConfig.EnhanceLook look, float size, Color tint, float dt, float fade)
+        void DrawMotes(CellSparks look, float size, Color tint, float dt, float fade)
         {
             int count = Mathf.Min(look.Motes, MaxMotes);
             while (motes.Count < count) motes.Add(NewSpark("EnhanceMote", FxSprites.Dot(), Random.Range(0f, MoteLifeMax)));

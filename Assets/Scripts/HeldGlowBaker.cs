@@ -8,32 +8,34 @@ namespace ZenoniaProto
     /// hero: the bands only differ in how these are drawn, so reaching a new band costs no bake. The painted art itself is never touched
     /// (the old additive copy of the whole sprite washed it out to white, the stamped outline rings looked hard).
     ///   Shine  half-res mask for the SpriteShine shader: R how much light a pixel takes, G position along the weapon, A silhouette
-    ///   Halo   quarter-res blurred silhouette, white so the renderer tints it; fades to zero before its padding ends, so it has no edge
+    ///   Halo   half-res blurred silhouette, white so the renderer tints it; fades to zero before its padding ends, so it has no edge
+    ///   Rim    thin ring just outside the silhouette, same mask format as Shine (HeldRimBaker)
     ///   Points where stars twinkle: the brightest spots of the art, well apart and biased away from the grip (sprite local units)
     /// Same pivot and world size as GearOverlays' sprite of the art, so both layers line up as children of it.
     /// </summary>
     public static class HeldGlowBaker
     {
-        const int ShineScale = 2, HaloScale = 4;
-        const int HaloPad = 12, HaloBlurRadius = 4, HaloBlurPasses = 3; // quarter-res px; three box passes reach exactly radius * passes = HaloPad
+        const int ShineScale = 2, HaloScale = 2;
+        // Halo at half res, reaching 12 art px (~4-5 screen px at game zoom): a tight glow that hugs the weapon instead of a soft blob around it.
+        const int HaloPad = 6, HaloBlurRadius = 2, HaloBlurPasses = 3; // half-res px; three box passes reach exactly radius * passes = HaloPad
         const int MaxPoints = 8, PointScan = 4;
         const float PointGapPx = 28f, SweepSlant = 0.15f;
 
-        public struct Baked { public Sprite Shine, Halo; public Vector2[] Points; public Color Glow; }
+        public struct Baked { public Sprite Shine, Halo, Aura, Inner; public Vector2[] Points; public Vector2 Crest, Tip, TipDir; public Color Glow; }
         static readonly Dictionary<string, Baked> Cache = new Dictionary<string, Baked>();
         static readonly Dictionary<Sprite, Baked> SpriteCache = new Dictionary<Sprite, Baked>();
 
         public static void ResetState() { Cache.Clear(); SpriteCache.Clear(); }
 
-        /// <summary>Effect layers of the enhanced art; Shine is null when the PNG is missing.</summary>
-        public static Baked Get(string folder, OverlayEntry entry)
+        /// <summary>Effect layers of the art the item draws with (enhanced art, or the base art when FeelConfig.EnhanceUsesBaseArt); Shine is null when the PNG is missing.</summary>
+        public static Baked Get(string folder, OverlayEntry entry, bool enhancedArt = true)
         {
-            string path = "Sprites/" + folder + "/" + entry.name + "-enhanced";
+            string path = "Sprites/" + folder + "/" + entry.name + (enhancedArt ? "-enhanced" : "-base");
             Baked b;
             if (Cache.TryGetValue(path, out b)) return b;
             b = new Baked();
             Texture2D tex = SpriteSheet.Load(path);
-            if (tex != null) b = Bake(tex, entry.enhancedGrip, entry.glow);
+            if (tex != null) b = Bake(tex, enhancedArt ? entry.enhancedGrip : entry.baseGrip, entry.glow);
             Cache[path] = b;
             return b;
         }
@@ -56,6 +58,16 @@ namespace ZenoniaProto
             Color32[] src = SpriteSheet.ReadPixels(tex);
             b.Shine = BakeShine(src, tex.width, tex.height, grip);
             b.Halo = BakeHalo(src, tex.width, tex.height, grip);
+            b.Aura = HeldRimBaker.BakeAura(src, tex.width, tex.height, grip);
+            Color energy;
+            bool found;
+            b.Inner = HeldEnergyBaker.BakeInner(src, tex.width, tex.height, grip, out energy, out found);
+            if (found) b.Glow = energy; // the art's own glow beats the manifest colour, which can lag behind a redrawn tier
+            b.Crest = HeldEnergyBaker.CrestPoint(src, tex.width, tex.height, grip);
+            float gx, gy, ax, ay, min, range;
+            Axis(src, tex.width, tex.height, grip, out gx, out gy, out ax, out ay, out min, out range);
+            b.TipDir = new Vector2(ax, ay); // sprite local, grip -> tip
+            b.Tip = b.TipDir * ((min + range) / GearOverlays.Ppu); // the far end of the art on its long axis, where the +15 energy blade starts
             b.Points = PickPoints(src, tex.width, tex.height, grip);
             return b;
         }
@@ -64,27 +76,8 @@ namespace ZenoniaProto
 
         static Sprite BakeShine(Color32[] src, int sw, int sh, GripInfo grip)
         {
-            // Sweep axis: grip -> farthest opaque pixel, so the light runs the long way of any art (blade, barrel, companion).
-            float gx = grip.gripX, gy = sh - grip.gripY, tipX = gx, tipY = gy + 1f, far = -1f;
-            for (int y = 0; y < sh; y += 2)
-                for (int x = 0; x < sw; x += 2)
-                {
-                    if (src[y * sw + x].a < 128) continue;
-                    float dx = x - gx, dy = y - gy, d = dx * dx + dy * dy;
-                    if (d > far) { far = d; tipX = x; tipY = y; }
-                }
-            float ax = tipX - gx, ay = tipY - gy, len = Mathf.Max(1f, Mathf.Sqrt(ax * ax + ay * ay));
-            ax /= len; ay /= len;
-            float min = float.MaxValue, max = float.MinValue;
-            for (int y = 0; y < sh; y += 2)
-                for (int x = 0; x < sw; x += 2)
-                {
-                    if (src[y * sw + x].a < 128) continue;
-                    float along = (x - gx) * ax + (y - gy) * ay;
-                    if (along < min) min = along;
-                    if (along > max) max = along;
-                }
-            float range = Mathf.Max(1f, max - min);
+            float gx, gy, ax, ay, min, range;
+            Axis(src, sw, sh, grip, out gx, out gy, out ax, out ay, out min, out range);
 
             int w = (sw + ShineScale - 1) / ShineScale, h = (sh + ShineScale - 1) / ShineScale;
             var px = new Color32[w * h];
@@ -116,6 +109,37 @@ namespace ZenoniaProto
             // Grip is in PNG pixels from the top-left; an odd art size leaves one empty full-res column / row at the far end, hence w * scale.
             var pivot = new Vector2(grip.gripX / (float)(w * ShineScale), (sh - grip.gripY) / (float)(h * ShineScale));
             return Sprite.Create(tex, new Rect(0, 0, w, h), pivot, GearOverlays.Ppu / ShineScale, 0, SpriteMeshType.FullRect);
+        }
+
+        /// <summary>
+        /// Long axis of the art in texture pixels (y up): grip (gx, gy), unit direction (ax, ay) towards the farthest opaque pixel, so light runs the
+        /// long way of any art (blade, barrel, companion); min / range map a pixel's projection on it to 0..1 along the item.
+        /// </summary>
+        internal static void Axis(Color32[] src, int sw, int sh, GripInfo grip, out float gx, out float gy, out float ax, out float ay, out float min, out float range)
+        {
+            gx = grip.gripX; gy = sh - grip.gripY;
+            float tipX = gx, tipY = gy + 1f, far = -1f;
+            for (int y = 0; y < sh; y += 2)
+                for (int x = 0; x < sw; x += 2)
+                {
+                    if (src[y * sw + x].a < 128) continue;
+                    float dx = x - gx, dy = y - gy, d = dx * dx + dy * dy;
+                    if (d > far) { far = d; tipX = x; tipY = y; }
+                }
+            ax = tipX - gx; ay = tipY - gy;
+            float len = Mathf.Max(1f, Mathf.Sqrt(ax * ax + ay * ay));
+            ax /= len; ay /= len;
+            float lo = float.MaxValue, hi = float.MinValue;
+            for (int y = 0; y < sh; y += 2)
+                for (int x = 0; x < sw; x += 2)
+                {
+                    if (src[y * sw + x].a < 128) continue;
+                    float along = (x - gx) * ax + (y - gy) * ay;
+                    if (along < lo) lo = along;
+                    if (along > hi) hi = along;
+                }
+            min = lo;
+            range = Mathf.Max(1f, hi - lo);
         }
 
         static Sprite BakeHalo(Color32[] src, int sw, int sh, GripInfo grip)

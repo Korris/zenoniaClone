@@ -24,12 +24,16 @@ namespace ZenoniaProto
     ///   --dummy-dist N                    distance of the first dummy in front of the hero (default 30)
     ///   --god                             hero ignores damage
     ///   --plus N                          worn weapon + offhand at +N (enhance glow bands)
+    ///   --worn-tier N                     wear art tier N of the weapon + offhand from the dev-start bag (allWeapons)
     ///   --level N / --give-stones N       RPG state for screenshots: hero level, upgrade stones (saving is always off in capture runs)
     ///   --drop-loot                       scatter a boss-sized pile of loot (gold, potions, stones, 3 items) in front of the hero
     ///   --open-inventory                  open the inventory window (B) after spawning
     ///   --pet spirit|imp / --give-pets    wear that pet / one of each pet in the bag
     ///   --bag-item N / --open-shop NPC    Inventory tab on bag item N (with --open-inventory) / that seller's window
     ///   --pet-durability N / --select-pet every pet at N / Equipment tab on the worn pet (with --open-inventory)
+    ///   --open-settings / --open-quests   the Settings window (gear button) / the quest list, after spawning
+    ///   --settings-show on,off            draw the music / sound switches in these states (display only, PlayerPrefs untouched)
+    ///   --settings-press ChangeHero       click that button of the open Settings window (not the switches: they save to PlayerPrefs)
     ///   --skill-ui "1=open;2=learn:0;3=slot:2"  skill tree UI script, see DebugCapture.Skills.cs
     ///   --record-combo wizard|mechanic|cleric  scripted basic-attack video: hero holds attack at dummies (3 s lead-in of idle, then ~6 s of combos), same frame dump as below
     ///                                     (--mech-blue for the blue mechanic, --zoom for a close-up)
@@ -150,6 +154,13 @@ namespace ZenoniaProto
             PlayerState p = hero.Rpg;
             if (level > 1) { p.Level = Mathf.Min(level, Leveling.MaxLevel); p.RecomputeStats(); p.Hp = p.MaxHp; p.Mp = p.MaxMp; }
             if (giveStones > 0) p.UpgradeStone = Mathf.Min(PlayerState.MaxStones, giveStones);
+            string wornTier = Arg(Environment.GetCommandLineArgs(), "--worn-tier");
+            if (wornTier != null) // needs allWeapons in dev-start.json: the granted tiers are in the bag
+                foreach (string slot in new[] { Slots.Weapon, Slots.Offhand })
+                {
+                    Item pick = p.Inventory.Find(i => i.uid == "dev-" + slot + "-" + wornTier);
+                    if (pick != null) p.Equip(pick);
+                }
             if (plus >= 0) // enhance level of the worn weapon + offhand (glow band screenshots)
             {
                 foreach (string slot in new[] { Slots.Weapon, Slots.Offhand }) { Item it = p.GetEquipped(slot); if (it != null) it.enhance = plus; }
@@ -185,6 +196,12 @@ namespace ZenoniaProto
             string shop = Arg(Environment.GetCommandLineArgs(), "--open-shop");
             if (shop != null) { NpcDef seller = NpcDefs.Get(shop); PotionShopWindow.Open(shop, seller.Name, seller.Lines[0]); } // what TownNpc.Talk passes
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--select-pet") >= 0) InventoryPanel.TestSelectWorn(Slots.Pet);
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-settings") >= 0) SettingsWindow.Open(); // what the gear button calls
+            string show = Arg(Environment.GetCommandLineArgs(), "--settings-show"); // e.g. on,off: switch art only, PlayerPrefs untouched
+            if (show != null) { string[] s = show.Split(','); SettingsWindow.TestShow(s[0] == "on", s.Length > 1 && s[1] == "on"); }
+            string press = Arg(Environment.GetCommandLineArgs(), "--settings-press"); // e.g. ChangeHero: clicks that button of the open Settings window
+            if (press != null) { GameObject b = GameObject.Find("SettingsWindow/Window/" + press); if (b != null) b.GetComponent<UnityEngine.UI.Button>().onClick.Invoke(); }
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-quests") >= 0) QuestLogWindow.Open();  // a window on the same frame, to compare with
         }
 
         IEnumerator CastSkills(float start)

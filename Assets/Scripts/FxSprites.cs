@@ -75,6 +75,72 @@ namespace ZenoniaProto
             return star;
         }
 
+        static Sprite gem;
+
+        /// <summary>Upright diamond gem (enhance particles, the +15 crest): crisp edge, white so the renderer tints it. 1 world unit tall.</summary>
+        public static Sprite Gem()
+        {
+            if (gem != null) return gem;
+            var px = new Color32[Size * Size];
+            for (int y = 0; y < Size; y++)
+                for (int x = 0; x < Size; x++)
+                {
+                    float dx = (x + 0.5f - Size * 0.5f) / (Size * 0.5f), dy = (y + 0.5f - Size * 0.5f) / (Size * 0.5f);
+                    float d = Mathf.Abs(dx) / 0.62f + Mathf.Abs(dy); // taller than wide
+                    px[y * Size + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(Mathf.Clamp01((1f - d) / 0.1f) * 255f));
+                }
+            gem = Sprite.Create(Finish(px), new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            return gem;
+        }
+
+        static Sprite flame, tipBlade;
+
+        /// <summary>Tapered flame tongue pointing up (+Y), round base, sharp tip, brighter core; white so the renderer tints it. 1 x 1 unit, pivot at its centre.</summary>
+        public static Sprite Flame()
+        {
+            if (flame != null) return flame;
+            var px = new Color32[Size * Size];
+            for (int y = 0; y < Size; y++)
+                for (int x = 0; x < Size; x++)
+                {
+                    float v = (y + 0.5f) / Size, u = (x + 0.5f - Size * 0.5f) / (Size * 0.5f);
+                    float half = Mathf.Pow(Mathf.Sin(Mathf.PI * Mathf.Min(1f, v * 1.15f)), 0.7f) * (1f - v) * 0.95f; // round at the base, sharp at the top
+                    if (half <= 0.001f) continue;
+                    float d = Mathf.Abs(u) / half;
+                    float a = Mathf.Clamp01((1f - d) / 0.25f) * (0.55f + 0.45f * (1f - d));
+                    byte w = (byte)Mathf.RoundToInt(Mathf.Lerp(200f, 255f, 1f - d));
+                    px[y * Size + x] = new Color32(255, w, w, (byte)Mathf.RoundToInt(a * 255f));
+                }
+            flame = Sprite.Create(Finish(px), new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), Size, 0, SpriteMeshType.FullRect);
+            return flame;
+        }
+
+        /// <summary>+15 energy blade beyond the weapon tip, pointing up (+Y), pivot at its base: transparent body, two bright edges, sharp point.
+        /// 1 x 1 unit; the renderer stretches it (width x length) and tints it.</summary>
+        public static Sprite TipBlade()
+        {
+            if (tipBlade != null) return tipBlade;
+            const int W = 32, H = 128;
+            var px = new Color32[W * H];
+            for (int y = 0; y < H; y++)
+                for (int x = 0; x < W; x++)
+                {
+                    float v = (y + 0.5f) / H, u = (x + 0.5f - W * 0.5f) / (W * 0.5f);
+                    float half = Mathf.Pow(1f - v, 0.85f) * Mathf.Min(1f, v * 6f + 0.35f); // narrow joint at the blade tip, widest just after, tapering to a point
+                    if (half <= 0.001f) continue;
+                    float d = Mathf.Abs(u) / half;
+                    if (d >= 1f) continue;
+                    float edge = Mathf.Clamp01(1f - Mathf.Abs(d - 0.82f) / 0.16f);   // the two bright edges
+                    float a = Mathf.Max(0.16f, edge * 0.8f) * Mathf.Clamp01((1f - d) / 0.08f);
+                    px[y * W + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(a * 255f));
+                }
+            var tex = new Texture2D(W, H, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            tex.SetPixels32(px);
+            tex.Apply(true, true);
+            tipBlade = Sprite.Create(tex, new Rect(0, 0, W, H), new Vector2(0.5f, 0f), H, 0, SpriteMeshType.FullRect); // 128 px = 1 unit tall
+            return tipBlade;
+        }
+
         /// <summary>Irregular rock chunk (lit from the upper left), white-grey so particle colour tints it.</summary>
         public static Texture2D ChunkTexture
         {

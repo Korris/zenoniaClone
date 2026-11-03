@@ -11,10 +11,10 @@ namespace ZenoniaProto
         // Same sorting order as the art they belong to: the render queue then draws the halo right before it and the shine right after it.
         const int HaloQueue = 2999, ShineQueue = 3001;
 
-        static Material flash, additive, trail, enhanceHalo, enhanceShine;
+        static Material flash, additive, trail, enhanceHalo, enhanceShine, enhanceRim, enhanceAura;
         static MaterialPropertyBlock block;
         static int flashAmountId = -1, shineId = -1;
-        static bool shineMissing;
+        static bool shineMissing, rimMissing, auraMissing;
 
         /// <summary>Alpha sprite shader with a per-renderer white flash (_FlashAmount).</summary>
         public static Material SpriteFlash { get { return Get(ref flash, "SpriteFlash", "Sprites/Default", 0f); } }
@@ -55,6 +55,32 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Alpha-blended thin rim of an enhanced item (HeldRimBaker mask); null when the shader is missing, the item then draws without a rim.</summary>
+        public static Material EnhanceRim
+        {
+            get
+            {
+                if (enhanceRim != null || rimMissing) return enhanceRim;
+                Shader s = Resources.Load<Shader>("Shaders/SpriteRim");
+                if (s == null || !s.isSupported) { Debug.LogWarning("ZenoniaProto: shader 'SpriteRim' missing or unsupported, enhanced items draw without the rim."); rimMissing = true; return null; }
+                enhanceRim = new Material(s) { name = "Feel_SpriteRim", renderQueue = ShineQueue };
+                return enhanceRim;
+            }
+        }
+
+        /// <summary>Animated +15 aura around an enhanced item (HeldRimBaker.BakeAura mask), drawn right before the art; null when the shader is missing.</summary>
+        public static Material EnhanceAura
+        {
+            get
+            {
+                if (enhanceAura != null || auraMissing) return enhanceAura;
+                Shader s = Resources.Load<Shader>("Shaders/SpriteAura");
+                if (s == null || !s.isSupported) { Debug.LogWarning("ZenoniaProto: shader 'SpriteAura' missing or unsupported, +15 items draw without the aura."); auraMissing = true; return null; }
+                enhanceAura = new Material(s) { name = "Feel_SpriteAura", renderQueue = HaloQueue };
+                return enhanceAura;
+            }
+        }
+
         /// <summary>Sets the light band (x centre, y half width, z lift) on one shine renderer without allocating.</summary>
         public static void SetShine(Renderer r, Vector4 shine)
         {
@@ -62,6 +88,18 @@ namespace ZenoniaProto
             if (shineId < 0) shineId = Shader.PropertyToID("_Shine");
             r.GetPropertyBlock(block);
             block.SetVector(shineId, shine);
+            r.SetPropertyBlock(block);
+        }
+
+        static int auraId = -1;
+
+        /// <summary>Sets the aura parameters (x speed, y along, z across, w reach) on one aura renderer without allocating.</summary>
+        public static void SetAura(Renderer r, Vector4 aura)
+        {
+            if (block == null) block = new MaterialPropertyBlock();
+            if (auraId < 0) auraId = Shader.PropertyToID("_Aura");
+            r.GetPropertyBlock(block);
+            block.SetVector(auraId, aura);
             r.SetPropertyBlock(block);
         }
 

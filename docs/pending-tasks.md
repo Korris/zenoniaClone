@@ -151,6 +151,68 @@ Thử theo thứ tự trong một buổi: (1) phương án C của ChatGPT, đư
 
 Độ nét vũ khí (08:15): người dùng thấy vũ khí trong game và icon trong túi mờ hơn chân dung. Nguyên nhân: game vẽ 4 px mỗi đơn vị, chân dung 8 px, icon 96 px vẽ ở 50 px, đều thu qua mipmap. Đã thử cắt art bằng 2 lần cỡ màn hình và SAI: cỡ trên màn hình = art px x s x DrawScale nên vũ khí và khiên nhỏ theo; đã trả về 250/330 và thêm unsharp mask khi cắt, icon dựng 104 px từ ảnh gốc có làm nét (`ICON_PX`, `icon_of` trong tool). Muốn nét hơn nữa phải đổi `s` cùng lúc với cỡ art ở mọi anchor, chưa làm.
 
+## Hiệu ứng cường hoá +9, +11, +15 quá dày (2026-11-03): đã có đề xuất, chưa sửa code hiệu ứng
+
+Người dùng chê dày, không sạch. Đã chụp trong game Warrior kiếm `dragon` (đủ idle 4 hướng, walk phải, attack 3 hướng) và `frost` (idle xuống, phải, attack phải), gửi ChatGPT: https://chatgpt.com/c/6ae94546-d91c-83ec-85ee-d71f5b99d5d6 (tài khoản Tay). Chụp bằng `--class warrior --tp 4,21 --face <hướng> --god --plus N --worn-tier T --zoom 30 --shots ...` (`--worn-tier` mới thêm vào `DebugCapture.cs`).
+
+ChatGPT xếp nguyên nhân: (1) art `-enhanced` có viền dày, silhouette rộng hơn; (2) quầng + bloom; (3) `ShineLift`; (4) dải sáng quá rộng, mạnh; (5) sao, đốm. Hướng đề xuất: art cường hoá trùng silhouette bản thường, không viền neon; thêm viền sáng mỏng làm lớp chính; quầng sát vũ khí; +15 thêm một xung năng lượng 0,35-0,5 giây mỗi 5-7 giây.
+
+Số ChatGPT đề xuất, chưa thử trong game:
+
+| | +9 | +11 | +13 | +15 |
+|---|---|---|---|---|
+| Chu kỳ / thời gian quét (s) | 4 / 1,1 | 3,5 / 1 | 3 / 0,85 | 2,5 / 0,75 |
+| Nửa bề rộng dải | 0,075 | 0,08 | 0,085 | 0,095 |
+| `ShineAlpha` / `ShineLift` | 0,24 / 0 | 0,30 / 0 | 0,36 / 0,01 | 0,43 / 0,02 |
+| `HaloAlpha` / `HaloBreath` | 0,12 / 0,02 | 0,17 / 0,025 | 0,23 / 0,035 | 0,30 / 0,045 |
+| Sao / cỡ | 0 | 1 / 1,2 | 1 / 1,4 | 2 / 1,6 |
+| Đốm | 0 | 0 | 2 | 4 |
+| Viền mỏng (lớp mới) | 0,22 | 0,32 | 0,42 | 0,55 |
+
+Khi đánh: viền x0,85, quầng x0,45, dải sáng x0,35, tắt sao và đốm, chuyển trong 0,08-0,12 giây. Khi đi: quầng x0,7, dải sáng x0,7.
+
+Lưu ý khi làm: ChatGPT ghi viền dày 0,75-1,25 px art và quầng lan 1-2 px art, nhưng 250 px art chỉ còn khoảng 95 px trên màn hình 720p (1 px art khoảng 0,4 px màn hình), nên phải tính theo px màn hình, khoảng 2,5-3 px art. Game dùng `BloomEffect` riêng, không phải URP. Đề xuất đổi preset theo nền tuyết, nền tối chưa cần làm.
+
+**Đã làm thử (2026-11-03, chưa commit, chờ người dùng xem trong game):** đồ cầm tay dùng art thường cả khi cường hoá (`FeelConfig.EnhanceUsesBaseArt`, pet và robot vẫn dùng art cường hoá); viền mỏng mới (`HeldRimBaker.cs`, shader `SpriteRim` vẽ alpha thường, vì additive không hiện trên tuyết); quầng nửa độ phân giải, lan 12 px art; số liệu theo bảng trên (`FeelConfig.EnhanceLooks`); giảm khi đi, đánh (`EnhanceMotionK`); +15 có xung chạy dọc viền mỗi 6 giây. Ô đồ trong túi dùng chung bảng số nên hiệu ứng ở ô cũng nhẹ đi. Viền xanh của kiếm frost vẫn khó thấy trên tuyết. Ảnh so cũ/mới ở scratchpad của phiên, không lưu.
+
+Người dùng xem bản thử: sạch, không rối, nhưng các cấp không khác nhau rõ. Hỏi lại ChatGPT (cùng chat), đề xuất mỗi cấp thêm một nét riêng, cấp sau giữ nét cấp trước:
+- +7: viền màu mỏng. +9: rãnh năng lượng trong lưỡi sáng lên, rộng 2-3 px màn hình, sáng liên tục (quan trọng nhất). +11: năng lượng chảy dọc rãnh, chu kỳ 1,5 s. +13: 1-2 hạt hình thoi 0,55-0,75 đơn vị bay dọc lưỡi, bỏ sao và đốm cũ. +15: màu phụ (dragon `#FFF0B0`, frost `#8068FF`) và một viên thoi nổi cố định cạnh 1/3 trên của lưỡi, 1,1 đơn vị, nhấp nhô 1,8 s; xung 6 s giữ làm điểm nhấn phụ.
+- Viền alpha 0,25/0,35/0,43/0,50/0,60, rộng 0,8-1,4 px màn hình; quầng 0/0,08/0,12/0,16/0,22, lan 0-4 px màn hình; rãnh alpha 0/0,45/0,55/0,65/0,75.
+- Khi đánh vẫn giữ viền, rãnh, viên thoi 100%, dòng chảy 75%, quầng 35%, dải sáng 25%, hạt 0. Khiên chỉ có viền và rãnh yếu hơn, không có viên thoi.
+- Frost: viền xanh đậm `#167BFF` thay vì cyan nhạt, có thể thêm nét viền tối mỏng bên ngoài trên tuyết.
+- Phương án khác: vòng phép dưới chân cho +15. Không dùng vì trái quy tắc "vòng dưới chân dành cho buff".
+**Đã làm thử (2026-11-03, chưa commit, chờ người dùng xem trong game):** `HeldEnergyBaker.cs` tự lấy màu năng lượng từ art (hue nổi nhất, bỏ dải vàng kim loại 18-62°) và vùng rãnh có màu đó; màu này thay `glow` của manifest cho mọi lớp hiệu ứng (manifest còn màu cũ, ví dụ búa thunder xanh mà `glow` vàng). Rìu `verdant` đen bạc không có màu năng lượng nên chỉ có viền. `HeldEnhanceFx` vẽ: +9 rãnh sáng, +11 dòng chảy, +13 hạt thoi, +15 màu phụ + viên thoi (`FxSprites.Gem`). Số đã tăng so với bảng ChatGPT vì ở cỡ thật còn quá nhạt: viền 0,3-0,8, rãnh 0,7-1, viên thoi 2 đơn vị, hạt 1-1,15. Ô đồ trong túi giữ sao và đốm như cũ (`ItemEnhanceSlotFx.CellLooks`). Chưa xem: hạt +13 và dòng chảy (ảnh chụp tĩnh khó bắt), các class khác, pet và robot, viên thoi đè mặt khi đánh.
+
+Thêm sau đó (cùng ngày): +15 có hào quang năng lượng động quanh lưỡi (shader `SpriteAura`, mask `HeldRimBaker.BakeAura` vươn 22 px art) và bóng mờ vũ khí khi đi, đánh (`HeldEnhanceFx.DrawGhosts`). Viền giờ dày dần theo cấp (`RimWidth` 0,16-0,32 của vùng hào quang, khoảng 1,3-2,7 px màn hình). Người dùng chê +1 và +7 gần như giống nhau: +7 đã tăng viền 0,6 và rãnh sáng 0,35, ảnh chụp vẫn chỉ hơi khác, chờ người dùng xem trong game.
+
+Người dùng thấy lúc chơi vẫn khó nhận ra vì nhân vật nhỏ (camera 160 đơn vị, nhân vật 20, kiếm khoảng 95 px ở 720p). Đã thử cả hai hướng: (2) hào quang động có ở mọi cấp từ +7, vươn dần `AuraReach` 0,2/0,36/0,5/0,72/1; (1) tuỳ chọn test `cameraViewHeight` trong `dev-start.json` (0 = 160 mặc định; `DevStartConfig.CameraViewHeight`, `CameraFollow.Configure`), chỉ bản test đọc. Chờ người dùng chơi thử và chọn độ zoom; nếu đổi thật thì sửa `GameConfig.ViewHeightUnits` và bỏ tuỳ chọn này.
+
+Người dùng bảo giữ cỡ hào quang nhưng bớt đậm: `AuraAlpha` còn 0,22/0,3/0,33/0,42/0,5, shader mềm cạnh và mỏng dần ra ngoài, bóng mờ 0,35. Chờ người dùng test.
+
+ChatGPT trả lời câu "nhân vật nhỏ quá" (cùng chat, để làm sau theo lời người dùng): ở 90 px, hiệu ứng cần hình rõ bên ngoài kiếm chứ không phải chi tiết bên trong; vật nhỏ hơn khoảng 6 px không ai để ý. Đề xuất: vỏ năng lượng vươn 0,35-1,35 đơn vị, 1-3 ngọn lửa lớn dài 1,3-3 đơn vị, mảnh năng lượng rời ở +13, +15 có vệt năng lượng kéo dài khỏi mũi kiếm 4,5 đơn vị (khoảng 20 px); bỏ viên thoi và hạt nhỏ làm dấu hiệu chính. Camera: thử 136, chưa dùng 120, nhưng zoom chỉ to thêm 18% nên không thay được việc sửa hiệu ứng.
+
+Thử phóng to nhân vật (camera giữ nguyên): tuỳ chọn test `heroScale` trong `dev-start.json` (0 = bình thường), `HeroRenderer.FigureScale` phóng thân, đồ, hiệu ứng quanh chân; bóng và vùng va chạm giữ nguyên, áp cho hero trong thế giới (`GameSession`, 3 chỗ tạo hero), không áp chân dung màn Bag. Ảnh ở cỡ thật: ×1,25 hào quang +15 rõ hơn chút; ×1,4 +15 rõ, +11 thấy viền; +1 và +7 vẫn gần giống. Quái, cây, ô map không to theo nên hero to hơn so với cảnh. Chưa chơi thử.
+
+ChatGPT lần 4 (cùng chat, sau bản hào quang nhẹ), chưa làm: giữ hào quang nhẹ làm nền (0,20-0,42), thêm "đường năng lượng" mảnh sáng chạy dọc kiếm từ +9 (rộng 1,5-3 px màn hình, alpha 0,5-0,95, chảy 2,4-0,9 s), +11 có đợt sáng mạnh 0,3 s mỗi 3 s, +13 thêm 1 ngọn lửa rời 6-8 px chạy dọc lưỡi, +15 thêm 2 ngọn và một lưỡi năng lượng kéo dài khỏi mũi kiếm 18-20 px, rộng 6-8 px, ruột trong suốt, hai mép sáng. Phóng nhân vật: nên thử 1,15 trước, tối đa 1,2; tránh 1,3 khi chưa thử cảnh đông 5 class.
+
+Đã làm thử đề xuất lần 4: đường năng lượng là viền có dải sáng chạy liên tục (`PulsePeriod`), đợt sáng bùng `SurgeEvery`/`SurgeSec`, ngọn lửa rời (`FxSprites.Flame`, thay hạt thoi), lưỡi năng lượng ở mũi kiếm +15 (`HeldEnhanceFx.Tip.cs`, `FxSprites.TipBlade`); bỏ viên thoi. `dev-start.json` đặt `heroScale` 1,15. Người dùng chê +15 vẫn đậm: đã hạ viền 0,65, rãnh 0,7, hào quang 0,28, lưỡi mũi kiếm 0,5, lửa 0,5. Bản test mới ở `C:\temp\player-enh2` (bản cũ đang mở). Lưỡi ở mũi kiếm nhạt, ảnh chụp khó thấy, chưa xem trong game.
+
+Nút test tạm "-1" cạnh nút Enhance (`InventoryPanel.DevDowngrade.cs`): hạ một bậc, chỉ bản test và chơi offline. **Bỏ trước khi phát hành:** xoá file đó và 2 dòng gọi trong `InventoryPanel.Detail.cs`.
+
+## Combo chém Warrior đổi hướng (2026-11-03): đã làm, chưa commit, chờ người dùng xem
+
+Người dùng yêu cầu: đòn 1 chém trái qua phải, đòn 2 phải qua trái, đòn 3 chém từ dưới lên, đòn 4 giữ nguyên. Không vẽ mới: `Tools/build-warrior-combo-directions.py` tạo `melee1lr` (thân `melee1`), `melee2rl` (thân `melee1` chạy ngược), `melee3up` (đã vẽ mới, xem dưới) trong `body/{bare,armed,hand}`, cùng anchor kiếm/khiên trong `held-gear-melee.json` (vị trí theo nắm tay của frame nguồn, góc kiếm theo bảng `SWEEP_*`, giữ kiếm cùng phía nắm tay để không chém xuyên đầu). `ComboAnims` đổi sang 3 đòn mới + `melee4`; `melee1`, `melee3` cũ giữ trong `ExtraAnims` cho Earth Break và Blade Cyclone. Chạy lại tool sau `build-melee-sheets.py` (tool đó ghi đè file anchor). Chưa làm: tư thế thân vẫn là thân cũ chạy xuôi hoặc ngược nên có frame tay và kiếm không khớp hẳn hướng chém; vệt kiếm (`SwordTrail`) đòn 3 vẫn là cung ngang, chưa quét dọc từ dưới lên; mới xem ảnh ghép và ảnh chụp hướng xuống trong game.
+
+Đòn 3 vẽ mới (2026-11-03, người dùng chê bản chạy ngược không giống chém lên): ChatGPT chat "Draw Uppercut Sprite Row" https://chatgpt.com/c/6ae97092-8cbc-83ec-8e9c-25967fe224cd (tài khoản Tay), 4 ảnh `new-style/attack/src/melee3up-{down,up,left,right}.png`, thân tay không, hướng trái kiếm ở tay xa. Cài bằng `python Tools/build-warrior-attack.py write melee3up <dir>` (nắm tay trong `FISTS`, góc kiếm `NEW_ANGLES`, khiên hạ khỏi mặt ở frame ngồi thấp, `SWORD_FRONT`). Đã xem ảnh ghép 4 hướng và ảnh chụp combo hướng phải trong game. Hiệu ứng chém đòn 3 đi từ dưới lên: `HeroClassDef.RisingStep` = 3, `HeroFx.RisingArc` đặt cung bên phía tay kiếm, chạy từ thấp lên cao, tâm ở giữa người (`RisingLift`); mới xem hướng xuống và phải trong game. Chưa xem: cỡ đầu hàng lên (scale 0,47) chưa đo so với hàng khác.
+
+Hiệu ứng đòn 4 (2026-11-03): người dùng chê vòng tròn xoay khi chém bổ xuống. ChatGPT vẽ nhát bổ dọc 4 frame trên nền đen (cùng chat đòn 3), ảnh gốc `ArtLibrary/classes/warrior/fx-src/cleave-chatgpt.png`, cắt bằng `Tools/build-warrior-cleave-vfx.py` ra `Sprites/classes/warrior/fx/warrior-cleave-vfx.png`. `SlashEffect` dùng ảnh này cho đòn cuối thay vòng tròn (không xoay theo hướng, lật khi quay trái); vệt kiếm đòn 4 chạy từ cao xuống thấp bên phía tay kiếm (`HeroFx.Swing`, `chop`). Đã xem trong game hướng xuống, phải. Ảnh hiệu ứng nằm ở vùng trúng đòn trước mặt nên hướng phải nhát bổ ở xa phía trước người.
+
+## Cửa sổ Settings (2026-11-03): đã làm, chưa commit, chờ người dùng xem
+
+Nút bánh răng dưới minimap giờ mở cửa sổ Settings (khung `win-panel`, nút vàng): bật/tắt nhạc nền, bật/tắt âm thanh hiệu ứng (lưu `PlayerPrefs` theo máy, không lưu vào save hay server), nút "Change hero" đi đúng đường cũ `HeroChangeScreen.Open` (offline màn chọn tướng; online có tài khoản thì menu tài khoản "Change character"; kết nối dev chỉ báo không đổi được). Code: `SettingsWindow.cs`, `SettingsToggle.cs`, `AudioPrefs.cs`; tắt tiếng ở `GameMusic` (giảm dần về 0), `GameSfx` (mute cả âm đang phát), `SkillSfx.Loop`, `BladeCycloneUltimate`. Art icon nhạc, loa, công tắc ON/OFF: `Sprites/ui/settings/`, cắt bằng `Tools/build-settings-ui-art.py` từ `ArtLibrary/custom/settings-ui/settings-art-sheet.png`; hình thử `settings-mockup-1.png`. ChatGPT (tài khoản Tay): https://chatgpt.com/c/6ae9758d-9b2c-83ec-8410-c3d399d4b91f. Chụp thử: `--open-settings`, `--settings-show on,off`, `--settings-press ChangeHero`, `--open-quests`.
+
+Đã xem ảnh chụp ở 1280x720 và 960x640, và bấm Change hero offline (màn chọn tướng mở, game dừng). Chưa thử: nghe thật khi tắt/bật (bản chụp không bấm công tắc để không ghi PlayerPrefs của máy), online, điện thoại. Âm thanh khác ngoài 4 chỗ trên: không có (video màn chọn tướng tắt tiếng sẵn).
+
 ## Màn Bag mới (2026-11-02): đã làm, chờ người dùng xem
 
 2026-11-03: ô nhân vật rộng 336 (trước 288), lưới giữa 350 với ô 62 (trước 398, ô 72), ô phải 210; Warrior đứng giữa ô (`WarriorShiftX` 0, texture 672 x 528). Chưa xem trên điện thoại.

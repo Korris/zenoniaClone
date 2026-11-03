@@ -10,5 +10,7 @@
     "noCooldowns": true,
     "noMpCost": true,
     "allWeapons": true,
-    "allPets": true
+    "allPets": true,
+    "cameraViewHeight": 0,
+    "heroScale": 1.15
 }

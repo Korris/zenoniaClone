@@ -35,7 +35,7 @@ namespace ZenoniaProto
         Transform lean;
         const float LeanDegrees = 6f, LeanSideDip = 0.02f, LeanFrontDip = 0.05f, LeanInSeconds = 0.06f, LeanOutSeconds = 0.09f;
         float leanAngle, leanDip;
-        int tier;
+        int tier, motion; // motion: 0 idle, 1 walk, 2 any action, for the enhance effect (HeldEnhanceFx.Draw)
         bool enhanced, debugLook;
         int companionTier, companionBand;
         bool companionEnhanced, companionEmpty;
@@ -134,7 +134,16 @@ namespace ZenoniaProto
             leanAngle += (wantAngle - leanAngle) * k;
             leanDip += (wantDip - leanDip) * k;
             lean.localRotation = Quaternion.Euler(0f, 0f, leanAngle);
-            lean.localScale = new Vector3(1f, 1f - leanDip, 1f);
+            lean.localScale = new Vector3(figureScale, figureScale * (1f - leanDip), 1f);
+        }
+
+        float figureScale = 1f;
+
+        /// <summary>Draws the figure (body + gear + enhance effect) this much larger around the feet; the shadow and the hero's footprint stay. Test switch: DevStartConfig.HeroScale.</summary>
+        public float FigureScale
+        {
+            get { return figureScale; }
+            set { figureScale = value; if (lean != null) lean.localScale = new Vector3(value, value * (1f - leanDip), 1f); }
         }
 
         /// <summary>Sheet row for a direction + animation; mirror = draw the right row flipped.</summary>
@@ -193,6 +202,7 @@ namespace ZenoniaProto
         {
             bool mirror;
             int row = RowFor(anim, dir, out mirror);
+            motion = anim == "idle" ? 0 : anim == "walk" ? 1 : 2;
             Sprite[] armedRow;
             if (!armed.ContainsKey(anim) || (armedRow = SpriteSheet.Row(armed[anim], row)) == null || armedRow.Length == 0)
             {
@@ -244,7 +254,7 @@ namespace ZenoniaProto
             {
                 p.ArtEntry = entry;
                 p.ArtEnhanced = p.Enhanced;
-                p.Art = GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced);
+                p.Art = GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced && !FeelConfig.EnhanceUsesBaseArt);
             }
             bool ownArt = entry != null && !string.IsNullOrEmpty(a.art);
             Sprite sprite = ownArt ? GearOverlays.CenteredTier(p.Spec.Folder, a.art, entry.name) : entry != null ? p.Art : null;
@@ -260,8 +270,8 @@ namespace ZenoniaProto
             t.localScale = new Vector3(k * sx, k, 1f);
             // Enhanced (+7 and up): the blade keeps its painted colours, HeldEnhanceFx lights it per band in the tier colour.
             if (!p.Enhanced || !HeldEnhanceFx.Enabled) { if (p.Fx != null) p.Fx.Hide(); return; }
-            if (p.Fx == null) p.Fx = new HeldEnhanceFx(p.Sr, transform, !p.Spec.Glow ? 0f : p.Spec.IsOffhand ? 0.5f : 1f, 1f);
-            p.Fx.Draw(p.Spec.Folder, entry, p.Band, p.Sr.sortingOrder, orderBase + 6, a.behind, alpha, ownArt ? sprite : null);
+            if (p.Fx == null) p.Fx = new HeldEnhanceFx(p.Sr, transform, !p.Spec.Glow ? 0f : p.Spec.IsOffhand ? 0.5f : 1f, 1f, !FeelConfig.EnhanceUsesBaseArt);
+            p.Fx.Draw(p.Spec.Folder, entry, p.Band, p.Sr.sortingOrder, orderBase + 6, a.behind, alpha, ownArt ? sprite : null, motion);
         }
     }
 }
