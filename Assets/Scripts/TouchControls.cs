@@ -11,7 +11,8 @@ namespace ZenoniaProto
     /// to its right, bottom-right the big attack disc (one fixed crossed-swords icon) with the 3-slot skill magazine on an arc around it (SkillMagazineView:
     /// Dash [K], class skill [L] with the cooldown sweep and MP cost, locked slots; swipe up / down or Tab changes the page); top-right the Bag [B] and Settings (hero change) buttons (TouchControls.Menu.cs). Works with touch and mouse (multi-touch: move + attack at once).
     /// It only feeds GameKeys into InputAdapter, so the game logic is the same as the keyboard. Holding attack keeps the combo going.
-    /// Shown while a hero plays and no menu is open; F7 hides / shows it (remembered in PlayerPrefs).
+    /// Shown while a hero plays and no menu is open (and, on the mobile HUD, not while the chat keyboard is up); F7 hides / shows it (remembered in PlayerPrefs).
+    /// The web HUD (HudLayout.IsWeb) builds the bottom hotbar instead of the joystick / potions / attack disc / arc (TouchControls.WebHotbar.cs).
     /// </summary>
     [DefaultExecutionOrder(-900)] // after GameClock, before the hero: latches this frame's button presses
     public partial class TouchControls : MonoBehaviour
@@ -74,13 +75,14 @@ namespace ZenoniaProto
                 try { PlayerPrefs.SetInt(PrefKey, visible ? 1 : 0); } catch (Exception) { /* prefs are a convenience */ }
             }
             HeroController hero = GameSession.Hero;
-            bool show = visible && hero != null && !InventoryPanel.IsOpen && !HeroChangeScreen.IsOpen && !AccountScreenGui.MenuOpen && !UiWindows.ModalOpen && !Hud.CaptureClean;
+            bool show = visible && hero != null && !InventoryPanel.IsOpen && !HeroChangeScreen.IsOpen && !AccountScreenGui.MenuOpen && !UiWindows.ModalOpen && !Hud.CaptureClean
+                && (HudLayout.IsWeb || !UiWindows.ChatTyping); // phone: the keyboard is up, nothing to press under it
             if (layer.gameObject.activeSelf != show)
             {
                 layer.gameObject.SetActive(show);
                 if (!show) { for (int i = 0; i < KeyCount; i++) held[i] = false; } // never leave a direction stuck
             }
-            if (show && InputAdapter.Pressed(GameKey.SkillPage)) magazine.Cycle(1); // Tab: next skill page (same as a swipe up)
+            if (show && InputAdapter.Pressed(GameKey.SkillPage)) { if (magazine != null) magazine.Cycle(1); else CycleWebPage(); } // Tab: next skill page (same as a swipe up)
             if (show) Refresh(hero);
         }
 
@@ -127,6 +129,7 @@ namespace ZenoniaProto
         {
             layer = UiKit.Fill(canvas, "Touch");
             layer.SetAsFirstSibling(); // under the HUD block, toasts and the inventory window
+            if (HudLayout.IsWeb) { BuildWebHotbar(layer); BuildMenuButtons(layer); return; }
 
             // Fixed joystick: the base stays in the corner and only a touch around it steers, so a tap elsewhere on the left side is free for the world.
             // Added first so the potion buttons (later siblings) still win their own touches.
@@ -182,7 +185,8 @@ namespace ZenoniaProto
         void Refresh(HeroController hero)
         {
             PlayerState p = hero.Rpg;
-            magazine.Tick(hero);
+            if (magazine != null) magazine.Tick(hero);
+            else TickWebHotbar(hero);
             UpdateSkillBadge(p);
             if (p != null)
             {

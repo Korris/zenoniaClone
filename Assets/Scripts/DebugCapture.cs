@@ -32,6 +32,8 @@ namespace ZenoniaProto
     ///   --bag-item N / --open-shop NPC    Inventory tab on bag item N (with --open-inventory) / that seller's window
     ///   --pet-durability N / --select-pet every pet at N / Equipment tab on the worn pet (with --open-inventory)
     ///   --open-settings / --open-quests   the Settings window (gear button) / the quest list, after spawning
+    ///   --hud web|mobile                  HUD layout (HudLayout): web = hotbar + bottom-left chat, mobile = touch controls (default on this exe)
+    ///   --chat-demo / --open-chat / --close-chat / --chat-focus  four sample chat lines / chat panel open / collapsed / typing (as Enter), after spawning
     ///   --settings-show on,off            draw the music / sound switches in these states (display only, PlayerPrefs untouched)
     ///   --settings-press ChangeHero       click that button of the open Settings window (not the switches: they save to PlayerPrefs)
     ///   --skill-ui "1=open;2=learn:0;3=slot:2"  skill tree UI script, see DebugCapture.Skills.cs
@@ -202,6 +204,19 @@ namespace ZenoniaProto
             string press = Arg(Environment.GetCommandLineArgs(), "--settings-press"); // e.g. ChangeHero: clicks that button of the open Settings window
             if (press != null) { GameObject b = GameObject.Find("SettingsWindow/Window/" + press); if (b != null) b.GetComponent<UnityEngine.UI.Button>().onClick.Invoke(); }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-quests") >= 0) QuestLogWindow.Open();  // a window on the same frame, to compare with
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--chat-demo") >= 0) SeedChat();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-chat") >= 0) ChatWindow.SetExpandedState(true);
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--close-chat") >= 0) ChatWindow.SetExpandedState(false);
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--chat-focus") >= 0) ChatWindow.FocusFromKey(); // what Enter does: open + caret in the field
+        }
+
+        /// <summary>--chat-demo: one line per channel, like the approved chat designs (screenshots of the chat layouts).</summary>
+        static void SeedChat()
+        {
+            ChatHub.Receive(ChatChannel.World, "Rook", "Anyone near Greenvale?");
+            ChatHub.Receive(ChatChannel.Party, "Mira", "Meet at the south gate.");
+            ChatHub.Receive(ChatChannel.Whisper, "Kai", "Ready for the dungeon?");
+            ChatHub.Receive(ChatChannel.Map, "Lina", "The shop is by the well.");
         }
 
         IEnumerator CastSkills(float start)

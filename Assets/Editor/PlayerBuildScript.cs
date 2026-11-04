@@ -11,6 +11,7 @@ namespace ZenoniaProto.EditorTools
     /// Player builds (the project ships no scene; Bootstrap builds everything at runtime). A throw-away empty scene is created for the build and deleted afterwards.
     ///   Windows: Unity -batchmode -quit -projectPath P -executeMethod ZenoniaProto.EditorTools.PlayerBuildScript.BuildWindows -buildOut C:\out\Zenonia.exe
     ///   Android: Unity -batchmode -quit -projectPath P -executeMethod ZenoniaProto.EditorTools.PlayerBuildScript.BuildAndroid -buildOut C:\out\Zenonia.apk
+    ///   WebGL: Unity -batchmode -quit -projectPath P -executeMethod ZenoniaProto.EditorTools.PlayerBuildScript.BuildWebGL -buildOut C:\out\web   (a folder)
     ///   Linux server: Unity -batchmode -quit -projectPath P -executeMethod ZenoniaProto.EditorTools.PlayerBuildScript.BuildLinuxServer -buildOut C:\out\ZenoniaServer.x86_64
     /// or the menu Zenonia / Build Android APK (writes Build/Zenonia.apk). Android needs the "Android Build Support" module (with OpenJDK + SDK/NDK)
     /// installed for this Unity version; the APK is signed with the debug key, landscape only, IL2CPP ARM64.
@@ -34,6 +35,24 @@ namespace ZenoniaProto.EditorTools
         public static void BuildAndroid()
         {
             int code = Build(BuildTarget.Android, OutputArg(Path.Combine("Build", "Zenonia.apk")));
+            EditorApplication.Exit(code);
+        }
+
+        /// <summary>
+        /// Browser build (web HUD: hotbar + bottom-left chat, HTML chat input). -buildOut is a FOLDER (index.html + Build/). Needs the
+        /// "Web Build Support" module; says so and fails when it is missing. Gzip with the decompression fallback, so any static host serves it.
+        /// </summary>
+        public static void BuildWebGL()
+        {
+            if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL))
+            {
+                Debug.LogError("BUILD RESULT: Failed. The Web build module is not installed. Install it with Unity Hub: Installs > this Unity version > Add modules > \"Web Build Support\".");
+                EditorApplication.Exit(1);
+                return;
+            }
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
+            PlayerSettings.WebGL.decompressionFallback = true;
+            int code = Build(BuildTarget.WebGL, Path.Combine(OutputArg(Path.Combine("Build", "WebGL")), "index.html"), 0, true);
             EditorApplication.Exit(code);
         }
 
@@ -112,7 +131,8 @@ namespace ZenoniaProto.EditorTools
         }
 
         /// <returns>0 on success, 1 on failure.</returns>
-        static int Build(BuildTarget target, string output, int subtarget = 0)
+        /// <param name="folder">WebGL: `output` names a file inside the output folder (the player writes the whole folder)</param>
+        static int Build(BuildTarget target, string output, int subtarget = 0, bool folder = false)
         {
             bool release = HasArg("-zenoniaRelease");
             string apiUrl = ArgAfter("-apiUrl");
@@ -135,7 +155,7 @@ namespace ZenoniaProto.EditorTools
                 var options = new BuildPlayerOptions
                 {
                     scenes = new[] { TempScene },
-                    locationPathName = output,
+                    locationPathName = folder ? Path.GetDirectoryName(output) : output,
                     target = target,
                     subtarget = subtarget,
                     // -development: a test build, which also reads the bundled Resources/Data/dev-start.json (test stones, level, SP, gear)

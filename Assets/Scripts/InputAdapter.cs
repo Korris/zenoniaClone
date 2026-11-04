@@ -188,14 +188,15 @@ namespace ZenoniaProto
 
         public static bool Held(GameKey k)
         {
-            if (Gated(k)) return false;
-            return (BotHeld != null && BotHeld(k)) || TouchControls.Held(k) || KeyHeld(k);
+            if (Gated(k) || WebKeyBlocked(k)) return false;
+            return (BotHeld != null && BotHeld(k)) || TouchControls.Held(k) || KeyHeld(k) || (k == GameKey.Attack && MouseAttack());
         }
 
         public static bool Pressed(GameKey k)
         {
-            if (Gated(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
-            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || (k == GameKey.Dash && DoubleTapDash()) || SlotKeyPressed(k);
+            if (Gated(k) || WebKeyBlocked(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
+            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || (k == GameKey.Dash && DoubleTapDash()) || SlotKeyPressed(k)
+                || (k == GameKey.Attack && MouseAttack()); // web: a held left button keeps the combo going, like the touch attack disc
         }
     }
 }

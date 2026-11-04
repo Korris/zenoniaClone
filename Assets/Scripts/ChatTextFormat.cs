@@ -4,41 +4,60 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>Turns chat history into one rich-text block: "[World] Name: text" with a stable colour per sender name.</summary>
+    /// <summary>
+    /// Chat history as rich text: "[World] Name: text" with the channel tag in its own colour (World yellow, Map green, Party cyan,
+    /// Whisper violet, system lines gold). The World tab lists every channel (like the approved design); the other tabs only their own.
+    /// </summary>
     public static class ChatTextFormat
     {
-        static readonly string[] NameColors = { "4FD8FF", "A6F04F", "FF6CF0", "FFB347", "FFE066", "8FA8FF", "FF8A80" };
-        const string SelfColor = "7FE3FF", SystemColor = "FFD36B", TagColor = "AEB6C6", TextColor = "F2EEDD";
+        const string SelfColor = "7FE3FF", NameColor = "F5D9A0", SystemColor = "FFC75A", TextColor = "F2EEDD";
 
-        /// <summary>Last `max` lines of `tab` (the World tab also lists system lines). Lines older than `fadeAfter` s are drawn at `oldAlpha` (0 = never fade).</summary>
-        public static string Build(IList<ChatMessage> history, ChatChannel tab, int max, float fadeAfter = 0f, float oldAlpha = 1f)
+        public static string TagColor(ChatChannel c)
+        {
+            switch (c)
+            {
+                case ChatChannel.World: return "FFD84A";
+                case ChatChannel.Map: return "8BE36B";
+                case ChatChannel.Party: return "4FD8FF";
+                case ChatChannel.Whisper: return "E07CFF";
+                default: return SystemColor;
+            }
+        }
+
+        public static bool Shows(ChatChannel tab, ChatChannel c) { return tab == ChatChannel.World || c == tab; }
+
+        /// <summary>The last `max` lines of `tab`, oldest first.</summary>
+        public static List<ChatMessage> Recent(IList<ChatMessage> history, ChatChannel tab, int max)
         {
             var picked = new List<ChatMessage>();
             for (int i = history.Count - 1; i >= 0 && picked.Count < max; i--)
-            {
-                ChatChannel c = history[i].Channel;
-                if (c == tab || (tab == ChatChannel.World && c == ChatChannel.System)) picked.Insert(0, history[i]);
-            }
+                if (Shows(tab, history[i].Channel)) picked.Insert(0, history[i]);
+            return picked;
+        }
+
+        /// <summary>Last `max` lines of `tab` as one block.</summary>
+        public static string Build(IList<ChatMessage> history, ChatChannel tab, int max)
+        {
+            List<ChatMessage> picked = Recent(history, tab, max);
             var sb = new StringBuilder();
             for (int i = 0; i < picked.Count; i++)
             {
-                ChatMessage m = picked[i];
-                string a = fadeAfter > 0f && Time.unscaledTime - m.Time > fadeAfter ? ((int)(oldAlpha * 255f)).ToString("X2") : "FF";
                 if (i > 0) sb.Append('\n');
-                if (m.Channel == ChatChannel.System) sb.Append("<color=#" + SystemColor + a + ">").Append(Escape(m.Text)).Append("</color>");
-                else sb.Append("<color=#" + TagColor + a + ">[").Append(m.Channel).Append("]</color> <color=#").Append(ColorOf(m.Sender)).Append(a).Append('>')
-                    .Append(Escape(m.Sender)).Append("</color><color=#" + TextColor + a + ">: ").Append(Escape(m.Text)).Append("</color>");
+                sb.Append(Line(picked[i]));
             }
             return sb.ToString();
         }
 
-        static string ColorOf(string sender)
+        /// <summary>One message: coloured channel tag, sender, text.</summary>
+        public static string Line(ChatMessage m)
         {
-            if (string.IsNullOrEmpty(sender)) return TextColor;
-            if (sender == ChatHub.LocalName()) return SelfColor;
-            int h = 17;
-            for (int i = 0; i < sender.Length; i++) h = h * 31 + sender[i];
-            return NameColors[(h & 0x7fffffff) % NameColors.Length];
+            string tag = m.Channel == ChatChannel.System ? "System" : m.Channel.ToString();
+            var sb = new StringBuilder();
+            sb.Append("<color=#").Append(TagColor(m.Channel)).Append(">[").Append(tag).Append("]</color> ");
+            if (m.Channel == ChatChannel.System) return sb.Append("<color=#" + SystemColor + ">").Append(Escape(m.Text)).Append("</color>").ToString();
+            if (!string.IsNullOrEmpty(m.Sender))
+                sb.Append("<color=#").Append(m.Sender == ChatHub.LocalName() ? SelfColor : NameColor).Append('>').Append(Escape(m.Sender)).Append(":</color> ");
+            return sb.Append("<color=#" + TextColor + ">").Append(Escape(m.Text)).Append("</color>").ToString();
         }
 
         /// <summary>Rich text is on: break up any "<" a player typed so it cannot inject tags.</summary>

@@ -5,9 +5,12 @@
   and runs the PlayerBuildScript in batch mode.  First use: robocopy the whole project once (without Temp / Logs) into -CopyDir.
   -Release makes a public build: Pocket Valor, PocketValor.exe in the folder of -OutExe, the API address baked from -ApiUrl (must be https), no dev-start.json, no F10, no dev page, no Server field.
   Without -Release it is the normal test build, cheats and all.
+  -WebGL builds the browser version instead (web HUD, HTML chat input): -OutExe is then the output FOLDER (index.html + Build\).
+  Needs the "Web Build Support" module for this Unity version (Unity Hub > Installs > Add modules); the build says so when it is missing.
 .EXAMPLE
   .\Tools\build-from-copy.ps1 -CopyDir C:\temp\zu-copy -OutExe C:\temp\player\Zenonia.exe
   .\Tools\build-from-copy.ps1 -CopyDir C:\temp\zu-copy -OutExe C:\temp\release\PocketValor.exe -Release -ApiUrl https://pocketvalor.luckyday.io.vn
+  .\Tools\build-from-copy.ps1 -CopyDir C:\temp\zu-copy -OutExe C:\temp\web -WebGL
 #>
 param(
   [Parameter(Mandatory = $true)][string]$CopyDir,
@@ -15,6 +18,7 @@ param(
   [string]$Unity = "C:\Program Files\Unity\Hub\Editor\6000.3.9f1\Editor\Unity.exe",
   [string]$Log = "",
   [switch]$Release,
+  [switch]$WebGL,
   [string]$ApiUrl = ""
 )
 $ErrorActionPreference = "Stop"
@@ -29,7 +33,8 @@ foreach ($d in "Scripts", "Plugins", "Editor", "Resources") {
 if ($Log -eq "") { $Log = Join-Path (Split-Path $OutExe -Parent) "build.log" }
 New-Item -ItemType Directory -Force -Path (Split-Path $OutExe -Parent) | Out-Null
 Remove-Item $Log -ErrorAction SilentlyContinue # a line from the last build must not pass for this one
-$unityArgs = @("-batchmode", "-quit", "-projectPath", $CopyDir, "-executeMethod", "ZenoniaProto.EditorTools.PlayerBuildScript.BuildWindows", "-buildOut", $OutExe, "-logFile", $Log)
+$method = if ($WebGL) { "BuildWebGL" } else { "BuildWindows" }
+$unityArgs = @("-batchmode", "-quit", "-projectPath", $CopyDir, "-executeMethod", "ZenoniaProto.EditorTools.PlayerBuildScript.$method", "-buildOut", $OutExe, "-logFile", $Log)
 if ($Release) { $unityArgs += @("-zenoniaRelease", "-apiUrl", $ApiUrl) }
 & $Unity @unityArgs | Out-Null # the pipe makes PowerShell wait: Unity.exe is a GUI program
 $result = Select-String -Path $Log -Pattern "BUILD RESULT" -ErrorAction SilentlyContinue | Select-Object -Last 1

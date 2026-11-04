@@ -1,29 +1,26 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Chat on the left under the status panel. Expanded: gold frame, World / Map / Party / Whisper tabs, the last lines, an input field and a
-    /// send button. Collapsed (default on phones): just the 3 latest lines, faded, on a dark strip; tap it to expand, the small X to collapse.
-    /// Talks only to ChatHub (local echo for now). Enter focuses the input (WindowsHost), Enter again sends, Esc leaves the field.
-    /// While the field has focus UiWindows.ChatTyping freezes the hero's keys.
+    /// In-game chat, laid out per HudLayout and kept inside Screen.safeArea:
+    ///  - Mobile: collapsed by default (ChatCollapsedView: 3 fading lines + chat button with an unread badge, above the joystick);
+    ///    the button opens ChatPanelView under the status plate; while the keyboard is up the touch controls hide (TouchControls).
+    ///  - Web: the panel sits open bottom-left ("Press Enter to chat"); X collapses it to the button. Enter focuses / sends, Esc leaves,
+    ///    Tab switches the channel while typing. In the WebGL build the text is typed into an HTML input (WebChatInput, for Telex / IME).
+    /// Talks only to ChatHub. While the field has focus UiWindows.ChatTyping freezes the hero's keys.
     /// </summary>
     public sealed class ChatWindow : MonoBehaviour
     {
-        const float W = 310f, ExpandedH = 196f, CollapsedH = 60f, FadeAfter = 7f;
-        static readonly ChatChannel[] Tabs = { ChatChannel.World, ChatChannel.Map, ChatChannel.Party, ChatChannel.Whisper };
         static ChatWindow instance;
 
-        RectTransform root, expandedLayer;
-        Image strip;
-        Text lines, collapsedLines;
-        InputField input;
-        readonly Image[] tabImages = new Image[4];
-        readonly Text[] tabLabels = new Text[4];
+        RectTransform content;
+        ChatPanelView panel;
+        ChatCollapsedView collapsed;
         ChatChannel tab = ChatChannel.World;
-        bool expanded;
-        int lastTypingFrame = -10;
+        bool expanded, web, webTyping, pendingFocus;
+        int lastTypingFrame = -10, unread;
         float refreshAt;
 
         /// <summary>The field had focus this frame or the last one (E / Enter typed into it must not also talk to the NPC).</summary>
@@ -33,9 +30,10 @@ namespace ZenoniaProto
 
         public static void Create(Transform canvas)
         {
-            instance = UiKit.Fill(canvas, "ChatWindow").gameObject.AddComponent<ChatWindow>(); // full-screen layer: children anchor to the real screen
-            instance.Build();
-            instance.SetExpanded(!Application.isMobilePlatform); // phones start collapsed
+            RectTransform layer = UiKit.Fill(canvas, "ChatWindow"); // full-screen layer (fitted to the safe area): children anchor to the real screen
+            layer.gameObject.AddComponent<SafeAreaFitter>();
+            instance = layer.gameObject.AddComponent<ChatWindow>();
+            instance.Build(layer);
             ChatHub.Received -= instance.OnReceived;
             ChatHub.Received += instance.OnReceived;
         }
@@ -44,6 +42,7 @@ namespace ZenoniaProto
         {
             if (instance != this) return;
             ChatHub.Received -= OnReceived;
+            if (webTyping) WebChatInput.Close();
             UiWindows.ChatTyping = false;
             instance = null;
         }
@@ -55,106 +54,114 @@ namespace ZenoniaProto
         {
             if (instance == null || RecentlyTyping) return;
             instance.SetExpanded(true);
-            instance.input.ActivateInputField();
+            instance.FocusInput();
         }
 
-        void Build()
+        void Build(RectTransform layer)
         {
-            root = UiKit.Rect(transform, "Chat", 8f, 134f, W, ExpandedH);
-            strip = UiKit.Panel(root, new Color(0.02f, 0.05f, 0.1f, 0.72f), true);
-            collapsedLines = UiKit.Label(UiKit.Fill(root, "CollapsedLines", 6f), "", 13, Color.white, TextAnchor.LowerLeft);
-            collapsedLines.horizontalOverflow = HorizontalWrapMode.Wrap;
-            var tap = root.gameObject.AddComponent<Button>(); // tap the collapsed strip to open the chat
-            tap.targetGraphic = strip; tap.transition = Selectable.Transition.None;
-            tap.navigation = new Navigation { mode = Navigation.Mode.None };
-            tap.onClick.AddListener(() => { if (!expanded) SetExpanded(true); });
-
-            expandedLayer = UiKit.Fill(root, "Expanded");
-            UiWinKit.Sliced(expandedLayer, "panel", 0.34f, true);
-            for (int i = 0; i < Tabs.Length; i++)
+            web = HudLayout.IsWeb;
+            content = UiKit.Fill(layer, "Content");
+            collapsed = web ? ChatCollapsedView.Build(content, new Vector2(34f, 36f), 50f, () => SetExpanded(true))
+                            : ChatCollapsedView.Build(content, new Vector2(50f, 262f), 56f, () => SetExpanded(true));
+            panel = ChatPanelView.Build(content, web, SelectTab, () => SetExpanded(false), SendCurrent);
+            panel.input.onEndEdit.AddListener(OnEndEdit);
+            if (WebChatInput.Enabled)
             {
-                int index = i;
-                RectTransform t = UiKit.Rect(expandedLayer, "Tab" + Tabs[i], 14f + i * 66f, 10f, 64f, 26f);
-                tabImages[i] = UiWinKit.Plain(t, "tab-inactive"); tabImages[i].preserveAspect = false;
-                UiWinKit.MakeButton(tabImages[i], () => SelectTab(index));
-                tabLabels[i] = UiKit.Label(UiKit.Fill(t, "Label"), Tabs[i].ToString(), 13, UiWinKit.Dim, TextAnchor.MiddleCenter, true);
+                panel.input.enabled = false; // the HTML input does the typing; a click on the field opens it
+                var click = panel.field.gameObject.AddComponent<EventTrigger>();
+                var entry = new EventTrigger.Entry { eventID = EventTriggerType.PointerClick };
+                entry.callback.AddListener(_ => FocusInput());
+                click.triggers.Add(entry);
             }
-            UiWinKit.CloseButton(expandedLayer, W - 30f, 12f, 20f, () => SetExpanded(false));
-
-            RectTransform clip = UiKit.Rect(expandedLayer, "Lines", 14f, 40f, W - 28f, 104f);
-            clip.gameObject.AddComponent<RectMask2D>();
-            RectTransform text = UiKit.Fill(clip, "Text");
-            lines = UiKit.Label(text, "", 13, Color.white, TextAnchor.LowerLeft);
-
-            RectTransform field = UiKit.Rect(expandedLayer, "Input", 14f, 150f, 238f, 32f);
-            Image fieldBg = UiWinKit.Sliced(field, "chat-input", 32f / 96f, true);
-            Text placeholder = UiKit.Label(UiKit.Fill(field, "Placeholder", 0f), "Type a message...", 13, new Color(0.6f, 0.65f, 0.75f), TextAnchor.MiddleLeft);
-            Text typed = UiKit.Label(UiKit.Fill(field, "Typed", 0f), "", 13, Color.white, TextAnchor.MiddleLeft);
-            placeholder.rectTransform.offsetMin = typed.rectTransform.offsetMin = new Vector2(12f, 2f);
-            placeholder.rectTransform.offsetMax = typed.rectTransform.offsetMax = new Vector2(-12f, -2f);
-            placeholder.horizontalOverflow = typed.horizontalOverflow = HorizontalWrapMode.Overflow;
-            input = field.gameObject.AddComponent<InputField>();
-            input.targetGraphic = fieldBg; input.textComponent = typed; input.placeholder = placeholder;
-            input.lineType = InputField.LineType.SingleLine; input.characterLimit = ChatHub.MaxLength;
-            input.onEndEdit.AddListener(OnEndEdit);
-
-            RectTransform send = UiKit.Rect(expandedLayer, "Send", 258f, 150f, 40f, 32f);
-            UiWinKit.MakeButton(UiWinKit.Plain(send, "send"), SendCurrent).GetComponent<Image>().preserveAspect = false;
             SelectTab(0);
+            SetExpanded(web); // web: open bottom-left; mobile: collapsed until the chat button is tapped
         }
 
         void SelectTab(int i)
         {
-            tab = Tabs[i];
-            for (int k = 0; k < Tabs.Length; k++)
-            {
-                tabImages[k].sprite = UiArt.Win(k == i ? "tab-active" : "tab-inactive");
-                tabLabels[k].color = k == i ? UiWinKit.Cream : UiWinKit.Dim;
-            }
+            tab = ChatPanelView.Tabs[i];
+            panel.ShowTab(i);
             Refresh();
         }
 
         void SetExpanded(bool on)
         {
             expanded = on;
-            expandedLayer.gameObject.SetActive(on);
-            collapsedLines.gameObject.SetActive(!on);
-            strip.enabled = !on;
-            root.sizeDelta = new Vector2(W, on ? ExpandedH : CollapsedH);
-            if (!on && input.isFocused) input.DeactivateInputField();
+            panel.root.gameObject.SetActive(on);
+            collapsed.root.gameObject.SetActive(!on);
+            if (on) { unread = 0; collapsed.SetUnread(0); }
+            else if (panel.input.isFocused) panel.input.DeactivateInputField();
+            if (!on && webTyping) { webTyping = false; WebChatInput.Close(); }
             Refresh();
         }
 
-        void OnReceived(ChatMessage m) { Refresh(); }
+        void FocusInput()
+        {
+            if (!content.gameObject.activeInHierarchy) { pendingFocus = true; return; } // hidden this frame (hero spawning): focus once it shows
+            if (!WebChatInput.Enabled) { panel.input.ActivateInputField(); return; }
+            webTyping = true;
+            panel.placeholder.enabled = false;
+            WebChatInput.Open(gameObject.name, panel.field, "Type a message...", panel.placeholder.fontSize);
+        }
+
+        void OnReceived(ChatMessage m)
+        {
+            if (!expanded && m.Sender != ChatHub.LocalName()) { unread++; collapsed.SetUnread(unread); }
+            Refresh();
+        }
 
         void Refresh()
         {
-            if (expanded) lines.text = ChatTextFormat.Build(ChatHub.History, tab, 8);
-            else collapsedLines.text = ChatTextFormat.Build(ChatHub.History, ChatChannel.World, 3, FadeAfter, 0.7f);
-            refreshAt = Time.unscaledTime + 0.5f;
+            if (expanded) panel.lines.text = ChatTextFormat.Build(ChatHub.History, tab, panel.maxLines);
+            else collapsed.Refresh(ChatHub.History);
+            refreshAt = Time.unscaledTime + 0.1f;
         }
 
+        /// <summary>A line goes out on the open tab (the World tab sends to World).</summary>
         void SendCurrent()
         {
-            ChatHub.Send(tab, input.text);
-            input.text = "";
+            ChatHub.Send(tab, panel.input.text);
+            panel.input.text = "";
         }
 
-        /// <summary>Field lost focus: Enter on the keyboard sends (Esc / clicking away cancels).</summary>
+        /// <summary>Field lost focus: Enter (or the phone keyboard's Done) sends; Esc / clicking away cancels.</summary>
         void OnEndEdit(string text)
         {
             lastTypingFrame = Time.frameCount;
-            if (InputAdapter.Pressed(GameKey.Chat)) SendCurrent();
+            TouchScreenKeyboard k = panel.input.touchScreenKeyboard; // phone: the keyboard's Done / Send key also sends
+            if (InputAdapter.Pressed(GameKey.Chat) || (k != null && k.status == TouchScreenKeyboard.Status.Done)) SendCurrent();
         }
+
+        // ---- WebGL HTML input callbacks (SendMessage from ChatInput.jslib) ----
+
+        void OnWebChatSubmit(string encoded) { EndWebTyping(); ChatHub.Send(tab, WebChatInput.Decode(encoded)); }
+        void OnWebChatCancel(string unused) { EndWebTyping(); }
+        void OnWebChatTab(string unused) { NextTab(); }
+
+        void EndWebTyping()
+        {
+            webTyping = false;
+            panel.placeholder.enabled = true;
+            lastTypingFrame = Time.frameCount;
+        }
+
+        void NextTab() { SelectTab((System.Array.IndexOf(ChatPanelView.Tabs, tab) + 1) % ChatPanelView.Tabs.Length); }
 
         void Update()
         {
-            bool typing = input != null && input.isFocused;
+            bool typing = webTyping || (panel.input != null && panel.input.isFocused);
             if (typing) lastTypingFrame = Time.frameCount;
             UiWindows.ChatTyping = typing;
+            if (web && !webTyping) panel.placeholder.text = typing ? "Type a message..." : "Press Enter to chat";
+            if (typing && !webTyping && InputAdapter.RawPressed(GameKey.SkillPage)) NextTab(); // Tab while typing: next channel, not the skill page
             bool hidden = UiWindows.ModalOpen || HeroChangeScreen.IsOpen || InventoryPanel.IsOpen || GameSession.Hero == null;
-            if (root.gameObject.activeSelf == hidden) root.gameObject.SetActive(!hidden);
-            if (!expanded && Time.unscaledTime >= refreshAt) Refresh(); // old lines fade with time
+            if (content.gameObject.activeSelf == hidden)
+            {
+                content.gameObject.SetActive(!hidden);
+                if (hidden && webTyping) { webTyping = false; panel.placeholder.enabled = true; WebChatInput.Close(); }
+            }
+            if (pendingFocus && !hidden) { pendingFocus = false; FocusInput(); }
+            if (!expanded && Time.unscaledTime >= refreshAt) Refresh(); // collapsed lines fade with time
         }
     }
 }

@@ -19,11 +19,11 @@ namespace ZenoniaProto
         Text cdText, mpText;
         float baseAlpha = 1f;
 
-        public static SkillMagazineSlot Build(Transform parent, int index, Vector2 pos, float mpOffsetY)
+        /// <summary>`corner` = anchor of `pos` in the parent (default bottom-right: the touch arc; the web hotbar uses its own centre).</summary>
+        public static SkillMagazineSlot Build(Transform parent, int index, Vector2 pos, float mpOffsetY, Vector2? corner = null)
         {
             var s = new SkillMagazineSlot();
-            Vector2 br = new Vector2(1f, 0f);
-            s.root = TouchControls.Place(parent, "Slot" + index, br, pos.x, pos.y, 72f);
+            s.root = TouchControls.Place(parent, "Slot" + index, corner ?? new Vector2(1f, 0f), pos.x, pos.y, 72f);
             TouchControls.Img(s.root, null, new Color(0f, 0f, 0f, 0f), true); // invisible hit disc, stays put while the face slides
             Transform masked;
             s.face = TouchControls.DiscButton(s.root, "Face", new Vector2(0.5f, 0.5f), 0f, 0f, 36f, UiArt.SkillFrame(), out s.icon, out s.ring, out masked);
@@ -37,6 +37,9 @@ namespace ZenoniaProto
             s.mpText.rectTransform.sizeDelta = new Vector2(70f, 14f);
             return s;
         }
+
+        /// <summary>Web hotbar: no MP caption (the key label sits under the slot).</summary>
+        public void HideMp() { mpText.gameObject.SetActive(false); }
 
         /// <summary>Shows `e` (the entry of the page now visible) for class `cls`.</summary>
         public void Bind(SkillSlot e, HeroClassDef cls)
