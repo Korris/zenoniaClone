@@ -1,4 +1,4 @@
-"""Mechanic pistol tiers: 10 tiers, base and enhanced, every one in the silhouette of the master pistol. Run from the project root; Pillow, numpy, scipy.
+"""Mechanic pistol tiers: 10 tiers, base and enhanced, drawn by ChatGPT from the user's sheet (refs/ref-user-10-guns-and-cannons.png, one row per tier) and scaled uniformly to the master pistol's length. Run from the project root; Pillow, numpy, scipy.
 
 Originals: Assets/ArtLibrary/classes/mechanic/new-style/dual-src/tiers/
   <tier>-pair-chatgpt.png     one portrait image, base above enhanced, flat #00FF00
@@ -56,38 +56,58 @@ def key_pieces(path, count):
     return pieces
 
 
-def fit(part, target_rgba):
-    """Resize `part` with LANCZOS into the master's exact box, so every tier has one size and the muzzle and butt on the same rows. ChatGPT's proportions differ from the master by up to 3%."""
+def fit(part, target_rgba, k=None, inset=(0, 0)):
+    """Resize `part` with LANCZOS to the master's box, so every tier has one length. Since 2026-11-03 the tiers follow the user's sheet, whose pistols are longer than tall, so the scale is uniform (no squash): the art fills the box's width or height, whichever it reaches first, and sits on the box's bottom-left corner, butt where the master's butt is. `k` forces the scale (the base takes the enhanced one's, so the pair has one size) and `inset` moves the art in from that corner by that many source pixels."""
     target = np.asarray(target_rgba)[..., 3] > 128
     ty, tx = np.nonzero(target)
     x0, y0, w, h = int(tx.min()), int(ty.min()), int(tx.max() - tx.min() + 1), int(ty.max() - ty.min() + 1)
     py, px = np.nonzero(np.asarray(part)[..., 3] > 128)
     part = part.crop((px.min(), py.min(), px.max() + 1, py.max() + 1))
+    if k is None:
+        k = min(w / part.width, h / part.height)
+    nw, nh = max(1, round(part.width * k)), max(1, round(part.height * k))
     canvas = Image.new("RGBA", target_rgba.size, (0, 0, 0, 0))
-    canvas.paste(part.resize((w, h), Image.LANCZOS), (x0, y0))
+    canvas.paste(part.resize((nw, nh), Image.LANCZOS), (x0 + round(inset[0] * k), y0 + h - nh - round(inset[1] * k)))
     solid = np.asarray(canvas)[..., 3] > 128
     iou = (solid & target).sum() / (solid | target).sum()
     outside = int((solid & ~ndimage.binary_dilation(target, iterations=3)).sum())
-    return canvas, dict(iou=round(float(iou), 3), source=[part.width, part.height], outside=outside)
+    return canvas, dict(iou=round(float(iou), 3), source=[part.width, part.height], k=round(k, 4), outside=outside)
 
 
 def handle_centre(rgba):
-    """Middle of the handle: the first solid run from the left on each low row, without the wider joint above it and the butt plate below it."""
+    """Middle of the handle. The handle is the piece of the outline that reaches the bottom of the art: its run is followed up from the bottom row, each row's run being the one that overlaps the row below (the sheet's dragon pistol has a jaw lower-left of the frame that the old "first run from the left" took for the handle). The handle ends where the run widens into the frame or trigger guard; the butt plate at the bottom is left out the same way."""
     solid = np.asarray(rgba)[..., 3] > 128
-    h = solid.shape[0]
-    rows = {}
-    for y in range(int(h * 0.55), h):
+    ys = np.flatnonzero(solid.any(1))
+    top, bottom = int(ys.min()), int(ys.max())
+    h = bottom - top + 1
+
+    def runs(y):
         xs = np.flatnonzero(solid[y])
         if not len(xs):
-            continue
-        end = xs[0]
-        while end + 1 < solid.shape[1] and solid[y, end + 1]:
-            end += 1
-        rows[y] = (int(xs[0]), int(end))
+            return []
+        cuts = np.flatnonzero(np.diff(xs) > 1)
+        starts, ends = np.r_[xs[0], xs[cuts + 1]], np.r_[xs[cuts], xs[-1]]
+        return list(zip(starts.tolist(), ends.tolist()))
+
+    rows = {}
+    prev = max(runs(bottom), key=lambda r: r[1] - r[0])
+    rows[bottom] = prev
+    for y in range(bottom - 1, top + int(h * 0.3), -1):
+        cand = [r for r in runs(y) if r[0] <= prev[1] and r[1] >= prev[0]]
+        if not cand:
+            break
+        prev = max(cand, key=lambda r: min(r[1], prev[1]) - max(r[0], prev[0]))
+        rows[y] = prev
     widths = {y: b - a + 1 for y, (a, b) in rows.items()}
-    core = float(np.median([widths[y] for y in rows if h * 0.68 <= y <= h * 0.85]))
-    run = [y for y in rows if abs(widths[y] - core) <= core * 0.2 and h * 0.6 <= y <= h * 0.92]
-    mid = (min(run) + max(run)) // 2
+    core = float(np.median([widths[y] for y in rows if bottom - h * 0.3 <= y <= bottom - h * 0.1]))
+    run = [y for y in rows if abs(widths[y] - core) <= core * 0.25 and y <= bottom - h * 0.04]
+    # the handle proper: the longest stretch of such rows touching its lowest row
+    run.sort()
+    ymax = run[-1]
+    y0 = ymax
+    while y0 - 1 in run:
+        y0 -= 1
+    mid = (y0 + ymax) // 2
     a, b = rows[mid]
     return (a + b + 1) // 2, mid
 
@@ -96,21 +116,34 @@ def master_pistol():
     return bd.arts()["pistol"]
 
 
+def solid_box(part):
+    py, px = np.nonzero(np.asarray(part)[..., 3] > 128)
+    return int(px.max() - px.min() + 1), int(py.max() - py.min() + 1)
+
+
 def cut_pair(tier):
+    """Base above, enhanced below. The enhanced art is the same pistol inside a glow, so its box is a few percent bigger: both are scaled by the enhanced one's factor and the base is moved in by half the difference, which puts the two pistols on the same pixels. The grip is measured on the base, whose handle has no glow around it, and the enhanced takes it (2026-11-03)."""
     pieces = key_pieces(f"{ORIG}/{tier}-pair-chatgpt.png", 2)
     pieces.sort(key=lambda p: p[0])
     master = master_pistol()
     mx, my = handle_centre(master)
+    target = np.asarray(master)[..., 3] > 128
+    ty, tx = np.nonzero(target)
+    w, h = int(tx.max() - tx.min() + 1), int(ty.max() - ty.min() + 1)
+    base_part, enh_part = pieces[0][2], pieces[1][2]
+    (bw, bh), (ew, eh) = solid_box(base_part), solid_box(enh_part)
+    k = min(w / max(bw, ew), h / max(bh, eh))
+    inset = (max(0, (ew - bw) / 2), max(0, (eh - bh) / 2))
     done = {}
-    for kind, (_, _, part, _) in zip(("base", "enhanced"), pieces):
-        im, info = fit(part, master)
-        gx, gy = handle_centre(im)
-        grip = {"w": im.width, "h": im.height, "gripX": MASTER_GRIP["gripX"] + gx - mx, "gripY": MASTER_GRIP["gripY"] + gy - my}
-        print(tier, kind, json.dumps(info), json.dumps(grip))
-        done[kind] = (im, grip, info)
-    if tier == "scrap":  # the master itself is tier 0's base
-        grip = {"w": master.width, "h": master.height, **MASTER_GRIP}
-        done["base"] = (master, grip, dict(iou=1.0))
+    base_im, info = fit(base_part, master, k, inset)
+    gx, gy = handle_centre(base_im)
+    grip = {"w": base_im.width, "h": base_im.height, "gripX": MASTER_GRIP["gripX"] + gx - mx, "gripY": MASTER_GRIP["gripY"] + gy - my}
+    print(tier, "base", json.dumps(info), json.dumps(grip))
+    done["base"] = (base_im, grip, info)
+    enh_im, info = fit(enh_part, master, k, (0, 0) if ew >= bw else ((bw - ew) / 2, (bh - eh) / 2))
+    print(tier, "enhanced", json.dumps(info), "grip of base")
+    done["enhanced"] = (enh_im, dict(grip), info)
+    # Tier 0 (scrap) used to keep the master as its base; since the user's sheet (2026-11-03) its row 1 is a redrawn pistol, so both halves come from the pair like every other tier, and the master stays only as the size reference and the fallback file pistol-base.png.
     return done
 
 
@@ -189,12 +222,13 @@ def icon(path, frame):
 def write_icons():
     keep = f"{ORIG}/old-icons"
     os.makedirs(keep, exist_ok=True)
-    weapon = icon_frame(master_pistol())
     for i, tier in enumerate(TIERS):
         path = f"{ICONS}/weapon-mechanic-{i}.png"
         if os.path.exists(path) and not os.path.exists(f"{keep}/weapon-mechanic-{i}.png"):
             shutil.copy2(path, f"{keep}/weapon-mechanic-{i}.png")
-        im = icon(f"{PISTOL}/{tier}-base.png", weapon)
+        # Each tier framed by its own art: since the user's sheet the pistols differ in outline, and framed by the master the flat ones came out two thirds its size (2026-11-03).
+        art = Image.open(f"{PISTOL}/{tier}-base.png").convert("RGBA")
+        im = icon(f"{PISTOL}/{tier}-base.png", icon_frame(art))
         im.save(path)
         print(path, "box", im.getbbox())
 

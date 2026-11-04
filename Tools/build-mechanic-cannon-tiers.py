@@ -71,30 +71,27 @@ def axis_angle(rgba):
 
 
 def fit(part, target_rgba):
-    """Turn `part` onto the master's axis, resize with LANCZOS and place it on the master's canvas where the silhouettes overlap most. Never past the canvas: that would cut the outline."""
+    """Turn `part` onto the master's axis, scale it uniformly to the master's length and put its centre on the master's centre. Until 2026-11-03 it was squeezed into the master's box by best IoU, which flattened the user's thicker designs by up to 26%; now the canvas grows symmetrically when the art is thicker, which keeps the centre (the sprite pivot, GearOverlays.Centered) where it was."""
     target = np.asarray(target_rgba)[..., 3] > 128
     H, W = target.shape
+    ty, tx = np.nonzero(target)
+    bx0, by0, bw, bh = int(tx.min()), int(ty.min()), int(tx.max() - tx.min() + 1), int(ty.max() - ty.min() + 1)
     turn = axis_angle(part) - axis_angle(target_rgba)
     turn = (turn + 90) % 180 - 90
     part = part.rotate(turn, expand=True, resample=Image.BICUBIC)
     part = part.crop(Image.fromarray((np.asarray(part)[..., 3] > 128).astype(np.uint8) * 255).getbbox())
-    mask = part.getchannel("A")
-    best = (-1, None)
-    for w in range(W - 14, W + 1, 2):
-        for h in range(H - 14, H + 1, 2):
-            m = np.asarray(mask.resize((w, h), Image.BILINEAR)) > 127
-            ms = int(m.sum())
-            for dy in range(0, H - h + 1, 1):
-                for dx in range(0, W - w + 1, 1):
-                    inter = int((m & target[dy:dy + h, dx:dx + w]).sum())
-                    iou = inter / (ms + int(target.sum()) - inter)
-                    if iou > best[0]:
-                        best = (iou, (w, h, dx, dy))
-    iou, (w, h, dx, dy) = best
-    canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    canvas.paste(part.resize((w, h), Image.LANCZOS), (dx, dy))
-    squash = (w / part.width) / (h / part.height)
-    return canvas, dict(iou=round(iou, 3), turn=round(turn, 1), fit=[w, h, dx, dy], source=list(part.size), squash=round(squash, 3))
+    k = bw / part.width if bw >= bh else bh / part.height  # the long axis of the master's box
+    w, h = max(1, round(part.width * k)), max(1, round(part.height * k))
+    dx, dy = bx0 + (bw - w) // 2, by0 + (bh - h) // 2
+    padx = max(0, -dx, dx + w - W)
+    pady = max(0, -dy, dy + h - H)
+    canvas = Image.new("RGBA", (W + 2 * padx, H + 2 * pady), (0, 0, 0, 0))
+    canvas.paste(part.resize((w, h), Image.LANCZOS), (dx + padx, dy + pady))
+    solid = np.asarray(canvas)[..., 3] > 128
+    tgt = np.zeros_like(solid)
+    tgt[pady:pady + H, padx:padx + W] = target
+    iou = (solid & tgt).sum() / (solid | tgt).sum()
+    return canvas, dict(iou=round(float(iou), 3), turn=round(turn, 1), fit=[w, h, dx, dy], canvas=list(canvas.size), source=list(part.size), k=round(k, 4))
 
 
 def live(view):
@@ -154,7 +151,10 @@ def check(out, tier):
     for v in VIEWS:
         im, m = done[v], live(v)
         tops.paste(im, (x, 5), im)
-        a, b = np.asarray(im)[..., 3] > 128, np.asarray(m)[..., 3] > 128
+        a = np.asarray(im)[..., 3] > 128
+        b = np.zeros_like(a)
+        oy, ox = (a.shape[0] - m.height) // 2, (a.shape[1] - m.width) // 2
+        b[oy:oy + m.height, ox:ox + m.width] = np.asarray(m)[..., 3] > 128
         diff = np.zeros(a.shape + (3,), np.uint8)
         diff[a & b] = (90, 90, 90)
         diff[a & ~b] = (255, 60, 60)
@@ -190,9 +190,9 @@ def install(tier):
         write_png_with_meta(im, f"{folder}/{view}.png", f"{CANNON}/side.png.meta")
 
 
-def icon_frame():
-    """Scale and offset from the live side art, so every tier has one size and one centre whatever its edge does."""
-    box = live("side").rotate(ICON_TILT, expand=True, resample=Image.BICUBIC).getbbox()
+def icon_frame(side=None):
+    """Scale and offset from the side art given (each tier's own since 2026-11-03: the user's designs are thicker than the master, and framed by the master they reached the icon's edge, leaving no room for the enhance effect)."""
+    box = (side or live("side")).rotate(ICON_TILT, expand=True, resample=Image.BICUBIC).getbbox()
     w, h = box[2] - box[0], box[3] - box[1]
     k = ICON_BOX / max(w, h)
     return k, ((ICON_SIZE - w * k) / 2 - box[0] * k, (ICON_SIZE - h * k) / 2 - box[1] * k)
@@ -210,12 +210,12 @@ def icon(side, frame):
 def write_icons():
     keep = f"{ORIG}/old-icons"
     os.makedirs(keep, exist_ok=True)
-    frame = icon_frame()
     for i, tier in enumerate(TIERS):
         path = f"{ICONS}/offhand-mechanic-{i}.png"
         if os.path.exists(path) and not os.path.exists(f"{keep}/offhand-mechanic-{i}.png"):
             shutil.copy2(path, f"{keep}/offhand-mechanic-{i}.png")
-        im = icon(art_for(tier)["side"], frame)
+        side = art_for(tier)["side"]
+        im = icon(side, icon_frame(side))
         im.save(path)
         print(path, "box", im.getbbox())
 

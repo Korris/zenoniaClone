@@ -3,140 +3,140 @@
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 51,
-   "gripY": 177
+   "gripX": 36,
+   "gripY": 184
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 52,
-   "gripY": 177
+   "gripX": 36,
+   "gripY": 184
   }
  },
  "brass": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 50,
+   "gripY": 190
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 50,
+   "gripY": 190
   }
  },
  "copper": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 44,
+   "gripY": 188
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 52,
-   "gripY": 177
+   "gripX": 44,
+   "gripY": 188
   }
  },
  "plasma": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 42,
+   "gripY": 192
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 52,
-   "gripY": 177
+   "gripX": 42,
+   "gripY": 192
   }
  },
  "ember": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 34,
+   "gripY": 190
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 34,
+   "gripY": 190
   }
  },
  "frost": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 33,
+   "gripY": 190
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 33,
+   "gripY": 190
   }
  },
  "volt": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 52,
-   "gripY": 177
+   "gripX": 36,
+   "gripY": 181
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 53,
-   "gripY": 177
+   "gripX": 36,
+   "gripY": 181
   }
  },
  "gatling": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 52,
-   "gripY": 177
+   "gripX": 35,
+   "gripY": 188
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 52,
-   "gripY": 177
+   "gripX": 35,
+   "gripY": 188
   }
  },
  "star": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 52,
-   "gripY": 177
+   "gripX": 45,
+   "gripY": 186
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 52,
-   "gripY": 177
+   "gripX": 45,
+   "gripY": 186
   }
  },
  "dragon": {
   "base": {
    "w": 258,
    "h": 238,
-   "gripX": 51,
-   "gripY": 177
+   "gripX": 58,
+   "gripY": 187
   },
   "enhanced": {
    "w": 258,
    "h": 238,
-   "gripX": 51,
-   "gripY": 177
+   "gripX": 58,
+   "gripY": 187
   }
  }
 }

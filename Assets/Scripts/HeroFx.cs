@@ -65,11 +65,11 @@ namespace ZenoniaProto
             VfxAnim.Cast(set, tip, angle, finisher);
         }
 
-        // Mechanic: where each muzzle is, world units from the feet (down, up, left, right), measured by Tools/build-mechanic-dual.py muzzles. Pictures only: the bolt's own start stays in FireBolt.
-        static readonly Vector2[] MuzzleLeftHand = { new Vector2(7.6f, 12.4f), new Vector2(-8.6f, 14.3f), new Vector2(-9.9f, 13.5f), new Vector2(10.7f, 12.1f) };
-        static readonly Vector2[] MuzzleRightHand = { new Vector2(-9.1f, 13.3f), new Vector2(8f, 15.8f), new Vector2(-9.6f, 13.1f), new Vector2(10.8f, 12.5f) };
-        static readonly Vector2[] MuzzleBothRight = { new Vector2(-9.6f, 10.9f), new Vector2(8.8f, 13.3f), new Vector2(-8.8f, 11.4f), new Vector2(8.8f, 11.4f) };
-        static readonly Vector2[] MuzzleBothLeft = { new Vector2(9.8f, 10.9f), new Vector2(-9f, 12f), new Vector2(-9.3f, 12f), new Vector2(9.3f, 12f) };
+        // Mechanic: where each muzzle is, world units from the feet (down, up, left, right), measured by Tools/build-mechanic-dual.py muzzles (pistol s 0.26 since 2026-11-04). Pictures only: the bolt's own start stays in FireBolt.
+        static readonly Vector2[] MuzzleLeftHand = { new Vector2(10.5f, 13.8f), new Vector2(-10.8f, 16.6f), new Vector2(-12.1f, 15.8f), new Vector2(13.5f, 13.5f) };
+        static readonly Vector2[] MuzzleRightHand = { new Vector2(-12f, 14.7f), new Vector2(10.2f, 18.1f), new Vector2(-12.5f, 14.5f), new Vector2(13.6f, 13.9f) };
+        static readonly Vector2[] MuzzleBothRight = { new Vector2(-12.5f, 12.3f), new Vector2(11.5f, 14.9f), new Vector2(-11.5f, 13f), new Vector2(11.5f, 13f) };
+        static readonly Vector2[] MuzzleBothLeft = { new Vector2(12.6f, 12.3f), new Vector2(-12f, 13.1f), new Vector2(-12f, 13.7f), new Vector2(12f, 13.7f) };
         static readonly Vector2[] MuzzleCannon = { new Vector2(3.4f, -2.2f), new Vector2(4.9f, 27.3f), new Vector2(-13f, 10.5f), new Vector2(13f, 10.5f) };
 
         /// <summary>The flash of combo step `step` (1-4): left pistol, right pistol, both (the right one here), cannon. `fallback` for every other class.</summary>

@@ -37,7 +37,7 @@ HELD_ANIMS = ("attack4", "rocket")  # both hands on the cannon: pistols hidden, 
 MIRRORED = ("attack3", "attack4", "rocket", "dash", "hurt")
 T, F = True, False
 
-PISTOL_S, PISTOL_LEN = 0.15, 258
+PISTOL_S, PISTOL_LEN = 0.26, 258  # 2026-11-04: s 0.15 -> 0.26 (x1.73), 39 -> 67 frame px long: the user found the pistols too small. The anchors in held-mechanic-dual.json were scaled the same way; `muzzles` then gives the HeroFx tables
 CANNON_LEN = 168.0  # frame px, tip to tail
 CANNON_S = 0.5  # art is cut at twice its size on screen
 SIDE_SX = 0.9  # the barrel lies across the back: a little shorter seen from the side
