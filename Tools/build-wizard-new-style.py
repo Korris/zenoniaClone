@@ -214,13 +214,20 @@ FISTS = {
     ("attack2", "up"): [(142, 51.5, False), (131, 73, True), (158.5, 103.5, False), (155, 105, False)],
     ("attack2", "right"): [(143, 124, True), (64, 74, True), (122, 109, False), (129.5, 109.5, False)],
     ("attack3", "right"): [(146, 123, False), (163.5, 54.5, True), (132.5, 128, False), (157, 111, False), (143.5, 116.5, False), (144.5, 119.5, False)],
+    # 2026-11-04: the three rows ChatGPT redrew in the hooded design (chat 6aea1832); frames 4 and 5 punch with the left hand, the staff hand hangs at the side
+    ("attack3", "down"): [(79, 112, False), (65, 56, False), (81, 138, False), (91, 150, False), (64, 128, False), (70, 136, False)],
+    ("attack3", "up"): [(132, 100, True), (150.5, 50, True), (135, 115, True), (140.5, 97, True), (121, 124, True), (151, 97, True)],
+    ("attack3", "left"): [(63.5, 108.5, True), (130, 56, True), (77.5, 122, True), (54.5, 109.5, True), (81, 114, True), (58.5, 108, True)],  # far arm punches
 }
 # Clockwise, tip up = 0. Attacks and hurt keep the old angle; these are the new designs and the frames that would cross the face.
 ANGLE = {
     ("idle", "up"): [18] * 4, ("idle", "left"): [-20] * 4, ("idle", "right"): [45] * 4,
     ("walk", "down"): [-18] * 4, ("walk", "up"): [18] * 4, ("walk", "left"): [-22] * 4, ("walk", "right"): [28, 26, 30, 26],
 }
-ANGLE_FRAME = {("attack2", "down", 0): 140, ("attack2", "down", 2): -120}  # the old angle puts the shaft across the face (116, -160)
+ANGLE_FRAME = {("attack2", "down", 0): 140, ("attack2", "down", 2): -120,  # the old angle puts the shaft across the face (116, -160)
+               # attack3 redrawn 2026-11-04: the old angles belong to the old fists (down 4: 142 put the head at the feet, 5: 86 laid the shaft across the belly; up 0, 2, 4, 5 pointed the head down or sideways)
+               ("attack3", "down", 4): -12, ("attack3", "down", 5): -12,
+               ("attack3", "up", 0): 30, ("attack3", "up", 2): 35, ("attack3", "up", 4): 30, ("attack3", "up", 5): 35}
 MIRRORED = {("hurt", "left"): ("hurt", "right"), ("attack1", "left"): ("attack1", "right"), ("attack2", "left"): ("attack2", "right")}
 HAND_META = "Assets/Resources/Sprites/classes/warrior/body/hand/melee1.png.meta"
 
@@ -355,14 +362,19 @@ def preview(out, tier=0, pad=60):
         sheet.convert("RGB").save(f"{out}/{anim}.png")
 
 
-# ---- Staff. Size on screen stays the old one: 263 art px at S; art height fixed, S and DrawScale untouched.
+# ---- Staff. 2026-11-04: STAFF_H 263 -> 390 art px (x1.48): 390 x S 0.447 = 174 frame px, a head taller than the hero, like the Warrior sword (the user found the
+# 117 px staff weak). S and DrawScale untouched; the art-row constants below were read on the 263 px canvas and are scaled by STAFF_K.
 STAFF_SRC = f"{NS}/staff-src"
 STAFF_LIVE = f"{RES}/Sprites/classes/wizard/weapons/staff"
 GEAR = f"{RES}/Data/classes/wizard/held-wizard.json"
 ICONS = f"{RES}/Sprites/icons"
-STAFF_H, STAFF_PAD = 263, 3
-SHAFT_MAX_W = 13  # art px: rows narrower than this are bare shaft
-STAFF_KEY = {"wood": "magenta", "nature": "magenta"}  # green art on the magenta key, the rest on green
+STAFF_H, STAFF_PAD = 390, 3
+STAFF_K = STAFF_H / 263
+SHAFT_MAX_W = round(24 * STAFF_K)  # art px: rows narrower than this are bare shaft (the 2026-11-03 designs have shafts of 14-20 px)
+GRIP_MIN_RUN = round(12 * STAFF_K)  # rows: a bare run shorter than the fist is not a grip
+STAFF_GRIP_Y = {"arcane": round(168 * STAFF_K)}  # art rows set by hand: arcane's spine is spiked everywhere, the measured run (186) put the eye on the face in walk right
+STAFF_KEY = {"nature": "magenta"}  # green art on the magenta key, the rest on green (the user's 2026-11-03 design sheet: only the vine staff is green)
+GRIP_TARGET_Y = round(161 * STAFF_K)  # art row the fist closed on in the first tiers (apprentice keeps its art): the nearest bare run wins, so every tier's head sits at the same height over the hand
 
 
 def load_hs():
@@ -392,32 +404,39 @@ def staff_figures(path, count, key):
 
 
 def staff_grip(rgba):
-    """The middle of the longest run of bare shaft: the fist closes there, with plain shaft showing on both sides."""
+    """The middle of a run of bare shaft: the fist closes there, with plain shaft showing on both sides. Among runs of at least GRIP_MIN_RUN rows the one nearest GRIP_TARGET_Y wins, else the longest; the tip (last 8%) never counts."""
     solid = rgba[..., 3] > 128
     widths = solid.sum(1)
-    best, run = (0, 0), None
-    limit = min(SHAFT_MAX_W, np.median(widths[rgba.shape[0] // 2:rgba.shape[0] * 4 // 5]) + 1)  # rings are wider than the bare shaft
-    for y in range(rgba.shape[0] // 3, rgba.shape[0] + 1):
-        narrow = y < rgba.shape[0] and 0 < widths[y] <= limit
+    h = rgba.shape[0]
+    runs, run = [], None
+    limit = min(SHAFT_MAX_W, np.median(widths[h // 2:h * 4 // 5]) + 1)  # rings and ornaments are wider than the bare shaft
+    for y in range(h // 3, h):
+        narrow = y < h * 0.92 and 0 < widths[y] <= limit
         if narrow and run is None:
             run = y
         elif not narrow and run is not None:
-            if y - run > best[1] - best[0]:
-                best = (run, y)
+            runs.append((run, y))
             run = None
+    if not runs:
+        raise SystemExit(f"no bare shaft found (limit {limit}); the design has no plain shaft, set STAFF_GRIP by hand")
+    long = [r for r in runs if r[1] - r[0] >= GRIP_MIN_RUN]
+    best = min(long, key=lambda r: abs((r[0] + r[1]) // 2 - GRIP_TARGET_Y)) if long else max(runs, key=lambda r: r[1] - r[0])
     gy = (best[0] + best[1]) // 2
     cols = np.flatnonzero(solid[gy])
     return (cols.min() + cols.max() + 1) // 2, gy, best[1] - best[0], int(widths[gy])
 
 
-def staff_sprite(fig):
-    """STAFF_H rows of art, one scale, on a canvas with a small margin."""
+def staff_sprite(fig, grip_y=None):
+    """STAFF_H rows of art, one scale, on a canvas with a small margin. grip_y: the enhanced art takes the base art's row, so the pair is one staff in the hand."""
     hs = load_hs()
     k = STAFF_H / fig.shape[0]
     small = hs.resize(fig, (round(fig.shape[1] * k), STAFF_H))
     canvas = np.zeros((STAFF_H + 2 * STAFF_PAD, small.shape[1] + 2 * STAFF_PAD, 4), np.float32)
     canvas[STAFF_PAD:STAFF_PAD + STAFF_H, STAFF_PAD:STAFF_PAD + small.shape[1]] = small
     gx, gy, run, w = staff_grip(canvas)
+    if grip_y is not None and grip_y != gy:
+        cols = np.flatnonzero(canvas[grip_y, :, 3] > 128)
+        gx, gy, run, w = (cols.min() + cols.max() + 1) // 2, grip_y, 0, len(cols)
     return canvas, {"w": canvas.shape[1], "h": canvas.shape[0], "gripX": int(gx), "gripY": int(gy)}, run, w
 
 
@@ -426,7 +445,8 @@ def staff_cut(tier):
         figs = staff_figures(f"{STAFF_SRC}/sample-src.png", 1, "green") * 2
     else:
         figs = staff_figures(f"{STAFF_SRC}/{tier}-src.png", 2, STAFF_KEY.get(tier, "green"))
-    return dict(zip(("base", "enhanced"), (staff_sprite(f) for f in figs)))
+    base = staff_sprite(figs[0], STAFF_GRIP_Y.get(tier))
+    return {"base": base, "enhanced": staff_sprite(figs[1], base[1]["gripY"])}
 
 
 def staff_on_hero(path, tier):

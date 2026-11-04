@@ -6,44 +6,44 @@
    "dir": "down",
    "frames": [
     {
-     "x": 52.5,
-     "y": 124,
-     "angle": -18,
+     "x": 60.0,
+     "y": 114.0,
+     "angle": -18.0,
      "s": 0.447,
      "sx": 1,
      "behind": false,
      "hidden": false,
-     "fallback": true
+     "fallback": false
     },
     {
-     "x": 51.5,
-     "y": 124,
-     "angle": -18,
+     "x": 60.0,
+     "y": 114.0,
+     "angle": -18.0,
      "s": 0.447,
      "sx": 1,
      "behind": false,
      "hidden": false,
-     "fallback": true
+     "fallback": false
     },
     {
-     "x": 50.4,
-     "y": 116.5,
-     "angle": -18,
-     "s": 0.389,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": true
-    },
-    {
-     "x": 52.5,
-     "y": 124,
-     "angle": -18,
+     "x": 60.0,
+     "y": 114.0,
+     "angle": -18.0,
      "s": 0.447,
      "sx": 1,
      "behind": false,
      "hidden": false,
-     "fallback": true
+     "fallback": false
+    },
+    {
+     "x": 60.0,
+     "y": 114.0,
+     "angle": -18.0,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
     }
    ]
   },
@@ -835,6 +835,207 @@
   },
   {
    "part": "staff",
+   "anim": "attack3",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 79.0,
+     "y": 112.0,
+     "angle": -32,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 65.0,
+     "y": 56.0,
+     "angle": -12,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 81.0,
+     "y": 138.0,
+     "angle": -60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 91.0,
+     "y": 150.0,
+     "angle": -58,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 64.0,
+     "y": 128.0,
+     "angle": -12,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 70.0,
+     "y": 136.0,
+     "angle": -12,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack3",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 132.0,
+     "y": 100.0,
+     "angle": 30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 150.5,
+     "y": 50.0,
+     "angle": -14,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 135.0,
+     "y": 115.0,
+     "angle": 35,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 140.5,
+     "y": 97.0,
+     "angle": -2,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 121.0,
+     "y": 124.0,
+     "angle": 30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 151.0,
+     "y": 97.0,
+     "angle": 35,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack3",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 63.5,
+     "y": 108.5,
+     "angle": -46,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 130.0,
+     "y": 56.0,
+     "angle": -44,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 77.5,
+     "y": 122.0,
+     "angle": -86,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 54.5,
+     "y": 109.5,
+     "angle": -44,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 81.0,
+     "y": 114.0,
+     "angle": -96,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 58.5,
+     "y": 108.0,
+     "angle": -96,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
    "anim": "attack1",
    "dir": "left",
    "frames": [
@@ -919,207 +1120,6 @@
      "x": 85.8,
      "y": 101.3,
      "angle": -84,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "staff",
-   "anim": "attack3",
-   "dir": "down",
-   "frames": [
-    {
-     "x": 44.8,
-     "y": 127.3,
-     "angle": -32,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 55.7,
-     "y": 110.5,
-     "angle": -12,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 96.5,
-     "y": 113.2,
-     "angle": -60,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 85.5,
-     "y": 149.7,
-     "angle": -58,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 132.4,
-     "y": 101.7,
-     "angle": 142,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 81.9,
-     "y": 136.9,
-     "angle": 86,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "staff",
-   "anim": "attack3",
-   "dir": "up",
-   "frames": [
-    {
-     "x": 108.1,
-     "y": 140.6,
-     "angle": -134,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 146.4,
-     "y": 93.9,
-     "angle": -14,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 104.1,
-     "y": 157.7,
-     "angle": 62,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 110.9,
-     "y": 100.3,
-     "angle": -2,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 110.4,
-     "y": 110.2,
-     "angle": 106,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 108.8,
-     "y": 127.5,
-     "angle": 104,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    }
-   ]
-  },
-  {
-   "part": "staff",
-   "anim": "attack3",
-   "dir": "left",
-   "frames": [
-    {
-     "x": 59.1,
-     "y": 127.4,
-     "angle": -46,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 70.4,
-     "y": 123.1,
-     "angle": -44,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 96.1,
-     "y": 94.6,
-     "angle": -86,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 72.4,
-     "y": 131.1,
-     "angle": -44,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 94.9,
-     "y": 103.2,
-     "angle": -96,
-     "s": 0.447,
-     "sx": 1,
-     "behind": false,
-     "hidden": false,
-     "fallback": false
-    },
-    {
-     "x": 92.9,
-     "y": 105.2,
-     "angle": -96,
      "s": 0.447,
      "sx": 1,
      "behind": false,
