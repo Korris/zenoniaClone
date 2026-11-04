@@ -1,6 +1,6 @@
 // Mirrors Assets/Scripts/Rpg (RpgClasses.Ids, Slots, ItemDefs.RarityOrder, PlayerState, Leveling, EnhanceConfig). Keep in sync by hand.
 
-export const CLASS_IDS = ['warrior', 'wizard', 'mechanic', 'cleric', 'assassin']; // one character per class => max 5 per account
+export const CLASS_IDS = ['warrior', 'wizard', 'mechanic', 'cleric', 'assassin', 'fighter']; // one character per class => max 6 per account (fighter added 2026-11-04)
 export const SLOTS = ['weapon', 'helmet', 'armor', 'gloves', 'boots', 'offhand', 'pet'];
 export const PET_MAX_DURABILITY = 1000; // PetConfig.MaxDurability
 export const PET_TEMPLATE_IDS = ['pet-spirit', 'pet-imp']; // PetConfig.All: the only things the pet slot holds. Their bonuses live in C#, these items carry no stats.

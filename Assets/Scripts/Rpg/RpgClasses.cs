@@ -14,7 +14,7 @@ namespace ZenoniaProto.Rpg
     public static class RpgClasses
     {
         public const string Default = "warrior";
-        public static readonly string[] Ids = { "warrior", "wizard", "mechanic", "assassin", "cleric" };
+        public static readonly string[] Ids = { "warrior", "wizard", "mechanic", "assassin", "cleric", "fighter" }; // append only: NetLootCodec / BuffSource pack the index
 
         static readonly Dictionary<string, ClassStatDef> Table = new Dictionary<string, ClassStatDef>
         {
@@ -23,6 +23,7 @@ namespace ZenoniaProto.Rpg
             { "mechanic", new ClassStatDef { Id = "mechanic", Name = "Mechanic", BaseHp = 90, BaseMp = 55, BaseAtk = 12, BaseDef = 4, Speed = 82f, GrowHp = 10f, GrowMp = 6f, GrowAtk = 2.6f, GrowDef = 0.9f, OffhandType = "robot", OffhandName = "Drone", WeaponName = "Gun" } },
             { "cleric", new ClassStatDef { Id = "cleric", Name = "Cleric", BaseHp = 85, BaseMp = 75, BaseAtk = 11, BaseDef = 4, Speed = 80f, GrowHp = 10f, GrowMp = 8f, GrowAtk = 2.5f, GrowDef = 0.8f, OffhandType = "spirit", OffhandName = "Holy Shield", WeaponName = "Holy Staff" } },
             { "assassin", new ClassStatDef { Id = "assassin", Name = "Assassin", BaseHp = 88, BaseMp = 50, BaseAtk = 13, BaseDef = 3, Speed = 92f, CritBonus = 0.06f, GrowHp = 10f, GrowMp = 5f, GrowAtk = 2.7f, GrowDef = 0.7f, OffhandType = "dagger", OffhandName = "Off-hand Dagger", WeaponName = "Dagger" } },
+            { "fighter", new ClassStatDef { Id = "fighter", Name = "Fighter", BaseHp = 95, BaseMp = 50, BaseAtk = 13, BaseDef = 4, Speed = 88f, CritBonus = 0.04f, GrowHp = 11f, GrowMp = 5f, GrowAtk = 2.7f, GrowDef = 0.9f, OffhandType = "glove", OffhandName = "Off-hand Glove", WeaponName = "Gloves" } }, // brawler: HP between Warrior and Assassin; the offhand is the second glove
         };
 
         public static bool IsValid(string id) { return id != null && Table.ContainsKey(id); }

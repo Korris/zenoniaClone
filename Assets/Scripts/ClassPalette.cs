@@ -6,7 +6,7 @@ namespace ZenoniaProto
     /// One colour identity per class for every basic-attack effect (slash sprites, sword trail ribbon, impact sparks / flash / ring,
     /// projectiles, bursts, additive glow). All values live here. Tint recolours the painted FX art (luminance kept, hottest pixels
     /// stay white, see SpriteTint) so every effect keeps a white-hot core.
-    ///   Warrior RED   Wizard VIOLET-BLUE (Arcane)   Mechanic ORANGE (or BLUE with C)   Assassin PURPLE (violet / near-black wisps, own dagger FX shapes)   Cleric GREEN
+    ///   Warrior RED   Wizard VIOLET-BLUE (Arcane)   Mechanic ORANGE (or BLUE with C)   Assassin PURPLE (violet / near-black wisps, own dagger FX shapes)   Cleric GREEN   Fighter ORANGE (shares the mechanic's palette)
     /// </summary>
     public sealed class ClassPalette
     {

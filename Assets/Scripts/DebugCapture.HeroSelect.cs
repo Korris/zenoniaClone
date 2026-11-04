@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// --hero-select-test --shot-path P: the hero select through its real input path (FakeInput). Taps every hero with a shot of each, checks Boxing cannot be picked, pages the skills, starts
+    /// --hero-select-test --shot-path P: the hero select through its real input path (FakeInput). Taps every hero with a shot of each (the Fighter included), picks the Cleric again, pages the skills, starts
     /// the Cleric, opens the in-game change screen and backs out of it. Writes P_open.png, P_warrior.png ... P_ingame.png and PASS / FAIL lines with the E2e tag.
     /// </summary>
     public partial class DebugCapture
@@ -26,8 +26,8 @@ namespace ZenoniaProto
                 }
             }
 
-            // The Cleric is still picked from the loop above, so a tap on Boxing must leave it picked: start below has to spawn the Cleric.
-            yield return Press(CentreOf("PickBoxing"), false, "disabled hero Boxing");
+            // The loop above ends on the Fighter; the Cleric is picked again so the start below has to spawn her (the test used to tap the disabled Boxing slot here).
+            yield return Press(CentreOf("Pick" + (int)HeroClass.Cleric), false, "hero Cleric again");
             yield return Press(CentreOf("SkillNext"), true, "next skills");
             yield return Press(CentreOf("Skill4"), true, "last skill");
             yield return WaitSeconds(0.3f);

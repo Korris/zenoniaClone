@@ -9,7 +9,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Player-build verification helper, active only when a command-line flag is present (normal play is unaffected):
-    ///   --class warrior|wizard|mechanic   skip the class select
+    ///   --class warrior|wizard|mechanic|assassin|cleric|fighter   skip the class select
     ///   --tp tx,ty                        put the hero on a tile (and --face down|up|left|right)
     ///   --tier N / --enhanced             gear tier / enhanced art
     ///   --bot fight|attack|walk           fight: walk to the nearest monster and attack it; attack: hold attack; walk: walk east

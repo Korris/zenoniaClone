@@ -44,6 +44,16 @@ namespace ZenoniaProto
             new ComboHit(80f, 110f, 180f, 2.08f, 30f, 30f, 70f, 10f, 1.0f, null, 2),
         };
 
+        // Fighter: jab, cross, hook, then an uppercut finisher. Shorter reach than the daggers (fists), each punch 200-210 ms, the uppercut 2.2x with a
+        // heavy knockback; the hero steps into every punch (StepPx) so the combo closes the distance. Damage per second close to the Assassin's.
+        public static readonly ComboHit[] FighterHits =
+        {
+            new ComboHit(40f, 70f, 90f, 0.95f, 20f, 22f, 20f, 7f, 0.75f),
+            new ComboHit(40f, 70f, 90f, 1.05f, 22f, 24f, 25f, 8f, 0.8f),
+            new ComboHit(45f, 75f, 90f, 1.2f, 24f, 28f, 35f, 8f, 0.9f),
+            new ComboHit(70f, 100f, 170f, 2.2f, 26f, 28f, 95f, 12f, 1.1f),
+        };
+
         // Cleric: light arrows (HolyArrow) with a gold pillar impact; three quick shots then a bursting one (AoE r26).
         static readonly BoltDef ClericOrb = new BoltDef(220f, 120f, "magicBolt", 0.8f, 10f, 10f, 0f, null, null, BoltStyle.HolyArrow);
         static readonly BoltDef ClericBurstOrb = new BoltDef(180f, 110f, "magicBolt", 1.3f, 14f, 14f, 26f, "arcaneBurst", null, BoltStyle.HolyArrow);

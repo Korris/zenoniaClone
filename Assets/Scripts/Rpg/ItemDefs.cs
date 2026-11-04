@@ -33,10 +33,12 @@ namespace ZenoniaProto.Rpg
         public static readonly Dictionary<string, string[]> WeaponTierNames = new Dictionary<string, string[]>
         {
             { "warrior", new[] { "Lightning Blade", "Star Lance", "Crimson Blade", "Balrog", "Frost Blade", "Thunder Hammer", "Chaos Axe", "Dark Reaper", "Divine Sword", "Dragon Slayer" } },
+            { "fighter", new[] { "Leather Gloves", "Iron Knuckles", "Bronze Fists", "Tiger Claws", "Flame Gauntlets", "Frost Gauntlets", "Thunder Fists", "Shadow Gauntlets", "Holy Gauntlets", "Dragon Gauntlets" } }, // art tiers of held-fighter.json: leather, iron, bronze, tiger, flame, frost, thunder, shadow, holy, dragon
         };
         public static readonly Dictionary<string, string[]> OffhandTierNames = new Dictionary<string, string[]>
         {
             { "warrior", new[] { "Lightning Shield", "Star Shield", "Crimson Shield", "Balrog Shield", "Frost Shield", "Thunder Shield", "Chaos Shield", "Reaper Shield", "Divine Shield", "Dragon Shield" } },
+            { "fighter", new[] { "Leather Glove", "Iron Knuckle", "Bronze Fist", "Tiger Claw", "Flame Gauntlet", "Frost Gauntlet", "Thunder Fist", "Shadow Gauntlet", "Holy Gauntlet", "Dragon Gauntlet" } }, // the second glove, same tier art
         };
 
         public static string TierName(Dictionary<string, string[]> table, string classId, int itemLevel, string fallback)
@@ -78,6 +80,7 @@ namespace ZenoniaProto.Rpg
             O("robot", "Drone", "atk", new ItemStats { atk = 3 });
             O("spirit", "Holy Shield", "maxHp", new ItemStats { def = 2, maxHp = 10, maxMp = 6 }); // the cleric's shield: softer than the warrior's, id kept for saves
             O("spellbook", "Spellbook", "atk", new ItemStats { atk = 2, maxMp = 10 });
+            O("glove", "Off-hand Glove", "atk", new ItemStats { atk = 2, maxHp = 6 }); // the fighter's second glove (2026-11-04); appended so older seeded picks keep their order
             foreach (PetDef p in PetConfig.All) G(Slots.Pet, p.TemplateId, p.Name, 1, new ItemStats()); // no stats of their own: the bonus is in PetConfig
         }
 

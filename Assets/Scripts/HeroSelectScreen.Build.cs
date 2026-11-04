@@ -111,7 +111,7 @@ namespace ZenoniaProto
             AddSlot(1, (int)HeroClass.Wizard, "wizard", new Color(0.42f, 0.56f, 1f));
             AddSlot(2, (int)HeroClass.Warrior, "warrior", new Color(1f, 0.32f, 0.24f));
             AddSlot(3, (int)HeroClass.Assassin, "assassin", new Color(0.72f, 0.45f, 1f));
-            AddSlot(4, NotPlayable, "boxing", new Color(1f, 0.48f, 0.18f));
+            AddSlot(4, (int)HeroClass.Fighter, "boxing", new Color(1f, 0.48f, 0.18f)); // the Fighter keeps the mock's "boxing" art names
             AddSlot(5, (int)HeroClass.Cleric, "cleric", new Color(0.42f, 0.95f, 0.58f));
         }
 

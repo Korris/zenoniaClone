@@ -7,8 +7,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Hero select, laid out from the mock Assets/ArtLibrary/custom/2b14c1e0-...png (art: Sprites/ui/hero-select, built by Tools/build-hero-select-art.py): six heroes on pedestals over the
-    /// castle scene and, below, the picked hero's portrait, real stats, skills and a live in-game preview (HeroSelectPreview). A tap picks a hero, the gold button starts. Boxing has art only:
-    /// the class does not exist yet, so it stands dimmed and cannot be picked. Shown while there is no hero offline or as a host, and over the running game through HeroChangeScreen.
+    /// castle scene and, below, the picked hero's portrait, real stats, skills and a live in-game preview (HeroSelectPreview). A tap picks a hero, the gold button starts. The "boxing" art is the Fighter
+    /// (playable since 2026-11-04; NotPlayable stays for a future art-only slot). Shown while there is no hero offline or as a host, and over the running game through HeroChangeScreen.
     /// Online mode (OpenOnlineCreate): the new-hero step of the account flow. Same screen, but the button creates an account hero: classes the account already has cannot be picked again, and no offline saves are shown.
     /// </summary>
     public sealed partial class HeroSelectScreen : MonoBehaviour
@@ -160,7 +160,7 @@ namespace ZenoniaProto
         /// <summary>Picks a slot: fills the panels and restarts the preview.</summary>
         public void Pick(int index)
         {
-            if (index == picked || slots[index].ClassIndex == NotPlayable) return; // Boxing is disabled for now
+            if (index == picked || slots[index].ClassIndex == NotPlayable) return; // an art-only slot cannot be picked
             picked = index;
             Slot s = slots[index];
             s.Hero.parent.SetAsLastSibling(); // the big picked hero stands in front of its neighbours

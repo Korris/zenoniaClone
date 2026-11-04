@@ -121,17 +121,21 @@ namespace ZenoniaProto
             return h;
         }
 
+        /// <summary>Class select / in-game switch key per HeroClass index (the GameKey enum grew in steps, so no arithmetic on it).</summary>
+        static readonly GameKey[] ClassKeys = { GameKey.Class1, GameKey.Class2, GameKey.Class3, GameKey.Class4, GameKey.Class5, GameKey.Class6 };
+        static readonly GameKey[] SwitchKeys = { GameKey.Switch1, GameKey.Switch2, GameKey.Switch3, GameKey.Switch4, GameKey.Switch5, GameKey.Switch6 };
+
         void Update()
         {
             if (hero == null)
             {
                 if (ConnectScreenGui.Visible || HeroSelectScreen.OnlineCreating || NetMode.IsClient) return; // typing a name / waiting for the server: the digit keys must not pick a class
-                for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Class1 + i : GameKey.Class4 + (i - 3))) { Spawn((HeroClass)i); return; }
+                for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(ClassKeys[i])) { Spawn((HeroClass)i); return; }
                 return;
             }
             if (InventoryPanel.IsOpen) return;
             if (NetMode.IsOffline)
-                for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(i < 3 ? GameKey.Switch1 + i : GameKey.Switch4 + (i - 3))) { Spawn((HeroClass)i); return; }
+                for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(SwitchKeys[i])) { Spawn((HeroClass)i); return; }
             if (InputAdapter.Pressed(GameKey.SolidDebug)) WorldBuilder.ToggleSolidOverlay();
         }
 

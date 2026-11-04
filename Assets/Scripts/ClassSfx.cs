@@ -40,6 +40,11 @@ namespace ZenoniaProto
                 Shot = new[] { "wizard/cast-a", "wizard/cast-b" }, Shout = new[] { "wizard/shout4-a", "wizard/shout4-b" },
                 Impact = new[] { "wizard/hit-a", "wizard/hit-b" }, Burst = new[] { "wizard/burst-a", "wizard/burst-b" },
             };
+            s[(int)HeroClass.Fighter] = new Set // no fighter recordings yet: the warrior's whooshes and impacts, the assassin's finisher shout (TODO: own ElevenLabs clips under Audio/sfx/fighter)
+            {
+                Folder = "warrior", StepSlashes = true, Shout = new[] { "assassin/shout4-a" },
+                Hit = new[] { "warrior/hit-a", "warrior/hit-b" }, Crit = new[] { "warrior/crit-a", "warrior/crit-b" },
+            };
             s[(int)HeroClass.Cleric] = new Set // female voice; casts low-passed (the raw chimes were shrill), no per-orb impact sound (too noisy)
             {
                 Shot = new[] { "cleric/cast-a", "cleric/cast-b" }, Shout = new[] { "cleric/shout4-a", "cleric/shout4-b" },

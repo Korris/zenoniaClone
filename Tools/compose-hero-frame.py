@@ -20,6 +20,7 @@ CLASSES = {
     "mechanic": ("held-mechanic", [("gun", "gun", 1.0, 0.0)]),
     "assassin": ("held-assassin", [("off", "dagger", 1.3, 0.0), ("main", "dagger", 1.3, 0.0)]),
     "cleric": ("held-cleric", [("shield", "shield", 0.8, 0.0), ("staff", "staff", 1.0, 0.0)]),
+    "fighter": ("held-fighter", [("off", "glove", 1.0, 0.0), ("main", "glove", 1.0, 0.0)]),  # HeroClassDef.Fighter: two gloves, DrawScale 1.0
 }
 
 

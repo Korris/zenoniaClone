@@ -56,6 +56,9 @@ public class SecondWeaponTests
         Assert.Equal(new[] { 0.40, 0.40 }, new[] { c.HealPower, c.ShieldPower });
         Assert.Equal(0, c.DefPct + c.MpPct + c.CritRate + c.RobotDmg);
         Assert.Equal(0.30 * SecondWeapon.F(6), SecondWeapon.For("warrior", 6).DefPct, 12);
+        SecondWeaponStats f = SecondWeapon.For("fighter", 15);
+        Assert.Equal(new[] { 0.06, 0.15 }, new[] { f.CritRate, f.HpPct });
+        Assert.Equal(0, f.DefPct + f.MpPct + f.RobotDmg + f.HealPower + f.CritDmg);
     }
 
     [Fact]
@@ -103,6 +106,18 @@ public class SecondWeaponTests
         float at0 = Hero("assassin", 20, 0).CritBonus;
         float at15 = Hero("assassin", 20, 15).CritBonus;
         Assert.Equal(0.10f, at15 - at0, 4);
+    }
+
+    [Fact]
+    public void FighterStarterGearIsAPairOfGlovesWithTierNames()
+    {
+        PlayerState p = PlayerState.NewGame("fighter");
+        Item weapon = p.GetEquipped(Slots.Weapon), glove = p.GetEquipped(Slots.Offhand);
+        Assert.Equal("Gloves", weapon.name); Assert.Equal("fighter", weapon.classId);
+        Assert.Equal("glove", glove.templateId); Assert.Equal("fighter", glove.classId); Assert.Equal("Leather Glove", glove.name);
+        Assert.Equal("fighter", RpgClasses.ClassForOffhand("glove"));
+        Assert.Equal("Dragon Gauntlets", ItemFactory.Generate(() => 0.0, 95, Slots.Weapon, "common", "fighter").name);
+        Assert.Equal("weapon-fighter-9", ItemInfo.IconName(ItemFactory.Generate(() => 0.0, 95, Slots.Weapon, "common", "fighter")));
     }
 
     [Fact]

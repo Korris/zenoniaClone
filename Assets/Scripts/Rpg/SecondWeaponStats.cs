@@ -12,7 +12,7 @@ namespace ZenoniaProto.Rpg
         public double DefPct, HpPct, DmgReduction;          // warrior Kite Shield
         public double MpPct, CastSpeed, MpCostCut;          // wizard Spellbook (CastSpeed = cast lock reduction)
         public double RobotDmg, RobotRate;                  // mechanic Drone (RobotRate: interval / (1 + x))
-        public double CritRate, CritDmg;                    // assassin Off-hand Dagger (points added)
+        public double CritRate, CritDmg;                    // assassin Off-hand Dagger (points added); the fighter's second glove also uses CritRate (+ HpPct)
         public double HealPower, ShieldPower;               // cleric Holy Shield
 
         public static readonly SecondWeaponStats Zero = new SecondWeaponStats();

@@ -7,8 +7,10 @@ public class SkillTableTests
     [Fact]
     public void EightSkillsPerClassWithUniqueIndicesAndIds()
     {
-        Assert.Equal(40, SkillTable.All.Count);
-        Assert.Equal(40, SkillTable.All.Select(s => s.Id).Distinct().Count());
+        int expected = RpgClasses.Ids.Length * SkillDef.PerClass; // 6 classes x 8 since the Fighter (2026-11-04)
+        Assert.Equal(48, expected);
+        Assert.Equal(expected, SkillTable.All.Count);
+        Assert.Equal(expected, SkillTable.All.Select(s => s.Id).Distinct().Count());
         foreach (string c in RpgClasses.Ids)
         {
             SkillDef[] l = SkillTable.ForClass(c);
@@ -69,6 +71,9 @@ public class SkillTableTests
         SkillDef step = SkillTable.Get("assassin", 1);
         Assert.Equal(SkillTargeting.NearestEnemy, step.Targeting); Assert.Equal(30f, step.Effects[1].BehindBonusPct);
         Assert.Equal(220f, SkillTable.Get("cleric", 0).Effects[0].Pct);
+        SkillDef dashPunch = SkillTable.Get("fighter", 0);
+        Assert.Equal("fighter.dash-punch", dashPunch.Id); Assert.Equal(EffectKind.Motion, dashPunch.Effects[0].Kind); Assert.Equal(180f, dashPunch.Effects[1].Pct);
+        Assert.Equal(StatusKind.Stun, SkillTable.Get("fighter", 7).Effects[1].Status.Kind);
     }
 
     [Fact]
@@ -106,7 +111,7 @@ public class SkillTableTests
     [Fact]
     public void CastLockIsCappedButMovesFinish()
     {
-        foreach (string cls in new[] { "warrior", "wizard", "mechanic", "assassin", "cleric" })
+        foreach (string cls in new[] { "warrior", "wizard", "mechanic", "assassin", "cleric", "fighter" })
             for (int i = 0; i < SkillDef.PerClass; i++)
             {
                 SkillDef s = SkillTable.Get(cls, i);

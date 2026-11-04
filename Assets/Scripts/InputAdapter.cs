@@ -26,7 +26,8 @@ namespace ZenoniaProto
         SkillPage,                 // Tab: next page of the touch skill magazine
         SkillTree,                 // T: skill tree window
         Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill7, Skill8, // tree skill 1-8 (touch magazine taps, bots, resolved slot keys); no physical key
-        SlotKey1, SlotKey2, SlotKey3 // U / I(L) / O: the three visible magazine slots of the current page (Dash or a skill)
+        SlotKey1, SlotKey2, SlotKey3, // U / I(L) / O: the three visible magazine slots of the current page (Dash or a skill)
+        Class6, Switch6            // Fighter: class select screen (6), in-game class switch (F11; F6 is the bloom toggle)
     }
 
     /// <summary>
@@ -79,6 +80,8 @@ namespace ZenoniaProto
             new[] { KeyCode.U },
             new[] { KeyCode.I, KeyCode.L },
             new[] { KeyCode.O },
+            new[] { KeyCode.Alpha6, KeyCode.Keypad6 },
+            new[] { KeyCode.F11 },
         };
 
         static bool KeyHeld(GameKey k)
@@ -135,6 +138,8 @@ namespace ZenoniaProto
             new[] { Key.U },
             new[] { Key.I, Key.L },
             new[] { Key.O },
+            new[] { Key.Digit6, Key.Numpad6 },
+            new[] { Key.F11 },
         };
 
         static bool KeyHeld(GameKey k)

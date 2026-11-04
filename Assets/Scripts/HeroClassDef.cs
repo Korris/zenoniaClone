@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    public enum HeroClass { Warrior, Wizard, Mechanic, Assassin, Cleric }
+    public enum HeroClass { Warrior, Wizard, Mechanic, Assassin, Cleric, Fighter } // append only: saves and net packets carry the int
 
     /// <summary>One held-gear layer (web held-gear-specs `parts`): manifest key, overlay PNG folder and web drawScale / minSx.</summary>
     public sealed class GearPartSpec
@@ -123,7 +123,22 @@ namespace ZenoniaProto
             SkillName = "Heal", SkillMp = 12f, SkillCooldownMs = 8500f, SkillLockMs = 350f, SkillIcon = 5, DashIcon = 12, // heal, hasteHymn
         };
 
-        public static readonly HeroClassDef[] All = { Warrior, Wizard, Mechanic, Assassin, Cleric };
+        // Fighter (the hero-select "boxing" slot, 2026-11-04): a pair of gloves is the one weapon item (`off` glove drawn behind, `main` in front, like the
+        // Assassin's daggers), no hand overlay (the glove covers the fist), four punches jab / cross / hook / uppercut on melee1..melee4, orange FX.
+        // Body sheets + glove art land from Tools/build-fighter-new-style.py / build-fighter-gloves.py; until then the renderer logs missing sheets and draws nothing.
+        public static readonly HeroClassDef Fighter = new HeroClassDef
+        {
+            Id = HeroClass.Fighter, Name = "Fighter", Tagline = "Bare-knuckle brawler. Fast punches, a crushing uppercut.", ComboLabel = "jab, cross, hook + uppercut",
+            SheetFolder = "classes/fighter/body/armed", BareFolder = "classes/fighter/body/bare", HandFolder = null, HandAnims = null, GearFile = "classes/fighter/held-fighter", FxFolder = null, Palette = ClassPalette.Orange,
+            BareAnims = new[] { "idle", "walk", "dash", "hurt" }, // melee1..4 load bare too (HeroRenderer: every "melee*" anim); death: baked art
+            MirrorLeft = new HashSet<string>(),
+            ComboAnims = new[] { "melee1", "melee2", "melee3", "melee4" }, // jab, cross, hook, uppercut finisher (Tools/build-fighter-new-style.py)
+            MaxHp = 95f, MaxMp = 50f, Atk = 13f, Def = 4f, Speed = 88f, CritBonus = 0.04f, Hits = ComboConfigs.FighterHits, ChainMs = 360f,
+            Parts = new[] { new GearPartSpec("off", "classes/fighter/weapons/glove", 1f, 0f, true), new GearPartSpec("main", "classes/fighter/weapons/glove", 1f, 0f, true) }, // anchor s ~0.18: glove ~1.6x a bare fist
+            SkillName = "Dash Punch", SkillMp = 8f, SkillCooldownMs = 3000f, SkillLockMs = 320f, SkillIcon = 0, DashIcon = 10, // no fighter icon sheet yet: the touch button falls back to text
+        };
+
+        public static readonly HeroClassDef[] All = { Warrior, Wizard, Mechanic, Assassin, Cleric, Fighter };
 
         public static HeroClassDef Get(HeroClass id) { return All[(int)id]; }
     }

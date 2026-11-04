@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace ZenoniaProto.Rpg
 {
     /// <summary>
-    /// Registry of the 40 skills (5 classes x 8). Data lives in the per-class partial files (SkillTable.Warrior.cs ...); values are rank 1 from
+    /// Registry of the 48 skills (6 classes x 8). Data lives in the per-class partial files (SkillTable.Warrior.cs ...); values are rank 1 from
     /// plans/261030-1508-skill-tree-design/skill-tree-chatgpt.md. Distances in tiles, times in ms.
     /// </summary>
     public static partial class SkillTable
@@ -11,7 +11,7 @@ namespace ZenoniaProto.Rpg
         static readonly Dictionary<string, SkillDef[]> byClass = new Dictionary<string, SkillDef[]>
         {
             { "warrior", WarriorSkills() }, { "wizard", WizardSkills() }, { "mechanic", MechanicSkills() },
-            { "cleric", ClericSkills() }, { "assassin", AssassinSkills() },
+            { "cleric", ClericSkills() }, { "assassin", AssassinSkills() }, { "fighter", FighterSkills() },
         };
         static readonly Dictionary<string, SkillDef> byId = BuildIndex();
         static readonly SkillDef[] none = new SkillDef[0];

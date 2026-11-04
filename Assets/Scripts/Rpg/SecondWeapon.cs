@@ -45,6 +45,7 @@ namespace ZenoniaProto.Rpg
                 case "mechanic": s.RobotDmg = 0.60 * f; s.RobotRate = 0.40 * f; break;
                 case "assassin": s.CritRate = 0.10 * f; s.CritDmg = 0.50 * f; break;
                 case "cleric": s.HealPower = 0.40 * f; s.ShieldPower = 0.40 * f; break;
+                case "fighter": s.CritRate = 0.06 * f; s.HpPct = 0.15 * f; break; // second glove: both keys already feed PlayerState (crit points, max HP %)
             }
             return s;
         }
