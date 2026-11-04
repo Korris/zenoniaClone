@@ -5,7 +5,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The hero in the bag window: a live paper-doll HeroRenderer breathing in its idle down row, wearing the real weapon and offhand with their enhance effect, filmed far off the map by its own camera.
+    /// The hero in the bag window: a live paper-doll HeroRenderer breathing in its idle row facing down (PortraitDir), wearing the real weapon and offhand with their enhance effect, filmed far off the map by its own camera.
     /// The texture clears to transparent and is shown premultiplied (UiPremultiplied), so the additive enhance layers still light up without a backdrop.
     /// </summary>
     public sealed class HeroPortraitView : MonoBehaviour
@@ -13,6 +13,9 @@ namespace ZenoniaProto
         const int TextureW = 672, TextureH = 528;      // twice the 336 x 264 box: the art is 8 px per world unit, so it never gets softer than the game
         const float CameraHalfHeight = 16f, FeetAboveBottom = 7f, IdleFps = 6f; // the Warrior's sword tip hangs below his feet
         const float WarriorShiftX = 0f; // the box is wide enough for his body to stand in the middle with the sword beside him
+        // Facing down (the user wants the hero facing the player here, 2026-11-03). The worn weapon shows only where the idle-down row is a paper doll:
+        // Warrior and Assassin; the Wizard, Mechanic and Cleric rows are painted art with a fixed weapon (anchor fallback) until they get a doll too.
+        const int PortraitDir = 0; // HeroRenderer.DirNames: down
         static readonly Vector3 Stage = new Vector3(-34000f, -30000f, 0f); // far outside every map, apart from HeroSelectPreview's stage
 
         readonly HeroRenderer[] views = new HeroRenderer[HeroClassDef.All.Length];
@@ -60,7 +63,7 @@ namespace ZenoniaProto
             view.gameObject.SetActive(true);
             view.SetEquipmentGear(weapon, offhand);
             cam.transform.position = Stage + new Vector3(def.Id == HeroClass.Warrior ? WarriorShiftX : 0f, CameraHalfHeight - FeetAboveBottom, -10f);
-            view.Show("idle", 0, frame, 0, 1f);
+            view.Show("idle", PortraitDir, frame, 0, 1f);
             cam.enabled = true;
         }
 
@@ -77,9 +80,9 @@ namespace ZenoniaProto
             float each = 1f / IdleFps;
             if (clock < each) return;
             clock -= each;
-            int count = view.FrameCount("idle", 0);
+            int count = view.FrameCount("idle", PortraitDir);
             frame = count > 0 ? (frame + 1) % count : 0;
-            view.Show("idle", 0, frame, 0, 1f);
+            view.Show("idle", PortraitDir, frame, 0, 1f);
         }
 
         void OnDestroy() { if (texture != null) texture.Release(); }
