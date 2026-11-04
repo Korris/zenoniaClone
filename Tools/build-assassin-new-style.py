@@ -646,10 +646,14 @@ def debug_fists(out):
 DAGGERS = f"{RES}/Sprites/classes/assassin/weapons/dagger"
 DAGGER_SRC = f"{LIB}/dagger-src"
 ICONS = f"{RES}/Sprites/icons"
-DAGGER_LEN = 258  # art px, tip to pommel: the old daggers' length, so the size on screen stays (s and DrawScale do not change)
+DAGGER_LEN = 400  # art px, tip to pommel. On screen = art px x s (0.243) x DrawScale (1.3) = 126 frame px, about 3/4 of the hero (258 gave 81 px: the user found the daggers too small in game, 2026-11-03). More art px also draws sharper.
 DAGGER_PAD = 4
 MAGENTA_KEY = {"venom"}
 CHARM_TIERS = {"moonlight"}  # a charm hangs beside the handle: grip measured on the handle axis only  # green art: drawn on #FF00FF
+# 2026-11-03 set (chat "Tạo warrior 2D"): not every tier is a dagger with a plain handle, so measure_grip misreads some. Handle row in art px
+# of the 266 px canvas (scaled to the current canvas below), read off the alpha width profile: venom (snake head below the handle), storm (ring guard), shadow and void-reaper
+# (spiked pommel wider than the handle), moonlight (crescent charm), frost-shard (a katar: the fist sits on the central snowflake guard).
+GRIP_Y = {t: round(y * (DAGGER_LEN + 2 * DAGGER_PAD) / 266) for t, y in {"venom": 190, "frost-shard": 122, "storm": 196, "shadow": 170, "void-reaper": 190, "moonlight": 176}.items()}  # read on the 266 px canvas
 
 
 def key_pair(path, tier):
@@ -711,6 +715,10 @@ def cut_pair(tier):
         canvas = np.zeros((small.shape[0] + 2 * DAGGER_PAD, small.shape[1] + 2 * DAGGER_PAD, 4))
         canvas[DAGGER_PAD:DAGGER_PAD + small.shape[0], DAGGER_PAD:DAGGER_PAD + small.shape[1]] = small
         gx, gy, info = measure_grip(canvas[..., 3], tier in CHARM_TIERS)
+        if tier in GRIP_Y:  # fixed handle row; x = middle of the solid pixels on that row (the enhanced glow is faint, so it does not pull x)
+            gy = GRIP_Y[tier]
+            xs = np.where(canvas[gy, :, 3] > 200)[0]
+            gx, info = int(round((xs[0] + xs[-1]) / 2)), {**info, "fixedRow": True}
         out[kind] = (Image.fromarray(to_rgba(canvas), "RGBA"), {"w": canvas.shape[1], "h": canvas.shape[0], "gripX": gx, "gripY": gy}, info)
     return out
 
