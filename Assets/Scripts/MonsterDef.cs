@@ -85,10 +85,9 @@ namespace ZenoniaProto
         // installed. Ice Imp (Lv 4): middle weight (Atk x1.15, Def 5), quicker than the goblin, short reach. Frost Bear (Lv 5): tanky and slow (HP x1.5, Atk x1.2, Def 8), long windup and cooldown, wide hitbox,
         // drawn 1.15x. Ice Imp and Frost Bear draw a tinted fallback sheet until their own sheets land (python Tools/build-meadow-monsters.py iceImp|frostBear).
         public static readonly MonsterDef SnowFox = new MonsterDef("Snow Fox", "snowFox", 64f, 18f, 2f, 66f, 3, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 12f, hitH: 8f, bodyHeightPx: 123f);
-        public static readonly MonsterDef IceImp = new MonsterDef("Ice Imp", "iceImp", 102f, 22f, 5f, 50f, 4, aggro: 80f, attackRange: 14f, windupMs: 400f, cooldownMs: 1100f, hitW: 14f, hitH: 9f, bodyHeightPx: 138f)
-            { FallbackSheet = "iceGoblin", FallbackTint = new Color(0.72f, 0.78f, 1f) };
+        public static readonly MonsterDef IceImp = new MonsterDef("Ice Imp", "iceImp", 102f, 22f, 5f, 50f, 4, aggro: 80f, attackRange: 14f, windupMs: 400f, cooldownMs: 1100f, hitW: 14f, hitH: 9f, bodyHeightPx: 138f);
         public static readonly MonsterDef FrostBear = new MonsterDef("Frost Bear", "frostBear", 186f, 28f, 8f, 32f, 5, aggro: 55f, attackRange: 18f, windupMs: 600f, cooldownMs: 1500f, hitW: 22f, hitH: 14f, bodyHeightPx: 178f)
-            { RenderScale = 1.15f, FallbackSheet = "spectralWolf", FallbackTint = new Color(0.85f, 0.92f, 1f) };
+            { RenderScale = 1.15f };
 
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
         public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear };
