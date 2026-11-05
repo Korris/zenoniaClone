@@ -105,8 +105,8 @@ def grid(img, x0, y0, tiles_w, tiles_h):
         for j in range(0, tiles_h, 4): d.text((i * T + 3, j * T + 3), f"{x0 + i},{y0 + j}", fill=(255, 0, 255))
     return im
 
-# footprints may not touch these tiles: portals, arrival, start, gate nook, stairs (SW rim, NE plateau), bridges, cave mouth
-FORBID = [(1, 20, 5, 23), (66, 19, 70, 24), (5, 9, 7, 11), (3, 20, 5, 21), (4, 23, 6, 26), (29, 12, 31, 14), (32, 3, 34, 5), (44, 17, 47, 19), (47, 38, 50, 40), (15, 11, 22, 13), (15, 28, 24, 30), (49, 3, 50, 7)]
+# footprints may not touch these tiles: portals, arrival, start, gate nook, stairs (SW rim, NE plateau, E1 stairs + cliff pass, SE ledge stairs), bridges, cave mouth
+FORBID = [(1, 20, 5, 23), (66, 19, 70, 24), (5, 9, 7, 11), (3, 20, 5, 21), (4, 23, 6, 26), (29, 12, 31, 14), (32, 3, 34, 5), (43, 15, 47, 20), (44, 21, 46, 24), (47, 37, 51, 41), (15, 11, 22, 13), (15, 28, 24, 30), (49, 3, 50, 7)]
 
 def validate(rws, plist, dd, zs):
     """Footprints on water/bridge tiles, on forbidden rects, overlapping each other; free tiles of each spawn rect (>= 2x count)."""

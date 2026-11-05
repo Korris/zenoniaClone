@@ -3,7 +3,7 @@ Usage: python Tools/build-frost-hollow-large-rows.py [--overlay]   (reads the ch
  Per 64 px tile (4608x3072 picture), same colour features as layout/classify-old-section-from-ground-only.py:
    w river water (cyan, saturated)  C dark grey-brown cliff face  s everything else (snow, paths, frozen lake = walkable ice, paved floors)
  then hand edits from layout/frost-hollow-72x48-overrides.txt (lines "x0 y0 x1 y1 char", inclusive tile rect, # comments; later lines win):
-   B bridge decks, stairs, cave mouths, cliff islands, opened rims. The ring is forced next: row 0, rows 45-47 (under the HUD), cols 70-71, col 0 from row 22 down.
+   B bridge decks, stairs (grey steps and cobble gaps in cliffs read as C by colour, so every staircase/pass is opened here), cave mouths, cliff islands, opened rims. The ring is forced next: row 0, rows 45-47 (under the HUD), cols 70-71, col 0 from row 22 down.
    Last, walkable tiles not reachable from the start tile (cliff-top plateau, specks) are sealed to C. The Den portal is the ice cave mouth (67-69,20).
  --overlay writes visuals/rows-painted-overlay*.png (gridded, numbered) and prints a flood fill from the start tile (4,21).
 """

@@ -164,6 +164,51 @@ public class FrostHollowLargeMapTests
         Assert.Contains(zones, z => z[0] == 5 && z[1] == 43 && z[2] == 1 && z[4] == 3 && z[5] == 10500);   // golems on the plateau (rows 1-3: clear of the stairs rows 4-7)
     }
 
+    // Every stone staircase / cliff pass of the painting: step tiles (walkable), side walls (solid), the landing above and below. Rows were once classified by colour, which read grey steps as cliff.
+    public static IEnumerable<object[]> Stairs()
+    {
+        yield return new object[] { "west valley stairs", "5,9 6,9 5,10 6,10", "5,8", "5,11", "4,10 7,10" };
+        yield return new object[] { "north stairs", "32,3 33,3 32,4 33,4", "33,2", "33,5", "31,4" };
+        yield return new object[] { "river-east stairs", "29,12 30,12 29,13 30,13", "29,11", "29,14", "28,12 31,12" };
+        yield return new object[] { "south-west rim stairs", "5,23 6,23 5,24 6,24 5,25 6,25", "5,22", "5,26", "4,24 7,24" };
+        yield return new object[] { "watchtower stairs (NE plateau)", "49,5 50,5 49,6 50,6", "49,4", "49,7", "48,5 51,5" };
+        yield return new object[] { "E1 stone stairs", "45,17 46,17 44,18 45,18 46,18 44,19 45,19", "45,16", "45,20", "44,17 43,18 47,18 46,19" };
+        yield return new object[] { "cobble pass south of the E1 stairs", "45,22 45,23", "45,21", "45,24", "44,22 46,22 44,23 46,23" };
+        yield return new object[] { "SE ledge stairs", "49,38 49,39", "48,38", "49,40", "48,39 50,38" };
+    }
+
+    static int[][] Tiles(string list)
+    {
+        var r = new List<int[]>();
+        foreach (string t in list.Split(' ')) { string[] xy = t.Split(','); r.Add(new[] { int.Parse(xy[0]), int.Parse(xy[1]) }); }
+        return r.ToArray();
+    }
+
+    [Theory]
+    [MemberData(nameof(Stairs))]
+    public void StairsAreWalkableWallsSolidAndTheLandingsConnectThroughTheSteps(string name, string steps, string top, string bottom, string walls)
+    {
+        var allowed = new HashSet<int>();
+        foreach (int[] t in Tiles(steps)) { Assert.False(Frost.IsSolidTile(t[0], t[1]), name + ": step " + t[0] + "," + t[1] + " is solid"); allowed.Add(t[1] * 72 + t[0]); }
+        int[] a = Tiles(top)[0], b = Tiles(bottom)[0];
+        Assert.False(Frost.IsSolidTile(a[0], a[1]), name + ": top landing solid");
+        Assert.False(Frost.IsSolidTile(b[0], b[1]), name + ": bottom landing solid");
+        allowed.Add(a[1] * 72 + a[0]); allowed.Add(b[1] * 72 + b[0]);
+        foreach (int[] w in Tiles(walls)) Assert.True(Frost.IsSolidTile(w[0], w[1]), name + ": wall " + w[0] + "," + w[1] + " must stay solid");
+        // flood only over steps + the two landings: the top must reach the bottom through the steps, not around the cliff
+        var seen = new HashSet<int>(); var open = new Stack<int>(); open.Push(a[1] * 72 + a[0]);
+        while (open.Count > 0)
+        {
+            int i = open.Pop();
+            if (!allowed.Contains(i) || !seen.Add(i)) continue;
+            open.Push(i + 1); open.Push(i - 1); open.Push(i + 72); open.Push(i - 72);
+        }
+        Assert.Contains(b[1] * 72 + b[0], seen);
+        Assert.True(seen.Contains(a[1] * 72 + a[0]) && seen.Count == allowed.Count, name + ": a step is cut off from the landings");
+        HashSet<int> reach = ReachableFromStart();
+        Assert.Contains(a[1] * 72 + a[0], reach); Assert.Contains(b[1] * 72 + b[0], reach);
+    }
+
     [Fact]
     public void TheFiveOldZonesStayWalkableOnTheNewRows()
     {

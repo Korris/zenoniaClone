@@ -4,3 +4,9 @@
 66 20 69 22 s   # ice cave mouth floor + the snow in front of it: the Den portal sits on row 20 (cols 67-69), arrival at (68,22)
 49 5 50 6 B    # NE plateau stairs (ChatGPT edit patch): 2 tiles wide, balustrades at cols 48 and 51 stay solid; the plateau top (rows 1-4, cols 43-55) opens through them
 50 2 51 2 s    # stone circle tiles the classifier read as rock
+# Stair/pass fixes (user bug: the classifier read grey stone steps and cobble gaps as cliff). Balustrades/side walls stay C.
+45 17 46 17 B   # E1 stone stairs (art cols 44-46, rows 17-19): top step row; top landing row 16, bottom landing row 20
+44 18 46 18 B   # middle steps
+44 19 45 19 B   # bottom step; (43,18-19) and (46,19) are the balustrade ends and (47,17-19) the right wall: solid
+45 22 45 23 B   # cobble pass through the cliff south of the stairs (1 tile gap, rows 22-23); lands on rows 21 and 24
+49 38 49 39 B   # SE ledge stairs (art cols 48-49, rows 38-39): top landing (48,38), bottom landing (49-50,40); (48,39) balustrade stays solid
