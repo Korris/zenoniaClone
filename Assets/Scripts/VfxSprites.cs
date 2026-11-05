@@ -13,7 +13,7 @@ namespace ZenoniaProto
 
     /// <summary>
     /// Loader for the hand-painted ranged FX frames (Resources/Sprites/classes/CLASS/fx/attack[-COLOUR]/ROW_N.png + Resources/Data/vfx-SET.json with per-frame pivots).
-    /// Sets: cleric, wizard, mechanic-orange, mechanic-blue (C toggles). For() returns null when art is missing, callers then fall back to the procedural FX.
+    /// Sets: cleric, wizard-v2 (wizard = older orb art, unused), mechanic-orange, mechanic-blue (C toggles). For() returns null when art is missing, callers then fall back to the procedural FX.
     /// </summary>
     public static class VfxSprites
     {
@@ -29,7 +29,7 @@ namespace ZenoniaProto
             switch (style)
             {
                 case BoltStyle.HolyArrow: return "cleric";
-                case BoltStyle.Arcane: return "wizard";
+                case BoltStyle.Arcane: return "wizard-v2"; // spinning rune disc (Tools/build-wizard-attack-fx.py); "wizard" = the older orb + comet set
                 case BoltStyle.Plasma: return ClassPalette.MechanicBlue ? "mechanic-blue" : "mechanic-orange";
                 default: return null;
             }
@@ -51,11 +51,11 @@ namespace ZenoniaProto
         public static void Preload(HeroClass id)
         {
             if (id == HeroClass.Cleric) Get("cleric");
-            else if (id == HeroClass.Wizard) Get("wizard");
+            else if (id == HeroClass.Wizard) Get("wizard-v2");
             else if (id == HeroClass.Mechanic) { Get("mechanic-orange"); Get("mechanic-blue"); MechanicCannonBlastFx.Preload(); }
         }
 
-        /// <summary>"mechanic-blue" -> class "mechanic", set "attack-blue"; "wizard" -> "wizard", "attack".</summary>
+        /// <summary>"mechanic-blue" -> class "mechanic", set "attack-blue"; "wizard-v2" -> "wizard", "attack-v2"; "wizard" -> "wizard", "attack".</summary>
         static void Split(string id, out string cls, out string set) { int d = id.IndexOf('-'); cls = d < 0 ? id : id.Substring(0, d); set = d < 0 ? "attack" : "attack" + id.Substring(d); }
 
         static VfxSet Load(string id)
