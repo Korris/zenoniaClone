@@ -59,8 +59,20 @@ namespace ZenoniaProto
         public static readonly MonsterDef MirefangHydra = new MonsterDef("Mirefang Hydra", "mirefangHydra", 5500f, 215f, 27f, 36f, 35, aggro: 95f, leash: 140f,
             attackRange: 24f, windupMs: 650f, cooldownMs: 1500f, hitW: 26f, hitH: 16f, bodyHeightPx: 166f) { RenderScale = 1.85f, Stationary = true, IsBoss = true, FallbackSheet = "frostfangKing", FallbackTint = new Color(0.5f, 0.85f, 0.55f) };
 
+        // Willowbrook meadow monsters (sheets from Tools/build-meadow-monsters.py), same line HP 14+22L, Atk 3+4L, Def 1+L, EXP 14L, gold L..2L+1.
+        // Horn Rabbit (Lv 2): low HP and Def, fast, short cooldown, like Spectral Wolf. Thorn Boar (Lv 3): heavy (HP x1.3, Atk x1.15), slower than Ice Goblin, long windup, wide hitbox, low aggro.
+        public static readonly MonsterDef HornRabbit = new MonsterDef("Horn Rabbit", "hornRabbit", 46f, 10f, 1f, 64f, 2, aggro: 90f, cooldownMs: 900f, hitW: 12f, hitH: 8f, bodyHeightPx: 128f);
+        public static readonly MonsterDef ThornBoar = new MonsterDef("Thorn Boar", "thornBoar", 104f, 17f, 4f, 40f, 3, aggro: 55f, attackRange: 16f, windupMs: 450f, cooldownMs: 1400f, hitW: 18f, hitH: 10f, bodyHeightPx: 180f);
+        // Lv 1-6 line: Meadow Slime = Frost Slime x0.9 (weak, slow). Meadow Mantis (Lv 5): fast and sharp (HP x0.8, Atk x1.3, Def 2), like Spectral Wolf timings.
+        // Bramble Treant (Lv 6): tanky and slow (HP x1.8, Atk x1.3, Def 10), long windup and cooldown, wide hitbox; drawn 1.2x because the 192 walk cell caps the sheet at about boar height
+        // (RenderScale also scales the HP bar and name position).
+        public static readonly MonsterDef MeadowSlime = new MonsterDef("Meadow Slime", "meadowSlime", 32f, 6f, 1f, 28f, 1, hitH: 8f, bodyHeightPx: 112f);
+        public static readonly MonsterDef MeadowMantis = new MonsterDef("Meadow Mantis", "meadowMantis", 100f, 30f, 2f, 68f, 5, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 12f, hitH: 8f, bodyHeightPx: 178f);
+        public static readonly MonsterDef BrambleTreant = new MonsterDef("Bramble Treant", "brambleTreant", 263f, 35f, 10f, 28f, 6, aggro: 55f, attackRange: 18f, windupMs: 650f, cooldownMs: 1700f, hitW: 22f, hitH: 14f, bodyHeightPx: 172f)
+            { RenderScale = 1.2f };
+
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
-        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra };
+        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant };
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -81,6 +93,11 @@ namespace ZenoniaProto
                 case "marshStalker": return MarshStalker;
                 case "ruinWisp": return RuinWisp;
                 case "mirefangHydra": return MirefangHydra;
+                case "hornRabbit": return HornRabbit;
+                case "thornBoar": return ThornBoar;
+                case "meadowSlime": return MeadowSlime;
+                case "meadowMantis": return MeadowMantis;
+                case "brambleTreant": return BrambleTreant;
                 default: return null;
             }
         }

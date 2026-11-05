@@ -10,7 +10,7 @@ namespace ZenoniaProto.Net
     /// <summary>Protocol constants shared by server and clients (bump Version on any wire change).</summary>
     public static class NetProtocol
     {
-        public const ushort Version = 14; // 14: Thatchwick Village + Willowbrook Meadows maps (an older client has no data for them)
+        public const ushort Version = 14; // 14 (unreleased): Thatchwick Village + Willowbrook Meadows maps, meadow monsters appended to MonsterDef.All
         public const int MaxSelfBuffs = 8;
         public const int MaxNameLength = 16, MaxTokenLength = 64, MaxTextLength = 120, MaxItemUidLength = 40, MaxSaveJsonLength = 60000, MaxMapIdLength = 32;
         /// <summary>Largest unfragmented snapshot: LiteNetLib refuses an unreliable packet over 1023 B (MTU 1024), so 1000 B.</summary>

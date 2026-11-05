@@ -1,0 +1,90 @@
+{
+ "map": "willowbrookMeadows",
+ "size": [
+  72,
+  48
+ ],
+ "oldSection": {
+  "tx": 0,
+  "ty": 12,
+  "w": 36,
+  "h": 24
+ },
+ "start": {
+  "tx": 3,
+  "ty": 23
+ },
+ "portals": [
+  {
+   "tx": 0,
+   "ty": 23,
+   "to": "thatchVillage",
+   "toTx": 33,
+   "toTy": 23
+  },
+  {
+   "tx": 0,
+   "ty": 24,
+   "to": "thatchVillage",
+   "toTx": 33,
+   "toTy": 24
+  }
+ ],
+ "areas": {
+  "oldBridge": {
+   "tx": 23,
+   "ty": 22,
+   "w": 5,
+   "h": 1
+  },
+  "pond": {
+   "cx": 45,
+   "cy": 38,
+   "rx": 6.6,
+   "ry": 3.0
+  },
+  "ruins": {
+   "tx": 54,
+   "ty": 4,
+   "w": 10,
+   "h": 7
+  },
+  "farm": {
+   "tx": 9,
+   "ty": 36,
+   "w": 9,
+   "h": 8,
+   "shed": {
+    "tx": 14,
+    "ty": 38,
+    "w": 3,
+    "h": 2
+   },
+   "haystack": {
+    "tx": 10,
+    "ty": 41,
+    "w": 2,
+    "h": 1
+   }
+  },
+  "barrierEast": {
+   "tx": 69,
+   "ty": 20,
+   "w": 3,
+   "h": 5
+  },
+  "treeStripWest": {
+   "tx": 37,
+   "ty": 3,
+   "w": 2,
+   "h": 17,
+   "gapRows": "9-11"
+  },
+  "treeStripEast": {
+   "tx": 57,
+   "w": 2,
+   "rows": "12-20 and 27-38"
+  },
+  "mainRoad": "rows 22-24 from the gate to col 68"
+ }
+}

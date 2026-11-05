@@ -1,0 +1,3 @@
+Approved sketch (1 char = 3x3 tiles), see phase-02 file. Final tile data: willowbrook-72x48-rows.txt. Preview: ../visuals/willowbrook-72x48-layout-preview.png
+Deviations from sketch: farm F sits at cols 9-17 rows 36-43 (south of the old section, which already covers rows 12-35); old stream flows
+north cols 19-23 (matches the painted art, sketch drew it at c8); pond rows 35-40; bridge over the stream at cols 36-39 rows 29-33 (farm->bank road).

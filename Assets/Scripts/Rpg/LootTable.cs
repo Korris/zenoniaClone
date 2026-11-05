@@ -41,6 +41,12 @@ namespace ZenoniaProto.Rpg
             { "ruinWisp", new MonsterLootDef { Type = "ruinWisp", Exp = 545, GoldMin = 39, GoldMax = 79, ItemLevel = 34 } },
             { "glacierWarden", new MonsterLootDef { Type = "glacierWarden", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 20, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "mirefangHydra", new MonsterLootDef { Type = "mirefangHydra", Exp = 3270, GoldMin = 233, GoldMax = 473, ItemLevel = 35, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            // Willowbrook meadow monsters: EXP 14L x role factor, gold L..2L+1 x role factor.
+            { "hornRabbit", new MonsterLootDef { Type = "hornRabbit", Exp = 26, GoldMin = 1, GoldMax = 4, ItemLevel = 2 } },
+            { "thornBoar", new MonsterLootDef { Type = "thornBoar", Exp = 50, GoldMin = 4, GoldMax = 8, ItemLevel = 3 } },
+            { "meadowSlime", new MonsterLootDef { Type = "meadowSlime", Exp = 12, GoldMin = 1, GoldMax = 3, ItemLevel = 1 } },
+            { "meadowMantis", new MonsterLootDef { Type = "meadowMantis", Exp = 80, GoldMin = 6, GoldMax = 12, ItemLevel = 5 } },
+            { "brambleTreant", new MonsterLootDef { Type = "brambleTreant", Exp = 134, GoldMin = 10, GoldMax = 20, ItemLevel = 6 } },
         };
 
         public static MonsterLootDef For(string type) { MonsterLootDef d; return type != null && Table.TryGetValue(type, out d) ? d : null; }

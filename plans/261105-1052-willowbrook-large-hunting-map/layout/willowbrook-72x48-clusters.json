@@ -1,0 +1,207 @@
+{
+ "map": "willowbrookMeadows",
+ "size": [
+  72,
+  48
+ ],
+ "clusters": [
+  {
+   "id": "1",
+   "area": "Tay bac (cu)",
+   "count": 6,
+   "rect": {
+    "tx": 4,
+    "ty": 15,
+    "w": 9,
+    "h": 5
+   },
+   "respawnMs": 6000,
+   "walkable": 45,
+   "pathDistMin": 5,
+   "pathDistMedian": 11,
+   "level": 1,
+   "type": "bogSlime",
+   "fallbackType": "frostSlime"
+  },
+  {
+   "id": "2",
+   "area": "Tay nam (cu)",
+   "count": 6,
+   "rect": {
+    "tx": 12,
+    "ty": 27,
+    "w": 12,
+    "h": 5
+   },
+   "respawnMs": 6500,
+   "walkable": 60,
+   "pathDistMin": 13,
+   "pathDistMedian": 21,
+   "level": 1,
+   "type": "bogSlime",
+   "fallbackType": "frostSlime"
+  },
+  {
+   "id": "3",
+   "area": "Tay, ben kia suoi (cu)",
+   "count": 5,
+   "rect": {
+    "tx": 25,
+    "ty": 15,
+    "w": 8,
+    "h": 6
+   },
+   "respawnMs": 7000,
+   "walkable": 47,
+   "pathDistMin": 26,
+   "pathDistMedian": 31,
+   "level": 2,
+   "type": "hornRabbit",
+   "fallbackType": "iceGoblin"
+  },
+  {
+   "id": "4",
+   "area": "Dai bac tay",
+   "count": 6,
+   "rect": {
+    "tx": 4,
+    "ty": 3,
+    "w": 12,
+    "h": 6
+   },
+   "respawnMs": 7500,
+   "walkable": 67,
+   "pathDistMin": 16,
+   "pathDistMedian": 24,
+   "level": 2,
+   "type": "hornRabbit",
+   "fallbackType": "iceGoblin"
+  },
+  {
+   "id": "5",
+   "area": "Dai bac, dong suoi",
+   "count": 5,
+   "rect": {
+    "tx": 28,
+    "ty": 3,
+    "w": 7,
+    "h": 6
+   },
+   "respawnMs": 6000,
+   "walkable": 38,
+   "pathDistMin": 40,
+   "pathDistMedian": 45,
+   "level": 2,
+   "type": "hornRabbit",
+   "fallbackType": "iceGoblin"
+  },
+  {
+   "id": "6",
+   "area": "Giua bac",
+   "count": 7,
+   "rect": {
+    "tx": 40,
+    "ty": 4,
+    "w": 12,
+    "h": 7
+   },
+   "respawnMs": 8000,
+   "walkable": 79,
+   "pathDistMin": 50,
+   "pathDistMedian": 59,
+   "level": 4,
+   "type": "thornBoar",
+   "fallbackType": "spectralWolf"
+  },
+  {
+   "id": "7",
+   "area": "Giua, bac duong",
+   "count": 6,
+   "rect": {
+    "tx": 39,
+    "ty": 14,
+    "w": 14,
+    "h": 6
+   },
+   "respawnMs": 8500,
+   "walkable": 83,
+   "pathDistMin": 40,
+   "pathDistMedian": 49,
+   "level": 3,
+   "type": "thornBoar",
+   "fallbackType": "iceGoblin"
+  },
+  {
+   "id": "8",
+   "area": "Bo dong ao",
+   "count": 6,
+   "rect": {
+    "tx": 45,
+    "ty": 30,
+    "w": 9,
+    "h": 7
+   },
+   "respawnMs": 9000,
+   "walkable": 53,
+   "pathDistMin": 51,
+   "pathDistMedian": 58,
+   "level": 3,
+   "type": "thornBoar",
+   "fallbackType": "spectralWolf"
+  },
+  {
+   "id": "9",
+   "area": "Phe tich dong bac",
+   "count": 8,
+   "rect": {
+    "tx": 57,
+    "ty": 3,
+    "w": 11,
+    "h": 8
+   },
+   "respawnMs": 9500,
+   "walkable": 78,
+   "pathDistMin": 67,
+   "pathDistMedian": 76,
+   "level": 6,
+   "type": "brambleTreant",
+   "fallbackType": "spectralWolf"
+  },
+  {
+   "id": "A",
+   "area": "Dong co dong",
+   "count": 8,
+   "rect": {
+    "tx": 57,
+    "ty": 15,
+    "w": 11,
+    "h": 8
+   },
+   "respawnMs": 9000,
+   "walkable": 76,
+   "pathDistMin": 55,
+   "pathDistMedian": 64,
+   "level": 5,
+   "type": "meadowMantis",
+   "fallbackType": "spectralWolf"
+  },
+  {
+   "id": "B",
+   "area": "Dong nam",
+   "count": 7,
+   "rect": {
+    "tx": 60,
+    "ty": 30,
+    "w": 10,
+    "h": 9
+   },
+   "respawnMs": 10000,
+   "walkable": 86,
+   "pathDistMin": 66,
+   "pathDistMedian": 74,
+   "level": 5,
+   "type": "meadowMantis",
+   "fallbackType": "spectralWolf"
+  }
+ ]
+}

@@ -54,10 +54,11 @@ namespace ZenoniaProto
         /// <summary>The Lv 1-2 starter field (no boss): slimes in the north-west meadow and the middle one, goblins beyond the stream in the north-east, wolves in the east end of the south meadow. The west gate and the start tile stay clear.</summary>
         static readonly FrostHollowMap.Zone[] WillowbrookMeadows =
         {
-            new FrostHollowMap.Zone("frostSlime", 5, 3, 3, 9, 5, 8000f),
-            new FrostHollowMap.Zone("frostSlime", 4, 12, 14, 12, 6, 9000f),
-            new FrostHollowMap.Zone("iceGoblin", 4, 25, 3, 8, 6, 10000f),
-            new FrostHollowMap.Zone("spectralWolf", 3, 18, 13, 6, 6, 11000f),
+            // Meadow monsters (2026-11-05): sprout slimes near the gate, horned rabbits across the stream, thornback boars in the south meadow.
+            new FrostHollowMap.Zone("meadowSlime", 5, 3, 3, 9, 5, 8000f),
+            new FrostHollowMap.Zone("meadowSlime", 4, 12, 14, 12, 6, 9000f),
+            new FrostHollowMap.Zone("hornRabbit", 4, 25, 3, 8, 6, 10000f),
+            new FrostHollowMap.Zone("thornBoar", 3, 18, 13, 6, 6, 11000f),
         };
 
         public static FrostHollowMap.Zone[] ZonesFor(string mapId)
