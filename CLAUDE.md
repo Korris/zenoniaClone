@@ -15,6 +15,13 @@ Trả lời người dùng bằng tiếng Việt.
   - Thời gian trong `*Fx.cs` không khớp `SkillTable`.
 - Sửa xong phải tự xem ảnh: ghép đúng cách game vẽ (sheet `body/bare/` + overlay), xem từng frame. Báo cáo "xong" của agent hay chỉ số không đủ. Chỉ nói đã sửa khi đã thấy, và nói rõ phần chưa xem trong game.
 
+## Map
+
+**Trước mọi việc tạo hoặc sửa map, kể cả khi giao agent: đọc hết `docs/map-design-rules.md`.** Ghi rõ yêu cầu này trong brief.
+
+- Đường, cầu, cầu thang, bãi quái phải trống; trang trí đặt ở ven đường, chân vách, góc map. Đồ nhỏ đi xuyên qua được.
+- Rà từng cầu thang trên ảnh tô ô chặn: script phân loại màu hay chặn nhầm bậc đá.
+
 ## Asset để đúng chỗ, không thả lung tung
 
 Asset của class nào nằm trong folder class đó (warrior, wizard, mechanic, assassin, cleric):
