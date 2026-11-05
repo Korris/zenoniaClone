@@ -232,4 +232,30 @@ public class FrostHollowLargeMapTests
         Assert.True(m.Success);
         if (FrostHollowLayout.RowCount > 24) Assert.True(int.Parse(m.Groups[1].Value) >= 3, "Frost Hollow has " + FrostHollowLayout.RowCount + " rows but SaveVersion is " + m.Groups[1].Value);
     }
+
+    [Fact]
+    public void NoSolidPropStandsOnAPathBridgeStairOrInsideAnyClusterRect()
+    {
+        // Lane tiles come from Tools/build-map-walking-lanes.py (stone paths, bridges, stairs, the camp plaza). Walk-through props (FootH 0: small crystals and rocks, saplings, stumps, bones) may stand anywhere.
+        string[] lane = File.ReadAllLines(RepoFile("plans/261105-1240-frost-hollow-large-map/layout/frost-hollow-72x48-lanes.txt"));
+        Assert.Equal(48, lane.Length);
+        var zones = ParseZones("Assets/Scripts/MapSpawnTable.cs", "FrostHollowOuter =");
+        zones.AddRange(ParseZones("Assets/Scripts/FrostHollowMap.cs", "Zone[] Zones"));
+        Assert.Equal(17, zones.Count);
+        int checkedTiles = 0;
+        foreach (MapProp p in FrostHollowProps.All)
+        {
+            PropDef d;
+            Assert.True(VillagePropDefs.TryGet(p.Type, out d), "unknown prop " + p.Type);
+            for (int y = p.Ty - d.FootH + 1; y <= p.Ty; y++)
+                for (int x = p.Tx; x < p.Tx + d.FootW; x++)
+                {
+                    checkedTiles++;
+                    Assert.False(x >= 0 && x < 72 && y >= 0 && y < 48 && lane[y][x] == 'r', p.Type + " at " + p.Tx + "," + p.Ty + " blocks a path tile " + x + "," + y);
+                    foreach (int[] z in zones)
+                        Assert.False(x >= z[1] && x < z[1] + z[3] && y >= z[2] && y < z[2] + z[4], p.Type + " at " + p.Tx + "," + p.Ty + " stands inside the cluster at " + z[1] + "," + z[2]);
+                }
+        }
+        Assert.True(checkedTiles > 100, "only " + checkedTiles + " solid tiles checked");
+    }
 }

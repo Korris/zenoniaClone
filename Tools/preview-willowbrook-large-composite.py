@@ -63,6 +63,17 @@ def solid_grid(rws, plist, dd):
                 if 0 <= x < 72 and 0 <= y < 48: g[y, x] = True
     return g
 
+
+def lane_offenders(plist, dd, lane_file, skip=()):
+    """Props whose solid footprint stands on a walking-lane tile (Tools/build-map-walking-lanes.py): must be empty."""
+    lane = [l.rstrip() for l in open(lane_file) if l.strip()]
+    bad = []
+    for t, tx, ty in plist:
+        if t not in dd or t in skip: continue
+        w, h, fw, fh = dd[t]
+        if any(0 <= x < 72 and 0 <= y < 48 and lane[y][x] == "r" for y in range(ty - fh + 1, ty + 1) for x in range(tx, tx + fw)): bad.append((t, tx, ty))
+    return bad
+
 def overlay(full, g, clusters):
     ov = Image.new("RGBA", full.size, (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
     for y in range(48):
@@ -75,8 +86,10 @@ def overlay(full, g, clusters):
     return Image.alpha_composite(full, ov)
 
 def zones():
-    m = re.findall(r'new FrostHollowMap\.Zone\("(\w+)", (\d+), (\d+), (\d+), (\d+), (\d+), (\d+)f\)', open(os.path.join(ROOT, "Assets", "Scripts", "MapSpawnTable.cs"), encoding="utf8").read())
-    return [(int(a[2]), int(a[3]), int(a[4]), int(a[5])) for a in m[-11:]] if len(m) >= 11 else []
+    """The Willowbrook block of MapSpawnTable.cs (the Frost Hollow tables further down use the same Zone constructor)."""
+    src = open(os.path.join(ROOT, "Assets", "Scripts", "MapSpawnTable.cs"), encoding="utf8").read()
+    a = src.index("WillowbrookMeadows ="); src = src[a:src.index("};", a)]
+    return [(int(m[2]), int(m[3]), int(m[4]), int(m[5])) for m in re.findall(r'new FrostHollowMap\.Zone\("(\w+)", (\d+), (\d+), (\d+), (\d+), (\d+), (\d+)f\)', src)]
 
 if __name__ == "__main__":
     plist, dd, rws = tables(), defs(), rows()
@@ -86,6 +99,8 @@ if __name__ == "__main__":
     if "--minimap" in sys.argv:
         full.convert("RGB").resize((432, 288), Image.LANCZOS).save(os.path.join(TILES, "willowbrook-large-ground-minimap.png"), optimize=True)
     g = solid_grid(rws, plist, dd)
+    LANE = os.path.join(ROOT, 'plans', '261105-1052-willowbrook-large-hunting-map', 'layout', 'willowbrook-72x48-lanes.txt')
+    for b in lane_offenders(plist, dd, LANE, ('wbxBarricade', 'wbPalisade')): print('PROBLEM solid prop on a walking lane', b)
     ov = overlay(full, g, zones())
     ov.convert("RGB").resize((1536, 1024), Image.LANCZOS).save(os.path.join(VIS, "composite-solid.jpg"), quality=88)
     if "--crops" in sys.argv:

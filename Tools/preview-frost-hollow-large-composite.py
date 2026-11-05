@@ -82,6 +82,17 @@ def zones():
 PORTALS = [(2, 21), (67, 20), (68, 20), (69, 20)]
 START = (4, 21)
 
+
+def lane_offenders(plist, dd, lane_file, skip=()):
+    """Props whose solid footprint stands on a walking-lane tile (Tools/build-map-walking-lanes.py): must be empty."""
+    lane = [l.rstrip() for l in open(lane_file) if l.strip()]
+    bad = []
+    for t, tx, ty in plist:
+        if t not in dd or t in skip: continue
+        w, h, fw, fh = dd[t]
+        if any(0 <= x < 72 and 0 <= y < 48 and lane[y][x] == "r" for y in range(ty - fh + 1, ty + 1) for x in range(tx, tx + fw)): bad.append((t, tx, ty))
+    return bad
+
 def overlay(full, g, zs):
     ov = Image.new("RGBA", full.size, (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
     for y in range(H):
@@ -142,6 +153,11 @@ if __name__ == "__main__":
         full.convert("RGB").resize((432, 288), Image.LANCZOS).save(os.path.join(TILES, "frost-hollow-large-ground-minimap.png"), optimize=True)
     g = solid_grid(rws, plist, dd)
     for b in validate(rws, plist, dd, zones()): print("PROBLEM", b)
+    LANE = os.path.join(ROOT, 'plans', '261105-1240-frost-hollow-large-map', 'layout', 'frost-hollow-72x48-lanes.txt')
+    for b in lane_offenders(plist, dd, LANE): print('PROBLEM solid prop on a walking lane', b)
+    zg = [(z[0], z[2], z[3], z[4], z[5]) for z in zones()]
+    for t, tx, ty in plist:
+        if t in dd and any(zx <= x < zx + zw and zy <= y < zy + zh for _, zx, zy, zw, zh in zg for y in range(ty - dd[t][3] + 1, ty + 1) for x in range(tx, tx + dd[t][2])): print('PROBLEM solid prop inside a cluster rect', t, tx, ty)
     lost = flood(g)
     print("walkable tiles not reachable from start:", int(lost.sum()), [(int(x), int(y)) for y, x in zip(*np.where(lost))][:20])
     ov = overlay(full, g, zones())

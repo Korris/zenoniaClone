@@ -43,8 +43,9 @@ namespace ZenoniaProto
             sr.sortingOrder = GameConfig.OrderBase(y);
             if (s != null) { sr.transform.position = new Vector3(x, y, 0f); return; }
             sr.color = MissingPropTint;
-            sr.transform.localScale = new Vector3(d.FootW * GameConfig.TileUnits, d.FootH * GameConfig.TileUnits, 1f);
-            sr.transform.position = new Vector3(x, y + d.FootH * GameConfig.TileUnits * 0.5f, 0f);
+            int footH = Mathf.Max(1, d.FootH); // walk-through props (FootH 0) still need a visible placeholder when their art is missing
+            sr.transform.localScale = new Vector3(d.FootW * GameConfig.TileUnits, footH * GameConfig.TileUnits, 1f);
+            sr.transform.position = new Vector3(x, y + footH * GameConfig.TileUnits * 0.5f, 0f);
         }
 
         static Sprite PropSprite(string type)

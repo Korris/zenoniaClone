@@ -113,4 +113,30 @@ public class WillowbrookLargeMapTests
         }
         Assert.InRange(total, 50, 80);
     }
+
+    [Fact]
+    public void NoSolidPropStandsOnARoadTrailBridgeOrInsideASpawnClusterRect()
+    {
+        // Lane tiles come from Tools/build-map-walking-lanes.py (centre lines read off the painting). Walk-through props (FootH 0: bushes, small rocks, stumps, logs, reeds) may stand anywhere;
+        // the barricade closes the road end on purpose and sits beyond the last lane tile.
+        string[] lane = File.ReadAllLines(RepoFile("plans/261105-1052-willowbrook-large-hunting-map/layout/willowbrook-72x48-lanes.txt"));
+        Assert.Equal(48, lane.Length);
+        List<int[]> zones = Zones();
+        int checkedProps = 0;
+        foreach (MapProp p in WillowbrookMeadowsProps.All)
+        {
+            PropDef d;
+            Assert.True(VillagePropDefs.TryGet(p.Type, out d), "unknown prop " + p.Type);
+            if (p.Type == "wbxBarricade") continue; // the wall that ends the road at the east edge; its top row touches the corner of the east meadow cluster
+            for (int y = p.Ty - d.FootH + 1; y <= p.Ty; y++)
+                for (int x = p.Tx; x < p.Tx + d.FootW; x++)
+                {
+                    checkedProps++;
+                    Assert.False(x >= 0 && x < 72 && y >= 0 && y < 48 && lane[y][x] == 'r', p.Type + " at " + p.Tx + "," + p.Ty + " blocks a road tile " + x + "," + y);
+                    foreach (int[] z in zones)
+                        Assert.False(x >= z[1] && x < z[1] + z[3] && y >= z[2] && y < z[2] + z[4], p.Type + " at " + p.Tx + "," + p.Ty + " stands inside the cluster at " + z[1] + "," + z[2]);
+                }
+        }
+        Assert.True(checkedProps > 100, "only " + checkedProps + " solid tiles checked");
+    }
 }
