@@ -66,6 +66,7 @@ namespace ZenoniaProto
         }
 
         // Mechanic: where each muzzle is, world units from the feet (down, up, left, right), measured by Tools/build-mechanic-dual.py muzzles (pistol s 0.26 since 2026-11-04). Pictures only: the bolt's own start stays in FireBolt.
+        // Pistol muzzle offsets from the feet per facing (down, up, left, right) for pistol s = 0.26: Tools/build-mechanic-dual.py muzzles.
         static readonly Vector2[] MuzzleLeftHand = { new Vector2(10.5f, 13.8f), new Vector2(-10.8f, 16.6f), new Vector2(-12.1f, 15.8f), new Vector2(13.5f, 13.5f) };
         static readonly Vector2[] MuzzleRightHand = { new Vector2(-12f, 14.7f), new Vector2(10.2f, 18.1f), new Vector2(-12.5f, 14.5f), new Vector2(13.6f, 13.9f) };
         static readonly Vector2[] MuzzleBothRight = { new Vector2(-12.5f, 12.3f), new Vector2(11.5f, 14.9f), new Vector2(-11.5f, 13f), new Vector2(11.5f, 13f) };

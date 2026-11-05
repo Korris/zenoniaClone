@@ -37,7 +37,7 @@ HELD_ANIMS = ("attack4", "rocket")  # both hands on the cannon: pistols hidden, 
 MIRRORED = ("attack3", "attack4", "rocket", "dash", "hurt")
 T, F = True, False
 
-PISTOL_S, PISTOL_LEN = 0.26, 258  # 2026-11-04: s 0.15 -> 0.26 (x1.73), 39 -> 67 frame px long: the user found the pistols too small. The anchors in held-mechanic-dual.json were scaled the same way; `muzzles` then gives the HeroFx tables
+PISTOL_S, PISTOL_LEN = 0.26, 258  # 2026-11-05: tried 0.20 so both pistols fit side by side in the new idle, the user wants 0.26 back; 2026-11-04: s 0.15 -> 0.26 (x1.73), 39 -> 67 frame px long: the user found the pistols too small. The anchors in held-mechanic-dual.json were scaled the same way; `muzzles` then gives the HeroFx tables
 CANNON_LEN = 168.0  # frame px, tip to tail
 CANNON_S = 0.5  # art is cut at twice its size on screen
 SIDE_SX = 0.9  # the barrel lies across the back: a little shorter seen from the side
@@ -263,7 +263,9 @@ BACK = {
     "down": dict(art="front", dx=6, dy=74, aim=-44, flip=1, behind=T),
     "up": dict(art="back", dx=-10, dy=84, aim=-149, flip=1, behind=F),
     "right": dict(art="side", dx=-30, dy=62, aim=-135, flip=1, behind=T),
-    "left": dict(art="side", dx=30, dy=62, aim=-45, flip=-1, behind=T),
+    # Facing left: muzzle up and behind like facing right (the user approved ChatGPT's drawing of both sides, 2026-11-05), drawn without the
+    # mirror flip so the strap side of the art matches the idle doll rows (Tools/build-mechanic-idle-doll-from-chatgpt.py).
+    "left": dict(art="side", dx=30, dy=62, aim=-45, flip=1, behind=T),
 }
 
 
