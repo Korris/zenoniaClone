@@ -35,6 +35,28 @@ PIECES = [
     ("fb", "fb-chatgpt", 2048, 512, [("h", 1440, 1536, 2048, 3072), ("v", 2464, 2560, 1536, 2048)]),
 ]
 
+# Local patches laid over the finished assembly: (name, file, ox, oy, (x0, y0, x1, y1) canvas px, feather sigma px). The patch image is colour matched on a
+# ring just outside the rectangle (where it duplicates the canvas), then blended in through a feathered rectangle mask.
+# ne-stairs: ChatGPT edit of source x 1536..3072, y 0..1024 with a new stone staircase in the plateau's south cliff; only the stairs area is taken.
+PATCHES = [
+    ("ne-stairs", "ne-stairs-edit-chatgpt", 1536, 0, (1536 + 470, 175, 1536 + 725, 335), 6),
+]
+
+
+def apply_patches(canvas):
+    for name, f, ox, oy, (x0, y0, x1, y1), sig in PATCHES:
+        img = load(f); h, w = img.shape[:2]
+        full = np.zeros((H, W, 3), np.float32); full[oy:oy + h, ox:ox + w] = img
+        box = np.zeros((H, W), bool); box[y0:y1, x0:x1] = True
+        ring = cv2.dilate(box.astype(np.uint8), np.ones((61, 61), np.uint8)).astype(bool) & ~cv2.dilate(box.astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)
+        ring &= np.zeros_like(ring) | (np.arange(W)[None, :] >= ox) & (np.arange(W)[None, :] < ox + w) & (np.arange(H)[:, None] >= oy) & (np.arange(H)[:, None] < oy + h)
+        full = match_color(full, canvas, ring)
+        m = np.zeros((H, W), np.float32); m[y0 + 8:y1 - 8, x0 + 8:x1 - 8] = 1
+        m = cv2.GaussianBlur(m, (0, 0), sig)
+        canvas = canvas * (1 - m[..., None]) + full * m[..., None]
+        print("patch %s ring |diff| after match %.2f" % (name, np.abs(full - canvas)[ring].mean()))
+    return canvas
+
 
 def load(name):
     return np.asarray(Image.open(os.path.join(LARGE, name + ".png")).convert("RGB")).astype(np.float32)
@@ -104,6 +126,7 @@ def assemble():
         canvas = canvas * (1 - alpha[..., None]) + full * alpha[..., None]
         defined |= frame
     assert defined.all(), "canvas has holes"
+    canvas = apply_patches(canvas)
     return np.clip(canvas + 0.5, 0, 255).astype(np.uint8), report
 
 

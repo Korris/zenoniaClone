@@ -8,7 +8,7 @@ namespace ZenoniaProto
         {
             // Ruined towers around the north-east stone circle (solid plateau, decoration only; the circle stays visible in the middle)
             P("fhTowerTall", 42, 4), P("fhTowerShort", 46, 5), P("fhTowerShort", 52, 5), P("fhTowerTall", 55, 4), P("fhTowerShort", 44, 2), P("fhTowerShort", 54, 2),
-            P("fhTowerTall", 47, 1), P("fhTowerShort", 51, 1), P("fhCrystalMid", 49, 6), P("fhRuneTall", 40, 5),
+            P("fhTowerTall", 47, 1), P("fhTowerShort", 51, 1), P("fhRuneTall", 40, 5),
             // Top edge: pines on the cliff tops above the north-east fields
             P("fhPineMid", 38, 2), P("fhPineBig", 40, 3), P("fhPineBig", 58, 3), P("fhPineMid", 61, 2), P("fhPineBig", 64, 3), P("fhPineMid", 67, 2), P("fhPineBig", 69, 4), P("fhPineSlim", 62, 4),
             // East edge (solid cliff column 69-70): the cave mouth rows 16-26 stay clear

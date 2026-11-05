@@ -38,11 +38,14 @@ MONSTERS = {
     "meadowMantis": ("meadow-mantis", 172, "Lv5"),
     "brambleTreant": ("bramble-treant", 190, "Lv6"),
     # Frost Hollow deep area (sources in FROST_DIR)
+    "snowFox": ("snow-fox", 120, "Lv3"),
+    "iceImp": ("ice-imp", 135, "Lv4"),
+    "frostBear": ("frost-bear", 175, "Lv5"),
     "iceWraith": ("ice-wraith", 165, "Lv7"),
     "frostbiteYeti": ("frostbite-yeti", 185, "Lv8"),
     "crystalGolem": ("crystal-golem", 190, "Lv9"),
 }
-FROST_IDS = {"iceWraith", "frostbiteYeti", "crystalGolem"}
+FROST_IDS = {"snowFox", "iceImp", "frostBear", "iceWraith", "frostbiteYeti", "crystalGolem"}
 
 
 # ---------------------------------------------------------------- keying

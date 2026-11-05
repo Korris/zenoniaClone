@@ -2,3 +2,5 @@
 5 23 6 25 s    # SW stairs down the south rim of the old section (the exit the P1 agent found closed)
 16 28 23 29 B   # south bridge deck (2 rows, planks cols 16-23 on the painting)
 66 20 69 22 s   # ice cave mouth floor + the snow in front of it: the Den portal sits on row 20 (cols 67-69), arrival at (68,22)
+49 5 50 6 B    # NE plateau stairs (ChatGPT edit patch): 2 tiles wide, balustrades at cols 48 and 51 stay solid; the plateau top (rows 1-4, cols 43-55) opens through them
+50 2 51 2 s    # stone circle tiles the classifier read as rock

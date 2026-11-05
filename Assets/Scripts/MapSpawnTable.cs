@@ -72,22 +72,25 @@ namespace ZenoniaProto
         };
 
         /// <summary>
-        /// Frost Hollow's 57 monsters outside the original 36x24 section, in 10 clusters on the painted 72x48 rows (plan layout/frost-hollow-72x48-clusters.md, rects fitted to the walkable tiles).
-        /// FrostHollowMap.Zones stays the five old ones (the bots and the bench use them directly); ZonesFor("frostHollow") is both. Level climbs with the walk from the village: Lv1-2 in the south-west and
-        /// around the old valley, Lv7 wraiths in the north field, Lv8 yetis in the south, Lv9 golems by the ice cave. Respawn 7-10.5 s. Every rect is at least 5 tiles from the start, the gate and the cave.
+        /// Frost Hollow's 66 monsters outside the original 36x24 section, in 12 clusters on the painted 72x48 rows (plan layout/frost-hollow-72x48-clusters.md, rects fitted to the walkable tiles).
+        /// FrostHollowMap.Zones stays the five old ones (the bots and the bench use them directly); ZonesFor("frostHollow") is both. Level climbs with the walk from the village: Lv1-2 in the old valley and
+        /// the south-west, Lv3 snow foxes just south and east of the valley, Lv4 imps on the lake's north shore, Lv5 bears under the plateau and in the south-middle, then Lv7 wraiths in the north-east,
+        /// Lv8 yetis in the far south and Lv9 golems by the ice cave and on the watchtower plateau (stairs at (49-50,5-6) stay free). Respawn 7-10.5 s. Every rect is at least 5 tiles from the start, the gate and the cave.
         /// </summary>
         public static readonly FrostHollowMap.Zone[] FrostHollowOuter =
         {
             new FrostHollowMap.Zone("frostSlime", 6, 2, 27, 10, 5, 7000f),       // 1  south of the village gate
             new FrostHollowMap.Zone("iceGoblin", 6, 3, 37, 12, 6, 8000f),        // 2  south-west plaza
-            new FrostHollowMap.Zone("spectralWolf", 5, 26, 28, 10, 6, 8500f),    // 3  south bank, east of the river
-            new FrostHollowMap.Zone("iceGoblin", 5, 38, 8, 10, 7, 8000f),        // 4  north-middle field
-            new FrostHollowMap.Zone("spectralWolf", 6, 40, 19, 12, 5, 9000f),    // 5  north shore of the lake
-            new FrostHollowMap.Zone("iceWraith", 7, 48, 7, 9, 6, 9500f) ,        // 6  north field, under the plateau
+            new FrostHollowMap.Zone("snowFox", 6, 26, 28, 10, 6, 7500f),         // 3  south bank, east of the river (bridge 2)
+            new FrostHollowMap.Zone("snowFox", 5, 38, 8, 10, 7, 7500f),          // 4  north-middle field, east of the old valley
+            new FrostHollowMap.Zone("iceImp", 6, 40, 19, 12, 5, 9000f),          // 5  north shore of the lake
+            new FrostHollowMap.Zone("frostBear", 5, 48, 8, 9, 5, 9500f),         // 6  north field, under the plateau
             new FrostHollowMap.Zone("iceWraith", 6, 57, 7, 9, 7, 9500f),         // 7  north-east field
             new FrostHollowMap.Zone("frostbiteYeti", 6, 40, 37, 14, 6, 10000f),  // 8  south of the lake
             new FrostHollowMap.Zone("crystalGolem", 5, 56, 15, 6, 9, 10500f),    // 9  approach to the ice cave
             new FrostHollowMap.Zone("frostbiteYeti", 5, 58, 38, 10, 6, 10000f),  // A  south-east corner
+            new FrostHollowMap.Zone("crystalGolem", 5, 43, 1, 13, 3, 10500f),    // B  watchtower plateau (stairs below at 49-50,5-6)
+            new FrostHollowMap.Zone("frostBear", 5, 25, 38, 10, 6, 9500f),       // C  south-middle, west of the lake
         };
 
         static readonly FrostHollowMap.Zone[] FrostHollowAll = Join(FrostHollowMap.Zones, FrostHollowOuter);

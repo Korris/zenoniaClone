@@ -6,7 +6,7 @@ using UnityEngine;
 using Xunit;
 using ZenoniaProto;
 
-/// <summary>The 72x48 Frost Hollow: size, chunks, gate and ice-cave portals with their round trips, border/HUD rows, flood fill from the start, the old valley tiles and the 10 outer spawn clusters
+/// <summary>The 72x48 Frost Hollow: size, chunks, gate and ice-cave portals with their round trips, border/HUD rows, flood fill from the start, the old valley tiles and the 12 outer spawn clusters
 /// (parsed from MapSpawnTable.cs, which needs Unity), plus the guard tying the row count to the save version.</summary>
 [Collection("MapRegistry")]
 public class FrostHollowLargeMapTests
@@ -122,11 +122,11 @@ public class FrostHollowLargeMapTests
     }
 
     [Fact]
-    public void OuterClustersAreTenFiftySevenMonstersWithRoomReachableAndClearOfEveryEntrance()
+    public void OuterClustersAreTwelveSixtySixMonstersWithRoomReachableAndClearOfEveryEntrance()
     {
         List<int[]> zones = ParseZones("Assets/Scripts/MapSpawnTable.cs", "FrostHollowOuter =");
         HashSet<int> seen = ReachableFromStart();
-        Assert.Equal(10, zones.Count);
+        Assert.Equal(12, zones.Count);
         var entrances = new List<int[]> { new[] { 4, 21 }, new[] { 2, 21 }, new[] { 68, 22 } };
         foreach (MapPortal p in Frost.Portals) entrances.Add(new[] { p.Tx, p.Ty });
         int total = 0;
@@ -146,7 +146,22 @@ public class FrostHollowLargeMapTests
                 Assert.True(Math.Sqrt(dx * dx + dy * dy) * 16.0 >= 80.0, "cluster at " + tx + "," + ty + " is inside the entrance clearance of " + e[0] + "," + e[1]);
             }
         }
-        Assert.Equal(57, total);
+        Assert.Equal(66, total);
+    }
+
+    [Fact]
+    public void WatchtowerPlateauIsReachableByItsStairsAndHoldsTheSecondGolemCluster()
+    {
+        HashSet<int> seen = ReachableFromStart();
+        // stairs (49-50, rows 5-6) open, flanked by solid balustrades (cols 48 and 51), snow below and the path above to the stone circle
+        foreach (int x in new[] { 49, 50 })
+            foreach (int y in new[] { 3, 4, 5, 6, 7 }) { Assert.False(Frost.IsSolidTile(x, y), "stairs path " + x + "," + y); Assert.Contains(y * 72 + x, seen); }
+        Assert.True(Frost.IsSolidTile(48, 5) && Frost.IsSolidTile(51, 5), "balustrades");
+        Assert.False(Frost.IsSolidTile(49, 2), "stone circle top"); Assert.Contains(2 * 72 + 49, seen);
+        foreach (MapProp p in FrostHollowProps.All)
+            Assert.False(p.Tx <= 50 && p.Tx + 2 > 49 && p.Ty >= 3 && p.Ty <= 7, "prop " + p.Type + " on the stairs path at " + p.Tx + "," + p.Ty);
+        List<int[]> zones = ParseZones("Assets/Scripts/MapSpawnTable.cs", "FrostHollowOuter =");
+        Assert.Contains(zones, z => z[0] == 5 && z[1] == 43 && z[2] == 1 && z[4] == 3 && z[5] == 10500);   // golems on the plateau (rows 1-3: clear of the stairs rows 4-7)
     }
 
     [Fact]
