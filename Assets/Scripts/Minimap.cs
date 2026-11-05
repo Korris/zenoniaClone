@@ -14,10 +14,10 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class Minimap : MonoBehaviour
     {
-        const float TileUi = 5.5f, InnerW = TileMapBase.W * TileUi, InnerH = TileMapBase.H * TileUi; // 3:2 like every map
+        const float InnerW = 198f, InnerH = 132f; // fixed UI size (3:2, 36x24 tiles at 5.5 px); a bigger 3:2 map is just scaled into it
         const float FrameInset = 7f, OuterW = InnerW + FrameInset * 2f, OuterH = InnerH + FrameInset * 2f; // inset = the hud-panel gold rim at the RpgHud slice scale
         const float RightMargin = 8f, TopOffset = 8f;                      // same edge gap as the status plate; the Bag and Settings buttons sit below it
-        const int BakePxPerTile = 12, BakeW = TileMapBase.W * BakePxPerTile, BakeH = TileMapBase.H * BakePxPerTile; // sharp up to a 1400 px tall screen
+        const int BakeW = 432, BakeH = 288; // 12 px per tile of a 36x24 map: sharp up to a 1400 px tall screen; larger maps are shrunk into the same size
         const float TickSeconds = 0.1f, BlinkSeconds = 0.3f;               // web: hero blink 300 ms
         const float HeroSize = 9f, MonsterSize = 6f, BossSize = 12f, OtherSize = 7f, NpcSize = 7f, PortalSize = 6f, QuestSize = 15f;
         static readonly Color HeroOn = new Color(1f, 1f, 0.5f), HeroOff = new Color(1f, 0.82f, 0f);
@@ -99,7 +99,7 @@ namespace ZenoniaProto
             shownVillagerDots = MapScenery.ShowsVillagers;
             shownPortals = map.Portals.Length;
             tickLeft = 0f;
-            Texture2D src = SpriteSheet.Load(map.GroundTexture);
+            Texture2D src = MinimapSource(map);
             if (src != null) Bake(src);
             ground.texture = src != null ? baked : null; // no painting: a flat plate, the dots still work
             ground.color = src != null ? Color.white : MissingGround;
@@ -121,6 +121,22 @@ namespace ZenoniaProto
                 }
             portalDots.End();
             npcDots.End();
+        }
+
+        /// <summary>
+        /// The picture the minimap is baked from: a painted "-minimap" next to the ground wins (a chunked map has no single ground image, so it needs one);
+        /// otherwise the single ground painting. A chunked map without a minimap picture gets a flat plate and a warning.
+        /// </summary>
+        static Texture2D MinimapSource(IGameMap map)
+        {
+            Texture2D art = SpriteSheet.TryLoad(map.GroundTexture + "-minimap");
+            if (art != null) return art;
+            if (map.GroundChunkCols * map.GroundChunkRows > 1)
+            {
+                Debug.LogWarning("[ZenoniaProto] Missing minimap Resources/" + map.GroundTexture + "-minimap.png for chunked map " + map.Id);
+                return null;
+            }
+            return SpriteSheet.Load(map.GroundTexture);
         }
 
         /// <summary>A wide road has a pair of trigger tiles but one light (MapScenery.BuildPortal), so it gets one marker too.</summary>

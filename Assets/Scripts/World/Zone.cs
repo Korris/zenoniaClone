@@ -26,7 +26,7 @@ namespace ZenoniaProto
         /// <summary>Server only: who plays here, what happened this tick (NetEventBus) and the cell index of this zone's entities.</summary>
         public readonly List<NetPlayer> Players = new List<NetPlayer>();
         public readonly List<NetEventBus.Queued> Events = new List<NetEventBus.Queued>(128);
-        public readonly InterestGrid Grid = new InterestGrid(GameConfig.MapW, GameConfig.MapH);
+        public readonly InterestGrid Grid = new InterestGrid(GameConfig.MaxTilesW * GameConfig.TileUnits, GameConfig.MaxTilesH * GameConfig.TileUnits);
         public readonly ZoneIdleClock Idle = new ZoneIdleClock();
         /// <summary>Multi-zone server only: runs this zone's skill objects with the zone current.</summary>
         public ZoneBehaviourPump Pump;

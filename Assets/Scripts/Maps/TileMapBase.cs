@@ -3,25 +3,37 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Shared tile collision of the 36x24 maps (web tilemap.js): a solid-tile grid built from the row strings (top-down like the web, row 0 = top)
+    /// Shared tile collision of the tile maps (36x24 by default; a map's size is its rows) (web tilemap.js): a solid-tile grid built from the row strings (top-down like the web, row 0 = top)
     /// plus footprints blocked by props / NPCs, a y-up RectBlocked and the 1-unit swept Move. Derived maps only supply data.
     /// </summary>
     public abstract class TileMapBase : IGameMap
     {
-        public const int W = 36, H = 24;
         public const float Tile = 16f;
         static readonly MapProp[] NoProps = new MapProp[0];
         static readonly MapNpc[] NoNpcs = new MapNpc[0];
 
         readonly string[] rows;
-        readonly bool[] solid = new bool[W * H];
+        readonly bool[] solid;
+        readonly int w, h;
 
         protected TileMapBase(string[] rows, string solidChars)
         {
             this.rows = rows;
-            for (int ty = 0; ty < H; ty++)
-                for (int tx = 0; tx < W; tx++) solid[ty * W + tx] = solidChars.IndexOf(rows[ty][tx]) >= 0;
+            h = rows.Length;
+            w = rows[0].Length;
+            for (int ty = 0; ty < h; ty++)
+                if (rows[ty].Length != w) Debug.LogError("[ZenoniaProto] map row " + ty + " is " + rows[ty].Length + " wide, expected " + w);
+            solid = new bool[w * h];
+            for (int ty = 0; ty < h; ty++)
+                for (int tx = 0; tx < w && tx < rows[ty].Length; tx++) solid[ty * w + tx] = solidChars.IndexOf(rows[ty][tx]) >= 0;
         }
+
+        /// <summary>Map size in tiles (taken from the row strings).</summary>
+        public int Width { get { return w; } }
+        public int Height { get { return h; } }
+        /// <summary>The backdrop is cols x rows images named GroundTexture-r{row}c{col} (row 0 = top); 1x1 = a single GroundTexture image.</summary>
+        public virtual int GroundChunkCols { get { return 1; } }
+        public virtual int GroundChunkRows { get { return 1; } }
 
         public abstract string Id { get; }
         public abstract string Name { get; }
@@ -37,33 +49,33 @@ namespace ZenoniaProto
         /// <summary>Tile char at (tx, ty); anything outside the map reads as 'C' (solid cliff).</summary>
         public char CharAt(int tx, int ty)
         {
-            if (tx < 0 || ty < 0 || tx >= W || ty >= H) return 'C';
+            if (tx < 0 || ty < 0 || tx >= w || ty >= h) return 'C';
             return rows[ty][tx];
         }
 
         /// <summary>Blocks a w x h tile rectangle (top-left tile tx, ty) for props and NPCs, clipped to the map.</summary>
-        protected void BlockTiles(int tx, int ty, int w, int h)
+        protected void BlockTiles(int tx, int ty, int bw, int bh)
         {
-            for (int y = ty; y < ty + h; y++)
-                for (int x = tx; x < tx + w; x++)
-                    if (x >= 0 && y >= 0 && x < W && y < H) solid[y * W + x] = true;
+            for (int y = ty; y < ty + bh; y++)
+                for (int x = tx; x < tx + bw; x++)
+                    if (x >= 0 && y >= 0 && x < w && y < h) solid[y * w + x] = true;
         }
 
         public bool IsSolidTile(int tx, int ty)
         {
-            if (tx < 0 || ty < 0 || tx >= W || ty >= H) return true;
-            return solid[ty * W + tx];
+            if (tx < 0 || ty < 0 || tx >= w || ty >= h) return true;
+            return solid[ty * w + tx];
         }
 
         /// <summary>True when a y-up rect (bottom-left x,y; size w,h) touches a solid tile or leaves the map.</summary>
-        public bool RectBlocked(float x, float y, float w, float h)
+        public bool RectBlocked(float x, float y, float rw, float rh)
         {
-            if (x < 0f || y < 0f || x + w > GameConfig.MapW || y + h > GameConfig.MapH) return true;
-            int tx0 = Mathf.FloorToInt(x / Tile), tx1 = Mathf.FloorToInt((x + w - 0.001f) / Tile);
-            int ty0 = Mathf.FloorToInt(y / Tile), ty1 = Mathf.FloorToInt((y + h - 0.001f) / Tile);
+            if (x < 0f || y < 0f || x + rw > w * Tile || y + rh > h * Tile) return true;
+            int tx0 = Mathf.FloorToInt(x / Tile), tx1 = Mathf.FloorToInt((x + rw - 0.001f) / Tile);
+            int ty0 = Mathf.FloorToInt(y / Tile), ty1 = Mathf.FloorToInt((y + rh - 0.001f) / Tile);
             for (int ty = ty0; ty <= ty1; ty++)
                 for (int tx = tx0; tx <= tx1; tx++)
-                    if (IsSolidTile(tx, H - 1 - ty)) return true;
+                    if (IsSolidTile(tx, h - 1 - ty)) return true;
             return false;
         }
 

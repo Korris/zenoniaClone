@@ -27,8 +27,8 @@ namespace ZenoniaProto
     }
 
     /// <summary>
-    /// One playable map: tile collision, start tile, portals and the scenery to draw. Every map is 36x24 tiles of 16 units (GameConfig.MapW / MapH),
-    /// so the camera clamp and the interest grid do not depend on the map. MapRegistry.Current is the map the local sim runs.
+    /// One playable map: tile collision, start tile, portals and the scenery to draw. A map is Width x Height tiles of 16 units (36x24 for most, larger ones allowed up to GameConfig.MaxTilesW/H);
+    /// GameConfig.MapW / MapH follow MapRegistry.Current, the map the local sim runs.
     /// </summary>
     public interface IGameMap
     {
@@ -46,6 +46,13 @@ namespace ZenoniaProto
         MapPortal[] PortalsFor(bool gateOpen);
         MapProp[] Props { get; }
         MapNpc[] Npcs { get; }
+
+        /// <summary>Size in tiles.</summary>
+        int Width { get; }
+        int Height { get; }
+        /// <summary>Backdrop split: 1x1 = GroundTexture alone; otherwise GroundTexture-r{row}c{col} (row 0 = top) tiles the map.</summary>
+        int GroundChunkCols { get; }
+        int GroundChunkRows { get; }
 
         bool IsSolidTile(int tx, int ty);
         bool RectBlocked(float x, float y, float w, float h);

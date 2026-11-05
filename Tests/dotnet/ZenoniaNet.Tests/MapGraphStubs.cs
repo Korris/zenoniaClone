@@ -35,7 +35,11 @@ namespace ZenoniaProto
 
     public static class GameConfig
     {
-        public const float MapW = TileMapBase.W * TileMapBase.Tile, MapH = TileMapBase.H * TileMapBase.Tile;
+        public const int TileUnits = 16, MaxTilesW = 72, MaxTilesH = 48;
+        public static int TilesW { get { return MapRegistry.Current.Width; } }
+        public static int TilesH { get { return MapRegistry.Current.Height; } }
+        public static float MapW { get { return TilesW * TileUnits; } }
+        public static float MapH { get { return TilesH * TileUnits; } }
     }
 
     public static class FrostHollowMap

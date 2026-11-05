@@ -8,7 +8,7 @@ namespace ZenoniaProto
         public static bool TryFind(MapPortal[] portals, float feetX, float feetY, out MapPortal found)
         {
             int tx, ty;
-            PortalTile.OfFeet(feetX, feetY, TileMapBase.Tile, TileMapBase.H, out tx, out ty);
+            PortalTile.OfFeet(feetX, feetY, TileMapBase.Tile, GameConfig.TilesH, out tx, out ty);
             for (int i = 0; i < portals.Length; i++)
                 if (portals[i].Tx == tx && portals[i].Ty == ty) { found = portals[i]; return true; }
             found = default(MapPortal);

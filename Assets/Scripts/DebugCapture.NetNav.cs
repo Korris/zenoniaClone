@@ -10,9 +10,10 @@ namespace ZenoniaProto
     /// </summary>
     public partial class DebugCapture
     {
-        const int TW = FrostHollowMap.TilesW, TH = FrostHollowMap.TilesH;
-        readonly int[] dist = new int[TW * TH];
-        readonly Queue<int> bfs = new Queue<int>(TW * TH);
+        static int TW { get { return GameConfig.TilesW; } } // size of the current map; `dist` is allocated for the largest one
+        static int TH { get { return GameConfig.TilesH; } }
+        readonly int[] dist = new int[GameConfig.MaxTilesW * GameConfig.MaxTilesH];
+        readonly Queue<int> bfs = new Queue<int>(GameConfig.MaxTilesW * GameConfig.MaxTilesH);
         Vector2Int distGoal = new Vector2Int(-1, -1);
         IGameMap distMap;
         float distStamp;
@@ -29,7 +30,7 @@ namespace ZenoniaProto
         /// <summary>Fills `dist` with the walking steps from every tile to `goal` (-1 = unreachable).</summary>
         void ComputeDistanceField(Vector2Int goal)
         {
-            for (int i = 0; i < dist.Length; i++) dist[i] = -1;
+            for (int i = 0; i < TW * TH; i++) dist[i] = -1;
             bfs.Clear();
             if (FrostHollowMap.IsSolidTile(goal.x, goal.y)) { goal = NearestOpenTile(goal); }
             dist[goal.y * TW + goal.x] = 0;

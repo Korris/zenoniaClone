@@ -9,7 +9,6 @@ namespace ZenoniaProto
     /// </summary>
     public static class FrostHollowMap
     {
-        public const int TilesW = TileMapBase.W, TilesH = TileMapBase.H;
         public const float Tile = TileMapBase.Tile;
         public static readonly Vector2Int PlayerStartTile = FrostHollowLayout.PlayerStartTile;
 

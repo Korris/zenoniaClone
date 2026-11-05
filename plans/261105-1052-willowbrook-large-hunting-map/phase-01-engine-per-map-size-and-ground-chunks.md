@@ -45,12 +45,12 @@ rows (C#) -> TileMapBase(W,H,solid[]) -> GameConfig.* (Current) -> Camera clamp 
 8. `dotnet test` cả hai bộ; biên dịch Unity (đọc Editor.log lần mới nhất, không chạy batch trên project đang mở).
 
 ## Todo
-- [ ] TileMapBase / IGameMap / GameConfig / FrostHollowMap
-- [ ] Zone grid, MapPortals, NetNav
-- [ ] WorldBuilder chunk + overlay, SpriteSheet.Unload
-- [ ] Minimap
-- [ ] Stubs, MapGraphTests, MapSizeTests
-- [ ] Test qua, Unity biên dịch sạch
+- [x] TileMapBase / IGameMap / GameConfig / FrostHollowMap
+- [x] Zone grid, MapPortals, NetNav
+- [x] WorldBuilder chunk + overlay, SpriteSheet.Unload
+- [x] Minimap
+- [x] Stubs, MapGraphTests, MapSizeTests
+- [x] Test qua (Unity biên dịch: lead build bản sao)
 
 ## Success criteria
 - `grep -rn "TileMapBase\.\(W\|H\)\b"` = 0 kết quả ngoài TileMapBase.

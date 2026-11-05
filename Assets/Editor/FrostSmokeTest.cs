@@ -87,7 +87,7 @@ namespace ZenoniaProto.EditorTools
             Expect(p.x > 22f * 16f, "hero crosses the bridge (x=" + p.x + ")");
             Vector2 q = FrostHollowMap.TileFeet(17, 12, 2f);
             for (int i = 0; i < 100; i++) q = FrostHollowMap.Move(q, 0f, -1f, 10f, 8f, out bx, out by);
-            Expect(by && q.y >= (FrostHollowMap.TilesH - 13) * 16f, "river banks block (y=" + q.y + ")");
+            Expect(by && q.y >= (GameConfig.TilesH - 13) * 16f, "river banks block (y=" + q.y + ")");
         }
 
         /// <summary>Skill tree casting (SkillHeroCheck) plus the launch / boss immunity rules of the monsters.</summary>

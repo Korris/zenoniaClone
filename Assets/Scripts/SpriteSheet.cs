@@ -12,18 +12,37 @@ namespace ZenoniaProto
         /// <summary>Loads a texture (path relative to Resources, no extension). Returns null (and logs) when missing.</summary>
         public static Texture2D Load(string resourcePath)
         {
+            Texture2D tex = TryLoad(resourcePath);
+            if (tex == null) Debug.LogError("[ZenoniaProto] Missing texture Resources/" + resourcePath + ".png");
+            return tex;
+        }
+
+        /// <summary>Like Load, but a missing texture is not an error (optional art such as a map's pre-made minimap).</summary>
+        public static Texture2D TryLoad(string resourcePath)
+        {
             Texture2D tex;
             if (Textures.TryGetValue(resourcePath, out tex) && tex != null) return tex;
             tex = Resources.Load<Texture2D>(resourcePath);
-            if (tex == null)
-            {
-                Debug.LogError("[ZenoniaProto] Missing texture Resources/" + resourcePath + ".png");
-                return null;
-            }
+            if (tex == null) return null;
             tex.wrapMode = TextureWrapMode.Clamp;
             tex.filterMode = tex.mipmapCount > 1 ? FilterMode.Trilinear : FilterMode.Bilinear;
             Textures[resourcePath] = tex;
             return tex;
+        }
+
+        /// <summary>
+        /// Drops a cached texture (and the sliced grids built from it) and frees it, so the big backdrop of a map the hero left does not stay in memory.
+        /// The next Load of the same path reloads it from Resources. Nothing drawn may still use it.
+        /// </summary>
+        public static void Unload(string resourcePath)
+        {
+            Texture2D tex;
+            if (!Textures.TryGetValue(resourcePath, out tex)) return;
+            Textures.Remove(resourcePath);
+            var stale = new List<string>();
+            foreach (string key in Grids.Keys) if (key.StartsWith(resourcePath + "|")) stale.Add(key);
+            foreach (string key in stale) Grids.Remove(key);
+            if (tex != null) Resources.UnloadAsset(tex);
         }
 
         /// <summary>Slices a sheet into [row][col] sprites (row 0 = top row of the PNG). Null when the texture is missing.</summary>

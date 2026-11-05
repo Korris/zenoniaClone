@@ -8,8 +8,16 @@ using ZenoniaProto.Net;
 /// The real map data (Assets/Scripts/Maps, compiled here against MapGraphStubs.cs): every portal of every registered map must work on the server, including the maps that get added
 /// later, because the tests walk MapRegistry.All. The stubs stand in for the few engine types and game classes the maps touch.
 /// </summary>
+[Collection("MapRegistry")] // MapRegistry.Current is process-wide: tests that switch it must not run in parallel
 public class MapGraphTests
 {
+    /// <summary>Feet of a tile of `mapId`, computed the way the server does after Zone.Enter: with that map current. The current map is restored.</summary>
+    static Vector2 FeetOn(string mapId, int tx, int ty)
+    {
+        try { MapRegistry.UseZoneMap(MapRegistry.Get(mapId)); return FrostHollowMap.TileFeet(tx, ty, 2f); }
+        finally { MapRegistry.ResetState(); }
+    }
+
     public static IEnumerable<object[]> AllPortals()
     {
         foreach (IGameMap map in MapRegistry.All)
@@ -32,9 +40,9 @@ public class MapGraphTests
     [MemberData(nameof(AllPortals))]
     public void TheArrivalSpotIsItsOwnTileForThePortalRule(string mapId, int tx, int ty, string targetId, int targetTx, int targetTy)
     {
-        Vector2 feet = FrostHollowMap.TileFeet(targetTx, targetTy, 2f);
+        Vector2 feet = FeetOn(targetId, targetTx, targetTy);
         int fx, fy;
-        PortalTile.OfFeet(feet.x, feet.y, TileMapBase.Tile, TileMapBase.H, out fx, out fy);
+        PortalTile.OfFeet(feet.x, feet.y, TileMapBase.Tile, MapRegistry.Get(targetId).Height, out fx, out fy);
         Assert.Equal(targetTx, fx);
         Assert.Equal(targetTy, fy);
     }
@@ -62,7 +70,7 @@ public class MapGraphTests
             Assert.False(MapPortals.TryFind(map.PortalsFor(true), map.PlayerStart.x, map.PlayerStart.y, out found), map.Id + " starts on a portal");
             foreach (MapPortal p in map.PortalsFor(true))
             {
-                Vector2 feet = FrostHollowMap.TileFeet(p.TargetTx, p.TargetTy, 2f);
+                Vector2 feet = FeetOn(p.TargetMapId, p.TargetTx, p.TargetTy);
                 Assert.False(MapPortals.TryFind(MapRegistry.Get(p.TargetMapId).PortalsFor(true), feet.x, feet.y, out found), map.Id + " -> " + p.TargetMapId + " arrives on a portal");
             }
         }
@@ -85,7 +93,7 @@ public class MapGraphTests
             foreach (MapPortal p in map.Portals)
             {
                 IGameMap target = MapRegistry.Get(p.TargetMapId);
-                Vector2 feet = FrostHollowMap.TileFeet(p.TargetTx, p.TargetTy, 2f);
+                Vector2 feet = FeetOn(p.TargetMapId, p.TargetTx, p.TargetTy);
                 Assert.Contains(target.Portals, q => q.TargetMapId == map.Id);
                 Assert.False(MapPortals.TryFind(target.Portals, feet.x, feet.y, out _), map.Id + " -> " + target.Id + " arrives on a portal");
             }
@@ -100,21 +108,21 @@ public class MapGraphTests
         var seen = new HashSet<int>();
         var open = new Stack<int>();
         MapPortal first = map.Portals[0];
-        open.Push(first.Ty * TileMapBase.W + first.Tx);
+        open.Push(first.Ty * map.Width + first.Tx);
         while (open.Count > 0)
         {
             int i = open.Pop();
-            int x = i % TileMapBase.W, y = i / TileMapBase.W;
+            int x = i % map.Width, y = i / map.Width;
             if (map.IsSolidTile(x, y) || !seen.Add(i)) continue;
-            open.Push(i + 1); open.Push(i - 1); open.Push(i + TileMapBase.W); open.Push(i - TileMapBase.W);
+            open.Push(i + 1); open.Push(i - 1); open.Push(i + map.Width); open.Push(i - map.Width);
         }
-        foreach (MapPortal p in map.Portals) Assert.Contains(p.Ty * TileMapBase.W + p.Tx, seen);
-        for (int y = 0; y < TileMapBase.H; y++)
-            for (int x = 0; x < TileMapBase.W; x++)
+        foreach (MapPortal p in map.Portals) Assert.Contains(p.Ty * map.Width + p.Tx, seen);
+        for (int y = 0; y < map.Height; y++)
+            for (int x = 0; x < map.Width; x++)
             {
                 bool walk = !map.IsSolidTile(x, y);
-                Assert.True(!walk || seen.Contains(y * TileMapBase.W + x), mapId + " walkable tile " + x + "," + y + " is cut off");
-                Assert.True(!walk || y < 21, mapId + " walkable tile " + x + "," + y + " is under the HUD");
+                Assert.True(!walk || seen.Contains(y * map.Width + x), mapId + " walkable tile " + x + "," + y + " is cut off");
+                Assert.True(!walk || y < map.Height - 3, mapId + " walkable tile " + x + "," + y + " is under the HUD");
             }
     }
 

@@ -10,10 +10,13 @@ namespace ZenoniaProto
         public const float FramePpu = FramePx / FrameUnits; // 8 source px per world unit
         public const float ViewHeightUnits = 160f; // web: 960x640 canvas at 4x => 160 world px tall
         public const int TileUnits = 16;
-        public const int TilesW = FrostHollowMap.TilesW;
-        public const int TilesH = FrostHollowMap.TilesH;
-        public const float MapW = TilesW * TileUnits;
-        public const float MapH = TilesH * TileUnits;
+        /// <summary>Largest map in tiles; sizes the interest grid of every zone (a smaller map just leaves cells unused).</summary>
+        public const int MaxTilesW = 72, MaxTilesH = 48;
+        /// <summary>Size of MapRegistry.Current, the map the running code belongs to (a zone server switches it in Zone.Enter).</summary>
+        public static int TilesW { get { return MapRegistry.Current.Width; } }
+        public static int TilesH { get { return MapRegistry.Current.Height; } }
+        public static float MapW { get { return TilesW * TileUnits; } }
+        public static float MapH { get { return TilesH * TileUnits; } }
         public static Vector2 HeroStart { get { return MapRegistry.Current.PlayerStart; } } // start tile of the map the sim runs
 
         public const int OrderStride = 8;        // sub-orders per entity (shadow, gear behind, body, gear front, bar, fx)
