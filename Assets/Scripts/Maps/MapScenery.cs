@@ -32,6 +32,8 @@ namespace ZenoniaProto
             if (ShowsVillagers) TownNpc.CreateAll(parent, map);
         }
 
+        const float FlatDecorMaxTiles = 3f; // sprite height up to which a walk-through prop counts as ground decoration
+
         static void BuildProp(Transform parent, MapProp p)
         {
             PropDef d;
@@ -40,7 +42,9 @@ namespace ZenoniaProto
             float x = (p.Tx + d.FootW * 0.5f) * GameConfig.TileUnits, y = GameConfig.MapH - (p.Ty + 1) * GameConfig.TileUnits;
             Sprite s = PropSprite(p.Type);
             SpriteRenderer sr = ProceduralSprites.Child(parent, p.Type, s != null ? s : ProceduralSprites.White(false));
-            sr.sortingOrder = GameConfig.OrderBase(y);
+            // Low walk-through decoration (bushes, small rocks, stumps, bones...) lies on the ground: under every hero and monster, never y-sorted over them.
+            // Tall walk-through art (the Willowbrook palisade, reeds) keeps the y-sort so the hero can pass behind it.
+            sr.sortingOrder = d.FootH == 0 && d.H <= FlatDecorMaxTiles ? GameConfig.GroundOrder + 4 : GameConfig.OrderBase(y);
             if (s != null) { sr.transform.position = new Vector3(x, y, 0f); return; }
             sr.color = MissingPropTint;
             int footH = Mathf.Max(1, d.FootH); // walk-through props (FootH 0) still need a visible placeholder when their art is missing

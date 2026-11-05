@@ -6,7 +6,7 @@
 
 1. **Không đặt vật cản trên đường.** Đường, lối đá, cầu, cầu thang, đầu và chân cầu thang, quảng trường, bãi quái (rect của zone) không có ô chặn của prop. Dọc mỗi con đường chừa lối trống rộng ít nhất 2 ô.
 2. **Muốn map đẹp thì trang trí ở ven đường, chân vách, góc map, quanh điểm nhấn** (phế tích, trại, ao, hồ), không rải giữa bãi đánh quái.
-3. **Đồ nhỏ đi xuyên qua được** (footprint 0x0): bụi, đá nhỏ, gốc cây, xương, khúc gỗ, cây non, pha lê nhỏ, sậy, hoa.
+3. **Đồ nhỏ đi xuyên qua được** (`FootH` = 0): bụi, đá nhỏ, gốc cây, xương, khúc gỗ, cây non, pha lê nhỏ, sậy, hoa. Đồ đi xuyên qua thấp (cao không quá 3 ô) **luôn vẽ dưới hero và quái** như mặt đất (`MapScenery.FlatDecorMaxTiles`); không được để vật nào hero đi qua mà vẽ đè lên hero.
 4. **Cây chỉ chặn ô gốc** để hero đi ra sau tán. Đồ lớn (tảng đá to, bia đá, cột, tường, lều, rào, rào chắn) vẫn chặn nhưng phải nằm ngoài lối đi.
 5. **Mỗi bãi quái có ít nhất gấp đôi số quái ô trống**, cách điểm xuất hiện, cổng và chỗ đến từ cổng ít nhất 5 ô. Cấp quái tăng dần theo khoảng cách từ cổng vào, không nhảy cóc.
 6. **Mọi ô đi được phải nối tới điểm xuất hiện** (flood fill). Ô đi được mà không tới được thì chặn hoặc mở lối.
