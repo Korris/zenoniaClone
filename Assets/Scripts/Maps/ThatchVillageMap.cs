@@ -46,7 +46,7 @@ namespace ZenoniaProto
         static readonly MapPortal[] PortalList =
         {
             new MapPortal(0, 8, OakhavenVillageMap.MapId, 33, 10), new MapPortal(0, 9, OakhavenVillageMap.MapId, 33, 11),
-            new MapPortal(35, 11, WillowbrookMeadowsMap.MapId, 2, 11), new MapPortal(35, 12, WillowbrookMeadowsMap.MapId, 2, 12),
+            new MapPortal(35, 11, WillowbrookMeadowsMap.MapId, 2, 23), new MapPortal(35, 12, WillowbrookMeadowsMap.MapId, 2, 24),
         };
 
         public ThatchVillageMap() : base(Rows, "Tw") { }

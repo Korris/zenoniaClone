@@ -51,14 +51,24 @@ namespace ZenoniaProto
             new FrostHollowMap.Zone("ruinWisp", 4, 4, 13, 17, 6, 11000f),
         };
 
-        /// <summary>The Lv 1-2 starter field (no boss): slimes in the north-west meadow and the middle one, goblins beyond the stream in the north-east, wolves in the east end of the south meadow. The west gate and the start tile stay clear.</summary>
+        /// <summary>
+        /// The 72x48 meadow hunting field, 70 monsters in 11 clusters (plan layout/willowbrook-72x48-clusters.json, adjusted to the painting), the level climbing with the walking distance from the west gate:
+        /// Lv1 meadowSlime next to the gate, Lv2 hornRabbit across the first stream and in the north-west, Lv3 thornBoar in the middle, Lv5 meadowMantis in the east, Lv6 brambleTreant in the ruins.
+        /// Respawn 6-10 s (slower far from the gate). Rects are wide on purpose (TryZoneSpot skips solid tiles; each holds at least 7x its count of free tiles). The west gate and start tile stay clear (NearEntrance).
+        /// </summary>
         static readonly FrostHollowMap.Zone[] WillowbrookMeadows =
         {
-            // Meadow monsters (2026-11-05): sprout slimes near the gate, horned rabbits across the stream, thornback boars in the south meadow.
-            new FrostHollowMap.Zone("meadowSlime", 5, 3, 3, 9, 5, 8000f),
-            new FrostHollowMap.Zone("meadowSlime", 4, 12, 14, 12, 6, 9000f),
-            new FrostHollowMap.Zone("hornRabbit", 4, 25, 3, 8, 6, 10000f),
-            new FrostHollowMap.Zone("thornBoar", 3, 18, 13, 6, 6, 11000f),
+            new FrostHollowMap.Zone("meadowSlime", 6, 4, 14, 9, 5, 6000f),     // 1  north of the gate, old section
+            new FrostHollowMap.Zone("meadowSlime", 6, 12, 27, 12, 5, 6500f),   // 2  south-west meadow
+            new FrostHollowMap.Zone("hornRabbit", 5, 25, 15, 8, 6, 7000f),     // 3  across the stream, old section
+            new FrostHollowMap.Zone("hornRabbit", 6, 4, 3, 12, 6, 7500f),      // 4  north-west plain
+            new FrostHollowMap.Zone("hornRabbit", 5, 28, 3, 7, 6, 6000f),      // 5  north, east of the stream
+            new FrostHollowMap.Zone("thornBoar", 7, 40, 4, 12, 7, 8000f),      // 6  middle north
+            new FrostHollowMap.Zone("thornBoar", 6, 39, 14, 14, 6, 8500f),     // 7  middle, north of the road
+            new FrostHollowMap.Zone("thornBoar", 6, 45, 30, 9, 7, 9000f),      // 8  above the pond
+            new FrostHollowMap.Zone("brambleTreant", 8, 57, 3, 11, 8, 9500f),  // 9  ruins, north-east
+            new FrostHollowMap.Zone("meadowMantis", 8, 57, 15, 11, 8, 9000f),  // A  east meadow
+            new FrostHollowMap.Zone("meadowMantis", 7, 60, 30, 10, 9, 10000f), // B  south-east
         };
 
         public static FrostHollowMap.Zone[] ZonesFor(string mapId)
