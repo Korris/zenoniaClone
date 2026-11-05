@@ -13,50 +13,72 @@ namespace ZenoniaProto
         const string GoldBlurb = "Gold used for trading.", StoneBlurb = "Used to enhance weapons. Success drops at higher +.";
 
         readonly Text[] statTexts = new Text[MaxStatLines], compareTexts = new Text[MaxStatLines], extraTexts = new Text[3];
+        readonly Text[] itemValues = new Text[MaxStatLines], equippedValues = new Text[MaxStatLines];
         readonly Image[] statRules = new Image[MaxStatLines];
-        RectTransform itemDetail, supplyDetail;
+        RectTransform itemDetail, supplyDetail, rarityPlaque;
         BagWidgets.Slot detailSlot;
-        Text selectHint, itemName, itemSlotText, itemLevelText, supplyName, supplyQuantity, supplyBlurb;
+        Text selectHint, itemName, itemSlotText, itemLevelText, supplyName, supplyQuantity, supplyBlurb, rarityText, enhanceTitle;
         BagWidgets.BagButton equipButton, useButton, enhanceButton, discardButton;
 
         void BuildDetail(RectTransform right)
         {
-            const float Width = 210f, Inner = 186f, Left = 12f;
+            const float Width = RightW, Inner = RightW - 28f, Left = 14f;
             selectHint = BagWidgets.Text(right, "Hint", Width * 0.5f, 170f, "", 15, "#d9d3bd", TextAnchor.UpperCenter, Inner);
             selectHint.horizontalOverflow = HorizontalWrapMode.Wrap;
-            detailSlot = new BagWidgets.Slot(right, "DetailSlot", Left, 12f, 64f, null);
+            detailSlot = new BagWidgets.Slot(right, "DetailSlot", Left + 4f, 18f, 96f, null);
 
             itemDetail = UiKit.Rect(right, "ItemDetail", 0f, 0f, Width, PanelH);
-            itemName = BagWidgets.Text(itemDetail, "Name", 84f, 12f, "", 15, "#ffedb3", TextAnchor.UpperLeft, 118f, true);
+            itemName = BagWidgets.Text(itemDetail, "Name", 122f, 12f, "", 22, "#ffedb3", TextAnchor.UpperLeft, 152f, true);
             itemName.horizontalOverflow = HorizontalWrapMode.Wrap;
-            itemSlotText = BagWidgets.Text(itemDetail, "Slot", 84f, 52f, "", 12, "#c7e2f2", TextAnchor.UpperLeft, 118f);
-            itemLevelText = BagWidgets.Text(itemDetail, "Level", 84f, 66f, "", 12, "#ffffff", TextAnchor.UpperLeft, 118f, true);
+            itemName.rectTransform.sizeDelta = new Vector2(152f, 50f);
+            itemSlotText = BagWidgets.Text(itemDetail, "Slot", 122f, 59f, "", 16, "#fff5dc", TextAnchor.UpperLeft, 152f);
+            rarityPlaque = BagWidgets.Img(itemDetail, "RarityPlaque", 120f, 80f, 100f, 22f, BagSprites.RarityTag(), Color.white).rectTransform;
+            rarityText = UiKit.Label(UiKit.Fill(rarityPlaque, "Rarity"), "", 14, BagWidgets.Hex("#ffedb3"), TextAnchor.MiddleCenter, true);
+            BagWidgets.Style(rarityText, true);
+            rarityText.fontStyle = FontStyle.Bold;
+            rarityText.alignByGeometry = true;
+            rarityText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            itemLevelText = BagWidgets.Text(itemDetail, "Level", 122f, 105f, "", 14, "#ffffff", TextAnchor.UpperLeft, 152f);
+            BagWidgets.Divider(itemDetail, "ItemRule", Left, 128f, Inner);
+            BagWidgets.Img(itemDetail, "TableHeader", Left, 140f, Inner, 23f, BagSprites.Panel(), Color.white);
+            BagWidgets.Text(itemDetail, "StatHeader", Left + 5f, 143f, "STAT", 11, "#ffedb3", TextAnchor.UpperLeft, 54f, true);
+            BagWidgets.Text(itemDetail, "ItemHeader", 110f, 143f, "ITEM", 11, "#ffedb3", TextAnchor.UpperRight, 48f, true);
+            BagWidgets.Text(itemDetail, "EquippedHeader", 207f, 143f, "EQUIPPED", 11, "#ffedb3", TextAnchor.UpperRight, 88f, true);
+            BagWidgets.Text(itemDetail, "DiffHeader", 274f, 143f, "DIFF", 11, "#ffedb3", TextAnchor.UpperRight, 48f, true);
             for (int i = 0; i < MaxStatLines; i++)
             {
-                float y = 96f + i * 25f;
+                float y = 169f + i * 20f;
                 statRules[i] = BagWidgets.Img(itemDetail, "Rule" + i, Left, y - 5f, Inner, 1f, null, BagWidgets.Hex("#c9a46a55"));
-                statTexts[i] = BagWidgets.Text(itemDetail, "Stat" + i, Left, y, "", 13, "#c2e3f4", TextAnchor.UpperLeft, 140f);
-                compareTexts[i] = BagWidgets.Text(itemDetail, "Compare" + i, Left + Inner, y, "", 13, "#cfcfe0", TextAnchor.UpperRight, 70f, true);
+                statTexts[i] = BagWidgets.Text(itemDetail, "Stat" + i, Left + 5f, y, "", 15, "#ffffff", TextAnchor.UpperLeft, 64f, true);
+                itemValues[i] = BagWidgets.Text(itemDetail, "ItemValue" + i, 110f, y, "", 16, "#ffffff", TextAnchor.UpperRight, 48f);
+                equippedValues[i] = BagWidgets.Text(itemDetail, "EquippedValue" + i, 197f, y, "", 16, "#ffffff", TextAnchor.UpperRight, 64f);
+                compareTexts[i] = BagWidgets.Text(itemDetail, "Compare" + i, Left + Inner, y, "", 16, "#cfcfe0", TextAnchor.UpperRight, 60f, true);
             }
             for (int i = 0; i < extraTexts.Length; i++)
             {
-                extraTexts[i] = BagWidgets.Text(itemDetail, "Extra" + i, Left, 248f + i * 19f, "", 12, "#ffedb3", TextAnchor.UpperLeft, Inner);
+                extraTexts[i] = BagWidgets.Text(itemDetail, "Extra" + i, Left + 4f, 330f + i * 22f, "", 16, "#ffedb3", TextAnchor.UpperLeft, Inner - 8f);
                 extraTexts[i].horizontalOverflow = HorizontalWrapMode.Wrap;
             }
-            discardButton = new BagWidgets.BagButton(itemDetail, "Discard", Left, 312f, Inner, 36f, "Discard", BagSprites.Tone.Steel, DiscardSelected);
-            discardButton.Label.fontSize = 13;
-            equipButton = new BagWidgets.BagButton(itemDetail, "Equip", Left, 354f, Inner, 46f, "Equip", BagSprites.Tone.Blue, Activate);
-            enhanceButton = new BagWidgets.BagButton(itemDetail, "Enhance", Left, 404f, EnhanceWidth(Inner), 46f, "Enhance", BagSprites.Tone.Gold, EnhanceSelected);
-            BuildDowngrade(Left, 404f, Inner); // TEMPORARY test button, InventoryPanel.DevDowngrade.cs
+            BagWidgets.Divider(itemDetail, "EnhanceRule", Left, 298f, Inner);
+            enhanceTitle = BagWidgets.Text(itemDetail, "EnhanceTitle", Left + 4f, 305f, "Enhance Preview", 19, "#ffedb3", TextAnchor.UpperLeft, Inner, true);
+            BagWidgets.Divider(itemDetail, "ActionRule", Left, 396f, Inner);
+            discardButton = new BagWidgets.BagButton(itemDetail, "Discard", Left, 412f, 76f, 38f, "Discard", BagSprites.Tone.Steel, DiscardSelected);
+            discardButton.Label.fontSize = 16;
+            equipButton = new BagWidgets.BagButton(itemDetail, "Equip", 94f, 412f, 82f, 38f, "Equip", BagSprites.Tone.Blue, Activate);
+            equipButton.Label.fontSize = 17;
+            enhanceButton = new BagWidgets.BagButton(itemDetail, "Enhance", 180f, 412f, 96f, 38f, "Enhance", BagSprites.Tone.Gold, EnhanceSelected);
+            enhanceButton.Label.fontSize = 17;
+            BuildDowngrade(Left, 370f, Inner);
+            if (downgradeButton != null) { downgradeButton.Root.anchoredPosition = new Vector2(238f, -370f); downgradeButton.Root.sizeDelta = new Vector2(38f, 22f); downgradeButton.Label.fontSize = 12; }
 
             supplyDetail = UiKit.Rect(right, "SupplyDetail", 0f, 0f, Width, PanelH);
-            supplyName = BagWidgets.Text(supplyDetail, "Name", 84f, 18f, "", 15, "#ffedb3", TextAnchor.UpperLeft, 118f, true);
+            supplyName = BagWidgets.Text(supplyDetail, "Name", 122f, 24f, "", 18, "#ffedb3", TextAnchor.UpperLeft, 152f, true);
             supplyName.horizontalOverflow = HorizontalWrapMode.Wrap;
-            supplyQuantity = BagWidgets.Text(supplyDetail, "Quantity", Left, 96f, "", 14, "#ffffff", TextAnchor.UpperLeft, Inner, true);
+            supplyQuantity = BagWidgets.Text(supplyDetail, "Quantity", Left, 144f, "", 14, "#ffffff", TextAnchor.UpperLeft, Inner, true);
             supplyQuantity.horizontalOverflow = HorizontalWrapMode.Wrap;
-            supplyBlurb = BagWidgets.Text(supplyDetail, "Blurb", Left, 144f, "", 13, "#c2e3f4", TextAnchor.UpperLeft, Inner);
+            supplyBlurb = BagWidgets.Text(supplyDetail, "Blurb", Left, 204f, "", 14, "#c2e3f4", TextAnchor.UpperLeft, Inner);
             supplyBlurb.horizontalOverflow = HorizontalWrapMode.Wrap;
-            useButton = new BagWidgets.BagButton(supplyDetail, "Use", Left, 354f, Inner, 46f, "Use", BagSprites.Tone.Gold, Activate);
+            useButton = new BagWidgets.BagButton(supplyDetail, "Use", Left, 412f, Inner, 38f, "Use", BagSprites.Tone.Gold, Activate);
         }
 
         /// <summary>The next +level, its success chance and the stat it raises, or why it cannot be enhanced.</summary>
@@ -114,7 +136,7 @@ namespace ZenoniaProto
         {
             int count = SupplyCount(p, kind);
             detailSlot.SetFrame(false, BagWidgets.Hex("#70899d"));
-            detailSlot.SetIcon(SupplySprite(kind), 42f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
+            detailSlot.SetIcon(SupplySprite(kind), 72f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
             detailSlot.SetEnhance(null);
             detailSlot.Count.text = "";
             bool potion = IsPotion(kind);
@@ -128,12 +150,16 @@ namespace ZenoniaProto
         void ShowItem(PlayerState p, Item item)
         {
             bool worn = wornSel >= 0, usable = p.CanEquip(item);
-            detailSlot.SetFrame(false, LootSprites.RarityColor(item));
-            detailSlot.SetIcon(LootSprites.Icon(item), 52f, !usable ? new Color(1f, 0.6f, 0.6f, 0.55f) : worn || p.MeetsLevel(item) ? Color.white : new Color(0.55f, 0.55f, 0.6f, 0.6f));
+            detailSlot.SetFrame(true, LootSprites.RarityColor(item));
+            detailSlot.SetIcon(LootSprites.Icon(item), 80f, !usable ? new Color(1f, 0.6f, 0.6f, 0.55f) : worn || p.MeetsLevel(item) ? Color.white : new Color(0.55f, 0.55f, 0.6f, 0.6f));
             detailSlot.SetEnhance(item);
             detailSlot.Count.text = "";
-            itemName.text = EnhanceStats.DisplayName(item);
-            itemName.color = LootSprites.RarityColor(item);
+            itemName.text = BagItemName(item);
+            itemName.color = BagWidgets.Hex("#ffe18a");
+            RarityDef rarity = ItemDefs.Rarity(item.rarity);
+            rarityText.text = (rarity != null && rarity.Prefix != null ? rarity.Prefix : ItemInfo.RarityLabel(item.rarity)).ToUpperInvariant();
+            rarityText.color = BagWidgets.Hex("#ffe8a0");
+            rarityPlaque.sizeDelta = new Vector2(Mathf.Ceil(rarityText.preferredWidth) + 26f, 22f);
             itemSlotText.text = ItemInfo.SlotLabel(item.slot) + (string.IsNullOrEmpty(item.classId) || usable ? "" : "  <color=#ff8070>" + RpgClasses.Get(item.classId).Name + " only</color>");
             bool isPet = item.slot == Slots.Pet;
             itemLevelText.text = isPet ? "" : !EquipLevel.Applies(item) ? "Lv. " + item.itemLevel : worn || p.MeetsLevel(item) ? EquipLevel.Label(item) : "<color=#ff7070>" + EquipLevel.Label(item) + "</color>";
@@ -145,7 +171,9 @@ namespace ZenoniaProto
             {
                 bool has = i < lines.Count;
                 statRules[i].enabled = has;
-                statTexts[i].text = has ? StatText(item, lines[i]) : "";
+                statTexts[i].text = has ? lines[i].Label.ToUpperInvariant() : "";
+                itemValues[i].text = has ? TableValue(lines[i].Value, lines[i].Percent) : "";
+                equippedValues[i].text = has ? worn ? TableValue(lines[i].Value, lines[i].Percent) : compare != null ? TableValue(lines[i].Value - lines[i].Delta, lines[i].Percent) : "--" : "";
                 compareTexts[i].text = "";
                 if (!has || worn) continue; // no comparison for what is already on
                 double d = compare != null ? lines[i].Delta : lines[i].Value; // nothing worn: the whole stat is a gain
@@ -156,6 +184,7 @@ namespace ZenoniaProto
 
             EnhanceView e = Preview(p, item);
             bool enhanceable = EnhanceStats.IsEnhanceable(item);
+            enhanceTitle.text = isPet ? "Pet Durability" : enhanceable ? "Enhance Preview" : "Item Details";
             foreach (Text t in extraTexts) t.text = "";
             if (isPet)
             {
@@ -173,13 +202,32 @@ namespace ZenoniaProto
                 }
             }
 
-            equipButton.Set(true, worn ? "Unequip" : usable ? "Equip" : RpgClasses.Get(item.classId).Name + " only", !worn && !usable);
+            equipButton.Set(true, worn ? "Unequip" : usable ? "Equip" : "Class only", !worn && !usable);
             enhanceButton.Set(enhanceable, null, !e.Can);
             RefreshDowngrade(item); // TEMPORARY test button
             discardButton.Set(!worn, confirmDiscard ? "Sure?" : "Discard");
         }
 
         void SetExtra(int i, string text, string color) { extraTexts[i].text = text; extraTexts[i].color = BagWidgets.Hex(color); }
+
+        static string TableValue(double value, bool percent)
+        {
+            return Math.Round(value * (percent ? 100.0 : 1.0)).ToString() + (percent ? "%" : "");
+        }
+
+        static string BagItemName(Item item)
+        {
+            string name = WeaponNames.BaseName(item.classId, item.slot, ItemInfo.ArtTier(item));
+            if (name == null)
+            {
+                name = item.name ?? "";
+                RarityDef rarity = ItemDefs.Rarity(item.rarity);
+                if (rarity != null && !string.IsNullOrEmpty(rarity.Prefix) && name.StartsWith(rarity.Prefix + " ", StringComparison.OrdinalIgnoreCase))
+                    name = name.Substring(rarity.Prefix.Length + 1);
+            }
+            int plus = EnhanceStats.Level(item);
+            return plus > 0 ? name + " +" + plus : name;
+        }
 
         /// <summary>"ATK 21 (+4)": the effective value, plus the part that comes from enhancing.</summary>
         static string StatText(Item item, StatLine l)

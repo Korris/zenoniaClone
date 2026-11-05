@@ -15,13 +15,13 @@ namespace ZenoniaProto
     /// </summary>
     public partial class InventoryPanel : MonoBehaviour
     {
-        const float W = 956f, H = 556f, PanelY = 70f, PanelH = 460f;
-        const float LeftW = 336f, CentreW = 350f, RightW = 210f, Gap = 6f; // the hero panel is wide enough for the Warrior to stand in its middle with his sword beside him
+        const float W = 1052f, H = 556f, PanelY = 70f, PanelH = 460f;
+        const float LeftW = 300f, CentreW = 402f, RightW = 290f, Gap = 6f;
         const float DoubleClickSeconds = 0.35f, MessageSeconds = 1.5f;
         const int WornClickBase = 1000; // keeps worn slots and grid cells apart in the double-tap check
         static InventoryPanel instance;
 
-        RectTransform overlay;
+        RectTransform overlay, window;
         Text messageText;
         float messageUntil;
         float lastClickTime;
@@ -76,13 +76,15 @@ namespace ZenoniaProto
             overlay = UiKit.Fill(canvas, "BagOverlay");
             UiKit.Panel(overlay, new Color(0f, 0f, 0f, 0.5f), true); // also stops taps reaching the game
             RectTransform win = UiWinKit.Anchored(overlay, "Window", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), 0f, 0f, W, H);
+            window = win;
             UiWinKit.Sliced(win, "panel", 0.9f, true);
 
-            Image bagIcon = UiKit.Icon(win, "BagIcon", 26f, 15f, 40f);
+            Image bagIcon = UiKit.Icon(win, "BagIcon", 25f, 7f, 52f);
             bagIcon.sprite = BagSprites.BagIcon();
-            UiKit.Label(win, "Title", 72f, 14f, 80f, 42f, "Bag", 24, new Color(1f, 0.93f, 0.7f), TextAnchor.MiddleLeft, true);
+            BagWidgets.Style(UiKit.Label(win, "Title", 82f, 10f, 80f, 46f, "Bag", 30, new Color(1f, 0.93f, 0.7f), TextAnchor.MiddleLeft, true), true);
             BuildTab(win, 150f, "tab-active", "Bag", null);
             BuildTab(win, 286f, "tab-inactive", "Skill", () => { Close(); SkillTreeWindow.Open(transform.parent); });
+            BagWidgets.Divider(win, "HeaderRule", 432f, 36f, W - 510f);
             UiWinKit.CloseButton(win, W - 62f, 14f, 42f, Close);
 
             BuildLoadout(Section(win, "Left", 24f, LeftW));
@@ -91,11 +93,17 @@ namespace ZenoniaProto
             overlay.gameObject.SetActive(false);
         }
 
+        void FitWindow()
+        {
+            float scale = Mathf.Min(1f, (overlay.rect.width - 16f) / W, (overlay.rect.height - 16f) / H);
+            window.localScale = Vector3.one * Mathf.Max(0.1f, scale);
+        }
+
         static void BuildTab(RectTransform win, float x, string piece, string text, System.Action onClick)
         {
             RectTransform rt = UiKit.Rect(win, "Tab" + text, x, 16f, 128f, 40f);
             Image img = UiWinKit.Sliced(rt, piece, 0f);
-            UiKit.Label(UiKit.Fill(rt, "Label"), text, 16, UiWinKit.Cream, TextAnchor.MiddleCenter, true);
+            BagWidgets.Style(UiKit.Label(UiKit.Fill(rt, "Label"), text, 21, UiWinKit.Cream, TextAnchor.MiddleCenter, true), true);
             if (onClick != null) UiWinKit.MakeButton(img, onClick);
         }
 
@@ -111,6 +119,7 @@ namespace ZenoniaProto
         void Update()
         {
             if (!IsOpen) return;
+            FitWindow();
             if (messageText.text.Length > 0 && Time.unscaledTime > messageUntil) messageText.text = "";
             heroView.Tick(Time.unscaledDeltaTime);
             int dx = (InputAdapter.Pressed(GameKey.Right) ? 1 : 0) - (InputAdapter.Pressed(GameKey.Left) ? 1 : 0);
@@ -233,6 +242,7 @@ namespace ZenoniaProto
             PlayerState p = RpgSession.Player;
             HeroController hero = GameSession.Hero;
             if (p == null || hero == null) { Close(); return; }
+            FitWindow();
             RefreshLoadout(p, hero);
             RefreshBag(p);
             RefreshDetail(p);

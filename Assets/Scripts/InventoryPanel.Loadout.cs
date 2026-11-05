@@ -7,7 +7,7 @@ namespace ZenoniaProto
     /// <summary>Left panel: the hero wearing the real gear between the 7 worn slots, the class line and the Stats popup. Coordinates are local to the panel.</summary>
     public partial class InventoryPanel
     {
-        const float WornSize = 64f, WornIcon = 50f;
+        const float WornSize = 68f, WornIcon = 62f;
         static readonly string[] StatusLabels = { "HP", "MP", "ATK", "DEF", "Magic ATK", "Magic DEF", "CRI Rate", "Move Speed" };
 
         readonly BagWidgets.Slot[] equipSlots = new BagWidgets.Slot[Slots.All.Length];
@@ -33,15 +33,17 @@ namespace ZenoniaProto
             }
         }
 
-        static float WornColumn(int column) { return (LeftW - 3f * 68f - WornSize) * 0.5f + column * 68f; } // 4 cells centred in the panel
+        static float WornColumn(int column) { return (LeftW - 3f * 72f - WornSize) * 0.5f + column * 72f; }
 
         void BuildLoadout(RectTransform left)
         {
+            BagWidgets.Img(left, "PortraitBackdrop", 24f, 80f, LeftW - 48f, 244f, BagSprites.PortraitBackdrop(), Color.white);
             RectTransform heroRect = UiKit.Rect(left, "Hero", 0f, 76f, LeftW, 264f); // the whole panel width: a strong halo must not end on a straight edge
             RawImage heroImage = heroRect.gameObject.AddComponent<RawImage>();
             heroView = gameObject.AddComponent<HeroPortraitView>();
             heroView.Init(heroImage);
-            classLevelText = BagWidgets.Text(left, "ClassLevel", LeftW * 0.5f, 344f, "", 13, "#d9d3bd", TextAnchor.UpperCenter, 260f);
+            classLevelText = BagWidgets.Text(left, "ClassLevel", LeftW * 0.5f, 342f, "", 17, "#ffedb3", TextAnchor.UpperCenter, 280f, true);
+            BagWidgets.Divider(left, "ClassRule", 24f, 368f, LeftW - 48f);
 
             for (int i = 0; i < equipSlots.Length; i++)
             {

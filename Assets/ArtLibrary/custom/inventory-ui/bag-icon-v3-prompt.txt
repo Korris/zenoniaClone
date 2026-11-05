@@ -1,0 +1,6 @@
+Generated with the built-in Imagegen tool using the user's supplied inventory screenshot as style and shape reference.
+
+Production game UI asset: a single isolated leather inventory satchel icon matching the brown bag at the TOP LEFT of the reference screenshot. Draw only one complete small warm chestnut-brown adventurer satchel, three-quarter view, rounded rectangular pouch, curved flap, bright polished golden central buckle and short strap, one small side pocket, tiny gold rivets, thick clean dark outline, glossy painterly chibi fantasy RPG illustration. Rich amber highlights and a clean readable silhouette. Center on a truly transparent background, ample empty margin, whole bag visible with no clipping. No frame, UI, text, character, or screenshot background. Standalone asset for a 64px display: prioritize bold silhouette and broad crisp highlights.
+
+Runtime asset: Assets/Resources/Sprites/ui/bag-icon-v3.png
+The sprite rect trims transparent margins only; it does not cut the bag out of a composite UI image.

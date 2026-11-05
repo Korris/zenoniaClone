@@ -11,6 +11,28 @@ namespace ZenoniaProto
     public static class BagWidgets
     {
         public static Color Hex(string hex) { return LootSprites.Hex(hex); }
+        static Font regularFont, boldFont;
+
+        public static void Style(Text text, bool bold)
+        {
+            if (regularFont == null) regularFont = Resources.Load<Font>("Fonts/CrimsonText/CrimsonText-Regular");
+            if (boldFont == null) boldFont = Resources.Load<Font>("Fonts/CrimsonText/CrimsonText-Bold");
+            text.font = (bold ? boldFont : regularFont) ?? UiKit.Font;
+            text.fontStyle = FontStyle.Normal;
+            var outline = text.gameObject.AddComponent<Outline>();
+            outline.effectColor = text.color.maxColorComponent < 0.5f
+                ? new Color(1f, 0.85f, 0.5f, 0.6f)
+                : new Color(0.015f, 0.025f, 0.04f, 0.95f);
+            outline.effectDistance = new Vector2(0.8f, -0.8f);
+        }
+
+        public static void Divider(Transform parent, string name, float x, float y, float width)
+        {
+            Img(parent, name + "Left", x, y, width * 0.5f - 8f, 1f, null, Hex("#c59b52"));
+            Img(parent, name + "Right", x + width * 0.5f + 8f, y, width * 0.5f - 8f, 1f, null, Hex("#c59b52"));
+            var diamond = Img(parent, name + "Jewel", x + width * 0.5f - 3f, y - 3f, 6f, 6f, null, Hex("#ffe4a0"));
+            diamond.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+        }
 
         public static Image Img(Transform parent, string name, float x, float y, float w, float h, Sprite sprite, Color color, bool raycast = false)
         {
@@ -33,6 +55,7 @@ namespace ZenoniaProto
                 : align == TextAnchor.UpperCenter || align == TextAnchor.MiddleCenter ? x - width * 0.5f : x;
             Text t = UiKit.Label(parent, name, left, y - 2f, width, size + 8f, text, size, Hex(color), align, bold);
             t.verticalOverflow = VerticalWrapMode.Overflow;
+            Style(t, bold);
             return t;
         }
 
@@ -64,15 +87,19 @@ namespace ZenoniaProto
                 Back = Img(Root, "Back", 0f, 0f, size, size, BagSprites.SlotBack(), Color.white, true);
                 Edge = Img(Root, "Edge", 0f, 0f, size, size, BagSprites.SlotEdge(), Color.white);
                 Icon = UiKit.Icon(Root, "Icon", 0f, 0f, size);
-                Lock = Img(Root, "Lock", size * 0.25f, size * 0.25f, size * 0.5f, size * 0.5f, BagSprites.Lock(), Hex("#43596d"));
-                Count = Text(Root, "Count", size - 10f, size - 17f, "", 14, "#ffffff", TextAnchor.UpperRight, size);
+                Lock = Img(Root, "Lock", size - 19f, 3f, 16f, 16f, BagSprites.Lock(), Hex("#d0e2ee"));
+                Count = Text(Root, "Count", size - 5f, size - 23f, "", 17, "#ffffff", TextAnchor.UpperRight, size, true);
+                var shadow = Count.gameObject.AddComponent<Shadow>();
+                shadow.effectColor = new Color(0f, 0f, 0f, 0.9f);
+                shadow.effectDistance = new Vector2(1f, -1f);
                 if (onClick != null) Clickable(Root.gameObject, Back, onClick);
             }
 
             /// <summary>Selected = gold glow + light edge; `edge` = rarity colour otherwise.</summary>
             public void SetFrame(bool selected, Color edge, bool locked = false)
             {
-                Glow.enabled = selected;
+                Glow.enabled = selected || edge.b > 0.7f && edge.r < 0.9f;
+                Glow.color = selected ? Hex("#ffc735") : new Color(edge.r, edge.g, edge.b, 0.25f);
                 Edge.color = selected ? Hex("#ffe7a5") : edge;
                 Lock.enabled = locked;
             }
@@ -105,6 +132,8 @@ namespace ZenoniaProto
                 Button b = UiWinKit.ArtButton(parent, name, tone == BagSprites.Tone.Gold ? "btn-gold" : "btn-navy", x, y, w, h, text, 16, tone == BagSprites.Tone.Gold ? new Color(0.25f, 0.13f, 0.03f) : new Color(0.96f, 0.97f, 1f), () => onClick());
                 Root = (RectTransform)b.transform;
                 Label = b.GetComponentInChildren<Text>();
+                Style(Label, true);
+                Label.fontSize = 20;
                 group = Root.gameObject.AddComponent<CanvasGroup>();
             }
 

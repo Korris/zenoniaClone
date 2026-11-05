@@ -317,11 +317,50 @@ namespace ZenoniaProto
         /// <summary>End-of-frame backbuffer grab (includes the IMGUI HUD) written as PNG.</summary>
         static void Save(string path)
         {
+            if (InventoryPanel.IsOpen) { SaveInventory(path); return; }
             var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
             tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
             tex.Apply();
             File.WriteAllBytes(path, tex.EncodeToPNG());
             Destroy(tex);
+        }
+
+        // Hidden player windows have no readable swapchain. Render the bag canvas explicitly for UI reviews.
+        static void SaveInventory(string path)
+        {
+            Camera camera = Camera.main;
+            Canvas canvas = UiKit.Canvas(null);
+            RenderMode mode = canvas.renderMode;
+            Camera oldCamera = canvas.worldCamera;
+            float distance = canvas.planeDistance;
+            RenderTexture oldTarget = camera.targetTexture, oldActive = RenderTexture.active;
+            var target = RenderTexture.GetTemporary(Screen.width, Screen.height, 24);
+            var texture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+            try
+            {
+                var portrait = UnityEngine.Object.FindFirstObjectByType<HeroPortraitView>();
+                if (portrait != null) portrait.RenderForCapture();
+                canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                canvas.worldCamera = camera;
+                canvas.planeDistance = camera.nearClipPlane + 1f;
+                camera.targetTexture = target;
+                Canvas.ForceUpdateCanvases();
+                camera.Render();
+                RenderTexture.active = target;
+                texture.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
+                texture.Apply();
+                File.WriteAllBytes(path, texture.EncodeToPNG());
+            }
+            finally
+            {
+                camera.targetTexture = oldTarget;
+                canvas.renderMode = mode;
+                canvas.worldCamera = oldCamera;
+                canvas.planeDistance = distance;
+                RenderTexture.active = oldActive;
+                RenderTexture.ReleaseTemporary(target);
+                Destroy(texture);
+            }
         }
 
         static bool HasLineOfSight(Vector2 a, Vector2 b)

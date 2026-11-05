@@ -119,7 +119,12 @@ namespace ZenoniaProto
         public static Sprite SlotEdge()
         {
             const int S = 64;
-            return Paint("slotEdge", S, S, 16, (x, y) => new Color(1f, 1f, 1f, Line(RoundRect(x, y, S, S, 0.5f, 5f))));
+            return Paint("slotEdge", S, S, 16, (x, y) =>
+            {
+                float outer = Line(RoundRect(x, y, S, S, 1.5f, 5f), 2f);
+                float inner = Line(RoundRect(x, y, S, S, 4f, 3f), 1f) * 0.55f;
+                return new Color(1f, 1f, 1f, Mathf.Max(outer, inner));
+            });
         }
 
         /// <summary>The two corner brackets of a slot (top-left, bottom-right), white.</summary>
@@ -221,11 +226,27 @@ namespace ZenoniaProto
         {
             Sprite s;
             if (Cache.TryGetValue("bagIcon", out s) && s != null) return s;
-            Texture2D tex = SpriteSheet.Load("Sprites/ui/bag-frame");
+            Texture2D tex = SpriteSheet.Load("Sprites/ui/bag-icon-v3");
             if (tex == null) return null;
-            s = Sprite.Create(tex, new Rect(58, tex.height - 158, 148, 122), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+            s = Sprite.Create(tex, new Rect(240f, 230f, 830f, 730f), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
             Cache["bagIcon"] = s;
             return s;
+        }
+
+        /// <summary>Pointed gold rarity plaque, independent of the item name.</summary>
+        public static Sprite RarityTag()
+        {
+            const int W = 192, H = 36;
+            return Paint("rarityTag", W, H, 14, (x, y) =>
+            {
+                float bevel = Mathf.Abs(y - H * 0.5f) * 0.45f;
+                float d = Mathf.Max(Mathf.Abs(x - W * 0.5f) - (W * 0.5f - 3f - bevel), Mathf.Abs(y - H * 0.5f) - (H * 0.5f - 3f));
+                Color fill = Color.Lerp(Hex("#6c4109"), Hex("#241400"), y / H);
+                fill.a = Cover(d);
+                fill = Over(fill, Hex("#ffdb79"), Line(d, 2f));
+                fill = Over(fill, Hex("#ad7223"), Line(d + 3f, 1f));
+                return fill;
+            });
         }
     }
 }

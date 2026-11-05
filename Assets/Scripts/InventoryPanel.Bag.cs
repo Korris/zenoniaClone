@@ -14,7 +14,7 @@ namespace ZenoniaProto
     {
         enum Supply { Coin, HpSmall, HpMedium, HpLarge, MpSmall, MpMedium, MpLarge, Stone }
         const int GridCols = 5, PageSize = 20;
-        const float CellSize = 62f, CellStep = 66f, CellIcon = 50f; // 5 columns in the 350 px panel
+        const float CellSize = 72f, CellStep = 76f, CellIcon = 68f;
 
         static bool IsPotion(Supply kind) { return kind >= Supply.HpSmall && kind <= Supply.MpLarge; }
         static bool PotionIsHp(Supply kind) { return kind <= Supply.HpLarge; }
@@ -66,19 +66,20 @@ namespace ZenoniaProto
 
         void BuildBag(RectTransform centre)
         {
-            allItemsText = BagWidgets.Text(centre, "AllItems", 16f, 16f, "All items", 15, "#d9d3bd", TextAnchor.UpperLeft, 200f, true);
+            allItemsText = BagWidgets.Text(centre, "AllItems", 16f, 13f, "All items", 19, "#fff0c5", TextAnchor.UpperLeft, 200f, true);
             filterChip = new BagWidgets.BagButton(centre, "FilterChip", 12f, 10f, 150f, 34f, "", BagSprites.Tone.Blue, () => { SetFilter(null); lastClickIndex = -1; Refresh(); });
             filterChip.Label.fontSize = 14;
-            bagCountText = BagWidgets.Text(centre, "Count", CentreW - 14f, 18f, "", 14, "#d9d3bd", TextAnchor.UpperRight, 100f);
+            bagCountText = BagWidgets.Text(centre, "Count", CentreW - 14f, 15f, "", 18, "#fff0c5", TextAnchor.UpperRight, 100f, true);
+            BagWidgets.Divider(centre, "ListRule", 14f, 41f, CentreW - 28f);
             for (int i = 0; i < PageSize; i++)
             {
                 int cell = i;
                 gridSlots[i] = new BagWidgets.Slot(centre, "Cell" + i, 12f + (i % GridCols) * CellStep, 52f + (i / GridCols) * CellStep, CellSize, () => OnCellClick(page * PageSize + cell));
             }
-            new BagWidgets.BagButton(centre, "Sort", 12f, 362f, 84f, 44f, "Sort", BagSprites.Tone.Blue, SortBag);
-            new BagWidgets.BagButton(centre, "Prev", 150f, 362f, 52f, 44f, "<", BagSprites.Tone.Gold, () => TurnPage(-1));
-            pageText = BagWidgets.Text(centre, "Page", 242f, 374f, "", 15, "#ffffff", TextAnchor.UpperCenter, 70f, true);
-            new BagWidgets.BagButton(centre, "Next", 282f, 362f, 52f, 44f, ">", BagSprites.Tone.Gold, () => TurnPage(1));
+            new BagWidgets.BagButton(centre, "Sort", 12f, 388f, 90f, 44f, "Sort", BagSprites.Tone.Blue, SortBag);
+            new BagWidgets.BagButton(centre, "Prev", CentreW - 212f, 388f, 50f, 40f, "<", BagSprites.Tone.Gold, () => TurnPage(-1));
+            pageText = BagWidgets.Text(centre, "Page", CentreW - 116f, 400f, "", 17, "#ffffff", TextAnchor.UpperCenter, 70f, true);
+            new BagWidgets.BagButton(centre, "Next", CentreW - 64f, 388f, 50f, 40f, ">", BagSprites.Tone.Gold, () => TurnPage(1));
             messageText = BagWidgets.Text(centre, "Message", CentreW * 0.5f, 420f, "", 14, "#ffe08a", TextAnchor.UpperCenter, CentreW - 24f, true);
         }
 
@@ -166,8 +167,8 @@ namespace ZenoniaProto
                 if (SupplyAtCell(cell, out kind))
                 {
                     int count = SupplyCount(p, kind);
-                    v.SetFrame(wornSel < 0 && cell == cellSel, BagWidgets.Hex("#70899d"));
-                    v.SetIcon(SupplySprite(kind), CellIcon - 12f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
+                    v.SetFrame(wornSel < 0 && cell == cellSel, BagWidgets.Hex("#70899d"), IsPotion(kind) && count == 0);
+                    v.SetIcon(SupplySprite(kind), CellIcon - 8f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
                     v.SetEnhance(null);
                     v.Count.text = count.ToString();
                     continue;

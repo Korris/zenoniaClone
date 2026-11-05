@@ -73,6 +73,9 @@ namespace ZenoniaProto
             if (view != null) view.gameObject.SetActive(false);
         }
 
+        /// <summary>Hidden-window review captures cannot rely on Unity's automatic camera rendering.</summary>
+        public void RenderForCapture() { if (cam != null && cam.enabled) cam.Render(); }
+
         public void Tick(float dt)
         {
             if (view == null || !cam.enabled) return;
