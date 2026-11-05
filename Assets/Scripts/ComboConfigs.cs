@@ -11,9 +11,10 @@ namespace ZenoniaProto
             new ComboHit(90f, 120f, 220f, 1.8f, 42f, 40f, 110f, 16f, 1.15f),
         };
 
+        // Ranged bolt ranges were halved on 2026-11-05 (user: the ranged classes hit from too far); shared with the server, rebuild it.
         // Wizard: caster stands still (stepPx 0); the 4th step is a slower, bigger bolt that bursts (AoE r26).
-        static readonly BoltDef MagicBolt = new BoltDef(230f, 120f, "magicBolt", 0.8f, 10f, 10f, 0f, null, null, BoltStyle.Arcane);
-        static readonly BoltDef ArcaneOrb = new BoltDef(180f, 110f, "magicBolt", 1.3f, 14f, 14f, 26f, "arcaneBurst", null, BoltStyle.Arcane);
+        static readonly BoltDef MagicBolt = new BoltDef(230f, 60f, "magicBolt", 0.8f, 10f, 10f, 0f, null, null, BoltStyle.Arcane);
+        static readonly BoltDef ArcaneOrb = new BoltDef(180f, 55f, "magicBolt", 1.3f, 14f, 14f, 26f, "arcaneBurst", null, BoltStyle.Arcane);
         public static readonly ComboHit[] WizardHits =
         {
             new ComboHit(70f, 60f, 130f, 0.9f, 0f, 0f, 30f, 0f, 1f, MagicBolt),
@@ -23,8 +24,8 @@ namespace ZenoniaProto
         };
 
         // Mechanic: three fast bullets, then a plasma cannon blast (AoE r24) with a muzzle flash on every shot.
-        static readonly BoltDef Bullet = new BoltDef(340f, 140f, "bullet", 1f, 8f, 8f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
-        static readonly BoltDef Plasma = new BoltDef(240f, 130f, "plasmaShot", 1.2f, 12f, 12f, 24f, "explosion", "muzzleFlash", BoltStyle.Plasma);
+        static readonly BoltDef Bullet = new BoltDef(340f, 70f, "bullet", 1f, 8f, 8f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
+        static readonly BoltDef Plasma = new BoltDef(240f, 65f, "plasmaShot", 1.2f, 12f, 12f, 24f, "explosion", "muzzleFlash", BoltStyle.Plasma);
         public static readonly ComboHit[] MechanicHits =
         {
             new ComboHit(50f, 50f, 110f, 0.85f, 0f, 0f, 25f, 0f, 1f, Bullet),
@@ -55,8 +56,8 @@ namespace ZenoniaProto
         };
 
         // Cleric: light arrows (HolyArrow) with a gold pillar impact; three quick shots then a bursting one (AoE r26).
-        static readonly BoltDef ClericOrb = new BoltDef(220f, 120f, "magicBolt", 0.8f, 10f, 10f, 0f, null, null, BoltStyle.HolyArrow);
-        static readonly BoltDef ClericBurstOrb = new BoltDef(180f, 110f, "magicBolt", 1.3f, 14f, 14f, 26f, "arcaneBurst", null, BoltStyle.HolyArrow);
+        static readonly BoltDef ClericOrb = new BoltDef(220f, 60f, "magicBolt", 0.8f, 10f, 10f, 0f, null, null, BoltStyle.HolyArrow);
+        static readonly BoltDef ClericBurstOrb = new BoltDef(180f, 55f, "magicBolt", 1.3f, 14f, 14f, 26f, "arcaneBurst", null, BoltStyle.HolyArrow);
         public static readonly ComboHit[] ClericHits =
         {
             new ComboHit(70f, 60f, 130f, 0.85f, 0f, 0f, 30f, 0f, 1f, ClericOrb),

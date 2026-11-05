@@ -71,22 +71,28 @@ namespace ZenoniaProto
             HeroFx.CastWindup(cls, h, HeroFx.CastTipFor(cls, combo.Step, facing, new Vector2(x, y), CastTip), DirAngle[facing], combo.IsFinisher, this);
         }
 
-        /// <summary>Web fireComboBolt: the shot leaves 12 units in front of the hero, with a flash at the staff tip / gun barrel.</summary>
+        /// <summary>
+        /// Web fireComboBolt: the shot leaves 12 units in front of the hero, with a flash at the staff tip / gun barrel. A live monster within the
+        /// bolt's range in front of the hero turns the shot toward it (RangedAutoAim); the hero keeps its 4-way facing and the muzzle stays put.
+        /// </summary>
         void FireBolt(ComboHit h, int step)
         {
             if (replaying) return; // a re-simulated step never fires a second picture
-            Vector2 v = DirVec[facing];
+            Vector2 facingVec = DirVec[facing];
+            Vector2 v = facingVec;
+            float angle = DirAngle[facing];
             bool finisher = combo.IsFinisher;
             float mult = combo.MultiplierFor(step, 1);
             ClassPalette pal = cls.ActivePalette;
-            Vector2 muzzle = new Vector2(x + v.x * 12f, y + 4f + v.y * 12f);
-            ushort boltId = NetEventBus.BoltFired(this, step, muzzle, DirAngle[facing], finisher);
-            ComboProjectile shot = ComboProjectile.Fire(muzzle, v, DirAngle[facing], h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus, this, boltId);
+            Vector2 muzzle = new Vector2(x + facingVec.x * 12f, y + 4f + facingVec.y * 12f);
+            RangedAutoAim.Steer(new Vector2(x, y), muzzle, facingVec, h.Bolt.Range, ref v, ref angle);
+            ushort boltId = NetEventBus.BoltFired(this, step, muzzle, angle, finisher);
+            ComboProjectile shot = ComboProjectile.Fire(muzzle, v, angle, h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus, this, boltId);
             if (predicted) RememberPredictedBolt(shot);
             if (!NetMode.RendersFx) return;
             bool painted = VfxSprites.For(h.Bolt.Style) != null;
             if (painted && castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast
-            HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), CastTip, v, DirAngle[facing], painted);
+            HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), CastTip, v, angle, painted);
         }
 
         /// <summary>Called by monsters when a strike connects.</summary>
