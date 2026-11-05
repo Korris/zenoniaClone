@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ApiError } from '../errors.js';
 import { itemSchema } from './item-validation.js';
-import { INVENTORY_SIZE, MAX_INT, MAX_STONES, PET_MAX_DURABILITY, SLOTS } from './rpg-constants.js';
+import { INVENTORY_SIZE, MAX_INT, MAX_STONES, PET_MAX_DURABILITY, requiredEquipLevel, SLOTS } from './rpg-constants.js';
 
 const delta = z.number().int().min(-MAX_INT).max(MAX_INT);
 
@@ -36,6 +36,8 @@ const handlers = {
     if (idx < 0) throw reject('item_not_found', `Item ${op.uid} is not in the inventory`);
     const item = s.inventory[idx];
     if (item.classId && item.classId !== s.classId) throw reject('wrong_class', 'Item is locked to another class');
+    const required = requiredEquipLevel(item); // checked only here: worn gear and trades never re-check it
+    if (s.level < required) throw reject('level_too_low', `Requires level ${required}`);
     s.inventory.splice(idx, 1);
     const prevIdx = s.equipment.findIndex((e) => e.slot === item.slot);
     if (prevIdx >= 0) s.inventory.push(...s.equipment.splice(prevIdx, 1));

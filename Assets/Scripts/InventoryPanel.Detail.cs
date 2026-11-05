@@ -129,14 +129,14 @@ namespace ZenoniaProto
         {
             bool worn = wornSel >= 0, usable = p.CanEquip(item);
             detailSlot.SetFrame(false, LootSprites.RarityColor(item));
-            detailSlot.SetIcon(LootSprites.Icon(item), 52f, usable ? Color.white : new Color(1f, 0.6f, 0.6f, 0.55f));
+            detailSlot.SetIcon(LootSprites.Icon(item), 52f, !usable ? new Color(1f, 0.6f, 0.6f, 0.55f) : worn || p.MeetsLevel(item) ? Color.white : new Color(0.55f, 0.55f, 0.6f, 0.6f));
             detailSlot.SetEnhance(item);
             detailSlot.Count.text = "";
             itemName.text = EnhanceStats.DisplayName(item);
             itemName.color = LootSprites.RarityColor(item);
             itemSlotText.text = ItemInfo.SlotLabel(item.slot) + (string.IsNullOrEmpty(item.classId) || usable ? "" : "  <color=#ff8070>" + RpgClasses.Get(item.classId).Name + " only</color>");
             bool isPet = item.slot == Slots.Pet;
-            itemLevelText.text = isPet ? "" : "Lv. " + item.itemLevel;
+            itemLevelText.text = isPet ? "" : !EquipLevel.Applies(item) ? "Lv. " + item.itemLevel : worn || p.MeetsLevel(item) ? EquipLevel.Label(item) : "<color=#ff7070>" + EquipLevel.Label(item) + "</color>";
 
             Item wornItem = p.GetEquipped(item.slot);
             Item compare = wornItem != item ? wornItem : null;

@@ -175,10 +175,11 @@ namespace ZenoniaProto
                 Item item = ItemAtCell(p, cell);
                 bool beyond = filterSlot == null && cell >= CellCount(p);
                 v.SetFrame(wornSel < 0 && cell == cellSel, item != null ? LootSprites.RarityColor(item) : BagWidgets.Hex("#607b91"), beyond);
-                v.SetIcon(item != null ? LootSprites.Icon(item) : null, CellIcon, item == null || p.CanEquip(item) ? Color.white : new Color(1f, 0.6f, 0.6f, 0.55f));
+                bool tooLow = item != null && p.CanEquip(item) && !p.MeetsLevel(item); // right class, hero level too low: gray + "Lv30" in the corner
+                v.SetIcon(item != null ? LootSprites.Icon(item) : null, CellIcon, item == null || p.CanEquip(item) && !tooLow ? Color.white : tooLow ? new Color(0.55f, 0.55f, 0.6f, 0.6f) : new Color(1f, 0.6f, 0.6f, 0.55f));
                 v.SetEnhance(item);
                 int plus = EnhanceStats.Level(item);
-                v.Count.text = PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
+                v.Count.text = tooLow ? "<color=#ff7070>Lv" + EquipLevel.Required(item) + "</color>" : PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
             }
         }
     }

@@ -49,10 +49,8 @@ namespace ZenoniaProto.Rpg
                 critChance = t.Base.critChance > 0f ? RpgMath.Round3(t.Base.critChance * scale) : 0f,
                 speedMult = t.Base.speedMult > 0f ? RpgMath.Round3(t.Base.speedMult * scale) : 0f,
             };
-            ClassStatDef cls = RpgClasses.Get(classId);
-            string baseName = chosen == Slots.Weapon ? ItemDefs.TierName(ItemDefs.WeaponTierNames, classId, itemLevel, cls.WeaponName)
-                : chosen == Slots.Offhand ? ItemDefs.TierName(ItemDefs.OffhandTierNames, OffhandClass(classId), itemLevel, RpgClasses.Get(OffhandClass(classId)).OffhandName)
-                : ItemDefs.ArmorTierNames.ContainsKey(chosen) ? ItemDefs.ArmorTierNames[chosen][ItemDefs.EquipmentTier(itemLevel)] : t.Name;
+            string baseName = WeaponNames.BaseName(OffhandClass(classId), chosen, ItemDefs.EquipmentTier(itemLevel))
+                ?? (ItemDefs.ArmorTierNames.ContainsKey(chosen) ? ItemDefs.ArmorTierNames[chosen][ItemDefs.EquipmentTier(itemLevel)] : t.Name);
             var item = new Item
             {
                 templateId = t.Id, slot = chosen, rarity = rarity, itemLevel = itemLevel, stats = stats,
@@ -92,7 +90,6 @@ namespace ZenoniaProto.Rpg
         {
             Item item = Generate(() => 0.0, 1, slot, "common", classId);
             item.uid = "starter-" + slot;
-            if (slot == Slots.Weapon) item.name = RpgClasses.Get(classId).WeaponName;
             return item;
         }
 
@@ -127,7 +124,11 @@ namespace ZenoniaProto.Rpg
             };
             if (t.Slot == Slots.Weapon && RpgClasses.IsValid(raw.classId)) item.classId = raw.classId;
             if (t.Slot == Slots.Offhand) item.classId = RpgClasses.ClassForOffhand(t.Id) ?? RpgClasses.Default; // the template decides, never the raw tag
-            if (t.Slot == Slots.Weapon || t.Slot == Slots.Offhand) item.enhance = RpgMath.Clamp(raw.enhance, 0, EnhanceConfig.MaxEnhance);
+            if (t.Slot == Slots.Weapon || t.Slot == Slots.Offhand)
+            {
+                item.enhance = RpgMath.Clamp(raw.enhance, 0, EnhanceConfig.MaxEnhance);
+                item.name = WeaponNames.FullName(item) ?? item.name; // older saves carry "Legendary Gun": the table is the authority
+            }
             if (t.Slot == Slots.Pet)
             {
                 if (raw.durability <= 0 && !oldFormat) return null;

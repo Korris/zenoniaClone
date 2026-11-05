@@ -11,6 +11,9 @@ namespace ZenoniaProto.Rpg
         /// <summary>Class gear (weapon / offhand carry classId) only fits its own class; armor fits everyone.</summary>
         public bool CanEquip(Item item) { return string.IsNullOrEmpty(item.classId) || item.classId == ClassId; }
 
+        /// <summary>Weapon / off-hand level gate (EquipLevel). Checked only when equipping: what is already worn stays worn, and trade / drop / store ignore it.</summary>
+        public bool MeetsLevel(Item item) { return EquipLevel.Meets(item, Level); }
+
         public bool AddToInventory(Item item)
         {
             if (Inventory.Count >= InventorySize) return false;
@@ -32,6 +35,7 @@ namespace ZenoniaProto.Rpg
             int slot = Slots.Index(item.slot);
             if (slot < 0) return ActionResult.Fail("Invalid slot");
             if (!CanEquip(item)) return ActionResult.Fail("Wrong class");
+            if (!MeetsLevel(item)) return ActionResult.Fail("Requires level " + EquipLevel.Required(item));
             bool inBag = Inventory.Exists(i => i.uid == item.uid);
             Item previous = equipment[slot];
             int after = Inventory.Count - (inBag ? 1 : 0) + (previous != null ? 1 : 0);

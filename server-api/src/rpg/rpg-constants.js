@@ -6,6 +6,10 @@ export const PET_MAX_DURABILITY = 1000; // PetConfig.MaxDurability
 export const PET_TEMPLATE_IDS = ['pet-spirit', 'pet-imp']; // PetConfig.All: the only things the pet slot holds. Their bonuses live in C#, these items carry no stats.
 export const RARITIES = ['common', 'uncommon', 'rare', 'epic'];
 export const ENHANCEABLE_SLOTS = ['weapon', 'offhand'];
+/** EquipLevel.ByTier: hero level needed to equip a weapon / offhand of art tier itemLevel / 10 (clamped 0..9). Enhancement never raises it; armor and pets have none. */
+export const EQUIP_LEVEL_BY_TIER = [1, 5, 10, 15, 20, 30, 35, 40, 50, 60];
+export const requiredEquipLevel = (item) =>
+  ENHANCEABLE_SLOTS.includes(item.slot) ? EQUIP_LEVEL_BY_TIER[Math.min(9, Math.max(0, Math.floor(item.itemLevel / 10)))] : 1;
 
 export const MAX_LEVEL = 60; // Leveling.MaxLevel
 export const SKILL_COUNT = 8; // SkillDef.PerClass: skills per class tree

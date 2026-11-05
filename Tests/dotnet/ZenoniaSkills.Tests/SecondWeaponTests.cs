@@ -113,7 +113,7 @@ public class SecondWeaponTests
     {
         PlayerState p = PlayerState.NewGame("fighter");
         Item weapon = p.GetEquipped(Slots.Weapon), glove = p.GetEquipped(Slots.Offhand);
-        Assert.Equal("Gloves", weapon.name); Assert.Equal("fighter", weapon.classId);
+        Assert.Equal("Leather Gloves", weapon.name); Assert.Equal("fighter", weapon.classId);
         Assert.Equal("glove", glove.templateId); Assert.Equal("fighter", glove.classId); Assert.Equal("Leather Glove", glove.name);
         Assert.Equal("fighter", RpgClasses.ClassForOffhand("glove"));
         Assert.Equal("Dragon Gauntlets", ItemFactory.Generate(() => 0.0, 95, Slots.Weapon, "common", "fighter").name);

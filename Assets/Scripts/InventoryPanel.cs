@@ -188,6 +188,7 @@ namespace ZenoniaProto
             if (item == null) return;
             bool worn = wornSel >= 0;
             int slotIndex = Mathf.Max(0, Slots.Index(item.slot));
+            if (!worn && p.CanEquip(item) && !p.MeetsLevel(item)) { Flash("Requires level " + EquipLevel.Required(item)); return; } // the server checks too
             if (NetMode.IsClient)
             {
                 NetClient.SendInvAction(worn ? InvOp.Unequip : InvOp.Equip, item.uid, (byte)slotIndex);
