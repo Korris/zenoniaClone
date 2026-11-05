@@ -54,8 +54,8 @@ namespace ZenoniaProto
 
         static readonly Vector2Int PlayerStartTile = new Vector2Int(3, 10);
 
-        /// <summary>West edge: back to the top of Frost Hollow's north-east stairs (the painted path is three tiles wide here, so three triggers, one light). Always open.</summary>
-        static readonly MapPortal[] BackPortals = { new MapPortal(0, 9, FrostHollowLayout.MapId, 33, 4), new MapPortal(0, 10, FrostHollowLayout.MapId, 33, 4), new MapPortal(0, 11, FrostHollowLayout.MapId, 33, 4) };
+        /// <summary>West edge: back to the ice cave on Frost Hollow's east cliff (the painted path is three tiles wide here, so three triggers, one light). Always open.</summary>
+        static readonly MapPortal[] BackPortals = { new MapPortal(0, 9, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y), new MapPortal(0, 10, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y), new MapPortal(0, 11, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y) };
         /// <summary>The same plus the light at the arena's far wall, on to Sunspire, which only exists once this save has killed the Warden: until then no light and no trigger.</summary>
         static readonly MapPortal[] AllPortals = { BackPortals[0], BackPortals[1], BackPortals[2], new MapPortal(34, 10, SunspireOasisMap.MapId, 2, 10) };
 

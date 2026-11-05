@@ -19,7 +19,7 @@ namespace ZenoniaProto
             { Type = type; Count = count; Tx = tx; Ty = ty; W = w; H = h; RespawnMs = respawnMs; }
         }
 
-        /// <summary>Spawn zones of the web map (tile rect, count, respawn delay).</summary>
+        /// <summary>Spawn zones of the web map (tile rect, count, respawn delay): the old valley in the north-west corner of the 72x48 map. The clusters of the rest are MapSpawnTable.FrostHollowOuter.</summary>
         public static readonly Zone[] Zones =
         {
             new Zone("frostSlime", 5, 5, 4, 9, 5, 8000f),

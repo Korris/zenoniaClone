@@ -1,0 +1,26 @@
+Frost Hollow 72x48 sketch (1 char = 3x3 tiles; col c = tiles 3c..3c+2, row r = tiles 3r..3r+2). Content guide for the outpaint prompts; real rows come from the painting (P4).
+       c 0         1         2
+         012345678901234567890123
+  r 0    OOOOOOOOOOOO^^^^^^^^^^^#   O old section (tiles 0-35 x 0-23, same tile coords)   ^ north cliff
+  r 1    OOOOOOOOOOOS....W6W..TT#   S old NE stairs (32-33,2-4) -> ledge   W ruined watchtower
+  r 2    OOOOOOOOOOOO=====.....T#   = snow road / flagstones
+  r 3    OOOOOOOOOOOO..4....7...#
+  r 4    OOOOOOOOOOOO......=.cc.#   c big crystal cluster (prop)
+  r 5    OOOOOOOOOOOO.TT...=....#
+  r 6    OOOOOOOOOOOO.TT.5.=....#
+  r 7    OGvOOO~OOOOO......=....#   G village gate (2,21)   v gap in the old south cliff, path goes down   ~ river leaves the old section
+  r 8    #.v...~~.......LLL.=...#
+  r 9    #..1..~~....LLLLLL..9..#   L ice lake
+  r10    #.....H~..3.LLLLLLL..I>    H bridge 2   I ice-cave mouth   > Den portal (71,30-32)
+  r11    #.....~~.....LLLL....I#
+  r12    #..2...~~........=.....#
+  r13    #.TT....~~...8...=..A..#
+  r14    #.......~~~......TT....#
+  r15    ########################   tiles 45-47: under the HUD, solid
+
+Exits from the old section (checked on the ground-only image, see ground-only-rows-notes.md):
+ (a) EAST edge col 35, rows 5-11 is open snow -> north-middle field.
+ (b) NE stairs (32-33,3-4) -> (35,3) ledge east -> watchtower.
+ (c) SOUTH-WEST: old rows 22-23 were border; in the new image the south cliff rim (row 23, cols 1-10) is CLOSED. S1 must open a gap at cols 2-4 where the flagstone path ends (2-3,22).
+ (d) SE pocket (cols 22-35, rows 21-23) is cut off by the row 20-21 cliff band; SE1/E1 must connect it (cliff ends or path at the east edge).
+Border: rows 45-47 solid, cols 70-71 solid except Den portal rows 30-32, col 0 solid.

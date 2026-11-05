@@ -29,7 +29,12 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public static class SaveSerializer
     {
-        public const int SaveVersion = 2; // 2: pets carry durability
+        public const int SaveVersion = 3; // 2: pets carry durability. 3: Frost Hollow grew to 48 rows, so older frostHollow positions are shifted by Parse (= FrostHollowGrownVersion).
+        /// <summary>Saves older than this hold Frost Hollow positions measured on the 24-row map; Parse moves them up by the rows the map has gained since.</summary>
+        public const int FrostHollowGrownVersion = 3;
+        /// <summary>Frost Hollow's row count before it grew (36x24). Callers pass FrostHollowLayout.RowCount; the default means "not grown", so a caller that forgets never shifts.</summary>
+        public const int LegacyFrostHollowRows = 24;
+        const float TileUnits = 16f;
         public const string MapId = "frostHollow";
         const int MaxBossMaps = 32, MaxMapIdLength = 32; // same limits as the server-api schema, which rejects the whole save otherwise
 
@@ -53,7 +58,8 @@ namespace ZenoniaProto.Rpg
         public static string ToJson(SaveData d) { return JsonUtility.ToJson(d, true); }
 
         /// <summary>Parses + validates a save. Null for garbage, unreadable JSON, or a version newer than this build; missing fields default.</summary>
-        public static SaveData Parse(string json)
+        /// <param name="frostHollowRows">Row count of this build's Frost Hollow. A frostHollow save older than FrostHollowGrownVersion moves up (rows - 24) * 16 units (y points up and the map grew downward in the painting), so the hero keeps the same tile. A 24-row build moves nothing.</param>
+        public static SaveData Parse(string json, int frostHollowRows = LegacyFrostHollowRows)
         {
             if (string.IsNullOrWhiteSpace(json)) return null;
             SaveData raw;
@@ -70,6 +76,8 @@ namespace ZenoniaProto.Rpg
                 upgradeStone = RpgMath.Clamp(raw.upgradeStone, 0, PlayerState.MaxStones),
                 hp = Finite(raw.hp), mp = Finite(raw.mp), x = Finite(raw.x), y = Finite(raw.y), hasPosition = raw.hasPosition, bossDefeated = raw.bossDefeated,
             };
+            if (raw.version < FrostHollowGrownVersion && d.mapId == MapId && d.hasPosition && frostHollowRows > LegacyFrostHollowRows)
+                d.y += (frostHollowRows - LegacyFrostHollowRows) * TileUnits;
             foreach (Item i in raw.inventory ?? new List<Item>())
             {
                 Item s = ItemFactory.Sanitize(i, raw.version < 2);

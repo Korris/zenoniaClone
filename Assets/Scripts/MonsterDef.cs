@@ -71,8 +71,18 @@ namespace ZenoniaProto
         public static readonly MonsterDef BrambleTreant = new MonsterDef("Bramble Treant", "brambleTreant", 263f, 35f, 10f, 28f, 6, aggro: 55f, attackRange: 18f, windupMs: 650f, cooldownMs: 1700f, hitW: 22f, hitH: 14f, bodyHeightPx: 172f)
             { RenderScale = 1.2f };
 
+        // Frost Hollow ice monsters (Lv 7-9, the large field's far side), same line HP 14+22L, Atk 3+4L, Def 1+L, EXP 14L. Real sheets come later (Tools/build-ice-monsters.py); until then the
+        // fallback sheet is tinted. Ice Wraith: fast and brittle (HP x0.8, Atk x1.2, Def 4) with Spectral Wolf timings. Frostbite Yeti: heavy (HP x1.4, Atk x1.2, Def 9), slow, long windup, wide hitbox.
+        // Crystal Golem: tank (HP x1.8, Atk x1.1, Def 16), slowest, longest windup and cooldown. RenderScale also scales the HP bar and name position.
+        public static readonly MonsterDef IceWraith = new MonsterDef("Ice Wraith", "iceWraith", 134f, 37f, 4f, 66f, 7, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 12f, hitH: 8f, bodyHeightPx: 140f)
+            { FallbackSheet = "spectralWolf", FallbackTint = new Color(0.7f, 0.9f, 1f) };
+        public static readonly MonsterDef FrostbiteYeti = new MonsterDef("Frostbite Yeti", "frostbiteYeti", 266f, 42f, 9f, 34f, 8, aggro: 60f, attackRange: 18f, windupMs: 600f, cooldownMs: 1500f, hitW: 22f, hitH: 14f, bodyHeightPx: 176f)
+            { RenderScale = 1.2f, FallbackSheet = "iceGoblin", FallbackTint = new Color(0.95f, 0.97f, 1f) };
+        public static readonly MonsterDef CrystalGolem = new MonsterDef("Crystal Golem", "crystalGolem", 382f, 43f, 16f, 26f, 9, aggro: 50f, attackRange: 18f, windupMs: 700f, cooldownMs: 1800f, hitW: 24f, hitH: 14f, bodyHeightPx: 168f)
+            { RenderScale = 1.25f, FallbackSheet = "frostSlime", FallbackTint = new Color(0.45f, 0.7f, 1f) };
+
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
-        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant };
+        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem };
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -98,6 +108,9 @@ namespace ZenoniaProto
                 case "meadowSlime": return MeadowSlime;
                 case "meadowMantis": return MeadowMantis;
                 case "brambleTreant": return BrambleTreant;
+                case "iceWraith": return IceWraith;
+                case "frostbiteYeti": return FrostbiteYeti;
+                case "crystalGolem": return CrystalGolem;
                 default: return null;
             }
         }

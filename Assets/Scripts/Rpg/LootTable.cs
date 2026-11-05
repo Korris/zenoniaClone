@@ -47,6 +47,10 @@ namespace ZenoniaProto.Rpg
             { "meadowSlime", new MonsterLootDef { Type = "meadowSlime", Exp = 12, GoldMin = 1, GoldMax = 3, ItemLevel = 1 } },
             { "meadowMantis", new MonsterLootDef { Type = "meadowMantis", Exp = 80, GoldMin = 6, GoldMax = 12, ItemLevel = 5 } },
             { "brambleTreant", new MonsterLootDef { Type = "brambleTreant", Exp = 134, GoldMin = 10, GoldMax = 20, ItemLevel = 6 } },
+            // Frost Hollow ice monsters (Lv 7-9): the same line.
+            { "iceWraith", new MonsterLootDef { Type = "iceWraith", Exp = 98, GoldMin = 7, GoldMax = 15, ItemLevel = 7 } },
+            { "frostbiteYeti", new MonsterLootDef { Type = "frostbiteYeti", Exp = 112, GoldMin = 8, GoldMax = 17, ItemLevel = 8 } },
+            { "crystalGolem", new MonsterLootDef { Type = "crystalGolem", Exp = 126, GoldMin = 9, GoldMax = 19, ItemLevel = 9 } },
         };
 
         public static MonsterLootDef For(string type) { MonsterLootDef d; return type != null && Table.TryGetValue(type, out d) ? d : null; }

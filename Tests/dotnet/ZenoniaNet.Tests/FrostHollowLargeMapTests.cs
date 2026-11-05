@@ -1,0 +1,175 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+using UnityEngine;
+using Xunit;
+using ZenoniaProto;
+
+/// <summary>The 72x48 Frost Hollow: size, chunks, gate and ice-cave portals with their round trips, border/HUD rows, flood fill from the start, the old valley tiles and the 10 outer spawn clusters
+/// (parsed from MapSpawnTable.cs, which needs Unity), plus the guard tying the row count to the save version.</summary>
+[Collection("MapRegistry")]
+public class FrostHollowLargeMapTests
+{
+    static IGameMap Frost { get { return MapRegistry.Get(FrostHollowLayout.MapId); } }
+
+    static string RepoFile(string relative)
+    {
+        string dir = AppContext.BaseDirectory;
+        while (dir != null && !Directory.Exists(Path.Combine(dir, "Assets"))) dir = Path.GetDirectoryName(dir);
+        Assert.NotNull(dir);
+        return Path.Combine(dir, relative);
+    }
+
+    static HashSet<int> ReachableFromStart()
+    {
+        var seen = new HashSet<int>();
+        var open = new Stack<int>();
+        open.Push(21 * 72 + 4);
+        while (open.Count > 0)
+        {
+            int i = open.Pop();
+            int x = i % 72, y = i / 72;
+            if (i < 0 || x >= 72 || y >= 48 || Frost.IsSolidTile(x, y) || !seen.Add(i)) continue;
+            if (x < 71) open.Push(i + 1);
+            if (x > 0) open.Push(i - 1);
+            open.Push(i + 72); open.Push(i - 72);
+        }
+        return seen;
+    }
+
+    [Fact]
+    public void IsA72x48MapWithTwoByTwoChunksAndTheChunkFilesExist()
+    {
+        Assert.Equal(72, Frost.Width);
+        Assert.Equal(48, Frost.Height);
+        Assert.Equal(48, FrostHollowLayout.RowCount);
+        Assert.Equal(2, Frost.GroundChunkCols);
+        Assert.Equal(2, Frost.GroundChunkRows);
+        Assert.Equal("Sprites/tiles/frost-hollow-large-ground", Frost.GroundTexture);
+        for (int r = 0; r < 2; r++)
+            for (int c = 0; c < 2; c++) AssertPngSize("Assets/Resources/Sprites/tiles/frost-hollow-large-ground-r" + r + "c" + c + ".png", 2304, 1536);
+        AssertPngSize("Assets/Resources/Sprites/tiles/frost-hollow-large-ground-minimap.png", 432, 288);
+    }
+
+    static void AssertPngSize(string relative, int w, int h)
+    {
+        byte[] b = File.ReadAllBytes(RepoFile(relative));
+        int pw = (b[16] << 24) | (b[17] << 16) | (b[18] << 8) | b[19], ph = (b[20] << 24) | (b[21] << 16) | (b[22] << 8) | b[23];
+        Assert.Equal(w, pw); Assert.Equal(h, ph);
+    }
+
+    [Fact]
+    public void VillageGateAndIceCavePortalsRoundTrip()
+    {
+        IGameMap den = MapRegistry.Get(FrostfangDenMap.MapId), village = MapRegistry.Get(OakhavenVillageMap.MapId);
+        Assert.Equal(4, Frost.Portals.Length);
+        Assert.Contains(Frost.Portals, p => p.Tx == 2 && p.Ty == 21 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 16 && p.TargetTy == 19);
+        for (int x = 67; x <= 69; x++)
+        {
+            int px = x;
+            Assert.Contains(Frost.Portals, p => p.Tx == px && p.Ty == 20 && p.TargetMapId == FrostfangDenMap.MapId && p.TargetTx == 2 && p.TargetTy == 10);
+        }
+        foreach (MapPortal p in Frost.Portals) Assert.False(Frost.IsSolidTile(p.Tx, p.Ty), "portal tile " + p.Tx + "," + p.Ty + " is solid");
+        Assert.Equal(new Vector2Int(4, 21), FrostHollowLayout.PlayerStartTile);
+        Assert.Contains(village.Portals, p => p.TargetMapId == FrostHollowLayout.MapId && p.TargetTx == 4 && p.TargetTy == 21);
+        foreach (MapPortal p in den.PortalsFor(false))
+        {
+            Assert.Equal(FrostHollowLayout.MapId, p.TargetMapId);
+            Assert.Equal(68, p.TargetTx); Assert.Equal(22, p.TargetTy);
+            Assert.False(Frost.IsSolidTile(p.TargetTx, p.TargetTy), "arrival is solid");
+            MapPortal arrival = p;
+            Assert.DoesNotContain(Frost.Portals, q => q.Tx == arrival.TargetTx && q.Ty == arrival.TargetTy);
+        }
+    }
+
+    [Fact]
+    public void StartTileIsOpenAndTheHudAndBorderRowsAreSolid()
+    {
+        Assert.False(Frost.IsSolidTile(4, 21));
+        Assert.False(Frost.IsSolidTile(7, 5), "the King tile");
+        for (int x = 0; x < 72; x++)
+            foreach (int y in new[] { 0, 45, 46, 47 }) Assert.True(Frost.IsSolidTile(x, y), "row " + y + " col " + x);
+        for (int y = 0; y < 48; y++) Assert.True(Frost.IsSolidTile(70, y) && Frost.IsSolidTile(71, y), "east border row " + y);
+        for (int y = 22; y < 48; y++) Assert.True(Frost.IsSolidTile(0, y), "west border row " + y);
+    }
+
+    [Fact]
+    public void EveryWalkableTileIsReachableFromTheStartAndTheSouthWestExitAndSouthEastPocketAreOpen()
+    {
+        HashSet<int> seen = ReachableFromStart();
+        int walkable = 0;
+        for (int y = 0; y < 48; y++)
+            for (int x = 0; x < 72; x++)
+                if (!Frost.IsSolidTile(x, y)) { walkable++; Assert.Contains(y * 72 + x, seen); }
+        Assert.True(walkable > 1800, "walkable " + walkable);
+        Assert.False(Frost.IsSolidTile(5, 23)); Assert.False(Frost.IsSolidTile(6, 24)); // stairs down the south rim of the old valley
+        Assert.Contains(30 * 72 + 12, seen);   // south-west plaza
+        Assert.Contains(22 * 72 + 30, seen);   // south-east pocket of the old valley
+        foreach (MapPortal p in Frost.Portals) Assert.Contains(p.Ty * 72 + p.Tx, seen);
+        Assert.True(Frost.IsSolidTile(20, 40), "river");
+        Assert.True(Frost.IsSolidTile(18, 3), "river");
+    }
+
+    static List<int[]> ParseZones(string file, string field)
+    {
+        string src = File.ReadAllText(RepoFile(file));
+        int a = src.IndexOf(field, StringComparison.Ordinal), b = src.IndexOf("};", a, StringComparison.Ordinal);
+        var list = new List<int[]>();
+        foreach (Match m in Regex.Matches(src.Substring(a, b - a), @"Zone\(""(\w+)"", (\d+), (\d+), (\d+), (\d+), (\d+), (\d+)f\)"))
+            list.Add(new[] { int.Parse(m.Groups[2].Value), int.Parse(m.Groups[3].Value), int.Parse(m.Groups[4].Value), int.Parse(m.Groups[5].Value), int.Parse(m.Groups[6].Value), int.Parse(m.Groups[7].Value) });
+        return list;
+    }
+
+    [Fact]
+    public void OuterClustersAreTenFiftySevenMonstersWithRoomReachableAndClearOfEveryEntrance()
+    {
+        List<int[]> zones = ParseZones("Assets/Scripts/MapSpawnTable.cs", "FrostHollowOuter =");
+        HashSet<int> seen = ReachableFromStart();
+        Assert.Equal(10, zones.Count);
+        var entrances = new List<int[]> { new[] { 4, 21 }, new[] { 2, 21 }, new[] { 68, 22 } };
+        foreach (MapPortal p in Frost.Portals) entrances.Add(new[] { p.Tx, p.Ty });
+        int total = 0;
+        foreach (int[] z in zones)
+        {
+            int count = z[0], tx = z[1], ty = z[2], w = z[3], h = z[4], respawn = z[5], free = 0;
+            total += count;
+            Assert.InRange(respawn, 7000, 10500);
+            Assert.True(tx >= 0 && ty >= 0 && tx + w <= 72 && ty + h <= 48, "rect outside the map");
+            for (int y = ty; y < ty + h; y++)
+                for (int x = tx; x < tx + w; x++)
+                    if (!Frost.IsSolidTile(x, y)) { free++; Assert.Contains(y * 72 + x, seen); }
+            Assert.True(free >= 2 * count, "cluster at " + tx + "," + ty + " has " + free + " free tiles for " + count + " monsters");
+            foreach (int[] e in entrances)
+            {
+                int dx = Math.Max(Math.Max(tx - e[0], 0), e[0] - (tx + w - 1)), dy = Math.Max(Math.Max(ty - e[1], 0), e[1] - (ty + h - 1));
+                Assert.True(Math.Sqrt(dx * dx + dy * dy) * 16.0 >= 80.0, "cluster at " + tx + "," + ty + " is inside the entrance clearance of " + e[0] + "," + e[1]);
+            }
+        }
+        Assert.Equal(57, total);
+    }
+
+    [Fact]
+    public void TheFiveOldZonesStayWalkableOnTheNewRows()
+    {
+        List<int[]> old = ParseZones("Assets/Scripts/FrostHollowMap.cs", "Zone[] Zones");
+        Assert.Equal(5, old.Count);
+        foreach (int[] z in old)
+        {
+            int free = 0;
+            for (int y = z[2]; y < z[2] + z[4]; y++)
+                for (int x = z[1]; x < z[1] + z[3]; x++) if (!Frost.IsSolidTile(x, y)) free++;
+            Assert.True(free >= 2 * z[0], "old zone at " + z[1] + "," + z[2]);
+        }
+    }
+
+    [Fact]
+    public void RowCountBeyondTheLegacy24NeedsSaveVersionThreeOrMore()
+    {
+        // SaveSerializer is not part of this test project, so read its constant. A bigger map on SaveVersion 2 would leave every old frostHollow save unshifted (hero in the HUD rows).
+        string src = File.ReadAllText(RepoFile("Assets/Scripts/Rpg/SaveSerializer.cs"));
+        Match m = Regex.Match(src, @"public const int SaveVersion = (\d+);");
+        Assert.True(m.Success);
+        if (FrostHollowLayout.RowCount > 24) Assert.True(int.Parse(m.Groups[1].Value) >= 3, "Frost Hollow has " + FrostHollowLayout.RowCount + " rows but SaveVersion is " + m.Groups[1].Value);
+    }
+}

@@ -154,7 +154,7 @@ namespace ZenoniaProto
                     Debug.LogError("[ZenoniaProto] save: kept state " + newest + " is not used: built on rev " + kept.rev + ", the API is at " + rev);
                     return false;
                 }
-                state = SaveSerializer.Parse(JsonUtility.ToJson(kept.state));
+                state = SaveSerializer.Parse(JsonUtility.ToJson(kept.state), FrostHollowLayout.RowCount);
                 path = newest;
                 return state != null;
             }
@@ -199,7 +199,7 @@ namespace ZenoniaProto
             RedeemDto dto = null;
             try { dto = JsonUtility.FromJson<RedeemDto>(text); }
             catch (Exception) { /* below */ }
-            SaveData save = dto != null && dto.character != null && dto.character.state != null ? SaveSerializer.Parse(JsonUtility.ToJson(dto.character.state)) : null;
+            SaveData save = dto != null && dto.character != null && dto.character.state != null ? SaveSerializer.Parse(JsonUtility.ToJson(dto.character.state), FrostHollowLayout.RowCount) : null;
             HeroClassDef def = save != null ? DefOf(dto.character.classId) : null;
             if (def == null || save.classId != dto.character.classId)
             {

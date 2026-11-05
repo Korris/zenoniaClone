@@ -19,6 +19,7 @@ namespace ZenoniaProto
             string[] cmd = Environment.GetCommandLineArgs();
             NetMode.Current = NetMode.ParseMode(cmd);
             NetLaunchArgs.Parse(cmd);
+            ZenoniaProto.Rpg.SaveStore.FrostHollowRows = FrostHollowLayout.RowCount; // old Frost Hollow saves shift when the map has grown
             MapRegistry.ParseLaunch(cmd, DebugCapture.Requested(cmd)); // --map frost-hollow|oakhaven-village; offline normal start = the village
             bool headless = NetMode.IsHeadless;
             bool paced = headless || (Application.isBatchMode && !NetMode.IsOffline); // dedicated server and unattended bot clients run at 30 fps, no vsync

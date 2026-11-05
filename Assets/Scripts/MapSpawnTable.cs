@@ -4,7 +4,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Which monsters a map spawns, by map id: Amber Dunes, Emberfen Marsh and Willowbrook Meadows have their own zones and no boss, Frostfang Den and Sunken Reliquary their own zones and boss; every
-    /// other hostile map keeps Frost Hollow's zones and the Frostfang King (the online zone server, the headless bench and the Editor tests depend on those). Keyed by string so the
+    /// other hostile map keeps Frost Hollow's zones (the five old ones in its north-west valley plus the ten outer clusters) and the Frostfang King (the online zone server, the headless bench and the Editor tests depend on those). Keyed by string so the
     /// data needs no map class. A boss map's kill is saved per map (RpgSession.BossDefeatedOn); only a map with a boss gate hides its forward portal until then.
     /// </summary>
     public static class MapSpawnTable
@@ -71,6 +71,34 @@ namespace ZenoniaProto
             new FrostHollowMap.Zone("meadowMantis", 7, 60, 30, 10, 9, 10000f), // B  south-east
         };
 
+        /// <summary>
+        /// Frost Hollow's 57 monsters outside the original 36x24 section, in 10 clusters on the painted 72x48 rows (plan layout/frost-hollow-72x48-clusters.md, rects fitted to the walkable tiles).
+        /// FrostHollowMap.Zones stays the five old ones (the bots and the bench use them directly); ZonesFor("frostHollow") is both. Level climbs with the walk from the village: Lv1-2 in the south-west and
+        /// around the old valley, Lv7 wraiths in the north field, Lv8 yetis in the south, Lv9 golems by the ice cave. Respawn 7-10.5 s. Every rect is at least 5 tiles from the start, the gate and the cave.
+        /// </summary>
+        public static readonly FrostHollowMap.Zone[] FrostHollowOuter =
+        {
+            new FrostHollowMap.Zone("frostSlime", 6, 2, 27, 10, 5, 7000f),       // 1  south of the village gate
+            new FrostHollowMap.Zone("iceGoblin", 6, 3, 37, 12, 6, 8000f),        // 2  south-west plaza
+            new FrostHollowMap.Zone("spectralWolf", 5, 26, 28, 10, 6, 8500f),    // 3  south bank, east of the river
+            new FrostHollowMap.Zone("iceGoblin", 5, 38, 8, 10, 7, 8000f),        // 4  north-middle field
+            new FrostHollowMap.Zone("spectralWolf", 6, 40, 19, 12, 5, 9000f),    // 5  north shore of the lake
+            new FrostHollowMap.Zone("iceWraith", 7, 48, 7, 9, 6, 9500f) ,        // 6  north field, under the plateau
+            new FrostHollowMap.Zone("iceWraith", 6, 57, 7, 9, 7, 9500f),         // 7  north-east field
+            new FrostHollowMap.Zone("frostbiteYeti", 6, 40, 37, 14, 6, 10000f),  // 8  south of the lake
+            new FrostHollowMap.Zone("crystalGolem", 5, 56, 15, 6, 9, 10500f),    // 9  approach to the ice cave
+            new FrostHollowMap.Zone("frostbiteYeti", 5, 58, 38, 10, 6, 10000f),  // A  south-east corner
+        };
+
+        static readonly FrostHollowMap.Zone[] FrostHollowAll = Join(FrostHollowMap.Zones, FrostHollowOuter);
+
+        static FrostHollowMap.Zone[] Join(FrostHollowMap.Zone[] a, FrostHollowMap.Zone[] b)
+        {
+            var all = new FrostHollowMap.Zone[a.Length + b.Length];
+            a.CopyTo(all, 0); b.CopyTo(all, a.Length);
+            return all;
+        }
+
         public static FrostHollowMap.Zone[] ZonesFor(string mapId)
         {
             switch (mapId)
@@ -80,7 +108,7 @@ namespace ZenoniaProto
                 case EmberfenMarshId: return EmberfenMarsh;
                 case SunkenReliquaryId: return SunkenReliquary;
                 case WillowbrookMeadowsId: return WillowbrookMeadows;
-                default: return FrostHollowMap.Zones;
+                default: return FrostHollowAll;
             }
         }
 
@@ -127,7 +155,6 @@ namespace ZenoniaProto
         /// </summary>
         public static bool NearEntrance(IGameMap map, Vector2 feet)
         {
-            if (ZonesFor(map.Id) == FrostHollowMap.Zones) return false; // Frost Hollow's own spots are hand-fitted to its entrance
             if (Vector2.Distance(feet, map.PlayerStart) < EntranceClearance) return true;
             foreach (MapPortal p in map.Portals)
                 if (Vector2.Distance(feet, FrostHollowMap.TileFeet(p.Tx, p.Ty, 2f)) < EntranceClearance) return true;

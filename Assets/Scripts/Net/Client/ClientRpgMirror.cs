@@ -29,7 +29,7 @@ namespace ZenoniaProto
             stats.Add("rpgStateBytes", m.SaveJson != null ? m.SaveJson.Length : 0);
             HeroController hero = LocalPlayer.Hero;
             if (hero == null) return false;
-            SaveData save = SaveSerializer.Parse(m.SaveJson);
+            SaveData save = SaveSerializer.Parse(m.SaveJson, FrostHollowLayout.RowCount);
             if (save == null) return false;
             PlayerState state = SaveSerializer.Restore(save);
             if (RpgSession.Instance != null) { RpgSession.Instance.AttachRemote(state, hero); RpgSession.Instance.ApplyRemoteBossFlags(save); }

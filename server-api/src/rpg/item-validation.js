@@ -31,7 +31,7 @@ const coord = z.number().finite().min(-1e6).max(1e6);
 /** SaveData: the whole persisted character state. Unknown keys are stripped. */
 export const stateSchema = z
   .object({
-    version: z.number().int().min(0).max(2).default(1), // SaveSerializer.SaveVersion; 2: pets carry durability
+    version: z.number().int().min(0).max(3).default(1), // SaveSerializer.SaveVersion; 2: pets carry durability; 3: Frost Hollow 72x48, old section y +384 (accepted ahead of the client)
     savedAt: z.number().int().min(0).default(0),
     classId: z.enum(CLASS_IDS),
     mapId: z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/).default('frostHollow'),

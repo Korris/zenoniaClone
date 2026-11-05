@@ -21,6 +21,7 @@ from scipy import ndimage
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 SRC_DIR = os.path.join(ROOT, "Assets", "ArtLibrary", "monsters", "meadow")
+FROST_DIR = os.path.join(ROOT, "Assets", "ArtLibrary", "monsters", "frost")  # Frost Hollow deep-area monsters (same sheet format)
 OUT_DIR = os.path.join(ROOT, "Assets", "Resources", "Sprites", "monsters")
 VIS_DIR = os.path.join(ROOT, "plans", "261105-1052-willowbrook-large-hunting-map", "visuals")
 
@@ -36,7 +37,12 @@ MONSTERS = {
     "thornBoar": ("thorn-boar", 175, "Lv3"),
     "meadowMantis": ("meadow-mantis", 172, "Lv5"),
     "brambleTreant": ("bramble-treant", 190, "Lv6"),
+    # Frost Hollow deep area (sources in FROST_DIR)
+    "iceWraith": ("ice-wraith", 165, "Lv7"),
+    "frostbiteYeti": ("frostbite-yeti", 185, "Lv8"),
+    "crystalGolem": ("crystal-golem", 190, "Lv9"),
 }
+FROST_IDS = {"iceWraith", "frostbiteYeti", "crystalGolem"}
 
 
 # ---------------------------------------------------------------- keying
@@ -255,8 +261,9 @@ def write_scale_compare(done):
 # ---------------------------------------------------------------- main
 def build(mid):
     stem, target_h, note = MONSTERS[mid]
-    wp = os.path.join(SRC_DIR, stem + "-walk-chatgpt.png")
-    ap = os.path.join(SRC_DIR, stem + "-attack-chatgpt.png")
+    src_dir = FROST_DIR if mid in FROST_IDS else SRC_DIR
+    wp = os.path.join(src_dir, stem + "-walk-chatgpt.png")
+    ap = os.path.join(src_dir, stem + "-attack-chatgpt.png")
     if not (os.path.exists(wp) and os.path.exists(ap)):
         return False
     print("%s (%s)" % (mid, note))

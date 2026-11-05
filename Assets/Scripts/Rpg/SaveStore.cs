@@ -10,6 +10,9 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public static class SaveStore
     {
+        /// <summary>Frost Hollow's current row count, set at startup (Bootstrap) from FrostHollowLayout.RowCount: this assembly cannot see the map classes. 24 = not grown, never shifts.</summary>
+        public static int FrostHollowRows = 24;
+
         public static bool Enabled = true;
         /// <summary>Test hook: write somewhere else than persistentDataPath.</summary>
         public static string RootOverride;
@@ -40,7 +43,7 @@ namespace ZenoniaProto.Rpg
             try
             {
                 if (!File.Exists(path)) return null;
-                SaveData d = SaveSerializer.Parse(File.ReadAllText(path));
+                SaveData d = SaveSerializer.Parse(File.ReadAllText(path), FrostHollowRows);
                 if (d == null)
                 {
                     File.Copy(path, path + ".bad", true); // keep the broken file for inspection, start fresh

@@ -88,6 +88,6 @@ namespace ZenoniaProto
             { "wbxBarricade", new PropDef(4.5f, 3.25f, 4, 3) },
         };
 
-        public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def); }
+        public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def) || FrostHollowPropDefs.TryGet(type, out def); }
     }
 }

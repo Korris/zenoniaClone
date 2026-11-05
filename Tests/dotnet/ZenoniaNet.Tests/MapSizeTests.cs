@@ -50,8 +50,8 @@ public class MapSizeTests
         Assert.Equal(BigH, big.Height);
         Assert.Equal(2, big.GroundChunkCols);
         WithCurrent(big, () => { Assert.Equal(BigW * 16f, GameConfig.MapW); Assert.Equal(BigH * 16f, GameConfig.MapH); });
-        Assert.Equal(36, MapRegistry.Current.Width); // back to the default 36x24 Frost Hollow
-        Assert.Equal(24, MapRegistry.Current.Height);
+        Assert.Equal(72, MapRegistry.Current.Width); // back to the default Frost Hollow (72x48 since the large map)
+        Assert.Equal(48, MapRegistry.Current.Height);
         Assert.True(BigW <= GameConfig.MaxTilesW && BigH <= GameConfig.MaxTilesH);
     }
 
