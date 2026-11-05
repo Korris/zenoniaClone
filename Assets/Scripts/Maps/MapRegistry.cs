@@ -10,7 +10,7 @@ namespace ZenoniaProto
     /// </summary>
     public static class MapRegistry
     {
-        static readonly IGameMap[] Maps = { new FrostHollowLayout(), new OakhavenVillageMap(), new SunspireOasisMap(), new AmberDunesMap(), new FrostfangDenMap(), new EmberfenMarshMap(), new SunkenReliquaryMap() };
+        static readonly IGameMap[] Maps = { new FrostHollowLayout(), new OakhavenVillageMap(), new SunspireOasisMap(), new AmberDunesMap(), new FrostfangDenMap(), new EmberfenMarshMap(), new SunkenReliquaryMap(), new ThatchVillageMap(), new WillowbrookMeadowsMap() };
 
         public static IGameMap Current { get; private set; }
         /// <summary>Every registered map. The zone server builds one zone per entry, so registering a map is all it takes to play it online.</summary>
@@ -52,7 +52,7 @@ namespace ZenoniaProto
         public static void ResetState() { Current = Maps[0]; Forced = false; }
 
         /// <summary>
-        /// Picks the start map from the command line: `--map frost-hollow|oakhaven-village` (also "village" / "frost") wins; otherwise an offline
+        /// Picks the start map from the command line: `--map frost-hollow|oakhaven-village|thatch-village|willowbrook-meadows` (also "village" / "frost") wins; otherwise an offline
         /// normal start (no debug capture flags) begins in the village, everything else (server, host, client, captures) in Frost Hollow.
         /// </summary>
         public static void ParseLaunch(string[] args, bool captureRun)

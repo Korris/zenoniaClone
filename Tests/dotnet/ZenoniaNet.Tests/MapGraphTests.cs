@@ -69,6 +69,56 @@ public class MapGraphTests
     }
 
     [Fact]
+    public void NewEastRouteGoesBothWays()
+    {
+        IGameMap oak = MapRegistry.Get(OakhavenVillageMap.MapId), thatch = MapRegistry.Get(ThatchVillageMap.MapId), willow = MapRegistry.Get(WillowbrookMeadowsMap.MapId);
+        Assert.Contains(oak.Portals, p => p.TargetMapId == ThatchVillageMap.MapId);
+        Assert.Contains(thatch.Portals, p => p.TargetMapId == OakhavenVillageMap.MapId);
+        Assert.Contains(thatch.Portals, p => p.TargetMapId == WillowbrookMeadowsMap.MapId);
+        // Willowbrook is a dead end: its only portals go back to Thatchwick.
+        Assert.All(willow.Portals, p => Assert.Equal(ThatchVillageMap.MapId, p.TargetMapId));
+        Assert.False(thatch.Hostile);
+        Assert.True(willow.Hostile);
+        Assert.Empty(thatch.Npcs);
+        // Standing on an arrival tile there is a portal back to the map we came from.
+        foreach (IGameMap map in new[] { oak, thatch, willow })
+            foreach (MapPortal p in map.Portals)
+            {
+                IGameMap target = MapRegistry.Get(p.TargetMapId);
+                Vector2 feet = FrostHollowMap.TileFeet(p.TargetTx, p.TargetTy, 2f);
+                Assert.Contains(target.Portals, q => q.TargetMapId == map.Id);
+                Assert.False(MapPortals.TryFind(target.Portals, feet.x, feet.y, out _), map.Id + " -> " + target.Id + " arrives on a portal");
+            }
+    }
+
+    [Theory]
+    [InlineData(ThatchVillageMap.MapId)]
+    [InlineData(WillowbrookMeadowsMap.MapId)]
+    public void EveryWalkableTileOfAPaintedMapConnectsToItsPortalsAndRowsUnderTheHudAreBlocked(string mapId)
+    {
+        IGameMap map = MapRegistry.Get(mapId);
+        var seen = new HashSet<int>();
+        var open = new Stack<int>();
+        MapPortal first = map.Portals[0];
+        open.Push(first.Ty * TileMapBase.W + first.Tx);
+        while (open.Count > 0)
+        {
+            int i = open.Pop();
+            int x = i % TileMapBase.W, y = i / TileMapBase.W;
+            if (map.IsSolidTile(x, y) || !seen.Add(i)) continue;
+            open.Push(i + 1); open.Push(i - 1); open.Push(i + TileMapBase.W); open.Push(i - TileMapBase.W);
+        }
+        foreach (MapPortal p in map.Portals) Assert.Contains(p.Ty * TileMapBase.W + p.Tx, seen);
+        for (int y = 0; y < TileMapBase.H; y++)
+            for (int x = 0; x < TileMapBase.W; x++)
+            {
+                bool walk = !map.IsSolidTile(x, y);
+                Assert.True(!walk || seen.Contains(y * TileMapBase.W + x), mapId + " walkable tile " + x + "," + y + " is cut off");
+                Assert.True(!walk || y < 21, mapId + " walkable tile " + x + "," + y + " is under the HUD");
+            }
+    }
+
+    [Fact]
     public void TheDefaultMapIsFrostHollowAndIdsAreUniqueAndFitTheWire()
     {
         Assert.Equal(FrostHollowLayout.MapId, MapRegistry.Current.Id);

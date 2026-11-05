@@ -93,7 +93,8 @@ namespace ZenoniaProto
         /// Portal soak: walks to a portal of whatever map the server put it on, takes the next one along on each new map, and fights nothing. The server does the moving,
         /// so the stats (zoneChanges here, zoneTransfers on the server) count real transfers. Works for any map a new portal leads to.
         /// </summary>
-        void EnablePortalBot()
+        /// <summary>`preferTarget`: when the current map has a portal into that map id, always take it (the persist test must reach Frost Hollow, not wander east); otherwise the slot picks.</summary>
+        void EnablePortalBot(string preferTarget = null)
         {
             int slot = 0;
             foreach (char c in NetLaunchArgs.Name ?? "") slot = slot * 7 + c;
@@ -112,7 +113,7 @@ namespace ZenoniaProto
                     MapPortal[] portals = MapRegistry.Current.Portals;
                     if (hero != null && !hero.IsDead && portals.Length > 0)
                     {
-                        if (lastMap != MapRegistry.Current) { lastMap = MapRegistry.Current; slot++; goal = portals[slot % portals.Length]; }
+                        if (lastMap != MapRegistry.Current) { lastMap = MapRegistry.Current; slot++; goal = portals[slot % portals.Length]; foreach (MapPortal p in portals) if (preferTarget != null && p.TargetMapId == preferTarget) { goal = p; break; } }
                         Vector2 center = TileCenter(new Vector2Int(goal.Tx, goal.Ty));
                         move = StepToward(hero.Position, center);
                         // On the goal tile by the feet, but the trigger samples a little above them (PortalTile.OfFeet): walking from above it would stop just short. On to the middle.

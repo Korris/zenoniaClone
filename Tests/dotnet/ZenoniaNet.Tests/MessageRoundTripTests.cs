@@ -133,7 +133,7 @@ public class MessageRoundTripTests
         Assert.Equal(InvOp.PotionBuy, buy.Op); Assert.Equal("apothecaryNara", buy.ItemUid); Assert.Equal((byte)5, buy.Slot);
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.QuestTurnIn + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(13, NetProtocol.Version);
+        Assert.Equal(14, NetProtocol.Version);
     }
 
     [Fact]

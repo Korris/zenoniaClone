@@ -48,6 +48,22 @@ namespace ZenoniaProto
             { "mossyPillar", new PropDef(2.25f, 3.25f, 1, 1) }, { "brokenArch", new PropDef(4.5f, 2.75f, 4, 1) },
             { "swampLantern", new PropDef(1.5f, 2.5f, 1, 1) }, { "sunkenShrine", new PropDef(3.75f, 4f, 3, 2) },
             { "hydraNest", new PropDef(2.75f, 3.25f, 2, 1) },
+            // Willowbrook Meadows (cut from the painting by Tools/build-willowbrook-props.py; wbPalisade has no footprint, the map rows block it)
+            { "wbOakNW", new PropDef(6.75f, 7f, 1, 1) }, { "wbCliffNW", new PropDef(5.5f, 3f, 2, 1) }, { "wbRockNW", new PropDef(3f, 1.75f, 2, 1) },
+            { "wbRockNW2", new PropDef(2.5f, 2f, 2, 1) }, { "wbOakTop2", new PropDef(7.25f, 3f, 1, 1) }, { "wbOakClumpW", new PropDef(7.25f, 6f, 1, 1) },
+            { "wbOakBig", new PropDef(6.5f, 6.5f, 1, 1) }, { "wbOakTopMid", new PropDef(4.5f, 3f, 1, 1) }, { "wbRockTop", new PropDef(3.5f, 2f, 2, 1) },
+            { "wbCliffStreamN", new PropDef(3.5f, 2.75f, 2, 1) }, { "wbCliffMid", new PropDef(4.5f, 4.5f, 3, 1) }, { "wbRocksStreamE", new PropDef(5.5f, 2.25f, 3, 1) },
+            { "wbOakTopRight", new PropDef(8f, 4f, 1, 1) }, { "wbOakTopFar", new PropDef(3.25f, 2f, 1, 1) }, { "wbRockTopEdge", new PropDef(4.25f, 2f, 3, 1) },
+            { "wbRockNE", new PropDef(2f, 1.5f, 1, 1) }, { "wbOakEastA", new PropDef(4.75f, 6f, 1, 1) }, { "wbOakEastB", new PropDef(6.5f, 5f, 1, 1) },
+            { "wbRockEast", new PropDef(2.75f, 2.25f, 2, 1) }, { "wbOakEastMid", new PropDef(6.75f, 5.75f, 1, 1) }, { "wbOakWest", new PropDef(4.5f, 4.5f, 1, 1) },
+            { "wbRockWest", new PropDef(4f, 2.5f, 2, 1) }, { "wbSignpost", new PropDef(2.25f, 2.5f, 1, 1) }, { "wbOakMid", new PropDef(5.25f, 4f, 1, 1) },
+            { "wbRockMid", new PropDef(3.5f, 2f, 2, 1) }, { "wbRocksStreamS", new PropDef(5.25f, 2.75f, 3, 1) }, { "wbRockStream1", new PropDef(2.5f, 2.25f, 1, 1) },
+            { "wbRockStream2", new PropDef(3.25f, 2.75f, 2, 1) }, { "wbRockStream3", new PropDef(3.5f, 2f, 2, 1) }, { "wbPalisade", new PropDef(3.5f, 8f, 1, 0) },
+            { "wbOakSWClump", new PropDef(7.25f, 7.25f, 3, 1) }, { "wbOakSWTree", new PropDef(5f, 4.75f, 1, 1) }, { "wbOakSWLow", new PropDef(5f, 7f, 1, 1) },
+            { "wbRockSW", new PropDef(3.5f, 2.25f, 2, 1) }, { "wbRockCliffSW", new PropDef(5.25f, 2.75f, 3, 1) }, { "wbOakSouth", new PropDef(5.75f, 4.75f, 1, 1) },
+            { "wbFenceW", new PropDef(6f, 2.5f, 4, 1) }, { "wbFenceE", new PropDef(4.25f, 2.5f, 3, 1) }, { "wbRockLog", new PropDef(2.5f, 1.75f, 1, 1) },
+            { "wbRockSouth", new PropDef(2.5f, 1.5f, 1, 1) }, { "wbLog", new PropDef(5.75f, 2.25f, 3, 1) }, { "wbFenceHay", new PropDef(3.5f, 2.5f, 2, 1) },
+            { "wbHaystack", new PropDef(3.5f, 3.25f, 2, 1) }, { "wbShed", new PropDef(7.75f, 6.25f, 4, 2) }, { "wbOakSE", new PropDef(6f, 5f, 2, 1) },
         };
 
         public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def); }

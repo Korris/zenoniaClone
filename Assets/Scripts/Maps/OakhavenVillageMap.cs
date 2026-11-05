@@ -72,10 +72,11 @@ namespace ZenoniaProto
         };
 
         static readonly Vector2Int PlayerStartTile = new Vector2Int(16, 19);
-        /// <summary>South gate: leads to the Frost Hollow entrance stairs (that map's start tile).</summary>
+        /// <summary>South gate: leads to the Frost Hollow entrance stairs (that map's start tile). East gate (the road on rows 10-11, a pair): Thatchwick Village's west road.</summary>
         static readonly MapPortal[] PortalList =
         {
             new MapPortal(16, 21, FrostHollowLayout.MapId, FrostHollowLayout.PlayerStartTile.x, FrostHollowLayout.PlayerStartTile.y),
+            new MapPortal(35, 10, ThatchVillageMap.MapId, 2, 8), new MapPortal(35, 11, ThatchVillageMap.MapId, 2, 9),
         };
 
         public OakhavenVillageMap() : base(Rows, "Tw")

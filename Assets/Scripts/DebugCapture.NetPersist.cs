@@ -226,7 +226,7 @@ namespace ZenoniaProto
         {
             if (MapRegistry.Current.Hostile) yield break;
             string from = MapRegistry.Current.Id;
-            EnablePortalBot();
+            EnablePortalBot(FrostHollowLayout.MapId); // Oakhaven also has the east gate to Thatchwick: the save check below expects Frost Hollow
             float start = Time.realtimeSinceStartup;
             while (!MapRegistry.Current.Hostile && Time.realtimeSinceStartup - start < 60f) yield return null;
             InputAdapter.BotHeld = null;

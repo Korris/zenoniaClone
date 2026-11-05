@@ -3,13 +3,13 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Which monsters a map spawns, by map id: Amber Dunes and Emberfen Marsh have their own zones and no boss, Frostfang Den and Sunken Reliquary their own zones and boss; every
+    /// Which monsters a map spawns, by map id: Amber Dunes, Emberfen Marsh and Willowbrook Meadows have their own zones and no boss, Frostfang Den and Sunken Reliquary their own zones and boss; every
     /// other hostile map keeps Frost Hollow's zones and the Frostfang King (the online zone server, the headless bench and the Editor tests depend on those). Keyed by string so the
     /// data needs no map class. A boss map's kill is saved per map (RpgSession.BossDefeatedOn); only a map with a boss gate hides its forward portal until then.
     /// </summary>
     public static class MapSpawnTable
     {
-        public const string AmberDunesId = "amberDunes", FrostfangDenId = "frostfangDen", EmberfenMarshId = "emberfenMarsh", SunkenReliquaryId = "sunkenReliquary";
+        public const string AmberDunesId = "amberDunes", FrostfangDenId = "frostfangDen", EmberfenMarshId = "emberfenMarsh", SunkenReliquaryId = "sunkenReliquary", WillowbrookMeadowsId = "willowbrookMeadows";
         const float EntranceClearance = 80f; // units; just over the default aggro range, so nothing wakes up as the hero walks in
         static readonly Vector2Int FrostfangDenBossTile = new Vector2Int(26, 11), SunkenReliquaryBossTile = new Vector2Int(30, 14);
 
@@ -51,6 +51,15 @@ namespace ZenoniaProto
             new FrostHollowMap.Zone("ruinWisp", 4, 4, 13, 17, 6, 11000f),
         };
 
+        /// <summary>The Lv 1-2 starter field (no boss): slimes in the north-west meadow and the middle one, goblins beyond the stream in the north-east, wolves in the east end of the south meadow. The west gate and the start tile stay clear.</summary>
+        static readonly FrostHollowMap.Zone[] WillowbrookMeadows =
+        {
+            new FrostHollowMap.Zone("frostSlime", 5, 3, 3, 9, 5, 8000f),
+            new FrostHollowMap.Zone("frostSlime", 4, 12, 14, 12, 6, 9000f),
+            new FrostHollowMap.Zone("iceGoblin", 4, 25, 3, 8, 6, 10000f),
+            new FrostHollowMap.Zone("spectralWolf", 3, 18, 13, 6, 6, 11000f),
+        };
+
         public static FrostHollowMap.Zone[] ZonesFor(string mapId)
         {
             switch (mapId)
@@ -59,6 +68,7 @@ namespace ZenoniaProto
                 case FrostfangDenId: return FrostfangDen;
                 case EmberfenMarshId: return EmberfenMarsh;
                 case SunkenReliquaryId: return SunkenReliquary;
+                case WillowbrookMeadowsId: return WillowbrookMeadows;
                 default: return FrostHollowMap.Zones;
             }
         }
@@ -70,7 +80,7 @@ namespace ZenoniaProto
         {
             switch (mapId)
             {
-                case AmberDunesId: case EmberfenMarshId: return null;
+                case AmberDunesId: case EmberfenMarshId: case WillowbrookMeadowsId: return null;
                 case FrostfangDenId: return MonsterDef.GlacierWarden;
                 case SunkenReliquaryId: return MonsterDef.MirefangHydra;
                 default: return MonsterDef.FrostfangKing;
@@ -106,7 +116,7 @@ namespace ZenoniaProto
         /// </summary>
         public static bool NearEntrance(IGameMap map, Vector2 feet)
         {
-            if (map.Id != AmberDunesId && map.Id != FrostfangDenId && map.Id != EmberfenMarshId && map.Id != SunkenReliquaryId) return false;
+            if (ZonesFor(map.Id) == FrostHollowMap.Zones) return false; // Frost Hollow's own spots are hand-fitted to its entrance
             if (Vector2.Distance(feet, map.PlayerStart) < EntranceClearance) return true;
             foreach (MapPortal p in map.Portals)
                 if (Vector2.Distance(feet, FrostHollowMap.TileFeet(p.Tx, p.Ty, 2f)) < EntranceClearance) return true;
