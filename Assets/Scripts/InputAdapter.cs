@@ -97,6 +97,9 @@ namespace ZenoniaProto
             for (int i = 0; i < keys.Length; i++) if (Input.GetKeyDown(keys[i])) return true;
             return false;
         }
+
+        /// <summary>Mouse wheel this frame in notches (+ = up / away); 0 without a mouse.</summary>
+        public static float MouseScrollDelta() { return Input.mouseScrollDelta.y; }
 #elif ENABLE_INPUT_SYSTEM
         static readonly Key[][] Map =
         {
@@ -159,30 +162,15 @@ namespace ZenoniaProto
             for (int i = 0; i < keys.Length; i++) if (kb[keys[i]].wasPressedThisFrame) return true;
             return false;
         }
+
+        /// <summary>Mouse wheel this frame in notches (+ = up / away); the Input System reports 120 per notch on Windows.</summary>
+        public static float MouseScrollDelta() { Mouse m = Mouse.current; return m != null ? m.scroll.ReadValue().y / 120f : 0f; }
 #else
         static bool KeyHeld(GameKey k) { return false; }
         static bool KeyPressed(GameKey k) { return false; }
+        public static float MouseScrollDelta() { return 0f; }
 #endif
 
-        // Double-tap a direction = dash. Polled once per frame (first reader wins), from touch + keyboard only (bots / AI drive their own dash).
-        static readonly DoubleTapDetector tapDetector = new DoubleTapDetector();
-        static int tapFrame = -1;
-        static bool tapDash;
-        static float tapDashUntil;
-        const float TapDashBufferSeconds = 0.25f; // a double-tap during the cooldown dashes as soon as it ends; shorter than the cooldown, so one tap never dashes twice
-
-        static bool DoubleTapDash()
-        {
-            int frame = Time.frameCount;
-            if (frame == tapFrame) return tapDash;
-            tapFrame = frame;
-            if (tapDetector.Update(PhysicalHeld(GameKey.Up), PhysicalHeld(GameKey.Down), PhysicalHeld(GameKey.Left), PhysicalHeld(GameKey.Right), Time.unscaledTime))
-                tapDashUntil = Time.unscaledTime + TapDashBufferSeconds;
-            tapDash = Time.unscaledTime < tapDashUntil;
-            return tapDash;
-        }
-
-        static bool PhysicalHeld(GameKey k) { return TouchControls.Held(k) || KeyHeld(k); }
 
         /// <summary>Keys that still work while a window owns the keyboard (dialogue, quest offer, chat typing): the window keys themselves.</summary>
         static bool Gated(GameKey k)
@@ -200,7 +188,7 @@ namespace ZenoniaProto
         public static bool Pressed(GameKey k)
         {
             if (Gated(k) || WebKeyBlocked(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
-            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || (k == GameKey.Dash && DoubleTapDash()) || SlotKeyPressed(k)
+            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k)
                 || (k == GameKey.Attack && MouseAttack()); // web: a held left button keeps the combo going, like the touch attack disc
         }
     }

@@ -79,6 +79,7 @@ namespace ZenoniaProto
             var follow = cam.GetComponent<CameraFollow>();
             if (follow == null) follow = cam.gameObject.AddComponent<CameraFollow>();
             follow.Target = null;
+            CameraWheelZoom.Attach(cam); // PC only: mouse-wheel zoom, read from PlayerPrefs before the first Configure
             follow.Configure();
             // Frame the entrance behind the class select screen until a hero exists.
             cam.transform.position = new Vector3(GameConfig.HeroStart.x + 40f, GameConfig.HeroStart.y + 30f, -10f);

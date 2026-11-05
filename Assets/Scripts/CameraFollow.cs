@@ -54,7 +54,7 @@ namespace ZenoniaProto
         {
             cam = GetComponent<Camera>();
             cam.orthographic = true;
-            cam.orthographicSize = baseSize = DevStartConfig.CameraViewHeight() * 0.5f; // test builds may zoom via dev-start.json
+            cam.orthographicSize = baseSize = DevStartConfig.CameraViewHeight() * 0.5f * CameraWheelZoom.Current; // dev-start.json zoom; PC wheel zoom (1 elsewhere)
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.06f, 0.09f, 0.13f);
             cam.nearClipPlane = 0.1f;

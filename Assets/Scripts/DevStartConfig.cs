@@ -51,6 +51,9 @@ namespace ZenoniaProto
             return c != null && c.cameraViewHeight > 0f ? Mathf.Clamp(c.cameraViewHeight, 60f, 240f) : GameConfig.ViewHeightUnits;
         }
 
+        /// <summary>True when dev-start.json sets cameraViewHeight: that test zoom owns the camera size (no mouse-wheel zoom).</summary>
+        public static bool HasCameraViewHeight() { DevStartConfig c = Visual(); return c != null && c.cameraViewHeight > 0f; }
+
         /// <summary>Drawing scale of heroes in the world for this test build: dev-start.json heroScale when set, else 1.</summary>
         public static float HeroScale()
         {
