@@ -250,14 +250,19 @@ namespace ZenoniaProto
         {
             OverlayEntry[] manifest = gear != null ? gear.Manifest(p.Spec.Id) : null;
             OverlayEntry entry = (a != null && !a.hidden && !p.Empty && manifest != null && p.Tier < manifest.Length) ? manifest[p.Tier] : null;
-            if (entry != null && (entry != p.ArtEntry || p.Enhanced != p.ArtEnhanced))
-            {
-                p.ArtEntry = entry;
-                p.ArtEnhanced = p.Enhanced;
-                p.Art = GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced && !FeelConfig.EnhanceUsesBaseArt);
-            }
             bool ownArt = entry != null && !string.IsNullOrEmpty(a.art);
-            Sprite sprite = ownArt ? GearOverlays.CenteredTier(p.Spec.Folder, a.art, entry.name) : entry != null ? p.Art : null;
+            Sprite sprite = null;
+            if (ownArt) sprite = GearOverlays.CenteredTier(p.Spec.Folder, a.art, entry.name); // art named by the anchor (the mechanic's cannon and pistol views): no <tier>-base path is built for it, that file does not exist
+            else if (entry != null)
+            {
+                if (entry != p.ArtEntry || p.Enhanced != p.ArtEnhanced)
+                {
+                    p.ArtEntry = entry;
+                    p.ArtEnhanced = p.Enhanced;
+                    p.Art = GearOverlays.Get(p.Spec.Folder, entry, p.Enhanced && !FeelConfig.EnhanceUsesBaseArt);
+                }
+                sprite = p.Art;
+            }
             p.Sr.sprite = sprite;
             if (sprite == null) { if (p.Fx != null) p.Fx.Hide(); return; }
             p.Sr.color = tint;

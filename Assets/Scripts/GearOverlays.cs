@@ -15,13 +15,15 @@ namespace ZenoniaProto
 
         public static void ResetState() { Cache.Clear(); TierCache.Clear(); }
 
-        /// <summary>Resources/Sprites/&lt;folder&gt;/&lt;tier&gt;/&lt;art&gt; with the pivot at its centre, or the shared &lt;folder&gt;/&lt;art&gt; while that tier has no art yet (the mechanic's cannon, one art per facing and tier).</summary>
+        /// <summary>Resources/Sprites/&lt;folder&gt;/&lt;tier&gt;/&lt;art&gt; with the pivot at its centre, or the shared &lt;folder&gt;/&lt;art&gt; while that tier has no art of its own (the mechanic's cannon, one art per facing and tier; the
+        /// starter tier "scrap" and the pistols' front / back views only have the shared art). Probing the tier folder is silent: only a missing shared art is an error.</summary>
         public static Sprite CenteredTier(string folder, string art, string tier)
         {
             var key = (folder, art, tier);
             Sprite s;
-            if (TierCache.TryGetValue(key, out s)) return s;
-            s = Centered(folder + "/" + tier, art) ?? Centered(folder, art);
+            if (TierCache.TryGetValue(key, out s) && ((object)s == null || s != null)) return s; // a stored sprite Unity has destroyed is rebuilt; a stored "no art" stays
+            s = Centered(folder + "/" + tier, art, false);
+            if (s == null) s = Centered(folder, art, true);
             TierCache[key] = s;
             return s;
         }
@@ -34,12 +36,14 @@ namespace ZenoniaProto
         }
 
         /// <summary>Resources/Sprites/&lt;folder&gt;/&lt;art&gt; with the pivot at its centre: art named by the anchor instead of the tier manifest.</summary>
-        public static Sprite Centered(string folder, string art)
+        public static Sprite Centered(string folder, string art) { return Centered(folder, art, true); }
+
+        static Sprite Centered(string folder, string art, bool logMissing)
         {
             string path = "Sprites/" + folder + "/" + art;
             Sprite s;
             if (Cache.TryGetValue(path, out s) && s != null) return s;
-            Texture2D tex = SpriteSheet.Load(path);
+            Texture2D tex = logMissing ? SpriteSheet.Load(path) : SpriteSheet.TryLoad(path);
             s = tex != null ? Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), Ppu, 0, SpriteMeshType.FullRect) : null;
             Cache[path] = s;
             return s;
