@@ -8,12 +8,13 @@ namespace ZenoniaProto
     {
         static readonly Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
         static readonly Dictionary<string, Sprite[][]> Grids = new Dictionary<string, Sprite[][]>();
+        static readonly HashSet<string> Missing = new HashSet<string>(); // paths already looked up and absent: no repeated Resources.Load or log spam
 
         /// <summary>Loads a texture (path relative to Resources, no extension). Returns null (and logs) when missing.</summary>
         public static Texture2D Load(string resourcePath)
         {
             Texture2D tex = TryLoad(resourcePath);
-            if (tex == null) Debug.LogError("[ZenoniaProto] Missing texture Resources/" + resourcePath + ".png");
+            if (tex == null && Missing.Add("log:" + resourcePath)) Debug.LogError("[ZenoniaProto] Missing texture Resources/" + resourcePath + ".png");
             return tex;
         }
 
@@ -22,8 +23,9 @@ namespace ZenoniaProto
         {
             Texture2D tex;
             if (Textures.TryGetValue(resourcePath, out tex) && tex != null) return tex;
+            if (Missing.Contains(resourcePath)) return null;
             tex = Resources.Load<Texture2D>(resourcePath);
-            if (tex == null) return null;
+            if (tex == null) { Missing.Add(resourcePath); return null; }
             tex.wrapMode = TextureWrapMode.Clamp;
             tex.filterMode = tex.mipmapCount > 1 ? FilterMode.Trilinear : FilterMode.Bilinear;
             Textures[resourcePath] = tex;
