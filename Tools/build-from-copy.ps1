@@ -19,6 +19,7 @@ param(
   [string]$Log = "",
   [switch]$Release,
   [switch]$WebGL,
+  [switch]$FarmTrial,
   [string]$ApiUrl = ""
 )
 $ErrorActionPreference = "Stop"
@@ -29,6 +30,16 @@ if (-not (Test-Path $CopyDir)) { throw "CopyDir not found: first copy the projec
 foreach ($d in "Scripts", "Plugins", "Editor", "Resources") {
   robocopy "$repo\Assets\$d" "$CopyDir\Assets\$d" /MIR /NFL /NDL /NJH /NJS /NP /XF "*.meta" | Out-Null
   if ($LASTEXITCODE -ge 8) { throw "robocopy failed for $d (code $LASTEXITCODE)" }
+}
+if ($FarmTrial) {
+  # Trial-only settings in the COPY: preserve the user's real dev-start.json.
+  $trialConfigPath = Join-Path $CopyDir 'Assets/Resources/Data/dev-start.json'
+  $trialConfig = Get-Content -LiteralPath $trialConfigPath -Raw | ConvertFrom-Json
+  $trialConfig.noCooldowns = $false
+  $trialConfig.noMpCost = $true
+  $trialConfig.level = 1
+  $trialConfig.allSkills = $true
+  $trialConfig | ConvertTo-Json | Set-Content -LiteralPath $trialConfigPath -Encoding UTF8
 }
 if ($Log -eq "") { $Log = Join-Path (Split-Path $OutExe -Parent) "build.log" }
 New-Item -ItemType Directory -Force -Path (Split-Path $OutExe -Parent) | Out-Null

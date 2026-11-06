@@ -86,6 +86,7 @@ namespace ZenoniaProto
                 m.TakeHit(CombatMath.Damage(ctx.Atk, mul * (crit ? CritMul : 1f), m.Def), knock * (crit ? 2f : 1f), crit, false, false, ctx.Hero);
             }
             if (m.IsDying) return;
+            if (e.PullTiles > 0f) m.PullToward(from + dir * e.PullFocusTiles * GameConfig.TileUnits, e.PullTiles * GameConfig.TileUnits);
             if (st.Kind == StatusKind.Launch) m.Launch();
             else if (st.Kind != StatusKind.None && st.Kind != StatusKind.Knockback) m.ApplyStatus(st, ctx.Hero);
         }

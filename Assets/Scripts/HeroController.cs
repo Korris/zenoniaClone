@@ -70,6 +70,7 @@ namespace ZenoniaProto
         public Vector2 Position { get { return predicted ? predictor.VisualPos : new Vector2(x, y); } }
         public int Facing { get { return facing; } }
         public bool IsDead { get { return dead; } }
+        public bool IsBasicAttacking { get { return combo != null && combo.IsAttacking; } }
         public string GearLabel { get { return gearLabel; } }
 
         /// <summary>party = an extra AI-driven hero: it never becomes the LocalPlayer (the HUD, camera and touch controls keep following the player).</summary>
@@ -198,6 +199,10 @@ namespace ZenoniaProto
             events.Clear();
             combo.Update(dtMs * HeroBuffs.AtkSpeedMul(this), events);
             for (int i = 0; i < events.Count; i++) if (events[i].Type == ComboEventType.Hit) DoHit(events[i].Step);
+            // Turn only after the completed strike lands; never rotate its hit box halfway through a swing.
+            if (cls.Id == HeroClass.Warrior && input != Vector2.zero)
+                for (int i = 0; i < events.Count; i++)
+                    if (events[i].Type == ComboEventType.End) { UpdateFacing(input); break; }
             if (stabLeft > 0f && (stabLeft -= dtMs) <= 0f) MeleeStrike(stabHit, stabStep, true);
 
             Vector2 vel = Vector2.zero;

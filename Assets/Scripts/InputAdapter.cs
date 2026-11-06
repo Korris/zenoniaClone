@@ -189,7 +189,8 @@ namespace ZenoniaProto
         {
             if (Gated(k) || WebKeyBlocked(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
             return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k)
-                || (k == GameKey.Attack && MouseAttack()); // web: a held left button keeps the combo going, like the touch attack disc
+                || (k == GameKey.Attack && (MouseAttack() || KeyHeld(k) || FarmSkillHeld(GameKey.Skill1)))
+                || FarmSkillHeld(k); // repeated requests still go through cooldown / MP checks and the network input sampler
         }
     }
 }

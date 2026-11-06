@@ -1,5 +1,13 @@
 # Việc đang dở
 
+## Nhịp farm online — 06/11/2026
+
+Lượt test mới: người dùng chê Power Slash nhàm, đồng ý thử quét rộng + kéo nhẹ quái + hồi 3 giây. Xem `docs/farm-trial-03-power-slash.md`, build mới `Build/FarmTrial03-PowerSlash/Zenonia.exe`. Giữ bản 02 để so sánh; chờ người dùng test rồi mới mở rộng.
+
+Hiện chuyển sang **ý 2 trong file ý tưởng: skill farm thường xuyên, mỗi nhóm skill có vai trò**, không phải mục 2 về trang bị trong lộ trình. Prototype trên Warrior: `docs/farm-trial-02.md`, build `Build/FarmTrial02-Skills/Zenonia.exe`. Tạm gác đổi kiểu combo. Chờ người dùng test sau mỗi mục.
+
+Người dùng yêu cầu làm từng mục, xong mỗi mục build Windows EXE và báo để chơi thử trước khi tiếp tục. PC dùng chuột để đánh, điện thoại dùng điều khiển cảm ứng. Mục đầu: nhịp farm Warrior (combo giữ nút, chuyển hướng giữa các nhát, giữ Power Slash để dùng lại khi hồi xong). Chi tiết và checklist: `docs/farm-trial-01.md`; ý tưởng tổng thể: `docs/online-grinding-ideas.md`. Bản thử: `Build/FarmTrial01/Zenonia.exe`. Chờ phản hồi kiểu chuột PC: WASD + giữ chuột đánh hay click quái chạy tới tự đánh; bản đầu đang dùng WASD + chuột. Không tự triển khai tiếp trang bị/ngoại hình trước lượt test mục này.
+
 Cập nhật 2026-11-01 khoảng 18:20. Đọc file này trước khi làm tiếp, rồi đối chiếu `git log` và ảnh thật. Xong việc nào thì xoá dòng đó.
 
 Quy tắc khi làm tiếp: `CLAUDE.md`, `docs/sprite-weapon-rules.md`, `docs/new-style-class-brief.md`.

@@ -12,7 +12,8 @@ namespace ZenoniaProto.Rpg
         public const double DeathExpPenalty = 0.1; // lose 10% of current-level EXP, never a level
 
         /// <summary>EXP required to go from `level` to `level + 1`.</summary>
-        public static int ExpToNext(int level) { return (int)Math.Floor(50.0 * Math.Pow(level, 1.5)); }
+        // Farm trial: five times the previous threshold; reward amounts and stat growth stay unchanged.
+        public static int ExpToNext(int level) { return 5 * (int)Math.Floor(50.0 * Math.Pow(level, 1.5)); }
 
         /// <summary>Base stats (before equipment) for a hero level of the given class.</summary>
         public static BaseStats StatsForLevel(int level, string classId)

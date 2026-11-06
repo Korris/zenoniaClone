@@ -9,6 +9,20 @@ namespace ZenoniaProto
     /// </summary>
     public static partial class InputAdapter
     {
+        // First farm trial: only Warrior's Power Slash repeats. Other skills remain deliberate taps.
+        static bool FarmSkillHeld(GameKey target)
+        {
+            HeroController hero = LocalPlayer.Hero;
+            if (target != GameKey.Skill1 || hero == null || hero.Class.Id != HeroClass.Warrior || hero.Rpg.Skills[0] <= 0) return false;
+            if (TouchControls.Held(target)) return true;
+            for (int s = 0; s < SkillMagazine.SlotCount; s++)
+            {
+                SkillSlot slot = SkillMagazine.Slot(hero.Class, SkillMagazine.CurrentPage(hero.Class), s);
+                if (slot.IsSkill && slot.SkillIndex == 0 && KeyHeld(GameKey.SlotKey1 + s)) return true;
+            }
+            return false;
+        }
+
         static bool SlotKeyPressed(GameKey target)
         {
             if (target != GameKey.Dash && (target < GameKey.Skill1 || target > GameKey.Skill8)) return false;

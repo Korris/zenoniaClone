@@ -70,12 +70,22 @@ namespace ZenoniaProto
             holder.localScale = new Vector3(0.78f, 0.78f, 1f); // the 72-unit magazine slot drawn at 56
             SkillMagazineSlot s = barSlots[i] = SkillMagazineSlot.Build(holder, i, Vector2.zero, 0f, Mid);
             s.HideMp();
-            s.root.gameObject.AddComponent<TapButton>().onTap = () =>
+            var press = s.root.gameObject.AddComponent<SwipeDetector>();
+            bool holdingFarm = false;
+            press.onTap = () =>
             {
                 if (s.entry.Locked) return;
                 if (s.entry.IsSkill) SkillMagazine.CastRequested(s.entry.SkillIndex);
                 else Press(s.entry.Key);
             };
+            press.onHold = () =>
+            {
+                if (barClass == null || barClass.Id != HeroClass.Warrior || !s.entry.IsSkill || s.entry.SkillIndex != 0) return false;
+                SetHeld(GameKey.Skill1, true);
+                holdingFarm = true;
+                return true;
+            };
+            press.onRelease = () => { if (holdingFarm) SetHeld(GameKey.Skill1, false); holdingFarm = false; };
         }
 
         Text BarPotion(string name, float x, bool hp, out Image icon)

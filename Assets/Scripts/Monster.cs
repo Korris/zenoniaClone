@@ -28,6 +28,8 @@ namespace ZenoniaProto
         Vector2 home, wanderDir, knock;
         int zone;                                  // spawn zone index, -1 = boss (never respawns)
         float x, y, hp, timer, animTimer, flash, knockLeft, knockTotal, deathTimer;
+        Vector2 pullTarget;
+        float pullLeft;
         int facing;                                // 0 down, 1 up, 2 left, 3 right
         State state = State.Idle;
         Sprite[][] walk, attack;
@@ -142,7 +144,14 @@ namespace ZenoniaProto
         {
             float dx = 0f, dy = 0f;
             if (TickStatus(dtMs)) return;
-            if (knockLeft > 0f)
+            bool pulling = pullLeft > 0f;
+            if (pullLeft > 0f)
+            {
+                Vector2 step = (pullTarget - Center) * Mathf.Min(1f, dtMs / pullLeft);
+                dx = step.x; dy = step.y;
+                pullLeft = Mathf.Max(0f, pullLeft - dtMs);
+            }
+            else if (knockLeft > 0f)
             {
                 // Fx on: ease-out slide (fast start, soft stop) with the same average speed; off: constant velocity.
                 float k = FeelConfig.FxOn ? 2f * knockLeft / knockTotal : 1f;
@@ -158,7 +167,7 @@ namespace ZenoniaProto
                 if (strike) Strike(hero);
             }
             if (dx == 0f && dy == 0f) return;
-            if (state == State.Chase) { Vector2 sep = Separation(); dx += sep.x * dt; dy += sep.y * dt; }
+            if (state == State.Chase && !pulling) { Vector2 sep = Separation(); dx += sep.x * dt; dy += sep.y * dt; }
             bool bx, by;
             Vector2 p = FrostHollowMap.Move(new Vector2(x, y), dx, dy, def.HitW, def.HitH, out bx, out by);
             x = p.x; y = p.y;
@@ -170,6 +179,17 @@ namespace ZenoniaProto
             if (Vector2.Distance(hero.Position, new Vector2(x, y)) <= def.AttackRange + 10f)
                 hero.TakeDamage(CombatMath.Damage(def.Atk, 1f, hero.DefStat));
             if (def.IsBoss) CameraFollow.AddTrauma(0.5f);
+        }
+
+        /// <summary>Short, collision-respecting gather. Uses simulation movement; clients follow snapshots, bosses stay put.</summary>
+        public void PullToward(Vector2 focus, float maxUnits)
+        {
+            if (!NetMode.IsAuthority || proxy || IsDying || def.IsBoss || maxUnits <= 0f) return;
+            Vector2 offset = Vector2.ClampMagnitude(focus - Center, maxUnits);
+            if (offset.sqrMagnitude < 0.0001f) return;
+            pullTarget = Center + offset;
+            pullLeft = 120f;
+            knockLeft = 0f;
         }
 
         /// <summary>
@@ -188,6 +208,7 @@ namespace ZenoniaProto
             bool fx = FeelConfig.FxOn;
             if (knockVel != Vector2.zero && !def.IsBoss) // the boss is too heavy to be shoved around
             {
+                pullLeft = 0f;
                 knock = fx ? knockVel * FeelConfig.KnockbackMultiplier : knockVel;
                 knockTotal = knockLeft = fx ? FeelConfig.KnockbackMs : KnockbackMs;
             }

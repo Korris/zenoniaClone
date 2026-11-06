@@ -26,6 +26,7 @@ namespace ZenoniaProto.Rpg
         public AreaShape Shape;
         public float Range, Radius, Length, Width, AngleDeg; // Range = distance of the area centre from the caster (0 = on the caster)
         public float Pct;                         // damage or heal, % ATK (scaled by SkillDef.DamageMul)
+        public float PullTiles, PullFocusTiles;   // capped gather distance and focus ahead of the strike origin; bosses are immune
         public StatusSpec Status;                 // applied to every monster hit
         public BuffSpec Buff;
         public bool Attached;                     // Zone: follows the caster instead of staying on the ground

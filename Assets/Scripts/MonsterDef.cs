@@ -21,7 +21,8 @@ namespace ZenoniaProto
         public MonsterDef(string name, string sheet, float hp, float atk, float def, float speed, int itemLevel, float aggro = 70f, float leash = 150f,
             float attackRange = 12f, float windupMs = 350f, float cooldownMs = 1200f, float hitW = 12f, float hitH = 10f, float bodyHeightPx = 152f)
         {
-            Name = name; Sheet = sheet; Hp = hp; Atk = atk; Def = def; Speed = speed; ItemLevel = itemLevel;
+            // Farm balance: double health for every monster, including bosses, on both authority and client.
+            Name = name; Sheet = sheet; Hp = hp * 2f; Atk = atk; Def = def; Speed = speed; ItemLevel = itemLevel;
             AggroRange = aggro; LeashRange = leash; AttackRange = attackRange; WindupMs = windupMs; CooldownMs = cooldownMs;
             HitW = hitW; HitH = hitH;
             BodyHeightUnits = bodyHeightPx / GameConfig.FramePpu;

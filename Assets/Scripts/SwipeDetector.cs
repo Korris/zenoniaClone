@@ -15,6 +15,9 @@ namespace ZenoniaProto
         public Action<int> onSwipe;   // +1 up, -1 down
         public Action onTap;          // released without a swipe
         public Action onPress, onRelease; // visual press feedback hooks (optional)
+        public Func<bool> onHold; // optional repeat after 300 ms; true consumes the release tap
+        float heldSince;
+        bool holdUsed;
         int pointer = int.MinValue;
         Vector2 start;
         bool swiped;
@@ -23,6 +26,7 @@ namespace ZenoniaProto
         {
             if (pointer != int.MinValue) return;
             pointer = e.pointerId; start = e.position; swiped = false;
+            heldSince = Time.unscaledTime; holdUsed = false;
             if (onPress != null) onPress();
         }
 
@@ -36,6 +40,7 @@ namespace ZenoniaProto
             Vector2 d = (e.position - start) / scale;
             if (Mathf.Abs(d.y) < MinSwipe || Mathf.Abs(d.y) < Mathf.Abs(d.x) * 1.5f) return; // too short, or sideways
             swiped = true;
+            if (onRelease != null) onRelease(); // stop a farm hold immediately when it becomes a page swipe
             if (onSwipe != null) onSwipe(d.y > 0f ? 1 : -1);
         }
 
@@ -44,7 +49,7 @@ namespace ZenoniaProto
         public void OnPointerUp(PointerEventData e)
         {
             if (e.pointerId != pointer) return;
-            bool tap = !swiped;
+            bool tap = !swiped && !holdUsed;
             pointer = int.MinValue; swiped = false;
             if (onRelease != null) onRelease();
             if (tap && onTap != null) onTap();
@@ -56,5 +61,13 @@ namespace ZenoniaProto
             pointer = int.MinValue; swiped = false;
             if (onRelease != null) onRelease();
         }
+
+        void Update()
+        {
+            if (Application.isFocused && pointer != int.MinValue && !swiped && onHold != null && Time.unscaledTime - heldSince >= 0.3f)
+                holdUsed |= onHold();
+        }
+
+        void OnApplicationFocus(bool focused) { if (!focused) OnDisable(); }
     }
 }

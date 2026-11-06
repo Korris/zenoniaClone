@@ -69,6 +69,7 @@ namespace ZenoniaProto
             try { if (json != null) c = JsonUtility.FromJson<DevStartConfig>(json); }
             catch (Exception e) { Debug.LogWarning("[ZenoniaProto] dev-start.json ignored: " + e.Message); }
             SkillRanks.DevBonus = c != null && c.enabled ? Mathf.Max(0, c.skillPointBonus) : 0;
+            SkillRanks.DevUnlockAll = c != null && c.enabled && c.allSkills;
             SkillCooldowns.DevNone = c != null && c.enabled && c.noCooldowns;
             SkillCooldowns.DevFreeMp = c != null && c.enabled && c.noMpCost;
         }

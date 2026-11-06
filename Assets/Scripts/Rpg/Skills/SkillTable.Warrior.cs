@@ -8,7 +8,8 @@ namespace ZenoniaProto.Rpg
             var burn = new StatusSpec(StatusKind.Burn, 15f, 3000);
             return new[]
             {
-                Def(C, 0, "Power Slash", 1, 8, 3f, SkillTargeting.Facing, Fx(Strike(AreaShape.Arc, 170f, radius: 2.5f, angle: 120f))),
+                Def(C, 0, "Power Slash", 1, 8, 3f, SkillTargeting.Facing,
+                    Fx(new SkillEffect { Kind = EffectKind.Strike, Shape = AreaShape.Arc, Pct = 170f, Radius = 3f, AngleDeg = 160f, PullTiles = 0.75f, PullFocusTiles = 1.25f })),
                 Def(C, 1, "Whirlwind", 8, 18, 8f, SkillTargeting.AroundSelf, Fx(Strike(AreaShape.Circle, 100f, radius: 2.5f, hits: 3, intervalMs: 250)), Req(0, 3), lockMs: 750),
                 // Kept signature: EarthBreakUltimate (380% cone 5 long, cracks + spikes). MP/CD from the tree (today 29 MP / 8 s): rebalance in phase 12.
                 Def(C, 2, "Earth Break", 15, 26, 12f, SkillTargeting.Facing, NoFx(), Req(0, 5), lockMs: 1450, legacy: LegacySkill.EarthBreak),

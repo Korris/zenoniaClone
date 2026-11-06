@@ -18,10 +18,11 @@ namespace ZenoniaProto
 
         static Choreo PowerSlash()
         {
+            float width = ZenoniaProto.Rpg.SkillTable.Get("warrior", 0).Effects[0].Radius * 1.44f;
             var c = new Choreo("warrior", "power-slash", 360);
-            c.Add(0, 90).Face().Spr(I, 0, 2, 3.6f).Glow(0xFF6725, 0.55f).Embers(12, 0xFF7025).Debris(4).Dust(9).Ring(1.8f, 100, 0xE97B42).HitStop(35).Quake(100, 0.20f).Flare(0xFFAA65, 45).Zoom(0.025f, 100).Sound("impact");
-            c.Add(90, 230).Face().Spr(L, 0, 3, 3.4f).Alpha(0.75f).Glow(0xFF4D19, 0.30f).Embers(10, 0xFF6B26).Debris(3).Dust(6);
-            c.Add(230, 360).Face().Spr(I, 2, 3, 3.2f).Alpha(0.35f).Glow(0xA83417, 0.12f).Embers(5, 0xD94C20).Dust(4);
+            c.Add(0, 90).Face().Spr(I, 0, 2, width).Glow(0xFF6725, 0.55f).Embers(12, 0xFF7025).Debris(4).Dust(9).Ring(1.8f, 100, 0xE97B42).HitStop(35).Quake(100, 0.20f).Flare(0xFFAA65, 45).Zoom(0.025f, 100).Sound("impact");
+            c.Add(90, 230).Face().Spr(L, 0, 3, width * 0.944f).Alpha(0.75f).Glow(0xFF4D19, 0.30f).Embers(10, 0xFF6B26).Debris(3).Dust(6);
+            c.Add(230, 360).Face().Spr(I, 2, 3, width * 0.889f).Alpha(0.35f).Glow(0xA83417, 0.12f).Embers(5, 0xD94C20).Dust(4);
             return c;
         }
 

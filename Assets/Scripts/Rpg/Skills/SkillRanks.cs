@@ -22,6 +22,8 @@ namespace ZenoniaProto.Rpg
 
         /// <summary>Extra SP on top of the level, test builds only (DevStartConfig.skillPointBonus). Always 0 on a server and in a shipped build.</summary>
         public static int DevBonus;
+        /// <summary>Only enabled by the non-release dev config: test every skill at low character levels.</summary>
+        public static bool DevUnlockAll;
 
         public int Free(int level) { return level + DevBonus - Sum; }
 
@@ -30,7 +32,7 @@ namespace ZenoniaProto.Rpg
         {
             if (def == null || def.Class != ClassId) return LearnResult.PrereqMissing;
             if (this[def.Index] >= SkillDef.MaxRank) return LearnResult.MaxRank;
-            if (level < def.UnlockLevel) return LearnResult.LevelTooLow;
+            if (!DevUnlockAll && level < def.UnlockLevel) return LearnResult.LevelTooLow;
             if (!PrereqsMet(def)) return LearnResult.PrereqMissing;
             return Free(level) < 1 ? LearnResult.NoSp : LearnResult.Ok;
         }
@@ -78,7 +80,7 @@ namespace ZenoniaProto.Rpg
             var order = new List<SkillDef>(defs);
             order.Sort((a, b) => a.UnlockLevel != b.UnlockLevel ? a.UnlockLevel.CompareTo(b.UnlockLevel) : a.Index.CompareTo(b.Index));
             foreach (SkillDef d in order)
-                if (ranks[d.Index] > 0 && (level < d.UnlockLevel || !PrereqsMet(d))) ranks[d.Index] = 0;
+                if (ranks[d.Index] > 0 && ((!DevUnlockAll && level < d.UnlockLevel) || !PrereqsMet(d))) ranks[d.Index] = 0;
         }
 
         // ---- save format: 8 ints ----

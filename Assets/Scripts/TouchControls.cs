@@ -41,7 +41,7 @@ namespace ZenoniaProto
         }
 
         internal static void Press(GameKey k) { pending[(int)k] = true; }
-        static void SetHeld(GameKey k, bool on) { held[(int)k] = on; }
+        internal static void SetHeld(GameKey k, bool on) { held[(int)k] = on; }
 
         public static TouchControls Create(Transform parent)
         {

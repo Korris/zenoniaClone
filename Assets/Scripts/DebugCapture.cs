@@ -294,6 +294,10 @@ namespace ZenoniaProto
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--nobloom") >= 0) { FeelConfig.BloomOn = false; var b = Camera.main.GetComponent<BloomEffect>(); if (b != null) b.enabled = false; }
                 if (dummies > 0) SpawnDummies(hero);
                 ApplyRpgFlags(hero);
+                if (Array.IndexOf(Environment.GetCommandLineArgs(), "--power-slash-check") >= 0)
+                { yield return RunPowerSlashCheck(hero); yield break; }
+                if (Array.IndexOf(Environment.GetCommandLineArgs(), "--farm-hold-check") >= 0)
+                { yield return RunFarmHoldCheck(hero); yield break; }
             }
             if (solids) WorldBuilder.ToggleSolidOverlay();
             float start = Time.realtimeSinceStartup;

@@ -35,11 +35,20 @@ namespace ZenoniaProto
             for (int i = 0; i < v.slots.Length; i++)
             {
                 SkillMagazineSlot s = v.slots[i] = SkillMagazineSlot.Build(layer, i, Pos[i], MpY[i]);
+                bool holdingFarm = false;
                 var sw = s.root.gameObject.AddComponent<SwipeDetector>();
                 sw.onSwipe = v.Cycle;
                 sw.onTap = () => v.Tap(s);
+                sw.onHold = () =>
+                {
+                    if (v.animT >= 0f || v.cls == null || v.cls.Id != HeroClass.Warrior || !s.entry.IsSkill || s.entry.SkillIndex != 0) return false;
+                    TouchControls.SetHeld(GameKey.Skill1, true);
+                    holdingFarm = true;
+                    v.Tap(s);
+                    return true;
+                };
                 sw.onPress = () => s.root.localScale = new Vector3(0.92f, 0.92f, 1f);
-                sw.onRelease = () => s.root.localScale = Vector3.one;
+                sw.onRelease = () => { s.root.localScale = Vector3.one; if (holdingFarm) TouchControls.SetHeld(GameKey.Skill1, false); holdingFarm = false; };
             }
             for (int i = 0; i < v.dots.Length; i++)
             {

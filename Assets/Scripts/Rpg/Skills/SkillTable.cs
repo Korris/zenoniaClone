@@ -59,7 +59,7 @@ namespace ZenoniaProto.Rpg
             return new SkillDef
             {
                 Id = cls + "." + name.ToLowerInvariant().Replace(' ', '-'), Class = cls, Index = index, Name = name, UnlockLevel = unlock,
-                Prereqs = prereqs ?? new SkillReq[0], Mp = mp, MpPerRank = MpPerRankFor(unlock), BaseCooldownMs = (int)(cdSec * 1000f), CooldownMs = (int)(cdSec * 1000f * CooldownScale), BaseCastLockMs = lockMs, CastLockMs = CappedLock(lockMs, fx),
+                Prereqs = prereqs ?? new SkillReq[0], Mp = mp, MpPerRank = MpPerRankFor(unlock), BaseCooldownMs = (int)(cdSec * 1000f), CooldownMs = FarmSkillRules.CooldownMs(cls, index, (int)(cdSec * 1000f)), BaseCastLockMs = lockMs, CastLockMs = CappedLock(lockMs, fx),
                 Targeting = targeting, TargetRange = targetRange, Effects = fx, Legacy = legacy,
             };
         }

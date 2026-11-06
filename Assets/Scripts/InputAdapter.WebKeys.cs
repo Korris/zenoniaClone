@@ -50,7 +50,7 @@ namespace ZenoniaProto
         /// <summary>Web: the left button is held after it went down on the world (a click on the chat / hotbar / minimap never attacks).</summary>
         static bool MouseAttack()
         {
-            if (!webKeys) return false;
+            if (Application.isMobilePlatform || !Application.isFocused) return false;
             int frame = Time.frameCount;
             if (frame != mouseFrame)
             {

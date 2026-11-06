@@ -70,6 +70,11 @@ namespace ZenoniaProto.Rpg
             if (d.Legacy == LegacySkill.BladeCyclone) { lines.Add(Tag("KNOCKBACK", StatusPurple) + " last wave"); lines.Add(Boss("immune")); }
             foreach (SkillEffect e in d.Effects)
             {
+                if (e.PullTiles > 0f)
+                {
+                    AddOnce(lines, Tag("GATHER", StatusPurple) + " pulls enemies up to " + Tiles(e.PullTiles) + " toward a point in front");
+                    AddOnce(lines, Boss("immune to pull"));
+                }
                 if (e.Status.Kind != StatusKind.None) AddOnce(lines, StatusText(e.Status));
                 if (e.Status.Kind != StatusKind.None) { string b = BossText(e.Status); if (b != null) AddOnce(lines, b); }
                 if (e.BehindBonusPct > 0f) AddOnce(lines, Tag("BACKSTAB", StatusPurple) + " +" + Num(e.BehindBonusPct) + "% damage");
