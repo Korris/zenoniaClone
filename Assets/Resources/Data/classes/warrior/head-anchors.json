@@ -1,0 +1,273 @@
+{
+ "note": "Head layer offsets per frame (frame px, y down) from the head art's own place (heads/<style>/<dir>.png is a full 192 cell placed for frame 0); sy = vertical scale about the cell bottom (breathing), applied before the move. Tools/build-head-layer.py; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored.",
+ "anims": [
+  {
+   "anim": "idle",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 0,
+     "y": 0.0,
+     "sy": 1.0,
+     "angle": 0
+    },
+    {
+     "x": 0,
+     "y": -0.7,
+     "sy": 1.0,
+     "angle": 0
+    },
+    {
+     "x": 0,
+     "y": -1.4,
+     "sy": 1.0,
+     "angle": 0
+    },
+    {
+     "x": 0,
+     "y": -0.7,
+     "sy": 1.0,
+     "angle": 0
+    }
+   ]
+  },
+  {
+   "anim": "idle",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 0.0,
+     "y": 0.0,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.0,
+     "y": -0.75,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.0,
+     "y": -1.0,
+     "s": 1.003,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.0,
+     "y": -0.75,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "idle",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 0.0,
+     "y": 0.0,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.0,
+     "y": -0.75,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.0,
+     "y": -1.0,
+     "s": 1.003,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.0,
+     "y": -0.75,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "idle",
+   "dir": "left",
+   "frames": [
+    {
+     "x": -0.75,
+     "y": -0.75,
+     "s": 0.992,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -0.75,
+     "y": -2.25,
+     "s": 0.986,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -0.75,
+     "y": -3.0,
+     "s": 0.986,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -0.75,
+     "y": -2.25,
+     "s": 0.986,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "walk",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 0.75,
+     "y": 9.0,
+     "s": 1.068,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.75,
+     "y": 9.25,
+     "s": 1.071,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.25,
+     "y": 8.25,
+     "s": 1.071,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 1.25,
+     "y": 8.25,
+     "s": 1.071,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "walk",
+   "dir": "up",
+   "frames": [
+    {
+     "x": -1.5,
+     "y": -1.5,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -10.25,
+     "y": -2.5,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -10.5,
+     "y": -1.5,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -10.5,
+     "y": -1.5,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "walk",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 0.25,
+     "y": 1.5,
+     "s": 1.008,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -6.75,
+     "y": 1.5,
+     "s": 1.008,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -0.5,
+     "y": 1.5,
+     "s": 1.008,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -5.5,
+     "y": 1.25,
+     "s": 1.005,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "walk",
+   "dir": "left",
+   "frames": [
+    {
+     "x": -0.25,
+     "y": 1.5,
+     "s": 1.008,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 6.75,
+     "y": 1.5,
+     "s": 1.008,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.5,
+     "y": 1.5,
+     "s": 1.008,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 5.5,
+     "y": 1.25,
+     "s": 1.005,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  }
+ ]
+}
