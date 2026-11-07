@@ -13,6 +13,11 @@ namespace ZenoniaProto
         {
             if (p.Hero == null) return;
             Zone.Enter(p.Hero.HomeZone); // a network callback: the events it raises belong to this hero's zone
+            if (m.Op == InvOp.HairStyle) // a look choice only, no state and no reply: everyone near sees the new head
+            {
+                if (p.Hero.NetHairStyle != m.Slot) { p.Hero.NetHairStyle = m.Slot; NetEventBus.Appearance(p.Hero); }
+                return;
+            }
             bool questOp = m.Op == InvOp.QuestAccept || m.Op == InvOp.QuestTurnIn;
             string refusal = TradeService.IsTrading(p) && TradeBook.BlocksInventoryOp(m.Op) ? "Not while trading" : m.Op == InvOp.PotionBuy || m.Op == InvOp.PetBuy ? ShopRefusal(p, m) : questOp ? QuestRefusal(p, m) : null;
             if (refusal == null && m.Op == InvOp.Enhance && ZonePersistence.Active != null) { ZonePersistence.Active.Enhance(repl, p, m); return; } // with real characters only the API rolls an enhance: the answer comes later

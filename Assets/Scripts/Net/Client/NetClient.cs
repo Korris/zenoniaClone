@@ -108,12 +108,14 @@ namespace ZenoniaProto
             server = null;
         }
 
-        public static void SendInvAction(InvOp op, string uid, byte slot)
+        /// <summary>False when not joined (nothing sent).</summary>
+        public static bool SendInvAction(InvOp op, string uid, byte slot)
         {
             NetClient c = Active;
-            if (c == null || c.server == null || c.State != ClientState.Joined) return;
+            if (c == null || c.server == null || c.State != ClientState.Joined) return false;
             NetMessageWriter.InvAction(c.w, new InvActionMsg { ReqId = ++c.invReq, Op = op, ItemUid = uid, Slot = slot });
             c.server.Send(c.w, NetProtocol.ChannelReliable, DeliveryMethod.ReliableOrdered);
+            return true;
         }
 
         // ---- callbacks ----

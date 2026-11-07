@@ -8,12 +8,13 @@ namespace ZenoniaProto.Net
         ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16, TurretShot = 17,
     }
 
-    /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band, flag bits (1 = mechanic blue) and the pet (0 = none, see PetConfig.WireId).</summary>
+    /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band, flag bits (1 = mechanic blue), the pet
+    /// (0 = none, see PetConfig.WireId) and the art tier of the worn armour / gloves / boots (255 = nothing in that slot; ArmorLooks).</summary>
     public struct NetAppearance
     {
-        public byte WeaponTier, OffTier, EnhanceBand, Flags, PetId;
-        public void Write(NetDataWriter w) { w.Put(WeaponTier); w.Put(OffTier); w.Put(EnhanceBand); w.Put(Flags); w.Put(PetId); }
-        public static NetAppearance Read(NetDataReader r) { return new NetAppearance { WeaponTier = r.GetByte(), OffTier = r.GetByte(), EnhanceBand = r.GetByte(), Flags = r.GetByte(), PetId = r.GetByte() }; }
+        public byte WeaponTier, OffTier, EnhanceBand, Flags, PetId, ArmorTier, GlovesTier, BootsTier, HairStyle; // HairStyle: head layer style (HeroHeadLayer), wraps on the client
+        public void Write(NetDataWriter w) { w.Put(WeaponTier); w.Put(OffTier); w.Put(EnhanceBand); w.Put(Flags); w.Put(PetId); w.Put(ArmorTier); w.Put(GlovesTier); w.Put(BootsTier); w.Put(HairStyle); }
+        public static NetAppearance Read(NetDataReader r) { return new NetAppearance { WeaponTier = r.GetByte(), OffTier = r.GetByte(), EnhanceBand = r.GetByte(), Flags = r.GetByte(), PetId = r.GetByte(), ArmorTier = r.GetByte(), GlovesTier = r.GetByte(), BootsTier = r.GetByte(), HairStyle = r.GetByte() }; }
     }
 
     /// <summary>

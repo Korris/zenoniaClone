@@ -5,7 +5,7 @@ Falls back to the armed frame when an anchor is missing or marked fallback, like
 Usage (from the project root; needs Pillow and numpy):
   python Tools/compose-hero-frame.py OUT.png [--anim idle] [--dir down] [--zoom 3] [--classes warrior,wizard,...] [--bg 58,62,70]
       one row per class, one column per frame.
-Importable: compose(cls, anim, dir, frame, bare_path=None, anchors=None, hand_path=None, pad=0) returns a (192+2*pad) square RGBA image."""
+Importable: compose(cls, anim, dir, frame, bare_path=None, anchors=None, hand_path=None, pad=0, over=None) returns a (192+2*pad) square RGBA image."""
 import argparse, json, math, os
 import numpy as np
 from PIL import Image
@@ -56,7 +56,7 @@ def cell(path, row, frame):
     return Image.open(path).convert("RGBA").crop((x, y, x + FRAME, y + FRAME))
 
 
-def compose(cls, anim, direction, frame, bare_path=None, anchors=None, hand_path=None, tier=0, pad=0):
+def compose(cls, anim, direction, frame, bare_path=None, anchors=None, hand_path=None, tier=0, pad=0, over=None):
     file, loaded = load_gear(cls)
     anchors = anchors if anchors is not None else loaded
     parts = CLASSES[cls][1]
@@ -78,6 +78,8 @@ def compose(cls, anim, direction, frame, bare_path=None, anchors=None, hand_path
 
     gear(True)
     canvas.alpha_composite(cell(bare, row, frame), (pad, pad))
+    if over is not None:  # optional 192 px RGBA layer on the body, under the gear in front (armour previews)
+        canvas.alpha_composite(over, (pad, pad))
     gear(False)
     hand = hand_path or f"{RES}/Sprites/classes/{cls}/body/hand/{anim}.png"
     if os.path.exists(hand):

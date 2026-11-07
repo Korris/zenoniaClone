@@ -47,7 +47,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Dresses the hero of this class (built on first use) and starts filming.</summary>
-        public void Show(HeroClassDef def, Item weapon, Item offhand)
+        public void Show(HeroClassDef def, Item weapon, Item offhand, PlayerState worn = null)
         {
             int i = (int)def.Id;
             if (views[i] == null)
@@ -62,6 +62,7 @@ namespace ZenoniaProto
             view = views[i];
             view.gameObject.SetActive(true);
             view.SetEquipmentGear(weapon, offhand);
+            if (worn != null) ArmorLooks.FromWorn(view, worn);
             cam.transform.position = Stage + new Vector3(def.Id == HeroClass.Warrior ? WarriorShiftX : 0f, CameraHalfHeight - FeetAboveBottom, -10f);
             view.Show("idle", PortraitDir, frame, 0, 1f);
             cam.enabled = true;

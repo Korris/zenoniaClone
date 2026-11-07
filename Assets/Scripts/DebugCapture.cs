@@ -12,6 +12,7 @@ namespace ZenoniaProto
     ///   --class warrior|wizard|mechanic|assassin|cleric|fighter   skip the class select
     ///   --tp tx,ty                        put the hero on a tile (and --face down|up|left|right)
     ///   --tier N / --enhanced             gear tier / enhanced art
+    ///   --hairstyle N                     hairstyle of the head layer (Lv1 body, idle facing down, any class with heads/ art; 0 = the painted head)
     ///   --bot fight|attack|walk           fight: walk to the nearest monster and attack it; attack: hold attack; walk: walk east
     ///   --zoom N                          camera orthographic half-height (default 80) for close-ups
     ///   --shots 2,5,8 --shot-path P       ScreenCapture to P_1.png, P_2.png ... at those seconds, then quit
@@ -25,6 +26,7 @@ namespace ZenoniaProto
     ///   --god                             hero ignores damage
     ///   --plus N                          worn weapon + offhand at +N (enhance glow bands)
     ///   --worn-tier N                     wear art tier N of the weapon + offhand from the dev-start bag (allWeapons)
+    ///   --wear-tiers A,G,B                wear armour / gloves / boots of these art tiers (armour look, ArmorLooks)
     ///   --level N / --give-stones N       RPG state for screenshots: hero level, upgrade stones (saving is always off in capture runs)
     ///   --drop-loot                       scatter a boss-sized pile of loot (gold, potions, stones, 3 items) in front of the hero
     ///   --open-inventory                  open the inventory window (B) after spawning
@@ -55,7 +57,7 @@ namespace ZenoniaProto
         float runSeconds, lastCastTime = -100f;
         bool perf;
         Vector2Int tpTile = new Vector2Int(-1, -1);
-        int tier = -1;
+        int tier = -1, hairStyle = -1;
         float zoom;
         bool enhanced, solids, god, dropLoot, openInventory;
         int level, giveStones, plus = -1;
@@ -117,6 +119,8 @@ namespace ZenoniaProto
             if (z != null) zoom = float.Parse(z, System.Globalization.CultureInfo.InvariantCulture);
             string t = Arg(a, "--tier");
             if (t != null) tier = int.Parse(t);
+            string hs = Arg(a, "--hairstyle");
+            if (hs != null) hairStyle = int.Parse(hs);
             enhanced = Array.IndexOf(a, "--enhanced") >= 0;
             solids = Array.IndexOf(a, "--solids") >= 0;
             god = Array.IndexOf(a, "--god") >= 0;
@@ -163,6 +167,20 @@ namespace ZenoniaProto
                     Item pick = p.Inventory.Find(i => i.uid == "dev-" + slot + "-" + wornTier);
                     if (pick != null) p.Equip(pick);
                 }
+            string wear = Arg(Environment.GetCommandLineArgs(), "--wear-tiers"); // "A,G,B": wear armour / gloves / boots of these art tiers (armour look captures)
+            if (wear != null)
+            {
+                string[] t = wear.Split(',');
+                string[] wearSlots = { Slots.Armor, Slots.Gloves, Slots.Boots };
+                p.Inventory.Clear(); // the dev-start bag is full: room for the pieces taken off (capture runs never save)
+                for (int i = 0; i < wearSlots.Length && i < t.Length; i++)
+                {
+                    ActionResult r = p.Equip(ItemFactory.Generate(RpgRandom.Default, Mathf.Max(1, int.Parse(t[i]) * 10), wearSlots[i], "common", p.ClassId));
+                    if (!r.Ok) Debug.LogWarning("[ZenoniaProto] --wear-tiers: " + wearSlots[i] + " " + r.Text);
+                }
+                p.RecomputeStats();
+                RpgSession.SyncGear();
+            }
             if (plus >= 0) // enhance level of the worn weapon + offhand (glow band screenshots)
             {
                 foreach (string slot in new[] { Slots.Weapon, Slots.Offhand }) { Item it = p.GetEquipped(slot); if (it != null) it.enhance = plus; }
@@ -286,6 +304,7 @@ namespace ZenoniaProto
                 HeroController hero = GameSession.Hero;
                 if (tpTile.x >= 0) hero.Teleport(FrostHollowMap.TileFeet(tpTile.x, tpTile.y, 2f), faceArg == "up" ? 1 : faceArg == "left" ? 2 : faceArg == "right" ? 3 : 0);
                 if (tier >= 0 || enhanced) hero.View.SetGear(Mathf.Max(tier, 0), enhanced);
+                if (hairStyle >= 0) hero.View.HairStyle = hairStyle;
                 if (botArg == "fight") EnableFightBot();
                 else if (botArg == "attack") InputAdapter.BotPressed = k => k == GameKey.Attack;   // hold attack in place (art / FX close-ups)
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east

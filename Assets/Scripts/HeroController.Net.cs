@@ -39,6 +39,7 @@ namespace ZenoniaProto
         {
             if (view == null) return;
             view.SetEquipmentGear(rpg.GetEquipped(Slots.Weapon), rpg.GetEquipped(Slots.Offhand));
+            ArmorLooks.FromWorn(view, rpg);
             view.SetPet(PetConfig.IdOf(rpg.GetEquipped(Slots.Pet)));
             RefreshGearLabel();
         }
@@ -50,7 +51,21 @@ namespace ZenoniaProto
             Item w, o;
             NetEventBus.ItemsFromAppearance(look, RpgSession.ClassId(cls.Id), out w, out o);
             view.SetEquipmentGear(w, o);
+            view.SetOutfit(NetEventBus.TierOfWire(look.ArmorTier));
             view.SetPet(PetConfig.IdOfWire(look.PetId));
+            view.HairStyle = look.HairStyle; // the renderer wraps a style this build has no art for
+        }
+
+        /// <summary>Server side: the head layer style this hero shows to others (InvOp.HairStyle from its client; the host's own view directly).</summary>
+        [System.NonSerialized] public byte NetHairStyle;
+        int sentHairStyle = -1;
+
+        /// <summary>Local hero online: sends the chosen hairstyle (H key, --hairstyle) whenever it differs from what the server last got.</summary>
+        void SyncHairStyleOnline()
+        {
+            if (this != LocalPlayer.Hero || view == null || NetMode.IsOffline || view.HairStyle == sentHairStyle) return;
+            if (NetMode.IsServerSide) { NetHairStyle = (byte)view.HairStyle; NetEventBus.Appearance(this); sentHairStyle = view.HairStyle; return; } // host: its own hero is the server's
+            if (NetClient.SendInvAction(InvOp.HairStyle, "", (byte)view.HairStyle)) sentHairStyle = view.HairStyle;
         }
 
         /// <summary>Client: swaps the mirrored RPG state for a fresh one from an RpgState push.</summary>
@@ -114,6 +129,7 @@ namespace ZenoniaProto
 
         void ProxyTick(float dtMs)
         {
+            if (this == LocalPlayer.Hero && view != null && HeroHeadLayer.CycleKeyPressed()) view.HairStyle = view.HairStyle + 1; // H online too, SyncHairStyleOnline sends it
             idleTimer += dtMs;
             if (dashLeft > 0f || moving) animTimer += dtMs; else animTimer = 0f;
             if (dead) deathTimer += dtMs;

@@ -90,7 +90,7 @@ namespace ZenoniaProto
         void RefreshLoadout(PlayerState p, HeroController hero)
         {
             classLevelText.text = hero.Class.Name + "  Lv. " + p.Level;
-            heroView.Show(hero.Class, p.GetEquipped(Slots.Weapon), p.GetEquipped(Slots.Offhand));
+            heroView.Show(hero.Class, p.GetEquipped(Slots.Weapon), p.GetEquipped(Slots.Offhand), p);
             for (int i = 0; i < equipSlots.Length; i++)
             {
                 string slot = Slots.All[i];

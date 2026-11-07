@@ -126,7 +126,8 @@ namespace ZenoniaProto
             InputAdapter.BotPressed = k => false;
         }
 
-        void EnableNavBot(bool boss, Vector2 offset, bool cycleSkills = false)
+        /// <summary>`crowd`: fight the monster nearest to the hero with the most others around it (crowd readability captures put the camera hero inside the pack).</summary>
+        void EnableNavBot(bool boss, Vector2 offset, bool cycleSkills = false, bool crowd = false)
         {
             int slot = 0;
             foreach (char c in NetLaunchArgs.Name ?? "") slot = slot * 7 + c;
@@ -142,13 +143,15 @@ namespace ZenoniaProto
                 move = Vector2.zero; attack = false;
                 HeroController hero = GameSession.Hero;
                 if (hero == null || hero.IsDead) return;
+                HeroController pack = crowd ? DensestHero(hero) : null;
+                Vector2 from = pack != null ? pack.Position : hero.Position; // crowd: the monster the pack is fighting
                 Monster target = boss && Monster.Boss != null && !Monster.Boss.IsDying ? Monster.Boss : null;
                 float best = target != null ? 0f : float.MaxValue;
                 if (target == null)
                     foreach (Monster m in Monster.All)
                     {
                         if (m.IsDying || m.MaxHp > 300f) continue;
-                        float d = Vector2.Distance(m.Center, hero.Position);
+                        float d = Vector2.Distance(m.Center, from);
                         if (d < best) { best = d; target = m; }
                     }
                 if (target == null) { move = StepToward(hero.Position, PatrolSpot(slot)); return; }
@@ -178,6 +181,25 @@ namespace ZenoniaProto
                 if (k == GameKey.HpPotion && h != null && h.Hp < h.MaxHp * 0.4f && Time.time >= nextPotion) { nextPotion = Time.time + 2f; return true; }
                 return false;
             };
+        }
+
+        /// <summary>The other living hero with the most living heroes within 60 units (null when alone).</summary>
+        static HeroController DensestHero(HeroController self)
+        {
+            Zone zone = Zone.Main;
+            if (zone == null) return null;
+            var all = zone.Heroes.All;
+            HeroController best = null;
+            int bestN = 0;
+            foreach (HeroController a in all)
+            {
+                if (a == null || a == self || a.IsDead) continue;
+                int n = 1;
+                foreach (HeroController b in all)
+                    if (b != null && b != a && b != self && !b.IsDead && Vector2.Distance(a.Position, b.Position) < 60f) n++;
+                if (n > bestN) { bestN = n; best = a; }
+            }
+            return best;
         }
     }
 }

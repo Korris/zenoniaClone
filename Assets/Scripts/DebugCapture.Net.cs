@@ -8,8 +8,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Online client test tooling (command line only):
-    ///   --net-bot fight|boss|wander|twitch|skills|portal|party|trade   drive the joined hero through InputAdapter, so the real NetInputSender / server path is exercised
-    ///                                 (fight = nearest monsters, boss = the Frostfang King first, wander = random walking, portal = walks from portal to portal)
+    ///   --net-bot fight|crowd|boss|wander|twitch|skills|portal|party|trade   drive the joined hero through InputAdapter, so the real NetInputSender / server path is exercised
+    ///                                 (fight = nearest monsters, crowd = fight the monster the biggest pack of players is fighting, boss = the Frostfang King first, wander = random walking, portal = walks from portal to portal)
     ///   --record-net S                record S seconds of THIS client's screen in real time (jpg frames + fps.txt + audio.wav in --shot-path),
     ///                                 optional --record-lead L waits L seconds after joining first; encode with ffmpeg afterwards
     /// </summary>
@@ -41,6 +41,7 @@ namespace ZenoniaProto
             switch (bot)
             {
                 case "fight": EnableNavBot(false, offset); break;
+                case "crowd": EnableNavBot(false, offset, false, true); break;
                 case "skills": StartCoroutine(LearnSkillsOnline()); EnableNavBot(false, offset, true); break;
                 case "boss": EnableNavBot(true, offset); break;
                 case "wander": EnableWanderBot(); break;
@@ -52,9 +53,10 @@ namespace ZenoniaProto
                 case "turret": StartTurretBot(); break;
             }
             Debug.Log("[ZenoniaProto] net bot: " + (bot ?? "off") + " as " + GameSession.Hero.PlayerName + " (hero " + GameSession.Hero.NetId + ")");
+            if (shotTimes != null) StartCoroutine(NetShots()); // joined: --shots times count from joining (crowd captures, Tools/net-hair-crowd-shots.ps1), then quit
         }
 
-        /// <summary>Screenshots at the --shots times without joining anything (connect screen / class select captures).</summary>
+        /// <summary>Screenshots at the --shots times: without --host the connect screen / class select, after joining the world view; then quit.</summary>
         IEnumerator NetShots()
         {
             float start = Time.realtimeSinceStartup;

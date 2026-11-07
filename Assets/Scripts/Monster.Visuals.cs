@@ -102,6 +102,10 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>The monster your own hero hit last, and when (Time.time); read by TargetMarker.</summary>
+        public static Monster LastHitByMe;
+        public static float LastHitByMeAt;
+
         /// <summary>Hit presentation shared by the real hit (authority) and the replayed MonsterHit event (client): white flash, damage number, sparks.</summary>
         void HitFx(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx, bool otherPlayer = false)
         {
@@ -110,7 +114,11 @@ namespace ZenoniaProto
             float bodyH = def.BodyHeightUnits * def.RenderScale;
             Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
             if (otherPlayer) DamageNumber.Spawn(x, y + bodyH + 4f, dmg.ToString(), Color.white, false, false, true); // another player's hit: small, white, half alpha
-            else DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
+            else
+            {
+                LastHitByMe = this; LastHitByMeAt = Time.time; // TargetMarker: the monster you are fighting
+                DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
+            }
             ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher, null, quietFx);
         }
     }

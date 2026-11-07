@@ -149,7 +149,7 @@ namespace ZenoniaProto
             Add(new NetEvent { Type = NetEventType.BossDied, Id = m.NetId }, m.Feet, 0, true);
         }
 
-        /// <summary>Paper-doll data of a hero: art tier + enhance level of the weapon / offhand (255 = nothing in that hand).</summary>
+        /// <summary>Paper-doll data of a hero: art tier + enhance level of the weapon / offhand, art tier of armour / gloves / boots (255 = nothing worn).</summary>
         public static NetAppearance AppearanceOf(HeroController h)
         {
             PlayerState p = h.Rpg;
@@ -161,8 +161,17 @@ namespace ZenoniaProto
                 EnhanceBand = (byte)(Mathf.Clamp(w != null ? w.enhance : 0, 0, 15) | (Mathf.Clamp(o != null ? o.enhance : 0, 0, 15) << 4)),
                 Flags = (byte)(h.Class.Id == HeroClass.Mechanic && ClassPalette.MechanicBlue ? 1 : 0),
                 PetId = PetConfig.WireId(p.GetEquipped(Slots.Pet)),
+                ArmorTier = WireTier(p.GetEquipped(Slots.Armor)),
+                GlovesTier = WireTier(p.GetEquipped(Slots.Gloves)),
+                BootsTier = WireTier(p.GetEquipped(Slots.Boots)),
+                HairStyle = h.NetHairStyle,
             };
         }
+
+        static byte WireTier(Item item) { return item != null ? (byte)ItemInfo.ArtTier(item) : (byte)255; }
+
+        /// <summary>Art tier from the wire (255 = nothing worn => -1).</summary>
+        public static int TierOfWire(byte b) { return b == 255 ? -1 : b; }
 
         /// <summary>Stub equipment items for HeroRenderer.SetEquipmentGear built from replicated appearance data (null = empty hand).</summary>
         public static void ItemsFromAppearance(NetAppearance a, string classId, out Item weapon, out Item offhand)

@@ -38,7 +38,12 @@ namespace ZenoniaProto
         int tier, motion; // motion: 0 idle, 1 walk, 2 any action, for the enhance effect (HeldEnhanceFx.Draw)
         bool enhanced, debugLook;
         int companionTier, companionBand;
+        // Outfit (ArmorLooks): the worn armour's tier picks a whole body: body/<outfit>/bare + hand sheets; rows not painted yet are the Lv1 rows.
+        int outfit;
+        readonly Dictionary<string, Sprite[][]> outfitBare = new Dictionary<string, Sprite[][]>();
+        readonly Dictionary<string, Sprite[][]> outfitHand = new Dictionary<string, Sprite[][]>();
         bool companionEnhanced, companionEmpty;
+        HeroHeadLayer headLayer; // null = this class has no separate head art (the whole body is one sprite)
 
         public HeroClassDef Class { get { return cls; } }
         public HeldGearData Gear { get { return gear; } }
@@ -109,6 +114,7 @@ namespace ZenoniaProto
                 parts0.Add(new Part { Spec = spec, Sr = ProceduralSprites.Child(lean, spec.Id, null) });
             body = ProceduralSprites.Child(lean, "Body", null);
             handOver = ProceduralSprites.Child(lean, "HandOver", null);
+            headLayer = HeroHeadLayer.Create(cls, lean);
             if (cls.HandFolder != null)
                 foreach (string anim in cls.HandAnims)
                     hand[anim] = SpriteSheet.Grid("Sprites/" + cls.HandFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
@@ -117,6 +123,36 @@ namespace ZenoniaProto
             foreach (Part p in parts) figure.Add(p.Sr);
             dashTrail = gameObject.AddComponent<HeroDashTrail>();
             dashTrail.Init(figure.ToArray());
+        }
+
+        /// <summary>Hairstyle index (head layer prototype: Lv1 body, idle facing down, every class with heads/ art); wraps; 0 = the painted head. Ignored by classes without head art.</summary>
+        public int HairStyle
+        {
+            get { return headLayer != null ? headLayer.Style : 0; }
+            set { if (headLayer != null) headLayer.Style = value; }
+        }
+
+        /// <summary>Outfit of the worn armour's art tier (-1 = none worn = the Lv1 body): see ArmorLooks.OutfitFolder.</summary>
+        public void SetOutfit(int armorTier)
+        {
+            int want = ArmorLooks.OutfitIndex(cls, armorTier);
+            if (want == outfit) return;
+            outfit = want;
+            outfitBare.Clear();
+            outfitHand.Clear();
+            string folder = ArmorLooks.OutfitFolder(cls, outfit);
+            if (folder == null) return;
+            var pivot = new Vector2(0.5f, 0f);
+            foreach (string anim in bare.Keys)
+            {
+                Sprite[][] g = SpriteSheet.Grid("Sprites/" + folder + "/bare/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
+                if (g != null) outfitBare[anim] = g;
+            }
+            foreach (string anim in hand.Keys)
+            {
+                Sprite[][] g = SpriteSheet.Grid("Sprites/" + folder + "/hand/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
+                if (g != null) outfitHand[anim] = g;
+            }
         }
 
         /// <summary>Leaves and fades the dash afterimages; call after the figure is drawn.</summary>
@@ -166,6 +202,7 @@ namespace ZenoniaProto
             tier = ((newTier % max) + max) % max;
             enhanced = newEnhanced;
             debugLook = true;
+            SetOutfit(tier); // E / Q debug look: the outfit of the same art tier too
             foreach (Part p in parts) { p.Tier = tier; p.Enhanced = enhanced; p.Band = enhanced ? 1 : 0; p.Empty = false; }
             companionTier = tier; companionEnhanced = enhanced; companionBand = enhanced ? 1 : 0; companionEmpty = false;
         }
@@ -208,13 +245,17 @@ namespace ZenoniaProto
             {
                 body.sprite = null;
                 handOver.sprite = null;
+                if (headLayer != null) headLayer.Hide();
                 foreach (Part p in parts) { p.Sr.sprite = null; if (p.Fx != null) p.Fx.Hide(); }
                 return;
             }
             frame = Mathf.Clamp(frame, 0, armedRow.Length - 1);
             Sprite bodySprite = armedRow[frame];
             bool useGear = false;
-            Sprite[] bareRow = gear != null && bare.ContainsKey(anim) ? SpriteSheet.Row(bare[anim], row) : null;
+            Sprite[][] bareSheet;
+            bool lv1Body = !outfitBare.TryGetValue(anim, out bareSheet); // an outfit keeps its own whole body (its painted helmet head) for now
+            if (lv1Body) bare.TryGetValue(anim, out bareSheet);
+            Sprite[] bareRow = gear != null && bareSheet != null ? SpriteSheet.Row(bareSheet, row) : null;
             if (bareRow != null && frame < bareRow.Length)
             {
                 useGear = true;
@@ -233,11 +274,17 @@ namespace ZenoniaProto
             var tint = new Color(1f, 1f, 1f, alpha);
             shadow.sortingOrder = orderBase;
             shadow.color = new Color(1f, 1f, 1f, 0.3f * alpha);
+            // Head layer: the Lv1 bare body of a frame with head art draws headless, the chosen hairstyle's head on top (same order, nearer z).
+            Sprite headless = useGear && lv1Body && headLayer != null ? headLayer.Apply(anim, DirNames[dir], row, frame, mirror, orderBase + 3, tint) : null;
+            if (headless != null) bodySprite = headless;
+            else if (headLayer != null) headLayer.Hide();
             body.sprite = bodySprite;
             body.flipX = mirror;
             body.color = tint;
             body.sortingOrder = orderBase + 3;
-            Sprite[] handRow = useGear && hand.ContainsKey(anim) ? SpriteSheet.Row(hand[anim], row) : null;
+            Sprite[][] handSheet;
+            if (!outfitHand.TryGetValue(anim, out handSheet)) hand.TryGetValue(anim, out handSheet);
+            Sprite[] handRow = useGear && handSheet != null ? SpriteSheet.Row(handSheet, row) : null;
             handOver.sprite = handRow != null && frame < handRow.Length ? handRow[frame] : null;
             handOver.flipX = mirror;
             handOver.color = tint;

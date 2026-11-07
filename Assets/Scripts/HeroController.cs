@@ -145,6 +145,7 @@ namespace ZenoniaProto
             Zone.Enter(HomeZone);
             float dt = GameClock.Dt;
             float dtMs = dt * 1000f;
+            SyncHairStyleOnline(); // local hero online: the chosen head goes to the server when it changes (also for bot-driven test clients)
             if (proxy) { ProxyTick(dtMs); return; }
             if (GameClock.Paused) { Render(); return; } // inventory open: frozen, no input
             HandleGearKeys();
@@ -274,6 +275,7 @@ namespace ZenoniaProto
             if (InputAdapter.Pressed(GameKey.TierUp)) { tier++; changed = true; }
             if (InputAdapter.Pressed(GameKey.TierDown)) { tier--; changed = true; }
             if (InputAdapter.Pressed(GameKey.Enhance)) { enh = !enh; changed = true; }
+            if (HeroHeadLayer.CycleKeyPressed()) view.HairStyle = view.HairStyle + 1; // H: next hairstyle (not saved; online it goes to the server via SyncHairStyleOnline)
             if (cls.Id == HeroClass.Mechanic && InputAdapter.Pressed(GameKey.FxColor)) { ClassPalette.MechanicBlue = !ClassPalette.MechanicBlue; ClassPalette.Current = cls.ActivePalette; }
             if (!changed) return;
             view.SetGear(tier, enh); // debug look override until the equipment changes again

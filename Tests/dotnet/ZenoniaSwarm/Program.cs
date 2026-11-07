@@ -16,7 +16,9 @@ using NetEvent = ZenoniaProto.Net.NetEvent;
 /// (like the game client), decodes every delta snapshot against its own baseline ring and acks it, and runs a simple brain:
 /// fighters walk to the nearest monster in their snapshots and press attack, wanderers walk randomly and swing now and then, idlers stand still.
 ///   dotnet run -c Release -- --host 127.0.0.1 --port 7790 --key k --clients 200 --seconds 600 [--stagger-ms 40] [--mix 50:30:20] [--stats out.json]
-///        [--sim-latency MS --sim-jitter MS --sim-loss PCT] [--version N]
+///        [--sim-latency MS --sim-jitter MS --sim-loss PCT] [--version N] [--hair vary|N] [--no-attack]
+/// --no-attack: wanderers never swing (crowd look captures: Tools/net-hair-crowd-shots.ps1).
+/// --hair: head layer style each bot asks for after joining (InvOp.HairStyle); vary (default) = (index / 5) % 5, so every class gets all 5 styles; N = every bot N (0 = the original heads).
 /// </summary>
 static class Program
 {
@@ -25,6 +27,7 @@ static class Program
     sealed class Bot
     {
         public int Index;
+        public byte Hair;
         public Brain Brain;
         public NetManager Net;
         public NetPeer Peer;
@@ -51,6 +54,8 @@ static class Program
         public double DownKBps, UpKBps;
     }
 
+    static bool noAttack;
+
     static string Arg(string[] a, string k, string d) { int i = Array.IndexOf(a, k); return i >= 0 && i + 1 < a.Length ? a[i + 1] : d; }
     static string F(double v, int d = 2) { return v.ToString("F" + d, CultureInfo.InvariantCulture); }
 
@@ -63,6 +68,8 @@ static class Program
         int simLat = int.Parse(Arg(args, "--sim-latency", "0")), simJit = int.Parse(Arg(args, "--sim-jitter", "0")), simLoss = int.Parse(Arg(args, "--sim-loss", "0"));
         string statsPath = Arg(args, "--stats", null);
         int[] mix = Arg(args, "--mix", "50:30:20").Split(':').Select(int.Parse).ToArray();
+        string hair = Arg(args, "--hair", "vary");
+        noAttack = Array.IndexOf(args, "--no-attack") >= 0;
         var rng = new Random(1234);
         var bots = new List<Bot>();
         var clock = Stopwatch.StartNew();
@@ -70,7 +77,7 @@ static class Program
         for (int i = 0; i < n; i++)
         {
             int roll = i % 100;
-            var b = new Bot { Index = i, Brain = roll < mix[0] ? Brain.Fighter : roll < mix[0] + mix[1] ? Brain.Wanderer : Brain.Idler };
+            var b = new Bot { Index = i, Hair = (byte)(hair == "vary" ? (i / 5) % 5 : int.Parse(hair)), Brain = roll < mix[0] ? Brain.Fighter : roll < mix[0] + mix[1] ? Brain.Wanderer : Brain.Idler };
             var listener = new EventBasedNetListener();
             listener.PeerConnectedEvent += peer =>
             {
@@ -177,7 +184,7 @@ static class Program
                     b.Move = d == 0 ? InputBits.Up : d == 1 ? InputBits.Down : d == 2 ? InputBits.Left : d == 3 ? InputBits.Right : (ushort)0;
                 }
                 bits = b.Move;
-                if (rng.NextDouble() < 0.03) bits |= InputBits.Attack;
+                if (!noAttack && rng.NextDouble() < 0.03) bits |= InputBits.Attack;
                 return bits;
             default:
                 if (!b.HasPos || b.Monsters.Count == 0)
@@ -193,7 +200,11 @@ static class Program
                 }
                 if (bd == float.MaxValue) return b.Move;
                 float tx = NetQuantize.Pos(best.X) - b.X, ty = NetQuantize.Pos(best.Y) - b.Y;
-                if (bd > 28f * 28f)
+                // Ranged classes (Wizard 1, Mechanic 2, Cleric 4: HeroClass = Index % 5) stop once the monster is inside their bolt range
+                // (55-70 units, ComboConfigs) and shoot from there; melee walks up to 28 units.
+                int cls = b.Index % 5;
+                float reach = cls == 1 || cls == 2 || cls == 4 ? 45f : 28f;
+                if (bd > reach * reach)
                 {
                     if (tx > 3f) bits |= InputBits.Right; else if (tx < -3f) bits |= InputBits.Left;
                     if (ty > 3f) bits |= InputBits.Up; else if (ty < -3f) bits |= InputBits.Down;
@@ -212,7 +223,11 @@ static class Program
         {
             case NetOp.Welcome:
                 WelcomeMsg wm;
-                if (NetMessageReader.TryWelcome(r, out wm)) { b.HeroId = wm.HeroNetId; b.Epoch = wm.Epoch; b.Joined = b.EverJoined = true; }
+                if (NetMessageReader.TryWelcome(r, out wm))
+                {
+                    b.HeroId = wm.HeroNetId; b.Epoch = wm.Epoch; b.Joined = b.EverJoined = true;
+                    if (b.Hair != 0) { NetMessageWriter.InvAction(b.W, new InvActionMsg { ReqId = 1, Op = InvOp.HairStyle, ItemUid = "", Slot = b.Hair }); b.Peer.Send(b.W, NetProtocol.ChannelReliable, DeliveryMethod.ReliableOrdered); }
+                }
                 break;
             case NetOp.ZoneChanged: // a wanderer walked through a portal: same rules as the game client, no fade to wait for
                 ZoneChangedMsg zc;

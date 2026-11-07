@@ -151,6 +151,7 @@ namespace ZenoniaProto
             PlayerState p = Player;
             if (hero == null || p == null || hero.View == null) return;
             hero.View.SetEquipmentGear(p.GetEquipped(Slots.Weapon), p.GetEquipped(Slots.Offhand));
+            ArmorLooks.FromWorn(hero.View, p);
             hero.View.SetPet(PetConfig.IdOf(p.GetEquipped(Slots.Pet)));
             hero.RefreshGearLabel();
         }
