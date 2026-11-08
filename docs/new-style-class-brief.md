@@ -41,7 +41,7 @@ Làm theo đúng cách đã chốt với Warrior. Người dùng duyệt ngày 2
 - Hết lượt vẽ thì dừng và báo rõ phần xong, phần chưa; phần chưa làm giữ bản cũ.
 - Python: `C:\Users\korri\AppData\Local\Temp\claude\D--zenoniaClone\fe6a3c77-b3df-4eba-936f-3b0510d923d2\scratchpad\venv\Scripts\python.exe`.
 - Tool chạy lại được: `Tools/build-<class>-new-style.py`; nguồn và bản sao lưu: `Assets/ArtLibrary/classes/<class>/new-style/`. Mẫu tham khảo: `Tools/build-warrior-move.py`, `Tools/build-warrior-attack.py`, `Tools/build-warrior-skill-poses.py`, `Tools/compose-hero-frame.py`.
-- Chỉ sửa file của class mình. Trong `HeroClassDef.cs` chỉ sửa dòng class mình (`HandAnims`, `MirrorLeft`, `BareAnims`), đọc và ghi ngay vì agent khác cũng sửa. Ghi lỗi mới vào "Sổ lỗi" của `docs/sprite-weapon-rules.md`: đọc lại ngay trước khi sửa, chỉ thêm dòng của mình.
+- Chỉ sửa file của class mình. Trong `HeroClassDef.cs` chỉ sửa dòng class mình (`HandAnims`, `MirrorLeft`, `BareAnims`), đọc và ghi ngay vì agent khác cũng sửa. Ghi lỗi mới vào "Sổ lỗi" của `docs/sprite-rules.md`: đọc lại ngay trước khi sửa, chỉ thêm dòng của mình.
 - Không commit, không build, không chạy Unity trên project này.
 
 ## Tự kiểm tra và báo cáo

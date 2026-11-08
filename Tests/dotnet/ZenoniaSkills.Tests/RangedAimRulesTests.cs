@@ -10,7 +10,7 @@ public class RangedAimRulesTests
         return new AimCandidate(x + 8f, y + 6f, x, y, x + 16f, y + 16f, id, dying);
     }
 
-    // Hero at (100, 100) facing right: the bolt leaves the muzzle 12 ahead and 4 up, like FireBolt.
+    // Hero at (100, 100) facing right: the bolt leaves the muzzle 12 ahead and 4 up, like FireBolt for every class but the Mechanic (RangedAimRules.BoltOrigin).
     const float Hx = 100f, Hy = 100f, Fx = 1f, Fy = 0f, Ox = 112f, Oy = 104f, Range = 120f;
 
     [Fact]

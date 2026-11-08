@@ -26,7 +26,10 @@ namespace ZenoniaProto
         readonly SpriteRenderer sr;
         readonly string root; // e.g. classes/warrior
         readonly Dictionary<string, HeadFrame[]> anchors = new Dictionary<string, HeadFrame[]>();
-        readonly Dictionary<string, Sprite[][]> headless = new Dictionary<string, Sprite[][]>();
+        readonly Dictionary<string, Sprite[][]> headless = new Dictionary<string, Sprite[][]>();       // the class's Lv1 body
+        readonly Dictionary<string, Sprite[][]> outfitHeadless = new Dictionary<string, Sprite[][]>(); // the worn armour outfit's (SetBodyFolder)
+        readonly string headlessFolder; // Sprites/... folder of the Lv1 headless sheets
+        string outfitFolder;            // Sprites/... folder of the outfit's headless sheets, null = none worn
         readonly Dictionary<string, Sprite> heads = new Dictionary<string, Sprite>(); // "style/dir" -> sprite, null = none painted
         int style;
 
@@ -43,6 +46,7 @@ namespace ZenoniaProto
         HeroHeadLayer(Transform parent, string classRoot, HeadFile file)
         {
             root = classRoot;
+            headlessFolder = "Sprites/" + classRoot + "/body/headless/";
             foreach (HeadAnim a in file.anims) if (a != null && a.frames != null) anchors[a.anim + "/" + a.dir] = a.frames;
             while (StyleCount < MaxStyles && HeadSprite(StyleCount, "down") != null) StyleCount++;
             sr = ProceduralSprites.Child(parent, "Head", null);
@@ -80,14 +84,15 @@ namespace ZenoniaProto
             return sp;
         }
 
-        Sprite[] HeadlessRow(string anim, int row)
+        Sprite[] HeadlessRow(string anim, int row, bool outfitBody)
         {
+            Dictionary<string, Sprite[][]> cache = outfitBody ? outfitHeadless : headless;
             Sprite[][] grid;
-            if (!headless.TryGetValue(anim, out grid))
+            if (!cache.TryGetValue(anim, out grid))
             {
-                string path = "Sprites/" + root + "/body/headless/" + anim;
+                string path = (outfitBody ? outfitFolder : headlessFolder) + anim;
                 grid = SpriteSheet.TryLoad(path) != null ? SpriteSheet.Grid(path, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, new Vector2(0.5f, 0f)) : null;
-                headless[anim] = grid;
+                cache[anim] = grid;
             }
             return SpriteSheet.Row(grid, row);
         }
@@ -95,13 +100,15 @@ namespace ZenoniaProto
         /// <summary>
         /// For a frame drawn with the Lv1 bare body: the headless body sprite to draw instead, and the head placed on top; null (head hidden) when the frame keeps the whole body.
         /// </summary>
-        public Sprite Apply(string anim, string dirName, int row, int frame, bool mirror, int bodyOrder, Color tint)
+        /// outfitBody: the frame draws the worn outfit's bare sheet (its headless sheet is used); false = the Lv1 bare sheet (rows an outfit has not painted keep the Lv1 headless body too).
+        public Sprite Apply(string anim, string dirName, int row, int frame, bool mirror, int bodyOrder, Color tint, bool outfitBody = false)
         {
             HeadFrame[] frames;
+            if (mirror && dirName == "left") dirName = "right"; // HeroClassDef.MirrorLeft (Mechanic attack3/4): the right frame mirrored, its head and anchors too
             Sprite head = HeadSprite(style, dirName);
             bool flipHead = false;
             if (head == null && dirName == "left") { head = HeadSprite(style, "right"); flipHead = head != null; } // left: the right head mirrored (anchors are registered against it)
-            Sprite[] bodyRow = head != null && anchors.TryGetValue(anim + "/" + dirName, out frames) && frame < frames.Length && frames[frame] != null ? HeadlessRow(anim, row) : null;
+            Sprite[] bodyRow = head != null && anchors.TryGetValue(anim + "/" + dirName, out frames) && frame < frames.Length && frames[frame] != null ? HeadlessRow(anim, row, outfitBody && outfitFolder != null) : null;
             if (bodyRow == null || frame >= bodyRow.Length || bodyRow[frame] == null) { Hide(); return null; }
             HeadFrame a = anchors[anim + "/" + dirName][frame];
             sr.sprite = head;
@@ -117,6 +124,16 @@ namespace ZenoniaProto
         }
 
         public void Hide() { sr.sprite = null; }
+
+        /// <summary>Body the head sits on: an armour outfit folder (e.g. classes/warrior/body/set-t1, painted in the Lv1 poses so the head anchors
+        /// are shared) or null for the class's Lv1 body. Outfit anims without a headless sheet keep the outfit's whole body.</summary>
+        public void SetBodyFolder(string outfitFolder)
+        {
+            string want = outfitFolder != null ? "Sprites/" + outfitFolder + "/headless/" : null;
+            if (want == this.outfitFolder) return;
+            this.outfitFolder = want;
+            outfitHeadless.Clear();
+        }
 
         /// <summary>H in the editor and development builds: next hairstyle for the local hero. Temporary test key, read like DevBuffKey.</summary>
         public static bool CycleKeyPressed()

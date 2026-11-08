@@ -202,6 +202,140 @@ Thử 8 kiểu mũ cùng màu (`docs/reference/warrior-helmet-styles-8.png`). Ng
 Chốt (07/11/2026): T0 Lv1 không mũ (bộ mặc định, tóc trần). T5 Lv60 mũ mới: vương miện gai sét vàng trên mũ thép xanh đậm (`docs/reference/warrior-sets-t0-t5-helmet-fix.png`, phương án C). Còn hỏi: vũ khí bậc nào đổi chủ đề vì trùng sét (bậc 0 kiếm/khiên iron có sét xanh và bậc 5 búa thunder).
 Kiếm, khiên bậc 0 (Lv1) đổi theo hình màn chọn nhân vật (07/11/2026): kiếm lưỡi thép vết nứt đỏ chuôi vàng, khiên sắt đen hoa văn bạc; bỏ chủ đề sét (chỉ còn ở bậc 5). ChatGPT chat "Generate Weapon Sheet"; nguồn `sword-src/mu-ref-v2/select-sword-pair-chatgpt.png`, `shield-src/mu-ref-v2/select-shield-pair-chatgpt.png`; glow kiếm bậc 0 đổi #ff6a4a, khiên #d9dde6. Ảnh trong game: `docs/reference/warrior-t0-weapons-from-hero-select-ingame.png`.
 
+**Thang 10 bậc leo dần (07/11/2026, chờ người thiết kế duyệt):** người thiết kế bác bảng cũ vì các bậc hoành tráng ngang nhau. Bảng mới `docs/reference/warrior-sets-10-tiers-ladder-design.png` (ChatGPT Tay, https://chatgpt.com/c/6aef1450-8dd0-83ec-9e25-69d4717bc5ad): không mũ, giáp + kiếm + khiên cùng leo; dáng/hoa văn/phát sáng theo thang 1→10.
+- T0 Lv1 Lữ khách sắt: da tối + sắt, cổ lông trắng, vai tròn nhỏ, áo choàng đỏ ngắn, không sáng. Kiếm/khiên màn chọn nhân vật.
+- T1 Lv20 Hiệp sĩ vàng-xanh: thép xanh viền vàng, vai to hơn chút, áo choàng xanh dài hơn, không sáng. Kiếm viền vàng-xanh đá xanh nhỏ; khiên men xanh viền vàng.
+- T2 Lv30 Hiệp sĩ đỏ thẫm: thép đỏ viền bạc, vai nhọn rộng hơn, ngực dày, áo choàng đỏ đầy hơn, không sáng. Kiếm thép đỏ to hơn, đá đỏ; khiên lớn hơn, nhọn hơn.
+- T3 Lv40 Phượng hoàng: thép rèn đen + đỏ vàng, vai rộng đầu lông vũ, áo choàng cam mép lông vũ, sáng cam nhẹ ở ngực/vũ khí. Kiếm chắn tay hình lửa, rãnh lửa; khiên góc cạnh hình phượng.
+- T4 Lv50 Băng: bạc + pha lê băng xanh, lông trắng trên vai, vai cao nhiều mũi pha lê, áo choàng xanh nhạt rộng dài, sáng lam nhẹ. Kiếm dài sống pha lê băng; khiên bạc viền pha lê, bông tuyết lớn.
+- T5 Lv60 Sấm: thép xanh hoàng gia mạ vàng dày, vai góc cạnh lớn hẳn, áo choàng chẻ đôi gần chạm đất, sáng xanh rõ + tia sét sát giáp. Kiếm rộng chắn tay răng cưa sét; khiên vàng-xanh nhiều mũi, sét nổi.
+- T6 Lv70 Cánh dơi đen vàng: kim loại đen + vàng cổ nhiều, vai cánh dơi, áo choàng đen lót vàng rất rộng, rãnh vàng phát sáng. Đại kiếm đen vàng chắn tay hình cánh, rune vàng; khiên đen cánh vàng chìa ra ngoài.
+- T7 Lv80 Đầu lâu tím: kim loại tím đen viền bạc, đá thạch anh tím, vai lưỡi hái cao, áo choàng tím nhiều đuôi răng cưa, sáng tím + khói tím quanh viền. Kiếm cong lớn lõi tím, rune; khiên đầu lâu bạc, cánh xương.
+- T8 Lv90 Thiên thần trắng vàng: hợp kim trắng + vàng, đá lam, vai cánh thiên thần nhiều lớp, áo choàng trắng đuôi lông vũ gần chạm đất, hào quang trắng vàng + đốm sáng. Kiếm trắng vàng chắn tay hình cánh; khiên rất lớn có cánh.
+- T9 Lv100 Hoàng đế rồng: vảy rồng đỏ thẫm + vàng hoàng gia, ruby, vai đầu rồng + cánh rồng to nhất, ngực rồng, găng vuốt rồng, áo choàng đỏ lót vàng rộng nhất, sáng đỏ vàng mạnh nhất + tàn lửa. Kiếm lớn nhất chắn tay đầu rồng, nhiều ruby, rãnh rực; khiên lớn nhất vảy rồng, đầu rồng, sừng vàng.
+
+**Thang 10 bậc Warrior v2 (07/11/2026 tối, chờ người thiết kế duyệt):** `docs/reference/warrior-sets-10-tiers-ladder-v2.png` (ChatGPT Tay, https://chatgpt.com/c/6aef481d-84f4-83ec-8a50-43f806dbf245). Theo tiêu chí mới: kiếm + khiên cùng chủ đề giáp; leo theo vật liệu, cỡ vai/áo choàng/kiếm/khiên, phát sáng; 10 tông chính khác nhau; giữ T9 rồng; mảng lớn, viền tối, không mũ, mặt Lv1.
+- T0 Lv1 Tân binh: nâu da + sắt xám chì, cổ lông trắng, áo choàng đỏ ngắn (điểm nhấn). Vai nhỏ, không sáng. Kiếm thép vết nứt đỏ chuôi vàng; khiên sắt đen chữ thập bạc.
+- T1 Lv20 Tiên phong sắt: xanh rừng đậm + sắt xám. Áo khoác xanh trùm giáp sắt, áo choàng xanh ngắn, vai tròn to hơn chút. Kiếm sắt dài hơn chút, chuôi quấn xanh; khiên sắt men xanh chữ thập bạc.
+- T2 Lv30 Hiệp sĩ đồng: đồng thau ấm + kem. Giáp thép viền đồng dày, vai nhiều lớp, áo choàng kem tới gối. Kiếm thép viền đồng to hơn; khiên đồng mặt trời trên men kem.
+- T3 Lv40 Hiệp sĩ thép hoàng gia: thép sáng + xanh hoàng gia. Vai bậc thang rộng, áo choàng xanh dài hơn. Kiếm thép sống xanh dài; khiên thép men xanh, vương miện vàng.
+- T4 Lv50 Lính gác bạc: bạc sáng + ngọc lam. Vai nhọn cao, áo choàng chẻ đôi tới bắp chân, sáng ngọc lam nhẹ ở ngực. Kiếm bạc lõi pha lê ngọc lam; khiên bạc viền ngọc lam, viên pha lê lớn.
+- T5 Lv60 Chiến tướng hắc diện: đen + vàng. Vai đen gai lớn viền vàng, áo choàng đen chẻ đôi, sáng vàng ấm ở ngực. Đại kiếm đen lưỡi vàng; khiên pháo đài đen đầu sư tử vàng.
+- T6 Lv70 Chúa tể mithril lục bảo: mithril trắng + lục bảo. Vai vương miện cao, áo choàng ba đuôi viền ngọc, sáng xanh lục vừa. Đại kiếm mithril sống pha lê lục bảo; khiên mithril viên lục bảo lớn.
+- T7 Lv80 Chúa rune thạch anh tím: tím + mận đậm + bạc xương. Vai pha lê nhọn, hai sừng cong sau vai, áo choàng tím rách đuôi, sáng tím mạnh. Kiếm pha lê tím, rune sáng; khiên tím đầu lâu bạc, gai thạch anh.
+- T8 Lv90 Thiên thần trưởng: bạch kim trắng + xanh trời. Vai lông vũ, đôi cánh trắng lớn, áo choàng trắng-xanh dài chạm đất, sáng trắng xanh. Đại kiếm bạch kim lõi xanh, chắn tay cánh; khiên trắng viền xanh, sao bốn cánh.
+- T9 Lv100 Hoàng đế rồng (giữ nguyên): đỏ thẫm + vàng. Vai đầu rồng vàng, cánh rồng đỏ lớn nhất, áo choàng đỏ viền vàng, sáng đỏ vàng mạnh nhất. Kiếm rồng đỏ lưỡi vàng lớn nhất; khiên đỏ đầu rồng vàng lớn nhất.
+Kiểm tra: 10 tông chính không trùng; chỉ T9 đỏ-vàng (T5 đen-vàng, T0 đỏ chỉ ở áo choàng). Còn lo: T4, T6, T8 cùng nền giáp trắng bạc, phân biệt bằng màu nhấn và hình bóng (T8 có cánh); T1 và T6 đều có xanh lá (T1 xanh rừng đậm, T6 chủ yếu trắng). Xem ở cỡ 85 px (`design-ladder-v2`, ảnh scratchpad): đọc rõ, leo rõ; trên nền tuyết T4, T6, T8 hơi nhạt.
+
+**Thang 10 bậc Wizard (07/11/2026, chờ người thiết kế duyệt):** `docs/reference/wizard-sets-10-tiers-ladder-design.png` (ChatGPT Tan Pham, https://chatgpt.com/c/6aef187a-df64-83ec-a57c-edf1df5f46ad). Không mũ trùm, tóc trắng tím; gậy tay phải, sách phép tay trái (sách nổi từ T6).
+- T0 Lv1 Học trò: vải xanh navy thô, áo khoác ngắn, thắt lưng da, không sáng. Gậy gỗ ngắn đá xanh thô; sách da nâu nhỏ.
+- T1 Lv20 Tập sự xanh: vải coban + mảng xanh ngọc, cổ tay da, viền đồng mảnh, không sáng. Gậy gỗ cao hơn, đá xanh mài, chấu đồng; sách xanh góc đồng, sao dập nổi.
+- T2 Lv30 Học viên bí thuật: vải xanh đậm + chàm nhiều lớp, đai da ngực, vai vải, áo chẻ tới gối, chỉ vàng, cúc ngọc bích, không sáng. Gậy đồng-gỗ chấu đối xứng; sách cỡ vừa góc vàng, khoá đá xanh.
+- T3 Lv40 Pháp sư ngọc bích: áo xanh hoàng gia, ngực da gia cố, vai đồng đánh bóng, áo choàng dài hơn, viền vàng, đá xanh sáng nhẹ. Gậy nẹp vàng đá ngọc bích lớn; sách xanh-vàng đá giữa sáng.
+- T4 Lv50 Chiến pháp sư rune: giáp ngực thép nhẹ, vai vàng góc cạnh, ủng giáp, áo chẻ dưới gối, rune khắc, vệt xanh nhạt. Gậy vàng-thép đá nổi giữa hai chấu trăng khuyết; sách bọc kim loại rune sáng.
+- T5 Lv60 Đại pháp sư hoàng gia: nhung xanh đêm, giáp ngực vàng-bạc, vai điêu khắc rộng, áo choàng hoàng gia nhiều lớp, hoa văn vàng dày, ngọc lớn, sáng xanh vừa. Gậy nghi lễ khung cánh vàng; sách dày bìa mạ vàng, ký hiệu bay trên trang.
+- T6 Lv70 Tinh tú: áo xanh + bạch kim, vai cao như cánh, đuôi áo rộng, áo choàng lót sao, đường may rune sáng, năng lượng chảy theo mép áo. Gậy bạch kim đá treo giữa lưỡi cong; sách nổi bìa bạch kim, mảnh rune bay quanh.
+- T7 Lv80 Thiên quân: giáp coban-bạc-vàng sáng, vai pha lê, áo choàng bầu trời sao lớn, cánh trang trí, lửa phép xanh. Gậy cánh nhiều mũi pha lê; sách to bìa cánh vàng, vòng ký hiệu trên trang.
+- T8 Lv90 Dệt sao vĩnh cửu: giáp ngọc bích + bạch kim trắng, vai pha lê nhiều lớp rất lớn, áo choàng lót xanh phát sáng, chòm sao sáng, năng lượng trắng xanh mạnh. Gậy rất lớn đá kim cương treo, lưỡi phân nhánh; sách cánh kim loại, ấn tròn phép thuật lớn bay sau sách.
+- T9 Lv100 Hoàng đế thiên giới: ngọc bích đêm + bạch kim + vàng + pha lê, vai cánh rồng lớn nhất, áo choàng như tinh vân, rune trắng xanh rực nhất. Gậy khổng lồ khung cánh rồng vàng, mảnh pha lê bay; sách cổ bay, hào quang tròn sau sách.
+Ghi chú khi xem: sách gần cùng cỡ ở mọi bậc (leo bằng chi tiết và phát sáng hơn là cỡ); sách T0 đã có góc vàng; cả 10 bậc cùng tông xanh-vàng.
+
+**Thang 10 bậc Mechanic (07/11/2026, chờ người thiết kế duyệt):** `docs/reference/mechanic-sets-10-tiers-ladder-design.png` (ChatGPT Tan Pham, https://chatgpt.com/c/6aef18fa-5db4-83ec-9c51-76178751dce0, bản 2). Tóc vàng dựng + kính đồng trên tóc, không mũ; 2 súng + pháo chéo sau lưng ở mọi bậc.
+- T0 Lv1 Thợ tập sự: áo vải nâu, gi-lê da cũ, khăn đỏ ngắn, tay trần, không sáng. 2 súng lục sắt-gỗ nhỏ; pháo ống sắt vụn mảnh, quai da.
+- T1 Lv20 Xạ thủ xưởng: da nâu sẫm, khoá đồng đỏ, khăn dài hơn, đệm vai nhỏ. 2 súng đồng đỏ nhỏ; pháo dày hơn, đai đồng, bu lông.
+- T2 Lv30 Xạ thủ sắt: da than, giáp ngực sắt, vai đồng thau, giáp gối, khăn đỏ thẫm. 2 súng sắt-đồng vòng kép; pháo sắt dài miệng vuông, khe tản nhiệt.
+- T3 Lv40 Tiên phong đồng thau: giáp ngực đồng thau, vai góc cạnh, áo chẻ đỏ ngắn, pin xanh nhỏ sáng nhẹ. 2 súng đồng thau to có buồng xanh; pháo đồng thau lớn, buồng xanh sáng.
+- T4 Lv50 Xạ thủ ê-te: giáp thép navy viền vàng, găng khớp, áo choàng nửa đỏ, đá xanh, sáng lam nhẹ. 2 súng vàng-thép dài lõi xanh; pháo dài cửa sổ xanh, miệng vàng.
+- T5 Lv60 Kỹ sư bão điện: giáp xanh hoàng gia + thép mạ vàng dày, vai lớn, áo choàng đỏ dài, mạch ngọc bích sáng vừa. 2 súng xanh-vàng nặng nòng sáng; pháo dày nhiều buồng năng lượng, cánh ổn định vàng.
+- T6 Lv70 Chỉ huy lò sét: titan đen + vàng + mảng xanh điện, vai nhọn quá cỡ, khung đỡ cơ khí sau lưng, áo choàng rộng, lõi xanh lớn. 2 súng đen-vàng lớn hoạ tiết sét; pháo khổng lồ lò phản ứng xanh, cánh vàng.
+- T7 Lv80 Chúa tể hư không: hợp kim tím đen viền bạc-vàng, lõi thạch anh tím, vai cánh cơ khí, áo choàng tím đỏ, mạch tím rực. 2 súng đen-tím buồng pha lê; pháo rất lớn vòng phản ứng tím.
+- T8 Lv90 Thợ máy thiên giới: giáp trắng-vàng + xanh trời, bạch kim, vai hình cánh rất lớn, áo choàng trắng-vàng lót đỏ, mạch trắng xanh mạnh. 2 súng trắng-vàng nòng pha lê, có cánh; pháo thiên giới cánh vàng, nhiều lò pha lê.
+- T9 Lv100 Lò rèn rồng vĩnh cửu: giáp đỏ nham thạch + vàng đế vương, vai đầu rồng, ngực vảy rồng, cấu trúc cánh rồng sau lưng, áo choàng đỏ vàng lớn nhất, ruby, sáng đỏ cam mạnh nhất. 2 súng đầu rồng khổng lồ lõi lửa; pháo hình rồng, hàm rồng quanh miệng nòng.
+
+**Thang 10 bậc Wizard v2 (07/11/2026 23:05, chờ người thiết kế duyệt):** `docs/reference/wizard-sets-10-tiers-ladder-v2.png` (ChatGPT Tay, https://chatgpt.com/c/6aef49e1-6c7c-83ec-866c-dbede52637e3). Tiêu chí mới: gậy tay phải + sách tay trái cùng chủ đề giáp; leo vải → da → giáp kim loại → kim loại quý + pha lê; 10 tông khác nhau; giữ T9 bảng cũ; không mũ.
+- T0 Lv1 Học trò: xanh mòng két sẫm + nâu da + đồng thau xỉn. Áo vải ngắn, không vai giáp, không sáng. Gậy gỗ ngắn đá xanh nhỏ; sách da nâu nhỏ.
+- T1 Lv20 Tập sự rêu: xanh rêu + da nâu nhạt + đồng đỏ. Áo dài tới đùi, đệm vai da tròn nhỏ. Gậy gỗ chấu lá đồng, đá xanh lá; sách da xanh rêu khoá lá đồng.
+- T2 Lv30 Giữ cổ ngữ: vàng mù tạt + nâu sẫm + đồng thau. Áo xẻ tới gối, vai giáp góc cạnh đầu tiên. Gậy đai đồng thau, đá hổ phách; sách vàng ốc góc đồng thau.
+- T3 Lv40 Pháp sư tro lửa: xám than + cam cháy + sắt đen. Áo quá gối, vai sắt rộng, áo choàng ngắn, sáng nhẹ 1/9. Gậy sắt đen đầu ba chấu lửa, đá cam; sách than mảng cam.
+- T4 Lv50 Thạch anh tím: tím đậm + bạc sáng. Áo tới bắp chân, vai bạc vươn cao, đuôi áo choàng đôi, sáng 2/9. Gậy bạc hai vòng trăng khuyết ôm đá tím; sách tím viền bạc.
+- T5 Lv60 Đại pháp sư hắc diện: đen hắc diện + vàng rực + hổ phách. Áo choàng chấm đất, vai vàng vuốt cao, sáng 3/9. Gậy đen-vàng đầu mũi giáo; sách đen huy hiệu vàng, trang sáng hổ phách.
+- T6 Lv70 Thuỷ triều: xanh ngọc lam + bạc + xanh dầu. Áo 4 đuôi, vai bạc như cánh, sáng 5/9. Gậy bạc cao đầu hai cánh, pha lê ngọc lam lớn; sách ngọc lam-bạc, pha lê nổi.
+- T7 Lv80 Quân vương đỏ: đỏ tươi + thép đen (viền) + vàng (mép). Giáp, áo đỏ, vai vây nhọn rất lớn, áo choàng rộng, sáng 6/9. Gậy đỏ móng rồng, đá đỏ; sách đỏ, huy hiệu đỏ nổi.
+- T8 Lv90 Quốc vương tinh tú hồng: hồng cánh sen + bạch kim + pha lê hồng. Áo choàng 6 đuôi, vai cánh bạch kim cao vút, sáng 8/9, dải năng lượng. Gậy bạch kim cánh hồng, kim cương hồng; sách khổng lồ, vòng phép hồng.
+- T9 Lv100 Hoàng đế thiên giới (giữ nguyên bảng cũ): trắng + xanh băng + vàng. Vai vàng-trắng khổng lồ, áo choàng rộng nhất, sáng 9/9. Gậy khung cánh rồng vàng, pha lê xanh lớn; sách trắng-xanh-vàng, vòng phép cyan.
+
+Kiểm tra (đã xem ảnh): 10 tông khác nhau sau khi sửa T7; T9 trùng mẫu giữ lại. Còn lo: T0-T3 nhỏ, đơn giản, gần nhau về cỡ (đúng ý "tân binh"); T6 xanh ngọc và T0 xanh mòng két cùng họ xanh nhưng khác hẳn độ sáng.
+
+**Thang 10 bậc Mechanic v2 (07/11/2026 23:05, chờ người thiết kế duyệt):** `docs/reference/mechanic-sets-10-tiers-ladder-v2.png` (ChatGPT Tay, https://chatgpt.com/c/6aef4a26-1850-83ec-b0f2-9d1217ee2689). 2 súng + pháo chéo sau lưng cùng chủ đề giáp ở mọi bậc; leo vải, phế liệu → da, sắt → thép mạ → hợp kim quý + pha lê năng lượng; tóc vàng + kính trên tóc, không mũ.
+- T0 Lv1 Tay súng tân binh: da nâu + khăn đỏ + sắt xỉn. Áo gi-lê da, vai phẳng, không sáng. 2 súng sắt nhỏ; pháo ống sắt vụn ngắn.
+- T1 Lv20 Trinh sát biên giới: xanh ô liu + kaki + đồng đỏ. Áo vải bạt, vai đồng tròn nhỏ, còn khăn đỏ. 2 súng ổ quay đồng đỏ; pháo nòng viền đồng dài hơn.
+- T2 Lv30 Tiên phong sắt: xám thép súng + cam gỉ. Giáp sắt tán đinh, áo xẻ tới gối, vai góc cạnh. 2 súng thép công nghiệp tấm chắn cam; pháo ống sắt dày đai cam.
+- T3 Lv40 Chỉ huy đồng thau: xanh navy + đồng thau bóng + ngà. Áo sĩ quan dài, vai bậc thang, khung lưng nâng, sáng hổ phách nhẹ. 2 súng navy-đồng nòng dài; pháo đồng thau miệng loe.
+- T4 Lv50 Lính gác chrome: xanh ngọc bích + chrome bạc. Áo tới bắp chân, vai chrome nhọn cao, sáng xanh bạc hà thấp. 2 súng năng lượng chrome-ngọc; pháo gia tốc chrome miệng lục giác, 2 vây.
+- T5 Lv60 Phá huỷ nguy hiểm: vàng cảnh báo + đen mờ + thép. Giáp đen mảng vàng, vai công nghiệp to, khung lưng đôi, sáng vàng vừa. 2 súng phá huỷ quá cỡ; pháo phóng đen vạch cảnh báo.
+- T6 Lv70 Chúa thép điện: bạc chrome + xanh điện + xanh nửa đêm. Áo đốt kim loại dài, vai vuốt lên, khung pha lê 2 vây, sáng xanh mạnh. 2 súng gia tốc bạc buồng pha lê; pháo ray bạc khổng lồ.
+- T7 Lv80 Đao phủ hư không: tím hoàng gia + đen hắc diện + bạc. Áo choàng răng cưa, vai lưỡi dao, khung cánh, sáng tím mạnh hơn. 2 súng tay hắc diện móng bạc; pháo huỷ diệt đen-tím vây trăng khuyết.
+- T8 Lv90 Quốc vương thiên giới: trắng ngọc trai + vàng rực + xanh trời. Áo choàng chấm đất, vai cánh trắng-vàng rất lớn, khung cánh, sáng rất mạnh. 2 súng trắng-vàng ốp cánh; pháo gia tốc trắng-vàng lõi xanh.
+- T9 Lv100 Lò rèn rồng đế vương: đỏ nham thạch + vàng đế vương + đen núi lửa. Áo choàng lửa rộng nhất, vai đầu rồng, khung cánh rồng, sáng tối đa. 2 súng đầu rồng đỏ-vàng; pháo rồng dài nhất, miệng rồng rực lửa.
+
+Kiểm tra (đã xem ảnh): 10 tông khác nhau sau khi vẽ lại T2, T3, T4; leo rõ cỡ pháo, vai, khung lưng. Còn lo: T0 và T1 cùng khăn đỏ, khác nhau chủ yếu ở màu áo (nâu / ô liu); T5 vàng-đen và T9 đỏ-vàng đều có vàng nhưng khác màu chủ đạo.
+
+**Thang 10 bậc v3 (07/11/2026 23:30, theo mẫu Wizard duyệt, chờ người thiết kế duyệt):** T0 của cả 3 class = hình màn chọn nhân vật vẽ theo nét chibi của bảng. Không mũ (Mechanic giữ kính). Ảnh `docs/reference/<class>-sets-10-tiers-ladder-v3.png`.
+
+Mechanic v3 (https://chatgpt.com/c/6aef4e2d-d8d0-83ec-9d7c-415462dd578e), 2 súng + pháo chéo sau lưng cùng chủ đề, không rồng:
+- T0 Lv1 Tay súng tân binh (= màn chọn): da nâu + đồng thau + đỏ (khăn, áo choàng ngắn). 2 súng đồng thau kính xanh; pháo đồng thau kính xanh. Không sáng.
+- T1 Lv20 Trinh sát biên giới: ô liu + kaki + đồng đỏ, không đỏ. Áo bạt ô liu, vai đồng tròn nhỏ, khăn và áo choàng ô liu. 2 súng ổ quay đồng đỏ; pháo ô liu đai đồng dài hơn.
+- T2 Lv30 Kỵ sĩ sắt: xám thép súng + cam gỉ. Áo da xám, vai sắt to, áo choàng xám chẻ. 2 súng xám buồng cam; pháo sắt miệng cam.
+- T3 Lv40 Pháo thủ hoàng gia: xanh navy + đồng thau bóng + ngà. Áo sĩ quan, vai đồng thau, áo choàng navy viền đồng. 2 súng navy-đồng; pháo đồng thau lớn.
+- T4 Lv50 Tiên phong ngọc: xanh ngọc + chrome bạc + lục bảo. Giáp ngực ngọc, vai chrome, áo choàng ngọc chẻ. 2 súng buồng lục bảo; pháo chrome lõi lục bảo. Sáng nhẹ ở kính.
+- T5 Lv60 Chỉ huy nguy hiểm: đen + vàng cảnh báo + hổ phách. Giáp đen dày, vai vàng góc cạnh, áo choàng sọc đen vàng. 2 súng quá cỡ trụ hổ phách; pháo công nghiệp vòng vàng. Sáng thấp.
+- T6 Lv70 Thống chế thép băng: xanh băng + bạc sáng. Giáp bạc, vai cánh xanh băng, áo choàng xanh băng (không trắng). 2 súng bạc-xanh buồng băng; pháo bạc nòng pha lê xanh. Sáng vừa.
+- T7 Lv80 Chúa tể đỏ thẫm: đỏ máu + đen + bạc thép, không vàng, không tím. Vai gai đen-bạc, áo choàng đỏ đen rách. 2 súng đỏ đen; pháo đen lò đỏ. Sáng đỏ mạnh.
+- T8 Lv90 Xạ thủ thiên giới: trắng ngọc trai + vàng rực + xanh trời. Vai lông vũ vàng, áo choàng trắng viền vàng nhiều lớp. 2 súng trắng-vàng nòng xanh; pháo vàng khổng lồ cánh ổn định. Sáng rất mạnh.
+- T9 Lv100 Titan lượng tử: bạch kim chrome + hồng tím plasma + đen. Lõi phản ứng ở ngực, vai mech khổng lồ, khung lưng tấm năng lượng xoè như cánh, vòng hào quang trên đầu, áo choàng đen dài viền sáng. 2 súng plasma bạch kim; pháo ray plasma lớn nhất, miệng vòng. Sáng tối đa.
+Kiểm tra (đã xem ảnh, cả cỡ khoảng 85 px): 10 tông khác nhau, không rồng, T0 giống màn chọn. Còn lo: T0-T5 dáng người gần cùng cỡ, leo chủ yếu ở pháo và vai; T9 to hơn hẳn T9 của Wizard/Warrior.
+
+Warrior v3 (https://chatgpt.com/c/6aef4e81-b2a8-83ec-9e8c-f02004976aa6), kiếm tay phải + khiên tay trái cùng chủ đề:
+- T0 Lv1 Lữ khách sắt (= màn chọn): sắt đen + đỏ. Giáp sắt đen, cổ lông trắng, khăn đỏ, áo choàng đỏ rách. Kiếm thép vết nứt đỏ chuôi vàng; khiên sắt đen chữ thập bạc. Không sáng.
+- T1 Lv20 Hộ vệ rừng: xanh rừng + xám sắt + đồng. Áo xanh, vai sắt đơn giản, áo choàng xanh ngắn. Kiếm thép chắn xanh; khiên xanh chữ thập bạc.
+- T2 Lv30 Hiệp sĩ đồng: đồng + nâu hổ phách. Giáp đồng, áo dài da nâu, áo choàng hổ phách. Kiếm thép chuôi đồng; khiên đồng mặt trời.
+- T3 Lv40 Hiệp sĩ xanh hoàng gia: xanh hoàng gia + bạc + vàng xỉn. Vai góc cạnh, áo choàng xanh chẻ. Kiếm sống xanh; khiên xanh vương miện vàng.
+- T4 Lv50 Lính gác băng: xanh băng + ngọc lam + thép tối. Vai hình băng, áo choàng ngọc lam. Kiếm ngọc lam mặt băng; khiên ngọc lam viên kim cương xanh. Sáng 1/5.
+- T5 Lv60 Vua sư tử hắc diện: đen + vàng cổ + hổ phách. Vai to viền vàng, áo choàng đen. Đại kiếm đen lưỡi vàng; khiên đen đầu sư tử vàng. Sáng 2/5.
+- T6 Lv70 Hộ vệ phượng lửa: cam lửa + đen than + viền đồng nhỏ. Vai hình ngọn lửa, áo choàng than mép lông vũ cam. Kiếm lưỡi lửa cam; khiên phượng hoàng. Sáng 3/5 lửa cam.
+- T7 Lv80 Hiệp sĩ đầu lâu tím: tím + mận + bạc xương. Sừng cong sau vai, áo choàng tím rách. Đại kiếm pha lê tím; khiên tháp tím đầu lâu. Sáng 3,5/5.
+- T8 Lv90 Thiên thần: trắng + xanh ngọc bích + vàng (bậc trắng duy nhất). Đôi cánh lông trắng lớn, áo choàng trắng dài. Kiếm bạc lõi xanh chắn sao vàng; khiên trắng-xanh sao tám cánh. Sáng 4/5.
+- T9 Lv100 Hoàng đế rồng đỏ (giữ): đỏ thẫm + vàng + đỏ mận. Vai đầu rồng vàng, cánh rồng đỏ lớn nhất, áo choàng đỏ nhiều lớp. Đại kiếm rồng; khiên mặt rồng vàng lớn nhất. Sáng 5/5.
+Kiểm tra (đã xem ảnh, cả cỡ khoảng 85 px): 10 tông khác nhau, chỉ T8 trắng, chỉ T9 đỏ-vàng (T0 đỏ ở vải, giáp sắt đen). Còn lo: khiên T0 là chữ thập bạc, không đúng hoa văn của màn chọn; T5 đen-vàng và T6 cam-đen đứng cạnh nhau cùng tông ấm.
+
+Wizard v3: bảng duyệt giữ nguyên T1-T9; T0 mới theo màn chọn: áo dài xanh mòng két sẫm viền vàng, khoá trăng khuyết vàng, đai da nâu khoá vàng, quần tối, ủng nâu, đầu trần tóc trắng tím (bỏ mũ trùm), gậy vàng chấu trăng khuyết đá xanh lớn, sách xanh viền vàng, không quầng lửa. Còn lo: gậy T0 (vàng, đá to) xịn hơn gậy gỗ T1 vì lấy đúng gậy của màn chọn.
+
+Assassin v3 (08/11/2026, chờ người thiết kế duyệt, chỉ design; https://chatgpt.com/c/6aefbe20-a10c-83ec-9553-97fd876f8fa7), nữ ninja mọi bậc giữ đuôi ngựa tím, băng đô đỏ, khăn che mặt đen, mắt đỏ, không mũ; 2 dao (tay phải chính, tay trái phụ) cùng chủ đề; chỉ T9 có hình trăng khuyết. Ảnh `docs/reference/assassin-sets-10-tiers-ladder-v3.png`:
+- T0 Môn đồ bóng tối (= màn chọn): đen + mận sẫm + khăn đỏ, viền đồng. Da đen, giáp mận gọn. 2 dao cong lửa tím. Lửa tím chỉ ở lưỡi.
+- T1 Nanh đồng: nâu đồng + da sẫm + hổ phách. Giáp đồng gò, vai rộng hơn chút. 2 dao nanh hổ đồng. Gần như không sáng.
+- T2 Rắn thép: xám thép súng lạnh + đen + vàng độc. Vai thép góc cạnh, giáp hông dài. 2 dao móc đầu rắn, viền vàng độc. Sáng nhẹ ở mép.
+- T3 Bóng ngọc: xanh ngọc bích + than + bạc. Giáp sơn mài ngọc, vai nhọn, 2 dải thắt lưng xanh. 2 dao lá ngọc. Vệt xanh nhẹ.
+- T4 Bão lam: xanh hoàng gia + bạc + xanh điện. Vai bão góc cạnh, áo choàng chẻ mép răng cưa. 2 dao kris lượn sóng xanh. Sét xanh điện nhỏ.
+- T5 Thần chết than hồng: cam lửa + đen than + vàng nóng chảy. Vai lớn góc cạnh, áo choàng cam đen răng cưa. 2 dao hắc diện mép nóng chảy. Lửa cam ngắn.
+- T6 Bóng ngà: ngà xương (mảng chính) + sơn mài đen + vàng chanh. Vai lưỡi ngà lớn, áo choàng ngà dài. 2 dao xương ngà lõi vàng chanh. Lõi pha lê vàng chanh.
+- T7 Huyết nguyệt: đỏ tươi + thép đen + bạc xương, không vàng. Gai vai rất lớn, áo choàng đỏ đen rách. 2 dao răng cưa đỏ. Hào quang đỏ máu.
+- T8 Nhật thực tử tinh: tím thạch anh + bạc ngọc trai + oải hương. Giáp pha lê tím, vai khổng lồ, cánh hông pha lê, áo choàng nhiều tấm. 2 dao gai pha lê tím. Vòng sáng oải hương.
+- T9 Nữ hoàng trăng hư không: xanh mòng két sâu + hắc diện đen, trắng trăng chỉ ở mép lưỡi và vầng trăng vỡ. Vai trăng khuyết khổng lồ, áo choàng như 2 cánh trăng đen, vầng nhật thực sau đầu. 2 dao trăng khuyết hắc diện to nhất. Sáng mạnh nhất.
+Kiểm tra (đã xem ảnh, cả cỡ khoảng 85 px): 10 tông chính khác nhau (đen, nâu đồng, xám thép, ngọc, xanh hoàng gia, cam, ngà, đỏ, tím, mòng két), không rồng, không trắng-xanh băng-vàng, không hồng tím; leo rõ ở vai, áo choàng, cỡ dao, hào quang. Bản 1 T2 ra nâu như T1, T6 ra đen vàng như T0: bản 2 sửa (các bậc khác giữ gần như nguyên). Còn lo: T6 còn vài chi tiết vàng nhỏ; T0 có giáp mận hơi đỏ, cạnh T1 nâu đồng hơi gần ở cỡ nhỏ; mặt bị khăn che nên chỉ nhận nữ qua tóc, mắt, dáng.
+
+Cleric v3 (08/11/2026, chờ người thiết kế duyệt, chỉ design; https://chatgpt.com/c/6aefbead-8060-83ec-ada1-c34ae9e927e1), nữ, tóc vàng ngang vai, mắt xanh lá, đầu trần (không mũ, không trâm), váy ngắn trên gối mọi bậc; gậy tay phải + khiên hình tim tay trái cùng chủ đề; nền `#FF00FF` vì T9 xanh lá. Ảnh `docs/reference/cleric-sets-10-tiers-ladder-v3.png`.
+- T0 Lv1 Tập sự thánh (= màn chọn, bỏ mũ): trắng + vàng + xanh trời. Váy trắng ngắn viền vàng, đuôi áo choàng trắng-vàng. Gậy gỗ đầu vòng vàng đá xanh; khiên tim trắng viền vàng chữ thập xanh. Sáng rất nhẹ.
+- T1 Lv20 Hành hương đồng thau: nâu sồi + kem + đồng thau. Áo da nâu, vai đồng thau tròn to hơn T0, váy kem nhiều lớp. Gậy sồi đầu lá đồng thau đá hổ phách; khiên tim đồng thau lá kem. Sáng hổ phách nhẹ.
+- T2 Lv30 Hộ vệ đền: xanh navy + bạc bóng. Giáp ngực bạc, vai bạc rộng hơn, áo choàng navy chẻ. Gậy bạc hai chấu ôm đá xanh sapphire; khiên tim navy chữ thập bạc.
+- T3 Lv40 Nữ tư tế thuỷ triều: xanh mòng két + đồng đỏ. Giáp ngực đồng đỏ, vai nhọn, áo choàng mòng két. Gậy đồng đầu sóng trăng khuyết đá ngọc lam; khiên tim mòng két hoa văn sóng/lá.
+- T4 Lv50 Thập tự quân đỏ: đỏ thẫm + thép xám đen. Vai thép góc cạnh, áo choàng đỏ rộng. Gậy thép cánh giáo đá đỏ; khiên tim thép mặt đỏ chữ thập bạc. Sáng đỏ vừa.
+- T5 Lv60 Hiệp sĩ nhật thực hắc diện: đen bóng (mảng chính) + vàng cổ (chỉ viền). Vai đen lớn, áo choàng đen lót vàng. Gậy đen vòng nhật thực vàng đá hổ phách; khiên tim đen đĩa mặt trời vàng.
+- T6 Lv70 Sứ giả bình minh: cam mặt trời (giáp men) + ngà. Vai tia nắng, váy ngà. Gậy ngà-đồng đỉnh mặt trời 8 cánh đá cam; khiên tim cam mặt trời trắng. Sáng cam-vàng mạnh hơn.
+- T7 Lv80 Thánh nữ trăng chạng vạng: tím thạch anh + bạc trăng (không hồng, không navy). Vai trăng khuyết bạc cao, áo choàng tím đuôi trăng. Gậy bạc hai trăng khuyết đá tím; khiên tim tím trăng khuyết bạc lớn. Sáng tím.
+- T8 Lv90 Thiên thần hồng ngọc: bạch kim + đỏ hồng ngọc. Vai cánh thiên thần bạch kim rất lớn, áo choàng bạch kim chẻ. Gậy bạch kim cánh bạc, hồng ngọc khổng lồ; khiên tim bạch kim viền cánh, hồng ngọc giữa. Sáng đỏ mạnh.
+- T9 Lv100 Nữ thần Cây Thế Giới: lục bảo + vàng rực. Vai lá vàng-lục bảo, váy giáp lá nhiều lớp, đôi cánh lá xanh-vàng lớn sau lưng, áo choàng xanh rừng. Gậy thân cây vàng cành lá lục bảo ôm pha lê ngọc bích, dài nhất; khiên tim lục bảo viền cành lá vàng, tim ngọc bích, to nhất. Sáng xanh-vàng mạnh nhất.
+Kiểm tra (đã xem ảnh, cả cỡ khoảng 85 px): nữ, đầu trần, tóc vàng, mặt nhìn thẳng ở cả 10 bậc; gậy + khiên ở mọi bậc; 10 tông chính khác nhau (trắng, nâu, navy, mòng két, đỏ, đen, cam, tím, bạch kim, lục bảo); T9 không trùng Warrior (đỏ-vàng rồng), Wizard (trắng-xanh băng-vàng), Mechanic (hồng tím). Bản 1: T5 vàng nhiều hơn đen, T6 vàng giống T5; bản 2 sửa (các bậc khác giữ gần như y nguyên). Còn lo: T1-T6 dáng người gần cùng cỡ, leo chủ yếu ở đầu gậy, vai, phát sáng; T0 đã khá xịn nên T1 chỉ hơn chút; T7 tím đứng trên nền hồng tím hơi khó tách (viền tối giữ được); T3 mòng két và T9 lục bảo cùng họ xanh nhưng khác hẳn độ sáng và vàng.
+
 Phím H đổi màu tóc (thử, 07/11/2026): `HairColors.cs` + `Resources/Shaders/SpriteHairRecolor.shader`, ảnh vùng tóc `body/hair-mask`, `body/set-t*/hair-mask` (`Tools/build-warrior-hair-masks.py`). Chỉ đổi trên máy mình, không lưu, không gửi online; 8 màu như bản xem trước. Lỗi biết: Lv1 mắt đổi theo tóc; T2 chùm lông đỏ trên mũ bị đổi theo tóc và còn vệt đỏ ở mép tóc mái. Ảnh: `docs/reference/warrior-hair-colour-test-ingame.png`.
 Dáng đứng nhìn xuống của T1, T2 lệch bản Lv1: Lv1 hơi xoay người (nắm tay trái thấp ngang hông, phải cao ngang ngực, áo choàng xoè rộng); ChatGPT vẽ đứng thẳng đối xứng. Cần vẽ lại.
 
@@ -240,3 +374,16 @@ Giới hạn: chỉ idle hướng xuống thân Lv1, hướng/động tác khác
 **Kiểu tóc idle + walk 4 hướng (07/11/2026 chiều):** Warrior, Mechanic, Assassin, Cleric đủ 5 kiểu ở idle và walk 4 hướng; ChatGPT vẽ mỗi class 1 ảnh nhìn ngang + 1 ảnh nhìn lưng (5 đầu, đầu đầu là bản sao kiểu 0), tool khớp tỉ lệ theo bản sao, hướng ngang khớp theo mặt rồi ghép lại mặt kiểu 0, hướng lưng giữ hàng trong ảnh. Tổng 8 lượt vẽ, không phải vẽ lại. Wizard chưa làm (mũ trùm). Chi tiết: `docs/pending-tasks.md`.
 
 Kế hoạch (người dùng, 07/11/2026): làm xong hệ đầu/kiểu tóc và trang phục cho Warrior rồi làm tiếp các class khác. Cleric và Assassin là nhân vật nữ.
+
+### Mũ không đổi ngoại hình: hỏi ChatGPT (08/11/2026)
+
+Hỏi chat đánh giá (Tay, https://chatgpt.com/c/6aedf84c-b1d0-83ec-9c96-1e0992c046d5) kèm ảnh đám đông kiểu tóc và thang 10 bộ Warrior/Wizard v3. Nguyên văn: `docs/reference/helmet-slot-question-chatgpt-answer.txt`.
+- Nhận xét thẳng: giữ ô tên "Mũ", icon mũ mà mặc vào không đổi gì là UX chưa tốt, người chơi dễ tưởng lỗi. Vấn đề là cái tên, không phải game thiếu mũ.
+- Game khác (có nguồn): MapleStory có tóc bị ép khi đội mũ, mũ chia lớp trước/sau tóc; FFXIV, Lost Ark, Black Desert Mobile có hình mũ rồi cho ẩn; Terraria cho tắt hiển thị phụ kiện; Genshin không có ô mũ, Artifact chỉ có chỉ số. Ragnarok: chưa xác minh luật che tóc.
+- Chấm điểm: A đổi ô Mũ thành Bùa hộ mệnh (Talisman), giữ chỉ số, không hiện trên người 9,5/10 (chỉ cần khoảng 50 icon mới); D bỏ ô mũ 7/10 (rẻ nhưng phải dời chỉ số); B phụ kiện đầu nhỏ 6,5/10 (200 hình + kiểm 1.000 tổ hợp tóc × hướng, ở 85 px chỉ còn vài pixel); C mũ đầy đủ + nút ẩn 3/10 (tóc ép, lớp trước/sau, quay lưng, mọi animation; phản đối mạnh nhất).
+- Khuyến nghị: A. Đổi cả icon (đừng giữ icon mũ), tên riêng theo chủ đề (vd Dragon King's Sigil). Tooltip ghi "Không thay đổi ngoại hình", áp dụng giống cho găng, giày. Không cần nút ẩn mũ.
+- Lưu ý: nếu icon mũ đã vẽ (agent icon đang vẽ "helmet icons") thì đổi sang bùa phải vẽ lại 50 icon tĩnh, vẫn rẻ hơn nhiều so với vẽ mũ. Chưa chốt: người làm game chưa quyết.
+
+### Chốt: ô Mũ thành Dây chuyền (08/11/2026)
+
+Người dùng chốt 08/11: ô Mũ đổi thành Dây chuyền, chỉ chỉ số, bỏ thiết kế mũ khỏi vật phẩm. Dây chuyền dùng chung cho mọi class (một bộ 10 icon). Đã làm (chưa commit): chi tiết ở `docs/pending-tasks.md` mục "Ô Mũ đổi thành Dây chuyền".

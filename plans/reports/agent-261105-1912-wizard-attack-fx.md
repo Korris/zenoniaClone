@@ -22,7 +22,7 @@ Ngày 2026-11-05. Chưa build, chưa xem trong game. Không commit.
 - Thêm `Tools/build-wizard-attack-fx.py` (`cut`, `preview`) + `Tools/wizard_attack_fx_common.py` (key xanh theo bão hoà, chia ô theo chỉ số ô, tô đặc vùng bị bao quanh, viền tím, xoay lõi đĩa, resize premultiplied, nhân bản `.meta` với guid mới).
 - Thêm `Assets/Resources/Sprites/classes/wizard/fx/attack-v2/` 12 PNG + `.meta` (import giống `fx/attack/`: không nén, 4096, guid mới, không trùng) + `attack-v2.meta`; `Assets/Resources/Data/classes/wizard/vfx-attack-v2.json` + `.meta`.
 - Sửa `Assets/Scripts/VfxSprites.cs`: `IdFor(Arcane)` → `"wizard-v2"`, `Preload(Wizard)` → `Get("wizard-v2")`, comment. Chỉ Wizard đổi. Quay lại bản cũ: đổi hai chữ về `"wizard"`.
-- Docs: 5 dòng Sổ lỗi trong `docs/sprite-weapon-rules.md`; 1 dòng trong `docs/pending-tasks.md` mục "Xem trong game, chưa ai xem".
+- Docs: 5 dòng Sổ lỗi trong `docs/sprite-rules.md`; 1 dòng trong `docs/pending-tasks.md` mục "Xem trong game, chưa ai xem".
 
 ## Xử lý art (ghi trong Sổ lỗi)
 

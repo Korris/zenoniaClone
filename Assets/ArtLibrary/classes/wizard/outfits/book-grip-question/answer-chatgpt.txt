@@ -1,0 +1,64 @@
+ChatGPT (Tay, "Tan Korris") 2026-11-08, chat https://chatgpt.com/c/6aef71bc-c014-83ec-b11d-b31bc3c216e8
+Question: Wizard book in off hand grows 0.25 -> 0.41 H (T0 -> T9), fist no longer reads as holding it. Uploaded:
+tiers-t0-t3-t5-t7-t9-hand-book-crops.png, design-vs-ingame-t5-t9.png, t9-full-frame-3x.png
+
+=== Answer 1 (text) ===
+My recommendation: (b) + (a), with a small adjustment to the pose
+
+Keep the large books (0.25-0.41x hero height). Replace the closed left fist with an open, upturned palm supporting the book from underneath. Anchor the book at its bottom edge, and draw only the thumb and fingertips in front.
+Your design sheet already demonstrates that this works. The problem is primarily the hand pose and attachment point, not the book size.
+
+Ranked solutions
+1 - Best  (b) Open palm + (a) bottom-edge anchor: matches approved art, preserves book size, works across animations
+2  (e) Grip the book's lower edge: strong physical contact; more difficult to draw across four directions
+3  (d) Magical floating book: excellent for T7-T9; avoids grip problems but changes the original design
+4  (c) Book against chest: convincing support, but covers increasingly elaborate chest armour
+5  (g) Change the arm pose: useful as a minor adjustment, not a complete redesign
+6  (f) Cap book growth: easiest technically, but conflicts with designer's requirement
+7  (a) Bottom-edge anchor alone: improves positioning but doesn't fix the closed-fist silhouette
+
+1. Exactly what to change
+Body art (T0-T9)
+- Keep the right staff hand unchanged.
+- Repaint the left forearm slightly forward, elbow bent, with the palm facing upward.
+- Replace the closed fist with a shallow, cupped palm.
+- Make the forearm visibly connect to the underside of the book.
+- Use the same basic hand pose across tiers; adjust the arm position slightly for larger books.
+- Important: the hand should be beneath the book's inner/lower corner, not centred on its decorative front cover.
+
+Book art and pivot
+- Keep the full book silhouette and approved tier-specific artwork.
+- Set the pivot at the bottom inside edge near the spine, where the palm supports its weight.
+- For T7-T9, move the contact point slightly outward if necessary to balance the wider book.
+- Don't use the book's geometric centre as the attachment point.
+- Give each directional book sprite its own pivot/contact offset.
+- At 85 px hero height the books are ~21-35 px; even a 2-3 px grip misalignment becomes obvious.
+
+Layer order - facing down (back to front)
+1 Body + forearm + open palm
+2 Complete book overlay
+3 Small thumb/fingertip overlay (only 2-4 meaningful pixels at game resolution: thumb crossing the lower rim, maybe one fingertip; don't paste the whole fist over the cover)
+4 Optional magic glow above pages
+For back/side directions change sorting and hand visibility as appropriate; don't force the front-facing arrangement onto every direction.
+
+2. Four-frame breathing idle
+The book follows the supporting hand exactly, no independent bobbing. Anchor on the palm's support point every frame.
+Frame 1 neutral (0,0); 2 slight inhale (0,-1 px); 3 max inhale (0,-1 px); 4 exhale (0,0) - examples, adjust to the actual painted hand positions.
+Rules: book, palm and thumb move together (relative attachment never changes); if breathing shifts the arm sideways, reproduce it in the anchor; integer-pixel offsets at render resolution, point filtering, no subpixel jitter; store the actual hand position per frame.
+
+3. Walking and attacking in four directions
+Down: open palm underneath, thumb over lower edge. Up: book seen from behind, hand partly hidden, supported from below. Left: book near torso, palm underneath, side-view book art. Right: book projects forward slightly, forearm visible beneath.
+Walk: keep the book on the hand anchor; reduce the left arm swing so the book looks stable.
+Attack: casting pose (hand raises book slightly, pages up/outward) + recovery pose (back to rest).
+A front-view book cannot just be rotated into a convincing back/side view: needs directional variants.
+
+4. Should T9 float instead?
+Keep T0-T9 physically supported, with increasingly elaborate magic effects; a subtle rune circle above T7-T9 is fine. Avoid a large glow between book and palm (looks detached again).
+
+Practical refinement: implement on T9 first (worst-case size); test 4 idle frames, 4 walk directions and one cast at actual 85 px; if T9 reads as "palm supporting book, thumb securing edge", the smaller tiers are straightforward.
+
+=== Answer 2 (mock image) ===
+Prompt: one mock of the rank-1 fix on T9 (open upturned palm under the inner/lower corner of the book, thumb over the lower rim, glow above pages only, #00FF00, 3x inset of hand+book).
+Image: wizard-t9-open-palm-book-mock-chatgpt-1.png (1024x1536).
+ChatGPT: "T9 Wizard mockup with the large spellbook supported on an open, upturned palm and a 3x grip close-up below. The key detail is the thumb overlapping the lower gold rim while the palm supports the book from underneath."
+Note (Claude, looked at the image): palm clearly under the book, forearm visible under it, reads as holding; in the inset the fingers stick out below/right of the book and the thumb over the rim is barely visible. Mock only: chibi style/proportions not checked against the game sprite, not for use as an asset.

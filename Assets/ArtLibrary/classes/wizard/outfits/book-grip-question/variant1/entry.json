@@ -1,0 +1,22 @@
+{
+ "name": "void",
+ "glow": "#59c8ff",
+ "baseGrip": {
+  "w": 236,
+  "h": 176,
+  "gripX": -11,
+  "gripY": 192
+ },
+ "enhancedGrip": {
+  "w": 236,
+  "h": 176,
+  "gripX": -11,
+  "gripY": 192
+ },
+ "bobY": [
+  0.0,
+  0.45,
+  0.89,
+  0.45
+ ]
+}

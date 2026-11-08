@@ -1,0 +1,16 @@
+{
+ "name": "dragon",
+ "glow": "#ff7559",
+ "baseGrip": {
+  "w": 117,
+  "h": 250,
+  "gripX": 57.5,
+  "gripY": 207
+ },
+ "enhancedGrip": {
+  "w": 117,
+  "h": 250,
+  "gripX": 57.5,
+  "gripY": 207
+ }
+}

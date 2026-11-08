@@ -1,7 +1,7 @@
 # Phase 03: Art - nền texture-splat 2x2 chunk + prop bổ sung
 
 ## Context
-- Đọc trước: `CLAUDE.md` (mục Art trên ChatGPT, Asset để đúng chỗ), `docs/sprite-weapon-rules.md` (quy tắc xem ảnh, Sổ lỗi; ghi lỗi mới vào đó).
+- Đọc trước: `CLAUDE.md` (mục Art trên ChatGPT, Asset để đúng chỗ), `docs/sprite-rules.md` (quy tắc xem ảnh, Sổ lỗi; ghi lỗi mới vào đó).
 - Nguồn: `Assets/ArtLibrary/hd/map/willowbrook-meadows/willowbrook-meadows-ground-chatgpt.png` (1536x1024, ground-only), backdrop 2304x1536 hiện tại, 45 prop `wb*` (cắt bởi `Tools/build-willowbrook-props.py`, dùng numpy/scipy/opencv/PIL - đã có trên máy).
 - Chat ChatGPT: tài khoản **Tay** (Plus), tiếp tục chat "Map Design Request" (`docs/pending-tasks.md`); hết lượt thì Tan Pham, chat mới, kiểm tên tài khoản. Không dùng xaochai / Tieu Duy Phuong.
 
@@ -42,7 +42,7 @@ Prop sheet nền trơn -> tách nền (chroma/khác màu nền + flood từ vi�
 2. Xin stamp (mục 2) và prop sheet (mục 3); ghi link chat vào `docs/pending-tasks.md`.
 3. Viết script 1, chạy với rows P2, xem ảnh full + 4 góc 1:1 + mép section cũ.
 4. Viết script 2, cắt prop, xem sheet kiểm tra.
-5. Lỗi art mới -> ghi Sổ lỗi `docs/sprite-weapon-rules.md`.
+5. Lỗi art mới -> ghi Sổ lỗi `docs/sprite-rules.md`.
 
 ## Todo
 - [ ] texture  - [ ] stamp  - [ ] prop sheet  - [ ] script 1 + 4 chunk + minimap  - [ ] script 2 + prop wb2*  - [ ] tự xem ảnh

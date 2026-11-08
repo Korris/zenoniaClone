@@ -19,7 +19,7 @@ namespace ZenoniaProto
         string fxFolder;
         ClassPalette pal;
         Color? tint { get { return pal.Tint; } } // palette hue for the painted-art styles
-        float atk, mult, knockback, life, critBonus;
+        float atk, mult, knockback, life, critBonus, reach; // reach = how far this bolt flies (bolt.Range minus Fire's rangeCut)
         bool finisher;
         HeroController src;     // who fired it (kill credit, damage table)
         ushort netId;           // bolt id of the BoltFired / BoltEnd events (0 = no server)
@@ -51,7 +51,8 @@ namespace ZenoniaProto
         }
 
         /// <summary>Launches a bolt. On a headless server it is a plain moving hitbox (no renderers); `src` is credited for every hit.</summary>
-        public static ComboProjectile Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f, HeroController src = null, ushort boltId = 0)
+        /// <param name="rangeCut">flown that much less than bolt.Range (the Mechanic's pistol muzzle is that far ahead of the body point the range is counted from)</param>
+        public static ComboProjectile Fire(Vector2 pos, Vector2 dir, float angleDeg, BoltDef bolt, float atk, float mult, float knockback, bool finisher, string fxFolder, ClassPalette palette, float critBonus = 0f, HeroController src = null, ushort boltId = 0, float rangeCut = 0f)
         {
             bool fx = NetMode.RendersFx;
             Sprite art = fx && bolt.Style == BoltStyle.Sprite ? BurstFx.Art(fxFolder, bolt.Sprite, palette.Tint) : null;
@@ -72,7 +73,8 @@ namespace ZenoniaProto
                 Pool.Add(p);
             }
             p.def = bolt; p.pos = pos; p.dir = dir; p.atk = atk; p.mult = mult; p.knockback = knockback; p.finisher = finisher; p.fxFolder = fxFolder; p.pal = palette; p.critBonus = critBonus; p.src = src; p.netId = boltId; p.predictedOwner = null;
-            p.life = bolt.Range / bolt.Speed;
+            p.reach = Mathf.Max(1f, bolt.Range - rangeCut);
+            p.life = p.reach / bolt.Speed;
             p.homeZone = Zone.Main;
             if (!fx) { p.vfx = null; p.gameObject.SetActive(true); return p; } // headless: hitbox only
             p.sr.sprite = art; p.glow.sprite = art;
@@ -96,7 +98,7 @@ namespace ZenoniaProto
                 else
                 {
                     if (p.streak == null) p.streak = new StreakBoltRig(p.transform);
-                    p.streak.Begin(at, angleDeg, bolt.ExplodeRadius > 0f ? 1.25f : 1f, bolt.Style, palette);
+                    p.streak.Begin(at, angleDeg, bolt.ExplodeRadius > 0f ? 1.25f : bolt.Style == BoltStyle.Plasma ? bolt.Scale : 1f, bolt.Style, palette); // Plasma: the Mechanic's big hit-3 bullet
                 }
                 return p;
             }

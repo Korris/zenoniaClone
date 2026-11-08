@@ -21,7 +21,7 @@
 ## File đổi (chưa commit)
 - Art gốc: `dual-src/tiers/*-pair-chatgpt.png` (10), `dual-src/tiers/cannon/*-chatgpt.png` (9), `grips.json`; bản cũ ở `old-20261103-v1/` (2 thư mục mới), `cannon/rejected/brass-master-tinted-20261103.png`.
 - Game: `weapons/pistol/<tier>-base|enhanced.png` (20), `weapons/cannon/<tier>/{front,back,side}.png` (27), `Sprites/icons/weapon-mechanic-0..9`, `offhand-mechanic-1..9`, `Data/classes/mechanic/held-mechanic-dual.json` (mục `weapon`).
-- Tool: 2 file trên. Docs: `docs/pending-tasks.md` (mục Mechanic 7), `docs/sprite-weapon-rules.md` (6 dòng Sổ lỗi).
+- Tool: 2 file trên. Docs: `docs/pending-tasks.md` (mục Mechanic 7), `docs/sprite-rules.md` (6 dòng Sổ lỗi).
 
 ## Chưa giải quyết
 - Điểm bắn đạn `tip` trong `build-mechanic-dual.py` vẫn theo khẩu mẫu; súng mới dẹt hơn nên đạn có thể lệch vài đơn vị, chỉ thấy khi chơi.

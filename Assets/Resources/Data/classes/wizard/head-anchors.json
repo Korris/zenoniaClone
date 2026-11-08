@@ -1,5 +1,5 @@
 {
- "note": "Head layer offsets per frame (frame px, y down) from the head art's own place (heads/<style>/<dir>.png is a full 192 cell placed for frame 0); sy = vertical scale about the cell bottom (breathing), applied before the move. Tools/build-head-layer.py; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored.",
+ "note": "Head layer offsets per frame (frame px, y down) from the head art's own place (heads/<style>/<dir>.png is a full 192 cell placed for frame 0); sy = vertical scale about the cell bottom (breathing), applied before the move. Tools/build-head-layer.py; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored.",
  "anims": [
   {
    "anim": "idle",
@@ -264,6 +264,606 @@
      "x": -2.75,
      "y": 0.25,
      "s": 0.997,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack1",
+   "dir": "down",
+   "frames": [
+    {
+     "x": -3.25,
+     "y": -0.25,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -4.494,
+     "y": -0.256,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -4.494,
+     "y": -0.256,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -4.494,
+     "y": -0.256,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack1",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 0.966,
+     "y": 3.707,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.966,
+     "y": 3.707,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.966,
+     "y": 3.707,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 1.96,
+     "y": 5.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack1",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 0.908,
+     "y": -2.859,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 11.675,
+     "y": -1.834,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -0.4
+    },
+    {
+     "x": 11.675,
+     "y": -1.834,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -0.4
+    },
+    {
+     "x": 6.895,
+     "y": -2.315,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -0.4
+    }
+   ]
+  },
+  {
+   "anim": "attack1",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 4.186,
+     "y": -4.728,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 3.992,
+     "y": -4.722,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 3.992,
+     "y": -4.722,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 3.992,
+     "y": -4.722,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack2",
+   "dir": "down",
+   "frames": [
+    {
+     "x": -2.494,
+     "y": -0.256,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.488,
+     "y": -0.263,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.488,
+     "y": -0.263,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -0.488,
+     "y": -0.263,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack2",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 2.96,
+     "y": 3.89,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 2.96,
+     "y": 3.89,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 2.96,
+     "y": 3.89,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 2.962,
+     "y": 4.523,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -0.4
+    }
+   ]
+  },
+  {
+   "anim": "attack2",
+   "dir": "right",
+   "frames": [
+    {
+     "x": -4.186,
+     "y": -4.728,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -3.992,
+     "y": -4.722,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -3.992,
+     "y": -4.722,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -3.992,
+     "y": -4.722,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack2",
+   "dir": "left",
+   "frames": [
+    {
+     "x": -0.908,
+     "y": -2.859,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -11.675,
+     "y": -1.834,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": -11.675,
+     "y": -1.834,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": -6.895,
+     "y": -2.315,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    }
+   ]
+  },
+  {
+   "anim": "attack3",
+   "dir": "down",
+   "frames": [
+    {
+     "x": -5.484,
+     "y": -0.184,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -5.413,
+     "y": 1.659,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -5.413,
+     "y": 1.659,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -5.413,
+     "y": 1.659,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack3",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 1.96,
+     "y": 3.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 2.96,
+     "y": 2.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 2.96,
+     "y": 2.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 1.96,
+     "y": 3.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack3",
+   "dir": "right",
+   "frames": [
+    {
+     "x": -1.2,
+     "y": -2.022,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.384,
+     "y": -1.809,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.384,
+     "y": -1.809,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.384,
+     "y": -1.559,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack3",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 9.654,
+     "y": 1.062,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 9.122,
+     "y": 1.043,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 9.122,
+     "y": 1.043,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 8.654,
+     "y": 1.062,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack4",
+   "dir": "down",
+   "frames": [
+    {
+     "x": -7.955,
+     "y": -1.131,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -8.448,
+     "y": 1.113,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -8.698,
+     "y": 1.113,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -8.448,
+     "y": 1.113,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -8.448,
+     "y": 1.113,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -7.448,
+     "y": -0.137,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack4",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 0.96,
+     "y": 4.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.96,
+     "y": 4.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.96,
+     "y": 4.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 1.96,
+     "y": 4.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 1.96,
+     "y": 4.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.96,
+     "y": 4.64,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack4",
+   "dir": "right",
+   "frames": [
+    {
+     "x": -2.689,
+     "y": -3.112,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 4.778,
+     "y": -2.093,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 5.028,
+     "y": -2.093,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 4.028,
+     "y": -2.093,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 4.028,
+     "y": -2.093,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -3.059,
+     "y": -1.877,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "attack4",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 2.689,
+     "y": -3.112,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -4.778,
+     "y": -2.093,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -5.028,
+     "y": -2.093,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -4.028,
+     "y": -2.093,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -4.028,
+     "y": -2.093,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 3.059,
+     "y": -1.877,
+     "s": 1.0,
      "sy": 1.0,
      "angle": 0.0
     }

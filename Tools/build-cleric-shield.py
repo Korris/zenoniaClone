@@ -8,7 +8,7 @@ Writes:  Resources/Sprites/classes/cleric/weapons/shield/<tier>-base.png, <tier>
 Size: DrawScale 0.8 and s = 0.27 as the Warrior's shield, so 0.216 frame px per art px. HEIGHT = 232 art px gives about 50 frame px tall and wide: the Warrior's is 50 x 71, she is a caster and must not hide behind it.
 Grip: centre of the shield's box; the hand is hidden behind the face.
 
-Draw order follows rule 4 of docs/sprite-weapon-rules.md. The staff is in her right hand, so the shield is on the left arm:
+Draw order follows rule 4 of docs/sprite-rules.md. The staff is in her right hand, so the shield is on the left arm:
   facing down: screen right, in front of the body       facing up: screen left, behind the body
   facing left: near arm, in front of the body           facing right: far arm, behind the body
 The shield faces outward and hides its own hand, as the Warrior's does, so body/hand keeps only the staff fist and nothing is added for the shield.

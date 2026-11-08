@@ -1,7 +1,7 @@
 # Phase 07: Cài sheet 3 quái băng
 
 ## Context
-- Đọc trước `docs/sprite-weapon-rules.md` (tự xem từng frame, Sổ lỗi).
+- Đọc trước `docs/sprite-rules.md` (tự xem từng frame, Sổ lỗi).
 - Mẫu: `Tools/build-meadow-monsters.py` (291 dòng: key #FF00FF, cắt theo ô, một scale mỗi quái, baseline chung) commit `c60a43ce`; sheet ra `Assets/Resources/Sprites/monsters/<type>.png`, `<type>-attack.png`.
 - MonsterDef 3 loại đã có từ P2 với `FallbackSheet` (`Monster.Visuals.cs:20-21`: có sheet thật dùng được thì tự bỏ fallback).
 

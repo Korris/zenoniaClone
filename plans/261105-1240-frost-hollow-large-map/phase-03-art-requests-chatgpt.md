@@ -1,7 +1,7 @@
 # Phase 03: Art (lead, ChatGPT)
 
 ## Context
-- Đọc trước: `CLAUDE.md` (Art trên ChatGPT, Asset để đúng chỗ), `docs/sprite-weapon-rules.md` (Sổ lỗi; lỗi mới ghi vào đó), `docs/pending-tasks.md` (dòng Frost Hollow 72x48: chat "Edit Map Background" https://chatgpt.com/c/6aec23f6-1d14-83ec-bea4-44e11798c652, quái ở "Create Rabbit Sprite Sheet").
+- Đọc trước: `CLAUDE.md` (Art trên ChatGPT, Asset để đúng chỗ), `docs/sprite-rules.md` (Sổ lỗi; lỗi mới ghi vào đó), `docs/pending-tasks.md` (dòng Frost Hollow 72x48: chat "Edit Map Background" https://chatgpt.com/c/6aec23f6-1d14-83ec-bea4-44e11798c652, quái ở "Create Rabbit Sprite Sheet").
 - Tài khoản **Tay** (Plus); hết lượt -> Tan Pham, chat mới, kiểm tên tài khoản. Không xaochai / Tieu Duy Phuong.
 - Hình học khung: `layout/outpaint-geometry.md` (phase-01).
 

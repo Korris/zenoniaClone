@@ -201,6 +201,7 @@ namespace ZenoniaProto
                     SetExtra(2, "Stone: 1 (have " + e.Owned + ")", e.Can ? "#c7e2f2" : "#ff8f8f");
                 }
             }
+            else if (!ItemInfo.ChangesAppearance(item.slot)) SetExtra(0, ItemInfo.NoAppearanceLine, "#c2e3f4"); // necklace, gloves, boots: stats only
 
             equipButton.Set(true, worn ? "Unequip" : usable ? "Equip" : "Class only", !worn && !usable);
             enhanceButton.Set(enhanceable, null, !e.Can);

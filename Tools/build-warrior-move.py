@@ -56,7 +56,7 @@ SWORD_ANGLE = {("idle", "left"): [-120] * 4, ("walk", "down"): [-139, -135, -131
 SHIELD_ANGLE = {("idle", "left"): [-9] * 4, ("walk", "down"): [2, 0, -2, 0], ("walk", "up"): [-2, 0, 2, 0], ("walk", "right"): [10, 8, 6, 8],
                 ("idle", "up"): [0] * 4, ("idle", "right"): [9] * 4,
                 ("hurt", "down"): [-10, -10], ("hurt", "up"): [0, 0], ("hurt", "right"): [9, 9]}
-LEFT_WALK_SWORD = [-105, -125, 125, -125]  # the far arm swings the other way; arm back: the sword trails behind, or the fist shows empty and the blade comes out at the hip
+LEFT_WALK_SWORD = [-105, -125, -150, -125]  # the far arm swings the other way: walk right half a step later, mirrored (arm forward -105, arm back -150). Arm back the tip stays forward-down; 125 there flipped the blade behind the hero (2026-11-07)
 ROW_SHIFT = {("hurt", "right"): 8}  # the leaning hair would put the cape past the cell
 
 

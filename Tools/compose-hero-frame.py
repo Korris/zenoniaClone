@@ -13,10 +13,11 @@ from PIL import Image
 FRAME = 192
 ROWS = {"down": 0, "up": 1, "left": 2, "right": 3}
 RES = "Assets/Resources"
+OPTIONAL = {"book"}  # GearPartSpec.Optional: no anchor = not drawn, the frame still uses the bare body
 # part id, weapon folder, DrawScale, MinSx, in draw order: copied from HeroClassDef.Parts.
 CLASSES = {
     "warrior": ("held-gear", [("shield", "shield", 0.8, 0.0), ("sword", "sword", 2.0, 0.85)]),
-    "wizard": ("held-wizard", [("staff", "staff", 1.0, 0.0)]),
+    "wizard": ("held-wizard", [("staff", "staff", 1.0, 0.0), ("book", "book", 1.0, 0.0)]),  # book: optional part (idle down only)
     "mechanic": ("held-mechanic", [("gun", "gun", 1.0, 0.0)]),
     "assassin": ("held-assassin", [("off", "dagger", 1.3, 0.0), ("main", "dagger", 1.3, 0.0)]),
     "cleric": ("held-cleric", [("shield", "shield", 0.8, 0.0), ("staff", "staff", 1.0, 0.0)]),
@@ -62,6 +63,7 @@ def compose(cls, anim, direction, frame, bare_path=None, anchors=None, hand_path
     parts = CLASSES[cls][1]
     row = ROWS[direction]
     frames = [(p, (anchors.get((p[0], anim, direction)) or [None] * 99)[frame]) for p in parts]
+    frames = [(p, a) for p, a in frames if not (p[0] in OPTIONAL and (a is None or a.get("fallback") or p[0] not in file))]
     canvas = Image.new("RGBA", (FRAME + 2 * pad, FRAME + 2 * pad), (0, 0, 0, 0))
     bare = bare_path or f"{RES}/Sprites/classes/{cls}/body/bare/{anim}.png"
     if not os.path.exists(bare) or any(a is None or a.get("fallback") for _, a in frames):
@@ -72,7 +74,7 @@ def compose(cls, anim, direction, frame, bare_path=None, anchors=None, hand_path
         for (pid, folder, scale, min_sx), a in frames:
             if a.get("hidden") or bool(a.get("behind")) != behind:
                 continue
-            entry = (file["sword"] if pid == "sword" else file["shield"] if pid == "shield" else file["weapon"])[tier]
+            entry = (file["sword"] if pid == "sword" else file["shield"] if pid == "shield" else file["book"] if pid == "book" else file["weapon"])[tier]
             art = Image.open(f"{RES}/Sprites/classes/{cls}/weapons/{folder}/{entry['name']}-base.png").convert("RGBA")
             place(canvas, art, entry["baseGrip"], a, scale, min_sx, pad)
 

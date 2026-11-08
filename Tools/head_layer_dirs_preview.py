@@ -21,7 +21,7 @@ def masks_sheet(cls, out, path, z=3):
     for (an, d), v in out.items():
         sh = hd.sheet(cls, an)
         row_a, row_b = [], []
-        for f in range(4):
+        for f in range(len(v['heads'])):
             fr = hd.cell(sh, hd.DIR_ROW[d], f)
             vis = np.array(core.on_bg(fr, BG).convert("RGB")).astype(np.float64)
             head = v["heads"][f]
@@ -30,7 +30,7 @@ def masks_sheet(cls, out, path, z=3):
             vis[head & ~erased] = vis[head & ~erased] * 0.4 + np.array([255, 0, 255]) * 0.6
             row_a.append(Image.fromarray(vis.astype(np.uint8)).crop((0, 0, FRAME, 150)).resize((FRAME * z, 150 * z), Image.NEAREST))
             row_b.append(zoom(hd.composite(v["headless"][f], hd.head_of_ref(cls, d), v["anchors"][f]), z))
-        row_c = [zoom(hd.cell(sh, hd.DIR_ROW[d], f), z) for f in range(4)]
+        row_c = []  # attack rows: 6 frames, the composite row already shows the result
         tiles.append(row_a + row_b + row_c)
     save_grid(tiles, path)
 
@@ -54,7 +54,7 @@ def check_sheet(cls, styles, path, z=2):
         row = []
         for s in styles:
             head = hd.head_of(cls, s, d)
-            for f in range(4):
+            for f in range(len(v['anchors'])):
                 row.append(zoom(hd.composite(v["headless"][f], head, v["anchors"][f]) if head is not None else v["headless"][f], z))
         tiles.append(row)
     save_grid(tiles, path)

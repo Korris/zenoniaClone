@@ -1,0 +1,12 @@
+Cleric 10 tiers ladder (ChatGPT Tay, https://chatgpt.com/c/6aefbead-8060-83ec-ada1-c34ae9e927e1, 2026-11-08)
+Fix sent with the image request: T7 must read clearly PURPLE violet (amethyst armour), not navy/blue, not pink.
+T0 Sacred Acolyte: white + gold + sky-blue; hero-select outfit without hat; short scalloped skirt, white-gold back tails; faint blue shimmer; wooden staff, gold ring head, blue crystal; white heart shield, gold rim, blue cross.
+T1 Brass Pilgrim: oak brown + cream + brass; leather, linen, brass plates, rounded brass pauldrons; amber glow; oak staff brass leaf head amber crystal; brass heart shield cream centre amber gem.
+T2 Temple Sentinel: navy + polished silver; silver plate, sapphire; split navy cape; sapphire glow; silver twin-prong staff sapphire; silver heart shield navy enamel silver cross.
+T3 Tidal Priestess: teal + copper; copper breastplate, pointed pauldrons, turquoise; turquoise glow; copper wave-crescent staff; copper heart shield teal enamel wave emblem.
+T4 Crimson Crusader: crimson + gunmetal steel; angular steel pauldrons, crimson cape; ruby glow; gunmetal spear-winged staff red crystal; steel heart shield crimson centre silver cross.
+T5 Obsidian Eclipse Templar: obsidian black + antique gold; massive black-gold pauldrons, gold-lined cape; golden eclipse glow; black staff gold eclipse ring amber crystal; black heart shield gold sun-disc.
+T6 Dawnfire Herald: sun-orange + ivory; sun-ray pauldrons, bronze joints; golden-orange glow; ivory-bronze staff with 8-point gold sun; ivory heart shield orange sunburst rim.
+T7 Twilight Moon Saint: purple violet + moon-silver; crescent pauldrons, indigo cape with moon tails; violet lunar glow; silver double-crescent staff amethyst; moon-silver heart shield violet enamel crescent.
+T8 Ruby Seraph: platinum silver + ruby; angel-wing pauldrons, charcoal underlayer; ruby glow; platinum winged staff giant ruby; huge winged platinum heart shield ruby cross.
+T9 World-Tree Life Goddess: emerald + radiant gold; leaf pauldrons, leaf-plate skirt, green-gold leaf-halo wings; emerald-gold life glow; gold World-Tree staff with emerald leaves, jade crystal; largest emerald heart shield gold-leaf rim jade heart.

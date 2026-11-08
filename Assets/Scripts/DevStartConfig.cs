@@ -147,7 +147,6 @@ namespace ZenoniaProto
             if (c.allWeapons) { GrantAllWeapons(p); p.Hp = p.MaxHp; p.Mp = p.MaxMp; }
             if (c.allPets)
             {
-                if (c.allWeapons) p.Inventory.RemoveAll(i => i.uid == "starter-" + Slots.Weapon || i.uid == "starter-" + Slots.Offhand); // all tiers plus the two starters fill the 20 slots: the pets need the room
                 foreach (PetDef def in PetConfig.All)
                 {
                     if (p.PetCount(def) > 0) continue;

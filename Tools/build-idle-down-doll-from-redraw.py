@@ -172,7 +172,7 @@ def write_anchors(cls, n):
         data = json.loads(raw)
         if "\n " in raw[:40] and kw.get("separators"):
             kw = {"indent": 1}  # keep the file's own layout
-        rest = [e for e in data["anchors"] if not (e["anim"] == "idle" and e["dir"] == "down")]
+        rest = [e for e in data["anchors"] if not (e["anim"] == "idle" and e["dir"] == "down" and e["part"] in cfg["parts"])]  # other parts (the wizard's book, Tools/build-wizard-tier-staff-book.py) keep theirs
         for part, p in cfg["parts"].items():
             x, y = p["fist"]
             fr = {"x": float(x), "y": float(y), "angle": p["angle"], "s": p["s"], "sx": 1, "behind": p["behind"], "hidden": False, "fallback": False}

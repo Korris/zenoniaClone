@@ -158,11 +158,19 @@ namespace ZenoniaProto
             float rad = angle * Mathf.Deg2Rad;
             Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
             ClassPalette pal = cls.ActivePalette;
-            ComboProjectile.Fire(muzzle, dir, angle, h.Bolt, 0f, 0f, 0f, finisher, cls.FxFolder, pal, 0f, null, boltId);
+            // The Mechanic's pistol bolts leave the gun muzzle and fly their range minus how far it is ahead of the body (RangedAimRules.MechanicBoltOrigin)
+            float ox, oy, cut = 0f;
+            Vector2 fv = DirVec[facing & 3];
+            if (cls.Id == HeroClass.Mechanic) RangedAimRules.MechanicBoltOrigin(step, facing & 3, x, y, fv.x, fv.y, out ox, out oy, out cut);
+            else if (cls.Id == HeroClass.Cleric) RangedAimRules.ClericBoltOrigin(step, facing & 3, x, y, fv.x, fv.y, out ox, out oy, out cut); // staff crystal / shield
+            ComboProjectile shot = ComboProjectile.Fire(muzzle, dir, angle, h.Bolt, 0f, 0f, 0f, finisher, cls.FxFolder, pal, 0f, null, boltId, cut);
+            if (cls.Id == HeroClass.Cleric && shot != null) shot.KeepBehindShooter(y, RangedAimRules.ClericBehindTop, RangedAimRules.ClericStartsBehind(step, facing & 3));
             bool painted = VfxSprites.For(h.Bolt.Style) != null;
             int shotFacing = Mathf.Abs(dir.x) > Mathf.Abs(dir.y) ? (dir.x < 0f ? 2 : 3) : (dir.y > 0f ? 1 : 0);
-            Vector2 tip = HeroFx.CastTipFor(cls, step, shotFacing, new Vector2(x, y), new Vector2(x + dir.x * 10f, y + 12f + dir.y * 6f));
-            if (painted) HeroFx.CastWindup(cls, h, tip, angle, finisher, this);
+            float figure = view != null ? view.FigureScale : 1f;
+            int tipFacing = cls.Id == HeroClass.Cleric ? facing & 3 : shotFacing; // the Cleric's flash sits on her staff / shield, which follow her pose, not the aim
+            Vector2 tip = HeroFx.CastTipFor(cls, step, tipFacing, new Vector2(x, y), new Vector2(x + dir.x * 10f, y + 12f + dir.y * 6f), figure);
+            if (painted && !HeroFx.MechanicPistolFlash(cls, h, step, facing & 3, new Vector2(x, y), angle, figure)) HeroFx.CastWindup(cls, h, tip, angle, finisher, this);
             HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), tip, dir, angle, painted);
         }
 

@@ -11,12 +11,15 @@ namespace ZenoniaProto
         public readonly string Id, Folder;
         public readonly float DrawScale, MinSx;
         public readonly bool Glow; // enhance effect includes stars + motes (every part gets the shine and halo)
-        /// <summary>Drawn from the offhand slot (warrior shield, assassin off-hand dagger); every other part is the weapon.</summary>
-        public bool IsOffhand { get { return Id == "shield" || Id == "off" || Id == "cannon"; } }
+        /// <summary>Optional part (the wizard's spellbook): a frame without its anchor, or with a hidden / fallback one, just does not draw it;
+        /// every other part's missing anchor sends the whole frame to the baked armed art.</summary>
+        public readonly bool Optional;
+        /// <summary>Drawn from the offhand slot (warrior shield, assassin off-hand dagger, wizard spellbook); every other part is the weapon.</summary>
+        public bool IsOffhand { get { return Id == "shield" || Id == "off" || Id == "cannon" || Id == "book"; } }
 
-        public GearPartSpec(string id, string folder, float drawScale = 1f, float minSx = 0f, bool glow = false)
+        public GearPartSpec(string id, string folder, float drawScale = 1f, float minSx = 0f, bool glow = false, bool optional = false)
         {
-            Id = id; Folder = folder; DrawScale = drawScale; MinSx = minSx; Glow = glow;
+            Id = id; Folder = folder; DrawScale = drawScale; MinSx = minSx; Glow = glow; Optional = optional;
         }
     }
 
@@ -74,18 +77,22 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Wizard = new HeroClassDef
         {
             Id = HeroClass.Wizard, Name = "Wizard", Tagline = "Spellcaster. Strikes from range with magic bolts.", ComboLabel = "3 magic bolts + arcane burst",
-            SheetFolder = "classes/wizard/body/armed", BareFolder = "classes/wizard/body/bare", HandFolder = "classes/wizard/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "attack1", "attack2", "attack3" }, GearFile = "classes/wizard/held-wizard", FxFolder = "classes/wizard/fx/combat", Palette = ClassPalette.Arcane,
-            BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt", "death" },
-            MirrorLeft = new HashSet<string> { "attack1", "attack2" },
+            SheetFolder = "classes/wizard/body/armed", BareFolder = "classes/wizard/body/bare", HandFolder = "classes/wizard/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "attack1", "attack2", "attack3", "attack4" }, GearFile = "classes/wizard/held-wizard", FxFolder = "classes/wizard/fx/combat", Palette = ClassPalette.Arcane,
+            BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "dash", "hurt", "death" },
+            // Board 2026-11-08 (docs/reference/wizard-basic-attack-board.png, Tools/build-wizard-attack-board-repaint.py): Arcane Thrust (staff),
+            // Frost Page (book), Twin Sigil (staff raised + book; also the skill cast pose), Astral Nova (both hands, the bursting orb).
+            // Every facing has its own row: the staff stays in the right hand, the book in the left when facing left.
+            ComboAnims = new[] { "attack1", "attack2", "attack3", "attack4" },
+            MirrorLeft = new HashSet<string>(),
             MaxHp = 80f, Atk = 13f, Def = 3f, Speed = 80f, Hits = ComboConfigs.WizardHits, ChainMs = 450f,
-            Parts = new[] { new GearPartSpec("staff", "classes/wizard/weapons/staff", 1f, 0f, true) },
+            Parts = new[] { new GearPartSpec("staff", "classes/wizard/weapons/staff", 1f, 0f, true), new GearPartSpec("book", "classes/wizard/weapons/book", 1f, 0f, false, true) }, // spellbook: offhand, anchored on idle facing down only (Tools/build-wizard-tier-staff-book.py)
             SkillName = "Ice Storm", SkillMp = 20f, SkillCooldownMs = 7700f, SkillLockMs = 650f, SkillIcon = 9, DashIcon = 12, // blizzard, blink
         };
 
         public static readonly HeroClassDef Mechanic = new HeroClassDef
         {
             Id = HeroClass.Mechanic, Name = "Mechanic", Tagline = "Gunslinging engineer. Rapid shots, cannon finisher, a turret at his side.", ComboLabel = "3 rapid shots + cannon blast",
-            SheetFolder = "classes/mechanic/body/armed", BareFolder = "classes/mechanic/body/bare", HandFolder = "classes/mechanic/body/hand", HandAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "rocket", "dash", "hurt" }, GearFile = "classes/mechanic/held-mechanic-dual", FxFolder = "classes/mechanic/fx/combat", Palette = ClassPalette.Orange,
+            SheetFolder = "classes/mechanic/body/armed", BareFolder = "classes/mechanic/body/bare", HandFolder = "classes/mechanic/body/hand", HandAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "rocket", "dash", "hurt" }, GearFile = "classes/mechanic/held-mechanic-dual", FxFolder = "classes/mechanic/fx/combat", Palette = ClassPalette.Yellow,
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "dash", "hurt" }, // death: baked armed art
             ComboAnims = new[] { "attack1", "attack2", "attack3", "attack4" }, // left pistol, right pistol, both, cannon off the back (Tools/build-mechanic-dual.py; way back in its docstring)
             ExtraAnims = new[] { MechanicRocketPose.PoseAnim },
@@ -114,9 +121,10 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Cleric = new HeroClassDef
         {
             Id = HeroClass.Cleric, Name = "Cleric", Tagline = "Holy support caster. Heals, with a holy shield and holy light.", ComboLabel = "3 holy orbs + burst",
-            SheetFolder = "classes/cleric/body/armed", BareFolder = "classes/cleric/body/bare", HandFolder = "classes/cleric/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "attack1", "attack2", "attack3" }, GearFile = "classes/cleric/held-cleric", FxFolder = "classes/wizard/fx/combat", Palette = ClassPalette.Green,
+            SheetFolder = "classes/cleric/body/armed", BareFolder = "classes/cleric/body/bare", HandFolder = "classes/cleric/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "attack1", "attack2", "attack3", "attack4" }, GearFile = "classes/cleric/held-cleric", FxFolder = "classes/wizard/fx/combat", Palette = ClassPalette.Green,
             ExtraAnims = new[] { ClericBuffFx.PoseAnim },
-            BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt" }, // death: baked art
+            BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "dash", "hurt" }, // death: baked art
+            ComboAnims = new[] { "attack1", "attack2", "attack3", "attack4" }, // Light Thrust, Aegis Ray, Halo Lance, Judgment Bloom (board docs/reference/cleric-basic-attack-board.png, Tools/build-cleric-attack-body.py)
             MirrorLeft = new HashSet<string>(),
             MaxHp = 85f, MaxMp = 75f, Atk = 11f, Def = 4f, Speed = 80f, Hits = ComboConfigs.ClericHits, ChainMs = 450f,
             Parts = new[] { new GearPartSpec("shield", "classes/cleric/weapons/shield", 0.8f), new GearPartSpec("staff", "classes/cleric/weapons/staff", 1f, 0f, true) },

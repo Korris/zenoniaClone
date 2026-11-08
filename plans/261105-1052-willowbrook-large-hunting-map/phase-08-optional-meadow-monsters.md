@@ -4,7 +4,7 @@
 - Quái hiện có cho Willowbrook toàn hệ băng: `MonsterDef.cs:31-33` frostSlime Lv1, iceGoblin Lv2, spectralWolf Lv2; quái kế tiếp đã nhảy lên Lv20+ (`MonsterDef.cs:39-59`) -> khoảng trống Lv3-19.
 - Sprite quái: `Assets/Resources/Sprites/monsters/<id>.png` + `<id>-attack.png` (cùng khuôn với `bogSlime`, `duneScarab`).
 - Đăng ký: `MonsterDef.All` (dòng 63) - **chỉ số trong mảng đi qua mạng** (`IndexOf/ByIndex`) -> chỉ thêm vào CUỐI mảng, tăng `NetProtocol.Version`, build lại server. Rơi đồ: `Rpg/LootTable.cs` (theo id).
-- Đọc `docs/sprite-weapon-rules.md` trước khi làm sprite (ghi brief khi giao agent). Art: ChatGPT tài khoản **Tay**, kèm sprite quái có sẵn làm mẫu khung/kích thước và `docs/reference/hero-idle-down-5-classes.png` làm mẫu tỉ lệ.
+- Đọc `docs/sprite-rules.md` trước khi làm sprite (ghi brief khi giao agent). Art: ChatGPT tài khoản **Tay**, kèm sprite quái có sẵn làm mẫu khung/kích thước và `docs/reference/hero-idle-down-5-classes.png` làm mẫu tỉ lệ.
 
 ## Overview
 Priority P3. Status pending. Chỉ làm sau khi P7 qua với quái có sẵn.

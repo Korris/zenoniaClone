@@ -48,8 +48,8 @@ namespace ZenoniaProto
             new[] { KeyCode.D, KeyCode.RightArrow },
             new[] { KeyCode.J, KeyCode.Space },
             new[] { KeyCode.K, KeyCode.LeftShift, KeyCode.RightShift },
-            new[] { KeyCode.E },
-            new[] { KeyCode.Q },
+            new[] { KeyCode.E, KeyCode.X }, // TierUp (debug gear look: weapon + armour outfit)
+            new[] { KeyCode.Q, KeyCode.Z }, // TierDown
             new[] { KeyCode.R },
             new[] { KeyCode.F6 },
             new[] { KeyCode.F },
@@ -109,8 +109,8 @@ namespace ZenoniaProto
             new[] { Key.D, Key.RightArrow },
             new[] { Key.J, Key.Space },
             new[] { Key.K, Key.LeftShift, Key.RightShift },
-            new[] { Key.E },
-            new[] { Key.Q },
+            new[] { Key.E, Key.X }, // TierUp (debug gear look: weapon + armour outfit)
+            new[] { Key.Q, Key.Z }, // TierDown
             new[] { Key.R },
             new[] { Key.F6 },
             new[] { Key.F },

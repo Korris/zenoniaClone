@@ -4,7 +4,7 @@ Reads the ChatGPT originals in Assets/ArtLibrary/custom/hero-select/ and writes 
 The art copies the mock Assets/ArtLibrary/custom/2b14c1e0-73f8-4c0b-b278-eb1c83c76e34.png piece by piece; ref/ holds the crops
 that were uploaded with each prompt.
 
-Keying (docs/sprite-weapon-rules.md, "Quy tắc art lấy từ ChatGPT" and the UI rows of "Sổ lỗi"):
+Keying (docs/sprite-rules.md, "Quy tắc art lấy từ ChatGPT" and the UI rows of "Sổ lỗi"):
 - None of these sheets uses its key colour inside the art (green on magenta only, purple on green only), so every key-coloured
   area counts as background, holes between arm and body included. Cleric is the only hero on magenta.
 - Opacity comes from how much of the key colour a pixel still holds, and only in a thin band next to the background, so a black

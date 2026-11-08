@@ -141,6 +141,7 @@ namespace ZenoniaProto
             outfitBare.Clear();
             outfitHand.Clear();
             string folder = ArmorLooks.OutfitFolder(cls, outfit);
+            if (headLayer != null) headLayer.SetBodyFolder(folder); // the hairstyle head sits on the outfit's headless sheets (Lv1 rows keep the Lv1 headless sheets)
             if (folder == null) return;
             var pivot = new Vector2(0.5f, 0f);
             foreach (string anim in bare.Keys)
@@ -253,7 +254,7 @@ namespace ZenoniaProto
             Sprite bodySprite = armedRow[frame];
             bool useGear = false;
             Sprite[][] bareSheet;
-            bool lv1Body = !outfitBare.TryGetValue(anim, out bareSheet); // an outfit keeps its own whole body (its painted helmet head) for now
+            bool lv1Body = !outfitBare.TryGetValue(anim, out bareSheet); // outfit rows draw the outfit sheet; the head layer uses its headless sheet
             if (lv1Body) bare.TryGetValue(anim, out bareSheet);
             Sprite[] bareRow = gear != null && bareSheet != null ? SpriteSheet.Row(bareSheet, row) : null;
             if (bareRow != null && frame < bareRow.Length)
@@ -262,6 +263,8 @@ namespace ZenoniaProto
                 for (int i = 0; i < parts.Count; i++)
                 {
                     HeldAnchor a = gear.Get(parts[i].Spec.Id, anim, DirNames[dir], frame);
+                    // An optional part (the wizard's spellbook) without a usable anchor is just not drawn this frame.
+                    if (parts[i].Spec.Optional && (a == null || a.fallback || a.hidden)) { anchorBuffer[i] = null; continue; }
                     // Web: any missing / fallback anchor => the whole frame falls back to the baked armed art.
                     if (a == null || a.fallback) { useGear = false; break; }
                     anchorBuffer[i] = a;
@@ -275,7 +278,7 @@ namespace ZenoniaProto
             shadow.sortingOrder = orderBase;
             shadow.color = new Color(1f, 1f, 1f, 0.3f * alpha);
             // Head layer: the Lv1 bare body of a frame with head art draws headless, the chosen hairstyle's head on top (same order, nearer z).
-            Sprite headless = useGear && lv1Body && headLayer != null ? headLayer.Apply(anim, DirNames[dir], row, frame, mirror, orderBase + 3, tint) : null;
+            Sprite headless = useGear && headLayer != null ? headLayer.Apply(anim, DirNames[dir], row, frame, mirror, orderBase + 3, tint, !lv1Body) : null;
             if (headless != null) bodySprite = headless;
             else if (headLayer != null) headLayer.Hide();
             body.sprite = bodySprite;
@@ -290,10 +293,10 @@ namespace ZenoniaProto
             handOver.color = tint;
             handOver.sortingOrder = orderBase + 6;
             for (int i = 0; i < parts.Count; i++)
-                ApplyPart(parts[i], useGear ? anchorBuffer[i] : null, orderBase + 1 + Mathf.Min(i, 1), orderBase + 4 + Mathf.Min(i, 1), orderBase, tint, alpha); // two slots each side of the body: a third part shares the second, the two hands do not cross
+                ApplyPart(parts[i], useGear ? anchorBuffer[i] : null, frame, orderBase + 1 + Mathf.Min(i, 1), orderBase + 4 + Mathf.Min(i, 1), orderBase, tint, alpha); // two slots each side of the body: a third part shares the second, the two hands do not cross
         }
 
-        void ApplyPart(Part p, HeldAnchor a, int orderBehind, int orderFront, int orderBase, Color tint, float alpha)
+        void ApplyPart(Part p, HeldAnchor a, int frame, int orderBehind, int orderFront, int orderBase, Color tint, float alpha)
         {
             OverlayEntry[] manifest = gear != null ? gear.Manifest(p.Spec.Id) : null;
             OverlayEntry entry = (a != null && !a.hidden && !p.Empty && manifest != null && p.Tier < manifest.Length) ? manifest[p.Tier] : null;
@@ -317,7 +320,8 @@ namespace ZenoniaProto
             float k = a.s * GearOverlays.FrameUnit * p.Spec.DrawScale * GearOverlays.Ppu; // sprite scale: world units per overlay px / (1 / ppu)
             float sx = Mathf.Sign(a.sx == 0f ? 1f : a.sx) * Mathf.Max(Mathf.Abs(a.sx), p.Spec.MinSx);
             Transform t = p.Sr.transform;
-            t.localPosition = new Vector3((a.x - GameConfig.FramePx * 0.5f) * GearOverlays.FrameUnit, (GameConfig.FramePx - a.y) * GearOverlays.FrameUnit, 0f);
+            float bob = motion == 0 && !ownArt && entry.bobY != null && frame >= 0 && frame < entry.bobY.Length ? entry.bobY[frame] : 0f; // per-tier per-frame lift of the idle breathing (wizard book follows the tier's fist); attack frames have their own anchors
+            t.localPosition = new Vector3((a.x - GameConfig.FramePx * 0.5f) * GearOverlays.FrameUnit, (GameConfig.FramePx - a.y - bob) * GearOverlays.FrameUnit, 0f);
             t.localRotation = Quaternion.Euler(0f, 0f, -a.angle); // web angle is clockwise on a y-down canvas
             t.localScale = new Vector3(k * sx, k, 1f);
             // Enhanced (+7 and up): the blade keeps its painted colours, HeldEnhanceFx lights it per band in the tier colour.

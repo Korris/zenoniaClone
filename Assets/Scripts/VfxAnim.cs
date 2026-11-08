@@ -23,7 +23,13 @@ namespace ZenoniaProto
         /// <summary>Cast swirl / muzzle blast at the staff tip or barrel. angle only matters for oriented sprites (mechanic muzzle, 0 = right).</summary>
         public static void Cast(VfxSet set, Vector2 at, float angle, bool finisher)
         {
-            Play(set.Rows[VfxSet.Cast], at, angle, (finisher ? FinisherScale : 1f), CastFps, FeelConfig.FxOrder - 7);
+            Cast(set, at, angle, finisher, FeelConfig.FxOrder - 7);
+        }
+
+        /// <summary>Same with an explicit sorting order (e.g. behind the caster: GameConfig.OrderBase(feet.y) - 1).</summary>
+        public static void Cast(VfxSet set, Vector2 at, float angle, bool finisher, int order)
+        {
+            Play(set.Rows[VfxSet.Cast], at, angle, (finisher ? FinisherScale : 1f), CastFps, order);
         }
 
         /// <summary>Impact at the hit point, never rotated (the cleric pillar stays upright).</summary>
@@ -31,6 +37,22 @@ namespace ZenoniaProto
         {
             Play(set.Rows[VfxSet.Impact], at, 0f, (finisher ? FinisherScale : 1f), ImpactFps, FeelConfig.FxOrder + 2);
         }
+
+        /// <summary>
+        /// The set's blast row (Mechanic v2 cannon blast) at the burst point, sized so its widest frame spans the blast diameter x BlastFill.
+        /// False when the set has no blast row (the caller plays its impact instead).
+        /// </summary>
+        public static bool Blast(VfxSet set, Vector2 at, float radius)
+        {
+            Sprite[] row = set.Rows.Length > VfxSet.Blast ? set.Rows[VfxSet.Blast] : null;
+            if (row == null || radius <= 0f) return false;
+            float widest = 0f;
+            foreach (Sprite s in row) widest = Mathf.Max(widest, s.rect.width / s.pixelsPerUnit);
+            Play(row, at, 0f, 2f * radius * BlastFill / Mathf.Max(1f, widest), BlastFps, FeelConfig.FxOrder + 2);
+            return true;
+        }
+
+        const float BlastFps = 12f, BlastFill = 0.85f; // widest frame (fire + rocks) x0.85 of the blast diameter (r24: ~41 units); a full-size fireball covered the hero next to the target
 
         /// <summary>Additive glow copy alpha: faint so the white cores feed the bloom without washing out on snow.</summary>
         public static float GlowAlpha { get { return FeelConfig.PaintedGlowAlpha; } }

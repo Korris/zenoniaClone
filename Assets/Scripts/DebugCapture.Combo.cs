@@ -17,6 +17,7 @@ namespace ZenoniaProto
             yield return null;
             HeroController hero = GameSession.Hero;
             hero.God = true;
+            if (hairStyle >= 0) hero.View.HairStyle = hairStyle; // --hairstyle: attack anims draw the head layer too
             int face = faceArg == "down" ? 0 : faceArg == "up" ? 1 : faceArg == "right" ? 3 : 2; // --face, west when absent
             hero.Teleport(tpTile.x >= 0 ? FrostHollowMap.TileFeet(tpTile.x, tpTile.y, 2f) : FrostHollowMap.TileFeet(11, 6, 2f), face); // --tp tile
             if (zoom > 0f) Camera.main.orthographicSize = zoom;

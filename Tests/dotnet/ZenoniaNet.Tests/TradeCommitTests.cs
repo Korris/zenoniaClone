@@ -14,7 +14,7 @@ public class TradeCommitTests
         public int GoldHeld;
         public int Gold => GoldHeld;
         public int BagCount => Bag.Count;
-        public int BagSize => 20;
+        public int BagSize => 50; // PlayerState.InventorySize
         public TradeSpot Spot => new TradeSpot { MapId = "m" };
         public bool TryGetBagItem(string uid, out TradeItemView view) { view = new TradeItemView { Uid = uid, Name = uid }; return Bag.Contains(uid); }
         public bool Wears(string uid) => false;

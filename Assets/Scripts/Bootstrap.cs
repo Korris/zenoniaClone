@@ -40,6 +40,7 @@ namespace ZenoniaProto
             DamageNumber.ResetState();
             CameraFollow.ResetState();
             GearOverlays.ResetState();
+            ArmorLooks.ResetState();
             HeldGlowBaker.ResetState();
             LootDrop.ResetStatics();
             NetEventBus.ResetState();
@@ -68,6 +69,7 @@ namespace ZenoniaProto
             VfxAnim.Init(root.transform);
             ShockRing.Init(root.transform);
             DaggerFx.Init(root.transform);
+            AssassinAttackFx.Init(root.transform); // painted Assassin combo FX (2026-11-08 board)
             RuneFx.Init(root.transform);
             HolySmite.Init(root.transform);
             UltimateFx.Init(root.transform);

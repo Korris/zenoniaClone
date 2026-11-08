@@ -15,22 +15,33 @@ namespace ZenoniaProto
         // Wizard: caster stands still (stepPx 0); the 4th step is a slower, bigger bolt that bursts (AoE r26).
         static readonly BoltDef MagicBolt = new BoltDef(230f, 60f, "magicBolt", 0.8f, 10f, 10f, 0f, null, null, BoltStyle.Arcane);
         static readonly BoltDef ArcaneOrb = new BoltDef(180f, 55f, "magicBolt", 1.3f, 14f, 14f, 26f, "arcaneBurst", null, BoltStyle.Arcane);
+        // Board 2026-11-08: hit 2 (Frost Page) is the book's frost shard. Same numbers as MagicBolt (gameplay unchanged), only its picture differs
+        // (ComboProjectile.ArcaneRow plays the v3 set's shard row for this sprite name).
+        public const string FrostShardSprite = "frostShard";
+        static readonly BoltDef FrostShard = new BoltDef(230f, 60f, FrostShardSprite, 0.8f, 10f, 10f, 0f, null, null, BoltStyle.Arcane);
         public static readonly ComboHit[] WizardHits =
         {
             new ComboHit(70f, 60f, 130f, 0.9f, 0f, 0f, 30f, 0f, 1f, MagicBolt),
-            new ComboHit(70f, 60f, 130f, 1.0f, 0f, 0f, 35f, 0f, 1f, MagicBolt),
+            new ComboHit(70f, 60f, 130f, 1.0f, 0f, 0f, 35f, 0f, 1f, FrostShard),
             new ComboHit(70f, 60f, 130f, 1.1f, 0f, 0f, 40f, 0f, 1f, MagicBolt),
             new ComboHit(130f, 80f, 260f, 1.6f, 0f, 0f, 90f, 0f, 1f, ArcaneOrb),
         };
 
-        // Mechanic: three fast bullets, then a plasma cannon blast (AoE r24) with a muzzle flash on every shot.
-        static readonly BoltDef Bullet = new BoltDef(340f, 70f, "bullet", 1f, 8f, 8f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
-        static readonly BoltDef Plasma = new BoltDef(240f, 65f, "plasmaShot", 1.2f, 12f, 12f, 24f, "explosion", "muzzleFlash", BoltStyle.Plasma);
+        // Mechanic: two fast bullets, one big bullet (hit 3, both pistols at once), then a plasma cannon blast (AoE r24) with a muzzle flash on every shot.
+        // 2026-11-08: the bullets leave the middle of the body (RangedAimRules.BoltOrigin), 12 units behind the old muzzle point, so their range carries
+        // those 12 (70 -> 82) and the shot still reaches as far ahead of the hero. The cannon shot (hit 4) too since the same day (65 -> 77; its ~3x shell starts small at the
+        // body and grows, MechanicCannonBlastFx.BoltFlightScale, so it does not cover him). Hit 3 used to be a bullet plus a no-damage tracer from the
+        // other pistol; it is now one bullet, 1.8x on screen with a 14 unit hit box, and keeps the hit's 1.05 (the pair's total), so the DPS is unchanged.
+        // Approved board (same day, later): every shot leaves the gun muzzle (RangedAimRules.MechanicBoltOrigin) and flies Range minus the muzzle's lead
+        // over the body point, so these ranges still count from the body and end where they did.
+        static readonly BoltDef Bullet = new BoltDef(340f, 82f, "bullet", 1f, 8f, 8f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
+        static readonly BoltDef BigBullet = new BoltDef(340f, 82f, "bullet", 1.8f, 14f, 14f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
+        static readonly BoltDef Plasma = new BoltDef(240f, 77f, "plasmaShot", 1.2f, 12f, 12f, 24f, "explosion", "muzzleFlash", BoltStyle.Plasma);
         public static readonly ComboHit[] MechanicHits =
         {
             new ComboHit(50f, 50f, 110f, 0.85f, 0f, 0f, 25f, 0f, 1f, Bullet),
             new ComboHit(50f, 50f, 110f, 0.95f, 0f, 0f, 30f, 0f, 1f, Bullet),
-            new ComboHit(50f, 50f, 110f, 1.05f, 0f, 0f, 35f, 0f, 1f, Bullet),
+            new ComboHit(50f, 50f, 110f, 1.05f, 0f, 0f, 35f, 0f, 1f, BigBullet),
             new ComboHit(140f, 80f, 260f, 1.6f, 0f, 0f, 100f, 0f, 1f, Plasma),
         };
 
@@ -56,13 +67,19 @@ namespace ZenoniaProto
         };
 
         // Cleric: light arrows (HolyArrow) with a gold pillar impact; three quick shots then a bursting one (AoE r26).
+        // Board 2026-11-08 (docs/reference/cleric-basic-attack-board.png): Light Thrust, Aegis Ray (light arrow), Halo Lance (hit 3: the lance row of
+        // VfxSprites "cleric-v2", picked by its sprite name; same speed, range and hit box), Judgment Bloom (holy orb bursting, r26). Timing unchanged.
+        // Every shot leaves the staff crystal (Aegis Ray: the shield), RangedAimRules.ClericBoltOrigin, and flies Range minus how far that is ahead of
+        // the old start (12 in front of the body), so these ranges still end where they did.
+        public const string HaloLanceSprite = "haloLance";
         static readonly BoltDef ClericOrb = new BoltDef(220f, 60f, "magicBolt", 0.8f, 10f, 10f, 0f, null, null, BoltStyle.HolyArrow);
+        static readonly BoltDef ClericLance = new BoltDef(220f, 60f, HaloLanceSprite, 0.8f, 10f, 10f, 0f, null, null, BoltStyle.HolyArrow);
         static readonly BoltDef ClericBurstOrb = new BoltDef(180f, 55f, "magicBolt", 1.3f, 14f, 14f, 26f, "arcaneBurst", null, BoltStyle.HolyArrow);
         public static readonly ComboHit[] ClericHits =
         {
             new ComboHit(70f, 60f, 130f, 0.85f, 0f, 0f, 30f, 0f, 1f, ClericOrb),
             new ComboHit(70f, 60f, 130f, 1.0f, 0f, 0f, 35f, 0f, 1f, ClericOrb),
-            new ComboHit(70f, 60f, 130f, 1.1f, 0f, 0f, 40f, 0f, 1f, ClericOrb),
+            new ComboHit(70f, 60f, 130f, 1.1f, 0f, 0f, 40f, 0f, 1f, ClericLance),
             new ComboHit(130f, 80f, 250f, 1.6f, 0f, 0f, 80f, 0f, 1f, ClericBurstOrb),
         };
     }

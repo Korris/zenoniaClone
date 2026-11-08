@@ -129,6 +129,12 @@ namespace ZenoniaProto.Rpg
                 item.enhance = RpgMath.Clamp(raw.enhance, 0, EnhanceConfig.MaxEnhance);
                 item.name = WeaponNames.FullName(item) ?? item.name; // older saves carry "Legendary Gun": the table is the authority
             }
+            if (t.Slot == Slots.Helmet) // older saves carry "Fine Steel Helm": the slot is a necklace now (08/11), the tier table names it
+            {
+                string baseName = ItemDefs.ArmorTierNames[Slots.Helmet][ItemDefs.EquipmentTier(item.itemLevel)];
+                string prefix = ItemDefs.Rarity(item.rarity).Prefix;
+                item.name = prefix != null ? prefix + " " + baseName : baseName;
+            }
             if (t.Slot == Slots.Pet)
             {
                 if (raw.durability <= 0 && !oldFormat) return null;

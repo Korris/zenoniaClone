@@ -136,7 +136,7 @@ public class MessageRoundTripTests
         Assert.Equal(InvOp.HairStyle, hair.Op); Assert.Equal((byte)3, hair.Slot);
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.HairStyle + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(16, NetProtocol.Version);
+        Assert.Equal(17, NetProtocol.Version);
     }
 
     [Fact]

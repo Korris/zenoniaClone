@@ -8,6 +8,7 @@ using ZenoniaProto.Net;
 public class TradeBookTests
 {
     const ushort A = 1, B = 2, C = 3;
+    const int BagSlots = 50; // PlayerState.InventorySize (TradeService.BagSize), not compiled into this project
 
     sealed class FakeItem { public string Uid; public int Enhance; }
 
@@ -17,7 +18,7 @@ public class TradeBookTests
         public readonly List<string> Worn = new List<string>();
         public int GoldHeld;
         public TradeSpot Where = new TradeSpot { MapId = "m", X = 0f, Y = 0f };
-        public int Size = 20;
+        public int Size = BagSlots;
         /// <summary>The next TakeItem of this uid fails even though the item is there, to prove the all-or-nothing path.</summary>
         public string FailTake;
 
@@ -566,7 +567,7 @@ public class TradeBookTests
     public void RefusedWhenTheReceiverHasNoRoom()
     {
         World w = ReadyGift();
-        ExpectRefusal(w, TradeFail.NoRoom, B, () => { for (int i = 0; i < 20; i++) w[B].With("fill" + i); });
+        ExpectRefusal(w, TradeFail.NoRoom, B, () => { for (int i = 0; i < BagSlots; i++) w[B].With("fill" + i); });
     }
 
     [Fact]
@@ -574,11 +575,11 @@ public class TradeBookTests
     {
         World w = Trading();
         w[A].With("a1", "a2");
-        for (int i = 0; i < 20; i++) w[B].With("b" + i);
+        for (int i = 0; i < BagSlots; i++) w[B].With("b" + i);
         w.Add(A, "a1", "a2"); w.Add(B, "b0", "b1");
         w.LockBoth();
         w.ConfirmBoth();
-        Assert.Equal(20, w[B].Bag.Count);
+        Assert.Equal(BagSlots, w[B].Bag.Count);
         Assert.Contains(w[B].Bag, i => i.Uid == "a2");
     }
 
@@ -588,7 +589,7 @@ public class TradeBookTests
         World w = Trading();
         w[A].With("a1");
         w.Add(A, "a1");
-        for (int i = 0; i < 20; i++) w[B].With("b" + i);
+        for (int i = 0; i < BagSlots; i++) w[B].With("b" + i);
         Assert.Equal(TradeFail.NoRoom, w.Lock(A));
         Assert.False(w.Mine(A).Locked);
     }

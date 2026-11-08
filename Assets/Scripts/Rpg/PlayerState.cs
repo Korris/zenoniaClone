@@ -15,7 +15,7 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public sealed partial class PlayerState
     {
-        public const int InventorySize = 20;
+        public const int InventorySize = 50; // bag slots (was 20 until 2026-11-08); server-api INVENTORY_SIZE must match
         public const int MaxStones = 9999;
 
         public string ClassId { get; private set; }

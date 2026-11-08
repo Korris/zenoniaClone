@@ -7,7 +7,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Centre panel: a 5 x 4 paged grid. Unfiltered: gold, potions and stones first, then the 20 bag slots. Filtered by a worn slot: only the items the hero can put in that slot.
+    /// Centre panel: a 5 x 4 paged grid (20 cells a page). Unfiltered: gold, potions and stones first, then the PlayerState.InventorySize bag slots (8 + 50 = 3 pages). Filtered by a worn slot: only the items the hero can put in that slot.
     /// Coordinates are local to the panel.
     /// </summary>
     public partial class InventoryPanel

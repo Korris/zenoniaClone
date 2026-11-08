@@ -1,5 +1,5 @@
 {
- "note": "Head layer offsets per frame (frame px, y down) from the head art's own place (heads/<style>/<dir>.png is a full 192 cell placed for frame 0); sy = vertical scale about the cell bottom (breathing), applied before the move. Tools/build-head-layer.py; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored.",
+ "note": "Head layer offsets per frame (frame px, y down) from the head art's own place (heads/<style>/<dir>.png is a full 192 cell placed for frame 0); sy = vertical scale about the cell bottom (breathing), applied before the move. Tools/build-head-layer.py; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored; s = uniform scale and angle = clockwise degrees about the cell bottom centre (Tools/head_layer_dirs.py). Left facings draw the right head mirrored.",
  "anims": [
   {
    "anim": "idle",
@@ -266,6 +266,774 @@
      "s": 1.048,
      "sy": 1.0,
      "angle": -3.0
+    }
+   ]
+  },
+  {
+   "anim": "melee2",
+   "dir": "down",
+   "frames": [
+    {
+     "x": -3.876,
+     "y": 21.679,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 1.6
+    },
+    {
+     "x": 2.477,
+     "y": 2.08,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 1.6
+    },
+    {
+     "x": 0.952,
+     "y": -17.476,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.2
+    },
+    {
+     "x": 9.845,
+     "y": -7.523,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.2
+    },
+    {
+     "x": 3.93,
+     "y": 1.181,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 1.8
+    },
+    {
+     "x": 1.253,
+     "y": -3.999,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.2
+    }
+   ]
+  },
+  {
+   "anim": "melee2",
+   "dir": "up",
+   "frames": [
+    {
+     "x": -1.187,
+     "y": 14.997,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -0.202,
+     "y": 0.478,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": -3.099,
+     "y": -19.288,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 4.2
+    },
+    {
+     "x": 4.772,
+     "y": -10.502,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 8.0
+    },
+    {
+     "x": -5.514,
+     "y": -0.038,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 7.2
+    },
+    {
+     "x": -0.256,
+     "y": -0.383,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "melee2",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 10.665,
+     "y": 22.062,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.6
+    },
+    {
+     "x": 13.351,
+     "y": 7.523,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -1.4
+    },
+    {
+     "x": 14.154,
+     "y": -16.01,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -3.8
+    },
+    {
+     "x": 14.038,
+     "y": -19.282,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -3.8
+    },
+    {
+     "x": 10.122,
+     "y": -4.488,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -1.6
+    },
+    {
+     "x": 4.173,
+     "y": -6.585,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -0.4
+    }
+   ]
+  },
+  {
+   "anim": "melee2",
+   "dir": "left",
+   "frames": [
+    {
+     "x": -10.665,
+     "y": 22.062,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -0.6
+    },
+    {
+     "x": -13.351,
+     "y": 7.523,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 1.4
+    },
+    {
+     "x": -14.154,
+     "y": -16.01,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 3.8
+    },
+    {
+     "x": -14.038,
+     "y": -19.282,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 3.8
+    },
+    {
+     "x": -10.122,
+     "y": -4.488,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 1.6
+    },
+    {
+     "x": -4.173,
+     "y": -6.585,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    }
+   ]
+  },
+  {
+   "anim": "melee3",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 4.673,
+     "y": -7.965,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 3.647,
+     "y": -3.458,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 4.079,
+     "y": 4.409,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": 2.471,
+     "y": 4.363,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": 2.471,
+     "y": -4.137,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": 1.971,
+     "y": -5.887,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    }
+   ]
+  },
+  {
+   "anim": "melee3",
+   "dir": "up",
+   "frames": [
+    {
+     "x": -0.5,
+     "y": -1.5,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -0.585,
+     "y": -0.794,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.671,
+     "y": 10.161,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.671,
+     "y": 10.161,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -3.176,
+     "y": -6.869,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.8
+    },
+    {
+     "x": -4.426,
+     "y": -6.869,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.8
+    }
+   ]
+  },
+  {
+   "anim": "melee3",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 6.13,
+     "y": -2.448,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 3.409,
+     "y": 3.147,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 6.2
+    },
+    {
+     "x": -1.895,
+     "y": 10.866,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 9.8
+    },
+    {
+     "x": 4.605,
+     "y": 11.616,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 9.8
+    },
+    {
+     "x": 2.989,
+     "y": -2.419,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 4.6
+    },
+    {
+     "x": 1.559,
+     "y": -3.281,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "melee3",
+   "dir": "left",
+   "frames": [
+    {
+     "x": -6.13,
+     "y": -2.448,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -3.409,
+     "y": 3.147,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -6.2
+    },
+    {
+     "x": 1.895,
+     "y": 10.866,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -9.8
+    },
+    {
+     "x": -4.605,
+     "y": 11.616,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -9.8
+    },
+    {
+     "x": -2.989,
+     "y": -2.419,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -4.6
+    },
+    {
+     "x": -1.559,
+     "y": -3.281,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "melee1",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 7.374,
+     "y": -0.533,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": 9.266,
+     "y": -0.579,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": 10.645,
+     "y": -0.537,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": 8.8,
+     "y": -0.672,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": 6.692,
+     "y": -1.469,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    },
+    {
+     "x": 2.692,
+     "y": -0.969,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.4
+    }
+   ]
+  },
+  {
+   "anim": "melee1",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 0.415,
+     "y": 0.456,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.415,
+     "y": 0.456,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.585,
+     "y": 0.456,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.415,
+     "y": 0.456,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 1.415,
+     "y": 0.456,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 0.415,
+     "y": 0.456,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "melee1",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 9.92,
+     "y": 2.925,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.2
+    },
+    {
+     "x": 9.53,
+     "y": 1.32,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.6
+    },
+    {
+     "x": 21.53,
+     "y": 1.32,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.6
+    },
+    {
+     "x": 13.94,
+     "y": 1.36,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.6
+    },
+    {
+     "x": 7.355,
+     "y": 0.342,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 3.0
+    },
+    {
+     "x": -5.38,
+     "y": -0.027,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 3.0
+    }
+   ]
+  },
+  {
+   "anim": "melee1",
+   "dir": "left",
+   "frames": [
+    {
+     "x": -9.92,
+     "y": 2.925,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.2
+    },
+    {
+     "x": -9.53,
+     "y": 1.32,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.6
+    },
+    {
+     "x": -21.53,
+     "y": 1.32,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.6
+    },
+    {
+     "x": -13.94,
+     "y": 1.36,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.6
+    },
+    {
+     "x": -7.355,
+     "y": 0.342,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -3.0
+    },
+    {
+     "x": 5.38,
+     "y": -0.027,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -3.0
+    }
+   ]
+  },
+  {
+   "anim": "melee4",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 1.785,
+     "y": 8.667,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 1.4
+    },
+    {
+     "x": 15.385,
+     "y": 1.648,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 3.0
+    },
+    {
+     "x": -10.909,
+     "y": 2.741,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.2
+    },
+    {
+     "x": -3.642,
+     "y": 10.998,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 3.6
+    },
+    {
+     "x": -2.384,
+     "y": 8.981,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 3.2
+    },
+    {
+     "x": -3.254,
+     "y": -0.547,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.8
+    }
+   ]
+  },
+  {
+   "anim": "melee4",
+   "dir": "up",
+   "frames": [
+    {
+     "x": -1.081,
+     "y": 2.103,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": 15.347,
+     "y": -4.428,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 1.6
+    },
+    {
+     "x": 17.025,
+     "y": -4.467,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 1.2
+    },
+    {
+     "x": 17.956,
+     "y": -4.754,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.8
+    },
+    {
+     "x": -1.064,
+     "y": 0.267,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    },
+    {
+     "x": -1.138,
+     "y": -4.51,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.0
+    }
+   ]
+  },
+  {
+   "anim": "melee4",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 13.0,
+     "y": 3.5,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.0
+    },
+    {
+     "x": 15.775,
+     "y": 1.571,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.8
+    },
+    {
+     "x": 11.453,
+     "y": 1.241,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.8
+    },
+    {
+     "x": 12.887,
+     "y": 4.161,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 2.8
+    },
+    {
+     "x": 12.131,
+     "y": 2.913,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 3.2
+    },
+    {
+     "x": 0.829,
+     "y": -3.121,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": 0.8
+    }
+   ]
+  },
+  {
+   "anim": "melee4",
+   "dir": "left",
+   "frames": [
+    {
+     "x": -13.0,
+     "y": 3.5,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.0
+    },
+    {
+     "x": -15.775,
+     "y": 1.571,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.8
+    },
+    {
+     "x": -11.453,
+     "y": 1.241,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.8
+    },
+    {
+     "x": -12.887,
+     "y": 4.161,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -2.8
+    },
+    {
+     "x": -12.131,
+     "y": 2.913,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -3.2
+    },
+    {
+     "x": -0.829,
+     "y": -3.121,
+     "s": 1.0,
+     "sy": 1.0,
+     "angle": -0.8
     }
    ]
   }

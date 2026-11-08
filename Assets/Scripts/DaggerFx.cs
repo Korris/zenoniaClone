@@ -43,6 +43,7 @@ namespace ZenoniaProto
         public static void Swing(Vector2 center, Vector2 feet, float angle, ComboHit h, int step, bool finisher, bool echo)
         {
             if (root == null) return;
+            if (AssassinAttackFx.Ready) { AssassinAttackFx.Swing(center, angle, h, step, finisher, echo); return; } // painted board FX (2026-11-08); below = the old crescents
             if (finisher) { Slash(center, angle, h.FxScale * 1.15f, echo); return; }
             if (step == 2) { Slash(center, angle + 35f, h.FxScale, true); return; } // tilted up: the left hand rises from low to high
             if (step == 3)

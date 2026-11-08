@@ -25,16 +25,17 @@ namespace ZenoniaProto
 #if ENABLE_LEGACY_INPUT_MANAGER
             Map[(int)GameKey.HpPotion] = new[] { KeyCode.Q };
             Map[(int)GameKey.MpPotion] = new[] { KeyCode.E };
-            Map[(int)GameKey.TierUp] = new KeyCode[0];
-            Map[(int)GameKey.TierDown] = new KeyCode[0];
+            // Q / E drink here: the debug gear look (weapon + armour outfit of one art tier) moves to X (up) / Z (down) in test builds, none in a release
+            Map[(int)GameKey.TierUp] = ReleaseBuild.IsRelease ? new KeyCode[0] : new[] { KeyCode.X };
+            Map[(int)GameKey.TierDown] = ReleaseBuild.IsRelease ? new KeyCode[0] : new[] { KeyCode.Z };
             Map[(int)GameKey.SlotKey1] = new[] { KeyCode.Alpha1, KeyCode.Keypad1, KeyCode.U };
             Map[(int)GameKey.SlotKey2] = new[] { KeyCode.Alpha2, KeyCode.Keypad2, KeyCode.I, KeyCode.L };
             Map[(int)GameKey.SlotKey3] = new[] { KeyCode.Alpha3, KeyCode.Keypad3, KeyCode.O };
 #elif ENABLE_INPUT_SYSTEM
             Map[(int)GameKey.HpPotion] = new[] { Key.Q };
             Map[(int)GameKey.MpPotion] = new[] { Key.E };
-            Map[(int)GameKey.TierUp] = new Key[0];
-            Map[(int)GameKey.TierDown] = new Key[0];
+            Map[(int)GameKey.TierUp] = ReleaseBuild.IsRelease ? new Key[0] : new[] { Key.X };
+            Map[(int)GameKey.TierDown] = ReleaseBuild.IsRelease ? new Key[0] : new[] { Key.Z };
             Map[(int)GameKey.SlotKey1] = new[] { Key.Digit1, Key.Numpad1, Key.U };
             Map[(int)GameKey.SlotKey2] = new[] { Key.Digit2, Key.Numpad2, Key.I, Key.L };
             Map[(int)GameKey.SlotKey3] = new[] { Key.Digit3, Key.Numpad3, Key.O };

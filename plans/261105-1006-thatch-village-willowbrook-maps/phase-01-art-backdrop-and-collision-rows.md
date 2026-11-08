@@ -5,7 +5,7 @@
 - Mẫu: `Assets/Resources/Sprites/village/tiles/*-ground.png` đều 2304x1536; `WorldBuilder.cs:37` tạo sprite với PPU = `tex.width / MapW` nên chỉ cần đúng tỉ lệ 3:2.
 - Import tự động: `Assets/Editor/ResourceTextureImportSettings.cs` (path có `/tiles/` -> bilinear, không mip, tối đa 4096).
 - Tiền lệ hàng va chạm: `plans/261030-2130-world-expansion-design/*-rows.txt`. Chưa có script upscale nào trong `Tools/` (map cũ làm tay).
-- Trước khi làm: đọc `docs/sprite-weapon-rules.md` (quy định CLAUDE.md cho mọi việc art).
+- Trước khi làm: đọc `docs/sprite-rules.md` (quy định CLAUDE.md cho mọi việc art).
 
 ## Overview
 Priority P1 trong plan (chặn mọi phase sau). Tạo 2 backdrop + 2 bộ 24 hàng x 36 ký tự.

@@ -1,7 +1,7 @@
 # Phase 05: Prop - cắt khu cũ, prop sheet mới, bảng đặt
 
 ## Context
-- Đọc trước `docs/sprite-weapon-rules.md` (quy tắc tự xem ảnh, Sổ lỗi) dù là prop map.
+- Đọc trước `docs/sprite-rules.md` (quy tắc tự xem ảnh, Sổ lỗi) dù là prop map.
 - Mẫu: `Tools/build-willowbrook-props.py` (cắt prop từ ảnh gốc theo box tay, alpha theo mode tree/rock/struct, so với ảnh chỉ-đất, pad để pivot dưới-giữa footprint; lệnh `check` overlay footprint), `Tools/cut-willowbrook-extra-props.py` (prop sheet #FF00FF -> `wbx*`, dùng `build-meadow-monsters.key_magenta`), bảng `Maps/WillowbrookMeadows{,Frame,Scatter}Props.cs`, defs `Maps/VillagePropDefs.cs` (93 dòng; Den đã có `icePillar, frozenStalagmite, frostCrystal, frozenBones` dòng 42-43 - dùng lại được ở khu mới).
 - Frost Hollow hiện **không có prop** (cây vẽ trong nền; `FrostHollowLayout` không override `Props`).
 

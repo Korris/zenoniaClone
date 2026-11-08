@@ -11,7 +11,7 @@ A table row is (fist_x, fist_y, aim, flip, behind) in frame pixels of the bare s
 HeroRenderer rotates a sprite that was scaled first, so angle = aim with flip 1 and aim - 180 with flip -1.
 The gun is in the hero's right hand, the arm opposite the gauntlet with the blue eye: viewer's left facing the camera, viewer's right from behind,
 the near hand facing right, the far hand facing left. Anims in MIRRORED draw the right row flipped in the game, so their left anchors are the right ones mirrored.
-Re-read the table whenever a mechanic body/bare sheet is repainted (docs/sprite-weapon-rules.md rule 5)."""
+Re-read the table whenever a mechanic body/bare sheet is repainted (docs/sprite-rules.md rule 5)."""
 import json, math, os, re, uuid
 import numpy as np
 from PIL import Image

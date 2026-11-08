@@ -1,6 +1,6 @@
 # Phase 2: Fighter body sprites and glove anchors
 
-Context: [plan.md](plan.md), `docs/sprite-weapon-rules.md` (read all), `Tools/build-assassin-new-style.py` (the model), `Tools/build-assassin-idle-down-doll.py`. Priority: high. Status: **done 2026-11-04 01:30** (agent art body; report `plans/reports/agent-261104-0030-fighter-body-sprites.md`). Not yet seen in the game.
+Context: [plan.md](plan.md), `docs/sprite-rules.md` (read all), `Tools/build-assassin-new-style.py` (the model), `Tools/build-assassin-idle-down-doll.py`. Priority: high. Status: **done 2026-11-04 01:30** (agent art body; report `plans/reports/agent-261104-0030-fighter-body-sprites.md`). Not yet seen in the game.
 
 ## Requirements
 - Rows (192 px cells, hero 164 px tall standing, soles on row 188-191 like the other classes): `idle`, `walk` (4 frames), `hurt` (2), `melee1`..`melee4` (6 each: jab, cross, hook, uppercut), `dash` (3), each in down / up / left / right; `death` may copy the Assassin's layout with the fighter art or be the hurt pose.

@@ -31,6 +31,7 @@ namespace ZenoniaProto
     ///   --drop-loot                       scatter a boss-sized pile of loot (gold, potions, stones, 3 items) in front of the hero
     ///   --open-inventory                  open the inventory window (B) after spawning
     ///   --pet spirit|imp / --give-pets    wear that pet / one of each pet in the bag
+    ///   --fill-bag N                      top the bag up to N items with generated gear (bag-size captures)
     ///   --bag-item N / --open-shop NPC    Inventory tab on bag item N (with --open-inventory) / that seller's window
     ///   --pet-durability N / --select-pet every pet at N / Equipment tab on the worn pet (with --open-inventory)
     ///   --open-settings / --open-quests   the Settings window (gear button) / the quest list, after spawning
@@ -167,11 +168,11 @@ namespace ZenoniaProto
                     Item pick = p.Inventory.Find(i => i.uid == "dev-" + slot + "-" + wornTier);
                     if (pick != null) p.Equip(pick);
                 }
-            string wear = Arg(Environment.GetCommandLineArgs(), "--wear-tiers"); // "A,G,B": wear armour / gloves / boots of these art tiers (armour look captures)
+            string wear = Arg(Environment.GetCommandLineArgs(), "--wear-tiers"); // "A,G,B[,N]": wear armour / gloves / boots [/ necklace] of these art tiers (armour look captures)
             if (wear != null)
             {
                 string[] t = wear.Split(',');
-                string[] wearSlots = { Slots.Armor, Slots.Gloves, Slots.Boots };
+                string[] wearSlots = { Slots.Armor, Slots.Gloves, Slots.Boots, Slots.Helmet };
                 p.Inventory.Clear(); // the dev-start bag is full: room for the pieces taken off (capture runs never save)
                 for (int i = 0; i < wearSlots.Length && i < t.Length; i++)
                 {
@@ -193,6 +194,10 @@ namespace ZenoniaProto
                 if (def != null) { p.Equip(ItemFactory.CreatePet(def, RpgRandom.Default)); p.Hp = p.MaxHp; RpgSession.SyncGear(); }
             }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--give-pets") >= 0) foreach (PetDef def in PetConfig.All) p.AddToInventory(ItemFactory.CreatePet(def, RpgRandom.Default));
+            string fillBag = Arg(Environment.GetCommandLineArgs(), "--fill-bag"); // capture runs never save, so the extra gear is gone on the next start
+            if (fillBag != null)
+                for (int i = 0, n = int.Parse(fillBag); p.Inventory.Count < n; i++)
+                    if (!p.AddToInventory(ItemFactory.Generate(RpgRandom.Default, 1 + i * 3 % 90, Slots.Generated[i % Slots.Generated.Length], ItemDefs.RarityOrder[i % ItemDefs.RarityOrder.Length], p.ClassId))) break;
             string petDurability = Arg(Environment.GetCommandLineArgs(), "--pet-durability");
             if (petDurability != null)
             {
@@ -216,6 +221,8 @@ namespace ZenoniaProto
             string shop = Arg(Environment.GetCommandLineArgs(), "--open-shop");
             if (shop != null) { NpcDef seller = NpcDefs.Get(shop); PotionShopWindow.Open(shop, seller.Name, seller.Lines[0]); } // what TownNpc.Talk passes
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--select-pet") >= 0) InventoryPanel.TestSelectWorn(Slots.Pet);
+            string selectWorn = Arg(Environment.GetCommandLineArgs(), "--select-worn"); // a slot id, e.g. helmet (the Necklace cell): its detail panel
+            if (selectWorn != null) InventoryPanel.TestSelectWorn(selectWorn);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-settings") >= 0) SettingsWindow.Open(); // what the gear button calls
             string show = Arg(Environment.GetCommandLineArgs(), "--settings-show"); // e.g. on,off: switch art only, PlayerPrefs untouched
             if (show != null) { string[] s = show.Split(','); SettingsWindow.TestShow(s[0] == "on", s.Length > 1 && s[1] == "on"); }

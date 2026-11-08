@@ -17,7 +17,7 @@
 - `Assets/Resources/Sprites/classes/wizard/body/{bare,armed,hand}/attack3.png`
 - `Assets/Resources/Data/classes/wizard/held-wizard-melee.json` (anchor `attack3` down/up/left)
 - `Tools/build-wizard-new-style.py` (`FISTS`, `ANGLE_FRAME`)
-- `docs/pending-tasks.md`, `docs/sprite-weapon-rules.md` (3 dòng Sổ lỗi)
+- `docs/pending-tasks.md`, `docs/sprite-rules.md` (3 dòng Sổ lỗi)
 
 ## Còn tồn
 - Hàng lên lộ tóc trắng dưới mũ trùm, khác `attack1`, `attack2` lên (chỉ mũ). Chấp nhận, ghi Sổ lỗi.

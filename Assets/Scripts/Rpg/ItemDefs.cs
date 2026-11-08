@@ -31,7 +31,8 @@ namespace ZenoniaProto.Rpg
 
         public static readonly Dictionary<string, string[]> ArmorTierNames = new Dictionary<string, string[]>
         {
-            { Slots.Helmet, new[] { "Leather Cap", "Steel Helm", "Bronze Helm", "Frost Helm", "Flame Helm", "Royal Helm", "Verdant Helm", "Arcane Helm", "Celestial Helm", "Dragon Helm" } },
+            // the "helmet" slot is shown as a Necklace (designer 08/11): stats only, no hat on the character
+            { Slots.Helmet, new[] { "Cord Necklace", "Steel Pendant", "Bronze Amulet", "Frost Amulet", "Flame Amulet", "Royal Pendant", "Verdant Amulet", "Arcane Amulet", "Celestial Amulet", "Dragon Amulet" } },
             { Slots.Armor, new[] { "Leather Vest", "Steel Plate", "Bronze Plate", "Frost Plate", "Flame Plate", "Royal Plate", "Verdant Armor", "Arcane Armor", "Celestial Armor", "Dragon Armor" } },
             { Slots.Gloves, new[] { "Cloth Gloves", "Steel Gauntlets", "Bronze Gauntlets", "Frost Gauntlets", "Flame Gauntlets", "Royal Gauntlets", "Verdant Gloves", "Arcane Gauntlets", "Celestial Gauntlets", "Dragon Gauntlets" } },
             { Slots.Boots, new[] { "Leather Boots", "Steel Boots", "Bronze Boots", "Frost Boots", "Flame Boots", "Royal Boots", "Verdant Boots", "Arcane Boots", "Celestial Boots", "Dragon Boots" } },
@@ -44,9 +45,9 @@ namespace ZenoniaProto.Rpg
         {
             W("sword", "Sword", 4, 1); W("sword2", "Short Sword", 6, 1); W("rapier", "Rapier", 7, 3); W("club", "Club", 8, 4);
             W("katana", "Katana", 9, 6); W("axe", "Axe", 10, 6); W("lance", "Lance", 11, 8); W("hammer", "Hammer", 13, 11); W("bigSword", "Big Sword", 15, 14);
-            G(Slots.Helmet, "leatherCap", "Leather Cap", 1, new ItemStats { def = 1, maxHp = 5 });
-            G(Slots.Helmet, "ironHelm", "Iron Helm", 5, new ItemStats { def = 3, maxHp = 12 });
-            G(Slots.Helmet, "knightHelm", "Knight Helm", 10, new ItemStats { def = 6, maxHp = 22 });
+            G(Slots.Helmet, "leatherCap", "Cord Necklace", 1, new ItemStats { def = 1, maxHp = 5 });
+            G(Slots.Helmet, "ironHelm", "Iron Pendant", 5, new ItemStats { def = 3, maxHp = 12 });
+            G(Slots.Helmet, "knightHelm", "Knight Amulet", 10, new ItemStats { def = 6, maxHp = 22 }); // necklace: ids kept for saves, display names only
             G(Slots.Armor, "leatherVest", "Leather Vest", 1, new ItemStats { def = 2, maxHp = 10 });
             G(Slots.Armor, "ironMail", "Iron Mail", 5, new ItemStats { def = 5, maxHp = 25 });
             G(Slots.Armor, "knightPlate", "Knight Plate", 10, new ItemStats { def = 9, maxHp = 45 });

@@ -8,7 +8,7 @@ Ngày: 2026-11-03 23:30 đến 2026-11-04 00:40. Chat ChatGPT (Tay, Plus): https
 - Backup 9 `<tier>-src.png` cũ vào `staff-src/old-20261103/`, chép ảnh mới đè lên.
 - Sửa `Tools/build-wizard-new-style.py`: `STAFF_KEY` chỉ còn `nature`; `staff_grip` nhận thân tới 24 px, bỏ mũi gậy, chọn đoạn trơn gần hàng 161 (`GRIP_TARGET_Y`); `STAFF_GRIP_Y = {"arcane": 168}`; bản cường hoá lấy hàng tay của bản thường.
 - `staff-check` rồi `staff-write wood crystal moon arcane flame ice nature holy void`: 18 sprite `Sprites/classes/wizard/weapons/staff/`, grip 9 tier trong `Data/classes/wizard/held-wizard.json` (file 1 dòng, chỉ đổi 9 entry; `apprentice` giữ nguyên), icon `Sprites/icons/weapon-wizard-1..9.png` (bản cũ ở `new-style/old/icons/`).
-- Ghi `docs/pending-tasks.md` và 4 dòng "Sổ lỗi" trong `docs/sprite-weapon-rules.md`.
+- Ghi `docs/pending-tasks.md` và 4 dòng "Sổ lỗi" trong `docs/sprite-rules.md`.
 
 ## Đã xem bằng mắt
 - 9 ảnh tải về (bản nửa cỡ): đúng thiết kế sheet, hai cây thẳng đứng, bản cường hoá không rộng hơn bản thường (w bằng nhau ở cả 9 tier).

@@ -1,6 +1,6 @@
 # Phase 3: Fighter glove tiers and icons
 
-Context: [plan.md](plan.md), `docs/sprite-weapon-rules.md` (read all), `Tools/build-assassin-new-style.py` dagger section (`key_pair`, `cut_pair`, `dagger_install`, `install_icons`). Priority: high. Status: **done 2026-11-04 01:10** (agent), report `plans/reports/agent-261104-0030-fighter-glove-tiers.md`. Not seen in game yet (no body sheet, no anchors at the time).
+Context: [plan.md](plan.md), `docs/sprite-rules.md` (read all), `Tools/build-assassin-new-style.py` dagger section (`key_pair`, `cut_pair`, `dagger_install`, `install_icons`). Priority: high. Status: **done 2026-11-04 01:10** (agent), report `plans/reports/agent-261104-0030-fighter-glove-tiers.md`. Not seen in game yet (no body sheet, no anchors at the time).
 
 ## Requirements
 - 10 tiers, each one ChatGPT image: ONE glove, closed fist, side view with the knuckles pointing RIGHT, Normal on the LEFT and Enhanced (brighter, energy) on the RIGHT, flat #00FF00 (magenta for a green glove), no text, 1536x1024. Designs clearly different (MU-like variety): leather (plain brown boxing glove), iron (riveted steel gauntlet), bronze (bronze cestus with studs), tiger (claw-studded tiger-striped), flame (the hero-select flaming red/gold gauntlet), frost (ice crystal gauntlet), thunder (blue lightning coil gauntlet), shadow (black spiked with purple smoke), holy (white-gold winged gauntlet), dragon (red dragon-head gauntlet).

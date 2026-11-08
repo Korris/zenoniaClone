@@ -43,6 +43,12 @@ SHEETS = {
 
 def key_green(rgb):
     r, g, b = [rgb[..., i].astype(np.float64) for i in range(3)]
+    corner = np.median(np.concatenate([rgb[:6].reshape(-1, 3), rgb[-6:].reshape(-1, 3)]), 0)
+    if corner[0] > 180 and corner[2] > 180 and corner[1] < 90:   # green art is painted on #FF00FF (sprite rules): key magenta instead
+        excess = np.minimum(r, b) - g
+        alpha = 1 - np.clip((excess - 40) / 80, 0, 1)
+        spill = np.clip(excess - 60, 0, None) * (alpha < 1)
+        return np.dstack([r - spill, g, b - spill, alpha * 255])
     excess = g - np.maximum(r, b)
     alpha = 1 - np.clip((excess - 12) / 60, 0, 1)
     g2 = np.minimum(g, np.maximum(r, b))  # no green fringe

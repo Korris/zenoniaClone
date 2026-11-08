@@ -49,6 +49,12 @@ CLASSES = {
         # yellow hair, brass goggles (the cyan eyes are face)
         "hair": lambda c: (lambda r, g, b: ((r > 150) & (g > 100) & (r - b > 120)) | ((r < 200) & (r - b > 90)))(*_rgb(c)),
         "eyes": [], "face_x": (74, 118),
+        # attack rows: the hair test also takes the brown gloves; head only near the placed reference head, never on the fist layer (head_layer_dirs.attack_guard)
+        "attack_guard": 4,
+        # attack rows are head-normalised to idle size (build-mechanic-attack-down-repaint.py NORMALIZE): a wider scale range let raised arms pull the fit
+        "attack_s_range": (0.95, 1.06),
+        "attack_tilt": {("attack4", "right", 2): -20},  # (anim, dir, frame): head tilted past 10 degrees (cannon recoil throws it back ~20), fit starts there; left = right mirrored
+        "hair_core": lambda c: (lambda r, g, b: (r > 150) & (g > 100) & (r - b > 120))(*_rgb(c)),  # bright yellow only: not gloves / skin
     },
     "assassin": {
         "female": True, "mask": "polyline", "breath": "scale", "crop": (12, 10, 150, 128), "keep": (80, 116), "graft": 76,

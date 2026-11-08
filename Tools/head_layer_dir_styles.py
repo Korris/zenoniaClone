@@ -224,3 +224,25 @@ def run(cls, src, d, n0, dest, match_down=False):
         else:
             os.makedirs(dest, exist_ok=True)
             Image.fromarray(core.u8(cell)).save(f"{dest}/{cls}-style{n}-{d}-cell.png")
+
+
+def scale_heads(cls, d, f):
+    """Shrink (or grow) every style's head of a facing by f about its chin bottom, so it stays on the neck (Warrior right 2026-11-07:
+    the painted side head was 8-14% wider than the front one while the other classes' side heads are narrower; 0.92 balances it).
+    Run after any dirs-sheet write of that facing."""
+    for n in range(10):
+        path = f"{core.paths(cls)['heads']}/{n}/{d}.png"
+        if not os.path.isfile(path):
+            continue
+        h = np.array(Image.open(path).convert("RGBA")).astype(np.float64)
+        a = h[..., 3] > 128
+        ys, xs = np.where(a)
+        by = ys.max()
+        bx = xs[ys >= by - 6].mean()
+        p = core.pm(h)
+        yy, xx = np.mgrid[0:FRAME, 0:FRAME].astype(np.float64)
+        sy = (yy + 0.5 - (by + 0.5)) / f + by
+        sx = (xx + 0.5 - bx) / f + bx - 0.5
+        out = np.stack([ndimage.map_coordinates(p[..., c], [sy, sx], order=1, mode="constant") for c in range(4)], -1)
+        Image.fromarray(core.u8(core.straight(np.clip(out, 0, 255)))).save(path)
+        print("scaled", path, f)

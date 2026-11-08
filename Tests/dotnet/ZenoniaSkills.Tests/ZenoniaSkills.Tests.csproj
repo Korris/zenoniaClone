@@ -10,6 +10,8 @@
   <ItemGroup>
     <Compile Include="*.cs" />
     <Compile Include="..\..\..\Assets\Scripts\Rpg\**\*.cs" Exclude="..\..\..\Assets\Scripts\Rpg\SaveStore.cs" />
+    <!-- Combo tables are engine-free and shared with the server: MechanicComboTests checks the Mechanic's bolts. -->
+    <Compile Include="..\..\..\Assets\Scripts\ComboSystem.cs;..\..\..\Assets\Scripts\ComboConfigs.cs;..\..\..\Assets\Scripts\BoltStyle.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />

@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { armor, makeCtx, weapon } from './helpers.js';
+import { INVENTORY_SIZE } from '../src/rpg/rpg-constants.js';
 
 let c;
 beforeAll(async () => { c = await makeCtx(); });
@@ -90,6 +91,15 @@ describe('save snapshot', () => {
     expect((await c.call('POST', `/characters/${o.char.id}/enter`, { token: o.user.accessToken })).status).toBe(409);
   });
 
+  it('keeps a full 50-slot bag', async () => {
+    const o = await c.online();
+    const inventory = Array.from({ length: INVENTORY_SIZE }, (_, i) => armor(`full-${i}`));
+    expect(INVENTORY_SIZE).toBe(50);
+    expect((await save(o, { ...o.state, inventory })).status).toBe(200);
+    const cur = (await c.call('GET', `/characters/${o.char.id}`, { token: o.user.accessToken })).body.character;
+    expect(cur.state.inventory.map((i) => i.uid)).toEqual(inventory.map((i) => i.uid));
+  });
+
   it('validates the payload: caps, duplicates, class change', async () => {
     const o = await c.online();
     const bad = async (patch) => (await save(o, { ...o.state, ...patch })).status;
@@ -97,7 +107,7 @@ describe('save snapshot', () => {
     expect(await bad({ gold: -1 })).toBe(400);
     expect(await bad({ upgradeStone: 10000 })).toBe(400);
     expect(await bad({ x: 1e12 })).toBe(400);
-    expect(await bad({ inventory: Array.from({ length: 21 }, (_, i) => armor(`i-${i}`)) })).toBe(400);
+    expect(await bad({ inventory: Array.from({ length: INVENTORY_SIZE + 1 }, (_, i) => armor(`i-${i}`)) })).toBe(400);
     expect(await bad({ inventory: [armor('dup')], equipment: [weapon('dup')] })).toBe(400);
     expect(await bad({ equipment: [weapon('w1'), weapon('w2')] })).toBe(400); // two weapons
     expect(await bad({ inventory: [{ ...armor('z'), rarity: 'mythic' }] })).toBe(400);
@@ -165,10 +175,11 @@ describe('inventory / equipment ops', () => {
     expect(await code([{ type: 'addItem', item: weapon('w9', 2) }])).toBe('enhance_not_allowed');
     expect(await code([{ type: 'removeItem', uid: 'ghost' }])).toBe('item_not_found');
     expect(await code([{ type: 'unequip', slot: 'helmet' }])).toBe('slot_empty');
-    const many = Array.from({ length: 21 }, (_, i) => ({ type: 'addItem', item: armor(`m${i}`) }));
-    expect(await code(many.slice(0, 20))).toBeUndefined();
-    expect(await code([{ type: 'addItem', item: armor('overflow') }], 1)).toBe('inventory_full');
-    expect((await ops(o, [], 1)).status).toBe(400);
+    const many = Array.from({ length: INVENTORY_SIZE }, (_, i) => ({ type: 'addItem', item: armor(`m${i}`) }));
+    let rev = 0;
+    for (let i = 0; i < INVENTORY_SIZE; i += 20) expect(await code(many.slice(i, i + 20), rev++)).toBeUndefined(); // one ops batch holds 20
+    expect(await code([{ type: 'addItem', item: armor('overflow') }], rev)).toBe('inventory_full');
+    expect((await ops(o, [], rev)).status).toBe(400);
   });
 
   it('is idempotent per reqId: a replay returns the stored result without applying twice', async () => {

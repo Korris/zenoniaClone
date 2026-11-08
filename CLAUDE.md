@@ -6,13 +6,15 @@ Trả lời người dùng bằng tiếng Việt.
 
 ## Sprite và VFX
 
-**Trước mọi việc về sprite nhân vật, vũ khí hay hiệu ứng, kể cả khi giao cho agent: đọc hết `docs/sprite-weapon-rules.md` rồi mới làm.** Khi giao agent, ghi rõ yêu cầu này trong brief.
+**Trước mọi việc về sprite nhân vật, vũ khí hay hiệu ứng, kể cả khi giao cho agent: đọc hết `docs/sprite-rules.md` rồi mới làm.** Khi giao agent, ghi rõ yêu cầu này trong brief.
 
 - Mỗi lỗi sprite hoặc VFX mới phải ghi ngay vào mục "Sổ lỗi" của file đó, kèm nguyên nhân và cách sửa.
 - Những lỗi đã gây mất thời gian nhất:
   - Vũ khí đè lên tay, sai hướng, đổi tay khi quay trái, đổi cỡ giữa lúc cầm và lúc đánh.
   - Art ChatGPT bị vẽ cứng ô caro hoặc quá trong suốt nên trông nhạt.
   - Thời gian trong `*Fx.cs` không khớp `SkillTable`.
+  - Sprite ChatGPT vẽ lại bị to đầu so với idle: prompt phải gửi kèm idle cùng hướng và ghi cỡ đầu (điều 8 mục art ChatGPT).
+  - Anim nhân vật mới chỉ có `body/bare` nên không đổi được kiểu tóc: phải có thêm `body/headless` và anchor đầu (mục "Hình mẫu nhân vật").
 - Sửa xong phải tự xem ảnh: ghép đúng cách game vẽ (sheet `body/bare/` + overlay), xem từng frame. Báo cáo "xong" của agent hay chỉ số không đủ. Chỉ nói đã sửa khi đã thấy, và nói rõ phần chưa xem trong game.
 
 ## Map

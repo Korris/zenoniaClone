@@ -26,12 +26,27 @@ namespace ZenoniaProto.Rpg
             return item.slot + "-" + tier;
         }
 
+        /// <summary>Armor / gloves / boots: worn by every class, but drawn as a piece of the viewer's class tier set. The "helmet" slot (shown as a Necklace) keeps one shared icon set.</summary>
+        public static bool HasClassSetIcon(string slot) { return slot == Slots.Armor || slot == Slots.Gloves || slot == Slots.Boots; }
+
+        /// <summary>
+        /// Class-specific icon name of an armour piece, "armor-wizard-4" (the piece of that class's tier set), or null when the slot has no class icons / no valid class.
+        /// Armour carries no classId, so the class is the item's own tag when present, else `viewerClassId` (the player looking at it).
+        /// Callers fall back to <see cref="IconName"/> when this PNG is missing (e.g. the fighter has no set icons).
+        /// </summary>
+        public static string ClassIconName(Item item, string viewerClassId)
+        {
+            if (item == null || !HasClassSetIcon(item.slot)) return null;
+            string cls = RpgClasses.IsValid(item.classId) ? item.classId : viewerClassId;
+            return RpgClasses.IsValid(cls) ? item.slot + "-" + cls + "-" + ArtTier(item) : null;
+        }
+
         public static string SlotLabel(string slot)
         {
             switch (slot)
             {
                 case Slots.Weapon: return "Weapon";
-                case Slots.Helmet: return "Helmet";
+                case Slots.Helmet: return "Necklace"; // designer 08/11: the "helmet" slot id (saves, server) is a stat-only necklace
                 case Slots.Armor: return "Armor";
                 case Slots.Gloves: return "Gloves";
                 case Slots.Boots: return "Boots";
@@ -40,6 +55,11 @@ namespace ZenoniaProto.Rpg
                 default: return slot ?? "";
             }
         }
+
+        /// <summary>False for the necklace, gloves and boots: stats only, nothing on the character changes.</summary>
+        public static bool ChangesAppearance(string slot) { return slot != Slots.Helmet && slot != Slots.Gloves && slot != Slots.Boots; }
+
+        public const string NoAppearanceLine = "Does not change appearance";
 
         public static string RarityLabel(string rarity)
         {

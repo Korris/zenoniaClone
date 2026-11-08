@@ -23,7 +23,7 @@ Plan: `plans/261104-0025-fighter-class/phase-02-body-sprites.md` (đã cập nh�
 - `death` chỉ là `hurt`; chưa có hàng ngã.
 
 ## Sổ lỗi mới
-7 dòng Fighter 2026-11-04 trong `docs/sprite-weapon-rules.md` (dash co nhỏ vì tóc bay, đọc nhầm lưới 12 px, `behind` hàng lên, góc móc/uppercut, tóc đỏ, nắm tay phối cảnh, mất nhóm tab).
+7 dòng Fighter 2026-11-04 trong `docs/sprite-rules.md` (dash co nhỏ vì tóc bay, đọc nhầm lưới 12 px, `behind` hàng lên, góc móc/uppercut, tóc đỏ, nắm tay phối cảnh, mất nhóm tab).
 
 ## Câu hỏi chưa giải quyết
 - Cỡ găng 0,18 có đủ to với người dùng không (so găng lửa ở màn chọn tướng to gấp 3)?

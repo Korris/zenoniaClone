@@ -67,7 +67,7 @@ Số đo pháo trên bản vẽ (px frame sau khớp): xuống lens (151,56) n�
 
 ## Sổ lỗi
 
-Đã thêm 4 dòng ngày 2026-11-05 (Mechanic) vào `docs/sprite-weapon-rules.md`: đầu hướng lên, đuôi pháo ngang, súng xa sau áo choàng, mask màu đuôi/nắm tay.
+Đã thêm 4 dòng ngày 2026-11-05 (Mechanic) vào `docs/sprite-rules.md`: đầu hướng lên, đuôi pháo ngang, súng xa sau áo choàng, mask màu đuôi/nắm tay.
 
 ## Câu hỏi chưa giải quyết
 

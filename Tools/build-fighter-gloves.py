@@ -1,5 +1,5 @@
 """Fighter glove tiers: cut one ChatGPT image per tier (base glove left, enhanced right, flat #00FF00 key) into 200x200 art, grips, icons.
-Follows the dagger section of build-assassin-new-style.py. Rules in docs/sprite-weapon-rules.md.
+Follows the dagger section of build-assassin-new-style.py. Rules in docs/sprite-rules.md.
 
 Sources: Assets/ArtLibrary/classes/fighter/new-style/glove-src/<tier>-pair-chatgpt.png, knuckles pointing RIGHT in both copies
 (the game mirrors the art for the other hand). The base glove is scaled to GLOVE_W px wide on a CANVAS px square; the enhanced copy

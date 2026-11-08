@@ -21,10 +21,24 @@ namespace ZenoniaProto
 
         public static void ResetState() { Icons.Clear(); }
 
-        /// <summary>Icon of an equipment item (bottom-centre pivot), or null when the PNG is missing.</summary>
+        /// <summary>
+        /// UI icon of an equipment item (bag, equipment, trade): armour shows the piece of the local player's class tier set ("armor-wizard-4")
+        /// when that PNG exists, else the shared icon. Ground loot uses <see cref="For"/>, which keeps the shared icon.
+        /// </summary>
         public static Sprite Icon(Item item)
         {
-            string name = ItemInfo.IconName(item);
+            HeroController hero = GameSession.Hero;
+            PlayerState me = hero != null && hero.Rpg != null ? hero.Rpg : RpgSession.Player;
+            Sprite cls = Load(ItemInfo.ClassIconName(item, me != null ? me.ClassId : null));
+            return cls != null ? cls : SharedIcon(item);
+        }
+
+        /// <summary>Icon by the shared name (`ItemInfo.IconName`): ground drops and the fallback of <see cref="Icon"/>.</summary>
+        public static Sprite SharedIcon(Item item) { return Load(ItemInfo.IconName(item)); }
+
+        /// <summary>Resources/Sprites/icons/<name> as a cached bottom-centre sprite, or null when missing.</summary>
+        static Sprite Load(string name)
+        {
             if (name == null) return null;
             Sprite s;
             if (Icons.TryGetValue(name, out s) && s != null) return s;
@@ -43,7 +57,7 @@ namespace ZenoniaProto
                 case LootKind.HpPotion: return Potion(true);
                 case LootKind.MpPotion: return Potion(false);
                 case LootKind.UpgradeStone: return Stone();
-                default: return Icon(e.Item);
+                default: return SharedIcon(e.Item); // on the ground nobody "owns" the armour yet: shared icon
             }
         }
 

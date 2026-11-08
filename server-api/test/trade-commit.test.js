@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { armor, makeCtx, weapon } from './helpers.js';
+import { INVENTORY_SIZE } from '../src/rpg/rpg-constants.js';
 
 let c;
 beforeAll(async () => { c = await makeCtx(); });
@@ -66,7 +67,7 @@ describe('trade commit', () => {
     expect(await code(side(a, a.state, ['a-armor'], 0, 0), side(b, b.state))).toBe('rev_conflict'); // stale on A
     expect(await code(side(a, a.state, ['a-armor']), side(b, b.state, [], 0, 0))).toBe('rev_conflict'); // stale on B: A must not have moved
     expect(await code(side(a, a.state, ['a-armor']), side(b, b.state, [], 0, 1, 'a'.repeat(32)))).toBe('session_mismatch');
-    const full = { ...b.state, inventory: Array.from({ length: 20 }, (_, i) => armor(`f-${i}`)) };
+    const full = { ...b.state, inventory: Array.from({ length: INVENTORY_SIZE }, (_, i) => armor(`f-${i}`)) };
     expect(await code(side(a, a.state, ['a-armor']), side(b, full))).toBe('trade_invalid'); // no room
     const clash = { ...b.state, inventory: [armor('a-armor')] };
     expect(await code(side(a, a.state, ['a-armor']), side(b, clash))).toBe('trade_invalid'); // uid already held

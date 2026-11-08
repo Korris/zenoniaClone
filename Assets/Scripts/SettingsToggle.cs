@@ -31,7 +31,7 @@ namespace ZenoniaProto
             img.sprite = onArt;
             if (switchArt) img.preserveAspect = true;
             else if (onArt != null) { img.type = Image.Type.Sliced; img.pixelsPerUnitMultiplier = onArt.rect.height / Height; }
-            img.color = Color.white; // a tint would multiply into the art (the dark Start button in docs/sprite-weapon-rules.md)
+            img.color = Color.white; // a tint would multiply into the art (the dark Start button in docs/sprite-rules.md)
             if (!switchArt) caption = UiKit.Label(UiKit.Fill(rt, "State"), "", 17, OnText, TextAnchor.MiddleCenter, true);
             UiWinKit.MakeButton(img, Flip);
         }

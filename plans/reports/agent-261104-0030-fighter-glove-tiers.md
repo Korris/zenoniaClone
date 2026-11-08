@@ -25,7 +25,7 @@ Plan: `plans/261104-0025-fighter-class/phase-03-glove-tiers.md` (đã cập nh�
 - Unity sẽ tự sinh `.meta` cho `glove-src/*.png` khi mở project (chưa có).
 
 ## Sổ lỗi
-Đã thêm 4 dòng ngày 2026-11-04 (Fighter) vào `docs/sprite-weapon-rules.md`: grip trọng tâm toàn găng lệch về cổ tay; bản cường hoá lệch vì lửa; nhóm tab mất giữa lúc vẽ; nút Send chưa dựng ngay sau khi điền chữ. `docs/pending-tasks.md` mục Fighter đã ghi chat, tài khoản, tình trạng.
+Đã thêm 4 dòng ngày 2026-11-04 (Fighter) vào `docs/sprite-rules.md`: grip trọng tâm toàn găng lệch về cổ tay; bản cường hoá lệch vì lửa; nhóm tab mất giữa lúc vẽ; nút Send chưa dựng ngay sau khi điền chữ. `docs/pending-tasks.md` mục Fighter đã ghi chat, tài khoản, tình trạng.
 
 ## Câu hỏi chưa giải quyết
 - `s` anchor khoảng 0,18 trong plan tính cho găng 170 px: nắm đấm của các tier cẳng tay dài sẽ nhỏ hơn trên tay, cần xem trong game rồi quyết định cỡ.

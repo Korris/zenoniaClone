@@ -1,6 +1,6 @@
 """Builds the 96x96 item icons used by the Unity inventory / ground loot (run from the project root, Python 3 + Pillow + numpy).
 
- - helmet / armor / gloves / boots: sliced from the web's painted 5x2 atlases (transparent gutters), tier 0..9
+ - armor / gloves / boots (shared fallback; class sets come from build-class-gear-icons.py): sliced from the web's painted 5x2 atlases (transparent gutters), tier 0..9
  - weapon-<class>-<tier>, offhand-<class>-<tier>: the cut held-gear overlay PNGs (Resources/Sprites), tilted like the web gear icons
 Output: Assets/Resources/Sprites/icons/<name>.png
 """
@@ -69,7 +69,8 @@ def spellbook():
     d.rectangle((22, 18, 27, 78), fill=(245, 235, 210, 255))
     return im
 
-for slot, f in {"helmet": "helmet-icons-chibi.png", "armor": "armor-icons-chibi.png", "gloves": "gloves-icons-chibi.png", "boots": "boots-icons-chibi.png"}.items():
+# helmet-N is now the shared NECKLACE set (Tools/build-class-gear-icons.py write shared, designer 08/11): not sliced from the old hat atlas any more
+for slot, f in {"armor": "armor-icons-chibi.png", "gloves": "gloves-icons-chibi.png", "boots": "boots-icons-chibi.png"}.items():
     slice_atlas(slot, f)
 
 specs = [  # class, weapon (manifest file, key, folder, tilt), offhand (...)

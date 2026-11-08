@@ -10,7 +10,12 @@ Idle rows are one painted pose with the breathing lift of build-warrior-move.py 
 
 Writes Assets/Resources/Sprites/classes/warrior/body/<outfit>/{bare,hand}/<anim>.png: rows not painted yet stay as the Lv1 rows.
 
+Rows that the Lv1 sheets build from frames of another anim (melee2rl = melee1lr frames reversed, melee1 = melee1lr) are not
+painted: DERIVED copies the new cell wherever the old cell is pixel-identical to an old cell of the source anim.
+Outfits are painted without helmet (bare head with the Lv1 hair, same place): the head layer replaces it in game.
+
 Usage (project root):
+  python Tools/build-warrior-outfit-sheets.py ref <outfit> [design.png x0 y0 x1 y1]   pose strips of every job on #00FF00 (+ design crop)
   python Tools/build-warrior-outfit-sheets.py check <outfit> OUT.png    old vs new for every painted row, composed with gear
   python Tools/build-warrior-outfit-sheets.py write <outfit>"""
 import os, sys, importlib
@@ -34,20 +39,29 @@ JOBS = {
     "idle-down": [("idle", "down", None)],
     "walk-down": [("walk", "down", [0, 1, 2, 3])],
     "walk-up": [("walk", "up", [0, 1, 2, 3])],
+    "walk-left": [("walk", "left", [0, 1, 2, 3])],
     "walk-right": [("walk", "right", [0, 1, 2, 3])],
-    "melee1-down": [("melee1", "down", list(range(6)))],
-    "melee1-up": [("melee1", "up", list(range(6)))],
-    "melee1-left": [("melee1", "left", list(range(6)))],
-    "melee1-right": [("melee1", "right", list(range(6)))],
+    # hurt: one pose per facing ("each": fitted onto every frame's own old cell, no breathing); left = mirrored right as in Lv1
+    "hurt-3dirs": [("hurt", "down", "each"), ("hurt", "up", "each"), ("hurt", "right", "each")],
 }
-MIRROR = {("walk", "left"): ("walk", "right")}   # rows made by mirroring another painted row (as the Lv1 walk left is)
+for _d in ROWS: JOBS[f"dash-{_d}"] = [("dash", _d, [0, 1, 2])]
+for _anim in ("melee1lr", "melee3up", "melee4"):   # the Warrior combo (HeroClassDef.ComboAnims; melee2rl is DERIVED)
+    for _d in ROWS: JOBS[f"{_anim}-{_d}"] = [(_anim, _d, list(range(6)))]
+MIRROR = {("walk", "left"): ("walk", "right"),   # fallback only: the Lv1 walk left is the mirrored right row
+          ("hurt", "left"): ("hurt", "right")}   # the Lv1 hurt left is the mirrored right row
+DERIVED = {"melee2rl": "melee1lr", "melee1": "melee1lr"}   # anim -> painted anim whose Lv1 frames it reuses
 
 
 def figures(path):
     """Painted figures left to right as RGBA crops (green keyed), the small specks dropped."""
     a = np.array(Image.open(path).convert("RGBA")).astype(np.float32)
     r, g, b = a[..., 0], a[..., 1], a[..., 2]
-    bg = (g > 1.3 * np.maximum(r, b)) & (g > 110)
+    corner = np.median(np.concatenate([a[:6, :, :3].reshape(-1, 3), a[-6:, :, :3].reshape(-1, 3)]), 0)
+    magenta = corner[0] > 180 and corner[2] > 180 and corner[1] < 90   # green outfits are painted on #FF00FF (sprite rules)
+    if magenta:
+        bg = (np.minimum(r, b) > 1.3 * g + 40) & (np.minimum(r, b) > 150)
+    else:
+        bg = (g > 1.3 * np.maximum(r, b)) & (g > 110)
     fg = ~bg
     fg[:4] = fg[-4:] = False; fg[:, :4] = fg[:, -4:] = False
     lab, n = ndimage.label(ndimage.binary_closing(fg, iterations=2))
@@ -59,7 +73,12 @@ def figures(path):
         y0, y1, x0, x1 = ys.min(), ys.max(), xs.min(), xs.max()
         crop = a[y0:y1 + 1, x0:x1 + 1].copy()
         m = (lab[y0:y1 + 1, x0:x1 + 1] == k) & fg[y0:y1 + 1, x0:x1 + 1]
-        crop[..., 1] = np.minimum(crop[..., 1], np.maximum(crop[..., 0], crop[..., 2]) * 1.05)  # green spill
+        if magenta:   # magenta spill on the 3 px rim only: pull R and B down by their excess over G (the art has no pink)
+            rim = m & ~ndimage.binary_erosion(m, iterations=3)
+            ex = np.clip(np.minimum(crop[..., 0], crop[..., 2]) - crop[..., 1] - 50, 0, None) * rim
+            crop[..., 0] -= ex; crop[..., 2] -= ex
+        else:
+            crop[..., 1] = np.minimum(crop[..., 1], np.maximum(crop[..., 0], crop[..., 2]) * 1.05)  # green spill
         crop[..., 3] = np.where(m, 255, 0)
         out.append((x0, Image.fromarray(crop.astype(np.uint8))))
     return [im for _, im in sorted(out, key=lambda t: t[0])]
@@ -124,9 +143,9 @@ def build(outfit):
         path = f"{ART}/{outfit}/src/{job}.png"
         if not os.path.exists(path): continue
         figs = figures(path)
-        if job.startswith("idle"):
+        if job.startswith(("idle", "hurt")):   # one figure per cell list entry, applied to every frame of that row
             if len(figs) != len(cells): print(f"  {job}: {len(figs)} figures, expected {len(cells)}: skipped"); continue
-            pairs = [(anim, d, None, fig) for (anim, d, _), fig in zip(cells, figs)]
+            pairs = [(anim, d, fr, fig) for (anim, d, fr), fig in zip(cells, figs)]
         else:
             anim, d, frames = cells[0]
             if len(figs) != len(frames): print(f"  {job}: {len(figs)} figures, expected {len(frames)}: skipped"); continue
@@ -134,7 +153,7 @@ def build(outfit):
         for anim, d, f, fig in pairs:
             new, old, _ = sheet(anim)
             row = ROWS[d]
-            for fi in (range(new.width // FRAME) if f is None else [f]):
+            for fi in (range(new.width // FRAME) if f in (None, "each") else [f]):
                 oc = cell(old, row, fi)
                 if np.asarray(oc)[..., 3].max() == 0: continue
                 nc = fit(fig, cell(old, row, 0) if f is None else oc)
@@ -147,6 +166,20 @@ def build(outfit):
             for fi in range(new.width // FRAME):
                 src = cell(new, ROWS[sd], fi).transpose(Image.FLIP_LEFT_RIGHT)
                 new.paste(src, (fi * FRAME, ROWS[d] * FRAME))
+            done.add((anim, d))
+    for anim, src in DERIVED.items():
+        if not any((src, d) in done for d in ROWS): continue
+        new, old, _ = sheet(anim)
+        snew, sold, _ = sheet(src)
+        n, ns = new.width // FRAME, snew.width // FRAME
+        olds = {(r, f): np.asarray(cell(sold, r, f)) for r in ROWS.values() for f in range(ns)}
+        for d, r in ROWS.items():
+            if (src, d) not in done: continue
+            for fi in range(n):
+                oc = np.asarray(cell(old, r, fi))
+                hit = next((k for k in [(r, f) for f in range(ns)] if np.array_equal(olds[k], oc)), None)
+                if hit is None: print(f"  {anim} {d} {fi}: no identical {src} frame, stays Lv1"); continue
+                new.paste(cell(snew, *hit), (fi * FRAME, r * FRAME))
             done.add((anim, d))
     out = {}
     for anim, (new, old, hand) in sheets.items():
@@ -187,6 +220,29 @@ def check(outfit, path):
     print(path, sorted(done))
 
 
+def ref(outfit, design=None):
+    """Pose strips sent to ChatGPT: the Lv1 bare cells of each job side by side on #00FF00, one shared crop window, 1536 px wide."""
+    os.makedirs(f"{ART}/{outfit}/ref", exist_ok=True)
+    for job, cells in JOBS.items():
+        if job == "idle-down": continue
+        crops = []
+        for anim, d, frames in cells:
+            sh = Image.open(f"{BODY}/bare/{anim}.png").convert("RGBA")
+            crops += [cell(sh, ROWS[d], f) for f in (frames if isinstance(frames, list) else [0])]
+        al = np.max([np.asarray(c)[..., 3] for c in crops], 0) > 20
+        ys, xs = np.where(al)
+        x0, x1, y0, y1 = max(0, xs.min() - 10), min(FRAME, xs.max() + 11), max(0, ys.min() - 10), min(FRAME, ys.max() + 11)
+        w, h, gap = x1 - x0, y1 - y0, 12
+        strip = Image.new("RGBA", (len(crops) * (w + gap) + gap, h + 2 * gap), (0, 255, 0, 255))
+        for i, c in enumerate(crops): strip.alpha_composite(c.crop((x0, y0, x1, y1)), (gap + i * (w + gap), gap))
+        k = min(1536 / strip.width, 1024 / strip.height)
+        strip.convert("RGB").resize((round(strip.width * k), round(strip.height * k)), Image.LANCZOS).save(f"{ART}/{outfit}/ref/{job}.png")
+    if design:
+        path, box = design[0], tuple(int(v) for v in design[1:5])
+        Image.open(path).convert("RGB").crop(box).save(f"{ART}/{outfit}/ref/design.png")
+    print("ref", outfit, sorted(os.listdir(f"{ART}/{outfit}/ref")))
+
+
 def write(outfit):
     sheets, done = build(outfit)
     for sub in ("bare", "hand"):
@@ -198,4 +254,5 @@ def write(outfit):
 
 
 if __name__ == "__main__":
-    {"check": lambda: check(sys.argv[2], sys.argv[3]), "write": lambda: write(sys.argv[2])}[sys.argv[1]]()
+    {"check": lambda: check(sys.argv[2], sys.argv[3]), "write": lambda: write(sys.argv[2]),
+     "ref": lambda: ref(sys.argv[2], sys.argv[3:] or None)}[sys.argv[1]]()

@@ -16,6 +16,10 @@ Idle + walk in every facing (Tools/head_layer_dirs.py, neck cuts in head_layer_d
   python Tools/build-head-layer.py CLASS dirs-write               headless idle/walk rows, heads/0/up.png + right.png, anchors (other anims kept)
   python Tools/build-head-layer.py CLASS dirs-ref OUT_DIR         ChatGPT inputs: style 0 head right / up 4x on #00FF00 + the 5 facing-down styles
   python Tools/build-head-layer.py CLASS dirs-sheet SRC DIR N0 OUT|write   ChatGPT image in facing DIR (up / right): style 0 copy first, then styles N0.. [match-down: copy is only a size hint, fit to the facing-down heads]
+  python Tools/build-head-layer.py CLASS anims-split OUT_DIR A,B / anims-write A,B   head layer for more anims (attacks): every row and frame
+  python Tools/build-head-layer.py CLASS anims-normscale A,B     head at idle size in those anims (run after anims-write / dirs-write)
+  python Tools/build-head-layer.py CLASS outfit-headless OUTFIT   body/<OUTFIT>/headless (armour outfit sheets) erased with the Lv1 head masks
+  python Tools/build-head-layer.py CLASS dirs-scale DIR F         scale every style's DIR head by F about the chin (Warrior right: 0.92, after any dirs-sheet write)
   python Tools/build-head-layer.py CLASS dirs-check OUT_DIR [STYLES]   written files composited per row (default styles 0-4)
 """
 import os
@@ -138,9 +142,28 @@ def main():
     elif cmd == "dirs-ref":
         import head_layer_dir_styles as ds
         ds.ref(cls, sys.argv[3])
+    elif cmd in ("anims-split", "anims-write"):  # attack anims: anims-split OUT_DIR A,B,.. / anims-write A,B,..
+        import head_layer_dirs as hd
+        names = (sys.argv[4] if cmd == "anims-split" else sys.argv[3]).split(",")
+        refs, out = hd.build(cls, anims=names)
+        if cmd == "anims-split":
+            import head_layer_dirs_preview as pv
+            pv.masks_sheet(cls, out, f"{sys.argv[3]}/{cls}-anims-masks.png")
+        else:
+            hd.write(cls, refs, out, heads=False)
+            print("wrote headless", names, "and anchors of", cls)
     elif cmd == "dirs-sheet":
         import head_layer_dir_styles as ds
         ds.run(cls, sys.argv[3], sys.argv[4], int(sys.argv[5]), sys.argv[6], match_down="match-down" in sys.argv[7:])
+    elif cmd == "anims-normscale":  # anims-normscale A,B: head drawn at idle size in those anims (chin kept)
+        import head_layer_dirs as hd
+        hd.normalize_scale(cls, sys.argv[3].split(","))
+    elif cmd == "outfit-headless":  # outfit-headless OUTFIT: body/<OUTFIT>/headless from the Lv1 head masks
+        import head_layer_dirs as hd
+        hd.outfit_headless(cls, sys.argv[3])
+    elif cmd == "dirs-scale":
+        import head_layer_dir_styles as ds
+        ds.scale_heads(cls, sys.argv[3], float(sys.argv[4]))
     elif cmd == "dirs-check":
         import head_layer_dirs_preview as pv
         styles = [int(x) for x in sys.argv[4].split(",")] if len(sys.argv) > 4 else list(range(5))
