@@ -18,7 +18,7 @@ namespace ZenoniaProto
 
         // Left to right as in the mock.                        Mechanic  Wizard  Warrior  Assassin  Boxing  Cleric
         static readonly float[] FeetY =                           { 378f, 395f, 388f, 395f, 398f, 398f };
-        static readonly float[] HeroScale =                       { 1.06f, 1.2f, 1f, 0.8f, 0.83f, 0.88f }; // the art has one eye-to-feet size, the mock's heroes do not
+        static readonly float[] HeroScale =                       { 1.06f, 1f, 1f, 0.8f, 0.83f, 0.88f }; // Northwind and Warrior use the same anatomical height and display scale.
         const float PedestalWidth = 170f;
         static readonly float[] HeroNudge =                       { 0f, 0f, 0f, 0f, 0f, 14f };  // the Cleric's face sits left of her feet: under the banner by the face
         const float ColumnStep = 170f, ColumnStepOfWidth = ColumnStep / StageW, MinColumnStep = 130f, MaxColumnStep = 205f; // six even columns: a banner, and its hero under it
