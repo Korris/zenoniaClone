@@ -1,0 +1,1 @@
+﻿Northwind Wizard attack facing up/back view for T0-T9, 10 columns. Generated as pose exploration; detached heads/hair/equipment intended for runtime layers.

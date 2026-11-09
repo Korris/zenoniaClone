@@ -15,11 +15,12 @@ fist is drawn over the book, bobY per tier follows the fist (Tools/wizard_book_f
   python Tools/build-wizard-tier-staff-book.py write staff|book     install
 """
 import importlib.util, json, os, shutil, sys, uuid, re
+from pathlib import Path
 import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-ROOT = "D:/zenoniaClone"
+ROOT = str(Path(__file__).resolve().parents[1])
 os.chdir(ROOT)
 sys.path.insert(0, ROOT + "/Tools")
 RES = "Assets/Resources"

@@ -1,0 +1,7 @@
+Built-in imagegen export corrections after the two base prompts:
+
+Body sheet edit: preserve every costume, face, pose, scale and 2x5 layout. Remove accidental GOLD BOOK with open pages from bottom-row third character (T7), and WHITE/SILVER/GOLD BOOK with open pages from bottom-row fifth character (T9). Reconstruct only the matching gold rune coat / white fur and ivory-silver armor underneath, retain empty fists. No book covers, pages or spines on any body. Genuine transparent background, no shadows or text.
+
+Equipment background edit: preserve all 20 equipment shapes/colors/details/placement. Replace white/gray background and shadows with flat solid pure #FF00FF (255,0,255). Fully opaque objects, no outer glow, gradients or checkerboard; keep original amethyst and emerald colors. Same 2x5 pairs, full staff LEFT, book RIGHT, clear gaps and margins. No people or text.
+
+Final sources: body-sheet.png and equipment-keyed.png. Failed exports were removed. Extraction, edge despill, scaling, icon/sheet/anchor output are deterministic in Tools/install-wizard-northwind-v7.py and write only into a Build copy. Extracted parts and previews stay under Build/wizard-northwind, not duplicated into tracked source folders.

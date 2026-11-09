@@ -20,9 +20,16 @@ param(
   [switch]$Release,
   [switch]$WebGL,
   [switch]$FarmTrial,
+  [switch]$WizardNorthwind,
+  [switch]$WizardNorthwindCombos,
+  [switch]$WizardAstral,
+  [switch]$WizardOriginal,
+  [switch]$WizardGrandeur,
+  [switch]$FrameHairstyles,
   [string]$ApiUrl = ""
 )
 $ErrorActionPreference = "Stop"
+if (([int]$WizardNorthwind.IsPresent + [int]$WizardAstral.IsPresent + [int]$WizardOriginal.IsPresent + [int]$WizardGrandeur.IsPresent) -gt 1) { throw 'Choose one Wizard comparison variant' }
 $repo = Split-Path $PSScriptRoot -Parent
 if ($Release -and $ApiUrl -notmatch '^https://[^/\s]+') { Write-Host "BUILD RESULT: Failed. A release build needs -ApiUrl https://... (got '$ApiUrl')"; exit 1 }
 if (-not $Release -and $ApiUrl -ne "") { Write-Host "BUILD RESULT: Failed. -ApiUrl only goes with -Release"; exit 1 }
@@ -41,8 +48,39 @@ if ($FarmTrial) {
   $trialConfig.allSkills = $true
   $trialConfig | ConvertTo-Json | Set-Content -LiteralPath $trialConfigPath -Encoding UTF8
 }
+if ($WizardNorthwind) {
+  # Comparison build only: prepare the copied Resources after syncing the live
+  # project. The installer rejects targets outside Build and hashes live assets.
+  & python (Join-Path $repo 'Tools/install-wizard-northwind-v7.py') install --target $CopyDir
+  if ($LASTEXITCODE -ne 0) { throw 'Northwind copy preparation failed' }
+}
+if ($WizardNorthwindCombos) {
+  if (-not $WizardNorthwind) { throw 'WizardNorthwindCombos requires WizardNorthwind' }
+  & python (Join-Path $repo 'Tools/install-northwind-default-attacks.py') --target $CopyDir
+  if ($LASTEXITCODE -ne 0) { throw 'Northwind default attack installation failed' }
+  & python (Join-Path $repo 'Tools/install-northwind-t9-combos.py') --target $CopyDir
+  if ($LASTEXITCODE -ne 0) { throw 'Northwind combo installation failed' }
+  & python (Join-Path $repo 'Tools/install-wizard-unified-model.py') --target $CopyDir
+  if ($LASTEXITCODE -ne 0) { throw 'Northwind unified model installation failed' }
+}
+if ($WizardGrandeur) {
+  & python (Join-Path $repo 'Tools/install-wizard-current-reference.py') --target $CopyDir --body-source (Join-Path $repo 'Assets/ArtLibrary/classes/wizard/outfits/grandeur-20261109/src') --output (Join-Path $repo 'Build/wizard-grandeur')
+  if ($LASTEXITCODE -ne 0) { throw 'Wizard grandeur copy preparation failed' }
+}
 if ($Log -eq "") { $Log = Join-Path (Split-Path $OutExe -Parent) "build.log" }
+if ($WizardAstral) {
+  & python (Join-Path $repo 'Tools/install-wizard-astral-v7.py') install --target $CopyDir
+  if ($LASTEXITCODE -ne 0) { throw 'Astral copy preparation failed' }
+}
 New-Item -ItemType Directory -Force -Path (Split-Path $OutExe -Parent) | Out-Null
+if ($WizardOriginal) {
+  & python (Join-Path $repo 'Tools/install-wizard-original.py') --target $CopyDir
+  if ($LASTEXITCODE -ne 0) { throw 'Original Wizard copy preparation failed' }
+}
+if ($FrameHairstyles) {
+  & python (Join-Path $repo 'Tools/compile-avatar-hair-frames.py') --target $CopyDir
+  if ($LASTEXITCODE -ne 0) { throw 'Complete-frame hairstyle compilation failed' }
+}
 Remove-Item $Log -ErrorAction SilentlyContinue # a line from the last build must not pass for this one
 $method = if ($WebGL) { "BuildWebGL" } else { "BuildWindows" }
 $unityArgs = @("-batchmode", "-quit", "-projectPath", $CopyDir, "-executeMethod", "ZenoniaProto.EditorTools.PlayerBuildScript.$method", "-buildOut", $OutExe, "-logFile", $Log)

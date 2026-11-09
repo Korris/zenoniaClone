@@ -1,0 +1,9 @@
+Built-in imagegen; reference: ../outfits/northwind-v8/t9-separated.png
+Generate exactly 16 headless Northwind T9 bodies, four columns by four rows:
+left idle, left attack, right idle, right attack. Four animation frames per row.
+Preserve white lavender fur, navy snowflake cape, white snowflake tabard, cyan
+crystal pauldrons and gold/silver armor. Uniform character scale and foot baseline.
+Idle: relaxed, rising, inhale, settling, with subtle cloak flutter.
+Attack: windup, thrust forward gripping fist, full extension with trailing cloak,
+recover. Other gripping fist stays near chest. No head, hair, face, weapons,
+book, magic effects, ground shadows, labels or grid. Transparent background.

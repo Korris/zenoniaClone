@@ -22,6 +22,18 @@ namespace ZenoniaProto
 
         Camera cam;
         float target = 1f, velocity;
+        float minimum = MinFactor;
+        bool savePreference = true;
+
+        static bool InteractiveTest(string[] args)
+        {
+            if (Array.IndexOf(args, "--wheel-zoom") < 0) return false;
+            foreach (string arg in args)
+                if (arg == "--shots" || arg == "--bot" || arg == "--offscreen-capture" || arg == "--net-bot"
+                    || arg == "--run-seconds" || arg.StartsWith("--record-") || arg.EndsWith("-test") || arg == "--login-shots")
+                    return false;
+            return true;
+        }
 
         /// <summary>PC build only, and only when nothing else (capture --zoom, dev-start.json cameraViewHeight) owns the camera size.</summary>
         public static bool Allowed()
@@ -29,6 +41,7 @@ namespace ZenoniaProto
 #if UNITY_STANDALONE || UNITY_EDITOR
             if (HudLayout.IsWeb || Application.isMobilePlatform) return false;
             string[] args = Environment.GetCommandLineArgs();
+            if (InteractiveTest(args)) return true;
             if (DebugCapture.Requested(args) || Array.IndexOf(args, "--zoom") >= 0) return false;
             return !DevStartConfig.HasCameraViewHeight();
 #else
@@ -48,6 +61,18 @@ namespace ZenoniaProto
             cam = GetComponent<Camera>();
             try { target = Mathf.Clamp(PlayerPrefs.GetFloat(PrefKey, 1f), MinFactor, MaxFactor); } catch (Exception) { target = 1f; }
             Current = target;
+            string[] args = Environment.GetCommandLineArgs();
+            int zoomIndex = Array.IndexOf(args, "--zoom");
+            float initial;
+            if (InteractiveTest(args) && zoomIndex >= 0 && zoomIndex + 1 < args.Length
+                && float.TryParse(args[zoomIndex + 1], System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out initial) && initial > 0f)
+            {
+                target = Mathf.Min(MaxFactor, initial / (DevStartConfig.CameraViewHeight() * 0.5f));
+                minimum = Mathf.Min(MinFactor, target * MinFactor);
+                Current = target;
+                savePreference = false; // test close-ups must not alter normal play's saved camera
+            }
         }
 
         void OnDestroy() { Current = 1f; }
@@ -65,8 +90,9 @@ namespace ZenoniaProto
             float notches = WindowOwnsPointer() ? 0f : InputAdapter.MouseScrollDelta();
             if (notches != 0f)
             {
-                target = Mathf.Clamp(target * Mathf.Pow(1f - NotchStep, notches), MinFactor, MaxFactor); // wheel up = smaller view = closer
-                try { PlayerPrefs.SetFloat(PrefKey, target); PlayerPrefs.Save(); } catch (Exception) { /* prefs are a convenience */ }
+                target = Mathf.Clamp(target * Mathf.Pow(1f - NotchStep, notches), minimum, MaxFactor); // wheel up = smaller view = closer
+                if (savePreference)
+                    try { PlayerPrefs.SetFloat(PrefKey, target); PlayerPrefs.Save(); } catch (Exception) { /* prefs are a convenience */ }
             }
             float defaultHalf = DevStartConfig.CameraViewHeight() * 0.5f;
             float want = Mathf.Min(target, MaxFactorForMap(defaultHalf));

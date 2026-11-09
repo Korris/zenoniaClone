@@ -11,6 +11,7 @@ Keying (docs/sprite-rules.md, "Quy tắc art lấy từ ChatGPT" and the UI rows
   outline is never eaten. Heroes on green also treat a strong green excess anywhere, for the glow around blue flames.
 - Heroes are placed by their boots, not by their bounds: a sword or a wing must not move the body.
 """
+import argparse
 import json
 from pathlib import Path
 
@@ -37,7 +38,9 @@ EYE_TO_FEET = 388
 # (x between the eyes, eye row, distance between the eyes), read off the finished 768 px hero. Portraits are framed by it, so every head is the same size.
 HEROES = {
     "mechanic": dict(key=GREEN, boots=(435, 820), eye=480, face=(381, 356, 97)),
-    "wizard": dict(key=GREEN, boots=(415, 870), eye=465, face=(416, 400, 64)),
+    "wizard": dict(key=GREEN, boots=(360, 870), eye=526, face=(436, 352, 65),
+                   source=SRC / "wizard-astral-t0-pose.png", transparent=True,
+                   body_top=198, body_height=590),
     "warrior": dict(key=GREEN, boots=(305, 830), eye=415, face=(446, 352, 85)),
     "assassin": dict(key=GREEN, boots=(285, 990), eye=570, face=(426, 360, 100)),
     "boxing": dict(key=GREEN, boots=(235, 1020), eye=490, face=None),
@@ -169,13 +172,17 @@ def save(rgba, name, sizes):
 
 
 def build_hero(name, cfg, sizes):
-    src = key_out(SRC / f"{name}.png", cfg["key"], glow=cfg["key"] == GREEN)
+    source = cfg.get("source", SRC / f"{name}.png")
+    src = (np.asarray(Image.open(source).convert("RGBA")).astype(np.float32)
+           if cfg.get("transparent") else key_out(source, cfg["key"], glow=cfg["key"] == GREEN))
     if cfg["key"] == MAGENTA:
         # ChatGPT leaves pink specks on staff, hair ornament and spirits even when told not to. Pink turns peach; pale lilac shading stays.
         pink = (src[..., 3] > 0) & (excess(src[..., :3], MAGENTA) > 15)
         src[..., 2][pink] = np.minimum(src[..., 2], src[..., 1] * 0.8)[pink]
     feet, _ = boots(src, cfg["boots"])
-    scale = EYE_TO_FEET / (feet - cfg["eye"])
+    # Match anatomical height rather than weapon/effect bounds for the Wizard.
+    scale = (cfg["body_height"] / (feet - cfg["body_top"]) if "body_height" in cfg
+             else EYE_TO_FEET / (feet - cfg["eye"]))
 
     # Scale at a whole-pixel source size, then place on the square so soles and boot centre land on fixed pixels.
     w = round(src.shape[1] * scale)
@@ -322,4 +329,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--hero", choices=HEROES, help="Export only this hero and portrait.")
+    args = parser.parse_args()
+    if args.hero:
+        print(json.dumps(build_hero(args.hero, HEROES[args.hero], [])))
+    else:
+        main()

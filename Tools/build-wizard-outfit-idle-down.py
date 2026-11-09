@@ -16,11 +16,12 @@ then run `python Tools/build-head-layer.py wizard outfit-headless set-tN` for th
   python Tools/build-wizard-outfit-idle-down.py metas               .meta for set-tN/headless (after outfit-headless), copied from bare/idle.png.meta
 """
 import os, re, sys, uuid
+from pathlib import Path
 import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-ROOT = "D:/zenoniaClone"
+ROOT = str(Path(__file__).resolve().parents[1])
 os.chdir(ROOT)
 FRAME = 192
 RES = "Assets/Resources"

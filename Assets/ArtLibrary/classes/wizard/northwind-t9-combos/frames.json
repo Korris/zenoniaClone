@@ -1,0 +1,294 @@
+{
+  "cellSize": 192,
+  "headSeparate": true,
+  "frames": [
+    {
+      "anim": "attack1",
+      "direction": "left",
+      "frame": 0,
+      "uniformScale": 0.3784860557768924,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack1",
+      "direction": "left",
+      "frame": 1,
+      "uniformScale": 0.38,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack1",
+      "direction": "left",
+      "frame": 2,
+      "uniformScale": 0.3815261044176707,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack1",
+      "direction": "left",
+      "frame": 3,
+      "uniformScale": 0.3784860557768924,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack1",
+      "direction": "right",
+      "frame": 0,
+      "uniformScale": 0.3815261044176707,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack1",
+      "direction": "right",
+      "frame": 1,
+      "uniformScale": 0.38306451612903225,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack1",
+      "direction": "right",
+      "frame": 2,
+      "uniformScale": 0.38461538461538464,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack1",
+      "direction": "right",
+      "frame": 3,
+      "uniformScale": 0.3815261044176707,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack2",
+      "direction": "left",
+      "frame": 0,
+      "uniformScale": 0.40772532188841204,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack2",
+      "direction": "left",
+      "frame": 1,
+      "uniformScale": 0.41125541125541126,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack2",
+      "direction": "left",
+      "frame": 2,
+      "uniformScale": 0.41304347826086957,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack2",
+      "direction": "left",
+      "frame": 3,
+      "uniformScale": 0.40772532188841204,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack2",
+      "direction": "right",
+      "frame": 0,
+      "uniformScale": 0.40772532188841204,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack2",
+      "direction": "right",
+      "frame": 1,
+      "uniformScale": 0.41125541125541126,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack2",
+      "direction": "right",
+      "frame": 2,
+      "uniformScale": 0.41304347826086957,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack2",
+      "direction": "right",
+      "frame": 3,
+      "uniformScale": 0.40948275862068967,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack3",
+      "direction": "left",
+      "frame": 0,
+      "uniformScale": 0.475,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack3",
+      "direction": "left",
+      "frame": 1,
+      "uniformScale": 0.4439252336448598,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack3",
+      "direction": "left",
+      "frame": 2,
+      "uniformScale": 0.4318181818181818,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack3",
+      "direction": "left",
+      "frame": 3,
+      "uniformScale": 0.4634146341463415,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack3",
+      "direction": "right",
+      "frame": 0,
+      "uniformScale": 0.46798029556650245,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack3",
+      "direction": "right",
+      "frame": 1,
+      "uniformScale": 0.4398148148148148,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack3",
+      "direction": "right",
+      "frame": 2,
+      "uniformScale": 0.42792792792792794,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack3",
+      "direction": "right",
+      "frame": 3,
+      "uniformScale": 0.46116504854368934,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "left",
+      "frame": 0,
+      "uniformScale": 0.46798029556650245,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "left",
+      "frame": 1,
+      "uniformScale": 0.46798029556650245,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "left",
+      "frame": 2,
+      "uniformScale": 0.46798029556650245,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "left",
+      "frame": 3,
+      "uniformScale": 0.46568627450980393,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "left",
+      "frame": 4,
+      "uniformScale": 0.46568627450980393,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "left",
+      "frame": 5,
+      "uniformScale": 0.4634146341463415,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "right",
+      "frame": 0,
+      "uniformScale": 0.46568627450980393,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "right",
+      "frame": 1,
+      "uniformScale": 0.46568627450980393,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "right",
+      "frame": 2,
+      "uniformScale": 0.46568627450980393,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "right",
+      "frame": 3,
+      "uniformScale": 0.46568627450980393,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "right",
+      "frame": 4,
+      "uniformScale": 0.46798029556650245,
+      "neck": 94,
+      "sole": 189
+    },
+    {
+      "anim": "attack4",
+      "direction": "right",
+      "frame": 5,
+      "uniformScale": 0.46568627450980393,
+      "neck": 94,
+      "sole": 189
+    }
+  ]
+}

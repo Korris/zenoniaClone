@@ -21,21 +21,14 @@ namespace ZenoniaProto
         int lastBossHp = -1;
         GUIStyle label, small, center;
 
-        const string DebugPrefKey = "zenonia.debugHud";
-        /// <summary>Debug HUD (skill line, FPS, key help) is hidden by default; F8 toggles it, remembered in PlayerPrefs.</summary>
-        bool debugHud = ReadDebugPref();
-
-        static bool ReadDebugPref()
-        {
-            try { return PlayerPrefs.GetInt(DebugPrefKey, 0) == 1; } catch (System.Exception) { return false; }
-        }
+        /// <summary>Always start with Debug Look / FPS / key help hidden. F8 toggles it for this session only.</summary>
+        bool debugHud;
 
         void Update()
         {
             if (InputAdapter.Pressed(GameKey.DebugHudToggle))
             {
                 debugHud = !debugHud;
-                try { PlayerPrefs.SetInt(DebugPrefKey, debugHud ? 1 : 0); } catch (System.Exception) { /* prefs are a convenience */ }
             }
             float dt = Time.unscaledDeltaTime; // real frame time (hit-stop does not hide hitches)
             frames++;
