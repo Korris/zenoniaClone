@@ -1,5 +1,25 @@
 # Việc đang dở
 
+## Wizard Northwind T0: idle + attack 4 hướng, đầu trọc để ghép tóc (09-10/11/2026, đã cài, đã xem trong game)
+
+- Ảnh gen không dùng và bản sao lưu đã dọn 10/11; bản trước xem git history.
+
+- Đã cài bằng `Tools/build-wizard-northwind-idle-dirs.py fit` + `install` (1 lượt vẽ, ảnh `outfits/northwind-t0-idle-dirs/src/wizard-northwind-t0-idle-4dirs-bald-chatgpt-1.png`): `body/{headless,bare,hand}/idle.png` hàng lên/trái/phải, anchor đầu idle 3 hướng (0, 0, s 1 + thở), anchor gậy idle 3 hướng (gậy phải góc 70). Bản cũ ở `outfits/northwind-t0-idle-dirs/old/`. Ảnh ghép 6 kiểu tóc x 4 frame x T0/T9: `docs/reference/wizard-northwind-idle-dirs-hairstyles-check.png`.
+- Bản chạy `Build/wizard-northwind-idle-dirs/Zenonia.exe` (build từ `D:/temp/zu-copy-c`, 0 lỗi). Đã chụp trong game idle phải/trái/lên kiểu tóc 0, 2, 4: đúng Northwind, tóc ghép khít. Kiểu 4 hướng lên lộ da đầu qua kẽ tóc (do lớp tóc kiểu 4, không phải thân).
+- Mặt + tóc 0 vẽ lại theo Northwind gốc (người dùng: tóc và ánh mắt chưa giống): mặt trọc chung `layered/src/wizard-bald-template-northwind-original-face-chatgpt-1.png` (mắt xanh tròn có đốm sáng, mi đen dày, lông mày cyan đậm xếch, nhìn gắt; thay bản mắt khép hờ), tóc 0 `wizard-hair-0-gray-northwind-original-chatgpt-1.png` (tóc xù to, ahoge, lọn rủ tới cằm, lọn cyan chéo trán). `build-wizard-hair-layers.py fit --bald ... --hair 0=...` + `install`; mặt mới trùng vị trí mặt cũ nên kiểu 1-5 giữ nguyên. Trong game 4 hướng: `docs/reference/wizard-northwind-original-face-hair-ingame.png`.
+- 10/11 người dùng chê tóc 0 cắt như mái ngố: vẽ lại tóc dài `layered/src/wizard-hair-0-gray-northwind-long-chatgpt-1.png`, xoá tóc sau gáy/trước hàm trong tool. Gậy + sách T0 vẽ lại theo gốc (`Tools/build-wizard-northwind-t0-gear.py`). Ảnh trong game: `docs/reference/wizard-northwind-long-hair-t0-gear-ingame.png`. Walk làm sau (người dùng hẹn).
+- 10/11 người dùng chê idle trái/phải thân lùn đầu to: đầu lên/trái/phải nay `s` 0,833 như mặt trước, thân dài theo cằm-đế mặt trước. Ảnh `docs/reference/wizard-northwind-side-proportions-ingame.png` (ô cuối là bản cũ).
+- 10/11 mái ngố lần 2: do tool xoá vùng lông mày; sửa tool + ảnh tóc mái dài (ảnh trung gian đã xoá, thay bằng bản ear-covered). Ảnh `docs/reference/wizard-northwind-long-bangs-ingame.png`. Còn 1 chấm xám nhỏ trong tai hướng ngang.
+- 10/11 tóc dưới cằm chuyển ra sau thân (lớp mới `heads/hair-under/`, code `HeroHairLayers.cs`), cổ lông đè lên tóc như gốc. Ảnh `docs/reference/wizard-northwind-hair-under-collar-ingame.png`. Chờ người dùng quyết cỡ đầu (gốc đầu to hơn game ~20%).
+- 10/11 tóc hướng ngang phủ kín tai (`wizard-hair-0-gray-northwind-ear-covered-chatgpt-1.png`, fit `--like ...long-chatgpt-1.png --under 0`). Ảnh `docs/reference/wizard-northwind-ear-covered-ingame.png`.
+- 10/11 attack1-4 x 4 hướng đã làm Northwind + đầu nhiều lớp (`Tools/build-wizard-northwind-attacks.py write`, 11 lượt vẽ, chat https://chatgpt.com/c/6af01c33-59bc-83ec-ba20-4272caed760b). Ảnh trong game `docs/reference/wizard-northwind-attacks-ingame.png`. Còn: vài frame gậy cắt ngang mặt (attack1 xuống f2, attack1/2 trái) do góc gậy cũ trong `wizard_attack_repaint_poses.py`; đòn 3 phải và đòn 4 lưng nắm tay giơ sát đầu bị tóc dài che.
+- Còn: người dùng thử H/Shift+H; `walk` 4 hướng, đánh,  `armed/idle` hàng 1-3 vẫn thân cũ (chỉ dùng khi thiếu anchor); bộ giáp T1-T9 chưa có hướng lên/trái/phải (đang dùng thân Lv1 này).
+
+- Người dùng: thay idle trái/phải/lên của Wizard bằng bộ `ArtLibrary/classes/wizard/redesign/outfit-ladders/northwind-runesmith-original-zoom-2x.png`, sprite phải ghép được tóc và mặt động (đầu nhiều lớp `HeroHairLayers`).
+- Chat ChatGPT (Tay): https://chatgpt.com/c/6af191f0-f42c-83ec-91e4-df21ad35b47c (cùng chat tách lớp tóc). Ảnh gửi: `outfits/northwind-t0-idle-dirs/ref/current-idle-bald-pose-size-x3.png` (thân không đầu hiện tại + đầu trọc `heads/face` ghép theo anchor, 4 hướng xuống/lên/phải/trái, phóng 3x), mẫu Northwind, `hero-idle-down-5-classes.png`. Xin 4 hướng đầu trọc, không tóc/mũ, tay nắm không.
+- Lần thử trước của phiên khác (thư mục `outfits/t0-idle-*`, `heads/northwind-redraw-20261109`) đã bị xoá, thư mục trống.
+- Hướng xuống cũng đã thay (người dùng hỏi sao không giống hình gửi): giữ anchor đầu xuống cũ `s` 0,833, gậy/sách `idle-stance` (`body/held-anchors.json`) vào nắm tay mới. Ảnh trong game `docs/reference/wizard-northwind-idle-down-ingame.png`. Gậy/sách T0 trong game vẫn là art bậc 0 hiện tại (gậy sao, sách sao), khác gậy gỗ xoắn + sách bông tuyết trong hình mẫu: chưa vẽ lại.
+
 ## Tách lớp tóc Wizard: đầu trọc/mặt chung + tóc riêng (09/11/2026, đang thử)
 
 - Tách lớp tóc Wizard — thảo luận ChatGPT (tài khoản Tay): https://chatgpt.com/c/6af191f0-f42c-83ec-91e4-df21ad35b47c

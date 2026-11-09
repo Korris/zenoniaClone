@@ -10,6 +10,7 @@ namespace ZenoniaProto
     ///   face/&lt;dir&gt;.png            bald head (face, ears, scalp), drawn by the head renderer itself
     ///   hair/&lt;style&gt;/&lt;dir&gt;.png    hair in front of the face (gray, dyed by HairDye)
     ///   hair-back/&lt;style&gt;/&lt;dir&gt;.png optional hair behind the face (long hair, ponytail)
+    ///   hair-under/&lt;style&gt;/&lt;dir&gt;.png optional hair behind the BODY (long locks below the chin that fall behind the collar and robe)
     /// Colours: Data/classes/&lt;class&gt;/hair-dyes.json ("styles": default dye per style, "presets": the dye cycle). Missing file = raw gray.
     /// The hair renderers are children of the head renderer, so they share its move, scale, rotation and mirror.
     /// </summary>
@@ -20,7 +21,7 @@ namespace ZenoniaProto
         const float FrontZ = -0.0004f, BackZ = 0.0004f; // in front of / behind the face, both still in front of the body
 
         readonly string root; // Sprites/classes/<class>/heads/
-        readonly SpriteRenderer front, back;
+        readonly SpriteRenderer front, back, under;
         readonly Color32?[] styleDyes = new Color32?[0];
         readonly Color32[] presets = new Color32[0];
 
@@ -35,6 +36,8 @@ namespace ZenoniaProto
             front.transform.localPosition = new Vector3(0f, 0f, FrontZ);
             back = ProceduralSprites.Child(head.transform, "HairBack", null);
             back.transform.localPosition = new Vector3(0f, 0f, BackZ);
+            under = ProceduralSprites.Child(head.transform, "HairUnder", null);
+            under.transform.localPosition = new Vector3(0f, 0f, BackZ);
             var asset = Resources.Load<TextAsset>("Data/" + classRoot + "/hair-dyes");
             if (asset == null) return;
             try
@@ -71,9 +74,10 @@ namespace ZenoniaProto
             Color32? dye = Dye >= 0 && Dye < presets.Length ? (Color32?)presets[Dye] : style < styleDyes.Length ? styleDyes[style] : null;
             Set(front, HairDye.Apply(Cell("hair/" + style + "/" + dir), dye), flipX, tint, order);
             Set(back, HairDye.Apply(Cell("hair-back/" + style + "/" + dir), dye), flipX, tint, order);
+            Set(under, HairDye.Apply(Cell("hair-under/" + style + "/" + dir), dye), flipX, tint, order - 1); // one step below the body
         }
 
-        public void Hide() { front.sprite = null; back.sprite = null; }
+        public void Hide() { front.sprite = null; back.sprite = null; under.sprite = null; }
 
         static void Set(SpriteRenderer sr, Sprite sp, bool flipX, Color tint, int order)
         {

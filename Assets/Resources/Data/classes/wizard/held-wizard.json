@@ -4,15 +4,15 @@
       "name": "apprentice",
       "glow": "#4f9dff",
       "baseGrip": {
-        "w": 127,
+        "w": 85,
         "h": 364,
-        "gripX": 63,
+        "gripX": 42,
         "gripY": 193
       },
       "enhancedGrip": {
-        "w": 127,
+        "w": 85,
         "h": 364,
-        "gripX": 63,
+        "gripX": 42,
         "gripY": 193
       }
     },
@@ -1673,15 +1673,15 @@
       "glow": "#4f9dff",
       "baseGrip": {
         "w": 166,
-        "h": 141,
+        "h": 140,
         "gripX": 32,
-        "gripY": 123
+        "gripY": 121
       },
       "enhancedGrip": {
         "w": 166,
-        "h": 141,
+        "h": 140,
         "gripX": 32,
-        "gripY": 123
+        "gripY": 121
       }
     },
     {
