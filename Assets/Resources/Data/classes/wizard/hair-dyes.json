@@ -1,0 +1,5 @@
+{
+  "note": "Layered heads (HeroHairLayers): styles = default dye of hair/<n> (its look before dyes, painted gray), presets = Shift+H dye cycle. Gray hair pixels are remapped by lightness onto the dye (HairDye.cs); coloured accents keep their colour.",
+  "styles": ["#EEEAF2", "#D6D6DC", "#2F3C7E", "#D8C0E8", "#34343C", "#E4E2EA"],
+  "presets": ["#C8323C", "#E07A2E", "#E8C445", "#4FA84A", "#2F7FD8", "#7A4FC8", "#E07AB0", "#34343C", "#F2F2F2"]
+}

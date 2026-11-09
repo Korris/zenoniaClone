@@ -130,6 +130,7 @@ namespace ZenoniaProto
         void ProxyTick(float dtMs)
         {
             if (this == LocalPlayer.Hero && view != null && HeroHeadLayer.CycleKeyPressed()) view.HairStyle = view.HairStyle + 1; // H online too, SyncHairStyleOnline sends it
+            if (this == LocalPlayer.Hero && view != null && HeroHeadLayer.DyeKeyPressed()) view.HairDye = view.HairDye + 1; // Shift+H: dye, local only for now
             idleTimer += dtMs;
             if (dashLeft > 0f || moving) animTimer += dtMs; else animTimer = 0f;
             if (dead) deathTimer += dtMs;

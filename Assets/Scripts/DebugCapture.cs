@@ -13,9 +13,11 @@ namespace ZenoniaProto
     ///   --tp tx,ty                        put the hero on a tile (and --face down|up|left|right)
     ///   --tier N / --enhanced             gear tier / enhanced art
     ///   --hairstyle N                     hairstyle of the head layer (Lv1 body, idle facing down, any class with heads/ art; 0 = the painted head)
+    ///   --hair-dye N                      hair dye preset N (layered heads: HeroHairLayers, Data/classes/<class>/hair-dyes.json)
     ///   --bot fight|attack|walk           fight: walk to the nearest monster and attack it; attack: hold attack; walk: walk east
     ///   --zoom N                          camera orthographic half-height (default 80) for close-ups
     ///   --shots 2,5,8 --shot-path P       ScreenCapture to P_1.png, P_2.png ... at those seconds, then quit
+    ///   --offscreen-capture              render camera/canvas into a texture (for hidden player windows)
     ///   --solids                          start with the collision tint on
     ///   --skill-at 1.5,9                  press the class skill (L) at those seconds after start
     ///   --dummies N                       spawn N frost slimes in front of the hero (skill / AoE targets)
@@ -58,7 +60,7 @@ namespace ZenoniaProto
         float runSeconds, lastCastTime = -100f;
         bool perf;
         Vector2Int tpTile = new Vector2Int(-1, -1);
-        int tier = -1, hairStyle = -1;
+        int tier = -1, hairStyle = -1, hairDye = -1;
         float zoom;
         bool enhanced, solids, god, dropLoot, openInventory;
         int level, giveStones, plus = -1;
@@ -122,6 +124,8 @@ namespace ZenoniaProto
             if (t != null) tier = int.Parse(t);
             string hs = Arg(a, "--hairstyle");
             if (hs != null) hairStyle = int.Parse(hs);
+            string hd = Arg(a, "--hair-dye");
+            if (hd != null) hairDye = int.Parse(hd);
             enhanced = Array.IndexOf(a, "--enhanced") >= 0;
             solids = Array.IndexOf(a, "--solids") >= 0;
             god = Array.IndexOf(a, "--god") >= 0;
@@ -312,6 +316,7 @@ namespace ZenoniaProto
                 if (tpTile.x >= 0) hero.Teleport(FrostHollowMap.TileFeet(tpTile.x, tpTile.y, 2f), faceArg == "up" ? 1 : faceArg == "left" ? 2 : faceArg == "right" ? 3 : 0);
                 if (tier >= 0 || enhanced) hero.View.SetGear(Mathf.Max(tier, 0), enhanced);
                 if (hairStyle >= 0) hero.View.HairStyle = hairStyle;
+                if (hairDye >= 0) hero.View.HairDye = hairDye; // --hair-dye N: preset N of hair-dyes.json (layered heads)
                 if (botArg == "fight") EnableFightBot();
                 else if (botArg == "attack") InputAdapter.BotPressed = k => k == GameKey.Attack;   // hold attack in place (art / FX close-ups)
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east
@@ -347,7 +352,8 @@ namespace ZenoniaProto
         /// <summary>End-of-frame backbuffer grab (includes the IMGUI HUD) written as PNG.</summary>
         static void Save(string path)
         {
-            if (InventoryPanel.IsOpen) { SaveInventory(path); return; }
+            if (InventoryPanel.IsOpen || Array.IndexOf(Environment.GetCommandLineArgs(), "--offscreen-capture") >= 0)
+            { SaveInventory(path); return; }
             var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
             tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
             tex.Apply();
@@ -355,7 +361,7 @@ namespace ZenoniaProto
             Destroy(tex);
         }
 
-        // Hidden player windows have no readable swapchain. Render the bag canvas explicitly for UI reviews.
+        // Hidden player windows have no readable swapchain. Render the camera/canvas explicitly for art reviews.
         static void SaveInventory(string path)
         {
             Camera camera = Camera.main;

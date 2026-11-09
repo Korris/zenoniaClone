@@ -276,6 +276,7 @@ namespace ZenoniaProto
             if (InputAdapter.Pressed(GameKey.TierDown)) { tier--; changed = true; }
             if (InputAdapter.Pressed(GameKey.Enhance)) { enh = !enh; changed = true; }
             if (HeroHeadLayer.CycleKeyPressed()) view.HairStyle = view.HairStyle + 1; // H: next hairstyle (not saved; online it goes to the server via SyncHairStyleOnline)
+            if (HeroHeadLayer.DyeKeyPressed()) view.HairDye = view.HairDye + 1; // Shift+H: next hair dye (layered heads, local only)
             if (cls.Id == HeroClass.Mechanic && InputAdapter.Pressed(GameKey.FxColor)) { ClassPalette.MechanicBlue = !ClassPalette.MechanicBlue; ClassPalette.Current = cls.ActivePalette; }
             if (!changed) return;
             view.SetGear(tier, enh); // debug look override until the equipment changes again
