@@ -26,6 +26,7 @@ namespace ZenoniaProto
         readonly SpriteRenderer sr;
         readonly string root; // e.g. classes/warrior
         readonly Dictionary<string, HeadFrame[]> anchors = new Dictionary<string, HeadFrame[]>();
+        readonly Dictionary<string, HeadFrame[]> outfitAnchors = new Dictionary<string, HeadFrame[]>();
         readonly Dictionary<string, Sprite[][]> headless = new Dictionary<string, Sprite[][]>();       // the class's Lv1 body
         readonly Dictionary<string, Sprite[][]> outfitHeadless = new Dictionary<string, Sprite[][]>(); // the worn armour outfit's (SetBodyFolder)
         readonly string headlessFolder; // Sprites/... folder of the Lv1 headless sheets
@@ -111,6 +112,10 @@ namespace ZenoniaProto
             Sprite[] bodyRow = head != null && anchors.TryGetValue(anim + "/" + dirName, out frames) && frame < frames.Length && frames[frame] != null ? HeadlessRow(anim, row, outfitBody && outfitFolder != null) : null;
             if (bodyRow == null || frame >= bodyRow.Length || bodyRow[frame] == null) { Hide(); return null; }
             HeadFrame a = anchors[anim + "/" + dirName][frame];
+            HeadFrame[] outfitFrames;
+            if (outfitBody && outfitAnchors.TryGetValue(anim + "/" + dirName, out outfitFrames)
+                && frame < outfitFrames.Length && outfitFrames[frame] != null)
+                a = outfitFrames[frame];
             sr.sprite = head;
             sr.flipX = mirror != flipHead;
             sr.color = tint;
@@ -133,6 +138,20 @@ namespace ZenoniaProto
             if (want == this.outfitFolder) return;
             this.outfitFolder = want;
             outfitHeadless.Clear();
+            outfitAnchors.Clear();
+            // Larger outfits can raise the neck while keeping each hairstyle at its normal size.
+            var asset = outfitFolder != null ? Resources.Load<TextAsset>("Sprites/" + outfitFolder + "/head-anchors") : null;
+            if (asset != null)
+            {
+                try
+                {
+                    HeadFile file = JsonUtility.FromJson<HeadFile>(asset.text);
+                    if (file != null && file.anims != null)
+                        foreach (HeadAnim a in file.anims)
+                            if (a != null && a.frames != null) outfitAnchors[a.anim + "/" + a.dir] = a.frames;
+                }
+                catch (Exception e) { Debug.LogError("[ZenoniaProto] outfit head-anchors: " + e.Message); }
+            }
         }
 
         /// <summary>H in the editor and development builds: next hairstyle for the local hero. Temporary test key, read like DevBuffKey.</summary>

@@ -1,0 +1,110 @@
+{
+  "anchors": [
+    {
+      "part": "staff",
+      "anim": "idle",
+      "dir": "down",
+      "frames": [
+        {
+          "x": 59.82,
+          "y": 142.93,
+          "s": 0.447,
+          "angle": -10,
+          "sx": 1,
+          "behind": false,
+          "hidden": false,
+          "fallback": false,
+          "art": "idle-stance",
+          "artY": -1.16
+        },
+        {
+          "x": 59.71,
+          "y": 143.25,
+          "s": 0.447,
+          "angle": -10,
+          "sx": 1,
+          "behind": false,
+          "hidden": false,
+          "fallback": false,
+          "art": "idle-stance",
+          "artY": -1.48
+        },
+        {
+          "x": 59.82,
+          "y": 143.42,
+          "s": 0.447,
+          "angle": -10,
+          "sx": 1,
+          "behind": false,
+          "hidden": false,
+          "fallback": false,
+          "art": "idle-stance",
+          "artY": -1.65
+        },
+        {
+          "x": 59.71,
+          "y": 143.25,
+          "s": 0.447,
+          "angle": -10,
+          "sx": 1,
+          "behind": false,
+          "hidden": false,
+          "fallback": false,
+          "art": "idle-stance",
+          "artY": -1.48
+        }
+      ]
+    },
+    {
+      "part": "book",
+      "anim": "idle",
+      "dir": "down",
+      "frames": [
+        {
+          "x": 137.35,
+          "y": 142.85,
+          "s": 0.25,
+          "angle": 8,
+          "sx": 1,
+          "behind": false,
+          "hidden": false,
+          "fallback": false,
+          "art": "idle-stance"
+        },
+        {
+          "x": 137.04,
+          "y": 142.94,
+          "s": 0.25,
+          "angle": 8,
+          "sx": 1,
+          "behind": false,
+          "hidden": false,
+          "fallback": false,
+          "art": "idle-stance"
+        },
+        {
+          "x": 137.23,
+          "y": 143.52,
+          "s": 0.25,
+          "angle": 8,
+          "sx": 1,
+          "behind": false,
+          "hidden": false,
+          "fallback": false,
+          "art": "idle-stance"
+        },
+        {
+          "x": 137.04,
+          "y": 142.94,
+          "s": 0.25,
+          "angle": 8,
+          "sx": 1,
+          "behind": false,
+          "hidden": false,
+          "fallback": false,
+          "art": "idle-stance"
+        }
+      ]
+    }
+  ]
+}

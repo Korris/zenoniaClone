@@ -8,7 +8,7 @@ namespace ZenoniaProto
     /// <summary>bobY: optional per-frame y offset (frame px, y down) added to this art's anchor, by frame index (wizard books: follow the breathing left fist of each armour tier).</summary>
     [Serializable] public class OverlayEntry { public string name; public string glow; public GripInfo baseGrip; public GripInfo enhancedGrip; public float[] bobY; }
     /// <summary>Per-frame grip anchor in the 192px frame (x,y px from top-left; angle deg clockwise; s = frame px per art px). art: this frame draws folder/art.png, pivot at its centre, on every tier (the mechanic's cannon, one art per facing).</summary>
-    [Serializable] public class HeldAnchor { public float x; public float y; public float angle; public float s = 1f; public float sx = 1f; public bool behind; public bool hidden; public bool fallback; public string art; }
+    [Serializable] public class HeldAnchor { public float x; public float y; public float angle; public float s = 1f; public float sx = 1f; public bool behind; public bool hidden; public bool fallback; public string art; public float artY; } // artY: optional artwork offset in frame pixels, y down; lets a lower hand grip further down the same staff
     [Serializable] public class AnchorSet { public string part; public string anim; public string dir; public HeldAnchor[] frames; }
     [Serializable] public class FloatLoop { public string dir; public GripInfo[] frames; }
     /// <summary>

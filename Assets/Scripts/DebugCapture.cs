@@ -16,6 +16,7 @@ namespace ZenoniaProto
     ///   --bot fight|attack|walk           fight: walk to the nearest monster and attack it; attack: hold attack; walk: walk east
     ///   --zoom N                          camera orthographic half-height (default 80) for close-ups
     ///   --shots 2,5,8 --shot-path P       ScreenCapture to P_1.png, P_2.png ... at those seconds, then quit
+    ///   --offscreen-capture              render camera/canvas into a texture (for hidden player windows)
     ///   --solids                          start with the collision tint on
     ///   --skill-at 1.5,9                  press the class skill (L) at those seconds after start
     ///   --dummies N                       spawn N frost slimes in front of the hero (skill / AoE targets)
@@ -347,7 +348,8 @@ namespace ZenoniaProto
         /// <summary>End-of-frame backbuffer grab (includes the IMGUI HUD) written as PNG.</summary>
         static void Save(string path)
         {
-            if (InventoryPanel.IsOpen) { SaveInventory(path); return; }
+            if (InventoryPanel.IsOpen || Array.IndexOf(Environment.GetCommandLineArgs(), "--offscreen-capture") >= 0)
+            { SaveInventory(path); return; }
             var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
             tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
             tex.Apply();
@@ -355,7 +357,7 @@ namespace ZenoniaProto
             Destroy(tex);
         }
 
-        // Hidden player windows have no readable swapchain. Render the bag canvas explicitly for UI reviews.
+        // Hidden player windows have no readable swapchain. Render the camera/canvas explicitly for art reviews.
         static void SaveInventory(string path)
         {
             Camera camera = Camera.main;

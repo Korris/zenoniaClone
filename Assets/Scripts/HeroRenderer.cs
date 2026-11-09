@@ -11,7 +11,7 @@ namespace ZenoniaProto
     /// Each part shows its own equipped item (SetEquipmentGear: tier from the item level, enhanced art from +7, HeldEnhanceFx escalating per +7/+9/+11/+13/+15 band);
     /// SetGear is the Q / E / R debug look that applies one tier to every part.
     /// </summary>
-    public class HeroRenderer : MonoBehaviour
+    public partial class HeroRenderer : MonoBehaviour
     {
         public static readonly string[] DirNames = { "down", "up", "left", "right" };
         static readonly string[] AnimNames = { "idle", "walk", "attack1", "attack2", "attack3", "dash", "hurt", "death" };
@@ -119,6 +119,7 @@ namespace ZenoniaProto
                 foreach (string anim in cls.HandAnims)
                     hand[anim] = SpriteSheet.Grid("Sprites/" + cls.HandFolder + "/" + anim, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, pivot);
             parts.AddRange(parts0);
+            LoadOutfitAnchors(null);
             var figure = new List<SpriteRenderer> { body, handOver };
             foreach (Part p in parts) figure.Add(p.Sr);
             dashTrail = gameObject.AddComponent<HeroDashTrail>();
@@ -141,6 +142,7 @@ namespace ZenoniaProto
             outfitBare.Clear();
             outfitHand.Clear();
             string folder = ArmorLooks.OutfitFolder(cls, outfit);
+            LoadOutfitAnchors(folder);
             if (headLayer != null) headLayer.SetBodyFolder(folder); // the hairstyle head sits on the outfit's headless sheets (Lv1 rows keep the Lv1 headless sheets)
             if (folder == null) return;
             var pivot = new Vector2(0.5f, 0f);
@@ -262,7 +264,8 @@ namespace ZenoniaProto
                 useGear = true;
                 for (int i = 0; i < parts.Count; i++)
                 {
-                    HeldAnchor a = gear.Get(parts[i].Spec.Id, anim, DirNames[dir], frame);
+                    HeldAnchor a = OutfitAnchor(parts[i].Spec.Id, anim, DirNames[dir], frame)
+                        ?? gear.Get(parts[i].Spec.Id, anim, DirNames[dir], frame);
                     // An optional part (the wizard's spellbook) without a usable anchor is just not drawn this frame.
                     if (parts[i].Spec.Optional && (a == null || a.fallback || a.hidden)) { anchorBuffer[i] = null; continue; }
                     // Web: any missing / fallback anchor => the whole frame falls back to the baked armed art.
@@ -321,7 +324,7 @@ namespace ZenoniaProto
             float sx = Mathf.Sign(a.sx == 0f ? 1f : a.sx) * Mathf.Max(Mathf.Abs(a.sx), p.Spec.MinSx);
             Transform t = p.Sr.transform;
             float bob = motion == 0 && !ownArt && entry.bobY != null && frame >= 0 && frame < entry.bobY.Length ? entry.bobY[frame] : 0f; // per-tier per-frame lift of the idle breathing (wizard book follows the tier's fist); attack frames have their own anchors
-            t.localPosition = new Vector3((a.x - GameConfig.FramePx * 0.5f) * GearOverlays.FrameUnit, (GameConfig.FramePx - a.y - bob) * GearOverlays.FrameUnit, 0f);
+            t.localPosition = new Vector3((a.x - GameConfig.FramePx * 0.5f) * GearOverlays.FrameUnit, (GameConfig.FramePx - a.y - bob - a.artY) * GearOverlays.FrameUnit, 0f);
             t.localRotation = Quaternion.Euler(0f, 0f, -a.angle); // web angle is clockwise on a y-down canvas
             t.localScale = new Vector3(k * sx, k, 1f);
             // Enhanced (+7 and up): the blade keeps its painted colours, HeldEnhanceFx lights it per band in the tier colour.

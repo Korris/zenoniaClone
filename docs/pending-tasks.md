@@ -1,5 +1,70 @@
 # Việc đang dở
 
+## Chốt Northwind, cán thon + tóc trắng Astral (09/11/2026)
+
+- Người dùng chọn dùng Northwind, không build Astral nữa. Chỉ Northwind: thu bề ngang cán ở vùng cầm, giữ đầu lớn/núm/chiều dài tăng theo tier. Cán giới hạn khoảng8px ở thang người160px (trước13–29px); exporter giữ phần trên40% và đáy16% không đổi, fit quanh trục, xuất grip/icon/base/enhanced/idle cùng nhau. Report `Build/wizard-northwind/shaft-width-report.json`.
+- Đầu mặc định dùng tóc trắng Astral từ main `heads/0/down`, scale đồng đều về cằm94; lựa chọn thứ3 index2 tóc cam thay bằng mặc định cho down/up/right. Cài copy-only và build lại `Build/wizard-northwind/player/Zenonia.exe`; launcher cũ dùng tiếp. Astral không build/đổi.
+
+## Northwind T9 V8 cũng đã cài (09/11/2026)
+
+- Người dùng nhắc gắn cả Northwind. Nguồn cuối/prompt `Assets/ArtLibrary/classes/wizard/outfits/northwind-v8/`, T9 giáp băng/sách/trượng bông tuyết mới, tỉ lệ thân scale đều cằm94–đế189 và đầu T0. Cùng chiều cao160px, trượng mục tiêu160+9*tier; alpha thực159.58→240.93px tăng nghiêm ngặt. Verify30sheet/40frame; live hashes nguyên vẹn. Build riêng thành công0lỗi.
+- Launcher `Build/wizard-northwind/Play-Northwind.cmd` và `Build/wizard-astral/Play-Astral.cmd` đều vào T9 ngay, zoom42. Zoom số nhỏ là phóng gần hơn: lần chụp zoom24 khiến đầu gậy chạm HUD, đã chụp lại cả10bộ với zoom42. Ảnh `Build/wizard-{variant}/captures-v8/`; bảng `docs/reference/wizard-{variant}-v8-all-tiers-ingame.png` ghép từ tool `Tools/compose-astral-v8.py`, cùng camera. Trang phục mới idle/down, giữ hướng/đi/đánh cũ. Không thay Wizard gốc.
+
+## Astral T9 V8 cài game + trượng tăng dần (09/11/2026)
+
+- Theo người dùng: cài T9 ruby/vàng mới, chỉnh cơ thể đúng tỉ lệ và cho trượng to dần T0→T9. Nguồn cuối/prompt imagegen `Assets/ArtLibrary/classes/wizard/outfits/astral-v8/`; tách nhân vật tay không + gậy + sách, mở rộng áo choàng bằng hình vẽ thay vì bóp người. T0–T8 áo V7 giữ nguyên.
+- Installer Astral dùng lại pipeline copy-only, scale thân đồng đều, đầu/cằm/đế khớp T0; tất cả160px. Chiều dài trượng160+9*tier, đo alpha tăng nghiêm ngặt159.58→240.93px. Verify30sheet/40frame, hash main Wizard nguyên vẹn. Bản chạy vẫn `Build/wizard-astral/Play-Astral.cmd`, zoom42 để thấy trượng lớn; build0lỗi.
+- Ảnh game V8 `Build/wizard-astral/captures-v8/`, bảng `docs/reference/wizard-astral-v8-all-tiers-ingame.png`; tool `Tools/compose-astral-v8.py`. Trang phục mới chỉ idle/down; hướng/đi/đánh vẫn art thân cũ, trang bị dùng art/cỡ mới. Chi tiết `docs/wizard-astral-comparison.md`.
+
+## Wizard gốc trước Astral: đủ10bộ
+
+Không nhầm player-clean (Astral-like) với Wizard gốc. Khôi phục106file từ reference-20261108/before-install vào Build-copy, xóa override anchor thêm sau đó; launcher Build/wizard-original/Play-Wizard-Original.cmd. Tool install-wizard-original.py và switch -WizardOriginal. Chi tiết docs/wizard-original-restored.md.
+
+
+## Astral Scholar V7 riêng (09/11/2026)
+
+Đã build Build/wizard-astral/player/Zenonia.exe, launcher Build/wizard-astral/Play-Astral.cmd. Giữ dáng tay chân gốc V7, scale thân đồng đều hai chiều, đầu theo tỉ lệ T0 gốc. Đủ10bộ cùng gậy/sách, chỉ idle/down. Export kiểm30sheet/40frame; main Wizard hash không đổi; Unity build0lỗi. Tool wrapper Tools/install-wizard-astral-v7.py, switch build -WizardAstral; chi tiết docs/wizard-astral-comparison.md.
+
+## Northwind sửa đồ bị bẹt (09/11/2026, sau bản so sánh)
+
+- Người dùng chê đồ Wizard bẹt. Đo Northwind thấy tỉ lệ scaleY/scaleX chỉ0.77–0.82 vì ép cằm–đế82px trong khi fit ngang theo đầu83px. Sửa riêng prototype Northwind: thân dùng scale đồng nhất ngang/dọc, cằm94–đế189, đầu79×65 đặt tại(59,29), tổng người160px. Bốn kiểu tóc down thay thế căn tương ứng trong bản copy. Điểm cầm xuất lại theo tay; không thay assets hay exe Wizard hiện tại.
+- `Tools/install-wizard-northwind-v7.py` kiểm áo lọt khung ở scale đều, không tự bóp ngang. `Tools/check-wizard-height.ps1 -IdleOnly` chụp10bộ khi không cần lặp lại hướng/đi vốn không đổi. Build/ảnh cuối vẫn dùng `Build/wizard-northwind/player/Zenonia.exe`, `Build/wizard-northwind/captures/`; ảnh so với bản hiện tại ở docs/reference được cập nhật.
+- Build sửa tỉ lệ đã thành công0lỗi, verify qua30sheet/40frame. Đo10skin top29/bottom189; head0 có bbox(59,29,138,94). Hash819file Resources Wizard chính vẫn nguyên vẹn. Bản cũ bị ép giữ riêng ở `Build/wizard-northwind/flat-before/` để ghép ảnh `docs/reference/wizard-northwind-aspect-before-after.png`.
+
+## Northwind Runesmith V7: bản chạy so sánh riêng (09/11/2026)
+
+- Người dùng yêu cầu một build riêng theo `wizard-northwind-runesmith-10-tiers-design-v7`, so với Wizard hiện tại. Đã chuẩn bị đủ10bộ thân/gậy/sách và head0/down cyan-forelock, icon; nguồn imagegen + prompt ở `Assets/ArtLibrary/classes/wizard/outfits/northwind-v7/`, chỉ giữ hai sheet cuối và prompt, xóa37file thử/trung gian. Phần tách/preview nằm dưới Build.
+- Installer `Tools/install-wizard-northwind-v7.py` chỉ ghi vào project-copy dưới Build, hash Resources Wizard chính trước/sau và xác nhận nguyên vẹn. Cài idle/down4frame thở, bare/headless/hand, head0, anchor và10cặp trang bị; hướng đi/đánh vẫn cũ. `Tools/build-from-copy.ps1` thêm switch tùy chọn `-WizardNorthwind` để chạy installer sau sync.
+- Exe riêng: `Build/wizard-northwind/player/Zenonia.exe`; launcher `Build/wizard-northwind/Play-Northwind.cmd` và `Play-Current.cmd` mở Northwind hoặc Wizard hiện tại cùng điều kiện. Bản hiện tại `Build/wizard-reference/player-battle-mage/Zenonia.exe` giữ nguyên. Dùng E/Q hoặc X/Z đổi bậc thử.
+- Build cuối 0 lỗi; verify qua30sheet/40frame, mainhashes unchanged (819file Resources Wizard). Đã chụp lại sau khử viền magenta, xem đủ10bộ và hướng/đi cũ, ảnh `Build/wizard-northwind/captures/`. So sánh thật cùng camera T0/T5/T9: `docs/reference/wizard-northwind-vs-current-ingame.png`; đủ10bộ `docs/reference/wizard-northwind-all-tiers-ingame.png`, ghép bằng `Tools/compose-northwind-comparison.py`. Tài liệu `docs/wizard-northwind-comparison.md`.
+
+## Wizard dáng chiến đấu v4, 09/11/2026
+
+- Người dùng yêu cầu sửa trực tiếp cho ngầu hơn sau khi xem bản cao160px. Vẽ T0 riêng và một sheet10thân bằng imagegen; nguồn/prompt ở `Assets/ArtLibrary/classes/wizard/outfits/stance-v4/`. Vai/giáp góc cạnh, eo gọn, tay áo ôm, chân lộ qua vạt tách, hai nắm tay thấp ngoài hông. Mặt mặc định hướng xuống đổi từ cười hiền sang nghiêm; giữ tóc trắng và mắt xanh.
+- Tool mới `Tools/build-wizard-stance-v4.py split/write/verify` dùng bộ xuất v3, giữ cằm107–đế189, đầu83×78 cùng vị trí cũ. Thay ép WIDTH theo bậc bằng tính theo tóc nguồn/83px để không bè ngang. Dò tay trong dải hông để khỏi nhận nhầm ngọc/khóa áo; gậy nghiêng-10độ, sách theo nắm tay thấp. Giữ nguyên art và kích thước trang bị.
+- Đã write đủ10bộ, 4frame thở, bare/headless/hand và anchor, default head0/down mới. Verify qua30sheet giữ hướng khác, 40frame cùng chiều cao, tay thấp, gậy nghiêng. Đã xem ghép đủ10bộ và 5kiểu tóc T0/T9; nguồn có alpha thật, sheet được tách theo mảng thay vì cắt grid để không mất vạt áo.
+- Build thành công0lỗi `Build/wizard-reference/player-battle-mage/Zenonia.exe`, log `build-battle-mage.log`. Đã chụp và xem đủ10bộ, đứng phải/lên và đi phải, thêm Warrior/Mechanic cùng camera; ảnh `Build/wizard-reference/captures-battle-mage/`. Review: `docs/reference/wizard-battle-mage-before-after.png`, `wizard-battle-mage-vs-party.png`, `wizard-battle-mage-all-tiers-ingame.png`, ghép bằng `Tools/compose-wizard-battle-mage-check.py`. Chi tiết `docs/wizard-battle-mage-stance.md`. Chỉ idle/down; các hướng đi/đánh vẫn dùng art cũ. Không sửa dev-start hoặc build project Unity đang mở.
+
+## Wizard sửa cao thấp giữa skin (09/11/2026)
+
+- Người dùng yêu cầu sửa ngay sau khi chạy bản player-stance thấy skin lúc cao lúc lùn. Nguyên nhân: `fitted()` khớp chiều cao toàn ảnh cộng `LIFT` theo bậc, cằm/head-offset trôi khác nhau và khác mốc di chuyển cũ.
+- Sửa `Tools/build-wizard-stance-v3.py`: khớp cằm107–đế189 cho mọi bộ, bỏ LIFT, giữ WIDTH/độ rộng áo và kích thước trang bị, tính lại bàn tay/anchor, dựng đủ 4 frame thở. Đã write T0–T9; đo ảnh live mọi bộ top29/bottom189 (cao160px), head offset0. Verify qua 30 sheet giữ hướng khác, 40 frame/mốc tóc-đế và nắm tay/anchor. Chưa thêm outfit đi/đánh.
+- Build thành công 0 lỗi: `Build/wizard-reference/player-height-fixed/Zenonia.exe`, log `build-height-fixed.log`. Capture kiểm `Tools/check-wizard-height.ps1`, ảnh `Build/wizard-reference/captures-height-fixed/`. Không build vào project Unity chính, không thay dev-start.
+- Đã chụp và xem đủ 10 skin cùng camera trong game, thêm đứng phải/lên và đi phải; ảnh tổng `docs/reference/wizard-height-fixed-ingame.png`. Cùng đỉnh tóc/bàn chân giữa skin; áo choàng vẫn rộng theo bậc. Các hướng đi/đánh còn dùng áo cũ vì chưa có sprite trang phục mới cho các động tác đó; sửa lần này không tạo thêm animation.
+
+## Wizard số 2 và số 4: bảng trang phục 10 bậc (08/11/2026, chờ người dùng xem)
+
+- **Mới nhất V7, đã lưu đủ hai bảng:** `docs/reference/wizard-astral-scholar-10-tiers-design-v7.png` và `docs/reference/wizard-northwind-runesmith-10-tiers-design-v7.png`. Thay gậy và sách trực tiếp trên nhân vật mặc bộ V6, mỗi bậc khác hình dáng/kết cấu/màu đá. Astral: sao / trăng / thạch anh xoắn / đồng hồ cát / phượng / sọ quạ / mặt trời / rắn / cánh dơi / vương trượng ruby. Northwind: gậy gốc / sừng cuộn / gạc hươu / đầu sói / khung rune / sọ cừu / vỏ ốc / sư tử / lưỡi trăng / bông tuyết. Sách bìa/gáy/khóa phối từng gậy. Đã xem cả hai, chưa cài game. Prompt `outfit-ladders/*-10-tiers-v7-prompt.txt`. Người dùng bác việc chỉ đưa bảng trang bị riêng: phải thấy trang phục đi cùng. Ảnh trang bị Astral riêng chỉ nằm ngoài repo tại generated_images, không là deliverable. Lượt Northwind chạy xong sau khi turn bị ngắt, đã tìm/mở đúng file rồi lưu vào repo.
+
+- **Bản hiện tại V6:** người dùng yêu cầu vẽ lại thêm một lần, không chỉ ghi rule. Hai bảng mới: `docs/reference/wizard-astral-scholar-10-tiers-design-v6.png`, `docs/reference/wizard-northwind-runesmith-10-tiers-design-v6.png`; prompt `redesign/outfit-ladders/*-10-tiers-v6-prompt.txt`. Vẽ mới T1–T9 trực tiếp từ mẫu T0 phóng lớn + ảnh đoàn chuẩn bằng imagegen, không gửi bảng V5 làm mẫu. Astral đổi T2 sang hồng để tách hẳn đỏ T9; các màu còn lại: cobalt, ngà, teal, cam, đen, vàng, lục bảo, tím. Northwind: navy, cát, rừng, cam, xám, rượu đỏ, turquoise, vàng, tím, trắng. Đã xem ảnh; vẫn là concept chờ người dùng chọn, chưa xác nhận tỷ lệ khớp từng pixel hoặc đẹp tăng tuyệt đối ở từng cặp bậc. Bản cũ V5 và prompt đã xóa theo yêu cầu giữ git changes gọn. Các ghi chú V5 bên dưới chỉ là lịch sử.
+
+- Người dùng giữ hai phương án V3: 2 Astral Scholar và 4 Northwind Runesmith, yêu cầu mỗi phương án 10 bậc trang phục để cân nhắc tiếp; chưa chọn ngoại hình cuối, chưa cài game.
+- Chốt: lấy nguyên thiết kế gốc làm T0, đẹp và hoành tráng dần T1–T9; không giản lược T0 thành đồ tân thủ. Không có rule đồng bộ thang màu các bậc giữa nhân vật. Màu trang phục phối riêng, không ép xanh lá → vàng → cam → đen. Màu VFX theo class vẫn là xanh dương/băng.
+- Bảng mới nhất: `docs/reference/wizard-astral-scholar-10-tiers-design-v5.png` và `docs/reference/wizard-northwind-runesmith-10-tiers-design-v5.png`. Prompt chính xác: `Assets/ArtLibrary/classes/wizard/redesign/outfit-ladders/*-10-tiers-v5-prompt.txt`; mẫu gốc phóng nearest 2x: `*-original-zoom-2x.png`. Tạo bằng imagegen tích hợp. Chỉ lưu một bản mỗi ảnh cuối trong repo, không sao chép trùng sang ArtLibrary.
+- Người dùng bác v1–v3: T0 bị đơn giản hóa, thang màu lặp và thân/chân các bậc cao bị dài/to lên. v4 rút ngắn thân/chân, giữ chiều cao và cỡ đầu cùng nhau giữa hai hàng; v5 giữ thiết kế v4, đổi từng bộ thành một màu chủ đạo riêng như set MU Online. Astral: xanh cobalt / ngà / rượu đỏ / teal / đồng cam / đen / vàng / lục bảo / tím / đỏ tươi. Northwind: navy / cát / xanh rừng / cam gỉ / xám thép / rượu đỏ / ngọc turquoise / vàng / tím / trắng bạc. Màu chủ đạo phủ áo-ngực-vai-giày, không chỉ đổi viền.
+- Đã xóa 16 file bảng/prompt không đạt v1–v4 khỏi repo theo yêu cầu người dùng, gồm hai bản docs/reference v3. Không xóa các mẫu gốc có sẵn từ trước hoặc file người dùng `download.png`.
+- Đã xem hai bảng v5: đủ 10 bậc, màu riêng rõ hơn, thân/chân bậc cao đã rút lại so v3. Đây là concept AI chờ người dùng duyệt, chưa xác nhận khớp tỷ lệ từng pixel hoặc kiểm trong game. Chưa xuất sheet, icon, headless, anchor hoặc sửa runtime.
+
 ## Mechanic FX đòn thường v3 màu VÀNG theo màu class (08/11/2026 chiều, chưa commit, chờ người dùng xem)
 
 - ChatGPT Tay vẽ mới sheet 5 hàng × 4 frame cùng bố cục v2 (ảnh gửi = sheet v2 ở `ArtLibrary/classes/mechanic/vfx/attack-v3/ref/layout-ref-v2-sheet.png`), chat https://chatgpt.com/c/6af03406-b040-83ec-a9f7-eb596a86ecdc; ảnh gốc `attack-v3/mechanic-attack-fx-v3-chatgpt-1.png` (nền `#FF00FF`). Chớp nòng vàng trắng, đạn vàng (ChatGPT vẽ thành viên đạn đồng có bánh răng), nhát 3 quả cầu điện vàng + vòng đồng + tia điện (thay đạn xanh), nổ pháo vàng-hổ phách có tia điện, trúng vàng.
