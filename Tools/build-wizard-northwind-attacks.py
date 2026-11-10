@@ -82,6 +82,15 @@ def game_head_width(d):
     return skull_width(placed(template(d), {"x": 0, "y": 0, "s": S}))
 
 
+BODY_H = 95.0                                                              # idle chin -> sole, frame px (all 4 facings)
+
+
+def drawn_chin(im):
+    """Lowest row of the drawn bald head (face / nape skin blob), in the image's own rows."""
+    ys = np.nonzero(head_blob(im).any(1))[0]
+    return int(ys[-1]) if len(ys) else 0
+
+
 def idle_feet(d):
     hl = np.asarray(Image.open(f"{BODY}/headless/idle.png").convert("RGBA"))[wb.ROWS[d] * F:(wb.ROWS[d] + 1) * F, :F]
     return wb.feet_x(Image.fromarray(hl)), nw.SOLE
@@ -99,7 +108,9 @@ def fitted(anim, d):
         _CACHE[key] = [c.transpose(Image.FLIP_LEFT_RIGHT) for c in fitted(*wb.MIRRORS[key])]
         return _CACHE[key]
     figs = wb.pieces(wb.JOBS[key], wb.COUNT[anim])
-    k = game_head_width(d) / float(np.median([head_width_src(fg) for fg in figs]))
+    # body scale: chin -> sole as idle's (BODY_H). The head is a separate layer of fixed size, and ChatGPT draws the attack heads bigger
+    # than idle's, so a head-width fit shrank the body 6-24 % (10/11). The least crouched frame of the row sets the scale.
+    k = BODY_H / float(max(fg.height - 1 - drawn_chin(fg) for fg in figs))
     fx, sole = idle_feet(d)
     cells = []
     for fg in figs:
@@ -161,42 +172,21 @@ def auto_fists(cell):
 
 
 def register(cell, d):
-    """Head anchor {x, y, s, angle} placing the face template on the drawn bald head (skin IoU, search move +-8 px, tilt +-15)."""
-    a = np.asarray(cell)
-    sk = skin(a)
-    lab, n = ndimage.label(sk)
-    if n == 0:
-        return {"x": 0.0, "y": 0.0, "s": S, "sy": 1.0, "angle": 0.0}
-    sizes = ndimage.sum(sk, lab, range(1, n + 1))
-    tops = [np.nonzero(lab == i + 1)[0].min() for i in range(n)]
-    cand = [i for i in range(n) if sizes[i] > 60]
-    head = 1 + min(cand or range(n), key=lambda i: tops[i])           # the highest big skin blob is the face / scalp
-    target = lab == head
-    tf = template(d)
-    tsk = skin(np.asarray(tf))
+    """Head anchor {x, y, s, angle}: the game face template (scale S) with its chin on the drawn head's chin and centred on the drawn
+    head (the drawn head is bigger than the game head, so an overlap fit would sink the game head into the collar)."""
+    hb = head_blob(cell)
     base = {"x": 0.0, "y": 0.0, "s": S, "sy": 1.0, "angle": 0.0}
-    t0 = np.asarray(placed(Image.fromarray((tsk * 255).astype(np.uint8)).convert("L").convert("RGBA"), base))[..., 0] > 128
-    ty, tx = np.nonzero(t0); gy, gx = np.nonzero(target)
-    x0, y0 = gx.mean() - tx.mean(), gy.min() - ty.min()
-    tmask = Image.fromarray((tsk * 255).astype(np.uint8)).convert("RGBA")
-    best = None
-    for ang in range(-15, 16, 3):
-        for dx in range(-8, 9, 2):
-            for dy in range(-8, 9, 2):
-                an = dict(base, x=float(x0 + dx), y=float(y0 + dy), angle=float(ang))
-                m = np.asarray(placed(tmask, an))[..., 0] > 128
-                iou = (m & target).sum() / max(1, (m | target).sum())
-                if best is None or iou > best[0]:
-                    best = (iou, an)
-    iou, an = best
-    for dx in (-1, 0, 1):                                              # 1 px refine
-        for dy in (-1, 0, 1):
-            a2 = dict(an, x=an["x"] + dx, y=an["y"] + dy)
-            m = np.asarray(placed(tmask, a2))[..., 0] > 128
-            v = (m & target).sum() / max(1, (m | target).sum())
-            if v > iou:
-                iou, best = v, (v, a2)
-    return dict(best[1], x=round(best[1]["x"], 2), y=round(best[1]["y"], 2), iou=round(float(iou), 3))
+    if not hb.any():
+        return dict(base, iou=0.0)
+    ys, xs = np.nonzero(hb)
+    t = np.asarray(template(d))[..., 3] > 128
+    tys, txs = np.nonzero(t)
+    tchin, tcx = tys.max(), (txs.min() + txs.max()) / 2
+    ax = (xs.min() + xs.max()) / 2 - (F / 2 + (tcx - F / 2) * S)
+    ay = ys.max() - (F + (tchin - F) * S)
+    m = np.asarray(placed(template(d), dict(base, x=ax, y=ay)))[..., 3] > 128
+    iou = (m & hb).sum() / max(1, (m | hb).sum())
+    return dict(base, x=round(float(ax), 2), y=round(float(ay), 2), iou=round(float(iou), 3))
 
 
 def head_blob(cell):
