@@ -1,6 +1,6 @@
 """In-game sheet of the Wizard's 4-hit basic attack x 4 facings (docs/reference/wizard-basic-attack-ingame.png), from the shared test build.
 Runs the player once per facing with --record-combo wizard (60 fps fixed step, attack held from frame 30, dummies close by), then crops the
-hero at the frame where each hit's bolt has just left (hit start + windup + ~50 ms; ComboConfigs.WizardHits 260/260/260/470 ms) and lays
+hero at the frame where each hit's bolt has just left (hit start + windup + ~50 ms; ComboConfigs.WizardHits 350/350/350/640 ms) and lays
 them out 4 hits x 4 facings, like docs/reference/mechanic-basic-attack-ingame.png.
 
   python Tools/capture-wizard-basic-attack-ingame.py run [EXE] [OUT_DIR]     record the four facings (default D:/temp/player-all/Zenonia.exe, D:/temp/cap-wizard-board)
@@ -16,11 +16,11 @@ from PIL import Image, ImageDraw
 EXE = "D:/temp/player-all/Zenonia.exe"
 OUT = "D:/temp/cap-wizard-board"
 FACINGS = ["down", "right", "left", "up"]
-NAMES = ["1. Arcane Thrust", "2. Frost Page", "3. Twin Sigil", "4. Astral Nova"]
+NAMES = ["1. Crystal Thrust", "2. Frost Sweep", "3. Glacier Slam", "4. Blizzard Nova"]  # combo v2 (10/11); the side / up rows still play the old poses
 FPS = 60.0
 ATTACK_FROM = 30  # DebugCapture.RecordCombo
-HIT_START_MS = [0, 260, 520, 780]
-WINDUP_MS = [70, 70, 70, 130]
+HIT_START_MS = [0, 350, 700, 1050]  # 2026-11-10: 350 / 350 / 350 / 640 ms (ComboConfigs.WizardHits)
+WINDUP_MS = [100, 100, 100, 180]
 AFTER_MS = 60  # the bolt a little way out of the hand
 PICK = {}  # (facing, hit) -> frame offset, after looking at `candidates`
 W, H = 3400, 1400

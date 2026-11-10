@@ -1,0 +1,15 @@
+Great, exactly that format. Next: the sprite strip for HIT 2 "Frost Sweep", facing DOWN (toward the camera), same wizard.
+
+Image 1 = the bald, empty-fist body template (same scale as before). Image 2 = the pose of hit 2 from the board.
+
+Same output format: ONE image 1536x1024, flat green #00FF00, TWO ROWS of 6 frames, evenly spaced with clear green gaps, same scale and head size as image 1, feet on one baseline. ROW 1 WITH the staff (hair allowed); ROW 2 the SAME poses BALD with EMPTY closed fists, NO staff, NO book, NO effects, fists exactly where they grip the staff in row 1.
+
+Frames of the sweep (both hands on the staff the whole time, the staff is horizontal, this is a wide two-handed swing across the front of the body):
+1. wind-up: both fists grip the staff held level across the chest, pulled over to the hero's RIGHT side (screen-left), crystal tip pointing to screen-left, shoulders turned.
+2. swing starts: the staff crosses the front of the body, body twisting, feet widening.
+3. STRIKE, copy image 2: wide stance, torso twisted, both arms extended to screen-right, staff horizontal with the crystal tip far out to screen-right.
+4. follow-through: the staff continues past, tip slightly higher, body leaning after it.
+5. recover: staff coming back toward the chest, stance narrowing.
+6. nearly idle, staff upright in the right hand, left fist free at the side.
+
+Big readable swing like a warrior's horizontal sword slash. Same robe and boots. No purple. Solid opaque pixel art, sharp edges, no checkerboard.

@@ -1,0 +1,15 @@
+Next: the sprite strip for HIT 3 "Glacier Slam", facing DOWN (toward the camera), same wizard.
+
+Image 1 = the bald, empty-fist body template. Image 2 = the pose of hit 3 from the board.
+
+Same output format: ONE image 1536x1024, flat green #00FF00, TWO ROWS of 6 frames, evenly spaced with clear green gaps, same scale and head size as image 1, feet on one baseline. ROW 1 WITH the staff (hair allowed); ROW 2 the SAME poses BALD with EMPTY closed fists, NO staff, NO book, NO effects, fists exactly where they grip the staff in row 1.
+
+Frames of the slam (both hands on the staff the whole time):
+1. wind-up: both fists grip the staff raised HIGH over the head, crystal tip up, body stretched tall, feet together.
+2. the staff comes down fast in front of the body, knees bending, feet spreading.
+3. STRIKE, copy image 2: deep crouch, wide stance, both arms extended down in front of the body, staff vertical in front of the belly, crystal tip hitting the ground between the feet.
+4. impact hold: pressed even lower, shoulders hunched, head down.
+5. rising: pulling the staff back up to the chest.
+6. nearly idle, staff upright in the right hand, left fist free at the side.
+
+Heavy overhead smash like a warrior's two-handed hammer slam. Same robe and boots. No purple. Solid opaque pixel art, sharp edges, no checkerboard.

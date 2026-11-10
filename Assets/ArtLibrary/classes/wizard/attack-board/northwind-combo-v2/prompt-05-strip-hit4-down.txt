@@ -1,0 +1,17 @@
+Last: the sprite strip for HIT 4 "Blizzard Nova" (the finisher), facing DOWN (toward the camera), same wizard.
+
+Image 1 = the bald, empty-fist body template. Image 2 = the pose of hit 4 from the board.
+
+Same output format but 8 FRAMES per row: ONE image 1536x1024, flat green #00FF00, TWO ROWS of 8 frames, evenly spaced with clear green gaps, same scale and head size as image 1, feet on one baseline. ROW 1 WITH the staff (hair allowed); ROW 2 the SAME poses BALD with EMPTY closed fists / open hands exactly as row 1, NO staff, NO book, NO effects.
+
+Frames of the nova:
+1. both fists grip the staff upright in front of the chest, feet together.
+2. the staff is driven down and PLANTED vertically into the ground right in front of the feet (center), both fists still on it, knees bent.
+3. BURST, copy image 2: the staff stays planted standing alone at the center between the feet, both arms thrown wide and up, open hands, head tilted up, mouth open shouting, wide stance.
+4. hold of the burst, arms fully spread, body leaning back.
+5. hold, arms slightly lower.
+6. arms coming down toward the staff.
+7. both hands grab the planted staff again, pulling it out.
+8. nearly idle, staff upright in the right hand, left fist free at the side.
+
+In row 2 the planted staff is NOT drawn in frames 2-7 (only the body), keep the hands exactly where they are in row 1. Same robe and boots. No purple. Solid opaque pixel art, sharp edges, no checkerboard.

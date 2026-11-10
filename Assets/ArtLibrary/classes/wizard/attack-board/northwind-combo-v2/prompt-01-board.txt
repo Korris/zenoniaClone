@@ -1,0 +1,13 @@
+Design a NEW 4-hit basic attack combo for this WIZARD (image 1: our in-game sprite, Northwind ice wizard, white hair with cyan streak, navy fur-collared robe, wooden staff with ice crystal top in the RIGHT hand, small snowflake book in the LEFT hand, chibi, about 3 heads tall). MALE.
+
+LAYOUT: copy the layout of image 2 (our Mechanic combo board) exactly: top row = 4 panels, hero facing DOWN (toward the camera), one slime target below him, damage numbers, panel titles "1. ..." to "4. ..." with a short caption; bottom-left box "Side View Combo (Facing Right)" with the same 4 hits seen from the side; bottom-right box "Attack FX Sprite Sheet" with 5 labelled rows of FX frames. Same snowy pixel-RPG scene, same HUD. Draw everything new from scratch, do not reuse the Mechanic art.
+
+PROBLEM TO FIX: image 3 is our current wizard attack strip. It looks like he is just waving his fists, not attacking. The new combo must read as REAL STRIKES with big readable body motion (wide stance, lean, twist, arm fully extended, anticipation then follow-through), like a warrior or the gunner in image 2. The STAFF is the main weapon and must be used physically in every hit (thrust, sweep, slam, raise). The book is optional: it may stay closed in the left hand or hang at the belt, he does NOT need to attack with both weapons.
+
+Suggested move set (you may improve it, but keep every hit a clear physical staff action and keep the 1 -> 2 -> 3 -> 4 flow natural so the frames can chain smoothly):
+1. Crystal Thrust: step forward, staff jabbed straight at the target like a spear, ice bolt shoots from the crystal tip.
+2. Frost Sweep: wide horizontal staff swing across the body, a crescent of frost flies forward.
+3. Glacier Slam: both hands on the staff, raise it over the head, slam the crystal into the ground, a line of ice spikes erupts toward the target.
+4. Blizzard Nova (finisher, heavier, longer): plant the staff, both arms raised, big ice burst / frozen AoE around the targets, three damage numbers.
+
+Colors: blue / ice / white only (our Wizard's class color), NO purple. Keep the character design, proportions and head size exactly as image 1. Hit timing text under the panels: hits 1-3 "0.26 s", hit 4 "0.47 s, small AoE". Output one 1536x1024 board image.

@@ -19,12 +19,18 @@ namespace ZenoniaProto
         // (ComboProjectile.ArcaneRow plays the v3 set's shard row for this sprite name).
         public const string FrostShardSprite = "frostShard";
         static readonly BoltDef FrostShard = new BoltDef(230f, 60f, FrostShardSprite, 0.8f, 10f, 10f, 0f, null, null, BoltStyle.Arcane);
+        // Combo v2 (board 2026-11-10: Crystal Thrust, Frost Sweep, Glacier Slam, Blizzard Nova): hit 3's picture is a wave of ice spikes along the
+        // ground (the v4 set's spikes row, drawn upright: ComboProjectile.ArcaneRow), same numbers as the magic bolt.
+        public const string GlacierSpikesSprite = "glacierSpikes";
+        static readonly BoltDef GlacierSpikes = new BoltDef(230f, 60f, GlacierSpikesSprite, 0.8f, 10f, 10f, 0f, null, null, BoltStyle.Arcane);
+        // 2026-11-10 (user: the hits were too fast to read with the 6 / 8-frame v2 bodies): hits 1-3 350 ms (was 260), hit 4 640 ms (was 470);
+        // multipliers x1.35 so the combo's damage per second is unchanged. Shared with the server: rebuild it.
         public static readonly ComboHit[] WizardHits =
         {
-            new ComboHit(70f, 60f, 130f, 0.9f, 0f, 0f, 30f, 0f, 1f, MagicBolt),
-            new ComboHit(70f, 60f, 130f, 1.0f, 0f, 0f, 35f, 0f, 1f, FrostShard),
-            new ComboHit(70f, 60f, 130f, 1.1f, 0f, 0f, 40f, 0f, 1f, MagicBolt),
-            new ComboHit(130f, 80f, 260f, 1.6f, 0f, 0f, 90f, 0f, 1f, ArcaneOrb),
+            new ComboHit(100f, 80f, 170f, 1.2f, 0f, 0f, 30f, 0f, 1f, MagicBolt),
+            new ComboHit(100f, 80f, 170f, 1.35f, 0f, 0f, 35f, 0f, 1f, FrostShard),
+            new ComboHit(100f, 80f, 170f, 1.5f, 0f, 0f, 40f, 0f, 1f, GlacierSpikes),
+            new ComboHit(180f, 110f, 350f, 2.2f, 0f, 0f, 90f, 0f, 1f, ArcaneOrb),
         };
 
         // Mechanic: two fast bullets, one big bullet (hit 3, both pistols at once), then a plasma cannon blast (AoE r24) with a muzzle flash on every shot.

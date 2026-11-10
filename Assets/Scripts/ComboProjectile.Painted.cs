@@ -14,9 +14,12 @@ namespace ZenoniaProto
         Sprite[] ArcaneRow(bool big)
         {
             if (def.Style != BoltStyle.Arcane) return null;
-            int row = big ? VfxSet.Bolt : def.Sprite == ComboConfigs.FrostShardSprite ? VfxSet.Shard : -1;
+            int row = big ? VfxSet.Bolt : def.Sprite == ComboConfigs.FrostShardSprite ? VfxSet.Shard : def.Sprite == ComboConfigs.GlacierSpikesSprite ? VfxSet.Spikes : -1;
             return row >= 0 && vfx.Rows.Length > row ? vfx.Rows[row] : null;
         }
+
+        /// <summary>The Wizard v4 glacier spikes (hit 3) are painted standing on the ground: they slide toward the target without turning.</summary>
+        bool Upright { get { return def.Style == BoltStyle.Arcane && def.Sprite == ComboConfigs.GlacierSpikesSprite && vfx.Rows.Length > VfxSet.Spikes && vfx.Rows[VfxSet.Spikes] != null; } }
 
         /// <summary>Cleric v2 set (board 2026-11-08): hit 4's holy orb loops the bolt row, hit 3's halo lance (BoltDef sprite "haloLance") the lance row; null = the proj row (light arrow).</summary>
         Sprite[] ClericRow(bool big)
@@ -42,7 +45,7 @@ namespace ZenoniaProto
             behindOrder = def.Style == BoltStyle.Plasma && big && dir.y > 0.7f ? GameConfig.OrderBase(pos.y - Rpg.RangedAimRules.BoltLift) - 2 : 0;
             behindUnits = MechanicBehindUnits;
             behindFeetY = behindTopY = 0f; // band off (Mechanic distance rule)
-            transform.rotation = Quaternion.Euler(0f, 0f, angleDeg);
+            transform.rotation = Quaternion.Euler(0f, 0f, Upright ? 0f : angleDeg);
             transform.localScale = FlightScale(0f, big);
             transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
             gameObject.SetActive(true);

@@ -1,0 +1,18 @@
+Now the sprite strip for HIT 1 "Crystal Thrust", facing DOWN (toward the camera), for the same wizard.
+
+Image 1 = our in-game body template: the SAME character, BALD (no hair, no hat), EMPTY closed fists, no staff, no book, on flat green #00FF00. Image 2 = the pose of hit 1 from the board you just made.
+
+Draw ONE image 1536x1024, flat green background #00FF00, TWO ROWS of 6 frames each, frames evenly spaced left to right with clear green gaps, every frame the SAME SCALE as image 1 (same head size: head about 42% of body height, same body height, same line weight), feet of every frame on the SAME baseline.
+
+ROW 1 (top): the 6 frames WITH the wooden ice-crystal staff in the RIGHT hand (hair may be drawn in this row), so I can read the staff angle.
+ROW 2 (bottom): the SAME 6 frames pixel-identical in pose, but BALD like image 1, EMPTY FISTS, NO staff, NO book, NO effects (the fists stay closed exactly where they grip the staff in row 1; the arms do not move).
+
+Frames of the thrust (facing the camera, the target is below him on screen):
+1. anticipation: body twists, right fist with the staff pulled back beside the right hip, staff vertical, left fist raised near the left shoulder.
+2. right foot steps forward (toward the camera), wide stance, body starts leaning forward, right arm begins to extend downward.
+3. STRIKE, copy image 2: deep forward lunge, right arm FULLY extended straight down-forward toward the camera, staff vertical with the crystal tip pointing down at the target below, left arm swung back for balance.
+4. hold of the strike with the body pressed even lower.
+5. recover: arm pulls back, body rises.
+6. nearly idle stance, both fists low at the sides.
+
+Big readable motion like a warrior's spear thrust, not a small hand wave. Same navy fur-collared robe, same boots as image 1. No purple. Solid opaque pixel art, sharp edges, no checkerboard.

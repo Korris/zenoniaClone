@@ -1,0 +1,12 @@
+Now the attack FX sprite sheet for this combo, to replace our old one. Image 1 = our OLD FX sheet (only for the LAYOUT: one effect per row, 4 animation frames per row left to right, each frame inside its own cell, flat green background). Image 2 = the FX box of the board you made (the look I want: ice blue / white glowing effects).
+
+Draw ONE image 1024x1536 (portrait), flat green background #00FF00, a grid of 7 ROWS x 4 COLUMNS (cells 256 px wide, about 219 px tall). Each row is ONE effect animated over its 4 frames (frame 1 = start, frame 4 = end), the effect centred in its cell, NEVER touching the cell edges, no labels, no text, no borders. Rows top to bottom:
+1. Crystal Flash: the flash at the staff crystal when a hit is cast. Small spark -> big 4-point ice star with snowflake rays -> fading. Centred.
+2. Ice Bolt (hit 1 projectile): a sharp ice crystal dart flying to the RIGHT with a frosty trail behind it (trail on the left). Same size and same crystal-head position in all 4 frames; only the trail flickers.
+3. Frost Crescent (hit 2 projectile): a glowing crescent of frost flying to the RIGHT (the crescent's open side on the left, its tips pointing right), ice chips scattering behind it. Same size and position in all 4 frames; only the sparkle changes.
+4. Glacier Spikes (hit 3): a cluster of ice spikes erupting UPWARD from the ground: frame 1 small cracks and a few short spikes at the bottom, frames 2-3 tall jagged spikes growing, frame 4 the spikes shattering into chips. Base of the spikes on the same bottom line in all frames, centred horizontally.
+5. Ice Orb (hit 4 projectile): a round glowing ice sphere with a snowflake inside and a frost ring around it, flying to the RIGHT; the ring spins over the 4 frames, the sphere stays the same size, centred.
+6. Blizzard Nova (hit 4 burst): a big ring of frost seen slightly from above (an ellipse wider than tall) with a snowflake sigil in the middle, expanding over the frames and spraying ice crystals upward, frame 4 dissolving into snow. Centred.
+7. Ice Impact (hits 1-3 hitting the target): a burst of ice shards and frost dust exploding from one point: frame 1 small flash, frames 2-3 shards flying out, frame 4 falling chips. Centred.
+
+Style: thick solid shapes with dark navy outlines and white hot cores, like image 1 (they are shown very small in the game, so no thin hairline details, no soft fog); colours ONLY ice blue, cyan, white, navy outline; NO purple, NO green. Solid opaque pixel art, sharp edges, no checkerboard, no transparency.
