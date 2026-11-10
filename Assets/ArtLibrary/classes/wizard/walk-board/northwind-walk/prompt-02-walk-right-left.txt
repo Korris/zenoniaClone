@@ -1,0 +1,17 @@
+Perfect. Now the same WALK cycle facing RIGHT and facing LEFT, same wizard, same format.
+
+Image 1 = the bald body template in 4 facings (the third figure is facing right, the fourth facing left). Image 2 = the 5 classes, style and proportions only.
+
+ONE image 1024x1536 (portrait), flat green #00FF00, FOUR ROWS of 4 frames, evenly spaced with clear green gaps between every figure and between the rows, same scale and head size as image 1, feet of each row on one baseline.
+
+ROW 1: facing RIGHT (side view exactly like the third figure of image 1: one eye, the nose and the boot toes point to the right), 4 frames WITH the wooden ice-crystal staff upright in the RIGHT hand = the NEAR hand (the arm closest to the viewer, in front of the body), crystal up. Hair may be drawn.
+ROW 2: the SAME 4 frames BALD like image 1, EMPTY closed fists, NO staff, NO book, the near fist closed exactly where it grips the staff in row 1.
+ROW 3: facing LEFT (side view exactly like the fourth figure of image 1, nose and toes to the left). This is NOT a mirror of row 1: the staff is still in the character's RIGHT hand, which is now the FAR hand (the arm on the other side of the body), so the staff shaft shows behind the body and the far fist peeks out in front of the chest or hip. Hair may be drawn.
+ROW 4: the SAME 4 frames BALD, EMPTY fists, NO staff.
+
+The 4 frames of the stride (a looping cycle, big readable steps like the warrior's walk, not a shuffle):
+1. CONTACT: front leg planted forward, back leg stretched back, legs clearly apart; staff arm swung forward, free arm back.
+2. PASS: back leg swings past the planted leg, legs together, body at its HIGHEST point (head 2-3 px higher than frames 1 and 3), arms near the sides.
+3. CONTACT: the other leg planted forward, legs apart; staff arm swung back, free arm forward.
+4. PASS: legs together again, body high.
+Torso upright, slight forward lean, robe hem and fur collar sway a little, staff roughly vertical (tilt at most 15 degrees). Same navy fur-collared robe, same snowflake tabard, same boots as image 1. No purple. Solid opaque pixel art, sharp edges, no checkerboard, nothing touching the image border.

@@ -69,7 +69,7 @@ namespace ZenoniaProto
         public static bool Requested(string[] args)
         {
             if (ReleaseBuild.IsRelease) return false; // bots and captures are test tools: a player must not be able to start them from the command line
-            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--login-shots" })
+            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-walk", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--login-shots" })
                 if (Array.IndexOf(args, flag) >= 0) return true;
             return false;
         }
@@ -109,6 +109,7 @@ namespace ZenoniaProto
             classArg = Arg(a, "--class");
             recordArg = Arg(a, "--record-ultimate");
             comboArg = Arg(a, "--record-combo");
+            walkArg = Arg(a, "--record-walk");
             compareArg = Arg(a, "--record-compare");
             bossArg = Arg(a, "--record-boss");
             choreoArg = Arg(a, "--record-choreo");
@@ -302,6 +303,7 @@ namespace ZenoniaProto
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--hero-select-test") >= 0) { yield return RunHeroSelectTest(); yield break; }
             if (compareArg != null) { yield return RecordCompare(compareArg); yield break; }
             if (comboArg != null) { yield return RecordCombo(comboArg); yield break; }
+            if (walkArg != null) { yield return RecordWalk(walkArg); yield break; }
             if (bossArg != null) { yield return RecordBoss(bossArg); yield break; }
             if (choreoArg != null) { yield return RecordChoreo(choreoArg); yield break; }
             if (party) { yield return RecordParty(); yield break; }

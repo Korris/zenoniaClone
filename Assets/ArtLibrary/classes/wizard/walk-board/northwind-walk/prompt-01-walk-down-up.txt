@@ -1,0 +1,17 @@
+Now the WALK cycle for the same wizard, facing DOWN and facing UP.
+
+Image 1 = our in-game body template of this character in 4 facings (down, up, right, left): BALD (no hair, no hat), EMPTY closed fists, no staff, no book, on flat green #00FF00. Image 2 = the 5 hero classes of the game, for the pixel style and the head/body proportions only.
+
+Draw ONE image 1024x1536 (portrait), flat green background #00FF00, FOUR ROWS of 4 frames each, frames evenly spaced left to right with clear green gaps between every figure and between the rows, every frame the SAME SCALE as image 1 (same head size, same body height, same line weight), feet of every frame in a row on the SAME baseline.
+
+ROW 1: facing DOWN (toward the camera, face visible, exactly the first figure of image 1), 4 frames of a walk cycle WITH the wooden ice-crystal staff held upright in the RIGHT hand (the hand on the screen-LEFT side), crystal up. Hair may be drawn in this row.
+ROW 2: the SAME 4 frames pixel-identical in pose, but BALD like image 1, EMPTY closed fists, NO staff, NO book (the right fist stays closed exactly where it grips the staff in row 1).
+ROW 3: facing UP (walking away, we see the back of the head and the fur collar, no face, exactly the second figure of image 1), 4 frames WITH the staff upright in the RIGHT hand (now the screen-RIGHT side), the shaft partly behind the shoulder. Hair may be drawn.
+ROW 4: the SAME 4 frames BALD, EMPTY fists, NO staff.
+
+The 4 frames of the walk cycle (same for both facings, a looping stride, big readable steps like the warrior's walk, not a shuffle):
+1. CONTACT: right foot planted forward, left foot back, legs apart; staff arm swung a little forward, free arm swung back.
+2. PASS: the back foot swings past the planted foot, legs together, body at its HIGHEST point (head 2-3 px higher than frames 1 and 3), arms near the sides.
+3. CONTACT: left foot planted forward, right foot back, legs apart; staff arm swung back, free arm forward.
+4. PASS: legs together again, body high, arms near the sides.
+The torso stays upright, the robe hem and fur collar sway a little, the staff stays roughly vertical (tilt at most 15 degrees). Same navy fur-collared robe, same snowflake tabard, same boots as image 1. No purple. Solid opaque pixel art, sharp edges, no checkerboard, nothing touching the image border.

@@ -1,0 +1,2987 @@
+{
+ "anchors": [
+  {
+   "part": "staff",
+   "anim": "idle",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 60.8,
+     "y": 114.2,
+     "angle": 0.0,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 60.8,
+     "y": 114.612,
+     "angle": 0.0,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 60.8,
+     "y": 115.023,
+     "angle": 0.0,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 60.8,
+     "y": 114.612,
+     "angle": 0.0,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "idle",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 139.5,
+     "y": 136.3,
+     "angle": 18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 139.5,
+     "y": 135.84,
+     "angle": 18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 139.5,
+     "y": 135.687,
+     "angle": 18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 139.5,
+     "y": 135.84,
+     "angle": 18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "idle",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 42.9,
+     "y": 113.6,
+     "angle": -20,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 42.9,
+     "y": 112.942,
+     "angle": -20,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 42.9,
+     "y": 112.723,
+     "angle": -20,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 42.9,
+     "y": 112.942,
+     "angle": -20,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "idle",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 94.0,
+     "y": 140.0,
+     "angle": 70,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 94.0,
+     "y": 139.573,
+     "angle": 70,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 94.0,
+     "y": 139.43,
+     "angle": 70,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 94.0,
+     "y": 139.573,
+     "angle": 70,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "walk",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 62.0,
+     "y": 127.5,
+     "angle": -18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 57.5,
+     "y": 134.5,
+     "angle": -18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 62.5,
+     "y": 131.0,
+     "angle": -18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 59.5,
+     "y": 134.5,
+     "angle": -18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "walk",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 129.5,
+     "y": 129.0,
+     "angle": 18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 142.0,
+     "y": 131.5,
+     "angle": 18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 147.0,
+     "y": 118.0,
+     "angle": 18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 143.5,
+     "y": 131.0,
+     "angle": 18,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "walk",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 53.0,
+     "y": 127.0,
+     "angle": -22,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 64.5,
+     "y": 123.0,
+     "angle": -22,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 60.0,
+     "y": 125.5,
+     "angle": -22,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 45.0,
+     "y": 125.0,
+     "angle": -22,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "walk",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 113.5,
+     "y": 143.5,
+     "angle": 28,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 112.0,
+     "y": 145.0,
+     "angle": 26,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 115.5,
+     "y": 138.0,
+     "angle": 30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 118.5,
+     "y": 143.0,
+     "angle": 26,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "hurt",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 65.0,
+     "y": 95.0,
+     "angle": -50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 65.0,
+     "y": 118.0,
+     "angle": -48,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "hurt",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 142.0,
+     "y": 66.0,
+     "angle": 56,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 153.0,
+     "y": 99.0,
+     "angle": 48,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "hurt",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 98.0,
+     "y": 130.0,
+     "angle": -42,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 157.0,
+     "y": 111.0,
+     "angle": 50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "hurt",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 32.0,
+     "y": 110.0,
+     "angle": -48,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 35.0,
+     "y": 111.0,
+     "angle": -50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "dash",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 88.8,
+     "y": 135,
+     "angle": -86,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 113.9,
+     "y": 76.9,
+     "angle": 100,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 99.9,
+     "y": 112.9,
+     "angle": 86,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "dash",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 113.9,
+     "y": 110.1,
+     "angle": 60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 90.8,
+     "y": 82.4,
+     "angle": 112,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 115.2,
+     "angle": 60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "dash",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 102.1,
+     "y": 114.1,
+     "angle": 72,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 102.8,
+     "y": 106.9,
+     "angle": 80,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 72.7,
+     "y": 102.9,
+     "angle": 88,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "dash",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 77.1,
+     "y": 129.4,
+     "angle": -46,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 86.9,
+     "y": 111.1,
+     "angle": -72,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 80.7,
+     "y": 133.7,
+     "angle": -48,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "idle",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 122.3,
+     "y": 131.2,
+     "angle": 8.0,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 122.3,
+     "y": 131.522,
+     "angle": 8.0,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 122.3,
+     "y": 131.843,
+     "angle": 8.0,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 122.3,
+     "y": 131.522,
+     "angle": 8.0,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack1",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 81.9,
+     "y": 143.1,
+     "angle": 100,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 164.3,
+     "y": 100.1,
+     "angle": 90,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 164.3,
+     "y": 100.1,
+     "angle": 90,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 105.0,
+     "y": 127.8,
+     "angle": 70,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 105.0,
+     "y": 127.8,
+     "angle": 70,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 105.0,
+     "y": 127.8,
+     "angle": 70,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack1",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 131.9,
+     "y": 119.6,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 130.9,
+     "y": 119.7,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 130.9,
+     "y": 119.7,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 137.6,
+     "y": 119.8,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 137.6,
+     "y": 119.8,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 137.6,
+     "y": 119.8,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack1",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 111.8,
+     "y": 104.6,
+     "angle": 15,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 140.8,
+     "y": 85.7,
+     "angle": 35,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 140.8,
+     "y": 85.7,
+     "angle": 35,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 138.6,
+     "y": 102.0,
+     "angle": 25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 138.6,
+     "y": 102.0,
+     "angle": 25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 138.6,
+     "y": 102.0,
+     "angle": 25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack1",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 93.0,
+     "y": 111.5,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 68.0,
+     "y": 124.0,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 68.0,
+     "y": 124.0,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 93.9,
+     "y": 111.3,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 93.9,
+     "y": 111.3,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 93.9,
+     "y": 111.3,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack2",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 96.4,
+     "y": 142.0,
+     "angle": 100,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96.5,
+     "y": 142.3,
+     "angle": 100,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96.5,
+     "y": 142.3,
+     "angle": 100,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96.4,
+     "y": 142.0,
+     "angle": 100,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96.4,
+     "y": 142.0,
+     "angle": 100,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96.4,
+     "y": 142.0,
+     "angle": 100,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack2",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 70.3,
+     "y": 104.8,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 159.9,
+     "y": 104.8,
+     "angle": 10,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 159.9,
+     "y": 104.8,
+     "angle": 10,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 138.7,
+     "y": 108.0,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 138.7,
+     "y": 108.0,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 138.7,
+     "y": 108.0,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack3",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 80.7,
+     "y": 96.7,
+     "angle": -40,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 68.5,
+     "y": 77.0,
+     "angle": -30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 68.5,
+     "y": 77.0,
+     "angle": -30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 70.6,
+     "y": 84.2,
+     "angle": -30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 70.6,
+     "y": 84.2,
+     "angle": -30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 70.6,
+     "y": 84.2,
+     "angle": -30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack3",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 145.7,
+     "y": 109.6,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 160.6,
+     "y": 103.6,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 160.6,
+     "y": 103.6,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 159.3,
+     "y": 103.5,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 159.3,
+     "y": 103.5,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 159.3,
+     "y": 103.5,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack3",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 135.2,
+     "y": 92.4,
+     "angle": 20,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 139.9,
+     "y": 67.7,
+     "angle": 25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 139.9,
+     "y": 67.7,
+     "angle": 25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 139.5,
+     "y": 82.4,
+     "angle": 20,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 139.5,
+     "y": 82.4,
+     "angle": 20,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 139.5,
+     "y": 82.4,
+     "angle": 20,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack3",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 70.0,
+     "y": 120.0,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 103.3,
+     "y": 106.5,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 103.3,
+     "y": 106.5,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 66.0,
+     "y": 122.0,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 66.0,
+     "y": 122.0,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 66.0,
+     "y": 122.0,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack3",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 125.0,
+     "y": 99.6,
+     "angle": 40,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 136.5,
+     "y": 82.3,
+     "angle": 30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 136.5,
+     "y": 82.3,
+     "angle": 30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 135.2,
+     "y": 87.2,
+     "angle": 30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 135.2,
+     "y": 87.2,
+     "angle": 30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 135.2,
+     "y": 87.2,
+     "angle": 30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack3",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 58.7,
+     "y": 118.3,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 52.2,
+     "y": 113.9,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 52.2,
+     "y": 113.9,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 51.9,
+     "y": 114.0,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 51.9,
+     "y": 114.0,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 51.9,
+     "y": 114.0,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack4",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 75.7,
+     "y": 133.0,
+     "angle": 80,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 150.0,
+     "y": 104.8,
+     "angle": 85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 158.4,
+     "y": 100.6,
+     "angle": 85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 153.5,
+     "y": 116.3,
+     "angle": 85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 153.5,
+     "y": 116.3,
+     "angle": 85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 97.0,
+     "y": 118.7,
+     "angle": 50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 97.0,
+     "y": 118.7,
+     "angle": 50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 97.0,
+     "y": 118.7,
+     "angle": 50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack4",
+   "dir": "right",
+   "frames": [
+    {
+     "x": 132.9,
+     "y": 120.7,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 154.4,
+     "y": 93.1,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 144.0,
+     "y": 106.0,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 157.5,
+     "y": 101.0,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 157.5,
+     "y": 101.0,
+     "angle": 15,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 132.3,
+     "y": 113.3,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 132.3,
+     "y": 113.3,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 132.3,
+     "y": 113.3,
+     "angle": 20,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack4",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 113.3,
+     "y": 123.7,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 130.1,
+     "y": 86.4,
+     "angle": 15,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 131.3,
+     "y": 87.3,
+     "angle": 15,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 131.9,
+     "y": 93.4,
+     "angle": 15,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 131.9,
+     "y": 93.4,
+     "angle": 15,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 121.1,
+     "y": 101.3,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 121.1,
+     "y": 101.3,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 121.1,
+     "y": 101.3,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack4",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 73.0,
+     "y": 124.1,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 60.8,
+     "y": 87.2,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 61.3,
+     "y": 87.0,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 58.8,
+     "y": 93.1,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 58.8,
+     "y": 93.1,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 71.2,
+     "y": 105.1,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 71.2,
+     "y": 105.1,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 71.2,
+     "y": 105.1,
+     "angle": -8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack2",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 99.0,
+     "y": 111.5,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 124.0,
+     "y": 124.0,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 124.0,
+     "y": 124.0,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 98.1,
+     "y": 111.3,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 98.1,
+     "y": 111.3,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 98.1,
+     "y": 111.3,
+     "angle": 10,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack2",
+   "dir": "up",
+   "frames": [
+    {
+     "x": 80.2,
+     "y": 104.6,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 51.2,
+     "y": 85.7,
+     "angle": -35,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 51.2,
+     "y": 85.7,
+     "angle": -35,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 53.4,
+     "y": 102.0,
+     "angle": -25,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 53.4,
+     "y": 102.0,
+     "angle": -25,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 53.4,
+     "y": 102.0,
+     "angle": -25,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack1",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 121.7,
+     "y": 104.8,
+     "angle": -30,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 32.1,
+     "y": 104.8,
+     "angle": -90,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 32.1,
+     "y": 104.8,
+     "angle": -90,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 53.3,
+     "y": 108.0,
+     "angle": -75,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 53.3,
+     "y": 108.0,
+     "angle": -75,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 53.3,
+     "y": 108.0,
+     "angle": -75,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack1",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 95.6,
+     "y": 142.0,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.5,
+     "y": 142.3,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.5,
+     "y": 142.3,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.6,
+     "y": 142.0,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.6,
+     "y": 142.0,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.6,
+     "y": 142.0,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack2",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 60.1,
+     "y": 119.6,
+     "angle": -60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 61.1,
+     "y": 119.7,
+     "angle": -60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 61.1,
+     "y": 119.7,
+     "angle": -60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 54.4,
+     "y": 119.8,
+     "angle": -60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 54.4,
+     "y": 119.8,
+     "angle": -60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 54.4,
+     "y": 119.8,
+     "angle": -60,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack2",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 110.1,
+     "y": 143.1,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 27.7,
+     "y": 100.1,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 27.7,
+     "y": 100.1,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 87.0,
+     "y": 127.8,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 87.0,
+     "y": 127.8,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 87.0,
+     "y": 127.8,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack4",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 59.1,
+     "y": 120.7,
+     "angle": -80,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 37.6,
+     "y": 93.1,
+     "angle": -85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 48.0,
+     "y": 106.0,
+     "angle": -85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 34.5,
+     "y": 101.0,
+     "angle": -85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 34.5,
+     "y": 101.0,
+     "angle": -85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 59.7,
+     "y": 113.3,
+     "angle": -50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 59.7,
+     "y": 113.3,
+     "angle": -50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 59.7,
+     "y": 113.3,
+     "angle": -50,
+     "s": 0.447,
+     "sx": 1,
+     "behind": true,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack4",
+   "dir": "left",
+   "frames": [
+    {
+     "x": 116.3,
+     "y": 133.0,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 42.0,
+     "y": 104.8,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 33.6,
+     "y": 100.6,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 38.5,
+     "y": 116.3,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 38.5,
+     "y": 116.3,
+     "angle": -15,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.0,
+     "y": 118.7,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.0,
+     "y": 118.7,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.0,
+     "y": 118.7,
+     "angle": -20,
+     "s": 0.25,
+     "sx": -1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack1",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 58.9,
+     "y": 113.0,
+     "angle": -5,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 93.0,
+     "y": 116.7,
+     "angle": -14,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 142.0,
+     "y": 229.6,
+     "angle": 172,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 132.8,
+     "y": 171.7,
+     "angle": 172,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 60.9,
+     "y": 124.4,
+     "angle": -6,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 58.2,
+     "y": 131.7,
+     "angle": -5,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack1",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 128.0,
+     "y": 109.0,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 157.0,
+     "y": 98.3,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 188.1,
+     "y": 115.3,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 134.6,
+     "y": 162.2,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 131.1,
+     "y": 103.7,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 129.0,
+     "y": 135.6,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack2",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 71.6,
+     "y": 106.3,
+     "angle": -84,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 84.5,
+     "y": 112.5,
+     "angle": -85,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 100.5,
+     "y": 114.3,
+     "angle": 92,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 109.8,
+     "y": 106.8,
+     "angle": 72,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 72.6,
+     "y": 114.0,
+     "angle": -87,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 58.2,
+     "y": 103.9,
+     "angle": -4,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack2",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 97.2,
+     "y": 111.9,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 121.8,
+     "y": 113.0,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 153.6,
+     "y": 115.6,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 151.9,
+     "y": 91.8,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 108.7,
+     "y": 119.3,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 134.1,
+     "y": 136.3,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack3",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 96.4,
+     "y": 84.5,
+     "angle": -2,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 92.6,
+     "y": 125.1,
+     "angle": -1,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 166,
+     "angle": 180,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96,
+     "y": 170,
+     "angle": 180,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 95.0,
+     "y": 120.7,
+     "angle": -1,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 64.9,
+     "y": 101.4,
+     "angle": -2,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack3",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 96.0,
+     "y": 62.8,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 92.6,
+     "y": 125.1,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 97.1,
+     "y": 142.0,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 92.5,
+     "y": 137.0,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 90.0,
+     "y": 101.8,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 131.4,
+     "y": 136.2,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "staff",
+   "anim": "attack4",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 99.9,
+     "y": 131.1,
+     "angle": -35,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 96.0,
+     "y": 139.7,
+     "angle": -35,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 80,
+     "y": 120,
+     "angle": -25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 80,
+     "y": 120,
+     "angle": -25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 80,
+     "y": 120,
+     "angle": -25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 80,
+     "y": 120,
+     "angle": -25,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 99.4,
+     "y": 131.1,
+     "angle": -35,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    },
+    {
+     "x": 62.6,
+     "y": 116.5,
+     "angle": -5,
+     "s": 0.447,
+     "sx": 1,
+     "behind": false,
+     "hidden": false,
+     "fallback": false
+    }
+   ]
+  },
+  {
+   "part": "book",
+   "anim": "attack4",
+   "dir": "down",
+   "frames": [
+    {
+     "x": 98.2,
+     "y": 117.0,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 97.3,
+     "y": 133.8,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 135.2,
+     "y": 70.1,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 137.2,
+     "y": 69.3,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 136.2,
+     "y": 92.7,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 117.7,
+     "y": 123.0,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 97.9,
+     "y": 117.0,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    },
+    {
+     "x": 125.3,
+     "y": 135.6,
+     "angle": 8,
+     "s": 0.25,
+     "sx": 1,
+     "behind": false,
+     "hidden": true,
+     "fallback": false
+    }
+   ]
+  }
+ ]
+}
