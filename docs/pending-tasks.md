@@ -1,5 +1,26 @@
 # Việc đang dở
 
+## Wizard `walk` 4 hướng Northwind + đầu nhiều lớp (10/11/2026, đã cài, đã xem trong game)
+
+- Người dùng: "làm walk đi" (sau idle/attack Northwind). Chat ChatGPT (Tay), cùng chat combo v2: https://chatgpt.com/c/6af289b8-8a08-83ec-9c0d-4d140f9a957e (2 lượt vẽ: `wizard-northwind-walk-down-up-chatgpt-1.png`, `wizard-northwind-walk-right-left-chatgpt-1.png`, mỗi ảnh 4 hàng: có gậy / trọc x 2 hướng).
+- Cài bằng `Tools/build-wizard-northwind-walk.py rows` → `angles` → `write` (4 hướng x 4 frame: `body/{bare,hand,armed,headless}/walk.png`, anchor đầu, anchor gậy; sách ẩn), bản cũ `walk-board/northwind-walk/old/`. Ảnh ghép 3 kiểu tóc: `docs/reference/wizard-northwind-walk-hairstyles-check.png`. Góc gậy: xuống -5/-2, lên 6/14 (sau thân), phải 10-16 (tay gần), trái -22/-18 (sau thân, nắm tay trước như idle trái; ChatGPT vẽ trái là lật của phải, gậy ở tay trước).
+- Chụp trong game: chế độ mới `--record-walk wizard --face DIR` (`DebugCapture.RecordWalk`), dải frame bằng `Tools/wizard-combo-ingame-frame-strip.py DIR OUT 4 1120`; ảnh 4 hướng x 1 chu kỳ bước: `docs/reference/wizard-northwind-walk-ingame.png` (đúng thân Northwind, tóc lớp, gậy theo tay).
+- Còn: idle phải gậy góc 70 (trước ngực) còn walk phải 10-16 (nắm tay giơ ngang ngực): gậy nhảy góc khi bắt đầu đi; `hurt`, `dash` (dùng walk) vẫn thân cũ.
+
+## Ảnh Wizard Northwind cho màn chọn nhân vật (10/11/2026, đã cài)
+
+- Người dùng: "gen 1 cái ảnh northwind default để thay ở chỗ lựa chọn nhân vật". Chat mới (Tay): https://chatgpt.com/c/6af2bf92-f430-83ec-a929-864258812d5e; ảnh gửi: `custom/hero-select/ref-northwind-original-character.png` (nhân vật gốc Northwind, mảng đỏ mép trái đã che) + `wizard-northwind-t0-final-pose.png` (tư thế mẫu màn chọn); prompt `custom/hero-select/prompt-wizard-northwind-original-hero-select.txt`.
+- Ảnh về (1 lượt): `custom/hero-select/wizard-northwind-original-hero-select-chatgpt-1.png` (đúng tư thế mẫu, mặt + tóc dài Northwind gốc). Cài: `Tools/build-hero-select-art.py` mục `wizard` (`source` mới trên nền xanh, `boots` (300, 890), `body_top` 130, `face` (432, 340, 77)); ra `Sprites/ui/hero-select/hero-wizard.png` + `portrait-wizard.png`, chỉ 2 file này đổi. Chụp màn chọn trong game bằng `--hero-select-test`.
+
+## Wizard combo đòn thường v2 theo bố cục bảng Mechanic (10/11/2026, đang làm)
+
+- Người dùng chê đòn đánh Wizard hiện tại như múa tay, không ra đòn như Mechanic/Warrior; không bắt buộc đánh bằng cả gậy lẫn sách; làm hướng xuống trước; số frame mỗi nhát có thể hơn 4 miễn attack1 -> attack4 mượt.
+- Mẫu bố cục: ảnh bảng combo Mechanic người dùng gửi (`ArtLibrary/classes/wizard/attack-board/northwind-combo-v2/ref/ref-layout-mechanic-combo-board-user.png`). Ảnh mẫu khác cùng thư mục `ref/`; prompt lưu `northwind-combo-v2/prompt-NN-*.txt`.
+- Chat ChatGPT (Tay): https://chatgpt.com/c/6af289b8-8a08-83ec-9c0d-4d140f9a957e (bảng thiết kế, rồi dải thân hướng xuống).
+- Đã làm (5 lượt vẽ): bảng `northwind-combo-v2/wizard-combo-v2-board-chatgpt-1.png` (1 Crystal Thrust, 2 Frost Sweep, 3 Glacier Slam, 4 Blizzard Nova) + 4 dải hướng xuống `wizard-combo-v2-hitN-down-chatgpt-1.png` (2 hàng: có gậy / trọc tay không). Cài bằng `Tools/build-wizard-combo-v2-attacks.py write` (6/6/6/8 frame, sách ẩn đòn 2-4, hàng lên/trái/phải cũ được nới theo số frame mới bằng lặp frame cuối), `HeroFx.WizardCastTip` cập nhật (`cast-tips`). Ảnh ghép `docs/reference/wizard-combo-v2-down-hairstyles-check.png`; ChatGPT (trên) / trong game (dưới) từng frame: `docs/reference/wizard-combo-v2-down-chatgpt-vs-ingame.png` (`Tools/wizard-combo-v2-chatgpt-vs-ingame-sheet.py`, chụp bằng `--record-combo wizard --face down` cửa sổ 1800x900; 3400x1400 treo trên máy này). Đòn 1 frame đâm: điểm cầm trượt 70 px xuống cán (`slide`) để đuôi gậy không chĩa lên trên đầu. Người dùng 10/11: hình vẽ đẹp nhưng trong game chưa giống hoạt ảnh ChatGPT; đang hỏi lại khác ở đâu (FX cũ, tốc độ 260 ms/đòn, gậy dài).
+- 10/11 (người dùng: "làm thử FX mới, đòn phải chậm lại"): FX v4 băng theo bảng (1 lượt vẽ, cùng chat; `Tools/build-wizard-attack-fx-v4.py cut`, bộ `wizard-v4`, hàng mới `spikes` cho đòn 3 vẽ đứng trượt theo đất, `ComboConfigs.GlacierSpikes`, `VfxSet.Spikes`, `ComboProjectile.Upright`); nhịp đòn `ComboConfigs.WizardHits` 350/350/350/640 ms (trước 260/260/260/470), hệ số sát thương x1,35 giữ DPS. **Server phải build lại** (`Tools/build-linux-server.ps1`, chưa làm). Test Skills 256 qua. Tool chụp/ghép đã đổi mốc ms theo nhịp mới. Sao chớp niệm thu về `ROW_SCALE` cast 0,85, chớp đòn 4 dời lên pha lê gậy cắm (`HeroFx.WizardCastTip`). Ảnh xem trước FX `docs/reference/wizard-attack-fx-v4-preview.png`.
+- Còn: 3 hướng lên/trái/phải vẫn tư thế cũ (chỉ nới frame); `CastPose` của skill dùng `attack3` nên niệm skill nay là động tác đập gậy; đòn 3 frame 0 tay giơ qua đầu bị lớp đầu cắt (~58 ms).
+
 ## Wizard Northwind T0: idle + attack 4 hướng, đầu trọc để ghép tóc (09-10/11/2026, đã cài, đã xem trong game)
 
 - Ảnh gen không dùng và bản sao lưu đã dọn 10/11; bản trước xem git history.

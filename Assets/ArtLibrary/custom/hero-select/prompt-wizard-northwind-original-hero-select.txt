@@ -1,0 +1,10 @@
+Draw ONE image 1024x1024 on a flat green background #00FF00: the hero-select illustration of our ice wizard.
+
+Image 2 is the template: keep EXACTLY its pose, camera, framing, size on the canvas and style (chibi, legs apart in a striding stance, right arm raised holding the staff with a blue magic swirl around the crystal, left hand holding the open spell book with a blue magic aura rising from the pages, thick dark outlines, solid colors, soft cel shading).
+
+But the CHARACTER must be exactly the one of image 1, not the one of image 2:
+- face of image 1: big round blue eyes with white highlights, thick dark lashes, cyan eyebrows, small calm mouth;
+- hair of image 1: long shaggy white hair falling past the shoulders down to the chest, bangs over the brows with a cyan streak, side locks covering the ears, a small cowlick on top;
+- outfit of image 1: navy fur-collared coat with two round silver clasps holding blue crystals, a blue diamond pendant, white rune trim on the sleeves and hem, snowflake tabard, brown belt with a silver buckle, brown trousers, fur-trimmed navy boots with blue crystals;
+- the twisted pale wood staff with the ice crystal cluster of image 1; the navy book with a snowflake on its cover of image 1.
+Same chibi proportions as image 2 (head about one third of the height). Nothing touching the image border, no text, no watermark, no purple.

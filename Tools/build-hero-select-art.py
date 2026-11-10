@@ -38,9 +38,10 @@ EYE_TO_FEET = 388
 # (x between the eyes, eye row, distance between the eyes), read off the finished 768 px hero. Portraits are framed by it, so every head is the same size.
 HEROES = {
     "mechanic": dict(key=GREEN, boots=(435, 820), eye=480, face=(381, 356, 97)),
-    "wizard": dict(key=GREEN, boots=(360, 870), eye=526, face=(436, 352, 65),
-                   source=SRC / "wizard-astral-t0-pose.png", transparent=True,
-                   body_top=198, body_height=590),
+    # 10/11/2026: the Northwind original (long white hair, cyan streak) in the Astral pose, ChatGPT on green; hair top row 130 -> soles ~1200
+    "wizard": dict(key=GREEN, boots=(300, 890), eye=470, face=(432, 340, 77),
+                   source=SRC / "wizard-northwind-original-hero-select-chatgpt-1.png",
+                   body_top=130, body_height=590),
     "warrior": dict(key=GREEN, boots=(305, 830), eye=415, face=(446, 352, 85)),
     "assassin": dict(key=GREEN, boots=(285, 990), eye=570, face=(426, 360, 100)),
     "boxing": dict(key=GREEN, boots=(235, 1020), eye=490, face=None),
