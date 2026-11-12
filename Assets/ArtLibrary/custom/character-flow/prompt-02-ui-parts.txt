@@ -1,0 +1,10 @@
+Chat (Tay): https://chatgpt.com/c/6af56a88-ea98-83ec-afeb-67dc9ce5613e (same chat as the mockups, 2026-11-12)
+-> character-list-screen-chatgpt-1.png, character-customize-name-screen-chatgpt-1.png (full-size screens 1 and 3, 1536x1024)
+-> character-flow-ui-parts-chatgpt-1.png (this sheet), cut by Tools/build-character-flow-ui-parts.py
+
+Sheet prompt: completely new image, 1536x1024, sprite sheet on a perfectly flat pure magenta #FF00FF background (no gradient, texture,
+shadow or checkerboard); every piece fully opaque, crisp, in the style of the screens, at least 40 px apart; NO text. Row 1: stone
+pedestal, same pedestal with a blue glowing rune ring (selected), navy arched glass tablet with gold border and glowing gold plus on a
+pedestal (empty create slot). Row 2: blank wide gem-cut buttons dark red / dark navy / bright gold, square gold dice button, three small
+gold icons (compass star, shield with chevrons, map pin). Row 3: round gold ring (swatch selection), square navy slot with thin gold
+border, same slot with a bright gold glowing border.

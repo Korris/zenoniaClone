@@ -5,7 +5,7 @@ using ZenoniaProto.Api;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Log in, register, forgotten password, the character list, naming and deleting a hero, and the small account menu in the world. Plain IMGUI over the UI kit's window pieces until the screen gets its own art; IMGUI text fields also bring up the phone keyboard by themselves.
+    /// Log in, register, forgotten password, deleting a hero, and the small account menu in the world (the character list and Customize and Name are uGUI: CharacterListScreen, CharacterCustomizeScreen). Plain IMGUI over the UI kit's window pieces until the screen gets its own art; IMGUI text fields also bring up the phone keyboard by themselves.
     /// Everything it does is a call on AccountFlow. Typed passwords are dropped as soon as they have been sent or the page changes.
     /// </summary>
     public static class AccountScreenGui
@@ -14,7 +14,7 @@ namespace ZenoniaProto
         static readonly Color Gold = new Color(1f, 0.87f, 0.45f), Soft = new Color(0.85f, 0.92f, 1f), Bad = new Color(1f, 0.6f, 0.5f);
 
         static GUIStyle title, label, field, button, primary, smallButton, smallPrimary, status, row, link;
-        static string login = "", email = "", password = "", passwordAgain = "", heroName = "", deleteName = "";
+        static string login = "", email = "", password = "", passwordAgain = "", deleteName = "";
         static AccountPage lastPage;
         static Texture2D panelTex;
 
@@ -77,10 +77,9 @@ namespace ZenoniaProto
             {
                 case AccountPage.Login: DrawLogin(session, px, pw, py, s); break;
                 case AccountPage.Register: DrawRegister(px, pw, py, s); break;
-                case AccountPage.Characters: DrawCharacters(session, px, pw, py, s); break;
                 case AccountPage.Forgot: DrawForgot(px, pw, py, s); break;
                 case AccountPage.ConfirmDelete: DrawConfirmDelete(px, pw, py, s); break;
-                default: DrawNaming(px, pw, py, s); break;
+                default: break; // Characters and Customize are uGUI screens (CharacterListScreen, CharacterCustomizeScreen)
             }
             GUI.enabled = true;
 
@@ -171,40 +170,6 @@ namespace ZenoniaProto
             if (GUI.Button(new Rect(x, y, w, 42f * s), "Back to log in", button)) AccountFlow.ShowLogin();
         }
 
-        static void DrawCharacters(GameSession session, float x, float w, float y, float s)
-        {
-            Title("Your heroes", x, w, ref y, s);
-            List<CharacterSummary> list = AccountFlow.Characters;
-            float rowH = 50f * s, playW = 76f * s, deleteW = 70f * s;
-            for (int i = 0; i < list.Count; i++)
-            {
-                CharacterSummary c = list[i];
-                var r = new Rect(x, y, w, rowH - 6f * s);
-                GUI.DrawTexture(r, UiArt.Win("section").texture, ScaleMode.StretchToFill, true, 0f, Color.white, new Vector4(14f, 14f, 14f, 14f), Vector4.zero);
-                row.normal.textColor = Color.white;
-                GUI.Label(new Rect(x + 12f * s, y, w - playW - deleteW - 24f * s, rowH - 6f * s), c.name + "   <color=#b8c4d8>" + HeroClassName(c.classId) + "  Lv " + c.level + (c.online ? "  (online)" : "") + "</color>", row);
-                if (GUI.Button(new Rect(x + w - playW - deleteW - 8f * s, y + 4f * s, deleteW, rowH - 14f * s), "Delete", smallButton)) AccountFlow.ShowDelete(c);
-                if (GUI.Button(new Rect(x + w - playW - 4f * s, y + 4f * s, playW, rowH - 14f * s), "Play", smallPrimary)) AccountFlow.Enter(c);
-                y += rowH;
-            }
-            if (list.Count == 0)
-            {
-                row.normal.textColor = Soft;
-                GUI.Label(new Rect(x + 12f * s, y, w - 24f * s, rowH), AccountFlow.Busy ? "Loading ..." : "No heroes yet: create your first.", row);
-                y += rowH;
-            }
-            y += 6f * s;
-            float half = (w - 8f * s) * 0.5f;
-            bool room = list.Count < HeroClassDef.All.Length;
-            bool enabled = GUI.enabled;
-            GUI.enabled = enabled && room;
-            if (GUI.Button(new Rect(x, y, half, 42f * s), "New hero", primary)) ConnectScreenGui.CreateHero(list);
-            GUI.enabled = enabled;
-            if (GUI.Button(new Rect(x + half + 8f * s, y, half, 42f * s), "Log out", button)) AccountFlow.Logout();
-            y += 50f * s;
-            if (GUI.Button(new Rect(x, y, w, 34f * s), "Back (play offline)", button)) ConnectScreenGui.LeaveToOffline(session);
-        }
-
         static void DrawConfirmDelete(float x, float w, float y, float s)
         {
             CharacterSummary c = AccountFlow.Deleting;
@@ -222,17 +187,6 @@ namespace ZenoniaProto
             GUI.enabled = enabled;
             y += 54f * s;
             if (GUI.Button(new Rect(x, y, w, 42f * s), "Keep this hero", button)) AccountFlow.ShowCharacters();
-        }
-
-        static void DrawNaming(float x, float w, float y, float s)
-        {
-            Title("Name your " + HeroClassDef.Get(AccountFlow.NamingClass).Name, x, w, ref y, s);
-            heroName = Field("Name", heroName, 16, x, w, ref y, s);
-            y += 6f * s;
-            bool submit = Enter();
-            if (GUI.Button(new Rect(x, y, w, 46f * s), "Create hero", primary) || submit) AccountFlow.Create(heroName, AccountFlow.NamingClass);
-            y += 54f * s;
-            if (GUI.Button(new Rect(x, y, w, 42f * s), "Back", button)) AccountFlow.ShowCharacters();
         }
 
         // ---- the account menu in the world, behind the Settings button ----

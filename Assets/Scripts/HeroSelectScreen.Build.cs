@@ -299,6 +299,8 @@ namespace ZenoniaProto
             startButton.navigation = new Navigation { mode = Navigation.Mode.None };
             startButton.onClick.AddListener(OnStart);
             startLabel = ArtRect(rt, "Label", null, 95f, 27f, 134f, 22f, new Vector2(0.5f, 0.5f));
+            nextLabel = UiKit.Label(UiKit.Fill(rt, "NextLabel"), "NEXT", 26, new Color(0.25f, 0.12f, 0.02f), TextAnchor.MiddleCenter, true);
+            nextLabel.gameObject.SetActive(false);
             backButton = IconButton(stage, "BackButton", UiArt.Win("btn-navy"), 972f, 583f, 158f, OnBack);
             var backRt = (RectTransform)backButton.transform;
             backRt.sizeDelta = new Vector2(158f, 38f);

@@ -104,6 +104,8 @@ namespace ZenoniaProto
             MapTransfer.Create(root.transform); // portals + fade between maps (offline)
             WindowsHost.Create(root.transform); // dialogue, quest offer, chat windows + the Talk prompt (above the touch layer)
             HeroSelectScreen.Create(root.transform);
+            CharacterListScreen.Create(root.transform); // online account flow: list, then Customize and Name (Choose Class is the hero select above)
+            CharacterCustomizeScreen.Create(root.transform);
             session.StartFromCommandLine();
             DebugCapture.AttachIfRequested(root, session);
         }

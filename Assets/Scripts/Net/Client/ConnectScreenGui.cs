@@ -23,6 +23,9 @@ namespace ZenoniaProto
 
         public static void ShowDevPage() { devPage = DevPageAvailable; }
 
+        /// <summary>The IMGUI direct-connect page is up: the uGUI account screens stay hidden behind it.</summary>
+        public static bool DevPageOpen { get { return devPage; } }
+
         public static void Open()
         {
             Visible = true;
@@ -53,19 +56,14 @@ namespace ZenoniaProto
             status.fontSize = Mathf.RoundToInt(13f * s);
         }
 
-        /// <summary>The new-hero step: the hero select takes over the screen, in its online mode, and comes back here with the class.</summary>
-        public static void CreateHero(List<CharacterSummary> owned)
+        /// <summary>The new-hero step: the hero select takes over the screen, in its online mode (NEXT / BACK), and comes back here with the class. `start` = the class to open on (BACK from Customize).</summary>
+        public static void CreateHero(List<CharacterSummary> owned, HeroClass? start = null)
         {
-            var taken = new bool[HeroClassDef.All.Length];
-            foreach (CharacterSummary c in owned)
-            {
-                int i = GameSession.ClassIndex(c.classId);
-                if (i >= 0 && i < taken.Length) taken[i] = true;
-            }
             Visible = false;
-            HeroSelectScreen.OpenOnlineCreate(i => taken[i],
-                id => { AccountFlow.ShowNaming(id); Visible = true; },
-                () => { AccountFlow.ShowCharacters(); Visible = true; });
+            HeroSelectScreen.OpenOnlineCreate(i => false, // no class is taken any more: an account may hold several heroes of one class (2026-11-12)
+                id => { AccountFlow.ShowCustomize(id); Visible = true; },
+                () => { AccountFlow.ShowCharacters(); Visible = true; },
+                start);
         }
 
         public static void LeaveToOffline(GameSession session)
@@ -79,7 +77,12 @@ namespace ZenoniaProto
         {
             NetClient joined = NetClient.Active;
             if (joined != null && joined.State == ClientState.Joined) { Visible = false; return; }
-            if (!devPage) { AccountScreenGui.Draw(session); return; }
+            if (!devPage)
+            {
+                // The character list and Customize are uGUI screens (CharacterListScreen, CharacterCustomizeScreen); IMGUI would draw over them.
+                if (AccountFlow.Page != AccountPage.Characters && AccountFlow.Page != AccountPage.Customize) AccountScreenGui.Draw(session);
+                return;
+            }
             float s = Screen.height / 640f;
             EnsureStyles(s);
             GUI.color = new Color(0.02f, 0.05f, 0.1f, 0.88f);

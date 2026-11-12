@@ -22,8 +22,8 @@ namespace ZenoniaProto
 
         readonly string root; // Sprites/classes/<class>/heads/
         readonly SpriteRenderer front, back, under;
-        readonly Color32?[] styleDyes = new Color32?[0];
-        readonly Color32[] presets = new Color32[0];
+        readonly Color32?[] styleDyes;
+        readonly Color32[] presets;
 
         /// <summary>Dye cycle index: -1 = the hairstyle's own colour, 0..N-1 = Data presets.</summary>
         public int Dye { get; set; } = -1;
@@ -41,13 +41,24 @@ namespace ZenoniaProto
             back.transform.localPosition = new Vector3(0f, 0f, BackZ);
             under = ProceduralSprites.Child(head.transform, "HairUnder", null);
             under.transform.localPosition = new Vector3(0f, 0f, BackZ);
+            LoadDyes(classRoot, out styleDyes, out presets);
+        }
+
+        /// <summary>
+        /// Reads Data/&lt;classRoot&gt;/hair-dyes.json without a renderer (the character screens draw hair tiles and swatches from it): the default dye of each style
+        /// and the preset cycle. Missing or broken file = empty arrays (raw gray, no presets).
+        /// </summary>
+        public static void LoadDyes(string classRoot, out Color32?[] styles, out Color32[] presetColors)
+        {
+            styles = new Color32?[0];
+            presetColors = new Color32[0];
             var asset = Resources.Load<TextAsset>("Data/" + classRoot + "/hair-dyes");
             if (asset == null) return;
             try
             {
                 DyeFile f = JsonUtility.FromJson<DyeFile>(asset.text);
-                if (f != null && f.styles != null) styleDyes = Array.ConvertAll(f.styles, ParseColor);
-                if (f != null && f.presets != null) presets = Array.ConvertAll(Array.FindAll(f.presets, p => ParseColor(p).HasValue), p => ParseColor(p).Value);
+                if (f != null && f.styles != null) styles = Array.ConvertAll(f.styles, ParseColor);
+                if (f != null && f.presets != null) presetColors = Array.ConvertAll(Array.FindAll(f.presets, p => ParseColor(p).HasValue), p => ParseColor(p).Value);
             }
             catch (Exception e) { Debug.LogError("[ZenoniaProto] hair-dyes.json of " + classRoot + ": " + e.Message); }
         }

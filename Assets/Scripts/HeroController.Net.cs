@@ -29,6 +29,9 @@ namespace ZenoniaProto
             proxy = true;
             if (local) LocalPlayer.Set(this);
             view = renderer; // null on a -nographics bot client: the hero exists for the controls / bots, nothing is drawn
+            // The look picked at character creation (kept on this device). Only the local hero: other players' proxies get style from the snapshot, and the style then
+            // reaches them through SyncHairStyleOnline. AccountFlow.EnteredId is set before the zone join and cleared only by LeaveWorld, so it is still set here.
+            if (local && AccountFlow.EnteredId != null) CharacterLookPrefs.ApplyTo(view, AccountFlow.EnteredId);
             Setup(def, state, netId);
             RefreshGearLabel();
             Render();

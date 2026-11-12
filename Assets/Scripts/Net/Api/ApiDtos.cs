@@ -77,7 +77,8 @@ namespace ZenoniaProto.Api
         public const string ValidationError = "validation_error";
         public const string RateLimited = "rate_limited";     // also account lockout
         public const string NameTaken = "name_taken";
-        public const string ClassTaken = "class_taken";
+        public const string ClassTaken = "class_taken"; // servers before 2026-11-12 (one hero per class)
+        public const string SlotsFull = "slots_full";
         public const string AlreadyOnline = "already_online";
         public const string CharacterOnline = "character_online"; // delete refused: the character holds a live session
         public const string NotFound = "not_found";

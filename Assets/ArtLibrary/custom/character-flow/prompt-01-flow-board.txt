@@ -1,0 +1,9 @@
+Chat (Tay): https://chatgpt.com/c/6af56a88-ea98-83ec-afeb-67dc9ce5613e  ("Design Character Flow Mockups", 2026-11-12)
+Image sent: docs/reference/wizard-northwind-hero-select-ingame.png  ->  character-flow-board-chatgpt-1.png (1536x1024)
+
+Asked for: ONE wide flow board, three screens side by side in the art style of the current SELECT CHARACTER screen, gold arrows between:
+1 CHARACTER LIST: 4 slots on pedestals (Wizard 'Frostwind' Lv 24, Warrior 'Redblade' Lv 12, two empty '+ Create Character'), selected
+  character bigger, bottom panel (portrait, name, class, level, last location), buttons ENTER GAME (gold) and DELETE (dark red).
+2 CHOOSE CLASS: the current screen (six classes, info panel, skill preview) with BACK / NEXT instead of START GAME.
+3 CUSTOMIZE AND NAME: hero in the centre, left panel HAIRSTYLE (6 head icons) + HAIR COLOR (9 swatches), right panel CHARACTER NAME
+  (text field, dice for a random name, note '3-12 letters'), buttons BACK / CREATE.

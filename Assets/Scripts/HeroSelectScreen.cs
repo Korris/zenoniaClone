@@ -34,18 +34,19 @@ namespace ZenoniaProto
         static System.Func<int, bool> onlineTaken; // class index -> the account already has this hero. Non null while the online mode is up.
         static System.Action<HeroClass> onlinePicked;
         static System.Action onlineBack;
+        static HeroClass? onlineStart; // class the online mode opens on (coming back from Customize); null = the Wizard
 
         /// <summary>The account flow is choosing the class of a new character.</summary>
         public static bool OnlineCreating { get { return onlineTaken != null; } }
 
         /// <summary>Opens the online mode; exactly one of the two callbacks runs when it closes. Nothing happens without a screen (headless bots create by class directly).</summary>
-        public static void OpenOnlineCreate(System.Func<int, bool> taken, System.Action<HeroClass> picked, System.Action back)
+        public static void OpenOnlineCreate(System.Func<int, bool> taken, System.Action<HeroClass> picked, System.Action back, HeroClass? start = null)
         {
             if (instance == null) return;
-            onlineTaken = taken; onlinePicked = picked; onlineBack = back;
+            onlineTaken = taken; onlinePicked = picked; onlineBack = back; onlineStart = start;
         }
 
-        static void CloseOnlineCreate() { onlineTaken = null; onlinePicked = null; onlineBack = null; }
+        static void CloseOnlineCreate() { onlineTaken = null; onlinePicked = null; onlineBack = null; onlineStart = null; }
 
         /// <summary>Capture scripts: what a tap on a pedestal and on the gold button do.</summary>
         public static void TestPickClass(int classIndex) { if (instance != null) instance.Pick(instance.SlotOfClass(classIndex)); }
@@ -64,7 +65,7 @@ namespace ZenoniaProto
         readonly List<SkillDef> skills = new List<SkillDef>();
         HeroSelectPreview preview;
         Image portrait, infoName, startLabel, skillHeader, sliderKnob;
-        Text tagline, stateText, skillNameText;
+        Text tagline, stateText, skillNameText, nextLabel;
         Button startButton, backButton, gearButton;
         readonly Image[] statFills = new Image[StatCount];
         readonly Text[] statValues = new Text[StatCount];
@@ -130,7 +131,7 @@ namespace ZenoniaProto
             gearButton.gameObject.SetActive(!inGame && NetMode.IsOffline && !OnlineCreating);
             picked = -1;
             HeroController current = inGame ? GameSession.Hero : null;
-            Pick(current != null ? SlotOfClass((int)current.Class.Id) : SlotOfClass((int)HeroClass.Wizard)); // the mock opens on the Wizard
+            Pick(current != null ? SlotOfClass((int)current.Class.Id) : SlotOfClass((int)(OnlineCreating && onlineStart.HasValue ? onlineStart.Value : HeroClass.Wizard))); // the mock opens on the Wizard
             for (int i = 0; i < slots.Count; i++) Ease(slots[i], i == picked, 1f); // no easing in from the last visit
         }
 
@@ -224,13 +225,14 @@ namespace ZenoniaProto
 
         void ShowState(HeroClassDef c)
         {
+            startLabel.enabled = !OnlineCreating; // the online step says NEXT in text (it leads on to Customize), not START
+            nextLabel.gameObject.SetActive(OnlineCreating);
             if (OnlineCreating)
             {
                 bool taken = onlineTaken((int)c.Id);
                 stateText.text = taken ? "You already have this hero" : "New hero";
-                startLabel.sprite = Art("label-start");
                 startButton.interactable = !taken;
-                startLabel.color = taken ? new Color(1f, 1f, 1f, 0.6f) : Color.white;
+                nextLabel.color = taken ? new Color(0.25f, 0.12f, 0.02f, 0.5f) : new Color(0.25f, 0.12f, 0.02f); // dark brown on the gold button, as the art labels
                 return;
             }
             HeroController current = inGame ? GameSession.Hero : null;

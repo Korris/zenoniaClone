@@ -54,7 +54,7 @@ namespace ZenoniaProto
             if (AccountFlow.Characters.Count == 0)
             {
                 string cls = string.IsNullOrEmpty(NetLaunchArgs.ClassName) ? "warrior" : NetLaunchArgs.ClassName;
-                AccountFlow.Create(account, HeroClassDef.All[GameSession.ClassIndex(cls)].Id);
+                AccountFlow.Create(account, HeroClassDef.All[GameSession.ClassIndex(cls)].Id, 0, -1);
                 yield return new WaitForSeconds(0.1f);
                 while (AccountFlow.Busy) yield return null;
                 P((AccountFlow.Characters.Count == 1 ? "PASS" : "FAIL") + " created a hero: " + AccountFlow.Status);
@@ -86,7 +86,7 @@ namespace ZenoniaProto
             while (AccountFlow.Busy) yield return null;
             yield return new WaitForSeconds(0.5f);
             yield return Shot(dir, "3-characters-empty");
-            AccountFlow.Create(account + "_w", HeroClass.Warrior);
+            AccountFlow.Create(account + "_w", HeroClass.Warrior, 0, -1);
             yield return new WaitForSeconds(0.1f);
             while (AccountFlow.Busy) yield return null;
             yield return new WaitForSeconds(0.5f);
@@ -98,12 +98,16 @@ namespace ZenoniaProto
             HeroSelectScreen.TestPickClass((int)HeroClass.Warrior);
             yield return new WaitForSeconds(0.5f);
             yield return Shot(dir, "6-hero-select-taken");
-            HeroSelectScreen.TestPickClass((int)HeroClass.Cleric);
+            HeroSelectScreen.TestPickClass((int)HeroClass.Wizard);
             yield return new WaitForSeconds(0.5f);
             HeroSelectScreen.TestPressStart();
-            yield return new WaitForSeconds(0.5f);
-            P((AccountFlow.Page == AccountPage.Naming && AccountFlow.NamingClass == HeroClass.Cleric && !HeroSelectScreen.IsShown ? "PASS" : "FAIL") + " start asks for the name of the picked hero");
-            yield return Shot(dir, "7-naming");
+            yield return new WaitForSeconds(1.5f);
+            P((AccountFlow.Page == AccountPage.Customize && AccountFlow.CustomizeClass == HeroClass.Wizard && !HeroSelectScreen.IsShown ? "PASS" : "FAIL") + " next asks for the look and name of the picked hero");
+            yield return Shot(dir, "7-customize");
+            CharacterCustomizeScreen.TestSetName("Frostwind");
+            AccountFlow.PendingStyle = 2; AccountFlow.PendingDye = 4; // the third hairstyle, the fifth preset colour
+            yield return new WaitForSeconds(1f);
+            yield return Shot(dir, "7b-customize-look-and-name");
             AccountFlow.ShowForgot();
             yield return new WaitForSeconds(0.3f);
             yield return Shot(dir, "8-forgot");
@@ -267,7 +271,7 @@ namespace ZenoniaProto
             P((warrior != null && !warrior.online ? "PASS" : "FAIL") + " the lock was released before the list came back");
             P((warrior != null && warrior.mapId == FrostHollowLayout.MapId ? "PASS" : "FAIL") + " the last save was flushed: the API says " + (warrior != null ? warrior.mapId : "?"));
 
-            AccountFlow.Create(account + "w", HeroClass.Wizard);
+            AccountFlow.Create(account + "w", HeroClass.Wizard, 0, -1);
             yield return AccountDone();
             CharacterSummary wizard = HeroOf("wizard");
             if (wizard == null) { P("FAIL no second hero: " + AccountFlow.Status); yield break; }

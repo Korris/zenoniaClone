@@ -6,14 +6,14 @@ using ZenoniaProto.Api;
 
 namespace ZenoniaProto
 {
-    public enum AccountPage { Login, Register, Characters, Naming, Forgot, ConfirmDelete }
+    public enum AccountPage { Login, Register, Characters, Customize, Forgot, ConfirmDelete }
 
     /// <summary>
     /// The way into the online world, without any drawing: log in or register, list the account's characters, create one, ask for a ticket and join the zone with it. AccountScreenGui draws it; the
     /// test bots call the same methods. All on the main thread (ApiClient). A password only passes through here on its way to ApiClient and is never kept or logged. Only the refresh token stays on
     /// the device (ApiTokenStore), so a returning player lands on the character list.
     /// </summary>
-    public static class AccountFlow
+    public static partial class AccountFlow
     {
         const string PrefApi = "zenonia.apiurl";
         const string DefaultApi = "http://127.0.0.1:3000";
@@ -27,13 +27,22 @@ namespace ZenoniaProto
         static bool resumed;
         static string enteredId;
 
+        /// <summary>Heroes one account may hold, of any classes. The server enforces it (MAX_CHARACTERS); this only sizes the list.</summary>
+        public const int MaxCharacters = 5;
+
         public static AccountPage Page { get; private set; }
         public static bool Busy { get; private set; }
         public static string Status { get; private set; } = "";
         public static bool StatusBad { get; private set; }
         public static readonly List<CharacterSummary> Characters = new List<CharacterSummary>();
-        /// <summary>The class being named on the Naming page.</summary>
-        public static HeroClass NamingClass { get; private set; }
+        /// <summary>The class being customized and named on the Customize page.</summary>
+        public static HeroClass CustomizeClass { get; private set; }
+        /// <summary>Hairstyle picked on the Customize page (wraps to the head art of the class).</summary>
+        public static int PendingStyle { get; set; }
+        /// <summary>Hair colour picked there: -1 = the style's own colour, 0..8 = hair-dyes.json presets.</summary>
+        public static int PendingDye { get; set; } = CharacterLookPrefs.DefaultDye;
+        /// <summary>Id of the character the player entered the world with, null outside the world. Set before the zone join, cleared by LeaveWorld.</summary>
+        public static string EnteredId { get { return enteredId; } }
         /// <summary>The hero on the ConfirmDelete page.</summary>
         public static CharacterSummary Deleting { get; private set; }
         public static ApiClient Api { get { return api; } }
@@ -74,7 +83,15 @@ namespace ZenoniaProto
         public static void ShowRegister() { Page = AccountPage.Register; Say("", false); }
         public static void ShowForgot() { Page = AccountPage.Forgot; Say("", false); }
         public static void ShowCharacters() { Page = AccountPage.Characters; Say("", false); }
-        public static void ShowNaming(HeroClass id) { NamingClass = id; Page = AccountPage.Naming; Say("", false); }
+        /// <summary>Opens the Customize page for a class with a fresh look (first style, own colour).</summary>
+        public static void ShowCustomize(HeroClass id)
+        {
+            CustomizeClass = id;
+            PendingStyle = CharacterLookPrefs.DefaultStyle;
+            PendingDye = CharacterLookPrefs.DefaultDye;
+            Page = AccountPage.Customize;
+            Say("", false);
+        }
         public static void ShowDelete(CharacterSummary c) { Deleting = c; Page = AccountPage.ConfirmDelete; Say("", false); }
 
         static void Say(string text, bool bad) { Status = text ?? ""; StatusBad = bad; }
@@ -91,6 +108,7 @@ namespace ZenoniaProto
                 case ApiErrorCodes.RateLimited: return "Too many tries: " + WaitText(r.RetryAfterSec);
                 case ApiErrorCodes.NameTaken: return "That name is taken";
                 case ApiErrorCodes.ClassTaken: return "You already have a hero of this class";
+                case ApiErrorCodes.SlotsFull: return "You already have " + MaxCharacters + " heroes: delete one to make another";
                 case ApiErrorCodes.AlreadyOnline: return "This character is already online";
                 case ApiErrorCodes.CharacterOnline: return "This hero is still in the world. Leave the game with it first, or wait up to 2 minutes if it was closed suddenly.";
                 case ApiErrorCodes.NotFound: return "That hero no longer exists";
@@ -297,93 +315,6 @@ namespace ZenoniaProto
                 await Task.Delay(LeavePollMs);
             }
             return false;
-        }
-
-        public static async void Refresh()
-        {
-            if (Busy) return;
-            Busy = true;
-            try { await RefreshNow(); }
-            catch (Exception e) { Fail(e); }
-            finally { Busy = false; }
-        }
-
-        static async Task RefreshNow()
-        {
-            ApiResult<CharacterListResponse> r = await api.ListCharactersAsync();
-            if (r.Ok)
-            {
-                Characters.Clear();
-                if (r.Data.characters != null) Characters.AddRange(r.Data.characters);
-                return;
-            }
-            Say(Friendly(r), true);
-            BackToLoginIfLoggedOut();
-        }
-
-        public static async void Create(string name, HeroClass id)
-        {
-            if (Busy) return;
-            string problem = NameProblem(name);
-            if (problem != null) { Say(problem, true); return; }
-            Busy = true; Say("Creating your hero ...", false);
-            try
-            {
-                ApiResult<CharacterDetailResponse> r = await api.CreateCharacterAsync(name.Trim(), RpgSession.ClassId(id));
-                if (!r.Ok) { Say(Friendly(r), true); BackToLoginIfLoggedOut(); return; }
-                Say("", false);
-                Page = AccountPage.Characters;
-                await RefreshNow();
-            }
-            catch (Exception e) { Fail(e); }
-            finally { Busy = false; }
-        }
-
-        /// <summary>Deletes the hero on the ConfirmDelete page, once its name has been typed. A refusal stays on that page with the reason.</summary>
-        public static async void Delete(string typedName)
-        {
-            if (Busy) return;
-            string problem = DeleteProblem(typedName);
-            if (problem != null) { Say(problem, true); return; }
-            Busy = true; Say("Deleting ...", false);
-            try
-            {
-                ApiResult<ApiOk> r = await api.DeleteCharacterAsync(Deleting.id);
-                if (!r.Ok && r.Code != ApiErrorCodes.NotFound) { Say(Friendly(r), true); BackToLoginIfLoggedOut(); return; }
-                Say("", false);
-                Deleting = null;
-                Page = AccountPage.Characters;
-                await RefreshNow();
-            }
-            catch (Exception e) { Fail(e); }
-            finally { Busy = false; }
-        }
-
-        /// <summary>Ticket, then the zone. Right after leaving, the zone is still writing the character out, so already_online is waited out for a moment. The result shows as NetClient's state.</summary>
-        public static async void Enter(CharacterSummary c)
-        {
-            if (Busy) return;
-            Busy = true; Say("Entering the world ...", false);
-            try
-            {
-                for (int attempt = 1; ; attempt++)
-                {
-                    ApiResult<EnterResponse> r = await api.EnterAsync(c.id);
-                    if (r.Ok)
-                    {
-                        Say("", false);
-                        enteredId = c.id;
-                        GameSession.Instance.JoinServer(r.Data.zoneHost, r.Data.zonePort, c.name, GameSession.ClassIndex(c.classId), r.Data.ticket);
-                        return;
-                    }
-                    if (r.Code == ApiErrorCodes.AlreadyOnline && attempt < EnterAttempts) { Say("Your last session is still being saved ...", false); await Task.Delay(EnterRetryMs); continue; }
-                    Say(Friendly(r), true);
-                    BackToLoginIfLoggedOut();
-                    return;
-                }
-            }
-            catch (Exception e) { Fail(e); }
-            finally { Busy = false; }
         }
 
         static void Fail(Exception e)
