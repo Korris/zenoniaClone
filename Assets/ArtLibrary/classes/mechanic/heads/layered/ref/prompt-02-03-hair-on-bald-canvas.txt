@@ -1,0 +1,16 @@
+Chat (Tay): https://chatgpt.com/c/6af558bc-0380-83ec-a2f7-cf0e77f85a9c  (same chat as prompt 01, the bald template)
+
+Prompt 02, images: (1) canvas-3-rows-bald-heads.png, (2) current-styles-a-4x.png -> src/mechanic-hair-same-volume-styles-0-1-2-chatgpt-1.png
+Rows: wild spiky hair / smooth hair combed back with a small low bun / messy long spikes with a fringe between the eyes.
+Prompt 03, images: (1) the canvas, (2) current-styles-b-4x.png -> src/mechanic-hair-same-volume-styles-3-4-5-chatgpt-1.png
+Rows: curly fluffy hair / layered hair swept forward with tufts at the crown / NEW: undercut sides with a tall swept-up quiff.
+
+Common text: draw a completely new image from scratch; image 1 is the canvas of 3 rows x 3 columns of the SAME bald head (front, right
+side, back); keep every head where it is, same size, same face; only ADD HAIR and the goggles; output 1024x1536. Every row wears the same
+brass goggles with round cyan lenses on the forehead, brown strap and brass buckle around the head. MOST IMPORTANT: the SAME overall head
+size and hair volume in every row (hair rises about 1/3 of the skull height above the scalp, reaches about 1/4 of the skull width beyond
+the skull on each side); image 2's small row must become as big as the others. Hair covers the scalp completely, also behind the ear.
+Hair in neutral gray only (#242424 #555555 #999999 #E0E0E0, dyed in the game); goggles, strap, buckle keep their colours. Crisp pixel-art
+look, dark outline, solid. Background flat #00FF00, no text.
+
+Result: ChatGPT kept the layout but painted the heads 7-26 % bigger than the canvas heads: the tool scales each row back by its eyes.

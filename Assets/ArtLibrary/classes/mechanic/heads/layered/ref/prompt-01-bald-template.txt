@@ -1,0 +1,11 @@
+Images sent: (1) mechanic-style0-3-facings-5x.png, (2) docs/reference/hero-idle-down-5-classes.png
+
+Draw a completely new image from scratch.
+
+Image 1 shows the head of a chibi pixel-art game character (a male mechanic, the second character of image 2) in three views on a green background: front view, right side view, back view. The heads are cut off flat at the bottom because a scarf covers the chin in the game.
+
+Draw the SAME three heads in the same layout, but BALD: remove all the hair, the goggles and the goggle strap, and complete the round bald skull, the ears and the full face down to the chin (front and side view) and the back of the bald head with both ears (back view).
+
+Keep exactly: the size and position of every head, the face (big blue eyes, small mouth, skin colour), the view of every head, the crisp pixel-art look with a dark outline, the same line weight. The skull must be as wide as the face and ears of image 1 suggest: a normal round chibi skull, NOT as big as the hair was. Thin brown eyebrows.
+
+Background: flat #00FF00 everywhere, no text, no frames, no shadows. Output a wide image, about 3:1.

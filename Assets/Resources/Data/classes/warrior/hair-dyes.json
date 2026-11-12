@@ -1,0 +1,5 @@
+{
+  "note": "Layered heads (HeroHairLayers): styles = default dye of hair/<n> (painted gray; Tools/build-hair-same-volume-sheets.py warrior), presets = Shift+H dye cycle. Gray hair pixels are remapped by lightness onto the dye (HairDye.cs); coloured accents (the red cords) keep their colour.",
+  "styles": ["#F5281C", "#2A2E44", "#F0B63A", "#A8552A", "#EDE6EA", "#3F6FB5"],
+  "presets": ["#C8323C", "#E07A2E", "#E8C445", "#4FA84A", "#2F7FD8", "#7A4FC8", "#E07AB0", "#34343C", "#F2F2F2"]
+}

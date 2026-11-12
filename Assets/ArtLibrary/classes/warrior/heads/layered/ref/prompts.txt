@@ -1,0 +1,17 @@
+Chat (Tay): https://chatgpt.com/c/6af55e1d-cc94-83ec-a2db-86aea52d9cd2  (new chat "Draw Bald Pixel Heads", 2026-11-12)
+
+01 bald template, images: warrior-style1-3-facings-5x.png + docs/reference/hero-idle-down-5-classes.png
+   -> src/warrior-bald-template-chatgpt-1.png  REJECTED: eyes too small and too close together, face too small on the head.
+02 same, images: warrior-style1-3-facings-5x.png; "copy the FACE exactly: big fierce red eyes, each about 1/4 of the head width, eye
+   centres apart by about half of the head width ear to ear, eyes at the height of the ears"
+   -> src/warrior-bald-template-chatgpt-2.png  USED.
+03 hair, images: canvas-3-rows-bald-heads.png + current-styles-a-4x.png -> src/warrior-hair-same-volume-styles-0-1-2-chatgpt-1.png
+   Rows: wild spiky hair with a ragged fringe / short neat side parting / tall flame-like spikes swept up and back.
+04 hair, images: the canvas + current-styles-b-4x.png -> src/warrior-hair-same-volume-styles-3-4-5-chatgpt-1.png
+   Rows: medium wavy hair, middle parting / shaggy hair with a small topknot / NEW: high ponytail with a short fringe. Cords dark red.
+
+Common text of 03-04: completely new image; image 1 is the canvas of 3 rows x 3 columns of the SAME bald head (front, right side, back);
+keep every head where it is, same size, same face; only ADD HAIR; 1024x1536. SAME overall head size and hair volume in every row (hair
+rises about 1/3 of the skull height above the scalp, reaches about 1/5 of the skull width beyond the skull on each side); the small row
+of image 2 must become as big as the others. Hair covers the scalp completely, also behind the ear down to the nape. Hair in neutral
+gray only (#242424 #555555 #999999 #E0E0E0). Crisp pixel-art look, dark outline, solid. Background flat #00FF00, no text.

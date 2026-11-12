@@ -1,0 +1,5 @@
+{
+  "note": "Layered heads (HeroHairLayers): styles = default dye of hair/<n> (painted gray; Tools/build-hair-same-volume-sheets.py mechanic), presets = Shift+H dye cycle. Gray hair pixels are remapped by lightness onto the dye (HairDye.cs); the goggles, strap and buckle keep their colours.",
+  "styles": ["#F2C23E", "#E08A9A", "#2E2E38", "#E8782A", "#1F8A7A", "#C9CBD6"],
+  "presets": ["#C8323C", "#E07A2E", "#E8C445", "#4FA84A", "#2F7FD8", "#7A4FC8", "#E07AB0", "#34343C", "#F2F2F2"]
+}
