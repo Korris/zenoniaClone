@@ -1,6 +1,10 @@
 # Việc đang dở
 
-## Assassin, Cleric: tóc nhiều lớp nhuộm được (12/11/2026 15:55, đã cài, đã xem trong game, chưa commit)
+## Boss Truy Nã (sự kiện ngày, 12/11/2026, đang dở, code + hình đã commit)
+
+- Toàn bộ trạng thái, quyết định của người dùng, việc còn lại và lỗi chạy thử: `docs/boss-hunter-pending.md`. Đọc file đó trước.
+
+## Assassin, Cleric: tóc nhiều lớp nhuộm được (12/11/2026 15:55, đã cài, đã xem trong game, đã commit)
 
 - Người dùng hỏi đã làm màu tóc + kiểu tóc cho Assassin, Cleric chưa. Đã làm bằng `Tools/build-hair-layers-from-full-heads.py` (tách từ 5 đầu liền sẵn có, không tốn lượt vẽ, giữ nguyên dáng tóc + mặt gốc): `heads/face`, `heads/hair/0..4`, `Data/classes/{assassin,cleric}/hair-dyes.json`. Không đổi code.
 - Ảnh trong game: `docs/reference/assassin-cleric-layered-dyeable-hair-ingame.png` (mỗi class 6 ô: 3 hướng, 2 màu tuỳ chọn, đòn đánh). Bản chạy `C:/temp/player-char-flow/Zenonia.exe`.
