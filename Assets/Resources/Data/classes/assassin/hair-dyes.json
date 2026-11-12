@@ -1,0 +1,21 @@
+{
+  "note": "Layered heads (HeroHairLayers): styles = default dye of hair/<n> (the mid tone of the original hair; Tools/build-hair-layers-from-full-heads.py), presets = Shift+H dye cycle. Gray hair pixels are remapped by lightness onto the dye (HairDye.cs); coloured accents keep their colour.",
+  "styles": [
+    "#692C66",
+    "#D3BED5",
+    "#C50C25",
+    "#342A68",
+    "#FC6A9E"
+  ],
+  "presets": [
+    "#C8323C",
+    "#E07A2E",
+    "#E8C445",
+    "#4FA84A",
+    "#2F7FD8",
+    "#7A4FC8",
+    "#E07AB0",
+    "#34343C",
+    "#F2F2F2"
+  ]
+}

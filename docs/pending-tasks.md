@@ -1,5 +1,11 @@
 # Việc đang dở
 
+## Assassin, Cleric: tóc nhiều lớp nhuộm được (12/11/2026 15:55, đã cài, đã xem trong game, chưa commit)
+
+- Người dùng hỏi đã làm màu tóc + kiểu tóc cho Assassin, Cleric chưa. Đã làm bằng `Tools/build-hair-layers-from-full-heads.py` (tách từ 5 đầu liền sẵn có, không tốn lượt vẽ, giữ nguyên dáng tóc + mặt gốc): `heads/face`, `heads/hair/0..4`, `Data/classes/{assassin,cleric}/hair-dyes.json`. Không đổi code.
+- Ảnh trong game: `docs/reference/assassin-cleric-layered-dyeable-hair-ingame.png` (mỗi class 6 ô: 3 hướng, 2 màu tuỳ chọn, đòn đánh). Bản chạy `C:/temp/player-char-flow/Zenonia.exe`.
+- Còn: mỗi class 5 kiểu (chưa có kiểu thứ 6); cỡ đầu giữa các kiểu giữ như cũ (Assassin kiểu 0 đuôi ngựa to); màu mặc định sau khi nhuộm phẳng hơn bản gốc một chút (mất bóng đổ ngả màu); Assassin kiểu 2 nhuộm khác màu còn một chấm trên băng đô; chưa soi từng frame walk / đòn đánh, chưa xem với bộ giáp; Fighter chưa có đầu rời.
+
 ## Luồng nhân vật online: giao diện mới + nhiều nhân vật trùng class (12/11/2026, đã xem trong game, chưa commit, server chưa deploy)
 
 - Người dùng duyệt thiết kế ChatGPT (chat Tay https://chatgpt.com/c/6af56a88-ea98-83ec-afeb-67dc9ce5613e, 4 lượt vẽ: bảng luồng, màn 1, màn 3, tấm mảnh UI; ảnh + prompt ở `ArtLibrary/custom/character-flow/`, mockup ở `docs/reference/character-flow-*.png`), rồi chốt: "chỉ vẽ lại giao diện các trang theo thiết kế mới, chưa đụng server bây giờ". Ý muốn về sau: không giới hạn 1 nhân vật / class, tóc + màu tóc lưu theo nhân vật.
