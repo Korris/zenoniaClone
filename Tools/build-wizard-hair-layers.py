@@ -329,4 +329,5 @@ def main():
     print(json.dumps({'bald_scale': round(s, 4), 'styles': sorted(hairs), 'staging': STAGE}))
 
 
-main()
+if __name__ == '__main__':
+    main()

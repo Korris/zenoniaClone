@@ -10,6 +10,8 @@ namespace ZenoniaProto
     /// Only the hair layers of HeroHairLayers move, onto the painted skull, by the frame's hair anchor (same fields as a head anchor).
     ///   body/bald/&lt;anim&gt;.png       the body with its bald head, same grid as body/bare
     ///   body/over-hair/&lt;anim&gt;.png  optional: sleeves and fists raised beside the head, drawn again above the hair
+    /// The whole hair is one layer drawn above the body, as Ragnarok draws its heads: no part of the body cuts it, so any hairstyle
+    /// goes with any outfit (hairstyles: Tools/build-wizard-hair-same-volume-sheets.py, all one head size).
     /// Frames without a hair anchor or bald sheet (armour outfits, other classes) keep the headless body + head path of Apply.
     /// </summary>
     public sealed partial class HeroHeadLayer

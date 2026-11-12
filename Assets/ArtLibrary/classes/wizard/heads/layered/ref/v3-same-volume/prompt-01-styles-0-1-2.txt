@@ -1,0 +1,22 @@
+Images sent: (1) canvas-3-rows-bald-heads.png, (2) current-styles-a-3x.png
+
+Draw a completely new image from scratch, not based on any earlier image in this chat.
+
+Image 1 is the canvas: 3 rows x 3 columns of the SAME bald chibi head (columns: front view, right side view, back view). Keep every head exactly where it is, exactly the same size, the same face, ears and skin. Only ADD HAIR on the heads. Output 1024x1536, same layout.
+
+Each row is one hairstyle, the same designs as the rows of image 2:
+Row 1: long wild layered hair with a bright blue streak in the fringe, one thin curved ahoge on top.
+Row 2: short side-parted hair with a blue streak in the fringe, short neat back.
+Row 3: swept-back hair with a low short ponytail tied with a silver ring.
+
+MOST IMPORTANT: all three rows must have the SAME head size and the SAME hair volume around the skull, like hairstyles of a character creator that all fit one head. Image 2 is wrong about this: its row 1 is far too big and puffy. Rules for every row:
+- the hair lies close to the skull: the top of the hair is at most 1/5 of the skull height above the scalp (the ahoge may stick out a little more), the sides reach at most 1/6 of the skull width beyond the skull at ear level;
+- row 1 differs from rows 2 and 3 only by LENGTH, not by width: its locks hang down to chest length (about one head height below the chin).
+  Front view: two groups of locks, left and right of the chin, falling straight down in front of the shoulders; under the chin leave an EMPTY green gap as wide as the chin (no hair behind the neck).
+  Side view: the long hair falls down behind the ear along the back of the neck.
+  Back view: the hair falls down to the same length.
+- side views: hair covers the scalp completely, also behind the ear down to the nape. No bare skin behind the ear. The ear itself and the face stay visible.
+
+Colours: hair in neutral gray only, 4 flat tones #242424 #555555 #999999 #E0E0E0 (it is dyed in the game). The blue streaks of rows 1 and 2 stay bright blue. Silver ring stays light gray.
+Style: crisp pixel-art look with a dark outline, same line weight as the heads of image 1. Solid, opaque, no glow, no soft shadows.
+Background: flat #00FF00 everywhere, no text, no frames, no ground shadow.

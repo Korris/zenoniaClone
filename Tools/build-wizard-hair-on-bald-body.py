@@ -9,9 +9,8 @@ Reads the fitted bald frames straight from the tools that installed each animati
 
 Writes (Resources, wizard):
   Sprites/.../body/bald/<anim>.png       the body with its painted bald head, same grid as body/bare
-  Sprites/.../body/over-hair/<anim>.png  the body below the painted chin + arms raised beside the head, drawn again above the hair
-                                         (facing down / left / right): the collar and shoulders hide long hair, not a cut line in the hair
-  Data/.../hair-anchors.json             per frame where the hair cells (heads/hair, hair-under; cell space of heads/face) sit on the painted skull:
+  Sprites/.../body/over-hair/<anim>.png  arms / fists raised onto the head, drawn again above the hair (facing down / left / right)
+  Data/.../hair-anchors.json             per frame where the hair cells (heads/hair; cell space of heads/face) sit on the painted skull:
                                          x, y, s as head-anchors.json. One scale per row (the painted skull width), position by skull overlap.
 
   py Tools/build-wizard-hair-on-bald-body.py verify            painted frames against the installed headless sheets (frame order check)
@@ -118,10 +117,9 @@ def hair_anchors(cells, d):
 
 
 def over_hair(cell, d):
-    """Body pixels to draw again above the hair, so the BODY's own outline hides the hair, never a straight cut in the hair art:
-    - everything below the painted chin (collar, shoulders, robe): long hair always falls behind it, and outside the body's outline the
-      hair-under layer carries the same locks on (same art, same anchor), so no seam shows whatever the pose;
-    - parts beside the head that reach above its middle (raised sleeves, fists)."""
+    """Body pixels to draw again above the hair: parts beside the head that reach above its middle (raised sleeves, fists).
+    Nothing else: the hair lies on the collar and shoulders. Never redraw the body below the chin row above the hair: that showed as a
+    straight line across long hair wherever the collar rises above the chin (every sideways frame)."""
     a = np.asarray(cell)
     out = a.copy(); out[..., 3] = 0                                     # clear pixels keep the body colours: no dark fringe at the layer's edge
     if d not in OVER_DIRS:
@@ -132,10 +130,7 @@ def over_hair(cell, d):
         return Image.fromarray(out)
     top, chin = ys[0], ys[-1]; mid = (top + chin) // 2
     head = ndimage.binary_fill_holes(ndimage.binary_dilation(b, iterations=3))
-    body = (a[..., 3] > 0) & ~head
-    below = body.copy(); below[:chin + 1] = False
-    out[below, 3] = a[below, 3]
-    cand = body.copy(); cand[chin:] = False
+    cand = (a[..., 3] > 0) & ~head; cand[chin:] = False
     lab, n = ndimage.label(cand)
     for i in range(1, n + 1):
         m = lab == i
@@ -178,24 +173,23 @@ def write():
     print("wrote body/bald, body/over-hair,", f"{DATA}/hair-anchors.json")
 
 
-def hair_cell(d, an, style, sub):
-    p = f"{HEADS}/{sub}/{style}/{'right' if d == 'left' else d}.png"
-    if not os.path.exists(p):
-        return Image.new("RGBA", (F, F))
+def hair_cell(d, an, style):
+    """The hair of a style placed by the frame's anchor (the whole hair is one layer, drawn above the body)."""
+    p = f"{HEADS}/hair/{style}/{'right' if d == 'left' else d}.png"
     dyes = json.load(open(f"{DATA}/hair-dyes.json", encoding="utf-8"))["styles"]
     dye = tuple(int(dyes[style][i:i + 2], 16) for i in (1, 3, 5))
     return placed(Image.fromarray(nw.dyed_hair(d, style, dye=dye, path=p).astype(np.uint8)), an)
 
 
 def compose(anim, d, f, style, pad=24):
-    """A frame as the game draws it: hair-under, bald body, hair, over-hair, staff / book, hand layer."""
+    """A frame as the game draws it: bald body, whole hair, over-hair, staff / book, hand layer."""
     an = next(e for e in json.load(open(f"{DATA}/hair-anchors.json", encoding="utf-8"))["anims"] if e["anim"] == anim and e["dir"] == d)["frames"][f]
     box = (f * F, ROWS[d] * F, (f + 1) * F, (ROWS[d] + 1) * F)
     bald = Image.open(f"{BODY}/bald/{anim}.png").convert("RGBA")
-    body = hair_cell(d, an, style, "hair-under"); body.alpha_composite(bald.crop(box))
+    body = bald.crop(box)
     sheet = Image.new("RGBA", bald.size); sheet.paste(body, box[:2])
     tmp = f"{tempfile.gettempdir()}/wizard-bald-compose.png".replace("\\", "/"); sheet.save(tmp)
-    top = hair_cell(d, an, style, "hair")
+    top = hair_cell(d, an, style)
     top.alpha_composite(Image.open(f"{BODY}/over-hair/{anim}.png").convert("RGBA").crop(box))
     return cv.wb.wc.chf.compose("wizard", anim, d, f, bare_path=tmp, tier=0, pad=pad, over=top)
 

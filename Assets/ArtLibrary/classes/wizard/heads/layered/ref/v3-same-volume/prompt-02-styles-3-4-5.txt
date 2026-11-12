@@ -1,0 +1,18 @@
+Images sent: (1) canvas-3-rows-bald-heads.png, (2) current-styles-b-3x.png, (3) the result of prompt 01 (for head size and hair volume)
+
+Draw a completely new image from scratch.
+
+Image 1 is the canvas: 3 rows x 3 columns of the SAME bald chibi head (columns: front view, right side view, back view). Keep every head exactly where it is, exactly the same size, the same face, ears and skin. Only ADD HAIR on the heads. Output 1024x1536, same layout.
+
+Each row is one hairstyle, the same designs as the rows of image 2:
+Row 1: medium wavy hair with a middle parting.
+Row 2: slicked-back dark hair with a teal-green streak sweeping back from the fringe.
+Row 3: short hair with a thin braid across the crown and a small navy ribbon at the back.
+
+MOST IMPORTANT: the SAME head size and the SAME hair volume around the skull as the short styles of image 3 (rows 2 and 3 of image 3), like hairstyles of a character creator that all fit one head:
+- the hair lies close to the skull: the top of the hair is at most 1/5 of the skull height above the scalp, the sides reach at most 1/6 of the skull width beyond the skull at ear level;
+- side views: hair covers the scalp completely, also behind the ear down to the nape. No bare skin behind the ear. The ear itself and the face stay visible.
+
+Colours: hair in neutral gray only, 4 flat tones #242424 #555555 #999999 #E0E0E0 (it is dyed in the game). The teal streak of row 2 stays teal-green, the ribbon of row 3 stays navy blue.
+Style: crisp pixel-art look with a dark outline, same line weight as the heads of image 1. Solid, opaque, no glow, no soft shadows.
+Background: flat #00FF00 everywhere, no text, no frames, no ground shadow.
