@@ -140,6 +140,13 @@ namespace ZenoniaProto
             set { if (headLayer != null) headLayer.HairDye = value; }
         }
 
+        /// <summary>Custom hair colour for layered hair (any colour; null = the dye preset / the style's own colour); local look only.</summary>
+        public Color32? HairColor
+        {
+            get { return headLayer != null ? headLayer.HairColor : null; }
+            set { if (headLayer != null) headLayer.HairColor = value; }
+        }
+
         /// <summary>Outfit of the worn armour's art tier (-1 = none worn = the Lv1 body): see ArmorLooks.OutfitFolder.</summary>
         public void SetOutfit(int armorTier)
         {

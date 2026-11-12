@@ -29,6 +29,9 @@ namespace ZenoniaProto
         public int Dye { get; set; } = -1;
         public int PresetCount { get { return presets.Length; } }
 
+        /// <summary>Any colour (a colour picker, a saved look); wins over the Dye preset. null = none.</summary>
+        public Color32? CustomDye { get; set; }
+
         HeroHairLayers(string root, string classRoot, SpriteRenderer head)
         {
             this.root = root;
@@ -71,7 +74,7 @@ namespace ZenoniaProto
         /// <summary>Shows the hair of a style for the facing the face was drawn with (same dir name, same mirror).</summary>
         public void Show(int style, string dir, bool flipX, Color tint, int order)
         {
-            Color32? dye = Dye >= 0 && Dye < presets.Length ? (Color32?)presets[Dye] : style < styleDyes.Length ? styleDyes[style] : null;
+            Color32? dye = CustomDye.HasValue ? CustomDye : Dye >= 0 && Dye < presets.Length ? (Color32?)presets[Dye] : style < styleDyes.Length ? styleDyes[style] : null;
             Set(front, HairDye.Apply(Cell("hair/" + style + "/" + dir), dye), flipX, tint, order);
             Set(back, HairDye.Apply(Cell("hair-back/" + style + "/" + dir), dye), flipX, tint, order);
             Set(under, HairDye.Apply(Cell("hair-under/" + style + "/" + dir), dye), flipX, tint, order - 1); // one step below the body

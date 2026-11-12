@@ -182,12 +182,15 @@ def face_scale(sheet, boxes, bald):
     return bw / w
 
 
+UNDER_OVERLAP = 3     # rows the hair-under layer repeats above the cut: the two layers' soft edges left a 1 px see-through line at the chin row
+
+
 def split_under(hair, bald):
     """Long hair below the bald chin -> the hair-under layer (drawn behind the body, so the collar and robe cover it as in the
     Northwind art); the rest stays in front. Returns (front, under)."""
     chin = np.nonzero(bald[..., 3] > 128)[0].max()
     front, under = hair.copy(), hair.copy()
-    front[chin + 1:] = 0; under[:chin + 1] = 0
+    front[chin + 1:] = 0; under[:chin + 1 - UNDER_OVERLAP] = 0
     return front, under
 
 

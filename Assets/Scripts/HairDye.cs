@@ -30,7 +30,7 @@ namespace ZenoniaProto
                 for (int x = 0; x < r.width; x++)
                 {
                     Color32 c = px[(r.y + y) * texW + r.x + x];
-                    outPx[y * r.width + x] = c.a == 0 ? c : Remap(c, d);
+                    outPx[y * r.width + x] = c.a == 0 ? new Color32(d.r, d.g, d.b, 0) : Remap(c, d); // clear pixels carry the dye: white ones drew a pale line where bilinear filtering meets a straight hair edge
                 }
             var tex = new Texture2D(r.width, r.height, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = src.texture.filterMode };
             tex.SetPixels32(outPx);

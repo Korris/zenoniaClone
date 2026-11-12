@@ -61,6 +61,7 @@ namespace ZenoniaProto
         bool perf;
         Vector2Int tpTile = new Vector2Int(-1, -1);
         int tier = -1, hairStyle = -1, hairDye = -1;
+        string hairColor; // --hair-color RRGGBB: any hair colour (layered hair)
         float zoom;
         bool enhanced, solids, god, dropLoot, openInventory;
         int level, giveStones, plus = -1;
@@ -127,6 +128,7 @@ namespace ZenoniaProto
             if (hs != null) hairStyle = int.Parse(hs);
             string hd = Arg(a, "--hair-dye");
             if (hd != null) hairDye = int.Parse(hd);
+            hairColor = Arg(a, "--hair-color");
             enhanced = Array.IndexOf(a, "--enhanced") >= 0;
             solids = Array.IndexOf(a, "--solids") >= 0;
             god = Array.IndexOf(a, "--god") >= 0;
@@ -319,6 +321,8 @@ namespace ZenoniaProto
                 if (tier >= 0 || enhanced) hero.View.SetGear(Mathf.Max(tier, 0), enhanced);
                 if (hairStyle >= 0) hero.View.HairStyle = hairStyle;
                 if (hairDye >= 0) hero.View.HairDye = hairDye; // --hair-dye N: preset N of hair-dyes.json (layered heads)
+                Color customHair;
+                if (hairColor != null && ColorUtility.TryParseHtmlString("#" + hairColor.TrimStart('#'), out customHair)) hero.View.HairColor = (Color32)customHair;
                 if (botArg == "fight") EnableFightBot();
                 else if (botArg == "attack") InputAdapter.BotPressed = k => k == GameKey.Attack;   // hold attack in place (art / FX close-ups)
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east

@@ -1,5 +1,18 @@
 # Việc đang dở
 
+## Wizard: tóc đội lên đầu trọc vẽ sẵn, đổi kiểu + màu tóc tự do (12/11/2026, đã cài, đã xem trong game, chưa commit)
+
+- Người dùng: làm lại cấu trúc nhân vật, chọn kiểu tóc + màu tóc, cách cắt đầu quá xấu; "làm cho wizard"; hỏi thêm tóc dài rủ xuống áo bị cắt ngang.
+- Đã làm (không tốn lượt vẽ nào, dùng nguồn đầu trọc sẵn có): `Tools/build-wizard-hair-on-bald-body.py write` -> `body/bald/`, `body/over-hair/` (idle, walk, attack1-4 x 4 hướng), `Data/classes/wizard/hair-anchors.json`; code `HeroHeadLayer.BaldBody.cs` (thân Lv1/T0 dùng đường mới, frame thiếu anchor và bộ giáp T1-T9 vẫn đường cũ headless + `heads/face`), màu bất kỳ `HeroRenderer.HairColor` / `--hair-color RRGGBB` (Shift+H vẫn đổi theo bảng). Tóc dài: thân dưới cằm vẽ trên tóc, `hair-under` chồng 3 hàng, `HairDye` hết viền trắng.
+- Bản chạy: `Build/Wizard-Hair-On-Bald-Body/Zenonia.exe` (build từ `C:/temp/zu-copy`, 0 lỗi). Ảnh trong game: `docs/reference/wizard-hair-on-bald-body-idle-ingame.png` (4 hướng, kiểu 0/1/2/4/5, màu tuỳ ý), `wizard-hair-on-bald-body-combo-down-ingame.png` (combo xuống kiểu 0); ghép offline tóc dài mọi động tác: `wizard-hair-on-bald-body-long-hair-check.png`.
+- Còn:
+  - Màu tóc chưa lưu, chưa gửi mạng (`HairStyle` đã có trong `NetEventTypes`, màu thì chưa); chưa có UI chọn kiểu/màu.
+  - Cỡ đầu vẽ khác nhau giữa các động tác (s 0,77 ở đòn 4 xuống tới 1,05 ở idle ngang): tóc theo đúng sọ nhưng đầu to nhỏ khi đổi động tác. Trước đây bị đầu game cỡ cố định che.
+  - Tóc vẫn là 1 hình tĩnh mỗi hướng (không bay theo đòn), chưa có góc nghiêng đầu.
+  - Đòn 3 xuống frame 0: tóc bị tay áo che (xem Sổ lỗi). Combo hướng lên/trái/phải trong game mới xem qua bản quay, chưa soi từng frame.
+  - Bộ giáp T1-T9 (chỉ idle xuống) vẫn cắt đầu; 4 class kia chưa đổi (thân vẽ liền tóc, phải vẽ lại đầu trọc).
+  - `hurt`, `dash` Wizard vẫn thân cũ.
+
 ## Wizard `walk` 4 hướng Northwind + đầu nhiều lớp (10/11/2026, đã cài, đã xem trong game)
 
 - Người dùng: "làm walk đi" (sau idle/attack Northwind). Chat ChatGPT (Tay), cùng chat combo v2: https://chatgpt.com/c/6af289b8-8a08-83ec-9c0d-4d140f9a957e (2 lượt vẽ: `wizard-northwind-walk-down-up-chatgpt-1.png`, `wizard-northwind-walk-right-left-chatgpt-1.png`, mỗi ảnh 4 hàng: có gậy / trọc x 2 hướng).

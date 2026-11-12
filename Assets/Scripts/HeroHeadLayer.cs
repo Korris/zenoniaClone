@@ -14,7 +14,7 @@ namespace ZenoniaProto
     /// a full 192 cell in the body's frame space with the head where frame 0 has it (Tools/build-head-layer.py).
     /// A frame uses the layer only when it has an anchor, a headless sheet row and a head for the style; everything else keeps the whole body.
     /// </summary>
-    public sealed class HeroHeadLayer
+    public sealed partial class HeroHeadLayer
     {
         [Serializable] class HeadFrame { public float x; public float y; public float s; public float sy; public float angle; } // s: uniform scale, sy: extra vertical scale (breathing), both about the cell bottom, 0 = 1
         [Serializable] class HeadAnim { public string anim; public string dir; public HeadFrame[] frames; }
@@ -63,6 +63,7 @@ namespace ZenoniaProto
             hair = HeroHairLayers.TryCreate(classRoot, sr);
             if (hair != null) StyleCount = hair.CountStyles(MaxStyles);
             else while (StyleCount < MaxStyles && HeadSprite(StyleCount, "down") != null) StyleCount++;
+            LoadBaldBody(parent);
         }
 
         /// <summary>Head layer of a class, or null when it has no head-anchors.json or no heads/0 art (silently: the class draws its whole body).</summary>
@@ -132,6 +133,10 @@ namespace ZenoniaProto
             if (appearance != null) { Hide(); return appearance; }
             HeadFrame[] frames;
             if (mirror && dirName == "left") dirName = "right"; // HeroClassDef.MirrorLeft (Mechanic attack3/4): the right frame mirrored, its head and anchors too
+            if (overHair != null) overHair.sprite = null;
+            // Hair on the painted bald head (HeroHeadLayer.BaldBody.cs): the Lv1 body keeps its own head, only the hair is placed.
+            Sprite bald = hair != null && !(outfitBody && outfitFolder != null) ? ApplyBaldBody(anim, dirName, row, frame, mirror, bodyOrder, tint) : null;
+            if (bald != null) return bald;
             Sprite head = HeadSprite(style, dirName);
             bool flipHead = false;
             if (head == null && dirName == "left") { head = HeadSprite(style, "right"); flipHead = head != null; } // left: the right head mirrored (anchors are registered against it)
@@ -155,7 +160,7 @@ namespace ZenoniaProto
             return bodyRow[frame];
         }
 
-        public void Hide() { sr.sprite = null; if (hair != null) hair.Hide(); }
+        public void Hide() { sr.sprite = null; if (hair != null) hair.Hide(); if (overHair != null) overHair.sprite = null; }
 
         /// <summary>Body the head sits on: an armour outfit folder (e.g. classes/warrior/body/set-t1, painted in the Lv1 poses so the head anchors
         /// are shared) or null for the class's Lv1 body. Outfit anims without a headless sheet keep the outfit's whole body.</summary>
