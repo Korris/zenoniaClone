@@ -37,7 +37,7 @@ export function buildApp({ db, cfg, now = Date.now, rand = secureRandom, mailer,
     passwords: createPasswordService(cfg.BCRYPT_COST),
     refreshTokens: createRefreshTokenService({ db, ttlSec: cfg.REFRESH_TTL_SEC, now }),
     tickets: createTicketService({ db, ttlSec: cfg.TICKET_TTL_SEC, now }),
-    characters: createCharacterService({ db, now, sessionLockSec: cfg.SESSION_LOCK_SEC }),
+    characters: createCharacterService({ db, now, sessionLockSec: cfg.SESSION_LOCK_SEC, maxCharacters: cfg.MAX_CHARACTERS }),
     // Real SMTP when SMTP_* is complete. The reset token is never returned over HTTP.
     mailer: mailer ?? createMailer({ cfg, log: app.log }),
   };

@@ -33,15 +33,16 @@ describe('character rules', () => {
     await c.call('DELETE', `/characters/${made.id}`, { token: a.accessToken });
   });
 
-  it('allows one character per class and max 6 per account', async () => {
-    expect((await create(a.accessToken, 'Dup', 'wizard')).body.error.code).toBe('class_taken');
-    for (const [i, cls] of ['warrior', 'mechanic', 'cleric', 'assassin', 'fighter'].entries()) {
-      expect((await create(a.accessToken, `Alice${i}`, cls)).status).toBe(201);
-    }
+  it('allows several characters of one class and max 5 per account', async () => {
+    const before = (await c.call('GET', '/characters', { token: a.accessToken })).body.characters.length;
+    expect((await create(a.accessToken, 'Dup', 'wizard')).status).toBe(201); // a second wizard
+    for (let i = before + 1; i < 5; i++) expect((await create(a.accessToken, `Alice${i}`, i % 2 ? 'warrior' : 'wizard')).status).toBe(201);
     const list = await c.call('GET', '/characters', { token: a.accessToken });
-    expect(list.body.characters).toHaveLength(6);
-    expect(new Set(list.body.characters.map((x) => x.classId)).size).toBe(6);
-    expect((await create(a.accessToken, 'Seventh', 'warrior')).status).toBe(409); // no 7th: every class is taken
+    expect(list.body.characters).toHaveLength(5);
+    expect(list.body.characters.filter((x) => x.classId === 'wizard').length).toBeGreaterThan(1);
+    const sixth = await create(a.accessToken, 'Sixth', 'cleric');
+    expect(sixth.status).toBe(409);
+    expect(sixth.body.error.code).toBe('slots_full');
   });
 
   it('names are unique across accounts, case-insensitive', async () => {

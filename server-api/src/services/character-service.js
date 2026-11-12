@@ -13,7 +13,7 @@ export function toObjectId(id) {
 }
 
 /** Character persistence + session lock. All multi-field changes are single-document atomic updates (no transactions needed). */
-export function createCharacterService({ db, now, sessionLockSec }) {
+export function createCharacterService({ db, now, sessionLockSec, maxCharacters = 5 }) {
   const col = db.collection('characters');
   const live = (doc) => !!doc.session && doc.session.at.getTime() > now() - sessionLockSec * 1000;
 
@@ -49,6 +49,8 @@ export function createCharacterService({ db, now, sessionLockSec }) {
 
     async create(userId, name, classId) {
       if (!CLASS_IDS.includes(classId)) throw new ApiError(400, 'validation_error', 'Unknown class');
+      // Counted, not locked: two creates sent at the same instant could both pass and leave one hero over the cap, which harms nothing.
+      if (await col.countDocuments({ userId }) >= maxCharacters) throw conflict('slots_full', `An account holds at most ${maxCharacters} characters`);
       const doc = {
         userId, name, nameLower: name.toLowerCase(), classId, rev: 0, state: newCharacterState(classId),
         session: null, recentOps: [], createdAt: new Date(now()),
@@ -58,8 +60,7 @@ export function createCharacterService({ db, now, sessionLockSec }) {
         return full({ ...doc, _id: r.insertedId });
       } catch (e) {
         if (e.code !== 11000) throw e;
-        if (e.keyPattern?.nameLower || /nameLower/.test(e.message)) throw conflict('name_taken', 'Character name is already taken');
-        throw conflict('class_taken', 'You already have a character of this class');
+        throw conflict('name_taken', 'Character name is already taken'); // the only unique key left on a character
       }
     },
 

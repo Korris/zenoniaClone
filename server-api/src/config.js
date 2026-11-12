@@ -21,6 +21,7 @@ const schema = z.object({
   ACCESS_TTL_SEC: num(900),
   REFRESH_TTL_SEC: num(30 * 24 * 3600),
   TICKET_TTL_SEC: num(60),
+  MAX_CHARACTERS: num(5), // heroes one account may hold, any classes; an account that already has more keeps them
   SESSION_LOCK_SEC: num(90),
   RESET_TTL_SEC: num(3600),
   RESET_MAIL_COOLDOWN_SEC: num(60),
