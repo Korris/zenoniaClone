@@ -87,6 +87,7 @@ namespace ZenoniaProto
             if (n == null) return;
             if (n.Def.QuestGiver && ElderNpc.Talk(n.Def.Id)) return;
             if (PotionShops.IsSeller(n.Def.Id)) { PotionShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }
+            if (WantedBossBoard.TryOpen(n.Def.Id, n.Def.Name, Portrait(n.Def.Art), n.Def.Lines)) return;
             NpcDialogueBox.Open(n.Def.Name, Portrait(n.Def.Art), n.Def.Lines, null);
         }
 

@@ -439,11 +439,12 @@ namespace ZenoniaProto
         }
 
         /// <summary>boss = target the Frostfang King while it lives (otherwise the King is skipped); offset = where around the target to stand.</summary>
-        static void Think(HeroController hero, Vector2 offset, ref Vector2 move, ref bool attack, bool boss = false)
+        static void Think(HeroController hero, Vector2 offset, ref Vector2 move, ref bool attack, bool boss = false, bool wantedBoss = false)
         {
             move = Vector2.zero; attack = false;
             if (hero == null || hero.IsDead) return;
-            Monster best = boss && Monster.Boss != null && !Monster.Boss.IsDying ? Monster.Boss : null; float bestD = best != null ? 0f : float.MaxValue;
+            Monster bossTarget = wantedBoss ? Monster.Wanted : Monster.Boss; // wantedBoss: the daily event boss instead of the map boss
+            Monster best = boss && bossTarget != null && !bossTarget.IsDying ? bossTarget : null; float bestD = best != null ? 0f : float.MaxValue;
             if (best == null) foreach (Monster m in Monster.All)
             {
                 if (m.IsDying || m.MaxHp > 300f || !HasLineOfSight(hero.Position, m.Center)) continue; // skip the boss and anything behind a cliff

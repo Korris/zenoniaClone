@@ -52,7 +52,7 @@ namespace ZenoniaProto
         {
             if (Event.current.type != EventType.Repaint || TradeWindow.IsOpen || HeroChangeScreen.IsOpen) return;
             Monster m = Target();
-            if (m == null || (m == Monster.Boss && Hud.BossBarVisible())) return; // the boss already has its big bar
+            if (m == null || (m == Hud.BarBoss())) return; // the boss already has its big bar
             if (text == null) text = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
             float s = Screen.height / 640f;
             text.fontSize = Mathf.RoundToInt(12f * s);

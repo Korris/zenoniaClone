@@ -132,7 +132,7 @@ namespace ZenoniaProto
             }
             DeployedTurret.ClearZone(zone);
             zone.Monsters.Clear(); zone.Loot.Clear();
-            zone.Boss = null;
+            zone.Boss = null; zone.Wanted = null;
             for (int i = zone.Heroes.All.Count - 1; i >= 0; i--)
             {
                 HeroController h = zone.Heroes.All[i];

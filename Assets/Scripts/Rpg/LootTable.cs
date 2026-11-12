@@ -41,6 +41,10 @@ namespace ZenoniaProto.Rpg
             { "ruinWisp", new MonsterLootDef { Type = "ruinWisp", Exp = 545, GoldMin = 39, GoldMax = 79, ItemLevel = 34 } },
             { "glacierWarden", new MonsterLootDef { Type = "glacierWarden", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 20, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "mirefangHydra", new MonsterLootDef { Type = "mirefangHydra", Exp = 3270, GoldMin = 233, GoldMax = 473, ItemLevel = 35, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            // Daily Wanted Bosses (MonsterDef.Wanted): the drops of the map boss of the level band (the fixed daily reward is paid by WantedBossCredit on top); only the gear level differs.
+            { "rimeclawTyrant", new MonsterLootDef { Type = "rimeclawTyrant", Exp = 280, GoldMin = 20, GoldMax = 50, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            { "glacialColossus", new MonsterLootDef { Type = "glacialColossus", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 25, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            { "mireHydraQueen", new MonsterLootDef { Type = "mireHydraQueen", Exp = 3270, GoldMin = 233, GoldMax = 473, ItemLevel = 40, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             // Willowbrook meadow monsters: EXP 14L x role factor, gold L..2L+1 x role factor.
             { "hornRabbit", new MonsterLootDef { Type = "hornRabbit", Exp = 26, GoldMin = 1, GoldMax = 4, ItemLevel = 2 } },
             { "thornBoar", new MonsterLootDef { Type = "thornBoar", Exp = 50, GoldMin = 4, GoldMax = 8, ItemLevel = 3 } },

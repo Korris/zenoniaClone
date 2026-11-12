@@ -38,7 +38,8 @@ namespace ZenoniaProto
             LootDrop.SpawnAll(zone.Root, LootTable.RollAll(def, RpgRandom.Default), m.Feet, ownerId, freeAt);
 
             for (int i = 0; i < Winners.Count; i++) Winners[i].Owner.QuestKill(m.Type); // every hero that hit it, each on its own quests
-            if (m.IsBoss) for (int i = 0; i < Winners.Count; i++) Winners[i].Owner.RaiseBossKilled();
+            if (m.IsBoss && !m.IsWanted) for (int i = 0; i < Winners.Count; i++) Winners[i].Owner.RaiseBossKilled(); // map boss flags: the event boss opens no gate
+            if (m.IsWanted) WantedBossCredit.Pay(zone, m, Winners); // daily Wanted Boss: no-op unless this is today's boss, online
         }
 
         /// <summary>Contributors that can receive rewards: alive, still in the zone, with an RPG owner. Offline falls back to the local player.</summary>

@@ -107,7 +107,7 @@ namespace ZenoniaProto
                 Destroy(h.gameObject);
             }
             if (z.Spawner != null) Destroy(z.Spawner.gameObject);
-            z.Spawner = null; z.Boss = null; z.Kills = 0;
+            z.Spawner = null; z.Boss = null; z.Wanted = null; z.WantedSpawner = null; z.WantedTimer.Cancel(); z.Kills = 0;
             z.Monsters.Clear(); z.Loot.Clear();
             z.BossTimer.Cancel();
         }

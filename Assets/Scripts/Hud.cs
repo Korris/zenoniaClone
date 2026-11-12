@@ -111,18 +111,23 @@ namespace ZenoniaProto
 
         const float BossBarRange = 160f; // world units (10 tiles), roughly the half-width of the screen plus a margin
 
-        /// <summary>The boss bar shows only while the boss is near the local hero (about a screen away): big maps put the boss far from most fights.</summary>
-        public static bool BossBarVisible()
+        /// <summary>The boss whose bar is shown: the Wanted Boss when it is near the hero (a raid fights it), else the map boss when near, else null.</summary>
+        public static Monster BarBoss()
         {
-            Monster boss = Monster.Boss;
             HeroController hero = GameSession.Hero;
-            return boss != null && !boss.IsDying && hero != null && (boss.Feet - hero.Position).sqrMagnitude < BossBarRange * BossBarRange;
+            if (hero == null) return null;
+            Monster w = Monster.Wanted, b = Monster.Boss;
+            if (w != null && !w.IsDying && (w.Feet - hero.Position).sqrMagnitude < BossBarRange * BossBarRange) return w;
+            return b != null && !b.IsDying && (b.Feet - hero.Position).sqrMagnitude < BossBarRange * BossBarRange ? b : null;
         }
+
+        public static bool BossBarVisible() { return BarBoss() != null; }
+
 
         void DrawBossBar(float s)
         {
-            if (!BossBarVisible()) return;
-            Monster boss = Monster.Boss;
+            Monster boss = BarBoss();
+            if (boss == null) return;
             int hp = Mathf.CeilToInt(boss.Hp);
             if (hp != lastBossHp) { lastBossHp = hp; bossText = boss.DisplayName + "   " + hp + " / " + (int)boss.MaxHp; }
             float w = 360f * s, h = 24f * s, x = (Screen.width - w) * 0.5f, y = 14f * s;

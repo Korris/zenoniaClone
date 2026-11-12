@@ -18,20 +18,21 @@ namespace ZenoniaProto
         {
             string sheet = def.Sheet;
             bool hasFallback = def.FallbackSheet != null;
-            if (hasFallback && !WalkSheetUsable(def.Sheet)) { sheet = def.FallbackSheet; artTint = def.FallbackTint; }
-            walk = SpriteSheet.Grid(SheetFolder + sheet, WalkCell, WalkCell, GameConfig.FramePpu, new Vector2(0.5f, 0f));
+            int walkCell = def.WalkCellPx, attackCell = def.AttackCellPx; // own art: the def's cell sizes (event bosses: 384 / 512 cells at doubled pixels per unit, so a cell covers the same world size)
+            if (hasFallback && !WalkSheetUsable(def.Sheet, walkCell)) { sheet = def.FallbackSheet; artTint = def.FallbackTint; walkCell = WalkCell; attackCell = AttackCell; }
+            walk = SpriteSheet.Grid(SheetFolder + sheet, walkCell, walkCell, GameConfig.FramePpu * walkCell / WalkCell, new Vector2(0.5f, 0f));
             if (hasFallback && Resources.Load<Texture2D>(SheetFolder + sheet + "-attack") == null) return;
-            // Attack cells are 256px with the feet 224px down => pivot 32px above the bottom.
-            attack = SpriteSheet.Grid(SheetFolder + sheet + "-attack", AttackCell, AttackCell, GameConfig.FramePpu, new Vector2(0.5f, 32f / AttackCell));
+            // Attack cells keep the feet 1/8 of the cell above the bottom (256 cell: 224 px down, 512 cell: 448 px down) => pivot 0.125.
+            attack = SpriteSheet.Grid(SheetFolder + sheet + "-attack", attackCell, attackCell, GameConfig.FramePpu * attackCell / AttackCell, new Vector2(0.5f, 32f / AttackCell));
         }
 
         /// <summary>True when the sheet exists and slices into all the facing rows (a smaller sheet leaves whole facings invisible).</summary>
-        static bool WalkSheetUsable(string sheet)
+        static bool WalkSheetUsable(string sheet, int cell)
         {
             Texture2D tex = Resources.Load<Texture2D>(SheetFolder + sheet);
             if (tex == null) return false;
-            if (tex.height / WalkCell >= SheetRows && tex.width >= WalkCell) return true;
-            Debug.LogWarning("[ZenoniaProto] Resources/" + SheetFolder + sheet + ".png is " + tex.width + "x" + tex.height + ", expected 768x768 (4x4 cells of 192): using the fallback sheet");
+            if (tex.height / cell >= SheetRows && tex.width >= cell) return true;
+            Debug.LogWarning("[ZenoniaProto] Resources/" + SheetFolder + sheet + ".png is " + tex.width + "x" + tex.height + ", expected " + cell * 4 + "x" + cell * 4 + " (4x4 cells of " + cell + "): using the fallback sheet");
             return false;
         }
 

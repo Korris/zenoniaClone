@@ -4,6 +4,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
 using ZenoniaProto.Net;
+using ZenoniaProto.Rpg;
 using Debug = UnityEngine.Debug;
 
 namespace ZenoniaProto
@@ -64,6 +65,7 @@ namespace ZenoniaProto
             maxPlayers = NetLaunchArgs.MaxPlayers; tickRate = NetLaunchArgs.TickRate; snapDiv = NetLaunchArgs.SnapDiv;
             devKey = NetLaunchArgs.DevKey; runSeconds = NetLaunchArgs.RunSeconds; statsPath = NetLaunchArgs.StatsPath;
             stats = NetStats.Current = new NetStats(NetMode.IsHeadless ? "server" : "host");
+            ApplyWantedBossOverride();
             repl = new ServerReplication(stats);
             listener = new EventBasedNetListener();
             listener.ConnectionRequestEvent += OnConnectionRequest;
@@ -87,6 +89,16 @@ namespace ZenoniaProto
             startTime = Time.realtimeSinceStartup;
             Debug.Log("[ZenoniaProto] net: " + (NetMode.IsHeadless ? "server" : "host") + " listening on UDP " + port + " (max " + maxPlayers + " players, tick " + tickRate + " Hz, snapshots " + (tickRate / snapDiv) + " Hz, " + host.Zones.Count + " zones, heroes begin on " + host.Start.Map.Id + (transfers.PortalsLive ? "" : ", portals off") + ")");
             return true;
+        }
+
+        /// <summary>--wanted-boss: pins the daily Wanted Boss for tests / live ops. An unknown type is an error and changes nothing; a valid one warns on every start.</summary>
+        static void ApplyWantedBossOverride()
+        {
+            string type = NetLaunchArgs.WantedBossType;
+            if (string.IsNullOrEmpty(type)) return;
+            if (WantedBoss.Find(type) == null) { Debug.LogError("[ZenoniaProto] net: --wanted-boss '" + type + "' is not a wanted boss (rimeclawTyrant, glacialColossus, mireHydraQueen): ignored"); return; }
+            WantedBoss.Override = type;
+            Debug.LogWarning("[ZenoniaProto] net: WANTED BOSS PINNED to " + type + " (--wanted-boss): the daily rotation is off. Never set this on a public server.");
         }
 
         uint ServerMs { get { return (uint)host.ClockMs; } }

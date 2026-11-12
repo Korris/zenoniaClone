@@ -33,6 +33,10 @@ namespace ZenoniaProto
         public MonsterSpawner Spawner;
         /// <summary>The living boss of this map (HUD boss bar), or null.</summary>
         public Monster Boss;
+        /// <summary>The living daily Wanted Boss (online event raid boss, WantedBossSpawner), or null. Own slot and clock: it is not the map boss.</summary>
+        public Monster Wanted;
+        public readonly BossRespawnTimer WantedTimer = new BossRespawnTimer();
+        public WantedBossSpawner WantedSpawner;
         public int Kills;
         /// <summary>Zone sim clock in ms (advances with GameClock.Dt, so it pauses with hit-stop offline); loot priority windows run on it.</summary>
         public float TimeMs { get; private set; }
@@ -68,6 +72,7 @@ namespace ZenoniaProto
             TimeMs += ms;
             Ids.Tick(TimeMs);
             if (BossTimer.Tick(ms) && Spawner != null) Spawner.SpawnBoss();
+            if (WantedTimer.Tick(ms) && WantedSpawner != null) WantedSpawner.Refresh();
         }
 
         /// <summary>Waking from a pause: everything that runs on time gets the slept `ms` at once, so a respawn or the boss comes due exactly as if the zone had kept running.</summary>
@@ -76,6 +81,7 @@ namespace ZenoniaProto
             TimeMs = nowMs;
             Ids.Tick(TimeMs);
             if (BossTimer.Tick(ms) && Spawner != null) Spawner.SpawnBoss();
+            if (WantedTimer.Tick(ms) && WantedSpawner != null) WantedSpawner.Refresh();
             if (Spawner != null) Spawner.FastForward(ms);
             for (int i = 0; i < Loot.Count; i++) Loot[i].FastForward(ms);
             for (int i = 0; i < Monsters.Count; i++) Monsters[i].FastForwardDeath(ms);
@@ -86,8 +92,15 @@ namespace ZenoniaProto
         {
             Kills++;
             if (Boss == m) Boss = null;
+            if (Wanted == m) Wanted = null;
             if (Spawner != null) Spawner.OnDeath(spawnZone);
             KillRewards.Resolve(this, m);
+            if (m.IsWanted)
+            {
+                if (!NetMode.IsOffline && NetMode.IsAuthority) WantedTimer.Start(WantedBossSpawner.RespawnMs); // back after 30 min; no map boss flags, no BossDied handlers
+                NetEventBus.BossDied(m);
+                return;
+            }
             if (!m.IsBoss) return;
             if (!NetMode.IsOffline && NetMode.IsAuthority) BossTimer.Start();
             NetEventBus.BossDied(m);

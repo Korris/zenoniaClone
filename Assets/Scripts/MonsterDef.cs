@@ -7,7 +7,11 @@ namespace ZenoniaProto
     {
         public readonly string Sheet;       // Resources/Sprites/monsters/<Sheet>.png (+ "-attack")
         public readonly string Name;
-        public readonly float Hp, Atk, Def, Speed;
+        public readonly float Atk, Def, Speed;
+        readonly float hpBase;
+        /// <summary>Max HP. An event boss (IsWanted) takes the WantedHpScale test override (--wanted-hp-scale, 1 in production); no other monster does.</summary>
+        public float Hp { get { return IsWanted ? hpBase * WantedHpScale : hpBase; } }
+        public static float WantedHpScale = 1f;
         public readonly float AggroRange, LeashRange, AttackRange, WindupMs, CooldownMs;
         public readonly float HitW, HitH;
         public readonly float BodyHeightUnits; // painted body height, for the HP bar (web bodyHeight px / 8)
@@ -15,6 +19,8 @@ namespace ZenoniaProto
         public float RenderScale = 1f;         // boss draws larger (web renderScale)
         public bool Stationary;                // web stationaryUntilAggro: waits at its post until the hero comes close
         public bool IsBoss;
+        public bool IsWanted;                  // daily Wanted Boss (event raid boss): behaves like a boss (HP bar, stationary, no shoving) but is not the map boss: no boss flags, own respawn clock (WantedBossSpawn)
+        public int WalkCellPx = 192, AttackCellPx = 256; // sheet cell sizes; event bosses draw 384 / 512 cells at doubled pixels per unit (Monster.LoadSheets)
         public string FallbackSheet;           // existing sheet drawn (tinted) until Resources/Sprites/monsters/<Sheet>.png lands; see Monster.LoadSheets
         public Color FallbackTint = Color.white;
 
@@ -22,7 +28,7 @@ namespace ZenoniaProto
             float attackRange = 12f, float windupMs = 350f, float cooldownMs = 1200f, float hitW = 12f, float hitH = 10f, float bodyHeightPx = 152f)
         {
             // Farm balance: double health for every monster, including bosses, on both authority and client.
-            Name = name; Sheet = sheet; Hp = hp * 2f; Atk = atk; Def = def; Speed = speed; ItemLevel = itemLevel;
+            Name = name; Sheet = sheet; hpBase = hp * 2f; Atk = atk; Def = def; Speed = speed; ItemLevel = itemLevel;
             AggroRange = aggro; LeashRange = leash; AttackRange = attackRange; WindupMs = windupMs; CooldownMs = cooldownMs;
             HitW = hitW; HitH = hitH;
             BodyHeightUnits = bodyHeightPx / GameConfig.FramePpu;
@@ -90,8 +96,23 @@ namespace ZenoniaProto
         public static readonly MonsterDef FrostBear = new MonsterDef("Frost Bear", "frostBear", 186f, 28f, 8f, 32f, 5, aggro: 55f, attackRange: 18f, windupMs: 600f, cooldownMs: 1500f, hitW: 22f, hitH: 14f, bodyHeightPx: 178f)
             { RenderScale = 1.15f };
 
+        // Daily Wanted Bosses (event raid bosses, WantedBoss.Rotation): big stationary monsters hit by many players at once, so HP is FIXED (never scales with the player count).
+        // One table to tune: HP = WantedHpFactor x the map boss of the level band (ctor input, so the farm x2 applies to both: King 580 -> 17400 declared), Atk = WantedAtkFactor x that boss,
+        // drawn WantedRenderScale (about 3 hero bodies: 164 px of a 192 cell = 20.5 units, 3 x = 61.5 = a 170 px boss body x 2.9) with a hit box and reach to match. Art lands later as
+        // Sprites/monsters/<type>.png (4x4 cells of 384) + <type>-attack.png (4x4 cells of 512, feet 448 px down); until then the map boss's sheet is drawn tinted.
+        public const float WantedHpFactor = 30f, WantedAtkFactor = 1.5f, WantedRenderScale = 4.5f, WantedHitW = 78f, WantedHitH = 45f, WantedAttackRange = 66f; // 4.5 hero bodies since 2026-11-12 (user: 3 was still too small); hit box and reach grew with it
+        static MonsterDef Wanted(string name, string sheet, MonsterDef basis, int itemLevel, Color tint)
+        {
+            return new MonsterDef(name, sheet, basis.hpBase / 2f * WantedHpFactor, basis.Atk * WantedAtkFactor, basis.Def, basis.Speed, itemLevel, aggro: 110f, leash: 160f,
+                attackRange: WantedAttackRange, windupMs: 800f, cooldownMs: 1800f, hitW: WantedHitW, hitH: WantedHitH, bodyHeightPx: 164f)
+                { RenderScale = WantedRenderScale, Stationary = true, IsBoss = true, IsWanted = true, WalkCellPx = 384, AttackCellPx = 512, FallbackSheet = "frostfangKing", FallbackTint = tint };
+        }
+        public static readonly MonsterDef RimeclawTyrant = Wanted("Rimeclaw Tyrant", "rimeclawTyrant", FrostfangKing, 10, new Color(0.75f, 0.9f, 1f));
+        public static readonly MonsterDef GlacialColossus = Wanted("Glacial Colossus", "glacialColossus", GlacierWarden, 25, new Color(0.4f, 0.65f, 1f));
+        public static readonly MonsterDef MireHydraQueen = Wanted("Mire Hydra Queen", "mireHydraQueen", MirefangHydra, 40, new Color(0.45f, 0.95f, 0.5f));
+
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
-        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear };
+        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear, RimeclawTyrant, GlacialColossus, MireHydraQueen };
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -123,6 +144,9 @@ namespace ZenoniaProto
                 case "snowFox": return SnowFox;
                 case "iceImp": return IceImp;
                 case "frostBear": return FrostBear;
+                case "rimeclawTyrant": return RimeclawTyrant;
+                case "glacialColossus": return GlacialColossus;
+                case "mireHydraQueen": return MireHydraQueen;
                 default: return null;
             }
         }

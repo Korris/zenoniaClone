@@ -251,6 +251,7 @@ namespace ZenoniaProto
             here[c.CharacterId] = p;
             p.Rpg.ExpGained += (exp, levels, at) => { if (levels > 0) RequestSave(p); };
             p.Rpg.BossKilled += () => RequestSave(p);
+            p.Rpg.WantedClaimed += (r, def, day) => { if (r.Ok) RequestSave(p); }; // the claim day and the reward are written together, at once
             p.Rpg.LootPicked += (e, r) => { if (r.Ok && e.Kind == LootKind.Equipment && e.Item != null && e.Item.rarity == "epic") RequestSave(p); };
             if (c.KeptPath != null)
             {

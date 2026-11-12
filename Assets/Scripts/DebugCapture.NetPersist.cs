@@ -186,6 +186,8 @@ namespace ZenoniaProto
                     break;
                 }
                 case "actions": yield return AccountActions(); break;
+                case "wanted-kill": yield return WantedKill(); break;
+                case "wanted-board": yield return WantedBoard(); break;
                 case "show":
                     yield return new WaitForSeconds(1f);
                     P("final " + PersistLine());

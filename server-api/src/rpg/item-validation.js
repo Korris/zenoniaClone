@@ -52,6 +52,9 @@ export const stateSchema = z
       state: z.number().int().min(1).max(3),
       progress: z.number().int().min(0).max(MAX_INT),
     })).max(64).default([]),
+    // SaveData.wantedDay (PlayerState.WantedDay): WantedBoss.DayKey of the last daily Wanted Boss claim, 0 = never. Absent in old saves = 0.
+    // Listed so the strip above keeps it: without it every relog would allow a new claim. rpg/wanted-day.js stops it going backwards.
+    wantedDay: z.number().int().min(0).max(1_000_000).default(0),
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
     // Skill tree (SaveData.skillRanks / skillSlots): ranks by tree index, magazine slot -> tree index or -1. Absent in old saves = nothing learned.

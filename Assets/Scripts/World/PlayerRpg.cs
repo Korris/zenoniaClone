@@ -30,6 +30,8 @@ namespace ZenoniaProto
         public event Action PetWornOut;
         /// <summary>A quest moved: accepted, a kill counted, handed in.</summary>
         public event Action QuestChanged;
+        /// <summary>A Wanted Boss claim was tried (result, boss, day key). Ok = paid and WantedDay set; failed = already claimed that day.</summary>
+        public event Action<ActionResult, WantedBossDef, int> WantedClaimed;
 
         public PlayerRpg(PlayerState state) { State = state; }
 
@@ -52,6 +54,15 @@ namespace ZenoniaProto
             if (!State.Quests.CountKill(monsterType)) return;
             if (QuestChanged != null) QuestChanged();
             Touch();
+        }
+
+        /// <summary>Authority only: pays today's Wanted Boss reward once per day (PlayerState.ClaimWanted) and tells the listeners.</summary>
+        public ActionResult ClaimWanted(WantedBossDef def, int dayKey)
+        {
+            ActionResult r = State.ClaimWanted(dayKey, def);
+            if (r.Ok) Touch();
+            if (WantedClaimed != null) WantedClaimed(r, def, dayKey);
+            return r;
         }
 
         ActionResult QuestStep(ActionResult r)

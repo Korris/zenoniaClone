@@ -127,7 +127,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>`crowd`: fight the monster nearest to the hero with the most others around it (crowd readability captures put the camera hero inside the pack).</summary>
-        void EnableNavBot(bool boss, Vector2 offset, bool cycleSkills = false, bool crowd = false)
+        void EnableNavBot(bool boss, Vector2 offset, bool cycleSkills = false, bool crowd = false, bool wantedBoss = false)
         {
             int slot = 0;
             foreach (char c in NetLaunchArgs.Name ?? "") slot = slot * 7 + c;
@@ -145,7 +145,8 @@ namespace ZenoniaProto
                 if (hero == null || hero.IsDead) return;
                 HeroController pack = crowd ? DensestHero(hero) : null;
                 Vector2 from = pack != null ? pack.Position : hero.Position; // crowd: the monster the pack is fighting
-                Monster target = boss && Monster.Boss != null && !Monster.Boss.IsDying ? Monster.Boss : null;
+                Monster bossTarget = wantedBoss ? Monster.Wanted : Monster.Boss; // wantedBoss: the daily event boss instead of the map boss
+                Monster target = boss && bossTarget != null && !bossTarget.IsDying ? bossTarget : null;
                 float best = target != null ? 0f : float.MaxValue;
                 if (target == null)
                     foreach (Monster m in Monster.All)
@@ -156,7 +157,7 @@ namespace ZenoniaProto
                     }
                 if (target == null) { move = StepToward(hero.Position, PatrolSpot(slot)); return; }
                 float dist2 = Vector2.Distance(target.Center, hero.Position);
-                if (dist2 < 90f && (dist2 < 30f || HasLineOfSight(hero.Position, target.Center))) Think(hero, offset, ref move, ref attack, boss);
+                if (dist2 < 90f && (dist2 < 30f || HasLineOfSight(hero.Position, target.Center))) Think(hero, offset, ref move, ref attack, boss, wantedBoss);
                 else move = StepToward(hero.Position, target.Feet);
                 if (move == Vector2.zero && !attack) move = StepToward(hero.Position, PatrolSpot(slot)); // stuck: shake loose toward a patrol spot
             };

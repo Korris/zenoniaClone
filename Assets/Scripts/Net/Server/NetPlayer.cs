@@ -86,6 +86,7 @@ namespace ZenoniaProto
             };
             Rpg.Revived += lost => { if (lost > 0) NetEventBus.Toast(Hero, "You were defeated: -" + lost + " EXP", new Color(1f, 0.5f, 0.45f)); };
             Rpg.BossKilled += OnBossKilled;
+            Rpg.WantedClaimed += OnWantedClaimed;
             Rpg.PetLow += () => NetEventBus.Toast(Hero, PetConfig.LowText, new Color(1f, 0.75f, 0.35f));
             Rpg.PetWornOut += () =>
             {
@@ -94,6 +95,16 @@ namespace ZenoniaProto
                 LastRpgSentMs = -10000f; // the owner gets the new state now, not at the next push
                 if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(this); // written at once, so it cannot come back after a crash
             };
+        }
+
+        /// <summary>Daily Wanted Boss claim. Paid: the owner gets the new state now (the client shows it from WantedDay; ZonePersistence writes it at once). Refused: only a toast, nothing changed.</summary>
+        void OnWantedClaimed(ActionResult r, WantedBossDef def, int dayKey)
+        {
+            if (!r.Ok) { NetEventBus.Toast(Hero, r.Text, new Color(1f, 0.75f, 0.35f)); return; }
+            RpgDirty = true;
+            LastRpgSentMs = -10000f;
+            if (NetStats.Current != null) NetStats.Current.Add("wantedClaims", 1);
+            Debug.Log("[ZenoniaProto] wanted: " + (Saved != null ? Saved.Id : Hero != null ? Hero.PlayerName : "?") + " claimed " + def.BossType + " day " + dayKey + ": " + r.Text);
         }
 
         /// <summary>Same rule as RpgSession offline, per hero: this hero hit the boss, so the gate is open for it; the client learns from the next RpgState (pushed at once).</summary>

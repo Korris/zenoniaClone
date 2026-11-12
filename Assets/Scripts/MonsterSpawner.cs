@@ -35,6 +35,7 @@ namespace ZenoniaProto
                     if (!spawner.SpawnInZone(z, 0f)) Debug.LogWarning("[ZenoniaProto] no free spot for a " + zone.Type + " in " + spawner.mapId + " zone " + z + " (the rect may not fit the map's tiles)");
             }
             spawner.SpawnBoss();
+            WantedBossSpawner.Attach(go, Zone.Main, spawner.mapId); // online event boss of the day, if it stands on this map
         }
 
         /// <summary>Places the map's boss at its home tile (no-op while a living boss exists or on a map without a boss).</summary>

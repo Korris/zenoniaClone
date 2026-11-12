@@ -1,6 +1,7 @@
 import { ApiError, parse } from '../errors.js';
 import { applyOps } from '../rpg/inventory-ops.js';
 import { attemptEnhance, findDurabilityTamper, findEnhanceTamper } from '../rpg/enhance-logic.js';
+import { keepWantedDay } from '../rpg/wanted-day.js';
 import { endSessionSchema, enhanceSchema, opsRequestSchema, redeemSchema, saveSchema, tradeCommitSchema } from '../schemas.js';
 
 /** Zone-server routes, guarded by the shared service key (x-service-key). Every write needs the session lock + the current rev. */
@@ -12,6 +13,8 @@ export function internalRoutes(app, { cfg, characters, tickets, guards, rand }) 
     const pet = findDurabilityTamper(oldState, newState);
     if (pet) throw new ApiError(422, 'durability_tamper', `Pet ${pet} carries more durability than the API has stored`);
   };
+  // Guard for save and trade: reject tampering, then keep the Wanted Boss claim day from going backwards.
+  const stateGuard = (oldState, newState) => { noEnhanceTamper(oldState, newState); keepWantedDay(oldState, newState); };
 
   // Consumes the ticket, takes the one-session lock and returns the character to load.
   app.post('/internal/tickets/redeem', opts, async (req) => {
@@ -24,13 +27,13 @@ export function internalRoutes(app, { cfg, characters, tickets, guards, rand }) 
   // Periodic / event snapshot (level-up, rare drop, zone change, logout). Returns the new rev.
   app.post('/internal/characters/:id/save', opts, async (req) => {
     const { sessionId, rev, state } = parse(saveSchema, req.body);
-    return characters.save(req.params.id, sessionId, rev, state, noEnhanceTamper);
+    return characters.save(req.params.id, sessionId, rev, state, stateGuard);
   });
 
   // One trade: both characters change together or not at all. Retrying a tradeId is safe.
   app.post('/internal/trades/commit', opts, async (req) => {
     const { tradeId, a, b } = parse(tradeCommitSchema, req.body);
-    return characters.commitTrade(tradeId, a, b, noEnhanceTamper);
+    return characters.commitTrade(tradeId, a, b, stateGuard);
   });
 
   // Atomic batch of inventory / equipment / currency changes (e.g. rare drop pickup, potion purchase).

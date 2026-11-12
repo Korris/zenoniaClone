@@ -10,6 +10,7 @@ namespace ZenoniaProto
 
         public bool IsAirborne { get { return airborneLeft > 0f; } }
         public bool IsBoss { get { return def.IsBoss; } }
+        public bool IsWanted { get { return def.IsWanted; } }
 
         /// <summary>Earth Break: throws the monster into the air for 1.5 s (AI paused). The boss is immune. Returns true when launched.</summary>
         public bool Launch()

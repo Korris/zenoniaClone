@@ -57,7 +57,7 @@ and **Frost Hollow** (the battle map). `Maps/IGameMap` + `Maps/TileMapBase` hold
 walking onto one fades out, swaps the map (`Maps/MapTransfer`) and fades in with the same hero. New offline characters start in the village; a save
 resumes on the map it was saved on. Online a dedicated server hosts every map of `MapRegistry` as its own `Zone` (`World/ZoneHost`): heroes begin on Frost Hollow, the server decides when
 feet are on a portal tile (`Net/Server/ZoneTransferService`), a boss gate is per hero, zones without heroes are paused, and a client rebuilds the map behind the same fade; villagers are drawn
-client side and only chat (quests stay offline). A dev host still runs one zone, Frost Hollow, without portals or villagers. Registering a map in `MapRegistry` is all it takes to play it online.
+client side; most only chat, quest givers run their quests on the zone (QuestAccept / QuestTurnIn), and Guard Rook (Oakhaven) and Leila (Sunspire) open the daily Wanted Boss board online (the event boss of the day, one reward per hero per day, paid by the zone to everyone who took part in the kill). A dev host still runs one zone, Frost Hollow, without portals or villagers. Registering a map in `MapRegistry` is all it takes to play it online.
 Launch arg `--map frost-hollow|oakhaven-village` picks the start map (capture / bot runs default to Frost Hollow; on a server, the zone new heroes begin in). Village art: `Resources/Sprites/village/`
 (ground + portal in `tiles/`, props, NPC idle sheets + faces), copied from the web `Assets/hd/`.
 
@@ -84,7 +84,7 @@ Die -> respawn at the entrance after 1.4 s.
 
 **In-game windows** (`WindowsHost.cs`, art `Sprites/ui/win-*`): top-centre toast banner (`NotificationToast`, `RpgHud.Toast`), NPC dialogue strip with typewriter
 (`NpcDialogueBox`), quest offer window (`QuestOfferWindow`), local-only chat (`ChatWindow` / `ChatHub`, `IChatTransport` is the network seam; collapsed by default on phones).
-Elder Thomas (`ElderNpc`) offers "Ancient Crystal Survey" (defeat 5 Frost Slimes, reward 150 G + 3 stones + 2 HP potions; `QuestTracker`, in memory, offline only).
+Elder Thomas (`ElderNpc`) offers "Ancient Crystal Survey" (defeat 5 Frost Slimes, reward 150 G + 3 stones + 2 HP potions; `QuestTracker`; offline in the local save, online the zone owns the quest state and saves it with the character).
 While a window owns the keyboard `UiWindows.BlocksGameplay` makes `InputAdapter` drop the hero's keys.
 
 **Minimap** (`Minimap.cs`): top-right under Bag and Settings, the map's painted ground scaled down with dots for the hero, monsters, boss, other players and, offline, villagers and portals.

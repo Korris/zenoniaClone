@@ -22,6 +22,8 @@ namespace ZenoniaProto
         public static int Kills { get { return Zone.Main != null ? Zone.Main.Kills : 0; } }
         /// <summary>The current map's living boss (HUD boss bar), or null.</summary>
         public static Monster Boss { get { return Zone.Main != null ? Zone.Main.Boss : null; } }
+        /// <summary>The living daily Wanted Boss of this map (online only), or null.</summary>
+        public static Monster Wanted { get { return Zone.Main != null ? Zone.Main.Wanted : null; } }
         public static void ResetStatics() { Zone.ResetMain(); }
 
         MonsterDef def;
@@ -73,7 +75,7 @@ namespace ZenoniaProto
                 zone.Monsters.Add(m);
                 if (asProxy) { m.NetId = netId; zone.Ids.Register(netId, m); }
                 else m.NetId = zone.Ids.Alloc(m);
-                if (definition.IsBoss) zone.Boss = m;
+                if (definition.IsWanted) zone.Wanted = m; else if (definition.IsBoss) zone.Boss = m; // the event boss never takes the map boss's slot
             }
             if (!asProxy && definition.IsBoss) NetEventBus.BossSpawned(m);
             return m;
@@ -111,6 +113,7 @@ namespace ZenoniaProto
             zone.Monsters.Remove(this);
             zone.Ids.Release(NetId, zone.TimeMs);
             if (zone.Boss == this) zone.Boss = null;
+            if (zone.Wanted == this) zone.Wanted = null;
         }
 
         /// <summary>The zone slept for `ms`: a corpse finished fading meanwhile. The living stay as they were (they would have been dormant without a hero anyway).</summary>

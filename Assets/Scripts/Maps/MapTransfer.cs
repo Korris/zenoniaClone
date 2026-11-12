@@ -107,7 +107,7 @@ namespace ZenoniaProto
             for (int i = z.Loot.Count - 1; i >= 0; i--) if (z.Loot[i] != null) Destroy(z.Loot[i].gameObject);
             DeployedTurret.ClearZone(z);
             if (z.Spawner != null) Destroy(z.Spawner.gameObject);
-            z.Spawner = null; z.Boss = null;
+            z.Spawner = null; z.Boss = null; z.Wanted = null; z.WantedSpawner = null; z.WantedTimer.Cancel();
             z.Monsters.Clear(); z.Loot.Clear();
             z.BossTimer.Cancel();
         }

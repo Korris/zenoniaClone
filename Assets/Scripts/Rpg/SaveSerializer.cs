@@ -21,6 +21,7 @@ namespace ZenoniaProto.Rpg
         public List<int> skillSlots = new List<int>(); // 8 magazine slots: tree index or -1
         public List<string> defeatedBossMaps = new List<string>(); // map ids whose boss this save killed (the Frostfang King stays in bossDefeated); missing in old saves = none
         public List<QuestEntry> quests = new List<QuestEntry>(); // quests taken so far (QuestLog); missing in old saves = none taken
+        public int wantedDay; // WantedBoss.DayKey of the last Wanted Boss claim (PlayerState.WantedDay); missing in old saves = 0 = never
     }
 
     /// <summary>
@@ -36,7 +37,7 @@ namespace ZenoniaProto.Rpg
         public const int LegacyFrostHollowRows = 24;
         const float TileUnits = 16f;
         public const string MapId = "frostHollow";
-        const int MaxBossMaps = 32, MaxMapIdLength = 32; // same limits as the server-api schema, which rejects the whole save otherwise
+        const int MaxBossMaps = 32, MaxMapIdLength = 32, MaxWantedDay = 1_000_000; // same limits as the server-api schema, which rejects the whole save otherwise
 
         public static SaveData Capture(PlayerState p, bool hasPosition, float x, float y, bool bossDefeated, long savedAt = 0, string mapId = null, List<string> defeatedBossMaps = null)
         {
@@ -52,6 +53,7 @@ namespace ZenoniaProto.Rpg
             d.skillRanks = p.Skills.ToList(); d.skillSlots = p.Loadout.ToList();
             if (defeatedBossMaps != null) d.defeatedBossMaps.AddRange(defeatedBossMaps);
             d.quests = p.Quests.ToList();
+            d.wantedDay = p.WantedDay;
             return d;
         }
 
@@ -95,6 +97,7 @@ namespace ZenoniaProto.Rpg
             foreach (string m in raw.defeatedBossMaps ?? new List<string>())
                 if (IsMapId(m) && !d.defeatedBossMaps.Contains(m) && d.defeatedBossMaps.Count < MaxBossMaps) d.defeatedBossMaps.Add(m);
             d.quests = QuestLog.Sanitize(raw.quests);
+            d.wantedDay = RpgMath.Clamp(raw.wantedDay, 0, MaxWantedDay);
             return d;
         }
 
@@ -123,6 +126,7 @@ namespace ZenoniaProto.Rpg
             p.EquipStarterGear();
             p.Skills.Load(d.skillRanks, d.level); p.Loadout.Load(d.skillSlots, p.Skills);
             p.Quests.Load(d.quests);
+            p.WantedDay = d.wantedDay;
             p.RecomputeStats();
             p.Hp = Math.Min(p.MaxHp, d.hp > 0f ? d.hp : p.MaxHp); // never load a dead hero
             p.Mp = Math.Min(p.MaxMp, d.mp > 0f ? d.mp : p.MaxMp);

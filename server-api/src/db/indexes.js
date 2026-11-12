@@ -5,6 +5,7 @@
  *  password_resets{_id=sha256(token), userId, createdAt, expiresAt(TTL)}
  *  characters{userId, classId, nameLower uniq, rev, state(SaveData shape), session, recentOps}; an account may hold several heroes of one
  *    class (2026-11-12: the old unique (userId, classId) index is dropped at boot), the count is capped in character-service (MAX_CHARACTERS)
+ *    state.wantedDay: WantedBoss.DayKey of the last daily Wanted Boss claim (0 = never); kept from going backwards by rpg/wanted-day.js, no index
  *  tickets{_id=sha256(ticket), characterId, userId, expiresAt(TTL)}
  *  ledger{characterId, reqId, type, ...} audit trail of economy ops; a trade entry carries a unique tradeId, which is what makes a commit idempotent
  */
