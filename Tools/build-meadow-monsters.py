@@ -47,10 +47,45 @@ MONSTERS = {
 }
 FROST_IDS = {"snowFox", "iceImp", "frostBear", "iceWraith", "frostbiteYeti", "crystalGolem"}
 
+# World Map 2.1 monsters (13/11/2026): id -> source folder under Assets/ArtLibrary/monsters. These sheets carry a baked dark purple ground shadow
+# (same hue as the #FF00FF key, only darker). The game draws its own shadow under every monster (Monster.cs), so the baked one is removed (DROP_SHADOW);
+# for the flyers its centre is first taken as the ground point, so the body keeps its hover height above the feet line (FLYERS).
+MONSTERS.update({
+    "forestWolf": ("forest-wolf", 140, "Lv7"),
+    "thornSprite": ("thorn-sprite", 130, "Lv9, flyer"),
+    "thornfangAlpha": ("thornfang-alpha", 185, "Lv10 map boss"),
+    "thornheartTreant": ("thornheart-treant", 188, "Lv10 dungeon boss"),
+    "highlandIbex": ("highland-ibex", 168, "Lv16"),
+    "dustscaleLizard": ("dustscale-lizard", 120, "Lv17"),
+    "cliffHarpy": ("cliff-harpy", 150, "Lv18, flyer"),
+    "stonebackGuardian": ("stoneback-guardian", 185, "Lv20"),
+    "ridgehornBehemoth": ("ridgehorn-behemoth", 185, "Lv20 map boss"),
+})
+WORLD2_DIRS = {
+    "forestWolf": "bramblewood", "thornSprite": "bramblewood", "thornfangAlpha": "bramblewood", "thornheartTreant": "rootburrow",
+    "highlandIbex": "sunbreak", "dustscaleLizard": "sunbreak", "cliffHarpy": "sunbreak", "stonebackGuardian": "sunbreak", "ridgehornBehemoth": "sunbreak",
+}
+DROP_SHADOW = set(WORLD2_DIRS)
+FLYERS = {"thornSprite", "cliffHarpy"}
+WORLD2_VIS_DIR = os.path.join(ROOT, "plans", "visuals", "world2-monsters")
+
 
 # ---------------------------------------------------------------- keying
-def key_magenta(path):
-    """RGB on #FF00FF -> float RGBA (0..1, straight alpha). Alpha from the magenta excess min(R,B)-G (255 on the background, <=30 on any art here),
+def shadow_mask(px):
+    """Baked ground shadow: pixels on the magenta hue line (R ~ B, G ~ 0) but darker than the background."""
+    r, g, b = px[..., 0], px[..., 1], px[..., 2]
+    hi = np.maximum(r, b)
+    core = (hi > 0.18) & (hi < 0.86) & ((np.minimum(r, b) - g) > 0.55 * hi) & (np.abs(r - b) < 0.25 * hi)   # Stoneback shadow is a greyer (150,30,130)
+    # only real blobs (a shadow ellipse is thousands of px); single dark-purple outline pixels of the art stay
+    lab, n = ndimage.label(core)
+    if n:
+        sizes = ndimage.sum(core, lab, index=np.arange(1, n + 1))
+        core = np.isin(lab, 1 + np.where(sizes >= 60)[0])
+    return core
+
+
+def key_magenta(path, drop_shadow=False):
+    """RGB on #FF00FF -> float RGBA (0..1, straight alpha). With drop_shadow returns (rgba, removed shadow mask). Alpha from the magenta excess min(R,B)-G (255 on the background, <=30 on any art here),
     colour unmixed from the background (P = a*C + (1-a)*M) so edge pixels lose their pink fringe."""
     px = np.asarray(Image.open(path).convert("RGB"), dtype=np.float32) / 255.0
     r, g, b = px[..., 0], px[..., 1], px[..., 2]
@@ -67,6 +102,11 @@ def key_magenta(path):
     for ch in (0, 2):
         rgb[..., ch] = np.where(spill, np.minimum(rgb[..., ch], cap), rgb[..., ch])
     a = np.where(a < 0.04, 0.0, a)
+    shadow = None
+    if drop_shadow:
+        shadow = shadow_mask(px)
+        ring = ndimage.binary_dilation(shadow, iterations=4) & (a < 0.45)   # faint dark ring left where the shadow fades into the background
+        a = np.where(shadow | ring, 0.0, a)
     # drop stray specks (JPEG-like noise) but keep thin swoosh lines: components under 25 px that touch nothing big
     lab, n = ndimage.label(ndimage.binary_dilation(a > 0.3, iterations=2))
     if n:
@@ -75,7 +115,8 @@ def key_magenta(path):
             if s < 25:
                 a[lab == i] = 0.0
     rgb = rgb * (a > 0)[..., None]
-    return np.dstack([rgb, a]).astype(np.float32)
+    out = np.dstack([rgb, a]).astype(np.float32)
+    return (out, shadow) if drop_shadow else out
 
 
 # ---------------------------------------------------------------- splitting
@@ -114,8 +155,9 @@ def split_cells(rgba):
     return boxes
 
 
-def extract(rgba, box):
-    """Crop a cell and return (crop, bbox_of_all, body_cx) where body_cx is the x centre of the largest blob (the creature, not the swoosh lines)."""
+def extract(rgba, box, ground_mask=None):
+    """Crop a cell and return (crop, bbox_of_all, body_cx) where body_cx is the x centre of the largest blob (the creature, not the swoosh lines).
+    ground_mask (flyers): the removed baked shadow; its centre row in this cell is the ground, so "bottom" is that row instead of the body's lowest row."""
     y0, y1, x0, x1 = box
     cell = rgba[y0:y1, x0:x1]
     mask = cell[..., 3] > 0.3
@@ -128,9 +170,15 @@ def extract(rgba, box):
     mys, mxs = np.where(main & mask)
     crop = cell[ys.min():ys.max() + 1, xs.min():xs.max() + 1].copy()
     ox, oy = xs.min(), ys.min()
+    bottom = float(mys.max() + 1)
+    if ground_mask is not None:
+        gys = np.where(ground_mask[y0:y1, x0:x1])[0]
+        if len(gys) < 60:
+            raise ValueError("flyer cell %s has no baked shadow to anchor on" % (box,))
+        bottom = max(bottom, float(np.median(gys)))
     return {
         "img": crop,
-        "bottom": float(mys.max() + 1),   # main blob's lowest row, cell coordinates
+        "bottom": bottom,                 # main blob's lowest row (flyers: the ground under it), cell coordinates
         "main_cx": float((mxs.min() + mxs.max() + 1) / 2 - ox),  # in crop coordinates
         "main_h": float(mys.max() - mys.min() + 1),
         "ox": ox, "oy": oy,
@@ -158,7 +206,7 @@ def fit_scale(walk, atk, target_h, cell_w, cell_h):
     cap = s
     for frames, cw, ch in ((walk, cell_w, WALK_CELL), (atk, ATK_CELL, ATK_FEET)):
         for f in frames:
-            cap = min(cap, (cw - 2 * MARGIN) / f["w"], (ch - MARGIN) / f["h"])
+            cap = min(cap, (cw - 2 * MARGIN) / f["w"], (ch - MARGIN) / max(f["h"], f["bottom"] - f["oy"]))
     return s, cap
 
 
@@ -211,7 +259,8 @@ def on_bg(img, color, zoom=1):
 
 
 def write_previews(mid, walk_img, atk_img):
-    os.makedirs(VIS_DIR, exist_ok=True)
+    vis_dir = WORLD2_VIS_DIR if mid in WORLD2_DIRS else VIS_DIR
+    os.makedirs(vis_dir, exist_ok=True)
     dark, light = (30, 32, 40, 255), (232, 236, 228, 255)
     parts = []
     for img in (walk_img, atk_img):
@@ -220,7 +269,7 @@ def write_previews(mid, walk_img, atk_img):
     sheet = Image.new("RGBA", (w * 2 + 30, max(walk_img.height, atk_img.height) + 0), (90, 90, 90, 255))
     sheet.paste(parts[0], (0, 0)); sheet.paste(parts[2], (walk_img.width + 10, 0))
     sheet.paste(parts[1], (w + 20, 0)); sheet.paste(parts[3], (w + 20 + walk_img.width + 10, 0))
-    sheet.convert("RGB").save(os.path.join(VIS_DIR, "meadow-%s-preview.png" % mid))
+    sheet.convert("RGB").save(os.path.join(vis_dir, "meadow-%s-preview.png" % mid))
 
 
 def hero_idle_down():
@@ -257,22 +306,31 @@ def write_scale_compare(done):
             sheet.alpha_composite(im, (x, 20)); x += 192
         d.text((x - 192 * (2 if right is not None else 1) + 4, 4), name, fill=(255, 255, 255, 255))
     d.line([(0, 20 + 192), (W, 20 + 192)], fill=(255, 255, 0, 255))
-    os.makedirs(VIS_DIR, exist_ok=True)
-    sheet.convert("RGB").save(os.path.join(VIS_DIR, "meadow-scale-compare.png"))
+    vis_dir = WORLD2_VIS_DIR if all(m in WORLD2_DIRS for m in done) else VIS_DIR   # a World Map 2.1 run must not overwrite the meadow line-up
+    os.makedirs(vis_dir, exist_ok=True)
+    sheet.convert("RGB").save(os.path.join(vis_dir, "meadow-scale-compare.png"))
 
 
 # ---------------------------------------------------------------- main
 def build(mid):
     stem, target_h, note = MONSTERS[mid]
     src_dir = FROST_DIR if mid in FROST_IDS else SRC_DIR
+    if mid in WORLD2_DIRS:
+        src_dir = os.path.join(ROOT, "Assets", "ArtLibrary", "monsters", WORLD2_DIRS[mid])
     wp = os.path.join(src_dir, stem + "-walk-chatgpt.png")
     ap = os.path.join(src_dir, stem + "-attack-chatgpt.png")
     if not (os.path.exists(wp) and os.path.exists(ap)):
         return False
     print("%s (%s)" % (mid, note))
-    wk, ak = key_magenta(wp), key_magenta(ap)
-    walk = [extract(wk, b) for b in split_cells(wk)]
-    atk = [extract(ak, b) for b in split_cells(ak)]
+    if mid in DROP_SHADOW:
+        (wk, wsh), (ak, ash) = key_magenta(wp, True), key_magenta(ap, True)
+        print("  baked shadow removed: walk %d px, attack %d px" % (int(wsh.sum()), int(ash.sum())))
+        if mid not in FLYERS:
+            wsh = ash = None
+    else:
+        wk, ak, wsh, ash = key_magenta(wp), key_magenta(ap), None, None
+    walk = [extract(wk, b, wsh) for b in split_cells(wk)]
+    atk = [extract(ak, b, ash) for b in split_cells(ak)]
     want, cap = fit_scale(walk, atk, target_h, WALK_CELL, ATK_CELL)
     scale = min(want, cap)
     med_h = np.median([f["main_h"] for f in walk]) * scale

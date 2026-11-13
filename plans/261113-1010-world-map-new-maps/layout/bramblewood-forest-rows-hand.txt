@@ -1,0 +1,24 @@
+# Bramblewood Forest 36x24, hand-classified from visuals/bramble-grid (ground-only painting). One line per row that has open tiles:
+# "<row>: <char><from>-<to> ..." ; every tile not listed is T (forest ring, trunks, cliff, HUD rows 21-23). g grass, d road, B bridge, w stream (solid).
+# The east road end (cols 34-35, rows 12-13) is left T on purpose: no destination in World Map 2.1.
+0: d17-18
+1: g16 d17-18 g19
+2: g13-16 d17-18 g19
+3: g6-16 d17-18 g19-24 w25-26
+4: g5-23 w24-26
+5: g6-21 w22-25 g26-29
+6: g5-20 w21-23 g24-32
+7: g4-19 w20-22 g23-32
+8: g4-19 w20-21 g22-32
+9: g5-19 w20-22 g23-33
+10: g5-18 w19-22 g23-33
+11: g6-18 w19-21 g22-33
+12: d7-18 B19-21 d22-33
+13: d2-18 B19-21 d22-33
+14: d3-7 g8-14 w15-21 g22-33
+15: g5-12 w13-17 g18-32
+16: g5-11 w12-15 g16-31
+17: g5-10 w11-13 g14-30
+18: g5-8 w9-12 g13-29
+19: w5-11 g12-28
+20: w5-7 g8-27

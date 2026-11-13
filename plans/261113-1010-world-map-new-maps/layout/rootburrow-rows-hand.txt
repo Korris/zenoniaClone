@@ -1,0 +1,16 @@
+# Rootburrow 36x24, hand-classified from visuals/rootburrow-grid. Same format as bramblewood-forest-rows-hand.txt; unlisted = T (root walls, stone rims, rows 17-23).
+# d dirt floor, w pond (solid). Boss arch = (4,3),(5,3); entrance crack = (35,12),(35,13). Middle wall island = cols 12-20, rows 7-11.
+3: d4-5 d15-23
+4: d4-5 d14-23
+5: d3-7 d12-23
+6: d3-7 d11-13 d15-23
+7: d4-6 d10-11 d16-22
+8: d5-6 d10-11 d21-22
+9: d5-6 d9-11 d21-22
+10: d5-12 d21-22
+11: d7-12 d17-23
+12: w3-5 d6-32 d34-35
+13: w3 d4-35
+14: d3-12 d18-25
+15: d3-12 d18-25
+16: d4-12 d18-24

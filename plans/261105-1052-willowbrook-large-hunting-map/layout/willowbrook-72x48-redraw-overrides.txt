@@ -1,0 +1,3 @@
+# Hand edits for the REDRAWN Willowbrook ground (13/11), applied by Tools/build-willowbrook-large-rows.py --redraw after the water is re-read from the painting.
+# x0 y0 x1 y1 char (inclusive tile rect), later lines win.
+20 19 20 19 T   # grass pocket between the old cliff tiles (18-19,19), the wbCliffMid prop (18-20,20) and the narrower stream: no way in, so solid

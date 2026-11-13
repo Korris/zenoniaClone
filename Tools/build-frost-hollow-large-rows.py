@@ -6,8 +6,12 @@ Usage: python Tools/build-frost-hollow-large-rows.py [--overlay]   (reads the ch
    B bridge decks, stairs (grey steps and cobble gaps in cliffs read as C by colour, so every staircase/pass is opened here), cave mouths, cliff islands, opened rims. The ring is forced next: row 0, rows 45-47 (under the HUD), cols 70-71, col 0 from row 22 down.
    Last, walkable tiles not reachable from the start tile (cliff-top plateau, specks) are sealed to C. The Den portal is the ice cave mouth (67-69,20).
  --overlay writes visuals/rows-painted-overlay*.png (gridded, numbered) and prints a flood fill from the start tile (4,21).
+ --redraw (13/11, ground from build-large-ground-from-redraw-quarters.py): the redrawn ground keeps every cliff, stair, bridge and cave where it was, so the
+   rows of FrostHollowLayout.cs are the base and only layout/frost-hollow-72x48-redraw-overrides.txt (same format) is applied on top, then the ring and the
+   flood fill. Output: layout/frost-hollow-72x48-rows-redraw.txt (paste into FrostHollowLayout.Rows); it also prints where the colour classifier of the new
+   painting disagrees with the rows (a hint list for the eye, not applied). --crop x0 y0 x1 y1 name still works (writes visuals/rows-crop-<name>.png).
 """
-import os, sys
+import os, re, sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
@@ -49,9 +53,9 @@ def paste_old_section(rows):
         for x in range(35): rows[y][x] = old[y][x]
 
 
-def apply_overrides(rows):
-    if not os.path.exists(OVERRIDES): return
-    for ln in open(OVERRIDES, encoding="utf8"):
+def apply_overrides(rows, path=OVERRIDES):
+    if not os.path.exists(path): return
+    for ln in open(path, encoding="utf8"):
         ln = ln.split("#")[0].split()
         if len(ln) != 5: continue
         x0, y0, x1, y1 = map(int, ln[:4])
@@ -99,10 +103,28 @@ def overlay(full, rows, seen):
         out.crop((cx * 36 * t, cy * 24 * t, (cx + 1) * 36 * t, (cy + 1) * 24 * t)).save(os.path.join(vis, f"rows-painted-overlay-{n}.png"))
 
 
+def redraw_base(full):
+    cur = re.findall(r'^\s*"([CTwBs]{72})",?\s*$', open(os.path.join(ROOT, "Assets", "Scripts", "Maps", "FrostHollowLayout.cs"), encoding="utf8").read(), re.M)
+    assert len(cur) == R
+    rows = [list(r) for r in cur]
+    auto = classify(full)
+    print("classifier of the redrawn painting vs rows (row: tiles it reads walkable where rows are solid = '+', solid where rows walk = '-'):")
+    for y in range(1, 45):
+        d = "".join("+" if auto[y][x] == "s" and rows[y][x] in "C" else "-" if auto[y][x] == "C" and rows[y][x] in "sB" else "." for x in range(C))
+        if d.strip("."): print("%2d %s" % (y, d))
+    apply_overrides(rows, os.path.join(LAYOUT, "frost-hollow-72x48-redraw-overrides.txt"))
+    return rows
+
+
 if __name__ == "__main__":
-    full = ground(); rows = classify(full)
-    paste_old_section(rows)
-    apply_overrides(rows); force_ring(rows)
+    full = ground()
+    if "--redraw" in sys.argv:
+        rows = redraw_base(full); OUT = os.path.join(LAYOUT, "frost-hollow-72x48-rows-redraw.txt")
+    else:
+        rows = classify(full)
+        paste_old_section(rows)
+        apply_overrides(rows)
+    force_ring(rows)
     seen = flood(rows)
     # walkable tiles nothing connects to (the NE cliff-top plateau with the stone circle, cliff-top specks): solid, so no spawn or prop lands there
     lost = [(x, y) for y in range(R) for x in range(C) if rows[y][x] in "sB" and (x, y) not in seen]

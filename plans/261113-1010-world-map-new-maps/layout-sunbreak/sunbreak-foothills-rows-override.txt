@@ -1,0 +1,97 @@
+# Hand overrides for Tools/build-sunbreak-foothills-rows.py (win over the colour pass). `x y ch` or `x0 y0 x1 y1 ch`, inclusive tile rects, row 0 = top.
+# C cliff / ledge (solid)  w water (solid)  g grass  d dirt road  s stair tread  B bridge deck
+
+# --- frame: top row, west edge (the west road is a dead end), east edge except the road to Sunspire (rows 15-16)
+0 0 47 0 C
+0 0 0 31 C
+47 0 47 14 C
+47 17 47 31 C
+47 15 47 16 d
+
+# --- north-west cliffs and the pocket behind the waterfall ledge
+0 1 3 5 C
+0 6 2 10 C
+3 6 5 6 C
+3 7 4 7 C
+3 8 3 8 C
+12 2 12 2 C
+9 7 9 7 C
+0 11 1 16 C
+2 12 2 12 C
+0 19 1 28 C
+2 21 2 21 C
+2 26 3 27 C
+4 27 4 27 C
+0 28 7 28 C
+
+# --- ledge south of the west field: close it into one run, the gap to the road stays at (10-11,15) and (3,15)
+5 15 6 15 C
+
+# --- west bridge (deck runs SW -> NE): (13,14) (14,14) (14,13) (15,13); pillars and the arch stay solid, the stream beside it is water
+12 14 12 14 C
+13 14 14 14 B
+14 13 15 13 B
+15 14 15 14 C
+14 15 14 16 C
+13 13 13 13 w
+12 15 13 15 d
+
+# --- ice cave (to Frostfang Den): cliff all round, the cave floor row 3 carries the portal, treads rows 4-5, rails solid
+16 0 31 2 C
+16 3 22 3 C
+25 3 28 3 C
+23 3 24 3 d
+23 4 24 5 s
+22 4 22 5 C
+25 4 25 5 C
+23 6 24 6 d
+18 10 18 10 C
+
+# --- east bridge (deck runs SW -> NE): (25,20) (26,20) (26,19) (27,19)
+25 19 25 19 w
+26 19 27 19 B
+25 20 26 20 B
+27 20 27 20 C
+27 21 27 21 w
+26 21 26 21 C
+28 19 28 19 d
+24 21 25 21 d
+
+# --- ledges round the south fields
+27 23 27 23 C
+16 25 16 25 C
+17 21 17 21 C
+
+# --- south road to Frost Hollow: portal row 28 (rows 29-31 are under the HUD)
+20 26 22 28 d
+
+# --- boss plateau (north-east): wall, one staircase at (36-37, 8-9)
+32 1 34 1 C
+38 1 38 1 C
+41 1 47 1 C
+32 2 32 2 C
+46 2 46 14 C
+32 7 33 7 C
+34 7 34 8 C
+35 8 35 8 C
+36 8 37 9 s
+38 8 45 8 C
+38 9 38 9 C
+42 7 45 7 C
+45 6 45 6 C
+42 9 45 9 C
+36 7 37 7 g
+36 10 37 10 d
+
+# --- east side
+38 17 38 17 C
+38 27 38 27 C
+39 28 40 28 C
+
+# --- second pass (after looking at the tinted crops)
+34 26 34 26 w
+30 7 30 7 C
+37 17 37 17 C
+43 17 44 17 C
+44 18 44 18 C
+17 4 18 4 C

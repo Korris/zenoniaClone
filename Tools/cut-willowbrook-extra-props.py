@@ -1,7 +1,9 @@
 """Cuts the extra Willowbrook props (wbx*) from the ChatGPT prop sheet (21 objects on #FF00FF) into Assets/Resources/Sprites/village/props/.
 
-Usage: python Tools/cut-willowbrook-extra-props.py [--check]    (--check writes only the preview sheet on grass to plans/.../visuals)
-Source: Assets/ArtLibrary/hd/map/willowbrook-meadows/large/prop-sheet-chatgpt.png (1536x1024). Keying/despill = build-meadow-monsters.key_magenta.
+Usage: python Tools/cut-willowbrook-extra-props.py [--redraw] [--check]    (--check writes only the preview sheet on grass to plans/.../visuals)
+Source: Assets/ArtLibrary/hd/map/willowbrook-meadows/large/prop-sheet-chatgpt.png (1536x1024); with --redraw the redrawn sheet (13/11, same objects in the same
+places, greener like the redrawn ground) Assets/ArtLibrary/maps/willowbrook-meadows/redraw/willowbrook-large-prop-sheet-redraw-chatgpt-1.png, and the trees keep
+its colours (no grading to the first painting's oaks). Keying/despill = build-meadow-monsters.key_magenta.
 The sheet's objects are ~1.46x bigger than the same kind in the first Willowbrook painting (big oak 372 vs wbOakBig 254 source px), so each prop is
 scaled by SCALE (x1.5 would give 8.7-tile oaks) to land in the 4-7 tile range of the wb* trees. Sprite canvas = like build-willowbrook-props.py:
 width a multiple of 16 centred on the footprint centre, height a multiple of 16, bottom = bottom of the footprint row, content lifted PAD_B px
@@ -14,6 +16,8 @@ from scipy import ndimage as ndi
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 SHEET = os.path.join(ROOT, "Assets/ArtLibrary/hd/map/willowbrook-meadows/large/prop-sheet-chatgpt.png")
+REDRAW = "--redraw" in sys.argv
+if REDRAW: SHEET = os.path.join(ROOT, "Assets/ArtLibrary/maps/willowbrook-meadows/redraw/willowbrook-large-prop-sheet-redraw-chatgpt-1.png")
 OUT = os.path.join(ROOT, "Assets/Resources/Sprites/village/props")
 VIS = os.path.join(ROOT, "plans/261105-1052-willowbrook-large-hunting-map/visuals")
 spec = importlib.util.spec_from_file_location("mm", os.path.join(os.path.dirname(__file__), "build-meadow-monsters.py"))
@@ -21,10 +25,10 @@ mm = importlib.util.module_from_spec(spec); spec.loader.exec_module(mm)
 PAD_B = 16
 T = 64
 # row 1 trees, row 2 bushes + rocks, row 3 stump, log, pillars, walls, reeds, barricade: (name, scale, footprint w, footprint h in tiles)
-ROWS = [
+ROWS = [   # footprints as in VillagePropDefs.cs: bushes, small rocks, stump, log, reeds are walk-through (footprint height 0)
     [("wbxOakBig", 1.10, 1, 1), ("wbxOakMid", 1.10, 1, 1), ("wbxOakSmall", 1.10, 1, 1), ("wbxOakSlim", 1.10, 1, 1), ("wbxPine", 1.10, 1, 1), ("wbxPineSlim", 1.10, 1, 1)],
-    [("wbxBush", 0.85, 1, 1), ("wbxBushWhite", 0.85, 1, 1), ("wbxBushLilac", 0.85, 1, 1), ("wbxBoulder", 1.10, 3, 1), ("wbxRock", 1.10, 2, 1), ("wbxRocks", 1.10, 1, 1), ("wbxRockTiny", 1.10, 1, 1)],
-    [("wbxStump", 1.10, 1, 1), ("wbxLogHollow", 1.10, 3, 1), ("wbxPillarTall", 1.10, 1, 1), ("wbxPillarShort", 1.10, 1, 1), ("wbxWallLow", 1.10, 2, 1), ("wbxWallCorner", 1.10, 2, 1), ("wbxReeds", 1.0, 1, 0), ("wbxBarricade", 1.10, 4, 3)],
+    [("wbxBush", 0.85, 1, 0), ("wbxBushWhite", 0.85, 1, 0), ("wbxBushLilac", 0.85, 1, 0), ("wbxBoulder", 1.10, 3, 1), ("wbxRock", 1.10, 2, 0), ("wbxRocks", 1.10, 1, 0), ("wbxRockTiny", 1.10, 1, 0)],
+    [("wbxStump", 1.10, 1, 0), ("wbxLogHollow", 1.10, 3, 0), ("wbxPillarTall", 1.10, 1, 1), ("wbxPillarShort", 1.10, 1, 1), ("wbxWallLow", 1.10, 2, 1), ("wbxWallCorner", 1.10, 2, 1), ("wbxReeds", 1.0, 1, 0), ("wbxBarricade", 1.10, 4, 3)],
 ]
 
 
@@ -46,7 +50,7 @@ def clean(rgba):
     # shadow: pixels the key called background but that are darker than #FF00FF, near an object
     px = np.asarray(Image.open(SHEET).convert("RGB"), dtype=np.float32) / 255.0
     near = ndi.binary_dilation(solid, iterations=40) & (a < 0.3)
-    dark = np.clip((1.0 - (px[..., 0] + px[..., 2]) / 2.0) * 1.35, 0, 0.5) * (px[..., 1] < 0.25)
+    dark = np.clip((0.97 - (px[..., 0] + px[..., 2]) / 2.0) * 1.35, 0, 0.5)   # 0.97: the sheets' key is (251,3,250), not pure, and must not leave a 2% haze box * (px[..., 1] < 0.25)
     sh = np.where(near, ndi.gaussian_filter(dark, 1.5), 0.0)
     take = sh > a
     rgb = np.where(take[..., None], np.array([0.12, 0.09, 0.05], np.float32), rgb)
@@ -124,7 +128,7 @@ def main():
     for row, boxes in zip(ROWS, groups):
         for (name, sc, fw, fh), box in zip(row, boxes):
             img = cut(rgba, box, sc, fw)
-            if name.startswith(("wbxOak", "wbxPine", "wbxBush")): img = grade_to_old_oaks(img, ref)
+            if not REDRAW and name.startswith(("wbxOak", "wbxPine", "wbxBush")): img = grade_to_old_oaks(img, ref)
             sprites.append((name, img, fw, fh))
     os.makedirs(VIS, exist_ok=True)
     if "--check" not in sys.argv:

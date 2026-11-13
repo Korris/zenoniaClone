@@ -1,0 +1,11 @@
+# Thornheart Chamber 24x16 (64 px per tile in the painting), hand-classified from visuals/chamber-grid.png. Unlisted = T (root wall, stone rim, HUD rows 13-15).
+# The arch is painted in rows 12-14 (under the HUD), so the corridor mouth (11,11),(12,11) is the portal.
+3: d8-15
+4: d5-18
+5: d4-20
+6: d3-20
+7: d3-20
+8: d3-20
+9: d4-19
+10: d6-18
+11: d11-12
