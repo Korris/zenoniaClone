@@ -1,5 +1,38 @@
 # Việc đang dở
 
+## >>> LÀM TIẾP TỪ ĐÂY (bàn giao 13/11/2026 ~07:30, phiên Claude dài) <<<
+
+Người dùng bảo: "lưu để tí làm tiếp, giờ commit và push; lưu sao cho phiên sau vẫn còn những suy nghĩ và câu hỏi kêu tui chọn như hiện tại". Đã commit + push hết việc đang dở (trừ ảnh nháp ô chặn Oakhaven trong `plans/261113-0106-world-map-step1/layout-oakhaven/*.png`).
+
+### ĐANG CHỜ NGƯỜI DÙNG CHỌN (hỏi lại đúng 2 câu này khi họ quay lại)
+1. **Duyệt 6 map cũ vẽ lại theo quy chuẩn art chưa?** Tấm so sánh cũ (trái) / mới (phải): `docs/reference/world2-redraw-all-compare.png` (Amber Dunes, Emberfen, Frost Hollow, Sunken Reliquary, Sunspire, Willowbrook). Nếu duyệt: giao agent đưa vào game (ghép min-cut + cắt mảnh như `Tools/build-*-large-painted.py`, rà lại ô chặn từng map, cổng, bãi quái, chụp trong game). Lưu ý đã biết: cầu gỗ giữa Willowbrook mất khỏi nền -> làm prop; đường dưới-phải Emberfen có thể ra mép khác -> kiểm cổng; Frost Hollow rà ô chặn từng bậc đá; mảnh Willowbrook r0c1 đậm hơn -> khớp màu. Thatchwick + Frostfang Den đạt chuẩn, không vẽ lại.
+2. **Việc tiếp theo chọn cái nào:** (a) cho agent vẽ tiếp hình theo World Map 2.1: Sunbreak Foothills (48x32, ground only + prop) + 4 quái (Highland Ibex, Dustscale Lizard, Cliff Harpy, Stoneback Guardian) + boss Ridgehorn Behemoth, Rootburrow (dungeon 36x24 + phòng boss Thornheart 24x18), Bramblewood bản đầy đủ 36x24 (ground only + prop từ concept đã có); hoặc (b) đưa 6 map vẽ lại vào game (cần câu 1).
+Câu hỏi phụ còn treo (chưa hỏi lại, nêu khi hợp): tách Ice Goblin / Spectral Wolf thành bản riêng cho Frost Hollow (hiện dùng chung nên bãi tây-nam Frost Hollow Lv11–15 có quái Lv16–18)? NPC mới Thatchwick đang mượn hình NPC khác (Elder Sahir, lính giống Guard Rook, Nara) -> nhờ ChatGPT vẽ riêng? Boss truy nã: giữ đứng trên map chung hay làm đấu trường instance như ChatGPT đề xuất (chưa có code)?
+
+### Đã chốt (người dùng, 13/11)
+- World Map 2.0 -> 2.1: `docs/world-map-2-design.md` (6 vùng Lv1–60, làng mỗi 10 cấp, mỗi làng bán thuốc + trang bị theo tier, chợ chính Thatchwick, bảng cỡ map / quái sống / hồi quái / người mỗi channel ở mục "World Map 2.1"). KHÔNG có boss chặn cổng, KHÔNG có nhiệm vụ mở đường: mọi cổng luôn mở, cấp quái tự giới hạn. Không 3 map băng liền: Snowcrest Pass -> Sunbreak Foothills (cao nguyên khô chuyển tiếp tuyết -> sa mạc). Cỡ map theo ChatGPT cho game online nhiều người: 3 map 72x48 (Willowbrook, Frost Hollow, Crystal Highlands), farm cuối vùng 48x32, còn lại 36x24, Thatchwick 48x32; bù sức chứa bằng channel (CHƯA có code channel / instance dungeon / đấu trường truy nã).
+- Quy chuẩn art chung: `docs/world-art-bible.md` (đoạn "WORLD ART STYLE LOCK" dán vào đầu MỌI prompt vẽ, gửi kèm ảnh chuẩn). Người dùng: map và nhà phải đồng nhất style + tông màu, cái nào sai vẽ lại, kể cả map cũ (giữ bố cục).
+- Oakhaven cũ xấu -> đã thay bằng làng vẽ tay mới (người dùng duyệt). Tên phong cách: Oakhaven cũ = "vibrant 2D tile-based fantasy RPG"; Thatchwick / mới = "hand-painted / painterly fantasy RPG, cozy fantasy".
+
+### Đã làm, đã commit (bước 1 World Map, plan `plans/261113-0106-world-map-step1/plan.md`)
+- Tuyến tạm: Willowbrook (1–10) – Oakhaven mới – Thatchwick – Frost Hollow (11–15) – Frostfang Den (16–20) – Sunspire – Amber Dunes (21–30) – Emberfen (31–35) – Sunken Reliquary (36–40). Đổi cấp + chỉ số + itemLevel quái theo đường cong; 3 boss truy nã giữ số cũ (`MonsterDef.Wanted` nhận số đóng băng). Gỡ gate Frostfang Den. Online xuất phát Oakhaven.
+- Shop trang bị mới (`Rpg/GearCatalog.cs`, `PlayerState.Gear.cs`, `GearShopWindow.cs` có thẻ chọn tier, `InvOp.GearBuy`, protocol 18): Oakhaven smithBram T0–T1, Thatchwick smithHolt T2–T3, Sunspire blacksmithKhaled T4–T5; thuốc: Oakhaven Nina/Dale, Thatchwick herbalistWren (mới), Sunspire Nara; brokerPell (Thatchwick, chỉ thoại chợ). Sạp bán của người chơi CHƯA làm.
+- Oakhaven mới: nền vẽ liền 36x24, cổng nam (13,21)/(14,21) -> Willowbrook (2,23), đông -> Thatchwick. Ảnh `docs/reference/new-oakhaven-ingame-overview.png`, `gear-shop-window-ingame.png`, `thatchwick-new-npcs-ingame.png`.
+- Banner tên map (`MapNameBanner.cs`). Boss truy nã: đủ 3 boss có hình + skill (xem `docs/boss-hunter-pending.md`), đóng băng hero 3 s (Rimeclaw Stomp) / 2 s (Glacial Crystal Fall).
+- Hình mới (chưa vào game): 6 map vẽ lại `Assets/ArtLibrary/maps/<map>/redraw/`, quái Forest Wolf, Thorn Sprite, Thornfang Alpha, Thornheart Treant, Snow Harpy (attack hàng lên frame 3 bắn sai hướng), Crystal Golem King (chưa có attack), concept Bramblewood; tiến độ + prompt chuẩn: `docs/world-map-2-art-progress.md`. Thorn Sprite ~22 % pixel bán trong suốt sau khi bỏ nền, xem kỹ khi cắt.
+- Chưa thử: đi bộ thật Oakhaven <-> Willowbrook, mua đồ online, nhiều người cùng bị đóng băng.
+
+### Cách làm đã quen (để phiên sau làm y vậy)
+- ChatGPT tài khoản Tay (Chrome "Browser 1"), chat World Map: https://chatgpt.com/c/6af5faea-f11c-83ec-9e09-3c13537b61a2 ; chat boss truy nã: https://chatgpt.com/c/6af58a18-74d0-83ec-9440-0f2715067fc1 . Tải ảnh bằng fetch blob + <a download>; luôn mở ảnh ra xem sau khi tải (DOM ảo hoá hay trả ảnh cũ).
+- Bản chạy mới nhất: `C:/temp/player-step1/Zenonia.exe` (build từ `Tools/build-from-copy.ps1`; máy khác phải build lại). Chơi thử online có server cục bộ: `Tools/wanted-boss-playtest.ps1 -Exe <exe> [-Boss rimeclawTyrant|glacialColossus|mireHydraQueen] [-HpScale 1] [-Class wizard] [-Bot]`.
+- Test dotnet phải chạy bằng `~/.dotnet/dotnet.exe test ...` (dotnet mặc định là SDK 9, không chạy net10).
+- Giao việc lớn cho nhiều agent song song, mỗi agent sở hữu file riêng, khoá build `C:/temp/zu-copy.lock`; tự xem ảnh trong game trước khi báo xong (agent hay báo nhầm).
+
+## Banner tên map (13/11/2026, đã xem trong game, chưa commit)
+
+- Người dùng: "hiện cái bảng tên của map mỗi khi tới map đó". `Assets/Scripts/MapNameBanner.cs` (tạo trong `RpgHud`): tên map (`IGameMap.Name`) chữ vàng viền tối giữa 2 vạch vàng, dòng phụ "Safe Zone" (xanh) / "Danger Zone" (đỏ) theo `Hostile`, phía trên giữa màn hình; mờ dần vào 0,45 s, giữ 2,4 s, mờ ra 0,8 s. Theo dõi `MapRegistry.Current`, chỉ hiện khi map đứng yên 0,5 s và có hero (để map tạm của client online trước Welcome không loé tên).
+- Ảnh: `docs/reference/map-name-banner-ingame.png` (Frostfang Den; ảnh bot nên khung chat đang mở che một phần dòng phụ). Chưa xem: đi qua cổng giữa 2 map, chơi offline. Chữ dựng bằng font game, chưa có khung trang trí vẽ riêng.
+
 ## Boss Truy Nã (sự kiện ngày, 12/11/2026, đang dở, code + hình đã commit)
 
 - Toàn bộ trạng thái, quyết định của người dùng, việc còn lại và lỗi chạy thử: `docs/boss-hunter-pending.md`. Đọc file đó trước.

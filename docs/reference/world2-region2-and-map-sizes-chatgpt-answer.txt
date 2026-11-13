@@ -1,0 +1,1254 @@
+Two decisions from the game owner, please update the World Map 2.0 design accordingly and answer in Vietnamese (text only, no drawing): (1) Region 2 (Lv11-20) currently has THREE ice maps in a row: Frost Hollow (snow field, 11-15), Snowcrest Pass (new, ice mountain, 16-20) and Frostfang Den (ice cave dungeon, boss Glacier Warden Lv20). That feels repetitive. Keep Frost Hollow and Frostfang Den (both already in the game), but replace Snowcrest Pass with a DIFFERENT biome that still makes sense between a snow region and the desert region (Sunspire Oasis comes next), with a new name, its monster set (4 monsters for Lv16-20, plus the map boss Lv20 instead of Crystal Golem King), palette per the WORLD ART STYLE LOCK, and say if any other region has the same repetition problem (two maps of the same biome in a row) and how to fix it. (2) Map sizes: follow your own recommendation, remembering this is an ONLINE game with MANY players on the same server (shared world, 20-50 per zone server, party play, trading): confirm the final size for every map in the world list (towns, trade hub Thatchwick, each farm map, each dungeon, boss arenas, Wanted arenas), which farm maps should be the big 72x48 crowded ones (for example the most popular levelling bands), the monster count and respawn per farm map size, and the channel caps. Give the final answer as one table: map name | type | level | size | monsters alive | respawn | channel cap.
+…
+Show more
+ChatGPT said:
+WORLD MAP 2.1 — Chốt biome và kích thước MMO-lite Lv1–60
+
+Tôi đồng ý với cả hai thay đổi. Giữ nguyên các map đã duyệt và chỉ mở rộng khi thật sự cần phục vụ nhiều người chơi.
+
+1. Thay Snowcrest Pass bằng biome chuyển tiếp
+Sunbreak Foothills — Lv16–20
+Thay thế Snowcrest Pass
+
+Biome: Cao nguyên chân núi khô, đồng cỏ vàng olive xen đá xám nâu, rừng thông thưa, khe suối tuyết tan và những mỏm đá bắt đầu chuyển sang sa thạch.
+
+Đây là vùng chuyển tiếp tự nhiên từ Frost Hollow (tuyết) → Sunbreak Foothills (cao nguyên ôn đới khô) → Sunspire Oasis (sa mạc).
+
+Cỏ olive
+
+#8B966B
+
+Đất khô
+
+#B6A285
+
+Đá núi
+
+#827A71
+
+Bóng
+
+#48575A
+
+Nắng
+
+#C4B27E
+
+Bộ quái mới:
+
+Level
+
+	
+
+Quái
+
+	
+
+Kiểu chiến đấu
+
+
+
+
+Lv16
+
+	
+
+Highland Ibex
+
+	
+
+Dê núi sừng cong, húc trực diện
+
+
+
+
+Lv17
+
+	
+
+Dustscale Lizard
+
+	
+
+Thằn lằn đá, lao nhanh
+
+
+
+
+Lv18
+
+	
+
+Cliff Harpy
+
+	
+
+Harpy lông nâu xám, bắn lông vũ sắc
+
+
+
+
+Lv19–20
+
+	
+
+Stoneback Guardian
+
+	
+
+Quái đá phủ rêu khô, đập đất
+
+
+
+
+Lv20 Boss
+
+	
+
+Ridgehorn Behemoth
+
+	
+
+Dê núi khổng lồ bọc đá, húc mạnh và gây đá rơi
+
+Crystal Golem King có thể giữ làm Elite hiếm hoặc boss sự kiện trong Frost Hollow, không cần bỏ sprite đã vẽ. Snow Harpy cũng giữ ở Frost Hollow hoặc Frostfang Den.
+
+Frostfang Den vẫn là dungeon băng Lv20, nối từ một nhánh hang lạnh ở Frost Hollow hoặc vùng núi phía bắc Sunbreak. Người chơi không phải đi qua ba map băng liên tiếp.
+
+Các vùng còn lại có bị lặp biome?
+
+Vùng
+
+	
+
+Hai map farm
+
+	
+
+Cách phân biệt
+
+
+
+
+1
+
+	
+
+Willowbrook → Bramblewood
+
+	
+
+Đồng cỏ sáng → rừng gai tối
+
+
+
+
+3
+
+	
+
+Amber Dunes → Scorpion Gorge
+
+	
+
+Biển cát mở → hẻm núi đá sa thạch
+
+
+
+
+4
+
+	
+
+Emberfen → Ruined Causeway
+
+	
+
+Đầm lầy tự nhiên → đường đá/phế tích cổ ngập nước
+
+
+
+
+5
+
+	
+
+Ashfall Plains → Obsidian Crater
+
+	
+
+Đồng tro xám → núi lửa dung nham đỏ
+
+
+
+
+6
+
+	
+
+Crystal Highlands → Starfall Sanctuary
+
+	
+
+Cao nguyên tinh thể → thánh địa thiên giới với kiến trúc cổ
+
+Không cần thay tên map. Tuy nhiên, khi vẽ mới phải làm Scorpion Gorge, Ruined Causeway và Starfall Sanctuary có silhouette, vật liệu và màu chủ đạo khác rõ rệt với map đứng trước, tránh cảm giác chỉ đổi tên.
+
+2. Bảng kích thước toàn thế giới — FINAL
+
+Quy ước: Quái sống là số quái hoạt động đồng thời trong một channel, không phải tổng toàn server. Channel cap là số người tối đa trong một bản sao map.
+
+Map name
+
+	
+
+Type
+
+	
+
+Level
+
+	
+
+Size (tiles)
+
+	
+
+Monsters alive
+
+	
+
+Respawn
+
+	
+
+Channel cap
+
+
+
+
+REGION 1 — VERDANT FRONTIER
+
+						
+
+
+Oakhaven
+
+	
+
+Town
+
+	
+
+1+
+
+	
+
+36×24
+
+	
+
+0
+
+	
+
+—
+
+	
+
+40
+
+
+
+
+Willowbrook Meadows
+
+	
+
+Farm
+
+	
+
+1–5
+
+	
+
+72×48
+
+	
+
+90
+
+	
+
+8–12s
+
+	
+
+24
+
+
+
+
+Bramblewood Forest
+
+	
+
+Farm + Thornfang Alpha
+
+	
+
+6–10
+
+	
+
+36×24
+
+	
+
+30 + boss
+
+	
+
+6–9s
+
+	
+
+10
+
+
+
+
+Rootburrow
+
+	
+
+Dungeon
+
+	
+
+10
+
+	
+
+36×24
+
+	
+
+16
+
+	
+
+Không hồi
+
+	
+
+5
+
+
+
+
+Thornheart Chamber
+
+	
+
+Boss Arena
+
+	
+
+10
+
+	
+
+24×18
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+5
+
+
+
+
+REGION 2 — FROSTBOUND HIGHLANDS
+
+						
+
+
+Thatchwick
+
+	
+
+Trade Hub
+
+	
+
+10+
+
+	
+
+48×32
+
+	
+
+0
+
+	
+
+—
+
+	
+
+50
+
+
+
+
+Frost Hollow
+
+	
+
+Farm
+
+	
+
+11–15
+
+	
+
+72×48
+
+	
+
+90
+
+	
+
+8–12s
+
+	
+
+24
+
+
+
+
+Sunbreak Foothills
+
+	
+
+Farm + Ridgehorn Behemoth
+
+	
+
+16–20
+
+	
+
+48×32
+
+	
+
+50 + boss
+
+	
+
+7–10s
+
+	
+
+16
+
+
+
+
+Frostfang Den
+
+	
+
+Dungeon
+
+	
+
+20
+
+	
+
+36×24
+
+	
+
+18
+
+	
+
+Không hồi
+
+	
+
+5
+
+
+
+
+Glacier Warden Chamber
+
+	
+
+Boss Arena
+
+	
+
+20
+
+	
+
+24×18
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+5
+
+
+
+
+REGION 3 — SUNSCORCH DESERT
+
+						
+
+
+Sunspire Oasis
+
+	
+
+Town
+
+	
+
+20+
+
+	
+
+36×24
+
+	
+
+0
+
+	
+
+—
+
+	
+
+40
+
+
+
+
+Amber Dunes
+
+	
+
+Farm
+
+	
+
+21–25
+
+	
+
+36×24
+
+	
+
+30
+
+	
+
+6–9s
+
+	
+
+10
+
+
+
+
+Scorpion Gorge
+
+	
+
+Farm + Dune Devourer
+
+	
+
+26–30
+
+	
+
+48×32
+
+	
+
+50 + boss
+
+	
+
+7–10s
+
+	
+
+16
+
+
+
+
+Sunspire Vault
+
+	
+
+Dungeon
+
+	
+
+30
+
+	
+
+36×24
+
+	
+
+18
+
+	
+
+Không hồi
+
+	
+
+5
+
+
+
+
+Sandglass Djinn Chamber
+
+	
+
+Boss Arena
+
+	
+
+30
+
+	
+
+24×18
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+5
+
+
+
+
+REGION 4 — BLIGHTED WETLANDS
+
+						
+
+
+Mirewatch
+
+	
+
+Town
+
+	
+
+30+
+
+	
+
+36×24
+
+	
+
+0
+
+	
+
+—
+
+	
+
+40
+
+
+
+
+Emberfen Marsh
+
+	
+
+Farm
+
+	
+
+31–35
+
+	
+
+36×24
+
+	
+
+30
+
+	
+
+6–9s
+
+	
+
+10
+
+
+
+
+Ruined Causeway
+
+	
+
+Farm + Rotwood Colossus
+
+	
+
+36–40
+
+	
+
+48×32
+
+	
+
+50 + boss
+
+	
+
+7–10s
+
+	
+
+16
+
+
+
+
+Sunken Reliquary
+
+	
+
+Dungeon
+
+	
+
+40
+
+	
+
+36×24
+
+	
+
+18
+
+	
+
+Không hồi
+
+	
+
+5
+
+
+
+
+Mirefang Hydra Chamber
+
+	
+
+Boss Arena
+
+	
+
+40
+
+	
+
+24×18
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+5
+
+
+
+
+REGION 5 — ASHEN FRONTIER
+
+						
+
+
+Ashforge
+
+	
+
+Town
+
+	
+
+40+
+
+	
+
+36×24
+
+	
+
+0
+
+	
+
+—
+
+	
+
+40
+
+
+
+
+Ashfall Plains
+
+	
+
+Farm
+
+	
+
+41–45
+
+	
+
+48×32
+
+	
+
+50
+
+	
+
+7–10s
+
+	
+
+16
+
+
+
+
+Obsidian Crater
+
+	
+
+Farm + Magma Behemoth
+
+	
+
+46–50
+
+	
+
+48×32
+
+	
+
+50 + boss
+
+	
+
+7–10s
+
+	
+
+16
+
+
+
+
+Molten Crucible
+
+	
+
+Dungeon
+
+	
+
+50
+
+	
+
+36×24
+
+	
+
+18
+
+	
+
+Không hồi
+
+	
+
+5
+
+
+
+
+Cinder Titan Chamber
+
+	
+
+Boss Arena
+
+	
+
+50
+
+	
+
+24×18
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+5
+
+
+
+
+REGION 6 — ASTRAL HIGHLANDS
+
+						
+
+
+Starfall Citadel
+
+	
+
+Town
+
+	
+
+50+
+
+	
+
+36×24
+
+	
+
+0
+
+	
+
+—
+
+	
+
+40
+
+
+
+
+Crystal Highlands
+
+	
+
+Farm
+
+	
+
+51–55
+
+	
+
+72×48
+
+	
+
+90
+
+	
+
+8–12s
+
+	
+
+24
+
+
+
+
+Starfall Sanctuary
+
+	
+
+Farm + Astral Guardian
+
+	
+
+56–60
+
+	
+
+48×32
+
+	
+
+50 + boss
+
+	
+
+7–10s
+
+	
+
+16
+
+
+
+
+Astral Spire
+
+	
+
+Final Dungeon
+
+	
+
+60
+
+	
+
+48×32
+
+	
+
+24
+
+	
+
+Không hồi
+
+	
+
+5
+
+
+
+
+Void Seraph Chamber
+
+	
+
+Final Boss Arena
+
+	
+
+60
+
+	
+
+30×20
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+5
+
+
+
+
+DAILY WANTED — INSTANCED
+
+						
+
+
+Rimeclaw Tyrant Arena
+
+	
+
+Wanted
+
+	
+
+10
+
+	
+
+24×18
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+1–5
+
+
+
+
+Glacial Colossus Arena
+
+	
+
+Wanted
+
+	
+
+25
+
+	
+
+24×18
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+1–5
+
+
+
+
+Mire Hydra Queen Arena
+
+	
+
+Wanted
+
+	
+
+40
+
+	
+
+24×18
+
+	
+
+1
+
+	
+
+Theo lượt
+
+	
+
+1–5
+
+3. Quy tắc vận hành server
+
+Ba map 72×48 được ưu tiên:
+
+Willowbrook Meadows: đông tân thủ nhất; đã có hệ thống backdrop 72×48.
+
+Frost Hollow: giữ kích thước 72×48 hiện tại, phù hợp người chơi vùng 2 và săn quái băng.
+
+Crystal Highlands: vùng farm endgame, thích hợp đông người và party.
+
+Các map 36×24 vừa vẽ lại như Bramblewood, Amber Dunes, Emberfen và Sunken Reliquary giữ nguyên kích thước, không kéo giãn hoặc vẽ lại lần nữa. Bù sức chứa bằng channel.
+
+Channel Rules
+Farm 36×24	Soft 8 / Hard 10 người
+Farm 48×32	Soft 12 / Hard 16 người
+Farm 72×48	Soft 20 / Hard 24 người
+Town thường	40 người / channel
+Thatchwick	50 người / channel
+Dungeon / Arena	Instance riêng theo party
+
+Respawn trong bảng là thời gian cơ bản. Server có thể giảm còn khoảng 5–6 giây khi nhiều người đang farm; các số quái là mục tiêu ban đầu để cân bằng, không phải mức cố định bất biến. Với dungeon, quái thường không hồi trong một lượt chơi; boss respawn bằng cách bắt đầu lượt mới.
+
+Map Boss xuất hiện trên farm map cuối vùng theo timer riêng, đề xuất 10–15 phút, không tính vào lượng quái thường. Tránh tình trạng một người chuyển nhiều channel liên tục để ăn boss; loot và eligibility cần được kiểm soát ở server.
+
+Để hỗ trợ 20–50 người cùng muốn farm một vùng, server tự mở thêm channel, ưu tiên ghép party và đóng các channel vắng. Người chơi vẫn thuộc cùng thế giới, dùng chung chat, guild, giao dịch và dữ liệu nhân vật; chỉ quái và combat của từng channel là tách biệt.
+
+Chốt World Map 2.1: 6 town, 12 farm map, 6 dungeon, 6 dungeon boss arena và 3 Wanted arena. Giữ toàn bộ art đã duyệt, thay Snowcrest bằng Sunbreak Foothills, dùng ba map farm 72×48, còn lại 36×24 hoặc 48×32 kết hợp channel.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+Thinking effort
+Medium
