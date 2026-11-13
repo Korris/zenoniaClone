@@ -88,8 +88,8 @@ public class MapGraphTests
         Assert.Contains(thatch.Portals, p => p.TargetMapId == OakhavenVillageMap.MapId);
         Assert.Contains(thatch.Portals, p => p.TargetMapId == FrostHollowLayout.MapId);
         Assert.Contains(frost.Portals, p => p.TargetMapId == ThatchVillageMap.MapId);
-        // Willowbrook is a dead end: its only portals go to Oakhaven.
-        Assert.All(willow.Portals, p => Assert.Equal(OakhavenVillageMap.MapId, p.TargetMapId));
+        // Willowbrook's west gate goes to Oakhaven; World Map 2.1 added its south gate to Bramblewood Forest (BramblewoodRootburrowMapTests).
+        Assert.All(willow.Portals, p => Assert.Contains(p.TargetMapId, new[] { OakhavenVillageMap.MapId, BramblewoodForestMap.MapId }));
         Assert.False(thatch.Hostile);
         Assert.True(willow.Hostile);
         Assert.Contains(new MapNpc("herbalistWren", 13, 9), thatch.Npcs);
@@ -109,6 +109,7 @@ public class MapGraphTests
     [Theory]
     [InlineData(ThatchVillageMap.MapId)]
     [InlineData(WillowbrookMeadowsMap.MapId)]
+    [InlineData(SunbreakFoothillsMap.MapId)]
     public void EveryWalkableTileOfAPaintedMapConnectsToItsPortalsAndRowsUnderTheHudAreBlocked(string mapId)
     {
         IGameMap map = MapRegistry.Get(mapId);
@@ -148,7 +149,8 @@ public class MapGraphTests
     [Fact]
     public void DenForwardPortalIsAlwaysOpenNow()
     {
-        // World Map 2.0 step 1 (13/11/2026): the user dropped the "kill the Warden first" gate, so Frostfang Den -> Sunspire is open for every hero, killer or not.
+        // World Map 2.0 step 1 (13/11/2026): the user dropped the "kill the Warden first" gate, so the Den's far exit is open for every hero, killer or not.
+        // World Map 2.1 (13/11/2026): the Den is a side dungeon of Sunbreak Foothills, so both its exits lead to Sunbreak: the entrance to the foot of the cave stairs, the one behind the Warden to the south road fork.
         IGameMap den = MapRegistry.Get(FrostfangDenMap.MapId);
         BossProgress killer = new BossProgress(), other = new BossProgress();
         killer.Mark(FrostfangDenMap.MapId, true);
@@ -156,13 +158,37 @@ public class MapGraphTests
         MapPortal found;
 
         Assert.True(MapPortals.TryFind(den.PortalsFor(killer.IsDefeatedOn(den.Id, true)), gate.x, gate.y, out found));
-        Assert.Equal(SunspireOasisMap.MapId, found.TargetMapId);
+        Assert.Equal(SunbreakFoothillsMap.MapId, found.TargetMapId);
         Assert.True(MapPortals.TryFind(den.PortalsFor(other.IsDefeatedOn(den.Id, true)), gate.x, gate.y, out found));
-        Assert.Equal(SunspireOasisMap.MapId, found.TargetMapId);
+        Assert.Equal(SunbreakFoothillsMap.MapId, found.TargetMapId);
+        // Design answer 13/11/2026: the far door is a shortcut out to the fork of the south road, not back to the cave mouth.
+        Assert.Equal(SunbreakFoothillsMap.DenExitArrivalTile.x, found.TargetTx);
+        Assert.Equal(SunbreakFoothillsMap.DenExitArrivalTile.y, found.TargetTy);
+        Assert.False(MapRegistry.Get(SunbreakFoothillsMap.MapId).IsSolidTile(found.TargetTx, found.TargetTy));
 
         // The way back is always open too.
         Assert.True(MapPortals.TryFind(den.PortalsFor(false), back.x, back.y, out found));
-        Assert.Equal(FrostHollowLayout.MapId, found.TargetMapId);
+        Assert.Equal(SunbreakFoothillsMap.MapId, found.TargetMapId);
+        Assert.Equal(SunbreakFoothillsMap.CaveArrivalTile.x, found.TargetTx);
+        Assert.Equal(SunbreakFoothillsMap.CaveArrivalTile.y, found.TargetTy);
+    }
+
+    [Fact]
+    public void WorldMap21RouteRunsFrostHollowSunbreakSunspireWithTheDenAsASideDungeon()
+    {
+        IGameMap frost = MapRegistry.Get(FrostHollowLayout.MapId), sunbreak = MapRegistry.Get(SunbreakFoothillsMap.MapId);
+        IGameMap den = MapRegistry.Get(FrostfangDenMap.MapId), sunspire = MapRegistry.Get(SunspireOasisMap.MapId);
+        Assert.Contains(frost.Portals, p => p.TargetMapId == SunbreakFoothillsMap.MapId);
+        Assert.DoesNotContain(frost.Portals, p => p.TargetMapId == FrostfangDenMap.MapId);
+        foreach (string id in new[] { FrostHollowLayout.MapId, FrostfangDenMap.MapId, SunspireOasisMap.MapId }) Assert.Contains(sunbreak.Portals, p => p.TargetMapId == id);
+        Assert.All(den.Portals, p => Assert.Equal(SunbreakFoothillsMap.MapId, p.TargetMapId));
+        Assert.Contains(sunspire.Portals, p => p.TargetMapId == SunbreakFoothillsMap.MapId && p.TargetTx == 45 && p.TargetTy == 15);
+        Assert.Contains(sunspire.Portals, p => p.TargetMapId == SunbreakFoothillsMap.MapId && p.TargetTx == 45 && p.TargetTy == 16);
+        Assert.DoesNotContain(sunspire.Portals, p => p.TargetMapId == FrostfangDenMap.MapId);
+        // Standing on an arrival tile there is a portal back to the map we came from.
+        foreach (IGameMap map in new[] { frost, sunbreak, den, sunspire })
+            foreach (MapPortal p in map.Portals)
+                Assert.Contains(MapRegistry.Get(p.TargetMapId).Portals, q => q.TargetMapId == map.Id);
     }
 
     [Fact]

@@ -27,7 +27,7 @@ namespace ZenoniaProto
             P("fhRockSmall", 23, 7), P("fhPineSapling", 2, 8), P("fhRockSmall", 32, 10), P("fhRockSmall", 26, 13), P("fhBones", 59, 14),
             P("fhRuneShort", 3, 15), P("fhPineSapling", 23, 15), P("fhRuneShort", 32, 15), P("fhPineSapling", 42, 16), P("fhRock", 48, 16),
             P("fhStump", 1, 18), P("fhCrystalSmall", 8, 21), P("fhBones", 37, 23), P("fhCrystalSmall", 11, 24), P("fhCrystalMid", 2, 25),
-            P("fhPineSapling", 63, 25), P("fhPineSapling", 18, 29), P("fhRockSmall", 15, 32), P("fhPineSapling", 8, 33), P("fhBones", 12, 34),
+            P("fhPineSapling", 63, 25), P("fhPineSapling", 13, 30), P("fhRockSmall", 15, 32), P("fhPineSapling", 8, 33), P("fhBones", 12, 34),
             P("fhRockSmall", 51, 36), P("fhRockSmall", 39, 37), P("fhStump", 54, 38), P("fhRockSmall", 1, 39), P("fhPineSapling", 35, 39),
             P("fhRock", 57, 40), P("fhRock", 15, 41), P("fhStump", 2, 44), P("fhCrystalSmall", 51, 44),
         };

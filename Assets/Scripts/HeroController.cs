@@ -70,6 +70,8 @@ namespace ZenoniaProto
         public ushort PetDurability { get { Item pet = rpg.GetEquipped(Slots.Pet); return pet != null ? (ushort)Mathf.Clamp(pet.durability, 0, 65535) : (ushort)0; } }
         /// <summary>Where the hero is DRAWN: the sim spot, or for the online local hero the smoothed (interpolated + error blended) one.</summary>
         public Vector2 Position { get { return predicted ? predictor.VisualPos : new Vector2(x, y); } }
+        /// <summary>Feet-anchored body box (web HERO_HITBOX) at Position: what a monster projectile has to touch.</summary>
+        public Rect Box { get { Vector2 p = Position; return new Rect(p.x - BoxW * 0.5f, p.y, BoxW, BoxH); } }
         public int Facing { get { return facing; } }
         public bool IsDead { get { return dead; } }
         public bool IsBasicAttacking { get { return combo != null && combo.IsAttacking; } }

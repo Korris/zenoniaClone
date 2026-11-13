@@ -23,6 +23,8 @@ namespace ZenoniaProto
         public bool allSkills; // learn every skill as far as the SP allow (Lv 60 + 20 bonus = all 8 at rank 10, 0 SP left)
         public bool allWeapons; // every art tier of the class's weapon and offhand (epic, +0 so stones stay testable); the best ones are worn on the first grant
         public bool allPets; // one of each pet in the bag, if there is room
+        public bool allGear; // an epic helmet / armor / gloves / boots of the hero's level, worn (with allWeapons = fully geared)
+        public int gearPlus = -1; // -1 = keep; otherwise every worn piece is set to this enhance level
         public float cameraViewHeight; // TEST: world units the camera shows top to bottom (0 = GameConfig.ViewHeightUnits, 160); smaller = closer, bigger hero
         public float heroScale;        // TEST: heroes in the world drawn this much larger, body + gear + enhance effect (0 or 1 = normal); hitboxes unchanged
 
@@ -123,6 +125,21 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>One epic piece per armor slot at the hero's level, worn. Fixed uids, so a reload does not grant them again.</summary>
+        static void GrantAllGear(PlayerState p)
+        {
+            foreach (string slot in new[] { Slots.Helmet, Slots.Armor, Slots.Gloves, Slots.Boots })
+            {
+                string uid = "dev-gear-" + slot + "-" + p.Level;
+                Item worn = p.GetEquipped(slot);
+                if (p.Inventory.Exists(i => i.uid == uid) || (worn != null && worn.uid == uid)) continue;
+                Item item = ItemFactory.Generate(RpgRandom.Default, Mathf.Max(1, p.Level), slot, "epic", p.ClassId);
+                item.uid = uid;
+                ActionResult r = p.Equip(item); // straight onto the hero: the bag is usually full of the allWeapons tiers
+                if (!r.Ok) Debug.LogWarning("[ZenoniaProto] dev-start: " + uid + " not worn: " + r.Text);
+            }
+        }
+
         public static void Apply(PlayerState p)
         {
             if (p == null) return;
@@ -144,7 +161,18 @@ namespace ZenoniaProto
                 p.Hp = p.MaxHp; p.Mp = p.MaxMp;
             }
             if (c.allSkills) LearnAllSkills(p);
+            if (c.allGear) { GrantAllGear(p); p.Hp = p.MaxHp; p.Mp = p.MaxMp; } // before the weapons: they can fill the bag
             if (c.allWeapons) { GrantAllWeapons(p); p.Hp = p.MaxHp; p.Mp = p.MaxMp; }
+            if (c.gearPlus >= 0)
+            {
+                foreach (string slot in Slots.Generated)
+                {
+                    Item worn = p.GetEquipped(slot);
+                    if (worn != null) worn.enhance = Mathf.Clamp(c.gearPlus, 0, EnhanceConfig.MaxEnhance);
+                }
+                p.RecomputeStats();
+                p.Hp = p.MaxHp; p.Mp = p.MaxMp;
+            }
             if (c.allPets)
             {
                 foreach (PetDef def in PetConfig.All)

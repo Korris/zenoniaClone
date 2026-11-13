@@ -6,7 +6,7 @@ namespace ZenoniaProto.Net
     {
         AttackStep = 1, BoltFired = 2, BoltEnd = 3, MonsterHit = 4, HeroHit = 5, SkillCast = 6, HeroDied = 7, HeroRespawned = 8,
         ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16, TurretShot = 17,
-        WantedSkillTelegraph = 18,
+        WantedSkillTelegraph = 18, MonsterShot = 19,
     }
 
     /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band, flag bits (1 = mechanic blue), the pet
@@ -41,7 +41,7 @@ namespace ZenoniaProto.Net
         public NetEventType Type;
         /// <summary>Subject entity: hero / monster / bolt id depending on Type.</summary>
         public ushort Id;
-        /// <summary>Second entity: source hero (MonsterHit), source monster (HeroHit), owner hero (BoltFired), target (SkillCast), target monster (TurretShot, Id = the turret).</summary>
+        /// <summary>Second entity: source hero (MonsterHit), source monster (HeroHit), owner hero (BoltFired), target (SkillCast), target monster (TurretShot, Id = the turret). MonsterShot: Id = the shooting monster, X/Y = where the shot starts, Angle = its direction.</summary>
         public ushort Other;
         public ushort Dmg, HpLeft;
         public short X, Y;
@@ -74,6 +74,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.AllyBuff: w.Put(Id); w.Put(Other); w.Put(Step); w.Put(Value); break;
                 case NetEventType.TurretShot: w.Put(Id); w.Put(Other); w.Put(X); w.Put(Y); break;
                 case NetEventType.WantedSkillTelegraph: w.Put(Id); w.Put(Step); w.Put(X); w.Put(Y); w.Put(Angle); w.Put(Value); break;
+                case NetEventType.MonsterShot: w.Put(Id); w.Put(X); w.Put(Y); w.Put(Angle); break;
             }
         }
 
@@ -101,6 +102,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.AllyBuff: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.Step = r.GetByte(); e.Value = r.GetUInt(); break;
                 case NetEventType.TurretShot: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); break;
                 case NetEventType.WantedSkillTelegraph: e.Id = r.GetUShort(); e.Step = r.GetByte(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Angle = r.GetByte(); e.Value = r.GetUInt(); break;
+                case NetEventType.MonsterShot: e.Id = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Angle = r.GetByte(); break;
                 default: return false;
             }
             return true;

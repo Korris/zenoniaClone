@@ -23,6 +23,7 @@ namespace ZenoniaProto
         public int WalkCellPx = 192, AttackCellPx = 256; // sheet cell sizes; event bosses draw 384 / 512 cells at doubled pixels per unit (Monster.LoadSheets)
         public string FallbackSheet;           // existing sheet drawn (tinted) until Resources/Sprites/monsters/<Sheet>.png lands; see Monster.LoadSheets
         public Color FallbackTint = Color.white;
+        public Rpg.MonsterRangedProfile Ranged; // null = melee. Set = stops at its range and fires a projectile when the windup ends (Monster.Ranged.cs); AttackRange is then unused
 
         public MonsterDef(string name, string sheet, float hp, float atk, float def, float speed, int itemLevel, float aggro = 70f, float leash = 150f,
             float attackRange = 12f, float windupMs = 350f, float cooldownMs = 1200f, float hitW = 12f, float hitH = 10f, float bodyHeightPx = 152f)
@@ -69,15 +70,16 @@ namespace ZenoniaProto
             attackRange: 24f, windupMs: 650f, cooldownMs: 1500f, hitW: 26f, hitH: 16f, bodyHeightPx: 166f) { RenderScale = 1.85f, Stationary = true, IsBoss = true, FallbackSheet = "frostfangKing", FallbackTint = new Color(0.5f, 0.85f, 0.55f) };
 
         // Willowbrook meadow monsters (sheets from Tools/build-meadow-monsters.py), same line HP 14+22L, Atk 3+4L, Def 1+L, EXP 14L, gold L..2L+1.
-        // Horn Rabbit (Lv 2): low HP and Def, fast, short cooldown, like Spectral Wolf. Thorn Boar (Lv 3): heavy (HP x1.3, Atk x1.15), slower than Ice Goblin, long windup, wide hitbox, low aggro.
-        public static readonly MonsterDef HornRabbit = new MonsterDef("Horn Rabbit", "hornRabbit", 46f, 10f, 1f, 64f, 2, aggro: 90f, cooldownMs: 900f, hitW: 12f, hitH: 8f, bodyHeightPx: 128f);
-        public static readonly MonsterDef ThornBoar = new MonsterDef("Thorn Boar", "thornBoar", 104f, 17f, 4f, 40f, 3, aggro: 55f, attackRange: 16f, windupMs: 450f, cooldownMs: 1400f, hitW: 18f, hitH: 10f, bodyHeightPx: 180f);
-        // Lv 1-10 line (World Map 2.0 step 1 pushed mantis and treant up to fill the top of the band): Meadow Slime = Frost Slime x0.9 (weak, slow). Meadow Mantis (Lv 7): fast and sharp
-        // (HP x0.8, Atk x1.3, Def 2), like Spectral Wolf timings. Bramble Treant (Lv 10): tanky and slow (HP x1.8, Atk x1.3, Def 10), long windup and cooldown, wide hitbox; drawn 1.2x because
+        // World Map 2.1 (13/11/2026): Willowbrook is Lv 1-5 (slime 1, rabbit 3, boar 5); mantis (6) and treant (8) belong to Bramblewood Forest Lv 6-10. Same line and role factors, new level.
+        // Horn Rabbit (Lv 3): low HP and Def, fast, short cooldown, like Spectral Wolf. Thorn Boar (Lv 5): heavy (HP x1.3, Atk x1.15), slower than Ice Goblin, long windup, wide hitbox, low aggro.
+        public static readonly MonsterDef HornRabbit = new MonsterDef("Horn Rabbit", "hornRabbit", 64f, 14f, 1f, 64f, 3, aggro: 90f, cooldownMs: 900f, hitW: 12f, hitH: 8f, bodyHeightPx: 128f);
+        public static readonly MonsterDef ThornBoar = new MonsterDef("Thorn Boar", "thornBoar", 161f, 26f, 6f, 40f, 5, aggro: 55f, attackRange: 16f, windupMs: 450f, cooldownMs: 1400f, hitW: 18f, hitH: 10f, bodyHeightPx: 180f);
+        // Lv 1-10 line (World Map 2.0 step 1 pushed mantis and treant up to fill the top of the band): Meadow Slime = Frost Slime x0.9 (weak, slow). Meadow Mantis (Lv 6): fast and sharp
+        // (HP x0.8, Atk x1.3, Def 2), like Spectral Wolf timings. Bramble Treant (Lv 8): tanky and slow (HP x1.8, Atk x1.3, Def x1.45), long windup and cooldown, wide hitbox; drawn 1.2x because
         // the 192 walk cell caps the sheet at about boar height (RenderScale also scales the HP bar and name position).
         public static readonly MonsterDef MeadowSlime = new MonsterDef("Meadow Slime", "meadowSlime", 32f, 6f, 1f, 28f, 1, hitH: 8f, bodyHeightPx: 112f);
-        public static readonly MonsterDef MeadowMantis = new MonsterDef("Meadow Mantis", "meadowMantis", 135f, 40f, 3f, 68f, 7, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 12f, hitH: 8f, bodyHeightPx: 178f);
-        public static readonly MonsterDef BrambleTreant = new MonsterDef("Bramble Treant", "brambleTreant", 422f, 56f, 16f, 28f, 10, aggro: 55f, attackRange: 18f, windupMs: 650f, cooldownMs: 1700f, hitW: 22f, hitH: 14f, bodyHeightPx: 172f)
+        public static readonly MonsterDef MeadowMantis = new MonsterDef("Meadow Mantis", "meadowMantis", 117f, 35f, 3f, 68f, 6, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 12f, hitH: 8f, bodyHeightPx: 178f);
+        public static readonly MonsterDef BrambleTreant = new MonsterDef("Bramble Treant", "brambleTreant", 342f, 46f, 13f, 28f, 8, aggro: 55f, attackRange: 18f, windupMs: 650f, cooldownMs: 1700f, hitW: 22f, hitH: 14f, bodyHeightPx: 172f)
             { RenderScale = 1.2f };
 
         // Frost Hollow ice monsters (Lv 13-15, the large field's far side; World Map 2.0 step 1 band is now Lv 11-15), same line HP 14+22L, Atk 3+4L, Def 1+L, EXP 14L. Real sheets come later
@@ -118,8 +120,31 @@ namespace ZenoniaProto
         public static readonly MonsterDef GlacialColossus = Wanted("Glacial Colossus", "glacialColossus", 3200f, 125f, 16f, 36f, 25, new Color(0.4f, 0.65f, 1f));
         public static readonly MonsterDef MireHydraQueen = Wanted("Mire Hydra Queen", "mireHydraQueen", 5500f, 215f, 27f, 36f, 40, new Color(0.45f, 0.95f, 0.5f));
 
+        // World Map 2.1 (13/11/2026) new monsters, sheets cut by Tools/build-meadow-monsters.py. Same line HP 14+22L, Atk 3+4L, Def 1+L and the role factors already used above.
+        // Bramblewood Forest (Lv 6-10, with Meadow Mantis 6 and Bramble Treant 8). Forest Wolf (Lv 7): Spectral Wolf's role (HP x0.83, Atk x0.9, low Def, fast, short cooldown).
+        // Thorn Sprite (Lv 9): Ice Wraith's role (HP x0.8, Atk x1.2, fast and brittle). Thornfang Alpha (Lv 10, map boss) and Thornheart Treant (Lv 10, Rootburrow dungeon boss): the boss
+        // rule of Glacier Warden / Mirefang Hydra (HP x7, Atk x1.5, Def x0.75); the wolf is the quicker one, the treant slower with a wider reach and drawn bigger (dungeon boss).
+        public static readonly MonsterDef ForestWolf = new MonsterDef("Forest Wolf", "forestWolf", 139f, 28f, 3f, 62f, 7, aggro: 95f, cooldownMs: 900f, hitW: 14f, hitH: 8f, bodyHeightPx: 150f) { RenderScale = 1.1f };
+        public static readonly MonsterDef ThornSprite = new MonsterDef("Thorn Sprite", "thornSprite", 170f, 47f, 3f, 66f, 9, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 12f, hitH: 8f, bodyHeightPx: 142f);
+        public static readonly MonsterDef ThornfangAlpha = new MonsterDef("Thornfang Alpha", "thornfangAlpha", 1638f, 65f, 8f, 44f, 10, aggro: 85f, leash: 120f,
+            attackRange: 20f, windupMs: 550f, cooldownMs: 1300f, hitW: 22f, hitH: 14f, bodyHeightPx: 185f) { RenderScale = 1.65f, Stationary = true, IsBoss = true };
+        public static readonly MonsterDef ThornheartTreant = new MonsterDef("Thornheart Treant", "thornheartTreant", 1638f, 65f, 8f, 28f, 10, aggro: 95f, leash: 140f,
+            attackRange: 26f, windupMs: 750f, cooldownMs: 1700f, hitW: 28f, hitH: 16f, bodyHeightPx: 181f) { RenderScale = 2.0f, Stationary = true, IsBoss = true };
+
+        // Sunbreak Foothills (Lv 16-20). Highland Ibex (Lv 16): middle weight ram (Atk x1.1), a little quicker than the goblin. Dustscale Lizard (Lv 17): fast and brittle (HP x0.8, Atk x1.2, low Def)
+        // with Spectral Wolf timings. Cliff Harpy (Lv 18): feather shooter (13/11/2026, the only ranged monster: Ranged profile, Monster.Ranged.cs), brittle (HP x0.75, Atk x1.15);
+        // its Atk is unchanged from its melee days, each feather can be sidestepped. Stoneback Guardian (Lv 20): Crystal Golem's role (HP x1.8, Atk x1.1, Def x1.6), slowest, longest windup. Ridgehorn Behemoth (Lv 20, map boss): Glacier Warden's numbers.
+        public static readonly MonsterDef HighlandIbex = new MonsterDef("Highland Ibex", "highlandIbex", 366f, 74f, 17f, 48f, 16, aggro: 75f, attackRange: 14f, windupMs: 400f, cooldownMs: 1200f, hitW: 16f, hitH: 10f, bodyHeightPx: 170f);
+        public static readonly MonsterDef DustscaleLizard = new MonsterDef("Dustscale Lizard", "dustscaleLizard", 310f, 85f, 6f, 66f, 17, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 14f, hitH: 8f, bodyHeightPx: 140f) { RenderScale = 1.15f };
+        public static readonly MonsterDef CliffHarpy = new MonsterDef("Cliff Harpy", "cliffHarpy", 308f, 86f, 6f, 58f, 18, aggro: 110f, leash: 170f, attackRange: 22f, windupMs: 400f, cooldownMs: 1100f, hitW: 14f, hitH: 10f, bodyHeightPx: 165f)
+            { Ranged = Rpg.MonsterRangedProfile.CliffHarpyFeather };
+        public static readonly MonsterDef StonebackGuardian = new MonsterDef("Stoneback Guardian", "stonebackGuardian", 817f, 91f, 34f, 26f, 20, aggro: 50f, attackRange: 18f, windupMs: 700f, cooldownMs: 1800f, hitW: 24f, hitH: 14f, bodyHeightPx: 166f) { RenderScale = 1.4f };
+        public static readonly MonsterDef RidgehornBehemoth = new MonsterDef("Ridgehorn Behemoth", "ridgehornBehemoth", 3200f, 125f, 16f, 36f, 20, aggro: 85f, leash: 120f,
+            attackRange: 22f, windupMs: 650f, cooldownMs: 1500f, hitW: 24f, hitH: 14f, bodyHeightPx: 184f) { RenderScale = 1.8f, Stationary = true, IsBoss = true };
+
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
-        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear, RimeclawTyrant, GlacialColossus, MireHydraQueen };
+        public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear, RimeclawTyrant, GlacialColossus, MireHydraQueen,
+            ForestWolf, ThornSprite, ThornfangAlpha, ThornheartTreant, HighlandIbex, DustscaleLizard, CliffHarpy, StonebackGuardian, RidgehornBehemoth };
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -154,6 +179,15 @@ namespace ZenoniaProto
                 case "rimeclawTyrant": return RimeclawTyrant;
                 case "glacialColossus": return GlacialColossus;
                 case "mireHydraQueen": return MireHydraQueen;
+                case "forestWolf": return ForestWolf;
+                case "thornSprite": return ThornSprite;
+                case "thornfangAlpha": return ThornfangAlpha;
+                case "thornheartTreant": return ThornheartTreant;
+                case "highlandIbex": return HighlandIbex;
+                case "dustscaleLizard": return DustscaleLizard;
+                case "cliffHarpy": return CliffHarpy;
+                case "stonebackGuardian": return StonebackGuardian;
+                case "ridgehornBehemoth": return RidgehornBehemoth;
                 default: return null;
             }
         }

@@ -150,6 +150,14 @@ namespace ZenoniaProto
             }, center, 0, true); // zone-wide: everyone must see the warning, not just whoever is already in the AOI grid near the boss
         }
 
+        /// <summary>A ranged monster's windup ended: its projectile leaves `from` flying along `angleDeg` (already rounded to the wire step). Clients
+        /// fly the same picture from the monster's shared MonsterRangedProfile; the hit itself arrives as a HeroHit.</summary>
+        public static void MonsterShot(Monster m, Vector2 from, float angleDeg)
+        {
+            if (!Active) return;
+            Add(new NetEvent { Type = NetEventType.MonsterShot, Id = m.NetId, X = NetQuantize.Pos(from.x), Y = NetQuantize.Pos(from.y), Angle = NetQuantize.Angle(angleDeg) }, from);
+        }
+
         public static void BossSpawned(Monster m)
         {
             if (!Active) return;

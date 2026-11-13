@@ -54,7 +54,7 @@ namespace ZenoniaProto
                 case State.Chase:
                     if (homeDist > def.LeashRange) { Enter(State.Return, 0f); break; }
                     if (def.IsWanted && TryBeginWantedSkill()) break; // telegraph started: stands still until it lands
-                    if (dist <= def.AttackRange) { Enter(State.Windup, def.WindupMs); break; }
+                    if (def.Ranged != null ? CanShoot(hero) : dist <= def.AttackRange) { Enter(State.Windup, def.WindupMs); break; } // ranged (Monster.Ranged.cs): stops at its range with a clear line
                     if (dist > 0.001f) dir = toHero / dist;
                     factor = ChaseSpeedFactor;
                     break;

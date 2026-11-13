@@ -16,7 +16,7 @@ namespace ZenoniaProto
         {
             "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
             "TTTTTTTTgggggggggTTggggggggggggggggT",
-            "TTTwwwwggggggggggTdddddddddddddddddd",
+            "TTTwwwwggggggggggTTddddddddddddddddd",
             "TTTwwwwggwwwgddddddddddddddddddddddT",
             "TTTTTTgggwwwdddddddggwwwwggggggggTTT",
             "TTTTTTTTTTTTBBTTTTTTTTTTTTTTTTTTTTTT",
@@ -25,7 +25,7 @@ namespace ZenoniaProto
             "TTTTTTggggggddgTTgggggTTgggggggggTTT",
             "TgggggggggggddggggggggTTgggggggggTTT",
             "ddddddddddddddddddddddgggwwwwddddddd",
-            "TTTTggwwwwwgggggggggdddggwwwwggggggT",
+            "TTTTggwwwwwwggggggggdddggwwwwggggggT",
             "TTTTTTTTTTTTTTTTTTTTTddTTTTTTTTTTTTT",
             "wwwwwwwwwwwwwwwwwwwwwBBwwwwwwwwwwwww",
             "wwwwwwwwwwwwwwwwwwwwwBBwwwwwwwwwwwww",

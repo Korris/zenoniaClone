@@ -67,7 +67,8 @@ namespace ZenoniaProto
         /// <summary>The road is two tiles wide at both edges, so each exit is a pair. Arrivals stand two tiles from the target map's portal, as on the existing maps.</summary>
         static readonly MapPortal[] PortalList =
         {
-            new MapPortal(0, 10, FrostfangDenMap.MapId, 32, 10), new MapPortal(0, 11, FrostfangDenMap.MapId, 32, 11),
+            // West gate: the east road of Sunbreak Foothills (World Map 2.1, 13/11/2026; it used to lead into the Frostfang Den's arena).
+            new MapPortal(0, 10, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.EastArrivalTx, SunbreakFoothillsMap.EastArrivalTy), new MapPortal(0, 11, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.EastArrivalTx, SunbreakFoothillsMap.EastArrivalTy + 1),
             new MapPortal(35, 10, AmberDunesMap.MapId, 2, 4), new MapPortal(35, 11, AmberDunesMap.MapId, 2, 5),
         };
 

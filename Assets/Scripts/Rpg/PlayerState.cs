@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ZenoniaProto.Rpg
@@ -81,7 +82,7 @@ namespace ZenoniaProto.Rpg
             MaxHp = RpgMath.Round((b.MaxHp + hpAdd) * (1 + Second.HpPct) * (1 + (pet != null ? pet.MaxHpPct : 0))); MaxMp = RpgMath.Round((b.MaxMp + mpAdd) * (1 + Second.MpPct));
             Atk = b.Atk + atkAdd; Def = RpgMath.Round((b.Def + defAdd) * (1 + Second.DefPct));
             DamageAtk = (float)(Atk * (1 + (pet != null ? pet.DamagePct : 0)));
-            Speed = (float)(b.Speed * speedMult);
+            Speed = (float)(b.Speed * Math.Min(speedMult, 1 + ItemDefs.MaxSpeedBonus));
             CritBonus = (float)(crit + RpgClasses.Get(ClassId).CritBonus + Second.CritRate);
             if (Hp > MaxHp) Hp = MaxHp;
             if (Mp > MaxMp) Mp = MaxMp;

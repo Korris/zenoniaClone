@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Frostfang Den: the frozen cavern between Frost Hollow and Sunspire Oasis, ONE painted backdrop (Sprites/village/tiles/frostfang-den-ground.png) with the HD props y-sorted on top.
+    /// Frostfang Den: the frozen cavern behind the ice cave of Sunbreak Foothills (a side dungeon since World Map 2.1), ONE painted backdrop (Sprites/village/tiles/frostfang-den-ground.png) with the HD props y-sorted on top.
     /// The rows were classified from the painting and only drive collision: T cave wall (solid)  g snow / ice floor  d worn path  p frozen arena floor. The path enters at the west edge on rows 9-11
     /// and the arena fills the east end, with the way on to Sunspire at its far wall behind the Glacier Warden. Props block their footprints (VillagePropDefs). MapSpawnTable keys on MapId.
     /// </summary>
@@ -55,16 +55,17 @@ namespace ZenoniaProto
         static readonly Vector2Int PlayerStartTile = new Vector2Int(3, 10);
 
         /// <summary>
-        /// West edge: back to the ice cave on Frost Hollow's east cliff (the painted path is three tiles wide here, so three triggers, one light). East edge: on to Sunspire Oasis, past the
-        /// arena's far wall. World Map 2.0 step 1 (13/11/2026): the user dropped the "kill the Warden first" gate, so this exit is now always open regardless of RpgSession.BossDefeatedOn
-        /// (the kill itself is still saved per hero, for the boss's own rewards, just no longer hides a portal).
+        /// World Map 2.1 (13/11/2026): the Den is a side dungeon of Sunbreak Foothills, no longer the road from Frost Hollow to Sunspire. West edge: back to the foot of the stairs under Sunbreak's
+        /// ice cave (the painted path is three tiles wide here, so three triggers, one light). East edge, past the arena's far wall behind the Glacier Warden: it used to go on to Sunspire Oasis and
+        /// is now a one-way shortcut out to the fork of the south road in Sunbreak (DenExitArrival, far from the cave mouth), so nobody has to walk the whole cave back after the fight. Always open (no boss gate since World Map 2.0 step 1;
+        /// the kill itself is still saved per hero, for the boss's own rewards).
         /// </summary>
         static readonly MapPortal[] PortalList =
         {
-            new MapPortal(0, 9, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y),
-            new MapPortal(0, 10, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y),
-            new MapPortal(0, 11, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y),
-            new MapPortal(34, 10, SunspireOasisMap.MapId, 2, 10),
+            new MapPortal(0, 9, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.CaveArrivalTx, SunbreakFoothillsMap.CaveArrivalTy),
+            new MapPortal(0, 10, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.CaveArrivalTx, SunbreakFoothillsMap.CaveArrivalTy),
+            new MapPortal(0, 11, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.CaveArrivalTx, SunbreakFoothillsMap.CaveArrivalTy),
+            new MapPortal(34, 10, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.DenExitArrivalTx, SunbreakFoothillsMap.DenExitArrivalTy),
         };
 
         public FrostfangDenMap() : base(Rows, "Tw")

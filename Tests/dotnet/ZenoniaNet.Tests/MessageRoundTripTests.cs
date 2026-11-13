@@ -139,7 +139,7 @@ public class MessageRoundTripTests
         Assert.Equal(InvOp.GearBuy, gear.Op); Assert.Equal("smithBram", gear.ItemUid); Assert.Equal((byte)9, gear.Slot);
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.GearBuy + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(18, NetProtocol.Version);
+        Assert.Equal(19, NetProtocol.Version);
     }
 
     [Fact]
@@ -268,6 +268,7 @@ public class MessageRoundTripTests
             new NetEvent { Type = NetEventType.BossDied, Id = 400 },
             new NetEvent { Type = NetEventType.TurretShot, Id = 500, Other = 301, X = -12, Y = 345 },
             new NetEvent { Type = NetEventType.WantedSkillTelegraph, Id = 600, Step = 3, X = 111, Y = -222, Angle = 64, Value = 4294960000 },
+            new NetEvent { Type = NetEventType.MonsterShot, Id = 700, X = 3210, Y = -456, Angle = 200 },
         };
         var w = new NetDataWriter();
         int written = NetMessageWriter.EventBatch(w, 5000, events, 0);
@@ -280,9 +281,11 @@ public class MessageRoundTripTests
         Assert.Equal(123456u, got[8].Value); Assert.Equal("Inventory full", got[12].Text); Assert.Equal(0xFF8855FFu, got[12].Value);
         Assert.Equal(7, got[11].Look.WeaponTier); Assert.Equal(1, got[11].Look.PetId); Assert.Equal(2, got[11].Look.HairStyle);
         Assert.Equal(6, SkillCastCode.Index(got[5].Step)); Assert.Equal(4, SkillCastCode.Rank(got[5].Step)); Assert.Equal(65001, got[5].Other); Assert.Equal(1, got[5].Facing);
-        NetEvent shot = got[got.Count - 2];
+        NetEvent monsterShot = got[got.Count - 1];
+        Assert.Equal(700, monsterShot.Id); Assert.Equal(3210, monsterShot.X); Assert.Equal(-456, monsterShot.Y); Assert.Equal(200, monsterShot.Angle);
+        NetEvent shot = got[got.Count - 3];
         Assert.Equal(500, shot.Id); Assert.Equal(301, shot.Other); Assert.Equal(-12, shot.X); Assert.Equal(345, shot.Y);
-        NetEvent telegraph = got[got.Count - 1];
+        NetEvent telegraph = got[got.Count - 2];
         Assert.Equal(600, telegraph.Id); Assert.Equal(3, telegraph.Step); Assert.Equal(111, telegraph.X); Assert.Equal(-222, telegraph.Y);
         Assert.Equal(64, telegraph.Angle); Assert.Equal(4294960000u, telegraph.Value);
     }

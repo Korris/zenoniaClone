@@ -30,6 +30,8 @@ namespace ZenoniaProto
             P("wbFenceW", 3, 34), P("wbFenceE", 14, 34), P("wbRockLog", 18, 34),
             P("wbRockSouth", 16, 35), P("wbLog", 19, 34), P("wbFenceHay", 20, 33),
             P("wbHaystack", 23, 33), P("wbShed", 26, 33), P("wbxOakBig", 32, 35),
+            // The redrawn ground (13/11) has no bridge: the old one is a flat walk-through prop over the B tiles (cols 23-27, row 22), 14 px below its old pixels.
+            P("wbBridge", 23, 23),
         };
 
         static MapProp[] all;

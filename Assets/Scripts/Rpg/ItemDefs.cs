@@ -29,6 +29,15 @@ namespace ZenoniaProto.Rpg
         /// <summary>Shared art tier: itemLevel 1/5 -> 0, 10/15 -> 1 ... 90/95 -> 9.</summary>
         public static int EquipmentTier(int itemLevel) { return RpgMath.Clamp(itemLevel / 10, 0, 9); }
 
+        /// <summary>
+        /// Move speed of boots: a fixed bonus per equipment tier (design answer 13/11/2026). It does NOT scale with item level, rarity or enhance like the other stats: scaled, a Lv60 epic
+        /// gave +36% to over +100% on maps a hero crosses in 7-17 s. Rarity only raises the boots' DEF.
+        /// </summary>
+        static readonly float[] BootsSpeedByTier = { 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.09f, 0.10f, 0.12f, 0.13f, 0.15f };
+        public static float BootsSpeed(int itemLevel) { return BootsSpeedByTier[EquipmentTier(itemLevel)]; }
+        /// <summary>Cap on the summed move speed bonus of everything worn (+25% = 100 units/s on the base 80).</summary>
+        public const double MaxSpeedBonus = 0.25;
+
         public static readonly Dictionary<string, string[]> ArmorTierNames = new Dictionary<string, string[]>
         {
             // the "helmet" slot is shown as a Necklace (designer 08/11): stats only, no hat on the character

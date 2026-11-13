@@ -36,7 +36,7 @@ public class WillowbrookLargeMapTests
     {
         // World Map 2.0 step 1 (13/11/2026): Willowbrook's west gate now leads to Oakhaven's new south gate (13,21)/(14,21), not Thatchwick (plans/261113-0106-world-map-step1/plan.md).
         IGameMap oak = MapRegistry.Get(OakhavenVillageMap.MapId);
-        Assert.Equal(2, Willow.Portals.Length);
+        Assert.Equal(4, Willow.Portals.Length); // the west gate pair + the south gate pair to Bramblewood Forest (World Map 2.1, BramblewoodRootburrowMapTests)
         Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 23 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 13 && p.TargetTy == 20);
         Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 24 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 14 && p.TargetTy == 20);
         Assert.Contains(oak.Portals, p => p.Tx == 13 && p.Ty == 21 && p.TargetMapId == WillowbrookMeadowsMap.MapId && p.TargetTx == 2 && p.TargetTy == 23);
@@ -107,7 +107,7 @@ public class WillowbrookLargeMapTests
                     if (!Willow.IsSolidTile(x, y)) free++;
             Assert.True(free >= 2 * count, "cluster at " + tx + "," + ty + " has " + free + " free tiles for " + count + " monsters");
             // nearest rect tile to the start tile and the gate tiles must be outside the entrance clearance (80 units = 5 tiles)
-            foreach (int[] e in new[] { new[] { 3, 23 }, new[] { 0, 23 }, new[] { 0, 24 } })
+            foreach (int[] e in new[] { new[] { 3, 23 }, new[] { 0, 23 }, new[] { 0, 24 }, new[] { 46, 44 }, new[] { 47, 44 }, new[] { 47, 42 } })
             {
                 int dx = Math.Max(Math.Max(tx - e[0], 0), e[0] - (tx + w - 1)), dy = Math.Max(Math.Max(ty - e[1], 0), e[1] - (ty + h - 1));
                 Assert.True(Math.Sqrt(dx * dx + dy * dy) * 16.0 >= 80.0, "cluster at " + tx + "," + ty + " is inside the entrance clearance");

@@ -65,29 +65,31 @@ namespace ZenoniaProto
             { "wbRockSouth", new PropDef(2.5f, 1.5f, 1, 0) }, { "wbLog", new PropDef(5.75f, 2.25f, 3, 0) }, { "wbFenceHay", new PropDef(3.5f, 2.5f, 2, 1) },
             { "wbHaystack", new PropDef(3.5f, 3.25f, 2, 1) }, { "wbShed", new PropDef(7.75f, 6.25f, 4, 2) }, { "wbOakSE", new PropDef(6f, 5f, 2, 1) },
             // Willowbrook Meadows extras (cut from the ChatGPT prop sheet by Tools/cut-willowbrook-extra-props.py): trees block the trunk tile, rocks/walls/log/barricade their base, reeds nothing
-            { "wbxOakBig", new PropDef(7.0f, 6.75f, 1, 1) },
+            { "wbxOakBig", new PropDef(7.0f, 7.0f, 1, 1) },
             { "wbxOakMid", new PropDef(5.5f, 5.5f, 1, 1) },
-            { "wbxOakSmall", new PropDef(4.5f, 4.75f, 1, 1) },
-            { "wbxOakSlim", new PropDef(2.5f, 4.5f, 1, 1) },
+            { "wbxOakSmall", new PropDef(4.5f, 5.0f, 1, 1) },
+            { "wbxOakSlim", new PropDef(2.5f, 4.75f, 1, 1) },
             { "wbxPine", new PropDef(4.0f, 5.75f, 1, 1) },
             { "wbxPineSlim", new PropDef(2.5f, 5.25f, 1, 1) },
             { "wbxBush", new PropDef(3.0f, 2.25f, 1, 0) },
-            { "wbxBushWhite", new PropDef(3.0f, 2.0f, 1, 0) },
+            { "wbxBushWhite", new PropDef(2.5f, 2.25f, 1, 0) },
             { "wbxBushLilac", new PropDef(2.5f, 2.25f, 1, 0) },
             { "wbxBoulder", new PropDef(5.0f, 3.25f, 3, 1) },
             { "wbxRock", new PropDef(3.0f, 2.25f, 2, 0) },
             { "wbxRocks", new PropDef(2.5f, 1.75f, 1, 0) },
-            { "wbxRockTiny", new PropDef(1.5f, 1.25f, 1, 0) },
-            { "wbxStump", new PropDef(3.0f, 2.25f, 1, 0) },
+            { "wbxRockTiny", new PropDef(2.0f, 1.25f, 1, 0) },
+            { "wbxStump", new PropDef(3.5f, 2.5f, 1, 0) },
             { "wbxLogHollow", new PropDef(4.0f, 2.5f, 3, 0) },
-            { "wbxPillarTall", new PropDef(1.5f, 3.75f, 1, 1) },
+            { "wbxPillarTall", new PropDef(2.0f, 3.75f, 1, 1) },
             { "wbxPillarShort", new PropDef(1.5f, 2.25f, 1, 1) },
             { "wbxWallLow", new PropDef(3.5f, 2.0f, 2, 1) },
             { "wbxWallCorner", new PropDef(3.5f, 2.75f, 2, 1) },
             { "wbxReeds", new PropDef(2.5f, 3.25f, 1, 0) },
             { "wbxBarricade", new PropDef(4.5f, 3.25f, 4, 3) },
+            // The stream bridge, cut from the first painting (Tools/cut-willowbrook-bridge-prop.py): the redrawn ground has none. Walk-through and 3 tiles high, so it is drawn flat under the hero.
+            { "wbBridge", new PropDef(5.5f, 3.0f, 5, 0) },
         };
 
-        public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def) || FrostHollowPropDefs.TryGet(type, out def); }
+        public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def) || FrostHollowPropDefs.TryGet(type, out def) || BramblewoodForestPropDefs.TryGet(type, out def) || SunbreakFoothillsPropDefs.TryGet(type, out def); }
     }
 }

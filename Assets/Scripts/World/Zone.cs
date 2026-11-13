@@ -102,7 +102,7 @@ namespace ZenoniaProto
                 return;
             }
             if (!m.IsBoss) return;
-            if (!NetMode.IsOffline && NetMode.IsAuthority) BossTimer.Start();
+            if (!NetMode.IsOffline && NetMode.IsAuthority) BossTimer.Start(Spawner != null ? MapSpawnTable.BossRespawnMs(Spawner.MapId) : BossRespawnTimer.DefaultRespawnMs); // dungeon bosses 5 min, field bosses 30
             NetEventBus.BossDied(m);
             if (BossDied != null) BossDied(m);
         }

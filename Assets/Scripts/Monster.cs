@@ -180,6 +180,7 @@ namespace ZenoniaProto
 
         void Strike(HeroController hero)
         {
+            if (def.Ranged != null) { FireRangedShot(hero); return; } // the projectile does the hitting (MonsterProjectile)
             if (Vector2.Distance(hero.Position, new Vector2(x, y)) <= def.AttackRange + 10f)
                 hero.TakeDamage(CombatMath.Damage(def.Atk, 1f, hero.DefStat));
             if (def.IsBoss) CameraFollow.AddTrauma(0.5f);

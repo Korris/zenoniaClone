@@ -13,6 +13,8 @@ namespace ZenoniaProto
     {
         const float MinSpawnDistanceFromHero = 60f, RetryMs = 500f;
         string mapId;
+        /// <summary>Map this spawner fills (the zone asks it how long the boss stays away).</summary>
+        public string MapId { get { return mapId; } }
         Zone homeZone;
         FrostHollowMap.Zone[] zones;
         List<float>[] pending;

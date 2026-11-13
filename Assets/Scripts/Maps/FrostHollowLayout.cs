@@ -66,19 +66,21 @@ namespace ZenoniaProto
 
         /// <summary>
         /// The south-west corner goes back to the village gate; World Map 2.0 step 1 (13/11/2026) re-aimed it at Thatchwick's east road (it used to go to Oakhaven, before Thatchwick sat between
-        /// Oakhaven and Frost Hollow on the route). The mouth of the ice cave on the east cliff (three tiles, row 20) goes on to the Frostfang Den boss map, the way to Sunspire Oasis (always open,
-        /// MapSpawnTable no longer gates it). The Den's way back arrives at (68,22), two tiles in front of the cave.
+        /// Oakhaven and Frost Hollow on the route). The mouth of the ice cave on the east cliff (three tiles, row 20) is the way on: World Map 2.1 (13/11/2026) re-aimed it from the Frostfang Den
+        /// to the south road of Sunbreak Foothills (the Den is now a side dungeon behind Sunbreak's own ice cave). Sunbreak's way back arrives at (68,22), two tiles in front of the cave.
+        /// The names still say "Den": the portal and the arrival tile did not move.
         /// </summary>
         const int DenPortalTx = 67, DenPortalTy = 20;
-        /// <summary>Where the Frostfang Den's way back lands: the snow in front of the ice cave, two tiles south of its portal row.</summary>
-        public static readonly Vector2Int DenArrivalTile = new Vector2Int(68, 22);
+        /// <summary>Where the way back from Sunbreak Foothills lands (the Frostfang Den's until World Map 2.1): the snow in front of the ice cave, two tiles south of its portal row.</summary>
+        public const int DenArrivalTx = 68, DenArrivalTy = 22; // consts: Sunbreak's portal table reads them while this class may still be initialising (see SunbreakFoothillsMap)
+        public static readonly Vector2Int DenArrivalTile = new Vector2Int(DenArrivalTx, DenArrivalTy);
 
         static readonly MapPortal[] PortalList =
         {
             new MapPortal(2, 21, ThatchVillageMap.MapId, 33, 11),
-            new MapPortal(DenPortalTx, DenPortalTy, FrostfangDenMap.MapId, 2, 10),
-            new MapPortal(DenPortalTx + 1, DenPortalTy, FrostfangDenMap.MapId, 2, 10),
-            new MapPortal(DenPortalTx + 2, DenPortalTy, FrostfangDenMap.MapId, 2, 10),
+            new MapPortal(DenPortalTx, DenPortalTy, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.SouthArrivalTx, SunbreakFoothillsMap.SouthArrivalTy),
+            new MapPortal(DenPortalTx + 1, DenPortalTy, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.SouthArrivalTx, SunbreakFoothillsMap.SouthArrivalTy),
+            new MapPortal(DenPortalTx + 2, DenPortalTy, SunbreakFoothillsMap.MapId, SunbreakFoothillsMap.SouthArrivalTx, SunbreakFoothillsMap.SouthArrivalTy),
         };
 
         public const string MapId = "frostHollow"; // the web / save id; the launch arg spells it frost-hollow

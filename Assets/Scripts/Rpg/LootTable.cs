@@ -48,12 +48,12 @@ namespace ZenoniaProto.Rpg
             { "rimeclawTyrant", new MonsterLootDef { Type = "rimeclawTyrant", Exp = 280, GoldMin = 20, GoldMax = 50, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "glacialColossus", new MonsterLootDef { Type = "glacialColossus", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 25, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "mireHydraQueen", new MonsterLootDef { Type = "mireHydraQueen", Exp = 3270, GoldMin = 233, GoldMax = 473, ItemLevel = 40, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
-            // Willowbrook meadow monsters: EXP 14L x role factor, gold L..2L+1 x role factor. Mantis/treant pushed to Lv 7/10 (step 1).
-            { "hornRabbit", new MonsterLootDef { Type = "hornRabbit", Exp = 26, GoldMin = 1, GoldMax = 4, ItemLevel = 2 } },
-            { "thornBoar", new MonsterLootDef { Type = "thornBoar", Exp = 50, GoldMin = 4, GoldMax = 8, ItemLevel = 3 } },
+            // Willowbrook meadow monsters: EXP 14L x role factor, gold L..2L+1 x role factor. World Map 2.1: Willowbrook Lv 1-5 (slime 1, rabbit 3, boar 5); mantis 6 and treant 8 are Bramblewood Forest (Lv 6-10).
+            { "hornRabbit", new MonsterLootDef { Type = "hornRabbit", Exp = 39, GoldMin = 2, GoldMax = 6, ItemLevel = 3 } },
+            { "thornBoar", new MonsterLootDef { Type = "thornBoar", Exp = 84, GoldMin = 6, GoldMax = 13, ItemLevel = 5 } },
             { "meadowSlime", new MonsterLootDef { Type = "meadowSlime", Exp = 12, GoldMin = 1, GoldMax = 3, ItemLevel = 1 } },
-            { "meadowMantis", new MonsterLootDef { Type = "meadowMantis", Exp = 112, GoldMin = 8, GoldMax = 16, ItemLevel = 7 } },
-            { "brambleTreant", new MonsterLootDef { Type = "brambleTreant", Exp = 223, GoldMin = 17, GoldMax = 32, ItemLevel = 10 } },
+            { "meadowMantis", new MonsterLootDef { Type = "meadowMantis", Exp = 96, GoldMin = 7, GoldMax = 14, ItemLevel = 6 } },
+            { "brambleTreant", new MonsterLootDef { Type = "brambleTreant", Exp = 179, GoldMin = 13, GoldMax = 27, ItemLevel = 8 } },
             // Frost Hollow ice monsters (Lv 13-15; step 1 band is now Lv 11-15): the same line.
             { "iceWraith", new MonsterLootDef { Type = "iceWraith", Exp = 182, GoldMin = 13, GoldMax = 27, ItemLevel = 13 } },
             { "frostbiteYeti", new MonsterLootDef { Type = "frostbiteYeti", Exp = 196, GoldMin = 14, GoldMax = 29, ItemLevel = 14 } },
@@ -62,6 +62,16 @@ namespace ZenoniaProto.Rpg
             { "snowFox", new MonsterLootDef { Type = "snowFox", Exp = 152, GoldMin = 12, GoldMax = 21, ItemLevel = 12 } },
             { "iceImp", new MonsterLootDef { Type = "iceImp", Exp = 168, GoldMin = 12, GoldMax = 25, ItemLevel = 12 } },
             { "frostBear", new MonsterLootDef { Type = "frostBear", Exp = 203, GoldMin = 16, GoldMax = 32, ItemLevel = 13 } },
+            // World Map 2.1 new monsters: Bramblewood Forest (Lv 6-10) + Rootburrow boss, Sunbreak Foothills (Lv 16-20). Same line (EXP 14L, gold L..2L+1) x role factor; bosses x6.67 with the sure drops.
+            { "forestWolf", new MonsterLootDef { Type = "forestWolf", Exp = 91, GoldMin = 5, GoldMax = 12, ItemLevel = 7 } },
+            { "thornSprite", new MonsterLootDef { Type = "thornSprite", Exp = 126, GoldMin = 9, GoldMax = 19, ItemLevel = 9 } },
+            { "thornfangAlpha", new MonsterLootDef { Type = "thornfangAlpha", Exp = 934, GoldMin = 67, GoldMax = 140, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            { "thornheartTreant", new MonsterLootDef { Type = "thornheartTreant", Exp = 934, GoldMin = 67, GoldMax = 140, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            { "highlandIbex", new MonsterLootDef { Type = "highlandIbex", Exp = 224, GoldMin = 16, GoldMax = 33, ItemLevel = 16 } },
+            { "dustscaleLizard", new MonsterLootDef { Type = "dustscaleLizard", Exp = 238, GoldMin = 17, GoldMax = 35, ItemLevel = 17 } },
+            { "cliffHarpy", new MonsterLootDef { Type = "cliffHarpy", Exp = 252, GoldMin = 18, GoldMax = 37, ItemLevel = 18 } },
+            { "stonebackGuardian", new MonsterLootDef { Type = "stonebackGuardian", Exp = 448, GoldMin = 32, GoldMax = 66, ItemLevel = 20 } },
+            { "ridgehornBehemoth", new MonsterLootDef { Type = "ridgehornBehemoth", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 20, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
         };
 
         public static MonsterLootDef For(string type) { MonsterLootDef d; return type != null && Table.TryGetValue(type, out d) ? d : null; }

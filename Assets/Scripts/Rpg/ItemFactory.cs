@@ -47,7 +47,7 @@ namespace ZenoniaProto.Rpg
             {
                 atk = Scaled(t.Base.atk, scale), def = Scaled(t.Base.def, scale), maxHp = Scaled(t.Base.maxHp, scale), maxMp = Scaled(t.Base.maxMp, scale),
                 critChance = t.Base.critChance > 0f ? RpgMath.Round3(t.Base.critChance * scale) : 0f,
-                speedMult = t.Base.speedMult > 0f ? RpgMath.Round3(t.Base.speedMult * scale) : 0f,
+                speedMult = t.Base.speedMult > 0f ? ItemDefs.BootsSpeed(itemLevel) : 0f, // fixed per tier, never scaled
             };
             string baseName = WeaponNames.BaseName(OffhandClass(classId), chosen, ItemDefs.EquipmentTier(itemLevel))
                 ?? (ItemDefs.ArmorTierNames.ContainsKey(chosen) ? ItemDefs.ArmorTierNames[chosen][ItemDefs.EquipmentTier(itemLevel)] : t.Name);
@@ -113,7 +113,7 @@ namespace ZenoniaProto.Rpg
             {
                 atk = t.Base.atk != 0 ? RpgMath.Clamp(rs.atk, 0, 999) : 0, def = t.Base.def != 0 ? RpgMath.Clamp(rs.def, 0, 999) : 0,
                 maxHp = t.Base.maxHp != 0 ? RpgMath.Clamp(rs.maxHp, 0, 999) : 0, maxMp = t.Base.maxMp != 0 ? RpgMath.Clamp(rs.maxMp, 0, 999) : 0,
-                critChance = t.Base.critChance > 0f ? ClampF(rs.critChance) : 0f, speedMult = t.Base.speedMult > 0f ? ClampF(rs.speedMult) : 0f,
+                critChance = t.Base.critChance > 0f ? ClampF(rs.critChance) : 0f, speedMult = t.Base.speedMult > 0f ? ItemDefs.BootsSpeed(RpgMath.Clamp(raw.itemLevel, 1, MaxItemLevel)) : 0f, // rewritten from the tier table: boots saved before 13/11/2026 carried a level-scaled value
             };
             var item = new Item
             {
