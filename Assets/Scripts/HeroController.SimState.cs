@@ -36,7 +36,7 @@ namespace ZenoniaProto
             {
                 DashDir = dashLeft > 0f ? DirIndex(dashDir) : (byte)0, ComboPhase = (byte)c.Phase, ComboStep = (byte)c.Step, ComboLast = (byte)c.LastStep, ComboQueued = c.Queued,
                 DashLeft = T(dashLeft), DashCooldown = T(dashCooldown), ComboTimer = T(c.Timer), ChainTimer = T(c.ChainTimer), Invuln = T(invuln), Hurt = T(hurt),
-                CastLeft = T(castLeft), StabLeft = T(stabLeft), CastSkill = (byte)castSkill, AtkSpeedLeft = T(hasteLeft), AtkSpeedPct = hastePct,
+                CastLeft = T(castLeft), StabLeft = T(stabLeft), CastSkill = (byte)castSkill, AtkSpeedLeft = T(hasteLeft), AtkSpeedPct = hastePct, FreezeLeft = T(frozenMs),
             };
             if (withSkills && AnySkillCooldown)
             {
@@ -54,7 +54,7 @@ namespace ZenoniaProto
             if (isDead && !dead) deathTimer = deathProgress * RespawnMs;
             dead = isDead;
             dashLeft = s.DashLeft; dashCooldown = s.DashCooldown; invuln = s.Invuln; hurt = s.Hurt;
-            castLeft = s.CastLeft; stabLeft = s.StabLeft; castSkill = s.CastSkill;
+            castLeft = s.CastLeft; stabLeft = s.StabLeft; castSkill = s.CastSkill; frozenMs = s.FreezeLeft;
             for (int i = 0; i < SkillCooldowns.Slots; i++) cds.Start(i, s.CdOf(i));
             HeroBuffs.SetAtkSpeed(this, s.AtkSpeedPct, s.AtkSpeedLeft);
             if (castLeft > 0f)
@@ -68,12 +68,14 @@ namespace ZenoniaProto
         }
 
         /// <summary>
-        /// Coarse discrete state (dead, dashing, casting, combo phase + step) used to decide whether the server's state disagrees with what was predicted.
-        /// Hurt is left out on purpose: the client learns about hits from events, not from its own sim.
+        /// Coarse discrete state (dead, dashing, casting, combo phase + step, frozen, attack-speed buff) used to decide whether the server's state
+        /// disagrees with what was predicted. Hurt is left out on purpose: the client learns about hits from events, not from its own sim. Frozen
+        /// is included even though HeroController.PredictFreeze usually already guessed it, so a wrong guess still forces a reconcile.
         /// </summary>
         public static int Discrete(bool isDead, OwnerSim s)
         {
-            return (isDead ? 1 : 0) | (s.DashLeft > 0f ? 2 : 0) | (s.CastLeft > 0f ? 4 : 0) | (s.ComboPhase << 3) | (s.ComboStep << 5) | (s.AtkSpeedLeft > 0f ? 1 << 12 : 0);
+            return (isDead ? 1 : 0) | (s.DashLeft > 0f ? 2 : 0) | (s.CastLeft > 0f ? 4 : 0) | (s.ComboPhase << 3) | (s.ComboStep << 5)
+                | (s.FreezeLeft > 0f ? 1 << 11 : 0) | (s.AtkSpeedLeft > 0f ? 1 << 12 : 0);
         }
 
         public int DiscreteState() { return Discrete(dead, CaptureSim(false)); }

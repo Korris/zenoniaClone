@@ -10,7 +10,8 @@ namespace ZenoniaProto
     /// </summary>
     public partial class Monster : MonoBehaviour
     {
-        enum State { Idle, Wander, Chase, Windup, Cooldown, Return, Dying }
+        // Telegraph / Execute are appended (not inserted) so NetStateCode / ProxyApply stay wire-compatible with existing saves and older clients.
+        enum State { Idle, Wander, Chase, Windup, Cooldown, Return, Dying, Telegraph, Execute }
 
         const float WalkFrameMs = 160f, HitFlashMs = 100f, KnockbackMs = 120f;
         const float RecoveryMs = 240f;            // attack follow-through frames after the strike (web HD_MONSTER_ATTACK)

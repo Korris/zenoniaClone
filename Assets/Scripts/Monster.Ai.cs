@@ -27,6 +27,7 @@ namespace ZenoniaProto
         Vector2 Think(float dtMs, HeroController hero, out bool strike)
         {
             strike = false;
+            if (def.IsWanted) TickWantedSkills(dtMs);
             Vector2 here = new Vector2(x, y);
             Vector2 toHero = hero.Position - here;
             float dist = toHero.magnitude;
@@ -52,6 +53,7 @@ namespace ZenoniaProto
                     break;
                 case State.Chase:
                     if (homeDist > def.LeashRange) { Enter(State.Return, 0f); break; }
+                    if (def.IsWanted && TryBeginWantedSkill()) break; // telegraph started: stands still until it lands
                     if (dist <= def.AttackRange) { Enter(State.Windup, def.WindupMs); break; }
                     if (dist > 0.001f) dir = toHero / dist;
                     factor = ChaseSpeedFactor;
@@ -67,6 +69,14 @@ namespace ZenoniaProto
                     if (homeDist < 6f) { Enter(State.Idle, 800f); break; }
                     if (dist < def.AggroRange * 0.6f) { Enter(State.Chase, 0f); break; }
                     dir = toHome / homeDist;
+                    break;
+                // Wanted Boss skill (NORMAL/Chase above -> Telegraph -> Execute -> back to Chase; Monster.WantedSkills.cs): the boss stands still
+                // through both (dir stays zero) -- the shape and its strike instant were locked when the telegraph began.
+                case State.Telegraph:
+                    if (timer <= 0f) { FireWantedSkill(); Enter(State.Execute, ExecuteMs); }
+                    break;
+                case State.Execute:
+                    if (timer <= 0f) Enter(State.Chase, 0f);
                     break;
             }
             if (dir == Vector2.zero) return Vector2.zero;

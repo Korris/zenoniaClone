@@ -6,8 +6,9 @@ namespace ZenoniaProto.Net
     /// The part of a hero's simulation state that position / pose do not already carry, sent to its OWNER in every snapshot so the client can restore the
     /// server state at an acked input frame and replay its newer inputs (reconciliation). Timers are exact floats (ms): a rounded timer would let a
     /// replay cross a phase boundary one step earlier than the server did. Wire: 2 B of small enums, an 8-bit presence mask, then only the non-zero
-    /// timers, 4 B each (an idle hero costs 3 B). Skill state (cooldowns of the 8 skills, the skill being cast, the attack-speed buff) travels in an
-    /// optional extension block announced by bit 7 of the first byte, so a hero that never casts pays nothing for it.
+    /// timers, 4 B each (an idle hero costs 3 B). Skill state (cooldowns of the 8 skills, the skill being cast, the attack-speed buff) and the
+    /// Wanted Boss freeze timer (HeroController.WantedStatus.cs) travel in an optional extension block announced by bit 7 of the first byte, so a
+    /// hero that never casts and is never frozen pays nothing for it.
     /// </summary>
     public struct OwnerSim
     {
@@ -23,9 +24,12 @@ namespace ZenoniaProto.Net
         public float AtkSpeedLeft, AtkSpeedPct;
         /// <summary>Cooldowns (ms) of the 8 skills; null = all ready.</summary>
         public float[] Cd;
+        /// <summary>Remaining ms of a Wanted Boss freeze (0 = not frozen); the owning client also guesses this itself the instant the telegraph
+        /// resolves (WantedSkillTelegraphFx), this field only confirms / corrects that guess.</summary>
+        public float FreezeLeft;
 
         public const int CdSlots = 8;
-        const int BaseFields = 8, ExtFields = CdSlots + 2;
+        const int BaseFields = 8, ExtFields = CdSlots + 3;
         const byte ExtFlag = 128;
 
         float Field(int i)
@@ -58,13 +62,14 @@ namespace ZenoniaProto.Net
             }
         }
 
-        float ExtField(int i) { return i < CdSlots ? CdOf(i) : i == CdSlots ? AtkSpeedLeft : AtkSpeedPct; }
+        float ExtField(int i) { return i < CdSlots ? CdOf(i) : i == CdSlots ? AtkSpeedLeft : i == CdSlots + 1 ? AtkSpeedPct : FreezeLeft; }
 
         void SetExtField(int i, float v)
         {
             if (i < CdSlots) { if (Cd == null) Cd = new float[CdSlots]; Cd[i] = v; }
             else if (i == CdSlots) AtkSpeedLeft = v;
-            else AtkSpeedPct = v;
+            else if (i == CdSlots + 1) AtkSpeedPct = v;
+            else FreezeLeft = v;
         }
 
         public float CdOf(int i) { return Cd != null && i >= 0 && i < Cd.Length ? Cd[i] : 0f; }

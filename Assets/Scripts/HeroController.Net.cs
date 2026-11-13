@@ -20,6 +20,7 @@ namespace ZenoniaProto
         HeroPose proxyPose;
         int proxyStep;
         float proxyProgress;
+        bool proxyFrozen; // replicated HeroFlags.Frozen -- HeroController.WantedStatus.cs's WantedFrozen reads this for a proxy hero
 
         public bool IsProxy { get { return proxy; } }
 
@@ -86,7 +87,7 @@ namespace ZenoniaProto
             else if (dashLeft > 0f) pose = HeroPose.Dash;
             else if (combo.IsAttacking) { pose = HeroPose.Attack; step = combo.Step; progress = combo.PhaseProgress; }
             else pose = moving ? HeroPose.Walk : HeroPose.Idle;
-            int flags = (dead ? HeroFlags.Dead : 0) | (dashLeft > 0f ? HeroFlags.Dash : 0) | (moving ? HeroFlags.Moving : 0) | (invuln > 0f ? HeroFlags.Invuln : 0) | (hurt > 0f ? HeroFlags.Hurt : 0);
+            int flags = (dead ? HeroFlags.Dead : 0) | (dashLeft > 0f ? HeroFlags.Dash : 0) | (moving ? HeroFlags.Moving : 0) | (invuln > 0f ? HeroFlags.Invuln : 0) | (hurt > 0f ? HeroFlags.Hurt : 0) | (frozenMs > 0f ? HeroFlags.Frozen : 0);
             return new HeroSnap
             {
                 Id = NetId, X = NetQuantize.Pos(x), Y = NetQuantize.Pos(y), FacingFlags = NetQuantize.PackFacing(facing, flags), Pose = (byte)pose,
@@ -103,6 +104,7 @@ namespace ZenoniaProto
             if (nowDead && !dead) deathTimer = 0f;
             dead = nowDead;
             moving = (flags & HeroFlags.Moving) != 0;
+            proxyFrozen = (flags & HeroFlags.Frozen) != 0;
             proxyPose = pose; proxyStep = step; proxyProgress = progress;
             hurt = pose == HeroPose.Hurt ? HurtMs * (1f - progress) : 0f;
             castTotal = 1000f;

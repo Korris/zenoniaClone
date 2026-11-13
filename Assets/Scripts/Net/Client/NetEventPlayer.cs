@@ -120,6 +120,12 @@ namespace ZenoniaProto
                     stats.Add("bossSpawnedSeen", 1);
                     stats.Mark("bossSpawnedSeenUtcMs", NetStats.UtcMs.ToString());
                     break;
+                case NetEventType.WantedSkillTelegraph:
+                    Monster wanted = MonsterOf(e.Id);
+                    if (wanted == null) break;
+                    wanted.ShowWantedTelegraph(e.Step);
+                    if (fx) WantedSkillTelegraphFx.Spawn(wanted.Type, e.Step, at, NetQuantize.Angle(e.Angle), e.Value);
+                    break;
                 case NetEventType.BossDied:
                     stats.Add("bossDiedSeen", 1);
                     stats.Mark("bossDiedPlayedUtcMs", NetStats.UtcMs.ToString());

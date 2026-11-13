@@ -185,13 +185,13 @@ public class SnapshotTests
     public void OwnerSimSkillBlockRoundTripsAndStaysOffTheWireWhenIdle()
     {
         var w = new NetDataWriter();
-        var s = new OwnerSim { CastLeft = 450, CastSkill = 5, AtkSpeedLeft = 8000, AtkSpeedPct = 15, Cd = new float[] { 0, 9000.5f, 0, 0, 120, 0, 0, 33000 } };
+        var s = new OwnerSim { CastLeft = 450, CastSkill = 5, AtkSpeedLeft = 8000, AtkSpeedPct = 15, FreezeLeft = 900, Cd = new float[] { 0, 9000.5f, 0, 0, 120, 0, 0, 33000 } };
         s.Write(w);
         var r = new NetDataReader(); r.SetSource(w.CopyData());
         OwnerSim got;
         Assert.True(OwnerSim.TryRead(r, out got));
         Assert.Equal(0, r.AvailableBytes);
-        Assert.Equal(5, got.CastSkill); Assert.Equal(450f, got.CastLeft); Assert.Equal(8000f, got.AtkSpeedLeft); Assert.Equal(15f, got.AtkSpeedPct);
+        Assert.Equal(5, got.CastSkill); Assert.Equal(450f, got.CastLeft); Assert.Equal(8000f, got.AtkSpeedLeft); Assert.Equal(15f, got.AtkSpeedPct); Assert.Equal(900f, got.FreezeLeft);
         for (int i = 0; i < 8; i++) Assert.Equal(s.Cd[i], got.CdOf(i));
         // a cast of skill 0 with nothing else on cooldown needs no extension block
         w.Reset(); new OwnerSim { CastLeft = 300 }.Write(w);

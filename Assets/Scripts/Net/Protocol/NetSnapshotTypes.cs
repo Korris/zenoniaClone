@@ -8,7 +8,7 @@ namespace ZenoniaProto.Net
     /// <summary>Hero snapshot flag bits (above the 2 facing bits of FacingFlags).</summary>
     public static class HeroFlags
     {
-        public const int Dead = 1, Dash = 2, Moving = 4, Invuln = 8, Hurt = 16;
+        public const int Dead = 1, Dash = 2, Moving = 4, Invuln = 8, Hurt = 16, Frozen = 32;
     }
 
     /// <summary>

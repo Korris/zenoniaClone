@@ -131,6 +131,7 @@ namespace ZenoniaProto
                 Object.Destroy(l.gameObject);
             }
             DeployedTurret.ClearZone(zone);
+            WantedSkillTelegraphFx.ClearAll();
             zone.Monsters.Clear(); zone.Loot.Clear();
             zone.Boss = null; zone.Wanted = null;
             for (int i = zone.Heroes.All.Count - 1; i >= 0; i--)
@@ -155,6 +156,7 @@ namespace ZenoniaProto
             for (int i = zone.Monsters.Count - 1; i >= 0; i--) if (zone.Monsters[i] != null) Object.Destroy(zone.Monsters[i].gameObject);
             for (int i = zone.Loot.Count - 1; i >= 0; i--) if (zone.Loot[i] != null) Object.Destroy(zone.Loot[i].gameObject);
             DeployedTurret.ClearZone(zone);
+            WantedSkillTelegraphFx.ClearAll();
             for (int i = zone.Heroes.All.Count - 1; i >= 0; i--)
             {
                 HeroController h = zone.Heroes.All[i];

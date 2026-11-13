@@ -19,7 +19,7 @@ Quy ước: 1 ô = 1 tile; sát thương 1,0x = một đòn thường của boss
 |---|---|---|---|---|---|
 | Frostclaw Sweep | Quạt 120° phía trước, bán kính 4 ô | 1,2 s | 1,5x, đẩy lùi 1 ô | 9 s | Ra sau boss hoặc ra ngoài quạt |
 | Broken Chain Slam | Vòng tròn bán kính 2 ô tại chỗ một người chơi được chọn (khoá vị trí lúc bắt đầu cảnh báo) | 1,5 s | 1,2x, chậm 30 % trong 2 s | 13 s | Rời vòng |
-| Frozen Ground Stomp | Vòng tròn quanh boss, bán kính 4 ô | 1,6 s | 1,8x, chậm 40 % trong 2 s | 17 s | Lùi khỏi boss |
+| Frozen Ground Stomp | Vòng tròn quanh boss, bán kính 4 ô | 1,6 s | 1,8x, ĐÓNG BĂNG 3 s (đổi từ "chậm 40 % trong 2 s" ngày 12/11; 1,5 s lúc đầu, người dùng chê "hết nhanh" -> 3 s) | 17 s | Lùi khỏi boss |
 | Tyrant's Blizzard (dưới 30 % máu) | Vòng tròn bán kính 6 ô, chừa 1 hành lang an toàn rộng 90° (đánh dấu xanh) | 2,2 s | 2,2x, chậm 40 % trong 3 s | 28 s | Vào vùng an toàn hoặc ra ngoài bán kính |
 
 ## Glacial Colossus (Lv 25, hang băng)
@@ -28,7 +28,7 @@ Quy ước: 1 ô = 1 tile; sát thương 1,0x = một đòn thường của boss
 |---|---|---|---|---|---|
 | Crystal Fissure | Đường thẳng từ boss, dài 9 ô, rộng 2 ô | 1,4 s | 1,8x, chậm 30 % trong 2 s | 10 s | Đi vuông góc khỏi đường |
 | Rune Impact | Quạt 100° phía trước, bán kính 4 ô | 1,3 s | 2,0x, đẩy lùi 2 ô | 12 s | Ra hai bên hoặc ra sau |
-| Crystal Fall | 3 vòng tròn bán kính 1,5 ô tại 3 người chơi khác nhau (khoá lúc bắt đầu cảnh báo) | 1,8 s | 1,4x mỗi vùng, chậm 30 % trong 2 s | 18 s | Rời vòng, đừng chạy về phía đồng đội |
+| Crystal Fall | 3 vòng tròn bán kính 1,5 ô tại 3 người chơi khác nhau (khoá lúc bắt đầu cảnh báo) | 1,8 s | 1,4x mỗi vùng, ĐÓNG BĂNG 2 s (đổi từ "chậm 30 % trong 2 s" ngày 12/11) | 18 s | Rời vòng, đừng chạy về phía đồng đội |
 | Core Overload (dưới 30 % máu) | Vòng tròn bán kính 7 ô quanh boss, 2 hành lang an toàn đối nhau, mỗi cái 60° | 2,4 s | 2,5x, đẩy lùi 2 ô | 30 s | Vào hành lang an toàn hoặc ra ngoài |
 
 Crystal Fissure và Rune Impact dùng chung động tác giơ tay đập xuống.
@@ -41,6 +41,18 @@ Crystal Fissure và Rune Impact dùng chung động tác giơ tay đập xuống
 | Poison Bloom | 3 vòng tròn tại chỗ người chơi (số liệu vòng: xem chat), để lại vũng độc 3 s | 1,8-2,0 s | 0,8x, độc 0,15x mỗi giây trong 4 s | 15 s | Rời vòng, đừng kéo vùng độc vào đội |
 | Serpent Tail Crush | Vòng tròn quanh boss, bán kính 4 ô | 1,5 s | 1,7x, đẩy lùi 2 ô | 16 s | Rời phạm vi đuôi |
 | Queen's Toxic Reign (dưới 30 % máu) | 5 vòng tròn bán kính 2 ô quanh khu giao tranh | 2,2 s | 1,5x, độc 0,2x mỗi giây trong 5 s | 30 s | Tìm khoảng trống giữa các vòng |
+
+## Luật đóng băng (Frozen Ground Stomp, 12/11/2026)
+
+Dùng `StatusKind.Freeze` riêng cho hero (KHÔNG qua `MonsterStatus`, vì cần đồng bộ mạng giống hệt dash/invuln): `HeroController.frozenMs`.
+
+- Khi đang đóng băng: không đi, không đánh thường, không skill, không dash; anim giữ nguyên frame hiện tại (animTimer/idleTimer không tăng). Vẫn nhận sát thương, vẫn hồi máu tự nhiên, vẫn độc/chậm nếu có (tách khỏi `MonsterStatus`).
+- Không cộng dồn: trúng lại lấy `max(còn lại, mới)`.
+- Không bị đẩy lùi trong lúc đóng băng (hiệu ứng khác có knockback bị bỏ qua khi đang đóng băng).
+- Dash/bất tử lúc trúng đòn vẫn né được (giống mọi hiệu ứng khác) -- không né invuln riêng cho phần client tự đoán (xem dưới).
+- KHÔNG chặn uống bình máu/mana (phím đó nằm ngoài vòng lặp sim bị khựng).
+- Mạng: cờ `HeroFlags.Frozen` trong `FacingFlags` (mọi client thấy mọi hero đóng băng), `OwnerSim.FreezeLeft` (hero của mình, phục vụ đối chiếu/dự đoán lại). Client tự dự đoán (`HeroController.PredictFreeze`) tự đóng băng ngay lúc hiệu ứng va chạm bắn ra (cùng mốc `WantedSkillTelegraphFx` vẽ hiệu ứng), không chờ gói tin server -- nên không trượt rồi bị kéo lại. Không chặn theo `invuln` phía dự đoán (giá trị đó có thể cũ do một đòn thường gần đó), chỉ chặn dead/God/đang dash.
+- Hình: `Sprites/fx/wanted/frozen-block.png` (cục băng phủ quanh hero, lòng rỗng) + tint xanh nhẹ lên thân hero (luôn có, kể cả khi chưa có hình). Vẽ ngay dưới thân hero (orderBase + 2, thân ở orderBase + 3).
 
 ## Cảnh báo
 

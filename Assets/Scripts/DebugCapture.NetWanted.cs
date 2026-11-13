@@ -50,6 +50,8 @@ namespace ZenoniaProto
             float lastHpPct = 1f;
             Monster target = null;
             float nextLog = start + 10f;
+            bool telegraphShot = false;
+            int telegraphSeries = 0;
             while (!killed && Time.realtimeSinceStartup - start < 300f)
             {
                 Monster boss = mapBoss ? Monster.Boss : Monster.Wanted;
@@ -57,6 +59,13 @@ namespace ZenoniaProto
                 {
                     if (!sawBoss) P("boss in sight: " + boss.DisplayName + " hp " + Mathf.CeilToInt(boss.Hp) + " / " + (int)boss.MaxHp + " after " + (Time.realtimeSinceStartup - start).ToString("F0", CultureInfo.InvariantCulture) + " s");
                     sawBoss = true; target = boss; lastHpPct = boss.Hp / boss.MaxHp;
+                    if (shots != null && telegraphSeries < 3 && boss.IsWantedTelegraphing && !telegraphShot) // a timed series per cast: warning filling in, then the impact
+                    {
+                        telegraphShot = true; telegraphSeries++;
+                        ChatWindow.SetExpandedState(false);
+                        for (int k = 0; k < 7; k++) { yield return Shot(shots, "wanted-boss-telegraph-" + telegraphSeries + "-" + k); yield return new WaitForSeconds(0.35f); }
+                    }
+                    if (!boss.IsWantedTelegraphing) telegraphShot = false;
                     if (shots != null && !fightShot && boss.Hp < boss.MaxHp * 0.7f && Hud.BossBarVisible()) { fightShot = true; yield return Shot(shots, "wanted-boss-fight"); }
                 }
                 else if (sawBoss) { killed = lastHpPct < 0.3f; if (!killed) break; } // gone while healthy = our hero died and was moved away, not a kill

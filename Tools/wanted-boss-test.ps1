@@ -14,7 +14,8 @@ param(
   [int]$ZonePort = 7797,
   [int]$ApiPort = 3197,
   [int]$MongoPort = 27197,
-  [switch]$NoShots
+  [switch]$NoShots,
+  [double]$HpScale = 0.03     # boss hp multiplier; raise it (e.g. 0.4) to watch several skills in the screenshots
 )
 $ErrorActionPreference = "Stop"
 $Exe = (Resolve-Path $Exe).Path
@@ -35,7 +36,7 @@ $shotDir = "$OutDir\shots"
 # Today's key, same formula as WantedBoss.DayKey (05:00 UTC+7 = 22:00 UTC)
 $dayKey = [int][math]::Floor(([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() + 7200000) / 86400000)
 # Rimeclaw Tyrant (Frost Hollow, Lv10): fixed reward 150 G, 3 stones, 3 + 3 Small potions. Its HP is 30 x the King (34800); the test scales it down so one hero can kill it in about a minute.
-$hpScale = 0.03
+$hpScale = $HpScale
 $heroLevel = 60 # a lone hero must out-live a boss with 1.5 x the King's attack for about a minute
 $reward = @{ gold = 150; stones = 3; hp = 3; mp = 3 }
 # Frost Hollow, 48 rows x 16 units, saves of version 3. The Tyrant stands on tile (64,29): the hero starts three tiles south of it, x = (64 + .5) * 16, y = 768 - (32 + .5) * 16

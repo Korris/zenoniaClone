@@ -21,7 +21,7 @@ namespace ZenoniaProto
         /// <summary>Snapshot entry of this monster (server). State code in the facing byte, attack frame + airborne + status code + mark in the bits byte.</summary>
         public MonsterSnap ToSnap()
         {
-            int ai = state == State.Dying ? -1 : AttackIndex();
+            int ai = state == State.Dying || state == State.Telegraph || state == State.Execute ? -1 : AttackIndex();
             int bits = (ai + 1) | (airborneLeft > 0f ? MonsterBits.Airborne : 0) | (status.Has(StatusKind.Mark) ? MonsterBits.Marked : 0);
             bits = MonsterBits.WithStatus(bits, StatusCode(state == State.Dying ? StatusKind.None : status.Dominant));
             return new MonsterSnap
@@ -36,7 +36,7 @@ namespace ZenoniaProto
         {
             x = pos.x; y = pos.y;
             facing = facingDir & 3;
-            state = stateCode >= 0 && stateCode <= (int)State.Dying ? (State)stateCode : State.Idle;
+            state = stateCode >= 0 && stateCode <= (int)State.Execute ? (State)stateCode : State.Idle;
             proxyAttack = attackIdx;
             if (airborne) { if (airborneLeft <= 0f) airborneLeft = LaunchMs; } else airborneLeft = 0f;
             status.ShowReplicated(StatusOfCode(statusCode), marked);

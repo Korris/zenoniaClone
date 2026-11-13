@@ -94,6 +94,8 @@ namespace ZenoniaProto
             view.Lean(anim == "walk", facing, GameClock.Dt);
             view.Lift(skillPoseLift, skillPoseSideways);
             view.TickDashTrail(!dead && dashLeft > 0f, GameClock.Dt * 1000f);
+            UpdateFrozenFx();
+            UpdateWantedOverlay();
         }
     }
 }

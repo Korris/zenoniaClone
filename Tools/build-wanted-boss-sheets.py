@@ -8,6 +8,10 @@ Output  Assets/Resources/Sprites/monsters/<id>.png         1536x1536 (4x4 cells 
                                                            row 0 skill 2 (targeted slam), row 1 skill 3 (stomp around the boss),
                                                            row 2 skill 4 (enrage), row 3 defeat. Skill 1 (the cone) uses <id>-attack.
         Assets/Resources/Sprites/fx/wanted/<id>-skills.png 1536x1024 (4 rows x 4 frames, cells 384x256, centred): the effect of skills 1-4
+        Assets/Resources/Sprites/fx/wanted/<id>-skill<n>.png 1536x1024 (2x2 frames of 768x512, not re-centred): skill n's big effect,
+                                                           cone apex at the cell's top centre (opens south), circles centred
+        Assets/Resources/Sprites/fx/wanted/frozen-block.png 1536x1024 (4x2 frames of 384x512): the ice block over a frozen hero
+                                                           (form 1-2, hold 3-4, crack + shatter 5-8), feet at the bottom centre
         Assets/Resources/Sprites/fx/wanted/warning-*.png   shared telegraphs + icons (white on clear, tinted in code), from the black sheet
         (+ .meta copied from frostfangKing with a new guid). Twice the cell size of the ordinary monsters: MonsterDef carries the cell sizes.
 Sources of the extra sheets: <stem>-cast-<a>-<b>-chatgpt-1.png (2 rows x 4, CASTS below), ArtLibrary/custom/wanted-boss/skills/.
@@ -17,6 +21,7 @@ into the cell, never clipped. The keying / placing code is the meadow monster to
 
   py Tools/build-wanted-boss-sheets.py check OUT.png [id ...]   the frames on dark, with a hero for scale, no game files
   py Tools/build-wanted-boss-sheets.py write [id ...]
+  py Tools/build-wanted-boss-sheets.py fx [id ...]              only the big per-skill effect sheets
 """
 import importlib.util, os, re, sys, uuid
 import numpy as np
@@ -28,7 +33,9 @@ OUT = f"{ROOT}/Assets/Resources/Sprites/monsters"
 WALK_CELL, ATK_CELL, ATK_FEET, MARGIN = 384, 512, 448, 4
 TARGET_H = 330      # median walk body height in the 384 cell (px). Hero body = 164 px of a 192 cell = 328 px at this resolution,
                     # so RenderScale 3 in MonsterDef makes the boss three hero heights.
-CASTS = {"rimeclawTyrant": ("cast-chain-slam-stomp", "cast-blizzard-defeat")}   # two 2 x 4 strips -> the 4 rows of <id>-cast
+CASTS = {"rimeclawTyrant": ("cast-chain-slam-stomp", "cast-blizzard-defeat"),
+         "glacialColossus": ("cast-slam-crystal-fall", "cast-overload-defeat"),
+         "mireHydraQueen": ("cast-breath-tail", "cast-reign-defeat")}   # two 2 x 4 strips -> the 4 rows of <id>-cast
 SKILLS = f"{ROOT}/Assets/ArtLibrary/custom/wanted-boss/skills"
 FX_OUT = f"{ROOT}/Assets/Resources/Sprites/fx/wanted"
 FX_W, FX_H = 384, 256
@@ -112,6 +119,42 @@ def build_fx(mid):
     return mm.to_image(sheet)
 
 
+FX_SHARED = {("mireHydraQueen", 4): 2}   # skill 4's picture is skill 2's (Toxic Reign = the same venom bloom on five circles)
+
+
+def skill_fx_sources(mid):
+    """{n: path} of the big per-skill effect sheets that exist (<stem>-skill<n>-fx-chatgpt-1.png, 2x2 frames of 768x512)."""
+    src = lambda n: f"{SKILLS}/{BOSSES[mid]}-skill{FX_SHARED.get((mid, n), n)}-fx-chatgpt-1.png"
+    return {n: src(n) for n in range(1, 5) if os.path.exists(src(n))}
+
+
+def build_skill_fx(path, cell_w=768, cell_h=512):
+    """One skill's 1536x1024 sheet keyed, cut on the fixed 2x2 grid and NOT re-centred: the art is drawn around the game pivot
+    (cone apex at the cell's top centre, circle centre at the cell centre), so moving a frame would move the effect off its zone."""
+    rgba = mm.key_magenta(path)
+    h, w = rgba.shape[:2]
+    if (w, h) != (1536, 1024):
+        sys.exit(f"{path}: {w}x{h}, expected 1536x1024")
+    sheet = np.zeros_like(rgba)
+    for y in range(0, h, cell_h):
+        for x in range(0, w, cell_w):
+            cell = rgba[y:y + cell_h, x:x + cell_w].copy()
+            cell[:3], cell[-3:], cell[:, :3], cell[:, -3:] = 0, 0, 0, 0     # a stray key-colour fringe on the grid line
+            sheet[y:y + cell_h, x:x + cell_w] = cell
+    return mm.to_image(sheet)
+
+
+def write_skill_fx(ids):
+    frozen = f"{SKILLS}/frozen-block-chatgpt-1.png"                 # shared hero freeze overlay: 4x2 cells of 384x512, feet at the cell's bottom centre
+    if os.path.exists(frozen):
+        out = f"{FX_OUT}/frozen-block.png"
+        build_skill_fx(frozen, 384, 512).save(out); write_meta(out); print("wrote", out)
+    for mid in ids:
+        for n, src in skill_fx_sources(mid).items():
+            out = f"{FX_OUT}/{mid}-skill{n}.png"
+            build_skill_fx(src).save(out); write_meta(out); print("wrote", out)
+
+
 def build_warning():
     """{name: image}: white art with the sheet's brightness as alpha (drawn additively / tinted in the game), one PNG per piece."""
     from scipy import ndimage
@@ -145,10 +188,12 @@ def write(ids):
         if mid in CASTS:
             walk, _ = load(BOSSES[mid])
             todo.append((build_cast(mid, TARGET_H / float(np.median([f["main_h"] for f in walk]))), f"{OUT}/{mid}-cast.png"))
-            todo.append((build_fx(mid), f"{FX_OUT}/{mid}-skills.png"))
+            if os.path.exists(f"{SKILLS}/{BOSSES[mid]}-skill-fx-chatgpt-1.png"):   # the old combined sheet: only Rimeclaw has one
+                todo.append((build_fx(mid), f"{FX_OUT}/{mid}-skills.png"))
         for img, path in todo:
             img.save(path); write_meta(path)
         print("wrote", mid)
+    write_skill_fx(ids)
     for name, img in build_warning().items():
         img.save(f"{FX_OUT}/warning-{name}.png"); write_meta(f"{FX_OUT}/warning-{name}.png")
     print("wrote warning pieces")
@@ -175,4 +220,5 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "check": check(sys.argv[2], sys.argv[3:] or ["rimeclawTyrant"])
     elif cmd == "write": write(sys.argv[2:] or ["rimeclawTyrant"])
+    elif cmd == "fx": write_skill_fx(sys.argv[2:] or ["rimeclawTyrant"])
     else: print(__doc__)

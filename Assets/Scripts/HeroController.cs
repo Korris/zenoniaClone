@@ -51,6 +51,8 @@ namespace ZenoniaProto
         float hp { get { return rpg.Hp; } set { rpg.Hp = value; } }
         int facing;
         float invuln, hurt, dashLeft, dashCooldown, animTimer, idleTimer, deathTimer;
+        /// <summary>Wanted Boss freeze (docs/wanted-boss-skills-design.md): ms left with no move / attack / skill / dash. See HeroController.WantedStatus.cs.</summary>
+        float frozenMs;
         Vector2 dashDir;
         bool dead, moving;
         string gearLabel = "";
@@ -111,6 +113,7 @@ namespace ZenoniaProto
         public void ArriveInZone(Vector2 feet, int dir)
         {
             dashLeft = 0f; hurt = 0f; stabLeft = 0f; castLeft = 0f; castSkill = 0; moving = false; animTimer = 0f;
+            ClearWantedFreeze();
             combo.Reset();
             invuln = Mathf.Max(invuln, ZoneArrivalInvulnMs);
             Teleport(feet, dir);
@@ -177,8 +180,11 @@ namespace ZenoniaProto
             invuln = Mathf.Max(0f, invuln - dtMs);
             hurt = Mathf.Max(0f, hurt - dtMs);
             dashCooldown = Mathf.Max(0f, dashCooldown - dtMs);
-            idleTimer += dtMs;
+            frozenMs = Mathf.Max(0f, frozenMs - dtMs); // ticks the same on the predicted copy (dash / invuln / hurt already do): RestoreSim / PredictFreeze set it, this just counts it down
+            if (!predicted) TickWantedStatus(dtMs); // a predicting client shows the server's slow / poison the same way it shows its HP
             if (!predicted) hp = Mathf.Min(MaxHp, hp + HpRegenPerSecond * dt); // a predicting client shows the server's HP
+            if (frozenMs > 0f) { moving = false; return; } // Wanted Boss freeze: no move / attack / skill / dash, frame held still (idleTimer / animTimer untouched)
+            idleTimer += dtMs;
             if (TickSkill(dt, dtMs)) return; // rooted by a skill cast
 
             Vector2 input = ReadMove();
@@ -221,7 +227,7 @@ namespace ZenoniaProto
             }
             else
             {
-                vel = input * rpg.Speed;
+                vel = input * rpg.Speed * WantedSpeedFactor;
             }
             moving = !combo.IsAttacking && vel != Vector2.zero;
             if (moving && !dashing) animTimer += dtMs;

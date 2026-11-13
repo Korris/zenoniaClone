@@ -137,6 +137,19 @@ namespace ZenoniaProto
             Add(new NetEvent { Type = NetEventType.Toast, Text = text, Value = ((uint)c.r << 24) | ((uint)c.g << 16) | ((uint)c.b << 8) | c.a }, h.Position, h.NetId);
         }
 
+        /// <summary>One locked shape of a wanted boss skill's telegraph: `center` + `dirDeg` already resolved (origin / facing, or the first safe
+        /// lane's centre), `atMs` the server-clock moment it strikes (same clock as ServerTimeMs / NetClient.ServerNowMs). A multi-circle skill
+        /// (Crystal Fall, Poison Bloom ...) calls this once per locked circle.</summary>
+        public static void WantedSkillTelegraph(Monster boss, int skillId, Vector2 center, float dirDeg, uint atMs)
+        {
+            if (!Active) return;
+            Add(new NetEvent
+            {
+                Type = NetEventType.WantedSkillTelegraph, Id = boss.NetId, Step = (byte)skillId,
+                X = NetQuantize.Pos(center.x), Y = NetQuantize.Pos(center.y), Angle = NetQuantize.Angle(dirDeg), Value = atMs,
+            }, center, 0, true); // zone-wide: everyone must see the warning, not just whoever is already in the AOI grid near the boss
+        }
+
         public static void BossSpawned(Monster m)
         {
             if (!Active) return;

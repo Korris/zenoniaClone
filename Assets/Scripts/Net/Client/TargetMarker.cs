@@ -37,8 +37,8 @@ namespace ZenoniaProto
         void LateUpdate()
         {
             Monster m = Target();
-            ring.enabled = m != null;
-            if (m == null) return;
+            ring.enabled = m != null && !m.IsWanted; // the event boss is 4.5x: a ring that wide turns into coarse red blocks over its skill telegraphs
+            if (!ring.enabled) return;
             float w = Mathf.Max(28f, m.Box.width * 2.4f);   // the hit box is narrower than the sprite: the ring must reach past the body to be seen
             ring.transform.localScale = new Vector3(w, w, 1f);
             ring.transform.position = new Vector3(m.Feet.x, m.Feet.y, -0.1f); // ties with the monster's shadow order: the nearer z wins
