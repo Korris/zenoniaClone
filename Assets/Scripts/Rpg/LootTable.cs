@@ -26,39 +26,42 @@ namespace ZenoniaProto.Rpg
         // Frost Hollow monsters (web monster-definitions.js).
         static readonly Dictionary<string, MonsterLootDef> Table = new Dictionary<string, MonsterLootDef>
         {
-            { "frostSlime", new MonsterLootDef { Type = "frostSlime", Exp = 14, GoldMin = 1, GoldMax = 3, ItemLevel = 1 } },
-            { "iceGoblin", new MonsterLootDef { Type = "iceGoblin", Exp = 28, GoldMin = 2, GoldMax = 5, ItemLevel = 2 } },
-            { "spectralWolf", new MonsterLootDef { Type = "spectralWolf", Exp = 26, GoldMin = 1, GoldMax = 4, ItemLevel = 2 } },
-            { "frostfangKing", new MonsterLootDef { Type = "frostfangKing", Exp = 280, GoldMin = 20, GoldMax = 50, ItemLevel = 3, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            // World Map 2.0 step 1 (13/11/2026): Exp/gold/ItemLevel rescaled to each monster's new level with Exp=14L, gold=L..2L+1 (MonsterDef has the matching Hp/Atk/Def curve); Wanted bosses
+            // (rimeclawTyrant/glacialColossus/mireHydraQueen) keep their old numbers on purpose, since MonsterDef.Wanted now freezes their basis stats.
+            { "frostSlime", new MonsterLootDef { Type = "frostSlime", Exp = 154, GoldMin = 11, GoldMax = 23, ItemLevel = 11 } },
+            { "iceGoblin", new MonsterLootDef { Type = "iceGoblin", Exp = 224, GoldMin = 16, GoldMax = 33, ItemLevel = 16 } },
+            { "spectralWolf", new MonsterLootDef { Type = "spectralWolf", Exp = 234, GoldMin = 9, GoldMax = 30, ItemLevel = 18 } },
+            { "frostfangKing", new MonsterLootDef { Type = "frostfangKing", Exp = 1400, GoldMin = 100, GoldMax = 221, ItemLevel = 15, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             // Amber Dunes monsters: Frost Slime (Lv 1) and Ice Goblin (Lv 2) give EXP 14L and gold L..2L+1, times the same role factor as the stat block (MonsterDef).
             { "duneScarab", new MonsterLootDef { Type = "duneScarab", Exp = 235, GoldMin = 17, GoldMax = 34, ItemLevel = 21 } },
-            { "sandRaider", new MonsterLootDef { Type = "sandRaider", Exp = 385, GoldMin = 28, GoldMax = 56, ItemLevel = 24 } },
-            { "amberWisp", new MonsterLootDef { Type = "amberWisp", Exp = 455, GoldMin = 33, GoldMax = 66, ItemLevel = 26 } },
+            { "sandRaider", new MonsterLootDef { Type = "sandRaider", Exp = 417, GoldMin = 30, GoldMax = 61, ItemLevel = 26 } },
+            { "amberWisp", new MonsterLootDef { Type = "amberWisp", Exp = 525, GoldMin = 38, GoldMax = 76, ItemLevel = 30 } },
             // Emberfen Marsh and Sunken Reliquary monsters: the same line. Bosses take the king's factor on it (x6.67) and his sure drops.
-            { "bogSlime", new MonsterLootDef { Type = "bogSlime", Exp = 275, GoldMin = 20, GoldMax = 40, ItemLevel = 28 } },
-            { "mireToad", new MonsterLootDef { Type = "mireToad", Exp = 434, GoldMin = 31, GoldMax = 63, ItemLevel = 31 } },
-            { "marshStalker", new MonsterLootDef { Type = "marshStalker", Exp = 620, GoldMin = 44, GoldMax = 90, ItemLevel = 34 } },
-            { "ruinWisp", new MonsterLootDef { Type = "ruinWisp", Exp = 545, GoldMin = 39, GoldMax = 79, ItemLevel = 34 } },
+            { "bogSlime", new MonsterLootDef { Type = "bogSlime", Exp = 304, GoldMin = 22, GoldMax = 44, ItemLevel = 31 } },
+            { "mireToad", new MonsterLootDef { Type = "mireToad", Exp = 462, GoldMin = 33, GoldMax = 67, ItemLevel = 33 } },
+            { "marshStalker", new MonsterLootDef { Type = "marshStalker", Exp = 638, GoldMin = 45, GoldMax = 93, ItemLevel = 35 } },
+            { "ruinWisp", new MonsterLootDef { Type = "ruinWisp", Exp = 609, GoldMin = 44, GoldMax = 88, ItemLevel = 38 } },
             { "glacierWarden", new MonsterLootDef { Type = "glacierWarden", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 20, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
-            { "mirefangHydra", new MonsterLootDef { Type = "mirefangHydra", Exp = 3270, GoldMin = 233, GoldMax = 473, ItemLevel = 35, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            { "mirefangHydra", new MonsterLootDef { Type = "mirefangHydra", Exp = 3737, GoldMin = 266, GoldMax = 540, ItemLevel = 40, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             // Daily Wanted Bosses (MonsterDef.Wanted): the drops of the map boss of the level band (the fixed daily reward is paid by WantedBossCredit on top); only the gear level differs.
+            // Kept at their pre-step-1 numbers on purpose (frostfangKing/mirefangHydra above moved, these did not).
             { "rimeclawTyrant", new MonsterLootDef { Type = "rimeclawTyrant", Exp = 280, GoldMin = 20, GoldMax = 50, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "glacialColossus", new MonsterLootDef { Type = "glacialColossus", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 25, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "mireHydraQueen", new MonsterLootDef { Type = "mireHydraQueen", Exp = 3270, GoldMin = 233, GoldMax = 473, ItemLevel = 40, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
-            // Willowbrook meadow monsters: EXP 14L x role factor, gold L..2L+1 x role factor.
+            // Willowbrook meadow monsters: EXP 14L x role factor, gold L..2L+1 x role factor. Mantis/treant pushed to Lv 7/10 (step 1).
             { "hornRabbit", new MonsterLootDef { Type = "hornRabbit", Exp = 26, GoldMin = 1, GoldMax = 4, ItemLevel = 2 } },
             { "thornBoar", new MonsterLootDef { Type = "thornBoar", Exp = 50, GoldMin = 4, GoldMax = 8, ItemLevel = 3 } },
             { "meadowSlime", new MonsterLootDef { Type = "meadowSlime", Exp = 12, GoldMin = 1, GoldMax = 3, ItemLevel = 1 } },
-            { "meadowMantis", new MonsterLootDef { Type = "meadowMantis", Exp = 80, GoldMin = 6, GoldMax = 12, ItemLevel = 5 } },
-            { "brambleTreant", new MonsterLootDef { Type = "brambleTreant", Exp = 134, GoldMin = 10, GoldMax = 20, ItemLevel = 6 } },
-            // Frost Hollow ice monsters (Lv 7-9): the same line.
-            { "iceWraith", new MonsterLootDef { Type = "iceWraith", Exp = 98, GoldMin = 7, GoldMax = 15, ItemLevel = 7 } },
-            { "frostbiteYeti", new MonsterLootDef { Type = "frostbiteYeti", Exp = 112, GoldMin = 8, GoldMax = 17, ItemLevel = 8 } },
-            { "crystalGolem", new MonsterLootDef { Type = "crystalGolem", Exp = 126, GoldMin = 9, GoldMax = 19, ItemLevel = 9 } },
-            // Frost Hollow middle tiers (Lv 3-5): the same line.
-            { "snowFox", new MonsterLootDef { Type = "snowFox", Exp = 38, GoldMin = 3, GoldMax = 6, ItemLevel = 3 } },
-            { "iceImp", new MonsterLootDef { Type = "iceImp", Exp = 56, GoldMin = 4, GoldMax = 9, ItemLevel = 4 } },
-            { "frostBear", new MonsterLootDef { Type = "frostBear", Exp = 78, GoldMin = 6, GoldMax = 13, ItemLevel = 5 } },
+            { "meadowMantis", new MonsterLootDef { Type = "meadowMantis", Exp = 112, GoldMin = 8, GoldMax = 16, ItemLevel = 7 } },
+            { "brambleTreant", new MonsterLootDef { Type = "brambleTreant", Exp = 223, GoldMin = 17, GoldMax = 32, ItemLevel = 10 } },
+            // Frost Hollow ice monsters (Lv 13-15; step 1 band is now Lv 11-15): the same line.
+            { "iceWraith", new MonsterLootDef { Type = "iceWraith", Exp = 182, GoldMin = 13, GoldMax = 27, ItemLevel = 13 } },
+            { "frostbiteYeti", new MonsterLootDef { Type = "frostbiteYeti", Exp = 196, GoldMin = 14, GoldMax = 29, ItemLevel = 14 } },
+            { "crystalGolem", new MonsterLootDef { Type = "crystalGolem", Exp = 210, GoldMin = 15, GoldMax = 31, ItemLevel = 15 } },
+            // Frost Hollow lower tiers (Lv 11-13; step 1 band is now Lv 11-15): the same line.
+            { "snowFox", new MonsterLootDef { Type = "snowFox", Exp = 152, GoldMin = 12, GoldMax = 21, ItemLevel = 12 } },
+            { "iceImp", new MonsterLootDef { Type = "iceImp", Exp = 168, GoldMin = 12, GoldMax = 25, ItemLevel = 12 } },
+            { "frostBear", new MonsterLootDef { Type = "frostBear", Exp = 203, GoldMin = 16, GoldMax = 32, ItemLevel = 13 } },
         };
 
         public static MonsterLootDef For(string type) { MonsterLootDef d; return type != null && Table.TryGetValue(type, out d) ? d : null; }

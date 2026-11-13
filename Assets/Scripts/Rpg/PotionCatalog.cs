@@ -31,7 +31,7 @@ namespace ZenoniaProto.Rpg
     /// <summary>Who sells potions and where. The server checks a purchase against this and the distance to the seller; the client window only shows the same list.</summary>
     public static class PotionShops
     {
-        public const string Oakhaven = "oakhavenVillage", Sunspire = "sunspireOasis";
+        public const string Oakhaven = "oakhavenVillage", Thatchwick = "thatchVillage", Sunspire = "sunspireOasis";
         /// <summary>World units a buyer may stand from the seller: the talk range plus some slack for movement the server saw last.</summary>
         public const float ReachUnits = 44f;
 
@@ -42,6 +42,7 @@ namespace ZenoniaProto.Rpg
             {
                 case "healerNina":
                 case "merchantDale": return Oakhaven;
+                case "herbalistWren": return Thatchwick;
                 case "apothecaryNara": return Sunspire;
                 default: return null;
             }
@@ -49,8 +50,8 @@ namespace ZenoniaProto.Rpg
 
         public static bool IsSeller(string npcId) { return MapOf(npcId) != null; }
 
-        /// <summary>Oakhaven stocks Small and Medium, Sunspire all three.</summary>
-        public static int LargestSize(string npcId) { return MapOf(npcId) == Sunspire ? PotionCatalog.Large : PotionCatalog.Medium; }
+        /// <summary>Oakhaven (Lv1-10) stocks Small and Medium; Thatchwick (Lv10-20) and Sunspire (Lv20+) add Large.</summary>
+        public static int LargestSize(string npcId) { return MapOf(npcId) == Oakhaven ? PotionCatalog.Medium : PotionCatalog.Large; }
 
         public static bool Sells(string npcId, int size) { return IsSeller(npcId) && PotionCatalog.ValidSize(size) && size <= LargestSize(npcId); }
 

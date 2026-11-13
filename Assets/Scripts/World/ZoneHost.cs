@@ -18,7 +18,7 @@ namespace ZenoniaProto
         readonly Dictionary<string, Zone> byMap = new Dictionary<string, Zone>();
 
         public IReadOnlyList<Zone> Zones { get { return zones; } }
-        /// <summary>Where new heroes begin: Frost Hollow unless the server was started with --map.</summary>
+        /// <summary>Where new heroes begin: Oakhaven (World Map 2.0 step 1, 13/11/2026) unless the server was started with --map.</summary>
         public Zone Start { get; private set; }
         public float ClockMs { get; private set; }
         public int ZonesAwake { get { int n = 0; for (int i = 0; i < zones.Count; i++) if (!zones[i].Paused) n++; return n; } }
@@ -31,7 +31,9 @@ namespace ZenoniaProto
         public static ZoneHost CreateDedicated(Transform world, string startMapName)
         {
             var host = new ZoneHost();
-            IGameMap start = MapRegistry.Current;
+            // World Map 2.0 step 1 (13/11/2026): new heroes begin at Oakhaven, not MapRegistry's own default (Frost Hollow, which the headless bench / Editor tests still rely on
+            // for MapRegistry.Current elsewhere), unless --map overrides it below.
+            IGameMap start = MapRegistry.Get(OakhavenVillageMap.MapId) ?? MapRegistry.Current;
             if (!string.IsNullOrEmpty(startMapName))
             {
                 IGameMap named = MapRegistry.FindLaunch(startMapName);

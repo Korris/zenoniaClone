@@ -77,19 +77,26 @@ public class MapGraphTests
     }
 
     [Fact]
-    public void NewEastRouteGoesBothWays()
+    public void WorldMapStep1RouteGoesBothWays()
     {
-        IGameMap oak = MapRegistry.Get(OakhavenVillageMap.MapId), thatch = MapRegistry.Get(ThatchVillageMap.MapId), willow = MapRegistry.Get(WillowbrookMeadowsMap.MapId);
+        // World Map 2.0 step 1 (13/11/2026, plans/261113-0106-world-map-step1): Oakhaven <-> Thatchwick is unchanged; Thatchwick's old east link to Willowbrook now goes to
+        // Frost Hollow's old village gate instead; Willowbrook's west gate now goes to Oakhaven's new south gate instead of Thatchwick (agent C's new OakhavenVillageMap).
+        IGameMap oak = MapRegistry.Get(OakhavenVillageMap.MapId), thatch = MapRegistry.Get(ThatchVillageMap.MapId);
+        IGameMap willow = MapRegistry.Get(WillowbrookMeadowsMap.MapId), frost = MapRegistry.Get(FrostHollowLayout.MapId);
         Assert.Contains(oak.Portals, p => p.TargetMapId == ThatchVillageMap.MapId);
+        Assert.Contains(oak.Portals, p => p.TargetMapId == WillowbrookMeadowsMap.MapId);
         Assert.Contains(thatch.Portals, p => p.TargetMapId == OakhavenVillageMap.MapId);
-        Assert.Contains(thatch.Portals, p => p.TargetMapId == WillowbrookMeadowsMap.MapId);
-        // Willowbrook is a dead end: its only portals go back to Thatchwick.
-        Assert.All(willow.Portals, p => Assert.Equal(ThatchVillageMap.MapId, p.TargetMapId));
+        Assert.Contains(thatch.Portals, p => p.TargetMapId == FrostHollowLayout.MapId);
+        Assert.Contains(frost.Portals, p => p.TargetMapId == ThatchVillageMap.MapId);
+        // Willowbrook is a dead end: its only portals go to Oakhaven.
+        Assert.All(willow.Portals, p => Assert.Equal(OakhavenVillageMap.MapId, p.TargetMapId));
         Assert.False(thatch.Hostile);
         Assert.True(willow.Hostile);
-        Assert.Empty(thatch.Npcs);
+        Assert.Contains(new MapNpc("herbalistWren", 13, 9), thatch.Npcs);
+        Assert.Contains(new MapNpc("smithHolt", 22, 9), thatch.Npcs);
+        Assert.Contains(new MapNpc("brokerPell", 18, 13), thatch.Npcs);
         // Standing on an arrival tile there is a portal back to the map we came from.
-        foreach (IGameMap map in new[] { oak, thatch, willow })
+        foreach (IGameMap map in new[] { oak, thatch, willow, frost })
             foreach (MapPortal p in map.Portals)
             {
                 IGameMap target = MapRegistry.Get(p.TargetMapId);
@@ -139,8 +146,9 @@ public class MapGraphTests
     }
 
     [Fact]
-    public void DenForwardPortalOnlyExistsForAHeroWithTheKill()
+    public void DenForwardPortalIsAlwaysOpenNow()
     {
+        // World Map 2.0 step 1 (13/11/2026): the user dropped the "kill the Warden first" gate, so Frostfang Den -> Sunspire is open for every hero, killer or not.
         IGameMap den = MapRegistry.Get(FrostfangDenMap.MapId);
         BossProgress killer = new BossProgress(), other = new BossProgress();
         killer.Mark(FrostfangDenMap.MapId, true);
@@ -149,28 +157,17 @@ public class MapGraphTests
 
         Assert.True(MapPortals.TryFind(den.PortalsFor(killer.IsDefeatedOn(den.Id, true)), gate.x, gate.y, out found));
         Assert.Equal(SunspireOasisMap.MapId, found.TargetMapId);
-        Assert.False(MapPortals.TryFind(den.PortalsFor(other.IsDefeatedOn(den.Id, true)), gate.x, gate.y, out found));
+        Assert.True(MapPortals.TryFind(den.PortalsFor(other.IsDefeatedOn(den.Id, true)), gate.x, gate.y, out found));
+        Assert.Equal(SunspireOasisMap.MapId, found.TargetMapId);
 
-        // The way back is always open, for both.
+        // The way back is always open too.
         Assert.True(MapPortals.TryFind(den.PortalsFor(false), back.x, back.y, out found));
         Assert.Equal(FrostHollowLayout.MapId, found.TargetMapId);
     }
 
     [Fact]
-    public void PortalsPropertyStillAsksTheLocalSave()
+    public void MapsAnswerTheSameEitherWayNowThatNoMapHasAGate()
     {
-        IGameMap den = MapRegistry.Get(FrostfangDenMap.MapId);
-        RpgSession.StubDefeated = false;
-        Assert.Equal(den.PortalsFor(false).Length, den.Portals.Length);
-        RpgSession.StubDefeated = true;
-        Assert.Equal(den.PortalsFor(true).Length, den.Portals.Length);
-        RpgSession.StubDefeated = false;
-    }
-
-    [Fact]
-    public void MapsWithoutAGateAnswerTheSameEitherWay()
-    {
-        foreach (IGameMap map in MapRegistry.All)
-            if (map.Id != FrostfangDenMap.MapId) Assert.Same(map.PortalsFor(true), map.PortalsFor(false));
+        foreach (IGameMap map in MapRegistry.All) Assert.Same(map.PortalsFor(true), map.PortalsFor(false));
     }
 }

@@ -69,6 +69,7 @@ namespace ZenoniaProto
             bannerSub = UiKit.Label(banner, "Sub", 0f, 52f, 420f, 30f, "", 18, Color.white, TextAnchor.MiddleCenter, true);
             banner.gameObject.SetActive(false);
             NotificationToast.Create(canvas); // top-centre banner for Toast(...)
+            MapNameBanner.Create(canvas);      // the area title each time the hero enters a map
         }
 
         /// <summary>The bar's name at its left end; returns the text for current / max at its right end.</summary>

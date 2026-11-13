@@ -61,9 +61,6 @@ namespace ZenoniaProto
             DevStartConfig.Apply(player); // Resources/Data/dev-start.json: test stones / gold / potions (editor + dev builds)
             bossDefeated = save != null && save.bossDefeated;
             defeatedBossMaps = save != null ? new List<string>(save.defeatedBossMaps) : new List<string>();
-            // A save already past a gate (older saves walked to Sunspire before the Den existed) counts as having opened it, so it can never be shut out going back.
-            string passed = save != null ? MapSpawnTable.GatePassedOn(save.mapId) : null;
-            if (passed != null && !defeatedBossMaps.Contains(passed)) defeatedBossMaps.Add(passed);
             saveTimer = 0f;
             beganFrame = Time.frameCount;
             owner = new PlayerRpg(player);
@@ -107,7 +104,6 @@ namespace ZenoniaProto
             string want = NetMode.IsOffline && !MapRegistry.Forced ? (savedMap ?? OakhavenVillageMap.MapId) : MapRegistry.Current.Id;
             bool switched = want != MapRegistry.Current.Id;
             if (switched) MapTransfer.Instant(want);
-            else if (NetMode.IsOffline && MapSpawnTable.HasBossGate(want)) WorldBuilder.Rebuild(); // same map, another save: its gate may differ, so the portal lights do too
             if (savedMap == MapRegistry.Current.Id && !FrostHollowMap.RectBlocked(save.x - 5f, save.y, 10f, 8f)) hero.Teleport(new Vector2(save.x, save.y), 0);
             else if (switched) hero.Teleport(GameConfig.HeroStart, 0);
         }
@@ -124,14 +120,11 @@ namespace ZenoniaProto
             InventoryPanel.RefreshIfOpen();
         }
 
-        /// <summary>Online client: this hero's boss flags from the server's RpgState (what BossDefeatedOn answers, so the gated portal). The server decides; a gate that just opened shows at once.</summary>
+        /// <summary>Online client: this hero's boss flags from the server's RpgState (what BossDefeatedOn answers; kept for reward / respawn checks now no portal depends on it).</summary>
         public void ApplyRemoteBossFlags(SaveData save)
         {
-            string map = MapRegistry.Current.Id;
-            bool wasOpen = BossDefeatedOn(map);
             bossDefeated = save.bossDefeated;
             defeatedBossMaps = new List<string>(save.defeatedBossMaps);
-            if (!wasOpen && BossDefeatedOn(map) && MapSpawnTable.HasBossGate(map)) WorldBuilder.Rebuild();
         }
 
         /// <summary>Writes the current hero to its class save (no-op without a hero, while dead, or when saving is disabled).</summary>
@@ -219,20 +212,12 @@ namespace ZenoniaProto
             SaveNow();
         }
 
-        /// <summary>Offline a boss never returns for this save: remember the kill right away. On a gate map the forward portal opens at once: its light appears and the toast says so.</summary>
+        /// <summary>Offline a boss never returns for this save: remember the kill right away (for its own rewards; no portal is gated on it any more, World Map 2.0 step 1).</summary>
         void OnBossKilled()
         {
             string map = MapRegistry.Current.Id;
             if (!MapSpawnTable.HasOwnBoss(map)) bossDefeated = true;
-            else if (!defeatedBossMaps.Contains(map))
-            {
-                defeatedBossMaps.Add(map);
-                if (MapSpawnTable.HasBossGate(map) && NetMode.IsOffline)
-                {
-                    WorldBuilder.Rebuild();
-                    RpgHud.Toast("The way forward is open", new Color(0.5f, 0.95f, 1f));
-                }
-            }
+            else if (!defeatedBossMaps.Contains(map)) defeatedBossMaps.Add(map);
             SaveNow();
         }
 

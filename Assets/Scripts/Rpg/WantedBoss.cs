@@ -31,8 +31,8 @@ namespace ZenoniaProto.Rpg
         public static readonly WantedBossDef[] Rotation =
         {
             new WantedBossDef("rimeclawTyrant", "Rimeclaw Tyrant", "frostHollow", 10, 150, 3, 3, 3, PotionCatalog.Small, 64, 29),
-            new WantedBossDef("glacialColossus", "Glacial Colossus", "frostfangDen", 25, 600, 5, 3, 3, PotionCatalog.Medium, 28, 3),
-            new WantedBossDef("mireHydraQueen", "Mire Hydra Queen", "sunkenReliquary", 40, 1000, 8, 3, 3, PotionCatalog.Large, 33, 10),
+            new WantedBossDef("glacialColossus", "Glacial Colossus", "frostfangDen", 25, 600, 5, 3, 3, PotionCatalog.Medium, 27, 12),
+            new WantedBossDef("mireHydraQueen", "Mire Hydra Queen", "sunkenReliquary", 40, 1000, 8, 3, 3, PotionCatalog.Large, 30, 14),
         };
 
         /// <summary>Launch-arg test hook (--wanted-boss): when set, this boss is wanted every day. Null in production.</summary>

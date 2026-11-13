@@ -6,7 +6,8 @@ using UnityEngine;
 using Xunit;
 using ZenoniaProto;
 
-/// <summary>The 72x48 Willowbrook Meadows: size, west gate pair and its round trip with Thatchwick, the HUD/border rows, the water, the east dead end and the 11 spawn clusters (parsed from MapSpawnTable.cs, which needs Unity).</summary>
+/// <summary>The 72x48 Willowbrook Meadows: size, west gate pair (World Map 2.0 step 1, 13/11/2026: now aimed at Oakhaven instead of Thatchwick), the HUD/border rows, the water, the east dead end
+/// and the 11 spawn clusters (parsed from MapSpawnTable.cs, which needs Unity).</summary>
 [Collection("MapRegistry")]
 public class WillowbrookLargeMapTests
 {
@@ -31,16 +32,17 @@ public class WillowbrookLargeMapTests
     }
 
     [Fact]
-    public void WestGateRowsTwentyThreeAndTwentyFourRoundTripWithThatchwick()
+    public void WestGateRowsTwentyThreeAndTwentyFourRoundTripWithOakhaven()
     {
-        IGameMap thatch = MapRegistry.Get(ThatchVillageMap.MapId);
+        // World Map 2.0 step 1 (13/11/2026): Willowbrook's west gate now leads to Oakhaven's new south gate (13,21)/(14,21), not Thatchwick (plans/261113-0106-world-map-step1/plan.md).
+        IGameMap oak = MapRegistry.Get(OakhavenVillageMap.MapId);
         Assert.Equal(2, Willow.Portals.Length);
-        Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 23 && p.TargetMapId == ThatchVillageMap.MapId && p.TargetTx == 33 && p.TargetTy == 11);
-        Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 24 && p.TargetMapId == ThatchVillageMap.MapId && p.TargetTx == 33 && p.TargetTy == 12);
-        Assert.Contains(thatch.Portals, p => p.Tx == 35 && p.Ty == 11 && p.TargetMapId == WillowbrookMeadowsMap.MapId && p.TargetTx == 2 && p.TargetTy == 23);
-        Assert.Contains(thatch.Portals, p => p.Tx == 35 && p.Ty == 12 && p.TargetMapId == WillowbrookMeadowsMap.MapId && p.TargetTx == 2 && p.TargetTy == 24);
+        Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 23 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 13 && p.TargetTy == 20);
+        Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 24 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 14 && p.TargetTy == 20);
+        Assert.Contains(oak.Portals, p => p.Tx == 13 && p.Ty == 21 && p.TargetMapId == WillowbrookMeadowsMap.MapId && p.TargetTx == 2 && p.TargetTy == 23);
+        Assert.Contains(oak.Portals, p => p.Tx == 14 && p.Ty == 21 && p.TargetMapId == WillowbrookMeadowsMap.MapId && p.TargetTx == 2 && p.TargetTy == 23);
         foreach (MapPortal p in Willow.Portals) Assert.False(Willow.IsSolidTile(p.Tx, p.Ty), "gate tile " + p.Tx + "," + p.Ty + " is solid");
-        foreach (MapPortal p in thatch.Portals)
+        foreach (MapPortal p in oak.Portals)
             if (p.TargetMapId == WillowbrookMeadowsMap.MapId) Assert.False(Willow.IsSolidTile(p.TargetTx, p.TargetTy), "arrival tile is solid");
     }
 

@@ -50,14 +50,31 @@ namespace ZenoniaProto
             { "apothecaryNara", Def("apothecaryNara", "Nara", Down, false,
                 "Desert aloe and date syrup: nothing better when the heat gets into your bones.", "Fresh bottles every morning, friend.") },
             { "blacksmithKhaled", Def("blacksmithKhaled", "Khaled", Left, false,
-                "Sand gets into everything, even the bellows. Clean your blade every night.", "The forge is cooling until the next ore caravan arrives.\n(Blacksmith: coming soon)") },
+                "Sand gets into everything, even the bellows. Clean your blade every night.", "Desert steel, tempered for the dunes. Have a look at the rack.") },
             { "bountyLeila", Def("bountyLeila", "Leila", Left, false,
                 "Every name on this board once cost a merchant his cargo.", "Nothing worth your time is posted today. Ask me again later.\n(Bounties: coming soon)") },
+            // Thatchwick Village (world-map-2 step 1, plans/261113-0106-world-map-step1): herbalist, two blacksmith tiers and a market broker.
+            // Reused portraits, no new art: Wren = apothecaryNara's basket-and-herbs look, Holt = guardRook's armoured look, Pell = elderSahir's trader look.
+            { "herbalistWren", DefArt("herbalistWren", "Wren", "apothecaryNara", Down, false,
+                "Frostmint and riverbank root, the hill folk swear by both.", "A draught a day keeps the frostbite at bay, or so they say.") },
+            { "smithHolt", DefArt("smithHolt", "Holt", "guardRook", Down, false,
+                "Thatchwick steel outlasts anything from the lowland forges.", "Come back once you've climbed higher. I will have better on the rack.") },
+            { "brokerPell", DefArt("brokerPell", "Pell", "elderSahir", Down, false,
+                "This square is the only market worth the name between here and the dunes.", "Stand in the square if you want to trade with another traveller. I only point the way.") },
+            // Oakhaven's blacksmith (world-map-2 step 1): same look as the carpenter, a hammer at the forge.
+            { "smithBram", DefArt("smithBram", "Bram", "carpenterBrol", Down, false,
+                "Steel and leather, nothing fancy, but it holds an edge.", "Oakhaven forges plain gear. Good enough until you see higher country.") },
         };
 
         static NpcDef Def(string id, string name, int facing, bool questGiver, params string[] lines)
         {
             return new NpcDef { Id = id, Name = name, Art = id, Facing = facing, QuestGiver = questGiver, Lines = lines };
+        }
+
+        /// <summary>Same as Def, but reusing another villager's sprite sheet / face (no new art drawn for this NPC).</summary>
+        static NpcDef DefArt(string id, string name, string art, int facing, bool questGiver, params string[] lines)
+        {
+            return new NpcDef { Id = id, Name = name, Art = art, Facing = facing, QuestGiver = questGiver, Lines = lines };
         }
 
         public static NpcDef Get(string id)

@@ -22,10 +22,6 @@ namespace ZenoniaProto
             if (NetLaunchArgs.DevHurtPct > 0 && def.Id != HeroClass.Cleric) state.Hp = state.MaxHp * NetLaunchArgs.DevHurtPct / 100f; // test servers only: somebody for a cleric to heal
             GrantDevGoods(state);
             Build(p, def, name, state, EntrancePoint());
-            // Same as an offline save positioned past a gate: a hero that begins beyond it (--map) can walk back through it.
-            Zone zone = Zone.Main;
-            string passed = zone.Map != null ? MapSpawnTable.GatePassedOn(zone.Map.Id) : null;
-            if (passed != null) p.Bosses.Mark(passed, MapSpawnTable.HasOwnBoss(passed));
         }
 
         /// <summary>A character from the API, already restored and validated, in the current zone: at its saved spot if that spot is free, else at the entrance. Its boss gates come from the save.</summary>
@@ -37,8 +33,6 @@ namespace ZenoniaProto
             Build(p, def, name, state, at);
             p.Bosses.KingDefeated = save.bossDefeated;
             foreach (string map in save.defeatedBossMaps) if (!p.Bosses.OwnBossMaps.Contains(map)) p.Bosses.OwnBossMaps.Add(map);
-            string passed = zone.Map != null ? MapSpawnTable.GatePassedOn(zone.Map.Id) : null;
-            if (passed != null) p.Bosses.Mark(passed, MapSpawnTable.HasOwnBoss(passed));
             p.Portals.Disarm(); // saved standing on a portal: it has to step off first
         }
 

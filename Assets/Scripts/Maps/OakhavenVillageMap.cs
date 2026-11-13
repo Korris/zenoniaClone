@@ -3,10 +3,15 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Oakhaven Village (web src/world/maps/oakhaven-village-map.js v6): the safe starting hub, ONE painted backdrop
-    /// (Sprites/village/tiles/oakhaven-ground.png) with the HD buildings and props y-sorted on top. The rows were classified from the painting
-    /// tile by tile in the web and only drive collision: T forest canopy (solid)  g grass  d dirt road / market / farm  p plaza  w river  B bridge.
-    /// Props block their footprints (VillagePropDefs) and every NPC blocks its tile, exactly like the web map-manager.
+    /// Oakhaven Village: the safe starting hub, now ONE painted backdrop (Sprites/village/tiles/oakhaven-ground.png) like Thatchwick Village -
+    /// no more MapProp buildings, the rows are the only collision. World Map 2.0 step 1 (13/11/2026) replaced the old web-sourced layout with the
+    /// approved ChatGPT painting (docs/reference/new-oakhaven-village-concept-1.png / Assets/ArtLibrary/village/new-oakhaven/new-oakhaven-village-chatgpt-1.png),
+    /// classified tile by tile with Tools/build-map-backdrop.py (grid + check): T house / roof / well / stall / forge / fence / tree (solid)
+    /// g grass  d dirt road  p plaza apron  w stream (solid)  B bridge. Buildings, clockwise from the north: the Guild Hall (elderRowan, guardRook),
+    /// the apothecary cottage west (healerNina) with the fruit stall just south of it (merchantDale), the forge east (smithBram) across the stream
+    /// via the bridge that reaches the east edge (the Thatchwick gate), and two plain cottages south of the plaza flanking the road to the south
+    /// gate (Willowbrook Meadows). Rows 22-23 are forced solid: the painted road there runs on under the HUD bar, same as the old layout, so the
+    /// south gate sits one row above it, at row 21.
     /// </summary>
     public sealed class OakhavenVillageMap : TileMapBase
     {
@@ -14,79 +19,59 @@ namespace ZenoniaProto
 
         static readonly string[] Rows =
         {
-            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwwTTT",
-            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwwTTT",
-            "TTTggTgggggTgggggggggTgggggggTwwwTTT",
-            "TTggggggggggggggggggggggggggggTwwTTT",
-            "TTggggggggggggggddgggggggggggggwwTTT",
-            "TTgggdgggggggggggdgggggggggdggTwwTgT",
-            "TTTggdggggggggggddgggggggggdgggwwTgT",
-            "TTggddddggggggggddgggggggggdgggwwTgT",
-            "TTgddddddgggggggpppggggdgggdggTwwwgT",
-            "TTgdddddddgggggpppppgggdgggdggTwwTgT",
-            "TTddddddddddddppppppddddddddddBBBBdd",
-            "TTgddddddggggdppppppddddddddddBBBBdd",
-            "TTgggggggggggggpppppggggggggdgTwwTgT",
-            "TTTgggggggggddggppgddgggggggdgTwwTgT",
-            "TTgggggggggdgggggdggddgggggggdTwwggT",
-            "TTddddddddgdgggggdggggdggggggdgwwTTT",
-            "TTddddddddggggggddgggggddgggggBBwwTT",
-            "TgddddddddggggggddggggggdggggggwwwTT",
-            "TTddddddddggggggddgggggggggggggwwwTT",
-            "TTddddddddggggggdggggggggggggggwwTTT",
-            "TTggggggggggTgggdgggggggggggTgTwwwTT",
-            "TTTTgTTgTTTTTTTgdggTTTTggggTTTTwwwTT",
-            // Rows 22-23: the painted road runs on under the HUD bar, so it is blocked (the portal sits at row 21).
-            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwTTT",
-            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwTTT",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwwT",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwwT",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwwT",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwwT",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwwT",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTwwwT",
+            "TTddddddddddddpppppppppTTTTTTTTTwwwT",
+            "TTddddTTTTTTdddddddddddTTTTTTTTTwwwT",
+            "TTTTTTTTTTTTddddddddddddddddddddBBBB",
+            "TTTTTTTTTTTTdddddTTdddddddddddBBBBBB",
+            "TTTTTTTTTdddddddddddddddddddddBBBBBB",
+            "TTTTTTTTTdddddddddddddddddddddBBBBBB",
+            "TTTTTTTTTTTTTTTTddddTTTTTTTTTTwwwwwT",
+            "TTTTTTTTTTTTTTTTddddTTTTTTTTTTwwwwwT",
+            "TTTTTTTTTTTTTTTTddddTTTTTTTTTTwwwwwT",
+            "TTTTTTTTTTTTTTTTddddTTTTTTTTTTwwwwwT",
+            "TTTTTTTTTTTTTTTTddddTTTTTTTTTTwwwwwT",
+            "TTTTTTTTTTTTTTTTddddTTTTTTTTTTwwwwwT",
+            "TTTTTTTTTTTTddddddddTTTTTTTTTTwwwwwT",
+            "TTTTTTTTTdddddddddddddddddddddwwwwwT",
+            "TTTTTTTTTTTTdddddTTTTTTTTTTTTTTTTTTT",
+            // Rows 22-23: the painted road runs on under the HUD bar, so it is forced blocked (the south gate sits at row 21).
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
         };
 
-        // Stable ids are NpcDefs keys. Each villager stands on open ground in front of their home / work.
+        // Stable ids are NpcDefs keys. elderRowan (quest giver) and guardRook (Wanted board) flank the Guild Hall door; healerNina stands in front
+        // of the apothecary cottage (west), merchantDale by the fruit stall just south of it; smithBram (world-map-2 step 1, B's catalog) stands in
+        // the forge's open apron; villagerMia and childTim are flavour villagers in the open plaza.
         static readonly MapNpc[] NpcList =
         {
-            new MapNpc("elderRowan", 17, 7), new MapNpc("villagerMia", 5, 7), new MapNpc("hunterLena", 27, 7), new MapNpc("healerNina", 23, 9),
-            new MapNpc("merchantDale", 8, 10), new MapNpc("childTim", 19, 13), new MapNpc("farmerGuri", 8, 16), new MapNpc("fishermanRoy", 30, 15),
-            new MapNpc("carpenterBrol", 24, 20), new MapNpc("guardRook", 18, 20),
+            new MapNpc("elderRowan", 16, 7), new MapNpc("guardRook", 20, 7),
+            new MapNpc("healerNina", 5, 7), new MapNpc("merchantDale", 9, 11),
+            new MapNpc("smithBram", 27, 9),
+            new MapNpc("villagerMia", 22, 11), new MapNpc("childTim", 12, 12),
         };
 
-        // [type, tx, ty]: tx / ty = bottom-left footprint tile. Buildings sit over the end of their painted feeder road so it leads to the door.
-        static readonly MapProp[] PropList =
-        {
-            // Homes and workshops
-            new MapProp("elderHouse", 14, 5), new MapProp("cottageRed", 4, 5), new MapProp("hunterLodge", 26, 5),
-            new MapProp("healerCottage", 21, 8), new MapProp("carpenterWorkshop", 22, 19),
-            // Plaza: well at the centre, lanterns at the edges, signpost toward the south gate
-            new MapProp("well", 16, 11), new MapProp("lanternPost", 14, 8), new MapProp("lanternPost", 20, 12), new MapProp("villageSignpost", 18, 15),
-            // Market square (west)
-            new MapProp("marketStall", 7, 8), new MapProp("barrel", 2, 9), new MapProp("crate", 2, 10),
-            // Farm (southwest): fence along the north edge, scarecrow in the field
-            new MapProp("villageFence", 2, 14), new MapProp("villageFence", 4, 14), new MapProp("villageFence", 6, 14), new MapProp("scarecrow", 5, 17),
-            // Carpenter's yard
-            new MapProp("woodpile", 28, 18), new MapProp("campfire", 21, 19), new MapProp("barrel", 21, 18),
-            // River: lantern at the bridge head, rowboat moored by the dock
-            new MapProp("lanternPost", 29, 9), new MapProp("rowboat", 32, 18),
-            // Greenery
-            new MapProp("villageOak", 11, 5), new MapProp("villageOak", 12, 14), new MapProp("villageOak", 25, 14),
-            new MapProp("villagePine", 21, 3), new MapProp("villagePine", 11, 20), new MapProp("villagePine", 2, 4),
-            new MapProp("villageFlowerBush", 13, 7), new MapProp("villageBush", 20, 7), new MapProp("villageFlowerBush", 9, 13), new MapProp("villageBush", 26, 12),
-        };
-
-        static readonly Vector2Int PlayerStartTile = new Vector2Int(16, 19);
-        /// <summary>South gate: leads to the Frost Hollow entrance stairs (that map's start tile). East gate (the road on rows 10-11, a pair): Thatchwick Village's west road.</summary>
+        static readonly Vector2Int PlayerStartTile = new Vector2Int(20, 12);
+        /// <summary>
+        /// South gate (row 21, two tiles either side of the painted path's centre): to Willowbrook Meadows' west gate, landing two tiles in from
+        /// its portal at (2,23) (World Map 2.0 step 1, 13/11/2026: agent A's WillowbrookMeadowsMap.cs placeholder arrival (16,19) in this map must
+        /// be corrected to (13,20)/(14,20), one row north of this gate, now that the real tiles are known).
+        /// East gate (the bridge, reaching the map edge at row 10-11): unchanged from the old layout, to Thatchwick Village's west road.
+        /// </summary>
         static readonly MapPortal[] PortalList =
         {
-            new MapPortal(16, 21, FrostHollowLayout.MapId, FrostHollowLayout.PlayerStartTile.x, FrostHollowLayout.PlayerStartTile.y),
+            new MapPortal(13, 21, WillowbrookMeadowsMap.MapId, 2, 23), new MapPortal(14, 21, WillowbrookMeadowsMap.MapId, 2, 23),
             new MapPortal(35, 10, ThatchVillageMap.MapId, 2, 8), new MapPortal(35, 11, ThatchVillageMap.MapId, 2, 9),
         };
 
         public OakhavenVillageMap() : base(Rows, "Tw")
         {
-            foreach (MapProp p in PropList)
-            {
-                PropDef d;
-                if (VillagePropDefs.TryGet(p.Type, out d)) BlockTiles(p.Tx, p.Ty - d.FootH + 1, d.FootW, d.FootH);
-                else Debug.LogError("[ZenoniaProto] unknown village prop " + p.Type);
-            }
             foreach (MapNpc n in NpcList) BlockTiles(n.Tx, n.Ty, 1, 1);
         }
 
@@ -97,7 +82,6 @@ namespace ZenoniaProto
         public override bool Hostile { get { return false; } }
         public override Vector2 PlayerStart { get { return FrostHollowMap.TileFeet(PlayerStartTile.x, PlayerStartTile.y, 2f); } }
         public override MapPortal[] Portals { get { return PortalList; } }
-        public override MapProp[] Props { get { return PropList; } }
         public override MapNpc[] Npcs { get { return NpcList; } }
     }
 }

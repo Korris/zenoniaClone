@@ -5,7 +5,8 @@ namespace ZenoniaProto
     /// <summary>
     /// Which monsters a map spawns, by map id: Amber Dunes, Emberfen Marsh and Willowbrook Meadows have their own zones and no boss, Frostfang Den and Sunken Reliquary their own zones and boss; every
     /// other hostile map keeps Frost Hollow's zones (the five old ones in its north-west valley plus the ten outer clusters) and the Frostfang King (the online zone server, the headless bench and the Editor tests depend on those). Keyed by string so the
-    /// data needs no map class. A boss map's kill is saved per map (RpgSession.BossDefeatedOn); only a map with a boss gate hides its forward portal until then.
+    /// data needs no map class. A boss map's kill is saved per map (RpgSession.BossDefeatedOn) for the boss's own rewards; World Map 2.0 step 1 (13/11/2026) dropped the last portal gated on a kill
+    /// (Frostfang Den -> Sunspire), so no map hides a portal any more (see HasOwnBoss / BossFor; there used to be HasBossGate and GatePassedOn here, both removed).
     /// </summary>
     public static class MapSpawnTable
     {
@@ -24,7 +25,8 @@ namespace ZenoniaProto
             new FrostHollowMap.Zone("amberWisp", 2, 27, 18, 6, 3, 11000f),
         };
 
-        /// <summary>A few guards on the way to the boss: goblins in the north cave, wolves in the south cave. The arena itself only holds the boss.</summary>
+        /// <summary>A few guards on the way to the boss: Lv16 goblins in the north cave, Lv18 wolves in the south cave (World Map 2.0 step 1, 13/11/2026 moved both from Lv2 to fill the Lv16-20
+        /// band; Glacier Warden stays Lv20). The arena itself only holds the boss.</summary>
         static readonly FrostHollowMap.Zone[] FrostfangDen =
         {
             new FrostHollowMap.Zone("iceGoblin", 4, 8, 3, 10, 6, 10000f),
@@ -53,8 +55,9 @@ namespace ZenoniaProto
 
         /// <summary>
         /// The 72x48 meadow hunting field, 70 monsters in 11 clusters (plan layout/willowbrook-72x48-clusters.json, adjusted to the painting), the level climbing with the walking distance from the west gate:
-        /// Lv1 meadowSlime next to the gate, Lv2 hornRabbit across the first stream and in the north-west, Lv3 thornBoar in the middle, Lv5 meadowMantis in the east, Lv6 brambleTreant in the ruins.
-        /// Respawn 6-10 s (slower far from the gate). Rects are wide on purpose (TryZoneSpot skips solid tiles; each holds at least 7x its count of free tiles). The west gate and start tile stay clear (NearEntrance).
+        /// Lv1 meadowSlime next to the gate, Lv2 hornRabbit across the first stream and in the north-west, Lv3 thornBoar in the middle, Lv7 meadowMantis in the east, Lv10 brambleTreant in the ruins
+        /// (mantis and treant pushed up from Lv5/Lv6, World Map 2.0 step 1, 13/11/2026, so the band covers Lv1-10). Respawn 6-10 s (slower far from the gate). Rects are wide on purpose
+        /// (TryZoneSpot skips solid tiles; each holds at least 7x its count of free tiles). The west gate and start tile stay clear (NearEntrance).
         /// </summary>
         static readonly FrostHollowMap.Zone[] WillowbrookMeadows =
         {
@@ -73,9 +76,10 @@ namespace ZenoniaProto
 
         /// <summary>
         /// Frost Hollow's 66 monsters outside the original 36x24 section, in 12 clusters on the painted 72x48 rows (plan layout/frost-hollow-72x48-clusters.md, rects fitted to the walkable tiles).
-        /// FrostHollowMap.Zones stays the five old ones (the bots and the bench use them directly); ZonesFor("frostHollow") is both. Level climbs with the walk from the village: Lv1-2 in the old valley and
-        /// the south-west, Lv3 snow foxes just south and east of the valley, Lv4 imps on the lake's north shore, Lv5 bears under the plateau and in the south-middle, then Lv7 wraiths in the north-east,
-        /// Lv8 yetis in the far south and Lv9 golems by the ice cave and on the watchtower plateau (stairs at (49-50,5-6) stay free). Respawn 7-10.5 s. Every rect is at least 5 tiles from the start, the gate and the cave.
+        /// FrostHollowMap.Zones stays the five old ones (the bots and the bench use them directly); ZonesFor("frostHollow") is both. World Map 2.0 step 1 (13/11/2026) moved Frost Hollow to a Lv11-15
+        /// band: Lv11 frost slime in the old valley and the south-west, Lv12 snow foxes / imps, Lv13 bears, Lv13 wraiths, Lv14 yetis and Lv15 golems by the ice cave and on the watchtower plateau
+        /// (stairs at (49-50,5-6) stay free). Zone 2 (south-west plaza) is ice goblin, which moved to Frostfang Den's Lv16 band instead (shared MonsterDef, so this pocket is a level spike by design
+        /// for now; same for the old valley's ice goblin / spectral wolf, FrostHollowMap.Zones). Respawn 7-10.5 s. Every rect is at least 5 tiles from the start, the gate and the cave.
         /// </summary>
         public static readonly FrostHollowMap.Zone[] FrostHollowOuter =
         {
@@ -142,15 +146,6 @@ namespace ZenoniaProto
 
         /// <summary>True for a map with a boss of its own, whose kill is saved in SaveData.defeatedBossMaps; the king's kill stays in SaveData.bossDefeated.</summary>
         public static bool HasOwnBoss(string mapId) { return mapId == FrostfangDenId || mapId == SunkenReliquaryId; }
-
-        /// <summary>True when the map's forward portal stays closed until its boss is dead. Add Sunken Reliquary here when it gets an exit.</summary>
-        public static bool HasBossGate(string mapId) { return mapId == FrostfangDenId; }
-
-        /// <summary>The map whose gate a save positioned on `mapId` has already passed, or null. Saves from before the Den existed reached these maps without a kill.</summary>
-        public static string GatePassedOn(string mapId)
-        {
-            return mapId == SunspireOasisMap.MapId || mapId == AmberDunesId || mapId == EmberfenMarshId || mapId == SunkenReliquaryId ? FrostfangDenId : null;
-        }
 
         /// <summary>
         /// True when a spot of a table-driven map is too close to where heroes arrive (its portals, its start tile). Monsters are placed before the

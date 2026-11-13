@@ -134,9 +134,12 @@ public class MessageRoundTripTests
         NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 7, Op = InvOp.HairStyle, ItemUid = "", Slot = 3 });
         InvActionMsg hair; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out hair));
         Assert.Equal(InvOp.HairStyle, hair.Op); Assert.Equal((byte)3, hair.Slot);
-        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.HairStyle + 1); w.Put("x"); w.Put((byte)0);
+        NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 8, Op = InvOp.GearBuy, ItemUid = "smithBram", Slot = 9 });
+        InvActionMsg gear; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out gear));
+        Assert.Equal(InvOp.GearBuy, gear.Op); Assert.Equal("smithBram", gear.ItemUid); Assert.Equal((byte)9, gear.Slot);
+        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.GearBuy + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(17, NetProtocol.Version);
+        Assert.Equal(18, NetProtocol.Version);
     }
 
     [Fact]
@@ -264,6 +267,7 @@ public class MessageRoundTripTests
             new NetEvent { Type = NetEventType.BossSpawned, Id = 400 },
             new NetEvent { Type = NetEventType.BossDied, Id = 400 },
             new NetEvent { Type = NetEventType.TurretShot, Id = 500, Other = 301, X = -12, Y = 345 },
+            new NetEvent { Type = NetEventType.WantedSkillTelegraph, Id = 600, Step = 3, X = 111, Y = -222, Angle = 64, Value = 4294960000 },
         };
         var w = new NetDataWriter();
         int written = NetMessageWriter.EventBatch(w, 5000, events, 0);
@@ -276,8 +280,11 @@ public class MessageRoundTripTests
         Assert.Equal(123456u, got[8].Value); Assert.Equal("Inventory full", got[12].Text); Assert.Equal(0xFF8855FFu, got[12].Value);
         Assert.Equal(7, got[11].Look.WeaponTier); Assert.Equal(1, got[11].Look.PetId); Assert.Equal(2, got[11].Look.HairStyle);
         Assert.Equal(6, SkillCastCode.Index(got[5].Step)); Assert.Equal(4, SkillCastCode.Rank(got[5].Step)); Assert.Equal(65001, got[5].Other); Assert.Equal(1, got[5].Facing);
-        NetEvent shot = got[got.Count - 1];
+        NetEvent shot = got[got.Count - 2];
         Assert.Equal(500, shot.Id); Assert.Equal(301, shot.Other); Assert.Equal(-12, shot.X); Assert.Equal(345, shot.Y);
+        NetEvent telegraph = got[got.Count - 1];
+        Assert.Equal(600, telegraph.Id); Assert.Equal(3, telegraph.Step); Assert.Equal(111, telegraph.X); Assert.Equal(-222, telegraph.Y);
+        Assert.Equal(64, telegraph.Angle); Assert.Equal(4294960000u, telegraph.Value);
     }
 
     [Fact]

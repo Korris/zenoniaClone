@@ -140,6 +140,10 @@ namespace ZenoniaProto
                     return useSize < 0 ? UsePotion(PotionCatalog.SlotIsHp(slot)) : UsePotion(PotionCatalog.SlotIsHp(slot), useSize);
                 case InvOp.PotionBuy: r = State.BuyPotion(PotionCatalog.SlotIsHp(slot), PotionCatalog.SlotSize(slot)); break;
                 case InvOp.PetBuy: r = State.BuyPet(PetConfig.ByIndex(slot)); break;
+                case InvOp.GearBuy:
+                    int gearTier, gearSlot;
+                    r = GearShops.Decode(slot, out gearTier, out gearSlot) ? State.BuyGear(gearTier, gearSlot) : ActionResult.Fail("Not sold here");
+                    break;
                 case InvOp.Discard:
                     r = State.RemoveFromInventory(itemUid) ? ActionResult.Success("Discarded") : ActionResult.Fail("No such item");
                     break;

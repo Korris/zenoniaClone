@@ -56,7 +56,7 @@ namespace ZenoniaProto.Net
             try
             {
                 m.ReqId = r.GetUInt(); byte op = r.GetByte(); m.ItemUid = r.GetString(NetProtocol.MaxItemUidLength); m.Slot = r.GetByte();
-                if (op > (byte)InvOp.HairStyle) return false;
+                if (op > (byte)InvOp.GearBuy) return false;
                 m.Op = (InvOp)op;
                 return true;
             }

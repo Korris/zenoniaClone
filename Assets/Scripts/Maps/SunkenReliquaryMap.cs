@@ -6,7 +6,7 @@ namespace ZenoniaProto
     /// Sunken Reliquary: the flooded ruins past Emberfen Marsh, ONE painted backdrop (Sprites/village/tiles/sunken-reliquary-ground.png) with the HD props y-sorted on top.
     /// The rows were classified from the painting and only drive collision: T ruin wall and flood (solid)  d stone causeway  p temple flagstones. The causeway enters at the west edge near the top and links
     /// two large rooms, a side room and a long hall to the Mirefang Hydra's round arena at the far end. A second causeway from the hall ends at (0,15-16) with nothing beyond it yet. There is no exit yet
-    /// (Cinderwatch Hold is not built): add it behind a boss gate (MapSpawnTable.HasBossGate). MapSpawnTable keys on MapId.
+    /// (Cinderwatch Hold is not built); when it is, World Map 2.0's "no boss gates" rule (13/11/2026) means that exit opens with no kill required, like every other portal. MapSpawnTable keys on MapId.
     /// </summary>
     public sealed class SunkenReliquaryMap : TileMapBase
     {

@@ -62,9 +62,10 @@ public class FrostHollowLargeMapTests
     [Fact]
     public void VillageGateAndIceCavePortalsRoundTrip()
     {
-        IGameMap den = MapRegistry.Get(FrostfangDenMap.MapId), village = MapRegistry.Get(OakhavenVillageMap.MapId);
+        // World Map 2.0 step 1 (13/11/2026): the south-west gate at (2,21) now leads to Thatchwick (it used to lead to Oakhaven; see MapGraphTests.WorldMapStep1RouteGoesBothWays).
+        IGameMap den = MapRegistry.Get(FrostfangDenMap.MapId), thatch = MapRegistry.Get(ThatchVillageMap.MapId);
         Assert.Equal(4, Frost.Portals.Length);
-        Assert.Contains(Frost.Portals, p => p.Tx == 2 && p.Ty == 21 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 16 && p.TargetTy == 19);
+        Assert.Contains(Frost.Portals, p => p.Tx == 2 && p.Ty == 21 && p.TargetMapId == ThatchVillageMap.MapId && p.TargetTx == 33 && p.TargetTy == 11);
         for (int x = 67; x <= 69; x++)
         {
             int px = x;
@@ -72,15 +73,18 @@ public class FrostHollowLargeMapTests
         }
         foreach (MapPortal p in Frost.Portals) Assert.False(Frost.IsSolidTile(p.Tx, p.Ty), "portal tile " + p.Tx + "," + p.Ty + " is solid");
         Assert.Equal(new Vector2Int(4, 21), FrostHollowLayout.PlayerStartTile);
-        Assert.Contains(village.Portals, p => p.TargetMapId == FrostHollowLayout.MapId && p.TargetTx == 4 && p.TargetTy == 21);
+        Assert.Contains(thatch.Portals, p => p.TargetMapId == FrostHollowLayout.MapId && p.TargetTx == 4 && p.TargetTy == 21);
+        // The Den's three back triggers (west edge) land on the same snow tile in front of the ice cave; its fourth portal (east edge) is always open to Sunspire now (World Map 2.0 step 1).
         foreach (MapPortal p in den.PortalsFor(false))
         {
+            if (p.TargetMapId == SunspireOasisMap.MapId) continue;
             Assert.Equal(FrostHollowLayout.MapId, p.TargetMapId);
             Assert.Equal(68, p.TargetTx); Assert.Equal(22, p.TargetTy);
             Assert.False(Frost.IsSolidTile(p.TargetTx, p.TargetTy), "arrival is solid");
             MapPortal arrival = p;
             Assert.DoesNotContain(Frost.Portals, q => q.Tx == arrival.TargetTx && q.Ty == arrival.TargetTy);
         }
+        Assert.Contains(den.PortalsFor(false), p => p.TargetMapId == SunspireOasisMap.MapId);
     }
 
     [Fact]

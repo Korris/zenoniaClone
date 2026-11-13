@@ -113,6 +113,16 @@ public class PotionTests
     }
 
     [Fact]
+    public void ThatchwickHasAHerbalistAndStocksLarge()
+    {
+        Assert.True(PotionShops.IsSeller("herbalistWren"));
+        Assert.Equal(PotionShops.Thatchwick, PotionShops.MapOf("herbalistWren"));
+        Assert.True(PotionShops.Sells("herbalistWren", PotionCatalog.Large));
+        Assert.Null(PotionShops.Refusal("herbalistWren", PotionShops.Thatchwick, PotionCatalog.Large, 10f));
+        Assert.NotNull(PotionShops.Refusal("herbalistWren", PotionShops.Oakhaven, PotionCatalog.Large, 10f));
+    }
+
+    [Fact]
     public void AServerRefusesAWrongMapOrAFarAwayBuyer()
     {
         Assert.Null(PotionShops.Refusal("apothecaryNara", PotionShops.Sunspire, PotionCatalog.Large, 20f));

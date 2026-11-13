@@ -6,7 +6,9 @@ public class LevelingTests
     [Fact]
     public void FirstLevelTakesEighteenFrostSlimes()
     {
-        int reward = LootTable.For("frostSlime").Exp;
+        // World Map 2.0 step 1 (13/11/2026) moved Frost Slime to Lv11 (Frost Hollow's own band) and its EXP with it, so this leveling-curve check no longer reads it from LootTable:
+        // 14 is simply the old Lv1 Frost Slime EXP this test was built around (Leveling.ExpToNext(1) == 250, so 18 kills of a Lv1-ish 14-EXP monster is the first level-up).
+        int reward = 14;
         var before = Leveling.ApplyExpGain(1, 0, 17 * reward);
         Assert.Equal(1, before.Level);
         var after = Leveling.ApplyExpGain(before.Level, before.Exp, reward);

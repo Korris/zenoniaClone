@@ -54,10 +54,18 @@ namespace ZenoniaProto
 
         static readonly Vector2Int PlayerStartTile = new Vector2Int(3, 10);
 
-        /// <summary>West edge: back to the ice cave on Frost Hollow's east cliff (the painted path is three tiles wide here, so three triggers, one light). Always open.</summary>
-        static readonly MapPortal[] BackPortals = { new MapPortal(0, 9, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y), new MapPortal(0, 10, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y), new MapPortal(0, 11, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y) };
-        /// <summary>The same plus the light at the arena's far wall, on to Sunspire, which only exists once this save has killed the Warden: until then no light and no trigger.</summary>
-        static readonly MapPortal[] AllPortals = { BackPortals[0], BackPortals[1], BackPortals[2], new MapPortal(34, 10, SunspireOasisMap.MapId, 2, 10) };
+        /// <summary>
+        /// West edge: back to the ice cave on Frost Hollow's east cliff (the painted path is three tiles wide here, so three triggers, one light). East edge: on to Sunspire Oasis, past the
+        /// arena's far wall. World Map 2.0 step 1 (13/11/2026): the user dropped the "kill the Warden first" gate, so this exit is now always open regardless of RpgSession.BossDefeatedOn
+        /// (the kill itself is still saved per hero, for the boss's own rewards, just no longer hides a portal).
+        /// </summary>
+        static readonly MapPortal[] PortalList =
+        {
+            new MapPortal(0, 9, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y),
+            new MapPortal(0, 10, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y),
+            new MapPortal(0, 11, FrostHollowLayout.MapId, FrostHollowLayout.DenArrivalTile.x, FrostHollowLayout.DenArrivalTile.y),
+            new MapPortal(34, 10, SunspireOasisMap.MapId, 2, 10),
+        };
 
         public FrostfangDenMap() : base(Rows, "Tw")
         {
@@ -75,8 +83,7 @@ namespace ZenoniaProto
         public override string Music { get { return "frost-hollow"; } } // no track of its own yet
         public override bool Hostile { get { return true; } }
         public override Vector2 PlayerStart { get { return FrostHollowMap.TileFeet(PlayerStartTile.x, PlayerStartTile.y, 2f); } }
-        public override MapPortal[] Portals { get { return PortalsFor(RpgSession.BossDefeatedOn(MapId)); } }
-        public override MapPortal[] PortalsFor(bool gateOpen) { return gateOpen ? AllPortals : BackPortals; }
+        public override MapPortal[] Portals { get { return PortalList; } }
         public override MapProp[] Props { get { return PropList; } }
     }
 }

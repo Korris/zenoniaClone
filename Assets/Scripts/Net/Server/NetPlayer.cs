@@ -107,14 +107,14 @@ namespace ZenoniaProto
             Debug.Log("[ZenoniaProto] wanted: " + (Saved != null ? Saved.Id : Hero != null ? Hero.PlayerName : "?") + " claimed " + def.BossType + " day " + dayKey + ": " + r.Text);
         }
 
-        /// <summary>Same rule as RpgSession offline, per hero: this hero hit the boss, so the gate is open for it; the client learns from the next RpgState (pushed at once).</summary>
+        /// <summary>Same rule as RpgSession offline, per hero: remember the kill for this hero's own boss rewards; the client learns from the next RpgState (pushed at once).
+        /// World Map 2.0 step 1 (13/11/2026): no portal is gated on a kill any more, so there is no "way forward is open" toast here.</summary>
         void OnBossKilled()
         {
             string map = Hero != null && Hero.HomeZone != null && Hero.HomeZone.Map != null ? Hero.HomeZone.Map.Id : null;
             if (map == null || !Bosses.Mark(map, MapSpawnTable.HasOwnBoss(map))) return;
             RpgDirty = true;
             LastRpgSentMs = -10000f;
-            if (MapSpawnTable.HasBossGate(map)) NetEventBus.Toast(Hero, "The way forward is open", new Color(0.5f, 0.95f, 1f));
         }
     }
 }

@@ -65,8 +65,9 @@ namespace ZenoniaProto
         };
 
         /// <summary>
-        /// The south-west corner goes back to the village gate (arrival north of the village's south portal); the mouth of the ice cave on the east cliff (three tiles, row 20) goes on to the
-        /// Frostfang Den boss map, the way to Sunspire Oasis. The Den's way back arrives at (68,22), two tiles in front of the cave.
+        /// The south-west corner goes back to the village gate; World Map 2.0 step 1 (13/11/2026) re-aimed it at Thatchwick's east road (it used to go to Oakhaven, before Thatchwick sat between
+        /// Oakhaven and Frost Hollow on the route). The mouth of the ice cave on the east cliff (three tiles, row 20) goes on to the Frostfang Den boss map, the way to Sunspire Oasis (always open,
+        /// MapSpawnTable no longer gates it). The Den's way back arrives at (68,22), two tiles in front of the cave.
         /// </summary>
         const int DenPortalTx = 67, DenPortalTy = 20;
         /// <summary>Where the Frostfang Den's way back lands: the snow in front of the ice cave, two tiles south of its portal row.</summary>
@@ -74,7 +75,7 @@ namespace ZenoniaProto
 
         static readonly MapPortal[] PortalList =
         {
-            new MapPortal(2, 21, OakhavenVillageMap.MapId, 16, 19),
+            new MapPortal(2, 21, ThatchVillageMap.MapId, 33, 11),
             new MapPortal(DenPortalTx, DenPortalTy, FrostfangDenMap.MapId, 2, 10),
             new MapPortal(DenPortalTx + 1, DenPortalTy, FrostfangDenMap.MapId, 2, 10),
             new MapPortal(DenPortalTx + 2, DenPortalTy, FrostfangDenMap.MapId, 2, 10),

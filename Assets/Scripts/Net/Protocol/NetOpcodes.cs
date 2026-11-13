@@ -10,7 +10,7 @@ namespace ZenoniaProto.Net
     /// <summary>Protocol constants shared by server and clients (bump Version on any wire change).</summary>
     public static class NetProtocol
     {
-        public const ushort Version = 17; // 17 (unreleased): bag grows 20 -> 50 slots (PlayerState.InventorySize, server-api INVENTORY_SIZE); same bytes, but a 20-slot client would cut the RpgState bag at 20. 16 (unreleased): NetAppearance.HairStyle + InvOp.HairStyle (client picks its head layer style). 15 (unreleased): NetAppearance carries armour / gloves / boots tiers (armour look). 14 (unreleased): Thatchwick Village + Willowbrook Meadows maps, meadow and Frost Hollow ice monsters appended to MonsterDef.All
+        public const ushort Version = 18; // 18 (unreleased): InvOp.GearBuy (basic-gear shops, GearCatalog). 17 (unreleased): bag grows 20 -> 50 slots (PlayerState.InventorySize, server-api INVENTORY_SIZE); same bytes, but a 20-slot client would cut the RpgState bag at 20. 16 (unreleased): NetAppearance.HairStyle + InvOp.HairStyle (client picks its head layer style). 15 (unreleased): NetAppearance carries armour / gloves / boots tiers (armour look). 14 (unreleased): Thatchwick Village + Willowbrook Meadows maps, meadow and Frost Hollow ice monsters appended to MonsterDef.All
         public const int MaxSelfBuffs = 8;
         public const int MaxNameLength = 16, MaxTokenLength = 64, MaxTextLength = 120, MaxItemUidLength = 40, MaxSaveJsonLength = 60000, MaxMapIdLength = 32;
         /// <summary>Largest unfragmented snapshot: LiteNetLib refuses an unreliable packet over 1023 B (MTU 1024), so 1000 B.</summary>
@@ -23,5 +23,5 @@ namespace ZenoniaProto.Net
 
     public enum RejectReason : byte { Full = 0, Version = 1, BadToken = 2, AlreadyOnline = 3, Unavailable = 4 }
 
-    public enum InvOp : byte { Equip = 0, Unequip = 1, Use = 2, Discard = 3, Sort = 4, Enhance = 5, SkillLearn = 6, SkillAssign = 7, SkillRespec = 8, PotionBuy = 9, PetBuy = 10, QuestAccept = 11, QuestTurnIn = 12, HairStyle = 13 } // HairStyle: Slot = the chosen style, no reply
+    public enum InvOp : byte { Equip = 0, Unequip = 1, Use = 2, Discard = 3, Sort = 4, Enhance = 5, SkillLearn = 6, SkillAssign = 7, SkillRespec = 8, PotionBuy = 9, PetBuy = 10, QuestAccept = 11, QuestTurnIn = 12, HairStyle = 13, GearBuy = 14 } // HairStyle: Slot = the chosen style, no reply. GearBuy: ItemUid = seller npc id, Slot = GearShops entry index (tier * 6 + slot index)
 }

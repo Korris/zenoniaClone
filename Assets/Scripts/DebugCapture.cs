@@ -226,7 +226,12 @@ namespace ZenoniaProto
             string bagItem = Arg(Environment.GetCommandLineArgs(), "--bag-item");
             if (bagItem != null) InventoryPanel.TestSelectBagItem(int.Parse(bagItem));
             string shop = Arg(Environment.GetCommandLineArgs(), "--open-shop");
-            if (shop != null) { NpcDef seller = NpcDefs.Get(shop); PotionShopWindow.Open(shop, seller.Name, seller.Lines[0]); } // what TownNpc.Talk passes
+            if (shop != null) // what TownNpc.Talk passes
+            {
+                NpcDef seller = NpcDefs.Get(shop);
+                if (GearShops.IsSeller(shop)) GearShopWindow.Open(shop, seller.Name, seller.Lines[0]);
+                else PotionShopWindow.Open(shop, seller.Name, seller.Lines[0]);
+            }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--select-pet") >= 0) InventoryPanel.TestSelectWorn(Slots.Pet);
             string selectWorn = Arg(Environment.GetCommandLineArgs(), "--select-worn"); // a slot id, e.g. helmet (the Necklace cell): its detail panel
             if (selectWorn != null) InventoryPanel.TestSelectWorn(selectWorn);
