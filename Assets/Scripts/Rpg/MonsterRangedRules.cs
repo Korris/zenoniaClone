@@ -25,6 +25,10 @@ namespace ZenoniaProto.Rpg
         /// <summary>Cliff Harpy (Lv 18): about 6 tiles of reach, a feather slow enough to sidestep (the hero walks about 60 units / s).</summary>
         public static readonly MonsterRangedProfile CliffHarpyFeather = new MonsterRangedProfile
             { Range = 100f, ProjectileSpeed = 130f, MaxTravel = 150f, HitSize = 6f, ColorRgb = 0xF2E3B0, Sprite = "cliff-harpy-feather" };
+
+        /// <summary>Sand Wraith (Lv 27): throws a sand orb with a turquoise core (its art, cut from the attack sheet); a little slower and heavier than the feather.</summary>
+        public static readonly MonsterRangedProfile SandWraithOrb = new MonsterRangedProfile
+            { Range = 100f, ProjectileSpeed = 115f, MaxTravel = 150f, HitSize = 8f, ColorRgb = 0xE8C77A, Sprite = "sand-wraith-orb" };
     }
 
     public enum MonsterShotEnd { Flying, Hit, Wall, Expired }

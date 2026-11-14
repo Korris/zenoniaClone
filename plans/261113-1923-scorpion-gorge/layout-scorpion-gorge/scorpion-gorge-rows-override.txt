@@ -1,0 +1,47 @@
+# Scorpion Gorge 48x32 hand overrides. Coordinates read off Tools/preview-scorpion-gorge-grid-crop.py (inclusive tile rects). Processed top to bottom, later
+# lines win. The colour pass under-detects the canyon wall right at the image edges (the blur window loses contrast there), so the whole perimeter is forced
+# solid first and the three real gates (west to Amber Dunes, east towards Mirewatch, the temple steps) are punched back open below.
+0 0 0 28 C
+47 0 47 28 C
+0 0 47 1 C
+# West gate to Amber Dunes (two tiles wide, matches the road).
+0 14 0 15 g
+# Temple facade (Sunspire Vault gate, no target map yet -> left blocked) and its approach stairs (kept walkable as a dead-end podium in front of it).
+22 0 27 4 C
+23 5 26 6 g
+# West dry-river channel, from the top wall down to the west bridge (meanders; width ~2-4 tiles). Solid "dry riverbed": only the two bridges cross it.
+# The bridge rows (14-15 and 21-22) are left out of this list on purpose, so the columns either side of each deck keep the colour pass's "walkable road" read.
+8 2 10 2 w
+8 3 11 3 w
+9 4 12 4 w
+10 5 13 5 w
+11 6 14 6 w
+11 7 15 7 w
+12 8 16 8 w
+13 9 16 9 w
+12 10 15 10 w
+12 11 15 11 w
+11 12 15 12 w
+11 13 15 13 w
+13 16 16 16 w
+13 17 16 17 w
+13 18 16 18 w
+13 19 17 19 w
+14 20 18 20 w
+15 23 18 23 w
+15 24 18 24 w
+16 25 19 25 w
+15 26 19 26 w
+16 27 19 27 w
+16 28 18 28 w
+# West bridge deck: the two channel-width tiles the road actually crosses on (the side columns 12 and 15 stay the colour pass's walkable pillar/road read).
+13 14 14 15 B
+# South bridge deck, same idea.
+18 21 19 22 B
+# One isolated cliff-coloured tile the flood fill would otherwise strand (left of the stream, no room for a player-sized gap).
+12 9 12 9 C
+# East edge towards Mirewatch: open the gate gap the colour pass reads as cliff / puddle-coloured grass, then re-close the real puddles.
+44 11 47 17 g
+45 12 45 12 w
+46 12 46 12 w
+46 14 46 14 w

@@ -16,6 +16,11 @@ Writes (Resources, wizard):
   py Tools/build-wizard-hair-on-bald-body.py verify            painted frames against the installed headless sheets (frame order check)
   py Tools/build-wizard-hair-on-bald-body.py write             the sheets + anchors
   py Tools/build-wizard-hair-on-bald-body.py check OUT_DIR [styles]   composed like the game, one PNG per animation (styles default 0,2,4)
+  py Tools/build-wizard-hair-on-bald-body.py hairscale K       hair drawn at K of its fitted size, about the chin (idempotent: the json keeps K)
+
+Hair scale (2026-11-14, user: "Wizard's head looks bigger than Mechanic's and Warrior's, down and left"): the v4 hair has real volume, so head + hair
+measured 44-47 % of the hero's height against 35-40 % for the others. HAIR_SCALE shrinks only the hair layer about the chin of heads/face, so the
+painted face stays put; write() applies it too.
 """
 import importlib.util, json, os, sys, tempfile
 import numpy as np
@@ -30,6 +35,7 @@ ANIMS = ["idle", "walk", "attack1", "attack2", "attack3", "attack4"]
 BODY = f"{ROOT}/Assets/Resources/Sprites/classes/wizard/body"
 HEADS = f"{ROOT}/Assets/Resources/Sprites/classes/wizard/heads"
 DATA = f"{ROOT}/Assets/Resources/Data/classes/wizard"
+HAIR_SCALE = 0.9
 OVER_DIRS = ("down", "left", "right")   # seen from behind a raised arm is beyond the head: the hair stays on top
 
 
@@ -168,9 +174,39 @@ def write():
         for layer, im in (("bald", bald), ("over-hair", over)):
             os.makedirs(f"{BODY}/{layer}", exist_ok=True)
             p = f"{BODY}/{layer}/{anim}.png"; im.save(p); cv.wb.write_meta(p, like)
+    doc = {"anims": anchors}
+    rescale(doc, HAIR_SCALE)
     with open(f"{DATA}/hair-anchors.json", "w", encoding="utf-8") as fh:
-        json.dump({"anims": anchors}, fh, indent=1); fh.write("\n")
+        json.dump(doc, fh, indent=1); fh.write("\n")
     print("wrote body/bald, body/over-hair,", f"{DATA}/hair-anchors.json")
+
+
+def chin_from_bottom(d):
+    """Pixels from the cell bottom up to the chin (lowest face pixel) of heads/face, the point the hair scale keeps fixed."""
+    a = np.asarray(Image.open(f"{HEADS}/face/{'right' if d == 'left' else d}.png").convert("RGBA"))[..., 3] > 128
+    return F - (np.where(a.any(1))[0].max() + 1)
+
+
+def rescale(doc, k):
+    """Hair at k of its fitted size about the chin: s scaled, y moved up so the chin point stays (the cell scales about its bottom centre)."""
+    r = k / doc.get("hairScale", 1.0)
+    for e in doc["anims"]:
+        c = chin_from_bottom(e["dir"])
+        for fr in e["frames"]:
+            if not fr: continue
+            S = (fr.get("s") or 1.0) * (fr.get("sy") or 1.0)
+            fr["y"] = round(fr["y"] - (1 - r) * S * c, 2)
+            fr["s"] = round((fr.get("s") or 1.0) * r, 4)
+    doc["hairScale"] = k
+
+
+def hairscale(k):
+    path = f"{DATA}/hair-anchors.json"
+    doc = json.load(open(path, encoding="utf-8"))
+    rescale(doc, k)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(doc, fh, indent=1); fh.write("\n")
+    print("hair scale", k)
 
 
 def hair_cell(d, an, style):
@@ -211,5 +247,6 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "verify": verify()
     elif cmd == "write": write()
+    elif cmd == "hairscale": hairscale(float(sys.argv[2]))
     elif cmd == "check": check(sys.argv[2], tuple(int(x) for x in sys.argv[3].split(",")) if len(sys.argv) > 3 else (0, 2, 4))
     else: print(__doc__)

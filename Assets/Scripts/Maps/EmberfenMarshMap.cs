@@ -56,10 +56,14 @@ namespace ZenoniaProto
         };
 
         static readonly Vector2Int PlayerStartTile = new Vector2Int(3, 18);
-        /// <summary>West edge near the bottom: back to Amber Dunes. East edge near the top: on to Sunken Reliquary.</summary>
+        // Arrival tile is a const on purpose (docs/map-design-rules.md): Scorpion Gorge aims its portal here and this map aims back at Scorpion Gorge.
+        /// <summary>Where the Scorpion Gorge gate sends a hero (the west road end the Amber Dunes gate used to reach).</summary>
+        public const int WestArrivalTx = 2, WestArrivalTy = 18;
+        /// <summary>West edge near the bottom: back to Scorpion Gorge's east gap (until Mirewatch exists; the old Amber Dunes shortcut is closed, 13/11/2026).
+        /// East edge near the top: on to Sunken Reliquary.</summary>
         static readonly MapPortal[] PortalList =
         {
-            new MapPortal(0, 18, AmberDunesMap.MapId, 33, 17),
+            new MapPortal(0, 18, ScorpionGorgeMap.MapId, ScorpionGorgeMap.EastArrivalTx, ScorpionGorgeMap.EastArrivalTy),
             new MapPortal(35, 2, SunkenReliquaryMap.MapId, 2, 3),
         };
 

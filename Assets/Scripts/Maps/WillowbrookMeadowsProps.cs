@@ -24,7 +24,7 @@ namespace ZenoniaProto
             P("wbRockEast", 33, 19), P("wbxOakMid", 35, 28), P("wbOakWest", 3, 19),
             P("wbRockWest", 10, 21), P("wbSignpost", 15, 22), P("wbOakMid", 17, 22),
             P("wbRockMid", 19, 21), P("wbRocksStreamS", 23, 26), P("wbRockStream1", 28, 24),
-            P("wbRockStream2", 30, 26), P("wbRockStream3", 30, 29), P("wbPalisade", 1, 26),
+            P("wbRockStream2", 30, 26), P("wbRockStream3", 30, 29),
             P("wbOakSWClump", 3, 31), P("wbOakSWTree", 8, 29), P("wbOakSWLow", 1, 33),
             P("wbRockSW", 9, 32), P("wbxBoulder", 2, 35), P("wbOakSouth", 12, 34),
             P("wbFenceW", 3, 34), P("wbFenceE", 14, 34), P("wbRockLog", 18, 34),

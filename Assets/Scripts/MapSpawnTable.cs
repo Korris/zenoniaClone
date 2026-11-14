@@ -134,6 +134,27 @@ namespace ZenoniaProto
             new FrostHollowMap.Zone("stonebackGuardian", 6, 38, 20, 6, 5, 10000f), // 8  east field, east half
         };
 
+        public const string ScorpionGorgeId = "scorpionGorge";
+        static readonly Vector2Int ScorpionGorgeBossTile = new Vector2Int(38, 25);
+
+        /// <summary>
+        /// Scorpion Gorge (48x32, Lv26-30): 50 monsters in 8 rects over its fields, the level climbing with the walk from the west gate (Amber Dunes): giant scorpions Lv26 in the two fields
+        /// either side of the gate buffer, sand wraiths Lv27 past the dry riverbed (one north of it, one south towards the second bridge), rock basilisks Lv28 in the big north-east field and
+        /// the strip south of it, dune golems Lv29 flanking the boss approach. Dune Devourer (map boss, BossFor) sits alone in the sand-swirl pit. Respawn 7-10 s. Every rect holds at least 4x
+        /// its count in free tiles and is 5+ tiles from the west arrival tile and its portals; no prop stands inside one (Tools/preview-scorpion-gorge-composite.py checks all of it).
+        /// </summary>
+        static readonly FrostHollowMap.Zone[] ScorpionGorge =
+        {
+            new FrostHollowMap.Zone("giantScorpion", 7, 1, 1, 7, 9, 7000f),       // 1  north-west field, west of the gate buffer
+            new FrostHollowMap.Zone("giantScorpion", 6, 1, 20, 9, 8, 7000f),      // 2  south-west field, below the gate buffer
+            new FrostHollowMap.Zone("sandWraith", 6, 16, 1, 7, 10, 8000f),        // 3  field east of the dry riverbed, below the temple
+            new FrostHollowMap.Zone("sandWraith", 6, 19, 16, 8, 5, 8000f),        // 4  south-central field, above the second bridge
+            new FrostHollowMap.Zone("rockBasilisk", 7, 28, 1, 15, 10, 9000f),     // 5  north-east field
+            new FrostHollowMap.Zone("rockBasilisk", 6, 30, 11, 13, 3, 9000f),     // 6  strip south of the north-east field
+            new FrostHollowMap.Zone("duneGolem", 6, 27, 14, 7, 5, 10000f),        // 7  boss approach, west side
+            new FrostHollowMap.Zone("duneGolem", 6, 36, 15, 7, 5, 10000f),        // 8  boss approach, east side
+        };
+
         static readonly FrostHollowMap.Zone[] NoZones = new FrostHollowMap.Zone[0];
 
         /// <summary>
@@ -181,6 +202,7 @@ namespace ZenoniaProto
                 case RootburrowId: return Rootburrow;
                 case ThornheartChamberId: return NoZones; // only the boss
                 case SunbreakFoothillsId: return SunbreakFoothills;
+                case ScorpionGorgeId: return ScorpionGorge;
                 default: return FrostHollowAll;
             }
         }
@@ -199,6 +221,7 @@ namespace ZenoniaProto
                 case BramblewoodForestId: return MonsterDef.ThornfangAlpha;
                 case ThornheartChamberId: return MonsterDef.ThornheartTreant;
                 case SunbreakFoothillsId: return MonsterDef.RidgehornBehemoth;
+                case ScorpionGorgeId: return MonsterDef.DuneDevourer;
                 default: return MonsterDef.FrostfangKing;
             }
         }
@@ -213,12 +236,13 @@ namespace ZenoniaProto
                 case BramblewoodForestId: return BramblewoodForestBossTile;
                 case ThornheartChamberId: return ThornheartChamberBossTile;
                 case SunbreakFoothillsId: return SunbreakFoothillsBossTile;
+                case ScorpionGorgeId: return ScorpionGorgeBossTile;
                 default: return FrostHollowMap.BossTile;
             }
         }
 
         /// <summary>True for a map with a boss of its own, whose kill is saved in SaveData.defeatedBossMaps; the king's kill stays in SaveData.bossDefeated.</summary>
-        public static bool HasOwnBoss(string mapId) { return mapId == FrostfangDenId || mapId == SunkenReliquaryId || mapId == BramblewoodForestId || mapId == ThornheartChamberId || mapId == SunbreakFoothillsId; }
+        public static bool HasOwnBoss(string mapId) { return mapId == FrostfangDenId || mapId == SunkenReliquaryId || mapId == BramblewoodForestId || mapId == ThornheartChamberId || mapId == SunbreakFoothillsId || mapId == ScorpionGorgeId; }
 
         /// <summary>
         /// True when a spot of a table-driven map is too close to where heroes arrive (its portals, its start tile). Monsters are placed before the

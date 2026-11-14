@@ -132,7 +132,7 @@ namespace ZenoniaProto
             attackRange: 26f, windupMs: 750f, cooldownMs: 1700f, hitW: 28f, hitH: 16f, bodyHeightPx: 181f) { RenderScale = 2.0f, Stationary = true, IsBoss = true };
 
         // Sunbreak Foothills (Lv 16-20). Highland Ibex (Lv 16): middle weight ram (Atk x1.1), a little quicker than the goblin. Dustscale Lizard (Lv 17): fast and brittle (HP x0.8, Atk x1.2, low Def)
-        // with Spectral Wolf timings. Cliff Harpy (Lv 18): feather shooter (13/11/2026, the only ranged monster: Ranged profile, Monster.Ranged.cs), brittle (HP x0.75, Atk x1.15);
+        // with Spectral Wolf timings. Cliff Harpy (Lv 18): feather shooter (13/11/2026, ranged like the Sand Wraith: Ranged profile, Monster.Ranged.cs), brittle (HP x0.75, Atk x1.15);
         // its Atk is unchanged from its melee days, each feather can be sidestepped. Stoneback Guardian (Lv 20): Crystal Golem's role (HP x1.8, Atk x1.1, Def x1.6), slowest, longest windup. Ridgehorn Behemoth (Lv 20, map boss): Glacier Warden's numbers.
         public static readonly MonsterDef HighlandIbex = new MonsterDef("Highland Ibex", "highlandIbex", 366f, 74f, 17f, 48f, 16, aggro: 75f, attackRange: 14f, windupMs: 400f, cooldownMs: 1200f, hitW: 16f, hitH: 10f, bodyHeightPx: 170f);
         public static readonly MonsterDef DustscaleLizard = new MonsterDef("Dustscale Lizard", "dustscaleLizard", 310f, 85f, 6f, 66f, 17, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 14f, hitH: 8f, bodyHeightPx: 140f) { RenderScale = 1.15f };
@@ -142,9 +142,22 @@ namespace ZenoniaProto
         public static readonly MonsterDef RidgehornBehemoth = new MonsterDef("Ridgehorn Behemoth", "ridgehornBehemoth", 3200f, 125f, 16f, 36f, 20, aggro: 85f, leash: 120f,
             attackRange: 22f, windupMs: 650f, cooldownMs: 1500f, hitW: 24f, hitH: 14f, bodyHeightPx: 184f) { RenderScale = 1.8f, Stationary = true, IsBoss = true };
 
+        // Scorpion Gorge (Lv 26-30, World Map 2.1 region 3). Giant Scorpion (Lv 26): the line itself (Atk x1.1), first monster past the Amber Dunes gate, like Highland Ibex. Sand Wraith (Lv 27):
+        // Ice Wraith's role (HP x0.8, Atk x1.2, low Def), floats and throws a sand orb but the AI has no ranged attacks yet so it fights melee (Ruin Wisp precedent) with a slightly longer reach.
+        // Rock Basilisk (Lv 28): the line again, low and quick. Dune Golem (Lv 29): Crystal Golem's role (HP x1.8, Atk x1.1, Def x1.6), slow and heavy. Dune Devourer (Lv 30, map boss):
+        // Glacier Warden / Ridgehorn's boss rule (HP x7, Atk x1.5, Def x0.75), fills its tile like Ridgehorn.
+        public static readonly MonsterDef GiantScorpion = new MonsterDef("Giant Scorpion", "giantScorpion", 586f, 118f, 27f, 50f, 26, aggro: 75f, attackRange: 16f, windupMs: 400f, cooldownMs: 1200f, hitW: 20f, hitH: 10f, bodyHeightPx: 150f);
+        public static readonly MonsterDef SandWraith = new MonsterDef("Sand Wraith", "sandWraith", 486f, 133f, 14f, 60f, 27, aggro: 100f, attackRange: 14f, windupMs: 300f, cooldownMs: 900f, hitW: 14f, hitH: 10f, bodyHeightPx: 160f)
+            { Ranged = Rpg.MonsterRangedProfile.SandWraithOrb }; // throws sand orbs like the Cliff Harpy's feathers (user, 13/11: designed as ranged)
+        public static readonly MonsterDef RockBasilisk = new MonsterDef("Rock Basilisk", "rockBasilisk", 630f, 127f, 29f, 60f, 28, aggro: 80f, attackRange: 14f, windupMs: 350f, cooldownMs: 1200f, hitW: 16f, hitH: 8f, bodyHeightPx: 130f);
+        public static readonly MonsterDef DuneGolem = new MonsterDef("Dune Golem", "duneGolem", 1174f, 131f, 48f, 26f, 29, aggro: 50f, attackRange: 18f, windupMs: 700f, cooldownMs: 1800f, hitW: 24f, hitH: 14f, bodyHeightPx: 178f) { RenderScale = 1.3f };
+        public static readonly MonsterDef DuneDevourer = new MonsterDef("Dune Devourer", "duneDevourer", 4718f, 185f, 23f, 36f, 30, aggro: 85f, leash: 120f,
+            attackRange: 22f, windupMs: 650f, cooldownMs: 1500f, hitW: 26f, hitH: 16f, bodyHeightPx: 186f) { RenderScale = 1.9f, Stationary = true, IsBoss = true };
+
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
         public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear, RimeclawTyrant, GlacialColossus, MireHydraQueen,
-            ForestWolf, ThornSprite, ThornfangAlpha, ThornheartTreant, HighlandIbex, DustscaleLizard, CliffHarpy, StonebackGuardian, RidgehornBehemoth };
+            ForestWolf, ThornSprite, ThornfangAlpha, ThornheartTreant, HighlandIbex, DustscaleLizard, CliffHarpy, StonebackGuardian, RidgehornBehemoth,
+            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer };
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -188,6 +201,11 @@ namespace ZenoniaProto
                 case "cliffHarpy": return CliffHarpy;
                 case "stonebackGuardian": return StonebackGuardian;
                 case "ridgehornBehemoth": return RidgehornBehemoth;
+                case "giantScorpion": return GiantScorpion;
+                case "sandWraith": return SandWraith;
+                case "rockBasilisk": return RockBasilisk;
+                case "duneGolem": return DuneGolem;
+                case "duneDevourer": return DuneDevourer;
                 default: return null;
             }
         }

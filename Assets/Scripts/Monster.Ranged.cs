@@ -6,7 +6,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Ranged attack of a normal monster (def.Ranged, MonsterRangedProfile; only the Cliff Harpy has one). Monster.Ai.cs's Chase asks CanShoot
+    /// Ranged attack of a normal monster (def.Ranged, MonsterRangedProfile: Cliff Harpy, Sand Wraith). Monster.Ai.cs's Chase asks CanShoot
     /// instead of the melee reach check; the ordinary Windup / Cooldown states and attack frames are reused, and when the windup ends
     /// Monster.Strike calls FireRangedShot instead of hitting directly. The flight and the hit are MonsterProjectile's.
     /// </summary>

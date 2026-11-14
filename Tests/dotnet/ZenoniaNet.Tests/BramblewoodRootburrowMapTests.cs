@@ -48,7 +48,7 @@ public class BramblewoodRootburrowMapTests
         AssertLink(Bramble, 17, 0, willow, 47, 42); AssertLink(Bramble, 18, 0, willow, 47, 42);
         AssertLink(Bramble, 2, 13, Burrow, 32, 13);
         AssertLink(Burrow, 35, 12, Bramble, 4, 13); AssertLink(Burrow, 35, 13, Bramble, 4, 13);
-        AssertLink(Burrow, 4, 3, Chamber, 11, 10); AssertLink(Burrow, 5, 3, Chamber, 12, 10);
+        AssertLink(Burrow, 4, 3, Chamber, 11, 9); AssertLink(Burrow, 5, 3, Chamber, 12, 9);
         AssertLink(Chamber, 11, 11, Burrow, 4, 5); AssertLink(Chamber, 12, 11, Burrow, 5, 5);
         Assert.Equal(3, Bramble.Portals.Length); Assert.Equal(4, Burrow.Portals.Length); Assert.Equal(2, Chamber.Portals.Length);
     }

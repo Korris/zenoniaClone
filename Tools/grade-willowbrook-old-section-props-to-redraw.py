@@ -1,4 +1,6 @@
-"""Grades the Willowbrook props that were cut out of the FIRST painting (wb*, not wbx*) to the redrawn art (13/11): that painting was sunset yellow-olive,
+"""SUPERSEDED 13/11 evening: the 45 wb* props are now redrawn by ChatGPT and cut by Tools/cut-willowbrook-old-props-from-redraw-sheets.py; running this would overwrite them with the graded old art.
+
+Grades the Willowbrook props that were cut out of the FIRST painting (wb*, not wbx*) to the redrawn art (13/11): that painting was sunset yellow-olive,
 the redrawn ground and the redrawn prop sheet (wbx*) are green and more contrasty, so the old oaks, rocks and wood looked faded next to them.
 
 Usage: python Tools/grade-willowbrook-old-section-props-to-redraw.py

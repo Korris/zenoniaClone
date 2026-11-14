@@ -72,6 +72,12 @@ namespace ZenoniaProto.Rpg
             { "cliffHarpy", new MonsterLootDef { Type = "cliffHarpy", Exp = 252, GoldMin = 18, GoldMax = 37, ItemLevel = 18 } },
             { "stonebackGuardian", new MonsterLootDef { Type = "stonebackGuardian", Exp = 448, GoldMin = 32, GoldMax = 66, ItemLevel = 20 } },
             { "ridgehornBehemoth", new MonsterLootDef { Type = "ridgehornBehemoth", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 20, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            // Scorpion Gorge (Lv 26-30). Same line (EXP 14L, gold L..2L+1); the boss takes the king's factor (x6.67) and his sure drops.
+            { "giantScorpion", new MonsterLootDef { Type = "giantScorpion", Exp = 364, GoldMin = 26, GoldMax = 53, ItemLevel = 26 } },
+            { "sandWraith", new MonsterLootDef { Type = "sandWraith", Exp = 378, GoldMin = 27, GoldMax = 55, ItemLevel = 27 } },
+            { "rockBasilisk", new MonsterLootDef { Type = "rockBasilisk", Exp = 392, GoldMin = 28, GoldMax = 57, ItemLevel = 28 } },
+            { "duneGolem", new MonsterLootDef { Type = "duneGolem", Exp = 406, GoldMin = 29, GoldMax = 59, ItemLevel = 29 } },
+            { "duneDevourer", new MonsterLootDef { Type = "duneDevourer", Exp = 2801, GoldMin = 200, GoldMax = 407, ItemLevel = 30, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
         };
 
         public static MonsterLootDef For(string type) { MonsterLootDef d; return type != null && Table.TryGetValue(type, out d) ? d : null; }

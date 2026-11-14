@@ -31,6 +31,10 @@ namespace ZenoniaProto
             { "bwLupine", new PropDef(2.5f, 2.25f, 1, 0) },
             { "bwFlowers", new PropDef(2.5f, 1.75f, 1, 0) },
             { "bwReeds", new PropDef(2.5f, 2.25f, 1, 0) },
+            // Fallen-oak roadblock across the dead east road end (Tools/cut-bramblewood-fallen-oak.py); the rows block the road, the log only blocks its bottom tile.
+            { "bwFallenOak", new PropDef(2.0f, 4.5f, 1, 1) },
+            { "bwFallenOakBramble", new PropDef(2.0f, 4.5f, 1, 1) },
+            { "bwBrambleThick", new PropDef(2.5f, 2.25f, 1, 0) },
         };
 
         public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def); }

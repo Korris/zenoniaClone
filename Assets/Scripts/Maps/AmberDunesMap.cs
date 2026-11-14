@@ -31,7 +31,7 @@ namespace ZenoniaProto
             "TTggggggggddTTTggddgggTTTTTggddddTTT",
             "TTggggggggdddddddddgggTTTTTggggddTTT",
             "TTgggggggggdddddddggggTTTTTggggdddTT",
-            "TTTgggggggggggggggggggTTTTTgggggdddd",
+            "TTTgggggggggggggggggggTTTTTgggggdTTT",
             "TTTggggggggggggggTTgggTTTTTgggggggTT",
             "TTTggggggggggggggTTgggTTTTTggggggTTT",
             "TTTTggggggggggggggggggTTTTTggggggTTT",
@@ -52,15 +52,22 @@ namespace ZenoniaProto
             new MapProp("bleachedBones", 3, 15), new MapProp("bleachedBones", 21, 7), new MapProp("bleachedBones", 33, 6), new MapProp("bleachedBones", 13, 18),
             // A lost caravan in the first field, old ruins in its far corner and in the last field
             new MapProp("brokenWagon", 4, 18),
+            // Rockslide over the old Emberfen shortcut at the east road end
+            new MapProp("duneRock", 33, 17), new MapProp("duneRock", 34, 16),
             new MapProp("ruinPillar", 5, 2), new MapProp("ruinPillar", 8, 2), new MapProp("ruinPillar", 28, 3), new MapProp("ruinPillar", 31, 3),
         };
 
         static readonly Vector2Int PlayerStartTile = new Vector2Int(3, 4);
-        /// <summary>West edge near the top: back to Sunspire's east road (two tiles wide, so a pair). East edge near the bottom: on to Emberfen Marsh.</summary>
+        // Arrival tile is a const on purpose (see docs/map-design-rules.md): Scorpion Gorge aims its portal here and this map aims back at Scorpion Gorge.
+        /// <summary>Where the Scorpion Gorge gate sends a hero: on the east track, two tiles in from the edge (the track end this row was already drawn with).</summary>
+        public const int ScorpionGorgeArrivalTx = 33, ScorpionGorgeArrivalTy = 11;
+
+        /// <summary>West edge near the top: back to Sunspire's east road (two tiles wide, so a pair). East edge near the bottom: the old shortcut to Emberfen Marsh,
+        /// closed by a rockslide (13/11/2026: it skipped Scorpion Gorge; rows 16-17 x 33-35 solid). East edge, middle (the last column, x 35): the dangling caravan-track end (World Map 2.1, 13/11/2026) on to Scorpion Gorge, region 3.</summary>
         static readonly MapPortal[] PortalList =
         {
             new MapPortal(0, 4, SunspireOasisMap.MapId, 33, 10), new MapPortal(0, 5, SunspireOasisMap.MapId, 33, 11),
-            new MapPortal(35, 17, EmberfenMarshMap.MapId, 2, 18),
+            new MapPortal(35, 11, ScorpionGorgeMap.MapId, ScorpionGorgeMap.WestArrivalTx, ScorpionGorgeMap.WestArrivalTy),
         };
 
         public AmberDunesMap() : base(Rows, "Tw")

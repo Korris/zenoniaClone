@@ -60,10 +60,16 @@ MONSTERS.update({
     "cliffHarpy": ("cliff-harpy", 150, "Lv18, flyer"),
     "stonebackGuardian": ("stoneback-guardian", 185, "Lv20"),
     "ridgehornBehemoth": ("ridgehorn-behemoth", 185, "Lv20 map boss"),
+    "giantScorpion": ("giant-scorpion", 150, "Lv26"),
+    "sandWraith": ("sand-wraith", 160, "Lv27"),
+    "rockBasilisk": ("rock-basilisk", 130, "Lv28"),
+    "duneGolem": ("dune-golem", 185, "Lv29"),
+    "duneDevourer": ("dune-devourer", 190, "Lv30 map boss"),
 })
 WORLD2_DIRS = {
     "forestWolf": "bramblewood", "thornSprite": "bramblewood", "thornfangAlpha": "bramblewood", "thornheartTreant": "rootburrow",
     "highlandIbex": "sunbreak", "dustscaleLizard": "sunbreak", "cliffHarpy": "sunbreak", "stonebackGuardian": "sunbreak", "ridgehornBehemoth": "sunbreak",
+    "giantScorpion": "scorpion-gorge", "sandWraith": "scorpion-gorge", "rockBasilisk": "scorpion-gorge", "duneGolem": "scorpion-gorge", "duneDevourer": "scorpion-gorge",
 }
 DROP_SHADOW = set(WORLD2_DIRS)
 FLYERS = {"thornSprite", "cliffHarpy"}

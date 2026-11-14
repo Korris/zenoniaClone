@@ -30,10 +30,13 @@ CLASSES = {
         "canvas": "ref/v3-same-volume/canvas-3-rows-bald-heads.png",
         # hair above the brow line stretched upward per facing: ChatGPT drew the hair as a thin cap, so the head read as FLAT seen from
         # the front, where the face with both ears is wide (user, 2026-11-12). 1.3 = a round crown; 1.5 was a tower
-        "crown_lift": {"down": 1.3, "right": 1.15, "up": 1.15},
-        "sheets": {  # answer sheet -> hairstyle of each row
-            "wizard-hair-v3-same-volume-styles-0-1-2-chatgpt-1.png": (0, 1, 2),
-            "wizard-hair-v3-same-volume-styles-3-4-5-chatgpt-1.png": (3, 4, 5),
+        # v4 (2026-11-14, user: "the Wizard head and hair look ugly next to the others"): five new voluminous styles picked from the
+        # ChatGPT board head-redesign-20261114/wizard-head-options-chatgpt-1.png (#1, 2, 3, 7, 8), drawn with real volume, so no crown lift.
+        # The v3 sheets (thin caps that needed crown_lift 1.3) stay in src/ for reference.
+        "crown_lift": {"down": 1.0, "right": 1.0, "up": 1.0},
+        "sheets": {  # answer sheet -> hairstyle of each row (rows beyond the tuple are ignored: row 3 of the 7-8 sheet is bald)
+            "wizard-hair-v4-styles-1-2-3-chatgpt-1.png": (0, 1, 2),
+            "wizard-hair-v4-styles-7-8-chatgpt-1.png": (3, 4),
         },
     },
     "mechanic": {

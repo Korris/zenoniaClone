@@ -110,6 +110,7 @@ public class MapGraphTests
     [InlineData(ThatchVillageMap.MapId)]
     [InlineData(WillowbrookMeadowsMap.MapId)]
     [InlineData(SunbreakFoothillsMap.MapId)]
+    [InlineData(ScorpionGorgeMap.MapId)]
     public void EveryWalkableTileOfAPaintedMapConnectsToItsPortalsAndRowsUnderTheHudAreBlocked(string mapId)
     {
         IGameMap map = MapRegistry.Get(mapId);
@@ -132,6 +133,40 @@ public class MapGraphTests
                 Assert.True(!walk || seen.Contains(y * map.Width + x), mapId + " walkable tile " + x + "," + y + " is cut off");
                 Assert.True(!walk || y < map.Height - 3, mapId + " walkable tile " + x + "," + y + " is under the HUD");
             }
+    }
+
+    [Fact]
+    public void WorldMap21RegionThreeRunsSunspireAmberDunesScorpionGorge()
+    {
+        // World Map 2.1 (13/11/2026): Scorpion Gorge is the second farm map of region 3, reached from Amber Dunes' dangling east track end. Until Mirewatch exists its east gap
+        // leads straight on to Emberfen Marsh, and the old Amber Dunes -> Emberfen shortcut is closed, so region 4 is only reached through Scorpion Gorge.
+        IGameMap amber = MapRegistry.Get(AmberDunesMap.MapId), gorge = MapRegistry.Get(ScorpionGorgeMap.MapId), ember = MapRegistry.Get(EmberfenMarshMap.MapId);
+        Assert.Contains(amber.Portals, p => p.TargetMapId == ScorpionGorgeMap.MapId && p.TargetTx == ScorpionGorgeMap.WestArrivalTx && p.TargetTy == ScorpionGorgeMap.WestArrivalTy);
+        Assert.DoesNotContain(amber.Portals, p => p.TargetMapId == EmberfenMarshMap.MapId);
+        Assert.DoesNotContain(ember.Portals, p => p.TargetMapId == AmberDunesMap.MapId);
+        foreach (MapPortal p in gorge.Portals)
+        {
+            if (p.Tx == 0) Assert.Equal((AmberDunesMap.MapId, AmberDunesMap.ScorpionGorgeArrivalTx), (p.TargetMapId, p.TargetTx));
+            else Assert.Equal((EmberfenMarshMap.MapId, EmberfenMarshMap.WestArrivalTx, EmberfenMarshMap.WestArrivalTy), (p.TargetMapId, p.TargetTx, p.TargetTy));
+        }
+        Assert.Contains(ember.Portals, p => p.TargetMapId == ScorpionGorgeMap.MapId && p.TargetTx == ScorpionGorgeMap.EastArrivalTx && p.TargetTy == ScorpionGorgeMap.EastArrivalTy);
+        Assert.False(gorge.IsSolidTile(ScorpionGorgeMap.EastArrivalTx, ScorpionGorgeMap.EastArrivalTy), "the east arrival tile is solid");
+        foreach (IGameMap map in new[] { amber, gorge, ember })
+            foreach (MapPortal p in map.Portals)
+                Assert.Contains(MapRegistry.Get(p.TargetMapId).Portals, q => q.TargetMapId == map.Id);
+    }
+
+    [Fact]
+    public void FeetJustInsideTheMapFromAnEdgePortalStillTriggerIt()
+    {
+        // 13/11/2026: portal tiles sit on the map edge and the hero's box stops before its feet reach them, so a portal reaches ReachUnits past its tile.
+        IGameMap oak = MapRegistry.Get(OakhavenVillageMap.MapId);
+        MapPortal east = System.Array.Find(oak.Portals, p => p.Tx == 35 && p.Ty == 10);
+        float y = GameConfig.MapH - (east.Ty + 0.5f) * TileMapBase.Tile - PortalTile.FeetSampleUp;
+        MapPortal found;
+        Assert.True(MapPortals.TryFind(oak.Portals, 35 * TileMapBase.Tile - 10f, y, out found));
+        Assert.Equal(ThatchVillageMap.MapId, found.TargetMapId);
+        Assert.False(MapPortals.TryFind(oak.Portals, 35 * TileMapBase.Tile - 20f, y, out found), "a portal must not reach more than ReachUnits");
     }
 
     [Fact]

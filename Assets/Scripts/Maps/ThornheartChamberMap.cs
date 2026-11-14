@@ -32,7 +32,7 @@ namespace ZenoniaProto
             "TTTTTTTTTTTTTTTTTTTTTTTT",
         };
 
-        static readonly Vector2Int PlayerStartTile = new Vector2Int(12, 10);
+        static readonly Vector2Int PlayerStartTile = new Vector2Int(12, 9);   // two rows above the exit: the portal reach (MapPortals.ReachUnits) covers the row right above it
 
         /// <summary>Corridor mouth at the bottom of the arena: back to Rootburrow, two tiles below its root arch. Always open.</summary>
         static readonly MapPortal[] PortalList =

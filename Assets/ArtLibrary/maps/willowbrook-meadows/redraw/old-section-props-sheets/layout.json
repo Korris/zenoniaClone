@@ -1,0 +1,902 @@
+{
+ "wbPalisade": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   40,
+   40,
+   244,
+   513
+  ],
+  "bbox": [
+   16,
+   5,
+   220,
+   478
+  ],
+  "canvas": [
+   224,
+   512
+  ]
+ },
+ "wbShed": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   280,
+   40,
+   718,
+   405
+  ],
+  "bbox": [
+   2,
+   11,
+   440,
+   376
+  ],
+  "canvas": [
+   496,
+   400
+  ]
+ },
+ "wbCliffMid": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   754,
+   40,
+   1002,
+   298
+  ],
+  "bbox": [
+   6,
+   8,
+   254,
+   266
+  ],
+  "canvas": [
+   288,
+   288
+  ]
+ },
+ "wbHaystack": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   1038,
+   40,
+   1244,
+   213
+  ],
+  "bbox": [
+   8,
+   15,
+   214,
+   188
+  ],
+  "canvas": [
+   224,
+   208
+  ]
+ },
+ "wbCliffNW": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   40,
+   549,
+   356,
+   695
+  ],
+  "bbox": [
+   6,
+   0,
+   322,
+   146
+  ],
+  "canvas": [
+   352,
+   192
+  ]
+ },
+ "wbCliffStreamN": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   392,
+   549,
+   556,
+   692
+  ],
+  "bbox": [
+   54,
+   11,
+   218,
+   154
+  ],
+  "canvas": [
+   224,
+   176
+  ]
+ },
+ "wbFenceE": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   592,
+   549,
+   850,
+   682
+  ],
+  "bbox": [
+   14,
+   9,
+   272,
+   142
+  ],
+  "canvas": [
+   272,
+   160
+  ]
+ },
+ "wbFenceW": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   886,
+   549,
+   1217,
+   677
+  ],
+  "bbox": [
+   50,
+   8,
+   381,
+   136
+  ],
+  "canvas": [
+   384,
+   160
+  ]
+ },
+ "wbLog": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   40,
+   731,
+   339,
+   853
+  ],
+  "bbox": [
+   64,
+   14,
+   363,
+   136
+  ],
+  "canvas": [
+   368,
+   144
+  ]
+ },
+ "wbSignpost": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   375,
+   731,
+   478,
+   841
+  ],
+  "bbox": [
+   39,
+   6,
+   142,
+   116
+  ],
+  "canvas": [
+   144,
+   160
+  ]
+ },
+ "wbFenceHay": {
+  "sheet": "structures",
+  "scale": 1.0,
+  "slot": [
+   514,
+   731,
+   719,
+   825
+  ],
+  "bbox": [
+   11,
+   2,
+   216,
+   96
+  ],
+  "canvas": [
+   224,
+   160
+  ]
+ },
+ "wbOakSWClump": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   40,
+   40,
+   429,
+   420
+  ],
+  "bbox": [
+   2,
+   1,
+   444,
+   433
+  ],
+  "canvas": [
+   464,
+   464
+  ]
+ },
+ "wbOakNW": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   465,
+   40,
+   733,
+   399
+  ],
+  "bbox": [
+   120,
+   0,
+   424,
+   408
+  ],
+  "canvas": [
+   432,
+   448
+  ]
+ },
+ "wbOakBig": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   769,
+   40,
+   1082,
+   372
+  ],
+  "bbox": [
+   56,
+   5,
+   412,
+   382
+  ],
+  "canvas": [
+   416,
+   416
+  ]
+ },
+ "wbOakEastA": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   1118,
+   40,
+   1331,
+   364
+  ],
+  "bbox": [
+   6,
+   0,
+   248,
+   368
+  ],
+  "canvas": [
+   304,
+   384
+  ]
+ },
+ "wbOakClumpW": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   40,
+   456,
+   377,
+   741
+  ],
+  "bbox": [
+   2,
+   0,
+   385,
+   324
+  ],
+  "canvas": [
+   464,
+   384
+  ]
+ },
+ "wbOakEastMid": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   413,
+   456,
+   626,
+   726
+  ],
+  "bbox": [
+   6,
+   1,
+   248,
+   308
+  ],
+  "canvas": [
+   432,
+   368
+  ]
+ },
+ "wbOakSE": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   662,
+   456,
+   991,
+   725
+  ],
+  "bbox": [
+   10,
+   14,
+   384,
+   320
+  ],
+  "canvas": [
+   384,
+   320
+  ]
+ },
+ "wbOakEastB": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   1027,
+   456,
+   1233,
+   711
+  ],
+  "bbox": [
+   6,
+   4,
+   240,
+   294
+  ],
+  "canvas": [
+   416,
+   320
+  ]
+ },
+ "wbOakMid": {
+  "sheet": "oaks-a",
+  "scale": 0.8799999999999999,
+  "slot": [
+   1269,
+   456,
+   1487,
+   646
+  ],
+  "bbox": [
+   84,
+   10,
+   332,
+   226
+  ],
+  "canvas": [
+   336,
+   256
+  ]
+ },
+ "wbOakSWLow": {
+  "sheet": "oaks-b",
+  "scale": 1.0,
+  "slot": [
+   40,
+   40,
+   294,
+   476
+  ],
+  "bbox": [
+   64,
+   3,
+   318,
+   439
+  ],
+  "canvas": [
+   320,
+   448
+  ]
+ },
+ "wbOakSouth": {
+  "sheet": "oaks-b",
+  "scale": 1.0,
+  "slot": [
+   330,
+   40,
+   667,
+   313
+  ],
+  "bbox": [
+   6,
+   7,
+   343,
+   280
+  ],
+  "canvas": [
+   368,
+   304
+  ]
+ },
+ "wbOakSWTree": {
+  "sheet": "oaks-b",
+  "scale": 1.0,
+  "slot": [
+   703,
+   40,
+   975,
+   290
+  ],
+  "bbox": [
+   6,
+   14,
+   278,
+   264
+  ],
+  "canvas": [
+   320,
+   304
+  ]
+ },
+ "wbOakWest": {
+  "sheet": "oaks-b",
+  "scale": 1.0,
+  "slot": [
+   1011,
+   40,
+   1282,
+   257
+  ],
+  "bbox": [
+   2,
+   11,
+   273,
+   228
+  ],
+  "canvas": [
+   288,
+   288
+  ]
+ },
+ "wbOakTopRight": {
+  "sheet": "oaks-b",
+  "scale": 1.0,
+  "slot": [
+   40,
+   512,
+   441,
+   722
+  ],
+  "bbox": [
+   102,
+   0,
+   503,
+   210
+  ],
+  "canvas": [
+   512,
+   256
+  ]
+ },
+ "wbOakTop2": {
+  "sheet": "oaks-b",
+  "scale": 1.0,
+  "slot": [
+   477,
+   512,
+   743,
+   686
+  ],
+  "bbox": [
+   6,
+   0,
+   272,
+   174
+  ],
+  "canvas": [
+   464,
+   192
+  ]
+ },
+ "wbOakTopMid": {
+  "sheet": "oaks-b",
+  "scale": 1.0,
+  "slot": [
+   779,
+   512,
+   1007,
+   640
+  ],
+  "bbox": [
+   56,
+   0,
+   284,
+   128
+  ],
+  "canvas": [
+   288,
+   192
+  ]
+ },
+ "wbOakTopFar": {
+  "sheet": "oaks-b",
+  "scale": 1.0,
+  "slot": [
+   1043,
+   512,
+   1222,
+   616
+  ],
+  "bbox": [
+   2,
+   0,
+   181,
+   104
+  ],
+  "canvas": [
+   208,
+   128
+  ]
+ },
+ "wbRocksStreamS": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   40,
+   40,
+   329,
+   208
+  ],
+  "bbox": [
+   44,
+   2,
+   333,
+   170
+  ],
+  "canvas": [
+   336,
+   176
+  ]
+ },
+ "wbRockCliffSW": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   365,
+   40,
+   679,
+   204
+  ],
+  "bbox": [
+   14,
+   12,
+   328,
+   176
+  ],
+  "canvas": [
+   336,
+   176
+  ]
+ },
+ "wbRocksStreamE": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   715,
+   40,
+   980,
+   156
+  ],
+  "bbox": [
+   6,
+   8,
+   271,
+   124
+  ],
+  "canvas": [
+   352,
+   144
+  ]
+ },
+ "wbRockStream3": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   1016,
+   40,
+   1171,
+   146
+  ],
+  "bbox": [
+   6,
+   12,
+   161,
+   118
+  ],
+  "canvas": [
+   224,
+   128
+  ]
+ },
+ "wbRockStream2": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   1207,
+   40,
+   1380,
+   142
+  ],
+  "bbox": [
+   32,
+   14,
+   205,
+   116
+  ],
+  "canvas": [
+   208,
+   176
+  ]
+ },
+ "wbRockSW": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   40,
+   244,
+   214,
+   336
+  ],
+  "bbox": [
+   50,
+   16,
+   224,
+   108
+  ],
+  "canvas": [
+   224,
+   144
+  ]
+ },
+ "wbRockEast": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   250,
+   244,
+   392,
+   333
+  ],
+  "bbox": [
+   5,
+   15,
+   147,
+   104
+  ],
+  "canvas": [
+   176,
+   144
+  ]
+ },
+ "wbRockTop": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   428,
+   244,
+   601,
+   333
+  ],
+  "bbox": [
+   2,
+   3,
+   175,
+   92
+  ],
+  "canvas": [
+   224,
+   128
+  ]
+ },
+ "wbRockWest": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   637,
+   244,
+   817,
+   332
+  ],
+  "bbox": [
+   2,
+   12,
+   182,
+   100
+  ],
+  "canvas": [
+   256,
+   160
+  ]
+ },
+ "wbRockStream1": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   853,
+   244,
+   965,
+   329
+  ],
+  "bbox": [
+   42,
+   9,
+   154,
+   94
+  ],
+  "canvas": [
+   160,
+   144
+  ]
+ },
+ "wbRockNW2": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   1001,
+   244,
+   1141,
+   327
+  ],
+  "bbox": [
+   4,
+   13,
+   144,
+   96
+  ],
+  "canvas": [
+   160,
+   128
+  ]
+ },
+ "wbRockMid": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   1177,
+   244,
+   1320,
+   321
+  ],
+  "bbox": [
+   78,
+   7,
+   221,
+   84
+  ],
+  "canvas": [
+   224,
+   128
+  ]
+ },
+ "wbRockTopEdge": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   40,
+   372,
+   303,
+   444
+  ],
+  "bbox": [
+   6,
+   0,
+   269,
+   72
+  ],
+  "canvas": [
+   272,
+   128
+  ]
+ },
+ "wbRockNW": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   339,
+   372,
+   487,
+   440
+  ],
+  "bbox": [
+   6,
+   2,
+   154,
+   70
+  ],
+  "canvas": [
+   192,
+   112
+  ]
+ },
+ "wbRockNE": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   523,
+   372,
+   627,
+   437
+  ],
+  "bbox": [
+   18,
+   13,
+   122,
+   78
+  ],
+  "canvas": [
+   128,
+   96
+  ]
+ },
+ "wbRockLog": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   663,
+   372,
+   758,
+   436
+  ],
+  "bbox": [
+   6,
+   10,
+   101,
+   74
+  ],
+  "canvas": [
+   160,
+   112
+  ]
+ },
+ "wbRockSouth": {
+  "sheet": "rocks",
+  "scale": 1.0,
+  "slot": [
+   794,
+   372,
+   866,
+   414
+  ],
+  "bbox": [
+   2,
+   2,
+   74,
+   44
+  ],
+  "canvas": [
+   160,
+   96
+  ]
+ }
+}
