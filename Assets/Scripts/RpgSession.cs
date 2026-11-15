@@ -13,7 +13,7 @@ namespace ZenoniaProto
     public class RpgSession : MonoBehaviour
     {
         const float AutosaveSeconds = 30f;
-        static readonly Color ExpColor = new Color(0.75f, 0.6f, 1f), GoldColor = new Color(1f, 0.85f, 0.3f);
+        static readonly Color ExpColor = new Color(0.75f, 0.6f, 1f);
 
         public static RpgSession Instance { get; private set; }
         /// <summary>The live RPG state of the current hero, or null on the class select screen.</summary>
@@ -192,15 +192,12 @@ namespace ZenoniaProto
             SaveNow();
         }
 
-        /// <summary>LootDrop touched by the hero: shows the pickup text. A failed pickup (full bag) is silent here; LootDrop toasts it.</summary>
+        /// <summary>LootDrop touched by the hero: no floating text over the hero (user 2026-11-15: it cluttered the damage numbers);
+        /// equipment still gets its toast. A failed pickup (full bag) is silent here; LootDrop toasts it.</summary>
         void OnLootPicked(LootEntry e, ActionResult r)
         {
-            HeroController hero = GameSession.Hero;
-            if (!r.Ok || hero == null) return;
-            Color c = e.Kind == LootKind.Coin ? GoldColor : e.Kind == LootKind.Equipment ? LootSprites.RarityColor(e.Item)
-                : e.Kind == LootKind.UpgradeStone ? new Color(0.5f, 0.95f, 1f) : e.Kind == LootKind.HpPotion ? new Color(1f, 0.55f, 0.55f) : new Color(0.55f, 0.75f, 1f);
-            DamageNumber.Spawn(hero.Position.x, hero.Position.y + 26f, r.Text, c, e.Kind == LootKind.Equipment);
-            if (e.Kind != LootKind.Equipment) return;
+            if (!r.Ok || GameSession.Hero == null || e.Kind != LootKind.Equipment) return;
+            Color c = LootSprites.RarityColor(e.Item);
             string note = player.CanEquip(e.Item) ? "" : "  (" + RpgClasses.Get(e.Item.classId).Name + " gear)";
             RpgHud.Toast("Got " + EnhanceStats.DisplayName(e.Item) + note + "  [B] inventory", c);
         }

@@ -106,6 +106,9 @@ namespace ZenoniaProto
             anim = "attack3";
             frame = 0;
             if (castLeft <= 0f) return false;
+            // A class without an attack3 sheet for this facing (the Fighter) casts in its
+            // second combo pose instead of drawing nothing.
+            if (!view.HasAnim(anim, facing) && cls.ComboAnims != null && cls.ComboAnims.Length > 1) anim = cls.ComboAnims[1];
             frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), 1f - castLeft / castTotal);
             return true;
         }

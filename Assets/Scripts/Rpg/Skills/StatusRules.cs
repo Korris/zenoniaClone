@@ -7,6 +7,17 @@ namespace ZenoniaProto.Rpg
     {
         public const float BossSlowPct = 50f;     // freeze / stun on a boss become this slow
         public const float MaxSlowPct = 90f;      // movement never drops below 10 %
+        /// <summary>A monster pushed during its windup loses that strike and recovers this long after the slide (combo finisher, skill knockback).</summary>
+        public const float KnockInterruptRecoverMs = 300f;
+
+        /// <summary>
+        /// Whether a hit on the hero drops the pending second stab of a two-stab combo step (Assassin finisher). A plain hit does not (the stab is a
+        /// committed move, 2026-11-15); a real disable does: freeze, stun or a shove. Death drops it separately.
+        /// </summary>
+        public static bool CancelsPendingStab(StatusKind kind, float knockbackTiles)
+        {
+            return kind == StatusKind.Freeze || kind == StatusKind.Stun || knockbackTiles > 0f;
+        }
 
         /// <summary>
         /// What a status becomes on a boss: slow / chill value is halved, freeze and stun turn into a 50 % slow (same duration), damage over time and

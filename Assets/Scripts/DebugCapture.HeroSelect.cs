@@ -27,7 +27,9 @@ namespace ZenoniaProto
             }
 
             // The loop above ends on the Fighter; the Cleric is picked again so the start below has to spawn her (the test used to tap the disabled Boxing slot here).
-            yield return Press(CentreOf("Pick" + (int)HeroClass.Cleric), false, "hero Cleric again");
+            string startArg = Arg(System.Environment.GetCommandLineArgs(), "--hero-select-start"); // --hero-select-start Fighter: start with that class instead
+            HeroClass startClass = startArg != null ? ParseClass(startArg) : HeroClass.Cleric;
+            yield return Press(CentreOf("Pick" + (int)startClass), false, "hero " + startClass + " again");
             yield return Press(CentreOf("SkillNext"), true, "next skills");
             yield return Press(CentreOf("Skill4"), true, "last skill");
             yield return WaitSeconds(0.3f);
@@ -36,7 +38,7 @@ namespace ZenoniaProto
             yield return Press(CentreOf("StartButton"), false, "start");
             yield return WaitSeconds(1f);
             HeroController hero = GameSession.Hero;
-            E2e((hero != null && hero.Class == HeroClassDef.Cleric && !HeroSelectScreen.IsShown ? "PASS" : "FAIL") + " start spawned the picked hero: " + (hero != null ? hero.Class.Name : "none"));
+            E2e((hero != null && hero.Class == HeroClassDef.Get(startClass) && !HeroSelectScreen.IsShown ? "PASS" : "FAIL") + " start spawned the picked hero: " + (hero != null ? hero.Class.Name : "none"));
             yield return new WaitForEndOfFrame();
             Save(shotPath + "_started.png");
 

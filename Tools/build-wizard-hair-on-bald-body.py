@@ -2,10 +2,10 @@
 hair is a swappable layer. Replaces the cut-the-head pipeline (body/headless + shared heads/face) for the Lv1 / T0 Northwind body.
 
 Reads the fitted bald frames straight from the tools that installed each animation (nothing of theirs is rewritten):
-  idle            Tools/build-wizard-northwind-idle-dirs.py
-  walk            Tools/build-wizard-northwind-walk.py
-  attack1-4 down  Tools/build-wizard-combo-v2-attacks.py
-  attack1-4 other Tools/build-wizard-northwind-attacks.py (rows widened to the v2 frame count, last frame repeated)
+  idle            Tools/build-wizard-outfit-d-idle-dirs.py (outfit D, 14/11; Tools/build-wizard-northwind-idle-dirs.py kept, unused here now)
+  walk            Tools/build-wizard-outfit-d-walk.py (outfit D, 14/11; Tools/build-wizard-northwind-walk.py kept, unused here now)
+  attack1-4 down  Tools/build-wizard-outfit-d-combo-attacks.py (outfit D, 14/11; Tools/build-wizard-combo-v2-attacks.py kept, unused here now)
+  attack1-4 other Tools/build-wizard-outfit-d-attacks.py (outfit D, 14/11; rows widened to the v2 frame count, last frame repeated)
 
 Writes (Resources, wizard):
   Sprites/.../body/bald/<anim>.png       the body with its painted bald head, same grid as body/bare
@@ -18,9 +18,13 @@ Writes (Resources, wizard):
   py Tools/build-wizard-hair-on-bald-body.py check OUT_DIR [styles]   composed like the game, one PNG per animation (styles default 0,2,4)
   py Tools/build-wizard-hair-on-bald-body.py hairscale K       hair drawn at K of its fitted size, about the chin (idempotent: the json keeps K)
 
-Hair scale (2026-11-14, user: "Wizard's head looks bigger than Mechanic's and Warrior's, down and left"): the v4 hair has real volume, so head + hair
-measured 44-47 % of the hero's height against 35-40 % for the others. HAIR_SCALE shrinks only the hair layer about the chin of heads/face, so the
-painted face stays put; write() applies it too.
+Hair scale, Northwind body (2026-11-14 morning, user: "Wizard's head looks bigger than Mechanic's and Warrior's, down and left"): the v4 hair has
+real volume, so head + hair measured 44-47 % of the hero's height against 35-40 % for the others; HAIR_SCALE 0.9 fixed it for that body.
+
+Hair scale, outfit D body (2026-11-14 afternoon, plan step 2, new bald+face source wizard-outfit-d-t0-idle-4dirs-bald-chatgpt-1.png): re-measured
+head+hair / total height idle down/up/left/right at HAIR_SCALE 1.0 -> 0.40/0.365/0.413/0.413 (already close, the new head is smaller than Northwind's);
+0.85 -> 0.388/0.35/0.399/0.399, closest to Warrior/Mechanic's 35-40 % on all 4 facings, so HAIR_SCALE is 0.85 now. HAIR_SCALE shrinks only the hair
+layer about the chin of heads/face (the painted skull itself keeps whatever size the idle tool fitted it to); write() applies it to every anim's doc.
 """
 import importlib.util, json, os, sys, tempfile
 import numpy as np
@@ -35,7 +39,7 @@ ANIMS = ["idle", "walk", "attack1", "attack2", "attack3", "attack4"]
 BODY = f"{ROOT}/Assets/Resources/Sprites/classes/wizard/body"
 HEADS = f"{ROOT}/Assets/Resources/Sprites/classes/wizard/heads"
 DATA = f"{ROOT}/Assets/Resources/Data/classes/wizard"
-HAIR_SCALE = 0.9
+HAIR_SCALE = 0.85
 OVER_DIRS = ("down", "left", "right")   # seen from behind a raised arm is beyond the head: the hair stays on top
 
 
@@ -44,20 +48,22 @@ def _import(name, file):
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m); return m
 
 
-cv = _import("cv2tool", "build-wizard-combo-v2-attacks.py")           # attacks facing down; also the root-patching loader + idle tool
-wk = _import("walktool", "build-wizard-northwind-walk.py")
-nwa0 = cv._load("nwa0", f"{ROOT}/Tools/build-wizard-northwind-attacks.py")  # a fresh copy: the old strips of the other facings
+cv = _import("cv2tool", "build-wizard-outfit-d-combo-attacks.py")     # attacks facing down (outfit D); also the root-patching loader
+wk = _import("walktool", "build-wizard-outfit-d-walk.py")             # walk (outfit D)
+nwa0 = cv._load("nwa0", f"{ROOT}/Tools/build-wizard-outfit-d-attacks.py")  # a fresh copy: the up / left / right strips (outfit D)
 nw = cv.nw
+nwd = _import("nwd", "build-wizard-outfit-d-idle-dirs.py")            # idle tool, outfit D (14/11): replaces nw for the idle rows only
 skin = cv.nwa.skin
 placed = cv.nwa.placed
 
 
 def painted(anim):
-    """{dir: [192 px RGBA cells]} of an animation: the fitted painted frames in game frame order, bald head on."""
+    """{dir: [192 px RGBA cells]} of an animation: the fitted painted frames in game frame order, bald head on. Every anim now paints the
+    outfit D body (14/11, plan steps 2-4): idle via its own tool, walk / attack1-4 via the outfit D walk / combo / attacks tools above."""
     if anim == "idle":
-        figs = nw.figures()
-        return {d: [Image.fromarray(np.asarray(nw.body_frame(c, d, f)).astype(np.uint8)) for f in range(4)]
-                for d in DIRS for c in [nw.fit(d, figs[d])]}
+        figs = nwd.figures()
+        return {d: [Image.fromarray(np.asarray(nwd.body_frame(c, d, f)).astype(np.uint8)) for f in range(4)]
+                for d in DIRS for c in [nwd.fit(d, figs[d])]}
     if anim == "walk":
         return {d: wk.wb.ordered("walk", wk.wb.fitted("walk", d)) for d in DIRS}
     n = cv.cv.COUNT[anim]
@@ -230,7 +236,7 @@ def compose(anim, d, f, style, pad=24):
     return cv.wb.wc.chf.compose("wizard", anim, d, f, bare_path=tmp, tier=0, pad=pad, over=top)
 
 
-def check(out_dir, styles=(0, 2, 4)):
+def check(out_dir, styles=(0, 1, 3)):   # hair re-cut to styles 0-3 only 14/11 (build-hair-same-volume-sheets.py), style 4 gone
     os.makedirs(out_dir, exist_ok=True)
     W = F + 48
     for anim in ANIMS:

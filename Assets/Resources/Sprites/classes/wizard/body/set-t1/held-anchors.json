@@ -6,48 +6,52 @@
       "dir": "down",
       "frames": [
         {
-          "x": 55.33,
-          "y": 105.06,
+          "x": 57.2,
+          "y": 114.5,
           "s": 0.447,
           "angle": 0,
           "sx": 1,
           "behind": false,
           "hidden": false,
           "fallback": false,
-          "art": "idle-stance"
+          "art": "idle-stance",
+          "artY": 0.4
         },
         {
-          "x": 55.42,
-          "y": 105.39,
+          "x": 57.2,
+          "y": 114.91,
           "s": 0.447,
           "angle": 0,
           "sx": 1,
           "behind": false,
           "hidden": false,
           "fallback": false,
-          "art": "idle-stance"
+          "art": "idle-stance",
+          "artY": -0.01
         },
         {
-          "x": 55.34,
-          "y": 105.72,
+          "x": 57.2,
+          "y": 115.32,
           "s": 0.447,
           "angle": 0,
           "sx": 1,
           "behind": false,
           "hidden": false,
           "fallback": false,
-          "art": "idle-stance"
+          "art": "idle-stance",
+          "artY": -0.42
         },
         {
-          "x": 55.42,
-          "y": 105.39,
+          "x": 57.2,
+          "y": 114.91,
           "s": 0.447,
           "angle": 0,
           "sx": 1,
           "behind": false,
           "hidden": false,
           "fallback": false,
-          "art": "idle-stance"
+          "art": "idle-stance",
+          "artY": -0.01
         }
       ]
     },
@@ -57,10 +61,10 @@
       "dir": "down",
       "frames": [
         {
-          "x": 124.28,
-          "y": 130.4,
+          "x": 137.5,
+          "y": 119.0,
           "s": 0.25,
-          "angle": 8,
+          "angle": 0.0,
           "sx": 1,
           "behind": false,
           "hidden": false,
@@ -68,10 +72,10 @@
           "art": "idle-stance"
         },
         {
-          "x": 124.22,
-          "y": 130.5,
+          "x": 137.5,
+          "y": 119.386,
           "s": 0.25,
-          "angle": 8,
+          "angle": 0.0,
           "sx": 1,
           "behind": false,
           "hidden": false,
@@ -79,10 +83,10 @@
           "art": "idle-stance"
         },
         {
-          "x": 124.24,
-          "y": 131.04,
+          "x": 137.5,
+          "y": 119.772,
           "s": 0.25,
-          "angle": 8,
+          "angle": 0.0,
           "sx": 1,
           "behind": false,
           "hidden": false,
@@ -90,10 +94,10 @@
           "art": "idle-stance"
         },
         {
-          "x": 124.22,
-          "y": 130.5,
+          "x": 137.5,
+          "y": 119.386,
           "s": 0.25,
-          "angle": 8,
+          "angle": 0.0,
           "sx": 1,
           "behind": false,
           "hidden": false,

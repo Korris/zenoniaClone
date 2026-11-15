@@ -12,7 +12,8 @@ namespace ZenoniaProto
     ///   body/over-hair/&lt;anim&gt;.png  optional: sleeves and fists raised beside the head, drawn again above the hair
     /// The whole hair is one layer drawn above the body, as Ragnarok draws its heads: no part of the body cuts it, so any hairstyle
     /// goes with any outfit (hairstyles: Tools/build-wizard-hair-same-volume-sheets.py, all one head size).
-    /// Frames without a hair anchor or bald sheet (armour outfits, other classes) keep the headless body + head path of Apply.
+    /// Armour outfits (body/set-tN) may have their own body/set-tN/bald/&lt;anim&gt;.png + body/set-tN/hair-anchors.json (Wizard outfit D tiers,
+    /// Tools/build-wizard-outfit-d-tiers.py, idle facing down only for now); frames of an outfit without them keep the headless body + head path of Apply.
     /// </summary>
     public sealed partial class HeroHeadLayer
     {
@@ -20,6 +21,9 @@ namespace ZenoniaProto
 
         readonly Dictionary<string, HeadFrame[]> hairAnchors = new Dictionary<string, HeadFrame[]>();
         readonly Dictionary<string, Sprite[][]> bodySheets = new Dictionary<string, Sprite[][]>(); // "bald/<anim>", "over-hair/<anim>"
+        readonly Dictionary<string, HeadFrame[]> outfitHairAnchors = new Dictionary<string, HeadFrame[]>(); // worn outfit's (SetBodyFolder)
+        readonly Dictionary<string, Sprite[][]> outfitBodySheets = new Dictionary<string, Sprite[][]>();
+        string outfitRoot; // "Sprites/<outfit folder>/" of the worn outfit, null = none worn
         SpriteRenderer overHair;
 
         /// <summary>Custom hair colour (any colour, e.g. from a colour picker); null = the dye preset / the style's own colour. Layered hair only.</summary>
@@ -46,25 +50,47 @@ namespace ZenoniaProto
             overHair.transform.localPosition = new Vector3(0f, 0f, OverHairZ);
         }
 
-        Sprite[] BodySheetRow(string layer, string anim, int row)
+        /// <summary>Hair anchors of the worn outfit (Sprites/&lt;outfit&gt;/hair-anchors.json), cleared when nothing or another outfit is worn.</summary>
+        void LoadOutfitHair(string outfitFolder)
+        {
+            outfitHairAnchors.Clear();
+            outfitBodySheets.Clear();
+            outfitRoot = outfitFolder != null ? "Sprites/" + outfitFolder + "/" : null;
+            if (hair == null || outfitFolder == null) return;
+            var asset = Resources.Load<TextAsset>("Sprites/" + outfitFolder + "/hair-anchors");
+            if (asset == null) return;
+            try
+            {
+                HeadFile file = JsonUtility.FromJson<HeadFile>(asset.text);
+                if (file != null && file.anims != null)
+                    foreach (HeadAnim a in file.anims)
+                        if (a != null && a.frames != null) outfitHairAnchors[a.anim + "/" + a.dir] = a.frames;
+            }
+            catch (Exception e) { Debug.LogError("[ZenoniaProto] outfit hair-anchors: " + e.Message); }
+        }
+
+        Sprite[] BodySheetRow(string layer, string anim, int row, bool outfit = false)
         {
             string key = layer + "/" + anim;
+            Dictionary<string, Sprite[][]> cache = outfit ? outfitBodySheets : bodySheets;
             Sprite[][] grid;
-            if (!bodySheets.TryGetValue(key, out grid))
+            if (!cache.TryGetValue(key, out grid))
             {
-                string path = "Sprites/" + root + "/body/" + key;
+                string path = outfit ? outfitRoot + key : "Sprites/" + root + "/body/" + key;
                 grid = SpriteSheet.TryLoad(path) != null ? SpriteSheet.Grid(path, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, new Vector2(0.5f, 0f)) : null;
-                bodySheets[key] = grid;
+                cache[key] = grid;
             }
             return SpriteSheet.Row(grid, row);
         }
 
         /// <summary>The bald body sprite of a frame with its hair placed on the painted skull; null = the frame has no hair anchor or bald sheet.</summary>
-        Sprite ApplyBaldBody(string anim, string dirName, int row, int frame, bool mirror, int bodyOrder, Color tint)
+        /// outfit: the worn armour outfit's bald sheet + hair anchors (null when that outfit has none for this frame: Apply's old path then).
+        Sprite ApplyBaldBody(string anim, string dirName, int row, int frame, bool mirror, int bodyOrder, Color tint, bool outfit = false)
         {
             HeadFrame[] frames;
-            if (!hairAnchors.TryGetValue(anim + "/" + dirName, out frames) || frame >= frames.Length || frames[frame] == null) return null;
-            Sprite[] bodyRow = BodySheetRow("bald", anim, row);
+            if (outfit && outfitRoot == null) return null;
+            if (!(outfit ? outfitHairAnchors : hairAnchors).TryGetValue(anim + "/" + dirName, out frames) || frame >= frames.Length || frames[frame] == null) return null;
+            Sprite[] bodyRow = BodySheetRow("bald", anim, row, outfit);
             if (bodyRow == null || frame >= bodyRow.Length || bodyRow[frame] == null) return null;
             HeadFrame a = frames[frame];
             bool flipHair = dirName == "left" && hair.Face("left") == null; // left hair = the right hair mirrored (anchors are registered against it)
@@ -76,7 +102,7 @@ namespace ZenoniaProto
             float sc = a.s > 0f ? a.s : 1f;
             t.localScale = new Vector3(sc, sc * (a.sy > 0f ? a.sy : 1f), 1f);
             hair.Show(style, flipHair ? "right" : dirName, flipX, tint, bodyOrder);
-            Sprite[] overRow = BodySheetRow("over-hair", anim, row);
+            Sprite[] overRow = BodySheetRow("over-hair", anim, row, outfit);
             overHair.sprite = overRow != null && frame < overRow.Length ? overRow[frame] : null;
             overHair.flipX = mirror;
             overHair.color = tint;

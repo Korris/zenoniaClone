@@ -79,7 +79,9 @@ namespace ZenoniaProto
             Sprite s = null;
             if (wantedCasting && TryWantedCastFrame(out s)) { }
             else if (wantedCasting && attackRow != null && attackRow.Length > 0) s = attackRow[0]; // no dedicated cast row: a plain striking pose
-            else if (flash <= 0f && ai >= 0 && attackRow != null && ai < attackRow.Length) s = attackRow[ai];
+            // 2026-11-15 (docs/reference/combo-knockback-chatgpt.md): a hit no longer swaps the windup / strike / follow-through pose for the standing
+            // frame (that hid the 350 ms warning); the white flash and jitter still play over it. Idle / walking monsters still show the standing frame.
+            else if (ai >= 0 && attackRow != null && ai < attackRow.Length) s = attackRow[ai];
             else if (walkRow != null && walkRow.Length > 0)
             {
                 bool still = state == State.Idle || state == State.Cooldown || state == State.Windup;

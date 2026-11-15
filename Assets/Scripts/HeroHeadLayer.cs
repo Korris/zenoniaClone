@@ -135,7 +135,8 @@ namespace ZenoniaProto
             if (mirror && dirName == "left") dirName = "right"; // HeroClassDef.MirrorLeft (Mechanic attack3/4): the right frame mirrored, its head and anchors too
             if (overHair != null) overHair.sprite = null;
             // Hair on the painted bald head (HeroHeadLayer.BaldBody.cs): the Lv1 body keeps its own head, only the hair is placed.
-            Sprite bald = hair != null && !(outfitBody && outfitFolder != null) ? ApplyBaldBody(anim, dirName, row, frame, mirror, bodyOrder, tint) : null;
+            // Armour outfits use their own bald sheet + hair anchors where painted (Wizard outfit D tiers, idle down), else the headless path below.
+            Sprite bald = hair != null ? ApplyBaldBody(anim, dirName, row, frame, mirror, bodyOrder, tint, outfitBody && outfitFolder != null) : null;
             if (bald != null) return bald;
             Sprite head = HeadSprite(style, dirName);
             bool flipHead = false;
@@ -171,6 +172,7 @@ namespace ZenoniaProto
             this.outfitFolder = want;
             outfitHeadless.Clear();
             outfitAnchors.Clear();
+            LoadOutfitHair(outfitFolder);
             // Larger outfits can raise the neck while keeping each hairstyle at its normal size.
             var asset = outfitFolder != null ? Resources.Load<TextAsset>("Sprites/" + outfitFolder + "/head-anchors") : null;
             if (asset != null)

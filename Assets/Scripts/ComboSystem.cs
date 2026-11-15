@@ -19,6 +19,12 @@ namespace ZenoniaProto
         }
 
         public float TotalMs { get { return WindupMs + ActiveMs + RecoverMs; } }
+
+        /// <summary>
+        /// Push of one stab of this step. A multi-stab step (Assassin finisher) pushes only with its last stab, so the first stab keeps the monster in
+        /// reach and neither shoves it nor cancels its windup (2026-11-15, docs/reference/combo-knockback-chatgpt.md). laterStab = the echo stab.
+        /// </summary>
+        public float KnockbackFor(bool laterStab) { return Stabs > 1 && !laterStab ? 0f : Knockback; }
     }
 
     /// <summary>Projectile parameters of a ranged combo step (web `bolt`): speed u/s, range u, FX sprite name, scale, hit box, optional AoE burst.</summary>

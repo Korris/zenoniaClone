@@ -4,160 +4,160 @@
       "name": "apprentice",
       "glow": "#4f9dff",
       "baseGrip": {
-        "w": 85,
-        "h": 364,
-        "gripX": 42,
-        "gripY": 193
+        "w": 69,
+        "h": 379,
+        "gripX": 34,
+        "gripY": 208
       },
       "enhancedGrip": {
-        "w": 85,
-        "h": 364,
-        "gripX": 42,
-        "gripY": 193
+        "w": 69,
+        "h": 379,
+        "gripX": 34,
+        "gripY": 208
       }
     },
     {
       "name": "wood",
       "glow": "#d9a74c",
       "baseGrip": {
-        "w": 136,
-        "h": 384,
-        "gripX": 67,
-        "gripY": 213
+        "w": 106,
+        "h": 419,
+        "gripX": 52,
+        "gripY": 248
       },
       "enhancedGrip": {
-        "w": 136,
-        "h": 384,
-        "gripX": 67,
-        "gripY": 213
+        "w": 106,
+        "h": 419,
+        "gripX": 52,
+        "gripY": 248
       }
     },
     {
       "name": "crystal",
       "glow": "#ff5daf",
       "baseGrip": {
-        "w": 142,
-        "h": 404,
-        "gripX": 70,
-        "gripY": 233
+        "w": 94,
+        "h": 419,
+        "gripX": 46,
+        "gripY": 248
       },
       "enhancedGrip": {
-        "w": 142,
-        "h": 404,
-        "gripX": 70,
-        "gripY": 233
+        "w": 94,
+        "h": 419,
+        "gripX": 46,
+        "gripY": 248
       }
     },
     {
       "name": "moon",
       "glow": "#45dfe6",
       "baseGrip": {
-        "w": 147,
-        "h": 424,
-        "gripX": 75,
-        "gripY": 253
+        "w": 120,
+        "h": 425,
+        "gripX": 60,
+        "gripY": 254
       },
       "enhancedGrip": {
-        "w": 147,
-        "h": 424,
-        "gripX": 75,
-        "gripY": 253
+        "w": 120,
+        "h": 425,
+        "gripX": 60,
+        "gripY": 254
       }
     },
     {
       "name": "arcane",
       "glow": "#ffbd26",
       "baseGrip": {
-        "w": 189,
-        "h": 444,
-        "gripX": 92,
-        "gripY": 273
+        "w": 119,
+        "h": 438,
+        "gripX": 58,
+        "gripY": 267
       },
       "enhancedGrip": {
-        "w": 189,
-        "h": 444,
-        "gripX": 92,
-        "gripY": 273
+        "w": 119,
+        "h": 438,
+        "gripX": 58,
+        "gripY": 267
       }
     },
     {
       "name": "flame",
       "glow": "#a35cff",
       "baseGrip": {
-        "w": 171,
-        "h": 465,
-        "gripX": 91,
-        "gripY": 294
+        "w": 119,
+        "h": 471,
+        "gripX": 62,
+        "gripY": 300
       },
       "enhancedGrip": {
-        "w": 171,
-        "h": 465,
-        "gripX": 91,
-        "gripY": 294
+        "w": 119,
+        "h": 471,
+        "gripX": 62,
+        "gripY": 300
       }
     },
     {
       "name": "ice",
       "glow": "#ffe14b",
       "baseGrip": {
-        "w": 183,
-        "h": 485,
-        "gripX": 97,
-        "gripY": 314
+        "w": 120,
+        "h": 489,
+        "gripX": 56,
+        "gripY": 318
       },
       "enhancedGrip": {
-        "w": 183,
-        "h": 485,
-        "gripX": 97,
-        "gripY": 314
+        "w": 120,
+        "h": 489,
+        "gripX": 56,
+        "gripY": 318
       }
     },
     {
       "name": "nature",
       "glow": "#40cf63",
       "baseGrip": {
-        "w": 212,
-        "h": 505,
-        "gripX": 103,
-        "gripY": 334
+        "w": 94,
+        "h": 489,
+        "gripX": 47,
+        "gripY": 318
       },
       "enhancedGrip": {
-        "w": 212,
-        "h": 505,
-        "gripX": 103,
-        "gripY": 334
+        "w": 94,
+        "h": 489,
+        "gripX": 47,
+        "gripY": 318
       }
     },
     {
       "name": "holy",
       "glow": "#a365ff",
       "baseGrip": {
-        "w": 194,
-        "h": 525,
-        "gripX": 97,
-        "gripY": 354
+        "w": 133,
+        "h": 492,
+        "gripX": 64,
+        "gripY": 321
       },
       "enhancedGrip": {
-        "w": 194,
-        "h": 525,
-        "gripX": 97,
-        "gripY": 354
+        "w": 133,
+        "h": 492,
+        "gripX": 64,
+        "gripY": 321
       }
     },
     {
       "name": "void",
       "glow": "#ff472e",
       "baseGrip": {
-        "w": 207,
-        "h": 545,
-        "gripX": 85,
-        "gripY": 374
+        "w": 169,
+        "h": 534,
+        "gripX": 90,
+        "gripY": 363
       },
       "enhancedGrip": {
-        "w": 207,
-        "h": 545,
-        "gripX": 85,
-        "gripY": 374
+        "w": 169,
+        "h": 534,
+        "gripX": 90,
+        "gripY": 363
       }
     }
   ],
@@ -1673,15 +1673,15 @@
       "glow": "#4f9dff",
       "baseGrip": {
         "w": 166,
-        "h": 140,
+        "h": 179,
         "gripX": 32,
-        "gripY": 121
+        "gripY": 175
       },
       "enhancedGrip": {
         "w": 166,
-        "h": 140,
+        "h": 179,
         "gripX": 32,
-        "gripY": 121
+        "gripY": 175
       }
     },
     {
@@ -1689,15 +1689,15 @@
       "glow": "#d9a74c",
       "baseGrip": {
         "w": 172,
-        "h": 169,
+        "h": 212,
         "gripX": 33,
-        "gripY": 165
+        "gripY": 205
       },
       "enhancedGrip": {
         "w": 172,
-        "h": 169,
+        "h": 212,
         "gripX": 33,
-        "gripY": 165
+        "gripY": 205
       }
     },
     {
@@ -1705,15 +1705,15 @@
       "glow": "#ff5daf",
       "baseGrip": {
         "w": 178,
-        "h": 189,
+        "h": 193,
         "gripX": 34,
-        "gripY": 185
+        "gripY": 189
       },
       "enhancedGrip": {
         "w": 178,
-        "h": 189,
+        "h": 193,
         "gripX": 34,
-        "gripY": 185
+        "gripY": 189
       }
     },
     {
@@ -1721,15 +1721,15 @@
       "glow": "#45dfe6",
       "baseGrip": {
         "w": 184,
-        "h": 166,
+        "h": 209,
         "gripX": 35,
-        "gripY": 162
+        "gripY": 205
       },
       "enhancedGrip": {
         "w": 184,
-        "h": 166,
+        "h": 209,
         "gripX": 35,
-        "gripY": 162
+        "gripY": 205
       }
     },
     {
@@ -1737,15 +1737,15 @@
       "glow": "#ffbd26",
       "baseGrip": {
         "w": 190,
-        "h": 212,
+        "h": 213,
         "gripX": 36,
-        "gripY": 205
+        "gripY": 209
       },
       "enhancedGrip": {
         "w": 190,
-        "h": 212,
+        "h": 213,
         "gripX": 36,
-        "gripY": 205
+        "gripY": 209
       }
     },
     {
@@ -1753,15 +1753,15 @@
       "glow": "#a35cff",
       "baseGrip": {
         "w": 196,
-        "h": 206,
+        "h": 225,
         "gripX": 37,
-        "gripY": 201
+        "gripY": 221
       },
       "enhancedGrip": {
         "w": 196,
-        "h": 206,
+        "h": 225,
         "gripX": 37,
-        "gripY": 201
+        "gripY": 221
       }
     },
     {
@@ -1769,15 +1769,15 @@
       "glow": "#ffe14b",
       "baseGrip": {
         "w": 202,
-        "h": 219,
+        "h": 229,
         "gripX": 38,
-        "gripY": 215
+        "gripY": 225
       },
       "enhancedGrip": {
         "w": 202,
-        "h": 219,
+        "h": 229,
         "gripX": 38,
-        "gripY": 215
+        "gripY": 225
       }
     },
     {
@@ -1785,15 +1785,15 @@
       "glow": "#40cf63",
       "baseGrip": {
         "w": 208,
-        "h": 214,
+        "h": 238,
         "gripX": 39,
-        "gripY": 209
+        "gripY": 234
       },
       "enhancedGrip": {
         "w": 208,
-        "h": 214,
+        "h": 238,
         "gripX": 39,
-        "gripY": 209
+        "gripY": 234
       }
     },
     {
@@ -1801,15 +1801,15 @@
       "glow": "#a365ff",
       "baseGrip": {
         "w": 214,
-        "h": 231,
+        "h": 245,
         "gripX": 40,
-        "gripY": 227
+        "gripY": 241
       },
       "enhancedGrip": {
         "w": 214,
-        "h": 231,
+        "h": 245,
         "gripX": 40,
-        "gripY": 227
+        "gripY": 241
       }
     },
     {
@@ -1817,15 +1817,15 @@
       "glow": "#ff472e",
       "baseGrip": {
         "w": 220,
-        "h": 259,
+        "h": 256,
         "gripX": 42,
-        "gripY": 254
+        "gripY": 252
       },
       "enhancedGrip": {
         "w": 220,
-        "h": 259,
+        "h": 256,
         "gripX": 42,
-        "gripY": 254
+        "gripY": 252
       }
     }
   ]

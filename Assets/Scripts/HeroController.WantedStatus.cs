@@ -32,6 +32,7 @@ namespace ZenoniaProto
             if (dead || God || invuln > 0f || dashLeft > 0f) return;
             TakeDamage(CombatMath.Damage(bossAtk, skill.DamageMult, DefStat));
             if (dead) return;
+            if (StatusRules.CancelsPendingStab(skill.StatusKind, skill.KnockbackTiles)) stabLeft = 0f; // a real disable drops the committed second stab
             if (skill.StatusKind == StatusKind.Freeze) frozenMs = Mathf.Max(frozenMs, skill.StatusMs); // non-stacking: the stronger of remaining / new
             else if (skill.StatusKind != StatusKind.None && skill.StatusMs > 0)
                 wantedStatus.Apply(new StatusSpec(skill.StatusKind, skill.StatusValue, skill.StatusMs), null, false, bossAtk);

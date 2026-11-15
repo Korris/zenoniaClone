@@ -213,6 +213,9 @@ namespace ZenoniaProto
             return armed.ContainsKey(anim) && (row = SpriteSheet.Row(armed[anim], RowFor(anim, dir, out mirror))) != null ? row.Length : 0;
         }
 
+        /// <summary>True when this anim + facing has a sheet row to draw.</summary>
+        public bool HasAnim(string anim, int dir) { return FrameCount(anim, dir) > 0; }
+
         public void SetGear(int newTier, bool newEnhanced)
         {
             int max = gear != null ? gear.TierCount : 1;

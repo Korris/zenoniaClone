@@ -216,6 +216,9 @@ namespace ZenoniaProto
                 pullLeft = 0f;
                 knock = fx ? knockVel * FeelConfig.KnockbackMultiplier : knockVel;
                 knockTotal = knockLeft = fx ? FeelConfig.KnockbackMs : KnockbackMs;
+                // 2026-11-15 (docs/reference/combo-knockback-chatgpt.md): a push (combo finisher or a skill) cancels the strike being wound up; the
+                // recovery only counts down once the slide ends (Think does not run while sliding). Hits that do not push leave the windup alone.
+                if (state == State.Windup) Enter(State.Cooldown, Rpg.StatusRules.KnockInterruptRecoverMs);
             }
             if (state == State.Idle || state == State.Wander || state == State.Return) { state = State.Chase; timer = 0f; }
             HitFx(dmg, knockVel, crit, finisher, quietFx, !NetMode.IsOffline && src != LocalPlayer.Hero);

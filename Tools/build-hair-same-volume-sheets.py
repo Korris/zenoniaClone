@@ -34,10 +34,19 @@ CLASSES = {
         # ChatGPT board head-redesign-20261114/wizard-head-options-chatgpt-1.png (#1, 2, 3, 7, 8), drawn with real volume, so no crown lift.
         # The v3 sheets (thin caps that needed crown_lift 1.3) stay in src/ for reference.
         "crown_lift": {"down": 1.0, "right": 1.0, "up": 1.0},
-        "sheets": {  # answer sheet -> hairstyle of each row (rows beyond the tuple are ignored: row 3 of the 7-8 sheet is bald)
-            "wizard-hair-v4-styles-1-2-3-chatgpt-1.png": (0, 1, 2),
-            "wizard-hair-v4-styles-7-8-chatgpt-1.png": (3, 4),
+        # 2026-11-14 later: the user kept board styles #3, #4, #5, #8 only (in that order): v4 sheets give #3 and #8, the v5 sheet #4 and #5
+        # (the #5 witch hat left out, hair only). None = row not installed; rows beyond the tuple are ignored (bald rows).
+        "sheets": {  # answer sheet -> hairstyle of each row
+            "wizard-hair-v4-styles-1-2-3-chatgpt-1.png": (None, None, 0),
+            # 15/11: style 1 (#4, black with a blue streak) dropped for the hero-select hair (white spikes, crescent lock) of v6
+            "wizard-hair-v5-styles-4-5-chatgpt-1.png": (None, 2),
+            # 15/11 later (user: "the hair is ugly"): v6 redrawn from the hero-select head x3 with few big locks; row 1 kept (row 2 bolder but its heads drawn bigger than the canvas: misplaced side and back)
+            # 15/11 last: style 1 is now painted on the game's own bald body (Tools/build-wizard-hair-on-body-canvas.py, user: v6/v6b looked
+            # like a helmet); this tool must NOT write style 1 any more, or it overwrites that
+            "wizard-hair-v6b-hero-select-2-takes-chatgpt-1.png": (None,),
+            "wizard-hair-v4-styles-7-8-chatgpt-1.png": (None, 3),
         },
+        "style_grow": {1: 1.2},   # v6 hero-select hair came out ~15 % smaller than styles 0, 2, 3 (head+hair 85 vs ~100 px)
     },
     "mechanic": {
         "bald": "mechanic-bald-template-chatgpt-1.png",
@@ -173,15 +182,30 @@ def crown_covered(hair, face):
     return out
 
 
-def grown(hair, face):
+def cleaned(hair):
+    """Crumbs dropped (pieces under 5 % of the main hair: ear outline bits the extraction took as hair) and green spill turned gray."""
+    a = hair.copy()
+    lab, n = ndi.label(a[..., 3] > 0)
+    if n > 1:
+        sz = ndi.sum(a[..., 3] > 0, lab, range(1, n + 1))
+        for i in range(n):
+            if sz[i] < 0.05 * sz.max():
+                a[lab == i + 1] = 0
+    r, g, b = a[..., 0].astype(int), a[..., 1].astype(int), a[..., 2].astype(int)
+    spill = (a[..., 3] > 0) & (g > np.maximum(r, b) + 25)
+    a[spill, :3] = np.stack([np.maximum(r, b)[spill]] * 3, -1)
+    return a
+
+
+def grown(hair, face, extra=1.0):
     """The hair cell enlarged by HAIR_GROW about the centre of the bald skull (after the hair was separated at its true size, where the
     sheet's own eyes and brows line up with the template's and drop out)."""
-    if HAIR_GROW == 1.0:
+    if HAIR_GROW * extra == 1.0:
         return hair
     x0, x1, y0, y1 = bbox(face[..., 3] > 40)
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     im = Image.fromarray(hair.astype(np.uint8), "RGBA")
-    k = 1 / HAIR_GROW
+    k = 1 / (HAIR_GROW * extra)
     big = im.transform((F, F), Image.AFFINE, (k, 0, cx - cx * k, 0, k, cy - cy * k), Image.BICUBIC)
     a = np.asarray(big).astype(np.int32).copy()
     a[..., 3] = np.where(a[..., 3] >= 128, 255, 0)                         # crisp edge again
@@ -268,6 +292,7 @@ def cells():
             print("missing", name); continue
         sheet = hl.key_green(hl.rgba(path))
         for r, n in enumerate(styles):
+            if n is None: continue
             row = sheet[r * ROW_H:(r + 1) * ROW_H]
             out[n] = {}
             eyes = row_to_canvas(row, can) if ALIGN in ("eyes", "face") else None
@@ -286,7 +311,10 @@ def cells():
                     print("style", n, d, "head moved by", (mx, my), "canvas px, skin overlap", round(iou, 2))
                     cell = hl.place(col, s, dx + mx * s + i * COL_W * s, dy + my * s)
                 hair = different_from_bald(cell, faces[d], d) if EXTRACT == "difference" else hl.hair_only(cell, faces[d], d)
-                out[n][d] = lifted(grown(crown_covered(hl.fill_pinholes(hair), faces[d]), faces[d]), faces[d], CROWN_LIFT.get(d, 1.0))
+                out[n][d] = lifted(grown(crown_covered(hl.fill_pinholes(hair), faces[d]), faces[d], CFG.get("style_grow", {}).get(n, 1.0)),
+                                   faces[d], CROWN_LIFT.get(d, 1.0))
+                if n in CFG.get("style_grow", {}):                 # only the styles added since 15/11: 0, 2, 3 stay pixel-identical
+                    out[n][d] = cleaned(out[n][d])
     return out
 
 

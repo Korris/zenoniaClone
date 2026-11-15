@@ -97,7 +97,6 @@ namespace ZenoniaProto
         public const float BloomKnee = 0.15f;
         public const float BloomIntensity = 0.85f;
 
-        // ---- damage numbers ----
-        public const float PopPeak = 1.35f, PopPeakCrit = 1.75f, PopRiseMs = 70f, PopSettleMs = 200f;
+        // damage numbers: motion table in DamageNumberKind.cs (DamageNumberMotion)
     }
 }

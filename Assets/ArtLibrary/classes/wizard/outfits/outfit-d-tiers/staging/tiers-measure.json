@@ -1,0 +1,349 @@
+{
+ "t1": {
+  "scale": 0.1118,
+  "headT0": 52,
+  "headBefore": 52,
+  "headAfter": 52,
+  "warp": 1.0,
+  "clippedAlphaPx": 0.0,
+  "figureH": 144,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   48,
+   99,
+   49
+  ],
+  "source": "wizard-outfit-d-t1-idle-down-bald-chatgpt-2-pose.png",
+  "staffFist": [
+   57.2,
+   114.5
+  ],
+  "bookFist": [
+   132.5,
+   120.8
+  ],
+  "bookSeat": [
+   137.5,
+   119.0
+  ],
+  "hairIoU": [
+   0.856,
+   0.866,
+   0.859,
+   0.866
+  ]
+ },
+ "t2": {
+  "scale": 0.1386,
+  "headT0": 52,
+  "headBefore": 54,
+  "headAfter": 52,
+  "warp": 0.963,
+  "clippedAlphaPx": 0.0,
+  "figureH": 144,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   48,
+   99,
+   50
+  ],
+  "source": "wizard-outfit-d-t2-idle-down-bald-chatgpt-2-pose.png",
+  "staffFist": [
+   54.7,
+   123.8
+  ],
+  "bookFist": [
+   132.6,
+   127.3
+  ],
+  "bookSeat": [
+   137.5,
+   126.0
+  ],
+  "hairIoU": [
+   0.871,
+   0.857,
+   0.878,
+   0.857
+  ]
+ },
+ "t0": {
+  "head": 52,
+  "headW": 49,
+  "figureH": 143
+ },
+ "t3": {
+  "scale": 0.1491,
+  "headT0": 52,
+  "headBefore": 57,
+  "headAfter": 52,
+  "warp": 0.912,
+  "clippedAlphaPx": 0.0,
+  "figureH": 145,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   47,
+   98,
+   49
+  ],
+  "source": "wizard-outfit-d-t3-idle-down-bald-chatgpt-2-pose.png",
+  "staffFist": [
+   49.2,
+   123.7
+  ],
+  "bookFist": [
+   135.9,
+   129.2
+  ],
+  "bookSeat": [
+   141.5,
+   126.0
+  ],
+  "hairIoU": [
+   0.849,
+   0.855,
+   0.854,
+   0.855
+  ]
+ },
+ "t4": {
+  "scale": 0.1346,
+  "headT0": 52,
+  "headBefore": 51,
+  "headAfter": 51,
+  "warp": 1.0,
+  "clippedAlphaPx": 0.0,
+  "figureH": 142,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   49,
+   99,
+   48
+  ],
+  "source": "wizard-outfit-d-t4-idle-down-bald-chatgpt-2-pose.png",
+  "staffFist": [
+   56.8,
+   122.7
+  ],
+  "bookFist": [
+   127.7,
+   128.7
+  ],
+  "bookSeat": [
+   132.5,
+   126.0
+  ],
+  "hairIoU": [
+   0.849,
+   0.849,
+   0.863,
+   0.849
+  ]
+ },
+ "t5": {
+  "scale": 0.1119,
+  "headT0": 52,
+  "headBefore": 52,
+  "headAfter": 52,
+  "warp": 1.0,
+  "clippedAlphaPx": 0.0,
+  "figureH": 144,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   48,
+   99,
+   49
+  ],
+  "source": "wizard-outfit-d-t5-idle-down-bald-chatgpt-2-pose.png",
+  "staffFist": [
+   57.0,
+   114.2
+  ],
+  "bookFist": [
+   134.2,
+   119.6
+  ],
+  "bookSeat": [
+   138.5,
+   119.0
+  ],
+  "hairIoU": [
+   0.868,
+   0.871,
+   0.859,
+   0.871
+  ]
+ },
+ "t6": {
+  "scale": 0.1118,
+  "headT0": 52,
+  "headBefore": 52,
+  "headAfter": 52,
+  "warp": 1.0,
+  "clippedAlphaPx": 0.0,
+  "figureH": 144,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   48,
+   99,
+   49
+  ],
+  "source": "wizard-outfit-d-t6-idle-down-bald-chatgpt-2-pose.png",
+  "staffFist": [
+   56.7,
+   114.0
+  ],
+  "bookFist": [
+   132.6,
+   119.8
+  ],
+  "bookSeat": [
+   137.5,
+   118.0
+  ],
+  "hairIoU": [
+   0.875,
+   0.88,
+   0.863,
+   0.88
+  ]
+ },
+ "t7": {
+  "scale": 0.1119,
+  "headT0": 52,
+  "headBefore": 52,
+  "headAfter": 52,
+  "warp": 1.0,
+  "clippedAlphaPx": -0.0,
+  "figureH": 144,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   48,
+   99,
+   49
+  ],
+  "source": "wizard-outfit-d-t7-idle-down-bald-chatgpt-2-pose.png",
+  "staffFist": [
+   58.0,
+   118.2
+  ],
+  "bookFist": [
+   128.7,
+   124.8
+  ],
+  "bookSeat": [
+   132.0,
+   122.0
+  ],
+  "hairIoU": [
+   0.864,
+   0.878,
+   0.877,
+   0.878
+  ]
+ },
+ "t8": {
+  "scale": 0.1429,
+  "headT0": 52,
+  "headBefore": 54,
+  "headAfter": 52,
+  "warp": 0.963,
+  "clippedAlphaPx": 0.0,
+  "figureH": 145,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   47,
+   98,
+   49
+  ],
+  "source": "wizard-outfit-d-t8-idle-down-bald-chatgpt-2-pose.png",
+  "staffFist": [
+   48.6,
+   122.1
+  ],
+  "bookFist": [
+   135.2,
+   128.0
+  ],
+  "bookSeat": [
+   137.0,
+   125.0
+  ],
+  "hairIoU": [
+   0.864,
+   0.857,
+   0.869,
+   0.857
+  ]
+ },
+ "t9": {
+  "scale": 0.1581,
+  "headT0": 52,
+  "headBefore": 60,
+  "headAfter": 53,
+  "warp": 0.867,
+  "clippedAlphaPx": 0.0,
+  "figureH": 145,
+  "skullT0": [
+   49,
+   100,
+   49
+  ],
+  "skull": [
+   47,
+   99,
+   48
+  ],
+  "source": "wizard-outfit-d-t9-idle-down-bald-chatgpt-4-wings.png",
+  "staffFist": [
+   51.7,
+   124.9
+  ],
+  "bookFist": [
+   134.1,
+   131.8
+  ],
+  "bookSeat": [
+   139.0,
+   129.0
+  ],
+  "hairIoU": [
+   0.81,
+   0.817,
+   0.82,
+   0.817
+  ]
+ }
+}

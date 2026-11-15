@@ -39,7 +39,7 @@ namespace ZenoniaProto
                 if (m.IsDying || !box.Overlaps(m.Box)) continue;
                 bool crit = Random.value < CritChance + CritBonus;
                 int dmg = CombatMath.Damage(AtkStat, mult * (crit ? 1.6f : 1f), m.Def);
-                m.TakeHit(dmg, v * h.Knockback * (crit ? 2f : 1f), crit, finisher, false, this);
+                m.TakeHit(dmg, v * h.KnockbackFor(echo), crit, finisher, false, this); // a crit no longer doubles the push (2026-11-15, docs/reference/combo-knockback-chatgpt.md)
                 landed++;
                 anyCrit |= crit;
             }
@@ -121,7 +121,8 @@ namespace ZenoniaProto
             hp -= dmg;
             invuln = InvulnMs;
             hurt = HurtMs;
-            stabLeft = 0f;
+            // 2026-11-15 (docs/reference/combo-knockback-chatgpt.md): a plain hit no longer cancels the pending second stab (the Assassin finisher's
+            // pushing stab is a committed move); only death or a real disable (freeze / stun / knockback, TakeWantedSkillHit) drops it.
             castLeft = 0f; // a landed hit breaks the cast root (the already launched skill keeps playing, like the web)
             HeroFx.Hurt(new Vector2(x, y), dmg);
             NetEventBus.HeroHit(this, dmg);
@@ -131,6 +132,7 @@ namespace ZenoniaProto
                 dead = true;
                 deathTimer = 0f;
                 dashLeft = 0f;
+                stabLeft = 0f;
                 combo.Reset();
                 NetEventBus.HeroDied(this);
             }

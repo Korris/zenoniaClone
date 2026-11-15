@@ -1,0 +1,286 @@
+{
+ "staff": [
+  {
+   "tier": 0,
+   "heightPx": 166.7,
+   "headWidthPx": 28.2,
+   "holdWidthsPx": [
+    5.8,
+    5.8
+   ],
+   "medianShaftPx": 6.3,
+   "source": "board",
+   "grip": {
+    "w": 69,
+    "h": 379,
+    "gripX": 34,
+    "gripY": 208
+   }
+  },
+  {
+   "tier": 1,
+   "heightPx": 184.6,
+   "headWidthPx": 42.5,
+   "holdWidthsPx": [
+    6.3,
+    6.3
+   ],
+   "medianShaftPx": 8.9,
+   "source": "gear-override-t1-staff",
+   "grip": {
+    "w": 106,
+    "h": 419,
+    "gripX": 52,
+    "gripY": 248
+   }
+  },
+  {
+   "tier": 2,
+   "heightPx": 184.6,
+   "headWidthPx": 39.3,
+   "holdWidthsPx": [
+    7.2,
+    7.2
+   ],
+   "medianShaftPx": 8.9,
+   "source": "board",
+   "grip": {
+    "w": 94,
+    "h": 419,
+    "gripX": 46,
+    "gripY": 248
+   }
+  },
+  {
+   "tier": 3,
+   "heightPx": 187.3,
+   "headWidthPx": 50.5,
+   "holdWidthsPx": [
+    7.2,
+    6.7
+   ],
+   "medianShaftPx": 10.7,
+   "source": "board",
+   "grip": {
+    "w": 120,
+    "h": 425,
+    "gripX": 60,
+    "gripY": 254
+   }
+  },
+  {
+   "tier": 4,
+   "heightPx": 193.1,
+   "headWidthPx": 50.5,
+   "holdWidthsPx": [
+    7.2,
+    7.2
+   ],
+   "medianShaftPx": 9.4,
+   "source": "gear-override-t4-staff",
+   "grip": {
+    "w": 119,
+    "h": 438,
+    "gripX": 58,
+    "gripY": 267
+   }
+  },
+  {
+   "tier": 5,
+   "heightPx": 207.9,
+   "headWidthPx": 50.5,
+   "holdWidthsPx": [
+    7.6,
+    7.6
+   ],
+   "medianShaftPx": 10.7,
+   "source": "board",
+   "grip": {
+    "w": 119,
+    "h": 471,
+    "gripX": 62,
+    "gripY": 300
+   }
+  },
+  {
+   "tier": 6,
+   "heightPx": 215.9,
+   "headWidthPx": 50.5,
+   "holdWidthsPx": [
+    8.0,
+    8.0
+   ],
+   "medianShaftPx": 11.6,
+   "source": "board",
+   "grip": {
+    "w": 120,
+    "h": 489,
+    "gripX": 56,
+    "gripY": 318
+   }
+  },
+  {
+   "tier": 7,
+   "heightPx": 215.9,
+   "headWidthPx": 39.3,
+   "holdWidthsPx": [
+    7.6,
+    7.6
+   ],
+   "medianShaftPx": 7.6,
+   "source": "board",
+   "grip": {
+    "w": 94,
+    "h": 489,
+    "gripX": 47,
+    "gripY": 318
+   }
+  },
+  {
+   "tier": 8,
+   "heightPx": 217.2,
+   "headWidthPx": 55.9,
+   "holdWidthsPx": [
+    8.9,
+    8.9
+   ],
+   "medianShaftPx": 10.7,
+   "source": "board",
+   "grip": {
+    "w": 133,
+    "h": 492,
+    "gripX": 64,
+    "gripY": 321
+   }
+  },
+  {
+   "tier": 9,
+   "heightPx": 236.0,
+   "headWidthPx": 68.4,
+   "holdWidthsPx": [
+    8.9,
+    8.9
+   ],
+   "medianShaftPx": 13.9,
+   "source": "board",
+   "grip": {
+    "w": 169,
+    "h": 534,
+    "gripX": 90,
+    "gripY": 363
+   }
+  }
+ ],
+ "book": [
+  {
+   "tier": 0,
+   "widthPx": 40.0,
+   "source": "board",
+   "grip": {
+    "w": 166,
+    "h": 179,
+    "gripX": 32,
+    "gripY": 175
+   }
+  },
+  {
+   "tier": 1,
+   "widthPx": 41.5,
+   "source": "gear-override-t1-book",
+   "grip": {
+    "w": 172,
+    "h": 212,
+    "gripX": 33,
+    "gripY": 205
+   }
+  },
+  {
+   "tier": 2,
+   "widthPx": 43.0,
+   "source": "board",
+   "grip": {
+    "w": 178,
+    "h": 193,
+    "gripX": 34,
+    "gripY": 189
+   }
+  },
+  {
+   "tier": 3,
+   "widthPx": 44.5,
+   "source": "board",
+   "grip": {
+    "w": 184,
+    "h": 209,
+    "gripX": 35,
+    "gripY": 205
+   }
+  },
+  {
+   "tier": 4,
+   "widthPx": 46.0,
+   "source": "board",
+   "grip": {
+    "w": 190,
+    "h": 213,
+    "gripX": 36,
+    "gripY": 209
+   }
+  },
+  {
+   "tier": 5,
+   "widthPx": 47.5,
+   "source": "board",
+   "grip": {
+    "w": 196,
+    "h": 225,
+    "gripX": 37,
+    "gripY": 221
+   }
+  },
+  {
+   "tier": 6,
+   "widthPx": 49.0,
+   "source": "board",
+   "grip": {
+    "w": 202,
+    "h": 229,
+    "gripX": 38,
+    "gripY": 225
+   }
+  },
+  {
+   "tier": 7,
+   "widthPx": 50.5,
+   "source": "board",
+   "grip": {
+    "w": 208,
+    "h": 238,
+    "gripX": 39,
+    "gripY": 234
+   }
+  },
+  {
+   "tier": 8,
+   "widthPx": 52.0,
+   "source": "board",
+   "grip": {
+    "w": 214,
+    "h": 245,
+    "gripX": 40,
+    "gripY": 241
+   }
+  },
+  {
+   "tier": 9,
+   "widthPx": 53.5,
+   "source": "board",
+   "grip": {
+    "w": 220,
+    "h": 256,
+    "gripX": 42,
+    "gripY": 252
+   }
+  }
+ ]
+}

@@ -195,7 +195,7 @@ namespace ZenoniaProto
         {
             bool crit = Random.value < CritChance + critBonus;
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
-            m.TakeHit(dmg, knock * (crit ? 2f : 1f), crit, blast, vfx != null, src);
+            m.TakeHit(dmg, knock, crit, blast, vfx != null, src); // a crit no longer doubles the push (2026-11-15)
             if (!blast) { HitFx(false); NetEventBus.BoltEnd(netId, pos, false); }
             GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
             if (!blast) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode

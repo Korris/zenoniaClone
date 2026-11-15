@@ -1,0 +1,20 @@
+[KBDIAG] t=0.35 step=1 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=0.35 step=1 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=0.72 step=2 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=0.72 step=2 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=0.72 step=2 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=1.00 step=3 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=1.00 step=3 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=1.00 step=3 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=1.32 step=4 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=1.49 step=4 echo=True knock=61 m=Monster_frostSlime
+[KBDIAG] knock Monster_frostSlime v=(0.00, -82.35) from=(168.00, 313.01)
+[KBDIAG] t=1.84 step=1 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=2.12 step=2 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=2.41 step=3 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=2.72 step=4 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=2.89 step=4 echo=True knock=61 m=Monster_frostSlime
+[KBDIAG] knock Monster_frostSlime v=(0.00, -82.35) from=(159.60, 277.45)
+[KBDIAG] t=3.24 step=1 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=3.53 step=2 echo=False knock=0 m=Monster_frostSlime
+[KBDIAG] t=3.81 step=3 echo=False knock=0 m=Monster_frostSlime
