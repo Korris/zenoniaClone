@@ -15,6 +15,7 @@ if (doc.session) console.log('warning: the character holds a session lock');
 const state = doc.state;
 if (arg('--gold')) state.gold = Number(arg('--gold'));
 if (arg('--stones')) state.upgradeStone = Number(arg('--stones'));
+if (arg('--level')) state.level = Number(arg('--level')); // the pet combat slot opens at Lv 5 (PetRules.SlotUnlockLevel)
 if (arg('--item')) {
   const [templateId, uid] = arg('--item').split(':');
   state.inventory.push({ uid, templateId, slot: 'armor', name: 'Leather Vest', rarity: 'common', classId: '', itemLevel: 1, enhance: 0, stats: { atk: 0, def: 2, maxHp: 10, maxMp: 0, critChance: 0, speedMult: 0 } });

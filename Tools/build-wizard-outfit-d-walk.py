@@ -1,5 +1,5 @@
 """Wizard `walk` (4 facings, 4 frames) in the new outfit "D" (14/11/2026, plan step 3), after the idle + attack-board pipeline. Copy of
-Tools/build-wizard-northwind-walk.py with only the source images and the attack tool it wraps changed to outfit D (the Northwind walk tool is
+Tools/build-wizard-northwind-walk.py (Northwind tool, removed 16/11, git 4c527c36) with only the source images and the attack tool it wraps changed to outfit D (the Northwind walk tool is
 left untouched so that body can still be rebuilt from its own source if ever needed); logic (fit by chin -> sole, bald head -> head anchor +
 headless sheet, fist layer, armed sheet, staff angle per facing) is identical -- see its docstring.
 

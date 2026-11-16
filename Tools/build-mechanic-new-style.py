@@ -1,6 +1,8 @@
 """Mechanic in the new style: one gun in the right hand, the other hand free (look approved in Assets/ArtLibrary/custom/idle-down-set/mechanic-one-gun-src.png).
 Sources: Assets/ArtLibrary/classes/mechanic/new-style/src/, ChatGPT art on flat #00FF00 or #FF00FF: <anim>-<dir>.png one row of frames per image, gun-<tier>-<kind>.png, turret-<tier>-<kind>.png.
-Old sheets, art and anchors: new-style/old/. Gauntlet versions that were rejected: new-style/rejected-gauntlet/ (never installed).
+Superseded by the two-pistol Mechanic: its single-gun outputs (weapons/gun, held-mechanic.json, the robot companion art), new-style/old/ and
+rejected-gauntlet/ were removed 16/11 (git 4c527c36). Do not run its write commands; it stays for the helpers that build-deploy-turret.py and
+build-mechanic-dual-move.py import.
 dash keeps the old sheets (brief), death its baked art, idle down (row 0) is installed separately and is not touched here.
 Replaces Tools/build-mechanic-gun.py for every anim but dash, whose old sheets and anchors stay. Do not run that tool again.
 
@@ -77,7 +79,7 @@ GUN_LENGTH = 258  # art px rear to muzzle, as the old art: same length on screen
 MASTER = "gun-scrap-base"
 MASTER_GRIP = (262, 680)  # middle of the handle in the master painting, read at full size
 PAD = 4
-# Turret: stands on the ground, about 40% of hero height on screen at CompanionScale 0.26. Grip = centre of the base at the feet row (HeroCompanion, CompanionGrounded).
+# Turret: stands on the ground, about 40% of hero height on screen at CompanionScale 0.26. Grip = centre of the base at the feet row (old HeroCompanion, removed 16/11; the turret is now the Deploy Turret skill, DeployedTurret.cs).
 TURRET_DIR = f"{RES}/Sprites/classes/mechanic/companion/art"
 TURRET_SAMPLE = "Assets/ArtLibrary/classes/mechanic/turret-src/turret-sample.png"
 COMPANION_SCALE = 0.26

@@ -24,22 +24,14 @@ _spec.loader.exec_module(v2)
 SRC_NAME = os.environ.get("MECH_FX_SRC", "mechanic-attack-fx-v3-chatgpt-1.png")
 SRC = "Assets/ArtLibrary/classes/mechanic/vfx/attack-v3/" + SRC_NAME
 OUT = "Assets/Resources/Sprites/classes/mechanic/fx/attack-v3"
-V2_OUT = v2.OUT
 DATA = v2.DATA
 SHEET_ROWS = v2.SHEET_ROWS
 PICK = v2.PICK
 UNITS_PER_PX = v2.UNITS_PER_PX
 
 
-def v2_sizes():
-    """Largest (w, h) per row of the installed v2 set: the size target for v3."""
-    meta = json.load(open(os.path.join(DATA, "vfx-attack-v2.json")))
-    out = {}
-    for f in meta["frames"]:
-        row = f["name"].split("_")[0]
-        w, h = out.get(row, (0, 0))
-        out[row] = (max(w, f["w"]), max(h, f["h"]))
-    return out
+# Largest (w, h) per row of the old v2 set, the size target for v3 (measured from vfx-attack-v2.json before that set was removed, 16/11).
+V2_SIZES = {"blast": (307, 204), "bolt": (319, 158), "cast": (271, 156), "impact": (398, 242), "proj": (249, 56)}
 
 
 def yellow_fix(img):
@@ -74,7 +66,7 @@ def build():
     for i, (y0, y1, x0, x1) in enumerate(boxes):
         r, c = divmod(i, 4)
         raw[(SHEET_ROWS[r], c)] = yellow_fix(to_image(pm[y0:y1, x0:x1]))
-    target = v2_sizes()
+    target = V2_SIZES
     out = {}
     for row in SHEET_ROWS:
         imgs = [trim(raw[(row, c)], pad=0)[0] for c in range(4)]
@@ -98,13 +90,12 @@ def cut():
     for (row, n), (img, (px, py)) in sorted(build().items()):
         name = "%s_%d" % (row, n)
         img.save(os.path.join(OUT, name + ".png"))
-        clone_meta(os.path.join(V2_OUT, name + ".png.meta"), os.path.join(OUT, name + ".png.meta"))
+        own = os.path.join(OUT, name + ".png.meta")  # import settings: the frame's own .meta, else the set's cast_0 (old v2 set removed 16/11)
+        clone_meta(own if os.path.exists(own) else os.path.join(OUT, "cast_0.png.meta"), own)
         meta["frames"].append({"name": name, "w": img.width, "h": img.height, "px": round(px, 1), "py": round(img.height - py, 1)})
         print("%-9s %4d x %-4d pivot (%.1f, %.1f)" % (name, img.width, img.height, px, py))
     with open(os.path.join(DATA, "vfx-attack-v3.json"), "w", newline="\n") as f:
         json.dump(meta, f, indent=1)
-    clone_meta(os.path.join(DATA, "vfx-attack-v2.json.meta"), os.path.join(DATA, "vfx-attack-v3.json.meta"))
-    clone_meta(V2_OUT + ".meta", OUT + ".meta")
     print("wrote", OUT, "and", os.path.join(DATA, "vfx-attack-v3.json"))
     core()
 
@@ -127,11 +118,10 @@ def load_set(folder, json_path):
 
 
 def preview():
-    """Rows: v3 cast / proj / bolt (x1.2) / blast (x2.6) / impact, then old v2 (same frames) for comparison, then other classes' FX
-    (Wizard v3 blue, Warrior red slash) at game size, on a dark and a snow background."""
+    """Rows: v3 cast / proj / bolt (x1.2) / blast (x2.6) / impact, then other classes' FX
+    (Wizard v4 blue, Warrior red slash) at game size, on a dark and a snow background."""
     new = build()
-    old = load_set(V2_OUT, os.path.join(DATA, "vfx-attack-v2.json"))
-    wiz = load_set("Assets/Resources/Sprites/classes/wizard/fx/attack-v3", "Assets/Resources/Data/classes/wizard/vfx-attack-v3.json")
+    wiz = load_set("Assets/Resources/Sprites/classes/wizard/fx/attack-v4", "Assets/Resources/Data/classes/wizard/vfx-attack-v4.json")
     hero = Image.open("Assets/Resources/Sprites/classes/mechanic/body/bare/attack1.png").convert("RGBA").crop((192, 3 * 192, 384, 4 * 192))
     warrior = WARRIOR_FX()
     PPU = v2.PPU
@@ -148,20 +138,15 @@ def preview():
             y = r * rowh + rowh // 2
             c.alpha_composite(hero, (0, int(y - 150)))
             sc = 2.6 if row == "blast" else 1.2 if row == "bolt" else 1.0
-            step = 1.7 if row == "blast" else 1.1
-            d.text((4, r * rowh + 4), "v3 " + row + "   |   v2 (old)", fill=ink)
+            d.text((4, r * rowh + 4), "v3 " + row, fill=ink)
             x = slot * 1.1
-            frames = [new[(row, n)] for n in range(4)] + [None, old["%s_%d" % (row, 2)]]
-            for fr in frames:
-                if fr is None:
-                    x += slot * 0.6
-                    continue
-                img, pv = fr
+            for n in range(4):
+                img, pv = new[(row, n)]
                 wpx = img.width * PPU * UNITS_PER_PX * sc
                 v2.draw_fx(c, img, pv, (x + pv[0] * PPU * UNITS_PER_PX * sc, y), sc)
                 x += wpx + 12
         y = len(rows) * rowh + rowh // 2
-        d.text((4, len(rows) * rowh + 4), "compare: Mechanic v3 impact | Wizard v3 impact + proj (blue) | Warrior slash (red)", fill=ink)
+        d.text((4, len(rows) * rowh + 4), "compare: Mechanic v3 impact | Wizard v4 impact + proj (blue) | Warrior slash (red)", fill=ink)
         img, pv = new[("impact", 2)]
         v2.draw_fx(c, img, pv, (slot * 1.5, y))
         img, pv = wiz["impact_2"]

@@ -7,23 +7,20 @@ Rows of the sheet -> rows of VfxSprites set "mechanic-v2":
   2 big blue bolt -> bolt_N    (hit 3, pivot = the head; loop of frames 1-3)
   3 cannon blast  -> blast_N   (hit 4 explosion, centred)
   4 impact        -> impact_N  (centred)
-Output: Assets/Resources/Sprites/classes/mechanic/fx/attack-v2/<row>_N.png (+ .meta cloned from fx/attack-orange) and
-Assets/Resources/Data/classes/mechanic/vfx-attack-v2.json (w, h, pivot px from the bottom-left). One output px = VfxSprites.UnitsPerPx (0.058) units.
-  python Tools/build-mechanic-attack-fx-v2.py cut       write frames, json, metas
-  python Tools/build-mechanic-attack-fx-v2.py preview   Tools/out/mechanic-attack-fx-v2-preview.png (dark + light, next to the hero and the old set)
+The v2 set (Resources .../fx/attack-v2, vfx-attack-v2.json) and the older attack-orange / attack-blue sets were removed 16/11 (v3 is live,
+Tools/build-mechanic-attack-fx-v3.py). No commands any more: this file stays as the shared helpers (key_magenta, head_pivot, muzzle_pivot,
+draw_fx, PICK, SHEET_ROWS, PPU) imported by build-mechanic-attack-fx-v3.py and build-cleric-attack-fx.py.
 """
-import colorsys, json, os, sys
+import colorsys, os, sys
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 from scipy import ndimage
 
 os.chdir("D:/zenoniaClone")
 sys.path.insert(0, "Tools")
-from wizard_attack_fx_common import to_image, cells, resize_rgba, trim, clone_meta
+from wizard_attack_fx_common import to_image, cells, resize_rgba, trim
 
 SRC = "Assets/ArtLibrary/classes/mechanic/vfx/attack-v2/mechanic-attack-fx-v2-chatgpt-1.png"
-OUT = "Assets/Resources/Sprites/classes/mechanic/fx/attack-v2"
-OLD = "Assets/Resources/Sprites/classes/mechanic/fx/attack-orange"
 DATA = "Assets/Resources/Data/classes/mechanic"
 SHEET_ROWS = ["cast", "proj", "bolt", "blast", "impact"]
 # which sheet frames make the 4 game frames of each row
@@ -117,22 +114,6 @@ def build():
     return out
 
 
-def cut():
-    os.makedirs(OUT, exist_ok=True)
-    meta = {"frames": []}
-    for (row, n), (img, (px, py)) in sorted(build().items()):
-        name = "%s_%d" % (row, n)
-        img.save(os.path.join(OUT, name + ".png"))
-        clone_meta(os.path.join(OLD, "cast_0.png.meta"), os.path.join(OUT, name + ".png.meta"))
-        meta["frames"].append({"name": name, "w": img.width, "h": img.height, "px": round(px, 1), "py": round(img.height - py, 1)})
-        print("%-9s %4d x %-4d pivot (%.1f, %.1f)  %.1f x %.1f units" % (name, img.width, img.height, px, py, img.width * UNITS_PER_PX, img.height * UNITS_PER_PX))
-    with open(os.path.join(DATA, "vfx-attack-v2.json"), "w", newline="\n") as f:
-        json.dump(meta, f, indent=1)
-    clone_meta(os.path.join(DATA, "vfx-attack-orange.json.meta"), os.path.join(DATA, "vfx-attack-v2.json.meta"))
-    clone_meta(OLD + ".meta", OUT + ".meta")
-    print("wrote", OUT, "and", os.path.join(DATA, "vfx-attack-v2.json"))
-
-
 # ---- preview: game size, normal blend + faint additive copy like VfxAnim -----------------------------------------------------
 PPU = 8.0  # preview px per world unit (hero frame: 8 frame px per unit)
 GLOW = 0.22
@@ -156,39 +137,3 @@ def draw_fx(canvas, img, pivot, at, scale=1.0, angle=0.0):
     canvas.paste(Image.fromarray(region.round().astype(np.uint8), "RGBA"), (x, y))
 
 
-def preview():
-    new = build()
-    hero = Image.open("Assets/Resources/Sprites/classes/mechanic/body/bare/attack1.png").convert("RGBA").crop((192, 3 * 192, 384, 4 * 192))
-    old = json.load(open(os.path.join(DATA, "vfx-attack-orange.json")))
-    oldf = {f["name"]: (Image.open(os.path.join(OLD, f["name"] + ".png")).convert("RGBA"), (f["px"], f["h"] - f["py"])) for f in old["frames"]}
-    slot, rowh = int(26 * PPU), int(34 * PPU)
-    W = slot * 9
-    panels = []
-    for bg in [(38, 44, 58, 255), (226, 234, 242, 255)]:
-        c = Image.new("RGBA", (W, rowh * 6), bg)
-        d = ImageDraw.Draw(c)
-        ink = (255, 255, 255, 255) if bg[0] < 128 else (0, 0, 0, 255)
-        for r, row in enumerate(SHEET_ROWS):
-            y = r * rowh + rowh // 2
-            c.alpha_composite(hero, (0, int(y - 150)))
-            d.text((4, r * rowh + 4), row + (" (x2.6 = r24 blast)" if row == "blast" else " (x1.2 hit 3)" if row == "bolt" else ""), fill=ink)
-            sc = 2.6 if row == "blast" else 1.2 if row == "bolt" else 1.0
-            for n in range(4):
-                img, pv = new[(row, n)]
-                draw_fx(c, img, pv, (slot * (1.6 + n * (1.9 if row == "blast" else 1.2)), y), sc)
-        y = 5 * rowh + rowh // 2
-        d.text((4, 5 * rowh + 4), "old attack-orange: cast_2, proj_0, impact_2", fill=ink)
-        for i, nm in enumerate(["cast_2", "proj_0", "impact_2"]):
-            img, pv = oldf[nm]
-            draw_fx(c, img, pv, (slot * (1.6 + i * 2), y))
-        panels.append(c)
-    out = Image.new("RGBA", (W * 2, rowh * 6))
-    for i, p in enumerate(panels):
-        out.paste(p, (i * W, 0))
-    os.makedirs("Tools/out", exist_ok=True)
-    out.convert("RGB").save("Tools/out/mechanic-attack-fx-v2-preview.png")
-    print("wrote Tools/out/mechanic-attack-fx-v2-preview.png", out.size)
-
-
-if __name__ == "__main__":
-    {"cut": cut, "preview": preview}[sys.argv[1] if len(sys.argv) > 1 else "preview"]()

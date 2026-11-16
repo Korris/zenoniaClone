@@ -6,7 +6,7 @@ namespace ZenoniaProto.Rpg
     /// Who sells basic gear and where (same shape as PotionShops / PetConfig): a blacksmith's tier range, map and reach check.
     /// One catalog entry = (tier, slot), encoded as tier * Slots.Generated.Length + slotIndex -- the byte InvOp.GearBuy's Slot carries, the same
     /// way PotionBuy packs a size and PetBuy an index. World map step 1 (plans/261113-0106-world-map-step1): smithBram (Oakhaven) T0-T1,
-    /// smithHolt (Thatchwick) T2-T3, blacksmithKhaled (Sunspire) T4-T5. Later villages (docs/world-map-2-design.md) add higher tiers the same way.
+    /// smithHolt (Thatchwick) T1-T2, blacksmithKhaled (Sunspire) T2-T3 (since 16/11/2026, EquipLevel). Later villages (docs/world-map-2-design.md) add higher tiers the same way.
     /// </summary>
     public static class GearShops
     {
@@ -25,14 +25,17 @@ namespace ZenoniaProto.Rpg
             }
         }
 
-        /// <summary>Inclusive tier range this seller stocks (every Slots.Generated piece at each of those tiers).</summary>
+        /// <summary>
+        /// Inclusive tier range this seller stocks (every Slots.Generated piece at each of those tiers). Since the 16/11/2026 equip table (T(n) = Lv n*10)
+        /// each village sells what its own region can wear (was T2-T3 / T4-T5, needing Lv 20-50 there).
+        /// </summary>
         public static bool TierRange(string npcId, out int minTier, out int maxTier)
         {
             switch (npcId)
             {
                 case "smithBram": minTier = 0; maxTier = 1; return true;
-                case "smithHolt": minTier = 2; maxTier = 3; return true;
-                case "blacksmithKhaled": minTier = 4; maxTier = 5; return true;
+                case "smithHolt": minTier = 1; maxTier = 2; return true;        // Thatchwick, region Lv 11-20: T1 Lv 10, T2 Lv 20
+                case "blacksmithKhaled": minTier = 2; maxTier = 3; return true; // Sunspire, region Lv 21-30: T2 Lv 20, T3 Lv 30
                 default: minTier = maxTier = 0; return false;
             }
         }

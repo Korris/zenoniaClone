@@ -6,7 +6,7 @@ namespace ZenoniaProto.Net
     {
         AttackStep = 1, BoltFired = 2, BoltEnd = 3, MonsterHit = 4, HeroHit = 5, SkillCast = 6, HeroDied = 7, HeroRespawned = 8,
         ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16, TurretShot = 17,
-        WantedSkillTelegraph = 18, MonsterShot = 19,
+        WantedSkillTelegraph = 18, MonsterShot = 19, PetSkill = 20, PetCapturable = 21,
     }
 
     /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band, flag bits (1 = mechanic blue), the pet
@@ -30,7 +30,7 @@ namespace ZenoniaProto.Net
     }
 
     /// <summary>MonsterHit flag bits.</summary>
-    public static class HitFlags { public const byte Crit = 1, Finisher = 2, Quiet = 4; }
+    public static class HitFlags { public const byte Crit = 1, Finisher = 2, Quiet = 4, Pet = 8, PetSkill = 16; } // Pet: a companion's basic attack (teal number), PetSkill: its skill (pale gold)
 
     /// <summary>
     /// One gameplay event (reliable, AOI filtered). A single union struct: every type uses a subset of the fields (see Write); the batch
@@ -41,7 +41,7 @@ namespace ZenoniaProto.Net
         public NetEventType Type;
         /// <summary>Subject entity: hero / monster / bolt id depending on Type.</summary>
         public ushort Id;
-        /// <summary>Second entity: source hero (MonsterHit), source monster (HeroHit), owner hero (BoltFired), target (SkillCast), target monster (TurretShot, Id = the turret). MonsterShot: Id = the shooting monster, X/Y = where the shot starts, Angle = its direction.</summary>
+        /// <summary>Second entity (PetSkill: Id = the owner hero, Other = the target monster or 0, Step = PetSkillKind): source hero (MonsterHit), source monster (HeroHit), owner hero (BoltFired), target (SkillCast), target monster (TurretShot, Id = the turret). MonsterShot: Id = the shooting monster, X/Y = where the shot starts, Angle = its direction.</summary>
         public ushort Other;
         public ushort Dmg, HpLeft;
         public short X, Y;
@@ -75,6 +75,8 @@ namespace ZenoniaProto.Net
                 case NetEventType.TurretShot: w.Put(Id); w.Put(Other); w.Put(X); w.Put(Y); break;
                 case NetEventType.WantedSkillTelegraph: w.Put(Id); w.Put(Step); w.Put(X); w.Put(Y); w.Put(Angle); w.Put(Value); break;
                 case NetEventType.MonsterShot: w.Put(Id); w.Put(X); w.Put(Y); w.Put(Angle); break;
+                case NetEventType.PetSkill: w.Put(Id); w.Put(Other); w.Put(Step); break;
+                case NetEventType.PetCapturable: w.Put(Id); w.Put(X); w.Put(Y); w.Put(Step); w.Put(Value); break; // a fallen boss may be caught: Id = its NetId, Value = ms left, Step = 1 Wanted
             }
         }
 
@@ -103,6 +105,8 @@ namespace ZenoniaProto.Net
                 case NetEventType.TurretShot: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); break;
                 case NetEventType.WantedSkillTelegraph: e.Id = r.GetUShort(); e.Step = r.GetByte(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Angle = r.GetByte(); e.Value = r.GetUInt(); break;
                 case NetEventType.MonsterShot: e.Id = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Angle = r.GetByte(); break;
+                case NetEventType.PetSkill: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.Step = r.GetByte(); break;
+                case NetEventType.PetCapturable: e.Id = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Step = r.GetByte(); e.Value = r.GetUInt(); break;
                 default: return false;
             }
             return true;

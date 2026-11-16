@@ -49,7 +49,7 @@ export async function makeCtx({ cfg: cfgOverrides } = {}) {
     const c = await createChar(u.accessToken, `hero${++n}`, classId);
     const e = await call('POST', `/characters/${c.id}/enter`, { token: u.accessToken });
     const r = await svc('POST', '/internal/tickets/redeem', { ticket: e.body.ticket });
-    return { user: u, char: c, ticket: e.body.ticket, sessionId: r.body.sessionId, rev: r.body.character.rev, state: r.body.character.state };
+    return { user: u, char: c, ticket: e.body.ticket, sessionId: r.body.sessionId, rev: r.body.character.rev, state: r.body.character.state, account: r.body.account };
   };
   const close = async () => { await app.close(); await db.dropDatabase(); await client.close(); };
   return { app, db, call, svc, clock, rng, resets, register, createChar, online, close };

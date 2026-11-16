@@ -73,7 +73,7 @@ namespace ZenoniaProto.Rpg
             O("spirit", "Holy Shield", "maxHp", new ItemStats { def = 2, maxHp = 10, maxMp = 6 }); // the cleric's shield: softer than the warrior's, id kept for saves
             O("spellbook", "Spellbook", "atk", new ItemStats { atk = 2, maxMp = 10 });
             O("glove", "Off-hand Glove", "atk", new ItemStats { atk = 2, maxHp = 6 }); // the fighter's second glove (2026-11-04); appended so older seeded picks keep their order
-            foreach (PetDef p in PetConfig.All) G(Slots.Pet, p.TemplateId, p.Name, 1, new ItemStats()); // no stats of their own: the bonus is in PetConfig
+            foreach (PetDef p in PetConfig.All) if (p.TemplateId != null) G(Slots.Pet, p.TemplateId, p.Name, 1, new ItemStats()); // OLD durability pet items, kept readable so old saves can be migrated (AccountPets.Migrate)
         }
 
         static void Add(ItemTemplate t) { All.Add(t); ById[t.Id] = t; }

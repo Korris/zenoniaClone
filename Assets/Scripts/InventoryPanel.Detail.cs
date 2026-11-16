@@ -184,12 +184,12 @@ namespace ZenoniaProto
 
             EnhanceView e = Preview(p, item);
             bool enhanceable = EnhanceStats.IsEnhanceable(item);
-            enhanceTitle.text = isPet ? "Pet Durability" : enhanceable ? "Enhance Preview" : "Item Details";
+            enhanceTitle.text = isPet ? "Old Pet" : enhanceable ? "Enhance Preview" : "Item Details";
             foreach (Text t in extraTexts) t.text = "";
             if (isPet)
             {
-                SetExtra(0, PetDurabilityLine(item), "#ffedb3");
-                SetExtra(1, "Cannot be enhanced.", "#c2e3f4");
+                SetExtra(0, "Becomes an account pet when you next log in.", "#ffedb3"); // only an old save shows one, before AccountPets.Migrate
+                SetExtra(1, "Pets: Pet window [P].", "#c2e3f4");
             }
             else if (enhanceable)
             {

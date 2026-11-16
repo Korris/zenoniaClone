@@ -29,7 +29,8 @@ public class LevelingTests
     [Fact]
     public void LevelCapAndProgressStayBounded()
     {
-        var result = Leveling.ApplyExpGain(59, 0, int.MaxValue);
+        var result = Leveling.ApplyExpGain(89, 0, int.MaxValue);
+        Assert.Equal(90, Leveling.MaxLevel);
         Assert.Equal(Leveling.MaxLevel, result.Level);
         Assert.Equal(Leveling.ExpToNext(Leveling.MaxLevel) - 1, result.Exp);
         Assert.InRange(Leveling.ProgressRatio(result.Level, result.Exp), 0f, 1f);
@@ -40,5 +41,22 @@ public class LevelingTests
     {
         for (int level = 1; level < Leveling.MaxLevel; level++)
             Assert.True(Leveling.ExpToNext(level + 1) > Leveling.ExpToNext(level));
+    }
+
+    [Fact]
+    public void LevelsAboveSixtyContinueTheSameCurveWithoutAJump()
+    {
+        // Lv 61-90 (16/11/2026) use the one ExpToNext formula: each step past Lv 60 grows by under 3 %, and the whole road fits an int.
+        Assert.Equal(116185, Leveling.ExpToNext(60));
+        Assert.Equal(119105, Leveling.ExpToNext(61));
+        Assert.Equal(209905, Leveling.ExpToNext(89));
+        for (int level = 60; level < Leveling.MaxLevel; level++)
+            Assert.InRange(Leveling.ExpToNext(level + 1) / (double)Leveling.ExpToNext(level), 1.0, 1.03);
+        long total = 0;
+        for (int level = 1; level < Leveling.MaxLevel; level++) total += Leveling.ExpToNext(level);
+        Assert.True(total < int.MaxValue);
+        var r = Leveling.ApplyExpGain(60, 0, Leveling.ExpToNext(60) + 5);
+        Assert.Equal(61, r.Level);
+        Assert.Equal(5, r.Exp);
     }
 }

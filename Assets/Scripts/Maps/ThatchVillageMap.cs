@@ -53,10 +53,10 @@ namespace ZenoniaProto
             new MapPortal(35, 12, FrostHollowLayout.MapId, FrostHollowLayout.PlayerStartTile.x, FrostHollowLayout.PlayerStartTile.y),
         };
 
-        // Stable ids are NpcDefs keys. All three stand on open plaza ground, off every road and clear of both gates (World Map 2.0 step 1, 13/11/2026).
+        // Stable ids are NpcDefs keys. All four stand on open plaza ground, off every road and clear of both gates (World Map 2.0 step 1, 13/11/2026; Lumi the pet keeper 16/11).
         static readonly MapNpc[] NpcList =
         {
-            new MapNpc("herbalistWren", 13, 9), new MapNpc("smithHolt", 22, 9), new MapNpc("brokerPell", 18, 13),
+            new MapNpc("herbalistWren", 13, 9), new MapNpc("smithHolt", 22, 9), new MapNpc("brokerPell", 18, 13), new MapNpc("petKeeperLumi", 22, 14), // Lumi: the plaza's east edge by the trees, off the road to the east gate (rows 11-12) and 5 tiles from the start
         };
 
         public ThatchVillageMap() : base(Rows, "Tw")

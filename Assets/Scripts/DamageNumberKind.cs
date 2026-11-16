@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>The look a floating number gets (one baked colour atlas per kind, crit has its own hand-coloured set).</summary>
-    public enum DamageNumberKind { Normal, Finisher, Crit, Other, Hurt, OtherHurt, Heal, PotionHp, PotionMp, Exp }
+    public enum DamageNumberKind { Normal, Finisher, Crit, Other, Hurt, OtherHurt, Heal, PotionHp, PotionMp, Exp, Pet }
 
     /// <summary>
     /// Motion / size table of the floating numbers, ChatGPT V3 "Comic Impact" (docs/reference/damage-numbers-chatgpt-spec.md).
@@ -25,7 +25,7 @@ namespace ZenoniaProto
 
         static DamageNumberMotion[] BuildTable()
         {
-            var t = new DamageNumberMotion[10];
+            var t = new DamageNumberMotion[11];
             float[] pop = { 0f, 90f, 180f };
             t[(int)DamageNumberKind.Normal] = Make("normal", 520f, 330f, 26f, 24f, pop, new[] { 0.75f, 1.1f, 1f });
             t[(int)DamageNumberKind.Finisher] = Make("normal", 700f, 480f, 30f, 32f, pop, new[] { 0.65f, 1.25f, 1f }); // white like normal hits (user 15/11), still bigger with ring + slash
@@ -44,6 +44,7 @@ namespace ZenoniaProto
             t[(int)DamageNumberKind.PotionHp] = Make("potion-hp", 850f, 600f, 44f, 24f, pop, soft);
             t[(int)DamageNumberKind.PotionMp] = Make("potion-mp", 850f, 600f, 44f, 24f, pop, soft);
             t[(int)DamageNumberKind.Exp] = Make("exp", 650f, 450f, 24f, 20f, new[] { 0f, 120f }, new[] { 0.88f, 1f });
+            t[(int)DamageNumberKind.Pet] = Make("normal", 650f, 420f, 28f, 26f, pop, new[] { 0.6f, 1.3f, 1f }); // a pet's hit: the owner's size, its own colour (teal basic / gold skill), pops harder, to the right (DamageNumber.Layout)
             return t;
         }
 
@@ -98,6 +99,8 @@ namespace ZenoniaProto
             if (text.StartsWith("HP ")) return DamageNumberKind.PotionHp;
             if (text.StartsWith("MP ")) return DamageNumberKind.PotionMp;
             if (text.StartsWith("+")) return DamageNumberKind.Heal;
+            if (!big && c.r < 0.6f && c.g > 0.75f && c.b > 0.75f) return DamageNumberKind.Pet; // teal: a pet's basic attack (Monster.Visuals.HitFx)
+            if (!big && c.r > 0.95f && c.g > 0.8f && c.g < 0.9f && c.b > 0.4f && c.b < 0.6f) return DamageNumberKind.Pet; // pale gold: a pet's skill
             if (reddish && c.g < 0.5f) return DamageNumberKind.Hurt;
             if (big && c.b < 0.5f && c.r > 0.9f) return DamageNumberKind.Finisher; // orange finisher (crit yellow is caught above)
             return DamageNumberKind.Normal;

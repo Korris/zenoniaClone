@@ -23,7 +23,6 @@ namespace ZenoniaProto
     ///   --dummies N                       spawn N frost slimes in front of the hero (skill / AoE targets)
     ///   --nobloom                         disable the bloom post effect (A/B for blown-out FX)
     ///   --run-seconds N                   quit after N seconds (no screenshots); with --perf logs every frame slower than 16 ms
-    ///   --mech-blue                       mechanic FX start in blue (default orange)
     ///   --dummy-dist N                    distance of the first dummy in front of the hero (default 30)
     ///   --god                             hero ignores damage
     ///   --plus N                          worn weapon + offhand at +N (enhance glow bands)
@@ -32,10 +31,10 @@ namespace ZenoniaProto
     ///   --level N / --give-stones N       RPG state for screenshots: hero level, upgrade stones (saving is always off in capture runs)
     ///   --drop-loot                       scatter a boss-sized pile of loot (gold, potions, stones, 3 items) in front of the hero
     ///   --open-inventory                  open the inventory window (B) after spawning
-    ///   --pet spirit|imp / --give-pets    wear that pet / one of each pet in the bag
+    ///   --pet ID / --give-pets ...        account pets, tickets, Pet / gacha windows: see DebugCapture.Pets.cs
     ///   --fill-bag N                      top the bag up to N items with generated gear (bag-size captures)
     ///   --bag-item N / --open-shop NPC    Inventory tab on bag item N (with --open-inventory) / that seller's window
-    ///   --pet-durability N / --select-pet every pet at N / Equipment tab on the worn pet (with --open-inventory)
+    ///   --select-pet                      Equipment tab on the Pet cell (opens the Pet window)
     ///   --open-settings / --open-quests   the Settings window (gear button) / the quest list, after spawning
     ///   --hud web|mobile                  HUD layout (HudLayout): web = hotbar + bottom-left chat, mobile = touch controls (default on this exe)
     ///   --chat-demo / --open-chat / --close-chat / --chat-focus  four sample chat lines / chat panel open / collapsed / typing (as Enter), after spawning
@@ -43,7 +42,7 @@ namespace ZenoniaProto
     ///   --settings-press ChangeHero       click that button of the open Settings window (not the switches: they save to PlayerPrefs)
     ///   --skill-ui "1=open;2=learn:0;3=slot:2"  skill tree UI script, see DebugCapture.Skills.cs
     ///   --record-combo wizard|mechanic|cleric  scripted basic-attack video: hero holds attack at dummies (3 s lead-in of idle, then ~6 s of combos), same frame dump as below
-    ///                                     (--mech-blue for the blue mechanic, --zoom for a close-up)
+    ///                                     (--zoom for a close-up)
     ///   --record-ultimate warrior|wizard  scripted video scene (monsters + King nearby, basic combo, then the skill, tail), 60 fps fixed-step,
     ///                                     writes frame_00000.png... to --shot-path (a folder), then quits; encode with ffmpeg
     ///   --record-boss warrior|wizard|mechanic|assassin|cleric  12 s at 60 fps of the hero fighting the Frostfang King (god mode, skill every 4 s),
@@ -132,7 +131,6 @@ namespace ZenoniaProto
             enhanced = Array.IndexOf(a, "--enhanced") >= 0;
             solids = Array.IndexOf(a, "--solids") >= 0;
             god = Array.IndexOf(a, "--god") >= 0;
-            ClassPalette.MechanicBlue = Array.IndexOf(a, "--mech-blue") >= 0;
             string dd = Arg(a, "--dummy-dist");
             if (dd != null) dummyDist = float.Parse(dd, System.Globalization.CultureInfo.InvariantCulture);
             perf = Array.IndexOf(a, "--perf") >= 0;
@@ -173,7 +171,7 @@ namespace ZenoniaProto
                 foreach (string slot in new[] { Slots.Weapon, Slots.Offhand })
                 {
                     Item pick = p.Inventory.Find(i => i.uid == "dev-" + slot + "-" + wornTier);
-                    if (pick != null) p.Equip(pick);
+                    if (pick != null) { p.Inventory.Remove(pick); p.SetEquippedRaw(slot, pick); p.RecomputeStats(); } // capture only: any tier at any level (skips EquipLevel; capture runs never save)
                 }
             string wear = Arg(Environment.GetCommandLineArgs(), "--wear-tiers"); // "A,G,B[,N]": wear armour / gloves / boots [/ necklace] of these art tiers (armour look captures)
             if (wear != null)
@@ -183,8 +181,7 @@ namespace ZenoniaProto
                 p.Inventory.Clear(); // the dev-start bag is full: room for the pieces taken off (capture runs never save)
                 for (int i = 0; i < wearSlots.Length && i < t.Length; i++)
                 {
-                    ActionResult r = p.Equip(ItemFactory.Generate(RpgRandom.Default, Mathf.Max(1, int.Parse(t[i]) * 10), wearSlots[i], "common", p.ClassId));
-                    if (!r.Ok) Debug.LogWarning("[ZenoniaProto] --wear-tiers: " + wearSlots[i] + " " + r.Text);
+                    p.SetEquippedRaw(wearSlots[i], ItemFactory.Generate(RpgRandom.Default, Mathf.Max(1, int.Parse(t[i]) * 10), wearSlots[i], "common", p.ClassId)); // skips EquipLevel, like --worn-tier
                 }
                 p.RecomputeStats();
                 RpgSession.SyncGear();
@@ -195,22 +192,11 @@ namespace ZenoniaProto
                 p.RecomputeStats();
                 RpgSession.SyncGear();
             }
-            if (petArg != null)
-            {
-                PetDef def = PetConfig.Get(petArg);
-                if (def != null) { p.Equip(ItemFactory.CreatePet(def, RpgRandom.Default)); p.Hp = p.MaxHp; RpgSession.SyncGear(); }
-            }
-            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--give-pets") >= 0) foreach (PetDef def in PetConfig.All) p.AddToInventory(ItemFactory.CreatePet(def, RpgRandom.Default));
+            DebugPets(p, petArg); // --pet <id>, --give-pets, --pet-stars N, --pet-tickets N (account pets, DebugCapture.Pets.cs)
             string fillBag = Arg(Environment.GetCommandLineArgs(), "--fill-bag"); // capture runs never save, so the extra gear is gone on the next start
             if (fillBag != null)
                 for (int i = 0, n = int.Parse(fillBag); p.Inventory.Count < n; i++)
                     if (!p.AddToInventory(ItemFactory.Generate(RpgRandom.Default, 1 + i * 3 % 90, Slots.Generated[i % Slots.Generated.Length], ItemDefs.RarityOrder[i % ItemDefs.RarityOrder.Length], p.ClassId))) break;
-            string petDurability = Arg(Environment.GetCommandLineArgs(), "--pet-durability");
-            if (petDurability != null)
-            {
-                if (p.GetEquipped(Slots.Pet) != null) p.GetEquipped(Slots.Pet).durability = int.Parse(petDurability);
-                foreach (Item it in p.Inventory) if (it.slot == Slots.Pet) it.durability = int.Parse(petDurability);
-            }
             if (dropLoot)
             {
                 Rand rand = RpgRandom.Default;
@@ -245,6 +231,7 @@ namespace ZenoniaProto
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-chat") >= 0) ChatWindow.SetExpandedState(true);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--close-chat") >= 0) ChatWindow.SetExpandedState(false);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--chat-focus") >= 0) ChatWindow.FocusFromKey(); // what Enter does: open + caret in the field
+            DebugPetWindows(); // --open-pets / --open-gacha / --gacha-pull (DebugCapture.Pets.cs)
         }
 
         /// <summary>--chat-demo: one line per channel, like the approved chat designs (screenshots of the chat layouts).</summary>

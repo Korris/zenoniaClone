@@ -7,11 +7,11 @@ Source: Assets/ArtLibrary/classes/cleric/vfx/attack-v2/cleric-attack-fx-v2-green
   3 holy orb         -> bolt_N    (hit 4 projectile, played at VfxAnim.FinisherScale)
   4 judgment burst   -> blast_N   (hit 4 burst, centred, sized by VfxAnim.Blast to the r26 blast)
   5 impact           -> impact_N  (pivot = bottom centre: the cleric impact stands on the ground, ComboProjectile.PaintedHitFx)
-Output: Assets/Resources/Sprites/classes/cleric/fx/attack-v2/<row>_N.png (+ .meta cloned from fx/attack) and
+Output: Assets/Resources/Sprites/classes/cleric/fx/attack-v2/<row>_N.png (+ .meta: the frame's own, else the set's cast_0) and
 Assets/Resources/Data/classes/cleric/vfx-attack-v2.json. One output px = VfxSprites.UnitsPerPx (0.058) units. Timing is the code's
 (VfxAnim fps, ComboConfigs.ClericHits windup / active), nothing here.
   python Tools/build-cleric-attack-fx.py cut       write frames, json, metas
-  python Tools/build-cleric-attack-fx.py preview   OUT.png: every row at game size on dark and snow-light, beside the hero and the old set
+  python Tools/build-cleric-attack-fx.py preview   OUT.png: every row at game size on dark and snow-light, beside the hero
 """
 import importlib.util
 import json
@@ -31,7 +31,6 @@ spec.loader.exec_module(mfx)  # key_magenta, head_pivot, draw_fx
 
 SRC = "Assets/ArtLibrary/classes/cleric/vfx/attack-v2/cleric-attack-fx-v2-green-chatgpt-1.png"  # gold first version: *-gold-rejected-* (class colour fixed 08/11: Cleric green + white)
 OUT = "Assets/Resources/Sprites/classes/cleric/fx/attack-v2"
-OLD = "Assets/Resources/Sprites/classes/cleric/fx/attack"
 DATA = "Assets/Resources/Data/classes/cleric"
 SHEET_ROWS = ["cast", "proj", "lance", "bolt", "blast", "impact"]
 # source px -> output px; game lengths (units): flash ~9 (1.5x = 16 covered her face and chest for 0.15 s in game), arrow ~20, lance ~24, orb ~15 (x1.35 in code), impact ~20, blast scaled by code
@@ -93,27 +92,24 @@ def cut():
     for (row, n), (img, (px, py)) in sorted(build().items()):
         name = "%s_%d" % (row, n)
         img.save(os.path.join(OUT, name + ".png"))
-        clone_meta(os.path.join(OLD, "cast_0.png.meta"), os.path.join(OUT, name + ".png.meta"))
+        own = os.path.join(OUT, name + ".png.meta")  # the old fx/attack set (first template) was removed 16/11
+        clone_meta(own if os.path.exists(own) else os.path.join(OUT, "cast_0.png.meta"), own)
         meta["frames"].append({"name": name, "w": img.width, "h": img.height, "px": round(px, 1), "py": round(img.height - py, 1)})
         print("%-9s %4d x %-4d  %.1f x %.1f units" % (name, img.width, img.height, img.width * UNITS_PER_PX, img.height * UNITS_PER_PX))
     with open(os.path.join(DATA, "vfx-attack-v2.json"), "w", newline="\n") as f:
         json.dump(meta, f, indent=1)
-    clone_meta(os.path.join(DATA, "vfx-attack.json.meta"), os.path.join(DATA, "vfx-attack-v2.json.meta"))
-    clone_meta(OLD + ".meta", OUT + ".meta")
     print("wrote", OUT, "and", os.path.join(DATA, "vfx-attack-v2.json"))
 
 
 def preview(path):
     new = build()
     hero = Image.open("Assets/Resources/Sprites/classes/cleric/body/armed/attack1.png").convert("RGBA").crop((2 * 192, 3 * 192, 3 * 192, 4 * 192))
-    old = json.load(open(os.path.join(DATA, "vfx-attack.json")))
-    oldf = {f["name"]: (Image.open(os.path.join(OLD, f["name"] + ".png")).convert("RGBA"), (f["px"], f["h"] - f["py"])) for f in old["frames"]}
     ppu = mfx.PPU
     slot, rowh = int(26 * ppu), int(34 * ppu)
     W = slot * 9
     panels = []
     for bg in [(38, 44, 58, 255), (226, 234, 242, 255)]:
-        c = Image.new("RGBA", (W, rowh * 7), bg)
+        c = Image.new("RGBA", (W, rowh * 6), bg)
         d = ImageDraw.Draw(c)
         ink = (255, 255, 255, 255) if bg[0] < 128 else (0, 0, 0, 255)
         for r, row in enumerate(SHEET_ROWS):
@@ -124,13 +120,8 @@ def preview(path):
             for n in range(4):
                 img, pv = new[(row, n)]
                 mfx.draw_fx(c, img, pv, (slot * (1.6 + n * (1.9 if row == "blast" else 1.4)), y), sc)
-        y = 6 * rowh + rowh // 2
-        d.text((4, 6 * rowh + 4), "old cleric set: cast_2, proj_0, impact_2", fill=ink)
-        for i, nm in enumerate(["cast_2", "proj_0", "impact_2"]):
-            img, pv = oldf[nm]
-            mfx.draw_fx(c, img, pv, (slot * (1.6 + i * 2), y))
         panels.append(c)
-    out = Image.new("RGBA", (W * 2, rowh * 7))
+    out = Image.new("RGBA", (W * 2, rowh * 6))
     for i, p in enumerate(panels):
         out.paste(p, (i * W, 0))
     out.convert("RGB").save(path)

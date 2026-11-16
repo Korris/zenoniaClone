@@ -19,6 +19,7 @@ namespace ZenoniaProto
         {
             if (e.Kind == DamageNumberKind.Exp) { e.AgeMs = -ExpDelayMs; e.OffX = 30f; e.OffY = -6f; }
             else if (e.Kind == DamageNumberKind.Heal || e.Kind == DamageNumberKind.PotionHp || e.Kind == DamageNumberKind.PotionMp) e.OffY = 12f;
+            else if (e.Kind == DamageNumberKind.Pet) { e.OffX = 22f; e.OffY = -4f; } // beside the owner's column, so the two never read as one number
             Camera c = instance != null ? instance.cam : null;
             if (c == null) c = Camera.main;
             if (c == null) return true;

@@ -197,7 +197,7 @@ def write_manifest():
     with open(GRIPS, "w", encoding="utf-8") as fp:
         json.dump(grips, fp, indent=1)
     data = json.load(open(bd.GEAR_DUAL, encoding="utf-8"))
-    data["weapon"] = bd.weapon_manifest(json.load(open(bd.GEAR, encoding="utf-8")), master)
+    data["weapon"] = bd.weapon_manifest(data, master)  # names + glows from the live dual manifest (held-mechanic.json removed 16/11)
     with open(bd.GEAR_DUAL, "w", encoding="utf-8") as fp:
         json.dump(data, fp, separators=(",", ":"))
 

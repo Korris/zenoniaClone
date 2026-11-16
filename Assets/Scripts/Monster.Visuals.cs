@@ -19,7 +19,7 @@ namespace ZenoniaProto
             string sheet = def.Sheet;
             bool hasFallback = def.FallbackSheet != null;
             int walkCell = def.WalkCellPx, attackCell = def.AttackCellPx; // own art: the def's cell sizes (event bosses: 384 / 512 cells at doubled pixels per unit, so a cell covers the same world size)
-            if (hasFallback && !WalkSheetUsable(def.Sheet, walkCell)) { sheet = def.FallbackSheet; artTint = def.FallbackTint; walkCell = WalkCell; attackCell = AttackCell; }
+            if (hasFallback && !SheetUsable(def.Sheet, walkCell)) { sheet = def.FallbackSheet; artTint = def.FallbackTint; walkCell = WalkCell; attackCell = AttackCell; }
             walk = SpriteSheet.Grid(SheetFolder + sheet, walkCell, walkCell, GameConfig.FramePpu * walkCell / WalkCell, new Vector2(0.5f, 0f));
             if (hasFallback && Resources.Load<Texture2D>(SheetFolder + sheet + "-attack") == null) return;
             // Attack cells keep the feet 1/8 of the cell above the bottom (256 cell: 224 px down, 512 cell: 448 px down) => pivot 0.125.
@@ -27,7 +27,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>True when the sheet exists and slices into all the facing rows (a smaller sheet leaves whole facings invisible).</summary>
-        static bool WalkSheetUsable(string sheet, int cell)
+        public static bool SheetUsable(string sheet, int cell)
         {
             Texture2D tex = Resources.Load<Texture2D>(SheetFolder + sheet);
             if (tex == null) return false;
@@ -119,12 +119,14 @@ namespace ZenoniaProto
         public static float LastHitByMeAt;
 
         /// <summary>Hit presentation shared by the real hit (authority) and the replayed MonsterHit event (client): white flash, damage number, sparks.</summary>
-        void HitFx(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx, bool otherPlayer = false)
+        /// <summary>petKind: 0 = the hero's own hit, 1 = a pet's basic attack (teal #66D5D0, small), 2 = a pet's skill (pale gold #FFD77A); pet hits never shake, stop or mark the target (ChatGPT Lần 8).</summary>
+        void HitFx(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx, bool otherPlayer = false, int petKind = 0)
         {
             bool fx = FeelConfig.FxOn;
             flash = fx ? FeelConfig.FlashMs : HitFlashMs;
             float bodyH = def.BodyHeightUnits * def.RenderScale;
             Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
+            if (petKind != 0) { if (!otherPlayer || PetViewPrefs.ShowOthers) DamageNumber.Spawn(x, y + bodyH + 2f, dmg.ToString(), petKind == 2 ? new Color(1f, 0.84f, 0.48f) : new Color(0.4f, 0.84f, 0.82f), false, false, otherPlayer); return; } // a pet's number (DamageNumberKind.Pet): its own colour, beside the owner's, no sparks
             if (otherPlayer) DamageNumber.Spawn(x, y + bodyH + 4f, dmg.ToString(), Color.white, false, false, true); // another player's hit: small, white, half alpha
             else
             {

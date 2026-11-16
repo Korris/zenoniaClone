@@ -16,6 +16,7 @@ namespace ZenoniaProto
 
         public static void Resolve(Zone zone, Monster m)
         {
+            if (m.WasCaptured) return; // a caught pet pays nothing
             MonsterLootDef def = LootTable.For(m.Type);
             if (def == null) return;
             Collect(zone, m);
@@ -39,6 +40,10 @@ namespace ZenoniaProto
 
             for (int i = 0; i < Winners.Count; i++) Winners[i].Owner.QuestKill(m.Type); // every hero that hit it, each on its own quests
             if (m.IsBoss && !m.IsWanted) for (int i = 0; i < Winners.Count; i++) Winners[i].Owner.RaiseBossKilled(); // map boss flags: the event boss opens no gate
+            if (m.IsBoss && !m.IsWanted) // pet rewards: food, the 5th valid map boss of the week pays Pet Crystals, 10 % a Pet Ball (>= 1 % of its max HP by the hero itself; pet hits are not in DamageBy)
+                for (int i = 0; i < Winners.Count; i++) if (AccountRewards.IsValidBossShare(Damage[i], m.MaxHp)) Winners[i].Owner.AccountMapBossKilled(RpgRandom.Default() < PetRules.BossBallChance);
+            if (!m.IsBoss) for (int i = 0; i < Winners.Count; i++) if (RpgRandom.Default() < PetRules.MonsterFoodChance) Winners[i].Owner.AccountFoodDrop(); // Pet Food, 8 % per contributor
+            if (m.IsBoss) PetCaptureService.OpenCorpse(zone, m, Winners, Damage); // 30 / 45 s to throw a ball at it
             if (m.IsWanted) WantedBossCredit.Pay(zone, m, Winners); // daily Wanted Boss: no-op unless this is today's boss, online
         }
 

@@ -25,7 +25,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>The current target, or null.</summary>
-        static Monster Target()
+        public static Monster Target()
         {
             if (NetMode.IsOffline) return null;
             Monster m = Monster.LastHitByMe;

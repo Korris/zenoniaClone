@@ -1,5 +1,5 @@
-"""Frame tables of the Wizard combo v2 (Tools/build-wizard-combo-v2-attacks.py): board 10/11/2026
-Assets/ArtLibrary/classes/wizard/attack-board/northwind-combo-v2/wizard-combo-v2-board-chatgpt-1.png.
+"""Frame tables of the Wizard combo v2 (used by Tools/build-wizard-outfit-d-combo-attacks.py; the Northwind combo-v2 tool and its board were removed 16/11): board 10/11/2026
+(was Assets/ArtLibrary/classes/wizard/attack-board/northwind-combo-v2/wizard-combo-v2-board-chatgpt-1.png, in git 4c527c36).
 
 1 Crystal Thrust (staff jab down at the viewer), 2 Frost Sweep (two-handed horizontal swing), 3 Glacier Slam (two-handed overhead smash
 into the ground), 4 Blizzard Nova (staff planted, arms thrown wide). The book is hidden in the two-handed hits.

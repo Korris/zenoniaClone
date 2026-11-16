@@ -15,10 +15,10 @@ namespace ZenoniaProto
     }
 
     /// <summary>
-    /// Loader for the hand-painted ranged FX frames (Resources/Sprites/classes/CLASS/fx/attack[-COLOUR]/ROW_N.png + Resources/Data/vfx-SET.json with per-frame pivots).
-    /// Sets: cleric, wizard-v2 (wizard = older orb art, unused), mechanic-v3 (same rows as v2, all yellow: class colour, Tools/build-mechanic-attack-fx-v3.py), mechanic-v2 (approved board 2026-11-08: muzzle flash, warm bullet, blue big bolt, cannon blast,
-    /// impact; Tools/build-mechanic-attack-fx-v2.py), mechanic-orange / mechanic-blue (older, only when v2 is missing). For() returns null when art is missing,
-    /// callers then fall back to the procedural FX.
+    /// Loader for the hand-painted ranged FX frames (Resources/Sprites/classes/CLASS/fx/attack-vN/ROW_N.png + Resources/Data/classes/CLASS/vfx-attack-vN.json with per-frame pivots).
+    /// One set per class: cleric-v2 (Tools/build-cleric-attack-fx.py), wizard-v4 (Tools/build-wizard-attack-fx-v4.py), mechanic-v3 (yellow, the class colour,
+    /// Tools/build-mechanic-attack-fx-v3.py). The older sets (cleric, wizard, wizard-v2/v3, mechanic-v2/orange/blue) were removed 16/11. For() returns null
+    /// when art is missing, callers then fall back to the procedural FX.
     /// </summary>
     public static class VfxSprites
     {
@@ -34,12 +34,9 @@ namespace ZenoniaProto
         {
             switch (style)
             {
-                case BoltStyle.HolyArrow: return Get("cleric-v2") != null ? "cleric-v2" : "cleric"; // v2 = board 2026-11-08 (Tools/build-cleric-attack-fx.py): flash, light arrow, holy orb, judgment burst, impact, halo lance
-                // v3 = approved board 2026-11-08 (Tools/build-wizard-attack-fx-v3.py: star flash, arcane dart, frost shard, orb, orb burst, ice impact);
-                // v2 = spinning rune disc (Tools/build-wizard-attack-fx.py), only when v3 is missing; "wizard" = the older orb + comet set
-                case BoltStyle.Arcane: return Get("wizard-v4") != null ? "wizard-v4" : Get("wizard-v3") != null ? "wizard-v3" : "wizard-v2"; // v4 = combo board 2026-11-10 (ice bolt, frost crescent, glacier spikes, ice orb, blizzard nova; Tools/build-wizard-attack-fx-v4.py)
-                // v3 = class colour yellow (electric / brass, Tools/build-mechanic-attack-fx-v3.py, 2026-11-08); v2 (blue hit-3 bolt) only when v3 is missing
-                case BoltStyle.Plasma: return Get("mechanic-v3") != null ? "mechanic-v3" : Get("mechanic-v2") != null ? "mechanic-v2" : ClassPalette.MechanicBlue ? "mechanic-blue" : "mechanic-orange";
+                case BoltStyle.HolyArrow: return "cleric-v2"; // board 2026-11-08 (Tools/build-cleric-attack-fx.py): flash, light arrow, holy orb, judgment burst, impact, halo lance
+                case BoltStyle.Arcane: return "wizard-v4";    // combo board 2026-11-10 (ice bolt, frost crescent, glacier spikes, ice orb, blizzard nova; Tools/build-wizard-attack-fx-v4.py)
+                case BoltStyle.Plasma: return "mechanic-v3";  // class colour yellow (electric / brass, Tools/build-mechanic-attack-fx-v3.py, 2026-11-08)
                 default: return null;
             }
         }
@@ -59,12 +56,12 @@ namespace ZenoniaProto
         /// <summary>Loads the class's art ahead of its first cast (mechanic: both colours) so the first shot does not hitch.</summary>
         public static void Preload(HeroClass id)
         {
-            if (id == HeroClass.Cleric) { if (Get("cleric-v2") == null) Get("cleric"); }
-            else if (id == HeroClass.Wizard) { if (Get("wizard-v4") == null) Get("wizard-v3"); }
-            else if (id == HeroClass.Mechanic) { if (Get("mechanic-v3") == null) Get("mechanic-v2"); MechanicCannonBlastFx.Preload(); }
+            if (id == HeroClass.Cleric) Get("cleric-v2");
+            else if (id == HeroClass.Wizard) Get("wizard-v4");
+            else if (id == HeroClass.Mechanic) { Get("mechanic-v3"); MechanicCannonBlastFx.Preload(); }
         }
 
-        /// <summary>"mechanic-blue" -> class "mechanic", set "attack-blue"; "wizard-v2" -> "wizard", "attack-v2"; "wizard" -> "wizard", "attack".</summary>
+        /// <summary>"mechanic-v3" -> class "mechanic", set "attack-v3"; "wizard" -> "wizard", "attack".</summary>
         static void Split(string id, out string cls, out string set) { int d = id.IndexOf('-'); cls = d < 0 ? id : id.Substring(0, d); set = d < 0 ? "attack" : "attack" + id.Substring(d); }
 
         static VfxSet Load(string id)

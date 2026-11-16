@@ -3,7 +3,7 @@ Writes row 0 of each class's body/armed/idle.png, and marks idle/down `fallback`
 The Warrior is repainted alone with a long sword (warrior-long-sword-src.png). The sword passes the 192 px cell, so its frames go to body/armed/idle-down-big.png (288 x 240 cells, HeroClassDef.BigIdleDown), drawn only when the hero has no gear data. Its armed row and idle/down anchors are NOT written here: Tools/build-warrior-idle-down-doll.py owns them, so running this cannot undo the paper doll.
 The Mechanic is repainted alone with one gun, an empty hand and the turret beside him (mechanic-turret-src.png; the turret is cut away for the sprite).
 The Cleric is repainted alone without wings, with her shield and no spirit (cleric-no-wings-src.png, the same picture as hero-select/cleric.png): wings and pets are items for every class. The shield is painted into this row, so here it does not follow the equipment.
-The robot and spirit in the painting are erased: HeroCompanion draws its own. The painted ground shadow too: HeroRenderer draws its own. Boxing has no class yet: it only goes to idle-down-set/boxing.png.
+The robot and spirit in the painting are erased (the game has no companion; pets are HeroPet). The painted ground shadow too: HeroRenderer draws its own. Boxing has no class yet: it only goes to idle-down-set/boxing.png.
 Old rows are kept in idle-down-set/old-<class>-armed-idle.png. Needs Pillow, numpy and scipy; run from the project root.
 """
 import importlib.util
@@ -29,7 +29,7 @@ BREATH = (0, 1, 2, 1)  # rows the figure is shorter by, per frame, soles planted
 HEROES = {
     "warrior": dict(x=(30, 370), feet=204, sole=186, gear="held-gear", alone="warrior-long-sword-src.png", alone_scale=0.1745, alone_sole=1033, alone_feet=680),
     "wizard": dict(x=(378, 720), feet=580, sole=191, gear="held-wizard"),
-    "mechanic": dict(x=(730, 1085), feet=908, sole=188, gear="held-mechanic", solo="mechanic-turret-src.png", solo_scale=0.1703, solo_sole=1087, solo_feet=622, largest=True),
+    "mechanic": dict(x=(730, 1085), feet=908, sole=188, gear="held-mechanic-dual", solo="mechanic-turret-src.png", solo_scale=0.1703, solo_sole=1087, solo_feet=622, largest=True),
     "assassin": dict(x=(1092, 1420), feet=1281, sole=191, gear="held-assassin"),
     "cleric": dict(x=(1420, 1800), feet=1615, sole=191, gear="held-cleric", solo="cleric-no-wings-src.png", solo_scale=0.162, solo_sole=1137, solo_feet=685),
     "boxing": dict(x=(1815, 2135), feet=1982, sole=191),
@@ -42,7 +42,7 @@ spec.loader.exec_module(hs)
 
 def solo_art(cfg, with_companion=False):
     rgba = hs.key_out(SET / (cfg.get("reference", cfg["solo"]) if with_companion else cfg["solo"]), hs.GREEN)
-    if cfg.get("largest") and not with_companion:  # in the game the robot beside him is drawn by HeroCompanion
+    if cfg.get("largest") and not with_companion:  # the robot beside him was a separate companion in the game (removed 16/11): never baked into the body
         labels, count = ndimage.label(rgba[..., 3] > 128)  # solid pixels only: the faint key halo joins everything
         keep = 1 + int(np.argmax(ndimage.sum(np.ones(labels.shape), labels, range(1, count + 1))))
         rgba[~ndimage.binary_dilation(labels == keep, iterations=3)] = 0

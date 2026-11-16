@@ -100,11 +100,6 @@ namespace ZenoniaProto
             }
             small.normal.textColor = new Color(1f, 0.9f, 0.55f, 0.95f);
             GUI.Label(new Rect(x, ly + 54f * s, 600f * s, 18f * s), toggleText, small);
-            if (hero.Class.Id == HeroClass.Mechanic)
-            {
-                small.normal.textColor = ClassPalette.MechanicBlue ? new Color(0.5f, 0.8f, 1f) : new Color(1f, 0.75f, 0.35f);
-                GUI.Label(new Rect(x, ly + 72f * s, 600f * s, 18f * s), "[C] Mechanic FX: " + (ClassPalette.MechanicBlue ? "BLUE" : "YELLOW"), small);
-            }
             DrawBossBar(s);
             GUI.color = Color.white;
         }

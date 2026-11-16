@@ -186,8 +186,8 @@ def install(tiers):
             break
         done.append('{"name":"%s","glow":"%s","baseGrip":%s,"enhancedGrip":%s}' % (t, glow[t], g, g))
     block = '"shield":[' + ",".join(done) + "],"
-    raw = re.sub(r'"shield":\[.*?\],(?="companion")', "", raw)
-    raw = raw.replace('"companion":[', block + '"companion":[', 1)
+    raw = re.sub(r'"shield":\[.*?\],(?="anchors")', "", raw)  # the shield list sits right before the anchors (companion list removed 16/11)
+    raw = raw.replace('"anchors":[', block + '"anchors":[', 1)
     json.loads(raw)
     open(GEAR, "wb").write(raw.encode("utf-8"))
     print("installed", tiers, "shield list", len(done), "grip", grip)

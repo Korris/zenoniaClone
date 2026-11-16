@@ -1,5 +1,5 @@
 """Wizard idle (all 4 facings) in the new outfit "D" (14/11/2026), bald so the layered head (heads/face + heads/hair) and
-Tools/build-wizard-hair-on-bald-body.py go on top. Copy of Tools/build-wizard-northwind-idle-dirs.py with only the source image
+Tools/build-wizard-hair-on-bald-body.py go on top. Copy of Tools/build-wizard-northwind-idle-dirs.py (Northwind tool, removed 16/11, git 4c527c36) with only the source image
 and work folder changed (plans/261114-0821-wizard-outfit-d-redesign/plan.md step 2): that tool is left untouched so the Northwind
 T0 idle can still be rebuilt from its own tool/source if ever needed.
 

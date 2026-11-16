@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { applyOps } from '../src/rpg/inventory-ops.js';
 import { newCharacterState } from '../src/rpg/item-validation.js';
-import { EQUIP_LEVEL_BY_TIER, requiredEquipLevel } from '../src/rpg/rpg-constants.js';
+import { EQUIP_LEVEL_BY_TIER, MAX_LEVEL, requiredEquipLevel } from '../src/rpg/rpg-constants.js';
 
 // Mirrors Assets/Scripts/Rpg/EquipLevel.cs (tests in Tests/dotnet/ZenoniaSkills.Tests/EquipLevelTests.cs).
 const stats = { atk: 10, def: 0, maxHp: 0, maxMp: 0, critChance: 0, speedMult: 0 };
@@ -12,22 +12,26 @@ const at = (uid, itemLevel, extra = {}) => ({ ...weapon(uid), itemLevel, ...extr
 
 describe('equip level by art tier', () => {
   it('has 10 tiers ending at the max level', () => {
-    expect(EQUIP_LEVEL_BY_TIER).toEqual([1, 5, 10, 15, 20, 30, 35, 40, 50, 60]);
+    expect(EQUIP_LEVEL_BY_TIER).toEqual([1, 10, 20, 30, 40, 50, 60, 70, 80, 90]);
+    expect(EQUIP_LEVEL_BY_TIER[9]).toBe(MAX_LEVEL);
   });
-  it('tier = itemLevel / 10, enhancement ignored, armor free', () => {
+  it('tier = itemLevel / 10, enhancement ignored, armor gated too, pets free', () => {
     expect(requiredEquipLevel(at('a', 1))).toBe(1);
-    expect(requiredEquipLevel(at('a', 59))).toBe(30);
-    expect(requiredEquipLevel(at('a', 95, { enhance: 9 }))).toBe(60);
-    expect(requiredEquipLevel({ ...armor('x'), itemLevel: 90 })).toBe(1);
+    expect(requiredEquipLevel(at('a', 10))).toBe(10);
+    expect(requiredEquipLevel(at('a', 59))).toBe(50);
+    expect(requiredEquipLevel(at('a', 95, { enhance: 9 }))).toBe(90);
+    expect(requiredEquipLevel({ ...armor('x'), itemLevel: 34 })).toBe(30);
+    expect(requiredEquipLevel({ uid: 'p', slot: 'pet', itemLevel: 90 })).toBe(1);
   });
 });
 
 describe('equip op', () => {
   it('rejects below the level, nothing applied', () => {
-    expect(() => applyOps(stateAt(29, [at('w', 50)]), [{ type: 'equip', uid: 'w' }])).toThrow(/Requires level 30/);
+    expect(() => applyOps(stateAt(29, [at('w', 35)]), [{ type: 'equip', uid: 'w' }])).toThrow(/Requires level 30/);
+    expect(() => applyOps(stateAt(29, [{ ...armor('h'), itemLevel: 30 }]), [{ type: 'equip', uid: 'h' }])).toThrow(/Requires level 30/);
   });
   it('accepts at the level', () => {
-    const next = applyOps(stateAt(30, [at('w', 50)]), [{ type: 'equip', uid: 'w' }]);
+    const next = applyOps(stateAt(30, [at('w', 35)]), [{ type: 'equip', uid: 'w' }]);
     expect(next.equipment.map((e) => e.uid)).toEqual(['w']);
   });
   it('already-worn gear above the level stays; unequip works', () => {

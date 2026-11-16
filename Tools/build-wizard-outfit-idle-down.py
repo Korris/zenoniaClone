@@ -5,7 +5,8 @@ to sole), soles on the same row, hair centred on the same column; breathed into 
 squash about the soles, as Tools/build-idle-down-doll-from-redraw.py). The fist layer is the new pixels inside the Lv1 fist mask.
 T0 is the Lv1 body itself (no outfit folder).
 
-Sources: Assets/ArtLibrary/classes/wizard/outfits/set-tN/src/idle-down.png; inputs sent to ChatGPT in .../set-tN/ref/.
+Sources were Assets/ArtLibrary/classes/wizard/outfits/set-tN/ (removed 16/11: the Wizard wears outfit D, Tools/build-wizard-outfit-d-tiers.py).
+The file stays because Tools/build-cleric-outfit-idle-down.py imports its functions; do not run it for the Wizard.
 Writes Assets/Resources/Sprites/classes/wizard/body/set-tN/{bare,hand}/idle.png (row 0 new, rows 1-3 = Lv1) + .meta (new guid),
 then run `python Tools/build-head-layer.py wizard outfit-headless set-tN` for the hairstyle layer.
 

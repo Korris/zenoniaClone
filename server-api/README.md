@@ -32,7 +32,7 @@ Behind a reverse proxy set `TRUST_PROXY=true`, otherwise IP rate limits see the 
 
 - Errors: `{ "error": { "code": "snake_case", "message": "...", "details"?: [...] } }`. 400 validation_error (details = per-field), 401 unauthenticated, 403 bad service key, 404 not_found (also "not yours"), 409 conflict, 422 rule violation, 429 rate_limited (+ `Retry-After`).
 - Public routes: `Authorization: Bearer <accessToken>`. Internal routes: `x-service-key: <SERVICE_KEY>` (zone servers only; keep the API's internal routes off the public internet / behind the firewall).
-- Character `state` is exactly Unity `SaveData` (`Assets/Scripts/Rpg/SaveSerializer.cs`) with `Item` / `ItemStats` field names, so `JsonUtility` reads it as-is. `rev` (optimistic version, starts 0, +1 per write) is separate from `state.version` (save format, 2 since pets carry durability; older stored states are 1).
+- Character `state` is exactly Unity `SaveData` (`Assets/Scripts/Rpg/SaveSerializer.cs`) with `Item` / `ItemStats` field names, so `JsonUtility` reads it as-is. `rev` (optimistic version, starts 0, +1 per write) is separate from `state.version` (save format: 2 pets carry durability, 4 gacha pets moved to the account (`petId`), 5 adds `petTeam` (up to 5 account pet ids); older stored states are 1).
 
 ## Public endpoints
 
@@ -55,11 +55,13 @@ Behind a reverse proxy set `TRUST_PROXY=true`, otherwise IP rate limits see the 
 
 | Endpoint | Purpose |
 |---|---|
-| `POST /internal/tickets/redeem {ticket}` | Single-use. Takes the one-session lock. -> `{sessionId, character:{id,name,classId,rev,state,...}}`. 401 `invalid_ticket`, 409 `already_online` |
+| `POST /internal/tickets/redeem {ticket}` | Single-use. Takes the one-session lock. -> `{sessionId, character:{id,name,classId,rev,state,...}, account:{rev,state}}` (account created with defaults on first login). 401 `invalid_ticket`, 409 `already_online` |
 | `POST /internal/characters/:id/save {sessionId, rev, state}` | Full snapshot. -> `{rev, savedAt}`. Needs the lock + current rev, refreshes the heartbeat. 409 `session_mismatch` / `rev_conflict`(details.currentRev), 422 `enhance_tamper` / `class_mismatch` |
 | `POST /internal/characters/:id/ops {sessionId, rev, reqId, ops[]}` | Atomic, idempotent batch: `addItem`, `removeItem`, `equip`, `unequip`, `adjust {gold,hpPotion,mpPotion,upgradeStone deltas}`. -> `{ok, rev, state, replayed}`; 422 `inventory_full`, `wrong_class`, `insufficient_funds`, ... |
 | `POST /internal/characters/:id/enhance {sessionId, rev, reqId, itemUid}` | One attempt rolled by the API. -> `{ok, success, level, reason, upgradeStone, rev, state, replayed}`. `ok:false` = refused (`not-owned`, `not-weapon`, `max-level`, `no-cost`), nothing changes |
 | `POST /internal/trades/commit {tradeId, a, b}` | One trade, both characters in one transaction. Each side: `{characterId, sessionId, rev, state, giveUids, giveGold}`, `state` = what the zone holds now. The goods move here. -> `{replayed, a:{rev}, b:{rev}}`. Retrying a `tradeId` never applies twice. 409 `rev_conflict` / `session_mismatch`, 422 `trade_item_missing`, `insufficient_funds`, `trade_invalid`, `trade_starter`, `trade_empty`, `enhance_tamper`, ... : nothing changed on either side |
+| `POST /internal/characters/:id/account/get {sessionId}` | Account snapshot (V2: owned pets with level/stars/shards, Pet Crystals, UR/shared shards, Pet Food, capture balls, pity, daily/weekly rewards) of the character's owner. -> `{rev, state}`. A stored version 0/1 doc is migrated on read (`weekWantedTickets` -> `weekWantedClaims`, pity counters clamped to the new caps) |
+| `POST /internal/characters/:id/account/write {sessionId, rev, reqId, state}` | Whole-account snapshot write (always validated as V2). -> `{rev, replayed}`. 409 `rev_conflict`(details.currentRev), 422 `account_tamper` (a pet/compensated entry would disappear, a pet's stars or level would drop, `starterGiven`/`levelReward`/`totalPulls` would go backwards; `wantedForRareBall`/daily/weekly counters are exempt, they reset by design) |
 | `POST /internal/sessions/:sessionId/end {characterId}` | Release the lock after the final save. Idempotent -> `{released}` |
 | `POST /internal/zones/:zoneId/reset-sessions` | A zone process just started: frees the locks of its earlier run, so a crash does not hold its players for 90 s. Must be this API's `ZONE_ID` (404 otherwise) -> `{released}` |
 | `GET /internal/zones` | Registry stub |

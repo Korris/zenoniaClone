@@ -58,10 +58,10 @@ namespace ZenoniaProto
             Add(new NetEvent { Type = NetEventType.BoltEnd, Id = id, X = NetQuantize.Pos(at.x), Y = NetQuantize.Pos(at.y), Flags = (byte)((exploded ? 1 : 0) | (expired ? 2 : 0)) }, at);
         }
 
-        public static void MonsterHit(Monster m, HeroController src, int dmg, Vector2 knock, bool crit, bool finisher, bool quiet)
+        public static void MonsterHit(Monster m, HeroController src, int dmg, Vector2 knock, bool crit, bool finisher, bool quiet, int petKind = 0)
         {
             if (!Active) return;
-            byte flags = (byte)((crit ? HitFlags.Crit : 0) | (finisher ? HitFlags.Finisher : 0) | (quiet ? HitFlags.Quiet : 0));
+            byte flags = (byte)((crit ? HitFlags.Crit : 0) | (finisher ? HitFlags.Finisher : 0) | (quiet ? HitFlags.Quiet : 0) | (petKind == 1 ? HitFlags.Pet : 0) | (petKind == 2 ? HitFlags.PetSkill : 0));
             Add(new NetEvent
             {
                 Type = NetEventType.MonsterHit, Id = m.NetId, Other = src != null ? src.NetId : (ushort)0, Dmg = Clamp16(dmg),
@@ -92,6 +92,20 @@ namespace ZenoniaProto
         {
             if (!Active) return;
             Add(new NetEvent { Type = NetEventType.TurretShot, Id = t.NetId, Other = foe.NetId, X = NetQuantize.Pos(aim.x), Y = NetQuantize.Pos(aim.y) }, t.Feet);
+        }
+
+        /// <summary>A Pet Companion skill went off (HeroController.Pet.cs): viewers draw it (PetSkillFx); the damage / shield / heal reach them as usual (MonsterHit, SelfState).</summary>
+        public static void PetSkill(HeroController owner, Monster target, Rpg.PetSkillKind kind, bool basic = false, bool support = false)
+        {
+            if (!Active) return;
+            Add(new NetEvent { Type = NetEventType.PetSkill, Id = owner.NetId, Other = target != null ? target.NetId : (ushort)0, Step = (byte)((byte)kind | (basic ? 0x80 : 0) | (support ? 0x40 : 0)) }, owner.Position); // bit 7 = the 2 s basic attack, bit 6 = a support pet's skill
+        }
+
+        /// <summary>A fallen boss may be caught for `ms` (PetCaptureService): zone-wide, so whoever had a share sees the ball prompt.</summary>
+        public static void PetCapturable(Monster m, bool wanted, uint ms)
+        {
+            if (!Active) return;
+            Add(new NetEvent { Type = NetEventType.PetCapturable, Id = m.NetId, X = NetQuantize.Pos(m.Feet.x), Y = NetQuantize.Pos(m.Feet.y), Step = (byte)(wanted ? 1 : 0), Value = ms }, m.Feet, 0, true);
         }
 
         public static void HeroDied(HeroController h)
@@ -180,8 +194,8 @@ namespace ZenoniaProto
                 WeaponTier = w != null ? (byte)ItemInfo.ArtTier(w) : (byte)255,
                 OffTier = o != null ? (byte)ItemInfo.ArtTier(o) : (byte)255,
                 EnhanceBand = (byte)(Mathf.Clamp(w != null ? w.enhance : 0, 0, 15) | (Mathf.Clamp(o != null ? o.enhance : 0, 0, 15) << 4)),
-                Flags = (byte)(h.Class.Id == HeroClass.Mechanic && ClassPalette.MechanicBlue ? 1 : 0),
-                PetId = PetConfig.WireId(p.GetEquipped(Slots.Pet)),
+                Flags = 0, // reserved: was the Mechanic blue-FX bit (key C, removed 16/11); kept so the wire layout of protocol 20 stays
+                PetId = PetConfig.WireId(p.PetId),
                 ArmorTier = WireTier(p.GetEquipped(Slots.Armor)),
                 GlovesTier = WireTier(p.GetEquipped(Slots.Gloves)),
                 BootsTier = WireTier(p.GetEquipped(Slots.Boots)),

@@ -1,4 +1,4 @@
-"""Helpers for Tools/build-wizard-attack-fx.py: green-screen keying of the ChatGPT sheet, cell split by cell index,
+"""Helpers for the attack-fx tools (wizard v3/v4, mechanic, cleric; first written for the removed wizard v2 tool): green-screen keying of the ChatGPT sheet, cell split by cell index,
 solid-disc fill of enclosed background, the spinning rune-disc core, Lanczos resize and Unity .meta cloning."""
 import os, re, uuid
 import numpy as np

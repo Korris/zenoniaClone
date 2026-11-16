@@ -44,7 +44,7 @@ namespace ZenoniaProto
             if (view == null) return;
             view.SetEquipmentGear(rpg.GetEquipped(Slots.Weapon), rpg.GetEquipped(Slots.Offhand));
             ArmorLooks.FromWorn(view, rpg);
-            view.SetPet(PetConfig.IdOf(rpg.GetEquipped(Slots.Pet)));
+            view.SetPet(rpg.PetId);
             RefreshGearLabel();
         }
 
@@ -119,8 +119,6 @@ namespace ZenoniaProto
             rpg.Hp = m.Hp; rpg.Mp = m.Mp;
             if (m.Level != rpg.Level || m.MaxHp != rpg.MaxHp) { rpg.Level = Mathf.Max(1, m.Level); rpg.Exp = (int)m.Exp; rpg.RecomputeStats(); rpg.Hp = m.Hp; rpg.Mp = m.Mp; }
             rpg.Exp = (int)m.Exp;
-            Item pet = rpg.GetEquipped(Slots.Pet);
-            if (pet != null && m.PetDurability > 0 && pet.durability != m.PetDurability) { pet.durability = m.PetDurability; InventoryPanel.RefreshIfOpen(); }
             if (!predicted) ApplySelfCooldowns(m.SkillCds); // the predicted hero gets its cooldowns with the sim state
             HeroBuffs.SetClientView(m.Buffs);
         }

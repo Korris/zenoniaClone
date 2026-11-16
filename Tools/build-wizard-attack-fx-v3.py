@@ -8,11 +8,11 @@ https://chatgpt.com/c/6af01b4d-2274-83ec-b9a8-43cf2efa3cdd, sent with ref-board-
   4 Arcane Orb       -> bolt   (hit 4's orb, round, pivot at its centre)
   5 Orb Burst        -> blast  (hit 4's burst, VfxAnim.Blast sizes it to the blast radius)
   6 Impact           -> impact (hits 1-3; pivot 70 % down: the ice chips spray up from the hit point)
-Output read by VfxSprites ("wizard-v3"): Assets/Resources/Sprites/classes/wizard/fx/attack-v3/<row>_<n>.png (+ .meta cloned from attack-v2)
-and Assets/Resources/Data/classes/wizard/vfx-attack-v3.json (w, h, pivot px from the bottom-left). One output px = VfxSprites.UnitsPerPx (0.058) units.
+Output was Assets/Resources/Sprites/classes/wizard/fx/attack-v3/<row>_<n>.png + Data/classes/wizard/vfx-attack-v3.json; that set (and the
+older attack / attack-v2) was removed 16/11 because v4 is live. Run it through Tools/build-wizard-attack-fx-v4.py, which loads this file with its
+paths swapped to v4; .meta templates now come from the live attack-v4 set (LIKE). One output px = VfxSprites.UnitsPerPx (0.058) units.
 
-  python Tools/build-wizard-attack-fx-v3.py cut       frames, json, metas
-  python Tools/build-wizard-attack-fx-v3.py preview   OUT.png: every frame at game size on snow and on dark, next to the hero
+  python Tools/build-wizard-attack-fx-v4.py cut | preview OUT.png     (this file alone has no live set left to write)
 """
 import json
 import os
@@ -29,7 +29,7 @@ from wizard_attack_fx_common import clone_meta  # noqa: E402
 
 SRC = "Assets/ArtLibrary/classes/wizard/vfx/attack-v3/wizard-attack-fx-v3-chatgpt-1.png"
 OUT = "Assets/Resources/Sprites/classes/wizard/fx/attack-v3"
-LIKE = "Assets/Resources/Sprites/classes/wizard/fx/attack-v2"
+LIKE = "Assets/Resources/Sprites/classes/wizard/fx/attack-v4"  # .meta templates (live set)
 DATA = "Assets/Resources/Data/classes/wizard"
 SHEET_ROWS = ["cast", "proj", "shard", "bolt", "blast", "impact"]
 # source px -> output px (0.058 units per output px): cast ~13, dart ~16, orb ~13 (x1.35 finisher = ~18), impact ~16 units
@@ -164,7 +164,7 @@ def cut():
         print(f"{fn:9s} {img.width:4d} x {img.height:<4d} pivot ({px:.1f}, {py:.1f})  {img.width * UNITS_PER_PX:.1f} units wide")
     with open(f"{DATA}/vfx-attack-v3.json", "w", newline="\n") as f:
         json.dump(meta, f, indent=1)
-    clone_meta(f"{DATA}/vfx-attack-v2.json.meta", f"{DATA}/vfx-attack-v3.json.meta")
+    clone_meta(f"{DATA}/held-wizard.json.meta", f"{DATA}/vfx-attack-v3.json.meta")  # any TextAsset .meta; keeps an existing guid
     clone_meta(LIKE + ".meta", OUT + ".meta")
     print("wrote", OUT, "and", f"{DATA}/vfx-attack-v3.json")
 

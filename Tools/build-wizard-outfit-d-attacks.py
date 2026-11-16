@@ -1,5 +1,5 @@
 """Wizard attack1-4 facing up/left/right in the new outfit "D" (14/11/2026, plan step 4), bald, with the layered head (as idle outfit D).
-Copy of Tools/build-wizard-northwind-attacks.py with only the source folder/files and the idle-tool reference changed to outfit D (that tool is
+Copy of Tools/build-wizard-northwind-attacks.py (Northwind tool, removed 16/11, git 4c527c36) with only the source folder/files and the idle-tool reference changed to outfit D (that tool is
 left untouched so the Northwind body can still be rebuilt from its own source if ever needed); logic (fit, head registration, fist layer,
 armed sheet) is identical -- see its docstring.
 

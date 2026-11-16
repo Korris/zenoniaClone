@@ -10,24 +10,21 @@ namespace ZenoniaProto
     /// <summary>Per-frame grip anchor in the 192px frame (x,y px from top-left; angle deg clockwise; s = frame px per art px). art: this frame draws folder/art.png, pivot at its centre, on every tier (the mechanic's cannon, one art per facing).</summary>
     [Serializable] public class HeldAnchor { public float x; public float y; public float angle; public float s = 1f; public float sx = 1f; public bool behind; public bool hidden; public bool fallback; public string art; public float artY; } // artY: optional artwork offset in frame pixels, y down; lets a lower hand grip further down the same staff
     [Serializable] public class AnchorSet { public string part; public string anim; public string dir; public HeldAnchor[] frames; }
-    [Serializable] public class FloatLoop { public string dir; public GripInfo[] frames; }
     /// <summary>
     /// JSON written by Tools/export-held-gear.mjs. Warrior: sword + shield. Wizard / mechanic: `weapon` (staff / gun);
-    /// assassin: one dagger manifest shared by its `main` / `off` parts; mechanic / cleric also `companion` (robot / spirit tier art)
-    /// + `companionFloat` (tier-1 4-facing float loop).
+    /// assassin: one dagger manifest shared by its `main` / `off` parts. (The old `companion` / `companionFloat` keys of the robot / spirit
+    /// companion, removed 16/11, are ignored if a file still has them.)
     /// </summary>
     [Serializable] public class HeldGearFile
     {
         public OverlayEntry[] sword; public OverlayEntry[] shield; public OverlayEntry[] weapon; public OverlayEntry[] book; // book: the wizard's spellbook (offhand)
-        public OverlayEntry[] companion; public FloatLoop[] companionFloat; public AnchorSet[] anchors;
+        public AnchorSet[] anchors;
     }
 
     /// <summary>Overlay manifests + per-frame anchors of one class, exported from the web game (Resources/Data/*.json).</summary>
     public class HeldGearData
     {
-        public OverlayEntry[] Companion;
         readonly Dictionary<string, OverlayEntry[]> manifests = new Dictionary<string, OverlayEntry[]>();
-        readonly Dictionary<string, GripInfo[]> floats = new Dictionary<string, GripInfo[]>();
         readonly Dictionary<string, HeldAnchor[]> anchors = new Dictionary<string, HeldAnchor[]>();
 
         /// <summary>Loads Resources/Data/&lt;resource&gt;.json for a class; null (logged) when missing or malformed so the baked frames still play.</summary>
@@ -39,7 +36,7 @@ namespace ZenoniaProto
                 if (asset == null) { Debug.LogError("[ZenoniaProto] Resources/Data/" + cls.GearFile + ".json missing"); return null; }
                 HeldGearFile file = JsonUtility.FromJson<HeldGearFile>(asset.text);
                 if (file == null || file.anchors == null) { Debug.LogError("[ZenoniaProto] " + cls.GearFile + ".json malformed"); return null; }
-                var data = new HeldGearData { Companion = file.companion };
+                var data = new HeldGearData();
                 if (cls.Id == HeroClass.Warrior)
                 {
                     if (file.sword == null || file.shield == null) { Debug.LogError("[ZenoniaProto] held-gear.json has no sword / shield"); return null; }
@@ -60,7 +57,6 @@ namespace ZenoniaProto
                 var melee = Resources.Load<TextAsset>("Data/" + cls.GearFile + "-melee");
                 HeldGearFile extra = melee != null ? JsonUtility.FromJson<HeldGearFile>(melee.text) : null;
                 if (extra != null && extra.anchors != null) foreach (AnchorSet set in extra.anchors) data.anchors[Key(set.part, set.anim, set.dir)] = set.frames;
-                if (file.companionFloat != null) foreach (FloatLoop loop in file.companionFloat) data.floats[loop.dir] = loop.frames;
                 return data;
             }
             catch (Exception e)
@@ -87,13 +83,6 @@ namespace ZenoniaProto
                 foreach (var kv in manifests) n = Mathf.Min(n, kv.Value.Length);
                 return n == int.MaxValue ? 1 : n;
             }
-        }
-
-        /// <summary>Tier-1 companion float loop frames for a facing ("down" / "up" / "left" / "right"), or null.</summary>
-        public GripInfo[] CompanionFloat(string dir)
-        {
-            GripInfo[] loop;
-            return floats.TryGetValue(dir, out loop) ? loop : null;
         }
 
         /// <summary>Anchor for a part/animation/direction/frame, or null when the data has none.</summary>

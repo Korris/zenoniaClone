@@ -493,7 +493,7 @@ def staff_write(tiers):
         for kind, (canvas, _, _) in kinds.items():
             hs.to_image(canvas).save(f"{STAFF_OUT}/{tier}-{kind}.png")
     raw = open(GEAR_FILE, "rb").read().decode("utf-8")
-    head, sep, tail = raw.partition('"companion":[')
+    head, sep, tail = raw.partition('"anchors":[')  # weapon (then shield) entries precede the anchors; the companion list was removed 16/11
     for tier, kinds in done.items():
         dump = lambda e: json.dumps(e, separators=(",", ":"))
         head, n = re.subn(r'(\{"name":"' + tier + r'","glow":"#[0-9a-f]+","baseGrip":)\{[^}]*\},"enhancedGrip":\{[^}]*\}\}',

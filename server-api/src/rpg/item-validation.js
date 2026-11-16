@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, PET_MAX_DURABILITY, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
+import { CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
 
 // Field names match Assets/Scripts/Rpg/Item.cs (Item, ItemStats) and SaveSerializer.cs (SaveData) so Unity's JsonUtility reads them as-is.
 
@@ -27,11 +27,12 @@ export const itemSchema = z.object({
 const int0 = z.number().int().min(0).max(MAX_INT);
 const f0 = z.number().finite().min(0).max(1e9);
 const coord = z.number().finite().min(-1e6).max(1e6);
+const petIdField = z.union([z.enum(PET_IDS), z.literal('')]).default('');
 
 /** SaveData: the whole persisted character state. Unknown keys are stripped. */
 export const stateSchema = z
   .object({
-    version: z.number().int().min(0).max(3).default(1), // SaveSerializer.SaveVersion; 2: pets carry durability; 3: Frost Hollow 72x48, old section y +384 (accepted ahead of the client)
+    version: z.number().int().min(0).max(5).default(1), // SaveSerializer.SaveVersion; 2: pets carry durability; 3: Frost Hollow 72x48, old section y +384; 4: gacha pets moved to the account, character keeps only petId (which one is worn); 5: petTeam (up to 5 account pet ids), petId still accepted
     savedAt: z.number().int().min(0).default(0),
     classId: z.enum(CLASS_IDS),
     mapId: z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/).default('frostHollow'),
@@ -55,6 +56,10 @@ export const stateSchema = z
     // SaveData.wantedDay (PlayerState.WantedDay): WantedBoss.DayKey of the last daily Wanted Boss claim, 0 = never. Absent in old saves = 0.
     // Listed so the strip above keeps it: without it every relog would allow a new claim. rpg/wanted-day.js stops it going backwards.
     wantedDay: z.number().int().min(0).max(1_000_000).default(0),
+    // v4: which account gacha pet (AccountState.pets) this character has out, '' = none. Old pet *items* in inventory/equipment above still parse as-is.
+    petId: petIdField,
+    // v5: PetRules.TeamSize slots (Combat/Support1/Support2/Stat1/Stat2), each an account pet id or '' (empty slot). Absent in old saves = [].
+    petTeam: z.array(petIdField).max(PET_TEAM_SIZE).default([]),
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
     // Skill tree (SaveData.skillRanks / skillSlots): ranks by tree index, magazine slot -> tree index or -1. Absent in old saves = nothing learned.
@@ -67,6 +72,8 @@ export const stateSchema = z
       if (slots.has(e.slot)) ctx.addIssue({ code: 'custom', path: ['equipment'], message: `two items in slot ${e.slot}` });
       slots.add(e.slot);
     }
+    const teamIds = s.petTeam.filter((id) => id !== '');
+    if (new Set(teamIds).size !== teamIds.length) ctx.addIssue({ code: 'custom', path: ['petTeam'], message: 'duplicate pet in team' });
     const uids = new Set();
     for (const i of [...s.inventory, ...s.equipment]) {
       if (uids.has(i.uid)) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `duplicate item uid ${i.uid}` });

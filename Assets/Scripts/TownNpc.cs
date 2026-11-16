@@ -88,6 +88,7 @@ namespace ZenoniaProto
             if (n.Def.QuestGiver && ElderNpc.Talk(n.Def.Id)) return;
             if (PotionShops.IsSeller(n.Def.Id)) { PotionShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }
             if (GearShops.IsSeller(n.Def.Id)) { GearShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }
+            if (n.Def.Id == PetGachaWindow.KeeperNpcId) { PetGachaWindow.Open(); return; } // Thatchwick's pet keeper: the pet gacha
             if (WantedBossBoard.TryOpen(n.Def.Id, n.Def.Name, Portrait(n.Def.Art), n.Def.Lines)) return;
             NpcDialogueBox.Open(n.Def.Name, Portrait(n.Def.Art), n.Def.Lines, null);
         }

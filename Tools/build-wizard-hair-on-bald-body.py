@@ -2,9 +2,9 @@
 hair is a swappable layer. Replaces the cut-the-head pipeline (body/headless + shared heads/face) for the Lv1 / T0 Northwind body.
 
 Reads the fitted bald frames straight from the tools that installed each animation (nothing of theirs is rewritten):
-  idle            Tools/build-wizard-outfit-d-idle-dirs.py (outfit D, 14/11; Tools/build-wizard-northwind-idle-dirs.py kept, unused here now)
-  walk            Tools/build-wizard-outfit-d-walk.py (outfit D, 14/11; Tools/build-wizard-northwind-walk.py kept, unused here now)
-  attack1-4 down  Tools/build-wizard-outfit-d-combo-attacks.py (outfit D, 14/11; Tools/build-wizard-combo-v2-attacks.py kept, unused here now)
+  idle            Tools/build-wizard-outfit-d-idle-dirs.py (outfit D, 14/11; the Northwind idle tool was removed 16/11)
+  walk            Tools/build-wizard-outfit-d-walk.py (outfit D, 14/11; the Northwind walk tool was removed 16/11)
+  attack1-4 down  Tools/build-wizard-outfit-d-combo-attacks.py (outfit D, 14/11; the Northwind combo-v2 tool was removed 16/11)
   attack1-4 other Tools/build-wizard-outfit-d-attacks.py (outfit D, 14/11; rows widened to the v2 frame count, last frame repeated)
 
 Writes (Resources, wizard):

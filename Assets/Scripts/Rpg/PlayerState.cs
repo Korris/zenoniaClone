@@ -31,7 +31,7 @@ namespace ZenoniaProto.Rpg
         public int MaxHp, MaxMp, Atk, Def;
         public float Speed, CritBonus; // CritBonus = equipment crit + class bonus + second-weapon crit rate, added to the hero's base crit chance
         public SecondWeaponStats Second; // offhand-derived specialised stats (Zero when no offhand is worn)
-        public float DamageAtk; // Atk with the pet's damage bonus, what hits are rolled from; heals and shields read Atk (PetConfig)
+        public float DamageAtk; // Atk with the pet's damage passive, what hits on monsters are rolled from; heals, shields and pet skills read Atk (PetConfig)
 
         public PlayerState(string classId)
         {
@@ -78,10 +78,11 @@ namespace ZenoniaProto.Rpg
             }
             Item off = GetEquipped(Slots.Offhand);
             Second = off != null ? SecondWeapon.For(ClassId, EnhanceStats.Level(off)) : SecondWeaponStats.Zero;
-            PetDef pet = PetConfig.Of(GetEquipped(Slots.Pet));
-            MaxHp = RpgMath.Round((b.MaxHp + hpAdd) * (1 + Second.HpPct) * (1 + (pet != null ? pet.MaxHpPct : 0))); MaxMp = RpgMath.Round((b.MaxMp + mpAdd) * (1 + Second.MpPct));
+            RecomputePetBonus(); // the pet team (PetTeam: slots, stars, Bond, caps)
+            MaxHp = RpgMath.Round((b.MaxHp + hpAdd) * (1 + Second.HpPct) * (1 + PetPassive(Rpg.PetPassive.MaxHp))); MaxMp = RpgMath.Round((b.MaxMp + mpAdd) * (1 + Second.MpPct));
             Atk = b.Atk + atkAdd; Def = RpgMath.Round((b.Def + defAdd) * (1 + Second.DefPct));
-            DamageAtk = (float)(Atk * (1 + (pet != null ? pet.DamagePct : 0)));
+            DamageAtk = (float)(Atk * (1 + PetPassive(Rpg.PetPassive.Damage)));
+            speedMult += PetPassive(Rpg.PetPassive.MoveSpeed); // Horn Rabbit, still under the speed cap
             Speed = (float)(b.Speed * Math.Min(speedMult, 1 + ItemDefs.MaxSpeedBonus));
             CritBonus = (float)(crit + RpgClasses.Get(ClassId).CritBonus + Second.CritRate);
             if (Hp > MaxHp) Hp = MaxHp;

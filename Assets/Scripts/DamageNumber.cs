@@ -96,7 +96,7 @@ namespace ZenoniaProto
             float textW = height * px * 0.62f * e.Text.Length; // rough run width for the crit frame sizes
             if (e.Kind == DamageNumberKind.Crit) DrawCritBehind(cx, cy, t, height * px, textW, e.Seed, alpha, e.BigBurst);
             else if (e.Kind == DamageNumberKind.Finisher) DrawFinisherBehind(cx, cy, t, height * px, e.Seed);
-            if (!DamageNumberFont.Draw(e.Text, m.Style, cx, baseY, cap, alpha, Color.white))
+            if (!DamageNumberFont.Draw(e.Text, m.Style, cx, baseY, cap, alpha, e.Kind == DamageNumberKind.Pet ? e.Color : Color.white)) // only a pet's number is tinted
                 DrawPlainText(e.Text, e.Color, cx, cy, height * m.Scale(t) * px, alpha);
             if (e.Kind == DamageNumberKind.Crit) DrawCritFront(cx, cy, t, height * px, textW, e.Seed, alpha);
             else if (e.Kind == DamageNumberKind.Heal) DrawSparks(cx, cy, t, height * px, e.Seed, alpha, 2, 0.7f);

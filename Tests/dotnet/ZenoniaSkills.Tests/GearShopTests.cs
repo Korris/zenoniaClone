@@ -19,14 +19,16 @@ public class GearShopTests
         Assert.True(GearShops.Sells("smithBram", GearShops.Encode(1, 5)));
         Assert.False(GearShops.Sells("smithBram", GearShops.Encode(2, 0))); // Thatchwick's tier
 
-        Assert.True(GearShops.Sells("smithHolt", GearShops.Encode(2, 0)));
-        Assert.True(GearShops.Sells("smithHolt", GearShops.Encode(3, 5)));
-        Assert.False(GearShops.Sells("smithHolt", GearShops.Encode(1, 0)));
-        Assert.False(GearShops.Sells("smithHolt", GearShops.Encode(4, 0)));
+        // Since 16/11/2026 (EquipLevel T(n) = Lv n*10) each village stocks what its region can wear: Thatchwick (Lv 11-20) T1-T2, Sunspire (Lv 21-30) T2-T3.
+        Assert.True(GearShops.Sells("smithHolt", GearShops.Encode(1, 0)));
+        Assert.True(GearShops.Sells("smithHolt", GearShops.Encode(2, 5)));
+        Assert.False(GearShops.Sells("smithHolt", GearShops.Encode(0, 0)));
+        Assert.False(GearShops.Sells("smithHolt", GearShops.Encode(3, 0)));
 
-        Assert.True(GearShops.Sells("blacksmithKhaled", GearShops.Encode(4, 0)));
-        Assert.True(GearShops.Sells("blacksmithKhaled", GearShops.Encode(5, 5)));
-        Assert.False(GearShops.Sells("blacksmithKhaled", GearShops.Encode(3, 0)));
+        Assert.True(GearShops.Sells("blacksmithKhaled", GearShops.Encode(2, 0)));
+        Assert.True(GearShops.Sells("blacksmithKhaled", GearShops.Encode(3, 5)));
+        Assert.False(GearShops.Sells("blacksmithKhaled", GearShops.Encode(1, 0)));
+        Assert.False(GearShops.Sells("blacksmithKhaled", GearShops.Encode(4, 0)));
     }
 
     [Fact]
@@ -47,8 +49,8 @@ public class GearShopTests
 
     [Theory]
     [InlineData("smithBram", PotionShops.Oakhaven, 0, 10f, null)]
-    [InlineData("smithHolt", PotionShops.Thatchwick, 2, 10f, null)]
-    [InlineData("blacksmithKhaled", PotionShops.Sunspire, 4, 10f, null)]
+    [InlineData("smithHolt", PotionShops.Thatchwick, 1, 10f, null)]
+    [InlineData("blacksmithKhaled", PotionShops.Sunspire, 3, 10f, null)]
     [InlineData("smithBram", PotionShops.Thatchwick, 0, 10f, "Nobody sells that here")]
     [InlineData("smithBram", PotionShops.Oakhaven, 0, 500f, "Too far from the shop")]
     [InlineData("hacker", PotionShops.Oakhaven, 0, 0f, "Nobody sells that here")]

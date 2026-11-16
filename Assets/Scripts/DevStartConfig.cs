@@ -20,9 +20,9 @@ namespace ZenoniaProto
         public int skillPointBonus; // extra SP on top of the level (SP is level - ranks, so the level cap alone cannot give more)
         public bool noCooldowns; // skills start no cooldown (the cast lock still applies)
         public bool noMpCost; // skills cost no MP
-        public bool allSkills; // learn every skill as far as the SP allow (Lv 60 + 20 bonus = all 8 at rank 10, 0 SP left)
+        public bool allSkills; // learn every skill as far as the SP allow (8 skills x rank 10 = 80 SP: Lv 60 + 20 bonus, or Lv 80+ alone since MaxLevel 90)
         public bool allWeapons; // every art tier of the class's weapon and offhand (epic, +0 so stones stay testable); the best ones are worn on the first grant
-        public bool allPets; // one of each pet in the bag, if there is room
+        public bool allPets; // every pet unlocked for the (offline) account
         public bool allGear; // an epic helmet / armor / gloves / boots of the hero's level, worn (with allWeapons = fully geared)
         public int gearPlus = -1; // -1 = keep; otherwise every worn piece is set to this enhance level
         public float cameraViewHeight; // TEST: world units the camera shows top to bottom (0 = GameConfig.ViewHeightUnits, 160); smaller = closer, bigger hero
@@ -140,6 +140,21 @@ namespace ZenoniaProto
             }
         }
 
+        static bool allPetsPending;
+
+        /// <summary>dev-start "allPets": unlocks every pet for the account (offline account file) once it is attached. No-op when not asked.</summary>
+        public static void GrantPets(PlayerRpg owner)
+        {
+            if (!allPetsPending || owner == null || owner.Account == null) return;
+            allPetsPending = false;
+            owner.Account.Run("dev-pets", a =>
+            {
+                bool any = false;
+                foreach (PetDef d in PetConfig.All) if (!a.OwnsPet(d.Id)) { a.pets.Add(new OwnedPet { id = d.Id, stars = 1 }); any = true; }
+                return any ? ActionResult.Success("") : ActionResult.Fail("");
+            }, r => owner.State.AttachAccount(owner.Account.Live));
+        }
+
         public static void Apply(PlayerState p)
         {
             if (p == null) return;
@@ -173,14 +188,7 @@ namespace ZenoniaProto
                 p.RecomputeStats();
                 p.Hp = p.MaxHp; p.Mp = p.MaxMp;
             }
-            if (c.allPets)
-            {
-                foreach (PetDef def in PetConfig.All)
-                {
-                    if (p.PetCount(def) > 0) continue;
-                    if (!p.AddToInventory(ItemFactory.CreatePet(def, RpgRandom.Default))) Debug.LogWarning("[ZenoniaProto] dev-start: bag full, pet " + def.Id + " not granted");
-                }
-            }
+            allPetsPending = c.allPets; // account pets: granted by GrantPets once RpgSession has attached the account
             Item off = p.GetEquipped(Slots.Offhand);
             if (c.offhandPlus >= 0 && off != null) { off.enhance = Mathf.Clamp(c.offhandPlus, 0, EnhanceConfig.MaxEnhance); p.RecomputeStats(); }
             Debug.Log("[ZenoniaProto] dev-start: stones " + p.UpgradeStone + ", gold " + p.Gold + ", potions " + p.HpPotions + "/" + p.MpPotions);

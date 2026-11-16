@@ -92,31 +92,7 @@ namespace ZenoniaProto.Rpg
                 if (v == 0.0 && o == 0.0) continue;
                 lines.Add(new StatLine { Label = StatLabels[i], Value = v, Delta = c != null ? v - o : 0.0, Percent = i >= 4 });
             }
-            PetDef pet = PetConfig.Of(item), other = c != null ? PetConfig.Of(compare) : null;
-            if (pet != null)
-            {
-                AddPetLine(lines, "Max HP", pet.MaxHpPct, other != null ? other.MaxHpPct : 0.0, c != null);
-                AddPetLine(lines, "Damage", pet.DamagePct, other != null ? other.DamagePct : 0.0, c != null);
-            }
             return lines;
-        }
-
-        static void AddPetLine(List<StatLine> lines, string label, double value, double against, bool comparing)
-        {
-            if (value == 0.0 && against == 0.0) return;
-            lines.Add(new StatLine { Label = label, Value = value, Delta = comparing ? value - against : 0.0, Percent = true });
-        }
-
-        /// <summary>"Durability 950 / 1000" of a pet, "" for anything else.</summary>
-        public static string DurabilityLine(Item item)
-        {
-            return PetConfig.Of(item) != null ? "Durability " + item.durability + " / " + PetConfig.MaxDurability : "";
-        }
-
-        /// <summary>"95%" on a pet's slot, never 0% while it lives; "" for anything else.</summary>
-        public static string DurabilityPercent(Item item)
-        {
-            return PetConfig.Of(item) != null ? (int)Math.Ceiling(item.durability * 100.0 / PetConfig.MaxDurability) + "%" : "";
         }
 
         /// <summary>"ATK 14", "Crit +3%", "Speed +5%".</summary>

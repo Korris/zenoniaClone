@@ -119,7 +119,7 @@ namespace ZenoniaProto.EditorTools
             int pots = p.HpPotions;
             Expect(RpgSession.Pickup(new LootEntry { Kind = LootKind.HpPotion, Value = 1 }).Ok && p.HpPotions == pots + 1, cls.Name + ": potion pickup");
 
-            // Paper doll: a tier 9 (+9) weapon of this class shows tier 9 enhanced art; unequipping the offhand hides that hand / companion.
+            // Paper doll: a tier 9 (+9) weapon of this class shows tier 9 enhanced art; unequipping the offhand hides that hand.
             Item best = ItemFactory.Generate(RpgRandom.Default, 95, Slots.Weapon, "epic", p.ClassId);
             best.enhance = 9;
             p.Inventory.Clear();
@@ -130,7 +130,7 @@ namespace ZenoniaProto.EditorTools
             Expect(!view.DebugLook && view.Tier >= Mathf.Min(9, maxTier) && view.Enhanced, cls.Name + ": weapon art follows the equipped item (tier " + view.Tier + ", enhanced " + view.Enhanced + ")");
             Expect(p.Unequip(Slots.Offhand).Ok, cls.Name + ": unequip offhand");
             RpgSession.SyncGear();
-            Expect(view.CompanionEmpty, cls.Name + ": no offhand => companion / offhand hidden");
+            Expect(view.OffhandEmpty, cls.Name + ": no offhand => offhand hidden");
             view.Show("idle", 0, 0, 0, 1f); // draws with an empty hand without throwing
 
             InventoryPanel.Open(root.transform);
@@ -177,7 +177,6 @@ namespace ZenoniaProto.EditorTools
                 SkillExecutorCheck.RunWorld(Expect, hero, root);
                 CheckRpg(cls, hero, root);
                 if (cls.Id == HeroClass.Warrior) { ZoneLogicCheck.RunWorld(Expect, hero, root); NetLogicCheck.RunWorld(Expect, hero, root); }
-                if (cls.CompanionFolder != null) Expect(root.transform.Find("Companion") != null, cls.Name + ": companion created");
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }

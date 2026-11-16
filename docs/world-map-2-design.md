@@ -9,6 +9,7 @@ Ngày 13/11/2026. Người dùng nhờ ChatGPT thiết kế lại hệ thống m
 - Liên kết: Oakhaven → (nam) Frost Hollow Lv1–9 → Frostfang Den (Lv2, boss Glacier Warden Lv20) → Sunspire Oasis (làng) → Amber Dunes Lv21–26 → Emberfen Marsh Lv28–34 → Sunken Reliquary (Lv34, boss Mirefang Hydra Lv35). Oakhaven → (đông) Thatchwick (làng) → Willowbrook Meadows Lv1–6.
 - Lỗi: 2 map băng liền nhau mà nhảy Lv9 → Lv20; 2 bãi khởi đầu cùng Lv1–6; không có gì trên Lv35; chỉ Oakhaven (healerNina, merchantDale) và Sunspire (apothecaryNara) bán thuốc; không làng nào bán trang bị; chưa có chợ.
 - Luật đồ: cấp mặc theo tier `EquipLevel.ByTier` = T0 1, T1 5, T2 10, T3 15, T4 20, T5 30, T6 35, T7 40, T8 50, T9 60; quái rơi đồ theo `ItemLevel` của nó (tier = itemLevel / 10). Cấp tối đa 60.
+- **Đổi 16/11/2026 (người dùng):** cấp tối đa 90; cấp mặc T0 Lv1, T(n) = n×10 (T1 10 … T9 90), áp cho MỌI ô trang bị (vũ khí, tay phụ, mũ, giáp, găng, giày), pet không. Quái vẫn rơi theo `ItemLevel` = cấp quái nên đồ rơi luôn mặc được ở cấp vùng đó; vùng 5–6 bên dưới (Lv41–60) vì thế chỉ rơi T4–T6, bảng "gear farm theo map" của ChatGPT (T7–T9 ở Lv41–60) không còn khớp và Lv61–90 chưa có vùng. Thợ rèn: Thatchwick T1–T2, Sunspire T2–T3 (trước T2–T3 / T4–T5). Báo cáo `plans/reports/level-90-tier-requirements-261116.md`.
 
 ## 6 vùng, mỗi vùng 10 cấp
 

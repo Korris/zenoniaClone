@@ -44,13 +44,10 @@ namespace ZenoniaProto
         public ComboHit[] Hits;
         public float ChainMs;
         public GearPartSpec[] Parts;
-        public string CompanionFolder, CompanionFloatFolder; // floating companion (mechanic robot / cleric spirit); null = none
-        public bool CompanionGrounded;                        // stands on the ground beside the hero (mechanic turret): no hover, no bob, static art, faces the hero's way
-        public float CompanionScale = 0.26f;                  // web companion-specs scale: frame px per art px
         public float CritBonus;                                // added to the base crit chance (assassin)
         public ClassPalette Palette = ClassPalette.Neutral;   // colour identity of the basic-attack FX
         /// <summary>Palette in use right now (the mechanic can switch orange / blue with C).</summary>
-        public ClassPalette ActivePalette { get { return Id == HeroClass.Mechanic && ClassPalette.MechanicBlue ? ClassPalette.Blue : Palette; } }
+        public ClassPalette ActivePalette { get { return Palette; } } // one palette per class (the Mechanic blue / yellow switch, key C, was removed 16/11)
         public float MaxMp = 60f;
         public float WalkCycleMs = 560f;               // one full step cycle, whatever the sheet's frame count
         public string SkillName;                       // class signature skill on L (null = none)
@@ -94,12 +91,11 @@ namespace ZenoniaProto
             Id = HeroClass.Mechanic, Name = "Mechanic", Tagline = "Gunslinging engineer. Rapid shots, cannon finisher, a turret at his side.", ComboLabel = "3 rapid shots + cannon blast",
             SheetFolder = "classes/mechanic/body/armed", BareFolder = "classes/mechanic/body/bare", HandFolder = "classes/mechanic/body/hand", HandAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "rocket", "dash", "hurt" }, GearFile = "classes/mechanic/held-mechanic-dual", FxFolder = "classes/mechanic/fx/combat", Palette = ClassPalette.Yellow,
             BareAnims = new[] { "idle", "walk", "attack1", "attack2", "attack3", "attack4", "dash", "hurt" }, // death: baked armed art
-            ComboAnims = new[] { "attack1", "attack2", "attack3", "attack4" }, // left pistol, right pistol, both, cannon off the back (Tools/build-mechanic-dual.py; way back in its docstring)
+            ComboAnims = new[] { "attack1", "attack2", "attack3", "attack4" }, // left pistol, right pistol, both, cannon off the back (two-pistol art: Tools/build-mechanic-dual.py helpers; the single-gun way back was removed 16/11)
             ExtraAnims = new[] { MechanicRocketPose.PoseAnim },
             MirrorLeft = new HashSet<string> { "attack3", "attack4", "rocket", "dash", "hurt", "death" },
             MaxHp = 90f, Atk = 12f, Def = 4f, Speed = 82f, Hits = ComboConfigs.MechanicHits, ChainMs = 420f,
             Parts = new[] { new GearPartSpec("cannon", "classes/mechanic/weapons/cannon", 1f, 0f, true), new GearPartSpec("gunL", "classes/mechanic/weapons/pistol", 1f, 0f, true), new GearPartSpec("gun", "classes/mechanic/weapons/pistol", 1f, 0f, true) }, // both pistols are the one weapon item; the cannon is the offhand, its art per facing in the anchors
-            CompanionFolder = null, CompanionFloatFolder = null, CompanionScale = 0.26f, // the floating robot is off for the two-pistol trial
             DashIcon = 12, // jetBoots
         };
 

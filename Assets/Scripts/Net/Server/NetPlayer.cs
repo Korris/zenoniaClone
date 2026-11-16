@@ -87,13 +87,12 @@ namespace ZenoniaProto
             Rpg.Revived += lost => { if (lost > 0) NetEventBus.Toast(Hero, "You were defeated: -" + lost + " EXP", new Color(1f, 0.5f, 0.45f)); };
             Rpg.BossKilled += OnBossKilled;
             Rpg.WantedClaimed += OnWantedClaimed;
-            Rpg.PetLow += () => NetEventBus.Toast(Hero, PetConfig.LowText, new Color(1f, 0.75f, 0.35f));
-            Rpg.PetWornOut += () =>
+            Rpg.AccountNews += (text, good) => { if (Hero == null) return; Zone.Enter(Hero.HomeZone); NetEventBus.Toast(Hero, text, good ? new Color(0.75f, 1f, 0.6f) : new Color(1f, 0.7f, 0.5f)); }; // account answers arrive from the API pump, outside any zone
+            Rpg.AccountChanged += () =>
             {
-                NetEventBus.Toast(Hero, PetConfig.WornOutText, new Color(1f, 0.5f, 0.45f));
-                ServerInventoryActions.LookChanged(this); // everyone in sight sees it vanish
-                LastRpgSentMs = -10000f; // the owner gets the new state now, not at the next push
-                if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(this); // written at once, so it cannot come back after a crash
+                if (Hero != null) { Zone.Enter(Hero.HomeZone); ServerInventoryActions.LookChanged(this); } // a migrated pet comes out, or stars changed: everyone in sight sees the pet
+                RpgDirty = true;
+                LastRpgSentMs = -10000f; // the owner gets the new account now, not at the next push
             };
         }
 

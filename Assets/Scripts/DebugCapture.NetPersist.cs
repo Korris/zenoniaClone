@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// Real-account test bots (Tools/net-persist-test.ps1): the same AccountFlow the screen uses, then the real zone.
     ///   --account NAME [--account-new]   log in (or register) as NAME, password from the environment variable ZENONIA_TEST_PASSWORD; --class picks the hero to create when the account has none
     ///   --account-wait S                 stay on the character list S seconds and ask again: the access token has to be refreshed by then
-    ///   --net-bot persist --persist-role actions|earn|earn-stay|show|idle|enhance|trade-a|trade-b|hang-a|hang-b|pet-far|pet-buy|pet-buy-stay|pet-wear|pet-toggle|pet-see|pet-drain|pet-wearout|pet-watch, --partner NAME, --give-uid UID, --confirm-file F (confirm once F exists), --expect-refused (the trade must not go through)
+    ///   --net-bot persist --persist-role actions|earn|earn-stay|show|idle|enhance|trade-a|trade-b|hang-a|hang-b|pet-far|pet-buy|pet-buy-stay|pet-wear|pet-toggle|pet-see|pet-see-hidden|pet-gacha, --partner NAME, --give-uid UID, --confirm-file F (confirm once F exists), --expect-refused (the trade must not go through)
     ///   --account-script messages|delete-online   the account screen's own answers, without joining: --limited-api URL (a server-api that allows two tries)   --delete NAME
     ///   --test-token-store               the real refresh token store under test keys (ApiTokenStore), for the "actions" role to check what logout leaves behind
     /// Every expectation is a "persist-e2e:" line; what the script compares afterwards comes from the API.
@@ -26,7 +26,7 @@ namespace ZenoniaProto
             PlayerState me = Me;
             HeroController h = GameSession.Hero;
             string weapon = me.GetEquipped(Slots.Weapon) != null ? me.GetEquipped(Slots.Weapon).uid + "+" + me.GetEquipped(Slots.Weapon).enhance : "-";
-            return "gold=" + me.Gold + " level=" + me.Level + " exp=" + me.Exp + " stones=" + me.UpgradeStone + " bag=[" + Bag() + "] weapon=" + weapon + " pet=" + (me.GetEquipped(Slots.Pet) != null ? me.GetEquipped(Slots.Pet).uid : "-") + " petdur=" + (me.GetEquipped(Slots.Pet) != null ? me.GetEquipped(Slots.Pet).durability : 0) + " maxhp=" + me.MaxHp + " hp=" + Mathf.CeilToInt(me.Hp) + " atk=" + me.DamageAtk.ToString("F1", CultureInfo.InvariantCulture) + " map=" + MapRegistry.Current.Id + " at=" + h.Position.x.ToString("F0", CultureInfo.InvariantCulture) + "," + h.Position.y.ToString("F0", CultureInfo.InvariantCulture);
+            return "gold=" + me.Gold + " level=" + me.Level + " exp=" + me.Exp + " stones=" + me.UpgradeStone + " bag=[" + Bag() + "] weapon=" + weapon + " pet=" + (me.PetId != "" ? me.PetId + "*" + me.PetStars : "-") + " tickets=" + (me.Account != null ? me.Account.tickets : -1) + " pulls=" + (me.Account != null ? me.Account.totalPulls : -1) + " maxhp=" + me.MaxHp + " hp=" + Mathf.CeilToInt(me.Hp) + " atk=" + me.DamageAtk.ToString("F1", CultureInfo.InvariantCulture) + " map=" + MapRegistry.Current.Id + " at=" + h.Position.x.ToString("F0", CultureInfo.InvariantCulture) + "," + h.Position.y.ToString("F0", CultureInfo.InvariantCulture);
         }
 
         /// <summary>Drives the account flow up to the zone join.</summary>
@@ -216,9 +216,8 @@ namespace ZenoniaProto
                 case "pet-wear": yield return PetWear(); break;
                 case "pet-toggle": yield return PetToggle(); break;
                 case "pet-see": yield return PetSee(partner); break;
-                case "pet-drain": yield return PetDrain(); break;
-                case "pet-wearout": yield return PetWearout(); break;
-                case "pet-watch": yield return PetWatch(partner); break;
+                case "pet-gacha": yield return PetGachaPull(); break;
+                case "pet-see-hidden": yield return PetSeeHidden(partner); break;
                 case "trade-a": yield return PersistTrade(partner, giveUid, 300, 100, true, true); break;
                 case "trade-b": yield return PersistTrade(partner, null, 100, 300, false, true); break;
                 case "hang-a": yield return PersistTrade(partner, giveUid, 300, 100, true, false); break;
@@ -397,208 +396,7 @@ namespace ZenoniaProto
             P("script done");
         }
 
-        // ---- pets ----
-
-        const string PetSeller = "merchantDale";
-
-        static Item FirstPetInBag() { return Me.Inventory.Find(i => i.slot == Slots.Pet); }
-
-        /// <summary>Waits for the answer to the request just sent: the server answers every inventory request with a state.</summary>
-        static IEnumerator AnsweredState()
-        {
-            int states = (int)NetStats.Current.Get("rpgStates");
-            float start = Time.realtimeSinceStartup;
-            while ((int)NetStats.Current.Get("rpgStates") == states && Time.realtimeSinceStartup - start < 8f) yield return null;
-            yield return new WaitForSeconds(0.2f);
-        }
-
-        /// <summary>A hero at the start of Oakhaven with the gold for a pet: the seller is out of reach. Then says where the script should put it: a free spot beside the seller.</summary>
-        IEnumerator PetFar()
-        {
-            int gold = Me.Gold;
-            NetClient.SendInvAction(InvOp.PetBuy, PetSeller, 0);
-            yield return AnsweredState();
-            P((Me.Gold == gold && FirstPetInBag() == null ? "PASS" : "FAIL") + " out of reach of the seller nothing is sold");
-            NetClient.SendInvAction(InvOp.PetBuy, "elderRowan", 0);
-            yield return AnsweredState();
-            P((Me.Gold == gold && FirstPetInBag() == null ? "PASS" : "FAIL") + " a villager who sells nothing sells nothing");
-            foreach (MapNpc n in MapRegistry.Current.Npcs)
-            {
-                if (n.Id != PetSeller) continue;
-                Vector2 feet = FrostHollowMap.TileFeet(n.Tx, n.Ty, 2f);
-                foreach (Vector2 d in new[] { new Vector2(0f, -22f), new Vector2(22f, 0f), new Vector2(-22f, 0f), new Vector2(0f, 22f), new Vector2(26f, -26f), new Vector2(-26f, -26f) })
-                {
-                    Vector2 c = feet + d;
-                    if (FrostHollowMap.RectBlocked(c.x - 5f, c.y, 10f, 8f)) continue;
-                    P("spot x=" + c.x.ToString("F1", CultureInfo.InvariantCulture) + " y=" + c.y.ToString("F1", CultureInfo.InvariantCulture) + " map=" + MapRegistry.Current.Id);
-                    break;
-                }
-            }
-            yield return new WaitForSeconds(0.5f);
-            Application.Quit();
-        }
-
-        /// <summary>Beside the seller: buys the spirit, wears it, checks the numbers, then what must be refused.</summary>
-        IEnumerator PetBuy()
-        {
-            int gold = Me.Gold, hp = Me.MaxHp, stones = Me.UpgradeStone;
-            PetDef spirit = PetConfig.Get("spirit");
-            NetClient.SendInvAction(InvOp.PetBuy, "healerNina", 0);
-            yield return AnsweredState();
-            P((Me.Gold == gold && FirstPetInBag() == null ? "PASS" : "FAIL") + " the healer does not sell pets");
-            NetClient.SendInvAction(InvOp.PetBuy, PetSeller, 99);
-            yield return AnsweredState();
-            P((Me.Gold == gold && FirstPetInBag() == null ? "PASS" : "FAIL") + " a pet index nobody sells is refused");
-            NetClient.SendInvAction(InvOp.PetBuy, PetSeller, 0);
-            yield return AnsweredState();
-            Item pet = FirstPetInBag();
-            P((pet != null && pet.templateId == spirit.TemplateId && Me.Gold == gold - spirit.Price ? "PASS" : "FAIL") + " bought the spirit: gold " + gold + " -> " + Me.Gold);
-            if (pet == null) yield break;
-            NetClient.SendInvAction(InvOp.Equip, pet.uid, 0);
-            yield return AnsweredState();
-            int want = RpgMath.Round(hp * (1 + spirit.MaxHpPct));
-            P((Me.GetEquipped(Slots.Pet) != null && Me.MaxHp == want ? "PASS" : "FAIL") + " worn: max HP " + hp + " -> " + Me.MaxHp + ", wanted " + want);
-            NetClient.SendInvAction(InvOp.Enhance, pet.uid, 0);
-            yield return AnsweredState();
-            P((Me.UpgradeStone == stones && Me.GetEquipped(Slots.Pet).enhance == 0 ? "PASS" : "FAIL") + " enhance refuses the worn pet: stones " + stones + " -> " + Me.UpgradeStone);
-            P("bought " + PersistLine());
-            yield return new WaitForSeconds(1f);
-            Application.Quit();
-        }
-
-        /// <summary>Buys the imp into the bag and stays: the script kills the zone right after, before the periodic save.</summary>
-        IEnumerator PetBuyStay()
-        {
-            int gold = Me.Gold;
-            NetClient.SendInvAction(InvOp.PetBuy, PetSeller, 1);
-            yield return AnsweredState();
-            P((Me.Gold < gold ? "PASS" : "FAIL") + " bought the imp");
-            P("imp-bought " + PersistLine());
-            while (true) yield return new WaitForSeconds(2f);
-        }
-
-        /// <summary>Wears whatever pet is in the bag.</summary>
-        IEnumerator PetWear()
-        {
-            Item pet = FirstPetInBag();
-            float atk = Me.DamageAtk;
-            if (pet == null) { P("FAIL no pet in the bag"); yield break; }
-            NetClient.SendInvAction(InvOp.Equip, pet.uid, 0);
-            yield return AnsweredState();
-            PetDef def = PetConfig.Of(Me.GetEquipped(Slots.Pet));
-            P((def != null && Mathf.Approximately(Me.DamageAtk, (float)(Me.Atk * (1 + def.DamagePct))) ? "PASS" : "FAIL") + " " + Me.ClassId + " wears a " + (def != null ? def.Id : "?") + " it got in a trade: damage attack " + atk + " -> " + Me.DamageAtk);
-            P("wearing " + PersistLine());
-            yield return new WaitForSeconds(1f);
-            Application.Quit();
-        }
-
-        /// <summary>Takes the worn pet off and puts it back on, slowly, for whoever is watching (pet-see).</summary>
-        IEnumerator PetToggle()
-        {
-            yield return new WaitForSeconds(9f);
-            string uid = Me.GetEquipped(Slots.Pet).uid;
-            NetClient.SendInvAction(InvOp.Unequip, "", (byte)Slots.Index(Slots.Pet));
-            yield return AnsweredState();
-            P((Me.GetEquipped(Slots.Pet) == null ? "PASS" : "FAIL") + " took the pet off");
-            yield return new WaitForSeconds(6f);
-            NetClient.SendInvAction(InvOp.Equip, uid, 0);
-            yield return AnsweredState();
-            P((Me.GetEquipped(Slots.Pet) != null ? "PASS" : "FAIL") + " put the pet on again");
-            while (true) yield return new WaitForSeconds(2f);
-        }
-
-        /// <summary>In a window: what this client shows for another player's pet, on arrival and through a change. Saves pictures to --shot-path.</summary>
-        IEnumerator PetSee(string partner)
-        {
-            yield return TUntil(() => HeroNamed(partner) != null, 40f, "see " + partner);
-            HeroController other = HeroNamed(partner);
-            if (other == null || other.View == null) { P("FAIL no view of " + partner); yield break; }
-            System.IO.Directory.CreateDirectory(shotPath);
-            Camera.main.orthographicSize = 42f;
-            yield return new WaitForSeconds(2f);
-            string first = other.View.PetId;
-            P((first != null ? "PASS" : "FAIL") + " sees " + partner + "'s pet on arrival: " + first);
-            P("my own pet here: " + GameSession.Hero.View.PetId);
-            yield return Shot(shotPath, "pet-both");
-            float start = Time.realtimeSinceStartup;
-            while (other.View.PetId != null && Time.realtimeSinceStartup - start < 25f) yield return null;
-            P((other.View.PetId == null ? "PASS" : "FAIL") + " sees the pet go when it is taken off");
-            yield return new WaitForSeconds(0.5f);
-            yield return Shot(shotPath, "pet-off");
-            start = Time.realtimeSinceStartup;
-            while (other.View.PetId == null && Time.realtimeSinceStartup - start < 25f) yield return null;
-            P((other.View.PetId == first ? "PASS" : "FAIL") + " sees it come back");
-            yield return new WaitForSeconds(0.5f);
-            yield return Shot(shotPath, "pet-back");
-            P("see done");
-            yield return new WaitForSeconds(0.5f);
-            Application.Quit();
-        }
-
-        /// <summary>Fights real monsters for --fight-seconds with the worn pet and reports what it cost: the numbers behind the lifetime estimate.</summary>
-        IEnumerator PetDrain()
-        {
-            yield return WalkOutOfTown();
-            Item pet = Me.GetEquipped(Slots.Pet);
-            if (pet == null) { P("FAIL no pet worn"); yield break; }
-            string kind = pet.templateId;
-            int before = pet.durability, kills0 = Me.Exp;
-            float seconds = float.Parse(NetLaunchArgs.Arg(Environment.GetCommandLineArgs(), "--fight-seconds"), CultureInfo.InvariantCulture);
-            EnableNavBot(false, BotOffset(GameSession.Hero.PlayerName));
-            yield return new WaitForSeconds(seconds);
-            pet = Me.GetEquipped(Slots.Pet);
-            int after = pet != null ? pet.durability : 0;
-            P((after < before ? "PASS" : "FAIL") + " " + kind + " lost durability in real fighting: " + before + " -> " + after);
-            P("rate kind=" + kind + " drop=" + (before - after) + " seconds=" + seconds.ToString("F0", CultureInfo.InvariantCulture));
-            P("drained " + PersistLine());
-            yield return new WaitForSeconds(0.6f);
-            Application.Quit();
-        }
-
-        /// <summary>Fights until the worn pet is gone, then stays, for the script to check and kill. Saves pictures when it has --shot-path.</summary>
-        IEnumerator PetWearout()
-        {
-            yield return WalkOutOfTown();
-            Item pet = Me.GetEquipped(Slots.Pet);
-            if (pet == null) { P("FAIL no pet worn"); yield break; }
-            string uid = pet.uid;
-            bool window = GameSession.Hero.View != null;
-            if (window) { System.IO.Directory.CreateDirectory(shotPath); Camera.main.orthographicSize = 42f; }
-            EnableNavBot(false, BotOffset(GameSession.Hero.PlayerName));
-            float start = Time.realtimeSinceStartup;
-            int hpMax = Me.MaxHp;
-            if (window) yield return Shot(shotPath, "wear-before");
-            while (Me.GetEquipped(Slots.Pet) != null && Time.realtimeSinceStartup - start < 240f) yield return null;
-            bool gone = Me.GetEquipped(Slots.Pet) == null;
-            if (window) yield return Shot(shotPath, "wear-out-self");
-            P((gone && !Me.Inventory.Exists(i => i.uid == uid) ? "PASS" : "FAIL") + " the pet wore out and is in neither the slot nor the bag, after " + (Time.realtimeSinceStartup - start).ToString("F0", CultureInfo.InvariantCulture) + " s");
-            P((Me.Hp <= Me.MaxHp ? "PASS" : "FAIL") + " HP is within the new maximum: " + Me.Hp + " / " + Me.MaxHp + ", was " + hpMax);
-            P((!window || GameSession.Hero.View.PetId == null ? "PASS" : "FAIL") + " it is no longer drawn on the owner's screen");
-            if (window) { yield return new WaitForSeconds(0.5f); yield return Shot(shotPath, "wear-out-self-2"); }
-            P("worn-out " + PersistLine());
-            while (true) yield return new WaitForSeconds(2f);
-        }
-
-        /// <summary>In a window, fighting beside --partner: sees its pet, then sees it vanish without either hero leaving.</summary>
-        IEnumerator PetWatch(string partner)
-        {
-            yield return WalkOutOfTown();
-            System.IO.Directory.CreateDirectory(shotPath);
-            Camera.main.orthographicSize = 42f;
-            EnableNavBot(false, BotOffset(GameSession.Hero.PlayerName));
-            float start = Time.realtimeSinceStartup;
-            yield return TUntil(() => HeroNamed(partner) != null && HeroNamed(partner).View.PetId != null, 60f, "see the pet of " + partner);
-            P((HeroNamed(partner) != null && HeroNamed(partner).View.PetId != null ? "PASS" : "FAIL") + " sees " + partner + " with a pet");
-            yield return Shot(shotPath, "watch-before");
-            start = Time.realtimeSinceStartup;
-            while ((HeroNamed(partner) == null || HeroNamed(partner).View.PetId != null) && Time.realtimeSinceStartup - start < 240f) yield return null;
-            HeroController other = HeroNamed(partner);
-            P((other != null && other.View.PetId == null ? "PASS" : "FAIL") + " sees the pet vanish on " + partner + ", who is still here");
-            yield return Shot(shotPath, "watch-after");
-            P("watch done");
-            yield return new WaitForSeconds(0.5f);
-            Application.Quit();
-        }
+        // ---- pets: DebugCapture.NetPets.cs ----
 
         /// <summary>One whole trade by the buttons' requests: the initiator asks; each adds its goods; both lock; if `finish`, both confirm. The side that does not finish stays with the window open, for the script to kill.</summary>
         IEnumerator PersistTrade(string partner, string giveUid, int giveGold, int getGold, bool asks, bool finish)

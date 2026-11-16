@@ -60,7 +60,7 @@ namespace ZenoniaProto.Rpg
             if (PotionCount(hp, size) <= 0) return ActionResult.Fail("No potion");
             float cur = hp ? Hp : Mp, max = hp ? MaxHp : MaxMp;
             if (cur >= max) return ActionResult.Fail(hp ? "HP full" : "MP full");
-            int amount = RpgMath.Round(max * PotionCatalog.Fraction(size));
+            int amount = RpgMath.Round(max * PotionCatalog.Fraction(size) * (hp ? 1 + PetPassive(Rpg.PetPassive.PotionHeal) : 1)); // Forest Fairy: + its % on HP potions
             float v = System.Math.Min(max, cur + amount);
             if (hp) Hp = v; else Mp = v;
             AddPotions(hp, size, -1);

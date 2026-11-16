@@ -65,26 +65,22 @@ namespace ZenoniaProto
             statsPopup.gameObject.SetActive(false);
         }
 
-        /// <summary>"95%" for a pet's cell, red near the end; null for anything else.</summary>
-        static string PetDurabilityText(Item item)
-        {
-            if (item == null || item.slot != Slots.Pet) return null;
-            string text = ItemInfo.DurabilityPercent(item);
-            return PetConfig.IsLow(item.durability) ? "<color=#ff7060>" + text + "</color>" : text;
-        }
-
-        /// <summary>"Durability 80 / 1000" and the warning near the end.</summary>
-        static string PetDurabilityLine(Item item)
-        {
-            string text = ItemInfo.DurabilityLine(item);
-            return PetConfig.IsLow(item.durability) ? "<color=#ff7060>" + text + "  Almost worn out!</color>" : text;
-        }
-
         /// <summary>Capture runs: this worn slot selected, the grid filtered to it.</summary>
         public static void TestSelectWorn(string slot)
         {
             if (instance == null) return;
             instance.OnWornClick(Slots.Index(slot));
+        }
+
+        /// <summary>The Pet cell: the pet taken along (icon tinted like its art, stars in the corner), or a faint pet outline.</summary>
+        static void RefreshPetCell(BagWidgets.Slot v, PlayerState p, bool selected)
+        {
+            PetDef pet = p.Pet;
+            v.SetFrame(selected, pet != null ? PetArt.RarityColor(pet.Rarity) : BagWidgets.Hex("#8398a9"));
+            v.Count.text = pet != null ? PetArt.Stars(p.PetStars) : "";
+            if (pet != null) v.SetIcon(PetArt.Icon(pet), WornIcon, PetArt.TintOf(pet));
+            else v.SetIcon(PetArt.Icon(PetConfig.All[0]), WornIcon - 8f, new Color(0.62f, 0.66f, 0.7f, 0.22f));
+            v.SetEnhance(null);
         }
 
         void RefreshLoadout(PlayerState p, HeroController hero)
@@ -96,15 +92,15 @@ namespace ZenoniaProto
                 string slot = Slots.All[i];
                 Item item = p.GetEquipped(slot);
                 BagWidgets.Slot v = equipSlots[i];
+                if (slot == Slots.Pet) { RefreshPetCell(v, p, i == wornSel); continue; } // the Pet Companion (account pet), not an item: a tap opens PetWindow
                 v.SetFrame(i == wornSel, item != null ? LootSprites.RarityColor(item) : BagWidgets.Hex("#8398a9"));
                 int plus = EnhanceStats.Level(item);
-                v.Count.text = PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
+                v.Count.text = plus > 0 ? "+" + plus : "";
                 if (item != null) v.SetIcon(LootSprites.Icon(item), WornIcon, Color.white);
                 else // greyed outline of what belongs there
                 {
                     bool classGear = slot == Slots.Weapon || slot == Slots.Offhand;
-                    string template = slot == Slots.Pet ? PetConfig.All[0].TemplateId : null; // the first pet's outline; no icon yet = a bare frame
-                    v.SetIcon(LootSprites.Icon(new Item { slot = slot, templateId = template, itemLevel = 1, classId = classGear ? p.ClassId : null }), WornIcon - 8f, new Color(0.62f, 0.66f, 0.7f, 0.22f));
+                    v.SetIcon(LootSprites.Icon(new Item { slot = slot, itemLevel = 1, classId = classGear ? p.ClassId : null }), WornIcon - 8f, new Color(0.62f, 0.66f, 0.7f, 0.22f));
                 }
                 v.SetEnhance(item);
             }

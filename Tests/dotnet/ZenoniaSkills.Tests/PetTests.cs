@@ -3,227 +3,172 @@ using System.Linq;
 using Xunit;
 using ZenoniaProto.Rpg;
 
+/// <summary>
+/// Pet Companion (16/11/2026): pets are account data, a hero wears one by id; passives by stars. The old durability-pet tests (items in a Pet slot, drain, worn out,
+/// buying into the bag) were replaced by these when that design was dropped (docs/reference/gacha-discussion-chatgpt.md Lần 6); the old ITEM format is still read for migration.
+/// </summary>
 public class PetTests
 {
-    static readonly PetDef Spirit = PetConfig.Get("spirit"), Imp = PetConfig.Get("imp");
-
-    static Item Pet(PetDef d, string uid = null)
+    static AccountState Owning(params string[] ids)
     {
-        Item i = ItemFactory.CreatePet(d, () => 0.5);
-        if (uid != null) i.uid = uid;
-        return i;
+        var a = new AccountState();
+        foreach (string id in ids) a.pets.Add(new OwnedPet { id = id, stars = 1 });
+        return a;
     }
 
-    static PlayerState Hero(string cls = "warrior", int level = 20)
+    static PlayerState Hero(string cls = "warrior", int level = 20, AccountState account = null)
     {
         PlayerState p = PlayerState.NewGame(cls);
-        p.Level = level; p.RecomputeStats(); p.Hp = p.MaxHp;
+        p.Level = level;
+        p.AttachAccount(account ?? Owning(PetConfig.All.Select(d => d.Id).ToArray()));
+        p.Hp = p.MaxHp;
         return p;
     }
 
-    // ---- the numbers ----
-
     [Fact]
-    public void TheStartingNumbersAreWhatWasAsked()
+    public void TheTableIsWhatChatGptSettled()
     {
-        Assert.Equal(0.15, Spirit.MaxHpPct);
-        Assert.Equal(0.0, Spirit.DamagePct);
-        Assert.Equal(0.10, Imp.DamagePct);
-        Assert.Equal(0.0, Imp.MaxHpPct);
-        Assert.True(Spirit.Price > 0 && Imp.Price > 0);
+        // Lần 7: the game's own monsters / bosses in the gacha, Spirit and Imp kept as Legacy outside it.
+        Assert.Equal(new[] { "spirit", "imp", "frostSlime", "hornRabbit", "iceGoblin", "thornBoar", "spectralWolf", "marshStalker", "crystalGolem", "frostfangKing" }, PetConfig.All.Select(d => d.Id).ToArray());
+        Assert.Equal(new[] { true, true, false, false, false, false, false, false, false, false }, PetConfig.All.Select(d => d.Legacy).ToArray());
+        PetDef[] pool = PetConfig.All.Where(d => !d.Legacy).ToArray();
+        Assert.Equal(new[] { PetRarity.N, PetRarity.N, PetRarity.R, PetRarity.R, PetRarity.SR, PetRarity.SR, PetRarity.SSR, PetRarity.UR }, pool.Select(d => d.Rarity).ToArray());
+        Assert.Equal(new[] { 0.05, 0.03, 0.03, 0.03, 0.03, 0.05, 0.04, 0.05 }, pool.Select(d => d.PassivePct).ToArray());
+        Assert.Equal(new[] { 0.05, 0.40, 0.45, 0.45, 0.55, 0.55, 0.07, 0.75 }, pool.Select(d => d.SkillPct).ToArray());
+        Assert.All(pool, d => Assert.False(string.IsNullOrEmpty(d.MonsterType))); // every gacha pet is one of the game's monsters
+        Assert.Equal(20000, PetConfig.SkillCooldownMs);
+        Assert.Equal(1500, PetConfig.BasicAttackMs); // ChatGPT 16/11 06:41: first hit at once, then every 1.5 s
+        Assert.Equal(0.25, PetConfig.BasicPct); // 25 % of the owner's hit after defence (10 % before defence gave 1-2 damage)
+        Assert.Equal(3000, PetConfig.Get("imp").Price);
+        Assert.Equal(5, PetConfig.Get("spirit").UnlockLevel);
+        Assert.All(PetConfig.All, d => Assert.True(d.Price == 0 || d.Id == "imp"));
+        Assert.Equal("Legacy", PetConfig.RarityLabel(PetConfig.Get("spirit")));
+        Assert.Equal("UR", PetConfig.RarityLabel(PetConfig.Get("frostfangKing")));
+        Assert.True(PetConfig.Get("frostfangKing").HeightUnits > PetConfig.Get("crystalGolem").HeightUnits);
+        Assert.Equal(5, PetConfig.MaxStars);
+        Assert.True(PetConfig.Get("crystalGolem").HeightUnits > PetConfig.Get("hornRabbit").HeightUnits);
+    }
+
+    [Theory]
+    [InlineData(1, 0.05)]
+    [InlineData(2, 0.055)]
+    [InlineData(5, 0.07)]
+    public void StarsScaleThePassive(int stars, double hp)
+    {
+        Assert.Equal(hp, PetConfig.PassiveAt(PetConfig.Get("spirit"), stars), 6);
+        Assert.Equal(0.0, PetConfig.PassiveAt(PetConfig.Get("spirit"), 0));
     }
 
     [Theory]
     [InlineData("warrior")]
     [InlineData("wizard")]
-    [InlineData("mechanic")]
     [InlineData("cleric")]
-    [InlineData("assassin")]
-    public void SpiritRaisesMaxHpByFifteenPercentOnEveryClass(string cls)
+    public void SpiritRaisesMaxHpAndOnlyMaxHp(string cls)
     {
         PlayerState p = Hero(cls);
-        int before = p.MaxHp, atk = p.Atk;
-        Assert.True(p.Equip(Pet(Spirit)).Ok);
-        Assert.Equal(RpgMath.Round(before * 1.15), p.MaxHp);
-        Assert.Equal(atk, p.Atk);
+        int hp = p.MaxHp, atk = p.Atk;
+        Assert.True(p.TakePet("spirit").Ok);
+        Assert.Equal(RpgMath.Round(hp * 1.05), p.MaxHp);
         Assert.Equal(atk, p.DamageAtk);
-        Assert.True(p.Unequip(Slots.Pet).Ok);
-        Assert.Equal(before, p.MaxHp);
-    }
-
-    [Fact]
-    public void SpiritMultipliesTheSecondWeaponHpBonus()
-    {
-        PlayerState p = Hero("warrior");
-        p.GetEquipped(Slots.Offhand).enhance = 15;
+        p.Account.Pet("spirit").stars = 5;
         p.RecomputeStats();
-        BaseStats b = Leveling.StatsForLevel(20, "warrior");
-        int gear = EnhanceStats.Effective(p.GetEquipped(Slots.Weapon)).maxHp + EnhanceStats.Effective(p.GetEquipped(Slots.Offhand)).maxHp;
-        Assert.Equal(RpgMath.Round((b.MaxHp + gear) * (1 + p.Second.HpPct)), p.MaxHp);
-        p.Equip(Pet(Spirit));
-        Assert.Equal(RpgMath.Round((b.MaxHp + gear) * (1 + p.Second.HpPct) * 1.15), p.MaxHp);
+        Assert.Equal(RpgMath.Round(hp * 1.07), p.MaxHp);
+        Assert.True(p.TakePet("").Ok);
+        Assert.Equal(hp, p.MaxHp);
     }
 
     [Fact]
-    public void ImpRaisesWhatHitsAreRolledFromButNotTheHealingStatOrMaxHp()
+    public void DamagePetsRaiseWhatHitsOnMonstersAreRolledFromButNotAtk()
     {
-        PlayerState p = Hero("cleric");
-        int atk = p.Atk, hp = p.MaxHp;
-        Assert.Equal(atk, p.DamageAtk);
-        p.Equip(Pet(Imp));
-        Assert.Equal((float)(atk * 1.1), p.DamageAtk);
+        PlayerState p = Hero();
+        int atk = p.Atk;
+        p.TakePet("imp");
+        Assert.Equal((float)(atk * 1.03), p.DamageAtk, 4);
+        p.TakePet("frostfangKing");
+        Assert.Equal((float)(atk * 1.05), p.DamageAtk, 4);
         Assert.Equal(atk, p.Atk);
-        Assert.Equal(hp, p.MaxHp);
-        p.Unequip(Slots.Pet);
-        Assert.Equal(atk, p.DamageAtk);
     }
 
     [Fact]
-    public void AnEmptySlotChangesNothing()
+    public void HornRabbitSpeedStaysUnderTheCap()
     {
         PlayerState p = Hero();
-        Assert.Null(p.GetEquipped(Slots.Pet));
-        Assert.Equal(p.Atk, p.DamageAtk);
-    }
-
-    // ---- equip rules ----
-
-    [Theory]
-    [InlineData("warrior")]
-    [InlineData("wizard")]
-    [InlineData("mechanic")]
-    [InlineData("cleric")]
-    [InlineData("assassin")]
-    public void EveryClassCanWearAPet(string cls)
-    {
-        PlayerState p = Hero(cls);
-        Item pet = Pet(Spirit);
-        Assert.True(p.CanEquip(pet));
-        p.Inventory.Add(pet);
-        Assert.True(p.Equip(pet).Ok);
-        Assert.Same(pet, p.GetEquipped(Slots.Pet));
-        Assert.DoesNotContain(p.Inventory, i => i.slot == Slots.Pet);
+        float before = p.Speed;
+        p.TakePet("hornRabbit");
+        Assert.True(p.Speed > before);
+        Assert.True(p.Speed <= Leveling.StatsForLevel(p.Level, p.ClassId).Speed * (1 + ItemDefs.MaxSpeedBonus) + 0.001f);
     }
 
     [Fact]
-    public void OnePetAtATime_TheOldOneGoesBackToTheBag_AndItsBonusStops()
+    public void MarshStalkerHealsMoreFromHpPotionsOnly()
     {
         PlayerState p = Hero();
-        int hp = p.MaxHp;
-        Item a = Pet(Spirit, "a"), b = Pet(Imp, "b");
-        p.Inventory.Add(a); p.Inventory.Add(b);
-        p.Equip(a);
-        p.Equip(b);
-        Assert.Same(b, p.GetEquipped(Slots.Pet));
-        Assert.Contains(a, p.Inventory);
-        Assert.Equal(hp, p.MaxHp);
+        p.HpPotions = 2;
+        p.Hp = 1;
+        int plain = int.Parse(p.UsePotion(true).Text.Replace("HP +", ""));
+        p.TakePet("marshStalker");
+        p.Hp = 1;
+        int fairy = int.Parse(p.UsePotion(true).Text.Replace("HP +", ""));
+        Assert.Equal(RpgMath.Round(p.MaxHp * PotionCatalog.Fraction(PotionCatalog.Small) * 1.05), fairy);
+        Assert.True(fairy > plain);
     }
 
     [Fact]
-    public void SwappingPetsWorksInAFullBagButTakingOneOffDoesNot()
+    public void OnlyAnOwnedPetCanComeAlong()
+    {
+        PlayerState p = Hero(account: Owning("imp"));
+        Assert.False(p.TakePet("spirit").Ok);
+        Assert.False(p.TakePet("nope").Ok);
+        Assert.True(p.TakePet("imp").Ok);
+        Assert.False(p.TakePet("imp").Ok);
+        PlayerState bare = PlayerState.NewGame("warrior");
+        Assert.False(bare.TakePet("imp").Ok); // no account attached
+    }
+
+    [Fact]
+    public void AttachingAnAccountPutsAwayAPetItDoesNotOwn()
+    {
+        PlayerState p = PlayerState.NewGame("warrior");
+        p.Level = 10; // the combat slot opens at level 5
+        p.PetId = "phoenix";
+        p.AttachAccount(Owning("imp"));
+        Assert.Equal("", p.PetId);
+        p.PetId = "imp";
+        p.AttachAccount(Owning("imp"));
+        Assert.Equal("imp", p.PetId);
+    }
+
+    [Fact]
+    public void ThePetIdSurvivesASave_AndAGarbageIdIsDropped()
     {
         PlayerState p = Hero();
-        Item a = Pet(Spirit, "a");
-        p.Equip(a);
-        while (p.Inventory.Count < PlayerState.InventorySize) p.Inventory.Add(Pet(Imp, "x" + p.Inventory.Count));
-        Assert.False(p.Unequip(Slots.Pet).Ok);
-        Assert.True(p.Equip(p.Inventory[0]).Ok);
-        Assert.Contains(a, p.Inventory);
+        p.TakePet("spectralWolf");
+        string json = SaveSerializer.ToJson(SaveSerializer.Capture(p, true, 1f, 2f, false));
+        SaveData d = SaveSerializer.Parse(json);
+        Assert.Equal(5, d.version);
+        Assert.Equal("spectralWolf", SaveSerializer.Restore(d).PetId);
+        Assert.Equal("", SaveSerializer.Parse(json.Replace("spectralWolf", "godPet")).petId);
     }
 
     [Fact]
-    public void HpShrinksToTheNewMaximumWhenTheSpiritComesOff()
+    public void WireIdsRoundTrip()
     {
-        PlayerState p = Hero();
-        p.Equip(Pet(Spirit));
-        p.Hp = p.MaxHp;
-        p.Unequip(Slots.Pet);
-        Assert.Equal(p.MaxHp, p.Hp);
+        foreach (PetDef d in PetConfig.All) Assert.Equal(d.Id, PetConfig.IdOfWire(PetConfig.WireId(d.Id)));
+        Assert.Equal(0, PetConfig.WireId(""));
+        Assert.Null(PetConfig.IdOfWire(0));
+        Assert.Null(PetConfig.IdOfWire(200));
     }
 
     [Fact]
-    public void ThePetSlotIsSeparateFromTheOffhand_AndNewHeroesHaveNone()
+    public void Texts()
     {
-        PlayerState p = PlayerState.NewGame("cleric");
-        Assert.Null(p.GetEquipped(Slots.Pet));
-        Item off = p.GetEquipped(Slots.Offhand);
-        p.Equip(Pet(Spirit));
-        Assert.Same(off, p.GetEquipped(Slots.Offhand));
-    }
-
-    [Fact]
-    public void MonstersNeverDropPets()
-    {
-        var r = new Random(7);
-        for (int i = 0; i < 2000; i++) Assert.NotEqual(Slots.Pet, ItemFactory.RollEquipmentDrop(20, true, () => r.NextDouble()).slot);
-    }
-
-    // ---- enhance ----
-
-    [Fact]
-    public void EnhanceRefusesAPet_WornOrInTheBag_AndTakesNoStone()
-    {
-        PlayerState p = Hero();
-        p.UpgradeStone = 5;
-        Item worn = Pet(Spirit, "w"), bag = Pet(Imp, "b");
-        p.Equip(worn); p.Inventory.Add(bag);
-        foreach (Item i in new[] { worn, bag })
-        {
-            Assert.False(EnhanceStats.IsEnhanceable(i));
-            EnhanceResult r = EnhanceSystem.Attempt(p, i);
-            Assert.False(r.Ok);
-            Assert.Equal("not-weapon", r.Reason);
-            Assert.Equal(0, i.enhance);
-            Assert.Equal("", ItemInfo.EnhancePreview(i));
-        }
-        Assert.Equal(5, p.UpgradeStone);
+        Assert.Equal("+5.5% Max HP", PetConfig.PassiveText(PetConfig.Get("spirit"), 2));
+        Assert.Equal("-3.6% damage taken from monsters", PetConfig.PassiveText(PetConfig.Get("thornBoar"), 3));
+        Assert.Contains("75%", PetConfig.SkillText(PetConfig.Get("frostfangKing")));
+        Assert.Contains("rushes", PetConfig.SkillText(PetConfig.Get("spectralWolf")));
     }
 
     // ---- shop ----
-
-    [Fact]
-    public void BuyingPaysOnceAndPutsItInTheBag()
-    {
-        PlayerState p = Hero();
-        p.Gold = Imp.Price + 1;
-        Assert.True(p.BuyPet(Imp).Ok);
-        Assert.Equal(1, p.Gold);
-        Item bought = p.Inventory.Last();
-        Assert.Equal(Slots.Pet, bought.slot);
-        Assert.Equal("pet-imp", bought.templateId);
-        Assert.Equal(1, p.PetCount(Imp));
-        Assert.Equal(0, p.PetCount(Spirit));
-        p.Equip(bought);
-        Assert.Equal(1, p.PetCount(Imp));
-    }
-
-    [Fact]
-    public void BuyingRefusesWithoutGoldOrRoom_AndTakesNothing()
-    {
-        PlayerState p = Hero();
-        p.Gold = Spirit.Price - 1;
-        Assert.False(p.BuyPet(Spirit).Ok);
-        Assert.Equal(Spirit.Price - 1, p.Gold);
-        Assert.Empty(p.Inventory);
-        p.Gold = Spirit.Price;
-        while (p.Inventory.Count < PlayerState.InventorySize) p.Inventory.Add(Pet(Imp, "x" + p.Inventory.Count));
-        Assert.False(p.BuyPet(Spirit).Ok);
-        Assert.Equal(Spirit.Price, p.Gold);
-        Assert.False(p.BuyPet(null).Ok);
-    }
-
-    [Fact]
-    public void TwoPurchasesNeverShareAUid()
-    {
-        PlayerState p = Hero();
-        p.Gold = Spirit.Price * 2;
-        double[] rolls = { 0.5, 0.5, 0.25 };
-        int next = 0;
-        Rand r = () => rolls[next++];
-        p.BuyPet(Spirit, r);
-        p.BuyPet(Spirit, r);
-        Assert.Equal(2, p.Inventory.Select(i => i.uid).Distinct().Count());
-    }
 
     [Theory]
     [InlineData("merchantDale", PotionShops.Oakhaven, 10f, null)]
@@ -231,232 +176,55 @@ public class PetTests
     [InlineData("healerNina", PotionShops.Oakhaven, 10f, "Nobody sells that here")]
     [InlineData("merchantDale", PotionShops.Sunspire, 10f, "Nobody sells that here")]
     [InlineData("merchantDale", PotionShops.Oakhaven, 500f, "Too far from the shop")]
-    [InlineData("hacker", PotionShops.Oakhaven, 0f, "Nobody sells that here")]
     public void TheSellerMustBeRightHereAndInReach(string npc, string map, float distance, string refusal)
     {
-        Assert.Equal(refusal, PetConfig.Refusal(npc, map, 0, distance));
+        Assert.Equal(refusal, PetConfig.Refusal(npc, map, PetConfig.IndexOf(PetConfig.Get("imp")), distance));
     }
 
     [Fact]
-    public void AnUnknownPetIndexIsNotSold()
+    public void OnlyPricedPetsAreSold()
     {
+        Assert.Equal("Not sold here", PetConfig.Refusal("merchantDale", PotionShops.Oakhaven, 0, 0f)); // Spirit: level 5
         Assert.Equal("Not sold here", PetConfig.Refusal("merchantDale", PotionShops.Oakhaven, PetConfig.All.Length, 0f));
     }
 
-    // ---- save ----
+    // ---- the old item format (read only to migrate) ----
 
-    static PlayerState RoundTrip(PlayerState p)
+    [Fact]
+    public void MonstersNeverDropPetItems()
     {
-        string json = SaveSerializer.ToJson(SaveSerializer.Capture(p, true, 1f, 2f, false));
-        return SaveSerializer.Restore(SaveSerializer.Parse(json));
+        var r = new Random(7);
+        for (int i = 0; i < 2000; i++) Assert.NotEqual(Slots.Pet, ItemFactory.RollEquipmentDrop(20, true, () => r.NextDouble()).slot);
     }
 
     [Fact]
-    public void WornAndBaggedPetsSurviveASaveAndKeepTheirBonus()
+    public void AnOldPetItemCannotBeWornOrEnhanced()
     {
-        PlayerState p = Hero();
-        Item worn = Pet(Spirit, "pet-spirit-a"), bag = Pet(Imp, "pet-imp-b");
-        p.Equip(worn); p.Inventory.Add(bag); p.Hp = p.MaxHp;
-        PlayerState back = RoundTrip(p);
-        Assert.Equal("pet-spirit-a", back.GetEquipped(Slots.Pet).uid);
-        Assert.Equal("pet-spirit", back.GetEquipped(Slots.Pet).templateId);
-        Assert.Contains(back.Inventory, i => i.uid == "pet-imp-b" && i.slot == Slots.Pet);
-        Assert.Equal(p.MaxHp, back.MaxHp);
-        Assert.Equal(p.Hp, back.Hp); // the part of the HP above the base maximum is not lost on load
-        Assert.Equal(p.DamageAtk, back.DamageAtk);
+        PlayerState p = PlayerState.NewGame("warrior");
+        Item old = ItemFactory.CreateLegacyPet(PetConfig.Get("imp"), () => 0.5);
+        p.Inventory.Add(old);
+        Assert.False(p.Equip(old).Ok);
+        Assert.False(EnhanceStats.IsEnhanceable(old));
     }
 
     [Fact]
-    public void AnOldSaveHasAnEmptySlot()
+    public void AnOldSaveStillLoadsItsPetItemsCleanly_ForTheMigration()
     {
-        const string old = "{\"version\":1,\"classId\":\"warrior\",\"level\":5,\"mapId\":\"frostHollow\",\"inventory\":[],\"equipment\":[{\"uid\":\"starter-weapon\",\"templateId\":\"sword\",\"slot\":\"weapon\",\"name\":\"Sword\",\"rarity\":\"common\",\"classId\":\"warrior\",\"itemLevel\":1,\"stats\":{\"atk\":4}}]}";
-        PlayerState p = SaveSerializer.Restore(SaveSerializer.Parse(old));
-        Assert.Null(p.GetEquipped(Slots.Pet));
-        Assert.Equal(p.Atk, p.DamageAtk);
-        Assert.NotNull(p.GetEquipped(Slots.Weapon));
-    }
-
-    [Fact]
-    public void ASaveCannotGiveAPetStatsALevelOrAClass()
-    {
-        const string hacked = "{\"version\":1,\"classId\":\"warrior\",\"level\":5,\"inventory\":[],\"equipment\":[{\"uid\":\"p\",\"templateId\":\"pet-imp\",\"slot\":\"pet\",\"name\":\"Imp\",\"rarity\":\"rare\",\"classId\":\"wizard\",\"itemLevel\":1,\"enhance\":9,\"stats\":{\"atk\":500,\"maxHp\":500}}]}";
+        const string hacked = "{\"version\":3,\"classId\":\"warrior\",\"level\":5,\"inventory\":[{\"uid\":\"b\",\"templateId\":\"pet-spirit\",\"slot\":\"pet\",\"name\":\"Spirit\",\"rarity\":\"rare\",\"durability\":40}],\"equipment\":[{\"uid\":\"p\",\"templateId\":\"pet-imp\",\"slot\":\"pet\",\"name\":\"Imp\",\"rarity\":\"rare\",\"classId\":\"wizard\",\"itemLevel\":1,\"enhance\":9,\"durability\":900,\"stats\":{\"atk\":500}}]}";
         PlayerState p = SaveSerializer.Restore(SaveSerializer.Parse(hacked));
-        Item pet = p.GetEquipped(Slots.Pet);
-        Assert.NotNull(pet); // the class tag is dropped, so it stays on
-        Assert.Equal(0, pet.enhance);
-        Assert.True(pet.stats.IsZero);
+        Assert.Equal(2, p.LegacyPets().Count);
+        Assert.Equal("imp", p.LegacyWornPet.Id);
+        Assert.True(p.GetEquipped(Slots.Pet).stats.IsZero);
+        Assert.Equal(0, p.GetEquipped(Slots.Pet).enhance);
+        Assert.Equal(p.Atk, p.DamageAtk); // an old item gives nothing until it is migrated
+        p.RemoveLegacyPets();
+        Assert.Empty(p.LegacyPets());
     }
 
     [Fact]
-    public void TheOffhandCalledSpiritIsNotThePet()
+    public void AWornOutOldPetWasGone_AndTheOffhandCalledSpiritIsNotAPet()
     {
-        const string json = "{\"version\":1,\"classId\":\"warrior\",\"level\":5,\"inventory\":[{\"uid\":\"p\",\"templateId\":\"spirit\",\"slot\":\"pet\",\"name\":\"x\",\"rarity\":\"rare\"},{\"uid\":\"q\",\"templateId\":\"pet-spirit\",\"slot\":\"offhand\",\"name\":\"x\",\"rarity\":\"rare\"}],\"equipment\":[]}";
+        const string json = "{\"version\":3,\"classId\":\"warrior\",\"level\":5,\"inventory\":[{\"uid\":\"x\",\"templateId\":\"pet-imp\",\"slot\":\"pet\",\"name\":\"x\",\"rarity\":\"rare\",\"durability\":0},{\"uid\":\"p\",\"templateId\":\"spirit\",\"slot\":\"pet\",\"name\":\"x\",\"rarity\":\"rare\"},{\"uid\":\"q\",\"templateId\":\"pet-spirit\",\"slot\":\"offhand\",\"name\":\"x\",\"rarity\":\"rare\"}],\"equipment\":[]}";
         Assert.Empty(SaveSerializer.Parse(json).inventory);
-    }
-
-    // ---- durability ----
-
-    [Fact]
-    public void ANewPetStartsAtTheMaximum()
-    {
-        Assert.Equal(PetConfig.MaxDurability, Pet(Spirit).durability);
-        Assert.Equal(1000, PetConfig.MaxDurability);
-    }
-
-    [Fact]
-    public void TheSpiritLosesOnePerHitTaken_AndNothingForAttacks()
-    {
-        PlayerState p = Hero();
-        p.Equip(Pet(Spirit));
-        Assert.Equal(PetWear.None, p.PetHitTaken());
-        Assert.Equal(999, p.GetEquipped(Slots.Pet).durability);
-        Assert.Equal(PetWear.None, p.PetAttackLanded(1000));
-        Assert.Equal(999, p.GetEquipped(Slots.Pet).durability);
-    }
-
-    [Fact]
-    public void TheImpLosesOnePerAttackEvent_NotPerMonster_AndNothingForHitsTaken()
-    {
-        PlayerState p = Hero();
-        p.Equip(Pet(Imp));
-        p.PetHitTaken();
-        Assert.Equal(1000, p.GetEquipped(Slots.Pet).durability);
-        for (int monster = 0; monster < 12; monster++) p.PetAttackLanded(5000 + monster); // one area skill: twelve monsters in the same moment
-        Assert.Equal(999, p.GetEquipped(Slots.Pet).durability);
-        p.PetAttackLanded(5000 + PetConfig.AttackWindowMs - 1);
-        Assert.Equal(999, p.GetEquipped(Slots.Pet).durability);
-        p.PetAttackLanded(5000 + PetConfig.AttackWindowMs); // the next attack
-        Assert.Equal(998, p.GetEquipped(Slots.Pet).durability);
-    }
-
-    [Fact]
-    public void APetInTheBagAndAnEmptySlotDrainNothing()
-    {
-        PlayerState p = Hero();
-        Item bag = Pet(Spirit);
-        p.Inventory.Add(bag);
-        Assert.Equal(PetWear.None, p.PetHitTaken());
-        Assert.Equal(PetWear.None, p.PetAttackLanded(1000));
-        Assert.Equal(1000, bag.durability);
-    }
-
-    [Fact]
-    public void AtZeroThePetIsGone_TheBonusStops_AndHpComesDown()
-    {
-        PlayerState p = Hero();
-        int baseHp = p.MaxHp;
-        Item pet = Pet(Spirit);
-        p.Equip(pet);
-        pet.durability = 1;
-        p.Hp = p.MaxHp;
-        Assert.True(p.Hp > baseHp);
-        Assert.Equal(PetWear.WornOut, p.PetHitTaken());
-        Assert.Null(p.GetEquipped(Slots.Pet));
-        Assert.DoesNotContain(p.Inventory, i => i.slot == Slots.Pet);
-        Assert.Equal(baseHp, p.MaxHp);
-        Assert.Equal(baseHp, p.Hp);
-        Assert.Equal(PetWear.None, p.PetHitTaken()); // cannot be lost twice
-    }
-
-    [Fact]
-    public void AWornOutImpTakesItsDamageWithIt()
-    {
-        PlayerState p = Hero();
-        Item pet = Pet(Imp);
-        p.Equip(pet);
-        pet.durability = 1;
-        Assert.Equal(PetWear.WornOut, p.PetAttackLanded(1000));
-        Assert.Equal(p.Atk, p.DamageAtk);
-    }
-
-    [Fact]
-    public void TheWarningComesOnceWhenTheLineIsCrossed()
-    {
-        PlayerState p = Hero();
-        Item pet = Pet(Spirit);
-        p.Equip(pet);
-        pet.durability = 102;
-        Assert.Equal(PetWear.None, p.PetHitTaken());
-        Assert.Equal(PetWear.Low, p.PetHitTaken());
-        Assert.Equal(100, pet.durability);
-        Assert.Equal(PetWear.None, p.PetHitTaken());
-        Assert.False(PetConfig.IsLow(101));
-        Assert.True(PetConfig.IsLow(100));
-    }
-
-    [Fact]
-    public void DurabilitySurvivesASaveInTheSlotAndInTheBag()
-    {
-        PlayerState p = Hero();
-        Item worn = Pet(Spirit, "pet-spirit-a"), bag = Pet(Imp, "pet-imp-b");
-        worn.durability = 437; bag.durability = 12;
-        p.Equip(worn); p.Inventory.Add(bag);
-        PlayerState back = RoundTrip(p);
-        Assert.Equal(437, back.GetEquipped(Slots.Pet).durability);
-        Assert.Equal(12, back.Inventory.Find(i => i.uid == "pet-imp-b").durability);
-    }
-
-    [Fact]
-    public void AnOldPetWithoutTheFieldLoadsAtTheMaximum()
-    {
-        const string old = "{\"version\":1,\"classId\":\"warrior\",\"level\":5,\"inventory\":[{\"uid\":\"b\",\"templateId\":\"pet-imp\",\"slot\":\"pet\",\"name\":\"Imp\",\"rarity\":\"rare\"}],\"equipment\":[{\"uid\":\"w\",\"templateId\":\"pet-spirit\",\"slot\":\"pet\",\"name\":\"Spirit\",\"rarity\":\"rare\"}]}";
-        PlayerState p = SaveSerializer.Restore(SaveSerializer.Parse(old));
-        Assert.Equal(PetConfig.MaxDurability, p.GetEquipped(Slots.Pet).durability);
-        Assert.Equal(PetConfig.MaxDurability, p.Inventory[0].durability);
-    }
-
-    [Fact]
-    public void InTheNewFormatAPetAtZeroIsGone_AndNoValueGoesOverTheMaximum()
-    {
-        const string zero = "{\"version\":2,\"classId\":\"warrior\",\"level\":5,\"inventory\":[],\"equipment\":[{\"uid\":\"w\",\"templateId\":\"pet-spirit\",\"slot\":\"pet\",\"name\":\"Spirit\",\"rarity\":\"rare\",\"durability\":0}]}";
-        Assert.Null(SaveSerializer.Restore(SaveSerializer.Parse(zero)).GetEquipped(Slots.Pet));
-        Assert.Equal(PetConfig.MaxDurability, ItemFactory.Sanitize(new Item { uid = "x", templateId = "pet-imp", slot = Slots.Pet, rarity = "rare", durability = 99999 }).durability);
-    }
-
-    [Fact]
-    public void OtherGearHasNoDurability()
-    {
-        Item sword = ItemFactory.CreateStarterItem(Slots.Weapon, "warrior");
-        sword.durability = 50;
-        Assert.Equal(0, ItemFactory.Sanitize(sword).durability);
-        Assert.Equal("", ItemInfo.DurabilityLine(sword));
-    }
-
-    [Fact]
-    public void DurabilityText()
-    {
-        Item pet = Pet(Spirit);
-        pet.durability = 950;
-        Assert.Equal("Durability 950 / 1000", ItemInfo.DurabilityLine(pet));
-        Assert.Equal("95%", ItemInfo.DurabilityPercent(pet));
-        pet.durability = 1;
-        Assert.Equal("1%", ItemInfo.DurabilityPercent(pet));
-    }
-
-    // ---- what the panels and the wire see ----
-
-    [Fact]
-    public void IconsAndTooltipLines()
-    {
-        Assert.Equal("pet-spirit", ItemInfo.IconName(Pet(Spirit)));
-        Assert.Equal("pet-imp", ItemInfo.IconName(Pet(Imp)));
-        Assert.Null(ItemInfo.IconName(new Item { slot = Slots.Pet }));
-        Assert.Equal("Pet", ItemInfo.SlotLabel(Slots.Pet));
-        Assert.Equal(new[] { "Max HP +15%" }, ItemInfo.Lines(Pet(Spirit)).Select(ItemInfo.Format));
-        Assert.Equal(new[] { "Damage +10%" }, ItemInfo.Lines(Pet(Imp)).Select(ItemInfo.Format));
-        var against = ItemInfo.Lines(Pet(Imp), Pet(Spirit));
-        Assert.Equal(new[] { "Max HP", "Damage" }, against.Select(l => l.Label));
-        Assert.Equal(-0.15, against[0].Delta, 6);
-        Assert.Equal(0.10, against[1].Delta, 6);
-    }
-
-    [Fact]
-    public void WireIdsRoundTrip()
-    {
-        Assert.Equal(0, PetConfig.WireId(null));
-        Assert.Null(PetConfig.IdOfWire(0));
-        Assert.Null(PetConfig.IdOfWire(200));
-        foreach (PetDef d in PetConfig.All) Assert.Equal(d.Id, PetConfig.IdOfWire(PetConfig.WireId(Pet(d))));
-        Assert.Equal(0, PetConfig.WireId(new Item { slot = Slots.Offhand, templateId = "pet-imp" }));
     }
 }

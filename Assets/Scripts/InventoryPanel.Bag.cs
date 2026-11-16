@@ -180,7 +180,7 @@ namespace ZenoniaProto
                 v.SetIcon(item != null ? LootSprites.Icon(item) : null, CellIcon, item == null || p.CanEquip(item) && !tooLow ? Color.white : tooLow ? new Color(0.55f, 0.55f, 0.6f, 0.6f) : new Color(1f, 0.6f, 0.6f, 0.55f));
                 v.SetEnhance(item);
                 int plus = EnhanceStats.Level(item);
-                v.Count.text = tooLow ? "<color=#ff7070>Lv" + EquipLevel.Required(item) + "</color>" : PetDurabilityText(item) ?? (plus > 0 ? "+" + plus : "");
+                v.Count.text = tooLow ? "<color=#ff7070>Lv" + EquipLevel.Required(item) + "</color>" : plus > 0 ? "+" + plus : "";
             }
         }
     }

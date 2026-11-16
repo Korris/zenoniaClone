@@ -3,7 +3,7 @@ using System;
 namespace ZenoniaProto.Rpg
 {
     /// <summary>
-    /// Skill respec (user decision: costs gold, scaling with level). Cost = 50 gold per character level (Lv 10 = 500 G, Lv 60 = 3000 G).
+    /// Skill respec (user decision: costs gold, scaling with level). Cost = 50 gold per character level (Lv 10 = 500 G, Lv 60 = 3000 G, Lv 90 = 4500 G).
     /// Refunds every point (ranks + magazine cleared; SP is derived, so Free == Level afterwards). Engine-free, shared by offline and the server.
     /// </summary>
     public static class SkillRespec

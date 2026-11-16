@@ -10,7 +10,7 @@ namespace ZenoniaProto
     /// inventory actions) while raising events. Offline, RpgSession wraps it and turns the events into toasts / FX / saves; on the server
     /// there is one per connected player and the events become network messages. No Unity components inside, so the rules stay testable.
     /// </summary>
-    public sealed class PlayerRpg
+    public sealed partial class PlayerRpg
     {
         public PlayerState State { get; private set; }
 
@@ -24,10 +24,6 @@ namespace ZenoniaProto
         public event Action<int> Revived;
         /// <summary>This player contributed to the Frostfang King kill.</summary>
         public event Action BossKilled;
-        /// <summary>The worn pet just crossed the warning line.</summary>
-        public event Action PetLow;
-        /// <summary>The worn pet reached 0: already out of the slot, stats recomputed.</summary>
-        public event Action PetWornOut;
         /// <summary>A quest moved: accepted, a kill counted, handed in.</summary>
         public event Action QuestChanged;
         /// <summary>A Wanted Boss claim was tried (result, boss, day key). Ok = paid and WantedDay set; failed = already claimed that day.</summary>
@@ -42,6 +38,7 @@ namespace ZenoniaProto
         {
             int levels = State.GainExp(exp);
             if (ExpGained != null) ExpGained(exp, levels, at);
+            if (levels > 0) AccountLevelReached(); // Spirit at 5, tickets at 10 / 20 ... (account, PlayerRpg.Account.cs)
             Touch();
             return levels;
         }
@@ -60,7 +57,7 @@ namespace ZenoniaProto
         public ActionResult ClaimWanted(WantedBossDef def, int dayKey)
         {
             ActionResult r = State.ClaimWanted(dayKey, def);
-            if (r.Ok) Touch();
+            if (r.Ok) { Touch(); AccountWantedClaimed(); } // the account's first claim of the day: a pet ticket (AccountRewards)
             if (WantedClaimed != null) WantedClaimed(r, def, dayKey);
             return r;
         }
@@ -69,18 +66,6 @@ namespace ZenoniaProto
         {
             if (r.Ok && QuestChanged != null) QuestChanged();
             return r;
-        }
-
-        public void PetHitTaken() { ReportPet(State.PetHitTaken()); }
-        public void PetAttackLanded(long nowMs) { ReportPet(State.PetAttackLanded(nowMs)); }
-
-        /// <summary>A drain alone raises no Changed: durability reaches the owner with SelfState, not with a whole RpgState per hit.</summary>
-        void ReportPet(PetWear wear)
-        {
-            if (wear == PetWear.Low && PetLow != null) PetLow();
-            if (wear != PetWear.WornOut) return;
-            if (PetWornOut != null) PetWornOut();
-            Touch();
         }
 
         /// <summary>A trade is being written with the bag room it counted on: new equipment waits on the ground for that moment.</summary>
@@ -139,7 +124,11 @@ namespace ZenoniaProto
                     int useSize = PotionCatalog.SlotSize(slot);
                     return useSize < 0 ? UsePotion(PotionCatalog.SlotIsHp(slot)) : UsePotion(PotionCatalog.SlotIsHp(slot), useSize);
                 case InvOp.PotionBuy: r = State.BuyPotion(PotionCatalog.SlotIsHp(slot), PotionCatalog.SlotSize(slot)); break;
-                case InvOp.PetBuy: r = State.BuyPet(PetConfig.ByIndex(slot)); break;
+                case InvOp.PetEquip:
+                    int teamSlot, petIndex;
+                    PetRules.DecodeSlot(slot, out teamSlot, out petIndex);
+                    r = State.SetTeamSlot(teamSlot, petIndex < 0 ? "" : PetConfig.ByIndex(petIndex) != null ? PetConfig.ByIndex(petIndex).Id : "?");
+                    break;
                 case InvOp.GearBuy:
                     int gearTier, gearSlot;
                     r = GearShops.Decode(slot, out gearTier, out gearSlot) ? State.BuyGear(gearTier, gearSlot) : ActionResult.Fail("Not sold here");

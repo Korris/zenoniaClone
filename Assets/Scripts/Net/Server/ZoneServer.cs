@@ -247,6 +247,7 @@ namespace ZenoniaProto
 
         void FinishJoin(NetPlayer p, Zone zone, HeroClassDef def)
         {
+            if (p.Rpg != null && p.Rpg.Account == null) p.Rpg.AttachAccount(AccountLink.Local(false)); // dev host without server-api: an account in RAM (real characters got theirs in ZonePersistence.Attach)
             NetPeer peer = p.Peer;
             peer.Tag = p;
             players.Add(p);
@@ -402,7 +403,7 @@ namespace ZenoniaProto
             {
                 HeroController h = p.Hero;
                 SelfStateMsg l = p.LastSelf;
-                bool changed = h.PetDurability != l.PetDurability || Mathf.CeilToInt(h.Hp) != l.Hp || Mathf.CeilToInt(h.Mp) != l.Mp || h.Rpg.Exp != (int)l.Exp || h.Rpg.Level != l.Level || h.AnySkillCooldown || HeroBuffs.AnyOn(h) || (l.Buffs != null && l.Buffs.Length > 0) || now - p.LastSelfSentMs >= 1000f;
+                bool changed = Mathf.CeilToInt(h.Hp) != l.Hp || Mathf.CeilToInt(h.Mp) != l.Mp || h.Rpg.Exp != (int)l.Exp || h.Rpg.Level != l.Level || h.AnySkillCooldown || HeroBuffs.AnyOn(h) || (l.Buffs != null && l.Buffs.Length > 0) || now - p.LastSelfSentMs >= 1000f;
                 if (changed) { repl.SendSelfState(p); p.LastSelfSentMs = now; }
             }
             if (p.RpgDirty && now - p.LastRpgSentMs >= RpgPushMs) { repl.SendRpgState(p, 0, true, ""); p.RpgDirty = false; p.LastRpgSentMs = now; }

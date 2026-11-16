@@ -206,7 +206,7 @@ namespace ZenoniaProto
             {
                 Hp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.Hp), 0, 65535), MaxHp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.MaxHp), 1, 65535),
                 Mp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.Mp), 0, 65535), MaxMp = (ushort)Mathf.Clamp(Mathf.CeilToInt(h.MaxMp), 1, 65535),
-                Exp = (uint)Mathf.Max(0, h.Rpg.Exp), Level = (byte)Mathf.Clamp(h.Rpg.Level, 1, 255), SkillCds = h.SkillCooldownsMs(), Buffs = HeroBuffs.ToNet(h), PetDurability = h.PetDurability,
+                Exp = (uint)Mathf.Max(0, h.Rpg.Exp), Level = (byte)Mathf.Clamp(h.Rpg.Level, 1, 255), SkillCds = h.SkillCooldownsMs(), Buffs = HeroBuffs.ToNet(h),
             };
             NetMessageWriter.SelfState(w, m);
             p.LastSelf = m;
@@ -218,7 +218,8 @@ namespace ZenoniaProto
             HeroController h = p.Hero;
             string mapId = h.HomeZone != null && h.HomeZone.Map != null ? h.HomeZone.Map.Id : null;
             var save = ZenoniaProto.Rpg.SaveSerializer.Capture(h.Rpg, true, h.Position.x, h.Position.y, p.Bosses.KingDefeated, 0, mapId, p.Bosses.OwnBossMaps);
-            NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = reqId, Result = (byte)(ok ? 1 : 0), Text = text, SaveJson = JsonUtility.ToJson(save) });
+            string account = p.Rpg != null && p.Rpg.Account != null ? JsonUtility.ToJson(p.Rpg.Account.Live) : "";
+            NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = reqId, Result = (byte)(ok ? 1 : 0), Text = text, SaveJson = JsonUtility.ToJson(save), AccountJson = account });
             Send(p, true);
         }
 

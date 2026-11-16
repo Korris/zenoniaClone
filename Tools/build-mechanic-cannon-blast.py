@@ -4,8 +4,8 @@ Until then MechanicCannonBlastFx.cs stretches the combo cast row as a temporary 
 leaving the barrel. Fireball, smoke clouds and debris belong to the impact.
 
 To do when art can be drawn:
-- Attach dual-src/hero-test-2-back.png (style and colours only) and fx/attack-orange/cast_2.png (directional density, not its shape).
-- Cut to Assets/Resources/Sprites/classes/mechanic/fx/cannon-blast/ with .meta copied from fx/attack-orange/cast_0.png.meta and a new guid. Don't change other files in fx/ or skills/.
+- Attach dual-src/hero-test-2-back.png (style and colours only) and fx/attack-v3/cast_2.png (directional density, not its shape; the attack-orange set it once used was removed 16/11).
+- Cut to Assets/Resources/Sprites/classes/mechanic/fx/cannon-blast/ with .meta copied from fx/attack-v3/cast_0.png.meta and a new guid. Don't change other files in fx/ or skills/.
 - Key on flat #FF00FF, zoom in to check for leftovers. Muzzle point at the same pixel in every frame: that pixel is the sprite pivot.
 - Then follow the ART block at the top of MechanicCannonBlastFx.cs.
 

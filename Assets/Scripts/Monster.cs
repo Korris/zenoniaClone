@@ -50,8 +50,12 @@ namespace ZenoniaProto
         public string Type { get { return def.Sheet; } }
         public Vector2 Feet { get { return new Vector2(x, y); } }
         public string DisplayName { get { return def.Name; } }
-        public float Hp { get { return hp; } }
         public float MaxHp { get { return def.Hp; } }
+        public float Hp { get { return hp; } }
+        /// <summary>A capture ball is being resolved on it (PetCaptureService): nobody else throws meanwhile.</summary>
+        [System.NonSerialized] public bool CaptureLocked;
+        /// <summary>It was caught as a pet: it goes away with no loot, EXP or kill credit (KillRewards skips it); the spawner still replaces it.</summary>
+        public bool WasCaptured { get; private set; }
         public bool IsDying { get { return state == State.Dying; } }
         public Rect Box { get { return new Rect(x - def.HitW * 0.5f, y, def.HitW, def.HitH); } }
         /// <summary>Body centre used for AoE distance (web: feet - 6).</summary>
@@ -186,6 +190,16 @@ namespace ZenoniaProto
             if (def.IsBoss) CameraFollow.AddTrauma(0.5f);
         }
 
+        /// <summary>Caught as a pet (PetCaptureService): vanishes like a death, but KillRewards pays nothing for it.</summary>
+        public void Captured(HeroController by)
+        {
+            if (IsDying || proxy) return;
+            WasCaptured = true;
+            hp = 0f; state = State.Dying; deathTimer = 0f; target = null;
+            NetEventBus.MonsterHit(this, by, 0, Vector2.zero, false, false, true);
+            if (homeZone != null) homeZone.OnMonsterDied(this, zone);
+        }
+
         /// <summary>Short, collision-respecting gather. Uses simulation movement; clients follow snapshots, bosses stay put.</summary>
         public void PullToward(Vector2 focus, float maxUnits)
         {
@@ -205,8 +219,9 @@ namespace ZenoniaProto
         {
             if (IsDying || proxy) return;
             if (src == null) src = LocalPlayer.Hero;
-            if (src != null && !dotTick) src.PetAttackLanded();
+            if (src != null && !dotTick) src.PetAttackLanded(this); // the owner's pet marks this monster (HeroController.Pet.cs)
             dmg = SkillHitHooks.Modify(src, this, dmg, quietFx); // mark multiplier, Death Mark charges, next-hit buffs
+            if (def.IsBoss && src != null && src.Rpg != null && src.Rpg.PetBonus.BossDamage > 0) dmg = Mathf.Max(1, Mathf.RoundToInt(dmg * (float)(1 + src.Rpg.PetBonus.BossDamage))); // Frozen Dominion bond
             Credit(src, Mathf.Min(dmg, Mathf.Max(1, Mathf.CeilToInt(hp)))); // overkill does not count towards the damage share
             if (src != null && !src.IsDead) target = src; // whoever hurts it becomes the sticky target
             hp -= dmg;

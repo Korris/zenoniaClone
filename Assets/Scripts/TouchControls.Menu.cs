@@ -20,6 +20,11 @@ namespace ZenoniaProto
             Img(quests, MenuSprite("win-quest-icon"), Color.white, true);
             quests.gameObject.AddComponent<TapButton>().onTap = QuestLogWindow.Open;
 
+            RectTransform pets = Place(parent, "Pets", tr, -200f, y, size); // Pet Companion window (P); its Gacha button opens the pet gacha (G)
+            Img(pets, UiSprites.Circle(), new Color(0.12f, 0.16f, 0.24f, 0.85f), true);
+            Img(Place(pets, "Icon", new Vector2(0.5f, 0.5f), 0f, 0f, 38f), PetArt.Icon(PetConfig.All[0]), Color.white);
+            pets.gameObject.AddComponent<TapButton>().onTap = PetWindow.Toggle;
+
             RectTransform bag = Place(parent, "Bag", tr, -88f, y, size);
             Img(bag, MenuSprite("hud-bag"), Color.white, true);
             TouchButton.Add(bag.gameObject, GameKey.Inventory, false);

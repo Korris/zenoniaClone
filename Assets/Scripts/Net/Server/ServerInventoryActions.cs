@@ -19,9 +19,11 @@ namespace ZenoniaProto
                 return;
             }
             bool questOp = m.Op == InvOp.QuestAccept || m.Op == InvOp.QuestTurnIn;
-            bool shopOp = m.Op == InvOp.PotionBuy || m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy;
+            bool shopOp = m.Op == InvOp.PotionBuy || m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || m.Op == InvOp.BallBuy;
             string refusal = TradeService.IsTrading(p) && TradeBook.BlocksInventoryOp(m.Op) ? "Not while trading" : shopOp ? ShopRefusal(p, m) : questOp ? QuestRefusal(p, m) : null;
             if (refusal == null && m.Op == InvOp.Enhance && ZonePersistence.Active != null) { ZonePersistence.Active.Enhance(repl, p, m); return; } // with real characters only the API rolls an enhance: the answer comes later
+            if (refusal == null && InvOpInfo.IsAccountOp(m.Op)) { AccountAction(repl, p, m); return; } // pet unlock / growth / gacha / balls: answered once the account is stored
+            if (refusal == null && m.Op == InvOp.PetCapture) { Capture(repl, p, m); return; }
             string before = LookKey(p);
             ActionResult r = refusal != null ? ActionResult.Fail(refusal) : p.Rpg.ApplyInvAction(m.Op, m.ItemUid, m.Slot);
             if (LookKey(p) != before) LookChanged(p);
@@ -30,12 +32,41 @@ namespace ZenoniaProto
             p.RpgDirty = false;
         }
 
+        /// <summary>Pet buy / star up / gacha pull / UR exchange: PlayerRpg runs it through the account queue; the answer (state + text) goes out when it is stored or refused.</summary>
+        static void AccountAction(ServerReplication repl, NetPlayer p, InvActionMsg m)
+        {
+            p.Rpg.ApplyAccountAction(m.Op, m.Slot, m.ItemUid, r =>
+            {
+                if (p.Hero == null) return; // left meanwhile: the account is stored, the next join shows it
+                Zone.Enter(p.Hero.HomeZone);
+                if (r.Ok && ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p); // the gold paid with it
+                repl.SendRpgState(p, m.ReqId, r.Ok, r.Text);
+                p.RpgDirty = false;
+            });
+        }
+
+        /// <summary>A ball thrown at monster ItemUid (its NetId): PetCaptureService checks the target and the account, the answer comes when stored.</summary>
+        static void Capture(ServerReplication repl, NetPlayer p, InvActionMsg m)
+        {
+            ushort id;
+            if (!ushort.TryParse(m.ItemUid, out id)) { repl.SendRpgState(p, m.ReqId, false, "No such monster"); p.RpgDirty = false; return; }
+            PetCaptureService.Request(p.Hero, p.Hero.HomeZone, id, m.Slot == 1, r =>
+            {
+                if (p.Hero == null) return;
+                Zone.Enter(p.Hero.HomeZone);
+                if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p);
+                repl.SendRpgState(p, m.ReqId, r.Ok, r.Text);
+                p.RpgDirty = false;
+            });
+        }
+
         /// <summary>A purchase counts only with the seller on the map this hero is on, in reach of where the server has the hero. Never the client's word.</summary>
         static string ShopRefusal(NetPlayer p, InvActionMsg m)
         {
             IGameMap map = HeroMap(p);
             float distance = DistanceToNpc(p, map, m.ItemUid);
             if (m.Op == InvOp.PetBuy) return PetConfig.Refusal(m.ItemUid, map.Id, m.Slot, distance);
+            if (m.Op == InvOp.BallBuy) return PetConfig.Refusal(m.ItemUid, map.Id, PetConfig.IndexOf(PetConfig.Get("imp")), distance); // the same merchants sell balls
             if (m.Op == InvOp.GearBuy) return GearShops.Refusal(m.ItemUid, map.Id, m.Slot, distance);
             return PotionShops.Refusal(m.ItemUid, map.Id, PotionCatalog.SlotSize(m.Slot), distance);
         }
@@ -67,8 +98,8 @@ namespace ZenoniaProto
         /// <summary>Weapon / offhand identity + enhance level and the pet: changes when the visible gear changes.</summary>
         public static string LookKey(NetPlayer p)
         {
-            Item w = p.Hero.Rpg.GetEquipped(Slots.Weapon), o = p.Hero.Rpg.GetEquipped(Slots.Offhand), pet = p.Hero.Rpg.GetEquipped(Slots.Pet);
-            return (w != null ? w.uid + w.enhance : "-") + "|" + (o != null ? o.uid + o.enhance : "-") + "|" + (pet != null ? pet.uid : "-");
+            Item w = p.Hero.Rpg.GetEquipped(Slots.Weapon), o = p.Hero.Rpg.GetEquipped(Slots.Offhand);
+            return (w != null ? w.uid + w.enhance : "-") + "|" + (o != null ? o.uid + o.enhance : "-") + "|" + p.Hero.Rpg.PetId;
         }
     }
 }

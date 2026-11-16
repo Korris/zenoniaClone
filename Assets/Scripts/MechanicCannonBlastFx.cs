@@ -10,7 +10,7 @@ namespace ZenoniaProto
     public sealed class MechanicCannonBlastFx : MonoBehaviour
     {
         // ---- ART: everything that changes with the art is in this block ----
-        // The painted muzzle-flash (cast) row of the combo set (mechanic-v2 since 2026-11-08, Tools/build-mechanic-attack-fx-v2.py: a star burst, pivot at the
+        // The painted muzzle-flash (cast) row of the combo set (mechanic-v3, Tools/build-mechanic-attack-fx-v3.py, same layout as the v2 board of 2026-11-08: a star burst, pivot at the
         // muzzle end of its hot core) stretched along the aim. Other art: load it in ConeFrames, list its frames in ConeOrder, set ConeAlong / ConeAcross.
         static Sprite[] ConeFrames() { VfxSet set = VfxSprites.For(BoltStyle.Plasma); return set != null ? set.Rows[VfxSet.Cast] : null; }
         static readonly int[] ConeOrder = { 1, 2, 2, 3 }; // v2 row: burst, biggest burst with sparks (held), fading sparks

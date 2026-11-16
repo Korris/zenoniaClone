@@ -67,7 +67,6 @@ namespace ZenoniaProto
         public float CritBonus { get { return rpg.CritBonus; } }
         public PlayerState Rpg { get { return rpg; } }
         /// <summary>Durability of the worn pet, 0 for none: what SelfState tells the owner, and nobody else.</summary>
-        public ushort PetDurability { get { Item pet = rpg.GetEquipped(Slots.Pet); return pet != null ? (ushort)Mathf.Clamp(pet.durability, 0, 65535) : (ushort)0; } }
         /// <summary>Where the hero is DRAWN: the sim spot, or for the online local hero the smoothed (interpolated + error blended) one.</summary>
         public Vector2 Position { get { return predicted ? predictor.VisualPos : new Vector2(x, y); } }
         /// <summary>Feet-anchored body box (web HERO_HITBOX) at Position: what a monster projectile has to touch.</summary>
@@ -157,6 +156,7 @@ namespace ZenoniaProto
             if (predicted) predictor.Tick(dt);          // online local hero: fixed 1/30 s steps, drawn smoothed
             else if (StepGate != null) GatedSteps(dt);  // server-side hero of a remote player: one input frame per fixed step
             else StepOnce(dt);
+            TickPet(dtMs); // Pet Companion skills (authority only, HeroController.Pet.cs)
             Vector2 at = Position;
             transform.position = new Vector3(at.x, at.y, 0f);
             Render();
@@ -206,7 +206,7 @@ namespace ZenoniaProto
 
             UpdateRangedCastFx();
             events.Clear();
-            combo.Update(dtMs * HeroBuffs.AtkSpeedMul(this), events);
+            combo.Update(dtMs * HeroBuffs.AtkSpeedMul(this) * (float)(1 + rpg.PetPassive(PetPassive.AttackSpeed)), events); // Thunder Sprite: +attack speed (the client mirror has the same pet, so prediction agrees)
             for (int i = 0; i < events.Count; i++) if (events[i].Type == ComboEventType.Hit) DoHit(events[i].Step);
             // Turn only after the completed strike lands; never rotate its hit box halfway through a swing.
             if (cls.Id == HeroClass.Warrior && input != Vector2.zero)
@@ -285,7 +285,6 @@ namespace ZenoniaProto
             if (InputAdapter.Pressed(GameKey.Enhance)) { enh = !enh; changed = true; }
             if (HeroHeadLayer.CycleKeyPressed()) view.HairStyle = view.HairStyle + 1; // H: next hairstyle (not saved; online it goes to the server via SyncHairStyleOnline)
             if (HeroHeadLayer.DyeKeyPressed()) view.HairDye = view.HairDye + 1; // Shift+H: next hair dye (layered heads, local only)
-            if (cls.Id == HeroClass.Mechanic && InputAdapter.Pressed(GameKey.FxColor)) { ClassPalette.MechanicBlue = !ClassPalette.MechanicBlue; ClassPalette.Current = cls.ActivePalette; }
             if (!changed) return;
             view.SetGear(tier, enh); // debug look override until the equipment changes again
             RefreshGearLabel();

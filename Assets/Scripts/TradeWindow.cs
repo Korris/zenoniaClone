@@ -370,7 +370,7 @@ namespace ZenoniaProto
             c.Icon.enabled = c.Icon.sprite != null;
             ItemEnhanceSlotFx.Show(c.Icon, item);
             int plus = item != null ? EnhanceStats.Level(item) : 0;
-            c.Plus.text = item != null && item.slot == ZenoniaProto.Rpg.Slots.Pet ? ItemInfo.DurabilityPercent(item) : plus > 0 ? "+" + plus : "";
+            c.Plus.text = item != null && item.slot == ZenoniaProto.Rpg.Slots.Pet ? "old" : plus > 0 ? "+" + plus : "";
             if (c.Name != null)
             {
                 c.Name.text = item != null ? item.name : "";

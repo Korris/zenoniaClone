@@ -20,7 +20,7 @@ T0 (scrap) gets its own folder cannon/scrap/ so the shared master art (fit targe
   python Tools/build-mechanic-tier-weapon-fit.py write                          pistols (side + per-tier front/back views), cannons, anchors (idle down, attack1-3 down/up aim), glow
 --captures DIR: bottom row from in-game shots DIR/z30-t<N>_1.png (900x900, --zoom 30, idle down, e.g. `Zenonia.exe --class mechanic
 --level 100 --worn-tier N --wear-tiers N,0,0 --face down --zoom 30 --shots 5 --shot-path DIR/z30-tN`); CAP_HEAD / CAP_H place the hero.
-Note: Tools/build-mechanic-dual.py `write` rebuilds the anchors and would drop `carry` and the level idle pistols: re-run `write` here after it.
+Note: Tools/build-mechanic-dual.py no longer has a `write` (removed 16/11), so nothing else rebuilds these anchors.
 """
 import importlib.util, json, math, os, re, sys, uuid
 import numpy as np

@@ -18,7 +18,7 @@ OPTIONAL = {"book"}  # GearPartSpec.Optional: no anchor = not drawn, the frame s
 CLASSES = {
     "warrior": ("held-gear", [("shield", "shield", 0.8, 0.0), ("sword", "sword", 2.0, 0.85)]),
     "wizard": ("held-wizard", [("staff", "staff", 1.0, 0.0), ("book", "book", 1.0, 0.0)]),  # book: optional part (idle down only)
-    "mechanic": ("held-mechanic", [("gun", "gun", 1.0, 0.0)]),
+    "mechanic": ("held-mechanic-dual", [("cannon", "cannon", 1.0, 0.0), ("gunL", "pistol", 1.0, 0.0), ("gun", "pistol", 1.0, 0.0)]),  # back cannon + two pistols
     "assassin": ("held-assassin", [("off", "dagger", 1.3, 0.0), ("main", "dagger", 1.3, 0.0)]),
     "cleric": ("held-cleric", [("shield", "shield", 0.8, 0.0), ("staff", "staff", 1.0, 0.0)]),
     "fighter": ("held-fighter", [("off", "glove", 1.0, 0.0), ("main", "glove", 1.0, 0.0)]),  # HeroClassDef.Fighter: two gloves, DrawScale 1.0
@@ -75,6 +75,11 @@ def compose(cls, anim, direction, frame, bare_path=None, anchors=None, hand_path
             if a.get("hidden") or bool(a.get("behind")) != behind:
                 continue
             entry = (file["sword"] if pid == "sword" else file["shield"] if pid == "shield" else file["book"] if pid == "book" else file["weapon"])[tier]
+            if a.get("art"):  # art named by the anchor (Mechanic cannon / pistol views), centred pivot: GearOverlays.CenteredTier
+                tier_art = f"{RES}/Sprites/classes/{cls}/weapons/{folder}/{entry['name']}/{a['art']}.png"
+                art = Image.open(tier_art if os.path.exists(tier_art) else f"{RES}/Sprites/classes/{cls}/weapons/{folder}/{a['art']}.png").convert("RGBA")
+                place(canvas, art, {"gripX": art.width / 2.0, "gripY": art.height / 2.0}, a, scale, min_sx, pad)
+                continue
             art = Image.open(f"{RES}/Sprites/classes/{cls}/weapons/{folder}/{entry['name']}-base.png").convert("RGBA")
             place(canvas, art, entry["baseGrip"], a, scale, min_sx, pad)
 

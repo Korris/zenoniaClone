@@ -46,11 +46,11 @@ namespace ZenoniaProto
         }
 
         /// <summary>Client: a MonsterHit event (replayed at render time): exact hp, flash, number and sparks.</summary>
-        public void ProxyHit(int dmg, int hpLeft, Vector2 knockVel, bool crit, bool finisher, bool quiet, bool otherPlayer = false)
+        public void ProxyHit(int dmg, int hpLeft, Vector2 knockVel, bool crit, bool finisher, bool quiet, bool otherPlayer = false, int petKind = 0)
         {
             exactHp = hpLeft;
             hp = hpLeft;
-            HitFx(dmg, knockVel, crit, finisher, quiet, otherPlayer);
+            HitFx(dmg, knockVel, crit, finisher, quiet, otherPlayer, petKind);
         }
 
         // Dominant status <-> 3-bit snapshot code (0 none, 1 freeze, 2 stun, 3 burn, 4 poison, 5 slow / chill; the mark has its own bit).

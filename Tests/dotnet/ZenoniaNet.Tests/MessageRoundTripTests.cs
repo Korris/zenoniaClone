@@ -137,9 +137,17 @@ public class MessageRoundTripTests
         NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 8, Op = InvOp.GearBuy, ItemUid = "smithBram", Slot = 9 });
         InvActionMsg gear; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out gear));
         Assert.Equal(InvOp.GearBuy, gear.Op); Assert.Equal("smithBram", gear.ItemUid); Assert.Equal((byte)9, gear.Slot);
-        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOp.GearBuy + 1); w.Put("x"); w.Put((byte)0);
+        foreach (InvOp op in new[] { InvOp.PetEquip, InvOp.PetStarUp, InvOp.GachaPull, InvOp.GachaExchange, InvOp.PetLevelUp, InvOp.PetConvertShards, InvOp.GachaBuyCoins, InvOp.BallBuy, InvOp.PetCapture }) // pets (protocol 20-21)
+        {
+            NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 9, Op = op, ItemUid = "", Slot = 10 });
+            InvActionMsg pet; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out pet));
+            Assert.Equal(op, pet.Op); Assert.Equal((byte)10, pet.Slot);
+        }
+        Assert.Equal(InvOp.PetCapture, InvOpInfo.Last);
+        Assert.True(InvOpInfo.IsAccountOp(InvOp.GachaPull) && InvOpInfo.IsAccountOp(InvOp.PetBuy) && InvOpInfo.IsAccountOp(InvOp.BallBuy) && InvOpInfo.IsAccountOp(InvOp.PetLevelUp) && !InvOpInfo.IsAccountOp(InvOp.PetEquip) && !InvOpInfo.IsAccountOp(InvOp.PetCapture));
+        w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOpInfo.Last + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(19, NetProtocol.Version);
+        Assert.Equal(21, NetProtocol.Version);
     }
 
     [Fact]
@@ -209,9 +217,19 @@ public class MessageRoundTripTests
         NetEvent ally; Assert.True(NetEvent.TryRead(evRead, out ally));
         Assert.Equal(NetEventType.AllyBuff, ally.Type); Assert.Equal(7, ally.Id); Assert.Equal(9, ally.Other); Assert.Equal(2, ally.Step); Assert.Equal(12000u, ally.Value);
 
-        NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = 4, Result = 1, Text = "ok", SaveJson = "{\"a\":1}" });
+        NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = 4, Result = 1, Text = "ok", SaveJson = "{\"a\":1}", AccountJson = "{\"tickets\":3}" });
         RpgStateMsg pm; Assert.True(NetMessageReader.TryRpgState(Reader(w, NetOp.RpgState), out pm));
         Assert.Equal("{\"a\":1}", pm.SaveJson);
+        Assert.Equal("{\"tickets\":3}", pm.AccountJson);
+
+        var petBuf = new NetDataWriter();
+        new NetEvent { Type = NetEventType.PetSkill, Id = 12, Other = 340, Step = 3 }.Write(petBuf);
+        NetEvent petSkill; Assert.True(NetEvent.TryRead(new NetDataReader(petBuf.CopyData()), out petSkill));
+        Assert.Equal(NetEventType.PetSkill, petSkill.Type); Assert.Equal(12, petSkill.Id); Assert.Equal(340, petSkill.Other); Assert.Equal(3, petSkill.Step);
+        petBuf.Reset();
+        new NetEvent { Type = NetEventType.PetCapturable, Id = 77, X = -1200, Y = 640, Step = 1, Value = 45000 }.Write(petBuf); // a fallen Wanted Boss may be caught for 45 s
+        NetEvent corpse; Assert.True(NetEvent.TryRead(new NetDataReader(petBuf.CopyData()), out corpse));
+        Assert.Equal(NetEventType.PetCapturable, corpse.Type); Assert.Equal(77, corpse.Id); Assert.Equal(-1200, corpse.X); Assert.Equal(640, corpse.Y); Assert.Equal(1, corpse.Step); Assert.Equal(45000u, corpse.Value);
     }
 
     [Fact]

@@ -1,7 +1,8 @@
 """Wizard basic attack (4-hit combo) body rows repainted by ChatGPT after the board docs/reference/wizard-basic-attack-board.png (2026-11-08):
   attack1 Arcane Thrust (staff, right hand), attack2 Frost Page (book, left hand), attack3 Twin Sigil (staff raised + book forward),
   attack4 Astral Nova (both hands push the orb; new anim, 6 frames). attack1-3 are 4 frames (attack3 is also the generic skill cast pose).
-ChatGPT paints each row with EMPTY fists, bare-headed (hairstyle 0), on flat #00FF00 (sources in ArtLibrary/classes/wizard/attack-board/body/,
+ChatGPT paints each row with EMPTY fists, bare-headed (hairstyle 0), on flat #00FF00 (sources were ArtLibrary/classes/wizard/attack-board/body/, removed 16/11: this file now serves as the pose / fist / write
+library of the outfit-d tools, which set wb.JOBS to their own sources;
 the images sent in ../ref/). This tool fits every painted frame onto the game frame (docs/sprite-rules.md, ChatGPT rule 8): the body is scaled
 so neck-to-sole equals idle's of the same facing, the head alone is shrunk to idle's hair width by a smooth warp above the neck (same method as
 Tools/build-mechanic-attack-down-repaint.py NORMALIZE), soles on idle's sole row, feet centred on idle's feet. Then it writes per row:

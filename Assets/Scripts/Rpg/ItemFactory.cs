@@ -93,14 +93,17 @@ namespace ZenoniaProto.Rpg
             return item;
         }
 
-        /// <summary>A pet instance: no stats of its own (the bonus comes from PetConfig), no class, level 1.</summary>
-        public static Item CreatePet(PetDef def, Rand rand)
+        /// <summary>Durability of an OLD pet item when new (before Pet Companion, 16/11/2026). Only met in old saves, which AccountPets.Migrate turns into account pets.</summary>
+        public const int LegacyPetDurability = 1000;
+
+        /// <summary>An OLD durability pet item (Spirit / Imp before Pet Companion): only to build old saves in tests and dev tools; the game never makes one any more.</summary>
+        public static Item CreateLegacyPet(PetDef def, Rand rand)
         {
-            return new Item { uid = def.TemplateId + "-" + ToBase36((long)Math.Floor(rand() * 1e9)), templateId = def.TemplateId, slot = Slots.Pet, name = def.Name, rarity = PetConfig.Rarity, itemLevel = 1, stats = new ItemStats(), durability = PetConfig.MaxDurability };
+            return new Item { uid = def.TemplateId + "-" + ToBase36((long)Math.Floor(rand() * 1e9)), templateId = def.TemplateId, slot = Slots.Pet, name = def.Name, rarity = "rare", itemLevel = 1, stats = new ItemStats(), durability = LegacyPetDurability };
         }
 
         /// <summary>
-        /// Validates an item from untrusted save JSON; null when it cannot be trusted (unknown template, slot mismatch, bad rarity) or is a pet at 0, which is gone.
+        /// Validates an item from untrusted save JSON; null when it cannot be trusted (unknown template, slot mismatch, bad rarity) or is an old pet at 0, which was gone.
         /// oldFormat = a save from before durability existed: there a pet without the field reads 0 and loads at the maximum (SaveSerializer.SaveVersion 2 always writes it).
         /// </summary>
         public static Item Sanitize(Item raw, bool oldFormat = false)
@@ -138,7 +141,7 @@ namespace ZenoniaProto.Rpg
             if (t.Slot == Slots.Pet)
             {
                 if (raw.durability <= 0 && !oldFormat) return null;
-                item.durability = raw.durability <= 0 ? PetConfig.MaxDurability : Math.Min(raw.durability, PetConfig.MaxDurability);
+                item.durability = raw.durability <= 0 ? LegacyPetDurability : Math.Min(raw.durability, LegacyPetDurability); // kept only until AccountPets.Migrate
             }
             return item;
         }

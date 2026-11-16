@@ -6,20 +6,20 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// A village seller's window (win-panel): the seller's name and greeting, the buyer's gold, one row per potion and, with the merchants, per pet on sale (icon, name, effect, owned, price, Buy).
+    /// A village seller's window (win-panel): the seller's name and greeting, the buyer's gold, one row per potion and, with the merchants, per pet for sale (Imp: unlocks it for the account, once).
     /// The hero is frozen while it is open (UiWindows.ModalOpen). Offline it pays at once; online it only asks, the server checks seller, reach and gold and answers with the
     /// new state, so the rows redraw from whatever the state says.
     /// </summary>
     public sealed class PotionShopWindow : MonoBehaviour
     {
         const float W = 500f, RowH = 52f, RowsY = 104f, BottomPad = 22f;
-        static readonly int MaxRows = PotionCatalog.Sizes * 2 + PetConfig.All.Length;
+        static readonly int MaxRows = PotionCatalog.Sizes * 2 + PetConfig.All.Length + 1; // + the Pet Ball row
         static readonly Color CanBuy = Color.white, CannotBuy = new Color(1f, 1f, 1f, 0.45f);
         static PotionShopWindow instance;
 
         public static bool IsOpen { get { return instance != null && instance.open; } }
 
-        sealed class Row { public RectTransform Root; public bool Hp; public int Size; public PetDef Pet; public Image Icon, Button; public Text Name, Effect, Owned, Price; public int Cost { get { return Pet != null ? Pet.Price : PotionCatalog.Price(Size); } } }
+        sealed class Row { public RectTransform Root; public bool Hp; public int Size; public PetDef Pet; public bool Ball; public Image Icon, Button; public Text Name, Effect, Owned, Price; public int Cost { get { return Ball ? PetRules.BallPrice : Pet != null ? Pet.Price : PotionCatalog.Price(Size); } } }
 
         readonly Row[] rows = new Row[MaxRows];
         RectTransform root;
@@ -102,17 +102,20 @@ namespace ZenoniaProto
             {
                 Row row = rows[n++];
                 row.Pet = pet;
-                row.Root.gameObject.SetActive(PetConfig.SoldBy(npcId));
+                row.Root.gameObject.SetActive(PetConfig.SoldBy(npcId) && pet.Price > 0); // only pets for sale (Imp); the rest come from levels and the gacha
             }
+            Row ball = rows[n++]; // Pet Balls (docs/pet-system-design.md 6): the same merchants, 500 G, 5 a day per account
+            ball.Ball = true;
+            ball.Root.gameObject.SetActive(PetConfig.SoldBy(npcId));
             int shown = 0;
             foreach (Row row in rows)
             {
                 if (!row.Root.gameObject.activeSelf) continue;
                 row.Root.anchoredPosition = new Vector2(30f, -(RowsY + shown * RowH));
-                row.Icon.sprite = row.Pet != null ? LootSprites.Icon(new Item { slot = Slots.Pet, templateId = row.Pet.TemplateId }) : LootSprites.Potion(row.Hp, row.Size);
+                row.Icon.sprite = row.Ball ? PetArt.BallIcon(false) : row.Pet != null ? PetArt.Icon(row.Pet) : LootSprites.Potion(row.Hp, row.Size);
                 row.Icon.enabled = row.Icon.sprite != null;
-                row.Name.text = row.Pet != null ? row.Pet.Name + " (Pet)" : PotionCatalog.Name(row.Hp, row.Size);
-                row.Effect.text = row.Pet != null ? row.Pet.Effect + ", durability " + PetConfig.MaxDurability : PotionCatalog.Effect(row.Hp, row.Size);
+                row.Name.text = row.Ball ? "Pet Ball" : row.Pet != null ? row.Pet.Name + " (Pet)" : PotionCatalog.Name(row.Hp, row.Size);
+                row.Effect.text = row.Ball ? "Throw at a weakened monster to catch it as a pet (" + PetRules.BallsPerDay + " a day)" : row.Pet != null ? PetConfig.PassiveText(row.Pet, 1) + ", " + row.Pet.SkillName : PotionCatalog.Effect(row.Hp, row.Size);
                 row.Price.text = row.Cost + " G";
                 shown++;
             }
@@ -124,13 +127,10 @@ namespace ZenoniaProto
         {
             PlayerState p = RpgSession.Player;
             if (p == null) return;
-            if (NetMode.IsClient) // the answer's RpgState and text come back
-            {
-                if (row.Pet != null) NetClient.SendInvAction(InvOp.PetBuy, seller, (byte)System.Array.IndexOf(PetConfig.All, row.Pet));
-                else NetClient.SendInvAction(InvOp.PotionBuy, seller, PotionCatalog.PackSlot(row.Hp, row.Size));
-                return;
-            }
-            ActionResult r = row.Pet != null ? p.BuyPet(row.Pet) : p.BuyPotion(row.Hp, row.Size);
+            if (row.Pet != null) { PetActions.Send(InvOp.PetBuy, (byte)PetConfig.IndexOf(row.Pet), seller); return; } // account unlock: answered once stored
+            if (row.Ball) { PetActions.Send(InvOp.BallBuy, 1, seller); return; } // one ball per tap, into the account
+            if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.PotionBuy, seller, PotionCatalog.PackSlot(row.Hp, row.Size)); return; } // the answer's RpgState and text come back
+            ActionResult r = p.BuyPotion(row.Hp, row.Size);
             RpgHud.Toast(r.Text, r.Ok ? new Color(0.7f, 1f, 0.7f) : new Color(1f, 0.7f, 0.5f));
             Refresh();
         }
@@ -145,7 +145,7 @@ namespace ZenoniaProto
             foreach (Row row in rows)
             {
                 if (!row.Root.gameObject.activeSelf) continue;
-                row.Owned.text = "Owned " + (row.Pet != null ? p.PetCount(row.Pet) : p.PotionCount(row.Hp, row.Size));
+                row.Owned.text = row.Ball ? "Owned " + (p.Account != null ? p.Account.balls : 0) : row.Pet != null ? (p.Account != null && p.Account.OwnsPet(row.Pet.Id) ? "Owned" : "New") : "Owned " + p.PotionCount(row.Hp, row.Size);
                 row.Button.color = p.Gold >= row.Cost ? CanBuy : CannotBuy; // still tappable: the refusal says why
             }
         }

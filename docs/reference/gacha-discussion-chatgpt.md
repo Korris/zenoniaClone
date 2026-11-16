@@ -208,3 +208,91 @@ Người dùng: "hệ thống pet bên Ragnarok phức tạp phết, chat với 
 **Server:** không cho 50 pet chạy AI tìm đường riêng. Pet là "visual follower" do client đặt vị trí theo chủ; server giữ pet đang mặc, nội tại, cooldown, mục tiêu hợp lệ, kết quả skill, rồi gửi sự kiện để client phát anim + FX. Không collider / hitbox / HP / aggro cho pet. Cho phép ẩn pet người khác (server vẫn tính hiệu quả).
 
 **Câu chốt của ChatGPT:** pet là bạn đồng hành có cá tính, không phải nhân vật chiến đấu thứ hai; vui ở chỗ sưu tập đủ 6, chọn pet hợp map, thấy nó đỡ đúng lúc, còn kỹ năng điều khiển class + combo 4 nhát vẫn quyết định trận đấu.
+
+## Lần 6: người dùng đẩy sang gacha PET, rồi chốt V1 để code (16/11, cùng chat)
+
+Sau Lần 5, người dùng tự hỏi tiếp trong chat: "hoàn thành dungeon là sao, dungeon cũng đang là 1 map bình thường mà" -> ChatGPT bỏ điều kiện "xong dungeon", thay bằng đếm số lần hạ boss vùng theo tài khoản (tối đa 1 lần / ngày / boss). "vậy có gacha pet ko" -> ChatGPT: không, chỉ skin pet sau. "chứ sao game ragnarok làm được" -> ChatGPT đồng ý gacha pet được nếu vé kiếm khi chơi, pet nào cũng có đường free, không bán sức mạnh vượt trội. "sao ko làm độ hiếm nhiều như ragnarok" -> chốt 5 độ hiếm N/R/SR/SSR/UR (17 pet về sau, bản đầu 8 con), tỉ lệ 45/30/17/6/2, pity 10 SR+, 30 SSR+, 60 UR.
+
+Claude (agent code) hỏi chốt V1 lần 1 (còn nhắc Rương Thời Trang) -> ChatGPT chọn "Pet Spirit + Imp + Rương Thời Trang cosmetic" (vé 4/tuần, Đá Tinh Linh, 20 món cosmetic). **Người dùng bác: "sao trong đoạn chat có rương thời trang để làm gì vậy, đang làm hệ thống pet và gacha PET mà".** Hỏi lại, ChatGPT chốt (tóm tắt, không nguyên văn):
+
+**CHỐT V1 — GACHA PET (không cosmetic, không tiền nạp, không độ bền, không trade, không Bond / Talent).**
+
+**Pool 8 pet** (1 ảnh tĩnh + FX có sẵn mỗi con; 1 nội tại + 1 skill tự dùng cd 20 s; 1 pet / nhân vật, sở hữu + sao chung tài khoản):
+| Độ hiếm | Pet | Nội tại 1★ | Skill (20 s) |
+|---|---|---|---|
+| N | Spirit | +5 % MaxHP | HP <= 70 % và vừa nhận sát thương: khiên 5 % MaxHP 5 s |
+| N | Imp | +3 % sát thương PvE | lửa 40 % ATK cơ bản, 1 mục tiêu |
+| R | Snow Fox | +3 % tốc chạy | băng 45 %, làm chậm quái 20 % trong 2 s |
+| R | Green Slime | -3 % sát thương nhận từ quái | độc 45 %, 1 mục tiêu |
+| SR | Forest Fairy | +5 % hiệu quả thuốc HP | hồi 5 % MaxHP khi HP <= 70 % |
+| SR | Thunder Sprite | +3 % tốc đánh | sét 55 %, 1 mục tiêu |
+| SSR | Phoenix | +4 % sát thương PvE | lửa 65 %, 1 mục tiêu |
+| UR | Mini Dragon | +5 % sát thương PvE | lửa 75 %, 1 mục tiêu |
+- "ATK" = sát thương cơ bản 1 nhát đánh thường của chủ, không combo, crit, buff pet, on-hit. Skill pet không kích combo / crit / skill pet khác. Nội tại +1 điểm % mỗi sao; skill giữ nguyên.
+
+**Gacha:** 45 / 30 / 17 / 6 / 2 %, chia đều trong độ hiếm. Pity: 9 lượt trước không SR+ -> lượt 10 chắc SR+; 29 không SSR+ -> lượt 30 chắc SSR+; 59 không UR -> lượt 60 chắc UR. Ra SR+ reset đếm SR, SSR+ reset SSR, UR reset cả ba; nhiều mốc trùng thì lấy mốc cao nhất. Pity theo tài khoản, không hết hạn. x1 / x10 (không giảm giá, không tăng tỉ lệ, server làm tuần tự 10 lượt trong 1 transaction). Không banner giới hạn ở V1.
+
+**Trùng / sao:** trùng = 10 Mảnh Pet đúng loài (mọi độ hiếm). Mở lần đầu 1★, không mảnh. 1->2★: 10 mảnh + 5000 vàng; 2->3★: 20 mảnh + 10000 vàng; 100 %. **Bỏ Đá Tinh Linh.** Mảnh dư ở 3★ giữ lại, chưa dùng.
+
+**Vé (theo tài khoản, không trade, không bán, quái thường không rơi):** tài khoản mới 10 (1 lần); Wanted Boss lần nhận đầu / ngày / tài khoản 1 (tối đa 4 / tuần); boss map đủ 5 lần hợp lệ / tuần 1; đạt Lv 10/20/30/40/50/60 lần đầu trên tài khoản 2 vé / mốc (tính mốc cao nhất của cả tài khoản). Lặp lại tối đa 5 vé / tuần. Boss hợp lệ = góp >= 1 % MaxHP, mỗi boss chết tính 1 lần / tài khoản. Reset ngày / tuần giờ VN.
+
+**Không qua gacha:** Spirit free khi có nhân vật Lv 5; Imp 3000 vàng ở NPC (mở 1 lần / tài khoản); Mini Dragon đổi 120 Mảnh UR (mỗi lượt không ra UR +1 Mảnh UR; đã có thì không đổi). 5 con còn lại chỉ từ gacha.
+
+**Công bằng online:** 1 pet / nhân vật, không HP / aggro / collider, không tự tìm quái: chỉ đánh mục tiêu chủ đánh trúng trong 2 s, tầm 6 ô; không farm khi chủ đứng yên; sát thương pet KHÔNG tính vào mức góp tối thiểu nhận loot boss / vé / nhiệm vụ; UR 1★ tối đa +5 % sát thương (Imp +3 %), skill 75 % / 20 s.
+
+**Pet cũ:** Spirit / Imp đã có -> mở vĩnh viễn 1★ (Spirit +15 % -> +5 % HP, Imp +10 % -> +3 %), bỏ độ bền; bù mỗi loài đã có 10 mảnh đúng loài + 3000 vàng, 1 lần / tài khoản, có cờ chống nhận lại.
+
+**Lịch sử / công khai:** 200 lượt gần nhất (thời gian, pet, độ hiếm, mới / trùng, mảnh, pity sau lượt); audit server >= 90 ngày; màn gacha hiện đủ tỉ lệ 45/30/17/6/2 %, xác suất từng pet, luật pity, số lượt còn tới mỗi mốc. RNG server; trừ vé + pity + mở pet + mảnh trong cùng transaction; requestId chống quay trùng.
+
+## Lần 7: pet là quái / boss của game, không phải tinh linh nhỏ (16/11, cùng chat)
+
+Người dùng chê 8 pet Lần 6 "toàn kiểu tinh linh nhỏ", nhớ Ragnarok pet là quái / boss mình đánh. Claude hỏi mở trong chat (gửi danh sách quái + boss có sẵn của game), ChatGPT tra web và chốt (tóm tắt):
+
+- **Xác nhận Midgard Senki (bản Đài Loan):** pet chủ yếu là quái thường, MINI, MVP thu nhỏ kiểu chibi, giữ nhận diện quái gốc; quái thường bắt ngoài map, MINI / MVP bắt sau khi hạ trong thời gian cho phép; ngoài ra có gacha pet (nguồn Ludens Media và các hướng dẫn).
+- **Pool gacha V1 = 8 quái / boss thu nhỏ của game** (hệ thống, tỉ lệ 45/30/17/6/2, pity 10/30/60, mảnh, vé giữ nguyên Lần 6):
+
+| Hiếm | Pet (quái gốc) | Nội tại 1★ | Skill 20 s |
+|---|---|---|---|
+| N | Frost Slime | +5 % MaxHP | khiên 5 % MaxHP 5 s khi HP <= 70 % và vừa trúng đòn |
+| N | Horn Rabbit | +3 % tốc chạy | húc 1 mục tiêu 40 % đòn thường |
+| R | Ice Goblin | +3 % sát thương PvE | ném băng 45 %, chậm 20 % 2 s |
+| R | Thorn Boar | -3 % sát thương nhận từ quái | húc 45 % |
+| SR | Spectral Wolf | +3 % tốc đánh | cắn 55 % |
+| SR | Marsh Stalker | +5 % hiệu quả thuốc HP | phun độc 55 % |
+| SSR | Crystal Golem | -4 % sát thương nhận từ quái | khiên 7 % MaxHP 5 s khi HP <= 70 % và vừa trúng đòn |
+| UR | Frostfang King (boss) | +5 % sát thương PvE | băng trảm 75 % + chậm 20 % 2 s |
+
+- **Pet tự đánh:** mỗi 3 s đánh thường 10 % một nhát đánh thường của chủ, chỉ vào quái chủ đã gây sát thương trong 2 s, tầm 6 ô; không tự tìm quái, không aggro / HP / collider, không crit / combo / on-hit, không tính đóng góp boss; chủ ngừng đánh thì pet ngừng. Skill làm chậm không ảnh hưởng boss.
+- **Ngoài gacha:** cả 8 lấy bằng gacha (vé kiếm trong game); Frostfang King cũng đổi 120 Mảnh UR. Chưa làm bắt quái ngoài map ở V1 (để sau, như Ragnarok).
+- **Spirit, Imp:** giữ nguyên dạng **Legacy**, ngoài pool gacha, không độ hiếm: Spirit mở Lv 5 (+5 % HP, khiên 5 %), Imp mua 3000 vàng (+3 % sát thương, cầu lửa 40 %); cùng hệ 1–3★ và tự đánh như pet mới; pet cũ chuyển + bù như Lần 6. Tổng 10 pet dùng được.
+- **Hình:** mỗi pet 1 ảnh tĩnh 3/4 hướng trái (lật khi cần), lấy từ hình quái gốc, thu gọn cho giống bạn đồng hành; FX dùng lại lửa / băng / độc / khiên / đòn đánh. Cỡ hiển thị: pet thường cao ~40–50 px, Crystal Golem ~55 px, Frostfang King ~60 px (hero ~85 px). (Ghi chú Claude: ChatGPT tả King là "đầu sói, bờm, nanh", nhưng hình quái Frostfang King của game là quái tuyết lông trắng da xanh, nắm đấm pha lê: vẽ theo hình game.)
+
+## Lần 8: hành vi pet trên màn hình + TRỌN BỘ hệ pet RO thu gọn (16/11, cùng chat)
+
+Người dùng chơi thử bản pet đầu: "pet không di chuyển như bình thường mà lướt qua lướt lại, không đánh gì", rồi mở rộng: học toàn bộ hệ pet + gacha + bắt pet của Ragnarok: Midgard Senki / Pocket Saga "giống y chang" (vẫn không tiền nạp), làm xong đưa ChatGPT xem lại. Claude hỏi 2 câu mở (tra web). Tóm tắt; spec đầy đủ ở `docs/pet-system-design.md`.
+
+**Câu 1 — pet xuất chiến làm gì trên màn hình.** ChatGPT xác minh được: pet đi cùng, tham chiến, có skill riêng (Angeling đứng cạnh nhân vật khi đánh quái, 4Gamers). CHƯA xác minh: khoảng cách theo, tốc độ, nhịp đánh thường, teleport, animation, số sát thương riêng, HP/chết, nhặt đồ, tên trên đầu. ChatGPT chốt cho game mình (số tự đặt): pet là thực thể có vị trí thật, không Lerp theo chủ (nguyên nhân "trượt như ma"); nghỉ 1,5 ô sau chủ lệch 0,6 ô; chạy khi cách chủ > 2 ô, dừng khi cách đích <= 0,25 ô; 110 % tốc chủ, > 3 ô thì 160 %, > 7 ô teleport; dùng sheet quái gốc Walk 4 hướng x 4 frame 8 FPS, Attack 4 frame 10 FPS (0,4 s, sát thương ở frame 3), idle = frame đứng; Spirit / Imp Legacy chỉ nhấp 2 px. Đánh: mục tiêu = quái chủ vừa đánh, nhớ 4 s, nhận trong 6 ô, cận 1,2 ô, xa 4 ô, đánh thường mỗi 2 s 10 % đòn cơ bản, skill 20 s, hết mục tiêu thì về theo chủ, kẹt > 2 s thì teleport. Số sát thương pet riêng: đánh thường xanh ngọc #66D5D0 cỡ 70 %, skill vàng nhạt #FFD77A cỡ 80 %, không burst to. Pet bất tử: không HP, không bị đánh, không chết, không nhặt đồ, không aggro, không chặn đường; tên trên đầu chỉ pet của mình; 1 SFX nhỏ. Server giữ pet đang mặc, mục tiêu, nhịp đánh, cooldown, damage; client vẽ Walk/Attack/Idle; FOLLOW → CHASE → ATTACK → FOLLOW; đổi map thì pet đặt cạnh chủ.
+
+**Câu 2 — trọn bộ hệ pet Pocket Saga (phần A, có nguồn) và bản thu gọn (phần B).**
+- A (xác minh / cộng đồng): đội hình 8 ô (1 xuất chiến, 2 hỗ trợ kỹ năng, 5 hỗ trợ thuộc tính; đổi ô trong UI). Gacha: Pet Gacha Coin, 150 Diamonds / vé, x10 = 1500; quà mới 1 lần x10 miễn phí bảo đảm Blue Lunatic; pity SSR 20, UR 50; tỉ lệ N 12 / R 24 / SR 36 / SSR 6,25 / UR 2,5 / mảnh pet 19,25 %; pool mở theo World Level 1/31/61/91. Chưa rõ: x10 bảo đảm, pity reset chéo, mảnh chung hay loài, banner UP. Level bằng nguyên liệu (map, guild, tháp); nâng sao bằng mảnh (bảng chưa tin được); talent khác nhau giữa cá thể; Bond cận/xa + nguyên tố + vai trò; reset hoàn 100 %, phân giải ra mảnh + hoàn nguyên liệu. Bắt: bóng thường ~40 %, bóng hiếm 100 % (vẫn cần đúng mục tiêu, giai đoạn, cấp sổ); quái thường bắt khi sống (không có bằng chứng tỉ lệ theo HP); MINI/MVP hạ xong bắt trong vài chục giây; sổ pet: loài mới cho thưởng + EXP sổ, cấp sổ là điều kiện bắt pet cao cấp. UI: danh sách, đội hình, phát triển, talent, Bond, sổ, gacha, reset/phân giải. Một số Bahamut nói pet có thể bị hạ (ChatGPT không đưa vào bản thu gọn).
+- B (chốt cho game mình): xem `docs/pet-system-design.md`: đội hình 1 + 2 + 2 (mở Lv 5/20/30/35/45), trần bonus; gacha 150 Pet Crystal / lượt (Crystal kiếm trong game, không nạp), tỉ lệ 12/24/36/6,25/2,5 + 19,25 % mảnh chung (5 mảnh), trùng = 10 mảnh loài, pity 20 SSR+ (SSR 71,43 : UR 28,57) / 50 UR, không banner; Thức Ăn Pet (quái 8 %, boss 3, Wanted 10/ngày) lên level 1–60 (+0,5 % sát thương pet / level, không vượt level cao nhất tài khoản), sao 1–5 (10/20/30/40 mảnh + 5k/10k/20k/30k vàng, hệ số nội tại 100–140 %), không talent, 4 Bond +2 %, reset hoàn 100 % (theo sổ giao dịch), trùng tự thành mảnh; bắt: Bóng Thường 500 vàng (5/ngày) + boss map rơi 10 %, Bóng Hiếm = 28 lần Wanted hợp lệ (ChatGPT tự sửa từ 7); quái thường bắt khi HP <= 50 % trong 4 ô, đã gây sát thương trong 10 s, tỉ lệ N 40/60, R 25/40, SR 12/20, SSR 4/8 % (HP 26–50 / 1–25 %); boss map chết -> xác bắt 30 s, 1 lần thử / tài khoản / lần chết, 1 pet boss / ngày, SSR 5 % UR 1 %; Wanted chết -> 45 s, SSR 3 % UR 0,5 % (3 Wanted Boss chưa có PetDef nên V1 chỉ chuẩn bị); Frostfang King vẫn UR, bắt được ở boss map 1 %; sổ pet 5 cấp theo số loài 1/3/5/7/10, cấp quyết định độ hiếm bắt được; UI 1 cửa sổ 5 tab (Đội hình, Bộ sưu tập, Nuôi dưỡng, Gacha, Bắt Pet); luật server (bossSpawnId, quyền bắt theo tài khoản, transaction, requestId, không trade). Thứ tự: đội hình → nuôi dưỡng → gacha mới (migrate pity cũ) → bắt quái thường → bắt boss + sổ.
+
+## Lần 9: ChatGPT duyệt bản đã làm (16/11, cùng chat)
+
+Gửi 2 ảnh ghép (`D:/temp/cap-pet2/review-ui.png`: Team / Growth / Gacha / Capture; `review-world.png`: nút bóng hiện khi slime ≤ 50 %, Spectral Wolf đánh cạnh hero) + mô tả số liệu. ChatGPT: "85–90 % chức năng cốt lõi của bản thu gọn đã có", UI 8/10, pet trong combat 8,5/10.
+- **Phải sửa (4)**: (1) nút bóng ngay trên thanh skill dễ bấm nhầm mất Bóng Hiếm → bóng hiếm cần xác nhận, chỉ trừ khi server chấp nhận, server kiểm lại HP / 4 ô / quyền lúc xử lý; (2) dòng "collection level 5 lets a ball catch up to UR" dễ hiểu là phải cấp 5 mới bắt UR (spec: cấp 4) → sửa chữ; (3) test reset hai lần / hai request cùng lúc / reset sau khi đổi ô, đổi mảnh: hoàn đúng sổ đã tiêu, cùng một giao dịch; (4) server phải tự tính nhịp đánh 2 s / skill 20 s / tầm / trần bonus, sát thương pet không tính combo, không tính share boss.
+- **Nên sửa (6)**: chữ Team / Capture nhỏ (10–11 → 13–14 px); dưới tên ô ghi 100 % / Skill 50 % / Passive 25 %; tab Capture chia mục, hiện tỉ lệ của mục tiêu đang chọn; tên pet trên đầu (bật / tắt), không cần HP bar; History lọc UR / SSR, hiện pity trước / sau; theo dõi tốc độ kiếm Bóng Hiếm vs UR thật (3 đường lấy UR: gacha 2,5 % / pity 50, 120 Mảnh UR, Bóng Hiếm 100 % sau 28 Wanted ≈ 28 ngày) → đo tỉ lệ sở hữu UR sau 7 / 14 / 30 ngày.
+- **Bỏ qua được**: đội 1+2+2 thay vì 1+2+5, không talent cá thể, 4 Bond, pet bất tử, không việc guild, 1 pool cố định, bắt khi HP ≤ 50 % (RO không xác nhận có).
+- 4/10 kết quả mảnh trong một x10 không phải dấu hiệu RNG sai; kiểm bằng thống kê nhiều lượt.
+- Kết luận ChatGPT: không mở rộng thêm, làm ổn định + dễ đọc + cân bằng rồi playtest.
+
+Đã sửa ngay sau Lần 9: Bóng Hiếm bấm 1 lần = "Tap again to throw" (3 s), lần 2 mới gửi (`CaptureMarker.cs`); chữ sổ pet "level 2 SR, 3 SSR, 4+ UR"; chữ Team / Capture 13 px; nhãn ô "Combat 100% / Support skill 50% / Stat passive 25%"; test reset hai lần không hoàn thêm (`PetTeamGrowthCaptureTests`). Server vốn đã tự tính nhịp đánh / trần / không tính share (HeroController.Pet, PetTeam.Bonus, Monster.PetHit) và trừ bóng chỉ khi `PetCapture.Throw` chấp nhận (từ chối = không mất). Chưa làm: tên pet trên đầu, lọc History, đo kinh tế UR (cần playtest).
+
+## Lần 10: vòng 2, ChatGPT chốt "OK phát hành bản playtest" (16/11, cùng chat)
+
+Gửi ảnh Team mới (nhãn ô Combat 100% / Support skill 50% / Stat passive 25%) + liệt kê 4 điểm "phải sửa" đã xử lý. ChatGPT: "OK phát hành bản playtest", đủ giống vòng lặp pet cốt lõi của Pocket Saga ở mức thu gọn; không cần thêm tính năng pet. Trước khi mở cho người chơi chạy 2 smoke test: (1) gacha x10 mất kết nối / gửi lại reqId không trừ tiền hay phát thưởng hai lần; (2) 2–5 người bắt cùng một xác boss: không mất bóng sai, không nhân đôi pet, không khoá boss vĩnh viễn. Tên pet trên đầu, lọc History, đo kinh tế UR, chỉnh UI làm sau khi có dữ liệu người chơi.
+→ CHƯA chạy 2 smoke test online này (luật có test đơn vị: reqId replay trong `ZoneAccountQueue`, 1 lượt/tài khoản/xác boss trong `PetTeamGrowthCaptureTests`; chưa có kịch bản e2e nhiều người bắt boss).
+
+## Lần 11: câu hỏi nhanh về đòn thường pet (16/11 06:41, cùng chat)
+
+Người dùng chơi thử: "sao chưa thấy nó tự đánh" (Golem Lv10). Tái hiện: pet bị bậc đá chắn không tới được quái + đòn 10 % trước giáp ra 1–2. Hỏi ChatGPT chốt số: (a) đòn thường pet = max(1, round(đòn SAU giáp của chủ × 25 %)), không trừ Def lần hai; (b) cú đầu ngay khi chủ đánh trúng (0 s, khi pet vào tầm), rồi mỗi 1,5 s; pet bám mục tiêu khi còn sống, không chạy về giữa các cú; (c) skill 55–75 % đòn sau giáp mỗi 20 s; (d) bỏ trần cứng 15 %, mục tiêu pet góp 15–25 % DPS chủ trong trận dài. Đã làm đúng như vậy (`PetConfig.BasicPct` 0,25, `BasicAttackMs` 1500, `HeroPet` Guard + watchdog, `DamageNumberKind.Pet`).

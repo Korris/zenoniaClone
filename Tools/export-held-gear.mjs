@@ -4,7 +4,7 @@
 //   held-mechanic.json mechanic gun manifest + anchors (part "gun") + robot companion manifest + float loop
 //   held-assassin.json dagger manifest (shared by both hands) + anchors for parts "main" (weapon slot) and "off" (offhand slot)
 //   held-cleric.json   holy staff manifest + anchors (part "staff") + spirit companion manifest + float loop
-// Companion data is exported as `companion` / `companionFloat` (shared by robot and spirit).
+// Companion data was exported as `companion` / `companionFloat`; the game ignores those keys since 16/11 (companion removed), the live json files no longer carry them.
 // Run:  node Tools/export-held-gear.mjs
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';

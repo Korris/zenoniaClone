@@ -7,7 +7,10 @@
  *    class (2026-11-12: the old unique (userId, classId) index is dropped at boot), the count is capped in character-service (MAX_CHARACTERS)
  *    state.wantedDay: WantedBoss.DayKey of the last daily Wanted Boss claim (0 = never); kept from going backwards by rpg/wanted-day.js, no index
  *  tickets{_id=sha256(ticket), characterId, userId, expiresAt(TTL)}
+ *  accounts{_id=userId, rev, state(AccountState shape: gacha pets/pity/daily-weekly rewards), recentOps, createdAt}
+ *    one per user, not per character; _id is already the only lookup key, no extra index needed
  *  ledger{characterId, reqId, type, ...} audit trail of economy ops; a trade entry carries a unique tradeId, which is what makes a commit idempotent
+ *    (an 'account' entry additionally carries userId and before/after currency snapshots, see services/account-service.js)
  */
 export async function ensureIndexes(db) {
   await db.collection('users').createIndex({ usernameLower: 1 }, { unique: true });

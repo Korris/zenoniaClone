@@ -1,12 +1,14 @@
 """Builds the 96x96 item icons used by the Unity inventory / ground loot (run from the project root, Python 3 + Pillow + numpy).
 
  - armor / gloves / boots (shared fallback; class sets come from build-class-gear-icons.py): sliced from the web's painted 5x2 atlases (transparent gutters), tier 0..9
- - weapon-<class>-<tier>, offhand-<class>-<tier>: the cut held-gear overlay PNGs (Resources/Sprites), tilted like the web gear icons
+ - weapon-<class>-<tier>, offhand-<class>-<tier>: no longer here (removed 16/11 with the single-gun Mechanic and the Cleric companion art);
+   each class's tier tool writes its own (build-warrior-sword / -shield, build-wizard-tier-staff-book, build-mechanic-pistol-tiers / -cannon-tiers,
+   build-assassin-tier-daggers, build-cleric-tier-staff-shield)
 Output: Assets/Resources/Sprites/icons/<name>.png
 """
-import json, os, sys
+import os, sys
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 
 WEB = os.environ.get("ZENONIA_WEB", r"C:\Project\zenoniaClone\Assets\custom")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,36 +55,8 @@ def slice_atlas(slot, file):
     if len(cells) != 10: sys.exit("%s: expected 10 icons, found %d" % (slot, len(cells)))
     for tier, c in enumerate(cells): fit(c).save(os.path.join(OUT, "%s-%d.png" % (slot, tier)))
 
-def load_names(data, key):
-    return [e["name"] for e in json.load(open(os.path.join(SPR, "..", "Data", data + ".json")))[key]]
-
-def overlay(folder, name, tilt):
-    im = Image.open(os.path.join(SPR, folder, name + "-base.png")).convert("RGBA")
-    if tilt: im = im.rotate(tilt, expand=True, resample=Image.BICUBIC)
-    return fit(im)
-
-def spellbook():
-    im = Image.new("RGBA", (96, 96), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
-    d.rounded_rectangle((20, 12, 76, 84), 8, fill=(84, 52, 150, 255), outline=(30, 20, 70, 255), width=3)
-    d.rounded_rectangle((28, 12, 76, 84), 8, fill=(120, 80, 200, 255), outline=(30, 20, 70, 255), width=3)
-    d.ellipse((42, 36, 66, 60), fill=(255, 224, 110, 255), outline=(30, 20, 70, 255), width=2)
-    d.rectangle((22, 18, 27, 78), fill=(245, 235, 210, 255))
-    return im
-
 # helmet-N is now the shared NECKLACE set (Tools/build-class-gear-icons.py write shared, designer 08/11): not sliced from the old hat atlas any more
 for slot, f in {"armor": "armor-icons-chibi.png", "gloves": "gloves-icons-chibi.png", "boots": "boots-icons-chibi.png"}.items():
     slice_atlas(slot, f)
 
-specs = [  # class, weapon (manifest file, key, folder, tilt), offhand (...)
-    ("warrior", ("classes/warrior/held-gear", "sword", "classes/warrior/weapons/sword", -45), ("classes/warrior/held-gear", "shield", "classes/warrior/weapons/shield", 0)),
-    ("wizard", ("classes/wizard/held-wizard", "weapon", "classes/wizard/weapons/staff", -45), None),
-    ("mechanic", ("classes/mechanic/held-mechanic", "weapon", "classes/mechanic/weapons/gun", 45), ("classes/mechanic/held-mechanic", "companion", "classes/mechanic/companion/art", 0)),
-    ("assassin", ("classes/assassin/held-assassin", "weapon", "classes/assassin/weapons/dagger", -45), ("classes/assassin/held-assassin", "weapon", "classes/assassin/weapons/dagger", 45)),
-    ("cleric", ("classes/cleric/held-cleric", "weapon", "classes/cleric/weapons/staff", -45), ("classes/cleric/held-cleric", "companion", "classes/cleric/companion/art", 0)),
-]
-for cls, w, o in specs:
-    for tier, name in enumerate(load_names(w[0], w[1])): overlay(w[2], name, w[3]).save(os.path.join(OUT, "weapon-%s-%d.png" % (cls, tier)))
-    for tier in range(10):
-        img = overlay(o[2], load_names(o[0], o[1])[tier], o[3]) if o else fit(spellbook())
-        img.save(os.path.join(OUT, "offhand-%s-%d.png" % (cls, tier)))
 print("icons written to", OUT, len(os.listdir(OUT)))

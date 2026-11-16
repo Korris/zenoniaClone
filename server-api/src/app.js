@@ -12,6 +12,7 @@ import { characterRoutes } from './routes/character-routes.js';
 import { internalRoutes } from './routes/internal-routes.js';
 import { resetPageRoutes } from './routes/reset-page.js';
 import { createMailer } from './mail/mailer.js';
+import { createAccountService } from './services/account-service.js';
 import { createCharacterService } from './services/character-service.js';
 
 /** Uniform [0,1) with 48 bits from the OS CSPRNG (enhance rolls must not be predictable). randomInt's range stops just short of 2^48, so the bytes are read directly. */
@@ -32,12 +33,13 @@ export function buildApp({ db, cfg, now = Date.now, rand = secureRandom, mailer,
     login: new RateLimiter({ max: cfg.LOGIN_IP_MAX, windowMs: cfg.LOGIN_IP_WINDOW_SEC * 1000, now }),
     register: new RateLimiter({ max: cfg.REGISTER_IP_MAX, windowMs: cfg.REGISTER_IP_WINDOW_SEC * 1000, now }),
   };
+  const characters = createCharacterService({ db, now, sessionLockSec: cfg.SESSION_LOCK_SEC, maxCharacters: cfg.MAX_CHARACTERS });
   const deps = {
-    db, cfg, now, rand, jwt, guards, limiters,
+    db, cfg, now, rand, jwt, guards, limiters, characters,
     passwords: createPasswordService(cfg.BCRYPT_COST),
     refreshTokens: createRefreshTokenService({ db, ttlSec: cfg.REFRESH_TTL_SEC, now }),
     tickets: createTicketService({ db, ttlSec: cfg.TICKET_TTL_SEC, now }),
-    characters: createCharacterService({ db, now, sessionLockSec: cfg.SESSION_LOCK_SEC, maxCharacters: cfg.MAX_CHARACTERS }),
+    accounts: createAccountService({ db, now, characters }),
     // Real SMTP when SMTP_* is complete. The reset token is never returned over HTTP.
     mailer: mailer ?? createMailer({ cfg, log: app.log }),
   };

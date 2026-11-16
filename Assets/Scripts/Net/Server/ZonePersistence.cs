@@ -34,9 +34,13 @@ namespace ZenoniaProto
             public HeroClassDef Def;
             public SaveData Save;
             public PlayerState State;
+            /// <summary>The account of this character as server-api holds it (pets, tickets, pity): Pet Companion + pet gacha.</summary>
+            public AccountState Account;
+            public int AccountRev;
         }
 
-        [Serializable] class RedeemDto { public string sessionId; public CharacterDetail character; }
+        [Serializable] class AccountDto { public int rev; public AccountState state; }
+        [Serializable] class RedeemDto { public string sessionId; public CharacterDetail character; public AccountDto account; }
         [Serializable] class KeptDto { public string characterId; public int rev; public string why; public SaveData state; }
 
         /// <summary>A kept state that was loaded instead of what the API had: its file goes away once the API has it.</summary>
@@ -221,6 +225,7 @@ namespace ZenoniaProto
                 KeptPath = keptPath,
                 Ok = true, CharacterId = dto.character.id, SessionId = dto.sessionId, Rev = dto.character.rev, Name = DevLoginStub.SanitizeName(dto.character.name),
                 Def = def, Save = save, State = SaveSerializer.Restore(save),
+                Account = AccountState.Sanitize(dto.account != null ? dto.account.state : null), AccountRev = dto.account != null ? dto.account.rev : 0, // an older API without accounts: a fresh one, rev 0
             };
         }
 
@@ -249,6 +254,8 @@ namespace ZenoniaProto
             p.Saved = queue.Register(c.CharacterId, c.SessionId, c.Rev, () => Capture(p));
             p.Saved.Owner = p;
             here[c.CharacterId] = p;
+            p.Rpg.AccountChanged += () => RequestSave(p); // gold paid or compensated with an account change: the hero is written at once too
+            p.Rpg.AttachAccount(new AccountLink(c.Account, new ZoneAccountQueue(http, c.CharacterId, c.SessionId, c.AccountRev)));
             p.Rpg.ExpGained += (exp, levels, at) => { if (levels > 0) RequestSave(p); };
             p.Rpg.BossKilled += () => RequestSave(p);
             p.Rpg.WantedClaimed += (r, def, day) => { if (r.Ok) RequestSave(p); }; // the claim day and the reward are written together, at once

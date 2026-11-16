@@ -22,6 +22,8 @@ namespace ZenoniaProto.Rpg
         public List<string> defeatedBossMaps = new List<string>(); // map ids whose boss this save killed (the Frostfang King stays in bossDefeated); missing in old saves = none
         public List<QuestEntry> quests = new List<QuestEntry>(); // quests taken so far (QuestLog); missing in old saves = none taken
         public int wantedDay; // WantedBoss.DayKey of the last Wanted Boss claim (PlayerState.WantedDay); missing in old saves = 0 = never
+        public string petId; // v4: the combat pet (kept so a v4 save loads into petTeam[0]); missing = none. Old saves carry pet ITEMS instead, which AccountPets.Migrate converts
+        public List<string> petTeam = new List<string>(); // v5: the five team slots (PetSlot order, "" = empty); missing = petId in the combat slot
     }
 
     /// <summary>
@@ -30,7 +32,7 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public static class SaveSerializer
     {
-        public const int SaveVersion = 3; // 2: pets carry durability. 3: Frost Hollow grew to 48 rows, so older frostHollow positions are shifted by Parse (= FrostHollowGrownVersion).
+        public const int SaveVersion = 5; // 5: the pet team (petTeam, 5 slots). 4: pets belong to the account (petId). 2: pets carry durability. 3: Frost Hollow grew to 48 rows, so older frostHollow positions are shifted by Parse (= FrostHollowGrownVersion).
         /// <summary>Saves older than this hold Frost Hollow positions measured on the 24-row map; Parse moves them up by the rows the map has gained since.</summary>
         public const int FrostHollowGrownVersion = 3;
         /// <summary>Frost Hollow's row count before it grew (36x24). Callers pass FrostHollowLayout.RowCount; the default means "not grown", so a caller that forgets never shifts.</summary>
@@ -54,6 +56,8 @@ namespace ZenoniaProto.Rpg
             if (defeatedBossMaps != null) d.defeatedBossMaps.AddRange(defeatedBossMaps);
             d.quests = p.Quests.ToList();
             d.wantedDay = p.WantedDay;
+            d.petId = p.PetId ?? "";
+            d.petTeam = new List<string>(p.Team);
             return d;
         }
 
@@ -98,6 +102,12 @@ namespace ZenoniaProto.Rpg
                 if (IsMapId(m) && !d.defeatedBossMaps.Contains(m) && d.defeatedBossMaps.Count < MaxBossMaps) d.defeatedBossMaps.Add(m);
             d.quests = QuestLog.Sanitize(raw.quests);
             d.wantedDay = RpgMath.Clamp(raw.wantedDay, 0, MaxWantedDay);
+            d.petId = PetConfig.Get(raw.petId) != null ? raw.petId : ""; // ownership is checked when the account is attached (PlayerState.AttachAccount)
+            string[] team = PetTeam.Empty();
+            if (raw.petTeam != null && raw.petTeam.Count > 0) { for (int i = 0; i < team.Length && i < raw.petTeam.Count; i++) team[i] = PetConfig.Get(raw.petTeam[i]) != null ? raw.petTeam[i] : ""; }
+            else team[0] = d.petId;
+            for (int i = 0; i < team.Length; i++) for (int j = 0; j < i; j++) if (team[i] != "" && team[i] == team[j]) team[i] = ""; // one species, one slot
+            d.petTeam = new List<string>(team); d.petId = team[0];
             return d;
         }
 
@@ -123,10 +133,12 @@ namespace ZenoniaProto.Rpg
                 if (p.CanEquip(e)) p.SetEquippedRaw(e.slot, e);
                 else if (p.Inventory.Count < PlayerState.InventorySize) p.Inventory.Add(e); // class lock: back to the bag, else dropped
             }
+            EquipLevel.UnequipAboveLevel(p); // gear above the level (old save, 16/11/2026 tier table) back to the bag, never lost
             p.EquipStarterGear();
             p.Skills.Load(d.skillRanks, d.level); p.Loadout.Load(d.skillSlots, p.Skills);
             p.Quests.Load(d.quests);
             p.WantedDay = d.wantedDay;
+            for (int i = 0; i < p.Team.Length; i++) p.Team[i] = d.petTeam != null && i < d.petTeam.Count && d.petTeam[i] != null ? d.petTeam[i] : i == 0 ? d.petId ?? "" : "";
             p.RecomputeStats();
             p.Hp = Math.Min(p.MaxHp, d.hp > 0f ? d.hp : p.MaxHp); // never load a dead hero
             p.Mp = Math.Min(p.MaxMp, d.mp > 0f ? d.mp : p.MaxMp);

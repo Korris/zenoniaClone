@@ -106,18 +106,14 @@ namespace ZenoniaProto
             HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), CastTip, v, angle, painted);
         }
 
-        /// <summary>Called by monsters when a strike connects.</summary>
-        /// <summary>Durability is the authority's. Called only for a hero that survives the hit: the blow that kills it costs the pet nothing, and neither does death.</summary>
-        void PetHitTaken() { if (Owner != null && NetMode.IsAuthority && !dead) Owner.PetHitTaken(); }
-
-        /// <summary>This hero's attack hit a monster (not a damage-over-time tick).</summary>
-        public void PetAttackLanded() { if (Owner != null && NetMode.IsAuthority && !dead) Owner.PetAttackLanded((long)(Time.unscaledTimeAsDouble * 1000.0)); }
-
+        /// <summary>Called by monsters when a strike connects. Green Slime takes its % off first; a hit fully soaked by a shield does not wake the pet (no real HP lost).</summary>
         public void TakeDamage(int dmg)
         {
             if (dead || God || invuln > 0f || dashLeft > 0f) return;
+            double cut = rpg.PetPassive(PetPassive.DamageTaken);
+            if (cut > 0) dmg = Mathf.Max(1, Mathf.RoundToInt(dmg * (float)(1 - cut)));
             dmg = HeroBuffs.Absorb(this, dmg); // Mana Shield / Guardian Spirit soak first
-            if (dmg <= 0) { invuln = InvulnMs; PetHitTaken(); return; } // fully absorbed: no HP loss, no hurt reaction, still a hit the pet took
+            if (dmg <= 0) { invuln = InvulnMs; return; } // fully absorbed: no HP loss, no hurt reaction
             hp -= dmg;
             invuln = InvulnMs;
             hurt = HurtMs;
@@ -136,7 +132,7 @@ namespace ZenoniaProto
                 combo.Reset();
                 NetEventBus.HeroDied(this);
             }
-            else PetHitTaken();
+            else PetOwnerHurt(); // Spirit shield / Forest Fairy heal at 70 % HP or less (HeroController.Pet.cs)
         }
     }
 }

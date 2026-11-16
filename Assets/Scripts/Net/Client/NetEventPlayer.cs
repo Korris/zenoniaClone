@@ -73,8 +73,9 @@ namespace ZenoniaProto
                     bool crit = (e.Flags & HitFlags.Crit) != 0, finisher = (e.Flags & HitFlags.Finisher) != 0;
                     HeroController src = HeroOf(e.Other);
                     bool others = src != LocalPlayer.Hero; // only your own hits get the big yellow number; no shake / hit-stop for the others either
-                    m.ProxyHit(e.Dmg, e.HpLeft, new Vector2(e.KnockX * 2f, e.KnockY * 2f), crit, finisher, (e.Flags & HitFlags.Quiet) != 0, others);
-                    if (fx && src != null && src == LocalPlayer.Hero && !src.Class.Ranged) HeroFx.MeleeLanded(src.Class, crit, finisher);
+                    int petKind = (e.Flags & HitFlags.PetSkill) != 0 ? 2 : (e.Flags & HitFlags.Pet) != 0 ? 1 : 0;
+                    m.ProxyHit(e.Dmg, e.HpLeft, new Vector2(e.KnockX * 2f, e.KnockY * 2f), crit, finisher, (e.Flags & HitFlags.Quiet) != 0, others, petKind);
+                    if (fx && petKind == 0 && src != null && src == LocalPlayer.Hero && !src.Class.Ranged) HeroFx.MeleeLanded(src.Class, crit, finisher);
                     if (e.HpLeft == 0) stats.Add("monstersKilledSeen", 1);
                     break;
                 case NetEventType.HeroHit:
@@ -87,6 +88,14 @@ namespace ZenoniaProto
                     int skill = SkillCastCode.Index(e.Step);
                     if (caster != null && caster.IsPredicted && caster.PredictsSkillFx(skill)) break; // started locally at the key press
                     if (fx && caster != null) caster.PlaySkillFx(skill, SkillCastCode.Rank(e.Step), e.Other);
+                    break;
+                case NetEventType.PetSkill:
+                    stats.Add("petSkillsSeen", 1);
+                    if (fx) PetSkillFx.Play(HeroOf(e.Id), MonsterOf(e.Other), (ZenoniaProto.Rpg.PetSkillKind)(e.Step & 0x3F), (e.Step & 0x80) != 0, (e.Step & 0x40) != 0);
+                    break;
+                case NetEventType.PetCapturable:
+                    stats.Add("petCapturablesSeen", 1);
+                    if (fx) CaptureMarker.OpenCorpse(e.Id, new Vector2(NetQuantize.Pos(e.X), NetQuantize.Pos(e.Y)), e.Value, e.Step == 1);
                     break;
                 case NetEventType.TurretShot:
                     stats.Add("turretShotsSeen", 1);

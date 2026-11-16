@@ -103,7 +103,7 @@ describe('save snapshot', () => {
   it('validates the payload: caps, duplicates, class change', async () => {
     const o = await c.online();
     const bad = async (patch) => (await save(o, { ...o.state, ...patch })).status;
-    expect(await bad({ level: 61 })).toBe(400);
+    expect(await bad({ level: 91 })).toBe(400); // MAX_LEVEL 90 since 16/11/2026
     expect(await bad({ gold: -1 })).toBe(400);
     expect(await bad({ upgradeStone: 10000 })).toBe(400);
     expect(await bad({ x: 1e12 })).toBe(400);

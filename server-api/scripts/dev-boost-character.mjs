@@ -3,12 +3,13 @@
 //   node scripts/dev-boost-character.mjs --uri <mongo uri> --db <name> --name <character> --level N [--map <id> --x N --y N] [--wanted-day N] [--large-potions N]
 // Refuses anything but a loopback database.
 import { MongoClient } from 'mongodb';
+import { MAX_LEVEL } from '../src/rpg/rpg-constants.js';
 
 const arg = (k) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : undefined; };
 const uri = arg('--uri');
 if (!/^mongodb:\/\/(127\.0\.0\.1|localhost)[:/]/.test(uri ?? '')) throw new Error('dev-boost-character only runs against a loopback database');
 const level = Number(arg('--level'));
-if (!Number.isInteger(level) || level < 1 || level > 60) throw new Error('--level must be an integer from 1 to 60 (MAX_LEVEL)');
+if (!Number.isInteger(level) || level < 1 || level > MAX_LEVEL) throw new Error(`--level must be an integer from 1 to ${MAX_LEVEL} (MAX_LEVEL)`);
 const client = await new MongoClient(uri).connect();
 try {
   const col = client.db(arg('--db')).collection('characters');

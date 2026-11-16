@@ -164,6 +164,7 @@ namespace ZenoniaProto
         /// <summary>A worn slot: select it and list what can go in it.</summary>
         void OnWornClick(int index)
         {
+            if (Slots.All[index] == Slots.Pet) { PetWindow.Open(); return; } // Pet Companion: its own window
             bool twice = IsDoubleTap(WornClickBase + index);
             wornSel = index;
             SetFilter(Slots.All[index]);

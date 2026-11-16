@@ -1,6 +1,6 @@
 namespace ZenoniaProto.Rpg
 {
-    /// <summary>PlayerState: buying basic gear from a village blacksmith (GearCatalog). Same shape as BuyPet / BuyPotion.</summary>
+    /// <summary>PlayerState: buying basic gear from a village blacksmith (GearCatalog). Same shape as BuyPotion.</summary>
     public sealed partial class PlayerState
     {
         /// <summary>Pays and puts a new +0 common piece in the bag. Whether this seller may sell this (tier, slot) entry is the caller's check (GearShops.Refusal).</summary>

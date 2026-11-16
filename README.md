@@ -26,7 +26,7 @@ A class select screen opens first: click a card or press **1-5**. **F1-F5** resp
 |---|---|---|
 | Warrior | 4-hit sword combo, red crescent slash + red trail; **L Earth Break** ultimate | sword + shield overlays (10 tiers) |
 | Wizard | 3 magic bolts + arcane-burst finisher (AoE r26): layered violet-blue magic missile; **L Ice Storm** ultimate | staff overlays (10 tiers) |
-| Mechanic | 3 rapid shots + plasma-cannon finisher (AoE r24): plasma bolts, muzzle blast, starburst + dust impact (orange, **C** = blue) | gun overlays (10 tiers), floating robot companion |
+| Mechanic | 3 rapid shots + plasma-cannon finisher (AoE r24): plasma bolts, muzzle blast, starburst + dust impact (yellow, the class colour) | two pistols + back cannon overlays (10 tiers) |
 | Assassin | 3 quick slashes + double-stab finisher (two hits 90 ms apart, 6% extra crit): purple X-slash / thrust-streak dagger FX; **L Shadow Step** (blink behind the nearest foe, guaranteed crit) | dagger overlays in BOTH hands (`off` + `main` parts, 10 tiers) |
 | Cleric | 3 holy shots + bursting finisher (AoE r26): green-gold light arrows, gold pillar impact; **L Heal** (38% max HP) | holy staff overlays (10 tiers), floating spirit companion |
 
@@ -68,7 +68,6 @@ Launch arg `--map frost-hollow|oakhaven-village` picks the start map (capture / 
 | 1-5 (or click) | Pick Warrior / Wizard / Mechanic / Assassin / Cleric on the start screen |
 | F1-F5 | Respawn as Warrior / Wizard / Mechanic / Assassin / Cleric |
 | L | Class skill: Earth Break / Ice Storm / Shadow Step / Heal |
-| C | Mechanic only: FX colour orange / blue |
 | WASD / Arrow keys | Move (8-direction input, 4-direction facing) |
 | J / Space | Class combo (4 steps; press during a step to chain, the 4th is the finisher) |
 | K / Shift | Dash (brief invulnerability) |
@@ -79,6 +78,8 @@ Launch arg `--map frost-hollow|oakhaven-village` picks the start map (capture / 
 | F9 | Show / hide the collision tint |
 | E / Enter | Talk to Elder Thomas (near the spawn) / advance the dialogue / accept the quest; Enter otherwise focuses the chat (Enter sends, Esc leaves the field) |
 | Esc | Close the dialogue / quest window |
+| P | Pet window (Pet Companion): the account's 8 pets, take one along, star up (also the Pet cell of the bag and the round Pets button) |
+| G | Pet gacha: Pull x1 / x10 with Pet Tickets earned in play, published rates, last 200 pulls |
 
 Die -> respawn at the entrance after 1.4 s.
 
@@ -86,6 +87,8 @@ Die -> respawn at the entrance after 1.4 s.
 (`NpcDialogueBox`), quest offer window (`QuestOfferWindow`), local-only chat (`ChatWindow` / `ChatHub`, `IChatTransport` is the network seam; collapsed by default on phones).
 Elder Thomas (`ElderNpc`) offers "Ancient Crystal Survey" (defeat 5 Frost Slimes, reward 150 G + 3 stones + 2 HP potions; `QuestTracker`; offline in the local save, online the zone owns the quest state and saves it with the character).
 While a window owns the keyboard `UiWindows.BlocksGameplay` makes `InputAdapter` drop the hero's keys.
+
+**Pet Companion + pet gacha** (16/11/2026, `plans/261116-0040-pet-companion-and-fashion-gacha`): pets are ACCOUNT data (`Rpg/Account/AccountState.cs`; offline `zenonia-account.json`, online server-api `accounts`), 10 pets (`Rpg/PetConfig.cs`), one taken along per hero, 1 passive + 1 automatic skill every 20 s (`HeroController.Pet.cs`, `PetSkillFx.cs`), 1-3 stars from duplicate shards + gold. Gacha rules `Rpg/Account/PetGacha.cs` (45/30/17/6/2 %, pity 10 SR+ / 30 SSR+ / 60 UR), tickets `Rpg/Account/AccountRewards.cs`; online the zone rolls and stores through `Net/Server/ZoneAccountQueue.cs`. Pets are the game's own monsters / boss shrunk (8 in the gacha) plus Spirit / Imp as Legacy; every pet fights by itself (basic attack every 3 s). Lumi in Thatchwick opens the gacha; Settings can hide other players' pets.
 
 **Minimap** (`Minimap.cs`): top-right under Bag and Settings, the map's painted ground scaled down with dots for the hero, monsters, boss, other players and, offline, villagers and portals.
 
@@ -106,8 +109,8 @@ sword ribbon / sparks / shock ring / additive slash core / blade glow / damage-n
 (transparent-gutter detection, per-row pivots) into `Resources/Sprites/classes/<class>/fx/attack[-<colour>]/{cast,proj,impact}_<n>.png` + `Resources/Data/classes/<class>/vfx-attack[-<colour>].json`.
 `VfxSprites` loads a set, `VfxAnim` plays cast (at staff tip / barrel, windup) and impact rows, `ComboProjectile.Painted.cs` loops the 4-frame projectile
 rotated to travel (pivot on the bright head). Base sprite = normal alpha blend, plus a faint additive copy (`FeelConfig.PaintedGlowAlpha`) for bloom. Finisher = 1.35x.
-Mechanic C swaps `mechanic-orange` / `mechanic-blue`. Missing art falls back to the procedural rigs. Re-run the slicer after changing a sheet.
-Video: `--record-combo wizard|cleric|mechanic [--mech-blue] [--zoom N]` (60 fps frame dump, like `--record-ultimate`).
+Missing art falls back to the procedural rigs. Re-run the slicer after changing a sheet.
+Video: `--record-combo wizard|cleric|mechanic [--zoom N]` (60 fps frame dump, like `--record-ultimate`).
 
 ## What to compare with the web version
 
@@ -130,7 +133,7 @@ Assets/
     HeroClassDef.cs / ComboConfigs.cs       class stats, sheet folders, gear parts, combo chains (web values)
     FrostHollowMap.cs / WorldBuilder.cs     Frost Hollow tile grid, collision sweep, spawn zones, painted ground
     ComboProjectile.cs / BurstFx.cs         ranged bolts / bullets / blasts + pooled FX sprites
-    HeroCompanion.cs / GearOverlays.cs      shared companion (mechanic robot, cleric spirit: follow / bob / float loop), overlay sprite cache
+    GearOverlays.cs                         overlay sprite cache (held gear art, pivots)
     DebugCapture.cs                         command-line verification flags (see below)
     GameConfig.cs / GameClock.cs / InputAdapter.cs
     SpriteSheet.cs / ProceduralSprites.cs   runtime sprite slicing + generated shadow / bar sprites
@@ -152,5 +155,5 @@ Menu `Zenonia > Fix Texture Import Settings` re-applies the texture settings if 
 
 `DebugCapture` is inert unless a flag is present: `--class warrior|wizard|mechanic|assassin|cleric`, `--tp tx,ty`, `--face down|up|left|right`, `--tier N`,
 `--enhanced`, `--bot fight|attack|walk`, `--zoom N`, `--solids`, `--shots 3,5,8 --shot-path <prefix>` (PNG at those seconds, then quit), `--skill-at 1.5,9` (press L), `--dummies N --dummy-dist D` (slime targets), `--god`,
-`--nobloom`, `--mech-blue`, `--perf --run-seconds N` (logs frames slower than 16 ms), `--record-ultimate warrior|wizard` (60 fps PNG sequence for ffmpeg).
+`--nobloom`, `--perf --run-seconds N` (logs frames slower than 16 ms), `--record-ultimate warrior|wizard` (60 fps PNG sequence for ffmpeg).
 Example: `Zenonia.exe -screen-width 1280 -screen-height 720 --class wizard --tp 27,10 --bot fight --shots 4,6 --shot-path C:	mp\wiz`.

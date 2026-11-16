@@ -1,4 +1,4 @@
-"""Wizard basic-attack VFX v4, after the combo v2 board (2026-11-10, Assets/ArtLibrary/classes/wizard/attack-board/northwind-combo-v2/): one ChatGPT
+"""Wizard basic-attack VFX v4, after the combo v2 board (2026-11-10, was ArtLibrary/classes/wizard/attack-board/northwind-combo-v2/, removed 16/11): one ChatGPT
 sheet 1024x1536 on flat #00FF00, 7 rows x 4 frames (cells 256 x ~219 px), Assets/ArtLibrary/classes/wizard/vfx/attack-v4/wizard-attack-fx-v4-chatgpt-1.png
 (chat https://chatgpt.com/c/6af289b8-8a08-83ec-9c0d-4d140f9a957e, prompt-01-sheet.txt). Same pipeline as Tools/build-wizard-attack-fx-v3.py (loaded
 with its constants replaced), set "wizard-v4" (VfxSprites.IdFor prefers it): Resources/Sprites/classes/wizard/fx/attack-v4/<row>_<n>.png and
@@ -30,11 +30,10 @@ def _load_v3():
     for old, new in (('ROOT = "D:/zenoniaClone"', f'ROOT = "{ROOT}"'),
                      ('vfx/attack-v3/wizard-attack-fx-v3-chatgpt-1.png', 'vfx/attack-v4/wizard-attack-fx-v4-chatgpt-1.png'),
                      ('OUT = "Assets/Resources/Sprites/classes/wizard/fx/attack-v3"', 'OUT = "Assets/Resources/Sprites/classes/wizard/fx/attack-v4"'),
-                     ('LIKE = "Assets/Resources/Sprites/classes/wizard/fx/attack-v2"', 'LIKE = "Assets/Resources/Sprites/classes/wizard/fx/attack-v3"'),
                      ('SHEET_ROWS = ["cast", "proj", "shard", "bolt", "blast", "impact"]', 'SHEET_ROWS = ["cast", "proj", "shard", "spikes", "bolt", "blast", "impact"]'),
                      ('ROW_SCALE = {"cast": 1.15, "proj": 1.3, "shard": 1.3, "bolt": 1.1, "blast": 1.0, "impact": 1.25}',
                       'ROW_SCALE = {"cast": 0.85, "proj": 1.3, "shard": 1.3, "spikes": 1.25, "bolt": 1.1, "blast": 1.0, "impact": 1.25}'),  # cast 0.85: the v4 star is drawn bigger than v3's; at 1.15 (x1.35 finisher) it covered the hero
-                     ("vfx-attack-v3.json", "vfx-attack-v4.json"), ("vfx-attack-v2.json.meta", "vfx-attack-v3.json.meta"),
+                     ("vfx-attack-v3.json", "vfx-attack-v4.json"),
                      ("""        like = f"{LIKE}/{'cast' if name not in ('cast', 'proj', 'impact') else name}_{n}.png.meta\"""",
                       """        like = f"{LIKE}/{name if os.path.exists(f'{LIKE}/{name}_{n}.png.meta') else 'cast'}_{n}.png.meta\""""),
                      ('''    if name == "impact":

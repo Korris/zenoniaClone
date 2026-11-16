@@ -32,7 +32,7 @@ namespace ZenoniaProto.Rpg
     {
         public string uid, templateId, slot, name, rarity, classId;
         public int itemLevel, enhance;
-        public int durability; // pets only (PetConfig.MaxDurability when new, gone at 0); 0 on everything else
+        public int durability; // OLD pet items only (ItemFactory.LegacyPetDurability), read from saves before Pet Companion; 0 on everything else
         public ItemStats stats = new ItemStats();
     }
 
@@ -40,7 +40,7 @@ namespace ZenoniaProto.Rpg
     {
         public const string Weapon = "weapon", Helmet = "helmet", Armor = "armor", Gloves = "gloves", Boots = "boots", Offhand = "offhand", Pet = "pet";
         public static readonly string[] All = { Weapon, Helmet, Armor, Gloves, Boots, Offhand, Pet };
-        /// <summary>What monsters drop and the level-scaled generator makes. Pets only come from the shop (PetConfig).</summary>
+        /// <summary>What monsters drop and the level-scaled generator makes. Pet is only the OLD pet slot (Pet Companion pets are account data, PlayerState.PetId).</summary>
         public static readonly string[] Generated = { Weapon, Helmet, Armor, Gloves, Boots, Offhand };
         public static int Index(string slot) { return Array.IndexOf(All, slot); }
     }

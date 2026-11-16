@@ -1,5 +1,5 @@
 """Wizard combo v2 facing DOWN in the new outfit "D" (14/11/2026, plan step 4): attack1-4 real staff strikes, same poses / frame counts /
-timing as Tools/build-wizard-combo-v2-attacks.py (Tools/wizard_combo_v2_poses.py unchanged -- SkillTable timing is not touched). Copy of that
+timing as Tools/build-wizard-combo-v2-attacks.py (Northwind tool, removed 16/11, git 4c527c36) (Tools/wizard_combo_v2_poses.py unchanged -- SkillTable timing is not touched). Copy of that
 tool with only the source files and the attack tool it wraps changed to outfit D (the Northwind combo tool is left untouched so that body can
 still be rebuilt from its own source if ever needed); logic (fit by last frame, bald head -> head anchor + headless sheet, fist layer, armed
 sheet, staff plant) is identical -- see its docstring.

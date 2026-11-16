@@ -246,6 +246,7 @@ namespace ZenoniaProto.Net
             TradeItemView view;
             if (!holder.TryGetBagItem(uid, out view)) return TradeFail.NotOwned;
             if (uid.StartsWith(StarterUidPrefix, StringComparison.Ordinal)) return TradeFail.Starter;
+            if (view.Slot == "pet") return TradeFail.NotOwned; // an old durability pet waiting for its migration: pets belong to the account now and are never traded
             me.Items.Add(view);
             OfferChanged(s, id);
             return TradeFail.None;

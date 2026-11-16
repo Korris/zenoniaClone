@@ -2,10 +2,10 @@ import { ApiError, parse } from '../errors.js';
 import { applyOps } from '../rpg/inventory-ops.js';
 import { attemptEnhance, findDurabilityTamper, findEnhanceTamper } from '../rpg/enhance-logic.js';
 import { keepWantedDay } from '../rpg/wanted-day.js';
-import { endSessionSchema, enhanceSchema, opsRequestSchema, redeemSchema, saveSchema, tradeCommitSchema } from '../schemas.js';
+import { accountGetSchema, accountWriteSchema, endSessionSchema, enhanceSchema, opsRequestSchema, redeemSchema, saveSchema, tradeCommitSchema } from '../schemas.js';
 
 /** Zone-server routes, guarded by the shared service key (x-service-key). Every write needs the session lock + the current rev. */
-export function internalRoutes(app, { cfg, characters, tickets, guards, rand }) {
+export function internalRoutes(app, { cfg, characters, accounts, tickets, guards, rand }) {
   const opts = { preHandler: guards.requireService };
   const noEnhanceTamper = (oldState, newState) => {
     const uid = findEnhanceTamper(oldState, newState);
@@ -16,12 +16,13 @@ export function internalRoutes(app, { cfg, characters, tickets, guards, rand }) 
   // Guard for save and trade: reject tampering, then keep the Wanted Boss claim day from going backwards.
   const stateGuard = (oldState, newState) => { noEnhanceTamper(oldState, newState); keepWantedDay(oldState, newState); };
 
-  // Consumes the ticket, takes the one-session lock and returns the character to load.
+  // Consumes the ticket, takes the one-session lock and returns the character + account (created with defaults on first login) to load.
   app.post('/internal/tickets/redeem', opts, async (req) => {
     const { ticket } = parse(redeemSchema, req.body);
     const { characterId } = await tickets.redeem(ticket);
     const { sessionId, doc } = await characters.lockSession(characterId, cfg.ZONE_ID);
-    return { sessionId, character: characters.full(doc) };
+    const account = await accounts.getOrCreate(doc.userId);
+    return { sessionId, character: characters.full(doc), account: { rev: account.rev, state: account.state } };
   });
 
   // Periodic / event snapshot (level-up, rare drop, zone change, logout). Returns the new rev.
@@ -53,6 +54,19 @@ export function internalRoutes(app, { cfg, characters, tickets, guards, rand }) 
       const result = { ok: r.ok, success: r.success, level: r.level, reason: r.reason, itemUid, upgradeStone: r.state.upgradeStone };
       return { changed: r.ok, state: r.state, result, before: { upgradeStone: state.upgradeStone }, after: { level: r.level, upgradeStone: r.state.upgradeStone } };
     });
+  });
+
+  // Account snapshot (gacha pets, pity, daily/weekly rewards) of the character's owner. Needs the session lock.
+  app.post('/internal/characters/:id/account/get', opts, async (req) => {
+    const { sessionId } = parse(accountGetSchema, req.body);
+    const { account } = await accounts.getForCharacterSession(req.params.id, sessionId);
+    return { rev: account.rev, state: account.state };
+  });
+
+  // Writes the whole account snapshot. Idempotent per reqId, rev-checked, rejects any rollback (account_tamper).
+  app.post('/internal/characters/:id/account/write', opts, async (req) => {
+    const { sessionId, rev, reqId, state } = parse(accountWriteSchema, req.body);
+    return accounts.write(req.params.id, sessionId, rev, reqId, state);
   });
 
   // Releases the lock (call after the final save). Idempotent.

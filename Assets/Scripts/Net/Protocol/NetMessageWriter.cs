@@ -15,8 +15,9 @@ namespace ZenoniaProto.Net
     public struct DespawnMsg { public ushort Id; public DespawnCause Cause; }
     /// <summary>One buff on the player's own hero: Source = the skill it came from (the client picks the icon), times in ms.</summary>
     public struct NetBuff { public byte Source, Kind; public ushort LeftMs, TotalMs; }
-    public struct SelfStateMsg { public ushort Hp, MaxHp, Mp, MaxMp; public uint Exp; public byte Level; public ushort[] SkillCds; public NetBuff[] Buffs; public ushort PetDurability; }
-    public struct RpgStateMsg { public uint ReqId; public byte Result; public string Text, SaveJson; }
+    public struct SelfStateMsg { public ushort Hp, MaxHp, Mp, MaxMp; public uint Exp; public byte Level; public ushort[] SkillCds; public NetBuff[] Buffs; public ushort PetDurability; } // PetDurability: unused since Pet Companion (pets have none), always 0, kept so the layout stays
+    /// <summary>The player's whole state: SaveJson = the hero (SaveData), AccountJson = its account (AccountState: pets, tickets, pity, gacha history).</summary>
+    public struct RpgStateMsg { public uint ReqId; public byte Result; public string Text, SaveJson, AccountJson; }
 
     /// <summary>
     /// Serialises every message into a (reset) LiteNetLib writer: opcode first, little endian. Strings are length capped. Snapshots go through
@@ -78,7 +79,7 @@ namespace ZenoniaProto.Net
 
         public static void RpgState(NetDataWriter w, RpgStateMsg m)
         {
-            w.Reset(); w.Put(NetOp.RpgState); w.Put(m.ReqId); w.Put(m.Result); w.Put(m.Text ?? "", NetProtocol.MaxTextLength); w.Put(m.SaveJson ?? "", NetProtocol.MaxSaveJsonLength);
+            w.Reset(); w.Put(NetOp.RpgState); w.Put(m.ReqId); w.Put(m.Result); w.Put(m.Text ?? "", NetProtocol.MaxTextLength); w.Put(m.SaveJson ?? "", NetProtocol.MaxSaveJsonLength); w.Put(m.AccountJson ?? "", NetProtocol.MaxSaveJsonLength);
         }
 
         /// <summary>Writes the first `count` (max 64) events; returns how many were written so the caller can send the rest in the next batch.</summary>

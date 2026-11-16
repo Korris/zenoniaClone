@@ -37,12 +37,11 @@ namespace ZenoniaProto
         float leanAngle, leanDip;
         int tier, motion; // motion: 0 idle, 1 walk, 2 any action, for the enhance effect (HeldEnhanceFx.Draw)
         bool enhanced, debugLook;
-        int companionTier, companionBand;
         // Outfit (ArmorLooks): the worn armour's tier picks a whole body: body/<outfit>/bare + hand sheets; rows not painted yet are the Lv1 rows.
         int outfit;
         readonly Dictionary<string, Sprite[][]> outfitBare = new Dictionary<string, Sprite[][]>();
         readonly Dictionary<string, Sprite[][]> outfitHand = new Dictionary<string, Sprite[][]>();
-        bool companionEnhanced, companionEmpty;
+        bool offhandEmpty;
         HeroHeadLayer headLayer; // null = this class has no separate head art (the whole body is one sprite)
 
         public HeroClassDef Class { get { return cls; } }
@@ -66,11 +65,8 @@ namespace ZenoniaProto
         public bool Enhanced { get { return enhanced; } }
         /// <summary>True after a Q / E / R debug override, until the equipment is synced again.</summary>
         public bool DebugLook { get { return debugLook; } }
-        /// <summary>Companion art (mechanic robot / cleric spirit) follows the offhand item; Empty = no offhand equipped.</summary>
-        public int CompanionTier { get { return companionTier; } }
-        public bool CompanionEnhanced { get { return companionEnhanced; } }
-        public int CompanionBand { get { return companionBand; } }
-        public bool CompanionEmpty { get { return companionEmpty; } }
+        /// <summary>True when the paper doll has no offhand item equipped (its offhand parts draw nothing).</summary>
+        public bool OffhandEmpty { get { return offhandEmpty; } }
         /// <summary>Art id of the pet flying with this hero (HeroPet); null = none.</summary>
         public string PetId { get; private set; }
         public void SetPet(string petId) { PetId = petId; }
@@ -224,7 +220,7 @@ namespace ZenoniaProto
             debugLook = true;
             SetOutfit(tier); // E / Q debug look: the outfit of the same art tier too
             foreach (Part p in parts) { p.Tier = tier; p.Enhanced = enhanced; p.Band = enhanced ? 1 : 0; p.Empty = false; }
-            companionTier = tier; companionEnhanced = enhanced; companionBand = enhanced ? 1 : 0; companionEmpty = false;
+            offhandEmpty = false;
         }
 
         /// <summary>Paper doll from the equipment: every part draws its own slot's item (null = nothing in that hand).</summary>
@@ -242,10 +238,7 @@ namespace ZenoniaProto
             Part main = parts.Find(p => !p.Spec.IsOffhand) ?? (parts.Count > 0 ? parts[0] : null);
             tier = main != null ? main.Tier : 0;
             enhanced = main != null && main.Enhanced;
-            companionEmpty = offhand == null;
-            companionTier = ItemInfo.ArtTier(offhand);
-            companionBand = EnhanceStats.VisualBand(offhand);
-            companionEnhanced = companionBand > 0;
+            offhandEmpty = offhand == null;
         }
 
         int ClampTier(string part, int t)

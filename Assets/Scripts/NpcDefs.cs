@@ -61,6 +61,9 @@ namespace ZenoniaProto
                 "Thatchwick steel outlasts anything from the lowland forges.", "Come back once you've climbed higher. I will have better on the rack.") },
             { "brokerPell", DefArt("brokerPell", "Pell", "elderSahir", Down, false,
                 "This square is the only market worth the name between here and the dunes.", "Stand in the square if you want to trade with another traveller. I only point the way.") },
+            // Thatchwick pet keeper (Pet Companion + pet gacha, 16/11/2026): talking opens the pet gacha (PetGachaWindow, also key G). Reuses Mia's look, no new art.
+            { "petKeeperLumi", DefArt("petKeeperLumi", "Lumi", "villagerMia", Down, false,
+                "Every companion here was found on the road, never sold for real coin.", "Bring me Pet Tickets and see who answers your call.") },
             // Oakhaven's blacksmith (world-map-2 step 1): same look as the carpenter, a hammer at the forge.
             { "smithBram", DefArt("smithBram", "Bram", "carpenterBrol", Down, false,
                 "Steel and leather, nothing fancy, but it holds an edge.", "Oakhaven forges plain gear. Good enough until you see higher country.") },

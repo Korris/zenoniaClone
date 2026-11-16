@@ -15,7 +15,6 @@ namespace ZenoniaProto
         Class4, Class5,            // class select screen (4 / 5)
         Switch4, Switch5,          // in-game class switch (F4 / F5)
         Skill,                     // alias of the primary skill (bots, debug tools); the L key is SlotKey2
-        FxColor,                   // C: mechanic FX colour (orange / blue)
         Inventory,                 // B: inventory / equipment panel
         HpPotion, MpPotion,        // 1 / 2 in game (the same keys pick a class on the select screen)
         Close,                     // Esc: close a panel
@@ -27,7 +26,8 @@ namespace ZenoniaProto
         SkillTree,                 // T: skill tree window
         Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill7, Skill8, // tree skill 1-8 (touch magazine taps, bots, resolved slot keys); no physical key
         SlotKey1, SlotKey2, SlotKey3, // U / I(L) / O: the three visible magazine slots of the current page (Dash or a skill)
-        Class6, Switch6            // Fighter: class select screen (6), in-game class switch (F11; F6 is the bloom toggle)
+        Class6, Switch6,           // Fighter: class select screen (6), in-game class switch (F11; F6 is the bloom toggle)
+        PetWindow, PetGacha        // P: Pet Companion window, G: pet gacha window
     }
 
     /// <summary>
@@ -65,7 +65,6 @@ namespace ZenoniaProto
             new[] { KeyCode.F4 },
             new[] { KeyCode.F5 },
             new KeyCode[0],
-            new[] { KeyCode.C },
             new[] { KeyCode.B },
             new[] { KeyCode.Alpha1, KeyCode.Keypad1 },
             new[] { KeyCode.Alpha2, KeyCode.Keypad2 },
@@ -82,6 +81,8 @@ namespace ZenoniaProto
             new[] { KeyCode.O },
             new[] { KeyCode.Alpha6, KeyCode.Keypad6 },
             new[] { KeyCode.F11 },
+            new[] { KeyCode.P },
+            new[] { KeyCode.G },
         };
 
         static bool KeyHeld(GameKey k)
@@ -143,6 +144,8 @@ namespace ZenoniaProto
             new[] { Key.O },
             new[] { Key.Digit6, Key.Numpad6 },
             new[] { Key.F11 },
+            new[] { Key.P },
+            new[] { Key.G },
         };
 
         static bool KeyHeld(GameKey k)

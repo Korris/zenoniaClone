@@ -28,9 +28,6 @@ namespace ZenoniaProto
         /// <summary>Palette of the hero being played (impact sparks read it); skills switch to Neutral while they deal damage.</summary>
         public static ClassPalette Current = Neutral;
 
-        /// <summary>Mechanic FX colour (hotkey C): false = yellow (default, class colour), true = blue.</summary>
-        public static bool MechanicBlue;
-
         /// <summary>Palette of a worn weapon's glow colour: light core of the same hue (no white), the hue itself as band, a darker edge. Cached per hex.</summary>
         public static ClassPalette ForWeapon(string glowHex, ClassPalette fallback)
         {

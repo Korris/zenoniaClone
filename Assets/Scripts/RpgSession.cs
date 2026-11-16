@@ -70,14 +70,10 @@ namespace ZenoniaProto
             owner.BossKilled += OnBossKilled;
             QuestTracker.Observe(player.Quests, false);
             owner.QuestChanged += () => QuestTracker.Observe(player.Quests, true);
-            owner.PetLow += () => RpgHud.Toast(PetConfig.LowText, new Color(1f, 0.75f, 0.35f));
-            owner.PetWornOut += () =>
-            {
-                RpgHud.Toast(PetConfig.WornOutText, new Color(1f, 0.5f, 0.45f));
-                SyncGear();
-                InventoryPanel.RefreshIfOpen();
-                SaveNow();
-            };
+            owner.AccountNews += (text, good) => RpgHud.Toast(text, good ? new Color(0.75f, 1f, 0.6f) : new Color(1f, 0.7f, 0.5f));
+            owner.AccountChanged += () => { SyncGear(); InventoryPanel.RefreshIfOpen(); SaveNow(); };
+            if (NetMode.IsAuthority) owner.AttachAccount(AccountLink.Local(NetMode.IsOffline)); // offline: zenonia-account.json, shared by every class save (pets, tickets, pity); host: RAM. A client mirrors the server's
+            DevStartConfig.GrantPets(owner);
             return player;
         }
 
@@ -145,7 +141,7 @@ namespace ZenoniaProto
             if (hero == null || p == null || hero.View == null) return;
             hero.View.SetEquipmentGear(p.GetEquipped(Slots.Weapon), p.GetEquipped(Slots.Offhand));
             ArmorLooks.FromWorn(hero.View, p);
-            hero.View.SetPet(PetConfig.IdOf(p.GetEquipped(Slots.Pet)));
+            hero.View.SetPet(p.PetId);
             hero.RefreshGearLabel();
         }
 
@@ -219,6 +215,9 @@ namespace ZenoniaProto
         }
 
         // ---- compat for existing call sites ----
+
+        /// <summary>The current hero's PlayerRpg (offline / host: what the pet and gacha windows act through).</summary>
+        public static PlayerRpg Owner { get { return Instance != null ? Instance.owner : null; } }
 
         /// <summary>Applies a pickup to the current hero's RPG state (used by tools / tests; LootDrop goes through the hero's PlayerRpg).</summary>
         public static ActionResult Pickup(LootEntry e)

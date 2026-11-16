@@ -5,7 +5,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Owns the playable hero: shows the class select screen first, then spawns the chosen class (hero + renderer + robot companion)
+    /// Owns the playable hero: shows the class select screen first, then spawns the chosen class (hero + renderer + pet)
     /// and lets F1..F5 respawn as another class at any time. Each class has its own RPG save (RpgSession): switching saves the current hero first.
     /// Online (host / client) the class is fixed for the session and there are no saves; GameSession.Online.cs switches the process between modes.
     /// </summary>
@@ -59,7 +59,6 @@ namespace ZenoniaProto
             hero.Init(view, state);
             hero.PlayerName = localName; // host: remote players see this name above the hero
             rpg.Attach(hero, save);
-            if (def.CompanionFolder != null) HeroCompanion.Create(root, hero);
             HeroPet.Create(root, hero);
             follow.Target = heroGo.transform;
             follow.Configure();
@@ -81,7 +80,6 @@ namespace ZenoniaProto
             HeroController h = go.AddComponent<HeroController>();
             h.Init(view, null, true);
             h.Teleport(feet, dir);
-            if (def.CompanionFolder != null) HeroCompanion.Create(root, h);
             return h;
         }
 
@@ -108,7 +106,6 @@ namespace ZenoniaProto
             PlayerState state = PlayerState.NewGame(RpgSession.ClassId(def.Id));
             HeroController h = go.AddComponent<HeroController>();
             h.InitProxy(def, view, state, netId, local);
-            if (views && def.CompanionFolder != null) HeroCompanion.Create(root, h);
             if (views) HeroPet.Create(root, h);
             if (!local) return h;
             if (hero != null) { hero.Retire(); Destroy(heroGo); }

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { CLASS_IDS, MAX_INT } from './rpg/rpg-constants.js';
 import { opsSchema } from './rpg/inventory-ops.js';
 import { stateSchema } from './rpg/item-validation.js';
+import { accountStateSchema } from './rpg/account-validation.js';
 
 // bcrypt only hashes the first 72 BYTES, so cap by bytes (not chars) to avoid silently truncated passwords.
 const password = z
@@ -44,3 +45,6 @@ const tradeSide = z.object({
 });
 export const tradeCommitSchema = z.object({ tradeId: reqId, a: tradeSide, b: tradeSide });
 export const endSessionSchema = z.object({ characterId: z.string().length(24) });
+
+export const accountGetSchema = z.object({ sessionId });
+export const accountWriteSchema = z.object({ sessionId, rev, reqId, state: accountStateSchema });

@@ -74,6 +74,20 @@ namespace ZenoniaProto
             Post("/internal/sessions/" + sessionId + "/end", "{\"characterId\":" + Str(characterId) + "}", (s, t) => done(Reply(s, t)));
         }
 
+        // ---- the account (Pet Companion + pet gacha, ZoneAccountQueue) ----
+
+        /// <summary>Stores a whole account state built on `rev`; `done` gets status (0 = no answer) and body ({rev}). 409 = someone wrote first.</summary>
+        public void AccountWrite(string characterId, string sessionId, int rev, string reqId, string stateJson, Action<int, string> done)
+        {
+            Post("/internal/characters/" + characterId + "/account/write", "{\"sessionId\":" + Str(sessionId) + ",\"rev\":" + rev + ",\"reqId\":" + Str(reqId) + ",\"state\":" + stateJson + "}", done);
+        }
+
+        /// <summary>The account as server-api has it ({rev, state}), after a 409.</summary>
+        public void AccountGet(string characterId, string sessionId, Action<int, string> done)
+        {
+            Post("/internal/characters/" + characterId + "/account/get", "{\"sessionId\":" + Str(sessionId) + "}", done);
+        }
+
         // ---- the rest of what a zone asks ----
 
         /// <summary>Consumes a ticket: `done` gets the HTTP status (0 = no answer) and the body.</summary>

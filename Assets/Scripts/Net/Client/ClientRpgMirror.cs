@@ -32,6 +32,11 @@ namespace ZenoniaProto
             SaveData save = SaveSerializer.Parse(m.SaveJson, FrostHollowLayout.RowCount);
             if (save == null) return false;
             PlayerState state = SaveSerializer.Restore(save);
+            AccountState account = null;
+            try { account = string.IsNullOrEmpty(m.AccountJson) ? null : AccountState.Sanitize(JsonUtility.FromJson<AccountState>(m.AccountJson)); }
+            catch (System.Exception) { account = null; } // unreadable: the windows show no account until the next push
+            if (account != null) state.AttachAccount(account); // the pet's stars, tickets, pity: read-only here, the server is the writer
+            else state.RecomputeStats();
             if (RpgSession.Instance != null) { RpgSession.Instance.AttachRemote(state, hero); RpgSession.Instance.ApplyRemoteBossFlags(save); }
             if (NetMode.RendersFx) { QuestTracker.Observe(state.Quests, questsKnown); WantedBossTracker.Observe(state.WantedDay, questsKnown); }
             questsKnown = true; // the first push of a connection is the character arriving, not news

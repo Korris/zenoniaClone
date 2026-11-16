@@ -5,14 +5,14 @@ using UnityEngine.UI;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Settings window behind the gear button under the minimap: background music on / off, sound effects on / off (AudioPrefs, per device),
+    /// Settings window behind the gear button under the minimap: background music on / off, sound effects on / off (AudioPrefs, per device), other players' pets on / off (PetViewPrefs),
     /// and "Change hero", which closes the window and takes the same path the gear button used to take (HeroChangeScreen.Open: the hero select
     /// offline, the account menu online with an account, a hint on a dev connection). Same win-panel frame and gold / navy art as the quest windows.
     /// Modal (UiWindows.ModalOpen: hero frozen, touch controls hidden); Esc / X close it.
     /// </summary>
     public sealed class SettingsWindow : MonoBehaviour
     {
-        const float W = 400f, H = 300f, Pad = 30f, RowH = 62f;
+        const float W = 400f, H = 370f, Pad = 30f, RowH = 62f;
         static readonly Color TitleColor = new Color(1f, 0.93f, 0.7f), DarkText = new Color(0.25f, 0.12f, 0.02f);
         static readonly Color RowFill = new Color(0.035f, 0.065f, 0.13f, 1f) /* opaque: the Outline copies lie behind it */, RowLine = new Color(0.85f, 0.65f, 0.25f, 0.6f);
         static SettingsWindow instance;
@@ -20,7 +20,7 @@ namespace ZenoniaProto
         public static bool IsOpen { get { return instance != null && instance.open; } }
 
         RectTransform root;
-        SettingsToggle music, sfx;
+        SettingsToggle music, sfx, otherPets;
         bool open, changeHeroNextFrame;
 
         public static void Create(Transform canvas)
@@ -37,6 +37,7 @@ namespace ZenoniaProto
             if (instance == null || GameSession.Hero == null || HeroChangeScreen.IsOpen || AccountScreenGui.MenuOpen) return;
             instance.music.Set(AudioPrefs.MusicOn);
             instance.sfx.Set(AudioPrefs.SfxOn);
+            instance.otherPets.Set(PetViewPrefs.ShowOthers);
             instance.open = true;
             instance.root.gameObject.SetActive(true);
         }
@@ -69,13 +70,14 @@ namespace ZenoniaProto
 
             music = Row("Music", 76f, "Music", "settings-music", on => AudioPrefs.MusicOn = on);
             sfx = Row("Sound", 76f + RowH + 8f, "Sound effects", "settings-sound", on => AudioPrefs.SfxOn = on);
+            otherPets = Row("OtherPets", 76f + (RowH + 8f) * 2f, "Other players' pets", null, on => PetViewPrefs.ShowOthers = on, PetArt.Icon(Rpg.PetConfig.All[0]));
 
             UiWinKit.ArtButton(root, "ChangeHero", "btn-gold", Pad, H - 26f - 46f, W - Pad * 2f, 46f, "Change hero", 20, DarkText, ChangeHero);
             root.gameObject.SetActive(false);
         }
 
         /// <summary>One setting: section box, round icon, caption and the on / off switch on the right.</summary>
-        SettingsToggle Row(string name, float y, string caption, string icon, Action<bool> changed)
+        SettingsToggle Row(string name, float y, string caption, string icon, Action<bool> changed, Sprite art = null)
         {
             RectTransform row = UiKit.Rect(root, name, Pad, y, W - Pad * 2f, RowH);
             // plain dark box with a thin gold line, as in the mockup: win-section's light band reads as a stripe (rejected on the Bag screen)
@@ -83,7 +85,7 @@ namespace ZenoniaProto
             line.effectColor = RowLine;
             line.effectDistance = new Vector2(1.5f, -1.5f);
             Image img = UiKit.Icon(row, "Icon", 12f, (RowH - 42f) * 0.5f, 42f);
-            img.sprite = SettingsToggle.Art(icon);
+            img.sprite = art ?? SettingsToggle.Art(icon);
             img.color = Color.white;
             img.enabled = img.sprite != null;
             UiKit.Label(row, "Caption", 66f, 0f, W - Pad * 2f - 66f - SettingsToggle.Width - 18f, RowH, caption, 18, Color.white, TextAnchor.MiddleLeft, true);

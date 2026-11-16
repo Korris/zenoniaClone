@@ -4,7 +4,7 @@
   scripted clients (DebugCapture.NetPersist.cs) that log in with the real flow. Every number it judges comes from the API, not from the clients. Secrets are made up for this run and die with it.
   Register, create, join, earn gold, leave, rejoin; bad and reused tickets; a client that claims another class; one character twice; graceful and hard zone restarts; enhance through the API;
   trade then kill a client; kill during an open trade; kill the zone right after a trade; a trade and a leave during an API outage; the Oakhaven start; change character, log out, delete; what the
-  account pages say for each refusal; forgot password; a zone stopped during an outage and its kept state coming back; a pet bought, worn, kept through relogin and zone restarts, traded. -Shots also opens a real window and saves a PNG of each account page. Prints PASS / FAIL lines and a count.
+  account pages say for each refusal; forgot password; a zone stopped during an outage and its kept state coming back; account pets (unlocked at the seller, kept through relogin and a zone restart, an old pet item migrated) and a x10 pet gacha pull. -Shots also opens a real window and saves a PNG of each account page. Prints PASS / FAIL lines and a count.
 .EXAMPLE
   .\Tools\net-persist-test.ps1 -Exe C:\temp\login-build\Zenonia.exe -OutDir C:\temp\persist
 #>
@@ -153,6 +153,8 @@ function Start-Window([string]$name, [string]$account, [string]$role, [string[]]
 function Pet-Of($char) { return @($char.state.equipment | Where-Object { $_.slot -eq "pet" }) }
 function All-Pets($char) { return @(@($char.state.equipment) + @($char.state.inventory) | Where-Object { $_.slot -eq "pet" }) }
 function Seed([string[]]$a) { & node (Join-Path $apiDir "scripts\dev-seed.mjs") --uri $mongoUri --db $dbName @a | Out-Null }
+# The account (pets, tickets, pity) as Mongo has it: {rev, state}, rev -1 when there is none yet.
+function Read-Account([string]$name) { (& node (Join-Path $apiDir "scripts\dev-read-account.mjs") --uri $mongoUri --db $dbName --name $name) | ConvertFrom-Json }
 
 try {
   Section "stack"
@@ -161,11 +163,11 @@ try {
   Start-Zone; Write-Host "zone up, with dev cheats on its command line"
   Ok "the zone says the dev cheats are ignored" (Wait-Log $script:zoneLog "ignored with --api-url" 2)
 
-  Section "pets: bought from the seller, worn, kept through relogin and restarts, traded"
+  Section "pets (Pet Companion, account data since 16/11/2026): unlocked at the seller, taken along, kept, migrated from an old item, pet gacha"
   $pia = "pia$suffix"; $quin = "quin$suffix"
   Register-Account $pia "warrior" | Out-Null
   Register-Account $quin "wizard" | Out-Null
-  Seed @("--name", $pia, "--gold", "10000", "--stones", "3")
+  Seed @("--name", $pia, "--gold", "10000", "--stones", "3", "--level", "5") # Lv 5: the pet combat slot opens there (V2 PetRules.SlotUnlockLevel)
   $c = Start-Account "pia-1-far" $pia "pet-far"
   Ok "the far round finished" (Wait-Exit $c 60)
   Show-Lines $c; Copy-Failures $c
@@ -173,24 +175,19 @@ try {
   Ok "got a spot beside the seller" ($spot -match "x=([\d.]+) y=([\d.]+) map=(\w+)") $spot
   $sx = $Matches[1]; $sy = $Matches[2]; $smap = $Matches[3]
   Ok "left" (Wait-Offline $pia 25)
-  $char = Read-Character $pia
-  Ok "a stored character with no pet loads and saves as before" (@($char.state.equipment | Where-Object { $_.slot -eq "pet" }).Count -eq 0 -and $char.state.gold -eq 10000) "gold=$($char.state.gold)"
+  $acc = Read-Account $pia
+  Ok "joining made the account: 10 starter coins, only the level-5 Spirit (Legacy, free at Lv 5)" ($acc.rev -ge 1 -and $acc.state.tickets -eq 10 -and @($acc.state.pets).Count -eq 1 -and @($acc.state.pets)[0].id -eq "spirit") ($acc | ConvertTo-Json -Compress -Depth 6)
   Seed @("--name", $pia, "--x", $sx, "--y", $sy, "--map", $smap)
   $c = Start-Account "pia-2-buy" $pia "pet-buy"
   Ok "the buy round finished" (Wait-Exit $c 60)
   Show-Lines $c; Copy-Failures $c
-  $line = Line-Of $c "persist-e2e: bought "
   Ok "left" (Wait-Offline $pia 25)
-  $char = Read-Character $pia
-  $worn = @($char.state.equipment | Where-Object { $_.slot -eq "pet" })
-  $petUid = if ($worn.Count -eq 1) { $worn[0].uid } else { "" }
-  $petHp = Value-In $line "maxhp"
-  Ok "the API has the pet worn and the gold paid" ($worn.Count -eq 1 -and $worn[0].templateId -eq "pet-spirit" -and $worn[0].enhance -eq 0 -and $char.state.gold -eq 7000) "gold=$($char.state.gold) worn=$($worn | ConvertTo-Json -Compress)"
-  Ok "the stones were not touched by the refused enhance" ($char.state.upgradeStone -eq 3) "stones=$($char.state.upgradeStone)"
+  $char = Read-Character $pia; $acc = Read-Account $pia
+  Ok "the API has the Imp on the account, the gold paid (Imp 3000 + a Pet Ball 500) and the Imp taken along" ((@($acc.state.pets | Where-Object { $_.id -eq "imp" }).Count -eq 1) -and $char.state.gold -eq 6500 -and $char.state.petId -eq "imp" -and @($char.state.petTeam)[0] -eq "imp") "gold=$($char.state.gold) petId=$($char.state.petId) petTeam=$($char.state.petTeam -join ',') pets=$($acc.state.pets | ConvertTo-Json -Compress)"
+  Ok "the account is V2: version 2, one Pet Ball bought today, a level-1 Imp" ($acc.state.version -eq 2 -and $acc.state.balls -eq 1 -and $acc.state.ballsBoughtToday -eq 1 -and @($acc.state.pets)[0].level -eq 1) ($acc.state | ConvertTo-Json -Compress -Depth 4)
   $c = Start-Account "pia-3-show" $pia "show"
   Wait-Exit $c 60 | Out-Null; Copy-Failures $c
-  $line = Line-Of $c "persist-e2e: final"
-  Ok "the pet survives leaving and rejoining, with its bonus" ($line -match "pet=$([regex]::Escape($petUid)) " -and (Value-In $line "maxhp") -eq $petHp) $line
+  Ok "the pet survives leaving and rejoining" ((Line-Of $c "persist-e2e: final") -match "pet=imp\*1 ") (Line-Of $c "persist-e2e: final")
   Ok "left" (Wait-Offline $pia 25)
   $c = Start-Account "pia-4-idle" $pia "idle"
   Ok "joined" (Wait-Log $c.Log "persist-e2e: idle" 40)
@@ -201,164 +198,44 @@ try {
   Start-Zone
   $c = Start-Account "pia-5-show" $pia "show"
   Wait-Exit $c 60 | Out-Null; Copy-Failures $c
-  $line = Line-Of $c "persist-e2e: final"
-  Ok "the pet survives a zone restart" ($line -match "pet=$([regex]::Escape($petUid)) " -and (Value-In $line "maxhp") -eq $petHp) $line
+  Ok "the pet survives a zone restart" ((Line-Of $c "persist-e2e: final") -match "pet=imp\*1 ") (Line-Of $c "persist-e2e: final")
   Ok "left" (Wait-Offline $pia 25)
-  $c = Start-Account "pia-6-imp" $pia "pet-buy-stay"
-  Ok "bought the imp" (Wait-Log $c.Log "persist-e2e: imp-bought" 40)
-  Show-Lines $c
-  Start-Sleep -Seconds 1 # shorter than the save interval: only the save the purchase asks for can have happened
-  Stop-Tree $script:zoneProc
-  $char = Read-Character $pia
-  $impUid = @($char.state.inventory | Where-Object { $_.templateId -eq "pet-imp" })[0].uid
-  Ok "a killed zone keeps a purchase made a second ago: pet and gold together" ($null -ne $impUid -and $char.state.gold -eq 4000) "gold=$($char.state.gold)"
-  Stop-Tree $c.Proc
-  Start-Zone
-  Seed @("--name", $pia, "--gold", "1000", "--pet-durability", "$($impUid):80") # a used pet: what the buyer must be told
-  Seed @("--name", $quin, "--gold", "500", "--x", $sx, "--y", $sy, "--map", $smap)
-  if ($PetsOnly) {
-    $b = Start-Window "pia-7-trade" $pia "trade-a" @("--partner", $quin, "--give-uid", $impUid, "--trade-shots", "`"$OutDir\pet-shots`"")
-    Start-Sleep -Seconds 1
-    $k = Start-Window "quin-1-trade" $quin "trade-b" @("--partner", $pia, "--trade-shots", "`"$OutDir\pet-shots`"")
-  } else {
-    $b = Start-Account "pia-7-trade" $pia "trade-a" @("--partner", $quin, "--give-uid", $impUid)
-    $k = Start-Account "quin-1-trade" $quin "trade-b" @("--partner", $pia)
-  }
-  Ok "the pet trade completed" ((Wait-Log $b.Log "persist-e2e: TRADE-DONE" 90) -and (Wait-Log $k.Log "persist-e2e: TRADE-DONE" 10))
-  Copy-Failures $b; Copy-Failures $k
-  $cb = Read-Character $pia; $cc = Read-Character $quin
-  Ok "the API moved it: on the wizard, not on the warrior" ((Has-Item $cb $impUid) -eq 0 -and (Has-Item $cc $impUid) -eq 1)
-  Ok "its durability went with it" (@($cc.state.inventory | Where-Object { $_.uid -eq $impUid })[0].durability -eq 80)
-  Stop-Tree $b.Proc; Stop-Tree $k.Proc
-  Ok "both left" ((Wait-Offline $pia 30) -and (Wait-Offline $quin 30))
-  $k = Start-Account "quin-2-wear" $quin "pet-wear"
+  $c = Start-Account "pia-6-gacha" $pia "pet-gacha"
+  Ok "the gacha round finished" (Wait-Exit $c 60)
+  Show-Lines $c; Copy-Failures $c
+  Ok "left" (Wait-Offline $pia 25)
+  $acc = Read-Account $pia
+  Ok "the API has the x10: coins spent, 10 records in the history, pity within 20 / 50" ($acc.state.tickets -eq 0 -and $acc.state.totalPulls -eq 10 -and @($acc.state.history).Count -eq 10 -and $acc.state.pitySSR -le 19 -and $acc.state.pityUR -le 49) "tickets=$($acc.state.tickets) pulls=$($acc.state.totalPulls) pity=$($acc.state.pitySSR)/$($acc.state.pityUR)"
+  $urs = @($acc.state.history | Where-Object { $_.id -eq "frostfangKing" }).Count
+  Ok "a UR shard per non-UR pull, shard results carry 5 shared shards" ($acc.state.urShards -eq (10 - $urs) -and @($acc.state.history | Where-Object { $_.id -eq "" -and $_.shards -ne 5 }).Count -eq 0) "urShards=$($acc.state.urShards) history=$($acc.state.history | ConvertTo-Json -Compress)"
+  Seed @("--name", $quin, "--pet", "pet-spirit:quin-old-spirit", "--gold", "500", "--level", "5") # an old durability pet in the bag: what a save from before Pet Companion carries
+  $k = Start-Account "quin-1-wear" $quin "pet-wear"
   Ok "the wear round finished" (Wait-Exit $k 60)
   Show-Lines $k; Copy-Failures $k
   Ok "left" (Wait-Offline $quin 25)
-  Ok "the traded pet still has what it had" ((Value-In (Line-Of $k "persist-e2e: wearing") "petdur") -eq 80) (Line-Of $k "persist-e2e: wearing")
-  Ok "no save was refused over a pet" (-not (Select-String -Path "$OutDir\zone-*.log" -Pattern "refused the state" -Quiet))
+  $cq = Read-Character $quin; $q = Read-Account $quin
+  Ok "the old Spirit item is gone from the character" (@(All-Pets $cq).Count -eq 0) "pets=$((All-Pets $cq) | ConvertTo-Json -Compress)"
+  $spirit = @($q.state.pets | Where-Object { $_.id -eq "spirit" })
+  Ok "it became the account's Spirit: 1 star, 10 shards, 3000 G compensation, once" ($spirit.Count -eq 1 -and $spirit[0].stars -eq 1 -and $spirit[0].shards -eq 10 -and $cq.state.gold -eq 3500 -and @($q.state.compensated) -contains "spirit") "gold=$($cq.state.gold) acc=$($q | ConvertTo-Json -Compress -Depth 6)"
+  Ok "no save was refused over a pet or an account" (-not (Select-String -Path "$OutDir\zone-*.log" -Pattern "refused the state|account: write .* refused" -Quiet))
   if ($Shots -or $PetsOnly) {
     Section "pets: what another player sees, in real windows"
     $shotDir = "$OutDir\pet-shots"
-    $env:ZENONIA_TEST_PASSWORD = $password
-    $w1 = Start-Process $Exe -PassThru -ArgumentList @("--mode", "client", "-screen-fullscreen", 0, "-screen-width", 960, "-screen-height", 640, "-logFile", "`"$OutDir\pia-8-toggle.log`"", "--api-url", $api, "--account", $pia, "--name", $pia, "--net-bot", "persist", "--persist-role", "pet-toggle")
-    $w2 = Start-Process $Exe -PassThru -ArgumentList @("--mode", "client", "-screen-fullscreen", 0, "-screen-width", 960, "-screen-height", 640, "-logFile", "`"$OutDir\quin-3-see.log`"", "--api-url", $api, "--account", $quin, "--name", $quin, "--net-bot", "persist", "--persist-role", "pet-see", "--partner", $pia, "--shot-path", "`"$shotDir`"")
-    Remove-Item env:ZENONIA_TEST_PASSWORD
-    $script:clients += $w1; $script:clients += $w2
-    $c = @{ Proc = $w2; Log = "$OutDir\quin-3-see.log" }
-    Ok "the watching window finished" (Wait-Exit $c 120)
-    Show-Lines $c
-    Show-Lines @{ Proc = $w1; Log = "$OutDir\pia-8-toggle.log" }
-    Stop-Tree $w1
-    Write-Host "see $shotDir"
+    Seed @("--name", $quin, "--x", $sx, "--y", $sy, "--map", $smap)
+    Seed @("--name", $pia, "--x", $sx, "--y", $sy, "--map", $smap)
+    $w1 = Start-Window "pia-8-toggle" $pia "pet-toggle"
+    $w2 = Start-Window "quin-3-see" $quin "pet-see" @("--partner", $pia, "--shot-path", "`"$shotDir`"")
+    Ok "the watcher finished" (Wait-Log $w2.Log "persist-e2e: see done" 120)
+    Show-Lines $w2; Copy-Failures $w2
+    Stop-Tree $w1.Proc; Stop-Tree $w2.Proc
     Ok "both left" ((Wait-Offline $pia 30) -and (Wait-Offline $quin 30))
+    $w1 = Start-Window "pia-9-idle" $pia "idle"
+    $w2 = Start-Window "quin-4-hidden" $quin "pet-see-hidden" @("--partner", $pia, "--shot-path", "`"$shotDir`"", "--hide-other-pets")
+    Ok "the hidden-pets watcher finished" (Wait-Log $w2.Log "persist-e2e: see done" 120)
+    Show-Lines $w2; Copy-Failures $w2
+    Stop-Tree $w1.Proc; Stop-Tree $w2.Proc
+    Ok "both left again" ((Wait-Offline $pia 30) -and (Wait-Offline $quin 30))
   }
-
-  Section "pet durability"
-  $rae = "rae$suffix"
-  Register-Account $rae "assassin" | Out-Null
-  Seed @("--name", $rae, "--pet", "pet-spirit:rae-old-pet") # the shape a pet had before durability, in a state of the old format
-  $c = Start-Account "rae-1-wear" $rae "pet-wear"
-  Ok "the old pet round finished" (Wait-Exit $c 60)
-  Show-Lines $c; Copy-Failures $c
-  Ok "an old pet without the field loads at the maximum" ((Value-In (Line-Of $c "persist-e2e: wearing") "petdur") -eq 1000) (Line-Of $c "persist-e2e: wearing")
-  Ok "left" (Wait-Offline $rae 25)
-  Ok "and the API has it at the maximum too" ((Pet-Of (Read-Character $rae))[0].durability -eq 1000)
-
-  Seed @("--name", $quin, "--pet-durability", "$($impUid):1000")
-  $d0 = @(Pet-Of (Read-Character $pia))
-  Ok "the warrior wears the spirit, the wizard the imp" ($d0.Count -eq 1 -and $d0[0].templateId -eq "pet-spirit" -and (Pet-Of (Read-Character $quin))[0].templateId -eq "pet-imp")
-  $dBefore = $d0[0].durability
-  # Straight to the fight: the portal bot picks its portal by name and not every one leads out from here. A blocked spot makes the zone use the entrance of the map.
-  Seed @("--name", $pia, "--x", "1", "--y", "1", "--map", "frostHollow")
-  Seed @("--name", $quin, "--x", "1", "--y", "1", "--map", "frostHollow")
-  $a1 = Start-Account "pia-9-drain" $pia "pet-drain" @("--fight-seconds", "90")
-  $a2 = Start-Account "quin-4-drain" $quin "pet-drain" @("--fight-seconds", "90")
-  Ok "the fights finished" ((Wait-Exit $a1 200) -and (Wait-Exit $a2 200))
-  Show-Lines $a1; Show-Lines $a2; Copy-Failures $a1; Copy-Failures $a2
-  Select-String -Path $a1.Log, $a2.Log -Pattern "persist-e2e: rate" | ForEach-Object { Write-Host ($_.Line -replace "^.*persist-e2e: ", "") }
-  Ok "both left" ((Wait-Offline $pia 30) -and (Wait-Offline $quin 30))
-  $dApi = (Pet-Of (Read-Character $pia))[0].durability
-  Ok "a monster hit drained the spirit, and the API has it" ($dApi -lt $dBefore) "api=$dApi before=$dBefore"
-  $c = Start-Account "pia-10-show" $pia "show"
-  Wait-Exit $c 60 | Out-Null; Copy-Failures $c
-  Ok "durability survives relogin" ((Value-In (Line-Of $c "persist-e2e: final") "petdur") -eq $dApi) "$(Line-Of $c 'persist-e2e: final') api=$dApi"
-  Ok "left" (Wait-Offline $pia 25)
-  $c = Start-Account "pia-11-idle" $pia "idle"
-  Ok "joined" (Wait-Log $c.Log "persist-e2e: idle" 40)
-  $zone = $script:zoneProc
-  New-Item -ItemType File -Path $shutdownFile | Out-Null
-  Ok "the zone stops by itself" ($zone.WaitForExit(40000))
-  Stop-Tree $c.Proc
-  Start-Zone
-  $c = Start-Account "pia-12-show" $pia "show"
-  Wait-Exit $c 60 | Out-Null; Copy-Failures $c
-  Ok "durability survives a zone restart" ((Value-In (Line-Of $c "persist-e2e: final") "petdur") -eq $dApi) (Line-Of $c "persist-e2e: final")
-  Ok "left" (Wait-Offline $pia 25)
-
-  # A save straight to the API, as a bad zone would send it.
-  $t = Get-Token $quin
-  $qid = (Read-Character $quin).id
-  $enter = Api-Call POST "/characters/$qid/enter" $null $t
-  $red = Svc-Call "/internal/tickets/redeem" @{ ticket = $enter.Body.ticket }
-  $qs = $red.Body.character.state; $qrev = $red.Body.character.rev; $qsid = $red.Body.sessionId
-  $qpet = @($qs.equipment | Where-Object { $_.slot -eq "pet" })[0]
-  $stored = $qpet.durability
-  Ok "the imp lost durability in the fight too" ($stored -lt 1000) "stored=$stored"
-  $qpet.durability = $stored + 1
-  $r = Svc-Call "/internal/characters/$qid/save" @{ sessionId = $qsid; rev = $qrev; state = $qs }
-  Ok "a save above the stored durability is refused" ($r.Status -eq 422 -and $r.Code -eq "durability_tamper") "status $($r.Status) $($r.Code)"
-  $qpet.durability = 1001
-  $r = Svc-Call "/internal/characters/$qid/save" @{ sessionId = $qsid; rev = $qrev; state = $qs }
-  Ok "a save over the maximum is refused" ($r.Status -eq 400) "status $($r.Status) $($r.Code)"
-  Ok "and nothing changed" ((Pet-Of (Read-Character $quin))[0].durability -eq $stored)
-  $r = Svc-Call "/internal/sessions/$qsid/end" @{ characterId = $qid }
-  Ok "the session is given back" ($r.Status -eq 200) "status $($r.Status)"
-
-  $petUid2 = (Pet-Of (Read-Character $pia))[0].uid
-  Seed @("--name", $pia, "--pet-durability", "$($petUid2):4", "--x", "1", "--y", "1", "--map", "frostHollow")
-  Seed @("--name", $quin, "--x", "1", "--y", "1", "--map", "frostHollow") # side by side at the entrance
-  $shotDir = "$OutDir\pet-shots"
-  if ($PetsOnly -or $Shots) {
-    $w1 = Start-Window "pia-13-wearout" $pia "pet-wearout" @("--shot-path", "`"$shotDir`"")
-    Start-Sleep -Seconds 1
-    $w2 = Start-Window "quin-5-watch" $quin "pet-watch" @("--partner", $pia, "--shot-path", "`"$shotDir`"")
-    Ok "the owner saw it wear out" (Wait-Log $w1.Log "persist-e2e: worn-out" 280)
-    Ok "the other player's window finished" (Wait-Exit $w2 120)
-    Show-Lines $w1; Show-Lines $w2
-  } else {
-    $w1 = Start-Account "pia-13-wearout" $pia "pet-wearout"
-    Ok "the owner saw it wear out" (Wait-Log $w1.Log "persist-e2e: worn-out" 280)
-    Show-Lines $w1
-  }
-  Ok "the zone logged no error for it" (-not (Select-String -Path $script:zoneLog -Pattern "NullReference|Exception" -Quiet))
-  Start-Sleep -Seconds 1
-  $char = Read-Character $pia
-  Ok "the API has no spirit a second after it wore out, with the player online" (@(All-Pets $char).Count -eq 0) "pets=$((All-Pets $char) | ConvertTo-Json -Compress)"
-  Stop-Tree $w1.Proc # gone without a goodbye right after
-  Ok "left" (Wait-Offline $pia 30)
-  $c = Start-Account "pia-14-show" $pia "show"
-  Wait-Exit $c 60 | Out-Null; Copy-Failures $c
-  $line = Line-Of $c "persist-e2e: final"
-  Ok "it does not come back on reconnect" ($line -match "pet=- " -and $line -notmatch "pet-spirit") $line
-  Ok "left" (Wait-Offline $pia 25)
-  Ok "still none in the API" (@(All-Pets (Read-Character $pia)).Count -eq 0)
-
-  $quinPet = (Pet-Of (Read-Character $quin))[0].uid
-  Ok "the wizard is offline for this" (Wait-Offline $quin 30)
-  Seed @("--name", $quin, "--pet-durability", "$($quinPet):2")
-  $c = Start-Account "quin-6-wearout" $quin "pet-wearout"
-  Ok "the imp wore out from attacks" (Wait-Log $c.Log "persist-e2e: worn-out" 280)
-  Show-Lines $c
-  Start-Sleep -Seconds 1 # shorter than the save interval: only the save the wear-out asks for can have happened
-  Stop-Tree $script:zoneProc
-  Ok "a zone killed a second after the wear-out has already written it" (@(All-Pets (Read-Character $quin)).Count -eq 0) "pets=$((All-Pets (Read-Character $quin)) | ConvertTo-Json -Compress)"
-  Stop-Tree $c.Proc
-  Start-Zone
-  $c = Start-Account "quin-7-show" $quin "show"
-  Wait-Exit $c 60 | Out-Null; Copy-Failures $c
-  Ok "no pet after the restart either" ((Line-Of $c "persist-e2e: final") -match "pet=- ") (Line-Of $c "persist-e2e: final")
-  Ok "left" (Wait-Offline $quin 25)
 
   if (-not $PetsOnly) {
   Section "bad tickets"

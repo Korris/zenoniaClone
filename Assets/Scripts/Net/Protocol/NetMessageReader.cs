@@ -56,7 +56,7 @@ namespace ZenoniaProto.Net
             try
             {
                 m.ReqId = r.GetUInt(); byte op = r.GetByte(); m.ItemUid = r.GetString(NetProtocol.MaxItemUidLength); m.Slot = r.GetByte();
-                if (op > (byte)InvOp.GearBuy) return false;
+                if (op > (byte)InvOpInfo.Last) return false;
                 m.Op = (InvOp)op;
                 return true;
             }
@@ -134,7 +134,7 @@ namespace ZenoniaProto.Net
             m = default(RpgStateMsg);
             try
             {
-                m.ReqId = r.GetUInt(); m.Result = r.GetByte(); m.Text = r.GetString(NetProtocol.MaxTextLength); m.SaveJson = r.GetString(NetProtocol.MaxSaveJsonLength);
+                m.ReqId = r.GetUInt(); m.Result = r.GetByte(); m.Text = r.GetString(NetProtocol.MaxTextLength); m.SaveJson = r.GetString(NetProtocol.MaxSaveJsonLength); m.AccountJson = r.GetString(NetProtocol.MaxSaveJsonLength);
                 return true;
             }
             catch (Exception) { return false; }
