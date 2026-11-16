@@ -1,5 +1,7 @@
 # Việc đang dở
 
+> 16/11/2026 17:50: mọi mục bên dưới ghi "CHƯA commit" đã được commit + push trong `c91c2d30` (branch `unity`). Phần "chưa review / chưa kiểm / chờ duyệt" vẫn còn nguyên.
+
 ## >>> LÀM TIẾP TỪ ĐÂY (bàn giao 13/11/2026 ~07:30, phiên Claude dài) <<<
 
 Người dùng bảo: "lưu để tí làm tiếp, giờ commit và push; lưu sao cho phiên sau vẫn còn những suy nghĩ và câu hỏi kêu tui chọn như hiện tại". Đã commit + push hết việc đang dở (trừ ảnh nháp ô chặn Oakhaven trong `plans/261113-0106-world-map-step1/layout-oakhaven/*.png`).
