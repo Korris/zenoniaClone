@@ -37,8 +37,8 @@ public class WillowbrookLargeMapTests
         // World Map 2.0 step 1 (13/11/2026): Willowbrook's west gate now leads to Oakhaven's new south gate (13,21)/(14,21), not Thatchwick (plans/261113-0106-world-map-step1/plan.md).
         IGameMap oak = MapRegistry.Get(OakhavenVillageMap.MapId);
         Assert.Equal(4, Willow.Portals.Length); // the west gate pair + the south gate pair to Bramblewood Forest (World Map 2.1, BramblewoodRootburrowMapTests)
-        Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 23 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 13 && p.TargetTy == 20);
-        Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 24 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 14 && p.TargetTy == 20);
+        Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 23 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 13 && p.TargetTy == 19); // row 19: row 20 is within the south gate's trigger reach (16/11/2026)
+        Assert.Contains(Willow.Portals, p => p.Tx == 0 && p.Ty == 24 && p.TargetMapId == OakhavenVillageMap.MapId && p.TargetTx == 14 && p.TargetTy == 19);
         Assert.Contains(oak.Portals, p => p.Tx == 13 && p.Ty == 21 && p.TargetMapId == WillowbrookMeadowsMap.MapId && p.TargetTx == 2 && p.TargetTy == 23);
         Assert.Contains(oak.Portals, p => p.Tx == 14 && p.Ty == 21 && p.TargetMapId == WillowbrookMeadowsMap.MapId && p.TargetTx == 2 && p.TargetTy == 23);
         foreach (MapPortal p in Willow.Portals) Assert.False(Willow.IsSolidTile(p.Tx, p.Ty), "gate tile " + p.Tx + "," + p.Ty + " is solid");

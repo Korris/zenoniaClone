@@ -38,6 +38,15 @@ namespace ZenoniaProto.Rpg
         /// <summary>Cap on the summed move speed bonus of everything worn (+25% = 100 units/s on the base 80).</summary>
         public const double MaxSpeedBonus = 0.25;
 
+        /// <summary>
+        /// Crit chance of gloves: a fixed bonus per equipment tier (16/11/2026), like the boots speed. Scaled by item level and rarity, a Lv60 epic gave +84.1% on a base
+        /// crit of 8%, so nearly every hit was a critical hit. Rarity only raises the gloves' ATK.
+        /// </summary>
+        static readonly float[] GlovesCritByTier = { 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.10f, 0.12f };
+        public static float GlovesCrit(int itemLevel) { return GlovesCritByTier[EquipmentTier(itemLevel)]; }
+        /// <summary>Crit chance an item of this template carries: the tier table for gloves, the template's own flat value for anything else (the off-hand dagger, 0.02). Never scaled.</summary>
+        public static float CritFor(ItemTemplate t, int itemLevel) { return t.Base.critChance <= 0f ? 0f : t.Slot == Slots.Gloves ? GlovesCrit(itemLevel) : t.Base.critChance; }
+
         public static readonly Dictionary<string, string[]> ArmorTierNames = new Dictionary<string, string[]>
         {
             // the "helmet" slot is shown as a Necklace (designer 08/11): stats only, no hat on the character

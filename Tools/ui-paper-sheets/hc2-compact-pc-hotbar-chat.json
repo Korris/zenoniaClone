@@ -1,0 +1,22 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/hc2-compact-controls/hc2b-compact-pc-hotbar-chat-chatgpt-1.png",
+ "note": "compact HUD (hudc): PC hotbar slot + keycaps, EXP line, mobile typing bar; chat-channel-pill keeps its down arrow in the fixed right border",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "solid_alpha": 120,
+ "out": "Assets/Resources/Sprites/ui/paper/hudc",
+ "rows": [
+  [{"name": "hotbar-slot", "width": 144, "height": 144, "border": [40, 40, 40, 40]},
+   {"name": "hotbar-keycap", "height": 44, "border": [18, 18, 18, 18]},
+   {"name": "hotbar-keycap-wide", "height": 44, "border": [20, 0, 20, 0]},
+   {"name": "skill-cost-pill", "height": 44, "border": [24, 0, 24, 0]}],
+  [{"name": "hotbar-exp-frame", "height": 20, "border": [12, 0, 12, 0]},
+   {"name": "hotbar-exp-fill", "height": 14, "border": [8, 0, 8, 0]}],
+  [{"name": "chat-input-bar", "height": 64, "border": [34, 0, 34, 0]},
+   {"name": "chat-channel-pill", "height": 56, "border": [22, 0, 46, 0]},
+   {"name": "chat-send-btn", "width": 80, "height": 80},
+   {"name": "page-dot-on", "width": 40, "height": 40},
+   {"name": "page-dot-off", "width": 40, "height": 40}]
+ ]
+}

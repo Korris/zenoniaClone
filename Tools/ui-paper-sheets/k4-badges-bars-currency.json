@@ -1,0 +1,27 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/k4-badges-bars-currency/k4-badges-bars-currency-chatgpt-1.png",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/kit",
+ "rows": [
+  [{"name": "bar-frame-large", "border": [120, 0, 120, 0]},
+   {"name": "bar-frame-small", "border": [80, 0, 80, 0]}],
+  [{"name": "bar-fill-white", "width": 256, "border": [28, 0, 28, 0]},
+   {"name": "label-ribbon-red", "width": 160},
+   {"name": "label-ribbon-hot", "width": 160},
+   {"name": "label-ribbon-dark", "width": 160},
+   {"name": "label-ribbon-green", "width": 160}],
+  [{"name": "badge-count-red", "width": 64},
+   {"name": "badge-alert-red", "width": 64},
+   {"name": "badge-dot-red", "width": 32},
+   {"name": "icon-hp-heart", "width": 64},
+   {"name": "icon-mp-drop", "height": 64}],
+  [{"name": "icon-gold-coin", "height": 64},
+   {"name": "icon-gacha-coin", "height": 64},
+   {"name": "icon-pet-crystal", "height": 64},
+   {"name": "icon-pet-food", "height": 64},
+   {"name": "icon-capture-ball", "height": 64, "skip": true},
+   {"name": "icon-shard", "height": 64}]
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/lv1-levelup/lv1-levelup-wordmark-3-options-chatgpt-1.png",
+ "note": "level up = one yellow wordmark in the middle of the screen (user dropped the Golden Ascension effect pieces). Three lettering options, each cut by its box because LEVEL and UP! are separate blobs; levelup-wordmark.png (the name code loads) is a copy of option a",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "box_hides_blobs": true,
+ "out": "Assets/Resources/Sprites/ui/paper/levelup",
+ "rows": [
+  [{"name": "levelup-wordmark-a", "box": [171, 61, 1362, 299], "height": 200}],
+  [{"name": "levelup-wordmark-b", "box": [137, 373, 1405, 630], "height": 200}],
+  [{"name": "levelup-wordmark-c", "box": [135, 681, 1402, 978], "height": 200}]
+ ]
+}

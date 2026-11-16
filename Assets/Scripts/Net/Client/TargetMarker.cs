@@ -19,6 +19,9 @@ namespace ZenoniaProto
         int shownHp = -1;
         string label;
 
+        /// <summary>Bottom edge of the fixed HP bar in canvas units below the safe area's top, 0 while it is not drawn: the toast area starts under it.</summary>
+        public static float Bottom { get; private set; }
+
         void Start()
         {
             ring = ProceduralSprites.Child(transform, "TargetRing", RingSprite());
@@ -51,6 +54,7 @@ namespace ZenoniaProto
         void OnGUI()
         {
             if (Event.current.type != EventType.Repaint || TradeWindow.IsOpen || HeroChangeScreen.IsOpen) return;
+            Bottom = 0f;
             Monster m = Target();
             if (m == null || (m == Hud.BarBoss())) return; // the boss already has its big bar
             if (text == null) text = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
@@ -58,7 +62,12 @@ namespace ZenoniaProto
             text.fontSize = Mathf.RoundToInt(12f * s);
             int hp = Mathf.CeilToInt(m.Hp);
             if (m != shownFor || hp != shownHp) { shownFor = m; shownHp = hp; label = m.DisplayName + "   " + hp + " / " + (int)m.MaxHp; }
-            float w = 240f * s, h = 18f * s, x = (Screen.width - w) * 0.5f, y = (Hud.BossBarVisible() ? 48f : 14f) * s;
+            // Adventure Paper boss bar (BossBarView): it is taller than the IMGUI one and has rows of its own, so this bar goes under its real bottom edge.
+            bool paperBar = UiScreens.UseNew(UiScreen.Boss) && BossBarView.Bottom > 0f;
+            float top = paperBar ? BossBarView.Bottom + 6f : Hud.BossBarVisible() ? 48f : 14f;
+            Bottom = top + 20f;
+            float inset = paperBar ? Screen.height - Screen.safeArea.yMax : 0f; // BossBarView measures from the safe area's top
+            float w = 240f * s, h = 18f * s, x = (Screen.width - w) * 0.5f, y = top * s + inset;
             Fill(new Rect(x - 2f, y - 2f, w + 4f, h + 4f), new Color(0.06f, 0.02f, 0.02f, 0.9f));
             Fill(new Rect(x, y, w * Mathf.Clamp01(m.Hp / m.MaxHp), h), new Color(0.85f, 0.16f, 0.14f));
             text.normal.textColor = Color.white;

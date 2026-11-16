@@ -1,0 +1,33 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/w1-wanted/w1-wanted-parts-b-chatgpt-1.png",
+ "note": "expand / collapse buttons of the compact chat board (chat-compact-open-states mockup), drawn on the W1-B sheet; every other piece is skipped here",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "close": 2,
+ "box_hides_blobs": true,
+ "out": "Assets/Resources/Sprites/ui/paper/chat",
+ "rows": [
+  [{"name": "hud-card-hanging", "skip": true},
+   {"name": "banner-login-laurel", "skip": true},
+   {"name": "banner-respawn-blue", "skip": true}],
+  [{"name": "banner-area-map-arrow", "skip": true},
+   {"name": "ribbon-warning-chains", "skip": true},
+   {"name": "ribbon-bounty-laurel", "skip": true},
+   {"name": "strip-already-claimed", "skip": true}],
+  [{"name": "stamp-claimed", "skip": true},
+   {"name": "dodge-line", "skip": true},
+   {"name": "dodge-fan", "skip": true},
+   {"name": "dodge-multi-circle", "skip": true},
+   {"name": "dodge-safe-lane", "skip": true},
+   {"name": "btn-chat-expand", "width": 96}],
+  [{"name": "minimap-skull-alive", "skip": true},
+   {"name": "minimap-skull-respawning", "skip": true},
+   {"name": "icon-alive-skull", "skip": true},
+   {"name": "icon-respawn", "skip": true, "box": [634, 824, 776, 964]},
+   {"name": "icon-clock", "skip": true},
+   {"name": "icon-map-pin", "skip": true},
+   {"name": "icon-chevron-right", "skip": true},
+   {"name": "btn-chat-collapse", "width": 96}]
+ ]
+}

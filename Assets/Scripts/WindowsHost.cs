@@ -23,6 +23,7 @@ namespace ZenoniaProto
             go.transform.SetParent(parent, false);
             var host = go.AddComponent<WindowsHost>();
             host.root = parent;
+            UiScreens.Root = parent; // the screen switch builds the old bag / skill tree under the game root
             host.Build(parent, UiKit.Canvas(parent).transform);
         }
 
@@ -64,7 +65,7 @@ namespace ZenoniaProto
             bool modal = UiWindows.ModalOpen;
             if (hero == null)
             {
-                if (modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close(); SkillTreeWindow.Close(); PotionShopWindow.Close(); GearShopWindow.Close(); SettingsWindow.Close(); PetWindow.Close(); PetGachaWindow.Close(); }
+                if (modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close(); SkillTreeWindow.Close(); PotionShopWindow.Close(); GearShopWindow.Close(); SettingsWindow.Close(); PetWindow.Close(); PetGachaWindow.Close(); UiWindows.CloseRegistered(); }
                 UiWindows.InteractPrompt = false;
                 talkPrompt.SetActive(false);
                 SetPaused(false);
@@ -79,15 +80,15 @@ namespace ZenoniaProto
             if (InputAdapter.Pressed(GameKey.SkillTree))
             {
                 if (HeroChangeScreen.IsOpen || TradeWindow.IsOpen) return;
-                if (!SkillTreeWindow.IsOpen) InventoryPanel.Close();
-                SkillTreeWindow.Toggle(root);
+                if (!UiScreens.IsOpen(UiScreen.Skill)) UiScreens.Close(UiScreen.Bag);
+                UiScreens.Toggle(UiScreen.Skill);
                 return;
             }
-            if (InputAdapter.Pressed(GameKey.PetWindow) && !menuOpen && !TradeWindow.IsOpen && !ChatWindow.RecentlyTyping) { PetGachaWindow.Close(); PetWindow.Toggle(); return; }
-            if (InputAdapter.Pressed(GameKey.PetGacha) && !menuOpen && !TradeWindow.IsOpen && !ChatWindow.RecentlyTyping) { PetWindow.Close(); PetGachaWindow.Toggle(); return; }
+            if (InputAdapter.Pressed(GameKey.PetWindow) && !menuOpen && !TradeWindow.IsOpen && !ChatWindow.RecentlyTyping) { UiScreens.Close(UiScreen.Gacha); UiScreens.Toggle(UiScreen.Pet); return; }
+            if (InputAdapter.Pressed(GameKey.PetGacha) && !menuOpen && !TradeWindow.IsOpen && !ChatWindow.RecentlyTyping) { UiScreens.Close(UiScreen.Pet); UiScreens.Toggle(UiScreen.Gacha); return; }
             bool interact = InputAdapter.Pressed(GameKey.Interact), enter = InputAdapter.Pressed(GameKey.Chat);
-            if (InputAdapter.Pressed(GameKey.Close) && modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close(); SkillTreeWindow.Close(); PotionShopWindow.Close(); GearShopWindow.Close(); SettingsWindow.Close(); PetWindow.Close(); PetGachaWindow.Close(); TradeWindow.CloseKey(); return; }
-            if (SkillTreeWindow.IsOpen || QuestLogWindow.IsOpen || PotionShopWindow.IsOpen || GearShopWindow.IsOpen || TradeWindow.IsOpen || SettingsWindow.IsOpen || PetWindow.IsOpen || PetGachaWindow.IsOpen) return; // E / Enter must not talk or focus the chat behind the tree
+            if (InputAdapter.Pressed(GameKey.Close) && modal) { NpcDialogueBox.Close(); QuestOfferWindow.Close(); QuestLogWindow.Close(); SkillTreeWindow.Close(); PotionShopWindow.Close(); GearShopWindow.Close(); SettingsWindow.Close(); PetWindow.Close(); PetGachaWindow.Close(); UiWindows.CloseRegistered(); TradeWindow.CloseKey(); return; }
+            if (SkillTreeWindow.IsOpen || QuestLogWindow.IsOpen || PotionShopWindow.IsOpen || GearShopWindow.IsOpen || TradeWindow.IsOpen || SettingsWindow.IsOpen || PetWindow.IsOpen || PetGachaWindow.IsOpen || UiWindows.RegisteredOpen) return; // E / Enter must not talk or focus the chat behind the tree
             if (!interact && !enter) return;
             if (QuestOfferWindow.IsOpen) QuestOfferWindow.Accept();
             else if (NpcDialogueBox.IsOpen) NpcDialogueBox.Advance();

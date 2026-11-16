@@ -19,6 +19,7 @@ namespace ZenoniaProto
         readonly List<PetShot> petShots = new List<PetShot>(4);
         readonly float[] supportCdMs = new float[2];
         float petCdMs, petBasicMs, petMarkAgeMs, petBusyMs;
+        Monster petAuto; // the monster the pets picked themselves while the owner has no valid mark (PickPetTarget)
         Monster petMark, petGuarding; // petGuarding: the mark the combat pet already stands beside (HeroPet Guard state), so the next hit needs no run-up
 
         PetDef ActivePet { get { return Owner != null && NetMode.IsAuthority && !proxy && !dead ? rpg.Pet : null; } }
@@ -61,26 +62,48 @@ namespace ZenoniaProto
         /// <summary>The marked monster is still valid: hit by the owner in the last 4 s, alive, within 6 tiles.</summary>
         bool PetMarkValid { get { return petMark != null && !petMark.IsDying && petMarkAgeMs <= PetConfig.TargetMemoryMs && Vector2.Distance(Position, petMark.Center) <= PetConfig.RangeUnits; } }
 
+        /// <summary>
+        /// What the pets attack now: the owner's mark while it is valid; otherwise a monster of the pet's own choice (user 16/11: a level 60 hero kills in one hit, so a pet
+        /// that waits for the owner's mark never fights): the one it already picked while that lives within 6 tiles of the owner, else the nearest within AutoTargetUnits.
+        /// Never a boss / Wanted Boss by itself (the owner starts that fight). Null = nothing to attack.
+        /// </summary>
+        Monster PickPetTarget()
+        {
+            if (PetMarkValid) return petMark;
+            if (petAuto != null && !petAuto.IsDying && Vector2.Distance(Position, petAuto.Center) <= PetConfig.RangeUnits) return petAuto;
+            petAuto = null;
+            float best = PetConfig.AutoTargetUnits;
+            IReadOnlyList<Monster> monsters = Monster.All;
+            for (int i = 0; i < monsters.Count; i++)
+            {
+                Monster m = monsters[i];
+                if (m == null || m.IsDying || m.IsBoss || m.IsWanted) continue;
+                float d = Vector2.Distance(Position, m.Center);
+                if (d <= best) { best = d; petAuto = m; }
+            }
+            return petAuto;
+        }
+
         /// <summary>How long the combat pet needs to reach its attack range from beside the owner, then the hit frame.</summary>
-        float PetHitDelayMs(PetDef pet)
+        float PetHitDelayMs(PetDef pet, Monster foe)
         {
             float range = pet.Melee ? PetConfig.MeleeRangeUnits : PetConfig.RangedRangeUnits;
-            float run = Mathf.Max(0f, Vector2.Distance(Position, petMark.Feet) - range);
+            float run = Mathf.Max(0f, Vector2.Distance(Position, foe.Feet) - range);
             return run / (Mathf.Max(40f, rpg.Speed) * PetConfig.ChaseSpeedMul) * 1000f + PetConfig.HitFrameMs;
         }
 
-        /// <summary>One attack cycle on the mark. support = a support pet's skill (half strength, flies from the owner, no running pet).</summary>
-        void StartPetAttack(PetDef pet, PetSkillKind kind, double pct, bool basic, bool support)
+        /// <summary>One attack cycle on `foe`. support = a support pet's skill (half strength, flies from the owner, no running pet).</summary>
+        void StartPetAttack(PetDef pet, Monster foe, PetSkillKind kind, double pct, bool basic, bool support)
         {
             float mul = (float)(PetRules.LevelDamageMul(rpg.PetLevel) * (support ? PetRules.SupportSkillShare : 1.0));
-            int dmg = Mathf.Max(1, Mathf.RoundToInt(CombatMath.Damage(rpg.Atk, 1f, petMark.Def) * (float)pct * mul)); // a share of a plain hit AFTER defence (ChatGPT 16/11 06:41): defence is never taken twice
-            float at = support ? PetConfig.FlightMs : petGuarding == petMark ? PetConfig.HitFrameMs : PetHitDelayMs(pet); // already beside its mark: only the swing
-            if (!support) petGuarding = petMark;
-            petShots.Add(new PetShot { Target = petMark, LeftMs = at, Dmg = dmg, Kind = kind, Slows = kind == PetSkillKind.Ice, Basic = basic });
-            if (PetConfig.LogCycles) Debug.Log("[ZenoniaProto] pet cycle " + pet.Id + " " + kind + (basic ? " basic" : " skill") + " dmg=" + dmg + " lands in " + at.ToString("F0") + " ms, owner-target " + Vector2.Distance(Position, petMark.Feet).ToString("F0"));
+            int dmg = Mathf.Max(1, Mathf.RoundToInt(CombatMath.Damage(rpg.Atk, 1f, foe.Def) * (float)pct * mul)); // a share of a plain hit AFTER defence (ChatGPT 16/11 06:41): defence is never taken twice
+            float at = support ? PetConfig.FlightMs : petGuarding == foe ? PetConfig.HitFrameMs : PetHitDelayMs(pet, foe); // already beside its target: only the swing
+            if (!support) petGuarding = foe;
+            petShots.Add(new PetShot { Target = foe, LeftMs = at, Dmg = dmg, Kind = kind, Slows = kind == PetSkillKind.Ice, Basic = basic });
+            if (PetConfig.LogCycles) Debug.Log("[ZenoniaProto] pet cycle " + pet.Id + " " + kind + (basic ? " basic" : " skill") + (foe == petMark ? "" : " (own target)") + " dmg=" + dmg + " lands in " + at.ToString("F0") + " ms, owner-target " + Vector2.Distance(Position, foe.Feet).ToString("F0"));
             if (!support) petBusyMs = at + PetConfig.AttackRecoverMs; // the pet finishes its swing before the next cycle
-            PetSkillFx.Play(this, petMark, kind, basic, support);
-            NetEventBus.PetSkill(this, petMark, kind, basic, support);
+            PetSkillFx.Play(this, foe, kind, basic, support);
+            NetEventBus.PetSkill(this, foe, kind, basic, support);
         }
 
         /// <summary>Every frame on the authority: cooldowns, the mark's age, cycles that are due, shots landing (a target that died meanwhile is simply missed).</summary>
@@ -100,17 +123,19 @@ namespace ZenoniaProto
                 if (s.Slows && !s.Target.IsBoss) s.Target.ApplyStatus(new StatusSpec(StatusKind.Slow, PetConfig.IceSlowPct, PetConfig.IceSlowMs), null); // bosses shrug the slow off
                 s.Target.TakePetHit(s.Dmg, this, !s.Basic);
             }
-            if (petGuarding != null && (petGuarding != petMark || !PetMarkValid)) petGuarding = null;
-            if (Owner == null || dead || !PetMarkValid) return;
+            if (Owner == null || dead || rpg.Pet == null && rpg.SupportPet(0) == null && rpg.SupportPet(1) == null) { petGuarding = null; petAuto = null; return; }
+            Monster foe = PickPetTarget();
+            if (petGuarding != foe) petGuarding = null;
+            if (foe == null) return;
             for (int i = 0; i < 2; i++)
             {
                 PetDef s = rpg.SupportPet(i);
-                if (s != null && supportCdMs[i] <= 0f && PetConfig.IsAttack(s.Skill)) { supportCdMs[i] = PetConfig.SkillCooldownMs; StartPetAttack(s, s.Skill, s.SkillPct, false, true); }
+                if (s != null && supportCdMs[i] <= 0f && PetConfig.IsAttack(s.Skill)) { supportCdMs[i] = PetConfig.SkillCooldownMs; StartPetAttack(s, foe, s.Skill, s.SkillPct, false, true); }
             }
             PetDef pet = ActivePet;
             if (pet == null || petBusyMs > 0f) return;
-            if (petCdMs <= 0f && PetConfig.IsAttack(pet.Skill)) { petCdMs = PetConfig.SkillCooldownMs; StartPetAttack(pet, pet.Skill, pet.SkillPct, false, false); }
-            else if (petBasicMs <= 0f) { petBasicMs = PetConfig.BasicAttackMs; StartPetAttack(pet, pet.BasicFx, PetConfig.BasicPct, true, false); }
+            if (petCdMs <= 0f && PetConfig.IsAttack(pet.Skill)) { petCdMs = PetConfig.SkillCooldownMs; StartPetAttack(pet, foe, pet.Skill, pet.SkillPct, false, false); }
+            else if (petBasicMs <= 0f) { petBasicMs = PetConfig.BasicAttackMs; StartPetAttack(pet, foe, pet.BasicFx, PetConfig.BasicPct, true, false); }
         }
     }
 }

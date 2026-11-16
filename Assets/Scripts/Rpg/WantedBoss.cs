@@ -61,6 +61,16 @@ namespace ZenoniaProto.Rpg
             return o ?? For(DayKey(utcMs));
         }
 
+        /// <summary>The board's three posters: yesterday, today, tomorrow (in that order) of the day that holds `utcMs`.</summary>
+        public static WantedBossDef[] Schedule(long utcMs) { return ScheduleFor(DayKey(utcMs)); }
+
+        /// <summary>Same, from a day key (the client passes the zone's own day from the WantedStatus message, so a wrong device clock cannot shift the board). A pinned boss (Override) fills all three.</summary>
+        public static WantedBossDef[] ScheduleFor(int dayKey)
+        {
+            WantedBossDef o = Find(Override);
+            return new[] { o ?? For(dayKey - 1), o ?? For(dayKey), o ?? For(dayKey + 1) };
+        }
+
         /// <summary>When today's boss changes (display only: a countdown on the board).</summary>
         public static long NextResetUtcMs(long utcMs) { return (DayKey(utcMs) + 1L) * DayMs - ResetShiftMs; }
 

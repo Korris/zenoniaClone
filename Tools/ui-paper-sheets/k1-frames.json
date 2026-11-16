@@ -1,0 +1,18 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/k1-frames/k1-frames-chatgpt-1.png",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/kit",
+ "rows": [
+  [{"name": "frame-paper-wood", "border": [100, 100, 100, 100]},
+   {"name": "frame-paper-pinned", "border": [80, 80, 80, 80]},
+   {"name": "frame-wood-board", "border": [70, 70, 70, 70]},
+   {"name": "frame-slate-dark", "width": 256, "border": [60, 60, 60, 60]}],
+  [{"name": "card-paper-dashed", "border": [50, 50, 50, 50]},
+   {"name": "title-plaque-laurel"},
+   {"name": "ribbon-red"}],
+  [{"name": "section-strip-leather", "border": [60, 0, 60, 0]},
+   {"name": "btn-close-red", "width": 100}]
+ ]
+}

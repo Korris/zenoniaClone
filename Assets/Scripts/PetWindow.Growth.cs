@@ -42,16 +42,7 @@ namespace ZenoniaProto
                 + "\nBalls may catch: level 1 N and R, 2 SR, 3 SSR, 4 UR, 5 the title Beast Tamer.\nEvery species counts once; stars and levels do not.";
         }
 
-        static string HowToGet(PetDef d, AccountState a)
-        {
-            if (d.UnlockLevel > 0) return "Legacy pet: free when any of your heroes reaches level " + d.UnlockLevel + ".";
-            if (d.Price > 0) return "Legacy pet: buy at a merchant for " + d.Price + " G.";
-            string s = "From the Pet Gacha (" + ((PetGacha.PetRate(d) * 100).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)) + "% a pull)";
-            if (d.Id == PetRules.UrExchangePet) s += ", or for " + PetRules.UrExchangeCost + " UR shards (" + (a != null ? a.urShards : 0) + " now)";
-            if (d.Rarity <= PetRarity.SSR && d.MonsterType != null) s += ", or a Pet Ball on a " + d.Name + " at half HP (" + Pct(PetRules.LiveCaptureChance(d.Rarity, 0.5)) + ", " + Pct(PetRules.LiveCaptureChance(d.Rarity, 0.25)) + " under a quarter)";
-            if (d.Rarity >= PetRarity.SSR) s += ", or a ball on its fallen boss (" + Pct(PetRules.BossCaptureChance(d.Rarity, false)) + ")";
-            return s + ". Needs collection level " + PetRules.CollectionLevelFor(d.Rarity) + " to catch.";
-        }
+        static string HowToGet(PetDef d, AccountState a) { return PetViewModel.HowToGet(d, a); }
 
         void BuildGrowth()
         {
@@ -72,13 +63,7 @@ namespace ZenoniaProto
 
         void Send(InvOp op) { PetActions.Send(op, (byte)selected); }
 
-        void Convert(int n)
-        {
-            AccountState a = PetActions.Account;
-            if (a == null) return;
-            if (n < 0) n = a.sharedShards;
-            PetActions.Send(InvOp.PetConvertShards, (byte)selected, Mathf.Min(n, a.sharedShards).ToString());
-        }
+        void Convert(int n) { PetViewModel.Convert(selected, n); }
 
         void FillGrowth(PetDef d, AccountState a, PlayerState p)
         {

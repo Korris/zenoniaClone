@@ -1,0 +1,18 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/g1-gacha/g1-gacha-parts-a-chatgpt-1.png",
+ "note": "lumi-bust is cut flat at the hips (bust, as asked): place it against the screen's bottom edge or behind a panel. The dais came 520 px wide (phase file asked 880): scaled up in code.",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/gacha",
+ "rows": [
+  [{"name": "egg-dais"},
+   {"name": "egg-ice-large"},
+   {"name": "egg-nest-purple"},
+   {"name": "egg-nest-gold"}],
+  [{"name": "lumi-bust"},
+   {"name": "speech-bubble"},
+   {"name": "ribbon-featured-red"},
+   {"name": "banner-featured-purple"}]
+ ]
+}

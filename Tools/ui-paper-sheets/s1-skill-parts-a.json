@@ -1,0 +1,18 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/s1-skill-training-hall/s1-skill-parts-a-chatgpt-1.png",
+ "note": "the three statue pedestals share one 256x320 canvas and hole position; statue-icon-plate is the white window of the gold one (icon mask for all three)",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/skill",
+ "rows": [
+  [{"name": "shelf-two-tier", "border": [70, 0, 70, 0]},
+   {"name": "statue-gold", "width": 256, "height": 320, "hole": "statue-icon-plate"},
+   {"name": "statue-silver", "width": 256, "height": 320},
+   {"name": "statue-stone", "width": 256, "height": 320},
+   {"name": "magazine-book", "height": 300}],
+  [{"name": "detail-scroll", "border": [80, 90, 80, 90]},
+   {"name": "magazine-belt", "border": [90, 0, 90, 0]},
+   {"name": "condition-sign-arrows", "width": 300}]
+ ]
+}

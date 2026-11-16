@@ -29,6 +29,7 @@ namespace ZenoniaProto
         RectTransform root, bossDot, heroDot;
         RawImage ground;
         Image heroImage;
+        WantedMinimapMark wantedMark;
         DotPool portalDots, npcDots, monsterDots, otherDots, questTakeDots, questHandInDots;
         struct QuestGiver { public string Id; public Vector2 Feet; }
         readonly List<QuestGiver> questGivers = new List<QuestGiver>(); // the villagers of this map who give quests; which marker they show changes with the quest
@@ -72,6 +73,7 @@ namespace ZenoniaProto
             questTakeDots = new DotPool(map, "QuestTake", QuestMarkerSprite(QuestionGlyph), QuestSize, Color.white);
             questHandInDots = new DotPool(map, "QuestHandIn", QuestMarkerSprite(ExclaimGlyph), QuestSize, Color.white);
             bossDot = NewDot(map, "Boss", UiSprites.Circle(), BossSize, BossColor);
+            wantedMark = new WantedMinimapMark(map); // the daily Wanted Boss's skull (Adventure Paper HUD only)
             heroDot = NewDot(map, "Hero", UiSprites.Circle(), HeroSize, HeroOn);
             heroImage = heroDot.GetComponent<Image>();
         }
@@ -216,6 +218,7 @@ namespace ZenoniaProto
             bool bossUp = boss != null && !boss.IsDying;
             if (bossDot.gameObject.activeSelf != bossUp) bossDot.gameObject.SetActive(bossUp);
             if (bossUp) bossDot.anchoredPosition = MapPoint(boss.Feet);
+            wantedMark.Refresh();
 
             heroDot.anchoredPosition = MapPoint(hero.Position);
             heroImage.color = (int)(Time.unscaledTime / BlinkSeconds) % 2 == 0 ? HeroOn : HeroOff;

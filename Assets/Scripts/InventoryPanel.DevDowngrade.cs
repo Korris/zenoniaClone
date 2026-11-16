@@ -12,7 +12,7 @@ namespace ZenoniaProto
         const float DowngradeW = 50f;
         BagWidgets.BagButton downgradeButton;
 
-        static bool DowngradeAvailable { get { return !ReleaseBuild.IsRelease && !NetMode.IsClient; } }
+        static bool DowngradeAvailable { get { return BagActions.DowngradeAvailable; } }
 
         /// <summary>Width left for the Enhance button.</summary>
         static float EnhanceWidth(float full) { return DowngradeAvailable ? full - DowngradeW - 4f : full; }
@@ -33,13 +33,7 @@ namespace ZenoniaProto
         void DowngradeSelected()
         {
             PlayerState p = RpgSession.Player;
-            Item item = p != null ? SelectedItem(p) : null;
-            if (item == null || !DowngradeAvailable || !EnhanceStats.IsEnhanceable(item) || item.enhance <= 0) return;
-            item.enhance--;
-            p.RecomputeStats();
-            if (p.GetEquipped(item.slot) == item) RpgSession.SyncGear();
-            Flash("Test: " + EnhanceStats.DisplayName(item));
-            Refresh();
+            Show(BagActions.DevDowngrade(p, p != null ? model.Selected(p) : null));
         }
     }
 }

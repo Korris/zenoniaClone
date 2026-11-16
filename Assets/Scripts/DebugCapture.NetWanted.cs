@@ -36,6 +36,7 @@ namespace ZenoniaProto
             bool watchRespawn = NetLaunchArgs.HasFlag("--wanted-respawn-check");
             int day0 = Me.WantedDay;
             P(WantedLine("wanted-before"));
+            P((WantedBossTracker.Status.Known ? "PASS" : "FAIL") + " wanted status arrived: " + WantedBossTracker.Status.BossType + " day " + WantedBossTracker.Status.DayKey + (WantedBossTracker.Status.Alive ? " alive" : " back in " + WantedBossTracker.RespawnLeftMs / 1000 + " s"));
             if (NetMode.RendersFx) P((ChatHas("Wanted today:") || ChatHas("Wanted reward claimed today") ? "PASS" : "FAIL") + " the arrival chat line is there"); // a headless client has no chat
             if (shots != null)
             {
@@ -79,6 +80,7 @@ namespace ZenoniaProto
             while (Me.WantedDay == day0 && Time.realtimeSinceStartup - wait < (expectClaim ? 10f : 6f)) yield return null;
             yield return new WaitForSeconds(0.7f);
             P(WantedLine("wanted-after"));
+            if (killed && !mapBoss) P((WantedBossTracker.Status.Known && !WantedBossTracker.Status.Alive && WantedBossTracker.RespawnLeftMs > 0 ? "PASS" : "FAIL") + " wanted status (protocol 22) says the boss is down, back in " + WantedBossTracker.RespawnLeftMs / 1000 + " s");
             if (expectClaim)
             {
                 P((Me.WantedDay > day0 ? "PASS" : "FAIL") + " the client saw WantedDay rise " + day0 + " -> " + Me.WantedDay);
@@ -96,6 +98,8 @@ namespace ZenoniaProto
                 Monster again = null;
                 while (Time.realtimeSinceStartup - died < 120f && again == null) { Monster w = Monster.Wanted; if (w != null && !w.IsDying && w != target) again = w; yield return null; }
                 P((again != null ? "PASS" : "FAIL") + " the wanted boss is back after " + (Time.realtimeSinceStartup - died).ToString("F0", CultureInfo.InvariantCulture) + " s");
+                yield return new WaitForSeconds(0.5f); // the status message leaves the server in the same tick as the spawn, but after it
+                P((WantedBossTracker.Status.Alive ? "PASS" : "FAIL") + " wanted status says the boss is alive again");
             }
             yield return new WaitForSeconds(1f);
             Application.Quit();

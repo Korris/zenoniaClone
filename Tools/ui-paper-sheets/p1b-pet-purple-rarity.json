@@ -1,0 +1,24 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/p1-pet-camp/p1b-pet-purple-rarity-chatgpt-1.png",
+ "note": "the five rarity badges carry their letters (phase file: N, R, SR, SSR, UR labels) and share one height; pet-card-unknown keeps its question mark",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/pet",
+ "rows": [
+  [{"name": "rarity-n", "height": 72},
+   {"name": "rarity-r", "height": 72},
+   {"name": "rarity-sr", "height": 72},
+   {"name": "rarity-ssr", "height": 72},
+   {"name": "rarity-ur", "height": 72}],
+  [{"name": "menu-plank-gacha", "border": [70, 0, 70, 0]},
+   {"name": "menu-plank-gacha-active", "border": [70, 0, 70, 0]},
+   {"name": "tag-passive-purple", "height": 48, "border": [26, 0, 26, 0]},
+   {"name": "tag-skill-blue", "height": 48, "border": [26, 0, 26, 0]},
+   {"name": "pet-card-unknown", "width": 176, "height": 208}],
+  [{"name": "collection-header-book", "border": [170, 0, 60, 0]},
+   {"name": "station-sign-wood", "border": [60, 0, 60, 0]},
+   {"name": "station-food-trough", "width": 220},
+   {"name": "station-crystal-altar", "width": 220}]
+ ]
+}

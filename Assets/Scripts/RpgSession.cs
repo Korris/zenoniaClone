@@ -150,11 +150,11 @@ namespace ZenoniaProto
             HeroController hero = GameSession.Hero;
             if (hero == null || player == null || hero.Rpg != player)
             {
-                if (InventoryPanel.IsOpen) InventoryPanel.Close();
+                if (UiScreens.IsOpen(UiScreen.Bag)) UiScreens.Close(UiScreen.Bag);
                 return;
             }
             if (Time.frameCount == beganFrame) return;
-            if (InputAdapter.Pressed(GameKey.Inventory) || (InventoryPanel.IsOpen && InputAdapter.Pressed(GameKey.Close))) InventoryPanel.Toggle(root);
+            if (InputAdapter.Pressed(GameKey.Inventory) || (UiScreens.IsOpen(UiScreen.Bag) && InputAdapter.Pressed(GameKey.Close))) UiScreens.Toggle(UiScreen.Bag); // old bag or its rebuild (UiScreens)
             if (!hero.IsDead && NetMode.IsAuthority) // online clients send the potion keys to the server instead (NetInputSender)
             {
                 if (InputAdapter.Pressed(GameKey.HpPotion)) Drink(hero, true);

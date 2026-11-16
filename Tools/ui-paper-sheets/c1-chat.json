@@ -1,0 +1,31 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/c1-chat/c1-chat-chatgpt-1.png",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/chat",
+ "rows": [
+  [{"name": "board-wood", "border": [90, 90, 90, 90]},
+   {"name": "paper-messages", "border": [60, 60, 60, 60]},
+   {"name": "menu-dark-wood", "border": [56, 56, 56, 56]}],
+  [{"name": "ribbon-title-quill"},
+   {"name": "channel-ribbon-white", "border": [24, 0, 60, 0]},
+   {"name": "channel-ribbon-white-selected", "border": [34, 0, 70, 0]},
+   {"name": "filter-bar-dark", "border": [40, 0, 40, 0]}],
+  [{"name": "input-paper", "border": [44, 0, 44, 0]},
+   {"name": "channel-dropdown-white", "border": [36, 0, 90, 0]},
+   {"name": "typing-pill", "border": [150, 0, 44, 0]},
+   {"name": "checkbox-on", "width": 64},
+   {"name": "checkbox-off", "width": 64}],
+  [{"name": "icon-channel-all", "height": 64},
+   {"name": "icon-channel-world", "height": 64},
+   {"name": "icon-channel-map", "height": 64},
+   {"name": "icon-channel-party", "height": 64},
+   {"name": "icon-channel-whisper", "height": 64},
+   {"name": "icon-invite-party", "height": 64},
+   {"name": "icon-view-info", "height": 64},
+   {"name": "icon-send-plane", "height": 64},
+   {"name": "btn-emoji-smile", "height": 64},
+   {"name": "btn-clear-input", "height": 64}]
+ ]
+}

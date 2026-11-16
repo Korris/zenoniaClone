@@ -1,0 +1,30 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/p1-pet-camp/p1-pet-parts-chatgpt-1.png",
+ "note": "nests and pet card slots: normal and selected share one canvas. ball-pet / ball-rare are the game's own capture balls (wooden ball with rope and paw seal, blue crystal orb): they replace the Poke-Ball-like kit icons, see p1-pet-ball-icons-kit.json and -hud.json",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/pet",
+ "rows": [
+  [{"name": "nest-large", "width": 448, "height": 192},
+   {"name": "nest-large-selected", "width": 448, "height": 192},
+   {"name": "nest-small", "width": 320, "height": 136},
+   {"name": "nest-small-selected", "width": 320, "height": 136}],
+  [{"name": "role-sign-ribbon", "width": 360},
+   {"name": "icon-role-combat", "height": 72},
+   {"name": "icon-role-support", "height": 72},
+   {"name": "icon-role-stat", "height": 72},
+   {"name": "percent-pill-red", "height": 56, "border": [34, 0, 34, 0]}],
+  [{"name": "team-bonus-plaque", "border": [90, 0, 90, 0]},
+   {"name": "team-bonus-plaque-grey", "border": [90, 0, 90, 0]},
+   {"name": "bond-card", "border": [40, 40, 40, 40]},
+   {"name": "bond-card-active", "border": [40, 40, 40, 40]},
+   {"name": "tag-active-green", "height": 40, "border": [24, 0, 24, 0]}],
+  [{"name": "sign-owned-pets-hanging", "width": 220},
+   {"name": "pet-card-slot", "width": 176, "height": 208},
+   {"name": "pet-card-slot-selected", "width": 176, "height": 208},
+   {"name": "growth-card-gold", "border": [44, 44, 44, 44]},
+   {"name": "ball-pet", "width": 160},
+   {"name": "ball-rare", "width": 160}]
+ ]
+}

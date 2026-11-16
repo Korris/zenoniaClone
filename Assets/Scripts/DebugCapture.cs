@@ -41,6 +41,7 @@ namespace ZenoniaProto
     ///   --settings-show on,off            draw the music / sound switches in these states (display only, PlayerPrefs untouched)
     ///   --settings-press ChangeHero       click that button of the open Settings window (not the switches: they save to PlayerPrefs)
     ///   --skill-ui "1=open;2=learn:0;3=slot:2"  skill tree UI script, see DebugCapture.Skills.cs
+    ///   --ui new|old / --ui-new bag,skill / --kit-sheet  Adventure Paper rebuild: screen switches and the kit gallery, see DebugCapture.UiRedesign.cs
     ///   --record-combo wizard|mechanic|cleric  scripted basic-attack video: hero holds attack at dummies (3 s lead-in of idle, then ~6 s of combos), same frame dump as below
     ///                                     (--zoom for a close-up)
     ///   --record-ultimate warrior|wizard  scripted video scene (monsters + King nearby, basic combo, then the skill, tail), 60 fps fixed-step,
@@ -150,6 +151,7 @@ namespace ZenoniaProto
             shotTimes = Times(Arg(a, "--shots"));
             skillTimes = Times(Arg(a, "--skill-at"));
             skillUi = Arg(a, "--skill-ui");
+            UiScreens.ApplyArgs(Arg(a, "--ui"), Arg(a, "--ui-new")); // old / rebuilt look per screen, before anything is built
         }
 
         static float[] Times(string list)
@@ -208,7 +210,7 @@ namespace ZenoniaProto
                 Vector2[] dirs = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
                 LootDrop.SpawnAll(GameObject.Find("ZenoniaProto").transform, drops, hero.Position + dirs[hero.Facing] * 34f);
             }
-            if (openInventory) InventoryPanel.Open(GameObject.Find("ZenoniaProto").transform);
+            if (openInventory) UiScreens.Open(UiScreen.Bag); // old bag, or the rebuilt one with --ui-new bag
             string bagItem = Arg(Environment.GetCommandLineArgs(), "--bag-item");
             if (bagItem != null) InventoryPanel.TestSelectBagItem(int.Parse(bagItem));
             string shop = Arg(Environment.GetCommandLineArgs(), "--open-shop");
@@ -232,6 +234,7 @@ namespace ZenoniaProto
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--close-chat") >= 0) ChatWindow.SetExpandedState(false);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--chat-focus") >= 0) ChatWindow.FocusFromKey(); // what Enter does: open + caret in the field
             DebugPetWindows(); // --open-pets / --open-gacha / --gacha-pull (DebugCapture.Pets.cs)
+            DebugUiRedesign(); // --kit-sheet and the capture hooks of the rebuilt screens (DebugCapture.UiRedesign.cs)
         }
 
         /// <summary>--chat-demo: one line per channel, like the approved chat designs (screenshots of the chat layouts).</summary>
@@ -318,6 +321,8 @@ namespace ZenoniaProto
                 if (botArg == "fight") EnableFightBot();
                 else if (botArg == "attack") InputAdapter.BotPressed = k => k == GameKey.Attack;   // hold attack in place (art / FX close-ups)
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east
+                else if (botArg == "walk-down") InputAdapter.BotHeld = k => k == GameKey.Down;      // walk toward the camera (walk-down frames)
+                else if (botArg == "walk-left") InputAdapter.BotHeld = k => k == GameKey.Left;      // walk west (Willowbrook's west gate into Oakhaven)
                 if (zoom > 0f) Camera.main.orthographicSize = zoom;
                 hero.God = god;
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--nobloom") >= 0) { FeelConfig.BloomOn = false; var b = Camera.main.GetComponent<BloomEffect>(); if (b != null) b.enabled = false; }

@@ -15,6 +15,8 @@ namespace ZenoniaProto.Rpg
     {
         public int Id;
         public string Name;
+        /// <summary>Two short English sentences for the Wanted board's "How to dodge" row: what the skill is, then what to do. Display only.</summary>
+        public string Hint;
         public WantedAreaShape Shape;
         public bool OnPlayers;
         public float RadiusTiles, AngleDeg, LengthTiles, WidthTiles;

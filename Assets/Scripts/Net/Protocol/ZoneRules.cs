@@ -68,6 +68,9 @@ namespace ZenoniaProto.Net
 
         public void MarkPaused(float nowMs) { Paused = true; pausedAtMs = nowMs; }
 
+        /// <summary>How long the zone has been asleep at `nowMs` (0 while awake): what Wake would pay back to its clocks right now.</summary>
+        public float SleptMs(float nowMs) { return Paused ? Math.Max(0f, nowMs - pausedAtMs) : 0f; }
+
         /// <summary>Back to awake (no grace left over); returns the milliseconds slept, 0 when it was not paused.</summary>
         public float Wake(float nowMs)
         {

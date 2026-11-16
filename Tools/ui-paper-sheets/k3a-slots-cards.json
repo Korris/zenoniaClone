@@ -1,0 +1,31 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/k3a-slots-cards/k3a-slots-cards-chatgpt-1.png",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "close": 3,
+ "solid_alpha": 200,
+ "grow": 7,
+ "erase": [[485, 725, 497, 960]],
+ "out": "Assets/Resources/Sprites/ui/paper/kit",
+ "rows": [
+  [{"name": "slot-item-common", "width": 160},
+   {"name": "slot-item-good", "width": 160},
+   {"name": "slot-item-rare", "width": 160},
+   {"name": "slot-item-legendary", "width": 160},
+   {"name": "slot-item-empty", "width": 160},
+   {"name": "slot-item-locked", "width": 160}],
+  [{"name": "card-item-common", "width": 224},
+   {"name": "card-item-good", "width": 224},
+   {"name": "card-item-rare", "width": 224},
+   {"name": "card-item-legendary", "width": 224},
+   {"name": "card-item-selected-frame", "width": 240}],
+  [{"name": "skill-ring-learned", "width": 160},
+   {"name": "skill-ring-selected", "width": 172},
+   {"name": "skill-ring-unlearned", "width": 160},
+   {"name": "skill-ring-locked", "width": 160},
+   {"name": "star-full", "width": 48},
+   {"name": "star-empty", "width": 48},
+   {"name": "badge-check-green", "width": 64}]
+ ]
+}

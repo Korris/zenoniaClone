@@ -1,0 +1,18 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/k3b-purple-pieces/k3b-purple-pieces-chatgpt-1a.png",
+ "note": "slot and card of this sheet do not match the K3a shapes: skipped here, taken from k3b-purple-slot-card.json",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/kit",
+ "rows": [
+  [{"name": "slot-item-heroic-rejected", "skip": true},
+   {"name": "card-item-heroic-rejected", "skip": true},
+   {"name": "btn-purple", "height": 138, "border": [70, 0, 70, 0]},
+   {"name": "btn-purple-pressed", "height": 138, "border": [70, 0, 70, 0]}],
+  [{"name": "badge-alert-gold", "width": 64},
+   {"name": "badge-lock-steel", "width": 64},
+   {"name": "ribbon-label-purple", "width": 240},
+   {"name": "skill-ring-purple", "width": 160}]
+ ]
+}

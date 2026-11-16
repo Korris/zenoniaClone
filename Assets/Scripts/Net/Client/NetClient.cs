@@ -96,6 +96,7 @@ namespace ZenoniaProto
             transferring = false; heldSpawns.Clear();
             Party.Clear();
             Trade.Clear();
+            WantedBossTracker.ClearStatus();
             if (State != ClientState.Failed) State = ClientState.Idle;
         }
 
@@ -144,6 +145,7 @@ namespace ZenoniaProto
             transferring = false; heldSpawns.Clear();
             Party.Clear();
             Trade.Clear();
+            WantedBossTracker.ClearStatus();
             if (wasJoined) { spawner = null; events = null; if (GameSession.Instance != null) GameSession.Instance.OnConnectionLost(); }
         }
 
@@ -218,6 +220,10 @@ namespace ZenoniaProto
                 case NetOp.TradeState:
                     TradeStateMsg ts;
                     if (ok = TradeStateMsg.TryRead(r, out ts)) Trade.Apply(ts);
+                    break;
+                case NetOp.WantedStatus:
+                    WantedStatusMsg ws;
+                    if (ok = WantedStatusMsg.TryRead(r, out ws)) WantedBossTracker.OnStatus(ws);
                     break;
             }
             if (!ok) { stats.Add("malformedPackets", 1); Debug.LogWarning("[ZenoniaProto] net: malformed packet, opcode " + op); }

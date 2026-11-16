@@ -134,7 +134,7 @@ namespace ZenoniaProto
         {
             ticketText.text = "Gacha Coins " + a.tickets + "   <size=12><color=#9fd0ff>Pet Crystals " + a.crystals + "  (" + PetRules.CrystalsPerPull + " = 1 coin)</color></size>";
             urText.text = "UR shards " + a.urShards + " / " + PetRules.UrExchangeCost;
-            pityText.text = "Guaranteed: SSR+ in " + PetGacha.PullsToSsr(a) + ",  UR in " + PetGacha.PullsToUr(a) + " pulls   (total " + a.totalPulls + ")   Crystals come from play: Wanted Boss, bosses, levels.";
+            pityText.text = "Guaranteed: SSR+ in " + PetGacha.PullsToSsr(a) + ",  UR in " + PetGacha.PullsToUr(a) + " pulls   (total " + a.totalPulls + ")   " + PetGachaText.CrystalSource;
             int n = Mathf.Min(lastPullCount, a.history.Count);
             resultTitle.text = n > 0 ? "Last " + (n == 1 ? "pull" : n + " pulls") : "Pull to meet a new companion.";
             for (int i = 0; i < resultFrames.Length; i++)

@@ -1,0 +1,33 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/h2-entry-buttons/h2-entry-buttons-chatgpt-1b.png",
+ "note": "ChatGPT returned two sheets; 1b chosen (gold icons as in hud-entry-buttons.png, cleaner ground), 1a kept beside it",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "solid_alpha": 120,
+ "hard_glow_yellow": true,
+ "out": "Assets/Resources/Sprites/ui/paper/hud",
+ "rows": [
+  [{"name": "entry-hanging-board", "border": [110, 0, 110, 0]},
+   {"name": "entry-tag", "height": 200},
+   {"name": "entry-tag-pressed", "height": 200, "hard_edge": 2},
+   {"name": "more-pouch-closed", "width": 220},
+   {"name": "more-pouch-open", "width": 220}],
+  [{"name": "more-fan-4-blades"},
+   {"name": "more-fan-blade"},
+   {"name": "more-fan-blade-pressed"},
+   {"name": "btn-chat-wood", "height": 140},
+   {"name": "btn-chat-wood-pressed", "height": 140, "hard_edge": 2}],
+  [{"name": "icon-entry-bag", "height": 96},
+   {"name": "icon-entry-skill", "height": 96},
+   {"name": "icon-entry-pet", "height": 96},
+   {"name": "icon-entry-gacha", "height": 96},
+   {"name": "icon-entry-quests", "height": 96},
+   {"name": "icon-entry-settings", "height": 96},
+   {"name": "icon-entry-chat", "height": 96}],
+  [{"name": "keycap-dark", "height": 96, "border": [30, 30, 30, 30]},
+   {"name": "keycap-dark-wide", "height": 96, "border": [36, 0, 36, 0]},
+   {"name": "entry-pressed-plate-gold", "height": 120, "hard_edge": 2, "border": [40, 40, 40, 40]},
+   {"name": "entry-name-pill-dark", "height": 72, "border": [40, 0, 40, 0]}]
+ ]
+}

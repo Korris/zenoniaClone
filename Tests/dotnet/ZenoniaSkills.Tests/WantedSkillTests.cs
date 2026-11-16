@@ -18,6 +18,27 @@ public class WantedSkillTests
     }
 
     [Fact]
+    public void EverySkillOfEveryRotationBossHasItsOwnShortDodgeHint()
+    {
+        var seen = new System.Collections.Generic.HashSet<string>();
+        foreach (WantedBossDef boss in WantedBoss.Rotation)
+        {
+            WantedSkillDef[] table = WantedSkillTable.For(boss.BossType);
+            Assert.NotNull(table);
+            foreach (WantedSkillDef s in table)
+            {
+                Assert.False(string.IsNullOrWhiteSpace(s.Hint), boss.BossType + " skill " + s.Name + " has no Hint");
+                Assert.EndsWith(".", s.Hint);
+                Assert.InRange(s.Hint.Length, 10, 60); // two short sentences: the board row is narrow
+                Assert.True(seen.Add(boss.BossType + "/" + s.Hint), boss.BossType + " repeats the hint \"" + s.Hint + "\"");
+                // The hint must agree with the shape the player will see: a skill with safe lanes says so, one without never promises a lane.
+                Assert.Equal(s.SafeArcCount > 0, s.Hint.Contains("safe lane"));
+                if (s.OnPlayers) Assert.Contains("red circle", s.Hint);
+            }
+        }
+    }
+
+    [Fact]
     public void RimeclawMatchesTheDesignDoc()
     {
         WantedSkillDef sweep = WantedSkillTable.RimeclawTyrant[0], slam = WantedSkillTable.RimeclawTyrant[1];

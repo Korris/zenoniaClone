@@ -61,17 +61,21 @@ namespace ZenoniaProto
             if (Flag("--talk")) TownNpc.Talk(); // what E does beside a villager (Lumi in Thatchwick opens the pet gacha)
             if (Flag("--open-pets"))
             {
-                PetWindow.Open();
-                string sel = Val("--pet-select");
-                if (sel != null && PetConfig.Get(sel) != null) PetWindow.Select(PetConfig.IndexOf(PetConfig.Get(sel))); // after Open, which starts on the combat pet
-                string petTab = Val("--open-pets");
-                if (petTab == "collection") PetWindow.ShowTab(PetWindow.Tab.Collection);
-                else if (petTab == "growth") PetWindow.ShowTab(PetWindow.Tab.Growth);
-                else if (petTab == "capture") PetWindow.ShowTab(PetWindow.Tab.Capture);
-                else PetWindow.ShowTab(PetWindow.Tab.Team);
+                UiScreens.Open(UiScreen.Pet); // the old window, or Pet Camp with --ui-new pet
+                string sel = Val("--pet-select"), petTab = Val("--open-pets");
+                if (PetCampWindow.IsOpen) PetCampWindow.TestShow(petTab, sel);
+                else
+                {
+                    if (sel != null && PetConfig.Get(sel) != null) PetWindow.Select(PetConfig.IndexOf(PetConfig.Get(sel))); // after Open, which starts on the combat pet
+                    if (petTab == "collection") PetWindow.ShowTab(PetWindow.Tab.Collection);
+                    else if (petTab == "growth") PetWindow.ShowTab(PetWindow.Tab.Growth);
+                    else if (petTab == "capture") PetWindow.ShowTab(PetWindow.Tab.Capture);
+                    else PetWindow.ShowTab(PetWindow.Tab.Team);
+                }
             }
             if (!Flag("--open-gacha")) return;
-            PetGachaWindow.Open();
+            UiScreens.Open(UiScreen.Gacha); // the old window, or Lumi's counter with --ui-new gacha
+            if (!PetGachaWindow.IsOpen) return; // the rebuilt screen reads these flags itself (DebugCapture.UiGacha.cs)
             string tab = Val("--open-gacha");
             if (tab == "rates") PetGachaWindow.ShowTab(PetGachaWindow.Tab.Rates);
             else if (tab == "history") PetGachaWindow.ShowTab(PetGachaWindow.Tab.History);

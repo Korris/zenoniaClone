@@ -1,0 +1,8 @@
+{
+ "note": "full-screen gacha market stall without UI, Lumi, dais or eggs (16:9, 1672x941): copied as is, no keying. Loaded only while the gacha screen is open.",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "out": "Assets/Resources/Sprites/ui/paper/gacha",
+ "whole": [
+  {"name": "gacha-stall-background", "source": "Assets/ArtLibrary/ui/adventure-paper/g1-gacha/g1-gacha-stall-background-chatgpt-1.png"}
+ ]
+}

@@ -27,7 +27,8 @@ namespace ZenoniaProto
         Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill7, Skill8, // tree skill 1-8 (touch magazine taps, bots, resolved slot keys); no physical key
         SlotKey1, SlotKey2, SlotKey3, // U / I(L) / O: the three visible magazine slots of the current page (Dash or a skill)
         Class6, Switch6,           // Fighter: class select screen (6), in-game class switch (F11; F6 is the bloom toggle)
-        PetWindow, PetGacha        // P: Pet Companion window, G: pet gacha window
+        PetWindow, PetGacha,       // P: Pet Companion window, G: pet gacha window
+        Quests                     // N: quest list (read by the Adventure Paper HUD only, TouchControls.Paper.cs)
     }
 
     /// <summary>
@@ -83,6 +84,7 @@ namespace ZenoniaProto
             new[] { KeyCode.F11 },
             new[] { KeyCode.P },
             new[] { KeyCode.G },
+            new[] { KeyCode.N },
         };
 
         static bool KeyHeld(GameKey k)
@@ -146,6 +148,7 @@ namespace ZenoniaProto
             new[] { Key.F11 },
             new[] { Key.P },
             new[] { Key.G },
+            new[] { Key.N },
         };
 
         static bool KeyHeld(GameKey k)
@@ -179,6 +182,7 @@ namespace ZenoniaProto
         static bool Gated(GameKey k)
         {
             if (k == GameKey.SkillTree) return UiWindows.ChatTyping || UiWindows.DialogueOpen; // T also closes the tree, but never while typing / in a dialogue
+            if (k == GameKey.Inventory && ArmoryWindow.IsOpen) return UiWindows.ChatTyping || UiWindows.DialogueOpen; // B also closes the rebuilt bag, which is a modal (the old bag is not)
             return UiWindows.BlocksGameplay && k != GameKey.Close && k != GameKey.Interact && k != GameKey.Chat;
         }
 

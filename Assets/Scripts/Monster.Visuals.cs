@@ -95,6 +95,8 @@ namespace ZenoniaProto
             UpdateStatusOverlays(order);
 
             bool showBar = state != State.Dying && hp < def.Hp;
+            if (UiScreens.UseNew(UiScreen.Boss)) { RenderPaperBar(order, showBar); return; } // Adventure Paper frames, boss name and cast tab: Monster.PaperOverheadBar.cs
+            if (paperBar) ClearPaperBar();
             barBack.enabled = showBar; barFill.enabled = showBar;
             if (def.IsWanted && state != State.Dying)
             {

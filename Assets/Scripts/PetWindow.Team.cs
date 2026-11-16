@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,19 +36,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>The selected species goes into this slot; if it is there already it leaves.</summary>
-        void OnSlot(int slot)
-        {
-            PlayerState p = PetActions.Me;
-            if (p == null) return;
-            PetDef d = PetConfig.All[selected];
-            bool there = p.Team[slot] == d.Id;
-            if (!there && p.Account != null)
-            {
-                string why = PetTeam.Refusal(p.Team, slot, d.Id, p.Level, p.Account);
-                if (why != null) { RpgHud.Toast(why, new Color(1f, 0.7f, 0.5f)); return; } // the server would say the same; save the round trip
-            }
-            PetActions.Send(InvOp.PetEquip, PetRules.EncodeSlot(slot, there ? -1 : selected));
-        }
+        void OnSlot(int slot) { PetViewModel.ToggleSlot(slot, selected); }
 
         void FillTeam(PetDef d, AccountState a, PlayerState p)
         {
@@ -71,24 +58,15 @@ namespace ZenoniaProto
             teamBonusText.text = BonusText(p);
         }
 
-        static string Pct(double v) { return (v * 100.0).ToString("0.#", CultureInfo.InvariantCulture) + "%"; }
+        static string Pct(double v) { return PetViewModel.Pct(v); }
 
         static string BonusText(PlayerState p)
         {
-            PetBonus b = p.PetBonus;
             var s = new StringBuilder("<b>Your team gives</b>   ");
-            int n = 0;
-            if (b.Damage > 0) { s.Append("+").Append(Pct(b.Damage)).Append(" damage   "); n++; }
-            if (b.MaxHp > 0) { s.Append("+").Append(Pct(b.MaxHp)).Append(" Max HP   "); n++; }
-            if (b.MoveSpeed > 0) { s.Append("+").Append(Pct(b.MoveSpeed)).Append(" speed   "); n++; }
-            if (b.DamageTaken > 0) { s.Append("-").Append(Pct(b.DamageTaken)).Append(" damage taken   "); n++; }
-            if (b.PotionHeal > 0) { s.Append("+").Append(Pct(b.PotionHeal)).Append(" potion healing   "); n++; }
-            if (b.AttackSpeed > 0) { s.Append("+").Append(Pct(b.AttackSpeed)).Append(" attack speed   "); n++; }
-            if (b.BossDamage > 0) { s.Append("+").Append(Pct(b.BossDamage)).Append(" vs bosses   "); n++; }
-            if (n == 0) s.Append("nothing yet: put a pet in a slot.");
-            s.Append("\nCombat: full passive, fights beside you (hit every ").Append((PetConfig.BasicAttackMs / 1000f).ToString("0.#", CultureInfo.InvariantCulture)).Append(" s, skill every ").Append(PetConfig.SkillCooldownMs / 1000).Append(" s). Support: skill at ")
-             .Append(Pct(PetRules.SupportSkillShare)).Append(". Stat: ").Append(Pct(PetRules.SlotPassiveShare[3])).Append(" of the passive. Caps: +").Append(Pct(PetRules.Cap(PetPassive.Damage))).Append(" damage, +")
-             .Append(Pct(PetRules.Cap(PetPassive.MaxHp))).Append(" HP, +").Append(Pct(PetRules.Cap(PetPassive.MoveSpeed))).Append(" speed, -").Append(Pct(PetRules.Cap(PetPassive.DamageTaken))).Append(" taken.\n<b>Bonds</b> (+2% with both in the team)\n");
+            List<string> parts = PetViewModel.BonusParts(p.PetBonus);
+            foreach (string part in parts) s.Append(part).Append("   ");
+            if (parts.Count == 0) s.Append("nothing yet: put a pet in a slot.");
+            s.Append("\n").Append(PetViewModel.RulesText()).Append("\n<b>Bonds</b> (+2% with both in the team)\n");
             List<PetBond> active = PetTeam.ActiveBonds(p.Team);
             foreach (PetBond bond in PetRules.Bonds)
             {

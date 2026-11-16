@@ -1,0 +1,29 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/w1-wanted/w1-wanted-parts-a-chatgpt-1.png",
+ "note": "stamp-not-claimed-yet is the only piece with baked text (phase file lists it as a named stamp); it came on a cream paper tag, not as bare ink. The three day tags share one canvas size.",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "solid_alpha": 120,
+ "close": 3,
+ "hard_glow_yellow": true,
+ "out": "Assets/Resources/Sprites/ui/paper/wanted",
+ "rows": [
+  [{"name": "poster-paper"},
+   {"name": "poster-portrait-frame", "hole": "poster-portrait-plate", "border": [60, 60, 60, 60]},
+   {"name": "schedule-card", "border": [44, 44, 44, 44]},
+   {"name": "guard-rook", "height": 400}],
+  [{"name": "ribbon-daily-stars", "border": [110, 0, 110, 0]},
+   {"name": "status-plaque-dark", "border": [50, 0, 50, 0]},
+   {"name": "status-plaque-steel", "border": [50, 0, 50, 0]},
+   {"name": "day-tag-grey", "width": 160, "height": 72},
+   {"name": "day-tag-red", "width": 160, "height": 72},
+   {"name": "day-tag-purple", "width": 160, "height": 72}],
+  [{"name": "schedule-card-selected-frame", "border": [50, 50, 50, 50]},
+   {"name": "reward-slot-dark", "width": 128},
+   {"name": "timer-bar-clock", "border": [130, 0, 60, 0]},
+   {"name": "stamp-not-claimed-yet", "width": 240},
+   {"name": "section-tag-cream", "border": [50, 0, 50, 0]},
+   {"name": "boss-skill-ring-blue", "width": 128, "hole": "boss-skill-plate"}]
+ ]
+}

@@ -68,7 +68,7 @@ namespace ZenoniaProto
                 Button b = UiWinKit.ArtButton(root, "Tab" + names[i], "btn-navy", 34f + i * 112f, 56f, 104f, 30f, names[i], 14, Color.white, () => SetTab(t));
                 tabButtons[i] = (Image)b.targetGraphic;
             }
-            UiWinKit.ArtButton(root, "Gacha", "btn-gold", W - 34f - 120f, 56f, 120f, 30f, "Gacha  [G]", 14, new Color(0.25f, 0.12f, 0.02f), () => { Close(); PetGachaWindow.Open(); });
+            UiWinKit.ArtButton(root, "Gacha", "btn-gold", W - 34f - 120f, 56f, 120f, 30f, "Gacha  [G]", 14, new Color(0.25f, 0.12f, 0.02f), () => { Close(); UiScreens.Open(UiScreen.Gacha); });
             for (int i = 0; i < cells.Length; i++) cells[i] = BuildCell(i);
             teamTab = Body("TeamTab"); collectionTab = Body("CollectionTab"); growthTab = Body("GrowthTab"); captureTab = Body("CaptureTab");
             BuildTeam(); BuildCollection(); BuildGrowth(); BuildCapture();
@@ -109,17 +109,7 @@ namespace ZenoniaProto
         void Update() { if (open) Refresh(); }
 
         /// <summary>A cheap fingerprint of what the window shows, so it only rebuilds texts when something changed.</summary>
-        static int Key(PlayerState p, AccountState a, int sel, Tab tab)
-        {
-            int k = p.Gold * 31 + sel * 7 + (int)tab * 3 + p.Level * 11;
-            foreach (string t in p.Team) k = k * 13 + (t ?? "").GetHashCode();
-            if (a != null)
-            {
-                k = k * 17 + a.tickets + a.crystals * 3 + a.food * 5 + a.balls * 7 + a.rareBalls * 11 + a.sharedShards * 19 + a.ballsBoughtToday * 23 + (a.dayBossCaught ? 29 : 0) + (a.dayWantedCaught ? 37 : 0);
-                foreach (OwnedPet o in a.pets) k = k * 13 + o.id.GetHashCode() + o.stars * 5 + o.shards + o.level * 101;
-            }
-            return k;
-        }
+        static int Key(PlayerState p, AccountState a, int sel, Tab tab) { return unchecked(PetViewModel.StateKey(p, a) * 31 + sel * 7 + (int)tab * 3); }
 
         void Refresh()
         {
@@ -152,8 +142,7 @@ namespace ZenoniaProto
             c.Stars.text = o != null ? PetArt.Stars(o.stars) : "";
         }
 
-        static readonly string[] SlotShare = { "100%", "skill 50%", "skill 50%", "passive 25%", "passive 25%" };
-        static readonly string[] SlotShort = { "out", "sup", "sup", "stat", "stat" };
-        static readonly string[] SlotNames = { "Combat", "Support 1", "Support 2", "Stat 1", "Stat 2" };
+        // Shared with the rebuilt screen (PetCampWindow).
+        static readonly string[] SlotShare = PetViewModel.SlotShare, SlotShort = PetViewModel.SlotShort, SlotNames = PetViewModel.SlotNames;
     }
 }

@@ -123,11 +123,11 @@ namespace ZenoniaProto
             if (view == null || steps.Count == 0) return;
             clock += dt;
             Step s = steps[step];
-            float each = 1f / s.Fps;
+            int count = view.FrameCount(s.Anim, s.Dir);
+            float each = s.Anim == "walk" ? 4f / (s.Fps * Mathf.Max(1, count)) : 1f / s.Fps; // walk: the same cycle length whatever the sheet's frame count (4 or 8 columns)
             if (clock < each) return;
             clock -= each;
             frame++;
-            int count = view.FrameCount(s.Anim, s.Dir);
             if (frame >= count)
             {
                 frame = 0;

@@ -84,6 +84,8 @@ namespace ZenoniaProto.Rpg
         public const double OwnerHpLine = 0.70;
         public const int ShieldMs = 5000, FlightMs = 320, TargetMemoryMs = 4000; // FlightMs: a ranged skill's projectile flight; TargetMemoryMs: the mark lasts 4 s after the owner's last hit (Lần 8)
         public const float RangeUnits = 6 * 16f; // 6 tiles of 16 units, owner to target when it fires
+        /// <summary>Without a mark from the owner the pets pick the nearest monster (not a boss) within 4 tiles of the owner themselves (HeroController.PickPetTarget).</summary>
+        public const float AutoTargetUnits = 4 * 16f;
         /// <summary>Ice skills (Ice Goblin, Frostfang King): monsters slowed by 20 % for 2 s (bosses are immune).</summary>
         public const float IceSlowPct = 20f;
         public const int IceSlowMs = 2000;

@@ -1,0 +1,22 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/h3-touch-hotbar/h3-touch-hotbar-chatgpt-1.png",
+ "note": "the three skill slots share one 160x160 canvas; skill-slot-plate / potion-slot-plate are the white windows of the hollow rings (icon mask + cooldown tint)",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/hud",
+ "rows": [
+  [{"name": "joystick-base", "width": 288},
+   {"name": "joystick-knob", "width": 132},
+   {"name": "btn-attack", "width": 256},
+   {"name": "btn-attack-pressed", "width": 256}],
+  [{"name": "skill-slot-ring", "width": 160, "height": 160, "hole": "skill-slot-plate"},
+   {"name": "skill-slot-empty", "width": 160, "height": 160},
+   {"name": "skill-slot-locked", "width": 160, "height": 160},
+   {"name": "potion-slot-ring", "width": 128, "height": 128, "hole": "potion-slot-plate"},
+   {"name": "cost-pill-dark", "height": 56, "border": [36, 0, 36, 0]}],
+  [{"name": "skill-arc-belt"},
+   {"name": "hotbar-belt-leather", "border": [130, 0, 130, 0]},
+   {"name": "page-switch-plaque", "width": 200}]
+ ]
+}

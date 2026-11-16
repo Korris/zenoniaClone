@@ -73,7 +73,7 @@ namespace ZenoniaProto
         /// </summary>
         static readonly MapPortal[] PortalList =
         {
-            new MapPortal(0, 23, OakhavenVillageMap.MapId, 13, 20), new MapPortal(0, 24, OakhavenVillageMap.MapId, 14, 20),
+            new MapPortal(0, 23, OakhavenVillageMap.MapId, 13, 19), new MapPortal(0, 24, OakhavenVillageMap.MapId, 14, 19), // two rows north of Oakhaven's south gate (row 21): row 20 is within MapPortals.ReachUnits of it and sent the hero straight back (user, 16/11/2026)
             // South gate (World Map 2.1, 13/11/2026): where the trail east of the pond runs off the bottom edge, one row above the HUD rows 45-47. To Bramblewood Forest's top road;
             // Bramblewood sends heroes back to (47,42), two tiles up the same trail.
             new MapPortal(46, 44, BramblewoodForestMap.MapId, 17, 2), new MapPortal(47, 44, BramblewoodForestMap.MapId, 18, 2),

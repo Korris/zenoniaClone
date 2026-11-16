@@ -31,6 +31,7 @@ namespace ZenoniaProto
         ZoneTransferService transfers;
         PartyService party;
         TradeService trade;
+        WantedStatusService wanted;
         ZonePersistence persistence;
         NetStats stats;
         readonly List<NetPlayer> players = new List<NetPlayer>();
@@ -81,6 +82,7 @@ namespace ZenoniaProto
             transfers = new ZoneTransferService(host, repl, stats);
             party = new PartyService(stats);
             trade = new TradeService(repl, stats, persistence);
+            wanted = new WantedStatusService(host, stats);
             if (persistence != null) { persistence.Start(stats, OnCharacterLost); Application.wantsToQuit += OnWantsToQuit; }
             else Debug.LogWarning("[ZenoniaProto] net: DEV LOGIN: no accounts, nothing is saved, every join is a new character" + (NetLaunchArgs.DevLevel + NetLaunchArgs.DevGold + NetLaunchArgs.DevItems + NetLaunchArgs.DevHurtPct > 0 ? ", dev cheats on" : "") + ". Start with --api-url for real accounts.");
             for (int i = 0; i < host.Zones.Count; i++) host.Zones[i].BossDied += OnBossDied;
@@ -257,6 +259,7 @@ namespace ZenoniaProto
             nextSnapMs[p] = host.ClockMs + (p.PlayerId % snapDiv) * (1000f / tickRate);
             stats.Max("playersPeak", players.Count);
             repl.SendWelcome(p, zone.Map.Id, transfers.PortalsLive, ServerMs, tickRate, snapDiv);
+            wanted.SendTo(p); // today's Wanted Boss, alive or when it returns, whatever map this hero is on; before the first RpgState so the client reads its claim against the server's day
             repl.RebuildGrid(zone);
             repl.UpdateInterest(zone, p);
             repl.SendSelfState(p);
@@ -365,6 +368,7 @@ namespace ZenoniaProto
             Zone.Enter(host.Start);
             party.Tick(host.ClockMs);
             trade.Tick(host.ClockMs);
+            wanted.Tick(players);
             tickWatch.Stop();
             stats.Sample("tickMs", (float)tickWatch.Elapsed.TotalMilliseconds);
             if (!finished && runSeconds > 0f && Time.realtimeSinceStartup - startTime >= runSeconds) Finish();

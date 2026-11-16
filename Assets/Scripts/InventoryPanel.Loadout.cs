@@ -8,11 +8,11 @@ namespace ZenoniaProto
     public partial class InventoryPanel
     {
         const float WornSize = 68f, WornIcon = 62f;
-        static readonly string[] StatusLabels = { "HP", "MP", "ATK", "DEF", "Magic ATK", "Magic DEF", "CRI Rate", "Move Speed" };
+        static readonly string[] StatusLabels = BagText.StatusLabels;
 
         readonly BagWidgets.Slot[] equipSlots = new BagWidgets.Slot[Slots.All.Length];
         readonly Text[] statusValues = new Text[8];
-        int wornSel; // index in Slots.All, -1 = a grid cell is selected
+        int wornSel { get { return model.Worn; } } // index in Slots.All, -1 = a grid cell is selected
         HeroPortraitView heroView;
         Text classLevelText;
         RectTransform statsPopup;
@@ -105,15 +105,7 @@ namespace ZenoniaProto
                 v.SetEnhance(item);
             }
 
-            float crit = (0.08f + p.CritBonus) * 100f;
-            bool magic = p.ClassId == "wizard" || p.ClassId == "cleric";
-            float baseSpeed = RpgClasses.Get(p.ClassId).Speed;
-            int atk = Mathf.RoundToInt(p.DamageAtk);
-            string[] values =
-            {
-                p.MaxHp.ToString(), p.MaxMp.ToString(), atk.ToString(), p.Def.ToString(), (magic ? atk : 0).ToString(), p.Def.ToString(),
-                crit.ToString("0.0") + "%", Mathf.RoundToInt(baseSpeed > 0f ? p.Speed / baseSpeed * 100f : 100f) + "%",
-            };
+            string[] values = BagText.StatusValues(p);
             for (int i = 0; i < values.Length; i++) statusValues[i].text = values[i];
         }
     }

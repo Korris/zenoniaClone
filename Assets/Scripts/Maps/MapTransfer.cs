@@ -144,8 +144,13 @@ namespace ZenoniaProto
             if (h == null || h.IsDead || !NetMode.IsOffline || UiWindows.ModalOpen) return;
             Vector2 p = h.Position;
             MapPortal found;
-            if (MapPortals.TryFind(MapRegistry.Current.Portals, p.x, p.y, out found)) Go(found);
+            bool onTrigger = MapPortals.TryFind(MapRegistry.Current.Portals, p.x, p.y, out found);
+            // Same gate as the server (PortalGate): an arrival tile next to a gate is within the trigger's reach, so the hero walked into Oakhaven
+            // and was sent straight back to Willowbrook (user, 16/11/2026). It opens only after the feet have left every trigger.
+            if (gate.Tick(onTrigger, Time.unscaledDeltaTime * 1000f)) Go(found);
         }
+
+        readonly Net.PortalGate gate = new Net.PortalGate();
 
         /// <summary>At full black: swap the map, move the hero to the arrival tile and snap the camera onto it.</summary>
         void Arrive()
@@ -162,6 +167,7 @@ namespace ZenoniaProto
             HeroController h = GameSession.Hero;
             if (h == null) return;
             h.Teleport(FrostHollowMap.TileFeet(portal.TargetTx, portal.TargetTy, 2f), 0);
+            gate.Disarm(); // just placed: step off the triggers first
             SnapCamera();
         }
     }

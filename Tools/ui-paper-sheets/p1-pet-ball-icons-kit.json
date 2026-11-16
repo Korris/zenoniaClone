@@ -1,0 +1,30 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/p1-pet-camp/p1-pet-parts-chatgpt-1.png",
+ "note": "replaces kit/icon-capture-ball (the K4 one resembled a Poke Ball) with the game's own wooden pet ball; every other piece is skipped",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/kit",
+ "rows": [
+  [{"name": "nest-large", "skip": true},
+   {"name": "nest-large-selected", "skip": true},
+   {"name": "nest-small", "skip": true},
+   {"name": "nest-small-selected", "skip": true}],
+  [{"name": "role-sign-ribbon", "skip": true},
+   {"name": "icon-role-combat", "skip": true},
+   {"name": "icon-role-support", "skip": true},
+   {"name": "icon-role-stat", "skip": true},
+   {"name": "percent-pill-red", "skip": true}],
+  [{"name": "team-bonus-plaque", "skip": true},
+   {"name": "team-bonus-plaque-grey", "skip": true},
+   {"name": "bond-card", "skip": true},
+   {"name": "bond-card-active", "skip": true},
+   {"name": "tag-active-green", "skip": true}],
+  [{"name": "sign-owned-pets-hanging", "skip": true},
+   {"name": "pet-card-slot", "skip": true},
+   {"name": "pet-card-slot-selected", "skip": true},
+   {"name": "growth-card-gold", "skip": true},
+   {"name": "icon-capture-ball", "height": 64},
+   {"name": "ball-rare", "skip": true}]
+ ]
+}

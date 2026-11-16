@@ -1,0 +1,722 @@
+{
+ "bag/pedestal-label": [
+  40,
+  0,
+  40,
+  0
+ ],
+ "bag/pedestal-label-selected": [
+  40,
+  0,
+  40,
+  0
+ ],
+ "bag/plate-level-red": [
+  100,
+  0,
+  60,
+  0
+ ],
+ "bag/resource-pill-dark": [
+  50,
+  0,
+  50,
+  0
+ ],
+ "bag/shelf-wood": [
+  110,
+  0,
+  110,
+  0
+ ],
+ "bag/sign-bag-pouch": [
+  130,
+  0,
+  50,
+  0
+ ],
+ "bag/sign-enhance-anvil": [
+  130,
+  0,
+  50,
+  0
+ ],
+ "bag/tooltip-drag-hand": [
+  215,
+  0,
+  50,
+  0
+ ],
+ "boss/boss-bar-frame": [
+  40,
+  0,
+  110,
+  0
+ ],
+ "boss/cast-bar-frame": [
+  36,
+  0,
+  84,
+  0
+ ],
+ "boss/enraged-fire-border": [
+  90,
+  0,
+  90,
+  0
+ ],
+ "boss/enraged-label": [
+  150,
+  0,
+  50,
+  0
+ ],
+ "boss/overhead-bar-boss": [
+  30,
+  0,
+  70,
+  0
+ ],
+ "boss/overhead-bar-elite": [
+  34,
+  0,
+  34,
+  0
+ ],
+ "boss/overhead-bar-normal": [
+  34,
+  0,
+  34,
+  0
+ ],
+ "boss/rage-gauge-gold": [
+  10,
+  0,
+  10,
+  0
+ ],
+ "chat/board-wood": [
+  90,
+  90,
+  90,
+  90
+ ],
+ "chat/channel-dropdown-white": [
+  36,
+  0,
+  90,
+  0
+ ],
+ "chat/channel-ribbon-white": [
+  24,
+  0,
+  60,
+  0
+ ],
+ "chat/channel-ribbon-white-selected": [
+  34,
+  0,
+  70,
+  0
+ ],
+ "chat/filter-bar-dark": [
+  40,
+  0,
+  40,
+  0
+ ],
+ "chat/input-paper": [
+  44,
+  0,
+  44,
+  0
+ ],
+ "chat/menu-dark-wood": [
+  56,
+  56,
+  56,
+  56
+ ],
+ "chat/paper-messages": [
+  60,
+  60,
+  60,
+  60
+ ],
+ "chat/typing-pill": [
+  150,
+  0,
+  44,
+  0
+ ],
+ "gacha/btn-buy-gold": [
+  56,
+  0,
+  56,
+  0
+ ],
+ "gacha/btn-buy-gold-pressed": [
+  56,
+  0,
+  56,
+  0
+ ],
+ "gacha/btn-pull-blue": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "gacha/btn-pull-blue-pressed": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "gacha/btn-pull-purple": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "gacha/btn-pull-purple-pressed": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "gacha/panel-paper-wood": [
+  80,
+  80,
+  80,
+  80
+ ],
+ "gacha/panel-title-tag": [
+  50,
+  0,
+  50,
+  0
+ ],
+ "gacha/pity-bar-frame": [
+  170,
+  0,
+  30,
+  0
+ ],
+ "gacha/result-card-white-rim": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "gacha/shard-exchange-plaque": [
+  215,
+  0,
+  60,
+  0
+ ],
+ "hud/cost-pill-dark": [
+  36,
+  0,
+  36,
+  0
+ ],
+ "hud/entry-hanging-board": [
+  110,
+  0,
+  110,
+  0
+ ],
+ "hud/entry-name-pill-dark": [
+  40,
+  0,
+  40,
+  0
+ ],
+ "hud/entry-pressed-plate-gold": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "hud/hotbar-belt-leather": [
+  130,
+  0,
+  130,
+  0
+ ],
+ "hud/keycap-dark": [
+  30,
+  30,
+  30,
+  30
+ ],
+ "hud/keycap-dark-wide": [
+  36,
+  0,
+  36,
+  0
+ ],
+ "hud/level-tag-leather": [
+  50,
+  0,
+  50,
+  0
+ ],
+ "hud/toast-strip": [
+  50,
+  0,
+  50,
+  0
+ ],
+ "hudc/boss-bar-fill": [
+  18,
+  0,
+  18,
+  0
+ ],
+ "hudc/boss-bar-frame": [
+  28,
+  0,
+  28,
+  0
+ ],
+ "hudc/boss-cast-fill": [
+  10,
+  0,
+  10,
+  0
+ ],
+ "hudc/boss-cast-frame": [
+  17,
+  0,
+  17,
+  0
+ ],
+ "hudc/chat-channel-pill": [
+  22,
+  0,
+  46,
+  0
+ ],
+ "hudc/chat-input-bar": [
+  34,
+  0,
+  34,
+  0
+ ],
+ "hudc/hotbar-exp-fill": [
+  8,
+  0,
+  8,
+  0
+ ],
+ "hudc/hotbar-exp-frame": [
+  12,
+  0,
+  12,
+  0
+ ],
+ "hudc/hotbar-keycap": [
+  18,
+  18,
+  18,
+  18
+ ],
+ "hudc/hotbar-keycap-wide": [
+  20,
+  0,
+  20,
+  0
+ ],
+ "hudc/hotbar-slot": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "hudc/skill-cost-pill": [
+  24,
+  0,
+  24,
+  0
+ ],
+ "hudc/status-bar-fill": [
+  22,
+  0,
+  22,
+  0
+ ],
+ "hudc/status-bar-frame": [
+  30,
+  0,
+  30,
+  0
+ ],
+ "hudc/status-exp-fill": [
+  10,
+  0,
+  10,
+  0
+ ],
+ "hudc/status-exp-frame": [
+  16,
+  0,
+  16,
+  0
+ ],
+ "hudc/status-lv-pill": [
+  26,
+  0,
+  26,
+  0
+ ],
+ "hudc/toast-pill": [
+  64,
+  0,
+  64,
+  0
+ ],
+ "hudc/wanted-pill": [
+  38,
+  0,
+  38,
+  0
+ ],
+ "kit/bar-fill-white": [
+  28,
+  0,
+  28,
+  0
+ ],
+ "kit/bar-frame-large": [
+  120,
+  0,
+  120,
+  0
+ ],
+ "kit/bar-frame-small": [
+  80,
+  0,
+  80,
+  0
+ ],
+ "kit/btn-blue": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/btn-blue-pressed": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/btn-gold": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/btn-gold-pressed": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/btn-grey-disabled": [
+  64,
+  0,
+  64,
+  0
+ ],
+ "kit/btn-purple": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/btn-purple-pressed": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/btn-red": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/btn-red-pressed": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/card-paper-dashed": [
+  50,
+  50,
+  50,
+  50
+ ],
+ "kit/chip-filter-active": [
+  52,
+  0,
+  52,
+  0
+ ],
+ "kit/chip-filter-inactive": [
+  52,
+  0,
+  52,
+  0
+ ],
+ "kit/dropdown-paper": [
+  30,
+  0,
+  90,
+  0
+ ],
+ "kit/frame-paper-pinned": [
+  80,
+  80,
+  80,
+  80
+ ],
+ "kit/frame-paper-wood": [
+  100,
+  100,
+  100,
+  100
+ ],
+ "kit/frame-slate-dark": [
+  60,
+  60,
+  60,
+  60
+ ],
+ "kit/frame-wood-board": [
+  70,
+  70,
+  70,
+  70
+ ],
+ "kit/menu-plank-active": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/menu-plank-inactive": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "kit/section-strip-leather": [
+  60,
+  0,
+  60,
+  0
+ ],
+ "kit/tab-leather-active": [
+  80,
+  0,
+  80,
+  0
+ ],
+ "kit/tab-leather-inactive": [
+  80,
+  0,
+  80,
+  0
+ ],
+ "pet/bond-card": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "pet/bond-card-active": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "pet/collection-header-book": [
+  170,
+  0,
+  60,
+  0
+ ],
+ "pet/growth-card-gold": [
+  44,
+  44,
+  44,
+  44
+ ],
+ "pet/menu-plank-gacha": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "pet/menu-plank-gacha-active": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "pet/percent-pill-red": [
+  34,
+  0,
+  34,
+  0
+ ],
+ "pet/station-sign-wood": [
+  60,
+  0,
+  60,
+  0
+ ],
+ "pet/tag-active-green": [
+  24,
+  0,
+  24,
+  0
+ ],
+ "pet/tag-passive-purple": [
+  26,
+  0,
+  26,
+  0
+ ],
+ "pet/tag-skill-blue": [
+  26,
+  0,
+  26,
+  0
+ ],
+ "pet/team-bonus-plaque": [
+  90,
+  0,
+  90,
+  0
+ ],
+ "pet/team-bonus-plaque-grey": [
+  90,
+  0,
+  90,
+  0
+ ],
+ "skill/assign-hint-banner": [
+  30,
+  0,
+  60,
+  0
+ ],
+ "skill/detail-scroll": [
+  80,
+  90,
+  80,
+  90
+ ],
+ "skill/magazine-belt": [
+  90,
+  0,
+  90,
+  0
+ ],
+ "skill/rank-pill-dark": [
+  30,
+  0,
+  30,
+  0
+ ],
+ "skill/select-brackets-gold": [
+  100,
+  100,
+  100,
+  100
+ ],
+ "skill/shelf-two-tier": [
+  70,
+  0,
+  70,
+  0
+ ],
+ "wanted/banner-area-map-arrow": [
+  150,
+  0,
+  120,
+  0
+ ],
+ "wanted/banner-login-laurel": [
+  190,
+  0,
+  60,
+  0
+ ],
+ "wanted/banner-respawn-blue": [
+  170,
+  0,
+  70,
+  0
+ ],
+ "wanted/poster-portrait-frame": [
+  60,
+  60,
+  60,
+  60
+ ],
+ "wanted/ribbon-daily-stars": [
+  110,
+  0,
+  110,
+  0
+ ],
+ "wanted/schedule-card": [
+  44,
+  44,
+  44,
+  44
+ ],
+ "wanted/schedule-card-selected-frame": [
+  50,
+  50,
+  50,
+  50
+ ],
+ "wanted/section-tag-cream": [
+  50,
+  0,
+  50,
+  0
+ ],
+ "wanted/status-plaque-dark": [
+  50,
+  0,
+  50,
+  0
+ ],
+ "wanted/status-plaque-steel": [
+  50,
+  0,
+  50,
+  0
+ ],
+ "wanted/strip-already-claimed": [
+  110,
+  0,
+  40,
+  0
+ ],
+ "wanted/timer-bar-clock": [
+  130,
+  0,
+  60,
+  0
+ ]
+}

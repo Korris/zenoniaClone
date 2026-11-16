@@ -10,12 +10,11 @@ namespace ZenoniaProto
     /// above a round chat button with a red unread badge. Tapping the button (or a visible line) opens the chat panel.
     /// Mobile: just above the joystick on the left. Web: bottom-left corner (where the panel sits when open).
     /// </summary>
-    public sealed class ChatCollapsedView
+    public sealed class ChatCollapsedView : ChatFeed
     {
         const int Rows = 3;
         const float ShowFor = 7f, FadeFor = 1f, RowH = 26f, RowW = 360f;
 
-        public RectTransform root;
         readonly CanvasGroup[] rows = new CanvasGroup[Rows];
         readonly Text[] texts = new Text[Rows];
         GameObject badge;
@@ -55,14 +54,14 @@ namespace ZenoniaProto
             return v;
         }
 
-        public void SetUnread(int n)
+        public override void SetUnread(int n)
         {
             badge.SetActive(n > 0);
             badgeText.text = n > 99 ? "99+" : n.ToString();
         }
 
         /// <summary>Re-draws the newest lines; lines older than 7 s fade out over 1 s.</summary>
-        public void Refresh(IList<ChatMessage> history)
+        public override void Refresh(IList<ChatMessage> history)
         {
             List<ChatMessage> recent = ChatTextFormat.Recent(history, ChatChannel.World, Rows);
             int offset = Rows - recent.Count; // newest at the bottom row

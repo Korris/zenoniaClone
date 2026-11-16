@@ -1,0 +1,26 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/hc1-compact-status-menu/hc1a-compact-status-chatgpt-1.png",
+ "note": "compact HUD (hudc): thin rims, flat dark plates (code sets their alpha), fills white for tinting; status-portrait-plate is the white window of the ring; the green tick lives here because this sheet is on #FF00FF",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/hudc",
+ "rows": [
+  [{"name": "status-portrait-ring", "width": 192, "height": 192, "hole": "status-portrait-plate"},
+   {"name": "boss-portrait-ring", "width": 160, "height": 160},
+   {"name": "wanted-pill-portrait-ring", "width": 112, "height": 112},
+   {"name": "buff-slot", "width": 88, "height": 88},
+   {"name": "status-lv-pill", "height": 48, "border": [26, 0, 26, 0]}],
+  [{"name": "status-bar-frame", "height": 56, "border": [30, 0, 30, 0]},
+   {"name": "status-bar-fill", "height": 40, "border": [22, 0, 22, 0]},
+   {"name": "status-exp-frame", "height": 28, "border": [16, 0, 16, 0]},
+   {"name": "status-exp-fill", "height": 18, "border": [10, 0, 10, 0]}],
+  [{"name": "boss-bar-frame", "height": 52, "border": [28, 0, 28, 0]},
+   {"name": "boss-bar-fill", "height": 32, "border": [18, 0, 18, 0]},
+   {"name": "boss-cast-frame", "height": 30, "border": [17, 0, 17, 0]},
+   {"name": "boss-cast-fill", "height": 18, "border": [10, 0, 10, 0]}],
+  [{"name": "wanted-pill", "height": 72, "border": [38, 0, 38, 0]},
+   {"name": "toast-pill", "height": 64, "border": [64, 0, 64, 0]},
+   {"name": "wanted-icon-claimed", "height": 96}]
+ ]
+}

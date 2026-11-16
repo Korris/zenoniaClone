@@ -1,0 +1,25 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/b1-boss-bars/b1-boss-bars-chatgpt-1.png",
+ "note": "the cast medallion came out gold, not purple as in boss-hp-bar.png: kept, the purple skill icon sits behind it",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "close": 4,
+ "out": "Assets/Resources/Sprites/ui/paper/boss",
+ "rows": [
+  [{"name": "boss-medallion-gold", "width": 256, "hole": "boss-medallion-portrait-plate"},
+   {"name": "boss-medallion-defeated", "width": 256},
+   {"name": "cast-medallion", "width": 128, "hole": "cast-medallion-plate"},
+   {"name": "ribbon-wanted", "width": 360}],
+  [{"name": "boss-bar-frame", "border": [40, 0, 110, 0]},
+   {"name": "cast-bar-frame", "border": [36, 0, 84, 0]}],
+  [{"name": "enraged-fire-border", "border": [90, 0, 90, 0]},
+   {"name": "enraged-label", "border": [150, 0, 50, 0]},
+   {"name": "defeated-plaque-laurel"}],
+  [{"name": "overhead-bar-normal", "border": [34, 0, 34, 0]},
+   {"name": "overhead-bar-elite", "border": [34, 0, 34, 0]},
+   {"name": "overhead-bar-boss", "border": [30, 0, 70, 0]},
+   {"name": "rage-gauge-gold", "border": [10, 0, 10, 0]},
+   {"name": "rage-marker", "width": 32}]
+ ]
+}

@@ -1,16 +1,13 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
-using ZenoniaProto.Net;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
-    /// <summary>Right panel: the selected item or supply, its stats compared with what is worn, the enhance preview, and Equip / Unequip, Enhance, Discard. Coordinates are local to the panel.</summary>
+    /// <summary>Right panel: the selected item or supply, its stats compared with what is worn, the enhance preview (BagActions.Preview), and Equip / Unequip, Enhance, Discard. Coordinates are local to the panel.</summary>
     public partial class InventoryPanel
     {
         const int MaxStatLines = 6;
-        const string GoldBlurb = "Gold used for trading.", StoneBlurb = "Used to enhance weapons. Success drops at higher +.";
 
         readonly Text[] statTexts = new Text[MaxStatLines], compareTexts = new Text[MaxStatLines], extraTexts = new Text[3];
         readonly Text[] itemValues = new Text[MaxStatLines], equippedValues = new Text[MaxStatLines];
@@ -81,70 +78,43 @@ namespace ZenoniaProto
             useButton = new BagWidgets.BagButton(supplyDetail, "Use", Left, 412f, Inner, 38f, "Use", BagSprites.Tone.Gold, Activate);
         }
 
-        /// <summary>The next +level, its success chance and the stat it raises, or why it cannot be enhanced.</summary>
-        struct EnhanceView { public bool Can, Max; public string Reason, StatLabel; public int From, To, StatFrom, StatTo, Owned, Chance; }
-
-        static EnhanceView Preview(PlayerState p, Item item)
-        {
-            var v = new EnhanceView { Owned = p != null ? p.UpgradeStone : 0, StatLabel = "ATK" };
-            if (p == null || !EnhanceStats.IsEnhanceable(item)) { v.Reason = "Weapons only"; return v; }
-            string key = EnhanceStats.StatKey(item);
-            int baseValue = item.stats.GetInt(key);
-            v.StatLabel = key == "atk" ? "ATK" : key == "def" ? "DEF" : key == "maxHp" ? "Max HP" : key == "maxMp" ? "Max MP" : key;
-            v.From = EnhanceStats.Level(item);
-            v.StatFrom = baseValue + EnhanceStats.Bonus(baseValue, v.From, EnhanceStats.Scale(item));
-            if (v.From >= EnhanceConfig.MaxEnhance) { v.Max = true; v.To = v.From; v.StatTo = v.StatFrom; v.Reason = "Max +" + EnhanceConfig.MaxEnhance; return v; }
-            IUpgradeMethod method = StoneUpgradeMethod.Instance;
-            v.To = v.From + 1;
-            v.StatTo = baseValue + EnhanceStats.Bonus(baseValue, v.To, EnhanceStats.Scale(item));
-            v.Chance = RpgMath.Round(method.SuccessChance(v.From) * 100.0);
-            v.Can = method.CanPay(p, v.From);
-            if (!v.Can) v.Reason = "Need Upgrade Stone";
-            return v;
-        }
-
         /// <summary>Bag items only; the first tap arms it, the second discards.</summary>
         void DiscardSelected()
         {
             PlayerState p = RpgSession.Player;
-            Item item = p != null ? SelectedItem(p) : null;
+            Item item = p != null ? model.Selected(p) : null;
             if (item == null || wornSel >= 0) return;
             if (!confirmDiscard) { confirmDiscard = true; Refresh(); return; }
             confirmDiscard = false;
-            if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Discard, item.uid, 0); return; }
-            p.RemoveFromInventory(item.uid);
-            Flash("Discarded " + item.name);
-            Refresh();
+            Show(BagActions.Discard(p, item));
         }
 
         void RefreshDetail(PlayerState p)
         {
-            Supply kind;
-            bool supply = wornSel < 0 && SupplyAtCell(cellSel, out kind);
-            Item selected = SelectedItem(p);
+            BagSupply kind = BagSupply.Coin;
+            bool supply = wornSel < 0 && model.SupplyAt(model.Cell, out kind);
+            Item selected = model.Selected(p);
             supplyDetail.gameObject.SetActive(supply);
             itemDetail.gameObject.SetActive(!supply && selected != null);
             detailSlot.Root.gameObject.SetActive(supply || selected != null);
             selectHint.enabled = !supply && selected == null;
             if (selectHint.enabled) selectHint.text = wornSel >= 0 ? "Empty slot. Pick an item from the list." : "Select an item.";
-            if (supply) { SupplyAtCell(cellSel, out kind); ShowSupply(p, kind); }
+            if (supply) ShowSupply(p, kind);
             else if (selected != null) ShowItem(p, selected);
             if (!supply && selected == null) detailSlot.SetEnhance(null);
         }
 
-        void ShowSupply(PlayerState p, Supply kind)
+        void ShowSupply(PlayerState p, BagSupply kind)
         {
-            int count = SupplyCount(p, kind);
+            int count = BagModel.SupplyCount(p, kind);
             detailSlot.SetFrame(false, BagWidgets.Hex("#70899d"));
-            detailSlot.SetIcon(SupplySprite(kind), 72f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
+            detailSlot.SetIcon(BagText.SupplySprite(kind), 72f, new Color(1f, 1f, 1f, count > 0 ? 1f : 0.4f));
             detailSlot.SetEnhance(null);
             detailSlot.Count.text = "";
-            bool potion = IsPotion(kind);
-            bool quick = potion && p.PotionPick(PotionIsHp(kind)) == PotionSize(kind);
-            supplyName.text = potion ? PotionCatalog.Name(PotionIsHp(kind), PotionSize(kind)) : kind == Supply.Coin ? "Gold" : "Upgrade Stone";
-            supplyQuantity.text = "Quantity: " + count + (quick ? "\n(quick button)" : "");
-            supplyBlurb.text = potion ? PotionCatalog.Effect(PotionIsHp(kind), PotionSize(kind)) + " Use: drink it and set it on the quick button." : kind == Supply.Coin ? GoldBlurb : StoneBlurb;
-            useButton.Set(potion);
+            supplyName.text = BagText.SupplyName(kind);
+            supplyQuantity.text = "Quantity: " + count + (BagText.IsQuickPotion(p, kind) ? "\n(quick button)" : "");
+            supplyBlurb.text = BagText.SupplyBlurb(kind);
+            useButton.Set(BagModel.IsPotion(kind));
         }
 
         void ShowItem(PlayerState p, Item item)
@@ -154,10 +124,9 @@ namespace ZenoniaProto
             detailSlot.SetIcon(LootSprites.Icon(item), 80f, !usable ? new Color(1f, 0.6f, 0.6f, 0.55f) : worn || p.MeetsLevel(item) ? Color.white : new Color(0.55f, 0.55f, 0.6f, 0.6f));
             detailSlot.SetEnhance(item);
             detailSlot.Count.text = "";
-            itemName.text = BagItemName(item);
+            itemName.text = BagText.ItemName(item);
             itemName.color = BagWidgets.Hex("#ffe18a");
-            RarityDef rarity = ItemDefs.Rarity(item.rarity);
-            rarityText.text = (rarity != null && rarity.Prefix != null ? rarity.Prefix : ItemInfo.RarityLabel(item.rarity)).ToUpperInvariant();
+            rarityText.text = BagText.RarityName(item).ToUpperInvariant();
             rarityText.color = BagWidgets.Hex("#ffe8a0");
             rarityPlaque.sizeDelta = new Vector2(Mathf.Ceil(rarityText.preferredWidth) + 26f, 22f);
             itemSlotText.text = ItemInfo.SlotLabel(item.slot) + (string.IsNullOrEmpty(item.classId) || usable ? "" : "  <color=#ff8070>" + RpgClasses.Get(item.classId).Name + " only</color>");
@@ -172,17 +141,16 @@ namespace ZenoniaProto
                 bool has = i < lines.Count;
                 statRules[i].enabled = has;
                 statTexts[i].text = has ? lines[i].Label.ToUpperInvariant() : "";
-                itemValues[i].text = has ? TableValue(lines[i].Value, lines[i].Percent) : "";
-                equippedValues[i].text = has ? worn ? TableValue(lines[i].Value, lines[i].Percent) : compare != null ? TableValue(lines[i].Value - lines[i].Delta, lines[i].Percent) : "--" : "";
+                itemValues[i].text = has ? BagText.TableValue(lines[i].Value, lines[i].Percent) : "";
+                equippedValues[i].text = has ? worn ? BagText.TableValue(lines[i].Value, lines[i].Percent) : compare != null ? BagText.TableValue(lines[i].Value - lines[i].Delta, lines[i].Percent) : "--" : "";
                 compareTexts[i].text = "";
                 if (!has || worn) continue; // no comparison for what is already on
-                double d = compare != null ? lines[i].Delta : lines[i].Value; // nothing worn: the whole stat is a gain
-                double shown = lines[i].Percent ? Math.Round(d * 100.0) : Math.Round(d);
-                compareTexts[i].text = (shown > 0 ? "+" : "") + shown + (lines[i].Percent ? "%" : "");
+                double shown;
+                compareTexts[i].text = BagText.Change(lines[i], compare != null, out shown);
                 compareTexts[i].color = BagWidgets.Hex(shown > 0 ? "#8fff8f" : shown < 0 ? "#ff7070" : "#cfcfe0");
             }
 
-            EnhanceView e = Preview(p, item);
+            BagEnhanceView e = BagActions.Preview(p, item);
             bool enhanceable = EnhanceStats.IsEnhanceable(item);
             enhanceTitle.text = isPet ? "Old Pet" : enhanceable ? "Enhance Preview" : "Item Details";
             foreach (Text t in extraTexts) t.text = "";
@@ -210,34 +178,5 @@ namespace ZenoniaProto
         }
 
         void SetExtra(int i, string text, string color) { extraTexts[i].text = text; extraTexts[i].color = BagWidgets.Hex(color); }
-
-        static string TableValue(double value, bool percent)
-        {
-            return Math.Round(value * (percent ? 100.0 : 1.0)).ToString() + (percent ? "%" : "");
-        }
-
-        static string BagItemName(Item item)
-        {
-            string name = WeaponNames.BaseName(item.classId, item.slot, ItemInfo.ArtTier(item));
-            if (name == null)
-            {
-                name = item.name ?? "";
-                RarityDef rarity = ItemDefs.Rarity(item.rarity);
-                if (rarity != null && !string.IsNullOrEmpty(rarity.Prefix) && name.StartsWith(rarity.Prefix + " ", StringComparison.OrdinalIgnoreCase))
-                    name = name.Substring(rarity.Prefix.Length + 1);
-            }
-            int plus = EnhanceStats.Level(item);
-            return plus > 0 ? name + " +" + plus : name;
-        }
-
-        /// <summary>"ATK 21 (+4)": the effective value, plus the part that comes from enhancing.</summary>
-        static string StatText(Item item, StatLine l)
-        {
-            string text = ItemInfo.Format(l);
-            if (l.Percent || EnhanceStats.Level(item) == 0) return text;
-            string key = l.Label == "ATK" ? "atk" : l.Label == "DEF" ? "def" : l.Label == "HP" ? "maxHp" : l.Label == "MP" ? "maxMp" : null;
-            int bonus = key != null ? RpgMath.Round(l.Value) - item.stats.GetInt(key) : 0;
-            return bonus > 0 ? text + " (+" + bonus + ")" : text;
-        }
     }
 }

@@ -14,7 +14,7 @@ namespace ZenoniaProto
         const float EdgeTiles = 3f;                      // exit centre at most this far from an edge -> haze
         const float WidthUnits = 85f;                    // across the road (mock-up 340 px)
         const float RampUnits = 36f, InsetUnits = 40f;   // haze starts 2.5 tiles inside the exit centre (user: the effect sat off-screen at the edge) and grows over RampUnits
-        const float HazeAlpha = 1f;
+        const float HazeAlpha = 0.4f, WispAlpha = 0.5f, CoreAlpha = 0.6f; // thinner than the first version (1 / 1 / 1): the user found the mist far too thick over the exit (16/11/2026)
         const float HudExtraUnits = 32f;   // bottom exits: the lowest rows sit under the HUD, so the haze starts two tiles higher
         static readonly Color Light = new Color(1f, 1f, 0.97f);
         const int Motes = 10;
@@ -59,7 +59,7 @@ namespace ZenoniaProto
             int order = GameConfig.OrderBase(-1000f);   // over everything on the map: whoever walks into the exit fades into the light
             Vector3 mid = new Vector3(0f, inset - length * 0.5f, 0f);
             var body = Layer(go.transform, "Haze", Haze(length), mid, length, order, HazeAlpha);
-            Layer(go.transform, "Core", Core(length), mid, length, order + 1, 1f).color = new Color(1f, 0.92f, 0.72f, 1f);   // warm bright core so it reads on pale roads too
+            Layer(go.transform, "Core", Core(length), mid, length, order + 1, 1f).color = new Color(1f, 0.92f, 0.72f, CoreAlpha);   // warm bright core so it reads on pale roads too
             var anim = go.AddComponent<Motion>();
             anim.WispA = Layer(go.transform, "WispA", Wisp(ref wispA, 1), mid, length, order + 1, 0f);
             anim.WispB = Layer(go.transform, "WispB", Wisp(ref wispB, 2), mid, length, order + 1, 0f);
@@ -125,7 +125,7 @@ namespace ZenoniaProto
             {
                 float t = Time.time;
                 float k = 0.5f + 0.5f * Mathf.Sin(t * 0.8f);
-                Fade(WispA, k); Fade(WispB, 1f - k);
+                Fade(WispA, k * WispAlpha); Fade(WispB, (1f - k) * WispAlpha);
                 WispA.transform.localPosition = Mid + new Vector3(Mathf.Sin(t * 0.5f) * 4f, 0f, 0f);
                 WispB.transform.localPosition = Mid + new Vector3(Mathf.Sin(t * 0.5f + 2f) * -4f, 0f, 0f);
                 for (int i = 0; i < Motes.Length; i++)

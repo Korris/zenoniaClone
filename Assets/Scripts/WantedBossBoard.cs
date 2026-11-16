@@ -41,6 +41,8 @@ namespace ZenoniaProto
         public static bool TryOpen(string npcId, string name, Sprite portrait, string[] defaultLines)
         {
             if (!IsBoardNpc(npcId)) return false;
+            // Rebuilt board (switch UiScreen.Wanted): the full-screen place, when the server's status is known. Otherwise the dialogue pages below, as before.
+            if (UiScreens.UseNew(UiScreen.Wanted) && PaperWanted.Known) { UiScreens.Open(UiScreen.Wanted); return true; }
             WantedBoardData? c = Current();
             if (c == null) return false;
             WantedBoardData d = c.Value;

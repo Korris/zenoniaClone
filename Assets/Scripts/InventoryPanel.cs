@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using ZenoniaProto.Net;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
@@ -11,7 +10,8 @@ namespace ZenoniaProto
     /// Left: the hero between two rows of worn slots, Stats behind a button. Centre: 5 x 4 paged grid. Right: the selected item, compared with what is worn, with Equip / Unequip and Enhance.
     /// Tapping a worn slot filters the grid to what fits it; the chip clears the filter. A second tap within 0.35 s activates; arrows move the selection and J / Space activates.
     /// B / I toggles (RpgSession), Esc closes; the game is paused while it is open.
-    /// Partial: InventoryPanel.Loadout.cs (left), InventoryPanel.Bag.cs (centre), InventoryPanel.Detail.cs (right). Mock: ArtLibrary/custom/inventory-ui-ref/bag-layout-mock-1.png.
+    /// Partial: InventoryPanel.Loadout.cs (left), InventoryPanel.Bag.cs (centre), InventoryPanel.Detail.cs (right), InventoryPanel.Input.cs (keys and taps). Mock: ArtLibrary/custom/inventory-ui-ref/bag-layout-mock-1.png.
+    /// What is listed / selected is BagModel, what an action does to the player is BagActions: both shared with the Armory Carousel (ArmoryWindow), which UiScreens opens instead when its switch is on.
     /// </summary>
     public partial class InventoryPanel : MonoBehaviour
     {
@@ -21,6 +21,7 @@ namespace ZenoniaProto
         const int WornClickBase = 1000; // keeps worn slots and grid cells apart in the double-tap check
         static InventoryPanel instance;
 
+        readonly BagModel model = new BagModel(); // its defaults are this window: 20 cells a page, gold and empty stacks listed, all 50 slots
         RectTransform overlay, window;
         Text messageText;
         float messageUntil;
@@ -83,7 +84,7 @@ namespace ZenoniaProto
             bagIcon.sprite = BagSprites.BagIcon();
             BagWidgets.Style(UiKit.Label(win, "Title", 82f, 10f, 80f, 46f, "Bag", 30, new Color(1f, 0.93f, 0.7f), TextAnchor.MiddleLeft, true), true);
             BuildTab(win, 150f, "tab-active", "Bag", null);
-            BuildTab(win, 286f, "tab-inactive", "Skill", () => { Close(); SkillTreeWindow.Open(transform.parent); });
+            BuildTab(win, 286f, "tab-inactive", "Skill", () => { Close(); UiScreens.Open(UiScreen.Skill); });
             BagWidgets.Divider(win, "HeaderRule", 432f, 36f, W - 510f);
             UiWinKit.CloseButton(win, W - 62f, 14f, 42f, Close);
 
@@ -114,120 +115,38 @@ namespace ZenoniaProto
             return rt;
         }
 
-        // ---- input ----
-
-        void Update()
-        {
-            if (!IsOpen) return;
-            FitWindow();
-            if (messageText.text.Length > 0 && Time.unscaledTime > messageUntil) messageText.text = "";
-            heroView.Tick(Time.unscaledDeltaTime);
-            int dx = (InputAdapter.Pressed(GameKey.Right) ? 1 : 0) - (InputAdapter.Pressed(GameKey.Left) ? 1 : 0);
-            int dy = (InputAdapter.Pressed(GameKey.Down) ? 1 : 0) - (InputAdapter.Pressed(GameKey.Up) ? 1 : 0);
-            if (dx != 0 || dy != 0) { Navigate(dx, dy); Refresh(); }
-            if (InputAdapter.Pressed(GameKey.Attack)) Activate();
-        }
-
-        /// <summary>Arrows: worn slots cycle, Right leaves them for the grid; in the grid, Left from the first column goes back to them.</summary>
-        void Navigate(int dx, int dy)
-        {
-            confirmDiscard = false;
-            PlayerState p = RpgSession.Player;
-            if (wornSel >= 0)
-            {
-                if (dx > 0) { wornSel = -1; cellSel = page * PageSize; return; }
-                wornSel = (wornSel + dy + dx + Slots.All.Length) % Slots.All.Length;
-                return;
-            }
-            if (dx < 0 && cellSel % GridCols == 0) { wornSel = 0; return; }
-            cellSel = Mathf.Clamp(cellSel + dx + dy * GridCols, 0, CellCount(p) - 1);
-            page = cellSel / PageSize;
-        }
-
-        bool IsDoubleTap(int index)
-        {
-            bool same = index == lastClickIndex && Time.unscaledTime - lastClickTime < DoubleClickSeconds;
-            lastClickIndex = index;
-            lastClickTime = Time.unscaledTime;
-            confirmDiscard = false;
-            return same;
-        }
-
-        void OnCellClick(int cell)
-        {
-            bool twice = IsDoubleTap(cell);
-            wornSel = -1;
-            cellSel = cell;
-            if (twice) Activate(); else Refresh();
-        }
-
-        /// <summary>A worn slot: select it and list what can go in it.</summary>
-        void OnWornClick(int index)
-        {
-            if (Slots.All[index] == Slots.Pet) { PetWindow.Open(); return; } // Pet Companion: its own window
-            bool twice = IsDoubleTap(WornClickBase + index);
-            wornSel = index;
-            SetFilter(Slots.All[index]);
-            if (twice) Activate(); else Refresh();
-        }
-
-        // ---- actions ----
-
-        Item SelectedItem(PlayerState p)
-        {
-            return wornSel >= 0 ? p.GetEquipped(Slots.All[wornSel]) : ItemAtCell(p, cellSel);
-        }
+        // ---- actions (BagActions does the work; here only what this window shows afterwards) ----
 
         /// <summary>Drink a selected potion, equip a bag item, unequip a worn one.</summary>
         void Activate()
         {
             PlayerState p = RpgSession.Player;
             if (p == null) return;
-            Supply kind;
-            if (wornSel < 0 && SupplyAtCell(cellSel, out kind))
+            BagSupply kind;
+            bool worn = model.Worn >= 0;
+            if (!worn && model.SupplyAt(model.Cell, out kind))
             {
-                if (IsPotion(kind))
-                {
-                    if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Use, "", PotionCatalog.PackSlot(PotionIsHp(kind), PotionSize(kind))); return; }
-                    Flash(p.UsePotion(PotionIsHp(kind), PotionSize(kind)).Text);
-                }
-                Refresh();
+                if (BagModel.IsPotion(kind)) Show(BagActions.UsePotion(p, kind)); else Refresh();
                 return;
             }
-            Item item = SelectedItem(p);
+            Item item = model.Selected(p);
             if (item == null) return;
-            bool worn = wornSel >= 0;
-            int slotIndex = Mathf.Max(0, Slots.Index(item.slot));
-            if (!worn && p.CanEquip(item) && !p.MeetsLevel(item)) { Flash("Requires level " + EquipLevel.Required(item)); return; } // the server checks too
-            if (NetMode.IsClient)
-            {
-                NetClient.SendInvAction(worn ? InvOp.Unequip : InvOp.Equip, item.uid, (byte)slotIndex);
-                if (!worn && p.CanEquip(item)) wornSel = slotIndex; // the server's reply redraws
-                return;
-            }
-            ActionResult r = worn ? p.Unequip(item.slot) : p.Equip(item);
-            if (r.Ok) { RpgSession.SyncGear(); if (!worn) wornSel = slotIndex; }
-            Flash(r.Ok ? worn ? "Unequipped" : "Equipped " + item.name : r.Text);
-            Refresh();
+            BagResult r = worn ? BagActions.Unequip(p, item) : BagActions.Equip(p, item);
+            if (r.Ok && !worn) model.Worn = Mathf.Max(0, Slots.Index(item.slot)); // online: the server's reply redraws
+            Show(r);
         }
 
         void EnhanceSelected()
         {
             PlayerState p = RpgSession.Player;
-            Item item = p != null ? SelectedItem(p) : null;
-            EnhanceView view = Preview(p, item);
-            if (!view.Can) { Flash(view.Reason); return; }
-            if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Enhance, item.uid, 0); return; }
-            int bandBefore = EnhanceStats.VisualBand(item);
-            EnhanceResult r = EnhanceSystem.Attempt(p, item);
-            if (!r.Ok) Flash("Cannot enhance");
-            else if (r.Success)
-            {
-                Flash("Success! " + EnhanceStats.DisplayName(item) + (EnhanceStats.VisualBand(item) > bandBefore ? "  New look!" : ""));
-                if (p.GetEquipped(item.slot) == item) RpgSession.SyncGear();
-            }
-            else Flash("Failed... stone lost (+" + r.Level + " kept)");
-            Refresh();
+            Show(BagActions.Enhance(p, p != null ? model.Selected(p) : null));
+        }
+
+        /// <summary>Tells the player the outcome and redraws, unless the server will (its reply redraws the open bag).</summary>
+        void Show(BagResult r)
+        {
+            if (r.Message != null) Flash(r.Message);
+            if (!r.Pending) Refresh();
         }
 
         void Flash(string text)

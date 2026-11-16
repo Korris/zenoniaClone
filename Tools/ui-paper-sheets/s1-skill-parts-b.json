@@ -1,0 +1,31 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/s1-skill-training-hall/s1-skill-parts-b-chatgpt-1.png",
+ "note": "the three magazine slots share one 160x160 canvas; magazine-slot-plate is the white window of the hollow frame. select-brackets-gold and laurel-pair-gold are several separate parts cut by box",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "solid_alpha": 120,
+ "hard_glow_yellow": true,
+ "box_hides_blobs": true,
+ "out": "Assets/Resources/Sprites/ui/paper/skill",
+ "rows": [
+  [{"name": "magazine-slot-empty", "width": 160, "height": 160},
+   {"name": "magazine-slot-frame", "width": 160, "height": 160, "hole": "magazine-slot-plate"},
+   {"name": "magazine-slot-assign", "width": 160, "height": 160, "hard_edge": 2},
+   {"name": "magazine-number-tab", "width": 96},
+   {"name": "select-brackets-gold", "box": [1218, 100, 1482, 342], "border": [100, 100, 100, 100]}],
+  [{"name": "rank-pill-dark", "height": 56, "border": [30, 0, 30, 0]},
+   {"name": "ribbon-max-purple", "width": 240},
+   {"name": "laurel-pair-gold", "box": [600, 436, 900, 634], "width": 256},
+   {"name": "assign-hint-banner", "height": 72, "border": [30, 0, 60, 0]},
+   {"name": "arrow-down-yellow", "width": 80}],
+  [{"name": "icon-sp-orb", "height": 72},
+   {"name": "icon-cooldown-hourglass", "height": 72},
+   {"name": "icon-respec", "height": 72},
+   {"name": "icon-assign-swap", "height": 72},
+   {"name": "icon-rank-up", "height": 72},
+   {"name": "icon-warning", "height": 72},
+   {"name": "icon-tab-basic", "height": 72},
+   {"name": "icon-tab-advanced", "height": 72}]
+ ]
+}

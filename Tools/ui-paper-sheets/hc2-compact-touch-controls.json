@@ -1,0 +1,24 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/hc2-compact-controls/hc2a-compact-touch-controls-chatgpt-1.png",
+ "note": "compact HUD (hudc): the four skill slots share one 176x176 canvas; skill-slot-dim is the white window of skill-slot-ring (icon mask + cooldown tint); joy-ring is a solid dark disc, code sets its alpha",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "solid_alpha": 120,
+ "hard_glow_yellow": true,
+ "out": "Assets/Resources/Sprites/ui/paper/hudc",
+ "rows": [
+  [{"name": "joy-ring", "width": 288, "height": 288},
+   {"name": "joy-knob", "width": 120, "height": 120},
+   {"name": "attack-btn", "width": 256, "height": 256},
+   {"name": "attack-btn-pressed", "width": 256, "height": 256}],
+  [{"name": "skill-slot-ring", "width": 176, "height": 176, "hole": "skill-slot-dim"},
+   {"name": "skill-slot-ring-pressed", "width": 176, "height": 176},
+   {"name": "skill-slot-empty", "width": 176, "height": 176},
+   {"name": "skill-slot-locked", "width": 176, "height": 176}],
+  [{"name": "dash-btn", "width": 144, "height": 144},
+   {"name": "dash-btn-pressed", "width": 144, "height": 144},
+   {"name": "potion-ring", "width": 128, "height": 128},
+   {"name": "potion-ring-empty", "width": 128, "height": 128}]
+ ]
+}

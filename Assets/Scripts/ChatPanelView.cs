@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,20 +9,20 @@ namespace ZenoniaProto
     /// The open chat panel: gold frame, World / Map / Party / Whisper tabs, close X, the last lines, the input field (+ Send button on mobile).
     /// Mobile: below the status plate on the left, ~38 % of a 16:9 screen wide. Web: bottom-left, semi-transparent, "Press Enter to chat".
     /// </summary>
-    public sealed class ChatPanelView
+    public sealed class ChatPanelView : ChatPanel
     {
         public static readonly ChatChannel[] Tabs = { ChatChannel.World, ChatChannel.Map, ChatChannel.Party, ChatChannel.Whisper };
 
-        public RectTransform root, field;
-        public Text lines, placeholder;
-        public InputField input;
+        public Text lines;
         public int maxLines;
+        ChatChannel tab = ChatChannel.World;
+        Action changed;
         readonly Image[] tabImages = new Image[4];
         readonly Text[] tabLabels = new Text[4];
 
-        public static ChatPanelView Build(Transform layer, bool web, Action<int> selectTab, Action close, Action send)
+        public static ChatPanelView Build(Transform layer, bool web, Action changed, Action close, Action send)
         {
-            var v = new ChatPanelView();
+            var v = new ChatPanelView { changed = changed };
             float w = web ? 336f : 440f, h = web ? 166f : 276f, pad = web ? 12f : 16f, tabH = web ? 26f : 32f, inputH = web ? 30f : 38f;
             int font = web ? 14 : 16;
             v.maxLines = web ? 4 : 8;
@@ -35,7 +36,7 @@ namespace ZenoniaProto
                 int index = i;
                 RectTransform t = UiKit.Rect(v.root, "Tab" + Tabs[i], pad + i * tabW, pad - 2f, tabW - 2f, tabH);
                 v.tabImages[i] = UiWinKit.Plain(t, "tab-inactive"); v.tabImages[i].preserveAspect = false;
-                UiWinKit.MakeButton(v.tabImages[i], () => selectTab(index));
+                UiWinKit.MakeButton(v.tabImages[i], () => v.SelectTab(index));
                 v.tabLabels[i] = UiKit.Label(UiKit.Fill(t, "Label"), Tabs[i].ToString(), font - 1, UiWinKit.Dim, TextAnchor.MiddleCenter, true);
             }
             UiWinKit.CloseButton(v.root, w - pad - closeSize + 2f, pad, closeSize, close);
@@ -66,10 +67,25 @@ namespace ZenoniaProto
                 RectTransform sendRt = UiKit.Rect(v.root, "Send", w - pad - sendW, inputTop, sendW, inputH);
                 UiWinKit.MakeButton(UiWinKit.Plain(sendRt, "send"), send).GetComponent<Image>().preserveAspect = false;
             }
+            v.ShowTab(0);
             return v;
         }
 
-        public void ShowTab(int selected)
+        /// <summary>A line goes out on the open tab (the World tab sends to World).</summary>
+        public override ChatChannel SendChannel { get { return tab; } }
+
+        public override void NextChannel() { SelectTab((Array.IndexOf(Tabs, tab) + 1) % Tabs.Length); }
+
+        public override void Refresh(IList<ChatMessage> history) { lines.text = ChatTextFormat.Build(history, tab, maxLines); }
+
+        void SelectTab(int i)
+        {
+            tab = Tabs[i];
+            ShowTab(i);
+            changed();
+        }
+
+        void ShowTab(int selected)
         {
             for (int k = 0; k < Tabs.Length; k++)
             {

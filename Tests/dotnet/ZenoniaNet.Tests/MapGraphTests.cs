@@ -18,6 +18,15 @@ public class MapGraphTests
         finally { MapRegistry.ResetState(); }
     }
 
+    /// <summary>MapPortals.TryFind with `mapId` current: it reads the map height from MapRegistry.Current, so asking with another map current
+    /// looks at the wrong rows (this check passed for Oakhaven's south gate while the game bounced the hero back, 16/11/2026).</summary>
+    static bool OnTrigger(string mapId, float x, float y)
+    {
+        MapPortal found;
+        try { MapRegistry.UseZoneMap(MapRegistry.Get(mapId)); return MapPortals.TryFind(MapRegistry.Get(mapId).PortalsFor(true), x, y, out found); }
+        finally { MapRegistry.ResetState(); }
+    }
+
     public static IEnumerable<object[]> AllPortals()
     {
         foreach (IGameMap map in MapRegistry.All)
@@ -67,11 +76,11 @@ public class MapGraphTests
         MapPortal found;
         foreach (IGameMap map in MapRegistry.All)
         {
-            Assert.False(MapPortals.TryFind(map.PortalsFor(true), map.PlayerStart.x, map.PlayerStart.y, out found), map.Id + " starts on a portal");
+            Assert.False(OnTrigger(map.Id, map.PlayerStart.x, map.PlayerStart.y), map.Id + " starts on a portal");
             foreach (MapPortal p in map.PortalsFor(true))
             {
                 Vector2 feet = FeetOn(p.TargetMapId, p.TargetTx, p.TargetTy);
-                Assert.False(MapPortals.TryFind(MapRegistry.Get(p.TargetMapId).PortalsFor(true), feet.x, feet.y, out found), map.Id + " -> " + p.TargetMapId + " arrives on a portal");
+                Assert.False(OnTrigger(p.TargetMapId, feet.x, feet.y), map.Id + " -> " + p.TargetMapId + " arrives within reach of a portal (" + p.TargetTx + "," + p.TargetTy + ")");
             }
         }
     }

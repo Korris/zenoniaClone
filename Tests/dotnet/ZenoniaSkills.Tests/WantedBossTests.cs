@@ -59,6 +59,41 @@ public class WantedBossTests
     }
 
     [Fact]
+    public void ScheduleIsYesterdayTodayTomorrowOfTheRotation()
+    {
+        long t = Utc(2026, 11, 16, 12, 0, 0);
+        WantedBossDef[] s = WantedBoss.Schedule(t);
+        Assert.Equal(3, s.Length);
+        Assert.Same(WantedBoss.Today(t - WantedBoss.DayMs), s[0]);
+        Assert.Same(WantedBoss.Today(t), s[1]);
+        Assert.Same(WantedBoss.Today(t + WantedBoss.DayMs), s[2]);
+        Assert.Equal(3, new System.Collections.Generic.HashSet<string> { s[0].BossType, s[1].BossType, s[2].BossType }.Count);
+        // The board changes with the day, not before: one ms before 05:00 UTC+7 is still the old triple, and each poster then moves one place to the left.
+        WantedBossDef[] late = WantedBoss.Schedule(Utc(2026, 11, 16, 21, 59, 59, 999)), next = WantedBoss.Schedule(Utc(2026, 11, 16, 22, 0, 0));
+        Assert.Equal(s, late);
+        Assert.Same(s[1], next[0]);
+        Assert.Same(s[2], next[1]);
+        // The client asks with the server's day key and gets the same answer.
+        Assert.Equal(s, WantedBoss.ScheduleFor(WantedBoss.DayKey(t)));
+        Assert.Equal(3, WantedBoss.ScheduleFor(0).Length); // key 0 and below still index the rotation
+        Assert.NotNull(WantedBoss.ScheduleFor(0)[0]);
+    }
+
+    [Fact]
+    public void APinnedBossFillsTheWholeSchedule()
+    {
+        long t = Utc(2026, 11, 16, 12, 0, 0);
+        try
+        {
+            WantedBoss.Override = "mireHydraQueen";
+            foreach (WantedBossDef d in WantedBoss.Schedule(t)) Assert.Equal("mireHydraQueen", d.BossType);
+            WantedBoss.Override = "notABoss"; // ignored, like Today
+            Assert.Same(WantedBoss.For(WantedBoss.DayKey(t)), WantedBoss.Schedule(t)[1]);
+        }
+        finally { WantedBoss.Override = null; }
+    }
+
+    [Fact]
     public void ClaimAddsTheExactRewardOnce()
     {
         PlayerState p = Hero();

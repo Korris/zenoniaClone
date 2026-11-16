@@ -62,7 +62,8 @@ namespace ZenoniaProto
             else if (dashLeft > 0f)
             {
                 anim = "walk"; // the walk at dash speed, with afterimages behind (HeroDashTrail); no dash sheet
-                frame = Mathf.FloorToInt(animTimer / 55f) % Mathf.Max(1, view.FrameCount(anim, facing));
+                int n = Mathf.Max(1, view.FrameCount(anim, facing));
+                frame = Mathf.FloorToInt(animTimer / (220f / n)) % n; // one cycle per 220 ms whatever the sheet's frame count (was 4 frames x 55 ms)
             }
             else if (spinLeftMs > 0f)
             {

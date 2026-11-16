@@ -1,0 +1,12 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/k3b-purple-pieces/k3b-purple-slot-card-chatgpt-2.png",
+ "note": "second request: slot and card redrawn in the K3a shapes (first ones had cream corner pieces / a thick gold rim)",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/kit",
+ "rows": [
+  [{"name": "slot-item-heroic", "width": 160, "height": 162},
+   {"name": "card-item-heroic", "width": 224, "height": 287}]
+ ]
+}

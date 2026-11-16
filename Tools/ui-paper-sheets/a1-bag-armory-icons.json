@@ -1,0 +1,87 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/a1-bag-armory/a1-bag-icons-chatgpt-1.png",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/bag",
+ "rows": [
+  [
+   {
+    "name": "icon-filter-all",
+    "height": 64
+   },
+   {
+    "name": "icon-filter-weapon",
+    "height": 64
+   },
+   {
+    "name": "icon-filter-shield",
+    "height": 64
+   },
+   {
+    "name": "icon-filter-armor",
+    "height": 64
+   },
+   {
+    "name": "icon-filter-gloves",
+    "height": 64
+   },
+   {
+    "name": "icon-filter-boots",
+    "height": 64
+   }
+  ],
+  [
+   {
+    "name": "icon-filter-necklace",
+    "height": 64
+   },
+   {
+    "name": "icon-filter-pet",
+    "height": 64
+   },
+   {
+    "name": "icon-filter-consumable",
+    "height": 64
+   },
+   {
+    "name": "icon-filter-material",
+    "height": 64
+   },
+   {
+    "name": "icon-stat-hp",
+    "height": 64
+   },
+   {
+    "name": "icon-stat-mp",
+    "height": 64
+   }
+  ],
+  [
+   {
+    "name": "icon-stat-atk",
+    "height": 64
+   },
+   {
+    "name": "icon-stat-def",
+    "height": 64
+   },
+   {
+    "name": "icon-stat-matk",
+    "height": 64
+   },
+   {
+    "name": "icon-stat-mdef",
+    "height": 64
+   },
+   {
+    "name": "icon-stat-crit",
+    "height": 64
+   },
+   {
+    "name": "icon-stat-spd",
+    "width": 72
+   }
+  ]
+ ]
+}

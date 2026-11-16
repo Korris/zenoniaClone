@@ -29,7 +29,7 @@ namespace ZenoniaProto.EditorTools
             Item sword = ItemFactory.Generate(() => 0.0, 1, "weapon", "common", "warrior");
             expect(sword.uid == "sword-0" && sword.stats.atk == 4 && sword.name == "Sword" && sword.classId == "warrior", "rpg: generateItem(0) = web sword-0");
             Item gloves = ItemFactory.Generate(() => 0.5, 5, "gloves", "rare", "mechanic");
-            expect(gloves.templateId == "leatherGloves" && gloves.stats.atk == 4 && Math.Abs(gloves.stats.critChance - 0.084f) < 1e-5f && gloves.name == "Superior Cloth Gloves", "rpg: gloves stats / name parity");
+            expect(gloves.templateId == "leatherGloves" && gloves.stats.atk == 4 && Math.Abs(gloves.stats.critChance - 0.02f) < 1e-5f && gloves.name == "Superior Cloth Gloves", "rpg: gloves stats / name parity");
             var a = new SeededRng(7); var b = new SeededRng(7);
             expect(ItemFactory.Generate(a.AsRand(), 3).uid == ItemFactory.Generate(b.AsRand(), 3).uid, "rpg: seeded generation deterministic");
 

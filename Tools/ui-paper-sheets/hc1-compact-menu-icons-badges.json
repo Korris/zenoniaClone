@@ -1,0 +1,27 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/hc1-compact-status-menu/hc1b-compact-menu-icons-chatgpt-1.png",
+ "note": "compact HUD (hudc): the two menu plates share one 128x128 canvas; icons are drawn without a plate and laid over it in code",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "solid_alpha": 120,
+ "hard_glow_yellow": true,
+ "out": "Assets/Resources/Sprites/ui/paper/hudc",
+ "rows": [
+  [{"name": "menu-icon-plate", "width": 128, "height": 128},
+   {"name": "menu-icon-plate-pressed", "width": 128, "height": 128, "hard_edge": 2},
+   {"name": "badge-dot-red", "width": 36, "height": 36},
+   {"name": "badge-count-red", "width": 56, "height": 56},
+   {"name": "badge-alert", "width": 56, "height": 56}],
+  [{"name": "menu-icon-bag", "height": 88},
+   {"name": "menu-icon-skill", "height": 88},
+   {"name": "menu-icon-pet", "height": 88},
+   {"name": "menu-icon-quests", "height": 88},
+   {"name": "menu-icon-more", "width": 84},
+   {"name": "menu-icon-gacha", "height": 88}],
+  [{"name": "menu-icon-settings", "height": 88},
+   {"name": "menu-icon-chat", "height": 80},
+   {"name": "wanted-icon-alive", "height": 64},
+   {"name": "wanted-icon-respawn", "height": 64}]
+ ]
+}

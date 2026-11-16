@@ -1,0 +1,33 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/w1-wanted/w1-wanted-parts-b-chatgpt-1.png",
+ "note": "stamp-claimed is the only piece with baked text; *-portrait-plate are the white windows of the hollow portrait rings; the two chat size buttons on this sheet are cut by c1-chat-size-buttons.json",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "close": 2,
+ "box_hides_blobs": true,
+ "out": "Assets/Resources/Sprites/ui/paper/wanted",
+ "rows": [
+  [{"name": "hud-card-hanging", "width": 320, "hole": "hud-card-portrait-plate"},
+   {"name": "banner-login-laurel", "hole": "banner-login-portrait-plate", "border": [190, 0, 60, 0]},
+   {"name": "banner-respawn-blue", "hole": "banner-respawn-portrait-plate", "border": [170, 0, 70, 0]}],
+  [{"name": "banner-area-map-arrow", "border": [150, 0, 120, 0]},
+   {"name": "ribbon-warning-chains"},
+   {"name": "ribbon-bounty-laurel"},
+   {"name": "strip-already-claimed", "border": [110, 0, 40, 0]}],
+  [{"name": "stamp-claimed", "width": 240},
+   {"name": "dodge-line", "width": 200, "height": 96},
+   {"name": "dodge-fan", "width": 200, "height": 96},
+   {"name": "dodge-multi-circle", "width": 200, "height": 96},
+   {"name": "dodge-safe-lane", "width": 200, "height": 96},
+   {"name": "chat-piece", "skip": true}],
+  [{"name": "minimap-skull-alive", "width": 64},
+   {"name": "minimap-skull-respawning", "width": 64},
+   {"name": "icon-alive-skull", "height": 64},
+   {"name": "icon-respawn", "height": 64, "box": [634, 824, 776, 964]},
+   {"name": "icon-clock", "height": 64},
+   {"name": "icon-map-pin", "height": 64},
+   {"name": "icon-chevron-right", "height": 64},
+   {"name": "chat-piece", "skip": true}]
+ ]
+}

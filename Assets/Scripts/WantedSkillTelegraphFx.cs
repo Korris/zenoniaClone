@@ -56,6 +56,21 @@ namespace ZenoniaProto
             return false;
         }
 
+        /// <summary>Ms until the telegraphed `skill` of boss `bossId` strikes, from the same locked instant the warning counts down to (the cast
+        /// bars: BossBarView, Monster.PaperOverheadBar). False when no live warning of that skill exists.</summary>
+        public static bool StrikeIn(string bossId, WantedSkillDef skill, out float remainMs)
+        {
+            for (int i = 0; i < Active.Count; i++)
+            {
+                WantedSkillTelegraphFx a = Active[i];
+                if (a == null || a.firedImpact || a.skill != skill || a.bossId != bossId) continue;
+                remainMs = Mathf.Max(0f, a.atMs - NetClient.ServerNowMs);
+                return true;
+            }
+            remainMs = 0f;
+            return false;
+        }
+
         /// <summary>Destroys every live telegraph (a map change leaves them behind, like every other per-map FX -- sprite-rules.md #10).</summary>
         public static void ClearAll()
         {

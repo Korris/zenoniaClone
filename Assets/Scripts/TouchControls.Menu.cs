@@ -23,7 +23,7 @@ namespace ZenoniaProto
             RectTransform pets = Place(parent, "Pets", tr, -200f, y, size); // Pet Companion window (P); its Gacha button opens the pet gacha (G)
             Img(pets, UiSprites.Circle(), new Color(0.12f, 0.16f, 0.24f, 0.85f), true);
             Img(Place(pets, "Icon", new Vector2(0.5f, 0.5f), 0f, 0f, 38f), PetArt.Icon(PetConfig.All[0]), Color.white);
-            pets.gameObject.AddComponent<TapButton>().onTap = PetWindow.Toggle;
+            pets.gameObject.AddComponent<TapButton>().onTap = () => UiScreens.Toggle(UiScreen.Pet);
 
             RectTransform bag = Place(parent, "Bag", tr, -88f, y, size);
             Img(bag, MenuSprite("hud-bag"), Color.white, true);
@@ -41,7 +41,12 @@ namespace ZenoniaProto
         }
 
         /// <summary>Swipes the skill magazine one page (dir +1 / -1), like a swipe on the cluster (scripted captures, tests).</summary>
-        public static void CycleMagazine(int dir) { if (instance != null && instance.magazine != null) instance.magazine.Cycle(dir); }
+        public static void CycleMagazine(int dir)
+        {
+            if (instance == null) return;
+            if (instance.paper != null && UiScreens.UseNew(UiScreen.Hud)) instance.paper.CyclePage(dir);
+            else if (instance.magazine != null) instance.magazine.Cycle(dir);
+        }
 
         /// <summary>Shows the free skill points on the Bag button badge (hidden at 0).</summary>
         void UpdateSkillBadge(PlayerState p)

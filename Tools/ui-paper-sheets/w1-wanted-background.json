@@ -1,0 +1,8 @@
+{
+ "note": "full-screen village square with the empty wooden board, no UI (16:9, 1672x941): copied as is, no keying. Loaded only while the Wanted Board is open.",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "out": "Assets/Resources/Sprites/ui/paper/wanted",
+ "whole": [
+  {"name": "wanted-square-background", "source": "Assets/ArtLibrary/ui/adventure-paper/w1-wanted/w1-wanted-square-board-background-chatgpt-1.png"}
+ ]
+}

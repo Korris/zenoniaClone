@@ -33,7 +33,7 @@ namespace ZenoniaProto.Rpg
         }
 
         /// <summary>
-        /// One item instance. Stats = round(base * rarityMult * (1 + 0.08 * (itemLevel - 1))). The rand() call order matches the web
+        /// One item instance. Stats = round(base * rarityMult * (1 + 0.08 * (itemLevel - 1))). Crit and move speed are not scaled (ItemDefs.CritFor / BootsSpeed). The rand() call order matches the web
         /// (slot?, template, rarity?, uid) so a seeded RNG produces the same picks.
         /// </summary>
         public static Item Generate(Rand rand, int itemLevel, string slot = null, string forceRarity = null, string classId = "warrior")
@@ -46,7 +46,7 @@ namespace ZenoniaProto.Rpg
             var stats = new ItemStats
             {
                 atk = Scaled(t.Base.atk, scale), def = Scaled(t.Base.def, scale), maxHp = Scaled(t.Base.maxHp, scale), maxMp = Scaled(t.Base.maxMp, scale),
-                critChance = t.Base.critChance > 0f ? RpgMath.Round3(t.Base.critChance * scale) : 0f,
+                critChance = ItemDefs.CritFor(t, itemLevel), // gloves: fixed per tier; off-hand dagger: flat; never scaled
                 speedMult = t.Base.speedMult > 0f ? ItemDefs.BootsSpeed(itemLevel) : 0f, // fixed per tier, never scaled
             };
             string baseName = WeaponNames.BaseName(OffhandClass(classId), chosen, ItemDefs.EquipmentTier(itemLevel))
@@ -116,7 +116,7 @@ namespace ZenoniaProto.Rpg
             {
                 atk = t.Base.atk != 0 ? RpgMath.Clamp(rs.atk, 0, 999) : 0, def = t.Base.def != 0 ? RpgMath.Clamp(rs.def, 0, 999) : 0,
                 maxHp = t.Base.maxHp != 0 ? RpgMath.Clamp(rs.maxHp, 0, 999) : 0, maxMp = t.Base.maxMp != 0 ? RpgMath.Clamp(rs.maxMp, 0, 999) : 0,
-                critChance = t.Base.critChance > 0f ? ClampF(rs.critChance) : 0f, speedMult = t.Base.speedMult > 0f ? ItemDefs.BootsSpeed(RpgMath.Clamp(raw.itemLevel, 1, MaxItemLevel)) : 0f, // rewritten from the tier table: boots saved before 13/11/2026 carried a level-scaled value
+                critChance = ItemDefs.CritFor(t, RpgMath.Clamp(raw.itemLevel, 1, MaxItemLevel)), speedMult = t.Base.speedMult > 0f ? ItemDefs.BootsSpeed(RpgMath.Clamp(raw.itemLevel, 1, MaxItemLevel)) : 0f, // rewritten from the tier table: boots saved before 13/11/2026 carried a level-scaled value; same for crit (gloves, off-hand dagger) saved before 16/11/2026
             };
             var item = new Item
             {
@@ -145,7 +145,5 @@ namespace ZenoniaProto.Rpg
             }
             return item;
         }
-
-        static float ClampF(float v) { return float.IsNaN(v) || float.IsInfinity(v) ? 0f : RpgMath.Round3(Math.Max(0f, Math.Min(999f, v))); }
     }
 }

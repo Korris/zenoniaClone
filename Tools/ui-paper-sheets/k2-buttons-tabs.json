@@ -1,0 +1,28 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/k2-buttons-tabs/k2-buttons-tabs-chatgpt-1.png",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/kit",
+ "rows": [
+  [{"name": "btn-gold", "border": [70, 0, 70, 0]},
+   {"name": "btn-gold-pressed", "border": [70, 0, 70, 0]},
+   {"name": "btn-blue", "border": [70, 0, 70, 0]}],
+  [{"name": "btn-blue-pressed", "border": [70, 0, 70, 0]},
+   {"name": "btn-red", "border": [70, 0, 70, 0]},
+   {"name": "btn-red-pressed", "border": [70, 0, 70, 0]}],
+  [{"name": "btn-grey-disabled", "border": [64, 0, 64, 0]},
+   {"name": "tab-leather-active", "border": [80, 0, 80, 0]},
+   {"name": "tab-leather-inactive", "border": [80, 0, 80, 0]},
+   {"name": "dropdown-paper", "border": [30, 0, 90, 0]}],
+  [{"name": "menu-plank-active", "border": [70, 0, 70, 0]},
+   {"name": "menu-plank-inactive", "border": [70, 0, 70, 0]},
+   {"name": "chip-filter-active", "border": [52, 0, 52, 0]},
+   {"name": "chip-filter-inactive", "border": [52, 0, 52, 0]}],
+  [{"name": "btn-arrow-left", "width": 100},
+   {"name": "btn-arrow-right", "width": 100},
+   {"name": "btn-plus-gold", "width": 72},
+   {"name": "page-dot-gold", "width": 40},
+   {"name": "page-dot-dark", "width": 40}]
+ ]
+}

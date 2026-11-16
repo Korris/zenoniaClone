@@ -8,15 +8,25 @@ namespace ZenoniaProto
     /// UGUI player HUD (top-left): round portrait of the current hero, level, HP / MP bars with the numbers at the right, a thin EXP bar, the icons of the buffs on the hero
     /// (HudBuffRow); a "LEVEL UP" banner and a one-line toast for pickups / warnings. Texts are rebuilt only when their value
     /// changes. The IMGUI Hud draws the rest (skill, FPS, help).
+    /// With UiScreens.UseNew(UiScreen.Hud) the block is replaced by the compact status (PlayerStatusBadge) and LEVEL UP is the gold word in
+    /// the middle of the screen (LevelUpWordmark); the switch is read every frame, so capture flags and a later settings toggle both work. The
+    /// new HUD lives in one safe-area root ("PaperHud") created here, which also holds the boss bar (BossBarView, its own switch UiScreen.Boss).
     /// </summary>
     public class RpgHud : MonoBehaviour
     {
-        /// <summary>Height of the HUD block in UI units: the IMGUI Hud starts below it.</summary>
-        public const float BlockHeight = 126f;
+        const float OldBlockHeight = 126f;
+        /// <summary>Height of the HUD block in UI units: the IMGUI debug Hud and the mobile chat panel start below it.</summary>
+        public static float BlockHeight { get { return UiScreens.UseNew(UiScreen.Hud) ? PlayerStatusBadge.Bottom : OldBlockHeight; } }
+        /// <summary>Top-centre notice area of the new HUD, units below the top of the safe area: under the boss bar when one shows (the PC
+        /// toast pill and the Wanted banners start here).</summary>
+        public static float ToastTop { get { return Mathf.Max(46f, BossBarView.Bottom + 6f); } }
         const float BannerSeconds = 2.4f;
         static RpgHud instance;
 
         RectTransform block, banner;
+        PaperLayout paper;
+        PlayerStatusBadge badge;
+        LevelUpWordmark wordmark;
         Text title, bannerTitle, bannerSub, hpValue, mpValue;
         UiKit.Bar hpBar, mpBar, expBar;
         Image face;
@@ -39,7 +49,7 @@ namespace ZenoniaProto
 
         void Build(Transform canvas)
         {
-            block = UiKit.Rect(canvas, "HudBlock", 8f, 6f, 304f, BlockHeight);
+            block = UiKit.Rect(canvas, "HudBlock", 8f, 6f, 304f, OldBlockHeight);
             UiKit.Panel(UiKit.Rect(block, "Back", 40f, 3f, 262f, 67f), new Color(0.03f, 0.05f, 0.1f, 0.68f));
 
             // Portrait: gold ring, dark inner disc, the face masked to a circle.
@@ -61,6 +71,8 @@ namespace ZenoniaProto
             mpValue = BarTexts(mpBar, "MP");
             expBar = new UiKit.Bar(block, "Exp", 82f, 61f, 214f, 6f, new Color(0.96f, 0.64f, 0.14f), 0);
             buffRow = new HudBuffRow(block, 82f, 73f);
+            paper = PaperLayout.CreateSafeArea(canvas, "PaperHud"); // here in the sibling order: under the touch layer and every window
+            BossBarView.Create(paper.Safe);
 
             banner = UiKit.Rect(canvas, "LevelUp", 0f, -150f, 420f, 90f, true);
             bannerGroup = banner.gameObject.AddComponent<CanvasGroup>();
@@ -69,6 +81,7 @@ namespace ZenoniaProto
             bannerSub = UiKit.Label(banner, "Sub", 0f, 52f, 420f, 30f, "", 18, Color.white, TextAnchor.MiddleCenter, true);
             banner.gameObject.SetActive(false);
             NotificationToast.Create(canvas); // top-centre banner for Toast(...)
+            WantedHud.Create(canvas);          // phase 11: Wanted card, notices and guide (only shown with the HUD switch on, online)
             MapNameBanner.Create(canvas);      // the area title each time the hero enters a map
         }
 
@@ -80,7 +93,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>The class's portrait from Resources/Sprites/ui/faces; null when the art is missing (the dark disc shows).</summary>
-        static Sprite FaceOf(HeroClassDef cls)
+        internal static Sprite FaceOf(HeroClassDef cls)
         {
             Texture2D tex = Resources.Load<Texture2D>("Sprites/ui/faces/" + RpgSession.ClassId(cls.Id));
             return tex != null ? Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f) : null;
@@ -94,17 +107,35 @@ namespace ZenoniaProto
 
         public static void LevelUp(int level)
         {
-            if (instance == null) return;
-            instance.bannerSub.text = "Level " + level + "  -  HP / MP restored, +1 skill point [T]";
-            instance.bannerLeft = BannerSeconds;
-            instance.banner.gameObject.SetActive(true);
+            if (instance != null) instance.ShowLevelUp(level);
+        }
+
+        void ShowLevelUp(int level)
+        {
+            // the look may have been switched since the last one: never both
+            bannerLeft = 0f;
+            banner.gameObject.SetActive(false);
+            if (wordmark != null) wordmark.Hide();
+            if (UiScreens.UseNew(UiScreen.Hud))
+            {
+                // only the word: no level number, no "+1 skill point" line (user, 16/11/2026)
+                if (wordmark == null) wordmark = new LevelUpWordmark(paper.Safe);
+                wordmark.Show();
+                return;
+            }
+            bannerSub.text = "Level " + level; // no "+1 skill point" text (user, 16/11/2026)
+            bannerLeft = BannerSeconds;
+            banner.gameObject.SetActive(true);
         }
 
         void Update()
         {
             HeroController hero = GameSession.Hero;
             PlayerState p = hero != null ? hero.Rpg : null;
-            block.gameObject.SetActive(p != null);
+            bool useNew = UiScreens.UseNew(UiScreen.Hud);
+            block.gameObject.SetActive(p != null && !useNew);
+            if (useNew && p != null && badge == null) badge = new PlayerStatusBadge(paper.Safe);
+            if (badge != null) badge.SetActive(useNew && p != null);
             float dt = Time.unscaledDeltaTime;
             if (bannerLeft > 0f)
             {
@@ -115,7 +146,10 @@ namespace ZenoniaProto
                 bannerGroup.alpha = Mathf.Clamp01(bannerLeft / 0.6f);
                 if (bannerLeft <= 0f) banner.gameObject.SetActive(false);
             }
-            if (p != null) { Refresh(hero, p); DevBuffKey.Tick(hero); }
+            if (wordmark != null && wordmark.Showing) wordmark.Tick(dt);
+            if (p == null) return;
+            if (useNew) badge.Refresh(hero, p, dt); else Refresh(hero, p);
+            DevBuffKey.Tick(hero);
         }
 
         void Refresh(HeroController hero, PlayerState p)

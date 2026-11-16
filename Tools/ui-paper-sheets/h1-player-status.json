@@ -1,0 +1,19 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/h1-player-status/h1-player-status-chatgpt-1a.png",
+ "note": "ChatGPT gave two variants; 1a is closer to the Hero Crest of hud-player-status.png. Its navy plate does not fit the crest window, so the plate is cut from the window itself (hole).",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/paper/hud",
+ "rows": [
+  [{"name": "crest-frame", "height": 256, "hole": "crest-portrait-plate"},
+   {"name": "crest-plate-navy-unfit", "skip": true},
+   {"name": "crest-frame-low-hp", "height": 256},
+   {"name": "crest-shield-overlay", "height": 256}],
+  [{"name": "level-tag-leather", "width": 200, "border": [50, 0, 50, 0]},
+   {"name": "buff-slot", "width": 64},
+   {"name": "ribbon-level-up", "width": 360},
+   {"name": "toast-strip", "border": [50, 0, 50, 0]},
+   {"name": "icon-capture-ball-rare", "height": 64, "skip": true}]
+ ]
+}
