@@ -56,3 +56,21 @@ Lượng người chơi còn ít thì đừng đặt nhiều lịch giờ cố �
 ## Gợi ý kỹ thuật của ChatGPT
 
 Làm một khung nhiệm vụ / sự kiện đọc từ cấu hình thay vì code riêng từng cái: các loại điều kiện `kill_monster`, `kill_boss`, `collect_item`, `complete_party_quest`, `survive_waves`, kèm điều kiện thời gian, giới hạn theo tài khoản và phần thưởng. Server ghi nhận sự kiện gameplay (quái chết, boss chết, nhặt đồ, party xong) → bộ xử lý tiến độ → tiến độ theo nhân vật / tài khoản / toàn server → phát thưởng có chống nhận trùng. Vì server chia zone, tiến độ cộng đồng phải ghi tập trung và mỗi lần phát thưởng có mã duy nhất (đổi zone, kết nối lại không nhận hai lần).
+
+## Hỏi lại 17/11/2026 (sau khi có Wanted Boss, pet + gacha, Auto, Lv 90)
+
+Cùng chat ChatGPT ở trên (tài khoản Tay). Đã kể lại: 5 class, cây 8 skill, Lv 90, đồ T0-T9, cường hoá, vũ khí phụ, 5 nhân vật / tài khoản, tóc, World Map 2.1 (~12 map, boss mỗi map), quest NPC, shop, online MMO, chat, party, trade, Boss Truy Nã, pet (gacha Lumi, bắt pet, trại pet), Auto battle, UI giấy. Chưa có: guild, PvP, phó bản, xếp hạng, nhiệm vụ ngày, sự kiện giờ, chế tạo, đấu giá, danh hiệu, ngoại trang.
+
+Ý chính của ChatGPT: Auto đã lo phần cày, nội dung mới phải cho lý do tự điều khiển nhân vật; làm endgame loop cho Lv 60-90; khoảng 60 % nội dung cho Auto / thụ động, 40 % chơi chủ động. Đồ mạnh không độc quyền cho đánh tay; đánh tay chỉ nhanh hơn hoặc có đồ khoe. Thưởng phải đổ vào đường cường hoá sẵn có, đừng thêm 5-6 loại đá mới.
+
+| # | Hoạt động | Luật chính | Auto | Thưởng → tiêu vào | Độ khó |
+|---|---|---|---|---|---|
+| 1 | Adventure Board (nhiệm vụ ngày + tuần) | 3 hợp đồng / ngày theo khoảng cấp (30-50 quái, 1 boss map, 1 mục tiêu party / pet / nhặt), đổi 1 lần / ngày miễn phí; 5 mốc tuần; 15-25 phút | Được | EXP (theo nhân vật), ít vàng, Adventure Token (theo tài khoản, không trade) → đá cường hoá giới hạn tuần, thuốc, đồ nuôi pet | Dễ, làm ngay |
+| 2 | Elite Hunt (boss tuần) | Mỗi tuần 1 Wanted boss có sẵn + 2 cơ chế (vùng cần né, gọi quái phụ), Normal / Hard / Nightmare, solo hoặc party 2-5 (HP theo số người), thưởng lần đầu mỗi mức / tuần | Chỉ Normal | Elite Seal, đá giới hạn, rương vật liệu → nguyên liệu cường hoá phụ, sau này skin vũ khí | Vừa |
+| 3 | Trial Tower | 10 tầng trong 1 đấu trường, 2-3 đợt quái / tầng, boss tầng 5 và 10; reset thưởng tuần, lưu tầng cao nhất; có thể chia 3 nhóm cấp 30-49 / 50-69 / 70-90 | Tầng 1-3 | Tower Coin (mốc tầng, lần đầu, không chết) → thuốc, đồ pet, trang trí, đá giới hạn tuần | Vừa-khó |
+| 4 | Pet Expedition | Gửi 1-3 pet không dùng đi 2 / 6 / 12 giờ, chạy cả khi offline, tối đa 2 chuyến / ngày; hợp loại pet thì thêm thưởng | Thụ động | Pet Food, đồ chăm pet, mảnh pet → cần có chỗ tiêu ở trại pet TRƯỚC khi mở | Vừa |
+| 5 | World Boss Rally | Báo trước 10 phút, cả server đánh, 2-3 đòn diện rộng + quái phụ, 2-3 khung giờ / ngày, thưởng lớn 1 lần / ngày; tính đóng góp hợp lệ, không chỉ theo sát thương | Đánh thường được, né phải tay | World Boss Token → nguyên liệu giới hạn, danh hiệu / ngoại trang | Vừa-khó; chỉ làm khi server đủ đông |
+
+Chưa nên làm: guild (chưa có hoạt động chung), PvP (cân bằng 5 class + pet + +15 + Auto), đấu giá (rối kinh tế, nuôi bot), chế tạo, phó bản nhiều map, battle pass trả phí, hệ danh hiệu lớn (chỉ vài danh hiệu từ Elite / Tower).
+
+Thứ tự ChatGPT chốt: Adventure Board → Elite Hunt → Trial Tower → Pet Expedition → World Boss (khi đông người). Chỉ cần 3 cái đầu là đủ ba vòng: ngày (Auto có mục tiêu), tuần (boss khó), endgame Lv 90 (vượt tầng, thử build).

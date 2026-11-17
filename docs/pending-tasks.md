@@ -1,5 +1,46 @@
 # Việc đang dở
 
+### 18/11 01:45: người dùng bảo commit + push (mọi thứ 17-18/11 bên dưới đã commit). Đang cân: sprite 8 hướng (chéo) như mockup RO thay 4 hướng; chưa hỏi ChatGPT, chưa làm.
+
+### 18/11 01:20: 5 class thiết kế lại từ đầu theo RO Soft Fantasy (concept v1, CHỜ người dùng duyệt)
+- `docs/reference/ro-soft-fantasy-5-class-redesign/` (README). Nếu duyệt: mỗi class cần bộ sprite mới (idle / walk / attack 4 hướng, đầu tách + tóc nhuộm, 10 bậc đồ, vũ khí overlay) theo `docs/sprite-rules.md`.
+
+### 18/11 01:30: Warrior T0 idle xuống A / B / C (xong ảnh so, CHỜ người dùng chọn)
+- `docs/reference/warrior-soft-action-chibi-test/` (README). Chưa cài gì vào game.
+
+### 18/11 01:00: ChatGPT: KHÔNG vẽ lại nhân vật, chỉ làm mềm màu / nét ("Soft Action Chibi"), thử 1 Warrior T0 A/B/C trước. CHỜ người dùng. Chi tiết cuối `docs/reference/ui-style-ro-soft-fantasy/README.md`.
+
+### 18/11 00:55: ChatGPT chọn RO Soft Fantasy (menu sáng + HUD chiến đấu nền xanh đen mờ), CHỜ người dùng chốt style
+- Lý do ở cuối `docs/reference/ui-style-ro-soft-fantasy/README.md`.
+- Boss to x2: thêm cờ test `--wanted-render-scale` (`NetLaunchArgs.cs`, `MonsterDef.ApplyWantedRenderScale`, chỉ phóng hình, hitbox / tầm đánh giữ nguyên). Bản chạy `D:/temp/player-261118-boss2x` (camera 208). Nếu chốt: đổi `MonsterDef.WantedRenderScale` 2.5 → 5.0 và nhân WantedHitW / WantedHitH / WantedAttackRange theo. CHƯA commit.
+
+### 18/11 00:35: cỡ nhân vật / camera (ChatGPT: heroScale 1.0 + camera 192, CHỜ người dùng thử)
+- Chi tiết ở cuối `docs/reference/ui-style-ro-soft-fantasy/README.md`. File thử cạnh bản build `D:/temp/player-261117-menu/dev-start-camera-192.json`, `-208.json`. Nếu chốt: sửa `GameConfig.ViewHeightUnits` 160 → 192, `dev-start.json` heroScale 1.0, và `CameraWheelZoom` (hiện không cho nhìn rộng hơn mặc định) cho zoom gần về 160.
+
+### 18/11 00:25: ảnh 40 người đánh Mire Hydra Queen + bản vẽ lại RO Soft Fantasy (xong, chờ người dùng xem)
+- Ảnh: `docs/reference/ui-style-ro-soft-fantasy/wanted-boss/` (ingame-40-players-* và 6-40-players-*). `Tools/wanted-boss-crowd-playtest.ps1` thêm điểm đứng cho `-Boss mireHydraQueen` (ô 30,14 Sunken Reliquary).
+- Máy này chỉ có .NET SDK 9: ZenoniaSwarm (net10.0) không build; đã chạy bằng bản sao project net9 trong scratchpad. `dotnet test` cũng sẽ cần SDK 10.
+- LỖI thấy trong ảnh: thanh máu boss nhảy lúc 46,530,000 (94 %), lúc 65,535 / 49,500,000 (0,1 %) ENRAGED: HP trong sự kiện trúng đòn là ushort (đã ghi trong comment script, x150 HP vượt 65535). Chưa sửa.
+
+### 18/11 00:15: vẽ lại 3 Wanted Boss theo kiểu boss trong mockup Bảng Truy Nã RO Soft Fantasy (người dùng thích hơn boss hiện tại)
+- Concept đúng ý: `docs/reference/ui-style-ro-soft-fantasy/wanted-boss/5-wanted-boss-board-style.png`. CHỜ người dùng: có làm sprite sheet (đi / đánh / cast 4 hướng) thay boss trong game không. Làm sprite phải đọc `docs/sprite-rules.md` trước.
+
+### 17/11 23:50: số sát thương / crit mới (ChatGPT tự thiết kế "Blade Impact", CHỜ người dùng xem, chưa code)
+- `docs/reference/damage-numbers-261117/` (README). Người dùng nhắc: thiết kế mới thì để ChatGPT tự vẽ theo ý nó, KHÔNG ra sẵn hướng / danh sách cho nó.
+
+### 17/11 23:10: thử style UI mới "RO Soft Fantasy" (CHỜ người dùng chọn giữa Adventure Paper và RO Soft Fantasy)
+- Người dùng: "thử kêu nó design 1 style hoàn toàn mới ... nhìn clean như ragnarok midgard senki". ChatGPT (cùng chat, Tay) vẽ style board + 12 màn. Ảnh và quy tắc: `docs/reference/ui-style-ro-soft-fantasy/` (README, `tong-hop-ro-soft-fantasy.jpg`, `so-sanh-3-style/`). Duel vẫn tạm dừng.
+
+### 17/11 19:05: Duel / PK ở khu vực riêng (ChatGPT đã thiết kế, CHỜ người dùng duyệt, chưa code)
+- Người dùng: "nên có chức năng duel hoặc PK, khi PK hay duel nên đẩy vào 1 khu vực khác map đang có, kêu chatgpt design". Cùng chat ý tưởng sự kiện (Tay). Thiết kế: `docs/duel-pk-design.md`, ảnh `docs/reference/duel-pk/`. Chốt V1: Duel 1v1 đồng ý, instance 20×14 riêng, chuẩn hoá Lv90, sát thương ×0,35, 120 s, không thuốc / Auto, có pet, không thưởng.
+- 19:00 người dùng: "hỏi chatgpt làm thế nào thì làm vậy" → đã bắt đầu đọc code (chưa sửa gì). Phát hiện: Boss Truy Nã KHÔNG có instance riêng (đứng trên map chung), mình đã kể sai cho ChatGPT; zone hiện là 1 zone / map (`ZoneHost`), nên Duel phải thêm zone tạm tạo động. Combat chỉ nhắm `Monster.All` (~10 chỗ gây sát thương: `HeroController.Combat`, `ComboProjectile`, `SkillDamage(.Area)`, `SkillBolt`, `DeployedTurret`, pet, `VenomDaggersFx`, `DeathMarkFx`, `SkillChoreo`, DoT) → cần thêm đường đánh hero. Mẫu luồng mời: `TradeBook` / `TradeService` / `NetClient.Trade`.
+- 19:30 người dùng: menu đã đổi sang Adventure Paper, không còn navy, và "muốn chỉnh lại toàn bộ UI + menu, chụp tất cả các menu". Đã chụp 29 màn + gửi ChatGPT, có style guide, kế hoạch từng màn và 2 mockup (Player Card + lời mời Duel, cửa sổ Trade): `docs/ui-overhaul-plan.md`, ảnh `docs/reference/ui-all-menus-261117/`. CHỜ người dùng duyệt thứ tự làm.
+- 19:50 người dùng: "khoan làm duel ... kêu nó vẽ hết luôn cho những chỗ đó cho đồng design sau đó gom vào 1 folder". Đã có 12 mockup Adventure Paper cho mọi màn còn navy (`docs/reference/ui-all-menus-261117/2-mockup-moi/`, so sánh `3-so-sanh-cu-moi/`, README trong folder). Duel TẠM DỪNG. CHỜ người dùng xem và duyệt mockup.
+- 19:10 người dùng hỏi cách mở menu + muốn ChatGPT tối ưu UX party / duel / trade: ảnh hiện tại + đề xuất ở `docs/social-interaction-ux.md` (Player Card 6 nút, bảng mời chung, Nearby, Pending chung, Social Settings).
+
+### 17/11 18:40: hỏi ChatGPT nên làm thêm hoạt động gì (CHỜ người dùng chọn, chưa code)
+- Chat ý tưởng sự kiện cũ (tài khoản Tay) https://chatgpt.com/c/6af57fff-c4f8-83ec-8f05-0c4eb76c4cde. Kết quả ghi ở `docs/online-events-ideas.md` mục "Hỏi lại 17/11/2026": Adventure Board → Elite Hunt → Trial Tower → Pet Expedition → World Boss.
+
 ### 17/11 15:37: danh sách party trên HUD (đã làm V4, commit 17/11 ~17:45)
 - Người dùng: "kêu chatgpt design cái danh sách party nằm đâu cho cả 2 bản mobile và pc". ChatGPT (chat HUD gọn, tài khoản Tay) đặt danh sách dưới cụm trạng thái góc trái trên cho cả hai bản. Ảnh + thông số: `docs/reference/ui-redesign-261116/chatgpt/party/` (README.md). Chưa viết code. Người dùng chốt: KHÔNG thêm tên map cạnh minimap. Chốt 15:48: danh sách trên HUD chỉ hiện đồng đội (tối đa 3 dòng); bảng Party (mở bằng nút) hiện đủ cả mình. CÒN hỏi: bản PC có lấy nút Party trên hàng icon + hàng buff của mình dưới cụm trạng thái không.
 - 16:05 ĐÃ LÀM danh sách party V1 (CHƯA commit): `PartyHudList.cs` (mới), tạo trong `WindowsHost`. Chỉ hiện khi bật giao diện mới (`UiScreens.Hud`), đang online và có party. Đặt dưới cụm trạng thái (`PlayerStatusBadge.Bottom` + 6), rộng 200, mỗi dòng 30 đơn vị (canvas cao 640).

@@ -1,0 +1,8 @@
+# Thiết kế lại 5 class theo RO Soft Fantasy (18/11/2026)
+
+Người dùng: "kêu nó thiết kế lại 5 class từ đầu đi vì tui thấy thay đổi cách vẽ nhưng vẫn có vẻ lệch tông màu RO fantasy". Chat ChatGPT (Tay): https://chatgpt.com/c/6af57fff-c4f8-83ec-8f05-0c4eb76c4cde. Prompt chỉ giữ nghề, vũ khí, giới tính (Assassin, Cleric nữ, gửi kèm `custom/hero-select/assassin.png`, `cleric.png`), chibi, đồ bậc khởi đầu; còn lại ChatGPT tự quyết. Chỉ là concept, CHƯA phải sprite, chưa cài.
+
+`5-class-lineup-v1-chatgpt.png`: Warrior tóc nâu, giáp bạc + áo đỏ, kiếm thẳng, khiên đỏ hoa huệ; Wizard tóc bạc, mũ phù thuỷ + áo choàng xanh trắng, gậy pha lê + sách; Mechanic tóc vàng, kính bảo hộ, áo da nâu, hai súng ngắn, pháo đồng (vẽ bên hông, không hẳn sau lưng); Assassin nữ tóc tím đuôi ngựa nơ đỏ, khăn che mặt, hai dao tím; Cleric nữ tóc vàng, mũ + áo trắng viền vàng, gậy thánh + khiên. Tông sáng, mặt cười, viền mềm, màu pastel ấm, rất gần RO.
+So với hiện tại: Warrior đổi hẳn (tóc đỏ dựng + giáp đen / lửa → tóc nâu, giáp bạc sáng), Assassin / Cleric giữ màu tóc và ý chính.
+
+`40-players-new-classes-vs-mire-hydra-queen.png` (18/11): người dùng "kêu nó vẽ thử các nhân vật đó đang đánh boss queen ... khoảng 40 con khác nhau". Gửi kèm lineup v1 + `ui-style-ro-soft-fantasy/wanted-boss/5-wanted-boss-board-style.png`, phần còn lại ChatGPT tự quyết. Ra: ~40-50 chibi 5 class mới (nhiều màu tóc / bậc đồ) vây quanh nữ hoàng rắn giữa sân tròn đá rêu giữa hồ, vòng đỏ / tím báo chiêu, HUD RO (party 8 dòng, thanh boss, minimap, chat có kênh Guild, nút Shop / Event / Pass / Mail). ChatGPT tự thêm Guild, Event, Pass, Mail: game CHƯA có các hệ này.
