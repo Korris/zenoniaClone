@@ -115,6 +115,12 @@ namespace ZenoniaProto
                 attackRange: WantedAttackRange, windupMs: 800f, cooldownMs: 1800f, hitW: WantedHitW, hitH: WantedHitH, bodyHeightPx: 164f)
                 { RenderScale = WantedRenderScale, Stationary = true, IsBoss = true, IsWanted = true, WalkCellPx = 384, AttackCellPx = 512, FallbackSheet = "frostfangKing", FallbackTint = tint };
         }
+        /// <summary>--wanted-render-scale test hook (NetLaunchArgs): every Wanted Boss drawn `factor` x WantedRenderScale. Sets, never multiplies, so a second parse cannot compound it.</summary>
+        public static void ApplyWantedRenderScale(float factor)
+        {
+            foreach (MonsterDef d in new[] { RimeclawTyrant, GlacialColossus, MireHydraQueen }) d.RenderScale = WantedRenderScale * factor;
+        }
+
         // Frozen basis (hp, atk, def, speed): Frostfang King Lv3 (580/33/3/36) and Mirefang Hydra Lv35 (5500/215/27/36) as they stood before the step 1 level rebalance; Glacier Warden did not change.
         public static readonly MonsterDef RimeclawTyrant = Wanted("Rimeclaw Tyrant", "rimeclawTyrant", 580f, 33f, 3f, 36f, 10, new Color(0.75f, 0.9f, 1f));
         public static readonly MonsterDef GlacialColossus = Wanted("Glacial Colossus", "glacialColossus", 3200f, 125f, 16f, 36f, 25, new Color(0.4f, 0.65f, 1f));

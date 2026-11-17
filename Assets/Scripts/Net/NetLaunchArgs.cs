@@ -9,7 +9,7 @@ namespace ZenoniaProto
     ///   --sim-latency MS --sim-jitter MS --sim-loss PCT --sim-seed N (client lag harness)   --no-predict   --predict-after S   --net-no-delta
     ///   --max-players N (200)   --tick 30   --snap-div 2   --dev-key K   --run-seconds N   --net-bot fight|wander|portal   --net-stats file.json   --dev-gold N --dev-items N (test servers: goods to trade)
     ///   --wanted-boss TYPE (server: that boss is the Wanted Boss every day, for tests; a warning is logged)
-    ///   --wanted-respawn-sec S (server: seconds between the Wanted Boss kill and the next one, default 1800; tests)   --wanted-hp-scale F (server AND client, tests only: multiplies the Wanted Boss HP, default 1)
+    ///   --wanted-respawn-sec S (server: seconds between the Wanted Boss kill and the next one, default 1800; tests)   --wanted-hp-scale F (server AND client, tests only: multiplies the Wanted Boss HP, default 1)   --wanted-render-scale F (client, tests only: draws the Wanted Bosses F times larger, default 1)
     ///   --map NAME (server: the zone new heroes begin in, default Frost Hollow)   --no-portals (server: load tests keep everybody on one zone)
     ///   --api-url URL (server: real accounts, characters load from and save to server-api, the service key comes from the environment variable ZENONIA_SERVICE_KEY; client: where to log in)
     ///   --zone-id ID (server, default frost-hollow, the API's ZONE_ID)   --save-interval S (server, default 30)   --save-spool DIR (server: where a save that cannot be written is kept)   --shutdown-file F (server: F appearing = save everybody and stop)
@@ -51,6 +51,8 @@ namespace ZenoniaProto
         public static float WantedRespawnSec = -1f;
         /// <summary>--wanted-hp-scale F: test hook, multiplies the Wanted Boss max HP on whoever is launched with it (both ends must agree). Production leaves it at 1.</summary>
         public static float WantedHpScale = 1f;
+        /// <summary>--wanted-render-scale F: test hook, draws every Wanted Boss F times its normal size (picture only: hit box and reach unchanged). Production leaves it at 1.</summary>
+        public static float WantedRenderScale = 1f;
         public static string ZoneId ="frost-hollow", SaveSpool, ShutdownFile;
         public static int SaveIntervalSeconds = 30;
 
@@ -103,6 +105,9 @@ namespace ZenoniaProto
             WantedRespawnSec = float.TryParse(Arg(a, "--wanted-respawn-sec"), NumberStyles.Float, CultureInfo.InvariantCulture, out wr) && wr > 0f ? wr : -1f;
             WantedHpScale = float.TryParse(Arg(a, "--wanted-hp-scale"), NumberStyles.Float, CultureInfo.InvariantCulture, out wh) && wh > 0f ? wh : 1f;
             MonsterDef.WantedHpScale = WantedHpScale;
+            float wd;
+            WantedRenderScale = float.TryParse(Arg(a, "--wanted-render-scale"), NumberStyles.Float, CultureInfo.InvariantCulture, out wd) && wd > 0f ? wd : 1f;
+            MonsterDef.ApplyWantedRenderScale(WantedRenderScale);
             if (WantedRespawnSec > 0f) WantedBossSpawner.RespawnMs = WantedRespawnSec * 1000f;
             ZoneId = Arg(a, "--zone-id") ?? "frost-hollow";
             SaveSpool = Arg(a, "--save-spool");

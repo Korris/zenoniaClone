@@ -16,7 +16,7 @@
 param(
   [string]$Exe,
   [string]$OutDir = "C:\temp\wanted-40",
-  [string]$Boss = "rimeclawTyrant",   # only the Tyrant has its boss point below; the others need $goals entries
+  [string]$Boss = "rimeclawTyrant",   # rimeclawTyrant or mireHydraQueen (boss points in $starts below)
   [string]$Class = "warrior",         # the window's hero; bots cycle warrior / wizard / mechanic / assassin / cleric
   [int]$Bots = 39,
   [double]$HpScale = 150,     # 1 = 34800 HP; 40 bots took ~110 s to kill x30, so x150 lasts ~9 min (the HP number on the bar caps at 65535: ushort in the hit event)
@@ -50,7 +50,10 @@ $api = "http://127.0.0.1:$ApiPort"
 $mongoUri = "mongodb://127.0.0.1:$MongoPort/?replicaSet=rs0"
 $dbName = "wanted_crowd"
 # Hero start (3 tiles south of the boss) and the boss point the bots aim at (WantedBoss.cs tile (64,29), 48 rows x 16 units)
-$starts = @{ rimeclawTyrant = @{ Map = "frostHollow"; X = 1032; Y = 248; Goal = "1032,296" } }
+$starts = @{
+  rimeclawTyrant = @{ Map = "frostHollow"; X = 1032; Y = 248; Goal = "1032,296" }
+  mireHydraQueen = @{ Map = "sunkenReliquary"; X = 488; Y = 120; Goal = "488,152" } # tile (30,14) of the 24-row Sunken Reliquary, hero 2 rows south
+}
 if (-not $starts.ContainsKey($Boss)) { throw "no start position for $Boss" }
 $s = $starts[$Boss]
 $classes = @("warrior", "wizard", "mechanic", "assassin", "cleric") # HeroClass order: the swarm picks melee / ranged reach from index % 5
