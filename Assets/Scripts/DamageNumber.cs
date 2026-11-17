@@ -12,7 +12,8 @@ namespace ZenoniaProto
     /// </summary>
     public partial class DamageNumber : MonoBehaviour
     {
-        const int Capacity = 40;
+        const float TopMarginPx = 96f; // 720p px kept clear at the top (status bar, minimap, boss bar)
+        const int Capacity = 256; // Multi-Hit Barrage: 10 monsters in an 18-hit skill peak near 90 live numbers (ChatGPT V3)
 
         struct Entry
         {
@@ -31,7 +32,8 @@ namespace ZenoniaProto
         static int cursor;
         Camera cam;
 
-        public static void Spawn(float x, float y, string text, Color color, bool big, bool crit = false, bool faint = false)
+        /// <summary>`stream`: the monster hit (your own hits only); its plain hits rise in the Damage Stream zigzag instead of looking for free space.</summary>
+        public static void Spawn(float x, float y, string text, Color color, bool big, bool crit = false, bool faint = false, object stream = null)
         {
             if (!NetMode.RendersFx) return; // headless server: no cosmetics
             if (instance == null) return;
@@ -39,8 +41,9 @@ namespace ZenoniaProto
             if (kind == DamageNumberKind.Exp && MergeExp(text)) return;
             if ((kind == DamageNumberKind.Other || kind == DamageNumberKind.OtherHurt) && CountActive(DamageNumberKind.Other, DamageNumberKind.OtherHurt) >= 4) return; // spec: at most 4 numbers from other players
             var e = new Entry { Active = true, Text = text, Color = color, X = x, Y = y, Kind = kind, Seed = Random.value };
-            if (!Place(ref e)) return;
-            if (kind == DamageNumberKind.Crit) e.BigBurst = !RecentCrit(300f);
+            if (stream != null && kind == DamageNumberKind.Normal) StreamPlace(ref e, stream);
+            else if (!Place(ref e)) return;
+            if (kind == DamageNumberKind.Crit) e.BigBurst = !RecentCrit(500f); // one big burst per 500 ms: a barrage crits often (ChatGPT V3)
             cursor = (cursor + 1) % Capacity; // overwrite the oldest slot when saturated
             Pool[cursor] = e;
         }
@@ -48,6 +51,7 @@ namespace ZenoniaProto
         public static void ResetState()
         {
             for (int i = 0; i < Capacity; i++) Pool[i].Active = false;
+            Streams.Clear();
         }
 
         void Awake() { instance = this; }
@@ -92,6 +96,7 @@ namespace ZenoniaProto
             Vector2 shake = m.Shake(t);
             float cx = sx + (e.OffX + shake.x) * px;
             float cy = sy - (e.OffY + m.Rise(t) + shake.y) * px;
+            cy = Mathf.Max(cy, TopMarginPx * px); // never under the top HUD or off the screen
             float baseY = cy + cap * 0.5f; // the number is centred on its anchor, baseline half a cap below
             float textW = height * px * 0.62f * e.Text.Length; // rough run width for the crit frame sizes
             if (e.Kind == DamageNumberKind.Crit) DrawCritBehind(cx, cy, t, height * px, textW, e.Seed, alpha, e.BigBurst);

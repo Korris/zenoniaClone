@@ -55,7 +55,7 @@ namespace ZenoniaProto
         {
             Vector2 center = Center(ctx, e);
             int hits = 0;
-            if (ctx.Authority) hits = SkillDamage.Area(ctx.Dmg, e, center, ctx.Dir).Count;
+            if (ctx.Authority) hits = SkillDamage.Area(ctx.Dmg, e, center, ctx.Dir, ctx.Def.DefShare(e)).Count;
             if (!ctx.View) return;
             StrikeArt(ctx, e, center);
             SkillSfx.Play(ctx, SkillSfx.Impact);

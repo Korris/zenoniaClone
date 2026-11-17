@@ -58,7 +58,7 @@ namespace ZenoniaProto
             Color tint = StatusTint * artTint;
             body.color = !fx && flash > 0f ? new Color(1f, 0.55f, 0.55f, alpha) : new Color(tint.r, tint.g, tint.b, alpha);
             FeelMaterials.SetFlash(body, fx ? Mathf.Clamp01(flash / (FeelConfig.FlashMs * 0.6f)) : 0f);
-            float jitter = fx ? (Time.frameCount % 2 == 0 ? FeelConfig.HitJitterUnits : -FeelConfig.HitJitterUnits) : 0f;
+            float jitter = fx && !def.IsBoss ? (Time.frameCount % 2 == 0 ? FeelConfig.HitJitterUnits : -FeelConfig.HitJitterUnits) : 0f; // a boss is too heavy to jitter (it is not shoved either)
             body.transform.localPosition = new Vector3(jitter, AirLift(), 0f);
         }
 
@@ -116,6 +116,9 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Highest a damage number starts above the feet, world units (1.5 hero frames).</summary>
+        const float NumberLiftCap = 36f;
+
         /// <summary>The monster your own hero hit last, and when (Time.time); read by TargetMarker.</summary>
         public static Monster LastHitByMe;
         public static float LastHitByMeAt;
@@ -125,15 +128,19 @@ namespace ZenoniaProto
         void HitFx(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx, bool otherPlayer = false, int petKind = 0)
         {
             bool fx = FeelConfig.FxOn;
-            flash = fx ? FeelConfig.FlashMs : HitFlashMs;
+            // Only your own hits flash / jitter the monster (2026-11-17): with 40 players on a boss, everyone's hits kept it white and shaking non-stop.
+            if (!otherPlayer && petKind == 0) flash = fx ? FeelConfig.FlashMs : HitFlashMs;
             float bodyH = def.BodyHeightUnits * def.RenderScale;
+            // Numbers sit above a normal monster's head, but a big boss (Wanted: 4.5 hero bodies) would push them off the top of the screen:
+            // cap the lift at NumberLiftCap so they pop around its chest, near the hero hitting it (how ARPGs show damage on huge bosses).
+            bodyH = Mathf.Min(bodyH, NumberLiftCap);
             Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
             if (petKind != 0) { if (!otherPlayer || PetViewPrefs.ShowOthers) DamageNumber.Spawn(x, y + bodyH + 2f, dmg.ToString(), petKind == 2 ? new Color(1f, 0.84f, 0.48f) : new Color(0.4f, 0.84f, 0.82f), false, false, otherPlayer); return; } // a pet's number (DamageNumberKind.Pet): its own colour, beside the owner's, no sparks
             if (otherPlayer) DamageNumber.Spawn(x, y + bodyH + 4f, dmg.ToString(), Color.white, false, false, true); // another player's hit: small, white, half alpha
             else
             {
                 LastHitByMe = this; LastHitByMeAt = Time.time; // TargetMarker: the monster you are fighting
-                DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit);
+                DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit, false, this); // plain hits join this monster's Damage Stream
             }
             ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher, null, quietFx);
         }

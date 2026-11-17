@@ -1,0 +1,24 @@
+{
+ "source": "Assets/ArtLibrary/ui/adventure-paper/hp1-party/hp1-party-pieces-chatgpt-1.png",
+ "note": "party list of the compact HUD (PartyHudList): header / chevrons / crown / status marks / Party menu icon / row frames",
+ "chat": "https://chatgpt.com/c/6afa7ea3-b060-83ec-86af-1fa45497cea5",
+ "key": "#00FF00",
+ "key_mode": "all",
+ "solid_alpha": 120,
+ "hard_glow_yellow": true,
+ "out": "Assets/Resources/Sprites/ui/paper/hudp",
+ "rows": [
+  [{"name": "party-icon", "height": 64},
+   {"name": "chevron-down", "width": 64, "height": 64},
+   {"name": "chevron-right", "width": 64, "height": 64},
+   {"name": "crown", "height": 48},
+   {"name": "dead-skull", "height": 56}],
+  [{"name": "dead-x", "height": 48},
+   {"name": "away-pin", "height": 56},
+   {"name": "menu-icon-party", "height": 88},
+   {"name": "portrait-select-ring", "width": 128, "height": 128}],
+  [{"name": "row-frame", "width": 384, "border": [24, 24, 24, 24]},
+   {"name": "row-frame-selected", "width": 384, "border": [24, 24, 24, 24]},
+   {"name": "title-frame", "width": 384, "border": [40, 0, 40, 0]}]
+ ]
+}

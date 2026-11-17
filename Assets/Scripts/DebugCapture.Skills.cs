@@ -10,7 +10,7 @@ namespace ZenoniaProto
     /// --skill-ui "t=step;t=step": runs skill screen / magazine steps at t seconds after start (screenshots via --shots at the right moments).
     /// The screen is opened through UiScreens, so the steps drive whichever look is switched on: the old tree window (SkillTreeWindow) or,
     /// with --ui-new skill, the Training Hall (TrainingHallWindow). Learn / assign go through the real window handlers (Tap*), so the UI path is exercised.
-    /// Steps: open | close | level:N | learn:I[:times] | select:I | assign (= assign-mode) | slot:K (flat magazine slot 0-8, 0 = Dash)
+    /// Steps: auto (toggle Auto-battle) | open | close | level:N | learn:I[:times] | select:I | assign (= assign-mode) | slot:K (flat magazine slot 0-8, 0 = Dash)
     ///        | respec (first = arm / ask, second = confirm) | confirm-respec (the Respec question only) | gold:N | mp (refill HP / MP)
     ///        | cast:I (hero.TryCastSkill) | face:D | page:D (touch magazine, window closed).
     /// Training Hall only: tier:T (plank 0-2) | drag:I:K (statue I dropped on slot K) | move:K:J (slot K dropped on slot J) | unslot:K (slot K dropped off the belt)
@@ -61,6 +61,7 @@ namespace ZenoniaProto
                 case "drag-demo": TrainingHallWindow.TestDragDemo(a, b); break;
                 case "cast": Debug.Log("[ZenoniaProto] cast " + a + " => " + hero.TryCastSkill(a)); break;
                 case "face": hero.Teleport(hero.Position, a); break;
+                case "auto": AutoBattle.Toggle(hero); break;
                 case "page": TouchControls.CycleMagazine(a); break;
                 default: Debug.LogError("[ZenoniaProto] unknown --skill-ui step " + step); break;
             }

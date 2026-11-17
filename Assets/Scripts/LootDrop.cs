@@ -160,6 +160,15 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Auto-battle: `hero` could pick this up by walking onto it now (pickup delay over, owner priority allows it).</summary>
+        public bool CanTake(HeroController hero)
+        {
+            if (hero == null || age < PickupDelayMs) return false;
+            if (proxy) return !OwnedByOtherNow();
+            Zone zone = Zone.Main;
+            return zone != null && LootOwnership.CanPick(ownerId, freeAtMs, hero.NetId, zone.TimeMs, false);
+        }
+
         /// <summary>Client: another player still has the loot priority (dims the glow until the server clock passes freeAt).</summary>
         bool OwnedByOtherNow()
         {

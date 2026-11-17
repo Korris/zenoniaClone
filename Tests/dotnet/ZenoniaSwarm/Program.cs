@@ -17,10 +17,12 @@ using NetEvent = ZenoniaProto.Net.NetEvent;
 /// fighters walk to the nearest monster in their snapshots and press attack, wanderers walk randomly and swing now and then, idlers stand still.
 ///   dotnet run -c Release -- --host 127.0.0.1 --port 7790 --key k --clients 200 --seconds 600 [--stagger-ms 40] [--mix 50:30:20] [--stats out.json]
 ///        [--sim-latency MS --sim-jitter MS --sim-loss PCT] [--version N] [--hair vary|N] [--no-attack]
+/// --tokens FILE: one zone Hello token per line (server-api tickets for a zone run with --api-url, Tools/wanted-boss-crowd-playtest.ps1); the bot count is the line count.
+/// --goal X,Y: fighters attack the live monster nearest to that point (e.g. the wanted boss's spawn) and walk back to it when nothing lives within 260 units of it (a crowd waits for the boss to respawn instead of scattering after mobs).
 /// --no-attack: wanderers never swing (crowd look captures: Tools/net-hair-crowd-shots.ps1).
 /// --hair: head layer style each bot asks for after joining (InvOp.HairStyle); vary (default) = (index / 5) % 5, so every class gets all 5 styles; N = every bot N (0 = the original heads).
 /// </summary>
-static class Program
+static partial class Program
 {
     enum Brain { Fighter, Wanderer, Idler }
 
@@ -52,9 +54,26 @@ static class Program
         public readonly List<MonsterSnap> Monsters = new List<MonsterSnap>();
         public Stopwatch Connected = new Stopwatch();
         public double DownKBps, UpKBps;
+        public string Token;
+        // party mode (Program.Party.cs)
+        public ushort PlayerId;
+        public string Name = "";
+        public readonly Dictionary<ushort, string> HeroNames = new Dictionary<ushort, string>();
+        public readonly Queue<byte> LearnQueue = new Queue<byte>();
+        public double NextLearn, NextInvite, CastFrom, NextCastTry, NextHeal, NextBless, NextAegis;
+        public int Mp, MaxMp, BuffCount;
+        public float LeadDist = -1f;
+        public readonly ushort[] Cds = new ushort[8];
+        public byte MyHpPct = 100;
+        public double NextPotion, StuckUntil, StuckCheck;
+        public float StuckX, StuckY;
+        public ushort Detour;
     }
 
-    static bool noAttack;
+    static bool noAttack, hasGoal;
+    static readonly Random brainRng = new Random(4321);
+    static float goalX, goalY;
+    const float GoalRadius = 260f; // the boss chases its attackers: it may stand well off its spawn tile
 
     static string Arg(string[] a, string k, string d) { int i = Array.IndexOf(a, k); return i >= 0 && i + 1 < a.Length ? a[i + 1] : d; }
     static string F(double v, int d = 2) { return v.ToString("F" + d, CultureInfo.InvariantCulture); }
@@ -70,6 +89,12 @@ static class Program
         int[] mix = Arg(args, "--mix", "50:30:20").Split(':').Select(int.Parse).ToArray();
         string hair = Arg(args, "--hair", "vary");
         noAttack = Array.IndexOf(args, "--no-attack") >= 0;
+        ReadPartyArgs(args);
+        string tokensPath = Arg(args, "--tokens", null);
+        string[] tokens = tokensPath != null ? File.ReadAllLines(tokensPath).Where(l => l.Trim().Length > 0).Select(l => l.Trim()).ToArray() : null;
+        if (tokens != null) n = tokens.Length;
+        string goal = Arg(args, "--goal", null);
+        if (goal != null) { string[] g = goal.Split(','); goalX = float.Parse(g[0], CultureInfo.InvariantCulture); goalY = float.Parse(g[1], CultureInfo.InvariantCulture); hasGoal = true; }
         var rng = new Random(1234);
         var bots = new List<Bot>();
         var clock = Stopwatch.StartNew();
@@ -77,12 +102,12 @@ static class Program
         for (int i = 0; i < n; i++)
         {
             int roll = i % 100;
-            var b = new Bot { Index = i, Hair = (byte)(hair == "vary" ? (i / 5) % 5 : int.Parse(hair)), Brain = roll < mix[0] ? Brain.Fighter : roll < mix[0] + mix[1] ? Brain.Wanderer : Brain.Idler };
+            var b = new Bot { Index = i, Hair = (byte)(hair == "vary" ? (i / 5) % 5 : int.Parse(hair)), Brain = roll < mix[0] ? Brain.Fighter : roll < mix[0] + mix[1] ? Brain.Wanderer : Brain.Idler, Token = tokens != null ? tokens[i] : key };
             var listener = new EventBasedNetListener();
             listener.PeerConnectedEvent += peer =>
             {
                 b.Peer = peer; b.Connected.Restart();
-                NetMessageWriter.Hello(b.W, new HelloMsg { Version = (ushort)version, Name = "Swarm" + b.Index, HeroClass = (byte)(b.Index % 5), Token = key });
+                NetMessageWriter.Hello(b.W, new HelloMsg { Version = (ushort)version, Name = "Swarm" + b.Index, HeroClass = (byte)(b.Index % 5), Token = b.Token });
                 peer.Send(b.W, NetProtocol.ChannelReliable, DeliveryMethod.ReliableOrdered);
             };
             listener.PeerDisconnectedEvent += (peer, info) =>
@@ -100,6 +125,7 @@ static class Program
             b.Net.Start();
             b.Net.Connect(host, port, "zenonia-net");
             bots.Add(b);
+            if (InParty(b)) partyBotsList.Add(b);
             Pump(bots, rng, clock, stagger);
         }
 
@@ -111,7 +137,7 @@ static class Program
             if (clock.Elapsed.TotalSeconds >= nextReport)
             {
                 nextReport += 30;
-                Console.WriteLine("[" + F(clock.Elapsed.TotalSeconds, 0) + " s] joined " + bots.Count(x => x.Joined) + "/" + n + " lost " + bots.Count(x => x.Lost));
+                Console.WriteLine("[" + F(clock.Elapsed.TotalSeconds, 0) + " s] joined " + bots.Count(x => x.Joined) + "/" + n + " lost " + bots.Count(x => x.Lost) + (hasGoal ? GoalReport(bots) : "") + PartyReport());
             }
         }
 
@@ -156,6 +182,11 @@ static class Program
             b.Net.PollEvents();
             if (!b.Joined || b.Peer == null) continue;
             if (b.NextSend == 0) b.NextSend = now;
+            if (InParty(b))
+            {
+                if (b.CastFrom < 0 && b.LearnQueue.Count == 0) { var clerics = partyBotsList.Where(IsCleric).ToList(); b.CastFrom = now + 2.0 + CastEvery / clerics.Count * clerics.IndexOf(b); } // Clerics evenly staggered
+                PartyChores(b, now);
+            }
             for (int catchUp = 0; now >= b.NextSend && catchUp < 3; catchUp++) // input at 30 Hz like the game client, one frame per step
             {
                 b.NextSend += 1.0 / 30.0;
@@ -187,19 +218,52 @@ static class Program
                 if (!noAttack && rng.NextDouble() < 0.03) bits |= InputBits.Attack;
                 return bits;
             default:
+                if (InParty(b)) return PartyBits(b, now);
+                if (hasGoal) // crowd mode: drink a large HP potion below 55 % (the boost gave 80), slide around walls on the way back after a respawn
+                {
+                    ushort extra = 0;
+                    if (b.MyHpPct > 0 && b.MyHpPct < 55 && now >= b.NextPotion) { extra = InputBits.HpPotion; b.NextPotion = now + 1.2; }
+                    if (now < b.StuckUntil) return (ushort)(b.Detour | extra);
+                    ushort plan = FighterBits(b, now);
+                    bool walking = (plan & (InputBits.Up | InputBits.Down | InputBits.Left | InputBits.Right)) != 0;
+                    if (now >= b.StuckCheck)
+                    {
+                        bool stuck = walking && b.HasPos && Math.Abs(b.X - b.StuckX) + Math.Abs(b.Y - b.StuckY) < 4f;
+                        b.StuckX = b.X; b.StuckY = b.Y; b.StuckCheck = now + 0.8;
+                        if (stuck)
+                        {
+                            int d = rng.Next(0, 4);
+                            b.Detour = (ushort)(1 << d);
+                            b.StuckUntil = now + 0.6 + rng.NextDouble() * 1.4;
+                            return (ushort)(b.Detour | extra);
+                        }
+                    }
+                    return (ushort)(plan | extra);
+                }
+                return FighterBits(b, now);
+        }
+    }
+
+    /// <summary>The fighter brain: walk to the target monster (with --goal: the one nearest the goal) and swing once in reach.</summary>
+    static ushort FighterBits(Bot b, double now)
+    {
+                ushort bits = 0;
+                if (hasGoal && b.HasPos && b.Monsters.Count == 0) return StepTo(goalX - b.X, goalY - b.Y);
                 if (!b.HasPos || b.Monsters.Count == 0)
                 {
-                    if (now >= b.NextTurn) { b.NextTurn = now + 1.0 + rng.NextDouble(); int d = rng.Next(0, 4); b.Move = (ushort)(1 << d); }
+                    if (now >= b.NextTurn) { b.NextTurn = now + 1.0 + brainRng.NextDouble(); int d = brainRng.Next(0, 4); b.Move = (ushort)(1 << d); }
                     return b.Move;
                 }
                 MonsterSnap best = default(MonsterSnap); float bd = float.MaxValue;
                 foreach (MonsterSnap m in b.Monsters)
                 {
-                    float dx = NetQuantize.Pos(m.X) - b.X, dy = NetQuantize.Pos(m.Y) - b.Y, d2 = dx * dx + dy * dy;
-                    if (m.DeathProgress == 0 && d2 < bd) { bd = d2; best = m; }
+                    float ox = hasGoal ? goalX : b.X, oy = hasGoal ? goalY : b.Y; // with --goal: the monster nearest to the goal (the boss), not to the bot
+                    float dx = NetQuantize.Pos(m.X) - ox, dy = NetQuantize.Pos(m.Y) - oy, d2 = dx * dx + dy * dy;
+                    if (m.DeathProgress == 0 && d2 < bd && (!hasGoal || d2 < GoalRadius * GoalRadius)) { bd = d2; best = m; }
                 }
-                if (bd == float.MaxValue) return b.Move;
+                if (bd == float.MaxValue) return hasGoal ? StepTo(goalX - b.X, goalY - b.Y) : b.Move;
                 float tx = NetQuantize.Pos(best.X) - b.X, ty = NetQuantize.Pos(best.Y) - b.Y;
+                bd = tx * tx + ty * ty; // distance from the bot itself decides walk or swing
                 // Ranged classes (Wizard 1, Mechanic 2, Cleric 4: HeroClass = Index % 5) stop once the monster is inside their bolt range
                 // (55-70 units, ComboConfigs) and shoot from there; melee walks up to 28 units.
                 int cls = b.Index % 5;
@@ -211,7 +275,33 @@ static class Program
                 }
                 else if (now >= b.NextAttack) { bits |= InputBits.Attack; b.NextAttack = now + 0.3; }
                 return bits;
+    }
+
+    /// <summary>With --goal: HP % (snapshot byte, from the server) of the live monster nearest the goal as one bot sees it, and how many bots are within 260 units of the goal.</summary>
+    static string GoalReport(List<Bot> bots)
+    {
+        int near = bots.Count(x => x.Joined && x.HasPos && (x.X - goalX) * (x.X - goalX) + (x.Y - goalY) * (x.Y - goalY) < GoalRadius * GoalRadius);
+        string hp = "-";
+        Bot seer = bots.FirstOrDefault(x => x.Joined && x.Monsters.Count > 0);
+        if (seer != null)
+        {
+            float bd = float.MaxValue;
+            foreach (MonsterSnap m in seer.Monsters)
+            {
+                float dx = NetQuantize.Pos(m.X) - goalX, dy = NetQuantize.Pos(m.Y) - goalY, d2 = dx * dx + dy * dy;
+                if (m.DeathProgress == 0 && d2 < bd && d2 < GoalRadius * GoalRadius) { bd = d2; hp = m.HpPct + "%"; }
+            }
         }
+        return ", bots near the goal " + near + ", goal monster hp " + hp;
+    }
+
+    /// <summary>Direction bits toward an offset (3 units dead zone), no attack.</summary>
+    static ushort StepTo(float tx, float ty)
+    {
+        ushort bits = 0;
+        if (tx > 3f) bits |= InputBits.Right; else if (tx < -3f) bits |= InputBits.Left;
+        if (ty > 3f) bits |= InputBits.Up; else if (ty < -3f) bits |= InputBits.Down;
+        return bits;
     }
 
     static void OnReceive(Bot b, NetPacketReader r)
@@ -225,7 +315,9 @@ static class Program
                 WelcomeMsg wm;
                 if (NetMessageReader.TryWelcome(r, out wm))
                 {
-                    b.HeroId = wm.HeroNetId; b.Epoch = wm.Epoch; b.Joined = b.EverJoined = true;
+                    b.HeroId = wm.HeroNetId; b.Epoch = wm.Epoch; b.Joined = b.EverJoined = true; b.PlayerId = wm.PlayerId;
+                    if (InParty(b) && IsCleric(b)) b.CastFrom = -1;
+                    OnPartyBotJoined(b);
                     if (b.Hair != 0) { NetMessageWriter.InvAction(b.W, new InvActionMsg { ReqId = 1, Op = InvOp.HairStyle, ItemUid = "", Slot = b.Hair }); b.Peer.Send(b.W, NetProtocol.ChannelReliable, DeliveryMethod.ReliableOrdered); }
                 }
                 break;
@@ -246,11 +338,23 @@ static class Program
                 if (b.Snap.BaselineSeq == 0) b.FullSnapshots++;
                 b.HeroesMax = Math.Max(b.HeroesMax, b.Snap.Heroes.Count); b.MonstersMax = Math.Max(b.MonstersMax, b.Snap.Monsters.Count);
                 b.HasPos = false;
-                foreach (HeroSnap h in b.Snap.Heroes) if (h.Id == b.HeroId) { b.X = NetQuantize.Pos(h.X); b.Y = NetQuantize.Pos(h.Y); b.HasPos = true; break; }
+                foreach (HeroSnap h in b.Snap.Heroes) if (h.Id == b.HeroId) { b.X = NetQuantize.Pos(h.X); b.Y = NetQuantize.Pos(h.Y); b.MyHpPct = h.HpPct; b.HasPos = true; break; }
                 b.Monsters.Clear(); b.Monsters.AddRange(b.Snap.Monsters);
                 break;
             case NetOp.EventBatch: b.EventBatches++; break;
-            case NetOp.Spawn: b.Spawns++; break;
+            case NetOp.Spawn:
+                b.Spawns++;
+                SpawnMsg sp;
+                if (partyWith != null && SpawnMsg.TryRead(r, out sp)) { OnSpawn(b, sp); if (sp.Kind == EntityKind.Hero && sp.Id == b.HeroId) b.Name = sp.Name; }
+                break;
+            case NetOp.PartyNotice:
+                PartyNoticeMsg pn;
+                if (partyWith != null && PartyNoticeMsg.TryRead(r, out pn)) OnPartyNotice(b, pn);
+                break;
+            case NetOp.SelfState:
+                SelfStateMsg ss;
+                if (partyWith != null && NetMessageReader.TrySelfState(r, out ss)) OnSelfState(b, ss);
+                break;
             case NetOp.Despawn: b.Despawns++; break;
             case NetOp.RpgState: b.RpgStates++; break;
         }

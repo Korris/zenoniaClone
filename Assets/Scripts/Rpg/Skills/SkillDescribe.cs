@@ -19,9 +19,9 @@ namespace ZenoniaProto.Rpg
         {
             rank = Math.Max(1, rank);
             if (d.Legacy == LegacySkill.EarthBreak)
-                return "Charge, then slam " + Tiles(LegacySkillNumbers.EarthBreakRange / LegacySkillNumbers.TileUnits) + " ahead: " + Atk(LegacySkillNumbers.EarthBreakMult * 100f * d.DamageMul(rank))
-                    + " within " + Tiles(LegacySkillNumbers.EarthBreakRadius / LegacySkillNumbers.TileUnits) + ". The sweep before it deals " + Atk(LegacySkillNumbers.EarthBreakMult * LegacySkillNumbers.EarthBreakSweep * 100f * d.DamageMul(rank))
-                    + ", then " + LegacySkillNumbers.EarthBreakBurns + " burns of " + Atk(LegacySkillNumbers.EarthBreakMult * LegacySkillNumbers.EarthBreakBurn * 100f * d.DamageMul(rank)) + ".";
+                return "Charge, sweep and slam " + Tiles(LegacySkillNumbers.EarthBreakRange / LegacySkillNumbers.TileUnits) + " ahead: " + LegacySkillNumbers.EarthBreakHits + " hits, "
+                    + Atk(LegacySkillNumbers.EarthBreakTotalMult * 100f * d.DamageMul(rank)) + " in total within " + Tiles(LegacySkillNumbers.EarthBreakRadius / LegacySkillNumbers.TileUnits)
+                    + ", then " + LegacySkillNumbers.EarthBreakBurns + " burns of " + Atk(LegacySkillNumbers.EarthBreakBurn * 100f * d.DamageMul(rank)) + ".";
             if (d.Legacy == LegacySkill.IceStorm)
                 return "Ice spears fall " + Tiles(LegacySkillNumbers.IceStormRange / LegacySkillNumbers.TileUnits) + " ahead: " + LegacySkillNumbers.IceStormWaves + " waves of "
                     + Atk(LegacySkillNumbers.IceStormMult * 100f * d.DamageMul(rank)) + " within " + Tiles(LegacySkillNumbers.IceStormRadius / LegacySkillNumbers.TileUnits) + ".";
@@ -29,21 +29,34 @@ namespace ZenoniaProto.Rpg
                 return LegacySkillNumbers.RocketBarrageRockets + " rockets rain on a " + Num(LegacySkillNumbers.RocketBarrageFanDeg) + "-degree fan up to " + Tiles(LegacySkillNumbers.RocketBarrageReach / LegacySkillNumbers.TileUnits) + " ahead: "
                     + Atk(LegacySkillNumbers.RocketBarrageMult * 100f * d.DamageMul(rank)) + " each within " + Tiles(LegacySkillNumbers.RocketBarrageRadius / LegacySkillNumbers.TileUnits) + ".";
             if (d.Legacy == LegacySkill.BladeCyclone)
-                return "Spin your blade: " + LegacySkillNumbers.BladeCycloneWaves + " waves of " + Atk(LegacySkillNumbers.BladeCycloneMult * 100f * d.DamageMul(rank)) + " within "
-                    + Tiles(LegacySkillNumbers.BladeCycloneRadius / LegacySkillNumbers.TileUnits) + ". The last wave pushes enemies back.";
+                return "Spin your blade: " + LegacySkillNumbers.BladeCycloneHits + " hits, " + Atk(LegacySkillNumbers.BladeCycloneTotalMult * 100f * d.DamageMul(rank)) + " in total, within "
+                    + Tiles(LegacySkillNumbers.BladeCycloneRadius / LegacySkillNumbers.TileUnits) + ". The last hit is the strongest and pushes enemies back.";
 
             var sb = new StringBuilder();
             SkillEffect[] fx = d.Effects;
             for (int i = 0; i < fx.Length; i++)
             {
                 SkillEffect e = fx[i];
-                if (e.Kind == EffectKind.Motion && i + 1 < fx.Length && fx[i + 1].Kind == EffectKind.Strike)
+                if (e.Kind == EffectKind.Motion && i + 1 < fx.Length && IsBarrageStart(fx, i + 1))
+                {
+                    int last;
+                    Add(sb, Motion(d, e) + ", then " + BarrageClause(d, fx, i + 1, rank, out last));
+                    i = last;
+                }
+                else if (e.Kind == EffectKind.Motion && i + 1 < fx.Length && fx[i + 1].Kind == EffectKind.Strike)
                 {
                     int repeats = 1;
                     while (i + 2 * repeats + 1 < fx.Length && SamePair(e, fx[i + 1], fx[i + 2 * repeats], fx[i + 2 * repeats + 1])) repeats++;
                     Add(sb, Motion(d, e) + ", then " + StrikeClause(d, fx[i + 1], rank));
                     if (repeats > 1) Add(sb, "Repeats " + repeats + " times");
                     i += 2 * repeats - 1;
+                }
+                else if (IsBarrageStart(fx, i))
+                {
+                    int last;
+                    string clause = BarrageClause(d, fx, i, rank, out last);
+                    Add(sb, char.ToUpperInvariant(clause[0]) + clause.Substring(1));
+                    i = last;
                 }
                 else if (e.Kind == EffectKind.Buff)
                 {
@@ -92,10 +105,10 @@ namespace ZenoniaProto.Rpg
         {
             var lines = new List<string>();
             int shown = Math.Max(1, rank), next = rank + 1;
-            if (d.Legacy == LegacySkill.EarthBreak) lines.Add(ScaledLine("Slam", LegacySkillNumbers.EarthBreakMult * 100f, d, rank));
+            if (d.Legacy == LegacySkill.EarthBreak) lines.Add(ScaledLine("Total", LegacySkillNumbers.EarthBreakTotalMult * 100f, d, rank));
             else if (d.Legacy == LegacySkill.IceStorm) lines.Add(ScaledLine("Per wave", LegacySkillNumbers.IceStormMult * 100f, d, rank));
             else if (d.Legacy == LegacySkill.RocketBarrage) lines.Add(ScaledLine("Per rocket", LegacySkillNumbers.RocketBarrageMult * 100f, d, rank));
-            else if (d.Legacy == LegacySkill.BladeCyclone) lines.Add(ScaledLine("Per wave", LegacySkillNumbers.BladeCycloneMult * 100f, d, rank));
+            else if (d.Legacy == LegacySkill.BladeCyclone) lines.Add(ScaledLine("Total", LegacySkillNumbers.BladeCycloneTotalMult * 100f, d, rank));
             else
                 foreach (SkillEffect e in d.Effects)
                 {
@@ -137,6 +150,29 @@ namespace ZenoniaProto.Rpg
         }
 
         /// <summary>Lower-case clause, so it can follow a motion: "hit enemies within 3 tiles for 280% ATK".</summary>
+        /// <summary>A damaging strike followed by more strikes over the same area: one Multi-Hit Barrage chain (Power Slash), told as one sentence.</summary>
+        static bool IsBarrageStart(SkillEffect[] fx, int i)
+        {
+            return fx[i].Kind == EffectKind.Strike && fx[i].Pct > 0f && i + 1 < fx.Length && SameArea(fx[i], fx[i + 1]);
+        }
+
+        /// <summary>"hit enemies within 3 tiles 15 times: 1140% ATK in total, the last hit 350% ATK"; `last` = index of the chain's final effect.</summary>
+        static string BarrageClause(SkillDef d, SkillEffect[] fx, int first, int rank, out int last)
+        {
+            last = first;
+            while (last + 1 < fx.Length && SameArea(fx[first], fx[last + 1])) last++;
+            int hits = 0;
+            float total = 0f;
+            for (int k = first; k <= last; k++) { hits += Math.Max(1, fx[k].Hits); total += fx[k].Pct * Math.Max(1, fx[k].Hits); }
+            return "hit enemies " + Area(fx[first]) + " " + hits + " times: " + Atk(total * d.DamageMul(rank)) + " in total, the last hit " + Atk(d.PctAt(fx[last], rank));
+        }
+
+        static bool SameArea(SkillEffect a, SkillEffect b)
+        {
+            return b.Kind == EffectKind.Strike && b.Pct > 0f && a.Shape == b.Shape && a.Radius == b.Radius && a.AngleDeg == b.AngleDeg
+                && a.Length == b.Length && a.Width == b.Width && a.Range == b.Range && b.Status.Kind == StatusKind.None;
+        }
+
         static string StrikeClause(SkillDef d, SkillEffect e, int rank)
         {
             if (e.Pct <= 0f)

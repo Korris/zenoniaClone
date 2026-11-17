@@ -36,6 +36,8 @@ namespace ZenoniaProto
         /// <summary>Right edge of the block from the safe area's left, and its bottom edge from the top (buff row included): layout anchors
         /// for the boss bar, the chat panel and the debug HUD.</summary>
         public static float Right { get { return Left + Pick.Width; } }
+        HeroPortraitLayers portrait;
+
         public static float Bottom { get { return Top + Pick.Height + BuffGap + BuffRowH; } }
 
         public readonly RectTransform Root;
@@ -88,9 +90,11 @@ namespace ZenoniaProto
                 bool swapped = hero.Class.Name != lastClass;
                 lastLevel = p.Level; lastClass = hero.Class.Name;
                 level.text = "Lv. " + p.Level;
-                if (swapped) { face.sprite = RpgHud.FaceOf(hero.Class); face.enabled = face.sprite != null; ResetStates(); }
+                if (swapped) ResetStates();
                 lastExp = -1;
             }
+            if (portrait == null) portrait = new HeroPortraitLayers(face);
+            portrait.Show(hero); // the hairstyle + colour picked at creation (cheap when unchanged)
             int hpNow = Mathf.CeilToInt(p.Hp), mpNow = Mathf.FloorToInt(p.Mp);
             float hpFrac = p.MaxHp > 0 ? Mathf.Clamp01(p.Hp / p.MaxHp) : 0f;
             if (hpNow != lastHp || p.MaxHp != lastMaxHp)

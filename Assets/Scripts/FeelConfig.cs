@@ -26,7 +26,10 @@ namespace ZenoniaProto
         public static float BoltHitStopMs(bool blast) { return blast ? HitStopBlastMs : FxOn ? HitStopBoltMs : PlainHitStopBoltMs; }
 
         // ---- screen shake (trauma model: offset = trauma^2 * MaxShakeUnits, camera offset only) ----
-        public const float TraumaNormal = 0.35f, TraumaCrit = 0.55f, TraumaFinisher = 0.8f, TraumaHurt = 0.45f, TraumaBolt = 0.18f, TraumaBlast = 0.7f;
+        // 2026-11-17 (user: "sao mà nó động đất dữ vậy"): held attack (Auto, bots, long fights) stacked 0.35 per swing faster than the 1.8 / s decay and
+        // pinned the shake at max. Small hits now barely move the camera, only finishers / getting hurt are felt (ChatGPT V3: small hits no shake).
+        // Old values: Normal 0.35, Crit 0.55, Finisher 0.8, Hurt 0.45, Bolt 0.18, Blast 0.7.
+        public const float TraumaNormal = 0.05f, TraumaCrit = 0.1f, TraumaFinisher = 0.25f, TraumaHurt = 0.2f, TraumaBolt = 0.04f, TraumaBlast = 0.3f;
         public const float MaxShakeUnits = 5f, ShakeFrequency = 42f, TraumaDecayPerSecond = 1.8f;
 
         // ---- monster reaction ----

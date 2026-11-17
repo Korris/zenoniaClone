@@ -44,5 +44,25 @@ namespace ZenoniaProto.Rpg
 
         /// <summary>Buff value at a rank: shields scale like damage; ATK / speed / next-hit buffs are fixed.</summary>
         public float BuffAt(SkillEffect e, int rank) { return e.Buff.Kind == BuffKind.Shield ? e.Buff.Value * DamageMul(rank) : e.Buff.Value; }
+
+        float strikeTotalPct = -1f;
+
+        /// <summary>Sum of Pct x Hits over the Strike effects: one cast's whole strike chain (Multi-Hit Barrage, docs/reference/warrior-skill-redesign-v2-chatgpt.md).</summary>
+        public float StrikeTotalPct
+        {
+            get
+            {
+                if (strikeTotalPct >= 0f) return strikeTotalPct;
+                float t = 0f;
+                foreach (SkillEffect e in Effects) if (e.Kind == EffectKind.Strike && e.Pct > 0f) t += e.Pct * Math.Max(1, e.Hits);
+                return strikeTotalPct = t;
+            }
+        }
+
+        /// <summary>
+        /// Share of the target's DEF one strike hit subtracts: a chain subtracts DEF once per target, split by each hit's Pct, so cutting a strike
+        /// into many small hits never loses damage to DEF (a single-hit skill keeps the full DEF).
+        /// </summary>
+        public float DefShare(SkillEffect e) { float t = StrikeTotalPct; return t > 0f && e.Pct > 0f ? Math.Min(1f, e.Pct / t) : 1f; }
     }
 }

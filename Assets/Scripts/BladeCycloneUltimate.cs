@@ -4,13 +4,13 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Warrior tree skill BLADE CYCLONE (concept sheet in ArtLibrary/custom/blade-cyclone-frames). Follows the caster, who can keep walking after the short cast lock.
-    /// Timeline (ms): cast ring and light column 0-500, spin ring 450-1300, peak vortex 1250-2250, finish burst 2250-2750. Six waves hit around the hero at 500, 850, 1200, 1550, 1900, 2250;
-    /// the last one also knocks enemies back (bosses are too heavy, Monster.TakeHit). Every frame is cut at the ring's centre line: the upper half draws behind the hero and the lower half in front.
+    /// Timeline (ms): cast ring and light column 0-500, spin ring 450-1300, peak vortex 1250-2250, finish burst 2250-2750. 18 hits land around the hero (Multi-Hit Barrage, ChatGPT V3): 16 small ones
+    /// every 100 ms from 500, a stronger one at 2100 and the finisher at 2250 with the finish burst; the finisher also knocks enemies back (bosses are too heavy, Monster.TakeHit). Every frame is cut at the ring's centre line: the upper half draws behind the hero and the lower half in front.
     /// Unity extras: additive bloom layers, shock rings, debris + dust + ember particles, and for the local caster only a shake per wave, then hit-stop, punch-zoom and a soft flash on the last.
     /// </summary>
     public class BladeCycloneUltimate : MonoBehaviour
     {
-        public const float Radius = Rpg.LegacySkillNumbers.BladeCycloneRadius, Mult = Rpg.LegacySkillNumbers.BladeCycloneMult, Knockback = Rpg.LegacySkillNumbers.BladeCycloneKnockback;
+        public const float Radius = Rpg.LegacySkillNumbers.BladeCycloneRadius, Knockback = Rpg.LegacySkillNumbers.BladeCycloneKnockback;
         const float CastMs = 500f, SpinFromMs = 450f, SpinToMs = 1300f, PeakFromMs = 1250f, PeakToMs = 2250f, FinishMs = 500f, TotalMs = PeakToMs + FinishMs;
         const float SpinFrameMs = 60f, PeakFrameMs = 50f, CrossMs = 60f;
         const float UnitsPerPx = 0.237f;  // the painted ring spans 371 of the 384 px cell: outer edge just past the real radius
@@ -19,7 +19,24 @@ namespace ZenoniaProto
         const int Frames = 6;
         const string Folder = "Sprites/classes/warrior/fx/bladecyclone/";
         const string LoopClip = "Audio/sfx/skills/warrior/blade-cyclone-loop";
-        static readonly float[] WaveAt = { 500f, 850f, 1200f, 1550f, 1900f, 2250f };
+        const float SmallFromMs = 500f, SmallStepMs = 100f, PenultMs = 2100f; // the finisher lands at PeakToMs, with the finish burst
+        static readonly float[] WaveAt = BuildWaveTimes();
+
+        static float[] BuildWaveTimes()
+        {
+            var t = new float[Rpg.LegacySkillNumbers.BladeCycloneHits];
+            for (int i = 0; i < Rpg.LegacySkillNumbers.BladeCycloneSmallHits; i++) t[i] = SmallFromMs + i * SmallStepMs;
+            t[t.Length - 2] = PenultMs;
+            t[t.Length - 1] = PeakToMs;
+            return t;
+        }
+
+        /// <summary>x ATK of hit i: small, then the stronger second-to-last, then the finisher.</summary>
+        static float MultOf(int i)
+        {
+            int n = WaveAt.Length;
+            return i == n - 1 ? Rpg.LegacySkillNumbers.BladeCycloneFinishMult : i == n - 2 ? Rpg.LegacySkillNumbers.BladeCyclonePenultMult : Rpg.LegacySkillNumbers.BladeCycloneSmallMult;
+        }
         static readonly Color Red = new Color(1f, 0.28f, 0.1f), Hot = new Color(1f, 0.62f, 0.2f);
 
         /// <summary>One frame strip cut in two at the ring's centre line.</summary>
@@ -113,25 +130,26 @@ namespace ZenoniaProto
 
         void Wave(int i)
         {
-            bool last = i == WaveAt.Length - 1;
+            bool last = i == WaveAt.Length - 1, penult = i == WaveAt.Length - 2, big = last || penult;
+            float mult = MultOf(i);
             Vector2 center = hero.Position;
-            SkillDamage.Radial(center, Radius, atk, Mult, last ? Knockback : 0f, last, ClassPalette.Orange, 0f, hero);
+            // DEF is subtracted once per cast, split by this hit's share of the chain (small hits would otherwise lose most of their damage to it).
+            SkillDamage.Radial(center, Radius, atk, mult, last ? Knockback : 0f, last, ClassPalette.Orange, 0f, hero, mult / Rpg.LegacySkillNumbers.BladeCycloneTotalMult);
             if (!NetMode.RendersFx) return;
             Vector2 ring = center + new Vector2(0f, RingLift);
-            UltimateFx.Embers(ring, last ? 44 : 14, Radius * 0.7f, last ? 90f : 55f, new Color(1f, 0.5f, 0.12f, 1f));
-            UltimateFx.Debris(ring, last ? 22 : 7, Radius * 0.6f, last ? 110f : 70f);
-            UltimateFx.Dust(center, last ? 14 : 4, Radius * 0.7f);
-            ShockRing.Spawn(ring, Radius * (last ? 1.35f : 1f), last ? 0.42f : 0.24f, new Color(1f, 0.42f, 0.14f, 0.8f), UltimateFx.GroundFxOrder + 6);
+            UltimateFx.Embers(ring, last ? 44 : big ? 18 : 5, Radius * 0.7f, last ? 90f : 55f, new Color(1f, 0.5f, 0.12f, 1f));
+            UltimateFx.Debris(ring, last ? 22 : big ? 7 : i % 4 == 3 ? 3 : 0, Radius * 0.6f, last ? 110f : 70f);
+            if (big || i % 4 == 3) UltimateFx.Dust(center, last ? 14 : 4, Radius * 0.7f);
+            if (big || i % 4 == 3) ShockRing.Spawn(ring, Radius * (last ? 1.35f : 1f), last ? 0.42f : 0.24f, new Color(1f, 0.42f, 0.14f, 0.8f), UltimateFx.GroundFxOrder + 6); // every 4th small hit gets a ring: rhythm without noise
             if (last)
             {
                 GameSfx.Play("skills/warrior/earth-break-impact", 0.7f);
                 ShockRing.Spawn(ring, Radius * 0.9f, 0.3f, new Color(1f, 0.8f, 0.4f, 0.6f), UltimateFx.GroundFxOrder + 7, 0.72f, 0.1f, true);
             }
-            if (!local) return; // another player's cyclone never moves this player's camera
-            CameraFollow.SkillShake(last ? 0.5f : i >= 2 ? 0.14f : 0.07f);
-            if (i == WaveAt.Length - 2) GameClock.HitStop(18f);
-            if (!last) return;
-            GameClock.HitStop(55f);
+            if (!local || !big) return; // small hits: no shake, no hit-stop (ChatGPT V3); another player's cyclone never moves this camera
+            if (penult) { CameraFollow.SkillShake(0.08f); GameClock.HitStop(15f); return; }
+            CameraFollow.SkillShake(0.5f);
+            GameClock.HitStop(45f);
             CameraFollow.SkillPunch(0.5f);
             ScreenFlash.Trigger(new Color(1f, 0.4f, 0.12f, 0.08f), 0.18f);
         }

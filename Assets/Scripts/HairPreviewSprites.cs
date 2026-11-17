@@ -53,11 +53,14 @@ namespace ZenoniaProto
         }
 
         /// <summary>Sprites of a tile, back to front. Null entries are layers this style does not have. dye: -1 = the style's own colour, else a preset index.</summary>
-        public static Sprite[] Layers(Look look, int style, int dye)
+        public static Sprite[] Layers(Look look, int style, int dye) { return Layers(look, style, dye, null); }
+
+        /// <summary>Same, with a custom colour that wins over the preset (HeroRenderer.HairColor; the HUD portrait).</summary>
+        public static Sprite[] Layers(Look look, int style, int dye, Color32? custom)
         {
             style = Mathf.Clamp(style, 0, look.StyleCount - 1);
             if (!look.Layered) return new[] { HeroHairLayers.LoadCell(look.Root + style + "/down") };
-            Color32? tint = dye >= 0 && dye < look.Presets.Length ? (Color32?)look.Presets[dye] : style < look.StyleDyes.Length ? look.StyleDyes[style] : null; // same choice as HeroHairLayers.Show
+            Color32? tint = custom.HasValue ? custom : dye >= 0 && dye < look.Presets.Length ? (Color32?)look.Presets[dye] : style < look.StyleDyes.Length ? look.StyleDyes[style] : null; // same choice as HeroHairLayers.Show
             return new[]
             {
                 HairDye.Apply(HeroHairLayers.LoadCell(look.Root + "hair-under/" + style + "/down"), tint),

@@ -5,15 +5,16 @@ namespace ZenoniaProto
     /// <summary>
     /// The picture of the warrior's INFERNO CRASH; damage, burn and the leap itself stay in the skill data (SkillRun on the authority), so this runs only where RendersFx.
     /// Timeline (ms): wind-up flames at the take-off spot 0-180, the hero rises on an arc with a flame trail 60-340, a flame slash falls to the landing spot 290-430,
-    /// the strike lands at 400 and the crater explodes 400-1150. The hero's pose frames and height come from here; the sim position and the shadow never leave the ground.
+    /// the hero lands at 400 (= the leap's DurationMs in SkillTable) and the crater explodes 400-1300 while the Multi-Hit Barrage lands 450-1100; the finisher
+    /// time is read from the skill data (last step of SkillSchedule) so the big shake can never drift from the damage. The hero's pose frames and height come from here; the sim position and the shadow never leave the ground.
     /// Every crater frame is cut at the ring's centre line: the upper half draws behind the hero and the lower half in front. Screen effects are for the local caster only.
     /// </summary>
     public class InfernoCrashUltimate : MonoBehaviour
     {
         public const string SkillId = "warrior.inferno-crash";
         public const string PoseAnim = "inferno";
-        const float LandMs = 400f, TotalMs = 1150f, PoseEndMs = 700f;
-        const float CastToMs = 180f, AirFromMs = 60f, AirToMs = 340f, SlamFromMs = 290f, SlamToMs = 430f, BoomMs = 750f, CrossMs = 40f;
+        const float LandMs = 400f, TotalMs = LandMs + BoomMs, PoseEndMs = 700f;
+        const float CastToMs = 180f, AirFromMs = 60f, AirToMs = 340f, SlamFromMs = 290f, SlamToMs = 430f, BoomMs = 900f, CrossMs = 40f; // the boom outlasts the last hit (1100)
         const float LiftUnits = 30f, RingLift = 3f;
         const float CastUnitsPerPx = 0.135f, AirUnitsPerPx = 0.125f, SlamUnitsPerPx = 0.17f, BoomUnitsPerPx = 0.234f; // the crater's outer ring spans its real 3 tile radius at the peak frame
         const float CastAnchorY = 405f, AirAnchorY = 200f, SlamAnchorY = 420f, BoomAnchorY = 240f;
@@ -31,7 +32,8 @@ namespace ZenoniaProto
         HeroController hero;
         ISkillBody body; // the zone pump finds a skill object's caster through this field: a portal transfer ends the picture with its hero
         float age;
-        bool local, landed;
+        bool local, landed, finished;
+        float finishMs;
         Vector2 takeOff, landing, flip;
         Pair cast, air, slam, boom;
         SpriteRenderer groundGlow;
@@ -76,6 +78,7 @@ namespace ZenoniaProto
             takeOff = hero.Position;
             landing = SkillAim.ClampToWalls(takeOff, takeOff + ctx.Dir * ctx.Def.Effects[0].MoveTiles * ctx.Units);
             flip = new Vector2(ctx.Dir.x < -0.1f ? -1f : 1f, 1f);
+            finishMs = Rpg.SkillSchedule.LastStepMs(Rpg.SkillSchedule.Build(ctx.Def.Effects));
             Preload();
             groundGlow = ProceduralSprites.Child(transform, "GroundGlow", FxSprites.Dot());
             groundGlow.sortingOrder = UltimateFx.GroundFxOrder + 1;
@@ -101,6 +104,7 @@ namespace ZenoniaProto
             float dt = GameClock.Dt * 1000f;
             age += dt;
             if (!landed && age >= LandMs) Impact();
+            if (landed && !finished && age >= finishMs) Finish();
             Apply();
         }
 
@@ -116,8 +120,22 @@ namespace ZenoniaProto
             ShockRing.Spawn(ring, r * 1.15f, 0.34f, new Color(1f, 0.55f, 0.18f, 0.85f), UltimateFx.GroundFxOrder + 6);
             ShockRing.Spawn(ring, r * 1.45f, 0.5f, new Color(1f, 0.32f, 0.1f, 0.7f), UltimateFx.GroundFxOrder + 6);
             if (!local) return; // another player's slam never moves this player's camera
+            CameraFollow.SkillShake(0.2f); // the landing only opens the barrage; the big shake waits for the finisher (Finish)
+            GameClock.HitStop(20f);
+        }
+
+        /// <summary>The 350 % finisher: the crater bursts again with the strongest shake, hit-stop, punch-zoom and flash of the skill (ChatGPT V3: 60 ms, 5 px).</summary>
+        void Finish()
+        {
+            finished = true;
+            Vector2 ring = landing + new Vector2(0f, RingLift);
+            float r = BoomFrameRadius;
+            UltimateFx.Embers(ring, 50, r * 0.8f, 130f, new Color(1f, 0.6f, 0.2f, 1f));
+            UltimateFx.Debris(ring, 20, r * 0.7f, 140f);
+            ShockRing.Spawn(ring, r * 1.6f, 0.4f, new Color(1f, 0.75f, 0.3f, 0.85f), UltimateFx.GroundFxOrder + 7, 0.72f, 0.1f, true);
+            if (!local) return;
             CameraFollow.SkillShake(0.62f);
-            GameClock.HitStop(90f);
+            GameClock.HitStop(60f);
             CameraFollow.SkillPunch(0.6f);
             ScreenFlash.Trigger(new Color(1f, 0.45f, 0.14f, 0.1f), 0.2f);
         }

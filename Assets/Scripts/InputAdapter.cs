@@ -28,7 +28,8 @@ namespace ZenoniaProto
         SlotKey1, SlotKey2, SlotKey3, // U / I(L) / O: the three visible magazine slots of the current page (Dash or a skill)
         Class6, Switch6,           // Fighter: class select screen (6), in-game class switch (F11; F6 is the bloom toggle)
         PetWindow, PetGacha,       // P: Pet Companion window, G: pet gacha window
-        Quests                     // N: quest list (read by the Adventure Paper HUD only, TouchControls.Paper.cs)
+        Quests,                    // N: quest list (read by the Adventure Paper HUD only, TouchControls.Paper.cs)
+        AutoToggle                 // V: Auto-battle on / off (AutoBattle)
     }
 
     /// <summary>
@@ -85,6 +86,7 @@ namespace ZenoniaProto
             new[] { KeyCode.P },
             new[] { KeyCode.G },
             new[] { KeyCode.N },
+            new[] { KeyCode.V },
         };
 
         static bool KeyHeld(GameKey k)
@@ -149,6 +151,7 @@ namespace ZenoniaProto
             new[] { Key.P },
             new[] { Key.G },
             new[] { Key.N },
+            new[] { Key.V },
         };
 
         static bool KeyHeld(GameKey k)
@@ -186,16 +189,23 @@ namespace ZenoniaProto
             return UiWindows.BlocksGameplay && k != GameKey.Close && k != GameKey.Interact && k != GameKey.Chat;
         }
 
+        /// <summary>The player moves by hand (keys, D-pad / joystick): Auto-battle hands control back (AutoBattle).</summary>
+        public static bool ManualMoveHeld()
+        {
+            for (GameKey k = GameKey.Up; k <= GameKey.Right; k++) if (TouchControls.Held(k) || KeyHeld(k)) return true;
+            return false;
+        }
+
         public static bool Held(GameKey k)
         {
             if (Gated(k) || WebKeyBlocked(k)) return false;
-            return (BotHeld != null && BotHeld(k)) || TouchControls.Held(k) || KeyHeld(k) || (k == GameKey.Attack && MouseAttack());
+            return (BotHeld != null && BotHeld(k)) || AutoBattle.Held(k) || TouchControls.Held(k) || KeyHeld(k) || (k == GameKey.Attack && MouseAttack());
         }
 
         public static bool Pressed(GameKey k)
         {
             if (Gated(k) || WebKeyBlocked(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
-            return (BotPressed != null && BotPressed(k)) || TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k)
+            return (BotPressed != null && BotPressed(k)) || AutoBattle.Pressed(k) || TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k)
                 || (k == GameKey.Attack && (MouseAttack() || KeyHeld(k) || FarmSkillHeld(GameKey.Skill1)))
                 || FarmSkillHeld(k); // repeated requests still go through cooldown / MP checks and the network input sampler
         }

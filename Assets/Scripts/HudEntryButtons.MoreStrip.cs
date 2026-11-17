@@ -3,13 +3,13 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// HudEntryButtons: the strip of the "..." icon, a small dark capsule under the icon row with Gacha and Settings. A touch anywhere
+    /// HudEntryButtons: the strip of the "..." icon, a small dark capsule under the icon row with Party (the full party board), Gacha and Settings. A touch anywhere
     /// else closes it (and does nothing else: the veil under the strip swallows it), so does Esc, picking an entry, or a window opening.
     /// Gacha presses its key (G: the same path, with its rules); Settings opens its window as the old round button did.
     /// </summary>
     public sealed partial class HudEntryButtons
     {
-        const float StripPad = 3f, StripW = Pitch * 2f + StripPad * 2f, StripH = Pitch + StripPad * 2f;
+        const float StripPad = 3f, StripW = Pitch * 3f + StripPad * 2f, StripH = Pitch + StripPad * 2f;
 
         RectTransform strip;
 
@@ -25,6 +25,7 @@ namespace ZenoniaProto
             RectTransform back = UiWinKit.Anchored(strip, "Back", TopRight, TopRight, -(HudAnchors.MinimapMargin - StripPad), -(HudAnchors.EntryBottom + 2f), StripW, StripH + keyRoom);
             PaperArt.Plate(back, PaperHudCompact.Dark, PaperHudCompact.Rim, 14f, true);
             float y = -(StripPad + Pitch * 0.5f);
+            Icon(back, "Party", TopRight, -(StripPad + Pitch * 2.5f), y, null, () => { CloseMore(); PartyHudList.ToggleBoard(); }); // ChatGPT party design: the round Party button
             Icon(back, "Gacha", TopRight, -(StripPad + Pitch * 1.5f), y, InputAdapter.KeyLabel(GameKey.PetGacha), () => { CloseMore(); TouchControls.Press(GameKey.PetGacha); });
             Icon(back, "Settings", TopRight, -(StripPad + Pitch * 0.5f), y, InputAdapter.KeyLabel(GameKey.Close), () => { CloseMore(); SettingsWindow.Open(); });
             strip.gameObject.SetActive(false);

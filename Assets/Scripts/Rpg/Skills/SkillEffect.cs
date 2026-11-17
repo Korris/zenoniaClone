@@ -28,6 +28,7 @@ namespace ZenoniaProto.Rpg
         public float Pct;                         // damage or heal, % ATK (scaled by SkillDef.DamageMul)
         public float PullTiles, PullFocusTiles;   // capped gather distance and focus ahead of the strike origin; bosses are immune
         public StatusSpec Status;                 // applied to every monster hit
+        public bool Finisher;                     // Strike: the chain's closing hit (big number, ring + slash behind it)
         public BuffSpec Buff;
         public bool Attached;                     // Zone: follows the caster instead of staying on the ground
         public bool Ally;                         // Heal / Buff / Zone: affects heroes in the area instead of monsters

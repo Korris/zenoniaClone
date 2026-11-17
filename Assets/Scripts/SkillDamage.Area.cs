@@ -29,9 +29,9 @@ namespace ZenoniaProto
         /// <summary>
         /// Strike: every live monster whose box overlaps the effect's shape (placed at `center`, facing `dir`) takes one hit and gets the effect's
         /// status. Single hits only the nearest monster; a Pct 0 status-only strike affects at most `Count` monsters (nearest first).
-        /// Returns the reused list of monsters hit.
+        /// Returns the reused list of monsters hit. `defShare`: part of the target DEF this hit subtracts (SkillDef.DefShare; 1 = all of it).
         /// </summary>
-        public static List<Monster> Area(SkillDamageCtx ctx, SkillEffect e, Vector2 center, Vector2 dir)
+        public static List<Monster> Area(SkillDamageCtx ctx, SkillEffect e, Vector2 center, Vector2 dir, float defShare = 1f)
         {
             Hits.Clear();
             if (!NetMode.IsAuthority) return Hits;
@@ -55,7 +55,7 @@ namespace ZenoniaProto
             }
             ClassPalette prev = ClassPalette.Current;
             ClassPalette.Current = ctx.Sparks ?? ClassPalette.Neutral;
-            for (int i = 0; i < Candidates.Count; i++) { HitOne(ctx, e, Candidates[i], center, dir); Hits.Add(Candidates[i]); }
+            for (int i = 0; i < Candidates.Count; i++) { HitOne(ctx, e, Candidates[i], center, dir, defShare); Hits.Add(Candidates[i]); }
             ClassPalette.Current = prev;
             return Hits;
         }
@@ -66,12 +66,12 @@ namespace ZenoniaProto
             if (!NetMode.IsAuthority || target == null || target.IsDying) return false;
             ClassPalette prev = ClassPalette.Current;
             ClassPalette.Current = ctx.Sparks ?? ClassPalette.Neutral;
-            HitOne(ctx, e, target, from, dir);
+            HitOne(ctx, e, target, from, dir, 1f);
             ClassPalette.Current = prev;
             return true;
         }
 
-        static void HitOne(SkillDamageCtx ctx, SkillEffect e, Monster m, Vector2 from, Vector2 dir)
+        static void HitOne(SkillDamageCtx ctx, SkillEffect e, Monster m, Vector2 from, Vector2 dir, float defShare)
         {
             StatusSpec st = e.Status;
             Vector2 away = m.Center - from;
@@ -83,7 +83,7 @@ namespace ZenoniaProto
                 bool behind = e.BehindBonusPct > 0f && SkillGeometry.IsBehind(m.FacingCode, attacker.x - m.Feet.x, attacker.y - m.Feet.y);
                 float mul = e.Pct / 100f * ctx.DamageMul * StatusRules.ConditionalMultiplier(e, m.Status.Mask, behind); // bonus reads the status BEFORE this strike adds its own
                 bool crit = ctx.CritChance > 0f && Random.value < ctx.CritChance;
-                m.TakeHit(CombatMath.Damage(ctx.Atk, mul * (crit ? CritMul : 1f), m.Def), knock * (crit ? 2f : 1f), crit, false, false, ctx.Hero);
+                m.TakeHit(CombatMath.Damage(ctx.Atk, mul * (crit ? CritMul : 1f), m.Def * defShare), knock * (crit ? 2f : 1f), crit, e.Finisher, false, ctx.Hero);
             }
             if (m.IsDying) return;
             if (e.PullTiles > 0f) m.PullToward(from + dir * e.PullFocusTiles * GameConfig.TileUnits, e.PullTiles * GameConfig.TileUnits);

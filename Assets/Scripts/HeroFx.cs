@@ -123,12 +123,14 @@ namespace ZenoniaProto
         }
 
         /// <summary>Shot sounds, the procedural flash when the painted cast art is missing, and the recoil kick.</summary>
-        public static void BoltLaunched(HeroClassDef cls, ComboHit h, bool finisher, ClassPalette pal, Vector2 feet, Vector2 tip, Vector2 dir, float angle, bool paintedCastArt)
+        /// <summary>`shooter`: the recoil kick shakes only that hero's own screen (another player's shots replayed here must not, 2026-11-17).</summary>
+        public static void BoltLaunched(HeroClassDef cls, ComboHit h, bool finisher, ClassPalette pal, Vector2 feet, Vector2 tip, Vector2 dir, float angle, bool paintedCastArt, HeroController shooter)
         {
             if (!NetMode.RendersFx) return;
             ClassSfx.BoltLaunched(cls.Id, finisher);
             if (!paintedCastArt) FallbackCast(cls, h, feet, tip, dir, angle, pal);
-            if (!finisher || cls.Id != HeroClass.Mechanic) CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick; the Mechanic's cannon shakes in MechanicCannonBlastFx, for its shooter only
+            bool mine = shooter != null && shooter == LocalPlayer.Hero;
+            if (mine && (!finisher || cls.Id != HeroClass.Mechanic)) CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick; the Mechanic's cannon shakes in MechanicCannonBlastFx, for its shooter only
         }
 
         /// <summary>Procedural cast flash, used only when the painted VFX sprites are missing.</summary>
@@ -202,10 +204,11 @@ namespace ZenoniaProto
         }
 
         /// <summary>Potion drunk: "HP +n" over the hero and red / blue embers.</summary>
+        /// <summary>`text` null = no number (another player drank: only the embers, 2026-11-17: a crowd's "HP +80%" read as your own heal).</summary>
         public static void Potion(Vector2 feet, bool hp, string text)
         {
             if (!NetMode.RendersFx) return;
-            DamageNumber.Spawn(feet.x, feet.y + 28f, text, hp ? new Color(0.5f, 1f, 0.55f) : new Color(0.5f, 0.75f, 1f), false);
+            if (text != null) DamageNumber.Spawn(feet.x, feet.y + 28f, text, hp ? new Color(0.5f, 1f, 0.55f) : new Color(0.5f, 0.75f, 1f), false);
             UltimateFx.Embers(feet + new Vector2(0f, 6f), 10, 6f, 30f, hp ? new Color(1f, 0.45f, 0.45f, 1f) : new Color(0.45f, 0.65f, 1f, 1f));
         }
 

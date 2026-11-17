@@ -19,10 +19,13 @@ namespace ZenoniaProto
         static Choreo PowerSlash()
         {
             float width = ZenoniaProto.Rpg.SkillTable.Get("warrior", 0).Effects[0].Radius * 1.44f;
-            var c = new Choreo("warrior", "power-slash", 360);
-            c.Add(0, 90).Face().Spr(I, 0, 2, width).Glow(0xFF6725, 0.55f).Embers(12, 0xFF7025).Debris(4).Dust(9).Ring(1.8f, 100, 0xE97B42).HitStop(35).Quake(100, 0.20f).Flare(0xFFAA65, 45).Zoom(0.025f, 100).Sound("impact");
-            c.Add(90, 230).Face().Spr(L, 0, 3, width * 0.944f).Alpha(0.75f).Glow(0xFF4D19, 0.30f).Embers(10, 0xFF6B26).Debris(3).Dust(6);
-            c.Add(230, 360).Face().Spr(I, 2, 3, width * 0.889f).Alpha(0.35f).Glow(0xA83417, 0.12f).Embers(5, 0xD94C20).Dust(4);
+            // Multi-Hit Barrage (SkillTable: hits at 90, 135 ... 315, 365, 440 ms). Small hits: no hit-stop, no shake (ChatGPT V3); the
+            // second-to-last stops 15 ms with a light shake, the finisher 30 ms with the big shake, flash and zoom.
+            var c = new Choreo("warrior", "power-slash", 560);
+            c.Add(0, 90).Face().Spr(L, 0, 1, width * 0.8f).Alpha(0.45f).Glow(0xFF6725, 0.30f).Embers(6, 0xFF7025).Dust(4).Sound("cast");
+            c.Add(90, 340).Face().Spr(L, 0, 3, width * 0.944f).Cycle().Alpha(0.8f).Glow(0xFF4D19, 0.40f).Embers(22, 0xFF6B26).Trail().Debris(4).Dust(8);
+            c.Add(365, 440).Face().Spr(I, 0, 1, width * 0.95f).Glow(0xFF6725, 0.50f).Embers(10, 0xFF7025).Debris(3).Dust(6).HitStop(15).Quake(45, 0.06f);
+            c.Add(440, 560).Face().Spr(I, 0, 3, width * 1.08f).Glow(0xFFAA45, 0.65f).Embers(18, 0xFF9030).Debris(6).Dust(10).Ring(2.0f, 120, 0xE97B42).HitStop(30).Quake(65, 0.20f).Flare(0xFFAA65, 45).Zoom(0.03f, 100).Sound("impact");
             return c;
         }
 

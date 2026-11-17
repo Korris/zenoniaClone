@@ -58,7 +58,7 @@ public class SkillDescribeTests
     [Fact]
     public void LegacySkillsDescribeTheirSharedNumbers()
     {
-        Assert.Contains("380% ATK", SkillDescribe.Description(SkillTable.ById("warrior.earth-break"), 1));
+        Assert.Contains("10 hits, 880% ATK in total", SkillDescribe.Description(SkillTable.ById("warrior.earth-break"), 1));
         Assert.Contains("Boss: immune", SkillDescribe.StatusLines(SkillTable.ById("warrior.earth-break")));
         Assert.Contains("4 waves of 140% ATK", SkillDescribe.Description(SkillTable.ById("wizard.ice-storm"), 1));
         Assert.Contains("10 rockets", SkillDescribe.Description(SkillTable.ById("mechanic.rocket-barrage"), 1));

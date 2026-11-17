@@ -107,13 +107,14 @@ namespace ZenoniaProto
         {
             List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 90f, w == Waves - 1, ClassPalette.Blue, 0f, hero);
             for (int i = 0; i < hit.Count; i++) hit[i].Chill(ChillMs);
-            GameClock.HitStop(w == Waves - 1 ? 60f : 30f);
             if (!NetMode.RendersFx) return;
+            bool local = hero == LocalPlayer.Hero; // stop, shake, flash and zoom are the caster's own (another player's storm must not freeze this screen)
+            if (local) GameClock.HitStop(w == Waves - 1 ? 60f : 30f);
             if (w == 0 || w == Waves - 1) GameSfx.Play("skills/wizard/ice-storm-impact", w == 0 ? 0.8f : 0.9f);
-            CameraFollow.SkillShake(w == Waves - 1 ? 0.55f : 0.3f);
-            ScreenFlash.Trigger(new Color(0.2f, 0.55f, 1f, w == Waves - 1 ? 0.12f : 0.07f), 0.22f);
+            if (local) CameraFollow.SkillShake(w == Waves - 1 ? 0.55f : 0.3f);
+            if (local) ScreenFlash.Trigger(new Color(0.2f, 0.55f, 1f, w == Waves - 1 ? 0.12f : 0.07f), 0.22f);
             ShockRing.Spawn(center, Radius * 1.05f, 0.4f, new Color(0.4f, 0.85f, 1f, 0.9f), UltimateFx.GroundFxOrder + 6, 0.72f, 0.3f);
-            if (w == Waves - 1) CameraFollow.SkillPunch(0.6f);
+            if (local && w == Waves - 1) CameraFollow.SkillPunch(0.6f);
             for (int i = w * 3; i < w * 3 + 3; i++)
             {
                 Spear s = spears[i];

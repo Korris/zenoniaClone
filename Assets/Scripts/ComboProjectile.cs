@@ -190,6 +190,9 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>The local player's own bolt: screen shake / hit-stop are theirs only.</summary>
+        bool Mine { get { return src != null && src == LocalPlayer.Hero; } }
+
         /// <summary>One crit-rolled hit; the damage roll happens on impact like the web.</summary>
         void Strike(Monster m, Vector2 knock, bool blast)
         {
@@ -197,8 +200,8 @@ namespace ZenoniaProto
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
             m.TakeHit(dmg, knock, crit, blast, vfx != null, src); // a crit no longer doubles the push (2026-11-15)
             if (!blast) { HitFx(false); NetEventBus.BoltEnd(netId, pos, false); }
-            GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
-            if (!blast) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode
+            if (Mine) GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
+            if (!blast && Mine) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode; only the shooter's screen
         }
 
         /// <summary>Burst at the projectile position: every live monster within the radius is hit once.</summary>
@@ -217,7 +220,7 @@ namespace ZenoniaProto
             }
             ExplodeVisuals();
             NetEventBus.BoltEnd(netId, pos, true);
-            CameraFollow.AddTrauma(FeelConfig.TraumaBlast);
+            if (Mine) CameraFollow.AddTrauma(FeelConfig.TraumaBlast); // only the shooter's screen shakes
         }
 
         void ExplodeVisuals()

@@ -18,6 +18,7 @@ param(
   [int]$ZonePort = 7798,
   [int]$ApiPort = 3198,
   [int]$MongoPort = 27198,
+  [string]$Ui = "new",        # new = the rebuilt screens (compact HUD, slim boss bar...) behind UiScreens; old = the previous look
   [switch]$Bot                # the hero fights on its own (wanted-kill bot) and saves timed screenshots of the first casts into OutDir\shots
 )
 $ErrorActionPreference = "Stop"
@@ -83,7 +84,7 @@ try {
   if ($LASTEXITCODE -ne 0) { throw "boost $hero failed" }
 
   $env:ZENONIA_TEST_PASSWORD = $password
-  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero, "--name", $hero, "--net-bot", "persist", "--wanted-boss", $Boss, "--persist-role", $(if ($Bot) { "wanted-kill" } else { "idle" }), "--wanted-hp-scale", $HpScale) + $(if ($Bot) { @("--wanted-shots", "`"$OutDir\shots`"") } else { @() }))
+  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero, "--name", $hero, "--net-bot", "persist", "--wanted-boss", $Boss, "--persist-role", $(if ($Bot) { "wanted-kill" } else { "idle" }), "--wanted-hp-scale", $HpScale, "--ui", $Ui) + $(if ($Bot) { @("--wanted-shots", "`"$OutDir\shots`"") } else { @() }))
   Remove-Item env:ZENONIA_TEST_PASSWORD
   Write-Host "client window open as $hero ($Class, level $Level). Close the game window to stop the servers."
   $client.WaitForExit()

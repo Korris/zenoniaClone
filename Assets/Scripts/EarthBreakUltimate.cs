@@ -5,17 +5,20 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Warrior ultimate EARTH BREAK (web bladeStorm / UltimateEffect earthBreak, rank 3: radius 54, 380% ATK, range 36).
-    /// Timeline (ms, same as the web): charge ring 0-500, forward golden sweep 450-950 (hit 560 for 20%), giant sword descends 850-1450,
-    /// SLAM at 1450 (full damage, non-boss monsters launched for 1.5 s), fissure patch 1450-2450 ticking at 1700/1950/2200/2450 for 12%.
+    /// Timeline (ms): charge ring 0-500, forward golden sweep 450-950 (picture only), giant sword descends 850-1450. Every hit lands once the sword is in the ground
+    /// (user 17/11: the numbers must burst when the sword stabs down, not while it falls): the SLAM at 1450 opens 8 small hits (60 % every 45 ms, Multi-Hit
+    /// Barrage, ChatGPT V3), 100 % at 1850, the 300 % finisher at 2000 (non-boss monsters launched for 1.5 s), fissure burns of 20 % at 2150/2250/2350/2450.
+    /// DEF is subtracted once per cast, split by each hit's share of the 880 % chain.
     /// Unity extras: converging embers, red ground telegraph, additive gold bloom layers, rock debris + dust + ember GPU particles,
     /// shockwave rings, hit-stop, trauma shake, camera punch-zoom and a soft orange screen flash.
     /// </summary>
     public class EarthBreakUltimate : MonoBehaviour
     {
-        public const float Radius = Rpg.LegacySkillNumbers.EarthBreakRadius, Mult = Rpg.LegacySkillNumbers.EarthBreakMult, Range = Rpg.LegacySkillNumbers.EarthBreakRange, TotalMs = 2500f, SlamMs = 1450f;
+        public const float Radius = Rpg.LegacySkillNumbers.EarthBreakRadius, Range = Rpg.LegacySkillNumbers.EarthBreakRange, TotalMs = 2500f, SlamMs = 1450f;
         const string Folder = "classes/warrior/fx/earthbreak";
         const float Scale = 0.245f * 1.1f; // world units per source px (web: size 62.4 / 256 at the radius 54 slam, slightly bigger for impact)
-        static readonly float[] BurnAt = { 1700f, 1950f, 2200f, 2450f };
+        static readonly float[] BurnAt = { 2150f, 2250f, 2350f, 2450f };
+        const float SmallStepMs = 45f, PenultMs = 1850f, FinishMs = 2000f; // small hits start at SlamMs
         static readonly Vector2[] DirVec = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
         static readonly float[] DirAngle = { -90f, 90f, 180f, 0f };
         static readonly Color Gold = new Color(1f, 0.62f, 0.16f);
@@ -24,8 +27,8 @@ namespace ZenoniaProto
         Vector2 caster, center;
         int dir;
         float age, atk;
-        bool swept, slammed;
-        int burns;
+        bool penult, slammed, finished, sweptFx;
+        int smalls, burns;
         const string SwingAnim = "melee1"; // the combo's horizontal slash
         const int CutFrame = 4; // frames before it hold the sword back; it and the next are forward
         const float SwingFromMs = 450f, SwingFollowMs = 600f;
@@ -85,29 +88,74 @@ namespace ZenoniaProto
             float dt = GameClock.Dt * 1000f;
             age += dt;
             if (age < 500f && dt > 0f) UltimateFx.Embers(caster, 3, 20f, 30f, new Color(1f, 0.66f, 0.2f, 0.9f), 38f);
-            if (!swept && age >= 560f) { swept = true; Sweep(); }
+            if (!sweptFx && age >= 560f) { sweptFx = true; SweepFx(); }
             if (!slammed && age >= SlamMs) { slammed = true; Slam(); }
+            while (slammed && smalls < Rpg.LegacySkillNumbers.EarthBreakSmallHits && age >= SlamMs + smalls * SmallStepMs) Small(smalls++);
+            if (!penult && age >= PenultMs) { penult = true; Penult(); }
+            if (!finished && age >= FinishMs) { finished = true; Finish(); }
             while (burns < BurnAt.Length && age >= BurnAt[burns]) { burns++; Burn(); }
             Apply();
         }
 
-        void Sweep()
+        /// <summary>DEF share of a hit: the chain subtracts DEF once per cast (SkillDef.DefShare for the hand-made ultimates).</summary>
+        /// <summary>Shake, hit-stop, punch and flash are for the caster's own screen only (sprite-rules VFX 12): never another player's, never the server.</summary>
+        bool Local { get { return NetMode.RendersFx && hero != null && hero == LocalPlayer.Hero; } }
+
+        static float Share(float mult) { return mult / Rpg.LegacySkillNumbers.EarthBreakTotalMult; }
+
+        /// <summary>The golden sweep's embers (no damage: every hit waits for the sword to land).</summary>
+        void SweepFx()
         {
-            SkillDamage.Radial(center, Radius * 0.75f, atk, Mult * Rpg.LegacySkillNumbers.EarthBreakSweep, 20f, false, null, 0f, hero);
-            CameraFollow.SkillShake(0.3f);
-            Vector2 mid = (caster + center) * 0.5f + new Vector2(0f, 6f);
-            UltimateFx.Embers(mid, 26, 16f, 40f, new Color(1f, 0.72f, 0.25f, 1f));
+            if (!NetMode.RendersFx) return;
+            UltimateFx.Embers((caster + center) * 0.5f + new Vector2(0f, 6f), 26, 16f, 40f, new Color(1f, 0.72f, 0.25f, 1f));
         }
 
+        /// <summary>The sword lands: rings, rocks, the impact sound and a medium shake; the barrage starts on this frame.</summary>
         void Slam()
         {
             if (NetMode.RendersFx) GameSfx.Play("skills/warrior/earth-break-impact", 0.9f);
-            List<Monster> hit = SkillDamage.Radial(center, Radius, atk, Mult, 0f, true, null, 0f, hero);
+            if (Local) { CameraFollow.SkillShake(0.35f); GameClock.HitStop(20f); }
+            if (!NetMode.RendersFx) return;
+            int g = UltimateFx.GroundFxOrder + 6;
+            ShockRing.Spawn(center, Radius * 1.2f, 0.4f, new Color(1f, 0.62f, 0.18f, 0.9f), g);
+            UltimateFx.Debris(center, 24, Radius * 0.6f, 110f);
+            UltimateFx.Dust(center, 16, Radius * 0.8f);
+            UltimateFx.Embers(center, 40, Radius * 0.6f, 80f, new Color(1f, 0.6f, 0.15f, 1f));
+        }
+
+        /// <summary>Small hit i of 8 around the planted sword: no shake, no push (ChatGPT V3), a few embers every third.</summary>
+        void Small(int i)
+        {
+            float m = Rpg.LegacySkillNumbers.EarthBreakSmallMult;
+            SkillDamage.Radial(center, Radius, atk, m, 0f, false, null, 0f, hero, Share(m));
+            if (NetMode.RendersFx && i % 3 == 2) UltimateFx.Embers(center, 12, Radius * 0.6f, 60f, new Color(1f, 0.6f, 0.15f, 1f));
+        }
+
+        /// <summary>The stronger hit: a light shake and a 15 ms stop.</summary>
+        void Penult()
+        {
+            float m = Rpg.LegacySkillNumbers.EarthBreakPenultMult;
+            SkillDamage.Radial(center, Radius, atk, m, 0f, false, null, 0f, hero, Share(m));
+            if (NetMode.RendersFx) ShockRing.Spawn(center, Radius, 0.28f, new Color(1f, 0.55f, 0.15f, 0.8f), UltimateFx.GroundFxOrder + 6);
+            if (!Local) return;
+            CameraFollow.SkillShake(0.12f);
+            GameClock.HitStop(15f);
+        }
+
+        /// <summary>The 300 % finisher: the ground bursts, non-boss monsters are launched, the biggest shake / punch / flash of the skill.</summary>
+        void Finish()
+        {
+            float m = Rpg.LegacySkillNumbers.EarthBreakFinishMult;
+            List<Monster> hit = SkillDamage.Radial(center, Radius, atk, m, 0f, true, null, 0f, hero, Share(m));
             for (int i = 0; i < hit.Count; i++) hit[i].Launch();
-            GameClock.HitStop(110f);
-            CameraFollow.SkillShake(1f);
-            CameraFollow.SkillPunch(1f);
-            ScreenFlash.Trigger(new Color(1f, 0.55f, 0.15f, 0.1f), 0.18f);
+            if (Local)
+            {
+                GameClock.HitStop(45f); // ChatGPT V3: 45 ms for the Earth Break finisher
+                CameraFollow.SkillShake(1f);
+                CameraFollow.SkillPunch(1f);
+                ScreenFlash.Trigger(new Color(1f, 0.55f, 0.15f, 0.1f), 0.18f);
+            }
+            if (!NetMode.RendersFx) return;
             int g = UltimateFx.GroundFxOrder + 6;
             ShockRing.Spawn(center, Radius * 1.45f, 0.5f, new Color(1f, 0.62f, 0.18f, 0.9f), g);
             ShockRing.Spawn(center, Radius * 0.9f, 0.32f, new Color(1f, 0.8f, 0.3f, 0.6f), g + 1, 0.72f, 0.1f, true);
@@ -118,8 +166,8 @@ namespace ZenoniaProto
 
         void Burn()
         {
-            SkillDamage.Radial(center, Radius, atk, Mult * Rpg.LegacySkillNumbers.EarthBreakBurn, 0f, false, null, 0f, hero);
-            CameraFollow.SkillShake(0.14f);
+            SkillDamage.Radial(center, Radius, atk, Rpg.LegacySkillNumbers.EarthBreakBurn, 0f, false, null, 0f, hero);
+            if (Local) CameraFollow.SkillShake(0.14f);
             UltimateFx.Embers(center, 22, Radius * 0.7f, 60f, new Color(1f, 0.5f, 0.12f, 1f));
         }
 

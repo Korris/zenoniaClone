@@ -383,6 +383,24 @@
   38,
   0
  ],
+ "hudp/row-frame": [
+  24,
+  24,
+  24,
+  24
+ ],
+ "hudp/row-frame-selected": [
+  24,
+  24,
+  24,
+  24
+ ],
+ "hudp/title-frame": [
+  40,
+  0,
+  40,
+  0
+ ],
  "kit/bar-fill-white": [
   28,
   0,

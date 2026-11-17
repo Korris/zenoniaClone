@@ -27,10 +27,14 @@ namespace ZenoniaProto
         {
             var t = new DamageNumberMotion[11];
             float[] pop = { 0f, 90f, 180f };
-            t[(int)DamageNumberKind.Normal] = Make("normal", 520f, 330f, 26f, 24f, pop, new[] { 0.75f, 1.1f, 1f });
-            t[(int)DamageNumberKind.Finisher] = Make("normal", 700f, 480f, 30f, 32f, pop, new[] { 0.65f, 1.25f, 1f }); // white like normal hits (user 15/11), still bigger with ring + slash
-            // crit: 0.5 -> 1.65 in 70 ms, back to 1.0 by 170 ms with a +-3 px shake, read hold to 310 ms, then rise 30 px
-            t[(int)DamageNumberKind.Crit] = Make(null, 950f, 650f, 30f, 46f, new[] { 0f, 70f, 170f }, new[] { 0.5f, 1.65f, 1f });
+            // Normal / Finisher / Crit: Multi-Hit Barrage values (ChatGPT V3, docs/reference/warrior-skill-redesign-v2-chatgpt.md): short life and a
+            // 95 ms pop so a hit every 35-65 ms does not leave a crowd of numbers all scaling at once. Sizes 30 / 42 / 52 px and ~1 s of life
+            // (numbers pile up into a dense column, user 17/11 "ben ragnarok dam no ra day dac"): as big as
+            // Ragnarok Midgard Senki's (user OK 2026-11-17, docs/reference/midgard-senki-damage-numbers/).
+            t[(int)DamageNumberKind.Normal] = Make("normal", 1000f, 700f, 22f, 30f, new[] { 0f, 50f, 95f }, new[] { 0.8f, 1.08f, 1f });
+            t[(int)DamageNumberKind.Finisher] = Make("normal", 1100f, 800f, 28f, 42f, new[] { 0f, 70f, 135f }, new[] { 0.65f, 1.3f, 1f }); // white like normal hits (user 15/11), still bigger with ring + slash
+            // crit: 0.55 -> 1.45 in 70 ms, back to 1.0 by 160 ms with a +-3 px shake, read hold to 310 ms, then rise 46 px
+            t[(int)DamageNumberKind.Crit] = Make(null, 1150f, 850f, 30f, 52f, new[] { 0f, 70f, 160f }, new[] { 0.55f, 1.45f, 1f });
             t[(int)DamageNumberKind.Crit].RiseDelayMs = 310f;
             t[(int)DamageNumberKind.Crit].ShakeXPx = 3f; t[(int)DamageNumberKind.Crit].ShakeYPx = 2f; t[(int)DamageNumberKind.Crit].ShakeMs = 170f;
             t[(int)DamageNumberKind.Other] = Make("other", 500f, 300f, 22f, 21f, new[] { 0f, 120f }, new[] { 0.9f, 1f });
@@ -44,7 +48,7 @@ namespace ZenoniaProto
             t[(int)DamageNumberKind.PotionHp] = Make("potion-hp", 850f, 600f, 44f, 24f, pop, soft);
             t[(int)DamageNumberKind.PotionMp] = Make("potion-mp", 850f, 600f, 44f, 24f, pop, soft);
             t[(int)DamageNumberKind.Exp] = Make("exp", 650f, 450f, 24f, 20f, new[] { 0f, 120f }, new[] { 0.88f, 1f });
-            t[(int)DamageNumberKind.Pet] = Make("normal", 650f, 420f, 28f, 26f, pop, new[] { 0.6f, 1.3f, 1f }); // a pet's hit: the owner's size, its own colour (teal basic / gold skill), pops harder, to the right (DamageNumber.Layout)
+            t[(int)DamageNumberKind.Pet] = Make("normal", 650f, 420f, 28f, 30f, pop, new[] { 0.6f, 1.3f, 1f }); // a pet's hit: the owner's size, its own colour (teal basic / gold skill), pops harder, to the right (DamageNumber.Layout)
             return t;
         }
 

@@ -155,6 +155,7 @@ namespace ZenoniaProto
             }
             if (Time.frameCount == beganFrame) return;
             if (InputAdapter.Pressed(GameKey.Inventory) || (UiScreens.IsOpen(UiScreen.Bag) && InputAdapter.Pressed(GameKey.Close))) UiScreens.Toggle(UiScreen.Bag); // old bag or its rebuild (UiScreens)
+            AutoBattle.Tick(hero); // V toggles Auto-battle; it stops itself on manual moves, death and map changes
             if (!hero.IsDead && NetMode.IsAuthority) // online clients send the potion keys to the server instead (NetInputSender)
             {
                 if (InputAdapter.Pressed(GameKey.HpPotion)) Drink(hero, true);
@@ -163,6 +164,8 @@ namespace ZenoniaProto
             saveTimer += Time.unscaledDeltaTime;
             if (saveTimer >= AutosaveSeconds) SaveNow();
         }
+
+        void OnGUI() { AutoBattle.DrawBadge(); }
 
         void Drink(HeroController hero, bool hp)
         {

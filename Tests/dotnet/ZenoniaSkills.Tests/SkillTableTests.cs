@@ -57,7 +57,7 @@ public class SkillTableTests
         Assert.Equal(LegacySkill.EarthBreak, SkillTable.Get("warrior", 2).Legacy);
         SkillDef cyclone = SkillTable.Get("warrior", 5);
         Assert.Equal("warrior.blade-cyclone", cyclone.Id); Assert.Equal(40, cyclone.Mp); Assert.Equal(12000, cyclone.BaseCooldownMs); Assert.Equal(LegacySkill.BladeCyclone, cyclone.Legacy);
-        Assert.Contains("6 waves of 150% ATK within 2.5 tiles", SkillDescribe.Description(cyclone, 1));
+        Assert.Contains("18 hits, 1080% ATK in total, within 2.5 tiles", SkillDescribe.Description(cyclone, 1));
         Assert.Contains("KNOCKBACK", SkillDescribe.StatusLines(cyclone));
         SkillDef plasma = SkillTable.Get("mechanic", 1);
         Assert.Equal("mechanic.plasma-barrage", plasma.Id); Assert.Equal(8, plasma.UnlockLevel); Assert.Equal(22, plasma.Mp); Assert.Equal(9000, plasma.BaseCooldownMs); Assert.Equal(6, plasma.Effects[0].Count);
@@ -89,7 +89,7 @@ public class SkillTableTests
         SkillDef s = SkillTable.Get("warrior", 0);
         Assert.Equal(1f, s.DamageMul(1));
         Assert.Equal(1f + 9 * s.DamageGrowth, s.DamageMul(10), 4);
-        Assert.Equal(170f, s.PctAt(s.Effects[0], 1));
+        Assert.Equal(55f, s.PctAt(s.Effects[0], 1));
         foreach (SkillDef d in SkillTable.All)
             for (int r = 1; r < SkillDef.MaxRank; r++) Assert.True(d.MpAt(r + 1) > d.MpAt(r), d.Id);
         Assert.Equal(27, SkillTable.Get("warrior", 1).MpAt(10)); // Whirlwind: basic tier, +1 MP per rank

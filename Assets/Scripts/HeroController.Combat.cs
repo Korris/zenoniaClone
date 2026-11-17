@@ -103,7 +103,7 @@ namespace ZenoniaProto
             if (!NetMode.RendersFx) return;
             bool painted = VfxSprites.For(h.Bolt.Style) != null;
             if (painted && castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast
-            HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), CastTip, v, angle, painted);
+            HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), CastTip, v, angle, painted, this);
         }
 
         /// <summary>Called by monsters when a strike connects. Green Slime takes its % off first; a hit fully soaked by a shield does not wake the pet (no real HP lost).</summary>

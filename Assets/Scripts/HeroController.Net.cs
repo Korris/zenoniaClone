@@ -175,7 +175,7 @@ namespace ZenoniaProto
             int tipFacing = cls.Id == HeroClass.Cleric ? facing & 3 : shotFacing; // the Cleric's flash sits on her staff / shield, which follow her pose, not the aim
             Vector2 tip = HeroFx.CastTipFor(cls, step, tipFacing, new Vector2(x, y), new Vector2(x + dir.x * 10f, y + 12f + dir.y * 6f), figure);
             if (painted && !HeroFx.MechanicPistolFlash(cls, h, step, facing & 3, new Vector2(x, y), angle, figure)) HeroFx.CastWindup(cls, h, tip, angle, finisher, this);
-            HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), tip, dir, angle, painted);
+            HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), tip, dir, angle, painted, this);
         }
 
         /// <summary>Another player's (or the server-confirmed own) skill cast: replays the skill with the server's rank and cast salt (view only, the server owns the effects).</summary>

@@ -8,8 +8,8 @@ namespace ZenoniaProto
     {
         static readonly List<Monster> Hits = new List<Monster>(24);
 
-        /// <summary>Hits all monsters within radius of center; knockback pushes away from the centre; `src` gets the kill credit. Returns the reused list of monsters hit.</summary>
-        public static List<Monster> Radial(Vector2 center, float radius, float atk, float mult, float knockback, bool big, ClassPalette sparks = null, float critChance = 0f, HeroController src = null)
+        /// <summary>Hits all monsters within radius of center; knockback pushes away from the centre; `src` gets the kill credit; `defShare` = part of the target DEF this hit subtracts (a multi-hit chain splits DEF across its hits). Returns the reused list of monsters hit.</summary>
+        public static List<Monster> Radial(Vector2 center, float radius, float atk, float mult, float knockback, bool big, ClassPalette sparks = null, float critChance = 0f, HeroController src = null, float defShare = 1f)
         {
             Hits.Clear();
             if (!NetMode.IsAuthority) return Hits; // client: the skill picture plays, the server applies the damage
@@ -26,7 +26,7 @@ namespace ZenoniaProto
                 Vector2 away = m.Center - center;
                 Vector2 knock = knockback > 0f && away.sqrMagnitude > 0.01f ? away.normalized * knockback : Vector2.zero;
                 bool crit = critChance > 0f && Random.value < critChance;
-                m.TakeHit(CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def), knock * (crit ? 2f : 1f), crit, big, false, src);
+                m.TakeHit(CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def * defShare), knock * (crit ? 2f : 1f), crit, big, false, src);
                 Hits.Add(m);
             }
             ClassPalette.Current = hero;

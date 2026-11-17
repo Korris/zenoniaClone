@@ -36,6 +36,7 @@ namespace ZenoniaProto
             GearShopWindow.Create(canvas);
             ChatWindow.Create(canvas);
             PartyPanel.Create(canvas);
+            PartyHudList.Create(canvas); // new-HUD party list (teammates only); its title opens PartyPanel as the full board
             PartyPlayerMenu.Create(canvas);
             PartyInviteWindow.Create(canvas);
             TradeRequestWindow.Create(canvas);

@@ -115,7 +115,7 @@ namespace ZenoniaProto
                 case NetEventType.PotionUsed:
                     HeroController dr = HeroOf(e.Id);
                     bool drankHp = PotionCatalog.EventIsHp(e.Step);
-                    if (fx && dr != null) HeroFx.Potion(dr.Position, drankHp, (drankHp ? "HP +" : "MP +") + PotionCatalog.Percent(PotionCatalog.EventSize(e.Step)) + "%");
+                    if (fx && dr != null) HeroFx.Potion(dr.Position, drankHp, dr == LocalPlayer.Hero ? (drankHp ? "HP +" : "MP +") + PotionCatalog.Percent(PotionCatalog.EventSize(e.Step)) + "%" : null); // only your own potion shows its number
                     break;
                 case NetEventType.AppearanceChanged:
                     HeroController look = HeroOf(e.Id);

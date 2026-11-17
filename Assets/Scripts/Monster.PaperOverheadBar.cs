@@ -4,19 +4,19 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Adventure Paper bars above a monster's head (boss-hp-bar.png, section 6 "Other HP Bars (In-World)"), drawn instead of the plain
-    /// black / red quads while UiScreens.UseNew(UiScreen.Boss):
-    ///   monster   the small leather frame with a red fill, only once it lost HP (as before)
-    ///   boss      the wider gold-tipped frame, its name on a dark tab above and, while a Wanted Boss telegraphs a skill, a purple cast
-    ///             tab "Frozen Ground Stomp 1.6s" below
+    /// Adventure Paper bars of a monster (boss-hp-bar.png, section 6 "Other HP Bars (In-World)"), drawn instead of the plain black / red quads
+    /// while UiScreens.UseNew(UiScreen.Boss). Ragnarok-style (user 17/11): a monster shows its small leather-framed HP bar and "Lv.N Name" UNDER
+    /// ITS FEET, always while alive; a boss shows nothing on its body: its name, level, HP and Wanted cast line live in the top BossBarView only.
     /// (the elite frame is cut but the game has no elite monsters yet). Same SpriteRenderers as the old bar, so the old code keeps showing /
     /// hiding them; switching the look back restores the white quads. Also what the top boss bar needs to read from a monster.
     /// </summary>
     public partial class Monster
     {
         const string PaperBarFolder = "Sprites/ui/paper/";
-        const float PaperBarWidth = 15f, PaperBossBarWidth = 24f, WorldTextHeight = 2.6f;
-        static readonly Color PaperBarFill = new Color(0.9f, 0.19f, 0.16f), PaperCastFill = new Color(0.6f, 0.3f, 0.94f), PaperTab = new Color(0.17f, 0.08f, 0.05f, 0.82f);
+        const float PaperBarWidth = 15f, WorldTextHeight = 2.6f, FootBarY = -3f, FootTextHeight = 2.2f;
+        /// <summary>Foot bars and names draw over every monster and hero (Ragnarok: a monster in front never hides the label of one behind), under the skill FX.</summary>
+        const int FootLabelOrder = FeelConfig.FxOrder - 60;
+        static readonly Color PaperBarFill = new Color(0.9f, 0.19f, 0.16f);
 
         /// <summary>Capture runs only (--boss-bar-demo cast): every Wanted Boss shows this skill being cast, on a loop.</summary>
         public static WantedSkillDef DebugCastDemo;
@@ -26,9 +26,8 @@ namespace ZenoniaProto
 
         bool paperBar;
         float paperFrameAspect; // texture height / width of the frame in use
-        TextMesh paperName, paperCastText;
-        SpriteRenderer paperNameTab, paperCastTab, paperCastFill;
-        int paperCastTenths = -1;
+        TextMesh paperName;
+        SpriteRenderer paperNameTab;
 
         /// <summary>
         /// The skill a Wanted Boss is telegraphing and the ms until it lands. The authority reads its own state timer; a client proxy has no
@@ -70,21 +69,17 @@ namespace ZenoniaProto
         void BuildPaperBar()
         {
             paperBar = true;
-            Sprite frame = PaperBarSprite(def.IsBoss ? PaperPiece.OverheadBoss : PaperPiece.OverheadNormal, out paperFrameAspect);
+            Sprite frame = PaperBarSprite(PaperPiece.OverheadNormal, out paperFrameAspect);
             if (frame != null) { barBack.sprite = frame; barBack.color = Color.white; } // art missing: the old dark quad stays as the frame
             barFill.color = PaperBarFill;
-            if (!def.IsBoss) return;
+            if (def.IsBoss) return; // nothing on a boss's body: the top bar shows it
             paperNameTab = ProceduralSprites.Child(transform, "PaperNameTab", ProceduralSprites.White(false));
-            paperNameTab.color = PaperTab;
-            paperName = WorldText("PaperName", def.Name, PaperTheme.TextLight);
-            float w = paperName.GetComponent<MeshRenderer>().bounds.size.x + 3f;
-            paperNameTab.transform.localScale = new Vector3(w, WorldTextHeight + 1f, 1f);
-            if (!def.IsWanted) return;
-            paperCastTab = ProceduralSprites.Child(transform, "PaperCastTab", ProceduralSprites.White(true));
-            paperCastTab.color = PaperTab;
-            paperCastFill = ProceduralSprites.Child(transform, "PaperCastFill", ProceduralSprites.White(true));
-            paperCastFill.color = PaperCastFill;
-            paperCastText = WorldText("PaperCastText", "", PaperTheme.TextLight);
+            paperNameTab.color = new Color(0f, 0f, 0f, 0.45f);
+            paperName = WorldText("PaperName", "<color=#FDC04E>Lv." + def.ItemLevel + "</color> " + def.Name, Color.white); // gold level like the top boss bar, white name (user 17/11: one colour read as one blur)
+            paperName.richText = true;
+            paperName.characterSize *= FootTextHeight / WorldTextHeight;
+            float tw = paperName.GetComponent<MeshRenderer>().bounds.size.x + 2f;
+            paperNameTab.transform.localScale = new Vector3(tw, FootTextHeight + 0.6f, 1f);
         }
 
         /// <summary>Text in the world (kit title font), centred on its position and about WorldTextHeight units high.</summary>
@@ -111,50 +106,30 @@ namespace ZenoniaProto
             barBack.sprite = ProceduralSprites.White(true);
             barBack.color = new Color(0f, 0f, 0f, 0.7f);
             barFill.color = new Color(0.9f, 0.2f, 0.25f, 1f);
-            foreach (Component c in new Component[] { paperName, paperCastText, paperNameTab, paperCastTab, paperCastFill })
+            foreach (Component c in new Component[] { paperName, paperNameTab })
                 if (c != null) Destroy(c.gameObject);
         }
 
         void RenderPaperBar(int order, bool showBar)
         {
             if (!paperBar) BuildPaperBar();
-            bool boss = def.IsBoss, art = barBack.sprite != ProceduralSprites.White(true);
-            float w = boss ? PaperBossBarWidth : PaperBarWidth, h = w * paperFrameAspect;
-            float top = def.BodyHeightUnits * def.RenderScale + 2f + AirLift();
+            if (def.IsBoss) { barBack.enabled = barFill.enabled = false; return; } // the top BossBarView carries the boss's name, level, HP and cast line
+            bool art = barBack.sprite != ProceduralSprites.White(true);
+            showBar = state != State.Dying; // Ragnarok-style: always shown under a live monster's feet, not only once hurt
+            float w = PaperBarWidth, h = w * paperFrameAspect, y = FootBarY; // under the feet (the transform sits on them)
             barBack.enabled = showBar; barFill.enabled = showBar;
             if (showBar)
             {
-                // Groove of the cut frames: normal x 26..247 of 273, 29 px high; boss x 24..290 of 333, 34 px high.
-                float x0 = boss ? 24f / 333f : 26f / 273f, span = boss ? 266f / 333f : 221f / 273f, fillH = boss ? 34f / 333f : 29f / 273f;
-                barBack.transform.localPosition = new Vector3(-w * 0.5f, top, 0f);
+                // Groove of the cut frame: x 26..247 of 273, 29 px high.
+                float x0 = 26f / 273f, span = 221f / 273f, fillH = 29f / 273f;
+                barBack.transform.localPosition = new Vector3(-w * 0.5f, y, 0f);
                 barBack.transform.localScale = art ? new Vector3(w, w, 1f) : new Vector3(w, h, 1f);
-                barFill.transform.localPosition = new Vector3(-w * 0.5f + w * x0, top, 0f);
+                barFill.transform.localPosition = new Vector3(-w * 0.5f + w * x0, y, 0f);
                 barFill.transform.localScale = new Vector3(w * span * Mathf.Clamp01(hp / def.Hp), w * fillH, 1f);
-                barBack.sortingOrder = order + 6;
-                barFill.sortingOrder = order + 7;
+                barBack.sortingOrder = FootLabelOrder + 2;
+                barFill.sortingOrder = FootLabelOrder + 3;
             }
-            if (!boss) return;
-            bool alive = state != State.Dying;
-            Place(paperNameTab, paperName, alive && showBar, top + h * 0.5f + WorldTextHeight * 0.5f + 0.8f, order);
-            if (paperCastTab == null) return;
-            WantedSkillDef skill;
-            float leftMs;
-            bool casting = WantedCast(out skill, out leftMs); // false once it is dying
-            float castY = top - h * 0.5f - WorldTextHeight * 0.5f - 0.9f;
-            Place(paperCastTab, paperCastText, casting, castY, order);
-            paperCastFill.enabled = casting;
-            if (!casting) return;
-            int tenths = Mathf.CeilToInt(leftMs / 100f);
-            if (tenths != paperCastTenths)
-            {
-                paperCastTenths = tenths;
-                paperCastText.text = skill.Name + " " + (tenths / 10) + "." + (tenths % 10) + "s";
-            }
-            float cw = Mathf.Max(w, paperCastText.GetComponent<MeshRenderer>().bounds.size.x + 3f), ch = WorldTextHeight + 1f;
-            paperCastTab.transform.localPosition = paperCastFill.transform.localPosition = new Vector3(-cw * 0.5f, castY, 0f);
-            paperCastTab.transform.localScale = new Vector3(cw, ch, 1f);
-            paperCastFill.transform.localScale = new Vector3(cw * (1f - Mathf.Clamp01(leftMs / Mathf.Max(1, skill.TelegraphMs))), ch, 1f);
-            paperCastFill.sortingOrder = order + 7;
+            Place(paperNameTab, paperName, showBar, y - h * 0.5f - FootTextHeight * 0.5f - 0.6f, FootLabelOrder - 6);
         }
 
         static void Place(SpriteRenderer tab, TextMesh text, bool show, float y, int order)

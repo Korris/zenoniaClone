@@ -105,7 +105,7 @@ namespace ZenoniaProto
         // One table to tune: HP = WantedHpFactor x the map boss of the level band (ctor input, so the farm x2 applies to both: King 580 -> 17400 declared), Atk = WantedAtkFactor x that boss,
         // drawn WantedRenderScale (about 3 hero bodies: 164 px of a 192 cell = 20.5 units, 3 x = 61.5 = a 170 px boss body x 2.9) with a hit box and reach to match. Art lands later as
         // Sprites/monsters/<type>.png (4x4 cells of 384) + <type>-attack.png (4x4 cells of 512, feet 448 px down); until then the map boss's sheet is drawn tinted.
-        public const float WantedHpFactor = 30f, WantedAtkFactor = 1.5f, WantedRenderScale = 4.5f, WantedHitW = 78f, WantedHitH = 45f, WantedAttackRange = 66f; // 4.5 hero bodies since 2026-11-12 (user: 3 was still too small); hit box and reach grew with it
+        public const float WantedHpFactor = 30f, WantedAtkFactor = 1.5f, WantedRenderScale = 2.5f, WantedHitW = 43f, WantedHitH = 25f, WantedAttackRange = 37f; // 2.5 hero bodies since 2026-11-17 (user OK'd matching Ragnarok Midgard Senki, where an MVP is 1.5-2 heroes; was 4.5 since 11-12, numbers ran off the screen); hit box and reach scaled with it
         /// <summary>basisHp / basisAtk / basisDef / basisSpeed are the map boss's own ctor inputs (pre-double hp), taken as a frozen snapshot: World Map 2.0 step 1 (13/11/2026) re-leveled Frostfang King
         /// and Mirefang Hydra, but the Wanted bosses must keep their old numbers ("giữ như cũ"), so each call below passes the PRE-rebalance stats of its basis boss, not the live MonsterDef (which would
         /// silently drift every time the map boss's level changes again).</summary>
