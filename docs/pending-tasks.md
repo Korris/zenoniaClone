@@ -1,5 +1,8 @@
 # Việc đang dở
 
+### 18/11 02:30: chuyển sang 3D top-down THẬT (hướng Ragnarok 3): BẢN THỬ CHẠY ĐƯỢC `D:/temp/proto3d-build/Warrior3D.exe`, CHỜ người dùng chơi thử + chọn bước tiếp (boss 3D, map 3D, combo, kiếm khiên)
+- `docs/reference/3d-warrior-prototype/` (README có kế hoạch 3 bước + lời khuyên ChatGPT).
+
 ### 18/11 01:45: người dùng bảo commit + push (mọi thứ 17-18/11 bên dưới đã commit). Đang cân: sprite 8 hướng (chéo) như mockup RO thay 4 hướng; chưa hỏi ChatGPT, chưa làm.
 
 ### 18/11 01:20: 5 class thiết kế lại từ đầu theo RO Soft Fantasy (concept v1, CHỜ người dùng duyệt)
