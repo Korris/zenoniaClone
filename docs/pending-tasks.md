@@ -1,5 +1,10 @@
 # Việc đang dở
 
+### 19/11 05:40 tiến độ nhân vật nhiều lớp (người dùng đang ngủ, Claude tự quyết)
+- XONG + merge: bước B (shader `HeroRecolor`, `CharacterAppearanceData`, protocol 23 — phải build lại zone server + deploy server-api, renderer nhiều lớp `--layered-test`, vòng bạc hà + tên xanh), báo cáo `plans/reports/hero-layered-step-b-261119.md`. Art đợt 1 (thân nam/nữ đi, nam đánh 1-3) `plans/reports/layered-hero-art-batch1-261119.md`.
+- ĐANG CHẠY: art đợt 2 (nữ đánh 1-3, tóc 5 class); agent hệ thống mũ (rơi quái / boss truy nã / shop / quà tân thủ, ô mũ riêng, vòng + tên xanh cả offline, đổi màu áo "nâu đất" sang màu khác).
+- CÒN: art đợt 3 (19 mũ + vũ khí), bước D ghép bộ nhiều lớp thật vào game thay Warrior RO Soft.
+
 ### 19/11 04:50: hướng mới: nhân vật NHIỀU LỚP kiểu Ragnarok (thân gốc chung theo giới, đầu trần, tóc + mũ rời, đổi màu tóc / áo bằng shader, vũ khí lớp riêng)
 - Người dùng gửi spec (người dùng tự vẽ bằng ChatGPT, Claude làm code/shader/tool). Quy cách + 7 prompt: `docs/character-appearance-layered-spec.md`. Thay cho bản RO Soft vẽ liền (Warrior đang chạy trong game, merge 87f3b811, exe `Build/ro-soft-warrior-261119/Zenonia.exe`).
 - 05:00 người dùng: "cứ việc làm, không cần hỏi, tui đi ngủ" + đã trả lời: BỎ quy tắc vòng chỉ cho buff (có vòng định vị mình), tên mình HIỆN màu xanh lá, nguồn mũ = quái rơi / boss truy nã / shop làng / quà nhiệm vụ tân thủ (xem spec). Claude tự vẽ art bước A/C trên chat Tay https://chatgpt.com/c/6afe1ebe-b668-83ec-8233-c010a9354ef0 , nguồn `Assets/ArtLibrary/hero-layered/src/`, tool cắt `Tools/build-hero-layered-sheets.py` (`write`, `check`; ra `hero-layered/sheets/<gender>/` + `head-anchors.json` + `ref/`). Agent code bước B (shader HeroRecolor, CharacterAppearanceData, protocol 23, renderer nhiều lớp, vòng + tên xanh) đang chạy trong worktree.
