@@ -62,7 +62,7 @@ Thay cho bản RO Soft "vẽ liền tóc + vũ khí" (Warrior, 19/11 sáng). B�
 
 **Bảng màu.** `Data/hero-layered/palettes.json`.
 - 8 màu tóc: nâu hạt dẻ, đen than, vàng mật ong, bạch kim, đỏ son, xanh biển nhạt, tím oải hương, hồng anh đào.
-- 6 màu áo: đỏ son, xanh lam hoàng gia, xanh rêu, vàng mù tạt, nâu đất, tím mận.
+- 6 màu áo: đỏ son, xanh lam hoàng gia, xanh rêu, vàng mù tạt, ngọc lam (thay nâu đất 19/11: gần màu da thuộc thắt lưng), tím mận.
 
 **Ngoại hình lưu cố định.**
 - `CharacterAppearanceData { classId, hairColorIndex, outfitColorIndex, equippedHeadgearId }`, kèm kiểu tóc đang có.
@@ -130,3 +130,4 @@ Cỡ so với thân gốc cao 200 px: kiếm dài 150 px, gậy 190 px, khiên c
    - **Boss truy nã / MVP:** rơi mũ hiếm, nhìn là biết người kỳ cựu.
    - **Shop NPC trong làng (khoảng 30 %):** bán 3-4 mũ phổ thông giá vừa, chơi 15-20 phút là mua được.
    - **Quà nhiệm vụ tân thủ (khoảng 10 %):** NPC tặng mũ khởi đầu theo class sau khi đánh 5 con quái đầu tiên.
+   - Đã làm (19/11, báo cáo `plans/reports/headgear-system-261119.md`): id 1-19 theo thứ tự Prompt 6, luật trong `Rpg/HeadgearCatalog.cs`, dữ liệu + neo art trong `Data/hero-layered/headgear.json`; art `Sprites/hero-layered/headgear/<key>.png`, icon `Sprites/icons/headgear-<key>.png` (chưa có thì đầu trần + icon tạm).

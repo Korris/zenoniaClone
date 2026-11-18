@@ -4,6 +4,9 @@
 - XONG + merge: bước B (shader `HeroRecolor`, `CharacterAppearanceData`, protocol 23 — phải build lại zone server + deploy server-api, renderer nhiều lớp `--layered-test`, vòng bạc hà + tên xanh), báo cáo `plans/reports/hero-layered-step-b-261119.md`. Art đợt 1 (thân nam/nữ đi, nam đánh 1-3) `plans/reports/layered-hero-art-batch1-261119.md`.
 - ĐANG CHẠY: art đợt 2 (nữ đánh 1-3, tóc 5 class); agent hệ thống mũ (rơi quái / boss truy nã / shop / quà tân thủ, ô mũ riêng, vòng + tên xanh cả offline, đổi màu áo "nâu đất" sang màu khác).
 - CÒN: art đợt 3 (19 mũ + vũ khí), bước D ghép bộ nhiều lớp thật vào game thay Warrior RO Soft.
+### 19/11 06:00: hệ thống mũ thời trang (headgear) — code xong trên branch worktree, chưa merge
+- 19 mũ id 1..19 (`Assets/Scripts/Rpg/HeadgearCatalog.cs`, bản sao dữ liệu + bố cục art `Assets/Resources/Data/hero-layered/headgear.json`), ô trang bị riêng `headgear` (ô thứ 8; ô `helmet` vẫn là dây chuyền), không chỉ số. Nguồn: quái rơi 1,5-4 %, boss truy nã 6 % + mũ phù thuỷ tối thượng 1 %, 4 mũ ở lò rèn làng (tab "Hats"), quest tân thủ "First Hunt" của Elder (5 quái bất kỳ -> mũ class). Protocol 24, server-api thêm slot / template hat. Báo cáo `plans/reports/headgear-system-261119.md`.
+- CÒN: người dùng vẽ Prompt 6 (art mũ + icon `Sprites/icons/headgear-<key>.png`), mũ chỉ hiện trên đầu khi nhân vật vẽ nhiều lớp (bước C/D).
 
 ### 19/11 04:50: hướng mới: nhân vật NHIỀU LỚP kiểu Ragnarok (thân gốc chung theo giới, đầu trần, tóc + mũ rời, đổi màu tóc / áo bằng shader, vũ khí lớp riêng)
 - Người dùng gửi spec (người dùng tự vẽ bằng ChatGPT, Claude làm code/shader/tool). Quy cách + 7 prompt: `docs/character-appearance-layered-spec.md`. Thay cho bản RO Soft vẽ liền (Warrior đang chạy trong game, merge 87f3b811, exe `Build/ro-soft-warrior-261119/Zenonia.exe`).

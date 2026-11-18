@@ -8,7 +8,25 @@ namespace ZenoniaProto.Rpg
     {
         public string Id, Title, Description, MonsterType, MonsterName, GiverNpcId, GiverName;
         public int Count, RewardGold, RewardStones, RewardHpPotions;
+        /// <summary>Also gives the hero's class starter hat (HeadgearCatalog.StarterFor): the newbie quest.</summary>
+        public bool RewardStarterHat;
         public string[] OfferLines, ActiveLines, ReadyLines, DoneLines;
+
+        /// <summary>MonsterType of a quest that counts every monster kill.</summary>
+        public const string AnyMonster = "*";
+
+        public bool Counts(string monsterType) { return MonsterType == AnyMonster || MonsterType == monsterType; }
+
+        /// <summary>"+30 G, Small Iron Helmet" for this class: chat line, quest list, completion toast.</summary>
+        public string RewardText(string classId)
+        {
+            var parts = new List<string>();
+            if (RewardGold > 0) parts.Add("+" + RewardGold + " G");
+            if (RewardStones > 0) parts.Add("+" + RewardStones + " stones");
+            if (RewardHpPotions > 0) parts.Add("+" + RewardHpPotions + " HP potions");
+            if (RewardStarterHat) parts.Add(HeadgearCatalog.StarterFor(classId).Name);
+            return string.Join(", ", parts);
+        }
     }
 
     public enum QuestState { Available = 0, Active = 1, ReadyToTurnIn = 2, Done = 3 }
@@ -24,6 +42,21 @@ namespace ZenoniaProto.Rpg
 
         public static readonly QuestDef[] All =
         {
+            // Newbie quest (user decision 19/11/2026, hat sources): the first 5 kills of any monster, the class starter hat as the gift. First so the Elder offers it first.
+            new QuestDef
+            {
+                Id = "first-hunt", Title = "First Hunt", GiverNpcId = "elderRowan", GiverName = "Elder Thomas",
+                Description = "Every adventurer starts somewhere. Defeat any five monsters outside the village and come back for a small gift.",
+                MonsterType = QuestDef.AnyMonster, MonsterName = "any monster", Count = 5, RewardGold = 30, RewardStarterHat = true,
+                OfferLines = new[]
+                {
+                    "Welcome to Oakhaven, young one. Before you wander far, show me you can hold your own.",
+                    "Defeat five monsters, any kind will do, and I will give you something to wear on that bare head of yours.",
+                },
+                ActiveLines = new[] { "The meadows and the hollow are full of monsters.\nCome back once you have defeated five of them." },
+                ReadyLines = new[] { "Well done! You fight like a true adventurer.", "Here, this was made for one of your calling. Wear it with pride." },
+                DoneLines = new[] { "That suits you. Off you go, the world is waiting." },
+            },
             new QuestDef
             {
                 Id = "crystal-survey", Title = "Ancient Crystal Survey", GiverNpcId = "elderRowan", GiverName = "Elder Thomas",
@@ -106,7 +139,7 @@ namespace ZenoniaProto.Rpg
                 QuestEntry e = entries[i];
                 if (e.state != (int)QuestState.Active) continue;
                 QuestDef q = QuestCatalog.Get(e.id);
-                if (q == null || q.MonsterType != monsterType) continue;
+                if (q == null || !q.Counts(monsterType)) continue;
                 e.progress = Math.Min(q.Count, e.progress + 1);
                 if (e.progress >= q.Count) e.state = (int)QuestState.ReadyToTurnIn;
                 moved = true;

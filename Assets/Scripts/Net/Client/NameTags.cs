@@ -26,7 +26,7 @@ namespace ZenoniaProto
 
         void OnGUI()
         {
-            if (Event.current.type != EventType.Repaint || NetMode.IsOffline || TradeWindow.IsOpen) return; // IMGUI draws over the UGUI canvas: the tags would sit on the trade window's items
+            if (Event.current.type != EventType.Repaint || UiWindows.ModalOpen) return; // offline too (user 19/11/2026): your own green name, nobody else's. IMGUI draws over the UGUI canvas: tags would sit on any open window (trade items, shop tabs)
             Camera cam = Camera.main;
             Zone zone = Zone.Main;
             if (cam == null || zone == null) return;
@@ -39,7 +39,7 @@ namespace ZenoniaProto
             for (int i = 0; i < zone.Heroes.All.Count; i++)
             {
                 HeroController h = zone.Heroes.All[i];
-                if (h == null || h.IsDead || string.IsNullOrEmpty(h.PlayerName) || h == me || NetClient.Party.Contains(h.PlayerId)) continue;
+                if (h == null || h.IsDead || string.IsNullOrEmpty(h.PlayerName) || h == me || NetMode.IsOffline || NetClient.Party.Contains(h.PlayerId)) continue;
                 order.Add(h);
                 sortKey[h] = Vector2.Distance(h.Position, from) - (shown.Contains(h) ? ShownBonus : 0f);
             }
@@ -50,7 +50,7 @@ namespace ZenoniaProto
             placed.Clear();
             shownNow.Clear();
             Rect ring = me != null ? HeroRingRect(cam, me.Position) : Rect.zero;
-            if (me != null && !me.IsDead && !string.IsNullOrEmpty(me.PlayerName)) DrawOwnName(cam, me); // first, so the other names keep clear of it
+            if (me != null && !me.IsDead && OwnName(me) != "") DrawOwnName(cam, me); // first, so the other names keep clear of it
             for (int i = 0; i < order.Count; i++)
             {
                 HeroController h = order[i];
@@ -79,19 +79,27 @@ namespace ZenoniaProto
         static readonly Color OwnGreen = new Color(0.42f, 1f, 0.42f, 1f);
 
         /// <summary>Your own name, bright green, always drawn (the crowd rule never skips it), at the height the other names use.</summary>
+        /// <summary>The character name; offline there is no account name, so the class name stands in.</summary>
+        static string OwnName(HeroController me)
+        {
+            if (!string.IsNullOrEmpty(me.PlayerName)) return me.PlayerName;
+            return NetMode.IsOffline && me.Class != null ? me.Class.Name : "";
+        }
+
         void DrawOwnName(Camera cam, HeroController me)
         {
             Vector3 sp = cam.WorldToScreenPoint(new Vector3(me.Position.x, me.Position.y + 30f, 0f));
             if (sp.z < 0f) return;
-            Vector2 size = style.CalcSize(new GUIContent(me.PlayerName));
+            string name = OwnName(me);
+            Vector2 size = style.CalcSize(new GUIContent(name));
             var rect = new Rect(0f, 0f, size.x + 4f, size.y);
             rect.center = new Vector2(sp.x, Screen.height - sp.y);
             placed.Add(rect);
             style.normal.textColor = new Color(0f, 0.12f, 0f, 1f);
             var shadow = rect; shadow.x += 1f; shadow.y += 1f;
-            GUI.Label(shadow, me.PlayerName, style);
+            GUI.Label(shadow, name, style);
             style.normal.textColor = OwnGreen;
-            GUI.Label(rect, me.PlayerName, style);
+            GUI.Label(rect, name, style);
         }
 
         /// <summary>Screen rect (GUI space) of the ring under your own hero (PlayerIndicatorRing, Width x Width/2 units around the feet).</summary>

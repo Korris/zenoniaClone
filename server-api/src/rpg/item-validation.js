@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
+import { APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CLASS_IDS, HEADGEAR_COUNT, HEADGEAR_TEMPLATE_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
 
 // Field names match Assets/Scripts/Rpg/Item.cs (Item, ItemStats) and SaveSerializer.cs (SaveData) so Unity's JsonUtility reads them as-is.
 
@@ -67,7 +67,7 @@ export const stateSchema = z
       hairStyle: z.number().int().min(0).max(255).default(0),
       hairColorIndex: z.number().int().min(-1).max(APPEARANCE_HAIR_COLORS - 1).default(-1),
       outfitColorIndex: z.number().int().min(-1).max(APPEARANCE_OUTFIT_COLORS - 1).default(-1),
-      equippedHeadgearId: z.number().int().min(0).max(255).default(0),
+      equippedHeadgearId: z.number().int().min(0).max(HEADGEAR_COUNT).default(0), // HeadgearCatalog id of the worn hat; the C# side rebuilds it from the headgear slot on load
     }).optional(),
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
@@ -91,6 +91,10 @@ export const stateSchema = z
       const isPetTemplate = PET_TEMPLATE_IDS.includes(i.templateId);
       if ((i.slot === 'pet') !== isPetTemplate) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `item ${i.uid}: template ${i.templateId} does not fit slot ${i.slot}` });
       if (i.slot === 'pet' && (i.enhance !== 0 || i.classId !== '')) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `pet ${i.uid} cannot be enhanced or tied to a class` });
+      // Hats (HeadgearCatalog): a known hat template in the headgear slot only, cosmetic (no stats), any class, never enhanced.
+      const isHatTemplate = HEADGEAR_TEMPLATE_IDS.includes(i.templateId);
+      if ((i.slot === 'headgear') !== isHatTemplate) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `item ${i.uid}: template ${i.templateId} does not fit slot ${i.slot}` });
+      if (i.slot === 'headgear' && (i.enhance !== 0 || i.classId !== '' || Object.values(i.stats).some((v) => v !== 0))) ctx.addIssue({ code: 'custom', path: ['inventory'], message: `hat ${i.uid} carries no stats, class or enhance` });
     }
     // 1 SP per level: spent points can never exceed the level (the zone server re-sanitizes prerequisites via SkillRanks.Sanitize).
     const spent = s.skillRanks.reduce((a, b) => a + b, 0);

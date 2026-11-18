@@ -59,6 +59,14 @@ namespace ZenoniaProto
             ApplyLookToLayers();
         }
 
+        /// <summary>The worn hat changed (equip / unequip, ArmorLooks.FromWorn): only the headgear id of the look in use changes.</summary>
+        public void SetHeadgear(int id)
+        {
+            if (Appearance == null || Appearance.equippedHeadgearId == id) return;
+            Appearance.equippedHeadgearId = id;
+            ApplyLookToLayers();
+        }
+
         void ApplyLookToLayers()
         {
             if (layered == null || Appearance == null) return;

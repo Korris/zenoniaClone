@@ -113,11 +113,11 @@ namespace ZenoniaProto
             NetEventBus.Appearance(p.Hero);
         }
 
-        /// <summary>Weapon / offhand identity + enhance level and the pet: changes when the visible gear changes.</summary>
+        /// <summary>Weapon / offhand identity + enhance level, the pet and the worn hat: changes when the visible gear changes.</summary>
         public static string LookKey(NetPlayer p)
         {
             Item w = p.Hero.Rpg.GetEquipped(Slots.Weapon), o = p.Hero.Rpg.GetEquipped(Slots.Offhand);
-            return (w != null ? w.uid + w.enhance : "-") + "|" + (o != null ? o.uid + o.enhance : "-") + "|" + p.Hero.Rpg.PetId;
+            return (w != null ? w.uid + w.enhance : "-") + "|" + (o != null ? o.uid + o.enhance : "-") + "|" + p.Hero.Rpg.PetId + "|" + HeadgearCatalog.IdOf(p.Hero.Rpg.GetEquipped(Slots.Headgear));
         }
     }
 }

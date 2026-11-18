@@ -36,6 +36,7 @@ namespace ZenoniaProto
     ///   --fill-bag N                      top the bag up to N items with generated gear (bag-size captures)
     ///   --bag-item N / --open-shop NPC    Inventory tab on bag item N (with --open-inventory) / that seller's window
     ///   --select-pet                      Equipment tab on the Pet cell (opens the Pet window)
+    ///   --give-hats / --wear-hat / --drop-hat-from / --newbie-quest / --shop-tab hats  cosmetic hats, see DebugCapture.Headgear.cs
     ///   --open-settings / --open-quests   the Settings window (gear button) / the quest list, after spawning
     ///   --hud web|mobile                  HUD layout (HudLayout): web = hotbar + bottom-left chat, mobile = touch controls (default on this exe)
     ///   --chat-demo / --open-chat / --close-chat / --chat-focus  four sample chat lines / chat panel open / collapsed / typing (as Enter), after spawning
@@ -211,6 +212,7 @@ namespace ZenoniaProto
                 Vector2[] dirs = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
                 LootDrop.SpawnAll(GameObject.Find("ZenoniaProto").transform, drops, hero.Position + dirs[hero.Facing] * 34f);
             }
+            DebugHeadgear(hero); // --give-hats / --wear-hat / --drop-hat-from / --newbie-quest (DebugCapture.Headgear.cs)
             if (openInventory) UiScreens.Open(UiScreen.Bag); // old bag, or the rebuilt one with --ui-new bag
             string bagItem = Arg(Environment.GetCommandLineArgs(), "--bag-item");
             if (bagItem != null) InventoryPanel.TestSelectBagItem(int.Parse(bagItem));
@@ -220,6 +222,7 @@ namespace ZenoniaProto
                 NpcDef seller = NpcDefs.Get(shop);
                 if (GearShops.IsSeller(shop)) GearShopWindow.Open(shop, seller.Name, seller.Lines[0]);
                 else PotionShopWindow.Open(shop, seller.Name, seller.Lines[0]);
+                DebugHeadgearWindows(); // --shop-tab hats
             }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--select-pet") >= 0) InventoryPanel.TestSelectWorn(Slots.Pet);
             string selectWorn = Arg(Environment.GetCommandLineArgs(), "--select-worn"); // a slot id, e.g. helmet (the Necklace cell): its detail panel

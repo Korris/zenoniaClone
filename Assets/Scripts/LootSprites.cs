@@ -27,6 +27,7 @@ namespace ZenoniaProto
         /// </summary>
         public static Sprite Icon(Item item)
         {
+            if (item != null && item.slot == Slots.Headgear) return HeadgearArt.Icon(item); // hats: their own icon or a fallback until the art exists
             HeroController hero = GameSession.Hero;
             PlayerState me = hero != null && hero.Rpg != null ? hero.Rpg : RpgSession.Player;
             Sprite cls = Load(ItemInfo.ClassIconName(item, me != null ? me.ClassId : null));
@@ -34,7 +35,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Icon by the shared name (`ItemInfo.IconName`): ground drops and the fallback of <see cref="Icon"/>.</summary>
-        public static Sprite SharedIcon(Item item) { return Load(ItemInfo.IconName(item)); }
+        public static Sprite SharedIcon(Item item) { return item != null && item.slot == Slots.Headgear ? HeadgearArt.Icon(item) : Load(ItemInfo.IconName(item)); }
 
         /// <summary>Resources/Sprites/icons/<name> as a cached bottom-centre sprite, or null when missing.</summary>
         static Sprite Load(string name)

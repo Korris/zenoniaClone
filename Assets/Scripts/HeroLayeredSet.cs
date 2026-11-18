@@ -108,7 +108,8 @@ namespace ZenoniaProto
             return hair.TryGetValue(0, out e) ? e : null; // a style this set has no art for: the default head
         }
 
-        public LayerEntry Headgear(int id) { LayerEntry e; return id > 0 && headgear.TryGetValue(id, out e) ? e : null; }
+        /// <summary>The set's own entry for this hat id (the test set), else the shared hat art of Data/hero-layered/headgear.json once its sheet exists.</summary>
+        public LayerEntry Headgear(int id) { LayerEntry e; return id > 0 && headgear.TryGetValue(id, out e) ? e : HeadgearArt.Layer(id); }
 
         /// <summary>Cell `dir` (painted dir) of a hair / headgear strip, pivot on the entry's anchor point.</summary>
         public Sprite LayerCell(LayerEntry e, int paintedDir)

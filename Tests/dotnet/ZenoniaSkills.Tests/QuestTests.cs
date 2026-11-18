@@ -4,9 +4,18 @@ using ZenoniaProto.Rpg;
 
 public class QuestTests
 {
-    static readonly QuestDef Q = QuestCatalog.All[0];
+    static readonly QuestDef Q = QuestCatalog.Get("crystal-survey");
 
-    static PlayerState Hero() { return PlayerState.NewGame("warrior"); }
+    /// <summary>A new hero who already finished the Elder's newbie quest (NewbieQuestTests), so only Q is left with him.</summary>
+    static PlayerState Hero()
+    {
+        PlayerState p = PlayerState.NewGame("warrior");
+        QuestDef first = QuestCatalog.Get("first-hunt");
+        p.AcceptQuest(first.Id);
+        for (int i = 0; i < first.Count; i++) p.Quests.CountKill("hornRabbit");
+        Assert.True(p.TurnInQuest(first.Id).Ok);
+        return p;
+    }
 
     static void KillAll(PlayerState p) { for (int i = 0; i < Q.Count; i++) p.Quests.CountKill(Q.MonsterType); }
 

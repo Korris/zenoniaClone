@@ -66,7 +66,7 @@ namespace ZenoniaProto
                     NotificationToast.Show("Objective Complete", "Return to " + q.GiverName, icon);
                     break;
                 case QuestState.Done:
-                    ChatHub.System("Quest complete: " + q.Title + " (+" + q.RewardGold + " G, +" + q.RewardStones + " stones, +" + q.RewardHpPotions + " HP potions)");
+                    ChatHub.System("Quest complete: " + q.Title + " (" + q.RewardText(RpgSession.Player != null ? RpgSession.Player.ClassId : RpgClasses.Default) + ")");
                     NotificationToast.Show("Quest Complete!", q.Title + "  +" + q.RewardGold + " G", icon);
                     break;
             }

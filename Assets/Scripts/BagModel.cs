@@ -7,7 +7,7 @@ namespace ZenoniaProto
     public enum BagSupply { Coin, HpSmall, HpMedium, HpLarge, MpSmall, MpMedium, MpLarge, Stone }
 
     /// <summary>What the bag lists: everything, one worn slot, the potions (Consumable) or the upgrade stones (Material).</summary>
-    public enum BagFilter { All, Weapon, Offhand, Armor, Gloves, Boots, Necklace, Pet, Consumable, Material }
+    public enum BagFilter { All, Weapon, Offhand, Armor, Gloves, Boots, Necklace, Pet, Consumable, Material, Headgear } // Headgear last: the Armory's chip row is indexed by the first ten
 
     /// <summary>One cell of the list: a supply, an item, or an empty bag slot (Item == null).</summary>
     public struct BagCell { public bool IsSupply; public BagSupply Supply; public Item Item; }
@@ -75,6 +75,7 @@ namespace ZenoniaProto
                 case BagFilter.Boots: return Slots.Boots;
                 case BagFilter.Necklace: return Slots.Helmet; // the "helmet" slot id is shown as a Necklace
                 case BagFilter.Pet: return Slots.Pet;
+                case BagFilter.Headgear: return Slots.Headgear;
                 default: return null;
             }
         }
@@ -82,7 +83,7 @@ namespace ZenoniaProto
         public static BagFilter FilterOf(string slot)
         {
             for (BagFilter f = BagFilter.Weapon; f <= BagFilter.Pet; f++) if (SlotOf(f) == slot) return f;
-            return BagFilter.All;
+            return slot == Slots.Headgear ? BagFilter.Headgear : BagFilter.All;
         }
 
         /// <summary>False when it already was that filter. Goes back to the first page; a selected cell goes back to the first cell.</summary>

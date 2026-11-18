@@ -19,6 +19,7 @@ namespace ZenoniaProto
             if (e.Kind != LootKind.Equipment || e.Item == null) return;
             Item it = e.Item;
             int slot = Math.Max(0, Slots.Index(it.slot)), cls = Math.Max(0, Array.IndexOf(RpgClasses.Ids, it.classId)), lvl = Math.Max(0, Math.Min(127, it.itemLevel));
+            if (it.slot == Slots.Headgear) lvl = HeadgearCatalog.IdOf(it); // a hat is always level 1: its 7 level bits carry the hat id instead (icon + name on the ground)
             m.ItemDefId = (ushort)(slot | (cls << 3) | (lvl << 6));
             m.Rarity = (byte)Math.Max(0, Array.IndexOf(ItemDefs.RarityOrder, it.rarity));
             m.Enhance = (byte)Math.Max(0, Math.Min(255, it.enhance));
@@ -33,6 +34,7 @@ namespace ZenoniaProto
             e.Value = m.Amount;
             if (e.Kind != LootKind.Equipment) return true;
             int slot = m.ItemDefId & 7, cls = (m.ItemDefId >> 3) & 7, lvl = m.ItemDefId >> 6;
+            if (slot == Slots.Index(Slots.Headgear)) { e.Item = HeadgearCatalog.CreateItem(HeadgearCatalog.Get(lvl) ?? HeadgearCatalog.Get(1), null, "net"); return true; }
             e.Item = new Item
             {
                 uid = "net", templateId = "net", name = "Item", slot = Slots.All[Math.Min(slot, Slots.All.Length - 1)], classId = RpgClasses.Ids[Math.Min(cls, RpgClasses.Ids.Length - 1)],

@@ -21,7 +21,7 @@ namespace ZenoniaProto.Rpg
         public int hairStyle;                  // head layer style (HeroHeadLayer / layered hair of the class); 0 = the class default
         public int hairColorIndex = -1;        // palettes.json hair index, -1 = not chosen
         public int outfitColorIndex = -1;      // palettes.json outfit index, -1 = not chosen
-        public int equippedHeadgearId;         // 0 = bare head; set by the item / drop code later, never by the client
+        public int equippedHeadgearId;         // HeadgearCatalog id, 0 = bare head; follows the worn hat item (PlayerState.RecomputeStats), never set by the client
 
         public bool HasHairColor { get { return hairColorIndex >= 0; } }
         public bool HasOutfitColor { get { return outfitColorIndex >= 0; } }

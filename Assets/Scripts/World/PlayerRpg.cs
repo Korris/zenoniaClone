@@ -131,7 +131,8 @@ namespace ZenoniaProto
                     break;
                 case InvOp.GearBuy:
                     int gearTier, gearSlot;
-                    r = GearShops.Decode(slot, out gearTier, out gearSlot) ? State.BuyGear(gearTier, gearSlot) : ActionResult.Fail("Not sold here");
+                    HeadgearDef hat;
+                    r = HeadgearCatalog.TryShopHat(slot, out hat) ? State.BuyHeadgear(hat.Id) : GearShops.Decode(slot, out gearTier, out gearSlot) ? State.BuyGear(gearTier, gearSlot) : ActionResult.Fail("Not sold here");
                     break;
                 case InvOp.Discard:
                     r = State.RemoveFromInventory(itemUid) ? ActionResult.Success("Discarded") : ActionResult.Fail("No such item");

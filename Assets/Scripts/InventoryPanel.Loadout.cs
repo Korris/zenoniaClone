@@ -4,7 +4,7 @@ using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
-    /// <summary>Left panel: the hero wearing the real gear between the 7 worn slots, the class line and the Stats popup. Coordinates are local to the panel.</summary>
+    /// <summary>Left panel: the hero wearing the real gear between the 8 worn slots (the hat cell last on the lower row), the class line and the Stats popup. Coordinates are local to the panel.</summary>
     public partial class InventoryPanel
     {
         const float WornSize = 68f, WornIcon = 62f;
@@ -29,7 +29,8 @@ namespace ZenoniaProto
                 case Slots.Boots: return new Vector2(WornColumn(3), Top);
                 case Slots.Weapon: return new Vector2(WornColumn(0), Bottom);
                 case Slots.Offhand: return new Vector2(WornColumn(1), Bottom);
-                default: return new Vector2(WornColumn(2), Bottom); // pet; the fourth cell of this row is the Stats button
+                case Slots.Headgear: return new Vector2(WornColumn(3), Bottom); // the cosmetic hat; the Stats button moved over the portrait's top-right corner
+                default: return new Vector2(WornColumn(2), Bottom); // pet
             }
         }
 
@@ -52,7 +53,7 @@ namespace ZenoniaProto
                 equipSlots[i] = new BagWidgets.Slot(left, "Equip_" + Slots.All[i], at.x, at.y, WornSize, () => OnWornClick(index));
             }
 
-            new BagWidgets.BagButton(left, "Stats", WornColumn(3), 376f, WornSize, WornSize, "Stats", BagSprites.Tone.Blue, () => statsPopup.gameObject.SetActive(!statsPopup.gameObject.activeSelf));
+            new BagWidgets.BagButton(left, "Stats", LeftW - 24f - 66f, 86f, 66f, 30f, "Stats", BagSprites.Tone.Blue, () => statsPopup.gameObject.SetActive(!statsPopup.gameObject.activeSelf)); // top-right of the portrait: its old cell holds the hat
             statsPopup = UiKit.Rect(left, "StatsPopup", 8f, 8f, LeftW - 16f, 360f);
             UiWinKit.Sliced(statsPopup, "panel", 0.4f, true);
             BagWidgets.Text(statsPopup, "Title", 24f, 18f, "Stats", 18, "#ffedb3", TextAnchor.UpperLeft, 200f, true);

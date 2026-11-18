@@ -100,6 +100,8 @@ namespace ZenoniaProto.Rpg
             List<LootEntry> drops = RollDrops(def, rand);
             Item gear = ItemFactory.RollEquipmentDrop(def.ItemLevel, def.IsBoss, rand);
             if (gear != null) drops.Add(new LootEntry { Kind = LootKind.Equipment, Item = gear });
+            Item hat = HeadgearCatalog.RollMonsterDrop(def.Type, rand); // the species' signature hat (1-5 %); drawn last so the rolls above keep their order
+            if (hat != null) drops.Add(new LootEntry { Kind = LootKind.Equipment, Item = hat });
             return drops;
         }
     }

@@ -82,5 +82,20 @@ namespace ZenoniaProto
                 crit.ToString("0.0") + "%", Mathf.RoundToInt(baseSpeed > 0f ? p.Speed / baseSpeed * 100f : 100f) + "%",
             };
         }
+
+        /// <summary>Where a hat comes from (HeadgearCatalog source), one detail line.</summary>
+        public static string HatSource(Item item)
+        {
+            HeadgearDef d = HeadgearCatalog.ByTemplate(item != null ? item.templateId : null);
+            if (d == null) return "";
+            MonsterDef m = d.DropFrom != null ? MonsterDef.ByType(d.DropFrom) : null;
+            switch (d.Source)
+            {
+                case HeadgearSource.Starter: return "Gift: the Elder's First Hunt.";
+                case HeadgearSource.Shop: return "Sold by village blacksmiths.";
+                case HeadgearSource.Monster: return "Dropped by " + (m != null ? m.Name : d.DropFrom) + ".";
+                default: return d.DropFrom == HeadgearCatalog.AnyWantedBoss ? "Rare drop of any Wanted Boss." : "Rare drop of " + (m != null ? m.Name : d.DropFrom) + ".";
+            }
+        }
     }
 }
