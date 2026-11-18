@@ -7,7 +7,8 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Names above other players only (online client and host), IMGUI over the world: no name on the local hero or on party members, so a name means a stranger.
+    /// Names above players (online client and host), IMGUI over the world: your own hero's name in bright green (sprite-rules "Quy tắc nhận diện
+    /// nhân vật online" 1, user rule 19/11/2026: finds you in a crowd), strangers in white, party members none.
     /// Crowd rule: names are placed nearest-to-your-hero first, a name that would overlap one already placed is skipped, and at most MaxNames show,
     /// so a pack of players never turns into a wall of text. A name never covers the ring under your own hero, and a name shown last frame
     /// keeps a head start (ShownBonus) so two players running past each other do not make the names flicker.
@@ -49,6 +50,7 @@ namespace ZenoniaProto
             placed.Clear();
             shownNow.Clear();
             Rect ring = me != null ? HeroRingRect(cam, me.Position) : Rect.zero;
+            if (me != null && !me.IsDead && !string.IsNullOrEmpty(me.PlayerName)) DrawOwnName(cam, me); // first, so the other names keep clear of it
             for (int i = 0; i < order.Count; i++)
             {
                 HeroController h = order[i];
@@ -74,11 +76,30 @@ namespace ZenoniaProto
             shown.UnionWith(shownNow);
         }
 
-        /// <summary>Screen rect (GUI space) of the gold ring under your own hero (LocalHeroMarker: 22 x 11 units around the feet).</summary>
+        static readonly Color OwnGreen = new Color(0.42f, 1f, 0.42f, 1f);
+
+        /// <summary>Your own name, bright green, always drawn (the crowd rule never skips it), at the height the other names use.</summary>
+        void DrawOwnName(Camera cam, HeroController me)
+        {
+            Vector3 sp = cam.WorldToScreenPoint(new Vector3(me.Position.x, me.Position.y + 30f, 0f));
+            if (sp.z < 0f) return;
+            Vector2 size = style.CalcSize(new GUIContent(me.PlayerName));
+            var rect = new Rect(0f, 0f, size.x + 4f, size.y);
+            rect.center = new Vector2(sp.x, Screen.height - sp.y);
+            placed.Add(rect);
+            style.normal.textColor = new Color(0f, 0.12f, 0f, 1f);
+            var shadow = rect; shadow.x += 1f; shadow.y += 1f;
+            GUI.Label(shadow, me.PlayerName, style);
+            style.normal.textColor = OwnGreen;
+            GUI.Label(rect, me.PlayerName, style);
+        }
+
+        /// <summary>Screen rect (GUI space) of the ring under your own hero (PlayerIndicatorRing, Width x Width/2 units around the feet).</summary>
         static Rect HeroRingRect(Camera cam, Vector2 feet)
         {
-            Vector3 a = cam.WorldToScreenPoint(new Vector3(feet.x - 11f, feet.y - 5.5f, 0f));
-            Vector3 b = cam.WorldToScreenPoint(new Vector3(feet.x + 11f, feet.y + 5.5f, 0f));
+            float hw = PlayerIndicatorRing.Width * 0.5f, hh = PlayerIndicatorRing.Width * 0.25f;
+            Vector3 a = cam.WorldToScreenPoint(new Vector3(feet.x - hw, feet.y - hh, 0f));
+            Vector3 b = cam.WorldToScreenPoint(new Vector3(feet.x + hw, feet.y + hh, 0f));
             return Rect.MinMaxRect(a.x, Screen.height - b.y, b.x, Screen.height - a.y);
         }
 
