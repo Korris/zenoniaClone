@@ -15,6 +15,7 @@
  ],
  "frames": {
   "idle": 1,
-  "walk": 4
+  "walk": 4,
+  "attack": 4
  }
 }
