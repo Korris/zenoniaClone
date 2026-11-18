@@ -11,6 +11,7 @@ namespace ZenoniaProto
     /// Player-build verification helper, active only when a command-line flag is present (normal play is unaffected):
     ///   --class warrior|wizard|mechanic|assassin|cleric|fighter   skip the class select
     ///   --tp tx,ty                        put the hero on a tile (and --face down|up|left|right)
+    ///   --face8 DIR / --bot walk8 DIR     RO Soft 8 view directions (down-right...), see DebugCapture.Face8.cs; --hero-style classic = old paper doll
     ///   --tier N / --enhanced             gear tier / enhanced art
     ///   --hairstyle N                     hairstyle of the head layer (Lv1 body, idle facing down, any class with heads/ art; 0 = the painted head)
     ///   --hair-dye N                      hair dye preset N (layered heads: HeroHairLayers, Data/classes/<class>/hair-dyes.json)
