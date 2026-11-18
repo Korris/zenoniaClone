@@ -1,5 +1,9 @@
 # Việc đang dở
 
+### 19/11 04:50: hướng mới: nhân vật NHIỀU LỚP kiểu Ragnarok (thân gốc chung theo giới, đầu trần, tóc + mũ rời, đổi màu tóc / áo bằng shader, vũ khí lớp riêng)
+- Người dùng gửi spec (người dùng tự vẽ bằng ChatGPT, Claude làm code/shader/tool). Quy cách + 7 prompt: `docs/character-appearance-layered-spec.md`. Thay cho bản RO Soft vẽ liền (Warrior đang chạy trong game, merge 87f3b811, exe `Build/ro-soft-warrior-261119/Zenonia.exe`).
+- CHỜ người dùng trả lời: vòng dưới chân cho nhân vật mình (trái quy tắc 31/10 "vòng chỉ cho buff"), tên mình màu xanh (trái quy tắc "mình không hiện tên"), mũ lấy từ đâu.
+
 ### 19/11 03:20: người dùng nghiêng về vẽ lại nhân vật theo RO Soft Fantasy ("không ngại vẽ lại") + 8 hướng để đám đông quay vào boss
 - Chat ChatGPT (Tay, nhánh): https://chatgpt.com/c/6afe0787-01c8-83ec-b422-ad676e70b9f6 (chưa có gì mới ngoài lineup v1 + ảnh 40 người).
 - Claude đề xuất: vẽ lại theo lineup v1 nhưng gộp luôn 8 hướng (vẽ 5: xuống, xuống-phải, phải, lên-phải, lên; trái lật), không vẽ 2 lần. Thử trước Warrior T0: idle 5 hướng + walk + 1 nhát đánh, ghép đứng quanh Mire Hydra Queen. Hướng nhìn mạng hiện 2 bit (`NetQuantize.Facing`), 8 hướng phải đổi protocol + build lại server. Map / quái Zenonia 5 tối có thể lệch tông với nhân vật pastel. CHỜ người dùng chốt.
