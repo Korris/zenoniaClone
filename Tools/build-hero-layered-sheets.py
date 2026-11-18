@@ -19,6 +19,7 @@ from importlib import import_module
 from pathlib import Path
 
 import numpy as np
+from scipy import ndimage
 from PIL import Image, ImageDraw
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -53,11 +54,27 @@ def place(fig, scale):
     return cell
 
 
-def head_anchor(cell):
-    """Skull top centre and skull width of a bald figure in a cell: widest solid run in the band 6-30 % below the top."""
-    al = np.asarray(cell)[..., 3] > 128
+def skull_mask(cell):
+    """Bald skull + face: the largest skin-coloured blob in the upper 60 % of the figure. Gloves are brown leather, so a
+    fist raised above the head is not skin and cannot be taken for the skull top (attack3 frame 1)."""
+    a = np.asarray(cell).astype(int)
+    r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3] > 128
+    skin = al & (r > 200) & (g > 150) & (b > 110) & (r - b > 25) & (r - b < 110)
     ys = np.nonzero(al.any(1))[0]
-    top, h = ys[0], ys[-1] - ys[0]
+    skin[ys[0] + int((ys[-1] - ys[0]) * 0.6):] = False
+    lab, n = ndimage.label(ndimage.binary_closing(skin, iterations=2))
+    if n == 0:
+        return al
+    sizes = ndimage.sum(skin, lab, range(1, n + 1))
+    return lab == (int(np.argmax(sizes)) + 1)
+
+
+def head_anchor(cell):
+    """Skull top centre and skull width of a bald figure in a cell: widest run of the skull blob in the band 6-30 %
+    of the skull height below its top (outline pixels around the skin are added back by a 2 px grow)."""
+    al = ndimage.binary_dilation(skull_mask(cell), iterations=2)
+    ys = np.nonzero(al.any(1))[0]
+    top, h = ys[0], (ys[-1] - ys[0]) * 2.2  # the skull blob is about 45 % of a figure's height
     best, bx = 0, CELL_W / 2
     for y in range(top + int(h * 0.06), top + int(h * 0.3)):
         xs = np.nonzero(al[y])[0]
@@ -123,6 +140,7 @@ def write(g):
     out = ART / "sheets" / g
     out.mkdir(parents=True, exist_ok=True)
     anchors = {}
+    idle_w = {d: head_anchor(frames["idle"][d][0])[2] for d in DIRS if d in frames["idle"]}
     for anim, by_dir in frames.items():
         missing = [d for d in DIRS if d not in by_dir]
         if missing:
@@ -135,7 +153,8 @@ def write(g):
             anchors[anim][d] = []
             for k, cell in enumerate(by_dir[d]):
                 sheet.alpha_composite(cell, (k * CELL_W, r * CELL_H))
-                anchors[anim][d].append(head_anchor(cell))
+                x, top, w = head_anchor(cell)
+                anchors[anim][d].append([x, top, min(w, round(idle_w.get(d, w) * 1.1))])  # raised bare arms widen the skin blob
         sheet.save(out / f"{anim}.png")
         print(f"{g} {anim}: {n} frames x 8 directions")
     (out / "head-anchors.json").write_text(json.dumps(anchors), encoding="utf-8")
