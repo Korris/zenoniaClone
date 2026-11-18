@@ -64,7 +64,11 @@ namespace ZenoniaProto
         public static int TierOf(Rpg.Item item) { return item != null ? Rpg.ItemInfo.ArtTier(item) : -1; }
 
         /// <summary>Dresses a paper doll in the outfit of a player's worn body armour.</summary>
-        public static void FromWorn(HeroRenderer view, Rpg.PlayerState p) { view.SetOutfit(TierOf(p.GetEquipped(Rpg.Slots.Armor))); }
+        public static void FromWorn(HeroRenderer view, Rpg.PlayerState p)
+        {
+            view.SetOutfit(TierOf(p.GetEquipped(Rpg.Slots.Armor)));
+            view.SetHeadgear(Rpg.HeadgearCatalog.IdOf(p.GetEquipped(Rpg.Slots.Headgear))); // the cosmetic hat (layered heroes draw it)
+        }
 
         /// <summary>Forgets the probed folders (Bootstrap's ResetState pattern; SpriteSheet's caches are reset with it).</summary>
         public static void ResetState() { Probed.Clear(); }

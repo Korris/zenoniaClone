@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// only asks, the server checks seller, reach and gold and answers with the new state (InvOp.GearBuy), so rows redraw from whatever it says.
     /// A piece below the hero's level still buys (EquipLevel is only checked when worn): the row just says what level it needs.
     /// </summary>
-    public sealed class GearShopWindow : MonoBehaviour
+    public sealed partial class GearShopWindow : MonoBehaviour
     {
         const float W = 560f, RowH = 52f, RowsY = 140f, BottomPad = 22f, TabW = 96f;
         // One tier at a time (a tab per tier): two tiers of 6 slots ran off a 640-unit-tall screen. Up to 3 tabs (docs/world-map-2-design.md).
@@ -23,7 +23,7 @@ namespace ZenoniaProto
 
         public static bool IsOpen { get { return instance != null && instance.open; } }
 
-        sealed class Row { public RectTransform Root; public int Tier, SlotIndex, Entry; public Image Icon, Button; public Text Name, Stats, ReqLv, Price; }
+        sealed class Row { public RectTransform Root; public int Tier, SlotIndex, Entry, HatId; public Image Icon, Button; public Text Name, Stats, ReqLv, Price; } // HatId > 0: a shop hat row (GearShopWindow.Hats.cs)
 
         readonly Row[] rows = new Row[MaxRows];
         RectTransform root;
@@ -75,6 +75,7 @@ namespace ZenoniaProto
                 tabs[t] = UiWinKit.ArtButton(root, "Tab" + t, "btn-navy", 30f + t * (TabW + 8f), 102f, TabW, 30f, "", 14, Color.white, () => ShowTier(minTier + k));
                 tabLabels[t] = tabs[t].GetComponentInChildren<Text>();
             }
+            BuildHatTab(30f + MaxTiersShown * (TabW + 8f));
             for (int i = 0; i < MaxRows; i++) rows[i] = BuildRow(i);
             root.gameObject.SetActive(false);
         }
@@ -109,6 +110,7 @@ namespace ZenoniaProto
                 tabs[t].gameObject.SetActive(on);
                 if (on) tabLabels[t].text = "Tier " + (minTier + t);
             }
+            ((RectTransform)hatTab.transform).anchoredPosition = new Vector2(30f + (maxTier - minTier + 1) * (TabW + 8f), -102f); // right after the last tier tab
             PlayerState p = RpgSession.Player;
             int level = p != null ? p.Level : 1;
             int best = minTier;                                                            // open on the best tier the hero can already wield
@@ -118,25 +120,15 @@ namespace ZenoniaProto
 
         void ShowTier(int tier)
         {
-            for (int t = 0; t < MaxTiersShown; t++)
-            {
-                bool on = minTier + t == tier;
-                if (UiStyle.Ro) // RO Soft Fantasy pill tabs: mint = shown tier, white = the others
-                {
-                    var face = (Image)tabs[t].targetGraphic;
-                    face.sprite = RoSoftSprites.Get(on ? RoSoftSprites.Shape.TabOn : RoSoftSprites.Shape.TabOff);
-                    face.type = Image.Type.Sliced; face.pixelsPerUnitMultiplier = 1f; face.color = Color.white;
-                    tabLabels[t].color = on ? Color.white : RoSoftTheme.Ink;
-                }
-                else tabs[t].targetGraphic.color = on ? Color.white : new Color(1f, 1f, 1f, 0.55f);
-            }
+            StyleTab(hatTab, hatTabLabel, false);
+            for (int t = 0; t < MaxTiersShown; t++) StyleTab(tabs[t], tabLabels[t], minTier + t == tier);
             PlayerState p = RpgSession.Player;
             string classId = p != null ? p.ClassId : RpgClasses.Default;
             int n = 0;
                 for (int slotIndex = 0; slotIndex < Slots.Generated.Length && n < MaxRows; slotIndex++)
                 {
                     Row row = rows[n++];
-                    row.Tier = tier; row.SlotIndex = slotIndex; row.Entry = GearShops.Encode(tier, slotIndex);
+                    row.Tier = tier; row.SlotIndex = slotIndex; row.Entry = GearShops.Encode(tier, slotIndex); row.HatId = 0;
                     Item preview = GearCatalog.Preview(tier, slotIndex, classId);
                     row.Icon.sprite = LootSprites.Icon(preview);
                     row.Icon.enabled = row.Icon.sprite != null;
@@ -159,7 +151,7 @@ namespace ZenoniaProto
             if (p == null) return;
             byte entry = (byte)row.Entry;
             if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.GearBuy, seller, entry); return; } // the answer's RpgState and text come back
-            ActionResult r = p.BuyGear(row.Tier, row.SlotIndex);
+            ActionResult r = row.HatId > 0 ? p.BuyHeadgear(row.HatId) : p.BuyGear(row.Tier, row.SlotIndex);
             RpgHud.Toast(r.Text, r.Ok ? new Color(0.7f, 1f, 0.7f) : new Color(1f, 0.7f, 0.5f));
             Refresh();
         }
@@ -174,7 +166,7 @@ namespace ZenoniaProto
             foreach (Row row in rows)
             {
                 if (!row.Root.gameObject.activeSelf) continue;
-                int price = GearCatalog.Price(row.Tier, row.SlotIndex);
+                int price = row.HatId > 0 ? HeadgearCatalog.Get(row.HatId).Price : GearCatalog.Price(row.Tier, row.SlotIndex);
                 row.Button.color = p.Gold >= price ? CanBuy : CannotBuy; // still tappable: the refusal says why
             }
         }

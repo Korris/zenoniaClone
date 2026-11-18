@@ -92,7 +92,7 @@ namespace ZenoniaProto
             UiKit.Label(row, "Title", 12f, 5f, ListW - 134f, 26f, q.Title, 16, state == QuestState.Done ? DoneColor : Color.white, TextAnchor.MiddleLeft, true);
             UiKit.Label(row, "Status", ListW - 122f, 5f, 110f, 26f, StatusText(state), 14, StatusColor(state), TextAnchor.MiddleRight, true);
             UiKit.Label(row, "Goal", 12f, 31f, ListW - 24f, 24f, GoalText(q, state, progress), 14, state == QuestState.Done ? DoneColor : UiWinKit.Cream);
-            UiKit.Label(row, "Reward", 12f, 55f, ListW - 24f, 24f, "Reward: " + q.RewardGold + " G, " + q.RewardStones + " stones, " + q.RewardHpPotions + " HP potions", 13, state == QuestState.Done ? DoneColor : UiWinKit.Gold);
+            UiKit.Label(row, "Reward", 12f, 55f, ListW - 24f, 24f, "Reward: " + q.RewardText(RpgSession.Player != null ? RpgSession.Player.ClassId : RpgClasses.Default), 13, state == QuestState.Done ? DoneColor : UiWinKit.Gold);
         }
 
         static string StatusText(QuestState state)

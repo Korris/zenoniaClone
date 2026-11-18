@@ -17,9 +17,10 @@ namespace ZenoniaProto
         static readonly Vector2[] PedestalAt =
         {
             new Vector2(591f, 102f), new Vector2(580f, 255f), new Vector2(442f, 276f), new Vector2(296f, 248f), new Vector2(228f, 173f), new Vector2(657f, 173f), new Vector2(289f, 102f),
+            new Vector2(160f, 250f), // headgear (cosmetic hat, 19/11/2026): not on the mockup, left of the arc
         };
         /// <summary>The pedestals from left to right along the arc: the order Left / Right walk them.</summary>
-        static readonly string[] Ring = { Slots.Pet, Slots.Boots, Slots.Gloves, Slots.Armor, Slots.Helmet, Slots.Offhand, Slots.Weapon };
+        static readonly string[] Ring = { Slots.Headgear, Slots.Pet, Slots.Boots, Slots.Gloves, Slots.Armor, Slots.Helmet, Slots.Offhand, Slots.Weapon };
         static readonly Color Faint = new Color(0.72f, 0.76f, 0.82f, 0.26f); // outline of what belongs on an empty pedestal
 
         readonly ArmoryPedestal[] pedestals = new ArmoryPedestal[Slots.All.Length];

@@ -131,7 +131,8 @@ namespace ZenoniaProto
             rarityPlaque.sizeDelta = new Vector2(Mathf.Ceil(rarityText.preferredWidth) + 26f, 22f);
             itemSlotText.text = ItemInfo.SlotLabel(item.slot) + (string.IsNullOrEmpty(item.classId) || usable ? "" : "  <color=#ff8070>" + RpgClasses.Get(item.classId).Name + " only</color>");
             bool isPet = item.slot == Slots.Pet;
-            itemLevelText.text = isPet ? "" : !EquipLevel.Applies(item) ? "Lv. " + item.itemLevel : worn || p.MeetsLevel(item) ? EquipLevel.Label(item) : "<color=#ff7070>" + EquipLevel.Label(item) + "</color>";
+            bool isHat = item.slot == Slots.Headgear;
+            itemLevelText.text = isPet || isHat ? "" : !EquipLevel.Applies(item) ? "Lv. " + item.itemLevel : worn || p.MeetsLevel(item) ? EquipLevel.Label(item) : "<color=#ff7070>" + EquipLevel.Label(item) + "</color>";
 
             Item wornItem = p.GetEquipped(item.slot);
             Item compare = wornItem != item ? wornItem : null;
@@ -168,6 +169,12 @@ namespace ZenoniaProto
                     SetExtra(1, e.StatLabel + " " + e.StatFrom + " -> " + e.StatTo, "#8fff8f");
                     SetExtra(2, "Stone: 1 (have " + e.Owned + ")", e.Can ? "#c7e2f2" : "#ff8f8f");
                 }
+            }
+            else if (isHat) // cosmetic: no stats to compare, say what it is and where it came from
+            {
+                SetExtra(0, "Cosmetic hat: changes your look only.", "#ffedb3");
+                SetExtra(1, "No stats. Any class, any level.", "#c2e3f4");
+                SetExtra(2, BagText.HatSource(item), "#c2e3f4");
             }
             else if (!ItemInfo.ChangesAppearance(item.slot)) SetExtra(0, ItemInfo.NoAppearanceLine, "#c2e3f4"); // necklace, gloves, boots: stats only
 
