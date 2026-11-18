@@ -1,0 +1,82 @@
+ChatGPT said:ChatGPT
+Chốt: Để game của bạn có cảm giác giống Ragnarok 3 (Gravity/JoyMaker), mình khuyên dựng theo hướng 3D chibi, camera isometric cố định, di chuyển tự do, Auto farm quái nhưng đánh boss cần né skill thủ công.
+Mình đã đối chiếu thông tin về Ragnarok 3 từ các bản chơi thử G-STAR 2024–2025. Những thông số góc camera, kích thước và tốc độ bên dưới là đề xuất để dựng trong Unity, không phải thông số chính thức của Ragnarok 3.
+1. Cấu hình 3D đề xuất
+Thành phần | Thông số nên thử trong Unity
+Camera | Perspective, nhìn nghiêng 50° xuống so với mặt đất (gần isometric).
+Camera Rotation | X = 50°, Y = 0°, Z = 0° nếu đặt camera theo quy ước thông thường của Unity.
+Khoảng cách | 20–25 Unity units từ nhân vật; bắt đầu ở 22.
+Field of View | 35°; tránh góc rộng 60–70° gây méo phối cảnh.
+Xoay camera | Mặc định khóa góc; chưa cần cho người chơi xoay tự do.
+Zoom | 18–28 units; mặc định 22. Boss raid có thể tự động lùi camera nhẹ.
+Camera follow | Theo nhân vật với độ mượt 0,12–0,20 giây.
+Nhân vật | Chibi cao 2,2–2,5 units, đầu chiếm khoảng 40–45% chiều cao.
+Quái thường | Cao bằng 50–110% nhân vật, tùy loại.
+Quái Elite | Khoảng 1,5–2 lần nhân vật.
+Wanted Boss | Khoảng 3–5 lần nhân vật; boss lớn không nên che hết vùng cần né.
+Camera khi đánh boss | Giữ góc nghiêng, lùi khoảng 10–20% để nhìn thấy boss và telegraph.
+Lưu ý: Rotation X = 50° giả sử camera ở phía trên và phía sau nhân vật, nhìn xuống hướng +Z trên mặt phẳng XZ. Khoảng cách chỉ là điểm bắt đầu vì kích thước thực tế còn phụ thuộc model và FOV.
+Điều đã xác minh về Ragnarok 3: Người chơi thử bản mobile năm 2024 mô tả combat kiểu Ragnarok cổ điển, chọn địch để đánh. Bản raid PC tại G-STAR tháng 11/2025 sử dụng WASD, camera ổn định và yêu cầu né đòn boss. Vì vậy không nên xem các chi tiết điều khiển của một bản thử là cố định cho mọi nền tảng. 4Gamer.net+1
+2. Phong cách đồ họa và ánh sáng
+Yếu tố | Thiết kế đề xuất
+Map | 3D fantasy stylized, hình khối mềm, màu sáng, không photorealistic.
+Ánh sáng | 1 Directional Light, ánh nắng vàng nhạt #FFF0D5.
+Ambient | Xanh trời/trắng dịu, giữ vùng tối không bị đen.
+Shadow | Bóng mềm, khoảng cách shadow 25–40 units trên mobile.
+Vật liệu | URP Lit, màu texture rõ, metallic thấp, smoothness vừa phải.
+Màu | Cỏ xanh tươi, mái ngói đỏ, đá kem, tuyết xanh trắng, nước xanh ngọc.
+Bloom | Nhẹ, chủ yếu cho phép thuật, pha lê và kỹ năng Ultimate.
+Outline | Viền ngoài mảnh hoặc dùng texture có đường nét rõ; không cần viền đen dày toàn bộ model.
+Cảm giác cần đạt là một thế giới mô hình fantasy sống động, có chiều sâu thật nhưng vẫn dễ thương như Ragnarok cổ điển.
+3. Điều khiển và chiến đấu
+Hệ thống | Cách làm cho bản thử
+PC | WASD di chuyển, click chọn mục tiêu, click trái đánh, phím 1–8 dùng skill.
+Mobile | Joystick trái, nút đánh phải, 4 skill hiển thị và 2 trang kỹ năng.
+Auto battle | Tự tìm quái trong bán kính 8–12 units, tự áp sát và dùng skill theo cấu hình.
+Đánh thường | Giữ combo 4 hit hiện tại, chuyển sang animation 3D.
+Nhịp đánh | Combo 4 hit khoảng 2,0–2,8 giây để thử nghiệm.
+Skill | Có wind-up ngắn, VFX xuất hiện ở frame trúng đích.
+Ultimate | Animation nổi bật, khoảng 1,5–2,5 giây, nhưng không che toàn màn quá lâu.
+Đánh boss | Cho phép Auto đánh, nhưng Auto không tự né mọi cơ chế nguy hiểm.
+Chọn mục tiêu | Có vòng chân hoặc dấu nhỏ, ưu tiên chọn đối thủ gần nhất khi bấm đánh.
+Ragnarok 3 thực sự có Auto battle theo phản hồi thử nghiệm công bố tháng 8/2025. Tuy nhiên, thứ tự Auto sử dụng skill, bán kính tìm quái và cách xử lý từng cơ chế boss chưa xác minh; các con số trên là thiết kế mình đề xuất cho game của bạn. Gamemeca
+4. Phản hồi khi đánh trúng
+Hiệu ứng | Thông số khởi đầu
+Đòn thường | Số trắng ngà, viền xanh đậm, bay lên 0,5–0,6 giây.
+Critical | Số vàng cam, lớn 1,5 lần, nảy nhanh rồi bay lên 0,7 giây.
+Hit spark | Chớp sáng tại điểm tiếp xúc trong 0,08–0,15 giây.
+Hit stop | 0,03–0,05 giây ở đòn mạnh, chỉ ảnh hưởng animation phía client.
+Camera shake | Đòn thường không rung; hit 4 rung rất nhẹ khoảng 0,08 giây.
+Knockback | Hit 1–3 không đẩy, hit 4 đẩy theo hệ thống hiện có.
+Skill nhiều hit | Gộp số theo từng mục tiêu trong cửa sổ khoảng 0,2–0,3 giây.
+Âm thanh | Một tiếng đánh trúng rõ ràng, phân biệt kiếm, phép, súng và khiên.
+Với 40–80 người đánh boss, VFX và số sát thương của người khác phải giảm mạnh. Chỉ giữ đầy đủ hiệu ứng của chính mình, party và cảnh báo boss.
+5. Quái vật và boss nên hoạt động thế nào?
+Thành phần | Cấu hình đề xuất
+Quái thường | Đứng tuần tra hoặc đi quanh điểm sinh trong bán kính 3–5 units.
+Phát hiện người | Khoảng 5–7 units.
+Truy đuổi | Đi về phía mục tiêu, dừng đúng tầm đánh; quay về khu sinh nếu bị kéo quá xa.
+Tốc độ | Quái thường bằng khoảng 70–90% tốc độ chạy nhân vật.
+Tấn công | Wind-up 0,35–0,65 giây, đánh, recovery 0,4–0,8 giây.
+Quái đánh xa | Giữ khoảng cách 5–8 units, lùi nhẹ nếu người chơi áp sát.
+Boss | Có 3–5 đòn, vùng cảnh báo rõ, thay đổi cách dùng đòn theo HP.
+Telegraph | Đòn thường nguy hiểm báo trước 0,6–1,0 giây; Ultimate boss 1,2–1,8 giây.
+Boss reaction | Không bị đẩy lùi bởi combo thường, nhưng có animation trúng đòn và VFX nhỏ.
+Ragnarok 3 đã trình diễn dungeon 10 người và boss có cơ chế cần phối hợp, né các đòn mạnh. Những thời gian wind-up và AI trong bảng là đề xuất theo kinh nghiệm thiết kế ARPG, không phải số liệu đo từ Ragnarok 3. mmorpgbr.com.br+1
+6. Bản thử Unity nhỏ nhất nên dựng
+Mình sẽ thử đúng 1 map + 1 Warrior + 2 loại quái + 1 boss, chưa chuyển cả game sang 3D.
+Hạng mục | Chốt
+Map | Frost Hollow, diện tích khoảng 60×60 Unity units
+Nhân vật | Warrior T0 model 3D, rig humanoid
+Animation | Idle, Walk, Run, combo 4 đòn, Hurt, Death, 1 skill
+Quái | Frost Slime, Ice Goblin
+Boss | Glacial Colossus, thử 2 đòn có telegraph
+Camera | Perspective 50°, FOV 35°, distance 22
+Điều khiển | WASD/joystick + Auto
+Rendering | Unity URP, ánh sáng mềm, vật liệu stylized
+Mục tiêu | 60 FPS PC, thử 30/60 FPS mobile tùy thiết bị
+Nếu chỉ được đầu tư ba thứ để tạo cảm giác giống Ragnarok 3, mình chọn:
+- Camera 3D nghiêng cố định, nhìn thấy mặt trước và độ sâu của môi trường.
+- Nhân vật chibi 3D và map có ánh sáng/bóng mềm, giữ màu tươi.
+- Combat phản hồi nhanh, đánh trúng có VFX rõ, quái phản ứng, boss có vùng nguy hiểm phải né.
+Đừng vội làm lại toàn bộ skill, pet và trang bị 3D. Hãy kiểm tra trước liệu Warrior 3D chạy, đánh và Auto farm trên Frost Hollow có thực sự thú vị hơn bản 2D hiện tại hay không.

@@ -50,8 +50,7 @@ public class HeroController3D : MonoBehaviour
             nextChop = !nextChop;
             lockLeft = AttackLock;
             FaceTargetIfClose();
-            if (Target != null && Vector3.Distance(transform.position, Target.position) < 3.2f)
-                Hud3D.Pop(Target.position + Vector3.up * 2.2f, Random.Range(900, 1600), Random.value < 0.2f);
+            Invoke(nameof(Strike), 0.25f);
             return;
         }
         if (Input.GetKeyDown(KeyCode.H)) { Restart(HitState); lockLeft = 0.5f; return; }
@@ -63,17 +62,28 @@ public class HeroController3D : MonoBehaviour
         Vector3 dir = (fwd * input.z + right * input.x).normalized;
         bool run = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         Vector3 p = transform.position + dir * (run ? RunSpeed : WalkSpeed) * Time.deltaTime;
-        p.x = Mathf.Clamp(p.x, BoundsMin.x, BoundsMax.x);
-        p.z = Mathf.Clamp(p.z, BoundsMin.y, BoundsMax.y);
-        transform.position = p;
+        transform.position = TileWalk.Move(transform.position, p - transform.position);
         transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(dir), TurnSpeed * Time.deltaTime);
         Play(run ? RunState : WalkState);
     }
 
+    /// <summary>The sword lands: every live slime within 1.7 m in front takes a hit.</summary>
+    void Strike()
+    {
+        foreach (var s in Slime3D.All.ToArray())
+        {
+            if (!s.Alive) continue;
+            Vector3 to = s.transform.position - transform.position; to.y = 0f;
+            if (to.magnitude < 1.7f && Vector3.Dot(transform.forward, to.normalized) > 0.2f) { bool crit = Random.value < 0.2f; s.TakeHit(Random.Range(700, 1300) * (crit ? 2 : 1), crit); }
+        }
+    }
+
     void FaceTargetIfClose()
     {
-        if (Target == null) return;
-        Vector3 to = Target.position - transform.position; to.y = 0f;
+        Slime3D best = null; float bd = 2.5f;
+        foreach (var s in Slime3D.All) { if (!s.Alive) continue; float d = Vector3.Distance(s.transform.position, transform.position); if (d < bd) { bd = d; best = s; } }
+        if (best == null) return;
+        Vector3 to = best.transform.position - transform.position; to.y = 0f;
         if (to.magnitude < 4f && to.sqrMagnitude > 0.01f) transform.rotation = Quaternion.LookRotation(to);
     }
 }
