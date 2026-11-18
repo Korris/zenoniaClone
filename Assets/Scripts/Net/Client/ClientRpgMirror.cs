@@ -38,6 +38,7 @@ namespace ZenoniaProto
             if (account != null) state.AttachAccount(account); // the pet's stars, tickets, pity: read-only here, the server is the writer
             else state.RecomputeStats();
             if (RpgSession.Instance != null) { RpgSession.Instance.AttachRemote(state, hero); RpgSession.Instance.ApplyRemoteBossFlags(save); }
+            hero.OnOwnAppearance(state.Appearance); // first push only: the saved look, an old device-only look moved to the server
             if (NetMode.RendersFx) { QuestTracker.Observe(state.Quests, questsKnown); WantedBossTracker.Observe(state.WantedDay, questsKnown); }
             questsKnown = true; // the first push of a connection is the character arriving, not news
             if (NetMode.RendersFx && m.ReqId != 0 && !string.IsNullOrEmpty(m.Text)) RpgHud.Toast(m.Text, m.Result == 1 ? new Color(0.7f, 1f, 0.7f) : new Color(1f, 0.7f, 0.5f));

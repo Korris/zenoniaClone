@@ -179,13 +179,13 @@ namespace ZenoniaProto
         public void Lean(bool walking, int dir, float dt)
         {
             float wantAngle = !walking ? 0f : dir == 2 ? LeanDegrees : dir == 3 ? -LeanDegrees : 0f;
-            if (soft && walking && Dir8 >= 0 && Dir8 % 4 != 0) wantAngle = (Dir8 < 4 ? -LeanDegrees : LeanDegrees) * (Dir8 % 2 == 1 ? 0.7f : 1f); // soft diagonals tip toward their side
+            if (IsSoft && walking && Dir8 >= 0 && Dir8 % 4 != 0) wantAngle = (Dir8 < 4 ? -LeanDegrees : LeanDegrees) * (Dir8 % 2 == 1 ? 0.7f : 1f); // soft diagonals tip toward their side
             float wantDip = !walking ? 0f : dir == 2 || dir == 3 ? LeanSideDip : LeanFrontDip;
             float k = 1f - Mathf.Exp(-dt / (walking ? LeanInSeconds : LeanOutSeconds));
             leanAngle += (wantAngle - leanAngle) * k;
             leanDip += (wantDip - leanDip) * k;
             lean.localRotation = Quaternion.Euler(0f, 0f, leanAngle);
-            lean.localScale = new Vector3(figureScale, figureScale * (1f - leanDip), 1f);
+            lean.localScale = new Vector3(FigureK, FigureK * (1f - leanDip), 1f);
         }
 
         float figureScale = 1f;
@@ -194,7 +194,7 @@ namespace ZenoniaProto
         public float FigureScale
         {
             get { return figureScale; }
-            set { figureScale = value; if (lean != null) lean.localScale = new Vector3(value, value * (1f - leanDip), 1f); }
+            set { figureScale = value; if (lean != null) lean.localScale = new Vector3(FigureK, FigureK * (1f - leanDip), 1f); }
         }
 
         /// <summary>Sheet row for a direction + animation; mirror = draw the right row flipped.</summary>
@@ -206,6 +206,7 @@ namespace ZenoniaProto
 
         public int FrameCount(string anim, int dir)
         {
+            if (layered != null) return LayeredFrameCount(anim); // HeroRenderer.Layered.cs
             if (soft) return SoftFrameCount(anim);
             bool mirror;
             Sprite[] row;
@@ -253,6 +254,7 @@ namespace ZenoniaProto
         /// <summary>Draws one frame. orderBase = GameConfig.OrderBase(feetY).</summary>
         public void Show(string anim, int dir, int frame, int orderBase, float alpha)
         {
+            if (layered != null) { ShowLayered(anim, dir, frame, orderBase, alpha); return; }
             if (soft) { ShowSoft(anim, dir, frame, orderBase, alpha); return; }
             bool mirror;
             int row = RowFor(anim, dir, out mirror);

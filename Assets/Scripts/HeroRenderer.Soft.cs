@@ -43,8 +43,8 @@ namespace ZenoniaProto
         bool soft;
         float breathPhase;
 
-        /// <summary>True when this hero draws the RO Soft 8-direction sheets.</summary>
-        public bool IsSoft { get { return soft; } }
+        /// <summary>True when this hero draws 8 view directions: the RO Soft sheets or a layered set.</summary>
+        public bool IsSoft { get { return soft || layered != null; } } // the layered path (HeroRenderer.Layered.cs) uses the same 8 view dirs
 
         /// <summary>View-only 8-way facing (sheet row, Dir8 order); -1 = draw the cardinal of the facing passed to Show.</summary>
         public int Dir8 { get; set; } = -1;

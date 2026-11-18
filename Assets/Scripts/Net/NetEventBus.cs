@@ -200,6 +200,9 @@ namespace ZenoniaProto
                 GlovesTier = WireTier(p.GetEquipped(Slots.Gloves)),
                 BootsTier = WireTier(p.GetEquipped(Slots.Boots)),
                 HairStyle = h.NetHairStyle,
+                HairColor = CharacterAppearanceData.ColorToWire(p.Appearance != null ? p.Appearance.hairColorIndex : -1), // 255 = not chosen: viewers pick from the name hash
+                OutfitColor = CharacterAppearanceData.ColorToWire(p.Appearance != null ? p.Appearance.outfitColorIndex : -1),
+                Headgear = (byte)(p.Appearance != null ? p.Appearance.equippedHeadgearId : 0),
             };
         }
 

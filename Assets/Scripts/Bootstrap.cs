@@ -89,7 +89,8 @@ namespace ZenoniaProto
             if (!NetMode.IsClient && MapRegistry.Current.Hostile) MonsterSpawner.SpawnAll(root.transform); // a client shows the server's monsters instead; the village is a safe town
             GameSession session = GameSession.Create(root.transform, follow);
             root.AddComponent<NameTags>();
-            root.AddComponent<LocalHeroMarker>(); // online: ring under your own hero, chevron when someone stands in front of it
+            root.AddComponent<PlayerIndicatorRing>(); // online: mint double ring under your own hero only (unlike any buff ring)
+            root.AddComponent<LocalHeroMarker>(); // online: chevron over your hero when someone stands in front of it
             root.AddComponent<TargetMarker>();    // online: red ring + fixed HP bar for the monster you hit last
 
             // Bloom (Built-in pipeline OnRenderImage) + F6 / F hotkeys; the camera is switched to HDR by BloomEffect.

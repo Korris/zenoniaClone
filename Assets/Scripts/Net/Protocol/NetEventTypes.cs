@@ -14,8 +14,9 @@ namespace ZenoniaProto.Net
     public struct NetAppearance
     {
         public byte WeaponTier, OffTier, EnhanceBand, Flags, PetId, ArmorTier, GlovesTier, BootsTier, HairStyle; // HairStyle: head layer style (HeroHeadLayer), wraps on the client
-        public void Write(NetDataWriter w) { w.Put(WeaponTier); w.Put(OffTier); w.Put(EnhanceBand); w.Put(Flags); w.Put(PetId); w.Put(ArmorTier); w.Put(GlovesTier); w.Put(BootsTier); w.Put(HairStyle); }
-        public static NetAppearance Read(NetDataReader r) { return new NetAppearance { WeaponTier = r.GetByte(), OffTier = r.GetByte(), EnhanceBand = r.GetByte(), Flags = r.GetByte(), PetId = r.GetByte(), ArmorTier = r.GetByte(), GlovesTier = r.GetByte(), BootsTier = r.GetByte(), HairStyle = r.GetByte() }; }
+        public byte HairColor, OutfitColor, Headgear; // CharacterAppearanceData: palette indices (255 = not chosen: the client picks from the name hash), headgear id (0 = none)
+        public void Write(NetDataWriter w) { w.Put(WeaponTier); w.Put(OffTier); w.Put(EnhanceBand); w.Put(Flags); w.Put(PetId); w.Put(ArmorTier); w.Put(GlovesTier); w.Put(BootsTier); w.Put(HairStyle); w.Put(HairColor); w.Put(OutfitColor); w.Put(Headgear); }
+        public static NetAppearance Read(NetDataReader r) { return new NetAppearance { WeaponTier = r.GetByte(), OffTier = r.GetByte(), EnhanceBand = r.GetByte(), Flags = r.GetByte(), PetId = r.GetByte(), ArmorTier = r.GetByte(), GlovesTier = r.GetByte(), BootsTier = r.GetByte(), HairStyle = r.GetByte(), HairColor = r.GetByte(), OutfitColor = r.GetByte(), Headgear = r.GetByte() }; }
     }
 
     /// <summary>

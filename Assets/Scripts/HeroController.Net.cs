@@ -34,6 +34,7 @@ namespace ZenoniaProto
             // reaches them through SyncHairStyleOnline. AccountFlow.EnteredId is set before the zone join and cleared only by LeaveWorld, so it is still set here.
             if (local && AccountFlow.EnteredId != null) CharacterLookPrefs.ApplyTo(view, AccountFlow.EnteredId);
             Setup(def, state, netId);
+            SetupLook(local); // the local hero's saved look comes with the first RpgState (OnOwnAppearance)
             RefreshGearLabel();
             Render();
         }
@@ -58,6 +59,7 @@ namespace ZenoniaProto
             view.SetOutfit(NetEventBus.TierOfWire(look.ArmorTier));
             view.SetPet(PetConfig.IdOfWire(look.PetId));
             view.HairStyle = look.HairStyle; // the renderer wraps a style this build has no art for
+            ProxyAppearance(look); // colours + headgear (HeroController.Look.cs)
         }
 
         /// <summary>Server side: the head layer style this hero shows to others (InvOp.HairStyle from its client; the host's own view directly).</summary>
@@ -67,7 +69,7 @@ namespace ZenoniaProto
         /// <summary>Local hero online: sends the chosen hairstyle (H key, --hairstyle) whenever it differs from what the server last got.</summary>
         void SyncHairStyleOnline()
         {
-            if (this != LocalPlayer.Hero || view == null || NetMode.IsOffline || view.HairStyle == sentHairStyle) return;
+            if (this != LocalPlayer.Hero || view == null || NetMode.IsOffline || view.HairStyle == sentHairStyle || !MaySendHairStyle) return;
             if (NetMode.IsServerSide) { NetHairStyle = (byte)view.HairStyle; NetEventBus.Appearance(this); sentHairStyle = view.HairStyle; return; } // host: its own hero is the server's
             if (NetClient.SendInvAction(InvOp.HairStyle, "", (byte)view.HairStyle)) sentHairStyle = view.HairStyle;
         }

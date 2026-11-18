@@ -330,6 +330,7 @@ namespace ZenoniaProto
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--nobloom") >= 0) { FeelConfig.BloomOn = false; var b = Camera.main.GetComponent<BloomEffect>(); if (b != null) b.enabled = false; }
                 if (dummies > 0) SpawnDummies(hero);
                 ApplyRpgFlags(hero);
+                if (Array.IndexOf(Environment.GetCommandLineArgs(), "--record-layered") >= 0) { yield return RecordLayered(hero); yield break; } // DebugCapture.Layered.cs
                 if (DamageNumbersDemoRequested()) StartCoroutine(DamageNumbersDemo()); // --damage-numbers-demo: every number kind on loop
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--power-slash-check") >= 0)
                 { yield return RunPowerSlashCheck(hero); yield break; }

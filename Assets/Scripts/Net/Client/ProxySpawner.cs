@@ -42,7 +42,7 @@ namespace ZenoniaProto
                         if (seenPlayers.Add(m.Id)) stats.Max("heroesSeenDistinct", seenPlayers.Count);
                     }
                     h.PlayerId = m.PlayerId;
-                    h.PlayerName = m.Name ?? "";
+                    h.PlayerName = m.Name ?? ""; // before ProxyLook: the colour pick of a look nobody chose hashes the name
                     if (m.Id != myHeroId && NetMode.RendersFx) h.ProxyLook(m.Look);
                     break;
                 case EntityKind.Monster:

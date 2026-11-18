@@ -13,11 +13,14 @@ namespace ZenoniaProto
         {
             if (p.Hero == null) return;
             Zone.Enter(p.Hero.HomeZone); // a network callback: the events it raises belong to this hero's zone
-            if (m.Op == InvOp.HairStyle) // a look choice only, no state and no reply: everyone near sees the new head
+            if (m.Op == InvOp.HairStyle) // a look choice only, no reply: everyone near sees the new head; kept with the character at the next save
             {
+                CharacterAppearanceData look = p.Rpg.State.Appearance;
+                if (look != null && (look.hairStyle != m.Slot || !look.stored)) { look.stored = true; look.hairStyle = m.Slot; p.RpgDirty = true; }
                 if (p.Hero.NetHairStyle != m.Slot) { p.Hero.NetHairStyle = m.Slot; NetEventBus.Appearance(p.Hero); }
                 return;
             }
+            if (m.Op == InvOp.Appearance) { ApplyAppearance(p, m.ItemUid); return; }
             bool questOp = m.Op == InvOp.QuestAccept || m.Op == InvOp.QuestTurnIn;
             bool shopOp = m.Op == InvOp.PotionBuy || m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || m.Op == InvOp.BallBuy;
             string refusal = TradeService.IsTrading(p) && TradeBook.BlocksInventoryOp(m.Op) ? "Not while trading" : shopOp ? ShopRefusal(p, m) : questOp ? QuestRefusal(p, m) : null;
@@ -30,6 +33,21 @@ namespace ZenoniaProto
             if ((m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || questOp) && r.Ok && ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p); // a large sum of gold, a quest reward: written now, not at the next interval
             repl.SendRpgState(p, m.ReqId, r.Ok, r.Text);
             p.RpgDirty = false;
+        }
+
+        /// <summary>InvOp.Appearance: style + hair / outfit colour picked on the client (character creation, or the device's old choice moved to the server).
+        /// Validated (CharacterAppearanceData.TryApplyOpText), the headgear is never taken from the client; stored at once, shown to everyone near. No reply.</summary>
+        static void ApplyAppearance(NetPlayer p, string text)
+        {
+            PlayerState state = p.Rpg.State;
+            CharacterAppearanceData next;
+            if (!CharacterAppearanceData.TryApplyOpText(text, state.Appearance, out next) || next.SameLook(state.Appearance)) return;
+            next.classId = state.ClassId;
+            state.Appearance = next;
+            p.Hero.NetHairStyle = (byte)next.hairStyle;
+            NetEventBus.Appearance(p.Hero);
+            p.RpgDirty = true;
+            if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p);
         }
 
         /// <summary>Pet buy / star up / gacha pull / UR exchange: PlayerRpg runs it through the account queue; the answer (state + text) goes out when it is stored or refused.</summary>

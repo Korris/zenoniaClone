@@ -26,6 +26,7 @@ namespace ZenoniaProto.Rpg
         readonly Item[] equipment = new Item[Slots.All.Length];
         public readonly SkillRanks Skills;      // learned skill ranks; SP is derived (SkillPointsFree), never stored
         public readonly SkillLoadout Loadout;   // skill magazine slots
+        public CharacterAppearanceData Appearance; // hairstyle / hair + outfit colour / headgear (saved; never null after the constructor)
 
         // Derived by RecomputeStats().
         public int MaxHp, MaxMp, Atk, Def;
@@ -37,6 +38,7 @@ namespace ZenoniaProto.Rpg
         {
             ClassId = RpgClasses.Get(classId).Id;
             Skills = new SkillRanks(ClassId); Loadout = new SkillLoadout();
+            Appearance = CharacterAppearanceData.Unset(ClassId);
             RecomputeStats();
             Hp = MaxHp; Mp = MaxMp;
         }

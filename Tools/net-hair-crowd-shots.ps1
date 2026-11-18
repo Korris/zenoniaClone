@@ -13,7 +13,8 @@ param(
   [int]$Port = 7810,
   [string]$Class = "warrior",          # the camera hero
   [string]$Shots = "12,16,20,24,28",  # seconds after the viewer starts
-  [int]$Zoom = 100                     # camera half-height (default game view 80)
+  [int]$Zoom = 100,                    # camera half-height (default game view 80)
+  [string[]]$ViewerArgs = @()          # extra viewer flags, e.g. --layered-test (bots drawn with the synthetic layered set)
 )
 $ErrorActionPreference = "Stop"
 $Exe = (Resolve-Path $Exe).Path
@@ -43,9 +44,9 @@ for ($i = 0; $i -lt 60; $i++) {
 $swarm = Start-Process -FilePath "dotnet" -PassThru -WindowStyle Hidden -RedirectStandardOutput "$OutDir\swarm.txt" -ArgumentList @($swarmDll.FullName,
   "--host", "127.0.0.1", "--port", $Port, "--key", "k", "--clients", $Bots, "--seconds", 90, "--stagger-ms", 40, "--mix", "0:100:0", "--no-attack", "--hair", "vary")
 Start-Sleep -Seconds 6
-$viewer = Start-Process -FilePath $Exe -PassThru -ArgumentList @("-screen-width", 1280, "-screen-height", 720, "-screen-fullscreen", 0,
+$viewer = Start-Process -FilePath $Exe -PassThru -ArgumentList (@("-screen-width", 1280, "-screen-height", 720, "-screen-fullscreen", 0,
   "--mode", "client", "--host", "127.0.0.1", "--port", $Port, "--name", "Viewer", "--class", $Class, "--dev-key", "k",
-  "--zoom", $Zoom, "--shots", $Shots, "--shot-path", "$OutDir\crowd", "-logFile", "$OutDir\viewer.log")
+  "--zoom", $Zoom, "--shots", $Shots, "--shot-path", "$OutDir\crowd", "-logFile", "$OutDir\viewer.log") + $ViewerArgs)
 if (-not $viewer.WaitForExit(90000)) { $viewer.Kill() }
 foreach ($p in @($swarm, $server)) { if (-not $p.HasExited) { $p.Kill() } }
 Get-ChildItem "$OutDir\crowd_*.png" | ForEach-Object { Write-Host $_.FullName }

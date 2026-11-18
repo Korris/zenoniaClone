@@ -4,7 +4,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Online only: the monster you are fighting = the one your own hero hit last (Monster.LastHitByMe), for HoldSeconds after the hit.
-    /// A thin red ring of four arcs under its feet (y-sorted like its shadow; red and broken so it never reads as the gold ring of your hero)
+    /// A thin red ring of four arcs under its feet (y-sorted like its shadow; red and broken so it never reads as the mint ring of your hero, PlayerIndicatorRing)
     /// and a fixed red HP bar at the top centre of the screen, under the boss bar when that one shows. Nothing when you hit nothing.
     /// </summary>
     public class TargetMarker : MonoBehaviour
