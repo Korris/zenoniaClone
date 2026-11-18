@@ -1,5 +1,10 @@
 # Việc đang dở
 
+### 19/11: menu trong game đổi sang RO Soft Fantasy (branch agent, CHỜ người dùng xem)
+- Người dùng: "sửa lại menu trong game luôn". Skin RO (ít asset, vẽ khối bo góc bằng code) phủ lên mọi cửa sổ classic: túi đồ, shop đồ / thuốc, Trade, sổ nhiệm vụ, cài đặt, bảng skill, pet cũ, hộp thoại NPC, party; HUD: tấm trạng thái xanh đen. Mặc định bật; `--ui-style classic` = navy cũ; `--ui new` = Adventure Paper như trước.
+- Code: `UiStyle.cs`, `RoSoftTheme.cs`, `RoSoftSprites.cs`, `RoSoftSkin.cs`. Ảnh: `docs/reference/ro-soft-menu-ingame/` (+ `so-sanh/` mockup | game). Báo cáo + câu hỏi: `plans/reports/ro-soft-menu-261119.md`. Exe `D:/temp/player-ro-menu/Zenonia.exe`.
+- CÒN: bố cục theo mockup (shop có NPC + so sánh, quest log có tab, trade có chân dung), HUD chiến đấu, màn Adventure Paper, chọn class / Level Up.
+
 ### 18/11 01:45: người dùng bảo commit + push (mọi thứ 17-18/11 bên dưới đã commit). Đang cân: sprite 8 hướng (chéo) như mockup RO thay 4 hướng; chưa hỏi ChatGPT, chưa làm.
 
 ### 18/11 01:20: 5 class thiết kế lại từ đầu theo RO Soft Fantasy (concept v1, CHỜ người dùng duyệt)

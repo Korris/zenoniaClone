@@ -118,7 +118,18 @@ namespace ZenoniaProto
 
         void ShowTier(int tier)
         {
-            for (int t = 0; t < MaxTiersShown; t++) tabs[t].targetGraphic.color = minTier + t == tier ? Color.white : new Color(1f, 1f, 1f, 0.55f);
+            for (int t = 0; t < MaxTiersShown; t++)
+            {
+                bool on = minTier + t == tier;
+                if (UiStyle.Ro) // RO Soft Fantasy pill tabs: mint = shown tier, white = the others
+                {
+                    var face = (Image)tabs[t].targetGraphic;
+                    face.sprite = RoSoftSprites.Get(on ? RoSoftSprites.Shape.TabOn : RoSoftSprites.Shape.TabOff);
+                    face.type = Image.Type.Sliced; face.pixelsPerUnitMultiplier = 1f; face.color = Color.white;
+                    tabLabels[t].color = on ? Color.white : RoSoftTheme.Ink;
+                }
+                else tabs[t].targetGraphic.color = on ? Color.white : new Color(1f, 1f, 1f, 0.55f);
+            }
             PlayerState p = RpgSession.Player;
             string classId = p != null ? p.ClassId : RpgClasses.Default;
             int n = 0;

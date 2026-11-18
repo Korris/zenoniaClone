@@ -50,7 +50,7 @@ namespace ZenoniaProto
         void Build(Transform canvas)
         {
             block = UiKit.Rect(canvas, "HudBlock", 8f, 6f, 304f, OldBlockHeight);
-            UiKit.Panel(UiKit.Rect(block, "Back", 40f, 3f, 262f, 67f), new Color(0.03f, 0.05f, 0.1f, 0.68f));
+            Image back = UiKit.Panel(UiKit.Rect(block, "Back", 40f, 3f, 262f, 67f), new Color(0.03f, 0.05f, 0.1f, 0.68f));
 
             // Portrait: gold ring, dark inner disc, the face masked to a circle.
             Image ring = UiKit.Panel(UiKit.Rect(block, "PortraitRing", 0f, 0f, 76f, 76f), new Color(0.86f, 0.67f, 0.29f));
@@ -71,6 +71,13 @@ namespace ZenoniaProto
             mpValue = BarTexts(mpBar, "MP");
             expBar = new UiKit.Bar(block, "Exp", 82f, 61f, 214f, 6f, new Color(0.96f, 0.64f, 0.14f), 0);
             buffRow = new HudBuffRow(block, 82f, 73f);
+            if (UiStyle.Ro) // RO Soft Fantasy fight HUD: blue-black rounded plate at ~90 %, light ring, white text (never a translucent white panel)
+            {
+                back.sprite = RoSoftSprites.Get(RoSoftSprites.Shape.Night); back.type = Image.Type.Sliced; back.color = Color.white;
+                ring.color = RoSoftTheme.MintMist;
+                disc.color = RoSoftTheme.Night;
+                RoSoftSkin.Dark(block); // Nunito on the status texts; colours stay white
+            }
             paper = PaperLayout.CreateSafeArea(canvas, "PaperHud"); // here in the sibling order: under the touch layer and every window
             BossBarView.Create(paper.Safe);
 

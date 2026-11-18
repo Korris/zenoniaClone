@@ -80,6 +80,7 @@ namespace ZenoniaProto
             detail = SkillTreeDetailPane.Build(win, W - 44f - SkillTreeDetailPane.Width, GridY, OnLearn, OnAssign);
             strip = SkillLoadoutStrip.Build(win, 44f, StripY, OnSlot);
             message = UiKit.Label(win, "Message", 44f, H - 56f, W - 88f, 24f, "", 15, Good, TextAnchor.MiddleLeft, true);
+            RoSoftSkin.Light(overlay); // RO Soft Fantasy look unless --ui-style classic
             overlay.gameObject.SetActive(false);
         }
 
