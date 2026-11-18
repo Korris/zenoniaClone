@@ -33,7 +33,8 @@ namespace ZenoniaProto
                 h.AiHeld = k => false;
                 h.AiPressed = k => false;
                 h.God = true;
-                var look = new CharacterAppearanceData { stored = true, hairColorIndex = (i * 3) % 8, outfitColorIndex = (i * 5 + 1) % CharacterAppearanceData.OutfitColorCount };
+                var look = new CharacterAppearanceData { stored = true, hairColorIndex = (i * 3) % 8, outfitColorIndex = (i * 5 + 1) % CharacterAppearanceData.OutfitColorCount,
+                    equippedHeadgearId = i % 5 == 4 ? 0 : new[] { 2, 5, 16, 3, 9, 10, 6, 1, 12, 19 }[i] }; // hats from art batch 3 on most (5 nun veil, 9 aviator: hair hidden)
                 h.View.SetAppearance(look, "layered-real-" + i, false, false);
                 h.FaceDir8(i % 8);
                 crowd[i] = h;
