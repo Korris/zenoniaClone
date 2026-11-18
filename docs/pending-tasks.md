@@ -1,5 +1,13 @@
 # Việc đang dở
 
+### 19/11 03:20: người dùng nghiêng về vẽ lại nhân vật theo RO Soft Fantasy ("không ngại vẽ lại") + 8 hướng để đám đông quay vào boss
+- Chat ChatGPT (Tay, nhánh): https://chatgpt.com/c/6afe0787-01c8-83ec-b422-ad676e70b9f6 (chưa có gì mới ngoài lineup v1 + ảnh 40 người).
+- Claude đề xuất: vẽ lại theo lineup v1 nhưng gộp luôn 8 hướng (vẽ 5: xuống, xuống-phải, phải, lên-phải, lên; trái lật), không vẽ 2 lần. Thử trước Warrior T0: idle 5 hướng + walk + 1 nhát đánh, ghép đứng quanh Mire Hydra Queen. Hướng nhìn mạng hiện 2 bit (`NetQuantize.Facing`), 8 hướng phải đổi protocol + build lại server. Map / quái Zenonia 5 tối có thể lệch tông với nhân vật pastel. CHỜ người dùng chốt.
+- 19/11 03:20 người dùng: "ok làm mẫu Warrior T0", rồi "làm cho cả 5 nhân vật", "tạm thời KHÔNG làm nhiều trang phục, chỉ vẽ sprite bộ mặc định", "thêm agent coi có nên design all map lại", "sửa lại menu trong game luôn".
+- Đang làm (chat Tay nhánh ở trên): mỗi class 4 ảnh (idle 5 hướng phải, idle 3 hướng trái vẽ riêng KHÔNG lật để vũ khí giữ tay phải, đòn đánh 5 + 3). Nguồn `Assets/ArtLibrary/classes/<class>/ro-soft-8dir/{ref,src,cut}/`, tool `Tools/build-ro-soft-8dir-pilot.py` (`cut`, `compose`), ảnh ghép đám đông 8 hướng vs 4 hướng `docs/reference/ro-soft-8dir-crowd-mock.png`. 04:00: XONG concept cả 5 class (20 ảnh + 1 vẽ lại), bảng duyệt `docs/reference/ro-soft-8dir-5-classes-sheet.png` (mỗi class 2 hàng idle/đánh x 8 hướng), ảnh đám đông 5 class `docs/reference/ro-soft-8dir-crowd-mock.png`. Lỗi còn: mũ Cleric nhìn từ sau như ống rỗng (idle chéo lên-trái, đòn chéo lên-phải, lên); Wizard đòn chéo lên-trái có thể đổi tay. CHỜ người dùng duyệt style trước khi làm bản cài game. Mới là ảnh concept vẽ liền vũ khí, CHƯA cài vào game: muốn vào game còn phải vẽ thân tay không + vũ khí riêng, walk/frame động, lớp tóc, và code 8 hướng.
+- Map (agent đánh giá, báo cáo `plans/reports/map-redesign-evaluation-261119-ro-soft.md`, ảnh `docs/reference/map-ro-soft-tone-test/`): chưa vẽ lại toàn bộ; chỉnh màu hàng loạt bằng LUT (bớt bão hoà, sáng hơn) ~6-10 giờ, không cần ChatGPT; sau mới cân nhắc vẽ lại Oakhaven + Sunken Reliquary.
+- Menu: agent làm UI RO Soft trong worktree riêng (báo cáo sẽ ở `plans/reports/ro-soft-menu-261119.md` của branch đó), chưa merge.
+
 ### 18/11 01:45: người dùng bảo commit + push (mọi thứ 17-18/11 bên dưới đã commit). Đang cân: sprite 8 hướng (chéo) như mockup RO thay 4 hướng; chưa hỏi ChatGPT, chưa làm.
 
 ### 18/11 01:20: 5 class thiết kế lại từ đầu theo RO Soft Fantasy (concept v1, CHỜ người dùng duyệt)
