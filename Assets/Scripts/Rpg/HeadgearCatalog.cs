@@ -15,6 +15,8 @@ namespace ZenoniaProto.Rpg
         public int Id, Price;
         public string Key, Name, Source, DropFrom, ClassId, Rarity;
         public double Rate;
+        /// <summary>A hood that covers the whole head (nun veil, aviator cap): the hair layer is not drawn while it is worn.</summary>
+        public bool HidesHair;
         /// <summary>ItemDefs template id of the hat item: "hat-&lt;key&gt;".</summary>
         public string TemplateId { get { return "hat-" + Key; } }
     }
@@ -63,7 +65,7 @@ namespace ZenoniaProto.Rpg
 
         static HeadgearDef H(int id, string key, string name, string source, string from, double rate, int price, string cls, string rarity)
         {
-            return new HeadgearDef { Id = id, Key = key, Name = name, Source = source, DropFrom = from, Rate = rate, Price = price, ClassId = cls, Rarity = rarity };
+            return new HeadgearDef { Id = id, Key = key, Name = name, Source = source, DropFrom = from, Rate = rate, Price = price, ClassId = cls, Rarity = rarity, HidesHair = key == "nun-veil" || key == "aviator-cap" };
         }
 
         public static HeadgearDef Get(int id) { return id >= 1 && id <= All.Length ? All[id - 1] : null; }

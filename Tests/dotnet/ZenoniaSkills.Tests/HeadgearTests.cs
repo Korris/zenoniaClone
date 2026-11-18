@@ -203,6 +203,7 @@ public class HeadgearTests
             Assert.Equal(d.Rarity, h.GetProperty("rarity").GetString());
             Assert.Equal("Sprites/hero-layered/headgear/" + d.Key, h.GetProperty("sheet").GetString());
             Assert.Equal("headgear-" + d.Key, h.GetProperty("icon").GetString());
+            Assert.Equal(d.HidesHair, h.GetProperty("hidesHair").GetBoolean());
         }
     }
 }

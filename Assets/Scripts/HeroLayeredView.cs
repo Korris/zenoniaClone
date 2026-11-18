@@ -82,8 +82,9 @@ namespace ZenoniaProto
             hand.transform.localScale = body.transform.localScale;
 
             HeroLayeredSet.HeadAnchor h = set.Head(anim, row, frame);
-            PlaceOnHead(hair, set.Hair(hairStyle), h, row, mirror, tint, orderBase + 3, 0f, breathY);
-            PlaceOnHead(headgear, set.Headgear(headgearId), h, row, mirror, tint, orderBase + 3, 1f, breathY);
+            HeroLayeredSet.LayerEntry hat = set.Headgear(headgearId);
+            PlaceOnHead(hair, hat != null && hat.hidesHair ? null : set.Hair(hairStyle), h, row, mirror, tint, orderBase + 3, 0f, breathY); // hoods hide the hair
+            PlaceOnHead(headgear, hat, h, row, mirror, tint, orderBase + 3, 1f, breathY);
             PlaceWeapon("weapon", weaponBack, weaponFront, anim, dir8, frame, tint, orderBase + 1, orderBase + 4);
             PlaceWeapon("offhand", offBack, offFront, anim, dir8, frame, tint, orderBase + 2, orderBase + 5);
         }

@@ -15,7 +15,7 @@ namespace ZenoniaProto
         [Serializable] public class AnimSpec { public string name; public int frames = 1; }
         [Serializable] public class HeadAnchor { public string anim; public int dir, f; public float x, y, w, angle; }
         [Serializable] class BodyFile { public int cellW = 320, cellH = 256, feetY = 244, bodyPx = 200; public string sheets; public AnimSpec[] anims; public HeadAnchor[] head; }
-        [Serializable] public class LayerEntry { public int style, id; public string sheet; public int cellW, cellH; public float ax, ay, refW = 1f, drop; }
+        [Serializable] public class LayerEntry { public int style, id; public string sheet; public int cellW, cellH; public float ax, ay, refW = 1f, drop; public bool hidesHair; }
         [Serializable] public class WeaponEntry { public string part, sheet; public float gx, gy; }
         [Serializable] public class Grip { public string part, anim; public int dir, f; public float x, y, angle; public bool behind; }
         [Serializable] class ClassFile { public string body; public LayerEntry[] hair, headgear; public WeaponEntry[] weapons; public Grip[] grips; }
