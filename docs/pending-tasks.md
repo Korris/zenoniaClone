@@ -1,5 +1,7 @@
 # Việc đang dở
 
+### 18/11 07:10: người dùng chê bản 3D v3: map chói, đòn chém Warrior chán / chậm → nhờ ChatGPT so với Ragnarok 3 (CHƯA GỬI ĐƯỢC: công cụ Chrome mất kết nối giữa chừng). Gửi 3 ảnh `docs/reference/3d-warrior-prototype/screens/v3-*` + hỏi: ánh sáng / exposure / tone mapping, combo nhanh (độ dài nhát, hit stop, vệt chém, rung, âm thanh, nguồn animation), camera, tỉ lệ, cái gì còn giả. Hướng sửa dự kiến: tắt bớt sáng (sun 0,8, ambient tối hơn, nền nhân 0,8), hậu kỳ tone mapping ACES (cần Post Processing / URP), thay clip Tripo 6,6 s bằng combo 4 nhát ngắn (Tripo AI Animation / Mixamo), hit stop 0,05 s + vệt chém + rung nhẹ nhát 4.
+
 ### 18/11 02:30: chuyển sang 3D top-down THẬT (hướng Ragnarok 3): v3 CHẠY ĐƯỢC `D:/temp/proto3d-build/Warrior3D.exe`: kiếm + khiên trong tay, map Frost Hollow 3D (prop Tripo), Frost Slime 3D (Quaternius CC0) đánh được. CHỜ người dùng chơi thử
 - `docs/reference/3d-warrior-prototype/` (README có kế hoạch 3 bước + lời khuyên ChatGPT).
 
