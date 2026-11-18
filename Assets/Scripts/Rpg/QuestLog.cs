@@ -10,6 +10,10 @@ namespace ZenoniaProto.Rpg
         public int Count, RewardGold, RewardStones, RewardHpPotions;
         /// <summary>Also gives the hero's class starter hat (HeadgearCatalog.StarterFor): the newbie quest.</summary>
         public bool RewardStarterHat;
+        /// <summary>Active from the start without talking to the giver: every character that has no entry for it gets one (new games and old saves alike, QuestLog).</summary>
+        public bool AutoStart;
+        /// <summary>Chat line when the objective is complete; null = the usual "Objective complete: return to GIVER".</summary>
+        public string ReadyNotice;
         public string[] OfferLines, ActiveLines, ReadyLines, DoneLines;
 
         /// <summary>MonsterType of a quest that counts every monster kill.</summary>
@@ -42,12 +46,14 @@ namespace ZenoniaProto.Rpg
 
         public static readonly QuestDef[] All =
         {
-            // Newbie quest (user decision 19/11/2026, hat sources): the first 5 kills of any monster, the class starter hat as the gift. First so the Elder offers it first.
+            // Newbie quest (user decision 19/11/2026, hat sources): the first 5 kills of any monster, the class starter hat as the gift.
+            // AutoStart (user decision 19/11/2026): counts from a new character's very first kill, no talk with the Elder first; he only takes the hand-in.
             new QuestDef
             {
                 Id = "first-hunt", Title = "First Hunt", GiverNpcId = "elderRowan", GiverName = "Elder Thomas",
                 Description = "Every adventurer starts somewhere. Defeat any five monsters outside the village and come back for a small gift.",
-                MonsterType = QuestDef.AnyMonster, MonsterName = "any monster", Count = 5, RewardGold = 30, RewardStarterHat = true,
+                MonsterType = QuestDef.AnyMonster, MonsterName = "any monster", Count = 5, RewardGold = 30, RewardStarterHat = true, AutoStart = true,
+                ReadyNotice = "First Hunt complete! Visit Elder Thomas in Oakhaven for a reward.",
                 OfferLines = new[]
                 {
                     "Welcome to Oakhaven, young one. Before you wander far, show me you can hold your own.",
@@ -88,7 +94,7 @@ namespace ZenoniaProto.Rpg
         }
     }
 
-    /// <summary>One quest in a save: only quests that were accepted have one, so a save without any simply has everything still available.</summary>
+    /// <summary>One quest in a save: only quests that were accepted (or start on their own, QuestDef.AutoStart) have one, so a save without any simply has everything else still available.</summary>
     [Serializable]
     public class QuestEntry
     {
@@ -103,6 +109,18 @@ namespace ZenoniaProto.Rpg
     public sealed class QuestLog
     {
         readonly List<QuestEntry> entries = new List<QuestEntry>();
+
+        public QuestLog() { StartAutoQuests(); }
+
+        /// <summary>
+        /// Every AutoStart quest this character has no entry for becomes Active at 0 kills: a new game, and an old save that never took it (an old save that
+        /// accepted or finished it has an entry, and that state is kept). Whoever owns the state then saves the entry with the character.
+        /// </summary>
+        void StartAutoQuests()
+        {
+            foreach (QuestDef q in QuestCatalog.All)
+                if (q.AutoStart && Find(q.Id) == null) entries.Add(new QuestEntry { id = q.Id, state = (int)QuestState.Active });
+        }
 
         QuestEntry Find(string id)
         {
@@ -122,7 +140,7 @@ namespace ZenoniaProto.Rpg
             return e != null ? e.progress : 0;
         }
 
-        /// <summary>False unless the quest was still available.</summary>
+        /// <summary>False unless the quest was still available (never for an AutoStart quest: it is already under way).</summary>
         public bool Accept(QuestDef q)
         {
             if (q == null || Find(q.Id) != null) return false;
@@ -197,6 +215,7 @@ namespace ZenoniaProto.Rpg
         {
             entries.Clear();
             entries.AddRange(Sanitize(saved));
+            StartAutoQuests();
         }
 
         /// <summary>

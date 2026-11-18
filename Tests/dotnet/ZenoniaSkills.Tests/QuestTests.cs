@@ -10,8 +10,7 @@ public class QuestTests
     static PlayerState Hero()
     {
         PlayerState p = PlayerState.NewGame("warrior");
-        QuestDef first = QuestCatalog.Get("first-hunt");
-        p.AcceptQuest(first.Id);
+        QuestDef first = QuestCatalog.Get("first-hunt"); // AutoStart: already counting
         for (int i = 0; i < first.Count; i++) p.Quests.CountKill("hornRabbit");
         Assert.True(p.TurnInQuest(first.Id).Ok);
         return p;

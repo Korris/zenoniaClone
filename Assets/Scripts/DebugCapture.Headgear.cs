@@ -11,7 +11,7 @@ namespace ZenoniaProto
     ///   --wear-hat N                      wear hat N (the equipment cell, the look's headgear id)
     ///   --drop-hat-from TYPE              one kill's loot of monster TYPE through the real roll (LootTable.RollAll / Wanted hats) with every roll forced to hit,
     ///                                     spilled in front of the hero, like KillRewards does
-    ///   --newbie-quest offer|ready|done   the Elder's First Hunt: the offer window / the hand-in talk after 5 kills / handed in (the gift in the bag)
+    ///   --newbie-quest offer|ready|done   the Elder's First Hunt: the offer window (unused: AutoStart) / the hand-in talk after 5 kills / handed in
     ///   --shop-tab hats                   with --open-shop SMITH: the Hats tab of the blacksmith
     /// </summary>
     public partial class DebugCapture
@@ -61,8 +61,7 @@ namespace ZenoniaProto
             QuestDef q = QuestCatalog.Get("first-hunt");
             PlayerRpg rpg = LocalPlayer.Rpg;
             if (step == "offer") { QuestOfferWindow.Open(q, null); return; }
-            hero.Rpg.AcceptQuest(q.Id);
-            for (int i = 0; i < q.Count; i++) rpg.QuestKill("hornRabbit");
+            for (int i = 0; i < q.Count; i++) rpg.QuestKill("hornRabbit"); // First Hunt is AutoStart: nothing to accept, kills count at once
             if (step == "ready") { ElderNpc.Talk(q.GiverNpcId); return; }
             ActionResult r = rpg.ApplyInvAction(Net.InvOp.QuestTurnIn, q.Id, 0); // what QuestTracker.TurnIn does offline
             Debug.Log("[ZenoniaProto] newbie quest turn-in: " + r.Ok + " " + r.Text + ", hat in bag: " + hero.Rpg.Inventory.Exists(i => i.slot == Slots.Headgear));

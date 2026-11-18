@@ -62,8 +62,8 @@ namespace ZenoniaProto
                     else NotificationToast.Show(q.Title, "Defeat " + q.MonsterName + "  " + now.Progress + " / " + q.Count, icon);
                     break;
                 case QuestState.ReadyToTurnIn:
-                    ChatHub.System("Objective complete: return to " + q.GiverName);
-                    NotificationToast.Show("Objective Complete", "Return to " + q.GiverName, icon);
+                    ChatHub.System(q.ReadyNotice ?? "Objective complete: return to " + q.GiverName);
+                    NotificationToast.Show("Objective Complete", (q.AutoStart ? "Visit " : "Return to ") + q.GiverName + (q.AutoStart ? " for a reward" : ""), icon);
                     break;
                 case QuestState.Done:
                     ChatHub.System("Quest complete: " + q.Title + " (" + q.RewardText(RpgSession.Player != null ? RpgSession.Player.ClassId : RpgClasses.Default) + ")");
