@@ -1,5 +1,9 @@
 # Việc đang dở
 
+### 19/11 06:00: hệ thống mũ thời trang (headgear) — code xong trên branch worktree, chưa merge
+- 19 mũ id 1..19 (`Assets/Scripts/Rpg/HeadgearCatalog.cs`, bản sao dữ liệu + bố cục art `Assets/Resources/Data/hero-layered/headgear.json`), ô trang bị riêng `headgear` (ô thứ 8; ô `helmet` vẫn là dây chuyền), không chỉ số. Nguồn: quái rơi 1,5-4 %, boss truy nã 6 % + mũ phù thuỷ tối thượng 1 %, 4 mũ ở lò rèn làng (tab "Hats"), quest tân thủ "First Hunt" của Elder (5 quái bất kỳ -> mũ class). Protocol 24, server-api thêm slot / template hat. Báo cáo `plans/reports/headgear-system-261119.md`.
+- CÒN: người dùng vẽ Prompt 6 (art mũ + icon `Sprites/icons/headgear-<key>.png`), mũ chỉ hiện trên đầu khi nhân vật vẽ nhiều lớp (bước C/D).
+
 ### 19/11 04:50: hướng mới: nhân vật NHIỀU LỚP kiểu Ragnarok (thân gốc chung theo giới, đầu trần, tóc + mũ rời, đổi màu tóc / áo bằng shader, vũ khí lớp riêng)
 - Người dùng gửi spec (người dùng tự vẽ bằng ChatGPT, Claude làm code/shader/tool). Quy cách + 7 prompt: `docs/character-appearance-layered-spec.md`. Thay cho bản RO Soft vẽ liền (Warrior đang chạy trong game, merge 87f3b811, exe `Build/ro-soft-warrior-261119/Zenonia.exe`).
 - 05:00 người dùng: "cứ việc làm, không cần hỏi, tui đi ngủ" + đã trả lời: BỎ quy tắc vòng chỉ cho buff (có vòng định vị mình), tên mình HIỆN màu xanh lá, nguồn mũ = quái rơi / boss truy nã / shop làng / quà nhiệm vụ tân thủ (xem spec). Claude tự vẽ art bước A/C trên chat Tay https://chatgpt.com/c/6afe1ebe-b668-83ec-8233-c010a9354ef0 , nguồn `Assets/ArtLibrary/hero-layered/src/`, tool cắt `Tools/build-hero-layered-sheets.py` (`write`, `check`; ra `hero-layered/sheets/<gender>/` + `head-anchors.json` + `ref/`). Agent code bước B (shader HeroRecolor, CharacterAppearanceData, protocol 23, renderer nhiều lớp, vòng + tên xanh) đang chạy trong worktree.
