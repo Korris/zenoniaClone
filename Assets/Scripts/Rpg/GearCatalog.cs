@@ -63,7 +63,8 @@ namespace ZenoniaProto.Rpg
         public static string Refusal(string npcId, string mapId, int entryIndex, float distance)
         {
             if (!IsSeller(npcId) || MapOf(npcId) != mapId) return "Nobody sells that here";
-            if (!Sells(npcId, entryIndex)) return "Not sold here";
+            HeadgearDef hat;
+            if (!Sells(npcId, entryIndex) && !HeadgearCatalog.TryShopHat(entryIndex, out hat)) return "Not sold here"; // every blacksmith also sells the shop hats
             if (distance > PotionShops.ReachUnits) return "Too far from the shop";
             return null;
         }

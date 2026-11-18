@@ -138,6 +138,11 @@ namespace ZenoniaProto.Rpg
                 string prefix = ItemDefs.Rarity(item.rarity).Prefix;
                 item.name = prefix != null ? prefix + " " + baseName : baseName;
             }
+            if (t.Slot == Slots.Headgear) // a hat: the catalog names it and sets its rarity, never the raw JSON
+            {
+                HeadgearDef hat = HeadgearCatalog.ByTemplate(t.Id);
+                item.name = hat.Name; item.rarity = hat.Rarity; item.itemLevel = 1;
+            }
             if (t.Slot == Slots.Pet)
             {
                 if (raw.durability <= 0 && !oldFormat) return null;

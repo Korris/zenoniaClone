@@ -17,10 +17,16 @@ namespace ZenoniaProto.Rpg
         {
             QuestDef q = QuestCatalog.Get(questId);
             if (q == null) return ActionResult.Fail("No such quest");
+            if (q.RewardStarterHat && Quests.StateOf(q) == QuestState.ReadyToTurnIn && Inventory.Count >= InventorySize) return ActionResult.Fail("Inventory full"); // the gift needs a bag slot: nothing closes
             if (!Quests.Close(q)) return ActionResult.Fail(Quests.StateOf(q) == QuestState.Done ? "Quest already completed" : "Quest not finished yet");
-            ApplyPickup(new LootEntry { Kind = LootKind.Coin, Value = q.RewardGold });
-            ApplyPickup(new LootEntry { Kind = LootKind.UpgradeStone, Value = q.RewardStones });
+            if (q.RewardGold > 0) ApplyPickup(new LootEntry { Kind = LootKind.Coin, Value = q.RewardGold });
+            if (q.RewardStones > 0) ApplyPickup(new LootEntry { Kind = LootKind.UpgradeStone, Value = q.RewardStones }); // a 0 entry would still pay 1 stone
             for (int i = 0; i < q.RewardHpPotions; i++) ApplyPickup(new LootEntry { Kind = LootKind.HpPotion, Value = 1 });
+            if (q.RewardStarterHat) // fixed uid: the quest pays once, so it never collides
+            {
+                HeadgearDef hat = HeadgearCatalog.StarterFor(ClassId);
+                Inventory.Add(HeadgearCatalog.CreateItem(hat, null, hat.TemplateId + "-gift"));
+            }
             return ActionResult.Success();
         }
     }

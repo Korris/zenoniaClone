@@ -150,7 +150,7 @@ public class MessageRoundTripTests
         Assert.True(InvOpInfo.IsAccountOp(InvOp.GachaPull) && InvOpInfo.IsAccountOp(InvOp.PetBuy) && InvOpInfo.IsAccountOp(InvOp.BallBuy) && InvOpInfo.IsAccountOp(InvOp.PetLevelUp) && !InvOpInfo.IsAccountOp(InvOp.PetEquip) && !InvOpInfo.IsAccountOp(InvOp.PetCapture));
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOpInfo.Last + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(23, NetProtocol.Version); // 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
+        Assert.Equal(24, NetProtocol.Version); // 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
     }
 
     [Fact]

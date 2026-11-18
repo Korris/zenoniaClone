@@ -39,7 +39,9 @@ namespace ZenoniaProto.Rpg
     public static class Slots
     {
         public const string Weapon = "weapon", Helmet = "helmet", Armor = "armor", Gloves = "gloves", Boots = "boots", Offhand = "offhand", Pet = "pet";
-        public static readonly string[] All = { Weapon, Helmet, Armor, Gloves, Boots, Offhand, Pet };
+        /// <summary>Cosmetic hat (HeadgearCatalog): no stats, sets CharacterAppearanceData.equippedHeadgearId. Appended last: index 7 still fits NetLootCodec's 3 slot bits.</summary>
+        public const string Headgear = "headgear";
+        public static readonly string[] All = { Weapon, Helmet, Armor, Gloves, Boots, Offhand, Pet, Headgear };
         /// <summary>What monsters drop and the level-scaled generator makes. Pet is only the OLD pet slot (Pet Companion pets are account data, PlayerState.PetId).</summary>
         public static readonly string[] Generated = { Weapon, Helmet, Armor, Gloves, Boots, Offhand };
         public static int Index(string slot) { return Array.IndexOf(All, slot); }

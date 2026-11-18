@@ -1,15 +1,22 @@
 // Mirrors Assets/Scripts/Rpg (RpgClasses.Ids, Slots, ItemDefs.RarityOrder, PlayerState, Leveling, EnhanceConfig). Keep in sync by hand.
 
 export const CLASS_IDS = ['warrior', 'wizard', 'mechanic', 'cleric', 'assassin', 'fighter']; // one character per class => max 6 per account (fighter added 2026-11-04)
-export const SLOTS = ['weapon', 'helmet', 'armor', 'gloves', 'boots', 'offhand', 'pet'];
+export const SLOTS = ['weapon', 'helmet', 'armor', 'gloves', 'boots', 'offhand', 'pet', 'headgear']; // headgear (19/11/2026): cosmetic hat, HeadgearCatalog
 export const PET_MAX_DURABILITY = 1000; // PetConfig.MaxDurability
+/** HeadgearCatalog.All keys in id order (id = index + 1; 0 = bare head). Only append. Hat items: templateId 'hat-<key>', slot 'headgear', no stats, no class, never enhanced. */
+export const HEADGEAR_KEYS = [
+  'iron-helmet', 'wizard-hat', 'copper-goggles', 'ninja-headband', 'nun-veil', 'straw-hat', 'cloth-headband', 'pompom-beanie', 'aviator-cap', 'bunny-ears',
+  'slime-cap', 'fox-ears', 'devil-horns', 'frog-hat', 'wildflower-wreath', 'silver-wolf-crown', 'ice-crystal-tiara', 'serpent-crown', 'ultimate-wizard-hat',
+];
+export const HEADGEAR_COUNT = HEADGEAR_KEYS.length;
+export const HEADGEAR_TEMPLATE_IDS = HEADGEAR_KEYS.map((k) => `hat-${k}`);
 export const PET_TEMPLATE_IDS = ['pet-spirit', 'pet-imp']; // PetConfig.All: the only things the pet slot holds. Their bonuses live in C#, these items carry no stats.
 export const RARITIES = ['common', 'uncommon', 'rare', 'epic'];
 export const ENHANCEABLE_SLOTS = ['weapon', 'offhand'];
 /** EquipLevel.ByTier: hero level needed to equip gear of art tier itemLevel / 10 (clamped 0..9): T0 1, T(n) = n * 10 (16/11/2026). Every slot but pet; enhancement never raises it. */
 export const EQUIP_LEVEL_BY_TIER = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90];
 export const requiredEquipLevel = (item) =>
-  SLOTS.includes(item.slot) && item.slot !== 'pet' ? EQUIP_LEVEL_BY_TIER[Math.min(9, Math.max(0, Math.floor(item.itemLevel / 10)))] : 1;
+  SLOTS.includes(item.slot) && item.slot !== 'pet' && item.slot !== 'headgear' ? EQUIP_LEVEL_BY_TIER[Math.min(9, Math.max(0, Math.floor(item.itemLevel / 10)))] : 1;
 
 export const MAX_LEVEL = 90; // Leveling.MaxLevel (60 until 16/11/2026)
 export const SKILL_COUNT = 8; // SkillDef.PerClass: skills per class tree

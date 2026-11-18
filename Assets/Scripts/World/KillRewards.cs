@@ -45,6 +45,22 @@ namespace ZenoniaProto
             if (!m.IsBoss) for (int i = 0; i < Winners.Count; i++) if (RpgRandom.Default() < PetRules.MonsterFoodChance) Winners[i].Owner.AccountFoodDrop(); // Pet Food, 8 % per contributor
             if (m.IsBoss) PetCaptureService.OpenCorpse(zone, m, Winners, Damage); // 30 / 45 s to throw a ball at it
             if (m.IsWanted) WantedBossCredit.Pay(zone, m, Winners); // daily Wanted Boss: no-op unless this is today's boss, online
+            if (m.IsWanted) DropWantedHats(zone, m);
+        }
+
+        /// <summary>Wanted Boss (MVP) hats: every contributor rolls its own (HeadgearCatalog.RollWantedDrops: the boss's crown, the rare ultimate wizard hat);
+        /// each hat lands at the boss owned by that hero for the usual head start online, so nobody else can grab it first.</summary>
+        static void DropWantedHats(Zone zone, Monster m)
+        {
+            for (int i = 0; i < Winners.Count; i++)
+            {
+                List<Item> hats = HeadgearCatalog.RollWantedDrops(m.Type, RpgRandom.Default);
+                if (hats.Count == 0) continue;
+                var drops = new List<LootEntry>(hats.Count);
+                foreach (Item hat in hats) drops.Add(new LootEntry { Kind = LootKind.Equipment, Item = hat });
+                bool owned = !NetMode.IsOffline;
+                LootDrop.SpawnAll(zone.Root, drops, m.Feet, owned ? Winners[i].NetId : (ushort)0, owned ? LootOwnership.FreeAtMs(zone.TimeMs, false) : 0f);
+            }
         }
 
         /// <summary>Contributors that can receive rewards: alive, still in the zone, with an RPG owner. Offline falls back to the local player.</summary>

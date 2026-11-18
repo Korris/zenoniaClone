@@ -83,6 +83,7 @@ namespace ZenoniaProto.Rpg
             O("spellbook", "Spellbook", "atk", new ItemStats { atk = 2, maxMp = 10 });
             O("glove", "Off-hand Glove", "atk", new ItemStats { atk = 2, maxHp = 6 }); // the fighter's second glove (2026-11-04); appended so older seeded picks keep their order
             foreach (PetDef p in PetConfig.All) if (p.TemplateId != null) G(Slots.Pet, p.TemplateId, p.Name, 1, new ItemStats()); // OLD durability pet items, kept readable so old saves can be migrated (AccountPets.Migrate)
+            foreach (HeadgearDef h in HeadgearCatalog.All) G(Slots.Headgear, h.TemplateId, h.Name, 1, new ItemStats()); // cosmetic hats: no stats, never random gear (not in Slots.Generated)
         }
 
         static void Add(ItemTemplate t) { All.Add(t); ById[t.Id] = t; }

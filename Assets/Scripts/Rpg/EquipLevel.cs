@@ -10,7 +10,7 @@ namespace ZenoniaProto.Rpg
         public static readonly int[] ByTier = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90 };
 
         /// <summary>Weapon, off-hand, helmet, armor, gloves and boots carry a requirement (even tier 0, Lv 1); pets are free to wear.</summary>
-        public static bool Applies(Item item) { return item != null && item.slot != Slots.Pet && Slots.Index(item.slot) >= 0; }
+        public static bool Applies(Item item) { return item != null && item.slot != Slots.Pet && item.slot != Slots.Headgear && Slots.Index(item.slot) >= 0; } // hats: cosmetic, any level
 
         /// <summary>Required hero level of the item (1 = none).</summary>
         public static int Required(Item item) { return Applies(item) ? ByTier[ItemInfo.ArtTier(item)] : 1; }

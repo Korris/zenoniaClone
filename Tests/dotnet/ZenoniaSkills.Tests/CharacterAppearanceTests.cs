@@ -26,7 +26,8 @@ public class CharacterAppearanceTests
     public void SaveRoundTripKeepsTheLook()
     {
         PlayerState p = PlayerState.NewGame("wizard");
-        p.Appearance = Chosen(3, 5, 2, 7);
+        p.Appearance = Chosen(3, 5, 2, 0);
+        Assert.True(p.Equip(HeadgearCatalog.CreateItem(HeadgearCatalog.Get(7), () => 0.5)).Ok); // the headgear id follows the worn hat (HeadgearTests)
         string json = SaveSerializer.ToJson(SaveSerializer.Capture(p, false, 0f, 0f, false, 1));
         PlayerState back = SaveSerializer.Restore(SaveSerializer.Parse(json));
         Assert.True(back.Appearance.SameLook(Chosen(3, 5, 2, 7)));
@@ -157,6 +158,23 @@ public class CharacterAppearanceTests
         string text = File.ReadAllText(path);
         Assert.Equal(CharacterAppearanceData.HairColorCount, Regex.Matches(Section(text, "hair"), "#[0-9A-Fa-f]{6}").Count);
         Assert.Equal(CharacterAppearanceData.OutfitColorCount, Regex.Matches(Section(text, "outfit"), "#[0-9A-Fa-f]{6}").Count);
+    }
+
+    /// <summary>19/11/2026: "earth brown" (#A9744A) read as the leather belt / boots (#8A5A34, spec fixed colours) and became jade teal. No outfit colour may sit that close again.</summary>
+    [Fact]
+    public void NoOutfitColourLooksLikeTheLeatherBelt()
+    {
+        string path = Path.Combine("..", "..", "..", "..", "..", "..", "Assets", "Resources", "Data", "hero-layered", "palettes.json");
+        int[] leather = { 0x8A5A34, 0x5E3A1E };
+        foreach (Match m in Regex.Matches(Section(File.ReadAllText(path), "outfit"), "#([0-9A-Fa-f]{6})"))
+        {
+            int c = System.Convert.ToInt32(m.Groups[1].Value, 16);
+            foreach (int l in leather)
+            {
+                int dr = ((c >> 16) & 255) - ((l >> 16) & 255), dg = ((c >> 8) & 255) - ((l >> 8) & 255), db = (c & 255) - (l & 255);
+                Assert.True(3 * dr * dr + 4 * dg * dg + 2 * db * db > 9000, m.Value + " is too close to the belt leather"); // NearestColor's weights; the old earth brown scored 6555, the nearest kept colours 11 000+
+            }
+        }
     }
 
     static string Section(string json, string key)

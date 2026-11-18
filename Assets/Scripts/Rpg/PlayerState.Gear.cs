@@ -15,5 +15,17 @@ namespace ZenoniaProto.Rpg
             Inventory.Add(item);
             return ActionResult.Success("Bought " + item.name);
         }
+
+        /// <summary>Buys a shop hat (HeadgearCatalog, Source = shop) into the bag. Seller and reach are the caller's check (GearShops.Refusal).</summary>
+        public ActionResult BuyHeadgear(int hatId, Rand rand = null)
+        {
+            HeadgearDef hat = HeadgearCatalog.Get(hatId);
+            if (hat == null || hat.Source != HeadgearSource.Shop) return ActionResult.Fail("Not sold here");
+            if (Inventory.Count >= InventorySize) return ActionResult.Fail("Inventory full");
+            if (Gold < hat.Price) return ActionResult.Fail("Not enough gold");
+            Gold -= hat.Price;
+            Inventory.Add(HeadgearCatalog.CreateItem(hat, rand ?? RpgRandom.Default));
+            return ActionResult.Success("Bought " + hat.Name);
+        }
     }
 }

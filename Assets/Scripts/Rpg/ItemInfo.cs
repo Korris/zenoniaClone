@@ -20,6 +20,7 @@ namespace ZenoniaProto.Rpg
         {
             if (item == null) return null;
             if (item.slot == Slots.Pet) { PetDef pet = PetConfig.Of(item); return pet != null ? "pet-" + pet.Id : null; }
+            if (item.slot == Slots.Headgear) { HeadgearDef hat = HeadgearCatalog.ByTemplate(item.templateId); return hat != null ? "headgear-" + hat.Key : null; } // icons come later from ChatGPT art: HeadgearArt falls back
             int tier = ArtTier(item);
             if (item.slot == Slots.Weapon || item.slot == Slots.Offhand)
                 return item.slot + "-" + RpgClasses.Get(item.classId).Id + "-" + tier;
@@ -52,6 +53,7 @@ namespace ZenoniaProto.Rpg
                 case Slots.Boots: return "Boots";
                 case Slots.Offhand: return "Offhand";
                 case Slots.Pet: return "Pet";
+                case Slots.Headgear: return "Hat";
                 default: return slot ?? "";
             }
         }

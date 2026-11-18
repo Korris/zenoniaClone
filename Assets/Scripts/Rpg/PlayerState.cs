@@ -87,6 +87,7 @@ namespace ZenoniaProto.Rpg
             speedMult += PetPassive(Rpg.PetPassive.MoveSpeed); // Horn Rabbit, still under the speed cap
             Speed = (float)(b.Speed * Math.Min(speedMult, 1 + ItemDefs.MaxSpeedBonus));
             CritBonus = (float)(crit + RpgClasses.Get(ClassId).CritBonus + Second.CritRate);
+            if (Appearance != null) Appearance.equippedHeadgearId = HeadgearCatalog.IdOf(GetEquipped(Slots.Headgear)); // the look follows the worn hat (equip, unequip, load), never the client
             if (Hp > MaxHp) Hp = MaxHp;
             if (Mp > MaxMp) Mp = MaxMp;
         }
