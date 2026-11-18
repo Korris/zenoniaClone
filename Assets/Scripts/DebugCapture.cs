@@ -11,6 +11,7 @@ namespace ZenoniaProto
     /// Player-build verification helper, active only when a command-line flag is present (normal play is unaffected):
     ///   --class warrior|wizard|mechanic|assassin|cleric|fighter   skip the class select
     ///   --tp tx,ty                        put the hero on a tile (and --face down|up|left|right)
+    ///   --face8 DIR / --bot walk8 DIR     RO Soft 8 view directions (down-right...), see DebugCapture.Face8.cs; --hero-style classic = old paper doll
     ///   --tier N / --enhanced             gear tier / enhanced art
     ///   --hairstyle N                     hairstyle of the head layer (Lv1 body, idle facing down, any class with heads/ art; 0 = the painted head)
     ///   --hair-dye N                      hair dye preset N (layered heads: HeroHairLayers, Data/classes/<class>/hair-dyes.json)
@@ -323,6 +324,7 @@ namespace ZenoniaProto
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east
                 else if (botArg == "walk-down") InputAdapter.BotHeld = k => k == GameKey.Down;      // walk toward the camera (walk-down frames)
                 else if (botArg == "walk-left") InputAdapter.BotHeld = k => k == GameKey.Left;      // walk west (Willowbrook's west gate into Oakhaven)
+                ApplyFace8Flags(hero); // --face8 DIR / --bot walk8 DIR: RO Soft 8-direction captures (DebugCapture.Face8.cs)
                 if (zoom > 0f) Camera.main.orthographicSize = zoom;
                 hero.God = god;
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--nobloom") >= 0) { FeelConfig.BloomOn = false; var b = Camera.main.GetComponent<BloomEffect>(); if (b != null) b.enabled = false; }

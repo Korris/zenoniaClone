@@ -120,6 +120,7 @@ namespace ZenoniaProto
             foreach (Part p in parts) figure.Add(p.Sr);
             dashTrail = gameObject.AddComponent<HeroDashTrail>();
             dashTrail.Init(figure.ToArray());
+            InitSoft(); // RO Soft 8-direction sheets when this class has them (HeroRenderer.Soft.cs)
         }
 
         /// <summary>Hairstyle index (head layer prototype: Lv1 body, idle facing down, every class with heads/ art); wraps; 0 = the painted head. Ignored by classes without head art.</summary>
@@ -178,6 +179,7 @@ namespace ZenoniaProto
         public void Lean(bool walking, int dir, float dt)
         {
             float wantAngle = !walking ? 0f : dir == 2 ? LeanDegrees : dir == 3 ? -LeanDegrees : 0f;
+            if (soft && walking && Dir8 >= 0 && Dir8 % 4 != 0) wantAngle = (Dir8 < 4 ? -LeanDegrees : LeanDegrees) * (Dir8 % 2 == 1 ? 0.7f : 1f); // soft diagonals tip toward their side
             float wantDip = !walking ? 0f : dir == 2 || dir == 3 ? LeanSideDip : LeanFrontDip;
             float k = 1f - Mathf.Exp(-dt / (walking ? LeanInSeconds : LeanOutSeconds));
             leanAngle += (wantAngle - leanAngle) * k;
@@ -204,6 +206,7 @@ namespace ZenoniaProto
 
         public int FrameCount(string anim, int dir)
         {
+            if (soft) return SoftFrameCount(anim);
             bool mirror;
             Sprite[] row;
             return armed.ContainsKey(anim) && (row = SpriteSheet.Row(armed[anim], RowFor(anim, dir, out mirror))) != null ? row.Length : 0;
@@ -250,6 +253,7 @@ namespace ZenoniaProto
         /// <summary>Draws one frame. orderBase = GameConfig.OrderBase(feetY).</summary>
         public void Show(string anim, int dir, int frame, int orderBase, float alpha)
         {
+            if (soft) { ShowSoft(anim, dir, frame, orderBase, alpha); return; }
             bool mirror;
             int row = RowFor(anim, dir, out mirror);
             motion = anim == "idle" ? 0 : anim == "walk" ? 1 : 2;

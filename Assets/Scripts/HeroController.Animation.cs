@@ -90,6 +90,7 @@ namespace ZenoniaProto
                 anim = "idle";
                 frame = Mathf.FloorToInt(idleTimer / 200f) % Mathf.Max(1, view.FrameCount(anim, facing));
             }
+            if (view.IsSoft) { UpdateDir8(); view.Dir8 = dir8; } // view-only 8-way facing (HeroController.Dir8.cs)
             // Raised over whatever stands in front of the landing line while in the air.
             view.Show(anim, drawFacing, frame, GameConfig.OrderBase(y - skillPoseLift), skillPoseAnim != null && anim == skillPoseAnim ? skillPoseAlpha : 1f);
             view.Lean(anim == "walk", facing, GameClock.Dt);
