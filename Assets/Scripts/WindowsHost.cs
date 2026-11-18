@@ -11,6 +11,13 @@ namespace ZenoniaProto
     [DefaultExecutionOrder(-850)] // after TouchControls latched its buttons, before the hero reads input
     public sealed class WindowsHost : MonoBehaviour
     {
+        /// <summary>The full-screen layers of the menus built above that wear the light RO Soft Fantasy skin (HUD-side views keep theirs).</summary>
+        static readonly string[] MenuLayers =
+        {
+            "NpcDialogueBox", "QuestOfferWindow", "QuestLogWindow", "PotionShopWindow", "GearShopWindow", "PartyPanel", "PartyPlayerMenu",
+            "PartyInviteWindow", "TradeRequestWindow", "TradeWindow", "SettingsWindow", "PetWindow", "PetGachaWindow",
+        };
+
         GameObject talkPrompt;
         Transform root;
         bool pausedByUs;
@@ -45,8 +52,11 @@ namespace ZenoniaProto
             PetWindow.Create(canvas);
             PetGachaWindow.Create(canvas);
             CaptureMarker.Create(canvas);
+            // RO Soft Fantasy (default look, UiStyle): light menus over the classic builders; nothing happens with --ui-style classic
+            foreach (string layer in MenuLayers) RoSoftSkin.Light(canvas.Find(layer));
             RectTransform t = UiWinKit.Anchored(canvas, "TalkPrompt", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), 0f, 76f, 150f, 42f);
             UiWinKit.ArtButton(t, "Talk", "btn-gold", 0f, 0f, 150f, 42f, Application.isMobilePlatform ? "Talk" : "Talk  [E]", 19, new Color(0.25f, 0.12f, 0.02f), TownNpc.Talk);
+            RoSoftSkin.Light(t); // mint Talk button in the RO Soft Fantasy look
             talkPrompt = t.gameObject;
             talkPrompt.SetActive(false);
         }

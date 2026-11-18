@@ -6,7 +6,12 @@
 - 19/11 03:20 người dùng: "ok làm mẫu Warrior T0", rồi "làm cho cả 5 nhân vật", "tạm thời KHÔNG làm nhiều trang phục, chỉ vẽ sprite bộ mặc định", "thêm agent coi có nên design all map lại", "sửa lại menu trong game luôn".
 - Đang làm (chat Tay nhánh ở trên): mỗi class 4 ảnh (idle 5 hướng phải, idle 3 hướng trái vẽ riêng KHÔNG lật để vũ khí giữ tay phải, đòn đánh 5 + 3). Nguồn `Assets/ArtLibrary/classes/<class>/ro-soft-8dir/{ref,src,cut}/`, tool `Tools/build-ro-soft-8dir-pilot.py` (`cut`, `compose`), ảnh ghép đám đông 8 hướng vs 4 hướng `docs/reference/ro-soft-8dir-crowd-mock.png`. 04:00: XONG concept cả 5 class (20 ảnh + 1 vẽ lại), bảng duyệt `docs/reference/ro-soft-8dir-5-classes-sheet.png` (mỗi class 2 hàng idle/đánh x 8 hướng), ảnh đám đông 5 class `docs/reference/ro-soft-8dir-crowd-mock.png`. Lỗi còn: mũ Cleric nhìn từ sau như ống rỗng (idle chéo lên-trái, đòn chéo lên-phải, lên); Wizard đòn chéo lên-trái có thể đổi tay. CHỜ người dùng duyệt style trước khi làm bản cài game. Mới là ảnh concept vẽ liền vũ khí, CHƯA cài vào game: muốn vào game còn phải vẽ thân tay không + vũ khí riêng, walk/frame động, lớp tóc, và code 8 hướng.
 - Map (agent đánh giá, báo cáo `plans/reports/map-redesign-evaluation-261119-ro-soft.md`, ảnh `docs/reference/map-ro-soft-tone-test/`): chưa vẽ lại toàn bộ; chỉnh màu hàng loạt bằng LUT (bớt bão hoà, sáng hơn) ~6-10 giờ, không cần ChatGPT; sau mới cân nhắc vẽ lại Oakhaven + Sunken Reliquary.
-- Menu: agent làm UI RO Soft trong worktree riêng (báo cáo sẽ ở `plans/reports/ro-soft-menu-261119.md` của branch đó), chưa merge.
+- Menu: xem mục 19/11 menu ngay dưới (đã merge).
+
+### 19/11: menu trong game đổi sang RO Soft Fantasy (người dùng bảo merge 04:05, đã merge vào unity)
+- Người dùng: "sửa lại menu trong game luôn". Skin RO (ít asset, vẽ khối bo góc bằng code) phủ lên mọi cửa sổ classic: túi đồ, shop đồ / thuốc, Trade, sổ nhiệm vụ, cài đặt, bảng skill, pet cũ, hộp thoại NPC, party; HUD: tấm trạng thái xanh đen. Mặc định bật; `--ui-style classic` = navy cũ; `--ui new` = Adventure Paper như trước.
+- Code: `UiStyle.cs`, `RoSoftTheme.cs`, `RoSoftSprites.cs`, `RoSoftSkin.cs`. Ảnh: `docs/reference/ro-soft-menu-ingame/` (+ `so-sanh/` mockup | game). Báo cáo + câu hỏi: `plans/reports/ro-soft-menu-261119.md`. Exe `D:/temp/player-ro-menu/Zenonia.exe`.
+- CÒN: bố cục theo mockup (shop có NPC + so sánh, quest log có tab, trade có chân dung), HUD chiến đấu, màn Adventure Paper, chọn class / Level Up.
 
 ### 18/11 01:45: người dùng bảo commit + push (mọi thứ 17-18/11 bên dưới đã commit). Đang cân: sprite 8 hướng (chéo) như mockup RO thay 4 hướng; chưa hỏi ChatGPT, chưa làm.
 

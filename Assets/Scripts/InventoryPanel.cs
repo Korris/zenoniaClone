@@ -91,6 +91,7 @@ namespace ZenoniaProto
             BuildLoadout(Section(win, "Left", 24f, LeftW));
             BuildBag(Section(win, "Centre", 24f + LeftW + Gap, CentreW));
             BuildDetail(Section(win, "Right", 24f + LeftW + Gap + CentreW + Gap, RightW));
+            RoSoftSkin.Light(overlay); // RO Soft Fantasy look unless --ui-style classic
             overlay.gameObject.SetActive(false);
         }
 
