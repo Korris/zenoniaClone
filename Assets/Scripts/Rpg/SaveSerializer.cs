@@ -24,6 +24,7 @@ namespace ZenoniaProto.Rpg
         public int wantedDay; // WantedBoss.DayKey of the last Wanted Boss claim (PlayerState.WantedDay); missing in old saves = 0 = never
         public string petId; // v4: the combat pet (kept so a v4 save loads into petTeam[0]); missing = none. Old saves carry pet ITEMS instead, which AccountPets.Migrate converts
         public List<string> petTeam = new List<string>(); // v5: the five team slots (PetSlot order, "" = empty); missing = petId in the combat slot
+        public CharacterAppearanceData appearance; // look (hair style / colours / headgear); missing or stored = false in older saves = not chosen (no version bump needed)
     }
 
     /// <summary>
@@ -58,6 +59,7 @@ namespace ZenoniaProto.Rpg
             d.wantedDay = p.WantedDay;
             d.petId = p.PetId ?? "";
             d.petTeam = new List<string>(p.Team);
+            d.appearance = CharacterAppearanceData.Sanitize(p.Appearance, p.ClassId);
             return d;
         }
 
@@ -108,6 +110,7 @@ namespace ZenoniaProto.Rpg
             else team[0] = d.petId;
             for (int i = 0; i < team.Length; i++) for (int j = 0; j < i; j++) if (team[i] != "" && team[i] == team[j]) team[i] = ""; // one species, one slot
             d.petTeam = new List<string>(team); d.petId = team[0];
+            d.appearance = CharacterAppearanceData.Sanitize(raw.appearance, d.classId);
             return d;
         }
 
@@ -138,6 +141,7 @@ namespace ZenoniaProto.Rpg
             p.Skills.Load(d.skillRanks, d.level); p.Loadout.Load(d.skillSlots, p.Skills);
             p.Quests.Load(d.quests);
             p.WantedDay = d.wantedDay;
+            p.Appearance = CharacterAppearanceData.Sanitize(d.appearance, p.ClassId);
             for (int i = 0; i < p.Team.Length; i++) p.Team[i] = d.petTeam != null && i < d.petTeam.Count && d.petTeam[i] != null ? d.petTeam[i] : i == 0 ? d.petId ?? "" : "";
             p.RecomputeStats();
             p.Hp = Math.Min(p.MaxHp, d.hp > 0f ? d.hp : p.MaxHp); // never load a dead hero

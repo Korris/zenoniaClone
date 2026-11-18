@@ -16,11 +16,11 @@ public class WantedStatusTests
     }
 
     [Fact]
-    public void TheOpcodeIsAppendedAfterTradeStateAndTheVersionIs22()
+    public void TheOpcodeIsAppendedAfterTradeStateAndTheVersionIsAtLeast22()
     {
         Assert.Equal(25, NetOp.WantedStatus);
         Assert.Equal(24, NetOp.TradeState);
-        Assert.Equal(22, NetProtocol.Version);
+        Assert.True(NetProtocol.Version >= 22); // 23 added the appearance colours (MessageRoundTripTests pins the exact number)
     }
 
     [Fact]

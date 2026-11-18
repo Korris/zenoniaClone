@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
+import { APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CLASS_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
 
 // Field names match Assets/Scripts/Rpg/Item.cs (Item, ItemStats) and SaveSerializer.cs (SaveData) so Unity's JsonUtility reads them as-is.
 
@@ -60,6 +60,15 @@ export const stateSchema = z
     petId: petIdField,
     // v5: PetRules.TeamSize slots (Combat/Support1/Support2/Stat1/Stat2), each an account pet id or '' (empty slot). Absent in old saves = [].
     petTeam: z.array(petIdField).max(PET_TEAM_SIZE).default([]),
+    // SaveData.appearance (CharacterAppearanceData): hairstyle, palette indices of hair / outfit colour (-1 = not chosen, the client picks from
+    // the name hash), headgear id (0 = none). Absent in older saves = absent here (nothing chosen). Listed so the strip keeps it. No version bump.
+    appearance: z.object({
+      stored: z.boolean().default(false),
+      hairStyle: z.number().int().min(0).max(255).default(0),
+      hairColorIndex: z.number().int().min(-1).max(APPEARANCE_HAIR_COLORS - 1).default(-1),
+      outfitColorIndex: z.number().int().min(-1).max(APPEARANCE_OUTFIT_COLORS - 1).default(-1),
+      equippedHeadgearId: z.number().int().min(0).max(255).default(0),
+    }).optional(),
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
     // Skill tree (SaveData.skillRanks / skillSlots): ranks by tree index, magazine slot -> tree index or -1. Absent in old saves = nothing learned.

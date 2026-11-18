@@ -137,17 +137,20 @@ public class MessageRoundTripTests
         NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 8, Op = InvOp.GearBuy, ItemUid = "smithBram", Slot = 9 });
         InvActionMsg gear; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out gear));
         Assert.Equal(InvOp.GearBuy, gear.Op); Assert.Equal("smithBram", gear.ItemUid); Assert.Equal((byte)9, gear.Slot);
-        foreach (InvOp op in new[] { InvOp.PetEquip, InvOp.PetStarUp, InvOp.GachaPull, InvOp.GachaExchange, InvOp.PetLevelUp, InvOp.PetConvertShards, InvOp.GachaBuyCoins, InvOp.BallBuy, InvOp.PetCapture }) // pets (protocol 20-21)
+        NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 8, Op = InvOp.Appearance, ItemUid = "255,-1,5", Slot = 0 }); // the longest look text fits the uid field
+        InvActionMsg look; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out look));
+        Assert.Equal(InvOp.Appearance, look.Op); Assert.Equal("255,-1,5", look.ItemUid);
+        foreach (InvOp op in new[] { InvOp.PetEquip, InvOp.PetStarUp, InvOp.GachaPull, InvOp.GachaExchange, InvOp.PetLevelUp, InvOp.PetConvertShards, InvOp.GachaBuyCoins, InvOp.BallBuy, InvOp.PetCapture, InvOp.Appearance }) // pets (protocol 20-21), look (23)
         {
             NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 9, Op = op, ItemUid = "", Slot = 10 });
             InvActionMsg pet; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out pet));
             Assert.Equal(op, pet.Op); Assert.Equal((byte)10, pet.Slot);
         }
-        Assert.Equal(InvOp.PetCapture, InvOpInfo.Last);
+        Assert.Equal(InvOp.Appearance, InvOpInfo.Last);
         Assert.True(InvOpInfo.IsAccountOp(InvOp.GachaPull) && InvOpInfo.IsAccountOp(InvOp.PetBuy) && InvOpInfo.IsAccountOp(InvOp.BallBuy) && InvOpInfo.IsAccountOp(InvOp.PetLevelUp) && !InvOpInfo.IsAccountOp(InvOp.PetEquip) && !InvOpInfo.IsAccountOp(InvOp.PetCapture));
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOpInfo.Last + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(22, NetProtocol.Version); // 22: NetOp.WantedStatus (WantedStatusTests)
+        Assert.Equal(23, NetProtocol.Version); // 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
     }
 
     [Fact]
@@ -236,9 +239,9 @@ public class MessageRoundTripTests
     public void SpawnPayloadsPerKind()
     {
         var w = new NetDataWriter(); SpawnMsg m;
-        new SpawnMsg { Id = 1, Kind = EntityKind.Hero, Type = 2, X = NetQuantize.Pos(100.5f), Y = NetQuantize.Pos(50f), Facing = 3, PlayerId = 8, Name = "Bob", Level = 17, Look = new NetAppearance { WeaponTier = 3, OffTier = 2, EnhanceBand = 4, Flags = 1, PetId = 2, ArmorTier = 9, GlovesTier = 4, BootsTier = 255, HairStyle = 4 } }.Write(w);
+        new SpawnMsg { Id = 1, Kind = EntityKind.Hero, Type = 2, X = NetQuantize.Pos(100.5f), Y = NetQuantize.Pos(50f), Facing = 3, PlayerId = 8, Name = "Bob", Level = 17, Look = new NetAppearance { WeaponTier = 3, OffTier = 2, EnhanceBand = 4, Flags = 1, PetId = 2, ArmorTier = 9, GlovesTier = 4, BootsTier = 255, HairStyle = 4, HairColor = 6, OutfitColor = 255, Headgear = 11 } }.Write(w);
         Assert.True(SpawnMsg.TryRead(Reader(w, NetOp.Spawn), out m));
-        Assert.Equal("Bob", m.Name); Assert.Equal(17, m.Level); Assert.Equal(4, m.Look.EnhanceBand); Assert.Equal(2, m.Look.PetId); Assert.Equal(9, m.Look.ArmorTier); Assert.Equal(4, m.Look.GlovesTier); Assert.Equal(255, m.Look.BootsTier); Assert.Equal(4, m.Look.HairStyle); Assert.Equal(100.5f, NetQuantize.Pos(m.X));
+        Assert.Equal("Bob", m.Name); Assert.Equal(17, m.Level); Assert.Equal(4, m.Look.EnhanceBand); Assert.Equal(2, m.Look.PetId); Assert.Equal(9, m.Look.ArmorTier); Assert.Equal(4, m.Look.GlovesTier); Assert.Equal(255, m.Look.BootsTier); Assert.Equal(4, m.Look.HairStyle); Assert.Equal(6, m.Look.HairColor); Assert.Equal(255, m.Look.OutfitColor); Assert.Equal(11, m.Look.Headgear); Assert.Equal(100.5f, NetQuantize.Pos(m.X));
 
         new SpawnMsg { Id = 2, Kind = EntityKind.Monster, Type = 5, Hp = 90, MaxHp = 120, State = 2 }.Write(w);
         Assert.True(SpawnMsg.TryRead(Reader(w, NetOp.Spawn), out m));
@@ -280,7 +283,7 @@ public class MessageRoundTripTests
             new NetEvent { Type = NetEventType.ExpGain, Value = 123456, Step = 2 },
             new NetEvent { Type = NetEventType.LevelUp, Id = 1, Step = 30 },
             new NetEvent { Type = NetEventType.PotionUsed, Id = 1, Step = 1 },
-            new NetEvent { Type = NetEventType.AppearanceChanged, Id = 1, Look = new NetAppearance { WeaponTier = 7, Flags = 1, PetId = 1, HairStyle = 2 } },
+            new NetEvent { Type = NetEventType.AppearanceChanged, Id = 1, Look = new NetAppearance { WeaponTier = 7, Flags = 1, PetId = 1, HairStyle = 2, HairColor = 3, OutfitColor = 5, Headgear = 1 } },
             new NetEvent { Type = NetEventType.Toast, Text = "Inventory full", Value = 0xFF8855FF },
             new NetEvent { Type = NetEventType.BossSpawned, Id = 400 },
             new NetEvent { Type = NetEventType.BossDied, Id = 400 },
@@ -297,7 +300,7 @@ public class MessageRoundTripTests
         for (int i = 0; i < events.Count; i++) { Assert.Equal(events[i].Type, got[i].Type); Assert.Equal(events[i].Id, got[i].Id); }
         Assert.Equal(65000, got[3].Dmg); Assert.Equal(-30, got[3].KnockX); Assert.Equal(127, got[3].KnockY);
         Assert.Equal(123456u, got[8].Value); Assert.Equal("Inventory full", got[12].Text); Assert.Equal(0xFF8855FFu, got[12].Value);
-        Assert.Equal(7, got[11].Look.WeaponTier); Assert.Equal(1, got[11].Look.PetId); Assert.Equal(2, got[11].Look.HairStyle);
+        Assert.Equal(7, got[11].Look.WeaponTier); Assert.Equal(1, got[11].Look.PetId); Assert.Equal(2, got[11].Look.HairStyle); Assert.Equal(3, got[11].Look.HairColor); Assert.Equal(5, got[11].Look.OutfitColor); Assert.Equal(1, got[11].Look.Headgear);
         Assert.Equal(6, SkillCastCode.Index(got[5].Step)); Assert.Equal(4, SkillCastCode.Rank(got[5].Step)); Assert.Equal(65001, got[5].Other); Assert.Equal(1, got[5].Facing);
         NetEvent monsterShot = got[got.Count - 1];
         Assert.Equal(700, monsterShot.Id); Assert.Equal(3210, monsterShot.X); Assert.Equal(-456, monsterShot.Y); Assert.Equal(200, monsterShot.Angle);

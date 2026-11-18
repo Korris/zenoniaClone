@@ -82,6 +82,7 @@ namespace ZenoniaProto
             if (!party) LocalPlayer.Set(this);
             view = renderer;
             Setup(renderer.Class, state);
+            SetupLook(!party); // saved look on the renderer; --layered-test draws party members layered (HeroController.Look.cs)
             RefreshGearLabel();
             Render();
         }

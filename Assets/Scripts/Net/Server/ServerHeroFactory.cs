@@ -53,6 +53,7 @@ namespace ZenoniaProto
             hero.Owner = new PlayerRpg(state);
             hero.PlayerId = p.PlayerId;
             hero.PlayerName = name;
+            if (state.Appearance != null && state.Appearance.stored) hero.NetHairStyle = (byte)state.Appearance.hairStyle; // the saved head, before the client says anything
             hero.AiHeld = p.Input.Held;
             hero.AiPressed = p.Input.Pressed;
             hero.StepGate = p.Input.Advance;
