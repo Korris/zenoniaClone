@@ -2,7 +2,9 @@
 
 ### 19/11 04:50: hướng mới: nhân vật NHIỀU LỚP kiểu Ragnarok (thân gốc chung theo giới, đầu trần, tóc + mũ rời, đổi màu tóc / áo bằng shader, vũ khí lớp riêng)
 - Người dùng gửi spec (người dùng tự vẽ bằng ChatGPT, Claude làm code/shader/tool). Quy cách + 7 prompt: `docs/character-appearance-layered-spec.md`. Thay cho bản RO Soft vẽ liền (Warrior đang chạy trong game, merge 87f3b811, exe `Build/ro-soft-warrior-261119/Zenonia.exe`).
-- CHỜ người dùng trả lời: vòng dưới chân cho nhân vật mình (trái quy tắc 31/10 "vòng chỉ cho buff"), tên mình màu xanh (trái quy tắc "mình không hiện tên"), mũ lấy từ đâu.
+- Người dùng đã chốt (05:00): có `PlayerIndicatorRing` dưới chân mình, tên mình xanh lá, nguồn mũ (quái / MVP / shop / quà tân thủ, không chọn lúc tạo).
+- Bước B (Claude, branch worktree, chưa merge): shader `HeroRecolor`, `CharacterAppearanceData` (lưu server + `NetAppearance`, protocol 23), `palettes.json`, renderer nhiều lớp thử bằng bộ test tổng hợp (`--layered-test`, `--record-layered`), vòng định vị + tên xanh. Báo cáo `plans/reports/hero-layered-step-b-261119.md`. Cần build lại zone server + deploy server-api khi phát hành.
+- Tiếp theo: người dùng vẽ prompt 1-2 (thân gốc), rồi bước C/D.
 
 ### 19/11 03:20: người dùng nghiêng về vẽ lại nhân vật theo RO Soft Fantasy ("không ngại vẽ lại") + 8 hướng để đám đông quay vào boss
 - Chat ChatGPT (Tay, nhánh): https://chatgpt.com/c/6afe0787-01c8-83ec-b422-ad676e70b9f6 (chưa có gì mới ngoài lineup v1 + ảnh 40 người).
