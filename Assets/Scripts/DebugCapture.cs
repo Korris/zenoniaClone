@@ -334,6 +334,7 @@ namespace ZenoniaProto
                 if (dummies > 0) SpawnDummies(hero);
                 ApplyRpgFlags(hero);
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--record-layered") >= 0) { yield return RecordLayered(hero); yield break; } // DebugCapture.Layered.cs
+                if (Array.IndexOf(Environment.GetCommandLineArgs(), "--record-layered-real") >= 0) { yield return RecordLayeredReal(hero); yield break; } // DebugCapture.LayeredReal.cs
                 if (DamageNumbersDemoRequested()) StartCoroutine(DamageNumbersDemo()); // --damage-numbers-demo: every number kind on loop
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--power-slash-check") >= 0)
                 { yield return RunPowerSlashCheck(hero); yield break; }

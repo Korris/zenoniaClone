@@ -21,6 +21,7 @@ namespace ZenoniaProto
         {
             if (view == null) return;
             if (HeroRenderer.LayeredTestEnabled && !local) view.UseLayered(HeroRenderer.LayeredTestSet);
+            else view.UseLayered(HeroRenderer.LayeredSetFor(cls)); // default style: the class's real layered art when it exists (step D)
             view.SetAppearance(rpg != null ? rpg.Appearance : null, LookSeed, local, false);
         }
 

@@ -22,21 +22,31 @@ namespace ZenoniaProto
         const int DeathFadeSteps = 8;                          // death = idle fading out over 8 virtual frames (120 ms each in HeroController)
         static readonly Color HurtTint = new Color(1f, 0.72f, 0.72f);
 
-        static bool? softStyle;
-        /// <summary>False with `--hero-style classic` on the command line (or when a test turns it off before Init).</summary>
+        static bool? softStyle, layeredStyle;
+
+        /// <summary>
+        /// `--hero-style classic` (paper doll everywhere), `rosoft` (Warrior's baked RO Soft sheets, the rest paper doll) or `layered` (default:
+        /// every class with layered art, HeroRenderer.Layered.cs; a class without it falls back to RO Soft / paper doll).
+        /// </summary>
+        static string StyleArg()
+        {
+            string[] a = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(a, "--hero-style");
+            return i >= 0 && i + 1 < a.Length ? a[i + 1].ToLowerInvariant() : "layered";
+        }
+
+        /// <summary>False with `--hero-style classic` (or when a test turns it off before Init).</summary>
         public static bool SoftStyleEnabled
         {
-            get
-            {
-                if (softStyle == null)
-                {
-                    string[] a = Environment.GetCommandLineArgs();
-                    int i = Array.IndexOf(a, "--hero-style");
-                    softStyle = !(i >= 0 && i + 1 < a.Length && string.Equals(a[i + 1], "classic", StringComparison.OrdinalIgnoreCase));
-                }
-                return softStyle.Value;
-            }
+            get { if (softStyle == null) softStyle = StyleArg() != "classic"; return softStyle.Value; }
             set { softStyle = value; }
+        }
+
+        /// <summary>True unless `--hero-style classic` / `rosoft` (or a test turns it off before heroes spawn).</summary>
+        public static bool LayeredStyleEnabled
+        {
+            get { if (layeredStyle == null) { string s = StyleArg(); layeredStyle = s != "classic" && s != "rosoft"; } return layeredStyle.Value; }
+            set { layeredStyle = value; }
         }
 
         Sprite[][] softIdle, softWalk, softAttack; // softAttack null until attack.png is painted

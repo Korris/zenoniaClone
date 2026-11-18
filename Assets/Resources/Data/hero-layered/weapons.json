@@ -1,0 +1,37 @@
+{
+ "note": "Upright weapon sprites from weapons-5-classes-chatgpt-1.png (Tools/build-hero-layered-weapons.py): grip px (x, y down).",
+ "grips": {
+  "sword": [
+   31.0,
+   117.5
+  ],
+  "warrior-shield": [
+   31.0,
+   40.0
+  ],
+  "wizard-staff": [
+   34.0,
+   117.0
+  ],
+  "wizard-book": [
+   18.5,
+   22.5
+  ],
+  "pistol": [
+   19.1,
+   54.1
+  ],
+  "dagger": [
+   15.5,
+   56.5
+  ],
+  "cleric-staff": [
+   36.0,
+   117.0
+  ],
+  "cleric-shield": [
+   30.5,
+   40.0
+  ]
+ }
+}
