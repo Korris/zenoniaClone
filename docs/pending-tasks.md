@@ -2,7 +2,8 @@
 
 ### 19/11 04:50: hướng mới: nhân vật NHIỀU LỚP kiểu Ragnarok (thân gốc chung theo giới, đầu trần, tóc + mũ rời, đổi màu tóc / áo bằng shader, vũ khí lớp riêng)
 - Người dùng gửi spec (người dùng tự vẽ bằng ChatGPT, Claude làm code/shader/tool). Quy cách + 7 prompt: `docs/character-appearance-layered-spec.md`. Thay cho bản RO Soft vẽ liền (Warrior đang chạy trong game, merge 87f3b811, exe `Build/ro-soft-warrior-261119/Zenonia.exe`).
-- CHỜ người dùng trả lời: vòng dưới chân cho nhân vật mình (trái quy tắc 31/10 "vòng chỉ cho buff"), tên mình màu xanh (trái quy tắc "mình không hiện tên"), mũ lấy từ đâu.
+- 05:00 người dùng: "cứ việc làm, không cần hỏi, tui đi ngủ" + đã trả lời: BỎ quy tắc vòng chỉ cho buff (có vòng định vị mình), tên mình HIỆN màu xanh lá, nguồn mũ = quái rơi / boss truy nã / shop làng / quà nhiệm vụ tân thủ (xem spec). Claude tự vẽ art bước A/C trên chat Tay https://chatgpt.com/c/6afe1ebe-b668-83ec-8233-c010a9354ef0 , nguồn `Assets/ArtLibrary/hero-layered/src/`, tool cắt `Tools/build-hero-layered-sheets.py` (`write`, `check`; ra `hero-layered/sheets/<gender>/` + `head-anchors.json` + `ref/`). Agent code bước B (shader HeroRecolor, CharacterAppearanceData, protocol 23, renderer nhiều lớp, vòng + tên xanh) đang chạy trong worktree.
+- (cũ) CHỜ người dùng trả lời: vòng dưới chân cho nhân vật mình (trái quy tắc 31/10 "vòng chỉ cho buff"), tên mình màu xanh (trái quy tắc "mình không hiện tên"), mũ lấy từ đâu.
 
 ### 19/11 03:20: người dùng nghiêng về vẽ lại nhân vật theo RO Soft Fantasy ("không ngại vẽ lại") + 8 hướng để đám đông quay vào boss
 - Chat ChatGPT (Tay, nhánh): https://chatgpt.com/c/6afe0787-01c8-83ec-b422-ad676e70b9f6 (chưa có gì mới ngoài lineup v1 + ảnh 40 người).
