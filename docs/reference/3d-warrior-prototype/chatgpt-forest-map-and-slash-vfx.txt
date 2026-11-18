@@ -1,0 +1,33 @@
+ChatGPT (tài khoản Tay, chat mới "Phân tích phong cách Ragnarok" https://chatgpt.com/c/6afcff49-dd48-83ec-bdcf-9fd679b063a9, 18/11/2026 08:30)
+Gửi: screens/v4-frost-hollow-soft-winter.jpg + v4-slash-frames.jpg. Hỏi: vì sao vẫn chưa giống RO Origin, công thức map rừng xanh, hiệu ứng chém, 5 việc trong 1 ngày.
+
+KẾT LUẬN: vấn đề lớn nhất là môi trường và cách dựng cảnh, không phải model. Warrior 3D + Frost Slime giữ được. Chuyển sang map rừng xanh Prontera, giữ camera FOV 35 / 7 m để so A/B, làm lại vệt chém.
+
+1. Ảnh v4 chưa đẹp vì (ưu tiên giảm dần)
+1 Nền tuyết là ảnh 2D trải phẳng, không có cỏ/chi tiết nhô lên → terrain/mesh gợn nhẹ, 3 lớp texture, cụm cỏ 3D
+2 Vách đá cao, thô, nhiều cạnh sắc, chiếm viền màn hình → hạ vách, bo khối, xen bụi + cây
+3 Bối cảnh trống (vài slime, đá) → dựng cụm cảnh có chủ đích quanh đường đi
+4 Tuyết xanh nhạt gần màu slime → rừng xanh ấm + đường đất vàng kem, slime xanh lam nổi
+5 Bóng tiếp xúc chưa rõ → bóng mềm dưới chân, AO vừa, bóng cây đọc được
+6 Vệt kiếm quá mỏng, trắng nhạt, mất trên nền sáng → vệt cong dày, lõi sáng, viền vàng ấm
+7 Nhiều khoảng trống thiếu chi tiết cỡ trung → đá nhỏ, bụi, hoa, cỏ theo cụm
+8 UI chữ debug → HUD fantasy gọn (sau khi chốt map)
+Thêm Bloom/AO/texture nét KHÔNG cứu được bố cục trống.
+
+2. Công thức map rừng xanh Prontera
+A. Bảng màu: cỏ sáng #8FC65B (55 %), cỏ trung #6FA849 (30 %), cỏ dưới bóng #4F803F (15 %); đường đất #D6BD82, đất đậm #A88A5F; tán sáng #93C963, tán trung #579C4B, tán tối #367548; thân #866345; đá #8C9A8D (xám xanh, không đen); nước #65C8C4. Tỉ lệ ~70 % xanh lá, 20 % đất vàng sáng, 10 % đá/nước/trang trí.
+B. Tỉ lệ (nhân vật 1,0 m): cây chính cao 3–4,5 m, tán Ø 2,5–3,8 m, thân lộ 1,1–1,7 m Ø 0,28–0,5 m; cây nhỏ 1,7–2,5 m; bụi tròn 0,35–0,8 m; cỏ 0,12–0,35 m; đá nhỏ 0,25–0,65 m; đá lớn 0,8–1,6 m. Tán = 3–5 khối tròn bất đối xứng, lớp sáng/tối, hơi dẹt dọc, méo 5–12 %, sáng phía trên. Tránh 1 quả cầu hoặc thông tam giác low-poly.
+C. Mật độ / 100 m² (rừng có chỗ đánh): cây lớn 2–3, cây nhỏ 1–2, bụi 7–12, cụm cỏ 3D 80–130, cụm hoa 10–18, đá nhỏ 5–9, đá lớn 0–2, hàng rào 0–2 đoạn, đèn 0–1, gốc cây/nấm 2–5. 70 % đạo cụ thành cụm quanh cây/đá/hai bên đường; để trống 35–45 % mặt đất. Cụm cỏ 3–6 phiến, không 1 quad đơn.
+D. Cây: 80 % cây + bụi dựng bằng code (sphere/ellipsoid + thân); Tripo chỉ cho cây cổ thụ/cổng/gốc đặc biệt; cỏ + hoa = quad 2 mặt cắt chéo (sway nhẹ); cỏ gần nhân vật = mesh 3–5 lá.
+E. Lighting/PP: Linear; nắng từ trên-trái camera, 45–55° so mặt đất, màu #FFF1D7, intensity 1,0–1,2; ambient sky #C5DBF0 / equator #A8BCA1 / ground #73846F, intensity 0,8–1,0; soft shadow strength 0,65–0,75; AO intensity 0,35–0,55 radius 0,2–0,35; tonemapping thử Neutral trước rồi so ACES; bloom 0,15–0,35 threshold 1,2–1,5; fog linear #BDD8C0 12→30 m (chỉ phân lớp xa); FXAA; rim light nhân vật rất nhẹ 0,12–0,2. Shader stylized diffuse / Lambert ít bóng, không outline đen toàn cảnh (nếu có chỉ 1 px cho nhân vật/quái).
+
+3. Hiệu ứng chém thường: giữ anim 0,48 s, thay vệt mỏng bằng Crescent Slash + impact riêng
+A. Hình: cung 90–120°, dài 1,2–1,5 m, rộng giữa 0,18–0,25 m vuốt nhọn 2 đầu; lõi #FFFDF2, thân #FFE4A3, viền/đuôi #F0AE55, vệt phụ #FFF6DB mờ 35–50 %; Alpha Blend làm nền + Additive nhẹ ở lõi (toàn additive sẽ mất hình trên cỏ/tuyết sáng); vệt chính 0,12–0,16 s, đuôi tan 0,08–0,10 s, tổng 0,20–0,26 s; theo đường đi thật của mũi kiếm.
+B. Timeline 0,48 s: giơ kiếm 0; vệt xuất hiện 0,13; va chạm + damage 0,20–0,23; impact đỉnh 0,23–0,27; vệt tan hết 0,35; về idle 0,48.
+C. Impact: sao 4–6 cánh trắng ngà Ø 0,35–0,5 m, màu #FFF4C5 viền #E99B42, 0,07–0,11 s; tia lửa 5–8 hạt bay 0,15–0,4 m trong 0,15–0,25 s; hit stop 0,035–0,05 s; camera shake 0,025–0,04 m trong 0,07 s rất nhẹ.
+Số damage: thường #FFF4DC viền nâu #59402D 2 px@720p; crit #FFD35A scale 1,2× + chữ CRIT nhỏ; hero bị đánh #FF7770 bay thấp. Font rounded bold (Nunito ExtraBold, TMP SDF). Bật lên 0,1 m rồi trôi tổng 0,45–0,6 m trong 0,65 s, fade 0,18 s cuối, lệch ngang ±0,12 m, tối đa 3–4 số/mục tiêu.
+
+4. Năm việc trong 1 ngày: (1) nền cỏ + đường đất, mesh gợn ±0,15 m – 2 h; (2) prefab cây tán 3 lớp bằng code, 3 biến thể – 2 h (8–12 cây có bóng mềm); (3) rải bụi/cỏ/hoa/đá theo cụm – 1,5 h; (4) nắng vàng ấm, AO, Neutral/ACES – 1 h; (5) sword trail + hit impact + font damage – 1,5 h.
+Kiểm tra: 1 cảnh cố định: Warrior giữa, 3 slime quanh, 2–3 cây tán lớn phía sau, đường đất chéo, cỏ 3D hai mép, 2 bụi hoa, 1 đá, bóng cây, Warrior ở frame giữa nhát chém với vệt vàng trắng rõ. Nếu đẹp khi TẮT bloom + AO thì art direction đúng.
+5. Chốt kỹ thuật: giữ Built-in RP; camera giữ; terrain gợn nhẹ; cây bằng code; cỏ quad/mesh thấp sway; shader stylized diffuse; không bắt buộc outline; bloom rất nhẹ; trail = mesh cong alpha + lõi additive; damage text rounded bold viền tối. Đừng làm rừng quá rậm; quanh nhân vật phải thoáng.
+Ba việc ảnh hưởng nhất: nền đồng cỏ 3D có cỏ nổi → cây tán tròn lớn + nắng ấm → vệt chém lưỡi liềm sáng có impact.
