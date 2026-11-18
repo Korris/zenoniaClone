@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Online only: the ring under your OWN hero (sprite-rules "Quy tắc nhận diện nhân vật online" 2, user rule 19/11/2026), so you find
+    /// Online and offline: the ring under your OWN hero (sprite-rules "Quy tắc nhận diện nhân vật online" 2, user rule 19/11/2026), so you find
     /// yourself in a crowd. Shaped and coloured unlike every buff ring (those are gold / blue filled circles, ClericBuffFx): two thin soft mint-green
     /// ellipse lines with a faint glow between them, no fill, so the feet and the shadow stay visible. y-sorted with the shadow (heroes standing in
     /// front still cover it) and drawn just over the shadow, under the body. Never on other heroes.
@@ -25,7 +25,7 @@ namespace ZenoniaProto
         void LateUpdate()
         {
             HeroController hero = LocalPlayer.Hero;
-            bool show = !NetMode.IsOffline && hero != null && !hero.IsDead;
+            bool show = hero != null && !hero.IsDead; // offline too (user 19/11/2026): the same ring whether you play alone or in a crowd
             ring.enabled = show;
             if (!show) return;
             Vector2 at = hero.Position;
