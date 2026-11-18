@@ -104,17 +104,16 @@ Gửi kèm ảnh đầu trọc 5 hướng do Claude cắt ra (`ref/bald-head-<ma
 - Assassin (nữ): tóc dài buộc đuôi ngựa cao, mái lệch. Nơ buộc được tô màu thật: đỏ #D8343A.
 - Cleric (nữ): tóc ngang vai, mái thưa, hai lọn rủ trước tai.
 
-### Prompt 6: MŨ / PHỤ KIỆN ĐẦU RỜI (5 ảnh, mỗi ảnh 2 món, file `headgear-<a>-<b>.png`)
+### Prompt 6: MŨ / PHỤ KIỆN ĐẦU RỜI (10 ảnh, mỗi ảnh 2 món, file `headgear-<a>-<b>.png`)
 Gửi kèm `ref/bald-head-male-5dir.png` làm mẫu cỡ đầu.
 
 Vẽ 2 món phụ kiện đầu RỜI (không có người, không có đầu) cho game, nét RO Soft Fantasy như các ảnh trước, đúng cỡ để đội lên đầu trọc ở ảnh 1 (bề ngang vành mũ khoảng bằng bề ngang sọ ở ảnh 1). Ảnh ngang 1536x1024, 2 hàng: hàng trên = món <A>, hàng dưới = món <B>. Mỗi hàng 5 góc nhìn cùng thứ tự và khoảng cách như 5 đầu ở ảnh 1 (xuống, chéo xuống-phải, phải, chéo lên-phải, lên). Mặt sau của mũ là mặt sau đặc, không vẽ lòng mũ rỗng. Mép dưới mỗi món (chỗ chạm đầu) nằm trên cùng một đường ngang trong hàng. Màu thật, không dùng xanh lá #00FF00 (nếu món có màu xanh lá thì nền đổi thành #FF00FF). Nền phẳng #00FF00, không bóng, hình đặc, không chữ.
 
-10 món chia làm 5 cặp:
-1. Mũ phù thuỷ xanh trắng có khoá vàng và tua (tách từ Wizard cũ) + tai thỏ trắng hồng (băng đô).
-2. Vương miện vàng nhỏ đính đá đỏ + nơ lớn đỏ.
-3. Kính bảo hộ đồng (đeo trán) + mũ len có quả bông.
-4. Vòng hoa cúc + sừng quỷ nhỏ đỏ.
-5. Mũ cánh thiên thần trắng + tai mèo đen (băng đô).
+19 món chia làm 10 ảnh (mỗi ảnh 2 món, ảnh cuối 1 món), theo nguồn mũ đã chốt:
+- Quà nhiệm vụ tân thủ theo class: (1) mũ sắt nhỏ (Warrior) + mũ phù thuỷ nhọn xanh trắng có khoá vàng và tua (Wizard); (2) kính bảo hộ đồng đeo trán (Mechanic) + băng đô ninja đỏ có đuôi bay (Assassin); (3) khăn trùm tu nữ trắng viền vàng (Cleric) + mũ rơm.
+- Shop NPC: (4) băng đô vải xanh + mũ len có quả bông; (5) mũ phi công da có kính.
+- Quái rơi: (5) tai thỏ trắng hồng (Horn Rabbit); (6) mũ slime xanh ngọc tròn mềm (Frost Slime) + tai cáo cam (Snow Fox); (7) sừng quỷ nhỏ đỏ (Ice Imp) + mũ ếch xanh rêu (Mire Toad, nếu màu xanh lá thì nền #FF00FF); (8) vòng hoa dại (Thorn Sprite).
+- Boss truy nã (MVP): (8) vương miện sói bạc đính đá xanh (Rimeclaw Tyrant); (9) vương miện pha lê băng (Glacial Colossus) + vương miện rắn tím vàng (Mire Hydra Queen); (10) mũ phù thuỷ tối thượng đen tím viền vàng sao bạc (phần thưởng hiếm).
 
 ### Prompt 7: VŨ KHÍ (1 ảnh, file `weapons-5-classes.png`)
 Vẽ 8 món rời (không người), nét RO Soft Fantasy, mỗi món DỰNG ĐỨNG lưỡi hoặc đầu chĩa lên trên, chuôi ở dưới, nằm giữa ô của nó. Ảnh ngang 1536x1024, 2 hàng x 4 cột:
@@ -123,7 +122,11 @@ Vẽ 8 món rời (không người), nét RO Soft Fantasy, mỗi món DỰNG Đ�
 
 Cỡ so với thân gốc cao 200 px: kiếm dài 150 px, gậy 190 px, khiên cao 80 px, sách 45 px, súng 70 px, dao 75 px. Nền phẳng #00FF00, không bóng, hình đặc, không chữ.
 
-## Câu hỏi chưa chốt
-1. Vòng dưới chân: quy tắc người dùng chốt 31/10 là "vòng dưới chân dành riêng cho buff, không dùng để đánh dấu nhân vật của mình". Nay có đổi không?
-2. Tên trên đầu: quy tắc cũ là "nhân vật của mình và party không hiện tên". Nay có hiện tên mình màu xanh lá không?
-3. Mũ: lấy từ đâu (chọn lúc tạo nhân vật, mua shop, rơi đồ, gacha)?
+## Đã chốt (người dùng 19/11/2026)
+1. Bỏ quy tắc "vòng dưới chân chỉ cho buff": nhân vật của mình có `PlayerIndicatorRing`.
+2. Tên của mình hiện, màu xanh lá sáng.
+3. Nguồn mũ: KHÔNG chọn lúc tạo nhân vật (bắt đầu đầu trần).
+   - **Quái rơi (nguồn chính, khoảng 60 %):** mỗi bãi quái rơi mũ đặc trưng của loài với tỉ lệ 1-5 %.
+   - **Boss truy nã / MVP:** rơi mũ hiếm, nhìn là biết người kỳ cựu.
+   - **Shop NPC trong làng (khoảng 30 %):** bán 3-4 mũ phổ thông giá vừa, chơi 15-20 phút là mua được.
+   - **Quà nhiệm vụ tân thủ (khoảng 10 %):** NPC tặng mũ khởi đầu theo class sau khi đánh 5 con quái đầu tiên.

@@ -143,8 +143,8 @@ Màu phụ nhỏ (lõi trắng, vài tia) được phép. Prompt FX phải ghi m
 
 ## Quy tắc nhận diện nhân vật online
 
-1. **Chỉ người lạ mới có tên trên đầu.** Nhân vật của mình và thành viên party không hiện tên (người dùng chốt ngày 2026-10-31).
-2. **Vòng dưới chân dành riêng cho buff.** Không dùng nó để đánh dấu nhân vật của mình hay bất cứ việc gì khác.
+1. **Tên nhân vật của mình HIỆN, màu xanh lá sáng** (người dùng đổi ngày 2026-11-19, thay quy tắc 31/10 "mình và party không hiện tên"). Người lạ vẫn hiện tên như cũ; party chưa chốt.
+2. **Nhân vật của mình có vòng định vị dưới chân (`PlayerIndicatorRing`)** (người dùng bỏ quy tắc 31/10 "vòng dưới chân chỉ dành cho buff" ngày 2026-11-19). Vòng buff phải khác hẳn vòng định vị (màu, hình) để không lẫn.
 
 ## Sổ lỗi
 
