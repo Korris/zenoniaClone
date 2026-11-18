@@ -84,6 +84,7 @@ public static partial class ProtoBuilder
         Decal(hero.transform, Vector3.zero, 0.42f, shadowMat);   // v19: darker core (+15-20 %)
         if (map.Glade) Decal(hero.transform, Vector3.zero, 1.15f, HeroRingMaterial());   // v17: faint warm ring so the Warrior reads at 22 m (ChatGPT)
         var hc = hero.AddComponent<HeroController3D>();
+        AddLocomotion(hcCtrl, heroModel, 1.0f, hc.WalkSpeed, hc.RunSpeed);   // spawned at 1.0 m tall (Spawn above)
         hc.IdleState = Clip(hcCtrl, "idle"); hc.WalkState = Clip(hcCtrl, "walk"); hc.RunState = Clip(hcCtrl, "run"); hc.HitState = Clip(hcCtrl, "hit"); hc.DefeatState = Clip(hcCtrl, "defeat");
         Hold(hero, "RightHand", "Assets/Props/sword/sword.fbx", hasV2 ? 0.6f : 0.55f, true);      // V2: sword 60 % of hero height (ChatGPT 55-65 %)
         Hold(hero, "LeftHand", "Assets/Props/shield/shield.fbx", hasV2 ? 0.36f : 0.42f, false);  // V2: shield 36 % (ChatGPT 30-35 % tall)

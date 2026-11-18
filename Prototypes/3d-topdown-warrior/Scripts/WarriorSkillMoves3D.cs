@@ -148,7 +148,7 @@ public partial class WarriorSkills3D
         transform.position = land;
         foreach (var s in Slime3D.All)
             if (s.Alive && InCircle(s, land, 2.8f)) { Damage(s, InCircle(s, land, 0.8f) ? 350f : 300f); HitFlash(s.transform.position + Vector3.up * 0.3f, d.Main, d.Core, 0.8f); }
-        HitFx.Impact(land + Vector3.up * 0.5f, true);   // crit star, sound and hit stop on the slam
+        HitFx.Impact(land + Vector3.up * 0.5f, true, hero.Anim);   // crit star, sound and hit stop on the slam
         Vector3 g = land + Vector3.up * 0.05f;
         // fire ring along the ground, Ø 5.6 m by 0.85 s, gone by 1.10 s; cream core pillar Ø 1.1 m x 1.5 m
         SkillFx3D.Spawn(new SkillFx3D.Spec { Kind = K.Ring, Face = F.Ground, From = g, To = g, Size0 = 1.2f, Size1 = 5.6f, Color = T(d.Main, 2.2f, 0.75f), FadeOutAt = 0.45f, Life = 0.45f, Delay = 0.03f });

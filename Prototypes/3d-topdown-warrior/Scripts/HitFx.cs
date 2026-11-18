@@ -4,7 +4,8 @@ using UnityEngine;
 /// <summary>
 /// Basic-attack feedback (ChatGPT v6 numbers): the crescent arc (SlashArcFx), and on contact an ivory star flash Ø 0.30 m for 0.07 s
 /// (crit 0.40 m / 0.10 s), 6 short rays shooting 0.12-0.25 m out in 0.15 s, 4 small glints flying 0.15-0.35 m in 0.2 s, a 35 ms hit stop
-/// (client only: Time.timeScale) and the swing / hit / crit sounds from the main game. No camera shake for normal attacks.
+/// and the swing / hit / crit sounds from the main game. No camera shake for normal attacks. The hit stop freezes only the attacker's
+/// animator and the struck slime (19/11; it used to be Time.timeScale = 0, which froze every slime, ally and the hero's walk at once).
 /// </summary>
 public class HitFx : MonoBehaviour
 {
@@ -12,7 +13,6 @@ public class HitFx : MonoBehaviour
     public Material SparkMat, GroundRingMat;   // v18: ground ring = impact burst + ground mark
     public AudioClip Swing, Hit, Crit;
     AudioSource src;
-    float stopUntil = -1f;
 
     void Awake()
     {
@@ -30,7 +30,7 @@ public class HitFx : MonoBehaviour
     public static void SlashArc(Transform hero) { SlashArcFx.Play(hero); }
 
     /// <summary>Flash + rays + glints + sound + hit stop at `at` (world). Crit: bigger, longer flash, crit sound, longer stop.</summary>
-    public static void Impact(Vector3 at, bool crit)
+    public static void Impact(Vector3 at, bool crit, Animator attacker = null, Slime3D victim = null)
     {
         if (I == null) return;
         at -= Camera.main.transform.forward * 0.4f;   // pull towards the camera so the slime body does not hide the star
@@ -40,7 +40,9 @@ public class HitFx : MonoBehaviour
         for (int i = 0; i < 4; i++) I.StartCoroutine(I.Fly(at, Random.Range(0f, 360f), Random.Range(0.15f, 0.35f), 0.2f, false));
         var clip = crit ? I.Crit : I.Hit;
         if (clip != null) I.src.PlayOneShot(clip, crit ? 1f : 0.8f);
-        I.StartCoroutine(I.HitStopRoutine(crit ? 0.05f : 0.035f));
+        float stop = crit ? 0.05f : 0.035f;
+        if (attacker != null) I.StartCoroutine(I.FreezeAnimator(attacker, stop));
+        if (victim != null) victim.Freeze(stop);
     }
 
     static GameObject FxQuad(Material m)
@@ -104,13 +106,20 @@ public class HitFx : MonoBehaviour
         Destroy(q);
     }
 
-    IEnumerator HitStopRoutine(float seconds)
+    /// <summary>Hit stop on one animator: speed 0 for `seconds` (real time), then back to 1. Overlapping stops just extend it.</summary>
+    readonly System.Collections.Generic.Dictionary<Animator, float> frozen = new System.Collections.Generic.Dictionary<Animator, float>();
+    void OnDisable() { foreach (var a in frozen.Keys) if (a != null) a.speed = 1f; frozen.Clear(); }   // never leave an animator stopped
+
+    IEnumerator FreezeAnimator(Animator a, float seconds)
     {
         float until = Time.unscaledTime + seconds;
-        if (until <= stopUntil) yield break;
-        stopUntil = until;
-        Time.timeScale = 0f;
-        while (Time.unscaledTime < stopUntil) yield return null;
-        Time.timeScale = 1f;
+        if (frozen.TryGetValue(a, out var u) && u >= until) yield break;
+        bool running = frozen.ContainsKey(a);
+        frozen[a] = until;
+        if (running) yield break;   // the first coroutine keeps waiting for the new end
+        a.speed = 0f;
+        while (a != null && Time.unscaledTime < frozen[a]) yield return null;
+        frozen.Remove(a);
+        if (a != null) a.speed = 1f;
     }
 }

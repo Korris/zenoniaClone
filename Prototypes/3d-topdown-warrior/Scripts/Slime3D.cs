@@ -19,7 +19,8 @@ public class Slime3D : MonoBehaviour
     Renderer[] renderers;
     Vector3 home, wanderGoal;
     int hp;
-    float timer, deadUntil, hitAt = -10f, hopPhase, seed, flashUntil;
+    float timer, deadUntil, hitAt = -10f, hopPhase, seed, flashUntil, freezeUntil;
+    Vector3 knock;                    // knockback still to apply, eased out over ~0.1 s
     MaterialPropertyBlock flashBlock;
     float shownLevel = 1f;
     bool moving;
@@ -58,13 +59,30 @@ public class Slime3D : MonoBehaviour
         Hud3D.Pop(transform.position + Vector3.up * 0.9f, dmg, crit, byAlly);   // ally hits pop dim (other players)
         hitAt = Time.time;
         // v19 (ChatGPT game feel): pushed 0.14 m away from the hero
-        if (Hero != null) { Vector3 away = transform.position - Hero.position; away.y = 0f; if (away.sqrMagnitude > 0.001f) transform.position = TileWalk.Move(transform.position, away.normalized * 0.14f); }
+        // (19/11: eased over ~0.1 s after the hit stop instead of a one-frame jump)
+        if (Hero != null) { Vector3 away = transform.position - Hero.position; away.y = 0f; if (away.sqrMagnitude > 0.001f) knock += away.normalized * 0.14f; }
         if (hp <= 0) { Enter(S.Dead, 0f); deadUntil = Time.time + 6f; Hud3D.Kills++; return; }
         if (state != S.Windup) Enter(S.Chase, 0.25f);
     }
 
+    /// <summary>Hit stop: hold the current pose (with a tiny shiver) for `seconds` of real time.</summary>
+    public void Freeze(float seconds) { freezeUntil = Mathf.Max(freezeUntil, Time.unscaledTime + seconds); }
+
     void Update()
     {
+        if (Time.unscaledTime < freezeUntil)
+        {
+            if (pivot != null) pivot.localPosition = new Vector3(0.02f * Mathf.Sin(Time.unscaledTime * 120f), pivot.localPosition.y, pivot.localPosition.z);
+            hitAt += Time.deltaTime;   // the hurt wobble starts when the stop ends
+            Flash();
+            return;
+        }
+        if (knock.sqrMagnitude > 1e-6f)
+        {
+            Vector3 step = knock * (1f - Mathf.Exp(-Time.deltaTime * 30f));
+            knock -= step;
+            transform.position = TileWalk.Move(transform.position, step);
+        }
         Vector3 toHero = Hero.position - transform.position; toHero.y = 0f;
         float dHero = toHero.magnitude, dHome = Vector3.Distance(transform.position, home);
         timer -= Time.deltaTime;
