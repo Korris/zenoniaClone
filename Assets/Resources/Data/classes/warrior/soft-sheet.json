@@ -1,0 +1,20 @@
+{
+ "cellW": 320,
+ "cellH": 256,
+ "feetY": 244,
+ "bodyPx": 200,
+ "dirs": [
+  "down",
+  "down-right",
+  "right",
+  "up-right",
+  "up",
+  "up-left",
+  "left",
+  "down-left"
+ ],
+ "frames": {
+  "idle": 1,
+  "walk": 4
+ }
+}

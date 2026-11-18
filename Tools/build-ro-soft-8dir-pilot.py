@@ -55,7 +55,11 @@ def key_green(img):
 
 
 def figures(rgba, count):
-    """`count` figures left to right: the biggest blobs are the bodies, every other blob >= 30 px joins the body whose
+    return [f for f, _, _ in figures_with_pos(rgba, count)]
+
+
+def figures_with_pos(rgba, count):
+    """(figure, x0, y0) for `count` figures left to right: the biggest blobs are the bodies, every other blob >= 30 px joins the body whose
     pixels are nearest (a sword tip may touch the next figure, so blobs are never grown into each other)."""
     arr = np.asarray(rgba)
     al = arr[..., 3] > 128
@@ -72,12 +76,12 @@ def figures(rgba, count):
     for k in seeds:
         ys, xs = np.nonzero(owner == k)
         boxes.append((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1, k))
-    figs = []
+    out = []
     for x0, y0, x1, y1, k in sorted(boxes):
         crop = arr[y0:y1, x0:x1].copy()
         crop[..., 3] = np.where(owner[y0:y1, x0:x1] == k, crop[..., 3], 0)
-        figs.append(Image.fromarray(crop, "RGBA"))
-    return figs
+        out.append((Image.fromarray(crop, "RGBA"), x0, y0))
+    return out
 
 
 def head_ratio(fig):
