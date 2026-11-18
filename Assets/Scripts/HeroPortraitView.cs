@@ -57,7 +57,9 @@ namespace ZenoniaProto
                 go.transform.position = Stage;
                 views[i] = go.AddComponent<HeroRenderer>();
                 views[i].Init(def, HeldGearData.Load(def));
+                views[i].UseLayered(HeroRenderer.LayeredSetFor(def)); // same style as the hero in the world (step D)
             }
+            if (views[i].IsLayered && HeroRenderer.LocalLook != null) views[i].SetAppearance(HeroRenderer.LocalLook, "portrait", true, false);
             if (view != null && view != views[i]) view.gameObject.SetActive(false);
             view = views[i];
             view.gameObject.SetActive(true);

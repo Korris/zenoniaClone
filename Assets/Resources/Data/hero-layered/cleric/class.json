@@ -1,0 +1,18 @@
+{
+ "note": "Layered cleric (Tools/build-hero-layered-game-assets.py, hair from hair-cleric-5dir-chatgpt-1.png). TODO weapons: no grips until the batch-3 weapon art; hats: Data/hero-layered/headgear.json.",
+ "body": "Data/hero-layered/female/body",
+ "hair": [
+  {
+   "style": 0,
+   "sheet": "Sprites/hero-layered/hair/cleric/0",
+   "cellW": 224,
+   "cellH": 192,
+   "ax": 112,
+   "ay": 40,
+   "refW": 75.0
+  }
+ ],
+ "headgear": [],
+ "weapons": [],
+ "grips": []
+}

@@ -1,0 +1,18 @@
+{
+ "note": "Layered wizard (Tools/build-hero-layered-game-assets.py, hair from hair-wizard-5dir-chatgpt-2.png). TODO weapons: no grips until the batch-3 weapon art; hats: Data/hero-layered/headgear.json.",
+ "body": "Data/hero-layered/male/body",
+ "hair": [
+  {
+   "style": 0,
+   "sheet": "Sprites/hero-layered/hair/wizard/0",
+   "cellW": 224,
+   "cellH": 192,
+   "ax": 112,
+   "ay": 40,
+   "refW": 75.0
+  }
+ ],
+ "headgear": [],
+ "weapons": [],
+ "grips": []
+}

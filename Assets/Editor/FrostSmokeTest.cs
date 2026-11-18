@@ -20,9 +20,9 @@ namespace ZenoniaProto.EditorTools
         public static void Run()
         {
             failures = 0;
-            bool saves = SaveStore.Enabled, softStyle = HeroRenderer.SoftStyleEnabled;
+            bool saves = SaveStore.Enabled, softStyle = HeroRenderer.SoftStyleEnabled, layeredStyle = HeroRenderer.LayeredStyleEnabled;
             SaveStore.Enabled = false; // never read or overwrite the developer's own saves
-            HeroRenderer.SoftStyleEnabled = false; // the paper-doll checks below need the classic renderer; CheckSoftStyle covers the RO Soft path
+            HeroRenderer.SoftStyleEnabled = false; HeroRenderer.LayeredStyleEnabled = false; // the paper-doll checks below need the classic renderer; CheckSoftStyle covers the RO Soft path
             try
             {
                 RpgLogicCheck.Run(Expect);
@@ -34,7 +34,7 @@ namespace ZenoniaProto.EditorTools
                 foreach (HeroClassDef cls in HeroClassDef.All) CheckClass(cls);
             }
             catch (Exception e) { Fail("exception " + e); }
-            finally { SaveStore.Enabled = saves; HeroRenderer.SoftStyleEnabled = softStyle; GameClock.Paused = false; MapRegistry.TestStartMap = null; MapRegistry.ResetState(); }
+            finally { SaveStore.Enabled = saves; HeroRenderer.SoftStyleEnabled = softStyle; HeroRenderer.LayeredStyleEnabled = layeredStyle; GameClock.Paused = false; MapRegistry.TestStartMap = null; MapRegistry.ResetState(); }
             Debug.Log("SMOKE RESULT: " + (failures == 0 ? "PASS" : "FAIL (" + failures + ")"));
             EditorApplication.Exit(failures == 0 ? 0 : 1);
         }

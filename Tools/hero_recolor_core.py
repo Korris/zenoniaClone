@@ -8,7 +8,7 @@ ramp(): the same ramp as Assets/Resources/Shaders/HeroRecolor.shader (change bot
 """
 import numpy as np
 
-OUTFIT_HUE = (285.0, 320.0)   # degrees: #FF00FF is 300; skin (~25), blush (orange ~20) and leather (~28) are far away
+OUTFIT_HUE = (282.0, 332.0)   # degrees (step D: real art pinks reach 330): #FF00FF is 300; skin (~25), blush (orange ~20) and leather (~28) are far away
 OUTFIT_SAT = 0.30             # HSV saturation above this (the spec light tone #FF8CFF itself is only 0.45; skin ~0.22 is out by hue anyway)
 OUTFIT_VAL = 0.18             # and not near-black (an anti-aliased outline pixel)
 HAIR_CHROMA = 30              # max-min channel spread (0-255) still grey: same rule as HairDye.cs / the shader's _HairAll
@@ -55,6 +55,20 @@ def outfit_mask(rgba):
     return (rgba[..., 3] > 8) & (h >= OUTFIT_HUE[0]) & (h <= OUTFIT_HUE[1]) & (s > OUTFIT_SAT) & (v > OUTFIT_VAL)
 
 
+FRINGE_HUE = (265.0, 348.0)   # anti-aliased edge of the outfit (magenta blended into the brown outline / belt): looser test,
+FRINGE_SAT, FRINGE_VAL, FRINGE_PX = 0.12, 0.05, 2  # only within FRINGE_PX of a core outfit pixel (else skin / leather would leak in)
+
+
+def outfit_mask_with_fringe(rgba):
+    """outfit_mask plus its magenta-tinted rim (step D: the real art left a pink outline around every recoloured coat)."""
+    from scipy import ndimage
+    core_m = outfit_mask(rgba)
+    rgb = rgba[..., :3].astype(np.float32) / 255.0
+    h, s, v = hsv(rgb)
+    rim = (rgba[..., 3] > 8) & (h >= FRINGE_HUE[0]) & (h <= FRINGE_HUE[1]) & (s > FRINGE_SAT) & (v > FRINGE_VAL)
+    return core_m | (rim & ndimage.binary_dilation(core_m, iterations=FRINGE_PX))
+
+
 def hair_mask(rgba):
     """Bool mask of grey hair pixels (on a hair layer: coloured accents such as goggles or a ribbon stay out)."""
     c = rgba[..., :3].astype(np.int32)
@@ -69,7 +83,7 @@ def to_game(rgba, hair_layer=False):
         m = hair_mask(rgba)
         mask[..., 0] = np.where(m, 255, 0)
     else:
-        m = outfit_mask(rgba)
+        m = outfit_mask_with_fringe(rgba)
         rgb = rgba[..., :3].astype(np.float32) / 255.0
         light = (rgb.max(-1) + rgb.min(-1)) / 2.0
         grey = np.interp(light, OUTFIT_L_IN, OUTFIT_L_OUT) * 255.0

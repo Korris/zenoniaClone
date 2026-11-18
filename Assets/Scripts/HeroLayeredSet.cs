@@ -50,6 +50,7 @@ namespace ZenoniaProto
             try
             {
                 TextAsset c = Resources.Load<TextAsset>(classJson);
+                if (c == null) return null; // this class has no layered art (Fighter): the other renderer paths draw it, no warning
                 ClassFile cf = c != null ? JsonUtility.FromJson<ClassFile>(c.text) : null;
                 TextAsset b = cf != null && cf.body != null ? Resources.Load<TextAsset>(cf.body) : null;
                 BodyFile bf = b != null ? JsonUtility.FromJson<BodyFile>(b.text) : null;
