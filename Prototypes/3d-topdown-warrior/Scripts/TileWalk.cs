@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Walkability from the 2D map's tile rows (row 0 = north): snow 's' and bridge 'B' are walkable, cliffs 'C' and water 'w' block. 1 tile = Tile metres.</summary>
+/// <summary>Walkability from the 2D map's tile rows (row 0 = north): snow 's', grass 'g' and bridge 'B' are walkable; cliffs 'C', trees 'T' and water 'w' block. 1 tile = Tile metres.</summary>
 public static class TileWalk
 {
     public static string[] Rows;
@@ -13,7 +13,7 @@ public static class TileWalk
         int ty = Rows.Length - 1 - tyFromBottom;
         if (ty < 0 || ty >= Rows.Length || tx < 0 || tx >= Rows[ty].Length) return false;
         char c = Rows[ty][tx];
-        return c == 's' || c == 'B';
+        return c == 's' || c == 'g' || c == 'B';
     }
 
     /// <summary>Moves from `from` by `delta`, sliding along blocked axes (like the 2D game's tile movement).</summary>

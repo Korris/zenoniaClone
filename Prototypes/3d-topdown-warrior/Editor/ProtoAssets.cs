@@ -30,13 +30,19 @@ public static partial class ProtoBuilder
         return names.FirstOrDefault() ?? "";
     }
 
+    /// <summary>Materials created in this build, by asset path. Re-creating an asset gives it a new GUID, so every earlier object (and every
+    /// scene already saved) that pointed at the old one turned magenta (v18: the ally's Hold() deleted the hero's sword / shield material).</summary>
+    static readonly System.Collections.Generic.Dictionary<string, Material> builtMats = new System.Collections.Generic.Dictionary<string, Material>();
+
     static Material Mat(string path, string tex, string normal, Color tint)
     {
+        if (builtMats.TryGetValue(path, out var cached) && cached != null) { cached.color = tint; return cached; }
         AssetDatabase.DeleteAsset(path);
         var m = new Material(Shader.Find("Standard")) { color = tint, mainTexture = tex == null ? null : AssetDatabase.LoadAssetAtPath<Texture2D>(tex) };
         if (normal != null) { m.SetTexture("_BumpMap", AssetDatabase.LoadAssetAtPath<Texture2D>(normal)); m.EnableKeyword("_NORMALMAP"); }
         m.SetFloat("_Metallic", 0.1f); m.SetFloat("_Glossiness", 0.35f);
         AssetDatabase.CreateAsset(m, path);
+        builtMats[path] = m;
         return m;
     }
 
@@ -66,8 +72,11 @@ public static partial class ProtoBuilder
         var body = (GameObject)PrefabUtility.InstantiatePrefab(model);
         body.transform.SetParent(root.transform, false);
         foreach (var r in body.GetComponentsInChildren<Renderer>()) r.sharedMaterials = Enumerable.Repeat(mat, r.sharedMaterials.Length).ToArray();
-        var anim = body.GetComponent<Animator>() ?? body.AddComponent<Animator>();
-        anim.runtimeAnimatorController = ctrl; anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        if (ctrl != null)   // static models (Leafdrop slime) have no animator; `??` would miss Unity's fake-null and skip AddComponent
+        {
+            var anim = body.GetComponent<Animator>(); if (anim == null) anim = body.AddComponent<Animator>();
+            anim.runtimeAnimatorController = ctrl; anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        }
         FitHeight(body, at, height);
         return root;
     }

@@ -61,8 +61,11 @@ public static partial class ProtoBuilder
     {
         var tipGo = new GameObject("Tip");
         tipGo.transform.position = tipWorld; tipGo.transform.SetParent(sword.transform, true);
-        var trailMat = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
-        AssetDatabase.DeleteAsset("Assets/Env/Trail.mat"); AssetDatabase.CreateAsset(trailMat, "Assets/Env/Trail.mat");
+        if (!builtMats.TryGetValue("Assets/Env/Trail.mat", out var trailMat) || trailMat == null)   // once per build (see builtMats)
+        {
+            trailMat = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
+            AssetDatabase.DeleteAsset("Assets/Env/Trail.mat"); AssetDatabase.CreateAsset(trailMat, "Assets/Env/Trail.mat"); builtMats["Assets/Env/Trail.mat"] = trailMat;
+        }
         var tr = tipGo.AddComponent<TrailRenderer>();
         tr.time = 0.14f; tr.startWidth = 0.11f; tr.endWidth = 0f; tr.minVertexDistance = 0.005f; tr.numCapVertices = 3; tr.numCornerVertices = 3;
         tr.startColor = new Color(1f, 0.96f, 0.75f, 0.95f); tr.endColor = new Color(1f, 0.8f, 0.4f, 0f);

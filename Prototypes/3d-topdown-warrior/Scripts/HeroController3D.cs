@@ -11,24 +11,27 @@ public class HeroController3D : MonoBehaviour
     public string IdleState, WalkState, RunState, HitState, DefeatState;
     public const string SlashState = "Slash";
     public float WalkSpeed = 2.4f, RunSpeed = 4.6f, TurnSpeed = 720f;
-    public float Reach = 1.0f, AttackInterval = 0.75f, SwingTime = 0.48f, HitAt = 0.22f, TrailFrom = 0.08f, TrailTo = 0.30f, AutoRange = 10f;
+    public float Reach = 1.0f, AttackInterval = 0.75f, SwingTime = 0.48f, HitAt = 0.22f, AutoRange = 10f;
     public static bool AutoRequested;
     public bool Auto;
     public Slime3D Target;
 
     Animator anim;
-    TrailRenderer trail;
     Transform ring;
+    WarriorSkills3D skills;   // keys 1-4 (WarriorSkills3D): while a skill runs it owns movement and animation
     string current;
+    public float ArcAt = 0.13f;   // crescent slash appears at 0.13 s of the swing and is gone by 0.35 s (SlashArcFx, ChatGPT timeline)
     float lockLeft, nextAttack, swingStart = -1f;
-    bool defeated, hitDone;
+    bool defeated, hitDone, arcDone;
 
     void Start()
     {
         anim = GetComponentInChildren<Animator>();
         anim.applyRootMotion = false;
-        trail = GetComponentInChildren<TrailRenderer>();
-        var ringGo = GameObject.Find("TargetRing"); if (ringGo != null) ring = ringGo.transform;
+        skills = GetComponent<WarriorSkills3D>();
+        foreach (var tr in GetComponentsInChildren<TrailRenderer>()) tr.emitting = false;   // the thin tip trail is replaced by HitFx.SlashArc
+        var ringGo = GameObject.Find("TargetRing"); if (ringGo != null) { ring = ringGo.transform; ringGo.SetActive(false); }
+        var arrowGo = GameObject.Find("TargetArrow"); if (arrowGo != null) { arrow = arrowGo.transform; arrowGo.SetActive(false); }
         Auto = AutoRequested;
         Play(IdleState, 0f);
     }
@@ -54,6 +57,7 @@ public class HeroController3D : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab)) Auto = !Auto;
         UpdateRing();
         if (defeated) return;
+        if (skills != null && skills.Casting) return;
         if (lockLeft > 0f) { lockLeft -= Time.deltaTime; return; }
         if (Input.GetKeyDown(KeyCode.H)) { Restart(HitState); lockLeft = 0.5f; return; }
 
@@ -83,6 +87,14 @@ public class HeroController3D : MonoBehaviour
         if (Time.time >= nextAttack && Vector3.Angle(transform.forward, to) < 12f) StartSwing();
     }
 
+    // ---- hooks for WarriorSkills3D ----
+    public Animator Anim { get { return anim; } }
+    public bool Defeated { get { return defeated; } }
+    /// <summary>A skill starts: drop the half-done basic swing and wait a moment before the next one.</summary>
+    public void SkillStarted() { swingStart = -1f; nextAttack = Time.time + 0.25f; }
+    /// <summary>Base-layer state chosen by a skill (run during a dash, idle after); keeps `current` in sync so Play() works afterwards.</summary>
+    public void SkillPose(string state) { Restart(state); }
+
     void Move(Vector3 dir, bool run)
     {
         Vector3 p = transform.position + dir * (run ? RunSpeed : WalkSpeed) * Time.deltaTime;
@@ -94,18 +106,18 @@ public class HeroController3D : MonoBehaviour
     void StartSwing()
     {
         anim.CrossFadeInFixedTime(SlashState, 0.06f, 1, 0f);
-        swingStart = Time.time; hitDone = false;
+        swingStart = Time.time; hitDone = false; arcDone = false;
         nextAttack = Time.time + AttackInterval;
         HitFx.PlaySwing();
     }
 
-    /// <summary>Runs the 0.48 s swing: trail while the blade moves fast, damage at HitAt, then free again (the layer returns to Empty by itself).</summary>
+    /// <summary>Runs the 0.48 s swing: crescent arc at ArcAt, damage at HitAt, then free again (the layer returns to Empty by itself).</summary>
     void UpdateSwing()
     {
         float t = Time.time - swingStart;
-        if (trail != null) trail.emitting = t >= TrailFrom && t <= TrailTo;
+        if (!arcDone && t >= ArcAt) { arcDone = true; HitFx.SlashArc(transform); }
         if (!hitDone && t >= HitAt) { hitDone = true; Strike(); }
-        if (t >= SwingTime) { swingStart = -1f; if (trail != null) trail.emitting = false; }
+        if (t >= SwingTime) swingStart = -1f;
     }
 
     /// <summary>The sword lands on the target if it is still in front and within reach (+ a little slack for a slime that moved).</summary>
@@ -137,11 +149,30 @@ public class HeroController3D : MonoBehaviour
         return best;
     }
 
+    Transform arrow;
+
+    /// <summary>v18: 1.2 m gold selection ring turning slowly under the target + a bobbing arrow 1.0-1.1 m above it, facing the camera.</summary>
+    MaterialPropertyBlock ringBlock;
+
     void UpdateRing()
     {
+        Slime3D.Selected = Target != null && Target.Alive ? Target : null;
         if (ring == null) return;
         bool show = Target != null && Target.Alive;
-        if (ring.gameObject.activeSelf != show) ring.gameObject.SetActive(show);
-        if (show) ring.position = Target.transform.position + Vector3.up * 0.02f;
+        if (ring.gameObject.activeSelf != show) { ring.gameObject.SetActive(show); if (arrow != null) arrow.gameObject.SetActive(show); }
+        if (!show) return;
+        ring.position = Target.transform.position + Vector3.up * 0.1f;
+        // v19: two states - gold while just selected, warm red while fighting it (swing within the last 1.2 s)
+        bool fighting = Time.time < nextAttack + 0.45f;
+        if (ringBlock == null) ringBlock = new MaterialPropertyBlock();
+        ringBlock.SetColor("_TintColor", fighting ? new Color(0.9f, 0.45f, 0.3f, 0.9f) : new Color(0.75f, 0.68f, 0.5f, 0.85f));
+        ring.GetComponent<Renderer>().SetPropertyBlock(ringBlock);   // above the terrain bumps
+        ring.rotation = Quaternion.Euler(90f, Time.time * 40f, 0f);
+        if (arrow != null)
+        {
+            var cam = Camera.main.transform;
+            arrow.position = Target.transform.position + Vector3.up * (1.0f + 0.08f * Mathf.Sin(Time.time * 5f));
+            arrow.rotation = Quaternion.LookRotation(cam.forward, Vector3.up);
+        }
     }
 }
