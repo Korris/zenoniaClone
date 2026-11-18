@@ -23,6 +23,14 @@ Tools/ui-paper-sheets/<sheet>.json:
              such as four corner brackets or a pair of laurels)
   erase      [[x0, y0, x1, y1]] source boxes made transparent first (a thin strip between two pieces that touch)
   whole      [{"name", "source", "width"}]: pictures copied without keying (full-screen backgrounds)
+  borders_file  json the 9-slice borders go to (repo path; default Tools/ui-paper-sheets/paper-borders.json)
+  contact_dir   folder of the contact sheet (repo path; default docs/reference/ui-redesign-261116/art-contact)
+  rim_from_body  N (px): the outer N px of every piece (and its soft rim) take the colour of the nearest pixel further in, so
+             no key colour stays in the anti-aliased edge (a dark purple line along an orange or teal rim on #FF00FF: those
+             pixels key out nearly opaque, so an alpha test alone does not catch them)
+  flatten_edges  N (output px): see flatten_edges(); the outer N px of the stretched edges of each 9-slice piece made uniform
+  ui_meta    true: also write a .meta next to each new png (UI texture: no mipmaps, no compression, bilinear, clamp);
+             an existing .meta keeps its guid and is left alone
 
   py Tools/cut-ui-paper-sheet.py Tools/ui-paper-sheets/<sheet>.json check OUT.png [scale]
         pieces on dark + light ground (9-slice pieces also stretched), plus OUT-boxes.png: the sheet with numbered blobs.
@@ -98,6 +106,21 @@ def shrink(piece, p):
     return Image.fromarray(small.clip(0, 255).astype(np.uint8), "RGBA")
 
 
+def flatten_edges(im, p, n):
+    """9-slice pieces: the outer `n` px of each stretched edge strip become one median row / column, so the blotchy anti-aliased rim
+    of a ChatGPT piece does not turn into blobs when Unity stretches the strip across a wide window or row."""
+    if not n or "border" not in p: return im
+    a = np.asarray(im).copy(); h, w = a.shape[:2]
+    l, b, r, t = p["border"]
+    if w - r > l:
+        for y in list(range(min(n, h))) + list(range(max(0, h - n), h)):
+            a[y, l:w - r] = np.median(a[y, l:w - r], axis=0).astype(np.uint8)
+    if h - b > t:
+        for x in list(range(min(n, w))) + list(range(max(0, w - n), w)):
+            a[t:h - b, x] = np.median(a[t:h - b, x], axis=0).astype(np.uint8)
+    return Image.fromarray(a, "RGBA")
+
+
 def pieces(cfg, boxes_png=None):
     out = {}
     for w in cfg.get("whole", []):
@@ -142,8 +165,14 @@ def pieces(cfg, boxes_png=None):
                     core &= ~((c[..., 1] - c[..., 0] > -8) & (c[..., 2] < np.minimum(c[..., 0], c[..., 1]) - 60) & (c[..., 1] > 150))
                 core = ndi.binary_fill_holes(ndi.binary_opening(core, iterations=2))
                 cut[..., 3] = np.where(ndi.binary_dilation(core, iterations=hard), cut[..., 3], 0)
+            if cfg.get("rim_from_body"):                              # soft rim takes the colour of the nearest solid pixel: no key spill left
+                solid = ndi.binary_erosion(cut[..., 3] >= 128, iterations=int(cfg["rim_from_body"]))  # the outer N px are key-blended even when keyed opaque
+                if solid.any():
+                    _, (iy, ix) = ndi.distance_transform_edt(~solid, return_indices=True)
+                    soft = ~solid
+                    cut[..., :3][soft] = cut[iy[soft], ix[soft], :3]
             if p.get("skip"): continue
-            out[p["name"]] = (shrink(Image.fromarray(cut), p), p)
+            out[p["name"]] = (flatten_edges(shrink(Image.fromarray(cut), p), p, cfg.get("flatten_edges", 0)), p)
             if "hole" in p:                                          # white plate filling the piece's window, 3 px under the frame
                 inside = ndi.binary_fill_holes(cut[..., 3] > 128) & (cut[..., 3] < 128)
                 lab2, n2 = ndi.label(inside)
@@ -188,16 +217,89 @@ def contact(ps, path, scale=1.0):
     sheet.convert("RGB").save(path); print(path)
 
 
+UI_META = """fileFormatVersion: 2
+guid: {guid}
+TextureImporter:
+  serializedVersion: 13
+  mipmaps:
+    enableMipMap: 0
+    sRGBTexture: 1
+  isReadable: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  spriteMode: 0
+  spriteMeshType: 1
+  spritePixelsToUnits: 100
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  textureType: 0
+  textureShape: 1
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    overridden: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    overridden: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    overridden: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    overridden: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+"""
+
+
+def write_ui_meta(png):
+    """Uncompressed UI texture import settings for a new png (guid from the path, so a re-cut gives the same guid)."""
+    meta = png + ".meta"
+    if os.path.exists(meta): return
+    import hashlib
+    guid = hashlib.md5(os.path.relpath(png, ROOT).replace("\\", "/").encode()).hexdigest()
+    open(meta, "w", encoding="utf-8", newline="\n").write(UI_META.format(guid=guid))
+
+
 def write(cfg, sheet_name):
     out = f"{ROOT}/{cfg['out']}"; os.makedirs(out, exist_ok=True)
     ps = pieces(cfg)
-    borders = json.load(open(BORDERS, encoding="utf-8")) if os.path.exists(BORDERS) else {}
+    borders_file = f"{ROOT}/{cfg['borders_file']}" if "borders_file" in cfg else BORDERS
+    borders = json.load(open(borders_file, encoding="utf-8")) if os.path.exists(borders_file) else {}
     group = cfg["out"].rstrip("/").split("/")[-1]
     for name, (im, p) in ps.items():
         im.save(f"{out}/{name}.png"); print(f"{name:34s} {im.width}x{im.height}")
+        if cfg.get("ui_meta"): write_ui_meta(f"{out}/{name}.png")
         if "border" in p: borders[f"{group}/{name}"] = p["border"]
-    json.dump(dict(sorted(borders.items())), open(BORDERS, "w", encoding="utf-8", newline="\n"), indent=1)
-    contact(ps, f"{CONTACT_DIR}/{sheet_name}-contact.png")
+    json.dump(dict(sorted(borders.items())), open(borders_file, "w", encoding="utf-8", newline="\n"), indent=1)
+    contact_dir = f"{ROOT}/{cfg['contact_dir']}" if "contact_dir" in cfg else CONTACT_DIR
+    contact(ps, f"{contact_dir}/{sheet_name}-contact.png")
     print("wrote", len(ps), "pieces to", out)
 
 

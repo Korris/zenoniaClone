@@ -1,0 +1,30 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-kit/src/ro-soft-ui-kit-buttons-slots-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-menu-ingame/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 8,
+ "rows": [
+  [{"name": "btn-mint", "box": [39, 110, 391, 249], "height": 96, "border": [34, 32, 30, 32]},
+   {"name": "btn-mint-pressed", "box": [412, 110, 761, 249], "height": 96, "border": [34, 32, 30, 32]},
+   {"name": "btn-sky", "box": [780, 110, 1132, 249], "height": 96, "border": [34, 32, 30, 32]},
+   {"name": "btn-sky-pressed", "box": [1152, 110, 1501, 249], "height": 96, "border": [34, 32, 30, 32]}],
+  [{"name": "btn-coral", "box": [39, 313, 391, 453], "height": 96, "border": [34, 32, 30, 32]},
+   {"name": "btn-gold", "box": [411, 313, 761, 453], "height": 96, "border": [34, 32, 30, 32]},
+   {"name": "btn-grey", "box": [780, 313, 1132, 453], "height": 96, "border": [34, 32, 30, 32]},
+   {"name": "btn-ivory", "box": [1152, 311, 1501, 453], "height": 96, "border": [34, 32, 30, 32]}],
+  [{"name": "tab-on", "box": [48, 529, 348, 636], "height": 80, "border": [42, 36, 42, 36]},
+   {"name": "tab-off", "box": [366, 529, 667, 636], "height": 80, "border": [42, 36, 42, 36]},
+   {"name": "btn-close", "box": [706, 520, 830, 645], "height": 96},
+   {"name": "btn-plus", "box": [884, 531, 984, 633], "height": 80},
+   {"name": "toggle-on", "box": [1037, 530, 1234, 633], "height": 76},
+   {"name": "toggle-off", "box": [1281, 529, 1481, 636], "height": 76}],
+  [{"name": "slot", "box": [381, 710, 605, 930], "height": 128, "border": [28, 28, 28, 28]},
+   {"name": "slot-selected", "hard_edge": 2, "box": [651, 706, 885, 936], "height": 134, "border": [30, 30, 30, 30]},
+   {"name": "slot-empty", "box": [931, 710, 1154, 930], "height": 128, "border": [28, 28, 28, 28]}]
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-kit/src/ro-soft-ui-kit-panels-bars-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-menu-ingame/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 8,
+ "rows": [
+  [{"name": "window-header", "box": [51, 67, 938, 638], "width": 704, "border": [140, 40, 140, 72]},
+   {"name": "panel", "box": [967, 60, 1479, 375], "width": 410, "border": [40, 40, 40, 40]},
+   {"name": "panel-glass", "box": [994, 398, 1457, 593], "width": 370, "border": [40, 36, 40, 40]}],
+  [{"name": "bar-red", "box": [969, 628, 1480, 686], "width": 409, "border": [28, 0, 28, 0]},
+   {"name": "hud-plate", "box": [66, 678, 897, 863], "width": 665, "border": [44, 40, 44, 44]},
+   {"name": "bar-blue", "box": [970, 699, 1480, 757], "width": 408, "border": [28, 0, 28, 0]},
+   {"name": "bar-gold", "box": [969, 770, 1480, 828], "width": 409, "border": [28, 0, 28, 0]},
+   {"name": "dropdown", "box": [958, 867, 1481, 969], "width": 418, "border": [30, 30, 64, 30]},
+   {"name": "divider-gem", "hard_edge": 2, "box": [105, 889, 859, 956], "width": 603}]
+ ]
+}

@@ -6,7 +6,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// On / off switch of the Settings window: one tap flips it. Drawn with the switch art of Resources/Sprites/ui/settings/ when it is there
-    /// (settings-toggle-on / -off, with the state written on it), else with the window kit's gold (on) / navy (off) buttons and an ON / OFF caption.
+    /// (settings-toggle-on / -off, with the state written on it; RO Soft Fantasy: the kit's mint / grey switch), else with the window kit's gold (on) /
+    /// navy (off) buttons and an ON / OFF caption.
     /// </summary>
     public sealed class SettingsToggle
     {
@@ -25,13 +26,12 @@ namespace ZenoniaProto
             RectTransform rt = UiKit.Rect(parent, "Toggle", x, y, Width, Height);
             onArt = Art("settings-toggle-on");
             offArt = Art("settings-toggle-off");
-            bool switchArt = onArt != null && offArt != null && !UiStyle.Ro; // RO Soft Fantasy: flat mint (on) / grey (off) pills with a caption
-            if (UiStyle.Ro) { onArt = RoSoftSprites.Get(RoSoftSprites.Shape.Primary); offArt = RoSoftSprites.Get(RoSoftSprites.Shape.Disabled); }
-            else if (!switchArt) { onArt = UiArt.Win("btn-gold"); offArt = UiArt.Win("btn-navy"); }
+            if (UiStyle.Ro) { onArt = RoSoftSprites.Get(RoSoftSprites.Shape.ToggleOn); offArt = RoSoftSprites.Get(RoSoftSprites.Shape.ToggleOff); } // RO kit switch art: the knob shows the state
+            bool switchArt = onArt != null && offArt != null;
+            if (!switchArt) { onArt = UiArt.Win("btn-gold"); offArt = UiArt.Win("btn-navy"); }
             img = rt.gameObject.AddComponent<Image>();
             img.sprite = onArt;
             if (switchArt) img.preserveAspect = true;
-            else if (UiStyle.Ro) { img.type = Image.Type.Sliced; img.pixelsPerUnitMultiplier = 1f; }
             else if (onArt != null) { img.type = Image.Type.Sliced; img.pixelsPerUnitMultiplier = onArt.rect.height / Height; }
             img.color = Color.white; // a tint would multiply into the art (the dark Start button in docs/sprite-rules.md)
             if (!switchArt) caption = UiKit.Label(UiKit.Fill(rt, "State"), "", 17, OnText, TextAnchor.MiddleCenter, true);
@@ -50,8 +50,8 @@ namespace ZenoniaProto
         {
             on = value;
             img.sprite = on ? onArt : offArt;
-            if (img.type == Image.Type.Sliced && img.sprite != null && !UiStyle.Ro) img.pixelsPerUnitMultiplier = img.sprite.rect.height / Height;
-            if (caption != null) { caption.text = on ? "ON" : "OFF"; caption.color = UiStyle.Ro ? (on ? Color.white : RoSoftTheme.InkSoft) : on ? OnText : UiWinKit.Cream; }
+            if (img.type == Image.Type.Sliced && img.sprite != null) img.pixelsPerUnitMultiplier = img.sprite.rect.height / Height;
+            if (caption != null) { caption.text = on ? "ON" : "OFF"; caption.color = on ? OnText : UiWinKit.Cream; }
         }
 
         void Flip()

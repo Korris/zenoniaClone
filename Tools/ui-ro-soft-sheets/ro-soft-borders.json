@@ -1,0 +1,128 @@
+{
+ "ro-soft/bar-blue": [
+  28,
+  0,
+  28,
+  0
+ ],
+ "ro-soft/bar-gold": [
+  28,
+  0,
+  28,
+  0
+ ],
+ "ro-soft/bar-red": [
+  28,
+  0,
+  28,
+  0
+ ],
+ "ro-soft/btn-coral": [
+  34,
+  32,
+  30,
+  32
+ ],
+ "ro-soft/btn-gold": [
+  34,
+  32,
+  30,
+  32
+ ],
+ "ro-soft/btn-grey": [
+  34,
+  32,
+  30,
+  32
+ ],
+ "ro-soft/btn-ivory": [
+  34,
+  32,
+  30,
+  32
+ ],
+ "ro-soft/btn-mint": [
+  34,
+  32,
+  30,
+  32
+ ],
+ "ro-soft/btn-mint-pressed": [
+  34,
+  32,
+  30,
+  32
+ ],
+ "ro-soft/btn-sky": [
+  34,
+  32,
+  30,
+  32
+ ],
+ "ro-soft/btn-sky-pressed": [
+  34,
+  32,
+  30,
+  32
+ ],
+ "ro-soft/dropdown": [
+  30,
+  30,
+  64,
+  30
+ ],
+ "ro-soft/hud-plate": [
+  44,
+  40,
+  44,
+  44
+ ],
+ "ro-soft/panel": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "ro-soft/panel-glass": [
+  40,
+  36,
+  40,
+  40
+ ],
+ "ro-soft/slot": [
+  28,
+  28,
+  28,
+  28
+ ],
+ "ro-soft/slot-empty": [
+  28,
+  28,
+  28,
+  28
+ ],
+ "ro-soft/slot-selected": [
+  30,
+  30,
+  30,
+  30
+ ],
+ "ro-soft/tab-off": [
+  42,
+  36,
+  42,
+  36
+ ],
+ "ro-soft/tab-on": [
+  42,
+  36,
+  42,
+  36
+ ],
+ "ro-soft/window-header": [
+  140,
+  40,
+  140,
+  72
+ ]
+}
