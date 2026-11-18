@@ -1,0 +1,13 @@
+ChatGPT (Tay, chat "Đánh giá và quy trình Warrior" https://chatgpt.com/c/6afd67a1-2434-83ec-b1aa-a3091f96cc1a, 18/11/2026 16:00).
+Gửi: screens/v19-warrior-character-view.jpg, v19-glade-12m-default.jpg, ro-soft-fantasy-5-class-redesign/5-class-lineup-v1-chatgpt.png, 2 ảnh RO3.
+CHẤM Warrior hiện tại so RO3 = 74 %: tỉ lệ chibi 74 (thân hơi dài), đầu/mặt 70 (mặt nhỏ, thiếu khối), tóc 78, giáp/vật liệu 70 (giáp, vải, da chưa tách), silhouette 12,5 m 73 (kiếm/khiên nhỏ, mặt mất), animation 65–75 (chưa có video).
+Mục tiêu: 85 % cận cảnh, ≥ 80 % ở camera 12,5 m.
+Ảnh đầu vào Tripo: 1024² hoặc 1536², chính diện ngang ngực, A-pose tay 35–45°, bàn tay nắm nhẹ tách hông, chân cách 10–15 % chiều cao, đầu + tóc 38–42 % chiều cao, đầu rộng 42–48 %,
+2,4–2,6 đầu, nền #E6E6E6 không bóng, không vũ khí, ánh sáng đều không rim; thêm mặt sau + mặt bên (multiview). Rig lỗi vai thì thử T-pose.
+Lưới: thân + đầu + tóc 7–10k tam giác, kiếm 300–700, khiên 500–1000, tổng 8–12k; texture 1024²; LOD1 45–60 %, LOD2 20–30 %; 25–45 xương, ≤ 4 xương/đỉnh.
+Động tác tối thiểu 12 clip/class: idle 2–3 s loop, run 0,6–0,8 s loop, combo 4 hit (tổng 1,6–2,2 s, clip riêng mỗi hit), hurt 0,2–0,3 s, die 0,8–1,2 s, 4 skill. Clip code 11 xương chỉ giữ làm bản thử.
+Shader Built-in: Soft Toon surface, diffuse 3 mức mềm, shadow 0,65–0,75, rim 0,12–0,18 rộng 0,3–0,5, giáp vàng metallic 0,1–0,2 smooth 0,35–0,5, da/vải smooth 0,08–0,2, KHÔNG outline đen, saturation +5–10 %;
+3 nhóm material: da/tóc mềm, giáp/vũ khí highlight rõ, vải matte. Giữ ánh sáng map v19 khi thử.
+Thứ tự: Warrior V2 (làm lại theo lineup, giữ bản cũ so A/B) → Wizard → Cleric → Assassin → Mechanic (khó nhất). Thay Warrior cũ chỉ khi V2: silhouette +8, đầu/mặt +8, rig/anim không giảm.
+Việc v1: 01 vẽ A-pose V2 · 02 mặt sau + bên · 03 Tripo 3 ứng viên · 04 retopo + auto rig 8–12k · 05 kiếm/khiên · 06 shader Soft Toon · 07 idle + run · 08 combo 4 hit · 09 hurt, die, 4 skill · 10 A/B trong map 12,5 m / 22 m.
+Mốc dừng: đúng thiết kế ≥ 90 %, chibi/đầu/tóc ≥ 85 %, material ≥ 80 %, silhouette 12,5 m ≥ 80 %, animation ≥ 78 %, tổng ≥ 80 %; dừng Warrior ở ~82 % rồi sang Wizard. 5 class cùng chiều cao, tỉ lệ đầu, mức chi tiết.

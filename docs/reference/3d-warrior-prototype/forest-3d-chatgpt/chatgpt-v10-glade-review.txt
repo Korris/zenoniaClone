@@ -1,0 +1,18 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 13:25) chấm v10 (screens/v10-glade-18m-default.jpg, v10-glade-22m.jpg) so với forest-3d-concept-chatgpt.png
+V10 đạt ~55–60 % cảm giác concept. Lỗi lớn: bố cục quá trống, địa hình phẳng, ánh sáng bạc màu, Warrior quá nhỏ. 18 m tốt hơn 22 m.
+1 (rất cao) vùng trống ~20–24 m → 12–14 m, cây lớn gần tâm hơn nhưng ≥ 7 m từ điểm đánh
+2 (rất cao) sáng trắng, thiếu tương phản, cỏ vàng nhạt → exposure −0,4 EV, ambient 0,8 → 0,55, fog 0,008 → 0,002, AO 0,45 → 0,65
+3 (rất cao) đường đất quá rộng (~4–5 m), thẳng → 2,2–2,6 m, 2–3 đoạn cong, mép noise ±0,3 m
+4 (cao) Warrior/slime quá nhỏ → camera 18 → 14,5 m, pitch 55 → 52°, FOV 38 giữ; Warrior 65–85 px trên màn 900 px
+5 (cao) thiếu khối địa hình → rìa +1,0…+2,0 m, bãi +0,25 m, suối −0,65 m; 2 đoạn taluy đá 0,6–1 m
+6 (cao) cỏ procedural đều như chấm vàng → giảm 40–50 %, cụm lớn 5–12 cây, để trống 30–40 % mặt đất
+7 (TB) thiếu tầng tiền/trung/hậu cảnh → cổ thụ 5 → 7, thông 5 → 7, bụi 18 → 28 (dùng lại model)
+8 (TB) thiếu đá, hoa, chi tiết mép đường → đá 7 → 10; 35–50 cụm hoa, 60–90 cụm sỏi, 70 % ở rìa
+9 (TB) suối, cầu không hiện trong gameplay → cầu góc trên phải cách tâm 9–11 m; suối dài 10–14 m rộng 1,5–2 m
+10 (thấp) tán cây cắt rìa thô → fade tán che nhân vật alpha 0,25, giữ thân; dither nếu được
+Bố cục (tâm (0,0), X phải, Z lên): bãi Ø 13 m; đường (−15,−8) → (0,−1) → (15,9) rộng 2,4 m;
+7 cổ thụ (−12,−9) (−12,1) (−10,10) (−4,13) (5,13) (12,−10) (13,2); 7 thông dọc rìa Bắc + Đông cách 3–5 m; 2 gốc (−8,5) (5,10);
+10 đá: 6 rìa, 3 ven đường, 1 cạnh suối; 28 bụi: 20 chân cây / rìa, 8 gần đường; cầu (10,9) dài 4 m; suối (7,15) → (14,5) dưới cầu.
+5 việc v11: (1) camera 14,5 m / 52° / FOV 38 mặc định, zoom tối đa 22; (2) exposure −0,4, ambient 0,55, AO 0,65, fog 0,002, shadow 0,75;
+(3) đường 2,4 m mép tự nhiên, bãi 13 m, đồi rìa +2 m, suối + cầu trong khung; (4) 7 cổ thụ + 7 thông + 2 gốc + 10 đá + 1 cầu + 28 bụi theo cụm, 3 tầng;
+(5) cỏ −45 %, 3 cỡ 0,12 / 0,25 / 0,4 m, 40 cụm hoa, 75 cụm sỏi, phân bố theo noise mask. Không cần thêm model Tripo.

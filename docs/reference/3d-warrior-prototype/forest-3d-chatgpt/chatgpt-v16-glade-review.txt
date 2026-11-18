@@ -1,0 +1,11 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 14:50).
+Câu hỏi mâu thuẫn cây tiền cảnh (người dùng: "cái cây nhìn giống bị đổ xuống"): không xác minh được RO3 / RO Origin làm thế nào. Chốt: không đặt cây 6–7 m trong vùng tiền cảnh
+(8 m trước Warrior theo hướng camera, ±6 m; cây có sẵn thì dời ra rìa hoặc hạ còn 3–3,5 m), cây ngoài vùng 100 % đặc, cây thật sự che Warrior thì dither ~30 % pixel
+(vào 0,15 s, ra 0,25 s, clip() không alpha blend); giữ camera 12,5 / 50 / 38, không fade hàng loạt, không hạ toàn bộ cây.
+Chấm v16 (screens/v16-glade-12m-default.jpg, v16-glade-22m.jpg): 91–92 % (chốt 91 %; v15 89 %). ĐẠT nghiệm thu cây tiền cảnh: dời cây + dither chỉ cây che Warrior đúng, tốt hơn fade hàng loạt.
+Tệ hơn v15 (nhỏ): 22 m hơi trống sau khi dời 2 cổ thụ (bù 1–2 bụi / cỏ lớn 1–1,5 m); dither 4x4 hơi lấm tấm (chỉ bật khi che > 15 % Warrior, thử 8x8); số damage ở 22 m còn dính (stagger 0,12 s, X ±0,35 m).
+Còn lại: (9) lá cứng → detail normal 5–8 %, hue/value ±4–6 %; (8) đá phẳng → rêu 15–20 %, mặt nắng +8 %, khe −6 %; (7) mép mảng đất gắt → feather 0,2–0,3 m;
+(7) Warrior chìm ở 22 m → rim light nhẹ / ring chân mờ; (6) combat → impact burst nhỏ, damage thường nhỏ hơn crit 20–25 %; (5) bờ suối sạch → bờ ẩm −6–8 %, 4–6 sỏi, rêu; (4) hoa tím ít ở nửa phải.
+5 việc v17: (1) lá: detail normal + hue/value ±4–6 %; (2) đá + rêu; (3) feather đất/cỏ 0,2–0,3 m; (4) Warrior/combat: stagger 0,12 s, X ±0,35 m, impact burst, ring chân 10–15 % alpha;
+(5) bù bố cục: 1–2 bụi / cỏ cao 1–1,5 m ở rìa tiền cảnh (không cây > 3 m).
+Kết luận: v16 là bản đầu tiên giải đúng mâu thuẫn cây tiền cảnh; coi như đạt mốc môi trường gameplay; v17 chỉ polish chất liệu + độ rõ, không đổi bố cục lớn.

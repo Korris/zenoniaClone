@@ -1,0 +1,39 @@
+ChatGPT (tài khoản Tay, chat "Phân tích phong cách Ragnarok" https://chatgpt.com/c/6afcff49-dd48-83ec-bdcf-9fd679b063a9, 18/11/2026 09:41)
+Gửi: screens/v5-forest-idle-wide.jpg (chém xuống-trái), v5-forest-slash-full.jpg (chém lên-trái + CRIT), v5-forest-slash-frames.jpg (12 frame 0,04 s).
+Hỏi: còn thiếu gì so với RO Origin, vệt chém/impact ổn chưa, bụi cầu + nền phẳng làm gì trước, 5 việc vòng sau.
+
+ĐÁNH GIÁ: hoàn thiện ~6,5/10, giống RO Origin ~5,5–6/10. Nền đường đất + đồng cỏ đã ra Prontera; Warrior + slime giữ. Vệt chém rõ nhưng như "miếng chuối cam dựng đứng".
+Cây/bụi khối cầu trơn = điểm yếu lớn nhất (giống map mẫu Unity). Ánh sáng hơi vàng; nền chi tiết tương phản cao còn đạo cụ 3D quá đơn giản. ĐỪNG thêm cây kiểu sphere hiện tại.
+
+1. Vấn đề xếp hạng
+1 (rất cao) cây/bụi sphere trơn → tán 5–8 khối méo + cụm lá nhỏ ở silhouette; bụi 7–12 khối lá
+2 (rất cao) nền 2D chi tiết, cây 3D phẳng màu → 2–3 mức màu, mặt dưới tối 20–30 %, mặt trên sáng 10–15 %
+3 (cao) cỏ cross-quad nhọn cứng như gai → cỏ lá mềm 3–5 phiến/cụm, cao 0,10–0,20 m
+4 (cao) đường đất hơi cháy, nền quá bão hoà → saturation nền −10–15 %, exposure −0,15…−0,25 EV
+5 (cao) slash quá đặc, quá cam, thiếu chuyển động → lõi trắng, ít phần đặc, vệt phụ mờ
+6 (TB) thiếu bóng tiếp xúc → blob shadow mềm Ø 0,45–0,7 m slime, 0,5 m Warrior, alpha 0,18–0,3
+7 (TB) thiếu landmark MMORPG → 1 hàng rào / bảng chỉ đường / cầu gỗ mỗi khu nổi bật
+8 (TB) số CRIT quá to, sống quá lâu → font −20–25 %, tổng 0,55–0,7 s
+
+2. Crescent Slash v6
+Cung 115–125° (chốt 120°); R ngoài 0,72–0,78 (0,75), R trong 0,56–0,61; dày max 0,12–0,16 (0,14) ở 40–60 % chiều dài, vuốt về 0 hai đầu.
+Lõi #FFFFFF, thân #FFEAC0, viền #F5BC65; alpha thân 0,65–0,80; lớp additive lõi 0,25–0,40 (0,3); 1 vệt phụ alpha 0,18–0,28.
+Mesh cung 12–16 đoạn, gradient alpha dọc cung: đầu mờ, giữa rõ, đuôi tan.
+Góc mặt phẳng slash so với mặt đất theo hướng nhân vật: xuống màn hình 25–35° (cung mở ngang 1,0–1,2 m trên màn hình, không dựng đứng); lên 40–50° (thân/tay che 1 phần); phải/trái 50–60° (chéo theo đường kiếm).
+Lý do "quả chuối": dùng cùng 1 phép quay quad cho mọi hướng. Dựng slash trong local của nhân vật theo đường đầu kiếm, chỉnh nghiêng riêng từng hướng, không billboard.
+Timeline: 0–0,13 windup; 0,13–0,18 alpha 0→0,8; 0,18–0,23 sáng nhất + impact; 0,23–0,29 vệt chính tan; 0,29–0,35 vệt phụ tan; 0,35–0,48 recovery.
+Impact: flash trắng vàng Ø 0,30 m 0,07 s; 6 tia dài 0,12–0,25 m 0,15 s; 3–5 mảnh sáng bay 0,15–0,35 m 0,2 s; hit stop 35 ms giữ.
+CRIT: scale 0,75–0,8, #FFD35A viền #533A29, nhỏ hơn số damage 25 %, không nhất thiết cùng dòng.
+
+3. Bụi và nền: sửa bụi/cây TRƯỚC, giữ texture nền.
+Bụi v6: rộng 0,8–1,3 m, cao 0,40–0,65 m, 5–7 ellipsoid méo + 8–12 mesh lá nhọn tròn ở mép; màu sáng #91C96B, chính #65A64E, tối #397844, mặt dưới tối 20–25 %, scale 0,8–1,2, xoay Y ngẫu nhiên. Silhouette lởm chởm.
+Nền: mesh lưới 0,8 m/đỉnh, UV liên tục, cao độ ±0,08–0,15 m (không dùng Unity Terrain); cỏ gần hero mesh lá mềm 0,10–0,18 m, thưa trong bán kính 0,5 m quanh hero; hoa cụm 3–5, cao 0,12–0,25 m; vòng đất tối quanh gốc cây R 0,4–0,7 m; đường đi ít cỏ; bóng mềm dưới hero/slime/cây/bụi.
+
+4. Năm việc v6
+1 cây 5–8 khối tán + 15–25 cụm lá silhouette; bụi 7 khối + 8–12 lá (làm ĐẦU TIÊN)
+2 slash: cung 120°, R 0,75, dày 0,14, lõi additive 0,3, vệt chính tan trước 0,29 s
+3 cỏ mềm 3–5 lá/cụm, cao 0,10–0,20, rộng 0,08–0,16, sway ±5°
+4 exposure −0,2 EV, saturation nền −10 %, blob shadow alpha 0,18–0,3
+5 CRIT ×0,8, sống 0,65 s; impact 0,3 m 0,07 s; 6 tia 0,15 s
+Lưu ý FPS: giữ ≥ 60 FPS khi đánh, dùng lại mesh/material, không tạo mesh mỗi frame. (12 FPS ở ảnh 2 là do chụp PNG mỗi 0,04 s, thực tế 144 FPS.)
+Chưa cần thêm bloom, fog, toon shader, chưa làm lại nhân vật.

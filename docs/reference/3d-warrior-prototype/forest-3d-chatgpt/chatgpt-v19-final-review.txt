@@ -1,0 +1,10 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 16:05) chấm v19 (screens/v19-glade-12m-default.jpg, v19-glade-22m.jpg, so RO3 trailer):
+So concept 94 %, so RO3 THẬT 80 % (v18 77 %) → ĐẠT MỐC DỪNG 78–82 %, chốt dừng ở v19.
+Hạng mục (concept / RO3): môi trường 94 / 84; ánh sáng 92 / 82; nhân vật-quái 86 / 65; combat VFX-target 92 / 79; HUD-UX 85 / 79; mật độ MMORPG 90 / 81; animation-game feel 86 / 72.
+Nhận xét: hơn v18 nhờ nhiều hoạt động cùng lúc, vòng mục tiêu nổi, ally + NPC bớt cảm giác offline. Chưa ổn: số damage vẫn đè nhau gần Warrior (nhất là 22 m);
+nhân vật nhỏ, thiếu chi tiết, 2 đồng đội trông giống Warrior; đá bên phải (12,5 m) có mặt tối gần đen (sửa normal/lighting riêng); cây, cỏ, đường, ánh sáng đã đủ, đừng tăng mật độ.
+Khuyên: KHÔNG làm v20 chỉ để +1–2 %. Đóng băng map Willowbrook Glade, chuyển sang hoàn thiện nhân vật, quái, animation, VFX dùng chung cho các map khác.
+Phần cần họa sĩ thật: character artist 3D (Warrior + 5 class đồng phong cách, tóc/giáp/vũ khí, rig chuẩn) — rất cao; animator (idle, run, combo, hurt, knockback) — rất cao;
+VFX artist (slash trail, skill AOE, particle, impact) — cao; environment artist (tối ưu mesh Tripo, silhouette lá, đá, texture painterly) — trung bình; UI artist (HUD, party, target bar, minimap, icon) — trung bình.
+Tiêu chí nghiệm thu cuối: cảm giác RO3 78–82 %; FPS ≥ 60; không cây đổ giả / chồng trong suốt; Warrior luôn rõ khi đánh; target: vòng chọn, HP, đổi mục tiêu; combat: hit flash, phản ứng, damage, VFX đúng nhịp;
+mật độ 2 ally + 12–15 quái vẫn đọc được; camera 12,5 m gameplay / 22 m quan sát. Occlusion, FPS ổn định, cảm giác animation cần kiểm bằng chơi thật (ảnh tĩnh chưa đủ).

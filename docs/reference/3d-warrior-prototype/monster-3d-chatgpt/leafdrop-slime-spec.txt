@@ -1,0 +1,16 @@
+ChatGPT (tài khoản Tay, chat mới "Thiết kế slime nguyên bản" https://chatgpt.com/c/6afd2f79-ece4-83ec-bd5c-1859ab1ca003, 18/11/2026 12:00)
+Gửi: screens/v8-default-7m-auto.jpg, v8-ro3-target-chatgpt.png, v6-close-zoom-face.jpg. Yêu cầu: slime NGUYÊN BẢN dễ thương (không chép Poring), cao ~45 % Warrior,
+ảnh 3/4 trước, nền #E6E6E6, để đưa vào Tripo image-to-3D. Ảnh: leafdrop-slime-concept-3q-chatgpt.png
+
+Leafdrop Slime – Slime Mầm Lá: slime hệ tự nhiên, thân xanh nước trong, đỉnh có hai lá non, mặt vui vẻ; dáng thấp, tròn, mềm.
+Màu thân #69D9F5 (cyan dịu); vùng sáng #C4F8FF; vùng tối #359EDB; lá non #A4DB54; mắt #25245B. Chất liệu gel bán trong suốt, bóng mềm, không như thuỷ tinh.
+Cao ~45 % Warrior tính cả lá.
+Animation: Idle thân phồng xẹp nhẹ, lá đung đưa, chớp mắt; Move nén xuống rồi bật nhảy, thân giãn nhẹ khi bay; Attack co về sau → lao húc → bật về;
+Hurt méo sang một bên, rung nhanh, mắt nhắm; Death xẹp thành vũng gel rồi tan biến.
+Tripo: thân 1 mesh chính, 2 lá tách riêng để dễ gắn bone; thân dùng blend shape / scale deformation khi nhảy, tấn công, bị đánh; KHÔNG cần xương tay chân
+(→ có thể dùng model tĩnh + co giãn bằng code).
+
+TRIPO (18/11 12:25, tài khoản của người dùng, Tripo Studio): image-to-3D từ leafdrop-slime-concept-3q-chatgpt.png (55 credit) → 1.951.895 mặt;
+Retopology Triangle 10000 (40 credit) → 9.478 mặt, giữ texture; xuất FBX (Blender), texture 4K (basecolor, normal, metallic, roughness).
+File gốc (ngoài git): C:\Project\3d-warrior\3d-warrior\monster\leafdrop\ (setup đổi tên thành Assets/Monster/leafdrop/leafdrop.fbx + leafdrop_<map>.jpg).
+Trong game: model tĩnh cao 0,45 m, động tác bằng co giãn trong Scripts/Slime3D.cs. Ảnh: screens/v9-leafdrop-slime-in-game.png, v9-leafdrop-slime-closeup.jpg.

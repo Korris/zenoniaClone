@@ -1,0 +1,13 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 13:55) chấm v13 (screens/v13-glade-12m-default.jpg, v13-glade-22m.jpg): 84–87 % (v12 ~80 %). Bản tốt nhất hiện tại.
+Hạng mục: bố cục 88, camera 90, ánh sáng/màu 84, ground/đường/terrain 80, cảm giác rừng 85, chất liệu painterly 75.
+Tệ hơn v12: đường bị lem bởi mảng loang (điểm trừ lớn nhất).
+1 (10/10) cây Tripo low-poly, lá cục → rim/gradient sáng trên tán, trong tán tối 12–18 %, vertex color theo chiều cao, bark contrast +10 %
+2 (9/10) đường bẩn, loang quá nhiều → lõi rõ 2,0–2,2 m, blend 0,35–0,45 m, chỉ 2 tone + vài vệt nhỏ
+3 (8/10) bãi rộng, rỗng → 12 → 10,5–11 m, kéo 3 bụi + 2 cụm cỏ cao vào 0,8–1,2 m
+4 (7/10) thiếu hoa tím/trắng → +25–35 cụm nhỏ, 80 % rìa bãi + ven đá, 20 % ven suối/cầu
+5 (6/10) suối phẳng → 10–16 sỏi nhỏ, 2 mảng bờ ẩm tối 6–10 %, 1 lớp gợn UV
+6 (5/10) bóng hơi cứng → shadow 0,66–0,68
+7 (5/10) cỏ/hoa còn random → 12–16 cụm lớn, giảm 15–20 % rải vụn
+5 việc v14: (1) loang 64 → 36–42, bỏ mảng tròn > 0,9 m, giữ 8–10 vệt mòn; (2) bãi 10,5–11 m, 3 bụi + 2 cỏ cao vào gần; (3) +25–35 hoa tím/trắng;
+(4) tán: trong tối 12–18 %, đỉnh sáng +6–8 %, bark +10 %, cây tiền cảnh scale −10…−15 %; (5) sỏi bờ 10–16, gợn nước, shadow 0,66–0,68, đá sáng +6–8 %.
+Giữ: camera 12,5 m / 50° / FOV 38, cầu/suối, nắng #FFF1CC, smoothness 0,03, bụi x1,3. Mục tiêu v14 88–90 %.

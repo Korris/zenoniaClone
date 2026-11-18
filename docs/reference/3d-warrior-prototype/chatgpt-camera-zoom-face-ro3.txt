@@ -1,0 +1,32 @@
+ChatGPT (tài khoản Tay, chat "Phân tích phong cách Ragnarok" https://chatgpt.com/c/6afcff49-dd48-83ec-bdcf-9fd679b063a9, 18/11/2026 10:45)
+Câu hỏi của người dùng: "cuộn chuột zoom mà không thấy mặt nhân vật được giống game Ragnarok 3, có phải do model không?"
+Gửi: ro3-camera-refs/ (3 ảnh RO3: trailer gameplay 07/2025, máy chơi thử G-STAR 2024 phố + hội thoại NPC), screens/v6-forest-wide.jpg (camera mặc định 7 m / 50°),
+screens/v6-close-zoom-face.jpg (camera mình tự thử trước khi hỏi: zoom hạ dần tới 2,2 m / 12°, nhìn 0,95 m).
+
+KẾT LUẬN: không thấy mặt là do CAMERA, không phải model. Ảnh zoom sát cho thấy Warrior Tripo có mặt, mắt, tóc, biểu cảm đủ tốt. Không sửa model.
+Nguyên nhân camera cũ: pitch cố định 50° (chính); zoom chỉ đổi distance; camera luôn ở sau lưng nên hero quay lưng thì chỉ thấy gáy; lookAt cố định 0,6 m.
+Muốn thấy mặt cần pitch thấp VÀ camera ở phía trước nhân vật (orbit ra trước), không chỉ hạ pitch.
+
+RO3 / RO Origin thực tế (đã tra nguồn):
+- RO3: ảnh gameplay 2024–2025 đều góc cao; có chế độ điều khiển Classic / Modern; KHÔNG xác minh được zoom sát mặt, xoay tự do hay hạ pitch khi zoom; không công bố khoảng cách / pitch / FOV.
+- RO Origin: có nút chuyển 2.5D / 3D; chế độ chụp ảnh Normal / Free / Selfie có thanh zoom (không phải gameplay thường).
+- Không nên coi 12°, 20°, 35° là thông số chính thức của RO3.
+Nguồn nó dẫn: 4Gamer chơi thử RO3 G-STAR 2024; video gameplay PC RO3 G-STAR 2024; Ragnarok Origin Beginner's Guide (Camera); Ragnarok Origin chuyển 2.5D/3D + chụp ảnh.
+
+THÔNG SỐ CHỐT cho Unity (đề xuất của nó, không phải số của RO3). pitch 0° = ngang, 90° = thẳng xuống.
+Mức | Distance | Pitch | FOV | LookAt Y
+0 xa nhất | 12 m | 55° | 40° | 0,50 m
+1 rộng | 9 m | 53° | 38° | 0,55 m
+2 mặc định | 7 m | 50° | 35° | 0,60 m
+3 gần | 5 m | 44° | 35° | 0,70 m
+4 xem nhân vật | 3,5 m | 32° | 35° | 0,82 m
+5 zoom sát | 2,2 m | 12° | 35° | 0,95 m
+Giữ FOV 35° ở các mức gần (không giảm FOV cùng lúc). Nếu 2,2 m quá to thì tăng distance 2,6–2,8 m trước khi đổi FOV.
+(Lưu ý: trả lời trước đó, review v6, nó khuyên 2,8 m / pitch 35° và giảm FOV; câu trả lời riêng về camera này chốt lại bảng trên.)
+Zoom: 1 nấc cuộn = 1 mức; nội suy liên tục SmoothStep cho distance / pitch / lookAt; smooth 0,18–0,25 s; giới hạn 12 m/s;
+va chạm camera SphereCast r 0,15 m, cách tường 0,20 m.
+Chuột phải: CÓ. Giữ chuột phải kéo ngang = yaw 360° (0,20°/px), kéo dọc = pitch (0,12°/px), pitch thủ công 10–65°, smoothing 0,10 s; yaw không tự reset khi thả.
+Home = reset về 7 m / 50° trong 0,25 s. Auto-battle: camera không tự xoay theo hướng đánh. Chuột trái giữ cho chọn quái / đánh.
+Phím V = chế độ xem nhân vật: 2,5 m / pitch 15° / FOV 35° / lookAt 0,90 m, orbit ra trước mặt Warrior theo cung ngắn nhất 0,4–0,6 s; bấm lại khôi phục yaw / pitch cũ.
+Không ép Warrior quay mặt về camera khi combat. Camera chỉ ở client, không đồng bộ server.
+Ý chính: giữ camera cao khi chiến đấu để đọc bản đồ; dùng zoom thấp hoặc chế độ xem nhân vật để thấy mặt 3D.

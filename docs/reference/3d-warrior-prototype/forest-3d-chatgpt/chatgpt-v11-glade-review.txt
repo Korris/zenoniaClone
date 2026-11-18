@@ -1,0 +1,14 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 13:40) chấm v11 (screens/v11-glade-14m-default.jpg, v11-glade-22m.jpg): 68–72 % cảm giác concept (v10 55–60 %).
+Tiến bộ: đường cong hẹp, đá hết đen, đồi có khối, cầu + suối xuất hiện ở 22 m, ánh sáng bớt bạc. Còn giống "bãi cỏ rộng có đường đi qua" hơn là khu rừng khép kín.
+1 cây lớn chỉ ở mép, 60–70 % khung là đất/cỏ trống → 4 cây vào gần bãi 2–4 m, tán chiếm 25–35 % ảnh (nay ~10–15 %)
+2 Warrior ~50–55 px ở 14,5 m → camera 12,5 m / 50° / FOV 38, mục tiêu 65–75 px
+3 bãi quá sạch → +80 cụm hoa, +100 cụm cỏ cao, +50 lá thấp; mép bãi dày gấp 3 tâm
+4 đường như dải màu phẳng, sỏi đều → lõi 2,0–2,3 m, chuyển tiếp 0,5 m, sỏi −50 %, +15–20 mảng đất/cỏ loang
+5 bóng cây, chiều sâu màu yếu → giữ shadow 0,75, tăng tương phản vật liệu, AO chỉ cục bộ
+6 cầu/suối ở góc, chưa là điểm nhấn → dịch cụm cầu/suối 2–3 m vào tâm
+7 bụi nhỏ, tối → scale 1,2–1,4x, lá sáng thêm 10–15 %
+8 đá góc cạnh → normal −20 %, màu đá sáng #A9A394, rêu đỉnh +15–25 %
+5 việc v12: (1) 4 cây lớn vào gần 2–4 m, tán 25–35 % ảnh, chừa vùng đánh Ø 10–12 m; (2) camera 12,5 m / 50° / FOV 38, zoom xa 22;
+(3) 80 hoa + 100 cỏ cao + 50 lá thấp, 70 % rìa / 20 % quanh đường / 10 % giữa; (4) lõi đường 2,2 m, blend 0,5 m, sỏi −50 %, 20 mảng loang 0,3–0,8 m;
+(5) cầu/suối vào gần tâm 2–3 m, suối 1,5–2 m, đá bờ + bụi + bóng quanh cầu.
+Giữ: exposure −0,4, ambient 0,55, fog 0,002, AO 0,65, địa hình 30x30 đồi +1…+2 m, 6 model Tripo (không mua thêm). Mục tiêu v12 ~80 %.

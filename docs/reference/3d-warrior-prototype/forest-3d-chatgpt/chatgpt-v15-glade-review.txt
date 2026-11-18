@@ -1,0 +1,12 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 14:10) chấm v15 (screens/v15-glade-12m-default.jpg, v15-glade-22m-north.jpg): 89 % (v14 87 %).
+Tán cây: màu + shading ~85 %, hình khối 70–75 % (lá cổ thụ to, cứng như giấy xếp; concept lá nhỏ, tán tròn mềm). Giữ shader v15, đừng tăng tương phản; muốn hơn phải sửa silhouette/geometry.
+Tệ hơn v14: (9/10) ở 22 m cây trong suốt quá mạnh, chồng hình → chỉ fade cây thật sự che Warrior, alpha 0,25–0,35, dùng dither thay alpha blend;
+(8/10) quay Bắc thấy thân/cành khổng lồ → fade phần tán che camera theo đoạn camera → Warrior; (5/10) đá lớn trên phải xám ít chi tiết → scale −10 %, rêu +15–20 %, 2–3 sỏi chân.
+(Lưu ý: luật làm mờ cả cây tiền cảnh là để sửa "cây giống bị đổ" của người dùng; ChatGPT muốn chỉ mờ cây che Warrior → cần người dùng chọn.)
+Còn lại: (10) occlusion: spherecast r 0,35–0,5 m, chỉ cây che Warrior, dither alpha 0,3, chuyển 0,15–0,25 s; (9) Warrior quá nhỏ ở 22 m → gameplay 12,5 m, khi đánh zoom tối đa 16–18 m;
+(8) chất liệu cây cứng → detail normal 5–8 %; (6) nước phẳng → 2 ripple 0,012 / 0,018 m/s, opacity 0,08–0,12, foam mảnh; (5) hoa → 10–12 nhóm 3–5 cụm cách 1,5–3 m;
+(7) combat chưa nổi, số damage chồng → offset X ±0,25–0,4 m, Y 0,3–0,6 m, stagger 0,08–0,12 s, hit flash 0,08–0,12 s; (4) vài mảng xanh vuông → feather 0,2–0,3 m.
+5 việc v16: (1) occlusion spherecast 0,4 m + dither 0,3 + 0,2 s; (2) combat: hit flash 0,1 s, damage offset ±0,3 / 0,4 m, stagger 0,1 s, crit +20 %;
+(3) detail normal 5–8 %, giảm highlight lá, rêu đá +15 %; (4) gợn nước; (5) gom hoa + feather mask 0,25 m.
+Giữ: camera 12,5 / 50 / 38, bãi 10,8 m, đường 2,1 / 0,4, shader tán v15, nắng #FFF1CC, shadow 0,67, bloom 0,11, không thêm model.
+Kết luận: v15 gần đạt concept về bố cục + ánh sáng; v16 ưu tiên occlusion và độ rõ khi đánh hơn là thêm chi tiết rừng.

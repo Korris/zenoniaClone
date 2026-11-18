@@ -1,0 +1,15 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 14:05) chấm v14 (screens/v14-glade-12m-default.jpg, v14-glade-22m.jpg): 86–88 % (chốt 87 %; v13 ~85 %).
+Sạch hơn v13: đường bớt lem, rìa bãi có bụi + hoa, màu đất/cỏ cân hơn. Cải thiện chậm lại: khác biệt chính giờ là tán cây, ánh sáng, độ sâu vật liệu.
+Tệ hơn v13: 2–3 mảng xanh tròn giả trên đường bên phải Warrior (kéo dài theo đường, dài/rộng 2–3:1); bụi sát bãi trái tối như khối đen (+10 % sáng, AO bụi −15–20 %);
+bãi hơi hẹp khi nhiều slime (giữ 10,8 m, không thu thêm).
+1 (10/10) lá khối vàng đều, thiếu lớp + vùng tối trong → shader tán: đỉnh +5–8 %, lõi −15–20 %, mặt dưới −20 %, vàng −5 %
+2 (8/10) đất/cỏ phẳng → noise màu 2–4 m, brightness ±5–7 %, không decal tròn
+3 (8/10) nước cyan phẳng, cầu sát mép → nước #7FAEAA, saturation −15–20 %, 2 lớp ripple 0,01–0,02 m/s
+4 (7/10) đá lớn trên phải tối, đơn sắc → mặt nhận sáng +10 %, khuất −5 %, rêu 15–20 %, kiểm normal map
+5 (6/10) hoa tím khó đọc → gom 30 cụm thành 10–12 nhóm 2–4 cụm, hoa +15–20 %
+6 (5/10) bóng hơi tối, sắc → giữ 0,67, lọc mềm hơn
+7 (4/10) Warrior hơi nhỏ nhưng đủ đọc → giữ camera 12,5 m
+5 việc v15: (1) shader tán; (2) ground noise 2–4 m ±6 %, mảng trên đường dài 2–3:1; (3) nước #7FAEAA −18 % sat, ripple 0,012 / 0,018, bọt mảnh chân cầu;
+(4) đá +10 % mặt sáng, rêu, bụi +10 %, AO bụi −20 %; (5) hoa 10–12 nhóm, scale +15–20 %, rìa bãi + gốc cây.
+Giữ: camera 12,5 / 50 / 38, bãi 10,8 m, đường 2,1 / 0,4, số model, nắng #FFF1CC, shadow 0,67, bloom 0,11. Mục tiêu v15 89–91 %; sau v15 ngừng thêm vật thể, chuyển sang shader, chất liệu, độ rõ Warrior, hiệu ứng combat.
+Người dùng (14:00): "sao cái cây nhìn giống bị đổ xuống quá vậy" → kiểm tra hướng model cây / phối cảnh camera.

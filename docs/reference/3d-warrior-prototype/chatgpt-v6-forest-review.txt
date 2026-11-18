@@ -1,0 +1,44 @@
+ChatGPT (tài khoản Tay, chat "Phân tích phong cách Ragnarok" https://chatgpt.com/c/6afcff49-dd48-83ec-bdcf-9fd679b063a9, 18/11/2026 10:25)
+Gửi: screens/v6-forest-wide.jpg, v6-forest-trees-bushes.jpg, v6-slash-frozen-peak.jpg (vệt giữ ở đỉnh, --arcfreeze), v6-slash-frames.jpg (12 frame 0,04 s), v6-close-zoom-face.jpg (zoom 2,2 m / 12°).
+Báo các chỗ lệch spec v6: vệt dày 0,22 (0,14 chỉ 3–4 px), R 0,62 (R 0,75 lọt trong thân slime), tint HDR vì ACES + exposure làm xám; camera zoom hạ dần 7 m/50° → 2,2 m/12°.
+
+CHẤM v6: tổng thể 7,6/10 (v5 6,5), giống RO Origin / RO3 6,8–7,1 (v5 5,5–6). Tăng rõ ở cây/bụi, độ sạch combat, độ đọc slash, zoom sát "có hồn".
+"Đã thoát cảm giác prototype Unity rất thô". Còn 3 chỗ lớn: hình khối môi trường đơn giản/lặp; nền 2D painterly giàu chi tiết hơn prop 3D; slash hơi dày, hơi đứng, impact chưa "ngọt".
+Điểm kéo xuống nhiều nhất giờ là "variety + silhouette" của cây/bụi, không còn là ánh sáng hay cỏ. Không cần đổi hướng lớn; v7 = polish silhouette, variation, combat readability.
+
+1. Còn thiếu (xếp theo ảnh hưởng)
+1 tán cây quá đều, "bóng khí" → 3 archetype x 2 silhouette; tán con scale 0,55 / 0,75 / 1,0 / 1,25
+2 bụi như cụm bóng tròn → 12–18 lá biên; 25–35 % lá kéo ngang 1,3x
+3 rừng xa lặp (ảnh 5) → mật độ 0–8 m vừa, 8–18 m thưa hơn 20 %, > 18 m chỉ 35–45 %
+4 thân trơn, thẳng, đơn sắc → 2–3 mặt sáng/tối, taper 1 : 0,72, nghiêng ±4°
+5 nền 2D giàu hơn prop → quầng tối gốc cây/bụi R 0,28–0,55 m, alpha 0,18–0,28
+6 slash còn khối đặc → dày 0,17–0,19 m, bù sáng bằng HDR không bằng hình học
+7 impact chìm → flash 0,24–0,32 m, 6–8 tia 0,12–0,22 m, 4–6 spark, sống 0,10–0,16 s
+8 zoom sát hơi "tele" (2,2 m / 12° nén phối cảnh, rừng xa thành mảng lặp, nhân vật như dán lên nền) → 2,6–3,0 m / 18–22°
+9 thiếu landmark MMORPG → 1–2 mỗi màn: hàng rào, biển gỗ, gốc cây lớn, đống đá, cột đèn
+10 xanh còn đồng đều → hue ±4–8°, value ±6–10 %, saturation ±5–8 %
+
+2. Cây đạt 70 %, bụi 60–65 %.
+Cây giữ: 5–8 khối tán méo, vertex color trên sáng dưới tối, thân cao tán tròn chibi. Sửa: 20–30 % khối con kéo ngang 1,15–1,35x, 10–15 % nén dọc 0,8–0,9x;
+chênh cỡ khối: chính 1,00 / phụ 0,72 / phụ 2 0,58 / rìa 0,32–0,42. Cây gần camera cao 3,2–4,0 m, thân lộ 1,5–1,9 m, tán Ø 2,4–3,4 m.
+Màu cây: trên #86C85D, chính #59A545, dưới #35743C, lá rìa sáng #9ED973 (10–15 % diện tích).
+Bụi ("cụm bọc xốp xanh"): 5–7 khối lõi scale 0,45–0,95, 12–18 lá rìa, rộng 0,9–1,5 m, cao 0,45–0,8 m, dài/ngang 1,2–1,8, 25 % bụi có "đuôi" lệch 1 bên.
+Màu bụi: top #8FCF69, main #68AA52, under #417C46.
+
+3. Slash: đúng hướng; còn hơi dày, hơi "quả chuối cứng". Không quay lại 0,14.
+Màu: lõi #FFFDF6, thân #FFE4AE, mép #F0A95B, trail phụ #FFF5D8. Góc xuống 30 / lên 45 / ngang 55 là ổn.
+Quan trọng hơn góc: đầu slash mỏng hơn 20–25 %, giữa dày nhất, đuôi tan dần.
+Impact: flash star 0,26 m, 6–8 tia, 4–6 spark, hit stop 35 ms, life 0,10–0,14 s, additive boost 1,25–1,5x.
+Camera zoom sát: hướng đúng nhưng 12° quá thấp. Curve 2 đoạn: 7,0 → 4,5 m giảm FOV 50° → 32°; 4,5 → 2,8 m giảm FOV 32° → 20° và hạ pitch 50° → 35°.
+(Chốt nhanh của nó: "Zoom close camera: 2,8 m / 20° / pitch 35°". Lưu ý: camera hiện FOV 35°, không phải 50°.)
+
+4. Năm việc v7
+1 3 bộ cây (A tròn dày, B ngang bè, C cao thon) + 3 bộ bụi (A tròn thấp, B kéo ngang, C lệch 1 bên; spawn 40/35/25 %).
+  Mỗi type: 1 khối chính, 2–3 phụ, 8–14 rìa; màu ±6 % value, ±5° hue.
+2 "gắn đất" mọi prop: bóng #4D5B35 hoặc ground color x0,72–0,78, alpha 0,20–0,25.
+3 bụi theo silhouette lá: lõi 5–6 ellipsoid, 14 lá biên, 30 % lá biên chéo lên 18–28°, 20 % nhô ra 0,08–0,16 m; 2 dải màu là đủ.
+4 slash dày 0,18, R ngoài 0,64, R trong 0,46, main life 0,16 s, ghost trail 0,07 s, render queue trên quái +1 hoặc depth bias;
+  impact flash 0,26 m, 5 spark, 6 radial streak, life 0,12 s; damage: normal 1,0, CRIT label 0,72, CRIT number 1,18, life 0,58–0,68 s.
+5 bố cục MMORPG mỗi vùng 10 x 10 m: cây lớn 2–3, bụi 6–9, cụm hoa 5–8, đá 2–4, 1 landmark nhỏ (hàng rào 1,4–2,2 m, biển gỗ, gốc cây, 1–2 khúc gỗ);
+  để trống vùng chiến đấu R 1,8–2,3 m quanh hero; prop dày ở rìa đường, giao lộ, chân cây; không rải đều kiểu noise.
+Nếu chỉ làm 3: 3 biến thể cây + 3 biến thể bụi; bụi kiểu lá; slash 0,18 m + impact sáng hơn.

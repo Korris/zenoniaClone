@@ -1,0 +1,31 @@
+ChatGPT (tài khoản Tay, chat mới "Thiết kế khu rừng 3D Unity" https://chatgpt.com/c/6afd38c6-3e2c-83ec-a6e2-7894ad7fcb84, 18/11/2026 12:40)
+Hướng A (người dùng duyệt 12:33): bỏ nền tranh 2D, dựng khu rừng 3D thật 30x30 m. Concept: forest-3d-concept-chatgpt.png (bãi cỏ giữa, đường đất cong,
+cây cổ thụ rễ to, thông, gốc cây, cầu gỗ qua suối góc trên phải, cụm đá rêu, bụi dương xỉ, hoa tím/trắng, nấm).
+Quy ước 1 unit = 1 m, Warrior cao 1 m. Số liệu là thiết kế khởi đầu, không phải số chính thức của RO3.
+
+6 MODEL TRIPO (R x S x C, số lượng, vị trí) — tổng 38 instance
+1 cây cổ thụ rễ to, tán tròn nhiều tầng 6x6x7 m, 5, rìa trái / góc trên / tiền cảnh
+2 cây thông tán nón 3,5x3,5x6 m, 5, rìa phải / phía sau
+3 gốc cây già rễ nổi mặt cắt gỗ 2x2x1,3 m, 2, phía trên bãi đánh
+4 cụm đá 3–5 tảng có rêu 2,5x1,8x1,4 m, 7, ven đường / chân cây / bờ suối
+5 cầu gỗ ván cong nhẹ, cọc lan can 4x2,5x1,2 m, 1, góc trên phải (dựng nguyên khối, không nền, không nước)
+6 bụi cây + dương xỉ nhiều tầng 1,6x1,4x1 m, 18, quanh bãi đánh
+Random scale cây ±15 %, bụi ±25 %, đá ±20 %; xoay Y 0–360 (cầu cố định). Cỏ thấp, hoa, sỏi: procedural / atlas. Không cây lớn trong vùng giữa Ø 12–14 m.
+
+ĐỊA HÌNH mesh 30x30 m, 121x121 đỉnh (bước 0,25 m, ~28.800 tam giác), noise 0,08–0,25 m ở vùng tự nhiên, mask làm phẳng bãi + đường
+bãi giữa +0,20…+0,45 (dốc ≤ 4°); đường +0,15…+0,35, rộng 2,5–3 m; rìa rừng +0,5…+1,4 (đồi thấp 8–15°); bờ suối 0…+0,25; đáy suối −0,65, rộng 1,5–2 m;
+mặt nước −0,40; mặt cầu +0,35.
+Lớp: cỏ chính #789647 tile 2 m smooth 0,05; cỏ sáng #A1B76B 3 m; đất đường #CBA16B 2,5 m 0,08; đất tối #806B49 2 m; đá sỏi suối #9D9A85 1,5 m 0,12.
+Shader 4 lớp splat (vertex color hoặc control RGBA 512²). Đường: lõi đất 100 %, chuyển tiếp 0,6–0,9 m smoothstep + noise. Cỏ thấp, đá nhỏ dọc đường, không phủ lõi.
+Suối: rãnh thật trên mesh + mặt nước mesh riêng #7EAFAC alpha 0,65–0,8 smooth 0,65, UV chảy 0,02 m/s; đáy texture sỏi.
+
+CAMERA perspective, pitch 55°, yaw 45°, FOV dọc 38°, cách Warrior 18 m (offset (0, 10,3, −14,7) trước yaw), nhìn Warrior + (0, 0,65, 0),
+near/far 0,1/100, follow 0,12 s, zoom 15–22 m, cây che Warrior fade alpha 0,25 trong 0,2 s. (Chụp toàn map: camera 32–38 m.)
+(Lưu ý: khác bảng camera chat trước 7 m / 50° / FOV 35° — chat này cho camera xa hơn nhiều để khung hình giống RO3.)
+
+ÁNH SÁNG: directional #FFF0C9 1,1, xoay X 48 Y −35; ambient gradient sky #C9D8D0 / equator #A8B694 / ground #6C7654, intensity 0,8;
+soft shadow 0,65, 2048, distance 35 m, 2 cascade, bias 0,05 / normal 0,4; fog exponential #CAD5B4 0,008; light probes quanh khu đánh; 1 reflection probe.
+Hậu kỳ PPv2: ACES, exposure 0, bloom 0,15 thr 1,1, AO 0,45 r 0,35, saturation +5, contrast +8, temperature +5, vignette 0,08, FXAA; tắt DoF / motion blur / CA.
+ACES làm cỏ tối thì tăng ambient / albedo trước, không tăng exposure.
+Thứ tự: terrain + đường + suối → camera → cây cổ thụ Tripo test trước → 5 model còn lại → rải + foliage → chỉnh sáng.
+Ưu tiên: silhouette cây 3D, bóng tán trên đất, độ nổi địa hình, AO chân vật thể (hơn là độ phân giải texture).

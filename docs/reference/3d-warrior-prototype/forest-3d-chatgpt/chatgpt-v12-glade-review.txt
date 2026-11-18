@@ -1,0 +1,11 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 13:40) chấm v12 (screens/v12-glade-12m-default.jpg, v12-glade-22m.jpg): 78–82 % (v11 ~70 %).
+Bố cục / gameplay ~85 %, chất liệu / phong cách render ~70–75 %. Khung đã "có rừng", cầu + suối đọc được, Warrior đủ to.
+1 (10/10) asset Tripo hơi low-poly, thân trơn → đổi material: smoothness 0–0,05, AO gradient ở gốc, lá saturation −8 %, vùng sáng +6 %, khe vỏ tối +12–15 %
+2 (9/10) mặt đất phẳng, sạch → 35–50 patch cỏ/đất 0,35–1,0 m, 12–16 patch mòn sát đường, 20–30 cụm sỏi, chân vật thể tối thêm 8–12 %
+3 (8/10) trái/dưới nặng, giữa-trên trống → dịch 2 cây lớn + 2 bụi mép trên/trái vào 1,5–2 m, xoay 2 cổ thụ, +1 cụm bụi góc trên trái, +1 mép phải
+4 (7/10) đường đều màu, "gamey" → 2 tint: sáng #D6AE73, tối #B88E59; 8–12 vệt mòn dài 0,8–2 m; mảng loang bớt tròn
+5 (6/10) suối đơn giản → suối 1,4–1,6 m, 6–10 đá bờ nhỏ, 1–2 bãi sỏi sáng, nước gradient #9FD8D4 → #78B8B3, flow 0,015–0,02
+6 (6/10) ánh sáng chưa "thơ", bóng hơi cứng → sun #FFF1CC, shadow 0,68–0,72, bloom 0,10–0,12, contrast +5…+8
+7 (5/10) bãi hơi rộng → 13 → 11,5–12 m bằng kéo foliage rìa vào 0,8–1,2 m
+5 việc v13: (1) material cây/đá; (2) micro-variation mặt đất; (3) nắn bố cục rìa, bãi 11,5–12 m; (4) đường + suối + cầu; (5) ánh sáng cuối.
+Giữ: camera 12,5 m / 50° / FOV 38, cầu/suối, số model, mật độ foliage, 144 FPS. Mục tiêu v13 85 %, không thêm model.

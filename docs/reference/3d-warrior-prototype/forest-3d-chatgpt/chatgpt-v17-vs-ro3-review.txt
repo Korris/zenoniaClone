@@ -1,0 +1,20 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 15:15). Người dùng hỏi: "làm tới khi nào giống Ragnarok 3".
+Gửi: screens/v17-glade-12m-default.jpg, v17-glade-22m.jpg + ro3-camera-refs/ro3-trailer-forest-archbishop-gameplay.png, ro3-gstar-mobile-town-gameplay.png.
+CHẤM v17: so concept khu rừng 92–93 % (chốt 93 %, v16 91 %); so RO3 THẬT 68–72 % (chốt 70 %).
+Khoảng cách tới RO3 theo hạng mục (v17 vs RO3 / code+Tripo làm được? / cần họa sĩ?):
+1 nhân vật / quái 3D 50–60 % / một phần / có (model, rig, anim idle-run-attack-hurt, chất liệu, mặt-tóc-giáp)
+2 hiệu ứng combat / skill / hit 45–55 % / nhiều / có nếu muốn đẹp hẳn (atlas VFX, timing, glow)
+3 môi trường / foliage / chất liệu 75–80 % / nhiều / có để lên 90 %+
+4 ánh sáng / hậu kỳ 75–85 % / có / không bắt buộc
+5 HUD / icon / UX 65–75 % / một phần / có (icon, panel, minimap, chữ)
+6 mật độ người chơi / NPC / quái / party 35–50 % / có / không bắt buộc
+7 animation / cảm giác di chuyển 45–60 % / một phần / có
+TIÊU CHÍ DỪNG cho bản thử (không cần 90 % RO3): concept map 93–95 %; RO3 tổng 78–82 %; môi trường 85 %+; nhân vật + combat 75 %+; HUD/UX 75 %+; FPS ≥ 60.
+Map rừng gần chạm trần pipeline hiện tại. Trần thực tế code + Tripo + shader ≈ 75–80 % RO3 tổng; lên 85–90 % gần như chắc chắn cần artist 3D + VFX + UI.
+Còn mấy vòng: polish bằng pipeline hiện tại 2–3 vòng; muốn "wow" như RO3 6–10 vòng + asset/artist.
+5 việc v18 (chuyển sang "RO3 feel", thôi đào môi trường):
+1 combat VFX cơ bản: 1 hit spark, 1 slash trail, 1 impact burst, 1 ground mark, 0,08–0,18 s
+2 chọn mục tiêu dễ đọc: vòng chọn quái 1,1–1,3 m, mũi tên mục tiêu, hit flash 0,10 s
+3 Warrior rõ hơn: rim light 8–12 %, bóng chân rõ hơn, scale cảm giác +5 % nếu cần
+4 mật độ scene: +3–5 slime, 1–2 object phụ, thử 1 NPC / 1 đồng đội giả
+5 HUD feedback: cooldown fill mượt, icon nháy khi bấm skill, khung HP quái / mục tiêu nhỏ, crit nảy +15–20 %

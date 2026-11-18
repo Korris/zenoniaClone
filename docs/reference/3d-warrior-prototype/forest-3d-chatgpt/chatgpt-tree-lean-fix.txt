@@ -1,0 +1,9 @@
+ChatGPT (Tay, chat "Thiết kế khu rừng 3D Unity", 18/11/2026 16:45). Người dùng chơi v19: "mà sao cái cây vẫn bị đổ vậy".
+Gửi: screens/char1-trees-near-hero-6-spots.jpg (6 chỗ cạnh 6 cây, camera 12,5 m: tán khổng lồ đặc gần camera, không thấy Warrior, ảnh 4-5 thấy nền trắng ngoài map), char1-tree-lean-22m.jpg, RO3.
+Nguyên nhân: v16 chỉ dời cây khỏi tiền cảnh CHỖ BẮT ĐẦU; cây 7 m + camera perspective 50° / 12,5 m.
+CHỐT kết hợp: camera FOV 38 → 30, khoảng cách 12,5 → 15,7 m, pitch 50 → 55, zoom xa 22 → 27,5 m (Warrior giữ cỡ trên màn hình).
+Dither động theo vị trí Warrior hiện tại (tính mỗi frame hoặc 0,05 s): vùng tiền cảnh 0–10 m từ Warrior về phía camera (vector camera→Warrior chiếu xuống đất), ngang ±7 m, chỉ cây > 3,5 m;
+che Warrior → còn 30 % pixel; cây tiền cảnh che > 15 % màn hình → còn 15 %; > 30 % → còn 10 %; sau Warrior không fade; trả về đặc trong 0,25 s; tối đa 2 cây lớn cùng lúc (cây che Warrior luôn fade). Không quay lại luật v15 alpha 0,22.
+Cây theo khoảng cách gốc tới vùng đi được: < 3 m không cổ thụ (bụi ≤ 2 m); 3–5 m cao ≤ 4,5 m, tán ≤ 3,5 m; 5–8 m cao ≤ 5,5 m, tán ≤ 4,5 m; > 8 m giữ 6–7 m. Dùng lại model, chỉ scale.
+Mép map: camera không được thấy ngoài map → backdrop đất + cây xa 50 × 50 m quanh map 30 × 30; không clamp cứng camera.
+Nghiệm thu: 6 vị trí × 4 hướng × 2 zoom (15,7 / 27,5 m) = 48 ảnh: Warrior thấy 100 %, không cây đổ ≥ 95 %, không tán đặc > 25 % màn hình 100 %, không bóng ma dither lớn ≥ 95 %, không nền trắng 100 %, FPS ≥ 60.

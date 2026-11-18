@@ -1,0 +1,10 @@
+ChatGPT (chat "Thiết kế khu rừng 3D Unity", 18/11/2026 15:40) chấm v18 (screens/v18-glade-12m-default.jpg, v18-glade-22m.jpg, so ro3-trailer-forest-archbishop-gameplay.png):
+So concept 94 %, so RO3 THẬT 77 % (v17 70 %) — bước nhảy lớn nhất từ v15, nhờ combat VFX + target UI + đồng đội giả + nhiều quái.
+Hạng mục (concept / RO3): môi trường 94 / 84; ánh sáng-nước 92 / 82; nhân vật-quái 3D 86 / 64 (yếu nhất: model/anim); combat-hit-target 90 / 74; HUD-UX 82 / 76;
+mật độ scene 86 / 72; animation / game feel 83 / 67 (thiếu phản ứng, idle, nhịp đòn, di chuyển).
+5 việc v19 để chạm mốc 78–82 % RO3:
+1 combat VFX lớp 2: impact burst 0,10–0,14 s, hit spark 6–8 tia, crit ring sáng 1,4 m, dust ring opacity −15 % (+1,5–2 %)
+2 mật độ MMO: 1 → 2 đồng đội giả, 12 → 14–16 slime, 1 NPC đứng hoặc 1 pet, damage người khác mờ 55–65 % (+1–1,5 %)
+3 target / UX: target frame có icon quái, HP fill mượt 0,15 s, flash đổi mục tiêu 0,08 s, vòng chọn 2 trạng thái thường / đang đánh (+0,8–1,2 %)
+4 game feel: slime trúng lùi 0,10–0,18 m, squash 4–6 %, hit-stop 0,03–0,05 s, đồng đội cũng có hit flash (+1–1,5 %)
+5 readability: bóng chân Warrior + ally rõ hơn 15–20 %, rim khi combat 10 → 12 %, quái mục tiêu sáng hơn nền 6–8 % (+0,5–1 %)

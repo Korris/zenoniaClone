@@ -1,0 +1,11 @@
+ChatGPT (Tay, chat "Đánh giá và quy trình Warrior", 18/11/2026 16:35) chấm Warrior V2 (screens/char-v1-warrior-v2-ab-close.jpg, -gameplay-6m.jpg, -gameplay-12m.jpg).
+Nguồn V2: ChatGPT vẽ 4 góc (warrior-v2-apose-front/left/back-chatgpt.png, right = lật left) → Tripo multiview (task aec387e2-440a-470e-9902-7d8c20bd6a92) → retopo quad 5.581 mặt (~11k tam giác)
+→ auto rig Mixamo → 7 preset (idle, walk, run, slash, chop, hit_to_body_01, defeat_02) → FBX Mixamo, in place, 4k → C:/Project/3d-warrior/3d-warrior/warrior-v2/ (ngoài git). Credit Tripo: 1895 → 1780.
+ĐIỂM (V1 → V2): chibi 74 → 85; đầu/mặt 70 → 86; tóc 78 → 87; giáp/vật liệu 70 → 82; silhouette 12,5 m 73 → 82; animation chưa chấm (tạm 70). Hình ảnh 73 → 84 %, tổng ước 81–82 %.
+Điều kiện thay V1: silhouette +9 đạt, đầu/mặt +16 đạt, rig chưa xác minh → dùng V2 làm Warrior chính, giữ V1 đối chứng tới khi kiểm run, slash, hurt, defeat (trượt chân, xoắn vai, xuyên khiên).
+Nhận xét: mặt và giáp hơi sáng phẳng, giáp vàng hơi rực, ở 12,5 m thân + kiếm/khiên còn chìm giữa slime; trông hơi như đồ chơi nhựa.
+Shader V2.1: giữ 3 dải; shadow 0,70 → 0,78; shadow tint bớt tím ~30 %; rim 0,15 → 0,10, rộng 0,40 → 0,35; saturation +7 → +3 %; giáp metallic 0,15–0,25, smooth 0,35–0,45; da 0,12–0,18; tóc 0,18–0,25.
+Thứ tự chỉnh: shadow tint → rim → saturation → metallic/smooth; không làm tối cả nhân vật, chỉ tăng chiều sâu khe giáp, lớp tóc, dưới cằm.
+5 việc tiếp: 01 shader V2.1 · 02 kiểm animation (run 0,65–0,8 s, slash/chop, hurt, defeat, chân/khớp) · 03 combo 4 hit (4 clip, 1,6–2,2 s, hit-stop 30–45 ms)
+· 04 kiếm dài 55–65 % chiều cao hero, khiên cao 30–35 %, chỉnh grip · 05 test cuối 6 / 12,5 / 22 m, 5–15 quái, V1/V2 cùng ánh sáng.
+Không dựng lại V2 bằng Tripo nữa; xong animation + vũ khí thì sang Wizard cùng tỉ lệ chibi và shader.

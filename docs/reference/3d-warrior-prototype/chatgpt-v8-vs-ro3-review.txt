@@ -1,0 +1,42 @@
+ChatGPT (tài khoản Tay, chat "Phân tích phong cách Ragnarok" https://chatgpt.com/c/6afcff49-dd48-83ec-bdcf-9fd679b063a9, 18/11/2026 11:45)
+Người dùng: "vẫn chưa giống Ragnarok 3 lắm". Gửi: screens/v8-default-7m-auto.jpg, v8-9m-inferno-crash.jpg, v8-7m-whirlwind.jpg, v8-character-view.jpg
++ ro3-camera-refs/ro3-trailer-forest-archbishop-gameplay.png, ro3-gstar-mobile-town-gameplay.png.
+ChatGPT vẽ ẢNH MỤC TIÊU từ ảnh 1 (giữ bố cục, nhân vật, slime, đường, HUD): screens/v8-ro3-target-chatgpt.png
+(cây cổ thụ tán lá thật, bụi bằng lá thật, nắng lốm đốm dưới tán, xanh olive dịu và tối hơn, đá + sỏi mép đường, cỏ dày ven đường).
+Nó lưu ý: ảnh mục tiêu chi tiết và giàu ánh sáng hơn cả ảnh RO3 → xem là art target cao hơn, không phải bản sao kỹ thuật render RO3.
+
+KẾT LUẬN: khác biệt lớn nhất không còn ở Warrior, HUD hay camera mà ở cây lá 3D, nắng xuyên tán và sự hoà hợp địa hình với đạo cụ.
+Giữ camera 7 m, Warrior, slime, HUD, 4 skill. Không sửa tỉ lệ Warrior trước (RO3 gameplay nhân vật còn nhỏ hơn).
+
+Xếp hạng khác biệt
+1 cây là cụm cầu xanh → 5–7 khối tán nền + 80–140 quad lá alpha-cutout mỗi cây
+2 nắng đều → nắng xuyên tán: cookie directional light 512–1024 px, đốm 0,3–1,5 m
+3 cây/bụi sáng phẳng, quá xanh → lá sáng #A4BF70, trung #668C4B, tối #385D3A; saturation cây −12–18 %
+4 bụi như bóng xanh → 6–10 cụm lá, 35–70 lá/bụi, mép răng cưa
+5 nền phẳng, cỏ thưa → cỏ 0,12–0,25 m, 100–180 cụm/100 m², ưu tiên hai bên đường
+6 đường đất sáng, thiếu sỏi → sỏi 0,05–0,25 m, 15–30 viên/10 m đường
+7 đá ít, cây thiếu gốc/rễ → 2–4 đá lớn + 8–15 đá nhỏ/100 m² vùng trang trí; gốc 3–5 rễ
+8 vàng-xanh hơi chói → olive ấm, bóng xanh lạnh; exposure −0,35…−0,45 EV, ACES, AO 0,35–0,5
+9 mặt đất phẳng → mesh cao độ ±0,08–0,18 m, giữ UV đường đất
+10 Warrior hơi nhỏ → giữ 7 m; có thể tăng model 5–8 %
+
+Cây/bụi lá thật (hybrid, không Blender): thân mesh code, lõi tán ellipsoid, lá = quad alpha-cutout.
+Cây 3–4 m: thân 8–10 cạnh taper 1 → 0,65; 3–5 nhánh 0,4–1,0 m; 5–7 ellipsoid méo; 20–35 cụm lá x 4 quad = 80–140 quad 0,28–0,50 m;
+cutoff 0,40–0,50; atlas RGBA 512x512, 4–8 hình CỤM lá (mỗi quad 3–7 lá, viền rõ, không phải lá rời); Cull Off; hue ±6°, brightness ±10 %;
+shader TransparentCutout ZWrite On, kiểm tra pass đổ bóng.
+Bụi 0,4–0,8 m: lõi 3–5 ellipsoid dẹt; 12–20 cụm, 35–70 quad 0,16–0,32 m; màu #779F52 / #98B96A / #466D42; 3 kiểu (tròn thấp, bè ngang, lệch bên); cutoff 0,45.
+Tripo: chỉ cho thân cây đặc biệt, gốc rễ, đá lớn, cổng rừng; không làm hàng chục cây bằng Tripo. 3 prefab cây bằng code, nhân bản bằng GPU instancing / batching.
+
+Nắng lốm đốm: directional #FFF0D8, intensity 1,0, shadow 0,65–0,75; cookie 1024x1024 grayscale, size 12–16 m (chốt 14), sáng 60–70 % / bóng 30–40 %,
+đốm 0,25–1,2 m, biên mềm 0,15–0,35 m; ambient sky #BDD2C0, ground #64765D; AO 0,35–0,45 (chỉ gốc cây, đá, tiếp xúc; không dùng AO để tạo đốm); bloom 0,10–0,20.
+Cookie không thay bóng cây thật; đừng để quá mạnh (lặp pattern, nhân vật tối).
+
+Đất, đá, cỏ: cỏ ngắn 0,08–0,16 m #829B51; cỏ cao 0,18–0,30 m #678849; mép đường 8–14 cụm/m; hoa trắng/vàng 6–12 cụm/100 m²;
+đá xám ấm #939184, mặt sáng #B3B09E; đá lớn 0,35–0,85 m 1–3/100 m²; sỏi 0,04–0,18 m tập trung mép đường; rễ 3–5, vươn 0,3–0,8 m;
+mảng đất tối quanh gốc R 0,45–0,8 m; displacement ±0,08–0,15 m. Đá, rễ tập trung dưới tán, mép đường, quanh bụi, không rải đều.
+
+3 VIỆC CHO v9 (thứ tự):
+1 thay toàn bộ cây/bụi sphere bằng foliage lá thật: 3 prefab cây (80–140 quad), 3 bụi (35–70 quad), atlas lá 512, cutoff 0,45, olive 3 mức
+2 nắng xuyên tán + cân màu: cookie 1024², size 14 m, bóng ~35 %, exposure −0,4 EV, saturation cỏ −8–12 %, bóng xanh lạnh
+3 đá, rễ, cỏ mép đường: cỏ 100–180 cụm/100 m²; đá 1–3 lớn + 8–15 nhỏ; gốc 3–5 rễ; mảng đất tối R 0,5–0,8 m
+Hiệu năng: test 3–5 cây trước, gộp lá mỗi cây thành 1 mesh theo atlas (không 140 GameObject); bóng cutout chỉ cây gần; LOD xa giảm lá 25–40 %; đo GPU frame time.
