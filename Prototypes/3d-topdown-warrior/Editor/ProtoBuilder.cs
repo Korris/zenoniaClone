@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -7,22 +6,25 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 
 /// <summary>
-/// Batch entry (-executeMethod ProtoBuilder.Build): Frost Hollow 3D prototype. Ground = the 2D map's 4 painted chunks (72x48 tiles, 1 tile = 0.8 m),
-/// walkability from its tile rows, Tripo 3D props (pine, crystal, rock, rune) on the cliff edges, the Tripo Warrior holding the Tripo sword
-/// (right hand) and shield (left hand), 10 Quaternius GreenBlob slimes tinted ice blue. Builds D:/temp/proto3d-build/Warrior3D.exe.
+/// Batch entry (-executeMethod ProtoBuilder.Build): Frost Hollow 3D prototype, v4. Ground = the 2D map's 4 painted chunks (72x48 tiles, 1 tile = 0.8 m),
+/// walkability from its tile rows, Tripo 3D props on the cliff edges, the Tripo Warrior with sword (right hand, trail at the tip) and shield (left hand),
+/// 10 Quaternius GreenBlob slimes tinted ice blue. The basic attack is a code-authored 0.48 s slash on an upper-body layer (ProtoSlashClip.cs);
+/// the look is the ChatGPT "Soft Winter" preset (ProtoLook.cs). Builds D:/temp/proto3d-build/Warrior3D.exe. Optional arg: --exposure -0.4
 /// </summary>
-public static class ProtoBuilder
+public static partial class ProtoBuilder
 {
     const float Tile = 0.8f;
     static string[] rows;
 
     public static void Build()
     {
+        PlayerSettings.colorSpace = ColorSpace.Linear;
         rows = File.ReadAllLines("Assets/Env/frost-hollow-rows.txt").Where(r => r.Length > 0).ToArray();
         float mapW = rows[0].Length * Tile, mapH = rows.Length * Tile;
         foreach (var p in Directory.GetFiles("Assets", "*.png", SearchOption.AllDirectories)) ConfigureTexture(p.Replace('\\', '/'));
 
         var warrior = Rigged("Assets/Warrior/warrior.fbx", "Assets/Warrior/Warrior.controller", "idle", out var wc);
+        AddSlashLayer(wc, warrior, "Assets/Warrior");
         var slime = Rigged("Assets/Monster/GreenBlob.fbx", "Assets/Monster/Slime.controller", "idle", out var sc);
         var wMat = Mat("Assets/Warrior/Warrior.mat", "Assets/Warrior/knight_character_3d_model_basecolor.png", "Assets/Warrior/knight_character_3d_model_normal.png", Color.white);
         var sMat = Mat("Assets/Monster/Slime.mat", null, null, new Color(0.62f, 0.86f, 1f)); sMat.SetFloat("_Glossiness", 0.75f);
@@ -35,29 +37,36 @@ public static class ProtoBuilder
         Vector3 start = FindWalkable(new Vector2(mapW * 0.42f, mapH * 0.45f));
         var hero = Spawn(warrior, wMat, wc, "Hero", start, 1.0f);
         var hc = hero.AddComponent<HeroController3D>();
-        hc.IdleState = Clip(wc, "idle"); hc.WalkState = Clip(wc, "walk"); hc.RunState = Clip(wc, "run"); hc.SlashState = Clip(wc, "slash"); hc.ChopState = Clip(wc, "chop"); hc.HitState = Clip(wc, "hit"); hc.DefeatState = Clip(wc, "defeat");
+        hc.IdleState = Clip(wc, "idle"); hc.WalkState = Clip(wc, "walk"); hc.RunState = Clip(wc, "run"); hc.HitState = Clip(wc, "hit"); hc.DefeatState = Clip(wc, "defeat");
         Hold(hero, "RightHand", "Assets/Props/sword/sword.fbx", 0.55f, true);
         Hold(hero, "LeftHand", "Assets/Props/shield/shield.fbx", 0.42f, false);
         hero.AddComponent<TileRowsLoader>().Rows = rowsAsset;
+        TargetRing();
 
         var rnd = new System.Random(3);
         for (int i = 0; i < 10; i++)
         {
             Vector3 p = FindWalkable(new Vector2(start.x + (float)(rnd.NextDouble() * 16 - 8), start.z + (float)(rnd.NextDouble() * 12 - 4)));
             if (Vector3.Distance(p, start) < 2.5f) continue;
-            var s = Spawn(slime, sMat, sc, "FrostSlime" + i, p, 0.55f);
+            var s = Spawn(slime, sMat, sc, "FrostSlime" + i, p, 0.45f);
             var sl = s.AddComponent<Slime3D>();
             sl.IdleState = Clip(sc, "idle"); sl.MoveState = Clip(sc, "walk", "jump", "run"); sl.AttackState = Clip(sc, "attack", "bite", "punch"); sl.HitState = Clip(sc, "hit", "damage"); sl.DeathState = Clip(sc, "death", "die");
             sl.Hero = hero.transform;
+            var col = s.AddComponent<CapsuleCollider>(); col.center = new Vector3(0f, 0.22f, 0f); col.radius = 0.3f; col.height = 0.45f;   // mouse targeting
             s.transform.rotation = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
         }
-        Props(rnd);
+        Props(rnd, start);
 
         var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
         var cam = camGo.AddComponent<Camera>();
         cam.fieldOfView = 35f; cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0.62f, 0.75f, 0.85f); cam.farClipPlane = 150f;
-        var follow = camGo.AddComponent<CameraFollow3D>(); follow.Target = hero.transform; follow.Distance = 9f;
-        new GameObject("HUD").AddComponent<Hud3D>();
+        cam.allowHDR = true;
+        camGo.AddComponent<AudioListener>();
+        var follow = camGo.AddComponent<CameraFollow3D>(); follow.Target = hero.transform; follow.Distance = 7f;
+        PostFx(camGo, Arg("exposure", -0.4f));
+        camGo.AddComponent<OcclusionFade>().Hero = hero.transform;
+        var hud = new GameObject("HUD"); hud.AddComponent<Hud3D>(); hud.AddComponent<ProtoCapture>();
+        HitFxSetup(hud);
 
         EditorSceneManager.SaveScene(scene, "Assets/Proto.unity");
         EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/Proto.unity", true) };
@@ -65,6 +74,30 @@ public static class ProtoBuilder
         PlayerSettings.defaultScreenWidth = 1600; PlayerSettings.defaultScreenHeight = 900; PlayerSettings.resizableWindow = true;
         var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = new[] { "Assets/Proto.unity" }, locationPathName = "D:/temp/proto3d-build/Warrior3D.exe", target = BuildTarget.StandaloneWindows64 });
         Debug.Log("[proto] BUILD " + report.summary.result + " errors " + report.summary.totalErrors);
+    }
+
+    /// <summary>Spark material + the three warrior sounds copied from the main game (swing, hit, crit).</summary>
+    static void HitFxSetup(GameObject host)
+    {
+        var fx = host.AddComponent<HitFx>();
+        var spark = new Material(Shader.Find("Legacy Shaders/Particles/Additive")) { color = new Color(1f, 0.95f, 0.7f, 1f) };
+        AssetDatabase.DeleteAsset("Assets/Env/Spark.mat"); AssetDatabase.CreateAsset(spark, "Assets/Env/Spark.mat");
+        fx.SparkMat = spark;
+        fx.Swing = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/swing.mp3");
+        fx.Hit = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/hit.mp3");
+        fx.Crit = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/crit.mp3");
+    }
+
+    /// <summary>Flat translucent yellow disc that HeroController3D parks under the current target.</summary>
+    static void TargetRing()
+    {
+        var ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder); ring.name = "TargetRing";
+        Object.DestroyImmediate(ring.GetComponent<Collider>());
+        ring.transform.localScale = new Vector3(0.7f, 0.01f, 0.7f);
+        var m = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended")) { color = new Color(1f, 0.85f, 0.3f, 0.55f) };
+        AssetDatabase.DeleteAsset("Assets/Env/Ring.mat"); AssetDatabase.CreateAsset(m, "Assets/Env/Ring.mat");
+        var r = ring.GetComponent<Renderer>(); r.sharedMaterial = m; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+        ring.SetActive(false);
     }
 
     static GameObject Rigged(string fbx, string ctrlPath, string defaultKey, out AnimatorController ctrl)
@@ -79,7 +112,7 @@ public static class ProtoBuilder
         AssetDatabase.DeleteAsset(ctrlPath);
         ctrl = AnimatorController.CreateAnimatorControllerAtPath(ctrlPath);
         var sm = ctrl.layers[0].stateMachine;
-        foreach (var c in anims) { var st = sm.AddState(c.name); st.motion = c; if (Has(c.name, "slash", "chop")) st.speed = 2.5f; if (Has(c.name, defaultKey) && !Has(c.name, "relax")) sm.defaultState = st; }
+        foreach (var c in anims) { var st = sm.AddState(c.name); st.motion = c; if (Has(c.name, defaultKey) && !Has(c.name, "relax")) sm.defaultState = st; }
         return AssetDatabase.LoadAssetAtPath<GameObject>(fbx);
     }
 
@@ -99,14 +132,6 @@ public static class ProtoBuilder
         m.SetFloat("_Metallic", 0.1f); m.SetFloat("_Glossiness", 0.35f);
         AssetDatabase.CreateAsset(m, path);
         return m;
-    }
-
-    /// <summary>A material from the Tripo export folder of `fbx` (its *BaseColor.png and *Normal_Bake.png).</summary>
-    static Material FolderMat(string fbx)
-    {
-        string dir = Path.GetDirectoryName(fbx).Replace('\\', '/');
-        string bc = Directory.GetFiles(dir, "*BaseColor.png").FirstOrDefault(), nm = Directory.GetFiles(dir, "*Normal*.png").FirstOrDefault();
-        return Mat(dir + "/Mat.mat", bc?.Replace('\\', '/'), nm?.Replace('\\', '/'), Color.white);
     }
 
     static GameObject Spawn(GameObject model, Material mat, AnimatorController ctrl, string name, Vector3 at, float height)
@@ -137,76 +162,13 @@ public static class ProtoBuilder
         return b;
     }
 
-    /// <summary>
-    /// Puts a static Tripo item in a hand bone. Sword: the long axis is found from the mesh, the crossguard is the widest slab, the grip sits between it and
-    /// the nearer end, and the blade is turned to point forward-down from the hand in the bind pose. Shield: thinnest axis = face normal, turned out to the left-front.
-    /// </summary>
-    static void Hold(GameObject hero, string boneSuffix, string fbx, float size, bool sword)
-    {
-        var bone = hero.GetComponentsInChildren<Transform>().FirstOrDefault(t => t.name.EndsWith(boneSuffix));
-        if (bone == null) { Debug.LogError("[proto] no bone " + boneSuffix); return; }
-        var item = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(fbx));
-        item.name = sword ? "Sword" : "Shield";
-        var mat = FolderMat(fbx);
-        foreach (var r in item.GetComponentsInChildren<Renderer>()) r.sharedMaterials = Enumerable.Repeat(mat, r.sharedMaterials.Length).ToArray();
-        var mf = item.GetComponentInChildren<MeshFilter>();
-        var verts = mf.sharedMesh.vertices.Select(v => mf.transform.localToWorldMatrix.MultiplyPoint3x4(v) - item.transform.position).ToArray();
-        Vector3 min = verts.Aggregate(Vector3.positiveInfinity, Vector3.Min), max = verts.Aggregate(Vector3.negativeInfinity, Vector3.Max), ext = max - min;
-        int longAx = ext.x >= ext.y && ext.x >= ext.z ? 0 : ext.y >= ext.z ? 1 : 2, thinAx = ext.x <= ext.y && ext.x <= ext.z ? 0 : ext.y <= ext.z ? 1 : 2;
-        Vector3 L = Vector3.zero; L[longAx] = 1f; Vector3 T = Vector3.zero; T[thinAx] = 1f;
-        float scale = size / ext[longAx];
-        item.transform.localScale *= scale;
-        Vector3 grip, bladeDir;
-        if (sword)
-        {
-            int n = 24; var width = new float[n];
-            foreach (var v in verts) { int i = Mathf.Clamp((int)((v[longAx] - min[longAx]) / ext[longAx] * n), 0, n - 1); Vector3 q = v; q[longAx] = 0; width[i] = Mathf.Max(width[i], q.magnitude); }
-            int guard = 0; for (int i = 1; i < n; i++) if (width[i] > width[guard]) guard = i;
-            bool hiltLow = guard < n / 2;
-            float guardPos = min[longAx] + (guard + 0.5f) / n * ext[longAx], endPos = hiltLow ? min[longAx] : max[longAx];
-            grip = (min + max) * 0.5f; grip[longAx] = (guardPos + endPos) * 0.5f;
-            bladeDir = hiltLow ? L : -L;
-        }
-        else { grip = (min + max) * 0.5f; bladeDir = T; }
-        Vector3 fwd = hero.transform.forward;
-        Quaternion rot = sword ? Quaternion.FromToRotation(bladeDir, (fwd * 0.85f + Vector3.down * 0.5f).normalized)
-                               : Quaternion.FromToRotation(bladeDir, (fwd * 0.6f - hero.transform.right * 0.8f).normalized);
-        item.transform.rotation = rot;
-        item.transform.position = bone.position - rot * (grip * scale) + (sword ? Vector3.zero : -hero.transform.right * 0.05f);
-        item.transform.SetParent(bone, true);
-    }
-
-    static void Ground(float w, float h)
-    {
-        var chunks = new[] { ("r0c0", 0, 1), ("r0c1", 1, 1), ("r1c0", 0, 0), ("r1c1", 1, 0) };
-        foreach (var (name, cx, cy) in chunks)
-        {
-            var q = GameObject.CreatePrimitive(PrimitiveType.Quad); q.name = "Ground_" + name;
-            q.transform.position = new Vector3((cx + 0.5f) * w / 2f, 0f, (cy + 0.5f) * h / 2f);
-            q.transform.rotation = Quaternion.Euler(90f, 0f, 0f); q.transform.localScale = new Vector3(w / 2f, h / 2f, 1f);
-            var m = Mat("Assets/Env/Ground_" + name + ".mat", "Assets/Env/frost-hollow-large-ground-" + name + ".png", null, Color.white);
-            m.SetFloat("_Glossiness", 0.05f);
-            q.GetComponent<Renderer>().sharedMaterial = m;
-        }
-    }
-
-    static void Lighting()
-    {
-        var sun = new GameObject("Sun").AddComponent<Light>();
-        sun.type = LightType.Directional; sun.intensity = 1.1f; sun.color = new Color(1f, 0.94f, 0.84f);
-        sun.shadows = LightShadows.Soft; sun.shadowStrength = 0.6f; sun.transform.rotation = Quaternion.Euler(52f, -35f, 0f);
-        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-        RenderSettings.ambientSkyColor = new Color(0.78f, 0.85f, 0.95f); RenderSettings.ambientEquatorColor = new Color(0.62f, 0.66f, 0.72f); RenderSettings.ambientGroundColor = new Color(0.4f, 0.42f, 0.46f);
-        RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogColor = new Color(0.62f, 0.75f, 0.85f); RenderSettings.fogStartDistance = 22f; RenderSettings.fogEndDistance = 55f;
-        QualitySettings.shadowDistance = 40f;
-    }
-
     /// <summary>Tripo props on cliff tiles that border snow: pines most, then rocks, crystals, a few runes.</summary>
-    static void Props(System.Random rnd)
+    static void Props(System.Random rnd, Vector3 heroStart)
     {
-        var kinds = new[] { ("pine", 2.3f, 0.10), ("rock", 0.9f, 0.04), ("crystal", 1.0f, 0.035), ("rune", 1.5f, 0.008) };
+        var kinds = new[] { ("pine", 2.1f, 0.10), ("rock", 0.9f, 0.04), ("crystal", 1.0f, 0.035), ("rune", 1.5f, 0.008) };
         var models = kinds.ToDictionary(k => k.Item1, k => AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Props/" + k.Item1 + "/" + k.Item1 + ".fbx"));
         var mats = kinds.ToDictionary(k => k.Item1, k => FolderMat("Assets/Props/" + k.Item1 + "/" + k.Item1 + ".fbx"));
+        var fades = kinds.ToDictionary(k => k.Item1, k => FadeTwin(mats[k.Item1], "Assets/Props/" + k.Item1 + "/MatFade.mat"));
         var parent = new GameObject("Props").transform;
         int placed = 0;
         for (int ty = 1; ty < rows.Length - 1; ty++)
@@ -220,11 +182,13 @@ public static class ProtoBuilder
                 {
                     acc += chance; if (roll >= acc) continue;
                     var at = new Vector3((tx + 0.5f) * Tile, 0f, (rows.Length - 1 - ty + 0.5f) * Tile);
+                    if (Vector3.Distance(at, heroStart) < 3f) break;   // keep the spawn clear so the hero is not born behind a pine
                     var go = (GameObject)PrefabUtility.InstantiatePrefab(models[name]);
                     go.transform.SetParent(parent, true);
                     foreach (var r in go.GetComponentsInChildren<Renderer>()) r.sharedMaterials = Enumerable.Repeat(mats[name], r.sharedMaterials.Length).ToArray();
                     go.transform.rotation = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
                     FitHeight(go, at, height * (0.85f + (float)rnd.NextDouble() * 0.3f));
+                    var fm = go.AddComponent<FadeMaterials>(); fm.Opaque = mats[name]; fm.Fade = fades[name];
                     placed++;
                     break;
                 }
@@ -244,15 +208,16 @@ public static class ProtoBuilder
         return new Vector3(near.x, 0f, near.y);
     }
 
-    static void ConfigureTexture(string p)
+    /// <summary>A Standard-shader "Fade" copy of `opaque` for props that must turn translucent when they block the camera.</summary>
+    static Material FadeTwin(Material opaque, string path)
     {
-        var ti = AssetImporter.GetAtPath(p) as TextureImporter;
-        if (ti == null) return;
-        bool ground = p.Contains("frost-hollow-large-ground");
-        ti.maxTextureSize = ground ? 4096 : 1024;
-        if (p.Contains("ormal")) ti.textureType = TextureImporterType.NormalMap;
-        if (ground) { ti.wrapMode = TextureWrapMode.Clamp; ti.anisoLevel = 8; }
-        ti.SaveAndReimport();
+        var m = new Material(opaque);
+        m.SetFloat("_Mode", 2f);
+        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha); m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha); m.SetInt("_ZWrite", 0);
+        m.DisableKeyword("_ALPHATEST_ON"); m.EnableKeyword("_ALPHABLEND_ON"); m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        m.renderQueue = 3000;
+        AssetDatabase.DeleteAsset(path); AssetDatabase.CreateAsset(m, path);
+        return m;
     }
 
     static bool Has(string name, params string[] keys) { string n = name.ToLowerInvariant(); return keys.Any(k => n.Contains(k)); }

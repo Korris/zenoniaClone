@@ -11,6 +11,7 @@ public class Hud3D : MonoBehaviour
     static long dealt;
     const long BossHp = 49500000;
     GUIStyle num, label;
+    HeroController3D hero;
 
     public static void Pop(Vector3 at, int value, bool crit, bool dim = false, bool hurt = false)
     {
@@ -40,7 +41,9 @@ public class Hud3D : MonoBehaviour
         }
         label.fontSize = Mathf.RoundToInt(16 * k);
         GUI.color = new Color(0.1f, 0.13f, 0.18f, 0.75f); GUI.DrawTexture(new Rect(8 * k, Screen.height - 128 * k, 760 * k, 64 * k), Texture2D.whiteTexture); GUI.color = Color.white;
-        GUI.Label(new Rect(16 * k, Screen.height - 120 * k, 900 * k, 110 * k), "WASD / mũi tên: đi    Shift: chạy    J / Space / chuột trái: chém\nQ / E: xoay camera    Cuộn chuột: zoom    H: bị đánh    K: gục / đứng dậy    Esc: thoát", label);
+        if (hero == null) hero = FindFirstObjectByType<HeroController3D>();
+        string auto = hero != null && hero.Auto ? "BẬT" : "tắt";
+        GUI.Label(new Rect(16 * k, Screen.height - 120 * k, 900 * k, 110 * k), "Chuột trái: chọn quái và tự đánh    J / Space: đánh quái gần nhất    Tab: Auto " + auto + "    WASD: đi (huỷ mục tiêu)\nShift: chạy    Q / E: xoay camera    Cuộn chuột: zoom    H: bị đánh    K: gục / đứng dậy    Esc: thoát", label);
         if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape) Application.Quit();
         // damage numbers
         Camera cam = Camera.main;
