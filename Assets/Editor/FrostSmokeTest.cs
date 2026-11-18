@@ -20,8 +20,9 @@ namespace ZenoniaProto.EditorTools
         public static void Run()
         {
             failures = 0;
-            bool saves = SaveStore.Enabled;
+            bool saves = SaveStore.Enabled, softStyle = HeroRenderer.SoftStyleEnabled;
             SaveStore.Enabled = false; // never read or overwrite the developer's own saves
+            HeroRenderer.SoftStyleEnabled = false; // the paper-doll checks below need the classic renderer; CheckSoftStyle covers the RO Soft path
             try
             {
                 RpgLogicCheck.Run(Expect);
@@ -33,7 +34,7 @@ namespace ZenoniaProto.EditorTools
                 foreach (HeroClassDef cls in HeroClassDef.All) CheckClass(cls);
             }
             catch (Exception e) { Fail("exception " + e); }
-            finally { SaveStore.Enabled = saves; GameClock.Paused = false; MapRegistry.TestStartMap = null; MapRegistry.ResetState(); }
+            finally { SaveStore.Enabled = saves; HeroRenderer.SoftStyleEnabled = softStyle; GameClock.Paused = false; MapRegistry.TestStartMap = null; MapRegistry.ResetState(); }
             Debug.Log("SMOKE RESULT: " + (failures == 0 ? "PASS" : "FAIL (" + failures + ")"));
             EditorApplication.Exit(failures == 0 ? 0 : 1);
         }
@@ -139,6 +140,33 @@ namespace ZenoniaProto.EditorTools
             Expect(!InventoryPanel.IsOpen && !GameClock.Paused, cls.Name + ": inventory closes and resumes");
         }
 
+        /// <summary>RO Soft path (HeroRenderer.Soft.cs): a class with soft sheets draws a body for every anim x facing x view direction, with no weapon layer.</summary>
+        static void CheckSoftStyle(HeroClassDef cls)
+        {
+            HeroRenderer.SoftStyleEnabled = true;
+            var go = new GameObject("SoftStyleCheck");
+            try
+            {
+                var view = go.AddComponent<HeroRenderer>();
+                view.Init(cls, HeldGearData.Load(cls));
+                if (!view.IsSoft) { Debug.Log("SMOKE ok: " + cls.Name + ": no soft sheets, classic renderer"); return; }
+                string[] anims = { "idle", "walk", "attack1", "attack3", "melee2", "dash", "hurt", "death", cls.ComboAnims != null ? cls.ComboAnims[0] : "attack2" };
+                int drawn = 0, missing = 0;
+                SpriteRenderer body = go.transform.Find("Lean/Body").GetComponent<SpriteRenderer>();
+                foreach (string a in anims)
+                    for (int d = 0; d < 4; d++)
+                        for (int d8 = -1; d8 < 8; d8++)
+                        {
+                            view.Dir8 = d8;
+                            int n = view.FrameCount(a, d);
+                            if (n <= 0) { missing++; continue; }
+                            for (int f = 0; f < n; f++) { view.Show(a, d, f, 0, 1f); if (body.sprite != null) drawn++; else missing++; }
+                        }
+                Expect(missing == 0 && drawn > 0, cls.Name + ": soft style drew " + drawn + " frames, " + missing + " empty");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(go); HeroRenderer.SoftStyleEnabled = false; }
+        }
+
         static void CheckClass(HeroClassDef cls)
         {
             var start = typeof(Bootstrap).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Static);
@@ -172,6 +200,7 @@ namespace ZenoniaProto.EditorTools
                     }
                 }
                 Expect(shown > 0 && gearFrames > 0, cls.Name + ": drew " + shown + " frames, " + gearFrames + " with weapon overlay");
+                CheckSoftStyle(cls);
                 if (cls.Id == HeroClass.Warrior) StatusLogicCheck.RunWorld(Expect, hero, root);
                 CheckSkill(cls, hero, root);
                 SkillExecutorCheck.RunWorld(Expect, hero, root);

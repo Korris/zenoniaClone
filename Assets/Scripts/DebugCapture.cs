@@ -323,6 +323,7 @@ namespace ZenoniaProto
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east
                 else if (botArg == "walk-down") InputAdapter.BotHeld = k => k == GameKey.Down;      // walk toward the camera (walk-down frames)
                 else if (botArg == "walk-left") InputAdapter.BotHeld = k => k == GameKey.Left;      // walk west (Willowbrook's west gate into Oakhaven)
+                ApplyFace8Flags(hero); // --face8 DIR / --bot walk8 DIR: RO Soft 8-direction captures (DebugCapture.Face8.cs)
                 if (zoom > 0f) Camera.main.orthographicSize = zoom;
                 hero.God = god;
                 if (Array.IndexOf(Environment.GetCommandLineArgs(), "--nobloom") >= 0) { FeelConfig.BloomOn = false; var b = Camera.main.GetComponent<BloomEffect>(); if (b != null) b.enabled = false; }
