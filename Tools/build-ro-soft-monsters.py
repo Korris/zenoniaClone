@@ -1,4 +1,4 @@
-"""RO Soft Fantasy monster redraw (2026-11-20): cuts the ChatGPT 4 x 3 sheets (4 frames x rows down, up, right; left = right mirrored)
+﻿"""RO Soft Fantasy monster redraw (2026-11-20): cuts the ChatGPT 4 x 3 sheets (4 frames x rows down, up, right; left = right mirrored)
 into the game's monster sheets, same cells, feet line and body height as the sheet they replace.
 
 Source  Assets/ArtLibrary/monsters/ro-soft/<id>-{walk,attack}-chatgpt-N.png   (highest N wins; 1536x1024 or any size, flat #FF00FF or #00FF00,
@@ -29,7 +29,7 @@ BIG = {"rimeclawTyrant", "glacialColossus"}          # Wanted bosses: 384 / 512 
 HOVER = {"thornSprite": 16, "cliffHarpy": 16, "amberWisp": 12, "ruinWisp": 12, "iceWraith": 10, "sandWraith": 10}
 # ChatGPT sometimes paints the attack sheet at a smaller body size than the walk sheet: for these the attack frames get their own scale so the
 # stance frame (column 4, "back to guard") matches the walk body height (clamped to +-25 %)
-ATK_MATCH = {"iceWraith"}
+ATK_MATCH = {"iceWraith", "dustscaleLizard", "highlandIbex"}
 SRC_ROWS = (0, 1, 3)                                 # game rows drawn by ChatGPT: down, up, right (left = mirrored right)
 
 _spec = importlib.util.spec_from_file_location("meadow", f"{ROOT}/Tools/build-meadow-monsters.py")
