@@ -839,10 +839,6 @@
   "graded": "60a122e3b762b282",
   "profile": "icecave"
  },
- "Resources/Sprites/village/tiles/oakhaven-ground.png": {
-  "graded": "81e04463971a4d1e",
-  "profile": "meadow"
- },
  "Resources/Sprites/village/tiles/rootburrow-ground.png": {
   "graded": "156d0a98c749dd3b",
   "profile": "cave"
@@ -886,18 +882,6 @@
  "Resources/Sprites/village/tiles/sunbreak-foothills-ground-r1c1.png": {
   "graded": "982390b7a55ba573",
   "profile": "meadow"
- },
- "Resources/Sprites/village/tiles/sunken-reliquary-ground-minimap.png": {
-  "graded": "9f5311afb38a2901",
-  "profile": "ruins"
- },
- "Resources/Sprites/village/tiles/sunken-reliquary-ground-r0c0.png": {
-  "graded": "996834a0e7ef65d4",
-  "profile": "ruins"
- },
- "Resources/Sprites/village/tiles/sunken-reliquary-ground-r0c1.png": {
-  "graded": "7ae4ff3909aad37a",
-  "profile": "ruins"
  },
  "Resources/Sprites/village/tiles/sunspire-oasis-ground.png": {
   "graded": "4318ef63a1512f5f",

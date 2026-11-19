@@ -142,10 +142,16 @@ def prop_profiles():
 UNPLACED_PREFIX = [("bw", "ruins"), ("fh", "snow"), ("sg", "desert"), ("wb", "meadow"), ("sb", "meadow")]
 
 
+# Grounds redrawn by ChatGPT in the RO tone (Tools/install-map-ro-redraws.py): not graded again, only their props are. Their pre-redraw
+# originals stay in ro-soft-originals~ for reference; going back to them is a git revert of the redraw commit.
+REDRAWN = {"oakhaven-village", "sunken-reliquary"}
+
+
 def plan():
     """[(relative path under Assets, profile)] for every file the tone touches."""
     items = []
     for key, (prof, grounds, _) in MAPS.items():
+        if key in REDRAWN: continue
         for g in grounds: items.append((g, prof))
     for t, prof in sorted(prop_profiles().items()): items.append(("%s/%s.png" % (PROPS, t), prof))
     return items
@@ -240,7 +246,7 @@ def preview():
     pp = prop_profiles()
     for key, (prof, grounds, _) in MAPS.items():
         sides = []
-        for root, label in ((BACKUP, "TRUOC (goc)"), (ASSETS, "SAU (RO Soft Fantasy, profile %s)" % prof)):
+        for root, label in ((BACKUP, "TRUOC (goc)"), (ASSETS, ("SAU (ChatGPT ve lai RO Soft Fantasy)" if key in REDRAWN else "SAU (RO Soft Fantasy, profile %s)" % prof))):
             g = _ground([os.path.join(root, x) for x in grounds])
             g.thumbnail((1400, 1400))
             props = [t for t, p in sorted(pp.items()) if p == prof and t in _props_of(key)][:14]
