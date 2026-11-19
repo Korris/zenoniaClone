@@ -102,6 +102,7 @@ Giới tính (người dùng nhắc 2026-11-07): **Cleric và Assassin là nhân
 
 ## Quy tắc art lấy từ ChatGPT
 
+0. **Nhánh `ro-fantasy-heroes` (người dùng chốt 19/11/2026): mọi prompt vẽ nhân vật / đồ phải ghi rõ "tông màu RO Soft Fantasy: sáng, ấm, pastel dịu, viền nâu đậm mềm, đổ bóng mềm 2-3 cấp, không neon, không tông trầm tối"** và gửi kèm ảnh tông mẫu ở tin đầu của chat (và khi kết quả bị trầm đi): `docs/reference/ro-fantasy-heroes/sample-hero-user-pick.png` + `docs/reference/ui-style-ro-soft-fantasy/01-style-board.png`. Ảnh ra trầm / tối kiểu RO Soft Adventure thì vẽ lại. Tóc vẫn 4 tông xám để game nhuộm.
 1. **Không xin nền trong suốt:** ChatGPT hay vẽ cứng ô caro vào ảnh. Xin nền một màu không có trong hiệu ứng: `#00FF00` cho art tím/đen, `#FF00FF` cho art xanh lá.
 2. **Viết "vẽ mới hoàn toàn từ đầu, không dựa trên các ảnh trước".** Viết "vẽ lại" dễ khiến ChatGPT sửa từ ảnh cũ nên còn dính caro.
 3. **Hình phải đặc và đục:** ảnh mờ (độ đục khoảng 0,35) trông nhạt hẳn so với hiệu ứng khác. Khói vẽ thành lọn liền khối, viền sắc.
