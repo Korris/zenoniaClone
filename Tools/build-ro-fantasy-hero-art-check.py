@@ -16,6 +16,8 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 
+from ro_fantasy_hair_fit import fit
+
 ROOT = 'D:/zenoniaClone/'
 ART = ROOT + 'Assets/ArtLibrary/ro-fantasy-heroes/'
 OUT = ROOT + 'docs/reference/ro-fantasy-heroes/'
@@ -38,7 +40,16 @@ def load_rgba(path):
     r, g, b = a[..., 0], a[..., 1], a[..., 2]
     green = (g > 0.55) & (g - np.maximum(r, b) > 0.30)
     alpha = (~green).astype(np.float32)
-    alpha = ndimage.binary_opening(alpha > 0, iterations=1).astype(np.float32)
+    alpha = ndimage.binary_opening(alpha > 0, iterations=1)
+    # green irises (Mechanic, Cleric) get keyed: refill small enclosed holes that are not pure #00FF00
+    holes = ndimage.binary_fill_holes(alpha) & ~alpha
+    lab, n = ndimage.label(holes)
+    for i, sl in enumerate(ndimage.find_objects(lab), 1):
+        m = lab[sl] == i
+        px = a[sl][m]
+        if m.sum() < 400 and np.abs(px - [0, 1, 0]).sum(1).mean() > 0.35:
+            alpha[sl] |= m
+    alpha = alpha.astype(np.float32)
     # despill: soften green fringe on edges
     edge = ndimage.binary_dilation(alpha == 0, iterations=2) & (alpha > 0)
     g2 = np.where(edge, np.minimum(g, np.maximum(r, b)), g)
@@ -92,7 +103,7 @@ def skin_mask(rgba):
     r, g, b, a = [rgba[..., i] for i in range(4)]
     mx, mn = np.maximum(np.maximum(r, g), b), np.minimum(np.minimum(r, g), b)
     s = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1e-6), 0)
-    return (a > 0) & (r > g) & (g > b) & (r > 0.75) & (s > 0.10) & (s < 0.45) & ((r - g) < 0.25)
+    return (a > 0) & (r > g) & (g > b) & (r > 0.75) & (s > 0.15) & (s < 0.45) & ((r - g) < 0.25)
 
 
 def cmd_heads(cls):
@@ -117,18 +128,27 @@ def hair_layer(rgba):
     r, g, b, a = [rgba[..., i] for i in range(4)]
     mx, mn = np.maximum(np.maximum(r, g), b), np.minimum(np.minimum(r, g), b)
     s = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1e-6), 0)
-    grey = (a > 0) & (s < 0.12)
+    # near-neutral (ChatGPT greys drift warm/beige); peach skin has r - b > 0.18, eyes are coloured
+    grey = (a > 0) & (s < 0.30) & (np.abs(r - b) < 0.13) & (np.abs(g - (r + b) / 2) < 0.08)
     lab, cnt = ndimage.label(ndimage.binary_closing(grey, iterations=2))
     sizes = ndimage.sum(grey, lab, range(1, cnt + 1))
     keep = np.isin(lab, 1 + np.where(sizes > 0.15 * sizes.max())[0]) & grey  # drop eye whites
     near = ndimage.binary_dilation(keep, iterations=6)
-    acc = (a > 0) & (s > SAT_KEEP) & near & ~skin_mask(rgba)
-    return keep, acc & ~keep
+    cand = (a > 0) & (s > SAT_KEEP) & ~skin_mask(rgba) & ~keep
+    lab, cnt = ndimage.label(cand)
+    sizes = ndimage.sum(cand, lab, range(1, cnt + 1))
+    touch = ndimage.maximum(near, lab, range(1, cnt + 1))
+    # headband / goggles: big pieces touching hair; eyes and collar bits are small or far
+    ids = 1 + np.where((sizes > 3000) & (touch > 0))[0] if cnt else []
+    return keep, np.isin(lab, ids) & cand
 
 
 def dye(rgba, keep, acc, col):
     out = np.zeros_like(rgba)
     lum = rgba[..., :3].mean(-1, keepdims=True)
+    # normalise hair greys: 10th/50th/90th percentile -> #555555 / #999999 / #E0E0E0 (silver drawn too light)
+    q = np.percentile(lum[keep], [10, 50, 90])
+    lum = np.interp(lum, [0, q[0], q[1], q[2], 1], [0, 0.333, 0.6, 0.878, 1])
     tint = np.clip(np.array(col) / 255 * lum / 0.6, 0, 1)
     out[..., :3] = np.where(keep[..., None], tint, rgba[..., :3])
     out[..., 3] = (keep | acc).astype(np.float32)
@@ -157,30 +177,33 @@ def cmd_check(cls):
     for k, path in enumerate(styles):
         hr = load_rgba(path)
         keep, acc = hair_layer(hr)
+        acc &= cls in ('assassin', 'mechanic')  # only these styles carry coloured accessories
         hskin = skin_mask(hr)
-        for i, hs in enumerate(figures(hr)):
-            bx0, bx1, by0, by1 = heads[i]
-            bsk = np.argwhere(body_skin[by0:by1, bx0:bx1])
-            hsk = np.argwhere(hskin[hs[2]:hs[3], hs[0]:hs[1]])
-            if len(bsk) < 20 or len(hsk) < 20:
-                continue
-            # scale = skin width ratio, align skin box centre-x and bottom
-            sc = (np.ptp(bsk[:, 1]) + 1) / (np.ptp(hsk[:, 1]) + 1)
+        hspans = figures(hr)
+        body_alpha = body[..., 3] > 0
+        cell = lambda m, hs: m[hs[2]:hs[3], hs[0]:hs[1]]
+        # one scale for the sheet from the down head (face fully visible), +-4 % per head
+        f0 = fit(body_skin, body_alpha, heads[0], cell(hskin, hspans[0]), cell(hr[..., 3] > 0, hspans[0]),
+                 np.arange(0.6, 1.5, 0.02))
+        fitted = []
+        for i, hs in enumerate(hspans):
+            # back views have almost no skin cue: keep the median scale of the 3 face views
+            sc_range = f0[1] * np.arange(0.96, 1.041, 0.01) if i < 3 else [float(np.median(fitted))]
+            f = fit(body_skin, body_alpha, heads[i], cell(hskin, hs), cell(hr[..., 3] > 0, hs), sc_range)
+            fitted.append(f[1])
+            _, sc, fx, fy = f
+            cols = np.where(cell(keep, hs).any(0))[0]
+            ratio = (cols[-1] - cols[0] + 1) * sc / (heads[i][1] - heads[i][0]) if len(cols) else 0
+            print(f'style{k + 1} head{i}: scale {sc:.3f} at {fx},{fy} hair/skull width {ratio:.2f}')
             for d, col in enumerate(DYES):
-                layer = dye(hr, keep, acc, col)[hs[2]:hs[3], hs[0]:hs[1]]
-                im = to_im(layer)
+                im = to_im(dye(hr, keep, acc, col)[hs[2]:hs[3], hs[0]:hs[1]])
                 im = im.resize((max(1, int(im.width * sc)), max(1, int(im.height * sc))), Image.LANCZOS)
-                hx = (hsk[:, 1].min() + hsk[:, 1].max()) / 2 * sc
-                hy = hsk[:, 0].max() * sc
-                bxc = bx0 + (bsk[:, 1].min() + bsk[:, 1].max()) / 2
-                byb = by0 + bsk[:, 0].max()
                 s = spans[i]
                 row = 1 + 2 * k + d
                 ox = i * cell_w + 15 - s[0]
                 oy = row * cell_h + base_y - s[3]
-                sheet.alpha_composite(to_im(body[s[2]:s[3], s[0]:s[1]]),
-                                      (i * cell_w + 15, row * cell_h + base_y - (s[3] - s[2])))
-                sheet.alpha_composite(im, (int(ox + bxc - hx), int(oy + byb - hy)))
+                sheet.alpha_composite(to_im(body[s[2]:s[3], s[0]:s[1]]), (ox + s[0], oy + s[2]))
+                sheet.alpha_composite(im, (int(ox + fx), int(oy + fy)))
     path = OUT + f'check-{cls}.png'
     sheet.convert('RGB').save(path)
     print('->', path, sheet.size, 'styles:', len(styles))
