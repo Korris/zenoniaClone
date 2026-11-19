@@ -146,7 +146,7 @@ namespace ZenoniaProto
             ComboProjectile.RetireAll();
             MonsterProjectile.ClearAll();
             foreach (MonoBehaviour b in root.GetComponentsInChildren<MonoBehaviour>())
-                if (b is SkillRun || b is SkillBolt || b is SkillGroundZone || b is SkillMinion || b is SkillMotion || b is SkillChoreoPlayer || b is BladeDanceFx || b is VenomDaggersFx || b is ShadowCloneFx || b is DeathMarkFx || b is MechanicCannonBlastFx || b is AstralLightFx) Object.Destroy(b.gameObject);
+                if (b is SkillRun || b is SkillBolt || b is SkillGroundZone || b is SkillMinion || b is SkillMotion || b is SkillChoreoPlayer || b is BladeDanceFx || b is VenomDaggersFx || b is ShadowCloneFx || b is DeathMarkFx || b is MechanicCannonBlastFx) Object.Destroy(b.gameObject);
         }
 
         /// <summary>Removes every proxy (disconnect / leaving the online game).</summary>

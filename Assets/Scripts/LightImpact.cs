@@ -4,7 +4,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// One meteor explosion of the light Astral Cataclysm, all quads driven by the FX age (ms since this drop landed):
+    /// One meteor explosion of the light Ice Storm, all quads driven by the FX age (ms since this drop landed):
     ///  - ground light: soft round LightBlob on the ground band (below every y-sorted sprite), the URP Light2D stand-in. Intensity follows
     ///    LightSkillTiming.GroundLight: full in 0.15 s, back to 0 when the explosion ends (0.56 s). Tint pass shows on snow, HDR pass on dark ground.
     ///  - impact ring (LightBlob + burst-ring mask) growing out, radial ray burst (LightBeamScroll polar, dissolving), short light shaft.
@@ -16,17 +16,24 @@ namespace ZenoniaProto
         readonly GameObject go;
         readonly MeshRenderer ground, ring, rays, shaft;
         readonly float radius;
+        readonly bool full;
 
-        public LightImpact(Transform parent, Vector2 at, float impactRadius)
+        /// <summary>full = false: only the ground light and the ring (the wave pulse over the whole storm circle), no ray burst or shaft.</summary>
+        public LightImpact(Transform parent, Vector2 at, float impactRadius, bool full = true)
         {
             radius = impactRadius;
+            this.full = full;
             go = new GameObject("LightImpact");
             go.transform.SetParent(parent, false);
             go.transform.position = new Vector3(at.x, at.y, 0f);
             ground = LightSkillAssets.Quad(go.transform, "GroundLight", LightSkillAssets.Glow, false, UltimateFx.GroundFxOrder + 2);
             ring = LightSkillAssets.Quad(go.transform, "Ring", LightSkillAssets.Ring, false, FeelConfig.FxOrder - 18);
-            rays = LightSkillAssets.Quad(go.transform, "Rays", LightSkillAssets.Burst, false, FeelConfig.FxOrder - 17);
-            shaft = LightSkillAssets.Quad(go.transform, "Shaft", LightSkillAssets.Beam, true, FeelConfig.FxOrder - 16);
+            if (full)
+            {
+                rays = LightSkillAssets.Quad(go.transform, "Rays", LightSkillAssets.Burst, false, FeelConfig.FxOrder - 17);
+                shaft = LightSkillAssets.Quad(go.transform, "Shaft", LightSkillAssets.Beam, true, FeelConfig.FxOrder - 16);
+            }
+            else ring.sortingOrder = UltimateFx.GroundFxOrder + 3; // the storm-wide ring lies on the ground, under the heroes and monsters
             Tick(0f);
         }
 
@@ -37,7 +44,7 @@ namespace ZenoniaProto
             if (t >= 1f) return false;
 
             float light = LightSkillTiming.GroundLight(Mathf.Max(ms, 1f));
-            float g = radius * (3.0f + 0.5f * t);                                    // light pool a bit wider than the blast, swelling slowly
+            float g = radius * ((full ? 3.0f : 2.3f) + 0.5f * t);                                  // light pool a bit wider than the blast, swelling slowly
             ground.transform.localScale = new Vector3(g, g * RingSquash, 1f);
             LightSkillAssets.Set(ground, light);
 
@@ -46,6 +53,7 @@ namespace ZenoniaProto
             ring.transform.localScale = new Vector3(rs, rs * RingSquash, 1f);
             LightSkillAssets.Set(ring, 1f - Smooth(0.25f, 0.85f, t));
 
+            if (!full) return true;
             float bs = radius * 2.6f;
             rays.transform.localScale = new Vector3(bs, bs * RingSquash, 1f);
             LightSkillAssets.Set(rays, 1f - Smooth(0.6f, 1f, t), Smooth(0.2f, 0.9f, t), 0.15f + 0.7f * grow);

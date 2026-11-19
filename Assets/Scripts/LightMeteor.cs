@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// One falling meteor of the light Astral Cataclysm: a glowing head (LightBlob quad) and a TrailRenderer tail whose gradient runs white (core) -> ice blue -> transparent.
+    /// One falling meteor of the light Ice Storm: a glowing head (LightBlob quad) and a TrailRenderer tail whose gradient runs white (core) -> ice blue -> transparent.
     /// The project builds its objects in code (no prefab assets), so the "prefab" is a template GameObject made once (inactive, hidden) and Instantiate'd per meteor.
     /// Smooth at 60 FPS: the meteor moves on a straight line every frame and the trail adds a point each 0.5 units, so the tail never kinks; it keeps fading after landing.
     /// </summary>

@@ -1,26 +1,23 @@
-using System.Linq;
 using Xunit;
 using ZenoniaProto.Rpg;
 
-/// <summary>The shader light FX of Astral Cataclysm must land each meteor on its rain drop's damage step, and the ground light must follow the requested curve.</summary>
+/// <summary>The shader light FX of Ice Storm must land its meteors on the damage waves, and the ground light must follow the requested curve.</summary>
 public class LightSkillTimingTests
 {
-    static SkillEffect Rain() { return SkillTable.ById("wizard.astral-cataclysm").Effects.First(e => e.Kind == EffectKind.Rain); }
-
     [Fact]
-    public void MeteorsLandOnTheDamageSteps()
+    public void MeteorsLandOnTheDamageWaves()
     {
-        SkillEffect rain = Rain();
-        SkillStep[] steps = SkillSchedule.Build(SkillTable.ById("wizard.astral-cataclysm").Effects).Where(s => s.EffectIndex == 0).ToArray();
-        Assert.Equal(steps.Length, rain.Count);
-        for (int i = 0; i < steps.Length; i++)
+        Assert.Equal(new[] { 650, 1050, 1450, 1850 }, new[] { LightSkillTiming.WaveMs(0), LightSkillTiming.WaveMs(1), LightSkillTiming.WaveMs(2), LightSkillTiming.WaveMs(3) });
+        Assert.Equal(3, LightSkillTiming.SpearsPerWave);
+        for (int i = 0; i < LegacySkillNumbers.IceStormSpears; i++)
         {
-            Assert.Equal(steps[i].AtMs, LightSkillTiming.LandMs(rain, steps[i].HitIndex));
-            Assert.Equal(1f, LightSkillTiming.MeteorProgress(rain, i, steps[i].AtMs));     // on the ground exactly when the damage lands
-            Assert.True(LightSkillTiming.MeteorProgress(rain, i, steps[i].AtMs - 1) < 1f || steps[i].AtMs == 0);
+            int wave = i / 3, land = LightSkillTiming.LandMs(i);
+            Assert.Equal((int)(LegacySkillNumbers.IceStormCastMs + wave * LegacySkillNumbers.IceStormWaveMs), land);
+            Assert.Equal(1f, LightSkillTiming.MeteorProgress(i, land));         // on the ground exactly when the wave damages
+            Assert.True(LightSkillTiming.MeteorProgress(i, land - 1) < 1f);
+            Assert.Equal(0f, LightSkillTiming.MeteorProgress(i, LightSkillTiming.MeteorStartMs(i)));
         }
-        Assert.Equal(0, LightSkillTiming.MeteorStartMs(rain, 0));
-        Assert.True(LightSkillTiming.EndMs(rain) > steps.Last().AtMs);
+        Assert.Equal(1850 + 850, LightSkillTiming.EndMs());
     }
 
     [Fact]

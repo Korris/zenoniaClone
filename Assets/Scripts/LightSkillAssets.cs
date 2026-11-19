@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Shared materials, textures and quad meshes of the shader-driven light skill FX (AstralLightFx). Built-in pipeline: no URP, so no Light2D and no
+    /// Shared materials, textures and quad meshes of the shader-driven light skill FX (IceStormLightFx). Built-in pipeline: no URP, so no Light2D and no
     /// post-processing stack; the glow comes from HDR colours in LightBeamScroll / LightTrail / LightBlob that pass the BloomLite threshold (BloomEffect on the camera).
     /// Textures are grey masks on black in Resources/Sprites/fx/light-skill (procedural stand-ins, see Tools/build-light-skill-textures.py).
     /// Every renderer is a quad MeshRenderer, not a SpriteRenderer, because a SpriteRenderer overwrites _MainTex with its sprite.
@@ -79,7 +79,7 @@ namespace ZenoniaProto
         {
             Shader s = Resources.Load<Shader>("Shaders/" + name);
             if (s != null && s.isSupported) return s;
-            Debug.LogWarning("ZenoniaProto: shader '" + name + "' missing or unsupported, Astral Cataclysm uses the old art.");
+            Debug.LogWarning("ZenoniaProto: shader '" + name + "' missing or unsupported, Ice Storm uses the old art.");
             return null;
         }
 

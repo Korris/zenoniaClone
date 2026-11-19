@@ -9,11 +9,12 @@ namespace ZenoniaProto
     /// the whole circle and chills the targets; the circle fades out ~850 ms after the last wave.
     /// Unity extras: big frozen circle at the target area, additive cyan streaks behind the spears, frost rings, ice-shard GPU particles,
     /// shake + hit-stop + a cyan screen tint per wave.
+    /// With IceStormLightFx.Active (default; `--light-fx off` disables) the painted layers are replaced by the shader light version; damage, chill, sound and camera feel stay here.
     /// </summary>
     public class IceStormUltimate : MonoBehaviour
     {
-        public const float Radius = Rpg.LegacySkillNumbers.IceStormRadius, Mult = Rpg.LegacySkillNumbers.IceStormMult, Range = Rpg.LegacySkillNumbers.IceStormRange, CastMs = 650f, FallMs = 560f, WaveMs = 400f, TailMs = 850f, ChillMs = Rpg.LegacySkillNumbers.IceStormChillMs;
-        const int Spears = 12, Waves = Rpg.LegacySkillNumbers.IceStormWaves;
+        public const float Radius = Rpg.LegacySkillNumbers.IceStormRadius, Mult = Rpg.LegacySkillNumbers.IceStormMult, Range = Rpg.LegacySkillNumbers.IceStormRange, CastMs = Rpg.LegacySkillNumbers.IceStormCastMs, FallMs = 560f, WaveMs = Rpg.LegacySkillNumbers.IceStormWaveMs, TailMs = Rpg.LegacySkillNumbers.IceStormTailMs, ChillMs = Rpg.LegacySkillNumbers.IceStormChillMs;
+        const int Spears = Rpg.LegacySkillNumbers.IceStormSpears, Waves = Rpg.LegacySkillNumbers.IceStormWaves;
         const string Sheet = "Sprites/classes/wizard/fx/combat/ice-storm";
         static readonly Vector2[] DirVec = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
         static readonly Color Cyan = new Color(0.45f, 0.85f, 1f);
@@ -30,6 +31,7 @@ namespace ZenoniaProto
         Vector2 caster, center;
         float age, atk;
         int wave;
+        bool lightArt; // IceStormLightFx draws this storm (shader light version); the painted layers below are not built
         readonly Spear[] spears = new Spear[Spears];
         Sprite[][] cast, meteor, impact, fade;
         SpriteRenderer circle, circleGlow, castSmall;
@@ -62,6 +64,7 @@ namespace ZenoniaProto
             center = caster + DirVec[owner.Facing] * Range + new Vector2(0f, -6f);
             atk = owner.AtkStat * damageScale;
             if (!NetMode.RendersFx) return; // headless server: damage waves only, no art / layers
+            if (IceStormLightFx.Active) { lightArt = true; IceStormLightFx.Begin(transform, center, Radius); return; } // `--light-fx off` keeps the painted sheet
             cast = Rows(0, CirclePpu); meteor = Rows(1, SpearPpu); impact = Rows(2, HitPpu); fade = Rows(3, HitPpu);
             int g = UltimateFx.GroundFxOrder;
             circle = UltimateFx.Layer(transform, "Circle", out circleGlow);
@@ -75,13 +78,18 @@ namespace ZenoniaProto
             Apply();
         }
 
+        /// <summary>Where spear i lands: golden-angle spiral over the circle, 3 per wave (web IceStorm.meteors). Shared with IceStormLightFx.</summary>
+        public static Vector2 SpearImpact(Vector2 center, int i)
+        {
+            float angle = i * 2.3999632f, dist = Radius * Mathf.Sqrt((i + 0.5f) / Spears) * 0.88f;
+            return center + new Vector2(Mathf.Cos(angle) * dist, Mathf.Sin(angle) * dist * 0.72f);
+        }
+
         Spear MakeSpear(int i)
         {
-            // golden-angle spiral over the circle, 3 per wave (web IceStorm.meteors)
-            float angle = i * 2.3999632f, dist = Radius * Mathf.Sqrt((i + 0.5f) / Spears) * 0.88f;
             var s = new Spear
             {
-                Impact = center + new Vector2(Mathf.Cos(angle) * dist, Mathf.Sin(angle) * dist * 0.72f),
+                Impact = SpearImpact(center, i),
                 ImpactMs = CastMs + (i / 3) * WaveMs, Size = 25f + (i % 3) * 4f,
             };
             int o = FeelConfig.FxOrder - 20 + i;
@@ -113,8 +121,9 @@ namespace ZenoniaProto
             if (w == 0 || w == Waves - 1) GameSfx.Play("skills/wizard/ice-storm-impact", w == 0 ? 0.8f : 0.9f);
             if (local) CameraFollow.SkillShake(w == Waves - 1 ? 0.55f : 0.3f);
             if (local) ScreenFlash.Trigger(new Color(0.2f, 0.55f, 1f, w == Waves - 1 ? 0.12f : 0.07f), 0.22f);
-            ShockRing.Spawn(center, Radius * 1.05f, 0.4f, new Color(0.4f, 0.85f, 1f, 0.9f), UltimateFx.GroundFxOrder + 6, 0.72f, 0.3f);
             if (local && w == Waves - 1) CameraFollow.SkillPunch(0.6f);
+            if (lightArt) return; // rings, shards and dust belong to the painted version
+            ShockRing.Spawn(center, Radius * 1.05f, 0.4f, new Color(0.4f, 0.85f, 1f, 0.9f), UltimateFx.GroundFxOrder + 6, 0.72f, 0.3f);
             for (int i = w * 3; i < w * 3 + 3; i++)
             {
                 Spear s = spears[i];
@@ -140,7 +149,7 @@ namespace ZenoniaProto
 
         void Apply()
         {
-            if (!NetMode.RendersFx) return;
+            if (!NetMode.RendersFx || lightArt) return;
             // frozen circle: builds up over the cast, then holds on its full frame and shimmers until the tail fades it
             float castT = age / CastMs;
             float endFade = Mathf.Clamp01((CastMs + 3f * WaveMs + TailMs - age) / 600f);
