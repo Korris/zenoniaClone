@@ -18,6 +18,20 @@ namespace ZenoniaProto
     /// </summary>
     public partial class DebugCapture
     {
+        /// <summary>
+        /// The RO Soft gacha (RoGachaWindow, default look): --gacha-press rates,history,rules,buy,ok,close,next,prev in order;
+        /// --gacha-click Pull1,RightPanel/TabHistory ... real EventSystem clicks in order (paths under the window);
+        /// --gacha-click-test clicks every button of RoGachaWindow.ClickPaths and logs what a tap there would hit.
+        /// </summary>
+        static void DebugRoGacha()
+        {
+            Canvas.ForceUpdateCanvases();
+            string press = Val("--gacha-press"), click = Val("--gacha-click");
+            if (press != null) foreach (string b in press.Split(',')) RoGachaWindow.TestPress(b.Trim());
+            if (click != null) foreach (string b in click.Split(',')) { RoGachaWindow.TestClick(b.Trim()); Canvas.ForceUpdateCanvases(); }
+            if (Flag("--gacha-click-test")) RoGachaWindow.TestClickAll();
+        }
+
         partial void DebugUiGacha()
         {
             PlayerState p = RpgSession.Player;
@@ -30,6 +44,7 @@ namespace ZenoniaProto
                 owner.Account.Run("capture", a => { for (int i = 0; i < n; i++) PetGacha.PullOne(a, RpgRandom.Default, now - (n - i) * 60000L); return ActionResult.Success(""); }, r => { });
                 p.AttachAccount(owner.Account.Live);
             }
+            if (RoGachaWindow.IsOpen) { DebugRoGacha(); return; }
             if (!LumiCounterWindow.IsOpen) return; // the old look: only the data above applies (DebugCapture.Pets.cs drives the old window)
 
             string tab = Val("--open-gacha"), page = Val("--gacha-history-page"), pull = Val("--gacha-pull"), press = Val("--gacha-press");

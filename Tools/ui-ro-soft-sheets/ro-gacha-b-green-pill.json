@@ -1,0 +1,26 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-gacha/src/ro-soft-gacha-kit-chatgpt-1-pill-n-crop.png",
+ "key": "#FF00FF",
+ "key_mode": "edge",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-gacha/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": false,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [
+   {
+    "name": "gacha-pill-n",
+    "height": 64,
+    "border": [
+     30,
+     26,
+     30,
+     26
+    ]
+   }
+  ]
+ ]
+}

@@ -29,7 +29,8 @@ namespace ZenoniaProto
         int lastPullCount, shownKey = -1;
         bool open;
 
-        public static bool IsOpen { get { return instance != null && instance.open; } }
+        /// <summary>True while either look is up: this classic window or the RO Soft one it forwards to (RoGachaWindow).</summary>
+        public static bool IsOpen { get { return (instance != null && instance.open) || RoGachaWindow.IsOpen; } }
 
         public static void Create(Transform canvas)
         {
@@ -39,20 +40,26 @@ namespace ZenoniaProto
 
         void OnDestroy() { if (instance == this) instance = null; }
 
+        /// <summary>The RO Soft Fantasy look (default) opens RoGachaWindow; `--ui-style classic` keeps this window.</summary>
         public static void Open()
         {
+            if (UiStyle.Ro) { RoGachaWindow.Open(); return; }
             if (instance == null) return;
             instance.open = true;
             instance.root.gameObject.SetActive(true);
             instance.SetTab(Tab.Pull);
         }
 
-        public static void Close() { if (instance == null) return; instance.open = false; instance.root.gameObject.SetActive(false); }
+        public static void Close() { RoGachaWindow.Close(); if (instance == null) return; instance.open = false; instance.root.gameObject.SetActive(false); }
         public static void Toggle() { if (IsOpen) Close(); else Open(); }
-        public static void ShowTab(Tab t) { if (instance != null && instance.open) instance.SetTab(t); }
+        public static void ShowTab(Tab t)
+        {
+            if (RoGachaWindow.IsOpen) { RoGachaWindow.TestPress(t == Tab.History ? "history" : "rates"); return; }
+            if (instance != null && instance.open) instance.SetTab(t);
+        }
 
         /// <summary>Capture runs: the Pull button pressed by code.</summary>
-        public static void TestPull(int count) { if (instance != null) instance.Pull(count); }
+        public static void TestPull(int count) { if (RoGachaWindow.IsOpen) RoGachaWindow.TestPull(count); else if (instance != null) instance.Pull(count); }
 
         void Build()
         {
