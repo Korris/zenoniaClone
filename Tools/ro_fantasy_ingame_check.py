@@ -14,7 +14,7 @@ import ro_fantasy_body_cut as bc
 
 DATA = bc.ROOT / "Assets/Resources"
 OUT = bc.ROOT / "docs/reference/ro-fantasy-heroes-ingame"
-CROP = (40, 0, 280, 256)
+CROP = (0, 0, 320, 256)  # the whole cell: the sword tip pointing down-outward reaches x ~15
 HAIR_PICKS = [0, 3, 6]  # soft chestnut, silver, lavender
 DIR8 = wf.DIR8
 
@@ -64,3 +64,21 @@ def main(classes):
             dst = OUT / f"{cls}-{anim}.png"
             img.convert("RGB").save(dst)
             print("wrote", dst)
+            if n > 1:
+                every_dir(cls, anim, n, ctxs, pal)
+
+
+def every_dir(cls, anim, n, ctxs, pal):
+    """Motion anims: every frame x the 8 directions (rows), hairstyle k on row k % styles; marks the feet line (244)."""
+    cw, ch = CROP[2] - CROP[0], CROP[3] - CROP[1]
+    img = Image.new("RGBA", (cw * n, ch * 8), (196, 204, 188, 255))
+    dr = ImageDraw.Draw(img)
+    for d8 in range(8):
+        s = d8 % len(ctxs)
+        for f in range(n):
+            img.alpha_composite(wf.frame(bc.ROOT, ctxs[s], anim, d8, f, pal["hair"][HAIR_PICKS[s]], None, None).crop(CROP), (f * cw, d8 * ch))
+            dr.text((f * cw + 3, d8 * ch + 3), f"{DIR8[d8]} f{f}", fill=(30, 30, 30, 255))
+        dr.line((0, d8 * ch + bc.FEET - CROP[1], cw * n, d8 * ch + bc.FEET - CROP[1]), fill=(200, 60, 60, 255))
+    dst = OUT / f"{cls}-{anim}-8dir.png"
+    img.convert("RGB").save(dst)
+    print("wrote", dst)
