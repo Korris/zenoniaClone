@@ -1,0 +1,232 @@
+{
+ "note": "RO Fantasy mechanic: body per class, outfit fixed, hair hair-mechanic-style1-5dir-chatgpt-1.png, hair-mechanic-style2-5dir-chatgpt-1.png, hair-mechanic-style3-5dir-chatgpt-1.png (Tools/build-ro-fantasy-hero-game-assets.py); weapons: `grips`; hats: Data/hero-layered/headgear.json.",
+ "body": "Data/hero-layered/ro-fantasy/mechanic/body",
+ "fixedOutfit": true,
+ "hair": [
+  {
+   "style": 0,
+   "sheet": "Sprites/hero-layered/ro-fantasy/mechanic/hair/0",
+   "cellW": 288,
+   "cellH": 320,
+   "ax": 144,
+   "ay": 64,
+   "refW": 76.0,
+   "accSheet": "Sprites/hero-layered/ro-fantasy/mechanic/hair/0-acc"
+  },
+  {
+   "style": 1,
+   "sheet": "Sprites/hero-layered/ro-fantasy/mechanic/hair/1",
+   "cellW": 288,
+   "cellH": 320,
+   "ax": 144,
+   "ay": 64,
+   "refW": 76.0,
+   "accSheet": "Sprites/hero-layered/ro-fantasy/mechanic/hair/1-acc"
+  },
+  {
+   "style": 2,
+   "sheet": "Sprites/hero-layered/ro-fantasy/mechanic/hair/2",
+   "cellW": 288,
+   "cellH": 320,
+   "ax": 144,
+   "ay": 64,
+   "refW": 76.0,
+   "accSheet": "Sprites/hero-layered/ro-fantasy/mechanic/hair/2-acc"
+  }
+ ],
+ "headgear": [],
+ "weapons": [
+  {
+   "part": "weapon",
+   "sheet": "Sprites/hero-layered/weapons/pistol",
+   "gx": 19.1,
+   "gy": 54.1,
+   "overHand": false
+  },
+  {
+   "part": "offhand",
+   "sheet": "Sprites/hero-layered/weapons/pistol",
+   "gx": 19.1,
+   "gy": 54.1,
+   "overHand": false
+  }
+ ],
+ "grips": [
+  {
+   "part": "weapon",
+   "anim": "idle",
+   "dir": 0,
+   "f": 0,
+   "x": 117.0,
+   "y": 180.0,
+   "angle": -147.1,
+   "behind": false,
+   "flip": false
+  },
+  {
+   "part": "offhand",
+   "anim": "idle",
+   "dir": 0,
+   "f": 0,
+   "x": 205.0,
+   "y": 180.0,
+   "angle": 145.6,
+   "behind": false,
+   "flip": false
+  },
+  {
+   "part": "weapon",
+   "anim": "idle",
+   "dir": 1,
+   "f": 0,
+   "x": 122.0,
+   "y": 181.0,
+   "angle": -150.3,
+   "behind": false,
+   "flip": false
+  },
+  {
+   "part": "offhand",
+   "anim": "idle",
+   "dir": 1,
+   "f": 0,
+   "x": 195.0,
+   "y": 180.0,
+   "angle": 144.5,
+   "behind": false,
+   "flip": false
+  },
+  {
+   "part": "weapon",
+   "anim": "idle",
+   "dir": 2,
+   "f": 0,
+   "x": 148.0,
+   "y": 183.0,
+   "angle": 155.3,
+   "behind": false,
+   "flip": false
+  },
+  {
+   "part": "offhand",
+   "anim": "idle",
+   "dir": 2,
+   "f": 0,
+   "x": 166.0,
+   "y": 178.0,
+   "angle": 145.1,
+   "behind": true,
+   "flip": false
+  },
+  {
+   "part": "weapon",
+   "anim": "idle",
+   "dir": 3,
+   "f": 0,
+   "x": 195.0,
+   "y": 183.0,
+   "angle": 146.5,
+   "behind": false,
+   "flip": false
+  },
+  {
+   "part": "offhand",
+   "anim": "idle",
+   "dir": 3,
+   "f": 0,
+   "x": 121.0,
+   "y": 184.0,
+   "angle": -148.1,
+   "behind": true,
+   "flip": false
+  },
+  {
+   "part": "weapon",
+   "anim": "idle",
+   "dir": 4,
+   "f": 0,
+   "x": 207.0,
+   "y": 183.0,
+   "angle": 145.8,
+   "behind": true,
+   "flip": false
+  },
+  {
+   "part": "offhand",
+   "anim": "idle",
+   "dir": 4,
+   "f": 0,
+   "x": 113.0,
+   "y": 183.0,
+   "angle": -145.3,
+   "behind": true,
+   "flip": false
+  },
+  {
+   "part": "weapon",
+   "anim": "idle",
+   "dir": 5,
+   "f": 0,
+   "x": 199.0,
+   "y": 184.0,
+   "angle": 148.1,
+   "behind": true,
+   "flip": true
+  },
+  {
+   "part": "offhand",
+   "anim": "idle",
+   "dir": 5,
+   "f": 0,
+   "x": 125.0,
+   "y": 183.0,
+   "angle": -146.5,
+   "behind": false,
+   "flip": true
+  },
+  {
+   "part": "weapon",
+   "anim": "idle",
+   "dir": 6,
+   "f": 0,
+   "x": 154.0,
+   "y": 178.0,
+   "angle": -145.1,
+   "behind": true,
+   "flip": true
+  },
+  {
+   "part": "offhand",
+   "anim": "idle",
+   "dir": 6,
+   "f": 0,
+   "x": 172.0,
+   "y": 183.0,
+   "angle": -155.3,
+   "behind": false,
+   "flip": true
+  },
+  {
+   "part": "weapon",
+   "anim": "idle",
+   "dir": 7,
+   "f": 0,
+   "x": 125.0,
+   "y": 180.0,
+   "angle": -144.5,
+   "behind": false,
+   "flip": true
+  },
+  {
+   "part": "offhand",
+   "anim": "idle",
+   "dir": 7,
+   "f": 0,
+   "x": 198.0,
+   "y": 181.0,
+   "angle": 150.3,
+   "behind": false,
+   "flip": true
+  }
+ ]
+}
