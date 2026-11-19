@@ -7,6 +7,7 @@ docs/reference/ro-fantasy-heroes-ingame/fists-<class>-<anim>.png (R red = right 
 cmd_grips(cls): hand layer body/hand/<anim>.png (a disc around each visible fist, cut from the body) and grips of the class weapons.
 """
 import json
+import math
 from importlib import import_module
 
 import numpy as np
@@ -15,6 +16,7 @@ from scipy import ndimage
 
 import hero_layered_fists as hf
 import ro_fantasy_body_cut as bc
+import ro_fantasy_motion_fists as mf
 
 ROOT = bc.ROOT
 SPR = ROOT / "Assets/Resources/Sprites/hero-layered/ro-fantasy"
@@ -54,6 +56,11 @@ OVERRIDES = {
     ("cleric", "idle", 3, 0): {"R": [193, 175, T], "L": [126, 174, F]},
     ("cleric", "idle", 4, 0): {"R": [205, 177, T], "L": [113, 177, T]},
 }
+OVERRIDES.update(mf.overrides())  # walk / attack fists of Warrior, Wizard, Mechanic
+STAFF_SIDE_AHEAD = 22  # Wizard walk right / left: staff head this far ahead of its idle spot
+STAFF_HEAD_FLOOR = 226  # staff point (grip -> art top) floor: the crystal head is ~25 px wide, its rim then stays above the feet (244)
+PUNCH_Y = 160  # Mechanic attack: a fist above this row is the shooting hand, its pistol points along the arm
+SWORD_TIP_Y = 240  # Warrior idle / walk facing down / down-right: sword points down-outward, tip just above the feet line (244)
 
 
 def body(cls):
@@ -149,5 +156,71 @@ def cmd_grips(cls):
     cj_path = DATA / cls / "class.json"
     cj = json.loads(cj_path.read_text(encoding="utf-8"))
     cj["weapons"], cj["grips"] = poses.class_grips(ROOT, cls, table, heads, cells)
+    if cls == "warrior":
+        sword_down(cj, poses)
+    if cls == "wizard":
+        steady_staff(cj)
+    if cls == "mechanic":
+        aim_raised(cj, table, heads, poses)
     cj_path.write_text(json.dumps(cj, indent=1), encoding="utf-8")
     print(cls, len(cj["grips"]), "grips")
+
+
+def sword_down(cj, poses):
+    """Warrior idle / walk / attack recover, facing down / down-right / down-left: the generic rest pose leaves the 150 px sword nearly flat (fist low, tip kept above
+    the ground), user 19/11: point it down-outward as far as the tip stays above the feet line."""
+    gy = next(w["gy"] for w in cj["weapons"] if w["part"] == "weapon")  # grip -> tip, art px (tip at the top of the art)
+    for g in cj["grips"]:
+        rest = g["anim"] in ("idle", "walk") or (g["anim"] == "attack" and g["f"] == 3)
+        back = g["anim"] == "walk" and ((g["dir"] == 2 and g["x"] < 140) or (g["dir"] == 6 and g["x"] > CW - 140))
+        if g["part"] == "weapon" and (rest and g["dir"] in (0, 1, 7) or back):  # back: side walk, sword arm swung back -> blade trails
+            a = math.degrees(math.acos(max(-1.0, min(1.0, (g["y"] - SWORD_TIP_Y) / gy))))
+            g["angle"] = round(-a if g["x"] < CW / 2 else a, 1)
+        elif g["part"] == "weapon":  # every other frame: the tip may not cross the feet line either (generic limit is row 250)
+            a = g["angle"]
+            g["angle"] = round(poses.keep_tip_above_ground(a, g["y"], gy, 1 if a >= 0 else -1, ground=SWORD_TIP_Y + 4), 1)
+
+
+def steady_staff(cj):
+    """Wizard walk: the staff head stays where it is at idle for that direction (in front of / beside the face, never over it) while
+    the fist swings, and keeps the idle depth. The per-frame face check flipped the staff between in front and behind from one step
+    to the next; the idle angle kept as is put the crystal over the face when the fist swings back (side view)."""
+    gy = next(w["gy"] for w in cj["weapons"] if w["part"] == "weapon")  # grip -> staff head, art px
+    idle = {g["dir"]: g for g in cj["grips"] if g["part"] == "weapon" and g["anim"] == "idle"}
+    for g in cj["grips"]:
+        if g["part"] == "weapon" and g["anim"] == "walk":
+            i = idle[g["dir"]]
+            a = math.radians(i["angle"])
+            hx, hy = i["x"] + gy * math.sin(a), i["y"] - gy * math.cos(a)
+            if g["dir"] in (2, 6):  # side view: the fist swings behind the idle fist, push the head forward so the shaft clears the chin
+                hx += STAFF_SIDE_AHEAD if g["dir"] == 2 else -STAFF_SIDE_AHEAD
+            g["angle"] = round(math.degrees(math.atan2(hx - g["x"], g["y"] - hy)), 1)
+            g["behind"] = i["behind"]
+        elif g["part"] == "weapon":  # attack swings: the staff head may not sink under the feet line
+            a = g["angle"]
+            g["angle"] = round(keep_above(a, g["y"], gy, STAFF_HEAD_FLOOR), 1)
+
+
+def keep_above(a, fy, length, floor):
+    """Turn a weapon pointing down (towards horizontal, same side) until its tip ends above cell row `floor`."""
+    return import_module("hero_layered_grip_poses").keep_tip_above_ground(a, fy, length, 1 if a >= 0 else -1, ground=floor)
+
+
+def aim_raised(cj, table, heads, poses):
+    """Mechanic attack frames 0-2: every pistol in a raised (shooting) fist points along its own arm, a pistol in a low fist rests
+    (muzzle down-forward), also in the mirrored left dirs, where the generic pose gave the far-hand pistol the punching hand's aim
+    (upright in front of the chin) while the near fist punched empty."""
+    for g in cj["grips"]:
+        if g["anim"] != "attack" or g["f"] >= 3:
+            continue
+        mirror = g["dir"] >= 5
+        row = poses.PAINTED[g["dir"]]
+        hand = ("R" if g["part"] == "weapon" else "L") if not mirror else ("L" if g["part"] == "weapon" else "R")
+        fx, fy, vis = table["attack"][row][g["f"]][hand]
+        h = heads[("attack", row, g["f"])]
+        a = poses.arm_angle((fx, fy), h, row, hand)
+        if fy >= PUNCH_Y:  # resting fist: pistol low, muzzle down-forward (the generic mirror copied the punching hand's aim)
+            a = poses.rest_angle("pistol", (fx, fy), h, row, a)
+        elif not vis:
+            continue
+        g["angle"] = round(-a if mirror else a, 1)
