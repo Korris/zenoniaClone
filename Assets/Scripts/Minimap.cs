@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// Dots come from pools and move at 10 Hz, so nothing is allocated once the pools have grown.
     /// Only built with views (never on a server or a -nographics client). Display only: it takes no touches, so tapping it does nothing yet.
     /// </summary>
-    public sealed class Minimap : MonoBehaviour
+    public sealed partial class Minimap : MonoBehaviour
     {
         const float InnerW = 198f, InnerH = 132f; // fixed UI size (3:2, 36x24 tiles at 5.5 px); a bigger 3:2 map is just scaled into it
         const float FrameInset = 7f, OuterW = InnerW + FrameInset * 2f, OuterH = InnerH + FrameInset * 2f; // inset = the hud-panel gold rim at the RpgHud slice scale
@@ -84,6 +84,7 @@ namespace ZenoniaProto
             bool show = hero != null && !InventoryPanel.IsOpen && !HeroChangeScreen.IsOpen && !UiWindows.ModalOpen && !Hud.CaptureClean;
             if (root.gameObject.activeSelf != show) { root.gameObject.SetActive(show); tickLeft = 0f; }
             if (!show) return;
+            TickRoRound(hero); // RO Soft HUD: the round minimap centred on the hero (Minimap.RoRound.cs)
             // Polled rather than called from MapTransfer: a portal, a loaded save and going online or offline all land here.
             // The portal count changes when a boss gate opens, or on a class switch to a save on the other side of it.
             if (MapRegistry.Current != shownMap || MapScenery.ShowsPortals != shownPortalDots || MapScenery.ShowsVillagers != shownVillagerDots || MapRegistry.Current.Portals.Length != shownPortals) Rebuild(MapRegistry.Current);

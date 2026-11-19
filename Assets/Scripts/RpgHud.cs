@@ -16,7 +16,7 @@ namespace ZenoniaProto
     {
         const float OldBlockHeight = 126f;
         /// <summary>Height of the HUD block in UI units: the IMGUI debug Hud and the mobile chat panel start below it.</summary>
-        public static float BlockHeight { get { return UiScreens.UseNew(UiScreen.Hud) ? PlayerStatusBadge.Bottom : OldBlockHeight; } }
+        public static float BlockHeight { get { return UiScreens.UseNew(UiScreen.Hud) ? PlayerStatusBadge.Bottom : RoHud.Active ? RoHudStatus.Bottom + 4f : OldBlockHeight; } }
         /// <summary>Top-centre notice area of the new HUD, units below the top of the safe area: under the boss bar when one shows (the PC
         /// toast pill and the Wanted banners start here).</summary>
         public static float ToastTop { get { return Mathf.Max(46f, BossBarView.Bottom + 6f); } }
@@ -26,6 +26,8 @@ namespace ZenoniaProto
         RectTransform block, banner;
         PaperLayout paper;
         PlayerStatusBadge badge;
+        RoHudStatus roStatus; // RO Soft HUD (RoHud.Active): status + party instead of the classic block
+        RoHudParty roParty;
         LevelUpWordmark wordmark;
         Text title, bannerTitle, bannerSub, hpValue, mpValue;
         UiKit.Bar hpBar, mpBar, expBar;
@@ -140,7 +142,10 @@ namespace ZenoniaProto
             HeroController hero = GameSession.Hero;
             PlayerState p = hero != null ? hero.Rpg : null;
             bool useNew = UiScreens.UseNew(UiScreen.Hud);
-            block.gameObject.SetActive(p != null && !useNew);
+            bool ro = RoHud.Active;
+            block.gameObject.SetActive(p != null && !useNew && !ro);
+            if (ro && p != null && roStatus == null) { roStatus = new RoHudStatus(paper.Safe); roParty = new RoHudParty(paper.Safe, 4f + RoHudStatus.Bottom + 4f); }
+            if (roStatus != null) { roStatus.SetActive(ro && p != null); roParty.Tick(ro && p != null && !UiWindows.ModalOpen && !HeroChangeScreen.IsOpen && !Hud.CaptureClean); }
             if (useNew && p != null && badge == null) badge = new PlayerStatusBadge(paper.Safe);
             if (badge != null) badge.SetActive(useNew && p != null);
             float dt = Time.unscaledDeltaTime;
@@ -155,7 +160,7 @@ namespace ZenoniaProto
             }
             if (wordmark != null && wordmark.Showing) wordmark.Tick(dt);
             if (p == null) return;
-            if (useNew) badge.Refresh(hero, p, dt); else Refresh(hero, p);
+            if (useNew) badge.Refresh(hero, p, dt); else if (ro) roStatus.Refresh(hero, p); else Refresh(hero, p);
             DevBuffKey.Tick(hero);
         }
 

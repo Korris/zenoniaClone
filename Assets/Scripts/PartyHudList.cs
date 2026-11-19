@@ -241,7 +241,7 @@ namespace ZenoniaProto
             for (; b < MaxBuffs; b++) r.Buffs[b].SetActive(false);
         }
 
-        static HeroController FindHero(ushort id)
+        internal static HeroController FindHero(ushort id)
         {
             Zone zone = Zone.Main;
             if (zone == null) return null;
@@ -249,7 +249,7 @@ namespace ZenoniaProto
             return null;
         }
 
-        static string MapName(string id)
+        internal static string MapName(string id)
         {
             IGameMap map = MapRegistry.Get(id);
             return map != null ? map.Name : "Another map";
