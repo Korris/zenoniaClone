@@ -45,8 +45,8 @@ Behind a reverse proxy set `TRUST_PROXY=true`, otherwise IP rate limits see the 
 | `POST /auth/password-reset/request` | `{email}` | 202 always (never waits for SMTP). At most one mail per account per `RESET_MAIL_COOLDOWN_SEC`. The link is `PASSWORD_RESET_URL#token=...` |
 | `GET /reset` | | Static page the link lands on; reads the token from the `#fragment`, posts to confirm |
 | `POST /auth/password-reset/confirm` | `{token, password}` | `{ok}`; signs out every device |
-| `GET /characters` | | `{characters:[{id,name,classId,level,mapId,rev,online,createdAt}]}` |
-| `POST /characters` | `{name 3-16 [A-Za-z0-9_], classId}` | 201 `{character}`; one per class (warrior, wizard, mechanic, cleric, assassin) = max 5; names unique case-insensitively |
+| `GET /characters` | | `{characters:[{id,slot,name,classId,level,mapId,rev,online,createdAt,appearance?}]}` in slot order |
+| `POST /characters` | `{name 3-16 [A-Za-z0-9_], classId, appearance?, slot?}` | 201 `{character}` (with `slot`: the picked empty slot of the character select screen, else the first free one; taken or past the cap = 409 `slot_taken`); any classes, several of one class allowed, max `MAX_CHARACTERS` (default 6) per account, else 409 `slots_full`; names unique case-insensitively |
 | `GET /characters/:id` | | `{character:{..., state}}` |
 | `DELETE /characters/:id` | | `{ok}`; 409 `character_online` |
 | `POST /characters/:id/enter` | | `{ticket, zoneId, zoneHost, zonePort, expiresIn:60}`; 409 `already_online` |

@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import crypto from 'node:crypto';
 import { ApiError, conflict, notFound } from '../errors.js';
-import { CLASS_IDS } from '../rpg/rpg-constants.js';
+import { CLASS_IDS, DEFAULT_MAX_CHARACTERS } from '../rpg/rpg-constants.js';
 import { newCharacterState } from '../rpg/item-validation.js';
 import { moveTradeGoods } from '../rpg/trade-move.js';
 
@@ -13,12 +13,12 @@ export function toObjectId(id) {
 }
 
 /** Character persistence + session lock. All multi-field changes are single-document atomic updates (no transactions needed). */
-export function createCharacterService({ db, now, sessionLockSec, maxCharacters = 5 }) {
+export function createCharacterService({ db, now, sessionLockSec, maxCharacters = DEFAULT_MAX_CHARACTERS }) {
   const col = db.collection('characters');
   const live = (doc) => !!doc.session && doc.session.at.getTime() > now() - sessionLockSec * 1000;
 
   const summary = (doc) => ({
-    id: String(doc._id), name: doc.name, classId: doc.classId, level: doc.state.level, mapId: doc.state.mapId,
+    id: String(doc._id), slot: doc.slot ?? -1, name: doc.name, classId: doc.classId, level: doc.state.level, mapId: doc.state.mapId,
     rev: doc.rev, online: live(doc), createdAt: doc.createdAt,
     ...(doc.state.appearance ? { appearance: doc.state.appearance } : {}), // the character list draws each hero in its own colours
   });
@@ -38,21 +38,42 @@ export function createCharacterService({ db, now, sessionLockSec, maxCharacters 
     return doc;
   }
 
+  /**
+   * Gives every hero of the account a slot on the character select screen (heroes made before slots existed get the free ones in creation order),
+   * writes the ones it had to choose, and returns the docs sorted by slot.
+   */
+  async function slotted(userId) {
+    const docs = await col.find({ userId }).sort({ createdAt: 1 }).toArray();
+    const used = new Set(docs.filter((d) => Number.isInteger(d.slot)).map((d) => d.slot));
+    let next = 0;
+    for (const d of docs) {
+      if (Number.isInteger(d.slot)) continue;
+      while (used.has(next)) next++;
+      d.slot = next;
+      used.add(next);
+      await col.updateOne({ _id: d._id, slot: { $exists: false } }, { $set: { slot: next } }).catch((e) => { if (e.code !== 11000) throw e; }); // a parallel list chose first: the next list settles it
+    }
+    return docs.sort((a, b) => a.slot - b.slot);
+  }
+
   const rev409 = (currentRev) => conflict('rev_conflict', 'Character changed since the given rev', { currentRev });
 
   return {
     live, summary, full, getOwned, getForSession,
 
     async list(userId) {
-      const docs = await col.find({ userId }).sort({ createdAt: 1 }).toArray();
-      return docs.map(summary);
+      return (await slotted(userId)).map(summary);
     },
 
     /** `appearance` (optional, createAppearanceSchema): the look picked at creation, stored like SaveData.appearance so the zone applies it everywhere. */
-    async create(userId, name, classId, appearance) {
+    async create(userId, name, classId, appearance, slot) {
       if (!CLASS_IDS.includes(classId)) throw new ApiError(400, 'validation_error', 'Unknown class');
-      // Counted, not locked: two creates sent at the same instant could both pass and leave one hero over the cap, which harms nothing.
-      if (await col.countDocuments({ userId }) >= maxCharacters) throw conflict('slots_full', `An account holds at most ${maxCharacters} characters`);
+      // Counted, not locked: two creates sent at the same instant could both pass the count; the unique (userId, slot) index still keeps them in different slots.
+      const mine = await slotted(userId);
+      if (mine.length >= maxCharacters) throw conflict('slots_full', `An account holds at most ${maxCharacters} characters`);
+      const used = new Set(mine.map((d) => d.slot));
+      if (slot !== undefined && (slot >= maxCharacters || used.has(slot))) throw conflict('slot_taken', 'That slot is not free');
+      if (slot === undefined) { slot = 0; while (used.has(slot)) slot++; }
       const state = newCharacterState(classId);
       if (appearance) {
         state.appearance = {
@@ -61,7 +82,7 @@ export function createCharacterService({ db, now, sessionLockSec, maxCharacters 
         };
       }
       const doc = {
-        userId, name, nameLower: name.toLowerCase(), classId, rev: 0, state,
+        userId, slot, name, nameLower: name.toLowerCase(), classId, rev: 0, state,
         session: null, recentOps: [], createdAt: new Date(now()),
       };
       try {
@@ -69,7 +90,8 @@ export function createCharacterService({ db, now, sessionLockSec, maxCharacters 
         return full({ ...doc, _id: r.insertedId });
       } catch (e) {
         if (e.code !== 11000) throw e;
-        throw conflict('name_taken', 'Character name is already taken'); // the only unique key left on a character
+        if (e.keyPattern?.slot) throw conflict('slot_taken', 'That slot is not free'); // a create that raced this one took it
+        throw conflict('name_taken', 'Character name is already taken');
       }
     },
 

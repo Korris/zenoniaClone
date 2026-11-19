@@ -37,6 +37,7 @@ export const createCharacterSchema = z.object({
   name: z.string().trim().min(3).max(16).regex(/^[A-Za-z0-9_]+$/, 'letters, digits and _ only'),
   classId: z.enum(CLASS_IDS),
   appearance: createAppearanceSchema.optional(),
+  slot: z.number().int().min(0).max(63).optional(), // the empty slot the player picked on the character select screen; absent = the first free one
 });
 
 const sessionId = z.string().regex(/^[a-f0-9]{32}$/);

@@ -8,8 +8,8 @@ export function characterRoutes(app, { cfg, characters, tickets, guards }) {
   app.get('/characters', opts, async (req) => ({ characters: await characters.list(req.user.userId) }));
 
   app.post('/characters', opts, async (req, reply) => {
-    const { name, classId, appearance } = parse(createCharacterSchema, req.body);
-    return reply.status(201).send({ character: await characters.create(req.user.userId, name, classId, appearance) });
+    const { name, classId, appearance, slot } = parse(createCharacterSchema, req.body);
+    return reply.status(201).send({ character: await characters.create(req.user.userId, name, classId, appearance, slot) });
   });
 
   app.get('/characters/:id', opts, async (req) => ({ character: characters.full(await characters.getOwned(req.user.userId, req.params.id)) }));
