@@ -28,6 +28,7 @@ MOTION_RE = re.compile(r"^body-(?P<c>[a-z]+)-(?P<anim>walk|attack)-(?P<a>[a-z-]+
 art_check = import_module("build-ro-fantasy-hero-art-check")  # load_rgba: green key + white letterbox + green iris refill
 pilot = import_module("build-ro-soft-8dir-pilot")              # figures_with_pos
 sheets_tool = import_module("build-hero-layered-sheets")       # head_anchor, feet_x
+head_fix = import_module("ro_fantasy_head_fix")                # HEAD_FIX rows: head scaled to the idle skull, body kept
 
 
 def newest(pattern):
@@ -110,11 +111,17 @@ def motion_rows(cls, idle_figs):
             for d, row in zip(dirs, rows):
                 fig_i = idle_figs[DRAWN.index(d)]
                 # idle_figs are the cropped idle cells (already at game scale): attacks keep the idle skull width, walks the idle height
-                if anim == "walk":
+                fix = (cls, anim, d) in head_fix.HEAD_FIX
+                if anim == "walk" or fix:  # head-fix rows: body on the idle height, then the head alone to the idle skull width
                     s = BALD_PX / float(np.median([f.height for f in row]))
                 else:
                     s = skull_w(fig_i) / float(np.median([skull_w(f) for f in row]))
-                by_dir[d] = [place(f, s)[0] for f in row]
+                cells = [place(f, s)[0] for f in row]
+                if fix:
+                    k = skull_w(fig_i) / float(np.median([skull_w(f) * s for f in row]))
+                    cells = [head_fix.scale_head(c, k, *sheets_tool.head_anchor(c)[1:3]) for c in cells]
+                    print(f"{cls} {anim} {d}: head x{k:.3f} (body on the idle height)")
+                by_dir[d] = cells
         if all(d in by_dir for d in DRAWN):
             out[anim] = [by_dir[d] for d in DRAWN]
             print(f"{cls} {anim}: cut from {len(found)} source file(s)")

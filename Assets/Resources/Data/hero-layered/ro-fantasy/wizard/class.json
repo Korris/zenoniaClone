@@ -1024,7 +1024,7 @@
    "f": 0,
    "x": 204.0,
    "y": 122.0,
-   "angle": 75.5,
+   "angle": 64.9,
    "behind": true,
    "flip": false
   },
@@ -1376,7 +1376,7 @@
    "f": 2,
    "x": 218.0,
    "y": 124.0,
-   "angle": 83.4,
+   "angle": 75.2,
    "behind": true,
    "flip": false
   },
@@ -1552,7 +1552,7 @@
    "f": 3,
    "x": 209.0,
    "y": 174.0,
-   "angle": 1.7,
+   "angle": 1.0,
    "behind": true,
    "flip": false
   },
