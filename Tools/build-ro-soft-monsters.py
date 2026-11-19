@@ -27,6 +27,9 @@ BIG = {"rimeclawTyrant", "glacialColossus"}          # Wanted bosses: 384 / 512 
 # flyers hover: the old sheets anchored them on a baked shadow (meadow tool FLYERS); the new art has no shadow, so the body is lifted by
 # this many walk-cell px above the feet line (the game draws its own ground shadow at the feet)
 HOVER = {"thornSprite": 16, "cliffHarpy": 16, "amberWisp": 12, "ruinWisp": 12, "iceWraith": 10, "sandWraith": 10}
+# ChatGPT sometimes paints the attack sheet at a smaller body size than the walk sheet: for these the attack frames get their own scale so the
+# stance frame (column 4, "back to guard") matches the walk body height (clamped to +-25 %)
+ATK_MATCH = {"iceWraith"}
 SRC_ROWS = (0, 1, 3)                                 # game rows drawn by ChatGPT: down, up, right (left = mirrored right)
 
 _spec = importlib.util.spec_from_file_location("meadow", f"{ROOT}/Tools/build-meadow-monsters.py")
@@ -132,8 +135,14 @@ def build(mid):
     lift = HOVER.get(mid, 0) * wc // 192
     if lift:
         s = min(s, (wc - lift - mm.MARGIN) / max(f["h"] for f in walk), (feet - lift - mm.MARGIN) / max(f["h"] for f in atk))
+    sa = s
+    if mid in ATK_MATCH:
+        k = float(np.median([f["main_h"] for f in walk])) / float(np.median([atk[r * 4 + 3]["main_h"] for r in range(4)]))
+        sa = s * min(1.25, max(0.8, k))
+        sa = min([sa] + [min((ac - 2 * mm.MARGIN) / f["w"], (feet - lift - mm.MARGIN) / f["h"]) for f in atk])
+        print(f"  attack scale matched to the walk body: x{sa / s:.3f}")
     w = mm.sheet_from(mm.place(walk, s, wc, wc - lift), wc)
-    a = mm.sheet_from(mm.place(atk, s, ac, feet - lift), ac)
+    a = mm.sheet_from(mm.place(atk, sa, ac, feet - lift), ac)
     mm.to_image(w).save(f"{OUT}/{mid}.png"); mm.to_image(a).save(f"{OUT}/{mid}-attack.png")
     nh = int(np.median([body_h(f) for row in grid_frames(f"{OUT}/{mid}.png", wc) for f in row]))
     print(f"{mid}: scale {s:.3f} (wanted {want:.3f}, cap {cap:.3f}); body height old {hs[mid]} new {nh} px; "
