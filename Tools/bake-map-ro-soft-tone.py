@@ -144,7 +144,7 @@ UNPLACED_PREFIX = [("bw", "ruins"), ("fh", "snow"), ("sg", "desert"), ("wb", "me
 
 # Grounds redrawn by ChatGPT in the RO tone (Tools/install-map-ro-redraws.py): not graded again, only their props are. Their pre-redraw
 # originals stay in ro-soft-originals~ for reference; going back to them is a git revert of the redraw commit.
-REDRAWN = {"oakhaven-village", "sunken-reliquary", "willowbrook-meadows", "thatch-village", "frost-hollow", "frostfang-den"}
+REDRAWN = {"oakhaven-village", "sunken-reliquary", "willowbrook-meadows", "thatch-village", "frost-hollow", "frostfang-den", "sunspire-oasis"}
 
 
 def plan():
