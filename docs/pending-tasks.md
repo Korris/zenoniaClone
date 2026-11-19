@@ -2,6 +2,12 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 01:30 vẽ lại TOÀN BỘ map RO Soft Fantasy bằng ChatGPT (agent, người dùng ngủ: "làm lại toàn bộ map + quái theo style ro fantasy")
+- Cách làm: giữ nguyên bố cục (rows, prop, cổng, spawn, khu Wanted không đổi; server KHÔNG cần build lại vì rows không đổi), ChatGPT vẽ lại ground theo ảnh bố cục từng cửa sổ, `Tools/install-map-ro-redraw-windows.py layout|check|install|solids|sheet <map>` (căn ECC + optical flow, ghép mờ phần chồng). Ảnh trước/sau + ảnh ô chặn: `docs/reference/maps-ro-soft-redraw/`. Báo cáo `plans/reports/maps-ro-soft-redraw-261120.md`. Tài khoản Tay ("Tân Korris"), 26 lượt vẽ, chưa hết lượt.
+- XONG ảnh nền (đã commit, đã xem ảnh ô chặn): Willowbrook, Thatchwick, Frost Hollow, Frostfang Den, Sunspire, Amber Dunes, Scorpion Gorge, Emberfen, Bramblewood, Rootburrow, Thornheart, Sunbreak. Oakhaven + Sunken giữ bản 19/11.
+- Chat: Willowbrook https://chatgpt.com/c/6aff4131-e5b8-83ec-9455-833aceb43da9 ; Thatchwick https://chatgpt.com/c/6aff4328-d0b8-83ec-b9da-f1a63e01c559 ; Frost Hollow https://chatgpt.com/c/6aff4387-123c-83ec-b488-223c5caa36da ; Frostfang https://chatgpt.com/c/6aff4524-8104-83ec-99cc-7d7fc634de1e ; Sunspire + Amber + Scorpion https://chatgpt.com/c/6aff4558-f4a4-83ec-aee9-48d9451293b4 ; Emberfen + Bramblewood + Rootburrow + Thornheart + Sunbreak https://chatgpt.com/c/6aff4715-5740-83ec-b3c1-98168f0cf042
+- CÒN: prop (cây, nhà, đá) vẫn là art cũ chỉnh màu; minimap vẫn ảnh cũ (có prop bake sẵn). Exe `D:/temp/player-maps2/Zenonia.exe`.
+
 ### 20/11 01:30 Vẽ lại TOÀN BỘ quái theo RO Soft Fantasy (agent, merge vào `ro-fantasy-heroes`)
 - Người dùng: "làm lại toàn bộ map + quái theo style ro fantasy". Phần quái: mọi `MonsterDef.All` trừ Mire Hydra Queen (đã v2). Pet dùng chung sheet quái nên tự đổi theo.
 - Cách làm: mỗi quái 2 ảnh ChatGPT 4 cột x 3 hàng (xuống, lên, phải; trái = lật phải), gửi kèm frame cũ (`ArtLibrary/monsters/ro-soft/ref/<id>-{walk,attack}-ref.png`), cắt bằng `Tools/build-ro-soft-monsters.py ref|build|check <id>` (giữ ô, đường chân, chiều cao thân cũ `ro-soft/heights.json`; sheet cũ ở `ro-soft/old/`). Ảnh trước/sau `docs/reference/monsters-ro-soft-redraw/<id>-before-after.png`.
