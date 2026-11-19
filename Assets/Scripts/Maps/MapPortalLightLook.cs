@@ -80,14 +80,15 @@ namespace ZenoniaProto
                 s.Pool = new Material(LightSkillAssets.Glow) { name = "Portal_Pool" };
                 s.Pool.SetTexture("_MainTex", Texture2D.whiteTexture);
                 s.Pool.SetFloat("_Falloff", 2.6f);
-                s.Pool.SetColor("_EmissionColor", e * 0.5f);
-                s.Pool.SetFloat("_CoreWhite", 0.2f);
-                s.Pool.SetColor("_BodyColor", new Color(b.r, b.g, b.b, b.a * 0.9f));
+                // Half the first fill (user 19/11/2026: "the light pool in the middle is too thick"); the wider halo keeps the soft edge that marks the spot on snow.
+                s.Pool.SetColor("_EmissionColor", e * 0.25f);
+                s.Pool.SetFloat("_CoreWhite", 0.08f);
+                s.Pool.SetColor("_BodyColor", new Color(b.r, b.g, b.b, b.a * 0.45f));
                 s.Halo = new Material(s.Pool) { name = "Portal_Halo" };
                 s.Halo.SetFloat("_Falloff", 3.4f);
                 s.Halo.SetColor("_EmissionColor", e * 0.22f);
                 s.Halo.SetFloat("_CoreWhite", 0f);
-                s.Halo.SetColor("_BodyColor", new Color(b.r, b.g, b.b, b.a * 0.45f));
+                s.Halo.SetColor("_BodyColor", new Color(b.r, b.g, b.b, b.a * 0.4f));
 
                 s.Mote = new Material(particle) { name = "Portal_Mote" };
                 s.Mote.SetTexture("_MainTex", mote);
