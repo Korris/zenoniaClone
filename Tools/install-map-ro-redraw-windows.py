@@ -192,6 +192,32 @@ def sheet(key):
     o = os.path.join(REF, "%s-before-after.jpg" % key); S.save(o, quality=86); print(o)
 
 
+CS = {"willowbrook-meadows": "WillowbrookMeadowsMap.cs", "frost-hollow": "FrostHollowLayout.cs", "sunbreak-foothills": "SunbreakFoothillsMap.cs",
+      "scorpion-gorge": "ScorpionGorgeMap.cs", "thatch-village": "ThatchVillageMap.cs", "bramblewood-forest": "BramblewoodForestMap.cs",
+      "rootburrow": "RootburrowMap.cs", "sunspire-oasis": "SunspireOasisMap.cs", "amber-dunes": "AmberDunesMap.cs", "emberfen-marsh": "EmberfenMarshMap.cs",
+      "frostfang-den": "FrostfangDenMap.cs", "thornheart-chamber": "ThornheartChamberMap.cs"}
+
+
+def solids(key):
+    """Red = blocked row tile (the map's solid chars) over the NEW ground, grid every tile, numbers every 5: check stairs, bridges, portals."""
+    cs = open(os.path.join(ROOT, "Assets", "Scripts", "Maps", CS[key]), encoding="utf-8").read()
+    i = cs.index("string[] Rows"); body = cs[i:cs.index("};", i)]
+    rows = re.findall(r'"([^"]+)"', body)
+    solid = set(re.search(r'base\(Rows, "(\w+)"\)', cs).group(1))
+    g = read_ground(key).convert("RGBA")
+    ov = Image.new("RGBA", g.size, (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
+    for y, r in enumerate(rows):
+        for x, ch in enumerate(r):
+            if ch in solid: d.rectangle((x * T, y * T, x * T + T - 1, y * T + T - 1), fill=(255, 0, 0, 90))
+    for x in range(0, g.width, T): d.line((x, 0, x, g.height), fill=(0, 0, 0, 50))
+    for y in range(0, g.height, T): d.line((0, y, g.width, y), fill=(0, 0, 0, 50))
+    for x in range(0, len(rows[0]), 5):
+        for y in range(0, len(rows), 5): d.text((x * T + 3, y * T + 3), "%d,%d" % (x, y), fill=(255, 255, 255, 255))
+    out = Image.alpha_composite(g, ov).convert("RGB")
+    if out.width > 3000: out = out.resize((out.width // 2, out.height // 2), Image.LANCZOS)
+    os.makedirs(REF, exist_ok=True); o = os.path.join(REF, "%s-solids.jpg" % key); out.save(o, quality=85); print(o, len(rows[0]), "x", len(rows))
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3 or sys.argv[2] not in MAPS: raise SystemExit(__doc__ + "\nmaps: " + ", ".join(MAPS))
-    {"layout": layout, "install": install, "check": check, "sheet": sheet}[sys.argv[1]](sys.argv[2])
+    {"layout": layout, "install": install, "check": check, "sheet": sheet, "solids": solids}[sys.argv[1]](sys.argv[2])
