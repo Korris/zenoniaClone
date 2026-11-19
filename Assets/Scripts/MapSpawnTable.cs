@@ -14,7 +14,7 @@ namespace ZenoniaProto
         public const string BramblewoodForestId = "bramblewoodForest", RootburrowId = "rootburrow", ThornheartChamberId = "thornheartChamber";
         static readonly Vector2Int BramblewoodForestBossTile = new Vector2Int(24, 18), ThornheartChamberBossTile = new Vector2Int(12, 5);
         const float EntranceClearance = 80f; // units; just over the default aggro range, so nothing wakes up as the hero walks in
-        static readonly Vector2Int FrostfangDenBossTile = new Vector2Int(26, 11), SunkenReliquaryBossTile = new Vector2Int(30, 14);
+        static readonly Vector2Int FrostfangDenBossTile = new Vector2Int(26, 11), SunkenReliquaryBossTile = new Vector2Int(45, 12);
 
         /// <summary>Tile rects are wide on purpose: TryZoneSpot skips solid tiles. Scarabs in the first field and the south of the middle one, raiders north of it, wisps in the last field.</summary>
         static readonly FrostHollowMap.Zone[] AmberDunes =

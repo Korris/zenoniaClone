@@ -2,6 +2,11 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 19/11 18:00 map RO Soft Fantasy + khu boss Mire Hydra to ra (agent, branch worktree, chờ merge)
+- Sunken Reliquary 58x24 (thêm 22 cột phía đông, số hàng giữ nguyên): sân boss bo tròn 19x15 ô (~280 ô sàn, cũ ~70), lối đá 2 ô từ sảnh. Boss tile (45,12). PHẢI build lại zone server.
+- ChatGPT (Tan Pham) vẽ lại nền RO: Sunken (2 ảnh, chat https://chatgpt.com/c/6afece0f-681c-83ec-8253-b8cd54f5752b + https://chatgpt.com/c/6afecf64-db1c-83ec-932e-c058eec65eea), Oakhaven (https://chatgpt.com/c/6afecfd9-acd4-83ec-b272-22954f605f8f). 12 map còn lại chỉ chỉnh màu: `Tools/bake-map-ro-soft-tone.py apply|revert|status`.
+- Báo cáo `plans/reports/maps-ro-soft-fantasy-261119.md`, ảnh `docs/reference/maps-ro-soft-fantasy/`.
+
 ### 19/11 17:00 cổng dịch chuyển ánh sáng (Particle System + shader + bloom) (agent, branch worktree, CHƯA merge)
 - `MapPortalLightFx`: vũng sáng mềm dưới đất + cột sáng `LightBeamScroll` (lõi bloom) + hạt bay lên (ParticleSystem tối đa 18 hạt / cổng), thở chậm 3,6 s, màu theo vùng (tuyết xanh, làng vàng hổ phách, rừng xanh lá, sa mạc ngọc lam, đầm tím). `--portal-fx off` = sương / cột cũ. Texture tạm Python (`portal-veil`, `portal-mote`). Báo cáo `plans/reports/portal-fx-261119.md`, ảnh `docs/reference/portal-fx/`. Chờ người dùng duyệt.
 ### 19/11 17:00 cổng dịch chuyển ánh sáng (Particle System + shader + bloom) (agent; lượt 1 đã merge vào `ro-fantasy-heroes`, lượt 2 trên branch worktree)

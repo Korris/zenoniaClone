@@ -52,7 +52,7 @@ $dbName = "wanted_crowd"
 # Hero start (3 tiles south of the boss) and the boss point the bots aim at (WantedBoss.cs tile (64,29), 48 rows x 16 units)
 $starts = @{
   rimeclawTyrant = @{ Map = "frostHollow"; X = 1032; Y = 248; Goal = "1032,296" }
-  mireHydraQueen = @{ Map = "sunkenReliquary"; X = 488; Y = 120; Goal = "488,152" } # tile (30,14) of the 24-row Sunken Reliquary, hero 2 rows south
+  mireHydraQueen = @{ Map = "sunkenReliquary"; X = 728; Y = 152; Goal = "728,184" } # tile (45,12) of the 58x24 Sunken Reliquary (middle of the wide arena), hero 2 rows south
 }
 if (-not $starts.ContainsKey($Boss)) { throw "no start position for $Boss" }
 $s = $starts[$Boss]
