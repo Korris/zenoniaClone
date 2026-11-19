@@ -43,7 +43,7 @@ namespace ZenoniaProto
             RoHud.Art(UiKit.Fill(frame, "Frame"), "hud-wanted-frame");
             RoHud.Art(RoHud.TopLeftBox(frame, "Crown", -5f, -7f, 18f, 18f), "hud-icon-crown-small");
 
-            bossName = RoHud.Label(RoHud.TopLeftBox(root, "Name", TextX, 20f, W - TextX - 30f, 20f), "", 14, RoHud.Ink, TextAnchor.MiddleLeft);
+            bossName = RoHud.Label(RoHud.TopLeftBox(root, "Name", TextX, 20f, W - TextX - 30f, 20f), "", 15, RoHud.Ink, TextAnchor.MiddleLeft);
             level = RoHud.Label(RoHud.TopLeftBox(root, "Level", TextX, 43f, W - TextX - 30f, 18f), "", 13, Coral, TextAnchor.MiddleLeft);
             RoHud.Art(RoHud.TopLeftBox(root, "Pin", TextX, 69f, 12f, 14f), "hud-icon-pin");
             mapName = RoHud.Label(RoHud.TopLeftBox(root, "Map", TextX + 15f, 67f, W - TextX - 46f, 18f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft, false);

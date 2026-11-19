@@ -46,6 +46,8 @@ namespace ZenoniaProto
             m.gameObject.AddComponent<Mask>().showMaskGraphic = true;
             face = UiKit.Fill(m, "Face").gameObject.AddComponent<Image>();
             face.raycastTarget = false;
+            face.rectTransform.localScale = new Vector3(0.88f, 0.88f, 1f); // a bust like 02-hud.png, not a face crop
+            face.rectTransform.anchoredPosition = new Vector2(0f, -5f);
             portrait = new HeroPortraitLayers(face);
             RoHud.Art(UiKit.Fill(ring, "Ring"), "hud-portrait-ring");
 

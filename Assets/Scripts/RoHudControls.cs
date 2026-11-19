@@ -60,17 +60,17 @@ namespace ZenoniaProto
             Image attackArt = RoHud.Art(attack, "hud-attack", true);
             Sprite up = RoHud.Piece("hud-attack"), down = RoHud.Piece("hud-attack-pressed");
             PaperHudPress.Hold(attack.gameObject, GameKey.Attack, d => attackArt.sprite = d && down != null ? down : up);
-            Caption(attack, "Attack", RoHud.AttackSize * 0.22f, 15);
+            Caption(attack, "Attack", RoHud.AttackSize * 0.26f, 15);
 
             RectTransform auto = RoHud.Box(safe, "Auto", RoHud.BottomRight, -RoHud.AutoX, RoHud.AutoY, RoHud.AutoSize, RoHud.AutoSize);
             autoArt = RoHud.Art(auto, "hud-auto", true);
             PaperHudPress.Tap(auto.gameObject, () => AutoBattle.Toggle(GameSession.Hero));
-            Caption(auto, "Auto", RoHud.AutoSize * 0.14f, 13);
+            Caption(auto, "Auto", RoHud.AutoSize * 0.14f, 14);
 
             RectTransform run = RoHud.Box(safe, "Run", RoHud.BottomRight, -RoHud.RunX, RoHud.RunY, RoHud.RunSize, RoHud.RunSize);
             RoHud.Art(run, "hud-run", true);
             PaperHudPress.Tap(run.gameObject, () => TouchControls.Press(GameKey.Dash));
-            Caption(run, "Run", RoHud.RunSize * 0.14f, 13);
+            Caption(run, "Run", RoHud.RunSize * 0.14f, 14);
 
             hpCount = Potion(safe, "HpPotion", -RoHud.PotionHpX, true, out hpIcon);
             mpCount = Potion(safe, "MpPotion", -RoHud.PotionMpX, false, out mpIcon);
@@ -90,7 +90,7 @@ namespace ZenoniaProto
             zone.sizeDelta = new Vector2(RoHud.JoyX * 2f + 20f, RoHud.JoyY * 2f);
             TouchControls.Img(zone, null, Color.clear, true); // invisible, catches the touches around the base
             RectTransform b = RoHud.Box(zone, "Base", RoHud.BottomLeft, RoHud.JoyX, RoHud.JoyY, RoHud.JoySize, RoHud.JoySize);
-            RoHud.Art(b, "hud-joy-base").color = new Color(1f, 1f, 1f, 0.62f); // see-through like the mockup
+            RoHud.Art(b, "hud-joy-base").color = new Color(1f, 1f, 1f, 0.55f); // see-through like the mockup
             RectTransform knob = RoHud.Box(b, "Knob", RoHud.Mid, 0f, 0f, RoHud.KnobSize, RoHud.KnobSize);
             RoHud.Art(knob, "hud-joy-knob");
             zone.gameObject.AddComponent<TouchJoystick>().Init(b, knob, RoHud.KnobTravel, (u, r, d, l) =>

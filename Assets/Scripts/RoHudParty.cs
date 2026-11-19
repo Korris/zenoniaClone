@@ -14,7 +14,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudParty
     {
-        const float W = 196f, TitleH = 32f, RowH = 42f, RowGap = 5f, Face = 36f, BarH = 9f;
+        const float W = 196f, TitleH = 32f, RowH = 46f, RowGap = 5f, Face = 40f, BarH = 12f;
         const int MaxRows = PartyBook.MaxMembers - 1;
         static readonly Color Dim = new Color(0.6f, 0.6f, 0.64f, 1f);
 
@@ -67,10 +67,10 @@ namespace ZenoniaProto
             r.Face.raycastTarget = false;
             r.Portrait = new HeroPortraitLayers(r.Face);
             r.Role = RoHud.Art(RoHud.TopLeftBox(r.Root, "Role", 1f, 1f, 15f, 15f), "hud-icon-crown");
-            r.Name = RoHud.Label(RoHud.TopLeftBox(r.Root, "Name", 48f, 5f, 100f, 16f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft);
+            r.Name = RoHud.Label(RoHud.TopLeftBox(r.Root, "Name", 52f, 6f, 100f, 16f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft);
             r.StatusIcons = RoHud.TopLeftBox(r.Root, "StatusIcons", W - 48f, 5f, 40f, 14f); // poison and other status icons (right of the name)
-            r.Hp = new RoHud.Bar(r.Root, "Hp", 48f, 25f, W - 58f, BarH, "hud-bar-track", "hud-bar-teal");
-            r.Status = RoHud.Label(RoHud.TopLeftBox(r.Root, "Status", 48f, 23f, W - 58f, 14f), "", 11, RoSoftTheme.InkSoft, TextAnchor.MiddleLeft, false);
+            r.Hp = new RoHud.Bar(r.Root, "Hp", 52f, 26f, W - 62f, BarH, "hud-bar-track", "hud-bar-teal");
+            r.Status = RoHud.Label(RoHud.TopLeftBox(r.Root, "Status", 52f, 25f, W - 62f, 14f), "", 11, RoSoftTheme.InkSoft, TextAnchor.MiddleLeft, false);
             return r;
         }
 
