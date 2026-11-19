@@ -3,6 +3,10 @@
   Crowd fight on the Wanted Boss, localhost: the stack of wanted-boss-playtest.ps1 (dev mongod, server-api, a headless zone pinned to one wanted boss), plus
   N light protocol bots (Tests/dotnet/ZenoniaSwarm, all in ONE process, no Unity) that log in as real level-60 characters with server-api tickets and
   attack the boss, plus ONE real client window (persist role "idle": the controls are yours) standing next to the boss.
+  The bots start on walkable tiles in a ring 3-6 tiles around the boss (ZenoniaSwarm --free-ring reads the real map rows), the window's hero 2-3 tiles south of it.
+  -GodBots (on by default; -GodBots $false turns it off): the zone runs with --wanted-god-bots <bot name prefix>, so the bots take no damage and never respawn far away.
+  The zone only honours that on a test build with a pinned Wanted Boss and a loopback server-api. The window's hero stays mortal unless -GodHero
+  (a level-60 hero with the starter weapon dies to the boss in about a minute, then respawns at the map entrance and the camera leaves the fight).
   Close the game window to stop everything, or run the script again with -Stop (kills the pids saved in OutDir\pids.txt).
   Secrets and accounts are made up for this run and die with it (the database lives in OutDir).
 .EXAMPLE
@@ -26,6 +30,8 @@ param(
   [int]$MongoPort = 27199,
   [string]$Ui = "new",
   [switch]$Party,
+  [bool]$GodBots = $true,     # bots take no damage (test zone hook --wanted-god-bots)
+  [switch]$GodHero,           # the window's hero takes no damage either (off by default)
   [string]$Role = "",         # a persist role for the window instead of "idle", e.g. wanted-showcase (shots into OutDir\shots)
   [switch]$Stop
 )
@@ -50,10 +56,10 @@ $serviceKey = New-Secret; $jwtSecret = New-Secret; $password = "pw-" + (New-Secr
 $api = "http://127.0.0.1:$ApiPort"
 $mongoUri = "mongodb://127.0.0.1:$MongoPort/?replicaSet=rs0"
 $dbName = "wanted_crowd"
-# Hero start (3 tiles south of the boss) and the boss point the bots aim at (WantedBoss.cs tile (64,29), 48 rows x 16 units)
+# Hero start (south of the boss) and the boss point the bots aim at; Tile = the boss tile of WantedBoss.cs, HeroTile = the hero's (16 units a tile, world y grows upward)
 $starts = @{
-  rimeclawTyrant = @{ Map = "frostHollow"; X = 1032; Y = 248; Goal = "1032,296" }
-  mireHydraQueen = @{ Map = "sunkenReliquary"; X = 728; Y = 152; Goal = "728,184" } # tile (45,12) of the 58x24 Sunken Reliquary (middle of the wide arena), hero 2 rows south
+  rimeclawTyrant = @{ Map = "frostHollow"; X = 1032; Y = 248; Goal = "1032,296"; Tile = "64,29"; HeroTile = "64,32" } # 48 rows, hero 3 rows south
+  mireHydraQueen = @{ Map = "sunkenReliquary"; X = 728; Y = 152; Goal = "728,184"; Tile = "45,12"; HeroTile = "45,14" } # tile (45,12) of the 58x24 Sunken Reliquary (middle of the wide arena), hero 2 rows south
 }
 if (-not $starts.ContainsKey($Boss)) { throw "no start position for $Boss" }
 $s = $starts[$Boss]
@@ -105,18 +111,23 @@ try {
   if (-not $up) { throw "server-api did not start, see $OutDir\api.err" }
   Write-Host "server-api up"
 
+  $tag = Get-Random -Maximum 999
+  $botPrefix = "c" + $tag + "b" # bot names c<tag>b<i>; the window's hero is play<tag>, outside the prefix
   $env:ZENONIA_SERVICE_KEY = $serviceKey
-  $procs += Start-Process $Exe -PassThru -WindowStyle Hidden -ArgumentList @("-batchmode", "-nographics", "--mode", "server", "--port", $ZonePort, "--api-url", $api, "--zone-id", "wanted-crowd", "--wanted-boss", $Boss, "--wanted-respawn-sec", 20, "--wanted-hp-scale", $HpScale, "-logFile", "`"$OutDir\zone.log`"")
+  $procs += Start-Process $Exe -PassThru -WindowStyle Hidden -ArgumentList (@("-batchmode", "-nographics", "--mode", "server", "--port", $ZonePort, "--api-url", $api, "--zone-id", "wanted-crowd", "--wanted-boss", $Boss, "--wanted-respawn-sec", 20, "--wanted-hp-scale", $HpScale, "-logFile", "`"$OutDir\zone.log`"") + $(if ($GodBots -or $GodHero) { @("--wanted-god-bots", ((@($(if ($GodBots) { $botPrefix }), $(if ($GodHero) { "play" + $tag })) | Where-Object { $_ }) -join ",")) } else { @() }))
   Remove-Item env:ZENONIA_SERVICE_KEY
   Save-Pids
   if (-not (Wait-Log "$OutDir\zone.log" "zone sessions reset" 40)) { throw "the zone never got ready, see $OutDir\zone.log" }
-  Write-Host "zone up, wanted boss = $Boss (hp x $HpScale)"
+  if (($GodBots -or $GodHero) -and -not (Wait-Log "$OutDir\zone.log" "GOD BOTS on" 5)) { throw "the zone refused --wanted-god-bots, see $OutDir\zone.log" }
+  Write-Host "zone up, wanted boss = $Boss (hp x $HpScale), god bots = $GodBots, god hero = $GodHero"
 
-  # Bots: spread over a 5 x 2 block south of the boss so they do not stand on one pixel
-  $tag = Get-Random -Maximum 999
+  # Bots: one walkable tile each (map rows + prop footprints, reachable from the boss), 3-6 tiles around the boss, spread by angle, the hero's tile left out
+  $ring = @(& $swarmExe --free-ring $s.Map --center $s.Tile --radius "3,6" --count $Bots --skip $s.HeroTile)
+  if ($LASTEXITCODE -ne 0 -or $ring.Count -eq 0) { throw "no free tiles around the boss" }
   $crowd = @()
   for ($i = 0; $i -lt $Bots; $i++) {
-    $crowd += New-Hero ("c" + $tag + "b" + $i) $classes[$i % 5] ($s.X - 48 + ($i % 5) * 24) ($s.Y - 8 - [math]::Floor(($i / 5) % 2) * 16)
+    $p = $ring[$i % $ring.Count].Split(" ") # more bots than tiles: they share, a few units apart
+    $crowd += New-Hero ($botPrefix + $i) $classes[$i % 5] ([int]$p[0] + [math]::Floor($i / $ring.Count) * 4) ([int]$p[1])
   }
   $hero = New-Hero ("play" + $tag) $Class $s.X $s.Y
   Write-Host "$Bots bot characters + $($hero.Name) ready (level $Level)"
@@ -124,7 +135,7 @@ try {
   # Tickets live 60 s: take them all, then start the swarm at once
   $tickets = foreach ($b in $crowd) { (Api-Call POST "/characters/$($b.Id)/enter" @{} $b.Token).ticket }
   $tickets | Set-Content "$OutDir\tickets.txt"
-  $procs += Start-Process $swarmExe -PassThru -WindowStyle Hidden -ArgumentList (@("--host", "127.0.0.1", "--port", $ZonePort, "--tokens", "`"$OutDir\tickets.txt`"", "--mix", "100:0:0", "--goal", $s.Goal, "--hair", "vary", "--stagger-ms", 60, "--seconds", 86400) + $(if ($Party) { @("--party-with", $hero.Name, "--party-bots", "4,9,14") } else { @() })) -RedirectStandardOutput "$OutDir\swarm.log" -RedirectStandardError "$OutDir\swarm.err"
+  $procs += Start-Process $swarmExe -PassThru -WindowStyle Hidden -ArgumentList (@("--host", "127.0.0.1", "--port", $ZonePort, "--tokens", "`"$OutDir\tickets.txt`"", "--mix", "100:0:0", "--goal", $s.Goal, "--map", $s.Map, "--hair", "vary", "--stagger-ms", 60, "--seconds", 86400) + $(if ($Party) { @("--party-with", $hero.Name, "--party-bots", "4,9,14") } else { @() })) -RedirectStandardOutput "$OutDir\swarm.log" -RedirectStandardError "$OutDir\swarm.err"
   Save-Pids
   Write-Host "swarm started ($Bots bots)"
 

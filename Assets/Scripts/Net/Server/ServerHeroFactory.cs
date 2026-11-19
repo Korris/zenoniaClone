@@ -53,6 +53,7 @@ namespace ZenoniaProto
             hero.Owner = new PlayerRpg(state);
             hero.PlayerId = p.PlayerId;
             hero.PlayerName = name;
+            hero.God = NetLaunchArgs.IsWantedGodBot(name); // crowd test hook only (--wanted-god-bots on a local test zone), false everywhere else
             if (state.Appearance != null && state.Appearance.stored) hero.NetHairStyle = (byte)state.Appearance.hairStyle; // the saved head, before the client says anything
             hero.AiHeld = p.Input.Held;
             hero.AiPressed = p.Input.Pressed;

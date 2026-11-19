@@ -12,6 +12,7 @@ namespace ZenoniaProto
     ///   --wanted-respawn-sec S (server: seconds between the Wanted Boss kill and the next one, default 1800; tests)   --wanted-hp-scale F (server AND client, tests only: multiplies the Wanted Boss HP, default 1)   --wanted-render-scale F (client, tests only: draws the Wanted Bosses F times larger, default 1)
     ///   --map NAME (server: the zone new heroes begin in, default Frost Hollow)   --no-portals (server: load tests keep everybody on one zone)
     ///   --api-url URL (server: real accounts, characters load from and save to server-api, the service key comes from the environment variable ZENONIA_SERVICE_KEY; client: where to log in)
+    ///   --wanted-god-bots PREFIX[,PREFIX] (server, crowd tests only: heroes whose name starts with a PREFIX take no damage; see WantedGodBotsAllowed)
     ///   --zone-id ID (server, default frost-hollow, the API's ZONE_ID)   --save-interval S (server, default 30)   --save-spool DIR (server: where a save that cannot be written is kept)   --shutdown-file F (server: F appearing = save everybody and stop)
     /// </summary>
     public static class NetLaunchArgs
@@ -53,6 +54,9 @@ namespace ZenoniaProto
         public static float WantedHpScale = 1f;
         /// <summary>--wanted-render-scale F: test hook, draws every Wanted Boss F times its normal size (picture only: hit box and reach unchanged). Production leaves it at 1.</summary>
         public static float WantedRenderScale = 1f;
+        /// <summary>--wanted-god-bots PREFIX[,PREFIX]: crowd test hook (Tools/wanted-boss-crowd-playtest.ps1 -GodBots / -GodHero), heroes named PREFIX... take no damage (HeroController.God).
+        /// Only honoured when WantedGodBotsAllowed; null = off.</summary>
+        public static string WantedGodBotsPrefix;
         public static string ZoneId ="frost-hollow", SaveSpool, ShutdownFile;
         public static int SaveIntervalSeconds = 30;
 
@@ -109,6 +113,7 @@ namespace ZenoniaProto
             WantedRenderScale = float.TryParse(Arg(a, "--wanted-render-scale"), NumberStyles.Float, CultureInfo.InvariantCulture, out wd) && wd > 0f ? wd : 1f;
             MonsterDef.ApplyWantedRenderScale(WantedRenderScale);
             if (WantedRespawnSec > 0f) WantedBossSpawner.RespawnMs = WantedRespawnSec * 1000f;
+            WantedGodBotsPrefix = Arg(a, "--wanted-god-bots");
             ZoneId = Arg(a, "--zone-id") ?? "frost-hollow";
             SaveSpool = Arg(a, "--save-spool");
             ShutdownFile = Arg(a, "--shutdown-file");
@@ -119,6 +124,30 @@ namespace ZenoniaProto
             SimSeed = Int(a, "--sim-seed", 1);
             float rs;
             RunSeconds = float.TryParse(Arg(a, "--run-seconds"), NumberStyles.Float, CultureInfo.InvariantCulture, out rs) ? rs : 0f;
+        }
+
+        /// <summary>
+        /// The god-bot hook can never reach a real server: a test build (not ZENONIA_RELEASE), a test Wanted Boss pinned with --wanted-boss, a prefix of 2+ characters,
+        /// and either no API (dev logins) or an API on this machine (loopback). A public zone talks to a remote server-api, so it always says no.
+        /// </summary>
+        public static bool WantedGodBotsAllowed
+        {
+            get
+            {
+                if (ReleaseBuild.IsRelease || string.IsNullOrEmpty(WantedBossType) || string.IsNullOrEmpty(WantedGodBotsPrefix)) return false;
+                foreach (string p in WantedGodBotsPrefix.Split(',')) if (p.Trim().Length < 2) return false;
+                if (string.IsNullOrEmpty(ApiUrl)) return true;
+                Uri u;
+                return Uri.TryCreate(ApiUrl, UriKind.Absolute, out u) && u.IsLoopback;
+            }
+        }
+
+        /// <summary>True for a hero the god-bot hook covers (name starts with one of the prefixes, case-insensitive); always false when the hook is not allowed.</summary>
+        public static bool IsWantedGodBot(string heroName)
+        {
+            if (heroName == null || !WantedGodBotsAllowed) return false;
+            foreach (string p in WantedGodBotsPrefix.Split(',')) if (heroName.StartsWith(p.Trim(), StringComparison.OrdinalIgnoreCase)) return true;
+            return false;
         }
 
         public static bool HasFlag(string flag) { return Array.IndexOf(Environment.GetCommandLineArgs(), flag) >= 0; }

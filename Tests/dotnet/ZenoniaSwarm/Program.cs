@@ -19,6 +19,7 @@ using NetEvent = ZenoniaProto.Net.NetEvent;
 ///        [--sim-latency MS --sim-jitter MS --sim-loss PCT] [--version N] [--hair vary|N] [--no-attack]
 /// --tokens FILE: one zone Hello token per line (server-api tickets for a zone run with --api-url, Tools/wanted-boss-crowd-playtest.ps1); the bot count is the line count.
 /// --goal X,Y: fighters attack the live monster nearest to that point (e.g. the wanted boss's spawn) and walk back to it when nothing lives within 260 units of it (a crowd waits for the boss to respawn instead of scattering after mobs).
+/// --map ID (with --goal): walk back to the goal along the map's corridors; --free-ring ID ...: print spawn tiles around a point and exit (Program.Map.cs).
 /// --no-attack: wanderers never swing (crowd look captures: Tools/net-hair-crowd-shots.ps1).
 /// --hair: head layer style each bot asks for after joining (InvOp.HairStyle); vary (default) = (index / 5) % 5, so every class gets all 5 styles; N = every bot N (0 = the original heads).
 /// </summary>
@@ -80,6 +81,7 @@ static partial class Program
 
     static int Main(string[] args)
     {
+        if (FreeRing(args)) return 0;
         string host = Arg(args, "--host", "127.0.0.1"), key = Arg(args, "--key", "k");
         int port = int.Parse(Arg(args, "--port", "7790")), n = int.Parse(Arg(args, "--clients", "50")), stagger = int.Parse(Arg(args, "--stagger-ms", "40"));
         double seconds = double.Parse(Arg(args, "--seconds", "40"), CultureInfo.InvariantCulture);
@@ -95,6 +97,7 @@ static partial class Program
         if (tokens != null) n = tokens.Length;
         string goal = Arg(args, "--goal", null);
         if (goal != null) { string[] g = goal.Split(','); goalX = float.Parse(g[0], CultureInfo.InvariantCulture); goalY = float.Parse(g[1], CultureInfo.InvariantCulture); hasGoal = true; }
+        ReadMapArgs(args);
         var rng = new Random(1234);
         var bots = new List<Bot>();
         var clock = Stopwatch.StartNew();
@@ -248,7 +251,7 @@ static partial class Program
     static ushort FighterBits(Bot b, double now)
     {
                 ushort bits = 0;
-                if (hasGoal && b.HasPos && b.Monsters.Count == 0) return StepTo(goalX - b.X, goalY - b.Y);
+                if (hasGoal && b.HasPos && b.Monsters.Count == 0) return GoalStep(b);
                 if (!b.HasPos || b.Monsters.Count == 0)
                 {
                     if (now >= b.NextTurn) { b.NextTurn = now + 1.0 + brainRng.NextDouble(); int d = brainRng.Next(0, 4); b.Move = (ushort)(1 << d); }
@@ -261,7 +264,7 @@ static partial class Program
                     float dx = NetQuantize.Pos(m.X) - ox, dy = NetQuantize.Pos(m.Y) - oy, d2 = dx * dx + dy * dy;
                     if (m.DeathProgress == 0 && d2 < bd && (!hasGoal || d2 < GoalRadius * GoalRadius)) { bd = d2; best = m; }
                 }
-                if (bd == float.MaxValue) return hasGoal ? StepTo(goalX - b.X, goalY - b.Y) : b.Move;
+                if (bd == float.MaxValue) return hasGoal ? GoalStep(b) : b.Move;
                 float tx = NetQuantize.Pos(best.X) - b.X, ty = NetQuantize.Pos(best.Y) - b.Y;
                 bd = tx * tx + ty * ty; // distance from the bot itself decides walk or swing
                 // Ranged classes (Wizard 1, Mechanic 2, Cleric 4: HeroClass = Index % 5) stop once the monster is inside their bolt range

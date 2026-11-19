@@ -101,6 +101,9 @@ namespace ZenoniaProto
             if (WantedBoss.Find(type) == null) { Debug.LogError("[ZenoniaProto] net: --wanted-boss '" + type + "' is not a wanted boss (rimeclawTyrant, glacialColossus, mireHydraQueen): ignored"); return; }
             WantedBoss.Override = type;
             Debug.LogWarning("[ZenoniaProto] net: WANTED BOSS PINNED to " + type + " (--wanted-boss): the daily rotation is off. Never set this on a public server.");
+            if (string.IsNullOrEmpty(NetLaunchArgs.WantedGodBotsPrefix)) return;
+            if (NetLaunchArgs.WantedGodBotsAllowed) Debug.LogWarning("[ZenoniaProto] net: GOD BOTS on (--wanted-god-bots " + NetLaunchArgs.WantedGodBotsPrefix + "): heroes named " + NetLaunchArgs.WantedGodBotsPrefix + "* take no damage. Local crowd tests only.");
+            else Debug.LogError("[ZenoniaProto] net: --wanted-god-bots refused (release build, a prefix under 2 characters, or the API is not on this machine): ignored");
         }
 
         uint ServerMs { get { return (uint)host.ClockMs; } }
