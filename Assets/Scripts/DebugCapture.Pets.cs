@@ -64,6 +64,13 @@ namespace ZenoniaProto
                 UiScreens.Open(UiScreen.Pet); // the old window, or Pet Camp with --ui-new pet
                 string sel = Val("--pet-select"), petTab = Val("--open-pets");
                 if (PetCampWindow.IsOpen) PetCampWindow.TestShow(petTab, sel);
+                else if (PetRoWindow.IsOpen) // the RO Soft window (default look): --pet-ro presses, --pet-ro-clicktest (PetRoWindow.Testing.cs)
+                {
+                    PetRoWindow.TestShow(petTab, sel);
+                    string ro = Val("--pet-ro");
+                    if (ro != null) foreach (string b in ro.Split(',')) PetRoWindow.TestPress(b.Trim());
+                    if (Flag("--pet-ro-clicktest")) PetRoWindow.TestClickAll();
+                }
                 else
                 {
                     if (sel != null && PetConfig.Get(sel) != null) PetWindow.Select(PetConfig.IndexOf(PetConfig.Get(sel))); // after Open, which starts on the combat pet

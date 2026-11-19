@@ -8,6 +8,19 @@
 - Tan Pham hết lượt tới 09:17 20/11 (chat thử https://chatgpt.com/c/6aff40c8-c3bc-83ec-a656-39f3f1d0233f, không ra ảnh). Chat Tay (Tân Korris): https://chatgpt.com/c/6aff410c-b5c4-83ec-8e5a-00ce76667f4a
 - Trạng thái (xong = đã cắt + xem từng frame trên ảnh trước/sau): meadowSlime xong, hornRabbit xong, thornBoar xong, frostSlime xong, iceGoblin xong, snowFox xong, forestWolf xong, meadowMantis xong, thornSprite xong, brambleTreant xong.
 - Báo cáo: `plans/reports/monsters-ro-soft-redraw-261120.md`.
+### 20/11 02:30 cửa sổ Pet RO Soft làm theo mockup `05-pet.png` (agent, merge vào `ro-fantasy-heroes`)
+- Người dùng: "cái hud của hệ thống pet và gacha chưa làm giống hud design" (phần Pet; Gacha agent khác làm).
+- Chat ChatGPT (Tay): https://chatgpt.com/c/6aff3c4c-7704-83ec-936f-bcd384d07653 (2 sheet mảnh pet, 3 vòng nghiệm thu 8.3 -> 9.0 -> 9.3/10, "đạt nghiệm thu, không còn lỗi lớn / vừa").
+- XONG: `PetRoWindow*.cs` + `PetRoWidgets.cs` là cửa sổ Pet mặc định (RO); `--ui-style classic` = `PetWindow` cũ, `--ui-new pet` = Pet Camp. Header 5 pill (vàng, Pet Crystals, xu gacha, food, bóng thường / hiếm), menu Team / Collection / Growth / Capture, 3 bệ Combat + Support (2 ô Stat = chip), Team Level, Team Bonus thật, danh sách lọc / sắp xếp / trang, thẻ pet + Info / Skills / Bond, Level up / Star up / Set to team (Remove) qua `PetActions` (online server quyết). Đổi tên + khoá pet: nút mờ (game chưa có).
+- Art: `Assets/ArtLibrary/ui/ro-soft-pet/src/` -> `Sprites/ui/ro-soft/pet-*` (`Tools/ui-ro-soft-sheets/ro6-pet-pieces.json`, `ro7-pet-icons.json`). Ảnh `docs/reference/ro-soft-pet/`. Exe `D:/temp/player-pet/Zenonia.exe`. Báo cáo + 5 câu hỏi: `plans/reports/ro-soft-pet-261120.md`.
+- CHƯA: thử online thật, 4:3 / điện thoại, góp ý nhỏ vòng 3 (nền header thêm lavender, nút menu chưa chọn phẳng).
+
+### 20/11 02:10 Gacha RO Soft làm theo mockup `06-gacha.png` (agent, merge vào `ro-fantasy-heroes`)
+- Người dùng: "cái hud của hệ thống pet và gacha chưa làm giống hud design". Phần Gacha (agent này); phần Pet (`05-pet.png`) agent khác làm.
+- Chat ChatGPT (Tay): https://chatgpt.com/c/6aff3c7b-d898-83ec-9563-8f66ba49a6d1 (sheet gacha-* + sân khấu, 3 vòng nghiệm thu 8.1 -> 8.7 -> 9.0/10, "không còn khác biệt mức LỚN").
+- XONG: `RoGachaWindow*.cs` là cửa sổ Gacha mặc định khi RO (`PetGachaWindow` chuyển sang; `--ui-style classic` giữ bản cũ, `--ui-new gacha` vẫn quầy Lumi giấy). Mọi số thật: tỉ lệ / pity từ `PetRules` / `PetGacha` (20/50, có dòng shared shards 19,25 %), Pull x1 / x10 thật + màn kết quả RO (x10 lật từng thẻ, Skip), Buy Gacha Coins (crystal -> xu, báo thiếu bao nhiêu xu), đổi 120 mảnh UR, lịch sử quay, luật (?), Lumi bust có sẵn. Click thử 15/15 nút qua EventSystem.
+- Exe `D:/temp/player-gacha/Zenonia.exe` (`--open-gacha`, `--gacha-pull 1|10`, `--gacha-press`, `--gacha-click`, `--gacha-click-test`). Báo cáo + câu hỏi: `plans/reports/ro-soft-gacha-261120.md`. Ảnh `docs/reference/ro-soft-gacha/`.
+- CHƯA: online thật (pull qua zone server), màn 4:3 / điện thoại, nói chuyện với Lumi trong làng (chỉ đi qua cùng đường mã), carousel "featured" chỉ là xem trước (game không có banner xoay vòng).
 
 ### 19/11 23:40 Mire Hydra Queen: Venom Drain + icon trúng độc HUD / party + hiệu ứng độc trên người + sửa boss quay mặt (agent, merge vào `ro-fantasy-heroes`)
 - Skill thứ 5 Venom Drain (Id 4, số ChatGPT chưa cân bằng), độc nhân bản cho client (`NetEventType.HeroStatus`, **protocol 25: PHẢI build lại zone server + phát client mới**), icon độc ChatGPT (`Sprites/ui/status/poison.png`) dưới thanh máu + hàng party (HUD RO và HUD gọn), tint olive + bọt độc trên người theo ChatGPT, tick độc hết cho bất tử, tint đóng băng / độc ăn cả hero RO Fantasy nhiều lớp. Boss quay mặt: 3,5-5,5 lần/s -> 0,4-1,0 lần/s (`Rpg/MonsterFacingRule.cs`).

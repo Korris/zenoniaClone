@@ -143,6 +143,60 @@
   64,
   30
  ],
+ "ro-soft/gacha-bar-gold": [
+  20,
+  18,
+  20,
+  18
+ ],
+ "ro-soft/gacha-bar-purple": [
+  20,
+  18,
+  20,
+  18
+ ],
+ "ro-soft/gacha-bar-track": [
+  20,
+  18,
+  20,
+  18
+ ],
+ "ro-soft/gacha-card": [
+  36,
+  36,
+  36,
+  36
+ ],
+ "ro-soft/gacha-pill-n": [
+  30,
+  26,
+  30,
+  26
+ ],
+ "ro-soft/gacha-pill-r": [
+  30,
+  26,
+  30,
+  26
+ ],
+ "ro-soft/gacha-pill-sr": [
+  30,
+  26,
+  30,
+  26
+ ],
+ "ro-soft/gacha-pill-ssr": [
+  30,
+  26,
+  30,
+  26
+ ],
+ "ro-soft/gacha-pill-ur": [
+  30,
+  26,
+  30,
+  26
+ ],
  "ro-soft/hud-bar-blue": [
   15,
   0,
@@ -303,6 +357,66 @@
   40,
   36,
   40,
+  40
+ ],
+ "ro-soft/pet-bar-green": [
+  20,
+  0,
+  20,
+  0
+ ],
+ "ro-soft/pet-bar-track": [
+  20,
+  0,
+  20,
+  0
+ ],
+ "ro-soft/pet-pill-blue": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-pill-cream": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-pill-red": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-n": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-r": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-sr": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-ssr": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-ur": [
+  48,
+  40,
+  48,
   40
  ],
  "ro-soft/slot": [
