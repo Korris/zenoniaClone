@@ -26,6 +26,7 @@ namespace ZenoniaProto
         readonly List<BuffView> views = new List<BuffView>(OldSlots);
         readonly List<BuffView> merged = new List<BuffView>(OldSlots);
         readonly bool paper;
+        float poisonTotalMs;
 
         /// <summary>True after Refresh while a shield buff (Mana Shield, Divine Aegis, a pet's shield) is on the hero: the badge's shield layer.</summary>
         public bool Shielded { get; private set; }
@@ -72,6 +73,15 @@ namespace ZenoniaProto
             HeroBuffs.ActiveFor(hero, views);
             merged.Clear();
             Shielded = false;
+            // Wanted boss poison first (2026-11-19: "icon trúng độc ở thanh máu"): the ChatGPT drop icon with its seconds; total = the longest
+            // time seen since it started, so a refresh (new hit) refills the sweep.
+            float poisonMs = hero.PoisonMsLeft;
+            if (poisonMs > 0f && StatusIcons.Poison != null)
+            {
+                if (poisonMs > poisonTotalMs) poisonTotalMs = poisonMs;
+                merged.Add(new BuffView { Source = StatusIcons.PoisonSource, LeftMs = poisonMs, TotalMs = poisonTotalMs });
+            }
+            else poisonTotalMs = 0f;
             foreach (BuffView v in views) { Merge(v); if (v.Kind == BuffKind.Shield) Shielded = true; }
             if (DemoViews != null) { merged.Clear(); foreach (BuffView v in DemoViews) Merge(v); }
             for (int i = 0; i < slots.Length; i++)
@@ -82,7 +92,7 @@ namespace ZenoniaProto
                 if (s.Source != v.Source || !s.Root.activeSelf)
                 {
                     s.Source = v.Source;
-                    Sprite icon = SkillIcons.Get(BuffSource.Def(v.Source));
+                    Sprite icon = v.Source == StatusIcons.PoisonSource ? StatusIcons.Poison : SkillIcons.Get(BuffSource.Def(v.Source));
                     s.Icon.sprite = icon;
                     s.Sweep.sprite = icon;
                     s.Root.SetActive(true);

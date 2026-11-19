@@ -186,10 +186,30 @@ namespace ZenoniaProto
             yield return Until(() => party.Incoming.HasValue, 90f, "invite shows");
             if (!party.Incoming.HasValue) yield break;
             NetClient.SendParty(PartyOp.Accept, party.Incoming.Value.Other);
-            if (!away) yield break;
+            if (!away) { if (Monster.Wanted != null) yield return PartyPoisonShots(); yield break; }
             yield return Until(() => party.Members.Count == 5, 30f, "party full");
             yield return new WaitForSeconds(3f);
             EnablePortalBot();
+        }
+
+        /// <summary>Wanted boss crowd (Tools/wanted-boss-crowd-playtest.ps1 -Party): fight the boss and shoot the HUD whenever the hero or a
+        /// teammate is poisoned (poison icon under the HP bar and on the party rows, 2026-11-19): up to 10 shots 1.5 s apart, 6 minutes at most.</summary>
+        IEnumerator PartyPoisonShots()
+        {
+            yield return Until(() => NetClient.Party.Members.Count >= 2, 30f, "party formed");
+            if (GameSession.Hero != null) EnableNavBot(true, BotOffset(GameSession.Hero.PlayerName), false, false, true); // fight the boss, as the showcase does
+            PartyClientState party = NetClient.Party;
+            int shots = 0;
+            float start = Time.realtimeSinceStartup;
+            while (shots < 10 && Time.realtimeSinceStartup - start < 360f)
+            {
+                bool any = GameSession.Hero != null && GameSession.Hero.PoisonMsLeft > 0f;
+                foreach (HeroController h in Zone.Main.Heroes.All) if (h != null && h.IsPartyMateOfLocal && h.PoisonMsLeft > 0f) any = true;
+                if (!any) { yield return null; continue; }
+                P("party poison shot " + shots + ": self " + (GameSession.Hero != null ? GameSession.Hero.PoisonMsLeft.ToString("F0") : "-") + " ms");
+                yield return PartyShot("party-poison-" + (shots++).ToString("00"));
+                yield return new WaitForSeconds(1.5f);
+            }
         }
     }
 }

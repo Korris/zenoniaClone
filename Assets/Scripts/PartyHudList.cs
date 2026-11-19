@@ -38,6 +38,7 @@ namespace ZenoniaProto
             public HeroPortraitLayers Portrait;
             public GameObject[] Buffs = new GameObject[MaxBuffs];
             public Image[] BuffIcons = new Image[MaxBuffs];
+            public Text PoisonSeconds; // seconds left, on slot 0 while it shows the poison icon
         }
 
         RectTransform root;
@@ -129,6 +130,11 @@ namespace ZenoniaProto
                 r.BuffIcons[b] = UiKit.Fill(slot, "Icon", 1f).gameObject.AddComponent<Image>();
                 r.BuffIcons[b].raycastTarget = false;
                 r.Buffs[b] = slot.gameObject;
+                if (b == 0)
+                {
+                    r.PoisonSeconds = PaperTheme.Body(slot, "Seconds", 3f, 6f, BuffSize, 9f, "", PaperTheme.BarSize - 3, PaperTheme.TextLight, PaperInk.Outlined, TextAnchor.LowerRight, true);
+                    r.PoisonSeconds.horizontalOverflow = HorizontalWrapMode.Overflow;
+                }
             }
             r.Pin = Icon(side, "Pin", PPin, 0f, 0f, BuffSize + 2f);
             Size(r.Pin.rectTransform, BuffSize + 2f, BuffSize + 2f);
@@ -231,6 +237,10 @@ namespace ZenoniaProto
             views.Clear();
             if (bars) HeroBuffs.ActiveFor(hero, views); // away rows show the pin where the buffs were
             int b = 0;
+            float poisonMs = bars ? hero.PoisonMsLeft : 0f; // wanted boss poison first (2026-11-19), from the replicated HeroStatus
+            bool poisoned = poisonMs > 0f && StatusIcons.Poison != null;
+            if (poisoned) { r.BuffIcons[0].sprite = StatusIcons.Poison; r.Buffs[b++].SetActive(true); }
+            r.PoisonSeconds.text = poisoned ? Mathf.CeilToInt(poisonMs / 1000f).ToString() : "";
             foreach (BuffView v in views)
             {
                 if (b >= MaxBuffs) break;

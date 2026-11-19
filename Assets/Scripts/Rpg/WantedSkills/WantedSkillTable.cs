@@ -44,9 +44,14 @@ namespace ZenoniaProto.Rpg
                 TelegraphMs = 1500, CooldownMs = 16000, DamageMult = 1.7f, KnockbackTiles = 2f, CastRow = 1 },
             new WantedSkillDef { Id = 3, Name = "Queen's Toxic Reign", Hint = "Poison rains on five hunters. Avoid the red circles.", Shape = WantedAreaShape.Circle, OnPlayers = true, RadiusTiles = 2f, Count = 5,
                 TelegraphMs = 2200, CooldownMs = 30000, DamageMult = 1.5f, StatusKind = StatusKind.Poison, StatusValue = 20f, StatusMs = 5000, CastRow = 2, Enrage = true },
+            // 2026-11-19 user: "cho nó 1 skill khi xài sẽ rút độc máu của người chơi". A 5th plain skill (Id 4, after the enrage one so ids stay
+            // put), numbers from ChatGPT (Tay, chat 6aff091a, not balanced yet): circle 6 tiles round the boss, 2.0 s, only poisoned heroes,
+            // 0.8x, poison removed, boss heals 50 % of the HP taken, capped at 2 % of its max HP per cast, 22 s cooldown.
+            new WantedSkillDef { Id = 4, Name = "Venom Drain", Hint = "The queen drains poisoned hunters. Leave the circle.", Shape = WantedAreaShape.Circle, RadiusTiles = 6f,
+                TelegraphMs = 2000, CooldownMs = 22000, DamageMult = 0.8f, CastRow = 0, DrainPoisoned = true, DrainHealShare = 0.5f, DrainHealCap = 0.02f },
         };
 
-        /// <summary>The 4-skill table of a wanted boss type, or null when it has none (every other monster).</summary>
+        /// <summary>The skill table (4 skills; Mire Hydra Queen 5) of a wanted boss type, or null when it has none (every other monster).</summary>
         public static WantedSkillDef[] For(string bossType)
         {
             switch (bossType)

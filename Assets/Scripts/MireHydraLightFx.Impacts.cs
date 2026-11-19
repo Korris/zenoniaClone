@@ -22,6 +22,7 @@ namespace ZenoniaProto
         void TickImpact(float t)
         {
             int id = skill.Id;
+            if (skill.DrainPoisoned) { TickDrain(t); return; } // 4 Venom Drain: tethers + heal flash (MireHydraLightFx.Drain.cs)
             if (id == 3 && t < 0f) TickDrop(t);
             if (id == 0 && t >= -WantedSkillLightTiming.StreamGrowMs) TickStreams(t);
             if (t < 0f) return;

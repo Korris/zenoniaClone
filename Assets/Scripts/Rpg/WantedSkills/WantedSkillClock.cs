@@ -12,7 +12,8 @@ namespace ZenoniaProto.Rpg
         /// <summary>Minimum time after any skill before the next one may start, so a few plain attacks land in between.</summary>
         public const float SkillGapMs = 3000f;
 
-        public readonly float[] CooldownLeft = new float[4];
+        /// <summary>Indexed by WantedSkillDef.Id (4 skills per boss, Mire Hydra Queen 5 with Venom Drain); room for a few more.</summary>
+        public readonly float[] CooldownLeft = new float[8];
         public float GapLeft;
 
         public void Tick(float dtMs)

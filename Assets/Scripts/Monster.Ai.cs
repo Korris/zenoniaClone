@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
@@ -17,17 +18,36 @@ namespace ZenoniaProto
         HeroController AcquireTarget()
         {
             Vector2 here = new Vector2(x, y);
-            bool fighting = state == State.Chase || state == State.Windup || state == State.Cooldown;
-            if (target != null && fighting && !target.IsDead && target.HomeZone == homeZone && (target.Position - here).sqrMagnitude <= ActiveRadius * ActiveRadius) return target; // a hero who took a portal is not on this map any more
+            // A wanted skill (Telegraph / Execute) keeps its target too: re-picking the nearest of 40 jittering heroes every tick flipped the boss.
+            bool fighting = state == State.Chase || state == State.Windup || state == State.Cooldown
+                || (!BossFacingLog.Legacy && (state == State.Telegraph || state == State.Execute));
+            if (target != null && fighting && !target.IsDead && target.HomeZone == homeZone && (target.Position - here).sqrMagnitude <= ActiveRadius * ActiveRadius)
+            {
+                // A wanted boss chasing someone out of reach while another hero stands in reach fights the one in reach instead of walking off
+                // (walking after a far ranged hero can pull the stationary boss past its leash: Return turns it home, Chase turns it back).
+                if (def.IsWanted && !BossFacingLog.Legacy && state == State.Chase && (target.Position - here).sqrMagnitude > def.AttackRange * def.AttackRange)
+                {
+                    HeroController near = Zone.Main != null ? Zone.Main.Heroes.NearestAlive(here, def.AttackRange) : null;
+                    if (near != null && near != target) { target = near; if (BossFacingLog.On) facingLog.Retargets++; }
+                }
+                return target; // a hero who took a portal is not on this map any more
+            }
             Zone zone = Zone.Main;
-            target = zone != null ? zone.Heroes.NearestAlive(here, ActiveRadius) : null;
+            HeroController picked = zone != null ? zone.Heroes.NearestAlive(here, ActiveRadius) : null;
+            if (BossFacingLog.On && def.IsWanted && picked != target) facingLog.Retargets++;
+            target = picked;
             return target;
         }
 
         Vector2 Think(float dtMs, HeroController hero, out bool strike)
         {
             strike = false;
-            if (def.IsWanted) TickWantedSkills(dtMs);
+            if (def.IsWanted)
+            {
+                TickWantedSkills(dtMs);
+                facingHoldMs = Mathf.Max(0f, facingHoldMs - dtMs);
+                if (BossFacingLog.On) TickFacingLog(dtMs);
+            }
             Vector2 here = new Vector2(x, y);
             Vector2 toHero = hero.Position - here;
             float dist = toHero.magnitude;
@@ -84,13 +104,28 @@ namespace ZenoniaProto
             return dir * (def.Speed * factor * SpeedScale);
         }
 
-        void Enter(State next, float ms) { state = next; timer = ms; }
+        void Enter(State next, float ms)
+        {
+            if (next == State.Return && state != State.Return && BossFacingLog.On && def.IsWanted) facingLog.Returns++;
+            state = next; timer = ms;
+        }
 
-        void FaceTowards(Vector2 d)
+        float facingHoldMs; // wanted bosses: time left before the facing may turn again (MonsterFacingRule.WantedHoldMs)
+
+        /// <summary>Turns toward `d` with hysteresis (Rpg/MonsterFacingRule.cs): tiny vectors and near-diagonal jitter keep the current facing, and
+        /// a wanted boss holds a new facing for a moment. `force` (a cone skill locking its aim) turns at once by plain axis dominance.</summary>
+        void FaceTowards(Vector2 d, bool force = false)
         {
             if (d == Vector2.zero) return;
-            if (Mathf.Abs(d.x) > Mathf.Abs(d.y)) facing = d.x > 0f ? 3 : 2;
-            else facing = d.y > 0f ? 1 : 0;
+            int next;
+            if (BossFacingLog.Legacy || force) next = MonsterFacingRule.Plain(d.x, d.y);
+            else if (def.IsWanted && facingHoldMs > 0f) return;
+            else next = MonsterFacingRule.Sticky(facing, d.x, d.y);
+            if (next == facing) return;
+            facing = next;
+            if (!def.IsWanted) return;
+            facingHoldMs = MonsterFacingRule.WantedHoldMs;
+            if (BossFacingLog.On) facingLog.Turns++;
         }
 
         /// <summary>Gentle push so monsters do not stack on one pixel.</summary>

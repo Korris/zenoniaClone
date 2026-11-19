@@ -45,10 +45,20 @@ namespace ZenoniaProto
             EnableNavBot(true, BotOffset(GameSession.Hero.PlayerName), false, false, true);
             var seen = new HashSet<int>();
             float[] before = { 0.9f, 0.6f, 0.3f, 0.05f }, after = { 0.1f, 0.3f, 0.55f, 0.85f };
+            WantedSkillDef[] table = boss != null ? WantedSkillTable.For(boss.WantedBossId) : null;
+            int total = table != null ? table.Length : 4; // Mire Hydra Queen has 5 (Venom Drain)
+            int poisonShots = 0; float nextPoisonShot = 0f;
             start = Time.realtimeSinceStartup;
-            while (seen.Count < 4 && Time.realtimeSinceStartup - start < 240f)
+            while ((seen.Count < total || poisonShots < 6) && Time.realtimeSinceStartup - start < 420f)
             {
                 boss = Monster.Wanted;
+                // The local hero poisoned: HUD icon under the HP bar + on-body tint / bubbles (2026-11-19), six shots 1.5 s apart.
+                if (poisonShots < 6 && GameSession.Hero != null && GameSession.Hero.PoisonMsLeft > 0f && Time.realtimeSinceStartup >= nextPoisonShot)
+                {
+                    P("showcase: hero poisoned, " + GameSession.Hero.PoisonMsLeft.ToString("F0") + " ms left");
+                    yield return Shot(dir, "e-poison-" + (poisonShots++).ToString("00"));
+                    nextPoisonShot = Time.realtimeSinceStartup + 1.5f;
+                }
                 WantedSkillDef skill = boss != null && !boss.IsDying ? boss.WantedTelegraphSkill : null;
                 float remain;
                 if (skill == null || seen.Contains(skill.Id) || !WantedSkillTelegraphFx.StrikeIn(boss.WantedBossId, skill, out remain)) { yield return null; continue; }
@@ -67,7 +77,7 @@ namespace ZenoniaProto
                     yield return Shot(dir, tag + "p" + Mathf.RoundToInt(s * 1000f).ToString("0000"));
                 }
             }
-            P((seen.Count == 4 ? "PASS" : "FAIL") + " showcase: shot " + seen.Count + " / 4 skills");
+            P((seen.Count == total ? "PASS" : "FAIL") + " showcase: shot " + seen.Count + " / " + total + " skills, " + poisonShots + " poison shots");
             InputAdapter.BotHeld = key => false; InputAdapter.BotPressed = key => false;
             yield return new WaitForSeconds(1f);
             Application.Quit();

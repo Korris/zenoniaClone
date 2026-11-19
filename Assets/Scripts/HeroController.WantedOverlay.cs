@@ -18,7 +18,9 @@ namespace ZenoniaProto
             if (view == null || this != LocalPlayer.Hero || !NetMode.RendersFx) return;
             bool danger = !dead && WantedSkillTelegraphFx.AnyDangerAt(Position);
             ShowOverheadIcon(ref wantedAlertIcon, "WantedAlert", "Sprites/fx/wanted/warning-alert", danger, 7f);
-            string kind = dead ? null : wantedStatus.Has(StatusKind.Poison) ? "poison" : wantedStatus.Has(StatusKind.Slow) ? "slow" : null;
+            // Poison left the overhead icon on 2026-11-19: it now shows under the HP bar (HudBuffRow) plus the on-body tint / bubbles
+            // (HeroController.WantedPoisonFx.cs), as ChatGPT advised for a 40-player fight; three cues for one status was noise.
+            string kind = dead ? null : wantedStatus.Has(StatusKind.Slow) ? "slow" : null;
             if (kind != wantedStatusIconKind && wantedStatusIcon != null) { Destroy(wantedStatusIcon.gameObject); wantedStatusIcon = null; }
             wantedStatusIconKind = kind;
             ShowOverheadIcon(ref wantedStatusIcon, "WantedStatus", kind != null ? "Sprites/fx/wanted/warning-" + kind : null, kind != null, -7f);

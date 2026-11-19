@@ -32,5 +32,9 @@ namespace ZenoniaProto.Rpg
         public float KnockbackTiles;
         public int CastRow = -1;
         public bool Enrage;
+        /// <summary>Venom Drain (WantedVenomDrain): only POISONED heroes inside the shape are hit, their poison is removed, and the boss heals
+        /// DrainHealShare of the HP really taken, at most DrainHealCap x its max HP per cast. Not picked while no poisoned hero is inside.</summary>
+        public bool DrainPoisoned;
+        public float DrainHealShare, DrainHealCap;
     }
 }

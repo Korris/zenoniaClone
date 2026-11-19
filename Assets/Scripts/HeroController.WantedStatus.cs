@@ -22,21 +22,81 @@ namespace ZenoniaProto
 
         void TickWantedStatus(float dtMs) { wantedStatus.Tick(dtMs, wantedDotSink ?? (wantedDotSink = OnWantedDot)); }
 
-        void OnWantedDot(object src, float dmg) { TakeDamage(Mathf.Max(1, Mathf.RoundToInt(dmg))); }
+        void OnWantedDot(object src, float dmg) { TakeDamage(Mathf.Max(1, Mathf.RoundToInt(dmg)), true); } // a tick, not a hit: no invuln window
+
+        // Client copy of the server's poison (NetEventType.HeroStatus): the server-clock instant it runs out, and when Venom Drain last took it.
+        float netPoisonEndMs, netDrainedAtMs = -1e9f;
+
+        /// <summary>Poison time left (ms) for the HUD icon, the party bar and the on-body effect: the authority's own MonsterStatus, or on a
+        /// client the replicated end time (the local predicted hero never runs wantedStatus). 0 when dead or clean.</summary>
+        public float PoisonMsLeft
+        {
+            get
+            {
+                if (dead) return 0f;
+                float own = wantedStatus.DotMsLeft(StatusKind.Poison);
+                float net = netPoisonEndMs > 0f ? netPoisonEndMs - NetClient.ServerNowMs : 0f;
+                return Mathf.Max(own, net, 0f);
+            }
+        }
+
+        /// <summary>ms since Venom Drain last drained this hero (client: from the event; authority: its own clock), large when never.</summary>
+        public float MsSinceDrained { get { return StatusNowMs - netDrainedAtMs; } }
+
+        /// <summary>The clock netDrainedAtMs is kept in: the zone clock on the authority, the server clock on a client, game time offline.</summary>
+        static float StatusNowMs
+        {
+            get
+            {
+                if (NetMode.IsOffline) return Time.time * 1000f;
+                if (NetMode.IsServerSide) return ZoneHost.Active != null ? ZoneHost.Active.ClockMs : 0f;
+                return NetClient.ServerNowMs;
+            }
+        }
+
+        /// <summary>Client: a HeroStatus event (poison applied / refreshed / cured) played at server time `serverMs`.</summary>
+        public void ProxyStatus(int kind, uint msLeft, bool drained, double serverMs)
+        {
+            if (kind != (int)StatusKind.Poison) return;
+            netPoisonEndMs = msLeft > 0 ? (float)serverMs + msLeft : 0f;
+            if (drained) netDrainedAtMs = (float)serverMs;
+        }
+
+        /// <summary>Venom Drain started with this poisoned hero inside its circle: the poison lasts at least `ms` more (authority), and every
+        /// client hears the new time so the HUD icon keeps counting until the strike.</summary>
+        public void HoldWantedPoison(float ms)
+        {
+            if (dead || !wantedStatus.Has(StatusKind.Poison)) return;
+            wantedStatus.HoldDot(StatusKind.Poison, ms);
+            NetEventBus.HeroStatus(this, StatusKind.Poison, wantedStatus.DotMsLeft(StatusKind.Poison), false);
+        }
 
         /// <summary>Called by Monster.WantedSkills.cs when this hero stood inside a boss skill's locked shape at the strike instant. Dash /
         /// invuln dodge it exactly like a plain hit (TakeDamage's own guard); a kill skips the status and the shove. Freeze is its own timer,
-        /// not a MonsterStatus entry (OwnerSim.FreezeLeft needs to restore / replay it exactly like dash or invuln); no knockback while frozen.</summary>
-        public void TakeWantedSkillHit(Vector2 bossFeet, float bossAtk, WantedSkillDef skill)
+        /// not a MonsterStatus entry (OwnerSim.FreezeLeft needs to restore / replay it exactly like dash or invuln); no knockback while frozen.
+        /// Returns the HP really lost (Venom Drain heals the boss from it). A draining skill also removes this hero's poison.</summary>
+        public float TakeWantedSkillHit(Vector2 bossFeet, float bossAtk, WantedSkillDef skill)
         {
-            if (dead || God || invuln > 0f || dashLeft > 0f) return;
+            if (dead || God || invuln > 0f || dashLeft > 0f) return 0f;
+            float before = hp;
             TakeDamage(CombatMath.Damage(bossAtk, skill.DamageMult, DefStat));
-            if (dead) return;
+            float taken = Mathf.Max(0f, before - hp);
+            if (skill.DrainPoisoned)
+            {
+                wantedStatus.ClearDot(StatusKind.Poison);
+                netDrainedAtMs = StatusNowMs;
+                NetEventBus.HeroStatus(this, StatusKind.Poison, 0f, true);
+            }
+            if (dead) return taken;
             if (StatusRules.CancelsPendingStab(skill.StatusKind, skill.KnockbackTiles)) stabLeft = 0f; // a real disable drops the committed second stab
             if (skill.StatusKind == StatusKind.Freeze) frozenMs = Mathf.Max(frozenMs, skill.StatusMs); // non-stacking: the stronger of remaining / new
             else if (skill.StatusKind != StatusKind.None && skill.StatusMs > 0)
+            {
                 wantedStatus.Apply(new StatusSpec(skill.StatusKind, skill.StatusValue, skill.StatusMs), null, false, bossAtk);
+                if (skill.StatusKind == StatusKind.Poison) NetEventBus.HeroStatus(this, StatusKind.Poison, wantedStatus.DotMsLeft(StatusKind.Poison), false);
+            }
             if (skill.KnockbackTiles > 0f && frozenMs <= 0f) ApplyWantedKnockback(bossFeet, skill.KnockbackTiles);
+            return taken;
         }
 
         /// <summary>

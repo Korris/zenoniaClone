@@ -71,6 +71,18 @@ namespace ZenoniaProto
 
         public void Hide() { foreach (SpriteRenderer r in Renderers) r.sprite = null; }
 
+        /// <summary>Multiplies `m` into the figure's colour (body, hand, hair, headgear; weapons untouched) after Show: the wanted boss
+        /// poison / freeze tints (HeroRenderer.WantedFreeze.cs). Show resets every colour each frame, so this never accumulates.</summary>
+        public void MultiplyTint(Color m)
+        {
+            foreach (SpriteRenderer r in new[] { body, hand, hair, hairAcc, headgear })
+            {
+                if (r == null || r.sprite == null) continue;
+                Color c = r.color;
+                r.color = new Color(c.r * m.r, c.g * m.g, c.b * m.b, c.a);
+            }
+        }
+
         /// <summary>Draws painted anim `anim` (already resolved by HeroLayeredSet.Resolve), Dir8 `dir8`, frame `frame`.
         /// weaponOn / offhandOn: the hero holds something in that hand (nothing equipped = that layer hidden).
         /// shift / tiltDeg: the whole figure moved (local units) and turned around the feet (stand-in motion, HeroRenderer.Layered.cs).</summary>

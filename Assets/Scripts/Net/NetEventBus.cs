@@ -164,6 +164,14 @@ namespace ZenoniaProto
             }, center, 0, true); // zone-wide: everyone must see the warning, not just whoever is already in the AOI grid near the boss
         }
 
+        /// <summary>A wanted boss status on hero `h` changed (poison applied / refreshed: `msLeft` &gt; 0; cured or drained: 0). AOI around the hero:
+        /// its own client (HUD icon), party members in sight (party bar) and everyone near (on-body effect).</summary>
+        public static void HeroStatus(HeroController h, ZenoniaProto.Rpg.StatusKind kind, float msLeft, bool drained)
+        {
+            if (!Active || h == null) return;
+            Add(new NetEvent { Type = NetEventType.HeroStatus, Id = h.NetId, Step = HeroStatusCode.Pack((int)kind, drained), Value = (uint)Mathf.Max(0f, msLeft) }, h.Position);
+        }
+
         /// <summary>A ranged monster's windup ended: its projectile leaves `from` flying along `angleDeg` (already rounded to the wire step). Clients
         /// fly the same picture from the monster's shared MonsterRangedProfile; the hit itself arrives as a HeroHit.</summary>
         public static void MonsterShot(Monster m, Vector2 from, float angleDeg)

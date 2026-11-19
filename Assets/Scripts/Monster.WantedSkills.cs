@@ -35,6 +35,11 @@ namespace ZenoniaProto
             if (wantedTable == null) return false;
             int pick = WantedSkillPicker.Pick(wantedTable, wantedClock, hp / def.Hp, Random.value);
             if (pick < 0) return false;
+            // Capture hook (env ZENONIA_PREFER_DRAIN=1, Monster.FacingLog.cs): Venom Drain whenever it is ready and has a victim, so a playtest
+            // shows the tethers within a minute instead of by luck.
+            if (BossFacingLog.PreferDrain)
+                for (int i = 0; i < wantedTable.Length; i++)
+                    if (wantedTable[i].DrainPoisoned && wantedClock.CooldownLeft[wantedTable[i].Id] <= 0f && AnyPoisonedInside(wantedTable[i], Feet)) pick = i;
             WantedSkillDef skill = wantedTable[pick];
             if (!LockWantedShapes(skill)) return false;
             pendingSkill = skill;
@@ -67,12 +72,17 @@ namespace ZenoniaProto
                 return true;
             }
             Vector2 origin = Feet; // "tâm vòng chân boss": the gameplay centre, not the painted body centre
+            if (skill.DrainPoisoned)
+            {
+                if (!AnyPoisonedInside(skill, origin)) return false; // Venom Drain: nobody to drain, keep the cooldown
+                HoldPoisonInside(skill, origin);                     // their poison lasts until the strike (WantedVenomDrain.HoldPoisonMs)
+            }
             float dirDeg;
             if (skill.Shape == WantedAreaShape.Cone || skill.Shape == WantedAreaShape.Line)
             {
                 Vector2 toTarget = target != null && !target.IsDead ? target.Position - origin : Vector2.zero;
                 Vector2 dir = toTarget.sqrMagnitude > 1f ? toTarget.normalized : WantedFacingVec[facing];
-                FaceTowards(dir);
+                FaceTowards(dir, true); // the cone / line aims exactly here: turn now, whatever the hold says
                 dirDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             }
             else dirDeg = skill.SafeArcCount > 0 ? Random.Range(0f, 360f) : 0f; // the enrage circle's safe lane(s): a fresh random direction each cast
@@ -100,15 +110,47 @@ namespace ZenoniaProto
             pendingSkill = null;
             if (skill == null || homeZone == null) return;
             IReadOnlyList<HeroController> all = homeZone.Heroes.All;
+            float drained = 0f;
+            int victims = 0;
             for (int i = 0; i < all.Count; i++)
             {
                 HeroController h = all[i];
                 if (h == null || h.IsDead) continue;
                 Vector2 p = h.Position;
-                bool hit = false;
-                for (int s = 0; s < pendingShapes.Count && !hit; s++) hit = WantedSkillArea.Hits(skill, pendingShapes[s], p.x, p.y);
-                if (hit) h.TakeWantedSkillHit(Feet, def.Atk, skill);
+                bool inside = false;
+                for (int s = 0; s < pendingShapes.Count && !inside; s++) inside = WantedSkillArea.Hits(skill, pendingShapes[s], p.x, p.y);
+                // Venom Drain picks its victims at the strike instant (ChatGPT V1): poisoned and still inside; everyone else is untouched.
+                if (WantedVenomDrain.Hits(skill, inside, h.PoisonMsLeft > 0f)) { victims++; drained += h.TakeWantedSkillHit(Feet, def.Atk, skill); }
             }
+            float heal = WantedVenomDrain.Heal(skill, drained, def.Hp);
+            if (heal > 0f && !IsDying) hp = Mathf.Min(def.Hp, hp + heal);
+            if (skill.DrainPoisoned && BossFacingLog.On) Debug.Log("[venom-drain] " + victims + " poisoned inside, took " + Mathf.RoundToInt(drained) + " hp, boss healed " + Mathf.RoundToInt(heal));
+        }
+
+        void HoldPoisonInside(WantedSkillDef skill, Vector2 origin)
+        {
+            var shape = new WantedShapeInstance { OriginX = origin.x, OriginY = origin.y };
+            IReadOnlyList<HeroController> all = homeZone.Heroes.All;
+            for (int i = 0; i < all.Count; i++)
+            {
+                HeroController h = all[i];
+                if (h != null && !h.IsDead && h.PoisonMsLeft > 0f && WantedSkillArea.Hits(skill, shape, h.Position.x, h.Position.y))
+                    h.HoldWantedPoison(WantedVenomDrain.HoldPoisonMs(skill));
+            }
+        }
+
+        /// <summary>Venom Drain may start only while a living poisoned hero stands inside its circle round the boss.</summary>
+        bool AnyPoisonedInside(WantedSkillDef skill, Vector2 origin)
+        {
+            IReadOnlyList<HeroController> all = homeZone != null ? homeZone.Heroes.All : null;
+            if (all == null) return false;
+            var shape = new WantedShapeInstance { OriginX = origin.x, OriginY = origin.y };
+            for (int i = 0; i < all.Count; i++)
+            {
+                HeroController h = all[i];
+                if (h != null && !h.IsDead && WantedVenomDrain.CanStartOn(skill, h.PoisonMsLeft) && WantedSkillArea.Hits(skill, shape, h.Position.x, h.Position.y)) return true;
+            }
+            return false;
         }
     }
 }

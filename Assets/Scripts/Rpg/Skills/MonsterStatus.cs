@@ -118,6 +118,23 @@ namespace ZenoniaProto.Rpg
             }
         }
 
+        /// <summary>Longest time left (ms) of a damage-over-time kind (Burn / Poison), 0 when absent: the HUD poison icon's seconds.</summary>
+        public float DotMsLeft(StatusKind k)
+        {
+            float ms = 0f;
+            for (int i = 0; i < dots.Count; i++) if (dots[i].Kind == k) ms = Math.Max(ms, dots[i].Ms);
+            return ms;
+        }
+
+        /// <summary>Every damage-over-time source of kind `k` lasts at least `minMs` more (Venom Drain holds the poison it is about to drain).</summary>
+        public void HoldDot(StatusKind k, float minMs)
+        {
+            for (int i = 0; i < dots.Count; i++) if (dots[i].Kind == k) dots[i].Ms = Math.Max(dots[i].Ms, minMs);
+        }
+
+        /// <summary>Removes every damage-over-time source of kind `k` (Venom Drain cures the poison it drains).</summary>
+        public void ClearDot(StatusKind k) { dots.RemoveAll(d => d.Kind == k); }
+
         /// <summary>Spends one mark charge (Death Mark); the mark ends when the charges run out.</summary>
         public void ConsumeMarkCharge()
         {

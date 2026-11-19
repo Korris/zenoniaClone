@@ -135,6 +135,11 @@ namespace ZenoniaProto
                     wanted.ShowWantedTelegraph(e.Step);
                     if (fx) WantedSkillTelegraphFx.Spawn(wanted.Type, e.Step, at, NetQuantize.Angle(e.Angle), e.Value);
                     break;
+                case NetEventType.HeroStatus:
+                    HeroController poisoned = HeroOf(e.Id);
+                    stats.Add("heroStatusSeen", 1);
+                    if (poisoned != null) poisoned.ProxyStatus(HeroStatusCode.Kind(e.Step), e.Value, HeroStatusCode.IsDrained(e.Step), t);
+                    break;
                 case NetEventType.MonsterShot:
                     Monster shooterMonster = MonsterOf(e.Id);
                     if (fx && shooterMonster != null) shooterMonster.PlayRangedShot(at, NetQuantize.Angle(e.Angle));

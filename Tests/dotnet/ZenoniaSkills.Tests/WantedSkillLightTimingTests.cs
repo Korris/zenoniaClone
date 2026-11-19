@@ -7,11 +7,11 @@ public class WantedSkillLightTimingTests
     static WantedSkillDef[] Mire { get { return WantedSkillTable.For(WantedSkillLightTiming.LightBoss); } }
 
     [Fact]
-    public void TheLightBossIsTheMireHydraQueenWithFourSkills()
+    public void TheLightBossIsTheMireHydraQueenWithFiveSkills()
     {
         Assert.Equal("mireHydraQueen", WantedSkillLightTiming.LightBoss);
         Assert.Same(WantedSkillTable.MireHydraQueen, Mire);
-        Assert.Equal(4, Mire.Length);
+        Assert.Equal(5, Mire.Length); // 4 + Venom Drain (2026-11-19)
     }
 
     [Fact]

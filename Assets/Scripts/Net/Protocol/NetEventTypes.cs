@@ -6,7 +6,7 @@ namespace ZenoniaProto.Net
     {
         AttackStep = 1, BoltFired = 2, BoltEnd = 3, MonsterHit = 4, HeroHit = 5, SkillCast = 6, HeroDied = 7, HeroRespawned = 8,
         ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16, TurretShot = 17,
-        WantedSkillTelegraph = 18, MonsterShot = 19, PetSkill = 20, PetCapturable = 21,
+        WantedSkillTelegraph = 18, MonsterShot = 19, PetSkill = 20, PetCapturable = 21, HeroStatus = 22,
     }
 
     /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band, flag bits (1 = mechanic blue), the pet
@@ -28,6 +28,19 @@ namespace ZenoniaProto.Net
         public static byte Pack(int index, int rank) { return (byte)((System.Math.Min(15, System.Math.Max(1, rank)) << 3) | (index & 7)); }
         public static int Index(byte step) { return step & 7; }
         public static int Rank(byte step) { return System.Math.Max(1, step >> 3); }
+    }
+
+    /// <summary>
+    /// HeroStatus event packing (protocol 25): Step = status kind (low 7 bits, ZenoniaProto.Rpg.StatusKind) | Drained (0x80: Venom Drain just took
+    /// it, the client flashes the hero), Value = ms the status has left on the server (0 = removed). Sent only when it changes (apply / refresh /
+    /// cure), never per tick: clients count down themselves (HeroController.PoisonMsLeft).
+    /// </summary>
+    public static class HeroStatusCode
+    {
+        public const byte Drained = 0x80;
+        public static byte Pack(int kind, bool drained) { return (byte)((kind & 0x7F) | (drained ? Drained : 0)); }
+        public static int Kind(byte step) { return step & 0x7F; }
+        public static bool IsDrained(byte step) { return (step & Drained) != 0; }
     }
 
     /// <summary>MonsterHit flag bits.</summary>
@@ -78,6 +91,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.MonsterShot: w.Put(Id); w.Put(X); w.Put(Y); w.Put(Angle); break;
                 case NetEventType.PetSkill: w.Put(Id); w.Put(Other); w.Put(Step); break;
                 case NetEventType.PetCapturable: w.Put(Id); w.Put(X); w.Put(Y); w.Put(Step); w.Put(Value); break; // a fallen boss may be caught: Id = its NetId, Value = ms left, Step = 1 Wanted
+                case NetEventType.HeroStatus: w.Put(Id); w.Put(Step); w.Put(Value); break; // wanted boss status on a hero: Step = HeroStatusCode, Value = ms left (0 = gone)
             }
         }
 
@@ -108,6 +122,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.MonsterShot: e.Id = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Angle = r.GetByte(); break;
                 case NetEventType.PetSkill: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.Step = r.GetByte(); break;
                 case NetEventType.PetCapturable: e.Id = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Step = r.GetByte(); e.Value = r.GetUInt(); break;
+                case NetEventType.HeroStatus: e.Id = r.GetUShort(); e.Step = r.GetByte(); e.Value = r.GetUInt(); break;
                 default: return false;
             }
             return true;

@@ -150,7 +150,7 @@ public class MessageRoundTripTests
         Assert.True(InvOpInfo.IsAccountOp(InvOp.GachaPull) && InvOpInfo.IsAccountOp(InvOp.PetBuy) && InvOpInfo.IsAccountOp(InvOp.BallBuy) && InvOpInfo.IsAccountOp(InvOp.PetLevelUp) && !InvOpInfo.IsAccountOp(InvOp.PetEquip) && !InvOpInfo.IsAccountOp(InvOp.PetCapture));
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOpInfo.Last + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(24, NetProtocol.Version); // 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
+        Assert.Equal(25, NetProtocol.Version); // 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
     }
 
     [Fact]
@@ -233,6 +233,16 @@ public class MessageRoundTripTests
         new NetEvent { Type = NetEventType.PetCapturable, Id = 77, X = -1200, Y = 640, Step = 1, Value = 45000 }.Write(petBuf); // a fallen Wanted Boss may be caught for 45 s
         NetEvent corpse; Assert.True(NetEvent.TryRead(new NetDataReader(petBuf.CopyData()), out corpse));
         Assert.Equal(NetEventType.PetCapturable, corpse.Type); Assert.Equal(77, corpse.Id); Assert.Equal(-1200, corpse.X); Assert.Equal(640, corpse.Y); Assert.Equal(1, corpse.Step); Assert.Equal(45000u, corpse.Value);
+        // Protocol 25: wanted boss poison on a hero (HeroStatus), followed by another event in the same batch to prove the length is right.
+        petBuf.Reset();
+        new NetEvent { Type = NetEventType.HeroStatus, Id = 31, Step = HeroStatusCode.Pack(5, true), Value = 3999 }.Write(petBuf);
+        new NetEvent { Type = NetEventType.BossDied, Id = 9 }.Write(petBuf);
+        var rd = new NetDataReader(petBuf.CopyData());
+        NetEvent st, next; Assert.True(NetEvent.TryRead(rd, out st)); Assert.True(NetEvent.TryRead(rd, out next));
+        Assert.Equal(NetEventType.HeroStatus, st.Type); Assert.Equal(31, st.Id); Assert.Equal(3999u, st.Value);
+        Assert.Equal(5, HeroStatusCode.Kind(st.Step)); Assert.True(HeroStatusCode.IsDrained(st.Step));
+        Assert.False(HeroStatusCode.IsDrained(HeroStatusCode.Pack(5, false)));
+        Assert.Equal(NetEventType.BossDied, next.Type); Assert.Equal(9, next.Id);
     }
 
     [Fact]

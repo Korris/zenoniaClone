@@ -25,12 +25,18 @@ namespace ZenoniaProto.Rpg
         public const int GlowPeakMs = 120;
 
         /// <summary>When every impact piece of skill `skillId` is gone (ms after the strike).</summary>
+        /// <summary>Venom Drain: the tethers pulse bright at the strike and are gone DrainPulseMs later (ChatGPT: "tia hút về boss 350 ms").</summary>
+        public const int DrainPulseMs = 350;
+        /// <summary>Venom Drain: the green heal flash on the boss rises and fades over HealFlashMs after the strike.</summary>
+        public const int HealFlashMs = 650;
+
         public static int ImpactEndMs(int skillId)
         {
             switch (skillId)
             {
                 case 0: return 900;   // breath streams linger, then thin out
                 case 2: return 950;   // shockwave + dust of venom
+                case 4: return HealFlashMs; // Venom Drain: tether pulse (350) inside the heal flash
                 default: return 1000; // blooms / rain splashes
             }
         }
@@ -65,6 +71,31 @@ namespace ZenoniaProto.Rpg
             if (t <= 0f || t >= end) return 0f;
             if (t < GlowPeakMs) { float x = t / GlowPeakMs; return 1f - (1f - x) * (1f - x); }
             float y = 1f - (t - GlowPeakMs) / (end - GlowPeakMs);
+            return y * y;
+        }
+
+        /// <summary>Venom Drain tether opacity at `t` ms relative to the strike: a faint flow growing with the warning (0.3 -&gt; 0.8), full at the
+        /// strike, back to 0 at DrainPulseMs.</summary>
+        public static float TetherAlpha(WantedSkillDef skill, float t)
+        {
+            if (t < 0f) return 0.3f + 0.5f * WarningFill(skill, -t);
+            if (t >= DrainPulseMs) return 0f;
+            return t < GlowPeakMs ? 1f : 1f - (t - GlowPeakMs) / (DrainPulseMs - GlowPeakMs);
+        }
+
+        /// <summary>Venom Drain tether width multiplier: 1 during the warning, 1.6 at the strike pulse, easing back to 1 by DrainPulseMs.</summary>
+        public static float TetherWidth(float t)
+        {
+            if (t < 0f || t >= DrainPulseMs) return 1f;
+            return 1f + 0.6f * (1f - t / DrainPulseMs);
+        }
+
+        /// <summary>Venom Drain heal flash on the boss 0..1: 0 before the strike, full at GlowPeakMs, 0 at HealFlashMs.</summary>
+        public static float HealFlash(float t)
+        {
+            if (t <= 0f || t >= HealFlashMs) return 0f;
+            if (t < GlowPeakMs) return t / GlowPeakMs;
+            float y = 1f - (t - GlowPeakMs) / (HealFlashMs - GlowPeakMs);
             return y * y;
         }
 

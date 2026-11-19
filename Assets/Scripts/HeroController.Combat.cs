@@ -107,19 +107,26 @@ namespace ZenoniaProto
         }
 
         /// <summary>Called by monsters when a strike connects. Green Slime takes its % off first; a hit fully soaked by a shield does not wake the pet (no real HP lost).</summary>
-        public void TakeDamage(int dmg)
+        public void TakeDamage(int dmg) { TakeDamage(dmg, false); }
+
+        /// <summary>`dot` = a damage-over-time tick (wanted boss poison): no invuln window, no hurt pose, no cast break. A poison tick every
+        /// 500 ms used to grant the 500 ms invuln each time, so a poisoned hero dodged every boss hit, Venom Drain included (2026-11-19).</summary>
+        public void TakeDamage(int dmg, bool dot)
         {
-            if (dead || God || invuln > 0f || dashLeft > 0f) return;
+            if (dead || God || (!dot && invuln > 0f) || dashLeft > 0f) return;
             double cut = rpg.PetPassive(PetPassive.DamageTaken);
             if (cut > 0) dmg = Mathf.Max(1, Mathf.RoundToInt(dmg * (float)(1 - cut)));
             dmg = HeroBuffs.Absorb(this, dmg); // Mana Shield / Guardian Spirit soak first
-            if (dmg <= 0) { invuln = InvulnMs; return; } // fully absorbed: no HP loss, no hurt reaction
+            if (dmg <= 0) { if (!dot) invuln = InvulnMs; return; } // fully absorbed: no HP loss, no hurt reaction
             hp -= dmg;
-            invuln = InvulnMs;
-            hurt = HurtMs;
-            // 2026-11-15 (docs/reference/combo-knockback-chatgpt.md): a plain hit no longer cancels the pending second stab (the Assassin finisher's
-            // pushing stab is a committed move); only death or a real disable (freeze / stun / knockback, TakeWantedSkillHit) drops it.
-            castLeft = 0f; // a landed hit breaks the cast root (the already launched skill keeps playing, like the web)
+            if (!dot)
+            {
+                invuln = InvulnMs;
+                hurt = HurtMs;
+                // 2026-11-15 (docs/reference/combo-knockback-chatgpt.md): a plain hit no longer cancels the pending second stab (the Assassin finisher's
+                // pushing stab is a committed move); only death or a real disable (freeze / stun / knockback, TakeWantedSkillHit) drops it.
+                castLeft = 0f; // a landed hit breaks the cast root (the already launched skill keeps playing, like the web)
+            }
             HeroFx.Hurt(new Vector2(x, y), dmg);
             NetEventBus.HeroHit(this, dmg);
             if (hp <= 0f)

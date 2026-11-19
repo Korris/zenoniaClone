@@ -6,14 +6,15 @@ public class WantedSkillTests
     const float U = WantedSkillArea.TileUnits; // 16
 
     [Fact]
-    public void EveryBossHasFourSkillsEndingWithOneEnrageSkill()
+    public void EveryBossHasThreePlainSkillsThenOneEnrageSkill_MireHydraAddsVenomDrainAsId4()
     {
         foreach (WantedSkillDef[] table in new[] { WantedSkillTable.RimeclawTyrant, WantedSkillTable.GlacialColossus, WantedSkillTable.MireHydraQueen })
         {
-            Assert.Equal(4, table.Length);
+            Assert.Equal(table == WantedSkillTable.MireHydraQueen ? 5 : 4, table.Length);
+            Assert.True(table.Length <= new WantedSkillClock().CooldownLeft.Length);
             for (int i = 0; i < table.Length; i++) Assert.Equal(i, table[i].Id);
             Assert.True(table[3].Enrage);
-            for (int i = 0; i < 3; i++) Assert.False(table[i].Enrage);
+            for (int i = 0; i < table.Length; i++) if (i != 3) Assert.False(table[i].Enrage);
         }
     }
 
