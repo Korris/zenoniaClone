@@ -172,7 +172,20 @@ def pieces(cfg, boxes_png=None):
                     soft = ~solid
                     cut[..., :3][soft] = cut[iy[soft], ix[soft], :3]
             if p.get("skip"): continue
-            out[p["name"]] = (flatten_edges(shrink(Image.fromarray(cut), p), p, cfg.get("flatten_edges", 0)), p)
+            if "glyph_inset" in p:                                   # dark line icon painted on a light tile: keep only the icon, as white + alpha (tinted in code)
+                g = int(p["glyph_inset"])
+                lum = cut[..., :3].astype(np.float32).mean(-1)
+                inner = np.zeros(lum.shape, bool); inner[g:-g, g:-g] = True
+                tile = np.percentile(lum[inner], 80)                  # the tile's light face
+                ink = np.percentile(lum[inner], 2)                     # the darkest glyph line
+                alpha = np.clip((tile - 18 - lum) / max(1.0, tile - 18 - ink), 0, 1) * inner
+                cut = np.zeros_like(cut); cut[..., :3] = 255; cut[..., 3] = (alpha * 255).astype(np.uint8)
+                ys, xs = np.where(cut[..., 3] > 8)                     # trim to the glyph (+2 px), centred in a square: icon size = glyph size
+                if len(xs):
+                    cx, cy, half = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2, max(xs.max() - xs.min(), ys.max() - ys.min()) / 2 + 2
+                    x0, y0 = int(max(0, cx - half)), int(max(0, cy - half))
+                    cut = cut[y0:int(cy + half) + 1, x0:int(cx + half) + 1].copy()
+            out[p["name"]] =(flatten_edges(shrink(Image.fromarray(cut), p), p, cfg.get("flatten_edges", 0)), p)
             if "hole" in p:                                          # white plate filling the piece's window, 3 px under the frame
                 inside = ndi.binary_fill_holes(cut[..., 3] > 128) & (cut[..., 3] < 128)
                 lab2, n2 = ndi.label(inside)

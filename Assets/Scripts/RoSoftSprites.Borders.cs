@@ -13,6 +13,18 @@ namespace ZenoniaProto
     {
         static readonly Dictionary<string, Vector4> Borders = new Dictionary<string, Vector4>
         {
+            { "ro-soft/bag-detail-frame", new Vector4(40f, 40f, 40f, 40f) },
+            { "ro-soft/bag-gold-pill", new Vector4(84f, 30f, 36f, 30f) },
+            { "ro-soft/bag-label", new Vector4(60f, 0f, 34f, 0f) },
+            { "ro-soft/bag-lv-plate", new Vector4(30f, 18f, 30f, 18f) },
+            { "ro-soft/bag-pill-mint", new Vector4(48f, 40f, 48f, 40f) },
+            { "ro-soft/bag-pill-white", new Vector4(48f, 40f, 48f, 40f) },
+            { "ro-soft/bag-power-plate", new Vector4(78f, 24f, 30f, 24f) },
+            { "ro-soft/bag-section", new Vector4(44f, 44f, 44f, 44f) },
+            { "ro-soft/bag-slot", new Vector4(30f, 30f, 30f, 30f) },
+            { "ro-soft/bag-slot-empty", new Vector4(30f, 30f, 30f, 30f) },
+            { "ro-soft/bag-slot-selected", new Vector4(44f, 44f, 44f, 44f) },
+            { "ro-soft/bag-window", new Vector4(52f, 52f, 52f, 52f) },
             { "ro-soft/bar-blue", new Vector4(28f, 0f, 28f, 0f) },
             { "ro-soft/bar-gold", new Vector4(28f, 0f, 28f, 0f) },
             { "ro-soft/bar-red", new Vector4(28f, 0f, 28f, 0f) },

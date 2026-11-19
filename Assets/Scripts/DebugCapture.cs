@@ -229,6 +229,8 @@ namespace ZenoniaProto
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--select-pet") >= 0) InventoryPanel.TestSelectWorn(Slots.Pet);
             string selectWorn = Arg(Environment.GetCommandLineArgs(), "--select-worn"); // a slot id, e.g. helmet (the Necklace cell): its detail panel
             if (selectWorn != null) InventoryPanel.TestSelectWorn(selectWorn);
+            string bagUi = Arg(Environment.GetCommandLineArgs(), "--bag-ui"); // stats | sort | discard | tab:N (RO Soft bag states)
+            if (bagUi != null) InventoryPanel.TestUi(bagUi);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-settings") >= 0) SettingsWindow.Open(); // what the gear button calls
             string show = Arg(Environment.GetCommandLineArgs(), "--settings-show"); // e.g. on,off: switch art only, PlayerPrefs untouched
             if (show != null) { string[] s = show.Split(','); SettingsWindow.TestShow(s[0] == "on", s.Length > 1 && s[1] == "on"); }

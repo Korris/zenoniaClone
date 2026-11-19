@@ -11,7 +11,7 @@ namespace ZenoniaProto
         Text spBadgeText;
         int shownSp = -1;
 
-        /// <summary>Small round menu buttons under the minimap (art cut from hud-bag-settings-buttons.png): Quests opens the quest list, Bag the inventory, Settings the settings window (sound switches, Change hero).</summary>
+        /// <summary>Small round menu buttons under the minimap (art cut from hud-bag-settings-buttons.png): Quests opens the quest list, Bag the inventory, Skill the skill tree, Settings the settings window (sound switches, Change hero).</summary>
         void BuildMenuButtons(Transform parent)
         {
             Vector2 tr = new Vector2(1f, 1f);
@@ -26,15 +26,27 @@ namespace ZenoniaProto
             pets.gameObject.AddComponent<TapButton>().onTap = () => UiScreens.Toggle(UiScreen.Pet);
 
             RectTransform bag = Place(parent, "Bag", tr, -88f, y, size);
-            Img(bag, MenuSprite("hud-bag"), Color.white, true);
+            Sprite roBag = UiStyle.Ro ? RoSoftSprites.Named("bag-icon") : null; // the RO Soft bag's backpack (ChatGPT art) on a dark disc
+            if (roBag != null)
+            {
+                Img(bag, UiSprites.Circle(), new Color(0.12f, 0.16f, 0.24f, 0.85f), true);
+                Img(Place(bag, "Icon", new Vector2(0.5f, 0.5f), 0f, 0f, 40f), roBag, Color.white).preserveAspect = true;
+            }
+            else Img(bag, MenuSprite("hud-bag"), Color.white, true);
             TouchButton.Add(bag.gameObject, GameKey.Inventory, false);
+
+            // The RO Soft bag has no Skill tab (approved mockup), so the skill tree gets its own button; it carries the free skill point badge.
+            RectTransform skill = Place(parent, "Skill", tr, -256f, y, size);
+            Img(skill, UiSprites.Circle(), new Color(0.12f, 0.16f, 0.24f, 0.85f), true);
+            Sprite skillIcon = PaperArt.Get(PaperPiece.CMenuIconPrefix + "skill");
+            if (skillIcon != null) Img(Place(skill, "Icon", new Vector2(0.5f, 0.5f), 0f, 0f, 36f), skillIcon, Color.white).preserveAspect = true;
+            skill.gameObject.AddComponent<TapButton>().onTap = () => UiScreens.Toggle(UiScreen.Skill);
 
             RectTransform settings = Place(parent, "Settings", tr, -32f, y, size);
             Img(settings, MenuSprite("hud-settings"), Color.white, true);
             settings.gameObject.AddComponent<TapButton>().onTap = SettingsWindow.Open; // music / sound switches and Change hero (HeroChangeScreen.Open)
 
-            // The skill tree opens from the bag's Skill tab, so the Bag carries the red badge counting the free skill points.
-            RectTransform badge = Place(bag, "Badge", tr, -5f, -5f, 26f);
+            RectTransform badge = Place(skill, "Badge", tr, -5f, -5f, 26f); // red badge counting the free skill points
             Img(badge, UiSprites.Circle(), new Color(0.85f, 0.15f, 0.15f, 1f));
             spBadgeText = UiKit.Label(UiKit.Fill(badge, "Count"), "", 15, Color.white, TextAnchor.MiddleCenter, true);
             spBadge = badge.gameObject;

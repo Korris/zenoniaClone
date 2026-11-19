@@ -3,7 +3,7 @@ using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
-    /// <summary>Keys and taps of the old bag window: arrows move the selection (BagModel), J / Space or a second tap within 0.35 s activates.</summary>
+    /// <summary>Keys and taps of the bag window: arrows move the selection (BagModel), J / Space or a second tap within 0.35 s activates.</summary>
     public partial class InventoryPanel
     {
         void Update()
@@ -24,13 +24,12 @@ namespace ZenoniaProto
             confirmDiscard = false;
             if (model.Worn >= 0)
             {
-                if (dx > 0) { model.Worn = -1; model.Cell = model.Page * PageSize; return; }
+                if (dx > 0) { model.Worn = -1; model.Cell = 0; return; }
                 model.Worn = (model.Worn + dy + dx + Slots.All.Length) % Slots.All.Length;
                 return;
             }
             if (dx < 0 && model.Cell % GridCols == 0) { model.Worn = 0; return; }
-            model.Cell = Mathf.Clamp(model.Cell + dx + dy * GridCols, 0, model.CellCount - 1);
-            model.Page = model.Cell / PageSize;
+            model.Cell = Mathf.Clamp(model.Cell + dx + dy * GridCols, 0, Mathf.Min(PageSize, model.CellCount) - 1);
         }
 
         bool IsDoubleTap(int index)
@@ -44,6 +43,7 @@ namespace ZenoniaProto
 
         void OnCellClick(int cell)
         {
+            CloseSortList();
             bool twice = IsDoubleTap(cell);
             model.Worn = -1;
             model.Cell = cell;
@@ -58,6 +58,16 @@ namespace ZenoniaProto
             model.Worn = index;
             SetFilter(BagModel.FilterOf(Slots.All[index]));
             if (twice) Activate(); else Refresh();
+        }
+
+        /// <summary>Capture runs (--bag-ui): "stats" opens the Stats popup, "sort" the Sort list, "discard" arms Discard, "tab:N" picks category tab N.</summary>
+        public static void TestUi(string what)
+        {
+            if (instance == null) return;
+            if (what == "stats") instance.statsPopup.gameObject.SetActive(true);
+            else if (what == "sort") instance.ToggleSortList();
+            else if (what == "discard") instance.DiscardSelected();
+            else if (what.StartsWith("tab:")) { instance.SetFilter(TabFilters[int.Parse(what.Substring(4)) % TabFilters.Length]); instance.model.Worn = -1; instance.Refresh(); }
         }
     }
 }

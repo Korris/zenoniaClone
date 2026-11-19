@@ -1,29 +1,33 @@
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using ZenoniaProto.Rpg;
+using W = ZenoniaProto.InventoryRoWidgets;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The bag window, MU Online style: worn gear and the inventory on one screen, in the gold-and-navy frame of the quest windows.
-    /// Left: the hero between two rows of worn slots, Stats behind a button. Centre: 5 x 4 paged grid. Right: the selected item, compared with what is worn, with Equip / Unequip and Enhance.
-    /// Tapping a worn slot filters the grid to what fits it; the chip clears the filter. A second tap within 0.35 s activates; arrows move the selection and J / Space activates.
-    /// B / I toggles (RpgSession), Esc closes; the game is paused while it is open.
-    /// Partial: InventoryPanel.Loadout.cs (left), InventoryPanel.Bag.cs (centre), InventoryPanel.Detail.cs (right), InventoryPanel.Input.cs (keys and taps). Mock: ArtLibrary/custom/inventory-ui-ref/bag-layout-mock-1.png.
-    /// What is listed / selected is BagModel, what an action does to the player is BagActions: both shared with the Armory Carousel (ArmoryWindow), which UiScreens opens instead when its switch is on.
+    /// "Bag &amp; Equipment", the RO Soft Fantasy bag, built to the approved mockup docs/reference/ui-style-ro-soft-fantasy/03-bag.png
+    /// (every piece painted by ChatGPT, see InventoryRoWidgets). Header: mascot, title, Gold and Pet Crystal counters, close.
+    /// Left: the hero in his real gear on the castle stage between the 8 worn slots, Lv, Power, Stats and Enhance. Centre: 6 category tabs,
+    /// Bag (n/50), Sort dropdown, an 8 x 8 grid (supplies first, then the 50 bag slots, "+" = free). Right: the selected item, Equipped vs
+    /// Selected stats, Effect, Equip / Enhance / Discard.
+    /// A second tap within 0.35 s activates; arrows move the selection and J / Space activates. B / I toggles (RpgSession), Esc closes.
+    /// Partial: .Loadout (left), .Bag (centre), .Detail (right), .Input (keys, taps). What is listed / selected is BagModel, what an action
+    /// does is BagActions (online: the server decides and its reply redraws): both shared with the Armory Carousel (ArmoryWindow).
     /// </summary>
     public partial class InventoryPanel : MonoBehaviour
     {
-        const float W = 1052f, H = 556f, PanelY = 70f, PanelH = 460f;
-        const float LeftW = 300f, CentreW = 402f, RightW = 290f, Gap = 6f;
-        const float DoubleClickSeconds = 0.35f, MessageSeconds = 1.5f;
+        const float WinW = 1124f, WinH = 616f, PanelY = 70f, PanelH = 536f;
+        const float LeftX = 8f, LeftW = 326f, CentreX = 342f, CentreW = 426f, RightX = 776f, RightW = 340f;
+        const float DoubleClickSeconds = 0.35f, MessageSeconds = 1.8f;
         const int WornClickBase = 1000; // keeps worn slots and grid cells apart in the double-tap check
         static InventoryPanel instance;
 
-        readonly BagModel model = new BagModel(); // its defaults are this window: 20 cells a page, gold and empty stacks listed, all 50 slots
+        readonly BagModel model = new BagModel { PageSize = 64, ListCoin = false, ListEmptySupplies = false }; // gold is in the header; one page holds everything
         RectTransform overlay, window;
-        Text messageText;
+        Text messageText, goldText, gemText;
         float messageUntil;
         float lastClickTime;
         int lastClickIndex = -1;
@@ -58,6 +62,7 @@ namespace ZenoniaProto
             if (instance == null) return;
             instance.overlay.gameObject.SetActive(false);
             instance.confirmDiscard = false;
+            instance.CloseSortList();
             instance.heroView.Stop();
             GameClock.Paused = false;
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
@@ -75,45 +80,43 @@ namespace ZenoniaProto
         void Build(Transform canvas)
         {
             overlay = UiKit.Fill(canvas, "BagOverlay");
-            UiKit.Panel(overlay, new Color(0f, 0f, 0f, 0.5f), true); // also stops taps reaching the game
-            RectTransform win = UiWinKit.Anchored(overlay, "Window", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), 0f, 0f, W, H);
-            window = win;
-            UiWinKit.Sliced(win, "panel", 0.9f, true);
-
-            Image bagIcon = UiKit.Icon(win, "BagIcon", 25f, 7f, 52f);
-            bagIcon.sprite = BagSprites.BagIcon();
-            BagWidgets.Style(UiKit.Label(win, "Title", 82f, 10f, 80f, 46f, "Bag", 30, new Color(1f, 0.93f, 0.7f), TextAnchor.MiddleLeft, true), true);
-            BuildTab(win, 150f, "tab-active", "Bag", null);
-            BuildTab(win, 286f, "tab-inactive", "Skill", () => { Close(); UiScreens.Open(UiScreen.Skill); });
-            BagWidgets.Divider(win, "HeaderRule", 432f, 36f, W - 510f);
-            UiWinKit.CloseButton(win, W - 62f, 14f, 42f, Close);
-
-            BuildLoadout(Section(win, "Left", 24f, LeftW));
-            BuildBag(Section(win, "Centre", 24f + LeftW + Gap, CentreW));
-            BuildDetail(Section(win, "Right", 24f + LeftW + Gap + CentreW + Gap, RightW));
-            RoSoftSkin.Light(overlay); // RO Soft Fantasy look unless --ui-style classic
+            UiKit.Panel(overlay, new Color(0.16f, 0.22f, 0.3f, 0.22f), true); // also stops taps reaching the game
+            window = UiWinKit.Anchored(overlay, "Window", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), 0f, 0f, WinW, WinH);
+            W.Img(window, "Frame", 0f, 0f, WinW, WinH, "bag-window", true);
+            BuildHeader(window);
+            BuildLoadout(W.Img(window, "Left", LeftX, PanelY, LeftW, PanelH, "bag-section").rectTransform);
+            BuildBag(W.Img(window, "Centre", CentreX, PanelY - 4f, CentreW, PanelH + 4f, "bag-section").rectTransform);
+            BuildDetail(W.Img(window, "Right", RightX, PanelY, RightW, PanelH, "bag-section").rectTransform);
+            BuildStatsPopup(window);
             overlay.gameObject.SetActive(false);
+        }
+
+        void BuildHeader(RectTransform win)
+        {
+            W.Img(win, "Mascot", 44f, -3f, 98f, 74f, "bag-mascot");
+            Text title = W.Txt(win, "Title", 148f, 8f, 360f, 50f, "Bag & Equipment", 34, RoSoftTheme.Ink);
+            title.gameObject.AddComponent<Shadow>().effectColor = new Color(1f, 1f, 1f, 0.8f);
+            W.Img(win, "TitleStar", 148f + title.preferredWidth + 8f, 12f, 22f, 22f, "bag-stat-crit"); // the gold sparkle after the title
+            messageText = W.Txt(win, "Message", 420f, 16f, 250f, 40f, "", 15, RoSoftTheme.GoldText, TextAnchor.MiddleCenter);
+            messageText.horizontalOverflow = HorizontalWrapMode.Wrap;
+
+            Image gold = W.Img(win, "GoldPill", 680f, 14f, 186f, 38f, "bag-gold-pill"); // coin painted on its left end
+            goldText = W.Txt(gold.transform, "Gold", 40f, 0f, 104f, 35f, "", 18, W.Ink, TextAnchor.MiddleRight);
+            W.Clickable(W.Img(gold.transform, "Plus", 150f, 2f, 32f, 32f, "btn-plus", true), () => Flash("Gold comes from monsters, quests and selling gear."));
+
+            Image gem = W.Img(win, "GemPill", 876f, 14f, 172f, 36f, "bag-pill-white");
+            gem.color = RoSoftTheme.Hex("#EEF5FC"); // a hint of ice blue
+            W.Img(gem.transform, "Gem", 6f, 2f, 32f, 32f, "bag-gem");
+            gemText = W.Txt(gem.transform, "Crystals", 40f, 0f, 90f, 35f, "", 18, W.Ink, TextAnchor.MiddleRight);
+            W.Clickable(W.Img(gem.transform, "Plus", 136f, 2f, 32f, 32f, "btn-plus", true), () => Flash(PetGachaText.CrystalSource));
+
+            W.Clickable(W.Img(win, "Close", 1066f, 10f, 46f, 46f, "bag-close", true), Close);
         }
 
         void FitWindow()
         {
-            float scale = Mathf.Min(1f, (overlay.rect.width - 16f) / W, (overlay.rect.height - 16f) / H);
+            float scale = Mathf.Min(1f, (overlay.rect.width * 0.94f) / WinW, (overlay.rect.height - 40f) / (WinH + 12f)); // margins as in the mockup
             window.localScale = Vector3.one * Mathf.Max(0.1f, scale);
-        }
-
-        static void BuildTab(RectTransform win, float x, string piece, string text, System.Action onClick)
-        {
-            RectTransform rt = UiKit.Rect(win, "Tab" + text, x, 16f, 128f, 40f);
-            Image img = UiWinKit.Sliced(rt, piece, 0f);
-            BagWidgets.Style(UiKit.Label(UiKit.Fill(rt, "Label"), text, 21, UiWinKit.Cream, TextAnchor.MiddleCenter, true), true);
-            if (onClick != null) UiWinKit.MakeButton(img, onClick);
-        }
-
-        static RectTransform Section(RectTransform win, string name, float x, float w)
-        {
-            RectTransform rt = UiKit.Rect(win, name, x, PanelY, w, PanelH);
-            UiWinKit.Sliced(rt, "panel", 0.18f); // thin line and small corners: only the outer frame is heavy
-            return rt;
         }
 
         // ---- actions (BagActions does the work; here only what this window shows afterwards) ----
@@ -164,6 +167,8 @@ namespace ZenoniaProto
             HeroController hero = GameSession.Hero;
             if (p == null || hero == null) { Close(); return; }
             FitWindow();
+            goldText.text = p.Gold.ToString("N0", CultureInfo.InvariantCulture) + " G";
+            gemText.text = (p.Account != null ? p.Account.crystals : 0).ToString("N0", CultureInfo.InvariantCulture);
             RefreshLoadout(p, hero);
             RefreshBag(p);
             RefreshDetail(p);
