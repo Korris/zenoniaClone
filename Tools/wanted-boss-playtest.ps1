@@ -38,7 +38,7 @@ $dbName = "wanted_play"
 $starts = @{
   rimeclawTyrant = @("--map", "frostHollow", "--x", "1032", "--y", "248")       # tile (64,29), 48 rows
   glacialColossus = @("--map", "frostfangDen", "--x", "440", "--y", "136")      # boss tile (27,12), 24 rows
-  mireHydraQueen = @("--map", "sunkenReliquary", "--x", "488", "--y", "104")    # boss tile (30,14), 24 rows
+  mireHydraQueen = @("--map", "sunkenReliquary", "--x", "728", "--y", "136")    # boss tile (45,12), 24 rows
 }
 if (-not $starts.ContainsKey($Boss)) { throw "no start position for $Boss" }
 $procs = @()
