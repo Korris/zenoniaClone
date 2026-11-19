@@ -63,9 +63,13 @@ namespace ZenoniaProto.Rpg
         /// <summary>Class without a starter hat of its own (the Fighter) gets this one from the newbie quest.</summary>
         public const int FallbackStarterId = 7;
 
+        /// <summary>Hats drawn over the whole hair (hoods, caps the hair would poke out under): the hair layer is hidden. Same as hidesHair in headgear.json.</summary>
+        /// (A method, not a static set: All is built by an earlier static initializer.)
+        static bool HidesHairKey(string key) { return key == "nun-veil" || key == "aviator-cap" || key == "pompom-beanie" || key == "slime-cap" || key == "frog-hat"; }
+
         static HeadgearDef H(int id, string key, string name, string source, string from, double rate, int price, string cls, string rarity)
         {
-            return new HeadgearDef { Id = id, Key = key, Name = name, Source = source, DropFrom = from, Rate = rate, Price = price, ClassId = cls, Rarity = rarity, HidesHair = key == "nun-veil" || key == "aviator-cap" };
+            return new HeadgearDef { Id = id, Key = key, Name = name, Source = source, DropFrom = from, Rate = rate, Price = price, ClassId = cls, Rarity = rarity, HidesHair = HidesHairKey(key) };
         }
 
         public static HeadgearDef Get(int id) { return id >= 1 && id <= All.Length ? All[id - 1] : null; }
