@@ -7,8 +7,9 @@ namespace ZenoniaProto
     /// <summary>
     /// Layered hero path (docs/character-appearance-layered-spec.md, step B): body + mask recoloured by HeroRecolor.shader, hair, headgear,
     /// weapon / offhand on per-frame grips, fist (HeroLayeredView), 8 view dirs like the RO Soft path. Step D: the default style for every class
-    /// with real art (Data/hero-layered/&lt;class&gt;/class.json, Tools/build-hero-layered-game-assets.py), local hero and others alike; weapons are
-    /// not drawn until the batch-3 weapon art has grips (TODO). `--hero-style classic|rosoft` turns it off; `--layered-test` draws every non-local
+    /// with real art (Data/hero-layered/&lt;class&gt;/class.json, Tools/build-hero-layered-game-assets.py), local hero and others alike; the class's
+    /// weapon / offhand on per-frame grips (Tools/build-hero-layered-grips.py), each hidden only when that hand has nothing equipped.
+    /// `--hero-style classic|rosoft` turns it off; `--layered-test` draws every non-local
     /// hero with the synthetic set (Tools/build-hero-recolor-mask.py test-sheets). Appearance (CharacterAppearanceData) picks the palette colours; heroes other than the local one
     /// get a small crowd variation from their seed: walk phase and breath offset, figure scale 0.96-1.04.
     /// </summary>
@@ -107,6 +108,9 @@ namespace ZenoniaProto
             return set.HasAnim(want) ? want : set.Resolve(anim);
         }
 
+        /// <summary>The main hand holds something: a non-offhand part with an item (SetEquipmentGear / SetGear), or no paper-doll parts at all.</summary>
+        bool LayeredWeaponOn { get { return parts.Count == 0 || parts.Exists(p => !p.Spec.IsOffhand && !p.Empty); } }
+
         /// <summary>A skill pose's frame is counted on its classic sheet: spread it over the painted attack's frames.</summary>
         int PoseFrame(string anim, string painted, int frame, int n)
         {
@@ -133,7 +137,7 @@ namespace ZenoniaProto
             shadow.sortingOrder = orderBase;
             shadow.color = new Color(1f, 1f, 1f, 0.3f * a);
             float sy = painted == "idle" && anim != "death" ? 1f + BreathAmp * Mathf.Sin((Time.time + breathPhase) * (2f * Mathf.PI / BreathPeriod)) : 1f;
-            layered.Show(painted, SoftRow(dir), frame, orderBase, new Color(c.r, c.g, c.b, a), sy);
+            layered.Show(painted, SoftRow(dir), frame, orderBase, new Color(c.r, c.g, c.b, a), sy, LayeredWeaponOn, !offhandEmpty);
         }
     }
 }

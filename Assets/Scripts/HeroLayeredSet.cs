@@ -15,9 +15,9 @@ namespace ZenoniaProto
         [Serializable] public class AnimSpec { public string name; public int frames = 1; }
         [Serializable] public class HeadAnchor { public string anim; public int dir, f; public float x, y, w, angle; }
         [Serializable] class BodyFile { public int cellW = 320, cellH = 256, feetY = 244, bodyPx = 200; public string sheets; public AnimSpec[] anims; public HeadAnchor[] head; }
-        [Serializable] public class LayerEntry { public int style, id; public string sheet; public int cellW, cellH; public float ax, ay, refW = 1f, drop; public bool hidesHair; }
-        [Serializable] public class WeaponEntry { public string part, sheet; public float gx, gy; }
-        [Serializable] public class Grip { public string part, anim; public int dir, f; public float x, y, angle; public bool behind; }
+        [Serializable] public class LayerEntry { public int style, id; public string sheet, accSheet; public int cellW, cellH; public float ax, ay, refW = 1f, drop; public bool hidesHair; }
+        [Serializable] public class WeaponEntry { public string part, sheet; public float gx, gy; public bool overHand; }
+        [Serializable] public class Grip { public string part, anim; public int dir, f; public float x, y, angle; public bool behind, flip; }
         [Serializable] class ClassFile { public string body; public LayerEntry[] hair, headgear; public WeaponEntry[] weapons; public Grip[] grips; }
 
         /// <summary>World height of the body (the paper doll's figure height), as on the RO Soft path.</summary>
@@ -34,6 +34,7 @@ namespace ZenoniaProto
         readonly Dictionary<string, Grip> grips = new Dictionary<string, Grip>();
         readonly Dictionary<int, LayerEntry> hair = new Dictionary<int, LayerEntry>(), headgear = new Dictionary<int, LayerEntry>();
         readonly Dictionary<string, Sprite> weapons = new Dictionary<string, Sprite>();
+        readonly HashSet<string> overHand = new HashSet<string>();
         readonly List<string> anims = new List<string>();
 
         /// <summary>The set behind a class json (resource path without extension), or null when it or its body / sheets are missing.</summary>
@@ -66,6 +67,7 @@ namespace ZenoniaProto
                     {
                         Texture2D t = SpriteSheet.TryLoad(w.sheet);
                         if (t != null) s.weapons[w.part] = SpriteSheet.Whole(w.sheet, s.Ppu, new Vector2(w.gx / t.width, 1f - w.gy / t.height));
+                        if (w.overHand) s.overHand.Add(w.part);
                     }
                 return s.BodyGrid(s.anims[0]) != null ? s : null;
             }
@@ -101,6 +103,8 @@ namespace ZenoniaProto
         public HeadAnchor Head(string anim, int paintedDir, int f) { HeadAnchor h; return heads.TryGetValue(Key(anim, paintedDir, f), out h) ? h : null; }
         public Grip GripOf(string part, string anim, int dir8, int f) { Grip g; return grips.TryGetValue(part + "|" + Key(anim, dir8, f), out g) ? g : null; }
         public Sprite Weapon(string part) { Sprite s; return weapons.TryGetValue(part, out s) ? s : null; }
+        /// <summary>True when this part is drawn over the hand layer in front of the body (a shield covers the fist that holds it).</summary>
+        public bool OverHand(string part) { return overHand.Contains(part); }
 
         public LayerEntry Hair(int style)
         {
@@ -113,10 +117,15 @@ namespace ZenoniaProto
         public LayerEntry Headgear(int id) { LayerEntry e; return id > 0 && headgear.TryGetValue(id, out e) ? e : HeadgearArt.Layer(id); }
 
         /// <summary>Cell `dir` (painted dir) of a hair / headgear strip, pivot on the entry's anchor point.</summary>
-        public Sprite LayerCell(LayerEntry e, int paintedDir)
+        public Sprite LayerCell(LayerEntry e, int paintedDir) { return e != null ? Cell(e, e.sheet, paintedDir) : null; }
+
+        /// <summary>Cell of a hair entry's accessory strip (Mechanic goggles: same cells and anchor as the hair), or null.</summary>
+        public Sprite AccessoryCell(LayerEntry e, int paintedDir) { return e != null && !string.IsNullOrEmpty(e.accSheet) ? Cell(e, e.accSheet, paintedDir) : null; }
+
+        Sprite Cell(LayerEntry e, string sheet, int paintedDir)
         {
-            if (e == null || SpriteSheet.TryLoad(e.sheet) == null) return null;
-            Sprite[][] g = SpriteSheet.Grid(e.sheet, e.cellW, e.cellH, Ppu, new Vector2(e.ax / e.cellW, 1f - e.ay / e.cellH));
+            if (SpriteSheet.TryLoad(sheet) == null) return null;
+            Sprite[][] g = SpriteSheet.Grid(sheet, e.cellW, e.cellH, Ppu, new Vector2(e.ax / e.cellW, 1f - e.ay / e.cellH));
             Sprite[] row = SpriteSheet.Row(g, 0);
             return row != null && paintedDir < row.Length ? row[paintedDir] : null;
         }

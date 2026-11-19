@@ -2,6 +2,7 @@
 
   python Tools/build-hero-layered-game-assets.py write     bodies (male, female) + hair of the 5 classes + json
   python Tools/build-hero-layered-game-assets.py check     offline contact sheets (Tools/hero_layered_compose_check.py)
+  python Tools/build-hero-layered-game-assets.py accessory split the Mechanic goggles out of the installed hair strip (write does it too)
 
 Bodies: Assets/ArtLibrary/hero-layered/sheets/<gender>/<anim>.png (8 rows, Tools/build-hero-layered-sheets.py); only the 5 painted rows
 are kept (the game mirrors the left ones). Walk frames are re-centred on the skull (the cut centred them on the feet, so the body swayed
@@ -9,7 +10,8 @@ up to 26 px sideways between frames). Magenta outfit -> grey + mask (Tools/hero_
 centre (x, y) + skull width w (median of the anim row, so the hair does not pulse with detection noise).
   -> Sprites/hero-layered/<gender>/body/<anim>.png, <anim>-mask.png ; Data/hero-layered/<gender>/body.json
 Hair: latest src/hair-<class>-5dir-chatgpt-N.png -> Sprites/hero-layered/hair/<class>/0.png (5 cells: down, down-right, right, up-right, up)
-  -> Data/hero-layered/<class>/class.json (body, hair; no weapons yet: TODO weapons batch 3; hats come from Data/hero-layered/headgear.json).
+  Mechanic: goggles + strap split into hair/mechanic/0-acc.png (`accSheet`, hidden under any hat).
+  -> Data/hero-layered/<class>/class.json (body, hair; weapons / grips kept: Tools/build-hero-layered-grips.py; hats: headgear.json).
 """
 import json
 import re
@@ -25,6 +27,7 @@ from scipy import ndimage
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hero_recolor_core as core  # noqa: E402
 import hero_layered_hair as hair  # noqa: E402
+import hero_layered_hair_accessory as accessory  # noqa: E402
 sheets_tool = import_module("build-hero-layered-sheets")  # head_anchor
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -157,21 +160,50 @@ def hair_cells(cls, idle_cells):
     return out, src_path.name
 
 
-def write_hair(cls, idle_cells):
-    cells, name = hair_cells(cls, idle_cells)
-    strip = np.concatenate(cells, axis=1)
+def save_hair_strip(cls, strip):
+    """Hair strip + its accessory strip (Mechanic goggles, Tools/hero_layered_hair_accessory.py); returns the accessory sheet path or None."""
     d = SPR / "hair" / cls
     mkdirs(d)
+    strip, acc = accessory.split(strip, cls)
     Image.fromarray(strip).save(d / "0.png")
     meta(d / "0.png", "idle")
+    if acc is None:
+        return None
+    Image.fromarray(acc).save(d / "0-acc.png")
+    meta(d / "0-acc.png", "idle")
+    return f"Sprites/hero-layered/hair/{cls}/0-acc"
+
+
+def write_hair(cls, idle_cells):
+    cells, name = hair_cells(cls, idle_cells)
+    acc = save_hair_strip(cls, np.concatenate(cells, axis=1))
     mkdirs(DATA / cls)
-    cj = {"note": f"Layered {cls} (Tools/build-hero-layered-game-assets.py, hair from {name}). TODO weapons: no grips until the batch-3 "
-                  "weapon art; hats: Data/hero-layered/headgear.json.",
-          "body": f"Data/hero-layered/{CLASSES[cls]}/body",
-          "hair": [{"style": 0, "sheet": f"Sprites/hero-layered/hair/{cls}/0", "cellW": hair.CELL_W, "cellH": hair.CELL_H,
-                    "ax": hair.AX, "ay": hair.AY, "refW": hair.REF_W}],
-          "headgear": [], "weapons": [], "grips": []}
-    (DATA / cls / "class.json").write_text(json.dumps(cj, indent=1), encoding="utf-8")
+    path = DATA / cls / "class.json"
+    old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    entry = {"style": 0, "sheet": f"Sprites/hero-layered/hair/{cls}/0", "cellW": hair.CELL_W, "cellH": hair.CELL_H,
+             "ax": hair.AX, "ay": hair.AY, "refW": hair.REF_W}
+    if acc:
+        entry["accSheet"] = acc
+    cj = {"note": f"Layered {cls} (Tools/build-hero-layered-game-assets.py, hair from {name}); hats: Data/hero-layered/headgear.json; "
+                  "weapons: Tools/build-hero-layered-grips.py write.",
+          "body": f"Data/hero-layered/{CLASSES[cls]}/body", "hair": [entry], "headgear": [],
+          "weapons": old.get("weapons", []), "grips": old.get("grips", [])}  # weapon grips are written by another tool: keep them
+    path.write_text(json.dumps(cj, indent=1), encoding="utf-8")
+
+
+def split_accessory(cls):
+    """Split the accessory out of the hair strip already installed (no hair re-fit); no-op when it was split before."""
+    src = SPR / "hair" / cls / "0.png"
+    strip = np.asarray(Image.open(src).convert("RGBA"))
+    if accessory.split(strip, cls)[1] is None:
+        print(cls, "no accessory left in", src.name)
+        return
+    acc = save_hair_strip(cls, strip)
+    path = DATA / cls / "class.json"
+    cj = json.loads(path.read_text(encoding="utf-8"))
+    cj["hair"][0]["accSheet"] = acc
+    path.write_text(json.dumps(cj, indent=1), encoding="utf-8")
+    print(cls, "accessory ->", acc)
 
 
 def main(cmd):
@@ -181,6 +213,8 @@ def main(cmd):
             idle[g] = [r[0] for r in write_body(g)["idle"]]
         for cls, g in CLASSES.items():
             write_hair(cls, idle[g])
+    elif cmd == "accessory":
+        split_accessory("mechanic")
     elif cmd == "check":
         import_module("hero_layered_compose_check").main(ROOT)
     else:
