@@ -67,6 +67,11 @@ namespace ZenoniaProto
             hairColor = hairC; outfitColor = outfitC; hairStyle = style; headgearId = headgearIdValue;
         }
 
+        /// <summary>The layers that can rise above the skull: hair, hair accessory, headgear (the HUD portrait fits its crop to them).</summary>
+        public SpriteRenderer Hair { get { return hair; } }
+        public SpriteRenderer HairAccessory { get { return hairAcc; } }
+        public SpriteRenderer Headgear { get { return headgear; } }
+
         public SpriteRenderer[] Renderers { get { return new[] { weaponBack, offBack, body, hair, hairAcc, headgear, weaponFront, offFront, hand }; } }
 
         public void Hide() { foreach (SpriteRenderer r in Renderers) r.sprite = null; }

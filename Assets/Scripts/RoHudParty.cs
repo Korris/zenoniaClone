@@ -63,11 +63,7 @@ namespace ZenoniaProto
             r.Group = r.Root.gameObject.AddComponent<CanvasGroup>();
             r.Group.blocksRaycasts = false;
             RectTransform faceBox = RoHud.TopLeftBox(r.Root, "Face", 6f, (RowH - Face) * 0.5f, Face, Face);
-            RectTransform m = UiKit.Fill(faceBox, "Mask");
-            Image mask = RoHud.Art(m, "hud-portrait-mask");
-            mask.preserveAspect = false;
-            mask.color = RoSoftTheme.SkyMist;
-            m.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+            RectTransform m = RoHudPortraits.Frame(faceBox);
             r.Face = UiKit.Fill(m, "Portrait").gameObject.AddComponent<Image>();
             r.Face.raycastTarget = false;
             r.Portrait = new HeroPortraitLayers(r.Face);

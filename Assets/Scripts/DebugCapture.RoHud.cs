@@ -24,6 +24,12 @@ namespace ZenoniaProto
         partial void DebugRoHud()
         {
             HeroController hero = GameSession.Hero;
+            string crop = Val("--portrait-crop"); // SHOULDERS,MINTOP,MAXTOP: the HUD portraits' bust crop in world units above the feet (tuning)
+            if (crop != null)
+            {
+                string[] c = crop.Split(',');
+                RoHudPortraits.SetCrop(float.Parse(c[0], CultureInfo.InvariantCulture), float.Parse(c[1], CultureInfo.InvariantCulture), float.Parse(c[2], CultureInfo.InvariantCulture));
+            }
             string look = Val("--look");
             if (hero != null && look != null) ApplyLook(hero, look);
             string at = Val("--look-at"), clicks = Val("--ro-click"), digits = Val("--ro-digit");
