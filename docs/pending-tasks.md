@@ -1,5 +1,7 @@
 # Việc đang dở
 
+> Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
+
 ### 19/11 17:00 cổng dịch chuyển ánh sáng (Particle System + shader + bloom) (agent, branch worktree, CHƯA merge)
 - `MapPortalLightFx`: vũng sáng mềm dưới đất + cột sáng `LightBeamScroll` (lõi bloom) + hạt bay lên (ParticleSystem tối đa 18 hạt / cổng), thở chậm 3,6 s, màu theo vùng (tuyết xanh, làng vàng hổ phách, rừng xanh lá, sa mạc ngọc lam, đầm tím). `--portal-fx off` = sương / cột cũ. Texture tạm Python (`portal-veil`, `portal-mote`). Báo cáo `plans/reports/portal-fx-261119.md`, ảnh `docs/reference/portal-fx/`. Chờ người dùng duyệt.
 
