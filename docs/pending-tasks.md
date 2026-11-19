@@ -2,6 +2,13 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 02:10 Gacha RO Soft làm theo mockup `06-gacha.png` (agent, merge vào `ro-fantasy-heroes`)
+- Người dùng: "cái hud của hệ thống pet và gacha chưa làm giống hud design". Phần Gacha (agent này); phần Pet (`05-pet.png`) agent khác làm.
+- Chat ChatGPT (Tay): https://chatgpt.com/c/6aff3c7b-d898-83ec-9563-8f66ba49a6d1 (sheet gacha-* + sân khấu, 3 vòng nghiệm thu 8.1 -> 8.7 -> 9.0/10, "không còn khác biệt mức LỚN").
+- XONG: `RoGachaWindow*.cs` là cửa sổ Gacha mặc định khi RO (`PetGachaWindow` chuyển sang; `--ui-style classic` giữ bản cũ, `--ui-new gacha` vẫn quầy Lumi giấy). Mọi số thật: tỉ lệ / pity từ `PetRules` / `PetGacha` (20/50, có dòng shared shards 19,25 %), Pull x1 / x10 thật + màn kết quả RO (x10 lật từng thẻ, Skip), Buy Gacha Coins (crystal -> xu, báo thiếu bao nhiêu xu), đổi 120 mảnh UR, lịch sử quay, luật (?), Lumi bust có sẵn. Click thử 15/15 nút qua EventSystem.
+- Exe `D:/temp/player-gacha/Zenonia.exe` (`--open-gacha`, `--gacha-pull 1|10`, `--gacha-press`, `--gacha-click`, `--gacha-click-test`). Báo cáo + câu hỏi: `plans/reports/ro-soft-gacha-261120.md`. Ảnh `docs/reference/ro-soft-gacha/`.
+- CHƯA: online thật (pull qua zone server), màn 4:3 / điện thoại, nói chuyện với Lumi trong làng (chỉ đi qua cùng đường mã), carousel "featured" chỉ là xem trước (game không có banner xoay vòng).
+
 ### 19/11 23:40 Mire Hydra Queen: Venom Drain + icon trúng độc HUD / party + hiệu ứng độc trên người + sửa boss quay mặt (agent, merge vào `ro-fantasy-heroes`)
 - Skill thứ 5 Venom Drain (Id 4, số ChatGPT chưa cân bằng), độc nhân bản cho client (`NetEventType.HeroStatus`, **protocol 25: PHẢI build lại zone server + phát client mới**), icon độc ChatGPT (`Sprites/ui/status/poison.png`) dưới thanh máu + hàng party (HUD RO và HUD gọn), tint olive + bọt độc trên người theo ChatGPT, tick độc hết cho bất tử, tint đóng băng / độc ăn cả hero RO Fantasy nhiều lớp. Boss quay mặt: 3,5-5,5 lần/s -> 0,4-1,0 lần/s (`Rpg/MonsterFacingRule.cs`).
 - ChatGPT Tay chat https://chatgpt.com/c/6aff091a-624c-83ec-b0f2-af0bb9e55cb4 (thiết kế Venom Drain, icon, có / không hiệu ứng trên người). Báo cáo `plans/reports/hydra-venom-drain-poison-ui-261119.md`, ảnh `docs/reference/mire-hydra-queen-v2/venom-*.png`. Exe `D:/temp/player-hydra-venom/Zenonia.exe`.
