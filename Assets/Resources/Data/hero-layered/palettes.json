@@ -1,7 +1,39 @@
 {
-  "note": "Layered hero colours (docs/character-appearance-layered-spec.md). Index = CharacterAppearanceData.hairColorIndex / outfitColorIndex: never reorder, only append (saved characters keep their index; CharacterAppearanceData.HairColorCount / OutfitColorCount must match). Each colour is the BASE tone (#999999 grey of the art); HeroRecolor.shader and Tools/hero_recolor_core.py build the dark and light tones from it.",
-  "hairNames": ["chestnut brown", "charcoal black", "honey blonde", "platinum", "vermilion red", "light sea blue", "lavender", "cherry blossom pink"],
-  "hair": ["#8A4E2E", "#34303A", "#E2A63E", "#E6DFD2", "#D2402F", "#5DA6D6", "#A68AD6", "#EE8DB0"],
-  "outfitNames": ["vermilion red", "royal blue", "moss green", "mustard yellow", "jade teal", "plum purple"],
-  "outfit": ["#C9412F", "#3B5FBF", "#6F8B3B", "#D3A22C", "#2F9A8E", "#7F3B70"]
+  "note": "Layered hero colours (docs/character-appearance-layered-spec.md). Index = CharacterAppearanceData.hairColorIndex / outfitColorIndex: never reorder, only append (saved characters keep their index; CharacterAppearanceData.HairColorCount / OutfitColorCount must match). Each colour is the BASE tone (#999999 grey of the art); HeroRecolor.shader and Tools/hero_recolor_core.py build the dark and light tones from it. RO Soft Fantasy tones (user 19/11): warm, light, softly saturated, from the style board (mint #48B6A5, sky #78B7F0, coral #E46C77, gold #F4C66A); no pure black, no neon.",
+  "hairNames": [
+    "soft chestnut",
+    "warm charcoal",
+    "honey blonde",
+    "silver",
+    "coral red",
+    "sky blue",
+    "lavender",
+    "sakura pink"
+  ],
+  "hair": [
+    "#A8693F",
+    "#4E4654",
+    "#F0C46A",
+    "#DCD8E4",
+    "#E2735F",
+    "#7DB6E6",
+    "#B49CE2",
+    "#F2A7C2"
+  ],
+  "outfitNames": [
+    "coral red",
+    "sky blue",
+    "sage green",
+    "warm gold",
+    "mint teal",
+    "lilac plum"
+  ],
+  "outfit": [
+    "#DE6A62",
+    "#6A93D4",
+    "#86AC62",
+    "#E8B852",
+    "#4DB7A6",
+    "#A27AC0"
+  ]
 }
