@@ -100,7 +100,25 @@ Mọi texture là mask xám trên nền đen; shader chỉ đọc kênh đỏ.
 - Nguồn: `Assets/ArtLibrary/fx/light-skill/*-procedural.png`.
 - Bản game: `Assets/Resources/Sprites/fx/light-skill/`, kèm `.meta` (Default texture, không mipmap, không nén).
 - Ảnh xem trước: `docs/reference/light-skill-fx/textures-preview.png` (lát 2x2, không thấy đường nối).
-- Lúc làm Tay đang hết lượt (đến 15:58), nên làm bản tạm trước. Bản ChatGPT (Tan Pham) làm sau, xem mục dưới.
+- Lúc làm Tay đang hết lượt (đến 15:58), nên làm bản tạm trước.
+
+### Bản ChatGPT (Tan Pham): CHƯA LÀM ĐƯỢC
+
+- Đã làm:
+  - mở tab mới của riêng mình trên Chrome đang dùng;
+  - đọc `/api/auth/session` ra "Tan Pham";
+  - không đụng tab chat nhân vật 6afe7669.
+- Bị chặn: lệnh JS dán hàm gửi prompt vào trang ChatGPT bị bộ phân loại quyền của Claude Code (auto mode) từ chối với lý do "Unauthorized Access".
+  - Theo quy định, tôi không tìm cách khác để vượt chặn. Chưa gửi prompt nào, chưa tốn lượt vẽ. Tab của tôi đã đóng.
+- Muốn làm tiếp:
+  - người dùng cho phép thao tác JS / gửi tin trên chatgpt.com (thêm quyền cho Claude in Chrome trong cài đặt), hoặc
+  - tự gửi 4 prompt dưới đây rồi chạy `python Tools/build-light-skill-textures.py import <tên> <ảnh>` cho từng ảnh.
+- Prompt đề xuất (mỗi ảnh một prompt, nền đen phẳng, không trong suốt, không ô caro):
+  1. `beam-streaks`: "Texture vệt tia sáng dọc, trắng xám trên nền ĐEN phẳng #000000, nhiều tia mảnh dài song song chạy thẳng đứng, độ sáng và độ rộng khác nhau, đứt quãng nhẹ; liền mạch theo chiều dọc (mép trên nối khít mép dưới); không màu, không chữ, không ô caro, không nền trong suốt."
+  2. `noise-clouds`: "Texture nhiễu mây xoáy uốn lượn, xám trung tính trên nền đen, phân bố đều khắp ảnh, liền mạch cả 4 cạnh (tileable); không chữ, không ô caro."
+  3. `meteor-core`: "Đầu sao băng nhìn chính diện ở giữa ảnh: lõi tròn trắng nóng, quầng mờ xanh băng toả mềm ra, 4 tia loé mảnh; nền đen phẳng #000000, không trong suốt."
+  4. `burst-ring`: "Vòng nổ ánh sáng tròn đều ở giữa ảnh, dải sáng trắng xanh băng ở khoảng 78 % bán kính, mép hơi lởm chởm, vài tia toả từ tâm mờ; nền đen phẳng #000000."
+- Lệnh `import` lấy kênh sáng nhất làm mask xám và đổi cỡ. Nếu ảnh ChatGPT không liền mạch thì phải thêm bước làm liền mạch (trộn với bản dời nửa ảnh); hiện lệnh `import` chưa có bước này.
 
 ## Ảnh chụp trong game (đã tự xem)
 
@@ -151,3 +169,4 @@ Chưa xem / còn tồn:
 2. Trên tuyết, sao băng còn nhạt. Có muốn đậm hơn không (đầu to hơn, lớp alpha đậm hơn), dù sẽ bớt kiểu "ánh sáng" RO3?
 3. Có áp cùng bộ shader cho skill khác không (ví dụ cột sáng xanh lá + trắng cho Cleric)?
 4. Bản cũ (choreography tím) có xoá không, hay giữ để so sánh?
+5. Có cho phép agent thao tác JS trên chatgpt.com (Tan Pham) để vẽ 4 texture không? Hiện bị chặn quyền, xem mục Texture.
