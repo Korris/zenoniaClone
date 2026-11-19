@@ -12,7 +12,7 @@ Thay cho bản RO Soft "vẽ liền tóc + vũ khí" (Warrior, 19/11 sáng). B�
 | B | Claude | Shader `RoSoftRecolor`, `CharacterAppearanceData` (lưu + mạng), bảng màu, renderer nhiều lớp. Thử bằng ảnh test sinh bằng code |
 | C | Người dùng | Prompt 3-4: đi, đánh 1-2-3. Prompt 5: tóc 5 class. Prompt 6: mũ. Prompt 7: vũ khí |
 | D | Claude | Tool cắt + tự tính `HeadAnchor` và neo vũ khí, ghép vào game, chụp 8 hướng, chỉnh |
-| E | Claude | Màn tạo nhân vật (chọn màu tóc / áo / mũ), đám đông ngẫu nhiên, lệch nhịp + cỡ, dấu hiệu nhận ra mình |
+| E | Claude | Màn tạo nhân vật (chọn màu tóc / áo, KHÔNG chọn mũ), đám đông ngẫu nhiên, lệch nhịp + cỡ, dấu hiệu nhận ra mình. Màn tạo đã làm 19/11: `plans/reports/character-create-appearance-261119.md` |
 
 ## Quy cách kỹ thuật (chốt)
 
