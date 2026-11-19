@@ -186,7 +186,7 @@ namespace ZenoniaProto
         {
             PartyClientState party = NetClient.Party;
             bool show = UiScreens.UseNew(UiScreen.Hud) && PartyPanel.Live && party.InParty && !UiWindows.ModalOpen && !HeroChangeScreen.IsOpen;
-            if (!show) BoardOpen = false;
+            if (!show && !(RoHud.Active && PartyPanel.Live && party.InParty)) BoardOpen = false; // the RO HUD party title toggles it too (RoHudParty)
             if (root.gameObject.activeSelf != show) root.gameObject.SetActive(show);
             if (!show) return;
             Fill(party);

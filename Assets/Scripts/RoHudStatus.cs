@@ -12,8 +12,8 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudStatus
     {
-        const float RowX = 92f, LabelW = 34f, BarX = RowX + LabelW, BarW = 170f, BarH = 16f, RowTop = 31f, RowPitch = 18.5f;
-        const float PlateTop = 14f, LvX = 92f, LvY = 3f, LvW = 70f, LvH = 22f;
+        const float RowX = 92f, LabelW = 34f, BarX = RowX + LabelW, BarW = 178f, BarH = 15f, RowTop = 36f, RowPitch = 21f;
+        const float PlateTop = 16f, LvX = 90f, LvY = 6f, LvW = 72f, LvH = 24f;
         /// <summary>Top of the status icon row, units below the top of the safe area (RoHudParty starts under it).</summary>
         public const float IconsTop = PlateTop + RoHud.StatusPlateH + 3f, IconSize = 18f;
         public const float Bottom = IconsTop + IconSize;
@@ -49,9 +49,8 @@ namespace ZenoniaProto
             portrait = new HeroPortraitLayers(face);
             RoHud.Art(UiKit.Fill(ring, "Ring"), "hud-portrait-ring");
 
-            RectTransform lv = RoHud.TopLeftBox(Root, "Level", LvX, LvY, LvW, LvH);
-            RoHud.Art(lv, "hud-lv-badge");
-            level = RoHud.Label(UiKit.Fill(lv, "Text"), "", 14, RoHud.TextOnNavy, TextAnchor.MiddleCenter);
+            RectTransform lv;
+            level = RoHud.Pill(Root, "Level", RoHud.TopLeft, RoHud.TopLeft, LvX, -LvY, LvH, "hud-lv-badge", null, 0f, "Lv. 1", 14, RoHud.TextOnNavy, out lv, LvW);
 
             hp = Row("Hp", 0, "HP", "hud-bar-red", out hpText);
             mp = Row("Mp", 1, "MP", "hud-bar-blue", out mpText);
@@ -64,9 +63,9 @@ namespace ZenoniaProto
         RoHud.Bar Row(string name, int i, string caption, string fill, out Text value)
         {
             float y = RowTop + i * RowPitch;
-            RoHud.Label(RoHud.TopLeftBox(Root, name + "Label", RowX, y - 1f, LabelW, BarH + 2f), caption, 13, RoHud.Ink, TextAnchor.MiddleLeft);
+            RoHud.Label(RoHud.TopLeftBox(Root, name + "Label", RowX, y - 1f, LabelW, BarH + 2f), caption, 14, RoHud.Ink, TextAnchor.MiddleLeft);
             var bar = new RoHud.Bar(Root, name, BarX, y, BarW, BarH, "hud-bar-track", fill);
-            value = RoHud.Label(UiKit.Fill(bar.Root, "Value"), "", 12, Color.white, TextAnchor.MiddleCenter, true, true);
+            value = RoHud.Label(UiKit.Fill(bar.Root, "Value"), "", 13, Color.white, TextAnchor.MiddleCenter, true, true);
             return bar;
         }
 

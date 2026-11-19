@@ -14,7 +14,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudMenu
     {
-        const float Plate = RoHud.MenuPlate, Pitch = RoHud.MenuPitch, Icon = Plate * 0.66f, CaptionH = 15f;
+        const float Plate = RoHud.MenuPlate, Pitch = RoHud.MenuPitch, Icon = Plate * 0.72f, CaptionH = 16f;
 
         readonly RectTransform root, more;
         readonly GameObject itemBadge, questBadge, skillBadge;
@@ -38,9 +38,11 @@ namespace ZenoniaProto
             itemBadge.SetActive(false); questBadge.SetActive(false); skillBadge.SetActive(false);
 
             // More: a short column under the More button (Gacha, Settings), closed by a second tap or after a choice.
-            more = RoHud.Box(root, "MoreColumn", RoHud.TopRight, -CellX(0), -(RoHud.MenuTop + Plate + CaptionH + 6f + 52f), 64f, 104f);
-            MoreItem("Gacha", 0, () => { CloseMore(); TouchControls.Press(GameKey.PetGacha); });
-            MoreItem("Settings", 1, () => { CloseMore(); SettingsWindow.Open(); });
+            more = RoHud.Box(root, "MoreColumn", RoHud.TopRight, 0f, 0f, 104f, 66f);
+            more.pivot = RoHud.TopRight;
+            more.anchoredPosition = new Vector2(-RoHud.MenuRight, -(RoHud.MenuTop + Plate + CaptionH + 6f)); // right-aligned under More
+            MoreItem("Gacha", 0, "hud-icon-gacha", () => { CloseMore(); TouchControls.Press(GameKey.PetGacha); });
+            MoreItem("Settings", 1, "hud-icon-settings", () => { CloseMore(); SettingsWindow.Open(); });
             more.gameObject.SetActive(false);
             moreBtn.SetAsLastSibling();
         }
@@ -55,7 +57,7 @@ namespace ZenoniaProto
             RoHud.Art(plate, "hud-menu-plate");
             RectTransform glyph = RoHud.Box(plate, "Icon", RoHud.Mid, 0f, 1f, Icon, Icon);
             RoHud.Art(glyph, icon);
-            Text t = RoHud.Label(RoHud.Box(cell, "Caption", new Vector2(0.5f, 0f), 0f, CaptionH * 0.5f, Pitch + 8f, CaptionH), caption, 12, Color.white, TextAnchor.MiddleCenter, true, true);
+            Text t = RoHud.Label(RoHud.Box(cell, "Caption", new Vector2(0.5f, 0f), 0f, CaptionH * 0.5f, Pitch + 8f, CaptionH), caption, 13, RoHud.Ink, TextAnchor.MiddleCenter, true, true, true); // ink on a white outline, as 02-hud.png
             t.horizontalOverflow = HorizontalWrapMode.Overflow;
             TouchControls.Img(cell, null, Color.clear, true); // the whole cell is the touch target
             PaperHudPress.Tap(cell.gameObject, onTap);
@@ -69,12 +71,18 @@ namespace ZenoniaProto
             return b.gameObject;
         }
 
-        void MoreItem(string caption, int i, Action onTap)
+        /// <summary>One entry of the More column: the navy pill with icon + caption (box model of RoHud.Pill), right-aligned.</summary>
+        void MoreItem(string caption, int i, string icon, Action onTap)
         {
-            RectTransform b = RoHud.TopLeftBox(more, caption, 0f, i * 52f, 64f, 48f);
-            Image art = RoHud.Art(b, "hud-party-title", true); // the navy pill
-            RoHud.Label(UiKit.Fill(b, "Text"), caption, 12, Color.white, TextAnchor.MiddleCenter);
-            PaperHudPress.Tap(art.gameObject, onTap);
+            RectTransform b;
+            RoHud.Pill(more, caption, RoHud.TopRight, RoHud.TopRight, 0f, -i * 34f, 30f, "hud-party-title", icon, 18f, caption, 13, Color.white, out b, 104f, true);
+            PaperHudPress.Tap(b.gameObject, onTap);
+        }
+
+        /// <summary>Moves the whole row left by `inset` units (the map pills above the minimap grew wider than it).</summary>
+        public void SetRightInset(float inset)
+        {
+            if (Mathf.Abs(root.offsetMax.x + inset) > 0.5f) root.offsetMax = new Vector2(-inset, root.offsetMax.y);
         }
 
         void ToggleMore() { more.gameObject.SetActive(!more.gameObject.activeSelf); }

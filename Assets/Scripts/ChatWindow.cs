@@ -87,7 +87,8 @@ namespace ZenoniaProto
             {
                 Vector2 bubble = web ? new Vector2(34f, 36f) : new Vector2(50f, 262f); // centre of the chat button from the bottom-left of the safe area
                 float bubbleSize = web ? 50f : 56f;
-                collapsed = ChatCollapsedView.Build(content, bubble, bubbleSize, () => SetExpanded(true));
+                collapsed = !web && RoHud.Active ? (ChatFeed)RoHudChatBar.Build(content, () => SetExpanded(true)) // RO Soft HUD: button + one-line bar
+                    : ChatCollapsedView.Build(content, bubble, bubbleSize, () => SetExpanded(true));
                 panel = ChatPanelView.Build(content, web, Refresh, () => SetExpanded(false), SendCurrent);
             }
             Hook(panel);

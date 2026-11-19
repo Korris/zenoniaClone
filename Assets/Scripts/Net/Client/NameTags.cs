@@ -14,7 +14,7 @@ namespace ZenoniaProto
     /// keeps a head start (ShownBonus) so two players running past each other do not make the names flicker.
     /// Holding Alt shows every name (still nearest first, overlaps allowed). Heroes hidden behind a live Wanted Boss's body get no name (Monster.HidesHeroAt).
     /// </summary>
-    public class NameTags : MonoBehaviour
+    public partial class NameTags : MonoBehaviour
     {
         const int MaxNames = 8;
         const float ShownBonus = 40f; // world units: a name on screen last frame sorts as if this much nearer
@@ -52,6 +52,7 @@ namespace ZenoniaProto
             placed.Clear();
             shownNow.Clear();
             Rect ring = me != null ? HeroRingRect(cam, me.Position) : Rect.zero;
+            if (RoHud.Active) DrawVillagerPills(cam); // RO Soft HUD: villager name pills (NameTags.RoSoft.cs)
             if (me != null && !me.IsDead && OwnName(me) != "") DrawOwnName(cam, me); // first, so the other names keep clear of it
             for (int i = 0; i < order.Count; i++)
             {
@@ -103,6 +104,7 @@ namespace ZenoniaProto
             GUI.Label(shadow, name, style);
             style.normal.textColor = OwnGreen;
             GUI.Label(rect, name, style);
+            if (RoHud.Active) DrawOwnPlate(rect, me); // emblem + small HP bar (NameTags.RoSoft.cs)
         }
 
         /// <summary>Screen rect (GUI space) of the ring under your own hero (PlayerIndicatorRing, Width x Width/2 units around the feet).</summary>

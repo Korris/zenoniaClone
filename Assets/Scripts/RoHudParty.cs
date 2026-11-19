@@ -14,7 +14,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudParty
     {
-        const float W = 190f, TitleH = 26f, RowH = 42f, RowGap = 3f, Face = 32f, BarH = 9f;
+        const float W = 192f, TitleH = 30f, RowH = 40f, RowGap = 5f, Face = 32f, BarH = 9f;
         const int MaxRows = PartyBook.MaxMembers - 1;
         static readonly Color Dim = new Color(0.6f, 0.6f, 0.64f, 1f);
 
@@ -38,11 +38,11 @@ namespace ZenoniaProto
         public RoHudParty(RectTransform safe, float top)
         {
             root = UiKit.Rect(safe, "RoHudParty", RoHud.Margin, top, W, TitleH + MaxRows * (RowH + RowGap));
-            RectTransform head = RoHud.TopLeftBox(root, "Title", 0f, 0f, W - 30f, TitleH);
-            Image headArt = RoHud.Art(head, "hud-party-title", true);
-            UiWinKit.MakeButton(headArt, PartyHudList.ToggleBoard);
-            title = RoHud.Label(UiKit.Fill(head, "Text"), "Party", 13, RoHud.TextOnNavy, TextAnchor.MiddleLeft);
-            title.rectTransform.offsetMin = new Vector2(14f, 0f);
+            RectTransform head;
+            title = RoHud.Pill(root, "Title", RoHud.TopLeft, RoHud.TopLeft, 0f, 0f, TitleH, "hud-party-title", "hud-icon-party", 16f, "Party (0/3)", 13, RoHud.TextOnNavy, out head, W - 34f, true);
+            title.alignment = TextAnchor.MiddleLeft;
+            head.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
+            UiWinKit.MakeButton(head.GetComponent<Image>(), PartyHudList.ToggleBoard);
             arrow = RoHud.Box(root, "Collapse", RoHud.TopLeft, W - TitleH * 0.5f, -TitleH * 0.5f, TitleH, TitleH); // centre pivot: it turns
             Image arrowArt = RoHud.Art(arrow, "hud-btn-arrow", true);
             UiWinKit.MakeButton(arrowArt, () => collapsed = !collapsed);

@@ -91,7 +91,7 @@ namespace ZenoniaProto
             PartyClientState party = NetClient.Party;
             PartyClientState.OpenInvite? open = party.Outgoing;
             if (open.HasValue && open.Value.ExpiresAtMs == cancelledInvite) open = null;
-            bool board = !UiScreens.UseNew(UiScreen.Hud) || PartyHudList.BoardOpen || (open.HasValue && !party.InParty); // new HUD: the compact list shows the party, this board opens from its title
+            bool board = !(UiScreens.UseNew(UiScreen.Hud) || RoHud.Active) || PartyHudList.BoardOpen || (open.HasValue && !party.InParty); // new HUD: the compact list shows the party, this board opens from its title
             bool show = Live && (party.InParty || open.HasValue) && board && !InventoryPanel.IsOpen && !HeroChangeScreen.IsOpen && !UiWindows.ModalOpen;
             if (panel.gameObject.activeSelf != show) panel.gameObject.SetActive(show);
             if (!show) return;

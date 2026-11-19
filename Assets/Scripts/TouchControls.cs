@@ -77,14 +77,15 @@ namespace ZenoniaProto
             HeroController hero = GameSession.Hero;
             bool show = visible && hero != null && !InventoryPanel.IsOpen && !HeroChangeScreen.IsOpen && !AccountScreenGui.MenuOpen && !UiWindows.ModalOpen && !Hud.CaptureClean
                 && (HudLayout.IsWeb || !UiWindows.ChatTyping); // phone: the keyboard is up, nothing to press under it
-            bool paperOn = UsePaper(), showOld = show && !paperOn; // Adventure Paper look (TouchControls.Paper.cs): its own layer instead of this one
+            bool paperOn = UsePaper(), roOn = !paperOn && UseRo(), showOld = show && !paperOn && !roOn; // Adventure Paper (TouchControls.Paper.cs) / RO Soft (TouchControls.RoSoft.cs): their own layer instead of this one
             if (layer.gameObject.activeSelf != showOld)
             {
                 layer.gameObject.SetActive(showOld);
                 if (!showOld) { for (int i = 0; i < KeyCount; i++) held[i] = false; } // never leave a direction stuck
             }
             UpdatePaper(hero, show && paperOn, paperOn);
-            if (show && InputAdapter.Pressed(GameKey.SkillPage)) { if (paperOn) paper.CyclePage(1); else if (magazine != null) magazine.Cycle(1); else CycleWebPage(); } // Tab: next skill page (same as a swipe up)
+            UpdateRo(hero, show && roOn, roOn);
+            if (show && InputAdapter.Pressed(GameKey.SkillPage)) { if (roOn) ro.Cycle(1); else if (paperOn) paper.CyclePage(1); else if (magazine != null) magazine.Cycle(1); else CycleWebPage(); } // Tab: next skill page (same as a swipe up)
             if (showOld) Refresh(hero);
         }
 

@@ -28,19 +28,19 @@ namespace ZenoniaProto
         // ---- layout (canvas units from the safe-area corner the piece is anchored to) ----
         public const float Margin = 8f;
         // top-left
-        public const float PortraitSize = 92f, StatusPlateX = 58f, StatusPlateW = 248f, StatusPlateH = 74f, StatusBottom = 102f;
+        public const float PortraitSize = 92f, StatusPlateX = 58f, StatusPlateW = 252f, StatusPlateH = 86f;
         // top-right column
-        public const float PillTop = 6f, PillH = 24f, MinimapSize = 140f, MinimapTop = PillTop + PillH + 4f;
-        public const float WantedTop = MinimapTop + MinimapSize + 6f, WantedW = 200f, WantedH = 78f;
+        public const float PillTop = 6f, PillH = 26f, MinimapSize = 150f, MinimapTop = PillTop + PillH + 2f, MinimapRight = 12f;
+        public const float WantedTop = MinimapTop + MinimapSize + 6f, WantedW = 202f, WantedH = 92f;
         // menu row, right-aligned to the left of the minimap
-        public const float MenuPlate = 50f, MenuPitch = 58f, MenuRight = Margin + MinimapSize + 14f, MenuTop = 6f;
+        public const float MenuPlate = 52f, MenuPitch = 62f, MenuRight = MinimapRight + MinimapSize + 14f, MenuTop = 14f;
         // bottom-right cluster (centres)
         public const float AttackX = 226f, AttackY = 150f, AttackSize = 104f, SkillArc = 92f, SkillSize = 62f, ArcRing = 196f;
-        public const float AutoX = 58f, AutoY = 200f, AutoSize = 68f, RunX = 64f, RunY = 92f, RunSize = 76f;
-        public const float PotionY = 302f, PotionSize = 58f, PotionHpX = 118f, PotionMpX = 48f;
+        public const float AutoX = 58f, AutoY = 200f, AutoSize = 68f, RunX = 74f, RunY = 90f, RunSize = 76f;
+        public const float PotionY = 306f, PotionSize = 64f, PotionHpX = 120f, PotionMpX = 48f;
         // bottom-left
-        public const float JoyX = 122f, JoyY = 176f, JoySize = 158f, KnobSize = 64f, KnobTravel = 46f;
-        public const float ChatBubbleX = 36f, ChatY = 40f, ChatBubbleSize = 48f, ChatBarX = 66f, ChatBarW = 350f, ChatBarH = 34f;
+        public const float JoyX = 122f, JoyY = 178f, JoySize = 164f, KnobSize = 66f, KnobTravel = 48f;
+        public const float ChatBubbleX = 36f, ChatY = 46f, ChatBubbleSize = 48f, ChatBarX = 66f, ChatBarW = 350f, ChatBarH = 34f;
 
         /// <summary>A kit piece (null + one warning when the art is missing: nothing is drawn in its place).</summary>
         public static Sprite Piece(string name) { return RoSoftSprites.Named(name); }
@@ -72,7 +72,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Nunito text filling `rt`. `outline` = dark outline for white text over bars and the world.</summary>
-        public static Text Label(RectTransform rt, string text, int size, Color color, TextAnchor align, bool bold = true, bool outline = false)
+        public static Text Label(RectTransform rt, string text, int size, Color color, TextAnchor align, bool bold = true, bool outline = false, bool lightOutline = false)
         {
             Text t = UiKit.Label(rt, text, size, color, align, bold);
             Font f = bold ? RoSoftTheme.Bold : RoSoftTheme.Body;
@@ -84,7 +84,7 @@ namespace ZenoniaProto
             if (outline)
             {
                 Outline o = t.gameObject.AddComponent<Outline>();
-                o.effectColor = new Color(0.12f, 0.18f, 0.3f, 0.85f);
+                o.effectColor = lightOutline ? new Color(1f, 1f, 1f, 0.95f) : new Color(0.12f, 0.18f, 0.3f, 0.85f);
                 o.effectDistance = new Vector2(1f, -1f);
             }
             return t;
