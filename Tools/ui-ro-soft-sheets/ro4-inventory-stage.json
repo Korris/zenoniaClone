@@ -1,0 +1,12 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-inventory/src/ro-soft-inventory-stage-frame-chatgpt-2.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-inventory/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "rows": [[{"name": "bag-stage", "box": [182, 45, 839, 898], "height": 808},
+           {"name": "bag-detail-frame", "box": [1029, 266, 1447, 673], "height": 168, "border": [40, 40, 40, 40]}]]
+}

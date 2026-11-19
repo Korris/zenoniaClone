@@ -1,26 +1,26 @@
+using UnityEngine;
 using ZenoniaProto.Rpg;
+using W = ZenoniaProto.InventoryRoWidgets;
+using B = ZenoniaProto.InventoryRoBoxes;
 
 namespace ZenoniaProto
 {
     /// <summary>
     /// TEMPORARY test tool (2026-11-03, to check the enhance effect band by band): a "-1" button beside Enhance that lowers the selected
     /// weapon's + by one, free and always succeeding. Test builds only (never in a release build) and offline only: online the server owns the item.
-    /// Remove this file and the two lines that call it in InventoryPanel.Detail.cs when the enhance look is settled.
+    /// Remove this file and the two lines that call it in InventoryPanel.Detail.cs (BuildDowngrade, RefreshDowngrade) when the enhance look is settled.
     /// </summary>
     public partial class InventoryPanel
     {
-        const float DowngradeW = 50f;
-        BagWidgets.BagButton downgradeButton;
+        B.IconButton downgradeButton;
 
         static bool DowngradeAvailable { get { return BagActions.DowngradeAvailable; } }
 
-        /// <summary>Width left for the Enhance button.</summary>
-        static float EnhanceWidth(float full) { return DowngradeAvailable ? full - DowngradeW - 4f : full; }
-
-        void BuildDowngrade(float left, float y, float full)
+        /// <summary>A small "-1" pill right of the Effect strip.</summary>
+        void BuildDowngrade(RectTransform parent)
         {
             if (!DowngradeAvailable) return;
-            downgradeButton = new BagWidgets.BagButton(itemDetail, "DevDowngrade", left + full - DowngradeW, y, DowngradeW, 46f, "-1", BagSprites.Tone.Steel, DowngradeSelected);
+            downgradeButton = new B.IconButton(parent, "DevDowngrade", RightW - 70f, 359f, 50f, 26f, "btn-grey", null, "-1", 13, DowngradeSelected);
         }
 
         void RefreshDowngrade(Item item)

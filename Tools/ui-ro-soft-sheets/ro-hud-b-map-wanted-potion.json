@@ -1,0 +1,29 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-hud/src/ro-hud-b-map-wanted-potion-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-hud/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [{"name": "hud-map-pill", "height": 48, "border": [24, 0, 24, 0]},
+   {"name": "hud-icon-pin-white", "height": 32},
+   {"name": "hud-channel-pill", "height": 48, "border": [24, 0, 24, 0]},
+   {"name": "hud-icon-signal", "box": [1290, 30, 1420, 135], "height": 28}],
+  [{"name": "hud-minimap-ring", "height": 290, "hole": "hud-minimap-mask"},
+   {"name": "hud-btn-plus", "height": 56},
+   {"name": "hud-btn-arrow-big", "height": 48}],
+  [{"name": "hud-wanted-card", "height": 120, "border": [36, 36, 36, 36]},
+   {"name": "hud-wanted-tag", "height": 40, "border": [20, 0, 20, 0]},
+   {"name": "hud-wanted-frame", "height": 116, "hole": "hud-wanted-frame-mask"},
+   {"name": "hud-icon-pin", "height": 30},
+   {"name": "hud-icon-crown-small", "height": 30}],
+  [{"name": "hud-potion-plate", "height": 120},
+   {"name": "hud-count-badge", "height": 40},
+   {"name": "hud-potion-red", "height": 84},
+   {"name": "hud-potion-blue", "height": 84}]
+ ]
+}

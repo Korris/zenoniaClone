@@ -27,7 +27,8 @@ namespace ZenoniaProto
             int font = web ? 14 : 16;
             v.maxLines = web ? 4 : 8;
             v.root = web ? UiWinKit.Anchored(layer, "ChatPanel", Vector2.zero, Vector2.zero, 6f, 8f, w, h)
-                         : UiWinKit.Anchored(layer, "ChatPanel", new Vector2(0f, 1f), new Vector2(0f, 1f), 6f, -RpgHud.BlockHeight - 10f, w, h);
+                         : RoHud.Active ? UiWinKit.Anchored(layer, "ChatPanel", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 0f, -96f, w, h) // RO Soft HUD: centred like its bar, under the menu row
+                : UiWinKit.Anchored(layer, "ChatPanel", new Vector2(0f, 1f), new Vector2(0f, 1f), 6f, -RpgHud.BlockHeight - 10f, w, h);
             UiWinKit.Sliced(v.root, "panel", 0.34f, true).color = new Color(1f, 1f, 1f, web ? 0.86f : 0.97f);
 
             float closeSize = tabH - 4f, tabW = (w - pad * 2f - closeSize - 8f) / Tabs.Length;

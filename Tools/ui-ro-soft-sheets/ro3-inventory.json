@@ -1,0 +1,28 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-inventory/src/ro-soft-inventory-pieces-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-inventory/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 8,
+ "rows": [
+  [{"name": "bag-window", "box": [131, 32, 1050, 300], "height": 268, "border": [52, 52, 52, 52]},
+   {"name": "bag-section", "box": [1090, 39, 1538, 295], "height": 256, "border": [44, 44, 44, 44]}],
+  [{"name": "bag-slot", "box": [210, 360, 369, 517], "height": 144, "border": [30, 30, 30, 30]},
+   {"name": "bag-slot-selected", "box": [457, 350, 639, 528], "height": 168, "border": [44, 44, 44, 44]},
+   {"name": "bag-slot-empty", "box": [724, 359, 888, 515], "height": 144, "border": [30, 30, 30, 30]},
+   {"name": "bag-detail-frame", "skip": true, "box": [990, 331, 1203, 539], "height": 200, "border": [44, 44, 44, 44]},
+   {"name": "bag-close", "box": [1300, 368, 1430, 497], "height": 96}],
+  [{"name": "bag-tab-on", "skip": true, "box": [127, 563, 438, 659], "height": 80, "border": [40, 32, 40, 32]},
+   {"name": "bag-tab-off", "skip": true, "box": [463, 562, 772, 659], "height": 80, "border": [40, 32, 40, 32]},
+   {"name": "bag-arrow-left", "skip": true, "box": [813, 564, 939, 659], "height": 80},
+   {"name": "bag-arrow-right", "skip": true, "box": [970, 565, 1096, 660], "height": 80},
+   {"name": "bag-gold-pill", "box": [1144, 566, 1545, 661], "height": 80, "border": [84, 30, 36, 30]}],
+  [{"name": "bag-stage-wide", "skip": true, "box": [225, 688, 572, 919]},
+   {"name": "bag-icon", "box": [734, 736, 908, 877], "height": 128},
+   {"name": "bag-label", "box": [1054, 762, 1423, 845], "height": 64, "border": [60, 0, 34, 0]}]
+ ]
+}

@@ -13,6 +13,8 @@ namespace ZenoniaProto
     {
         const float TalkRange = 30f, IdleFrameSeconds = 0.26f; // web: slow 260 ms breathing loop
         static readonly List<TownNpc> All = new List<TownNpc>();
+        /// <summary>The villagers of the current map (the RO HUD draws their name pills).</summary>
+        internal static List<TownNpc> Villagers { get { return All; } }
         static readonly Dictionary<string, Sprite> Portraits = new Dictionary<string, Sprite>();
 
         public NpcDef Def { get; private set; }

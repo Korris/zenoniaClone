@@ -121,7 +121,7 @@ namespace ZenoniaProto
 
         void DrawBossBar(float s)
         {
-            if (UiScreens.UseNew(UiScreen.Boss)) return; // the Adventure Paper bar (BossBarView, uGUI) shows the boss instead
+            if (UiScreens.UseNew(UiScreen.Boss) || RoHud.Active) return; // the Adventure Paper bar (BossBarView) / the RO Soft bar (RoHudBossBar) shows the boss instead
             Monster boss = BarBoss();
             if (boss == null) return;
             int hp = Mathf.CeilToInt(boss.Hp);

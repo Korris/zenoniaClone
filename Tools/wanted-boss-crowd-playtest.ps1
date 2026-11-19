@@ -7,6 +7,8 @@
   -GodBots (on by default; -GodBots $false turns it off): the zone runs with --wanted-god-bots <bot name prefix>, so the bots take no damage and never respawn far away.
   The zone only honours that on a test build with a pinned Wanted Boss and a loopback server-api. The window's hero stays mortal unless -GodHero
   (a level-60 hero with the starter weapon dies to the boss in about a minute, then respawns at the map entrance and the camera leaves the fight).
+  -Formation (on by default): the bots walk from their spawn tile to a slot on a ring around the boss by class reach (Program.Formation.cs) and attack from there.
+  Another crowd can run beside a running one: give it its own -OutDir, -ZonePort, -ApiPort and -MongoPort.
   Close the game window to stop everything, or run the script again with -Stop (kills the pids saved in OutDir\pids.txt).
   Secrets and accounts are made up for this run and die with it (the database lives in OutDir).
 .EXAMPLE
@@ -32,6 +34,7 @@ param(
   [switch]$Party,
   [bool]$GodBots = $true,     # bots take no damage (test zone hook --wanted-god-bots)
   [switch]$GodHero,           # the window's hero takes no damage either (off by default)
+  [bool]$Formation = $true,   # bots hold ring slots around the boss by class reach (swarm --formation): melee close, Wizard / Cleric, then Mechanic outside
   [string]$Role = "",         # a persist role for the window instead of "idle", e.g. wanted-showcase (shots into OutDir\shots)
   [switch]$Stop
 )
@@ -135,7 +138,7 @@ try {
   # Tickets live 60 s: take them all, then start the swarm at once
   $tickets = foreach ($b in $crowd) { (Api-Call POST "/characters/$($b.Id)/enter" @{} $b.Token).ticket }
   $tickets | Set-Content "$OutDir\tickets.txt"
-  $procs += Start-Process $swarmExe -PassThru -WindowStyle Hidden -ArgumentList (@("--host", "127.0.0.1", "--port", $ZonePort, "--tokens", "`"$OutDir\tickets.txt`"", "--mix", "100:0:0", "--goal", $s.Goal, "--map", $s.Map, "--hair", "vary", "--stagger-ms", 60, "--seconds", 86400) + $(if ($Party) { @("--party-with", $hero.Name, "--party-bots", "4,9,14") } else { @() })) -RedirectStandardOutput "$OutDir\swarm.log" -RedirectStandardError "$OutDir\swarm.err"
+  $procs += Start-Process $swarmExe -PassThru -WindowStyle Hidden -ArgumentList (@("--host", "127.0.0.1", "--port", $ZonePort, "--tokens", "`"$OutDir\tickets.txt`"", "--mix", "100:0:0", "--goal", $s.Goal, "--map", $s.Map, "--hair", "vary", "--stagger-ms", 60, "--seconds", 86400) + $(if ($Formation) { @("--formation") } else { @() }) + $(if ($Party) { @("--party-with", $hero.Name, "--party-bots", "4,9,14") } else { @() })) -RedirectStandardOutput "$OutDir\swarm.log" -RedirectStandardError "$OutDir\swarm.err"
   Save-Pids
   Write-Host "swarm started ($Bots bots)"
 

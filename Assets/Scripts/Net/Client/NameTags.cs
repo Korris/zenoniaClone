@@ -12,9 +12,9 @@ namespace ZenoniaProto
     /// Crowd rule: names are placed nearest-to-your-hero first, a name that would overlap one already placed is skipped, and at most MaxNames show,
     /// so a pack of players never turns into a wall of text. A name never covers the ring under your own hero, and a name shown last frame
     /// keeps a head start (ShownBonus) so two players running past each other do not make the names flicker.
-    /// Holding Alt shows every name (still nearest first, overlaps allowed).
+    /// Holding Alt shows every name (still nearest first, overlaps allowed). Heroes hidden behind a live Wanted Boss's body get no name (Monster.HidesHeroAt).
     /// </summary>
-    public class NameTags : MonoBehaviour
+    public partial class NameTags : MonoBehaviour
     {
         const int MaxNames = 8;
         const float ShownBonus = 40f; // world units: a name on screen last frame sorts as if this much nearer
@@ -35,11 +35,13 @@ namespace ZenoniaProto
 
             HeroController me = LocalPlayer.Hero;
             Vector2 from = me != null ? me.Position : (Vector2)cam.transform.position;
+            Monster boss = zone.Wanted != null && !zone.Wanted.IsDying ? zone.Wanted : null;
             order.Clear();
             for (int i = 0; i < zone.Heroes.All.Count; i++)
             {
                 HeroController h = zone.Heroes.All[i];
                 if (h == null || h.IsDead || string.IsNullOrEmpty(h.PlayerName) || h == me || NetMode.IsOffline || NetClient.Party.Contains(h.PlayerId)) continue;
+                if (boss != null && boss.HidesHeroAt(h.Position)) continue; // behind the Wanted Boss's body: no name piled on the boss (Alt still skips them)
                 order.Add(h);
                 sortKey[h] = Vector2.Distance(h.Position, from) - (shown.Contains(h) ? ShownBonus : 0f);
             }
@@ -50,6 +52,7 @@ namespace ZenoniaProto
             placed.Clear();
             shownNow.Clear();
             Rect ring = me != null ? HeroRingRect(cam, me.Position) : Rect.zero;
+            if (RoHud.Active) DrawVillagerPills(cam); // RO Soft HUD: villager name pills (NameTags.RoSoft.cs)
             if (me != null && !me.IsDead && OwnName(me) != "") DrawOwnName(cam, me); // first, so the other names keep clear of it
             for (int i = 0; i < order.Count; i++)
             {
@@ -101,6 +104,7 @@ namespace ZenoniaProto
             GUI.Label(shadow, name, style);
             style.normal.textColor = OwnGreen;
             GUI.Label(rect, name, style);
+            if (RoHud.Active) DrawOwnPlate(rect, me); // emblem + small HP bar (NameTags.RoSoft.cs)
         }
 
         /// <summary>Screen rect (GUI space) of the ring under your own hero (PlayerIndicatorRing, Width x Width/2 units around the feet).</summary>

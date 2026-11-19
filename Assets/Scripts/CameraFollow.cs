@@ -54,7 +54,7 @@ namespace ZenoniaProto
         {
             cam = GetComponent<Camera>();
             cam.orthographic = true;
-            cam.orthographicSize = baseSize = DevStartConfig.CameraViewHeight() * 0.5f * CameraWheelZoom.Current; // dev-start.json zoom; PC wheel zoom (1 elsewhere)
+            cam.orthographicSize = baseSize = FitToMap(DevStartConfig.CameraViewHeight() * 0.5f * CameraWheelZoom.Current, cam.aspect); // dev-start.json zoom; PC wheel zoom (1 elsewhere)
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.06f, 0.09f, 0.13f);
             cam.nearClipPlane = 0.1f;
@@ -62,7 +62,38 @@ namespace ZenoniaProto
             if (Target != null) { pos = Clamp(TargetPos()); velocity = Vector2.zero; Apply(pos); }
         }
 
-        Vector2 TargetPos() { return new Vector2(Target.position.x, Target.position.y + TargetYOffset); }
+        const float BossFrameNear = 140f, BossFrameFar = 260f; // hero-to-boss distance: full framing bias inside Near, none beyond Far
+        const float BossFrameShare = 0.5f;                     // aim halfway between the hero and the middle of the boss's painted body
+
+        Vector2 TargetPos()
+        {
+            var aim = new Vector2(Target.position.x, Target.position.y + TargetYOffset);
+            return aim + BossFraming(aim);
+        }
+
+        /// <summary>Near a live Wanted Boss the camera leans toward the middle of its painted body (5x a hero), so the whole boss and the ring of
+        /// heroes around it fit on screen instead of the boss's head running off the top. Fades with distance; the hero always stays inside the
+        /// middle 60 % of the view.</summary>
+        Vector2 BossFraming(Vector2 aim)
+        {
+            Monster boss = Zone.Main != null ? Zone.Main.Wanted : null;
+            if (boss == null || boss.IsDying || cam == null) return Vector2.zero;
+            Vector2 mid = boss.Feet + new Vector2(0f, boss.DrawnHeight * 0.5f);
+            float d = Vector2.Distance(boss.Feet, (Vector2)Target.position);
+            float w = 1f - Mathf.Clamp01((d - BossFrameNear) / (BossFrameFar - BossFrameNear));
+            if (w <= 0f) return Vector2.zero;
+            Vector2 shift = (mid - aim) * (BossFrameShare * w);
+            float halfH = cam.orthographicSize * 0.6f, halfW = halfH * cam.aspect;
+            return new Vector2(Mathf.Clamp(shift.x, -halfW, halfW), Mathf.Clamp(shift.y, -halfH, halfH));
+        }
+
+        /// <summary>Largest orthographic half-height that keeps the view inside the current map (the wide default view on a small map such as
+        /// Thornheart Chamber 24x16, or a narrow window): no empty void around the map.</summary>
+        public static float FitToMap(float halfHeight, float aspect)
+        {
+            float fit = Mathf.Min(GameConfig.MapH * 0.5f, GameConfig.MapW * 0.5f / Mathf.Max(0.01f, aspect));
+            return Mathf.Min(halfHeight, fit);
+        }
 
         Vector2 Clamp(Vector2 p)
         {
@@ -87,7 +118,7 @@ namespace ZenoniaProto
                 punch = Mathf.Max(0f, punch - punchDecay * dt);
                 cam.orthographicSize = baseSize * (1f - PunchZoom * punch * punch);
             }
-            else baseSize = cam.orthographicSize; // adopt any external zoom change while idle
+            else cam.orthographicSize = baseSize = FitToMap(cam.orthographicSize, cam.aspect); // adopt any external zoom change while idle, never wider than the map
             Vector2 goal = Clamp(TargetPos());
             pos = Vector2.SmoothDamp(pos, goal, ref velocity, SmoothTime, Mathf.Infinity, dt);
             Vector2 shown = pos;

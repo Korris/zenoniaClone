@@ -25,7 +25,7 @@ namespace ZenoniaProto
         public bool allPets; // every pet unlocked for the (offline) account
         public bool allGear; // an epic helmet / armor / gloves / boots of the hero's level, worn (with allWeapons = fully geared)
         public int gearPlus = -1; // -1 = keep; otherwise every worn piece is set to this enhance level
-        public float cameraViewHeight; // TEST: world units the camera shows top to bottom (0 = GameConfig.ViewHeightUnits, 160); smaller = closer, bigger hero
+        public float cameraViewHeight; // TEST: world units the camera shows top to bottom (0 = GameConfig.ViewHeightUnits, 216); smaller = closer, bigger hero
         public float heroScale;        // TEST: heroes in the world drawn this much larger, body + gear + enhance effect (0 or 1 = normal); hitboxes unchanged
 
         static DevStartConfig visual;
@@ -50,7 +50,7 @@ namespace ZenoniaProto
         public static float CameraViewHeight()
         {
             DevStartConfig c = Visual();
-            return c != null && c.cameraViewHeight > 0f ? Mathf.Clamp(c.cameraViewHeight, 60f, 240f) : GameConfig.ViewHeightUnits;
+            return c != null && c.cameraViewHeight > 0f ? Mathf.Clamp(c.cameraViewHeight, 60f, 320f) : GameConfig.ViewHeightUnits;
         }
 
         /// <summary>True when dev-start.json sets cameraViewHeight: that test zoom owns the camera size (no mouse-wheel zoom).</summary>

@@ -24,6 +24,12 @@ Trả lời người dùng bằng tiếng Việt.
 - Đường, cầu, cầu thang, bãi quái phải trống; trang trí đặt ở ven đường, chân vách, góc map. Đồ nhỏ đi xuyên qua được.
 - Rà từng cầu thang trên ảnh tô ô chặn: script phân loại màu hay chặn nhầm bậc đá.
 
+## UI
+
+**Trước mọi việc làm hoặc sửa UI (HUD, túi đồ, menu, nút), kể cả khi giao agent: đọc hết `docs/ui-layout-rules.md`.** Ghi rõ yêu cầu này trong brief.
+
+- Nút, tab, pill bố cục như HTML/CSS: padding đủ, gap icon-chữ, căn giữa dọc, bo góc đều. Chụp trong game so với mockup trước khi báo xong.
+
 ## Asset để đúng chỗ, không thả lung tung
 
 Asset của class nào nằm trong folder class đó (warrior, wizard, mechanic, assassin, cleric):

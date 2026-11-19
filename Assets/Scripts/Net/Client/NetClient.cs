@@ -28,6 +28,9 @@ namespace ZenoniaProto
 
         NetManager net;
         NetPeer server;
+
+        /// <summary>Round trip to the zone server in ms (LiteNetLib pings every second); -1 while not connected (HUD signal pill).</summary>
+        public static int RttMs { get { return Active != null && Active.server != null && Active.server.ConnectionState == ConnectionState.Connected ? Active.server.RoundTripTime : -1; } }
         EventBasedNetListener listener;
         SnapshotBuffer buffer = new SnapshotBuffer();
         readonly SnapshotMsg snapMsg = new SnapshotMsg();
