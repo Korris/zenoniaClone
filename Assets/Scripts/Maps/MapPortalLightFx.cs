@@ -9,13 +9,13 @@ namespace ZenoniaProto
     ///  - a light column standing on the pool (LightBeamScroll: broad bands scrolling slowly up, noise warp) with a narrower bright core that blooms;
     ///  - motes rising and swaying through it (ParticleSystem built in code, at most MaxMotes alive, prewarmed so nothing pops in on map load).
     /// Everything moves continuously and the whole light breathes slowly (MapPortalExits.Breath, 3.6 s): nothing blinks and no spot jumps.
-    /// Colours by the map's region (MapPortalExits.RegionOf, MapPortalLightLook). Placement is MapPortalExits: portal tiles and triggers are untouched.
+    /// One icy blue on every map (user 19/11/2026: "to ra, màu xanh"; MapPortalLightLook). Placement is MapPortalExits: portal tiles and triggers are untouched.
     /// `--portal-fx off` (or Enabled = false before the map is built) brings back the old haze / beam (MapPortalHaze). World units: 16 per tile.
     /// </summary>
     public static class MapPortalLightFx
     {
         public const int MaxMotes = 18;          // per exit; a map has at most 5 exits -> under 100 particles on screen, fine on phones
-        const float ColumnH = 62f;               // about 4 tiles; the hero is about 20 units tall
+        const float ColumnH = 92f;               // nearly 6 tiles, the hero is about 20 units tall (user 19/11: "make the pillar bigger")
 
         /// <summary>New light on (default) or the old haze / beam (`--portal-fx off`).</summary>
         public static bool Enabled = ReadFlag();
@@ -31,7 +31,7 @@ namespace ZenoniaProto
 
         public static void Build(Transform parent, IGameMap map)
         {
-            MapPortalLightLook.Set look = MapPortalLightLook.For(MapPortalExits.RegionOf(map.Id));
+            MapPortalLightLook.Set look = MapPortalLightLook.Shared;
             int n = 0;
             foreach (PortalExit e in MapPortalExits.Of(map))
             {
@@ -46,10 +46,10 @@ namespace ZenoniaProto
             go.transform.SetParent(parent, false);
             go.transform.position = feet;
             float span = Mathf.Clamp(e.Tiles, 1, 3);
-            float poolW = 30f + 8f * span, colW = 20f + 4f * span;
+            float poolW = 60f + 14f * span, colW = 40f + 8f * span; // twice the first version (user 19/11)
             int ground = UltimateFx.GroundFxOrder + 1, order = GameConfig.OrderBase(feet.y); // ground light under everyone; column y-sorted like a prop
 
-            MeshRenderer halo = Quad(go.transform, "Halo", look.Halo, false, ground, new Vector3(0f, 0f, 0f), new Vector3(poolW * 1.9f, poolW * 0.8f, 1f));
+            MeshRenderer halo = Quad(go.transform, "Halo", look.Halo, false, ground, new Vector3(0f, 0f, 0f), new Vector3(poolW * 1.5f, poolW * 0.62f, 1f));
             MeshRenderer pool = Quad(go.transform, "Pool", look.Pool, false, ground + 1, new Vector3(0f, 0f, 0f), new Vector3(poolW, poolW * 0.42f, 1f));
             MeshRenderer column = Quad(go.transform, "Column", look.Column, true, order, new Vector3(0f, -3f, 0f), new Vector3(colW, ColumnH, 1f));
             MeshRenderer core = Quad(go.transform, "Core", look.Core, true, order + 1, new Vector3(0f, -3f, 0f), new Vector3(colW * 0.38f, ColumnH * 0.9f, 1f));

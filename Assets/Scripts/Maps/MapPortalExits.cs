@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 namespace ZenoniaProto
 {
-    /// <summary>Colour family of a portal light, by the map it stands on (MapPortalLightFx picks the HDR colours).</summary>
-    public enum PortalLightRegion { Snow, Village, Forest, Desert, Marsh }
-
     /// <summary>One exit as the light FX sees it: touching portal tiles with the same target merged, and the spot the light stands on.</summary>
     public struct PortalExit
     {
@@ -70,18 +67,6 @@ namespace ZenoniaProto
                 { e.AnchorTx = ax; e.AnchorTy = ay; break; }
             }
             return e;
-        }
-
-        public static PortalLightRegion RegionOf(string mapId)
-        {
-            switch (mapId)
-            {
-                case "frostHollow": case "frostfangDen": return PortalLightRegion.Snow;
-                case "bramblewoodForest": case "rootburrow": case "thornheartChamber": return PortalLightRegion.Forest;
-                case "sunbreakFoothills": case "sunspireOasis": case "amberDunes": case "scorpionGorge": return PortalLightRegion.Desert;
-                case "emberfenMarsh": case "sunkenReliquary": return PortalLightRegion.Marsh;
-                default: return PortalLightRegion.Village; // oakhavenVillage, thatchVillage, willowbrookMeadows and any new town
-            }
         }
 
         /// <summary>Brightness multiplier at time t (s): a cosine between BreathLow and 1 over BreathSeconds. Continuous, no steps, no blink.</summary>

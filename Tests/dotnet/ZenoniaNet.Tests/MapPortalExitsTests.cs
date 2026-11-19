@@ -52,12 +52,4 @@ public class MapPortalExitsTests
         Assert.InRange(lo, MapPortalExits.BreathLow - 0.001f, MapPortalExits.BreathLow + 0.01f);
         Assert.InRange(hi, 0.99f, 1.0001f);
     }
-
-    [Fact]
-    public void SnowMapsGetTheBlueLight()
-    {
-        Assert.Equal(PortalLightRegion.Snow, MapPortalExits.RegionOf(FrostHollowLayout.MapId));
-        Assert.Equal(PortalLightRegion.Village, MapPortalExits.RegionOf(OakhavenVillageMap.MapId));
-        Assert.Equal(PortalLightRegion.Forest, MapPortalExits.RegionOf(RootburrowMap.MapId));
-    }
 }
