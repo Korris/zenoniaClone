@@ -59,6 +59,15 @@ namespace ZenoniaProto
             for (int s = 0; s < 8; s++) { yield return new WaitForSeconds(0.09f); yield return Shot("real-attack-" + s); }
             foreach (HeroController h in crowd) { h.AiPressed = k => false; h.AiHeld = k => k == GameKey.Up; }
             for (int s = 0; s < 2; s++) { yield return new WaitForSeconds(0.12f); yield return Shot("real-walk-up-" + s); }
+            // weapons: every hero attacks in another Dir8 dir (left and diagonals included), then all facing left
+            for (int pass = 0; pass < 2; pass++)
+            {
+                for (int i = 0; i < crowd.Length; i++) { crowd[i].AiHeld = k => false; crowd[i].AiPressed = k => false; crowd[i].FaceDir8(pass == 0 ? (i + 3) % 8 : 6); }
+                yield return new WaitForSeconds(0.4f);
+                yield return Shot(pass == 0 ? "real-idle-dirs-b" : "real-idle-left");
+                foreach (HeroController h in crowd) h.AiPressed = k => k == GameKey.Attack;
+                for (int s = 0; s < 8; s++) { yield return new WaitForSeconds(0.09f); yield return Shot((pass == 0 ? "real-attack-dirs-" : "real-attack-left-") + s); }
+            }
             Application.Quit();
         }
     }
