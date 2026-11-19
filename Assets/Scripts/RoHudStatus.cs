@@ -38,13 +38,9 @@ namespace ZenoniaProto
             RectTransform plate = RoHud.TopLeftBox(Root, "Plate", RoHud.StatusPlateX, PlateTop, RoHud.StatusPlateW, RoHud.StatusPlateH);
             RoHud.Art(plate, "hud-status-plate");
 
-            // Portrait: white mask plate (a soft sky backing), the hero's face layers, the ring with its star on top.
+            // Portrait: the round mask with its opaque sky gradient, the hero's face layers, the ring with its star on top.
             RectTransform ring = RoHud.TopLeftBox(Root, "Portrait", 0f, 0f, RoHud.PortraitSize, RoHud.PortraitSize);
-            RectTransform m = UiKit.Fill(ring, "Mask", 6f);
-            Image mask = RoHud.Art(m, "hud-portrait-mask");
-            mask.preserveAspect = false;
-            mask.color = RoSoftTheme.SkyMist;
-            m.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+            RectTransform m = RoHudPortraits.Frame(ring); // the disc fills the ring's hole: no map shows through (user 20/11)
             face = UiKit.Fill(m, "Face").gameObject.AddComponent<Image>();
             face.raycastTarget = false;
             face.rectTransform.localScale = new Vector3(0.88f, 0.88f, 1f); // a bust like 02-hud.png, not a face crop
@@ -52,6 +48,7 @@ namespace ZenoniaProto
             portrait = new HeroPortraitLayers(face);
             live = RoHudPortraits.Make(m, 0);
             RoHud.Art(UiKit.Fill(ring, "Ring"), "hud-portrait-ring");
+            NameTags.Occlude(ring); NameTags.Occlude(plate); // a hero walking under the HUD: its IMGUI name tag / role shield stays off the portrait
 
             RectTransform lv;
             level = RoHud.Pill(Root, "Level", RoHud.TopLeft, RoHud.TopLeft, LvX, -LvY, LvH, "hud-lv-badge", null, 0f, "Lv. 1", 14, RoHud.TextOnNavy, out lv, LvW);

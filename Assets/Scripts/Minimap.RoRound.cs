@@ -34,8 +34,21 @@ namespace ZenoniaProto
             RectTransform g = ground.rectTransform;
             float z = Zoom;
             if (g.localScale.x != z) g.localScale = new Vector3(z, z, 1f);
-            g.anchoredPosition = -MapPoint(hero.Position) * z; // the hero at the centre of the circle
+            // The hero at the centre of the circle, except near the map's edges: the view stops there so the map always fills the circle
+            // (user 20/11: past the edge the circle showed a big empty plate) and the hero's dot moves off centre instead.
+            Vector2 p = -MapPoint(hero.Position) * z;
+            g.anchoredPosition = new Vector2(KeepInside(p.x, InnerW * z), KeepInside(p.y, InnerH * z));
             KeepDotSize(g, z);
+        }
+
+        // Radius of the visible disc: hud-minimap-mask's disc is 233 of its 291 px, drawn over the whole MinimapSize box (1 px under the ring).
+        static readonly float DiscRadius = RoHud.MinimapSize * 0.5f * 233f / 291f + 1f;
+
+        /// <summary>Ground offset (its left / bottom edge from the circle's centre) clamped so the ground of length `len` covers the disc.</summary>
+        static float KeepInside(float offset, float len)
+        {
+            if (len < DiscRadius * 2f) return -len * 0.5f; // smaller than the circle (cannot happen at zoom >= 1): centred on the plate
+            return Mathf.Clamp(offset, DiscRadius - len, -DiscRadius);
         }
 
         readonly System.Collections.Generic.List<Image> dotImages = new System.Collections.Generic.List<Image>();
@@ -63,14 +76,16 @@ namespace ZenoniaProto
             {
                 if (roundMask == null)
                 {
-                    roundMask = UiKit.Fill(root, "RoundMask", 9f); // inside the ring's band
+                    // The mask disc fills the box exactly like the ring art (same sprite size, both preserveAspect): its edge sits under the ring's
+                    // band. An inset of 9 left a 6 px band between the disc and the ring where the world showed through (user 20/11).
+                    roundMask = UiKit.Fill(root, "RoundMask");
                     Image m = RoHud.Art(roundMask, "hud-minimap-mask");
-                    m.preserveAspect = false;
                     m.color = RoundBack;
                     roundMask.gameObject.AddComponent<Mask>().showMaskGraphic = true;
                     RectTransform ring = UiKit.Fill(root, "Ring");
                     RoHud.Art(ring, "hud-minimap-ring");
                     ringGo = ring.gameObject;
+                    NameTags.Occlude(roundMask); // IMGUI name tags never draw over the round minimap
                 }
                 roundMask.gameObject.SetActive(true);
                 ringGo.SetActive(true);
