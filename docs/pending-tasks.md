@@ -2,6 +2,12 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 01:30 vẽ lại TOÀN BỘ map RO Soft Fantasy bằng ChatGPT (agent, người dùng ngủ: "làm lại toàn bộ map + quái theo style ro fantasy")
+- Cách làm: giữ nguyên bố cục (rows, prop, cổng, spawn không đổi), ChatGPT vẽ lại ground theo ảnh bố cục từng cửa sổ, `Tools/install-map-ro-redraw-windows.py layout|check|install|sheet <map>` (căn ECC + optical flow, ghép mờ phần chồng). Ảnh trước/sau: `docs/reference/maps-ro-soft-redraw/`. Tài khoản Tay ("Tân Korris").
+- XONG (đã commit): Willowbrook (4 ảnh, https://chatgpt.com/c/6aff4131-e5b8-83ec-9455-833aceb43da9), Thatchwick (1 ảnh, https://chatgpt.com/c/6aff4328-d0b8-83ec-b9da-f1a63e01c559).
+- ĐANG: Frost Hollow (https://chatgpt.com/c/6aff4387-123c-83ec-b488-223c5caa36da).
+- CHƯA: Frostfang Den, Sunspire, Amber Dunes, Emberfen, Bramblewood, Thornheart, Rootburrow, Sunbreak, Scorpion Gorge. Chưa build / chụp trong game.
+
 ### 19/11 23:40 Mire Hydra Queen: Venom Drain + icon trúng độc HUD / party + hiệu ứng độc trên người + sửa boss quay mặt (agent, merge vào `ro-fantasy-heroes`)
 - Skill thứ 5 Venom Drain (Id 4, số ChatGPT chưa cân bằng), độc nhân bản cho client (`NetEventType.HeroStatus`, **protocol 25: PHẢI build lại zone server + phát client mới**), icon độc ChatGPT (`Sprites/ui/status/poison.png`) dưới thanh máu + hàng party (HUD RO và HUD gọn), tint olive + bọt độc trên người theo ChatGPT, tick độc hết cho bất tử, tint đóng băng / độc ăn cả hero RO Fantasy nhiều lớp. Boss quay mặt: 3,5-5,5 lần/s -> 0,4-1,0 lần/s (`Rpg/MonsterFacingRule.cs`).
 - ChatGPT Tay chat https://chatgpt.com/c/6aff091a-624c-83ec-b0f2-af0bb9e55cb4 (thiết kế Venom Drain, icon, có / không hiệu ứng trên người). Báo cáo `plans/reports/hydra-venom-drain-poison-ui-261119.md`, ảnh `docs/reference/mire-hydra-queen-v2/venom-*.png`. Exe `D:/temp/player-hydra-venom/Zenonia.exe`.
