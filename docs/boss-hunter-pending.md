@@ -91,3 +91,13 @@ Ghi lúc 12/11/2026 17:40, khi người dùng bảo dừng code, commit, push đ
 ## Triển khai
 
 Khi lên server thật: `server-api` trước, rồi zone, rồi client (xem plan). Thay đổi "5 nhân vật, trùng class" của hôm nay cũng chưa deploy.
+
+## Mire Hydra Queen v2 (19/11/2026, nhánh `ro-fantasy-heroes`)
+
+- Báo cáo đầy đủ: `plans/reports/mire-hydra-queen-v2-261119.md`. Ảnh: `docs/reference/mire-hydra-queen-v2/`.
+- Sprite mới theo concept `5-wanted-boss-board-style.png` (nữ hoàng tóc tím, đuôi rắn, 3 đầu rắn), ChatGPT Tan Pham, nền `#00FF00`: walk, idle (sheet mới `mireHydraQueen-idle.png`, vẽ khi đứng), attack, cast. Nguồn `ArtLibrary/monsters/wanted/mire-hydra-queen-v2-*`, cắt bằng `py Tools/build-wanted-boss-sheets.py write mireHydraQueen`.
+- Nữ hoàng vẽ to gấp 2 các boss truy nã khác (`MonsterDef.Wanted(..., drawMul: 2f)`), chỉ hình; hitbox / tầm đánh / bán kính skill KHÔNG đổi.
+- FX skill bằng shader + particle (`MireHydraLightFx`, `WantedWarningDisc.shader`), `--boss-fx legacy` về FX sprite cũ.
+- CÒN THIẾU: cast hàng phun độc / quật đuôi mới có 2 đầu rắn (phải vẽ lại); hàng cuồng nộ + gục chưa vẽ (tạm dùng lại hàng 0-1); idle gần giống walk. Tan Pham hết lượt tới 09:17 ngày 20/11; Tay bị từ chối quyền tải ảnh lên.
+- CHƯA LÀM (bị từ chối quyền khi sửa luật skill): skill mới "Venom Drain" rút máu bằng độc + ô debuff độc dưới thanh máu + hỏi ChatGPT có hiện độc trên nhân vật không.
+- Boss map Mirefang Hydra đứng cùng ô (45,12) với nữ hoàng, che nhau: cần dời một con.

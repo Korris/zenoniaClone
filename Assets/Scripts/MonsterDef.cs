@@ -109,22 +109,26 @@ namespace ZenoniaProto
         /// <summary>basisHp / basisAtk / basisDef / basisSpeed are the map boss's own ctor inputs (pre-double hp), taken as a frozen snapshot: World Map 2.0 step 1 (13/11/2026) re-leveled Frostfang King
         /// and Mirefang Hydra, but the Wanted bosses must keep their old numbers ("giữ như cũ"), so each call below passes the PRE-rebalance stats of its basis boss, not the live MonsterDef (which would
         /// silently drift every time the map boss's level changes again).</summary>
-        static MonsterDef Wanted(string name, string sheet, float basisHp, float basisAtk, float basisDef, float basisSpeed, int itemLevel, Color tint)
+        /// <summary>drawMul: picture-only size on top of WantedRenderScale (hit box, reach and every server number unchanged).</summary>
+        static MonsterDef Wanted(string name, string sheet, float basisHp, float basisAtk, float basisDef, float basisSpeed, int itemLevel, Color tint, float drawMul = 1f)
         {
             return new MonsterDef(name, sheet, basisHp * WantedHpFactor, basisAtk * WantedAtkFactor, basisDef, basisSpeed, itemLevel, aggro: 110f, leash: 160f,
                 attackRange: WantedAttackRange, windupMs: 800f, cooldownMs: 1800f, hitW: WantedHitW, hitH: WantedHitH, bodyHeightPx: 164f)
-                { RenderScale = WantedRenderScale, Stationary = true, IsBoss = true, IsWanted = true, WalkCellPx = 384, AttackCellPx = 512, FallbackSheet = "frostfangKing", FallbackTint = tint };
+                { RenderScale = WantedRenderScale * drawMul, WantedDrawMul = drawMul, Stationary = true, IsBoss = true, IsWanted = true, WalkCellPx = 384, AttackCellPx = 512, FallbackSheet = "frostfangKing", FallbackTint = tint };
         }
+        /// <summary>Per-boss picture multiplier over WantedRenderScale (Wanted(..., drawMul)); kept so ApplyWantedRenderScale does not drop it.</summary>
+        public float WantedDrawMul = 1f;
         /// <summary>--wanted-render-scale test hook (NetLaunchArgs): every Wanted Boss drawn `factor` x WantedRenderScale. Sets, never multiplies, so a second parse cannot compound it.</summary>
         public static void ApplyWantedRenderScale(float factor)
         {
-            foreach (MonsterDef d in new[] { RimeclawTyrant, GlacialColossus, MireHydraQueen }) d.RenderScale = WantedRenderScale * factor;
+            foreach (MonsterDef d in new[] { RimeclawTyrant, GlacialColossus, MireHydraQueen }) d.RenderScale = WantedRenderScale * d.WantedDrawMul * factor;
         }
 
         // Frozen basis (hp, atk, def, speed): Frostfang King Lv3 (580/33/3/36) and Mirefang Hydra Lv35 (5500/215/27/36) as they stood before the step 1 level rebalance; Glacier Warden did not change.
         public static readonly MonsterDef RimeclawTyrant = Wanted("Rimeclaw Tyrant", "rimeclawTyrant", 580f, 33f, 3f, 36f, 10, new Color(0.75f, 0.9f, 1f));
         public static readonly MonsterDef GlacialColossus = Wanted("Glacial Colossus", "glacialColossus", 3200f, 125f, 16f, 36f, 25, new Color(0.4f, 0.65f, 1f));
-        public static readonly MonsterDef MireHydraQueen = Wanted("Mire Hydra Queen", "mireHydraQueen", 5500f, 215f, 27f, 36f, 40, new Color(0.45f, 0.95f, 0.5f));
+        // 2026-11-19: the v2 queen (RO Soft Fantasy) is drawn twice the other wanted bosses (user: "to gấp 2 lần, còn nhỏ quá"; the arena is 4x since the same day). Picture only.
+        public static readonly MonsterDef MireHydraQueen = Wanted("Mire Hydra Queen", "mireHydraQueen", 5500f, 215f, 27f, 36f, 40, new Color(0.45f, 0.95f, 0.5f), drawMul: 2f);
 
         // World Map 2.1 (13/11/2026) new monsters, sheets cut by Tools/build-meadow-monsters.py. Same line HP 14+22L, Atk 3+4L, Def 1+L and the role factors already used above.
         // Bramblewood Forest (Lv 6-10, with Meadow Mantis 6 and Bramble Treant 8). Forest Wolf (Lv 7): Spectral Wolf's role (HP x0.83, Atk x0.9, low Def, fast, short cooldown).

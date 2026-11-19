@@ -28,6 +28,10 @@ namespace ZenoniaProto
         /// viewer picks the same cast-sheet row; which row depends only on the skill id and the shared WantedSkillTable, never sent on the wire.</summary>
         public void ShowWantedTelegraph(int skillId) { telegraphSkillId = skillId; }
 
+        /// <summary>The skill this boss is telegraphing (null when none) and its boss id (def.Sheet): read by the capture bot (DebugCapture.NetWantedShowcase).</summary>
+        public WantedSkillDef WantedTelegraphSkill { get { return state == State.Telegraph ? CurrentWantedSkill() : null; } }
+        public string WantedBossId { get { return def.Sheet; } }
+
         WantedSkillDef CurrentWantedSkill()
         {
             if (telegraphSkillId < 0) return null;

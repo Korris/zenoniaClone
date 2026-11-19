@@ -7,6 +7,7 @@ namespace ZenoniaProto
     public partial class Monster
     {
         const int WalkCell = 192, AttackCell = 256, SheetRows = 4; // rows: 0 down, 1 up, 2 left, 3 right (the facing code)
+        const float IdleFrameMs = 260f; // 4-frame breathing loop of an optional idle sheet (1.04 s a cycle)
         const string SheetFolder = "Sprites/monsters/";
 
         /// <summary>
@@ -21,6 +22,9 @@ namespace ZenoniaProto
             int walkCell = def.WalkCellPx, attackCell = def.AttackCellPx; // own art: the def's cell sizes (event bosses: 384 / 512 cells at doubled pixels per unit, so a cell covers the same world size)
             if (hasFallback && !SheetUsable(def.Sheet, walkCell)) { sheet = def.FallbackSheet; artTint = def.FallbackTint; walkCell = WalkCell; attackCell = AttackCell; }
             walk = SpriteSheet.Grid(SheetFolder + sheet, walkCell, walkCell, GameConfig.FramePpu * walkCell / WalkCell, new Vector2(0.5f, 0f));
+            // Optional standing loop in the walk layout (Mire Hydra Queen v2, 2026-11-19): drawn while the monster stands, the walk sheet only while it moves.
+            if (Resources.Load<Texture2D>(SheetFolder + sheet + "-idle") != null)
+                idle = SpriteSheet.Grid(SheetFolder + sheet + "-idle", walkCell, walkCell, GameConfig.FramePpu * walkCell / WalkCell, new Vector2(0.5f, 0f));
             if (hasFallback && Resources.Load<Texture2D>(SheetFolder + sheet + "-attack") == null) return;
             // Attack cells keep the feet 1/8 of the cell above the bottom (256 cell: 224 px down, 512 cell: 448 px down) => pivot 0.125.
             attack = SpriteSheet.Grid(SheetFolder + sheet + "-attack", attackCell, attackCell, GameConfig.FramePpu * attackCell / AttackCell, new Vector2(0.5f, 32f / AttackCell));
@@ -85,7 +89,9 @@ namespace ZenoniaProto
             else if (walkRow != null && walkRow.Length > 0)
             {
                 bool still = state == State.Idle || state == State.Cooldown || state == State.Windup;
-                s = walkRow[still ? 0 : Mathf.FloorToInt(animTimer / WalkFrameMs) % walkRow.Length];
+                Sprite[] idleRow = still ? SpriteSheet.Row(idle, facing) : null;
+                if (idleRow != null && idleRow.Length > 0) s = idleRow[Mathf.FloorToInt(animTimer / IdleFrameMs) % idleRow.Length];
+                else s = walkRow[still ? 0 : Mathf.FloorToInt(animTimer / WalkFrameMs) % walkRow.Length];
             }
             body.sprite = s;
             ApplyHitReaction(alpha);
