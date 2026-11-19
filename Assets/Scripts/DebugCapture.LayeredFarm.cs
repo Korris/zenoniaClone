@@ -11,6 +11,8 @@ namespace ZenoniaProto
     /// every one its own hair / outfit colour, most with a hat) stand in a ring around a pack of Frost Slimes / Ice Goblins, each facing the
     /// pack with its own Dir8 direction, and keep attacking; dead monsters are replaced so the fight goes on. Your hero joins the ring.
     /// Shots: farm-hud (HUD on: own ring + green name), farm-0..N (HUD hidden), then the app quits.
+    /// With --tp the pack stands on that tile (else the open spot nearest (11,6)); --farm-heroes N (default 10) puts N heroes in up to 3 rings,
+    /// e.g. 39 on the Mire Hydra arena to see a Wanted-sized crowd.
     /// </summary>
     public partial class DebugCapture
     {
@@ -21,18 +23,20 @@ namespace ZenoniaProto
             Directory.CreateDirectory(shotPath);
             LootDrop.NoDrops = true;
             foreach (Monster m in new List<Monster>(Monster.All)) Destroy(m.gameObject);
-            Vector2 centre = FindOpenSpot();
+            Vector2 centre = tpTile.x >= 0 ? hero.Position : FindOpenSpot();
+            string fh = Arg(System.Environment.GetCommandLineArgs(), "--farm-heroes");
+            int farmHeroes = fh != null ? Mathf.Clamp(int.Parse(fh), 1, 60) : FarmHeroes;
             Transform root = GameObject.Find("ZenoniaProto").transform;
             var heroes = new List<HeroController> { hero };
             hero.God = true;
-            for (int i = 0; i < FarmHeroes; i++)
+            for (int i = 0; i < farmHeroes; i++)
             {
                 HeroController h = session.SpawnPartyMember(RealCrowd[i % 5], centre, 0);
                 h.AiHeld = k => false;
                 h.AiPressed = k => false;
                 h.God = true;
                 var look = new CharacterAppearanceData { stored = true, hairStyle = i % 3, hairColorIndex = (i * 3 + 1) % 8, outfitColorIndex = (i * 5 + 2) % CharacterAppearanceData.OutfitColorCount,
-                    equippedHeadgearId = i % 4 == 3 ? 0 : new[] { 2, 5, 16, 0, 9, 10, 6, 0, 12, 19 }[i] };
+                    equippedHeadgearId = i % 4 == 3 ? 0 : new[] { 2, 5, 16, 0, 9, 10, 6, 0, 12, 19 }[i % 10] };
                 h.View.SetAppearance(look, "layered-farm-" + i, false, false);
                 heroes.Add(h);
             }
@@ -41,7 +45,8 @@ namespace ZenoniaProto
             for (int i = 0; i < heroes.Count; i++)
             {
                 float t = -Mathf.PI / 2f + Mathf.PI * 2f * i / heroes.Count;
-                Vector2 at = centre + new Vector2(Mathf.Cos(t) * 34f, Mathf.Sin(t) * 20f);
+                float ring = heroes.Count > FarmHeroes + 1 ? 1f + (i % 3) * 0.7f : 1f; // big crowds: 3 rings instead of one packed circle
+                Vector2 at = centre + new Vector2(Mathf.Cos(t) * 34f * ring, Mathf.Sin(t) * 20f * ring);
                 heroes[i].Teleport(at, 0);
                 heroes[i].FaceDir8(Dir8Util.FromVector(centre - at));
             }
