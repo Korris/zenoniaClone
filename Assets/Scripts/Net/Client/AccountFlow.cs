@@ -183,11 +183,8 @@ namespace ZenoniaProto
             return e.Length > 254 || at < 1 || e.LastIndexOf('.') < at + 2 || e.EndsWith(".", StringComparison.Ordinal) ? "That email does not look right" : null;
         }
 
-        public static string NameProblem(string name)
-        {
-            name = (name ?? "").Trim();
-            return name.Length < 3 || name.Length > 16 || !IsName(name) ? "Name: 3 to 16 letters, digits or _" : null;
-        }
+        /// <summary>The server's name rules (HeroNameRules, shared with the offline create step).</summary>
+        public static string NameProblem(string name) { return Rpg.HeroNameRules.Problem(name); }
 
         /// <summary>Deleting needs the hero's exact name typed: a mistyped or empty box does nothing.</summary>
         public static string DeleteProblem(string typed)

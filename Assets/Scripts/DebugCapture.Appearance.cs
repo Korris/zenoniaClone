@@ -8,8 +8,8 @@ namespace ZenoniaProto
     /// <summary>
     /// --appearance-test --shot-path DIR: the offline appearance step of a new hero through the real input path (FakeInput taps on the kit buttons).
     /// Warrior (male body) then Cleric (female body, from the in-game change hero screen, with a Back on the way): colour combos, 8-way turn, walk and
-    /// attack previews, Random, Confirm, then the created hero in the world in the picked colours. Captures never touch saves (SaveStore off), so every
-    /// class is a new hero. Writes DIR/*.png and "appearance-e2e: PASS/FAIL" lines.
+    /// attack previews, Random, the name (refused when empty or too short), Create, then the created hero in the world in the picked colours under its name.
+    /// Captures never touch saves (SaveStore off), so every class is a new hero. Writes DIR/*.png and "appearance-e2e: PASS/FAIL" lines.
     /// </summary>
     public partial class DebugCapture
     {
@@ -62,9 +62,19 @@ namespace ZenoniaProto
             yield return Press(CentreOf("Motion0"), false, "idle tab");
             yield return PickColours(6, 5, "08-warrior-lavender-lilac-plum-final");
             CharacterAppearanceData warriorLook = CharacterCustomizeScreen.TestLook.Clone();
-            yield return Press(CentreOf("Create"), false, "confirm");
+            yield return Press(CentreOf("Create"), false, "create without a name");
+            yield return WaitSeconds(0.4f);
+            A((CharacterCustomizeScreen.OfflineOpen && GameSession.Hero == null && CharacterCustomizeScreen.TestStatus == HeroNameRules.RuleText ? "PASS" : "FAIL") + " offline the hero must be named first: " + CharacterCustomizeScreen.TestStatus);
+            CharacterCustomizeScreen.TestSetName("Ro");
+            yield return WaitSeconds(0.3f);
+            A((CharacterCustomizeScreen.TestHint == HeroNameRules.RuleText ? "PASS" : "FAIL") + " a two-letter name shows the name rule: " + CharacterCustomizeScreen.TestHint);
+            CharacterCustomizeScreen.TestSetName("Rowan");
+            yield return WaitSeconds(0.3f);
+            yield return Shot("08b-warrior-named-rowan");
+            yield return Press(CentreOf("Create"), false, "create");
             yield return WaitSeconds(1.5f);
             yield return CheckSpawned(HeroClass.Warrior, warriorLook);
+            A((RpgSession.CurrentName == "Rowan" ? "PASS" : "FAIL") + " the hero plays under its name: " + RpgSession.CurrentName);
             yield return InWorldShots("09-warrior-in-world");
 
             // ---- Cleric: female body, from the change hero screen, Back once ----
@@ -92,7 +102,8 @@ namespace ZenoniaProto
             yield return HairStyleShots(HeroClass.Cleric);
             yield return PickColours(5, 3, "13-cleric-sky-blue-warm-gold-final");
             CharacterAppearanceData clericLook = CharacterCustomizeScreen.TestLook.Clone();
-            yield return Press(CentreOf("Create"), false, "confirm");
+            CharacterCustomizeScreen.TestSetName("Elin");
+            yield return Press(CentreOf("Create"), false, "create");
             yield return WaitSeconds(1.5f);
             A((!HeroChangeScreen.IsOpen && !CharacterCustomizeScreen.IsShown ? "PASS" : "FAIL") + " confirm closes the change hero screen");
             yield return CheckSpawned(HeroClass.Cleric, clericLook);

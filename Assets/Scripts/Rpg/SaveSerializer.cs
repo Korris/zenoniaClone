@@ -24,6 +24,7 @@ namespace ZenoniaProto.Rpg
         public int wantedDay; // WantedBoss.DayKey of the last Wanted Boss claim (PlayerState.WantedDay); missing in old saves = 0 = never
         public string petId; // v4: the combat pet (kept so a v4 save loads into petTeam[0]); missing = none. Old saves carry pet ITEMS instead, which AccountPets.Migrate converts
         public List<string> petTeam = new List<string>(); // v5: the five team slots (PetSlot order, "" = empty); missing = petId in the combat slot
+        public string name; // offline hero name (HeroNameRules); missing / empty in older saves = the class name (SaveStore.DisplayName). Online the server keeps the name, this stays empty
         public CharacterAppearanceData appearance; // look (hair style / colours / headgear); missing or stored = false in older saves = not chosen (no version bump needed)
     }
 
@@ -83,6 +84,7 @@ namespace ZenoniaProto.Rpg
                 hpPotionPick = RpgMath.Clamp(raw.hpPotionPick, 0, PotionCatalog.Sizes - 1), mpPotionPick = RpgMath.Clamp(raw.mpPotionPick, 0, PotionCatalog.Sizes - 1),
                 upgradeStone = RpgMath.Clamp(raw.upgradeStone, 0, PlayerState.MaxStones),
                 hp = Finite(raw.hp), mp = Finite(raw.mp), x = Finite(raw.x), y = Finite(raw.y), hasPosition = raw.hasPosition, bossDefeated = raw.bossDefeated,
+                name = HeroNameRules.Problem(raw.name) == null ? raw.name.Trim() : "", // a broken name falls back to the class name
             };
             if (raw.version < FrostHollowGrownVersion && d.mapId == MapId && d.hasPosition && frostHollowRows > LegacyFrostHollowRows)
                 d.y += (frostHollowRows - LegacyFrostHollowRows) * TileUnits;

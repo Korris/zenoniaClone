@@ -10,7 +10,7 @@ namespace ZenoniaProto
     /// castle scene and, below, the picked hero's portrait, real stats, skills and a live in-game preview (HeroSelectPreview). A tap picks a hero, the gold button starts. The "boxing" art is the Fighter
     /// (playable since 2026-11-04; NotPlayable stays for a future art-only slot). Since the character select screen (CharacterListScreen, 19/11/2026) it is only the class step of a NEW hero:
     /// create mode (OpenCreate), opened from that list online and offline (also over the running game), with BACK to the list and NEXT to the look / name step; a class the
-    /// `taken` test refuses (offline: it already has its save) cannot be picked. A dev host still picks its hero here directly (no saves, no list).
+    /// `taken` test refuses cannot be picked (none today: offline a device may hold several heroes of one class). A dev host still picks its hero here directly (no saves, no list).
     /// </summary>
     public sealed partial class HeroSelectScreen : MonoBehaviour
     {
@@ -32,7 +32,7 @@ namespace ZenoniaProto
         }
 
         static HeroSelectScreen instance;
-        static System.Func<int, bool> createTaken; // class index -> this class cannot be made (offline: it has its save). Non null while the create mode is up.
+        static System.Func<int, bool> createTaken; // class index -> this class cannot be made (no caller refuses one today). Non null while the create mode is up.
         static System.Action<HeroClass> createPicked;
         static System.Action createBack;
         static HeroClass? createStart; // class the create mode opens on (coming back from the look step); null = the Wizard

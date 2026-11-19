@@ -6,7 +6,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Owns the playable hero: shows the class select screen first, then spawns the chosen class (hero + renderer + pet)
-    /// and lets F1..F5 respawn as another class at any time. Each class has its own RPG save (RpgSession): switching saves the current hero first.
+    /// and lets F1..F5 respawn as another class at any time. Each offline hero has its own slot save (RpgSession, SaveStore): switching saves the current hero first.
     /// Online (host / client) the class is fixed for the session and there are no saves; GameSession.Online.cs switches the process between modes.
     /// </summary>
     public partial class GameSession : MonoBehaviour
@@ -37,13 +37,36 @@ namespace ZenoniaProto
         void OnDestroy() { if (Instance == this) Instance = null; }
 
         /// <summary>
-        /// Saves + destroys the current hero (if any) and spawns the given class from its save (or a new character at the entrance).
-        /// newLook: the look picked on the creation screen, used only when the class has no save yet (a saved hero keeps its own); the new save is written right away (RpgSession.Attach).
+        /// Dev class keys, host and capture runs: the class's first offline save (SaveStore), else a new hero of it in the first free slot, else unsaved.
+        /// The character select screen goes through EnterSlot / CreateInSlot instead.
         /// </summary>
         public void Spawn(HeroClass id, CharacterAppearanceData newLook = null)
         {
+            int slot = SaveStore.SlotOfClass(RpgSession.ClassId(id));
+            SpawnInSlot(id, slot >= 0 ? slot : SaveStore.FirstFreeSlot(), newLook, null);
+        }
+
+        /// <summary>The offline hero saved in `slot` (ENTER on the character select screen). False when the slot has no readable save.</summary>
+        public bool EnterSlot(int slot)
+        {
+            SaveData save = SaveStore.Load(slot);
+            int i = save != null ? ClassIndex(save.classId) : -1;
+            if (i < 0 || i >= HeroClassDef.All.Length) return false;
+            SpawnInSlot((HeroClass)i, slot, null, null);
+            return true;
+        }
+
+        /// <summary>A new offline hero of `id` named `name` with the picked look, saved in the empty `slot` (the creation flow).</summary>
+        public void CreateInSlot(int slot, HeroClass id, CharacterAppearanceData look, string name) { SpawnInSlot(id, slot, look, name); }
+
+        /// <summary>
+        /// Saves + destroys the current hero (if any) and spawns the given class from the save in `slot` (or a new character at the entrance; slot -1 = unsaved).
+        /// newLook / newName: picked on the creation screens, used only when the slot has no save yet (a saved hero keeps its own); the new save is written right away (RpgSession.Attach).
+        /// </summary>
+        void SpawnInSlot(HeroClass id, int slot, CharacterAppearanceData newLook, string newName)
+        {
             SaveData save;
-            PlayerState state = rpg.Begin(id, out save);
+            PlayerState state = rpg.Begin(id, slot, newName, out save);
             if (save == null && newLook != null && newLook.stored) state.Appearance = CharacterAppearanceData.Sanitize(newLook, state.ClassId);
             if (hero != null) hero.Retire(); // Destroy is deferred: the old hero must not take loot / aggro for the rest of this frame
             if (heroGo != null) Destroy(heroGo);
