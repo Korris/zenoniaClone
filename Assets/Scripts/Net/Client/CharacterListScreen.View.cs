@@ -46,7 +46,7 @@ namespace ZenoniaProto
             card.Mini.enabled = KnownClass(hero, out id);
             if (!card.Mini.enabled) return;
             preview.Set(r, id, Rpg.CharacterAppearanceData.Sanitize(hero.appearance, hero.classId), Rpg.CharacterAppearanceData.SeedFor(hero.name, 0), 1f);
-            preview.SetPose(r, 1, HeroPreviewStage.Motion.Idle); // the 3/4 front view, like the mockup cards
+            preview.SetPose(r, 1); // the 3/4 front view, like the mockup cards
         }
 
         void ShowBig(CharacterSummary hero)
@@ -69,7 +69,7 @@ namespace ZenoniaProto
             PoseBig();
         }
 
-        void PoseBig() { preview.SetPose(BigSlot, dir8, HeroPreviewStage.Motion.Idle); }
+        void PoseBig() { preview.SetPose(BigSlot, dir8); }
 
         /// <summary>Every frame: buttons that wait for a running call or the join, the corner buttons of the mode and the status line.</summary>
         void RefreshState()

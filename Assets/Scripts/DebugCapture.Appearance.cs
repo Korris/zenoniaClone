@@ -7,8 +7,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// --appearance-test --shot-path DIR: the offline appearance step of a new hero through the real input path (FakeInput taps on the kit buttons).
-    /// Warrior (male body) then Cleric (female body, from the in-game change hero screen, with a Back on the way): colour combos, 8-way turn, walk and
-    /// attack previews, Random, the name (refused when empty or too short), Create, then the created hero in the world in the picked colours under its name.
+    /// Warrior (male body) then Cleric (female body, from the in-game change hero screen, with a Back on the way): colour combos, the idle-down
+    /// preview (no turn / motion buttons, weapon breathing with the body, texture as sharp as the screen), Random, the name (refused when empty or too short), Create, then the created hero in the world in the picked colours under its name.
     /// Captures never touch saves (SaveStore off), so every class is a new hero. Writes DIR/*.png and "appearance-e2e: PASS/FAIL" lines.
     /// </summary>
     public partial class DebugCapture
@@ -32,23 +32,9 @@ namespace ZenoniaProto
             yield return Shot("01-warrior-step-random-look");
             yield return HairStyleShots(HeroClass.Warrior);
             yield return PickColours(4, 1, "02-warrior-coral-red-sky-blue");
-            for (int i = 0; i < 4; i++) yield return Press(CentreOf("TurnRight"), false, "turn right");
-            yield return WaitSeconds(0.4f);
-            yield return Shot("03-warrior-coral-sky-turned-up-left");
-            yield return Press(CentreOf("Motion1"), false, "walk tab");
-            yield return Press(CentreOf("TurnLeft"), false, "turn left");
-            yield return Press(CentreOf("TurnLeft"), false, "turn left");
-            yield return WaitSeconds(0.35f);
-            yield return Shot("04-warrior-walk-up");
+            yield return PreviewIdleDownChecks("warrior"); // DebugCapture.AppearanceBreath.cs: no turn / motion buttons, idle down, sharp texture
             yield return PickColours(2, 4, null);
-            yield return Press(CentreOf("Motion2"), false, "attack tab");
-            yield return Press(CentreOf("TurnLeft"), false, "turn left");
-            yield return Press(CentreOf("TurnLeft"), false, "turn left");
-            yield return Press(CentreOf("TurnLeft"), false, "turn left");
-            yield return WaitSeconds(0.3f);
-            yield return Shot("05-warrior-honey-mint-attack-a");
-            yield return WaitSeconds(0.25f);
-            yield return Shot("06-warrior-honey-mint-attack-b");
+            yield return BreathShots("warrior", "03-warrior-honey-breath");
             CharacterAppearanceData before = CharacterAppearanceData.ForNewCharacter("warrior", 0, 2, 4);
             bool changed = false;
             for (int i = 0; i < 5 && !changed; i++)
@@ -59,7 +45,6 @@ namespace ZenoniaProto
             }
             A((changed ? "PASS" : "FAIL") + " Random rolls a new look");
             yield return Shot("07-warrior-random");
-            yield return Press(CentreOf("Motion0"), false, "idle tab");
             yield return PickColours(6, 5, "08-warrior-lavender-lilac-plum-final");
             CharacterAppearanceData warriorLook = CharacterCustomizeScreen.TestLook.Clone();
             yield return Press(CentreOf("Create"), false, "create without a name");
@@ -94,11 +79,8 @@ namespace ZenoniaProto
             A((CharacterCustomizeScreen.OfflineOpen ? "PASS" : "FAIL") + " Back kept the cleric picked");
             yield return PickColours(7, 0, "10-cleric-sakura-pink-coral-red");
             yield return PickColours(3, 2, "11-cleric-silver-sage-green");
-            yield return Press(CentreOf("Motion1"), false, "walk tab");
-            yield return Press(CentreOf("TurnRight"), false, "turn right");
-            yield return WaitSeconds(0.3f);
-            yield return Shot("12-cleric-silver-sage-walk-right");
-            yield return Press(CentreOf("Motion0"), false, "idle tab");
+            yield return PreviewIdleDownChecks("cleric");
+            yield return BreathShots("cleric", "12-cleric-silver-breath");
             yield return HairStyleShots(HeroClass.Cleric);
             yield return PickColours(5, 3, "13-cleric-sky-blue-warm-gold-final");
             CharacterAppearanceData clericLook = CharacterCustomizeScreen.TestLook.Clone();

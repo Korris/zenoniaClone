@@ -76,7 +76,9 @@ namespace ZenoniaProto
             CharacterCustomizeScreen.TestSetName("wIZARD");
             yield return Press(CentreOf("Create"), false, "create with a name already on the device");
             yield return WaitSeconds(0.4f);
-            Cs(Pf(CharacterCustomizeScreen.OfflineOpen && GameSession.Hero == null && CharacterCustomizeScreen.TestStatus == HeroNameRules.TakenText) + " a name another hero has is refused (any case): " + CharacterCustomizeScreen.TestStatus);
+            // the refusal shows in the hint under the name (the status line stays empty when it would repeat the hint)
+            bool taken = CharacterCustomizeScreen.TestStatus == HeroNameRules.TakenText || CharacterCustomizeScreen.TestHint == HeroNameRules.TakenText;
+            Cs(Pf(CharacterCustomizeScreen.OfflineOpen && GameSession.Hero == null && taken) + " a name another hero has is refused (any case): " + CharacterCustomizeScreen.TestHint);
             yield return Shot("05a-naming-step-name-taken");
             CharacterCustomizeScreen.TestSetName("Merlin");
             yield return WaitSeconds(0.4f);
