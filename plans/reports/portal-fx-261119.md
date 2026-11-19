@@ -3,6 +3,20 @@
 Branch: worktree `worktree-agent-a267db1e86357754c`, dựa trên `ro-fantasy-heroes` 149c1913. Chưa push, chưa merge.
 Exe: `D:\temp\player-portal\Zenonia.exe` (build từ bản sao `D:\temp\zu-copy-portal`, 0 lỗi).
 
+## Lượt 2 (người dùng: "làm cái cột sáng to ra màu xanh")
+
+- Cột sáng to gấp đôi: rộng 40 + 8 × số ô (trước 20 + 4), cao 92 đv (trước 62). Vũng sáng 60 + 14 × số ô, hào quang 1,5 lần vũng.
+- Một màu xanh băng cho mọi map, bỏ màu theo vùng (bỏ `PortalLightRegion` / `RegionOf`).
+  - Phần cộng chủ yếu xanh (0,1 / 0,48 / 1,25), lõi trắng 0,4.
+  - Lớp alpha xanh đậm (0,08 / 0,4 / 0,95, độ đục 0,55).
+- Giới hạn hạt giữ nguyên 18 mỗi cổng. Hạt nằm trong khung rộng hơn.
+- Đã chụp lại 3 chỗ, mỗi chỗ 10 khung, ảnh `*-new-*` trong `docs/reference/portal-fx/` đã thay. Đã xem từng khung:
+  - **Frost Hollow:** cột xanh rộng, đọc rõ trên tuyết, không loá trắng.
+  - **Oakhaven:** cột xanh rõ trên đường đất. Lõi xanh nhạt nhưng không cháy trắng, đã có màu đặc. Thùng gỗ phía sau cột bị nhuộm xanh nhẹ, vì cột y-sort đứng trước nó.
+  - **Rootburrow:** cột xanh to lấp gần kín cửa hang rễ, bloom đẹp, không che hero.
+  - Không khung nào chớp, không có đốm nhảy.
+- Phần dưới là ghi chép lượt 1 (màu theo vùng), nay đã bỏ.
+
 ## Hiện trạng trước khi làm
 
 - Code đang chạy là `MapPortalHaze` (sương sáng cuối đường cho cổng sát mép) + `MapPortalBeam` (cột sáng cho cổng giữa map).
@@ -106,5 +120,4 @@ Hai texture dùng chung với Ice Storm (`noise-clouds`, `beam-streaks`) đã n�
 
 1. Người dùng duyệt hình cột sáng chưa? Lần trước cột sáng B đã được chọn, rồi sau đó thử sương C.
 2. Có cần thêm sương mờ cuối đường (bản C) cho cổng sát mép không? Hiện bản mới thay hẳn sương.
-3. Màu: theo vùng của map đang đứng (như hiện tại) hay theo map đích?
-4. Hạt trên tuyết gần như không thấy. Có cần làm đậm hơn, hay chỉ cần cột sáng là đủ?
+3. Hạt trên tuyết gần như không thấy. Có cần làm đậm hơn, hay chỉ cần cột sáng là đủ?
