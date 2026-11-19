@@ -10,6 +10,8 @@ namespace ZenoniaProto.Rpg
 
         public const float IceStormRadius = 44f, IceStormMult = 1.4f, IceStormRange = 26f, IceStormChillMs = 2500f;
         public const int IceStormWaves = 4;
+        public const float IceStormCastMs = 650f, IceStormWaveMs = 400f, IceStormTailMs = 850f; // wave w damages at CastMs + w x WaveMs (IceStormUltimate, its light FX)
+        public const int IceStormSpears = 12;                                                    // 3 spears land with each wave
 
         // Multi-Hit Barrage (ChatGPT V3): 8 small sweep hits, a stronger one as the sword falls, then the 300 % slam = 880 %; then 4 fissure burns of 20 % ATK.
         public const float EarthBreakRadius = 54f, EarthBreakRange = 36f, EarthBreakSmallMult = 0.6f, EarthBreakPenultMult = 1.0f, EarthBreakFinishMult = 3.0f, EarthBreakBurn = 0.2f;
