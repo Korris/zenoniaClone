@@ -2,6 +2,13 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 19/11 23:50 HUD trong game làm theo mockup `02-hud.png` (agent, đã merge vào `ro-fantasy-heroes`)
+- Người dùng: "thêm 1 agent sửa lại cái hud như 02-hud.png", rồi "khung chat ở bản mobile cho nằm giữa", rồi "chụp gửi chatgpt so sánh".
+- Chat ChatGPT (Tay): https://chatgpt.com/c/6aff0d5c-f0a0-83ec-8726-10aa0543ada0 (4 sheet mảnh HUD, 3 vòng so sánh: 7.5 -> 8.6 -> 9.0/10, vòng 3 "đủ tốt để chơi thử").
+- XONG: HUD RO Soft mặc định bản cảm ứng (`RoHud*.cs`, `Minimap.RoRound.cs`, `TouchControls.RoSoft.cs`, `NameTags.RoSoft.cs`): chân dung + Lv + HP/MP/EXP %, Party (n/5) thu gọn được, Bag/Skills/Pet/Quest/More, pill map + ping, minimap tròn + "+", thẻ WANTED, 2 bình, Attack + 4 skill trên vòng (8 ô loadout 2 trang), Auto, Run (= Dash), joystick, chat 1 dòng NẰM GIỮA đáy, pill tên NPC, huy hiệu + thanh HP dưới tên mình, thanh máu boss RO. Anchor icon trạng thái cho agent Venom: `RoHudStatus.StatusIcons`, `RoHudParty.StatusIconsOf(i)`.
+- Art: `Assets/ArtLibrary/ui/ro-soft-hud/src/` -> `Sprites/ui/ro-soft/hud-*` (`Tools/ui-ro-soft-sheets/ro-hud-*.json`). Ảnh: `docs/reference/ro-soft-hud/`. Exe `D:/temp/player-hud-final/Zenonia.exe`. Báo cáo + câu hỏi: `plans/reports/ro-soft-hud-261119.md`.
+- CHƯA: bấm thử từng nút trong game; bản web vẫn HUD cũ; không có kênh (Ch.1) nên hiện ping; khung chat mở + toast vẫn art cũ; chưa gửi ChatGPT chấm bản sau vòng 3.
+
 ### 19/11 22:40 túi đồ (Bag) RO Soft Fantasy làm y hệt mockup `03-bag.png` (agent, đã merge vào `ro-fantasy-heroes`)
 - Người dùng: "sửa lại cái thùng đồ theo style ro fantasy", rồi "làm theo hình mockup y chang kể cả chức năng" (`docs/reference/ui-style-ro-soft-fantasy/03-bag.png`), rồi chê tab/nút/pill -> quy tắc mới `docs/ui-layout-rules.md`, rồi "chụp gửi chatgpt so sánh".
 - Chat ChatGPT (Tay): https://chatgpt.com/c/6aff0808-b4e0-83ec-8fa9-206300f2de5c (mockup đầu, 4 sheet mảnh UI, 3 vòng so sánh: 7.5 -> 8.7 -> 9.1/10, vòng 3 ChatGPT chốt "đã đạt mức giống bản duyệt").

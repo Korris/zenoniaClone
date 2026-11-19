@@ -241,6 +241,7 @@ Màu phụ nhỏ (lõi trắng, vài tia) được phép. Prompt FX phải ghi m
 
 | Ngày | Class | Lỗi | Nguyên nhân | Cách sửa |
 |---|---|---|---|---|
+| 2026-11-19 | UI RO Soft HUD (sheet cắt, nền `#FF00FF`) | Vòng ô skill và đế joystick dính thành 1 blob, tool báo sai số mảnh mỗi hàng; ô vuông vẽ hơi lệch tâm | Hai mảnh vẽ sát nhau (khe < 6 px, bán kính `close` nối lại) | Cho 2 mảnh `box` riêng (`box_hides_blobs`), cắt ô vừa khít vòng tròn. Xem ảnh `check` trước `write` |
 | 2026-10-31 | Warrior | Kiếm chĩa ngược, tay nắm giữa lưỡi kiếm | Script nhận sai đầu kiếm; bản sửa cũ đảo grip/tip theo danh sách mà không xem ảnh | Dò góc từ sheet có kiếm, đặt tay nắm theo nắm tay ở `body/bare/` |
 | 2026-10-31 | Warrior | Kiếm lúc chém bé hơn lúc đứng yên | Lấy cỡ theo kiếm vẽ sẵn trong sheet | Cố định `s = 0.34` |
 | 2026-10-31 | Warrior | Chuôi đè lên bàn tay khi đứng yên/đi ngang | Kiếm vẽ trước toàn bộ thân, chuôi lệch nắm tay | Lớp `body/hand/` đè lên chuôi, dời chuôi vào tâm nắm tay |
