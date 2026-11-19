@@ -9,17 +9,17 @@ namespace ZenoniaProto
     /// Live full-body heroes for the character screens: the real HeroRenderer in starter gear, drawn like in the world (the layered hero with the
     /// character's hair / outfit colours when the class has layered art, else the paper doll), filmed by its own orthographic camera far outside
     /// every map (the hero select preview does the same, at another spot) into one RenderTexture that a RawImage shows. N slots side by side share
-    /// the texture; slot i is the i-th column. Each slot has a pose: one of the 8 view directions and a motion (idle, walk loop, attack 1-2-3 loop).
-    /// The renderer needs no HeroController. Camera and heroes are on only while the owner screen is up (Active).
+    /// the texture; slot i is the i-th column. Each slot stands idle (the layered body breathes in code) in one of the 8 view directions.
+    /// The texture follows the main RawImage's size on screen, one texel per screen pixel, point sampled, so the sprites are filtered once like in
+    /// the world (a fixed 16 px/unit texture stretched 1.5-2x by the canvas blurred the hero). Smaller views of the same texture (slot cards) read
+    /// its mipmaps. The renderer needs no HeroController. Camera and heroes are on only while the owner screen is up (Active).
     /// </summary>
     public sealed class HeroPreviewStage : MonoBehaviour
     {
-        public enum Motion { Idle, Walk, Attack }
-
-        /// <summary>World units of one slot's column, and of the view's height: a 192 px frame is 24 units, the feet stand 2 units above the bottom, a staff or a raised scale has the rest.</summary>
+        /// <summary>World units of a slot's column (default), and of the view's height: a 192 px frame is 24 units, the feet stand 2 units above the bottom, a staff or a raised scale has the rest.</summary>
         public const float SlotW = 24f, ViewH = 30f, FeetFromBottom = 2f;
-        const float PxPerUnit = 16f, IdleFps = 6f, WalkCycleSeconds = 0.6f, AttackFps = 11f, AttackRest = 0.5f;
-        static readonly string[] DefaultCombo = { "attack1", "attack2", "attack3" }; // HeroSelectPreview's fallback for a class without ComboAnims
+        const float StartPxPerUnit = 16f, IdleFps = 6f;
+        const int MinTexH = 64, MaxTexSide = 4096;
         static readonly Vector3 Origin = new Vector3(-30000f, -26000f, 0f); // the hero select preview sits at (-30000, -30000)
 
         sealed class Entry
@@ -28,37 +28,42 @@ namespace ZenoniaProto
             public HeroClassDef Def;
             public CharacterAppearanceData Look;
             public int Dir8;
-            public Motion Motion;
-            public float Since; // unscaled time the motion started (the attack loop begins on its first frame)
         }
 
         readonly Dictionary<int, Entry> views = new Dictionary<int, Entry>(); // slot * 16 + class -> renderer, built on first use
         readonly Dictionary<int, Entry> shown = new Dictionary<int, Entry>();  // slot -> what the slot shows now
+        readonly Vector3[] corners = new Vector3[4];
         RenderTexture texture;
+        RawImage target;
         Camera cam;
         int slotCount;
+        float slotW = SlotW;
 
         /// <summary>Aspect (width / height) of the whole texture, for sizing the RawImage that shows it.</summary>
-        public float Aspect { get { return slotCount * SlotW / ViewH; } }
+        public float Aspect { get { return slotCount * slotW / ViewH; } }
 
-        public static HeroPreviewStage Create(Transform parent, RawImage target, int slots)
+        /// <summary>view: the biggest RawImage of the texture (its screen size sets the texture size); columnW: world units of a slot's column.</summary>
+        public static HeroPreviewStage Create(Transform parent, RawImage view, int slots, float columnW = SlotW)
         {
             var go = new GameObject("HeroPreviewStage");
             go.transform.SetParent(parent, false);
             var stage = go.AddComponent<HeroPreviewStage>();
-            stage.Init(target, slots);
+            stage.Init(view, slots, columnW);
             return stage;
         }
 
-        void Init(RawImage target, int slots)
+        void Init(RawImage view, int slots, float columnW)
         {
             slotCount = slots;
-            texture = new RenderTexture(Mathf.RoundToInt(slots * SlotW * PxPerUnit), Mathf.RoundToInt(ViewH * PxPerUnit), 0, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Bilinear };
+            slotW = columnW;
+            target = view;
+            int h = Mathf.RoundToInt(ViewH * StartPxPerUnit);
+            texture = new RenderTexture(TexWidth(h), h, 0, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Point, useMipMap = true, autoGenerateMips = true };
             target.texture = texture;
             target.raycastTarget = false;
             var camGo = new GameObject("HeroPreviewCamera");
             camGo.transform.SetParent(transform, false);
-            camGo.transform.position = Origin + new Vector3(slots * SlotW * 0.5f, ViewH * 0.5f - FeetFromBottom, -10f);
+            camGo.transform.position = Origin + new Vector3(slots * slotW * 0.5f, ViewH * 0.5f - FeetFromBottom, -10f);
             cam = camGo.AddComponent<Camera>();
             cam.orthographic = true;
             cam.orthographicSize = ViewH * 0.5f;
@@ -68,6 +73,21 @@ namespace ZenoniaProto
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 30f;
             cam.enabled = false;
+        }
+
+        int TexWidth(int h) { return Mathf.Clamp(Mathf.RoundToInt(h * slotCount * slotW / ViewH), 1, MaxTexSide); }
+
+        /// <summary>Resizes the texture (the same object, so every RawImage keeps it) to the main view's height in screen pixels (overlay canvas: world = screen px).</summary>
+        void MatchScreenSize()
+        {
+            if (target == null || !target.isActiveAndEnabled) return;
+            int widest = Mathf.FloorToInt(MaxTexSide * ViewH / (slotCount * slotW)); // keep the aspect when the width would pass the limit (many slots, 4K)
+            int h = Mathf.Clamp(Mathf.RoundToInt(ViewScreenHeight / Mathf.Max(0.01f, target.uvRect.height)), MinTexH, Mathf.Min(MaxTexSide, widest));
+            if (h == texture.height) return;
+            texture.Release();
+            texture.height = h;
+            texture.width = TexWidth(h);
+            texture.Create();
         }
 
         /// <summary>Camera on/off (also hides every hero): the screen is not up, nothing is drawn.</summary>
@@ -108,7 +128,7 @@ namespace ZenoniaProto
             if (shown.TryGetValue(slot, out before) && before != e) before.View.gameObject.SetActive(false);
             shown[slot] = e;
             e.View.gameObject.SetActive(true);
-            e.View.transform.position = Origin + new Vector3((slot + 0.5f) * SlotW, 0f, 0f);
+            e.View.transform.position = Origin + new Vector3((slot + 0.5f) * slotW, 0f, 0f);
             e.View.transform.localScale = new Vector3(scale, scale, 1f);
             if (e.Look == null || look == null || !e.Look.SameLook(look))
             {
@@ -120,13 +140,32 @@ namespace ZenoniaProto
             }
         }
 
-        /// <summary>Turns a slot's hero (Dir8 order: 0 down, 2 right, 4 up, 6 left) and sets its motion; a new motion starts from its first frame.</summary>
-        public void SetPose(int slot, int dir8, Motion motion)
+        /// <summary>Turns a slot's hero (Dir8 order: 0 down, 2 right, 4 up, 6 left).</summary>
+        public void SetPose(int slot, int dir8)
         {
             Entry e;
-            if (!shown.TryGetValue(slot, out e)) return;
-            e.Dir8 = ((dir8 % 8) + 8) % 8;
-            if (e.Motion != motion) { e.Motion = motion; e.Since = Time.unscaledTime; }
+            if (shown.TryGetValue(slot, out e)) e.Dir8 = ((dir8 % 8) + 8) % 8;
+        }
+
+        /// <summary>The renderer a slot shows (capture scripts), or null.</summary>
+        public HeroRenderer ViewIn(int slot)
+        {
+            Entry e;
+            return shown.TryGetValue(slot, out e) ? e.View : null;
+        }
+
+        /// <summary>The texture's size in pixels (capture scripts).</summary>
+        public Vector2Int TextureSize { get { return new Vector2Int(texture.width, texture.height); } }
+
+        /// <summary>Height of the main view on screen in pixels (overlay canvas: world corners are screen pixels).</summary>
+        public float ViewScreenHeight
+        {
+            get
+            {
+                if (target == null) return 0f;
+                target.rectTransform.GetWorldCorners(corners);
+                return corners[1].y - corners[0].y;
+            }
         }
 
         /// <summary>Hairstyles the slot's class has layered art for (1 for the paper doll path: its old head styles are not offered).</summary>
@@ -145,52 +184,21 @@ namespace ZenoniaProto
             return set != null && set.FixedOutfit;
         }
 
-        void Update()
+        void LateUpdate()
         {
             if (!cam.enabled) return;
-            foreach (Entry e in shown.Values) ShowPose(e);
+            MatchScreenSize();
+            foreach (Entry e in shown.Values) ShowIdle(e);
         }
 
-        /// <summary>One frame of the slot's pose. Attack: the class's combo steps one after the other, then a short rest in idle.</summary>
-        void ShowPose(Entry e)
+        /// <summary>One frame of the slot's idle (a layered body breathes in code, HeroRenderer.Layered; its weapon, fist, hair and hat follow).</summary>
+        static void ShowIdle(Entry e)
         {
             HeroRenderer v = e.View;
             v.Dir8 = e.Dir8;
             int dir4 = Dir8Util.ToCardinal(e.Dir8);
-            float t = Time.unscaledTime - e.Since;
-            string anim = "idle";
-            int frame;
-            if (e.Motion == Motion.Walk && v.HasAnim("walk", dir4))
-            {
-                anim = "walk";
-                int n = v.FrameCount(anim, dir4);
-                frame = (int)(t / (WalkCycleSeconds / n)) % n;
-            }
-            else if (e.Motion == Motion.Attack && AttackFrame(v, e.Def.ComboAnims, dir4, t, out anim, out frame)) { }
-            else
-            {
-                anim = "idle";
-                int n = Mathf.Max(1, v.FrameCount(anim, dir4));
-                frame = (int)(Time.unscaledTime * IdleFps) % n;
-            }
-            v.Show(anim, dir4, frame, 0, 1f);
-        }
-
-        static bool AttackFrame(HeroRenderer v, string[] combo, int dir4, float t, out string anim, out int frame)
-        {
-            anim = null; frame = 0;
-            if (combo == null || combo.Length == 0) combo = DefaultCombo;
-            int total = 0;
-            foreach (string a in combo) total += Mathf.Max(1, v.FrameCount(a, dir4));
-            float loop = total / AttackFps + AttackRest;
-            int f = (int)((t % loop) * AttackFps);
-            foreach (string a in combo)
-            {
-                int n = Mathf.Max(1, v.FrameCount(a, dir4));
-                if (f < n) { anim = a; frame = f; return true; }
-                f -= n;
-            }
-            return false; // the rest after the last step: idle
+            int n = Mathf.Max(1, v.FrameCount("idle", dir4));
+            v.Show("idle", dir4, (int)(Time.unscaledTime * IdleFps) % n, 0, 1f);
         }
 
         void OnDestroy() { if (texture != null) texture.Release(); }

@@ -7,12 +7,13 @@ namespace ZenoniaProto
     /// <summary>
     /// Layout of the appearance step on the shared 1138 x 640 stage, in the RO Soft kit (Sprites/ui/ro-soft): the colour plate on the left
     /// (8 hair swatches, 6 outfit swatches with their palettes.json names, Random, a hairstyle row when the class has more than one), the live hero
-    /// on its pedestal in the middle with turn arrows and Idle / Walk / Attack tabs, the name plate (online) or a note (offline) on the right,
+    /// idle facing down on its pedestal in the middle, the name plate (online) or a note (offline) on the right,
     /// Back and Create / Confirm along the bottom. Swatch = kit slot frame + the round kit swatch tinted with the palette colour.
     /// </summary>
     public sealed partial class CharacterCustomizeScreen
     {
         const float HeroX = 585f, FeetY = 440f, HeroViewH = 440f, PedestalW = 270f, PedestalAspect = 448f / 208f, FeetOnPedestal = 0.22f, BannerW = 128f, BannerH = 188f, BannerBottom = 300f;
+        const float HeroColumnW = 33f; // world units: the whole 320 px body cell, so the down idle sword tip and shield edge are never cut
         const float PlateX = 28f, PlateY = 84f, PlateW = 360f, PlateH = 528f;
         const float SlotSize = 64f, SlotStepX = 76f, SlotStepY = 72f, DiscInset = 13f, SwatchesPerRow = 4;
         const float RightX = 790f, RightY = 190f, RightW = 320f, RightH = 176f;
@@ -21,8 +22,6 @@ namespace ZenoniaProto
 
         RectTransform root, stage, titleRt;
         Swatch[] hairSwatches, outfitSwatches;
-        readonly Image[] tabs = new Image[3];
-        readonly Text[] tabLabels = new Text[3];
         Image banner;
         InputField input;
         Text titleText, hairName, outfitName, styleText, hint, status, createLabel, note;
@@ -47,14 +46,14 @@ namespace ZenoniaProto
             banner.preserveAspect = false;
             float ph = PedestalW / PedestalAspect;
             CharacterFlowKit.Pic(stage, "Pedestal", CharacterFlowKit.Art("pedestal"), HeroX - PedestalW * 0.5f, FeetY - FeetOnPedestal * ph, PedestalW, ph);
-            float viewW = HeroViewH * HeroPreviewStage.SlotW / HeroPreviewStage.ViewH;
+            float viewW = HeroViewH * HeroColumnW / HeroPreviewStage.ViewH;
             float feetOffset = HeroViewH * HeroPreviewStage.FeetFromBottom / HeroPreviewStage.ViewH;
             RectTransform heroRt = UiKit.Rect(stage, "Hero", HeroX - viewW * 0.5f, FeetY + feetOffset - HeroViewH, viewW, HeroViewH);
-            preview = HeroPreviewStage.Create(transform, heroRt.gameObject.AddComponent<RawImage>(), 1);
+            preview = HeroPreviewStage.Create(transform, heroRt.gameObject.AddComponent<RawImage>(), 1, HeroColumnW);
 
             BuildColourPlate();
-            BuildPreviewControls();
             BuildRightPlates();
+            heroRt.SetAsLastSibling(); // the down idle sword tip reaches the colour plate's edge: the hero stands in front of it, never cut
             Text unused;
             backButton = CharacterFlowKit.RoButton(stage, "LookBack", RoSoftSprites.Shape.Secondary, HeroX - 182f, 556f, 200f, 64f, "BACK", 26, OnBack, out unused);
             createButton = CharacterFlowKit.RoButton(stage, "Create", RoSoftSprites.Shape.Primary, HeroX + 32f, 556f, 200f, 64f, "CREATE", 26, Submit, out createLabel);
@@ -109,20 +108,6 @@ namespace ZenoniaProto
                 list[i] = s;
             }
             return list;
-        }
-
-        void BuildPreviewControls()
-        {
-            Text unused;
-            CharacterFlowKit.RoButton(stage, "TurnLeft", RoSoftSprites.Shape.Row, HeroX - 196f, 300f, 58f, 58f, "<", 30, () => OnTurn(-1), out unused); // Dir8: down -> down-left -> left ...
-            CharacterFlowKit.RoButton(stage, "TurnRight", RoSoftSprites.Shape.Row, HeroX + 138f, 300f, 58f, 58f, ">", 30, () => OnTurn(1), out unused);  // down -> down-right -> right ...
-            string[] names = { "IDLE", "WALK", "ATTACK" };
-            for (int i = 0; i < tabs.Length; i++)
-            {
-                var m = (HeroPreviewStage.Motion)i;
-                Button b = CharacterFlowKit.RoButton(stage, "Motion" + i, RoSoftSprites.Shape.TabOff, HeroX - 177f + i * 118f, 482f, 114f, 46f, names[i], 18, () => OnMotion(m), out tabLabels[i]);
-                tabs[i] = (Image)b.targetGraphic;
-            }
         }
 
         void BuildRightPlates()

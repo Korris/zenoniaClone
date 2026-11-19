@@ -98,8 +98,8 @@ namespace ZenoniaProto
             PlaceOnHead(hair, hairEntry, h, row, mirror, tint, orderBase + 3, 0f, breathY);
             PlaceOnHead(hairAcc, hat == null ? hairEntry : null, h, row, mirror, tint, orderBase + 3, 0f, breathY, true); // goggles: only bare-headed
             PlaceOnHead(headgear, hat, h, row, mirror, tint, orderBase + 3, 1f, breathY);
-            PlaceWeapon("weapon", weaponOn, weaponBack, weaponFront, anim, dir8, frame, tint, orderBase + 1, orderBase + 4);
-            PlaceWeapon("offhand", offhandOn, offBack, offFront, anim, dir8, frame, tint, orderBase + 2, orderBase + 5);
+            PlaceWeapon("weapon", weaponOn, weaponBack, weaponFront, anim, dir8, frame, tint, orderBase + 1, orderBase + 4, breathY);
+            PlaceWeapon("offhand", offhandOn, offBack, offFront, anim, dir8, frame, tint, orderBase + 2, orderBase + 5, breathY);
         }
 
         static void Draw(SpriteRenderer r, Sprite s, bool flip, Color tint, int order)
@@ -139,7 +139,9 @@ namespace ZenoniaProto
             r.transform.localScale = new Vector3(k, k, 1f);
         }
 
-        void PlaceWeapon(string part, bool on, SpriteRenderer back, SpriteRenderer front, string anim, int dir8, int frame, Color tint, int orderBack, int orderFront)
+        /// <summary>Weapon / offhand on the frame's grip. breathY: the idle breath stretches the body about the feet, so the grip (the fist) rides
+        /// up and down with it and the item follows, unscaled (one size per weapon); hand, hair and headgear follow the same way.</summary>
+        void PlaceWeapon(string part, bool on, SpriteRenderer back, SpriteRenderer front, string anim, int dir8, int frame, Color tint, int orderBack, int orderFront, float breathY)
         {
             HeroLayeredSet.Grip g = on ? set.GripOf(part, anim, dir8, frame) : null;
             Sprite s = g != null ? set.Weapon(part) : null;
@@ -150,7 +152,7 @@ namespace ZenoniaProto
             Draw(target, s, g != null && g.flip, tint, behind ? orderBack : set.OverHand(part) ? orderFront + 3 : orderFront);
             if (s == null) return;
             Vector2 p = Local(g.x, g.y, false); // grips are listed for every Dir8 dir: never mirrored
-            target.transform.localPosition = new Vector3(p.x, p.y, 0f);
+            target.transform.localPosition = new Vector3(p.x, p.y * breathY, 0f);
             target.transform.localRotation = Quaternion.Euler(0f, 0f, -g.angle); // clockwise on the y-down cell, like held-gear anchors
             target.transform.localScale = Vector3.one;
         }

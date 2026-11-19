@@ -8,7 +8,8 @@ namespace ZenoniaProto
     /// <summary>
     /// The appearance step of character creation (docs/character-appearance-layered-spec.md, step E), drawn with uGUI in the RO Soft kit.
     /// After the class is picked the player chooses hair colour (8) and outfit colour (6) from Data/hero-layered/palettes.json (a hairstyle too when
-    /// the class has more than one), watching the live layered hero turn through 8 directions and idle / walk / attack. No hat: heroes start bare-headed.
+    /// the class has more than one), watching the live layered hero stand idle facing down (breathing, weapon with it). No turn arrows or motion
+    /// tabs (user 19/11: only the down sprite). No hat: heroes start bare-headed.
     /// Online (AccountPage.Customize): the look goes with the create request (AccountFlow.PendingLook) and the hero is named here; server refusals
     /// show in the status line. Offline (OpenOffline + the empty slot): the hero is named here too (online rules, and no other hero on this device may have the
     /// name, case-insensitive); CREATE spawns it with the look and name in that slot (GameSession.CreateInSlot), which its save keeps from then on.
@@ -30,9 +31,8 @@ namespace ZenoniaProto
 
         HeroPreviewStage preview;
         bool hintDirty = true;
-        int dir8 = 1, styleCount = 1;            // starts on the 3/4 front view (down-right)
+        int styleCount = 1;
         bool fixedOutfit;                        // the class body keeps its painted outfit (RO Fantasy): the outfit colours are hidden
-        HeroPreviewStage.Motion motion = HeroPreviewStage.Motion.Idle;
         CharacterAppearanceData shown;
 
         public static bool IsShown { get { return instance != null && instance.root != null && instance.root.gameObject.activeSelf; } }
@@ -63,7 +63,8 @@ namespace ZenoniaProto
         // ---- capture scripts ----
         public static void TestSetName(string name) { if (instance != null && instance.input != null) instance.input.text = name ?? ""; }
         public static void TestPick(int hair, int outfit) { if (instance != null) { instance.OnHair(hair); instance.OnOutfit(outfit); } }
-        public static void TestPose(int dir8, HeroPreviewStage.Motion m) { if (instance != null) { instance.dir8 = dir8; instance.motion = m; instance.shown = null; } }
+        public static HeroRenderer TestPreviewHero { get { return instance != null && instance.preview != null ? instance.preview.ViewIn(0) : null; } }
+        public static HeroPreviewStage TestPreview { get { return instance != null ? instance.preview : null; } }
         public static void TestConfirm() { if (instance != null) instance.Submit(); }
         public static CharacterAppearanceData TestLook { get { return instance != null ? instance.Look : null; } }
         public static bool TestOutfitHidden { get { return instance != null && instance.fixedOutfit; } }
@@ -122,8 +123,6 @@ namespace ZenoniaProto
             note.text = HeroClassDef.Get(id).Name.ToUpperInvariant() + "\n\n" + OfflineNote;
             input.text = ""; // a fresh hero: the name is typed (or rolled) anew
             hintDirty = true;
-            dir8 = 1;
-            motion = HeroPreviewStage.Motion.Idle;
             preview.SetActive(true);
             shown = null;
             Refresh();
@@ -136,7 +135,7 @@ namespace ZenoniaProto
             preview.SetActive(false);
         }
 
-        /// <summary>Shows the current look: swatch frames and names, hairstyle row, motion tabs, and the hero on the pedestal. Keeps the look inside what the class has.</summary>
+        /// <summary>Shows the current look: swatch frames and names, hairstyle row, and the hero on the pedestal. Keeps the look inside what the class has.</summary>
         void Refresh()
         {
             CharacterAppearanceData look = Look;
@@ -151,14 +150,8 @@ namespace ZenoniaProto
             foreach (GameObject g in outfitParts) g.SetActive(!fixedOutfit);
             PlaceStyleRow(fixedOutfit);
             styleText.text = "Hairstyle " + (style + 1) + " / " + styleCount;
-            for (int i = 0; i < tabs.Length; i++)
-            {
-                bool on = (int)motion == i;
-                tabs[i].sprite = RoSoftSprites.Get(on ? RoSoftSprites.Shape.TabOn : RoSoftSprites.Shape.TabOff);
-                tabLabels[i].color = on ? Color.white : RoSoftTheme.Ink;
-            }
             preview.Set(0, Class, look, "", 1f);
-            preview.SetPose(0, dir8, motion);
+            preview.SetPose(0, 0); // idle facing down
         }
 
         static void PaintSwatch(Swatch s, Color32 c, bool picked)
@@ -196,8 +189,6 @@ namespace ZenoniaProto
         void OnOutfit(int i) { Change(l => l.outfitColorIndex = Mathf.Clamp(i, 0, CharacterAppearanceData.OutfitColorCount - 1)); }
         void OnStyle(int step) { Change(l => l.hairStyle = ((l.hairStyle + step) % styleCount + styleCount) % styleCount); }
         void OnRandom() { Look = CharacterAppearanceData.RandomNew(RpgSession.ClassId(Class), styleCount, Dice); }
-        void OnTurn(int step) { dir8 = ((dir8 + step) % 8 + 8) % 8; shown = null; }
-        void OnMotion(HeroPreviewStage.Motion m) { motion = m; shown = null; }
         void OnDice()
         {
             string name = AccountFlow.RandomName();
