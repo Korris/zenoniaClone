@@ -28,7 +28,7 @@ python Tools/build-hero-layered-game-assets.py accessory   # tách kính Mechani
 - Hero của mình không tự đánh trong cảnh chụp; skill pose, lướt, bị đánh dùng anim attack2/walk/idle như bước D.
 
 ## Kiểm tra
-`ZenoniaSkills.Tests` 408/408, `ZenoniaNet.Tests` 422/422 (SDK 10).
+`ZenoniaSkills.Tests` 420/420 (sau merge unity), `ZenoniaNet.Tests` 422/422 (SDK 10).
 
 ## Câu hỏi
 - Đánh 3 frame giơ tay: có cho vũ khí ra sau thân để không đè mũ không?
