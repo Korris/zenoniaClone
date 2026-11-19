@@ -3,6 +3,21 @@
 Branch: worktree `worktree-agent-a267db1e86357754c`, dựa trên `ro-fantasy-heroes` 149c1913. Chưa push, chưa merge.
 Exe: `D:\temp\player-portal\Zenonia.exe` (build từ bản sao `D:\temp\zu-copy-portal`, 0 lỗi).
 
+## Lượt 3 (người dùng: "vũng sáng ở giữa làm màu bớt dày lại")
+
+- Chỉ đổi vũng sáng giữa cổng (`MapPortalLightLook`, material `Pool`), giảm khoảng một nửa:
+  - lớp alpha xanh: độ đục 0,9 × 0,55 → 0,45 × 0,55;
+  - phần cộng: 0,5 → 0,25 lần màu chính;
+  - lõi trắng: 0,2 → 0,08.
+- Hào quang rộng giữ viền mềm, độ đục chỉ hạ nhẹ (0,45 → 0,4) để vẫn nhận ra chỗ cổng trên tuyết.
+- Cột sáng, hạt, nhịp thở giữ nguyên. Lúc đầu tôi hiểu nhầm là sửa hạt (bong bóng), đã hoàn tác hết trước khi build.
+- Ảnh: `docs/reference/portal-fx/pool-before-after.jpg` (trước / sau, cùng chỗ). Các tấm `*-new-sheet.jpg` và `*-new-full.jpg` đã thay. Đã xem từng khung:
+  - **Frost Hollow:** chân cột bớt đặc, vẫn có viền xanh mềm trên tuyết.
+  - **Oakhaven:** quầng xanh ở chân cột mỏng hơn, thấy đá đường qua lớp xanh. Phần giữa vẫn sáng là do cột sáng (lõi), không phải vũng.
+  - **Rootburrow:** đáy cửa hang bớt đặc.
+  - Không khung nào chớp, không có đốm nhảy.
+- Lỗi khi chụp: Rootburrow ở ô (32,13) lần này hero bị quái đánh đẩy vào cổng và sang Bramblewood. Đã chụp lại ở ô (30,13), cả 10 khung hero đứng yên.
+
 ## Lượt 2 (người dùng: "làm cái cột sáng to ra màu xanh")
 
 - Cột sáng to gấp đôi: rộng 40 + 8 × số ô (trước 20 + 4), cao 92 đv (trước 62). Vũng sáng 60 + 14 × số ô, hào quang 1,5 lần vũng.
