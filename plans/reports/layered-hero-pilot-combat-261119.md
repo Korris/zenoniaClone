@@ -60,7 +60,7 @@ Tài khoản Tay ("Tân Korris", Plus), chat `6afe1ebe-b668-83ec-8233-c010a9354e
 4. **Mũ:** thử ghép 19 mũ cũ lên sọ mới trước. Mũ nào lệch thì chỉnh `DROP` hoặc vẽ lại.
 5. **Chạy lại tool:** `build-hero-layered-sheets.py` (`head_anchor`, ô 320x256) và tool dò nắm tay. Khăn bay có thể làm lệch tâm frame, nên canh theo tâm sọ.
 
-Commit: xem `git log` (feat(art): layered hero combat-stance pilot). Chưa push.
+Commit: 8553ef15 (pilot nam + nữ, ảnh so sánh, Sổ lỗi, báo cáo). Ảnh concept do agent kia commit ở 956aaaea, trùng từng byte với ảnh tôi chọn. Chưa push.
 
 ## Câu hỏi
 - Một agent khác cũng đang dùng tab chat Tay (đã gửi prompt concept và tải ảnh `muted5-n*.png`). Có cần xác nhận lại để từ nay chỉ một agent dùng không?
