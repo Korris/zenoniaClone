@@ -87,7 +87,8 @@ namespace ZenoniaProto
                 PaperWanted.SetFace(loginFace, def.BossType);
                 loginName.text = def.BossName + " <color=#B5651D>Lv. " + def.BossLevel + "</color>";
                 loginMap.text = WantedBossTracker.MapName(def);
-                loginRewards.Set(def);
+                if (loginRewards != null) loginRewards.Set(def);
+                if (roLoginRewards != null) roLoginRewards.Set(def);
             }
             else if (kind == WantedNotice.Respawn)
             {
@@ -101,7 +102,7 @@ namespace ZenoniaProto
         void Place()
         {
             RectTransform rt = banners[current];
-            float y = -NotificationToast.AreaTop;
+            float y = roLoginRewards != null ? -RoNoticeTop : -NotificationToast.AreaTop;
             if (!Mathf.Approximately(rt.anchoredPosition.y, y)) rt.anchoredPosition = new Vector2(0f, y);
         }
 

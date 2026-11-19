@@ -14,6 +14,7 @@ namespace ZenoniaProto
         {
             HeroController hero = LocalPlayer.Hero;
             if (target != GameKey.Skill1 || hero == null || hero.Class.Id != HeroClass.Warrior || hero.Rpg.Skills[0] <= 0) return false;
+            if (RoLoadoutKeys) return TouchControls.Held(target); // RO PC: the digits are the loadout's (InputAdapter.RoLoadoutKeys.cs), not the magazine's
             if (TouchControls.Held(target)) return true;
             for (int s = 0; s < SkillMagazine.SlotCount; s++)
             {
@@ -26,6 +27,7 @@ namespace ZenoniaProto
         static bool SlotKeyPressed(GameKey target)
         {
             if (target != GameKey.Dash && (target < GameKey.Skill1 || target > GameKey.Skill8)) return false;
+            if (RoLoadoutKeys) return RoLoadoutKeyPressed(target); // RO PC: 1-8 = the 8 loadout slots
             HeroController hero = LocalPlayer.Hero;
             if (hero == null) return false;
             for (int s = 0; s < SkillMagazine.SlotCount; s++)

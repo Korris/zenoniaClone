@@ -47,7 +47,7 @@ namespace ZenoniaProto
 
         void OnBountyPaid(WantedBossDef def)
         {
-            if (!UiScreens.UseNew(UiScreen.Hud) || !Ready()) return;
+            if (!(UiScreens.UseNew(UiScreen.Hud) || RoHud.Active) || !Ready()) return;
             WantedGuide.On = false; // the hunt is over for today
             notices.OnBountyPaid(def);
         }
@@ -65,7 +65,8 @@ namespace ZenoniaProto
 
         void Update()
         {
-            bool on = UiScreens.UseNew(UiScreen.Hud) && !HeroChangeScreen.IsOpen && Ready();
+            bool ro = RoHud.Active; // RO Soft HUD: its own card (RoHudWanted); the notices, the bounty panel and the guide run here in the RO look
+            bool on = (UiScreens.UseNew(UiScreen.Hud) || ro) && !HeroChangeScreen.IsOpen && Ready();
             if (card == null) return;
             if (!on)
             {
@@ -80,7 +81,7 @@ namespace ZenoniaProto
             PaperHudControls controls = TouchControls.Paper;
             bool fanOver = !HudLayout.IsWeb && controls != null && controls.Entry.MoreOpen;
             float dt = Time.unscaledDeltaTime;
-            card.Tick(hudShown && !fanOver);
+            card.Tick(hudShown && !fanOver && !ro);
             guide.Tick(hero, hudShown);
             notices.Tick(hero, dt);
         }

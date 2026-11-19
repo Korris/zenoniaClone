@@ -112,10 +112,12 @@ def flatten_edges(im, p, n):
     if not n or "border" not in p: return im
     a = np.asarray(im).copy(); h, w = a.shape[:2]
     l, b, r, t = p["border"]
-    if w - r > l:
+    # Only an axis the 9-slice really stretches: a horizontal-only pill (bottom = top = 0) must keep its round end columns as drawn.
+    # (2026-11-19: flattening them over the full height turned the faint rim columns into 1 px vertical lines outside both pill ends.)
+    if (l or r) and w - r > l:
         for y in list(range(min(n, h))) + list(range(max(0, h - n), h)):
             a[y, l:w - r] = np.median(a[y, l:w - r], axis=0).astype(np.uint8)
-    if h - b > t:
+    if (b or t) and h - b > t:
         for x in list(range(min(n, w))) + list(range(max(0, w - n), w)):
             a[t:h - b, x] = np.median(a[t:h - b, x], axis=0).astype(np.uint8)
     return Image.fromarray(a, "RGBA")

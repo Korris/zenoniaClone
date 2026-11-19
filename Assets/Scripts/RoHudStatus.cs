@@ -5,7 +5,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Top-left status of the RO Soft HUD (02-hud.png): the hero's round portrait in the ivory ring with the star, the navy "Lv. N" pill,
+    /// Top-left status of the RO Soft HUD (02-hud.png): the hero's round portrait (the live layered hero, RoHudPortraits) in the ivory ring with the star, the navy "Lv. N" pill,
     /// and on the ivory plate HP / MP bars with "cur / max" and the EXP bar with its percentage. Under the plate: StatusIcons, the row of
     /// buff / status icons (HudBuffRow; other status kinds such as poison add their icons to this anchor). Texts change only when their
     /// numbers change. Built and ticked by RpgHud while RoHud.Active.
@@ -22,7 +22,8 @@ namespace ZenoniaProto
         /// <summary>Anchor of the status icons under the HP bar (buffs now; poison and other states append here).</summary>
         public readonly RectTransform StatusIcons;
         readonly Image face;
-        readonly HeroPortraitLayers portrait;
+        readonly HeroPortraitLayers portrait; // painted fallback (a class without layered art)
+        readonly RawImage live;               // the real layered hero (RoHudPortraits slot 0)
         readonly Text level, hpText, mpText, expText;
         readonly RoHud.Bar hp, mp, exp;
         readonly HudBuffRow buffs;
@@ -49,6 +50,7 @@ namespace ZenoniaProto
             face.rectTransform.localScale = new Vector3(0.88f, 0.88f, 1f); // a bust like 02-hud.png, not a face crop
             face.rectTransform.anchoredPosition = new Vector2(0f, -5f);
             portrait = new HeroPortraitLayers(face);
+            live = RoHudPortraits.Make(m, 0);
             RoHud.Art(UiKit.Fill(ring, "Ring"), "hud-portrait-ring");
 
             RectTransform lv;
@@ -71,13 +73,19 @@ namespace ZenoniaProto
             return bar;
         }
 
-        public void SetActive(bool on) { if (Root.gameObject.activeSelf != on) Root.gameObject.SetActive(on); }
+        public void SetActive(bool on)
+        {
+            if (Root.gameObject.activeSelf != on) Root.gameObject.SetActive(on);
+            if (!on) RoHudPortraits.Idle();
+        }
 
         public void Refresh(HeroController hero, PlayerState p)
         {
             if (!laidOut) { laidOut = true; hp.Relayout(); mp.Relayout(); exp.Relayout(); }
+            bool real = RoHudPortraits.Show(live, 0, hero); // follows hairstyle / colours / hat changes by itself
+            if (face.gameObject.activeSelf == real) face.gameObject.SetActive(!real);
             string look = hero.Class.Name + hero.PlayerName; // a class switch or a new look
-            if (hero != lastHero || look != lastLook) { lastHero = hero; lastLook = look; portrait.Show(hero); }
+            if (!real && (hero != lastHero || look != lastLook)) { lastHero = hero; lastLook = look; portrait.Show(hero); }
             if (p.Level != lastLevel) { lastLevel = p.Level; level.text = "Lv. " + p.Level; lastExp = -1; }
             int h = Mathf.CeilToInt(p.Hp), m = Mathf.FloorToInt(p.Mp);
             if (h != lastHp || p.MaxHp != lastMaxHp) { lastHp = h; lastMaxHp = p.MaxHp; hpText.text = h + " / " + p.MaxHp; }

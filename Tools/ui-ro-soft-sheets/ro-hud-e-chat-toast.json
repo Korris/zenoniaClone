@@ -1,0 +1,27 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-hud/src/ro-hud-e-chat-toast-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-hud/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [{"name": "hud-chat-panel", "height": 240, "border": [36, 36, 36, 36]},
+   {"name": "hud-chat-close", "height": 64}],
+  [{"name": "hud-chat-tab", "height": 48, "border": [24, 0, 24, 0]},
+   {"name": "hud-chat-tab-on", "height": 48, "border": [24, 0, 24, 0]},
+   {"name": "hud-chat-line", "height": 36, "border": [18, 0, 18, 0]},
+   {"name": "scroll-track", "skip": true},
+   {"name": "scroll-thumb", "skip": true}],
+  [{"name": "hud-chat-input", "height": 56, "border": [20, 20, 20, 20]},
+   {"name": "hud-chat-send", "height": 72},
+   {"name": "send-icon", "skip": true},
+   {"name": "hud-chat-send-pressed", "height": 72}],
+  [{"name": "hud-toast-line", "height": 56, "border": [60, 0, 60, 0]},
+   {"name": "hud-toast-full", "height": 100, "border": [28, 24, 28, 40]},
+   {"name": "hud-toast-icon", "height": 72},
+   {"name": "hud-toast-warn", "height": 56, "border": [28, 0, 28, 0]}]
+ ]
+}

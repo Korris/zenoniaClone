@@ -42,7 +42,7 @@ namespace ZenoniaProto
 
         public WantedNotices(RectTransform safe)
         {
-            BuildBanners(safe);
+            if (RoHud.Active) BuildRoBanners(safe); else BuildBanners(safe); // RO Soft HUD: WantedNotices.RoSoft.cs
             panel = new WantedRewardPanel(safe);
         }
 

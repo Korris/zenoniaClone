@@ -26,7 +26,7 @@ namespace ZenoniaProto
         WantedPhase shownPhase;
         bool shownGuide;
 
-        public static bool IsOpen { get { return instance != null && instance.gameObject.activeSelf; } }
+        public static bool IsOpen { get { return (instance != null && instance.gameObject.activeSelf) || RoWantedBoard.IsOpen; } }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Register() { UiScreens.Register(UiScreen.Wanted, Open, Close, () => IsOpen); }
@@ -34,6 +34,7 @@ namespace ZenoniaProto
         public static void Open()
         {
             if (!PaperWanted.Known) return; // offline / no status yet: there is no board to show
+            if (RoHud.Active) { RoWantedBoard.Open(); return; } // RO Soft HUD: the compact ivory board (RoWantedBoard.cs)
             if (instance == null) // first use, or the canvas was rebuilt with the scene
             {
                 PaperLayout l = PaperLayout.Create(UiKit.Canvas(UiScreens.Root).transform, "WantedBoardWindow", PaperTheme.WoodDark);
@@ -48,7 +49,8 @@ namespace ZenoniaProto
 
         public static void Close()
         {
-            if (!IsOpen) return;
+            RoWantedBoard.Close();
+            if (instance == null || !instance.gameObject.activeSelf) return;
             instance.layout.ReleaseBackground();
             instance.gameObject.SetActive(false);
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);

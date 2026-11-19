@@ -6,7 +6,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// The RO Soft HUD layer (02-hud.png) built by TouchControls while RoHud.Active, in its own safe-area root above the old touch layer:
-    ///   bottom-left   joystick (base with arrows + knob; TouchJoystick and its corner touch zone, as the other looks)
+    ///   bottom-left   joystick (base with arrows + knob; TouchJoystick and its corner touch zone, as the other looks); none on PC
+    ///   PC (RoHud.Pc) key caps: 1-4 / 5-8 on the ring slots, Tab on the ring, Space on Attack, V Auto, Shift Run, Q / E potions
     ///   bottom-right  the coral Attack button (held = attack, pressed art while down), 4 skill buttons on the thin ring around it =
     ///                 the 8 loadout slots of the skill window as two pages of 4 (Tab or a vertical swipe on the arc turns the page),
     ///                 Auto (AutoBattle on / off, lit while on) and Run (GameKey.Dash, the dash)
@@ -26,6 +27,7 @@ namespace ZenoniaProto
         readonly RoHudWanted wanted;
         readonly RoHudBossBar boss;
         readonly RoHudSkillSlot[] slots = new RoHudSkillSlot[PerPage];
+        readonly Text[] slotKeys = new Text[PerPage]; // PC: the digit of each ring slot (1-4, page 2: 5-8)
         readonly Image autoArt;
         readonly Text hpCount, mpCount;
         readonly Image hpIcon, mpIcon;
@@ -40,7 +42,7 @@ namespace ZenoniaProto
             root.SetSiblingIndex(oldLayer.GetSiblingIndex() + 1);
             safe = layout.Safe;
 
-            BuildJoystick(safe);
+            if (!RoHud.Pc) BuildJoystick(safe); // PC moves with WASD / arrows: the joystick is touch-only
 
             // Skill ring + swipe strip first (lowest), then the slots, then Attack on top of the ring's centre.
             RectTransform ring = RoHud.Box(safe, "SkillRing", RoHud.BottomRight, Attack.x, Attack.y, RoHud.ArcRing, RoHud.ArcRing);
@@ -55,22 +57,28 @@ namespace ZenoniaProto
                 sw.onTap = () => { if (s.HasSkill) SkillMagazine.CastRequested(s.SkillIndex); };
                 sw.onPress = () => s.Root.localScale = new Vector3(0.92f, 0.92f, 1f);
                 sw.onRelease = () => s.Root.localScale = Vector3.one;
+                GameObject cap = RoHud.KeyCap(s.Root, RoHud.TopLeft, 6f, -6f, (i + 1).ToString());
+                if (cap != null) slotKeys[i] = cap.GetComponentInChildren<Text>();
             }
+            RoHud.KeyCap(ring, new Vector2(0f, 0f), 22f, 22f, InputAdapter.KeyLabel(GameKey.SkillPage)); // Tab: next page of 4
             RectTransform attack = RoHud.Box(safe, "Attack", RoHud.BottomRight, Attack.x, Attack.y, RoHud.AttackSize, RoHud.AttackSize);
             Image attackArt = RoHud.Art(attack, "hud-attack", true);
             Sprite up = RoHud.Piece("hud-attack"), down = RoHud.Piece("hud-attack-pressed");
             PaperHudPress.Hold(attack.gameObject, GameKey.Attack, d => attackArt.sprite = d && down != null ? down : up);
             Caption(attack, "Attack", RoHud.AttackSize * 0.26f, 15);
+            RoHud.KeyCap(attack, new Vector2(0.5f, 0f), 0f, 2f, InputAdapter.KeyLabel(GameKey.Attack, 1));
 
             RectTransform auto = RoHud.Box(safe, "Auto", RoHud.BottomRight, -RoHud.AutoX, RoHud.AutoY, RoHud.AutoSize, RoHud.AutoSize);
             autoArt = RoHud.Art(auto, "hud-auto", true);
             PaperHudPress.Tap(auto.gameObject, () => AutoBattle.Toggle(GameSession.Hero));
             Caption(auto, "Auto", RoHud.AutoSize * 0.14f, 14);
+            RoHud.KeyCap(auto, RoHud.TopRight, -6f, -6f, InputAdapter.KeyLabel(GameKey.AutoToggle));
 
             RectTransform run = RoHud.Box(safe, "Run", RoHud.BottomRight, -RoHud.RunX, RoHud.RunY, RoHud.RunSize, RoHud.RunSize);
             RoHud.Art(run, "hud-run", true);
             PaperHudPress.Tap(run.gameObject, () => TouchControls.Press(GameKey.Dash));
             Caption(run, "Run", RoHud.RunSize * 0.14f, 14);
+            RoHud.KeyCap(run, RoHud.TopRight, -8f, -8f, InputAdapter.KeyLabel(GameKey.Dash, 1));
 
             hpCount = Potion(safe, "HpPotion", -RoHud.PotionHpX, true, out hpIcon);
             mpCount = Potion(safe, "MpPotion", -RoHud.PotionMpX, false, out mpIcon);
@@ -117,10 +125,14 @@ namespace ZenoniaProto
             Text count = RoHud.Pill(b, "Count", RoHud.BottomRight, new Vector2(0.5f, 0.5f), -6f, 6f, 20f, "hud-count-badge", null, 0f, "0", 11, Color.white, out badge, 20f);
             badge.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(5, 5, 2, 2); // a round badge: smaller side padding than a pill
             PaperHudPress.Hold(b.gameObject, hp ? GameKey.HpPotion : GameKey.MpPotion);
+            RoHud.KeyCap(b, RoHud.TopLeft, 6f, -6f, InputAdapter.KeyLabel(hp ? GameKey.HpPotion : GameKey.MpPotion));
             return count;
         }
 
         public bool Visible { get { return root.gameObject.activeSelf; } }
+
+        /// <summary>The skill page shown (0 = slots 1-4), for capture logs.</summary>
+        internal int Page { get { return page; } }
         public void SetVisible(bool on) { if (root.gameObject.activeSelf != on) root.gameObject.SetActive(on); }
 
         /// <summary>Next / previous page of 4 skills (Tab, a swipe), wraps.</summary>
@@ -128,13 +140,16 @@ namespace ZenoniaProto
         {
             page = ((page + dir) % Pages + Pages) % Pages;
             version = int.MinValue; // rebind on the next tick
+            for (int i = 0; i < PerPage; i++) if (slotKeys[i] != null) slotKeys[i].text = (page * PerPage + i + 1).ToString();
         }
 
         public void Tick(HeroController hero, float dt)
         {
             PlayerState p = hero.Rpg;
+            if (RoHud.Pc && QuestLogWindow.IsOpen && InputAdapter.WindowPressed(GameKey.Quests)) QuestLogWindow.Close(); // N again closes (as the paper HUD)
             Menu.Tick(p, Visible, dt);
             if (!Visible) return;
+            if (RoHud.Pc && InputAdapter.Pressed(GameKey.Quests)) QuestLogWindow.Open(); // N (the other HUDs read it in their own controls)
             int v = SkillMagazine.Version();
             if (hero.Class != cls || v != version)
             {

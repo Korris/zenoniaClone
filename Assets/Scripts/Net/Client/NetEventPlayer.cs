@@ -148,7 +148,7 @@ namespace ZenoniaProto
                     stats.Add("bossDiedSeen", 1);
                     stats.Mark("bossDiedPlayedUtcMs", NetStats.UtcMs.ToString());
                     Monster fallen = MonsterOf(e.Id);
-                    if (fx) RpgHud.Toast((fallen != null ? "The " + fallen.DisplayName : "The boss") + " has fallen!", new Color(1f, 0.9f, 0.5f));
+                    if (fx) NotificationToast.ShowStyled((fallen != null ? "The " + fallen.DisplayName : "The boss") + " has fallen!", "wanted-toast-navy", "wanted-icon-swords", new Color(1f, 0.9f, 0.5f)); // RO HUD: navy pill + swords
                     break;
             }
         }

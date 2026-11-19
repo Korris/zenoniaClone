@@ -11,7 +11,8 @@ namespace ZenoniaProto
     /// colour. Tapping the button, the bar or the chevron opens the chat panel (ChatWindow). Box model: padding 4 / 14, gaps 8 (rules).
     /// Placement (user 19/11: "cái khung chat ở bản mobile cho nằm giữa", a deliberate change from the mockup's bottom-left): button + bar
     /// as one group, centred on the screen at the bottom but kept in the free span between the joystick and the skill ring; the bar
-    /// shrinks (never under MinBarW) when that span is narrow (4:3), so it never covers either.
+    /// shrinks (never under MinBarW) when that span is narrow (4:3), so it never covers either. PC (RoHud.Pc, no joystick): bottom-left at
+    /// full width, where the open panel (RoHudChatPanel) also sits; the centre is a mobile request.
     /// </summary>
     public sealed class RoHudChatBar : ChatFeed
     {
@@ -30,6 +31,12 @@ namespace ZenoniaProto
                 float w = ((RectTransform)transform).rect.width;
                 if (Mathf.Abs(w - shownW) < 0.5f) return;
                 shownW = w;
+                if (RoHud.Pc) // PC: no joystick, bottom-left like a PC chat (the panel opens on the same corner), full bar width
+                {
+                    group.sizeDelta = new Vector2(RoHud.ChatBubbleSize + BubbleGap + RoHud.ChatBarW, group.sizeDelta.y);
+                    group.anchoredPosition = new Vector2(RoHud.Margin, group.anchoredPosition.y);
+                    return;
+                }
                 float span = w - JoyRight - RingLeft, bubble = RoHud.ChatBubbleSize + BubbleGap;
                 float barW = Mathf.Clamp(span - bubble, MinBarW, MaxBarW), gw = bubble + barW;
                 float x = Mathf.Clamp((w - gw) * 0.5f, JoyRight, Mathf.Max(JoyRight, w - RingLeft - gw)); // screen centre, kept in the span
@@ -55,6 +62,7 @@ namespace ZenoniaProto
             v.badgeText = RoHud.Pill(bubble, "Badge", RoHud.TopRight, new Vector2(0.5f, 0.5f), -4f, -4f, 18f, "hud-badge-alert", null, 0f, "", 10, Color.white, out b, 18f);
             b.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(4, 4, 1, 1);
             v.badge = b.gameObject;
+            RoHud.KeyCap(bubble, RoHud.TopLeft, 4f, -4f, InputAdapter.KeyLabel(GameKey.Chat)); // PC: Enter
 
             RectTransform bar = UiKit.Fill(group, "Bar");
             bar.offsetMin = new Vector2(RoHud.ChatBubbleSize + BubbleGap, 0f); // right of the button, the rest of the group

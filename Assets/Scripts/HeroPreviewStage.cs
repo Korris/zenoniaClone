@@ -20,7 +20,8 @@ namespace ZenoniaProto
         public const float SlotW = 24f, ViewH = 30f, FeetFromBottom = 2f;
         const float StartPxPerUnit = 16f, IdleFps = 6f;
         const int MinTexH = 64, MaxTexSide = 4096;
-        static readonly Vector3 Origin = new Vector3(-30000f, -26000f, 0f); // the hero select preview sits at (-30000, -30000)
+        static readonly Vector3 DefaultOrigin = new Vector3(-30000f, -26000f, 0f); // the hero select preview sits at (-30000, -30000)
+        Vector3 Origin = DefaultOrigin; // another stage (the HUD portraits, RoHudPortraits) films its own spot
 
         sealed class Entry
         {
@@ -43,11 +44,12 @@ namespace ZenoniaProto
         public float Aspect { get { return slotCount * slotW / ViewH; } }
 
         /// <summary>view: the biggest RawImage of the texture (its screen size sets the texture size); columnW: world units of a slot's column.</summary>
-        public static HeroPreviewStage Create(Transform parent, RawImage view, int slots, float columnW = SlotW)
+        public static HeroPreviewStage Create(Transform parent, RawImage view, int slots, float columnW = SlotW, Vector3? origin = null)
         {
             var go = new GameObject("HeroPreviewStage");
             go.transform.SetParent(parent, false);
             var stage = go.AddComponent<HeroPreviewStage>();
+            if (origin.HasValue) stage.Origin = origin.Value;
             stage.Init(view, slots, columnW);
             return stage;
         }
@@ -153,6 +155,9 @@ namespace ZenoniaProto
             Entry e;
             return shown.TryGetValue(slot, out e) ? e.View : null;
         }
+
+        /// <summary>The shared texture, for more RawImages showing parts of it (HUD portraits crop their slot's head).</summary>
+        public Texture Texture { get { return texture; } }
 
         /// <summary>The texture's size in pixels (capture scripts).</summary>
         public Vector2Int TextureSize { get { return new Vector2Int(texture.width, texture.height); } }

@@ -18,6 +18,9 @@ namespace ZenoniaProto
         /// <summary>Paper look, ink on the board's parchment.</summary>
         public static readonly ChatPalette Paper = new ChatPalette("B5730D", "23883A", "7B3FC4", "C2379B", "C4470A", "1C61B4", "3E180B", "3E180B", true);
 
+        /// <summary>RO Soft look, ink on the ivory chat panel and its message strips (RoHudChatPanel): channel tags as the bar's, darkened to read on cream.</summary>
+        public static readonly ChatPalette RoSoft = new ChatPalette("B5730D", "2F8F3E", "2F7EC4", "B8458F", "C4580A", "1C61B4", "2E4A7A", "3B3A44", true);
+
         const string SelfColor = "7FE3FF", NameColor = "F5D9A0", SystemColor = "FFC75A", TextColor = "F2EEDD";
 
         public static string TagColor(ChatChannel c) { return Classic.Tag(c); }

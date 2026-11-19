@@ -29,6 +29,7 @@ namespace ZenoniaProto
         partial void DebugUiPet();    // phase 08: Pet Camp
         partial void DebugUiGacha();  // phase 09: Lumi's counter
         partial void DebugUiWanted(); // phase 11: Wanted board, HUD card, notifications
+        partial void DebugRoHud();    // RO Soft HUD: portraits, PC clicks
 
         void DebugUiRedesign()
         {
@@ -47,6 +48,7 @@ namespace ZenoniaProto
             DebugUiPet();
             DebugUiGacha();
             DebugUiWanted();
+            DebugRoHud(); // RO Soft HUD follow-up: --look, --look-at, --ro-click, --ro-digit (DebugCapture.RoHud.cs)
         }
 
         /// <summary>--ui-keys: each step holds its key "pressed" for exactly one frame, like a tap on the keyboard.</summary>

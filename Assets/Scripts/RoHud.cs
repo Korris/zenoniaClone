@@ -4,9 +4,10 @@ using UnityEngine.UI;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The RO Soft Fantasy HUD (docs/reference/ui-style-ro-soft-fantasy/02-hud.png), the default mobile HUD while the RO look is on
-    /// (UiStyle.Ro) and the Adventure Paper compact HUD is off (UiScreens.UseNew(UiScreen.Hud)). The web (PC hotbar) layout keeps the
-    /// classic HUD. All art is ChatGPT-painted (Assets/ArtLibrary/ui/ro-soft-hud/src, cut by Tools/ui-ro-soft-sheets/ro-hud-*.json into
+    /// The RO Soft Fantasy HUD (docs/reference/ui-style-ro-soft-fantasy/02-hud.png), the default HUD while the RO look is on
+    /// (UiStyle.Ro) and the Adventure Paper compact HUD is off (UiScreens.UseNew(UiScreen.Hud)), on mobile and on PC / web (user 19/11:
+    /// "bản pc chuyển sang hud mới"). PC (Pc): no joystick, key caps on the buttons, 1-8 cast the loadout, chat bottom-left
+    /// (RoHudChatBar). `--ui-style classic` = the old HUDs. All art is ChatGPT-painted (Assets/ArtLibrary/ui/ro-soft-hud/src, cut by Tools/ui-ro-soft-sheets/ro-hud-*.json into
     /// Resources/Sprites/ui/ro-soft/hud-*); nothing here draws a shape. Pieces:
     ///   RoHudStatus     top-left portrait, Lv, HP / MP / EXP (built by RpgHud)
     ///   RoHudParty      "Party (n/3)" under it (built by RpgHud)
@@ -20,7 +21,10 @@ namespace ZenoniaProto
     public static class RoHud
     {
         /// <summary>True while this HUD replaces the classic touch HUD. Read every frame (capture flags may flip the switches).</summary>
-        public static bool Active { get { return UiStyle.Ro && !HudLayout.IsWeb && !UiScreens.UseNew(UiScreen.Hud); } }
+        public static bool Active { get { return UiStyle.Ro && !UiScreens.UseNew(UiScreen.Hud); } }
+
+        /// <summary>The PC / web layout of this HUD (HudLayout.IsWeb: WebGL, or `--hud web`): keyboard + mouse, no touch-only parts.</summary>
+        public static bool Pc { get { return HudLayout.IsWeb; } }
 
         public static readonly Vector2 TopLeft = new Vector2(0f, 1f), TopRight = Vector2.one, BottomLeft = Vector2.zero, BottomRight = new Vector2(1f, 0f), Mid = new Vector2(0.5f, 0.5f);
         public static readonly Color Ink = RoSoftTheme.Ink, Navy = RoSoftTheme.Hex("#2E4A7A"), TextOnNavy = Color.white;
@@ -123,6 +127,19 @@ namespace ZenoniaProto
             Text t = Label(UiKit.Rect(rt, "Text", 0f, 0f, 10f, h - PillPadY * 2), text, fontSize, color, TextAnchor.MiddleCenter);
             t.horizontalOverflow = HorizontalWrapMode.Overflow;
             return t;
+        }
+
+        /// <summary>
+        /// PC key cap ("1", "Tab", "B"): a small navy pill with the key's name, centred at (x, y) from `corner` of `parent`, padding 2 / 6.
+        /// Null on mobile or for an unbound key (an empty label): nothing to press there.
+        /// </summary>
+        public static GameObject KeyCap(Transform parent, Vector2 corner, float x, float y, string key, int fontSize = 11)
+        {
+            if (!Pc || string.IsNullOrEmpty(key)) return null;
+            RectTransform rt;
+            Pill(parent, "Key", corner, Mid, x, y, fontSize + 7f, "hud-lv-badge", null, 0f, key, fontSize, Color.white, out rt, fontSize + 7f);
+            rt.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(6, 6, 2, 2);
+            return rt.gameObject;
         }
 
         /// <summary>A round icon masked by a kit mask piece (portraits, skill icons). Returns the icon image inside the mask.</summary>

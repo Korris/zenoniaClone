@@ -26,7 +26,7 @@ namespace ZenoniaProto
 
         void OnGUI()
         {
-            if (Event.current.type != EventType.Repaint || UiWindows.ModalOpen || HeroChangeScreen.IsOpen) return; // hero select / appearance step over the game: no tags on top. Offline too (user 19/11/2026): your own green name, nobody else's. IMGUI draws over the UGUI canvas: tags would sit on any open window (trade items, shop tabs)
+            if (Event.current.type != EventType.Repaint || UiWindows.ModalOpen || HeroChangeScreen.IsOpen || WantedRewardPanel.AnyOpen || RoWantedBoard.IsOpen) return; // the bounty panel / RO board too // hero select / appearance step over the game: no tags on top. Offline too (user 19/11/2026): your own green name, nobody else's. IMGUI draws over the UGUI canvas: tags would sit on any open window (trade items, shop tabs)
             Camera cam = Camera.main;
             Zone zone = Zone.Main;
             if (cam == null || zone == null) return;
@@ -62,6 +62,7 @@ namespace ZenoniaProto
                 Vector2 size = style.CalcSize(new GUIContent(h.PlayerName));
                 var rect = new Rect(0f, 0f, size.x + 4f, size.y);
                 rect.center = new Vector2(sp.x, Screen.height - sp.y);
+                if (Occluded(rect)) continue; // under an RO panel / banner
                 if (!all)
                 {
                     if (placed.Count >= MaxNames) break;
@@ -98,6 +99,7 @@ namespace ZenoniaProto
             Vector2 size = style.CalcSize(new GUIContent(name));
             var rect = new Rect(0f, 0f, size.x + 4f, size.y);
             rect.center = new Vector2(sp.x, Screen.height - sp.y);
+            if (Occluded(rect)) return; // under the chat panel / a banner
             placed.Add(rect);
             style.normal.textColor = new Color(0f, 0.12f, 0f, 1f);
             var shadow = rect; shadow.x += 1f; shadow.y += 1f;

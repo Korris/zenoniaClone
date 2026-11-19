@@ -179,6 +179,36 @@
   32,
   0
  ],
+ "ro-soft/hud-chat-input": [
+  20,
+  20,
+  20,
+  20
+ ],
+ "ro-soft/hud-chat-line": [
+  18,
+  0,
+  18,
+  0
+ ],
+ "ro-soft/hud-chat-panel": [
+  36,
+  36,
+  36,
+  36
+ ],
+ "ro-soft/hud-chat-tab": [
+  24,
+  0,
+  24,
+  0
+ ],
+ "ro-soft/hud-chat-tab-on": [
+  24,
+  0,
+  24,
+  0
+ ],
  "ro-soft/hud-lv-badge": [
   22,
   0,
@@ -233,6 +263,24 @@
   40,
   40
  ],
+ "ro-soft/hud-toast-full": [
+  28,
+  24,
+  28,
+  40
+ ],
+ "ro-soft/hud-toast-line": [
+  60,
+  0,
+  60,
+  0
+ ],
+ "ro-soft/hud-toast-warn": [
+  28,
+  0,
+  28,
+  0
+ ],
  "ro-soft/hud-wanted-card": [
   36,
   36,
@@ -286,6 +334,54 @@
   36,
   42,
   36
+ ],
+ "ro-soft/wanted-banner": [
+  84,
+  0,
+  24,
+  0
+ ],
+ "ro-soft/wanted-card": [
+  28,
+  28,
+  28,
+  28
+ ],
+ "ro-soft/wanted-cast-fill": [
+  12,
+  0,
+  12,
+  0
+ ],
+ "ro-soft/wanted-cast-track": [
+  12,
+  0,
+  12,
+  0
+ ],
+ "ro-soft/wanted-enraged": [
+  44,
+  0,
+  18,
+  0
+ ],
+ "ro-soft/wanted-hint-bubble": [
+  40,
+  24,
+  24,
+  24
+ ],
+ "ro-soft/wanted-toast-navy": [
+  28,
+  0,
+  28,
+  0
+ ],
+ "ro-soft/wanted-warning-strip": [
+  80,
+  0,
+  80,
+  0
  ],
  "ro-soft/window-header": [
   140,

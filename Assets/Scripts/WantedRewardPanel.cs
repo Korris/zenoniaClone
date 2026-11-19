@@ -11,21 +11,26 @@ namespace ZenoniaProto
     /// (phase 12) and are not built. Not a modal: the fight around the hero goes on, so the game is not paused and the keys keep working;
     /// the panel is brought to the front of the canvas so its buttons are never under a control layer.
     /// </summary>
-    public sealed class WantedRewardPanel
+    public sealed partial class WantedRewardPanel
     {
         const float W = 300f, H = 264f;
 
         readonly PaperLayout layout;
-        readonly Image face;
-        readonly Text nameText;
-        readonly WantedRewardRow rewards;
+        Image face;
+        Text nameText;
+        WantedRewardRow rewards;
+        RoWantedRewards roRewards; // RO Soft look (WantedRewardPanel.RoSoft.cs)
 
         public bool IsOpen { get { return layout.Root.gameObject.activeSelf; } }
+
+        /// <summary>A bounty panel is up (NameTags: IMGUI tags would draw over it).</summary>
+        public static bool AnyOpen { get; private set; }
 
         public WantedRewardPanel(RectTransform safe)
         {
             // Its own safe-area root on the canvas: it can come to the front without lifting the card and the banners over the windows.
             layout = PaperLayout.CreateSafeArea(safe.GetComponentInParent<Canvas>().rootCanvas.transform, "PaperWantedReward");
+            if (RoHud.Active) { BuildRo(layout.Safe); layout.Root.gameObject.SetActive(false); return; }
             RectTransform panel = PaperKit.Frame(layout.Safe, "Panel", 0f, 0f, W, H, PaperFrame.Paper);
             Vector2 mid = new Vector2(0.5f, 0.5f);
             panel.anchorMin = panel.anchorMax = panel.pivot = mid;
@@ -56,11 +61,13 @@ namespace ZenoniaProto
         {
             PaperWanted.SetFace(face, def.BossType);
             nameText.text = def.BossName + " defeated";
-            rewards.Set(def);
+            if (rewards != null) rewards.Set(def);
+            if (roRewards != null) roRewards.Set(def);
             layout.Root.gameObject.SetActive(true);
             layout.Root.SetAsLastSibling();
+            AnyOpen = true;
         }
 
-        public void Close() { if (IsOpen) layout.Root.gameObject.SetActive(false); }
+        public void Close() { AnyOpen = false; if (IsOpen) layout.Root.gameObject.SetActive(false); }
     }
 }

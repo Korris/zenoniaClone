@@ -27,11 +27,11 @@ namespace ZenoniaProto
         {
             root = UiKit.Fill(safe, "RoHudMenu");
             root.pivot = RoHud.TopRight; // Fit() moves its right edge and scales it towards that corner
-            RectTransform bag = Button("Bag", 4, "hud-icon-bag", () => TouchControls.Press(GameKey.Inventory));
-            RectTransform skills = Button("Skills", 3, "hud-icon-skills", () => TouchControls.Press(GameKey.SkillTree));
-            Button("Pet", 2, "hud-icon-pet", () => TouchControls.Press(GameKey.PetWindow));
-            RectTransform quest = Button("Quest", 1, "hud-icon-quest", QuestLogWindow.Open);
-            RectTransform moreBtn = Button("More", 0, "hud-icon-more", ToggleMore);
+            RectTransform bag = Button("Bag", 4, "hud-icon-bag", () => TouchControls.Press(GameKey.Inventory), GameKey.Inventory);
+            RectTransform skills = Button("Skills", 3, "hud-icon-skills", () => TouchControls.Press(GameKey.SkillTree), GameKey.SkillTree);
+            Button("Pet", 2, "hud-icon-pet", () => TouchControls.Press(GameKey.PetWindow), GameKey.PetWindow);
+            RectTransform quest = Button("Quest", 1, "hud-icon-quest", QuestLogWindow.Open, GameKey.Quests);
+            RectTransform moreBtn = Button("More", 0, "hud-icon-more", ToggleMore, null);
             itemBadge = Badge(bag, "hud-badge-alert", 16f);
             questBadge = Badge(quest, "hud-badge-alert", 18f);
             skillBadge = Badge(skills, "hud-count-badge", 20f);
@@ -42,7 +42,7 @@ namespace ZenoniaProto
             more = RoHud.Box(root, "MoreColumn", RoHud.TopRight, 0f, 0f, 104f, 66f);
             more.pivot = RoHud.TopRight;
             more.anchoredPosition = new Vector2(0f, -(RoHud.MenuTop + Plate + CaptionH + 6f)); // right-aligned under More
-            MoreItem("Gacha", 0, "hud-icon-gacha", () => { CloseMore(); TouchControls.Press(GameKey.PetGacha); });
+            MoreItem("Gacha", 0, "hud-icon-gacha", () => { CloseMore(); TouchControls.Press(GameKey.PetGacha); }); // G on PC
             MoreItem("Settings", 1, "hud-icon-settings", () => { CloseMore(); SettingsWindow.Open(); });
             more.gameObject.SetActive(false);
             moreBtn.SetAsLastSibling();
@@ -51,7 +51,8 @@ namespace ZenoniaProto
         /// <summary>Centre of button `fromRight` (0 = More), units left of the right edge.</summary>
         static float CellX(int fromRight) { return Plate * 0.5f + fromRight * Pitch; }
 
-        RectTransform Button(string caption, int fromRight, string icon, Action onTap)
+        /// <summary>`key`: the GameKey whose key cap the button shows on PC (RoHud.KeyCap, top-left of the plate), null for none.</summary>
+        RectTransform Button(string caption, int fromRight, string icon, Action onTap, GameKey? key)
         {
             RectTransform cell = RoHud.Box(root, caption, RoHud.TopRight, -CellX(fromRight), -(RoHud.MenuTop + (Plate + CaptionH) * 0.5f), Pitch, Plate + CaptionH);
             RectTransform plate = RoHud.Box(cell, "Plate", new Vector2(0.5f, 1f), 0f, -Plate * 0.5f, Plate, Plate);
@@ -62,6 +63,7 @@ namespace ZenoniaProto
             t.horizontalOverflow = HorizontalWrapMode.Overflow;
             TouchControls.Img(cell, null, Color.clear, true); // the whole cell is the touch target
             PaperHudPress.Tap(cell.gameObject, onTap);
+            if (key.HasValue) RoHud.KeyCap(plate, RoHud.TopLeft, 5f, -5f, InputAdapter.KeyLabel(key.Value));
             return plate;
         }
 
@@ -93,6 +95,9 @@ namespace ZenoniaProto
         }
 
         void ToggleMore() { more.gameObject.SetActive(!more.gameObject.activeSelf); }
+
+        /// <summary>The More column is open (capture logs).</summary>
+        internal bool MoreOpen { get { return more.gameObject.activeSelf; } }
 
         public void CloseMore() { if (more.gameObject.activeSelf) more.gameObject.SetActive(false); }
 

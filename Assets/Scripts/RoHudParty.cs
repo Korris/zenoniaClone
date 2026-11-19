@@ -24,6 +24,8 @@ namespace ZenoniaProto
             public CanvasGroup Group;
             public Image Face, Role;
             public HeroPortraitLayers Portrait;
+            public RawImage Live; // the mate's real look (RoHudPortraits slot i + 1) while its hero is in sight
+            public int Slot;
             public Text Name, Status;
             public RoHud.Bar Hp;
             public RectTransform StatusIcons;
@@ -34,6 +36,8 @@ namespace ZenoniaProto
         readonly Text title;
         readonly Row[] rows = new Row[MaxRows];
         bool collapsed;
+        /// <summary>The rows are folded (capture logs; any instance: there is one party panel).</summary>
+        internal static bool Collapsed;
         int shownVersion = -1;
 
         public RoHudParty(RectTransform safe, float top)
@@ -46,7 +50,7 @@ namespace ZenoniaProto
             UiWinKit.MakeButton(head.GetComponent<Image>(), PartyHudList.ToggleBoard);
             arrow = RoHud.Box(root, "Collapse", RoHud.TopLeft, W - TitleH * 0.5f - 3f, -TitleH * 0.5f, TitleH - 6f, TitleH - 6f); // on the pill's right end, as 02-hud.png // centre pivot: it turns
             Image arrowArt = RoHud.Art(arrow, "hud-btn-arrow", true);
-            UiWinKit.MakeButton(arrowArt, () => collapsed = !collapsed);
+            UiWinKit.MakeButton(arrowArt, () => Collapsed = collapsed = !collapsed);
             for (int i = 0; i < MaxRows; i++) rows[i] = BuildRow(i);
             root.gameObject.SetActive(false);
         }
@@ -67,6 +71,8 @@ namespace ZenoniaProto
             r.Face = UiKit.Fill(m, "Portrait").gameObject.AddComponent<Image>();
             r.Face.raycastTarget = false;
             r.Portrait = new HeroPortraitLayers(r.Face);
+            r.Slot = i + 1;
+            r.Live = RoHudPortraits.Make(m, r.Slot);
             r.Role = RoHud.Art(RoHud.TopLeftBox(r.Root, "Role", 1f, 1f, 15f, 15f), "hud-icon-crown");
             r.Name = RoHud.Label(RoHud.TopLeftBox(r.Root, "Name", 52f, 6f, 100f, 16f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft);
             r.StatusIcons = RoHud.TopLeftBox(r.Root, "StatusIcons", W - 48f, 5f, 40f, 14f); // poison and other status icons (right of the name)
@@ -108,8 +114,11 @@ namespace ZenoniaProto
             HeroController hero = PartyHudList.FindHero(info.PlayerId);
             bool dead = info.Hp == 0, otherMap = info.MapId != myMap, away = otherMap || hero == null;
             HeroClassDef cls = info.HeroClass < HeroClassDef.All.Length ? HeroClassDef.All[info.HeroClass] : null;
-            if (hero != null) r.Portrait.Show(hero); else r.Portrait.ShowPainted(cls);
+            bool real = RoHudPortraits.Show(r.Live, r.Slot, hero); // in sight: its NetAppearance look (hair, colours, hat)
+            if (r.Face.gameObject.activeSelf == real) r.Face.gameObject.SetActive(!real);
+            if (!real) { if (hero != null) r.Portrait.Show(hero); else r.Portrait.ShowPainted(cls); }
             r.Portrait.SetTint(dead ? Dim : Color.white);
+            r.Live.color = dead ? Dim : Color.white;
             Sprite role = RoHud.Piece(leader ? "hud-icon-crown" : cls != null && cls.Id == HeroClass.Cleric ? "hud-icon-plus" : "hud-icon-sword");
             if (r.Role.sprite != role) r.Role.sprite = role;
             r.Name.text = "Lv." + info.Level + " " + info.Name;

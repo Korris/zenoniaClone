@@ -11,9 +11,9 @@ namespace ZenoniaProto
     /// With UiScreens.UseNew(UiScreen.Hud) both kinds are the compact HUD's small dark pill ("Obtained: Iron Sword", hud-compact-mobile-v1.png):
     /// on mobile at the bottom centre, just above the chat lines; on PC at the top centre under the boss bar (AreaTop). Same API, same queue.
     /// </summary>
-    public sealed class NotificationToast : MonoBehaviour
+    public sealed partial class NotificationToast : MonoBehaviour
     {
-        struct Entry { public string Title, Sub; public Sprite Icon; public Color TitleColor; }
+        struct Entry { public string Title, Sub, Plate; public Sprite Icon; public Color TitleColor; } // Plate: an RO pill other than the default (ShowStyled)
 
         const float FadeIn = 0.15f, FadeOut = 0.45f, HoldFull = 2.8f, HoldCompact = 2.2f, MinHold = 1.0f;
         const int MaxQueue = 4;
@@ -87,8 +87,11 @@ namespace ZenoniaProto
             bool paper = UiScreens.UseNew(UiScreen.Hud);
             title.font = sub.font = paper ? PaperTheme.BoldFont : UiKit.Font;
             title.fontStyle = sub.fontStyle = paper ? FontStyle.Normal : FontStyle.Bold;
+            bool ro = !paper && RoHud.Active; // RO Soft HUD: the ChatGPT-painted ivory toasts (NotificationToast.RoSoft.cs)
             paperShown = paper;
-            if (paper) BeginPaper(e); else BeginOld(e);
+            roShown = ro;
+            ShowRoParts(ro);
+            if (ro) BeginRo(e); else if (paper) BeginPaper(e); else BeginOld(e);
             age = 0f;
             hold = e.Sub != null ? HoldFull : HoldCompact;
             root.gameObject.SetActive(true);
@@ -184,6 +187,7 @@ namespace ZenoniaProto
             {
                 age += dt;
                 if (paperShown) PlacePaper();
+                else if (roShown) PlaceRo();
                 // a waiting message shortens the current one (but never below MinHold)
                 float limit = Suspended ? MinHold : queue.Count > 0 ? Mathf.Max(MinHold, hold - queue.Count * 0.5f) : hold;
                 group.alpha = Mathf.Min(Mathf.Clamp01(age / FadeIn), Mathf.Clamp01((limit + FadeOut - age) / FadeOut));

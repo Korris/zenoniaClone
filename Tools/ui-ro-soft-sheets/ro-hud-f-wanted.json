@@ -1,0 +1,30 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-hud/src/ro-hud-f-wanted-chatgpt-1.png",
+ "key": "#00FF00",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-hud/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [{"name": "wanted-ribbon-navy", "height": 64},
+   {"name": "wanted-ribbon-red", "height": 120},
+   {"name": "wanted-card", "height": 160, "border": [28, 28, 28, 28]}],
+  [{"name": "wanted-banner", "height": 64, "border": [84, 0, 24, 0]},
+   {"name": "wanted-shield", "height": 72},
+   {"name": "wanted-icon-arrow", "height": 40},
+   {"name": "wanted-warning-strip", "height": 56, "border": [80, 0, 80, 0]},
+   {"name": "wanted-icon-alert", "height": 64}],
+  [{"name": "wanted-enraged", "height": 40, "border": [44, 0, 18, 0]},
+   {"name": "wanted-cast-fill", "height": 24, "border": [12, 0, 12, 0]},
+   {"name": "wanted-cast-track", "height": 24, "border": [12, 0, 12, 0]},
+   {"name": "wanted-hint-bubble", "height": 80, "border": [40, 24, 24, 24]}],
+  [{"name": "wanted-toast-navy", "height": 56, "border": [28, 0, 28, 0]},
+   {"name": "wanted-icon-swords", "height": 64},
+   {"name": "wanted-icon-info", "height": 56},
+   {"name": "wanted-icon-clock", "height": 56},
+   {"name": "wanted-laurel", "height": 72},
+   {"name": "wanted-sparkle", "height": 40}]
+ ]
+}
