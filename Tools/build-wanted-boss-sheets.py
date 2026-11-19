@@ -40,16 +40,43 @@ SKILLS = f"{ROOT}/Assets/ArtLibrary/custom/wanted-boss/skills"
 FX_OUT = f"{ROOT}/Assets/Resources/Sprites/fx/wanted"
 FX_W, FX_H = 384, 256
 WARNING = ["circle", "cone", "line", "safe", "alert", "enraged", "slow", "poison", "castbar-frame", "castbar-fill"]   # reading order on the sheet
-BOSSES = {"rimeclawTyrant": "rimeclaw-tyrant", "glacialColossus": "glacial-colossus", "mireHydraQueen": "mire-hydra-queen"}
+BOSSES = {"rimeclawTyrant": "rimeclaw-tyrant", "glacialColossus": "glacial-colossus", "mireHydraQueen": "mire-hydra-queen-v2"}
+# 2026-11-19: the Mire Hydra Queen v2 (purple queen + serpent tail + 3 snake heads, RO Soft Fantasy) is drawn on #00FF00 (a purple boss on magenta
+# leaves dark-purple fringes, sprite-rules.md Sổ lỗi 2026-11-13), is a little bigger than the v1 hydra (the arena is 4x since 11-19) and has an
+# idle loop: <stem>-idle-{down-up,left-right}-chatgpt-1.png -> <id>-idle.png (same 4x4 cells of 384 as the walk sheet, drawn while standing).
+GREEN_KEY = {"mireHydraQueen"}
+TARGET_H_OF = {"mireHydraQueen": 350}
 
 _spec = importlib.util.spec_from_file_location("meadow", f"{ROOT}/Tools/build-meadow-monsters.py")
 mm = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(mm)
 mm.MARGIN = MARGIN
 
 
+def key_green(path):
+    """RGB on #00FF00 -> float RGBA (0..1, straight alpha), the green twin of meadow's key_magenta: alpha from the green excess G - max(R, B),
+    colour unmixed from the background and the green spill on edge pixels capped to max(R, B)."""
+    from scipy import ndimage
+    px = np.asarray(Image.open(path).convert("RGB"), dtype=np.float32) / 255.0
+    r, g, b = px[..., 0], px[..., 1], px[..., 2]
+    excess = g - np.maximum(r, b)
+    lo, hi = 40 / 255.0, 200 / 255.0
+    a = np.clip(1.0 - (excess - lo) / (hi - lo), 0.0, 1.0)
+    a[:4], a[-4:], a[:, :4], a[:, -4:] = 0, 0, 0, 0
+    bg = np.array([0.0, 1.0, 0.0], dtype=np.float32)
+    rgb = np.clip((px - (1.0 - a)[..., None] * bg) / np.maximum(a, 1e-3)[..., None], 0.0, 1.0)
+    rgb[..., 1] = np.where(a < 0.999, np.minimum(rgb[..., 1], np.maximum(rgb[..., 0], rgb[..., 2]) + 0.06), rgb[..., 1])
+    a = np.where(a < 0.04, 0.0, a)
+    lab, n = ndimage.label(ndimage.binary_dilation(a > 0.3, iterations=2))
+    if n:
+        sizes = ndimage.sum(a > 0.3, lab, index=np.arange(1, n + 1))
+        a = np.where(np.isin(lab, 1 + np.where(sizes < 25)[0]), 0.0, a)
+    rgb = rgb * (a > 0)[..., None]
+    return np.dstack([rgb, a]).astype(np.float32)
+
+
 def frames_of(path):
     """8 frames of a 2 x 4 strip, row-major."""
-    rgba = mm.key_magenta(path)
+    rgba = key_green(path) if "mire-hydra-queen-v2" in path else mm.key_magenta(path)
     alpha = rgba[..., 3] > 0.2
     ys = mm.valleys(alpha.sum(1), 2)
     out = []
@@ -70,11 +97,23 @@ def load(stem):
     return sets
 
 
+def idle_of(mid):
+    """16 idle frames (down, up, left, right) or None when the boss has no idle strips."""
+    stem = BOSSES[mid]
+    a, b = f"{SRC}/{stem}-idle-down-up-chatgpt-1.png", f"{SRC}/{stem}-idle-left-right-chatgpt-1.png"
+    return frames_of(a) + frames_of(b) if os.path.exists(a) and os.path.exists(b) else None
+
+
+def boss_scale(mid, walk):
+    return TARGET_H_OF.get(mid, TARGET_H) / float(np.median([f["main_h"] for f in walk]))
+
+
 def build(mid):
     walk, atk = load(BOSSES[mid])
-    s = TARGET_H / float(np.median([f["main_h"] for f in walk]))
+    idle = idle_of(mid)
+    s = boss_scale(mid, walk)
     cap = s
-    for frames, cell, feet in ((walk, WALK_CELL, WALK_CELL), (atk, ATK_CELL, ATK_FEET)):
+    for frames, cell, feet in ((walk, WALK_CELL, WALK_CELL), (atk, ATK_CELL, ATK_FEET), (idle or [], WALK_CELL, WALK_CELL)):
         for f in frames:
             cap = min(cap, (cell - 2 * MARGIN) / f["w"], (feet - MARGIN) / f["h"])
     if cap < s:
@@ -84,13 +123,21 @@ def build(mid):
     a = mm.sheet_from(mm.place(atk, s, ATK_CELL, ATK_FEET), ATK_CELL)
     heights = [round(f["main_h"] * s) for f in walk]
     print(f"  {mid}: scale {s:.3f}, walk body heights {min(heights)}-{max(heights)} px, halo px walk {mm.halo_count(w)} attack {mm.halo_count(a)}")
-    return mm.to_image(w), mm.to_image(a)
+    i = mm.to_image(mm.sheet_from(mm.place(idle, s, WALK_CELL, WALK_CELL), WALK_CELL)) if idle else None
+    return mm.to_image(w), mm.to_image(a), i, s
 
 
 def build_cast(mid, scale):
     frames = []
     for part in CASTS[mid]:
-        frames += frames_of(f"{SRC}/{BOSSES[mid]}-{part}-chatgpt-1.png")
+        path = f"{SRC}/{BOSSES[mid]}-{part}-chatgpt-1.png"
+        if not os.path.exists(path) and frames:
+            # Mire Hydra Queen v2 (2026-11-19): the reign / defeat strip was not drawn yet (image quota ran out). Stand-in until it lands:
+            # row 2 (Toxic Reign) = row 0's venom-breath pose (arms spread, mouths open), row 3 (defeat, unused by the game) = row 1.
+            print(f"  {mid}: {part} missing, rows 2-3 reuse rows 0-1")
+            frames += [dict(f) for f in frames[:8]]
+            continue
+        frames += frames_of(path)
     for f in frames:
         scale = min(scale, (ATK_CELL - 2 * MARGIN) / f["w"], (ATK_FEET - MARGIN) / f["h"])
     return mm.to_image(mm.sheet_from(mm.place(frames, scale, ATK_CELL, ATK_FEET), ATK_CELL))
@@ -120,11 +167,13 @@ def build_fx(mid):
 
 
 FX_SHARED = {("mireHydraQueen", 4): 2}   # skill 4's picture is skill 2's (Toxic Reign = the same venom bloom on five circles)
+FX_STEM = {"mireHydraQueen": "mire-hydra-queen"}   # the painted impact sheets (legacy, --boss-fx legacy) belong to the v1 art
 
 
 def skill_fx_sources(mid):
     """{n: path} of the big per-skill effect sheets that exist (<stem>-skill<n>-fx-chatgpt-1.png, 2x2 frames of 768x512)."""
-    src = lambda n: f"{SKILLS}/{BOSSES[mid]}-skill{FX_SHARED.get((mid, n), n)}-fx-chatgpt-1.png"
+    stem = FX_STEM.get(mid, BOSSES[mid])
+    src = lambda n: f"{SKILLS}/{stem}-skill{FX_SHARED.get((mid, n), n)}-fx-chatgpt-1.png"
     return {n: src(n) for n in range(1, 5) if os.path.exists(src(n))}
 
 
@@ -183,11 +232,12 @@ def write_meta(png):
 def write(ids):
     os.makedirs(FX_OUT, exist_ok=True)
     for mid in ids:
-        w, a = build(mid)
+        w, a, i, s = build(mid)
         todo = [(w, f"{OUT}/{mid}.png"), (a, f"{OUT}/{mid}-attack.png")]
+        if i is not None:
+            todo.append((i, f"{OUT}/{mid}-idle.png"))
         if mid in CASTS:
-            walk, _ = load(BOSSES[mid])
-            todo.append((build_cast(mid, TARGET_H / float(np.median([f["main_h"] for f in walk]))), f"{OUT}/{mid}-cast.png"))
+            todo.append((build_cast(mid, s), f"{OUT}/{mid}-cast.png"))
             if os.path.exists(f"{SKILLS}/{BOSSES[mid]}-skill-fx-chatgpt-1.png"):   # the old combined sheet: only Rimeclaw has one
                 todo.append((build_fx(mid), f"{FX_OUT}/{mid}-skills.png"))
         for img, path in todo:
@@ -203,7 +253,7 @@ def check(path, ids):
     rows = []
     hero = Image.open(f"{ROOT}/Assets/Resources/Sprites/classes/warrior/body/armed/idle.png").convert("RGBA").crop((0, 0, 192, 192)).resize((384, 384), Image.LANCZOS)
     for mid in ids:
-        w, a = build(mid)
+        w, a, i, _ = build(mid)
         strip = Image.new("RGBA", (WALK_CELL * 4 + 384 + ATK_CELL * 4, ATK_CELL * 4), (40, 44, 54, 255))
         strip.alpha_composite(w, (0, 0)); strip.alpha_composite(a, (WALK_CELL * 4 + 384, 0))
         for r in range(4):                                        # a hero at the same resolution beside each walk row, feet on the same line

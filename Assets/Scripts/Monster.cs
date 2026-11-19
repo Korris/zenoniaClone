@@ -35,7 +35,7 @@ namespace ZenoniaProto
         float pullLeft;
         int facing;                                // 0 down, 1 up, 2 left, 3 right
         State state = State.Idle;
-        Sprite[][] walk, attack;
+        Sprite[][] walk, attack, idle; // idle: optional "<sheet>-idle.png" (walk layout), the standing loop; null = the walk sheet's frame 0
         Color artTint = Color.white;               // only tinted while drawing a fallback sheet (Monster.Visuals.cs)
         SpriteRenderer body, shadow, barBack, barFill;
         bool headless;                             // dedicated server: simulation only, no sprites / renderers
