@@ -56,6 +56,9 @@ namespace ZenoniaProto
         /// <summary>True when this hero draws a layered set.</summary>
         public bool IsLayered { get { return layered != null; } }
 
+        /// <summary>The layered drawing (null on the paper doll path); the HUD portraits measure its hair and hat (RoHudPortraits).</summary>
+        public HeroLayeredView LayeredView { get { return layered; } }
+
         /// <summary>The look in use, colours resolved (never null after SetAppearance).</summary>
         public CharacterAppearanceData Appearance { get; private set; }
 
