@@ -6,21 +6,8 @@ namespace ZenoniaProto
     /// <summary>What the character slot screen shows: the six cards, the big hero with its info panel, and every frame the buttons, corner buttons and status line.</summary>
     public sealed partial class CharacterListScreen
     {
-        /// <summary>Class names as the mockup writes them (Vietnamese on this screen only).</summary>
-        static string ClassLabel(HeroClass id)
-        {
-            switch (id)
-            {
-                case HeroClass.Warrior: return "Kiếm sĩ";
-                case HeroClass.Wizard: return "Pháp sư";
-                case HeroClass.Mechanic: return "Cơ khí sư";
-                case HeroClass.Assassin: return "Sát thủ";
-                case HeroClass.Cleric: return "Tu sĩ";
-                default: return "Võ sĩ";
-            }
-        }
-
-        static string ClassName(CharacterSummary c) { HeroClass id; return KnownClass(c, out id) ? ClassLabel(id) : c.classId; }
+        /// <summary>The English class name (Warrior, Wizard, Mechanic, Assassin, Cleric, Fighter), the raw id for a class this build does not know.</summary>
+        static string ClassName(CharacterSummary c) { HeroClass id; return KnownClass(c, out id) ? HeroClassDef.Get(id).Name : c.classId; }
 
         /// <summary>Which hero or empty card is in each slot, the big hero and the info panel.</summary>
         void Redraw()
@@ -51,10 +38,10 @@ namespace ZenoniaProto
             bool picked = hero.id == selectedId;
             card.Face.sprite = SlotArt(picked ? "slot-card-selected" : "slot-card");
             card.Name.text = hero.name;
-            string badge = Playing(hero.classId) ? "Đang chơi" : hero.online ? "Đang trong game" : "";
+            string badge = Playing(hero) ? "Playing" : hero.online ? "In game" : "";
             card.Info.text = badge.Length > 0 ? ClassName(hero) + " · " + badge : ClassName(hero);
             card.Info.color = badge.Length > 0 ? RoSoftTheme.MintDark : RoSoftTheme.Ink;
-            card.Level.text = "Cấp " + hero.level;
+            card.Level.text = "Lv " + hero.level;
             HeroClass id;
             card.Mini.enabled = KnownClass(hero, out id);
             if (!card.Mini.enabled) return;
@@ -92,9 +79,9 @@ namespace ZenoniaProto
             bool connecting = online && client != null && client.State == ClientState.Connecting;
             bool busy = online && (AccountFlow.Busy || connecting);
             CharacterSummary hero = Selected();
-            bool playing = hero != null && Playing(hero.classId);
+            bool playing = hero != null && Playing(hero);
             enterButton.interactable = hero != null && !busy && !playing;
-            enterLabel.text = playing ? "Đang chơi" : "Vào game";
+            enterLabel.text = playing ? "Playing" : "Enter";
             createButton.interactable = !busy && Heroes.Count < AccountFlow.MaxCharacters;
             deleteButton.interactable = hero != null && !busy && !playing;
             foreach (Row r in rows) r.Button.interactable = !busy;
@@ -102,7 +89,7 @@ namespace ZenoniaProto
             status.text = text;
             statusPlate.SetActive(!string.IsNullOrEmpty(text));
             status.color = online && AccountFlow.StatusBad && !connecting ? RoSoftTheme.BadText : RoSoftTheme.Ink;
-            emptyNote.text = online && AccountFlow.Busy && Heroes.Count == 0 ? "Đang tải ..." : "Chưa có nhân vật.\nChọn một ô trống bên dưới để tạo nhân vật.";
+            emptyNote.text = online && AccountFlow.Busy && Heroes.Count == 0 ? "Loading ..." : "No characters yet.\nPick an empty slot below to create one.";
             bool overGame = !online && GameSession.Hero != null;
             ShowCorner(logoutButton, online);
             ShowCorner(offlineButton, online);

@@ -72,7 +72,7 @@ namespace ZenoniaProto
             float bw = 450f, bh = bw / Aspect(banner, 4.2f);
             Image title = CharacterFlowKit.Pic(stage, "TitleBanner", banner, CharacterFlowKit.StageW * 0.5f - bw * 0.5f, 4f, bw, bh);
             title.preserveAspect = false;
-            CharacterFlowKit.RoText(title.rectTransform, "Text", bw * 0.16f, bh * 0.22f, bw * 0.68f, bh * 0.52f, "Chọn nhân vật", 34, Color.white).GetComponent<Shadow>().effectColor = new Color(0.05f, 0.12f, 0.3f, 0.6f);
+            CharacterFlowKit.RoText(title.rectTransform, "Text", bw * 0.16f, bh * 0.22f, bw * 0.68f, bh * 0.52f, "Select Character", 34, Color.white).GetComponent<Shadow>().effectColor = new Color(0.05f, 0.12f, 0.3f, 0.6f);
 
             // the big hero: pedestal, then the texture every hero picture shares
             Sprite ped = SlotArt("pedestal");
@@ -87,9 +87,9 @@ namespace ZenoniaProto
             heroControls.Add(CharacterFlowKit.RoButton(stage, "ListTurnRight", RoSoftSprites.Shape.Row, HeroX + 88f, 168f, 46f, 46f, ">", 24, () => OnTurn(1), out unused).gameObject);
 
             BuildInfo();
-            enterButton = CharacterFlowKit.RoButton(stage, "EnterGame", RoSoftSprites.Shape.Primary, 850f, 262f, 268f, 72f, "Vào game", 30, OnEnter, out enterLabel);
-            createButton = CharacterFlowKit.RoButton(stage, "CreateNew", RoSoftSprites.Shape.Secondary, InfoX, 274f, 173f, 50f, "+ Tạo nhân vật", 18, OnCreate, out unused);
-            deleteButton = CharacterFlowKit.RoButton(stage, "DeleteHero", RoSoftSprites.Shape.Danger, InfoX + 183f, 274f, 131f, 50f, "Xoá", 20, OnAskDelete, out unused);
+            enterButton = CharacterFlowKit.RoButton(stage, "EnterGame", RoSoftSprites.Shape.Primary, 850f, 262f, 268f, 72f, "Enter", 30, OnEnter, out enterLabel);
+            createButton = CharacterFlowKit.RoButton(stage, "CreateNew", RoSoftSprites.Shape.Secondary, InfoX, 274f, 173f, 50f, "+ Create Character", 16, OnCreate, out unused);
+            deleteButton = CharacterFlowKit.RoButton(stage, "DeleteHero", RoSoftSprites.Shape.Danger, InfoX + 183f, 274f, 131f, 50f, "Delete", 20, OnAskDelete, out unused);
             statusPlate = CharacterFlowKit.RoPiece(stage, "StatusPlate", RoSoftSprites.Shape.Glass, InfoX, 325f, 594f, 38f).gameObject; // readable over the dark stones
             status = CharacterFlowKit.RoText(statusPlate.transform, "Status", 12f, 0f, 570f, 38f, "", 15, RoSoftTheme.Ink);
 
@@ -110,10 +110,10 @@ namespace ZenoniaProto
             panel.pixelsPerUnitMultiplier = 2f; // cut at 2x
             panel.raycastTarget = true;
             infoHero = UiKit.Rect(panel.rectTransform, "Hero", 0f, 0f, InfoW, InfoH).gameObject;
-            infoName = InfoRow(infoHero.transform, "Name", null, "Tên:", 18f);
+            infoName = InfoRow(infoHero.transform, "Name", null, "Name:", 18f);
             infoClass = InfoRow(infoHero.transform, "Class", "icon-class", "Class:", 52f);
-            infoLevel = InfoRow(infoHero.transform, "Level", "icon-level", "Cấp:", 86f);
-            infoPlace = InfoRow(infoHero.transform, "Place", "icon-location", "Bản đồ cuối:", 120f);
+            infoLevel = InfoRow(infoHero.transform, "Level", "icon-level", "Level:", 86f);
+            infoPlace = InfoRow(infoHero.transform, "Place", "icon-location", "Last Map:", 120f);
             infoEmpty = UiKit.Rect(panel.rectTransform, "Empty", 0f, 0f, InfoW, InfoH).gameObject;
             emptyNote = CharacterFlowKit.RoText(infoEmpty.transform, "Note", 24f, 20f, InfoW - 48f, InfoH - 40f, "", 18, RoSoftTheme.Ink);
         }
@@ -159,7 +159,7 @@ namespace ZenoniaProto
             card.Level = CharacterFlowKit.RoText(card.Hero.transform, "Level", 0f, 223f, CardW, 18f, "", 15, RoSoftTheme.Ink);
 
             card.Empty = UiKit.Rect(f, "Empty", 0f, 0f, CardW, CardH).gameObject;
-            CharacterFlowKit.RoText(card.Empty.transform, "Text", 0f, 150f, CardW, 26f, "+ Tạo nhân vật", 16, RoSoftTheme.Ink);
+            CharacterFlowKit.RoText(card.Empty.transform, "Text", 0f, 150f, CardW, 26f, "+ Create Character", 15, RoSoftTheme.Ink);
             Image faded = CharacterFlowKit.Pic(card.Empty.transform, "Pedestal", ped, (CardW - 130f) * 0.5f, 188f, 130f, 130f / Aspect(ped, 2.47f));
             faded.color = new Color(1f, 1f, 1f, 0.45f);
             return card;
@@ -172,11 +172,11 @@ namespace ZenoniaProto
             cornerRightRt = UiKit.Rect(root, "ListCornerRight", 0f, 0f, 2f * (CornerW + CornerGap), CornerH);
             cornerRightRt.anchorMin = cornerRightRt.anchorMax = cornerRightRt.pivot = new Vector2(1f, 1f);
             // top left, as in the mockup: the account button (offline: go online; over the game: back); top right: the rest, clear of the title banner
-            logoutButton = CornerButton(cornerRt, corner, "LogOut", RoSoftSprites.Shape.Secondary, "Đổi tài khoản", OnLogout);
-            onlineButton = CornerButton(cornerRt, corner, "PlayOnline", RoSoftSprites.Shape.Secondary, "Chơi online", OnPlayOnline);
-            backButton = CornerButton(cornerRt, corner, "BackToGame", RoSoftSprites.Shape.Secondary, "Quay lại", OnBackToGame);
-            offlineButton = CornerButton(cornerRightRt, cornerRight, "PlayOffline", RoSoftSprites.Shape.Row, "Chơi offline", OnPlayOffline);
-            directButton = CornerButton(cornerRightRt, cornerRight, "DirectConnect", RoSoftSprites.Shape.Row, "Kết nối (dev)", () => ConnectScreenGui.ShowDevPage());
+            logoutButton = CornerButton(cornerRt, corner, "LogOut", RoSoftSprites.Shape.Secondary, "Switch Account", OnLogout);
+            onlineButton = CornerButton(cornerRt, corner, "PlayOnline", RoSoftSprites.Shape.Secondary, "Play Online", OnPlayOnline);
+            backButton = CornerButton(cornerRt, corner, "BackToGame", RoSoftSprites.Shape.Secondary, "Back", OnBackToGame);
+            offlineButton = CornerButton(cornerRightRt, cornerRight, "PlayOffline", RoSoftSprites.Shape.Row, "Play Offline", OnPlayOffline);
+            directButton = CornerButton(cornerRightRt, cornerRight, "DirectConnect", RoSoftSprites.Shape.Row, "Connect (dev)", () => ConnectScreenGui.ShowDevPage());
         }
 
         static Button CornerButton(RectTransform parent, List<Button> list, string name, RoSoftSprites.Shape shape, string text, System.Action act)

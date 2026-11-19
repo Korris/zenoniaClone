@@ -1,5 +1,8 @@
 # Việc đang dở
 
+### 19/11 16:00 offline nhiều nhân vật cùng class + đặt tên offline + toàn bộ chữ tiếng Anh (agent, branch worktree, CHƯA merge)
+- Save offline theo slot `zenonia-save-slot<N>.json`, save cũ theo class tự chuyển sang (giữ bản `.migrated`). Màn slot tiếng Anh + nền sáng mới. Báo cáo `plans/reports/offline-multichar-english-261119.md`, ảnh `docs/reference/character-select-ro-fantasy/en-*.jpg`.
+
 ### 19/11 15:00 màn chọn slot nhân vật RO Soft Fantasy (agent, branch worktree, CHƯA merge)
 - Đăng nhập / mở game offline -> luôn vào màn slot (6 ô), ô trống -> chọn class -> ngoại hình (+ tên online) -> nhân vật lưu đúng ô đã chọn. Xoá: bấm Xoá + giữ 2 s. Báo cáo `plans/reports/character-select-ro-fantasy-261119.md`, ảnh `docs/reference/character-select-ro-fantasy/`.
 - CẦN deploy server-api mới (MAX 6, trường `slot`, index unique userId+slot). Không đổi protocol zone.
