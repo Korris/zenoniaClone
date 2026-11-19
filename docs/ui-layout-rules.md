@@ -39,3 +39,4 @@ Số mặc định (đơn vị tham chiếu 1280x720, scale theo `CanvasScaler`)
 ## Sổ lỗi
 
 - 2026-11-19 túi đồ RO Soft: tab All/Weapon chữ dính đáy, icon cách chữ xa; pill "Common" xấu. Nguyên nhân: đặt vị trí tay, không có padding/gap/căn giữa dọc. Sửa: bố cục theo mục 1.
+- 2026-11-19 túi đồ RO Soft (đã sửa): tab, nút, pill dựng lại bằng `InventoryRoBoxes.cs` (VerticalLayoutGroup / HorizontalLayoutGroup + ContentSizeFitter, hằng số padding/gap ở đầu file). Thêm 2 lỗi gặp khi làm: (1) icon tab cắt nguyên ô ChatGPT nên glyph chỉ chiếm ~50 % ô, nhìn bé và lệch: cắt sát glyph (`glyph_inset` của `Tools/cut-ui-paper-sheet.py` giờ tự cắt vuông sát glyph + 2 px); (2) pill vẽ từ art viên thuốc cao 104 px bị bo góc sai khi thu nhỏ: đặt `pixelsPerUnitMultiplier = chiều cao art / (2 x chiều cao pill)` để cả chiều cao art khớp pill, hai đầu luôn là nửa hình tròn; chữ dài ("Unequip", "Consumable") thì giảm cỡ chữ cho vừa, không để tràn sang nút bên.

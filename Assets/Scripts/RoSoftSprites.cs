@@ -70,6 +70,14 @@ namespace ZenoniaProto
         /// <summary>Any kit piece by file name (slot-empty, btn-plus, window-header ...), 9-sliced when it has a border; null when missing.</summary>
         public static Sprite Named(string piece) { return Load(piece); }
 
+        /// <summary>A kit piece by file name, made known to RoSoftSkin as `shape` (button shapes get white labels). For window-specific art such as the bag's bag-tab-on.</summary>
+        public static Sprite NamedAs(string piece, Shape shape)
+        {
+            Sprite s = Load(piece);
+            if (s != null) ShapeBySprite[s] = shape;
+            return s;
+        }
+
         static Sprite Load(string piece)
         {
             Sprite s;

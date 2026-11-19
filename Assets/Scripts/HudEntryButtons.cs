@@ -48,7 +48,8 @@ namespace ZenoniaProto
             RectTransform cell = PaperHudCompact.Cell(parent, name, corner, x, y, Pitch, Plate, out art);
             Image plate = PaperHudCompact.Plate(art, PaperPiece.CMenuPlate, Radius);
             string id = name.ToLowerInvariant();
-            Sprite glyph = PaperArt.Get(PaperPiece.CMenuIconPrefix + id) ?? PaperArt.Get("hudp/menu-icon-" + id) ?? PaperArt.Get(PaperPiece.EntryIconPrefix + id); // hudp: the party sheet (HP1) // the older cut icon until the compact one comes
+            Sprite glyph = name == "Bag" && UiStyle.Ro ? RoSoftSprites.Named("bag-icon") : null; // the RO Soft bag's own backpack (ChatGPT art)
+            glyph = glyph ?? PaperArt.Get(PaperPiece.CMenuIconPrefix + id) ?? PaperArt.Get("hudp/menu-icon-" + id) ?? PaperArt.Get(PaperPiece.EntryIconPrefix + id); // hudp: the party sheet (HP1) // the older cut icon until the compact one comes
             if (glyph != null) TouchControls.Child(art, "Icon", glyph, GlyphSize, Color.white).preserveAspect = true;
             else PaperTheme.Caption(art, name == "More" ? "..." : name.Substring(0, 1), 18, PaperTheme.TextLight); // "..." sits low, as dots do
             if (HudLayout.IsWeb) PaperHudCompact.KeyLabel(cell, Mid, 0f, -(Pitch + HudAnchors.IconKeyHeight) * 0.5f + 2f, key);

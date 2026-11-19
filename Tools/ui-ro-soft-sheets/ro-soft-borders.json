@@ -1,4 +1,76 @@
 {
+ "ro-soft/bag-detail-frame": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "ro-soft/bag-gold-pill": [
+  84,
+  30,
+  36,
+  30
+ ],
+ "ro-soft/bag-label": [
+  60,
+  0,
+  34,
+  0
+ ],
+ "ro-soft/bag-lv-plate": [
+  30,
+  18,
+  30,
+  18
+ ],
+ "ro-soft/bag-pill-mint": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/bag-pill-white": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/bag-power-plate": [
+  78,
+  24,
+  30,
+  24
+ ],
+ "ro-soft/bag-section": [
+  44,
+  44,
+  44,
+  44
+ ],
+ "ro-soft/bag-slot": [
+  30,
+  30,
+  30,
+  30
+ ],
+ "ro-soft/bag-slot-empty": [
+  30,
+  30,
+  30,
+  30
+ ],
+ "ro-soft/bag-slot-selected": [
+  44,
+  44,
+  44,
+  44
+ ],
+ "ro-soft/bag-window": [
+  52,
+  52,
+  52,
+  52
+ ],
  "ro-soft/bar-blue": [
   28,
   0,

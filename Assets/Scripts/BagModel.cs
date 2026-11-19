@@ -6,8 +6,11 @@ namespace ZenoniaProto
     /// <summary>What the bag holds besides gear: gold, the six potion stacks and upgrade stones (PlayerState counters, not items).</summary>
     public enum BagSupply { Coin, HpSmall, HpMedium, HpLarge, MpSmall, MpMedium, MpLarge, Stone }
 
-    /// <summary>What the bag lists: everything, one worn slot, the potions (Consumable) or the upgrade stones (Material).</summary>
-    public enum BagFilter { All, Weapon, Offhand, Armor, Gloves, Boots, Necklace, Pet, Consumable, Material, Headgear } // Headgear last: the Armory's chip row is indexed by the first ten
+    /// <summary>
+    /// What the bag lists: everything, one worn slot, the potions (Consumable) or the upgrade stones (Material); the three groups after Headgear
+    /// are the RO Soft bag's category tabs (Weapon = weapon + offhand, Armor = armor + gloves + boots, Accessory = necklace + hat + pet).
+    /// </summary>
+    public enum BagFilter { All, Weapon, Offhand, Armor, Gloves, Boots, Necklace, Pet, Consumable, Material, Headgear, WeaponGroup, ArmorGroup, Accessory } // Headgear and the groups last: the Armory's chip row is indexed by the first ten
 
     /// <summary>One cell of the list: a supply, an item, or an empty bag slot (Item == null).</summary>
     public struct BagCell { public bool IsSupply; public BagSupply Supply; public Item Item; }
@@ -80,6 +83,18 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>True when an item of `slot` belongs to category tab `group` (WeaponGroup, ArmorGroup, Accessory).</summary>
+        public static bool InGroup(BagFilter group, string slot)
+        {
+            switch (group)
+            {
+                case BagFilter.WeaponGroup: return slot == Slots.Weapon || slot == Slots.Offhand;
+                case BagFilter.ArmorGroup: return slot == Slots.Armor || slot == Slots.Gloves || slot == Slots.Boots;
+                case BagFilter.Accessory: return slot == Slots.Helmet || slot == Slots.Headgear || slot == Slots.Pet;
+                default: return false;
+            }
+        }
+
         public static BagFilter FilterOf(string slot)
         {
             for (BagFilter f = BagFilter.Weapon; f <= BagFilter.Pet; f++) if (SlotOf(f) == slot) return f;
@@ -115,8 +130,15 @@ namespace ZenoniaProto
             int supplies = Cells.Count;
             if (Filter == BagFilter.All) foreach (Item item in p.Inventory) Cells.Add(new BagCell { Item = item });
             else if (slot != null)
+            {
                 foreach (Item item in p.Inventory)
                     if (item.slot == slot && (!OwnClassOnly || p.CanEquip(item))) Cells.Add(new BagCell { Item = item });
+            }
+            else if (Filter >= BagFilter.WeaponGroup)
+            {
+                foreach (Item item in p.Inventory)
+                    if (InGroup(Filter, item.slot)) Cells.Add(new BagCell { Item = item }); // a category tab lists every class's items, like All
+            }
             SortItems(supplies);
 
             CellCount = !PadToBag ? Cells.Count : Filter == BagFilter.All ? supplies + PlayerState.InventorySize : System.Math.Max(PageSize, Cells.Count);
