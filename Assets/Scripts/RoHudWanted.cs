@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudWanted
     {
-        const float W = RoHud.WantedW, H = RoHud.WantedH, Face = 60f, TextX = 80f;
+        const float W = RoHud.WantedW, H = RoHud.WantedH, Face = 64f, TextX = 86f;
         static readonly Color Coral = RoSoftTheme.Hex("#D0505E");
 
         readonly RectTransform root;
@@ -31,7 +31,7 @@ namespace ZenoniaProto
             RectTransform tag;
             RoHud.Pill(root, "Tag", RoHud.TopLeft, new Vector2(0f, 0.5f), 6f, 0f, 22f, "hud-wanted-tag", null, 0f, "WANTED", 12, Color.white, out tag);
 
-            RectTransform frame = RoHud.TopLeftBox(root, "Face", 9f, (H - Face) * 0.5f + 4f, Face, Face);
+            RectTransform frame = RoHud.TopLeftBox(root, "Face", 11f, (H - Face) * 0.5f + 5f, Face, Face);
             RectTransform m = UiKit.Fill(frame, "Mask", 4f);
             Image mask = RoHud.Art(m, "hud-wanted-frame-mask");
             mask.preserveAspect = false;
@@ -43,11 +43,11 @@ namespace ZenoniaProto
             RoHud.Art(UiKit.Fill(frame, "Frame"), "hud-wanted-frame");
             RoHud.Art(RoHud.TopLeftBox(frame, "Crown", -5f, -7f, 18f, 18f), "hud-icon-crown-small");
 
-            bossName = RoHud.Label(RoHud.TopLeftBox(root, "Name", TextX, 18f, W - TextX - 30f, 20f), "", 14, RoHud.Ink, TextAnchor.MiddleLeft);
-            level = RoHud.Label(RoHud.TopLeftBox(root, "Level", TextX, 40f, W - TextX - 30f, 18f), "", 13, Coral, TextAnchor.MiddleLeft);
-            RoHud.Art(RoHud.TopLeftBox(root, "Pin", TextX, 64f, 12f, 14f), "hud-icon-pin");
-            mapName = RoHud.Label(RoHud.TopLeftBox(root, "Map", TextX + 15f, 62f, W - TextX - 46f, 18f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft, false);
-            RectTransform arrow = RoHud.Box(root, "Arrow", new Vector2(1f, 0.5f), -18f, -14f, 26f, 26f);
+            bossName = RoHud.Label(RoHud.TopLeftBox(root, "Name", TextX, 20f, W - TextX - 30f, 20f), "", 14, RoHud.Ink, TextAnchor.MiddleLeft);
+            level = RoHud.Label(RoHud.TopLeftBox(root, "Level", TextX, 43f, W - TextX - 30f, 18f), "", 13, Coral, TextAnchor.MiddleLeft);
+            RoHud.Art(RoHud.TopLeftBox(root, "Pin", TextX, 69f, 12f, 14f), "hud-icon-pin");
+            mapName = RoHud.Label(RoHud.TopLeftBox(root, "Map", TextX + 15f, 67f, W - TextX - 46f, 18f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft, false);
+            RectTransform arrow = RoHud.Box(root, "Arrow", new Vector2(1f, 0.5f), -20f, -16f, 26f, 26f);
             RoHud.Art(arrow, "hud-btn-arrow-big");
             root.gameObject.SetActive(false);
         }

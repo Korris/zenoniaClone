@@ -28,19 +28,19 @@ namespace ZenoniaProto
         // ---- layout (canvas units from the safe-area corner the piece is anchored to) ----
         public const float Margin = 8f;
         // top-left
-        public const float PortraitSize = 92f, StatusPlateX = 58f, StatusPlateW = 252f, StatusPlateH = 86f;
+        public const float PortraitSize = 92f, StatusPlateX = 58f, StatusPlateW = 256f, StatusPlateH = 96f;
         // top-right column
         public const float PillTop = 6f, PillH = 26f, MinimapSize = 150f, MinimapTop = PillTop + PillH + 2f, MinimapRight = 12f;
-        public const float WantedTop = MinimapTop + MinimapSize + 6f, WantedW = 202f, WantedH = 92f;
+        public const float WantedTop = MinimapTop + MinimapSize + 6f, WantedW = 204f, WantedH = 100f;
         // menu row, right-aligned to the left of the minimap
-        public const float MenuPlate = 52f, MenuPitch = 62f, MenuRight = MinimapRight + MinimapSize + 14f, MenuTop = 14f;
+        public const float MenuPlate = 56f, MenuPitch = 64f, MenuRight = MinimapRight + MinimapSize + 14f, MenuTop = 14f;
         // bottom-right cluster (centres)
         public const float AttackX = 226f, AttackY = 150f, AttackSize = 104f, SkillArc = 92f, SkillSize = 62f, ArcRing = 196f;
         public const float AutoX = 58f, AutoY = 200f, AutoSize = 68f, RunX = 74f, RunY = 90f, RunSize = 76f;
-        public const float PotionY = 306f, PotionSize = 64f, PotionHpX = 120f, PotionMpX = 48f;
+        public const float PotionY = 306f, PotionSize = 64f, PotionHpX = 124f, PotionMpX = 46f;
         // bottom-left
-        public const float JoyX = 122f, JoyY = 178f, JoySize = 164f, KnobSize = 66f, KnobTravel = 48f;
-        public const float ChatBubbleX = 36f, ChatY = 46f, ChatBubbleSize = 48f, ChatBarX = 66f, ChatBarW = 350f, ChatBarH = 34f;
+        public const float JoyX = 122f, JoyY = 178f, JoySize = 164f, KnobSize = 70f, KnobTravel = 48f;
+        public const float ChatY = 54f, ChatBubbleSize = 48f, ChatBarW = 356f, ChatBarH = 38f; // the group is centred by RoHudChatBar
 
         /// <summary>A kit piece (null + one warning when the art is missing: nothing is drawn in its place).</summary>
         public static Sprite Piece(string name) { return RoSoftSprites.Named(name); }

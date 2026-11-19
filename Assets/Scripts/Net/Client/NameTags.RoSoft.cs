@@ -11,7 +11,7 @@ namespace ZenoniaProto
     /// </summary>
     public partial class NameTags
     {
-        const float VillagerHeadY = 30f, PillPadX = 9f, PillGap = 3f; // world units above the feet; pill box model in canvas units
+        const float TopBand = 96f, VillagerHeadY = 30f, PillPadX = 12f, PillGap = 4f; // world units above the feet; pill box model in canvas units
         GUIStyle pillText;
 
         static Texture2D Tex(string piece)
@@ -47,6 +47,7 @@ namespace ZenoniaProto
                 var label = new GUIContent(n.Def.Name);
                 float tw = pillText.CalcSize(label).x, w = pad + icon + gap + tw + pad;
                 var r = new Rect(sp.x - w * 0.5f, Screen.height - sp.y - h, w, h);
+                if (r.y < TopBand * s) continue; // IMGUI draws over the HUD: no pill under the status / menu / minimap row
                 Pill(r, pill);
                 Texture2D ic = Tex(GearShops.IsSeller(n.Def.Id) ? "hud-icon-hammer" : "hud-icon-service");
                 if (ic != null) GUI.DrawTexture(new Rect(r.x + pad, r.y + (h - icon) * 0.5f, icon, icon), ic, ScaleMode.ScaleToFit);
@@ -62,8 +63,8 @@ namespace ZenoniaProto
             if (emblem != null) GUI.DrawTexture(new Rect(name.x - e - 2f * s, name.center.y - e * 0.5f, e, e), emblem, ScaleMode.ScaleToFit);
             Texture2D track = Tex("hud-name-hp-track"), fill = Tex("hud-name-hp-fill");
             if (track == null || fill == null || me.MaxHp <= 0f) return;
-            float w = 84f * s, h = 8f * s;
-            var r = new Rect(name.center.x - w * 0.5f, name.yMax + 3f * s, w, h);
+            float w = 88f * s, h = 8f * s;
+            var r = new Rect(name.center.x - w * 0.5f, name.yMax + 6f * s, w, h);
             Pill(r, track);
             float v = Mathf.Clamp01(me.Hp / me.MaxHp);
             if (v > 0f) Pill(new Rect(r.x + 1f, r.y + 1f, Mathf.Max(h, (w - 2f) * v), h - 2f), fill);

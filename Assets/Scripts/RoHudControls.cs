@@ -20,7 +20,7 @@ namespace ZenoniaProto
         static readonly float[] Angles = { 162f, 90f, 18f, 234f }; // degrees around the attack button: left, top, right, lower-left (02-hud.png)
         static readonly Vector2 Attack = new Vector2(-RoHud.AttackX, RoHud.AttackY);
 
-        readonly RectTransform root;
+        readonly RectTransform root, safe;
         public readonly RoHudMenu Menu;
         readonly RoHudMapPanel map;
         readonly RoHudWanted wanted;
@@ -38,7 +38,7 @@ namespace ZenoniaProto
             PaperLayout layout = PaperLayout.CreateSafeArea(oldLayer.parent, "RoHudControls");
             root = layout.Root;
             root.SetSiblingIndex(oldLayer.GetSiblingIndex() + 1);
-            RectTransform safe = layout.Safe;
+            safe = layout.Safe;
 
             BuildJoystick(safe);
 
@@ -65,12 +65,12 @@ namespace ZenoniaProto
             RectTransform auto = RoHud.Box(safe, "Auto", RoHud.BottomRight, -RoHud.AutoX, RoHud.AutoY, RoHud.AutoSize, RoHud.AutoSize);
             autoArt = RoHud.Art(auto, "hud-auto", true);
             PaperHudPress.Tap(auto.gameObject, () => AutoBattle.Toggle(GameSession.Hero));
-            Caption(auto, "Auto", RoHud.AutoSize * 0.2f, 13);
+            Caption(auto, "Auto", RoHud.AutoSize * 0.14f, 13);
 
             RectTransform run = RoHud.Box(safe, "Run", RoHud.BottomRight, -RoHud.RunX, RoHud.RunY, RoHud.RunSize, RoHud.RunSize);
             RoHud.Art(run, "hud-run", true);
             PaperHudPress.Tap(run.gameObject, () => TouchControls.Press(GameKey.Dash));
-            Caption(run, "Run", RoHud.RunSize * 0.2f, 13);
+            Caption(run, "Run", RoHud.RunSize * 0.14f, 13);
 
             hpCount = Potion(safe, "HpPotion", -RoHud.PotionHpX, true, out hpIcon);
             mpCount = Potion(safe, "MpPotion", -RoHud.PotionMpX, false, out mpIcon);
@@ -90,7 +90,7 @@ namespace ZenoniaProto
             zone.sizeDelta = new Vector2(RoHud.JoyX * 2f + 20f, RoHud.JoyY * 2f);
             TouchControls.Img(zone, null, Color.clear, true); // invisible, catches the touches around the base
             RectTransform b = RoHud.Box(zone, "Base", RoHud.BottomLeft, RoHud.JoyX, RoHud.JoyY, RoHud.JoySize, RoHud.JoySize);
-            RoHud.Art(b, "hud-joy-base").color = new Color(1f, 1f, 1f, 0.55f); // see-through like the mockup
+            RoHud.Art(b, "hud-joy-base").color = new Color(1f, 1f, 1f, 0.62f); // see-through like the mockup
             RectTransform knob = RoHud.Box(b, "Knob", RoHud.Mid, 0f, 0f, RoHud.KnobSize, RoHud.KnobSize);
             RoHud.Art(knob, "hud-joy-knob");
             zone.gameObject.AddComponent<TouchJoystick>().Init(b, knob, RoHud.KnobTravel, (u, r, d, l) =>
@@ -111,7 +111,7 @@ namespace ZenoniaProto
         {
             RectTransform b = RoHud.Box(safe, name, RoHud.BottomRight, x, RoHud.PotionY, RoHud.PotionSize, RoHud.PotionSize);
             RoHud.Art(b, "hud-potion-plate", true);
-            icon = RoHud.Box(b, "Icon", RoHud.Mid, 0f, 1f, RoHud.PotionSize * 0.66f, RoHud.PotionSize * 0.66f).gameObject.AddComponent<Image>();
+            icon = RoHud.Box(b, "Icon", RoHud.Mid, 0f, 1f, RoHud.PotionSize * 0.72f, RoHud.PotionSize * 0.72f).gameObject.AddComponent<Image>();
             icon.preserveAspect = true; icon.raycastTarget = false;
             RectTransform badge;
             Text count = RoHud.Pill(b, "Count", RoHud.BottomRight, new Vector2(0.5f, 0.5f), -6f, 6f, 20f, "hud-count-badge", null, 0f, "0", 11, Color.white, out badge, 20f);
@@ -144,7 +144,7 @@ namespace ZenoniaProto
             foreach (RoHudSkillSlot s in slots) s.Live(hero);
             if (AutoBattle.On != shownAuto) { shownAuto = AutoBattle.On; autoArt.sprite = RoHud.Piece(shownAuto ? "hud-auto-on" : "hud-auto"); }
             map.Tick(dt);
-            Menu.SetRightInset(Mathf.Max(0f, RoHud.Margin + map.PillsWidth + 12f - RoHud.MenuRight)); // a long map name pushes the row left
+            Menu.Fit(Mathf.Max(RoHud.MenuRight, RoHud.Margin + map.PillsWidth + 12f), safe.rect.width); // a long map name pushes the row left; 4:3 shrinks it
             wanted.Tick(true);
             boss.Tick(true);
             if (p == null) return;

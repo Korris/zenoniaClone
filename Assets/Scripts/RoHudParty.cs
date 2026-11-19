@@ -14,7 +14,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudParty
     {
-        const float W = 192f, TitleH = 30f, RowH = 40f, RowGap = 5f, Face = 32f, BarH = 9f;
+        const float W = 196f, TitleH = 32f, RowH = 42f, RowGap = 5f, Face = 36f, BarH = 9f;
         const int MaxRows = PartyBook.MaxMembers - 1;
         static readonly Color Dim = new Color(0.6f, 0.6f, 0.64f, 1f);
 
@@ -39,11 +39,11 @@ namespace ZenoniaProto
         {
             root = UiKit.Rect(safe, "RoHudParty", RoHud.Margin, top, W, TitleH + MaxRows * (RowH + RowGap));
             RectTransform head;
-            title = RoHud.Pill(root, "Title", RoHud.TopLeft, RoHud.TopLeft, 0f, 0f, TitleH, "hud-party-title", "hud-icon-party", 16f, "Party (0/3)", 13, RoHud.TextOnNavy, out head, W - 34f, true);
+            title = RoHud.Pill(root, "Title", RoHud.TopLeft, RoHud.TopLeft, 0f, 0f, TitleH, "hud-party-title", "hud-icon-party", 16f, "Party (0/3)", 13, RoHud.TextOnNavy, out head, W, true);
             title.alignment = TextAnchor.MiddleLeft;
             head.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
             UiWinKit.MakeButton(head.GetComponent<Image>(), PartyHudList.ToggleBoard);
-            arrow = RoHud.Box(root, "Collapse", RoHud.TopLeft, W - TitleH * 0.5f, -TitleH * 0.5f, TitleH, TitleH); // centre pivot: it turns
+            arrow = RoHud.Box(root, "Collapse", RoHud.TopLeft, W - TitleH * 0.5f - 3f, -TitleH * 0.5f, TitleH - 6f, TitleH - 6f); // on the pill's right end, as 02-hud.png // centre pivot: it turns
             Image arrowArt = RoHud.Art(arrow, "hud-btn-arrow", true);
             UiWinKit.MakeButton(arrowArt, () => collapsed = !collapsed);
             for (int i = 0; i < MaxRows; i++) rows[i] = BuildRow(i);
@@ -67,10 +67,10 @@ namespace ZenoniaProto
             r.Face.raycastTarget = false;
             r.Portrait = new HeroPortraitLayers(r.Face);
             r.Role = RoHud.Art(RoHud.TopLeftBox(r.Root, "Role", 1f, 1f, 15f, 15f), "hud-icon-crown");
-            r.Name = RoHud.Label(RoHud.TopLeftBox(r.Root, "Name", 44f, 5f, 100f, 16f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft);
+            r.Name = RoHud.Label(RoHud.TopLeftBox(r.Root, "Name", 48f, 5f, 100f, 16f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft);
             r.StatusIcons = RoHud.TopLeftBox(r.Root, "StatusIcons", W - 48f, 5f, 40f, 14f); // poison and other status icons (right of the name)
-            r.Hp = new RoHud.Bar(r.Root, "Hp", 44f, 24f, W - 54f, BarH, "hud-bar-track", "hud-bar-teal");
-            r.Status = RoHud.Label(RoHud.TopLeftBox(r.Root, "Status", 44f, 22f, W - 54f, 14f), "", 11, RoSoftTheme.InkSoft, TextAnchor.MiddleLeft, false);
+            r.Hp = new RoHud.Bar(r.Root, "Hp", 48f, 25f, W - 58f, BarH, "hud-bar-track", "hud-bar-teal");
+            r.Status = RoHud.Label(RoHud.TopLeftBox(r.Root, "Status", 48f, 23f, W - 58f, 14f), "", 11, RoSoftTheme.InkSoft, TextAnchor.MiddleLeft, false);
             return r;
         }
 

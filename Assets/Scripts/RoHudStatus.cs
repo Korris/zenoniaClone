@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudStatus
     {
-        const float RowX = 92f, LabelW = 34f, BarX = RowX + LabelW, BarW = 178f, BarH = 15f, RowTop = 36f, RowPitch = 21f;
+        const float RowX = 92f, LabelW = 34f, BarX = RowX + LabelW, BarW = 182f, BarH = 18f, RowTop = 36f, RowPitch = 23f;
         const float PlateTop = 16f, LvX = 90f, LvY = 6f, LvW = 72f, LvH = 24f;
         /// <summary>Top of the status icon row, units below the top of the safe area (RoHudParty starts under it).</summary>
         public const float IconsTop = PlateTop + RoHud.StatusPlateH + 3f, IconSize = 18f;

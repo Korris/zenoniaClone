@@ -26,6 +26,7 @@ namespace ZenoniaProto
         public RoHudMenu(RectTransform safe)
         {
             root = UiKit.Fill(safe, "RoHudMenu");
+            root.pivot = RoHud.TopRight; // Fit() moves its right edge and scales it towards that corner
             RectTransform bag = Button("Bag", 4, "hud-icon-bag", () => TouchControls.Press(GameKey.Inventory));
             RectTransform skills = Button("Skills", 3, "hud-icon-skills", () => TouchControls.Press(GameKey.SkillTree));
             Button("Pet", 2, "hud-icon-pet", () => TouchControls.Press(GameKey.PetWindow));
@@ -40,7 +41,7 @@ namespace ZenoniaProto
             // More: a short column under the More button (Gacha, Settings), closed by a second tap or after a choice.
             more = RoHud.Box(root, "MoreColumn", RoHud.TopRight, 0f, 0f, 104f, 66f);
             more.pivot = RoHud.TopRight;
-            more.anchoredPosition = new Vector2(-RoHud.MenuRight, -(RoHud.MenuTop + Plate + CaptionH + 6f)); // right-aligned under More
+            more.anchoredPosition = new Vector2(0f, -(RoHud.MenuTop + Plate + CaptionH + 6f)); // right-aligned under More
             MoreItem("Gacha", 0, "hud-icon-gacha", () => { CloseMore(); TouchControls.Press(GameKey.PetGacha); });
             MoreItem("Settings", 1, "hud-icon-settings", () => { CloseMore(); SettingsWindow.Open(); });
             more.gameObject.SetActive(false);
@@ -48,7 +49,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Centre of button `fromRight` (0 = More), units left of the right edge.</summary>
-        static float CellX(int fromRight) { return RoHud.MenuRight + Plate * 0.5f + fromRight * Pitch; }
+        static float CellX(int fromRight) { return Plate * 0.5f + fromRight * Pitch; }
 
         RectTransform Button(string caption, int fromRight, string icon, Action onTap)
         {
@@ -79,10 +80,16 @@ namespace ZenoniaProto
             PaperHudPress.Tap(b.gameObject, onTap);
         }
 
-        /// <summary>Moves the whole row left by `inset` units (the map pills above the minimap grew wider than it).</summary>
-        public void SetRightInset(float inset)
+        /// <summary>
+        /// Puts the row's right end `rowRight` units from the right edge (left of the minimap and of the map pills, which grow with the
+        /// map name) and, on a narrow screen (4:3), scales the row down so it stays clear of the status plate. `safeW` = safe-area width.
+        /// </summary>
+        public void Fit(float rowRight, float safeW)
         {
-            if (Mathf.Abs(root.offsetMax.x + inset) > 0.5f) root.offsetMax = new Vector2(-inset, root.offsetMax.y);
+            float leftLimit = RoHud.Margin + RoHud.StatusPlateX + RoHud.StatusPlateW + 8f, rowW = CellX(4) + Pitch * 0.5f;
+            float s = Mathf.Clamp((safeW - leftLimit - rowRight) / rowW, 0.7f, 1f);
+            if (Mathf.Abs(root.offsetMax.x + rowRight) > 0.5f) root.offsetMax = new Vector2(-rowRight, root.offsetMax.y);
+            if (Mathf.Abs(root.localScale.x - s) > 0.005f) root.localScale = new Vector3(s, s, 1f);
         }
 
         void ToggleMore() { more.gameObject.SetActive(!more.gameObject.activeSelf); }

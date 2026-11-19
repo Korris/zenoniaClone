@@ -6,13 +6,37 @@ using UnityEngine.UI;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Collapsed chat of the RO Soft HUD (02-hud.png), bottom-left under the joystick: the round chat button (red unread count) and the
+    /// Collapsed chat of the RO Soft HUD (02-hud.png): the round chat button (red unread count) and the
     /// navy one-line bar "World | Rin: Anyone for Sograt? | ^" with the newest line of any channel, its channel name in that channel's
     /// colour. Tapping the button, the bar or the chevron opens the chat panel (ChatWindow). Box model: padding 4 / 14, gaps 8 (rules).
+    /// Placement (user 19/11: "cái khung chat ở bản mobile cho nằm giữa", a deliberate change from the mockup's bottom-left): button + bar
+    /// as one group, centred on the screen at the bottom but kept in the free span between the joystick and the skill ring; the bar
+    /// shrinks (never under MinBarW) when that span is narrow (4:3), so it never covers either.
     /// </summary>
     public sealed class RoHudChatBar : ChatFeed
     {
         const int PadX = 14, PadY = 4, Gap = 8;
+        const float BubbleGap = 6f, MinBarW = 170f, MaxBarW = 400f;
+        /// <summary>Free span edges: right of the joystick ring, left of the skill ring (its left slot), units from the safe-area sides.</summary>
+        static readonly float JoyRight = RoHud.JoyX + RoHud.JoySize * 0.5f + 8f, RingLeft = RoHud.AttackX + RoHud.SkillArc * 0.951f + RoHud.SkillSize * 0.5f + 8f;
+
+        /// <summary>Lays the group out each frame the safe-area width changed (rotation, window resize).</summary>
+        sealed class Centre : MonoBehaviour
+        {
+            public RectTransform group;
+            float shownW = -1f;
+            void LateUpdate()
+            {
+                float w = ((RectTransform)transform).rect.width;
+                if (Mathf.Abs(w - shownW) < 0.5f) return;
+                shownW = w;
+                float span = w - JoyRight - RingLeft, bubble = RoHud.ChatBubbleSize + BubbleGap;
+                float barW = Mathf.Clamp(span - bubble, MinBarW, MaxBarW), gw = bubble + barW;
+                float x = Mathf.Clamp((w - gw) * 0.5f, JoyRight, Mathf.Max(JoyRight, w - RingLeft - gw)); // screen centre, kept in the span
+                group.sizeDelta = new Vector2(gw, group.sizeDelta.y);
+                group.anchoredPosition = new Vector2(x, group.anchoredPosition.y);
+            }
+        }
         GameObject badge;
         Text badgeText, channel, line;
         float shownTime = -1f;
@@ -21,8 +45,10 @@ namespace ZenoniaProto
         {
             var v = new RoHudChatBar();
             v.root = UiKit.Fill(layer, "RoChat");
+            RectTransform group = RoHud.Box(v.root, "Group", RoHud.BottomLeft, 0f, RoHud.ChatY, RoHud.ChatBubbleSize + BubbleGap + RoHud.ChatBarW, RoHud.ChatBarH);
+            group.pivot = new Vector2(0f, 0.5f);
 
-            RectTransform bubble = RoHud.Box(v.root, "ChatButton", RoHud.BottomLeft, RoHud.ChatBubbleX, RoHud.ChatY, RoHud.ChatBubbleSize, RoHud.ChatBubbleSize);
+            RectTransform bubble = RoHud.Box(group, "ChatButton", new Vector2(0f, 0.5f), RoHud.ChatBubbleSize * 0.5f, 0f, RoHud.ChatBubbleSize, RoHud.ChatBubbleSize);
             Image art = RoHud.Art(bubble, "hud-chat-button", true);
             UiWinKit.MakeButton(art, () => open());
             RectTransform b;
@@ -30,9 +56,9 @@ namespace ZenoniaProto
             b.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(4, 4, 1, 1);
             v.badge = b.gameObject;
 
-            RectTransform bar = RoHud.Box(v.root, "Bar", RoHud.BottomLeft, 0f, RoHud.ChatY, RoHud.ChatBarW, RoHud.ChatBarH);
-            bar.pivot = new Vector2(0f, 0.5f);
-            bar.anchoredPosition = new Vector2(RoHud.ChatBarX, RoHud.ChatY);
+            RectTransform bar = UiKit.Fill(group, "Bar");
+            bar.offsetMin = new Vector2(RoHud.ChatBubbleSize + BubbleGap, 0f); // right of the button, the rest of the group
+            v.root.gameObject.AddComponent<Centre>().group = group;
             Image barArt = RoHud.Art(bar, "hud-chat-bar", true);
             barArt.color = new Color(1f, 1f, 1f, 0.9f);
             UiWinKit.MakeButton(barArt, () => open());
@@ -43,9 +69,9 @@ namespace ZenoniaProto
             row.childControlWidth = row.childControlHeight = true;
             row.childForceExpandWidth = row.childForceExpandHeight = false;
             float h = RoHud.ChatBarH - PadY * 2;
-            v.channel = RoHud.Label(UiKit.Rect(bar, "Channel", 0f, 0f, 10f, h), "World", 13, RoSoftTheme.Hex("#8BE36B"), TextAnchor.MiddleLeft);
+            v.channel = RoHud.Label(UiKit.Rect(bar, "Channel", 0f, 0f, 10f, h), "World", 14, RoSoftTheme.Hex("#8BE36B"), TextAnchor.MiddleLeft);
             Text sep = RoHud.Label(UiKit.Rect(bar, "Sep", 0f, 0f, 4f, h), "|", 13, new Color(1f, 1f, 1f, 0.5f), TextAnchor.MiddleCenter, false);
-            v.line = RoHud.Label(UiKit.Rect(bar, "Line", 0f, 0f, 10f, h), "", 13, Color.white, TextAnchor.MiddleLeft, false);
+            v.line = RoHud.Label(UiKit.Rect(bar, "Line", 0f, 0f, 10f, h), "", 14, Color.white, TextAnchor.MiddleLeft, false);
             v.line.horizontalOverflow = HorizontalWrapMode.Wrap;
             v.line.verticalOverflow = VerticalWrapMode.Truncate;
             v.line.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;

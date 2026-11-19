@@ -19,7 +19,7 @@ namespace ZenoniaProto
         static readonly Color SweepColor = new Color(0.05f, 0.08f, 0.14f, 0.6f), EmptyRing = new Color(1f, 1f, 1f, 0.55f);
 
         public readonly RectTransform Root;
-        readonly Image icon, sweep, ring, backing;
+        readonly Image icon, sweep, ring, backing, placeholder;
         readonly Text cdText;
         readonly GameObject noMp;
         SkillDef def;
@@ -38,6 +38,8 @@ namespace ZenoniaProto
             sweep.type = Image.Type.Filled; sweep.fillMethod = Image.FillMethod.Radial360; sweep.fillOrigin = (int)Image.Origin360.Top; sweep.fillClockwise = false;
             sweep.color = SweepColor; sweep.raycastTarget = false; sweep.enabled = false;
             ring = RoHud.Art(UiKit.Fill(Root, "Ring"), "hud-skill-ring");
+            placeholder = RoHud.Art(RoHud.Box(Root, "Empty", RoHud.Mid, 0f, 0f, size * 0.36f, size * 0.36f), "hud-icon-plus");
+            placeholder.color = new Color(1f, 1f, 1f, 0.4f); // a free loadout slot: assign a skill in the skill window
             cdText = RoHud.Label(UiKit.Fill(Root, "Cd"), "", Mathf.RoundToInt(size * 0.26f), Color.white, TextAnchor.MiddleCenter, true, true);
             RectTransform pill;
             RoHud.Pill(Root, "NoMp", new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), 0f, 2f, 16f, "hud-wanted-tag", null, 0f, "MP", 10, Color.white, out pill);
@@ -58,6 +60,7 @@ namespace ZenoniaProto
             icon.enabled = icon.sprite != null;
             icon.color = Color.white;
             ring.color = def != null ? Color.white : EmptyRing;
+            if (placeholder.sprite != null) placeholder.enabled = def == null;
             backing.color = def != null ? RoSoftTheme.SkyMist : new Color(1f, 1f, 1f, 0.18f); // an empty slot is a faint glass disc
             if (def != null) mpCost = def.MpAt(p.Skills[def.Index]);
         }
