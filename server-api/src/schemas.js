@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, MAX_INT } from './rpg/rpg-constants.js';
+import { APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CLASS_IDS, MAX_INT } from './rpg/rpg-constants.js';
 import { opsSchema } from './rpg/inventory-ops.js';
 import { stateSchema } from './rpg/item-validation.js';
 import { accountStateSchema } from './rpg/account-validation.js';
@@ -25,9 +25,18 @@ export const refreshSchema = z.object({ refreshToken: z.string().min(20).max(200
 export const resetRequestSchema = z.object({ email: z.string().trim().toLowerCase().email().max(254) });
 export const resetConfirmSchema = z.object({ token: z.string().min(20).max(200), password });
 
+// The look picked on the creation screen (CharacterAppearanceData.ForNewCharacter): both colours chosen, no hat (hats drop / are bought later).
+// Optional: an older client sends name + class only and the character keeps the name-hash default look.
+export const createAppearanceSchema = z.object({
+  hairStyle: z.number().int().min(0).max(255).default(0),
+  hairColorIndex: z.number().int().min(0).max(APPEARANCE_HAIR_COLORS - 1),
+  outfitColorIndex: z.number().int().min(0).max(APPEARANCE_OUTFIT_COLORS - 1),
+}).strict();
+
 export const createCharacterSchema = z.object({
   name: z.string().trim().min(3).max(16).regex(/^[A-Za-z0-9_]+$/, 'letters, digits and _ only'),
   classId: z.enum(CLASS_IDS),
+  appearance: createAppearanceSchema.optional(),
 });
 
 const sessionId = z.string().regex(/^[a-f0-9]{32}$/);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using ZenoniaProto.Api;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
@@ -37,10 +38,8 @@ namespace ZenoniaProto
         public static readonly List<CharacterSummary> Characters = new List<CharacterSummary>();
         /// <summary>The class being customized and named on the Customize page.</summary>
         public static HeroClass CustomizeClass { get; private set; }
-        /// <summary>Hairstyle picked on the Customize page (wraps to the head art of the class).</summary>
-        public static int PendingStyle { get; set; }
-        /// <summary>Hair colour picked there: -1 = the style's own colour, 0..8 = hair-dyes.json presets.</summary>
-        public static int PendingDye { get; set; } = CharacterLookPrefs.DefaultDye;
+        /// <summary>Look picked on the Customize page (hairstyle, palette hair + outfit colour; never a hat). Sent with the create request.</summary>
+        public static CharacterAppearanceData PendingLook { get; set; }
         /// <summary>Id of the character the player entered the world with, null outside the world. Set before the zone join, cleared by LeaveWorld.</summary>
         public static string EnteredId { get { return enteredId; } }
         /// <summary>The hero on the ConfirmDelete page.</summary>
@@ -83,12 +82,11 @@ namespace ZenoniaProto
         public static void ShowRegister() { Page = AccountPage.Register; Say("", false); }
         public static void ShowForgot() { Page = AccountPage.Forgot; Say("", false); }
         public static void ShowCharacters() { Page = AccountPage.Characters; Say("", false); }
-        /// <summary>Opens the Customize page for a class with a fresh look (first style, own colour).</summary>
+        /// <summary>Opens the Customize page for a class with a fresh random look (the player changes it there).</summary>
         public static void ShowCustomize(HeroClass id)
         {
             CustomizeClass = id;
-            PendingStyle = CharacterLookPrefs.DefaultStyle;
-            PendingDye = CharacterLookPrefs.DefaultDye;
+            PendingLook = CharacterAppearanceData.RandomNew(RpgSession.ClassId(id), 1, new System.Random());
             Page = AccountPage.Customize;
             Say("", false);
         }

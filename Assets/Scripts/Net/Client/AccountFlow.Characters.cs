@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using ZenoniaProto.Api;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
@@ -53,10 +54,10 @@ namespace ZenoniaProto
         }
 
         /// <summary>
-        /// Creates the hero. The request is only name + class (the server keeps no look yet); style and dye are kept on this device under the new character's id, so the list and the
-        /// world can show them. On a refusal nothing is stored.
+        /// Creates the hero with the look picked on the Customize page: server-api stores it as state.appearance, so the zone shows it on every map. null look = the name-hash default.
+        /// Nothing is kept on the device any more (CharacterLookPrefs only migrates heroes made before 19/11/2026).
         /// </summary>
-        public static async void Create(string name, HeroClass id, int style, int dye)
+        public static async void Create(string name, HeroClass id, CharacterAppearanceData look)
         {
             if (Busy) return;
             string problem = NameProblem(name);
@@ -64,9 +65,8 @@ namespace ZenoniaProto
             Busy = true; Say("Creating your hero ...", false);
             try
             {
-                ApiResult<CharacterDetailResponse> r = await api.CreateCharacterAsync(name.Trim(), RpgSession.ClassId(id));
+                ApiResult<CharacterDetailResponse> r = await api.CreateCharacterAsync(name.Trim(), RpgSession.ClassId(id), look);
                 if (!r.Ok) { Say(Friendly(r), true); BackToLoginIfLoggedOut(); return; }
-                if (r.Data != null && r.Data.character != null) CharacterLookPrefs.Set(r.Data.character.id, style, dye);
                 Say("", false);
                 Page = AccountPage.Characters;
                 await RefreshNow();

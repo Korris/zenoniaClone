@@ -9,9 +9,10 @@ namespace ZenoniaProto
     /// </summary>
     public static class HeroPalettes
     {
-        [Serializable] class PaletteFile { public string[] hair; public string[] outfit; }
+        [Serializable] class PaletteFile { public string[] hair, outfit, hairNames, outfitNames; }
 
         static Color32[] hair, outfit;
+        static string[] hairNames = new string[0], outfitNames = new string[0];
         static readonly Color32 Fallback = new Color32(153, 153, 153, 255);
 
         static void Load()
@@ -26,6 +27,8 @@ namespace ZenoniaProto
                 PaletteFile f = JsonUtility.FromJson<PaletteFile>(asset.text);
                 if (f != null && f.hair != null) hair = Array.ConvertAll(f.hair, Parse);
                 if (f != null && f.outfit != null) outfit = Array.ConvertAll(f.outfit, Parse);
+                if (f != null && f.hairNames != null) hairNames = f.hairNames;
+                if (f != null && f.outfitNames != null) outfitNames = f.outfitNames;
             }
             catch (Exception e) { Debug.LogError("[ZenoniaProto] palettes.json: " + e.Message); }
         }
@@ -42,6 +45,12 @@ namespace ZenoniaProto
         /// <summary>Hair colour i (wraps; grey when the palette is empty).</summary>
         public static Color32 Hair(int i) { Load(); return Pick(hair, i); }
         public static Color32 Outfit(int i) { Load(); return Pick(outfit, i); }
+
+        /// <summary>Display name of hair / outfit colour i from palettes.json ("soft chestnut"), "" when the file has none for it.</summary>
+        public static string HairName(int i) { Load(); return Name(hairNames, i); }
+        public static string OutfitName(int i) { Load(); return Name(outfitNames, i); }
+
+        static string Name(string[] names, int i) { return i >= 0 && i < names.Length && names[i] != null ? names[i] : ""; }
 
         static Color32 Pick(Color32[] p, int i) { return p.Length == 0 ? Fallback : p[((i % p.Length) + p.Length) % p.Length]; }
 

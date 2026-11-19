@@ -6,7 +6,7 @@ using ZenoniaProto.Api;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The online character list (AccountPage.Characters), drawn with uGUI: four pedestals a page with the account's heroes (live full-body preview with the look kept in CharacterLookPrefs) and
+    /// The online character list (AccountPage.Characters), drawn with uGUI: four pedestals a page with the account's heroes (live full-body preview in the look saved on the server) and
     /// "Create Character" tablets for the free slots, the picked hero's panel with ENTER GAME and DELETE, and the gear menu (log out, play offline, direct connect in dev builds).
     /// It only reads AccountFlow and calls it (Enter, ShowDelete, Logout); the IMGUI account pages draw everything else. One hero per class: a tablet exists only while a class is free.
     /// </summary>
@@ -135,9 +135,8 @@ namespace ZenoniaProto
             if (!known) return; // a class this client does not know: pedestal and plate only
             var id = (HeroClass)classIndex;
             c.Banner.sprite = UiArt.Get("hero-select/banner-" + CharacterFlowKit.ClassArtName(id));
-            int style, dye;
-            CharacterLookPrefs.Get(hero.id, out style, out dye);
-            preview.Set(i, id, style, dye, scale);
+            // The saved look (picked at creation); a hero that never chose shows the name-hash colours, as it looks in the world.
+            preview.Set(i, id, Rpg.CharacterAppearanceData.Sanitize(hero.appearance, hero.classId), Rpg.CharacterAppearanceData.SeedFor(hero.name, 0), scale);
         }
 
         void ShowInfo(CharacterSummary hero)

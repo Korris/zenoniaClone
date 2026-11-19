@@ -36,11 +36,15 @@ namespace ZenoniaProto
 
         void OnDestroy() { if (Instance == this) Instance = null; }
 
-        /// <summary>Saves + destroys the current hero (if any) and spawns the given class from its save (or a new character at the entrance).</summary>
-        public void Spawn(HeroClass id)
+        /// <summary>
+        /// Saves + destroys the current hero (if any) and spawns the given class from its save (or a new character at the entrance).
+        /// newLook: the look picked on the creation screen, used only when the class has no save yet (a saved hero keeps its own); the new save is written right away (RpgSession.Attach).
+        /// </summary>
+        public void Spawn(HeroClass id, CharacterAppearanceData newLook = null)
         {
             SaveData save;
             PlayerState state = rpg.Begin(id, out save);
+            if (save == null && newLook != null && newLook.stored) state.Appearance = CharacterAppearanceData.Sanitize(newLook, state.ClassId);
             if (hero != null) hero.Retire(); // Destroy is deferred: the old hero must not take loot / aggro for the rest of this frame
             if (heroGo != null) Destroy(heroGo);
             HeroClassDef def = HeroClassDef.Get(id);
@@ -126,7 +130,7 @@ namespace ZenoniaProto
         {
             if (hero == null)
             {
-                if (ConnectScreenGui.Visible || HeroSelectScreen.OnlineCreating || NetMode.IsClient) return; // typing a name / waiting for the server: the digit keys must not pick a class
+                if (ConnectScreenGui.Visible || HeroSelectScreen.OnlineCreating || CharacterCustomizeScreen.OfflineOpen || NetMode.IsClient) return; // typing a name / waiting for the server: the digit keys must not pick a class
                 for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(ClassKeys[i])) { Spawn((HeroClass)i); return; }
                 return;
             }

@@ -49,6 +49,24 @@ namespace ZenoniaProto.Rpg
 
         static int InRange(int i, int count) { return i >= 0 && i < count ? i : -1; }
 
+        // ---- character creation (online create request, offline new hero) ----
+
+        /// <summary>
+        /// The look picked on the creation screen: stored, both colours chosen, bare head (hats are never picked, they drop / are bought later).
+        /// Null when a number is out of range (style 0..255, hair 0..HairColorCount-1, outfit 0..OutfitColorCount-1): the caller keeps the hash default.
+        /// </summary>
+        public static CharacterAppearanceData ForNewCharacter(string classId, int hairStyle, int hairColor, int outfitColor)
+        {
+            if (hairStyle < 0 || hairStyle > MaxHairStyle || hairColor < 0 || hairColor >= HairColorCount || outfitColor < 0 || outfitColor >= OutfitColorCount) return null;
+            return new CharacterAppearanceData { classId = classId, stored = true, hairStyle = hairStyle, hairColorIndex = hairColor, outfitColorIndex = outfitColor };
+        }
+
+        /// <summary>The creation screen's Random button: any style the class has art for (styleCount, at least 1), any hair and outfit colour.</summary>
+        public static CharacterAppearanceData RandomNew(string classId, int styleCount, Random rng)
+        {
+            return ForNewCharacter(classId, rng.Next(Math.Max(1, Math.Min(styleCount, MaxHairStyle + 1))), rng.Next(HairColorCount), rng.Next(OutfitColorCount));
+        }
+
         /// <summary>A copy with every colour not chosen filled in from the seed (SeedFor). Chosen values and the headgear stay.</summary>
         public CharacterAppearanceData Resolved(string seed)
         {
