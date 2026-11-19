@@ -58,6 +58,8 @@ OVERRIDES = {
 }
 OVERRIDES.update(mf.overrides())  # walk / attack fists of Warrior, Wizard, Mechanic
 STAFF_SIDE_AHEAD = 22  # Wizard walk right / left: staff head this far ahead of its idle spot
+CLERIC_STAFF_AHEAD, CLERIC_STAFF_LIFT = 36, -8  # Cleric walk right / left: staff head further ahead (and lower) than idle, wings clear of the chin
+CLERIC_STAFF_ATTACK = {(0, 2): -110, (1, 1): -45}  # (painted row, frame): staff angle, read on the 8-dir sheet (mirrored on the left)
 STAFF_HEAD_FLOOR = 226  # staff point (grip -> art top) floor: the crystal head is ~25 px wide, its rim then stays above the feet (244)
 PUNCH_Y = 160  # Mechanic attack: a fist above this row is the shooting hand, its pistol points along the arm
 SWORD_TIP_Y = 240  # Warrior idle / walk facing down / down-right: sword points down-outward, tip just above the feet line (244)
@@ -160,6 +162,16 @@ def cmd_grips(cls):
         sword_down(cj, poses)
     if cls == "wizard":
         steady_staff(cj)
+    if cls == "cleric":  # walk: same front / behind flip as the Wizard; side view head further ahead so the wings clear the chin
+        steady_staff(cj, ahead=CLERIC_STAFF_AHEAD, lift=CLERIC_STAFF_LIFT)
+        for g in cj["grips"]:  # attack frames whose arm-line angle points the crystal down at the feet / across the body
+            a = CLERIC_STAFF_ATTACK.get((import_module("hero_layered_grip_poses").PAINTED[g["dir"]], g["f"]))
+            if g["part"] == "weapon" and g["anim"] == "attack" and a is not None:
+                if g["flip"] and g["f"] == 1:  # left dirs: the staff sits in the far fist, keep the wind-up pose of frame 0
+                    f0 = next(h for h in cj["grips"] if (h["part"], h["anim"], h["dir"], h["f"]) == ("weapon", "attack", g["dir"], 0))
+                    g["angle"], g["behind"] = f0["angle"], f0["behind"]
+                else:
+                    g["angle"] = -a if g["flip"] else a
     if cls == "mechanic":
         aim_raised(cj, table, heads, poses)
     cj_path.write_text(json.dumps(cj, indent=1), encoding="utf-8")
@@ -181,7 +193,7 @@ def sword_down(cj, poses):
             g["angle"] = round(poses.keep_tip_above_ground(a, g["y"], gy, 1 if a >= 0 else -1, ground=SWORD_TIP_Y + 4), 1)
 
 
-def steady_staff(cj):
+def steady_staff(cj, ahead=STAFF_SIDE_AHEAD, lift=0):
     """Wizard walk: the staff head stays where it is at idle for that direction (in front of / beside the face, never over it) while
     the fist swings, and keeps the idle depth. The per-frame face check flipped the staff between in front and behind from one step
     to the next; the idle angle kept as is put the crystal over the face when the fist swings back (side view)."""
@@ -193,7 +205,8 @@ def steady_staff(cj):
             a = math.radians(i["angle"])
             hx, hy = i["x"] + gy * math.sin(a), i["y"] - gy * math.cos(a)
             if g["dir"] in (2, 6):  # side view: the fist swings behind the idle fist, push the head forward so the shaft clears the chin
-                hx += STAFF_SIDE_AHEAD if g["dir"] == 2 else -STAFF_SIDE_AHEAD
+                hx += ahead if g["dir"] == 2 else -ahead
+                hy -= lift
             g["angle"] = round(math.degrees(math.atan2(hx - g["x"], g["y"] - hy)), 1)
             g["behind"] = i["behind"]
         elif g["part"] == "weapon":  # attack swings: the staff head may not sink under the feet line

@@ -53,6 +53,39 @@ def keyed(path):
     return Image.fromarray(a, "RGBA")
 
 
+def despeck(fig, edge=5, gap=10, small=60, debris=0.0015):
+    """Motion figures (keyed by pilot.key_green, no speck pass). Green / olive pixels where the outline meets the #00FF00 key
+    (g above max(r, b) by more than `gap`, or olive g ~ r >> b; within `edge` px of transparency; blobs up to 150 px) are key spill:
+    erased. Small enclosed green specks (g - max(r, b) > 40, up to `small` px; green irises are far bigger and lie inside the face)
+    take the nearest non-green colour. Then loose bits under `debris` of the figure area (outline crumbs of an erased twig) go too.
+    Seen 19/11: Cleric walk / attack up, hem between the legs; Assassin walk right f0, olive twig beside the scarf."""
+    from scipy import ndimage
+    a = np.asarray(fig.convert("RGBA")).copy()
+    c = a[..., :3].astype(int)
+    op = a[..., 3] > 0
+    gex = c[..., 1] - np.maximum(c[..., 0], c[..., 2])
+    near = ndimage.binary_dilation(a[..., 3] < 128, iterations=edge)
+    olive = (c[..., 1] >= c[..., 0] - 20) & (c[..., 1] - c[..., 2] > 30) & (c[..., :2].max(-1) < 140)  # key + dark outline (gold: r >> g)
+
+    def small_blobs(m, cap, structure=None):
+        lab, n = ndimage.label(m, structure)
+        if not n:
+            return np.zeros(m.shape, bool)
+        sizes = ndimage.sum(m, lab, range(1, n + 1))
+        return np.isin(lab, 1 + np.nonzero(sizes <= cap)[0])
+    spill = (gex > gap) | olive
+    a[(a[..., 3] <= 40) & spill, 3] = 0  # faint green halo: erased first, it would chain every spill blob into one ring
+    a[small_blobs((a[..., 3] > 40) & spill & near, 150), 3] = 0
+    inner = small_blobs(op & (gex > 40) & ~near, small)
+    src = (a[..., 3] >= 128) & ~inner
+    if inner.any() and src.any():
+        idx = ndimage.distance_transform_edt(~src, return_distances=False, return_indices=True)
+        a[inner, :3] = a[idx[0][inner], idx[1][inner], :3]
+    op = a[..., 3] >= 128
+    a[small_blobs(op, debris * op.sum(), np.ones((3, 3))), 3] = 0  # loose crumbs, 8-connected so thin diagonal tips stay
+    return Image.fromarray(a, "RGBA")
+
+
 def place(fig, scale):
     """(cell, (ox, oy, s)): figure resized by scale, feet centre on (CW/2, FEET). cell px = fig px * s + (ox, oy)."""
     f = fig.resize((max(1, round(fig.width * scale)), max(1, round(fig.height * scale))), Image.LANCZOS)
@@ -107,7 +140,7 @@ def motion_rows(cls, idle_figs):
             if a != anim:
                 continue
             dirs = [d for d in (da, db) if d != "none"]
-            rows = sheets_tool.rows_of(path, n, len(dirs))
+            rows = [[despeck(f) for f in row] for row in sheets_tool.rows_of(path, n, len(dirs))]
             for d, row in zip(dirs, rows):
                 fig_i = idle_figs[DRAWN.index(d)]
                 # idle_figs are the cropped idle cells (already at game scale): attacks keep the idle skull width, walks the idle height
@@ -116,7 +149,7 @@ def motion_rows(cls, idle_figs):
                     s = BALD_PX / float(np.median([f.height for f in row]))
                 else:
                     s = skull_w(fig_i) / float(np.median([skull_w(f) for f in row]))
-                cells = [place(f, s)[0] for f in row]
+                cells = [despeck(place(f, s)[0]) for f in row]  # again at game scale: LANCZOS leaves olive fringes of bigger source blobs
                 if fix:
                     k = skull_w(fig_i) / float(np.median([skull_w(f) * s for f in row]))
                     cells = [head_fix.scale_head(c, k, *sheets_tool.head_anchor(c)[1:3]) for c in cells]

@@ -132,7 +132,7 @@ def face_cover(c, cell, anchor):
     return out
 
 
-def behind_neck(c, cell, anchor, row):
+def behind_neck(c, cell, anchor, row, chin_scan=False):
     """Front views (down, down-right): hair painted under the chin in the torso column is the back hair the body hides (else long hair
     covers the chest like a beard, sprite-rules 2026-11-07 Cleric). Locks over the shoulders stay."""
     if row > 1:
@@ -146,6 +146,21 @@ def behind_neck(c, cell, anchor, row):
     half = 0.36 * w
     out = c.copy()
     out[(cy > chin + 1) & (np.abs(cx - X) < half)] = 0
+    if not chin_scan:  # Assassin: the face-mask hole would cut the bob / braids across the cheek
+        return out
+    # the skull-width chin can sit ~10 px under the painted chin (Cleric silver long hair, 19/11: a grey bar over the chin): per column of
+    # the face (AX +- 0.3 skull), the first hair row under the face hole (long bangs over the eyes are kept); cut from their median
+    y_top = int(AY + 0.55 * REF_W)
+    al = out[y_top:int(AY + 1.3 * REF_W), :, 3] > 20
+    rows = []
+    for x in range(int(AX - 0.3 * REF_W), int(AX + 0.3 * REF_W)):
+        gap = np.nonzero(~al[:, x])[0]
+        if gap.size and al[gap[0]:, x].any():
+            rows.append(y_top + gap[0] + int(np.argmax(al[gap[0]:, x])))
+    if len(rows) > 0.5 * 0.6 * REF_W:
+        y0 = np.median(rows)
+        out[(yy >= y0) & (np.abs(cx - X) < half)] = 0
+        out[(yy >= y0 - 2) & (np.abs(cx - X) < half + 4) & (out[..., 3] < 160)] = 0  # faint jaw line / cut edges left as a pale frame
     return out
 
 
@@ -163,7 +178,7 @@ def style_strips(cls, k, idle_cells):
         c, lost = cell_of(hair, f, xf, anchor)
         if cls == "assassin":
             c = face_cover(c, cell, anchor)
-        c = behind_neck(c, cell, anchor, i)
+        c = behind_neck(c, cell, anchor, i, chin_scan=cls == "cleric")
         al = c[..., 3] > 20
         edge = al[0].any() or al[-1].any() or al[:, 0].any() or al[:, -1].any()
         print(f"{cls} style{k} dir {i}: scale {f[0]:.3f}, hair px {al.sum()}{'  WARNING: touches the cell edge' if edge or lost > 200 else ''}")
