@@ -1,5 +1,8 @@
 # Việc đang dở
 
+### 19/11 17:00 cổng dịch chuyển ánh sáng (Particle System + shader + bloom) (agent, branch worktree, CHƯA merge)
+- `MapPortalLightFx`: vũng sáng mềm dưới đất + cột sáng `LightBeamScroll` (lõi bloom) + hạt bay lên (ParticleSystem tối đa 18 hạt / cổng), thở chậm 3,6 s, màu theo vùng (tuyết xanh, làng vàng hổ phách, rừng xanh lá, sa mạc ngọc lam, đầm tím). `--portal-fx off` = sương / cột cũ. Texture tạm Python (`portal-veil`, `portal-mote`). Báo cáo `plans/reports/portal-fx-261119.md`, ảnh `docs/reference/portal-fx/`. Chờ người dùng duyệt.
+
 ### 19/11 15:00 nhánh `ro-fantasy-heroes` (nhân vật RO Soft Fantasy đồ riêng từng class)
 - XONG + merge vào nhánh: thân riêng 5 class + 3 kiểu tóc nhuộm 8 màu, walk + 1 đòn đánh (lock target) cả 5 class, màn chọn slot nhiều nhân vật (online + offline, tối đa 6, theo mockup `docs/reference/character-select-ro-fantasy/mockup/`), nền slot mới (art ChatGPT, chưa nối code). ChatGPT dùng Tan Pham (chat nhân vật 6afe7669…, chat slot 6afe9ba5…). Tool `Tools/build-ro-fantasy-hero-game-assets.py` (write/fists/grips/check).
 - ĐANG CHẠY (worktree agent): offline nhiều nhân vật cùng class + đặt tên offline + toàn bộ chữ game TIẾNG ANH (người dùng chốt) + nối nền slot mới (`CharacterFlowKit.Backdrop`).

@@ -25,7 +25,9 @@ namespace ZenoniaProto
             foreach (MapProp p in map.Props) BuildProp(parent, p);
             if (ShowsPortals)
             {
-                MapPortalHaze.Build(parent, map);   // edge exits fade into bright haze, inner ones keep the light column (user, 13/11/2026)
+                // shader + particle + bloom light (user, 19/11/2026); `--portal-fx off` or missing shaders: edge exits fade into bright haze, inner ones keep the light column (13/11/2026)
+                if (MapPortalLightFx.Active) MapPortalLightFx.Build(parent, map);
+                else MapPortalHaze.Build(parent, map);
             }
             if (ShowsVillagers) TownNpc.CreateAll(parent, map);
         }
