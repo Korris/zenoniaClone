@@ -25,6 +25,7 @@ GREEN = (0, 255, 0)
 DYES = [(0xA8, 0x69, 0x3F), (0xB4, 0x9C, 0xE2)]
 # accessory colours kept as painted (headband red, goggle brass, lens blue)
 SAT_KEEP = 0.28
+DARK_FACE = False  # set for Assassin (black face mask is a shared face feature, not hair)
 
 
 def newest(pattern):
@@ -40,6 +41,11 @@ def load_rgba(path):
     r, g, b = a[..., 0], a[..., 1], a[..., 2]
     green = (g > 0.55) & (g - np.maximum(r, b) > 0.30)
     alpha = (~green).astype(np.float32)
+    # ChatGPT sometimes letterboxes the green strip with white bands: white touching the border = background
+    white = a.min(-1) > 0.93
+    wl, _ = ndimage.label(white)
+    edge_ids = set(np.unique(np.r_[wl[0], wl[-1], wl[:, 0], wl[:, -1]])) - {0}
+    alpha[np.isin(wl, list(edge_ids))] = 0
     alpha = ndimage.binary_opening(alpha > 0, iterations=1)
     # green irises (Mechanic, Cleric) get keyed: refill small enclosed holes that are not pure #00FF00
     holes = ndimage.binary_fill_holes(alpha) & ~alpha
@@ -123,6 +129,17 @@ def cmd_heads(cls):
     print(src, '->', path, out.size)
 
 
+def face_mask(rgba):
+    """Skin plus thick dark areas (Assassin face mask): the parts both images share."""
+    if not DARK_FACE:
+        return skin_mask(rgba)
+    lum = rgba[..., :3].mean(-1)
+    sat = rgba[..., :3].max(-1) - rgba[..., :3].min(-1)
+    # mask: very dark grey (< 0.29), or dark purple on the body; dark grey hair shadow (neutral, ~0.33) is not
+    dark = (rgba[..., 3] > 0) & ((lum < 0.29) | ((lum < 0.42) & (sat > 0.1)))
+    return skin_mask(rgba) | ndimage.binary_opening(dark, iterations=4)
+
+
 def hair_layer(rgba):
     """Grey hair + saturated accessories; skin, eyes and face removed."""
     r, g, b, a = [rgba[..., i] for i in range(4)]
@@ -133,6 +150,7 @@ def hair_layer(rgba):
     lab, cnt = ndimage.label(ndimage.binary_closing(grey, iterations=2))
     sizes = ndimage.sum(grey, lab, range(1, cnt + 1))
     keep = np.isin(lab, 1 + np.where(sizes > 0.15 * sizes.max())[0]) & grey  # drop eye whites
+    keep &= ~ndimage.binary_dilation(face_mask(rgba) & ~skin_mask(rgba), iterations=2)
     near = ndimage.binary_dilation(keep, iterations=6)
     cand = (a > 0) & (s > SAT_KEEP) & ~skin_mask(rgba) & ~keep
     lab, cnt = ndimage.label(cand)
@@ -160,10 +178,12 @@ def to_im(a):
 
 
 def cmd_check(cls):
+    global DARK_FACE
+    DARK_FACE = cls == 'assassin'
     body = load_rgba(newest(ART + f'src/body-{cls}-idle-5dir-chatgpt-*.png'))
     spans = figures(body)
     heads = [head_box(body, s) for s in spans]
-    body_skin = skin_mask(body)
+    body_skin = face_mask(body)
     cell_w = max(s[1] - s[0] for s in spans) + 30
     cell_h = max(s[3] - s[2] for s in spans) + 60
     styles = [newest(ART + f'src/hair-{cls}-style{k}-5dir-chatgpt-*.png') for k in (1, 2, 3)]
@@ -178,20 +198,31 @@ def cmd_check(cls):
         hr = load_rgba(path)
         keep, acc = hair_layer(hr)
         acc &= cls in ('assassin', 'mechanic')  # only these styles carry coloured accessories
-        hskin = skin_mask(hr)
+        hskin = face_mask(hr)
         hspans = figures(hr)
         body_alpha = body[..., 3] > 0
         cell = lambda m, hs: m[hs[2]:hs[3], hs[0]:hs[1]]
-        # one scale for the sheet from the down head (face fully visible), +-4 % per head
-        f0 = fit(body_skin, body_alpha, heads[0], cell(hskin, hspans[0]), cell(hr[..., 3] > 0, hspans[0]),
-                 np.arange(0.6, 1.5, 0.02))
-        fitted = []
+        # ChatGPT keeps the strip's horizontal extent: ref (body x3) width / hair width = body px per hair px
+        sc0 = Image.open(ART + f'ref/bald-head-{cls}-5dir.png').width / 3 / hr.shape[1]
+        fitted, dys = [], []
         for i, hs in enumerate(hspans):
-            # back views have almost no skin cue: keep the median scale of the 3 face views
-            sc_range = f0[1] * np.arange(0.96, 1.041, 0.01) if i < 3 else [float(np.median(fitted))]
+            sc_range = sc0 * np.arange(0.90, 1.101, 0.01) if i == 0 else [fitted[0]]  # one scale: front head
             f = fit(body_skin, body_alpha, heads[i], cell(hskin, hs), cell(hr[..., 3] > 0, hs), sc_range)
             fitted.append(f[1])
             _, sc, fx, fy = f
+            if 0 < i < 3 and abs(fy - heads[i][2] - dys[0]) > 0.12 * (heads[i][3] - heads[i][2]):
+                fy = int(heads[i][2] + dys[0])  # side view lost the face: keep the front-view height
+                cx = np.argwhere(cell(hr[..., 3] > 0, hs))[:, 1].mean() * sc
+                fx = int((heads[i][0] + heads[i][1]) / 2 - cx)
+            if i < 3:
+                dys.append(fy - heads[i][2])
+            elif abs(fy - heads[i][2] - np.median(dys)) > 0.06 * (heads[i][3] - heads[i][2]):
+                fy = int(heads[i][2] + np.median(dys))  # back view drifted (shaved nape): use face-view height
+            if i >= 3:  # back views: centre the hair silhouette on the skull when the fit drifts
+                cx = np.argwhere(cell(hr[..., 3] > 0, hs))[:, 1].mean() * sc
+                fx_c = int((heads[i][0] + heads[i][1]) / 2 - cx)
+                if i == 4 or abs(fx - fx_c) > 0.1 * (heads[i][1] - heads[i][0]):
+                    fx = fx_c
             cols = np.where(cell(keep, hs).any(0))[0]
             ratio = (cols[-1] - cols[0] + 1) * sc / (heads[i][1] - heads[i][0]) if len(cols) else 0
             print(f'style{k + 1} head{i}: scale {sc:.3f} at {fx},{fy} hair/skull width {ratio:.2f}')

@@ -48,7 +48,9 @@ def fit(body_skin, body_alpha, head_box, hair_skin, hair_alpha, scales):
         bad = _corr(~bs_d, hs)
         # skull pixels uncovered = skull_total - covered
         covered = fftconvolve(bh.astype(np.float32), ha[::-1, ::-1].astype(np.float32), mode='full')
-        score = 2 * good - 3 * bad - 3 * (bh.sum() - covered)
+        # fractions: share of body face covered, share of hair-image face off body, share of skull uncovered
+        n = max(hs.sum(), 1)
+        score = 2 * good / max(bs.sum(), 1) - 3 * bad / n - 3 * (bh.sum() - covered) / max(bh.sum(), 1)
         iy, ix = np.unravel_index(np.argmax(score), score.shape)
         sc = score[iy, ix]
         if best is None or sc > best[0]:
