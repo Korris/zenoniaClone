@@ -6,14 +6,14 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Mouse-wheel zoom of the gameplay camera on the PC build (Windows standalone and the editor): wheel up zooms in, wheel down out,
-    /// 8 % per notch, eased over 0.15 s, 0.6x..1x of the default half-height (zoom in only), remembered in PlayerPrefs (zenonia.zoom).
+    /// 8 % per notch, eased over 0.15 s, 0.6x..1x of the default half-height (zoom in only), remembered in PlayerPrefs (zenonia.zoom.v2).
     /// Never on WebGL / mobile, and never in a capture / bot run (--zoom) or when dev-start.json sets cameraViewHeight: those own the size.
     /// Ignored while a window owns the pointer / keyboard (chat typing, modal windows, inventory, hero change, account menu, pointer over UI).
     /// Writes the size in Update; CameraFollow adopts it as its base in LateUpdate (punch-in scales it, the map clamp reads it).
     /// </summary>
     public class CameraWheelZoom : MonoBehaviour
     {
-        const string PrefKey = "zenonia.zoom";
+        const string PrefKey = "zenonia.zoom.v2"; // v2 with the 1.35x wider default (GameConfig.WorldZoomOut): an old saved zoom-in must not hide the new view
         const float MinFactor = 0.6f, MaxFactor = 1f, // never wider than the default view (user, 2026-11-05)
              NotchStep = 0.08f, EaseSeconds = 0.15f;
 
@@ -101,11 +101,11 @@ namespace ZenoniaProto
             cam.orthographicSize = defaultHalf * Current;
         }
 
-        /// <summary>Zooming out stops where the view would exceed the map (CameraFollow centres a smaller map); the default is always allowed.</summary>
+        /// <summary>Zooming out stops where the view would exceed the map (CameraFollow.FitToMap): on a small map even the default is narrowed.</summary>
         float MaxFactorForMap(float defaultHalf)
         {
-            float fit = Mathf.Min(GameConfig.MapH * 0.5f, GameConfig.MapW * 0.5f / Mathf.Max(0.01f, cam.aspect)) / defaultHalf;
-            return Mathf.Max(1f, Mathf.Min(MaxFactor, fit));
+            float fit = CameraFollow.FitToMap(defaultHalf, cam.aspect) / defaultHalf;
+            return Mathf.Max(minimum, Mathf.Min(MaxFactor, fit));
         }
     }
 }

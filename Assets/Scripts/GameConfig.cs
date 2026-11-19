@@ -8,7 +8,11 @@ namespace ZenoniaProto
         public const int FramePx = 192;          // hero / walk-monster frame size in source pixels
         public const float FrameUnits = 24f;     // world units a hero frame covers
         public const float FramePpu = FramePx / FrameUnits; // 8 source px per world unit
-        public const float ViewHeightUnits = 160f; // web: 960x640 canvas at 4x => 160 world px tall
+        public const float BaseViewHeightUnits = 160f; // web: 960x640 canvas at 4x => 160 world px tall
+        /// <summary>Gameplay camera zoom-out over the web view, everywhere (user 2026-11-19: "zoom xa luôn kể cả khi ko đánh boss"; ChatGPT camera
+        /// comparison: 1.35x for a 20-40 player Wanted fight, 1.15x party, 1.5x 50+). One knob: CameraFollow fits it to small maps (no void outside).</summary>
+        public const float WorldZoomOut = 1.35f;
+        public const float ViewHeightUnits = BaseViewHeightUnits * WorldZoomOut; // 216
         public const int TileUnits = 16;
         /// <summary>Largest map in tiles; sizes the interest grid of every zone (a smaller map just leaves cells unused).</summary>
         public const int MaxTilesW = 72, MaxTilesH = 48;

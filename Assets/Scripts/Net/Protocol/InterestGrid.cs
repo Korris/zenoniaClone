@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace ZenoniaProto.Net
 {
     /// <summary>
-    /// Uniform spatial grid over the map (cell = 64 units: a camera view of ~240 x 160 spans about 4 x 3 cells) holding entity ids by cell.
+    /// Uniform spatial grid over the map (cell = 64 units: the 384 x 216 camera view at 16:9 spans about 6 x 3.5 cells) holding entity ids by cell.
     /// Rebuilt or moved every tick by the server; area-of-interest queries read the cells around a client's hero.
     /// </summary>
     public sealed class InterestGrid
@@ -80,7 +80,9 @@ namespace ZenoniaProto.Net
     /// </summary>
     public sealed class InterestSet
     {
-        public const int SeeRadius = 2, DropRadius = 3;
+        // 3 cells (>= 192 units from any spot of the hero's cell) covers the half-width of the 1.35x camera at 16:9 (216 x 384 view, GameConfig.WorldZoomOut);
+        // the old 2 / 3 left heroes and monsters popping in a tile or two inside the screen edges. Zone server code: rebuild the server.
+        public const int SeeRadius = 3, DropRadius = 4;
         readonly HashSet<ushort> visible = new HashSet<ushort>();
         readonly List<ushort> scratch = new List<ushort>(64);
 

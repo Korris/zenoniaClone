@@ -42,28 +42,29 @@ public class InterestTests
     }
 
     [Fact]
-    public void EntitiesEnterAtTwoCellsAndOnlyLeaveBeyondThreeHysteresis()
+    public void EntitiesEnterAtSeeRadiusAndOnlyLeaveBeyondDropRadiusHysteresis()
     {
+        Assert.Equal(3, InterestSet.SeeRadius); Assert.Equal(4, InterestSet.DropRadius); // the 1.35x camera (GameConfig.WorldZoomOut) needs 3 cells of sight
         var g = Grid(); var set = new InterestSet();
         var entered = new List<ushort>(); var left = new List<ushort>(); var gone = new List<ushort>();
         g.Set(1, 32f, 32f);          // viewer, cell (0,0)
-        g.Set(2, 160f, 32f);         // cell (2,0): inside see radius
-        g.Set(3, 224f, 32f);         // cell (3,0): outside see radius
+        g.Set(2, 224f, 32f);         // cell (3,0): inside see radius
+        g.Set(3, 288f, 32f);         // cell (4,0): outside see radius
         set.Update(g, 0, 0, entered, left, gone);
         Assert.Contains((ushort)1, entered); Assert.Contains((ushort)2, entered); Assert.DoesNotContain((ushort)3, entered);
-        // entity 2 drifts to cell 3 (still within drop radius): stays, no flicker
-        g.Set(2, 224f, 32f);
-        set.Update(g, 0, 0, entered, left, gone);
-        Assert.Empty(entered); Assert.Empty(left); Assert.True(set.Contains(2));
-        // cell 4: beyond the drop radius -> leaves
+        // entity 2 drifts to cell 4 (still within drop radius): stays, no flicker
         g.Set(2, 288f, 32f);
         set.Update(g, 0, 0, entered, left, gone);
+        Assert.Empty(entered); Assert.Empty(left); Assert.True(set.Contains(2));
+        // cell 5: beyond the drop radius -> leaves
+        g.Set(2, 352f, 32f);
+        set.Update(g, 0, 0, entered, left, gone);
         Assert.Equal(new ushort[] { 2 }, left.ToArray()); Assert.False(set.Contains(2));
-        // coming back to cell 3 does NOT re-enter (needs <= 2)
-        g.Set(2, 224f, 32f);
+        // coming back to cell 4 does NOT re-enter (needs <= 3)
+        g.Set(2, 288f, 32f);
         set.Update(g, 0, 0, entered, left, gone);
         Assert.DoesNotContain((ushort)2, entered);
-        g.Set(2, 160f, 32f);
+        g.Set(2, 224f, 32f);
         set.Update(g, 0, 0, entered, left, gone);
         Assert.Contains((ushort)2, entered);
     }

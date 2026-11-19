@@ -122,6 +122,19 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Painted body height on screen, world units (RenderScale included): CameraFollow frames a Wanted Boss by it.</summary>
+        public float DrawnHeight { get { return def.BodyHeightUnits * def.RenderScale; } }
+
+        /// <summary>True when a hero standing at `feet` is drawn behind this monster's body (north of its feet, inside its drawn sprite): the 5x Wanted
+        /// Boss hides the heroes on its far side, so NameTags leaves their names off instead of stacking them on the boss.</summary>
+        public bool HidesHeroAt(Vector2 feet)
+        {
+            if (body == null || !body.enabled || feet.y <= y) return false;
+            Bounds b = body.bounds;
+            float headY = feet.y + 18f; // the hero's head: hidden when it is under the body too
+            return feet.x >= b.min.x && feet.x <= b.max.x && headY >= b.min.y && headY <= b.max.y;
+        }
+
         /// <summary>Highest a damage number starts above the feet, world units (1.5 hero frames).</summary>
         const float NumberLiftCap = 36f;
 

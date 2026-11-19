@@ -2,6 +2,12 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 19/11 21:30 camera đám đông đánh boss: zoom xa mọi nơi + vòng bot + hướng nhìn 8 hướng (agent, đã merge vào `ro-fantasy-heroes`)
+- Người dùng: "góc camera chưa làm cho cảm giác cả đám người đang đánh boss", rồi "zoom xa luôn kể cả khi ko đánh boss". ChatGPT so sánh camera (Tay): https://chatgpt.com/c/6aff02e1-5da4-83ec-a58c-dd81801ab93c — giữ góc 2D 3/4, zoom 1,35x (20-40 người), 1,15x party, 1,5x 50+; khuyên CHỈ zoom khi đánh boss (đang hỏi lại người dùng, hiện để zoom mọi nơi, một hằng `GameConfig.WorldZoomOut` = 1.35).
+- XONG: view 216 đơn vị mọi map, co vừa map nhỏ (không lộ khoảng đen), gần boss truy nã camera lệch về giữa thân boss; hero đang đánh / niệm quay Dir8 về quái (chỉ hình, cả hero người khác); bỏ tên hero khuất sau thân boss; bot test đứng 3 vòng theo tầm đánh (`--formation`, mặc định bật trong `Tools/wanted-boss-crowd-playtest.ps1`); InterestSet 2/3 -> 3/4 ô (ZONE SERVER đổi: build lại server). PlayerPrefs zoom đổi khoá `zenonia.zoom.v2`.
+- Exe `D:/temp/player-hydra-crowdcam/Zenonia.exe`. Báo cáo `plans/reports/boss-crowd-camera-261119.md`, ảnh `docs/reference/mire-hydra-queen-v2/crowd-cam-*.png`.
+- CÒN: FX người khác mờ 40-60 % + dấu hero bị boss che (ChatGPT gợi ý, chưa làm); vòng ngoài chỉ ~4-5 ô vì tầm đạn 60-82 (muốn 5-8 ô như ảnh mục tiêu phải tăng tầm hoặc cho bot dùng skill); chốt zoom mọi nơi hay chỉ khi đánh boss.
+
 ### 19/11 19:30 Mire Hydra Queen v2: sprite RO Soft + idle + FX shader + vẽ 2x (agent, branch worktree, chờ merge)
 - Sprite mới (walk / idle / attack / cast, Tan Pham chat https://chatgpt.com/c/6afeda8c-09c8-83ec-87a8-8f43b022a923), FX skill bằng shader + particle (`--boss-fx legacy` = FX cũ), nữ hoàng vẽ 2x. Báo cáo `plans/reports/mire-hydra-queen-v2-261119.md`, ảnh `docs/reference/mire-hydra-queen-v2/`.
 - CÒN: vẽ lại cast phun độc / quật đuôi (thiếu đầu rắn thứ 3) + vẽ hàng cuồng nộ / gục (Tan Pham hết lượt tới 09:17 ngày 20/11, Tay bị từ chối quyền tải ảnh); idle gần giống walk; dời boss map Mirefang Hydra khỏi ô (45,12); skill "Venom Drain" + ô debuff độc dưới thanh máu + hỏi ChatGPT về hiện độc trên nhân vật: CHƯA làm (bị từ chối quyền, cần người dùng cho phép).

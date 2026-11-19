@@ -20,6 +20,7 @@ using NetEvent = ZenoniaProto.Net.NetEvent;
 /// --tokens FILE: one zone Hello token per line (server-api tickets for a zone run with --api-url, Tools/wanted-boss-crowd-playtest.ps1); the bot count is the line count.
 /// --goal X,Y: fighters attack the live monster nearest to that point (e.g. the wanted boss's spawn) and walk back to it when nothing lives within 260 units of it (a crowd waits for the boss to respawn instead of scattering after mobs).
 /// --map ID (with --goal): walk back to the goal along the map's corridors; --free-ring ID ...: print spawn tiles around a point and exit (Program.Map.cs).
+/// --formation (with --goal): fighters hold a slot on a ring around the target by class reach and attack from there (Program.Formation.cs).
 /// --no-attack: wanderers never swing (crowd look captures: Tools/net-hair-crowd-shots.ps1).
 /// --hair: head layer style each bot asks for after joining (InvOp.HairStyle); vary (default) = (index / 5) % 5, so every class gets all 5 styles; N = every bot N (0 = the original heads).
 /// </summary>
@@ -69,6 +70,8 @@ static partial class Program
         public double NextPotion, StuckUntil, StuckCheck;
         public float StuckX, StuckY;
         public ushort Detour;
+        public bool AtSlot;   // --formation: standing on its ring slot (Program.Formation.cs)
+        public int Facing;    // own replicated 4-dir facing (0 down, 1 up, 2 left, 3 right)
     }
 
     static bool noAttack, hasGoal;
@@ -91,10 +94,12 @@ static partial class Program
         int[] mix = Arg(args, "--mix", "50:30:20").Split(':').Select(int.Parse).ToArray();
         string hair = Arg(args, "--hair", "vary");
         noAttack = Array.IndexOf(args, "--no-attack") >= 0;
+        formation = Array.IndexOf(args, "--formation") >= 0;
         ReadPartyArgs(args);
         string tokensPath = Arg(args, "--tokens", null);
         string[] tokens = tokensPath != null ? File.ReadAllLines(tokensPath).Where(l => l.Trim().Length > 0).Select(l => l.Trim()).ToArray() : null;
         if (tokens != null) n = tokens.Length;
+        botTotal = n;
         string goal = Arg(args, "--goal", null);
         if (goal != null) { string[] g = goal.Split(','); goalX = float.Parse(g[0], CultureInfo.InvariantCulture); goalY = float.Parse(g[1], CultureInfo.InvariantCulture); hasGoal = true; }
         ReadMapArgs(args);
@@ -265,6 +270,7 @@ static partial class Program
                     if (m.DeathProgress == 0 && d2 < bd && (!hasGoal || d2 < GoalRadius * GoalRadius)) { bd = d2; best = m; }
                 }
                 if (bd == float.MaxValue) return hasGoal ? GoalStep(b) : b.Move;
+                if (formation && hasGoal) return FormationBits(b, best, now); // rings around the boss (Program.Formation.cs)
                 float tx = NetQuantize.Pos(best.X) - b.X, ty = NetQuantize.Pos(best.Y) - b.Y;
                 bd = tx * tx + ty * ty; // distance from the bot itself decides walk or swing
                 // Ranged classes (Wizard 1, Mechanic 2, Cleric 4: HeroClass = Index % 5) stop once the monster is inside their bolt range
@@ -341,7 +347,7 @@ static partial class Program
                 if (b.Snap.BaselineSeq == 0) b.FullSnapshots++;
                 b.HeroesMax = Math.Max(b.HeroesMax, b.Snap.Heroes.Count); b.MonstersMax = Math.Max(b.MonstersMax, b.Snap.Monsters.Count);
                 b.HasPos = false;
-                foreach (HeroSnap h in b.Snap.Heroes) if (h.Id == b.HeroId) { b.X = NetQuantize.Pos(h.X); b.Y = NetQuantize.Pos(h.Y); b.MyHpPct = h.HpPct; b.HasPos = true; break; }
+                foreach (HeroSnap h in b.Snap.Heroes) if (h.Id == b.HeroId) { b.X = NetQuantize.Pos(h.X); b.Y = NetQuantize.Pos(h.Y); b.MyHpPct = h.HpPct; b.Facing = NetQuantize.Facing(h.FacingFlags); b.HasPos = true; break; }
                 b.Monsters.Clear(); b.Monsters.AddRange(b.Snap.Monsters);
                 break;
             case NetOp.EventBatch: b.EventBatches++; break;

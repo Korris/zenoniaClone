@@ -6,7 +6,8 @@ namespace ZenoniaProto
     /// View-only 8-way facing for the RO Soft sheets (HeroRenderer.Soft.cs). The sim, hit boxes, RangedAimRules and the network keep `facing` (4-dir).
     /// Own / AI hero: the held move input while walking (the dash direction while dashing). Proxy: the interpolated motion while Moving / Dash.
     /// Otherwise the last value is kept; it snaps to the facing's cardinal when the facing turns while standing, and whenever it stops agreeing with
-    /// the facing (an attack keeps a diagonal only if one of its axes is the attack's facing).
+    /// the facing (an attack keeps a diagonal only if one of its axes is the attack's facing). Swinging or casting on the spot turns it toward the
+    /// monster being fought (HeroController.Dir8Target.cs), and that diagonal is kept while standing after the swing.
     /// </summary>
     public partial class HeroController
     {
@@ -47,6 +48,7 @@ namespace ZenoniaProto
                 dir8LastPos = pos;
                 dir8HasPos = true;
             }
+            if (want < 0 && !moved && !dead && FightingPose()) want = CombatDir8(); // swinging / casting on the spot: face the monster (HeroController.Dir8Target.cs)
             if (want >= 0) dir8 = want;
             else if (facing != dir8Facing && !moved) dir8 = Dir8Util.FromCardinal(facing); // turned on the spot (attack, teleport, server facing): the cardinal
             if (dir8 < 0 || !Dir8Util.Matches(dir8, facing)) dir8 = Dir8Util.FromCardinal(facing);
