@@ -26,6 +26,7 @@ param(
   [int]$MongoPort = 27199,
   [string]$Ui = "new",
   [switch]$Party,
+  [string]$Role = "",         # a persist role for the window instead of "idle", e.g. wanted-showcase (shots into OutDir\shots)
   [switch]$Stop
 )
 $ErrorActionPreference = "Stop"
@@ -128,7 +129,7 @@ try {
   Write-Host "swarm started ($Bots bots)"
 
   $env:ZENONIA_TEST_PASSWORD = $password
-  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero.Name, "--name", $hero.Name, "--wanted-boss", $Boss, "--wanted-hp-scale", $HpScale, "--ui", $Ui) + $(if ($Party) { @("--net-bot", "party", "--party-role", "joiner") } else { @("--net-bot", "persist", "--persist-role", "idle") }))
+  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero.Name, "--name", $hero.Name, "--wanted-boss", $Boss, "--wanted-hp-scale", $HpScale, "--ui", $Ui) + $(if ($Party) { @("--net-bot", "party", "--party-role", "joiner") } elseif ($Role) { @("--net-bot", "persist", "--persist-role", $Role, "--wanted-shots", "`"$OutDir\shots`"") } else { @("--net-bot", "persist", "--persist-role", "idle") }))
   Remove-Item env:ZENONIA_TEST_PASSWORD
   $procs += $client
   Save-Pids

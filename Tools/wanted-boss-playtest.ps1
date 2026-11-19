@@ -19,7 +19,11 @@ param(
   [int]$ApiPort = 3198,
   [int]$MongoPort = 27198,
   [string]$Ui = "new",        # new = the rebuilt screens (compact HUD, slim boss bar...) behind UiScreens; old = the previous look
-  [switch]$Bot                # the hero fights on its own (wanted-kill bot) and saves timed screenshots of the first casts into OutDir\shots
+  [switch]$Bot,               # the hero fights on its own (wanted-kill bot) and saves timed screenshots of the first casts into OutDir\shots
+  [string]$Role = "",         # another persist role for the window, e.g. wanted-showcase (idle / walk / attack / every skill shot into OutDir\shots)
+  [int]$StartDx = 0,          # hero start offset from the default spot, world units (16 a tile): wanted-showcase wants the hero out of aggro range (110)
+  [int]$StartDy = 0,
+  [string[]]$ExtraArgs = @()  # extra client arguments (e.g. --boss-fx legacy)
 )
 $ErrorActionPreference = "Stop"
 $Exe = (Resolve-Path $Exe).Path
@@ -80,11 +84,12 @@ try {
   $hero = "play" + (Get-Random -Maximum 9999)
   $reg = Api-Call POST "/auth/register" @{ username = $hero; email = "$hero@example.com"; password = $password }
   Api-Call POST "/characters" @{ name = $hero; classId = $Class } $reg.accessToken | Out-Null
-  & node (Join-Path $apiDir "scripts\dev-boost-character.mjs") --uri $mongoUri --db $dbName --name $hero --level $Level --large-potions 80 @($starts[$Boss]) | Out-Null
+  $st = @($starts[$Boss]); $st[3] = [string]([int]$st[3] + $StartDx); $st[5] = [string]([int]$st[5] + $StartDy)
+  & node (Join-Path $apiDir "scripts\dev-boost-character.mjs") --uri $mongoUri --db $dbName --name $hero --level $Level --large-potions 80 @st | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "boost $hero failed" }
 
   $env:ZENONIA_TEST_PASSWORD = $password
-  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero, "--name", $hero, "--net-bot", "persist", "--wanted-boss", $Boss, "--persist-role", $(if ($Bot) { "wanted-kill" } else { "idle" }), "--wanted-hp-scale", $HpScale, "--ui", $Ui) + $(if ($Bot) { @("--wanted-shots", "`"$OutDir\shots`"") } else { @() }))
+  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero, "--name", $hero, "--net-bot", "persist", "--wanted-boss", $Boss, "--persist-role", $(if ($Role) { $Role } elseif ($Bot) { "wanted-kill" } else { "idle" }), "--wanted-hp-scale", $HpScale, "--ui", $Ui) + $(if ($Bot -or $Role) { @("--wanted-shots", "`"$OutDir\shots`"") } else { @() }) + $ExtraArgs)
   Remove-Item env:ZENONIA_TEST_PASSWORD
   Write-Host "client window open as $hero ($Class, level $Level). Close the game window to stop the servers."
   $client.WaitForExit()
