@@ -32,6 +32,7 @@ namespace ZenoniaProto
             else if (def.Id == NightfallExecutionUltimate.SkillId) NightfallExecutionUltimate.Cast(ctx);
             else if (AssassinSkillArt.Handles(def.Id)) AssassinSkillArt.Cast(ctx);
             else if (ClericBuffFx.Handles(def.Id)) ClericBuffFx.Cast(ctx);
+            else if (AstralLightFx.Handles(def.Id)) AstralLightFx.Cast(ctx); // shader light version; `--light-fx off` keeps the painted choreography below
             else SkillChoreoCastHook.Play(ctx);
             return true;
         }
@@ -48,6 +49,6 @@ namespace ZenoniaProto
         }
 
         /// <summary>Loads the painted art of a class's skills ahead of the first cast (call when the hero spawns).</summary>
-        public static void Preload(string classId) { SkillVfx.Preload(classId); if (classId == "assassin") AssassinSkillArt.Preload(); if (classId == "mechanic") DeployedTurret.Preload(); }
+        public static void Preload(string classId) { SkillVfx.Preload(classId); if (classId == "assassin") AssassinSkillArt.Preload(); if (classId == "mechanic") DeployedTurret.Preload(); if (classId == "wizard") AstralLightFx.Preload(); }
     }
 }
