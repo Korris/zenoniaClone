@@ -3,10 +3,10 @@
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
 ### 20/11 01:30 vẽ lại TOÀN BỘ map RO Soft Fantasy bằng ChatGPT (agent, người dùng ngủ: "làm lại toàn bộ map + quái theo style ro fantasy")
-- Cách làm: giữ nguyên bố cục (rows, prop, cổng, spawn không đổi), ChatGPT vẽ lại ground theo ảnh bố cục từng cửa sổ, `Tools/install-map-ro-redraw-windows.py layout|check|install|sheet <map>` (căn ECC + optical flow, ghép mờ phần chồng). Ảnh trước/sau: `docs/reference/maps-ro-soft-redraw/`. Tài khoản Tay ("Tân Korris").
-- XONG (đã commit): Willowbrook (4 ảnh, https://chatgpt.com/c/6aff4131-e5b8-83ec-9455-833aceb43da9), Thatchwick (1 ảnh, https://chatgpt.com/c/6aff4328-d0b8-83ec-b9da-f1a63e01c559).
-- ĐANG: Frost Hollow (https://chatgpt.com/c/6aff4387-123c-83ec-b488-223c5caa36da).
-- CHƯA: Frostfang Den, Sunspire, Amber Dunes, Emberfen, Bramblewood, Thornheart, Rootburrow, Sunbreak, Scorpion Gorge. Chưa build / chụp trong game.
+- Cách làm: giữ nguyên bố cục (rows, prop, cổng, spawn, khu Wanted không đổi; server KHÔNG cần build lại vì rows không đổi), ChatGPT vẽ lại ground theo ảnh bố cục từng cửa sổ, `Tools/install-map-ro-redraw-windows.py layout|check|install|solids|sheet <map>` (căn ECC + optical flow, ghép mờ phần chồng). Ảnh trước/sau + ảnh ô chặn: `docs/reference/maps-ro-soft-redraw/`. Báo cáo `plans/reports/maps-ro-soft-redraw-261120.md`. Tài khoản Tay ("Tân Korris"), 26 lượt vẽ, chưa hết lượt.
+- XONG ảnh nền (đã commit, đã xem ảnh ô chặn): Willowbrook, Thatchwick, Frost Hollow, Frostfang Den, Sunspire, Amber Dunes, Scorpion Gorge, Emberfen, Bramblewood, Rootburrow, Thornheart, Sunbreak. Oakhaven + Sunken giữ bản 19/11.
+- Chat: Willowbrook https://chatgpt.com/c/6aff4131-e5b8-83ec-9455-833aceb43da9 ; Thatchwick https://chatgpt.com/c/6aff4328-d0b8-83ec-b9da-f1a63e01c559 ; Frost Hollow https://chatgpt.com/c/6aff4387-123c-83ec-b488-223c5caa36da ; Frostfang https://chatgpt.com/c/6aff4524-8104-83ec-99cc-7d7fc634de1e ; Sunspire + Amber + Scorpion https://chatgpt.com/c/6aff4558-f4a4-83ec-aee9-48d9451293b4 ; Emberfen + Bramblewood + Rootburrow + Thornheart + Sunbreak https://chatgpt.com/c/6aff4715-5740-83ec-b3c1-98168f0cf042
+- CÒN: prop (cây, nhà, đá) vẫn là art cũ chỉnh màu; minimap vẫn ảnh cũ (có prop bake sẵn).
 
 ### 19/11 23:40 Mire Hydra Queen: Venom Drain + icon trúng độc HUD / party + hiệu ứng độc trên người + sửa boss quay mặt (agent, merge vào `ro-fantasy-heroes`)
 - Skill thứ 5 Venom Drain (Id 4, số ChatGPT chưa cân bằng), độc nhân bản cho client (`NetEventType.HeroStatus`, **protocol 25: PHẢI build lại zone server + phát client mới**), icon độc ChatGPT (`Sprites/ui/status/poison.png`) dưới thanh máu + hàng party (HUD RO và HUD gọn), tint olive + bọt độc trên người theo ChatGPT, tick độc hết cho bất tử, tint đóng băng / độc ăn cả hero RO Fantasy nhiều lớp. Boss quay mặt: 3,5-5,5 lần/s -> 0,4-1,0 lần/s (`Rpg/MonsterFacingRule.cs`).
