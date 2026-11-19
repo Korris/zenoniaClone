@@ -2,6 +2,10 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 19/11 19:30 Mire Hydra Queen v2: sprite RO Soft + idle + FX shader + vẽ 2x (agent, branch worktree, chờ merge)
+- Sprite mới (walk / idle / attack / cast, Tan Pham chat https://chatgpt.com/c/6afeda8c-09c8-83ec-87a8-8f43b022a923), FX skill bằng shader + particle (`--boss-fx legacy` = FX cũ), nữ hoàng vẽ 2x. Báo cáo `plans/reports/mire-hydra-queen-v2-261119.md`, ảnh `docs/reference/mire-hydra-queen-v2/`.
+- CÒN: vẽ lại cast phun độc / quật đuôi (thiếu đầu rắn thứ 3) + vẽ hàng cuồng nộ / gục (Tan Pham hết lượt tới 09:17 ngày 20/11, Tay bị từ chối quyền tải ảnh); idle gần giống walk; dời boss map Mirefang Hydra khỏi ô (45,12); skill "Venom Drain" + ô debuff độc dưới thanh máu + hỏi ChatGPT về hiện độc trên nhân vật: CHƯA làm (bị từ chối quyền, cần người dùng cho phép).
+
 ### 19/11 18:00 map RO Soft Fantasy + khu boss Mire Hydra to ra (agent, branch worktree, chờ merge)
 - Sunken Reliquary 58x24 (thêm 22 cột phía đông, số hàng giữ nguyên): sân boss bo tròn 19x15 ô (~280 ô sàn, cũ ~70), lối đá 2 ô từ sảnh. Boss tile (45,12). PHẢI build lại zone server.
 - ChatGPT (Tan Pham) vẽ lại nền RO: Sunken (2 ảnh, chat https://chatgpt.com/c/6afece0f-681c-83ec-8253-b8cd54f5752b + https://chatgpt.com/c/6afecf64-db1c-83ec-932e-c058eec65eea), Oakhaven (https://chatgpt.com/c/6afecfd9-acd4-83ec-b272-22954f605f8f). 12 map còn lại chỉ chỉnh màu: `Tools/bake-map-ro-soft-tone.py apply|revert|status`.
