@@ -4,13 +4,16 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// --hero-select-test --shot-path P: the hero select through its real input path (FakeInput). Taps every hero with a shot of each (the Fighter included), picks the Cleric again, pages the skills, starts
+    /// --hero-select-test --shot-path P: the hero select (reached by CREATE NEW on the character list) through its real input path (FakeInput). Taps every hero with a shot of each (the Fighter included), picks the Cleric again, pages the skills, starts
     /// the Cleric, opens the in-game change screen and backs out of it. Writes P_open.png, P_warrior.png ... P_ingame.png and PASS / FAIL lines with the E2e tag.
     /// </summary>
     public partial class DebugCapture
     {
         IEnumerator RunHeroSelectTest()
         {
+            while (!CharacterListScreen.IsShown) yield return null; // offline start: the character list first, its CREATE NEW leads to the hero select
+            yield return WaitSeconds(1f);
+            yield return Press(CentreOf("CreateNew"), false, "create new");
             while (!HeroSelectScreen.IsShown) yield return null;
             yield return WaitSeconds(1f);
             yield return new WaitForEndOfFrame();
@@ -45,13 +48,13 @@ namespace ZenoniaProto
 
             HeroChangeScreen.Open();
             yield return WaitSeconds(0.7f);
-            E2e((HeroSelectScreen.IsShown ? "PASS" : "FAIL") + " change hero screen opens over the game");
+            E2e((CharacterListScreen.IsShown ? "PASS" : "FAIL") + " change hero opens the character list over the game");
             yield return new WaitForEndOfFrame();
             Save(shotPath + "_ingame.png");
-            yield return Press(CentreOf("StartButton"), false, "disabled start on the current hero");
-            yield return Press(CentreOf("BackButton"), false, "back");
+            yield return Press(CentreOf("EnterGame"), false, "disabled enter on the current hero");
+            yield return Press(CentreOf("BackToGame"), false, "back");
             yield return WaitSeconds(0.3f);
-            E2e((!HeroSelectScreen.IsShown && !HeroChangeScreen.IsOpen && GameSession.Hero == hero ? "PASS" : "FAIL") + " back returns to the same hero");
+            E2e((!CharacterListScreen.IsShown && !HeroChangeScreen.IsOpen && GameSession.Hero == hero ? "PASS" : "FAIL") + " back returns to the same hero");
             Application.Quit();
         }
 

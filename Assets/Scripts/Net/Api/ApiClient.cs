@@ -87,11 +87,11 @@ namespace ZenoniaProto.Api
         }
 
         /// <summary>Creates a character with the look picked on the creation screen; null look = name + class only (the name-hash default look).</summary>
-        public async Task<ApiResult<CharacterDetailResponse>> CreateCharacterAsync(string name, string classId, CharacterAppearanceData look = null)
+        public async Task<ApiResult<CharacterDetailResponse>> CreateCharacterAsync(string name, string classId, CharacterAppearanceData look, int slot)
         {
             string body = look == null
-                ? JsonUtility.ToJson(new CreateCharacterRequest { name = name, classId = classId })
-                : JsonUtility.ToJson(new CreateCharacterWithLookRequest { name = name, classId = classId, appearance = new CreateAppearance { hairStyle = look.hairStyle, hairColorIndex = look.hairColorIndex, outfitColorIndex = look.outfitColorIndex } });
+                ? JsonUtility.ToJson(new CreateCharacterRequest { name = name, classId = classId, slot = slot })
+                : JsonUtility.ToJson(new CreateCharacterWithLookRequest { name = name, classId = classId, slot = slot, appearance = new CreateAppearance { hairStyle = look.hairStyle, hairColorIndex = look.hairColorIndex, outfitColorIndex = look.outfitColorIndex } });
             return await SendAsync<CharacterDetailResponse>("POST", "/characters", body, true);
         }
 

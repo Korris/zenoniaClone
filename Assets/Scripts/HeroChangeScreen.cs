@@ -4,8 +4,9 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// "Change hero" state over the running game, opened by the Settings button: HeroSelectScreen draws it with a Back button, and picking another class
-    /// respawns like F1-F5 (GameSession.Spawn saves the current hero first). Esc closes. Offline only: online the class is fixed for the session.
+    /// "Change hero" state over the running game, opened by the Settings button: the character select screen (CharacterListScreen, offline mode) draws it with a
+    /// BACK button; ENTER GAME on another save respawns like F1-F5 (GameSession.Spawn saves the current hero first), CREATE NEW goes through the class and look steps.
+    /// Esc closes. Offline only: online the Settings button is the account menu.
     /// The simulation is frozen while it is open (same pause as the inventory).
     /// </summary>
     public sealed class HeroChangeScreen : MonoBehaviour

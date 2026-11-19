@@ -56,14 +56,16 @@ namespace ZenoniaProto
             status.fontSize = Mathf.RoundToInt(13f * s);
         }
 
-        /// <summary>The new-hero step: the hero select takes over the screen, in its online mode (NEXT / BACK), and comes back here with the class. `start` = the class to open on (BACK from Customize).</summary>
-        public static void CreateHero(List<CharacterSummary> owned, HeroClass? start = null)
+        /// <summary>The new-hero step: the hero select takes over the screen, in its create mode (NEXT / BACK), and comes back here with the class. `start` = the class to open on (BACK from Customize);
+        /// `slot` = the empty character select slot the hero goes into (-1 = keep the one already picked).</summary>
+        public static void CreateHero(List<CharacterSummary> owned, HeroClass? start = null, int slot = -1)
         {
             Visible = false;
-            HeroSelectScreen.OpenOnlineCreate(i => false, // no class is taken any more: an account may hold several heroes of one class (2026-11-12)
+            if (slot >= 0) AccountFlow.PendingSlot = slot;
+            HeroSelectScreen.OpenCreate(i => false, // no class is taken any more: an account may hold several heroes of one class (2026-11-12)
                 id => { AccountFlow.ShowCustomize(id); Visible = true; },
                 () => { AccountFlow.ShowCharacters(); Visible = true; },
-                start);
+                start, true);
         }
 
         public static void LeaveToOffline(GameSession session)

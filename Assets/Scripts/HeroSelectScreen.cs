@@ -8,8 +8,9 @@ namespace ZenoniaProto
     /// <summary>
     /// Hero select, laid out from the mock Assets/ArtLibrary/custom/2b14c1e0-...png (art: Sprites/ui/hero-select, built by Tools/build-hero-select-art.py): six heroes on pedestals over the
     /// castle scene and, below, the picked hero's portrait, real stats, skills and a live in-game preview (HeroSelectPreview). A tap picks a hero, the gold button starts. The "boxing" art is the Fighter
-    /// (playable since 2026-11-04; NotPlayable stays for a future art-only slot). Shown while there is no hero offline or as a host, and over the running game through HeroChangeScreen.
-    /// Online mode (OpenOnlineCreate): the new-hero step of the account flow. Same screen, but the button creates an account hero: classes the account already has cannot be picked again, and no offline saves are shown.
+    /// (playable since 2026-11-04; NotPlayable stays for a future art-only slot). Since the character select screen (CharacterListScreen, 19/11/2026) it is only the class step of a NEW hero:
+    /// create mode (OpenCreate), opened from that list online and offline (also over the running game), with BACK to the list and NEXT to the look / name step; a class the
+    /// `taken` test refuses (offline: it already has its save) cannot be picked. A dev host still picks its hero here directly (no saves, no list).
     /// </summary>
     public sealed partial class HeroSelectScreen : MonoBehaviour
     {
@@ -31,26 +32,23 @@ namespace ZenoniaProto
         }
 
         static HeroSelectScreen instance;
-        static System.Func<int, bool> onlineTaken; // class index -> the account already has this hero. Non null while the online mode is up.
-        static System.Action<HeroClass> onlinePicked;
-        static System.Action onlineBack;
-        static HeroClass? onlineStart; // class the online mode opens on (coming back from Customize); null = the Wizard
-        static HeroClass? returnClass; // offline: class to open on when coming back from the appearance step
+        static System.Func<int, bool> createTaken; // class index -> this class cannot be made (offline: it has its save). Non null while the create mode is up.
+        static System.Action<HeroClass> createPicked;
+        static System.Action createBack;
+        static HeroClass? createStart; // class the create mode opens on (coming back from the look step); null = the Wizard
+        static bool createOnline;
 
-        /// <summary>The account flow is choosing the class of a new character.</summary>
-        public static bool OnlineCreating { get { return onlineTaken != null; } }
+        /// <summary>The class of a new character is being chosen (from the character select screen, online or offline).</summary>
+        public static bool Creating { get { return createTaken != null; } }
 
-        /// <summary>Opens the online mode; exactly one of the two callbacks runs when it closes. Nothing happens without a screen (headless bots create by class directly).</summary>
-        public static void OpenOnlineCreate(System.Func<int, bool> taken, System.Action<HeroClass> picked, System.Action back, HeroClass? start = null)
+        /// <summary>Opens the create mode; exactly one of the two callbacks runs when it closes. Nothing happens without a screen (headless bots create by class directly).</summary>
+        public static void OpenCreate(System.Func<int, bool> taken, System.Action<HeroClass> picked, System.Action back, HeroClass? start, bool online)
         {
             if (instance == null) return;
-            onlineTaken = taken; onlinePicked = picked; onlineBack = back; onlineStart = start;
+            createTaken = taken; createPicked = picked; createBack = back; createStart = start; createOnline = online;
         }
 
-        static void CloseOnlineCreate() { onlineTaken = null; onlinePicked = null; onlineBack = null; onlineStart = null; }
-
-        /// <summary>Offline: Back on the appearance step. The screen shows again by itself and opens on this class.</summary>
-        public static void ReturnTo(HeroClass id) { returnClass = id; }
+        static void CloseCreate() { createTaken = null; createPicked = null; createBack = null; createStart = null; }
 
         /// <summary>Capture scripts: what a tap on a pedestal and on the gold button do.</summary>
         public static void TestPickClass(int classIndex) { if (instance != null) instance.Pick(instance.SlotOfClass(classIndex)); }
@@ -58,9 +56,9 @@ namespace ZenoniaProto
 
         void OnBack()
         {
-            if (!OnlineCreating) { HeroChangeScreen.Close(); return; }
-            System.Action back = onlineBack;
-            CloseOnlineCreate();
+            if (!Creating) return;
+            System.Action back = createBack;
+            CloseCreate();
             back();
         }
 
@@ -75,9 +73,7 @@ namespace ZenoniaProto
         readonly Text[] statValues = new Text[StatCount];
         readonly Image[] skillIcons = new Image[VisibleSkills];
         readonly Image[] skillFrames = new Image[VisibleSkills];
-        string[] savedLabels;
         int picked = -1, skillOffset;
-        bool inGame;
 
         const int StatCount = 5, VisibleSkills = 5;
         const float BaseCrit = 0.08f; // HeroController.CritChance
@@ -109,12 +105,12 @@ namespace ZenoniaProto
 
         void Update()
         {
-            bool nowInGame = HeroChangeScreen.IsOpen;
-            bool show = !CharacterCustomizeScreen.OfflineOpen && (nowInGame || OnlineCreating || (GameSession.Hero == null && !ConnectScreenGui.Visible && !NetMode.IsClient)); // the appearance step of a new hero replaces it
+            // the create step of the character select (online / offline, maybe over the game), or a dev host's own pick; the appearance step of a new hero replaces it
+            bool show = !CharacterCustomizeScreen.OfflineOpen && (Creating || (GameSession.Hero == null && !ConnectScreenGui.Visible && NetMode.Current == RunMode.Host));
             bool shown = root != null && root.gameObject.activeSelf;
             if (show != shown)
             {
-                if (show) Open(nowInGame);
+                if (show) Open();
                 else { root.gameObject.SetActive(false); preview.Stop(); }
             }
             if (!show) return;
@@ -124,20 +120,17 @@ namespace ZenoniaProto
             preview.Tick(Time.unscaledDeltaTime);
         }
 
-        void Open(bool overGame)
+        void Open()
         {
             if (root == null) Build();
-            inGame = overGame;
+
             root.SetAsLastSibling();
             root.gameObject.SetActive(true);
-            savedLabels = null; // saves may have changed since the last time
-            backButton.gameObject.SetActive(inGame || OnlineCreating);
-            gearButton.gameObject.SetActive(!inGame && NetMode.IsOffline && !OnlineCreating);
+            backButton.gameObject.SetActive(Creating);
+            gearButton.gameObject.SetActive(false); // online / offline is chosen on the character select screen now
             picked = -1;
-            HeroController current = inGame ? GameSession.Hero : null;
-            HeroClass? back = OnlineCreating ? onlineStart : returnClass; // coming back from Customize / the appearance step: the same class
-            returnClass = null;
-            Pick(SlotOfClass((int)(back ?? (current != null ? current.Class.Id : HeroClass.Wizard)))); // the mock opens on the Wizard
+            HeroClass? back = Creating ? createStart : null; // coming back from the look step: the same class
+            Pick(SlotOfClass((int)(back ?? HeroClass.Wizard))); // the mock opens on the Wizard
             for (int i = 0; i < slots.Count; i++) Ease(slots[i], i == picked, 1f); // no easing in from the last visit
         }
 
@@ -231,53 +224,34 @@ namespace ZenoniaProto
 
         void ShowState(HeroClassDef c)
         {
-            startLabel.enabled = !OnlineCreating; // the online step says NEXT in text (it leads on to Customize), not START
-            nextLabel.gameObject.SetActive(OnlineCreating);
-            if (OnlineCreating)
+            startLabel.enabled = !Creating; // the create step says NEXT in text (it leads on to the look / name step), not START
+            nextLabel.gameObject.SetActive(Creating);
+            if (Creating)
             {
-                bool taken = onlineTaken((int)c.Id);
-                stateText.text = taken ? "You already have this hero" : "New hero";
+                bool taken = createTaken((int)c.Id);
+                stateText.text = taken ? (createOnline ? "You already have this hero" : "This class already has a saved hero") : "New hero";
                 startButton.interactable = !taken;
                 nextLabel.color = taken ? new Color(0.25f, 0.12f, 0.02f, 0.5f) : new Color(0.25f, 0.12f, 0.02f); // dark brown on the gold button, as the art labels
                 return;
             }
-            HeroController current = inGame ? GameSession.Hero : null;
-            bool playing = current != null && current.Class == c;
-            string saved = SavedLabel((int)c.Id);
-            stateText.text = playing ? "Playing now" : saved ?? "New hero";
-            startLabel.sprite = Art(playing ? "label-playing" : inGame ? "label-switch" : saved != null ? "label-continue" : "label-start");
-            startButton.interactable = !playing;
-            startLabel.color = startButton.interactable ? Color.white : new Color(1f, 1f, 1f, 0.6f);
-        }
-
-        string SavedLabel(int i)
-        {
-            if (savedLabels == null)
-            {
-                savedLabels = new string[HeroClassDef.All.Length];
-                for (int c = 0; c < savedLabels.Length; c++)
-                {
-                    SaveData d = SaveStore.Load(RpgSession.ClassId(HeroClassDef.All[c].Id));
-                    savedLabels[c] = d != null ? "Saved hero, Lv " + d.level : null;
-                }
-            }
-            return savedLabels[i];
+            stateText.text = "New hero"; // a dev host: no saves
+            startLabel.sprite = Art("label-start");
+            startButton.interactable = true;
+            startLabel.color = Color.white;
         }
 
         void OnStart()
         {
             if (picked < 0 || GameSession.Instance == null) return;
-            if (OnlineCreating)
+            if (Creating)
             {
-                System.Action<HeroClass> done = onlinePicked;
-                CloseOnlineCreate();
+                if (createTaken((int)slots[picked].ClassIndex)) return;
+                System.Action<HeroClass> done = createPicked;
+                CloseCreate();
                 done((HeroClass)slots[picked].ClassIndex);
                 return;
             }
-            var id = (HeroClass)slots[picked].ClassIndex;
-            if (SavedLabel((int)id) == null) { CharacterCustomizeScreen.OpenOffline(id, inGame); return; } // a new hero: its look first (the appearance step spawns it)
-            if (inGame) HeroChangeScreen.Close();
-            GameSession.Instance.Spawn(id);
+            CharacterCustomizeScreen.OpenOffline((HeroClass)slots[picked].ClassIndex, false); // a dev host's hero: its look first (the appearance step spawns it)
         }
     }
 }
