@@ -27,6 +27,7 @@ namespace ZenoniaProto
             yield return WaitSeconds(1f);
             A((CharacterCustomizeScreen.IsShown && CharacterCustomizeScreen.OfflineOpen && !HeroSelectScreen.IsShown && GameSession.Hero == null ? "PASS" : "FAIL") + " start on a class without a save opens the appearance step");
             yield return Shot("01-warrior-step-random-look");
+            yield return HairStyleShots(HeroClass.Warrior);
             yield return PickColours(4, 1, "02-warrior-coral-red-sky-blue");
             for (int i = 0; i < 4; i++) yield return Press(CentreOf("TurnRight"), false, "turn right");
             yield return WaitSeconds(0.4f);
@@ -57,9 +58,10 @@ namespace ZenoniaProto
             yield return Shot("07-warrior-random");
             yield return Press(CentreOf("Motion0"), false, "idle tab");
             yield return PickColours(6, 5, "08-warrior-lavender-lilac-plum-final");
+            CharacterAppearanceData warriorLook = CharacterCustomizeScreen.TestLook.Clone();
             yield return Press(CentreOf("Create"), false, "confirm");
             yield return WaitSeconds(1.5f);
-            yield return CheckSpawned(HeroClass.Warrior, 6, 5);
+            yield return CheckSpawned(HeroClass.Warrior, warriorLook);
             yield return InWorldShots("09-warrior-in-world");
 
             // ---- Cleric: female body, from the change hero screen, Back once ----
@@ -82,35 +84,57 @@ namespace ZenoniaProto
             yield return WaitSeconds(0.3f);
             yield return Shot("12-cleric-silver-sage-walk-right");
             yield return Press(CentreOf("Motion0"), false, "idle tab");
+            yield return HairStyleShots(HeroClass.Cleric);
             yield return PickColours(5, 3, "13-cleric-sky-blue-warm-gold-final");
+            CharacterAppearanceData clericLook = CharacterCustomizeScreen.TestLook.Clone();
             yield return Press(CentreOf("Create"), false, "confirm");
             yield return WaitSeconds(1.5f);
             A((!HeroChangeScreen.IsOpen && !CharacterCustomizeScreen.IsShown ? "PASS" : "FAIL") + " confirm closes the change hero screen");
-            yield return CheckSpawned(HeroClass.Cleric, 5, 3);
+            yield return CheckSpawned(HeroClass.Cleric, clericLook);
             yield return InWorldShots("14-cleric-in-world");
             Application.Quit();
         }
 
         IEnumerator PickColours(int hair, int outfit, string shot)
         {
+            bool fixedOutfit = CharacterCustomizeScreen.TestOutfitHidden; // RO Fantasy class bodies: no outfit colour to pick
             yield return Press(CentreOf("Hair" + hair), false, "hair " + hair);
-            yield return Press(CentreOf("Outfit" + outfit), false, "outfit " + outfit);
+            if (!fixedOutfit) yield return Press(CentreOf("Outfit" + outfit), false, "outfit " + outfit);
             yield return WaitSeconds(0.4f);
             CharacterAppearanceData l = CharacterCustomizeScreen.TestLook;
-            A((l != null && l.stored && l.hairColorIndex == hair && l.outfitColorIndex == outfit && l.equippedHeadgearId == 0 ? "PASS" : "FAIL") + " taps picked hair " + hair + " (" + HeroPalettes.HairName(hair) + "), outfit " + outfit + " (" + HeroPalettes.OutfitName(outfit) + ")");
+            A((l != null && l.stored && l.hairColorIndex == hair && (fixedOutfit || l.outfitColorIndex == outfit) && l.equippedHeadgearId == 0 ? "PASS" : "FAIL") + " taps picked hair " + hair + " (" + HeroPalettes.HairName(hair) + ")" + (fixedOutfit ? ", outfit fixed" : ", outfit " + outfit + " (" + HeroPalettes.OutfitName(outfit) + ")"));
             if (shot != null) yield return Shot(shot);
         }
 
-        /// <summary>The spawned hero wears the picked look, its state stores it bare-headed, and a save round trip keeps it.</summary>
-        IEnumerator CheckSpawned(HeroClass id, int hair, int outfit)
+        /// <summary>RO Fantasy bodies: the outfit colours are hidden, the hairstyle row offers 3 styles and `>` steps through them (one shot each).</summary>
+        IEnumerator HairStyleShots(HeroClass id)
+        {
+            string cls = HeroClassDef.Get(id).Name.ToLowerInvariant();
+            bool roFantasy = HeroRenderer.LayeredSetFor(HeroClassDef.Get(id)) == HeroRenderer.RoFantasyRoot + cls + "/class";
+            A((CharacterCustomizeScreen.TestOutfitHidden == roFantasy ? "PASS" : "FAIL") + " " + cls + ": outfit colours " + (roFantasy ? "hidden (fixed RO Fantasy outfit)" : "offered"));
+            int n = CharacterCustomizeScreen.TestStyleCount;
+            A((!roFantasy || n == 3 ? "PASS" : "FAIL") + " " + cls + ": " + n + " hairstyles offered");
+            for (int i = 0; i < n; i++)
+            {
+                int before = CharacterCustomizeScreen.TestLook.hairStyle;
+                yield return Press(CentreOf("StyleNext"), false, "next hairstyle");
+                yield return WaitSeconds(0.4f);
+                int now = CharacterCustomizeScreen.TestLook.hairStyle;
+                A((now == (before + 1) % n ? "PASS" : "FAIL") + " " + cls + ": > steps hairstyle " + before + " -> " + now);
+                yield return Shot("style-" + cls + "-" + now);
+            }
+        }
+
+        /// <summary>The spawned hero wears the picked look (style, colours), its state stores it bare-headed, and a save round trip keeps it.</summary>
+        IEnumerator CheckSpawned(HeroClass id, CharacterAppearanceData want)
         {
             yield return null;
             HeroController h = GameSession.Hero;
             PlayerState p = RpgSession.Player;
-            CharacterAppearanceData want = CharacterAppearanceData.ForNewCharacter(RpgSession.ClassId(id), 0, hair, outfit);
+            want = CharacterAppearanceData.ForNewCharacter(RpgSession.ClassId(id), want.hairStyle, want.hairColorIndex, want.outfitColorIndex);
             A((h != null && h.Class.Id == id ? "PASS" : "FAIL") + " confirm spawned the " + id);
-            A((h != null && h.View.IsLayered && h.View.Appearance.hairColorIndex == hair && h.View.Appearance.outfitColorIndex == outfit ? "PASS" : "FAIL") + " the hero is drawn in the picked colours");
-            A((p != null && want.SameLook(p.Appearance) ? "PASS" : "FAIL") + " the character state stores the look (stored, no hat)");
+            A((h != null && h.View.IsLayered && h.View.Appearance.hairColorIndex == want.hairColorIndex && h.View.Appearance.hairStyle == want.hairStyle ? "PASS" : "FAIL") + " the hero is drawn in the picked hairstyle " + want.hairStyle + " and colours");
+            A((p != null && want.SameLook(p.Appearance) ? "PASS" : "FAIL") + " the character state stores the look (style, stored, no hat)");
             PlayerState back = p != null ? SaveSerializer.Restore(SaveSerializer.Parse(SaveSerializer.ToJson(SaveSerializer.Capture(p, false, 0f, 0f, false, 1)))) : null;
             A((back != null && want.SameLook(back.Appearance) ? "PASS" : "FAIL") + " a save round trip keeps the look");
         }

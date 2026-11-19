@@ -31,7 +31,7 @@ namespace ZenoniaProto
                 h.AiHeld = k => false;
                 h.AiPressed = k => false;
                 h.God = true;
-                var look = new CharacterAppearanceData { stored = true, hairColorIndex = (i * 3 + 1) % 8, outfitColorIndex = (i * 5 + 2) % CharacterAppearanceData.OutfitColorCount,
+                var look = new CharacterAppearanceData { stored = true, hairStyle = i % 3, hairColorIndex = (i * 3 + 1) % 8, outfitColorIndex = (i * 5 + 2) % CharacterAppearanceData.OutfitColorCount,
                     equippedHeadgearId = i % 4 == 3 ? 0 : new[] { 2, 5, 16, 0, 9, 10, 6, 0, 12, 19 }[i] };
                 h.View.SetAppearance(look, "layered-farm-" + i, false, false);
                 heroes.Add(h);
