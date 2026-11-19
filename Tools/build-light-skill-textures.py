@@ -3,8 +3,8 @@
 All textures are grey masks on flat black (the shader reads only the red channel), so a ChatGPT image on black can replace
 any of them later: `python Tools/build-light-skill-textures.py import <name> <png>` turns it grey, resizes and writes the game copy.
 
-  gen                      write procedural sources (Assets/ArtLibrary/fx/light-skill/*-procedural.png) + game copies
-  import <name> <png>      game copy from a painted source (name: beam-streaks | noise-clouds | meteor-core | burst-ring)
+  gen [names...]           write procedural sources (Assets/ArtLibrary/fx/light-skill/*-procedural.png) + game copies
+  import <name> <png>      game copy from a painted source (name: beam-streaks | noise-clouds | meteor-core | burst-ring | portal-veil | portal-mote)
   preview                  docs/reference/light-skill-fx/textures-preview.png (each mask tiled 2x2 on dark and on snow)
 
 Game copies: Assets/Resources/Sprites/fx/light-skill/<name>.png (beam-streaks, noise-clouds: tileable, wrap Repeat in code).
@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "Assets/ArtLibrary/fx/light-skill"
 GAME = ROOT / "Assets/Resources/Sprites/fx/light-skill"
 REF = ROOT / "docs/reference/light-skill-fx"
-GAME_SIZE = {"beam-streaks": (128, 256), "noise-clouds": (256, 256), "meteor-core": (128, 128), "burst-ring": (256, 256)}
+GAME_SIZE = {"beam-streaks": (128, 256), "noise-clouds": (256, 256), "meteor-core": (128, 128), "burst-ring": (256, 256),
+             "portal-veil": (128, 256), "portal-mote": (64, 64)}
 
 
 def periodic_noise(w, h, cells_x, cells_y, rng):
@@ -110,7 +111,31 @@ def burst_ring(s=512, seed=5):
     return np.clip(band + rays + inner, 0, 1)
 
 
-MAKERS = {"beam-streaks": beam_streaks, "noise-clouds": noise_clouds, "meteor-core": meteor_core, "burst-ring": burst_ring}
+def portal_veil(w=256, h=512, seed=21):
+    """Map portal light column (MapPortalLightFx): few broad, soft vertical bands with long smooth swells along y. Wraps on both axes.
+    Calmer than beam-streaks (no thin rays, no dashes) so the scrolling column never reads as flicker."""
+    rng = np.random.default_rng(seed)
+    img = np.zeros((h, w))
+    x = np.arange(w)
+    for _ in range(9):
+        cx = rng.random() * w; width = rng.uniform(14.0, 40.0); bright = rng.uniform(0.45, 1.0)
+        d = np.minimum(np.abs(x - cx), w - np.abs(x - cx))
+        col = np.exp(-(d / width) ** 2) * bright
+        swell = 0.55 + 0.45 * periodic_noise(1, h, 1, int(rng.integers(2, 4)), rng)[:, 0]  # slow brightness swell along the band, periodic in y
+        img += col[None, :] * swell[:, None]
+    img += fbm(w, h, 4, 4, 3, rng) * 0.25
+    return norm(img) * 0.85 + 0.15
+
+
+def portal_mote(s=128):
+    """Map portal mote: round soft glow with a small bright centre, no spikes (a rising particle must not sparkle)."""
+    y, x = np.mgrid[0:s, 0:s] / (s - 1) * 2 - 1
+    r = np.hypot(x, y)
+    return np.clip(np.exp(-(r / 0.42) ** 2) * 0.75 + np.clip(1 - r / 0.25, 0, 1) ** 1.5 * 0.4, 0, 1) * (r < 1)
+
+
+MAKERS = {"beam-streaks": beam_streaks, "noise-clouds": noise_clouds, "meteor-core": meteor_core, "burst-ring": burst_ring,
+          "portal-veil": portal_veil, "portal-mote": portal_mote}
 
 
 def save_grey(a, path, size=None):
@@ -129,8 +154,9 @@ def to_grey(png):
     return g
 
 
-def gen():
+def gen(only=None):
     for name, make in MAKERS.items():
+        if only and name not in only: continue
         a = make()
         print("src ", save_grey(a, SRC / (name + "-procedural.png")))
         print("game", save_grey(a, GAME / (name + ".png"), GAME_SIZE[name]))
@@ -144,7 +170,7 @@ def preview():
     tiles = []
     for name in MAKERS:
         g = np.asarray(Image.open(GAME / (name + ".png")).convert("L")).astype(float) / 255
-        g = np.tile(g, (2, 2)) if name in ("beam-streaks", "noise-clouds") else g  # seams show up at the centre lines
+        g = np.tile(g, (2, 2)) if name in ("beam-streaks", "noise-clouds", "portal-veil") else g  # seams show up at the centre lines
         g = np.asarray(Image.fromarray((g * 255).astype(np.uint8)).resize((256, 256))).astype(float) / 255
         dark = np.stack([g * 0.75 + 0.05, g * 0.9 + 0.07, g + 0.12], -1)
         snow = np.stack([0.86 - g * 0.55, 0.9 - g * 0.3, 0.95 - g * 0.05], -1)
@@ -157,7 +183,7 @@ def preview():
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "gen"
-    if cmd == "gen": gen()
+    if cmd == "gen": gen(sys.argv[2:])
     elif cmd == "import": import_painted(sys.argv[2], sys.argv[3])
     elif cmd == "preview": preview()
     else: print(__doc__)
