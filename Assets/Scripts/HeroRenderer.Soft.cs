@@ -26,7 +26,8 @@ namespace ZenoniaProto
 
         /// <summary>
         /// `--hero-style classic` (paper doll everywhere), `rosoft` (Warrior's baked RO Soft sheets, the rest paper doll) or `layered` (default:
-        /// every class with layered art, HeroRenderer.Layered.cs; a class without it falls back to RO Soft / paper doll).
+        /// every class with layered art, HeroRenderer.Layered.cs, the class's RO Fantasy body first; a class without it falls back to RO Soft / paper doll)
+        /// or `layered-common` (layered, with the common gender bodies instead of the RO Fantasy class bodies).
         /// </summary>
         static string StyleArg()
         {
@@ -40,6 +41,15 @@ namespace ZenoniaProto
         {
             get { if (softStyle == null) softStyle = StyleArg() != "classic"; return softStyle.Value; }
             set { softStyle = value; }
+        }
+
+        static bool? roFantasyStyle;
+
+        /// <summary>The class's own RO Fantasy body is preferred (default); false with `--hero-style layered-common` (the common gender bodies).</summary>
+        public static bool RoFantasyStyleEnabled
+        {
+            get { if (roFantasyStyle == null) roFantasyStyle = StyleArg() != "layered-common"; return roFantasyStyle.Value; }
+            set { roFantasyStyle = value; }
         }
 
         /// <summary>True unless `--hero-style classic` / `rosoft` (or a test turns it off before heroes spawn).</summary>

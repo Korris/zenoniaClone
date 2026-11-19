@@ -28,6 +28,7 @@ namespace ZenoniaProto
         HeroPreviewStage preview;
         bool hintDirty = true;
         int dir8 = 1, styleCount = 1;            // starts on the 3/4 front view (down-right)
+        bool fixedOutfit;                        // the class body keeps its painted outfit (RO Fantasy): the outfit colours are hidden
         HeroPreviewStage.Motion motion = HeroPreviewStage.Motion.Idle;
         CharacterAppearanceData shown;
 
@@ -57,6 +58,8 @@ namespace ZenoniaProto
         public static void TestPose(int dir8, HeroPreviewStage.Motion m) { if (instance != null) { instance.dir8 = dir8; instance.motion = m; instance.shown = null; } }
         public static void TestConfirm() { if (instance != null) instance.Submit(); }
         public static CharacterAppearanceData TestLook { get { return instance != null ? instance.Look : null; } }
+        public static bool TestOutfitHidden { get { return instance != null && instance.fixedOutfit; } }
+        public static int TestStyleCount { get { return instance != null ? instance.styleCount : 0; } }
 
         static bool IsNameChar(char c) { return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_'; }
 
@@ -93,6 +96,7 @@ namespace ZenoniaProto
             root.gameObject.SetActive(true);
             HeroClass id = Class;
             styleCount = HeroPreviewStage.HairStyleCount(id);
+            fixedOutfit = HeroPreviewStage.FixedOutfit(id);
             if (Look == null) Look = CharacterAppearanceData.RandomNew(RpgSession.ClassId(id), styleCount, Dice);
             banner.sprite = UiArt.Get("hero-select/banner-" + CharacterFlowKit.ClassArtName(id));
             titleText.text = Offline ? "CHOOSE YOUR LOOK" : "CUSTOMIZE AND NAME";
@@ -128,6 +132,8 @@ namespace ZenoniaProto
             hairName.text = Capitalized(HeroPalettes.HairName(look.hairColorIndex));
             outfitName.text = Capitalized(HeroPalettes.OutfitName(look.outfitColorIndex));
             styleRow.SetActive(styleCount > 1);
+            foreach (GameObject g in outfitParts) g.SetActive(!fixedOutfit);
+            PlaceStyleRow(fixedOutfit);
             styleText.text = "Hairstyle " + (style + 1) + " / " + styleCount;
             for (int i = 0; i < tabs.Length; i++)
             {

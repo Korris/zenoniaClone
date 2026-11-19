@@ -18,7 +18,7 @@ namespace ZenoniaProto
         [Serializable] public class LayerEntry { public int style, id; public string sheet, accSheet; public int cellW, cellH; public float ax, ay, refW = 1f, drop; public bool hidesHair; }
         [Serializable] public class WeaponEntry { public string part, sheet; public float gx, gy; public bool overHand; }
         [Serializable] public class Grip { public string part, anim; public int dir, f; public float x, y, angle; public bool behind, flip; }
-        [Serializable] class ClassFile { public string body; public LayerEntry[] hair, headgear; public WeaponEntry[] weapons; public Grip[] grips; }
+        [Serializable] class ClassFile { public string body; public bool fixedOutfit; public LayerEntry[] hair, headgear; public WeaponEntry[] weapons; public Grip[] grips; }
 
         /// <summary>World height of the body (the paper doll's figure height), as on the RO Soft path.</summary>
         public const float BodyUnits = 20.5f;
@@ -27,6 +27,8 @@ namespace ZenoniaProto
         static readonly Dictionary<string, HeroLayeredSet> Cache = new Dictionary<string, HeroLayeredSet>();
 
         public int CellW, CellH, FeetY;
+        /// <summary>The body keeps its painted outfit (RO Fantasy class bodies): no outfit colour to pick, the mask has no outfit region.</summary>
+        public bool FixedOutfit;
         public float Ppu;
         string sheets;
         readonly Dictionary<string, int> frames = new Dictionary<string, int>();
@@ -56,7 +58,7 @@ namespace ZenoniaProto
                 TextAsset b = cf != null && cf.body != null ? Resources.Load<TextAsset>(cf.body) : null;
                 BodyFile bf = b != null ? JsonUtility.FromJson<BodyFile>(b.text) : null;
                 if (bf == null || bf.anims == null || bf.bodyPx <= 0) { Debug.LogWarning("[ZenoniaProto] layered set " + classJson + " missing or incomplete"); return null; }
-                var s = new HeroLayeredSet { CellW = bf.cellW, CellH = bf.cellH, FeetY = bf.feetY, Ppu = bf.bodyPx / BodyUnits, sheets = bf.sheets };
+                var s = new HeroLayeredSet { CellW = bf.cellW, CellH = bf.cellH, FeetY = bf.feetY, Ppu = bf.bodyPx / BodyUnits, sheets = bf.sheets, FixedOutfit = cf.fixedOutfit };
                 foreach (AnimSpec a in bf.anims) { s.frames[a.name] = Mathf.Max(1, a.frames); s.anims.Add(a.name); }
                 if (bf.head != null) foreach (HeadAnchor h in bf.head) s.heads[Key(h.anim, h.dir, h.f)] = h;
                 if (cf.grips != null) foreach (Grip g in cf.grips) s.grips[g.part + "|" + Key(g.anim, g.dir, g.f)] = g;

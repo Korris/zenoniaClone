@@ -29,10 +29,25 @@ namespace ZenoniaProto
         HeroLayeredView layered;
         float crowdScale = 1f, crowdPhase;
 
-        /// <summary>Class json of a class's real layered set (Tools/build-hero-layered-game-assets.py), or null when the layered style is off.</summary>
+        public const string RoFantasyRoot = "Data/hero-layered/ro-fantasy/";
+        static readonly System.Collections.Generic.Dictionary<string, bool> roFantasyHas = new System.Collections.Generic.Dictionary<string, bool>();
+
+        /// <summary>
+        /// Class json of a class's layered set, or null when the layered style is off. Default: the class's own RO Fantasy body
+        /// (Data/hero-layered/ro-fantasy/&lt;class&gt;/class, Tools/build-ro-fantasy-hero-game-assets.py: body per class, fixed outfit, 3 dyeable
+        /// hairstyles) when it exists, else the common gender body (Tools/build-hero-layered-game-assets.py). `--hero-style layered-common` = the common body.
+        /// </summary>
         public static string LayeredSetFor(HeroClassDef def)
         {
-            return def != null && LayeredStyleEnabled ? "Data/hero-layered/" + def.Name.ToLowerInvariant() + "/class" : null;
+            if (def == null || !LayeredStyleEnabled) return null;
+            string cls = def.Name.ToLowerInvariant();
+            if (RoFantasyStyleEnabled)
+            {
+                bool has;
+                if (!roFantasyHas.TryGetValue(cls, out has)) roFantasyHas[cls] = has = Resources.Load<TextAsset>(RoFantasyRoot + cls + "/class") != null;
+                if (has) return RoFantasyRoot + cls + "/class";
+            }
+            return "Data/hero-layered/" + cls + "/class";
         }
 
         /// <summary>The local player's resolved look (last SetAppearance with local = true), for views of the same hero (bag portrait).</summary>
@@ -92,7 +107,37 @@ namespace ZenoniaProto
         {
             if (anim == null) return 0;
             if (anim == "death") return DeathFadeSteps;
+            if (StandIn(anim, LayeredAnim(anim))) return StandInFrames;
             return layered.Set.Frames(LayeredAnim(anim));
+        }
+
+        // Stand-in motion (RO Fantasy class bodies before their walk / attack art exists): the idle frame hops and tilts while walking, leans
+        // back then lunges toward the facing on attacks. Per frame, cell px / degrees.
+        const int StandInFrames = 4;
+        static readonly float[] WalkHopPx = { 0f, 3f, 0f, 3f }, WalkTiltDeg = { 2.5f, 0f, -2.5f, 0f };
+        static readonly float[] AttackLungePx = { -3f, 5f, 7f, 2f }, AttackLeanDeg = { -3f, 6f, 8f, 2f };
+        static readonly float[] FaceX = { 0f, 0.7f, 1f, 0.7f, 0f, -0.7f, -1f, -0.7f }, FaceY = { -1f, -0.7f, 0f, 0.7f, 1f, 0.7f, 0f, -0.7f };
+
+        /// <summary>A moving game anim drawn with the idle frame because the set has no art for it yet.</summary>
+        static bool StandIn(string anim, string painted)
+        {
+            return painted == "idle" && anim != null && anim != "idle" && anim != "hurt" && anim != "death";
+        }
+
+        /// <summary>(shift in local units, tilt in degrees) of the stand-in motion at frame f.</summary>
+        void StandInPose(string anim, int dir8, int f, out Vector2 shift, out float tilt)
+        {
+            float ppu = layered.Set.Ppu;
+            f = ((f % StandInFrames) + StandInFrames) % StandInFrames;
+            if (anim == "walk" || anim == "dash")
+            {
+                shift = new Vector2(0f, WalkHopPx[f] / ppu);
+                tilt = WalkTiltDeg[f];
+                return;
+            }
+            int d = Mathf.Clamp(dir8, 0, 7);
+            shift = new Vector2(FaceX[d], FaceY[d] * 0.4f) * (AttackLungePx[f] / ppu);
+            tilt = -FaceX[d] * AttackLeanDeg[f]; // lean toward the side it strikes (clockwise = right)
         }
 
         /// <summary>
@@ -103,6 +148,7 @@ namespace ZenoniaProto
         {
             HeroLayeredSet set = layered.Set;
             if (anim == null || anim == "idle" || anim == "hurt" || anim == "death" || anim == "walk" || anim == "dash") return set.Resolve(anim);
+            if (set.HasAnim("attack") && !set.HasAnim("attack1")) return "attack"; // RO Fantasy bodies: one lock-target attack for every combo step / skill pose
             int step = cls.ComboAnims != null ? Array.IndexOf(cls.ComboAnims, anim) : -1;
             string want = step >= 0 ? "attack" + (step % 3 + 1) : set.HasAnim(anim) ? anim : "attack2";
             return set.HasAnim(want) ? want : set.Resolve(anim);
@@ -130,6 +176,14 @@ namespace ZenoniaProto
             string painted = LayeredAnim(anim);
             int n = layered.Set.Frames(painted);
             float a = alpha;
+            Vector2 shift = Vector2.zero;
+            float tilt = 0f;
+            if (StandIn(anim, painted))
+            {
+                int f = anim == "walk" || anim == "dash" ? frame + Mathf.FloorToInt(crowdPhase * StandInFrames) : PoseFrame(anim, "attack-stand-in", frame, StandInFrames);
+                StandInPose(anim, SoftRow(dir), f, out shift, out tilt);
+                frame = 0;
+            }
             if (anim == "death") { a *= 1f - Mathf.Clamp01((frame + 1f) / DeathFadeSteps); frame = 0; }
             else if (painted.StartsWith("attack", StringComparison.Ordinal)) frame = PoseFrame(anim, painted, frame, n);
             else if (painted == "walk" && n > 1) frame = (frame + Mathf.FloorToInt(crowdPhase * n)) % n; // crowd: not every walker steps in time
@@ -137,7 +191,7 @@ namespace ZenoniaProto
             shadow.sortingOrder = orderBase;
             shadow.color = new Color(1f, 1f, 1f, 0.3f * a);
             float sy = painted == "idle" && anim != "death" ? 1f + BreathAmp * Mathf.Sin((Time.time + breathPhase) * (2f * Mathf.PI / BreathPeriod)) : 1f;
-            layered.Show(painted, SoftRow(dir), frame, orderBase, new Color(c.r, c.g, c.b, a), sy, LayeredWeaponOn, !offhandEmpty);
+            layered.Show(painted, SoftRow(dir), frame, orderBase, new Color(c.r, c.g, c.b, a), sy, LayeredWeaponOn, !offhandEmpty, shift, tilt);
         }
     }
 }

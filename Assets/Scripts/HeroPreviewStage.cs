@@ -137,6 +137,14 @@ namespace ZenoniaProto
             return set != null ? Mathf.Max(1, set.HairStyleCount) : 1;
         }
 
+        /// <summary>True when the class's layered body keeps its painted outfit (RO Fantasy bodies): the creation screen offers no outfit colour.</summary>
+        public static bool FixedOutfit(HeroClass id)
+        {
+            string json = HeroRenderer.LayeredSetFor(HeroClassDef.Get(id));
+            HeroLayeredSet set = json != null ? HeroLayeredSet.Load(json) : null;
+            return set != null && set.FixedOutfit;
+        }
+
         void Update()
         {
             if (!cam.enabled) return;

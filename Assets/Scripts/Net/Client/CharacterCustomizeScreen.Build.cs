@@ -27,7 +27,15 @@ namespace ZenoniaProto
         InputField input;
         Text titleText, hairName, outfitName, styleText, hint, status, createLabel, note;
         Button createButton, backButton, diceButton, randomButton;
-        GameObject namePlate, notePlate, styleRow;
+        GameObject namePlate, notePlate, styleRow, styleHeader;
+
+        /// <summary>Hairstyle row on the right (outfit colours shown) or inside the colour plate under the hair colours (fixed outfit).</summary>
+        void PlaceStyleRow(bool inPlate)
+        {
+            ((RectTransform)styleRow.transform).anchoredPosition = inPlate ? new Vector2(PlateX + (PlateW - RightW) * 0.5f, -(PlateY + 288f)) : new Vector2(RightX, -420f);
+            styleHeader.SetActive(inPlate && styleRow.activeSelf);
+        }
+        readonly System.Collections.Generic.List<GameObject> outfitParts = new System.Collections.Generic.List<GameObject>();
 
         void Build()
         {
@@ -61,13 +69,21 @@ namespace ZenoniaProto
             hairName = CharacterFlowKit.RoText(p, "HairName", 0f, 194f, PlateW, 26f, "", 19, RoSoftTheme.MintDark);
             Image gem = CharacterFlowKit.Pic(p, "Divider", UiArt.Get("ro-soft/divider-gem"), 24f, 226f, PlateW - 48f, 16f);
             gem.preserveAspect = false;
-            CharacterFlowKit.RoText(p, "OutfitHeader", 0f, 248f, PlateW, 28f, "OUTFIT COLOR", 21, RoSoftTheme.Ink);
+            Text outfitHeader = CharacterFlowKit.RoText(p, "OutfitHeader", 0f, 248f, PlateW, 28f, "OUTFIT COLOR", 21, RoSoftTheme.Ink);
             outfitSwatches = Swatches(p, "Outfit", Mathf.Min(HeroPalettes.OutfitCount, CharacterAppearanceData.OutfitColorCount), 282f, OnOutfit);
             outfitName = CharacterFlowKit.RoText(p, "OutfitName", 0f, 426f, PlateW, 26f, "", 19, RoSoftTheme.MintDark);
+            // the outfit block hides for a class whose body keeps its painted outfit (RO Fantasy bodies: HeroLayeredSet.FixedOutfit)
+            outfitParts.Clear();
+            outfitParts.Add(gem.gameObject);
+            outfitParts.Add(outfitHeader.gameObject);
+            outfitParts.Add(outfitName.gameObject);
+            foreach (Swatch s in outfitSwatches) outfitParts.Add(s.Frame.gameObject);
             Text unused;
             randomButton = CharacterFlowKit.RoButton(p, "Random", RoSoftSprites.Shape.Gold, (PlateW - 190f) * 0.5f, 462f, 190f, 56f, "RANDOM", 22, OnRandom, out unused);
 
             // Hairstyle row: only when the class has more than one layered hairstyle (every class has one today; the index plumbing stays).
+            // A fixed-outfit class (RO Fantasy) shows the row in the colour plate where the outfit colours were, under its own header.
+            styleHeader = CharacterFlowKit.RoText(p, "StyleHeader", 0f, 248f, PlateW, 28f, "HAIRSTYLE", 21, RoSoftTheme.Ink).gameObject;
             styleRow = UiKit.Rect(stage, "StyleRow", RightX, 420f, RightW, 60f).gameObject;
             CharacterFlowKit.RoPiece(styleRow.transform, "Face", RoSoftSprites.Shape.Row, 60f, 4f, RightW - 120f, 52f);
             styleText = CharacterFlowKit.RoText(styleRow.transform, "Style", 60f, 4f, RightW - 120f, 52f, "", 20, RoSoftTheme.Ink);

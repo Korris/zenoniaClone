@@ -19,6 +19,7 @@ namespace ZenoniaProto
         static int maskId, hairColorId, outfitColorId, hairAllId;
 
         readonly HeroLayeredSet set;
+        readonly Transform root;
         readonly SpriteRenderer body, hand, hair, hairAcc, headgear, weaponBack, weaponFront, offBack, offFront;
         Color hairColor = Color.gray, outfitColor = Color.gray;
         int hairStyle, headgearId;
@@ -38,15 +39,17 @@ namespace ZenoniaProto
                 maskId = Shader.PropertyToID("_MaskTex"); hairColorId = Shader.PropertyToID("_HairColor");
                 outfitColorId = Shader.PropertyToID("_OutfitColor"); hairAllId = Shader.PropertyToID("_HairAll");
             }
-            weaponBack = Child(parent, "L_WeaponBack", 0f, false);
-            offBack = Child(parent, "L_OffhandBack", 0f, false);
-            body = Child(parent, "L_Body", 0f, true);
-            hair = Child(parent, "L_Hair", HairZ, true);
-            hairAcc = Child(parent, "L_HairAccessory", AccessoryZ, false);
-            headgear = Child(parent, "L_Headgear", HeadgearZ, false);
-            weaponFront = Child(parent, "L_WeaponFront", 0f, false);
-            offFront = Child(parent, "L_OffhandFront", 0f, false);
-            hand = Child(parent, "L_Hand", 0f, false);
+            root = new GameObject("L_Root").transform; // pivots on the feet: the stand-in motion of a set without walk / attack art moves it
+            root.SetParent(parent, false);
+            weaponBack = Child(root, "L_WeaponBack", 0f, false);
+            offBack = Child(root, "L_OffhandBack", 0f, false);
+            body = Child(root, "L_Body", 0f, true);
+            hair = Child(root, "L_Hair", HairZ, true);
+            hairAcc = Child(root, "L_HairAccessory", AccessoryZ, false);
+            headgear = Child(root, "L_Headgear", HeadgearZ, false);
+            weaponFront = Child(root, "L_WeaponFront", 0f, false);
+            offFront = Child(root, "L_OffhandFront", 0f, false);
+            hand = Child(root, "L_Hand", 0f, false);
         }
 
         static SpriteRenderer Child(Transform parent, string name, float z, bool recolor)
@@ -69,9 +72,13 @@ namespace ZenoniaProto
         public void Hide() { foreach (SpriteRenderer r in Renderers) r.sprite = null; }
 
         /// <summary>Draws painted anim `anim` (already resolved by HeroLayeredSet.Resolve), Dir8 `dir8`, frame `frame`.
-        /// weaponOn / offhandOn: the hero holds something in that hand (nothing equipped = that layer hidden).</summary>
-        public void Show(string anim, int dir8, int frame, int orderBase, Color tint, float breathY, bool weaponOn = true, bool offhandOn = true)
+        /// weaponOn / offhandOn: the hero holds something in that hand (nothing equipped = that layer hidden).
+        /// shift / tiltDeg: the whole figure moved (local units) and turned around the feet (stand-in motion, HeroRenderer.Layered.cs).</summary>
+        public void Show(string anim, int dir8, int frame, int orderBase, Color tint, float breathY, bool weaponOn = true, bool offhandOn = true,
+                         Vector2 shift = default(Vector2), float tiltDeg = 0f)
         {
+            root.localPosition = new Vector3(shift.x, shift.y, 0f);
+            root.localRotation = Quaternion.Euler(0f, 0f, tiltDeg);
             int row = PaintedRow[Mathf.Clamp(dir8, 0, 7)];
             bool mirror = dir8 >= 5;
             frame = Mathf.Clamp(frame, 0, set.Frames(anim) - 1);
