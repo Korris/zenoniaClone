@@ -1,0 +1,31 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-hud/src/ro-hud-c-controls-chat-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-hud/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "erase": [[95, 566, 405, 574]],
+ "rows": [
+  [{"name": "hud-attack", "height": 208},
+   {"name": "hud-attack-pressed", "height": 208},
+   {"name": "hud-skill-arc", "height": 380}],
+  [{"name": "hud-skill-ring", "box": [134, 358, 352, 567], "height": 124, "hole": "hud-skill-mask"},
+   {"name": "hud-auto", "height": 136},
+   {"name": "hud-auto-on", "height": 136},
+   {"name": "hud-run", "height": 148}],
+  [{"name": "hud-joy-base", "box": [95, 574, 405, 880], "height": 316},
+   {"name": "hud-joy-knob", "height": 128},
+   {"name": "hud-chat-button", "height": 92},
+   {"name": "hud-chevron-up", "height": 28}],
+  [{"name": "hud-chat-bar", "height": 64, "border": [32, 0, 32, 0]},
+   {"name": "hud-name-pill", "height": 40, "border": [20, 0, 20, 0]},
+   {"name": "hud-emblem", "height": 40},
+   {"name": "hud-name-hp-track", "height": 16, "border": [8, 0, 8, 0]},
+   {"name": "hud-name-hp-fill", "height": 16, "border": [8, 0, 8, 0]}]
+ ]
+}
+

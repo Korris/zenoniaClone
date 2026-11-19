@@ -1,0 +1,33 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-hud/src/ro-hud-a-status-party-menu-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-hud/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [{"name": "hud-portrait-ring", "height": 184, "hole": "hud-portrait-mask"},
+   {"name": "hud-lv-badge", "height": 44, "border": [22, 0, 22, 0]},
+   {"name": "hud-status-plate", "height": 140, "border": [40, 40, 40, 40]}],
+  [{"name": "hud-bar-track", "height": 30, "border": [15, 0, 15, 0]},
+   {"name": "hud-bar-red", "height": 30, "border": [15, 0, 15, 0]},
+   {"name": "hud-bar-blue", "height": 30, "border": [15, 0, 15, 0]},
+   {"name": "hud-bar-teal", "height": 30, "border": [15, 0, 15, 0]}],
+  [{"name": "hud-party-title", "height": 48, "border": [24, 0, 24, 0]},
+   {"name": "hud-btn-arrow", "height": 48},
+   {"name": "hud-party-row", "height": 88, "border": [26, 26, 26, 26]},
+   {"name": "hud-icon-crown", "height": 40},
+   {"name": "hud-icon-sword", "height": 40},
+   {"name": "hud-icon-plus", "height": 40}],
+  [{"name": "hud-menu-plate", "height": 112},
+   {"name": "hud-icon-bag", "height": 80},
+   {"name": "hud-icon-skills", "height": 80},
+   {"name": "hud-icon-pet", "height": 80},
+   {"name": "hud-icon-quest", "height": 80},
+   {"name": "hud-icon-more", "box": [1140, 830, 1310, 898], "height": 28},
+   {"name": "hud-badge-alert", "height": 44}]
+ ]
+}

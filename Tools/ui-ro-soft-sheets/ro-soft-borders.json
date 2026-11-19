@@ -71,11 +71,107 @@
   64,
   30
  ],
+ "ro-soft/hud-bar-blue": [
+  15,
+  0,
+  15,
+  0
+ ],
+ "ro-soft/hud-bar-red": [
+  15,
+  0,
+  15,
+  0
+ ],
+ "ro-soft/hud-bar-teal": [
+  15,
+  0,
+  15,
+  0
+ ],
+ "ro-soft/hud-bar-track": [
+  15,
+  0,
+  15,
+  0
+ ],
+ "ro-soft/hud-channel-pill": [
+  24,
+  0,
+  24,
+  0
+ ],
+ "ro-soft/hud-chat-bar": [
+  32,
+  0,
+  32,
+  0
+ ],
+ "ro-soft/hud-lv-badge": [
+  22,
+  0,
+  22,
+  0
+ ],
+ "ro-soft/hud-map-pill": [
+  24,
+  0,
+  24,
+  0
+ ],
+ "ro-soft/hud-name-hp-fill": [
+  8,
+  0,
+  8,
+  0
+ ],
+ "ro-soft/hud-name-hp-track": [
+  8,
+  0,
+  8,
+  0
+ ],
+ "ro-soft/hud-name-pill": [
+  20,
+  0,
+  20,
+  0
+ ],
+ "ro-soft/hud-party-row": [
+  26,
+  26,
+  26,
+  26
+ ],
+ "ro-soft/hud-party-title": [
+  24,
+  0,
+  24,
+  0
+ ],
  "ro-soft/hud-plate": [
   44,
   40,
   44,
   44
+ ],
+ "ro-soft/hud-status-plate": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "ro-soft/hud-wanted-card": [
+  36,
+  36,
+  36,
+  36
+ ],
+ "ro-soft/hud-wanted-tag": [
+  20,
+  0,
+  20,
+  0
  ],
  "ro-soft/panel": [
   40,
