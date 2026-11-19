@@ -41,6 +41,9 @@ Crystal Fissure và Rune Impact dùng chung động tác giơ tay đập xuống
 | Poison Bloom | 3 vòng tròn tại chỗ người chơi (số liệu vòng: xem chat), để lại vũng độc 3 s | 1,8-2,0 s | 0,8x, độc 0,15x mỗi giây trong 4 s | 15 s | Rời vòng, đừng kéo vùng độc vào đội |
 | Serpent Tail Crush | Vòng tròn quanh boss, bán kính 4 ô | 1,5 s | 1,7x, đẩy lùi 2 ô | 16 s | Rời phạm vi đuôi |
 | Queen's Toxic Reign (dưới 30 % máu) | 5 vòng tròn bán kính 2 ô quanh khu giao tranh | 2,2 s | 1,5x, độc 0,2x mỗi giây trong 5 s | 30 s | Tìm khoảng trống giữa các vòng |
+| Venom Drain (thêm 19/11, Id 4, skill thường thứ 4) | Vòng tròn bán kính 6 ô quanh boss, CHỈ trúng người đang bị độc | 2,0 s | 0,8x, xoá độc; boss hồi 50 % máu thật đã rút, tối đa 2 % máu tối đa mỗi lần | 22 s | Ra khỏi vòng (hoặc không bị độc). Không ai bị độc trong vòng thì không dùng, không mất hồi chiêu. Lúc bắt đầu cảnh báo, độc của người trong vòng được giữ tới sau đòn |
+
+Venom Drain: số của ChatGPT (Tay, chat https://chatgpt.com/c/6aff091a-624c-83ec-b0f2-af0bb9e55cb4), chưa cân bằng. Người bị rút được chọn lúc đòn rơi (đang độc + còn trong vòng). Mạng: `NetEventType.HeroStatus` (protocol 25) báo độc / thời gian còn lại của từng hero cho client (icon dưới thanh máu, thanh party, hiệu ứng trên người).
 
 ## Luật đóng băng (Frozen Ground Stomp, 12/11/2026)
 

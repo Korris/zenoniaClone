@@ -27,6 +27,7 @@ namespace ZenoniaProto
             public Text Name, Status;
             public RoHud.Bar Hp;
             public RectTransform StatusIcons;
+            public PoisonStatusIcon Poison; // wanted boss poison on this teammate (2026-11-19)
         }
 
         readonly RectTransform root, arrow;
@@ -69,6 +70,7 @@ namespace ZenoniaProto
             r.Role = RoHud.Art(RoHud.TopLeftBox(r.Root, "Role", 1f, 1f, 15f, 15f), "hud-icon-crown");
             r.Name = RoHud.Label(RoHud.TopLeftBox(r.Root, "Name", 52f, 6f, 100f, 16f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft);
             r.StatusIcons = RoHud.TopLeftBox(r.Root, "StatusIcons", W - 48f, 5f, 40f, 14f); // poison and other status icons (right of the name)
+            r.Poison = new PoisonStatusIcon(r.StatusIcons, 14f);
             r.Hp = new RoHud.Bar(r.Root, "Hp", 52f, 26f, W - 62f, BarH, "hud-bar-track", "hud-bar-teal");
             r.Status = RoHud.Label(RoHud.TopLeftBox(r.Root, "Status", 52f, 25f, W - 62f, 14f), "", 11, RoSoftTheme.InkSoft, TextAnchor.MiddleLeft, false);
             return r;
@@ -116,6 +118,7 @@ namespace ZenoniaProto
             if (bar) r.Hp.Set(info.MaxHp > 0 ? (float)info.Hp / info.MaxHp : 0f);
             r.Status.text = dead ? "Dead" : otherMap ? PartyHudList.MapName(info.MapId) : away ? "Out of range" : "";
             r.Group.alpha = dead ? 0.8f : away ? 0.65f : 1f;
+            r.Poison.Show(bar ? hero : null);
         }
     }
 }

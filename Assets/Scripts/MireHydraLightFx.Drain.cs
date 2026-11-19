@@ -17,7 +17,7 @@ namespace ZenoniaProto
     public sealed partial class MireHydraLightFx
     {
         const int MaxTethers = 8;
-        const float TetherWidth = 7f, BossBodyLift = 30f, HeroChestLift = 9f;
+        const float TetherWidth = 13f, BossBodyLift = 30f, HeroChestLift = 9f;
         readonly List<HeroController> drainPicks = new List<HeroController>(MaxTethers);
         readonly Vector2[] drainEnds = new Vector2[MaxTethers];
         MeshRenderer[] tethers;
@@ -44,8 +44,8 @@ namespace ZenoniaProto
                     r.enabled = true;
                     r.transform.position = new Vector3(drainEnds[i].x, drainEnds[i].y, 0f);  // bottom pivot on the hero: the rays scroll toward the boss
                     r.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg - 90f);
-                    r.transform.localScale = new Vector3(k == 0 ? width : width * 0.4f, Mathf.Max(0.01f, d.magnitude), 1f);
-                    LightSkillAssets.Set(r, k == 0 ? alpha * 0.85f : alpha);
+                    r.transform.localScale = new Vector3(k == 0 ? width : width * 0.45f, Mathf.Max(0.01f, d.magnitude), 1f);
+                    LightSkillAssets.Set(r, alpha); // first capture: 7 units at 0.85 read as a hairline on the pale stone
                 }
                 if (on && t < 0f) FlowBubbles(drainEnds[i], boss);
             }
@@ -77,10 +77,10 @@ namespace ZenoniaProto
 
         void FlowBubbles(Vector2 from, Vector2 to)
         {
-            if (Random.value > 10f * GameClock.Dt) return;   // about 10 a second per tether
+            if (Random.value > 20f * GameClock.Dt) return;   // about 20 a second per tether
             Vector2 d = to - from;
             float life = 0.55f;
-            WantedFxParticles.Emit(bubbles, from + d * Random.Range(0f, 0.3f), d / life * 0.7f, Random.Range(1.6f, 2.6f), WantedFxParticles.VenomColor(), life);
+            WantedFxParticles.Emit(bubbles, from + d * Random.Range(0f, 0.3f), d / life * 0.7f, Random.Range(2.6f, 3.8f), WantedFxParticles.VenomColor(), life);
         }
 
         void TickHealFlash(float t, Vector2 boss)

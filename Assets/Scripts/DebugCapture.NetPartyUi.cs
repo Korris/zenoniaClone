@@ -184,9 +184,9 @@ namespace ZenoniaProto
         {
             PartyClientState party = NetClient.Party;
             yield return Until(() => party.Incoming.HasValue, 90f, "invite shows");
-            if (!party.Incoming.HasValue) yield break;
+            if (!party.Incoming.HasValue) { if (!away) yield return PartyPoisonShots(); yield break; } // the party may still form another way
             NetClient.SendParty(PartyOp.Accept, party.Incoming.Value.Other);
-            if (!away) { if (Monster.Wanted != null) yield return PartyPoisonShots(); yield break; }
+            if (!away) { yield return PartyPoisonShots(); yield break; }
             yield return Until(() => party.Members.Count == 5, 30f, "party full");
             yield return new WaitForSeconds(3f);
             EnablePortalBot();
@@ -196,7 +196,9 @@ namespace ZenoniaProto
         /// teammate is poisoned (poison icon under the HP bar and on the party rows, 2026-11-19): up to 10 shots 1.5 s apart, 6 minutes at most.</summary>
         IEnumerator PartyPoisonShots()
         {
-            yield return Until(() => NetClient.Party.Members.Count >= 2, 30f, "party formed");
+            yield return Until(() => Monster.Wanted != null, 20f, "wanted boss in sight");
+            // keep going even when the boss is not in sight yet: the poison can come from any wanted skill once the bots pull the hero in
+            yield return Until(() => NetClient.Party.Members.Count >= 2, 120f, "party formed");
             if (GameSession.Hero != null) EnableNavBot(true, BotOffset(GameSession.Hero.PlayerName), false, false, true); // fight the boss, as the showcase does
             PartyClientState party = NetClient.Party;
             int shots = 0;

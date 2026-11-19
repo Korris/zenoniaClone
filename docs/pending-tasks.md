@@ -2,6 +2,11 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 19/11 23:40 Mire Hydra Queen: Venom Drain + icon trúng độc HUD / party + hiệu ứng độc trên người + sửa boss quay mặt (agent, merge vào `ro-fantasy-heroes`)
+- Skill thứ 5 Venom Drain (Id 4, số ChatGPT chưa cân bằng), độc nhân bản cho client (`NetEventType.HeroStatus`, **protocol 25: PHẢI build lại zone server + phát client mới**), icon độc ChatGPT (`Sprites/ui/status/poison.png`) dưới thanh máu + hàng party (HUD RO và HUD gọn), tint olive + bọt độc trên người theo ChatGPT, tick độc hết cho bất tử, tint đóng băng / độc ăn cả hero RO Fantasy nhiều lớp. Boss quay mặt: 3,5-5,5 lần/s -> 0,4-1,0 lần/s (`Rpg/MonsterFacingRule.cs`).
+- ChatGPT Tay chat https://chatgpt.com/c/6aff091a-624c-83ec-b0f2-af0bb9e55cb4 (thiết kế Venom Drain, icon, có / không hiệu ứng trên người). Báo cáo `plans/reports/hydra-venom-drain-poison-ui-261119.md`, ảnh `docs/reference/mire-hydra-queen-v2/venom-*.png`. Exe `D:/temp/player-hydra-venom/Zenonia.exe`.
+- CÒN: Venom Drain chưa có dòng trên bảng Wanted; tint 20 % rất nhạt (hỏi người dùng); thanh máu boss "65 535" + ENRAGED sai (lỗi cũ, HpLeft ushort); chưa chụp icon party ở HUD gọn.
+
 ### 19/11 23:50 HUD trong game làm theo mockup `02-hud.png` (agent, đã merge vào `ro-fantasy-heroes`)
 - Người dùng: "thêm 1 agent sửa lại cái hud như 02-hud.png", rồi "khung chat ở bản mobile cho nằm giữa", rồi "chụp gửi chatgpt so sánh".
 - Chat ChatGPT (Tay): https://chatgpt.com/c/6aff0d5c-f0a0-83ec-8726-10aa0543ada0 (4 sheet mảnh HUD, 3 vòng so sánh: 7.5 -> 8.6 -> 9.0/10, vòng 3 "đủ tốt để chơi thử").
