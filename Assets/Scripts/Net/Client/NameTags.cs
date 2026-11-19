@@ -26,7 +26,7 @@ namespace ZenoniaProto
 
         void OnGUI()
         {
-            if (Event.current.type != EventType.Repaint || UiWindows.ModalOpen) return; // offline too (user 19/11/2026): your own green name, nobody else's. IMGUI draws over the UGUI canvas: tags would sit on any open window (trade items, shop tabs)
+            if (Event.current.type != EventType.Repaint || UiWindows.ModalOpen || HeroChangeScreen.IsOpen) return; // hero select / appearance step over the game: no tags on top. Offline too (user 19/11/2026): your own green name, nobody else's. IMGUI draws over the UGUI canvas: tags would sit on any open window (trade items, shop tabs)
             Camera cam = Camera.main;
             Zone zone = Zone.Main;
             if (cam == null || zone == null) return;

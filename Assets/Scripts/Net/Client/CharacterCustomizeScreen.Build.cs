@@ -1,35 +1,39 @@
 using UnityEngine;
 using UnityEngine.UI;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Layout of Customize and Name, from docs/reference/character-flow-screen-3-customize-and-name.png on the shared 1138 x 640 stage: the hairstyle grid (2 x 3) and colour swatches in the left plate,
-    /// the hero on a pedestal under its class banner in the middle, the name plate (input + dice) on the right, BACK and CREATE along the bottom.
+    /// Layout of the appearance step on the shared 1138 x 640 stage, in the RO Soft kit (Sprites/ui/ro-soft): the colour plate on the left
+    /// (8 hair swatches, 6 outfit swatches with their palettes.json names, Random, a hairstyle row when the class has more than one), the live hero
+    /// on its pedestal in the middle with turn arrows and Idle / Walk / Attack tabs, the name plate (online) or a note (offline) on the right,
+    /// Back and Create / Confirm along the bottom. Swatch = kit slot frame + the round kit swatch tinted with the palette colour.
     /// </summary>
     public sealed partial class CharacterCustomizeScreen
     {
-        const float HeroX = 569f, FeetY = 470f, HeroViewH = 440f, PedestalW = 270f, PedestalAspect = 448f / 208f, FeetOnPedestal = 0.22f, BannerW = 128f, BannerH = 188f, BannerBottom = 322f;
-        const float TileW = 112f, TileH = 86f, TileGap = 14f, TileInset = 8f, SwatchSize = 40f, SwatchStep = 55f; // sized so two swatch rows fit INSIDE the plate (they spilled over BACK at 118 x 104 / 44)
-        const int MaxSwatches = CharacterLookPrefs.MaxDye + 2; // "own colour" + every preset index
+        const float HeroX = 585f, FeetY = 440f, HeroViewH = 440f, PedestalW = 270f, PedestalAspect = 448f / 208f, FeetOnPedestal = 0.22f, BannerW = 128f, BannerH = 188f, BannerBottom = 300f;
+        const float PlateX = 28f, PlateY = 84f, PlateW = 360f, PlateH = 528f;
+        const float SlotSize = 64f, SlotStepX = 76f, SlotStepY = 72f, DiscInset = 13f, SwatchesPerRow = 4;
+        const float RightX = 790f, RightY = 190f, RightW = 320f, RightH = 176f;
 
-        sealed class Tile { public Image Frame; public Image[] Layers = new Image[4]; public RectTransform Cell; }
-        sealed class Swatch { public Image Disc, Ring; }
+        sealed class Swatch { public Image Frame, Disc; }
 
         RectTransform root, stage, titleRt;
-        readonly Tile[] tiles = new Tile[HairPreviewSprites.MaxStyles];
-        readonly Swatch[] swatches = new Swatch[MaxSwatches];
+        Swatch[] hairSwatches, outfitSwatches;
+        readonly Image[] tabs = new Image[3];
+        readonly Text[] tabLabels = new Text[3];
         Image banner;
         InputField input;
-        Text styleNote, colorNote, hint, status;
-        Button createButton, backButton, diceButton;
-        GameObject hairHeader, colorHeader;
+        Text titleText, hairName, outfitName, styleText, hint, status, createLabel, note;
+        Button createButton, backButton, diceButton, randomButton;
+        GameObject namePlate, notePlate, styleRow;
 
         void Build()
         {
             root = CharacterFlowKit.Backdrop(transform, "CharacterCustomize");
             stage = CharacterFlowKit.Stage(root);
-            CharacterFlowKit.Title(root, "CUSTOMIZE AND NAME", out titleRt);
+            titleText = CharacterFlowKit.Title(root, "CUSTOMIZE AND NAME", out titleRt);
 
             banner = CharacterFlowKit.Pic(stage, "Banner", null, HeroX - BannerW * 0.5f, BannerBottom - BannerH, BannerW, BannerH);
             banner.preserveAspect = false;
@@ -40,57 +44,77 @@ namespace ZenoniaProto
             RectTransform heroRt = UiKit.Rect(stage, "Hero", HeroX - viewW * 0.5f, FeetY + feetOffset - HeroViewH, viewW, HeroViewH);
             preview = HeroPreviewStage.Create(transform, heroRt.gameObject.AddComponent<RawImage>(), 1);
 
-            BuildLeftPlate();
-            BuildNamePlate();
-            backButton = CharacterFlowKit.GemButton(stage, "Back", "btn-navy", 262f, 550f, 250f, 78f, "BACK", 28, Color.white, OnBack);
-            createButton = CharacterFlowKit.GemButton(stage, "Create", "btn-gold", 590f, 550f, 250f, 78f, "CREATE", 30, CharacterFlowKit.Ink, Submit);
-            status = UiKit.Label(stage, "Status", 775f, 388f, 335f, 70f, "", 16, CharacterFlowKit.Soft, TextAnchor.UpperCenter, true);
+            BuildColourPlate();
+            BuildPreviewControls();
+            BuildRightPlates();
+            Text unused;
+            backButton = CharacterFlowKit.RoButton(stage, "LookBack", RoSoftSprites.Shape.Secondary, HeroX - 182f, 556f, 200f, 64f, "BACK", 26, OnBack, out unused);
+            createButton = CharacterFlowKit.RoButton(stage, "Create", RoSoftSprites.Shape.Primary, HeroX + 32f, 556f, 200f, 64f, "CREATE", 26, Submit, out createLabel);
+            status = UiKit.Label(stage, "Status", RightX, RightY + RightH + 12f, RightW, 70f, "", 16, CharacterFlowKit.Soft, TextAnchor.UpperCenter, true);
         }
 
-        void BuildLeftPlate()
+        void BuildColourPlate()
         {
-            RectTransform p = CharacterFlowKit.Plate(stage, "Left", 40f, 80f, 320f, 468f);
-            hairHeader = UiKit.Label(p, "HairHeader", 0f, 16f, 320f, 24f, "HAIRSTYLE", 19, CharacterFlowKit.Gold, TextAnchor.MiddleCenter, true).gameObject;
-            for (int i = 0; i < tiles.Length; i++)
+            RectTransform p = CharacterFlowKit.RoPiece(stage, "ColourPlate", RoSoftSprites.Shape.Card, PlateX, PlateY, PlateW, PlateH).rectTransform;
+            CharacterFlowKit.RoText(p, "HairHeader", 0f, 16f, PlateW, 28f, "HAIR COLOR", 21, RoSoftTheme.Ink);
+            hairSwatches = Swatches(p, "Hair", Mathf.Min(HeroPalettes.HairCount, CharacterAppearanceData.HairColorCount), 50f, OnHair);
+            hairName = CharacterFlowKit.RoText(p, "HairName", 0f, 194f, PlateW, 26f, "", 19, RoSoftTheme.MintDark);
+            Image gem = CharacterFlowKit.Pic(p, "Divider", UiArt.Get("ro-soft/divider-gem"), 24f, 226f, PlateW - 48f, 16f);
+            gem.preserveAspect = false;
+            CharacterFlowKit.RoText(p, "OutfitHeader", 0f, 248f, PlateW, 28f, "OUTFIT COLOR", 21, RoSoftTheme.Ink);
+            outfitSwatches = Swatches(p, "Outfit", Mathf.Min(HeroPalettes.OutfitCount, CharacterAppearanceData.OutfitColorCount), 282f, OnOutfit);
+            outfitName = CharacterFlowKit.RoText(p, "OutfitName", 0f, 426f, PlateW, 26f, "", 19, RoSoftTheme.MintDark);
+            Text unused;
+            randomButton = CharacterFlowKit.RoButton(p, "Random", RoSoftSprites.Shape.Gold, (PlateW - 190f) * 0.5f, 462f, 190f, 56f, "RANDOM", 22, OnRandom, out unused);
+
+            // Hairstyle row: only when the class has more than one layered hairstyle (every class has one today; the index plumbing stays).
+            styleRow = UiKit.Rect(stage, "StyleRow", RightX, 420f, RightW, 60f).gameObject;
+            CharacterFlowKit.RoPiece(styleRow.transform, "Face", RoSoftSprites.Shape.Row, 60f, 4f, RightW - 120f, 52f);
+            styleText = CharacterFlowKit.RoText(styleRow.transform, "Style", 60f, 4f, RightW - 120f, 52f, "", 20, RoSoftTheme.Ink);
+            CharacterFlowKit.RoButton(styleRow.transform, "StylePrev", RoSoftSprites.Shape.Secondary, 0f, 4f, 52f, 52f, "<", 26, () => OnStyle(-1), out unused);
+            CharacterFlowKit.RoButton(styleRow.transform, "StyleNext", RoSoftSprites.Shape.Secondary, RightW - 52f, 4f, 52f, 52f, ">", 26, () => OnStyle(1), out unused);
+        }
+
+        /// <summary>Rows of four swatches from y (a short last row is centred); tap = pick that palette index.</summary>
+        Swatch[] Swatches(RectTransform plate, string name, int count, float y, System.Action<int> pick)
+        {
+            var list = new Swatch[count];
+            float rowW = (SwatchesPerRow - 1) * SlotStepX + SlotSize;
+            for (int i = 0; i < count; i++)
             {
-                var t = new Tile();
-                float x = 41f + (i % 2) * (TileW + TileGap), y = 46f + (i / 2) * (TileH + 8f);
-                RectTransform rt = UiKit.Rect(p, "Tile" + i, x, y, TileW, TileH);
-                t.Frame = rt.gameObject.AddComponent<Image>();
-                t.Frame.preserveAspect = false;
-                int style = i;
-                CharacterFlowKit.Clickable(rt, t.Frame, () => OnStyle(style));
-                RectTransform mask = UiKit.Rect(rt, "Mask", TileInset, TileInset, TileW - 2f * TileInset, TileH - 2f * TileInset);
-                mask.gameObject.AddComponent<RectMask2D>();
-                t.Cell = UiKit.Rect(mask, "Cell", 0f, 0f, 1f, 1f);
-                for (int l = 0; l < t.Layers.Length; l++)
-                {
-                    RectTransform layer = UiKit.Fill(t.Cell, "Layer" + l);
-                    t.Layers[l] = UiKit.Panel(layer, Color.white);
-                }
-                tiles[i] = t;
-            }
-            colorHeader = UiKit.Label(p, "ColorHeader", 0f, 330f, 320f, 24f, "HAIR COLOR", 19, CharacterFlowKit.Gold, TextAnchor.MiddleCenter, true).gameObject;
-            for (int i = 0; i < swatches.Length; i++)
-            {
+                int row = i / (int)SwatchesPerRow, col = i % (int)SwatchesPerRow;
+                int inRow = Mathf.Min((int)SwatchesPerRow, count - row * (int)SwatchesPerRow);
+                float x0 = (PlateW - rowW) * 0.5f + (SwatchesPerRow - inRow) * SlotStepX * 0.5f;
                 var s = new Swatch();
-                float x = 30f + (i % 5) * SwatchStep, y = 362f + (i / 5) * (SwatchSize + 10f);
-                s.Ring = CharacterFlowKit.Pic(p, "Ring" + i, CharacterFlowKit.Art("swatch-ring"), x - 9f, y - 9f, SwatchSize + 18f, SwatchSize + 18f);
-                s.Disc = CharacterFlowKit.Pic(p, "Swatch" + i, CharacterFlowKit.Art("swatch"), x, y, SwatchSize, SwatchSize);
-                s.Disc.raycastTarget = true;
-                int dye = i - 1; // index 0 = own colour (-1)
-                CharacterFlowKit.Clickable(s.Disc.rectTransform, s.Disc, () => OnDye(dye));
-                swatches[i] = s;
+                s.Frame = CharacterFlowKit.RoPiece(plate, name + i, RoSoftSprites.Shape.Cell, x0 + col * SlotStepX, y + row * SlotStepY, SlotSize, SlotSize);
+                s.Disc = CharacterFlowKit.Pic(s.Frame.rectTransform, "Disc", CharacterFlowKit.Art("swatch"), DiscInset, DiscInset, SlotSize - 2f * DiscInset, SlotSize - 2f * DiscInset);
+                int index = i;
+                CharacterFlowKit.Clickable(s.Frame.rectTransform, s.Frame, () => pick(index));
+                list[i] = s;
             }
-            styleNote = UiKit.Label(p, "StyleNote", 20f, 60f, 280f, 100f, "This hero has no hairstyles to pick yet.", 17, CharacterFlowKit.Soft, TextAnchor.UpperCenter, true);
-            colorNote = UiKit.Label(p, "ColorNote", 20f, 366f, 280f, 80f, "Colour is not available for this hero yet.", 17, CharacterFlowKit.Soft, TextAnchor.UpperCenter, true);
+            return list;
         }
 
-        void BuildNamePlate()
+        void BuildPreviewControls()
         {
-            RectTransform p = CharacterFlowKit.Plate(stage, "Name", 775f, 205f, 335f, 170f);
-            UiKit.Label(p, "NameHeader", 0f, 16f, 335f, 24f, "CHARACTER NAME", 19, CharacterFlowKit.Gold, TextAnchor.MiddleCenter, true);
-            RectTransform field = UiKit.Rect(p, "Input", 22f, 58f, 236f, 48f);
+            Text unused;
+            CharacterFlowKit.RoButton(stage, "TurnLeft", RoSoftSprites.Shape.Row, HeroX - 196f, 300f, 58f, 58f, "<", 30, () => OnTurn(-1), out unused); // Dir8: down -> down-left -> left ...
+            CharacterFlowKit.RoButton(stage, "TurnRight", RoSoftSprites.Shape.Row, HeroX + 138f, 300f, 58f, 58f, ">", 30, () => OnTurn(1), out unused);  // down -> down-right -> right ...
+            string[] names = { "IDLE", "WALK", "ATTACK" };
+            for (int i = 0; i < tabs.Length; i++)
+            {
+                var m = (HeroPreviewStage.Motion)i;
+                Button b = CharacterFlowKit.RoButton(stage, "Motion" + i, RoSoftSprites.Shape.TabOff, HeroX - 177f + i * 118f, 482f, 114f, 46f, names[i], 18, () => OnMotion(m), out tabLabels[i]);
+                tabs[i] = (Image)b.targetGraphic;
+            }
+        }
+
+        void BuildRightPlates()
+        {
+            namePlate = CharacterFlowKit.RoPiece(stage, "NamePlate", RoSoftSprites.Shape.Card, RightX, RightY, RightW, RightH).gameObject;
+            Transform p = namePlate.transform;
+            CharacterFlowKit.RoText(p, "NameHeader", 0f, 16f, RightW, 26f, "CHARACTER NAME", 20, RoSoftTheme.Ink);
+            RectTransform field = UiKit.Rect(p, "Input", 22f, 56f, 220f, 48f);
             Image fieldBg = UiWinKit.Sliced(field, "chat-input", 48f / 96f, true);
             Text placeholder = UiKit.Label(UiKit.Fill(field, "Placeholder"), "Enter a name", 20, new Color(0.6f, 0.65f, 0.75f), TextAnchor.MiddleLeft);
             Text typed = UiKit.Label(UiKit.Fill(field, "Typed"), "", 24, Color.white, TextAnchor.MiddleLeft);
@@ -104,10 +128,13 @@ namespace ZenoniaProto
             input.characterLimit = NameMax;
             input.onValidateInput = (text, pos, c) => IsNameChar(c) ? c : '\0'; // the server only takes letters, digits and _
             input.onValueChanged.AddListener(v => hintDirty = true);
-            Image dice = CharacterFlowKit.Pic(p, "Dice", CharacterFlowKit.Art("dice"), 268f, 58f, 48f, 48f);
+            Image dice = CharacterFlowKit.Pic(p, "Dice", CharacterFlowKit.Art("dice"), 252f, 56f, 48f, 48f);
             dice.raycastTarget = true;
             diceButton = CharacterFlowKit.Clickable(dice.rectTransform, dice, OnDice);
-            hint = UiKit.Label(p, "Hint", 10f, 118f, 315f, 36f, NameHint, 15, CharacterFlowKit.Soft, TextAnchor.UpperCenter, true);
+            hint = CharacterFlowKit.RoText(p, "Hint", 10f, 116f, RightW - 20f, 44f, NameHint, 15, RoSoftTheme.InkSoft, TextAnchor.UpperCenter);
+
+            notePlate = CharacterFlowKit.RoPiece(stage, "NotePlate", RoSoftSprites.Shape.Card, RightX, RightY, RightW, RightH).gameObject;
+            note = CharacterFlowKit.RoText(notePlate.transform, "Note", 22f, 18f, RightW - 44f, RightH - 36f, "", 17, RoSoftTheme.Ink, TextAnchor.MiddleCenter);
         }
     }
 }

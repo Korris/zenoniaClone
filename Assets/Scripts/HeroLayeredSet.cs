@@ -102,6 +102,9 @@ namespace ZenoniaProto
         public Grip GripOf(string part, string anim, int dir8, int f) { Grip g; return grips.TryGetValue(part + "|" + Key(anim, dir8, f), out g) ? g : null; }
         public Sprite Weapon(string part) { Sprite s; return weapons.TryGetValue(part, out s) ? s : null; }
 
+        /// <summary>Hairstyles this set has art for (the character creation offers a style choice only when there is more than one).</summary>
+        public int HairStyleCount { get { return hair.Count; } }
+
         public LayerEntry Hair(int style)
         {
             LayerEntry e;

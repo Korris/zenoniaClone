@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto.Api
 {
@@ -85,9 +86,13 @@ namespace ZenoniaProto.Api
             return await SendAsync<CharacterListResponse>("GET", "/characters", null, true);
         }
 
-        public async Task<ApiResult<CharacterDetailResponse>> CreateCharacterAsync(string name, string classId)
+        /// <summary>Creates a character with the look picked on the creation screen; null look = name + class only (the name-hash default look).</summary>
+        public async Task<ApiResult<CharacterDetailResponse>> CreateCharacterAsync(string name, string classId, CharacterAppearanceData look = null)
         {
-            return await SendAsync<CharacterDetailResponse>("POST", "/characters", JsonUtility.ToJson(new CreateCharacterRequest { name = name, classId = classId }), true);
+            string body = look == null
+                ? JsonUtility.ToJson(new CreateCharacterRequest { name = name, classId = classId })
+                : JsonUtility.ToJson(new CreateCharacterWithLookRequest { name = name, classId = classId, appearance = new CreateAppearance { hairStyle = look.hairStyle, hairColorIndex = look.hairColorIndex, outfitColorIndex = look.outfitColorIndex } });
+            return await SendAsync<CharacterDetailResponse>("POST", "/characters", body, true);
         }
 
         /// <summary>Deletes a character for good. Fails with character_online while it holds a live session.</summary>

@@ -118,6 +118,43 @@ namespace ZenoniaProto
             return b;
         }
 
+        // ---- RO Soft kit pieces (Sprites/ui/ro-soft, ChatGPT art; never shapes drawn in code) ----
+
+        /// <summary>A 9-sliced RO Soft kit piece (panel, slot, button face ...) at its native corner size.</summary>
+        public static Image RoPiece(Transform parent, string name, RoSoftSprites.Shape shape, float x, float y, float w, float h)
+        {
+            RectTransform rt = UiKit.Rect(parent, name, x, y, w, h);
+            Image img = rt.gameObject.AddComponent<Image>();
+            img.sprite = RoSoftSprites.Get(shape);
+            img.type = Image.Type.Sliced;
+            img.pixelsPerUnitMultiplier = 1f;
+            img.raycastTarget = true; // a plate stops taps reaching what is behind it
+            return img;
+        }
+
+        /// <summary>Text in the RO Soft font (Nunito Bold) with a light emboss instead of the dark drop shadow (it reads dirty on the light kit panels).</summary>
+        public static Text RoText(Transform parent, string name, float x, float y, float w, float h, string text, int size, Color color, TextAnchor align = TextAnchor.MiddleCenter)
+        {
+            Text t = UiKit.Label(parent, name, x, y, w, h, text, size, color, align, false);
+            if (RoSoftTheme.Bold != null) t.font = RoSoftTheme.Bold;
+            Shadow sh = t.GetComponent<Shadow>();
+            if (sh != null) sh.effectColor = new Color(1f, 1f, 1f, 0.45f);
+            return t;
+        }
+
+        /// <summary>An RO Soft button (mint / sky / gold / ivory face or a tab) with a text label; white text on the coloured faces, ink on ivory and tabs.</summary>
+        public static Button RoButton(Transform parent, string name, RoSoftSprites.Shape shape, float x, float y, float w, float h, string text, int size, Action onClick, out Text label)
+        {
+            Image face = RoPiece(parent, name, shape, x, y, w, h);
+            Button b = Clickable(face.rectTransform, face, onClick);
+            bool light = shape == RoSoftSprites.Shape.Row || shape == RoSoftSprites.Shape.TabOff || shape == RoSoftSprites.Shape.Cell;
+            label = UiKit.Label(UiKit.Fill(face.rectTransform, "Label"), text, size, light ? RoSoftTheme.Ink : Color.white, TextAnchor.MiddleCenter, true);
+            if (RoSoftTheme.Bold != null) label.font = RoSoftTheme.Bold;
+            Shadow sh = label.GetComponent<Shadow>();
+            if (sh != null) sh.effectColor = light ? new Color(1f, 1f, 1f, 0.45f) : new Color(0f, 0f, 0f, 0.35f);
+            return b;
+        }
+
         public static Text Title(RectTransform root, string text, out RectTransform rt)
         {
             rt = UiKit.Rect(root, "Title", 0f, 0f, 520f, 62f);
