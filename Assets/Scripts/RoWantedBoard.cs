@@ -17,7 +17,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoWantedBoard : MonoBehaviour
     {
-        const float W = 420f, H = 470f, Pad = 18f, SkillRowH = 46f;
+        const float W = 420f, H = 540f, Pad = 18f, SkillRowH = 46f; // H: poster + rewards + 4 skill rows + footer, nothing overlaps
         const int SkillRows = 4;
         static RoWantedBoard instance;
 
@@ -60,7 +60,7 @@ namespace ZenoniaProto
             dim.transform.SetAsFirstSibling();
             RectTransform card = UiKit.Rect(l.Safe, "Card", 0f, 0f, W, H);
             card.anchorMin = card.anchorMax = card.pivot = new Vector2(0.5f, 0.5f);
-            card.anchoredPosition = new Vector2(0f, -12f);
+            card.anchoredPosition = new Vector2(0f, -8f);
             RoWantedWidgets.Plate(card, "Plate", 0f, 0f, W, H, "wanted-card", 1.3f * H, true);
 
             RectTransform ribbon = UiKit.Rect(card, "Ribbon", (W - 240f) * 0.5f, -22f, 240f, 240f * 64f / 274f);
@@ -69,7 +69,7 @@ namespace ZenoniaProto
             UiWinKit.MakeButton(RoHud.Art(UiKit.Rect(card, "Close", W - 44f, -8f, 40f, 40f), "hud-chat-close", true), Close);
 
             // Poster: the WANTED frame with the face, the red tag over its top edge.
-            const float PosterY = 46f, PosterS = 118f;
+            const float PosterY = 46f, PosterS = 130f;
             RectTransform frame = UiKit.Rect(card, "Poster", Pad, PosterY, PosterS, PosterS);
             RectTransform fm = UiKit.Fill(frame, "Mask", PosterS * 0.1f);
             Image mask = RoHud.Art(fm, "hud-wanted-frame-mask"); mask.preserveAspect = false; mask.color = RoSoftTheme.SkyMist;
@@ -80,21 +80,21 @@ namespace ZenoniaProto
             RoHud.Pill(frame, "Tag", new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), 0f, 0f, 22f, "hud-wanted-tag", null, 0f, "WANTED", 12, Color.white, out tag);
 
             float tx = Pad + PosterS + 14f, tw = W - tx - Pad;
-            nameText = RoHud.Label(UiKit.Rect(card, "Name", tx, PosterY + 2f, tw, 22f), "", 17, RoHud.Ink, TextAnchor.MiddleLeft);
-            nameText.resizeTextForBestFit = true; nameText.resizeTextMinSize = 12; nameText.resizeTextMaxSize = 17;
+            nameText = RoHud.Label(UiKit.Rect(card, "Name", tx, PosterY + 2f, tw, 22f), "", 19, RoHud.Ink, TextAnchor.MiddleLeft);
+            nameText.resizeTextForBestFit = true; nameText.resizeTextMinSize = 13; nameText.resizeTextMaxSize = 19;
             levelText = RoHud.Label(UiKit.Rect(card, "Level", tx, PosterY + 25f, tw, 18f), "", 14, RoSoftTheme.Hex("#C8424C"), TextAnchor.MiddleLeft);
             RoHud.Art(UiKit.Rect(card, "Pin", tx, PosterY + 48f, 13f, 15f), "hud-icon-pin");
             mapText = RoHud.Label(UiKit.Rect(card, "Map", tx + 18f, PosterY + 46f, tw - 18f, 18f), "", 13, RoSoftTheme.InkSoft, TextAnchor.MiddleLeft, false);
             statusPill = RoWantedWidgets.Plate(card, "Status", tx, PosterY + 70f, 150f, 26f, "hud-channel-pill", 48f);
             statusText = RoWantedWidgets.Centred(statusPill.rectTransform, "", 13, Color.white, RoHud.PillPadX, RoHud.PillPadY, true);
-            Image guide = RoWantedWidgets.Plate(card, "ShowOnMap", tx + 156f, PosterY + 68f, tw - 156f, 30f, "btn-sky", 1.6f * 30f, true);
+            Image guide = RoWantedWidgets.Plate(card, "ShowOnMap", tx, PosterY + 100f, 150f, 30f, "btn-sky", 1.6f * 30f, true); // under the status pill: the label never wraps
             UiWinKit.MakeButton(guide, () => { WantedGuide.On = !WantedGuide.On; if (WantedGuide.On) Close(); });
             RoWantedWidgets.Centred(guide.rectTransform, "Show on Map", 12, Color.white, 8f, 4f, true);
 
             float y = PosterY + PosterS + 14f;
             Section(card, "Rewards", "hud-icon-gacha", y);
-            rewards = new RoWantedRewards(card, Pad + 10f, y + 34f, 46f, 10f);
-            y += 34f + 46f + 12f;
+            rewards = new RoWantedRewards(card, Pad + 10f, y + 32f, 52f, 10f);
+            y += 32f + 52f + 10f;
             Section(card, "Boss Skills", "hud-icon-skull", y);
             y += 32f;
             for (int i = 0; i < SkillRows; i++)

@@ -17,7 +17,7 @@ namespace ZenoniaProto
     {
         public const int Slots = 1 + PartyBook.MaxMembers - 1;
         // Bust crop in world units of a stage column (24 wide, 30 high, feet 2 above the bottom; RO Fantasy bodies are 20.5 units feet to crown).
-        const float CropSide = 15.5f, CropCentreY = HeroPreviewStage.FeetFromBottom + 15.2f;
+        const float CropSide = 17f, CropCentreY = HeroPreviewStage.FeetFromBottom + 14.8f;
         static readonly Vector3 Origin = new Vector3(-38000f, -26000f, 0f); // apart from the character screens, the hero select and the bag portrait
 
         static HeroPreviewStage stage;

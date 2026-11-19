@@ -7,6 +7,13 @@
 - ChatGPT Tay chat https://chatgpt.com/c/6aff091a-624c-83ec-b0f2-af0bb9e55cb4 (thiết kế Venom Drain, icon, có / không hiệu ứng trên người). Báo cáo `plans/reports/hydra-venom-drain-poison-ui-261119.md`, ảnh `docs/reference/mire-hydra-queen-v2/venom-*.png`. Exe `D:/temp/player-hydra-venom/Zenonia.exe`.
 - CÒN: Venom Drain chưa có dòng trên bảng Wanted; tint 20 % rất nhạt (hỏi người dùng); thanh máu boss "65 535" + ENRAGED sai (lỗi cũ, HpLeft ushort); chưa chụp icon party ở HUD gọn.
 
+### 20/11 01:00 HUD RO Soft lượt 2: chân dung thật, bản PC, chat/toast vẽ lại, thông báo Wanted RO, sửa vạch đầu pill (agent, đã merge vào `ro-fantasy-heroes`)
+- Người dùng trả lời 5 câu hỏi HUD (chân dung "có", Party không hiện mình, "bản pc chuyển sang hud mới", chat/toast vẽ lại "có"), rồi "2 dấu gạch ở 2 đầu mấy cái nút", rồi "design lại các thông báo có liên quan tới wanted".
+- Chat ChatGPT (Tay): https://chatgpt.com/c/6aff0d5c-f0a0-83ec-8726-10aa0543ada0 (sheet E chat/toast, mockup Wanted, sheet F Wanted, 3 vòng nghiệm thu: HUD 8.9 -> 9.2 -> 9.4, Wanted 8.1 -> 8.9 -> 9.2, "không còn lỗi nặng").
+- XONG: chân dung quay nhân vật nhiều lớp thật (`RoHudPortraits.cs`), HUD RO cho PC (`--hud web` / WebGL: không joystick, nhãn phím, 1-8 = loadout, chat góc trái dưới), `RoHudChatPanel.cs` + toast RO, banner/bảng bounty/board/thanh boss Wanted RO (`WantedNotices.RoSoft.cs`, `WantedRewardPanel.RoSoft.cs`, `RoWantedBoard.cs`, `RoHudBossBar.cs`), thẻ Respawns, icon độc 24 + badge giây ở góc, sửa tool cắt (`flatten_edges`) + pill IMGUI, tên IMGUI không đè khung RO. Lỗi cũ: HUD RO trước không hiện thông báo Wanted / bounty.
+- Exe `D:/temp/player-hud2/Zenonia.exe` (+ `--hud web` cho PC). Báo cáo + câu hỏi: `plans/reports/ro-soft-hud-followup-261119.md`. Ảnh `docs/reference/ro-soft-hud/` (`followup-round1-3*.png`, `wanted-notice-*.png`).
+- CHƯA: thử online (Party, NetAppearance, Wanted thật), WebGL thật, thu gọn Party; góp ý nhẹ vòng 3 (nền chat PC trong hơn 5 %, toast vật phẩm to hơn).
+
 ### 19/11 23:50 HUD trong game làm theo mockup `02-hud.png` (agent, đã merge vào `ro-fantasy-heroes`)
 - Người dùng: "thêm 1 agent sửa lại cái hud như 02-hud.png", rồi "khung chat ở bản mobile cho nằm giữa", rồi "chụp gửi chatgpt so sánh".
 - Chat ChatGPT (Tay): https://chatgpt.com/c/6aff0d5c-f0a0-83ec-8726-10aa0543ada0 (4 sheet mảnh HUD, 3 vòng so sánh: 7.5 -> 8.6 -> 9.0/10, vòng 3 "đủ tốt để chơi thử").

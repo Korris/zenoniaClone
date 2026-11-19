@@ -57,7 +57,7 @@ namespace ZenoniaProto
                 sw.onTap = () => { if (s.HasSkill) SkillMagazine.CastRequested(s.SkillIndex); };
                 sw.onPress = () => s.Root.localScale = new Vector3(0.92f, 0.92f, 1f);
                 sw.onRelease = () => s.Root.localScale = Vector3.one;
-                GameObject cap = RoHud.KeyCap(s.Root, RoHud.TopLeft, 6f, -6f, (i + 1).ToString());
+                GameObject cap = RoHud.KeyCap(s.Root, RoHud.TopLeft, 9f, -9f, (i + 1).ToString());
                 if (cap != null) slotKeys[i] = cap.GetComponentInChildren<Text>();
             }
             RoHud.KeyCap(ring, new Vector2(0f, 0f), 22f, 22f, InputAdapter.KeyLabel(GameKey.SkillPage)); // Tab: next page of 4
@@ -72,13 +72,13 @@ namespace ZenoniaProto
             autoArt = RoHud.Art(auto, "hud-auto", true);
             PaperHudPress.Tap(auto.gameObject, () => AutoBattle.Toggle(GameSession.Hero));
             Caption(auto, "Auto", RoHud.AutoSize * 0.14f, 14);
-            RoHud.KeyCap(auto, RoHud.TopRight, -6f, -6f, InputAdapter.KeyLabel(GameKey.AutoToggle));
+            RoHud.KeyCap(auto, RoHud.TopRight, -9f, -9f, InputAdapter.KeyLabel(GameKey.AutoToggle));
 
             RectTransform run = RoHud.Box(safe, "Run", RoHud.BottomRight, -RoHud.RunX, RoHud.RunY, RoHud.RunSize, RoHud.RunSize);
             RoHud.Art(run, "hud-run", true);
             PaperHudPress.Tap(run.gameObject, () => TouchControls.Press(GameKey.Dash));
             Caption(run, "Run", RoHud.RunSize * 0.14f, 14);
-            RoHud.KeyCap(run, RoHud.TopRight, -8f, -8f, InputAdapter.KeyLabel(GameKey.Dash, 1));
+            RoHud.KeyCap(run, RoHud.TopRight, -11f, -11f, InputAdapter.KeyLabel(GameKey.Dash, 1));
 
             hpCount = Potion(safe, "HpPotion", -RoHud.PotionHpX, true, out hpIcon);
             mpCount = Potion(safe, "MpPotion", -RoHud.PotionMpX, false, out mpIcon);
@@ -125,7 +125,7 @@ namespace ZenoniaProto
             Text count = RoHud.Pill(b, "Count", RoHud.BottomRight, new Vector2(0.5f, 0.5f), -6f, 6f, 20f, "hud-count-badge", null, 0f, "0", 11, Color.white, out badge, 20f);
             badge.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(5, 5, 2, 2); // a round badge: smaller side padding than a pill
             PaperHudPress.Hold(b.gameObject, hp ? GameKey.HpPotion : GameKey.MpPotion);
-            RoHud.KeyCap(b, RoHud.TopLeft, 6f, -6f, InputAdapter.KeyLabel(hp ? GameKey.HpPotion : GameKey.MpPotion));
+            RoHud.KeyCap(b, RoHud.TopLeft, 9f, -9f, InputAdapter.KeyLabel(hp ? GameKey.HpPotion : GameKey.MpPotion));
             return count;
         }
 

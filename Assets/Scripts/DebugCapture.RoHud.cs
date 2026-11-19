@@ -14,6 +14,7 @@ namespace ZenoniaProto
     ///   --ro-click "1=Bag;2=Close"    at each second: a pointer click at the screen centre of the RO HUD control with that name, through the
     ///                                 EventSystem raycast a mouse would hit (logs the object hit), then the state after it
     ///                                 (open screens, More, Auto, skill page, party fold, chat, minimap zoom, quests, settings)
+    ///   --ro-poison S                 at S seconds the local hero is poisoned for 12 s (offline: its own status; the HUD buff row shows it)
     ///   --ro-fallen S                 at S seconds the Wanted kill toast ("The Mire Hydra Queen has fallen!", the call NetEventPlayer makes)
     ///   --ro-digit "2=1;3=5"          at each second: the digit key of that loadout slot (1-8) counts as pressed for one frame (PC loadout keys)
     /// Nothing is saved.
@@ -29,6 +30,8 @@ namespace ZenoniaProto
             if (at != null) StartCoroutine(Timed(at, v => { if (GameSession.Hero != null) ApplyLook(GameSession.Hero, v); }));
             if (clicks != null) StartCoroutine(Timed(clicks, RoClick));
             if (digits != null) StartCoroutine(Timed(digits, v => StartCoroutine(Digit(int.Parse(v) - 1))));
+            string poison = Val("--ro-poison"); // the local hero poisoned at that second (the icon under the HP bar with its seconds badge)
+            if (poison != null) StartCoroutine(Timed(poison + "=x", v => { if (GameSession.Hero != null) GameSession.Hero.DebugPoison(12000f); }));
             string fallen = Val("--ro-fallen"); // the Wanted kill toast exactly as NetEventPlayer raises it (online only otherwise)
             if (fallen != null) StartCoroutine(Timed(fallen + "=x", v => NotificationToast.ShowStyled("The Mire Hydra Queen has fallen!", "wanted-toast-navy", "wanted-icon-swords", new Color(1f, 0.9f, 0.5f))));
         }

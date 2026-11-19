@@ -75,8 +75,8 @@ namespace ZenoniaProto
             r.Live = RoHudPortraits.Make(m, r.Slot);
             r.Role = RoHud.Art(RoHud.TopLeftBox(r.Root, "Role", 1f, 1f, 15f, 15f), "hud-icon-crown");
             r.Name = RoHud.Label(RoHud.TopLeftBox(r.Root, "Name", 52f, 6f, 100f, 16f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft);
-            r.StatusIcons = RoHud.TopLeftBox(r.Root, "StatusIcons", W - 48f, 5f, 40f, 14f); // poison and other status icons (right of the name)
-            r.Poison = new PoisonStatusIcon(r.StatusIcons, 14f);
+            r.StatusIcons = RoHud.TopLeftBox(r.Root, "StatusIcons", W - 36f, 3f, 22f, 22f); // poison and other status icons (right of the name)
+            r.Poison = new PoisonStatusIcon(r.StatusIcons, 22f);
             r.Hp = new RoHud.Bar(r.Root, "Hp", 52f, 26f, W - 62f, BarH, "hud-bar-track", "hud-bar-teal");
             r.Status = RoHud.Label(RoHud.TopLeftBox(r.Root, "Status", 52f, 25f, W - 62f, 14f), "", 11, RoSoftTheme.InkSoft, TextAnchor.MiddleLeft, false);
             return r;

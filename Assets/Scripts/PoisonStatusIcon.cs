@@ -20,12 +20,12 @@ namespace ZenoniaProto
         {
             RectTransform rt = UiKit.Rect(anchor, "Poison", 0f, 0f, size, size);
             root = rt.gameObject;
-            Image icon = rt.gameObject.AddComponent<Image>();
+            RoHud.Art(rt, "slot"); // the same ivory cell as the buff row under the HP bar
+            Image icon = UiKit.Fill(rt, "Icon", 2f).gameObject.AddComponent<Image>();
             icon.sprite = StatusIcons.Poison;
             icon.preserveAspect = true;
             icon.raycastTarget = false;
-            seconds = UiKit.Label(UiKit.Rect(rt, "Seconds", size * 0.45f, size * 0.35f, size, size * 0.8f), "", Mathf.Max(8, Mathf.RoundToInt(size * 0.7f)), Color.white, TextAnchor.LowerLeft, true);
-            seconds.horizontalOverflow = HorizontalWrapMode.Overflow;
+            seconds = HudBuffRow.RoBadge(rt); // "6s" in a navy badge on the lower-right corner, not over the drop
             root.SetActive(false);
         }
 
@@ -36,7 +36,7 @@ namespace ZenoniaProto
             if (root.activeSelf != on) root.SetActive(on);
             if (!on) { shownSeconds = -1; return; }
             int s = Mathf.CeilToInt(ms / 1000f);
-            if (s != shownSeconds) { shownSeconds = s; seconds.text = s.ToString(); }
+            if (s != shownSeconds) { shownSeconds = s; seconds.text = s + "s"; }
         }
     }
 }

@@ -16,8 +16,8 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudChatPanel : ChatPanel
     {
-        const float Pad = 14f, Gap = 6f, TabH = 30f, CloseSize = 30f, LineH = 26f, LineGap = 4f, InputH = 40f, SendSize = 44f;
-        const int LinePadX = 12, LinePadY = 2;
+        const float Pad = 16f, Gap = 8f, TabH = 32f, CloseSize = 32f, LineH = 30f, LineGap = 5f, InputH = 42f, SendSize = 48f;
+        const int LinePadX = 14, LinePadY = 3;
         static readonly ChatChannel[] Tabs = ChatPanelView.Tabs;
 
         ChatChannel tab = ChatChannel.World;
@@ -30,7 +30,10 @@ namespace ZenoniaProto
         public static RoHudChatPanel Build(Transform layer, bool pc, Action changed, Action close, Action send)
         {
             var v = new RoHudChatPanel { changed = changed };
-            float w = pc ? 400f : 440f, h = pc ? 236f : 276f;
+            // Height from the line count, so no empty strip is left above the lines (acceptance round 2).
+            const int Lines = 4;
+            float w = pc ? 420f : 460f;
+            float h = Pad + TabH + Gap + Lines * (LineH + LineGap) - LineGap + Gap - (SendSize - InputH) * 0.5f + SendSize + Pad;
             v.root = pc ? UiWinKit.Anchored(layer, "RoChatPanel", Vector2.zero, Vector2.zero, RoHud.Margin, RoHud.Margin, w, h)
                         : UiWinKit.Anchored(layer, "RoChatPanel", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 0f, -96f, w, h); // under the menu row
             RoHud.Art(v.root, "hud-chat-panel", true).color = new Color(1f, 1f, 1f, pc ? 0.92f : 0.97f); // raycast: a click on the panel never attacks
@@ -49,8 +52,8 @@ namespace ZenoniaProto
                 UiWinKit.MakeButton(v.tabArt[i], () => v.SelectTab(index));
                 RectTransform lab = UiKit.Fill(t, "Label");
                 lab.offsetMin = new Vector2(RoHud.PillPadX, RoHud.PillPadY); lab.offsetMax = new Vector2(-RoHud.PillPadX, -RoHud.PillPadY);
-                v.tabLabels[i] = RoHud.Label(lab, Tabs[i].ToString(), 13, RoHud.Ink, TextAnchor.MiddleCenter);
-                v.tabLabels[i].resizeTextForBestFit = true; v.tabLabels[i].resizeTextMinSize = 10; v.tabLabels[i].resizeTextMaxSize = 13;
+                v.tabLabels[i] = RoHud.Label(lab, Tabs[i].ToString(), 14, RoHud.Ink, TextAnchor.MiddleCenter);
+                v.tabLabels[i].resizeTextForBestFit = true; v.tabLabels[i].resizeTextMinSize = 10; v.tabLabels[i].resizeTextMaxSize = 14;
                 v.tabLabels[i].horizontalOverflow = HorizontalWrapMode.Wrap;
             }
             RectTransform x = UiKit.Rect(v.root, "Close", w - Pad - CloseSize, Pad, CloseSize, CloseSize);
@@ -58,7 +61,7 @@ namespace ZenoniaProto
 
             // Input row at the bottom: the box (padding 12) + Send.
             float inputTop = h - Pad - SendSize + (SendSize - InputH) * 0.5f;
-            v.field = UiKit.Rect(v.root, "Input", Pad, inputTop, w - Pad * 2f - SendSize - Gap, InputH);
+            v.field = UiKit.Rect(v.root, "Input", Pad, inputTop, w - Pad * 2f - SendSize - Gap - 4f, InputH);
             Image box = RoHud.Art(v.field, "hud-chat-input", true);
             box.pixelsPerUnitMultiplier = 56f / InputH;
             v.placeholder = RoHud.Label(Inset(v.field, "Placeholder", 12f, 2f), pc ? "Press Enter to chat" : "Type a message...", 14, RoSoftTheme.InkSoft, TextAnchor.MiddleLeft, false);
@@ -80,7 +83,7 @@ namespace ZenoniaProto
 
             // Message strips between the tabs and the input, newest at the bottom.
             float linesTop = Pad + TabH + Gap, linesBottom = inputTop - Gap;
-            int n = Mathf.Max(1, Mathf.FloorToInt((linesBottom - linesTop + LineGap) / (LineH + LineGap)));
+            int n = Mathf.Max(1, Mathf.FloorToInt((linesBottom - linesTop + LineGap) / (LineH + LineGap) + 0.01f));
             v.lineTexts = new Text[n]; v.lineRows = new GameObject[n];
             for (int i = 0; i < n; i++)
             {
@@ -88,9 +91,9 @@ namespace ZenoniaProto
                 Image art = RoHud.Art(strip, "hud-chat-line");
                 art.pixelsPerUnitMultiplier = 36f / LineH;
                 art.color = new Color(1f, 1f, 1f, 0.75f);
-                Text t = RoHud.Label(Inset(strip, "Text", LinePadX, LinePadY), "", 13, RoHud.Ink, TextAnchor.MiddleLeft, false);
+                Text t = RoHud.Label(Inset(strip, "Text", LinePadX, LinePadY), "", 16, RoHud.Ink, TextAnchor.MiddleLeft, false);
                 t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Truncate;
-                t.resizeTextForBestFit = true; t.resizeTextMinSize = 10; t.resizeTextMaxSize = 13; // a long line shrinks a little, never spills
+                t.resizeTextForBestFit = true; t.resizeTextMinSize = 11; t.resizeTextMaxSize = 16; // a long line shrinks a little, never spills
                 v.lineTexts[i] = t; v.lineRows[i] = strip.gameObject;
                 strip.gameObject.SetActive(false);
             }

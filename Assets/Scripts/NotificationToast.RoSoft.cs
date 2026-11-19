@@ -76,7 +76,7 @@ namespace ZenoniaProto
             if (styled) title.color = Color.white;
             ol.enabled = styled; ol.effectColor = new Color(0.1f, 0.15f, 0.3f, 0.8f); ol.effectDistance = new Vector2(1f, -1f);
             roPlate.type = Image.Type.Sliced;
-            float h = full ? RoFullH : RoLineH;
+            float h = full ? RoFullH : styled ? RoLineH + 6f : RoLineH;
             roPlate.pixelsPerUnitMultiplier = full ? 1.4f : 56f / h; // pill: the art's height = the pill's, round ends; card: corners ~20 units
             roRing.gameObject.SetActive(hasIcon);
             roIcon.sprite = e.Icon;

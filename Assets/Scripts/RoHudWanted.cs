@@ -17,7 +17,8 @@ namespace ZenoniaProto
 
         readonly RectTransform root;
         readonly Image face;
-        readonly Text bossName, level, mapName;
+        readonly Text bossName, level, mapName, respawn;
+        readonly GameObject respawnPill; // "Respawns 18:24" capsule with the clock under the card (mockup panel 9), only while the boss is down
         string shownType;
         int shownSecond = -1;
         WantedPhase shownPhase = (WantedPhase)(-1);
@@ -49,6 +50,13 @@ namespace ZenoniaProto
             mapName = RoHud.Label(RoHud.TopLeftBox(root, "Map", TextX + 15f, 67f, W - TextX - 46f, 18f), "", 12, RoHud.Ink, TextAnchor.MiddleLeft, false);
             RectTransform arrow = RoHud.Box(root, "Arrow", new Vector2(1f, 0.5f), -20f, -16f, 26f, 26f);
             RoHud.Art(arrow, "hud-btn-arrow-big");
+            RectTransform pill;
+            respawn = RoHud.Pill(root, "Respawn", new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), 0f, -6f, 32f, "hud-toast-line", "wanted-icon-clock", 20f, "Respawns 00:00", 14, RoHud.Ink, out pill, 170f);
+            pill.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(26, 26, 3, 3); // clear of the stars on the pill ends
+            pill.GetComponent<Image>().pixelsPerUnitMultiplier = 56f / 32f;
+            respawnPill = pill.gameObject;
+            respawnPill.SetActive(false);
+            NameTags.Occlude(root);
             root.gameObject.SetActive(false);
         }
 
@@ -75,11 +83,13 @@ namespace ZenoniaProto
                 if (s == shownSecond && phase == shownPhase) return;
                 shownSecond = s;
                 shownPhase = phase;
-                level.text = "Respawns " + PaperWanted.Clock(s, s >= 3600);
+                respawn.text = "Respawns <color=#C8424C>" + PaperWanted.Clock(s, s >= 3600) + "</color>";
+                if (!respawnPill.activeSelf) { respawnPill.SetActive(true); level.text = "Lv. " + def.BossLevel + " (Boss)"; }
                 return;
             }
             if (phase == shownPhase) return;
             shownPhase = phase;
+            respawnPill.SetActive(false);
             level.text = phase == WantedPhase.Claimed ? "Lv. " + def.BossLevel + "  Bounty claimed" : "Lv. " + def.BossLevel + " (Boss)";
         }
     }

@@ -40,6 +40,13 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Capture runs (--ro-poison): poison this hero for `ms` with a token damage tick (god mode keeps the HP), as a boss skill would.</summary>
+        internal void DebugPoison(float ms)
+        {
+            if (dead) return;
+            wantedStatus.Apply(new StatusSpec(StatusKind.Poison, 0.01f, (int)ms), null, false, 1f);
+        }
+
         /// <summary>ms since Venom Drain last drained this hero (client: from the event; authority: its own clock), large when never.</summary>
         public float MsSinceDrained { get { return StatusNowMs - netDrainedAtMs; } }
 

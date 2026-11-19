@@ -15,8 +15,8 @@ namespace ZenoniaProto
         const float RowX = 92f, LabelW = 34f, BarX = RowX + LabelW, BarW = 182f, BarH = 18f, RowTop = 36f, RowPitch = 23f;
         const float PlateTop = 16f, LvX = 90f, LvY = 6f, LvW = 72f, LvH = 24f;
         /// <summary>Top of the status icon row, units below the top of the safe area (RoHudParty starts under it).</summary>
-        public const float IconsTop = PlateTop + RoHud.StatusPlateH + 3f, IconSize = 18f;
-        public const float Bottom = IconsTop + IconSize;
+        public const float IconsTop = PlateTop + RoHud.StatusPlateH + 4f, IconSize = 24f;
+        public const float Bottom = IconsTop + IconSize + 4f; // the seconds badges hang 4 under the cells
 
         public readonly RectTransform Root;
         /// <summary>Anchor of the status icons under the HP bar (buffs now; poison and other states append here).</summary>
@@ -61,7 +61,7 @@ namespace ZenoniaProto
             exp = Row("Exp", 2, "EXP", "hud-bar-teal", out expText);
 
             StatusIcons = RoHud.TopLeftBox(Root, "StatusIcons", RowX, IconsTop, BarW + LabelW, IconSize);
-            buffs = new HudBuffRow(StatusIcons, 0f, 0f, IconSize);
+            buffs = new HudBuffRow(StatusIcons, 0f, 0f, IconSize, true); // RO cells, seconds in a corner badge (poison first)
         }
 
         RoHud.Bar Row(string name, int i, string caption, string fill, out Text value)

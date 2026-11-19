@@ -10,7 +10,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed partial class WantedRewardPanel
     {
-        const float RoW = 330f, RoH = 288f, RoBtnH = 38f;
+        const float RoW = 350f, RoH = 300f, RoBtnH = 44f;
 
         void BuildRo(RectTransform safe)
         {
@@ -23,14 +23,14 @@ namespace ZenoniaProto
             Image right = RoHud.Art(UiKit.Rect(panel, "LaurelR", RoW * 0.5f + 52f + 34f, 64f, 34f, 54f), "wanted-laurel");
             right.rectTransform.localScale = new Vector3(-1f, 1f, 1f); // the left branch mirrored about its top-left pivot
             face = RoWantedWidgets.Portrait(panel, "Face", (RoW - 84f) * 0.5f, 44f, 84f, true);
-            nameText = RoHud.Label(UiKit.Rect(panel, "Name", 18f, 134f, RoW - 36f, 24f), "", 16, RoHud.Ink, TextAnchor.MiddleCenter);
-            nameText.resizeTextForBestFit = true; nameText.resizeTextMinSize = 11; nameText.resizeTextMaxSize = 16;
+            nameText = RoHud.Label(UiKit.Rect(panel, "Name", 18f, 128f, RoW - 36f, 26f), "", 18, RoHud.Ink, TextAnchor.MiddleCenter);
+            nameText.resizeTextForBestFit = true; nameText.resizeTextMinSize = 11; nameText.resizeTextMaxSize = 18;
             RectTransform tag;
-            RoHud.Pill(panel, "Daily", new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), 0f, -172f, 24f, "hud-party-title", "wanted-sparkle", 12f, "Daily Bounty", 12, Color.white, out tag, 120f);
-            roRewards = new RoWantedRewards(panel, (RoW - (4f * 46f + 3f * 8f)) * 0.5f, 188f, 46f, 8f);
+            RoHud.Pill(panel, "Daily", new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), 0f, -166f, 26f, "hud-party-title", "wanted-sparkle", 14f, "Daily Bounty", 13, Color.white, out tag, 120f);
+            roRewards = new RoWantedRewards(panel, (RoW - (4f * 52f + 3f * 10f)) * 0.5f, 184f, 52f, 10f);
 
-            Button("Ok", 22f, 104f, "btn-mint", "OK", Close, panel);
-            Button("Board", 136f, RoW - 158f, "btn-sky", "Wanted Board", () => { Close(); UiScreens.Open(UiScreen.Wanted); }, panel);
+            Button("Ok", 22f, 110f, "btn-mint", "OK", Close, panel);
+            Button("Board", 142f, RoW - 164f, "btn-sky", "Wanted Board", () => { Close(); UiScreens.Open(UiScreen.Wanted); }, panel);
 
             RectTransform ribbon = UiKit.Rect(panel, "Ribbon", (RoW - 300f) * 0.5f, -58f, 300f, 300f * 120f / 251f);
             RoHud.Art(ribbon, "wanted-ribbon-red");
@@ -42,7 +42,7 @@ namespace ZenoniaProto
         {
             Image b = RoWantedWidgets.Plate(panel, name, x, RoH - 20f - RoBtnH, w, RoBtnH, piece, 1.6f * RoBtnH, true);
             UiWinKit.MakeButton(b, onTap);
-            RoWantedWidgets.Centred(b.rectTransform, label, 15, Color.white, 14f, 6f, true);
+            RoWantedWidgets.Centred(b.rectTransform, label, 16, Color.white, 14f, 6f, true);
         }
     }
 }

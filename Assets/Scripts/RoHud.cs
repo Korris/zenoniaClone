@@ -44,7 +44,7 @@ namespace ZenoniaProto
         public const float PotionY = 306f, PotionSize = 64f, PotionHpX = 124f, PotionMpX = 46f;
         // bottom-left
         public const float JoyX = 122f, JoyY = 178f, JoySize = 164f, KnobSize = 70f, KnobTravel = 48f;
-        public const float ChatY = 54f, ChatBubbleSize = 48f, ChatBarW = 356f, ChatBarH = 38f; // the group is centred by RoHudChatBar
+        public const float ChatY = 54f, ChatBubbleSize = 48f, ChatBarW = 360f, ChatBarH = 42f; // the group is centred by RoHudChatBar
 
         /// <summary>A kit piece (null + one warning when the art is missing: nothing is drawn in its place).</summary>
         public static Sprite Piece(string name) { return RoSoftSprites.Named(name); }
@@ -139,6 +139,7 @@ namespace ZenoniaProto
             RectTransform rt;
             Pill(parent, "Key", corner, Mid, x, y, fontSize + 7f, "hud-lv-badge", null, 0f, key, fontSize, Color.white, out rt, fontSize + 7f);
             rt.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(6, 6, 2, 2);
+            rt.GetComponent<Image>().pixelsPerUnitMultiplier = 44f / (fontSize + 7f); // hud-lv-badge is 44 px high: round ends at any size
             return rt.gameObject;
         }
 

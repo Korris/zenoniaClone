@@ -8,7 +8,8 @@ namespace ZenoniaProto
     /// <summary>
     /// Row of small icons under the EXP bar: one per skill currently buffing the local hero, from any caster, with a dark sweep and the seconds left.
     /// A skill giving two buffs (Berserker Awakening) shows once, with the longer time. The list comes from HeroBuffs.ActiveFor, the same on every side.
-    /// Two looks: the old dark 24-unit cells (8 of them), and the compact HUD's row (`paper`: thin dark slots, at most 6, "12s" under each icon).
+    /// Three looks: the old dark 24-unit cells (8 of them), the compact HUD's row (`paper`: thin dark slots, at most 6, "12s" under each icon), and
+    /// the RO Soft HUD's row (`ro`: ivory cells, the seconds in a small navy badge on the cell's lower-right corner, never over the icon; RoBadge).
     /// </summary>
     public sealed class HudBuffRow
     {
@@ -25,16 +26,18 @@ namespace ZenoniaProto
         readonly Slot[] slots;
         readonly List<BuffView> views = new List<BuffView>(OldSlots);
         readonly List<BuffView> merged = new List<BuffView>(OldSlots);
-        readonly bool paper;
+        readonly bool paper, ro;
         float poisonTotalMs;
 
         /// <summary>True after Refresh while a shield buff (Mana Shield, Divine Aegis, a pet's shield) is on the hero: the badge's shield layer.</summary>
         public bool Shielded { get; private set; }
 
         /// <summary>size 0 = the old row (24-unit dark cells, 8 slots); a size = the paper row with slots that big.</summary>
-        public HudBuffRow(Transform parent, float x, float y, float size = 0f)
+        public HudBuffRow(Transform parent, float x, float y, float size = 0f, bool roSoft = false)
         {
-            paper = size > 0f;
+            ro = roSoft;
+            paper = size > 0f && !ro;
+            if (ro) { slots = new Slot[PaperSlots]; for (int i = 0; i < slots.Length; i++) slots[i] = RoSlot(parent, i, x + i * (size + RoGap), y, size); return; }
             if (!paper) size = OldSize;
             slots = new Slot[paper ? PaperSlots : OldSlots];
             float inset = paper ? 2.5f : 1f, gap = paper ? PaperGap : Gap;
@@ -68,6 +71,39 @@ namespace ZenoniaProto
             }
         }
 
+        const float RoGap = 8f; // room for the corner badge between two cells
+
+        /// <summary>RO Soft cell: ivory slot, the icon inset 2, the dark sweep, the seconds badge (RoBadge) on the lower-right corner.</summary>
+        static Slot RoSlot(Transform parent, int i, float x, float y, float size)
+        {
+            RectTransform rt = UiKit.Rect(parent, "Buff" + i, x, y, size, size);
+            RoHud.Art(rt, "slot");
+            var s = new Slot { Root = rt.gameObject };
+            s.Icon = UiKit.Fill(rt, "Icon", 2.5f).gameObject.AddComponent<Image>();
+            s.Icon.raycastTarget = false; s.Icon.preserveAspect = true;
+            s.Sweep = UiKit.Fill(rt, "Sweep", 2.5f).gameObject.AddComponent<Image>();
+            s.Sweep.raycastTarget = false;
+            s.Sweep.color = new Color(0f, 0f, 0f, 0.45f);
+            s.Sweep.type = Image.Type.Filled; s.Sweep.fillMethod = Image.FillMethod.Radial360;
+            s.Sweep.fillOrigin = (int)Image.Origin360.Top; s.Sweep.fillClockwise = true;
+            s.Seconds = RoBadge(rt);
+            s.Root.SetActive(false);
+            return s;
+        }
+
+        /// <summary>
+        /// The RO seconds badge: a navy pill (hud-lv-badge, padding 1 / 4, 10-unit Nunito) centred on the lower-right corner of `cell`, so
+        /// the number reads on its own and never covers the icon (ui-layout-rules: badges in a corner). Shared with PoisonStatusIcon.
+        /// </summary>
+        public static Text RoBadge(RectTransform cell)
+        {
+            RectTransform b;
+            Text t = RoHud.Pill(cell, "Seconds", RoHud.BottomRight, new Vector2(0.5f, 0.5f), -1f, 2f, 15f, "hud-lv-badge", null, 0f, "", 10, Color.white, out b, 16f); // the 9-slice navy pill: it grows with "12s"
+            b.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(4, 4, 1, 1);
+            b.GetComponent<Image>().pixelsPerUnitMultiplier = 44f / 15f; // art height onto the pill height: round ends
+            return t;
+        }
+
         public void Refresh(HeroController hero)
         {
             HeroBuffs.ActiveFor(hero, views);
@@ -99,7 +135,7 @@ namespace ZenoniaProto
                 }
                 s.Sweep.fillAmount = v.TotalMs > 0f ? 1f - Mathf.Clamp01(v.LeftMs / v.TotalMs) : 0f;
                 int seconds = Mathf.CeilToInt(v.LeftMs / 1000f);
-                if (seconds != s.ShownSeconds) { s.ShownSeconds = seconds; s.Seconds.text = paper ? seconds + "s" : seconds.ToString(); }
+                if (seconds != s.ShownSeconds) { s.ShownSeconds = seconds; s.Seconds.text = paper || ro ? seconds + "s" : seconds.ToString(); }
             }
         }
 
