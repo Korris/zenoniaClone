@@ -36,15 +36,16 @@ namespace ZenoniaProto
                 h.View.SetAppearance(look, "layered-farm-" + i, false, false);
                 heroes.Add(h);
             }
-            // a ring around the pack (wider than tall: the camera looks down at an angle), everyone facing the centre
+            // a ring around the pack (wider than tall: the camera looks down at an angle), everyone facing the centre; your hero
+            // (index 0) stands at the bottom of the ring, so the camera that follows it sees the whole fight above it
             for (int i = 0; i < heroes.Count; i++)
             {
-                float t = Mathf.PI * 2f * i / heroes.Count + 0.2f;
-                Vector2 at = centre + new Vector2(Mathf.Cos(t) * 46f, Mathf.Sin(t) * 30f);
+                float t = -Mathf.PI / 2f + Mathf.PI * 2f * i / heroes.Count;
+                Vector2 at = centre + new Vector2(Mathf.Cos(t) * 34f, Mathf.Sin(t) * 20f);
                 heroes[i].Teleport(at, 0);
                 heroes[i].FaceDir8(Dir8Util.FromVector(centre - at));
             }
-            SpawnFarmPack(root, centre);
+            SpawnFarmPack(root, centre, FarmMonsters); // Monster.All still lists the destroyed monsters until the end of the frame
             if (Camera.main != null) Camera.main.orthographicSize = zoom > 0f ? zoom : 50f;
             yield return new WaitForSeconds(0.8f);
             yield return Shot("farm-hud");
@@ -54,7 +55,9 @@ namespace ZenoniaProto
             InputAdapter.BotPressed = k => k == GameKey.Attack;
             for (int s = 0; s < 12; s++)
             {
-                if (Monster.All.Count < FarmMonsters / 2) SpawnFarmPack(root, centre);
+                int alive = 0;
+                foreach (Monster m in Monster.All) if (m != null && !m.IsDying) alive++;
+                if (alive < FarmMonsters / 2) SpawnFarmPack(root, centre, FarmMonsters - alive);
                 for (int i = 0; i < heroes.Count; i++) heroes[i].FaceDir8(Dir8Util.FromVector(centre - heroes[i].Position)); // keep the ring facing in
                 yield return new WaitForSeconds(0.11f);
                 yield return Shot("farm-" + s);
@@ -63,12 +66,12 @@ namespace ZenoniaProto
             Application.Quit();
         }
 
-        static void SpawnFarmPack(Transform root, Vector2 centre)
+        static void SpawnFarmPack(Transform root, Vector2 centre, int count)
         {
-            for (int i = Monster.All.Count; i < FarmMonsters; i++)
+            for (int i = 0; i < count; i++)
             {
                 float t = Mathf.PI * 2f * i / FarmMonsters;
-                Monster.Create(root, i % 3 == 2 ? MonsterDef.IceGoblin : MonsterDef.FrostSlime, centre + new Vector2(Mathf.Cos(t) * 12f, Mathf.Sin(t) * 8f), -1);
+                Monster.Create(root, i % 3 == 2 ? MonsterDef.IceGoblin : MonsterDef.FrostSlime, centre + new Vector2(Mathf.Cos(t) * 10f, Mathf.Sin(t) * 6f + 6f), -1);
             }
         }
     }
