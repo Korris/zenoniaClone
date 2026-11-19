@@ -20,7 +20,7 @@ SRC = ROOT / "Assets/ArtLibrary/fx/light-skill"
 GAME = ROOT / "Assets/Resources/Sprites/fx/light-skill"
 REF = ROOT / "docs/reference/light-skill-fx"
 GAME_SIZE = {"beam-streaks": (128, 256), "noise-clouds": (256, 256), "meteor-core": (128, 128), "burst-ring": (256, 256),
-             "portal-veil": (128, 256), "portal-mote": (64, 64)}
+             "portal-veil": (128, 256), "portal-mote": (64, 64), "venom-bubble": (64, 64)}
 
 
 def periodic_noise(w, h, cells_x, cells_y, rng):
@@ -134,8 +134,19 @@ def portal_mote(s=128):
     return np.clip(np.exp(-(r / 0.42) ** 2) * 0.75 + np.clip(1 - r / 0.25, 0, 1) ** 1.5 * 0.4, 0, 1) * (r < 1)
 
 
+def venom_bubble(s=128):
+    """Mire Hydra Queen poison bubble (MireHydraLightFx particles): a filled soft disc with a brighter rim and a small highlight spot top-left,
+    so a rising particle reads as a bubble (not a glow mote) even small, on the bright stone arena."""
+    y, x = np.mgrid[0:s, 0:s] / (s - 1) * 2 - 1
+    r = np.hypot(x, y)
+    body = np.clip(1 - r / 0.82, 0, 1) ** 0.35 * 0.55
+    rim = np.exp(-((r - 0.74) / 0.09) ** 2) * 0.9
+    spot = np.exp(-(np.hypot(x + 0.3, y + 0.32) / 0.14) ** 2)
+    return np.clip(body + rim + spot, 0, 1) * (r < 0.9)
+
+
 MAKERS = {"beam-streaks": beam_streaks, "noise-clouds": noise_clouds, "meteor-core": meteor_core, "burst-ring": burst_ring,
-          "portal-veil": portal_veil, "portal-mote": portal_mote}
+          "portal-veil": portal_veil, "portal-mote": portal_mote, "venom-bubble": venom_bubble}
 
 
 def save_grey(a, path, size=None):

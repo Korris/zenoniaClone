@@ -24,7 +24,7 @@ namespace ZenoniaProto
         uint atMs;
         SpriteRenderer area, fill;
         Vector3 fillFull;   // the fill's scale at the strike instant; it grows from the centre (or the line's base) up to this
-        bool firedImpact;
+        bool firedImpact, lightFx; // lightFx: this boss draws with shaders / particles (MireHydraLightFx), so no warning sprites and no painted impact
 
         /// <summary>NetEventPlayer calls this for every WantedSkillTelegraph event (one per locked shape instance).</summary>
         public static void Spawn(string bossId, int skillId, Vector2 origin, float dirDeg, uint atMs)
@@ -40,7 +40,9 @@ namespace ZenoniaProto
             fx.skill = table[skillId];
             fx.shape = new WantedShapeInstance { OriginX = origin.x, OriginY = origin.y, DirDeg = dirDeg };
             fx.atMs = atMs;
-            fx.Build();
+            fx.lightFx = MireHydraLightFx.ActiveFor(bossId);
+            if (fx.lightFx) MireHydraLightFx.Spawn(fx.skill, origin, dirDeg, atMs);
+            else fx.Build();
             Active.Add(fx);
             Debug.Log("[WantedTelegraph] spawn " + bossId + " skill " + skillId + " atMs " + atMs + " serverNow " + NetClient.ServerNowMs.ToString("F0"));
         }
@@ -76,6 +78,7 @@ namespace ZenoniaProto
         {
             for (int i = Active.Count - 1; i >= 0; i--) if (Active[i] != null) Destroy(Active[i].gameObject);
             Active.Clear();
+            MireHydraLightFx.ClearAll();
         }
 
         void Build()
@@ -123,7 +126,7 @@ namespace ZenoniaProto
             {
                 firedImpact = true;
                 Debug.Log("[WantedTelegraph] impact skill " + skill.Id + " atMs " + atMs + " serverNow " + NetClient.ServerNowMs.ToString("F0"));
-                WantedSkillVfx.Play(bossId, skill, new Vector2(shape.OriginX, shape.OriginY), shape.DirDeg);
+                if (!lightFx) WantedSkillVfx.Play(bossId, skill, new Vector2(shape.OriginX, shape.OriginY), shape.DirDeg); // the light FX plays its own impact
                 // Self-predicts a Freeze hit right here, at the same server-clock instant the impact picture fires -- the local hero's own
                 // OwnerSim.FreezeLeft (one round trip later) only confirms / corrects this guess (HeroController.PredictFreeze).
                 HeroController me = LocalPlayer.Hero;
