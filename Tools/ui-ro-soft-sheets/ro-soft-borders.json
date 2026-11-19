@@ -305,6 +305,66 @@
   40,
   40
  ],
+ "ro-soft/pet-bar-green": [
+  20,
+  0,
+  20,
+  0
+ ],
+ "ro-soft/pet-bar-track": [
+  20,
+  0,
+  20,
+  0
+ ],
+ "ro-soft/pet-pill-blue": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-pill-cream": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-pill-red": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-n": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-r": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-sr": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-ssr": [
+  48,
+  40,
+  48,
+  40
+ ],
+ "ro-soft/pet-rarity-ur": [
+  48,
+  40,
+  48,
+  40
+ ],
  "ro-soft/slot": [
   28,
   28,

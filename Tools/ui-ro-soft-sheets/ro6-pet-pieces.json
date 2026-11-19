@@ -1,0 +1,207 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-pet/src/ro-soft-pet-pieces-a-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-pet/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [
+   {
+    "name": "pet-title-paw",
+    "height": 116
+   },
+   {
+    "name": "pet-btn-help",
+    "height": 56
+   },
+   {
+    "name": "pet-btn-info",
+    "height": 56
+   },
+   {
+    "name": "pet-pill-red",
+    "height": 104,
+    "border": [
+     48,
+     40,
+     48,
+     40
+    ]
+   },
+   {
+    "name": "pet-pill-blue",
+    "height": 104,
+    "border": [
+     48,
+     40,
+     48,
+     40
+    ]
+   },
+   {
+    "name": "pet-ico-swords",
+    "height": 64
+   },
+   {
+    "name": "pet-ico-wings",
+    "height": 64
+   }
+  ],
+  [
+   {
+    "name": "pet-pedestal",
+    "width": 320
+   },
+   {
+    "name": "pet-glow",
+    "skip": true
+   },
+   {
+    "name": "pet-btn-swap",
+    "height": 72
+   },
+   {
+    "name": "pet-btn-rename",
+    "height": 72
+   },
+   {
+    "name": "pet-btn-lock",
+    "height": 72
+   }
+  ],
+  [
+   {
+    "name": "pet-star",
+    "height": 48
+   },
+   {
+    "name": "pet-star-empty",
+    "height": 48
+   },
+   {
+    "name": "pet-pill-cream",
+    "height": 104,
+    "border": [
+     48,
+     40,
+     48,
+     40
+    ]
+   },
+   {
+    "name": "pet-rarity-n",
+    "height": 104,
+    "border": [
+     48,
+     40,
+     48,
+     40
+    ],
+    "box": [
+     583,
+     652,
+     806,
+     745
+    ]
+   },
+   {
+    "name": "pet-rarity-r",
+    "height": 104,
+    "border": [
+     48,
+     40,
+     48,
+     40
+    ],
+    "box": [
+     810,
+     652,
+     1032,
+     745
+    ]
+   },
+   {
+    "name": "pet-rarity-ssr",
+    "height": 104,
+    "border": [
+     48,
+     40,
+     48,
+     40
+    ],
+    "box": [
+     1035,
+     652,
+     1258,
+     745
+    ]
+   },
+   {
+    "name": "pet-ico-food",
+    "height": 72
+   }
+  ],
+  [
+   {
+    "name": "pet-chevron-left",
+    "height": 64
+   },
+   {
+    "name": "pet-chevron-right",
+    "height": 64
+   },
+   {
+    "name": "pet-skill-locked",
+    "height": 128
+   },
+   {
+    "name": "pet-mascot-watermark",
+    "box": [
+     485,
+     855,
+     700,
+     990
+    ],
+    "width": 200
+   },
+   {
+    "name": "pet-bar-green",
+    "height": 40,
+    "border": [
+     20,
+     0,
+     20,
+     0
+    ]
+   },
+   {
+    "name": "pet-bar-track",
+    "height": 40,
+    "border": [
+     20,
+     0,
+     20,
+     0
+    ]
+   }
+  ]
+ ],
+ "erase": [
+  [
+   804,
+   640,
+   811,
+   760
+  ],
+  [
+   1031,
+   640,
+   1036,
+   760
+  ]
+ ]
+}

@@ -54,7 +54,7 @@ namespace ZenoniaProto
             {
                 case UiScreen.Bag: InventoryPanel.Open(Root); break;
                 case UiScreen.Skill: SkillTreeWindow.Open(Root); break;
-                case UiScreen.Pet: PetWindow.Open(); break;
+                case UiScreen.Pet: if (PetRoWindow.Wanted) PetRoWindow.Open(); else PetWindow.Open(); break; // RO Soft (default) or the classic window
                 case UiScreen.Gacha: PetGachaWindow.Open(); break;
                 case UiScreen.Wanted: if (RoHud.Active) WantedBoardWindow.Open(); break; // RO Soft HUD: its compact board (RoWantedBoard) without the paper switch
             }
@@ -69,7 +69,7 @@ namespace ZenoniaProto
             {
                 case UiScreen.Bag: InventoryPanel.Close(); break;
                 case UiScreen.Skill: SkillTreeWindow.Close(); break;
-                case UiScreen.Pet: PetWindow.Close(); break;
+                case UiScreen.Pet: PetWindow.Close(); PetRoWindow.Close(); break;
                 case UiScreen.Gacha: PetGachaWindow.Close(); break;
                 case UiScreen.Wanted: RoWantedBoard.Close(); break;
             }
@@ -83,7 +83,7 @@ namespace ZenoniaProto
             {
                 case UiScreen.Bag: return InventoryPanel.IsOpen;
                 case UiScreen.Skill: return SkillTreeWindow.IsOpen;
-                case UiScreen.Pet: return PetWindow.IsOpen;
+                case UiScreen.Pet: return PetWindow.IsOpen || PetRoWindow.IsOpen;
                 case UiScreen.Gacha: return PetGachaWindow.IsOpen;
                 default: return false;
             }
