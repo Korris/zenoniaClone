@@ -1,155 +1,212 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Layout of the character list, from the mock docs/reference/character-flow-screen-1-character-list.png on the shared 1138 x 640 stage: four pedestals in a row (banner behind, live hero on it,
-    /// name plate on its front), the info panel with the picked hero and the gold / red buttons below. The heroes of all four columns are one RawImage (HeroPreviewStage) between the back layer
-    /// (banners, pedestals, create tablets) and the front layer (name plates, tap areas), so plates and tablets are never hidden by a hero.
+    /// Layout of the character slot screen on the shared 1138 x 640 stage, after the mockup (docs/reference/character-select-ro-fantasy/mockup/01-slot-screen-chatgpt-1.png),
+    /// only from art, nothing drawn in code: the slot kit cut from the mockup's piece sheet (Sprites/ui/character-select: slot cards, pedestal, info panel, title banner,
+    /// name label; Tools/ui-character-select-sheets/slot-ui-kit.json), the RO Soft kit buttons and the old character-flow icons. Title banner top centre, the account
+    /// button top left, the big hero on its pedestal centre left, the info panel and buttons right, six slot cards along the bottom. A missing slot-kit piece falls back
+    /// to the nearest RO Soft piece. All heroes are one HeroPreviewStage texture: slot r = card r's small hero, BigSlot = the big one.
     /// </summary>
     public sealed partial class CharacterListScreen
     {
-        const float ColumnStep = 255f, FeetY = 352f, PedestalW = 210f, PedestalAspect = 448f / 208f, FeetOnPedestal = 0.22f;
-        const float GlowAspect = 242f / 507f, GlowFeet = 0.19f, PickedScale = 1.12f, BannerW = 98f, BannerH = 144f, BannerBottom = 202f;
-        const float CreateW = 205f, CreateAspect = 541f / 447f, PedestalBottom = 428f; // the row sits 40 px above the info panel: at 392 / 468 the name plates and pedestals ran into it
+        const int Rows = 6, BigSlot = Rows;
+        const float CardX = 53f, CardY = 364f, CardW = 168f, CardH = 246f, CardStep = 172f;
+        const float HeroX = 381f, PedestalY = 248f, PedestalW = 270f, BigFeetY = 281f, BigViewH = 280f;
+        const float MiniPedW = 120f, MiniPedY = 132f, MiniFeetY = 147f, MiniViewH = 140f;
+        const float InfoX = 524f, InfoY = 92f, InfoW = 348f, InfoH = 166f;
+        const float CornerW = 190f, CornerH = 46f, CornerGap = 10f;
 
-        sealed class Column
+        sealed class Row
         {
-            public Image Banner, Pedestal, Glow, CreateArt;
-            public Text CreateLabel, Name, Level;
-            public GameObject Plate;
-            public Button Hit;
-            public RectTransform[] Scaled; // grow with the picked hero
+            public GameObject Root, Hero, Empty;
+            public Image Face;
+            public RawImage Mini;
+            public Text Name, Info, Level;
+            public Button Button;
         }
 
-        RectTransform root, stage, titleRt, gearRt, menuRt;
-        readonly Column[] columns = new Column[PageSize];
-        Button leftArrow, rightArrow, enterButton, deleteButton;
-        Image portrait;
-        Text infoName, infoClass, infoLevel, infoPlace, emptyNote, status;
+        RectTransform root, stage, cornerRt, cornerRightRt;
+        readonly Row[] rows = new Row[Rows];
+        readonly List<GameObject> heroControls = new List<GameObject>();
+        readonly List<Button> corner = new List<Button>(), cornerRight = new List<Button>();
+        RawImage bigHero;
+        Image pedestal;
+        Button enterButton, createButton, deleteButton, pageUp, pageDown, logoutButton, offlineButton, directButton, onlineButton, backButton;
+        Text enterLabel, infoName, infoClass, infoLevel, infoPlace, emptyNote, status;
+        GameObject infoHero, infoEmpty, statusPlate;
 
-        static float ColumnX(int i) { return CharacterFlowKit.StageW * 0.5f + (i - (PageSize - 1) * 0.5f) * ColumnStep; }
-
-        static void Place(RectTransform rt, float x, float y, Vector2 pivot)
+        /// <summary>A piece of the slot kit (cut at 2x), or the nearest RO Soft piece while it is missing.</summary>
+        static Sprite SlotArt(string name)
         {
-            rt.pivot = pivot;
-            rt.anchoredPosition = new Vector2(x, -y);
+            Sprite s = UiArt.Get("character-select/" + name);
+            if (s != null) return s;
+            switch (name)
+            {
+                case "slot-card-selected": return RoSoftSprites.Named("slot-selected");
+                case "slot-card-empty": return RoSoftSprites.Named("slot-empty");
+                case "pedestal": return CharacterFlowKit.Art("pedestal");
+                default: return RoSoftSprites.Named("slot");
+            }
+        }
+
+        static float Aspect(Sprite s, float fallback) { return s != null ? s.rect.width / s.rect.height : fallback; }
+
+        void Fit()
+        {
+            float s = CharacterFlowKit.Fit(root, stage);
+            cornerRt.localScale = cornerRightRt.localScale = new Vector3(s, s, 1f);
+            cornerRt.anchoredPosition = new Vector2(16f * s, -14f * s);
+            cornerRightRt.anchoredPosition = new Vector2(-16f * s, -14f * s);
         }
 
         void Build()
         {
-            root = CharacterFlowKit.Backdrop(transform, "CharacterList");
+            root = CharacterFlowKit.Backdrop(transform, "CharacterSelect");
             stage = CharacterFlowKit.Stage(root);
-            RectTransform back = UiKit.Rect(stage, "Back", 0f, 0f, CharacterFlowKit.StageW, CharacterFlowKit.StageH);
-            back.anchorMin = back.anchorMax = back.pivot = new Vector2(0f, 1f);
-            for (int i = 0; i < PageSize; i++) columns[i] = new Column();
-            for (int i = 0; i < PageSize; i++) BuildBack(back, columns[i], i);
 
-            float rowW = PageSize * ColumnStep, rowH = rowW * HeroPreviewStage.ViewH / (PageSize * HeroPreviewStage.SlotW);
-            float feetOffset = rowH * HeroPreviewStage.FeetFromBottom / HeroPreviewStage.ViewH; // the feet stand this far above the texture's bottom
-            RectTransform heroes = UiKit.Rect(stage, "Heroes", ColumnX(0) - ColumnStep * 0.5f, FeetY + feetOffset - rowH, rowW, rowH);
-            preview = HeroPreviewStage.Create(transform, heroes.gameObject.AddComponent<RawImage>(), PageSize);
+            Sprite banner = SlotArt("title-banner");
+            float bw = 450f, bh = bw / Aspect(banner, 4.2f);
+            Image title = CharacterFlowKit.Pic(stage, "TitleBanner", banner, CharacterFlowKit.StageW * 0.5f - bw * 0.5f, 4f, bw, bh);
+            title.preserveAspect = false;
+            CharacterFlowKit.RoText(title.rectTransform, "Text", bw * 0.16f, bh * 0.22f, bw * 0.68f, bh * 0.52f, "Chọn nhân vật", 34, Color.white).GetComponent<Shadow>().effectColor = new Color(0.05f, 0.12f, 0.3f, 0.6f);
 
-            RectTransform front = UiKit.Rect(stage, "Front", 0f, 0f, CharacterFlowKit.StageW, CharacterFlowKit.StageH);
-            for (int i = 0; i < PageSize; i++) BuildFront(front, columns[i], i);
-            leftArrow = Arrow("PageLeft", 16f, false, -1);
-            rightArrow = Arrow("PageRight", 1122f, true, 1);
-            BuildInfoPanel();
-            status = UiKit.Label(stage, "Status", 65f, 606f, 1008f, 28f, "", 15, CharacterFlowKit.Soft, TextAnchor.MiddleCenter, true);
+            // the big hero: pedestal, then the texture every hero picture shares
+            Sprite ped = SlotArt("pedestal");
+            float ph = PedestalW / Aspect(ped, 2.47f);
+            pedestal = CharacterFlowKit.Pic(stage, "ListPedestal", ped, HeroX - PedestalW * 0.5f, PedestalY, PedestalW, ph);
+            float viewW = BigViewH * HeroPreviewStage.SlotW / HeroPreviewStage.ViewH, feet = BigViewH * HeroPreviewStage.FeetFromBottom / HeroPreviewStage.ViewH;
+            bigHero = UiKit.Rect(stage, "ListHero", HeroX - viewW * 0.5f, BigFeetY + feet - BigViewH, viewW, BigViewH).gameObject.AddComponent<RawImage>();
+            preview = HeroPreviewStage.Create(transform, bigHero, Rows + 1);
+            bigHero.uvRect = new Rect((float)BigSlot / (Rows + 1), 0f, 1f / (Rows + 1), 1f);
+            Text unused;
+            heroControls.Add(CharacterFlowKit.RoButton(stage, "ListTurnLeft", RoSoftSprites.Shape.Row, HeroX - 136f, 168f, 46f, 46f, "<", 24, () => OnTurn(-1), out unused).gameObject);
+            heroControls.Add(CharacterFlowKit.RoButton(stage, "ListTurnRight", RoSoftSprites.Shape.Row, HeroX + 88f, 168f, 46f, 46f, ">", 24, () => OnTurn(1), out unused).gameObject);
+
+            BuildInfo();
+            enterButton = CharacterFlowKit.RoButton(stage, "EnterGame", RoSoftSprites.Shape.Primary, 850f, 262f, 268f, 72f, "Vào game", 30, OnEnter, out enterLabel);
+            createButton = CharacterFlowKit.RoButton(stage, "CreateNew", RoSoftSprites.Shape.Secondary, InfoX, 274f, 173f, 50f, "+ Tạo nhân vật", 18, OnCreate, out unused);
+            deleteButton = CharacterFlowKit.RoButton(stage, "DeleteHero", RoSoftSprites.Shape.Danger, InfoX + 183f, 274f, 131f, 50f, "Xoá", 20, OnAskDelete, out unused);
+            statusPlate = CharacterFlowKit.RoPiece(stage, "StatusPlate", RoSoftSprites.Shape.Glass, InfoX, 325f, 594f, 38f).gameObject; // readable over the dark stones
+            status = CharacterFlowKit.RoText(statusPlate.transform, "Status", 12f, 0f, 570f, 38f, "", 15, RoSoftTheme.Ink);
+
+            Texture shared = bigHero.texture;
+            for (int r = 0; r < Rows; r++) rows[r] = BuildCard(r, shared);
+            pageUp = CharacterFlowKit.RoButton(stage, "SlotPageLeft", RoSoftSprites.Shape.Row, 8f, 456f, 40f, 60f, "<", 22, () => OnPage(-1), out unused);
+            pageDown = CharacterFlowKit.RoButton(stage, "SlotPageRight", RoSoftSprites.Shape.Row, 1090f, 456f, 40f, 60f, ">", 22, () => OnPage(1), out unused);
             BuildCorner();
+            BuildConfirm();
         }
 
-        void BuildBack(RectTransform layer, Column c, int i)
+        void BuildInfo()
         {
-            float cx = ColumnX(i), ph = PedestalW / PedestalAspect, gw = PedestalW * 507f / 448f;
-            c.Banner = CharacterFlowKit.Pic(layer, "Banner" + i, null, 0f, 0f, BannerW, BannerH);
-            c.Banner.preserveAspect = false;
-            Place(c.Banner.rectTransform, cx, BannerBottom, new Vector2(0.5f, 0f));
-            c.Pedestal = CharacterFlowKit.Pic(layer, "Pedestal" + i, CharacterFlowKit.Art("pedestal"), 0f, 0f, PedestalW, ph);
-            Place(c.Pedestal.rectTransform, cx, FeetY, new Vector2(0.5f, 1f - FeetOnPedestal));
-            c.Glow = CharacterFlowKit.Pic(layer, "Glow" + i, CharacterFlowKit.Art("pedestal-glow"), 0f, 0f, gw, gw * GlowAspect);
-            Place(c.Glow.rectTransform, cx, FeetY, new Vector2(0.5f, 1f - GlowFeet));
-            c.CreateArt = CharacterFlowKit.Pic(layer, "Create" + i, CharacterFlowKit.Art("create-slot"), 0f, 0f, CreateW, CreateW * CreateAspect);
-            Place(c.CreateArt.rectTransform, cx, PedestalBottom, new Vector2(0.5f, 0f));
-            c.CreateLabel = UiKit.Label(c.CreateArt.transform, "Text", 0f, 0f, CreateW, 56f, "Create\nCharacter", 17, new Color(1f, 0.95f, 0.82f), TextAnchor.MiddleCenter, true);
-            c.CreateLabel.rectTransform.anchorMin = c.CreateLabel.rectTransform.anchorMax = new Vector2(0.5f, 0.38f);
-            c.CreateLabel.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            c.CreateLabel.rectTransform.anchoredPosition = Vector2.zero;
-            c.Scaled = new[] { c.Banner.rectTransform, c.Pedestal.rectTransform, c.Glow.rectTransform };
+            Image panel = CharacterFlowKit.Pic(stage, "InfoPanel", null, InfoX, InfoY, InfoW, InfoH);
+            panel.sprite = UiArt.Get("character-select/info-panel", new Vector4(44f, 44f, 44f, 40f)) ?? RoSoftSprites.Get(RoSoftSprites.Shape.Card);
+            panel.type = Image.Type.Sliced;
+            panel.preserveAspect = false;
+            panel.pixelsPerUnitMultiplier = 2f; // cut at 2x
+            panel.raycastTarget = true;
+            infoHero = UiKit.Rect(panel.rectTransform, "Hero", 0f, 0f, InfoW, InfoH).gameObject;
+            infoName = InfoRow(infoHero.transform, "Name", null, "Tên:", 18f);
+            infoClass = InfoRow(infoHero.transform, "Class", "icon-class", "Class:", 52f);
+            infoLevel = InfoRow(infoHero.transform, "Level", "icon-level", "Cấp:", 86f);
+            infoPlace = InfoRow(infoHero.transform, "Place", "icon-location", "Bản đồ cuối:", 120f);
+            infoEmpty = UiKit.Rect(panel.rectTransform, "Empty", 0f, 0f, InfoW, InfoH).gameObject;
+            emptyNote = CharacterFlowKit.RoText(infoEmpty.transform, "Note", 24f, 20f, InfoW - 48f, InfoH - 40f, "", 18, RoSoftTheme.Ink);
         }
 
-        void BuildFront(RectTransform layer, Column c, int i)
+        /// <summary>Icon (old character-flow art; none for the name yet), label and value of one info row.</summary>
+        static Text InfoRow(Transform p, string name, string icon, string label, float y)
         {
-            float cx = ColumnX(i);
-            RectTransform plate = UiKit.Rect(layer, "Plate" + i, cx - 78f, FeetY + 30f, 156f, 42f);
-            UiKit.Panel(plate, new Color(0.04f, 0.06f, 0.11f, 0.86f));
-            c.Plate = plate.gameObject;
-            c.Name = UiKit.Label(plate, "Name", 0f, 2f, 156f, 22f, "", 16, CharacterFlowKit.Gold, TextAnchor.MiddleCenter, true);
-            c.Level = UiKit.Label(plate, "Level", 0f, 22f, 156f, 18f, "", 14, Color.white, TextAnchor.MiddleCenter, true);
-            int index = i;
-            c.Hit = CharacterFlowKit.HitArea(layer, "Hit" + i, cx - 115f, 100f, 230f, 380f, () => OnColumn(index));
+            if (icon != null) CharacterFlowKit.Pic(p, name + "Icon", CharacterFlowKit.Art(icon), 26f, y + 3f, 24f, 24f);
+            CharacterFlowKit.RoText(p, name + "Label", 60f, y, 120f, 30f, label, 17, RoSoftTheme.Ink, TextAnchor.MiddleLeft);
+            Text value = CharacterFlowKit.RoText(p, name, 178f, y, InfoW - 196f, 30f, "", 19, RoSoftTheme.Ink, TextAnchor.MiddleLeft);
+            value.resizeTextForBestFit = true; // a long map name shrinks instead of wrapping out of the row
+            value.resizeTextMinSize = 12;
+            value.resizeTextMaxSize = 19;
+            value.horizontalOverflow = HorizontalWrapMode.Wrap;
+            value.verticalOverflow = VerticalWrapMode.Truncate;
+            return value;
         }
 
-        Button Arrow(string name, float x, bool mirrored, int delta)
+        Row BuildCard(int r, Texture shared)
         {
-            const float W = 34f, H = 56f;
-            Image img = CharacterFlowKit.Pic(stage, name, UiArt.Get("hero-select/arrow-left"), x, 290f, W, H);
-            img.raycastTarget = true;
-            if (mirrored) img.rectTransform.localScale = new Vector3(-1f, 1f, 1f); // x is the right edge then: the mirror folds about the left edge
-            return CharacterFlowKit.Clickable(img.rectTransform, img, () => { page += delta; dirty = true; });
-        }
+            var card = new Row();
+            card.Face = CharacterFlowKit.Pic(stage, "HeroRow" + r, SlotArt("slot-card"), CardX + r * CardStep, CardY, CardW, CardH);
+            card.Face.preserveAspect = false;
+            card.Face.raycastTarget = true;
+            card.Root = card.Face.gameObject;
+            int index = r;
+            card.Button = CharacterFlowKit.Clickable(card.Face.rectTransform, card.Face, () => OnRow(index));
+            Transform f = card.Face.transform;
 
-        void BuildInfoPanel()
-        {
-            RectTransform p = CharacterFlowKit.Plate(stage, "Info", 65f, 462f, 1008f, 138f);
-            portrait = CharacterFlowKit.Pic(p, "Portrait", null, 18f, 10f, 118f, 118f);
-            infoName = UiKit.Label(p, "InfoName", 160f, 8f, 420f, 38f, "", 28, new Color(0.62f, 0.76f, 1f), TextAnchor.MiddleLeft, true);
-            infoClass = InfoRow(p, "Class", "icon-class", 54f);
-            infoLevel = InfoRow(p, "Level", "icon-level", 80f);
-            infoPlace = InfoRow(p, "Place", "icon-location", 106f);
-            emptyNote = UiKit.Label(p, "Empty", 160f, 40f, 420f, 60f, "No heroes yet: create your first.", 20, CharacterFlowKit.Soft, TextAnchor.MiddleLeft, true);
-            UiKit.Panel(UiKit.Rect(p, "Divider", 600f, 20f, 2f, 98f), new Color(1f, 0.82f, 0.4f, 0.55f));
-            enterButton = CharacterFlowKit.GemButton(p, "Enter", "btn-gold", 625f, 33f, 225f, 70f, "ENTER GAME", 26, CharacterFlowKit.Ink, OnEnter);
-            deleteButton = CharacterFlowKit.GemButton(p, "Delete", "btn-red", 868f, 48f, 126f, 40f, "DELETE", 17, Color.white, OnDelete);
-        }
+            card.Hero = UiKit.Rect(f, "Hero", 0f, 0f, CardW, CardH).gameObject;
+            Sprite ped = SlotArt("pedestal");
+            CharacterFlowKit.Pic(card.Hero.transform, "Pedestal", ped, (CardW - MiniPedW) * 0.5f, MiniPedY, MiniPedW, MiniPedW / Aspect(ped, 2.47f));
+            float miniW = MiniViewH * HeroPreviewStage.SlotW / HeroPreviewStage.ViewH, feet = MiniViewH * HeroPreviewStage.FeetFromBottom / HeroPreviewStage.ViewH;
+            card.Mini = UiKit.Rect(card.Hero.transform, "Mini", (CardW - miniW) * 0.5f, MiniFeetY + feet - MiniViewH, miniW, MiniViewH).gameObject.AddComponent<RawImage>();
+            card.Mini.texture = shared;
+            card.Mini.raycastTarget = false;
+            card.Mini.uvRect = new Rect((float)r / (Rows + 1), 0f, 1f / (Rows + 1), 1f);
+            Image label = CharacterFlowKit.Pic(card.Hero.transform, "NameLabel", SlotArt("name-label"), 10f, 172f, CardW - 20f, 32f);
+            label.preserveAspect = false;
+            card.Name = CharacterFlowKit.RoText(label.rectTransform, "Name", 10f, 0f, CardW - 40f, 32f, "", 16, Color.white);
+            card.Name.GetComponent<Shadow>().effectColor = new Color(0.05f, 0.12f, 0.3f, 0.6f);
+            card.Info = CharacterFlowKit.RoText(card.Hero.transform, "Class", 0f, 205f, CardW, 20f, "", 15, RoSoftTheme.Ink);
+            card.Level = CharacterFlowKit.RoText(card.Hero.transform, "Level", 0f, 223f, CardW, 18f, "", 15, RoSoftTheme.Ink);
 
-        /// <summary>Icon + text row of the info panel; the text sits in a holder so a row can hide as a whole.</summary>
-        Text InfoRow(RectTransform p, string name, string icon, float y)
-        {
-            RectTransform row = UiKit.Rect(p, name + "Row", 160f, y, 420f, 24f);
-            CharacterFlowKit.Pic(row, "Icon", CharacterFlowKit.Art(icon), 0f, 1f, 22f, 22f);
-            return UiKit.Label(row, "Text", 32f, 0f, 380f, 24f, "", 18, new Color(0.92f, 0.95f, 1f), TextAnchor.MiddleLeft, true);
+            card.Empty = UiKit.Rect(f, "Empty", 0f, 0f, CardW, CardH).gameObject;
+            CharacterFlowKit.RoText(card.Empty.transform, "Text", 0f, 150f, CardW, 26f, "+ Tạo nhân vật", 16, RoSoftTheme.Ink);
+            Image faded = CharacterFlowKit.Pic(card.Empty.transform, "Pedestal", ped, (CardW - 130f) * 0.5f, 188f, 130f, 130f / Aspect(ped, 2.47f));
+            faded.color = new Color(1f, 1f, 1f, 0.45f);
+            return card;
         }
 
         void BuildCorner()
         {
-            CharacterFlowKit.Title(root, "CHARACTER LIST", out titleRt);
-            RectTransform gear = MakeGear();
-            CharacterFlowKit.Clickable(gear, gear.GetComponent<Image>(), () => menuRt.gameObject.SetActive(!menuRt.gameObject.activeSelf));
-            menuRt = UiKit.Rect(root, "GearMenu", 0f, 0f, 200f, 0f);
-            menuRt.anchorMin = menuRt.anchorMax = menuRt.pivot = new Vector2(1f, 1f);
-            float y = 0f;
-            AddMenuItem("Log out", ref y, () => AccountFlow.Logout());
-            AddMenuItem("Play offline", ref y, () => ConnectScreenGui.LeaveToOffline(GameSession.Instance));
-            if (ConnectScreenGui.DevPageAvailable) AddMenuItem("Direct connect (dev)", ref y, ConnectScreenGui.ShowDevPage);
-            menuRt.sizeDelta = new Vector2(200f, y);
-            menuRt.gameObject.SetActive(false);
+            cornerRt = UiKit.Rect(root, "ListCorner", 0f, 0f, 3f * (CornerW + CornerGap), CornerH);
+            cornerRt.anchorMin = cornerRt.anchorMax = cornerRt.pivot = new Vector2(0f, 1f);
+            cornerRightRt = UiKit.Rect(root, "ListCornerRight", 0f, 0f, 2f * (CornerW + CornerGap), CornerH);
+            cornerRightRt.anchorMin = cornerRightRt.anchorMax = cornerRightRt.pivot = new Vector2(1f, 1f);
+            // top left, as in the mockup: the account button (offline: go online; over the game: back); top right: the rest, clear of the title banner
+            logoutButton = CornerButton(cornerRt, corner, "LogOut", RoSoftSprites.Shape.Secondary, "Đổi tài khoản", OnLogout);
+            onlineButton = CornerButton(cornerRt, corner, "PlayOnline", RoSoftSprites.Shape.Secondary, "Chơi online", OnPlayOnline);
+            backButton = CornerButton(cornerRt, corner, "BackToGame", RoSoftSprites.Shape.Secondary, "Quay lại", OnBackToGame);
+            offlineButton = CornerButton(cornerRightRt, cornerRight, "PlayOffline", RoSoftSprites.Shape.Row, "Chơi offline", OnPlayOffline);
+            directButton = CornerButton(cornerRightRt, cornerRight, "DirectConnect", RoSoftSprites.Shape.Row, "Kết nối (dev)", () => ConnectScreenGui.ShowDevPage());
         }
 
-        RectTransform MakeGear()
+        static Button CornerButton(RectTransform parent, List<Button> list, string name, RoSoftSprites.Shape shape, string text, System.Action act)
         {
-            Image img = CharacterFlowKit.Pic(root, "Gear", UiArt.Get("hud-settings"), 0f, 0f, 46f, 46f);
-            img.raycastTarget = true;
-            gearRt = img.rectTransform;
-            gearRt.anchorMin = gearRt.anchorMax = gearRt.pivot = new Vector2(1f, 1f);
-            return gearRt;
+            Text unused;
+            Button b = CharacterFlowKit.RoButton(parent, name, shape, 0f, 0f, CornerW, CornerH, text, 18, act, out unused);
+            list.Add(b);
+            return b;
         }
 
-        void AddMenuItem(string label, ref float y, System.Action act)
+        static void ShowCorner(Button b, bool on) { if (b.gameObject.activeSelf != on) b.gameObject.SetActive(on); }
+
+        /// <summary>The visible corner buttons from the top-left corner rightwards, in build order (the account button first).</summary>
+        void LayoutCorner()
         {
-            Button b = CharacterFlowKit.GemButton(menuRt, "Item" + label, "btn-navy", 0f, y, 200f, 48f, label, 16, Color.white, () => { menuRt.gameObject.SetActive(false); act(); });
-            y += 52f;
+            float x = 0f;
+            foreach (Button b in corner)
+            {
+                if (!b.gameObject.activeSelf) continue;
+                ((RectTransform)b.transform).anchoredPosition = new Vector2(x, 0f);
+                x += CornerW + CornerGap;
+            }
+            x = cornerRightRt.rect.width; // top right: from the right edge leftwards
+            foreach (Button b in cornerRight)
+            {
+                if (!b.gameObject.activeSelf) continue;
+                x -= CornerW;
+                ((RectTransform)b.transform).anchoredPosition = new Vector2(x, 0f);
+                x -= CornerGap;
+            }
         }
     }
 }

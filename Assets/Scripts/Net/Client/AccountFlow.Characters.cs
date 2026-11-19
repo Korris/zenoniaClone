@@ -65,9 +65,11 @@ namespace ZenoniaProto
             Busy = true; Say("Creating your hero ...", false);
             try
             {
-                ApiResult<CharacterDetailResponse> r = await api.CreateCharacterAsync(name.Trim(), RpgSession.ClassId(id), look);
+                int slot = PendingSlot >= 0 ? PendingSlot : FirstFreeSlot();
+                ApiResult<CharacterDetailResponse> r = await api.CreateCharacterAsync(name.Trim(), RpgSession.ClassId(id), look, slot);
                 if (!r.Ok) { Say(Friendly(r), true); BackToLoginIfLoggedOut(); return; }
                 Say("", false);
+                PendingSlot = -1;
                 Page = AccountPage.Characters;
                 await RefreshNow();
             }
@@ -76,11 +78,24 @@ namespace ZenoniaProto
         }
 
         /// <summary>Deletes the hero on the ConfirmDelete page, once its name has been typed. A refusal stays on that page with the reason.</summary>
-        public static async void Delete(string typedName)
+        public static void Delete(string typedName)
         {
             if (Busy) return;
             string problem = DeleteProblem(typedName);
             if (problem != null) { Say(problem, true); return; }
+            DeleteNow();
+        }
+
+        /// <summary>The character select screen: the player tapped DELETE and then held the confirm button (two steps, no name to type). A refusal shows on the list.</summary>
+        public static void DeleteHeld(CharacterSummary c)
+        {
+            if (Busy || c == null) return;
+            Deleting = c;
+            DeleteNow();
+        }
+
+        static async void DeleteNow()
+        {
             Busy = true; Say("Deleting ...", false);
             try
             {

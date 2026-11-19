@@ -1,6 +1,7 @@
 // Mirrors Assets/Scripts/Rpg (RpgClasses.Ids, Slots, ItemDefs.RarityOrder, PlayerState, Leveling, EnhanceConfig). Keep in sync by hand.
 
-export const CLASS_IDS = ['warrior', 'wizard', 'mechanic', 'cleric', 'assassin', 'fighter']; // one character per class => max 6 per account (fighter added 2026-11-04)
+export const CLASS_IDS = ['warrior', 'wizard', 'mechanic', 'cleric', 'assassin', 'fighter']; // fighter added 2026-11-04; several heroes of one class are allowed (2026-11-12)
+export const DEFAULT_MAX_CHARACTERS = 6; // heroes one account may hold, any classes (AccountFlow.MaxCharacters on the client); MAX_CHARACTERS overrides it
 export const SLOTS = ['weapon', 'helmet', 'armor', 'gloves', 'boots', 'offhand', 'pet', 'headgear']; // headgear (19/11/2026): cosmetic hat, HeadgearCatalog
 export const PET_MAX_DURABILITY = 1000; // PetConfig.MaxDurability
 /** HeadgearCatalog.All keys in id order (id = index + 1; 0 = bare head). Only append. Hat items: templateId 'hat-<key>', slot 'headgear', no stats, no class, never enhanced. */

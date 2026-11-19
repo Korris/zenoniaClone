@@ -116,6 +116,58 @@ namespace ZenoniaProto
             Rpg.CharacterAppearanceData saved = made != null ? Rpg.CharacterAppearanceData.Sanitize(made.appearance, made.classId) : null;
             P((AccountFlow.Page == AccountPage.Characters && saved != null && saved.SameLook(Rpg.CharacterAppearanceData.ForNewCharacter("wizard", 0, 4, 2)) ? "PASS" : "FAIL") + " the created hero keeps the picked look on the server: " + (saved != null ? saved.ToOpText() : "no hero") + " " + AccountFlow.Status);
             yield return Shot(dir, "7c-characters-new-hero-in-its-colours");
+            // an empty slot on the list (real tap): class step -> look and name -> the hero lands in that slot
+            yield return Press(CentreOf("HeroRow4"), false, "empty slot 4");
+            yield return new WaitForSeconds(1.5f);
+            P((HeroSelectScreen.IsShown && HeroSelectScreen.Creating && AccountFlow.PendingSlot == 4 ? "PASS" : "FAIL") + " an empty slot opens the class step for that slot");
+            HeroSelectScreen.TestPickClass((int)HeroClass.Mechanic);
+            yield return new WaitForSeconds(0.4f);
+            HeroSelectScreen.TestPressStart();
+            yield return new WaitForSeconds(1f);
+            CharacterCustomizeScreen.TestSetName(account + "_m");
+            CharacterCustomizeScreen.TestConfirm();
+            yield return new WaitForSeconds(0.1f);
+            while (AccountFlow.Busy) yield return null;
+            yield return new WaitForSeconds(1f);
+            CharacterSummary slotted = HeroOf("mechanic");
+            P((slotted != null && slotted.slot == 4 && CharacterListScreen.TestSlotOf(slotted.name) == 4 ? "PASS" : "FAIL") + " the new hero sits in the tapped slot: " + (slotted != null ? slotted.slot : -9) + " " + AccountFlow.Status);
+            yield return Shot(dir, "7c2-hero-in-slot-5");
+            // several heroes on one account, up to AccountFlow.MaxCharacters (6), then the 7th is refused; CREATE NEW greys out
+            string[] more = { "cleric", "assassin", "warrior" };
+            for (int i = 0; i < more.Length; i++)
+            {
+                AccountFlow.PendingLook = null;
+                AccountFlow.Create(account + "_x" + i, (HeroClass)GameSession.ClassIndex(more[i]), Rpg.CharacterAppearanceData.ForNewCharacter(more[i], i % 3, (i * 3 + 1) % 8, i % 6));
+                yield return new WaitForSeconds(0.1f);
+                while (AccountFlow.Busy) yield return null;
+            }
+            yield return new WaitForSeconds(1.5f);
+            P((AccountFlow.Characters.Count == AccountFlow.MaxCharacters && CharacterListScreen.Shown == CharacterListScreen.Mode.Online ? "PASS" : "FAIL") + " one account holds " + AccountFlow.Characters.Count + " heroes (two warriors)");
+            CharacterListScreen.TestSelect(account + "_x2");
+            yield return new WaitForSeconds(0.8f);
+            yield return Shot(dir, "7d-characters-full-six");
+            AccountFlow.Create(account + "_x9", HeroClass.Fighter, null);
+            yield return new WaitForSeconds(0.1f);
+            while (AccountFlow.Busy) yield return null;
+            P((AccountFlow.Characters.Count == AccountFlow.MaxCharacters && AccountFlow.StatusBad ? "PASS" : "FAIL") + " the seventh hero is refused: " + AccountFlow.Status);
+            yield return Press(CentreOf("CreateNew"), false, "create new on a full list");
+            yield return new WaitForSeconds(0.5f);
+            P((!HeroSelectScreen.IsShown && CharacterListScreen.IsShown ? "PASS" : "FAIL") + " CREATE NEW does nothing on a full list");
+            yield return Shot(dir, "7e-seventh-refused");
+            CharacterListScreen.TestSelect(account + "_x1");
+            yield return new WaitForSeconds(0.5f);
+            yield return Press(CentreOf("DeleteHero"), false, "delete");
+            yield return new WaitForSeconds(0.4f);
+            yield return Shot(dir, "7f-delete-confirm");
+            yield return Press(CentreOf("HoldDelete"), false, "short tap on hold-to-delete");
+            yield return new WaitForSeconds(0.5f);
+            P((AccountFlow.Characters.Count == AccountFlow.MaxCharacters && CharacterListScreen.TestDeleteConfirmOpen ? "PASS" : "FAIL") + " a short tap deletes nothing");
+            yield return PressHold(CentreOf("HoldDelete"), CharacterListScreen.DeleteHoldSeconds + 0.4f, "hold to delete", true);
+            yield return new WaitForSeconds(0.1f);
+            while (AccountFlow.Busy) yield return null;
+            yield return new WaitForSeconds(1f);
+            P((AccountFlow.Characters.Count == AccountFlow.MaxCharacters - 1 && HeroOf("assassin") == null ? "PASS" : "FAIL") + " holding the button deletes the hero on the server: " + AccountFlow.Characters.Count + " left " + AccountFlow.Status);
+            yield return Shot(dir, "7g-after-delete");
             AccountFlow.ShowForgot();
             yield return new WaitForSeconds(0.3f);
             yield return Shot(dir, "8-forgot");

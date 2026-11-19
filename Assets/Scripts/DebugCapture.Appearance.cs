@@ -18,6 +18,9 @@ namespace ZenoniaProto
         IEnumerator RunAppearanceTest()
         {
             Directory.CreateDirectory(shotPath);
+            while (!CharacterListScreen.IsShown) yield return null; // offline start: the character list first
+            yield return WaitSeconds(1f);
+            yield return Press(CentreOf("CreateNew"), false, "create new");
             while (!HeroSelectScreen.IsShown) yield return null;
             yield return WaitSeconds(1f);
 
@@ -66,6 +69,8 @@ namespace ZenoniaProto
 
             // ---- Cleric: female body, from the change hero screen, Back once ----
             HeroChangeScreen.Open();
+            yield return WaitSeconds(0.8f);
+            yield return Press(CentreOf("CreateNew"), false, "create new over the game");
             yield return WaitSeconds(0.8f);
             yield return Press(CentreOf("Pick" + (int)HeroClass.Cleric), false, "cleric");
             yield return Press(CentreOf("StartButton"), false, "start a new cleric");

@@ -29,6 +29,8 @@ namespace ZenoniaProto.Api
     {
         public string id, name, classId, mapId, createdAt;
         public int level, rev;
+        /// <summary>Place on the character select screen (0..MaxCharacters-1); -1 = an older server that sends none (the list then fills free places in order).</summary>
+        public int slot = -1;
         public bool online;
         /// <summary>The saved look (state.appearance). Absent for a hero that never chose: JsonUtility then fills zeros with stored = false, so read it through CharacterAppearanceData.Sanitize.</summary>
         public CharacterAppearanceData appearance;
@@ -37,9 +39,9 @@ namespace ZenoniaProto.Api
     [Serializable] public class CharacterListResponse { public CharacterSummary[] characters; }
 
     /// <summary>POST /characters without a look (the name-hash default applies).</summary>
-    [Serializable] public class CreateCharacterRequest { public string name, classId; }
+    [Serializable] public class CreateCharacterRequest { public string name, classId; public int slot; } // slot: the empty slot picked on the character select screen (an older server ignores it)
     /// <summary>POST /characters with the look picked on the creation screen (server-api createAppearanceSchema: both colours chosen, no hat). A separate type: JsonUtility always writes a nested object.</summary>
-    [Serializable] public class CreateCharacterWithLookRequest { public string name, classId; public CreateAppearance appearance; }
+    [Serializable] public class CreateCharacterWithLookRequest { public string name, classId; public int slot; public CreateAppearance appearance; }
     [Serializable] public class CreateAppearance { public int hairStyle, hairColorIndex, outfitColorIndex; }
 
     /// <summary>Summary plus the full persisted state (SaveData shape, same JSON as the offline save).</summary>
@@ -85,6 +87,7 @@ namespace ZenoniaProto.Api
         public const string NameTaken = "name_taken";
         public const string ClassTaken = "class_taken"; // servers before 2026-11-12 (one hero per class)
         public const string SlotsFull = "slots_full";
+        public const string SlotTaken = "slot_taken";
         public const string AlreadyOnline = "already_online";
         public const string CharacterOnline = "character_online"; // delete refused: the character holds a live session
         public const string NotFound = "not_found";

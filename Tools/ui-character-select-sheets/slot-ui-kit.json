@@ -1,0 +1,18 @@
+{
+ "source": "Assets/ArtLibrary/ui/character-select/slot-ui-kit-chatgpt-2.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/character-select/",
+ "borders_file": "Tools/ui-character-select-sheets/character-select-borders.json",
+ "contact_dir": "docs/reference/character-select-ro-fantasy/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [
+  [{"name": "slot-card", "height": 416},
+   {"name": "slot-card-selected", "height": 416},
+   {"name": "slot-card-empty", "height": 416}],
+  [{"name": "pedestal", "height": 160},
+   {"name": "info-panel", "height": 216, "border": [44, 44, 44, 40]}],
+  [{"name": "title-banner", "height": 150},
+   {"name": "name-label", "height": 76}]
+ ]
+}

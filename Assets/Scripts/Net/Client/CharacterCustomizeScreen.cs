@@ -190,7 +190,7 @@ namespace ZenoniaProto
             {
                 HeroClass id = offlineClass.Value;
                 offlineClass = null;
-                HeroSelectScreen.ReturnTo(id); // the hero select comes back by itself (no hero yet, or the change hero screen still open), on the same class
+                if (NetMode.IsOffline) CharacterListScreen.CreateOffline(id); // the class step of the new hero again, on the same class (a dev host's hero select comes back by itself)
                 return;
             }
             if (AccountFlow.Busy) return;

@@ -67,6 +67,9 @@ namespace ZenoniaProto
         /// <summary>Round close button (white disc, ink X), drawn unsliced.</summary>
         public static Sprite Close() { return Load("btn-close"); }
 
+        /// <summary>Any kit piece by file name (slot-empty, btn-plus, window-header ...), 9-sliced when it has a border; null when missing.</summary>
+        public static Sprite Named(string piece) { return Load(piece); }
+
         static Sprite Load(string piece)
         {
             Sprite s;

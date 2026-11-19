@@ -28,8 +28,9 @@ namespace ZenoniaProto
         static bool resumed;
         static string enteredId;
 
-        /// <summary>Heroes one account may hold, of any classes. The server enforces it (MAX_CHARACTERS); this only sizes the list.</summary>
-        public const int MaxCharacters = 5;
+        /// <summary>Heroes one account may hold, of any classes (server-api DEFAULT_MAX_CHARACTERS; MAX_CHARACTERS can change it there). The server enforces it; this only sizes the list.
+        /// Offline has the same six: one save per class.</summary>
+        public const int MaxCharacters = 6;
 
         public static AccountPage Page { get; private set; }
         public static bool Busy { get; private set; }
@@ -81,7 +82,22 @@ namespace ZenoniaProto
         public static void ShowLogin() { Page = AccountPage.Login; Say("", false); }
         public static void ShowRegister() { Page = AccountPage.Register; Say("", false); }
         public static void ShowForgot() { Page = AccountPage.Forgot; Say("", false); }
-        public static void ShowCharacters() { Page = AccountPage.Characters; Say("", false); }
+        public static void ShowCharacters() { Page = AccountPage.Characters; PendingSlot = -1; Say("", false); }
+        /// <summary>The character select slot a new hero goes into (the empty slot the player tapped); -1 = the first free one.</summary>
+        public static int PendingSlot { get; set; } = -1;
+
+        /// <summary>The first slot no hero of the account sits in (MaxCharacters when all are taken).</summary>
+        public static int FirstFreeSlot()
+        {
+            for (int s = 0; s < MaxCharacters; s++)
+            {
+                bool used = false;
+                foreach (CharacterSummary c in Characters) if (c.slot == s) used = true;
+                if (!used) return s;
+            }
+            return MaxCharacters;
+        }
+
         /// <summary>Opens the Customize page for a class with a fresh random look (the player changes it there).</summary>
         public static void ShowCustomize(HeroClass id)
         {
@@ -106,6 +122,7 @@ namespace ZenoniaProto
                 case ApiErrorCodes.RateLimited: return "Too many tries: " + WaitText(r.RetryAfterSec);
                 case ApiErrorCodes.NameTaken: return "That name is taken";
                 case ApiErrorCodes.ClassTaken: return "You already have a hero of this class";
+                case ApiErrorCodes.SlotTaken: return "That slot was just taken: pick another one";
                 case ApiErrorCodes.SlotsFull: return "You already have " + MaxCharacters + " heroes: delete one to make another";
                 case ApiErrorCodes.AlreadyOnline: return "This character is already online";
                 case ApiErrorCodes.CharacterOnline: return "This hero is still in the world. Leave the game with it first, or wait up to 2 minutes if it was closed suddenly.";

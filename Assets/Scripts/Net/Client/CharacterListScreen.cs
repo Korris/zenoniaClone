@@ -1,27 +1,32 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using ZenoniaProto.Api;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The online character list (AccountPage.Characters), drawn with uGUI: four pedestals a page with the account's heroes (live full-body preview in the look saved on the server) and
-    /// "Create Character" tablets for the free slots, the picked hero's panel with ENTER GAME and DELETE, and the gear menu (log out, play offline, direct connect in dev builds).
-    /// It only reads AccountFlow and calls it (Enter, ShowDelete, Logout); the IMGUI account pages draw everything else. One hero per class: a tablet exists only while a class is free.
+    /// The character slot screen (RO Soft Fantasy, mockup docs/reference/character-select-ro-fantasy/mockup/01-slot-screen-chatgpt-1.png), always the first thing after
+    /// logging in and, offline, after starting the game: six slot cards along the bottom (the account's heroes from server-api, or the saves on this device, one per
+    /// class; empty = "+ Tạo nhân vật"), the picked hero big on its pedestal (turns left / right), its info panel and Tạo nhân vật / Xoá (tap, then hold) / Vào game.
+    /// An empty slot (or Tạo nhân vật = the first empty one) leads to the class step and the look / name step; the new hero is stored in that slot.
+    /// Only CREATE leads to the class step (HeroSelectScreen create mode) and the look / name step; BACK there returns here. Offline it also opens over the running game
+    /// from Settings > Change hero (HeroChangeScreen), with a BACK to the game. It only reads AccountFlow / the offline saves and calls them.
     /// </summary>
     public sealed partial class CharacterListScreen : MonoBehaviour
     {
-        const int PageSize = 4;
+        public enum Mode { None, Online, Offline }
 
         static CharacterListScreen instance;
         HeroPreviewStage preview;
-        readonly List<CharacterSummary> items = new List<CharacterSummary>(); // the account's heroes, then one null per "Create Character" tablet
-        string selectedId;
-        int page = -1, builtVersion = -1;
+        readonly List<CharacterSummary> offlineHeroes = new List<CharacterSummary>();
+        readonly List<CharacterSummary> bySlot = new List<CharacterSummary>(); // row order: slot i = row i (pages of six), null = an empty slot
+        Mode mode;
+        string selectedId, offlineStatus = "";
+        int page, builtVersion = -1, offlineVersion, dir8 = 1;
         bool dirty;
 
         public static bool IsShown { get { return instance != null && instance.root != null && instance.root.gameObject.activeSelf; } }
+        public static Mode Shown { get { return IsShown ? instance.mode : Mode.None; } }
 
         public static CharacterListScreen Create(Transform parent)
         {
@@ -31,38 +36,104 @@ namespace ZenoniaProto
             return instance;
         }
 
-        /// <summary>Capture scripts: the picked hero, by name (false when the account has no such hero).</summary>
+        // ---- capture scripts ----
+        /// <summary>The picked hero, by name (false when the list has no such hero).</summary>
         public static bool TestSelect(string name)
         {
             if (instance == null) return false;
-            foreach (CharacterSummary c in AccountFlow.Characters)
-                if (c.name == name) { instance.selectedId = c.id; instance.page = -1; instance.dirty = true; return true; }
+            foreach (CharacterSummary c in instance.Heroes)
+                if (c.name == name) { instance.selectedId = c.id; instance.dirty = true; return true; }
             return false;
         }
+        /// <summary>The row (slot) a hero stands in, -1 when not listed.</summary>
+        public static int TestSlotOf(string name) { return instance != null ? instance.bySlot.FindIndex(c => c != null && c.name == name) : -1; }
+        public static List<CharacterSummary> TestHeroes { get { return instance != null ? instance.Heroes : null; } }
+        public static string TestSelectedName { get { CharacterSummary c = instance != null ? instance.Selected() : null; return c != null ? c.name : null; } }
+        public static void TestReload() { if (instance != null && instance.mode == Mode.Offline) { instance.ReloadOffline(); instance.dirty = true; } }
+        public static bool TestDeleteConfirmOpen { get { return instance != null && instance.confirmRoot != null && instance.confirmRoot.gameObject.activeSelf; } }
+
+        static int offlineSlot = -1; // the empty slot the offline hero being made goes into
+
+        /// <summary>
+        /// Offline: the class step of a new hero, classes that already have a save greyed out. start = the class to open on (BACK from the look step);
+        /// slot = the empty slot tapped (-1 = keep the one picked before). Picking the class remembers the slot for that class's save.
+        /// </summary>
+        public static void CreateOffline(HeroClass? start, int slot = -1)
+        {
+            if (slot >= 0) offlineSlot = slot;
+            var taken = new HashSet<int>();
+            foreach (CharacterSummary c in OfflineCharacterRoster.Load()) taken.Add(GameSession.ClassIndex(c.classId));
+            if (GameSession.Hero != null) taken.Add((int)GameSession.Hero.Class.Id); // the hero being played (a capture run has no save for it)
+            HeroSelectScreen.OpenCreate(i => taken.Contains(i), id =>
+            {
+                OfflineCharacterRoster.SetSlot(RpgSession.ClassId(id), offlineSlot);
+                CharacterCustomizeScreen.OpenOffline(id, HeroChangeScreen.IsOpen);
+            }, () => { }, start, false);
+        }
+
+        /// <summary>The heroes by slot: each in the slot it was made in, heroes without one (older saves / server) in the free slots in list order; null = empty.</summary>
+        void PlaceBySlot()
+        {
+            bySlot.Clear();
+            List<CharacterSummary> heroes = Heroes;
+            int size = AccountFlow.MaxCharacters;
+            foreach (CharacterSummary c in heroes) size = Mathf.Max(size, c.slot + 1);
+            size = Mathf.Max(size, heroes.Count);
+            for (int i = 0; i < size; i++) bySlot.Add(null);
+            var loose = new List<CharacterSummary>();
+            foreach (CharacterSummary c in heroes)
+            {
+                if (c.slot >= 0 && bySlot[c.slot] == null) bySlot[c.slot] = c;
+                else loose.Add(c);
+            }
+            foreach (CharacterSummary c in loose) bySlot[bySlot.IndexOf(null)] = c;
+        }
+
+        int FirstEmptySlot()
+        {
+            for (int i = 0; i < Mathf.Min(bySlot.Count, AccountFlow.MaxCharacters); i++) if (bySlot[i] == null) return i;
+            return -1;
+        }
+
+        /// <summary>Which list is wanted now: the account's after logging in, the device's offline (no hero yet, or Change hero over the game), or none.</summary>
+        static Mode Wanted()
+        {
+            if (ConnectScreenGui.Visible)
+                return !ConnectScreenGui.DevPageOpen && GameSession.Hero == null && AccountFlow.Page == AccountPage.Characters ? Mode.Online : Mode.None;
+            if (!NetMode.IsOffline || GameSession.Instance == null || HeroSelectScreen.Creating || CharacterCustomizeScreen.OfflineOpen) return Mode.None;
+            return GameSession.Hero == null || HeroChangeScreen.IsOpen ? Mode.Offline : Mode.None;
+        }
+
+        List<CharacterSummary> Heroes { get { return mode == Mode.Online ? AccountFlow.Characters : offlineHeroes; } }
+        int ListVersion { get { return mode == Mode.Online ? AccountFlow.ListVersion : offlineVersion; } }
 
         void Update()
         {
-            bool want = ConnectScreenGui.Visible && !ConnectScreenGui.DevPageOpen && GameSession.Hero == null && AccountFlow.Page == AccountPage.Characters;
-            bool shown = IsShown;
-            if (want != shown)
+            Mode want = Wanted();
+            if (want != (IsShown ? mode : Mode.None))
             {
-                if (want) Open();
+                if (want != Mode.None) Open(want);
                 else Close();
             }
-            if (!want) return;
+            if (want == Mode.None) return;
             Fit();
-            if (dirty || builtVersion != AccountFlow.ListVersion) Redraw();
+            if (dirty || builtVersion != ListVersion) Redraw();
             RefreshState();
         }
 
-        void Open()
+        void Open(Mode m)
         {
             if (root == null) Build();
+            mode = m;
             root.SetAsLastSibling();
             root.gameObject.SetActive(true);
-            menuRt.gameObject.SetActive(false);
+            confirmRoot.gameObject.SetActive(false);
             preview.SetActive(true);
-            page = -1; // the page of the remembered hero
+            offlineStatus = "";
+            dir8 = 1; // the 3/4 front view, standing
+            if (m == Mode.Offline) ReloadOffline();
+            if (m == Mode.Offline && GameSession.Hero != null) selectedId = RpgSession.ClassId(GameSession.Hero.Class.Id); // Change hero: starts on the one being played
+            page = -1;
             dirty = true;
         }
 
@@ -71,117 +142,47 @@ namespace ZenoniaProto
             if (root == null) return;
             root.gameObject.SetActive(false);
             preview.SetActive(false);
+            mode = Mode.None;
         }
 
-        void Fit()
+        /// <summary>Offline saves again (after opening, a delete); the hero being played is listed even without a save file (capture runs).</summary>
+        void ReloadOffline()
         {
-            float s = CharacterFlowKit.Fit(root, stage);
-            var scale = new Vector3(s, s, 1f);
-            titleRt.localScale = gearRt.localScale = menuRt.localScale = scale;
-            titleRt.anchoredPosition = new Vector2(20f * s, -14f * s);
-            gearRt.anchoredPosition = new Vector2(-15f * s, -17f * s);
-            menuRt.anchoredPosition = new Vector2(-15f * s, -69f * s);
+            offlineHeroes.Clear();
+            offlineHeroes.AddRange(OfflineCharacterRoster.Load());
+            HeroController h = GameSession.Hero;
+            if (h != null && NetMode.IsOffline && Playing(RpgSession.ClassId(h.Class.Id)) && offlineHeroes.Find(c => c.classId == RpgSession.ClassId(h.Class.Id)) == null)
+            {
+                Rpg.PlayerState p = RpgSession.Player;
+                offlineHeroes.Add(new CharacterSummary { id = RpgSession.ClassId(h.Class.Id), name = h.Class.Name, classId = RpgSession.ClassId(h.Class.Id), level = p != null ? p.Level : 1, mapId = MapRegistry.Current.Id, appearance = p != null ? p.Appearance : null, slot = OfflineCharacterRoster.SlotOf(RpgSession.ClassId(h.Class.Id)) });
+            }
+            offlineVersion++;
         }
+
+        /// <summary>Offline over the game: this class is the hero on the map now.</summary>
+        bool Playing(string classId) { return mode == Mode.Offline && GameSession.Hero != null && RpgSession.ClassId(GameSession.Hero.Class.Id) == classId; }
 
         CharacterSummary Selected()
         {
-            foreach (CharacterSummary c in AccountFlow.Characters) if (c.id == selectedId) return c;
+            foreach (CharacterSummary c in Heroes) if (c.id == selectedId) return c;
             return null;
         }
 
-        /// <summary>Rebuilds the page: which hero or tablet stands on each pedestal, the preview heroes and the info panel.</summary>
-        void Redraw()
+        static bool KnownClass(CharacterSummary c, out HeroClass id)
         {
-            dirty = false;
-            builtVersion = AccountFlow.ListVersion;
-            List<CharacterSummary> owned = AccountFlow.Characters;
-            items.Clear();
-            items.AddRange(owned);
-            int free = AccountFlow.MaxCharacters - owned.Count; // open slots, whatever the classes
-            for (int n = Mathf.Min(Mathf.Max(0, free), Mathf.Max(1, PageSize - owned.Count)); n > 0; n--) items.Add(null);
-
-            if (Selected() == null) selectedId = owned.Count > 0 ? owned[0].id : null; // a deleted or unknown hero: the first one
-            int pages = Mathf.Max(1, (items.Count + PageSize - 1) / PageSize);
-            if (page < 0) page = Mathf.Max(0, owned.FindIndex(c => c.id == selectedId)) / PageSize;
-            page = Mathf.Clamp(page, 0, pages - 1);
-
-            preview.Clear();
-            for (int i = 0; i < PageSize; i++) ShowColumn(i, page * PageSize + i);
-            ShowInfo(Selected());
-            leftArrow.gameObject.SetActive(page > 0);
-            rightArrow.gameObject.SetActive(page < pages - 1);
+            int i = c != null ? GameSession.ClassIndex(c.classId) : -1;
+            bool known = c != null && i >= 0 && i < HeroClassDef.All.Length && RpgSession.ClassId((HeroClass)i) == c.classId;
+            id = known ? (HeroClass)i : HeroClass.Warrior;
+            return known;
         }
 
-        void ShowColumn(int i, int index)
-        {
-            Column c = columns[i];
-            bool exists = index < items.Count, create = exists && items[index] == null;
-            CharacterSummary hero = exists ? items[index] : null;
-            bool picked = hero != null && hero.id == selectedId;
-            int classIndex = hero != null ? GameSession.ClassIndex(hero.classId) : -1;
-            bool known = classIndex >= 0 && classIndex < HeroClassDef.All.Length;
+        // ---- buttons ----
 
-            c.Hit.gameObject.SetActive(exists);
-            c.CreateArt.gameObject.SetActive(create);
-            c.Pedestal.gameObject.SetActive(hero != null && !picked);
-            c.Glow.gameObject.SetActive(picked);
-            c.Plate.SetActive(hero != null);
-            c.Banner.gameObject.SetActive(known);
-            if (hero == null) return;
-            float scale = picked ? PickedScale : 1f;
-            foreach (RectTransform rt in c.Scaled) rt.localScale = new Vector3(scale, scale, 1f);
-            c.Name.text = hero.name.ToUpperInvariant();
-            c.Level.text = "Lv " + hero.level;
-            if (!known) return; // a class this client does not know: pedestal and plate only
-            var id = (HeroClass)classIndex;
-            c.Banner.sprite = UiArt.Get("hero-select/banner-" + CharacterFlowKit.ClassArtName(id));
-            // The saved look (picked at creation); a hero that never chose shows the name-hash colours, as it looks in the world.
-            preview.Set(i, id, Rpg.CharacterAppearanceData.Sanitize(hero.appearance, hero.classId), Rpg.CharacterAppearanceData.SeedFor(hero.name, 0), scale);
-        }
-
-        void ShowInfo(CharacterSummary hero)
+        void OnRow(int r)
         {
-            int classIndex = hero != null ? GameSession.ClassIndex(hero.classId) : -1;
-            bool known = classIndex >= 0 && classIndex < HeroClassDef.All.Length;
-            IGameMap map = hero != null && !string.IsNullOrEmpty(hero.mapId) ? MapRegistry.Get(hero.mapId) : null;
-            emptyNote.gameObject.SetActive(hero == null);
-            portrait.gameObject.SetActive(hero != null && known);
-            infoName.gameObject.SetActive(hero != null);
-            infoClass.transform.parent.gameObject.SetActive(hero != null);
-            infoLevel.transform.parent.gameObject.SetActive(hero != null);
-            infoPlace.transform.parent.gameObject.SetActive(map != null); // no last place in the summary (or an unknown map): the row is left out
-            enterButton.gameObject.SetActive(hero != null);
-            deleteButton.gameObject.SetActive(hero != null);
-            if (hero == null) return;
-            infoName.text = hero.name;
-            infoClass.text = "Class: " + (known ? HeroClassDef.All[classIndex].Name : hero.classId);
-            infoLevel.text = "Level: " + hero.level + (hero.online ? "   (online)" : "");
-            if (map != null) infoPlace.text = "Last Location: " + map.Name;
-            if (known)
-            {
-                var id = (HeroClass)classIndex;
-                portrait.sprite = UiArt.Get(id == HeroClass.Fighter ? "hero-select/hero-boxing" : "hero-select/portrait-" + CharacterFlowKit.ClassArtName(id));
-            }
-        }
-
-        /// <summary>Every frame: the status line and the buttons that wait for a running call or the join.</summary>
-        void RefreshState()
-        {
-            NetClient client = NetClient.Active;
-            bool connecting = client != null && client.State == ClientState.Connecting;
-            bool busy = AccountFlow.Busy || connecting;
-            enterButton.interactable = deleteButton.interactable = !busy;
-            emptyNote.text = AccountFlow.Busy ? "Loading ..." : "No heroes yet: create your first.";
-            status.text = connecting ? client.Status : AccountFlow.Status;
-            status.color = AccountFlow.StatusBad && !connecting ? CharacterFlowKit.Bad : CharacterFlowKit.Soft;
-        }
-
-        void OnColumn(int i)
-        {
-            int index = page * PageSize + i;
-            if (AccountFlow.Busy || index >= items.Count) return;
-            CharacterSummary hero = items[index];
-            if (hero == null) { ConnectScreenGui.CreateHero(AccountFlow.Characters); return; }
+            int index = page * Rows + r;
+            CharacterSummary hero = index < bySlot.Count ? bySlot[index] : null;
+            if (hero == null) { CreateIn(index); return; } // an empty slot: the new hero goes into this one
             selectedId = hero.id;
             dirty = true;
         }
@@ -189,14 +190,31 @@ namespace ZenoniaProto
         void OnEnter()
         {
             CharacterSummary hero = Selected();
-            if (hero != null) AccountFlow.Enter(hero);
+            if (hero == null) return;
+            if (mode == Mode.Online) { AccountFlow.Enter(hero); return; }
+            HeroClass id;
+            if (!KnownClass(hero, out id) || Playing(hero.classId) || GameSession.Instance == null) return;
+            if (HeroChangeScreen.IsOpen) HeroChangeScreen.Close();
+            GameSession.Instance.Spawn(id); // saves the hero being played first, then loads this one's save
         }
 
-        void OnDelete()
+        void OnCreate() { CreateIn(FirstEmptySlot()); }
+
+        /// <summary>The class step of a new hero for an empty slot (online: class, look and name; offline: class and look).</summary>
+        void CreateIn(int slot)
         {
-            CharacterSummary hero = Selected();
-            if (hero != null) AccountFlow.ShowDelete(hero);
+            if (slot < 0 || slot >= AccountFlow.MaxCharacters || Heroes.Count >= AccountFlow.MaxCharacters) return;
+            if (mode == Mode.Online) ConnectScreenGui.CreateHero(AccountFlow.Characters, null, slot);
+            else CreateOffline(null, slot);
         }
+
+        void OnTurn(int step) { dir8 = ((dir8 + step) % 8 + 8) % 8; PoseBig(); }
+        void OnPage(int step) { page += step; dirty = true; }
+
+        void OnLogout() { AccountFlow.Logout(); }
+        void OnPlayOffline() { ConnectScreenGui.LeaveToOffline(GameSession.Instance); }
+        void OnPlayOnline() { ConnectScreenGui.Open(); }
+        void OnBackToGame() { HeroChangeScreen.Close(); }
 
         void OnDestroy() { if (instance == this) instance = null; }
     }

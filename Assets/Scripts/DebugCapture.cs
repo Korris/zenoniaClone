@@ -72,7 +72,7 @@ namespace ZenoniaProto
         public static bool Requested(string[] args)
         {
             if (ReleaseBuild.IsRelease) return false; // bots and captures are test tools: a player must not be able to start them from the command line
-            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-walk", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--login-shots", "--appearance-test" })
+            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-walk", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--login-shots", "--appearance-test", "--character-select-test" })
                 if (Array.IndexOf(args, flag) >= 0) return true;
             return false;
         }
@@ -82,6 +82,8 @@ namespace ZenoniaProto
             string[] args = Environment.GetCommandLineArgs();
             if (!Requested(args)) return;
             SaveStore.Enabled = false; // capture runs never touch the player's saves
+            string saveRoot = Arg(args, "--save-root"); // a throw-away folder of its own: the run may write and delete saves there (--character-select-test)
+            if (saveRoot != null) { SaveStore.RootOverride = saveRoot; SaveStore.Enabled = true; }
             var d = root.AddComponent<DebugCapture>();
             d.session = gameSession;
             d.Parse(args);
@@ -303,6 +305,7 @@ namespace ZenoniaProto
             if (NetMode.IsClient) { yield return RunNetClient(); yield break; } // online: the server owns the world, the bot only drives the controls
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--hero-select-test") >= 0) { yield return RunHeroSelectTest(); yield break; }
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--appearance-test") >= 0) { yield return RunAppearanceTest(); yield break; } // DebugCapture.Appearance.cs
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--character-select-test") >= 0) { yield return RunCharacterSelectTest(); yield break; } // DebugCapture.CharacterSelect.cs
             if (compareArg != null) { yield return RecordCompare(compareArg); yield break; }
             if (comboArg != null) { yield return RecordCombo(comboArg); yield break; }
             if (walkArg != null) { yield return RecordWalk(walkArg); yield break; }
