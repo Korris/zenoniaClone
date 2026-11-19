@@ -37,11 +37,11 @@ namespace ZenoniaProto
             holdButton = face.gameObject.AddComponent<HoldToConfirmButton>();
             holdButton.Seconds = DeleteHoldSeconds;
             holdButton.Face = face;
-            holdButton.OnProgress = p => holdLabel.text = p <= 0f ? "HOLD TO DELETE" : "KEEP HOLDING  " + Mathf.Max(0f, DeleteHoldSeconds * (1f - p)).ToString("0.0") + " s";
+            holdButton.OnProgress = p => holdLabel.text = p <= 0f ? "Giữ để xoá" : "Giữ thêm  " + Mathf.Max(0f, DeleteHoldSeconds * (1f - p)).ToString("0.0") + " s";
             holdButton.OnConfirmed = OnConfirmDelete;
-            holdLabel.text = "HOLD TO DELETE";
+            holdLabel.text = "Giữ để xoá";
             Text unused;
-            CharacterFlowKit.RoButton(card, "KeepHero", RoSoftSprites.Shape.Secondary, 306f, 196f, 158f, 70f, "KEEP", 22, CloseConfirm, out unused);
+            CharacterFlowKit.RoButton(card, "KeepHero", RoSoftSprites.Shape.Secondary, 306f, 196f, 158f, 70f, "Giữ lại", 22, CloseConfirm, out unused);
             confirmRoot.gameObject.SetActive(false);
         }
 
@@ -50,9 +50,9 @@ namespace ZenoniaProto
             CharacterSummary hero = Selected();
             if (hero == null || Playing(hero.classId)) return;
             deletingId = hero.id;
-            confirmTitle.text = "DELETE " + hero.name.ToUpperInvariant() + "?";
-            confirmBody.text = "Level " + hero.level + " " + ClassName(hero) + (mode == Mode.Online ? "" : " (saved on this device)")
-                + ".\nThe hero, its items and its gold are gone for good.\nHold the red button for " + DeleteHoldSeconds.ToString("0") + " seconds to delete.";
+            confirmTitle.text = "Xoá " + hero.name + "?";
+            confirmBody.text = ClassName(hero) + ", cấp " + hero.level + (mode == Mode.Online ? "" : " (lưu trên máy này)")
+                + ".\nNhân vật, đồ và vàng sẽ mất hẳn, không lấy lại được.\nGiữ nút đỏ " + DeleteHoldSeconds.ToString("0") + " giây để xoá.";
             confirmRoot.SetAsLastSibling();
             confirmRoot.gameObject.SetActive(true);
         }
@@ -74,7 +74,7 @@ namespace ZenoniaProto
             CloseConfirm();
             if (mode == Mode.Online) { AccountFlow.DeleteHeld(hero); return; }
             OfflineCharacterRoster.Delete(hero.classId);
-            offlineStatus = hero.name + " was deleted.";
+            offlineStatus = "Đã xoá " + hero.name + ".";
             selectedId = null;
             ReloadOffline();
             if (offlineHeroes.Exists(c => c.id == hero.id)) offlineHeroes.RemoveAll(c => c.id == hero.id); // saves off (a capture run): gone from this list at least

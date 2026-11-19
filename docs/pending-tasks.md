@@ -1,5 +1,9 @@
 # Việc đang dở
 
+### 19/11 15:00 màn chọn slot nhân vật RO Soft Fantasy (agent, branch worktree, CHƯA merge)
+- Đăng nhập / mở game offline -> luôn vào màn slot (6 ô), ô trống -> chọn class -> ngoại hình (+ tên online) -> nhân vật lưu đúng ô đã chọn. Xoá: bấm Xoá + giữ 2 s. Báo cáo `plans/reports/character-select-ro-fantasy-261119.md`, ảnh `docs/reference/character-select-ro-fantasy/`.
+- CẦN deploy server-api mới (MAX 6, trường `slot`, index unique userId+slot). Không đổi protocol zone.
+
 ### 19/11 05:40 tiến độ nhân vật nhiều lớp (người dùng đang ngủ, Claude tự quyết)
 - XONG + merge: bước B (shader `HeroRecolor`, `CharacterAppearanceData`, protocol 23 — phải build lại zone server + deploy server-api, renderer nhiều lớp `--layered-test`, vòng bạc hà + tên xanh), báo cáo `plans/reports/hero-layered-step-b-261119.md`. Art đợt 1 (thân nam/nữ đi, nam đánh 1-3) `plans/reports/layered-hero-art-batch1-261119.md`.
 - ĐANG CHẠY: art đợt 2 (nữ đánh 1-3, tóc 5 class); agent hệ thống mũ (rơi quái / boss truy nã / shop / quà tân thủ, ô mũ riêng, vòng + tên xanh cả offline, đổi màu áo "nâu đất" sang màu khác).

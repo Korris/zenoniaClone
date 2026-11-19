@@ -5,9 +5,10 @@ using ZenoniaProto.Api;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The character select screen (RO Soft kit, light), first thing after logging in and, offline, after starting the game: the account's heroes (online, server-api)
-    /// or the saves on this device (offline, one per class) as cards on the left, empty cards "+ Create character" up to the six slots, the picked hero big on its
-    /// pedestal in the middle (turn left / right, idle / walk / attack), its info on the right with ENTER GAME, CREATE NEW and DELETE (tap, then hold to confirm).
+    /// The character slot screen (RO Soft Fantasy, mockup docs/reference/character-select-ro-fantasy/mockup/01-slot-screen-chatgpt-1.png), always the first thing after
+    /// logging in and, offline, after starting the game: six slot cards along the bottom (the account's heroes from server-api, or the saves on this device, one per
+    /// class; empty = "+ Tạo nhân vật"), the picked hero big on its pedestal (turns left / right), its info panel and Tạo nhân vật / Xoá (tap, then hold) / Vào game.
+    /// An empty slot (or Tạo nhân vật = the first empty one) leads to the class step and the look / name step; the new hero is stored in that slot.
     /// Only CREATE leads to the class step (HeroSelectScreen create mode) and the look / name step; BACK there returns here. Offline it also opens over the running game
     /// from Settings > Change hero (HeroChangeScreen), with a BACK to the game. It only reads AccountFlow / the offline saves and calls them.
     /// </summary>
@@ -22,7 +23,6 @@ namespace ZenoniaProto
         Mode mode;
         string selectedId, offlineStatus = "";
         int page, builtVersion = -1, offlineVersion, dir8 = 1;
-        HeroPreviewStage.Motion motion = HeroPreviewStage.Motion.Idle;
         bool dirty;
 
         public static bool IsShown { get { return instance != null && instance.root != null && instance.root.gameObject.activeSelf; } }
@@ -131,7 +131,6 @@ namespace ZenoniaProto
             preview.SetActive(true);
             offlineStatus = "";
             dir8 = 1; // the 3/4 front view, standing
-            motion = HeroPreviewStage.Motion.Idle;
             if (m == Mode.Offline) ReloadOffline();
             if (m == Mode.Offline && GameSession.Hero != null) selectedId = RpgSession.ClassId(GameSession.Hero.Class.Id); // Change hero: starts on the one being played
             page = -1;
@@ -177,112 +176,6 @@ namespace ZenoniaProto
             return known;
         }
 
-        static string ClassName(CharacterSummary c) { HeroClass id; return KnownClass(c, out id) ? HeroClassDef.Get(id).Name : c.classId; }
-
-        /// <summary>Which hero or empty card is on each row, the big hero and the info card.</summary>
-        void Redraw()
-        {
-            dirty = false;
-            builtVersion = ListVersion;
-            PlaceBySlot();
-            if (Selected() == null) { CharacterSummary first = bySlot.Find(c => c != null); selectedId = first != null ? first.id : null; } // deleted or unknown: the first one
-            int pages = (bySlot.Count + Rows - 1) / Rows;
-            if (page < 0) page = Mathf.Max(0, bySlot.FindIndex(c => c != null && c.id == selectedId)) / Rows;
-            page = Mathf.Clamp(page, 0, pages - 1);
-            pageUp.gameObject.SetActive(pages > 1);
-            pageDown.gameObject.SetActive(pages > 1);
-            preview.Clear();
-            for (int r = 0; r < Rows; r++) ShowRow(r, page * Rows + r);
-            ShowBig(Selected());
-        }
-
-        void ShowRow(int r, int index)
-        {
-            Row row = rows[r];
-            CharacterSummary hero = index < bySlot.Count ? bySlot[index] : null;
-            bool empty = hero == null && index < AccountFlow.MaxCharacters;
-            row.Root.SetActive(hero != null || empty);
-            row.Hero.SetActive(hero != null);
-            row.Empty.SetActive(empty);
-            if (hero == null) { row.Face.sprite = RoSoftSprites.Named("slot-empty"); return; }
-            bool picked = hero.id == selectedId;
-            row.Face.sprite = RoSoftSprites.Get(picked ? RoSoftSprites.Shape.SectionLocked : RoSoftSprites.Shape.Cell);
-            row.Name.text = hero.name;
-            row.Info.text = "Lv " + hero.level + "  " + ClassName(hero);
-            row.Badge.text = Playing(hero.classId) ? "PLAYING" : hero.online ? "ONLINE" : "";
-            HeroClass id;
-            row.Mini.enabled = KnownClass(hero, out id);
-            if (!row.Mini.enabled) return;
-            preview.Set(r, id, Rpg.CharacterAppearanceData.Sanitize(hero.appearance, hero.classId), Rpg.CharacterAppearanceData.SeedFor(hero.name, 0), 1f);
-            preview.SetPose(r, 0, HeroPreviewStage.Motion.Idle);
-        }
-
-        void ShowBig(CharacterSummary hero)
-        {
-            HeroClass id;
-            bool known = KnownClass(hero, out id);
-            bigHero.enabled = known;
-            banner.gameObject.SetActive(known);
-            pedestal.gameObject.SetActive(hero != null);
-            foreach (GameObject g in heroControls) g.SetActive(known);
-            infoHero.SetActive(hero != null);
-            infoEmpty.SetActive(hero == null);
-            if (hero == null) return;
-            infoName.text = hero.name;
-            infoClass.text = ClassName(hero);
-            infoLevel.text = "Level " + hero.level;
-            IGameMap map = !string.IsNullOrEmpty(hero.mapId) ? MapRegistry.Get(hero.mapId) : null;
-            infoPlace.text = map != null ? map.Name : "Oakhaven Village";
-            infoState.text = Playing(hero.classId) ? "Playing now" : hero.online ? "Still in the world: saving ..." : mode == Mode.Online ? "Account hero" : "Saved on this device";
-            if (!known) return;
-            banner.sprite = UiArt.Get("hero-select/banner-" + CharacterFlowKit.ClassArtName(id));
-            preview.Set(BigSlot, id, Rpg.CharacterAppearanceData.Sanitize(hero.appearance, hero.classId), Rpg.CharacterAppearanceData.SeedFor(hero.name, 0), 1f);
-            PoseBig();
-        }
-
-        void PoseBig()
-        {
-            preview.SetPose(BigSlot, dir8, motion);
-            for (int i = 0; i < tabs.Length; i++)
-            {
-                bool on = (int)motion == i;
-                tabs[i].sprite = RoSoftSprites.Get(on ? RoSoftSprites.Shape.TabOn : RoSoftSprites.Shape.TabOff);
-                tabLabels[i].color = on ? Color.white : RoSoftTheme.Ink;
-            }
-        }
-
-        /// <summary>Every frame: buttons that wait for a running call or the join, the corner buttons of the mode, the counts and the status line.</summary>
-        void RefreshState()
-        {
-            NetClient client = NetClient.Active;
-            bool online = mode == Mode.Online;
-            bool connecting = online && client != null && client.State == ClientState.Connecting;
-            bool busy = online && (AccountFlow.Busy || connecting);
-            CharacterSummary hero = Selected();
-            bool playing = hero != null && Playing(hero.classId);
-            bool full = Heroes.Count >= AccountFlow.MaxCharacters;
-            enterButton.interactable = hero != null && !busy && !playing;
-            enterLabel.text = playing ? "PLAYING" : "ENTER GAME";
-            createButton.interactable = !busy && !full;
-            deleteButton.interactable = hero != null && !busy && !playing;
-            foreach (Row r in rows) r.Button.interactable = !busy;
-            countText.text = "HEROES  " + Heroes.Count + " / " + AccountFlow.MaxCharacters;
-            ownerText.text = online ? "Account: " + AccountFlow.Username : "Saved on this device";
-            string text = online ? (connecting ? client.Status : AccountFlow.Status) : offlineStatus;
-            status.text = text;
-            statusPlate.SetActive(!string.IsNullOrEmpty(text));
-            status.color = online && AccountFlow.StatusBad && !connecting ? RoSoftTheme.BadText : RoSoftTheme.Ink;
-            emptyNote.text = online && AccountFlow.Busy && Heroes.Count == 0 ? "Loading ..." : "No heroes yet.\nTap  + Create character  to make your first one.";
-            bool overGame = !online && GameSession.Hero != null;
-            ShowCorner(logoutButton, online);
-            ShowCorner(offlineButton, online);
-            ShowCorner(directButton, online && ConnectScreenGui.DevPageAvailable);
-            ShowCorner(onlineButton, !online && !overGame);
-            ShowCorner(backButton, overGame);
-            LayoutCorner();
-            RefreshConfirm(busy);
-        }
-
         // ---- buttons ----
 
         void OnRow(int r)
@@ -316,7 +209,6 @@ namespace ZenoniaProto
         }
 
         void OnTurn(int step) { dir8 = ((dir8 + step) % 8 + 8) % 8; PoseBig(); }
-        void OnMotion(HeroPreviewStage.Motion m) { motion = m; PoseBig(); }
         void OnPage(int step) { page += step; dirty = true; }
 
         void OnLogout() { AccountFlow.Logout(); }

@@ -38,10 +38,8 @@ namespace ZenoniaProto
             yield return Press(CentreOf("ListTurnRight"), false, "turn");
             yield return Press(CentreOf("ListTurnRight"), false, "turn");
             yield return Press(CentreOf("HeroRow1"), false, "mechanic card");
-            yield return Press(CentreOf("ListMotion2"), false, "attack tab");
             yield return WaitSeconds(0.5f);
-            yield return Shot("03-mechanic-turned-attack");
-            yield return Press(CentreOf("ListMotion0"), false, "idle tab");
+            yield return Shot("03-mechanic-picked-turned");
 
             // ---- create: class step -> look step -> Back -> again -> Confirm ----
             yield return Press(CentreOf("CreateNew"), false, "create new");
