@@ -1,5 +1,11 @@
 # Việc đang dở
 
+### 19/11 15:00 nhánh `ro-fantasy-heroes` (nhân vật RO Soft Fantasy đồ riêng từng class)
+- XONG + merge vào nhánh: thân riêng 5 class + 3 kiểu tóc nhuộm 8 màu, walk + 1 đòn đánh (lock target) cả 5 class, màn chọn slot nhiều nhân vật (online + offline, tối đa 6, theo mockup `docs/reference/character-select-ro-fantasy/mockup/`), nền slot mới (art ChatGPT, chưa nối code). ChatGPT dùng Tan Pham (chat nhân vật 6afe7669…, chat slot 6afe9ba5…). Tool `Tools/build-ro-fantasy-hero-game-assets.py` (write/fists/grips/check).
+- ĐANG CHẠY (worktree agent): offline nhiều nhân vật cùng class + đặt tên offline + toàn bộ chữ game TIẾNG ANH (người dùng chốt) + nối nền slot mới (`CharacterFlowKit.Backdrop`).
+- Nhánh riêng chưa merge: hiệu ứng Ice Storm ánh sáng RO3 `worktree-agent-a819ebcffc0ad67a3` (texture tạm Python; ChatGPT vẽ texture bị chặn quyền, cần người dùng cho phép trực tiếp).
+- Lỗi còn: Cleric đánh trái f2 khiên ở tay đâm; vài frame gậy sau thân; tóc Assassin bob bạc có mắt thừa; W/Wz/M chưa lọc chấm xanh walk/attack; HUD portrait cũ; cần deploy server-api (slot, mũ, ngoại hình) + build lại zone (protocol 24).
+
 ### 19/11 15:00 màn chọn slot nhân vật RO Soft Fantasy (agent, branch worktree, CHƯA merge)
 - Đăng nhập / mở game offline -> luôn vào màn slot (6 ô), ô trống -> chọn class -> ngoại hình (+ tên online) -> nhân vật lưu đúng ô đã chọn. Xoá: bấm Xoá + giữ 2 s. Báo cáo `plans/reports/character-select-ro-fantasy-261119.md`, ảnh `docs/reference/character-select-ro-fantasy/`.
 - CẦN deploy server-api mới (MAX 6, trường `slot`, index unique userId+slot). Không đổi protocol zone.
