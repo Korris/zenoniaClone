@@ -6,9 +6,9 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// The character slot screen (RO Soft Fantasy, mockup docs/reference/character-select-ro-fantasy/mockup/01-slot-screen-chatgpt-1.png), always the first thing after
-    /// logging in and, offline, after starting the game: six slot cards along the bottom (the account's heroes from server-api, or the saves on this device, one per
-    /// class; empty = "+ Tạo nhân vật"), the picked hero big on its pedestal (turns left / right), its info panel and Tạo nhân vật / Xoá (tap, then hold) / Vào game.
-    /// An empty slot (or Tạo nhân vật = the first empty one) leads to the class step and the look / name step; the new hero is stored in that slot.
+    /// logging in and, offline, after starting the game: six slot cards along the bottom (the account's heroes from server-api, or the slot saves on this device,
+    /// any classes; empty = "+ Create Character"), the picked hero big on its pedestal (turns left / right), its info panel and Create Character / Delete (tap, then hold) / Enter.
+    /// An empty slot (or Create Character = the first empty one) leads to the class step and the look / name step; the new hero is stored in that slot.
     /// Only CREATE leads to the class step (HeroSelectScreen create mode) and the look / name step; BACK there returns here. Offline it also opens over the running game
     /// from Settings > Change hero (HeroChangeScreen), with a BACK to the game. It only reads AccountFlow / the offline saves and calls them.
     /// </summary>
@@ -55,20 +55,13 @@ namespace ZenoniaProto
         static int offlineSlot = -1; // the empty slot the offline hero being made goes into
 
         /// <summary>
-        /// Offline: the class step of a new hero, classes that already have a save greyed out. start = the class to open on (BACK from the look step);
-        /// slot = the empty slot tapped (-1 = keep the one picked before). Picking the class remembers the slot for that class's save.
+        /// Offline: the class step of a new hero; every class is open (a device may hold several heroes of one class). start = the class to open on (BACK from the look step);
+        /// slot = the empty slot tapped (-1 = keep the one picked before). The look / name step then creates the hero in that slot.
         /// </summary>
         public static void CreateOffline(HeroClass? start, int slot = -1)
         {
             if (slot >= 0) offlineSlot = slot;
-            var taken = new HashSet<int>();
-            foreach (CharacterSummary c in OfflineCharacterRoster.Load()) taken.Add(GameSession.ClassIndex(c.classId));
-            if (GameSession.Hero != null) taken.Add((int)GameSession.Hero.Class.Id); // the hero being played (a capture run has no save for it)
-            HeroSelectScreen.OpenCreate(i => taken.Contains(i), id =>
-            {
-                OfflineCharacterRoster.SetSlot(RpgSession.ClassId(id), offlineSlot);
-                CharacterCustomizeScreen.OpenOffline(id, HeroChangeScreen.IsOpen);
-            }, () => { }, start, false);
+            HeroSelectScreen.OpenCreate(i => false, id => CharacterCustomizeScreen.OpenOffline(id, HeroChangeScreen.IsOpen, offlineSlot), () => { }, start, false);
         }
 
         /// <summary>The heroes by slot: each in the slot it was made in, heroes without one (older saves / server) in the free slots in list order; null = empty.</summary>
@@ -132,7 +125,7 @@ namespace ZenoniaProto
             offlineStatus = "";
             dir8 = 1; // the 3/4 front view, standing
             if (m == Mode.Offline) ReloadOffline();
-            if (m == Mode.Offline && GameSession.Hero != null) selectedId = RpgSession.ClassId(GameSession.Hero.Class.Id); // Change hero: starts on the one being played
+            if (m == Mode.Offline && GameSession.Hero != null) selectedId = PlayingId; // Change hero: starts on the one being played
             page = -1;
             dirty = true;
         }
@@ -151,16 +144,19 @@ namespace ZenoniaProto
             offlineHeroes.Clear();
             offlineHeroes.AddRange(OfflineCharacterRoster.Load());
             HeroController h = GameSession.Hero;
-            if (h != null && NetMode.IsOffline && Playing(RpgSession.ClassId(h.Class.Id)) && offlineHeroes.Find(c => c.classId == RpgSession.ClassId(h.Class.Id)) == null)
+            if (h != null && NetMode.IsOffline && mode == Mode.Offline && offlineHeroes.Find(c => c.id == PlayingId) == null)
             {
                 Rpg.PlayerState p = RpgSession.Player;
-                offlineHeroes.Add(new CharacterSummary { id = RpgSession.ClassId(h.Class.Id), name = h.Class.Name, classId = RpgSession.ClassId(h.Class.Id), level = p != null ? p.Level : 1, mapId = MapRegistry.Current.Id, appearance = p != null ? p.Appearance : null, slot = OfflineCharacterRoster.SlotOf(RpgSession.ClassId(h.Class.Id)) });
+                offlineHeroes.Add(new CharacterSummary { id = PlayingId, name = RpgSession.CurrentName, classId = RpgSession.ClassId(h.Class.Id), level = p != null ? p.Level : 1, mapId = MapRegistry.Current.Id, appearance = p != null ? p.Appearance : null, slot = RpgSession.CurrentSlot });
             }
             offlineVersion++;
         }
 
-        /// <summary>Offline over the game: this class is the hero on the map now.</summary>
-        bool Playing(string classId) { return mode == Mode.Offline && GameSession.Hero != null && RpgSession.ClassId(GameSession.Hero.Class.Id) == classId; }
+        /// <summary>List id of the offline hero being played: its slot's, or "playing" for a hero without a save (capture runs, no free slot).</summary>
+        static string PlayingId { get { return RpgSession.CurrentSlot >= 0 ? OfflineCharacterRoster.IdOf(RpgSession.CurrentSlot) : "playing"; } }
+
+        /// <summary>Offline over the game: this listed hero is the one on the map now.</summary>
+        bool Playing(CharacterSummary c) { return c != null && mode == Mode.Offline && GameSession.Hero != null && c.id == PlayingId; }
 
         CharacterSummary Selected()
         {
@@ -193,9 +189,10 @@ namespace ZenoniaProto
             if (hero == null) return;
             if (mode == Mode.Online) { AccountFlow.Enter(hero); return; }
             HeroClass id;
-            if (!KnownClass(hero, out id) || Playing(hero.classId) || GameSession.Instance == null) return;
+            int slot = OfflineCharacterRoster.SlotOf(hero.id);
+            if (!KnownClass(hero, out id) || Playing(hero) || slot < 0 || GameSession.Instance == null) return;
             if (HeroChangeScreen.IsOpen) HeroChangeScreen.Close();
-            GameSession.Instance.Spawn(id); // saves the hero being played first, then loads this one's save
+            if (!GameSession.Instance.EnterSlot(slot)) offlineStatus = "That save can no longer be read."; // saves the hero being played first, then loads this one's save
         }
 
         void OnCreate() { CreateIn(FirstEmptySlot()); }

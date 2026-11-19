@@ -79,10 +79,11 @@ namespace ZenoniaProto
         static readonly Color OwnGreen = new Color(0.42f, 1f, 0.42f, 1f);
 
         /// <summary>Your own name, bright green, always drawn (the crowd rule never skips it), at the height the other names use.</summary>
-        /// <summary>The character name; offline there is no account name, so the class name stands in.</summary>
+        /// <summary>The character name; offline the save's name (the class name for heroes from before names).</summary>
         static string OwnName(HeroController me)
         {
             if (!string.IsNullOrEmpty(me.PlayerName)) return me.PlayerName;
+            if (NetMode.IsOffline && !string.IsNullOrEmpty(RpgSession.CurrentName)) return RpgSession.CurrentName;
             return NetMode.IsOffline && me.Class != null ? me.Class.Name : "";
         }
 

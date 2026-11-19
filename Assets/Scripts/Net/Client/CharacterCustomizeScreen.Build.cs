@@ -143,7 +143,7 @@ namespace ZenoniaProto
             input.lineType = InputField.LineType.SingleLine;
             input.characterLimit = NameMax;
             input.onValidateInput = (text, pos, c) => IsNameChar(c) ? c : '\0'; // the server only takes letters, digits and _
-            input.onValueChanged.AddListener(v => hintDirty = true);
+            input.onValueChanged.AddListener(v => { hintDirty = true; offlineStatus = ""; });
             Image dice = CharacterFlowKit.Pic(p, "Dice", CharacterFlowKit.Art("dice"), 252f, 56f, 48f, 48f);
             dice.raycastTarget = true;
             diceButton = CharacterFlowKit.Clickable(dice.rectTransform, dice, OnDice);

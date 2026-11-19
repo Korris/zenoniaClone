@@ -10,8 +10,9 @@ namespace ZenoniaProto
     /// After the class is picked the player chooses hair colour (8) and outfit colour (6) from Data/hero-layered/palettes.json (a hairstyle too when
     /// the class has more than one), watching the live layered hero turn through 8 directions and idle / walk / attack. No hat: heroes start bare-headed.
     /// Online (AccountPage.Customize): the look goes with the create request (AccountFlow.PendingLook) and the hero is named here; server refusals
-    /// show in the status line. Offline / host (OpenOffline, a class without a save): Confirm spawns the new hero with the look (GameSession.Spawn),
-    /// which its save keeps from then on. Back returns to the class choice on the same class.
+    /// show in the status line. Offline (OpenOffline + the empty slot): the hero is named here too (online rules, and no other hero on this device may have the
+    /// name, case-insensitive); CREATE spawns it with the look and name in that slot (GameSession.CreateInSlot), which its save keeps from then on.
+    /// A dev host only picks the look (CONFIRM, GameSession.Spawn). Back returns to the class choice on the same class.
     /// </summary>
     public sealed partial class CharacterCustomizeScreen : MonoBehaviour
     {
@@ -23,6 +24,8 @@ namespace ZenoniaProto
         static HeroClass? offlineClass;          // offline / host new hero: the class picked on the hero select; null = the online flow (or closed)
         static bool offlineOverGame;             // opened from the in-game change hero screen
         static CharacterAppearanceData offlineLook;
+        static int offlineSlot = -1;             // offline: the save slot the new hero goes into
+        static string offlineStatus = "";        // offline: why CREATE refused the name
         static readonly System.Random Dice = new System.Random();
 
         HeroPreviewStage preview;
@@ -44,11 +47,16 @@ namespace ZenoniaProto
             return instance;
         }
 
-        /// <summary>Offline / host: the look of a new hero of this class, before it spawns. overGame = from the change hero screen over a running game.</summary>
-        public static void OpenOffline(HeroClass id, bool overGame)
+        /// <summary>
+        /// Offline / host: the look of a new hero of this class, before it spawns. overGame = from the change hero screen over a running game.
+        /// slot = the empty save slot the offline hero goes into (-1 = the first free one); a dev host has no saves and is not named here.
+        /// </summary>
+        public static void OpenOffline(HeroClass id, bool overGame, int slot = -1)
         {
             offlineClass = id;
             offlineOverGame = overGame;
+            offlineSlot = slot;
+            offlineStatus = "";
             offlineLook = CharacterAppearanceData.RandomNew(RpgSession.ClassId(id), HeroPreviewStage.HairStyleCount(id), Dice);
         }
 
@@ -61,9 +69,17 @@ namespace ZenoniaProto
         public static bool TestOutfitHidden { get { return instance != null && instance.fixedOutfit; } }
         public static int TestStyleCount { get { return instance != null ? instance.styleCount : 0; } }
 
-        static bool IsNameChar(char c) { return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_'; }
+        public static string TestStatus { get { return instance != null && instance.status != null ? instance.status.text : null; } }
+        public static string TestHint { get { return instance != null && instance.hint != null ? instance.hint.text : null; } }
+
+        static bool IsNameChar(char c) { return HeroNameRules.IsNameChar(c); }
 
         bool Offline { get { return offlineClass.HasValue; } }
+        /// <summary>The hero is named on this screen: online, and offline on this device (a dev host takes its name from the connect screen).</summary>
+        bool Naming { get { return !Offline || NetMode.IsOffline; } }
+
+        /// <summary>What is wrong with the typed name: the server's rules, offline also a name another hero on this device has.</summary>
+        string NameProblem(string name) { return Offline ? OfflineCharacterRoster.NameProblem(name) : AccountFlow.NameProblem(name); }
         HeroClass Class { get { return Offline ? offlineClass.Value : AccountFlow.CustomizeClass; } }
         CharacterAppearanceData Look
         {
@@ -86,7 +102,7 @@ namespace ZenoniaProto
             titleRt.anchoredPosition = new Vector2(20f * s, -14f * s);
             if (shown == null || Look == null || !shown.SameLook(Look)) Refresh();
             RefreshState();
-            if (!Offline && input.isFocused && CharacterFlowKit.EnterPressed()) Submit();
+            if (Naming && input.isFocused && CharacterFlowKit.EnterPressed()) Submit();
         }
 
         void Open()
@@ -99,10 +115,10 @@ namespace ZenoniaProto
             fixedOutfit = HeroPreviewStage.FixedOutfit(id);
             if (Look == null) Look = CharacterAppearanceData.RandomNew(RpgSession.ClassId(id), styleCount, Dice);
             banner.sprite = UiArt.Get("hero-select/banner-" + CharacterFlowKit.ClassArtName(id));
-            titleText.text = Offline ? "CHOOSE YOUR LOOK" : "CUSTOMIZE AND NAME";
-            createLabel.text = Offline ? "CONFIRM" : "CREATE";
-            namePlate.SetActive(!Offline);
-            notePlate.SetActive(Offline);
+            titleText.text = Naming ? "CUSTOMIZE AND NAME" : "CHOOSE YOUR LOOK";
+            createLabel.text = Naming ? "CREATE" : "CONFIRM";
+            namePlate.SetActive(Naming);
+            notePlate.SetActive(!Naming);
             note.text = HeroClassDef.Get(id).Name.ToUpperInvariant() + "\n\n" + OfflineNote;
             input.text = ""; // a fresh hero: the name is typed (or rolled) anew
             hintDirty = true;
@@ -160,11 +176,11 @@ namespace ZenoniaProto
             bool connecting = !Offline && client != null && client.State == ClientState.Connecting;
             bool busy = !Offline && (AccountFlow.Busy || connecting);
             createButton.interactable = backButton.interactable = diceButton.interactable = input.interactable = randomButton.interactable = !busy;
-            status.text = Offline ? "" : connecting ? client.Status : AccountFlow.Status;
-            status.color = !Offline && AccountFlow.StatusBad && !connecting ? CharacterFlowKit.Bad : CharacterFlowKit.Soft;
+            status.text = Offline ? (offlineStatus == hint.text ? "" : offlineStatus) : connecting ? client.Status : AccountFlow.Status; // offline: the hint under the name already says it
+            status.color = Offline ? CharacterFlowKit.Bad : AccountFlow.StatusBad && !connecting ? CharacterFlowKit.Bad : CharacterFlowKit.Soft;
             if (!hintDirty) return;
             hintDirty = false;
-            string problem = input.text.Length > 0 ? AccountFlow.NameProblem(input.text) : null;
+            string problem = input.text.Length > 0 ? NameProblem(input.text) : null;
             hint.text = problem ?? NameHint;
             hint.color = problem != null ? RoSoftTheme.BadText : RoSoftTheme.InkSoft;
         }
@@ -182,7 +198,12 @@ namespace ZenoniaProto
         void OnRandom() { Look = CharacterAppearanceData.RandomNew(RpgSession.ClassId(Class), styleCount, Dice); }
         void OnTurn(int step) { dir8 = ((dir8 + step) % 8 + 8) % 8; shown = null; }
         void OnMotion(HeroPreviewStage.Motion m) { motion = m; shown = null; }
-        void OnDice() { input.text = AccountFlow.RandomName(); }
+        void OnDice()
+        {
+            string name = AccountFlow.RandomName();
+            for (int i = 0; i < 10 && Offline && NameProblem(name) != null; i++) name = AccountFlow.RandomName(); // offline: one no hero on this device has
+            input.text = name;
+        }
 
         void OnBack()
         {
@@ -204,9 +225,18 @@ namespace ZenoniaProto
             {
                 if (GameSession.Instance == null) return;
                 HeroClass id = offlineClass.Value;
+                string name = input.text.Trim();
+                int slot = SaveStore.IsSlot(offlineSlot) ? offlineSlot : SaveStore.FirstFreeSlot();
+                if (Naming)
+                {
+                    string problem = NameProblem(name);
+                    if (problem == null && SaveStore.Enabled && (slot < 0 || SaveStore.Load(slot) != null)) problem = "No free slot left: delete a hero first";
+                    if (problem != null) { offlineStatus = problem; hintDirty = true; return; }
+                }
                 offlineClass = null;
                 if (offlineOverGame) HeroChangeScreen.Close();
-                GameSession.Instance.Spawn(id, look);
+                if (Naming) GameSession.Instance.CreateInSlot(slot, id, look, name);
+                else GameSession.Instance.Spawn(id, look); // dev host: no saves, no name here
                 return;
             }
             if (AccountFlow.Busy) return;

@@ -5,6 +5,8 @@
 - ĐANG CHẠY (worktree agent): offline nhiều nhân vật cùng class + đặt tên offline + toàn bộ chữ game TIẾNG ANH (người dùng chốt) + nối nền slot mới (`CharacterFlowKit.Backdrop`).
 - Nhánh riêng chưa merge: hiệu ứng Ice Storm ánh sáng RO3 `worktree-agent-a819ebcffc0ad67a3` (texture tạm Python; ChatGPT vẽ texture bị chặn quyền, cần người dùng cho phép trực tiếp).
 - Lỗi còn: Cleric đánh trái f2 khiên ở tay đâm; vài frame gậy sau thân; tóc Assassin bob bạc có mắt thừa; W/Wz/M chưa lọc chấm xanh walk/attack; HUD portrait cũ; cần deploy server-api (slot, mũ, ngoại hình) + build lại zone (protocol 24).
+### 19/11 16:00 offline nhiều nhân vật cùng class + đặt tên offline + toàn bộ chữ tiếng Anh (agent, branch worktree, CHƯA merge)
+- Save offline theo slot `zenonia-save-slot<N>.json`, save cũ theo class tự chuyển sang (giữ bản `.migrated`). Màn slot tiếng Anh + nền sáng mới. Báo cáo `plans/reports/offline-multichar-english-261119.md`, ảnh `docs/reference/character-select-ro-fantasy/en-*.jpg`.
 
 ### 19/11 15:00 màn chọn slot nhân vật RO Soft Fantasy (agent, branch worktree, CHƯA merge)
 - Đăng nhập / mở game offline -> luôn vào màn slot (6 ô), ô trống -> chọn class -> ngoại hình (+ tên online) -> nhân vật lưu đúng ô đã chọn. Xoá: bấm Xoá + giữ 2 s. Báo cáo `plans/reports/character-select-ro-fantasy-261119.md`, ảnh `docs/reference/character-select-ro-fantasy/`.

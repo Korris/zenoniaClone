@@ -44,7 +44,8 @@ namespace ZenoniaProto
         public static string LocalName()
         {
             HeroController h = GameSession.Hero;
-            return h != null ? h.Class.Name : "You";
+            if (h == null) return "You";
+            return NetMode.IsOffline && !string.IsNullOrEmpty(RpgSession.CurrentName) ? RpgSession.CurrentName : h.Class.Name; // offline: the save's hero name
         }
 
         /// <summary>Called by the chat window on Send: trims, clamps and hands the line to the transport.</summary>

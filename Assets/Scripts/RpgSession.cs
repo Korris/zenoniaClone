@@ -18,6 +18,10 @@ namespace ZenoniaProto
         public static RpgSession Instance { get; private set; }
         /// <summary>The live RPG state of the current hero, or null on the class select screen.</summary>
         public static PlayerState Player { get { return Instance != null ? Instance.player : null; } }
+        /// <summary>Offline: the save slot of the hero being played (SaveStore), -1 = not saved (saves off, online, or no free slot).</summary>
+        public static int CurrentSlot { get { return Instance != null && Instance.player != null ? Instance.slot : -1; } }
+        /// <summary>Offline: the name of the hero being played (its save's, or the class name for older saves); empty online.</summary>
+        public static string CurrentName { get { return Instance != null && Instance.player != null ? Instance.heroName : ""; } }
 
         /// <summary>
         /// This save already killed the boss of `mapId` (offline a boss does not return): MapTransfer removes it when the map is rebuilt. A boss gate map opens its forward portal on this
@@ -31,6 +35,8 @@ namespace ZenoniaProto
 
         Transform root;
         PlayerState player;
+        int slot = -1;
+        string heroName = "";
         PlayerRpg owner;
         bool bossDefeated;
         List<string> defeatedBossMaps = new List<string>();
@@ -50,12 +56,22 @@ namespace ZenoniaProto
         /// <summary>RPG class id ("warrior" ...) of a playable class.</summary>
         public static string ClassId(HeroClass id) { return id.ToString().ToLowerInvariant(); }
 
-        /// <summary>Saves the current hero (if any), then loads the save of `id` or starts a new game. Returns the state for HeroController.Init.</summary>
-        public PlayerState Begin(HeroClass id, out SaveData save)
+        /// <summary>
+        /// Saves the current hero (if any), then loads the save in `saveSlot` or starts a new game of `id` there (named `newName`). Returns the state for HeroController.Init.
+        /// saveSlot -1 = play without a save. A slot holding a hero of another class is never overwritten: that hero is played unsaved instead.
+        /// </summary>
+        public PlayerState Begin(HeroClass id, int saveSlot, string newName, out SaveData save)
         {
             SaveNow();
             string cid = ClassId(id);
-            save = SaveStore.Load(cid);
+            save = SaveStore.Load(saveSlot);
+            if (save != null && save.classId != cid)
+            {
+                Debug.LogWarning("[ZenoniaProto] slot " + saveSlot + " holds a " + save.classId + ", not a " + cid + ": playing unsaved");
+                save = null; saveSlot = -1;
+            }
+            slot = SaveStore.IsSlot(saveSlot) ? saveSlot : -1;
+            heroName = save != null ? SaveStore.DisplayName(save) : !string.IsNullOrEmpty(newName) ? newName : RpgClasses.Get(cid).Name;
             DevStartConfig.ApplySkillBonus();
             player = save != null ? SaveSerializer.Restore(save) : PlayerState.NewGame(cid);
             DevStartConfig.Apply(player); // Resources/Data/dev-start.json: test stones / gold / potions (editor + dev builds)
@@ -128,8 +144,11 @@ namespace ZenoniaProto
         {
             HeroController hero = GameSession.Hero;
             if (player == null || hero == null || hero.Rpg != player || hero.IsDead) return;
+            if (slot < 0) return;
             Vector2 p = hero.Position;
-            SaveStore.Write(SaveSerializer.Capture(player, true, p.x, p.y, bossDefeated, 0, MapRegistry.Current.Id, defeatedBossMaps));
+            SaveData d = SaveSerializer.Capture(player, true, p.x, p.y, bossDefeated, 0, MapRegistry.Current.Id, defeatedBossMaps);
+            d.name = heroName;
+            SaveStore.Write(d, slot);
             saveTimer = 0f;
         }
 

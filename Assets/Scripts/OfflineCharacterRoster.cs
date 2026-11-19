@@ -1,58 +1,46 @@
 using System.Collections.Generic;
-using System.IO;
 using ZenoniaProto.Api;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The offline heroes for the character select screen: one save file per class (SaveStore), so at most one hero of each class and six in all.
-    /// Each save is shown as a CharacterSummary (id = class id, name = class name) so the list draws online and offline heroes the same way.
+    /// The offline heroes for the character select screen: one save per slot (SaveStore, up to six, several of a class allowed), each shown as a CharacterSummary
+    /// (id = "slot&lt;N&gt;", the hero's name, slot = N) so the list draws online and offline heroes the same way. Older one-per-class saves are moved into slots by SaveStore.
     /// </summary>
     public static class OfflineCharacterRoster
     {
-        /// <summary>A small file beside the class's save (zenonia-slot-&lt;class&gt;.txt) holds the character select slot it was created in; the save format stays as it is.</summary>
-        static string SlotPath(string classId) { return Path.Combine(SaveStore.Root, "zenonia-slot-" + classId + ".txt"); }
+        const string IdPrefix = "slot";
 
-        /// <summary>The slot of a class's save on the character select screen, -1 when none was kept (saves from before slots: placed in free slots).</summary>
-        public static int SlotOf(string classId)
+        public static string IdOf(int slot) { return IdPrefix + slot; }
+
+        /// <summary>The slot of a listed offline hero ("slot3" -> 3), -1 for anything else.</summary>
+        public static int SlotOf(string id)
         {
             int slot;
-            try { return File.Exists(SlotPath(classId)) && int.TryParse(File.ReadAllText(SlotPath(classId)).Trim(), out slot) ? slot : -1; }
-            catch (System.Exception) { return -1; }
+            return id != null && id.StartsWith(IdPrefix) && int.TryParse(id.Substring(IdPrefix.Length), out slot) && SaveStore.IsSlot(slot) ? slot : -1;
         }
 
-        /// <summary>Remembers the empty slot a new hero of this class was started in (written when the class is picked; the save follows on Confirm).</summary>
-        public static void SetSlot(string classId, int slot)
-        {
-            if (!SaveStore.Enabled || slot < 0) return;
-            try { Directory.CreateDirectory(SaveStore.Root); File.WriteAllText(SlotPath(classId), slot.ToString()); }
-            catch (System.Exception e) { UnityEngine.Debug.LogWarning("[ZenoniaProto] slot file: " + e.Message); }
-        }
-
-        /// <summary>The offline saves in class order. Empty while SaveStore is off (captures without --save-root).</summary>
+        /// <summary>The offline saves in slot order. Empty while SaveStore is off (captures without --save-root).</summary>
         public static List<CharacterSummary> Load()
         {
             var list = new List<CharacterSummary>();
-            foreach (HeroClassDef def in HeroClassDef.All)
+            foreach (KeyValuePair<int, SaveData> e in SaveStore.LoadAll())
             {
-                string classId = RpgSession.ClassId(def.Id);
-                SaveData save = SaveStore.Load(classId);
-                if (save == null) continue;
-                list.Add(new CharacterSummary { id = classId, name = def.Name, classId = classId, level = save.level, mapId = save.mapId, appearance = save.appearance, slot = SlotOf(classId) });
+                SaveData save = e.Value;
+                list.Add(new CharacterSummary { id = IdOf(e.Key), name = SaveStore.DisplayName(save), classId = save.classId, level = save.level, mapId = save.mapId, appearance = save.appearance, slot = e.Key });
             }
             return list;
         }
 
-        /// <summary>True when this class already has a save: the create flow offers it greyed out ("You already have this hero").</summary>
-        public static bool Has(HeroClass id) { return SaveStore.Load(RpgSession.ClassId(id)) != null; }
+        /// <summary>Null when a new offline hero may take this name (online rules + not used by another hero on this device), else what is wrong.</summary>
+        public static string NameProblem(string name) { return SaveStore.Enabled ? SaveStore.NameProblem(name) : HeroNameRules.Problem(name); }
 
-        /// <summary>Removes the save of a class (after the hold-to-delete confirmation). The hero being played is never passed here.</summary>
-        public static void Delete(string classId)
+        /// <summary>Removes the save in a slot (after the hold-to-delete confirmation). The hero being played is never passed here.</summary>
+        public static void Delete(int slot)
         {
             if (!SaveStore.Enabled) return; // off = a capture run: never the player's real saves
-            SaveStore.Delete(classId);
-            try { if (File.Exists(SlotPath(classId))) File.Delete(SlotPath(classId)); } catch (System.Exception) { /* best effort */ }
+            SaveStore.Delete(slot);
         }
     }
 }

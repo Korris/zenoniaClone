@@ -23,14 +23,17 @@ namespace ZenoniaProto
         /// <summary>Art names of the hero select (banner-wizard, hero-boxing ...): the Fighter keeps the old "boxing" file names.</summary>
         public static string ClassArtName(HeroClass id) { return id == HeroClass.Fighter ? "boxing" : HeroClassDef.Get(id).Name.ToLowerInvariant(); }
 
-        /// <summary>Full-screen root: black (also stops every touch reaching the game below) and the castle ruins background covering any screen shape.</summary>
+        /// <summary>
+        /// Full-screen root: black (also stops every touch reaching the game below) and the bright RO Soft Fantasy courtyard (character-select/slot-screen-background)
+        /// covering any screen shape, aspect kept (cover-fit). Shared by the slot screen and the look / name step; the old castle ruins (hero-select/bg) stand in when it is missing.
+        /// </summary>
         public static RectTransform Backdrop(Transform owner, string name)
         {
             RectTransform root = UiKit.Fill(UiKit.Canvas(owner).transform, name);
             UiKit.Panel(root, Color.black, true);
             RectTransform bg = UiKit.Fill(root, "Background");
             Image bgImage = bg.gameObject.AddComponent<Image>();
-            bgImage.sprite = UiArt.Get("hero-select/bg");
+            bgImage.sprite = UiArt.Get("character-select/slot-screen-background") ?? UiArt.Get("hero-select/bg");
             bgImage.raycastTarget = false;
             AspectRatioFitter fit = bg.gameObject.AddComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
