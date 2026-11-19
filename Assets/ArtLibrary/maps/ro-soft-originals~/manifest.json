@@ -1,0 +1,934 @@
+{
+ "Resources/Sprites/tiles/frost-hollow-large-ground-minimap.png": {
+  "graded": "aebb9d4b1062ac33",
+  "profile": "snow"
+ },
+ "Resources/Sprites/tiles/frost-hollow-large-ground-r0c0.png": {
+  "graded": "6445c347b0fcd4aa",
+  "profile": "snow"
+ },
+ "Resources/Sprites/tiles/frost-hollow-large-ground-r0c1.png": {
+  "graded": "19efe1ee694b5c2c",
+  "profile": "snow"
+ },
+ "Resources/Sprites/tiles/frost-hollow-large-ground-r1c0.png": {
+  "graded": "26e75d2292e8f4af",
+  "profile": "snow"
+ },
+ "Resources/Sprites/tiles/frost-hollow-large-ground-r1c1.png": {
+  "graded": "5c7a570c7a67a54d",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/barrel.png": {
+  "graded": "f760de615dfed918",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/blacksmithForge.png": {
+  "graded": "85995a72e89f19d9",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/bleachedBones.png": {
+  "graded": "24d85e454acffa5e",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/brokenArch.png": {
+  "graded": "5d3fd328c782b1a8",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/brokenWagon.png": {
+  "graded": "39b44031695d6324",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/bwBoulder.png": {
+  "graded": "f3aa007ee62f64ac",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwBrambleBig.png": {
+  "graded": "3c84c22ceb9dc4df",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwBrambleMid.png": {
+  "graded": "0e0e4710f561cae0",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwBrambleSmall.png": {
+  "graded": "ff5d866a5f4e118f",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwBrambleThick.png": {
+  "graded": "bef852581c25b080",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwBush.png": {
+  "graded": "d77a3379240d7f5a",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwFallenOak.png": {
+  "graded": "5eb8fcb9363e0626",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwFallenOakBramble.png": {
+  "graded": "e67fd3cc37b8cc94",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwFern.png": {
+  "graded": "018e14f6d61da6ad",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwFlowers.png": {
+  "graded": "9e9b6a738c2ccb54",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwLogHollow.png": {
+  "graded": "f62d63c50a33e7ba",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwLupine.png": {
+  "graded": "48e13a8cc87ccbdf",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwMushrooms.png": {
+  "graded": "b21756ff4b7aac23",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwOakBig.png": {
+  "graded": "a5d50bc86f464186",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwOakMid.png": {
+  "graded": "96574339b5e8cd61",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwOakRoots.png": {
+  "graded": "f21d0a4448eb7be8",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwOakSmall.png": {
+  "graded": "18902160161ddb98",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwOakVine.png": {
+  "graded": "2a41049026456156",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwReeds.png": {
+  "graded": "d147f5f3dc0f2e65",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwRock.png": {
+  "graded": "78ef3930d9ffb8a9",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwRockBlocks.png": {
+  "graded": "d29e4a51afd7ad9b",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwRockSmall.png": {
+  "graded": "c95291992efb31a0",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/bwStump.png": {
+  "graded": "00d8a3ddba79723b",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/cactusCluster.png": {
+  "graded": "f5c8f6f7b40e8327",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/campfire.png": {
+  "graded": "4f07ea5172447932",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/caravanInn.png": {
+  "graded": "356bb27b29115c23",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/carpenterWorkshop.png": {
+  "graded": "763d4d1963fb4b3d",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/cottageRed.png": {
+  "graded": "1e63364794e622ef",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/crate.png": {
+  "graded": "e06346dddd8e5fe8",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/deadAcacia.png": {
+  "graded": "8a2c4cab9c15601f",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/duneRock.png": {
+  "graded": "6d3faa0c2dc6a369",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/elderHouse.png": {
+  "graded": "b262f986787b679c",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/fhBones.png": {
+  "graded": "8151ae3937640e1b",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhBoulder.png": {
+  "graded": "1f827c0e38673dcf",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhCampfire.png": {
+  "graded": "cec4f5029f937419",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhCrystalBig.png": {
+  "graded": "bf7717c0d21f3142",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhCrystalMid.png": {
+  "graded": "dca38ff7c39939ca",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhCrystalSmall.png": {
+  "graded": "df51156b27f1a999",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhDeadTree.png": {
+  "graded": "bcfaad651df5e7a8",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhDeadTreeWide.png": {
+  "graded": "167c7d4dbd8d8c98",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhFence.png": {
+  "graded": "d494ee516053805d",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhPineBig.png": {
+  "graded": "3a5a7311ab5349f1",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhPineMid.png": {
+  "graded": "888baf2d3479e4a7",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhPineSapling.png": {
+  "graded": "2dd9737e54a4adc5",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhPineSlim.png": {
+  "graded": "9ecaec87a9a31e44",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhRibcage.png": {
+  "graded": "dc078089f256c5d8",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhRock.png": {
+  "graded": "df147a99eae86715",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhRockSmall.png": {
+  "graded": "297e8a5e825ba44d",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhRuneShort.png": {
+  "graded": "9a8e428271328bd7",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhRuneTall.png": {
+  "graded": "98b35d2e8e5c6e6c",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhStump.png": {
+  "graded": "bf0be34669c634a3",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhTent.png": {
+  "graded": "73e2fbfac03f64c8",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhTowerShort.png": {
+  "graded": "68e8b0fb426fb99b",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fhTowerTall.png": {
+  "graded": "ba08abcd2059d045",
+  "profile": "snow"
+ },
+ "Resources/Sprites/village/props/fountainOrnament.png": {
+  "graded": "d69c973f081ac18c",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/frostCrystal.png": {
+  "graded": "2b788ce33ced9ead",
+  "profile": "icecave"
+ },
+ "Resources/Sprites/village/props/frozenBones.png": {
+  "graded": "9fa86ec6c3dc1908",
+  "profile": "icecave"
+ },
+ "Resources/Sprites/village/props/frozenStalagmite.png": {
+  "graded": "c7014f7647218b6d",
+  "profile": "icecave"
+ },
+ "Resources/Sprites/village/props/giantMushroom.png": {
+  "graded": "e5cc1e6516d7f561",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/healerCottage.png": {
+  "graded": "5ce70180d4e8c0df",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/hunterLodge.png": {
+  "graded": "e3557fb6681948a7",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/hydraNest.png": {
+  "graded": "bea8012a9eea0def",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/icePillar.png": {
+  "graded": "ac6382ccb432135a",
+  "profile": "icecave"
+ },
+ "Resources/Sprites/village/props/jarCluster.png": {
+  "graded": "a339c969b54b541b",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/lanternPost.png": {
+  "graded": "e18456dde44993c0",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/mangroveRoots.png": {
+  "graded": "a455b328e01356f7",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/marketStall.png": {
+  "graded": "1103f784b082cb90",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/merchantShop.png": {
+  "graded": "6abec2d7a3790726",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/mossyPillar.png": {
+  "graded": "bfa4779334dd50e3",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/noticeBoard.png": {
+  "graded": "9d283511ea20e2b7",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/palmTree.png": {
+  "graded": "7c6deecdc0d54180",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/reedPatch.png": {
+  "graded": "11de214ea37e370e",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/residence.png": {
+  "graded": "78d35e24eb59e3f8",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/rowboat.png": {
+  "graded": "7f896724850d3cbf",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/ruinPillar.png": {
+  "graded": "c9f1737a429fd09b",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sbBush.png": {
+  "graded": "671fa528156ad422",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbCairn.png": {
+  "graded": "efd094194a6c5d68",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbDeadTree.png": {
+  "graded": "29cb0a469b4b894e",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbGrassTuft.png": {
+  "graded": "1f07ce85cf3fa7ce",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbIbexSkull.png": {
+  "graded": "d1f7de6819ff5982",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbJuniper.png": {
+  "graded": "9d52a71bdf691548",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbLog.png": {
+  "graded": "2d5b214b09acad95",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbLupine.png": {
+  "graded": "2026738a904fde6e",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbMarkerPost.png": {
+  "graded": "cd5fda93c9b32b8b",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbPine.png": {
+  "graded": "a5da3744d817184a",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbPineLean.png": {
+  "graded": "c6a1a6195a417576",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbPineSmall.png": {
+  "graded": "48cce55200731f61",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbPineSnow.png": {
+  "graded": "bbd0835e2e0b4daf",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbRockMossy.png": {
+  "graded": "41cc510c9b01ae36",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbRockSnow.png": {
+  "graded": "9016ac7517b4e58c",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbRocks.png": {
+  "graded": "13627e87c4d07b5e",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbSandstoneLow.png": {
+  "graded": "f6e7252e0f56b8b9",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbSandstoneTall.png": {
+  "graded": "80280efa04730abb",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbStreamStones.png": {
+  "graded": "13af1879a03cbcb2",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sbThornBush.png": {
+  "graded": "51d9f4078a402e11",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/scarecrow.png": {
+  "graded": "15581569f335b6c5",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/sgBarrelCactus.png": {
+  "graded": "b86c5184c8b5dd04",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgBrokenPot.png": {
+  "graded": "be2c354079ed1eee",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgBullSkull.png": {
+  "graded": "bb23235c9d6b7553",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgCactusSmall.png": {
+  "graded": "1b36bbde5d9623ad",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgCactusTall.png": {
+  "graded": "b9fe984c8f8e2bd3",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgCampfire.png": {
+  "graded": "5a45aa1d1b6a6032",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgCrateSacks.png": {
+  "graded": "7a70435e4eb07910",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgDeadTree.png": {
+  "graded": "18249933b09ae677",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgLanternPost.png": {
+  "graded": "12b5f999f0363cde",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgRibcage.png": {
+  "graded": "68aec526a3493c77",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgRockPileBig.png": {
+  "graded": "67bedb74d5d60363",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgRockPileMed.png": {
+  "graded": "85cf8ca88416fab2",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgRubble.png": {
+  "graded": "e4ab3b1422b3b955",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgScorpionStatue.png": {
+  "graded": "2580da3cc7b04933",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgStele.png": {
+  "graded": "eab265db637a10cc",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgStoneArch.png": {
+  "graded": "e1bdc9b47b7c3746",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgStonePillar.png": {
+  "graded": "d466f0e1fcf37219",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgTent.png": {
+  "graded": "e0447186d4c61465",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgThornBush.png": {
+  "graded": "690955c804efba9b",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sgTumbleweed.png": {
+  "graded": "5aa423d2c4cc106d",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/sunkenShrine.png": {
+  "graded": "94a7f5f694adb037",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/sunspireStall.png": {
+  "graded": "bf0708b3afb2459f",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/swampLantern.png": {
+  "graded": "e8aa84f52d0b1a85",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/swampTree.png": {
+  "graded": "1d98f12f00df2b80",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/props/villageBush.png": {
+  "graded": "8a2f439d617bded1",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/villageFence.png": {
+  "graded": "4630120cb3460d8a",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/villageFlowerBush.png": {
+  "graded": "308f1639efe4bda2",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/villageOak.png": {
+  "graded": "f0f006dccd3082e8",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/villagePine.png": {
+  "graded": "be845dc2971ed480",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/villageSignpost.png": {
+  "graded": "02809807e1e166a7",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wagon.png": {
+  "graded": "2c783c50db1bca00",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/props/wbBridge.png": {
+  "graded": "d5721bdecd2f4781",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbCliffMid.png": {
+  "graded": "fb35f420dd878a78",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbCliffNW.png": {
+  "graded": "dcae82919d4c95b8",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbCliffStreamN.png": {
+  "graded": "5f31c19d960ba311",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbFenceE.png": {
+  "graded": "56567da55a917529",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbFenceHay.png": {
+  "graded": "38284d95a59a8c7f",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbFenceW.png": {
+  "graded": "5637237ce1a79e60",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbHaystack.png": {
+  "graded": "d4110a487b6f3c86",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbLog.png": {
+  "graded": "1877680545ba752b",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakBig.png": {
+  "graded": "07ce67b42f61eeae",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakClumpW.png": {
+  "graded": "0805bf1e02e2f89f",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakEastA.png": {
+  "graded": "0a7982256b2b1371",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakEastB.png": {
+  "graded": "c2a74d512b89d447",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakEastMid.png": {
+  "graded": "bf184f1bfbd1a248",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakMid.png": {
+  "graded": "c99f7e8d6487daee",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakNW.png": {
+  "graded": "a5da7b9b906f5f40",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakSE.png": {
+  "graded": "97395e4aee3b66e6",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakSWClump.png": {
+  "graded": "52e826ba749f0234",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakSWLow.png": {
+  "graded": "df977480c10b1341",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakSWTree.png": {
+  "graded": "e9b61e05285b1b5c",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakSouth.png": {
+  "graded": "59362c588a987e6f",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakTop2.png": {
+  "graded": "cb11b726c2687f6f",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakTopFar.png": {
+  "graded": "fe0897e4e067aeb6",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakTopMid.png": {
+  "graded": "bed164d9306d59dc",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakTopRight.png": {
+  "graded": "87834ad9116b9a5b",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbOakWest.png": {
+  "graded": "860beb4942da512d",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbPalisade.png": {
+  "graded": "7523526cdc78809c",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockCliffSW.png": {
+  "graded": "7a77c814096877cb",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockEast.png": {
+  "graded": "08c847bf2360b720",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockLog.png": {
+  "graded": "735081943b37b497",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockMid.png": {
+  "graded": "b0f5fe7cd14027c1",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockNE.png": {
+  "graded": "84a1fd5810ab5b96",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockNW.png": {
+  "graded": "fd39e2d935a5ae69",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockNW2.png": {
+  "graded": "c8e13a3c13a5798c",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockSW.png": {
+  "graded": "aa3ab3078fee1a1a",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockSouth.png": {
+  "graded": "2ba74ac9cf0c5e58",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockStream1.png": {
+  "graded": "6fa2610ff223ec41",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockStream2.png": {
+  "graded": "c1c84edad7c5db2c",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockStream3.png": {
+  "graded": "a83f8b418e066bc8",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockTop.png": {
+  "graded": "54f7b4d6832887fe",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockTopEdge.png": {
+  "graded": "86fc56624219db27",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRockWest.png": {
+  "graded": "3ed0cd09dc40142f",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRocksStreamE.png": {
+  "graded": "6bb2010f24d65d91",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbRocksStreamS.png": {
+  "graded": "113ed82ce7846758",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbShed.png": {
+  "graded": "1043b1b32bf42197",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbSignpost.png": {
+  "graded": "d9b0cd71daa73526",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxBarricade.png": {
+  "graded": "9bfd6b5ad77058ac",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxBoulder.png": {
+  "graded": "e700f4d13ef01f4e",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxBush.png": {
+  "graded": "7dd849ce5ec4dcaf",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxBushLilac.png": {
+  "graded": "d9d67a78ade73c8c",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxBushWhite.png": {
+  "graded": "adef8817a2bdea4c",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxLogHollow.png": {
+  "graded": "aaf53aa0f7a7ff45",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxOakBig.png": {
+  "graded": "e87a7829f270fbd3",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxOakMid.png": {
+  "graded": "11ad0ffb35154849",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxOakSlim.png": {
+  "graded": "d747c9b2ba61b84e",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxOakSmall.png": {
+  "graded": "f7effd7cf9275713",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxPillarShort.png": {
+  "graded": "244b2b7423ac8efb",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxPillarTall.png": {
+  "graded": "bf4d0fa0d46b3f52",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxPine.png": {
+  "graded": "84228f386bec41c4",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxPineSlim.png": {
+  "graded": "29153c3ccc70aa2a",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxReeds.png": {
+  "graded": "a363f30f8330da4a",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxRock.png": {
+  "graded": "0768cc6114076805",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxRockTiny.png": {
+  "graded": "c95b9ccac3d833b4",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxRocks.png": {
+  "graded": "11d3d60894041665",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxStump.png": {
+  "graded": "b1d460dadc770cc1",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxWallCorner.png": {
+  "graded": "c49810eedd23044a",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/wbxWallLow.png": {
+  "graded": "0ab8f3df58b4dce8",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/well.png": {
+  "graded": "4be7b0b6c9a03756",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/props/woodpile.png": {
+  "graded": "b3e9f8a33b43f863",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/amber-dunes-ground.png": {
+  "graded": "f11a06078624a00a",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/tiles/bramblewood-forest-ground.png": {
+  "graded": "c9d1c3a36c278f2e",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/tiles/emberfen-marsh-ground.png": {
+  "graded": "cc5ae75b29b2a9d6",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/tiles/frostfang-den-ground.png": {
+  "graded": "60a122e3b762b282",
+  "profile": "icecave"
+ },
+ "Resources/Sprites/village/tiles/oakhaven-ground.png": {
+  "graded": "81e04463971a4d1e",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/rootburrow-ground.png": {
+  "graded": "156d0a98c749dd3b",
+  "profile": "cave"
+ },
+ "Resources/Sprites/village/tiles/scorpion-gorge-ground-minimap.png": {
+  "graded": "3c636f8fa7e56078",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/tiles/scorpion-gorge-ground-r0c0.png": {
+  "graded": "5ea2ab17aa11226b",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/tiles/scorpion-gorge-ground-r0c1.png": {
+  "graded": "95a7859f1f49bae5",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/tiles/scorpion-gorge-ground-r1c0.png": {
+  "graded": "658ae1b266145af5",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/tiles/scorpion-gorge-ground-r1c1.png": {
+  "graded": "2ad68f3170fb9808",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/tiles/sunbreak-foothills-ground-minimap.png": {
+  "graded": "6238b7aff941fe84",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/sunbreak-foothills-ground-r0c0.png": {
+  "graded": "ac3ed9f32fdaa1db",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/sunbreak-foothills-ground-r0c1.png": {
+  "graded": "ab9eec236ee11c61",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/sunbreak-foothills-ground-r1c0.png": {
+  "graded": "a4663105633497ff",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/sunbreak-foothills-ground-r1c1.png": {
+  "graded": "982390b7a55ba573",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/sunken-reliquary-ground-minimap.png": {
+  "graded": "9f5311afb38a2901",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/tiles/sunken-reliquary-ground-r0c0.png": {
+  "graded": "996834a0e7ef65d4",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/tiles/sunken-reliquary-ground-r0c1.png": {
+  "graded": "7ae4ff3909aad37a",
+  "profile": "ruins"
+ },
+ "Resources/Sprites/village/tiles/sunspire-oasis-ground.png": {
+  "graded": "4318ef63a1512f5f",
+  "profile": "desert"
+ },
+ "Resources/Sprites/village/tiles/thatch-village-ground.png": {
+  "graded": "033536aed8b494f7",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/thornheart-chamber-ground.png": {
+  "graded": "679cedaa86a03b99",
+  "profile": "cave"
+ },
+ "Resources/Sprites/village/tiles/willowbrook-large-ground-minimap.png": {
+  "graded": "4ea74b9af4ce9dab",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/willowbrook-large-ground-r0c0.png": {
+  "graded": "409c2956d42baba0",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/willowbrook-large-ground-r0c1.png": {
+  "graded": "fe8082104e6697cb",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/willowbrook-large-ground-r1c0.png": {
+  "graded": "08d88bd5d274b2fe",
+  "profile": "meadow"
+ },
+ "Resources/Sprites/village/tiles/willowbrook-large-ground-r1c1.png": {
+  "graded": "7d96b3ae0e1010b1",
+  "profile": "meadow"
+ }
+}
