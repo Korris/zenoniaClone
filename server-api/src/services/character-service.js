@@ -20,6 +20,7 @@ export function createCharacterService({ db, now, sessionLockSec, maxCharacters 
   const summary = (doc) => ({
     id: String(doc._id), name: doc.name, classId: doc.classId, level: doc.state.level, mapId: doc.state.mapId,
     rev: doc.rev, online: live(doc), createdAt: doc.createdAt,
+    ...(doc.state.appearance ? { appearance: doc.state.appearance } : {}), // the character list draws each hero in its own colours
   });
   const full = (doc) => ({ ...summary(doc), state: doc.state });
 
@@ -47,12 +48,20 @@ export function createCharacterService({ db, now, sessionLockSec, maxCharacters 
       return docs.map(summary);
     },
 
-    async create(userId, name, classId) {
+    /** `appearance` (optional, createAppearanceSchema): the look picked at creation, stored like SaveData.appearance so the zone applies it everywhere. */
+    async create(userId, name, classId, appearance) {
       if (!CLASS_IDS.includes(classId)) throw new ApiError(400, 'validation_error', 'Unknown class');
       // Counted, not locked: two creates sent at the same instant could both pass and leave one hero over the cap, which harms nothing.
       if (await col.countDocuments({ userId }) >= maxCharacters) throw conflict('slots_full', `An account holds at most ${maxCharacters} characters`);
+      const state = newCharacterState(classId);
+      if (appearance) {
+        state.appearance = {
+          stored: true, hairStyle: appearance.hairStyle ?? 0, hairColorIndex: appearance.hairColorIndex,
+          outfitColorIndex: appearance.outfitColorIndex, equippedHeadgearId: 0,
+        };
+      }
       const doc = {
-        userId, name, nameLower: name.toLowerCase(), classId, rev: 0, state: newCharacterState(classId),
+        userId, name, nameLower: name.toLowerCase(), classId, rev: 0, state,
         session: null, recentOps: [], createdAt: new Date(now()),
       };
       try {

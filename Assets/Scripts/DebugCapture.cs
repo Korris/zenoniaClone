@@ -72,7 +72,7 @@ namespace ZenoniaProto
         public static bool Requested(string[] args)
         {
             if (ReleaseBuild.IsRelease) return false; // bots and captures are test tools: a player must not be able to start them from the command line
-            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-walk", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--login-shots" })
+            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-walk", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--login-shots", "--appearance-test" })
                 if (Array.IndexOf(args, flag) >= 0) return true;
             return false;
         }
@@ -302,6 +302,7 @@ namespace ZenoniaProto
             yield return null;
             if (NetMode.IsClient) { yield return RunNetClient(); yield break; } // online: the server owns the world, the bot only drives the controls
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--hero-select-test") >= 0) { yield return RunHeroSelectTest(); yield break; }
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--appearance-test") >= 0) { yield return RunAppearanceTest(); yield break; } // DebugCapture.Appearance.cs
             if (compareArg != null) { yield return RecordCompare(compareArg); yield break; }
             if (comboArg != null) { yield return RecordCombo(comboArg); yield break; }
             if (walkArg != null) { yield return RecordWalk(walkArg); yield break; }

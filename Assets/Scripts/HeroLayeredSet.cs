@@ -106,6 +106,9 @@ namespace ZenoniaProto
         /// <summary>True when this part is drawn over the hand layer in front of the body (a shield covers the fist that holds it).</summary>
         public bool OverHand(string part) { return overHand.Contains(part); }
 
+        /// <summary>Hairstyles this set has art for (the character creation offers a style choice only when there is more than one).</summary>
+        public int HairStyleCount { get { return hair.Count; } }
+
         public LayerEntry Hair(int style)
         {
             LayerEntry e;

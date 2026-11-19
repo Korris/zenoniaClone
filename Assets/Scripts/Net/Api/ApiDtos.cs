@@ -30,11 +30,17 @@ namespace ZenoniaProto.Api
         public string id, name, classId, mapId, createdAt;
         public int level, rev;
         public bool online;
+        /// <summary>The saved look (state.appearance). Absent for a hero that never chose: JsonUtility then fills zeros with stored = false, so read it through CharacterAppearanceData.Sanitize.</summary>
+        public CharacterAppearanceData appearance;
     }
 
     [Serializable] public class CharacterListResponse { public CharacterSummary[] characters; }
 
+    /// <summary>POST /characters without a look (the name-hash default applies).</summary>
     [Serializable] public class CreateCharacterRequest { public string name, classId; }
+    /// <summary>POST /characters with the look picked on the creation screen (server-api createAppearanceSchema: both colours chosen, no hat). A separate type: JsonUtility always writes a nested object.</summary>
+    [Serializable] public class CreateCharacterWithLookRequest { public string name, classId; public CreateAppearance appearance; }
+    [Serializable] public class CreateAppearance { public int hairStyle, hairColorIndex, outfitColorIndex; }
 
     /// <summary>Summary plus the full persisted state (SaveData shape, same JSON as the offline save).</summary>
     [Serializable]

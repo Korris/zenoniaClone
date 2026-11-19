@@ -1,26 +1,39 @@
 using UnityEngine;
 using UnityEngine.UI;
 using ZenoniaProto.Api;
+using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Customize and Name (AccountPage.Customize), drawn with uGUI: pick the hairstyle and hair colour of the new hero (shown live on a full-body preview), type or roll a name, then CREATE.
-    /// The picks live in AccountFlow.PendingStyle / PendingDye, which AccountFlow.Create stores with the new character's id. A class without layered hair has no colour row; a class without
-    /// head art has no hairstyles at all (a note says so). Server refusals (name_taken, class_taken) show in the status line and the typed name stays. Everything else is AccountFlow.
+    /// The appearance step of character creation (docs/character-appearance-layered-spec.md, step E), drawn with uGUI in the RO Soft kit.
+    /// After the class is picked the player chooses hair colour (8) and outfit colour (6) from Data/hero-layered/palettes.json (a hairstyle too when
+    /// the class has more than one), watching the live layered hero turn through 8 directions and idle / walk / attack. No hat: heroes start bare-headed.
+    /// Online (AccountPage.Customize): the look goes with the create request (AccountFlow.PendingLook) and the hero is named here; server refusals
+    /// show in the status line. Offline / host (OpenOffline, a class without a save): Confirm spawns the new hero with the look (GameSession.Spawn),
+    /// which its save keeps from then on. Back returns to the class choice on the same class.
     /// </summary>
     public sealed partial class CharacterCustomizeScreen : MonoBehaviour
     {
         const int NameMax = 16;
         const string NameHint = "3-16 letters, digits or _";
+        const string OfflineNote = "Your hero keeps this look on every map, from the village to the boss arena.\nHats come later: monsters drop them and the village sells some.";
 
         static CharacterCustomizeScreen instance;
+        static HeroClass? offlineClass;          // offline / host new hero: the class picked on the hero select; null = the online flow (or closed)
+        static bool offlineOverGame;             // opened from the in-game change hero screen
+        static CharacterAppearanceData offlineLook;
+        static readonly System.Random Dice = new System.Random();
+
         HeroPreviewStage preview;
-        HairPreviewSprites.Look look; // null = the class has no head art
         bool hintDirty = true;
-        int shownStyle = int.MinValue, shownDye = int.MinValue;
+        int dir8 = 1, styleCount = 1;            // starts on the 3/4 front view (down-right)
+        HeroPreviewStage.Motion motion = HeroPreviewStage.Motion.Idle;
+        CharacterAppearanceData shown;
 
         public static bool IsShown { get { return instance != null && instance.root != null && instance.root.gameObject.activeSelf; } }
+        /// <summary>The offline appearance step is up (the hero select hides meanwhile; class keys do nothing).</summary>
+        public static bool OfflineOpen { get { return offlineClass.HasValue; } }
 
         public static CharacterCustomizeScreen Create(Transform parent)
         {
@@ -30,16 +43,36 @@ namespace ZenoniaProto
             return instance;
         }
 
-        /// <summary>Capture scripts: the name typed in the field.</summary>
+        /// <summary>Offline / host: the look of a new hero of this class, before it spawns. overGame = from the change hero screen over a running game.</summary>
+        public static void OpenOffline(HeroClass id, bool overGame)
+        {
+            offlineClass = id;
+            offlineOverGame = overGame;
+            offlineLook = CharacterAppearanceData.RandomNew(RpgSession.ClassId(id), HeroPreviewStage.HairStyleCount(id), Dice);
+        }
+
+        // ---- capture scripts ----
         public static void TestSetName(string name) { if (instance != null && instance.input != null) instance.input.text = name ?? ""; }
+        public static void TestPick(int hair, int outfit) { if (instance != null) { instance.OnHair(hair); instance.OnOutfit(outfit); } }
+        public static void TestPose(int dir8, HeroPreviewStage.Motion m) { if (instance != null) { instance.dir8 = dir8; instance.motion = m; instance.shown = null; } }
+        public static void TestConfirm() { if (instance != null) instance.Submit(); }
+        public static CharacterAppearanceData TestLook { get { return instance != null ? instance.Look : null; } }
 
         static bool IsNameChar(char c) { return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_'; }
 
+        bool Offline { get { return offlineClass.HasValue; } }
+        HeroClass Class { get { return Offline ? offlineClass.Value : AccountFlow.CustomizeClass; } }
+        CharacterAppearanceData Look
+        {
+            get { return Offline ? offlineLook : AccountFlow.PendingLook; }
+            set { if (Offline) offlineLook = value; else AccountFlow.PendingLook = value; }
+        }
+
         void Update()
         {
-            bool want = ConnectScreenGui.Visible && !ConnectScreenGui.DevPageOpen && GameSession.Hero == null && AccountFlow.Page == AccountPage.Customize;
-            bool shown = IsShown;
-            if (want != shown)
+            bool online = ConnectScreenGui.Visible && !ConnectScreenGui.DevPageOpen && GameSession.Hero == null && AccountFlow.Page == AccountPage.Customize;
+            bool want = Offline || online;
+            if (want != IsShown)
             {
                 if (want) Open();
                 else Close();
@@ -48,9 +81,9 @@ namespace ZenoniaProto
             float s = CharacterFlowKit.Fit(root, stage);
             titleRt.localScale = new Vector3(s, s, 1f);
             titleRt.anchoredPosition = new Vector2(20f * s, -14f * s);
-            if (AccountFlow.PendingStyle != shownStyle || AccountFlow.PendingDye != shownDye) Refresh();
+            if (shown == null || Look == null || !shown.SameLook(Look)) Refresh();
             RefreshState();
-            if (input.isFocused && CharacterFlowKit.EnterPressed()) Submit();
+            if (!Offline && input.isFocused && CharacterFlowKit.EnterPressed()) Submit();
         }
 
         void Open()
@@ -58,14 +91,21 @@ namespace ZenoniaProto
             if (root == null) Build();
             root.SetAsLastSibling();
             root.gameObject.SetActive(true);
-            HeroClass id = AccountFlow.CustomizeClass;
-            look = HairPreviewSprites.For(id);
-            if (look != null) FitTiles();
+            HeroClass id = Class;
+            styleCount = HeroPreviewStage.HairStyleCount(id);
+            if (Look == null) Look = CharacterAppearanceData.RandomNew(RpgSession.ClassId(id), styleCount, Dice);
             banner.sprite = UiArt.Get("hero-select/banner-" + CharacterFlowKit.ClassArtName(id));
+            titleText.text = Offline ? "CHOOSE YOUR LOOK" : "CUSTOMIZE AND NAME";
+            createLabel.text = Offline ? "CONFIRM" : "CREATE";
+            namePlate.SetActive(!Offline);
+            notePlate.SetActive(Offline);
+            note.text = HeroClassDef.Get(id).Name.ToUpperInvariant() + "\n\n" + OfflineNote;
             input.text = ""; // a fresh hero: the name is typed (or rolled) anew
             hintDirty = true;
+            dir8 = 1;
+            motion = HeroPreviewStage.Motion.Idle;
             preview.SetActive(true);
-            shownStyle = shownDye = int.MinValue;
+            shown = null;
             Refresh();
         }
 
@@ -76,90 +116,95 @@ namespace ZenoniaProto
             preview.SetActive(false);
         }
 
-        /// <summary>Crops every tile around the head: the cell (a whole 192 frame) is scaled so the head's bounds fill the tile and shifted so their centre sits in its middle.</summary>
-        void FitTiles()
-        {
-            float iw = TileW - 2f * TileInset, ih = TileH - 2f * TileInset;
-            Rect h = look.Head;
-            float size = GameConfig.FramePx * 0.92f * Mathf.Min(iw / (h.width * GameConfig.FramePx), ih / (h.height * GameConfig.FramePx));
-            var pos = new Vector2(iw * 0.5f - (h.x + h.width * 0.5f) * size, -(ih * 0.5f - (1f - (h.y + h.height * 0.5f)) * size));
-            foreach (Tile t in tiles)
-            {
-                t.Cell.sizeDelta = new Vector2(size, size);
-                t.Cell.anchoredPosition = pos;
-            }
-        }
-
-        /// <summary>Shows the current picks: tile art and frames, swatches, notes, and the hero on the pedestal. Also keeps the picks inside what the class has.</summary>
+        /// <summary>Shows the current look: swatch frames and names, hairstyle row, motion tabs, and the hero on the pedestal. Keeps the look inside what the class has.</summary>
         void Refresh()
         {
-            HeroClass id = AccountFlow.CustomizeClass;
-            int style = 0, dye = CharacterLookPrefs.DefaultDye;
-            if (look != null)
+            CharacterAppearanceData look = Look;
+            int style = Mathf.Clamp(look.hairStyle, 0, styleCount - 1);
+            if (style != look.hairStyle) { look = look.Clone(); look.hairStyle = style; Look = look; }
+            shown = look.Clone();
+            for (int i = 0; i < hairSwatches.Length; i++) PaintSwatch(hairSwatches[i], HeroPalettes.Hair(i), i == look.hairColorIndex);
+            for (int i = 0; i < outfitSwatches.Length; i++) PaintSwatch(outfitSwatches[i], HeroPalettes.Outfit(i), i == look.outfitColorIndex);
+            hairName.text = Capitalized(HeroPalettes.HairName(look.hairColorIndex));
+            outfitName.text = Capitalized(HeroPalettes.OutfitName(look.outfitColorIndex));
+            styleRow.SetActive(styleCount > 1);
+            styleText.text = "Hairstyle " + (style + 1) + " / " + styleCount;
+            for (int i = 0; i < tabs.Length; i++)
             {
-                style = Mathf.Clamp(AccountFlow.PendingStyle, 0, look.StyleCount - 1);
-                dye = look.Dyeable ? Mathf.Clamp(AccountFlow.PendingDye, -1, look.Presets.Length - 1) : CharacterLookPrefs.DefaultDye;
+                bool on = (int)motion == i;
+                tabs[i].sprite = RoSoftSprites.Get(on ? RoSoftSprites.Shape.TabOn : RoSoftSprites.Shape.TabOff);
+                tabLabels[i].color = on ? Color.white : RoSoftTheme.Ink;
             }
-            AccountFlow.PendingStyle = shownStyle = style;
-            AccountFlow.PendingDye = shownDye = dye;
-
-            for (int i = 0; i < tiles.Length; i++)
-            {
-                bool on = look != null && i < look.StyleCount;
-                tiles[i].Frame.gameObject.SetActive(on);
-                if (!on) continue;
-                tiles[i].Frame.sprite = CharacterFlowKit.Art(i == style ? "slot-selected" : "slot");
-                Sprite[] layers = HairPreviewSprites.Layers(look, i, dye);
-                for (int l = 0; l < tiles[i].Layers.Length; l++)
-                {
-                    Sprite sp = l < layers.Length ? layers[l] : null;
-                    tiles[i].Layers[l].sprite = sp;
-                    tiles[i].Layers[l].enabled = sp != null;
-                }
-            }
-            int count = look != null && look.Dyeable ? look.Presets.Length + 1 : 0;
-            for (int i = 0; i < swatches.Length; i++)
-            {
-                bool on = i < count;
-                swatches[i].Disc.gameObject.SetActive(on);
-                swatches[i].Ring.gameObject.SetActive(on && i - 1 == dye);
-                if (on) swatches[i].Disc.color = HairPreviewSprites.SwatchColor(look, style, i - 1);
-            }
-            styleNote.gameObject.SetActive(look == null);
-            colorNote.gameObject.SetActive(count == 0);
-            preview.Set(0, id, style, dye, 1f);
+            preview.Set(0, Class, look, "", 1f);
+            preview.SetPose(0, dir8, motion);
         }
+
+        static void PaintSwatch(Swatch s, Color32 c, bool picked)
+        {
+            s.Frame.sprite = RoSoftSprites.Get(picked ? RoSoftSprites.Shape.SectionLocked : RoSoftSprites.Shape.Cell); // kit slot / gold-rimmed selected slot
+            s.Disc.color = c;
+        }
+
+        static string Capitalized(string s) { return string.IsNullOrEmpty(s) ? "" : char.ToUpperInvariant(s[0]) + s.Substring(1); }
 
         /// <summary>Every frame: buttons wait for a running call or join; the status line; the hint turns into the rule that is broken.</summary>
         void RefreshState()
         {
             NetClient client = NetClient.Active;
-            bool connecting = client != null && client.State == ClientState.Connecting;
-            bool busy = AccountFlow.Busy || connecting;
-            createButton.interactable = backButton.interactable = diceButton.interactable = input.interactable = !busy;
-            status.text = connecting ? client.Status : AccountFlow.Status;
-            status.color = AccountFlow.StatusBad && !connecting ? CharacterFlowKit.Bad : CharacterFlowKit.Soft;
+            bool connecting = !Offline && client != null && client.State == ClientState.Connecting;
+            bool busy = !Offline && (AccountFlow.Busy || connecting);
+            createButton.interactable = backButton.interactable = diceButton.interactable = input.interactable = randomButton.interactable = !busy;
+            status.text = Offline ? "" : connecting ? client.Status : AccountFlow.Status;
+            status.color = !Offline && AccountFlow.StatusBad && !connecting ? CharacterFlowKit.Bad : CharacterFlowKit.Soft;
             if (!hintDirty) return;
             hintDirty = false;
             string problem = input.text.Length > 0 ? AccountFlow.NameProblem(input.text) : null;
             hint.text = problem ?? NameHint;
-            hint.color = problem != null ? CharacterFlowKit.Bad : CharacterFlowKit.Soft;
+            hint.color = problem != null ? RoSoftTheme.BadText : RoSoftTheme.InkSoft;
         }
 
-        void OnStyle(int style) { AccountFlow.PendingStyle = style; }
-        void OnDye(int dye) { AccountFlow.PendingDye = dye; }
+        void Change(System.Action<CharacterAppearanceData> edit)
+        {
+            CharacterAppearanceData look = (Look ?? CharacterAppearanceData.RandomNew(RpgSession.ClassId(Class), styleCount, Dice)).Clone();
+            edit(look);
+            Look = look;
+        }
+
+        void OnHair(int i) { Change(l => l.hairColorIndex = Mathf.Clamp(i, 0, CharacterAppearanceData.HairColorCount - 1)); }
+        void OnOutfit(int i) { Change(l => l.outfitColorIndex = Mathf.Clamp(i, 0, CharacterAppearanceData.OutfitColorCount - 1)); }
+        void OnStyle(int step) { Change(l => l.hairStyle = ((l.hairStyle + step) % styleCount + styleCount) % styleCount); }
+        void OnRandom() { Look = CharacterAppearanceData.RandomNew(RpgSession.ClassId(Class), styleCount, Dice); }
+        void OnTurn(int step) { dir8 = ((dir8 + step) % 8 + 8) % 8; shown = null; }
+        void OnMotion(HeroPreviewStage.Motion m) { motion = m; shown = null; }
         void OnDice() { input.text = AccountFlow.RandomName(); }
 
         void OnBack()
         {
+            if (Offline)
+            {
+                HeroClass id = offlineClass.Value;
+                offlineClass = null;
+                HeroSelectScreen.ReturnTo(id); // the hero select comes back by itself (no hero yet, or the change hero screen still open), on the same class
+                return;
+            }
             if (AccountFlow.Busy) return;
             ConnectScreenGui.CreateHero(AccountFlow.Characters, AccountFlow.CustomizeClass); // Choose Class again, on the same class
         }
 
         void Submit()
         {
+            CharacterAppearanceData look = Look;
+            if (Offline)
+            {
+                if (GameSession.Instance == null) return;
+                HeroClass id = offlineClass.Value;
+                offlineClass = null;
+                if (offlineOverGame) HeroChangeScreen.Close();
+                GameSession.Instance.Spawn(id, look);
+                return;
+            }
             if (AccountFlow.Busy) return;
-            AccountFlow.Create(input.text.Trim(), AccountFlow.CustomizeClass, AccountFlow.PendingStyle, AccountFlow.PendingDye);
+            AccountFlow.Create(input.text.Trim(), AccountFlow.CustomizeClass, look);
         }
 
         void OnDestroy() { if (instance == this) instance = null; }

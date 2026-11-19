@@ -33,7 +33,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>
-        /// Online client, first RpgState of the local hero: the saved look. A device that still has a CharacterLookPrefs entry sends it to the
+        /// Online client, first RpgState of the local hero: the saved look. For a hero with no stored look, a device that still has a CharacterLookPrefs entry sends it to the
         /// server when it differs (style as is, dye -> nearest palette hair colour); a device without one shows the saved hairstyle.
         /// </summary>
         public void OnOwnAppearance(CharacterAppearanceData saved)
@@ -43,7 +43,7 @@ namespace ZenoniaProto
             if (saved == null) return;
             CharacterAppearanceData want = saved;
             string id = AccountFlow.EnteredId;
-            if (id != null && CharacterLookPrefs.Has(id))
+            if (id != null && !saved.stored && CharacterLookPrefs.Has(id)) // a look on the server (picked at creation since 19/11/2026, or migrated once) always wins over the device
             {
                 int style, dye;
                 CharacterLookPrefs.Get(id, out style, out dye);

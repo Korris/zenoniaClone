@@ -35,6 +35,7 @@ namespace ZenoniaProto
         static System.Action<HeroClass> onlinePicked;
         static System.Action onlineBack;
         static HeroClass? onlineStart; // class the online mode opens on (coming back from Customize); null = the Wizard
+        static HeroClass? returnClass; // offline: class to open on when coming back from the appearance step
 
         /// <summary>The account flow is choosing the class of a new character.</summary>
         public static bool OnlineCreating { get { return onlineTaken != null; } }
@@ -47,6 +48,9 @@ namespace ZenoniaProto
         }
 
         static void CloseOnlineCreate() { onlineTaken = null; onlinePicked = null; onlineBack = null; onlineStart = null; }
+
+        /// <summary>Offline: Back on the appearance step. The screen shows again by itself and opens on this class.</summary>
+        public static void ReturnTo(HeroClass id) { returnClass = id; }
 
         /// <summary>Capture scripts: what a tap on a pedestal and on the gold button do.</summary>
         public static void TestPickClass(int classIndex) { if (instance != null) instance.Pick(instance.SlotOfClass(classIndex)); }
@@ -106,7 +110,7 @@ namespace ZenoniaProto
         void Update()
         {
             bool nowInGame = HeroChangeScreen.IsOpen;
-            bool show = nowInGame || OnlineCreating || (GameSession.Hero == null && !ConnectScreenGui.Visible && !NetMode.IsClient);
+            bool show = !CharacterCustomizeScreen.OfflineOpen && (nowInGame || OnlineCreating || (GameSession.Hero == null && !ConnectScreenGui.Visible && !NetMode.IsClient)); // the appearance step of a new hero replaces it
             bool shown = root != null && root.gameObject.activeSelf;
             if (show != shown)
             {
@@ -131,7 +135,9 @@ namespace ZenoniaProto
             gearButton.gameObject.SetActive(!inGame && NetMode.IsOffline && !OnlineCreating);
             picked = -1;
             HeroController current = inGame ? GameSession.Hero : null;
-            Pick(current != null ? SlotOfClass((int)current.Class.Id) : SlotOfClass((int)(OnlineCreating && onlineStart.HasValue ? onlineStart.Value : HeroClass.Wizard))); // the mock opens on the Wizard
+            HeroClass? back = OnlineCreating ? onlineStart : returnClass; // coming back from Customize / the appearance step: the same class
+            returnClass = null;
+            Pick(SlotOfClass((int)(back ?? (current != null ? current.Class.Id : HeroClass.Wizard)))); // the mock opens on the Wizard
             for (int i = 0; i < slots.Count; i++) Ease(slots[i], i == picked, 1f); // no easing in from the last visit
         }
 
@@ -268,8 +274,10 @@ namespace ZenoniaProto
                 done((HeroClass)slots[picked].ClassIndex);
                 return;
             }
+            var id = (HeroClass)slots[picked].ClassIndex;
+            if (SavedLabel((int)id) == null) { CharacterCustomizeScreen.OpenOffline(id, inGame); return; } // a new hero: its look first (the appearance step spawns it)
             if (inGame) HeroChangeScreen.Close();
-            GameSession.Instance.Spawn((HeroClass)slots[picked].ClassIndex);
+            GameSession.Instance.Spawn(id);
         }
     }
 }

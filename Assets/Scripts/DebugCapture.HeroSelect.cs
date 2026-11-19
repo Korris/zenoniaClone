@@ -37,6 +37,7 @@ namespace ZenoniaProto
             Save(shotPath + "_skill.png");
             yield return Press(CentreOf("StartButton"), false, "start");
             yield return WaitSeconds(1f);
+            if (CharacterCustomizeScreen.OfflineOpen) { yield return Press(CentreOf("Create"), false, "confirm the look of the new hero"); yield return WaitSeconds(1f); } // captures have no saves: every class is new
             HeroController hero = GameSession.Hero;
             E2e((hero != null && hero.Class == HeroClassDef.Get(startClass) && !HeroSelectScreen.IsShown ? "PASS" : "FAIL") + " start spawned the picked hero: " + (hero != null ? hero.Class.Name : "none"));
             yield return new WaitForEndOfFrame();

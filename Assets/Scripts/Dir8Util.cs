@@ -15,6 +15,9 @@ namespace ZenoniaProto
 
         public static int FromCardinal(int dir4) { return CardinalRow[dir4 & 3]; }
 
+        /// <summary>A 4-dir facing the Dir8 row agrees with (Matches is true for it): what a view that turns through all 8 rows passes as the facing.</summary>
+        public static int ToCardinal(int dir8) { return AxisA[((dir8 % 8) + 8) % 8]; }
+
         /// <summary>True when the Dir8 row points along the 4-dir facing (a diagonal matches both of its axes).</summary>
         public static bool Matches(int dir8, int dir4) { return dir8 >= 0 && dir8 < 8 && (AxisA[dir8] == dir4 || AxisB[dir8] == dir4); }
 
