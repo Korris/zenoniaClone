@@ -25,6 +25,7 @@ namespace ZenoniaProto
     ///   --nobloom                         disable the bloom post effect (A/B for blown-out FX)
     ///   --run-seconds N                   quit after N seconds (no screenshots); with --perf logs every frame slower than 16 ms
     ///   --dummy-dist N                    distance of the first dummy in front of the hero (default 30)
+    ///   --dummy-types a,b,c               dummies cycle through these MonsterDef sheet ids (e.g. meadowSlime,hornRabbit) instead of slime / goblin
     ///   --god                             hero ignores damage
     ///   --plus N                          worn weapon + offhand at +N (enhance glow bands)
     ///   --worn-tier N                     wear art tier N of the weapon + offhand from the dev-start bag (allWeapons)
@@ -58,6 +59,7 @@ namespace ZenoniaProto
         string recordArg, classArg, faceArg, shotPath, botArg, petArg;
         float[] shotTimes, skillTimes;
         int dummies;
+        string[] dummyTypes; // --dummy-types: MonsterDef.ByType ids cycled by the dummies (RO Soft monster redraw captures)
         float dummyDist = 30f;
         float runSeconds, lastCastTime = -100f;
         bool perf;
@@ -152,6 +154,8 @@ namespace ZenoniaProto
             petArg = Arg(a, "--pet");
             string dm = Arg(a, "--dummies");
             if (dm != null) dummies = int.Parse(dm);
+            string dt = Arg(a, "--dummy-types");
+            if (dt != null) dummyTypes = dt.Split(',');
             shotTimes = Times(Arg(a, "--shots"));
             skillTimes = Times(Arg(a, "--skill-at"));
             skillUi = Arg(a, "--skill-ui");
@@ -273,7 +277,8 @@ namespace ZenoniaProto
             for (int i = 0; i < dummies; i++)
             {
                 Vector2 p = hero.Position + fwd * (dummyDist + (i % 3) * 9f) + side * ((i - dummies * 0.5f) * 9f);
-                Monster.Create(root, i % 3 == 2 ? MonsterDef.IceGoblin : MonsterDef.FrostSlime, p, -1);
+                MonsterDef def = dummyTypes != null ? MonsterDef.ByType(dummyTypes[i % dummyTypes.Length]) : null;
+                Monster.Create(root, def ?? (i % 3 == 2 ? MonsterDef.IceGoblin : MonsterDef.FrostSlime), p, -1);
             }
         }
 
