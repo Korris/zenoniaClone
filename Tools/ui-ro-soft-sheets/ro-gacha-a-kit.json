@@ -1,0 +1,289 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-gacha/src/ro-soft-gacha-kit-chatgpt-1-greenkey.png",
+ "key": "#00FF00",
+ "key_mode": "edge",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-gacha/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [
+   {
+    "name": "gacha-paw-badge",
+    "box": [
+     62,
+     66,
+     276,
+     281
+    ],
+    "height": 128
+   },
+   {
+    "name": "gacha-help",
+    "box": [
+     328,
+     94,
+     486,
+     253
+    ],
+    "height": 64
+   },
+   {
+    "name": "gacha-coin",
+    "box": [
+     539,
+     79,
+     728,
+     270
+    ],
+    "height": 96
+   },
+   {
+    "name": "gacha-crystal",
+    "box": [
+     779,
+     85,
+     978,
+     262
+    ],
+    "height": 96
+   },
+   {
+    "name": "gacha-coin-stack",
+    "box": [
+     1024,
+     78,
+     1236,
+     259
+    ],
+    "height": 96
+   },
+   {
+    "name": "gacha-alert",
+    "box": [
+     1284,
+     78,
+     1472,
+     268
+    ],
+    "height": 64
+   }
+  ],
+  [
+   {
+    "name": "gacha-ribbon",
+    "box": [
+     98,
+     343,
+     966,
+     551
+    ],
+    "height": 140
+   },
+   {
+    "name": "gacha-ur-crest",
+    "box": [
+     1036,
+     300,
+     1408,
+     567
+    ],
+    "height": 180
+   }
+  ],
+  [
+   {
+    "name": "gacha-pill-r",
+    "box": [
+     262,
+     631,
+     460,
+     740
+    ],
+    "height": 64,
+    "border": [
+     30,
+     26,
+     30,
+     26
+    ]
+   },
+   {
+    "name": "gacha-pill-sr",
+    "box": [
+     459,
+     631,
+     657,
+     740
+    ],
+    "height": 64,
+    "border": [
+     30,
+     26,
+     30,
+     26
+    ]
+   },
+   {
+    "name": "gacha-pill-ssr",
+    "box": [
+     656,
+     630,
+     852,
+     740
+    ],
+    "height": 64,
+    "border": [
+     30,
+     26,
+     30,
+     26
+    ]
+   },
+   {
+    "name": "gacha-pill-ur",
+    "box": [
+     853,
+     630,
+     1052,
+     740
+    ],
+    "height": 64,
+    "border": [
+     30,
+     26,
+     30,
+     26
+    ]
+   },
+   {
+    "name": "gacha-arrow-left",
+    "box": [
+     1078,
+     634,
+     1153,
+     740
+    ],
+    "height": 64
+   },
+   {
+    "name": "gacha-arrow-right",
+    "box": [
+     1190,
+     634,
+     1265,
+     740
+    ],
+    "height": 64
+   },
+   {
+    "name": "gacha-shard-frame",
+    "box": [
+     1301,
+     591,
+     1461,
+     765
+    ],
+    "height": 112
+   }
+  ],
+  [
+   {
+    "name": "gacha-bar-track",
+    "box": [
+     61,
+     844,
+     375,
+     924
+    ],
+    "height": 40,
+    "border": [
+     20,
+     18,
+     20,
+     18
+    ]
+   },
+   {
+    "name": "gacha-bar-gold",
+    "box": [
+     387,
+     844,
+     696,
+     924
+    ],
+    "height": 40,
+    "border": [
+     20,
+     18,
+     20,
+     18
+    ]
+   },
+   {
+    "name": "gacha-bar-purple",
+    "box": [
+     706,
+     844,
+     1014,
+     924
+    ],
+    "height": 40,
+    "border": [
+     20,
+     18,
+     20,
+     18
+    ]
+   },
+   {
+    "name": "gacha-card",
+    "box": [
+     1024,
+     793,
+     1203,
+     967
+    ],
+    "height": 120,
+    "border": [
+     36,
+     36,
+     36,
+     36
+    ]
+   },
+   {
+    "name": "gacha-ico-paw",
+    "box": [
+     1229,
+     835,
+     1338,
+     928
+    ],
+    "height": 48
+   },
+   {
+    "name": "gacha-ico-shard",
+    "box": [
+     1367,
+     828,
+     1463,
+     933
+    ],
+    "height": 48
+   }
+  ]
+ ],
+ "_note": "source = the ChatGPT sheet with its magenta ground flood-filled to #00FF00 from the edges (purple / pink pieces key out wrongly on magenta); the green N pill is cut from the magenta original by ro-gacha-b-green-pill.json",
+ "erase": [
+  [
+   55,
+   625,
+   264,
+   745
+  ]
+ ]
+}
