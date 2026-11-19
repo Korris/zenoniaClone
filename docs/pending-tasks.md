@@ -6,7 +6,7 @@
 - Người dùng: "làm lại toàn bộ map + quái theo style ro fantasy". Phần quái: mọi `MonsterDef.All` trừ Mire Hydra Queen (đã v2). Pet dùng chung sheet quái nên tự đổi theo.
 - Cách làm: mỗi quái 2 ảnh ChatGPT 4 cột x 3 hàng (xuống, lên, phải; trái = lật phải), gửi kèm frame cũ (`ArtLibrary/monsters/ro-soft/ref/<id>-{walk,attack}-ref.png`), cắt bằng `Tools/build-ro-soft-monsters.py ref|build|check <id>` (giữ ô, đường chân, chiều cao thân cũ `ro-soft/heights.json`; sheet cũ ở `ro-soft/old/`). Ảnh trước/sau `docs/reference/monsters-ro-soft-redraw/<id>-before-after.png`.
 - Tan Pham hết lượt tới 09:17 20/11 (chat thử https://chatgpt.com/c/6aff40c8-c3bc-83ec-a656-39f3f1d0233f, không ra ảnh). Chat Tay (Tân Korris): https://chatgpt.com/c/6aff410c-b5c4-83ec-8e5a-00ce76667f4a
-- Trạng thái (xong = đã cắt + xem từng frame trên ảnh trước/sau): meadowSlime xong, hornRabbit xong, thornBoar xong, frostSlime xong.
+- Trạng thái (xong = đã cắt + xem từng frame trên ảnh trước/sau): meadowSlime xong, hornRabbit xong, thornBoar xong, frostSlime xong, iceGoblin xong.
 - Báo cáo: `plans/reports/monsters-ro-soft-redraw-261120.md`.
 
 ### 19/11 23:40 Mire Hydra Queen: Venom Drain + icon trúng độc HUD / party + hiệu ứng độc trên người + sửa boss quay mặt (agent, merge vào `ro-fantasy-heroes`)
