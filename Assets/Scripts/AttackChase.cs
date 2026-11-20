@@ -4,9 +4,9 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Walk-to-target for the lock-target slash (Warrior; user OK 2026-11-20, RO style): an attack press with no monster in reach picks one (the
-    /// locked one if it is near, else the nearest within 8 tiles that can be walked to), walks the hero to it and presses the slash once it is in
-    /// reach. It drives the hero through the same keys a player presses (InputAdapter asks Held / Pressed, like AutoBattle), so online only move
+    /// Walk-to-target and auto-attack for the lock-target slash (Warrior; user OK 2026-11-20, RO style): one attack press engages a monster (the
+    /// one in reach, else the locked one if it is near, else the nearest within 8 tiles that can be walked to), walks the hero to it and keeps
+    /// pressing the slash while it is in reach, until it dies. It drives the hero through the same keys a player presses (InputAdapter asks Held / Pressed, like AutoBattle), so online only move
     /// and attack input goes to the server, which still moves the hero and decides the hit. Moving by hand, the target dying, getting too far
     /// (LockTargetRules.ChaseLeash), a long walk or being stuck ends it. The way around cliffs comes from TileNav (as AutoBattle).
     /// </summary>
@@ -61,8 +61,9 @@ namespace ZenoniaProto
             Vector2 at = hero.SimPosition;
             if (target == null)
             {
-                if (!InputAdapter.PressedNoChase(GameKey.Attack) || hero.LockCandidateInReach(0f) != null) return; // a monster in reach: the plain slash
-                target = PickTarget(hero, hero.ChestPoint);
+                if (!InputAdapter.PressedNoChase(GameKey.Attack)) return;
+                // One press engages (RO style, user 2026-11-20 "ấn attack 1 cái nó đánh 2 cái rồi dừng"): the monster in reach, else the nearest one to walk to.
+                target = hero.LockCandidateInReach(0f) ?? PickTarget(hero, hero.ChestPoint);
                 if (target == null) return; // nobody near: the slash whiffs where the hero stands
                 startedAt = movedAt = now; lastPos = at;
             }
@@ -73,9 +74,10 @@ namespace ZenoniaProto
             if (!LockTargetRules.KeepChasing((edge - chest).magnitude, now - startedAt, now - movedAt)) { Stop(); return; }
             if (hero.InLockReach(target, LockTargetRules.ChaseReachMargin))
             {
+                // In reach: keep swinging at it until it dies, the player moves, Auto turns on or it runs off (then the walk resumes).
                 hero.SetLockTarget(target);
-                attackNow = true; // arrived: one slash press; the windup keeps this lock and turns the hero to it
-                Stop();
+                attackNow = !hero.IsBasicAttacking; // the next slash as soon as the last one ends; the windup keeps this lock and turns the hero to it
+                startedAt = now; // the walk time limit only counts walking, not fighting
                 return;
             }
             Vector2 d = edge - chest; // walk the chest onto the body edge (the sword then touches it)

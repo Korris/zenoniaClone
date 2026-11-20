@@ -15,7 +15,7 @@ namespace ZenoniaProto
     ///   --tier N / --enhanced             gear tier / enhanced art
     ///   --hairstyle N                     hairstyle of the head layer (Lv1 body, idle facing down, any class with heads/ art; 0 = the painted head)
     ///   --hair-dye N                      hair dye preset N (layered heads: HeroHairLayers, Data/classes/<class>/hair-dyes.json)
-    ///   --bot fight|attack|walk           fight: walk to the nearest monster and attack it; attack: hold attack; walk: walk east
+    ///   --bot fight|attack|attack-once|walk  fight: walk to the nearest monster and attack it; attack: hold attack; attack-once: one press; walk: walk east
     ///   --zoom N                          camera orthographic half-height (default 80) for close-ups
     ///   --shots 2,5,8 --shot-path P       ScreenCapture to P_1.png, P_2.png ... at those seconds, then quit
     ///   --offscreen-capture              render camera/canvas into a texture (for hidden player windows)
@@ -336,6 +336,7 @@ namespace ZenoniaProto
                 if (hairColor != null && ColorUtility.TryParseHtmlString("#" + hairColor.TrimStart('#'), out customHair)) hero.View.HairColor = (Color32)customHair;
                 if (botArg == "fight") EnableFightBot();
                 else if (botArg == "attack") InputAdapter.BotPressed = k => k == GameKey.Attack;   // hold attack in place (art / FX close-ups)
+                else if (botArg == "attack-once") { int f0 = Time.frameCount + 30; InputAdapter.BotPressed = k => k == GameKey.Attack && Time.frameCount == f0; } // ONE attack press (RO-style auto-attack check)
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east
                 else if (botArg == "walk-down") InputAdapter.BotHeld = k => k == GameKey.Down;      // walk toward the camera (walk-down frames)
                 else if (botArg == "walk-left") InputAdapter.BotHeld = k => k == GameKey.Left;      // walk west (Willowbrook's west gate into Oakhaven)
