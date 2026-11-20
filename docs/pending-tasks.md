@@ -3,6 +3,10 @@
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 20/11 20:05 Tên người chơi trên đầu dùng font đẹp như nhãn quái - XONG, đã xem ảnh offline
+- Người dùng: "sao tên người chơi xài font xấu vậy ko đẹp như tên quái vật". Tên trên đầu (mình xanh lá + khiên + thanh HP, người khác trắng) đổi từ Arial IMGUI + bóng đen sang Nunito Bold + viền navy mảnh giống nhãn quái; viền dùng chung `Assets/Scripts/RoTextOutline.cs`; cỡ bằng nhãn quái theo zoom, tối thiểu 11 điểm khi zoom xa (`NameTags.cs`).
+- Exe `C:/temp/player-names/Zenonia.exe` (ổ D: đầy, còn ~0,7 GB: build ra C:). Ảnh `docs/reference/player-name-font/`. Đã xem: offline Willowbrook zoom 60 / 80 (và bản chưa có mức tối thiểu ở zoom 108 + đám 40 người Frost Hollow: chỉ ≤ 8 tên, FPS như trước). Chưa xem: đám đông với bản cuối, điện thoại, 2.5D.
+
 ### 20/11 19:40 Nhãn quái RO Soft: bỏ nền pill, chỉ còn chữ - XONG, đã xem ảnh offline
 - Người dùng: "chỗ tên và level của creep bỏ cái background màu xanh đi, chỉ hiện chữ thôi được rồi".
 - `Monster.RoFootLabel.cs`: bỏ tab `hud-lv-badge`; "Lv.N" vàng + tên trắng giữ nguyên cỡ / chỗ, thêm viền mực navy mảnh (8 bản chữ lệch 0,3 đơn vị, ~1,5 px ở 1080p) để đọc được trên tuyết và nền tối. Thanh máu, luật ẩn khi đông (`MonsterFootLabelCrowd.cs`) giữ nguyên (vùng chữ = khung chữ + viền). Nhãn Paper không đổi. Sổ lỗi `docs/ui-layout-rules.md`.

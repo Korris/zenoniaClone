@@ -91,10 +91,10 @@ namespace ZenoniaProto
             }
         }
 
-        /// <summary>Own plate extras (RO HUD): emblem left of the name rect `name`, HP bar under it.</summary>
-        static void DrawOwnPlate(Rect name, HeroController me)
+        /// <summary>Own plate extras (RO HUD): emblem left of the name rect `name`, HP bar under it; `k` scales them with the name size.</summary>
+        static void DrawOwnPlate(Rect name, HeroController me, float k)
         {
-            float s = Screen.height / 640f, e = 23f * s;
+            float s = Screen.height / 640f * k, e = 23f * s;
             Texture2D emblem = Tex("hud-emblem");
             if (emblem != null) GUI.DrawTexture(new Rect(name.x - e - 2f * s, name.center.y - e * 0.5f, e, e), emblem, ScaleMode.ScaleToFit);
             Texture2D track = Tex("hud-name-hp-track"), fill = Tex("hud-name-hp-fill");

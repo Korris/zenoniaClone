@@ -12,20 +12,16 @@ namespace ZenoniaProto
     /// plain red quad over the head once hurt, so name and level were gone. Bosses keep nothing here: the top boss bar shows them.
     /// World sprites, not IMGUI: they sit over every monster / hero and under the skill FX, and the RO HUD (overlay canvas) always covers them,
     /// so they can never print over a HUD panel. Pieces: hud-name-hp-track (frame), hud-bar-red (fill), both 9-sliced as pills
-    /// (caps = half the art height), so they stay round at any width; the name is a TextMesh over 8 dark copies offset by RoOutline.
+    /// (caps = half the art height), so they stay round at any width; the name is a TextMesh over 8 dark copies offset by RoTextOutline (the player names over heads use the same outline).
     /// </summary>
     public partial class Monster
     {
         // Box model in world units (view 216 units tall: 1 unit = 5 px at 1080p). Pill rule of docs/ui-layout-rules.md: padding 3 / 12 (ref px).
         const float RoBarW = 17f, RoBarH = 2.8f, RoFillInset = 0.5f, RoFootY = -3.2f;
-        // RoTabPadY / RoTabGap only place the text line where the old pill had it (same spot under the bar); RoOutline = outline width (~1.5 px at 1080p).
-        const float RoTextH = 3.3f, RoTabPadY = 0.75f, RoTabGap = 0.6f, RoOutline = 0.3f;
-        static readonly Color RoOutlineColor = new Color(0.08f, 0.1f, 0.16f, 0.9f); // dark navy ink, softer than pure black on the pastel maps
-        static readonly Vector2[] RoOutlineDirs =
-        {
-            new Vector2(1f, 0f), new Vector2(-1f, 0f), new Vector2(0f, 1f), new Vector2(0f, -1f),
-            new Vector2(0.71f, 0.71f), new Vector2(-0.71f, 0.71f), new Vector2(0.71f, -0.71f), new Vector2(-0.71f, -0.71f),
-        };
+        // RoTabPadY / RoTabGap only place the text line where the old pill had it (same spot under the bar); the outline is RoTextOutline's (shared with the player names).
+        const float RoTabPadY = 0.75f, RoTabGap = 0.6f, RoOutline = RoTextOutline.Width;
+        /// <summary>Text size (em) in world units; NameTags sizes the player names from it so both labels match at every zoom.</summary>
+        public const float RoTextH = 3.3f;
         /// <summary>Labels draw over every monster and hero, under the skill FX; a monster nearer the camera (lower y) draws its label over the one behind.</summary>
         const int RoLabelBase = FeelConfig.FxOrder - 300;
 
@@ -67,7 +63,7 @@ namespace ZenoniaProto
             string plain = "Lv." + def.ItemLevel + " " + def.Name;
             // Outline first (8 dark copies, plain text so the rich-text gold does not tint them), then the coloured name on top.
             for (int i = 0; i < roOutlineMr.Length; i++)
-                roOutlineMr[i] = RoText("RoNameOutline", plain, RoOutlineColor).GetComponent<MeshRenderer>();
+                roOutlineMr[i] = RoText("RoNameOutline", plain, RoTextOutline.Color).GetComponent<MeshRenderer>();
             roName = RoText("RoName", "<color=#FDC04E>Lv." + def.ItemLevel + "</color> " + def.Name, Color.white); // gold level, white name (user 17/11: one colour read as one blur)
             roNameMr = roName.GetComponent<MeshRenderer>();
             if (roTrack.drawMode == SpriteDrawMode.Sliced) roTrack.size = new Vector2(RoBarW, RoBarH);
@@ -114,7 +110,7 @@ namespace ZenoniaProto
             roName.transform.localPosition = new Vector3(0f, textY, 0f);
             for (int i = 0; i < roOutlineMr.Length; i++)
             {
-                roOutlineMr[i].transform.localPosition = new Vector3(RoOutlineDirs[i].x * RoOutline, textY + RoOutlineDirs[i].y * RoOutline, 0f);
+                roOutlineMr[i].transform.localPosition = new Vector3(RoTextOutline.Dirs[i].x * RoOutline, textY + RoTextOutline.Dirs[i].y * RoOutline, 0f);
                 roOutlineMr[i].sortingOrder = o;
             }
             roNameMr.sortingOrder = o + 1;

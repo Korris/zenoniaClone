@@ -13,12 +13,16 @@ namespace ZenoniaProto
     /// so a pack of players never turns into a wall of text. A name never covers the ring under your own hero, and a name shown last frame
     /// keeps a head start (ShownBonus) so two players running past each other do not make the names flicker.
     /// Holding Alt shows every name (still nearest first, overlaps allowed). Heroes hidden behind a live Wanted Boss's body get no name (Monster.HidesHeroAt).
+    /// Look (user 20/11 "tên người chơi xài font xấu ... ko đẹp như tên quái vật"): Nunito Bold with the thin dark navy outline of the monster
+    /// foot labels (RoTextOutline), sized from the camera so a name is as big as a monster label (Monster.RoTextH), never under MinNamePt when zoomed out.
     /// </summary>
     public partial class NameTags : MonoBehaviour
     {
         const int MaxNames = 8;
         const float ShownBonus = 40f; // world units: a name on screen last frame sorts as if this much nearer
+        const float MinNamePt = 11f;  // canvas points (640 tall): the smallest name size, whatever the zoom
         GUIStyle style;
+        float outlinePx = 1f, plateScale = 1f; // this frame: outline width in pixels; own plate (emblem, HP bar) scale vs its 13-point design
         readonly List<HeroController> order = new List<HeroController>();
         readonly List<Rect> placed = new List<Rect>();
         readonly HashSet<HeroController> shown = new HashSet<HeroController>(), shownNow = new HashSet<HeroController>();
@@ -30,11 +34,16 @@ namespace ZenoniaProto
             Camera cam = Camera.main;
             Zone zone = Zone.Main;
             if (cam == null || zone == null) return;
-            if (style == null) style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
-            style.fontSize = Mathf.Max(10, Mathf.RoundToInt(Screen.height / 640f * 13f));
+            // Nunito Bold is already bold (no fake bold); no rich text: a player could put <color> / <size> tags in a name.
+            if (style == null) style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, font = RoSoftTheme.Bold, fontStyle = RoSoftTheme.Bold != null ? FontStyle.Normal : FontStyle.Bold, richText = false, wordWrap = false };
 
             HeroController me = LocalPlayer.Hero;
             Vector2 from = me != null ? me.Position : (Vector2)cam.transform.position;
+            float ppu = PixelsPerUnit(cam, from);
+            // As big as a monster label at this zoom, but never under 11 canvas points (zoomed out, the default view): a name must stay readable.
+            style.fontSize = Mathf.RoundToInt(Mathf.Max(Monster.RoTextH * ppu, Screen.height / 640f * MinNamePt, 10f));
+            outlinePx = Mathf.Max(1f, RoTextOutline.Width * ppu);
+            plateScale = style.fontSize / (Screen.height / 640f * 13f);
             Monster boss = zone.Wanted != null && !zone.Wanted.IsDying ? zone.Wanted : null;
             order.Clear();
             for (int i = 0; i < zone.Heroes.All.Count; i++)
@@ -59,8 +68,9 @@ namespace ZenoniaProto
                 HeroController h = order[i];
                 Vector3 sp = cam.WorldToScreenPoint(View25D.Above(h.Position.x, h.Position.y, 30f));
                 if (sp.z < 0f || sp.x < -80f || sp.x > Screen.width + 80f) continue;
-                Vector2 size = style.CalcSize(new GUIContent(h.PlayerName));
-                var rect = new Rect(0f, 0f, size.x + 4f, size.y);
+                var label = new GUIContent(h.PlayerName);
+                Vector2 size = style.CalcSize(label);
+                var rect = new Rect(0f, 0f, size.x + 4f + outlinePx * 2f, size.y);
                 rect.center = new Vector2(sp.x, Screen.height - sp.y);
                 if (Occluded(rect)) continue; // under an RO panel / banner
                 if (!all)
@@ -70,11 +80,7 @@ namespace ZenoniaProto
                 }
                 placed.Add(rect);
                 shownNow.Add(h);
-                style.normal.textColor = Color.black;
-                var shadow = rect; shadow.x += 1f; shadow.y += 1f;
-                GUI.Label(shadow, h.PlayerName, style);
-                style.normal.textColor = Color.white;
-                GUI.Label(rect, h.PlayerName, style);
+                RoTextOutline.GuiLabel(rect, label, style, Color.white, outlinePx);
             }
             shown.Clear();
             shown.UnionWith(shownNow);
@@ -95,18 +101,22 @@ namespace ZenoniaProto
         {
             Vector3 sp = cam.WorldToScreenPoint(View25D.Above(me.Position.x, me.Position.y, 30f));
             if (sp.z < 0f) return;
-            string name = OwnName(me);
-            Vector2 size = style.CalcSize(new GUIContent(name));
-            var rect = new Rect(0f, 0f, size.x + 4f, size.y);
+            var name = new GUIContent(OwnName(me));
+            Vector2 size = style.CalcSize(name);
+            var rect = new Rect(0f, 0f, size.x + 4f + outlinePx * 2f, size.y);
             rect.center = new Vector2(sp.x, Screen.height - sp.y);
             if (Occluded(rect)) return; // under the chat panel / a banner
             placed.Add(rect);
-            style.normal.textColor = new Color(0f, 0.12f, 0f, 1f);
-            var shadow = rect; shadow.x += 1f; shadow.y += 1f;
-            GUI.Label(shadow, name, style);
-            style.normal.textColor = OwnGreen;
-            GUI.Label(rect, name, style);
-            if (RoHud.Active) DrawOwnPlate(rect, me); // emblem + small HP bar (NameTags.RoSoft.cs)
+            RoTextOutline.GuiLabel(rect, name, style, OwnGreen, outlinePx);
+            if (RoHud.Active) DrawOwnPlate(rect, me, plateScale); // emblem + small HP bar (NameTags.RoSoft.cs)
+        }
+
+        /// <summary>Screen pixels per world unit at the head height of `feet` (follows the wheel zoom, the screen size and the 2.5D view).</summary>
+        static float PixelsPerUnit(Camera cam, Vector2 feet)
+        {
+            Vector3 a = cam.WorldToScreenPoint(View25D.Above(feet.x, feet.y, 30f)), b = cam.WorldToScreenPoint(View25D.Above(feet.x, feet.y, 40f));
+            float ppu = Mathf.Abs(b.y - a.y) / 10f;
+            return ppu > 0.01f ? ppu : Screen.height / 216f;
         }
 
         /// <summary>Screen rect (GUI space) of the ring under your own hero (PlayerIndicatorRing, Width x Width/2 units around the feet).</summary>
