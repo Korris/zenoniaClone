@@ -2,6 +2,12 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 13:30 Warrior bỏ combo: 1 nhát nặng KHOÁ 1 quái + vệt chém ChatGPT (agent, branch `worktree-agent-a724fe152dcba7c22`, chờ merge)
+- Người dùng: "thêm 1 con agent làm hiệu ứng vệt chém slash vfx cho warrior ko làm combo attack nữa giờ là attack cứng lock target nhân vật chém vào 1 con quái duy nhất".
+- XONG: `ComboConfigs.WarriorHits` còn 1 nhát (120 + 90 + 190 ms, x1,75, không đẩy), bấm trong lúc chém thì chém tiếp; khoá quái (`Rpg/LockTargetRules.cs`, `HeroController.LockTarget.cs`): giữ quái đã khoá khi còn sống và trong tầm (Reach 34 + 8 từ ngực tới mép hộp), không thì quái gần nhất; quay mặt về nó theo mặt đất; chỉ quái đó mất máu. Vệt chém `WarriorLockSlashFx.cs` (ChatGPT Tan Pham, 4 frame, tool `Tools/build-warrior-lock-slash-vfx.py cut|preview|check`). Test 463 + 455 pass. Ảnh `docs/reference/warrior-lock-slash/`. Exe `C:/temp/player-lockslash/Zenonia.exe`. Báo cáo `plans/reports/warrior-slash-single-target-261120.md`.
+- Chat ChatGPT: Tan Pham https://chatgpt.com/c/6affde79-fbb0-83ec-9f29-83403e41d605 (Tay hết lượt tới 21:32, chat thử không ra ảnh https://chatgpt.com/c/6affdde3-0ae4-83ec-b352-863dbf4eab0d).
+- PHẢI build lại zone server (bảng combo dùng chung). Chưa xem online (server + client thật), chưa xem trên điện thoại. Frame đánh chéo lên của art Warrior kiếm chĩa sai phía (Sổ lỗi sprite-rules 20/11).
+
 ### 20/11 08:40 DỪNG GIỮA CHỪNG (người dùng tắt máy) - làm tiếp lần sau
 - **Bản thử 2.5D sân Hydra** (người dùng: "ok thử trên sân hydra"; mức 1 = giữ map 2D + sprite, camera nghiêng có phối cảnh, prop dựng đứng, bóng đổ, sương xa, cờ `--view25d`, chỉ hiển thị, không đổi server): code dở ở nhánh **`wip/proto-25d`** (98a2106a, chưa build, chưa xem trong game; có sửa `DamageNumber*.cs` nên khi gộp phải giữ thay đổi crit 55b802dc). Ảnh thử dở `docs/reference/proto-25d/` trên nhánh đó. Làm tiếp: build từ bản sao, chụp bật/tắt 2.5D, đo FPS trận 39 bot, viết `plans/reports/proto-25d-hydra-261120.md`, ước tính làm cho 14 map.
 - **Vẽ 40 quái thiết kế mới** theo `docs/monster-redesign-bible.md` (chưa bắt đầu pha ảnh): Tan Pham có lượt từ 09:17 20/11, Tay từ 21:32 20/11. Không cần duyệt concept.
