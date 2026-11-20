@@ -30,7 +30,7 @@ param(
   [int]$ZonePort = 7799,
   [int]$ApiPort = 3199,
   [int]$MongoPort = 27199,
-  [string]$Ui = "new",
+  [string]$Ui = "",           # "" = the game default (RO Soft Fantasy); new = the old Adventure Paper screens (UiScreens); old = classic
   [switch]$Party,
   [bool]$GodBots = $true,     # bots take no damage (test zone hook --wanted-god-bots)
   [switch]$GodHero,           # the window's hero takes no damage either (off by default)
@@ -144,7 +144,7 @@ try {
   Write-Host "swarm started ($Bots bots)"
 
   $env:ZENONIA_TEST_PASSWORD = $password
-  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero.Name, "--name", $hero.Name, "--wanted-boss", $Boss, "--wanted-hp-scale", $HpScale, "--ui", $Ui) + $(if ($Party) { @("--net-bot", "party", "--party-role", "joiner") } elseif ($Role) { @("--net-bot", "persist", "--persist-role", $Role, "--wanted-shots", "`"$OutDir\shots`"") } else { @("--net-bot", "persist", "--persist-role", "idle") }) + $ExtraArgs)
+  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero.Name, "--name", $hero.Name, "--wanted-boss", $Boss, "--wanted-hp-scale", $HpScale) + $(if ($Ui) { @("--ui", $Ui) } else { @() }) + $(if ($Party) { @("--net-bot", "party", "--party-role", "joiner") } elseif ($Role) { @("--net-bot", "persist", "--persist-role", $Role, "--wanted-shots", "`"$OutDir\shots`"") } else { @("--net-bot", "persist", "--persist-role", "idle") }) + $ExtraArgs)
   Remove-Item env:ZENONIA_TEST_PASSWORD
   $procs += $client
   Save-Pids
