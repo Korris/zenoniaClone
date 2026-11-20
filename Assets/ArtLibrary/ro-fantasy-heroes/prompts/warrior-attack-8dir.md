@@ -37,6 +37,23 @@ Mẫu prompt (thay <HƯỚNG> và câu mô tả hướng):
 > khép chặt như đang cầm chuôi (game gắn kiếm vào nắm tay PHẢI, khiên vào nắm tay TRÁI). Nắm tay phải luôn thấy rõ, không bị đầu che.
 > Tông RO Soft Fantasy: sáng, ấm, pastel dịu, viền nâu đậm mềm, đổ bóng mềm 2-3 cấp, không neon, không tông trầm tối.
 
+### Ảnh gửi kèm mỗi hướng (đã chuẩn bị 20/11 19:00)
+
+Ảnh 1 = idle CÙNG HƯỚNG `ref/warrior-attack8/idle-<hướng>.png` (cắt từ `src/body-warrior-idle-5dir-chatgpt-1.png`; 3 hướng trái là
+ảnh lật của hướng phải tương ứng, chỉ để làm mẫu cỡ), ảnh 2 = `docs/reference/hero-idle-down-5-classes.png`, ảnh 3-4 = ảnh tông
+`sample-hero-user-pick.png` + `01-style-board.png` (chỉ cần ở tin đầu của chat). Đo trên idle: đầu rộng 41-43 % chiều cao người
+(xuống 0,43, chéo xuống 0,42, ngang 0,41, chéo lên 0,42, lên 0,43).
+
+Câu mô tả hướng (thay <HƯỚNG>):
+- down: "nhìn XUỐNG về người xem, thấy mặt; kiếm (tay phải = bên TRÁI tranh) kéo lên sau vai phải rồi chém chéo xuống về phía người xem"
+- down-right: "nhìn chéo xuống-phải 3/4, thấy mặt, tay phải là tay GẦN người xem; chém chéo xuống-phải"
+- right: "nhìn ngang sang PHẢI, thấy 1 mắt, tay phải là tay GẦN người xem; chém ngang sang phải"
+- up-right: "3/4 LƯNG quay chéo lên-phải, thấy gáy, KHÔNG thấy mắt; tay phải ở bên PHẢI tranh, chém ra xa người xem về phía trên-phải"
+- up: "nhìn LÊN, thấy lưng + gáy, KHÔNG thấy mặt; tay phải ở bên PHẢI tranh, chém ra xa người xem"
+- up-left: "3/4 LƯNG quay chéo lên-trái, thấy gáy, KHÔNG thấy mắt; tay phải (cầm kiếm) ở bên PHẢI tranh, là tay XA, chém về phía trên-trái; KHÔNG lật ảnh hướng lên-phải"
+- left: "nhìn ngang sang TRÁI, thấy 1 mắt; tay PHẢI (cầm kiếm) là tay XA người xem, nằm sau thân, tay trái (khiên) GẦN người xem; chém ngang sang trái bằng tay xa; KHÔNG lật ảnh hướng phải"
+- down-left: "nhìn chéo xuống-trái 3/4, thấy mặt; tay PHẢI (cầm kiếm) là tay XA người xem; chém chéo xuống-trái bằng tay xa; KHÔNG lật ảnh hướng chéo xuống-phải"
+
 ## Cài sau khi có đủ 8 ảnh
 
 1. `python Tools/build-ro-fantasy-hero-game-assets.py write warrior`, `fists warrior`; đọc nắm tay trên
