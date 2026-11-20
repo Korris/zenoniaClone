@@ -3,6 +3,12 @@
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 20/11 19:40 Nhãn quái RO Soft: bỏ nền pill, chỉ còn chữ - XONG, đã xem ảnh offline
+- Người dùng: "chỗ tên và level của creep bỏ cái background màu xanh đi, chỉ hiện chữ thôi được rồi".
+- `Monster.RoFootLabel.cs`: bỏ tab `hud-lv-badge`; "Lv.N" vàng + tên trắng giữ nguyên cỡ / chỗ, thêm viền mực navy mảnh (8 bản chữ lệch 0,3 đơn vị, ~1,5 px ở 1080p) để đọc được trên tuyết và nền tối. Thanh máu, luật ẩn khi đông (`MonsterFootLabelCrowd.cs`) giữ nguyên (vùng chữ = khung chữ + viền). Nhãn Paper không đổi. Sổ lỗi `docs/ui-layout-rules.md`.
+- Ảnh trước / sau: `docs/reference/monster-label-ro/text-only-*.jpg` (Frost Hollow, Willowbrook, phóng 4x). Exe `D:/temp/player-moblabel2/Zenonia.exe`. Test 474 + 455 pass.
+- Chưa xem: map tối (hang, Emberfen), online, 2.5D (`--view25d`), PC layout / WebGL, điện thoại.
+
 ### 20/11 19:30 Hỏi ChatGPT: đổi sang style RO Soft Adventure cho FX kiểu RO3 đỡ chói? (CHỜ người dùng quyết)
 - Người dùng: "chắc có khi tui phải đổi về design fantasy adventure quá vì tông màu nó đỡ chói hơn ... soft fantasy này nếu làm hiệu ứng giống ragnarok 3 có vẻ khó nhìn". Gửi kèm `so-sanh-fantasy-vs-adventure/01-hud-boss-fight.jpg` + 3 ảnh `cleric-fx-ro3/`.
 - ChatGPT (Tay, chỉ chữ) https://chatgpt.com/c/6b003947-a9a8-83ec-a9bf-b60212cc8de1 : KHÔNG đổi hẳn sang Adventure; chọn "Soft Fantasy Darkened": giữ hero / quái / UI / icon, chỉ chỉnh màu LỚP MAP (không phủ cả camera): sáng -12..18 % (tuyết -15..22 %), bão hoà -5..12 %. Value nền: đá/cỏ 48-68 %, đường 60-76 %, tuyết 70-82 %, chân vách 35-52 %, lõi FX 90-100 %. FX: 70-85 % diện tích alpha-blend, 15-30 % additive; Bloom threshold 1,1-1,3, intensity 0,25-0,45. Màu Cleric: lõi #FFF4CC, thân #65CDA7, viền đậm #287B72 (2-3 px); Heal viền vàng mật ong #C99545, không phủ trắng đặc lên Cleric. 40 người: FX mình + mục tiêu 100 %, đồng đội 45-60 %, ngoài party 15-30 %. Theo ChatGPT, ~70 % lỗi do cách blend FX, ~30 % do nền.
