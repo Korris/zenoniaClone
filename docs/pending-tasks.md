@@ -2,6 +2,11 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 08:40 DỪNG GIỮA CHỪNG (người dùng tắt máy) - làm tiếp lần sau
+- **Bản thử 2.5D sân Hydra** (người dùng: "ok thử trên sân hydra"; mức 1 = giữ map 2D + sprite, camera nghiêng có phối cảnh, prop dựng đứng, bóng đổ, sương xa, cờ `--view25d`, chỉ hiển thị, không đổi server): code dở ở nhánh **`wip/proto-25d`** (98a2106a, chưa build, chưa xem trong game; có sửa `DamageNumber*.cs` nên khi gộp phải giữ thay đổi crit 55b802dc). Ảnh thử dở `docs/reference/proto-25d/` trên nhánh đó. Làm tiếp: build từ bản sao, chụp bật/tắt 2.5D, đo FPS trận 39 bot, viết `plans/reports/proto-25d-hydra-261120.md`, ước tính làm cho 14 map.
+- **Vẽ 40 quái thiết kế mới** theo `docs/monster-redesign-bible.md` (chưa bắt đầu pha ảnh): Tan Pham có lượt từ 09:17 20/11, Tay từ 21:32 20/11. Không cần duyệt concept.
+- Crit chỉ còn số vàng (55b802dc): chưa biên dịch / chưa xem trong game (Unity không mở lúc sửa).
+
 ### 20/11 07:00 Trả lại tên + level dưới chân quái (giao diện RO Soft) - XONG, đã xem ảnh offline
 - Người dùng: "mà sao bạn bỏ level, tên kế ống máu của quái vật rồi". Nhãn 17/11 chỉ có ở giao diện Paper; RO giờ có `Monster.RoFootLabel.cs` + `MonsterFootLabelCrowd.cs` (chi tiết: Sổ lỗi `docs/ui-layout-rules.md`). Ảnh `docs/reference/monster-label-ro/`. Exe `D:/temp/player-moblabel/Zenonia.exe`.
 - Chưa xem: online (quái proxy đi cùng đường `Render`, chưa chạy thử với server), PC layout, WebGL. Thanh máu + tên mình (IMGUI) vẫn có thể đè tab quái đứng ngay sau lưng mình.
