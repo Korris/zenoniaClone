@@ -172,6 +172,15 @@ namespace ZenoniaProto
             Add(new NetEvent { Type = NetEventType.HeroStatus, Id = h.NetId, Step = HeroStatusCode.Pack((int)kind, drained), Value = (uint)Mathf.Max(0f, msLeft) }, h.Position);
         }
 
+        /// <summary>A timed buff landed on hero `h` (applied / refreshed by `caster`; `source` = BuffSource byte, `msLeft` = its time on the server).
+        /// AOI around the hero, so every client that sees the hero can draw its status for the real time (ClericBuffStatusSource), not only
+        /// the hero's own client (SelfState).</summary>
+        public static void AllyBuff(HeroController h, HeroController caster, byte source, float msLeft)
+        {
+            if (!Active || h == null) return;
+            Add(new NetEvent { Type = NetEventType.AllyBuff, Id = h.NetId, Other = caster != null ? caster.NetId : (ushort)0, Step = source, Value = (uint)Mathf.Max(0f, msLeft) }, h.Position);
+        }
+
         /// <summary>A ranged monster's windup ended: its projectile leaves `from` flying along `angleDeg` (already rounded to the wire step). Clients
         /// fly the same picture from the monster's shared MonsterRangedProfile; the hit itself arrives as a HeroHit.</summary>
         public static void MonsterShot(Monster m, Vector2 from, float angleDeg)

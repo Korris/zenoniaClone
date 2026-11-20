@@ -42,7 +42,13 @@ namespace ZenoniaProto
             if (e.Buff.Kind == BuffKind.Shield) value = value / 100f * ctx.Body.SupportAtk; // shield = % of the CASTER's attack, stored as HP
             for (int i = 0; i < to.Count; i++)
             {
-                if (ctx.Authority) HeroBuffs.For(to[i]).Add(e.Buff.Kind, value, e.Buff.Ms, e.Count, BuffSource.Pack(ctx.Def.Class, ctx.Def.Index));
+                if (ctx.Authority)
+                {
+                    byte source = BuffSource.Pack(ctx.Def.Class, ctx.Def.Index);
+                    BuffState s = HeroBuffs.For(to[i]);
+                    s.Add(e.Buff.Kind, value, e.Buff.Ms, e.Count, source);
+                    NetEventBus.AllyBuff(to[i], ctx.Body.Hero, source, s.LeftMs(e.Buff.Kind)); // other clients see the buff's real time (status FX)
+                }
                 if (ctx.View) Sparkle(ctx, to[i]);
             }
             if (ctx.View) SkillSfx.Play(ctx, SkillSfx.Cast, 0.8f);

@@ -12,7 +12,8 @@ namespace ZenoniaProto
     /// One aura per hero and colour: a recast restarts it instead of stacking, and both colours layer. BuffState is not replicated, so an aura's end comes from the buff's time.
     /// Since 2026-11-20 Spirit Blessing draws with the RO3-style light FX (ClericBlessingLightFx: particles + shader quads, its gold frames were removed),
     /// and since that evening Divine Aegis too (ClericAegisLightFx); this class still runs the caster's raise-hand pose for both buffs, and the painted
-    /// blue Divine Aegis only with `--cleric-fx legacy` (or when the light shaders are missing).
+    /// blue Divine Aegis only with `--cleric-fx legacy` (or when the light shaders are missing). 2026-11-21: the light path draws the receive burst
+    /// (ClericBuffReceiveFx) and a maintained status per hero (ClericBuffStatusFx) that follows the buff's REAL time, not the cast's.
     /// </summary>
     public sealed class ClericBuffFx : MonoBehaviour
     {
@@ -68,6 +69,7 @@ namespace ZenoniaProto
             if (!NetMode.RendersFx) return;
             LoadLook(Blue); // Gold (Spirit Blessing) has no painted frames any more: ClericBlessingLightFx
             ClericLightLook.Load();
+            if (ClericLightLook.Enabled) ClericBuffStatusLook.Load(); // build the gold / blue status materials before the first cast
         }
 
         /// <summary>Starts the picture of a resolved cast. Copies the target list, because SkillSupport.Collect reuses its own.</summary>

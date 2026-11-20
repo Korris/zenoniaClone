@@ -140,6 +140,10 @@ namespace ZenoniaProto
                     stats.Add("heroStatusSeen", 1);
                     if (poisoned != null) poisoned.ProxyStatus(HeroStatusCode.Kind(e.Step), e.Value, HeroStatusCode.IsDrained(e.Step), t);
                     break;
+                case NetEventType.AllyBuff:
+                    HeroController buffed = HeroOf(e.Id);
+                    if (fx && buffed != null) ClericBuffStatusSource.OnNet(buffed, e.Step, e.Value, t);
+                    break;
                 case NetEventType.MonsterShot:
                     Monster shooterMonster = MonsterOf(e.Id);
                     if (fx && shooterMonster != null) shooterMonster.PlayRangedShot(at, NetQuantize.Angle(e.Angle));

@@ -11,8 +11,9 @@ namespace ZenoniaProto
     /// alpha body and keeps the additive part mostly green and low (Sổ lỗi 2026-11-19: bright additive on snow / a pale road burns to a white sheet);
     /// only small cores pass the bloom threshold. Textures: grey masks of Resources/Sprites/fx/light-skill (Tools/build-light-skill-textures.py,
     /// holy-cross and holy-rune added for these). `--cleric-fx legacy` keeps the old painted art.
-    /// 2026-11-20 evening: the three buffs (Heal, Spirit Blessing, Divine Aegis) use the Buff* / Aegis* set (Midgard Senki layering); Divine Light and
-    /// the basic attack keep the first jade set.
+    /// 2026-11-20 evening: the three buffs (Heal, Spirit Blessing, Divine Aegis) use the Buff* set (Midgard Senki layering); Divine Light and
+    /// the basic attack keep the first jade set. 2026-11-21: Spirit Blessing / Divine Aegis moved to the gold / blue ClericBuffStatusLook
+    /// (concept the user picked); Heal still uses Buff*.
     /// </summary>
     public static class ClericLightLook
     {
@@ -33,7 +34,7 @@ namespace ZenoniaProto
         /// small. Rings carry a bright ARC (LightBlob _Arc, angle set per renderer by ClericLightFx.Arc): only ~30 % of the ring glows at once, and the
         /// arc also lightens the body, so it reads and moves with Bloom off. Additive parts stay under the bloom threshold except the spark cores.
         /// </summary>
-        public static Material BuffHalo, BuffRing, BuffRune, BuffCross, BuffFlash, BuffColumn, BuffSpark, BuffMote, BuffTrail, BuffHead, AegisRim, AegisFace, AegisRune;
+        public static Material BuffHalo, BuffRing, BuffRune, BuffCross, BuffFlash, BuffColumn, BuffSpark, BuffMote, BuffTrail, BuffHead;
 
         /// <summary>Half width (rad) of a buff ring's bright arc: 2 x 0.94 rad = 30 % of the circle.</summary>
         public const float ArcHalfWidth = 0.94f;
@@ -149,14 +150,6 @@ namespace ZenoniaProto
             BuffTrail.SetColor("_EmissionColor", new Color(0.12f, 0.5f, 0.4f, 1f));
             BuffTrail.SetFloat("_CoreWhite", 0.15f);
             BuffTrail.SetColor("_BodyColor", A(Teal, 0.7f));
-
-            // Divine Aegis: teal shield rim (upright ellipse round the hero), a very thin see-through face (hollow: the centre, where the face is, stays
-            // clear), small cream runes on the rim. The rim's arc is the flash that runs round it on cast and on a blocked hit.
-            AegisRim = Blob("ClericAegis_Rim", band, 0f, tealGlow * 1.8f, 0f, A(Teal, 0.7f));
-            ArcOn(AegisRim, A(Halo, 0.7f), 0.2f);
-            AegisFace = Blob("ClericAegis_Face", Texture2D.whiteTexture, 0f, haloGlow * 0.6f, 0f, A(Teal2, 0.2f));
-            AegisFace.SetFloat("_Hollow", 1f);
-            AegisRune = Blob("ClericAegis_Rune", rune, 0f, goldGlow * 0.9f, 0.05f, A(Gold, 0.85f));
         }
 
         static void ArcOn(Material m, Color tint, float glowFloor)

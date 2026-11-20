@@ -4,7 +4,8 @@ All textures are grey masks on flat black (the shader reads only the red channel
 any of them later: `python Tools/build-light-skill-textures.py import <name> <png>` turns it grey, resizes and writes the game copy.
 
   gen [names...]           write procedural sources (Assets/ArtLibrary/fx/light-skill/*-procedural.png) + game copies
-  import <name> <png>      game copy from a painted source (name: beam-streaks | noise-clouds | meteor-core | burst-ring | portal-veil | portal-mote | venom-bubble | holy-cross | holy-rune)
+  import <name> <png>      game copy from a painted source (name: beam-streaks | noise-clouds | meteor-core | burst-ring | portal-veil | portal-mote | venom-bubble | holy-cross | holy-rune
+                           | buff-compass | buff-dome | buff-emblem-sword | buff-emblem-shield | buff-arrow: Cleric buff status, Tools/light_skill_textures_cleric_buff.py)
   preview                  docs/reference/light-skill-fx/textures-preview.png (each mask tiled 2x2 on dark and on snow)
 
 Game copies: Assets/Resources/Sprites/fx/light-skill/<name>.png (beam-streaks, noise-clouds: tileable, wrap Repeat in code).
@@ -14,6 +15,9 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import light_skill_textures_cleric_buff as cleric_buff  # noqa: E402  (Cleric ATK / DEF buff status masks, 2026-11-21)
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "Assets/ArtLibrary/fx/light-skill"
@@ -184,6 +188,8 @@ def holy_rune(s=512, seed=31):
 MAKERS = {"beam-streaks": beam_streaks, "noise-clouds": noise_clouds, "meteor-core": meteor_core, "burst-ring": burst_ring,
           "portal-veil": portal_veil, "portal-mote": portal_mote, "venom-bubble": venom_bubble,
           "holy-cross": holy_cross, "holy-rune": holy_rune}
+MAKERS.update(cleric_buff.MAKERS)
+GAME_SIZE.update(cleric_buff.GAME_SIZE)
 
 
 def save_grey(a, path, size=None):

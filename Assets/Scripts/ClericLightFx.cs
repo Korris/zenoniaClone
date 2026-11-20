@@ -13,12 +13,12 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class ClericLightFx : MonoBehaviour
     {
-        public enum Band { Ground, Over, Behind }
+        public enum Band { Ground, Over, Behind, Front } // Front: just over the followed hero's own layers (sorts with that hero, not over the whole crowd)
 
         sealed class Layer
         {
             public MeshRenderer R; public Band Band; public int Order;
-            public float T0, T1, W0, W1, H0, H1, Alpha, Spin, Rot;
+            public float T0, T1, W0, W1, H0, H1, Alpha, Spin, Rot, Rise;
             public Vector2 Offset;
             public bool Arc; public float ArcPhase, ArcSpeed, ArcFloor, ArcCount; // LightBlob bright arc running round a ring (Arc())
         }
@@ -34,6 +34,7 @@ namespace ZenoniaProto
         Vector2 anchor;
         float age, endMs;
         ParticleSystem motes, sparkles;
+        Material sparkMat, moteMat; // null = the jade ClericLightLook particles
 
         /// <summary>1 for the local player's own cast (or one landing on them), lower for everyone else.</summary>
         public float Dim { get; private set; }
@@ -91,6 +92,16 @@ namespace ZenoniaProto
             return this;
         }
 
+        /// <summary>The last added layer drifts up `dy` units over its life (same ease-out as its size): emblems, arrows.</summary>
+        public ClericLightFx Rise(float dy)
+        {
+            if (layers.Count > 0) layers[layers.Count - 1].Rise = dy;
+            return this;
+        }
+
+        /// <summary>Particle materials for this FX (call before the first Emit); default the jade ClericLightLook.Sparkle / Mote.</summary>
+        public ClericLightFx Particles(Material spark, Material mote) { sparkMat = spark; moteMat = mote; return this; }
+
         /// <summary>A quad flat on the ground: diameter d0 -> d1 (units), squash = height / width of the ellipse.</summary>
         public ClericLightFx Ground(Material m, float t0, float t1, float d0, float d1, float alpha, float squash = 0.9f, float spinDegPerSec = 0f, int order = 4, Vector2 offset = default(Vector2))
         {
@@ -121,7 +132,7 @@ namespace ZenoniaProto
             ParticleSystem ps = sparkle ? sparkles : motes;
             if (ps == null)
             {
-                ps = WantedFxParticles.Create(transform, sparkle ? "Sparkles" : "Motes", sparkle ? ClericLightLook.Sparkle : ClericLightLook.Mote, FeelConfig.FxOrder - 19, 96, 0f);
+                ps = WantedFxParticles.Create(transform, sparkle ? "Sparkles" : "Motes", sparkle ? (sparkMat != null ? sparkMat : ClericLightLook.Sparkle) : (moteMat != null ? moteMat : ClericLightLook.Mote), FeelConfig.FxOrder - 19, 96, 0f);
                 if (sparkle) sparkles = ps; else motes = ps;
             }
             WantedFxParticles.Emit(ps, pos, vel, size, new Color(c.r, c.g, c.b, c.a * Dim), life);
@@ -172,7 +183,7 @@ namespace ZenoniaProto
         void Lay()
         {
             Vector2 at = Anchor;
-            int behind = follow != null ? GameConfig.OrderBase(follow.Position.y) - 2 : 0;
+            int behind = follow != null ? GameConfig.OrderBase(follow.Position.y) - 2 : 0, front = follow != null ? behind + 10 : FeelConfig.FxOrder - 20;
             for (int i = 0; i < layers.Count; i++)
             {
                 Layer l = layers[i];
@@ -183,10 +194,10 @@ namespace ZenoniaProto
                 float grow = 1f - (1f - u) * (1f - u) * (1f - u);                                 // ease-out cubic
                 float fadeIn = Mathf.Clamp01((age - l.T0) / Mathf.Min(70f, (l.T1 - l.T0) * 0.25f));
                 float k = Mathf.Clamp01((u - 0.45f) / 0.55f), fadeOut = 1f - k * k * (3f - 2f * k);
-                l.R.transform.position = new Vector3(at.x + l.Offset.x, at.y + l.Offset.y, 0f);
+                l.R.transform.position = new Vector3(at.x + l.Offset.x, at.y + l.Offset.y + l.Rise * grow, 0f);
                 l.R.transform.localScale = new Vector3(Mathf.Lerp(l.W0, l.W1, grow), Mathf.Lerp(l.H0, l.H1, grow), 1f);
                 if (l.Spin != 0f) l.R.transform.localRotation = Quaternion.Euler(0f, 0f, l.Rot + l.Spin * age / 1000f);
-                l.R.sortingOrder = l.Band == Band.Ground ? UltimateFx.GroundFxOrder + l.Order : l.Band == Band.Over ? FeelConfig.FxOrder - 20 + l.Order : behind + l.Order;
+                l.R.sortingOrder = l.Band == Band.Ground ? UltimateFx.GroundFxOrder + l.Order : l.Band == Band.Over ? FeelConfig.FxOrder - 20 + l.Order : l.Band == Band.Front ? front + l.Order : behind + l.Order;
                 LightSkillAssets.Set(l.R, l.Alpha * fadeIn * fadeOut * Dim);
                 if (l.Arc)
                 {
