@@ -4,13 +4,13 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Crit "event" and finisher accents of the floating numbers (ChatGPT V3 "Comic Impact", mockup
-    /// ArtLibrary/ui/damage-font/damage-numbers-v2-mockup-chatgpt-1.png): hit flash + comic burst behind the crit number, CRITICAL
-    /// banner + sparks in front; small slash + ring behind finisher numbers; 2 sparks on heals. Art: Resources/Sprites/ui/damage-font/
+    /// ArtLibrary/ui/damage-font/damage-numbers-v2-mockup-chatgpt-1.png): sparks around the yellow crit number (burst and CRITICAL
+    /// banner dropped 20/11); small slash + ring behind finisher numbers; 2 sparks on heals. Art: Resources/Sprites/ui/damage-font/
     /// fx-*.png (Tools/build-damage-number-fx.py); a missing file only skips that layer. Also the plain-text fallback.
     /// </summary>
     public partial class DamageNumber
     {
-        static Texture2D burstTex, labelTex, slashTex, ringTex, flashTex;
+        static Texture2D slashTex, ringTex;
         static readonly Texture2D[] SparkTex = new Texture2D[4];
         static bool fxLoaded;
         GUIStyle plainStyle;
@@ -18,7 +18,7 @@ namespace ZenoniaProto
         static void LoadFx()
         {
             fxLoaded = true;
-            burstTex = Fx("crit-burst"); labelTex = Fx("critical-label"); slashTex = Fx("slash"); ringTex = Fx("finisher-ring"); flashTex = Fx("hit-flash");
+            slashTex = Fx("slash"); ringTex = Fx("finisher-ring");
             for (int i = 0; i < SparkTex.Length; i++) SparkTex[i] = Fx("spark-" + i);
         }
 
@@ -40,36 +40,10 @@ namespace ZenoniaProto
         static float EaseOut(float u) { u = Mathf.Clamp01(u); return 1f - (1f - u) * (1f - u); }
         static float Frac(float v) { return v - Mathf.Floor(v); }
 
-        /// <summary>Behind the crit: impact flash (0-120 ms) and the comic burst framing the number. Large burst (170 px at 720p,
-        /// at least 1.9x the number width) for the first crit in 300 ms, small (120 px, 1.4x) after; explodes with the number
-        /// (0-70 ms), holds while it is read, fades 300-450 ms.</summary>
-        static void DrawCritBehind(float cx, float cy, float ms, float digitPx, float textW, float seed, float alpha, bool big)
-        {
-            if (!FeelConfig.FxOn) return;
-            if (!fxLoaded) LoadFx();
-            float px = Screen.height / 720f;
-            if (ms < 120f) DrawCentered(flashTex, cx, cy, Mathf.Lerp(0.6f, 1.5f, EaseOut(ms / 120f)) * digitPx * 2f, seed * 90f, 1f - ms / 120f);
-            if (ms < 450f)
-            {
-                float w = big ? Mathf.Max(170f * px, textW * 1.9f) : Mathf.Max(120f * px, textW * 1.4f); // first in-game pass: the spec 125 / 90 px hid behind the digits
-                float s = ms < 70f ? Mathf.Lerp(0.4f, 1.12f, EaseOut(ms / 70f)) : Mathf.Lerp(1.12f, 1f, Mathf.Clamp01((ms - 70f) / 100f));
-                float a = ms < 300f ? 1f : 1f - (ms - 300f) / 150f;
-                DrawCentered(burstTex, cx, cy, w * s, (seed - 0.5f) * 10f, a * alpha);
-            }
-        }
-
-        /// <summary>In front of the crit: CRITICAL banner above the number (in at 70 ms with a pop, stays with it) and 5 sparks.</summary>
+        /// <summary>In front of the crit: 5 small sparks only. The CRITICAL banner and the comic burst were dropped (user 20/11:
+        /// "bỏ chữ critical ... chỉ hiện màu vàng là đủ"); the yellow crit digits carry it.</summary>
         static void DrawCritFront(float cx, float cy, float ms, float digitPx, float textW, float seed, float alpha)
         {
-            if (!FeelConfig.FxOn) return;
-            if (!fxLoaded) LoadFx();
-            if (ms >= 70f)
-            {
-                float s = ms < 140f ? Mathf.Lerp(0.5f, 1.15f, EaseOut((ms - 70f) / 70f)) : Mathf.Lerp(1.15f, 1f, Mathf.Clamp01((ms - 140f) / 80f));
-                float w = Mathf.Max(digitPx * 2.6f, textW * 0.9f) * s;
-                if (labelTex != null) DrawCentered(labelTex, cx - digitPx * 0.1f, cy - digitPx * 0.95f, w, -3f, alpha);
-                else DamageNumberFont.Draw("CRITICAL", null, cx, cy - digitPx * 0.8f, digitPx * 0.42f * s, alpha, Color.white);
-            }
             DrawSparks(cx, cy, ms, digitPx, seed, alpha, 5, 1f);
         }
 

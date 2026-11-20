@@ -63,12 +63,11 @@ namespace ZenoniaProto
             return new Vector2(sp.x, Screen.height - sp.y);
         }
 
-        /// <summary>Box of a number in 720p px: glyph run width + height; a crit also covers its burst and CRITICAL banner.</summary>
+        /// <summary>Box of a number in 720p px: glyph run width + height (a crit is only its digits since the burst / banner went, 20/11).</summary>
         static Vector2 BoxSize(ref Entry e)
         {
             float h = DamageNumberMotion.Of(e.Kind).HeightPx;
             float w = h * 0.62f * Mathf.Max(1, e.Text.Length) + 4f;
-            if (e.Kind == DamageNumberKind.Crit) return new Vector2(Mathf.Max(w, 110f), h * 2.1f);
             return new Vector2(w, h * 1.1f);
         }
 

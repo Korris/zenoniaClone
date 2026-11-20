@@ -99,8 +99,7 @@ namespace ZenoniaProto
             cy = Mathf.Max(cy, TopMarginPx * px); // never under the top HUD or off the screen
             float baseY = cy + cap * 0.5f; // the number is centred on its anchor, baseline half a cap below
             float textW = height * px * 0.62f * e.Text.Length; // rough run width for the crit frame sizes
-            if (e.Kind == DamageNumberKind.Crit) DrawCritBehind(cx, cy, t, height * px, textW, e.Seed, alpha, e.BigBurst);
-            else if (e.Kind == DamageNumberKind.Finisher) DrawFinisherBehind(cx, cy, t, height * px, e.Seed);
+            if (e.Kind == DamageNumberKind.Finisher) DrawFinisherBehind(cx, cy, t, height * px, e.Seed); // a crit is just its yellow number (user 20/11: no burst / CRITICAL banner)
             if (!DamageNumberFont.Draw(e.Text, m.Style, cx, baseY, cap, alpha, e.Kind == DamageNumberKind.Pet ? e.Color : Color.white)) // only a pet's number is tinted
                 DrawPlainText(e.Text, e.Color, cx, cy, height * m.Scale(t) * px, alpha);
             if (e.Kind == DamageNumberKind.Crit) DrawCritFront(cx, cy, t, height * px, textW, e.Seed, alpha);
