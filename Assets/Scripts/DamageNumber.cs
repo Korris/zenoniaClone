@@ -79,7 +79,7 @@ namespace ZenoniaProto
                 {
                     int i = (cursor + n) % Capacity;
                     if (!Pool[i].Active || Pool[i].AgeMs < 0f || (Pool[i].Kind == DamageNumberKind.Crit) != (pass == 1)) continue;
-                    Vector3 sp = cam.WorldToScreenPoint(new Vector3(Pool[i].X, Pool[i].Y, 0f));
+                    Vector3 sp = cam.WorldToScreenPoint(View25D.Label(Pool[i].X, Pool[i].Y));
                     if (sp.z < 0f) continue;
                     DrawEntry(ref Pool[i], sp.x, Screen.height - sp.y, px);
                 }

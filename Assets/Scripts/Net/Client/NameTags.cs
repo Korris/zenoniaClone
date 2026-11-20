@@ -57,7 +57,7 @@ namespace ZenoniaProto
             for (int i = 0; i < order.Count; i++)
             {
                 HeroController h = order[i];
-                Vector3 sp = cam.WorldToScreenPoint(new Vector3(h.Position.x, h.Position.y + 30f, 0f));
+                Vector3 sp = cam.WorldToScreenPoint(View25D.Above(h.Position.x, h.Position.y, 30f));
                 if (sp.z < 0f || sp.x < -80f || sp.x > Screen.width + 80f) continue;
                 Vector2 size = style.CalcSize(new GUIContent(h.PlayerName));
                 var rect = new Rect(0f, 0f, size.x + 4f, size.y);
@@ -93,7 +93,7 @@ namespace ZenoniaProto
 
         void DrawOwnName(Camera cam, HeroController me)
         {
-            Vector3 sp = cam.WorldToScreenPoint(new Vector3(me.Position.x, me.Position.y + 30f, 0f));
+            Vector3 sp = cam.WorldToScreenPoint(View25D.Above(me.Position.x, me.Position.y, 30f));
             if (sp.z < 0f) return;
             string name = OwnName(me);
             Vector2 size = style.CalcSize(new GUIContent(name));

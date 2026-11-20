@@ -59,6 +59,8 @@ namespace ZenoniaProto
             cam.backgroundColor = new Color(0.06f, 0.09f, 0.13f);
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 50f;
+            if (View25D.Active) View25DCamera.Configure(cam); // --view25d prototype on the Mire Hydra arena: tilted perspective view
+            else if (!cam.orthographic) View25DCamera.Restore(cam);
             if (Target != null) { pos = Clamp(TargetPos()); velocity = Vector2.zero; Apply(pos); }
         }
 
@@ -97,6 +99,7 @@ namespace ZenoniaProto
 
         Vector2 Clamp(Vector2 p)
         {
+            if (!cam.orthographic) return View25DCamera.Clamp(cam, p);
             float halfH = cam.orthographicSize;
             float halfW = halfH * cam.aspect;
             p.x = GameConfig.MapW <= halfW * 2f ? GameConfig.MapW * 0.5f : Mathf.Clamp(p.x, halfW, GameConfig.MapW - halfW);
@@ -106,6 +109,7 @@ namespace ZenoniaProto
 
         void Apply(Vector2 p)
         {
+            if (!cam.orthographic) { View25DCamera.Place(cam, p); return; }
             transform.position = new Vector3(p.x, p.y, -10f);
         }
 

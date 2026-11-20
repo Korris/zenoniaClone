@@ -59,7 +59,7 @@ namespace ZenoniaProto
 
         static Vector2 GuiPoint(Camera c, float x, float y)
         {
-            Vector3 sp = c.WorldToScreenPoint(new Vector3(x, y, 0f));
+            Vector3 sp = c.WorldToScreenPoint(View25D.Label(x, y));
             return new Vector2(sp.x, Screen.height - sp.y);
         }
 
