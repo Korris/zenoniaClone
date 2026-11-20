@@ -130,7 +130,7 @@ namespace ZenoniaProto
                 StartHit(canChain ? lastStep + 1 : 1);
                 return true;
             }
-            if (step < hits.Length) queued = true;
+            if (step < hits.Length || hits.Length == 1) queued = true; // a one-step chain (Warrior lock slash) buffers the next slash
             return false;
         }
 
@@ -180,10 +180,10 @@ namespace ZenoniaProto
         {
             int finished = step;
             bool isLast = finished >= hits.Length;
-            if (queued && !isLast)
+            if (queued && (!isLast || hits.Length == 1))
             {
                 lastStep = finished;
-                StartHit(finished + 1);
+                StartHit(isLast ? 1 : finished + 1); // one-step chain: the buffered press repeats the slash
                 return;
             }
             phase = ComboPhase.Idle;

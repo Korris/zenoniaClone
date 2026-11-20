@@ -12,6 +12,7 @@ namespace ZenoniaProto
             ComboHit h = combo.CurrentHit;
             if (h == null) return;
             if (h.Bolt != null) { FireBolt(h, step); return; }
+            if (cls.LockTargetMelee) { LockStrike(h, step); return; } // Warrior: one locked monster, no cleave box (HeroController.LockTarget.cs)
             MeleeStrike(h, step, false);
             if (h.Stabs > 1) { stabLeft = StabGapMs; stabHit = h; stabStep = step; } // double stab: the next stab lands 90 ms later
         }

@@ -5,7 +5,12 @@
 ### 20/11 12:45 Bản thử 2.5D sân Hydra - ĐÃ merge `wip/proto-25d`, build, chụp, đo FPS (chờ người dùng quyết làm tiếp)
 - Người dùng: "merge vào di rồi làm tiếp 2.5d cho map có boss hydra queen". Sửa lỗi mất tóc ở 2.5D (sort mode camera). Exe `C:/temp/player-25d/Zenonia.exe` (`--view25d`). Ảnh `docs/reference/proto-25d/hydra-*.jpg`. Báo cáo + FPS (+1,2 đến 1,6 ms/khung với 40 hero) + ước tính 14 map + 3 câu hỏi: `plans/reports/proto-25d-hydra-261120.md`.
 - Chưa: đo điện thoại / WebGL, map khác. Crit 55b802dc đã biên dịch được (build 0 lỗi) nhưng chưa soi riêng số crit.
-- Agent khác (worktree riêng) đang làm: Warrior bỏ combo, đánh thường khoá 1 mục tiêu + vệt chém VFX (người dùng 20/11 12:30).
+
+### 20/11 13:30 Warrior bỏ combo: 1 nhát nặng KHOÁ 1 quái + vệt chém ChatGPT (agent, ĐÃ merge vào `ro-fantasy-heroes`)
+- Người dùng: "thêm 1 con agent làm hiệu ứng vệt chém slash vfx cho warrior ko làm combo attack nữa giờ là attack cứng lock target nhân vật chém vào 1 con quái duy nhất".
+- XONG: `ComboConfigs.WarriorHits` còn 1 nhát (120 + 90 + 190 ms, x1,75, không đẩy), bấm trong lúc chém thì chém tiếp; khoá quái (`Rpg/LockTargetRules.cs`, `HeroController.LockTarget.cs`): giữ quái đã khoá khi còn sống và trong tầm (Reach 34 + 8 từ ngực tới mép hộp), không thì quái gần nhất; quay mặt về nó theo mặt đất; chỉ quái đó mất máu. Vệt chém `WarriorLockSlashFx.cs` (ChatGPT Tan Pham, 4 frame, tool `Tools/build-warrior-lock-slash-vfx.py cut|preview|check`). Test 463 + 455 pass. Ảnh `docs/reference/warrior-lock-slash/`. Exe `C:/temp/player-lockslash/Zenonia.exe`. Báo cáo `plans/reports/warrior-slash-single-target-261120.md`.
+- Chat ChatGPT: Tan Pham https://chatgpt.com/c/6affde79-fbb0-83ec-9f29-83403e41d605 (Tay hết lượt tới 21:32, chat thử không ra ảnh https://chatgpt.com/c/6affdde3-0ae4-83ec-b352-863dbf4eab0d).
+- PHẢI build lại zone server (bảng combo dùng chung). Chưa xem online (server + client thật), chưa xem trên điện thoại. Frame đánh chéo lên của art Warrior kiếm chĩa sai phía (Sổ lỗi sprite-rules 20/11).
 
 ### 20/11 08:40 DỪNG GIỮA CHỪNG (người dùng tắt máy) - làm tiếp lần sau
 - **Vẽ 40 quái thiết kế mới** theo `docs/monster-redesign-bible.md` (chưa bắt đầu pha ảnh): Tan Pham có lượt từ 09:17 20/11, Tay từ 21:32 20/11. Không cần duyệt concept.

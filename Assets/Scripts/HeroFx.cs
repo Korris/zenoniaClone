@@ -32,6 +32,15 @@ namespace ZenoniaProto
             SwordTrail.Spawn(feet.x, feet.y + lift, trailAngle, h.Reach, finisher, trailFlip, cls.Palette);
         }
 
+        /// <summary>Lock-target slash (Warrior since 2026-11-20): one whoosh + the painted slash trail aimed at the locked monster (`dist` = chest to it, 0 = none).</summary>
+        public static void LockSlash(HeroClassDef cls, Vector2 feet, float angle, float dist, float figureScale)
+        {
+            if (!NetMode.RendersFx) return;
+            ClassSfx.Swing(cls.Id, 4, false); // the heavy whoosh of the old finisher, without its shout (it would play every 400 ms)
+            if (WarriorLockSlashFx.Ready) { WarriorLockSlashFx.Spawn(feet, angle, dist, figureScale); return; }
+            SlashEffect.Spawn(feet.x + Mathf.Cos(angle * Mathf.Deg2Rad) * 20f, feet.y + 6f + Mathf.Sin(angle * Mathf.Deg2Rad) * 20f, angle, 1.5f, false, false, FeelConfig.FxOrder); // art missing: the old slash
+        }
+
         /// <summary>
         /// Rising slash (Warrior hit 3): the arc stands on the weapon side and runs from low to high, instead of across the facing.
         /// The trail ribbon runs from +span to -span (clockwise) unless reversed. Facing down the sword is on screen-left (art of melee3up),

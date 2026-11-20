@@ -43,6 +43,7 @@ namespace ZenoniaProto
         public float MaxHp, Atk, Def, Speed;
         public ComboHit[] Hits;
         public float ChainMs;
+        public bool LockTargetMelee;           // basic attack locks ONE monster, turns to it and hits only it (Warrior since 2026-11-20, HeroController.LockTarget.cs)
         public GearPartSpec[] Parts;
         public float CritBonus;                                // added to the base crit chance (assassin)
         public ClassPalette Palette = ClassPalette.Neutral;   // colour identity of the basic-attack FX
@@ -61,12 +62,12 @@ namespace ZenoniaProto
 
         public static readonly HeroClassDef Warrior = new HeroClassDef
         {
-            Id = HeroClass.Warrior, Name = "Warrior", Tagline = "Sword master. Tough, fast combos up close.", ComboLabel = "4-hit sword combo",
+            Id = HeroClass.Warrior, Name = "Warrior", Tagline = "Sword master. Tough, heavy blows up close.", ComboLabel = "Heavy locked slash on one foe",
             BigIdleDown = "classes/warrior/body/armed/idle-down-big", SheetFolder = "classes/warrior/body/armed", BareFolder = "classes/warrior/body/bare", HandFolder = "classes/warrior/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "attack3", "melee1", "melee2", "melee3", "melee4", "melee1lr", "melee2rl", "melee3up" }, GearFile = "classes/warrior/held-gear", FxFolder = null, Palette = ClassPalette.Red,
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
             ComboAnims = new[] { "melee1lr", "melee2rl", "melee3up", "melee4" }, RisingStep = 3, // slash left -> right, slash right -> left, rising slash, jump cleave (Tools/build-warrior-combo-directions.py; old melee1-3 kept, Earth Break borrows melee1)
             ExtraAnims = new[] { InfernoCrashUltimate.PoseAnim, BerserkerAwakeningFx.PoseAnim, "melee1", "melee3" }, // melee1: Earth Break swing, melee3: Blade Cyclone spin (no longer combo hits)
-            MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f, WalkCycleMs = 640f, // 4 pose walk sheet, slowed so each pose reads; the feet slide a little at Speed 80
+            MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f, LockTargetMelee = true, WalkCycleMs = 640f, // 4 pose walk sheet, slowed so each pose reads; the feet slide a little at Speed 80
             Parts = new[] { new GearPartSpec("shield", "classes/warrior/weapons/shield", 0.8f), new GearPartSpec("sword", "classes/warrior/weapons/sword", 2f, 0.85f, true) },
             SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = 1450f, SkillIcon = 4, DashIcon = 7, // bladeStorm, dashStrike
         };
