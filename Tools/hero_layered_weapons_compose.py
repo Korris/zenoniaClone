@@ -25,13 +25,17 @@ def frame(root, ctx, anim, d8, f, hair_hex, outfit_hex, hat=None):
         cache[anim] = tuple(np.asarray(Image.open(p).convert("RGBA")) for p in (base / f"{anim}.png", base / f"{anim}-mask.png", hand))
     sheet, mask, hands = cache[anim]
     cw, ch = bj["cellW"], bj["cellH"]
-    row, mirror = cc.PAINTED_ROW[d8], d8 >= 5
+    all_dirs = sheet.shape[0] >= 8 * ch  # anim painted for all 8 dirs (HeroLayeredSet.AllDirs): row = d8, never mirrored
+    row, mirror = (d8, False) if all_dirs else (cc.PAINTED_ROW[d8], d8 >= 5)
     sl = (slice(row * ch, (row + 1) * ch), slice(f * cw, (f + 1) * cw))
     body = Image.fromarray(core.recolour(sheet[sl], mask[sl], None, outfit_hex))
     hand = Image.fromarray(hands[sl])
     if mirror:
         body, hand = body.transpose(Image.FLIP_LEFT_RIGHT), hand.transpose(Image.FLIP_LEFT_RIGHT)
     h = heads[(anim, row, f)]
+    hrow, hflip = cc.PAINTED_ROW[d8], d8 >= 5  # hair / hat strips: 5 cells, left dirs mirrored, seated on this row's anchor
+    if all_dirs and hflip:
+        h = dict(h, x=cw - h["x"])  # cc.place mirrors the anchor back: lands on the painted (unmirrored) skull
     layers = {}
     for part in ("weapon", "offhand"):
         g = grips.get((part, anim, d8, f))
@@ -45,11 +49,11 @@ def frame(root, ctx, anim, d8, f, hair_hex, outfit_hex, hat=None):
             out.alpha_composite(layers[part][0])
     out.alpha_composite(body)
     if hat is None or not hat[0].get("hidesHair"):
-        cc.place(out, core.recolour(hair, None, hair_hex, None, hair_all=True), he, h, row, mirror, 0.0, cw, ch)
+        cc.place(out, core.recolour(hair, None, hair_hex, None, hair_all=True), he, h, hrow, hflip, 0.0, cw, ch)
     if acc is not None and hat is None:
-        cc.place(out, acc, he, h, row, mirror, 0.0, cw, ch)
+        cc.place(out, acc, he, h, hrow, hflip, 0.0, cw, ch)
     if hat is not None:
-        cc.place(out, hat[1], hat[0], h, row, mirror, hat[0]["drop"] * h["w"], cw, ch)
+        cc.place(out, hat[1], hat[0], h, hrow, hflip, hat[0]["drop"] * h["w"], cw, ch)
     for part in ("weapon", "offhand"):
         if part in layers and not layers[part][1] and not layers[part][2]:
             out.alpha_composite(layers[part][0])

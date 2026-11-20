@@ -21,8 +21,14 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "Assets/ArtLibrary/ro-fantasy-heroes/src"
 CW, CH, FEET, BALD_PX, PAINTED = 320, 256, 244, 188, 5
 DRAWN = ["down", "down-right", "right", "up-right", "up"]
+# attack painted for all 8 Dir8 dirs (Warrior 20/11: the left dirs keep the sword in the right hand, a mirrored right row swaps the hands);
+# sources may pair any two of them (e.g. body-warrior-attack-left--up-left-chatgpt-1.png). Rows then follow Dir8 order.
+DRAWN8 = DRAWN + ["up-left", "left", "down-left"]
+MIRROR_OF = [0, 1, 2, 3, 4, 3, 2, 1]  # Dir8 -> the painted right-side row with the same view (idle skull width reference)
 MOTIONS = [("walk", 4), ("attack", 4)]  # one lock-target attack per class (user 19/11), no attack1-3
 CLASSES = ["warrior", "wizard", "mechanic", "assassin", "cleric"]
+# 8-frame attack (20/11, smooth chop: 4 key poses + in-betweens over the same 400 ms): ONE direction per image, 2 rows x 4 = frames 0-3, 4-7
+ATTACK8F_RE = re.compile(r"^body-(?P<c>[a-z]+)-attack-(?P<d>[a-z-]+?)-8f-chatgpt-(?P<n>\d+)\.png$")
 MOTION_RE = re.compile(r"^body-(?P<c>[a-z]+)-(?P<anim>walk|attack)-(?P<a>[a-z-]+)--(?P<b>[a-z-]+)-chatgpt-(?P<n>\d+)\.png$")
 
 art_check = import_module("build-ro-fantasy-hero-art-check")  # load_rgba: green key + white letterbox + green iris refill
@@ -133,16 +139,27 @@ def motion_rows(cls, idle_figs):
         key = (m["anim"], m["a"], m["b"])
         if key not in found or int(m["n"]) > found[key][0]:
             found[key] = (int(m["n"]), path)
+    found8 = {}
+    for path in sorted(SRC.glob(f"body-{cls}-attack-*-8f-chatgpt-*.png")):
+        m = ATTACK8F_RE.match(path.name)
+        if m and m["c"] == cls and m["d"] in DRAWN8 and (m["d"] not in found8 or int(m["n"]) > found8[m["d"]][0]):
+            found8[m["d"]] = (int(m["n"]), path)
     out = {}
     for anim, n in MOTIONS:
         by_dir = {}
+        if anim == "attack" and found8:  # 8-frame sources win over the 4-frame pairs
+            found = {("attack", d, "none"): v for d, v in found8.items()}
+            n = 8
         for (a, da, db), (_, path) in sorted(found.items()):
             if a != anim:
                 continue
             dirs = [d for d in (da, db) if d != "none"]
-            rows = [[despeck(f) for f in row] for row in sheets_tool.rows_of(path, n, len(dirs))]
+            if n == 8:  # one direction: both painted rows are its frames 0-3, 4-7
+                rows = [[despeck(f) for row in sheets_tool.rows_of(path, 4, 2) for f in row]]
+            else:
+                rows = [[despeck(f) for f in row] for row in sheets_tool.rows_of(path, n, len(dirs))]
             for d, row in zip(dirs, rows):
-                fig_i = idle_figs[DRAWN.index(d)]
+                fig_i = idle_figs[MIRROR_OF[DRAWN8.index(d)]]
                 # idle_figs are the cropped idle cells (already at game scale): attacks keep the idle skull width, walks the idle height
                 fix = (cls, anim, d) in head_fix.HEAD_FIX
                 if anim == "walk" or fix:  # head-fix rows: body on the idle height, then the head alone to the idle skull width
@@ -155,7 +172,10 @@ def motion_rows(cls, idle_figs):
                     cells = [head_fix.scale_head(c, k, *sheets_tool.head_anchor(c)[1:3]) for c in cells]
                     print(f"{cls} {anim} {d}: head x{k:.3f} (body on the idle height)")
                 by_dir[d] = cells
-        if all(d in by_dir for d in DRAWN):
+        if anim == "attack" and all(d in by_dir for d in DRAWN8):
+            out[anim] = [by_dir[d] for d in DRAWN8]
+            print(f"{cls} {anim}: all 8 dirs painted (left rows not mirrored)")
+        elif all(d in by_dir for d in DRAWN):
             out[anim] = [by_dir[d] for d in DRAWN]
             print(f"{cls} {anim}: cut from {len(found)} source file(s)")
         elif by_dir:
@@ -184,7 +204,7 @@ def head_anchors(frames):
 
 def sheet_of(rows):
     n = len(rows[0])
-    sheet = Image.new("RGBA", (CW * n, CH * PAINTED))
+    sheet = Image.new("RGBA", (CW * n, CH * len(rows)))  # 5 painted rows, or 8 (Dir8 order) for an all-dirs attack
     for r, row in enumerate(rows):
         for f, c in enumerate(row):
             sheet.alpha_composite(c, (f * CW, r * CH))

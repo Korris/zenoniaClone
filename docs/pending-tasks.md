@@ -2,6 +2,13 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 15:30 Warrior vẽ lại đòn chém RO Fantasy 8 hướng x 8 frame (agent) - CHỜ ẢNH ChatGPT
+- Lý do: art đánh cũ là cú đấm tay không gắn kiếm (trông như nhảy), hướng lên kiếm chĩa ngang, 3 hướng trái lật ảnh nên tay KHIÊN vung còn kiếm nằm ở hông. Người dùng: thêm frame được, ưu tiên chém mượt thật.
+- XONG (code, chưa có art): renderer vẽ được anim có 8 hàng thân (`HeroLayeredSet.AllDirs`, `HeroLayeredView`: hàng = Dir8, không lật; tóc/mũ vẫn ô lật trên anchor của hàng); tool nhận ảnh 8 frame mỗi hướng `body-warrior-attack-<hướng>-8f-chatgpt-N.png` (`ro_fantasy_body_cut.py`), grip kiếm/khiên từng hàng (`Tools/ro_fantasy_attack8_grips.py`: `FISTS`, `SWORD`, `SWORD_BEHIND`), ảnh check offline vẽ đúng hàng trái. Chạy thử cả đường ống bằng ảnh giả (đã xoá).
+- Đạo diễn động tác + prompt 8 ảnh + cách cài: `Assets/ArtLibrary/ro-fantasy-heroes/prompts/warrior-attack-8dir.md`. Chat (Tay, chỉ chữ): https://chatgpt.com/c/6afffe9b-6ea4-83ec-8332-cef3cf9d50b2
+- CHẶN: Tay hết lượt vẽ tới 21:32; trình duyệt đang dùng chỉ đăng nhập Tay (Tan Pham ở trình duyệt khác, cần người dùng chọn). Chưa build, chưa xem trong game.
+- Lưu ý: `write`/`grips` của tool RO Fantasy ghi lại cả idle/walk và lệch vài px so với bản commit kể cả khi tool không đổi: khi cài chỉ giữ phần attack.
+
 ### 20/11 12:45 Bản thử 2.5D sân Hydra - ĐÃ merge `wip/proto-25d`, build, chụp, đo FPS (chờ người dùng quyết làm tiếp)
 - Người dùng: "merge vào di rồi làm tiếp 2.5d cho map có boss hydra queen". Sửa lỗi mất tóc ở 2.5D (sort mode camera). Exe `C:/temp/player-25d/Zenonia.exe` (`--view25d`). Ảnh `docs/reference/proto-25d/hydra-*.jpg`. Báo cáo + FPS (+1,2 đến 1,6 ms/khung với 40 hero) + ước tính 14 map + 3 câu hỏi: `plans/reports/proto-25d-hydra-261120.md`.
 - Chưa: đo điện thoại / WebGL, map khác. Crit 55b802dc đã biên dịch được (build 0 lỗi) nhưng chưa soi riêng số crit.

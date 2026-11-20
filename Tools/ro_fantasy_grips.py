@@ -72,7 +72,8 @@ def body(cls):
     cells = {}
     for anim, n in anims:
         sh = Image.open(SPR / cls / "body" / f"{anim}.png").convert("RGBA")
-        cells[anim] = [[sh.crop((f * CW, r * CH, (f + 1) * CW, (r + 1) * CH)) for f in range(n)] for r in range(PAINTED)]
+        rows = sh.height // CH  # 5 painted rows, or 8 (Dir8 order) for an all-dirs attack
+        cells[anim] = [[sh.crop((f * CW, r * CH, (f + 1) * CW, (r + 1) * CH)) for f in range(n)] for r in range(rows)]
     return anims, heads, cells
 
 
@@ -81,11 +82,19 @@ def table_of(cls):
     out = {}
     for anim, n in anims:
         rows = []
-        for r in range(PAINTED):
+        for r in range(len(cells[anim])):
             row, prev = [], None
             for f in range(n):
-                t = hf.assign(hf.fists(cells[anim][r][f], None), r, heads[(anim, r, f)]["x"], prev)
-                t.update({k: list(v) for k, v in OVERRIDES.get((cls, anim, r, f), {}).items()})
+                if r < PAINTED:
+                    t = hf.assign(hf.fists(cells[anim][r][f], None), r, heads[(anim, r, f)]["x"], prev)
+                else:  # painted left row: detect on the flipped cell as its right-side twin, then flip back and swap the hands
+                    m = cells[anim][r][f].transpose(Image.FLIP_LEFT_RIGHT)
+                    t = hf.assign(hf.fists(m, None), bc.MIRROR_OF[r], CW - heads[(anim, r, f)]["x"], None)
+                    t = {("L" if k == "R" else "R"): (CW - v[0], v[1], v[2]) for k, v in t.items()}
+                ov = OVERRIDES.get((cls, anim, r, f), {})
+                if len(cells[anim]) == 8:  # all-dirs attack art: its own fist fixes (the 5-row OVERRIDES belong to the old 4-frame art)
+                    ov = import_module("ro_fantasy_attack8_grips").FISTS.get((cls, r, f), {})
+                t.update({k: list(v) for k, v in ov.items()})
                 row.append({k: [round(float(v[0]), 1), round(float(v[1]), 1), bool(v[2])] for k, v in t.items()})
                 prev = t
             rows.append(row)
@@ -102,9 +111,10 @@ def cmd_fists(cls):
     X0, X1, Y0, Y1, S = 70, 250, 90, 250, 4  # the arms' area, 4x, a numbered grid every 10 cell px (read fists on it, not on a shrunk view)
     cw, ch = (X1 - X0) * S, (Y1 - Y0) * S
     for anim, n in anims:
-        img = Image.new("RGBA", (n * cw, PAINTED * ch), (200, 210, 190, 255))
+        nr = len(cells[anim])
+        img = Image.new("RGBA", (n * cw, nr * ch), (200, 210, 190, 255))
         d = ImageDraw.Draw(img)
-        for r in range(PAINTED):
+        for r in range(nr):
             for f in range(n):
                 ox, oy = f * cw, r * ch
                 img.alpha_composite(cells[anim][r][f].crop((X0, Y0, X1, Y1)).resize((cw, ch), Image.NEAREST), (ox, oy))
@@ -131,8 +141,9 @@ def hand_sheet(table, anims, cells, cls):
     import_module("build-hero-layered-game-assets").mkdirs(out_dir)
     yy, xx = np.mgrid[0:CH, 0:CW]
     for anim, n in anims:
-        sheet = np.zeros((CH * PAINTED, CW * n, 4), np.uint8)
-        for r in range(PAINTED):
+        nr = len(cells[anim])
+        sheet = np.zeros((CH * nr, CW * n, 4), np.uint8)
+        for r in range(nr):
             for f in range(n):
                 a = np.asarray(cells[anim][r][f])
                 m = np.zeros((CH, CW), bool)
@@ -160,6 +171,8 @@ def cmd_grips(cls):
     cj["weapons"], cj["grips"] = poses.class_grips(ROOT, cls, table, heads, cells)
     if cls == "warrior":
         sword_down(cj, poses)
+        if len(cells.get("attack", [])) == 8:
+            import_module("ro_fantasy_attack8_grips").apply(cj, table["attack"], heads, cells["attack"], poses)
     if cls == "wizard":
         steady_staff(cj)
     if cls == "cleric":  # walk: same front / behind flip as the Wizard; side view head further ahead so the wings clear the chin

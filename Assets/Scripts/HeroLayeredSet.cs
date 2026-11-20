@@ -94,6 +94,16 @@ namespace ZenoniaProto
         }
 
         public Sprite[][] BodyGrid(string anim) { return Grid(sheets + anim); }
+
+        readonly Dictionary<string, bool> allDirs = new Dictionary<string, bool>();
+        /// <summary>The anim's body sheet has a row for each of the 8 Dir8 dirs (left dirs painted, not mirrored), head anchors and hand rows likewise.</summary>
+        public bool AllDirs(string anim)
+        {
+            bool v;
+            if (allDirs.TryGetValue(anim, out v)) return v;
+            Sprite[][] g = BodyGrid(anim);
+            return allDirs[anim] = g != null && g.Length >= 8;
+        }
         public Sprite[][] HandGrid(string anim) { return SpriteSheet.TryLoad(sheets + "hand/" + anim) != null ? Grid(sheets + "hand/" + anim) : null; }
         public Texture2D Mask(string anim) { return SpriteSheet.TryLoad(sheets + anim + "-mask"); }
 
