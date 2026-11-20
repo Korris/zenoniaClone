@@ -13,7 +13,7 @@ namespace ZenoniaProto
         const float SparkleTiles = 2.4f;
         static readonly List<HeroController> Targets = new List<HeroController>(8);
 
-        /// <summary>Heroes an Ally effect reaches: allies inside the circle, else the locked ally, else the caster. Non-ally effects: the caster only.</summary>
+        /// <summary>Heroes an Ally effect reaches: allies inside the circle, else the locked ally (plus the caster for a LowestAlly heal), else the caster. Non-ally effects: the caster only.</summary>
         public static List<HeroController> Collect(SkillContext ctx, SkillEffect e)
         {
             Targets.Clear();
@@ -26,7 +26,12 @@ namespace ZenoniaProto
                 foreach (HeroController h in SkillAim.Heroes(ctx.Body))
                     if (h != null && !h.IsDead && PartyAllies.Are(self, h) && (h.Position - c).sqrMagnitude <= r * r) Targets.Add(h);
             }
-            else Targets.Add(ctx.Ally != null ? ctx.Ally : self);
+            else
+            {
+                HeroController target = ctx.Ally != null ? ctx.Ally : self;
+                Targets.Add(target);
+                if (ctx.Def.Targeting == SkillTargeting.LowestAlly && self != null && target != self) Targets.Add(self); // LowestAllyHealRule: the caster is healed too
+            }
             return Targets;
         }
 

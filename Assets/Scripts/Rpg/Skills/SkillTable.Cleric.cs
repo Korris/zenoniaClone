@@ -7,7 +7,7 @@ namespace ZenoniaProto.Rpg
             const string C = "cleric";
             return new[]
             {
-                // Redone Heal: 220% ATK on the lowest-HP ally within 6 tiles (the caster counts).
+                // Redone Heal: 220% ATK on the lowest-HP ally within 6 tiles, and always on the caster too (LowestAllyHealRule, 2026-11-20).
                 Def(C, 0, "Heal", 1, 12, 5f, SkillTargeting.LowestAlly, Fx(HealFx(220f)), targetRange: 6f),
                 Def(C, 1, "Spirit Blessing", 8, 18, 18f, SkillTargeting.Self, Fx(BuffFx(BuffKind.AtkPct, 15f, 12000, ally: true, radius: 4f)), Req(0, 3)),
                 Def(C, 2, "Divine Aegis", 15, 20, 18f, SkillTargeting.Self, Fx(BuffFx(BuffKind.DefPct, 15f, 12000, ally: true, radius: 4f)), Req(0, 5)),

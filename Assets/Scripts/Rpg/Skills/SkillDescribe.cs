@@ -233,7 +233,7 @@ namespace ZenoniaProto.Rpg
         static string Heal(SkillDef d, SkillEffect e, int rank)
         {
             string amount = " for " + Atk(d.PctAt(e, rank));
-            if (d.Targeting == SkillTargeting.LowestAlly) return "Heal the lowest-HP ally within " + Tiles(d.TargetRange) + amount;
+            if (d.Targeting == SkillTargeting.LowestAlly) return "Heal yourself and the lowest-HP ally within " + Tiles(d.TargetRange) + amount;
             if (e.Radius <= 0f) return "Heal yourself" + amount;
             return e.Range > 0f ? "Heal allies in a " + Num(e.Radius) + "-tile circle " + Tiles(e.Range) + " ahead" + amount : "Heal you and allies within " + Tiles(e.Radius) + amount;
         }

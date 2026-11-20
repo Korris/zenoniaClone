@@ -50,7 +50,7 @@ namespace ZenoniaProto
             else if (def.Targeting == SkillTargeting.LowestAlly)
             {
                 ctx.Ally = LowestAlly(body, reach);
-                if (ctx.Ally == null) return null; // nobody hurt in range: no cost
+                if (ctx.Ally == null) return null; // only a body without a hero (never a Cleric): nothing to heal
             }
             ctx.Dmg = SkillDamageCtx.For(body.Hero, def.DamageMul(ctx.Rank), body.Palette);
             ctx.Dmg.Atk = body.Atk;
@@ -73,18 +73,26 @@ namespace ZenoniaProto
             return best;
         }
 
-        /// <summary>Hurt ally (the caster included) with the lowest HP fraction within reach; null when all of them are at full HP.</summary>
+        static readonly System.Collections.Generic.List<HeroController> AllyPool = new System.Collections.Generic.List<HeroController>(8);
+        static readonly System.Collections.Generic.List<float> FracPool = new System.Collections.Generic.List<float>(8);
+
+        /// <summary>Hurt ally (the caster included) with the lowest HP fraction within reach, else the caster itself (LowestAllyHealRule: the heal always
+        /// reaches the caster, 2026-11-20). Null only for a body without a hero.</summary>
         static HeroController LowestAlly(ISkillBody body, float reach)
         {
-            HeroController best = null;
-            float bestFrac = 0.999f;
+            HeroController self = body.Hero;
+            if (self == null) return null;
+            AllyPool.Clear(); FracPool.Clear();
+            int caster = -1;
             foreach (HeroController h in Heroes(body))
             {
-                if (h == null || h.IsDead || !PartyAllies.Are(body.Hero, h) || (h.Position - body.Feet).sqrMagnitude > reach * reach) continue;
-                float frac = h.Hp / Mathf.Max(1f, h.MaxHp);
-                if (frac < bestFrac) { bestFrac = frac; best = h; }
+                if (h == null || h.IsDead || !PartyAllies.Are(self, h) || (h.Position - body.Feet).sqrMagnitude > reach * reach) continue;
+                if (h == self) caster = AllyPool.Count;
+                AllyPool.Add(h);
+                FracPool.Add(h.Hp / Mathf.Max(1f, h.MaxHp));
             }
-            return best;
+            if (caster < 0) { caster = AllyPool.Count; AllyPool.Add(self); FracPool.Add(self.Hp / Mathf.Max(1f, self.MaxHp)); }
+            return AllyPool[LowestAllyHealRule.PickTarget(FracPool, caster)];
         }
 
         /// <summary>Every hero of the zone (ally effects check PartyAllies on each); just the caster outside a zone.</summary>
