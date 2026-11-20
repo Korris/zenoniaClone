@@ -3,6 +3,10 @@
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 20/11 17:30 Dọn asset không dùng (agent, XONG, commit afbf6e19)
+- Người dùng: "xoa nhung file assets đang ko dùng tới trong repo này". Xoá 956 file (~500 MB cây làm việc): `Assets/ArtLibrary/hd` (trừ `hd/map/frost-hollow` + `hd/map/willowbrook-meadows` tool còn đọc), 46 ảnh `docs/reference` không doc nào nhắc (biến thể Wizard đã bỏ, `hero-layered-farm/`, `village-compare-*`), 4 ảnh thả ở gốc repo. Không đụng Resources / Scripts nên game không đổi; build + chụp 5 class / 5 map OK.
+- Báo cáo + lệnh khôi phục + danh sách CHƯA CHẮC (chưa xoá, chờ người dùng): `plans/reports/asset-cleanup-261120.md`.
+
 ### 20/11 12:45 Bản thử 2.5D sân Hydra - ĐÃ merge `wip/proto-25d`, build, chụp, đo FPS (chờ người dùng quyết làm tiếp)
 - Người dùng: "merge vào di rồi làm tiếp 2.5d cho map có boss hydra queen". Sửa lỗi mất tóc ở 2.5D (sort mode camera). Exe `C:/temp/player-25d/Zenonia.exe` (`--view25d`). Ảnh `docs/reference/proto-25d/hydra-*.jpg`. Báo cáo + FPS (+1,2 đến 1,6 ms/khung với 40 hero) + ước tính 14 map + 3 câu hỏi: `plans/reports/proto-25d-hydra-261120.md`.
 - Chưa: đo điện thoại / WebGL, map khác. Crit 55b802dc đã biên dịch được (build 0 lỗi) nhưng chưa soi riêng số crit.
