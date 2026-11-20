@@ -8,6 +8,8 @@ Trả lời người dùng bằng tiếng Việt.
 
 **Trước mọi việc về sprite nhân vật, vũ khí hay hiệu ứng, kể cả khi giao cho agent: đọc hết `docs/sprite-rules.md` rồi mới làm.** Khi giao agent, ghi rõ yêu cầu này trong brief.
 
+**Hiệu ứng skill / đòn đánh KHÔNG làm bằng sprite nữa (người dùng chốt 20/11):** làm như RO Mobile / RO3: Particle System (tia lửa, khói bụi, luồng gió), Mesh Trail (vệt chém uốn theo đường kiếm), shader (Bloom, Distortion, Dissolve). Chi tiết đầu `docs/sprite-rules.md`.
+
 - Mỗi lỗi sprite hoặc VFX mới phải ghi ngay vào mục "Sổ lỗi" của file đó, kèm nguyên nhân và cách sửa.
 - Những lỗi đã gây mất thời gian nhất:
   - Vũ khí đè lên tay, sai hướng, đổi tay khi quay trái, đổi cỡ giữa lúc cầm và lúc đánh.
