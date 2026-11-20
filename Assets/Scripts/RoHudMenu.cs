@@ -88,7 +88,7 @@ namespace ZenoniaProto
         /// </summary>
         public void Fit(float rowRight, float safeW)
         {
-            float leftLimit = RoHud.Margin + RoHud.StatusPlateX + RoHud.StatusPlateW + 8f, rowW = CellX(4) + Pitch * 0.5f;
+            float leftLimit = RoHud.StatusRight + 8f, rowW = CellX(4) + Pitch * 0.5f;
             float s = Mathf.Clamp((safeW - leftLimit - rowRight) / rowW, 0.7f, 1f);
             if (Mathf.Abs(root.offsetMax.x + rowRight) > 0.5f) root.offsetMax = new Vector2(-rowRight, root.offsetMax.y);
             if (Mathf.Abs(root.localScale.x - s) > 0.005f) root.localScale = new Vector3(s, s, 1f);

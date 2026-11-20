@@ -12,10 +12,12 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class RoHudStatus
     {
-        const float RowX = 92f, LabelW = 34f, BarX = RowX + LabelW, BarW = 182f, BarH = 18f, RowTop = 36f, RowPitch = 23f;
-        const float PlateTop = 16f, LvX = 90f, LvY = 6f, LvW = 72f, LvH = 24f;
+        // Compact layout from ChatGPT (20/11, docs/reference/hud-compact-player-panel/), units from Root's top-left (Root sits at
+        // Margin, 4): portrait 64, plate 218x69, bars 154x14 at pitch 20, labels 12, values 11, Lv 13, buff cells 20.
+        const float PortraitY = 2f, RowX = 72f, LabelW = 30f, BarX = RowX + LabelW, BarW = 154f, BarH = 14f, RowTop = 26f, RowPitch = 20f;
+        const float PlateTop = 15f, LvX = 69f, LvY = 4f, LvW = 65f, LvH = 21f;
         /// <summary>Top of the status icon row, units below the top of the safe area (RoHudParty starts under it).</summary>
-        public const float IconsTop = PlateTop + RoHud.StatusPlateH + 4f, IconSize = 24f;
+        public const float IconsTop = PlateTop + RoHud.StatusPlateH + 4f, IconSize = 20f;
         public const float Bottom = IconsTop + IconSize + 4f; // the seconds badges hang 4 under the cells
 
         public readonly RectTransform Root;
@@ -39,7 +41,7 @@ namespace ZenoniaProto
             RoHud.Art(plate, "hud-status-plate");
 
             // Portrait: the round mask with its opaque sky gradient, the hero's face layers, the ring with its star on top.
-            RectTransform ring = RoHud.TopLeftBox(Root, "Portrait", 0f, 0f, RoHud.PortraitSize, RoHud.PortraitSize);
+            RectTransform ring = RoHud.TopLeftBox(Root, "Portrait", 0f, PortraitY, RoHud.PortraitSize, RoHud.PortraitSize);
             RectTransform m = RoHudPortraits.Frame(ring); // the disc fills the ring's hole: no map shows through (user 20/11)
             face = UiKit.Fill(m, "Face").gameObject.AddComponent<Image>();
             face.raycastTarget = false;
@@ -51,7 +53,8 @@ namespace ZenoniaProto
             NameTags.Occlude(ring); NameTags.Occlude(plate); // a hero walking under the HUD: its IMGUI name tag / role shield stays off the portrait
 
             RectTransform lv;
-            level = RoHud.Pill(Root, "Level", RoHud.TopLeft, RoHud.TopLeft, LvX, -LvY, LvH, "hud-lv-badge", null, 0f, "Lv. 1", 14, RoHud.TextOnNavy, out lv, LvW);
+            level = RoHud.Pill(Root, "Level", RoHud.TopLeft, RoHud.TopLeft, LvX, -LvY, LvH, "hud-lv-badge", null, 0f, "Lv. 1", 13, RoHud.TextOnNavy, out lv, LvW);
+            lv.GetComponent<Image>().pixelsPerUnitMultiplier = 44f / LvH; // hud-lv-badge is 44 px high: round ends at this height
 
             hp = Row("Hp", 0, "HP", "hud-bar-red", out hpText);
             mp = Row("Mp", 1, "MP", "hud-bar-blue", out mpText);
@@ -64,9 +67,9 @@ namespace ZenoniaProto
         RoHud.Bar Row(string name, int i, string caption, string fill, out Text value)
         {
             float y = RowTop + i * RowPitch;
-            RoHud.Label(RoHud.TopLeftBox(Root, name + "Label", RowX, y - 1f, LabelW, BarH + 2f), caption, 14, RoHud.Ink, TextAnchor.MiddleLeft);
+            RoHud.Label(RoHud.TopLeftBox(Root, name + "Label", RowX, y - 1f, LabelW, BarH + 2f), caption, 12, RoHud.Ink, TextAnchor.MiddleLeft);
             var bar = new RoHud.Bar(Root, name, BarX, y, BarW, BarH, "hud-bar-track", fill);
-            value = RoHud.Label(UiKit.Fill(bar.Root, "Value"), "", 13, Color.white, TextAnchor.MiddleCenter, true, true);
+            value = RoHud.Label(UiKit.Fill(bar.Root, "Value"), "", 11, Color.white, TextAnchor.MiddleCenter, true, true);
             return bar;
         }
 

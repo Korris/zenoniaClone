@@ -36,6 +36,8 @@ param(
   [switch]$GodHero,           # the window's hero takes no damage either (off by default)
   [bool]$Formation = $true,   # bots hold ring slots around the boss by class reach (swarm --formation): melee close, Wizard / Cleric, then Mechanic outside
   [string]$Role = "",         # a persist role for the window instead of "idle", e.g. wanted-showcase (shots into OutDir\shots)
+  [int]$ScreenW = 1280,       # the client window size (other aspects: 1024x768, 1280x720, 1560x720 phone)
+  [int]$ScreenH = 853,
   [string[]]$ExtraArgs = @(), # more client window arguments, e.g. -ExtraArgs "--view25d","--fps-log"
   [switch]$Stop
 )
@@ -144,7 +146,7 @@ try {
   Write-Host "swarm started ($Bots bots)"
 
   $env:ZENONIA_TEST_PASSWORD = $password
-  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", 1280, "-screen-height", 853, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero.Name, "--name", $hero.Name, "--wanted-boss", $Boss, "--wanted-hp-scale", $HpScale) + $(if ($Ui) { @("--ui", $Ui) } else { @() }) + $(if ($Party) { @("--net-bot", "party", "--party-role", "joiner") } elseif ($Role) { @("--net-bot", "persist", "--persist-role", $Role, "--wanted-shots", "`"$OutDir\shots`"") } else { @("--net-bot", "persist", "--persist-role", "idle") }) + $ExtraArgs)
+  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", $ScreenW, "-screen-height", $ScreenH, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero.Name, "--name", $hero.Name, "--wanted-boss", $Boss, "--wanted-hp-scale", $HpScale) + $(if ($Ui) { @("--ui", $Ui) } else { @() }) + $(if ($Party) { @("--net-bot", "party", "--party-role", "joiner") } elseif ($Role) { @("--net-bot", "persist", "--persist-role", $Role, "--wanted-shots", "`"$OutDir\shots`"") } else { @("--net-bot", "persist", "--persist-role", "idle") }) + $ExtraArgs)
   Remove-Item env:ZENONIA_TEST_PASSWORD
   $procs += $client
   Save-Pids

@@ -32,7 +32,10 @@ namespace ZenoniaProto
         // ---- layout (canvas units from the safe-area corner the piece is anchored to) ----
         public const float Margin = 8f;
         // top-left
-        public const float PortraitSize = 92f, StatusPlateX = 58f, StatusPlateW = 256f, StatusPlateH = 96f;
+        // compact sizes from ChatGPT (20/11, docs/reference/hud-compact-player-panel/): the old 92 / 256x96 covered the boss bar on 4:3
+        public const float PortraitSize = 64f, StatusPlateX = 50f, StatusPlateW = 218f, StatusPlateH = 69f;
+        /// <summary>Right edge of the status plate from the safe area's left (the menu row and the boss bar stay right of it).</summary>
+        public const float StatusRight = Margin + StatusPlateX + StatusPlateW;
         // top-right column
         public const float PillTop = 6f, PillH = 26f, MinimapSize = 150f, MinimapTop = PillTop + PillH + 2f, MinimapRight = 12f;
         public const float WantedTop = MinimapTop + MinimapSize + 6f, WantedW = 204f, WantedH = 100f;

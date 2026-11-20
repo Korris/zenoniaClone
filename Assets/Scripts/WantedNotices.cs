@@ -9,12 +9,11 @@ namespace ZenoniaProto
     /// <summary>
     /// Raises the Wanted notices from what the client sees and shows them one at a time by priority:
     ///   WARNING (near the boss, 2 s) > bounty panel (until OK) > "X has returned!" (4 s) > "A Wanted Boss lurks in this area." (3 s)
-    ///   > "Today's Wanted" on arrival (5 s) > "Already claimed today - no bounty." (2.5 s)
+    ///   > "Already claimed today - no bounty." (2.5 s). "Today's Wanted" (Login) is no longer raised (user 20/11): the WANTED card shows it.
     /// One banner occupies the toast area; a higher one arriving replaces it, lower ones wait (one pending per kind). While the bounty panel is
     /// open only WARNING may show. Ordinary toasts (pickups ...) wait in their own queue meanwhile (NotificationToast.Suspended), so nothing overlaps.
     /// WARNING swallows a waiting / showing area notice: walking in beside the boss gives one message, not two.
     /// Triggers, all read from the client's own state (nothing is sent):
-    ///   Login    the status became known, or names another boss / day, and this hero is not paid yet
     ///   Respawn  status Alive false -> true (hero not paid yet)
     ///   Area     the hero arrived on the boss's map while it stands (hero not paid yet)
     ///   Warning  Hud.BarBoss() became the Wanted boss: the same radius as the boss bar
@@ -119,8 +118,9 @@ namespace ZenoniaProto
             float now = Time.unscaledTime;
             if (!known || s.BossType != lastBoss || s.DayKey != lastDay)
             {
+                // No "Today's Wanted" card on arrival any more (user 20/11: "bỏ hiện cái popup ở giữa today wanted đi"): today's boss stays
+                // on the WANTED card under the minimap (RoHudWanted) and the Wanted Board; the Login look is kept but never raised.
                 known = true; lastBoss = s.BossType; lastDay = s.DayKey; lastAlive = s.Alive;
-                if (!claimed) Enqueue(WantedNotice.Login, today);
             }
             else if (s.Alive != lastAlive)
             {
