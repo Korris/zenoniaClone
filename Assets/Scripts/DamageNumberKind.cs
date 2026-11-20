@@ -31,11 +31,14 @@ namespace ZenoniaProto
             // 95 ms pop so a hit every 35-65 ms does not leave a crowd of numbers all scaling at once. Sizes 30 / 42 / 52 px and ~1 s of life
             // (numbers pile up into a dense column, user 17/11 "ben ragnarok dam no ra day dac"): as big as
             // Ragnarok Midgard Senki's (user OK 2026-11-17, docs/reference/midgard-senki-damage-numbers/).
-            t[(int)DamageNumberKind.Normal] = Make("normal", 1000f, 700f, 22f, 30f, new[] { 0f, 50f, 95f }, new[] { 0.8f, 1.08f, 1f });
-            t[(int)DamageNumberKind.Finisher] = Make("normal", 1100f, 800f, 28f, 42f, new[] { 0f, 70f, 135f }, new[] { 0.65f, 1.3f, 1f }); // white like normal hits (user 15/11), still bigger with ring + slash
-            // crit: 0.55 -> 1.45 in 70 ms, back to 1.0 by 160 ms with a +-3 px shake, read hold to 310 ms, then rise 46 px
-            t[(int)DamageNumberKind.Crit] = Make(null, 1150f, 850f, 30f, 52f, new[] { 0f, 70f, 160f }, new[] { 0.55f, 1.45f, 1f });
-            t[(int)DamageNumberKind.Crit].RiseDelayMs = 310f;
+            // 20/11 same-spot stack (ChatGPT RO-style spec, DamageNumber.Stream.cs): 650 ms life, solid to 350 ms, rise 48 px ease-out cubic,
+            // pop 0.8 -> 1.15 -> 1.0 in 120 ms. A hit 400 ms later spawns at the same point while this one is ~45 px up: a vertical stack, no dodge.
+            // Size stays 30 px (user OK 17/11, Midgard Senki size) instead of ChatGPT's 24 px.
+            t[(int)DamageNumberKind.Normal] = Make("normal", 650f, 350f, 48f, 30f, new[] { 0f, 60f, 120f }, new[] { 0.8f, 1.15f, 1f });
+            t[(int)DamageNumberKind.Finisher] = Make("normal", 750f, 420f, 52f, 42f, new[] { 0f, 70f, 135f }, new[] { 0.65f, 1.3f, 1f }); // white like normal hits (user 15/11), still bigger with ring + slash
+            // crit: 0.55 -> 1.45 in 70 ms, back to 1.0 by 160 ms with a +-3 px shake, short read hold, then rise 60 px; 850 ms life (ChatGPT 20/11)
+            t[(int)DamageNumberKind.Crit] = Make(null, 850f, 600f, 60f, 52f, new[] { 0f, 70f, 160f }, new[] { 0.55f, 1.45f, 1f });
+            t[(int)DamageNumberKind.Crit].RiseDelayMs = 120f;
             t[(int)DamageNumberKind.Crit].ShakeXPx = 3f; t[(int)DamageNumberKind.Crit].ShakeYPx = 2f; t[(int)DamageNumberKind.Crit].ShakeMs = 170f;
             t[(int)DamageNumberKind.Other] = Make("other", 500f, 300f, 22f, 21f, new[] { 0f, 120f }, new[] { 0.9f, 1f });
             t[(int)DamageNumberKind.Other].Alpha = 0.85f;
@@ -71,11 +74,12 @@ namespace ZenoniaProto
             return ScaleKeys[n - 1];
         }
 
-        /// <summary>Upward screen offset in px (720 p): ease-out quad after the hold (RiseDelayMs).</summary>
+        /// <summary>Upward screen offset in px (720 p): ease-out cubic after the hold (RiseDelayMs).</summary>
         public float Rise(float ms)
         {
             float u = Mathf.Clamp01((ms - RiseDelayMs) / (LifeMs - RiseDelayMs));
-            return RisePx * (1f - (1f - u) * (1f - u));
+            float v = 1f - u;
+            return RisePx * (1f - v * v * v); // ease-out cubic (ChatGPT 20/11)
         }
 
         /// <summary>Opacity: full until FadeFromMs, then ease-in quad to 0 at LifeMs; times the kind's max alpha.</summary>

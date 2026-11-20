@@ -1,44 +1,34 @@
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace ZenoniaProto
 {
     /// <summary>
-    /// "Damage Stream" (ChatGPT V3 Multi-Hit Barrage, docs/reference/warrior-skill-redesign-v2-chatgpt.md): the plain hits on one monster climb two
-    /// zigzag columns of 24 fixed slots above its head instead of searching for free space, so a fast multi-hit skill reads as one pouring stream.
-    /// Numbers may overlap (that is the effect); the newest draws on top. A monster's slot counter restarts after 1.2 s without a hit.
-    /// Crits and finishers keep the normal layout (centre, they push the others aside).
+    /// Same-spot stack for your own hits on one monster (ChatGPT, RO-style spec 2026-11-20, chat "So sánh số sát thương RPG",
+    /// https://chatgpt.com/c/6b0015c8-84c8-83ec-9236-67e79b0751b7): every hit pops at the same point above the monster, with no sideways dodge;
+    /// older numbers keep rising and fading, so hits 400 ms apart read as a vertical stack on their own. At most 3 plain numbers live per
+    /// monster: a 4th fades the oldest out in 80 ms. Crits use the same point and draw on top (second pass in DamageNumber).
+    /// Replaces the two-column zigzag "Damage Stream" of the old multi-hit combo (user 20/11: "2 số dam kế nhau, đáng nhẽ phải nhảy cùng 1 chỗ").
     /// </summary>
     public partial class DamageNumber
     {
-        const int StreamSlots = 24; // a tall column like Ragnarok Midgard Senki's
-        const float StreamResetSeconds = 1.2f, StreamStepPx = 11f, StreamNearPx = 24f, StreamFarPx = 32f; // scaled with the 30 px numbers
-
-        struct StreamState { public int Index; public float LastAt; }
-
-        static readonly Dictionary<object, StreamState> Streams = new Dictionary<object, StreamState>();
+        const int MaxPlainPerTarget = 3;
+        const float CullFadeMs = 80f;
 
         static void StreamPlace(ref Entry e, object key)
         {
-            float now = Time.unscaledTime;
-            StreamState st;
-            if (!Streams.TryGetValue(key, out st) || now - st.LastAt > StreamResetSeconds) st.Index = 0;
-            int slot = st.Index % StreamSlots, row = slot / 2;
-            e.OffX = (slot % 2 == 0 ? -1f : 1f) * (row % 2 == 0 ? StreamNearPx : StreamFarPx);
-            e.OffY = slot * StreamStepPx;
-            st.Index++;
-            st.LastAt = now;
-            Streams[key] = st;
-            if (Streams.Count > 64) PruneStreams(now); // dead monsters leave their keys behind
-        }
-
-        static readonly List<object> Stale = new List<object>();
-
-        static void PruneStreams(float now)
-        {
-            Stale.Clear();
-            foreach (KeyValuePair<object, StreamState> kv in Streams) if (now - kv.Value.LastAt > StreamResetSeconds) Stale.Add(kv.Key);
-            foreach (object k in Stale) Streams.Remove(k);
+            e.OffX = 0f;
+            e.OffY = 0f;
+            e.Key = key;
+            if (e.Kind == DamageNumberKind.Crit) return; // crits are never culled and never cull
+            int live = 0, oldest = -1;
+            float oldestAge = -1f;
+            for (int i = 0; i < Capacity; i++)
+            {
+                if (!Pool[i].Active || Pool[i].Kind == DamageNumberKind.Crit || !ReferenceEquals(Pool[i].Key, key)) continue;
+                live++;
+                if (Pool[i].AgeMs > oldestAge) { oldestAge = Pool[i].AgeMs; oldest = i; }
+            }
+            if (live < MaxPlainPerTarget || oldest < 0) return;
+            float life = DamageNumberMotion.Of(Pool[oldest].Kind).LifeMs;
+            if (Pool[oldest].AgeMs < life - CullFadeMs) Pool[oldest].AgeMs = life - CullFadeMs; // fade out fast instead of popping away
         }
     }
 }

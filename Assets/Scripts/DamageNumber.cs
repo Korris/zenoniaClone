@@ -24,6 +24,7 @@ namespace ZenoniaProto
             public float OffX, OffY;   // layout offset in 720p px (OffY up)
             public bool BigBurst;      // crit: the first crit within 300 ms gets the large burst (V3)
             public float Seed;         // per-number random (slash angle, spark directions)
+            public object Key;         // the monster your own hit landed on (same-spot stack, DamageNumber.Stream.cs), else null
             public DamageNumberKind Kind;
         }
 
@@ -39,9 +40,10 @@ namespace ZenoniaProto
             if (instance == null) return;
             DamageNumberKind kind = DamageNumberMotion.Classify(text, color, big, crit && FeelConfig.FxOn, faint);
             if (kind == DamageNumberKind.Exp && MergeExp(text)) return;
-            if ((kind == DamageNumberKind.Other || kind == DamageNumberKind.OtherHurt) && CountActive(DamageNumberKind.Other, DamageNumberKind.OtherHurt) >= 4) return; // spec: at most 4 numbers from other players
+            // Other players' hits and the boss hitting other players are hidden (ChatGPT RO-style spec 20/11, 40-player raids stay readable).
+            if (kind == DamageNumberKind.Other || kind == DamageNumberKind.OtherHurt) return;
             var e = new Entry { Active = true, Text = text, Color = color, X = x, Y = y, Kind = kind, Seed = Random.value };
-            if (stream != null && kind == DamageNumberKind.Normal) StreamPlace(ref e, stream);
+            if (stream != null && (kind == DamageNumberKind.Normal || kind == DamageNumberKind.Finisher || kind == DamageNumberKind.Crit)) StreamPlace(ref e, stream);
             else if (!Place(ref e)) return;
             if (kind == DamageNumberKind.Crit) e.BigBurst = !RecentCrit(500f); // one big burst per 500 ms: a barrage crits often (ChatGPT V3)
             cursor = (cursor + 1) % Capacity; // overwrite the oldest slot when saturated
@@ -50,8 +52,7 @@ namespace ZenoniaProto
 
         public static void ResetState()
         {
-            for (int i = 0; i < Capacity; i++) Pool[i].Active = false;
-            Streams.Clear();
+            for (int i = 0; i < Capacity; i++) { Pool[i].Active = false; Pool[i].Key = null; }
         }
 
         void Awake() { instance = this; }
