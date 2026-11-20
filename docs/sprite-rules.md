@@ -4,6 +4,8 @@
 
 **Bắt buộc đọc hết file này trước khi làm bất cứ việc gì về sprite hoặc VFX, kể cả khi giao cho agent.** Mỗi khi phát hiện lỗi sprite mới, ghi ngay vào mục "Sổ lỗi" và thêm quy tắc nếu chưa có.
 
+**Hướng VFX từ 2026-11-20 (người dùng chốt): KHÔNG làm hiệu ứng skill / đòn đánh dạng sprite (frame vẽ sẵn) nữa.** Vệt chém, vụ nổ, luồng phép làm bằng Particle System kết hợp Mesh Trail (dải lụa 3D uốn theo đường kiếm) và shader (biến dạng không gian / distortion, phát sáng Bloom, hoà tan Dissolve). Texture nhỏ cho hạt / dải trail (noise, gradient, mask) vẫn dùng được; ChatGPT vẫn là nơi lấy hướng nhìn (màu, hình dáng, nhịp), nhưng không vẽ frame VFX để cắt sheet. VFX sprite đang có (ví dụ `WarriorLockSlashFx` / `fx/attack/lock-slash.png`, các `*Fx.cs` theo sheet) giữ tạm, khi sửa thì chuyển sang cách mới. Thời gian hiệu ứng vẫn phải khớp `SkillTable` / `ComboConfigs`. Quy tắc này chỉ áp cho hiệu ứng; sprite nhân vật, quái, vũ khí, đồ vẫn là sprite.
+
 Áp dụng mỗi khi vẽ lại, cắt lại, thêm sprite nhân vật hoặc vũ khí. Lập ngày 2026-10-31, sau các lỗi Warrior phát hiện khi chơi thử.
 
 ## Cách hero được vẽ
