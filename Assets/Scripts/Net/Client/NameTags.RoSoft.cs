@@ -77,7 +77,7 @@ namespace ZenoniaProto
             foreach (TownNpc n in TownNpc.Villagers)
             {
                 if (n == null || n.Def == null) continue;
-                Vector3 sp = cam.WorldToScreenPoint(new Vector3(n.Feet.x, n.Feet.y + VillagerHeadY, 0f));
+                Vector3 sp = cam.WorldToScreenPoint(View25D.Above(n.Feet.x, n.Feet.y, VillagerHeadY));
                 if (sp.z < 0f || sp.x < -100f || sp.x > Screen.width + 100f || sp.y < -40f || sp.y > Screen.height + 40f) continue;
                 var label = new GUIContent(n.Def.Name);
                 float tw = pillText.CalcSize(label).x, w = pad + icon + gap + tw + pad;

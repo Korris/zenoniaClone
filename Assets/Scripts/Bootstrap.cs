@@ -98,6 +98,8 @@ namespace ZenoniaProto
             var bloom = cam.GetComponent<BloomEffect>();
             if (bloom == null) bloom = cam.gameObject.AddComponent<BloomEffect>();
             root.AddComponent<FeelHotkeys>().Init(bloom);
+            View25DWorld.AttachIfRequested(root, cam); // --view25d: fake 2.5D prototype on the Mire Hydra arena (after bloom: the atmosphere pass runs last)
+            FpsLog.AttachIfRequested(root);           // --fps-log: uncapped frame rate, average logged every 5 s
 
             root.AddComponent<Hud>();
             RpgHud.Create(root.transform);

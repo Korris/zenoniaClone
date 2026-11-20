@@ -46,6 +46,9 @@ namespace ZenoniaProto
             return r;
         }
 
+        /// <summary>The pet flying with hero `h`, or null (View25DWorld stands it up as a billboard).</summary>
+        public static HeroPet Of(HeroController h) { HeroPet p; return h != null && ByHero.TryGetValue(h, out p) ? p : null; }
+
         void OnDestroy() { HeroPet p; if ((object)hero != null && ByHero.TryGetValue(hero, out p) && p == this) ByHero.Remove(hero); } // (object): a destroyed hero still has to leave the table (sprite-rules VFX 11)
 
         /// <summary>Where this hero's pet is drawn (its projectiles start there); null without a drawn pet.</summary>

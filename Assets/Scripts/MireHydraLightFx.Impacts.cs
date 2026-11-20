@@ -104,6 +104,7 @@ namespace ZenoniaProto
                 column = LightSkillAssets.Quad(transform, "Geyser", MireHydraFxLook.Column, true, order);
                 columnCore = LightSkillAssets.Quad(transform, "GeyserCore", MireHydraFxLook.ColumnCore, true, order + 1);
                 ring = Ground("Ring", MireHydraFxLook.Ring, 5);
+                if (View25D.Active) column.transform.localRotation = columnCore.transform.localRotation = View25D.Tilt; // --view25d: the geyser stands up off the ground
             }
             float rise = Mathf.Min(1f, t / 140f), fall = 1f - Smooth(0.35f, 1f, t / end);
             float h = radius * 2.2f * (0.4f + 0.6f * rise), w = radius * 1.3f * (1f - 0.35f * Smooth(0.3f, 1f, t / end));
@@ -122,7 +123,8 @@ namespace ZenoniaProto
             float p = WantedSkillLightTiming.DropProgress(t);
             if (p <= 0f) return;
             if (drop == null) drop = LightSkillAssets.Quad(transform, "Drop", MireHydraFxLook.Drop, false, FeelConfig.FxOrder - 18);
-            drop.transform.localPosition = new Vector3(0f, DropHeight * (1f - p * p), 0f); // accelerating fall
+            drop.transform.localPosition = View25D.Above(0f, 0f, DropHeight * (1f - p * p)); // accelerating fall (--view25d: down through the air, not along the ground)
+            if (View25D.Active) drop.transform.localRotation = View25D.Tilt;
             drop.transform.localScale = new Vector3(9f, 15f, 1f);
             LightSkillAssets.Set(drop, Mathf.Clamp01(p * 4f));
         }

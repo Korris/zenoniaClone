@@ -45,7 +45,12 @@ namespace ZenoniaProto
             // Low walk-through decoration (bushes, small rocks, stumps, bones...) lies on the ground: under every hero and monster, never y-sorted over them.
             // Tall walk-through art (the Willowbrook palisade, reeds) keeps the y-sort so the hero can pass behind it.
             sr.sortingOrder = d.FootH == 0 && d.H <= FlatDecorMaxTiles ? GameConfig.GroundOrder + 4 : GameConfig.OrderBase(y);
-            if (s != null) { sr.transform.position = new Vector3(x, y, 0f); return; }
+            if (s != null)
+            {
+                sr.transform.position = new Vector3(x, y, 0f);
+                if (View25D.Active && sr.sortingOrder != GameConfig.GroundOrder + 4) View25D.StandProp(sr); // --view25d: tall props stand up at their foot line
+                return;
+            }
             sr.color = MissingPropTint;
             int footH = Mathf.Max(1, d.FootH); // walk-through props (FootH 0) still need a visible placeholder when their art is missing
             sr.transform.localScale = new Vector3(d.FootW * GameConfig.TileUnits, footH * GameConfig.TileUnits, 1f);
