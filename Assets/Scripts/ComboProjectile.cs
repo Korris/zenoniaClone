@@ -25,7 +25,8 @@ namespace ZenoniaProto
         ushort netId;           // bolt id of the BoltFired / BoltEnd events (0 = no server)
         SpriteRenderer sr, glow;
         ArcaneBoltRig arcane;   // wizard layered missile (null until first needed)
-        StreakBoltRig streak;   // cleric light arrow / mechanic plasma bolt
+        StreakBoltRig streak;   // cleric light arrow (legacy) / mechanic plasma bolt
+        ClericAttackLightFx.Rig holy; // cleric light FX bolt (ClericLightLook.Active)
         VfxSet vfx;             // painted projectile sheet (null = procedural rig / sprite fallback)
         float animT;
         Zone homeZone;          // the pool is shared; a bolt flies in the zone that fired it
@@ -81,6 +82,7 @@ namespace ZenoniaProto
             p.sr.enabled = p.glow.enabled = bolt.Style == BoltStyle.Sprite;
             if (p.arcane != null) p.arcane.End();
             if (p.streak != null) p.streak.End();
+            if (p.holy != null) p.holy.End();
             p.vfx = bolt.Style == BoltStyle.Sprite ? null : VfxSprites.For(bolt.Style);
             if (p.vfx != null) { p.BeginPainted(angleDeg, finisher); return p; }
             if (bolt.Style != BoltStyle.Sprite)
@@ -94,6 +96,11 @@ namespace ZenoniaProto
                 {
                     if (p.arcane == null) p.arcane = new ArcaneBoltRig(p.transform);
                     p.arcane.Begin(at, angleDeg, bolt.Scale, palette);
+                }
+                else if (p.HolyLight)
+                {
+                    if (p.holy == null) p.holy = new ClericAttackLightFx.Rig(p.transform);
+                    p.holy.Begin(at, bolt.ExplodeRadius > 0f, src == null || src == LocalPlayer.Hero);
                 }
                 else
                 {
@@ -115,7 +122,11 @@ namespace ZenoniaProto
         {
             if (arcane != null) arcane.End();
             if (streak != null) streak.End();
+            if (holy != null) holy.End();
         }
+
+        /// <summary>Cleric bolt drawn by the light FX (ClericAttackLightFx) instead of the legacy streak rig.</summary>
+        bool HolyLight { get { return def.Style == BoltStyle.HolyArrow && ClericLightLook.Active; } }
 
         void Update()
         {
@@ -148,7 +159,7 @@ namespace ZenoniaProto
             if (def.Style != BoltStyle.Sprite)
             {
                 var at = new Vector2(pos.x, pos.y + VisualLift);
-                if (def.Style == BoltStyle.Arcane) arcane.Tick(at, dt); else streak.Tick(at, dt);
+                if (def.Style == BoltStyle.Arcane) arcane.Tick(at, dt); else if (HolyLight && holy != null) holy.Tick(at); else streak.Tick(at, dt);
                 return;
             }
             transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
@@ -185,7 +196,7 @@ namespace ZenoniaProto
             switch (def.Style)
             {
                 case BoltStyle.Arcane: if (blast) RuneFx.FinisherBurst(at, def.ExplodeRadius, pal); else RuneFx.Impact(at, pal); break;
-                case BoltStyle.HolyArrow: HolySmite.Impact(pos, blast); break;
+                case BoltStyle.HolyArrow: if (ClericLightLook.Active) ClericAttackLightFx.Impact(pos, blast, def.ExplodeRadius, src); else HolySmite.Impact(pos, blast); break;
                 case BoltStyle.Plasma: MechanicFx.Impact(at, blast, pal); break;
             }
         }
@@ -198,7 +209,7 @@ namespace ZenoniaProto
         {
             bool crit = Random.value < CritChance + critBonus;
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
-            m.TakeHit(dmg, knock, crit, blast, vfx != null, src); // a crit no longer doubles the push (2026-11-15)
+            m.TakeHit(dmg, knock, crit, blast, vfx != null || def.Style == BoltStyle.HolyArrow, src); // a crit no longer doubles the push (2026-11-15)
             if (!blast) { HitFx(false); NetEventBus.BoltEnd(netId, pos, false); }
             if (Mine) GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
             if (!blast && Mine) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode; only the shooter's screen

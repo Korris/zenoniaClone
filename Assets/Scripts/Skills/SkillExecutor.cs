@@ -32,6 +32,7 @@ namespace ZenoniaProto
             else if (def.Id == NightfallExecutionUltimate.SkillId) NightfallExecutionUltimate.Cast(ctx);
             else if (AssassinSkillArt.Handles(def.Id)) AssassinSkillArt.Cast(ctx);
             else if (ClericBuffFx.Handles(def.Id)) ClericBuffFx.Cast(ctx);
+            else if (ClericLightSkills.Handles(def.Id)) ClericLightSkills.Cast(ctx);
             else SkillChoreoCastHook.Play(ctx);
             return true;
         }

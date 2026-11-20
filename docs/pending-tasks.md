@@ -3,6 +3,13 @@
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 20/11 17:40 Cleric: buff dam / hồi máu / attack làm lại kiểu Ragnarok 3 bằng particle + shader (agent, XONG, xem báo cáo)
+- Người dùng: "sua lai skill buff dam, attack, hoi mau cua cleric dung hieu ung nhu ragnarok 3". Ánh xạ: buff dam = Spirit Blessing, hồi máu = Heal, attack = Divine Light (skill) + đánh thường (3 đạn + cầu nổ r26). Divine Aegis giữ nguyên.
+- ChatGPT (Tan Pham, chỉ chữ): https://chatgpt.com/c/6b001902-3eec-83ec-8da9-29241e160c1c (spec lớp / màu / ms / số hạt + luật raid 40 người; ChatGPT nói không xác minh được VFX thật của RO3).
+- Code: `ClericLightLook`, `ClericLightFx`, `ClericLightSkills`, `ClericBlessingLightFx`, `ClericAttackLightFx`; mask `holy-cross`, `holy-rune`; cờ `--cleric-fx legacy`. Xoá sprite cũ: `fx/attack-v2`, frame `skills/{heal,divine-light,spirit-blessing}` (giữ icon), `fx/clericbuff/g*`. Số skill KHÔNG đổi; `quietFx` cho đạn Cleric đi qua server -> build lại zone server khi deploy.
+- Test 474 + 455 pass. Exe `C:/temp/player-cleric-fx/Zenonia.exe`. Ảnh `docs/reference/cleric-fx-ro3/`. FPS đám đông 40: ~2,3-2,6 ms / khung so với legacy ~1,9-2,3 ms. Báo cáo + 3 câu hỏi: `plans/reports/cleric-fx-ro3-261120.md`.
+- Chưa xem: map tối / đường đất, dòng sáng Blessing tới đồng minh chụp riêng, online server Linux, điện thoại, 2.5D.
+
 ### 20/11 18:30 HUD RO: khung máu người chơi gọn lại, thanh Wanted boss không bị đè + bỏ popup "Today's Wanted" (agent, XONG)
 - Người dùng: "chắc thiết kế ống máu của người chơi ở góc trái nhỏ lại, hiện tại nó đè lên ống máu của wanted boss luôn rồi" + "bỏ hiện cái popup ở giữa today wanted đi".
 - ChatGPT (Tan Pham) https://chatgpt.com/c/6b001b80-4db0-83ec-b021-e76c99ef1fec : khung trạng thái chân dung 64 / bảng 218x69 / thanh 154x14; thanh boss chân dung 52 + cột 242 (tên 22, HP 18, cast 18), đặt trong dải trống giữa khung trạng thái và cột minimap, gợi ý né bên phải khi đủ chỗ, không thì dưới; không cần art mới. Code `RoHud.cs`, `RoHudStatus.cs`, `RoHudBossBar.cs`, `RoHudMenu.cs`. Popup "Today's Wanted" lúc vào game (`WantedNotices` Login) không bật nữa; thẻ WANTED dưới minimap + bảng Truy Nã giữ nguyên.

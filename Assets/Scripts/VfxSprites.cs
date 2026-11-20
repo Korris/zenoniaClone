@@ -16,7 +16,7 @@ namespace ZenoniaProto
 
     /// <summary>
     /// Loader for the hand-painted ranged FX frames (Resources/Sprites/classes/CLASS/fx/attack-vN/ROW_N.png + Resources/Data/classes/CLASS/vfx-attack-vN.json with per-frame pivots).
-    /// One set per class: cleric-v2 (Tools/build-cleric-attack-fx.py), wizard-v4 (Tools/build-wizard-attack-fx-v4.py), mechanic-v3 (yellow, the class colour,
+    /// One set per class (the Cleric's painted cleric-v2 was replaced by ClericAttackLightFx on 2026-11-20): wizard-v4 (Tools/build-wizard-attack-fx-v4.py), mechanic-v3 (yellow, the class colour,
     /// Tools/build-mechanic-attack-fx-v3.py). The older sets (cleric, wizard, wizard-v2/v3, mechanic-v2/orange/blue) were removed 16/11. For() returns null
     /// when art is missing, callers then fall back to the procedural FX.
     /// </summary>
@@ -34,7 +34,7 @@ namespace ZenoniaProto
         {
             switch (style)
             {
-                case BoltStyle.HolyArrow: return "cleric-v2"; // board 2026-11-08 (Tools/build-cleric-attack-fx.py): flash, light arrow, holy orb, judgment burst, impact, halo lance
+                case BoltStyle.HolyArrow: return null;         // painted cleric-v2 set removed 2026-11-20: the light FX draws it (ClericAttackLightFx; legacy = procedural StreakBoltRig + HolySmite)
                 case BoltStyle.Arcane: return "wizard-v4";    // combo board 2026-11-10 (ice bolt, frost crescent, glacier spikes, ice orb, blizzard nova; Tools/build-wizard-attack-fx-v4.py)
                 case BoltStyle.Plasma: return "mechanic-v3";  // class colour yellow (electric / brass, Tools/build-mechanic-attack-fx-v3.py, 2026-11-08)
                 default: return null;
@@ -56,8 +56,7 @@ namespace ZenoniaProto
         /// <summary>Loads the class's art ahead of its first cast (mechanic: both colours) so the first shot does not hitch.</summary>
         public static void Preload(HeroClass id)
         {
-            if (id == HeroClass.Cleric) Get("cleric-v2");
-            else if (id == HeroClass.Wizard) Get("wizard-v4");
+            if (id == HeroClass.Wizard) Get("wizard-v4");
             else if (id == HeroClass.Mechanic) { Get("mechanic-v3"); MechanicCannonBlastFx.Preload(); }
         }
 

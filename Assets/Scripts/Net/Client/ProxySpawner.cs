@@ -132,6 +132,7 @@ namespace ZenoniaProto
             }
             DeployedTurret.ClearZone(zone);
             WantedSkillTelegraphFx.ClearAll();
+            ClericLightFx.ClearAll();
             zone.Monsters.Clear(); zone.Loot.Clear();
             zone.Boss = null; zone.Wanted = null;
             for (int i = zone.Heroes.All.Count - 1; i >= 0; i--)

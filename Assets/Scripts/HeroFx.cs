@@ -137,19 +137,20 @@ namespace ZenoniaProto
         {
             if (!NetMode.RendersFx) return;
             ClassSfx.BoltLaunched(cls.Id, finisher);
-            if (!paintedCastArt) FallbackCast(cls, h, feet, tip, dir, angle, pal);
+            if (!paintedCastArt) FallbackCast(cls, h, feet, tip, dir, angle, pal, shooter);
             bool mine = shooter != null && shooter == LocalPlayer.Hero;
             if (mine && (!finisher || cls.Id != HeroClass.Mechanic)) CameraFollow.AddTrauma(finisher ? 0.2f : 0.06f); // recoil kick; the Mechanic's cannon shakes in MechanicCannonBlastFx, for its shooter only
         }
 
         /// <summary>Procedural cast flash, used only when the painted VFX sprites are missing.</summary>
-        static void FallbackCast(HeroClassDef cls, ComboHit h, Vector2 feet, Vector2 tip, Vector2 dir, float angle, ClassPalette pal)
+        static void FallbackCast(HeroClassDef cls, ComboHit h, Vector2 feet, Vector2 tip, Vector2 dir, float angle, ClassPalette pal, HeroController shooter)
         {
             bool big = h.Bolt.ExplodeRadius > 0f;
             switch (h.Bolt.Style)
             {
                 case BoltStyle.Arcane: RuneFx.CastFlash(tip, big, pal); break;
                 case BoltStyle.HolyArrow:
+                    if (ClericLightLook.Active) { ClericAttackLightFx.Muzzle(tip, big, shooter); break; }
                     RuneFx.CastFlash(tip, big, pal);
                     UltimateFx.Embers(tip, big ? 12 : 7, 5f, 26f, new Color(0.7f, 1f, 0.45f, 1f));
                     break;

@@ -10,6 +10,8 @@ namespace ZenoniaProto
     /// follows them for the buff's time. Targets come from the same SkillSupport.Collect the buff uses: on a client that is the replayed cast against the heroes it knows about.
     /// Frames are cut at the ring's centre line: the upper half draws behind the hero, the ground arc in front, with a faint veil over the body so the hero always stays visible.
     /// One aura per hero and colour: a recast restarts it instead of stacking, and both colours layer. BuffState is not replicated, so an aura's end comes from the buff's time.
+    /// Since 2026-11-20 Spirit Blessing draws with the RO3-style light FX (ClericBlessingLightFx: particles + shader quads, its gold frames were removed);
+    /// this class still runs the caster's raise-hand pose for both buffs and the painted blue Divine Aegis.
     /// </summary>
     public sealed class ClericBuffFx : MonoBehaviour
     {
@@ -61,8 +63,8 @@ namespace ZenoniaProto
         public static void Preload()
         {
             if (!NetMode.RendersFx) return;
-            LoadLook(Gold);
-            LoadLook(Blue);
+            LoadLook(Blue); // Gold (Spirit Blessing) has no painted frames any more: ClericBlessingLightFx
+            ClericLightLook.Load();
         }
 
         /// <summary>Starts the picture of a resolved cast. Copies the target list, because SkillSupport.Collect reuses its own.</summary>
@@ -82,7 +84,9 @@ namespace ZenoniaProto
                 Live[caster] = fx;
                 fx.Build(caster);
             }
-            fx.Begin(ctx, look, targets);
+            bool light = look == Gold;
+            fx.Begin(ctx, look, light ? null : targets);
+            if (light) { if (ClericLightLook.Active) ClericBlessingLightFx.Cast(caster, targets, buff.Buff.Ms); return; }
             foreach (HeroController t in targets) Aura.Wear(t, look, buff.Buff.Ms, t == caster ? StreamFromMs : StreamToMs);
         }
 
@@ -95,7 +99,8 @@ namespace ZenoniaProto
                 if (!Handles(def.Id)) continue;
                 SkillEffect buff = def.Effects[0];
                 HeroBuffs.For(hero).Add(buff.Buff.Kind, def.BuffAt(buff, 1), buff.Buff.Ms, buff.Count, BuffSource.Pack(def.Class, def.Index));
-                Aura.Wear(hero, def.Id == AegisId ? Blue : Gold, buff.Buff.Ms, 0f);
+                if (def.Id == AegisId) Aura.Wear(hero, Blue, buff.Buff.Ms, 0f);
+                else if (ClericLightLook.Active) ClericBlessingLightFx.Cast(hero, new List<HeroController> { hero }, buff.Buff.Ms);
             }
         }
 
@@ -124,7 +129,7 @@ namespace ZenoniaProto
             posing = true;
             raised = false;
             streamTargets.Clear();
-            foreach (HeroController t in targets) if (t != hero && streamTargets.Count < MaxStreams) streamTargets.Add(t);
+            if (targets != null) foreach (HeroController t in targets) if (t != hero && streamTargets.Count < MaxStreams) streamTargets.Add(t);
             for (int i = 0; i < streamTargets.Count; i++)
             {
                 if (streams[i] != null) continue;
@@ -146,7 +151,7 @@ namespace ZenoniaProto
         {
             if (hero == null || hero.IsDead || age >= CastMs) { Destroy(gameObject); return; }
             age += GameClock.Dt * 1000f;
-            if (!raised && age >= RaiseFromMs) { raised = true; ShockRing.Spawn(hero.Position + new Vector2(0f, RingLift), 22f, 0.32f, new Color(look.Tint.r, look.Tint.g, look.Tint.b, 0.6f), UltimateFx.GroundFxOrder + 6); }
+            if (!raised && age >= RaiseFromMs) { raised = true; if (look == Blue) ShockRing.Spawn(hero.Position + new Vector2(0f, RingLift), 22f, 0.32f, new Color(look.Tint.r, look.Tint.g, look.Tint.b, 0.6f), UltimateFx.GroundFxOrder + 6); }
             Apply();
         }
 

@@ -13,28 +13,8 @@ namespace ZenoniaProto
 
         public static void Register(List<Choreo> into)
         {
-            into.Add(Heal()); into.Add(DivineLight());
+            // Heal and Divine Light: RO3-style light FX since 2026-11-20 (ClericLightSkills), their painted choreographies and frames were removed.
             into.Add(Sanctuary()); into.Add(GuardianSpirit()); into.Add(Purification()); into.Add(DivineAscension());
-        }
-
-        static Choreo Heal()
-        {
-            var c = new Choreo("cleric", "heal", 550);
-            c.Add(0, 100).Spr(I, 0, 1, 2.2f).Alpha(0.45f).Glow(0xFFF2B8, 0.48f).Decal(0xA8E8C2, 0.2f, 0.8f, 0.25f).Embers(12, 0xFFF1B2).Ring(0.9f, 130, 0xBCEFCF);
-            c.Add(100, 270).Spr(L, 0, 3, 2f).Alpha(0.32f).Glow(0xFFE8A5, 0.30f).Embers(16, 0xFFF6D6).Ring(1.1f, 180, 0xD7F5D8).Trail();
-            c.Add(270, 420).Spr(I, 1, 3, 1.8f).Alpha(0.22f).Glow(0xE7F9D9, 0.18f).Decal(0xBCE8C6, 0.8f, 0.5f, 0.16f).Embers(9, 0xF9F4DC).Trail();
-            c.Add(420, 550).Spr(I, 3, 3, 1.5f).Alpha(0.08f).Glow(0xFFF0BE, 0.08f).Embers(4, 0xF4F5D8).Trail();
-            return c;
-        }
-
-        static Choreo DivineLight()
-        {
-            var c = new Choreo("cleric", "divine-light", 780);
-            c.Add(0, 130).Spr(I, 0, 2, 4f).Alpha(0.95f).Glow(0xFFF4C8, 0.75f).Decal(0xE8E9BC, 0.5f, 2f, 0.28f).Embers(26, 0xFFF6D8).Ring(2f, 180, 0xFFF0BB).HitStop(40).Quake(130, 0.24f).Flare(0xFFF5DC, 90).Zoom(0.035f, 140);
-            c.Add(130, 330).Spr(L, 0, 3, 4.2f).Alpha(0.75f).Glow(0xFFE9AC, 0.55f).Decal(0xE6EDC5, 2f, 2.2f, 0.22f).Ring(2.4f, 230, 0xF4E9B9).Embers(24, 0xFFF5D5).Trail();
-            c.Add(330, 550).Spr(I, 2, 3, 4f).Alpha(0.38f).Glow(0xF5E9BD, 0.25f).Decal(0xD9E7BD, 2.2f, 2f, 0.16f).Embers(18, 0xFFF8E4).Trail();
-            c.Add(550, 780).Spr(I, 3, 3, 3.2f).Alpha(0.1f).Glow(0xE9DDAF, 0.08f).Decal(0xD9E7BD, 2f, 0f, 0.16f).Embers(8, 0xF6F0D8).Trail();
-            return c;
         }
 
         static Choreo Sanctuary()

@@ -63,6 +63,7 @@ namespace ZenoniaProto
         static void Sparkle(SkillContext ctx, HeroController h)
         {
             if (ClericBuffFx.Handles(ctx.Def.Id)) return; // every target wears its own aura
+            if (ClericLightSkills.Handles(ctx.Def.Id)) { if (h != ctx.Body.Hero && h != ctx.Ally) ClericLightSkills.AllySpark(h, ctx.Body.Hero); return; } // the light FX draws the caster's target itself
             if (!SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) SkillVfx.Play(ctx, SkillVfxSet.Impact, h.Position, 0f, SparkleTiles * ctx.Units);
             else if (h != ctx.Body.Hero && h != ctx.Ally) SkillVfx.PlayOnAlly(ctx, h.Position, SparkleTiles * ctx.Units);
         }

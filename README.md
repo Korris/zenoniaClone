@@ -28,7 +28,7 @@ A class select screen opens first: click a card or press **1-5**. **F1-F5** resp
 | Wizard | 3 magic bolts + arcane-burst finisher (AoE r26): layered violet-blue magic missile; **L Ice Storm** ultimate | staff overlays (10 tiers) |
 | Mechanic | 3 rapid shots + plasma-cannon finisher (AoE r24): plasma bolts, muzzle blast, starburst + dust impact (yellow, the class colour) | two pistols + back cannon overlays (10 tiers) |
 | Assassin | 3 quick slashes + double-stab finisher (two hits 90 ms apart, 6% extra crit): purple X-slash / thrust-streak dagger FX; **L Shadow Step** (blink behind the nearest foe, guaranteed crit) | dagger overlays in BOTH hands (`off` + `main` parts, 10 tiers) |
-| Cleric | 3 holy shots + bursting finisher (AoE r26): green-gold light arrows, gold pillar impact; **L Heal** (38% max HP) | holy staff overlays (10 tiers), floating spirit companion |
+| Cleric | 3 holy shots + bursting finisher (AoE r26): since 2026-11-20 RO3-style light FX (particles + shader quads, `ClericAttackLightFx`): jade light drops with a ribbon trail, small flash + ring per hit, holy burst ring stopping on r26; Heal / Divine Light / Spirit Blessing also light FX (`ClericLightSkills`, `ClericBlessingLightFx`; `--cleric-fx legacy` = old procedural art); **L Heal** (38% max HP) | holy staff overlays (10 tiers), floating spirit companion |
 
 Signature skills on **L** use MP (HUD MP bar + cooldown line): Earth Break 29 MP / 8 s, Ice Storm 20 MP / 7.7 s, Shadow Step 9 MP / 3.9 s,
 Heal 12 MP / 8.5 s (web rank-3 values). Earth Break / Ice Storm are the web ultimates (`EarthBreakUltimate.cs`, `IceStormUltimate.cs`):
