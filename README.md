@@ -24,7 +24,7 @@ A class select screen opens first: click a card or press **1-5**. **F1-F5** resp
 
 | Class | Attack (J / Space) | Art |
 |---|---|---|
-| Warrior | One heavy lock-target slash (since 2026-11-20: locks one monster in reach, turns to it, hits only it; press / hold to repeat), painted red slash trail (`WarriorLockSlashFx`); **L Earth Break** ultimate | sword + shield overlays (10 tiers) |
+| Warrior | One heavy lock-target slash (since 2026-11-20: locks one monster in reach, turns to it, hits only it; press / hold to repeat; a press with nothing in reach walks to the nearest / locked monster first, `AttackChase`), painted red slash trail (`WarriorLockSlashFx`); **L Earth Break** ultimate | sword + shield overlays (10 tiers) |
 | Wizard | 3 magic bolts + arcane-burst finisher (AoE r26): layered violet-blue magic missile; **L Ice Storm** ultimate | staff overlays (10 tiers) |
 | Mechanic | 3 rapid shots + plasma-cannon finisher (AoE r24): plasma bolts, muzzle blast, starburst + dust impact (yellow, the class colour) | two pistols + back cannon overlays (10 tiers) |
 | Assassin | 3 quick slashes + double-stab finisher (two hits 90 ms apart, 6% extra crit): purple X-slash / thrust-streak dagger FX; **L Shadow Step** (blink behind the nearest foe, guaranteed crit) | dagger overlays in BOTH hands (`off` + `main` parts, 10 tiers) |
@@ -69,7 +69,7 @@ Launch arg `--map frost-hollow|oakhaven-village` picks the start map (capture / 
 | F1-F5 | Respawn as Warrior / Wizard / Mechanic / Assassin / Cleric |
 | L | Class skill: Earth Break / Ice Storm / Shadow Step / Heal |
 | WASD / Arrow keys | Move (8-direction input, 4-direction facing) |
-| J / Space | Class combo (4 steps; press during a step to chain, the 4th is the finisher); Warrior: one locked slash, a press during it repeats |
+| J / Space | Class combo (4 steps; press during a step to chain, the 4th is the finisher); Warrior: one locked slash, a press during it repeats; nothing in reach = walk to the monster (red ring under it), moving by hand cancels |
 | K / Shift | Dash (brief invulnerability) |
 | Q / E | Previous / next weapon tier (10 tiers: sword + shield / staff / gun + robot / two daggers / staff + spirit; Q / E / R also change the companions) |
 | R | Toggle enhanced gear art |

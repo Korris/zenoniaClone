@@ -199,10 +199,17 @@ namespace ZenoniaProto
         public static bool Held(GameKey k)
         {
             if (Gated(k) || WebKeyBlocked(k)) return false;
-            return (BotHeld != null && BotHeld(k)) || AutoBattle.Held(k) || TouchControls.Held(k) || KeyHeld(k) || (k == GameKey.Attack && MouseAttack());
+            return (BotHeld != null && BotHeld(k)) || AutoBattle.Held(k) || AttackChase.Held(k) || TouchControls.Held(k) || KeyHeld(k) || (k == GameKey.Attack && MouseAttack());
         }
 
         public static bool Pressed(GameKey k)
+        {
+            if (k == GameKey.Attack && AttackChase.OwnsAttack) return AttackChase.AttackPressed; // walking to an out-of-reach target (Warrior): the walk presses the slash on arrival
+            return PressedNoChase(k);
+        }
+
+        /// <summary>Pressed without the walk-to-target layer (AttackChase reads the player's own attack press through it).</summary>
+        public static bool PressedNoChase(GameKey k)
         {
             if (Gated(k) || WebKeyBlocked(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
             return (BotPressed != null && BotPressed(k)) || AutoBattle.Pressed(k) || TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k)

@@ -19,8 +19,40 @@ namespace ZenoniaProto
         static readonly List<float> LockDist = new List<float>();
         static readonly List<bool> LockAlive = new List<bool>();
 
+        float lockAt = -99f;     // Time.time the lock last landed on a monster (TargetMarker shows it this long after)
+
         /// <summary>The monster this hero's basic attack is locked on, or null (read by captures / HUD).</summary>
         public Monster LockTarget { get { return lockTarget; } }
+
+        /// <summary>The locked monster while it lives and was struck or picked within `seconds` (TargetMarker), else null.</summary>
+        public Monster RecentLockTarget(float seconds)
+        {
+            Monster m = lockTarget;
+            return m != null && !m.IsDying && m.Hp > 0f && Time.time - lockAt <= seconds ? m : null;
+        }
+
+        /// <summary>True for a lock-target class (Warrior): AttackChase walks it to an out-of-reach monster.</summary>
+        public bool LocksTarget { get { return cls != null && cls.LockTargetMelee; } }
+
+        /// <summary>The monster a slash started now would lock (sim position, reach shrunk by `margin`), or null = nothing in reach.</summary>
+        public Monster LockCandidateInReach(float margin)
+        {
+            if (!LocksTarget || cls.Hits.Length == 0) return null;
+            return PickLockTarget(LockFrom, lockTarget, LockRange(cls.Hits[0]) - margin, -1);
+        }
+
+        /// <summary>True when `m` is within the slash's reach (shrunk by `margin`) of the hero's sim position.</summary>
+        public bool InLockReach(Monster m, float margin)
+        {
+            if (!LocksTarget || m == null || cls.Hits.Length == 0) return false;
+            Rect b = m.Box;
+            float r = LockRange(cls.Hits[0]) - margin;
+            Vector2 f = LockFrom;
+            return LockTargetRules.BoxDistSq(f.x, f.y, b.xMin, b.yMin, b.xMax, b.yMax) <= r * r;
+        }
+
+        /// <summary>AttackChase reached `m`: lock it, so the slash it presses next keeps it even when another monster stands nearer.</summary>
+        public void SetLockTarget(Monster m) { lockTarget = m; lockAt = Time.time; }
 
         /// <summary>Hero chest, the point lock distances are measured from (same height as the old cleave box centre).</summary>
         Vector2 LockFrom { get { return new Vector2(x, y + 6f); } }
@@ -37,7 +69,7 @@ namespace ZenoniaProto
             ComboHit h = combo.CurrentHit;
             if (h == null) return;
             lockTarget = PickLockTarget(LockFrom, lockTarget, LockRange(h), -1);
-            if (lockTarget != null) FaceLockTarget(lockTarget);
+            if (lockTarget != null) { FaceLockTarget(lockTarget); lockAt = Time.time; }
         }
 
         void FaceLockTarget(Monster m)
