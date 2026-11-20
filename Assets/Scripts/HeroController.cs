@@ -213,6 +213,7 @@ namespace ZenoniaProto
             if (cls.Id == HeroClass.Warrior && input != Vector2.zero)
                 for (int i = 0; i < events.Count; i++)
                     if (events[i].Type == ComboEventType.End) { UpdateFacing(input); break; }
+            UpdateLockTarget(); // lock-target slash (Warrior): a new windup locks its monster and turns the hero to it
             if (stabLeft > 0f && (stabLeft -= dtMs) <= 0f) MeleeStrike(stabHit, stabStep, true);
 
             Vector2 vel = Vector2.zero;

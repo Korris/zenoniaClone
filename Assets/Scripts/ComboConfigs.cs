@@ -6,12 +6,14 @@ namespace ZenoniaProto
         // Knockback (7th number) 2026-11-15, chosen with ChatGPT (docs/reference/combo-knockback-chatgpt.md; user: every hit shoved the monster so it
         // never hit back): hits 1-3 never push (0), only the finisher does. Finisher push = knockback x 1.35 x 0.17 s, about Warrior 25, Fighter 22,
         // Assassin 14, Wizard 18, Mechanic 20, Cleric 16 units; a crit no longer doubles it. Shared with the server: rebuild it.
+        // Warrior 2026-11-20 (user: no more combo, one hard lock-target slash on a single monster): ONE heavy step, chained by holding / pressing
+        // again. It locks a monster (Rpg/LockTargetRules, HeroController.LockTarget.cs), turns the hero to it and damages only that monster; no
+        // cleave box, no push (the target stays in reach and keeps fighting back). 400 ms per slash, 1.75x: about the old 4-hit chain's damage
+        // per second on one target (5.2x over ~1.18 s). The hit lands at the end of the 120 ms windup = attack frame f1 (sword coming down).
+        // Width is unused by the lock strike. Shared with the server: rebuild it.
         public static readonly ComboHit[] WarriorHits =
         {
-            new ComboHit(50f, 90f, 110f, 1.0f, 30f, 28f, 0f, 6f, 1.45f),
-            new ComboHit(50f, 90f, 110f, 1.15f, 32f, 30f, 0f, 8f, 1.55f),
-            new ComboHit(50f, 90f, 110f, 1.25f, 34f, 32f, 0f, 8f, 1.65f),
-            new ComboHit(90f, 120f, 220f, 1.8f, 42f, 40f, 110f, 16f, 1.15f),
+            new ComboHit(120f, 90f, 190f, 1.75f, 34f, 32f, 0f, 4f, 1.5f),
         };
 
         // Ranged bolt ranges were halved on 2026-11-05 (user: the ranged classes hit from too far); shared with the server, rebuild it.

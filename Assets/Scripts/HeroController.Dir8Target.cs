@@ -25,6 +25,11 @@ namespace ZenoniaProto
         int CombatDir8()
         {
             var at = new Vector2(x, y + 6f); // about chest height of the hero, so a monster level with the feet still reads as straight ahead
+            if (lockTarget != null && !lockTarget.IsDying && lockTarget.Hp > 0f) // lock-target slash: look straight at the locked monster
+            {
+                int ld = Dir8Util.FromVector(lockTarget.Feet - new Vector2(x, y)); // ground direction, as the lock facing (HeroController.LockTarget.cs)
+                if (ld >= 0 && Dir8Util.Matches(ld, facing)) return ld;
+            }
             float best = Dir8TargetReach * Dir8TargetReach;
             int row = -1;
             var all = Monster.All;

@@ -149,6 +149,7 @@ namespace ZenoniaProto
         public void PlaySwingFx(int step, bool echo, int facingDir)
         {
             if (cls.Hits == null || step < 1 || step > cls.Hits.Length) return;
+            if (cls.LockTargetMelee) { PlayLockSlashFxFromFacing(step, facingDir); return; } // Warrior lock slash: aimed at the monster it swung at
             ComboHit h = cls.Hits[step - 1];
             int f = facingDir & 3;
             Vector2 v = DirVec[f];

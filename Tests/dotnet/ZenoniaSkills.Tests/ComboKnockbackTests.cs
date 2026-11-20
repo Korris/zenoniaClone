@@ -15,7 +15,7 @@ public class ComboKnockbackTests
     {
         return new TheoryData<string, float>
         {
-            { "warrior", 24f }, { "fighter", 22f }, { "assassin", 14f }, { "wizard", 18f }, { "mechanic", 20f }, { "cleric", 16f },
+            { "fighter", 22f }, { "assassin", 14f }, { "wizard", 18f }, { "mechanic", 20f }, { "cleric", 16f },
         };
     }
 
@@ -23,7 +23,6 @@ public class ComboKnockbackTests
     {
         switch (cls)
         {
-            case "warrior": return ComboConfigs.WarriorHits;
             case "fighter": return ComboConfigs.FighterHits;
             case "assassin": return ComboConfigs.AssassinHits;
             case "wizard": return ComboConfigs.WizardHits;
@@ -50,8 +49,17 @@ public class ComboKnockbackTests
         Assert.Equal(2, fin.Stabs);
         Assert.Equal(0f, fin.KnockbackFor(false)); // first stab: keeps the monster in reach, no windup cancel
         Assert.Equal(fin.Knockback, fin.KnockbackFor(true));
-        ComboHit single = ComboConfigs.WarriorHits[3]; // one-stab steps push with their only hit
+        ComboHit single = ComboConfigs.FighterHits[3]; // one-stab steps push with their only hit
         Assert.Equal(single.Knockback, single.KnockbackFor(false));
+    }
+
+    [Fact]
+    public void WarriorLockSlashIsOneStepThatNeverPushes()
+    {
+        // 2026-11-20: the Warrior's basic attack is one heavy lock-target slash (no combo, no push: the locked monster stays in reach)
+        Assert.Single(ComboConfigs.WarriorHits);
+        Assert.Equal(0f, ComboConfigs.WarriorHits[0].Knockback);
+        Assert.Null(ComboConfigs.WarriorHits[0].Bolt);
     }
 
     [Fact]
