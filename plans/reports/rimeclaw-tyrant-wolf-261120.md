@@ -36,7 +36,7 @@ Nguồn: `Assets/ArtLibrary/monsters/wanted/rimeclaw-tyrant-*-chatgpt-1.png` (th
 ## 4. Kiểm tra
 - Ảnh từng frame: `docs/reference/rimeclaw-tyrant-wolf/sheet-*.png`, mắt mọi frame thấy mặt `eyes-check-every-face-frame.png` (con ngươi đen đủ), trước/sau `before-after-walk-sheet.png`, so cỡ với nữ hoàng `size-vs-queen-offline-same-cell.png`.
 - Trong game (bản 1x, trước khi to 2x): `ingame-idle-walk.jpg`, `ingame-attack-series.jpg`, `ingame-skills-series.jpg` (Frostclaw Sweep, Chain Slam, Stomp), `ingame-cast-closeup-stomp-slam.jpg`; chân dung trên thanh boss đúng mặt sói.
-- Bản 2x: xem mục 5. Exe `C:	emp\player-wolf\Zenonia.exe`.
+- Bản 2x: xem mục 5. Exe `C:\temp\player-wolf\Zenonia.exe`.
 - `dotnet test`: ZenoniaSkills 474, ZenoniaNet 455, đạt.
 
 ## 5. Bản to 2x (như nữ hoàng)
