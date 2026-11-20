@@ -13,7 +13,7 @@ namespace ZenoniaProto
         // Width is unused by the lock strike. Shared with the server: rebuild it.
         public static readonly ComboHit[] WarriorHits =
         {
-            new ComboHit(120f, 90f, 190f, 1.75f, 34f, 32f, 0f, 4f, 1.5f),
+            new ComboHit(120f, 90f, 190f, 1.75f, 12f, 32f, 0f, 4f, 1.5f), // Reach 12 (+ LockTargetRules.ReachSlack 4) = sword tip at the monster's body edge (2026-11-20; was 34)
         };
 
         // Ranged bolt ranges were halved on 2026-11-05 (user: the ranged classes hit from too far); shared with the server, rebuild it.

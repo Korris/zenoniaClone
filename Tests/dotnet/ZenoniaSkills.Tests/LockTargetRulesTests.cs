@@ -83,4 +83,35 @@ public class LockTargetRulesTests
         Assert.False(LockTargetRules.KeepChasing(100f, LockTargetRules.ChaseMaxSeconds + 0.1f, 0.2f));
         Assert.False(LockTargetRules.KeepChasing(100f, 2f, LockTargetRules.ChaseStuckSeconds + 0.1f));
     }
+
+    [Fact]
+    public void WarriorReachIsSwordContactWithTheBodyEdge()
+    {
+        // 2026-11-20 ("làm giống mấy game RPG khác đó"): chest to body edge <= 12 + 4 = 16, the sword tip; the zone server uses the same table.
+        Assert.Equal(16f, ComboConfigs.WarriorHits[0].Reach + LockTargetRules.ReachSlack);
+        float r = ComboConfigs.WarriorHits[0].Reach + LockTargetRules.ReachSlack;
+        // Frost Slime (hit box 12 wide) straight left of the chest: in reach at 6 + 16 from its centre, not at 6 + 17.
+        float hw = LockTargetRules.BodyHalfWidth(12f, 13f);
+        Assert.Equal(6f, hw);
+        Assert.True(LockTargetRules.BoxDistSq(0f, 0f, 22f - hw, -4f, 22f + hw, 4f) <= r * r);
+        Assert.False(LockTargetRules.BoxDistSq(0f, 0f, 23f - hw, -4f, 23f + hw, 4f) <= r * r);
+        // The old reach (42) hit from 2.5x further away.
+        Assert.True(LockTargetRules.BoxDistSq(0f, 0f, 40f, -4f, 52f, 4f) > r * r);
+    }
+
+    [Fact]
+    public void BigBossesAreTouchedAtTheirPaintedEdgeNotTheirHitBox()
+    {
+        // Mire Hydra Queen: hit box 43 wide, drawn 20.5 x 5 = 102.5 units tall -> body half width 35.9 (0.35 x height).
+        float hw = LockTargetRules.BodyHalfWidth(43f, 164f / 8f * 2.5f * 2f); // MonsterDef.WantedHitW, bodyHeightPx 164 / 8, WantedRenderScale x drawMul 2
+        Assert.InRange(hw, 35f, 37f);
+        // A small monster keeps its hit box (Ice Goblin: 12 wide, 19 tall -> 6.65 from height wins over 6).
+        Assert.InRange(LockTargetRules.BodyHalfWidth(12f, 19f), 6.6f, 6.7f);
+    }
+
+    [Fact]
+    public void ChaseStopsInsideTheReach()
+    {
+        Assert.True(LockTargetRules.ChaseReachMargin > 0f && LockTargetRules.ChaseReachMargin < ComboConfigs.WarriorHits[0].Reach + LockTargetRules.ReachSlack);
+    }
 }

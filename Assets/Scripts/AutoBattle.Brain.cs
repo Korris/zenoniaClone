@@ -46,6 +46,7 @@ namespace ZenoniaProto
             {
                 bool close = (target.Center - hero.Position).sqrMagnitude < 3f * Tile * 3f * Tile && LineOfSight(hero.Position, target.Center);
                 bool inRange = close ? SteerToAttack(hero, target.Center) : WalkTo(hero, target.Feet);
+                if (hero.LocksTarget) inRange = hero.InLockReach(target, 1f); // Warrior: the slash needs sword contact with the body edge (LockTargetRules); keep walking until then
                 if (inRange) { attack = true; movedAt = now; }
                 else if (now - movedAt > StuckSeconds) { skipUntil[target] = now + SkipSeconds; target = null; movedAt = now; return; } // walled off: try another
                 if (inRange && tap == GameKey.AutoToggle && now >= skillAt)

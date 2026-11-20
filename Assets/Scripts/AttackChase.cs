@@ -62,14 +62,15 @@ namespace ZenoniaProto
             if (target == null)
             {
                 if (!InputAdapter.PressedNoChase(GameKey.Attack) || hero.LockCandidateInReach(0f) != null) return; // a monster in reach: the plain slash
-                target = PickTarget(hero, at);
+                target = PickTarget(hero, hero.ChestPoint);
                 if (target == null) return; // nobody near: the slash whiffs where the hero stands
                 startedAt = movedAt = now; lastPos = at;
             }
             owns = true; // swallow the player's presses (a held attack key would whiff every frame on the way)
             if (target == null || target.IsDying || target.Hp <= 0f) { Stop(); return; } // killed (by anyone) or despawned
             if ((at - lastPos).sqrMagnitude > 0.25f || hero.IsBasicAttacking) { lastPos = at; movedAt = now; } // a swing in progress is not being stuck
-            if (!LockTargetRules.KeepChasing((target.Feet - at).magnitude, now - startedAt, now - movedAt)) { Stop(); return; }
+            Vector2 chest = hero.ChestPoint, edge = HeroController.ContactPoint(target, chest); // nearest point of its body: big bosses are reached at their edge
+            if (!LockTargetRules.KeepChasing((edge - chest).magnitude, now - startedAt, now - movedAt)) { Stop(); return; }
             if (hero.InLockReach(target, LockTargetRules.ChaseReachMargin))
             {
                 hero.SetLockTarget(target);
@@ -77,49 +78,54 @@ namespace ZenoniaProto
                 Stop();
                 return;
             }
-            Vector2 d = target.Feet - at;
-            if (d.sqrMagnitude < Near * Near && LineOfSight(at, target.Feet)) LockTargetRules.ChaseDir(d.x, d.y, DeadZone, out sx, out sy);
+            Vector2 d = edge - chest; // walk the chest onto the body edge (the sword then touches it)
+            if (d.sqrMagnitude < Near * Near && ClearPath(at, HeroController.ContactPoint(target, at))) LockTargetRules.ChaseDir(d.x, d.y, DeadZone, out sx, out sy);
             else
             {
-                Vector2 step = walk.StepToward(at, target.Feet);
+                Vector2 step = walk.StepToward(at, HeroController.ContactPoint(target, at)); // the body edge on the ground, not the centre (a boss's feet can sit on a blocked tile)
                 if (step == Vector2.zero) LockTargetRules.ChaseDir(d.x, d.y, DeadZone, out sx, out sy);
                 else { sx = step.x > 0.1f ? 1 : step.x < -0.1f ? -1 : 0; sy = step.y > 0.1f ? 1 : step.y < -0.1f ? -1 : 0; }
             }
         }
 
-        /// <summary>The locked monster while it is near, else the nearest live monster within ChaseStartRange that can be walked to.</summary>
-        static Monster PickTarget(HeroController hero, Vector2 at)
+        /// <summary>The locked monster while it is near, else the nearest live monster (bosses and event bosses too, as in other RPGs) within ChaseStartRange
+        /// of the chest, measured to its body edge, that can be walked to.</summary>
+        static Monster PickTarget(HeroController hero, Vector2 chest)
         {
             float r2 = LockTargetRules.ChaseStartRange * LockTargetRules.ChaseStartRange;
+            Vector2 at = hero.SimPosition;
             Monster locked = hero.LockTarget;
-            if (locked != null && !locked.IsDying && locked.Hp > 0f && (locked.Feet - at).sqrMagnitude <= r2 && Walkable(at, locked)) return locked;
+            if (locked != null && !locked.IsDying && locked.Hp > 0f && EdgeDistSq(locked, chest) <= r2 && Walkable(at, locked)) return locked;
             Monster best = null;
             float bestD = r2;
             foreach (Monster m in Monster.All)
             {
                 if (m == null || m.IsDying || m.Hp <= 0f) continue;
-                float d = (m.Feet - at).sqrMagnitude;
+                float d = EdgeDistSq(m, chest);
                 if (d > bestD || !Walkable(at, m)) continue;
                 bestD = d; best = m;
             }
             return best;
         }
 
+        static float EdgeDistSq(Monster m, Vector2 chest) { return (HeroController.ContactPoint(m, chest) - chest).sqrMagnitude; }
+
         static bool Walkable(Vector2 at, Monster m)
         {
-            int steps = reach.Steps(at, m.Feet); // field around the hero: one BFS answers every monster
+            int steps = reach.Steps(at, HeroController.ContactPoint(m, at)); // field around the hero: one BFS answers every monster; to its nearest body edge
             return steps >= 0 && steps <= MaxSteps;
         }
 
-        static bool LineOfSight(Vector2 a, Vector2 b)
+        /// <summary>The hero's feet box (10 x 8, as FrostHollowMap.Move) can slide straight from a to b: no post, fence or wall in between (else TileNav walks around).</summary>
+        static bool ClearPath(Vector2 a, Vector2 b)
         {
             IGameMap map = MapRegistry.Current;
             if (map == null) return true;
-            int n = Mathf.CeilToInt(Vector2.Distance(a, b) / 6f);
+            int n = Mathf.CeilToInt(Vector2.Distance(a, b) / 4f);
             for (int i = 1; i < n; i++)
             {
                 Vector2 p = Vector2.Lerp(a, b, i / (float)n);
-                if (map.RectBlocked(p.x - 3f, p.y, 6f, 6f)) return false;
+                if (map.RectBlocked(p.x - 5f, p.y, 10f, 8f)) return false;
             }
             return true;
         }

@@ -15,12 +15,12 @@ namespace ZenoniaProto
     {
         const string SheetPath = "Sprites/classes/warrior/fx/attack/lock-slash";
         const int Frames = 4;
-        const float CellUnits = 24f;        // drawn size of one cell in world units (x figure scale): the full crescent (0.77 cell) is ~18 u tall, a sword's sweep, not a wall over the hero (first try 40 u covered him, 2026-11-20)
+        const float CellUnits = 20f;        // drawn size of one cell in world units (x figure scale): the full crescent (0.77 cell) is ~15 u tall, a sword's sweep at contact range, not a wall over the hero (40 u covered him; 24 u still lay over his shield once he stood at contact, 2026-11-20)
         const float FrontOfCell = 0.41f;    // frame 2's front edge from the cell centre, fraction of the cell (printed by the tool)
         const float Life = 0.2f;            // 4 frames x 50 ms: the sword's forward frames f1-f2 of the 400 ms swing
         const float Lift = 4f;              // above the chest point the lock is measured from (y + 6): the sword's height
-        const float FrontPast = 6f, MaxFront = 46f; // the crescent's front lands this far past the monster's feet (ground distance), at most MaxFront
-        const float MinAhead = 5f;          // the crescent's centre stays at least this far ahead of the hero, so its back never sits on his body
+        const float FrontPast = 3f, MaxFront = 30f; // the crescent's front lands this far past the contact point (the monster's body edge), at most MaxFront
+        const float MinAhead = 9f;          // the crescent's centre stays at least this far ahead of the chest: at sword contact (13 u) its back sits at the hilt, not over the hero (2026-11-20, contact reach)
 
         static readonly List<WarriorLockSlashFx> Pool = new List<WarriorLockSlashFx>();
         static Transform root;
@@ -40,7 +40,7 @@ namespace ZenoniaProto
         /// <summary>True when the art loaded (else the caller falls back to the old slash + trail).</summary>
         public static bool Ready { get { return frames != null && root != null; } }
 
-        /// <summary>A slash from the chest of the hero standing at `feet` toward `angleDeg` (0 = right, 90 = up; ground direction to the monster's feet); `dist` = ground distance to them (0 = no target).</summary>
+        /// <summary>A slash from the chest of the hero standing at `feet` toward `angleDeg` (0 = right, 90 = up; toward the contact point on the monster); `dist` = chest to the contact point on the monster's body edge (0 = no target).</summary>
         public static void Spawn(Vector2 feet, float angleDeg, float dist, float figureScale)
         {
             if (!NetMode.RendersFx || !Ready) return;
@@ -60,7 +60,7 @@ namespace ZenoniaProto
             float size = CellUnits * k;
             float rad = angleDeg * Mathf.Deg2Rad;
             var dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
-            float ahead = Mathf.Max(MinAhead * k, Mathf.Min(dist > 0f ? dist + FrontPast : 24f, MaxFront) - FrontOfCell * size);
+            float ahead = Mathf.Max(MinAhead * k, Mathf.Min(dist > 0f ? dist + FrontPast : 18f, MaxFront) - FrontOfCell * size);
             Vector2 chest = feet + new Vector2(0f, (6f + Lift) * k);
             Vector2 c = chest + dir * ahead;
             bool left = Mathf.Cos(rad) < -0.01f; // left half: mirror so the sweep still runs from high to low on screen

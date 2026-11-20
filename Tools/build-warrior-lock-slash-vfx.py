@@ -100,12 +100,12 @@ def preview():
 HERO_8DIR = os.path.join(ROOT, "docs/reference/ro-fantasy-heroes-ingame/warrior-attack-8dir.png")  # 8 rows x 4 frames, as the game draws the hero
 CHECK = os.path.join(ROOT, "docs/reference/warrior-lock-slash/offline-8dir-check.png")
 # Same numbers as WarriorLockSlashFx.cs (keep in sync): cell units, front of the full crescent, lift, front past the target, min ahead.
-CELL_UNITS, FRONT_OF_CELL, CHEST, FRONT_PAST, MIN_AHEAD, FIGURE = 24.0, 0.41, 10.0, 6.0, 5.0, 1.15
+CELL_UNITS, FRONT_OF_CELL, CHEST, FRONT_PAST, MIN_AHEAD, FIGURE = 20.0, 0.41, 10.0, 3.0, 9.0, 1.15
 ROW_ANGLE = [-90, -45, 0, 45, 90, 135, 180, -135]  # rows of the 8-dir sheet: down, down-right, right, up-right, up, up-left, left, down-left
 PX_PER_UNIT = 200 / 20.5 / FIGURE  # hero body ~200 px of the check cell = 20.5 units x figure scale (soft-sheet bodyPx / 20.5)
 
 
-def check(target_dist=22.0):
+def check(target_dist=13.0):  # chest to the body edge where AttackChase stops (16 - 3)
     """Hero attack frames f1, f2 of each of the 8 directions with the slash frame 1 / 2 composited the way WarriorLockSlashFx places it
     (target `target_dist` units away along the facing; mirrored on the left half; behind the hero when slashing up the screen)."""
     import math
@@ -119,7 +119,7 @@ def check(target_dist=22.0):
     for row, ang in enumerate(ROW_ANGLE):
         rad = math.radians(ang)
         d = (math.cos(rad), math.sin(rad))
-        ahead = max(MIN_AHEAD * k, min(target_dist + FRONT_PAST, 46.0) - FRONT_OF_CELL * CELL_UNITS * k)
+        ahead = max(MIN_AHEAD * k, min(target_dist + FRONT_PAST, 30.0) - FRONT_OF_CELL * CELL_UNITS * k)
         for col, f in enumerate((1, 2)):
             cell = Image.new("RGBA", (cw + 2 * P, ch + 2 * P))
             cell.alpha_composite(hero.crop((f * cw, row * ch, (f + 1) * cw, (row + 1) * ch)), (P, P))
