@@ -22,12 +22,17 @@ namespace ZenoniaProto
             cam.nearClipPlane = 1f;
             cam.farClipPlane = 4000f;
             cam.transform.rotation = View25D.Tilt;
+            // A perspective camera sorts same-order sprites by distance to its position, which flips the hero's stacked layers (body, bald head,
+            // hair, front hair share one sortingOrder and differ by ~0.001 in z): the hair vanished under the head. Billboards face the camera,
+            // so depth along the view axis keeps those tiny local z offsets in the same order as the 2D camera does.
+            cam.transparencySortMode = TransparencySortMode.Orthographic;
         }
 
         /// <summary>Back to the plain 2D camera (another map, or the flag off).</summary>
         public static void Restore(Camera cam)
         {
             cam.orthographic = true;
+            cam.transparencySortMode = TransparencySortMode.Default;
             cam.transform.rotation = Quaternion.identity;
             cam.backgroundColor = new Color(0.06f, 0.09f, 0.13f); // CameraFollow's 2D background
         }
