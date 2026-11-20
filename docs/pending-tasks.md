@@ -2,8 +2,12 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 12:45 Bản thử 2.5D sân Hydra - ĐÃ merge `wip/proto-25d`, build, chụp, đo FPS (chờ người dùng quyết làm tiếp)
+- Người dùng: "merge vào di rồi làm tiếp 2.5d cho map có boss hydra queen". Sửa lỗi mất tóc ở 2.5D (sort mode camera). Exe `C:/temp/player-25d/Zenonia.exe` (`--view25d`). Ảnh `docs/reference/proto-25d/hydra-*.jpg`. Báo cáo + FPS (+1,2 đến 1,6 ms/khung với 40 hero) + ước tính 14 map + 3 câu hỏi: `plans/reports/proto-25d-hydra-261120.md`.
+- Chưa: đo điện thoại / WebGL, map khác. Crit 55b802dc đã biên dịch được (build 0 lỗi) nhưng chưa soi riêng số crit.
+- Agent khác (worktree riêng) đang làm: Warrior bỏ combo, đánh thường khoá 1 mục tiêu + vệt chém VFX (người dùng 20/11 12:30).
+
 ### 20/11 08:40 DỪNG GIỮA CHỪNG (người dùng tắt máy) - làm tiếp lần sau
-- **Bản thử 2.5D sân Hydra** (người dùng: "ok thử trên sân hydra"; mức 1 = giữ map 2D + sprite, camera nghiêng có phối cảnh, prop dựng đứng, bóng đổ, sương xa, cờ `--view25d`, chỉ hiển thị, không đổi server): code dở ở nhánh **`wip/proto-25d`** (98a2106a, chưa build, chưa xem trong game; có sửa `DamageNumber*.cs` nên khi gộp phải giữ thay đổi crit 55b802dc). Ảnh thử dở `docs/reference/proto-25d/` trên nhánh đó. Làm tiếp: build từ bản sao, chụp bật/tắt 2.5D, đo FPS trận 39 bot, viết `plans/reports/proto-25d-hydra-261120.md`, ước tính làm cho 14 map.
 - **Vẽ 40 quái thiết kế mới** theo `docs/monster-redesign-bible.md` (chưa bắt đầu pha ảnh): Tan Pham có lượt từ 09:17 20/11, Tay từ 21:32 20/11. Không cần duyệt concept.
 - Crit chỉ còn số vàng (55b802dc): chưa biên dịch / chưa xem trong game (Unity không mở lúc sửa).
 
