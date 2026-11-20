@@ -24,7 +24,7 @@ A class select screen opens first: click a card or press **1-5**. **F1-F5** resp
 
 | Class | Attack (J / Space) | Art |
 |---|---|---|
-| Warrior | One heavy lock-target slash (since 2026-11-20: locks one monster in reach, turns to it, hits only it; press / hold to repeat; a press with nothing in reach walks to the nearest / locked monster first, `AttackChase`), painted red slash trail (`WarriorLockSlashFx`); **L Earth Break** ultimate | sword + shield overlays (10 tiers) |
+| Warrior | One heavy lock-target slash (since 2026-11-20: locks one monster in reach, turns to it, hits only it; press / hold to repeat; melee reach = sword contact with the monster's body edge, bosses included; a press with nothing in reach walks to the nearest / locked monster first, `AttackChase`), painted red slash trail (`WarriorLockSlashFx`); **L Earth Break** ultimate | sword + shield overlays (10 tiers) |
 | Wizard | 3 magic bolts + arcane-burst finisher (AoE r26): layered violet-blue magic missile; **L Ice Storm** ultimate | staff overlays (10 tiers) |
 | Mechanic | 3 rapid shots + plasma-cannon finisher (AoE r24): plasma bolts, muzzle blast, starburst + dust impact (yellow, the class colour) | two pistols + back cannon overlays (10 tiers) |
 | Assassin | 3 quick slashes + double-stab finisher (two hits 90 ms apart, 6% extra crit): purple X-slash / thrust-streak dagger FX; **L Shadow Step** (blink behind the nearest foe, guaranteed crit) | dagger overlays in BOTH hands (`off` + `main` parts, 10 tiers) |

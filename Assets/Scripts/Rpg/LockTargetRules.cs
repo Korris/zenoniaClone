@@ -9,9 +9,21 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public static class LockTargetRules
     {
-        /// <summary>World units added to the swing's Reach when picking / keeping a target and when the blow lands: measured from the hero's chest
-        /// to the nearest edge of the monster's hit box (the old cleave box reached Reach + 4 ahead of the hero, a little wider than its body).</summary>
-        public const float ReachSlack = 8f;
+        /// <summary>World units added to the swing's Reach (ComboConfigs.WarriorHits, 12) when picking / keeping a target and when the blow lands, measured
+        /// from the hero's chest to the nearest edge of the monster's melee body (MeleeBody). 12 + 4 = 16 = where the sword's tip is in the swing frame
+        /// (~14 units ahead at figure scale 1, ~16 at 1.15): contact, as in RO / MU (user 2026-11-20 "làm giống mấy game RPG khác đó"). Was 34 + 8 = 42.</summary>
+        public const float ReachSlack = 4f;
+
+        /// <summary>Melee body width per painted height: a monster drawn far larger than its hit box (event bosses) is still touched at its painted edge.</summary>
+        public const float BodyWidthPerHeight = 0.35f;
+
+        /// <summary>Half width of a monster's melee body: its hit box, or 0.35 x its drawn height when that is wider. From MonsterDef numbers only, so the
+        /// zone server (no sprites) and the client agree.</summary>
+        public static float BodyHalfWidth(float hitW, float drawnHeight)
+        {
+            float a = hitW * 0.5f, b = drawnHeight * BodyWidthPerHeight;
+            return a > b ? a : b;
+        }
 
         /// <summary>Squared distance from a point to an axis-aligned box (0 inside).</summary>
         public static float BoxDistSq(float px, float py, float xMin, float yMin, float xMax, float yMax)
@@ -49,7 +61,7 @@ namespace ZenoniaProto.Rpg
         /// <summary>... after this long without reaching it, or this long without moving (walled off).</summary>
         public const float ChaseMaxSeconds = 6f, ChaseStuckSeconds = 1f;
         /// <summary>Reach margin the walk stops inside, so a target that drifts a little (or the server's slightly newer monster position online) is still in reach when the blow lands.</summary>
-        public const float ChaseReachMargin = 4f;
+        public const float ChaseReachMargin = 3f;
 
         /// <summary>8-way move (each of sx, sy is -1, 0 or 1) straight toward (dx, dy); an axis within `dead` units is not pressed (no zig-zag).</summary>
         public static void ChaseDir(float dx, float dy, float dead, out int sx, out int sy)

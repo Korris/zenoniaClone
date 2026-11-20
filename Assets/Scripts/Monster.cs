@@ -58,6 +58,16 @@ namespace ZenoniaProto
         public bool WasCaptured { get; private set; }
         public bool IsDying { get { return state == State.Dying; } }
         public Rect Box { get { return new Rect(x - def.HitW * 0.5f, y, def.HitW, def.HitH); } }
+        /// <summary>Body a melee lock slash has to touch (Warrior, LockTargetRules.BodyHalfWidth): the hit box, widened to the painted body for monsters drawn
+        /// larger than it (bosses), feet-anchored, at least as tall as it is half wide.</summary>
+        public Rect MeleeBody
+        {
+            get
+            {
+                float hw = Rpg.LockTargetRules.BodyHalfWidth(def.HitW, def.BodyHeightUnits * def.RenderScale);
+                return new Rect(x - hw, y, hw * 2f, Mathf.Max(def.HitH, hw));
+            }
+        }
         /// <summary>Body centre used for AoE distance (web: feet - 6).</summary>
         public Vector2 Center { get { return new Vector2(x, y + 6f); } }
 

@@ -31,7 +31,17 @@ Yêu cầu: "thêm 1 con agent làm hiệu ứng vệt chém slash vfx cho warri
 - Đã xem: offline `chase-offline-frames.jpg` (hero tự đi trái tới slime, vòng đỏ, chém 23), `chase-offline-marker-f78.jpg` (chụp trước khi tắt thanh máu offline); online server + client local trên Frost Hollow, client chỉ giữ phím đánh (`--net-bot chase`): hero tự xuống cầu thang tới slime, có vòng, 2 quái chết, lên cấp, không có exception (`chase-online-frames.jpg`).
 - Build Linux server: không được, máy thiếu module Unity Linux Dedicated Server.
 
+## Lượt 3 (20/11 chiều): đánh chạm như RPG khác
+- Người dùng: "làm giống mấy game RPG khác đó" -> tự đi tới cả boss / Wanted boss; cận chiến đứng chạm.
+- Tầm Warrior: Reach 34 -> 12, ReachSlack 8 -> 4: 16 đv từ ngực tới mép thân = mũi kiếm ở frame chém. Thân = `Monster.MeleeBody`: hộp đánh, nới rộng tới 0,35 x chiều cao vẽ (Mire Hydra Queen ~36 đv mỗi bên thay vì 21,5). Chỉ từ số trong MonsterDef nên server và client giống nhau. Test mới trong `LockTargetRulesTests`.
+- `AttackChase`: đo và đi tới điểm gần nhất trên mép thân (boss to dừng ở mép, không đi vào tâm), đi thẳng chỉ khi hộp chân hero (10 x 8) lướt qua được (lần đầu đi thẳng bị kẹt cột đèn), dừng trong tầm 3 đv.
+- Vệt chém: nhắm điểm chạm, mép trước quá điểm chạm 3 đv, ô 24 -> 20 đv, tâm cách ngực >= 9 đv (ô 24 đè lên khiên khi đứng sát).
+- AutoBattle (Warrior): chỉ bấm chém khi đã chạm.
+- Đã xem offline (Oakhaven, `--record-combo warrior --dummy-types X --dummy-dist 100`): slime, Frostfang King, Mire Hydra Queen: `contact-*-closeup.jpg`, `contact-*-frames.jpg`. Hero dừng ở mép, kiếm chạm thân, vệt rơi trên mép thân. Queen chụp với ô vệt 24 (trước khi thu nhỏ).
+- Build Linux server: vẫn thiếu module Unity.
+
 ## Câu hỏi
 1. (Đã trả lời lượt 2: có tự đi, có vòng khoá, giữ 400 ms / x1,75.)
-2. Tự đi có nên đuổi cả boss / Wanted boss không? Hiện đuổi mọi quái gần nhất trong 8 ô.
-3. Tầm chém 34 + 8 đv nhìn khá xa (vệt bay tới quái, kiếm không chạm): có muốn hero đứng sát hơn khi đi tới không?
+2. (Đã trả lời lượt 3: đuổi cả boss, đứng chạm.)
+3. Wanted boss có cần vòng đỏ không (đang cố ý bỏ vì vòng quá to)?
+4. Monster tự đi vào người hero (Frostfang King) nên thân nó đè hero: có cần chặn quái đứng chồng lên hero không?

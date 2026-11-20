@@ -45,11 +45,21 @@ namespace ZenoniaProto
         public bool InLockReach(Monster m, float margin)
         {
             if (!LocksTarget || m == null || cls.Hits.Length == 0) return false;
-            Rect b = m.Box;
+            Rect b = m.MeleeBody;
             float r = LockRange(cls.Hits[0]) - margin;
             Vector2 f = LockFrom;
             return LockTargetRules.BoxDistSq(f.x, f.y, b.xMin, b.yMin, b.xMax, b.yMax) <= r * r;
         }
+
+        /// <summary>Point of `m`'s melee body nearest `from` (where the sword meets it).</summary>
+        public static Vector2 ContactPoint(Monster m, Vector2 from)
+        {
+            Rect b = m.MeleeBody;
+            return new Vector2(Mathf.Clamp(from.x, b.xMin, b.xMax), Mathf.Clamp(from.y, b.yMin, b.yMax));
+        }
+
+        /// <summary>Hero chest (sim position), where reach is measured from.</summary>
+        public Vector2 ChestPoint { get { return LockFrom; } }
 
         /// <summary>AttackChase reached `m`: lock it, so the slash it presses next keeps it even when another monster stands nearer.</summary>
         public void SetLockTarget(Monster m) { lockTarget = m; lockAt = Time.time; }
@@ -89,7 +99,7 @@ namespace ZenoniaProto
             {
                 Monster m = all[i];
                 bool alive = m != null && !m.IsDying && m.Hp > 0f;
-                Rect b = alive ? m.Box : default(Rect);
+                Rect b = alive ? m.MeleeBody : default(Rect); // the painted body edge: the sword has to touch it
                 if (alive && onlyFacing >= 0) { Vector2 d = m.Feet - (from - new Vector2(0f, 6f)); alive = LockTargetRules.Facing4(d.x, d.y, onlyFacing) == onlyFacing; }
                 LockAlive.Add(alive);
                 LockDist.Add(alive ? LockTargetRules.BoxDistSq(from.x, from.y, b.xMin, b.yMin, b.xMax, b.yMax) : float.MaxValue);
@@ -126,9 +136,12 @@ namespace ZenoniaProto
             float dist = 0f;
             if (target != null)
             {
-                Vector2 d = target.Feet - feet; // ground direction, like the facing
+                // Aim at the contact point (the body edge nearest the chest) and land the crescent there, not at the monster's centre (big bosses).
+                Vector2 c = LockFrom, hit = ContactPoint(target, c);
+                Vector2 d = hit - c;
                 if (d.sqrMagnitude > 1f) angle = Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg;
-                dist = d.magnitude;
+                else { Vector2 g = target.Feet - feet; if (g.sqrMagnitude > 1f) angle = Mathf.Atan2(g.y, g.x) * Mathf.Rad2Deg; }
+                dist = Mathf.Max(1f, d.magnitude);
             }
             HeroFx.LockSlash(cls, feet, angle, dist, view != null ? view.FigureScale : 1f);
         }
