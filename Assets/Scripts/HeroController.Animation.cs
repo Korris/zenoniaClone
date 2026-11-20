@@ -92,7 +92,7 @@ namespace ZenoniaProto
             }
             if (view.IsSoft) { UpdateDir8(); view.Dir8 = dir8; } // view-only 8-way facing (HeroController.Dir8.cs)
             // Raised over whatever stands in front of the landing line while in the air.
-            view.Show(anim, drawFacing, frame, GameConfig.OrderBase(y - skillPoseLift), skillPoseAnim != null && anim == skillPoseAnim ? skillPoseAlpha : 1f);
+            view.Show(anim, drawFacing, frame, GameConfig.OrderBase(y - skillPoseLift), (skillPoseAnim != null && anim == skillPoseAnim ? skillPoseAlpha : 1f) * CrowdFadeAlpha());
             view.Lean(anim == "walk", facing, GameClock.Dt);
             view.Lift(skillPoseLift, skillPoseSideways);
             view.TickDashTrail(!dead && dashLeft > 0f, GameClock.Dt * 1000f);

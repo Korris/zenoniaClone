@@ -7,6 +7,7 @@ namespace ZenoniaProto
     public partial class DebugCapture
     {
         string comboArg, walkArg;
+        bool dummyOnce;
 
         /// <summary>Fixed 60 fps scripted scene for the walk cycle (--record-walk CLASS --face DIR): the hero holds the move key of that
         /// facing from frame 30 for 3 s, one PNG per frame (Tools/wizard-combo-ingame-frame-strip.py style strips; the camera keeps the hero centred).</summary>
@@ -34,6 +35,17 @@ namespace ZenoniaProto
             Application.Quit();
         }
 
+        /// <summary>--dummy-once: logs the hero's feet, the nearest monster's feet, their ground distance and its contact distance (collision check).</summary>
+        static void LogContact(HeroController hero, int frame)
+        {
+            Monster best = null;
+            float bd = float.MaxValue;
+            foreach (Monster m in Monster.All) { if (m == null || m.IsDying) continue; float d = (m.Feet - hero.SimPosition).sqrMagnitude; if (d < bd) { bd = d; best = m; } }
+            if (best == null) return;
+            Vector2 o = hero.SimPosition - best.Feet;
+            Debug.Log("[ZenoniaProto] contact f" + frame + " hero " + hero.SimPosition + " " + best.Type + " " + best.Feet + " ground " + Rpg.BodyCollisionRules.GroundDist(o.x, o.y).ToString("F1") + " contact " + best.HeroContact.ToString("F1"));
+        }
+
         /// <summary>Fixed 60 fps scripted scene for basic-attack FX: hero faces west holding attack at dummies that are re-spawned every 1.5 s. One PNG per frame.</summary>
         IEnumerator RecordCombo(string who)
         {
@@ -54,9 +66,10 @@ namespace ZenoniaProto
             InputAdapter.BotPressed = k => k == GameKey.Attack && frame >= attackFrom;
             for (; frame < endAt; frame++)
             {
-                if (frame >= attackFrom - 10 && (frame - attackFrom + 10) % 90 == 0) SpawnDummies(hero); // fresh targets (monsters die and respawn far away)
+                if (frame >= attackFrom - 10 && (frame - attackFrom + 10) % 90 == 0 && (!dummyOnce || frame == attackFrom - 10)) SpawnDummies(hero); // fresh targets (monsters die and respawn far away); --dummy-once: one set only (contact / collision checks)
                 yield return new WaitForEndOfFrame();
                 Save(Path.Combine(shotPath, "frame_" + frame.ToString("D5") + ".png"));
+                if (dummyOnce && frame % 15 == 0) LogContact(hero, frame);
             }
             Debug.Log("[ZenoniaProto] recorded combo " + frame + " frames");
             Application.Quit();

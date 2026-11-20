@@ -227,7 +227,7 @@ namespace ZenoniaProto
             {
                 ComboHit hit = combo.CurrentHit;
                 // Lunge forward during windup + active only (web stepPx; 0 for the ranged classes).
-                if (hit != null && hit.StepPx > 0f && combo.Phase != ComboPhase.Recover) vel = DirVec[facing] * (hit.StepPx / ((hit.WindupMs + hit.ActiveMs) / 1000f));
+                if (hit != null && hit.StepPx > 0f && combo.Phase != ComboPhase.Recover && !LockedInReach()) vel = DirVec[facing] * (hit.StepPx / ((hit.WindupMs + hit.ActiveMs) / 1000f));
             }
             else
             {
@@ -237,9 +237,10 @@ namespace ZenoniaProto
             if (moving && !dashing) animTimer += dtMs;
             else if (!dashing) animTimer = 0f;
 
-            if (vel == Vector2.zero) return;
+            Vector2 step = BodyCollide(vel * dt, dt); // soft collision with monster feet (HeroController.BodyCollision.cs)
+            if (step == Vector2.zero) return;
             bool bx, by;
-            Vector2 p = FrostHollowMap.Move(new Vector2(x, y), vel.x * dt, vel.y * dt, BoxW, BoxH, out bx, out by);
+            Vector2 p = FrostHollowMap.Move(new Vector2(x, y), step.x, step.y, BoxW, BoxH, out bx, out by);
             x = p.x; y = p.y;
         }
 
