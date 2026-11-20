@@ -38,6 +38,14 @@ namespace ZenoniaProto
             return false;
         }
 
+        /// <summary>`r` (GUI space, y down) sits under the RO HUD's top row (status / menu captions / minimap) or a shown RO panel:
+        /// world labels (monster foot labels) hide there like the IMGUI tags.</summary>
+        public static bool CoversHud(Rect r)
+        {
+            if (RoHud.Active && r.y < Mathf.Max(TopBand, RoHudBossBar.Bottom + 8f) * (Screen.height / 640f)) return true;
+            return Occluded(r);
+        }
+
         static Texture2D Tex(string piece)
         {
             Sprite s = RoSoftSprites.Named(piece);

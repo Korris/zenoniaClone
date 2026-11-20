@@ -2,6 +2,10 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 07:00 Trả lại tên + level dưới chân quái (giao diện RO Soft) - XONG, đã xem ảnh offline
+- Người dùng: "mà sao bạn bỏ level, tên kế ống máu của quái vật rồi". Nhãn 17/11 chỉ có ở giao diện Paper; RO giờ có `Monster.RoFootLabel.cs` + `MonsterFootLabelCrowd.cs` (chi tiết: Sổ lỗi `docs/ui-layout-rules.md`). Ảnh `docs/reference/monster-label-ro/`. Exe `D:/temp/player-moblabel/Zenonia.exe`.
+- Chưa xem: online (quái proxy đi cùng đường `Render`, chưa chạy thử với server), PC layout, WebGL. Thanh máu + tên mình (IMGUI) vẫn có thể đè tab quái đứng ngay sau lưng mình.
+
 ### 20/11 01:30 vẽ lại TOÀN BỘ map RO Soft Fantasy bằng ChatGPT (agent, người dùng ngủ: "làm lại toàn bộ map + quái theo style ro fantasy")
 - Cách làm: giữ nguyên bố cục (rows, prop, cổng, spawn, khu Wanted không đổi; server KHÔNG cần build lại vì rows không đổi), ChatGPT vẽ lại ground theo ảnh bố cục từng cửa sổ, `Tools/install-map-ro-redraw-windows.py layout|check|install|solids|sheet <map>` (căn ECC + optical flow, ghép mờ phần chồng). Ảnh trước/sau + ảnh ô chặn: `docs/reference/maps-ro-soft-redraw/`. Báo cáo `plans/reports/maps-ro-soft-redraw-261120.md`. Tài khoản Tay ("Tân Korris"), 26 lượt vẽ, chưa hết lượt.
 - XONG ảnh nền (đã commit, đã xem ảnh ô chặn): Willowbrook, Thatchwick, Frost Hollow, Frostfang Den, Sunspire, Amber Dunes, Scorpion Gorge, Emberfen, Bramblewood, Rootburrow, Thornheart, Sunbreak. Oakhaven + Sunken giữ bản 19/11.

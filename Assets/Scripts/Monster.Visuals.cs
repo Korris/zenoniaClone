@@ -74,7 +74,7 @@ namespace ZenoniaProto
             if (state == State.Dying)
             {
                 alpha = 1f - Mathf.Clamp01(deathTimer / FadeMs);
-                if (alpha <= 0f) { body.enabled = false; shadow.enabled = false; barBack.enabled = false; barFill.enabled = false; return; }
+                if (alpha <= 0f) { body.enabled = false; shadow.enabled = false; barBack.enabled = false; barFill.enabled = false; SetRoFootLabel(false); return; }
             }
             Sprite[] attackRow = SpriteSheet.Row(attack, facing);
             Sprite[] walkRow = SpriteSheet.Row(walk, facing);
@@ -101,8 +101,10 @@ namespace ZenoniaProto
             UpdateStatusOverlays(order);
 
             bool showBar = state != State.Dying && hp < def.Hp;
-            if (UiScreens.UseNew(UiScreen.Boss)) { RenderPaperBar(order, showBar); return; } // Adventure Paper frames, boss name and cast tab: Monster.PaperOverheadBar.cs
+            if (UiScreens.UseNew(UiScreen.Boss)) { SetRoFootLabel(false); RenderPaperBar(order, showBar); return; } // Adventure Paper frames, boss name and cast tab: Monster.PaperOverheadBar.cs
             if (paperBar) ClearPaperBar();
+            if (UiStyle.Ro && !def.IsBoss && !def.IsWanted) { barBack.enabled = barFill.enabled = false; RenderRoFootLabel(); return; } // RO Soft HP bar + "Lv.N Name" under the feet: Monster.RoFootLabel.cs
+            SetRoFootLabel(false);
             barBack.enabled = showBar; barFill.enabled = showBar;
             if (def.IsWanted && state != State.Dying)
             {

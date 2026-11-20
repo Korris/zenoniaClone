@@ -52,6 +52,7 @@ namespace ZenoniaProto
             {
                 float a = Angles[i] * Mathf.Deg2Rad;
                 RoHudSkillSlot s = slots[i] = new RoHudSkillSlot(safe, "Skill" + i, Attack + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * RoHud.SkillArc, RoHud.SkillSize);
+                NameTags.Occlude(s.Root); // name tags / monster foot labels stay off the HUD buttons (their captions have no backing)
                 var sw = s.Root.gameObject.AddComponent<SwipeDetector>();
                 sw.onSwipe = Cycle;
                 sw.onTap = () => { if (s.HasSkill) SkillMagazine.CastRequested(s.SkillIndex); };
@@ -63,6 +64,7 @@ namespace ZenoniaProto
             RoHud.KeyCap(ring, new Vector2(0f, 0f), 22f, 22f, InputAdapter.KeyLabel(GameKey.SkillPage)); // Tab: next page of 4
             RectTransform attack = RoHud.Box(safe, "Attack", RoHud.BottomRight, Attack.x, Attack.y, RoHud.AttackSize, RoHud.AttackSize);
             Image attackArt = RoHud.Art(attack, "hud-attack", true);
+            NameTags.Occlude(attack);
             Sprite up = RoHud.Piece("hud-attack"), down = RoHud.Piece("hud-attack-pressed");
             PaperHudPress.Hold(attack.gameObject, GameKey.Attack, d => attackArt.sprite = d && down != null ? down : up);
             Caption(attack, "Attack", RoHud.AttackSize * 0.26f, 15);
@@ -70,12 +72,14 @@ namespace ZenoniaProto
 
             RectTransform auto = RoHud.Box(safe, "Auto", RoHud.BottomRight, -RoHud.AutoX, RoHud.AutoY, RoHud.AutoSize, RoHud.AutoSize);
             autoArt = RoHud.Art(auto, "hud-auto", true);
+            NameTags.Occlude(auto);
             PaperHudPress.Tap(auto.gameObject, () => AutoBattle.Toggle(GameSession.Hero));
             Caption(auto, "Auto", RoHud.AutoSize * 0.14f, 14);
             RoHud.KeyCap(auto, RoHud.TopRight, -9f, -9f, InputAdapter.KeyLabel(GameKey.AutoToggle));
 
             RectTransform run = RoHud.Box(safe, "Run", RoHud.BottomRight, -RoHud.RunX, RoHud.RunY, RoHud.RunSize, RoHud.RunSize);
             RoHud.Art(run, "hud-run", true);
+            NameTags.Occlude(run);
             PaperHudPress.Tap(run.gameObject, () => TouchControls.Press(GameKey.Dash));
             Caption(run, "Run", RoHud.RunSize * 0.14f, 14);
             RoHud.KeyCap(run, RoHud.TopRight, -11f, -11f, InputAdapter.KeyLabel(GameKey.Dash, 1));
@@ -99,6 +103,7 @@ namespace ZenoniaProto
             TouchControls.Img(zone, null, Color.clear, true); // invisible, catches the touches around the base
             RectTransform b = RoHud.Box(zone, "Base", RoHud.BottomLeft, RoHud.JoyX, RoHud.JoyY, RoHud.JoySize, RoHud.JoySize);
             RoHud.Art(b, "hud-joy-base").color = new Color(1f, 1f, 1f, 0.55f); // see-through like the mockup
+            NameTags.Occlude(b); // see-through: a label under it would show through
             RectTransform knob = RoHud.Box(b, "Knob", RoHud.Mid, 0f, 0f, RoHud.KnobSize, RoHud.KnobSize);
             RoHud.Art(knob, "hud-joy-knob");
             zone.gameObject.AddComponent<TouchJoystick>().Init(b, knob, RoHud.KnobTravel, (u, r, d, l) =>
@@ -119,6 +124,7 @@ namespace ZenoniaProto
         {
             RectTransform b = RoHud.Box(safe, name, RoHud.BottomRight, x, RoHud.PotionY, RoHud.PotionSize, RoHud.PotionSize);
             RoHud.Art(b, "hud-potion-plate", true);
+            NameTags.Occlude(b);
             icon = RoHud.Box(b, "Icon", RoHud.Mid, 0f, 1f, RoHud.PotionSize * 0.72f, RoHud.PotionSize * 0.72f).gameObject.AddComponent<Image>();
             icon.preserveAspect = true; icon.raycastTarget = false;
             RectTransform badge;

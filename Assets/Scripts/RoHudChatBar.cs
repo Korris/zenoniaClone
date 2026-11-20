@@ -54,6 +54,7 @@ namespace ZenoniaProto
             v.root = UiKit.Fill(layer, "RoChat");
             RectTransform group = RoHud.Box(v.root, "Group", RoHud.BottomLeft, 0f, RoHud.ChatY, RoHud.ChatBubbleSize + BubbleGap + RoHud.ChatBarW, RoHud.ChatBarH);
             group.pivot = new Vector2(0f, 0.5f);
+            NameTags.Occlude(group); // the bar is 90 % opaque: no name tag / monster foot label shows through it
 
             RectTransform bubble = RoHud.Box(group, "ChatButton", new Vector2(0f, 0.5f), RoHud.ChatBubbleSize * 0.5f, 0f, RoHud.ChatBubbleSize, RoHud.ChatBubbleSize);
             Image art = RoHud.Art(bubble, "hud-chat-button", true);
