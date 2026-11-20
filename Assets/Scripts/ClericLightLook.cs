@@ -11,6 +11,8 @@ namespace ZenoniaProto
     /// alpha body and keeps the additive part mostly green and low (Sổ lỗi 2026-11-19: bright additive on snow / a pale road burns to a white sheet);
     /// only small cores pass the bloom threshold. Textures: grey masks of Resources/Sprites/fx/light-skill (Tools/build-light-skill-textures.py,
     /// holy-cross and holy-rune added for these). `--cleric-fx legacy` keeps the old painted art.
+    /// 2026-11-20 evening: the three buffs (Heal, Spirit Blessing, Divine Aegis) use the Buff* / Aegis* set (Midgard Senki layering); Divine Light and
+    /// the basic attack keep the first jade set.
     /// </summary>
     public static class ClericLightLook
     {
@@ -18,6 +20,23 @@ namespace ZenoniaProto
 
         /// <summary>Particle colours that still read on white snow (first capture 20/11: white / milk / mint particles and flashes vanished on snow): leaf = deep jade, spark = light jade.</summary>
         public static readonly Color Leaf = Hex(0x3FAE7C), Spark = Hex(0x8FE0B4);
+
+        /// <summary>
+        /// Buff palette (Heal, Spirit Blessing, Divine Aegis; 2026-11-20 Midgard Senki rules, docs/reference/cleric-fx-ro3/midgard-senki-vs-cleric-fx-chatgpt.md):
+        /// the first light pass was mint / white, the snow's own colour family, and burned the Cleric's face white. Now: saturated teal shape, mint halo,
+        /// cream-gold warm accents (they read on cool snow; teal reads on yellow-green grass), a deep teal band near the ground instead of a dark outline.
+        /// </summary>
+        public static readonly Color Teal = Hex(0x35B69F), Teal2 = Hex(0x48C9AE), DeepTeal = Hex(0x299C91), Halo = Hex(0xB3FFE5), Gold = Hex(0xFFE6A0);
+
+        /// <summary>
+        /// Buff materials: shape layers alpha 0.55-0.8 (saturated body, low additive), halo 0.12-0.25, cream sparks additive but small, flashes short and
+        /// small. Rings carry a bright ARC (LightBlob _Arc, angle set per renderer by ClericLightFx.Arc): only ~30 % of the ring glows at once, and the
+        /// arc also lightens the body, so it reads and moves with Bloom off. Additive parts stay under the bloom threshold except the spark cores.
+        /// </summary>
+        public static Material BuffHalo, BuffRing, BuffRune, BuffCross, BuffFlash, BuffColumn, BuffSpark, BuffMote, BuffTrail, BuffHead, AegisRim, AegisFace, AegisRune;
+
+        /// <summary>Half width (rad) of a buff ring's bright arc: 2 x 0.94 rad = 30 % of the circle.</summary>
+        public const float ArcHalfWidth = 0.94f;
 
         /// <summary>Flat on the ground: soft glow pool, ring, rune circle. Upright / over: cross star, white flash, healing column. Particles: mote, sparkle. Trail: bolt tail / blessing stream.</summary>
         public static Material GroundGlow, Ring, Rune, Cross, Flash, Column, Mote, Sparkle, Trail, BoltCore;
@@ -91,6 +110,59 @@ namespace ZenoniaProto
             Trail.SetColor("_EmissionColor", new Color(0.35f, 0.85f, 0.55f, 1f));
             Trail.SetFloat("_CoreWhite", 0.45f);
             Trail.SetColor("_BodyColor", A(Leaf, 0.75f));
+
+            BuildBuff(particle, veil, mote, core, cross, rune, band);
+        }
+
+        /// <summary>The buff set (see BuffHalo). Emission is linear HDR, kept low on the shape layers (snow ~0.9 plus a little stays coloured).</summary>
+        static void BuildBuff(Shader particle, Texture2D veil, Texture2D mote, Texture2D core, Texture2D cross, Texture2D rune, Texture2D band)
+        {
+            Color tealGlow = new Color(0.03f, 0.24f, 0.19f), haloGlow = new Color(0.05f, 0.16f, 0.13f), goldGlow = new Color(0.32f, 0.25f, 0.1f);
+
+            BuffHalo = Blob("ClericBuff_Halo", Texture2D.whiteTexture, 2.4f, haloGlow, 0f, A(Halo, 0.22f));
+            BuffRing = Blob("ClericBuff_Ring", band, 0f, tealGlow * 1.6f, 0f, A(DeepTeal, 0.78f));
+            ArcOn(BuffRing, A(Halo, 0.6f), 0.22f);
+            BuffRune = Blob("ClericBuff_Rune", rune, 0f, tealGlow * 1.3f, 0f, A(Teal, 0.7f));
+            ArcOn(BuffRune, A(Gold, 0.45f), 0.3f);
+            BuffCross = Blob("ClericBuff_Cross", cross, 0f, goldGlow, 0.05f, A(Gold, 0.72f));
+            BuffFlash = Blob("ClericBuff_Flash", core, 0f, goldGlow * 0.8f, 0.08f, A(Gold, 0.55f)); // short, small, cream: never a white sheet over the face
+            BuffHead = Blob("ClericBuff_Head", core, 0f, goldGlow * 1.2f, 0.3f, A(Gold, 0.9f));
+
+            // Cream-gold shaft rising BEHIND the healed / blessed hero: the hero stays in front of it, so hair and face are never covered.
+            BuffColumn = new Material(LightSkillAssets.Beam) { name = "ClericBuff_Column" };
+            BuffColumn.SetTexture("_MainTex", veil);
+            BuffColumn.SetVector("_MainTiling", new Vector4(1f, 0.6f, 0f, 0f));
+            BuffColumn.SetFloat("_ScrollSpeed", 1.2f);
+            BuffColumn.SetFloat("_StreakMin", 0.5f);
+            BuffColumn.SetFloat("_EdgeSoft", 0.85f);
+            BuffColumn.SetFloat("_BottomFade", 0.1f);
+            BuffColumn.SetFloat("_TopFade", 0.6f);
+            BuffColumn.SetColor("_EmissionColor", goldGlow * 0.9f);
+            BuffColumn.SetFloat("_CoreWhite", 0.05f);
+            BuffColumn.SetColor("_BodyColor", A(Gold, 0.45f));
+            BuffColumn.SetColor("_EdgeColor", A(Teal2 * 0.6f, 1f));
+
+            BuffSpark = Particle("ClericBuff_Spark", particle, cross, new Color(0.5f, 0.42f, 0.22f), 0.35f, 1f); // the only white-hot bits, and tiny
+            BuffMote = Particle("ClericBuff_Mote", particle, mote, new Color(0.06f, 0.28f, 0.22f), 0.04f, 0.9f);
+
+            BuffTrail = new Material(LightSkillAssets.Trail) { name = "ClericBuff_Trail" };
+            BuffTrail.SetColor("_EmissionColor", new Color(0.12f, 0.5f, 0.4f, 1f));
+            BuffTrail.SetFloat("_CoreWhite", 0.15f);
+            BuffTrail.SetColor("_BodyColor", A(Teal, 0.7f));
+
+            // Divine Aegis: teal shield rim (upright ellipse round the hero), a very thin see-through face (hollow: the centre, where the face is, stays
+            // clear), small cream runes on the rim. The rim's arc is the flash that runs round it on cast and on a blocked hit.
+            AegisRim = Blob("ClericAegis_Rim", band, 0f, tealGlow * 1.8f, 0f, A(Teal, 0.7f));
+            ArcOn(AegisRim, A(Halo, 0.7f), 0.2f);
+            AegisFace = Blob("ClericAegis_Face", Texture2D.whiteTexture, 0f, haloGlow * 0.6f, 0f, A(Teal2, 0.2f));
+            AegisFace.SetFloat("_Hollow", 1f);
+            AegisRune = Blob("ClericAegis_Rune", rune, 0f, goldGlow * 0.9f, 0.05f, A(Gold, 0.85f));
+        }
+
+        static void ArcOn(Material m, Color tint, float glowFloor)
+        {
+            m.SetVector("_Arc", new Vector4(0f, ArcHalfWidth, glowFloor, 1f));
+            m.SetColor("_ArcTint", tint);
         }
 
         static Material Blob(string name, Texture2D tex, float falloff, Color emission, float coreWhite, Color body)

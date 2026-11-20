@@ -119,11 +119,29 @@ namespace ZenoniaProto
         /// <summary>Per-renderer fade / dissolve / burst radius without new materials (negative = leave unchanged).</summary>
         public static void Set(Renderer r, float fade, float dissolve = -1f, float ringRadius = -1f)
         {
-            if (block == null) { block = new MaterialPropertyBlock(); fadeId = Shader.PropertyToID("_Fade"); dissolveId = Shader.PropertyToID("_Dissolve"); ringId = Shader.PropertyToID("_Ring"); }
+            Block();
             r.GetPropertyBlock(block);
             block.SetFloat(fadeId, Mathf.Clamp01(fade));
             if (dissolve >= 0f) block.SetFloat(dissolveId, Mathf.Clamp01(dissolve));
             if (ringRadius >= 0f) block.SetFloat(ringId, ringRadius);
+            r.SetPropertyBlock(block);
+        }
+
+        static void Block()
+        {
+            if (block != null) return;
+            block = new MaterialPropertyBlock();
+            fadeId = Shader.PropertyToID("_Fade"); dissolveId = Shader.PropertyToID("_Dissolve"); ringId = Shader.PropertyToID("_Ring"); arcId = Shader.PropertyToID("_Arc");
+        }
+
+        static int arcId = -1;
+
+        /// <summary>LightBlob bright arc for this renderer: centre angle (rad), half width (rad), glow floor outside it, arcs around the circle (see the shader).</summary>
+        public static void SetArc(Renderer r, float angle, float halfWidth, float floor, float count)
+        {
+            Block();
+            r.GetPropertyBlock(block);
+            block.SetVector(arcId, new Vector4(angle, halfWidth, floor, count));
             r.SetPropertyBlock(block);
         }
     }

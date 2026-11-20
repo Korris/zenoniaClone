@@ -20,11 +20,13 @@ namespace ZenoniaProto
             public MeshRenderer R; public Band Band; public int Order;
             public float T0, T1, W0, W1, H0, H1, Alpha, Spin, Rot;
             public Vector2 Offset;
+            public bool Arc; public float ArcPhase, ArcSpeed, ArcFloor, ArcCount; // LightBlob bright arc running round a ring (Arc())
         }
 
         struct Cue { public float At; public Action<ClericLightFx> Fire; public bool Done; }
 
         static readonly List<ClericLightFx> Live = new List<ClericLightFx>(32);
+        static int arcId = -1; // _Arc, looked up on first use (not in a MonoBehaviour's static initialiser)
         readonly List<Layer> layers = new List<Layer>(8);
         readonly List<Cue> cues = new List<Cue>(8);
         HeroController follow;
@@ -43,12 +45,28 @@ namespace ZenoniaProto
 
         public static ClericLightFx Create(string name, Vector2 at, HeroController followHero, float endMs, bool own)
         {
+            return Create(name, at, followHero, endMs, own ? 1f : 0.45f);
+        }
+
+        /// <summary>
+        /// Crowd tiers of the buff FX (Midgard Senki / RO3 rule, 40-player boss): the local player's own cast or one landing on them full, a party
+        /// member's 70 % (60 % particles), anyone else's 35 % (25 % particles). Boss warnings are not Cleric FX and are never dimmed.
+        /// </summary>
+        public static float DimFor(HeroController caster, HeroController target)
+        {
+            HeroController me = LocalPlayer.Hero;
+            if (me == null || caster == me || target == me) return 1f;
+            return PartyAllies.Are(me, caster) || PartyAllies.Are(me, target) ? 0.7f : 0.35f;
+        }
+
+        public static ClericLightFx Create(string name, Vector2 at, HeroController followHero, float endMs, float dim)
+        {
             Transform root = Zone.Main != null ? Zone.Main.Root : null;
             var go = new GameObject("ClericLight_" + name);
             if (root != null) go.transform.SetParent(root, false);
             var fx = go.AddComponent<ClericLightFx>();
             fx.anchor = at; fx.follow = followHero; fx.following = followHero != null; fx.endMs = endMs;
-            fx.Dim = own ? 1f : 0.45f;
+            fx.Dim = Mathf.Clamp01(dim);
             Live.Add(fx);
             return fx;
         }
@@ -59,8 +77,19 @@ namespace ZenoniaProto
             Live.Clear();
         }
 
-        /// <summary>Count of particles for this cast: all of them for the local player, about a third for others (at least one).</summary>
-        public int Count(int n) { return Own ? n : Mathf.Max(1, Mathf.RoundToInt(n * 0.35f)); }
+        /// <summary>Count of particles for this cast: all of them for the local player, 60 % for a party member (Dim 0.7), else about a third /
+        /// a quarter (Dim 0.45 / 0.35), at least one.</summary>
+        public int Count(int n) { return Own ? n : Mathf.Max(1, Mathf.RoundToInt(n * (Dim >= 0.6f ? 0.6f : Dim >= 0.4f ? 0.35f : 0.25f))); }
+
+        /// <summary>The last added layer (a ring with a LightBlob _Arc material) gets a bright arc running round it at `speedRadPerSec`: only ~30 % of
+        /// the ring glows at once (`count` arcs share that length). `floor` = glow left outside the arc (negative = the material's).</summary>
+        public ClericLightFx Arc(float speedRadPerSec, float phase = 0f, int count = 1, float floor = -1f)
+        {
+            if (layers.Count == 0) return this;
+            Layer l = layers[layers.Count - 1];
+            l.Arc = true; l.ArcSpeed = speedRadPerSec; l.ArcPhase = phase; l.ArcCount = Mathf.Max(1, count); l.ArcFloor = floor;
+            return this;
+        }
 
         /// <summary>A quad flat on the ground: diameter d0 -> d1 (units), squash = height / width of the ellipse.</summary>
         public ClericLightFx Ground(Material m, float t0, float t1, float d0, float d1, float alpha, float squash = 0.9f, float spinDegPerSec = 0f, int order = 4, Vector2 offset = default(Vector2))
@@ -159,6 +188,12 @@ namespace ZenoniaProto
                 if (l.Spin != 0f) l.R.transform.localRotation = Quaternion.Euler(0f, 0f, l.Rot + l.Spin * age / 1000f);
                 l.R.sortingOrder = l.Band == Band.Ground ? UltimateFx.GroundFxOrder + l.Order : l.Band == Band.Over ? FeelConfig.FxOrder - 20 + l.Order : behind + l.Order;
                 LightSkillAssets.Set(l.R, l.Alpha * fadeIn * fadeOut * Dim);
+                if (l.Arc)
+                {
+                    if (arcId < 0) arcId = Shader.PropertyToID("_Arc");
+                    Vector4 m = l.R.sharedMaterial.GetVector(arcId);
+                    LightSkillAssets.SetArc(l.R, l.ArcPhase + l.ArcSpeed * age / 1000f, ClericLightLook.ArcHalfWidth / l.ArcCount, l.ArcFloor >= 0f ? l.ArcFloor : m.z, l.ArcCount);
+                }
             }
         }
 

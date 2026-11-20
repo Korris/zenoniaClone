@@ -10,8 +10,9 @@ namespace ZenoniaProto
     /// follows them for the buff's time. Targets come from the same SkillSupport.Collect the buff uses: on a client that is the replayed cast against the heroes it knows about.
     /// Frames are cut at the ring's centre line: the upper half draws behind the hero, the ground arc in front, with a faint veil over the body so the hero always stays visible.
     /// One aura per hero and colour: a recast restarts it instead of stacking, and both colours layer. BuffState is not replicated, so an aura's end comes from the buff's time.
-    /// Since 2026-11-20 Spirit Blessing draws with the RO3-style light FX (ClericBlessingLightFx: particles + shader quads, its gold frames were removed);
-    /// this class still runs the caster's raise-hand pose for both buffs and the painted blue Divine Aegis.
+    /// Since 2026-11-20 Spirit Blessing draws with the RO3-style light FX (ClericBlessingLightFx: particles + shader quads, its gold frames were removed),
+    /// and since that evening Divine Aegis too (ClericAegisLightFx); this class still runs the caster's raise-hand pose for both buffs, and the painted
+    /// blue Divine Aegis only with `--cleric-fx legacy` (or when the light shaders are missing).
     /// </summary>
     public sealed class ClericBuffFx : MonoBehaviour
     {
@@ -34,6 +35,8 @@ namespace ZenoniaProto
 
         static readonly Look Gold = new Look { Name = "g", Tint = new Color(1f, 0.82f, 0.36f), Glow = new Color(1f, 0.7f, 0.2f), VeilAlpha = 0.1f };
         static readonly Look Blue = new Look { Name = "b", Tint = new Color(0.62f, 0.86f, 1f), Glow = new Color(0.25f, 0.6f, 1f), VeilAlpha = 0.2f };
+        /// <summary>No art: only the caster's raise-hand pose (the light FX draws everything else).</summary>
+        static readonly Look PoseOnly = new Look { Name = "pose", Tint = Color.white, Glow = Color.white };
         static readonly Dictionary<HeroController, ClericBuffFx> Live = new Dictionary<HeroController, ClericBuffFx>();
 
         public static bool Handles(string skillId) { return skillId == BlessingId || skillId == AegisId; }
@@ -84,9 +87,15 @@ namespace ZenoniaProto
                 Live[caster] = fx;
                 fx.Build(caster);
             }
-            bool light = look == Gold;
-            fx.Begin(ctx, look, light ? null : targets);
-            if (light) { if (ClericLightLook.Active) ClericBlessingLightFx.Cast(caster, targets, buff.Buff.Ms); return; }
+            bool light = ClericLightLook.Active;
+            fx.Begin(ctx, light || look == Gold ? PoseOnly : look, light || look == Gold ? null : targets); // Gold has no painted frames left
+            if (light)
+            {
+                if (look == Gold) ClericBlessingLightFx.Cast(caster, targets, buff.Buff.Ms);
+                else ClericAegisLightFx.Cast(caster, targets, buff.Buff.Ms);
+                return;
+            }
+            if (look == Gold) return; // `--cleric-fx legacy` Spirit Blessing: pose only, as before
             foreach (HeroController t in targets) Aura.Wear(t, look, buff.Buff.Ms, t == caster ? StreamFromMs : StreamToMs);
         }
 
@@ -99,8 +108,9 @@ namespace ZenoniaProto
                 if (!Handles(def.Id)) continue;
                 SkillEffect buff = def.Effects[0];
                 HeroBuffs.For(hero).Add(buff.Buff.Kind, def.BuffAt(buff, 1), buff.Buff.Ms, buff.Count, BuffSource.Pack(def.Class, def.Index));
-                if (def.Id == AegisId) Aura.Wear(hero, Blue, buff.Buff.Ms, 0f);
-                else if (ClericLightLook.Active) ClericBlessingLightFx.Cast(hero, new List<HeroController> { hero }, buff.Buff.Ms);
+                var self = new List<HeroController> { hero };
+                if (def.Id == AegisId) { if (ClericLightLook.Active) ClericAegisLightFx.Cast(hero, self, buff.Buff.Ms); else Aura.Wear(hero, Blue, buff.Buff.Ms, 0f); }
+                else if (ClericLightLook.Active) ClericBlessingLightFx.Cast(hero, self, buff.Buff.Ms);
             }
         }
 
