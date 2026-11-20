@@ -13,7 +13,7 @@ namespace ZenoniaProto
     ///   --look-at "3=S,H,O,HAT;6=..." changes the look (and the worn hat id, 0 = none) at those seconds: the HUD portrait must follow
     ///   --ro-click "1=Bag;2=Close"    at each second: a pointer click at the screen centre of the RO HUD control with that name, through the
     ///                                 EventSystem raycast a mouse would hit (logs the object hit), then the state after it
-    ///                                 (open screens, More, Auto, skill page, party fold, chat, minimap zoom, quests, settings)
+    ///                                 (open screens, More, Auto, skill page, party fold, Wanted fold + board, chat, minimap zoom, quests, settings)
     ///   --ro-poison S                 at S seconds the local hero is poisoned for 12 s (offline: its own status; the HUD buff row shows it)
     ///   --ro-fallen S                 at S seconds the Wanted kill toast ("The Mire Hydra Queen has fallen!", the call NetEventPlayer makes)
     ///   --ro-digit "2=1;3=5"          at each second: the digit key of that loadout slot (1-8) counts as pressed for one frame (PC loadout keys)
@@ -107,7 +107,7 @@ namespace ZenoniaProto
             RoHudControls ro = TouchControls.Ro;
             Debug.Log("[ZenoniaProto] ro-click " + name + " hit " + hit + " => open: " + (open == "" ? "none " : open) + "| more " + (ro != null && ro.Menu.MoreOpen)
                 + " auto " + AutoBattle.On + " page " + (ro != null ? ro.Page + 1 : 0) + " partyFolded " + RoHudParty.Collapsed + " chat " + ChatWindow.Expanded
-                + " zoom " + Minimap.Zoom + " quests " + QuestLogWindow.IsOpen + " settings " + SettingsWindow.IsOpen + " modal " + UiWindows.ModalOpen);
+                + " wantedFolded " + RoHudWanted.Collapsed + " wantedBoard " + WantedBoardWindow.IsOpen + " zoom " + Minimap.Zoom + " quests " + QuestLogWindow.IsOpen + " settings " + SettingsWindow.IsOpen + " modal " + UiWindows.ModalOpen);
         }
 
         /// <summary>The active RO HUD control named `name` (the first match under an RO root), or null.</summary>
