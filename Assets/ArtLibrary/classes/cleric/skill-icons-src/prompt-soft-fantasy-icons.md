@@ -2,7 +2,7 @@
 
 Tài khoản: Tay ("Tân Korris", Plus). Chat: https://chatgpt.com/c/6b00431c-0d78-83ec-9376-b77b5415c87c
 
-**Trạng thái 20/11 19:55: CHƯA có ảnh.** Đã gửi prompt + 3 ảnh dưới đây vào chat trên; ChatGPT trả "You're out of image creations for now. Try again at 9:32 PM" (Tay hết lượt tới 21:32). Tan Pham không kết nối Chrome lúc đó. Sau 21:32: mở lại chat trên (3 ảnh mẫu đã nằm trong tin đầu), gửi lại nguyên prompt.
+**20/11 20:15: XONG trên Tan Pham** https://chatgpt.com/c/6b0045e1-c7c4-83ec-b6f1-7bcf019ad439 (cùng prompt, cùng 3 ảnh, lượt đầu đạt) -> `cleric-skill-icons-soft-fantasy-chatgpt-1.png`. Trước đó 19:55: Đã gửi prompt + 3 ảnh dưới đây vào chat trên; ChatGPT trả "You're out of image creations for now. Try again at 9:32 PM" (Tay hết lượt tới 21:32). Tan Pham không kết nối Chrome lúc đó. Sau 21:32: mở lại chat trên (3 ảnh mẫu đã nằm trong tin đầu), gửi lại nguyên prompt.
 
 Ảnh gửi kèm (theo thứ tự):
 1. `docs/reference/ui-style-ro-soft-fantasy/04-skill.png` (kiểu icon tròn trong cửa sổ Kỹ năng)

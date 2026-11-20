@@ -33,13 +33,13 @@ def key_out(im):
     border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
     bg = np.isin(lab, list(border))
     alpha = np.where(bg, np.clip((dist - 60) / 90, 0, 1), 1.0)
-    rim = ndimage.binary_dilation(bg, iterations=3) & ~bg
+    rim = ndimage.binary_dilation(bg, iterations=4) & ~bg
     # spill: magenta = high R and B over G; clamp R and B toward G on the rim and on semi-transparent pixels
     spill = rim | (alpha < 1)
     g = rgb[..., 1]
     for c in (0, 2):
         ch = rgb[..., c]
-        rgb[..., c] = np.where(spill & (ch > g), g + (ch - g) * 0.35, ch)
+        rgb[..., c] = np.where(spill & (ch > g), g + (ch - g) * 0.1, ch)
     out = np.dstack([rgb, alpha * 255]).clip(0, 255).astype(np.uint8)
     return Image.fromarray(out, "RGBA"), ~bg
 

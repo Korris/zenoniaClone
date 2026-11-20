@@ -3,15 +3,23 @@
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 20/11 20:15 Cleric: làm lại FX buff máu / buff dam / buff defense kiểu Midgard Senki + Heal luôn hồi cả bản thân (agent, XONG code, CHỜ người dùng thử trong game)
+- Người dùng: "làm lại hiệu ứng skill buff máu, skill buff dam và buff defense, skill buff máu cho buff chính bản thân mình luôn". Ánh xạ: Heal, Spirit Blessing, Divine Aegis. Theo `docs/reference/cleric-fx-ro3/midgard-senki-vs-cleric-fx-chatgpt.md` (giữ nguyên map).
+- FX: teal #35B69F / #48C9AE + dải #299C91 sát đất (lớp hình), quầng mint #B3FFE5 0,22, kem vàng #FFE6A0 (thập tự, cột, chớp, spark); chỉ ~30 % vòng sáng cùng lúc (shader `LightBlob` `_Arc`); Heal chớp kem nhỏ SAU hero (không loá mặt); Divine Aegis bỏ frame vẽ: viền khiên teal + mặt rỗng + 3 rune kem, cung sáng chạy quanh khi dựng khiên / khi bị đánh (`ClericAegisLightFx.cs`). Đám đông: mình 100 %, party 70 %, người khác 35 %. `--cleric-fx legacy` vẫn còn.
+- Heal: luôn hồi cả người cast (không còn "no target in range"), `Rpg/Skills/LowestAllyHealRule.cs` + test; **build lại zone server Linux** khi deploy (máy này thiếu module Linux).
+- Exe `D:/temp/player-cleric-buff/Zenonia.exe`. Test 479 + 455 pass. Báo cáo + 3 câu hỏi: `plans/reports/cleric-buff-fx-midgard-261120.md`.
+- CHƯA xem ảnh trong game (người dùng tự thử): cần nhìn Heal lên mình / lên đồng minh, Blessing, Aegis trên tuyết + Willowbrook, 40 người, tắt Bloom (F6).
+
 ### 20/11 20:05 Tên người chơi trên đầu dùng font đẹp như nhãn quái - XONG, đã xem ảnh offline
 - Người dùng: "sao tên người chơi xài font xấu vậy ko đẹp như tên quái vật". Tên trên đầu (mình xanh lá + khiên + thanh HP, người khác trắng) đổi từ Arial IMGUI + bóng đen sang Nunito Bold + viền navy mảnh giống nhãn quái; viền dùng chung `Assets/Scripts/RoTextOutline.cs`; cỡ bằng nhãn quái theo zoom, tối thiểu 11 điểm khi zoom xa (`NameTags.cs`).
 - Exe `C:/temp/player-names/Zenonia.exe` (ổ D: đầy, còn ~0,7 GB: build ra C:). Ảnh `docs/reference/player-name-font/`. Đã xem: offline Willowbrook zoom 60 / 80 (và bản chưa có mức tối thiểu ở zoom 108 + đám 40 người Frost Hollow: chỉ ≤ 8 tên, FPS như trước). Chưa xem: đám đông với bản cuối, điện thoại, 2.5D.
 
-### 20/11 19:55 Icon skill Cleric vẽ lại tông RO Soft Fantasy - CHỜ lượt vẽ ảnh (Tay sau 21:32)
+### 20/11 20:15 Icon skill Cleric vẽ lại tông RO Soft Fantasy - XONG, đã xem ảnh (người dùng tự kiểm trong game)
 - Người dùng: "kêu nó design lại icon skill của cleric theo tông fantasy soft".
-- ChatGPT (Tay "Tân Korris") https://chatgpt.com/c/6b00431c-0d78-83ec-9376-b77b5415c87c : đã gửi prompt + 3 ảnh mẫu (`04-skill.png`, `01-style-board.png`, `sample-hero-user-pick.png`), bị "out of image creations, try again at 9:32 PM". Tan Pham không kết nối Chrome. 0 ảnh, chưa đổi icon nào.
-- Sẵn sàng: prompt + các bước `Assets/ArtLibrary/classes/cleric/skill-icons-src/prompt-soft-fantasy-icons.md` (8 đĩa tròn 4x2 trên #FF00FF, ngọc #35B69F/#48C9AE + kem #FFE6A0 + mint #B3FFE5); tool cắt + ảnh xem `Tools/build-cleric-soft-skill-icons.py` (`cut`, `preview`; đã thử trên ảnh giả), ghi đè `Sprites/classes/cleric/skills/<slug>/icon.png` (128 px, giữ `.meta`). Ảnh trước: `docs/reference/cleric-skill-icons-soft-fantasy/before-current-icons.png`.
-- Sau 21:32: gửi lại prompt trong chat trên, tải ảnh, xem, `cut`, `preview` -> `after-soft-fantasy-icons.png`, commit. Người dùng tự kiểm UI trong game.
+- ChatGPT (Tan Pham) https://chatgpt.com/c/6b0045e1-c7c4-83ec-b6f1-7bcf019ad439 : vẽ được ngay lượt đầu (8 đĩa tròn 4x2 trên #FF00FF, ngọc + kem + mint, mỗi skill một hình). Lần thử trước trên Tay (https://chatgpt.com/c/6b00431c-0d78-83ec-9376-b77b5415c87c) bị hết lượt ảnh.
+- Ảnh gốc `Assets/ArtLibrary/classes/cleric/skill-icons-src/cleric-skill-icons-soft-fantasy-chatgpt-1.png` (1774x887), dải đã tách nền `-keyed.png`, prompt `prompt-soft-fantasy-icons.md`. Cài bằng `Tools/build-cleric-soft-skill-icons.py cut` vào 8 `Sprites/classes/cleric/skills/<slug>/icon.png` (128 px, giữ `.meta`). `skill-icons/0..14.png` (bộ web cũ) không đổi.
+- Ảnh trước / sau: `docs/reference/cleric-skill-icons-soft-fantasy/before-current-icons.png`, `after-soft-fantasy-icons.png`. Đã xem từng icon phóng 3-4x trên nền tối và sáng: không viền hồng, khói tím Purification giữ nguyên.
+- Chưa xem: trong game (vòng HUD, cửa sổ Kỹ năng, hàng buff). Divine Light và Sanctuary cùng kiểu cột sáng + vòng đất (khác nhau ở ngôi sao và cỏ / lá), nếu người dùng thấy dễ lẫn thì vẽ lại một cái.
 
 ### 20/11 19:40 Nhãn quái RO Soft: bỏ nền pill, chỉ còn chữ - XONG, đã xem ảnh offline
 - Người dùng: "chỗ tên và level của creep bỏ cái background màu xanh đi, chỉ hiện chữ thôi được rồi".
