@@ -27,13 +27,15 @@ namespace ZenoniaProto
             ring = ProceduralSprites.Child(transform, "TargetRing", RingSprite());
         }
 
-        /// <summary>The current target, or null.</summary>
+        /// <summary>The current target, or null: the monster a lock-target hero (Warrior) walks to or is locked on (online and offline), else online the monster you hit last.</summary>
         public static Monster Target()
         {
-            if (NetMode.IsOffline) return null;
-            Monster m = Monster.LastHitByMe;
             HeroController hero = LocalPlayer.Hero;
-            if (m == null || m.IsDying || m.Hp <= 0f || hero == null || hero.IsDead || Time.time - Monster.LastHitByMeAt > HoldSeconds) return null;
+            if (hero == null || hero.IsDead) return null;
+            Monster m = AttackChase.Target;
+            if (m == null) m = hero.RecentLockTarget(HoldSeconds);
+            if (m == null && !NetMode.IsOffline && Time.time - Monster.LastHitByMeAt <= HoldSeconds) m = Monster.LastHitByMe;
+            if (m == null || m.IsDying || m.Hp <= 0f) return null;
             return (m.Feet - hero.Position).sqrMagnitude < MaxDistance * MaxDistance ? m : null;
         }
 
@@ -53,7 +55,7 @@ namespace ZenoniaProto
 
         void OnGUI()
         {
-            if (Event.current.type != EventType.Repaint || TradeWindow.IsOpen || HeroChangeScreen.IsOpen) return;
+            if (Event.current.type != EventType.Repaint || TradeWindow.IsOpen || HeroChangeScreen.IsOpen || NetMode.IsOffline) return; // offline: the ring only (the IMGUI bar sits over the compact HUD's icon row)
             Bottom = 0f;
             Monster m = Target();
             if (m == null || (m == Hud.BarBoss())) return; // the boss already has its big bar

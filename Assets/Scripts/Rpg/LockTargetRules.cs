@@ -41,6 +41,30 @@ namespace ZenoniaProto.Rpg
             return best;
         }
 
+        // ---- walk to the target (AttackChase, user OK 2026-11-20: an attack press with the monster out of reach walks to it, RO style, then slashes) ----
+        /// <summary>An attack press with nothing in reach starts a walk to a monster at most this far (feet to feet, 8 tiles).</summary>
+        public const float ChaseStartRange = 128f;
+        /// <summary>The walk gives up when the target gets this far away (12 tiles: it fled or was knocked away).</summary>
+        public const float ChaseLeash = 192f;
+        /// <summary>... after this long without reaching it, or this long without moving (walled off).</summary>
+        public const float ChaseMaxSeconds = 6f, ChaseStuckSeconds = 1f;
+        /// <summary>Reach margin the walk stops inside, so a target that drifts a little (or the server's slightly newer monster position online) is still in reach when the blow lands.</summary>
+        public const float ChaseReachMargin = 4f;
+
+        /// <summary>8-way move (each of sx, sy is -1, 0 or 1) straight toward (dx, dy); an axis within `dead` units is not pressed (no zig-zag).</summary>
+        public static void ChaseDir(float dx, float dy, float dead, out int sx, out int sy)
+        {
+            sx = dx > dead ? 1 : dx < -dead ? -1 : 0;
+            sy = dy > dead ? 1 : dy < -dead ? -1 : 0;
+            if (sx == 0 && sy == 0 && (dx * dx + dy * dy) > 0.01f) { if ((dx < 0f ? -dx : dx) >= (dy < 0f ? -dy : dy)) sx = dx < 0f ? -1 : 1; else sy = dy < 0f ? -1 : 1; }
+        }
+
+        /// <summary>True while the walk should go on: the target within the leash, not walking too long, not stuck.</summary>
+        public static bool KeepChasing(float distToTarget, float chaseSeconds, float stillSeconds)
+        {
+            return distToTarget <= ChaseLeash && chaseSeconds <= ChaseMaxSeconds && stillSeconds <= ChaseStuckSeconds;
+        }
+
         /// <summary>4-way facing toward (dx, dy): 0 down, 1 up, 2 left, 3 right. A vector too short to mean anything keeps `current`.</summary>
         public static int Facing4(float dx, float dy, int current)
         {

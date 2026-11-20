@@ -93,7 +93,7 @@ namespace ZenoniaProto
             root.AddComponent<NameTags>();
             root.AddComponent<PlayerIndicatorRing>(); // online and offline: mint double ring under your own hero only (unlike any buff ring)
             root.AddComponent<LocalHeroMarker>(); // online: chevron over your hero when someone stands in front of it
-            root.AddComponent<TargetMarker>();    // online: red ring + fixed HP bar for the monster you hit last
+            root.AddComponent<TargetMarker>();    // red ring + fixed HP bar: online the monster you hit last; online and offline the Warrior's locked / walked-to monster
 
             // Bloom (Built-in pipeline OnRenderImage) + F6 / F hotkeys; the camera is switched to HDR by BloomEffect.
             var bloom = cam.GetComponent<BloomEffect>();

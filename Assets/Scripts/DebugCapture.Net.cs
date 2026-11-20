@@ -46,6 +46,7 @@ namespace ZenoniaProto
                 case "boss": EnableNavBot(true, offset); break;
                 case "wander": EnableWanderBot(); break;
                 case "twitch": EnableTwitchBot(); break;
+                case "chase": InputAdapter.BotHeld = k => false; InputAdapter.BotPressed = k => k == GameKey.Attack; break; // holds attack, never moves: the Warrior walk-to-target (AttackChase) does the walking
                 case "portal": EnablePortalBot(); break;
                 case "party": StartPartyBot(); break;
                 case "trade": StartTradeBot(); break;

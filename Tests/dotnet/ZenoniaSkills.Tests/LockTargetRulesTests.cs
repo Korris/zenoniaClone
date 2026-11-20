@@ -65,4 +65,22 @@ public class LockTargetRulesTests
         combo.Update(400f, ev);
         Assert.False(combo.IsAttacking); // no press: it stops
     }
+
+    [Fact]
+    public void ChaseWalksStraightInEightWaysWithoutZigZag()
+    {
+        int sx, sy;
+        LockTargetRules.ChaseDir(40f, 20f, 3f, out sx, out sy); Assert.Equal((1, 1), (sx, sy));
+        LockTargetRules.ChaseDir(-40f, 2f, 3f, out sx, out sy); Assert.Equal((-1, 0), (sx, sy)); // nearly level: only left
+        LockTargetRules.ChaseDir(1f, -2f, 3f, out sx, out sy); Assert.Equal((0, -1), (sx, sy));  // inside the dead zone: still steps the longer axis
+    }
+
+    [Fact]
+    public void ChaseStopsWhenTooFarTooLongOrStuck()
+    {
+        Assert.True(LockTargetRules.KeepChasing(100f, 2f, 0.2f));
+        Assert.False(LockTargetRules.KeepChasing(LockTargetRules.ChaseLeash + 1f, 2f, 0.2f));
+        Assert.False(LockTargetRules.KeepChasing(100f, LockTargetRules.ChaseMaxSeconds + 0.1f, 0.2f));
+        Assert.False(LockTargetRules.KeepChasing(100f, 2f, LockTargetRules.ChaseStuckSeconds + 0.1f));
+    }
 }

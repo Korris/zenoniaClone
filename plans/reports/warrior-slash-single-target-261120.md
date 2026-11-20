@@ -23,7 +23,15 @@ Yêu cầu: "thêm 1 con agent làm hiệu ứng vệt chém slash vfx cho warri
 - `--zoom` của `--record-combo` không có tác dụng (camera giữ cỡ dev-start), ảnh chụp ở tầm nhìn thường.
 - Build dùng chung bản sao `C:\temp\zu-copy` (C: chỉ còn ~6 GB, không đủ tạo bản sao riêng; Library 21 GB). Không chạy lúc agent khác build.
 
+## Lượt 2 (20/11 chiều): tự đi tới quái + vòng khoá
+- Người dùng: (1) có tự đi tới quái, (2) có vòng khoá offline, (3) giữ 400 ms / x1,75.
+- `AttackChase.cs`: bấm đánh khi không quái nào trong tầm -> chọn quái (đang khoá nếu trong 8 ô, không thì gần nhất trong 8 ô, đi được trong 12 bước ô) -> giữ phím di chuyển theo `TileNav` (gần + thấy thẳng thì đi thẳng 8 hướng) -> vào tầm (chừa 4 đv) thì khoá quái đó và bấm chém. Nuốt phím đánh của người chơi lúc đang đi (không chém hụt từng frame). Dừng: bấm di chuyển, quái chết, xa > 12 ô, > 6 s, kẹt 1 s, Auto bật.
+- Online: chỉ là phím (như AutoBattle) nên server vẫn quyết di chuyển và sát thương; không đổi giao thức, không đổi server.
+- Vòng đỏ `TargetMarker` dưới quái đang đi tới / mới khoá (4 s), offline và online. Offline không vẽ thanh máu IMGUI trên đỉnh (đè hàng icon HUD gọn; online vẫn vậy như trước).
+- Đã xem: offline `chase-offline-frames.jpg` (hero tự đi trái tới slime, vòng đỏ, chém 23), `chase-offline-marker-f78.jpg` (chụp trước khi tắt thanh máu offline); online server + client local trên Frost Hollow, client chỉ giữ phím đánh (`--net-bot chase`): hero tự xuống cầu thang tới slime, có vòng, 2 quái chết, lên cấp, không có exception (`chase-online-frames.jpg`).
+- Build Linux server: không được, máy thiếu module Unity Linux Dedicated Server.
+
 ## Câu hỏi
-1. Có muốn khi bấm đánh mà quái ngoài tầm thì hero tự đi tới quái đã khoá (kiểu RO) không? Hiện tại chém hụt tại chỗ.
-2. Có cần vòng / dấu khoá mục tiêu offline (online đã có `TargetMarker` theo quái mình đánh cuối)?
-3. Số liệu 400 ms / x1,75 có ổn, hay muốn chậm và nặng hơn?
+1. (Đã trả lời lượt 2: có tự đi, có vòng khoá, giữ 400 ms / x1,75.)
+2. Tự đi có nên đuổi cả boss / Wanted boss không? Hiện đuổi mọi quái gần nhất trong 8 ô.
+3. Tầm chém 34 + 8 đv nhìn khá xa (vệt bay tới quái, kiếm không chạm): có muốn hero đứng sát hơn khi đi tới không?

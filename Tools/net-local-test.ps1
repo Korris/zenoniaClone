@@ -15,8 +15,8 @@ param(
   [int]$Seconds = 90,                 # run time of every bot client
   [int]$Port = 7790,
   [string]$OutDir = "net-test-out",
-  [ValidateSet("boss", "fight", "wander", "twitch", "skills", "portal")][string]$Bot = "boss",   # skills = fight + learn every skill online + cycle the skill keys (server gets --dev-level); portal = walk from portal to portal
-  [ValidateSet("boss", "fight", "wander", "twitch", "skills", "portal")][string]$CamBot = "boss",   # brain of the visible recording client
+  [ValidateSet("boss", "fight", "wander", "twitch", "skills", "portal", "chase")][string]$Bot = "boss",   # skills = fight + learn every skill online + cycle the skill keys (server gets --dev-level); portal = walk from portal to portal; chase = hold attack, never move (Warrior walk-to-target)
+  [ValidateSet("boss", "fight", "wander", "twitch", "skills", "portal", "chase")][string]$CamBot = "boss",   # brain of the visible recording client
   [string]$DevKey = "k",
   [int]$MaxPlayers = 200,
   [string]$VideoDir = "",             # set = one extra visible client records frames here
