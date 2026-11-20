@@ -11,7 +11,8 @@ public class BodyCollisionRulesTests
         float queen = BodyCollisionRules.FootRadius(43f, 102.5f, true, true);
         Assert.InRange(queen, 17f, 19f);
         Assert.Equal(BodyCollisionRules.WantedFootMax, BodyCollisionRules.FootRadius(43f, 400f, true, true)); // capped
-        Assert.Equal(BodyCollisionRules.BossFootMin, BodyCollisionRules.FootRadius(22f, 35f, true, false));   // Frostfang King: small body, floor
+        Assert.InRange(BodyCollisionRules.FootRadius(22f, 35f, true, false), 9f, 10f);                        // Frostfang King: 0.8 x hit half width 12.25
+        Assert.Equal(BodyCollisionRules.BossFootMin, BodyCollisionRules.FootRadius(12f, 20f, true, false));   // a small boss: floor
         Assert.Equal(BodyCollisionRules.NormalFootMin, BodyCollisionRules.FootRadius(6f, 10f, false, false));
     }
 

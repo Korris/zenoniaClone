@@ -249,6 +249,7 @@ namespace ZenoniaProto
                 case "wanted-kill": yield return WantedKill(); break;
                 case "wanted-board": yield return WantedBoard(); break;
                 case "wanted-showcase": yield return WantedShowcase(); break;
+                case "lock-ring": yield return LockRingShots(); break;
                 case "show":
                     yield return new WaitForSeconds(1f);
                     P("final " + PersistLine());

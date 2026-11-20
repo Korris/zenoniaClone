@@ -2,6 +2,12 @@
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
 
+### 20/11 16:00 Vòng khoá vàng kiểu RO3 + va chạm mềm (agent, nhánh `feat/target-ring-soft-collision`, chờ merge)
+- Người dùng: "hỏi ChatGPT Ragnarok 3 làm thế nào rồi làm vậy". Chat ChatGPT (Tay): https://chatgpt.com/c/6afffe38-03f4-83ec-a5a6-653818256e43 (ChatGPT nói chưa xác minh hết nội bộ RO3).
+- XONG: vòng khoá = elip vàng mượt mesh thủ tục (`Net/Client/TargetRingMesh.cs`, #E7C66B, Wanted #F3D17A, nét 2,5 px / Wanted 3 px ở 1280x860, nhịp 75-100 % / 1,5 s, không xoay), cỡ theo lõi chân `Monster.FootRadius`; Wanted boss có vòng + mũi tên vàng thủ tục trên đầu (`TargetArrowMesh.cs`, không để dưới thanh máu boss). Va chạm mềm dùng chung server: `Rpg/BodyCollisionRules.cs` (test), `HeroController.BodyCollision.cs`, `Monster.BodyCollision.cs`: người chơi đi xuyên nhau; không vào được lõi chân boss (Queen ~18 đv, King ~10), quái thường mềm (x0,85); quái tự đi dừng ở chân hero (không xô đám đông); đang chồng thì tách ra trong ~0,2 s; khoảng cách đo trên mặt đất (y x2). Boss đánh được hero đang chạm kiếm vào thân (`BossContactReach` 16) nên King không bước vào hero; nhát khoá không lướt khi quái đã trong tầm. Người chơi khác che hero mình mờ 50 % (`HeroController.CrowdFade.cs`). Cờ chụp `--dummy-once` (+ log khoảng cách), vai `--persist-role lock-ring`.
+- Test 474 + 455 pass. Exe `C:/temp/player-ring/Zenonia.exe`. Ảnh `docs/reference/target-ring/`. Báo cáo `plans/reports/target-ring-soft-collision-261120.md`.
+- PHẢI build lại zone server Linux (va chạm + tầm boss đổi; máy thiếu module Linux Dedicated Server). Chưa xem: điện thoại, WebGL, 2.5D. VFX của người khác vẫn che hero mình giữa đám đông 40 người.
+
 ### 20/11 12:45 Bản thử 2.5D sân Hydra - ĐÃ merge `wip/proto-25d`, build, chụp, đo FPS (chờ người dùng quyết làm tiếp)
 - Người dùng: "merge vào di rồi làm tiếp 2.5d cho map có boss hydra queen". Sửa lỗi mất tóc ở 2.5D (sort mode camera). Exe `C:/temp/player-25d/Zenonia.exe` (`--view25d`). Ảnh `docs/reference/proto-25d/hydra-*.jpg`. Báo cáo + FPS (+1,2 đến 1,6 ms/khung với 40 hero) + ước tính 14 map + 3 câu hỏi: `plans/reports/proto-25d-hydra-261120.md`.
 - Chưa: đo điện thoại / WebGL, map khác. Crit 55b802dc đã biên dịch được (build 0 lỗi) nhưng chưa soi riêng số crit.

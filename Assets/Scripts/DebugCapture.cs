@@ -154,6 +154,7 @@ namespace ZenoniaProto
             petArg = Arg(a, "--pet");
             string dm = Arg(a, "--dummies");
             if (dm != null) dummies = int.Parse(dm);
+            dummyOnce = Array.IndexOf(a, "--dummy-once") >= 0;
             string dt = Arg(a, "--dummy-types");
             if (dt != null) dummyTypes = dt.Split(',');
             shotTimes = Times(Arg(a, "--shots"));

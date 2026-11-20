@@ -18,7 +18,7 @@ namespace ZenoniaProto.Rpg
         /// <summary>World y is doubled when measuring on the floor.</summary>
         public const float GroundYScale = 2f;
         /// <summary>Normal monsters: the contact distance is this fraction of foot + hero radius (slight overlap allowed).</summary>
-        public const float NormalSoftness = 0.6f;
+        public const float NormalSoftness = 0.85f;
         /// <summary>An overlap is resolved over this long (0.15-0.25 s), never in one jump.</summary>
         public const float SeparateSeconds = 0.2f;
         /// <summary>Cap of that drift, units / s (a hero walks ~60): no teleport even for a deep overlap.</summary>
@@ -27,11 +27,17 @@ namespace ZenoniaProto.Rpg
         public const float WantedFootMin = 0.75f * UnitsPerMeter, WantedFootMax = 1.0f * UnitsPerMeter;
         public const float BossFootMin = 0.4f * UnitsPerMeter, BossFootMax = 0.75f * UnitsPerMeter;
         public const float NormalFootMin = 4f, NormalFootMax = 0.7f * UnitsPerMeter;
-        /// <summary>Foot core per melee-body half width (LockTargetRules.BodyHalfWidth): the feet are about half as wide as the painted body.</summary>
-        public const float FootPerBodyHalfWidth = 0.5f;
+        /// <summary>Foot core per melee-body half width (LockTargetRules.BodyHalfWidth). A Wanted boss's melee body follows its painted height
+        /// (heads, necks), its feet are about half of it; a normal monster or map boss's melee body is its hit box, the feet nearly as wide
+        /// (measured in game 2026-11-20: Frostfang King's feet ~13 units, Frost Slime ~5).</summary>
+        public const float WantedFootPerBodyHalfWidth = 0.5f, FootPerBodyHalfWidth = 0.8f;
         /// <summary>A monster pressed against a hero strikes from up to this much past the contact distance (its own AttackRange may be shorter than
         /// a blocked approach allows, e.g. a boss touched from the side).</summary>
         public const float TouchStrikeSlack = 2f;
+        /// <summary>A boss also strikes a hero whose chest is this close to its melee body edge: the Warrior's contact reach (LockTargetRules: 12 + 4),
+        /// so a boss never walks on into a hero that already stands in sword contact with it (its AttackRange is feet to feet, shorter than its
+        /// painted body: Frostfang King used to step into the hero, 2026-11-20).</summary>
+        public const float BossContactReach = 16f;
 
         static float Clamp(float v, float lo, float hi) { return v < lo ? lo : v > hi ? hi : v; }
         static float Sqrt(float v) { return (float)System.Math.Sqrt(v); }
@@ -39,8 +45,9 @@ namespace ZenoniaProto.Rpg
         /// <summary>Foot core radius of a monster from MonsterDef numbers only (hit box width, painted height), so server and client agree.</summary>
         public static float FootRadius(float hitW, float drawnHeight, bool boss, bool wanted)
         {
-            float r = LockTargetRules.BodyHalfWidth(hitW, drawnHeight) * FootPerBodyHalfWidth;
-            if (wanted) return Clamp(r, WantedFootMin, WantedFootMax);
+            float hw = LockTargetRules.BodyHalfWidth(hitW, drawnHeight);
+            if (wanted) return Clamp(hw * WantedFootPerBodyHalfWidth, WantedFootMin, WantedFootMax);
+            float r = hw * FootPerBodyHalfWidth;
             if (boss) return Clamp(r, BossFootMin, BossFootMax);
             return Clamp(r, NormalFootMin, NormalFootMax);
         }

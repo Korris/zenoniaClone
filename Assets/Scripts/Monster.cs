@@ -186,6 +186,8 @@ namespace ZenoniaProto
             }
             if (dx == 0f && dy == 0f) return;
             if (state == State.Chase && !pulling) { Vector2 sep = Separation(); dx += sep.x * dt; dy += sep.y * dt; }
+            ClipAgainstHeroes(ref dx, ref dy); // soft collision: stops at a hero's feet, never shoves (Monster.BodyCollision.cs)
+            if (dx == 0f && dy == 0f) return;
             bool bx, by;
             Vector2 p = FrostHollowMap.Move(new Vector2(x, y), dx, dy, def.HitW, def.HitH, out bx, out by);
             x = p.x; y = p.y;
@@ -195,7 +197,7 @@ namespace ZenoniaProto
         void Strike(HeroController hero)
         {
             if (def.Ranged != null) { FireRangedShot(hero); return; } // the projectile does the hitting (MonsterProjectile)
-            if (Vector2.Distance(hero.Position, new Vector2(x, y)) <= def.AttackRange + 10f)
+            if (Vector2.Distance(hero.Position, new Vector2(x, y)) <= def.AttackRange + 10f || TouchesHero(hero, 10f))
                 hero.TakeDamage(CombatMath.Damage(def.Atk, 1f, hero.DefStat));
             if (def.IsBoss) CameraFollow.AddTrauma(0.25f); // was 0.5: with the hurt shake on top it pinned the camera (2026-11-17)
         }
