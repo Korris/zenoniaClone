@@ -5,7 +5,7 @@
 
 ### 20/11 16:00 Wanted Boss Rimeclaw Tyrant vẽ lại thành SÓI VUA BĂNG (agent, XONG sprite, xem báo cáo)
 - Người dùng: "vẽ wanted boss con sói đi", chọn "Rimeclaw Tyrant thành sói", mẫu chính = con đầu tiên của `docs/reference/ui-style-ro-soft-fantasy/wanted-boss/5-wanted-boss-board-style.png`; sửa mắt theo góp ý "mất cái lòng đen". Id, skill, server, số liệu giữ nguyên.
-- ChatGPT Tan Pham (Chrome "Browser 1" 75b5d807; "Browser 2" 743f7981 là Tuan Tai, KHÔNG dùng): https://chatgpt.com/c/6b0003a9-2194-83ec-97c9-65878e4f9677 . Sheet đi / đánh / cast mới, chân dung bảng truy nã (`BossPortraits`) cắt lại. Bible mục 04 + mục 8.5 (mắt), Sổ lỗi sprite-rules. Báo cáo `plans/reports/rimeclaw-tyrant-wolf-261120.md`, ảnh `docs/reference/rimeclaw-tyrant-wolf/`.
+- ChatGPT Tan Pham (Chrome "Browser 1" 75b5d807; "Browser 2" 743f7981 là Tuan Tai, KHÔNG dùng): https://chatgpt.com/c/6b0003a9-2194-83ec-97c9-65878e4f9677 . Sheet đi / đánh / cast mới, chân dung bảng truy nã (`BossPortraits`) cắt lại. Người dùng "cho to như con hydra queen": `drawMul: 2` + thân 350 px như nữ hoàng (chân / thân cận chiến to theo, PHẢI build lại zone server khi deploy). Bible mục 04 + mục 8.5 (mắt), Sổ lỗi sprite-rules. Báo cáo `plans/reports/rimeclaw-tyrant-wolf-261120.md`, ảnh `docs/reference/rimeclaw-tyrant-wolf/`.
 - CÒN: idle riêng chưa vẽ (sheet đi là nhịp thở tại chỗ); FX skill Rimeclaw vẫn tấm sprite cũ (chưa chuyển particle/shader).
 
 ### 20/11 17:30 Dọn asset không dùng (agent, XONG, commit afbf6e19)

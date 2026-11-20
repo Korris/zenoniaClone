@@ -125,7 +125,9 @@ namespace ZenoniaProto
         }
 
         // Frozen basis (hp, atk, def, speed): Frostfang King Lv3 (580/33/3/36) and Mirefang Hydra Lv35 (5500/215/27/36) as they stood before the step 1 level rebalance; Glacier Warden did not change.
-        public static readonly MonsterDef RimeclawTyrant = Wanted("Rimeclaw Tyrant", "rimeclawTyrant", 580f, 33f, 3f, 36f, 10, new Color(0.75f, 0.9f, 1f));
+        // 2026-11-20: the crowned ice wolf Tyrant is drawn as big as the queen (user: "cho to như con hydra queen"). Picture + the foot core / melee body
+        // that follow the painted height (BodyCollisionRules.FootRadius, Monster.MeleeBody); HP, damage, skill radii unchanged.
+        public static readonly MonsterDef RimeclawTyrant = Wanted("Rimeclaw Tyrant", "rimeclawTyrant", 580f, 33f, 3f, 36f, 10, new Color(0.75f, 0.9f, 1f), drawMul: 2f);
         public static readonly MonsterDef GlacialColossus = Wanted("Glacial Colossus", "glacialColossus", 3200f, 125f, 16f, 36f, 25, new Color(0.4f, 0.65f, 1f));
         // 2026-11-19: the v2 queen (RO Soft Fantasy) is drawn twice the other wanted bosses (user: "to gấp 2 lần, còn nhỏ quá"; the arena is 4x since the same day). Picture only.
         public static readonly MonsterDef MireHydraQueen = Wanted("Mire Hydra Queen", "mireHydraQueen", 5500f, 215f, 27f, 36f, 40, new Color(0.45f, 0.95f, 0.5f), drawMul: 2f);

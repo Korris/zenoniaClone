@@ -45,7 +45,7 @@ BOSSES = {"rimeclawTyrant": "rimeclaw-tyrant", "glacialColossus": "glacial-colos
 # leaves dark-purple fringes, sprite-rules.md Sổ lỗi 2026-11-13), is a little bigger than the v1 hydra (the arena is 4x since 11-19) and has an
 # idle loop: <stem>-idle-{down-up,left-right}-chatgpt-1.png -> <id>-idle.png (same 4x4 cells of 384 as the walk sheet, drawn while standing).
 GREEN_KEY = {"mireHydraQueen"}
-TARGET_H_OF = {"mireHydraQueen": 350}
+TARGET_H_OF = {"mireHydraQueen": 350, "rimeclawTyrant": 350}   # 2026-11-20: the wolf Tyrant as big as the queen (also drawMul 2 in MonsterDef)
 
 _spec = importlib.util.spec_from_file_location("meadow", f"{ROOT}/Tools/build-meadow-monsters.py")
 mm = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(mm)
