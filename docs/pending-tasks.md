@@ -1,6 +1,6 @@
 # Việc đang dở
 
-> Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt.
+> Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
 ### 20/11 12:45 Bản thử 2.5D sân Hydra - ĐÃ merge `wip/proto-25d`, build, chụp, đo FPS (chờ người dùng quyết làm tiếp)
