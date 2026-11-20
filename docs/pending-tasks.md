@@ -7,6 +7,12 @@
 - Người dùng: "sao tên người chơi xài font xấu vậy ko đẹp như tên quái vật". Tên trên đầu (mình xanh lá + khiên + thanh HP, người khác trắng) đổi từ Arial IMGUI + bóng đen sang Nunito Bold + viền navy mảnh giống nhãn quái; viền dùng chung `Assets/Scripts/RoTextOutline.cs`; cỡ bằng nhãn quái theo zoom, tối thiểu 11 điểm khi zoom xa (`NameTags.cs`).
 - Exe `C:/temp/player-names/Zenonia.exe` (ổ D: đầy, còn ~0,7 GB: build ra C:). Ảnh `docs/reference/player-name-font/`. Đã xem: offline Willowbrook zoom 60 / 80 (và bản chưa có mức tối thiểu ở zoom 108 + đám 40 người Frost Hollow: chỉ ≤ 8 tên, FPS như trước). Chưa xem: đám đông với bản cuối, điện thoại, 2.5D.
 
+### 20/11 19:55 Icon skill Cleric vẽ lại tông RO Soft Fantasy - CHỜ lượt vẽ ảnh (Tay sau 21:32)
+- Người dùng: "kêu nó design lại icon skill của cleric theo tông fantasy soft".
+- ChatGPT (Tay "Tân Korris") https://chatgpt.com/c/6b00431c-0d78-83ec-9376-b77b5415c87c : đã gửi prompt + 3 ảnh mẫu (`04-skill.png`, `01-style-board.png`, `sample-hero-user-pick.png`), bị "out of image creations, try again at 9:32 PM". Tan Pham không kết nối Chrome. 0 ảnh, chưa đổi icon nào.
+- Sẵn sàng: prompt + các bước `Assets/ArtLibrary/classes/cleric/skill-icons-src/prompt-soft-fantasy-icons.md` (8 đĩa tròn 4x2 trên #FF00FF, ngọc #35B69F/#48C9AE + kem #FFE6A0 + mint #B3FFE5); tool cắt + ảnh xem `Tools/build-cleric-soft-skill-icons.py` (`cut`, `preview`; đã thử trên ảnh giả), ghi đè `Sprites/classes/cleric/skills/<slug>/icon.png` (128 px, giữ `.meta`). Ảnh trước: `docs/reference/cleric-skill-icons-soft-fantasy/before-current-icons.png`.
+- Sau 21:32: gửi lại prompt trong chat trên, tải ảnh, xem, `cut`, `preview` -> `after-soft-fantasy-icons.png`, commit. Người dùng tự kiểm UI trong game.
+
 ### 20/11 19:40 Nhãn quái RO Soft: bỏ nền pill, chỉ còn chữ - XONG, đã xem ảnh offline
 - Người dùng: "chỗ tên và level của creep bỏ cái background màu xanh đi, chỉ hiện chữ thôi được rồi".
 - `Monster.RoFootLabel.cs`: bỏ tab `hud-lv-badge`; "Lv.N" vàng + tên trắng giữ nguyên cỡ / chỗ, thêm viền mực navy mảnh (8 bản chữ lệch 0,3 đơn vị, ~1,5 px ở 1080p) để đọc được trên tuyết và nền tối. Thanh máu, luật ẩn khi đông (`MonsterFootLabelCrowd.cs`) giữ nguyên (vùng chữ = khung chữ + viền). Nhãn Paper không đổi. Sổ lỗi `docs/ui-layout-rules.md`.
