@@ -6,7 +6,7 @@ namespace ZenoniaProto
     /// Draws one layered hero frame (HeroLayeredSet) under the renderer's lean transform. Back to front: weapon behind, offhand behind (orders 1-2),
     /// body with mask + HeroRecolor (3), hair (3, nearer z), hair accessory (Mechanic goggles, not recoloured, hidden under any hat), headgear
     /// (3, nearer still), weapon in front, offhand in front (4-5), fist over the handle (6), an `overHand` part in front (shield: 7).
-    /// Body, hand, hair and headgear of the left dirs are the mirrored right rows; weapons use their own per-dir grips (Dir8 order, art flipped
+    /// Body, hand, hair and headgear of the left dirs are the mirrored right rows (an anim with 8 body rows: its own left rows, AllDirs); weapons use their own per-dir grips (Dir8 order, art flipped
     /// on the left dirs by `flip`), so the sword stays in the right hand. Hair and headgear sit on the frame's head anchor (skull top x, y, width w,
     /// angle). Grips: Tools/build-hero-layered-grips.py.
     /// </summary>
@@ -96,8 +96,12 @@ namespace ZenoniaProto
         {
             root.localPosition = new Vector3(shift.x, shift.y, 0f);
             root.localRotation = Quaternion.Euler(0f, 0f, tiltDeg);
-            int row = PaintedRow[Mathf.Clamp(dir8, 0, 7)];
-            bool mirror = dir8 >= 5;
+            dir8 = Mathf.Clamp(dir8, 0, 7);
+            // An anim painted for all 8 dirs (Warrior attack, 2026-11-20: the sword hand stays the right hand) draws row dir8 unmirrored;
+            // hair / headgear strips only have the 5 painted cells, so the left dirs still take the mirrored right cell on its head anchor.
+            bool allDirs = set.AllDirs(anim);
+            int row = allDirs ? dir8 : PaintedRow[dir8], headRow = PaintedRow[dir8];
+            bool mirror = !allDirs && dir8 >= 5, headFlip = dir8 >= 5;
             frame = Mathf.Clamp(frame, 0, set.Frames(anim) - 1);
             Sprite[] cells = SpriteSheet.Row(set.BodyGrid(anim), row);
             if (cells == null || frame >= cells.Length) { Hide(); return; }
@@ -112,9 +116,9 @@ namespace ZenoniaProto
             HeroLayeredSet.HeadAnchor h = set.Head(anim, row, frame);
             HeroLayeredSet.LayerEntry hat = set.Headgear(headgearId);
             HeroLayeredSet.LayerEntry hairEntry = hat != null && hat.hidesHair ? null : set.Hair(hairStyle); // hoods hide the hair
-            PlaceOnHead(hair, hairEntry, h, row, mirror, tint, orderBase + 3, 0f, breathY);
-            PlaceOnHead(hairAcc, hat == null ? hairEntry : null, h, row, mirror, tint, orderBase + 3, 0f, breathY, true); // goggles: only bare-headed
-            PlaceOnHead(headgear, hat, h, row, mirror, tint, orderBase + 3, 1f, breathY);
+            PlaceOnHead(hair, hairEntry, h, headRow, headFlip, mirror, tint, orderBase + 3, 0f, breathY);
+            PlaceOnHead(hairAcc, hat == null ? hairEntry : null, h, headRow, headFlip, mirror, tint, orderBase + 3, 0f, breathY, true); // goggles: only bare-headed
+            PlaceOnHead(headgear, hat, h, headRow, headFlip, mirror, tint, orderBase + 3, 1f, breathY);
             PlaceWeapon("weapon", weaponOn, weaponBack, weaponFront, anim, dir8, frame, tint, orderBase + 1, orderBase + 4, breathY);
             PlaceWeapon("offhand", offhandOn, offBack, offFront, anim, dir8, frame, tint, orderBase + 2, orderBase + 5, breathY);
         }
@@ -144,15 +148,16 @@ namespace ZenoniaProto
             return new Vector2((x - set.CellW * 0.5f) / set.Ppu, (set.FeetY - y) / set.Ppu);
         }
 
-        void PlaceOnHead(SpriteRenderer r, HeroLayeredSet.LayerEntry e, HeroLayeredSet.HeadAnchor h, int row, bool mirror, Color tint, int order, float dropScale, float breathY, bool accessory = false)
+        /// <summary>row / flip: the hair cell (5 painted cells, left dirs mirrored); mirror: the head anchor is on a mirrored body row.</summary>
+        void PlaceOnHead(SpriteRenderer r, HeroLayeredSet.LayerEntry e, HeroLayeredSet.HeadAnchor h, int row, bool flip, bool mirror, Color tint, int order, float dropScale, float breathY, bool accessory = false)
         {
             Sprite s = h == null ? null : accessory ? set.AccessoryCell(e, row) : set.LayerCell(e, row);
-            Draw(r, s, mirror, tint, order);
+            Draw(r, s, flip, tint, order);
             if (s == null) return;
             float k = h.w / Mathf.Max(1f, e.refW);
             Vector2 p = Local(h.x, h.y + e.drop * h.w * dropScale, mirror);
             r.transform.localPosition = new Vector3(p.x, p.y * breathY, r.transform.localPosition.z);
-            r.transform.localRotation = Quaternion.Euler(0f, 0f, mirror ? h.angle : -h.angle);
+            r.transform.localRotation = Quaternion.Euler(0f, 0f, mirror ? h.angle : -h.angle); // anchors of an unmirrored row are already in screen space
             r.transform.localScale = new Vector3(k, k, 1f);
         }
 
