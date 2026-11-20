@@ -26,7 +26,7 @@ namespace ZenoniaProto
             { "ridgehornBehemoth", new Face(0.48f, 0.70f, 0.48f) },
             { "duneDevourer", new Face(0.52f, 0.72f, 0.52f) },
             // Wanted bosses (384 px cells)
-            { "rimeclawTyrant", new Face(0.53f, 0.52f, 0.36f) },
+            { "rimeclawTyrant", new Face(0.51f, 0.48f, 0.40f) },   // crowned ice wolf, 2026-11-20
             { "glacialColossus", new Face(0.52f, 0.44f, 0.38f) },
             { "mireHydraQueen", new Face(0.50f, 0.33f, 0.36f) },
         };

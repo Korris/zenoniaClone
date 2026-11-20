@@ -3,6 +3,11 @@
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 20/11 16:00 Wanted Boss Rimeclaw Tyrant vẽ lại thành SÓI VUA BĂNG (agent, XONG sprite, xem báo cáo)
+- Người dùng: "vẽ wanted boss con sói đi", chọn "Rimeclaw Tyrant thành sói", mẫu chính = con đầu tiên của `docs/reference/ui-style-ro-soft-fantasy/wanted-boss/5-wanted-boss-board-style.png`; sửa mắt theo góp ý "mất cái lòng đen". Id, skill, server, số liệu giữ nguyên.
+- ChatGPT Tan Pham (Chrome "Browser 1" 75b5d807; "Browser 2" 743f7981 là Tuan Tai, KHÔNG dùng): https://chatgpt.com/c/6b0003a9-2194-83ec-97c9-65878e4f9677 . Sheet đi / đánh / cast mới, chân dung bảng truy nã (`BossPortraits`) cắt lại. Bible mục 04 + mục 8.5 (mắt), Sổ lỗi sprite-rules. Báo cáo `plans/reports/rimeclaw-tyrant-wolf-261120.md`, ảnh `docs/reference/rimeclaw-tyrant-wolf/`.
+- CÒN: idle riêng chưa vẽ (sheet đi là nhịp thở tại chỗ); FX skill Rimeclaw vẫn tấm sprite cũ (chưa chuyển particle/shader).
+
 ### 20/11 17:30 Dọn asset không dùng (agent, XONG, commit afbf6e19)
 - Người dùng: "xoa nhung file assets đang ko dùng tới trong repo này". Xoá 956 file (~500 MB cây làm việc): `Assets/ArtLibrary/hd` (trừ `hd/map/frost-hollow` + `hd/map/willowbrook-meadows` tool còn đọc), 46 ảnh `docs/reference` không doc nào nhắc (biến thể Wizard đã bỏ, `hero-layered-farm/`, `village-compare-*`), 4 ảnh thả ở gốc repo. Không đụng Resources / Scripts nên game không đổi; build + chụp 5 class / 5 map OK.
 - Báo cáo + lệnh khôi phục + danh sách CHƯA CHẮC (chưa xoá, chờ người dùng): `plans/reports/asset-cleanup-261120.md`.

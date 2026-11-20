@@ -37,7 +37,7 @@ Mục lục: 1. Quy tắc style chung + họ quái theo biome · 2-6. Từng qu�
 | 18 | iceGoblin | Ice Goblin | Frostfang Den | 16 | cận chiến chuẩn | 151 | 1 |
 | 19 | spectralWolf | Spectral Wolf | Frostfang Den | 18 | nhanh, đòn liên tục | 131 | 1 |
 | 20 | glacierWarden | Glacier Warden | Frostfang Den (boss) | 20 | boss | 163 | 1.65 |
-| 21 | rimeclawTyrant | Rimeclaw Tyrant | boss truy nã | 10 | raid boss, đứng yên | 330 (ô 384) | 2.5 |
+| 21 | rimeclawTyrant | Rimeclaw Tyrant (sói vua băng, đổi 20/11) | boss truy nã | 10 | raid boss, đứng yên | 330 (ô 384) | 2.5 |
 | 22 | glacialColossus | Glacial Colossus | boss truy nã | 25 | raid boss, đứng yên | 330 (ô 384) | 2.5 |
 | 23 | highlandIbex | Highland Ibex | Sunbreak | 16 | húc, tầm ngắn | 168 | 1 |
 | 24 | dustscaleLizard | Dustscale Lizard | Sunbreak | 17 | nhanh, giòn | 120 | 1.15 |
@@ -2158,66 +2158,52 @@ Hai boss có yêu cầu riêng:
 
 #### 04. Rimeclaw Tyrant — Lv10
 
-Wanted Boss · Frost Claw Sovereign · Stationary Raid
+Wanted Boss · Crowned Ice Wolf Tyrant · Stationary Raid
 
-1) Tính cách: Bạo chúa băng kiêu ngạo, thích đe dọa bằng vuốt và tiếng gầm; có chút vẻ ngổ ngáo như một con mèo lớn tự cho mình là vua.
+**Đổi thiết kế 20/11/2026 (người dùng):** "vẽ wanted boss con sói đi" rồi chọn "Rimeclaw Tyrant thành sói", ảnh mẫu chính: con ĐẦU TIÊN (bên trái) của `docs/reference/ui-style-ro-soft-fantasy/wanted-boss/5-wanted-boss-board-style.png` (cùng họ với Glacial Colossus ở giữa và Mire Hydra Queen v2 bên phải). Bản cua-sư tử cũ (ChatGPT art director lượt 3, "không dùng sói") BỎ. Id `rimeclawTyrant`, skill, luật server, số liệu giữ nguyên. Sprite ChatGPT (Tan Pham): https://chatgpt.com/c/6b0003a9-2194-83ec-97c9-65878e4f9677, ảnh `docs/reference/rimeclaw-tyrant-wolf/`.
 
-2) Silhouette / hình khối
+1) Tính cách: Bạo chúa sói băng kiêu ngạo, gầm đe doạ, coi mình là vua tuyết. Dễ thương 35 % / uy hiếp 65 %.
 
-Thiết kế thành mãnh thú băng dạng cua-sư tử, hoàn toàn khác vua sói Frostfang King.
+2) Silhouette / hình khối (chép concept, chibi RO Soft)
 
-- Thân chính thấp, cực rộng, hình bán nguyệt.
-- Đầu thú lớn nằm chính giữa phía trước, má phồng, mõm ngắn.
-- Hai tay trước khổng lồ vươn sang hai bên, mỗi tay có ba vuốt băng cong như móc câu.
-- Hai chân sau nhỏ hơn, gập thấp dưới thân.
-- Lưng có một vòm giáp băng cong hình mai thú, không phải bờm lông.
-- Đuôi ngắn, dày, kết thúc bằng một phiến băng tròn.
-- Silhouette tổng thể như một chiếc càng băng khổng lồ mở rộng hai bên.
-- Cao hiển thị khoảng 400 px, sải tay có thể 500–570 px; cần quản lý canvas/layer riêng cho hai tay.
+- Sói BỐN CHÂN, ngực cao, đầu ngẩng to, thân sau ngắn gọn (vừa ô 384: rộng mõm-đuôi ≤ 320 px nguồn khi nhìn ngang).
+- Lông trắng xù pha xanh băng, bờm dày quanh cổ, tai nhọn, đuôi trắng xù to cong lên.
+- Cụm TINH THỂ BĂNG xanh to dọc lưng và vai (nhìn lên thấy một chùm tinh thể lớn giữa lưng).
+- Áo choàng XANH NAVY viền vàng, cổ lông trắng; giáp ngực navy viền vàng có đá xanh hình thoi; giáp ống chân navy viền vàng có đá xanh ở cả bốn chân; móng vuốt xanh băng.
+- Silhouette chính: chùm tinh thể lưng + vương miện + áo choàng navy xoè hai bên.
 
-Không dùng sói, vương miện, bờm sư tử hoặc đầu rồng.
+3) Đặc trưng chữ ký: VƯƠNG MIỆN VÀNG nhiều chóp có viên đá xanh dương hình thoi to giữa trán.
 
-3) Đặc trưng chữ ký
+4) Mặt + biểu cảm (BẮT BUỘC, lỗi 20/11: bản đầu mất lòng đen)
 
-Hai bộ vuốt ba lưỡi băng cong cực lớn, mỗi lưỡi hình móng vuốt dày, bo mặt trong. Trên trán có một mảng băng hình dấu V ngược, như dấu hiệu thống trị tự nhiên.
+- Mắt: lòng trắng xanh nhạt, mống mắt VÀNG HỔ PHÁCH, CON NGƯƠI ĐEN TO, chấm sáng trắng nhỏ, viền mắt đen đậm, mí trên dày, ánh mắt kiêu ngạo. KHÔNG mắt phát sáng xanh / mắt trống / mắt trắng. Prompt gửi kèm ảnh phóng mắt concept (`ArtLibrary/monsters/wanted/rimeclaw-tyrant-wolf-ref/eyes-closeup-x4.jpg`).
+- Idle / đi: há mõm gầm lộ nanh. Đánh: mắt trợn (vẫn con ngươi đen), há rộng. Gục: mắt nhắm hai vạch cong, vương miện lệch.
 
-4) Mặt + biểu cảm
+5) Màu: lông #F4F8FF / #E4E6F6, băng #8FD3F5 / #4A9FE0, navy #2E3A8C, vàng giáp + vương miện #E8BD79 / #C99545, mắt vàng hổ phách + con ngươi đen, viền nâu đậm mềm.
 
-- Idle: Mắt vàng cam lớn, lông mày hạ thấp, miệng cười ngạo nghễ lộ hai nanh.
-- Attack: Mắt trợn sắc, miệng há gầm, hai vuốt mở rộng.
-- Hit: Mắt nhắm một bên, đầu giật lùi, vuốt co vào trước mặt.
-- Enrage: Mắt sáng vàng hơn, vệt V trên trán rõ hơn; không đổi đỏ neon.
+6) Animation (sheet hiện tại)
 
-5) Màu
-
-#C8E8F0 băng sáng · #7FBBD8 lam · #4A8DBB vuốt · #DDEFF0 bụng · #E8BD79 mắt · #4E607A viền.
-
-6) Animation 3 hướng
-
-|  | D — Xuống | U — Lên | R — Phải |
+|  | Xuống | Lên | Ngang (trái = vẽ riêng, phải = lật gương) |
 |---|---|---|---|
-| Idle | Hai vuốt mở, thân hô hấp, đầu lắc nhẹ | Giáp lưng nổi bật, hai vuốt mở ngang | Một vuốt gần camera lớn hơn, đầu nghiêng |
-| Walk | Không di chuyển; thay bằng nhịp dồn trọng lượng tại chỗ | Chân bám đất, vai dịch rất nhẹ | Thân xoay nhỏ nhưng pivot không đổi |
-| Attack | Co vuốt → quét ngang trước thân → va chạm → thu | Hai vuốt quét về hướng U | Vuốt gần quét hình cung sang phải, vuốt xa theo sau |
+| Đi (đứng yên tại chỗ) | thở, ngực phồng xẹp, đầu khẽ gật | lưng, áo choàng, chùm tinh thể, đuôi lay | thở, áo choàng và đuôi lay |
+| Đánh | hạ ngực, vồ quét vuốt chân trước, 3 vệt băng nhỏ ở frame 3 | quay lưng, nhấc chân trước vồ ra xa | nhấc chân trước gần camera, quét cung về trước |
 
-7) Vai trò: Boss raid đứng yên, các đòn cận chiến rộng, quét vuốt, đập đất và gầm băng. Phải có anticipation đủ dài để 20–40 người chơi nhận ra.
+7) Vai trò: Boss raid đứng yên, quét vuốt, đập, dậm đất, gầm bão tuyết (4 skill cũ giữ nguyên).
 
-8) Liên kết: Cùng vật liệu Snow nhưng dùng giáp băng dạng mai và vuốt cong, khác Frostfang King lông tuyết và Glacier Warden dạng hiệp sĩ.
+8) **Phân biệt với Frostfang King (boss map Frost Hollow, cũng là vua sói băng):** Rimeclaw to gấp ~1,6 lần trên màn (Wanted 2,5 lần hero, ô 384, so với Frostfang 1,65 x ô 192); Rimeclaw có áo choàng navy + giáp navy viền vàng + đá xanh + chùm tinh thể băng lưng + vương miện VÀNG nhiều chóp đá xanh to; Frostfang King KHÔNG giáp, không áo choàng, không tinh thể lưng, vương miện BĂNG ba chóp mảnh với ngọc nhỏ, bờm tròn kiểu sư tử. Khi vẽ Frostfang King sau này: không chép áo choàng / giáp / tinh thể của Rimeclaw.
 
-9) Boss + 4 hàng Cast
+9) Boss + 4 hàng Cast (sheet `-cast`, chỉ nhìn về người xem)
 
-| Hàng | Skill / Hình thái | 4 frame niệm chiêu |
+| Hàng | Skill / Hình thái | 4 frame |
 |---|---|---|
-| 1 | Rime Sweep — quét vuốt | Hai tay mở → vuốt sáng → giữ thế → quét |
-| 2 | Frozen Chain Slam — đập liên hoàn | Nâng hai vuốt → gồng vai → giữ đỉnh → đập |
-| 3 | Rime Stomp — chấn động đất | Nén thân → nâng vai/chân → gầm → đập xuống |
-| 4 | Blizzard Roar — gầm bão tuyết | Ngẩng đầu → miệng mở → hơi lạnh tụ → gầm |
+| 0 | Broken Chain Slam (đập) | chồm hai chân sau, giơ vuốt → gồng → giữ đỉnh → đập hai chân trước xuống, vụn băng |
+| 1 | Frozen Ground Stomp (dậm) | nén thân → nhấc chân, ngẩng đầu → gầm, tinh thể sáng → dậm, vụn băng quanh chân |
+| 2 | Tyrant's Blizzard (cuồng nộ) | ngẩng đầu → dang áo choàng → hơi lạnh tụ → gầm, bông tuyết |
+| 3 | Gục | loạng choạng → khuỵu → nằm bẹp → nằm sấp, mắt nhắm |
 
-Các tên hàng là mô tả animation, có thể ánh xạ với tên skill đã chốt trong gameplay. Thời gian niệm thực tế theo logic server, không suy ra từ 4 frame.
+Skill 1 (Frostclaw Sweep, quạt) dùng sheet đánh. FX skill vẫn theo luật 20/11 (particle / mesh trail / shader), không vẽ trong sprite.
 
-Điểm nhìn chính là mặt thú và hai vuốt. Giữa đám đông, vuốt phải tạo hình rõ nhưng không che toàn bộ vòng cảnh báo. Có thể cho vuốt nằm trên layer riêng để điều chỉnh che khuất.
-
-Chốt: Bạo chúa băng thân thấp rộng, đầu mèo thú ngổ ngáo, hai tay vuốt ba lưỡi cong khổng lồ.
+Chốt: sói vua băng bốn chân, vương miện vàng đá xanh, áo choàng + giáp navy viền vàng, chùm tinh thể băng lưng, mắt vàng con ngươi đen.
 
 #### 05. Glacial Colossus — Lv25
 
@@ -2550,7 +2536,7 @@ Chốt: Behemoth vai núi cao, một sừng đá lớn hướng trước, chân 
 | Ice Goblin | Humanoid gù, đầu ngang, mũ băng | Ice Imp |
 | Spectral Wolf | Sói nửa thân, hai dải hồn chữ S | Forest Wolf, Snow Fox, hai vua sói |
 | Glacier Warden | Hiệp sĩ băng thon, khiên và thương | Crystal Golem |
-| Rimeclaw Tyrant | Thú thấp rộng, hai tay vuốt cực lớn | Frostfang King, Thornfang Alpha |
+| Rimeclaw Tyrant | Sói vua bốn chân TO, áo choàng + giáp navy viền vàng, chùm tinh thể băng lưng, vương miện vàng (đổi 20/11) | Frostfang King (sói không giáp, nhỏ), Thornfang Alpha |
 | Glacial Colossus | Tháp băng cố định, tay búa treo | Crystal Golem, Yeti, Warden |
 | Highland Ibex | Dê núi, sừng đôi chữ C | Thorn Boar |
 | Dustscale Lizard | Thằn lằn sát đất, đuôi lá dài | Forest Wolf, Snow Fox |
@@ -3857,7 +3843,7 @@ Tên gợi ý chỉ là phương án đặt tên dễ thương; tên game gốc 
 | Ice Goblin | Frostcap Goblin | Goblin băng dáng gù, đầu ngang, tai rủ, mũ nấm băng lệch và một dùi cui tròn. |
 | Spectral Wolf | Moonveil Wolf | Sói linh hồn chỉ có hai chân trước, nửa thân sau tan thành hai dải hồn chữ S, lao lướt cắn liên tục. |
 | Glacier Warden | Glacier Warden | Hiệp sĩ băng thon cao, mặt nạ giọt nước, khiên giọt đảo ngược và một thương băng dài. |
-| Rimeclaw Tyrant | Rimeclaw Tyrant | Bạo chúa băng thân thấp rộng, đầu mèo thú ngổ ngáo, hai tay vuốt ba lưỡi khổng lồ, boss raid đứng yên. |
+| Rimeclaw Tyrant | Rimeclaw Tyrant | (đổi 20/11) Sói vua băng bốn chân khổng lồ, vương miện vàng đá xanh, áo choàng + giáp navy viền vàng, chùm tinh thể băng lưng, mắt vàng con ngươi đen, boss raid đứng yên. |
 | Glacial Colossus | Glacial Colossus | Tháp sông băng cổ đại cố định, đầu nhỏ trong hốc, hai tay búa treo và khe sáng vàng chạy dọc thân. |
 
 #### D. HIGHLAND — Sunbreak Foothills
@@ -4003,6 +3989,8 @@ Vẽ mới hoàn toàn từ đầu, không dựa trên các ảnh trước. Spri
 ```
 Vẽ mới hoàn toàn từ đầu. Sprite sheet ĐÁNH của quái <tên>, đúng thiết kế và đúng CỠ THÂN như sheet đi ở ảnh đính kèm (thân trong sheet đánh TO BẰNG ĐÚNG thân ở sheet đi, không thu nhỏ để chừa chỗ hiệu ứng). Lưới 4 cột x 3 hàng: hàng 1 đánh về phía người xem (XUỐNG), hàng 2 đánh ra xa người xem (LÊN, thấy lưng), hàng 3 đánh sang PHẢI. 4 frame: 1 lấy đà, 2 ra đòn, 3 trúng (cực điểm), 4 về thế thủ. Động tác: <attack của quái>. Mặt khi đánh: <biểu cảm đánh>. <Đạn / hiệu ứng: hàng xuống bay về người xem, hàng lên bay ra xa người xem, hàng phải bay sang phải>. <Vũ khí / số đầu bắt buộc ở cả 12 frame>. Tông màu RO Soft Fantasy: sáng, ấm, pastel dịu, viền nâu đậm mềm, đổ bóng mềm 2-3 cấp, không neon, không tông trầm tối. Nền phẳng một màu <#FF00FF hoặc #00FF00>, không caro, không trong suốt, không vẽ bóng dưới chân, không chữ. Ảnh ngang 1536x1024.
 ```
+
+**8.5 Mắt (mọi quái, lỗi Rimeclaw 20/11):** prompt ghi rõ mắt từng quái theo concept (màu mống mắt, CON NGƯƠI ĐEN, chấm sáng, viền mắt đậm) và câu "KHÔNG mắt trống, không mắt phát sáng toàn bộ". Không viết "mắt phát sáng" trong prompt: ChatGPT sẽ xoá con ngươi. Gửi kèm ảnh phóng to mắt của concept (nearest x3-4). Nhận ảnh về: phóng từng frame thấy mặt để kiểm con ngươi trước khi cài.
 
 **8.4 Boss truy nã:** như 8.2 / 8.3 nhưng theo layout của `Tools/build-wanted-boss-sheets.py` (mỗi ảnh 2 hàng x 4: `walk-down-up`, `walk-left-right`, `attack-down-up`, `attack-left-right`, `cast-<a>-<b>`), ghi "ĐÚNG <N> đầu / tay ở cả 8 frame" nếu nhiều đầu (lỗi Mire Hydra Queen 19/11), idle KHÔNG gửi sheet đi làm mẫu.
 
