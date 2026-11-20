@@ -4017,7 +4017,7 @@ Vẽ mới hoàn toàn từ đầu. Sprite sheet ĐÁNH của quái <tên>, đú
    - L6 Highland: Highland Ibex, Dustscale Lizard, Cliff Harpy, Stoneback Guardian, Ridgehorn Behemoth (5)
    - L7 Desert: Dune Scarab, Sand Raider, Amber Wisp, Giant Scorpion, Sand Wraith, Rock Basilisk (6)
    - L8 Desert to + Marsh + Ruins: Dune Golem, Dune Devourer, Bog Slime, Mire Toad, Marsh Stalker, Ruin Wisp, Mirefang Hydra (7; nếu chật tách 2 ảnh)
-   Xem từng concept so với mục của quái trong file này: sai silhouette / đặc trưng / màu thì vẽ lại con đó (tối đa 2 lần), rồi chốt bản tốt nhất và ghi đường dẫn ảnh chốt vào `docs/pending-tasks.md`. Lưu concept ở `docs/reference/monster-redesign-concepts/<biome>-concept-N.png`.
+   Xem từng concept so với mục của quái trong file này: sai silhouette / đặc trưng / màu thì vẽ lại con đó (tối đa 2 lần), rồi chốt bản tốt nhất và ghi đường dẫn ảnh chốt vào `docs/pending-tasks.md`. **Không cần người dùng duyệt concept** (người dùng 20/11: "ko cần duyệt, cứ làm luôn đi"): agent tự chốt rồi vẽ sheet luôn. Lưu concept ở `docs/reference/monster-redesign-concepts/<biome>-concept-N.png`.
 2. **Sau đó từng quái: sheet đi rồi sheet đánh** (8.2, 8.3), gửi kèm con đó cắt từ concept đã chốt (phóng to nearest). Thứ tự: quái thấp cấp trước (người chơi gặp trước): Meadow → Forest → Snow → Den → Highland → Desert → Marsh → Ruins → boss map → boss truy nã.
 3. Mỗi quái: `build`, `check`, xem ảnh trước/sau TỪNG FRAME (đúng hướng, đúng số chi, cỡ đánh = cỡ đi, hàng lên không thấy mắt, đạn đúng hướng), chụp trong game (`--dummy-types`), rồi commit từng quái. Lỗi mới ghi Sổ lỗi.
 

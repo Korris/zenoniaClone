@@ -17,6 +17,7 @@
 - Bible: `docs/monster-redesign-bible.md` (quy tắc style, họ quái theo biome, 40 quái, mẫu prompt, ràng buộc kỹ thuật, thứ tự vẽ, kế hoạch quota). Mire Hydra Queen v2 giữ nguyên (thước đo boss).
 - Chat ChatGPT art director (Tay, chỉ chữ, chưa vẽ ảnh nào): https://chatgpt.com/c/6aff88da-2f60-83ec-9211-1d9de14ecaa8
 - Vẽ: Tan Pham từ 09:17 20/11, Tay từ 21:32 20/11. KHÔNG gửi frame cũ làm mẫu thiết kế.
+- Không cần duyệt concept: người dùng 20/11 "ko cần duyệt, cứ làm luôn đi"; agent tự chốt concept rồi vẽ sheet.
 
 ### 20/11 01:30 Vẽ lại TOÀN BỘ quái theo RO Soft Fantasy (agent, đã merge vào `ro-fantasy-heroes`) - DỪNG 03:20 vì cả 2 tài khoản hết lượt vẽ
 - Người dùng: "làm lại toàn bộ map + quái theo style ro fantasy". Phần quái: mọi `MonsterDef.All` trừ Mire Hydra Queen (đã v2). Pet dùng chung sheet quái (`HeroPet.Sheets.cs`) nên tự đổi theo.
