@@ -335,6 +335,7 @@ namespace ZenoniaProto
                 Color customHair;
                 if (hairColor != null && ColorUtility.TryParseHtmlString("#" + hairColor.TrimStart('#'), out customHair)) hero.View.HairColor = (Color32)customHair;
                 if (botArg == "fight") EnableFightBot();
+                else if (botArg == "fight-boss") EnableFightBot(true, default(Vector2), true); // the map boss first (with skills / potions): dungeon boss checks
                 else if (botArg == "attack") InputAdapter.BotPressed = k => k == GameKey.Attack;   // hold attack in place (art / FX close-ups)
                 else if (botArg == "attack-once") { int f0 = Time.frameCount + 30; InputAdapter.BotPressed = k => k == GameKey.Attack && Time.frameCount == f0; } // ONE attack press (RO-style auto-attack check)
                 else if (botArg == "walk") InputAdapter.BotHeld = k => k == GameKey.Right;          // walk east

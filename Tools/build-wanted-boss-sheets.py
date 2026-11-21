@@ -35,17 +35,20 @@ TARGET_H = 330      # median walk body height in the 384 cell (px). Hero body = 
                     # so RenderScale 3 in MonsterDef makes the boss three hero heights.
 CASTS = {"rimeclawTyrant": ("cast-chain-slam-stomp", "cast-blizzard-defeat"),
          "glacialColossus": ("cast-slam-crystal-fall", "cast-overload-defeat"),
-         "mireHydraQueen": ("cast-breath-tail", "cast-reign-defeat")}   # two 2 x 4 strips -> the 4 rows of <id>-cast
+         "mireHydraQueen": ("cast-breath-tail", "cast-reign-defeat"),
+         "ambercapWarden": ("cast-spore-slam", "cast-bloom-defeat")}   # rows: 0 spore puff (fan), 1 root slam (pulse, rootline), 2 cap bloom (enrage), 3 defeat   # two 2 x 4 strips -> the 4 rows of <id>-cast
 SKILLS = f"{ROOT}/Assets/ArtLibrary/custom/wanted-boss/skills"
 FX_OUT = f"{ROOT}/Assets/Resources/Sprites/fx/wanted"
 FX_W, FX_H = 384, 256
 WARNING = ["circle", "cone", "line", "safe", "alert", "enraged", "slow", "poison", "castbar-frame", "castbar-fill"]   # reading order on the sheet
-BOSSES = {"rimeclawTyrant": "rimeclaw-tyrant", "glacialColossus": "glacial-colossus", "mireHydraQueen": "mire-hydra-queen-v2"}
+BOSSES = {"rimeclawTyrant": "rimeclaw-tyrant", "glacialColossus": "glacial-colossus", "mireHydraQueen": "mire-hydra-queen-v2",
+          "ambercapWarden": "ambercap-warden"}   # 2026-11-21: Rootburrow's dungeon boss (MonsterDef.SkillBoss, not a Wanted boss) uses the same 384 / 512 layout
 # 2026-11-19: the Mire Hydra Queen v2 (purple queen + serpent tail + 3 snake heads, RO Soft Fantasy) is drawn on #00FF00 (a purple boss on magenta
 # leaves dark-purple fringes, sprite-rules.md Sổ lỗi 2026-11-13), is a little bigger than the v1 hydra (the arena is 4x since 11-19) and has an
 # idle loop: <stem>-idle-{down-up,left-right}-chatgpt-1.png -> <id>-idle.png (same 4x4 cells of 384 as the walk sheet, drawn while standing).
-GREEN_KEY = {"mireHydraQueen"}
-TARGET_H_OF = {"mireHydraQueen": 350, "rimeclawTyrant": 350}   # 2026-11-20: the wolf Tyrant as big as the queen (also drawMul 2 in MonsterDef)
+GREEN_KEY = {"mireHydraQueen", "ambercapWarden"}
+GREEN_STEMS = {"mire-hydra-queen-v2", "ambercap-warden"}   # strips drawn on #00FF00 (the Warden's cap is terracotta / its spots cyan: no magenta key)
+TARGET_H_OF = {"mireHydraQueen": 350, "rimeclawTyrant": 350, "ambercapWarden": 330}   # 2026-11-20: the wolf Tyrant as big as the queen (also drawMul 2 in MonsterDef)
 
 _spec = importlib.util.spec_from_file_location("meadow", f"{ROOT}/Tools/build-meadow-monsters.py")
 mm = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(mm)
@@ -76,7 +79,7 @@ def key_green(path):
 
 def frames_of(path):
     """8 frames of a 2 x 4 strip, row-major."""
-    rgba = key_green(path) if "mire-hydra-queen-v2" in path else mm.key_magenta(path)
+    rgba = key_green(path) if any(st in path for st in GREEN_STEMS) else mm.key_magenta(path)
     alpha = rgba[..., 3] > 0.2
     ys = mm.valleys(alpha.sum(1), 2)
     out = []
@@ -243,6 +246,8 @@ def write(ids):
         for img, path in todo:
             img.save(path); write_meta(path)
         print("wrote", mid)
+    if "--boss-only" in sys.argv:   # only this boss's own sheets: leave the shared warning pieces / freeze overlay untouched
+        return
     write_skill_fx(ids)
     for name, img in build_warning().items():
         img.save(f"{FX_OUT}/warning-{name}.png"); write_meta(f"{FX_OUT}/warning-{name}.png")
@@ -269,6 +274,6 @@ def check(path, ids):
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "check": check(sys.argv[2], sys.argv[3:] or ["rimeclawTyrant"])
-    elif cmd == "write": write(sys.argv[2:] or ["rimeclawTyrant"])
+    elif cmd == "write": write([a for a in sys.argv[2:] if not a.startswith("--")] or ["rimeclawTyrant"])
     elif cmd == "fx": write_skill_fx(sys.argv[2:] or ["rimeclawTyrant"])
     else: print(__doc__)

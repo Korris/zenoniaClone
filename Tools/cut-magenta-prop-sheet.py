@@ -1,8 +1,8 @@
-"""Cuts a ChatGPT prop sheet drawn on flat magenta (#FF00FF) into one PNG per prop for MapScenery (first used for the Willowbrook 2.5D forest, 21/11/2026).
+"""Cuts a ChatGPT prop sheet drawn on flat magenta (#FF00FF, or #00FF00: read from the top-left pixel) into one PNG per prop for MapScenery (first used for the Willowbrook 2.5D forest, 21/11/2026).
 
     python Tools/cut-magenta-prop-sheet.py <sheet.png> <name1> <name2> ... [--scale 1.0] [--out Assets/Resources/Sprites/village/props]
 
-- Props are the large non-magenta blobs, read row by row (top to bottom, then left to right), so names follow the order asked in the prompt.
+- Props are the large non-magenta blobs (with --grid RxC: everything inside one cell of an R x C layout is one prop), read row by row (top to bottom, then left to right), so names follow the order asked in the prompt.
 - Magenta is keyed out with a soft edge and the pink fringe is despilled (the magenta share is removed from the edge colours).
 - Each PNG is padded so the TRUNK of a *Tree* prop (middle of the lowest opaque rows; other props: their bbox middle) sits on the horizontal centre and the lowest opaque pixel on the bottom
   edge: MapScenery draws a prop with pivot (0.5, 0) on the bottom edge of its footprint, so the trunk lands on its tile (and a 2.5D billboard
@@ -20,17 +20,32 @@ def main():
     args = [a for a in sys.argv[1:]]
     scale = float(args[args.index("--scale") + 1]) if "--scale" in args else 1.0
     out = args[args.index("--out") + 1] if "--out" in args else os.path.join(ROOT, "Assets", "Resources", "Sprites", "village", "props")
-    for flag in ("--scale", "--out"):
+    grid = tuple(int(v) for v in args[args.index("--grid") + 1].split("x")) if "--grid" in args else None
+    for flag in ("--scale", "--out", "--grid"):
         if flag in args: i = args.index(flag); del args[i:i + 2]
     sheet, names = args[0], args[1:]
     im = np.asarray(Image.open(sheet).convert("RGB")).astype(np.float32)
     R, G, B = im[..., 0], im[..., 1], im[..., 2]
-    # magenta-ness: high R and B, low G
-    mag = np.clip((np.minimum(R, B) - G - 60) / 90.0, 0, 1)
+    green = G[2, 2] > 200 and R[2, 2] < 80 and B[2, 2] < 80   # sheet drawn on #00FF00 (purple / pink art, 21/11/2026): key green instead
+    # key-ness: magenta = high R and B, low G; green = G above both
+    mag = np.clip(((G - np.maximum(R, B)) if green else (np.minimum(R, B) - G)) - 60, 0, None) / 90.0
+    mag = np.clip(mag, 0, 1)
     alpha = 1 - mag
     solid = (alpha > 0.5).astype(np.uint8)
     solid = cv2.morphologyEx(solid, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
     n, lab, st, cen = cv2.connectedComponentsWithStats(solid)
+    if grid:  # --grid RxC: the sheet is a rows x cols layout; every blob joins the cell of its centre (props made of separate pieces, e.g. a floating orb over its base)
+        gr, gc = grid
+        H0, W0 = solid.shape
+        cell = np.zeros(n, int) - 1
+        for i in range(1, n):
+            if st[i, 4] > 150: cell[i] = min(gr - 1, int(cen[i][1] * gr / H0)) * gc + min(gc - 1, int(cen[i][0] * gc / W0))
+        lab = np.where(lab > 0, cell[lab] + 1, 0).astype(np.int32)
+        n = gr * gc + 1
+        st = np.zeros((n, 5), int); cen = np.zeros((n, 2))
+        for i in range(1, n):
+            ys, xs = np.nonzero(lab == i)
+            if len(xs): st[i] = [xs.min(), ys.min(), xs.max() - xs.min() + 1, ys.max() - ys.min() + 1, len(xs)]; cen[i] = [xs.mean(), ys.mean()]
     blobs = [i for i in range(1, n) if st[i, 4] > 1500]
     if len(blobs) != len(names): raise SystemExit("found %d props, %d names" % (len(blobs), len(names)))
     # rows: group by vertical centre
@@ -42,8 +57,12 @@ def main():
     rows.append(cur)
     order = [i for r in rows for i in sorted(r, key=lambda j: cen[j][0])]
     # despill: remove the magenta share from the colours near the edge
-    spill = np.clip(np.minimum(R, B) - G, 0, None) * (1 - alpha)
-    rgb = np.clip(np.stack([R - spill, G, B - spill], -1), 0, 255)
+    if green:
+        spill = np.clip(G - np.maximum(R, B), 0, None) * (1 - alpha)
+        rgb = np.clip(np.stack([R, G - spill, B], -1), 0, 255)
+    else:
+        spill = np.clip(np.minimum(R, B) - G, 0, None) * (1 - alpha)
+        rgb = np.clip(np.stack([R - spill, G, B - spill], -1), 0, 255)
     os.makedirs(out, exist_ok=True)
     for name, i in zip(names, order):
         x, y, w, h = st[i, :4]

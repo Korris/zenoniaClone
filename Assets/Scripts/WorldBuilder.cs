@@ -32,6 +32,7 @@ namespace ZenoniaProto
             mapRoot.SetParent(parent, false);
             BuildGround(map);
             MapScenery.Build(mapRoot, map);
+            DungeonLights.Build(mapRoot, map); // dark 2.5D dungeon: point lights from the props + floor light pools (no-op elsewhere)
             View25DGroundApron.Build(mapRoot, map); // 2.5D map: render-only forest border past every edge (no visible end of the ground)
             BuildSolidOverlay(map);
         }

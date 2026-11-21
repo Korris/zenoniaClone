@@ -9,6 +9,8 @@
 // occlusion fade of View25DPropFade and only applies inside the screen ellipse round the local hero (_Hole25D: centre x, y in 0..1 of the screen,
 // radii x, y in screen heights; 0 = whole sprite), soft rim, a tree's trunk stays opaque (ChatGPT camera loop round 3, 21/11/2026).
 // Trees: CrownContrast adds light / shade depth to the crown (sun side lighter, shade side darker, same hue).
+// Dark dungeon (DungeonLights, 21/11/2026): when _DL25DAmb.a > 0 the colour is multiplied by ambient (_DL25DAmb.rgb) + the sum of up to 16 point
+// lights (_DL25DPos = world x, y, radius, intensity; _DL25DCol = rgb) by distance on the ground plane (smooth falloff, brighter core) instead of the sun tint.
 Shader "ZenoniaProto/Sprite25DLit"
 {
     Properties
@@ -36,11 +38,27 @@ Shader "ZenoniaProto/Sprite25DLit"
             fixed4 _Color;
             float _Mode;
             float4 _Sun25D, _CrownShade25D, _Fog25D, _Fog25DColor, _Wind25D;
+            float4 _DL25DAmb, _DL25DPos[16], _DL25DCol[16];
+            float _DL25DCount;
             float4 _Hole25D;
             static const float CrownContrast = 0.09; // ChatGPT round 3: +8-10 % value between the crown's sun side and its shade side
 
             struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 uv : TEXCOORD0; };
-            struct v2f { float4 pos : SV_POSITION; fixed4 color : COLOR; float2 uv : TEXCOORD0; float fog : TEXCOORD1; float4 scr : TEXCOORD3; };
+            struct v2f { float4 pos : SV_POSITION; fixed4 color : COLOR; float2 uv : TEXCOORD0; float fog : TEXCOORD1; float2 wxy : TEXCOORD2; float4 scr : TEXCOORD3; };
+
+            // ambient + point lights at a ground point (the fragment's world x / y: a standing billboard leans toward the camera, so its upper part samples
+            // a little north of its foot, which reads as light falling on its front)
+            float3 DungeonLight(float2 p)
+            {
+                float3 l = _DL25DAmb.rgb;
+                [unroll] for (int k = 0; k < 16; k++)
+                {
+                    float4 q = _DL25DPos[k];
+                    float x = saturate(1.0 - distance(p, q.xy) / max(q.z, 1.0));
+                    l += _DL25DCol[k].rgb * (x * x * (0.6 + 0.4 * x) * q.w * step((float)k, _DL25DCount - 0.5));
+                }
+                return min(l, 1.6);
+            }
 
             v2f vert(appdata v)
             {
@@ -57,6 +75,7 @@ Shader "ZenoniaProto/Sprite25DLit"
                 o.pos = mul(UNITY_MATRIX_VP, w);
                 o.scr = ComputeScreenPos(o.pos);
                 o.uv = v.uv;
+                o.wxy = w.xy;
                 o.color = v.color * _Color;
                 float d = distance(w.xyz, _WorldSpaceCameraPos);
                 o.fog = saturate((d - _Fog25D.x) * _Fog25D.y) * _Fog25D.z;
@@ -93,7 +112,8 @@ Shader "ZenoniaProto/Sprite25DLit"
                     if (_Mode > 1.5) hole *= smoothstep(0.06, 0.11, abs(i.uv.x - 0.5)) + smoothstep(0.18, 0.28, i.uv.y); // trunk: centre ~12 % wide, lowest ~20 %
                     c.a *= lerp(1.0, i.color.a, saturate(hole));
                 }
-                c.rgb *= _Sun25D.rgb;
+                if (_DL25DAmb.a > 0.5) c.rgb *= DungeonLight(i.wxy);
+                else c.rgb *= _Sun25D.rgb;
                 float g = dot(c.rgb, float3(0.299, 0.587, 0.114));
                 c.rgb = lerp(c.rgb, float3(g, g, g), i.fog * _Fog25D.w);
                 c.rgb = lerp(c.rgb, _Fog25DColor.rgb, i.fog);

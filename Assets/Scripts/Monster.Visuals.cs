@@ -106,7 +106,7 @@ namespace ZenoniaProto
             if (UiStyle.Ro && !def.IsBoss && !def.IsWanted) { barBack.enabled = barFill.enabled = false; RenderRoFootLabel(); return; } // RO Soft HP bar + "Lv.N Name" under the feet: Monster.RoFootLabel.cs
             SetRoFootLabel(false);
             barBack.enabled = showBar; barFill.enabled = showBar;
-            if (def.IsWanted && state != State.Dying)
+            if (def.UsesSkills && state != State.Dying)
             {
                 float wantedTop = def.BodyHeightUnits * def.RenderScale + 2f + AirLift();
                 RenderWantedCastBar(order, wantedTop);

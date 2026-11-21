@@ -22,7 +22,7 @@ namespace ZenoniaProto
             public MeshRenderer R; public Band Band; public int Order; public LayerKind Kind;
             public float T0, T1, W0, W1, H0, H1, Alpha, Spin, Rot, InMs = -1f, OutMs = -1f;
             public Vector2 Offset, Move;
-            public bool Arc, Dissolve, WasOn; public float ArcPhase, ArcSpeed, ArcFloor, ArcCount;
+            public bool Arc, Dissolve, WasOn, Turned; public float ArcPhase, ArcSpeed, ArcFloor, ArcCount;
             public float RevealMs, PopMs, DropMs, PhBurst = -1f, PhPeakEnd, PhLead, PhHold; // ClericLightFxShaping: reveal, pop, drop, 4-phase brightness
             public TrailRenderer Trail;
         }
@@ -227,7 +227,7 @@ namespace ZenoniaProto
                 float size = l.PopMs > 0f ? PopCurve(local / l.PopMs) : grow;
                 l.R.transform.localScale = new Vector3(Mathf.LerpUnclamped(l.W0, l.W1, size), Mathf.LerpUnclamped(l.H0, l.H1, size), 1f);
                 if (l.RevealMs > 0f) LightSkillAssets.SetReveal(l.R, local / l.RevealMs);
-                if (l.Spin != 0f) l.R.transform.localRotation = Quaternion.Euler(0f, 0f, l.Rot + l.Spin * age / 1000f);
+                if (l.Spin != 0f || l.Turned) l.R.transform.localRotation = Quaternion.Euler(0f, 0f, l.Rot + l.Spin * age / 1000f);
                 l.R.sortingOrder = l.Band == Band.Ground ? UltimateFx.GroundFxOrder + l.Order : l.Band == Band.Over ? FeelConfig.FxOrder - 20 + l.Order : l.Band == Band.Front ? front + l.Order : behind + l.Order;
                 LightSkillAssets.Set(l.R, l.Alpha * fadeIn * fadeOut * kind * PhaseGain(l, local), l.Dissolve ? Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((u - 0.35f) / 0.65f)) : -1f);
                 if (l.Arc)

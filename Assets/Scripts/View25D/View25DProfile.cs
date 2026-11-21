@@ -68,6 +68,38 @@ namespace ZenoniaProto
             TiltDeg = 32f, FovDeg = 27f, HeroPx = 69f, FeetY = 389f, Ro3Look = true, ScreenHaze = 0.04f, Vignette = 0.04f,
         };
 
+        // ---- dark dungeon (DungeonLights: ambient + point lights instead of the sun; only when Dungeon is true) ----
+        /// <summary>Indoor map: ground, props and units are lit by AmbientColor x AmbientLevel plus the map's point lights (DungeonLights) instead of the sun tint.</summary>
+        public bool Dungeon;
+        public Color AmbientColor = Color.white;
+        /// <summary>Ambient on the ground and props (ChatGPT 0.34 on its 0-1 scale) and the floor for heroes / monsters / pets (0.48) and bosses.</summary>
+        public float AmbientLevel = 1f, UnitAmbient = 1f, BossAmbient = 1f;
+        /// <summary>Darkening of a screen corner (View25DAtmosphere) in the vignette colour.</summary>
+        public Color VignetteColor = Color.black;
+        /// <summary>Ambient motes: warm dust (outdoor) or amber spores + cyan wisps (dungeon).</summary>
+        public Color MoteColorA = new Color(1f, 0.96f, 0.84f, 0.85f), MoteColorB = new Color(0.95f, 1f, 0.78f, 0.8f);
+        /// <summary>Render-only border props past the map edges (View25DGroundApron): tall ones and low ones. Null = the Willowbrook forest set.</summary>
+        public string[] ApronTall, ApronSmall;
+
+        /// <summary>Rootburrow, dark violet RO3 cave (21/11/2026, ChatGPT V2 "Dark Violet Cave" after the user's correction: purple like the RO3 Irmo clip at 12:25,
+        /// "giống ở trong hang"; docs/reference/rootburrow-dark-25d/rootburrow-dark-dungeon-art-direction-chatgpt.md): the RO3 camera, no sun, ambient #414064 at 0.22
+        /// on the world (0.45 on units, 0.48 on the boss) with cyan rune orbs / amethyst and rose crystals / glow mushrooms as point lights (DungeonLights);
+        /// very short shadows from straight above (#19172F), indigo fog #292544 from 5 m beyond the hero up to 0.40, vignette #100E25 0.32, no dapple / wind /
+        /// leaves, cyan and violet motes, cave drips.</summary>
+        public static readonly View25DProfile DarkDungeon = new View25DProfile
+        {
+            TiltDeg = 32f, FovDeg = 27f, HeroPx = 69f, FeetY = 389f, Ro3Look = true,
+            Dungeon = true, AmbientColor = Hex(0x41, 0x40, 0x64), AmbientLevel = 0.22f, UnitAmbient = 0.45f, BossAmbient = 0.48f,
+            SunElevationDeg = 78f, CastShorten = 0.35f, SunStrength = 0f, UnitSunStrength = 0f,
+            ShadeColor = Hex(0x26, 0x23, 0x45), CrownShadeColor = Hex(0x30, 0x2C, 0x4D), UnitShadeStrength = 0.15f,
+            FogColor = Hex(0x29, 0x25, 0x44), FogStart = 5f * GameConfig.TileUnits, FogEnd = 14f * GameConfig.TileUnits, FogMax = 0.40f, FogDesaturate = 0.15f,
+            ScreenHaze = 0.03f, Vignette = 0.32f, VignetteColor = Hex(0x10, 0x0E, 0x25),
+            Motes = 14, LeavesMax = 0, WindSway = 0f, Dapple = 0f,
+            MoteColorA = new Color(0.55f, 0.88f, 1f, 0.7f), MoteColorB = new Color(0.75f, 0.6f, 1f, 0.65f),
+            ApronTall = new[] { "rbStonePillar", "rbCaveWall", "rbCaveWallB", "rbPurpleCrystal", "rbPinkCrystal", "rbCaveWall", "rbHangingRoots" },
+            ApronSmall = new[] { "rbCaveBoulder", "rbStoneCluster", "rbStoneCluster", "rbGlowShrooms", "rbCaveBoulder", "rbPebbles" },
+        };
+
         /// <summary>The --view25d Hydra arena prototype keeps the first 2.5D camera (38 / 22, painted walls not converted) and none of the RO3 pass.</summary>
         public static readonly View25DProfile Prototype = new View25DProfile
         {
@@ -77,7 +109,8 @@ namespace ZenoniaProto
         /// <summary>Profile of a map id (a map that wants its own look adds a case here).</summary>
         public static View25DProfile For(string mapId)
         {
-            return mapId == SunkenReliquaryMap.MapId ? Prototype : Ro3Feel;
+            if (mapId == SunkenReliquaryMap.MapId) return Prototype;
+            return mapId == RootburrowMap.MapId ? DarkDungeon : Ro3Feel;
         }
 
         static Color Hex(int r, int g, int b) { return new Color(r / 255f, g / 255f, b / 255f, 1f); }

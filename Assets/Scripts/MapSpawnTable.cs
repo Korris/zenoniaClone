@@ -12,7 +12,7 @@ namespace ZenoniaProto
     {
         public const string AmberDunesId = "amberDunes", FrostfangDenId = "frostfangDen", EmberfenMarshId = "emberfenMarsh", SunkenReliquaryId = "sunkenReliquary", WillowbrookMeadowsId = "willowbrookMeadows";
         public const string BramblewoodForestId = "bramblewoodForest", RootburrowId = "rootburrow", ThornheartChamberId = "thornheartChamber";
-        static readonly Vector2Int BramblewoodForestBossTile = new Vector2Int(24, 18), ThornheartChamberBossTile = new Vector2Int(12, 5);
+        static readonly Vector2Int BramblewoodForestBossTile = new Vector2Int(24, 18), ThornheartChamberBossTile = new Vector2Int(12, 5), RootburrowBossTile = new Vector2Int(19, 4);
         const float EntranceClearance = 80f; // units; just over the default aggro range, so nothing wakes up as the hero walks in
         static readonly Vector2Int FrostfangDenBossTile = new Vector2Int(26, 11), SunkenReliquaryBossTile = new Vector2Int(45, 12);
 
@@ -33,7 +33,7 @@ namespace ZenoniaProto
         public const float DungeonRespawnMs = 25000f, DungeonBossRespawnMs = 5f * 60f * 1000f;
 
         /// <summary>How long after its death the map's boss returns online.</summary>
-        public static float BossRespawnMs(string mapId) { return mapId == FrostfangDenId || mapId == ThornheartChamberId ? DungeonBossRespawnMs : BossRespawnTimer.DefaultRespawnMs; }
+        public static float BossRespawnMs(string mapId) { return mapId == FrostfangDenId || mapId == ThornheartChamberId || mapId == RootburrowId ? DungeonBossRespawnMs : BossRespawnTimer.DefaultRespawnMs; }
 
         /// <summary>A few guards on the way to the boss: Lv16 goblins in the north cave, Lv18 wolves in the south cave (World Map 2.0 step 1, 13/11/2026 moved both from Lv2 to fill the Lv16-20
         /// band; Glacier Warden stays Lv20). The arena itself only holds the boss.</summary>
@@ -102,13 +102,14 @@ namespace ZenoniaProto
 
         /// <summary>
         /// Rootburrow (Lv10 dungeon): 16 guards from the hard end of Bramblewood's list, respawning every DungeonRespawnMs like Frostfang Den's (no instances yet): wolves and treants in the east hall behind the
-        /// entrance crack, sprites in the north hall and in the west hall in front of the boss arch. The boss stands in Thornheart Chamber, not here.
+        /// entrance crack, sprites in the south-east hall and in the west hall in front of the arch to Thornheart Chamber (whose own boss is the Treant). Since 21/11/2026 (dark 2.5D dungeon) the north hall
+        /// is the hall of Rootburrow's own boss, the Ambercap Warden (BossFor, RootburrowBossTile), and holds nothing else: its sprites moved to the south-east hall.
         /// </summary>
         static readonly FrostHollowMap.Zone[] Rootburrow =
         {
             new FrostHollowMap.Zone("forestWolf", 2, 18, 12, 8, 5, 25000f),    // 1  east hall
             new FrostHollowMap.Zone("brambleTreant", 3, 18, 12, 8, 5, 25000f),
-            new FrostHollowMap.Zone("thornSprite", 5, 15, 3, 9, 4, 25000f),    // 2  north hall
+            new FrostHollowMap.Zone("thornSprite", 5, 18, 14, 8, 3, 25000f),   // 2  south-east hall (the north hall is the Ambercap Warden's since 21/11)
             new FrostHollowMap.Zone("thornSprite", 3, 6, 12, 7, 5, 25000f),    // 3  west hall
             new FrostHollowMap.Zone("brambleTreant", 3, 6, 12, 7, 5, 25000f),
         };
@@ -217,7 +218,7 @@ namespace ZenoniaProto
                 case AmberDunesId: case EmberfenMarshId: case WillowbrookMeadowsId: return null;
                 case FrostfangDenId: return MonsterDef.GlacierWarden;
                 case SunkenReliquaryId: return MonsterDef.MirefangHydra;
-                case RootburrowId: return null;
+                case RootburrowId: return MonsterDef.AmbercapWarden; // dark dungeon boss hall (north)
                 case BramblewoodForestId: return MonsterDef.ThornfangAlpha;
                 case ThornheartChamberId: return MonsterDef.ThornheartTreant;
                 case SunbreakFoothillsId: return MonsterDef.RidgehornBehemoth;
@@ -235,6 +236,7 @@ namespace ZenoniaProto
                 case SunkenReliquaryId: return SunkenReliquaryBossTile;
                 case BramblewoodForestId: return BramblewoodForestBossTile;
                 case ThornheartChamberId: return ThornheartChamberBossTile;
+                case RootburrowId: return RootburrowBossTile;
                 case SunbreakFoothillsId: return SunbreakFoothillsBossTile;
                 case ScorpionGorgeId: return ScorpionGorgeBossTile;
                 default: return FrostHollowMap.BossTile;

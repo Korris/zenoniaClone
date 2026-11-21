@@ -22,7 +22,7 @@ namespace ZenoniaProto
         static bool tried;
         static MaterialPropertyBlock block;
 
-        sealed class UnitLight { public readonly List<SpriteRenderer> Parts = new List<SpriteRenderer>(8); public float Shade; public Color Applied; public int RefreshIn; }
+        sealed class UnitLight { public readonly List<SpriteRenderer> Parts = new List<SpriteRenderer>(8); public float Shade; public Color Applied, Light; public int RefreshIn; public bool Boss; }
         static readonly Dictionary<Transform, UnitLight> Units = new Dictionary<Transform, UnitLight>();
         static readonly List<Transform> Gone = new List<Transform>();
 
@@ -109,6 +109,7 @@ namespace ZenoniaProto
             Shader.SetGlobalVector(WindId, new Vector4(FeelConfig.FxOn ? p.WindSway : 0f, 1.25f, 0f, 0f));
             // flecks ~10 units across, drifting at ~0.6 units / s; inside a fleck the ground gets the sun tint + 10 %
             Shader.SetGlobalVector(DappleId, new Vector4(p.Dapple, 1f / 11f, 0.05f, 0.10f));
+            DungeonLights.Tick(cam); // dark dungeon: ambient + point lights replace the sun tint (no-op elsewhere)
         }
 
         /// <summary>Back to neutral (2D map, RO3 look off): the composite shader then behaves exactly as on 2D maps.</summary>
@@ -118,6 +119,7 @@ namespace ZenoniaProto
             Shader.SetGlobalVector(FogId, Vector4.zero);
             Shader.SetGlobalVector(DappleId, Vector4.zero);
             Shader.SetGlobalVector(WindId, Vector4.zero);
+            DungeonLights.Clear();
         }
 
         static Color SunTint(float strength)
@@ -138,7 +140,15 @@ namespace ZenoniaProto
             View25DProfile p = View25D.Profile;
             float target = Mathf.Clamp01(PropShadowSilhouettes.Field(unit.position) / Mathf.Max(0.01f, p.UnitShadeFull));
             u.Shade = Mathf.MoveTowards(u.Shade, target, Time.deltaTime * 4f); // ~0.25 s in / out of a shadow
-            Color c = SunTint(p.UnitSunStrength) * Color.Lerp(Color.white, p.ShadeColor, u.Shade * p.UnitShadeStrength);
+            Color lit = SunTint(p.UnitSunStrength);
+            if (p.Dungeon) // dark dungeon: unit ambient + the nearest point lights at the feet (DungeonLights), eased like the shade
+            {
+                if (u.RefreshIn == 30) { Monster m = unit.GetComponent<Monster>(); u.Boss = m != null && m.IsBoss; }
+                Color want = DungeonLights.UnitLight(unit.position, u.Boss);
+                u.Light = u.Light.a == 0f ? want : Color.Lerp(u.Light, want, Time.deltaTime * 6f);
+                lit = u.Light;
+            }
+            Color c = lit * Color.Lerp(Color.white, p.ShadeColor, u.Shade * p.UnitShadeStrength);
             c.a = 1f;
             bool changed = Mathf.Abs(c.r - u.Applied.r) + Mathf.Abs(c.g - u.Applied.g) + Mathf.Abs(c.b - u.Applied.b) > 0.004f;
             if (!changed && u.RefreshIn != 30) return; // re-applied right after a gather: new parts (gear swap) get it too

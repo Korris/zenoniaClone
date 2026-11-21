@@ -80,7 +80,7 @@ namespace ZenoniaProto
 
         void Update()
         {
-            float t = (float)(NetClient.ServerNowMs - atMs);   // ms relative to the strike instant
+            float t = (float)(WantedSkillTelegraphFx.ClockMs - atMs);   // ms relative to the strike instant
             TickWarning(t);
             if (t < 0f) TickCharge(-t);
             TickImpact(t);

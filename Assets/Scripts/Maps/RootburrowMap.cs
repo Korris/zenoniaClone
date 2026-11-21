@@ -7,6 +7,9 @@ namespace ZenoniaProto
     /// no props. Rows: T root wall / stone rim / rows 17-23 (solid)  d dirt floor  w pond (solid). The floor is one loop around the wall island in the middle (cols 12-20, rows 7-11): the lit
     /// crack on the east edge is the way in from Bramblewood's cave, the glowing root arch in the north-west corner leads to Thornheart Chamber. A normal shared map for now (no instances yet):
     /// its 16 monsters respawn like Frostfang Den's (MapSpawnTable), the boss lives in the chamber.
+    /// 21/11/2026: a dark 2.5D dungeon (View25D.Maps, View25DProfile.DarkDungeon, docs/reference/rootburrow-dark-25d/): flat floor / root-mass ground
+    /// (Tools/build-map-25d-dungeon-ground.py), standing root walls, crystals, lanterns and glow mushrooms (RootburrowProps, all on tiles the rows already block,
+    /// so collision is unchanged) that light the dark (DungeonLights), and its own boss in the north hall, the Ambercap Warden (MapSpawnTable.BossFor).
     /// </summary>
     public sealed class RootburrowMap : TileMapBase
     {
@@ -50,7 +53,15 @@ namespace ZenoniaProto
             new MapPortal(4, 3, ThornheartChamberMap.MapId, 11, 9), new MapPortal(5, 3, ThornheartChamberMap.MapId, 12, 9),
         };
 
-        public RootburrowMap() : base(Rows, "Tw") { }
+        public RootburrowMap() : base(Rows, "Tw")
+        {
+            foreach (MapProp p in RootburrowProps.All)
+            {
+                PropDef d;
+                if (VillagePropDefs.TryGet(p.Type, out d)) BlockTiles(p.Tx, p.Ty - d.FootH + 1, d.FootW, d.FootH);
+                else Debug.LogError("[ZenoniaProto] unknown village prop " + p.Type);
+            }
+        }
 
         public override string Id { get { return MapId; } }
         public override string Name { get { return "Rootburrow"; } }
@@ -59,5 +70,6 @@ namespace ZenoniaProto
         public override bool Hostile { get { return true; } }
         public override Vector2 PlayerStart { get { return FrostHollowMap.TileFeet(PlayerStartTile.x, PlayerStartTile.y, 2f); } }
         public override MapPortal[] Portals { get { return PortalList; } }
+        public override MapProp[] Props { get { return RootburrowProps.All; } }
     }
 }

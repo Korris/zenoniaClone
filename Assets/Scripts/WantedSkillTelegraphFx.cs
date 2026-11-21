@@ -26,7 +26,18 @@ namespace ZenoniaProto
         Vector3 fillFull;   // the fill's scale at the strike instant; it grows from the centre (or the line's base) up to this
         bool firedImpact, lightFx; // lightFx: this boss draws with shaders / particles (MireHydraLightFx), so no warning sprites and no painted impact
 
-        /// <summary>NetEventPlayer calls this for every WantedSkillTelegraph event (one per locked shape instance).</summary>
+        /// <summary>Clock of the telegraph countdowns: the server clock online (NetClient.ServerNowMs, the event's AtMs is on it); offline (no client, no
+        /// event bus) the local zone's own clock, the one Monster.BroadcastWantedTelegraph stamps AtMs with (21/11/2026: offline play showed no warnings at all).</summary>
+        public static float ClockMs
+        {
+            get
+            {
+                if (NetClient.Active != null) return NetClient.ServerNowMs;
+                return ZoneHost.Active != null ? ZoneHost.Active.ClockMs : Zone.Main != null ? Zone.Main.TimeMs : 0f;
+            }
+        }
+
+        /// <summary>NetEventPlayer calls this for every WantedSkillTelegraph event (one per locked shape instance); offline, the boss itself.</summary>
         public static void Spawn(string bossId, int skillId, Vector2 origin, float dirDeg, uint atMs)
         {
             if (!NetMode.RendersFx || Zone.Main == null) return;
@@ -40,11 +51,13 @@ namespace ZenoniaProto
             fx.skill = table[skillId];
             fx.shape = new WantedShapeInstance { OriginX = origin.x, OriginY = origin.y, DirDeg = dirDeg };
             fx.atMs = atMs;
-            fx.lightFx = MireHydraLightFx.ActiveFor(bossId);
-            if (fx.lightFx) MireHydraLightFx.Spawn(fx.skill, origin, dirDeg, atMs);
+            bool warden = AmbercapLightFx.ActiveFor(bossId); // Rootburrow's dungeon boss: shader / particle FX, no sprites (21/11/2026)
+            fx.lightFx = warden || MireHydraLightFx.ActiveFor(bossId);
+            if (warden) AmbercapLightFx.Spawn(fx.skill, origin, dirDeg, atMs);
+            else if (fx.lightFx) MireHydraLightFx.Spawn(fx.skill, origin, dirDeg, atMs);
             else fx.Build();
             Active.Add(fx);
-            Debug.Log("[WantedTelegraph] spawn " + bossId + " skill " + skillId + " atMs " + atMs + " serverNow " + NetClient.ServerNowMs.ToString("F0"));
+            Debug.Log("[WantedTelegraph] spawn " + bossId + " skill " + skillId + " atMs " + atMs + " serverNow " + ClockMs.ToString("F0"));
         }
 
         /// <summary>True when `point` stands inside any live danger shape right now (HeroController.WantedOverlay's alert icon, local only).</summary>
@@ -66,7 +79,7 @@ namespace ZenoniaProto
             {
                 WantedSkillTelegraphFx a = Active[i];
                 if (a == null || a.firedImpact || a.skill != skill || a.bossId != bossId) continue;
-                remainMs = Mathf.Max(0f, a.atMs - NetClient.ServerNowMs);
+                remainMs = Mathf.Max(0f, a.atMs - ClockMs);
                 return true;
             }
             remainMs = 0f;
@@ -79,6 +92,7 @@ namespace ZenoniaProto
             for (int i = Active.Count - 1; i >= 0; i--) if (Active[i] != null) Destroy(Active[i].gameObject);
             Active.Clear();
             MireHydraLightFx.ClearAll();
+            AmbercapLightFx.ClearAll();
         }
 
         void Build()
@@ -112,7 +126,7 @@ namespace ZenoniaProto
 
         void Update()
         {
-            float remainMs = atMs - NetClient.ServerNowMs;
+            float remainMs = atMs - ClockMs;
             float progress = Mathf.Clamp01(1f - remainMs / Mathf.Max(1, skill.TelegraphMs));
             if (area != null) { Color c = area.color; area.color = new Color(c.r, c.g, c.b, Mathf.Lerp(0.55f, 1f, progress)); }
             if (fill != null) // the solid part grows from the centre to the rim as the strike nears; the outline already shows the full extent
@@ -125,7 +139,7 @@ namespace ZenoniaProto
             if (!firedImpact)
             {
                 firedImpact = true;
-                Debug.Log("[WantedTelegraph] impact skill " + skill.Id + " atMs " + atMs + " serverNow " + NetClient.ServerNowMs.ToString("F0"));
+                Debug.Log("[WantedTelegraph] impact skill " + skill.Id + " atMs " + atMs + " serverNow " + ClockMs.ToString("F0"));
                 if (!lightFx) WantedSkillVfx.Play(bossId, skill, new Vector2(shape.OriginX, shape.OriginY), shape.DirDeg); // the light FX plays its own impact
                 // Self-predicts a Freeze hit right here, at the same server-clock instant the impact picture fires -- the local hero's own
                 // OwnerSim.FreezeLeft (one round trip later) only confirms / corrects this guess (HeroController.PredictFreeze).

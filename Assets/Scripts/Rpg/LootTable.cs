@@ -67,6 +67,8 @@ namespace ZenoniaProto.Rpg
             { "thornSprite", new MonsterLootDef { Type = "thornSprite", Exp = 126, GoldMin = 9, GoldMax = 19, ItemLevel = 9 } },
             { "thornfangAlpha", new MonsterLootDef { Type = "thornfangAlpha", Exp = 934, GoldMin = 67, GoldMax = 140, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "thornheartTreant", new MonsterLootDef { Type = "thornheartTreant", Exp = 934, GoldMin = 67, GoldMax = 140, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            // Rootburrow dark dungeon boss (21/11/2026): Lv12 on the same boss line (EXP 14L x6.67, gold L..2L+1 x6.67) with the sure drops.
+            { "ambercapWarden", new MonsterLootDef { Type = "ambercapWarden", Exp = 1120, GoldMin = 80, GoldMax = 167, ItemLevel = 12, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "highlandIbex", new MonsterLootDef { Type = "highlandIbex", Exp = 224, GoldMin = 16, GoldMax = 33, ItemLevel = 16 } },
             { "dustscaleLizard", new MonsterLootDef { Type = "dustscaleLizard", Exp = 238, GoldMin = 17, GoldMax = 35, ItemLevel = 17 } },
             { "cliffHarpy", new MonsterLootDef { Type = "cliffHarpy", Exp = 252, GoldMin = 18, GoldMax = 37, ItemLevel = 18 } },

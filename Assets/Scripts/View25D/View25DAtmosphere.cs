@@ -30,6 +30,10 @@ namespace ZenoniaProto
             mat.SetColor("_HazeColor", p.FogColor);
             mat.SetFloat("_HazeStrength", p.ScreenHaze);
             mat.SetFloat("_Vignette", p.Vignette);
+            mat.SetColor("_VignetteColor", p.VignetteColor);
+            mat.SetFloat("_Band", p.Dungeon ? 0.3f : 0.55f);
+            mat.SetColor("_WarmColor", p.Dungeon ? Color.white : new Color(1.05f, 1.02f, 0.95f, 1f)); // no sun corner underground
+            mat.SetColor("_CoolColor", p.Dungeon ? Color.white : new Color(0.95f, 0.97f, 1.02f, 1f));
             Graphics.Blit(src, dst, mat);
         }
     }

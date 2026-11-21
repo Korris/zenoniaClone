@@ -31,7 +31,8 @@ namespace ZenoniaProto
             float lod = heroes <= 8 ? 1f : heroes <= 20 ? 0.5f : 0.25f;
             bool ro3 = View25D.Ro3Look;
             TickMotes(g, lod, ro3);
-            if (ro3) TickLeaves(cam, lod);
+            if (ro3 && View25D.Profile.LeavesMax > 0) TickLeaves(cam, lod); // no leaves underground
+            if (ro3 && View25D.Profile.Dungeon) { TickDrips(g, lod); TickSplashes(); } // cave: water drips from the dark ceiling
         }
 
         public void Destroy()
@@ -57,7 +58,7 @@ namespace ZenoniaProto
             {
                 moteDebt -= 1f;
                 float height = Random.Range(4f, 70f);
-                Color col = ro3 ? (Random.value < 0.7f ? new Color(1f, 0.96f, 0.84f, 0.85f) : new Color(0.95f, 1f, 0.78f, 0.8f))
+                Color col = ro3 ? (Random.value < 0.7f ? View25D.Profile.MoteColorA : View25D.Profile.MoteColorB) // dungeon: amber spores / cyan wisps
                                 : (Random.value < 0.6f ? new Color(0.75f, 1f, 0.55f, 0.9f) : new Color(1f, 0.9f, 0.55f, 0.9f));
                 var p = new ParticleSystem.EmitParams
                 {
@@ -69,6 +70,49 @@ namespace ZenoniaProto
                     applyShapeToPosition = false,
                 };
                 motes.Emit(p, 1);
+            }
+        }
+
+        float nextDrip = 1f;
+
+        /// <summary>Cave drips (dark dungeon, user 21/11 "giống ở trong hang"): every 0.8-2.2 s a pale drop falls ~70 units from the unseen ceiling
+        /// somewhere in view and lands as a tiny splash of 4 specks (TickSplashes). Uses the mote system (no extra material).</summary>
+        void TickDrips(Vector3 g, float lod)
+        {
+            nextDrip -= Time.deltaTime;
+            if (nextDrip > 0f || motes == null) return;
+            nextDrip = Random.Range(0.8f, 2.2f) / Mathf.Max(0.25f, lod);
+            Vector3 at = new Vector3(g.x + Random.Range(-0.45f, 0.45f) * MoteAreaW, g.y + Random.Range(-0.35f, 0.45f) * MoteAreaD, 0f);
+            const float H = 70f, Fall = 95f;
+            var drop = new ParticleSystem.EmitParams
+            {
+                position = at + new Vector3(0f, 0f, -H), velocity = new Vector3(0f, 0f, Fall), startSize = 1.6f,
+                startColor = new Color(0.75f, 0.92f, 1f, 0.9f), startLifetime = H / Fall, applyShapeToPosition = false,
+            };
+            motes.Emit(drop, 1);
+            splashes.Add(new Vector4(at.x, at.y, 0f, Time.time + H / Fall));
+        }
+
+        readonly List<Vector4> splashes = new List<Vector4>(4); // x, y, -, time the drop lands
+
+        void TickSplashes()
+        {
+            for (int k = splashes.Count - 1; k >= 0; k--)
+            {
+                if (Time.time < splashes[k].w) continue;
+                Vector3 at = new Vector3(splashes[k].x, splashes[k].y, 0f);
+                splashes.RemoveAt(k);
+                if (motes == null) continue;
+                for (int i = 0; i < 4; i++)
+                {
+                    float a = Random.value * Mathf.PI * 2f;
+                    var sp = new ParticleSystem.EmitParams
+                    {
+                        position = at, velocity = new Vector3(Mathf.Cos(a) * 9f, Mathf.Sin(a) * 9f, -Random.Range(6f, 12f)), startSize = 1.1f,
+                        startColor = new Color(0.75f, 0.92f, 1f, 0.75f), startLifetime = 0.3f, applyShapeToPosition = false,
+                    };
+                    motes.Emit(sp, 1);
+                }
             }
         }
 

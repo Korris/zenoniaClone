@@ -54,7 +54,7 @@ namespace ZenoniaProto
         public static Shape Classify(string type, PropDef d)
         {
             string t = type.ToLowerInvariant();
-            if (Has(t, "bridge", "palisade", "flower", "lupine", "grasstuft", "fern")) return Shape.None; // flat on the ground or a long diagonal fence painted as one image
+            if (Has(t, "bridge", "palisade", "flower", "lupine", "grasstuft", "fern", "runeseal", "pebbles")) return Shape.None; // flat on the ground or a long diagonal fence painted as one image
             if (Has(t, "fence")) return Shape.Fence;
             if (Has(t, "fallen", "log")) return Shape.Rock;
             if (d.FootH == 0 && d.H <= FlatDecorMaxTiles) return Shape.Decor;

@@ -51,6 +51,26 @@ namespace ZenoniaProto.Rpg
                 TelegraphMs = 2000, CooldownMs = 22000, DamageMult = 0.8f, CastRow = 0, DrainPoisoned = true, DrainHealShare = 0.5f, DrainHealCap = 0.02f },
         };
 
+        /// <summary>
+        /// Ambercap Warden, Rootburrow's dungeon boss (21/11/2026, MonsterDef.SkillBoss, not a Wanted boss): ChatGPT's four skills
+        /// (docs/reference/rootburrow-dark-25d/rootburrow-dark-dungeon-art-direction-chatgpt.md section D) with the reach scaled to the boss's own body
+        /// (1.8 heroes: ChatGPT's 1.8 m pulse would sit under its cap), the hall (12 x 5 tiles + corridors) and the user's 21/11 rule that boss skills stay GRAND
+        /// (sizes at the top of their band, docs/sprite-rules.md rule 3). Rootline Burst is one line toward the
+        /// target (the line shape is anchored at the boss here, not on players). Light FX: AmbercapLightFx (particles / meshes / shaders, no sprites).
+        /// Cast rows of ambercapWarden-cast.png: 0 spore puff (fan), 1 root slam (pulse + rootline), 2 cap bloom (enrage), 3 defeat.
+        /// </summary>
+        public static readonly WantedSkillDef[] AmbercapWarden =
+        {
+            new WantedSkillDef { Id = 0, Name = "Amber Pulse", Hint = "An amber ring bursts round the boss. Step out of it.", Shape = WantedAreaShape.Circle, RadiusTiles = 3.5f,
+                TelegraphMs = 1300, CooldownMs = 7000, DamageMult = 1.25f, StatusKind = StatusKind.Slow, StatusValue = 25f, StatusMs = 2000, CastRow = 1 },
+            new WantedSkillDef { Id = 1, Name = "Spore Fan", Hint = "A fan of spores in front. Get to the side.", Shape = WantedAreaShape.Cone, RadiusTiles = 5.5f, AngleDeg = 90f,
+                TelegraphMs = 1500, CooldownMs = 10000, DamageMult = 1.4f, StatusKind = StatusKind.Poison, StatusValue = 12f, StatusMs = 3000, CastRow = 0 },
+            new WantedSkillDef { Id = 2, Name = "Rootline Burst", Hint = "Roots burst along a line. Move out of it.", Shape = WantedAreaShape.Line, LengthTiles = 8f, WidthTiles = 1.8f,
+                TelegraphMs = 1700, CooldownMs = 13000, DamageMult = 1.65f, KnockbackTiles = 1f, CastRow = 1 },
+            new WantedSkillDef { Id = 3, Name = "Bloom of the Hollow", Hint = "The hall blooms with light. Stand in the safe lane.", Shape = WantedAreaShape.Circle, RadiusTiles = 6.5f, SafeArcDeg = 90f, SafeArcCount = 1,
+                TelegraphMs = 2300, CooldownMs = 22000, DamageMult = 2.2f, StatusKind = StatusKind.Freeze, StatusMs = 1200, CastRow = 2, Enrage = true },
+        };
+
         /// <summary>The skill table (4 skills; Mire Hydra Queen 5) of a wanted boss type, or null when it has none (every other monster).</summary>
         public static WantedSkillDef[] For(string bossType)
         {
@@ -59,6 +79,7 @@ namespace ZenoniaProto.Rpg
                 case "rimeclawTyrant": return RimeclawTyrant;
                 case "glacialColossus": return GlacialColossus;
                 case "mireHydraQueen": return MireHydraQueen;
+                case "ambercapWarden": return AmbercapWarden;
                 default: return null;
             }
         }

@@ -95,6 +95,14 @@ namespace ZenoniaProto
             { "wfWillowTree", new PropDef(6.75f, 5.25f, 1, 1) },
             // Forest decor from the same chat (the wbx bush / rock / stump / log / reed PNGs were redrawn in place from that sheet, old art in git history).
             { "wfBushWide", new PropDef(4.5f, 2.5f, 1, 0) }, { "wfLogShort", new PropDef(3.0f, 1.5f, 1, 0) },
+            // Rootburrow dark violet 2.5D cave (21/11/2026, ChatGPT V2 "Dark Violet Cave", Tools/place-map-25d-dungeon-props.py, cut by Tools/cut-map-25d-dungeon-props.py): standing
+            // cave walls, pillars, hanging petrified roots, crystals and rune orbs / obelisks on solid tiles (they also light the dark: DungeonLights by name);
+            // low boulders / stones / glow mushrooms / pebbles / slabs / the rune seal walk-through (FootH 0).
+            { "rbCaveWall", new PropDef(4.75f, 2.75f, 3, 1) }, { "rbCaveWallB", new PropDef(4.75f, 2.75f, 3, 1) }, { "rbStonePillar", new PropDef(2.25f, 3.25f, 1, 1) },
+            { "rbHangingRoots", new PropDef(3f, 2.75f, 2, 1) }, { "rbPurpleCrystal", new PropDef(3f, 2.5f, 1, 1) }, { "rbPinkCrystal", new PropDef(2f, 1.5f, 1, 1) },
+            { "rbRuneObelisk", new PropDef(2.25f, 2.5f, 1, 1) }, { "rbRuneOrb", new PropDef(2.25f, 2.5f, 1, 1) }, { "rbCrystalNest", new PropDef(1.75f, 1f, 1, 0) },
+            { "rbCaveBoulder", new PropDef(2.25f, 1.5f, 2, 0) }, { "rbStoneCluster", new PropDef(1.75f, 1f, 1, 0) }, { "rbGlowShrooms", new PropDef(1.25f, 0.75f, 1, 0) },
+            { "rbPebbles", new PropDef(1.75f, 0.75f, 1, 0) }, { "rbStoneSlab", new PropDef(2.75f, 1f, 2, 0) }, { "rbRuneSeal", new PropDef(3.25f, 1.75f, 3, 0) },
         };
 
         public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def) || FrostHollowPropDefs.TryGet(type, out def) || BramblewoodForestPropDefs.TryGet(type, out def) || SunbreakFoothillsPropDefs.TryGet(type, out def) || ScorpionGorgePropDefs.TryGet(type, out def); }

@@ -25,7 +25,7 @@ namespace ZenoniaProto
             {
                 // A wanted boss chasing someone out of reach while another hero stands in reach fights the one in reach instead of walking off
                 // (walking after a far ranged hero can pull the stationary boss past its leash: Return turns it home, Chase turns it back).
-                if (def.IsWanted && !BossFacingLog.Legacy && state == State.Chase && (target.Position - here).sqrMagnitude > def.AttackRange * def.AttackRange)
+                if (def.UsesSkills && !BossFacingLog.Legacy && state == State.Chase && (target.Position - here).sqrMagnitude > def.AttackRange * def.AttackRange)
                 {
                     HeroController near = Zone.Main != null ? Zone.Main.Heroes.NearestAlive(here, def.AttackRange) : null;
                     if (near != null && near != target) { target = near; if (BossFacingLog.On) facingLog.Retargets++; }
@@ -42,7 +42,7 @@ namespace ZenoniaProto
         Vector2 Think(float dtMs, HeroController hero, out bool strike)
         {
             strike = false;
-            if (def.IsWanted)
+            if (def.UsesSkills) // event bosses and skill bosses (MonsterDef.SkillBoss)
             {
                 TickWantedSkills(dtMs);
                 facingHoldMs = Mathf.Max(0f, facingHoldMs - dtMs);
@@ -73,7 +73,7 @@ namespace ZenoniaProto
                     break;
                 case State.Chase:
                     if (homeDist > def.LeashRange) { Enter(State.Return, 0f); break; }
-                    if (def.IsWanted && TryBeginWantedSkill()) break; // telegraph started: stands still until it lands
+                    if (def.UsesSkills && TryBeginWantedSkill()) break; // telegraph started: stands still until it lands
                     if (def.Ranged != null ? CanShoot(hero) : dist <= def.AttackRange || TouchesHero(hero, BodyCollisionRules.TouchStrikeSlack)) { Enter(State.Windup, def.WindupMs); break; } // ranged (Monster.Ranged.cs): stops at its range with a clear line
                     if (dist > 0.001f) dir = toHero / dist;
                     factor = ChaseSpeedFactor;
@@ -119,11 +119,11 @@ namespace ZenoniaProto
             if (d == Vector2.zero) return;
             int next;
             if (BossFacingLog.Legacy || force) next = MonsterFacingRule.Plain(d.x, d.y);
-            else if (def.IsWanted && facingHoldMs > 0f) return;
+            else if (def.UsesSkills && facingHoldMs > 0f) return;
             else next = MonsterFacingRule.Sticky(facing, d.x, d.y);
             if (next == facing) return;
             facing = next;
-            if (!def.IsWanted) return;
+            if (!def.UsesSkills) return;
             facingHoldMs = MonsterFacingRule.WantedHoldMs;
             if (BossFacingLog.On) facingLog.Turns++;
         }

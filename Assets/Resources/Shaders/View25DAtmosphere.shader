@@ -12,6 +12,8 @@ Shader "ZenoniaProto/View25DAtmosphere"
         _CoolColor ("Shade-side tint", Color) = (0.95, 0.97, 1.02, 1)
         _SunPos ("Sun corner (uv)", Vector) = (0.05, 1.0, 0, 0)
         _Vignette ("Vignette", Float) = 0.08
+        _VignetteColor ("Vignette colour (dark dungeon: deep violet)", Color) = (0, 0, 0, 1)
+        _Band ("Far-edge haze band strength", Float) = 0.55
         _Aspect ("Aspect", Float) = 1.78
     }
     SubShader
@@ -24,8 +26,8 @@ Shader "ZenoniaProto/View25DAtmosphere"
             #pragma fragment frag
             #include "UnityCG.cginc"
             sampler2D _MainTex;
-            float4 _HazeColor, _WarmColor, _CoolColor, _SunPos;
-            float _HazeStrength, _HazeStart, _Vignette, _Aspect;
+            float4 _HazeColor, _WarmColor, _CoolColor, _SunPos, _VignetteColor;
+            float _HazeStrength, _HazeStart, _Vignette, _Aspect, _Band;
 
             half4 frag(v2f_img i) : SV_Target
             {
@@ -38,11 +40,11 @@ Shader "ZenoniaProto/View25DAtmosphere"
                 float h = smoothstep(_HazeStart, 1.0, uv.y);
                 // + a thicker band in the top ~12 %: where the far edge may run past the map border (View25DCamera.TopOvershootV)
                 float band = smoothstep(0.84, 1.0, uv.y);
-                c.rgb = lerp(c.rgb, _HazeColor.rgb, saturate(h * _HazeStrength + band * band * 0.55));
+                c.rgb = lerp(c.rgb, _HazeColor.rgb, saturate(h * _HazeStrength + band * band * _Band));
                 // vignette
                 float2 p = (uv - 0.5) * float2(_Aspect / 1.78, 1.0);
                 float v = smoothstep(0.42, 0.85, length(p) * 1.25);
-                c.rgb *= 1.0 - v * _Vignette;
+                c.rgb = lerp(c.rgb, c.rgb * _VignetteColor.rgb, v * _Vignette); // black = the old plain darkening
                 return c;
             }
             ENDCG

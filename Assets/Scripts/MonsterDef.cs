@@ -20,6 +20,11 @@ namespace ZenoniaProto
         public bool Stationary;                // web stationaryUntilAggro: waits at its post until the hero comes close
         public bool IsBoss;
         public bool IsWanted;                  // daily Wanted Boss (event raid boss): behaves like a boss (HP bar, stationary, no shoving) but is not the map boss: no boss flags, own respawn clock (WantedBossSpawn)
+        /// <summary>A map / dungeon boss with telegraphed skills (Rpg.WantedSkillTable.For(Sheet)) like the event bosses: same Telegraph / Execute states,
+        /// cast bar and enraged badge, but it stays the map's own boss (no Wanted credit, board or route). First: Ambercap Warden, Rootburrow (21/11/2026).</summary>
+        public bool SkillBoss;
+        /// <summary>Runs the boss skill AI and its client display (event bosses and skill bosses).</summary>
+        public bool UsesSkills { get { return IsWanted || SkillBoss; } }
         public int WalkCellPx = 192, AttackCellPx = 256; // sheet cell sizes; event bosses draw 384 / 512 cells at doubled pixels per unit (Monster.LoadSheets)
         public string FallbackSheet;           // existing sheet drawn (tinted) until Resources/Sprites/monsters/<Sheet>.png lands; see Monster.LoadSheets
         public Color FallbackTint = Color.white;
@@ -166,10 +171,17 @@ namespace ZenoniaProto
         public static readonly MonsterDef DuneDevourer = new MonsterDef("Dune Devourer", "duneDevourer", 4718f, 185f, 23f, 36f, 30, aggro: 85f, leash: 120f,
             attackRange: 22f, windupMs: 650f, cooldownMs: 1500f, hitW: 26f, hitH: 16f, bodyHeightPx: 186f) { RenderScale = 1.9f, Stationary = true, IsBoss = true };
 
+        // Rootburrow dark dungeon boss (21/11/2026, ChatGPT "Ambercap Warden": a giant amber-capped mushroom guarding its nest, docs/reference/rootburrow-dark-25d/):
+        // Lv12 on the boss rule (line HP 14+22L = 278 x7, Atk 3+4L = 51 x1.5, Def 1+L = 13 x0.75), slow tank with Thornheart's reach. Drawn from 384 / 512 cells
+        // like the event bosses (twice the pixels per unit; RenderScale 2.4 reads as ~1.8 heroes in the 2.5D view, 1.8 looked hardly bigger than the hero, 21/11) and casts the four skills of WantedSkillTable.AmbercapWarden.
+        public static readonly MonsterDef AmbercapWarden = new MonsterDef("Ambercap Warden", "ambercapWarden", 1946f, 76f, 10f, 28f, 12, aggro: 95f, leash: 130f,
+            attackRange: 24f, windupMs: 700f, cooldownMs: 1600f, hitW: 28f, hitH: 16f, bodyHeightPx: 164f)
+            { RenderScale = 2.4f, Stationary = true, IsBoss = true, SkillBoss = true, WalkCellPx = 384, AttackCellPx = 512, FallbackSheet = "thornheartTreant", FallbackTint = new Color(1f, 0.8f, 0.6f) };
+
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
         public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear, RimeclawTyrant, GlacialColossus, MireHydraQueen,
             ForestWolf, ThornSprite, ThornfangAlpha, ThornheartTreant, HighlandIbex, DustscaleLizard, CliffHarpy, StonebackGuardian, RidgehornBehemoth,
-            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer };
+            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer, AmbercapWarden };
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -218,6 +230,7 @@ namespace ZenoniaProto
                 case "rockBasilisk": return RockBasilisk;
                 case "duneGolem": return DuneGolem;
                 case "duneDevourer": return DuneDevourer;
+                case "ambercapWarden": return AmbercapWarden;
                 default: return null;
             }
         }

@@ -55,8 +55,9 @@ namespace ZenoniaProto
         {
             var rng = new System.Random(map.Id.GetHashCode() & 0x7fffffff);
             float tw = map.Width, th = map.Height;
-            Scatter(parent, map, rng, Mathf.Sqrt(TreeArea), Trees, tw, th, true);
-            Scatter(parent, map, rng, Mathf.Sqrt(BushArea), Smalls, tw, th, false);
+            View25DProfile p = View25D.Profile; // a dark dungeon has its own border set (root walls, pillars, giant mushrooms; boulders, stones)
+            Scatter(parent, map, rng, Mathf.Sqrt(TreeArea), p.ApronTall ?? Trees, tw, th, true);
+            Scatter(parent, map, rng, Mathf.Sqrt(BushArea), p.ApronSmall ?? Smalls, tw, th, false);
         }
 
         static void Scatter(Transform parent, IGameMap map, System.Random rng, float cell, string[] types, float tw, float th, bool trees)

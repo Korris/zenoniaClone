@@ -36,7 +36,7 @@ namespace ZenoniaProto
         public bool WantedCast(out WantedSkillDef skill, out float leftMs)
         {
             skill = null; leftMs = 0f;
-            if (!def.IsWanted || state == State.Dying) return false;
+            if (!def.UsesSkills || state == State.Dying) return false;
             if (DebugCastDemo != null)
             {
                 skill = DebugCastDemo;

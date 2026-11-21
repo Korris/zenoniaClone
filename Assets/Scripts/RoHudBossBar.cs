@@ -111,11 +111,11 @@ namespace ZenoniaProto
         /// <summary>Enraged tag + tinted face, the cast bar and the hint bubble; Bottom follows what shows.</summary>
         void States(Monster boss)
         {
-            bool rage = boss.IsWanted && boss.WantedEnraged;
+            bool rage = boss.UsesSkills && boss.WantedEnraged;
             if (rage != enragedOn) { enragedOn = rage; enraged.SetActive(rage); face.color = rage ? EnragedFace : Color.white; FitName(); }
             WantedSkillDef skill = null;
             float leftMs = 0f;
-            bool casting = boss.IsWanted && boss.WantedCast(out skill, out leftMs);
+            bool casting = boss.UsesSkills && boss.WantedCast(out skill, out leftMs);
             if (cast.Root.gameObject.activeSelf != casting) { cast.Root.gameObject.SetActive(casting); castTenths = -1; if (casting) cast.Relayout(); }
             bool showHint = casting && !string.IsNullOrEmpty(skill.Hint);
             if (hint.gameObject.activeSelf != showHint) hint.gameObject.SetActive(showHint);

@@ -22,9 +22,12 @@ namespace ZenoniaProto
         readonly List<WantedShapeInstance> pendingShapes = new List<WantedShapeInstance>(5);
 
         /// <summary>True once below 30 % hp (WantedSkillClock.EnrageHpFraction): the warning-enraged icon and the client's own display hook read it.</summary>
-        public bool WantedEnraged { get { return def.IsWanted && hp / def.Hp < WantedSkillClock.EnrageHpFraction; } }
+        public bool WantedEnraged { get { return def.UsesSkills && hp / def.Hp < WantedSkillClock.EnrageHpFraction; } }
         /// <summary>Debug capture only (Tools/wanted-boss-test.ps1): true while this wanted boss is telegraphing a skill.</summary>
         public bool IsWantedTelegraphing { get { return state == State.Telegraph; } }
+
+        /// <summary>Runs the boss skill AI (event bosses and MonsterDef.SkillBoss map bosses): the HUD boss bars show its cast and enraged state.</summary>
+        public bool UsesSkills { get { return def.UsesSkills; } }
 
         void TickWantedSkills(float dtMs) { wantedClock.Tick(dtMs); }
 
@@ -100,6 +103,12 @@ namespace ZenoniaProto
             {
                 WantedShapeInstance s = pendingShapes[i];
                 NetEventBus.WantedSkillTelegraph(this, skill.Id, new Vector2(s.OriginX, s.OriginY), s.DirDeg, atMs);
+                // Offline there is no event bus / client: draw the warning here (same clock: WantedSkillTelegraphFx.ClockMs is the zone's offline)
+                if (NetMode.IsOffline && NetMode.RendersFx)
+                {
+                    ShowWantedTelegraph(skill.Id);
+                    WantedSkillTelegraphFx.Spawn(def.Sheet, skill.Id, new Vector2(s.OriginX, s.OriginY), s.DirDeg, atMs);
+                }
             }
         }
 
