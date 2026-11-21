@@ -7,6 +7,8 @@ namespace ZenoniaProto
     public class CameraFollow : MonoBehaviour
     {
         const float SmoothTime = 0.09f;
+        /// <summary>RO3 2.5D maps follow a little softer (camera loop round 1, ChatGPT: SmoothDamp 0.12 s).</summary>
+        static float FollowTime { get { return View25D.Active && View25D.Profile.Ro3Look ? 0.12f : SmoothTime; } }
         static float trauma, punch, punchDecay = PunchDecayPerSecond;
         const float PunchZoom = 0.09f, PunchDecayPerSecond = 2.2f; // ultimate slam: orthographic size shrinks up to 9% then eases back
         float baseSize;
@@ -95,6 +97,8 @@ namespace ZenoniaProto
         /// Thornheart Chamber 24x16, or a narrow window): no empty void around the map.</summary>
         public static float FitToMap(float halfHeight, float aspect)
         {
+            if (View25D.Active && View25D.Profile.Ro3Look) return halfHeight; // the forest border fills any view past the edges
+
             float fit = Mathf.Min(GameConfig.MapH * 0.5f, GameConfig.MapW * 0.5f / Mathf.Max(0.01f, aspect));
             return Mathf.Min(halfHeight, fit);
         }
@@ -126,7 +130,7 @@ namespace ZenoniaProto
             }
             else cam.orthographicSize = baseSize = FitToMap(cam.orthographicSize, cam.aspect); // adopt any external zoom change while idle, never wider than the map
             Vector2 goal = Clamp(TargetPos());
-            pos = Vector2.SmoothDamp(pos, goal, ref velocity, SmoothTime, Mathf.Infinity, dt);
+            pos = Vector2.SmoothDamp(pos, goal, ref velocity, FollowTime, Mathf.Infinity, dt);
             Vector2 shown = pos;
             if (trauma > 0f)
             {

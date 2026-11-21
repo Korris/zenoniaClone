@@ -10,9 +10,8 @@ namespace ZenoniaProto
     /// </summary>
     public static class View25DCamera
     {
-        /// <summary>Viewport height whose ground point may reach the north border: 0.5 = the screen centre on RO3 maps (the ground continues past the edge,
-        /// View25DGroundApron); 0.88 (before 21/11, it showed the ground's end as a horizon line) stays on the Hydra prototype, which has no apron.</summary>
-        static float TopOvershootV { get { return View25D.Profile.Ro3Look ? 0.5f : 0.88f; } }
+        /// <summary>Viewport height whose ground point may reach the north border on the Hydra prototype (no apron; RO3 maps are not clamped).</summary>
+        const float TopOvershootV = 0.88f;
         /// <summary>Background beyond the map's north edge: the profile's fog colour (View25DAtmosphere haze uses it too), so the far edge reads as distance fog.</summary>
         public static Color FogColor { get { return View25D.Profile.FogColor; } }
 
@@ -82,12 +81,12 @@ namespace ZenoniaProto
             return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
         }
 
-        /// <summary>Keeps the visible ground trapezoid inside the map (wider far edge sets the x limit); a map smaller than the view is centred.</summary>
+        /// <summary>Keeps the visible ground trapezoid inside the map (wider far edge sets the x limit); a map smaller than the view is centred.
+        /// RO3 maps: no clamp at all, the hero stays at the screen centre at every edge (camera loop round 1, ChatGPT item 2); the view past the edges
+        /// shows the render-only forest border (View25DGroundApron), never the end of the ground. The Hydra prototype keeps the clamp.</summary>
         public static Vector2 Clamp(Camera cam, Vector2 p)
         {
-            // North: the screen centre may reach the north border (the hero stays centred like RO3); the view past it shows the ground and forest mirrored
-            // beyond the edge (View25DGroundApron), never the end of the ground. South stays hard-clamped to the map.
-            // Sides: the near (bottom) corners and the screen centre line stay inside the map; the wider upper corners may run onto the mirrored ground / trees.
+            if (View25D.Profile.Ro3Look) return p;
             Vector2 bottom = GroundHit(cam, 1f, 0f), top = GroundHit(cam, 1f, TopOvershootV);
             float halfW = Mathf.Max(top.x, bottom.x);
             float mapW = GameConfig.MapW, mapH = GameConfig.MapH;

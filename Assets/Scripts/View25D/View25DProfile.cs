@@ -20,6 +20,11 @@ namespace ZenoniaProto
         public float FovDeg;
         /// <summary>Camera distance multiplier over the orthographic-equivalent distance: a figure at the focus shows 1 / this as tall as on the 2D camera.</summary>
         public float ViewScale = 1f;
+        /// <summary>When > 0: hero height in px on a 720-px screen at the default zoom; ViewScale and LookAtHeight are then derived from it and FeetY
+        /// with the build's heroScale (View25DCameraOverride.ViewScaleFor / LookAtFor), so test (1.15) and release (1) builds frame the hero alike.</summary>
+        public float HeroPx;
+        /// <summary>Hero feet, px from the top of a 720-px screen (used with HeroPx).</summary>
+        public float FeetY = 389f;
         /// <summary>Screen centre on the hero this many units above the feet (0 = the old ground point 10 units north of the feet).</summary>
         public float LookAtHeight;
         /// <summary>RO3 lighting pass: lit sprite materials, unit shade under canopy, silhouette cast shadows, dapple, ambient FX, fog.</summary>
@@ -54,13 +59,13 @@ namespace ZenoniaProto
         public float WindSway = 1.3f, Dapple = 1f;
 
         /// <summary>Every listed 2.5D map: the RO3 Feel V2 preset with the RO3 camera of 21/11 (A/B shots docs/reference/willowbrook-25d/camera-ab/,
-        /// ChatGPT docs/reference/willowbrook-25d/willowbrook-25d-camera-vs-ro3-chatgpt.md preset B): pitch 58 deg from the horizontal (tilt 32), vertical FOV 27,
-        /// hero 69 px tall at 720p in a test build with dev-start heroScale 1.15 (~60 px at heroScale 1), feet 389 px from the top.
-        /// ViewScale = HeroUnits x heroScale x 720 / (216 x heroPx), LookAtHeight = (feetY - 360) x 216 x ViewScale / 720 (View25DCameraOverride; try others with --cam25d).
+        /// ChatGPT docs/reference/willowbrook-25d/willowbrook-25d-camera-vs-ro3-chatgpt.md preset B, kept by the camera loop docs/reference/willowbrook-25d/camera-loop/):
+        /// pitch 58 deg from the horizontal (tilt 32), vertical FOV 27, hero 69 px tall at 720p in every build (camera distance follows heroScale), feet 389 px
+        /// from the top (54 %). ViewScale = HeroUnits x heroScale x 720 / (216 x heroPx), LookAtHeight = (feetY - 360) x 216 x ViewScale / 720 (try others with --cam25d).
         /// Was pitch 43 / FOV 25 / ViewScale 1.11 / look-at 15 (hero 70 px, feet 406): too low, the ground ran off toward a visible far edge.</summary>
         public static readonly View25DProfile Ro3Feel = new View25DProfile
         {
-            TiltDeg = 32f, FovDeg = 27f, ViewScale = 1.13f, LookAtHeight = 9.8f, Ro3Look = true, ScreenHaze = 0.04f, Vignette = 0.04f,
+            TiltDeg = 32f, FovDeg = 27f, HeroPx = 69f, FeetY = 389f, Ro3Look = true, ScreenHaze = 0.04f, Vignette = 0.04f,
         };
 
         /// <summary>The --view25d Hydra arena prototype keeps the first 2.5D camera (38 / 22, painted walls not converted) and none of the RO3 pass.</summary>

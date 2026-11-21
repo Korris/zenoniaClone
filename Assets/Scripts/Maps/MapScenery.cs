@@ -32,7 +32,7 @@ namespace ZenoniaProto
             if (ShowsVillagers) TownNpc.CreateAll(parent, map);
         }
 
-        const float FlatDecorMaxTiles = 3f; // sprite height up to which a walk-through prop counts as ground decoration
+        public const float FlatDecorMaxTiles = 3f; // sprite height up to which a walk-through prop counts as ground decoration
 
         static void BuildProp(Transform parent, MapProp p)
         {

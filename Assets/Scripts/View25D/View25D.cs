@@ -86,10 +86,26 @@ namespace ZenoniaProto
         public static float LookAtGroundOffset { get { float h = LookAtHeight; return h > 0f ? h / Mathf.Cos(TiltDeg * Mathf.Deg2Rad) : 0f; } }
 
         /// <summary>Profile look-at height, or the test override (`--cam25d`, View25DCameraOverride).</summary>
-        public static float LookAtHeight { get { return View25DCameraOverride.On ? View25DCameraOverride.LookAtHeight : Profile.LookAtHeight; } }
+        public static float LookAtHeight
+        {
+            get
+            {
+                if (View25DCameraOverride.On) return View25DCameraOverride.LookAtHeight;
+                View25DProfile p = Profile;
+                return p.HeroPx > 0f ? View25DCameraOverride.LookAtFor(p.FeetY, ViewScale) : p.LookAtHeight;
+            }
+        }
 
         /// <summary>Profile camera distance multiplier, or the test override (`--cam25d` hero pixel height).</summary>
-        public static float ViewScale { get { return View25DCameraOverride.On ? View25DCameraOverride.ViewScale : Profile.ViewScale; } }
+        public static float ViewScale
+        {
+            get
+            {
+                if (View25DCameraOverride.On) return View25DCameraOverride.ViewScale;
+                View25DProfile p = Profile;
+                return p.HeroPx > 0f ? View25DCameraOverride.ViewScaleFor(p.HeroPx) : p.ViewScale;
+            }
+        }
 
         /// <summary>How much of the perspective size change units undo (0 = full perspective, 1 = every unit as tall as at the screen centre).
         /// 40-player readability: far heroes must not shrink much (ChatGPT: keep the size spread within ~10 %).</summary>

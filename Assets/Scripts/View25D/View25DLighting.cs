@@ -50,6 +50,17 @@ namespace ZenoniaProto
             if (sr != null && View25D.Ro3Look && Ready()) sr.sharedMaterial = ground;
         }
 
+        /// <summary>Own material for a mesh drawn like the ground (View25DGroundApron's tiled border grass): the lit ground shader on the RO3 pass,
+        /// else plain Sprites/Default. Both take the mesh's vertex colour (alpha = the seam feather).</summary>
+        public static Material GroundMaterialFor(Texture2D tex)
+        {
+            Shader s = View25D.Ro3Look && Ready() ? ground.shader : Shader.Find("Sprites/Default");
+            if (s == null) return null;
+            var m = new Material(s) { name = "GroundApron_" + tex.name, hideFlags = HideFlags.DontSave, mainTexture = tex };
+            if (m.HasProperty("_Mode")) m.SetFloat("_Mode", 0f);
+            return m;
+        }
+
         /// <summary>Standing prop (View25D.StandProp): trees sway and shade their trunk, the rest get sun-side shading + base AO.</summary>
         public static void ApplyProp(SpriteRenderer sr)
         {

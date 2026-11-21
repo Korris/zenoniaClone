@@ -49,9 +49,16 @@ namespace ZenoniaProto
         public static float FovDeg { get { Parse(); return fov; } }
 
         /// <summary>Camera distance multiplier that shows the hero heroPx tall on a 720-px screen at the default (unzoomed) camera.</summary>
-        public static float ViewScale { get { Parse(); return HeroUnits * DevStartConfig.HeroScale() * 720f / (GameConfig.ViewHeightUnits * heroPx); } }
+        public static float ViewScale { get { Parse(); return ViewScaleFor(heroPx); } }
 
         /// <summary>Look-at height (units above the feet) that puts the feet feetY px from the top: (feetY - 360) px below the screen centre.</summary>
-        public static float LookAtHeight { get { Parse(); return (feetY - 360f) * GameConfig.ViewHeightUnits * ViewScale / 720f; } }
+        public static float LookAtHeight { get { Parse(); return LookAtFor(feetY, ViewScale); } }
+
+        /// <summary>Camera distance multiplier that shows the hero `px` tall on a 720-px screen at the default zoom, whatever dev-start heroScale is
+        /// (so a test build at heroScale 1.15 and a release build at 1 show the same 69 px; camera loop round 1, ChatGPT item 1).</summary>
+        public static float ViewScaleFor(float px) { return HeroUnits * DevStartConfig.HeroScale() * 720f / (GameConfig.ViewHeightUnits * px); }
+
+        /// <summary>Look-at height that puts the feet `feetPx` from the top of a 720-px screen with this ViewScale.</summary>
+        public static float LookAtFor(float feetPx, float viewScale) { return (feetPx - 360f) * GameConfig.ViewHeightUnits * viewScale / 720f; }
     }
 }

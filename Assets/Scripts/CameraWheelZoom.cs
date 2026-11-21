@@ -6,7 +6,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Mouse-wheel zoom of the gameplay camera on the PC build (Windows standalone and the editor): wheel up zooms in, wheel down out,
-    /// 8 % per notch, eased over 0.15 s, 0.6x..1x of the default half-height (zoom in only), remembered in PlayerPrefs (zenonia.zoom.v2).
+    /// 8 % per notch, eased over 0.15 s, 0.6x..1x of the default half-height (zoom in only; RO3 2.5D maps 0.86x..1.15x), remembered in PlayerPrefs (zenonia.zoom.v2).
     /// Never on WebGL / mobile, and never in a capture / bot run (--zoom) or when dev-start.json sets cameraViewHeight: those own the size.
     /// Ignored while a window owns the pointer / keyboard (chat typing, modal windows, inventory, hero change, account menu, pointer over UI).
     /// Writes the size in Update; CameraFollow adopts it as its base in LateUpdate (punch-in scales it, the map clamp reads it).
@@ -16,6 +16,10 @@ namespace ZenoniaProto
         const string PrefKey = "zenonia.zoom.v2"; // v2 with the 1.35x wider default (GameConfig.WorldZoomOut): an old saved zoom-in must not hide the new view
         const float MinFactor = 0.6f, MaxFactor = 1f, // never wider than the default view (user, 2026-11-05)
              NotchStep = 0.08f, EaseSeconds = 0.15f;
+        /// <summary>RO3 2.5D maps (camera loop, ChatGPT round 2: 85..55 px narrowed to 80..60): hero 80 px closest .. 60 px widest around the default 69 px,
+        /// by camera distance only (pitch / FOV fixed). The only place the view may be wider than the default: the forest border (View25DGroundApron) fills it.</summary>
+        const float Ro3MinFactor = 69f / 80f, Ro3MaxFactor = 69f / 60f;
+        static bool Ro3Map { get { return View25D.Active && View25D.Profile.Ro3Look; } }
 
         /// <summary>Zoom multiplier of the default half-height (1 = default). CameraFollow.Configure applies it, so a map change keeps the zoom.</summary>
         public static float Current { get; private set; } = 1f;
@@ -59,7 +63,7 @@ namespace ZenoniaProto
         void Awake()
         {
             cam = GetComponent<Camera>();
-            try { target = Mathf.Clamp(PlayerPrefs.GetFloat(PrefKey, 1f), MinFactor, MaxFactor); } catch (Exception) { target = 1f; }
+            try { target = Mathf.Clamp(PlayerPrefs.GetFloat(PrefKey, 1f), MinFactor, Ro3MaxFactor); } catch (Exception) { target = 1f; }
             Current = target;
             string[] args = Environment.GetCommandLineArgs();
             int zoomIndex = Array.IndexOf(args, "--zoom");
@@ -90,12 +94,12 @@ namespace ZenoniaProto
             float notches = WindowOwnsPointer() ? 0f : InputAdapter.MouseScrollDelta();
             if (notches != 0f)
             {
-                target = Mathf.Clamp(target * Mathf.Pow(1f - NotchStep, notches), minimum, MaxFactor); // wheel up = smaller view = closer
+                target = Mathf.Clamp(target * Mathf.Pow(1f - NotchStep, notches), Ro3Map ? Ro3MinFactor : minimum, Ro3Map ? Ro3MaxFactor : MaxFactor); // wheel up = smaller view = closer
                 if (savePreference)
                     try { PlayerPrefs.SetFloat(PrefKey, target); PlayerPrefs.Save(); } catch (Exception) { /* prefs are a convenience */ }
             }
             float defaultHalf = DevStartConfig.CameraViewHeight() * 0.5f;
-            float want = Mathf.Min(target, MaxFactorForMap(defaultHalf));
+            float want = Ro3Map ? Mathf.Clamp(target, Ro3MinFactor, Ro3MaxFactor) : Mathf.Min(target, MaxFactorForMap(defaultHalf));
             Current = Mathf.SmoothDamp(Current, want, ref velocity, EaseSeconds, Mathf.Infinity, Time.unscaledDeltaTime); // unscaled: hit-stop / pause
             if (Mathf.Abs(Current - want) < 0.0005f) { Current = want; velocity = 0f; }
             cam.orthographicSize = defaultHalf * Current;

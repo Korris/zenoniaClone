@@ -17,6 +17,9 @@ at ~11 % opacity, macro patches 1.5-3 m at +-6 % value; the road edge is feather
 no stepped pixel edge. Only the grass / road transition is soft: the textures themselves stay sharp. 1 m = 1 tile = 64 px of ground art.
 Writes the ground chunks of the map (same files the game loads) and, with --preview, a small preview in the forest-25d folder. The minimap is
 rebaked after this by the map's composite preview tool (--minimap), which also draws the props.
+Border ground (camera loop 21/11/2026, docs/reference/willowbrook-25d/camera-loop/round-1-chatgpt.md item 3): `... <map> border` writes
+<pattern>-border.png, a seamless 1024 px (16 tiles) forest-floor grass tile graded to the mean of the map's outer 2 tiles of grass, that
+View25DGroundApron tiles past every map edge (80-90 % grass, a few darker / lighter patches, no road, paving or water).
 Sources: Assets/ArtLibrary/maps/<map>/forest-25d/ (*-grass-chatgpt-N.png, *-dirt-chatgpt-N.png, highest N wins; *-forest-mask.png).
 To convert another map: add an entry to MAPS.
 """
@@ -109,9 +112,44 @@ def micro_detail(W, H, seed):
     return 1 + d * DETAIL
 
 
+def periodic_noise(n, cells, seed):
+    """Tileable value noise n x n: a cells x cells random grid wrapped and cubic-upsampled (no seam when tiled)."""
+    g = np.random.RandomState(seed).rand(cells, cells).astype(np.float32)
+    g = np.tile(g, (3, 3))
+    big = cv2.resize(g, (3 * n, 3 * n), interpolation=cv2.INTER_CUBIC)
+    return big[n:2 * n, n:2 * n]
+
+
+def border(key, cfg):
+    """Seamless forest-floor grass tile for the ground past the map edges, matched to the colour of the map's own outer grass."""
+    ground = np.asarray(read_ground(cfg)).astype(np.float32)
+    H, W = ground.shape[:2]; b = 2 * T
+    ring = np.concatenate([ground[:b].reshape(-1, 3), ground[-b:].reshape(-1, 3), ground[:, :b].reshape(-1, 3), ground[:, -b:].reshape(-1, 3)])
+    grassy = ring[(ring[:, 1] > ring[:, 2] + 25) & (ring[:, 1] >= ring[:, 0])]  # grass only: no road, water, paving
+    mean = np.median(grassy, 0); print("outer grass mean", mean.round())
+    n = TEX_TILE
+    sw = seamless(np.asarray(Image.open(latest(key, "grass")).convert("RGB")).astype(np.float32))
+    tex = cv2.resize(grade(sw, mean), (n, n), interpolation=cv2.INTER_AREA)
+    # patches 1.5-4 m (+-6 %), toward GRASS_LIGHT / DEEP hues, and a few darker forest-floor pools (10-20 % of the area)
+    patch = (periodic_noise(n, 8, 5) - 0.5) * 2 * 0.6 + (periodic_noise(n, 5, 6) - 0.5) * 2 * 0.4
+    k_light = np.array(GRASS_LIGHT, float) / np.array(GRASS, float) - 1
+    k_dark = np.array(FOREST, float) / np.array(GRASS, float) - 1
+    pw = np.clip(patch, -1, 1)[..., None]
+    tex *= 1 + np.where(pw > 0, k_light * pw * (MACRO / 0.25), -k_dark * pw * (MACRO / 0.25))
+    pool = np.clip((periodic_noise(n, 4, 9) - 0.62) * 4, 0, 1)[..., None]
+    tex *= 1 + (np.array(DEEP, float) / np.array(GRASS, float) - 1) * 0.55 * pool
+    fine = (periodic_noise(n, n // 3, 31) - 0.5) * 0.7 + (periodic_noise(n, n // 7, 32) - 0.5) * 0.3
+    tex *= (1 + np.clip(fine * 1.3, -1, 1) * DETAIL)[..., None]
+    tex *= (mean / tex.reshape(-1, 3).mean(0))  # keep the overall colour on the map's outer grass: the seam is a soft fade, not a step
+    out = os.path.join(RES, cfg["pattern"].replace("-r{r}c{c}", "-border"))
+    Image.fromarray(np.clip(tex, 0, 255).astype(np.uint8)).save(out, optimize=True); print(out)
+
+
 def main():
     key = sys.argv[1] if len(sys.argv) > 1 else "willowbrook-meadows"
-    cfg = MAPS[key]; tw, th = cfg["size"]; W, H = tw * T, th * T
+    cfg = MAPS[key]
+    if "border" in sys.argv[2:]:
+        border(key, cfg); return; tw, th = cfg["size"]; W, H = tw * T, th * T
     os.makedirs(lib(key), exist_ok=True)
     before = os.path.join(lib(key), key + "-before-ground.jpg")  # q95: masks + kept water / paving pixels
     if not os.path.exists(before):
