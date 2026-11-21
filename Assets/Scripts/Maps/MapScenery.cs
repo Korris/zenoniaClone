@@ -49,6 +49,7 @@ namespace ZenoniaProto
             {
                 sr.transform.position = new Vector3(x, y, 0f);
                 if (View25D.Active && sr.sortingOrder != GameConfig.GroundOrder + 4) View25D.StandProp(sr); // --view25d: tall props stand up at their foot line
+                else View25DLighting.ApplyGround(sr); // flat decor on a RO3 2.5D map: lit like the ground
                 return;
             }
             sr.color = MissingPropTint;

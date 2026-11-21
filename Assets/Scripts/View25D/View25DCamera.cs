@@ -5,13 +5,14 @@ namespace ZenoniaProto
     /// <summary>
     /// Perspective placement for the 2.5D prototype (View25D), used by CameraFollow instead of its orthographic path. The camera keeps reading
     /// orthographicSize as its zoom knob (dev-start, wheel zoom, ultimate punch, captures): a billboard standing at the focus point shows exactly
-    /// as tall as it did in the orthographic view, the ground around it is foreshortened by cos(tilt), and things farther north shrink with distance.
+    /// as tall as it did in the orthographic view (divided by the profile's ViewScale: RO3 Feel pulls the camera back so the hero is ~82 px instead of ~96 at 720p,
+    /// without scaling the hero), the ground around it is foreshortened by cos(tilt), and things farther north shrink with distance.
     /// </summary>
     public static class View25DCamera
     {
         const float TopOvershootV = 0.88f;
-        /// <summary>Background beyond the map's north edge: the haze colour of View25DAtmosphere, so the far edge reads as distance fog.</summary>
-        public static readonly Color FogColor = new Color(0.62f, 0.80f, 0.82f);
+        /// <summary>Background beyond the map's north edge: the profile's fog colour (View25DAtmosphere haze uses it too), so the far edge reads as distance fog.</summary>
+        public static Color FogColor { get { return View25D.Profile.FogColor; } }
 
         /// <summary>Switches the camera to the tilted perspective view.</summary>
         public static void Configure(Camera cam)
@@ -37,9 +38,10 @@ namespace ZenoniaProto
             cam.backgroundColor = new Color(0.06f, 0.09f, 0.13f); // CameraFollow's 2D background
         }
 
-        static float Distance(Camera cam)
+        /// <summary>Camera distance to the focus point: orthographic-equivalent (a billboard at the focus as tall as on the 2D camera) x the profile's ViewScale.</summary>
+        public static float Distance(Camera cam)
         {
-            return cam.orthographicSize / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            return cam.orthographicSize / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * View25D.Profile.ViewScale;
         }
 
         /// <summary>Looks at the ground point `focus` along the tilted view direction.</summary>

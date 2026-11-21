@@ -25,10 +25,27 @@ namespace ZenoniaProto
     {
         /// <summary>Shadow direction on screen: from the upper-left sun toward the lower right, (0.75, 0.66) down = ~41 degrees under the horizontal. World y is up.</summary>
         public static Vector2 Direction = new Vector2(0.75f, -0.66f).normalized;
-        /// <summary>Cast length of a standing object as a share of its drawn height (spec 0.25-0.45; sun elevation ~55-60 degrees).</summary>
-        public static float LengthFactor = 0.3f;
-        /// <summary>Darkest a pixel may get from any number of overlapping shadows (max-opacity mask, never stacked).</summary>
-        public static float AlphaCap = 0.40f;
+        /// <summary>Cast length of a standing object as a share of its drawn height on 2D maps (spec 0.25-0.45; sun elevation ~55-60 degrees).</summary>
+        public static float LengthFactor2D = 0.3f;
+        /// <summary>Darkest a pixel may get from any number of overlapping shadows on 2D maps (max-opacity mask, never stacked).</summary>
+        public static float AlphaCap2D = 0.40f;
+
+        /// <summary>The map on screen is a 2.5D map with the RO3 lighting pass (View25DProfile): sun at its elevation, silhouette cast shadows,
+        /// RO3 alphas (contact 25-30 %, cast 20-32 %) and the profile's shade colour. 2D maps keep the values of 21/11 07:55.</summary>
+        public static bool Ro3 { get { return View25D.Ro3Look; } }
+
+        /// <summary>Cast length / drawn height. RO3 map: shortening / tan(sun elevation) (45 deg, 0.6: a 5 m tree throws 3 m).</summary>
+        public static float LengthFactor
+        {
+            get
+            {
+                if (!Ro3) return LengthFactor2D;
+                View25DProfile p = View25D.Profile;
+                return p.CastShorten / Mathf.Tan(Mathf.Clamp(p.SunElevationDeg, 15f, 85f) * Mathf.Deg2Rad);
+            }
+        }
+
+        public static float AlphaCap { get { return Ro3 ? 0.36f : AlphaCap2D; } }
         /// <summary>Soft rim of every blob as a share of its radius (spec 25-35 %).</summary>
         public static float Feather = 0.32f;
         /// <summary>Ground ellipse depth / width of a unit blob (spec 0.35-0.50).</summary>
@@ -66,6 +83,7 @@ namespace ZenoniaProto
         {
             get
             {
+                if (Ro3) return View25D.Profile.ShadeColor; // RO3 2.5D map: one cool shade #596F61 for ground, canopy and units
                 string id = MapRegistry.Current != null ? MapRegistry.Current.Id : "";
                 if (id == FrostHollowLayout.MapId || id == FrostfangDenMap.MapId) return SnowTint;
                 if (id == AmberDunesMap.MapId || id == SunspireOasisMap.MapId || id == ScorpionGorgeMap.MapId) return DirtTint;
@@ -94,9 +112,15 @@ namespace ZenoniaProto
         /// <summary>A unit off the ground (jump, launch, hovering pet): at LiftFull units up the blob is 35 % wider and 60 % lighter.</summary>
         public const float LiftFull = 30f, LiftGrow = 0.35f, LiftFade = 0.6f;
 
-        // Static prop rules (spec 3): alphas; sizes live with the shapes in StaticPropShadows.
-        public const float TreeRootAlpha = 0.34f, TreeCrownAlpha = 0.18f, HouseFootAlpha = 0.32f, HouseCastAlpha = 0.18f,
-            RockContactAlpha = 0.26f, RockCastAlpha = 0.17f, DecorContactAlpha = 0.18f, FenceAlpha = 0.16f;
+        // Static prop rules (spec 3): alphas; sizes live with the shapes in StaticPropShadows. RO3 map: firmer contact (25-30 %) and the silhouette
+        // cast alphas (20-32 %, PropShadowSilhouettes) replace the soft crown / cast ellipses.
+        public static float TreeRootAlpha { get { return Ro3 ? 0.30f : 0.34f; } }
+        public static float TreeCrownAlpha { get { return Ro3 ? 0.32f : 0.18f; } }
+        public static float HouseFootAlpha { get { return 0.32f; } }
+        public static float HouseCastAlpha { get { return Ro3 ? 0.26f : 0.18f; } }
+        public static float RockContactAlpha { get { return Ro3 ? 0.28f : 0.26f; } }
+        public static float RockCastAlpha { get { return Ro3 ? 0.24f : 0.17f; } }
+        public const float DecorContactAlpha = 0.18f, FenceAlpha = 0.16f;
 
         /// <summary>World offset of a shadow `distance` units along the sun.</summary>
         public static Vector2 Along(float distance) { return Direction * distance; }

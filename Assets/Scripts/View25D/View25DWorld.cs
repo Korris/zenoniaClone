@@ -5,9 +5,9 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Scene side of the 2.5D view (View25D), on the game root of every drawing window (idle on 2D maps). Late every frame, after the game has placed
-    /// everything on the x/y plane: stands heroes, monsters, pets and loot up as billboards on their feet (with a sun shadow each), keeps the
-    /// ambient motes floating at different heights around the camera, and adds the atmosphere pass to the camera. When the map on screen is not the
-    /// prototype map it puts everything back and does nothing.
+    /// everything on the x/y plane: stands heroes, monsters, pets and loot up as billboards on their feet (with a sun shadow each), lights them
+    /// (View25DLighting: sun tint, canopy shade, shader globals), runs the ambient FX (View25DAmbientFx: motes, falling leaves) and adds the atmosphere
+    /// pass to the camera. When the map on screen is not a 2.5D map it puts everything back and does nothing.
     /// </summary>
     [DefaultExecutionOrder(5000)]
     public class View25DWorld : MonoBehaviour
@@ -15,7 +15,7 @@ namespace ZenoniaProto
         readonly Dictionary<Transform, View25DDropShadow> units = new Dictionary<Transform, View25DDropShadow>();
         readonly HashSet<Transform> seen = new HashSet<Transform>();
         readonly List<Transform> gone = new List<Transform>();
-        ParticleSystem motes;
+        View25DAmbientFx ambient;
         Camera cam;
         bool wasOn;
 
@@ -39,6 +39,7 @@ namespace ZenoniaProto
             Zone zone = Zone.Main;
             bool on = View25D.Active && zone != null;
             if (atmosphere != null && atmosphere.enabled != on) atmosphere.enabled = on;
+            HideHudIfAsked();
             if (!on) { if (wasOn) TurnOff(); return; }
             wasOn = true;
             Quaternion tilt = View25D.Tilt, untilt = Quaternion.Inverse(tilt);
@@ -58,8 +59,11 @@ namespace ZenoniaProto
             gone.Clear();
             foreach (KeyValuePair<Transform, View25DDropShadow> kv in units) if (kv.Key == null || !seen.Contains(kv.Key)) gone.Add(kv.Key);
             foreach (Transform t in gone) { units[t].Remove(); units.Remove(t); }
+            View25DLighting.EndFrame(seen);
+            View25DLighting.TickGlobals(cam);
             View25DPropFade.Tick(cam);
-            TickMotes();
+            if (ambient == null) ambient = new View25DAmbientFx(transform);
+            ambient.Tick(cam, heroes.Count);
         }
 
         void Stand(Transform t, Quaternion tilt, Quaternion untilt, bool compensate)
@@ -74,6 +78,7 @@ namespace ZenoniaProto
                 units[t] = s;
             }
             s.Tick(tilt, untilt, compensate ? View25D.UnitScale(cam, t.position) : 0f);
+            View25DLighting.TickUnit(t);
         }
 
         void TurnOff()
@@ -82,61 +87,20 @@ namespace ZenoniaProto
             foreach (KeyValuePair<Transform, View25DDropShadow> kv in units) kv.Value.Remove();
             units.Clear();
             View25DPropFade.Reset();
-            if (motes != null) { Destroy(motes.gameObject); motes = null; }
+            View25DLighting.Reset();
+            if (ambient != null) { ambient.Destroy(); ambient = null; }
         }
 
-        // ---- ambient motes: soft green-gold specks drifting at 4-70 units above the ground, so the perspective gives them parallax ----
-
-        const float MoteRate = 3.5f, MoteAreaW = 520f, MoteAreaD = 380f;
-        float moteDebt;
-
-        void TickMotes()
+        /// <summary>`--no-hud` (test captures): hides every screen-space canvas and IMGUI HUD so a shot shows only the world (RO3 check: "turn the HUD off,
+        /// the Cleric standing in the forest must look lit and shadowed"). Re-applied every second: windows built later hide too.</summary>
+        static void HideHudIfAsked()
         {
-            Camera cam = Camera.main;
-            if (cam == null || !FeelConfig.FxOn) return;
-            if (motes == null)
-            {
-                Material m = MoteMaterial();
-                if (m == null) return;
-                motes = WantedFxParticles.Create(transform, "View25DMotes", m, FeelConfig.FxOrder - 40, 400, 0f);
-                var main = motes.main;
-                main.loop = true; // emitted by hand forever: keep the system alive past its 5 s duration
-            }
-            // centre of the visible ground: straight ahead of the camera on z = 0
-            Vector3 c = cam.transform.position, f = cam.transform.forward;
-            if (f.z <= 0.01f) return;
-            Vector3 g = c + f * (-c.z / f.z);
-            moteDebt += MoteRate * Time.deltaTime;
-            while (moteDebt >= 1f)
-            {
-                moteDebt -= 1f;
-                float height = Random.Range(4f, 70f);
-                var p = new ParticleSystem.EmitParams
-                {
-                    position = new Vector3(g.x + Random.Range(-0.5f, 0.5f) * MoteAreaW, g.y + Random.Range(-0.45f, 0.55f) * MoteAreaD, -height),
-                    velocity = new Vector3(Random.Range(-4f, 4f), Random.Range(-2f, 3f), -Random.Range(1f, 4f)),
-                    startSize = Random.Range(1.6f, 3.4f),
-                    startColor = Random.value < 0.6f ? new Color(0.75f, 1f, 0.55f, 0.9f) : new Color(1f, 0.9f, 0.55f, 0.9f),
-                    startLifetime = Random.Range(3.5f, 6.5f),
-                    applyShapeToPosition = false,
-                };
-                motes.Emit(p, 1);
-            }
+            if (!noHud || Time.unscaledTime < nextHudHide) return;
+            nextHudHide = Time.unscaledTime + 1f;
+            foreach (Canvas c in FindObjectsByType<Canvas>(FindObjectsSortMode.None)) if (c.isRootCanvas && c.renderMode != RenderMode.WorldSpace && c.enabled) c.enabled = false;
+            Hud.CaptureClean = true; // IMGUI layer: boss bar only (its debug lines are hidden by default anyway)
         }
-
-        static Material moteMat;
-        static Material MoteMaterial()
-        {
-            if (moteMat != null) return moteMat;
-            Shader s = Resources.Load<Shader>("Shaders/LightParticle");
-            Texture2D tex = Resources.Load<Texture2D>("Sprites/fx/light-skill/portal-mote");
-            if (s == null || !s.isSupported || tex == null) return null;
-            moteMat = new Material(s) { name = "View25D_Mote" };
-            moteMat.SetTexture("_MainTex", tex);
-            moteMat.SetColor("_EmissionColor", new Color(0.9f, 1.3f, 0.6f, 1f));
-            moteMat.SetFloat("_CoreWhite", 0.45f);
-            moteMat.SetColor("_BodyColor", new Color(0.85f, 1f, 0.6f, 0.55f));
-            return moteMat;
-        }
+        static bool noHud = !ReleaseBuild.IsRelease && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "--no-hud") >= 0;
+        static float nextHudHide;
     }
 }

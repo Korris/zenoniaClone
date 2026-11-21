@@ -12,18 +12,19 @@ namespace ZenoniaProto
     /// Which maps: every map listed in <see cref="Maps"/> is 2.5D for everyone (release builds too); `--view25d` (test builds) adds the prototype maps
     /// in <see cref="PrototypeMaps"/>; `--view25d off` turns 2.5D off everywhere (2D comparison). Converting another map = add its id to Maps
     /// (rules: docs/map-design-rules.md "Map 2.5D").
-    /// Flags: --view25d [on|off] [--view25d-tilt deg (default 38)] [--view25d-fov deg (default 22)] [--view25d-atmos off]
-    /// [--view25d-scalecomp 0..1 (default 0.6)]. Defaults follow the ChatGPT art-direction chat linked in docs/pending-tasks.md.
+    /// Camera, sun, fog and ambient look per map: <see cref="View25DProfile"/> (RO3 Feel V2 on listed maps: tilt 47 / FOV 25; Hydra prototype 38 / 22).
+    /// Flags: --view25d [on|off] [--view25d-tilt deg] [--view25d-fov deg] (override the profile) [--view25d-atmos off]
+    /// [--view25d-scalecomp 0..1 (default 0.6)] [--view25d-look off] (RO3 lighting pass off, for A/B).
     /// </summary>
     public static class View25D
     {
-        static bool parsed, requested, forcedOff, atmosphere = true;
+        static bool parsed, requested, forcedOff, atmosphere = true, lookOff;
 
         /// <summary>Maps drawn in 2.5D for every player (data: one id per converted map).</summary>
         static readonly string[] Maps = { WillowbrookMeadowsMap.MapId };
         /// <summary>Maps 2.5D only with `--view25d` (test builds): the Mire Hydra arena prototype, whose painted walls are not converted yet.</summary>
         static readonly string[] PrototypeMaps = { SunkenReliquaryMap.MapId };
-        static float tiltDeg = 38f, fovDeg = 22f, scaleComp = 0.6f;
+        static float tiltArg = -1f, fovArg = -1f, scaleComp = 0.6f;
 
         static void Parse()
         {
@@ -33,8 +34,11 @@ namespace ZenoniaProto
             int f = Array.IndexOf(a, "--view25d");
             forcedOff = f >= 0 && f + 1 < a.Length && a[f + 1] == "off";
             requested = f >= 0 && !forcedOff && !ReleaseBuild.IsRelease;
-            tiltDeg = Mathf.Clamp(ArgFloat(a, "--view25d-tilt", tiltDeg), 5f, 70f);
-            fovDeg = Mathf.Clamp(ArgFloat(a, "--view25d-fov", fovDeg), 10f, 60f);
+            float t = ArgFloat(a, "--view25d-tilt", -1f), fv = ArgFloat(a, "--view25d-fov", -1f);
+            if (t > 0f) tiltArg = Mathf.Clamp(t, 5f, 70f);
+            if (fv > 0f) fovArg = Mathf.Clamp(fv, 10f, 60f);
+            int lk = Array.IndexOf(a, "--view25d-look");
+            lookOff = lk >= 0 && lk + 1 < a.Length && a[lk + 1] == "off";
             scaleComp = Mathf.Clamp01(ArgFloat(a, "--view25d-scalecomp", scaleComp));
             int i = Array.IndexOf(a, "--view25d-atmos");
             atmosphere = !(i >= 0 && i + 1 < a.Length && a[i + 1] == "off");
@@ -70,6 +74,16 @@ namespace ZenoniaProto
 
         public static bool Atmosphere { get { Parse(); return atmosphere; } }
 
+        /// <summary>Look of the map on screen (camera, sun, fog, ambient); the RO3 preset when no map is loaded.</summary>
+        public static View25DProfile Profile { get { return View25DProfile.For(MapRegistry.Current != null ? MapRegistry.Current.Id : ""); } }
+
+        /// <summary>The RO3 lighting pass is on for the map on screen (2.5D active, its profile asks for it, not `--view25d-look off`).</summary>
+        public static bool Ro3Look { get { Parse(); return Active && !lookOff && Profile.Ro3Look; } }
+
+        /// <summary>Ground offset north of the feet that puts the screen centre on the hero's chest (LookAtHeight up the billboard):
+        /// the view ray through a point h up a billboard tilted t meets the ground h / cos t north of the feet. 0 on a profile without it.</summary>
+        public static float LookAtGroundOffset { get { float h = Profile.LookAtHeight; return h > 0f ? h / Mathf.Cos(TiltDeg * Mathf.Deg2Rad) : 0f; } }
+
         /// <summary>How much of the perspective size change units undo (0 = full perspective, 1 = every unit as tall as at the screen centre).
         /// 40-player readability: far heroes must not shrink much (ChatGPT: keep the size spread within ~10 %).</summary>
         public static float ScaleComp { get { Parse(); return scaleComp; } }
@@ -78,13 +92,13 @@ namespace ZenoniaProto
         public static float UnitScale(Camera cam, Vector3 feet)
         {
             if (cam == null || cam.orthographic) return 1f;
-            float refDist = cam.orthographicSize / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            float refDist = View25DCamera.Distance(cam);
             float d = Vector3.Dot(feet - cam.transform.position, cam.transform.forward);
             return d <= 1f ? 1f : Mathf.Lerp(1f, d / refDist, ScaleComp);
         }
         /// <summary>Camera pitch away from straight down, degrees (0 = the old top-down view).</summary>
-        public static float TiltDeg { get { Parse(); return tiltDeg; } }
-        public static float FovDeg { get { Parse(); return fovDeg; } }
+        public static float TiltDeg { get { Parse(); return tiltArg > 0f ? tiltArg : Profile.TiltDeg; } }
+        public static float FovDeg { get { Parse(); return fovArg > 0f ? fovArg : Profile.FovDeg; } }
 
         /// <summary>Rotation that stands a sprite drawn on the x/y plane up toward the camera, pivoting on its feet (local +y becomes "up").</summary>
         public static Quaternion Tilt { get { return Quaternion.Euler(-TiltDeg, 0f, 0f); } }
@@ -134,6 +148,7 @@ namespace ZenoniaProto
         {
             sr.transform.rotation = Tilt;
             View25DPropFade.Register(sr); // fades while it stands in front of the local hero
+            View25DLighting.ApplyProp(sr); // RO3 pass: sun-side crown shading, base AO, wind sway, fog
             if (UsesFakeSun) return; // the baked FakeSun prop shadow lies under it already (StaticPropShadows)
             Material m = ShadowMaterial;
             if (m == null || sr.sprite == null) return;

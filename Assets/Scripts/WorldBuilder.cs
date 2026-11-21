@@ -63,6 +63,7 @@ namespace ZenoniaProto
                         : ProceduralSprites.White(false);
                     SpriteRenderer sr = ProceduralSprites.Child(mapRoot, chunked ? "Ground_r" + r + "c" + c : "Ground", sprite);
                     sr.sortingOrder = GameConfig.GroundOrder;
+                    View25DLighting.ApplyGround(sr); // RO3 2.5D map: warm sun tint + distance fog
                     Vector2 origin = new Vector2(c * chunkW, GameConfig.MapH - (r + 1) * chunkH);
                     if (tex == null)
                     {

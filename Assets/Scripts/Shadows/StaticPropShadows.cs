@@ -8,20 +8,24 @@ namespace ZenoniaProto
     /// house / tent / stall = wall-foot band + short cast; rock, boulder, pillar = contact (+ short cast when tall); low walk-through decor = light contact;
     /// fence = thin band. Baked once per map (and again when FakeSun.Version moves) into a cache texture, 1 px per world unit, red channel = shadow
     /// alpha, overlaps combined by max (no stacking). Cliffs painted into the ground get nothing yet. Not hand-tuned per map: every map uses the same rules.
+    /// RO3 2.5D maps (FakeSun.Ro3): only the contact part is stamped here (root, wall foot, rock contact, decor, fence); the directional cast shadow is the
+    /// prop's own sprite silhouette projected along the sun (PropShadowSilhouettes), so crowns throw leafy shadows instead of soft ellipses.
     /// </summary>
     public static class StaticPropShadows
     {
-        enum Shape { None, Tree, House, Rock, Decor, Fence }
+        public enum Shape { None, Tree, House, Rock, Decor, Fence }
 
         const float Ppu = 1f;            // cache texels per world unit (shadows are soft: 1 is plenty)
         const float FlatDecorMaxTiles = 3f; // same rule as MapScenery: walk-through and this low = ground decoration
 
         static float[] buf;
+        static bool castToo = true;
         static int texW, texH;
 
         /// <summary>Bakes the shadows of `map`'s props into a new R8 texture covering the whole map (MapW x MapH units), or null when the map has none.</summary>
-        public static Texture2D Bake(IGameMap map)
+        public static Texture2D Bake(IGameMap map, bool contactOnly = false)
         {
+            castToo = !contactOnly;
             texW = Mathf.Clamp(Mathf.CeilToInt(GameConfig.MapW * Ppu), 1, 2048);
             texH = Mathf.Clamp(Mathf.CeilToInt(GameConfig.MapH * Ppu), 1, 2048);
             buf = new float[texW * texH];
@@ -47,7 +51,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Shadow rule of a prop type, from its name and size (every map's naming: wb*, wbx*, fh*, bw*, sb*, sg*, village props).</summary>
-        static Shape Classify(string type, PropDef d)
+        public static Shape Classify(string type, PropDef d)
         {
             string t = type.ToLowerInvariant();
             if (Has(t, "bridge", "palisade", "flower", "lupine", "grasstuft", "fern")) return Shape.None; // flat on the ground or a long diagonal fence painted as one image
@@ -75,6 +79,7 @@ namespace ZenoniaProto
                     float crown = Mathf.Min(w * 0.85f, h * 1.1f); // crown diameter
                     float root = Mathf.Clamp(crown * 0.16f, 4f, 11f);
                     Ellipse(b + FakeSun.Along(1.5f), root, root * 0.45f, 0f, FakeSun.TreeRootAlpha, 0.25f);
+                    if (!castToo) break;
                     // Crown shadow: ~70 % of the crown, centre 28 % of the crown down-right of the trunk, 4 soft blobs merged (spec 3.1).
                     Vector2 c = b + FakeSun.Along(crown * 0.28f * (FakeSun.LengthFactor / 0.3f));
                     float rot = Mathf.Atan2(FakeSun.Direction.y, FakeSun.Direction.x) * Mathf.Rad2Deg * 0.5f; // leans along the sun
@@ -90,6 +95,7 @@ namespace ZenoniaProto
                 {
                     // Wall-foot band (0.28-0.38) + a short cast toward the lower right, 15-30 % of the height (spec 3.2). Low alphas: the art has painted shading.
                     Ellipse(b + new Vector2(0f, h * 0.03f), w * 0.48f, Mathf.Max(4f, h * 0.07f), 0f, FakeSun.HouseFootAlpha, 0.35f);
+                    if (!castToo) break;
                     float len = h * 0.22f * (FakeSun.LengthFactor / 0.3f);
                     Vector2 cast = b + FakeSun.Along(len * 0.6f);
                     for (int i = -1; i <= 1; i++)
@@ -100,7 +106,7 @@ namespace ZenoniaProto
                 {
                     float rx = w * 0.42f;
                     Ellipse(b + FakeSun.Along(1.5f), rx, Mathf.Max(3f, rx * 0.4f), 0f, FakeSun.RockContactAlpha, feather);
-                    if (h >= 2f * GameConfig.TileUnits) // big rock / pillar: short cast, 15-25 % of its height
+                    if (castToo && h >= 2f * GameConfig.TileUnits) // big rock / pillar: short cast, 15-25 % of its height
                         Ellipse(b + FakeSun.Along(h * 0.2f * (FakeSun.LengthFactor / 0.3f)), w * 0.36f, h * 0.14f, 0f, FakeSun.RockCastAlpha, feather);
                     break;
                 }

@@ -5,7 +5,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Screen pass of the 2.5D prototype (Shaders/View25DAtmosphere): distance haze toward the far (top) edge, a warm-to-cool light gradient and a
     /// vignette. Added to the camera after BloomEffect, so it runs after bloom; the UGUI HUD (screen-space overlay) is drawn later and stays clean.
-    /// Passes the frame through untouched while View25D is off (another map).
+    /// Passes the frame through untouched while View25D is off (another map). Haze colour / strength and vignette come from the map's View25DProfile.
     /// </summary>
     [RequireComponent(typeof(Camera))]
     public class View25DAtmosphere : MonoBehaviour
@@ -26,6 +26,10 @@ namespace ZenoniaProto
         {
             if (mat == null || !View25D.Active || !View25D.Atmosphere) { Graphics.Blit(src, dst); return; }
             mat.SetFloat("_Aspect", (float)src.width / Mathf.Max(1, src.height));
+            View25DProfile p = View25D.Profile; // RO3 Feel: per-object fog does the depth, the screen haze is light, vignette 0.04
+            mat.SetColor("_HazeColor", p.FogColor);
+            mat.SetFloat("_HazeStrength", p.ScreenHaze);
+            mat.SetFloat("_Vignette", p.Vignette);
             Graphics.Blit(src, dst, mat);
         }
     }

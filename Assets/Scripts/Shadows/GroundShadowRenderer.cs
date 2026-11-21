@@ -13,6 +13,8 @@ namespace ZenoniaProto
     /// Cost: one mesh rebuild of ~4 vertices per visible blob on the CPU, 2-3 draws into a half-res R8 target and one full-screen multiply quad;
     /// no particles, no lights, one shared material per step. Works on the 2.5D perspective camera too (mask over the visible ground trapezoid's bounds).
     /// Off (`--shadows off`, the --view25d Hydra prototype, missing shader): the old per-unit sprites draw again.
+    /// RO3 2.5D maps (FakeSun.Ro3): the static layer is the GPU bake of PropShadowSilhouettes (sprite silhouettes cast along the sun + contact ellipses),
+    /// and the composite adds the dapple (sun flecks under canopies) and fades shadows into the fog (globals from View25DLighting).
     /// </summary>
     public class GroundShadowRenderer : MonoBehaviour
     {
@@ -27,6 +29,7 @@ namespace ZenoniaProto
         Mesh staticQuad, compositeQuad;
         GameObject composite;
         Texture2D propTex;
+        RenderTexture propCast; // RO3 maps: baked silhouettes + contact (replaces propTex as the static layer)
         string bakedMap;
         int bakedVersion;
         bool triedShaders;
@@ -51,6 +54,7 @@ namespace ZenoniaProto
         {
             if (rt != null) { rt.Release(); Destroy(rt); }
             if (propTex != null) Destroy(propTex);
+            ReleaseCast();
             if (composite != null) Destroy(composite);
             if (staticQuad != null) Destroy(staticQuad);
             if (compositeQuad != null) Destroy(compositeQuad);
@@ -106,7 +110,7 @@ namespace ZenoniaProto
             cb.SetRenderTarget(rt);
             cb.ClearRenderTarget(false, true, Color.clear);
             cb.SetViewProjectionMatrices(Matrix4x4.identity, Matrix4x4.Ortho(view.xMin, view.xMax, view.yMin, view.yMax, -100f, 100f));
-            if (propTex != null) cb.DrawMesh(staticQuad, Matrix4x4.identity, staticMat, 0, 1);
+            if (propTex != null || propCast != null) cb.DrawMesh(staticQuad, Matrix4x4.identity, staticMat, 0, 1);
             if (blobs > 0) cb.DrawMesh(GroundShadowBlobs.Mesh, Matrix4x4.identity, maskMat, 0, 0);
             Graphics.ExecuteCommandBuffer(cb);
 
@@ -121,14 +125,21 @@ namespace ZenoniaProto
         void EnsureMap()
         {
             IGameMap map = MapRegistry.Current;
-            if (map == null || (map.Id == bakedMap && bakedVersion == FakeSun.Version && composite != null)) return;
+            if (map == null || (map.Id == bakedMap && bakedVersion == FakeSun.Version && composite != null && !PropShadowSilhouettes.Lost(propCast))) return;
             bakedMap = map.Id;
             bakedVersion = FakeSun.Version;
             if (propTex != null) Destroy(propTex);
+            ReleaseCast();
             float t0 = Time.realtimeSinceStartup;
-            propTex = StaticPropShadows.Bake(map);
-            Debug.Log("[ZenoniaProto] Prop shadows " + map.Id + ": baked in " + Mathf.RoundToInt((Time.realtimeSinceStartup - t0) * 1000f) + " ms");
-            staticMat.mainTexture = propTex;
+            bool ro3 = FakeSun.Ro3;
+            propTex = StaticPropShadows.Bake(map, ro3); // RO3: contact only, the cast is the silhouettes
+            if (ro3)
+            {
+                propCast = PropShadowSilhouettes.Bake(map, propTex);
+                if (propCast == null) { if (propTex != null) Destroy(propTex); propTex = StaticPropShadows.Bake(map); } // no bake shader: ellipse casts
+            }
+            Debug.Log("[ZenoniaProto] Prop shadows " + map.Id + ": baked in " + Mathf.RoundToInt((Time.realtimeSinceStartup - t0) * 1000f) + " ms" + (propCast != null ? " (RO3 silhouettes)" : ""));
+            staticMat.mainTexture = propCast != null ? (Texture)propCast : propTex;
             float w = GameConfig.MapW, h = GameConfig.MapH;
             staticQuad = Quad(staticQuad, w, h);
             compositeQuad = Quad(compositeQuad, w, h);
@@ -155,6 +166,14 @@ namespace ZenoniaProto
             m.triangles = new[] { 0, 1, 2, 0, 2, 3 };
             m.RecalculateBounds();
             return m;
+        }
+
+        void ReleaseCast()
+        {
+            if (propCast == null) return;
+            propCast.Release();
+            Destroy(propCast);
+            propCast = null;
         }
 
         void EnsureTarget(int w, int h)

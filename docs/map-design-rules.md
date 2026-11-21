@@ -43,7 +43,7 @@
 
 Người dùng: sau này mọi map thành 2.5D. Cách làm và kế hoạch: `plans/261121-0815-willowbrook-25d-forest/plan.md`.
 
-1. **Bật:** thêm id map vào `View25D.Maps` (`Assets/Scripts/View25D/View25D.cs`). Chỉ phần hình: server, va chạm, toạ độ vẫn 2D. Camera 38° / FOV 22°; `--view25d off` để so 2D.
+1. **Bật:** thêm id map vào `View25D.Maps` (`Assets/Scripts/View25D/View25D.cs`). Chỉ phần hình: server, va chạm, toạ độ vẫn 2D. Camera, nắng, fog, FX theo `View25DProfile` (preset "RO3 Feel V2", xem điều 10); `--view25d off` để so 2D, `--view25d-look off` để tắt gói RO3.
 2. **Nền chỉ là đất phẳng**, không vẽ cây, đá, nhà, bóng vào nền. Nền đơn giản kiểu Midgard: một màu cỏ chính, mảng sáng / tối rộng 2-6 ô, đường đất gần một màu, mép răng cưa bậc, hoa rất ít. Làm bằng `Tools/build-map-25d-ground.py` (2 texture ChatGPT + mặt nạ), không vẽ lại cả map, nên đường luôn đúng ô.
 3. **Mọi vật đứng là prop riêng** (cây, đá to, nhà, cột) và tự dựng đứng (billboard) ở mép đáy; đồ thấp đi xuyên (`FootH` 0, cao ≤ 3 ô) nằm phẳng như cũ. PNG neo gốc cây ở giữa đáy (`Tools/cut-magenta-prop-sheet.py`).
 4. **Bóng chỉ dùng FakeSun** (bóng chân + bóng prop nướng sẵn theo tên loại). Tên prop mới phải có từ khoá của `StaticPropShadows.Classify` (cây: `oak` / `pine` / `tree`...). Màu bóng theo map trong `FakeSun.Tint`.
@@ -52,6 +52,13 @@ Người dùng: sau này mọi map thành 2.5D. Cách làm và kế hoạch: `pl
 7. **Bỏ art cũ (cây, vách) thì rà ô `T` lẻ trong rows:** ô chặn từng nằm dưới cây / vách cũ thành tường vô hình trên cỏ. Mở ô đó hoặc đặt prop che.
 8. Map có vách / bậc vẽ trong nền (Frost Hollow, Scorpion Gorge...): vách phẳng sẽ bị nghiêng; phải tách vách thành sprite đứng trước khi bật 2.5D (chưa làm).
 9. Đổi rows / prop / rect bãi: build lại zone server, phát hành cùng client.
+10. **Cảm giác RO3 (21/11, bài so `docs/reference/willowbrook-25d/willowbrook-25d-vs-ro3-feel-chatgpt.md`):** mọi số ở MỘT chỗ, `View25DProfile.cs` (camera, nắng, màu bóng, fog, FX) + `FakeSun.cs` (alpha bóng). Không chỉnh tay từng map; map muốn khác thì thêm profile riêng trong `View25DProfile.For`.
+11. **Camera:** tilt trong code là góc từ phương THẲNG ĐỨNG (38° cũ = pitch 52° từ mặt ngang). RO3: pitch 43° = tilt 47°, FOV 25°, hero nhỏ lại bằng lùi camera (`ViewScale`), không scale hero; tâm màn hình ở ngực hero (`LookAtHeight` 15 đv). Đổi camera phải sửa cả `View25DCamera.Distance` lẫn `View25D.UnitScale` (cùng một khoảng cách), không thì hero bị phóng to.
+12. **Bóng:** prop đứng đổ bóng bằng chính sprite của nó (`PropShadowSilhouettes`, nắng 45°, dài 0,6 x cao, 1 hướng FakeSun). Prop mới chỉ cần tên đúng từ khoá `StaticPropShadows.Classify` và PNG neo gốc giữa đáy là có bóng đúng hình. Kiểm bằng `--dump-prop-shadows <file.png>`. Bóng chân 25-30 %, bóng đổ 20-32 %, màu #596F61.
+13. **Nền 2.5D** (`Tools/build-map-25d-ground.py`): cỏ một màu olive + mảng sáng / tối rộng 1,5-3 m ±6 %, chi tiết nhỏ ~10 % dạng hạt mịn (ô noise 3-7 px ở 64 px/ô; ô 6-12 px nhìn như vết nhoè khi bị thu nhỏ và nghiêng), mép đường mềm ~0,35 m có cỏ lấn, KHÔNG mép răng cưa, không rải hoa. Chỉ làm mềm vùng chuyển cỏ / đường, không blur cả texture.
+14. **Ánh sáng chung:** nền, đồ phẳng, prop đứng dùng shader `Sprite25DLit` (gán tự động trong `WorldBuilder`, `MapScenery`, `View25D.StandProp`); hero / quái / pet giữ shader riêng, nhận màu qua `_Color` (property block) từ `View25DLighting`, tối đi khi đứng trong bóng tán. Shader mới cho unit thì phải có `_Color` nhân màu, không thì unit không nhận nắng.
+15. **Fog:** tính theo khoảng cách VƯỢT QUA hero (1 m = 1 ô = 16 đv), không theo khoảng cách từ camera: camera cách hero ~36 m, fog 18 m từ camera sẽ phủ cả hero.
+16. **FX môi trường** (`View25DAmbientFx`): chỉ Particle System / shader, có trần số hạt và LOD theo số hero (x1 / x0,5 / x0,25 ở 8 / 20 hero). Đốm nắng nằm trong composite bóng, gió trong `Sprite25DLit`.
 
 ## Kiểm tra trước khi báo xong
 
@@ -65,4 +72,5 @@ Người dùng: sau này mọi map thành 2.5D. Cách làm và kế hoạch: `pl
 | Ngày | Việc | Lỗi | Nguyên nhân | Cách sửa |
 |---|---|---|---|---|
 | 2026-11-21 | Bóng đổ FakeSun, Willowbrook | Lần chụp đầu gần như không thấy bóng cây, đá, hero (mask đã đúng, dump mask có đủ blob) | Quad phủ trộn alpha thường màu bóng #536B69 (xám xanh, độ sáng gần bằng cỏ) ở alpha 0,18-0,34 lên cỏ sáng: cỏ chỉ tối đi ~5-8 % | Đổi sang nhân: nền x lerp(1, màu bóng, a) (`Blend DstColor Zero`), cỏ tối ~12-18 %, vẫn không đen, màu bóng vẫn ngả lạnh; giữ alpha theo spec |
+| 2026-11-21 | Willowbrook 2.5D, gói RO3 | Sau khi thay nền olive mới, tưởng bóng FakeSun mất hẳn (cả map 2D lẫn 2.5D), tốn 5 lần build để chia đôi | Bóng vẫn đủ (đo: vùng bóng tối ~30 % như cũ) nhưng nền mới nhạt màu + chi tiết nhoè (noise ô 6-12 px) che mất độ tương phản; trên cỏ xanh đậm cũ bóng nổi rõ | Đo số điểm ảnh trong / ngoài bóng trước khi kết luận "không thấy"; dump mask / ảnh nướng (`--dump-prop-shadows`). Đổi chi tiết nền sang hạt mịn ô 3-7 px, nắng ấm 35 % thay 55 %, bóng đổ 0,32 |
 | 2026-11-21 | Willowbrook 2.5D, bỏ cây / vách cũ | Ô `T` (19,14) và viền tây (cols 1-2, rows 20-22) thành tường vô hình trên cỏ | Rows cũ chặn các ô nằm dưới cây và vách vẽ trong nền cũ; nền mới và rừng mới không còn vật che | Mở (19,14) thành `g`, đặt cây (1,20) + bụi (2,22) che viền tây. Thêm điều 7 mục "Map 2.5D" |

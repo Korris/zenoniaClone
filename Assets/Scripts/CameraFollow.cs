@@ -69,7 +69,9 @@ namespace ZenoniaProto
 
         Vector2 TargetPos()
         {
-            var aim = new Vector2(Target.position.x, Target.position.y + TargetYOffset);
+            // 2.5D profile with a look-at height (RO3 Feel): screen centre on the hero's chest instead of a ground point north of the feet
+            float yOffset = cam != null && !cam.orthographic && View25D.LookAtGroundOffset > 0f ? View25D.LookAtGroundOffset : TargetYOffset;
+            var aim = new Vector2(Target.position.x, Target.position.y + yOffset);
             return aim + BossFraming(aim);
         }
 

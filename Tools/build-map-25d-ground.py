@@ -11,6 +11,10 @@ dirt with chunky stepped edges, almost no flowers. So the ground is composed in 
   2. grass swatch (seamless, graded to the target palette) everywhere, low-frequency tone so the repeat does not show;
   3. forest floor: grass darkened toward FOREST / DEEP by the tree-belt mask of Tools/place-map-25d-forest.py (blurred over ~1.5 tiles);
   4. dirt swatch inside the dirt mask, a darker rim just inside its edge.
+RO3 pass (21/11/2026, docs/reference/willowbrook-25d/willowbrook-25d-vs-ro3-feel-chatgpt.md sections 3-4): olive grass #83A65C (light #ACC47B,
+dark #607D4D), warm road #D3B17B with a #AF9067 rim and uneven darker ruts; micro detail (fine noise + short slanted blade streaks + dirt grain)
+at ~11 % opacity, macro patches 1.5-3 m at +-6 % value; the road edge is feathered over ~0.35 m (22 px) with grass nibbling 0.1-0.25 m into it,
+no stepped pixel edge. Only the grass / road transition is soft: the textures themselves stay sharp. 1 m = 1 tile = 64 px of ground art.
 Writes the ground chunks of the map (same files the game loads) and, with --preview, a small preview in the forest-25d folder. The minimap is
 rebaked after this by the map's composite preview tool (--minimap), which also draws the props.
 Sources: Assets/ArtLibrary/maps/<map>/forest-25d/ (*-grass-chatgpt-N.png, *-dirt-chatgpt-N.png, highest N wins; *-forest-mask.png).
@@ -28,11 +32,13 @@ MAPS = {
                                 rows_file="Assets/Scripts/Maps/WillowbrookMeadowsMap.cs",
                                 keep=[(43, 0, 27, 11), (0, 38, 12, 8)]),  # tile rects (x, y, w, h): ruin paving NE, crop field SW
 }
-# Target palette (ChatGPT spec section 2)
-GRASS, FOREST, DEEP = (0x76, 0xB4, 0x5B), (0x52, 0x7D, 0x43), (0x42, 0x6F, 0x40)
-DIRT, DIRT_EDGE = (0xD2, 0xA7, 0x65), (0xB5, 0x8F, 0x58)
+# Target palette (RO3 comparison, section 3: olive grass, warm road; the forest floor keeps its darker belt)
+GRASS, GRASS_LIGHT, FOREST, DEEP = (0x83, 0xA6, 0x5C), (0xAC, 0xC4, 0x7B), (0x60, 0x7D, 0x4D), (0x50, 0x6C, 0x45)
+DIRT, DIRT_EDGE = (0xD3, 0xB1, 0x7B), (0xAF, 0x90, 0x67)
 ROAD_WIDEN = 14      # px at full size added on each side of the old painted trails (~2 tile wide roads)
-STEP = 8             # px: edge steps of the dirt (chunky Midgard edge)
+FEATHER = 22         # px: grass / road transition width (~0.35 m), replaces the old 8 px stepped edge
+DETAIL = 0.10        # opacity of the micro detail layer (spec 10-12 %)
+MACRO = 0.06         # +- value of the 1.5-3 m grass patches (spec 5-8 %)
 TEX_TILE = 1024      # px a swatch covers on the map (16 tiles)
 MIN_PATCH = 700      # quarter-size px (~2.7 tiles): smaller old dirt spots become grass (Midgard keeps only a few bold patches)
 
@@ -88,6 +94,21 @@ def value_noise(W, H, cell, seed):
     return cv2.resize(g, (W + 2 * cell, H + 2 * cell), interpolation=cv2.INTER_CUBIC)[cell:cell + H, cell:cell + W]
 
 
+def micro_detail(W, H, seed):
+    """Multiplier ~1 +- DETAIL: fine noise (0.08-0.2 m) + short slanted blade streaks (0.12-0.3 m) so the grass is not one flat colour."""
+    rng = np.random.RandomState(seed)
+    # crisp grain, not mottling: 6-12 px cells read as smudges once the ground is foreshortened and downscaled (first in-game look, 21/11)
+    fine = (value_noise(W, H, 3, seed) - 0.5) * 0.7 + (value_noise(W, H, 7, seed + 1) - 0.5) * 0.3
+    blades = np.zeros((H, W), np.float32)
+    for lean, sign in ((3, 1.0), (-2, -0.7), (1, 0.8)):  # three blade leans, light and dark, sparse: tufts, not rain
+        dots = (rng.rand(H // 2, W // 2).astype(np.float32) > 0.9975).astype(np.float32)
+        dots = cv2.resize(dots, (W, H), interpolation=cv2.INTER_NEAREST)
+        k = np.zeros((13, 13), np.float32); cv2.line(k, (6 - lean, 12), (6 + lean, 3), 1.0, 1); k /= k.sum()
+        blades += cv2.filter2D(dots, -1, k) * 4.0 * sign
+    d = np.clip(fine * 1.3 + blades * 0.6, -1, 1)
+    return 1 + d * DETAIL
+
+
 def main():
     key = sys.argv[1] if len(sys.argv) > 1 else "willowbrook-meadows"
     cfg = MAPS[key]; tw, th = cfg["size"]; W, H = tw * T, th * T
@@ -121,17 +142,28 @@ def main():
     dq = cv2.dilate(dirt, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * (ROAD_WIDEN // 4) + 1,) * 2))
     df = cv2.GaussianBlur(cv2.resize(dq.astype(np.float32), (W, H), interpolation=cv2.INTER_LINEAR), (0, 0), 7)
     df += (value_noise(W, H, 28, 7) - 0.5) * 0.55
-    dm = (df > 0.5).astype(np.uint8)
-    dm = cv2.resize(cv2.resize(dm, (W // STEP, H // STEP), interpolation=cv2.INTER_AREA), (W, H), interpolation=cv2.INTER_NEAREST).astype(np.float32)
+    # grass nibbling into the road: fine noise (0.1-0.25 m) only matters near the 0.5 edge, then a smooth ramp ~FEATHER px wide
+    df += (value_noise(W, H, 10, 11) - 0.5) * 0.30 + (value_noise(W, H, 4, 12) - 0.5) * 0.12
+    hard = (df > 0.5).astype(np.float32)
+    dm = np.clip(cv2.GaussianBlur(hard, (0, 0), FEATHER / 2.6) * 1.15 - 0.075, 0, 1)
     km = cv2.GaussianBlur(cv2.resize(keep.astype(np.float32), (W, H), interpolation=cv2.INTER_LINEAR), (0, 0), 6)
     km = np.clip((km - 0.15) / 0.7, 0, 1)
-    dm *= (km < 0.5)
-    rim = dm - cv2.erode(dm, np.ones((7, 7), np.uint8))
+    dm *= np.clip((0.5 - km) * 4, 0, 1)
+    # darker rim just inside the edge (soft), and uneven ruts along the road
+    inner = cv2.GaussianBlur(cv2.erode(hard, np.ones((15, 15), np.uint8)), (0, 0), 6)
+    rim = np.clip(dm - inner, 0, 1) * 0.8 + np.clip(value_noise(W, H, 40, 21) - 0.55, 0, 1) * 1.1 * inner
 
     # --- grass + forest floor
     grass = tile(grade(seamless(np.asarray(Image.open(latest(key, "grass")).convert("RGB")).astype(np.float32)), GRASS), W, H)
     tone = (value_noise(W, H, 6 * T, 3) - 0.5) * 0.10 + 1.0  # +-5 % brightness over ~6 tiles: hides the swatch repeat
     grass *= tone[..., None]
+    # macro patches 1.5-3 m: light grass / dark grass, +-MACRO value with a matching hue shift
+    patch = (value_noise(W, H, 2 * T, 5) - 0.5) * 2 * 0.6 + (value_noise(W, H, 3 * T, 6) - 0.5) * 2 * 0.4
+    k_light = np.array(GRASS_LIGHT, float) / np.array(GRASS, float) - 1
+    k_dark = np.array(FOREST, float) / np.array(GRASS, float) - 1
+    pw = np.clip(patch, -1, 1)[..., None]
+    grass *= 1 + np.where(pw > 0, k_light * pw * (MACRO / 0.25), -k_dark * pw * (MACRO / 0.25))
+    grass *= micro_detail(W, H, 31)[..., None]
     fm = np.asarray(Image.open(os.path.join(lib(key), key + "-forest-mask.png")).convert("L")).astype(np.float32) / 255
     fm = cv2.GaussianBlur(cv2.resize(cv2.GaussianBlur(fm, (0, 0), 1.0), (W, H), interpolation=cv2.INTER_CUBIC), (0, 0), 0.6 * T)
     k_forest = np.array(FOREST, float) / np.array(GRASS, float)
@@ -141,7 +173,9 @@ def main():
 
     # --- dirt
     dirt_tex = tile(grade(seamless(np.asarray(Image.open(latest(key, "dirt")).convert("RGB")).astype(np.float32)), DIRT, 0.8), W, H)
-    dirt_tex = dirt_tex * (1 - rim[..., None] * (1 - np.array(DIRT_EDGE, float) / np.array(DIRT, float)))
+    dirt_tex = dirt_tex * (1 - np.clip(rim, 0, 1)[..., None] * (1 - np.array(DIRT_EDGE, float) / np.array(DIRT, float)))
+    dirt_tex *= (1 + (value_noise(W, H, 3, 41) - 0.5) * 2 * 0.08)[..., None]  # dirt grain 6-10 %
+    dirt_tex *= (1 + (value_noise(W, H, int(1.6 * T), 42) - 0.5) * 2 * 0.04)[..., None]  # broad worn patches
     out = out * (1 - dm[..., None]) + dirt_tex * dm[..., None]
 
     # --- kept old water / banks / paving
