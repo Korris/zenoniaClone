@@ -14,8 +14,8 @@ Thứ tự skill = `SkillTable.Cleric.cs` index 0-7 (heal, spirit-blessing, divi
 Sau khi có ảnh:
 1. Tải ảnh bằng fetch blob + `<a download>` (sprite-rules mục art ChatGPT điều 7), lưu `skill-icons-src/cleric-skill-icons-soft-fantasy-chatgpt-1.png`.
 2. Xem ảnh: đúng tông (sáng, pastel, ngọc + kem), 8 hình khác nhau, đúng thứ tự, nền magenta phẳng, không vòng viền.
-3. `py -3 Tools/build-cleric-soft-skill-icons.py cut Assets/ArtLibrary/classes/cleric/skill-icons-src/cleric-skill-icons-soft-fantasy-chatgpt-1.png` (ghi đè 8 `icon.png`, giữ `.meta`; nền magenta nối mép bị xoá, khói tím trong đĩa giữ lại).
-4. `py -3 Tools/build-cleric-soft-skill-icons.py preview docs/reference/cleric-skill-icons-soft-fantasy/after-soft-fantasy-icons.png`, so với `before-current-icons.png`; phóng to soi viền hồng.
+3. `py -3 Tools/build-soft-fantasy-skill-icons.py cut cleric Assets/ArtLibrary/classes/cleric/skill-icons-src/cleric-skill-icons-soft-fantasy-chatgpt-1.png` (ghi đè 8 `icon.png`, giữ `.meta`; nền magenta nối mép bị xoá, khói tím trong đĩa giữ lại).
+4. `py -3 Tools/build-soft-fantasy-skill-icons.py preview cleric docs/reference/cleric-skill-icons-soft-fantasy/after-soft-fantasy-icons.png`, so với `before-current-icons.png`; phóng to soi viền hồng.
 
 Prompt (một dòng, gửi nguyên văn):
 
