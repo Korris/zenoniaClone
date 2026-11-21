@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// Placement (user 19/11: "cái khung chat ở bản mobile cho nằm giữa", a deliberate change from the mockup's bottom-left): button + bar
     /// as one group, centred on the screen at the bottom but kept in the free span between the joystick and the skill ring; the bar
     /// shrinks (never under MinBarW) when that span is narrow (4:3), so it never covers either. PC (RoHud.Pc, no joystick): bottom-left at
-    /// full width, where the open panel (RoHudChatPanel) also sits; the centre is a mobile request.
+    /// level with the RO3 hotbar and left of it (RoHud.PcBottomRow), bar 60 % opaque; the open panel (RoHudChatPanel) sits above it.
     /// </summary>
     public sealed class RoHudChatBar : ChatFeed
     {
@@ -31,9 +31,11 @@ namespace ZenoniaProto
                 float w = ((RectTransform)transform).rect.width;
                 if (Mathf.Abs(w - shownW) < 0.5f) return;
                 shownW = w;
-                if (RoHud.Pc) // PC: no joystick, bottom-left like a PC chat (the panel opens on the same corner), full bar width
+                if (RoHud.Pc) // PC: no joystick, bottom-left like a PC chat (the panel opens on the same corner), left of the hotbar
                 {
-                    group.sizeDelta = new Vector2(RoHud.ChatBubbleSize + BubbleGap + RoHud.ChatBarW, group.sizeDelta.y);
+                    float pcBarW, scale;
+                    RoHud.PcBottomRow(w, RoHud.ChatBubbleSize + BubbleGap, out pcBarW, out scale);
+                    group.sizeDelta = new Vector2(RoHud.ChatBubbleSize + BubbleGap + pcBarW, group.sizeDelta.y);
                     group.anchoredPosition = new Vector2(RoHud.Margin, group.anchoredPosition.y);
                     return;
                 }
@@ -52,7 +54,7 @@ namespace ZenoniaProto
         {
             var v = new RoHudChatBar();
             v.root = UiKit.Fill(layer, "RoChat");
-            RectTransform group = RoHud.Box(v.root, "Group", RoHud.BottomLeft, 0f, RoHud.ChatY, RoHud.ChatBubbleSize + BubbleGap + RoHud.ChatBarW, RoHud.ChatBarH);
+            RectTransform group = RoHud.Box(v.root, "Group", RoHud.BottomLeft, 0f, RoHud.Pc ? RoHud.PcChatY : RoHud.ChatY, RoHud.ChatBubbleSize + BubbleGap + RoHud.ChatBarW, RoHud.ChatBarH);
             group.pivot = new Vector2(0f, 0.5f);
             NameTags.Occlude(group); // the bar is 90 % opaque: no name tag / monster foot label shows through it
 
@@ -63,13 +65,13 @@ namespace ZenoniaProto
             v.badgeText = RoHud.Pill(bubble, "Badge", RoHud.TopRight, new Vector2(0.5f, 0.5f), -4f, -4f, 18f, "hud-badge-alert", null, 0f, "", 10, Color.white, out b, 18f);
             b.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(4, 4, 1, 1);
             v.badge = b.gameObject;
-            RoHud.KeyCap(bubble, RoHud.TopLeft, 4f, -4f, InputAdapter.KeyLabel(GameKey.Chat)); // PC: Enter
+            RoHud.KeyCap(bubble, new Vector2(0.5f, 1f), 0f, -2f, InputAdapter.KeyLabel(GameKey.Chat)); // PC: Enter, centred on top (a left-corner cap ran off the screen edge)
 
             RectTransform bar = UiKit.Fill(group, "Bar");
             bar.offsetMin = new Vector2(RoHud.ChatBubbleSize + BubbleGap, 0f); // right of the button, the rest of the group
             v.root.gameObject.AddComponent<Centre>().group = group;
             Image barArt = RoHud.Art(bar, "hud-chat-bar", true);
-            barArt.color = new Color(1f, 1f, 1f, 0.9f);
+            barArt.color = new Color(1f, 1f, 1f, RoHud.Pc ? 0.6f : 0.9f); // PC profile: see-through while nobody types (RO3 review); typing opens the panel
             UiWinKit.MakeButton(barArt, () => open());
             var row = bar.gameObject.AddComponent<HorizontalLayoutGroup>();
             row.padding = new RectOffset(PadX, PadX, PadY, PadY);

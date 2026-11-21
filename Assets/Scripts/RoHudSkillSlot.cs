@@ -18,6 +18,9 @@ namespace ZenoniaProto
         static readonly Color CooldownTint = new Color(0.55f, 0.55f, 0.58f, 1f), NoMpTint = new Color(0.55f, 0.62f, 0.8f, 0.85f);
         static readonly Color SweepColor = new Color(0.05f, 0.08f, 0.14f, 0.6f), EmptyRing = new Color(1f, 1f, 1f, 0.55f);
 
+        /// <summary>9-slice scale of the square slot pieces: the kit's slot corners (made for 64-unit bag cells) at the 40-unit hotbar size.</summary>
+        public const float SquareCorner = 1.3f;
+
         public readonly RectTransform Root;
         readonly Image icon, sweep, ring, backing, placeholder;
         readonly Text cdText;
@@ -25,22 +28,28 @@ namespace ZenoniaProto
         SkillDef def;
         int mpCost, shownTenths = -1, shownLook = -1;
 
-        public RoHudSkillSlot(Transform parent, string name, Vector2 centre, float size)
+        /// <param name="corner">Anchor of `centre` in `parent` (the arc: bottom-right; the PC hotbar: its tray's bottom-left).</param>
+        /// <param name="square">PC hotbar slot: the glass square `slot-empty` behind, the icon masked by the rounded square `slot` (both
+        /// ChatGPT pieces of the kit) instead of the round ring.</param>
+        public RoHudSkillSlot(Transform parent, string name, Vector2 centre, float size, Vector2? corner = null, bool square = false)
         {
-            Root = RoHud.Box(parent, name, RoHud.BottomRight, centre.x, centre.y, size, size);
+            Root = RoHud.Box(parent, name, corner ?? RoHud.BottomRight, centre.x, centre.y, size, size);
             TouchControls.Img(Root, null, Color.clear, true); // the touch target
-            icon = RoHud.Masked(Root, "hud-skill-mask", size * 0.1f);
+            if (square) ring = RoHud.Art(UiKit.Fill(Root, "Frame"), "slot-empty"); // under the icon: the square frame is opaque glass
+            string mask = square ? "slot" : "hud-skill-mask";
+            icon = RoHud.Masked(Root, mask, size * (square ? 0.08f : 0.1f));
             backing = icon.transform.parent.GetComponent<Image>();
             backing.color = RoSoftTheme.SkyMist; // backing under icons with transparent corners
             icon.transform.parent.GetComponent<Mask>().showMaskGraphic = true;
             sweep = UiKit.Fill(icon.transform.parent, "Sweep").gameObject.AddComponent<Image>();
-            sweep.sprite = RoHud.Piece("hud-skill-mask");
+            sweep.sprite = RoHud.Piece(mask);
             sweep.type = Image.Type.Filled; sweep.fillMethod = Image.FillMethod.Radial360; sweep.fillOrigin = (int)Image.Origin360.Top; sweep.fillClockwise = false;
             sweep.color = SweepColor; sweep.raycastTarget = false; sweep.enabled = false;
-            ring = RoHud.Art(UiKit.Fill(Root, "Ring"), "hud-skill-ring");
+            if (!square) ring = RoHud.Art(UiKit.Fill(Root, "Ring"), "hud-skill-ring");
+            else ring.pixelsPerUnitMultiplier = backing.pixelsPerUnitMultiplier = SquareCorner;
             placeholder = RoHud.Art(RoHud.Box(Root, "Empty", RoHud.Mid, 0f, 0f, size * 0.36f, size * 0.36f), "hud-icon-plus");
             placeholder.color = new Color(1f, 1f, 1f, 0.4f); // a free loadout slot: assign a skill in the skill window
-            cdText = RoHud.Label(UiKit.Fill(Root, "Cd"), "", Mathf.RoundToInt(size * 0.26f), Color.white, TextAnchor.MiddleCenter, true, true);
+            cdText = RoHud.Label(UiKit.Fill(Root, "Cd"), "", Mathf.RoundToInt(size * (square ? 0.32f : 0.26f)), Color.white, TextAnchor.MiddleCenter, true, true);
             RectTransform pill;
             RoHud.Pill(Root, "NoMp", new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), 0f, 2f, 16f, "hud-wanted-tag", null, 0f, "MP", 10, Color.white, out pill);
             noMp = pill.gameObject;

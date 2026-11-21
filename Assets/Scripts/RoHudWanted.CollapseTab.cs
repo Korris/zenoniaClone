@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// </summary>
     public sealed partial class RoHudWanted
     {
-        const string FoldKey = "ro-hud-wanted-folded";
+        static string FoldKey { get { return RoHud.Pc ? "ro-hud-wanted-folded-pc" : "ro-hud-wanted-folded"; } } // the PC profile keeps its own fold (folded until opened)
         const float TabW = 96f, TabH = 58f, TabFace = 36f, ArrowSize = 26f, ArrowHit = 40f, FoldSeconds = 0.2f;
 
         /// <summary>The card is folded to its tab (capture logs; there is one Wanted card).</summary>
@@ -80,8 +80,9 @@ namespace ZenoniaProto
 
         static bool LoadFolded()
         {
-            try { return PlayerPrefs.GetInt(FoldKey, 0) == 1; }
-            catch (System.Exception) { return false; }
+            int byDefault = RoHud.Pc ? 1 : 0; // PC profile: folded to its small tab until opened (RO3 review 21/11: "thu gọn thành thẻ nhỏ")
+            try { return PlayerPrefs.GetInt(FoldKey, byDefault) == 1; }
+            catch (System.Exception) { return byDefault == 1; }
         }
 
         /// <summary>Per shown frame: eases the slide toward the fold state; only the side being shown takes taps.</summary>

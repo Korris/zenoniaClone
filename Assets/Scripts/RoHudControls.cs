@@ -7,7 +7,7 @@ namespace ZenoniaProto
     /// <summary>
     /// The RO Soft HUD layer (02-hud.png) built by TouchControls while RoHud.Active, in its own safe-area root above the old touch layer:
     ///   bottom-left   joystick (base with arrows + knob; TouchJoystick and its corner touch zone, as the other looks); none on PC
-    ///   PC (RoHud.Pc) key caps: 1-4 / 5-8 on the ring slots, Tab on the ring, Space on Attack, V Auto, Shift Run, Q / E potions
+    ///   PC (RoHud.Pc) the RO3 profile: none of the bottom pieces below; RoHudHotbar (bottom-centre tray with key caps) instead
     ///   bottom-right  the coral Attack button (held = attack, pressed art while down), 4 skill buttons on the thin ring around it =
     ///                 the 8 loadout slots of the skill window as two pages of 4 (Tab or a vertical swipe on the arc turns the page),
     ///                 Auto (AutoBattle on / off, lit while on) and Run (GameKey.Dash, the dash)
@@ -26,6 +26,7 @@ namespace ZenoniaProto
         readonly RoHudMapPanel map;
         readonly RoHudWanted wanted;
         readonly RoHudBossBar boss;
+        readonly RoHudHotbar hotbar; // PC profile: the RO3 bottom tray instead of everything below (null on mobile)
         readonly RoHudSkillSlot[] slots = new RoHudSkillSlot[PerPage];
         readonly Text[] slotKeys = new Text[PerPage]; // PC: the digit of each ring slot (1-4, page 2: 5-8)
         readonly Image autoArt;
@@ -42,7 +43,20 @@ namespace ZenoniaProto
             root.SetSiblingIndex(oldLayer.GetSiblingIndex() + 1);
             safe = layout.Safe;
 
-            if (!RoHud.Pc) BuildJoystick(safe); // PC moves with WASD / arrows: the joystick is touch-only
+            if (RoHud.Pc) hotbar = new RoHudHotbar(safe); // PC moves with WASD / arrows: no joystick, no arc (RO3 profile)
+            else BuildMobileCluster(safe, out autoArt, out hpCount, out mpCount, out hpIcon, out mpIcon);
+
+            map = new RoHudMapPanel(safe);
+            wanted = new RoHudWanted(safe);
+            boss = new RoHudBossBar(safe);
+            Menu = new RoHudMenu(safe); // last: its More column lies over the rest
+            root.gameObject.SetActive(false);
+        }
+
+        /// <summary>Mobile: the joystick, the skill ring with Attack, Auto, Run and the potions (02-hud.png).</summary>
+        void BuildMobileCluster(RectTransform safe, out Image autoArt, out Text hpCount, out Text mpCount, out Image hpIcon, out Image mpIcon)
+        {
+            BuildJoystick(safe);
 
             // Skill ring + swipe strip first (lowest), then the slots, then Attack on top of the ring's centre.
             RectTransform ring = RoHud.Box(safe, "SkillRing", RoHud.BottomRight, Attack.x, Attack.y, RoHud.ArcRing, RoHud.ArcRing);
@@ -86,12 +100,6 @@ namespace ZenoniaProto
 
             hpCount = Potion(safe, "HpPotion", -RoHud.PotionHpX, true, out hpIcon);
             mpCount = Potion(safe, "MpPotion", -RoHud.PotionMpX, false, out mpIcon);
-
-            map = new RoHudMapPanel(safe);
-            wanted = new RoHudWanted(safe);
-            boss = new RoHudBossBar(safe);
-            Menu = new RoHudMenu(safe); // last: its More column lies over the rest
-            root.gameObject.SetActive(false);
         }
 
         void BuildJoystick(RectTransform safe)
@@ -144,6 +152,7 @@ namespace ZenoniaProto
         /// <summary>Next / previous page of 4 skills (Tab, a swipe), wraps.</summary>
         public void Cycle(int dir)
         {
+            if (hotbar != null) return; // PC shows all 8 slots
             page = ((page + dir) % Pages + Pages) % Pages;
             version = int.MinValue; // rebind on the next tick
             for (int i = 0; i < PerPage; i++) if (slotKeys[i] != null) slotKeys[i].text = (page * PerPage + i + 1).ToString();
@@ -156,6 +165,11 @@ namespace ZenoniaProto
             Menu.Tick(p, Visible, dt);
             if (!Visible) return;
             if (RoHud.Pc && InputAdapter.Pressed(GameKey.Quests)) QuestLogWindow.Open(); // N (the other HUDs read it in their own controls)
+            map.Tick(dt);
+            Menu.Fit(Mathf.Max(RoHud.MenuRight, RoHud.Margin + map.PillsWidth + 12f), safe.rect.width); // a long map name pushes the row left; 4:3 shrinks it
+            wanted.Tick(true);
+            boss.Tick(true);
+            if (hotbar != null) { hotbar.Tick(hero); return; }
             int v = SkillMagazine.Version();
             if (hero.Class != cls || v != version)
             {
@@ -164,16 +178,12 @@ namespace ZenoniaProto
             }
             foreach (RoHudSkillSlot s in slots) s.Live(hero);
             if (AutoBattle.On != shownAuto) { shownAuto = AutoBattle.On; autoArt.sprite = RoHud.Piece(shownAuto ? "hud-auto-on" : "hud-auto"); }
-            map.Tick(dt);
-            Menu.Fit(Mathf.Max(RoHud.MenuRight, RoHud.Margin + map.PillsWidth + 12f), safe.rect.width); // a long map name pushes the row left; 4:3 shrinks it
-            wanted.Tick(true);
-            boss.Tick(true);
             if (p == null) return;
             ShowPotion(p, true, hpIcon, hpCount, ref shownHpSize, ref shownHp);
             ShowPotion(p, false, mpIcon, mpCount, ref shownMpSize, ref shownMp);
         }
 
-        static void ShowPotion(PlayerState p, bool hp, Image icon, Text count, ref int shownSize, ref int shownCount)
+        internal static void ShowPotion(PlayerState p, bool hp, Image icon, Text count, ref int shownSize, ref int shownCount)
         {
             int size = p.QuickPotionSize(hp), n = p.PotionCount(hp, size);
             if (size != shownSize) { shownSize = size; icon.sprite = RoHud.Piece(hp ? "hud-potion-red" : "hud-potion-blue"); } // the RO flask; the count is of the size it drinks

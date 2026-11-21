@@ -37,6 +37,7 @@ namespace ZenoniaProto
         public RoHudStatus(RectTransform safe)
         {
             Root = UiKit.Rect(safe, "RoHudStatus", RoHud.Margin, 4f, RoHud.StatusPlateX + RoHud.StatusPlateW, Bottom);
+            Root.localScale = new Vector3(RoHud.PcScale, RoHud.PcScale, 1f); // PC profile: 7 % smaller from the top-left pivot (RO3 review)
             RectTransform plate = RoHud.TopLeftBox(Root, "Plate", RoHud.StatusPlateX, PlateTop, RoHud.StatusPlateW, RoHud.StatusPlateH);
             RoHud.Art(plate, "hud-status-plate");
 

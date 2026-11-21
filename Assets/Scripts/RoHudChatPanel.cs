@@ -11,8 +11,8 @@ namespace ZenoniaProto
     /// (newest at the bottom), the white input box and the coral Send button with its paper plane. Laid out like CSS boxes
     /// (docs/ui-layout-rules.md): panel padding Pad, gap Gap between rows, tab pills padding 3 / 12 with the label centred both ways,
     /// strip padding 2 / 12, input padding 12; no text touches a border.
-    /// Placement: mobile = centred under the menu row (like its one-line bar, RoHudChatBar); PC (RoHud.Pc) = bottom-left, open from the
-    /// start, "Press Enter to chat". Same logic as the old panel (ChatWindow owns input, send and history).
+    /// Placement: mobile = centred under the menu row (like its one-line bar, RoHudChatBar); PC (RoHud.Pc) = bottom-left above the hotbar row,
+    /// opened by Enter or the chat button, "Press Enter to chat". Same logic as the old panel (ChatWindow owns input, send and history).
     /// </summary>
     public sealed class RoHudChatPanel : ChatPanel
     {
@@ -34,7 +34,7 @@ namespace ZenoniaProto
             const int Lines = 4;
             float w = pc ? 420f : 460f;
             float h = Pad + TabH + Gap + Lines * (LineH + LineGap) - LineGap + Gap - (SendSize - InputH) * 0.5f + SendSize + Pad;
-            v.root = pc ? UiWinKit.Anchored(layer, "RoChatPanel", Vector2.zero, Vector2.zero, RoHud.Margin, RoHud.Margin, w, h)
+            v.root = pc ? UiWinKit.Anchored(layer, "RoChatPanel", Vector2.zero, Vector2.zero, RoHud.Margin, RoHud.HotBottom + RoHud.HotH + 6f, w, h) // above the RO3 hotbar row
                         : UiWinKit.Anchored(layer, "RoChatPanel", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 0f, -96f, w, h); // under the menu row
             RoHud.Art(v.root, "hud-chat-panel", true).color = new Color(1f, 1f, 1f, pc ? 0.92f : 0.97f); // raycast: a click on the panel never attacks
 

@@ -42,7 +42,9 @@ namespace ZenoniaProto
 
         public RoHudParty(RectTransform safe, float top)
         {
-            root = UiKit.Rect(safe, "RoHudParty", RoHud.Margin, top, W, TitleH + MaxRows * (RowH + RowGap));
+            float s = RoHud.PcScale; // PC profile: as small as the status above it, and right under it
+            root = UiKit.Rect(safe, "RoHudParty", RoHud.Margin, 4f + (top - 4f) * s, W, TitleH + MaxRows * (RowH + RowGap));
+            root.localScale = new Vector3(s, s, 1f);
             RectTransform head;
             title = RoHud.Pill(root, "Title", RoHud.TopLeft, RoHud.TopLeft, 0f, 0f, TitleH, "hud-party-title", "hud-icon-party", 16f, "Party (0/3)", 13, RoHud.TextOnNavy, out head, W, true);
             title.alignment = TextAnchor.MiddleLeft;

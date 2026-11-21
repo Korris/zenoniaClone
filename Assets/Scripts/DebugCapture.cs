@@ -39,7 +39,7 @@ namespace ZenoniaProto
     ///   --select-pet                      Equipment tab on the Pet cell (opens the Pet window)
     ///   --give-hats / --wear-hat / --drop-hat-from / --newbie-quest / --shop-tab hats  cosmetic hats, see DebugCapture.Headgear.cs
     ///   --open-settings / --open-quests   the Settings window (gear button) / the quest list, after spawning
-    ///   --hud web|mobile                  HUD layout (HudLayout): web = hotbar + bottom-left chat, mobile = touch controls (default on this exe)
+    ///   --hud web|mobile                  HUD layout (HudLayout): web = PC (default on desktop: RO3 hotbar + bottom-left chat), mobile = touch controls
     ///   --chat-demo / --open-chat / --close-chat / --chat-focus  four sample chat lines / chat panel open / collapsed / typing (as Enter), after spawning
     ///   --settings-show on,off            draw the music / sound switches in these states (display only, PlayerPrefs untouched)
     ///   --settings-press ChangeHero       click that button of the open Settings window (not the switches: they save to PlayerPrefs)

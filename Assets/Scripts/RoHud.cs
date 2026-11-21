@@ -15,6 +15,7 @@ namespace ZenoniaProto
     ///   RoHudMapPanel   map name + connection pills, the round minimap's ring and "+" (the minimap itself: Minimap.RoRound.cs)
     ///   RoHudWanted     the WANTED card under the minimap
     ///   RoHudControls   joystick, potions, Attack + 4 skills on an arc, Auto, Run (built by TouchControls.RoSoft.cs)
+    ///   RoHudHotbar     PC profile instead of the joystick / arc cluster: the RO3-style tray at the bottom centre (potions, 1-8, Attack, Auto, Run)
     ///   RoHudChatBar    the chat button + one-line chat bar (ChatWindow)
     /// Layout numbers are canvas units (640 high, so 1 mockup px of the 1672x941 board = 0.68 units), anchored to the safe area corners.
     /// </summary>
@@ -23,7 +24,11 @@ namespace ZenoniaProto
         /// <summary>True while this HUD replaces the classic touch HUD. Read every frame (capture flags may flip the switches).</summary>
         public static bool Active { get { return UiStyle.Ro && !UiScreens.UseNew(UiScreen.Hud); } }
 
-        /// <summary>The PC / web layout of this HUD (HudLayout.IsWeb: WebGL, or `--hud web`): keyboard + mouse, no touch-only parts.</summary>
+        /// <summary>
+        /// The PC profile of this HUD (HudLayout.IsWeb: WebGL and desktop by default, `--hud mobile` turns it off): RO3 style per the
+        /// ChatGPT review of 21/11 (section 11): smaller status / menu / minimap, hotbar at the bottom centre, chat bottom-left and
+        /// see-through, WANTED card folded by default. Keyboard + mouse, no touch-only parts. The mobile layout is unchanged.
+        /// </summary>
         public static bool Pc { get { return HudLayout.IsWeb; } }
 
         public static readonly Vector2 TopLeft = new Vector2(0f, 1f), TopRight = Vector2.one, BottomLeft = Vector2.zero, BottomRight = new Vector2(1f, 0f), Mid = new Vector2(0.5f, 0.5f);
@@ -36,11 +41,20 @@ namespace ZenoniaProto
         public const float PortraitSize = 64f, StatusPlateX = 50f, StatusPlateW = 218f, StatusPlateH = 69f;
         /// <summary>Right edge of the status plate from the safe area's left (the menu row and the boss bar stay right of it).</summary>
         public const float StatusRight = Margin + StatusPlateX + StatusPlateW;
-        // top-right column
-        public const float PillTop = 6f, PillH = 26f, MinimapSize = 150f, MinimapTop = PillTop + PillH + 2f, MinimapRight = 12f;
-        public const float WantedTop = MinimapTop + MinimapSize + 6f, WantedW = 204f, WantedH = 100f;
+        // top-right column (PC profile: the minimap 12 % smaller, ChatGPT review 21/11 section 11)
+        public const float PillTop = 6f, PillH = 26f, MinimapTop = PillTop + PillH + 2f, MinimapRight = 12f;
+        public static float MinimapSize { get { return Pc ? 132f : 150f; } }
+        public const float WantedW = 204f, WantedH = 100f;
+        public static float WantedTop { get { return MinimapTop + MinimapSize + 6f; } }
         // menu row, right-aligned to the left of the minimap
-        public const float MenuPlate = 56f, MenuPitch = 64f, MenuRight = MinimapRight + MinimapSize + 14f, MenuTop = 14f;
+        public const float MenuPlate = 56f, MenuPitch = 64f, MenuTop = 14f;
+        public static float MenuRight { get { return MinimapRight + MinimapSize + 14f; } }
+        /// <summary>
+        /// PC profile (RO3 style, docs/reference/willowbrook-25d/willowbrook-25d-vs-ro3-feel-chatgpt.md section 11): the status plate, the
+        /// party list and the menu row drawn at this scale (review: 5-8 % smaller); 1 on mobile. Positions computed from the unscaled
+        /// constants stay valid (the scaled pieces only end earlier).
+        /// </summary>
+        public static float PcScale { get { return Pc ? 0.93f : 1f; } }
         // bottom-right cluster (centres)
         public const float AttackX = 226f, AttackY = 150f, AttackSize = 104f, SkillArc = 92f, SkillSize = 62f, ArcRing = 196f;
         public const float AutoX = 58f, AutoY = 200f, AutoSize = 68f, RunX = 74f, RunY = 90f, RunSize = 76f;
@@ -48,6 +62,26 @@ namespace ZenoniaProto
         // bottom-left
         public const float JoyX = 122f, JoyY = 178f, JoySize = 164f, KnobSize = 70f, KnobTravel = 48f;
         public const float ChatY = 54f, ChatBubbleSize = 48f, ChatBarW = 360f, ChatBarH = 42f; // the group is centred by RoHudChatBar
+        // PC bottom row (RoHudHotbar): one tray at the bottom centre = potions | skills 1-8 | Attack, Auto, Run. Slots 40, pitch 44.
+        public const float HotSlot = 40f, HotPitch = 44f, HotAttack = 52f, HotGroupGap = 10f, HotPadX = 8f, HotH = 54f, HotBottom = 8f;
+        public const float HotW = HotPadX * 2f + (HotPitch + HotSlot) + HotGroupGap + (7f * HotPitch + HotSlot) + HotGroupGap + HotAttack + 6f + (HotPitch + HotSlot);
+        /// <summary>PC: the chat group's centre height (level with the hotbar), its widest bar, and the gap kept between the two.</summary>
+        public const float PcChatY = HotBottom + HotH * 0.5f, PcChatBarW = 260f, PcChatMinBarW = 170f, PcChatGap = 8f;
+
+        /// <summary>
+        /// PC bottom row for a safe area `safeW` wide: the chat group (bubble + bar) bottom-left, the hotbar centred on the screen but kept
+        /// right of the chat. The bar gives up width first (never under PcChatMinBarW), then the hotbar shifts right, then it scales down
+        /// (4:3). Returns the hotbar's left edge; `barW` = the chat bar width, `scale` = the hotbar scale. RoHudChatBar and RoHudHotbar
+        /// both call this so they never overlap.
+        /// </summary>
+        public static float PcBottomRow(float safeW, float bubble, out float barW, out float scale)
+        {
+            float centred = (safeW - HotW) * 0.5f;
+            barW = Mathf.Clamp(centred - PcChatGap - Margin - bubble, PcChatMinBarW, PcChatBarW);
+            float left = Mathf.Max(centred, Margin + bubble + barW + PcChatGap);
+            scale = Mathf.Clamp((safeW - Margin - left) / HotW, 0.6f, 1f);
+            return left;
+        }
 
         /// <summary>A kit piece (null + one warning when the art is missing: nothing is drawn in its place).</summary>
         public static Sprite Piece(string name) { return RoSoftSprites.Named(name); }

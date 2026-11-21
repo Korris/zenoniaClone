@@ -80,7 +80,7 @@ namespace ZenoniaProto
             panel = bar = board = null; collapsed = feed = null;
             closeBarAt = -1f;
             paper = UiScreens.UseNew(UiScreen.Chat);
-            if (!touched) expanded = !paper && web; // old web look: open bottom-left; everything else starts on the lines / the chat button
+            if (!touched) expanded = !paper && web && !RoHud.Active; // old web look: open bottom-left; everything else (the RO3 PC profile too: less screen covered) starts on the lines / the chat button
             content = UiKit.Fill(layer, "Content");
             if (paper) BuildCompact();
             else
