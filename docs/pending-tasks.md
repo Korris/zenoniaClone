@@ -1,6 +1,7 @@
 # Việc đang dở
 
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
+> Người dùng chốt 21/11: TƯƠNG LAI MỌI MAP chuyển sang 2.5D (bắt đầu từ Willowbrook, làm lại hình ảnh thành khu rừng kiểu RO3 / Midgard Senki); skill mọi class theo "RO3 Soft Fantasy V1" (đầu `docs/sprite-rules.md`), màu theo đúng RO3.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
 ### 21/11 07:55 Bóng đổ mềm FakeSun: hero, pet, quái, boss, cây, nhà, đá (agent, XONG code, CHỜ người dùng thử trong game)
