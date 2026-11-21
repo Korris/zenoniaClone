@@ -526,5 +526,59 @@
   40,
   140,
   72
+ ],
+ "ro-soft/wm-header": [
+  44,
+  0,
+  110,
+  0
+ ],
+ "ro-soft/wm-label-navy": [
+  22,
+  0,
+  22,
+  0
+ ],
+ "ro-soft/wm-label-red": [
+  22,
+  0,
+  22,
+  0
+ ],
+ "ro-soft/wm-legend": [
+  46,
+  0,
+  46,
+  0
+ ],
+ "ro-soft/wm-level-pill": [
+  36,
+  0,
+  36,
+  0
+ ],
+ "ro-soft/wm-map-frame": [
+  36,
+  36,
+  36,
+  36
+ ],
+ "ro-soft/wm-title-pill": [
+  40,
+  0,
+  40,
+  0
+ ],
+ "ro-soft/wm-wanted-tag": [
+  22,
+  0,
+  22,
+  0
+ ],
+ "ro-soft/wm-window": [
+  56,
+  56,
+  56,
+  56
  ]
 }

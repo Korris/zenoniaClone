@@ -246,6 +246,7 @@ namespace ZenoniaProto
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-chat") >= 0) ChatWindow.SetExpandedState(true);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--close-chat") >= 0) ChatWindow.SetExpandedState(false);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--chat-focus") >= 0) ChatWindow.FocusFromKey(); // what Enter does: open + caret in the field
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-world-map") >= 0) WorldMapWindow.Open(); // what M / a tap on the minimap does
             DebugPetWindows(); // --open-pets / --open-gacha / --gacha-pull (DebugCapture.Pets.cs)
             DebugUiRedesign(); // --kit-sheet and the capture hooks of the rebuilt screens (DebugCapture.UiRedesign.cs)
         }

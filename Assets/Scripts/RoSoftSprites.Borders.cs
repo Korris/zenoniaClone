@@ -101,6 +101,15 @@ namespace ZenoniaProto
             { "ro-soft/wanted-toast-navy", new Vector4(28f, 0f, 28f, 0f) },
             { "ro-soft/wanted-warning-strip", new Vector4(80f, 0f, 80f, 0f) },
             { "ro-soft/window-header", new Vector4(140f, 40f, 140f, 72f) },
+            { "ro-soft/wm-header", new Vector4(44f, 0f, 110f, 0f) },
+            { "ro-soft/wm-label-navy", new Vector4(22f, 0f, 22f, 0f) },
+            { "ro-soft/wm-label-red", new Vector4(22f, 0f, 22f, 0f) },
+            { "ro-soft/wm-legend", new Vector4(46f, 0f, 46f, 0f) },
+            { "ro-soft/wm-level-pill", new Vector4(36f, 0f, 36f, 0f) },
+            { "ro-soft/wm-map-frame", new Vector4(36f, 36f, 36f, 36f) },
+            { "ro-soft/wm-title-pill", new Vector4(40f, 0f, 40f, 0f) },
+            { "ro-soft/wm-wanted-tag", new Vector4(22f, 0f, 22f, 0f) },
+            { "ro-soft/wm-window", new Vector4(56f, 56f, 56f, 56f) },
         };
     }
 }

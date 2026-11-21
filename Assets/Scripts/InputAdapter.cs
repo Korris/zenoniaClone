@@ -29,7 +29,8 @@ namespace ZenoniaProto
         Class6, Switch6,           // Fighter: class select screen (6), in-game class switch (F11; F6 is the bloom toggle)
         PetWindow, PetGacha,       // P: Pet Companion window, G: pet gacha window
         Quests,                    // N: quest list (read by the Adventure Paper HUD only, TouchControls.Paper.cs)
-        AutoToggle                 // V: Auto-battle on / off (AutoBattle)
+        AutoToggle,                // V: Auto-battle on / off (AutoBattle)
+        WorldMap                   // M: the big map window (WorldMapWindow)
     }
 
     /// <summary>
@@ -87,6 +88,7 @@ namespace ZenoniaProto
             new[] { KeyCode.G },
             new[] { KeyCode.N },
             new[] { KeyCode.V },
+            new[] { KeyCode.M },
         };
 
         static bool KeyHeld(GameKey k)
@@ -152,6 +154,7 @@ namespace ZenoniaProto
             new[] { Key.G },
             new[] { Key.N },
             new[] { Key.V },
+            new[] { Key.M },
         };
 
         static bool KeyHeld(GameKey k)

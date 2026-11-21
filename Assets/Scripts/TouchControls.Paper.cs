@@ -45,7 +45,7 @@ namespace ZenoniaProto
         {
             if (hero == null) return;
             // Nothing is open and nobody is typing: only then may Esc / N open something.
-            bool free = !UiWindows.BlocksGameplay && !UiScreens.IsOpen(UiScreen.Bag) && !HeroChangeScreen.IsOpen && !AccountScreenGui.MenuOpen && !ChatWindow.RecentlyTyping;
+            bool free = !UiWindows.BlocksGameplay && !UiScreens.IsOpen(UiScreen.Bag) && !HeroChangeScreen.IsOpen && !AccountScreenGui.MenuOpen && !ChatWindow.RecentlyTyping && !WorldMapWindow.OwnsEsc; // Esc that closed the big map opens nothing
             if (InputAdapter.Pressed(GameKey.Close))
             {
                 if (paper.Entry.MoreOpen) paper.Entry.CloseMore();

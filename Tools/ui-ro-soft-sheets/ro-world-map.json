@@ -1,0 +1,160 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-world-map/src/ro-world-map-sheet-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-world-map/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [
+   {
+    "name": "wm-window",
+    "border": [
+     56,
+     56,
+     56,
+     56
+    ]
+   },
+   {
+    "name": "wm-header",
+    "border": [
+     44,
+     0,
+     110,
+     0
+    ]
+   },
+   {
+    "name": "wm-icon-map",
+    "height": 128
+   },
+   {
+    "name": "wm-close",
+    "height": 112
+   }
+  ],
+  [
+   {
+    "name": "wm-legend",
+    "border": [
+     46,
+     0,
+     46,
+     0
+    ]
+   }
+  ],
+  [
+   {
+    "name": "wm-map-frame",
+    "border": [
+     36,
+     36,
+     36,
+     36
+    ]
+   },
+   {
+    "name": "wm-title-pill",
+    "border": [
+     40,
+     0,
+     40,
+     0
+    ]
+   },
+   {
+    "name": "wm-level-pill",
+    "border": [
+     36,
+     0,
+     36,
+     0
+    ]
+   }
+  ],
+  [
+   {
+    "name": "wm-arrow",
+    "height": 80
+   },
+   {
+    "name": "wm-party",
+    "height": 64
+   },
+   {
+    "name": "wm-portal",
+    "height": 96
+   },
+   {
+    "name": "wm-npc",
+    "height": 96
+   },
+   {
+    "name": "wm-boss",
+    "height": 96
+   },
+   {
+    "name": "wm-wanted-tag",
+    "border": [
+     22,
+     0,
+     22,
+     0
+    ],
+    "box": [
+     632,
+     828,
+     753,
+     886
+    ]
+   },
+   {
+    "name": "wm-wanted-face",
+    "height": 104,
+    "box": [
+     755,
+     798,
+     866,
+     920
+    ]
+   },
+   {
+    "name": "wm-camp-ring",
+    "box": [
+     878,
+     808,
+     1000,
+     918
+    ],
+    "height": 112
+   },
+   {
+    "name": "wm-label-navy",
+    "border": [
+     22,
+     0,
+     22,
+     0
+    ]
+   },
+   {
+    "name": "wm-label-red",
+    "border": [
+     22,
+     0,
+     22,
+     0
+    ]
+   },
+   {
+    "name": "wm-flourish",
+    "width": 200
+   }
+  ]
+ ],
+ "box_hides_blobs": true
+}

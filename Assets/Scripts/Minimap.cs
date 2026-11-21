@@ -10,7 +10,7 @@ namespace ZenoniaProto
     /// needs no per-map work). Live dots: hero yellow (blinking), monsters red, boss big red, other players cyan; also villagers gold and portals white diamonds
     /// wherever the map draws them (MapScenery); a villager with a quest also gets "?" (quest to take) or "!" (quest to hand in) over his dot, from the hero's own QuestLog, so this sends nothing over the network.
     /// Dots come from pools and move at 10 Hz, so nothing is allocated once the pools have grown.
-    /// Only built with views (never on a server or a -nographics client). Display only: it takes no touches, so tapping it does nothing yet.
+    /// Only built with views (never on a server or a -nographics client). A tap on it opens the big map (WorldMapWindow).
     /// </summary>
     public sealed partial class Minimap : MonoBehaviour
     {
@@ -54,7 +54,7 @@ namespace ZenoniaProto
         {
             root = TouchControls.Place(canvas, "MinimapPanel", new Vector2(1f, 1f), -(RightMargin + OuterW * 0.5f), -(TopOffset + OuterH * 0.5f), OuterW);
             root.sizeDelta = new Vector2(OuterW, OuterH);
-            root.gameObject.AddComponent<Canvas>(); // own canvas: dots moving at 10 Hz do not re-batch the whole HUD; no raycaster, so it takes no touches
+            root.gameObject.AddComponent<Canvas>(); // own canvas: dots moving at 10 Hz do not re-batch the whole HUD
             Image frame = UiKit.Panel(root, Color.white);
             frame.sprite = UiArt.Panel(); frame.type = Image.Type.Sliced; frame.pixelsPerUnitMultiplier = 3.2f;
 
@@ -76,11 +76,28 @@ namespace ZenoniaProto
             wantedMark = new WantedMinimapMark(map); // the daily Wanted Boss's skull (Adventure Paper HUD only)
             heroDot = NewDot(map, "Hero", UiSprites.Circle(), HeroSize, HeroOn);
             heroImage = heroDot.GetComponent<Image>();
+            AddBigMapTap();
+        }
+
+        /// <summary>
+        /// A tap / click on the minimap opens the big map (WorldMapWindow). The tap area is an invisible square in the middle (55 % of the panel): its
+        /// corners stay inside the round minimap's disc and clear of the zoom "+" on the ring (RoHudMapPanel), which is on another canvas.
+        /// </summary>
+        void AddBigMapTap()
+        {
+            root.gameObject.AddComponent<GraphicRaycaster>();
+            RectTransform tap = UiKit.Fill(root, "BigMapTap");
+            tap.anchorMin = new Vector2(0.225f, 0.225f); tap.anchorMax = new Vector2(0.775f, 0.775f);
+            tap.offsetMin = tap.offsetMax = Vector2.zero;
+            Image hit = tap.gameObject.AddComponent<Image>();
+            hit.color = new Color(1f, 1f, 1f, 0f);
+            UiWinKit.MakeButton(hit, WorldMapWindow.Toggle).transition = Selectable.Transition.None;
         }
 
         void Update()
         {
             HeroController hero = GameSession.Hero;
+            if (hero != null) WorldMapWindow.PollKey(); // M opens / closes the big map
             bool show = hero != null && !InventoryPanel.IsOpen && !HeroChangeScreen.IsOpen && !UiWindows.ModalOpen && !Hud.CaptureClean;
             if (root.gameObject.activeSelf != show) { root.gameObject.SetActive(show); tickLeft = 0f; }
             if (!show) return;
@@ -130,7 +147,7 @@ namespace ZenoniaProto
         /// The picture the minimap is baked from: a painted "-minimap" next to the ground wins (a chunked map has no single ground image, so it needs one);
         /// otherwise the single ground painting. A chunked map without a minimap picture gets a flat plate and a warning.
         /// </summary>
-        static Texture2D MinimapSource(IGameMap map)
+        internal static Texture2D MinimapSource(IGameMap map)
         {
             Texture2D art = SpriteSheet.TryLoad(map.GroundTexture + "-minimap");
             if (art != null) return art;

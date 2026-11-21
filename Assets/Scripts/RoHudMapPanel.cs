@@ -34,6 +34,8 @@ namespace ZenoniaProto
             RectTransform plus = RoHud.Box(safe, "MinimapPlus", RoHud.TopRight, -(c - off), -(RoHud.MinimapTop + RoHud.MinimapSize * 0.5f + off), PlusSize, PlusSize);
             RoHud.Art(plus, "hud-btn-plus", true);
             PaperHudPress.Tap(plus.gameObject, Minimap.CycleZoom);
+            // PC: the big map's key on the ring's lower-left (a tap on the minimap opens it too, WorldMapWindow)
+            RoHud.KeyCap(safe, RoHud.TopRight, -(c + off), -(RoHud.MinimapTop + RoHud.MinimapSize * 0.5f + off), InputAdapter.KeyLabel(GameKey.WorldMap));
         }
 
         /// <summary>Keeps a top-right pill just left of another one whose width follows its text.</summary>
