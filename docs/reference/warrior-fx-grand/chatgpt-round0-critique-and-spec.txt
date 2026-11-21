@@ -1,0 +1,1521 @@
+Warrior VFX Critique Spec
+You said:
+You are a senior VFX art director for a 2.5D chibi MMORPG (Unity, top-down 58 degree camera, hero ~120 px tall at 1280x720). Image 1 = Ragnarok Online 3 Rune Knight / Royal Guard skill frames (reference). Image 2 = our Warrior's 8 skills now (rows: Power Slash 8-hit arc, Whirlwind spin, Flame Cleave fire arc, Charging Strike dash+thrust, Earth Break giant light sword drops then slam, Blade Cyclone long spin, Inferno Crash leap+fire crater, Berserker Awakening self buff), images 3-4 = Flame Cleave and Earth Break closer, image 5 = our heroes. The player says our warrior skills look boring and weak, nothing powerful. FX are built only with particles + mesh ribbon trails + shader quads (no sprite frames). Class colour = red/fire. Give a brutal critique and then a concrete numeric spec per skill so it reads GRAND and powerful on snow, grass and a dark purple cave: colour hex values (body, highlight, white-hot core, dark rim) with saturation/value, core opacity, ribbon thickness as fraction of hero height H, burst/flash size in H, shockwave ring thickness and opacity, ground decals and linger time, particle counts, timing (anticipation/impact/hold/fade in ms), hit-stop ms and camera shake strength, and the layer order. Then score our current version vs RO3 out of 10.
+Worked for 1m 9s
+Analyzed
+ChatGPT said:
+WARRIOR VFX — Brutal Art Direction Review & Production Specification
+
+Unity Particle System + Mesh Ribbon + Shader Quads | 58° camera | H = 120 px | 1280×720
+
+1. Verdict: Why your Warrior feels weak
+
+Your Warrior has decent animation concepts, but the VFX currently communicate a fast character triggering orange circles, not a heavily armored swordsman unleashing devastating attacks.
+
+5.0/10
+
+Your current Warrior VFX
+
+8.5/10
+
+RO3 reference VFX
+
+These are subjective art-direction scores based on the supplied still frames, not full-motion playtests.
+
+The seven biggest problems
+
+1. No decisive impact frame. Flame Cleave and Earth Break have effects that develop over time, but neither shows a sufficiently explosive, visually distinct moment of contact.
+
+2. Your VFX are mostly outlines. Thin orange rings, arcs, and faint circles describe an attack's area but have almost no visual mass. RO3 uses broad luminous shapes, bright cores, strong contrast, and layered energy.
+
+3. Not enough contrast within individual effects. Mid-orange dominates. You need a dark outer silhouette, saturated red body, brilliant orange-yellow highlight, and a tiny near-white impact core.
+
+4. Weak anticipation-to-release contrast. The screen looks similar before and after an attack. A powerful ability needs a noticeable energy buildup, a violently compressed peak, and a readable aftermath.
+
+5. The Warrior's power identity is unclear. Power Slash, Whirlwind, Flame Cleave, and Blade Cyclone currently share too much of the same orange circular visual language. Their silhouettes should be recognizable even without particle colors.
+
+6. Ground interaction is underdeveloped. Earth Break should fracture the ground. Inferno Crash should leave a scorched crater. Charging Strike should kick up a directional dust wake. Right now too much energy seems detached from the environment.
+
+7. Damage-number overlap masks the FX. The current videos show numbers obscuring the central attack area. Increasing particle count without adjusting number stacking will make this worse.
+
+The biggest problem is not insufficient particles. It's insufficient shape, value hierarchy, impact timing, and environmental reaction.
+
+The main difference from RO3
+
+Your RO3 reference shows attacks with large, clean radial or sword-like silhouettes. The golden circles around Raise Shield and King's Grace have controlled composition. Rolling Cutter produces bright, substantial rotating blades. Its effects are visually strong without covering the whole character.
+
+Your Earth Break has the beginnings of this approach, but the golden sword is currently a thin symbol rather than an enormous, physically threatening weapon.
+
+The target should be RO3's readable magical grandeur combined with a heavier red/fire Warrior identity.
+
+2. Global VFX standard
+
+All values below are proposed production targets, not measurements extracted from RO3.
+
+Measurement reference
+
+H is the hero's projected on-screen standing height: 120 pixels at the reference zoom. Ground effects use world-space circles that appear elliptical in the 58° camera.
+Shared technical rules
+
+Parameter
+
+	
+
+Target
+
+
+
+
+Hero reference
+
+	
+
+H = 120 screen px
+
+
+
+
+Small / Medium / Ultimate effect diameter
+
+	
+
+1.5–2.2H / 2.5–3.5H / 4–5H
+
+
+
+
+Main ribbon thickness
+
+	
+
+0.12–0.30H
+
+
+
+
+White-hot peak
+
+	
+
+75–100% core opacity, very short duration
+
+
+
+
+Outer shadow rim
+
+	
+
+30–60% opacity, usually alpha blended
+
+
+
+
+Shockwave front
+
+	
+
+0.035–0.10H thick
+
+
+
+
+Ground decal alpha
+
+	
+
+12–45% depending on ground
+
+
+
+
+Emissive bloom
+
+	
+
+Controlled; white regions must retain structure
+
+
+
+
+Typical impact hit-stop
+
+	
+
+40–85 ms
+
+
+
+
+Camera shake
+
+	
+
+2–9 px displacement, 60–240 ms
+
+
+
+
+Particle count
+
+	
+
+Prefer 20–85 meaningful particles, not hundreds of noise flecks
+
+Screen-space shake values refer to a 1280×720 reference viewport; scale with viewport height and reduce for accessibility.
+
+Core rendering principle
+
+Every major attack should have four value bands:
+
+Dark rim
+
+Red body
+
+Hot edge
+
+White core
+
+Dark rim → Red body → Orange-gold highlight → White-hot core.
+
+Keep the brightest white to roughly 5–12% of the peak effect area. If everything is white, nothing feels powerful.
+
+3. Exact specification for all eight Warrior skills
+
+Palette notation: HEX (HSV saturation %, value %). Dimensions are based on H = 120 px. Timing is anticipation / impact / hold / fade, in milliseconds. Particle counts mean approximate total particles spawned per activation, not maximum simultaneous alive.
+
+01 — Power Slash
+Heavy single-target sword combo
+
+Current: 5.5/10. The slashing animation works, but the attack looks like several tiny scratches instead of a blade cutting through armor.
+
+New direction: Eight short, violent cuts with a wide crescent ribbon on every strike and an especially forceful eighth finisher. Never show eight full-strength crescents at once.
+
+Rim
+
+Body
+
+Highlight
+
+Core
+
+Property
+
+	
+
+Specification
+
+
+
+
+Palette Rim / Body
+
+	
+
+#69243A (66/41), #E84832 (78/91)
+
+
+
+
+Highlight / Core
+
+	
+
+#FFB347 (72/100), #FFF9DA (15/100)
+
+
+
+
+Core opacity
+
+	
+
+90%; 100% on hit 8
+
+
+
+
+Ribbon
+
+	
+
+0.18H; final cut 0.28H
+
+
+
+
+Arc / peak burst
+
+	
+
+1.7H arc diameter; final burst 0.7H
+
+
+
+
+Shockwave
+
+	
+
+Final hit only: 0.045H / 60% alpha, expanding 0.3→1.5H diameter
+
+
+
+
+Ground decal
+
+	
+
+Directional scratch marks; 24% alpha, linger 380 ms
+
+
+
+
+Particles
+
+	
+
+4–6 sparks per hit; 18 on finisher; 55–65 total
+
+
+
+
+Timing
+
+	
+
+Per hit: 60 / 30 / 45 / 100 ms; eighth hit: 110 / 40 / 80 / 180 ms
+
+
+
+
+Hit-stop
+
+	
+
+18 ms regular, 55 ms finisher
+
+
+
+
+Camera shake
+
+	
+
+1 px regular, 3 px finisher / 90 ms
+
+Signature: A thick, asymmetric slash shaped like a real blade trajectory, not a perfect circle. Put the brightest white at the blade's leading edge.
+
+02 — Whirlwind
+Fast circular melee AoE
+
+Current: 5.0/10. The ring expands, but it feels like a ground telegraph. It needs violent rotating blades and a distinguishable center.
+
+New direction: Two offset red-orange crescent blades spiral around the Warrior, followed by a compressed outward wind shockwave.
+
+Rim
+
+Body
+
+Highlight
+
+Core
+
+Property
+
+	
+
+Specification
+
+
+
+
+Rim / Body
+
+	
+
+#632037 (68/39), #DD393C (74/87)
+
+
+
+
+Highlight / Core
+
+	
+
+#FF9057 (66/100), #FFF4E1 (12/100)
+
+
+
+
+Core opacity
+
+	
+
+85% at leading blade tip
+
+
+
+
+Ribbon
+
+	
+
+Two opposing ribbons, each 0.22H
+
+
+
+
+Peak burst
+
+	
+
+2.8H diameter, concentrated at outer edge
+
+
+
+
+Shockwave
+
+	
+
+0.065H / 72% alpha, 1.2→3.0H
+
+
+
+
+Ground decal
+
+	
+
+Rotating dusty spiral, 18% alpha; 450 ms
+
+
+
+
+Particles
+
+	
+
+50–65 sparks, 12 dust puffs
+
+
+
+
+Timing
+
+	
+
+120 / 45 / 400 / 220 ms
+
+
+
+
+Hit-stop
+
+	
+
+35 ms on first contact, 18 ms on final sweep
+
+
+
+
+Camera shake
+
+	
+
+2 px / 140 ms
+
+Signature: The two sweeping blades must remain visible over the whole ring, creating a double-helix impression. No uniform orange donut.
+
+03 — Flame Cleave
+Heavy directional fire cleave
+
+Current: 4.5/10. Your close-up shows a thin orange arc that expands around the Warrior, with small vertical flames. The silhouette is airy and weak.
+
+This should be a broad, physical wall of fire pushed forward by a gigantic sword cut.
+
+Rim
+
+Body
+
+Highlight
+
+Core
+
+Property
+
+	
+
+Specification
+
+
+
+
+Rim / Body
+
+	
+
+#742338 (70/45), #F04A22 (86/94)
+
+
+
+
+Highlight / Core
+
+	
+
+#FFC052 (68/100), #FFFCE6 (10/100)
+
+
+
+
+Core opacity
+
+	
+
+95% for 55 ms
+
+
+
+
+Ribbon
+
+	
+
+0.30H broad tapered fire crescent
+
+
+
+
+Peak burst
+
+	
+
+3.2H wide, 1.4H projected height
+
+
+
+
+Shockwave
+
+	
+
+0.075H / 80% alpha, forward crescent rather than full ring
+
+
+
+
+Ground decal
+
+	
+
+Burning wedge, 38% alpha; 1,150 ms
+
+
+
+
+Particles
+
+	
+
+28 flame tongues, 22 embers, 12 ash fragments = 62
+
+
+
+
+Timing
+
+	
+
+180 / 55 / 160 / 350 ms
+
+
+
+
+Hit-stop
+
+	
+
+65 ms
+
+
+
+
+Camera shake
+
+	
+
+5 px / 160 ms
+
+Signature: At impact, a solid white-orange cutting edge should split the saturated red flame mass. Add a fast secondary flame-sheet that follows 50 ms later.
+
+The flame moves forward through the target, not symmetrically around the player.
+
+04 — Charging Strike
+Directional high-speed thrust
+
+Current: 4.5/10. The dash is readable, but the actual hit looks like a weak sword poke. The target needs to experience the visual equivalent of a charging armored knight.
+
+New direction: A concentrated red-white spearhead with a compressed shock cone and a dust wake.
+
+Rim
+
+Body
+
+Highlight
+
+Core
+
+Property
+
+	
+
+Specification
+
+
+
+
+Rim / Body
+
+	
+
+#581E44 (66/35), #CF263C (82/81)
+
+
+
+
+Highlight / Core
+
+	
+
+#FF9364 (61/100), #FFFFFF (0/100)
+
+
+
+
+Core opacity
+
+	
+
+100% at collision for 30 ms
+
+
+
+
+Ribbon
+
+	
+
+0.12H dash trail; 0.25H impact spearhead
+
+
+
+
+Peak burst
+
+	
+
+1.5H wide, 2.2H long impact cone
+
+
+
+
+Shockwave
+
+	
+
+0.055H / 75% alpha, compressed forward ellipse
+
+
+
+
+Ground decal
+
+	
+
+Two trailing dust streaks, 28% alpha; 500 ms
+
+
+
+
+Particles
+
+	
+
+24 forward sparks, 18 dust, 8 bright fragments = 50
+
+
+
+
+Timing
+
+	
+
+100 / 35 / 100 / 200 ms, plus 120–220 ms dash travel
+
+
+
+
+Hit-stop
+
+	
+
+70 ms
+
+
+
+
+Camera shake
+
+	
+
+5 px forward-back, 130 ms
+
+Signature: A narrow lightning-fast streak must culminate in an extremely bright impact star with a forward-pointing triangular silhouette.
+
+This skill should feel like a collision, not an AoE explosion.
+
+05 — Earth Break
+Massive holy-fire sword slam
+
+Current: 5.5/10. The giant descending golden sword is your best idea. But the sword is thin, the ground circle is pale, and the explosion is not proportional to the weapon's supposed mass.
+
+The reference's King's Grace demonstrates the value of a strong golden center surrounded by large framing arcs. Earth Break needs that grandeur, but with much more violence.
+
+Rim
+
+Body
+
+Highlight
+
+Core
+
+Property
+
+	
+
+Specification
+
+
+
+
+Rim / Body
+
+	
+
+#682A48 (60/41), #E85B32 (78/91)
+
+
+
+
+Highlight / Core
+
+	
+
+#FFD36B (58/100), #FFFFFF (0/100)
+
+
+
+
+Core opacity
+
+	
+
+100% for 60 ms
+
+
+
+
+Sword geometry
+
+	
+
+2.8H projected height; blade 0.32H at widest point
+
+
+
+
+Ribbon
+
+	
+
+0.20H descending vertical light trail
+
+
+
+
+Peak burst
+
+	
+
+4.0H diameter radial blast
+
+
+
+
+Shockwave
+
+	
+
+0.09H / 85% alpha, 0.5→4.3H
+
+
+
+
+Ground decal
+
+	
+
+6–8 branching cracks; 45% alpha, 1,800 ms
+
+
+
+
+Particles
+
+	
+
+28 rock fragments, 25 sparks, 12 dust bursts, 8 light streaks = 73
+
+
+
+
+Timing
+
+	
+
+420 / 70 / 200 / 480 ms
+
+
+
+
+Hit-stop
+
+	
+
+85 ms
+
+
+
+
+Camera shake
+
+	
+
+8 px / 220 ms
+
+Signature: The sword descends in 180–220 ms after the buildup, strikes, and immediately releases a solid golden-white flash with eight radial fissures.
+
+Make the descending sword primarily a tapered emissive mesh with a luminous body, not a thin line icon. The blade should look approximately three times heavier than the current one.
+
+Important: Scale its collision burst from the actual contact point, not from the hero's center.
+
+06 — Blade Cyclone
+Sustained offensive sword tornado
+
+Current: 5.0/10. It overlaps Whirlwind too much. Both use a circular orange region, so the player cannot tell their identities apart at a glance.
+
+New direction: A sustained, tilted cylindrical storm of red sword ribbons, with stacked spirals and intermittent directional blade flashes.
+
+Rim
+
+Body
+
+Highlight
+
+Core
+
+Property
+
+	
+
+Specification
+
+
+
+
+Rim / Body
+
+	
+
+#59213C (63/35), #D92D46 (79/85)
+
+
+
+
+Highlight / Core
+
+	
+
+#FF9656 (66/100), #FFF7E4 (11/100)
+
+
+
+
+Core opacity
+
+	
+
+80% on intermittent blade flashes
+
+
+
+
+Ribbon
+
+	
+
+Three helical ribbons, 0.16–0.22H
+
+
+
+
+Peak burst
+
+	
+
+3.0H ground diameter; 1.8H above ground
+
+
+
+
+Shockwave
+
+	
+
+0.05H / 55% alpha on activation and final release
+
+
+
+
+Ground decal
+
+	
+
+Circular dragged slash pattern, 26% alpha; 550 ms after skill ends
+
+
+
+
+Particles
+
+	
+
+65–85 sparks and blade fragments over activation
+
+
+
+
+Timing
+
+	
+
+140 / 45 / 1,000 / 280 ms
+
+
+
+
+Hit-stop
+
+	
+
+20 ms initial, 12 ms on final hit
+
+
+
+
+Camera shake
+
+	
+
+2 px periodic pulses; 4 px / 100 ms final
+
+Signature: Unlike Whirlwind, Blade Cyclone has visible vertical height and persistent movement.
+
+Use two lower spirals and one higher spiral, with opposing ribbon phase offsets. Preserve an opening around the Warrior's face and upper torso.
+
+07 — Inferno Crash
+Ultimate jumping fire crater
+
+Current: 4.0/10. This has the largest conceptual mismatch between gameplay name and observed visual strength. The current orange circular blast does not convincingly communicate a meteor-like impact.
+
+This must become the Warrior's most visually destructive attack.
+
+Rim
+
+Body
+
+Highlight
+
+Core
+
+Property
+
+	
+
+Specification
+
+
+
+
+Rim / Body
+
+	
+
+#541B36 (68/33), #E72A25 (84/91)
+
+
+
+
+Highlight / Core
+
+	
+
+#FFAA3D (76/100), #FFFBE9 (9/100)
+
+
+
+
+Core opacity
+
+	
+
+100% at initial contact; 75% secondary burst
+
+
+
+
+Ribbon
+
+	
+
+0.28H downward flaming tail
+
+
+
+
+Peak burst
+
+	
+
+4.8H diameter; central flame pillar 2.5H projected height
+
+
+
+
+Shockwave
+
+	
+
+0.10H / 90% alpha, 0.4→5.0H
+
+
+
+
+Ground decal
+
+	
+
+Radial cracked crater + char, 45% alpha; 2,300 ms
+
+
+
+
+Particles
+
+	
+
+35 fire fragments, 28 rocks, 22 embers, 12 smoke wisps = 97
+
+
+
+
+Timing
+
+	
+
+400 / 75 / 260 / 650 ms
+
+
+
+
+Hit-stop
+
+	
+
+95 ms
+
+
+
+
+Camera shake
+
+	
+
+9 px / 240 ms
+
+Signature: Leap → intense falling fire streak → white-hot ground collision → red-orange radial flame expansion → black-brown rock debris → persistent scorched crater.
+
+Make this the only standard Warrior skill allowed to approach 5H. Other skills should be visually smaller so Inferno Crash feels genuinely special.
+
+08 — Berserker Awakening
+Personal transformation / combat buff
+
+Current: 3.5/10. Almost nothing conveys transformation or danger. It reads as a regular status activation.
+
+New direction: The Warrior momentarily becomes a glowing red-black figure, releases a vertical fire pulse, then gains a compact persistent aura.
+
+Rim
+
+Body
+
+Highlight
+
+Core
+
+Property
+
+	
+
+Specification
+
+
+
+
+Rim / Body
+
+	
+
+#4B1737 (69/29), #BE253F (81/75)
+
+
+
+
+Highlight / Core
+
+	
+
+#FF8B4B (71/100), #FFF1CF (19/100)
+
+
+
+
+Core opacity
+
+	
+
+85% activation, persistent glow 15–22%
+
+
+
+
+Ribbon
+
+	
+
+0.14H rising flame ribbons
+
+
+
+
+Peak burst
+
+	
+
+2.5H diameter red pressure pulse; aura height 1.5H
+
+
+
+
+Shockwave
+
+	
+
+0.065H / 75% alpha, 0.4→2.6H
+
+
+
+
+Ground decal
+
+	
+
+Dark crimson runic circle, 30% alpha, fade over 850 ms
+
+
+
+
+Particles
+
+	
+
+Activation 45–55; active aura 3–5 embers/sec
+
+
+
+
+Timing
+
+	
+
+500 / 65 / 250 / 450 ms
+
+
+
+
+Hit-stop
+
+	
+
+45 ms on self; do not interrupt other players
+
+
+
+
+Camera shake
+
+	
+
+4 px / 130 ms
+
+Signature: A sharp red-white vertical beam and expanding dark-red pressure wave, followed by a pulsing red aura.
+
+During the sustained buff, never render the full activation effect continuously. Keep only a tight aura, glowing weapon accent, and occasional embers. Otherwise 40 Warriors will turn the entire boss arena red.
+
+4. Make the VFX work on snow, grass, and purple caves
+
+The same palette cannot be composited identically on every map.
+
+Snow
+
+Problem: White cores vanish into the bright snow, and gold shockwaves lose their edge.
+
+Correction: Increase dark-rim opacity by +15 percentage points, decrease bloom by 25%, strengthen red body opacity by +10 points. Keep warm cores, but add a narrow dark contour. Snow decals should be brown-gray scorch marks or exposed dirt, not barely visible yellow.
+
+Grass
+
+Problem: Strong reds work, but green vegetation and busy ground textures interfere with thin particles.
+
+Correction: Use the base palette unchanged. Preserve high-frequency detail only in the leading blade or impact core. Ground scorch opacity 30–40%, with soft-edged warm brown marks. Avoid scattering tiny red specks across flowers.
+
+Purple cave
+
+Problem: Deep-red bodies merge into purple terrain, while emissive cores become disproportionately bright.
+
+Correction: Increase orange-yellow highlight area by approximately 15–20%, reduce peak bloom 15%, and shift the outer silhouette toward warm brown-black (#482829). Brighten the body by 8–12% if needed. Keep gold highlights readable against purple.
+
+Implement these as three biome-specific VFX material presets sharing the same underlying meshes and particle systems. They are visual balancing parameters, not three completely separate effects.
+
+5. Correct VFX layer order
+
+This is critical. Simply adding brighter and larger particle systems to your current stack will not solve the problem.
+
+Visual stacking — back to front
+
+01
+
+Ground surface
+
+Existing map art and contact shadows
+
+02
+
+Ground decals
+
+Scorch, cracks, runes, directional smears
+
+03
+
+Dark pressure / contrast rim
+
+Soft dark silhouettes beneath the impact
+
+04
+
+Shockwave + low particles
+
+Expanding rings, dust, low embers
+
+05
+
+Main red energy body
+
+Wide opaque or alpha-blended fire/sword mesh
+
+06
+
+Golden ribbon highlights
+
+Leading blade edges and concentrated hot regions
+
+07
+
+White-hot strike core
+
+Small, sharp, short-lived brightest layer
+
+08
+
+Hero + selected foreground FX
+
+Preserve face readability; allow intentional sword overlap
+
+09
+
+Gameplay/UI overlays
+
+Damage numbers, enemy HP, target indicator, critical text
+
+This is a conceptual visual order, not one fixed Unity sorting order. Split tall effects into back and front renderers around the character. World-space height, camera depth, and sorting groups must still be respected.
+
+Unity implementation rules
+
+Shader body: Prefer standard premultiplied alpha for saturated red shapes. Pure additive blending washes out against snow and destroys dark silhouettes.
+
+Highlight and core: Additive or premultiplied emissive materials, with controlled HDR emission.
+
+Ribbons: Use custom mesh strips with width taper, asymmetric alpha falloff, and UV scrolling only where needed. Avoid making every ribbon a uniform-width tube.
+
+Shockwave: A world-space annular quad or mesh, using radial alpha masks and soft edge distortion. Prevent texture tiling from making the ring look like a repeated pattern.
+
+Impact flash: A concentrated burst only. Aim for 30–75 ms of peak brightness rather than an extended white screen.
+
+Ground decal: Project or place onto the ground plane and depth-test where appropriate. Avoid decals floating through rock ledges or waterfalls.
+
+Bloom: Set exposure and threshold for all three representative biomes. Avoid judging effects only on black backgrounds.
+
+FX scale: Tie gameplay range to world units and tune visual projection at the standard camera, rather than resizing hitboxes to match screen-space circles.
+
+6. The three changes that will produce the biggest visual upgrade
+
+1. Replace thin lines with thick, sculpted sword shapes.
+
+For Flame Cleave, grow the primary trail from a thin arc to approximately 0.30H. For Earth Break, turn the sword into a broad filled mesh with a solid body and sharp brilliant edge. This alone will materially improve the perceived weight.
+
+2. Create one unmistakable impact peak per skill.
+
+Make the brightest frame short and explosive. Combine sword contact, radial emission, camera shake, and brief hit-stop at the same instant. The current effects have movement but lack an obvious climax.
+
+3. Give every skill a unique silhouette.
+
+Power Slash = sharp crescents. Whirlwind = horizontal double-blade spin. Flame Cleave = forward fire wall. Charging Strike = narrow penetrating spearhead. Earth Break = falling greatsword. Blade Cyclone = tall helical tornado. Inferno Crash = explosive crater. Berserker = vertical transformation aura.
+
+7. MMORPG optimization: 40 Warriors attacking simultaneously
+
+These effects should be authored at full quality for the local player, but not rendered identically for every distant player. Otherwise the boss fight becomes an unreadable particle storm.
+
+VFX tier
+
+	
+
+Particle budget multiplier
+
+	
+
+Presentation
+
+
+
+
+Local player's skills
+
+	
+
+100%
+
+	
+
+Full impact, trails, decals, light shake
+
+
+
+
+Party members
+
+	
+
+55–65%
+
+	
+
+Keep signature silhouette and impact
+
+
+
+
+Other nearby players
+
+	
+
+25–35%
+
+	
+
+Simplified trails, minimal secondary particles
+
+
+
+
+Distant players
+
+	
+
+10–15%
+
+	
+
+One primary trail and one impact cue
+
+For all tiers, maintain the true server-authoritative damage and collision timing. Reducing visuals must never change gameplay.
+
+Additional rules: disable camera shake from other players' attacks, limit persistent world decals to a controlled pool, reserve the brightest peak for local or especially dangerous events, and aggregate minor damage numbers during rapid multi-hit attacks while preserving critical and important hit feedback.
+
+For Berserker Awakening specifically, remote players should display a small weapon glow or compact aura instead of the full-scale persistent flames.
+
+8. Final scores and release targets
+
+Skill
+
+	
+
+Current
+
+	
+
+Target
+
+
+
+
+Power Slash
+
+	
+
+5.5
+
+	
+
+8.0
+
+
+
+
+Whirlwind
+
+	
+
+5.0
+
+	
+
+8.5
+
+
+
+
+Flame Cleave
+
+	
+
+4.5
+
+	
+
+9.0
+
+
+
+
+Charging Strike
+
+	
+
+4.5
+
+	
+
+8.5
+
+
+
+
+Earth Break
+
+	
+
+5.5
+
+	
+
+9.5
+
+
+
+
+Blade Cyclone
+
+	
+
+5.0
+
+	
+
+8.5
+
+
+
+
+Inferno Crash
+
+	
+
+4.0
+
+	
+
+9.5
+
+
+
+
+Berserker Awakening
+
+	
+
+3.5
+
+	
+
+9.0
+
+
+
+
+Overall
+
+	
+
+~5.0/10
+
+	
+
+9.0/10
+
+Target scores are art-direction goals, not guaranteed outcomes. They require validation in motion at normal gameplay zoom. RO3 reference: approximately 8.5/10 for impact and visual readability in the supplied images.
+
+Production priority
+
+First rebuild Flame Cleave, Earth Break, and Inferno Crash. These three cover the biggest weak points: broad sword energy, a descending weapon impact, and a destructive ultimate.
+
+Once they work, extract a reusable Unity VFX library: SwordRibbon, ImpactBurst, Shockwave, GroundCrack, EmberField, DustBurst, and HitFlash. Reuse those systems for the other five skills, changing silhouette, timings, and parameters rather than creating eight unrelated implementations.
+
+Final art-direction decision: Do not make the Warrior eight times brighter. Make his sword shapes three times more substantial, his impact moments twice as decisive, and his eight skills far more distinct. A powerful Warrior should look as though he is cutting, crushing, and rupturing the world—not drawing orange circles on it.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+Medium

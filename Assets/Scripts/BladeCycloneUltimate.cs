@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ZenoniaProto
 {
@@ -89,7 +89,7 @@ namespace ZenoniaProto
             if (!local || !big) return; // small hits: no shake, no hit-stop (ChatGPT V3); another player's cyclone never moves this camera
             if (penult) { CameraFollow.SkillShake(0.08f); GameClock.HitStop(15f); return; }
             CameraFollow.SkillShake(0.5f);
-            GameClock.HitStop(45f);
+            GameClock.HitStop(65f); // grand pass 21/11 (was 45)
             CameraFollow.SkillPunch(0.5f);
             ScreenFlash.Trigger(new Color(1f, 0.4f, 0.12f, 0.08f), 0.18f);
         }

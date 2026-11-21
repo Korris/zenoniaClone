@@ -1,0 +1,570 @@
+Round 2 captures: image 1 snow, 2 dark purple cave, 3 grass, 4-5 close-ups of Flame Cleave and Earth Break. Changes: we found a bug where every sword ribbon was drawing off-screen, so the crescents were missing in round 1; now fixed. Shock rings are hollow bands, flashes 60-70 % smaller with only a tiny white core, flame pillars red outside / orange / yellow inside, Flame Cleave = 3 stacked fire crescents + second sheet 50 ms later, Whirlwind = 2 opposing crescents, Blade Cyclone = helix at 3 heights, Charging Strike = forward shock cone, Earth Break sword 50 % wider with an orange outline, dark scorch decals. The small red blurry rings on crits are the damage-number system, not the skill. Score each skill and overall vs RO3 out of 10 again, and give the remaining fixes in priority order with numbers.
+ChatGPT said:
+WARRIOR VFX — ROUND 2 ART DIRECTOR REVIEW
+
+Verdict: PASS vòng 2 về kỹ thuật. CHƯA PASS mức hoàn thiện RO3.
+
+Việc sửa lỗi ribbon off-screen là bước tiến lớn nhất từ đầu quá trình. Đặc biệt, Flame Cleave đã có hình lưỡi chém, Charging Strike có đường lao rõ, Earth Break có trọng lượng hơn. Ba biome cũng cho thấy màu đỏ/cam hoạt động tương đối ổn định.
+
+Tuy nhiên, hiệu ứng vẫn chưa đạt độ hoành tráng của hai concept đã duyệt. Vấn đề hiện tại không còn là thiếu độ sáng, mà là kích thước hình khối, phân cấp thị giác và cảm giác lực đánh.
+
+7.0/10
+
+Round 2
+
+5.6/10
+
+Round 1
+
+8.5/10
+
+RO3 reference
+
+1. Điểm từng skill
+
+Skill
+
+	
+
+R1
+
+	
+
+R2
+
+	
+
+Nhận xét
+
+
+
+
+Power Slash
+
+	
+
+5.5
+
+	
+
+6.8
+
+	
+
+Vệt chém đã hiện, finisher vẫn thiếu cú kết thúc thật nặng
+
+
+
+
+Whirlwind
+
+	
+
+5.7
+
+	
+
+7.0
+
+	
+
+Hai crescent rõ hơn, nhưng còn nhiều vòng đồng tâm
+
+
+
+
+Flame Cleave
+
+	
+
+5.2
+
+	
+
+7.4
+
+	
+
+Tiến bộ rất lớn; ba crescent chưa hợp thành một tường lửa mạnh
+
+
+
+
+Charging Strike
+
+	
+
+5.3
+
+	
+
+7.1
+
+	
+
+Streak tốt, impact vẫn hơi nhỏ
+
+
+
+
+Earth Break
+
+	
+
+6.3
+
+	
+
+7.8
+
+	
+
+Mạnh nhất hiện tại, kiếm lớn và nền nứt rõ
+
+
+
+
+Blade Cyclone
+
+	
+
+5.2
+
+	
+
+6.7
+
+	
+
+Helix đã có, nhưng vẫn khá phẳng ở góc camera thật
+
+
+
+
+Inferno Crash
+
+	
+
+6.0
+
+	
+
+7.0
+
+	
+
+Có sức nặng hơn, nhưng chưa đạt cảm giác ultimate
+
+
+
+
+Berserker Awakening
+
+	
+
+5.4
+
+	
+
+6.4
+
+	
+
+Beam thấy rõ, aura và biến hình còn yếu
+
+
+
+
+Overall
+
+	
+
+5.6
+
+	
+
+7.0
+
+	
+
+Đạt nền tảng để polish
+
+Đây là điểm cảm nhận từ các frame bạn gửi; hit-stop và camera shake không thể chấm chính xác bằng ảnh tĩnh.
+
+2. Những gì đã sửa đúng
+
+Shockwave: Đã chuyển thành vòng rỗng. Không còn lỗi đĩa cam đặc lớn như vòng 1.
+
+Impact flash: Kích thước nhỏ hơn đáng kể, không còn xóa sạch nhân vật và quái.
+
+Flame Cleave: Ba đường lửa dạng lưỡi kiếm xuất hiện rõ ở 120–220 ms. Đây là thay đổi đáng giá nhất.
+
+Charging Strike: Đường lao ngang rõ ràng, đặc biệt trên nền cave.
+
+Earth Break: Kiếm rộng hơn, có cạnh cam, vết nứt tối dưới đất tương phản tốt.
+
+Màu trên ba biome: Đỏ/cam dễ thấy trên tuyết, cỏ và hang tím. Không cần tăng saturation tổng thể nữa.
+
+Tôi cũng loại trừ các vòng đỏ mờ của hệ thống critical damage khỏi đánh giá VFX skill.
+
+3. Những lỗi còn lại — theo thứ tự ưu tiên
+P0 — Bắt buộc sửa
+
+1. Flame Cleave: Ba lưỡi lửa vẫn quá mảnh và tách rời.
+
+Ở frame 220 ms, ba crescent trông giống ba đường kiếm phát sáng xếp chồng, chưa thành một khối lửa có thể tích như concept.
+
+Tăng width của ribbon chính từ hiện tại lên khoảng 1.5×, đặt mục tiêu 0.28–0.32H.
+
+Giữ crescent giữa sáng nhất; hai crescent phụ giảm opacity còn 55–65%.
+
+Thêm một lớp flame-body liên tục giữa ba đường chém, opacity 40–55%, màu #E83D27.
+
+Giảm vòng tròn nền hiện tại 30–40% độ sáng.
+
+Chỉ giữ 3 flame pillar; cao 0.6–0.9H, phần đỏ ngoài rộng ít nhất 35%.
+
+Mục tiêu: Người chơi phải thấy một lưỡi lửa khổng lồ, không phải ba đường vòng cung riêng biệt.
+
+2. Blade Cyclone: Chưa đủ khác Whirlwind.
+
+Trên cả snow và cave, Blade Cyclone vẫn có hình dạng tổng thể giống những vòng tròn màu cam xung quanh Warrior. Dù đã có ba height, hiệu ứng chưa tạo được cảm giác một cơn lốc đứng.
+
+Tăng chiều cao helix lên 1.8–2.1H.
+
+Giảm đường kính mặt đất về 2.4–2.6H.
+
+Tăng pitch xoắn, bố trí ba ribbon lệch pha 120°.
+
+Giảm các vòng ngang dưới đất 50–60%.
+
+Tạo một đoạn ribbon chạy phía sau đầu và một đoạn chạy phía trước chân, tránh che mặt.
+
+Mục tiêu: Whirlwind = đĩa xoay nằm ngang. Blade Cyclone = trụ xoắn dựng đứng. Nhìn frame tĩnh cũng phân biệt được.
+
+3. Inferno Crash: Ultimate vẫn chưa đủ hoành tráng.
+
+Frame cuối có vòng sáng lớn và nhiều pillar, nhưng chưa có một tâm vụ nổ cực mạnh. Nó vẫn mang cảm giác Earth Break phiên bản lửa.
+
+Đường kính shockwave giữ 4.5–5.0H.
+
+Tạo lõi nổ white-hot 0.6–0.8H trong 45–60 ms.
+
+Thêm trụ lửa trung tâm cao 2.0–2.5H, rộng ở chân, nhọn dần lên, không phải thanh sáng thẳng.
+
+Crater tối đường kính 2.5H, opacity 40–45%.
+
+Tăng rock debris lên 28–35 mảnh, gồm 6–8 mảnh lớn.
+
+Đặt flame pillars phụ theo vòng không đều; không sắp thành những cột đối xứng.
+
+Mục tiêu: Inferno Crash phải mạnh hơn Earth Break ngay ở frame đầu tiên người chơi nhìn thấy impact.
+
+P1 — Nên sửa trước khi duyệt
+
+4. Earth Break: Kiếm lớn hơn nhưng vẫn giống một thanh ánh sáng.
+
+Ở các frame 1100–2010 ms, kiếm đã có dáng rõ nhưng thân kiếm còn quá đều và phát sáng gần như toàn bộ.
+
+Giữ bề rộng hiện tại, không cần tiếp tục tăng.
+
+Tạo lõi kiếm sáng chiếm 45–55% bề ngang.
+
+Hai sidewall màu #C94125 hoặc #9E3032, chiếm tổng cộng 25–35%.
+
+Thêm cạnh sáng #FFD36B dày 0.025–0.04H.
+
+Giảm glow quanh thân kiếm 20%.
+
+Tăng cường vết nứt tại điểm cắm kiếm thêm 20–30%; giữ trong 1.5–1.8 giây.
+
+Sword hiện tại đã đủ lớn. Cần thêm khối lượng và chất liệu, không phải kích thước.
+
+5. Power Slash: Finisher thiếu một nhát chém chủ đạo.
+
+Crescent ở các frame đầu đã khá hơn, nhưng frame cuối xuất hiện nhiều vòng và ánh sáng bao quanh target. Cú chém thứ tám vẫn chưa đủ khác bảy cú trước.
+
+Cú 1–7: ribbon 0.14–0.18H.
+
+Cú 8: ribbon 0.28–0.32H, dài 1.8–2.0H.
+
+Giảm secondary circles của finisher khoảng 50%.
+
+Impact star 0.55H.
+
+Hit-stop finisher 55–65 ms.
+
+Tạo directional ground slash 0.9–1.2H, linger 350–450 ms.
+
+6. Whirlwind: Có hai blade nhưng còn quá nhiều ring phụ.
+
+Hiện tại hiệu ứng gần với concept hơn, nhưng vẫn hơi giống nhiều vòng tròn đồng tâm.
+
+Hai blade chính phải chiếm ít nhất 70% visual energy.
+
+Mỗi blade dày 0.20–0.23H, dài 130–150°.
+
+Shockwave ngoài opacity 35–45%.
+
+Giảm các secondary rings xuống tối đa hai lớp.
+
+Không để cả hai crescent tạo thành vòng tròn liên tục 360°.
+
+7. Charging Strike: Đường lao tốt, đầu va chạm chưa đủ mạnh.
+
+Đây là skill đã đạt phần lớn ngôn ngữ hình ảnh cần thiết. Nhưng tại frame impact, vệt ngang sáng hơn phần đầu đâm.
+
+Impact star tăng khoảng 30%, mục tiêu 0.6–0.7H.
+
+Shock cone dài 1.7–2.1H, mở góc 35–45°.
+
+Taper dash ribbon từ 0.14H phía sau xuống 0.04H ở đuôi.
+
+Thêm 10–14 tia lửa ngắn phóng theo hướng tiến.
+
+Giữ hit-stop 65–75 ms.
+
+P2 — Polish cuối
+
+8. Berserker Awakening: Đang có beam, chưa có cảm giác biến hình.
+
+Ở snow, beam khá nhỏ. Ở cave, dễ nhìn hơn nhưng nhân vật vẫn gần như giữ nguyên visual state.
+
+Beam rộng 0.35–0.45H, tồn tại 150–220 ms ở pha bùng phát.
+
+Red pressure wave đường kính 2.4H, opacity 65–75% lúc bắt đầu.
+
+Thêm 3 ribbon lửa ôm quanh thân cao 1.0–1.4H.
+
+Vũ khí chuyển sang emissive đỏ/cam trong 250–350 ms.
+
+Aura sau biến hình chỉ rộng 0.15–0.25H quanh nhân vật, opacity 15–22%.
+
+9. Màu lửa trên snow vẫn vàng nhiều hơn đỏ.
+
+Trong frame cuối Flame Cleave, Earth Break và Inferno Crash, vàng/cam vẫn chiếm phần lớn. Đúng là phải sáng trên tuyết, nhưng Warrior class color là đỏ.
+
+Red body nên chiếm 45–55% vùng flame.
+
+Orange highlight 25–35%.
+
+Yellow 10–15%.
+
+White-hot ≤5–8%.
+
+Dark rim phải có ở mép ngoài, không chỉ làm decal dưới đất.
+
+10. Ground decals và debris cần liên kết tốt hơn với skill.
+
+Decal đen đã có, đặc biệt tại Earth Break. Nhưng một số vùng tối trông như vệt mực thay vì đá tuyết bị phá vỡ.
+
+Snow: dùng nâu than #59423B, alpha 30–40%, thêm rìa tuyết xám.
+
+Grass: dùng nâu cháy #51372A, alpha 25–35%.
+
+Cave: dùng đen tím ấm #261B29, alpha 30–40%.
+
+Fade decal bằng dissolve/noise ở rìa, không giảm opacity đồng đều toàn bộ mảng.
+
+4. So sánh riêng ba biome
+
+Tiêu chí
+
+	
+
+Snow
+
+	
+
+Cave
+
+	
+
+Grass
+
+
+
+
+Độ nổi đỏ/cam
+
+	
+
+Tốt
+
+	
+
+Rất tốt
+
+	
+
+Tốt
+
+
+
+
+Nhìn rõ silhouette
+
+	
+
+Khá
+
+	
+
+Tốt
+
+	
+
+Khá
+
+
+
+
+Độ tương phản impact
+
+	
+
+Khá
+
+	
+
+Rất tốt
+
+	
+
+Tốt
+
+
+
+
+Ground decals
+
+	
+
+Khá
+
+	
+
+Tốt
+
+	
+
+Trung bình
+
+
+
+
+Nguy cơ rối khi đông người
+
+	
+
+Trung bình
+
+	
+
+Cao
+
+	
+
+Trung bình
+
+Snow: Cần tăng dark rim thêm 10–15 điểm phần trăm opacity, nhưng không tăng bloom.
+
+Cave: Đang là biome đẹp nhất cho Warrior VFX. Giữ brightness, giảm secondary glow thêm 10–15% ở các skill có nhiều lớp vòng.
+
+Grass: Màu tương đối hài hòa, nhưng đất/cỏ có nhiều chi tiết khiến các vệt vàng mỏng biến mất. Ưu tiên ribbon dày và red body thay vì thêm particle.
+
+5. Chốt vòng 2
+
+Hạng mục
+
+	
+
+Kết luận
+
+
+
+
+Hệ thống ribbon
+
+	
+
+PASS
+
+
+
+
+Hollow shockwave
+
+	
+
+PASS
+
+
+
+
+Impact flash
+
+	
+
+PASS
+
+
+
+
+Color consistency
+
+	
+
+PASS
+
+
+
+
+Skill identity
+
+	
+
+PARTIAL
+
+
+
+
+Heavy impact feeling
+
+	
+
+PARTIAL
+
+
+
+
+RO3-level grandeur
+
+	
+
+NOT YET
+
+
+
+
+Ready for full production
+
+	
+
+CHƯA
+
+Thứ tự làm Round 3: Flame Cleave → Blade Cyclone → Inferno Crash → Earth Break → Power Slash → Whirlwind → Charging Strike → Berserker.
+
+Không cần đập đi làm lại tám skill. Hiện tại đã có khoảng 75–80% nền tảng kỹ thuật và hình dạng cần thiết; con số này là ước lượng mức độ hoàn thiện, không phải điểm tương đồng đo được.
+
+Tôi sẽ đặt mốc duyệt Round 3 là 8.0/10. Nếu sửa đúng ba lỗi P0, có thể đạt khoảng 7.8–8.2/10. Để tiến gần RO3 8.5/10, cần polish tiếp hit timing, chất lượng mép ribbon và cảm giác va chạm.
+
+DIEM: 7.0/10
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+Medium

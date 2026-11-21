@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ZenoniaProto
 {
@@ -69,8 +69,8 @@ namespace ZenoniaProto
         {
             landed = true;
             if (!local) return; // another player's slam never moves this player's camera
-            CameraFollow.SkillShake(0.2f); // the landing only opens the barrage; the big shake waits for the finisher (Finish)
-            GameClock.HitStop(20f);
+            CameraFollow.SkillShake(0.4f); // the landing only opens the barrage; the big shake waits for the finisher (Finish)
+            GameClock.HitStop(50f); // grand pass 21/11 (was 20)
         }
 
         /// <summary>The 350 % finisher: the strongest shake, hit-stop, punch-zoom and flash of the skill (ChatGPT V3: 60 ms, 5 px).</summary>
@@ -79,7 +79,7 @@ namespace ZenoniaProto
             finished = true;
             if (!local) return;
             CameraFollow.SkillShake(0.62f);
-            GameClock.HitStop(60f);
+            GameClock.HitStop(85f); // grand pass 21/11 (ChatGPT spec 95 ms; was 60)
             CameraFollow.SkillPunch(0.6f);
             ScreenFlash.Trigger(new Color(1f, 0.45f, 0.14f, 0.1f), 0.2f);
         }

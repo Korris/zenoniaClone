@@ -1,0 +1,578 @@
+WARRIOR VFX — ROUND 1 ART DIRECTOR REVIEW
+
+Verdict: FAIL for final approval. PASS for the first technical rebuild.
+
+Round 1 has clearly improved brightness, color saturation, and combat visibility compared with the original version. But it still does not achieve the two approved concept images or RO3's visual impact.
+
+The biggest issue has shifted:
+
+Before: Effects were too thin, pale, and weak.
+
+Now: Effects are brighter but too circular, filled, flat, and repetitive.
+
+Target: Thick, directional sword energy with dark-to-bright layering, a brief explosive impact, and a readable aftermath.
+
+Your three observations are correct. I would add a fourth: six of the eight skills still rely on almost the same radial-disc visual vocabulary.
+
+1. Round 1 scores
+5.6/10
+
+Round 1 overall
+
+Previous: 5.0
+
+RO3 reference: 8.5
+
+Target: 9.0
+
+Skill
+
+	
+
+Previous
+
+	
+
+Round 1
+
+	
+
+Judgment
+
+
+
+
+Power Slash
+
+	
+
+5.5
+
+	
+
+5.5
+
+	
+
+Impact stronger; finisher still a disc
+
+
+
+
+Whirlwind
+
+	
+
+5.0
+
+	
+
+5.7
+
+	
+
+Brighter spin, no distinct dual blades
+
+
+
+
+Flame Cleave
+
+	
+
+4.5
+
+	
+
+5.2
+
+	
+
+Better fire intensity, crescent obscured
+
+
+
+
+Charging Strike
+
+	
+
+4.5
+
+	
+
+5.3
+
+	
+
+Hit clearer, weak dash direction
+
+
+
+
+Earth Break
+
+	
+
+5.5
+
+	
+
+6.3
+
+	
+
+Best improvement; still too disc-like
+
+
+
+
+Blade Cyclone
+
+	
+
+5.0
+
+	
+
+5.2
+
+	
+
+Mostly a Whirlwind duplicate
+
+
+
+
+Inferno Crash
+
+	
+
+4.0
+
+	
+
+6.0
+
+	
+
+Stronger AoE, lacks crater depth
+
+
+
+
+Berserker Awakening
+
+	
+
+3.5
+
+	
+
+5.4
+
+	
+
+Beam improved, weak transformation
+
+
+
+
+Overall
+
+	
+
+5.0
+
+	
+
+5.6
+
+	
+
+Not ready
+
+The values are art-direction assessments from the supplied sampled frames, not measured player perception.
+
+2. Skill-by-skill critique
+01. Power Slash — 5.5/10
+
+The close-up sequence shows better hit sparks and increased intensity. But the 650 ms finisher becomes an orange-red circular explosion encompassing the enemies, rather than a massive asymmetric sword slash.
+
+Fix: Remove the filled circular finisher. Use a forward-facing crescent 1.7–2.0H across, with ribbon width 0.22–0.28H, a leading-edge white strip only 0.035–0.055H thick, and a 0.45–0.65H impact star at the target. Keep the final shockwave subtle, alpha ≤0.45.
+
+02. Whirlwind — 5.7/10
+
+The circular attack is more readable on both maps, and the stronger orange edge is an improvement. But the bright ring dominates so completely that the Warrior appears to stand inside a glowing disc.
+
+Fix: Introduce two independently rotating thick crescent meshes, each covering 120–155° of the circumference. Their red-orange bodies should be approximately 0.18–0.22H thick. Reduce the continuous ring's brightness by 45–55%. Retain a faint outer wind shockwave.
+
+03. Flame Cleave — 5.2/10
+
+This is one of the largest remaining failures. In the close-ups:
+
+At 120–220 ms, the effect grows into a filled orange sector.
+
+At 220 ms, a sawtooth-like perimeter dominates the silhouette.
+
+At 400 ms, pale yellow flame pillars cover the target.
+
+By 650 ms, the main crescent is gone and only small residue remains.
+
+The final result feels more like a circular fire spell than a heavy directional sword attack.
+
+Fix: Reserve 65–75% of the visual weight for the forward-moving flaming crescent. Reduce the flash area by 65–75%; keep only 3–5 secondary pillars, each 0.5–0.9H tall. Red outer flames must remain visible around yellow cores.
+
+04. Charging Strike — 5.3/10
+
+The hit at the later sampled moment is brighter and has an identifiable impact. However, the large circular glow is not shaped like a high-speed collision, and the projectile/dash trajectory is not visually continuous enough.
+
+Fix: Replace the circular burst with a forward-pointing shock cone: 2.0H long, 0.9–1.2H wide. Add an elongated triangular white impact core, 0.4–0.6H across, and a narrowing red trail behind the Warrior. Restrict the circular shockwave to ≤0.35 opacity.
+
+05. Earth Break — 6.3/10
+
+Best-performing skill in Round 1. The descending red-gold sword is much more prominent than before, the gold energy is visible against snow, and the final frame conveys a substantial AoE.
+
+But the close-up exposes major issues:
+
+The sword still resembles a long, flat, luminous icon rather than a massive weapon.
+
+The circle under the sword is too uniform.
+
+The later impact becomes an enormous white-orange disc with a glowing ring.
+
+Cracks and debris are underrepresented compared with the blast.
+
+The extended glowing area competes with the hero and monsters.
+
+Fix: Increase blade width by approximately 60–80%, darken its red sidewalls, and replace the filled blast with an annular shockwave surrounding a smaller white-hot center. Make 6–8 cracks and the debris burst distinctly visible during the post-impact hold.
+
+06. Blade Cyclone — 5.2/10
+
+The issue is fundamental: visually, it still reads like Whirlwind with a larger orange ring. The two abilities remain difficult to distinguish at gameplay zoom.
+
+Fix: Eliminate the large filled ground circle. Make the dominant shape a tall helical structure using three ribbon strips, with a projected height of 1.6–1.9H and ground diameter of 2.4–2.8H. The ribbons should pass alternately in front of and behind the character while leaving the face visible.
+
+07. Inferno Crash — 6.0/10
+
+The impact has more intensity and energy. But the dominant shape remains a flat orange disc with multiple yellow pillars.
+
+Compared with the concept image, it lacks a convincing central crater, a strong dark inner silhouette, and irregular black debris. The result looks like an upgraded ring explosion rather than a meteor-impact ultimate.
+
+Fix: Use a 0.5–0.8H central white-hot collision area, a 2.0–2.5H tall fire pillar, a 4.5–5.0H annular shockwave, and a distinctly dark fractured crater occupying approximately 2.3–2.8H in diameter.
+
+08. Berserker Awakening — 5.4/10
+
+The vertical red beam is a major improvement. The skill is easier to identify, especially in the cave. But the transformation remains visually ordinary because the beam, floor circle, and character aura are not coordinated into a convincing burst of power.
+
+Fix: Add a concentrated 0.8–1.0H tall red-white surge around the Warrior's upper body, a 2.2–2.6H dark-red pressure wave, and 3–4 rising flame ribbons. After activation, reduce the aura to 15–22% opacity and keep it within 0.15–0.25H of the character silhouette.
+
+3. Top fixes, in strict priority order
+
+These are the changes I would give the Unity VFX programmer for Round 2.
+
+Priority
+
+	
+
+Problem
+
+	
+
+Exact correction
+
+
+
+
+P0 — 1
+
+	
+
+Shockwave rings are filled discs
+
+	
+
+Use a hollow annular mask. Inner alpha = 0 for radius ≤0.80R; visible band around 0.84–0.94R; outer alpha = 0 by 1.0R. Band width 0.05–0.09H.
+
+
+
+
+P0 — 2
+
+	
+
+White impact flashes cover everything
+
+	
+
+Reduce flash diameter by 60–75%. Center opacity 0.9–1.0; duration 35–65 ms. The rest of the shockwave must be transparent inside.
+
+
+
+
+P0 — 3
+
+	
+
+Flame Cleave loses the crescent
+
+	
+
+Render the directional flame ribbon above low flames and ground bursts. Width 0.30H, forward reach 2.5–3.2H, visible as dominant shape for 140–220 ms.
+
+
+
+
+P0 — 4
+
+	
+
+Pale yellow pillars lack depth
+
+	
+
+Make outer 35–45% of each flame width red #E72A25, middle orange #FF8B35, inner yellow #FFC45B. White occupies ≤8% of flame area.
+
+
+
+
+P1 — 5
+
+	
+
+Whirlwind and Blade Cyclone identical
+
+	
+
+Whirlwind: two flat crescents. Cyclone: three tall helical ribbons. Reduce Cyclone's flat ground ring opacity to ≤0.25.
+
+
+
+
+P1 — 6
+
+	
+
+Impact energy feels like flat UI
+
+	
+
+Add 6–10 grounded debris elements for heavy skills, red-dark shadow rims, tapered leading edges, and asymmetrical shapes.
+
+
+
+
+P1 — 7
+
+	
+
+Earth Break sword lacks mass
+
+	
+
+Blade width ×1.7; red sidewalls 0.06–0.09H each; luminous central blade; remove hollow-looking outlines.
+
+
+
+
+P1 — 8
+
+	
+
+Inferno Crash lacks a crater
+
+	
+
+6–8 major ground cracks, 24–32 rock fragments, black-brown central crater at 35–45% opacity, linger 1.5–2.3 s.
+
+
+
+
+P2 — 9
+
+	
+
+Charging Strike is too circular
+
+	
+
+Replace 70–80% of radial visual mass with a pointed, forward shock cone and directional trail.
+
+
+
+
+P2 — 10
+
+	
+
+Damage numbers obscure peaks
+
+	
+
+Move ordinary numbers upward by 0.15–0.25H, aggregate rapid minor hits into short groups, retain major crit numbers individually.
+
+Important shader correction: fix hollow shockwaves first
+
+I suspect the ring shader is applying opacity to the entire quad or its radial gradient is inverted/overly broad. The screenshots cannot prove the cause, but the visual output is unmistakably a filled disc.
+
+A proper ring needs independent inner and outer alpha boundaries, not just a bright circular texture.
+
+Use a normalized radial coordinate 
+𝑟
+r from 0 at the center to 1 at the outside:
+
+hlsl
+float inner = smoothstep(0.80, 0.86, r);
+float outer = 1.0 - smoothstep(0.94, 1.00, r);
+
+float ringAlpha = inner * outer * _Opacity;
+
+At the center, alpha must be exactly zero. Use premultiplied-alpha compositing where appropriate, and make sure emissive RGB is also masked by ringAlpha; otherwise transparent portions may still bloom in some material setups.
+
+For an expanding ring, animate its mesh radius. Don't fill the interior with an expanding opaque quad.
+
+Required visual shape
+
+Current: filled disc
+
+Target: hollow ring
+
+Schematic, top-down illustration. The actual 58° game camera will project the ground ring as an ellipse.
+4. Three biome-specific observations
+
+Area
+
+	
+
+Snow
+
+	
+
+Purple cave
+
+
+
+
+Red FX visibility
+
+	
+
+Improved noticeably
+
+	
+
+Very strong
+
+
+
+
+White-hot flash
+
+	
+
+Too broad, merges with snow
+
+	
+
+Extremely prominent
+
+
+
+
+Dark plum rims
+
+	
+
+Insufficient
+
+	
+
+Also insufficient, despite darker ground
+
+
+
+
+Orange disc problem
+
+	
+
+Severe
+
+	
+
+Severe; more visually obvious
+
+
+
+
+Ground cracks
+
+	
+
+Low contrast
+
+	
+
+Should be visible but often hidden by glow
+
+
+
+
+Warrior readability
+
+	
+
+Fair
+
+	
+
+Sometimes overwhelmed by central glow
+
+For Round 2, I would not increase overall brightness. The cave already demonstrates that the effects have enough energy. The task is to redistribute that energy into much cleaner silhouettes.
+
+Recommended per-biome adjustments
+
+Snow: Dark rim +15 percentage points opacity, bloom −20%, red body opacity +5–10 points.
+
+Grass: Base palette; preserve orange highlight and warm brown ground interaction.
+
+Purple cave: Bloom −15%, enlarge orange highlight coverage by 10–15%, avoid near-black purple rims disappearing against the cave floor by shifting those rims toward warm dark brown.
+
+5. Round 2 acceptance criteria
+
+Do not approve based only on the effects looking brighter or more colorful. Test them with damage numbers temporarily hidden, at native 1280×720 and normal gameplay zoom.
+
+Visual QA checklist
+
+0/10 passed
+
+Power Slash: eighth hit reads as an asymmetric sword crescent, not a circular blast
+Whirlwind: two opposing crescent blades remain identifiable at peak
+Flame Cleave: forward fire wall remains the primary shape through the impact
+Charging Strike: the dash and collision have one clear forward direction
+Earth Break: solid greatsword, visible cracks, and a genuinely hollow shockwave
+Blade Cyclone: recognizably taller than Whirlwind, with helical ribbons
+Inferno Crash: central crater and rock burst visible beneath the flames
+Berserker Awakening: strong transformation pulse followed by compact aura
+All eight: no large opaque white or orange discs hiding combat
+All eight: readable in both snow and purple cave at native gameplay zoom
+Copy QA results
+Final decision
+
+Round 1: 5.6/10 — not approved.
+
+I would freeze particle-count increases and overall bloom adjustments until the P0 fixes are complete. More particles will only make the existing discs more overwhelming.
+
+The rebuild has established a usable foundation: reds are stronger, impacts are visible, and dark-map contrast is adequate. Now it needs the part that matters most: sculpted shapes, clean alpha, directional forces, and disciplined impact layering.
+
+If Round 2 fixes the opaque discs, restores Flame Cleave's dominant crescent, and distinctly separates Whirlwind from Blade Cyclone, I would expect the overall quality to move toward 7.0–7.5/10, with Earth Break and Inferno Crash potentially higher.
+
+The path to 9/10 is not adding more glow. It's making every attack instantly recognizable from its silhouette alone.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+Medium

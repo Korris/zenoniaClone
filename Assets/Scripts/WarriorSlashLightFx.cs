@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// </summary>
     public static class WarriorSlashLightFx
     {
-        const float SweepMs = 90f, TailMs = 140f, Span = 62f, Squash = 0.62f, Width = 4.2f, ChestY = 10f;
+        const float SweepMs = 90f, TailMs = 150f, Span = 62f, Squash = 0.62f, Width = 5.6f, ChestY = 10f; // grand pass 21/11: 0.28 H body (basic attack stays under every skill)
 
         /// <summary>`angleDeg` = toward the contact point (0 right, 90 up); `dist` = chest to it (0 = no target).</summary>
         public static void Spawn(HeroController owner, Vector2 feet, float angleDeg, float dist, float figureScale)

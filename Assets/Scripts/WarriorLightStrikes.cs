@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
@@ -22,37 +22,44 @@ namespace ZenoniaProto
             ClericLightLook.Pal p = WarriorLightLook.Flame;
             HeroController hero = ctx.Body.Hero;
             float r = e.Radius * ctx.Units, aim = WarriorLightSkills.AngleOf(ctx.Dir), half = e.AngleDeg * 0.5f, t = e.AtMs;
-            var fx = ClericLightFx.Create("FlameCleave", ctx.Feet, null, t + 700f, ClericLightFx.DimFor(hero, null));
+            var fx = ClericLightFx.Create("FlameCleave", ctx.Feet, null, t + 1000f, ClericLightFx.DimFor(hero, null));
             Vector2 chest = new Vector2(0f, 9f);
             const float Sq = 0.6f;
             float mid = WarriorLightLook.ParamDeg(aim, Sq), a0 = mid + half, a1 = mid - half;
             if (Mathf.Sin(a1 * Mathf.Deg2Rad) > Mathf.Sin(a0 * Mathf.Deg2Rad)) { float s = a0; a0 = a1; a1 = s; }
-            float n = WarriorLightSkills.Norm(mid, Sq);
-            WarriorLightSkills.Slash(fx, ArcRibbonFx.Arc(chest, r * 0.62f / n, Sq, a0, a1), t, 80f, 240f, 0.28f * H, p, 1f, RibbonSort.Over, 1);
-            WarriorLightSkills.Slash(fx, ArcRibbonFx.Arc(chest, r * 0.86f / n, Sq, a0, a1), t + 25f, 80f, 190f, 0.15f * H, p, 0.85f, RibbonSort.Over, 0);
-            float gm = WarriorLightLook.ParamDeg(aim, ClericLightFx.Squash);                                            // boundary of the real 3-tile arc on the ground
-            ArcRibbonFx.Add(fx, ArcRibbonFx.Arc(Vector2.zero, r, ClericLightFx.Squash, gm + half, gm - half), t + 30f, 80f, 320f, 2.6f, p, 0.85f, RibbonSort.Ground, 3);
-            fx.Ground(WarriorLightLook.Fill(p), t, t + 650f, r * 0.9f, r * 1.4f, 0.9f, ClericLightFx.Squash, 0f, 3, ctx.Dir * r * 0.5f).Env(40f, 320f).Kind(LayerKind.Glow);
-            for (int i = 0; i < 7; i++)
+            // The dominant shape (ChatGPT round 1, concept): a forward WALL of fire = 3 fire crescents stacked up the arc (ground level, +0.45 H,
+            // +0.9 H, thinner as they rise), then a second sheet 50 ms later; the crescents sit above the low flames and the small hit flash.
+            float n = WarriorLightSkills.Norm(mid, Sq), rc = r * 0.7f / n;
+            // Round 2 (ChatGPT): one giant flame blade, not three separate arcs: a continuous red flame body behind the crescents (1.3 H wide,
+            // ~50 %), the middle crescent widest and brightest, the outer two at ~60 %.
+            ArcRibbonFx.Add(fx, ArcRibbonFx.Arc(chest + new Vector2(0f, 0.1f * H), rc, Sq, a0, a1), t, 95f, 330f, 1.3f * H, WarriorGrandFx.Pyre, 0.55f, RibbonSort.Over, 0, null, 6f,
+                WarriorLightLook.TrailLayer("flame-body", ClericLightLook.A(ClericLightLook.Hex(0xE83D27), 0.6f), new Color(0.5f, 0.12f, 0.02f, 1f), 0f));
+            for (int k = 0; k < 3; k++)
             {
-                float ang = aim + Mathf.Lerp(-half, half, (i + 0.5f) / 7f) * 0.85f, dist = r * (i % 2 == 0 ? 0.55f : 0.8f), t0 = t + 30f + i * 18f;
-                Vector2 at = WarriorLightSkills.Dir(ang) * dist;
-                at.y *= ClericLightFx.Squash;
-                float w = i % 2 == 0 ? 9f : 6.5f;
-                fx.Upright(WarriorLightLook.Glyph(WarriorLightLook.FlameTongue, p), ClericLightFx.Band.Over, true, t0, t0 + 460f, w * 0.6f, w, w * 0.8f, w * 2.5f, 0.9f, at, 2)
-                  .Pop(170f).Dissolve().Kind(i % 2 == 1 ? LayerKind.Detail : LayerKind.Main);
-                fx.At(t0 + 60f, f => f.Puff(false, f.Anchor + at + new Vector2(0f, 4f), 2, 3f, 26f, 1.3f, 2f, p.Light, 0.5f));
+                bool middle = k == 1;
+                Vector2 lift = chest + new Vector2(0f, (k - 0.8f) * 0.42f * H);
+                WarriorLightSkills.Slash(fx, ArcRibbonFx.Arc(lift, rc * (1f - 0.05f * k), Sq, a0, a1), t + k * 12f, 90f, 310f - k * 20f, (middle ? 0.62f : 0.4f) * H, middle ? p : WarriorGrandFx.Pyre, middle ? 1f : 0.6f, RibbonSort.Over, middle ? 5 : 3);
             }
-            fx.Upright(WarriorLightLook.Spark(p), ClericLightFx.Band.Over, false, t, t + 220f, 12f, 26f, 12f, 26f, 0.95f, chest + ctx.Dir * r * 0.5f, 3)
-              .Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Over, false, t, t + 190f, 12f, 30f, 9f, 22f, 0.75f, chest + ctx.Dir * r * 0.5f, 2)
-              .Ground(WarriorLightLook.Wave(p), t, t + 340f, r * 0.3f, 2f * r / WarriorLightLook.BandRing, 0.75f, ClericLightFx.Squash, 0f, 6)                   // shockwave to the real radius
-              .At(t, f =>
-              {
-                  f.Ring(true, f.Anchor + chest + ctx.Dir * r * 0.5f, 14, 80f, 1.6f, 2.8f, p.Light, 0.35f);
-                  UltimateFx.Debris(f.Anchor + ctx.Dir * r * 0.5f, f.Own ? 8 : 2, r * 0.3f, 80f);
-              });
-            fx.At(t, f => WarriorLightLook.Punch(ctx.Body.IsLocal, 40f, 0.24f, 0.3f, 0.06f));
-            WarriorLightSkills.SplitPulses(fx, ctx.Def.Id, t, e.Finisher, chest + ctx.Dir * r * 0.5f, p, 10f);
+            WarriorLightSkills.Slash(fx, ArcRibbonFx.Arc(chest, r * 0.92f / n, Sq, a0, a1), t + 50f, 90f, 240f, 0.36f * H, WarriorGrandFx.Pyre, 0.8f, RibbonSort.Over, 1);
+            float gm = WarriorLightLook.ParamDeg(aim, ClericLightFx.Squash);                                            // boundary of the real 3-tile arc on the ground
+            WarriorLightSkills.Slash(fx, ArcRibbonFx.Arc(Vector2.zero, r, ClericLightFx.Squash, gm + half, gm - half), t + 30f, 80f, 360f, 0.2f * H, p, 0.4f, RibbonSort.Ground, 3);
+            WarriorGrandFx.Scorch(fx, t + 20f, 1150f, ctx.Dir * r * 0.55f, r * 0.5f, p);
+            for (int i = 0; i < 3; i++)                                                                                // 3 low flames licking along the outer arc
+            {
+                float u = (i + 0.5f) / 3f, ang = aim + Mathf.Lerp(-half, half, u) * 0.8f, t0 = t + 50f + i * 25f;
+                Vector2 at = WarriorLightSkills.Dir(ang) * r * 0.88f;
+                at.y *= ClericLightFx.Squash;
+                WarriorGrandFx.Pillar(fx, t0, 520f, at, 0.55f * H, (i == 1 ? 0.9f : 0.65f) * H, p, ClericLightFx.Band.Over, 1, i == 1 ? LayerKind.Main : LayerKind.Detail);
+            }
+            WarriorGrandFx.Impact(fx, t, chest + ctx.Dir * r * 0.55f, 1.3f * H, p, 24);
+            WarriorGrandFx.Shock(fx, t, 380f, ctx.Dir * r * 0.15f, r * 0.25f, r, p, 0.45f);
+            fx.At(t, f =>
+            {
+                WarriorGrandFx.Embers(f, f.Anchor + ctx.Dir * r * 0.5f, 24, r * 0.5f, p);
+                UltimateFx.Debris(f.Anchor + ctx.Dir * r * 0.5f, f.Own ? 12 : 3, r * 0.3f, 90f);
+                WarriorLightLook.Punch(ctx.Body.IsLocal, 65f, 0.4f, 0.4f, 0.1f);
+            });
+            WarriorLightSkills.SplitPulses(fx, ctx.Def.Id, t, e.Finisher, chest + ctx.Dir * r * 0.5f, p, 14f);
         }
 
         /// <summary>
@@ -70,12 +77,14 @@ namespace ZenoniaProto
             float hitMs = strike != null ? strike.AtMs : 250f, halfW = (strike != null ? strike.Width : 2f) * ctx.Units * 0.5f;
             float dim = ClericLightFx.DimFor(hero, null);
             Vector2 from = ctx.CastFrom, dir = ctx.Dir;
-            ClericLightFx.Create("ChargeStart", from, null, 260f, dim)
-                .Ground(WarriorLightLook.Wave(p), 0f, 220f, 8f, 26f, 0.7f)
-                .At(0f, f => UltimateFx.Dust(from, f.Own ? 8 : 3, 8f));
+            var start = ClericLightFx.Create("ChargeStart", from, null, 700f, dim);
+            WarriorGrandFx.Shock(start, 0f, 260f, Vector2.zero, 4f, 1.1f * H, p, 0.9f);
+            WarriorGrandFx.Scorch(start, 0f, 600f, Vector2.zero, 0.45f * H, WarriorLightLook.Flame);
+            start.At(0f, f => UltimateFx.Dust(from, f.Own ? 10 : 3, 8f));
             var run = ClericLightFx.Create("ChargeRun", from, hero, hitMs + 40f, dim);
-            run.Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Over, false, 0f, hitMs, 3f, 4f, 3f, 4f, 0.5f, new Vector2(0f, 10f) + dir * 5f).Trail(p, 0.18f * H, 0.16f)
-               .Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Over, false, 20f, hitMs, 2f, 2f, 2f, 2f, 0.3f, new Vector2(0f, 3f)).Trail(p, 0.1f * H, 0.12f).Kind(LayerKind.Detail);
+            run.Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Over, false, 0f, hitMs, 7f, 10f, 7f, 10f, 0.9f, new Vector2(0f, 10f) + dir * 6f).Trail(p, 0.42f * H, 0.2f)
+               .Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Over, false, 20f, hitMs, 3f, 3f, 3f, 3f, 0.6f, new Vector2(0f, 3f)).Trail(p, 0.22f * H, 0.16f).Kind(LayerKind.Detail);
+            run.At(0f, f => MechanicLightBursts.Sparks(f, f.Anchor + new Vector2(0f, 4f), 10, 90f, WarriorLightSkills.AngleOf(-dir), 50f, p.Light, 0.3f, 1.8f));
             for (int i = 1; i <= 3; i++) run.At(hitMs * i / 4f, f => UltimateFx.Dust(f.Anchor, f.Own ? 3 : 1, 5f));
             bool finisher = strike != null && strike.Finisher;
             run.At(hitMs, f => Impact(f.Anchor, from, dir, halfW, dim, ctx.Body.IsLocal, p, ctx.Def.Id, finisher));
@@ -85,23 +94,23 @@ namespace ZenoniaProto
         static void Impact(Vector2 at, Vector2 from, Vector2 dir, float halfW, float dim, bool local, ClericLightLook.Pal p, string skillId, bool finisher)
         {
             Vector2 lift = new Vector2(0f, 8f), tip = dir * 10f + lift;
-            var fx = ClericLightFx.Create("ChargeHit", at, null, 620f, dim);
-            WarriorLightSkills.SplitPulses(fx, skillId, 0f, finisher, tip - dir * 14f, p, 10f);
-            WarriorLightSkills.Slash(fx, ArcRibbonFx.Line(from - at + lift, tip), 0f, 70f, 190f, 0.27f * H, p, 1f, RibbonSort.Over, 1);
-            fx.Upright(WarriorLightLook.Spark(p), ClericLightFx.Band.Over, false, 30f, 270f, 14f, 30f, 14f, 30f, 0.95f, tip, 3)
-              .Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Over, false, 30f, 220f, 12f, 30f, 10f, 24f, 0.75f, tip, 2)
-              .Ground(WarriorLightLook.Wave(p), 30f, 380f, 10f, 2f * Mathf.Max(halfW + 10f, 26f) / WarriorLightLook.BandRing, 0.85f, ClericLightFx.Squash, 0f, 6, dir * 10f)
-              .Ground(WarriorLightLook.Line(WarriorLightLook.Crack, p), 30f, 600f, 30f, 32f, 0.6f, ClericLightFx.Squash, 0f, 5, dir * 10f).Env(40f, 260f).Dissolve().Kind(LayerKind.Detail)
-              .At(40f, f =>
+            var fx = ClericLightFx.Create("ChargeHit", at, null, 1000f, dim);
+            WarriorLightSkills.SplitPulses(fx, skillId, 0f, finisher, tip - dir * 14f, p, 14f);
+            WarriorLightSkills.Slash(fx, ArcRibbonFx.Line(from - at + lift, tip + dir * 8f), 0f, 70f, 220f, 0.45f * H, p, 1f, RibbonSort.Over, 1);
+            float aimDeg = WarriorLightSkills.AngleOf(dir);                                                       // forward shock cone (ChatGPT round 1): a collision, not a disc
+            fx.Upright(WarriorLightLook.Glyph(MechanicLightLook.Flare, p), ClericLightFx.Band.Over, false, 30f, 260f, 1.0f * H, 2.2f * H, 0.5f * H, 1.1f * H, 1f, tip + dir * 0.9f * H, 4).Turn(aimDeg)
+              .Upright(WarriorLightLook.Glyph(MechanicLightLook.Flare, WarriorGrandFx.Hot), ClericLightFx.Band.Over, false, 30f, 180f, 0.5f * H, 1.2f * H, 0.25f * H, 0.5f * H, 1f, tip + dir * 0.5f * H, 5).Turn(aimDeg);
+            WarriorGrandFx.Impact(fx, 30f, tip, 1.6f * H, p, 0);
+            WarriorGrandFx.Shock(fx, 30f, 380f, dir * 10f, 6f, Mathf.Max(halfW + 10f, 1.6f * H), p, 0.35f);
+            WarriorGrandFx.Scorch(fx, 30f, 850f, dir * 10f, Mathf.Max(halfW, 0.8f * H), WarriorLightLook.Flame);
+            fx.At(40f, f =>
               {
-                  for (int k = 0; k < f.Count(16); k++)
-                  {
-                      Vector2 d = WarriorLightSkills.Dir(WarriorLightSkills.AngleOf(dir) + Random.Range(-40f, 40f));
-                      f.Emit(true, f.Anchor + tip, d * Random.Range(45f, 85f), Random.Range(1.6f, 2.6f), p.Light, Random.Range(0.25f, 0.4f));
-                  }
-                  UltimateFx.Debris(f.Anchor + dir * 10f, f.Own ? 12 : 3, 8f, 80f);
-                  UltimateFx.Dust(f.Anchor + dir * 8f, f.Own ? 12 : 4, 12f);
-                  WarriorLightLook.Punch(local, 55f, 0.38f, 0.5f, 0.06f);
+                  MechanicLightBursts.Sparks(f, f.Anchor + tip, 26, 170f, WarriorLightSkills.AngleOf(dir), 80f, p.Light, 0.36f, 2f);
+                  MechanicLightBursts.Sparks(f, f.Anchor + tip, 12, 220f, WarriorLightSkills.AngleOf(dir), 40f, WarriorGrandFx.Hot.Core, 0.22f, 1.6f);
+                  WarriorGrandFx.Embers(f, f.Anchor + tip, 10, 8f, p);
+                  UltimateFx.Debris(f.Anchor + dir * 10f, f.Own ? 16 : 4, 8f, 90f);
+                  UltimateFx.Dust(f.Anchor + dir * 8f, f.Own ? 14 : 4, 12f);
+                  WarriorLightLook.Punch(local, 70f, 0.45f, 0.5f, 0.09f);
               });
         }
     }

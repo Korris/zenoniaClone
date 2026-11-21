@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
@@ -114,7 +114,7 @@ namespace ZenoniaProto
                 Vector2 nrm = d.sqrMagnitude > 1e-6f ? new Vector2(-d.y, d.x).normalized : Vector2.up;
                 float w = width * Mathf.Pow(s, 0.7f) * (s > 0.9f ? Mathf.Lerp(1f, 0.6f, (s - 0.9f) / 0.1f) : 1f) * 0.5f;
                 Vector2 l = p + nrm * w, r = p - nrm * w;
-                Color c = s > 0.75f ? Color.Lerp(pal.Light, pal.Core, (s - 0.75f) / 0.25f) : Color.Lerp(pal.Main, pal.Light, s / 0.75f);
+                Color c = s > 0.85f ? Color.Lerp(pal.Light, pal.Core, (s - 0.85f) / 0.15f) : Color.Lerp(pal.Main, pal.Light, Mathf.Pow(s / 0.85f, 1.6f)); // body colour over most of the length, hot only at the head
                 c.a = alpha * fade * Mathf.SmoothStep(0f, 1f, s / 0.35f);
                 bool isBack = sort == RibbonSort.Split && p.y > splitY;
                 if (i > 0) Quad(isBack, prevL, prevR, l, r, prevC, c, prevS, s);
@@ -138,9 +138,11 @@ namespace ZenoniaProto
         void Quad(bool b, Vector2 l0, Vector2 r0, Vector2 l1, Vector2 r1, Color c0, Color c1, float s0, float s1)
         {
             List<Vector3> v = b ? V2 : V; List<Color> c = b ? C2 : C; List<Vector2> uv = b ? U2 : U; List<int> t = b ? T2 : T;
-            Vector3 o = transform.position;
+            // Path points are offsets from the host anchor and the mesh object sits ON the anchor, so they are already local vertices.
+            // (Until 21/11 the anchor was subtracted a second time: every ribbon drew near the world origin, off screen, and the Warrior's
+            // slashes were simply missing in game; Sổ lỗi 2026-11-21 Warrior grand pass.)
             int k = v.Count;
-            v.Add((Vector3)l0 - o); v.Add((Vector3)r0 - o); v.Add((Vector3)l1 - o); v.Add((Vector3)r1 - o);
+            v.Add(l0); v.Add(r0); v.Add(l1); v.Add(r1);
             c.Add(c0); c.Add(c0); c.Add(c1); c.Add(c1);
             uv.Add(new Vector2(s0, 1f)); uv.Add(new Vector2(s0, 0f)); uv.Add(new Vector2(s1, 1f)); uv.Add(new Vector2(s1, 0f));
             t.Add(k); t.Add(k + 2); t.Add(k + 1); t.Add(k + 1); t.Add(k + 2); t.Add(k + 3);

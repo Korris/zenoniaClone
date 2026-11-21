@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
@@ -77,7 +77,7 @@ namespace ZenoniaProto
         void Slam()
         {
             if (NetMode.RendersFx) GameSfx.Play("skills/warrior/earth-break-impact", 0.9f);
-            if (Local) { CameraFollow.SkillShake(0.35f); GameClock.HitStop(20f); }
+            if (Local) { CameraFollow.SkillShake(0.6f); GameClock.HitStop(55f); } // grand pass 21/11: the sword landing is a heavy hit
         }
 
         /// <summary>Small hit i of 8 around the planted sword: no shake, no push (ChatGPT V3).</summary>
@@ -104,7 +104,7 @@ namespace ZenoniaProto
             List<Monster> hit = SkillDamage.Radial(center, Radius, atk, m, 0f, true, null, 0f, hero, Share(m));
             for (int i = 0; i < hit.Count; i++) hit[i].Launch();
             if (!Local) return;
-            GameClock.HitStop(45f); // ChatGPT V3: 45 ms for the Earth Break finisher
+            GameClock.HitStop(80f); // grand pass 21/11 (ChatGPT spec 85 ms; was 45)
             CameraFollow.SkillShake(1f);
             CameraFollow.SkillPunch(1f);
             ScreenFlash.Trigger(new Color(1f, 0.55f, 0.15f, 0.1f), 0.18f);

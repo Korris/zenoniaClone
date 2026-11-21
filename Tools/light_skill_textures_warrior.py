@@ -1,4 +1,4 @@
-"""Warrior RO3 Soft Fantasy V1 masks (2026-11-21, rules at the top of docs/sprite-rules.md, Warrior skills redone as shader FX).
+﻿"""Warrior RO3 Soft Fantasy V1 masks (2026-11-21, rules at the top of docs/sprite-rules.md, Warrior skills redone as shader FX).
 
 Grey masks on black like every light-skill texture (LightBlob reads the red channel, colour comes from the material: WarriorLightLook),
 written by `Tools/build-light-skill-textures.py gen war-sigil war-crack war-flame` (or `python Tools/light_skill_textures_warrior.py`):
@@ -115,8 +115,91 @@ def war_greatsword(w=128, h=384):
     return np.clip(body + fuller + edge, 0, 1)
 
 
-MAKERS = {"war-sigil": war_sigil, "war-crack": war_crack, "war-flame": war_flame, "war-greatsword": war_greatsword}
-GAME_SIZE = {"war-sigil": (512, 512), "war-crack": (256, 256), "war-flame": (64, 128), "war-greatsword": (64, 192)}
+def _noise(shape, seed, scale):
+    """Smooth value noise 0..1 (bilinear upsampled random grid)."""
+    from PIL import Image
+    rng = np.random.default_rng(seed)
+    g = rng.random((max(2, shape[0] // scale), max(2, shape[1] // scale)))
+    im = Image.fromarray((g * 255).astype(np.uint8), "L").resize((shape[1], shape[0]), Image.BICUBIC)
+    return np.asarray(im, dtype=np.float32) / 255.0
+
+
+def war_flame_grand(w=128, h=256):
+    """Grand pass (21/11, user: warrior skills "chán, không có hiệu ứng gì mạnh mẽ"): a fire pillar of 3 licks with a noisy edge,
+    graded rim (low values -> dark red rim tone) -> body -> white-hot low core, so the Glyph tone shows a dark rim and a hot centre."""
+    x, y = _grid(w, h)
+    v = (1 - y) / 2
+    n = _noise((h, w), 5, 10) - 0.5
+    body = np.zeros_like(x)
+    for cx, top, wid, ph in ((0.0, 1.0, 0.72, 0.0), (-0.36, 0.72, 0.42, 1.7), (0.38, 0.8, 0.44, 3.1)):
+        vv = np.clip(v / top, 0, 1.2)
+        wave = 0.12 * np.sin(vv * 7.0 + ph) * vv
+        half = wid * np.clip(vv / 0.16, 0, 1) ** 0.5 * np.clip(1 - vv, 0, 1) ** 1.1
+        d = np.abs(x - cx - wave + n * 0.18 * vv) - half
+        body = np.maximum(body, np.clip(-d / 0.16, 0, 1))
+    core = np.exp(-((x + n * 0.1) / 0.3) ** 2 - ((v - 0.22) / 0.24) ** 2)
+    foot = np.clip(v / 0.05, 0, 1)
+    return np.clip((body * 0.62 + core * 0.45 * body) * foot, 0, 1)
+
+
+def war_greatsword_grand(w=128, h=384):
+    """Grand pass: a broad blazing great sword (tip down) with a winged guard and a gem; edges graded so the rim tone shows."""
+    x, y = _grid(w, h)
+    v = (1 - y) / 2
+    u = x * w / h
+    blade_half = 0.2 * np.clip(v / 0.18, 0, 1) ** 0.7
+    edge_in = np.clip((blade_half - np.abs(u)) / np.maximum(blade_half, 1e-3), 0, 1)  # 0 at the edge .. 1 on the centre line
+    inside = np.clip((blade_half - np.abs(u)) / 0.012, 0, 1) * (v < 0.66)
+    fuller = np.exp(-(u / 0.035) ** 2) * (v > 0.1) * (v < 0.62)
+    blade = inside * np.clip(0.3 + 0.45 * np.clip(edge_in / 0.45, 0, 1) + 0.35 * fuller, 0, 1)  # dark rim band -> body -> hot fuller
+    gy = v - 0.69
+    wing = np.clip((0.3 - np.abs(u)) / 0.02, 0, 1) * np.clip((0.035 + 0.05 * (np.abs(u) / 0.3) ** 2 - np.abs(gy - 0.03 * (np.abs(u) / 0.3) ** 2)) / 0.012, 0, 1)
+    grip = np.clip((0.04 - np.abs(u)) / 0.012, 0, 1) * (v > 0.71) * (v < 0.9) * 0.7
+    pommel = np.clip((0.06 - np.hypot(u, (v - 0.94) * 2.0)) / 0.015, 0, 1)
+    gem = np.clip((0.045 - np.hypot(u, (v - 0.69) * 2.0)) / 0.012, 0, 1)
+    return np.clip(np.maximum.reduce([blade, wing * 0.8, grip, pommel * 0.85, gem]), 0, 1)
+
+
+def war_shock(s=512):
+    """Thick ground shockwave: sharp bright front at 0.9 of the quad radius, a solid band trailing inward to ~0.55 with radial streaks."""
+    x, y = _grid(s)
+    r = np.hypot(x, y); a = np.arctan2(y, x)
+    front = np.exp(-((r - 0.89) / 0.035) ** 2)
+    trail = np.clip((r - 0.79) / 0.1, 0, 1) ** 1.2 * (r < 0.89)   # a hollow band ~10 % of the radius (centre alpha 0), not a filled disc (round 1: read as an orange sun)
+    streak = 0.8 + 0.2 * np.sin(a * 37 + np.sin(a * 5) * 2)
+    return np.clip(front * 1.0 + trail * 0.6 * streak, 0, 1) * (r < 1)
+
+
+def war_scorch(s=256, seed=13):
+    """Scorched ground decal: an irregular blotch, darker / denser at the centre, ragged noisy edge, soot specks."""
+    x, y = _grid(s)
+    r = np.hypot(x, y); a = np.arctan2(y, x)
+    n = _noise((s, s), seed, 16); n2 = _noise((s, s), seed + 1, 10)
+    edge = 0.72 + 0.16 * np.sin(a * 5 + 1.3) + 0.22 * (n - 0.5)
+    blot = np.clip((edge - r) / 0.25, 0, 1)
+    return np.clip(blot * (0.55 + 0.45 * n2) * (0.7 + 0.3 * np.clip(1 - r, 0, 1)), 0, 1) * (r < 1)
+
+
+def war_burst(s=256, seed=3):
+    """Spiky impact burst: 12 sharp rays of mixed length round a hot disc (the white-hot hit flash)."""
+    rng = np.random.default_rng(seed)
+    x, y = _grid(s)
+    r = np.hypot(x, y); a = np.arctan2(y, x)
+    rays = np.zeros_like(r)
+    for k in range(12):
+        t = k * np.pi / 6 + rng.uniform(-0.12, 0.12)
+        ln = rng.uniform(0.62, 0.98) if k % 2 == 0 else rng.uniform(0.4, 0.62)
+        da = np.angle(np.exp(1j * (a - t)))
+        half = 0.16 * np.clip(1 - r / ln, 0, 1)
+        rays = np.maximum(rays, np.clip((half - np.abs(da)) / 0.04, 0, 1) * (r < ln))
+    disc = np.clip((0.32 - r) / 0.12, 0, 1)
+    return np.clip(np.maximum(rays * 0.8, disc), 0, 1) * (r < 1)
+
+
+MAKERS = {"war-sigil": war_sigil, "war-crack": war_crack, "war-flame": war_flame_grand, "war-greatsword": war_greatsword_grand,
+          "war-shock": war_shock, "war-scorch": war_scorch, "war-burst": war_burst}
+GAME_SIZE = {"war-sigil": (512, 512), "war-crack": (256, 256), "war-flame": (128, 256), "war-greatsword": (128, 384),
+             "war-shock": (256, 256), "war-scorch": (128, 128), "war-burst": (128, 128)}
 
 
 if __name__ == "__main__":

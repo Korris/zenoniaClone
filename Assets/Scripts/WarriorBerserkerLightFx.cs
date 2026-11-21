@@ -1,14 +1,15 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Cast burst of the Warrior's BERSERKER AWAKENING in "RO3 Soft Fantasy V1" (2026-11-21; replaces the painted fx/berserker burst frames). A strong
-    /// buff (rule 1: 5-6 layers, within ~1.8 H, four clear phases), Rage palette (gold-orange: rule 8 ATK buff gold, pushed warm for the class):
-    ///  - 0-180 lead-in (the clenched fists): a war seal draws itself in under the hero at ~40 %, motes drawn in;
-    ///  - 180 roar (= BerserkerAwakeningFx.RoarMs): the seal flares to 100 % then holds ~55 %, a wave to 1.8 H, a soft flash behind the chest,
-    ///    4 flame tongues licking up round the body (2 behind, 2 at the front sides, never over the face), 2 arrows rising at the sides, sparks;
-    ///  - fades by ~900 ms. The maintained part is the body ring in BerserkerAwakeningFx (rule 10 exception).
+    /// Cast burst of the Warrior's BERSERKER AWAKENING (21/11: first "RO3 Soft Fantasy V1" pass, then the GRAND pass: a transformation, not a
+    /// status icon; spec + concept in docs/reference/warrior-fx-grand/). A self buff, so it stays round the hero (~2.5 H) and never covers the
+    /// face; Rage palette (red-orange, gold, white-hot core, dark rim):
+    ///  - 0-180 lead-in (the clenched fists): a war seal draws itself in under the hero, a red glow gathers on the body, motes drawn in;
+    ///  - 180 roar (= BerserkerAwakeningFx.RoarMs): a red-white beam up behind him, a thick dark-red pressure wave to 2.6 H, the seal flares,
+    ///    6 flame pillars licking up round the body (3 behind, 3 at the front sides), a flash behind the chest, sparks / embers, a short scorch;
+    ///  - fades by ~1100 ms. The maintained part is the body ring in BerserkerAwakeningFx (rule 10 exception).
     /// </summary>
     public static class WarriorBerserkerLightFx
     {
@@ -18,31 +19,37 @@ namespace ZenoniaProto
         {
             if (!WarriorLightLook.Ready || hero == null) return;
             ClericLightLook.Pal p = WarriorLightLook.Rage;
-            float sq = ClericLightFx.Squash, seal = 1.6f * H / WarriorLightLook.SigilBand;
-            Material tongue = WarriorLightLook.Glyph(WarriorLightLook.FlameTongue, p), arrow = ClericLightLook.M(ClericLightLook.Arrow, p, ClericLightLook.Role.Glyph);
-            var fx = ClericLightFx.Create("Berserker", hero.Position, hero, roarMs + 760f, ClericLightFx.DimFor(hero, null));
-            fx.Ground(WarriorLightLook.Line(WarriorLightLook.Sigil, p), 0f, roarMs + 700f, seal * 0.92f, seal, 0.8f, sq, -40f, 4)
-                .Reveal(roarMs).Phases(roarMs, roarMs + 110f, 0.4f, 0.55f).Env(0f, 220f)
-              .Ground(WarriorLightLook.Fill(p), 0f, roarMs + 600f, H * 0.9f, H * 1.6f, 0.85f).Env(120f, 260f).Kind(LayerKind.Glow)
-              .Ground(WarriorLightLook.Wave(p), roarMs, roarMs + 280f, H * 0.5f, 1.8f * H / WarriorLightLook.BandRing, 0.8f, sq, 0f, 6)
-              .Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Behind, false, roarMs, roarMs + 170f, 8f, 18f, 8f, 18f, 0.8f, new Vector2(0f, 10f), 1);
-            float[] xs = { -5f, 5f, -9.5f, 9.5f };
+            float sq = ClericLightFx.Squash, seal = 1.8f * H / WarriorLightLook.SigilBand;
+            var fx = ClericLightFx.Create("Berserker", hero.Position, hero, roarMs + 950f, ClericLightFx.DimFor(hero, null));
+            fx.Ground(WarriorLightLook.Line(WarriorLightLook.Sigil, p), 0f, roarMs + 800f, seal * 0.92f, seal, 0.95f, sq, -40f, 4)
+                .Reveal(roarMs).Phases(roarMs, roarMs + 110f, 0.5f, 0.7f).Env(0f, 240f)
+              .Ground(WarriorLightLook.Fill(p), 0f, roarMs + 700f, H * 1f, H * 1.8f, 1f).Env(120f, 280f).Kind(LayerKind.Glow)
+              .Upright(WarriorLightLook.Fill(p), ClericLightFx.Band.Behind, false, 0f, roarMs + 80f, H * 0.6f, H * 1.4f, H * 0.8f, H * 1.7f, 1f, new Vector2(0f, 10f), 0).Env(roarMs * 0.9f, 80f)
+              .Upright(WarriorLightLook.Glyph(ClericLightLook.Streak, p), ClericLightFx.Band.Behind, true, roarMs, roarMs + 420f, 0.9f * H, 1.3f * H, 2.6f * H, 3.6f * H, 1f, new Vector2(0f, 0f), 1).Pop(120f).Dissolve()
+              .Upright(WarriorLightLook.Glyph(ClericLightLook.Streak, WarriorGrandFx.Hot), ClericLightFx.Band.Behind, true, roarMs, roarMs + 300f, 0.4f * H, 0.6f * H, 2.2f * H, 3.2f * H, 1f, new Vector2(0f, 0f), 2).Pop(110f).Dissolve();
+            WarriorGrandFx.Shock(fx, roarMs, 380f, Vector2.zero, H * 0.4f, H * 1.25f, p, 0.75f);
+            for (int k = 0; k < 3; k++)                                                                    // 3 flame ribbons spiralling up round the body (ChatGPT round 2)
+            {
+                float a0 = k * 120f;
+                WarriorLightSkills.Slash(fx, u => new Vector2(Mathf.Cos((a0 + u * 540f) * Mathf.Deg2Rad) * 0.55f * H, Mathf.Sin((a0 + u * 540f) * Mathf.Deg2Rad) * 0.55f * H * sq + u * 1.4f * H),
+                    roarMs + k * 30f, 320f, 200f, 0.22f * H, WarriorGrandFx.Pyre, 1f, RibbonSort.Behind, 3, hero, 6f, true);
+            }
+            WarriorGrandFx.Impact(fx, roarMs, new Vector2(0f, 10f), 1.3f * H, p, 18, ClericLightFx.Band.Behind);
+            WarriorGrandFx.Scorch(fx, roarMs, 700f, Vector2.zero, H * 0.6f, WarriorLightLook.Flame);
+            float[] xs = { -6f, 0f, 6f, -11f, 11f, 0f };
             for (int i = 0; i < xs.Length; i++)
             {
-                bool back = i < 2;
-                float t0 = roarMs + i * 25f;
-                fx.Upright(tongue, back ? ClericLightFx.Band.Behind : ClericLightFx.Band.Front, true, t0, t0 + 460f, 4f, 6.5f, 6f, back ? 22f : 15f, 0.85f, new Vector2(xs[i], back ? 2f : -1f), 2)
-                  .Pop(150f).Dissolve().Kind(back ? LayerKind.Main : LayerKind.Detail);
+                bool back = i < 3;
+                float t0 = roarMs + i * 22f;
+                WarriorGrandFx.Pillar(fx, t0, 520f, new Vector2(xs[i], back ? 3f : (i == 5 ? -5f : -1f)), (back ? 0.55f : 0.42f) * H, (back ? 1.6f : 1f) * H, p,
+                    back ? ClericLightFx.Band.Behind : ClericLightFx.Band.Front, 2, back ? LayerKind.Main : LayerKind.Detail);
             }
-            for (int s = -1; s <= 1; s += 2)
-                fx.Upright(arrow, ClericLightFx.Band.Over, false, roarMs + 40f, roarMs + 520f, 5f, 6f, 5f, 6f, 0.85f, new Vector2(s * 13f, 9f), 3).Pop(120f).Rise(10f);
-            fx.At(0f, f => In(f, 20f, 4, p.Light))
-              .At(90f, f => In(f, 16f, 3, p.Light))
+            fx.At(0f, f => In(f, 22f, 6, p.Light))
+              .At(90f, f => In(f, 16f, 5, p.Light))
               .At(roarMs, f =>
               {
-                  f.Ring(true, f.Anchor + new Vector2(0f, 6f), 10, 70f, 1.6f, 2.6f, p.Light, 0.35f);
-                  f.Puff(false, f.Anchor + new Vector2(0f, 2f), 6, 9f, 30f, 1.3f, 2f, p.Main, 0.7f);
-                  UltimateFx.Dust(f.Anchor, f.Own ? 8 : 3, 12f);
+                  WarriorGrandFx.Embers(f, f.Anchor + new Vector2(0f, 6f), 18, 12f, p);
+                  UltimateFx.Dust(f.Anchor, f.Own ? 10 : 3, 14f);
               });
         }
 
