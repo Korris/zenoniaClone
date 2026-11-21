@@ -28,6 +28,10 @@ namespace ZenoniaProto
             new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Divine Aegis", Ahead = 0f, Spread = 40f, Count = 3, Hold = 2.4f },
             new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Heal", Ahead = 0f, Spread = 40f, Count = 3, Hold = 1.6f },
             new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Divine Light", Ahead = 48f, Spread = 20f, Count = 5, Hold = 1.8f },
+            new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Sanctuary", Ahead = 0f, Spread = 40f, Count = 3, Hold = 3.2f },
+            new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Guardian Spirit", Ahead = 0f, Spread = 40f, Count = 3, Hold = 2.4f },
+            new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Purification", Ahead = 0f, Spread = 34f, Count = 5, Hold = 1.8f },
+            new ChoreoShot { Cls = HeroClass.Cleric, Skill = "Divine Ascension", Ahead = 0f, Spread = 50f, Count = 6, Hold = 2.6f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Ice Storm", Ahead = 26f, Spread = 34f, Count = 6, Hold = 3.2f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Arcane Bolt", Ahead = 76f, Spread = 8f, Count = 3, Hold = 2.0f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Fireball", Ahead = 84f, Spread = 16f, Count = 4, Hold = 2.2f },
@@ -69,7 +73,7 @@ namespace ZenoniaProto
                 int castAt = frame + 24, endAt = castAt + Mathf.RoundToInt(s.Hold * 60f), breakAt = s.BreakAt > 0f ? castAt + Mathf.RoundToInt(s.BreakAt * 60f) : -1;
                 for (; frame < endAt; frame++)
                 {
-                    if (frame == castAt - 12 && s.Skill == "Heal") { hero.God = false; hero.TakeDamage(Mathf.RoundToInt(hero.MaxHp * 0.5f), true); hero.God = true; } // Heal needs a hurt ally (the caster)
+                    if (frame == castAt - 12 && (s.Skill == "Heal" || s.Skill == "Sanctuary" || s.Skill == "Divine Ascension")) { hero.God = false; hero.TakeDamage(Mathf.RoundToInt(hero.MaxHp * 0.5f), true); hero.God = true; } // heals need a hurt ally (the caster)
                     if (frame == castAt) Debug.Log("[ZenoniaProto] choreo cast " + s.Skill + " => " + CastByName(hero, s.Skill));
                     if (frame == breakAt) { GameObject go = GameObject.Find("Choreo_mana-shield"); if (go != null) go.GetComponent<SkillChoreoPlayer>().End(true); }
                     yield return new WaitForEndOfFrame();

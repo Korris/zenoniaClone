@@ -3,7 +3,8 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The gold swirl of Spirit Blessing (concept tay-buff-concept-1 / 4): a small light head circling a hero on a flat ellipse, leaving a mesh
+    /// A light line circling a hero (Spirit Blessing: two gold lines running up the body; Divine Aegis: two blue arcs round it; RO3 spec 4.2 / 4.3):
+    /// a small light head moving on a flat ellipse, leaving a mesh
     /// trail (TrailRenderer + LightTrail), so the arc bends round the body in space. On the far half of the ellipse it sorts just behind the hero,
     /// on the near half just over the hero's own layers (never in the crowd-wide FX band). Two modes: `lifeMs` &gt; 0 = one rising spiral from
     /// y0 to y1 then it stops emitting and dies (receive burst); `lifeMs` &lt;= 0 = loops forever between y0 and y1, its owner sets Alpha and
@@ -30,8 +31,7 @@ namespace ZenoniaProto
             o.hero = hero; o.rx = rx; o.ry = ry; o.y0 = y0; o.y1 = y1; o.periodMs = Mathf.Max(100f, periodMs); o.lifeMs = lifeMs; o.phase = phase;
             o.trailMs = trailSec * 1000f; o.dim = dim; o.headColor = look.Light; o.tailColor = look.Main;
             go.transform.position = o.Point(0f);
-            o.trail = ClericAttackLightFx.MakeTrail(go.transform, width, trailSec, dim);
-            o.trail.sharedMaterial = look.Trail;
+            o.trail = ClericAttackLightFx.MakeTrail(go.transform, width, trailSec, dim, look.P);
             o.head = LightSkillAssets.Quad(go.transform, "Head", look.Head, false, 0);
             o.head.transform.localScale = new Vector3(width * 1.6f, width * 1.6f, 1f);
             o.Lay();

@@ -1,91 +1,61 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The moment a hero receives Spirit Blessing (+ATK) / Divine Aegis (+DEF) (2026-11-21, concept docs/reference/cleric-buff-status-concept/
-    /// tay-buff-concept-1 = ATK, -2 = DEF, -3 = both). ~0.85 s, then ClericBuffStatusFx takes over with the small maintained look.
-    ///  - ATK: warm gold light column rising behind the hero, gold compass rune circle on the ground, two gold swirl arcs spiralling up round
-    ///    the body (mesh trails), a round gold sword emblem with up-arrows over the head, cream sparks;
-    ///  - DEF: cyan-jade light column, compass circle, a see-through dome dropping over the hero (fresnel: rim brighter than the face; in front only the rim, the face stays
-    ///    clear), a shield emblem with up-arrows, ice motes;
-    ///  - receiving one while the other already runs plays only the received buff's burst; the combined picture is the maintained look.
-    /// Columns sit behind the hero, emblems in the FX band above the name. Crowd tiers come in as `dim` (ClericLightFx.DimFor).
-    /// 21/11 08:00 bold Midgard colour (ClericBuffStatusLook): layer alphas raised so the solid body reads 0.6-0.75 and the rims 0.75-0.9,
-    /// swirl ribbons 40 % wider.
+    /// The moment a hero receives Spirit Blessing (+ATK) / Divine Aegis (+DEF), RO3 Soft Fantasy V1 (spec 4.2 / 4.3). Then ClericBuffStatusFx
+    /// takes over with the dim maintained look.
+    ///  - ATK (650 ms, Holy gold / ivory): a 4-point gold star over the head, a thin gold ring 1.3 H under the feet, two gold light lines running
+    ///    up round the body (mesh trails), 6 gold motes. No column, no arrows: one symbol (rule 1).
+    ///  - DEF (750 ms, pale blue + gold): a blue-gold hexagon 1.4 H under the feet, a see-through shield in front of the chest (only its rim and a
+    ///    faint face, the hero stays visible), two blue arcs circling the body (1.4 H), an ivory flash behind the chest at the start.
+    ///  - receiving one while the other already runs plays only the received buff's burst (user 21/11); the combined picture is the maintained look.
+    /// Emblems sit in the FX band above the name tag; crowd tiers come in as `dim` (ClericLightFx.DimFor).
     /// </summary>
     public static class ClericBuffReceiveFx
     {
-        public const float Ms = 850f;
-        // Emblem: +25 % (14 -> 17.5) and its centre at ~54 units: the name sits ~30 above the feet, 0.3 units / px at 720p, so ~25 px clear of it.
-        // Dome: -10 % width, -6.5 % height (review 21/11: it reached the monster next to the hero).
-        const float Squash = 0.6f, EmblemY = 49f, EmblemS0 = 11f, EmblemS1 = 17.5f, DomeW = 40f, DomeH = 43f, DomeBaseV = 0.28f;
+        public const float AtkMs = 650f, DefMs = 750f;
+        const float StarY = 44f, ShieldY = 11f; // star centre ~14 units over the name tag (~30), shield on the chest
 
-        /// <summary>`hero` just received the `atk` (else def) buff; `otherRuns` = the other Cleric buff is already on them (combined look).</summary>
         public static void Receive(HeroController hero, bool atk, float dim)
         {
             if (hero == null || !ClericBuffStatusLook.Ready) return;
-            // The burst shows only the buff just received (user 21/11: Aegis on a hero that still had Blessing showed the sword emblem too);
-            // the combined picture is left to the maintained look (ClericBuffStatusFx) while both run.
-            Play(hero, atk, !atk, dim);
+            if (atk) Atk(hero, dim); else Def(hero, dim);
             ClericBuffStatusFx.Ensure(hero, ClericBuffStatusFx.HoldAfterReceiveMs);
         }
 
-        static void Play(HeroController t, bool atk, bool def, float dim)
+        static void Atk(HeroController t, float dim)
         {
-            ClericBuffStatusLook.Set A = ClericBuffStatusLook.Atk, D = ClericBuffStatusLook.Def, s = atk ? A : D;
-            var fx = ClericLightFx.Create("BuffReceive", t.Position, t, Ms, dim).Particles(ClericBuffStatusLook.Spark, ClericBuffStatusLook.Mote);
-
-            // Ground: halo pool + compass rune circle (review 21/11: 12 % smaller, centred under the feet)
-            fx.Ground(s.Halo, 0f, 780f, 20f, 40f, 1f, Squash)
-              .Ground(s.Compass, 0f, Ms, 26f, 40f, 0.95f, Squash, 0f, 5).Arc(atk ? 4.5f : -4.5f, 0f, 2);
-
-            // Light column behind the hero
-            fx.Upright(s.Column, ClericLightFx.Band.Behind, true, 0f, 780f, 24f, 19f, 54f, 68f, 1f, new Vector2(0f, -2f), -3); // behind the dome too
-
-            // DEF: the dome drops over the hero (standing quads, base line at 28 % of the height on the feet). Fresnel: the face behind the
-            // hero is nearly clear (~0.1), the rim 0.35-0.45; in front of the hero only the rim, so the face is never tinted.
-            if (def)
-            {
-                Vector2 off = new Vector2(0f, -DomeBaseV * DomeH);
-                fx.Upright(D.Dome, ClericLightFx.Band.Behind, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.75f, off, -2)
-                  .Upright(D.DomeRim, ClericLightFx.Band.Behind, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.85f, off, -1)
-                  .Upright(D.DomeRim, ClericLightFx.Band.Front, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.65f, off);
-            }
-
-            // Emblem (+25 %, dark outline, low bloom) + up-arrows, well above the name tag and HP bar
-            fx.Upright(s.EmblemOutline, ClericLightFx.Band.Over, false, 60f, Ms, EmblemS0, EmblemS1, EmblemS0, EmblemS1, 0.95f, new Vector2(0f, EmblemY), 1).Rise(5f)
-              .Upright(s.Emblem, ClericLightFx.Band.Over, false, 60f, Ms, EmblemS0, EmblemS1, EmblemS0, EmblemS1, 1f, new Vector2(0f, EmblemY), 2).Rise(5f);
-            Arrow(fx, s, -12f, 100f); Arrow(fx, s, 12f, 170f);
-
-            // Small flash behind the chest, sparks, swirls (feet to waist only)
-            fx.Upright(s.Flash, ClericLightFx.Band.Behind, false, 0f, 140f, 6f, 12f, 6f, 12f, 0.6f, new Vector2(0f, 9f), 1);
-            if (atk)
-            {
-                Color cream = A.Light;
-                fx.At(0f, f => ClericBlessingLightFx.SideSparks(f, 6, cream, 0.45f));
-                if (dim >= 0.5f || fx.Own)
-                {
-                    float d = dim;
-                    fx.At(0f, f => { ClericBuffOrbitTrail.Spawn(f.transform, t, A, 12f, 4.5f, 1f, 12f, 520f, 720f, 0f, 3.1f, 0.28f, d); });
-                    fx.At(60f, f => { ClericBuffOrbitTrail.Spawn(f.transform, t, A, 12f, 4.5f, 1f, 12f, 520f, 720f, Mathf.PI, 3.1f, 0.28f, d); });
-                }
-            }
-            else
-            {
-                Color ice = D.Light, cyan = D.Main;
-                fx.At(60f, f => f.Puff(false, f.Anchor + new Vector2(0f, 4f), 6, 11f, 20f, 1.8f, 2.8f, new Color(cyan.r, cyan.g, cyan.b, 0.85f), 0.55f))
-                  .At(120f, f => f.Puff(true, f.Anchor + new Vector2(0f, 12f), 5, 14f, 14f, 1.5f, 2.3f, new Color(ice.r, ice.g, ice.b, 0.95f), 0.45f));
-            }
+            ClericLightLook.Pal p = ClericLightLook.Holy;
+            var fx = ClericLightFx.Create("BlessingReceive", t.Position, t, AtkMs, dim);
+            fx.Ground(ClericLightLook.M(ClericLightLook.RuneRing, p, ClericLightLook.Role.Line), 0f, AtkMs, 18f / 0.955f, 27f / 0.955f, 0.85f, ClericLightFx.Squash, 18f, 5).Env(50f, 260f)
+              .Upright(ClericLightLook.M(ClericLightLook.Star, p, ClericLightLook.Role.Glyph), ClericLightFx.Band.Over, false, 40f, AtkMs, 7f, 12f, 7f, 12f, 1f, new Vector2(0f, StarY), 2).Rise(3f).Env(70f, 240f)
+              .Upright(ClericLightLook.M(ClericLightLook.Core, p, ClericLightLook.Role.Flash), ClericLightFx.Band.Over, false, 40f, 220f, 5f, 12f, 5f, 12f, 0.55f, new Vector2(0f, StarY), 1)
+              .At(60f, f => f.Puff(false, f.Anchor + new Vector2(0f, 4f), 6, 10f, 22f, 1.6f, 2.4f, ClericLightLook.A(p.Main, 0.9f), 0.5f));
+            ClericBuffStatusLook.Set A = ClericBuffStatusLook.Atk;
+            if (fx.Lod == FxTier.Far) return; // strangers: no swirl ribbons
+            float d = dim;
+            fx.At(0f, f => ClericBuffOrbitTrail.Spawn(f.transform, t, A, 11f, 4f, 1f, 20f, 480f, 560f, 0f, 1.8f, 0.18f, d))
+              .At(50f, f => ClericBuffOrbitTrail.Spawn(f.transform, t, A, 11f, 4f, 1f, 20f, 480f, 560f, Mathf.PI, 1.8f, 0.18f, d));
         }
 
-        static void Arrow(ClericLightFx fx, ClericBuffStatusLook.Set s, float x, float t0)
+        static void Def(HeroController t, float dim)
         {
-            fx.Upright(s.Arrow, ClericLightFx.Band.Over, false, t0, Ms - 40f, 4.2f, 4.9f, 5.4f, 6.3f, 0.9f, new Vector2(x, EmblemY - 6f), 3).Rise(10f);
+            ClericLightLook.Pal p = ClericLightLook.Guard;
+            var fx = ClericLightFx.Create("AegisReceive", t.Position, t, DefMs, dim);
+            fx.Ground(ClericLightLook.M(ClericLightLook.Band, p, ClericLightLook.Role.Fill), 0f, 620f, 16f, 28f, 1f).Kind(LayerKind.Glow)
+              .Ground(ClericLightLook.M(ClericLightLook.Hexagon, p, ClericLightLook.Role.Line), 0f, DefMs, 20f, 29f, 0.9f, ClericLightFx.Squash, -14f, 5).Env(50f, 300f)
+              .Upright(ClericLightLook.M(ClericLightLook.Shield, p, ClericLightLook.Role.Line), ClericLightFx.Band.Front, false, 80f, DefMs, 12f, 15f, 13f, 16.5f, 0.42f, new Vector2(0f, ShieldY), 1).Env(90f, 300f)
+              .Upright(ClericLightLook.M(ClericLightLook.Core, p, ClericLightLook.Role.Flash), ClericLightFx.Band.Behind, false, 0f, 170f, 6f, 13f, 6f, 13f, 0.65f, new Vector2(0f, 10f), 1)
+              .At(120f, f => ClericBlessingLightFx.SideSparks(f, 6, p.Core, 0.45f));
+            ClericBuffStatusLook.Set D = ClericBuffStatusLook.Def;
+            if (fx.Lod == FxTier.Far) return;
+            float d = dim;
+            fx.At(40f, f => ClericBuffOrbitTrail.Spawn(f.transform, t, D, 13f, 4.5f, 6f, 16f, 600f, 640f, 0f, 1.8f, 0.2f, d))
+              .At(40f, f => ClericBuffOrbitTrail.Spawn(f.transform, t, D, 13f, 4.5f, 16f, 6f, 600f, 640f, Mathf.PI, 1.8f, 0.2f, d));
         }
 
-        /// <summary>Map change: drop the de-dup times (heroes of the old map).</summary>
+        /// <summary>Map change: nothing kept per hero any more (kept for ProxySpawner.ClearForTransfer).</summary>
         public static void Clear() { }
     }
 }

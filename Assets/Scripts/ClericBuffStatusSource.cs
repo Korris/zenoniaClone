@@ -5,7 +5,7 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// How long a hero's Spirit Blessing (slot 0, +ATK) / Divine Aegis (slot 1, +DEF) really has left, for the maintained status picture
+    /// How long a hero's Spirit Blessing (slot 0, +ATK) / Divine Aegis (slot 1, +DEF) / Guardian Spirit shield (slot 2, 2026-11-21) really has left, for the maintained status picture
     /// (ClericBuffStatusFx), on every side:
     ///  - offline / authority: the hero's own BuffState (HeroBuffs);
     ///  - client, local hero: the server's SelfState buff list (HeroBuffs.ActiveFor);
@@ -15,10 +15,10 @@ namespace ZenoniaProto
     /// </summary>
     public static class ClericBuffStatusSource
     {
-        public const int Atk = 0, Def = 1;
+        public const int Atk = 0, Def = 1, Guard = 2, Slots = 3;
         static readonly Dictionary<HeroController, float[]> NetEnd = new Dictionary<HeroController, float[]>();
         static readonly List<BuffView> Views = new List<BuffView>(6);
-        static byte atkSource = BuffSource.None, defSource = BuffSource.None;
+        static byte atkSource = BuffSource.None, defSource = BuffSource.None, guardSource = BuffSource.None;
         static bool resolved;
 
         static void Resolve()
@@ -29,14 +29,15 @@ namespace ZenoniaProto
             {
                 if (d.Id == ClericBuffFx.BlessingId) atkSource = BuffSource.Pack(d.Class, d.Index);
                 else if (d.Id == ClericBuffFx.AegisId) defSource = BuffSource.Pack(d.Class, d.Index);
+                else if (d.Id == ClericLightSkills.GuardianId) guardSource = BuffSource.Pack(d.Class, d.Index);
             }
         }
 
-        /// <summary>Atk / Def for a packed buff source, -1 for any other skill's buff.</summary>
+        /// <summary>Atk / Def / Guard for a packed buff source, -1 for any other skill's buff.</summary>
         public static int SlotOf(byte source)
         {
             Resolve();
-            return source == BuffSource.None ? -1 : source == atkSource ? Atk : source == defSource ? Def : -1;
+            return source == BuffSource.None ? -1 : source == atkSource ? Atk : source == defSource ? Def : source == guardSource ? Guard : -1;
         }
 
         /// <summary>Client: an AllyBuff event played at server time `serverMs` (the buff runs `msLeft` more on the server; 0 = removed).</summary>
@@ -45,12 +46,12 @@ namespace ZenoniaProto
             int slot = SlotOf(source);
             if (h == null || slot < 0) return;
             float[] end;
-            if (!NetEnd.TryGetValue(h, out end)) NetEnd[h] = end = new float[2];
+            if (!NetEnd.TryGetValue(h, out end)) NetEnd[h] = end = new float[Slots];
             end[slot] = msLeft > 0 ? (float)serverMs + msLeft : 0f;
             if (msLeft > 0) ClericBuffStatusFx.Ensure(h, ClericBuffStatusFx.HoldForCastMs); // the cast replay (same batch) plays the receive burst first
         }
 
-        /// <summary>ms left of the hero's Atk / Def Cleric buff (0 = none).</summary>
+        /// <summary>ms left of the hero's Atk / Def / Guard Cleric buff (0 = none).</summary>
         public static float LeftMs(HeroController h, int slot)
         {
             if (h == null || h.IsDead) return 0f;
@@ -60,7 +61,7 @@ namespace ZenoniaProto
                 return NetEnd.TryGetValue(h, out end) && end[slot] > 0f ? Mathf.Max(0f, end[slot] - NetClient.ServerNowMs) : 0f;
             }
             Resolve();
-            byte want = slot == Atk ? atkSource : defSource;
+            byte want = slot == Atk ? atkSource : slot == Def ? defSource : guardSource;
             HeroBuffs.ActiveFor(h, Views); // authority: the real state; client local hero: the server's list
             for (int i = 0; i < Views.Count; i++) if (Views[i].Source == want && Views[i].LeftMs > 0f) return Views[i].LeftMs;
             return 0f;

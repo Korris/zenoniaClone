@@ -201,6 +201,13 @@ namespace ZenoniaProto
             UltimateFx.Embers(new Vector2(feet.x, feet.y + 6f), 8, 7f, 30f, new Color(0.7f, 1f, 0.5f, 1f));
         }
 
+        /// <summary>Only the green heal number (Cleric light FX, RO3 rule 11: #8CDD74; the light FX draws the rest, no rings / embers / screen tint).</summary>
+        public static void HealNumber(Vector2 feet, int healed)
+        {
+            if (!NetMode.RendersFx) return;
+            DamageNumber.Spawn(feet.x, feet.y + 30f, "+" + healed, ClericLightLook.HealNumber, true);
+        }
+
         /// <summary>Cleric Heal skill: green number, holy rings, rising sparkles and a soft screen tint.</summary>
         public static void Heal(Vector2 feet, int healed)
         {

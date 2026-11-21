@@ -4,6 +4,14 @@
 > Người dùng chốt 21/11: TƯƠNG LAI MỌI MAP chuyển sang 2.5D (bắt đầu từ Willowbrook, làm lại hình ảnh thành khu rừng kiểu RO3 / Midgard Senki); skill mọi class theo "RO3 Soft Fantasy V1" (đầu `docs/sprite-rules.md`), màu theo đúng RO3.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 21/11 08:40 Cleric: cả 8 skill + đánh thường làm lại theo "RO3 Soft Fantasy V1", màu pastel RO3 (agent, XONG code, CHỜ người dùng thử trong game)
+- Người dùng: "làm giống bên RO3 luôn đi" (cả màu): thay màu đậm Midgard (3248c37f) và màu vàng / xanh concept. Báo cáo đủ: `plans/reports/cleric-ro3-style-8-skills-261121.md`; Sổ lỗi `docs/sprite-rules.md` 21/11.
+- Heal, Spirit Blessing, Divine Aegis, Divine Light, Sanctuary, Guardian Spirit, Purification, Divine Ascension + đánh thường: particle + mesh trail + shader, bảng màu theo chức năng (`ClericLightLook`), 8 mask mới (`Tools/light_skill_textures_cleric_ro3.py`), LOD 40 người (`ClericLightFxLod.cs`), `LightBlob` thêm `_Dissolve`. Sanctuary / Guardian / Purification / Ascension không còn sprite khi bật FX ánh sáng; choreo + frame sprite cũ GIỮ cho `--cleric-fx legacy`, xoá sau khi duyệt.
+- Duy trì buff: giữ 2 vòng quanh thân nhưng còn 30 % độ sáng (quy tắc 10), DEF bị đánh loé vòng + khiên 150 ms; Guardian Spirit: quầng nhỏ trên đầu 25 %, loé khi bị đánh, cánh loé nếu khiên vỡ sớm. Không hiện tên skill khi cast (người dùng 21/11). Số hồi máu skill Cleric không còn vòng / tàn lửa / loé màn hình cũ.
+- Divine Light KHÔNG bay đạn (sát thương ở 0 ms: tia từ trên rơi xuống + sao); Divine Ascension bùng ở 100 ms theo `SkillTable`.
+- Exe `D:/temp/player-cleric-ro3/Zenonia.exe` (bản sao gồm cả code map / bóng đổ chưa commit của agent khác lúc build). `--record-choreo` 8 skill: cả 8 cast True, không exception. CHƯA xem ảnh / trong game: màu pastel trên tuyết + cỏ, cỡ, LOD đám đông.
+- Câu hỏi: đánh thường + Divine Light vàng ngà (RO3) hay pha xanh lá màu class? Muốn đạn bay cho Divine Light (đổi atMs + build server)? Đổi 2 vòng sang biểu tượng nhỏ RO3?
+
 ### 21/11 07:55 Bóng đổ mềm FakeSun: hero, pet, quái, boss, cây, nhà, đá (agent, XONG code, CHỜ người dùng thử trong game)
 - Người dùng: "map mình chưa có hiệu ứng đổ bóng của nhân vật cho tới cây cối"; ChatGPT: "Tạo một FakeSun quản lý hướng nắng và màu bóng toàn map". Spec: mục "Phần bóng đổ" của `docs/reference/cleric-buff-status-concept/midgard-fx-map-rings-shadows-chatgpt.md`.
 - Thiết kế: `Assets/Scripts/Shadows/FakeSun.cs` là nguồn duy nhất: hướng bóng màn hình (0,75; 0,66) ~41° xuống-phải, độ dài 0,3, màu theo map (mặc định #536B69, tuyết #667B8E cho Frost Hollow / Frostfang Den, đất #766B69 cho 3 map sa mạc), trần 0,40, feather 0,32, luật blob từng loại, alpha bóng prop, công tắc. Đổi số ở đây + `FakeSun.Changed()` là mọi bóng đổi theo.

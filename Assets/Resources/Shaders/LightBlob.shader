@@ -11,6 +11,9 @@
 //  _RimColor (a = amount): body colour of the stroke edges (mask below _RimEnd), a darker rim that keeps the shape on snow / pale roads.
 //  _HiColor (a = amount): body colour where the mask passes _HiStart (glyph / stroke centre), the highlight tone.
 //  _GlowPow: the additive pass uses mask^_GlowPow: >1 narrows the glow to the stroke cores (10-20 % of the width), no wide bleaching halo.
+// Optional (default 0 changes nothing), added 2026-11-21 for the Cleric RO3 Purification (bad status breaking apart):
+//  _Dissolve (0 whole .. 1 gone, per renderer): procedural value noise over the quad, pixels whose noise is under the threshold vanish,
+//         so a blob crumbles into specks instead of fading evenly.
 Shader "ZenoniaProto/LightBlob"
 {
     Properties
@@ -30,6 +33,7 @@ Shader "ZenoniaProto/LightBlob"
         _HiColor ("Highlight colour (a = amount)", Color) = (1, 1, 1, 0)
         _HiStart ("Mask where the highlight starts", Float) = 0.8
         _GlowPow ("Glow narrowing power", Float) = 1
+        _Dissolve ("Dissolve", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -39,7 +43,7 @@ Shader "ZenoniaProto/LightBlob"
         CGINCLUDE
         #include "UnityCG.cginc"
         sampler2D _MainTex;
-        float _Falloff, _CoreWhite, _Fade, _Hollow, _Solid, _RimEnd, _HiStart, _GlowPow;
+        float _Falloff, _CoreWhite, _Fade, _Hollow, _Solid, _RimEnd, _HiStart, _GlowPow, _Dissolve;
         float4 _EmissionColor, _BodyColor, _Arc, _ArcTint, _RimColor, _HiColor;
 
         struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; };
@@ -69,6 +73,21 @@ Shader "ZenoniaProto/LightBlob"
 
         float Mask(float2 uv) { return RawMask(uv) * _Fade; }
 
+        // Dissolve: 1 = kept, 0 = gone. Value noise (two octaves) of the quad uv, threshold _Dissolve, soft 0.08 edge.
+        float Hash(float2 p) { return frac(sin(dot(p, float2(127.1, 311.7))) * 43758.5453); }
+        float Noise(float2 p)
+        {
+            float2 i = floor(p), f = frac(p);
+            f = f * f * (3.0 - 2.0 * f);
+            return lerp(lerp(Hash(i), Hash(i + float2(1, 0)), f.x), lerp(Hash(i + float2(0, 1)), Hash(i + float2(1, 1)), f.x), f.y);
+        }
+        float Keep(float2 uv)
+        {
+            if (_Dissolve <= 0.0) return 1.0;
+            float n = Noise(uv * 7.0) * 0.65 + Noise(uv * 17.0) * 0.35;
+            return smoothstep(_Dissolve * 1.08 - 0.04, _Dissolve * 1.08 + 0.04, n);
+        }
+
         // 1 inside the bright arc(s), 0 outside (soft edge over the outer 55 % of the half width).
         float ArcMask(float2 uv)
         {
@@ -93,7 +112,7 @@ Shader "ZenoniaProto/LightBlob"
                 if (_RimColor.a > 0.0) c = lerp(c, _RimColor.rgb, (1.0 - smoothstep(_RimEnd * 0.35, _RimEnd, raw)) * _RimColor.a);
                 if (_HiColor.a > 0.0) c = lerp(c, _HiColor.rgb, smoothstep(_HiStart, min(1.0, _HiStart + 0.15), raw) * _HiColor.a);
                 if (_ArcTint.a > 0.0) c = lerp(c, _ArcTint.rgb, ArcMask(i.uv) * _ArcTint.a);
-                return half4(c, saturate(raw * _Solid) * _Fade * _BodyColor.a);
+                return half4(c, saturate(raw * _Solid) * _Fade * _BodyColor.a * Keep(i.uv));
             }
             ENDCG
         }
@@ -108,6 +127,7 @@ Shader "ZenoniaProto/LightBlob"
                 float raw = RawMask(i.uv), m = raw * _Fade;
                 float g = (_GlowPow != 1.0 ? pow(raw, _GlowPow) : raw) * _Fade;
                 if (_Arc.z < 0.999) { float k = lerp(_Arc.z, 1.0, ArcMask(i.uv)); m *= k; g *= k; }
+                float keep = Keep(i.uv); m *= keep; g *= keep;
                 return half4(_EmissionColor.rgb * g + _CoreWhite * m * m * m, 1.0);
             }
             ENDCG

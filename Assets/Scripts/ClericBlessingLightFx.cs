@@ -5,15 +5,14 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Light picture of Spirit Blessing (+ATK ally buff). ClericBuffFx still runs the caster's raise-hand pose; times are its (cast 620 ms, hand up at
-    /// 110 ms, streams 180-460 ms), the buff itself is skill data (applied at the cast, atMs 0). 2026-11-21: warm gold / cream after the concept the
-    /// user picked (docs/reference/cleric-buff-status-concept/tay-buff-concept-1.png, ClericBuffStatusLook.Atk), replacing the teal pass of 20/11:
-    ///  - caster: gold halo pool + gold compass rune circle with a running bright arc, a small cream light over the raised hand, cream sparks
-    ///    spiralling up;
-    ///  - one stream per ally (cream head + gold ribbon, mesh trail), landing at StreamToMs; the caster receives at StreamFromMs;
-    ///  - receive burst: ClericBuffReceiveFx (column, compass circle, swirls, sword emblem); after it ClericBuffStatusFx keeps the small maintained
-    ///    look for the buff's real time.
-    /// Crowd tiers (ClericLightFx.DimFor): own / on me full, party 70 %, others 35 % with a quarter of the particles.
+    /// Light picture of Spirit Blessing (+ATK ally buff), RO3 Soft Fantasy V1 (spec 4.2 CLERIC_SPIRIT_BLESSING_V1, Blessing + Impositio Manus),
+    /// Holy palette gold #F2D078 / ivory #FFF1BC / core #FFFBE5. ClericBuffFx still runs the caster's raise-hand pose; times are its (cast 620 ms,
+    /// hand up at 110 ms, streams 180-460 ms), the buff itself is skill data (applied at the cast, atMs 0, 60 s).
+    ///  - caster: a faint gold pool + a thin gold ring 1.3 H under the feet with a bright arc running round, a small ivory light over the raised
+    ///    hand, 6 gold motes / sparks spiralling up (no light column: RO3 keeps none for the +ATK time);
+    ///  - one stream per ally (ivory head + gold ribbon, mesh trail), landing at StreamToMs; the caster receives at StreamFromMs;
+    ///  - receive burst: ClericBuffReceiveFx (star over the head, ring, two light lines up the body); then ClericBuffStatusFx keeps the dim ring.
+    /// Crowd tiers: ClericLightFx.DimFor / ClericLightFxLod.
     /// </summary>
     public static class ClericBlessingLightFx
     {
@@ -23,23 +22,22 @@ namespace ZenoniaProto
         public static void Cast(HeroController caster, List<HeroController> targets, float buffMs)
         {
             if (caster == null || !ClericBuffStatusLook.Ready) return;
-            ClericBuffStatusLook.Set g = ClericBuffStatusLook.Atk;
-            Color cream = g.Light, gold = g.Main;
-            var fx = ClericLightFx.Create("Blessing", caster.Position, caster, CastMs, ClericLightFx.DimFor(caster, null)).Particles(ClericBuffStatusLook.Spark, ClericBuffStatusLook.Mote);
-            fx.Ground(g.Halo, 0f, 560f, 22f, 38f, 1f, 0.6f)
-              .Ground(g.Compass, 0f, 600f, 26f, 36f, 0.85f, 0.6f, 0f, 5).Arc(4f, 0f, 2)
-              .Upright(g.Flash, ClericLightFx.Band.Over, false, RaiseMs, 480f, 4f, 9f, 4f, 9f, 0.6f, new Vector2(0f, HandLift));
-            for (int i = 0; i < 12; i++)
+            ClericLightLook.Pal p = ClericLightLook.Holy;
+            var fx = ClericLightFx.Create("Blessing", caster.Position, caster, CastMs, ClericLightFx.DimFor(caster, null));
+            fx.Ground(ClericLightLook.M(ClericLightLook.Band, p, ClericLightLook.Role.Fill), 0f, 560f, 16f, 28f, 1f).Kind(LayerKind.Glow)
+              .Ground(ClericLightLook.M(ClericLightLook.RuneRing, p, ClericLightLook.Role.Arc), 0f, CastMs, 18f / 0.955f, 27f / 0.955f, 0.9f, ClericLightFx.Squash, 0f, 5).Arc(5f, 0f, 2).Env(60f, 260f)
+              .Upright(ClericLightLook.M(ClericLightLook.Core, p, ClericLightLook.Role.Flash), ClericLightFx.Band.Over, false, RaiseMs, 480f, 4f, 8f, 4f, 8f, 0.65f, new Vector2(0f, HandLift));
+            for (int i = 0; i < 6; i++)
             {
                 int k = i;
-                fx.At(RaiseMs + k * 38f, f =>
+                fx.At(RaiseMs + k * 50f, f =>
                 {
                     if (!f.Own && k % 3 != 0) return;
                     float a = k * 2.4f;
-                    Vector2 p = f.Anchor + new Vector2(Mathf.Cos(a) * 10f, Mathf.Sin(a) * 4f + 2f);
+                    Vector2 at = f.Anchor + new Vector2(Mathf.Cos(a) * 10f, Mathf.Sin(a) * 4f + 2f);
                     bool spark = k % 2 == 1;
-                    f.Emit(spark, p, new Vector2(-Mathf.Sin(a) * 8f, 26f), spark ? UnityEngine.Random.Range(1.6f, 2.4f) : UnityEngine.Random.Range(2f, 2.8f),
-                        spark ? new Color(cream.r, cream.g, cream.b, 0.95f) : new Color(gold.r, gold.g, gold.b, 0.85f), 0.5f);
+                    f.Emit(spark, at, new Vector2(-Mathf.Sin(a) * 8f, 24f), spark ? UnityEngine.Random.Range(1.6f, 2.2f) : UnityEngine.Random.Range(1.8f, 2.6f),
+                        spark ? ClericLightLook.A(p.Light, 0.95f) : ClericLightLook.A(p.Main, 0.9f), 0.5f);
                 });
             }
             LaunchAll(fx, caster, targets, true);
@@ -62,20 +60,20 @@ namespace ZenoniaProto
             }
         }
 
-        /// <summary>`n` sparks rising beside the body (left / right of the silhouette, never across the face). Also used by Heal.</summary>
+        /// <summary>`n` sparks rising beside the body (left / right of the silhouette, never across the face). Also used by Heal, Guardian Spirit.</summary>
         public static void SideSparks(ClericLightFx f, int n, Color c, float life)
         {
             n = f.Count(n);
             for (int i = 0; i < n; i++)
             {
                 float side = i % 2 == 0 ? 1f : -1f;
-                Vector2 p = f.Anchor + new Vector2(side * UnityEngine.Random.Range(6f, 10f), UnityEngine.Random.Range(1f, 14f));
-                f.Emit(true, p, new Vector2(side * UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(16f, 26f)), UnityEngine.Random.Range(1.5f, 2.4f),
+                Vector2 at = f.Anchor + new Vector2(side * UnityEngine.Random.Range(6f, 10f), UnityEngine.Random.Range(1f, 14f));
+                f.Emit(true, at, new Vector2(side * UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(16f, 26f)), UnityEngine.Random.Range(1.5f, 2.3f),
                     new Color(c.r, c.g, c.b, 0.95f), life * UnityEngine.Random.Range(0.8f, 1.15f));
             }
         }
 
-        /// <summary>One light stream from the caster's raised hand to an ally's chest: arcing light head + ribbon in the buff's colours, `onLand` when it arrives.</summary>
+        /// <summary>One light stream from the caster's raised hand to an ally's chest: arcing light head + short ribbon in the buff's colours, `onLand` when it arrives.</summary>
         public sealed class Stream : MonoBehaviour
         {
             HeroController from, to;
@@ -93,15 +91,10 @@ namespace ZenoniaProto
                 s.from = from; s.to = to; s.side = left ? 1f : -1f; s.flightMs = Mathf.Max(1f, flightMs); s.onLand = onLand;
                 go.transform.position = s.At(0f);
                 s.head = LightSkillAssets.Quad(go.transform, "Head", look.Head, false, FeelConfig.FxOrder - 12);
-                s.head.transform.localScale = new Vector3(6f, 6f, 1f);
-                LightSkillAssets.Set(s.head, dim);
-                s.trail = ClericAttackLightFx.MakeTrail(go.transform, dim >= 0.99f ? 2.6f : 1.4f, 0.16f, dim);
-                s.trail.sharedMaterial = look.Trail;
-                var g = new Gradient(); // light tone at the head, main colour along the ribbon
-                g.SetKeys(
-                    new[] { new GradientColorKey(look.Light, 0f), new GradientColorKey(look.Main, 0.3f), new GradientColorKey(look.Main, 1f) },
-                    new[] { new GradientAlphaKey(dim, 0f), new GradientAlphaKey(0.7f * dim, 0.35f), new GradientAlphaKey(0f, 1f) });
-                s.trail.colorGradient = g;
+                s.head.transform.localScale = new Vector3(5f, 5f, 1f);
+                bool own = ClericLightFx.TierOf(dim) == FxTier.Own;
+                LightSkillAssets.Set(s.head, own ? 1f : 0.6f);
+                s.trail = ClericAttackLightFx.MakeTrail(go.transform, own ? 2.4f : 1.3f, 0.15f, own ? 1f : 0.5f, look.P); // 0.06-0.12 H, 0.15 s tail (rule 9)
             }
 
             Vector3 At(float t)

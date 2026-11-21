@@ -67,14 +67,17 @@ namespace ZenoniaProto
         public static void HealOne(SkillContext ctx, HeroController h, float amount)
         {
             float healed = ctx.Authority ? new HeroSkillBody(h).Heal(amount) : Mathf.Min(amount, h.MaxHp - h.Hp);
-            if (ctx.View && healed > 0.5f) { HeroFx.Heal(h.Position, Mathf.RoundToInt(healed)); Sparkle(ctx, h); }
+            if (!ctx.View || healed <= 0.5f) return;
+            if (ClericLightSkills.Handles(ctx.Def.Id)) HeroFx.HealNumber(h.Position, Mathf.RoundToInt(healed)); // RO3 look: the light FX is the picture, only the number here
+            else HeroFx.Heal(h.Position, Mathf.RoundToInt(healed));
+            Sparkle(ctx, h);
         }
 
         /// <summary>The target's sparkle. A choreography draws the caster and its one target itself, so only the other allies get the translucent one.</summary>
         static void Sparkle(SkillContext ctx, HeroController h)
         {
             if (ClericBuffFx.Handles(ctx.Def.Id)) return; // every target wears its own aura
-            if (ClericLightSkills.Handles(ctx.Def.Id)) { if (h != ctx.Body.Hero && h != ctx.Ally) ClericLightSkills.AllySpark(h, ctx.Body.Hero); return; } // the light FX draws the caster's target itself
+            if (ClericLightSkills.Handles(ctx.Def.Id)) { ClericLightSkills.OnTarget(ctx, h); return; } // the Cleric light FX decides per skill (tick flash, shield burst, ally spark)
             if (!SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) SkillVfx.Play(ctx, SkillVfxSet.Impact, h.Position, 0f, SparkleTiles * ctx.Units);
             else if (h != ctx.Body.Hero && h != ctx.Ally) SkillVfx.PlayOnAlly(ctx, h.Position, SparkleTiles * ctx.Units);
         }

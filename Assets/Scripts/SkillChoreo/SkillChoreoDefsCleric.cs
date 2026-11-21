@@ -14,6 +14,9 @@ namespace ZenoniaProto
         public static void Register(List<Choreo> into)
         {
             // Heal and Divine Light: RO3-style light FX since 2026-11-20 (ClericLightSkills), their painted choreographies and frames were removed.
+            // Sanctuary, Guardian Spirit, Purification, Divine Ascension: RO3 Soft Fantasy V1 light FX since 2026-11-21 (ClericLightSkills); these
+            // painted choreographies only play with `--cleric-fx legacy` (or when the light shaders are missing). Remove them with their frames once
+            // the light versions are approved in game.
             into.Add(Sanctuary()); into.Add(GuardianSpirit()); into.Add(Purification()); into.Add(DivineAscension());
         }
 

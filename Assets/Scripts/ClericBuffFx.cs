@@ -14,6 +14,7 @@ namespace ZenoniaProto
     /// and since that evening Divine Aegis too (ClericAegisLightFx); this class still runs the caster's raise-hand pose for both buffs, and the painted
     /// blue Divine Aegis only with `--cleric-fx legacy` (or when the light shaders are missing). 2026-11-21: the light path draws the receive burst
     /// (ClericBuffReceiveFx) and a maintained status per hero (ClericBuffStatusFx) that follows the buff's REAL time, not the cast's.
+    /// 2026-11-21 (later): both redone in RO3 Soft Fantasy V1 colours / shapes (ClericLightLook).
     /// </summary>
     public sealed class ClericBuffFx : MonoBehaviour
     {
