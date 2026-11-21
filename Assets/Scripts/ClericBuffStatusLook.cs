@@ -3,30 +3,31 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Materials of the Cleric buff STATUS look (2026-11-21, concept the user picked: docs/reference/cleric-buff-status-concept/tay-buff-concept-1..4.png,
-    /// ChatGPT https://chatgpt.com/c/6b005a53-8a78-83ec-8011-ed9ffd5160b2): Spirit Blessing (+ATK) = warm gold / cream, Divine Aegis (+DEF) = clear
-    /// cyan-jade (21/11 in-game review; was sky / ice blue). Replaces the teal Buff* look of 20/11 for these two buffs (Heal keeps ClericLightLook.Buff*).
-    /// Midgard rules kept: transparent layered light, the saturated alpha body carries every shape (reads with Bloom off and on a pale road),
-    /// the additive part stays low (warm colours on a bright road burn white, Sổ lỗi 2026-11-19 portal), no dark outline.
-    /// Masks: Resources/Sprites/fx/light-skill buff-compass / buff-dome / buff-emblem-sword / buff-emblem-shield / buff-arrow
+    /// Materials of the Cleric buff look: Spirit Blessing (+ATK) = amber gold, Divine Aegis (+DEF) = cyan-jade (concept the user picked 21/11:
+    /// docs/reference/cleric-buff-status-concept/tay-buff-concept-1..4.png). Heal keeps ClericLightLook.Buff*.
+    /// 2026-11-21 08:00, bold Midgard Senki colour (user: "nên làm hiệu ứng skill màu đậm như này mới thấy rõ, hiện tại vẫn nhạt lắm"; spec
+    /// docs/reference/cleric-buff-status-concept/midgard-fx-map-rings-shadows-chatgpt.md section 1): solid colour body (alpha blend, ~65 %) over a
+    /// narrow glow (~35 %): LightBlob _Solid turns the soft strokes into solid, thicker bands, a darker rim colour on their edges, the highlight
+    /// tone at their centre, the additive part narrowed to the stroke cores (_GlowPow) and kept low (warm colours on a pale road burn white,
+    /// Sổ lỗi 2026-11-19 portal); white only in tiny cores / sparks. The maintained look is two rings round the body (BodyRing, ClericBuffBodyRing).
+    /// Masks: Resources/Sprites/fx/light-skill buff-compass / buff-dome / buff-dome-rim / buff-emblem-* / buff-arrow
     /// (Tools/build-light-skill-textures.py + light_skill_textures_cleric_buff.py), plus the shared portal-veil / burst-ring / meteor-core.
     /// </summary>
     public static class ClericBuffStatusLook
     {
-        // 21/11 in-game review (docs/reference/cleric-buff-status-concept/ingame-review-chatgpt.md): gold more amber and contrasty on snow
-        // (rim #E9A63F, core #FFF0B5, swirl #F4BC63); DEF moved from sky / ice blue (too close to the Frost Slime) to cyan-jade.
-        public static readonly Color AtkCream = Hex(0xFFF0B5), AtkGold = Hex(0xF4BC63), AtkAmber = Hex(0xE9A63F), AtkOutline = Hex(0x9B612B);
-        public static readonly Color DefIce = Hex(0xD8FFFF), DefSky = Hex(0x49C9D7), DefDeep = Hex(0x36B8C8), DefFace = Hex(0x80E4ED), DefOutline = Hex(0x267F9C), DefRim = Hex(0xF2FBFF);
+        // Midgard palette (ChatGPT 21/11 section 1.4): rim, body, highlight, core
+        public static readonly Color AtkRim = Hex(0xA96519), AtkBody = Hex(0xE9A32D), AtkHi = Hex(0xFFD56A), AtkCore = Hex(0xFFF1BA);
+        public static readonly Color DefRim = Hex(0x126E91), DefBody = Hex(0x16B8D2), DefHi = Hex(0x75EAF0), DefCore = Hex(0xD6FCFF);
 
-        /// <summary>One buff's colour set. Main = shape colour, Light = highlights / particles, Deep = thin lines that must read on snow / a pale road.</summary>
+        /// <summary>One buff's colour set. Main = body colour, Light = highlight / particles, Deep = dark rim.</summary>
         public sealed class Set
         {
             public Color Main, Light, Deep;
-            public Material Halo, Compass, Ring, Column, Emblem, EmblemOutline, Arrow, Flash, Head, Trail, Dome, DomeRim, DomeSide;
+            public Material Halo, Compass, Ring, Column, Emblem, EmblemOutline, Arrow, Flash, Head, Trail, Dome, DomeRim, BodyRing;
         }
 
         public static Set Atk, Def;
-        /// <summary>Neutral particle materials: the particle colour alone decides the hue (gold sparks, ice motes).</summary>
+        /// <summary>Neutral particle materials: the particle colour alone decides the hue (gold sparks, cyan motes).</summary>
         public static Material Spark, Mote;
         static bool built, failed;
 
@@ -43,77 +44,104 @@ namespace ZenoniaProto
             if (built) return;
             built = true;
             const string F = "Sprites/fx/light-skill/";
-            Shader particle = Resources.Load<Shader>("Shaders/LightParticle");
-            Texture2D domeRim = Resources.Load<Texture2D>(F + "buff-dome-rim"), domeSide = Resources.Load<Texture2D>(F + "buff-dome-side"),
+            Shader particle = Resources.Load<Shader>("Shaders/LightParticle"), ringShader = Resources.Load<Shader>("Shaders/BuffBodyRing");
+            Texture2D domeRim = Resources.Load<Texture2D>(F + "buff-dome-rim"),
                 swordLine = Resources.Load<Texture2D>(F + "buff-emblem-sword-outline"), shieldLine = Resources.Load<Texture2D>(F + "buff-emblem-shield-outline");
             Texture2D compass = Resources.Load<Texture2D>(F + "buff-compass"), dome = Resources.Load<Texture2D>(F + "buff-dome"),
                 sword = Resources.Load<Texture2D>(F + "buff-emblem-sword"), shield = Resources.Load<Texture2D>(F + "buff-emblem-shield"),
                 arrow = Resources.Load<Texture2D>(F + "buff-arrow"), veil = Resources.Load<Texture2D>(F + "portal-veil"), band = Resources.Load<Texture2D>(F + "burst-ring"),
                 core = Resources.Load<Texture2D>(F + "meteor-core"), cross = Resources.Load<Texture2D>(F + "holy-cross"), mote = Resources.Load<Texture2D>(F + "portal-mote");
-            if (!LightSkillAssets.Ready || particle == null || !particle.isSupported || compass == null || dome == null || sword == null || shield == null || arrow == null
-                || veil == null || band == null || core == null || cross == null || mote == null || domeRim == null || domeSide == null || swordLine == null || shieldLine == null)
+            if (!LightSkillAssets.Ready || particle == null || !particle.isSupported || ringShader == null || !ringShader.isSupported || compass == null || dome == null
+                || sword == null || shield == null || arrow == null || veil == null || band == null || core == null || cross == null || mote == null || domeRim == null
+                || swordLine == null || shieldLine == null)
             {
                 Debug.LogWarning("[ZenoniaProto] Cleric buff status FX: shader / texture missing, Spirit Blessing / Divine Aegis draw no status");
                 failed = true;
                 return;
             }
             veil.wrapMode = TextureWrapMode.Repeat;
-            foreach (Texture2D t in new[] { compass, dome, sword, shield, arrow, band, core, cross, mote, domeRim, domeSide, swordLine, shieldLine }) t.wrapMode = TextureWrapMode.Clamp;
+            foreach (Texture2D t in new[] { compass, dome, sword, shield, arrow, band, core, cross, mote, domeRim, swordLine, shieldLine }) t.wrapMode = TextureWrapMode.Clamp;
 
-            // Additive glow: warm gold kept low (R and G both high burn a pale road white), blue keeps R low so snow tints instead of clipping.
-            Atk = Make("Atk", AtkGold, AtkCream, AtkAmber, new Color(0.3f, 0.2f, 0.05f), sword, compass, dome, arrow, veil, band, core);
-            Def = Make("Def", DefSky, DefIce, DefDeep, new Color(0.03f, 0.2f, 0.22f), shield, compass, dome, arrow, veil, band, core);
-            // Thin dark outline behind each emblem (review: the emblems melted into snow / pale stone)
-            Atk.EmblemOutline = Blob("ClericStatus_AtkEmblemLine", swordLine, 0f, Color.black, 0f, A(AtkOutline, 0.95f));
-            Def.EmblemOutline = Blob("ClericStatus_DefEmblemLine", shieldLine, 0f, Color.black, 0f, A(DefOutline, 0.95f));
-            // Dome: fresnel style, the rim (cyan #49C9D7) clearly brighter than the near-clear face (#80E4ED)
-            Def.Dome.SetColor("_BodyColor", A(DefFace, 1f));
-            Def.Dome.SetColor("_EmissionColor", new Color(0.02f, 0.08f, 0.09f));
-            Def.DomeRim = Blob("ClericStatus_DefDomeRim", domeRim, 0f, new Color(0.03f, 0.18f, 0.2f), 0.08f, A(DefSky, 1f));
-            ArcOn(Def.DomeRim, A(DefIce, 0.8f), 0.45f);
-            Def.DomeSide = Blob("ClericStatus_DefDomeSide", domeSide, 0f, new Color(0.03f, 0.18f, 0.2f), 0.05f, A(DefSky, 1f));
-            ArcOn(Def.DomeSide, A(DefIce, 0.8f), 0.45f);
+            // Additive glow: narrow (GlowPow) and low; gold keeps B low and stays under the bloom threshold on a pale road, cyan keeps R low.
+            Atk = Make("Atk", AtkBody, AtkHi, AtkRim, AtkCore, new Color(0.34f, 0.22f, 0.04f), sword, swordLine, compass, dome, domeRim, arrow, veil, band, core, ringShader);
+            Def = Make("Def", DefBody, DefHi, DefRim, DefCore, new Color(0.02f, 0.22f, 0.28f), shield, shieldLine, compass, dome, domeRim, arrow, veil, band, core, ringShader);
 
-            Spark = Particle("ClericStatus_Spark", particle, cross, new Color(0.4f, 0.4f, 0.4f), 0.3f, 1f);
-            Mote = Particle("ClericStatus_Mote", particle, mote, new Color(0.22f, 0.22f, 0.22f), 0.05f, 0.9f);
+            Spark = Particle("ClericStatus_Spark", particle, cross, new Color(0.3f, 0.3f, 0.3f), 0.22f, 1f);
+            Mote = Particle("ClericStatus_Mote", particle, mote, new Color(0.16f, 0.16f, 0.16f), 0.04f, 1f);
         }
 
-        static Set Make(string n, Color main, Color light, Color deep, Color glow, Texture2D emblem, Texture2D compass, Texture2D dome, Texture2D arrow, Texture2D veil, Texture2D band, Texture2D core)
+        static Set Make(string n, Color body, Color hi, Color rim, Color coreTone, Color glow, Texture2D emblem, Texture2D emblemLine, Texture2D compass,
+            Texture2D dome, Texture2D domeRim, Texture2D arrow, Texture2D veil, Texture2D band, Texture2D core, Shader ringShader)
         {
-            var s = new Set { Main = main, Light = light, Deep = deep };
-            s.Halo = Blob("ClericStatus_" + n + "Halo", Texture2D.whiteTexture, 2.4f, glow * 0.5f, 0f, A(light, 0.22f));
-            // Rune circle: lines in the deep tone (they must read on snow and on a pale road), a bright arc of the light tone runs round it.
-            s.Compass = Blob("ClericStatus_" + n + "Compass", compass, 0f, glow * 1.1f, 0.04f, A(deep, 0.95f)); // review: +contrast by a fuller, darker line, not more HDR
-            ArcOn(s.Compass, A(light, 0.6f), 0.35f);
-            s.Ring = Blob("ClericStatus_" + n + "Ring", band, 0f, glow, 0f, A(deep, 0.75f));
-            ArcOn(s.Ring, A(light, 0.6f), 0.3f);
-            // Emblem / arrows: the glyph (mask 1) gets a white-hot core, the badge disc (mask ~0.3) stays a soft tint of the main colour.
-            s.Emblem = Blob("ClericStatus_" + n + "Emblem", emblem, 0f, glow * 0.5f, 0.2f, A(main, 1f)); // low bloom: a crisp glyph
-            s.Arrow = Blob("ClericStatus_" + n + "Arrow", arrow, 0f, glow, 0.2f, A(light, 0.95f));
-            s.Flash = Blob("ClericStatus_" + n + "Flash", core, 0f, glow * 0.8f, 0.08f, A(light, 0.55f));
-            s.Head = Blob("ClericStatus_" + n + "Head", core, 0f, glow * 1.2f, 0.3f, A(light, 0.9f));
-            // Dome: the mask is faint in the middle and bright at the silhouette, so the face behind its front half stays clear.
-            s.Dome = Blob("ClericStatus_" + n + "Dome", dome, 0f, glow * 0.7f, 0.04f, A(main, 1f));
-            ArcOn(s.Dome, A(DefRim, 0.7f), 0.45f);
+            var s = new Set { Main = body, Light = hi, Deep = rim };
+            // Ground pool: body colour, smaller radius than before (falloff 2.4 -> 4.2, ~ -24 %), a soft base under the solid lines
+            s.Halo = Blob("ClericStatus_" + n + "Halo", Texture2D.whiteTexture, 4.2f, glow * 0.35f, 0f, A(body, 0.32f));
+            // Rune circle: solid body lines (+~45 % thicker through the gain), dark rim edges, highlight centre, a bright arc of the highlight running round
+            s.Compass = Blob("ClericStatus_" + n + "Compass", compass, 0f, glow, 0f, A(body, 0.78f));
+            Tone(s.Compass, 2.4f, A(rim, 1f), 0.5f, A(hi, 0.55f), 0.85f, 4f);
+            ArcOn(s.Compass, A(hi, 0.75f), 0.3f);
+            s.Ring = Blob("ClericStatus_" + n + "Ring", band, 0f, glow, 0f, A(body, 0.75f));
+            Tone(s.Ring, 2f, A(rim, 1f), 0.5f, A(hi, 0.5f), 0.85f, 4f);
+            ArcOn(s.Ring, A(hi, 0.75f), 0.3f);
+            // Emblem: solid body disc, highlight glyph, clear dark outline behind (bloom of the emblem -40 %)
+            s.Emblem = Blob("ClericStatus_" + n + "Emblem", emblem, 0f, glow * 0.3f, 0.04f, A(body, 1f));
+            Tone(s.Emblem, 2.8f, A(rim, 0f), 0.4f, A(hi, 0.9f), 0.78f, 5f);
+            s.EmblemOutline = Blob("ClericStatus_" + n + "EmblemLine", emblemLine, 0f, Color.black, 0f, A(rim, 0.95f));
+            Tone(s.EmblemOutline, 1.6f, A(rim, 0f), 0.4f, A(hi, 0f), 1f, 1f);
+            s.Arrow = Blob("ClericStatus_" + n + "Arrow", arrow, 0f, glow * 0.6f, 0.03f, A(body, 0.95f));
+            Tone(s.Arrow, 2f, A(rim, 1f), 0.55f, A(hi, 0.8f), 0.85f, 4f);
+            // Small flashes / stream heads: highlight colour, only a tiny white-hot centre
+            s.Flash = Blob("ClericStatus_" + n + "Flash", core, 0f, glow * 0.7f, 0.06f, A(hi, 0.62f));
+            Tone(s.Flash, 1.3f, A(rim, 0f), 0.4f, A(coreTone, 0.5f), 0.9f, 3f);
+            s.Head = Blob("ClericStatus_" + n + "Head", core, 0f, glow, 0.22f, A(hi, 0.9f));
+            Tone(s.Head, 1.5f, A(body, 0.6f), 0.5f, A(coreTone, 0.7f), 0.85f, 2.5f);
+            // Dome (DEF receive): face behind the hero, faint in the middle, body colour at the silhouette; rim lines solid with dark edges
+            s.Dome = Blob("ClericStatus_" + n + "Dome", dome, 0f, glow * 0.4f, 0f, A(body, 0.6f));
+            Tone(s.Dome, 1.3f, A(rim, 0f), 0.4f, A(hi, 0.4f), 0.6f, 4f);
+            ArcOn(s.Dome, A(hi, 0.6f), 0.4f);
+            s.DomeRim = Blob("ClericStatus_" + n + "DomeRim", domeRim, 0f, glow, 0.02f, A(body, 0.85f));
+            Tone(s.DomeRim, 2.4f, A(rim, 1f), 0.5f, A(hi, 0.55f), 0.85f, 4f);
+            ArcOn(s.DomeRim, A(hi, 0.8f), 0.35f);
 
             s.Column = new Material(LightSkillAssets.Beam) { name = "ClericStatus_" + n + "Column" };
             s.Column.SetTexture("_MainTex", veil);
             s.Column.SetVector("_MainTiling", new Vector4(1f, 0.6f, 0f, 0f));
             s.Column.SetFloat("_ScrollSpeed", 1.4f);
-            s.Column.SetFloat("_StreakMin", 0.5f);
-            s.Column.SetFloat("_EdgeSoft", 0.85f);
+            s.Column.SetFloat("_StreakMin", 0.55f);
+            s.Column.SetFloat("_EdgeSoft", 0.7f);
             s.Column.SetFloat("_BottomFade", 0.1f);
             s.Column.SetFloat("_TopFade", 0.55f);
-            s.Column.SetColor("_EmissionColor", glow);
-            s.Column.SetFloat("_CoreWhite", 0.06f);
-            s.Column.SetColor("_BodyColor", A(main, 0.45f));
-            s.Column.SetColor("_EdgeColor", A(light * 0.6f, 1f));
+            s.Column.SetColor("_EmissionColor", glow * 0.7f);
+            s.Column.SetFloat("_CoreWhite", 0.03f);
+            s.Column.SetColor("_BodyColor", A(body, 0.62f));
+            s.Column.SetColor("_EdgeColor", A(hi * 0.5f, 1f));
 
+            // Swirl ribbon (receive burst): solid body, glow only on the centre line
             s.Trail = new Material(LightSkillAssets.Trail) { name = "ClericStatus_" + n + "Trail" };
-            s.Trail.SetColor("_EmissionColor", new Color(0.45f, 0.45f, 0.45f, 1f));
-            s.Trail.SetFloat("_CoreWhite", 0.15f);
-            s.Trail.SetColor("_BodyColor", A(main, 0.87f)); // review: swirl +0.12 alpha
+            s.Trail.SetColor("_EmissionColor", new Color(0.22f, 0.22f, 0.22f, 1f));
+            s.Trail.SetFloat("_CoreWhite", 0.1f);
+            s.Trail.SetColor("_BodyColor", A(body, 0.9f));
+
+            // Maintained ring round the body (ClericBuffBodyRing): body 0.65-0.75, dark rim 0.8, two highlight segments, thin core
+            s.BodyRing = new Material(ringShader) { name = "ClericStatus_" + n + "BodyRing" };
+            s.BodyRing.SetColor("_BodyColor", A(body, n == "Atk" ? 0.72f : 0.66f));
+            s.BodyRing.SetColor("_RimColor", A(rim, 0.82f));
+            s.BodyRing.SetColor("_HiColor", A(hi, 0.9f));
+            s.BodyRing.SetColor("_CoreColor", n == "Atk" ? new Color(0.62f, 0.5f, 0.22f, 1f) : new Color(0.16f, 0.5f, 0.6f, 1f));
+            s.BodyRing.SetFloat("_Segs", 2f);
+            s.BodyRing.SetFloat("_SegLen", 0.3f);
             return s;
+        }
+
+        /// <summary>LightBlob bold-colour knobs (see the shader; Heal uses them too): body alpha gain, rim colour below `rimEnd`, highlight above `hiStart`, glow power.</summary>
+        public static void Tone(Material m, float solid, Color rim, float rimEnd, Color hi, float hiStart, float glowPow)
+        {
+            m.SetFloat("_Solid", solid);
+            m.SetColor("_RimColor", rim);
+            m.SetFloat("_RimEnd", rimEnd);
+            m.SetColor("_HiColor", hi);
+            m.SetFloat("_HiStart", hiStart);
+            m.SetFloat("_GlowPow", glowPow);
         }
 
         static void ArcOn(Material m, Color tint, float glowFloor)

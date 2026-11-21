@@ -40,15 +40,15 @@ namespace ZenoniaProto
         {
             if (target == null) return;
             float k = self ? 0.8f : 1f;
-            Color gold = ClericLightLook.HealCore, teal = ClericLightLook.HealMain; // 21/11 review: green heal
+            Color gold = ClericLightLook.HealLight, teal = ClericLightLook.HealMain; // 21/11 08:00: bold green, sparks in the highlight tone (white only in their tiny cores)
             var fx = ClericLightFx.Create("Heal", target.Position, target, HealMs, ClericLightFx.DimFor(caster, target));
             fx.Ground(ClericLightLook.BuffHalo, 0f, 480f, 13f * k, 28f * k, 1f)
-              .Ground(ClericLightLook.BuffRing, 0f, 360f, 9.2f * k, 25.8f * k, 0.8f, 0.9f, 0f, 5).Arc(12f) // review: -8 %, blooms out fast
-              .Upright(ClericLightLook.BuffCross, ClericLightFx.Band.Behind, false, 60f, 340f, 9f * k, 14f * k, 12f * k, 19f * k, 0.6f, new Vector2(0f, 13f), 1)
+              .Ground(ClericLightLook.BuffRing, 0f, 360f, 9.2f * k, 25.8f * k, 0.95f, 0.9f, 0f, 5).Arc(12f) // review: -8 %, blooms out fast
+              .Upright(ClericLightLook.BuffCross, ClericLightFx.Band.Behind, false, 60f, 340f, 9f * k, 14f * k, 12f * k, 19f * k, 0.85f, new Vector2(0f, 13f), 1)
               .Upright(ClericLightLook.BuffFlash, ClericLightFx.Band.Behind, false, 0f, 150f, 6f * k, 12f * k, 6f * k, 12f * k, 0.6f, new Vector2(0f, 9f), 1)
               .At(40f, f => ClericBlessingLightFx.SideSparks(f, self ? 5 : 8, gold, 0.5f))
               .At(140f, f => f.Puff(false, f.Anchor + new Vector2(0f, 2f), self ? 3 : 5, 8f, 18f, 1.8f, 2.6f, new Color(teal.r, teal.g, teal.b, 0.85f), 0.45f));
-            if (!self) fx.Upright(ClericLightLook.BuffColumn, ClericLightFx.Band.Behind, true, 20f, 480f, 14f, 10f, 26f, 34f, 0.75f, new Vector2(0f, -1f));
+            if (!self) fx.Upright(ClericLightLook.BuffColumn, ClericLightFx.Band.Behind, true, 20f, 480f, 14f, 10f, 26f, 34f, 1f, new Vector2(0f, -1f));
         }
 
         static void DivineLight(SkillContext ctx)

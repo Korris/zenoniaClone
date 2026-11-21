@@ -12,6 +12,8 @@ namespace ZenoniaProto
     ///    clear), a shield emblem with up-arrows, ice motes;
     ///  - receiving one while the other already runs plays only the received buff's burst; the combined picture is the maintained look.
     /// Columns sit behind the hero, emblems in the FX band above the name. Crowd tiers come in as `dim` (ClericLightFx.DimFor).
+    /// 21/11 08:00 bold Midgard colour (ClericBuffStatusLook): layer alphas raised so the solid body reads 0.6-0.75 and the rims 0.75-0.9,
+    /// swirl ribbons 40 % wider.
     /// </summary>
     public static class ClericBuffReceiveFx
     {
@@ -40,16 +42,16 @@ namespace ZenoniaProto
               .Ground(s.Compass, 0f, Ms, 26f, 40f, 0.95f, Squash, 0f, 5).Arc(atk ? 4.5f : -4.5f, 0f, 2);
 
             // Light column behind the hero
-            fx.Upright(s.Column, ClericLightFx.Band.Behind, true, 0f, 780f, 24f, 19f, 54f, 68f, 0.8f, new Vector2(0f, -2f), -3); // behind the dome too
+            fx.Upright(s.Column, ClericLightFx.Band.Behind, true, 0f, 780f, 24f, 19f, 54f, 68f, 1f, new Vector2(0f, -2f), -3); // behind the dome too
 
             // DEF: the dome drops over the hero (standing quads, base line at 28 % of the height on the feet). Fresnel: the face behind the
             // hero is nearly clear (~0.1), the rim 0.35-0.45; in front of the hero only the rim, so the face is never tinted.
             if (def)
             {
                 Vector2 off = new Vector2(0f, -DomeBaseV * DomeH);
-                fx.Upright(D.Dome, ClericLightFx.Band.Behind, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.4f, off, -2)
-                  .Upright(D.DomeRim, ClericLightFx.Band.Behind, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.42f, off, -1)
-                  .Upright(D.DomeRim, ClericLightFx.Band.Front, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.3f, off);
+                fx.Upright(D.Dome, ClericLightFx.Band.Behind, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.75f, off, -2)
+                  .Upright(D.DomeRim, ClericLightFx.Band.Behind, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.85f, off, -1)
+                  .Upright(D.DomeRim, ClericLightFx.Band.Front, true, 40f, Ms, DomeW * 0.8f, DomeW, DomeH * 0.8f, DomeH, 0.65f, off);
             }
 
             // Emblem (+25 %, dark outline, low bloom) + up-arrows, well above the name tag and HP bar
@@ -58,7 +60,7 @@ namespace ZenoniaProto
             Arrow(fx, s, -12f, 100f); Arrow(fx, s, 12f, 170f);
 
             // Small flash behind the chest, sparks, swirls (feet to waist only)
-            fx.Upright(s.Flash, ClericLightFx.Band.Behind, false, 0f, 140f, 6f, 12f, 6f, 12f, 0.55f, new Vector2(0f, 9f), 1);
+            fx.Upright(s.Flash, ClericLightFx.Band.Behind, false, 0f, 140f, 6f, 12f, 6f, 12f, 0.6f, new Vector2(0f, 9f), 1);
             if (atk)
             {
                 Color cream = A.Light;
@@ -66,8 +68,8 @@ namespace ZenoniaProto
                 if (dim >= 0.5f || fx.Own)
                 {
                     float d = dim;
-                    fx.At(0f, f => { ClericBuffOrbitTrail.Spawn(f.transform, t, A, 12f, 4.5f, 1f, 12f, 520f, 720f, 0f, 2.2f, 0.28f, d); });
-                    fx.At(60f, f => { ClericBuffOrbitTrail.Spawn(f.transform, t, A, 12f, 4.5f, 1f, 12f, 520f, 720f, Mathf.PI, 2.2f, 0.28f, d); });
+                    fx.At(0f, f => { ClericBuffOrbitTrail.Spawn(f.transform, t, A, 12f, 4.5f, 1f, 12f, 520f, 720f, 0f, 3.1f, 0.28f, d); });
+                    fx.At(60f, f => { ClericBuffOrbitTrail.Spawn(f.transform, t, A, 12f, 4.5f, 1f, 12f, 520f, 720f, Mathf.PI, 3.1f, 0.28f, d); });
                 }
             }
             else

@@ -12,6 +12,7 @@ namespace ZenoniaProto
     ///  - streams to allies like Spirit Blessing (sky ribbon, white head);
     ///  - receive burst: ClericBuffReceiveFx (blue column, compass circle, dome, shield emblem); then ClericBuffStatusFx keeps a small dome for
     ///    the buff's real time (bright arc over it when the wearer takes a hit).
+    /// 21/11 08:00: bold cyan-jade (ClericBuffStatusLook, Midgard colour); the maintained look is a cyan ring round the low chest (ClericBuffStatusFx).
     /// Crowd: ClericLightFx.DimFor (own full, party 70 %, others 35 %).
     /// </summary>
     public static class ClericAegisLightFx
@@ -24,7 +25,7 @@ namespace ZenoniaProto
             var fx = ClericLightFx.Create("Aegis", caster.Position, caster, ClericBlessingLightFx.CastMs, ClericLightFx.DimFor(caster, null))
                 .Particles(ClericBuffStatusLook.Spark, ClericBuffStatusLook.Mote)
                 .Ground(b.Halo, 0f, 520f, 20f, 36f, 1f, 0.6f)
-                .Ground(b.Ring, raise, 560f, 14f / 0.78f, 36f / 0.78f, 0.75f, 0.6f, 0f, 5).Arc(9f)
+                .Ground(b.Ring, raise, 560f, 14f / 0.78f, 36f / 0.78f, 0.9f, 0.6f, 0f, 5).Arc(9f)
                 .Upright(b.Flash, ClericLightFx.Band.Over, false, raise, 430f, 4f, 8f, 4f, 8f, 0.55f, new Vector2(0f, hand));
             Color rim = b.Light;
             fx.At(raise + 40f, f => ClericBlessingLightFx.SideSparks(f, 4, rim, 0.45f));
