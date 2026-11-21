@@ -100,7 +100,7 @@ namespace ZenoniaProto
             int o = RoLabelBase + row * 4;
             float barY = RoFootY, tabH = RoTextH + RoTabPadY * 2f, tabY = barY - RoBarH * 0.5f - RoTabGap - tabH * 0.5f;
             roTrack.transform.localPosition = new Vector3(0f, barY, 0f);
-            float innerW = RoBarW - RoFillInset * 2f, innerH = RoBarH - RoFillInset * 2f, v = Mathf.Clamp01(hp / def.Hp);
+            float innerW = RoBarW - RoFillInset * 2f, innerH = RoBarH - RoFillInset * 2f, v = Mathf.Clamp01(BarHp / def.Hp);
             roFill.enabled = v > 0f;
             roFill.transform.localPosition = new Vector3(-innerW * 0.5f, barY, 0f);
             float fillW = Mathf.Max(innerH, innerW * v); // a pill never narrower than its own height (round caps stay round)

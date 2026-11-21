@@ -118,7 +118,7 @@ namespace ZenoniaProto
                 barBack.transform.localPosition = new Vector3(-7f, top, 0f);
                 barBack.transform.localScale = new Vector3(14f, 2f, 1f);
                 barFill.transform.localPosition = new Vector3(-7f, top, 0f);
-                barFill.transform.localScale = new Vector3(14f * hp / def.Hp, 1.4f, 1f);
+                barFill.transform.localScale = new Vector3(14f * BarHp / def.Hp, 1.4f, 1f);
                 barBack.sortingOrder = order + 6;
                 barFill.sortingOrder = order + 7;
             }
@@ -161,7 +161,10 @@ namespace ZenoniaProto
             else
             {
                 LastHitByMe = this; LastHitByMeAt = Time.time; // TargetMarker: the monster you are fighting
-                DamageNumber.Spawn(x, y + bodyH + 4f, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit, false, this); // plain hits join this monster's Damage Stream
+                // Multi-hit numbers (SkillHitSplit, 21/11): a skill hit pops as several numbers summing to dmg; the HP bar steps down with them.
+                float partDelay, partInterval;
+                int[] parts = DamageNumber.SpawnOwnHit(x, y + bodyH + 4f, dmg, crit, finisher, quietFx, hp <= 0f, this, out partDelay, out partInterval);
+                ShowBarParts(parts, partDelay, partInterval);
             }
             ImpactFx.Spawn(x, y + bodyH * 0.5f, knockVel, crit, finisher, null, quietFx);
         }

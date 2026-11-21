@@ -26,6 +26,7 @@ namespace ZenoniaProto
             public float Seed;         // per-number random (slash angle, spark directions)
             public object Key;         // the monster your own hit landed on (same-spot stack, DamageNumber.Stream.cs), else null
             public DamageNumberKind Kind;
+            public float SizeMul, PopMul; // multi-hit parts (DamageNumber.MultiHit.cs): the last part a bit bigger, a harder pop; 0 = 1
         }
 
         static DamageNumber instance;
@@ -53,6 +54,8 @@ namespace ZenoniaProto
         public static void ResetState()
         {
             for (int i = 0; i < Capacity; i++) { Pool[i].Active = false; Pool[i].Key = null; }
+            Stacks.Clear();
+            SkillHitContext.ResetState();
         }
 
         void Awake() { instance = this; }
@@ -92,8 +95,10 @@ namespace ZenoniaProto
             DamageNumberMotion m = DamageNumberMotion.Of(e.Kind);
             float t = e.AgeMs, alpha = m.Fade(t);
             if (alpha <= 0.01f) return;
-            float height = m.HeightPx;
-            float cap = height * m.Scale(t) * px;
+            float height = m.HeightPx * (e.SizeMul > 0f ? e.SizeMul : 1f);
+            float scale = m.Scale(t);
+            if (e.PopMul > 0f) scale = 1f + (scale - 1f) * e.PopMul; // multi-hit part: harder punch
+            float cap = height * scale * px;
             Vector2 shake = m.Shake(t);
             float cx = sx + (e.OffX + shake.x) * px;
             float cy = sy - (e.OffY + m.Rise(t) + shake.y) * px;
@@ -102,7 +107,7 @@ namespace ZenoniaProto
             float textW = height * px * 0.62f * e.Text.Length; // rough run width for the crit frame sizes
             if (e.Kind == DamageNumberKind.Finisher) DrawFinisherBehind(cx, cy, t, height * px, e.Seed); // a crit is just its yellow number (user 20/11: no burst / CRITICAL banner)
             if (!DamageNumberFont.Draw(e.Text, m.Style, cx, baseY, cap, alpha, e.Kind == DamageNumberKind.Pet ? e.Color : Color.white)) // only a pet's number is tinted
-                DrawPlainText(e.Text, e.Color, cx, cy, height * m.Scale(t) * px, alpha);
+                DrawPlainText(e.Text, e.Color, cx, cy, height * scale * px, alpha);
             if (e.Kind == DamageNumberKind.Crit) DrawCritFront(cx, cy, t, height * px, textW, e.Seed, alpha);
             else if (e.Kind == DamageNumberKind.Heal) DrawSparks(cx, cy, t, height * px, e.Seed, alpha, 2, 0.7f);
         }

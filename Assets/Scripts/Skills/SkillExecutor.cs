@@ -23,6 +23,7 @@ namespace ZenoniaProto
             if (def == null) { Debug.LogWarning("[ZenoniaProto] no skill " + skillIndex + " for class " + body.ClassId); return false; }
             int rank = rankOverride > 0 ? rankOverride : Mathf.Max(1, body.Hero.Rpg != null ? body.Hero.Rpg.Skills[skillIndex] : 1);
             SkillCaps.Prune();
+            SkillHitContext.NoteCast(body.Hero, def); // multi-hit damage numbers: your hits in this skill's window use its SkillHitSplit
             if (def.Legacy != LegacySkill.None) return CastLegacy(body, def, rank);
             SkillContext ctx = SkillAim.Resolve(def, rank, body, salt);
             if (ctx == null) return false;
