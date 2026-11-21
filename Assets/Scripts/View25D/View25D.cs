@@ -5,16 +5,24 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Fake 2.5D view prototype (2026-11-20, opt-in `--view25d`, Sunken Reliquary / Mire Hydra arena only). View-only: the simulation, collision,
+    /// Fake 2.5D view (prototype 2026-11-20 on the Mire Hydra arena; first real 2.5D map 2026-11-21: Willowbrook Meadows). View-only: the simulation, collision,
     /// server and every position stay on the 2D x/y plane. The ground (painted map, telegraphs, flat decor, shadows) keeps lying on z = 0; a tilted
     /// perspective camera (View25DCamera) looks at it from the south, and units, tall props and name anchors stand up toward the camera as
     /// billboards rotated by <see cref="Tilt"/> around their feet (View25DWorld). Draw order is still the 2D y-sort (sortingOrder), so depth stays right.
-    /// Flags: --view25d [--view25d-tilt deg (default 38)] [--view25d-fov deg (default 22)] [--view25d-atmos off]
+    /// Which maps: every map listed in <see cref="Maps"/> is 2.5D for everyone (release builds too); `--view25d` (test builds) adds the prototype maps
+    /// in <see cref="PrototypeMaps"/>; `--view25d off` turns 2.5D off everywhere (2D comparison). Converting another map = add its id to Maps
+    /// (rules: docs/map-design-rules.md "Map 2.5D").
+    /// Flags: --view25d [on|off] [--view25d-tilt deg (default 38)] [--view25d-fov deg (default 22)] [--view25d-atmos off]
     /// [--view25d-scalecomp 0..1 (default 0.6)]. Defaults follow the ChatGPT art-direction chat linked in docs/pending-tasks.md.
     /// </summary>
     public static class View25D
     {
-        static bool parsed, requested, atmosphere = true;
+        static bool parsed, requested, forcedOff, atmosphere = true;
+
+        /// <summary>Maps drawn in 2.5D for every player (data: one id per converted map).</summary>
+        static readonly string[] Maps = { WillowbrookMeadowsMap.MapId };
+        /// <summary>Maps 2.5D only with `--view25d` (test builds): the Mire Hydra arena prototype, whose painted walls are not converted yet.</summary>
+        static readonly string[] PrototypeMaps = { SunkenReliquaryMap.MapId };
         static float tiltDeg = 38f, fovDeg = 22f, scaleComp = 0.6f;
 
         static void Parse()
@@ -22,7 +30,9 @@ namespace ZenoniaProto
             if (parsed) return;
             parsed = true;
             string[] a = Environment.GetCommandLineArgs();
-            requested = Array.IndexOf(a, "--view25d") >= 0 && !ReleaseBuild.IsRelease;
+            int f = Array.IndexOf(a, "--view25d");
+            forcedOff = f >= 0 && f + 1 < a.Length && a[f + 1] == "off";
+            requested = f >= 0 && !forcedOff && !ReleaseBuild.IsRelease;
             tiltDeg = Mathf.Clamp(ArgFloat(a, "--view25d-tilt", tiltDeg), 5f, 70f);
             fovDeg = Mathf.Clamp(ArgFloat(a, "--view25d-fov", fovDeg), 10f, 60f);
             scaleComp = Mathf.Clamp01(ArgFloat(a, "--view25d-scalecomp", scaleComp));
@@ -37,11 +47,26 @@ namespace ZenoniaProto
             return i >= 0 && i + 1 < a.Length && float.TryParse(a[i + 1], NumberStyles.Float, CultureInfo.InvariantCulture, out v) ? v : fallback;
         }
 
-        /// <summary>The prototype is on the command line (test builds only).</summary>
+        /// <summary>The prototype maps are asked for on the command line (test builds only).</summary>
         public static bool Requested { get { Parse(); return requested; } }
 
-        /// <summary>2.5D view on right now: requested, a client / offline window, and the map on screen is Sunken Reliquary (the Mire Hydra arena).</summary>
-        public static bool Active { get { return Requested && NetMode.RendersFx && MapRegistry.Current != null && MapRegistry.Current.Id == SunkenReliquaryMap.MapId; } }
+        /// <summary>2.5D can draw in this window at all: a client / offline view and not `--view25d off`.</summary>
+        public static bool Available { get { Parse(); return !forcedOff && NetMode.RendersFx; } }
+
+        /// <summary>The map with this id is drawn in 2.5D (listed in Maps, or a prototype map with `--view25d`).</summary>
+        public static bool IsMap25D(string id)
+        {
+            if (!Available || string.IsNullOrEmpty(id)) return false;
+            if (Array.IndexOf(Maps, id) >= 0) return true;
+            return requested && Array.IndexOf(PrototypeMaps, id) >= 0;
+        }
+
+        /// <summary>2.5D view on right now: the map on screen is a 2.5D map and this window draws.</summary>
+        public static bool Active { get { return MapRegistry.Current != null && IsMap25D(MapRegistry.Current.Id); } }
+
+        /// <summary>Ground shadows come from FakeSun (soft blobs + baked prop shadows, the same system as the 2D maps) instead of the prototype's
+        /// per-sprite silhouettes. True on every listed map; the Hydra prototype keeps its silhouettes. `--shadows off` falls back to silhouettes.</summary>
+        public static bool UsesFakeSun { get { return Active && Array.IndexOf(Maps, MapRegistry.Current.Id) >= 0 && FakeSun.Allowed; } }
 
         public static bool Atmosphere { get { Parse(); return atmosphere; } }
 
@@ -108,6 +133,8 @@ namespace ZenoniaProto
         public static void StandProp(SpriteRenderer sr)
         {
             sr.transform.rotation = Tilt;
+            View25DPropFade.Register(sr); // fades while it stands in front of the local hero
+            if (UsesFakeSun) return; // the baked FakeSun prop shadow lies under it already (StaticPropShadows)
             Material m = ShadowMaterial;
             if (m == null || sr.sprite == null) return;
             var go = new GameObject(sr.name + "_Shadow25D");

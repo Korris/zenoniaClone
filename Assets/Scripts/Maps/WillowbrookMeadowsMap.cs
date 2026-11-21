@@ -7,7 +7,8 @@ namespace ZenoniaProto
     /// cut into 2x2 chunks (Tools/build-willowbrook-large-painted.py); trees, rocks, ruins, reeds and the barricade are separate y-sorted props (WillowbrookMeadowsProps, WillowbrookMeadowsFrameProps,
     /// WillowbrookMeadowsScatterProps) so the hero walks behind canopies. Rows (Tools/build-willowbrook-large-rows.py): T border / HUD rows / old cliffs  w stream and pond  B bridge  g open ground;
     /// props block their own footprints. A dead end: the only portal pair is the west gate (rows 23-24), which World Map 2.0 step 1 (13/11/2026) re-aimed at Oakhaven's new south gate at
-    /// (13,21)/(14,21) (agent C); arrivals land on (13,20)/(14,20), the walkable tile just north of that gate. The main road ends at the barricade on the east edge. MapSpawnTable keys on MapId (no boss).
+    /// (13,21)/(14,21) (agent C); arrivals land on (13,20)/(14,20), the walkable tile just north of that gate. The main road ends at the barricade on the east edge. MapSpawnTable keys on MapId (no boss). 21/11/2026: the first real 2.5D map (View25D.Maps) and redone as a forest: simple texture ground (Tools/build-map-25d-ground.py),
+    /// 138 trees in WillowbrookMeadowsForestProps (Tools/place-map-25d-forest.py); the old cliff tile (19,14) opened, its art is gone.
     /// </summary>
     public sealed class WillowbrookMeadowsMap : TileMapBase
     {
@@ -30,7 +31,7 @@ namespace ZenoniaProto
             "TgggggggggggggggggggggwwggggggggggggggggggggggggggggggggggggggggggggggTT",
             "TggggggggggggggggggggwwgggggggggggggggggggggggggggggggggggggggggggggggTT",
             "TggggggggggggggggggggwwgggggggggggggggggggggggggggggggggggggggggggggggTT",
-            "TggggggggggggggggggTgwwwggggggggggggggggggggggggggggggggggggggggggggggTT",
+            "TggggggggggggggggggggwwwggggggggggggggggggggggggggggggggggggggggggggggTT",
             "TggggggggggggggggggggwwgggggggggggggggggggggggggggggggggggggggggggggggTT",
             "TgggggggggggggggggggwwggggggggggggggggggggggggggggggggggggggggggggggggTT",
             "TgggggggggggggggggggwwggggggggggggggggggggggggggggggggggggggggggggggggTT",

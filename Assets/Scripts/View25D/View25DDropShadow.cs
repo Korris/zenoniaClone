@@ -6,7 +6,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Sun shadow of one standing unit (hero, monster, pet) in the 2.5D prototype: every figure sprite of the unit (body, gear, head, hair) is mirrored
     /// each frame into a soft black silhouette lying flat on the ground, rotated toward the sun's fall direction and squashed (View25D.SunShadow*).
-    /// The unit's own round contact shadow stays under its feet. Drawn at View25D.ShadowOrder: above the ground, below telegraphs and every unit.
+    /// The unit's own round contact shadow stays under its feet. On the listed 2.5D maps (View25D.UsesFakeSun) no silhouette: the FakeSun blob is the shadow. Drawn at View25D.ShadowOrder: above the ground, below telegraphs and every unit.
     /// </summary>
     public sealed class View25DDropShadow
     {
@@ -59,6 +59,12 @@ namespace ZenoniaProto
             if (root.rotation != tilt) root.rotation = tilt;
             if (scale > 0f) root.localScale = new Vector3(scale, scale, 1f); // perspective size compensation (View25D.UnitScale); 0 = leave (pets scale themselves)
             if (roundShadow != null) roundShadow.localRotation = untilt;
+            if (View25D.UsesFakeSun) // listed 2.5D maps: the unit's FakeSun ground blob is its shadow, no silhouette copy
+            {
+                if (holder.gameObject.activeSelf) holder.gameObject.SetActive(false);
+                return;
+            }
+            if (!holder.gameObject.activeSelf) holder.gameObject.SetActive(true);
             holder.localRotation = untilt * Quaternion.Euler(0f, 0f, View25D.SunShadowAngle);
             holder.localScale = new Vector3(1f, View25D.SunShadowLength, 1f);
             if (--refreshIn <= 0) Gather();

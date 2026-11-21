@@ -11,7 +11,8 @@ namespace ZenoniaProto
     /// 2. One quad over the map at sortingOrder GroundOrder + 8 (above the painting and flat decor at + 4, below ground FX at -31000 and every
     ///    y-sorted unit, ring and telegraph) reads the mask by world position and multiplies the ground toward FakeSun.Tint, capped at FakeSun.AlphaCap.
     /// Cost: one mesh rebuild of ~4 vertices per visible blob on the CPU, 2-3 draws into a half-res R8 target and one full-screen multiply quad;
-    /// no particles, no lights, one shared material per step. Off (`--shadows off`, --view25d, missing shader): the old per-unit sprites draw again.
+    /// no particles, no lights, one shared material per step. Works on the 2.5D perspective camera too (mask over the visible ground trapezoid's bounds).
+    /// Off (`--shadows off`, the --view25d Hydra prototype, missing shader): the old per-unit sprites draw again.
     /// </summary>
     public class GroundShadowRenderer : MonoBehaviour
     {
@@ -71,7 +72,7 @@ namespace ZenoniaProto
                 }
                 else Debug.LogWarning("[ZenoniaProto] Ground shadow shaders missing or unsupported: old unit shadows only");
             }
-            return maskMat != null && cam != null && cam.orthographic;
+            return maskMat != null && cam != null;
         }
 
         void PreCull(Camera c)
@@ -85,10 +86,21 @@ namespace ZenoniaProto
             }
             EnsureMap();
             float halfH = c.orthographicSize, halfW = halfH * c.aspect;
-            Vector3 cp = c.transform.position;
-            var view = new Rect(cp.x - halfW - Margin, cp.y - halfH - Margin, (halfW + Margin) * 2f, (halfH + Margin) * 2f);
+            Rect view;
+            if (c.orthographic)
+            {
+                Vector3 cp = c.transform.position;
+                view = new Rect(cp.x - halfW - Margin, cp.y - halfH - Margin, (halfW + Margin) * 2f, (halfH + Margin) * 2f);
+            }
+            else
+            {
+                // 2.5D map (View25D): the visible ground is a trapezoid; mask its bounding rect. orthographicSize stays the zoom knob there.
+                Rect g = View25DCamera.VisibleGround(c);
+                view = new Rect(g.xMin - Margin, g.yMin - Margin, g.width + Margin * 2f, g.height + Margin * 2f);
+            }
             int blobs = GroundShadowBlobs.Rebuild(true, view);
-            EnsureTarget(Mathf.CeilToInt(c.pixelWidth * MaskResolution * view.width / (halfW * 2f)), Mathf.CeilToInt(c.pixelHeight * MaskResolution * view.height / (halfH * 2f)));
+            float texelsPerUnit = c.pixelHeight * MaskResolution / (halfH * 2f); // as at the focus; the far edge is coarser, which soft shadows hide
+            EnsureTarget(Mathf.CeilToInt(view.width * texelsPerUnit), Mathf.CeilToInt(view.height * texelsPerUnit));
 
             cb.Clear();
             cb.SetRenderTarget(rt);

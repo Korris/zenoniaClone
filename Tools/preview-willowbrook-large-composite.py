@@ -16,7 +16,7 @@ T = 64
 def rd(n): return open(os.path.join(MAPS, n), encoding="utf8").read()
 
 def tables():
-    src = "".join(rd(n) for n in ("WillowbrookMeadowsProps.cs", "WillowbrookMeadowsFrameProps.cs", "WillowbrookMeadowsScatterProps.cs") if os.path.exists(os.path.join(MAPS, n)))
+    src = "".join(rd(n) for n in ("WillowbrookMeadowsProps.cs", "WillowbrookMeadowsFrameProps.cs", "WillowbrookMeadowsScatterProps.cs", "WillowbrookMeadowsForestProps.cs") if os.path.exists(os.path.join(MAPS, n)))
     src = re.sub(r"//.*", "", src)
     return [(m[0], int(m[1]), int(m[2])) for m in re.findall(r'P\("(\w+)",\s*(\d+),\s*(\d+)\)', src)]
 

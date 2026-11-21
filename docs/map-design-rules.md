@@ -39,6 +39,20 @@
 - **Đổi bảng quái, map, protocol:** client, server, server-api phát hành cùng lúc; build lại server.
 - **Bóng đổ (FakeSun, 21/11/2026):** bóng prop sinh tự động lúc vào map từ bảng prop theo TÊN loại (`Assets/Scripts/Shadows/StaticPropShadows.cs` `Classify`: oak / pine / tree / palm... = cây; house / cottage / tent / stall... = nhà; còn lại = đá; `FootH` 0 và thấp ≤ 3 ô = đồ trang trí; bridge / palisade / flower... = không bóng). Prop mới đặt tên theo các từ khoá đó hoặc thêm vào `Classify`. Hướng, màu, alpha chỉ sửa trong `FakeSun.cs`, không chỉnh tay từng map. Vách vẽ trong ảnh nền chưa có bóng.
 
+## Map 2.5D (21/11/2026, mẫu đầu: Willowbrook Meadows)
+
+Người dùng: sau này mọi map thành 2.5D. Cách làm và kế hoạch: `plans/261121-0815-willowbrook-25d-forest/plan.md`.
+
+1. **Bật:** thêm id map vào `View25D.Maps` (`Assets/Scripts/View25D/View25D.cs`). Chỉ phần hình: server, va chạm, toạ độ vẫn 2D. Camera 38° / FOV 22°; `--view25d off` để so 2D.
+2. **Nền chỉ là đất phẳng**, không vẽ cây, đá, nhà, bóng vào nền. Nền đơn giản kiểu Midgard: một màu cỏ chính, mảng sáng / tối rộng 2-6 ô, đường đất gần một màu, mép răng cưa bậc, hoa rất ít. Làm bằng `Tools/build-map-25d-ground.py` (2 texture ChatGPT + mặt nạ), không vẽ lại cả map, nên đường luôn đúng ô.
+3. **Mọi vật đứng là prop riêng** (cây, đá to, nhà, cột) và tự dựng đứng (billboard) ở mép đáy; đồ thấp đi xuyên (`FootH` 0, cao ≤ 3 ô) nằm phẳng như cũ. PNG neo gốc cây ở giữa đáy (`Tools/cut-magenta-prop-sheet.py`).
+4. **Bóng chỉ dùng FakeSun** (bóng chân + bóng prop nướng sẵn theo tên loại). Tên prop mới phải có từ khoá của `StaticPropShadows.Classify` (cây: `oak` / `pine` / `tree`...). Màu bóng theo map trong `FakeSun.Tint`.
+5. **Rừng ôm bãi, không nằm trong bãi:** cây đặt bằng `Tools/place-map-25d-forest.py` (cách lane / rect bãi / nước ≥ 1,5-2,5 ô, cách cổng ≥ 5 ô, hàng dày trên ô viền vốn đã chặn, flood fill bỏ cây chặn lối). Lòng bãi không có thân cây; hành lang đường nhìn thấy 5-7 ô.
+6. **Cây trước hero mình tự mờ** (`View25DPropFade`), không cần chừa chỗ cho tán, nhưng không đặt cây to sát cổng / điểm xuất hiện.
+7. **Bỏ art cũ (cây, vách) thì rà ô `T` lẻ trong rows:** ô chặn từng nằm dưới cây / vách cũ thành tường vô hình trên cỏ. Mở ô đó hoặc đặt prop che.
+8. Map có vách / bậc vẽ trong nền (Frost Hollow, Scorpion Gorge...): vách phẳng sẽ bị nghiêng; phải tách vách thành sprite đứng trước khi bật 2.5D (chưa làm).
+9. Đổi rows / prop / rect bãi: build lại zone server, phát hành cùng client.
+
 ## Kiểm tra trước khi báo xong
 
 - Xem ảnh ghép có prop và ảnh tô ô chặn (đỏ) của cả map.
@@ -51,3 +65,4 @@
 | Ngày | Việc | Lỗi | Nguyên nhân | Cách sửa |
 |---|---|---|---|---|
 | 2026-11-21 | Bóng đổ FakeSun, Willowbrook | Lần chụp đầu gần như không thấy bóng cây, đá, hero (mask đã đúng, dump mask có đủ blob) | Quad phủ trộn alpha thường màu bóng #536B69 (xám xanh, độ sáng gần bằng cỏ) ở alpha 0,18-0,34 lên cỏ sáng: cỏ chỉ tối đi ~5-8 % | Đổi sang nhân: nền x lerp(1, màu bóng, a) (`Blend DstColor Zero`), cỏ tối ~12-18 %, vẫn không đen, màu bóng vẫn ngả lạnh; giữ alpha theo spec |
+| 2026-11-21 | Willowbrook 2.5D, bỏ cây / vách cũ | Ô `T` (19,14) và viền tây (cols 1-2, rows 20-22) thành tường vô hình trên cỏ | Rows cũ chặn các ô nằm dưới cây và vách vẽ trong nền cũ; nền mới và rừng mới không còn vật che | Mở (19,14) thành `g`, đặt cây (1,20) + bụi (2,22) che viền tây. Thêm điều 7 mục "Map 2.5D" |

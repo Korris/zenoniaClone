@@ -67,22 +67,22 @@ namespace ZenoniaProto
         /// The 72x48 meadow hunting field, 70 monsters in 11 clusters (plan layout/willowbrook-72x48-clusters.json, adjusted to the painting), the level climbing with the walking distance from the west gate:
         /// meadowSlime next to the gate, hornRabbit across the first stream, in the north-west and the east meadow, thornBoar in the middle and the far east (World Map 2.1, 13/11/2026: the band is
         /// Lv1-5; meadowMantis and brambleTreant, which used to hold the three far clusters, now live in Bramblewood Forest). Respawn 6-10 s (slower far from the gate). Rects are wide on purpose
-        /// (TryZoneSpot skips solid tiles; each holds at least 7x its count of free tiles). The west gate and start tile stay clear (NearEntrance).
+        /// (TryZoneSpot skips solid tiles; each holds at least 4x its count of free tiles). 21/11/2026 (2.5D forest): the big rects inset by 1 tile a side so the forest belts close in round each camp. The west gate and start tile stay clear (NearEntrance).
         /// </summary>
         static readonly FrostHollowMap.Zone[] WillowbrookMeadows =
         {
-            new FrostHollowMap.Zone("meadowSlime", 6, 4, 14, 9, 5, 6000f),     // 1  north of the gate, old section
-            new FrostHollowMap.Zone("meadowSlime", 6, 12, 27, 12, 5, 6500f),   // 2  south-west meadow
+            new FrostHollowMap.Zone("meadowSlime", 6, 5, 14, 7, 5, 6000f),     // 1  north of the gate, old section
+            new FrostHollowMap.Zone("meadowSlime", 6, 13, 27, 10, 5, 6500f),   // 2  south-west meadow
             new FrostHollowMap.Zone("hornRabbit", 5, 25, 15, 8, 6, 7000f),     // 3  across the stream, old section
-            new FrostHollowMap.Zone("hornRabbit", 6, 4, 3, 12, 6, 7500f),      // 4  north-west plain
+            new FrostHollowMap.Zone("hornRabbit", 6, 5, 3, 10, 6, 7500f),      // 4  north-west plain
             new FrostHollowMap.Zone("hornRabbit", 5, 28, 3, 7, 6, 6000f),      // 5  north, east of the stream
-            new FrostHollowMap.Zone("thornBoar", 7, 40, 4, 12, 7, 8000f),      // 6  middle north
-            new FrostHollowMap.Zone("thornBoar", 6, 39, 14, 14, 6, 8500f),     // 7  middle, north of the road
-            new FrostHollowMap.Zone("thornBoar", 6, 45, 30, 9, 7, 9000f),      // 8  above the pond
+            new FrostHollowMap.Zone("thornBoar", 7, 41, 5, 10, 5, 8000f),      // 6  middle north
+            new FrostHollowMap.Zone("thornBoar", 6, 40, 14, 12, 6, 8500f),     // 7  middle, north of the road
+            new FrostHollowMap.Zone("thornBoar", 6, 46, 31, 7, 5, 9000f),      // 8  above the pond
             // World Map 2.1 (13/11/2026): mantis and treant moved to Bramblewood Forest, so Willowbrook is Lv1-5 only; the three far clusters keep their counts (70 in all).
-            new FrostHollowMap.Zone("thornBoar", 8, 57, 3, 11, 8, 9500f),      // 9  ruins, north-east
-            new FrostHollowMap.Zone("hornRabbit", 8, 57, 15, 11, 8, 9000f),    // A  east meadow
-            new FrostHollowMap.Zone("thornBoar", 7, 60, 30, 10, 9, 10000f),    // B  south-east
+            new FrostHollowMap.Zone("thornBoar", 8, 58, 4, 9, 6, 9500f),      // 9  ruins, north-east
+            new FrostHollowMap.Zone("hornRabbit", 8, 58, 16, 9, 6, 9000f),    // A  east meadow
+            new FrostHollowMap.Zone("thornBoar", 7, 61, 31, 8, 7, 10000f),    // B  south-east
         };
 
         /// <summary>

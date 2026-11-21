@@ -19,7 +19,7 @@ namespace ZenoniaProto
     /// dynamic blobs (GroundShadowBlobs: hero, pet, monster, boss, loot, NPC, turret) every frame, static prop shadows (StaticPropShadows: trees, houses,
     /// rocks) when a map is built; changing a value here and bumping <see cref="Version"/> moves / recolours them all. Soft, short, cool, never black;
     /// overlaps take the max opacity (GroundShadowRenderer mask), capped at <see cref="AlphaCap"/>.
-    /// `--shadows off` brings back the old small black ellipse under units and no prop shadows (comparison). Off in the --view25d prototype (own drop shadows).
+    /// `--shadows off` brings back the old small black ellipse under units and no prop shadows (comparison). On 2.5D maps too; off only on the --view25d Hydra prototype (own drop shadows).
     /// </summary>
     public static class FakeSun
     {
@@ -35,7 +35,7 @@ namespace ZenoniaProto
         public static float BlobDepth = 0.42f;
 
         // Colours (spec 2.2): default cool grey-green, dirt / sand brown-grey, snow blue-grey. Never #000.
-        public static readonly Color DefaultTint = Hex(0x53, 0x6B, 0x69), GrassTint = Hex(0x5D, 0x62, 0x50), DirtTint = Hex(0x76, 0x6B, 0x69), SnowTint = Hex(0x66, 0x7B, 0x8E);
+        public static readonly Color DefaultTint = Hex(0x53, 0x6B, 0x69), GrassTint = Hex(0x5D, 0x62, 0x50), ForestTint = Hex(0x30, 0x4C, 0x3B), DirtTint = Hex(0x76, 0x6B, 0x69), SnowTint = Hex(0x66, 0x7B, 0x8E);
 
         static int version = 1;
         /// <summary>Bumped by <see cref="Changed"/>; the renderer rebakes the static prop shadows when it moves.</summary>
@@ -53,8 +53,12 @@ namespace ZenoniaProto
             off = i >= 0 && i + 1 < a.Length && a[i + 1] == "off";
         }
 
-        /// <summary>The new shadow system draws (else the old per-unit black ellipse sprites do). Views only; the --view25d prototype keeps its own shadows.</summary>
-        public static bool Enabled { get { Parse(); return !off && NetMode.RendersFx && !View25D.Active; } }
+        /// <summary>Not switched off by `--shadows off`, and this window draws.</summary>
+        public static bool Allowed { get { Parse(); return !off && NetMode.RendersFx; } }
+
+        /// <summary>The new shadow system draws (else the old per-unit black ellipse sprites do). Views only. 2.5D maps use it too (ground shadows
+        /// under standing billboards); only the --view25d Hydra prototype keeps its own silhouette shadows.</summary>
+        public static bool Enabled { get { return Allowed && (!View25D.Active || View25D.UsesFakeSun); } }
 
         /// <summary>Shadow colour of the map on screen: snow maps blue-grey, desert maps brown-grey, the rest the default cool grey-green
         /// (one colour per map; grass-only GrassTint kept for later per-surface tuning).</summary>
@@ -65,6 +69,7 @@ namespace ZenoniaProto
                 string id = MapRegistry.Current != null ? MapRegistry.Current.Id : "";
                 if (id == FrostHollowLayout.MapId || id == FrostfangDenMap.MapId) return SnowTint;
                 if (id == AmberDunesMap.MapId || id == SunspireOasisMap.MapId || id == ScorpionGorgeMap.MapId) return DirtTint;
+                if (id == WillowbrookMeadowsMap.MapId) return ForestTint; // 2.5D forest: cool dark olive (ChatGPT forest spec, 21/11/2026)
                 return DefaultTint;
             }
         }

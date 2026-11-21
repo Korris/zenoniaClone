@@ -100,7 +100,7 @@ namespace ZenoniaProto
             if (bloom == null) bloom = cam.gameObject.AddComponent<BloomEffect>();
             root.AddComponent<FeelHotkeys>().Init(bloom);
             GroundShadowRenderer.Attach(cam); // FakeSun soft shadows: unit blobs + baked prop shadows, max-opacity mask (`--shadows off` = old unit ellipses)
-            View25DWorld.AttachIfRequested(root, cam); // --view25d: fake 2.5D prototype on the Mire Hydra arena (after bloom: the atmosphere pass runs last)
+            View25DWorld.AttachIfRequested(root, cam); // 2.5D maps (View25D.Maps, + Hydra arena with --view25d); after bloom: the atmosphere pass runs last
             FpsLog.AttachIfRequested(root);           // --fps-log: uncapped frame rate, average logged every 5 s
 
             root.AddComponent<Hud>();

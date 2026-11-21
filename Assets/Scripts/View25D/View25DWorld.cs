@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Scene side of the 2.5D prototype (View25D), on the game root only when `--view25d` is given. Late every frame, after the game has placed
+    /// Scene side of the 2.5D view (View25D), on the game root of every drawing window (idle on 2D maps). Late every frame, after the game has placed
     /// everything on the x/y plane: stands heroes, monsters, pets and loot up as billboards on their feet (with a sun shadow each), keeps the
     /// ambient motes floating at different heights around the camera, and adds the atmosphere pass to the camera. When the map on screen is not the
     /// prototype map it puts everything back and does nothing.
@@ -19,18 +19,26 @@ namespace ZenoniaProto
         Camera cam;
         bool wasOn;
 
+        View25DAtmosphere atmosphere;
+
+        /// <summary>On every drawing window (2.5D maps are data: View25D.Maps); idle while the map on screen is 2D.</summary>
         public static void AttachIfRequested(GameObject root, Camera cam)
         {
-            if (!View25D.Requested) return;
-            root.AddComponent<View25DWorld>();
-            if (cam != null && cam.GetComponent<View25DAtmosphere>() == null) cam.gameObject.AddComponent<View25DAtmosphere>();
-            Debug.Log("[ZenoniaProto] View25D prototype requested: tilt " + View25D.TiltDeg + " deg, fov " + View25D.FovDeg + " deg (Sunken Reliquary only)");
+            if (!View25D.Available) return;
+            var w = root.AddComponent<View25DWorld>();
+            if (cam != null)
+            {
+                w.atmosphere = cam.GetComponent<View25DAtmosphere>() ?? cam.gameObject.AddComponent<View25DAtmosphere>();
+                w.atmosphere.enabled = false; // only while a 2.5D map is on screen: no full-screen blit on 2D maps
+            }
+            if (View25D.Requested) Debug.Log("[ZenoniaProto] View25D prototype requested: tilt " + View25D.TiltDeg + " deg, fov " + View25D.FovDeg + " deg");
         }
 
         void LateUpdate()
         {
             Zone zone = Zone.Main;
             bool on = View25D.Active && zone != null;
+            if (atmosphere != null && atmosphere.enabled != on) atmosphere.enabled = on;
             if (!on) { if (wasOn) TurnOff(); return; }
             wasOn = true;
             Quaternion tilt = View25D.Tilt, untilt = Quaternion.Inverse(tilt);
@@ -50,6 +58,7 @@ namespace ZenoniaProto
             gone.Clear();
             foreach (KeyValuePair<Transform, View25DDropShadow> kv in units) if (kv.Key == null || !seen.Contains(kv.Key)) gone.Add(kv.Key);
             foreach (Transform t in gone) { units[t].Remove(); units.Remove(t); }
+            View25DPropFade.Tick(cam);
             TickMotes();
         }
 
@@ -72,6 +81,7 @@ namespace ZenoniaProto
             wasOn = false;
             foreach (KeyValuePair<Transform, View25DDropShadow> kv in units) kv.Value.Remove();
             units.Clear();
+            View25DPropFade.Reset();
             if (motes != null) { Destroy(motes.gameObject); motes = null; }
         }
 

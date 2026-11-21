@@ -62,6 +62,22 @@ namespace ZenoniaProto
             return new Vector2(origin.x + dir.x * t, origin.y + dir.y * t);
         }
 
+        /// <summary>Bounding rect (world x/y) of the ground the camera sees now: its 4 viewport corners hit on z = 0 (far corners clamped below the horizon).</summary>
+        public static Rect VisibleGround(Camera cam)
+        {
+            float xMin = float.MaxValue, yMin = float.MaxValue, xMax = float.MinValue, yMax = float.MinValue;
+            for (int i = 0; i < 4; i++)
+            {
+                Ray r = cam.ViewportPointToRay(new Vector3(i & 1, i >> 1, 0f));
+                Vector3 d = r.direction;
+                if (d.z <= 0.05f) d.z = 0.05f;
+                float t = -r.origin.z / d.z;
+                Vector3 p = r.origin + d * t;
+                xMin = Mathf.Min(xMin, p.x); xMax = Mathf.Max(xMax, p.x); yMin = Mathf.Min(yMin, p.y); yMax = Mathf.Max(yMax, p.y);
+            }
+            return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+        }
+
         /// <summary>Keeps the visible ground trapezoid inside the map (wider far edge sets the x limit); a map smaller than the view is centred.</summary>
         public static Vector2 Clamp(Camera cam, Vector2 p)
         {

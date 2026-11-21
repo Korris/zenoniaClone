@@ -59,7 +59,7 @@ namespace ZenoniaProto
             cam.backgroundColor = new Color(0.06f, 0.09f, 0.13f);
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 50f;
-            if (View25D.Active) View25DCamera.Configure(cam); // --view25d prototype on the Mire Hydra arena: tilted perspective view
+            if (View25D.Active) View25DCamera.Configure(cam); // 2.5D map (View25D.Maps): tilted perspective view
             else if (!cam.orthographic) View25DCamera.Restore(cam);
             if (Target != null) { pos = Clamp(TargetPos()); velocity = Vector2.zero; Apply(pos); }
         }
