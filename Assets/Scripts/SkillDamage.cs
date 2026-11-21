@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
@@ -14,7 +14,7 @@ namespace ZenoniaProto
             Hits.Clear();
             if (!NetMode.IsAuthority) return Hits; // client: the skill picture plays, the server applies the damage
             ClassPalette hero = ClassPalette.Current;
-            ClassPalette.Current = sparks ?? ClassPalette.Neutral; // skills keep their element colour for the impact sparks
+            ClassPalette.Current = sparks ?? SkillSparks(hero); // skills keep their element colour for the impact sparks
             IReadOnlyList<Monster> all = Monster.All;
             for (int i = 0; i < all.Count; i++)
             {
@@ -32,5 +32,9 @@ namespace ZenoniaProto
             ClassPalette.Current = hero;
             return Hits;
         }
+
+        /// <summary>Impact colour of a skill hit without its own palette: Neutral, except the Warrior keeps his Knight gold (Neutral's crit ring is
+        /// red, which reads as a boss warning; RO trailer style 21/11).</summary>
+        public static ClassPalette SkillSparks(ClassPalette heroPalette) { return heroPalette == ClassPalette.Knight ? ClassPalette.Knight : ClassPalette.Neutral; }
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
@@ -63,7 +63,7 @@ namespace ZenoniaProto
         public static readonly HeroClassDef Warrior = new HeroClassDef
         {
             Id = HeroClass.Warrior, Name = "Warrior", Tagline = "Sword master. Tough, heavy blows up close.", ComboLabel = "Heavy locked slash on one foe",
-            BigIdleDown = "classes/warrior/body/armed/idle-down-big", SheetFolder = "classes/warrior/body/armed", BareFolder = "classes/warrior/body/bare", HandFolder = "classes/warrior/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "attack3", "melee1", "melee2", "melee3", "melee4", "melee1lr", "melee2rl", "melee3up" }, GearFile = "classes/warrior/held-gear", FxFolder = null, Palette = ClassPalette.Red,
+            BigIdleDown = "classes/warrior/body/armed/idle-down-big", SheetFolder = "classes/warrior/body/armed", BareFolder = "classes/warrior/body/bare", HandFolder = "classes/warrior/body/hand", HandAnims = new[] { "idle", "walk", "hurt", "attack3", "melee1", "melee2", "melee3", "melee4", "melee1lr", "melee2rl", "melee3up" }, GearFile = "classes/warrior/held-gear", FxFolder = null, Palette = ClassPalette.Knight,
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
             ComboAnims = new[] { "melee1lr", "melee2rl", "melee3up", "melee4" }, RisingStep = 3, // slash left -> right, slash right -> left, rising slash, jump cleave (Tools/build-warrior-combo-directions.py; old melee1-3 kept, Earth Break borrows melee1)
             ExtraAnims = new[] { InfernoCrashUltimate.PoseAnim, BerserkerAwakeningFx.PoseAnim, "melee1", "melee3" }, // melee1: Earth Break swing, melee3: Blade Cyclone spin (no longer combo hits)

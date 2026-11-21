@@ -10,6 +10,8 @@ painted sprite, combined with shader / particle FX) into the game sprite + its r
   the tip on the bottom row and centred horizontally, height OUT_H) and greatsword-runes.png (grey: the pale glowing runes on the fuller,
   softly dilated, same layout) for the shader's pulsing rune glow (PaintedFxObject _EmitTex). Writes .meta files once (mipmaps on, clamp).
 - --preview: the sword over dark / snow / grass swatches with the runes tinted, to check the cut by eye.
+- RO trailer style (21/11 evening, "Golden Knight Judgment"): the red parts of the painted art (blade, gem, grip) are regraded to a polished
+  steel-ivory blade / pale steel-blue gem / dark leather grip, the gold (crossguard, fuller, runes) is kept; `--red` keeps the original colours.
 """
 import os, sys, uuid
 import numpy as np, cv2
@@ -151,6 +153,28 @@ def key_out(rgb):
     return out, alpha
 
 
+def steel_regrade(rgb):
+    """Red / crimson pixels (hue within ~22 degrees of red, saturated) -> polished steel-ivory: lightness kept and lifted, cool grey-blue tint,
+    soft blend at the hue border so the gold edges stay clean. Gold / orange (hue 25-60) and the dark outline are untouched."""
+    hsv = cv2.cvtColor(np.clip(rgb, 0, 255).astype(np.uint8), cv2.COLOR_RGB2HSV_FULL).astype(np.float32)
+    h, s, v = hsv[..., 0] * 360.0 / 256.0, hsv[..., 1] / 255.0, hsv[..., 2] / 255.0
+    dh = np.minimum(np.abs(h), np.abs(360.0 - h))                      # distance to red
+    w = np.clip((26.0 - dh) / 10.0, 0, 1) * np.clip((s - 0.3) / 0.25, 0, 1)
+    lum = (0.3 * rgb[..., 0] + 0.59 * rgb[..., 1] + 0.11 * rgb[..., 2]) / 255.0
+    lift = np.clip(0.42 + lum * 1.05, 0, 1)                           # dark crimson -> mid steel, bright red -> near ivory
+    steel = np.stack([lift * 0.9, lift * 0.95, lift * 1.0], -1) * 255.0
+    steel = steel * 0.9 + np.array([254, 253, 248], np.float32) * 0.1 * lift[..., None]
+    out = rgb * (1 - w[..., None]) + steel * w[..., None]
+    # orange gold (hue 18-55) -> champagne gold: hue pushed ~9 degrees toward yellow, saturation -25 %, a little lighter (palette #F3E1A8 family)
+    g = np.clip((dh - 16.0) / 8.0, 0, 1) * np.clip((62.0 - h) / 8.0, 0, 1) * (h < 90)
+    hsv2 = cv2.cvtColor(np.clip(out, 0, 255).astype(np.uint8), cv2.COLOR_RGB2HSV_FULL).astype(np.float32)
+    hsv2[..., 0] = np.clip(hsv2[..., 0] + 9.0 * 256.0 / 360.0 * g, 0, 255)
+    hsv2[..., 1] = hsv2[..., 1] * (1 - 0.25 * g)
+    hsv2[..., 2] = np.clip(hsv2[..., 2] * (1 + 0.06 * g), 0, 255)
+    champ = cv2.cvtColor(hsv2.astype(np.uint8), cv2.COLOR_HSV2RGB_FULL).astype(np.float32)
+    return out * (1 - g[..., None]) + champ * g[..., None]
+
+
 def rune_mask(rgb, alpha):
     """The carved runes on the gold fuller: pixels clearly brighter than their surroundings (white top-hat of the luminance) inside the fuller
     strip (centre column, between the crossguard and the fuller's point; FULLER_* as fractions of the cropped sword). Gold edge highlights
@@ -184,6 +208,8 @@ def main():
     src = args[0]
     rgb = np.asarray(Image.open(src).convert("RGB")).astype(np.float32)
     col, alpha = key_out(rgb)
+    if "--red" not in args:
+        col = steel_regrade(col)
     ys, xs = np.nonzero(alpha > 0.05)
     y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
     # centre on the tip column (lowest opaque rows), so the point lands on the quad's foot centre
@@ -214,7 +240,7 @@ def main():
         for bg in ((40, 30, 60), (235, 238, 245), (90, 140, 70)):
             base = np.ones_like(a[..., :3]) * np.array(bg, np.float32) / 255
             c = base * (1 - a[..., 3:]) + a[..., :3] * a[..., 3:]
-            c = np.clip(c + r * np.array([1.0, 0.55, 0.15]) * 0.8, 0, 1)
+            c = np.clip(c + r * np.array([1.0, 0.85, 0.45]) * 0.6, 0, 1)
             tiles.append(c)
         Image.fromarray((np.concatenate(tiles, 1) * 255).astype(np.uint8)).save(preview)
         print("preview", preview)

@@ -1,0 +1,46 @@
+ChatGPT said:
+Round 3 Review — Charging Strike V5 / Inferno Crash V5
+1) Charging Strike V5
+Criterion	Max	Score
+A. Palette	20	18
+B. Silhouette	20	17
+C. Transparency / blend	15	13
+D. Scale vs H	10	9
+E. Timing / impact	15	13
+F. Ground / 2.5D	10	8
+G. Crowd readability	10	9
+TOTAL	100	87
+
+VERDICT: APPROVE
+
+The big problem from V4 is largely fixed. It now reads as a physical charge / thrust instead of a horizontal energy beam. The spearhead + thin steel line + broken trailing streaks are much more in the classic Ragnarok language.
+
+Remaining issues
+
+MINOR — corridor still slightly too visible on grass. Lower the #D5C378 ground-band alpha from ~0.15 -> 0.11–0.13 so the lane guides the hit area without reading like a luminous strip.
+MINOR — impact star a touch wide in side frames. Keep the 1.5H star, but shorten its brightest core duration to 55–75 ms and reduce the outer rays by 10–15%.
+2) Inferno Crash V5
+Criterion	Max	Score
+A. Palette	20	18
+B. Silhouette	20	17
+C. Transparency / blend	15	12
+D. Scale vs H	10	10
+E. Timing / impact	15	14
+F. Ground / 2.5D	10	9
+G. Crowd readability	10	8
+TOTAL	100	88
+
+VERDICT: APPROVE
+
+This is now above threshold. The reduced circumference dominance helps a lot, and the six low honey flames now make the fire identity clearer without breaking the pale-Ragnarok look. Snow and grass both read well.
+
+Remaining issues
+
+MINOR — finisher ring still a bit attention-heavy at the last frame, especially on grass. Drop finisher ring alpha from 0.55 -> 0.42–0.46 while keeping the radius and timing unchanged.
+MINOR — center gets slightly crowded during the heaviest hit frames. Reduce the brightest central white-gold flash by 10–15% or cap pure-white core coverage to ~8–10% of the active burst area.
+Final decision
+Charging Strike V5: APPROVED
+Inferno Crash V5: APPROVED
+
+That closes the two remaining Warrior VFX revisions. The Warrior set is now consistently within the approved classic Ragnarok / RO3 soft-fantasy direction.
+

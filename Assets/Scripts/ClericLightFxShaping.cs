@@ -25,6 +25,40 @@ namespace ZenoniaProto
 
         public ClericLightFx Pop(float ms) { if (layers.Count > 0) Last.PopMs = Mathf.Max(1f, ms); return this; }
 
+        static readonly System.Collections.Generic.Dictionary<int, Mesh> AimMeshes = new System.Collections.Generic.Dictionary<int, Mesh>();
+
+        /// <summary>Lays the last added (centred, unsquashed: Ground(..., squash 1)) quad on the ground TURNED toward `deg` (0 = right, 90 = up the
+        /// screen) and then squashed by `squash`: the quad's +x axis points along the aim on the ground plane, so a fan drawn along +x (RoSoftSector)
+        /// faces the strike (a plain localRotation would squash first and tilt the fan). `mirror` flips the quad's v: the fan opens the other way
+        /// round. Meshes are baked once per whole degree (RO trailer style Warrior sectors, 21/11/2026).</summary>
+        public ClericLightFx Aim(float deg, float squash, bool mirror = false)
+        {
+            if (layers.Count == 0) return this;
+            int d = Mathf.RoundToInt(Mathf.Repeat(deg, 360f)), key = d * 4000 + Mathf.RoundToInt(squash * 1000f) * 2 + (mirror ? 1 : 0);
+            Mesh m;
+            if (!AimMeshes.TryGetValue(key, out m) || m == null)
+            {
+                float a = d * Mathf.Deg2Rad, c = Mathf.Cos(a), s = Mathf.Sin(a);
+                var v = new Vector3[4];
+                Vector2[] corners = { new Vector2(-0.5f, -0.5f), new Vector2(0.5f, -0.5f), new Vector2(-0.5f, 0.5f), new Vector2(0.5f, 0.5f) };
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 p = corners[i];
+                    v[i] = new Vector3(p.x * c - p.y * s, (p.x * s + p.y * c) * squash, 0f);
+                }
+                m = new Mesh { name = "LightQuadAim" };
+                m.vertices = v;
+                m.uv = mirror ? new[] { new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(1f, 0f) }
+                              : new[] { new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(1f, 1f) };
+                m.triangles = new[] { 0, 2, 1, 1, 2, 3 };
+                m.RecalculateBounds();
+                AimMeshes[key] = m;
+            }
+            MeshFilter f = Last.R.GetComponent<MeshFilter>();
+            if (f != null) f.sharedMesh = m;
+            return this;
+        }
+
         public ClericLightFx Drop(float dy, float ms)
         {
             if (layers.Count == 0) return this;

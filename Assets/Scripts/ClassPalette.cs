@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ZenoniaProto
 {
@@ -6,7 +6,7 @@ namespace ZenoniaProto
     /// One colour identity per class for every basic-attack effect (slash sprites, sword trail ribbon, impact sparks / flash / ring,
     /// projectiles, bursts, additive glow). All values live here. Tint recolours the painted FX art (luminance kept, hottest pixels
     /// stay white, see SpriteTint) so every effect keeps a white-hot core.
-    ///   Warrior RED   Wizard VIOLET-BLUE (Arcane)   Mechanic YELLOW (or BLUE with C)   Assassin PURPLE (violet / near-black wisps, own dagger FX shapes)   Cleric GREEN   Fighter ORANGE (shares the mechanic's palette)
+    ///   Warrior KNIGHT GOLD (was red until 21/11)   Wizard VIOLET-BLUE (Arcane)   Mechanic YELLOW (or BLUE with C)   Assassin PURPLE (violet / near-black wisps, own dagger FX shapes)   Cleric GREEN   Fighter ORANGE (shares the mechanic's palette)
     /// </summary>
     public sealed class ClassPalette
     {
@@ -18,6 +18,9 @@ namespace ZenoniaProto
 
         public static readonly ClassPalette Neutral = Make(new Color(1f, 0.62f, 0.2f), Color.white, new Color(1f, 0.55f, 0.15f), new Color(0.9f, 0.12f, 0.1f), new Color(1f, 0.85f, 0.7f));
         public static readonly ClassPalette Red = Make(new Color(1f, 0.1f, 0.06f), Color.white, new Color(1f, 0.3f, 0.08f), new Color(0.7f, 0f, 0.07f), new Color(1f, 0.16f, 0.1f)); // blood red: crimson edge, red-orange band, thin white core
+        /// <summary>Warrior "Knight of Light and Steel" (RO trailer style 21/11 evening): pale gold / ivory sparks and a champagne crit ring, never
+        /// red (red = boss warnings). Also what the Warrior's skills hit with (SkillDamage.SkillSparks).</summary>
+        public static readonly ClassPalette Knight = Make(new Color(0.96f, 0.88f, 0.55f), Color.white, new Color(0.98f, 0.93f, 0.62f), new Color(0.84f, 0.76f, 0.47f), new Color(1f, 0.84f, 0.45f)); // glow gold: the hit flash must not read as a white blob on snow
         public static readonly ClassPalette Orange = Make(new Color(1f, 0.58f, 0.1f), Color.white, new Color(1f, 0.7f, 0.2f), new Color(0.95f, 0.38f, 0.04f), new Color(1f, 0.75f, 0.35f));
         public static readonly ClassPalette Yellow = Make(new Color(1f, 0.82f, 0.12f), Color.white, new Color(1f, 0.9f, 0.3f), new Color(0.9f, 0.6f, 0.05f), new Color(1f, 0.88f, 0.4f)); // mechanic: electric yellow, amber-brass edge (class colour 2026-11-08)
         public static readonly ClassPalette Blue = Make(new Color(0.15f, 0.6f, 1f), Color.white, new Color(0.35f, 0.82f, 1f), new Color(0.08f, 0.38f, 1f), new Color(0.5f, 0.85f, 1f));

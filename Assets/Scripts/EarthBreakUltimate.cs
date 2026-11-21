@@ -107,7 +107,7 @@ namespace ZenoniaProto
             GameClock.HitStop(80f); // grand pass 21/11 (ChatGPT spec 85 ms; was 45)
             CameraFollow.SkillShake(1f);
             CameraFollow.SkillPunch(1f);
-            ScreenFlash.Trigger(new Color(1f, 0.55f, 0.15f, 0.1f), 0.18f);
+            ScreenFlash.Trigger(WarriorLightLook.IvoryFlash(0.07f), 0.16f); // RO trailer style: ivory, never orange-red
         }
 
         void Burn()

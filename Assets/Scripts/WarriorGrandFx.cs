@@ -1,29 +1,28 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Building blocks of the Warrior's GRAND skill FX (21/11; user after the first shader pass: "chơi warrior vẫn thấy chán, không có hiệu ứng gì
-    /// mạnh mẽ"; review loop + ChatGPT concepts in docs/reference/warrior-fx-grand/). All shader quads / mesh ribbons / particles on a ClericLightFx
-    /// host (its clock, anchor and crowd LOD), sizes in world units (H = hero height ~20):
-    ///  - Slash: 4-layer sword ribbon: wide soft glow, DARK rim underlay (1.5x), opaque saturated body, white-hot core line (0.38x);
-    ///  - Impact: white-hot flash for 2-3 frames, spiky burst star, orange flash halo, streaking sparks + embers;
-    ///  - Shock: thick opaque ground shockwave (war-shock: sharp front + solid trailing band) running out to a radius;
-    ///  - Scorch: dark burnt decal + glowing cracks lingering ~0.6-1 s;
-    ///  - Pillar: solid flame pillar (dark red rim, white-yellow core tongue inside), pops in, dissolves out, embers off the top;
-    ///  - Fireball: solid fire puffs rising + dark smoke; Charge: anticipation glow gathering on the blade before a big hit.
+    /// Building blocks of the Warrior's skill FX in the "RO trailer style" (user 21/11: Warrior = Knight of Light and Steel, BIG + TRANSLUCENT +
+    /// PALE + clear shapes; guide docs/reference/ro-trailer-skill-style/prompt-templates.md). All shader quads / mesh ribbons / particles on a
+    /// ClericLightFx host (its clock, anchor and crowd LOD), sizes in world units (H = hero height ~20.5):
+    ///  - Sector: the pale Bash fan lying flat on the ground (RoSoftSector), opening as a sweep, bright ivory rim on the real hit range;
+    ///  - Slash: 3-layer sword ribbon: soft Outer veil (2.2x, ~0.12), translucent Body (~0.34), thin Bright / Core edge line (0.22x, additive);
+    ///  - Impact: short ivory flash (2-3 frames), a translucent star, a few ivory sparkles (no embers);
+    ///  - Shock: thin ground ring (war-shock) with a bright edge and a transparent body, running out to a radius;
+    ///  - Column: a translucent golden light column (Earth Break, Berserker) instead of the old fire pillars;
+    ///  - Lick / HoneyBurst / Embers: the small honey-fire touches of the two real Fire skills (Flame Cleave, Inferno Crash) only;
+    ///  - Charge: anticipation glow gathering on the blade before a big hit.
+    /// No dark rims, scorch decals, smoke or red anywhere (red = boss warnings).
     /// </summary>
     public static class WarriorGrandFx
     {
         const float H = WarriorLightLook.H, Sq = ClericLightFx.Squash;
         static readonly Dictionary<string, ClericLightLook.Pal> Mono = new Dictionary<string, ClericLightLook.Pal>();
 
-        /// <summary>White-yellow inner fire (core tongue of a pillar, fireball centre).</summary>
-        public static readonly ClericLightLook.Pal Hot = new ClericLightLook.Pal("WarHot", 0xFFC45B, 0xFFEC90, 0xFFFFF2, 0xFF8B35, new Color(1f, 0.6f, 0.15f));
-        /// <summary>Flame pillar body (ChatGPT round 1: outer 35-45 % red, middle orange, inner yellow, white <= 8 %).</summary>
-        public static readonly ClericLightLook.Pal Pyre = new ClericLightLook.Pal("WarPyre", 0xE72A25, 0xFF8B35, 0xFFC45B, 0x541B1E, new Color(0.85f, 0.25f, 0.04f));
-        static readonly ClericLightLook.Pal Soot = new ClericLightLook.Pal("WarSoot", 0x3A2A22, 0x5E4A3E, 0x7A6656, 0x1A120E, Color.black);
+        /// <summary>Ivory-white highlight palette (impact cores, the edge line of a slash).</summary>
+        public static readonly ClericLightLook.Pal Hot = new ClericLightLook.Pal("WarIvory", 0xF5EA7C, 0xFEFDF8, 0xFFFFFF, 0xD5C378, new Color(0.5f, 0.47f, 0.32f));
 
         static ClericLightLook.Pal One(ClericLightLook.Pal p, string tag, Color c)
         {
@@ -35,102 +34,119 @@ namespace ZenoniaProto
             return m;
         }
 
-        /// <summary>Sword ribbon in 4 layers (see the class summary); `width` = the opaque body (0.3-0.45 H for skills). Returns the body ribbon.</summary>
+        static Color K(Color c, float k) { return new Color(c.r * k, c.g * k, c.b * k, 1f); }
+
+        /// <summary>Sword ribbon in 3 translucent layers (see the class summary); `width` = the body. Returns the body ribbon.</summary>
         public static ArcRibbonFx Slash(ClericLightFx fx, ArcRibbonFx.PathFn path, float t0, float sweepMs, float tailMs, float width, ClericLightLook.Pal p, float alpha,
             RibbonSort sort = RibbonSort.Over, int order = 0, HeroController around = null, float splitY = 6f, bool linear = false)
         {
-            var parts = new List<ArcRibbonFx>(4);
-            parts.Add(ArcRibbonFx.Add(fx, path, t0, sweepMs, tailMs * 1.2f, width * 2.3f, One(p, "glow", p.Main), alpha * 0.5f, sort, order - 2, around, splitY,
-                WarriorLightLook.TrailLayer(p.Name + "|glow", ClericLightLook.A(p.Main, 0.3f), new Color(p.Glow.r * 0.9f, p.Glow.g * 0.9f, p.Glow.b * 0.9f, 1f), 0f)));
-            parts.Add(ArcRibbonFx.Add(fx, path, t0, sweepMs, tailMs * 1.08f, width * 1.5f, One(p, "rim", p.Rim), alpha * 0.9f, sort, order - 1, around, splitY,
-                WarriorLightLook.TrailLayer(p.Name + "|rim", ClericLightLook.A(p.Rim, 0.92f), new Color(0.12f, 0.03f, 0.01f, 1f), 0f)));
+            var parts = new List<ArcRibbonFx>(3);
+            parts.Add(ArcRibbonFx.Add(fx, path, t0, sweepMs, tailMs * 1.15f, width * 1.6f, One(p, "veil", p.Rim), alpha * 0.85f, sort, order - 1, around, splitY,
+                WarriorLightLook.TrailLayer(p.Name + "|veil", ClericLightLook.A(p.Rim, 0.3f), K(p.Glow, 0.25f), 0f))); // r2: same-family Outer edge, what keeps the ribbon on snow
             ArcRibbonFx body = ArcRibbonFx.Add(fx, path, t0, sweepMs, tailMs, width, p, alpha, sort, order, around, splitY, WarriorLightLook.TrailBright(p));
             parts.Add(body);
-            parts.Add(ArcRibbonFx.Add(fx, path, t0, sweepMs, tailMs * 0.85f, width * 0.38f, One(p, "core", p.Core), alpha, sort, order + 1, around, splitY,
-                WarriorLightLook.TrailLayer(p.Name + "|core", ClericLightLook.A(p.Core, 1f), new Color(1.5f, 1.25f, 0.9f, 1f), 1.6f)));
+            parts.Add(ArcRibbonFx.Add(fx, path, t0, sweepMs, tailMs * 0.8f, width * 0.26f, One(p, "edge", p.Light), alpha, sort, order + 1, around, splitY,
+                WarriorLightLook.TrailLayer(p.Name + "|edge", ClericLightLook.A(p.Light, 0.75f), K(p.Glow, 1.1f), 0.9f)));
             if (linear) foreach (ArcRibbonFx r in parts) if (r != null) r.Linear();
             return body;
         }
 
-        /// <summary>Impact at `at` (offset from the host anchor) at `t`, `size` units across (1.5-2.5 H for a big hit): a white-hot disc for ~50 ms,
-        /// a spiky burst star, an orange flash halo, `sparks` streaking sparks + embers. `band` Behind keeps the hero visible for a hit on himself.</summary>
+        /// <summary>
+        /// Pale ground fan (the Bash sector) centred `at` (offset from the host anchor), pointing `aimDeg`, `angleDeg` wide (>= 360 = full disc),
+        /// its bright rim at `radius` (the real hit range). Opens as a sweep over `sweepMs` from `t`, holds, fades over `outMs` before `t + life`.
+        /// `mirror` opens it the other way round. Returns the host. When the shader is missing: a ground ribbon arc on the rim.
+        /// </summary>
+        public static ClericLightFx Sector(ClericLightFx fx, float t, float sweepMs, float life, float outMs, Vector2 at, float aimDeg, float angleDeg, float radius,
+            ClericLightLook.Pal p, float bodyA = 0.26f, float rimA = 0.6f, bool mirror = false, float inner = 0.12f, int order = 2)
+        {
+            Material m = WarriorLightLook.Sector(p, angleDeg, bodyA, rimA, inner);
+            float d = 2f * radius / WarriorLightLook.SectorRim;
+            if (m == null)
+            {
+                float gm = WarriorLightLook.ParamDeg(aimDeg, Sq), half = Mathf.Min(180f, angleDeg * 0.5f);
+                Slash(fx, ArcRibbonFx.Arc(at, radius, Sq, gm + half, gm - half), t, sweepMs, life, 0.3f * H, p, 0.8f, RibbonSort.Ground, order);
+                return fx;
+            }
+            return fx.Ground(m, t, t + life, d * 0.97f, d, 1f, 1f, 0f, order, at).Aim(aimDeg, Sq, mirror).Reveal(Mathf.Max(1f, sweepMs)).Env(0f, outMs);
+        }
+
+        /// <summary>Impact at `at` (offset from the host anchor) at `t`, `size` units across (RO: 0.8-1.8 H, ultimate 1.5-2.5 H): a short ivory flash,
+        /// a translucent star, `sparks` ivory sparkles. `band` Behind keeps the hero visible for a hit on himself.</summary>
         public static void Impact(ClericLightFx fx, float t, Vector2 at, float size, ClericLightLook.Pal p, int sparks, ClericLightFx.Band band = ClericLightFx.Band.Over)
         {
-            fx.Upright(WarriorLightLook.Flash(p), band, false, t, t + 260f, size * 0.4f, size * 0.95f, size * 0.36f, size * 0.85f, 0.85f, at, 5)
-              .Upright(WarriorLightLook.Spark(p), band, false, t, t + 200f, size * 0.45f, size * 1.1f, size * 0.45f, size * 1.1f, 1f, at, 6).Turn(Random.value * 30f)
-              .Upright(WarriorLightLook.Flash(Hot), band, false, t, t + 60f, size * 0.3f, size * 0.45f, size * 0.3f, size * 0.45f, 1f, at, 7).Env(0f, 25f);
+            fx.Upright(WarriorLightLook.Spark(p), band, false, t, t + 200f, size * 0.45f, size * 1.0f, size * 0.45f, size * 1.0f, 0.75f, at, 6).Turn(Random.value * 30f)
+              .Upright(WarriorLightLook.Flash(Hot), band, false, t, t + 60f, size * 0.16f, size * 0.26f, size * 0.16f, size * 0.26f, 0.65f, at, 7).Env(0f, 35f); // V3 review: core -25-30 %
+            if (sparks <= 0) return;
             fx.At(t, f =>
             {
-                MechanicLightBursts.Sparks(f, f.Anchor + at, sparks, 110f + size * 2.5f, 90f, 360f, p.Light, 0.32f, 1.9f);
-                MechanicLightBursts.Sparks(f, f.Anchor + at, sparks / 2, 70f + size * 2f, 90f, 360f, Hot.Core, 0.24f, 1.6f);
-                Embers(f, f.Anchor + at, sparks / 2, size * 0.3f, p);
+                MechanicLightBursts.Sparks(f, f.Anchor + at, sparks, 100f + size * 2f, 90f, 360f, p.Light, 0.26f, 1.7f);
+                f.Ring(true, f.Anchor + at, Mathf.Max(2, sparks / 4), 40f, 1.4f, 2.2f, Hot.Core, 0.22f);
             });
         }
 
-        /// <summary>Thick ground shockwave from radius r0 to r1 over `ms` (front lands exactly on r1), centred `at`.</summary>
-        public static ClericLightFx Shock(ClericLightFx fx, float t, float ms, Vector2 at, float r0, float r1, ClericLightLook.Pal p, float alpha = 1f, int order = 7)
+        /// <summary>Thin ground shockwave from radius r0 to r1 over `ms` (bright edge lands exactly on r1, body transparent), centred `at`.</summary>
+        public static ClericLightFx Shock(ClericLightFx fx, float t, float ms, Vector2 at, float r0, float r1, ClericLightLook.Pal p, float alpha = 0.8f, int order = 7)
         {
             return fx.Ground(WarriorLightLook.Wave(p), t, t + ms, 2f * r0 / WarriorLightLook.ShockBand, 2f * r1 / WarriorLightLook.ShockBand, alpha, Sq, 0f, order, at);
         }
 
-        /// <summary>Burnt decal of radius `r` at `at` that lingers `ms` (60 ms in, dissolves over the last 40 %), glowing `fire` cracks over it.</summary>
-        public static void Scorch(ClericLightFx fx, float t, float ms, Vector2 at, float r, ClericLightLook.Pal fire)
+        /// <summary>Translucent golden light column standing at `at`: `w` x `h`, pops up, streaks scrolling, dissolves out (replaces the fire pillars).</summary>
+        public static void Column(ClericLightFx fx, float t, float life, Vector2 at, float w, float h, ClericLightLook.Pal p, ClericLightFx.Band band = ClericLightFx.Band.Over,
+            int order = 3, LayerKind kind = LayerKind.Main, float alpha = 0.75f)
         {
-            fx.Ground(WarriorLightLook.ScorchMat, t, t + ms, r * 1.7f, r * 2f, 1f, Sq, Random.value * 360f, 1, at).Env(60f, ms * 0.4f).Dissolve()
-              .Ground(WarriorLightLook.Line(WarriorLightLook.Crack, fire), t, t + ms * 0.75f, r * 1.8f, r * 1.9f, 1f, Sq, 0f, 3, at).Env(30f, ms * 0.35f).Dissolve();
+            fx.Upright(ClericLightLook.Column(p), band, true, t, t + life, w * 0.6f, w, h * 0.35f, h, alpha, at, order).Pop(140f).Env(0f, life * 0.45f).Kind(kind)
+              .Upright(WarriorLightLook.Glyph(ClericLightLook.Streak, Hot), band, true, t, t + life * 0.55f, w * 0.18f, w * 0.28f, h * 0.3f, h * 0.85f, 0.7f, at, order + 1).Pop(120f).Dissolve().Kind(LayerKind.Detail);
         }
 
-        /// <summary>Flame pillar standing at `at`: solid tongue `w` x `h` (dark red rim, gold body) + white-yellow inner tongue, embers off the top.</summary>
-        public static void Pillar(ClericLightFx fx, float t, float life, Vector2 at, float w, float h, ClericLightLook.Pal p, ClericLightFx.Band band = ClericLightFx.Band.Over, int order = 3, LayerKind kind = LayerKind.Main)
+        /// <summary>Small honey flame tongue (Fire skills only): `w` x `h`, quick pop, gone in `life` (&lt;= ~250 ms for Flame Cleave).</summary>
+        public static void Lick(ClericLightFx fx, float t, float life, Vector2 at, float w, float h, ClericLightFx.Band band = ClericLightFx.Band.Over, int order = 3, LayerKind kind = LayerKind.Detail, float alpha = 0.78f)
         {
-            fx.Upright(WarriorLightLook.Glyph(WarriorLightLook.FlameTongue, Pyre), band, true, t, t + life, w * 0.55f, w, h * 0.25f, h, 1f, at, order).Pop(150f).Dissolve().Kind(kind)
-              .Upright(WarriorLightLook.Glyph(WarriorLightLook.FlameTongue, Hot), band, true, t + 20f, t + life * 0.7f, w * 0.25f, w * 0.45f, h * 0.12f, h * 0.5f, 1f, at, order + 1).Pop(130f).Dissolve().Kind(LayerKind.Detail);
-            fx.At(t + 90f, f => Embers(f, f.Anchor + at + new Vector2(0f, h * 0.6f), 3, w * 0.3f, p));
+            fx.Upright(WarriorLightLook.Glyph(WarriorLightLook.FlameTongue, WarriorLightLook.Flame), band, true, t, t + life, w * 0.5f, w * 0.85f, h * 0.3f, h, alpha, at, order).Pop(110f).Dissolve().Kind(kind);
         }
 
-        /// <summary>Solid fireball at `at` (radius r): 3 fire puffs growing and rising, a white-yellow core, then dark smoke rising and dissolving.</summary>
-        public static void Fireball(ClericLightFx fx, float t, Vector2 at, float r, ClericLightLook.Pal p)
+        /// <summary>Honey fire burst at `at` (radius r, Fire skills only): 3 translucent honey puffs rising + an ivory core, no smoke.</summary>
+        public static void HoneyBurst(ClericLightFx fx, float t, Vector2 at, float r)
         {
-            Material fire = WarriorLightLook.Glyph(MechanicLightLook.Puff, p), hot = WarriorLightLook.Glyph(MechanicLightLook.Puff, Hot);
+            Material fire = WarriorLightLook.Glyph(MechanicLightLook.Puff, WarriorLightLook.Flame), hot = WarriorLightLook.Flash(Hot);
             for (int i = 0; i < 3; i++)
             {
-                float a = (i * 120f + Random.Range(-30f, 30f)) * Mathf.Deg2Rad, s = r * Random.Range(1f, 1.25f);
+                float a = (i * 120f + Random.Range(-30f, 30f)) * Mathf.Deg2Rad, s = r * Random.Range(0.9f, 1.1f);
                 Vector2 off = at + new Vector2(Mathf.Cos(a), Mathf.Sin(a) * 0.8f) * r * 0.25f;
-                fx.Upright(fire, ClericLightFx.Band.Over, false, t + i * 20f, t + 380f + i * 40f, s * 0.4f, s * 1.2f, s * 0.4f, s * 1.15f, 1f, off, 3 + i).Rise(r * 0.35f).Dissolve();
+                fx.Upright(fire, ClericLightFx.Band.Over, false, t + i * 20f, t + 320f + i * 30f, s * 0.4f, s * 1.1f, s * 0.4f, s * 1.05f, 0.6f, off, 3 + i).Rise(r * 0.3f).Dissolve();
             }
-            fx.Upright(hot, ClericLightFx.Band.Over, false, t, t + 240f, r * 0.4f, r * 0.9f, r * 0.4f, r * 0.9f, 1f, at, 7).Dissolve();
-            for (int i = 0; i < 4; i++)
-            {
-                float a = (i * 90f + Random.Range(-25f, 25f)) * Mathf.Deg2Rad, s = r * Random.Range(0.8f, 1.05f), t0 = t + 140f + i * 35f;
-                Vector2 off = at + new Vector2(Mathf.Cos(a), Mathf.Sin(a) * Sq) * r * 0.45f;
-                fx.Upright(SkillLightMaterials.Smoke(MechanicLightLook.Puff, Soot, 0.8f), ClericLightFx.Band.Over, false, t0, t0 + 760f, s * 0.5f, s * 1.3f, s * 0.5f, s * 1.3f, 0.85f, off, i % 2 == 0 ? 1 : 2)
-                  .Rise(r * 0.8f).Dissolve().Kind(LayerKind.Detail);
-            }
+            fx.Upright(hot, ClericLightFx.Band.Over, false, t, t + 150f, r * 0.3f, r * 0.6f, r * 0.3f, r * 0.6f, 0.9f, at, 7).Env(0f, 90f);
         }
 
-        /// <summary>Anticipation on the blade from t0 to t1: a hot glow gathering at `at` (grows to `size`), a spinning star, motes drawn in.</summary>
+        /// <summary>Anticipation on the blade from t0 to t1: a soft ivory glow gathering at `at` (grows to `size`), a small star, motes drawn in.</summary>
         public static void Charge(ClericLightFx fx, float t0, float t1, Vector2 at, float size, ClericLightLook.Pal p)
         {
             float span = Mathf.Max(60f, t1 - t0);
-            fx.Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Over, false, t0, t1 + 60f, size * 0.25f, size, size * 0.25f, size, 0.95f, at, 4).Env(span * 0.85f, 60f)
-              .Upright(WarriorLightLook.Spark(Hot), ClericLightFx.Band.Over, false, t0 + span * 0.4f, t1 + 60f, size * 0.3f, size * 0.8f, size * 0.3f, size * 0.8f, 1f, at, 5).Env(span * 0.4f, 50f);
+            fx.Upright(WarriorLightLook.Flash(p), ClericLightFx.Band.Over, false, t0, t1 + 50f, size * 0.25f, size * 0.8f, size * 0.25f, size * 0.8f, 0.7f, at, 4).Env(span * 0.85f, 50f)
+              .Upright(WarriorLightLook.Spark(Hot), ClericLightFx.Band.Over, false, t0 + span * 0.4f, t1 + 50f, size * 0.3f, size * 0.7f, size * 0.3f, size * 0.7f, 0.8f, at, 5).Env(span * 0.4f, 40f);
             for (int i = 0; i < 3; i++)
                 fx.At(t0 + i * span / 3f, f =>
                 {
-                    int n = f.Count(6);
+                    int n = f.Count(5);
                     for (int k = 0; k < n; k++)
                     {
                         Vector2 d = WarriorLightSkills.Dir(Random.value * 360f) * size * 1.6f;
-                        f.Emit(false, f.Anchor + at + d, -d * 3.5f, Random.Range(1.6f, 2.6f), p.Light, 0.28f);
+                        f.Emit(false, f.Anchor + at + d, -d * 3.5f, Random.Range(1.4f, 2.2f), p.Light, 0.28f);
                     }
                 });
         }
 
-        /// <summary>`n` embers (soft hot dots) rising and drifting from `at` within `spread`.</summary>
+        /// <summary>`n` honey embers rising from `at` within `spread` (Fire skills only; keep n small: RO solo 12-20 at most).</summary>
         public static void Embers(ClericLightFx f, Vector2 at, int n, float spread, ClericLightLook.Pal p)
         {
-            f.Puff(false, at, n, spread, 38f, 1.6f, 2.8f, p.Light, 0.7f);
-            f.Puff(false, at, Mathf.Max(1, n / 2), spread, 55f, 1.2f, 2f, Hot.Core, 0.55f);
+            f.Puff(false, at, n, spread, 34f, 1.3f, 2.2f, p.Light, 0.6f);
+        }
+
+        /// <summary>A point on the ground ellipse at `deg`, `dist` units from the centre.</summary>
+        public static Vector2 OnGround(float deg, float dist)
+        {
+            Vector2 d = WarriorLightSkills.Dir(deg) * dist;
+            d.y *= Sq;
+            return d;
         }
     }
 }

@@ -5,12 +5,12 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Warrior skills in "RO3 Soft Fantasy V1" (2026-11-21, user: "làm lại hết skill của warrior ... đổi qua kiểu mới"): Mesh Trail sword arcs
-    /// (ArcRibbonFx) + LightBlob shapes + particles on the Cleric light toolkit (ClericLightFx), no painted frames (the choreography sprites
+    /// Warrior skills, "RO trailer style" since 21/11 evening (BIG, translucent, pale Knight gold; docs/reference/ro-trailer-skill-style/): Mesh Trail
+    /// sword arcs (ArcRibbonFx) + ground sectors (RoSoftSector) + LightBlob shapes + particles on the Cleric light toolkit (ClericLightFx), no painted frames (the choreography sprites
     /// were removed). Render only: damage, pull, burn and the dash stay in the skill data (SkillRun on the authority). Every impact is timed on the
     /// strike steps of SkillTable (read through SkillSchedule, so the picture cannot drift from the numbers).
-    ///  - Power Slash (here): 8-hit barrage in a 160 degree, 3-tile arc: one ribbon per hit alternating direction, the finisher widest + boundary arc;
-    ///  - Whirlwind (here): 3 spinning ribbons round the hero on a boundary ring of the 2.5-tile radius, a pulse per hit (0 / 250 / 500 ms);
+    ///  - Power Slash (here): the Bash fan on the ground + 8 thin arcs back and forth, the finisher a brighter second sweep + star;
+    ///  - Whirlwind (here): faint full-circle ground light + 2 broken gold / steel air arcs spinning, a thin ring per hit (0 / 250 / 500 ms);
     ///  - Flame Cleave, Charging Strike: WarriorLightStrikes. Earth Break, Blade Cyclone, Inferno Crash, Berserker Awakening keep their own
     ///    timeline classes, which now draw with WarriorEarthBreakLightFx / WarriorCycloneLightFx / WarriorInfernoLightFx / WarriorBerserkerLightFx.
     /// Shake / hit-stop / punch only for the local caster (sprite-rules VFX 12). Multi-hit numbers (SkillHitSplit, 21/11): a hit shown as N damage
@@ -73,10 +73,12 @@ namespace ZenoniaProto
         public static float AngleOf(Vector2 dir) { return Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; }
 
         /// <summary>
-        /// Power Slash (8 hits: 90, 135 ... 315, 365, 440 ms), grand pass 21/11. Windup 0-90: a hot glow gathers on the blade (anticipation). Each
-        /// small hit: a crimson crescent (WarriorGrandFx.Slash, 0.3 H) sweeping the 160 degree arc back and forth + a small burst star and sparks;
-        /// the 7th: 0.38 H + a bigger star, short stop; the finisher: the widest crescent (0.95 r, 0.45 H), a burst at the target, a faint hollow
-        /// shock to the real radius, a thick boundary arc on the ground, a small scorch, sparks fanning out, rocks, the 60 ms stop / shake.
+        /// Power Slash (8 hits: 90, 135 ... 315, 365, 440 ms; 160 degree arc, 3 tiles), RO trailer style 21/11 (concept
+        /// docs/reference/warrior-fx-ro-trailer/concept-power-slash-chatgpt.png): the Knight Bash. Windup 0-90: a soft ivory glow on the blade.
+        /// Hit 1: a big pale-gold ground fan (RoSoftSector, body ~0.22, ivory rim exactly on the real 3-tile reach) sweeps open in 70 ms and stays
+        /// faintly through the barrage; each hit a thin translucent sword arc inside the fan, back and forth, + a small star; the 7th a bigger star;
+        /// the finisher a second, brighter fan sweeping the other way, the widest arc, a 1.5 H white-gold star on the group, a thin shock ring to the
+        /// reach, the 60 ms stop. No fire, scorch or embers (Neutral skill).
         /// </summary>
         static void PowerSlash(SkillContext ctx)
         {
@@ -86,81 +88,73 @@ namespace ZenoniaProto
             float r = arc.Radius * ctx.Units, aim = AngleOf(ctx.Dir), half = arc.AngleDeg * 0.5f;
             var fin = new List<bool>();
             List<float> hits = StrikeTimes(ctx.Def, fin);
-            float end = hits.Count > 0 ? hits[hits.Count - 1] : 440f;
+            float first = hits.Count > 0 ? hits[0] : 90f, end = hits.Count > 0 ? hits[hits.Count - 1] : 440f;
             var fx = ClericLightFx.Create("PowerSlash", ctx.Feet, hero, end + 520f, ClericLightFx.DimFor(hero, null));
             Vector2 chest = new Vector2(0f, 9f), blade = chest + ctx.Dir * 7f;
             const float Sq = 0.6f;
             float mid = WarriorLightLook.ParamDeg(aim, Sq);
-            WarriorGrandFx.Charge(fx, 0f, Mathf.Max(60f, hits.Count > 0 ? hits[0] : 90f), blade, 0.9f * H, p); // anticipation on the blade
+            WarriorGrandFx.Charge(fx, 0f, Mathf.Max(60f, first), blade, 0.8f * H, p);
+            // The dominant shape: the Bash fan on the ground (opens with the first hit, faint through the barrage), then the finisher's brighter sweep
+            WarriorGrandFx.Sector(fx, first - 40f, 70f, end - first + 300f, 280f, Vector2.zero, aim, arc.AngleDeg, r, p, 0.36f, 0.75f);
+            WarriorGrandFx.Sector(fx, end - 35f, 60f, 330f, 250f, Vector2.zero, aim, arc.AngleDeg, r, p, 0.28f, 0.9f, true, 0.18f, 3);
             for (int i = 0; i < hits.Count; i++)
             {
                 bool last = i == hits.Count - 1, penult = i == hits.Count - 2;
-                float t = hits[i], rad = last ? 0.95f : penult ? 0.82f : (i % 2 == 0 ? 0.55f : 0.7f);
-                float sweep = last ? 90f : 60f, tail = last ? 240f : penult ? 180f : 140f, w = last ? 0.58f * H : penult ? 0.32f * H : 0.24f * H;
+                float t = hits[i], rad = last ? 0.92f : penult ? 0.8f : (i % 2 == 0 ? 0.5f : 0.66f);
+                float sweep = last ? 80f : 55f, tail = last ? 110f : 130f, w = last ? 0.3f * H : penult ? 0.2f * H : 0.15f * H;
                 float a0 = mid + half, a1 = mid - half;
                 if (i % 2 == 1) { float s = a0; a0 = a1; a1 = s; }                                   // back and forth across the arc
-                Slash(fx, ArcRibbonFx.Arc(chest, r * rad / Norm(mid, Sq), Sq, a0, a1), t - sweep * 0.5f, sweep, tail, w, p, 1f, RibbonSort.Over);
-                Vector2 spot = chest + Dir(aim + Random.Range(-half, half) * 0.7f) * r * rad * 0.9f;
-                if (!last) WarriorGrandFx.Impact(fx, t, spot, (penult ? 1.2f : 0.75f) * H, p, penult ? 10 : 4);
+                Slash(fx, ArcRibbonFx.Arc(chest, r * rad / Norm(mid, Sq), Sq, a0, a1), t - sweep * 0.5f, sweep, tail, w, p, last ? 0.6f : 0.85f, RibbonSort.Over); // V3 review: the late finisher arc -40 %, gone ~100 ms after the hit
+                Vector2 spot = chest + Dir(aim + Random.Range(-half, half) * 0.6f) * r * rad * 0.85f;
+                if (!last) WarriorGrandFx.Impact(fx, t, spot, (penult ? 0.6f : 0.45f) * H, p, penult ? 5 : 2); // V3 review: barrage stars 0.45-0.6 H
                 if (penult) fx.At(t, f => WarriorLightLook.Punch(ctx.Body.IsLocal, 25f, 0.12f));
                 SplitPulses(fx, ctx.Def.Id, t, fin[i], last ? chest + ctx.Dir * r * 0.55f : spot, p, last ? 14f : 9f);
             }
-            // Finisher: white-hot impact, thick shockwave to the real radius, boundary arc, scorch, sparks fanning out, the stop / shake
             Vector2 hitAt = chest + ctx.Dir * r * 0.55f;
-            WarriorGrandFx.Impact(fx, end, hitAt, 1.25f * H, p, 22);
-            WarriorGrandFx.Shock(fx, end, 360f, ctx.Dir * r * 0.2f, r * 0.25f, r, p, 0.22f);
-            WarriorGrandFx.Scorch(fx, end, 600f, ctx.Dir * r * 0.6f, r * 0.22f, WarriorLightLook.Flame);
+            WarriorGrandFx.Impact(fx, end, hitAt, 1.2f * H, p, 10);
+            WarriorGrandFx.Shock(fx, end, 320f, Vector2.zero, r * 0.3f, r, p, 0.55f);
             fx.At(end, f =>
             {
-                float gm = WarriorLightLook.ParamDeg(aim, ClericLightFx.Squash);
-                Slash(f, ArcRibbonFx.Arc(Vector2.zero, r, ClericLightFx.Squash, gm + half, gm - half), end, 70f, 320f, 0.25f * H, p, 0.95f, RibbonSort.Ground, 3);
-                MechanicLightBursts.Sparks(f, f.Anchor + chest, 20, 150f, aim, half * 2f, p.Light, 0.35f, 2f);
-                UltimateFx.Dust(f.Anchor + ctx.Dir * r * 0.5f, f.Own ? 12 : 3, r * 0.35f);
-                UltimateFx.Debris(f.Anchor + ctx.Dir * r * 0.5f, f.Own ? 14 : 3, r * 0.3f, 90f);
-                WarriorLightLook.Punch(ctx.Body.IsLocal, 60f, 0.4f, 0.4f, 0.09f);
+                MechanicLightBursts.Sparks(f, f.Anchor + chest, 10, 140f, aim, half * 2f, p.Light, 0.3f, 1.8f);
+                UltimateFx.Dust(f.Anchor + ctx.Dir * r * 0.5f, f.Own ? 6 : 2, r * 0.3f);
+                WarriorLightLook.Punch(ctx.Body.IsLocal, 60f, 0.35f, 0.35f, 0.05f);
             });
         }
 
         /// <summary>
-        /// Whirlwind (hits 0 / 250 / 500 ms, radius 2.5 tiles, cast lock 750), grand pass 21/11: a faint boundary ring exactly at the radius with
-        /// bright arcs running round; TWO opposing thick crimson crescent blades spinning flat round the hero (far half behind him, near half in
-        /// front), 2 turns in 750 ms; each hit a hollow shock to the edge + sparks flung out; the last one a hit flash behind him, a scorch and
-        /// the stop / shake.
+        /// Whirlwind (hits 0 / 250 / 500 ms, radius 2.5 tiles, cast lock 750), RO trailer style 21/11: a faint pale-gold full-circle ground light
+        /// with an ivory rim exactly on the radius; TWO broken arcs of air spinning flat round the hero, offset in time (gold 0.82 r, steel 0.62 r,
+        /// 160 ms later), hollow centre; each hit a thin steel shock ring to the edge + sparkles; the last a star behind him and the stop / shake.
         /// </summary>
         static void Whirlwind(SkillContext ctx)
         {
             SkillEffect e = ctx.Def.Effects[0];
-            ClericLightLook.Pal p = WarriorLightLook.Blade;
+            ClericLightLook.Pal p = WarriorLightLook.Blade, steel = WarriorLightLook.Steel;
             HeroController hero = ctx.Body.Hero;
             float r = e.Radius * ctx.Units, lockMs = Mathf.Max(600f, ctx.Def.CastLockMs);
             var fin = new List<bool>();
             List<float> hits = StrikeTimes(ctx.Def, fin);
             var fx = ClericLightFx.Create("Whirlwind", ctx.Feet, hero, lockMs + 400f, ClericLightFx.DimFor(hero, null));
             float sq = ClericLightFx.Squash;
-            fx.Ground(WarriorLightLook.M(WarriorLightLook.Shock, p, ClericLightLook.Role.Arc), 0f, lockMs + 200f, 2f * r / WarriorLightLook.ShockBand * 0.92f, 2f * r / WarriorLightLook.ShockBand, 0.3f, sq, 0f, 4).Env(80f, 250f).Arc(-9f, 0f, 2);
+            WarriorGrandFx.Sector(fx, 0f, 160f, lockMs + 150f, 260f, Vector2.zero, 90f, 360f, r, p, 0.13f, 0.5f, false, 0.3f, 2);
             float start = Random.value * 360f;
-            for (int k = 0; k < 2; k++)                                                                  // two opposing thick crescent blades (ChatGPT round 1 / concept)
-            {
-                float rr = r * (0.62f + 0.2f * k), a0 = start + k * 180f;
-                Slash(fx, ArcRibbonFx.Arc(new Vector2(0f, 4f), rr, sq, a0, a0 - 720f), k * 30f, lockMs - 60f, 190f, (0.42f + 0.04f * k) * H, p, 1f, RibbonSort.Split, 0, hero, 4f, true);
-            }
+            Slash(fx, ArcRibbonFx.Arc(new Vector2(0f, 4f), r * 0.82f, sq, start, start - 640f), 0f, lockMs - 80f, 230f, 0.3f * H, p, 0.8f, RibbonSort.Split, 0, hero, 4f, true);
+            Slash(fx, ArcRibbonFx.Arc(new Vector2(0f, 4f), r * 0.62f, sq, start + 180f, start - 400f), 160f, lockMs - 200f, 200f, 0.22f * H, steel, 0.9f, RibbonSort.Split, 1, hero, 4f, true);
             for (int i = 0; i < hits.Count; i++)
             {
                 bool last = i == hits.Count - 1;
                 float t = hits[i];
-                WarriorGrandFx.Shock(fx, t, last ? 360f : 260f, Vector2.zero, r * 0.45f, r * (last ? 1.1f : 1f), p, last ? 0.5f : 0.4f, 6);
+                WarriorGrandFx.Shock(fx, t, last ? 340f : 260f, Vector2.zero, r * 0.45f, r, steel, last ? 0.65f : 0.5f, 6);
                 fx.At(t, f =>
                 {
-                    MechanicLightBursts.Sparks(f, f.Anchor + new Vector2(0f, 6f), last ? 28 : 12, last ? 170f : 120f, 90f, 360f, p.Light, 0.34f, 1.9f);
-                    UltimateFx.Dust(f.Anchor, f.Own ? (last ? 14 : 6) : 2, r * 0.6f);
-                    if (last) UltimateFx.Debris(f.Anchor, f.Own ? 16 : 4, r * 0.5f, 100f);
-                    WarriorLightLook.Punch(ctx.Body.IsLocal, last ? 55f : 15f, last ? 0.38f : 0.1f, last ? 0.35f : 0f, last ? 0.08f : 0f);
+                    MechanicLightBursts.Sparks(f, f.Anchor + new Vector2(0f, 6f), last ? 14 : 6, last ? 150f : 110f, 90f, 360f, p.Light, 0.3f, 1.7f);
+                    UltimateFx.Dust(f.Anchor, f.Own ? (last ? 8 : 3) : 1, r * 0.6f);
+                    WarriorLightLook.Punch(ctx.Body.IsLocal, last ? 50f : 12f, last ? 0.3f : 0.08f, last ? 0.3f : 0f, last ? 0.05f : 0f);
                 });
                 SplitPulses(fx, ctx.Def.Id, t, fin[i], new Vector2(0f, 8f) + Dir(Random.value * 360f) * r * 0.5f, p, 10f);
             }
             float lastT = hits.Count > 0 ? hits[hits.Count - 1] : 500f;
-            WarriorGrandFx.Impact(fx, lastT, new Vector2(0f, 8f), 2.2f * H, p, 0, ClericLightFx.Band.Behind);
-            WarriorGrandFx.Scorch(fx, lastT, 800f, Vector2.zero, r * 0.45f, WarriorLightLook.Flame);
+            WarriorGrandFx.Impact(fx, lastT, new Vector2(0f, 8f), 0.65f * H, p, 4); // V4 review: one small ivory pulse at the final hit
         }
 
         /// <summary>`n` motes drifting from the arc ahead toward the hero (the gather of the first hit).</summary>
@@ -175,11 +169,11 @@ namespace ZenoniaProto
             }
         }
 
-        /// <summary>A sword slash (WarriorGrandFx.Slash: glow, dark rim, opaque body, white-hot core). Returns the body ribbon.</summary>
+        /// <summary>A sword slash (WarriorGrandFx.Slash: soft veil, translucent body, thin ivory edge). Returns the body ribbon.</summary>
         public static ArcRibbonFx Slash(ClericLightFx fx, ArcRibbonFx.PathFn path, float t0, float sweepMs, float tailMs, float width, ClericLightLook.Pal p, float alpha,
             RibbonSort sort = RibbonSort.Over, int order = 0, HeroController around = null, float splitY = 6f, bool linear = false)
         {
-            return WarriorGrandFx.Slash(fx, path, t0, sweepMs, tailMs, width, p, alpha, sort, order, around, splitY, linear); // grand pass: 4 layers
+            return WarriorGrandFx.Slash(fx, path, t0, sweepMs, tailMs, width, p, alpha, sort, order, around, splitY, linear); // RO trailer style: 3 translucent layers
         }
 
         public static Vector2 Dir(float deg) { float a = deg * Mathf.Deg2Rad; return new Vector2(Mathf.Cos(a), Mathf.Sin(a)); }

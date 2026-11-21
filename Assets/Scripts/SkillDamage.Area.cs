@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using ZenoniaProto.Rpg;
 
@@ -54,7 +54,7 @@ namespace ZenoniaProto
                 Candidates.RemoveRange(limit, Candidates.Count - limit);
             }
             ClassPalette prev = ClassPalette.Current;
-            ClassPalette.Current = ctx.Sparks ?? ClassPalette.Neutral;
+            ClassPalette.Current = ctx.Sparks ?? SkillDamage.SkillSparks(prev);
             for (int i = 0; i < Candidates.Count; i++) { HitOne(ctx, e, Candidates[i], center, dir, defShare); Hits.Add(Candidates[i]); }
             ClassPalette.Current = prev;
             return Hits;
@@ -65,7 +65,7 @@ namespace ZenoniaProto
         {
             if (!NetMode.IsAuthority || target == null || target.IsDying) return false;
             ClassPalette prev = ClassPalette.Current;
-            ClassPalette.Current = ctx.Sparks ?? ClassPalette.Neutral;
+            ClassPalette.Current = ctx.Sparks ?? SkillDamage.SkillSparks(prev);
             HitOne(ctx, e, target, from, dir, 1f);
             ClassPalette.Current = prev;
             return true;

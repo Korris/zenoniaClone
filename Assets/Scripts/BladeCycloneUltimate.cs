@@ -83,7 +83,7 @@ namespace ZenoniaProto
             bool last = i == WaveAt.Length - 1, penult = i == WaveAt.Length - 2, big = last || penult;
             float mult = MultOf(i);
             // DEF is subtracted once per cast, split by this hit's share of the chain (small hits would otherwise lose most of their damage to it).
-            SkillDamage.Radial(hero.Position, Radius, atk, mult, last ? Knockback : 0f, last, ClassPalette.Orange, 0f, hero, mult / Rpg.LegacySkillNumbers.BladeCycloneTotalMult);
+            SkillDamage.Radial(hero.Position, Radius, atk, mult, last ? Knockback : 0f, last, ClassPalette.Knight, 0f, hero, mult / Rpg.LegacySkillNumbers.BladeCycloneTotalMult);
             if (!NetMode.RendersFx) return;
             if (last) GameSfx.Play("skills/warrior/earth-break-impact", 0.7f);
             if (!local || !big) return; // small hits: no shake, no hit-stop (ChatGPT V3); another player's cyclone never moves this camera
@@ -91,7 +91,7 @@ namespace ZenoniaProto
             CameraFollow.SkillShake(0.5f);
             GameClock.HitStop(65f); // grand pass 21/11 (was 45)
             CameraFollow.SkillPunch(0.5f);
-            ScreenFlash.Trigger(new Color(1f, 0.4f, 0.12f, 0.08f), 0.18f);
+            ScreenFlash.Trigger(WarriorLightLook.IvoryFlash(0.06f), 0.16f); // RO trailer style: ivory
         }
     }
 }

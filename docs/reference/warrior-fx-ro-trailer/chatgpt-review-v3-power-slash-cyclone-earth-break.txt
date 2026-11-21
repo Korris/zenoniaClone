@@ -1,0 +1,324 @@
+Warrior VFX V3 — Classic Ragnarok Review
+
+Evaluation standard: Classic Ragnarok / RO3 Soft Fantasy, using the previously approved concepts as the design target. Scores prioritize palette, recognizable skill silhouettes, transparency, ground integration, and combat readability—not brightness or visual complexity.
+
+Scores are based on the six in-game capture sheets. Timing judgments refer to the sampled frames, not frame-by-frame playback. All three skills are evaluated at their fixed gameplay hit ranges.
+
+Scorecard
+
+Criterion
+
+	
+
+Max
+
+	
+
+Power Slash
+
+	
+
+Blade Cyclone
+
+	
+
+Earth Break
+
+
+
+
+A. Class palette
+
+	
+
+20
+
+	
+
+18
+
+	
+
+18
+
+	
+
+19
+
+
+
+
+B. Silhouette
+
+	
+
+20
+
+	
+
+17
+
+	
+
+17
+
+	
+
+19
+
+
+
+
+C. Transparency/blend
+
+	
+
+15
+
+	
+
+11
+
+	
+
+12
+
+	
+
+12
+
+
+
+
+D. Scale vs H
+
+	
+
+10
+
+	
+
+10
+
+	
+
+10
+
+	
+
+10
+
+
+
+
+E. Timing/impact
+
+	
+
+15
+
+	
+
+13
+
+	
+
+12
+
+	
+
+13
+
+
+
+
+F. Ground/2.5D
+
+	
+
+10
+
+	
+
+9
+
+	
+
+8
+
+	
+
+9
+
+
+
+
+G. Crowd readability
+
+	
+
+10
+
+	
+
+7
+
+	
+
+7
+
+	
+
+7
+
+
+
+
+TOTAL
+
+	
+
+100
+
+	
+
+85
+
+	
+
+84
+
+	
+
+89
+
+
+
+
+Verdict
+
+	
+
+≥85
+
+	
+
+APPROVED
+
+	
+
+REVISE
+
+	
+
+APPROVED
+
+All three are substantially closer to classic Ragnarok than their rejected red versions. The remaining problems are primarily concentrated highlights, silhouette separation, and readability under overlapping damage numbers—not insufficient spectacle.
+
+1. Power Slash — 85/100
+
+VERDICT: APPROVED — minor polish recommended.
+
+The champagne Bash arc reads correctly as a classic Ragnarok melee skill. Both snow and grass versions retain the terrain, and the 2.3H gameplay radius is appropriate. The strongest frames are 100–250 ms; the 380–520 ms frames lose some clarity because of concentrated white impact flashes.
+
+Top 3 remaining issues
+
+MEDIUM — Impact core overexposed (250–380 ms). White clusters hide the front enemies, especially on snow. Reduce impact core area by 25–30%, use #FEFDF8 with additive intensity 0.65–0.75 of current, and limit the brightest star to 0.45–0.60H. Keep the main hit at its existing gameplay timestamp.
+
+MEDIUM — The sector reads more like a curved slash than a ground Bash fan. Preserve the crisp ivory arc, but strengthen the faint interior sector with #D5C378, Alpha Blend 0.10–0.16, strongest near the outer half. Keep 55–65% negative space. No extra outer rings.
+
+MINOR — Late arc at 650 ms is too prominent. The returning circular trail weakens directional identity. Reduce late-ring alpha by 40–50% and fade it out within 80–120 ms after the final hit.
+
+KEEP UNCHANGED: Knight-gold palette, 2.3H radius, sword-to-impact direction, thin ivory rim, grass/snow color consistency, damage timing.
+
+2. Blade Cyclone — 84/100
+
+VERDICT: REVISE — just below approval.
+
+The effect is now pale, elegant, appropriately scaled, and much closer to classic Ragnarok. However, the three sword ribbons visually merge into one bright circular boundary, particularly on grass. It reads somewhat more like a defensive spinning aura than three weapon-driven slashes.
+
+Top 3 remaining issues
+
+MEDIUM — Three-layer sword silhouette insufficiently differentiated. At 900–2050 ms, separate the trails with distinct inclinations: inner +20°, middle −15°, outer +35° relative to the ground plane. Keep each approximately 200° long, but introduce 25–40° transparent breaks between visible ribbon sections. Inner/middle/outer radii remain within the fixed 1.95H range.
+
+MEDIUM — Outer ring competes with hit activity. Especially on grass, the yellow boundary becomes the dominant feature. Reduce its bright additive contribution by 30–35%. Use #C6B37D at alpha 0.20–0.27 for the main boundary, reserving #FEFDF8 for thin moving ribbon tips.
+
+MINOR — Finisher lacks a distinct final punctuation. At 2550 ms, multiple damage numbers dominate the impact moment. Add one compact white-gold impact star 0.9–1.1H, lasting 70–100 ms, with a single shockwave expanding from 0.7H to 1.95H over 140–180 ms. Do not add another large halo.
+
+KEEP UNCHANGED: 1.95H hit radius, three-ribbon system, pale champagne palette, open center, continuous rotation, overall duration, no tall tornado.
+
+3. Earth Break — 89/100
+
+VERDICT: APPROVED — strongest of the three.
+
+This is the closest to the approved Golden Knight Judgment concept. The steel-ivory summoned sword clearly identifies the ultimate, the large circular ground seal establishes its area, and the sequence from descent to impact to finisher reads convincingly.
+
+The snow and grass tests both work, although the white-gold slam is more easily lost against snow.
+
+Top 3 remaining issues
+
+MEDIUM — Giant sword and impact light merge at 1460 ms. The blade temporarily becomes a nearly solid white shape. Preserve the sword silhouette by reducing the central column's alpha to 0.16–0.22 and keeping the blade steel-ivory #E5E8E2, with narrow gold runes #F3E1A8. Limit pure-white core to 8–12% of impact area during the slam.
+
+MEDIUM — Finisher insufficiently distinct from sustained sword state. At 2010–2350 ms, the sword still appears substantially intact while damage numbers accumulate. Start visible sword dissolve around 1900–2000 ms, reaching 60–75% dissolution by 2350 ms. Strengthen the single final impact star to 1.6–2.0H, but hold its brightest state for only 60–90 ms.
+
+MINOR — Ground rune perimeter too bright relative to its interior. Particularly at 1100 ms on grass, the outer ring draws more attention than the descending sword. Reduce outer rim additive intensity 20–25%; use #C6B37D Alpha Blend 0.18–0.24 for secondary ring details. Preserve the exact 2.6H gameplay radius.
+
+KEEP UNCHANGED: Steel-ivory sword silhouette, gold rune accents, descent-to-slam sequencing, subtle brown cracks, 2.6H circle, thin shockwave rings, restrained ground disturbance.
+
+Final production decision
+
+Skill
+
+	
+
+Decision
+
+	
+
+Priority
+
+
+
+
+Power Slash
+
+	
+
+LOCK V3
+
+	
+
+Optional highlight polish
+
+
+
+
+Blade Cyclone
+
+	
+
+V4 required
+
+	
+
+Separate three ribbon silhouettes
+
+
+
+
+Earth Break
+
+	
+
+LOCK V3
+
+	
+
+Optional slam/finisher polish
+
+Overall V3 average: 86/100 — approved visual direction.
+
+Do not redesign the palette, increase bloom, enlarge gameplay footprints, or add decorative layers. The remaining improvement should come from better separation of existing VFX elements, especially Blade Cyclone.
+
+One cross-skill issue: dense damage numbers and overlapping enemy HP bars cause more crowd-readability loss than the translucent gold materials themselves. Improve damage-number staggering and stacking separately from VFX, rather than reducing every effect's size or intensity.
+

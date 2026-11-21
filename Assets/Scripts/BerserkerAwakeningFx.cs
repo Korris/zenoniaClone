@@ -1,14 +1,14 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
 {
     /// <summary>
     /// The picture of the warrior's BERSERKER AWAKENING; the buffs stay in the skill data (SkillRun on the authority), so this runs only where RendersFx.
-    /// Timeline (ms): clenched fists 0-180, the roar at 180 (WarriorBerserkerLightFx: seal, wave, flame tongues, arrows; RO3 Soft Fantasy V1 shader
-    /// FX, 2026-11-21, the painted fx/berserker frames are gone), then for the buff's time a clearly visible red-orange ring round the hero's hips
+    /// Timeline (ms): clenched fists 0-180, the roar at 180 (WarriorBerserkerLightFx: ivory-gold aura, light column, 2 pulses, a few coral streaks; RO trailer
+    /// style 21/11 evening), then for the buff's time a clearly visible ivory-gold ring with coral highlights round the hero's hips
     /// (rule 10 exception: a maintained ATK buff = a ring round the body; ClericBuffBodyRing + BuffBodyRing in WarriorLightLook.BodyRing colours,
-    /// lower and redder than the Cleric's gold ATK ring so both read when stacked), a few embers, the ring dissolving over the last 300 ms.
+    /// lower than the Cleric's gold ATK ring and coral-accented so both read when stacked), a few embers, the ring dissolving over the last 300 ms.
     /// One object per hero: a recast restarts it instead of stacking. BuffState is not replicated, so the end comes from the buff's time.
     /// </summary>
     public class BerserkerAwakeningFx : MonoBehaviour
@@ -106,7 +106,7 @@ namespace ZenoniaProto
             if (!local) return; // another player's roar never moves this player's camera
             CameraFollow.SkillShake(0.22f);
             CameraFollow.SkillPunch(0.25f);
-            ScreenFlash.Trigger(new Color(1f, 0.3f, 0.1f, 0.06f), 0.16f);
+            ScreenFlash.Trigger(WarriorLightLook.IvoryFlash(0.05f), 0.16f); // RO trailer style: ivory gold, not red
         }
 
         /// <summary>An ember leaving the ring at one side (never in front of the face), rising a little, then fading.</summary>

@@ -1,0 +1,586 @@
+ChatGPT said:
+Warrior VFX V4 — Classic Ragnarok Review, Round 2
+
+Standard: Classic Ragnarok / RO3 Soft Fantasy. Prioritize recognizable silhouettes, transparency, gameplay readability, and restrained lighting. No bonus for additional bloom or spectacle.
+
+The V4 Blade Cyclone is visibly improved over V3. The other skills share a coherent Knight-gold language, although Charging Strike and Inferno Crash still have clarity issues.
+
+1. Scorecard
+
+Criterion
+
+	
+
+Max
+
+	
+
+Blade Cyclone
+
+	
+
+Whirlwind
+
+	
+
+Flame Cleave
+
+	
+
+Charging Strike
+
+	
+
+Inferno Crash
+
+	
+
+Berserker
+
+	
+
+Basic Attack
+
+
+
+
+A. Palette
+
+	
+
+20
+
+	
+
+18
+
+	
+
+19
+
+	
+
+18
+
+	
+
+18
+
+	
+
+18
+
+	
+
+18
+
+	
+
+19
+
+
+
+
+B. Silhouette
+
+	
+
+20
+
+	
+
+18
+
+	
+
+17
+
+	
+
+18
+
+	
+
+14
+
+	
+
+16
+
+	
+
+17
+
+	
+
+19
+
+
+
+
+C. Transparency
+
+	
+
+15
+
+	
+
+13
+
+	
+
+13
+
+	
+
+13
+
+	
+
+10
+
+	
+
+11
+
+	
+
+11
+
+	
+
+14
+
+
+
+
+D. Scale
+
+	
+
+10
+
+	
+
+10
+
+	
+
+10
+
+	
+
+10
+
+	
+
+9
+
+	
+
+10
+
+	
+
+10
+
+	
+
+10
+
+
+
+
+E. Timing/impact
+
+	
+
+15
+
+	
+
+13
+
+	
+
+13
+
+	
+
+14
+
+	
+
+12
+
+	
+
+13
+
+	
+
+12
+
+	
+
+14
+
+
+
+
+F. Ground/2.5D
+
+	
+
+10
+
+	
+
+9
+
+	
+
+9
+
+	
+
+9
+
+	
+
+8
+
+	
+
+9
+
+	
+
+9
+
+	
+
+9
+
+
+
+
+G. Crowd readability
+
+	
+
+10
+
+	
+
+8
+
+	
+
+8
+
+	
+
+8
+
+	
+
+7
+
+	
+
+7
+
+	
+
+9
+
+	
+
+9
+
+
+
+
+TOTAL
+
+	
+
+100
+
+	
+
+89
+
+	
+
+89
+
+	
+
+90
+
+	
+
+78
+
+	
+
+84
+
+	
+
+86
+
+	
+
+94
+
+
+
+
+VERDICT
+
+	
+
+≥85
+
+	
+
+APPROVE
+
+	
+
+APPROVE
+
+	
+
+APPROVE
+
+	
+
+REVISE
+
+	
+
+REVISE
+
+	
+
+APPROVE
+
+	
+
+APPROVE
+
+Visual estimates from the supplied sampled frames; not measurements of actual shader parameters or full-speed animation.
+
+2. Skill-by-skill review
+Blade Cyclone V4 — 89/100
+
+VERDICT: APPROVED (+5 versus V3). The broken ribbons now have a more identifiable spinning-sword silhouette. Snow and grass both work.
+
+MINOR — Outer arcs still cluster into a bright boundary. Reduce additive intensity at ribbon intersections by 20%; preserve individual tip highlights at #F5EA7C.
+
+MINOR — Finisher at 2550 ms competes with damage numbers. Keep the 1.0H star but shorten its brightest core to 60–75 ms, with the shockwave at alpha 0.15–0.20.
+
+KEEP: Three inclinations (+20°/−15°/+35°), ribbon breaks, 1.95H radius, boundary alpha 0.24, current gameplay timing.
+
+Whirlwind — 89/100
+
+VERDICT: APPROVED. The gold/steel combination clearly differentiates Whirlwind from Blade Cyclone, and the subdued ground lighting fits Ragnarok.
+
+MINOR — Outer gold crescent dominates at 200–520 ms. Reduce its brightest edge by 15–20% and retain the steel accent #A5BCCD at alpha 0.18–0.24.
+
+MINOR — The finisher at 650–800 ms becomes visually quiet. Retain one small 0.55–0.70H ivory impact pulse for 70–90 ms at the existing final hit; do not add another persistent ring.
+
+KEEP: Two broken air arcs, faint circular ground illumination, fixed 2.5-tile radius, restrained palette.
+
+Flame Cleave — 90/100
+
+VERDICT: APPROVED. Strong differentiation from the non-fire skills. The honey-gold palette feels warm without introducing the rejected red-plasma appearance.
+
+MINOR — The outer arc at 120–220 ms appears brighter than the fan interior. Reduce rim additive intensity 15%, keeping the honey fan #E0A35A at alpha 0.16–0.23.
+
+MINOR — Flame tongues are difficult to distinguish at peak. Make the five tongues slightly more tapered and increase their individual width separation by 0.08–0.12H without enlarging the hit footprint. Keep lifetimes below 250 ms.
+
+KEEP: 140° fan, 3-tile range, honey palette, five brief flames, short overall duration.
+
+Charging Strike — 78/100
+
+VERDICT: REVISE — primary remaining skill problem.
+
+The horizontal beam at 250–500 ms reads more like an energy projectile than a Warrior charging through targets. Its central white band is also unusually opaque compared with the other skills.
+
+MAJOR — Beam silhouette replaces physical charging motion. Reduce continuous central beam width 45–55% and additive intensity 35–45%. Replace its visual dominance with a tapered steel-ivory spearhead, approximately 0.65H wide × 1.15H long, plus two broken trailing streaks. Use #A5BCCD alpha 0.22–0.30 and #FEFDF8 only along the spearhead tip.
+
+MEDIUM — Broad line obscures targets at 250–500 ms. Make the 5×2-tile ground band Alpha Blend #D5C378 at 0.12–0.18. Reserve the 1.5H impact star for the existing actual impact moment, with its bright core lasting 60–90 ms.
+
+KEEP: True 5×2-tile damage corridor, directional line attack, target positioning, existing dash/hit timing, steel/ivory identity.
+
+Inferno Crash — 84/100
+
+VERDICT: REVISE — close to approval.
+
+The large-area ultimate reads well, but the bright outer circumference competes with the central ground burst. Its fire identity is also weaker than Flame Cleave's.
+
+MEDIUM — Outer ring too dominant at 400–1400 ms. Reduce circumference additive intensity 25–30%, use #C6B37D at alpha 0.18–0.24 for its sustained component, and preserve the exact 3-tile gameplay circle. Let the secondary ring reach 1.35r but fade below alpha 0.08 at maximum expansion.
+
+MEDIUM — Central impact lacks a recognizable honey-fire silhouette. Increase visibility of the six low flames by 15–20% using #E0A35A bodies and #F6D586 tips. Keep heights below 0.60H, alpha 0.20–0.30, with no opaque fire pillars.
+
+KEEP: Large ground burst, pale-gold seal, six low flames, floating debris, shockwave expansion, no dark scorch.
+
+Berserker Awakening — 86/100
+
+VERDICT: APPROVED. Clearly reads as a self-buff, not an attack. The restrained coral accents appropriately distinguish the transformation without changing the Knight palette.
+
+MEDIUM — Initial 190–400 ms ring is close to overexposure. Reduce the outer pulse's brightest section by 20–25% and keep the sustained aura column at alpha 0.13–0.20.
+
+MINOR — Vertical ribbons are less apparent than horizontal rings. Increase the three rising ribbons' visibility by approximately 15%, using #F3E1A8 at alpha 0.20–0.26, but do not lengthen the buff's activation.
+
+KEEP: 3.2H aura, two 2.5H pulse rings, three ribbons, three short #F37860 coral streaks, buff timing.
+
+Basic Attack — 94/100
+
+VERDICT: APPROVED — LOCK. The restrained pale-gold slash is proportionate to a normal attack, clean against snow, and clearly subordinate to the active skills.
+
+MINOR — Contact highlight slightly bright against white snow. Optional 10–15% reduction in additive intensity at the tip; no silhouette changes.
+
+MINOR — Minor contact consistency. Keep the slash aligned to the sword's travel direction and ensure the bright contact flash stays within 0.20–0.30H of the struck target.
+
+KEEP: Thin pale-gold slash, short duration, compact impact, all existing proportions.
+
+3. Final production decisions
+
+Skill
+
+	
+
+Score
+
+	
+
+Production decision
+
+
+
+
+Power Slash V3
+
+	
+
+85
+
+	
+
+LOCK — previously approved
+
+
+
+
+Blade Cyclone V4
+
+	
+
+89
+
+	
+
+LOCK V4
+
+
+
+
+Whirlwind V4
+
+	
+
+89
+
+	
+
+LOCK V4
+
+
+
+
+Flame Cleave V4
+
+	
+
+90
+
+	
+
+LOCK V4
+
+
+
+
+Charging Strike V4
+
+	
+
+78
+
+	
+
+V5 required
+
+
+
+
+Earth Break V3
+
+	
+
+89
+
+	
+
+LOCK — previously approved
+
+
+
+
+Inferno Crash V4
+
+	
+
+84
+
+	
+
+V5 minor revision
+
+
+
+
+Berserker Awakening V4
+
+	
+
+86
+
+	
+
+LOCK V4
+
+
+
+
+Basic Attack
+
+	
+
+94
+
+	
+
+LOCK
+
+Final judgment: The Warrior's overall VFX direction is approved. Seven of the nine evaluated attacks/skills are at or above the 85-point threshold. Charging Strike needs a clearer physical dash silhouette; Inferno Crash needs better emphasis on its central fire impact.
+
+Do not reopen the seven approved items, change their gameplay ranges, or add further bloom.
+
