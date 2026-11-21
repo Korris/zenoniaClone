@@ -4,6 +4,7 @@
 > Người dùng chốt 21/11: TƯƠNG LAI MỌI MAP chuyển sang 2.5D (bắt đầu từ Willowbrook, làm lại hình ảnh thành khu rừng kiểu RO3 / Midgard Senki); skill mọi class theo "RO3 Soft Fantasy V1" (đầu `docs/sprite-rules.md`), màu theo đúng RO3.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 > Người dùng chốt 21/11 (tối): skill KHÔNG đỏ lửa kiểu hiện tại, theo "RO trailer style" (trailer Midgard Survivors https://www.youtube.com/watch?v=t-LNpJN5H54): TO + TRONG + NHẠT, Warrior vàng chanh / champagne / ngà, đỏ trầm chỉ cho cảnh báo boss. Quy tắc + palette: đầu `docs/sprite-rules.md`; brief / prompt ChatGPT / checklist: `docs/reference/ro-trailer-skill-style/prompt-templates.md`.
+> Người dùng chốt 21/11: khi tới lượt làm skill Assassin, PHẢI kiểm lại màu với ChatGPT trước (trích khung skill Assassin RO: Sonic Blow trắng bạc, Enchant Poison / Venom Dust xanh độc-tím, ẩn thân tím than) rồi mới làm; Fighter chưa làm, cũng chốt màu với ChatGPT khi tới lượt.
 
 ### 21/11 18:16 Phân tích trailer RO người dùng thích -> style guide skill + template prompt (agent, XONG tài liệu, CHƯA đổi code)
 - Người dùng: "thực sự về phần skill tôi không muốn warrior xài skill như màu đỏ hiện tại, nó không phải style ragnarok; đây là clip trailer về skill ragnarok https://www.youtube.com/watch?v=t-LNpJN5H54 — hãy phân tích cùng chatgpt để sau này prompt có thể đáp ứng tốt mong muốn của tôi".
