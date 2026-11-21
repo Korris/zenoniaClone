@@ -1,4 +1,4 @@
-# Warrior RO Fantasy: đòn chém nặng 8 hướng x 8 frame (20/11/2026)
+# Warrior RO Fantasy: đòn chém nặng 8 hướng x 8 frame (20/11/2026, vẽ xong 22/11)
 
 Chat đạo diễn động tác (tài khoản Tay "Tân Korris", chỉ chữ; ảnh bị chặn tới 21:32): https://chatgpt.com/c/6afffe9b-6ea4-83ec-8332-cef3cf9d50b2
 Ảnh gửi kèm ở tin đầu: `src/body-warrior-idle-5dir-chatgpt-1.png`, `docs/reference/hero-idle-down-5-classes.png`,
@@ -6,16 +6,18 @@ Chat đạo diễn động tác (tài khoản Tay "Tân Korris", chỉ chữ; �
 
 ## Nhịp (400 ms, `ComboConfigs.WarriorHits` 120 / 90 / 190; frame = PhaseProgress x 8, mỗi frame 50 ms)
 
-| Frame | ms | Pose |
+| Frame | ms | Pose (bản 22/11: cả người chém, KHÔNG đứng yên vung tay) |
 |---|---|---|
-| 0 | 0-50 | lấy đà 1: tay phải bắt đầu kéo lên sau vai phải, thân vặn ngược 10° |
-| 1 | 50-100 | lấy đà 2 (KEY): nắm tay phải cao nhất sau/bên phải đầu, chân trụ hạ thấp |
-| 2 | 100-150 | chém (KEY, sát thương 120 ms): tay phải vươn mạnh về mục tiêu, vai + hông xoay 20-30°, bước tới ngắn |
-| 3 | 150-200 | chạm: tay phải duỗi hết, thân chúi về mục tiêu |
-| 4 | 200-250 | đà chém (KEY): nắm tay phải thấp qua phía hông bên kia |
-| 5 | 250-300 | giữ đà, áo choàng văng rõ nhất |
-| 6 | 300-350 | thu thế (KEY): tay phải về cạnh hông, chân thu |
+| 0 | 0-50 | lấy đà: dồn trọng tâm về chân sau, gối khuỵu, vai + hông vặn ngược, nắm tay phải kéo về sau vai phải |
+| 1 | 50-100 | đỉnh lấy đà (KEY): nắm tay phải cao nhất sau/trên vai phải (cách viền sọ), thân cuộn như lò xo, chân trước nhấc lên |
+| 2 | 100-150 | chém (KEY, sát thương 120 ms): BƯỚC DÀI chân trước về hướng chém, vai + hông xoay mạnh, tay quật xuống, áo choàng bay ra sau |
+| 3 | 150-200 | chạm: thế lao sâu nhất, thân chúi ~15°, tay phải duỗi hết về mục tiêu ngang ngực-bụng |
+| 4 | 200-250 | đà chém (KEY): nắm tay phải quét thấp qua hông bên kia, vai xoay quá đà |
+| 5 | 250-300 | giữ đà: vẫn thấp, gót chân sau nhấc, áo choàng văng tới nhiều nhất |
+| 6 | 300-350 | thu thế (KEY): đứng thẳng dần, chân sau bước theo, nắm tay phải về cạnh hông |
 | 7 | 350-400 | tư thế thủ như idle |
+
+Bảng 20/11 (4 key pose, tay vung nhưng chân gần như đứng yên) bị người dùng chê 22/11: "chém giống đứng yên cầm kiếm múa quá".
 
 Hướng F1 của kiếm (ChatGPT): xuống 240° (↙), chéo xuống-phải 315°, phải 0°, chéo lên-phải 45° ra xa camera, lên 90° ra xa camera,
 chéo lên-trái 135°, trái 180°, chéo xuống-trái 225° (0° = phải màn hình, ngược chiều kim đồng hồ). Tay trái + khiên giữ trước ngực/hông,
@@ -61,3 +63,18 @@ Câu mô tả hướng (thay <HƯỚNG>):
 2. `grips warrior`, `check warrior`; đọc góc kiếm từng frame trên `warrior-attack-8dir.png`, ghi `SWORD` / `SWORD_BEHIND`, chạy lại.
 3. Lệnh `write` / `grips` cũng ghi lại idle, walk (kết quả lệch vài px so với bản đã commit kể cả khi không đổi tool): chỉ giữ phần attack,
    trả idle / walk / hand idle-walk về bản git, ghép grips + head attack mới vào `class.json` / `body.json` của git.
+
+## Đã vẽ 22/11 (Tay "Tân Korris", tiếp trong chat đạo diễn ở trên)
+
+Mỗi hướng 1 tin: đính kèm idle cùng hướng đã làm sạch (`ref/warrior-attack8/clean/idle-<hướng>.png`: bỏ dải đen + hình bên cạnh), tin đầu
+thêm `docs/reference/hero-idle-down-5-classes.png`; prompt = mẫu ở trên với bảng 22/11 viết thành câu + câu đường nắm tay phải từng hướng
+(F1 ở đâu, F2-F3 quật về đâu, F4-F5 quét sang đâu, bước dài về đâu). Ảnh dùng: down, down-right, right, left, down-left `-1`; up, up-left,
+up-right `-2`. Vẽ lại vì: up-1 xoay sang phải và đấm ngang; up-left-1 tay TRÁI (vai gần) duỗi ra đấm; up-right-1 F1 nắm tay chồng lên gáy.
+Câu đã giúp: "chỉ TAY PHẢI (tay XA) vung chém; tay trái (tay GẦN) luôn giữ nắm đấm trước ngực, KHÔNG duỗi ra", "F1 nắm tay giơ cao nằm HẲN
+bên cạnh đầu, cách viền sọ", "lưng đối diện người xem, hai vai cân đối, KHÔNG bước / đưa tay sang ngang". Lưu ý hướng chéo xuống-trái: tay
+phải ở bên TRÁI tranh (tay xa), không phải bên phải.
+
+Cài: `Tools/ro_fantasy_attack8_cut.py` (khung 7 = cao idle, đầu lệch > 4 % thì co / giãn riêng đầu; mỗi frame thêm độ lao `TRAVEL`
+dọc hướng nhìn), nắm tay đọc tay `FISTS` + góc kiếm `SWORD` / `SWORD_BEHIND` trong `Tools/ro_fantasy_attack8_grips.py`. Sau `write` /
+`grips`: trả `body/walk.png`, `hand/idle|walk.png` về git, ghép phần attack của `body.json` / `class.json` vào bản git (chỉ attack).
+Ảnh kiểm: `docs/reference/warrior-attack-8dir/`.

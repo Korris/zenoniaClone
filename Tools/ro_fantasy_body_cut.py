@@ -35,6 +35,7 @@ art_check = import_module("build-ro-fantasy-hero-art-check")  # load_rgba: green
 pilot = import_module("build-ro-soft-8dir-pilot")              # figures_with_pos
 sheets_tool = import_module("build-hero-layered-sheets")       # head_anchor, feet_x
 head_fix = import_module("ro_fantasy_head_fix")                # HEAD_FIX rows: head scaled to the idle skull, body kept
+attack8_cut = import_module("ro_fantasy_attack8_cut")          # 8-frame one-direction attack sources (guard on idle height + lunge travel)
 
 
 def newest(pattern):
@@ -154,8 +155,10 @@ def motion_rows(cls, idle_figs):
             if a != anim:
                 continue
             dirs = [d for d in (da, db) if d != "none"]
-            if n == 8:  # one direction: both painted rows are its frames 0-3, 4-7
-                rows = [[despeck(f) for row in sheets_tool.rows_of(path, 4, 2) for f in row]]
+            if n == 8:  # one direction, frames 0-7, designed lunge travel (Tools/ro_fantasy_attack8_cut.py, 22/11)
+                fig_i = idle_figs[MIRROR_OF[DRAWN8.index(dirs[0])]]
+                by_dir[dirs[0]] = attack8_cut.cut(path, skull_w(fig_i), place, skull_w, despeck, BALD_PX, f"{cls} {anim} {dirs[0]}", dirs[0])
+                continue
             else:
                 rows = [[despeck(f) for f in row] for row in sheets_tool.rows_of(path, n, len(dirs))]
             for d, row in zip(dirs, rows):
