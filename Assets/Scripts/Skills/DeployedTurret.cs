@@ -12,7 +12,7 @@ namespace ZenoniaProto
     public sealed class DeployedTurret : MonoBehaviour
     {
         const string ArtPath = "Sprites/classes/mechanic/skills/deploy-turret/turret";
-        const float DropHeight = 9f, KickUnits = 1.1f, KickMs = 110f, ShadowWidth = 15f, ShotFps = 16f;
+        const float DropHeight = 9f, KickUnits = 1.1f, KickMs = 110f, ShadowWidth = 15f;
         static readonly List<TurretCandidate> Candidates = new List<TurretCandidate>(32);
         static readonly List<Monster> CandidateMonsters = new List<Monster>(32);
         static Sprite art;
@@ -30,10 +30,7 @@ namespace ZenoniaProto
         Monster hitTarget;   // authority: the shot in the air
         float hitInMs;
         Vector2 hitDir;
-        SkillFxAnim shotAnim; // picture of the shot in the air
-        Monster shotTarget;
-        Vector2 shotFrom, shotAim;
-        float shotAgeMs, shotMs;
+        ClericLightFx shotFx; // picture of the shot in the air (MechanicLightBolt on it)
         int shotsFired;
         float bornRealtime;
 
@@ -107,7 +104,7 @@ namespace ZenoniaProto
             body = ProceduralSprites.Child(transform, "Body", Art());
             body.sortingOrder = order;
             Draw(0f);
-            if (viewAgeMs < TurretConfig.DeployMs) ShockRing.Spawn(feet, 8f, 0.3f, new Color(0.8f, 0.75f, 0.65f, 0.7f), order - 1, 0.7f, 0.3f, true); // set down on the ground
+            if (viewAgeMs < TurretConfig.DeployMs) MechanicTurretLightFx.Landed(feet, owner, TurretConfig.DeployMs - viewAgeMs); // set down on the ground
         }
 
         void Update()
@@ -177,45 +174,25 @@ namespace ZenoniaProto
             return feet + new Vector2((flip ? -TurretConfig.MuzzleX : TurretConfig.MuzzleX) * h, TurretConfig.MuzzleY * h);
         }
 
-        /// <summary>The picture of a shot, on every side that draws: turn to the target, recoil, muzzle blast and the mechanic's own bolt art and shot sound. `foe` may be null when the client does not know that monster.</summary>
+        /// <summary>The picture of a shot, on every side that draws: turn to the target, recoil, muzzle flare, the shader bullet (MechanicTurretLightFx) and the shot sound. `foe` may be null when the client does not know that monster.</summary>
         public void PlayShot(Monster foe, Vector2 aim)
         {
             if (gone || !NetMode.RendersFx) return;
             ShotsDrawn++;
-            FinishShotArt(true);
+            FinishShotArt();
             flip = aim.x > feet.x;
             kickLeftMs = KickMs;
-            Vector2 from = Muzzle(), to = aim - from;
-            float angle = Mathf.Atan2(to.y, to.x) * Mathf.Rad2Deg;
+            Vector2 from = Muzzle();
             bool near = NearListener();
             if (near) ClassSfx.BoltLaunched(HeroClass.Mechanic, false);
-            VfxSet set = VfxSprites.For(BoltStyle.Plasma);
-            if (set == null) return;
-            VfxAnim.Cast(set, from, angle, false);
-            shotFrom = from; shotAim = aim; shotTarget = foe; shotAgeMs = 0f;
-            shotMs = Mathf.Max(30f, to.magnitude / TurretConfig.ShotSpeedUnitsPerSec * 1000f);
-            shotAnim = SkillFxAnim.Play(set.Rows[VfxSet.Proj], ShotFps, from, angle, 1f, FeelConfig.FxOrder - 10, true, shotMs / 1000f + 0.1f);
+            float ms = Mathf.Max(30f, Vector2.Distance(from, aim) / TurretConfig.ShotSpeedUnitsPerSec * 1000f);
+            shotFx = MechanicTurretLightFx.Shot(from, foe, aim, ms, owner, near);
         }
 
-        void DrawShot(float dtMs)
+        void FinishShotArt()
         {
-            if (shotAnim == null && shotMs <= 0f) return;
-            shotAgeMs += dtMs;
-            if (shotTarget != null && !shotTarget.IsDying) shotAim = shotTarget.Center; // the monster walks on: the shot meets it, as the damage does
-            if (shotAgeMs >= shotMs) { FinishShotArt(true); return; }
-            Vector2 at = Vector2.Lerp(shotFrom, shotAim, shotAgeMs / shotMs), to = shotAim - at;
-            if (shotAnim != null) shotAnim.MoveTo(at, Mathf.Atan2(to.y, to.x) * Mathf.Rad2Deg);
-        }
-
-        void FinishShotArt(bool impact)
-        {
-            bool flying = shotMs > 0f;
-            shotMs = 0f;
-            if (shotAnim != null) { shotAnim.Stop(); shotAnim = null; }
-            if (!flying || !impact) return;
-            VfxSet set = VfxSprites.For(BoltStyle.Plasma);
-            if (set != null) VfxAnim.Impact(set, shotAim, false);
-            if (NearListener()) ClassSfx.BoltImpact(HeroClass.Mechanic, false);
+            if (shotFx != null) Destroy(shotFx.gameObject);
+            shotFx = null;
         }
 
         bool NearListener()
@@ -226,7 +203,6 @@ namespace ZenoniaProto
 
         void Draw(float dtMs)
         {
-            DrawShot(dtMs);
             viewAgeMs += dtMs;
             kickLeftMs = Mathf.Max(0f, kickLeftMs - dtMs);
             float drop = viewAgeMs < TurretConfig.DeployMs ? Mathf.Pow(1f - viewAgeMs / TurretConfig.DeployMs, 2f) : 0f;
@@ -247,11 +223,11 @@ namespace ZenoniaProto
             gone = true;
             if (NetMode.IsHeadless && clock != null) Debug.Log("[ZenoniaProto] turret " + NetId + " ended: " + shotsFired + " shots, " + clock.RemainingMs + " ms of life left, " + (Time.realtimeSinceStartup - bornRealtime).ToString("F2") + " s of real time");
             Detach();
-            FinishShotArt(false);
+            FinishShotArt();
             if (fade && body != null)
             {
                 fadeLeftMs = TurretConfig.FadeMs;
-                ShockRing.Spawn(feet, 9f, 0.25f, new Color(0.45f, 0.85f, 1f, 0.8f), FeelConfig.FxOrder - 8, 0.7f, 0.25f, true);
+                MechanicTurretLightFx.Gone(feet, owner);
                 return;
             }
             Destroy(gameObject);
@@ -265,7 +241,7 @@ namespace ZenoniaProto
                 DeployedTurret t = zone.Turrets[i];
                 if (t == null) continue;
                 t.gone = true;
-                t.FinishShotArt(false);
+                t.FinishShotArt();
                 t.NetId = 0;
                 zone.Turrets.Remove(t);
                 Destroy(t.gameObject);
@@ -282,7 +258,6 @@ namespace ZenoniaProto
 
         void OnDestroy()
         {
-            if (shotAnim != null) shotAnim.Stop();
             Detach();
         }
     }

@@ -34,8 +34,9 @@ namespace ZenoniaProto
             else if (AssassinSkillArt.Handles(def.Id)) AssassinSkillArt.Cast(ctx);
             else if (ClericBuffFx.Handles(def.Id)) ClericBuffFx.Cast(ctx);
             else if (ClericLightSkills.Handles(def.Id)) ClericLightSkills.Cast(ctx);
-            else if (WizardLightSkills.Handles(def.Id)) WizardLightSkills.Cast(ctx); // bolts draw from SkillBolt (SkillBoltArt)
             else if (WarriorLightSkills.Handles(def.Id)) WarriorLightSkills.Cast(ctx);
+            else if (WizardLightSkills.Handles(def.Id)) WizardLightSkills.Cast(ctx); // bolts draw from SkillBolt (SkillBoltArt)
+            else if (MechanicLightSkills.Handles(def.Id)) MechanicLightSkills.Cast(ctx);
             else SkillChoreoCastHook.Play(ctx);
             return true;
         }
@@ -52,6 +53,6 @@ namespace ZenoniaProto
         }
 
         /// <summary>Loads the painted art of a class's skills ahead of the first cast (call when the hero spawns).</summary>
-        public static void Preload(string classId) { SkillVfx.Preload(classId); if (classId == "assassin") AssassinSkillArt.Preload(); if (classId == "mechanic") DeployedTurret.Preload(); }
+        public static void Preload(string classId) { SkillVfx.Preload(classId); if (classId == "assassin") AssassinSkillArt.Preload(); if (classId == "mechanic") { DeployedTurret.Preload(); MechanicLightLook.Load(); } }
     }
 }

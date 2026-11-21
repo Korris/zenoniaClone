@@ -116,10 +116,16 @@ namespace ZenoniaProto
         }
 
         /// <summary>Mechanic pistol shot (step 1-3): the painted muzzle flash at the shooting gun (hit 3: at both guns). False = not this case, nothing played.</summary>
-        public static bool MechanicPistolFlash(HeroClassDef cls, ComboHit h, int step, int facing, Vector2 feet, float angle, float figure = 1f)
+        public static bool MechanicPistolFlash(HeroClassDef cls, ComboHit h, int step, int facing, Vector2 feet, float angle, float figure = 1f, HeroController shooter = null)
         {
             if (!NetMode.RendersFx) return cls.Id == HeroClass.Mechanic && step >= 1 && step <= 3;
             if (cls.Id != HeroClass.Mechanic || step < 1 || step > 3 || h.Bolt == null || facing < 0 || facing > 3) return false;
+            if (MechanicLightLook.Active) // RO3 shader flash (2026-11-21): same muzzle points, no painted frames
+            {
+                if (step == 3) { MechanicAttackLightFx.Muzzle(feet + Hit3MuzzleGun[facing] * figure, angle, true, shooter); MechanicAttackLightFx.Muzzle(feet + Hit3MuzzleGunL[facing] * figure, angle, true, shooter); }
+                else MechanicAttackLightFx.Muzzle(CastTipFor(cls, step, facing, feet, feet, figure), angle, false, shooter);
+                return true;
+            }
             VfxSet set = VfxSprites.For(h.Bolt.Style);
             if (set == null) return false;
             if (step == 3)

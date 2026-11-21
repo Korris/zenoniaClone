@@ -71,7 +71,7 @@ namespace ZenoniaProto
             castFxStep = combo.Step;
             if (replaying) return;
             float figure = view != null ? view.FigureScale : 1f;
-            if (HeroFx.MechanicPistolFlash(cls, h, combo.Step, facing, new Vector2(x, y), DirAngle[facing], figure)) return; // flash at each shooting gun's muzzle
+            if (HeroFx.MechanicPistolFlash(cls, h, combo.Step, facing, new Vector2(x, y), DirAngle[facing], figure, this)) return; // flash at each shooting gun's muzzle
             HeroFx.CastWindup(cls, h, HeroFx.CastTipFor(cls, combo.Step, facing, new Vector2(x, y), CastTip, figure), DirAngle[facing], combo.IsFinisher, this);
         }
 
@@ -102,7 +102,7 @@ namespace ZenoniaProto
             if (predicted) RememberPredictedBolt(shot);
             if (cls.Id == HeroClass.Cleric && shot != null) shot.KeepBehindShooter(y, RangedAimRules.ClericBehindTop, RangedAimRules.ClericStartsBehind(step, facing));
             if (!NetMode.RendersFx) return;
-            bool painted = VfxSprites.For(h.Bolt.Style) != null;
+            bool painted = VfxSprites.For(h.Bolt.Style) != null || (h.Bolt.Style == BoltStyle.Plasma && MechanicLightLook.Active); // the Mechanic's shader flash plays through the same cast path (2026-11-21)
             if (painted && castFxStep != combo.Step) PlayCastFx(h); // windup shorter than one frame: still show the cast
             HeroFx.BoltLaunched(cls, h, finisher, pal, new Vector2(x, y), CastTip, v, angle, painted, this);
         }

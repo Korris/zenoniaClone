@@ -45,6 +45,13 @@ namespace ZenoniaProto
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Elemental Burst", Ahead = 64f, Spread = 20f, Count = 5, Hold = 2.8f },
             new ChoreoShot { Cls = HeroClass.Wizard, Skill = "Astral Cataclysm", Ahead = 80f, Spread = 46f, Count = 7, Hold = 4.0f },
             new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Rocket Barrage", Ahead = 55f, Spread = 28f, Count = 6, Hold = 3.6f },
+            new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Power Shot", Ahead = 50f, Spread = 50f, Count = 4, Line = true, Hold = 1.6f },
+            new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Plasma Barrage", Ahead = 48f, Spread = 30f, Count = 6, Hold = 1.6f },
+            new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Target Lock", Ahead = 0f, Spread = 60f, Count = 6, Hold = 1.6f },
+            new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Rocket Punch", Ahead = 30f, Spread = 30f, Count = 3, Line = true, Hold = 1.6f },
+            new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Deploy Turret", Ahead = 0f, Spread = 50f, Count = 4, Hold = 4.0f },
+            new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "EMP Burst", Ahead = 0f, Spread = 30f, Count = 6, Hold = 1.8f },
+            new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Orbital Cannon", Ahead = 100f, Spread = 40f, Count = 6, Hold = 3.0f },
         };
 
         /// <summary>

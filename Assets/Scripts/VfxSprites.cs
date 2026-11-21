@@ -16,8 +16,8 @@ namespace ZenoniaProto
 
     /// <summary>
     /// Loader for the hand-painted ranged FX frames (Resources/Sprites/classes/CLASS/fx/attack-vN/ROW_N.png + Resources/Data/classes/CLASS/vfx-attack-vN.json with per-frame pivots).
-    /// One set per class (the Cleric's painted cleric-v2 was replaced by ClericAttackLightFx on 2026-11-20): wizard-v4 (Tools/build-wizard-attack-fx-v4.py), mechanic-v3 (yellow, the class colour,
-    /// Tools/build-mechanic-attack-fx-v3.py). The older sets (cleric, wizard, wizard-v2/v3, mechanic-v2/orange/blue) were removed 16/11. For() returns null
+    /// One set per class (the Cleric's painted cleric-v2 was replaced by ClericAttackLightFx on 2026-11-20, the Mechanic's mechanic-v3 by
+    /// MechanicAttackLightFx on 2026-11-21): wizard-v4 (Tools/build-wizard-attack-fx-v4.py). The older sets (cleric, wizard, wizard-v2/v3, mechanic-v2/orange/blue) were removed 16/11. For() returns null
     /// when art is missing, callers then fall back to the procedural FX.
     /// </summary>
     public static class VfxSprites
@@ -36,7 +36,7 @@ namespace ZenoniaProto
             {
                 case BoltStyle.HolyArrow: return null;         // painted cleric-v2 set removed 2026-11-20: the light FX draws it (ClericAttackLightFx; legacy = procedural StreakBoltRig + HolySmite)
                 case BoltStyle.Arcane: return WizardAttackLightFx.Active ? null : "wizard-v4"; // light FX since 2026-11-21 (WizardAttackLightFx); no shaders = the painted combo board 2026-11-10 set (Tools/build-wizard-attack-fx-v4.py)
-                case BoltStyle.Plasma: return "mechanic-v3";  // class colour yellow (electric / brass, Tools/build-mechanic-attack-fx-v3.py, 2026-11-08)
+                case BoltStyle.Plasma: return null;           // painted mechanic-v3 set removed 2026-11-21: the light FX draws it (MechanicAttackLightFx; no shaders = procedural StreakBoltRig + MechanicFx)
                 default: return null;
             }
         }
@@ -57,7 +57,7 @@ namespace ZenoniaProto
         public static void Preload(HeroClass id)
         {
             if (id == HeroClass.Wizard) { if (!WizardAttackLightFx.Active) Get("wizard-v4"); }
-            else if (id == HeroClass.Mechanic) { Get("mechanic-v3"); MechanicCannonBlastFx.Preload(); }
+            else if (id == HeroClass.Mechanic) MechanicCannonBlastFx.Preload(); // shader FX: materials only
         }
 
         /// <summary>"mechanic-v3" -> class "mechanic", set "attack-v3"; "wizard" -> "wizard", "attack".</summary>
