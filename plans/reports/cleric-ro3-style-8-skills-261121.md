@@ -35,3 +35,9 @@ Sanctuary, Guardian Spirit, Purification, Divine Ascension không còn dùng spr
 2. Divine Light không có đạn bay (vì sát thương ở 0 ms). Muốn đạn bay đúng spec thì phải đổi `atMs` của Strike trong `SkillTable` (+ build lại server).
 3. 2 vòng quanh thân giữ lại ở 30 % độ sáng: người dùng có muốn đổi hẳn sang biểu tượng nhỏ kiểu RO3 không?
 4. Xoá choreo sprite + frame cũ của 4 skill (và `--cleric-fx legacy` cho chúng) sau khi người dùng duyệt bản mới?
+
+## Cập nhật 09:00 (trả lời người dùng)
+- Duy trì ATK / DEF: biểu tượng nhỏ trên đầu (sao 4 cánh vàng / khiên xanh, ~28 %, đứng cạnh nhau khi có cả hai, DEF loé khi bị đánh) thay 2 vòng quanh thân; xoá `ClericBuffBodyRing.cs` + `BuffBodyRing.shader`.
+- Xoá choreo sprite, frame `cast/loop/impact_*` và `Data/classes/cleric/skills/*.json` của 4 skill (giữ icon); `SkillChoreoDefsCleric` rỗng. `--cleric-fx legacy` vẽ FX ánh sáng cho 4 skill này.
+- Câu 1: giữ vàng ngà. Câu 2: giữ tia từ trời, không đạn (người dùng còn hỏi Divine Light là gì). Câu 3, 4: đã làm.
+- Exe `D:/temp/player-cleric-ro3b/Zenonia.exe`.

@@ -64,6 +64,10 @@ namespace ZenoniaProto
         /// <summary>True when this process draws the Cleric light FX (flag on, renders FX, shaders and textures present).</summary>
         public static bool Active { get { return Enabled && NetMode.RendersFx && Ready; } }
 
+        /// <summary>True when the light FX can draw at all, whatever `--cleric-fx` says: the skills whose painted art was removed (Sanctuary, Guardian
+        /// Spirit, Purification, Divine Ascension) use it even in legacy mode.</summary>
+        public static bool Drawable { get { return NetMode.RendersFx && Ready; } }
+
         public static bool Ready { get { Build(); return !failed; } }
 
         /// <summary>Loads the shaders / masks ahead of the first cast (class spawn) so the cast itself never hitches.</summary>

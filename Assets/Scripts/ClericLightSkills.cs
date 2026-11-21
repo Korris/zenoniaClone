@@ -11,7 +11,8 @@ namespace ZenoniaProto
     ///  - Heal (4.1, 650 ms): ClericHealLightFx below; also on the caster (LowestAllyHealRule), the caster's share smaller.
     ///  - Divine Light (4.4, 620 ms): Judex-style holy ray onto the strike centre + star, see DivineLight();
     ///  - Sanctuary / Guardian Spirit / Purification / Divine Ascension: ClericSanctuaryLightFx, ClericGuardianLightFx, ClericPurifyLightFx, ClericAscensionLightFx.
-    /// SkillSupport routes every healed / buffed hero here (OnTarget). `--cleric-fx legacy` keeps the painted choreographies.
+    /// SkillSupport routes every healed / buffed hero here (OnTarget). `--cleric-fx legacy` keeps the old procedural Heal / Divine Light; the other four
+    /// have no painted art any more (removed 2026-11-21) and draw these light FX in legacy mode too.
     /// </summary>
     public static class ClericLightSkills
     {
@@ -22,12 +23,13 @@ namespace ZenoniaProto
         /// <summary>True when this skill draws with the light FX (flag on, shaders ready).</summary>
         public static bool Handles(string skillId)
         {
-            return (skillId == HealId || skillId == DivineLightId || skillId == SanctuaryId || skillId == GuardianId || skillId == PurifyId || skillId == AscensionId) && ClericLightLook.Active;
+            if (skillId == HealId || skillId == DivineLightId) return ClericLightLook.Active;
+            return (skillId == SanctuaryId || skillId == GuardianId || skillId == PurifyId || skillId == AscensionId) && ClericLightLook.Drawable; // no painted art left: legacy draws these too
         }
 
         public static void Cast(SkillContext ctx)
         {
-            if (!ctx.View || !ClericLightLook.Active) return;
+            if (!ctx.View || !Handles(ctx.Def.Id)) return;
             HeroController caster = ctx.Body.Hero;
             switch (ctx.Def.Id)
             {
@@ -47,7 +49,7 @@ namespace ZenoniaProto
         /// <summary>A hero healed / buffed by one of these skills (SkillSupport, on every rendering side, at the step's time).</summary>
         public static void OnTarget(SkillContext ctx, HeroController h)
         {
-            if (h == null || !ClericLightLook.Active) return;
+            if (h == null || !Handles(ctx.Def.Id)) return;
             HeroController caster = ctx.Body.Hero;
             switch (ctx.Def.Id)
             {
@@ -112,7 +114,7 @@ namespace ZenoniaProto
         /// <summary>A healed ally of a circle skill (Divine Light, Divine Ascension): a small ring + flash at their feet, 260 ms, no extra circle.</summary>
         public static void AllySpark(HeroController ally, HeroController caster, ClericLightLook.Pal p)
         {
-            if (ally == null || !ClericLightLook.Active) return;
+            if (ally == null || !ClericLightLook.Drawable) return;
             Color mote = p.Light;
             ClericLightFx.Create("AllySpark", ally.Position, ally, 280f, ClericLightFx.DimFor(caster, ally))
                 .Ground(ClericLightLook.M(ClericLightLook.Band, p, ClericLightLook.Role.Line), 0f, 260f, 8f, 20f, 0.8f)
