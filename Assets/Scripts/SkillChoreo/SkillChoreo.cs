@@ -21,7 +21,6 @@ namespace ZenoniaProto
                 if (table != null) return table;
                 var list = new List<Choreo>();
                 SkillChoreoDefsWizard.Register(list);
-                SkillChoreoDefsWarrior.Register(list);
                 SkillChoreoDefsAssassin.Register(list);
                 SkillChoreoDefsCleric.Register(list);
                 SkillChoreoDefsMechanic.Register(list);
@@ -37,7 +36,7 @@ namespace ZenoniaProto
         public static bool Has(string classId, string skillId) { return classId != null && skillId != null && Table.ContainsKey(classId + "." + Short(skillId)); }
 
         /// <summary>True when a choreography or a hand-made timeline replaces the sim's own art (SkillVfx, bolt and zone bodies); false for no entry and for KeepsSimArt skills.</summary>
-        public static bool DrawsBody(string classId, string skillId) { return AssassinSkillArt.Handles(classId + "." + Short(skillId)) || ClericBuffFx.Handles(classId + "." + Short(skillId)) || ClericLightSkills.Handles(classId + "." + Short(skillId)) || (classId + "." + Short(skillId)) == InfernoCrashUltimate.SkillId || (classId + "." + Short(skillId)) == BerserkerAwakeningFx.SkillId || (classId + "." + Short(skillId)) == NightfallExecutionUltimate.SkillId || Has(classId, skillId) && !Table[classId + "." + Short(skillId)].KeepsSimArt; }
+        public static bool DrawsBody(string classId, string skillId) { return AssassinSkillArt.Handles(classId + "." + Short(skillId)) || ClericBuffFx.Handles(classId + "." + Short(skillId)) || ClericLightSkills.Handles(classId + "." + Short(skillId)) || WarriorLightSkills.Handles(classId + "." + Short(skillId)) || (classId + "." + Short(skillId)) == InfernoCrashUltimate.SkillId || (classId + "." + Short(skillId)) == BerserkerAwakeningFx.SkillId || (classId + "." + Short(skillId)) == NightfallExecutionUltimate.SkillId || Has(classId, skillId) && !Table[classId + "." + Short(skillId)].KeepsSimArt; }
 
         /// <summary>
         /// Starts the choreography (no-op + null where !RendersFx or the skill has none). origin = caster centre; target = aim point (area centre / projectile aim);

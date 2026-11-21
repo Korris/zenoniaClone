@@ -16,6 +16,10 @@ namespace ZenoniaProto
 
         static readonly ChoreoShot[] ChoreoShots =
         {
+            new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Power Slash", Ahead = 28f, Spread = 16f, Count = 4, Hold = 1.4f },
+            new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Whirlwind", Ahead = 0f, Spread = 30f, Count = 5, Hold = 1.6f },
+            new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Flame Cleave", Ahead = 28f, Spread = 16f, Count = 4, Hold = 1.4f },
+            new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Charging Strike", Ahead = 56f, Spread = 12f, Count = 3, Line = true, Hold = 1.4f },
             new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Earth Break", Ahead = 36f, Spread = 22f, Count = 5, Hold = 3.4f },
             new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Blade Cyclone", Ahead = 0f, Spread = 34f, Count = 6, Hold = 3.4f },
             new ChoreoShot { Cls = HeroClass.Warrior, Skill = "Inferno Crash", Ahead = 64f, Spread = 30f, Count = 6, Hold = 2.6f },

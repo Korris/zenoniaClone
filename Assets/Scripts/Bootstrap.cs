@@ -64,7 +64,6 @@ namespace ZenoniaProto
             WorldBuilder.Build(root.transform);
             SlashEffect.Init(root.transform);
             SwordTrail.Init(root.transform);
-            WarriorLockSlashFx.Init(root.transform); // Warrior lock-target slash trail (2026-11-20)
             ImpactFx.Init(root.transform);
             BurstFx.Init(root.transform);
             ComboProjectile.Init(root.transform);

@@ -7,7 +7,8 @@ any of them later: `python Tools/build-light-skill-textures.py import <name> <pn
   import <name> <png>      game copy from a painted source (name: beam-streaks | noise-clouds | meteor-core | burst-ring | portal-veil | portal-mote | venom-bubble | holy-cross | holy-rune
                            | buff-compass | buff-dome | buff-emblem-sword | buff-emblem-shield | buff-arrow: Cleric buff status, Tools/light_skill_textures_cleric_buff.py
                            | holy-hexagon | holy-star4 | holy-diamond | holy-grid | holy-rune-ring | holy-cross-latin | holy-wings | holy-streak: Cleric RO3, Tools/light_skill_textures_cleric_ro3.py
-                           | holy-sigil-star | holy-sigil-hex: Cleric buff receive rune circles, Tools/light_skill_textures_cleric_buff_sigils.py)
+                           | holy-sigil-star | holy-sigil-hex: Cleric buff receive rune circles, Tools/light_skill_textures_cleric_buff_sigils.py
+                           | war-sigil | war-crack | war-flame | war-greatsword: Warrior RO3, Tools/light_skill_textures_warrior.py)
   preview                  docs/reference/light-skill-fx/textures-preview.png (each mask tiled 2x2 on dark and on snow)
 
 Game copies: Assets/Resources/Sprites/fx/light-skill/<name>.png (beam-streaks, noise-clouds: tileable, wrap Repeat in code).
@@ -22,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import light_skill_textures_cleric_buff as cleric_buff  # noqa: E402  (Cleric ATK / DEF buff status masks, 2026-11-21)
 import light_skill_textures_cleric_ro3 as cleric_ro3  # noqa: E402  (Cleric RO3 Soft Fantasy V1 masks, 2026-11-21)
 import light_skill_textures_cleric_buff_sigils as cleric_sigils  # noqa: E402  (Cleric buff receive rune circles, 2026-11-21)
+import light_skill_textures_warrior as warrior  # noqa: E402  (Warrior RO3 Soft Fantasy V1 masks, 2026-11-21)
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "Assets/ArtLibrary/fx/light-skill"
@@ -198,6 +200,8 @@ MAKERS.update(cleric_ro3.MAKERS)
 GAME_SIZE.update(cleric_ro3.GAME_SIZE)
 MAKERS.update(cleric_sigils.MAKERS)
 GAME_SIZE.update(cleric_sigils.GAME_SIZE)
+MAKERS.update(warrior.MAKERS)
+GAME_SIZE.update(warrior.GAME_SIZE)
 
 
 def save_grey(a, path, size=None):

@@ -7,7 +7,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Lock-target basic attack (Warrior since 2026-11-20, HeroClassDef.LockTargetMelee): every slash locks ONE monster (the one it locked before
     /// while that one lives and stays in reach, else the nearest live monster in reach), turns the hero's 4-way facing to it as the windup starts,
-    /// and the blow damages only that monster. The picture (WarriorLockSlashFx) is aimed at it. Runs the same on the offline sim, the zone server
+    /// and the blow damages only that monster. The picture (WarriorSlashLightFx) is aimed at it. Runs the same on the offline sim, the zone server
     /// (authority: damage) and the predicting client (facing + picture only; the server decides the hit). A proxy aims its picture at the monster
     /// it most likely swung at (nearest in reach along its replicated facing).
     /// </summary>
@@ -143,7 +143,7 @@ namespace ZenoniaProto
                 else { Vector2 g = target.Feet - feet; if (g.sqrMagnitude > 1f) angle = Mathf.Atan2(g.y, g.x) * Mathf.Rad2Deg; }
                 dist = Mathf.Max(1f, d.magnitude);
             }
-            HeroFx.LockSlash(cls, feet, angle, dist, view != null ? view.FigureScale : 1f);
+            HeroFx.LockSlash(cls, feet, angle, dist, view != null ? view.FigureScale : 1f, this);
         }
 
         /// <summary>Proxy / replay picture of a lock slash: aim at the monster in reach along the replicated facing.</summary>
