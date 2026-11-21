@@ -25,6 +25,8 @@ namespace ZenoniaProto.Rpg
         public string petId; // v4: the combat pet (kept so a v4 save loads into petTeam[0]); missing = none. Old saves carry pet ITEMS instead, which AccountPets.Migrate converts
         public List<string> petTeam = new List<string>(); // v5: the five team slots (PetSlot order, "" = empty); missing = petId in the combat slot
         public string name; // offline hero name (HeroNameRules); missing / empty in older saves = the class name (SaveStore.DisplayName). Online the server keeps the name, this stays empty
+        public List<ChestCooldown> chests = new List<ChestCooldown>(); // dungeon chests still empty for this character, refill time in unix ms (PlayerState.Dungeon); missing in old saves = all full
+        public List<string> waypoints = new List<string>(); // attuned dungeon warp crystals (DungeonPoints); missing in old saves = none
         public CharacterAppearanceData appearance; // look (hair style / colours / headgear); missing or stored = false in older saves = not chosen (no version bump needed)
     }
 
@@ -61,6 +63,8 @@ namespace ZenoniaProto.Rpg
             d.petId = p.PetId ?? "";
             d.petTeam = new List<string>(p.Team);
             d.appearance = CharacterAppearanceData.Sanitize(p.Appearance, p.ClassId);
+            d.chests = p.ChestCooldownsToList(d.savedAt);
+            d.waypoints = new List<string>(p.Waypoints);
             return d;
         }
 
@@ -113,6 +117,8 @@ namespace ZenoniaProto.Rpg
             for (int i = 0; i < team.Length; i++) for (int j = 0; j < i; j++) if (team[i] != "" && team[i] == team[j]) team[i] = ""; // one species, one slot
             d.petTeam = new List<string>(team); d.petId = team[0];
             d.appearance = CharacterAppearanceData.Sanitize(raw.appearance, d.classId);
+            d.chests = PlayerState.SanitizeChests(raw.chests);
+            d.waypoints = PlayerState.SanitizeWaypoints(raw.waypoints);
             return d;
         }
 
@@ -143,6 +149,7 @@ namespace ZenoniaProto.Rpg
             p.Skills.Load(d.skillRanks, d.level); p.Loadout.Load(d.skillSlots, p.Skills);
             p.Quests.Load(d.quests);
             p.WantedDay = d.wantedDay;
+            p.LoadDungeon(d.chests, d.waypoints); // after the quests: nothing here moves a quest
             p.Appearance = CharacterAppearanceData.Sanitize(d.appearance, p.ClassId);
             for (int i = 0; i < p.Team.Length; i++) p.Team[i] = d.petTeam != null && i < d.petTeam.Count && d.petTeam[i] != null ? d.petTeam[i] : i == 0 ? d.petId ?? "" : "";
             p.RecomputeStats();

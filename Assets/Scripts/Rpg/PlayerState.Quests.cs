@@ -9,7 +9,10 @@ namespace ZenoniaProto.Rpg
         {
             QuestDef q = QuestCatalog.Get(questId);
             if (q == null) return ActionResult.Fail("No such quest");
-            return Quests.Accept(q) ? ActionResult.Success() : ActionResult.Fail("Quest already taken");
+            if (!Quests.Unlocked(q)) return ActionResult.Fail("Finish the quest before it first");
+            if (!Quests.Accept(q)) return ActionResult.Fail("Quest already taken");
+            if (q.WaypointId != null && HasWaypoint(q.WaypointId)) Quests.CountReach(q.WaypointId); // the crystal was attuned before the quest was taken
+            return ActionResult.Success();
         }
 
         /// <summary>Hands the quest in and pays its reward, in one step and only once.</summary>

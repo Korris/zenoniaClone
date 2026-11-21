@@ -57,6 +57,20 @@ def main():
         s = Image.open(p).convert("RGBA")
         cx, by = int((x + fw / 2.0) * T), (y + 1) * T
         img.alpha_composite(s, (cx - s.width // 2, by - s.height))
+    # V5 chests + warp crystal (Assets/Scripts/Rpg/DungeonPoints.cs, drawn at run time by DungeonPointView): on a solid tile, next to a reachable floor tile
+    dp = open(os.path.join(ROOT, "Assets", "Scripts", "Rpg", "DungeonPoints.cs"), encoding="utf8").read()
+    chest_rows = re.findall(r'new ChestDef\("[\w-]+", "(\w+)", (\d+), (\d+), \d+, (true|false)\)', dp)
+    points = [("rbChestRare" if r == "true" else "rbChest", int(x), int(y), None) for mid, x, y, r in chest_rows if mid == key]
+    points += [("rbWarpCrystal", int(x), int(y), (int(ax), int(ay))) for mid, x, y, ax, ay in re.findall(r'new WaypointDef\("[\w-]+", "(\w+)", "[^"]*", (\d+), (\d+), (\d+), (\d+)\)', dp) if mid == key]
+    for t, x, y, arrive in points:
+        if not solid[y, x]: problems.append("PROBLEM %s at (%d,%d) is not on a solid tile" % (t, x, y))
+        if not any(0 <= y + dy < h and 0 <= x + dx < w and not solid[y + dy, x + dx] for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))): problems.append("PROBLEM %s at (%d,%d) has no floor next to it" % (t, x, y))
+        if arrive and blocked[arrive[1], arrive[0]]: problems.append("PROBLEM warp arrival (%d,%d) is blocked" % arrive)
+        sp = os.path.join(ROOT, "Assets", "Resources", "Sprites", "village", "props", t + ".png")
+        if os.path.exists(sp):
+            sprite = Image.open(sp).convert("RGBA")
+            img.alpha_composite(sprite, (int((x + 0.5) * T) - sprite.width // 2, (y + 1) * T - sprite.height))
+    print("dungeon points", [(t, x, y) for t, x, y, _ in points])
     if "--minimap" in sys.argv and "minimap" in cfg:                    # ground + props, 6 px per tile (the chunked map has no single ground image)
         mm = img.convert("RGB").resize((w * 6, h * 6), Image.LANCZOS); mm.save(os.path.join(res, cfg["minimap"])); print("minimap", cfg["minimap"])
     # flood fill from the start on the blocked grid

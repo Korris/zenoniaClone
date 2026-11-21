@@ -56,6 +56,13 @@ export const stateSchema = z
     // SaveData.wantedDay (PlayerState.WantedDay): WantedBoss.DayKey of the last daily Wanted Boss claim, 0 = never. Absent in old saves = 0.
     // Listed so the strip above keeps it: without it every relog would allow a new claim. rpg/wanted-day.js stops it going backwards.
     wantedDay: z.number().int().min(0).max(1_000_000).default(0),
+    // SaveData.chests / waypoints (Rootburrow V5, PlayerState.Dungeon.cs): dungeon chests still empty for this character (DungeonPoints id + refill time, unix ms)
+    // and the attuned warp crystals. Absent in old saves = all chests full, no crystal. Listed so the strip keeps them (a relog must not refill a chest).
+    chests: z.array(z.object({
+      id: z.string().min(1).max(32).regex(/^[A-Za-z0-9._-]+$/),
+      at: z.number().int().min(0),
+    })).max(64).default([]),
+    waypoints: z.array(z.string().min(1).max(32).regex(/^[A-Za-z0-9._-]+$/)).max(32).default([]),
     // v4: which account gacha pet (AccountState.pets) this character has out, '' = none. Old pet *items* in inventory/equipment above still parse as-is.
     petId: petIdField,
     // v5: PetRules.TeamSize slots (Combat/Support1/Support2/Stat1/Stat2), each an account pet id or '' (empty slot). Absent in old saves = [].

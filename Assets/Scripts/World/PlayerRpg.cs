@@ -152,6 +152,12 @@ namespace ZenoniaProto
                 case InvOp.SkillRespec: r = SkillRespec.Apply(State); break;
                 case InvOp.QuestAccept: r = QuestStep(State.AcceptQuest(itemUid)); break;
                 case InvOp.QuestTurnIn: r = QuestStep(State.TurnInQuest(itemUid)); break;
+                case InvOp.ChestOpen: r = State.OpenChest(itemUid, PlayerState.UnixNowMs, RpgRandom.Default); break; // distance: the caller (ServerDungeonActions / DungeonInteract)
+                case InvOp.WaypointTouch:
+                    bool fresh = State.UnlockWaypoint(itemUid); // may complete a "reach" quest
+                    r = fresh || State.HasWaypoint(itemUid) ? ActionResult.Success() : ActionResult.Fail("No such crystal");
+                    if (fresh) QuestStep(r);
+                    break;
                 default: r = ActionResult.Fail("Unknown action"); break;
             }
             Touch();

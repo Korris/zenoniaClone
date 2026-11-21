@@ -14,12 +14,19 @@ namespace ZenoniaProto.Rpg
         public bool AutoStart;
         /// <summary>Chat line when the objective is complete; null = the usual "Objective complete: return to GIVER".</summary>
         public string ReadyNotice;
+        /// <summary>A quest chain: this quest is only offered once quest `Requires` is Done (null = always).</summary>
+        public string Requires;
+        /// <summary>A "reach" quest (Rootburrow V5): done by attuning this warp crystal (DungeonPoints) instead of kills; MonsterType stays null, Count 1.</summary>
+        public string WaypointId;
         public string[] OfferLines, ActiveLines, ReadyLines, DoneLines;
 
         /// <summary>MonsterType of a quest that counts every monster kill.</summary>
         public const string AnyMonster = "*";
 
-        public bool Counts(string monsterType) { return MonsterType == AnyMonster || MonsterType == monsterType; }
+        /// <summary>"Defeat Frost Slime", or the reach objective's own text.</summary>
+        public string Objective { get { return WaypointId != null ? MonsterName : "Defeat " + MonsterName; } }
+
+        public bool Counts(string monsterType) { return WaypointId == null && (MonsterType == AnyMonster || MonsterType == monsterType); }
 
         /// <summary>"+30 G, Small Iron Helmet" for this class: chat line, quest list, completion toast.</summary>
         public string RewardText(string classId)
@@ -63,6 +70,7 @@ namespace ZenoniaProto.Rpg
                 ReadyLines = new[] { "Well done! You fight like a true adventurer.", "Here, this was made for one of your calling. Wear it with pride." },
                 DoneLines = new[] { "That suits you. Off you go, the world is waiting." },
             },
+            RootburrowQuests.Hollow, RootburrowQuests.Amethyst, RootburrowQuests.Warden, // the "Secrets Beneath Rootburrow" chain (Elara, Bramblewood)
             new QuestDef
             {
                 Id = "crystal-survey", Title = "Ancient Crystal Survey", GiverNpcId = "elderRowan", GiverName = "Elder Thomas",
@@ -140,10 +148,18 @@ namespace ZenoniaProto.Rpg
             return e != null ? e.progress : 0;
         }
 
-        /// <summary>False unless the quest was still available (never for an AutoStart quest: it is already under way).</summary>
+        /// <summary>The quest before this one in its chain is finished (or there is none): only then is it offered, shown, accepted.</summary>
+        public bool Unlocked(QuestDef q)
+        {
+            if (q == null || q.Requires == null) return q != null;
+            QuestDef before = QuestCatalog.Get(q.Requires);
+            return before != null && StateOf(before) == QuestState.Done;
+        }
+
+        /// <summary>False unless the quest was still available (never for an AutoStart quest: it is already under way) and its chain allows it.</summary>
         public bool Accept(QuestDef q)
         {
-            if (q == null || Find(q.Id) != null) return false;
+            if (q == null || Find(q.Id) != null || !Unlocked(q)) return false;
             entries.Add(new QuestEntry { id = q.Id, state = (int)QuestState.Active });
             return true;
         }
@@ -165,6 +181,19 @@ namespace ZenoniaProto.Rpg
             return moved;
         }
 
+        /// <summary>A warp crystal was attuned: an active "reach" quest for it is complete. True when any quest moved.</summary>
+        public bool CountReach(string waypointId)
+        {
+            bool moved = false;
+            foreach (QuestEntry e in entries)
+            {
+                QuestDef q = QuestCatalog.Get(e.id);
+                if (e.state != (int)QuestState.Active || q == null || q.WaypointId != waypointId) continue;
+                e.progress = q.Count; e.state = (int)QuestState.ReadyToTurnIn; moved = true;
+            }
+            return moved;
+        }
+
         /// <summary>False unless the objective is complete. Closes the quest for good: the caller pays the reward exactly when this says true.</summary>
         public bool Close(QuestDef q)
         {
@@ -180,7 +209,7 @@ namespace ZenoniaProto.Rpg
             QuestMarker marker = QuestMarker.None;
             foreach (QuestDef q in QuestCatalog.All)
             {
-                if (q.GiverNpcId != npcId) continue;
+                if (q.GiverNpcId != npcId || !Unlocked(q)) continue;
                 QuestState s = StateOf(q);
                 if (s == QuestState.ReadyToTurnIn) return QuestMarker.Ready;
                 if (s == QuestState.Available) marker = QuestMarker.Available;
@@ -195,7 +224,7 @@ namespace ZenoniaProto.Rpg
             int bestRank = -1;
             foreach (QuestDef q in QuestCatalog.All)
             {
-                if (q.GiverNpcId != npcId) continue;
+                if (q.GiverNpcId != npcId || !Unlocked(q)) continue;
                 QuestState s = StateOf(q);
                 int rank = s == QuestState.ReadyToTurnIn ? 3 : s == QuestState.Available ? 2 : s == QuestState.Active ? 1 : 0;
                 if (rank > bestRank) { best = q; bestRank = rank; }

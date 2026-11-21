@@ -88,7 +88,7 @@ namespace ZenoniaProto
         {
             title.text = q.Title;
             description.text = q.Description;
-            objective.text = "Defeat " + q.MonsterName;
+            objective.text = q.Objective;
             count.text = "0 / " + q.Count;
             for (int i = rewards.childCount - 1; i >= 0; i--)
                 if (rewards.GetChild(i).name.StartsWith("Slot")) Destroy(rewards.GetChild(i).gameObject);

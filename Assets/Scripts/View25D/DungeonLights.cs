@@ -30,6 +30,9 @@ namespace ZenoniaProto
         /// <summary>Soft light carried with the local hero (user 21/11: "giống ở trong hang", the cave stays dark but the own hero must read):
         /// always one of the 16 lights, no floor pool, no flicker.</summary>
         static readonly Kind HeroGlow = new Kind(0xD8E2FF, 3.4f, 0.40f, 0f, 3f);
+        /// <summary>Rootburrow V5 (DungeonPoints): the warp crystal glows cyan like a rune orb, a chest gives a faint warm glint so the alcove reads (rare: brighter).</summary>
+        static readonly Kind WarpCrystal = new Kind(0x7FE3FF, 3.8f, 0.95f, 0.06f, 2.4f, 1.5f), ChestGlint = new Kind(0xFFD27A, 1.6f, 0.30f, 0.05f, 3.0f, 0.4f),
+            RareChestGlint = new Kind(0xFFC2E8, 2.0f, 0.45f, 0.06f, 2.6f, 0.5f);
 
         static bool TryKind(string type, out Kind k)
         {
@@ -99,6 +102,13 @@ namespace ZenoniaProto
                 if (!TryKind(p.Type, out k) || !VillagePropDefs.TryGet(p.Type, out d)) continue;
                 float x = (p.Tx + d.FootW * 0.5f) * t, y = GameConfig.MapH - (p.Ty + 1) * t + k.LiftTiles * t; // a little north of the foot: the glow sits on the lit body
                 Add(parent, new Vector2(x, y), k, p.Tx * 7 + p.Ty * 13);
+            }
+            foreach (Rpg.WaypointDef w in Rpg.DungeonPoints.WaypointsOn(map.Id))
+                Add(parent, new Vector2((w.Tx + 0.5f) * t, GameConfig.MapH - (w.Ty + 1) * t + WarpCrystal.LiftTiles * t), WarpCrystal, w.Tx * 7 + w.Ty * 13);
+            foreach (Rpg.ChestDef c in Rpg.DungeonPoints.ChestsOn(map.Id))
+            {
+                Kind k = c.Rare ? RareChestGlint : ChestGlint;
+                Add(parent, new Vector2((c.Tx + 0.5f) * t, GameConfig.MapH - (c.Ty + 1) * t + k.LiftTiles * t), k, c.Tx * 7 + c.Ty * 13);
             }
             int n = 0;
             foreach (KeyValuePair<Vector2, Kind> e in Extra(map.Id))

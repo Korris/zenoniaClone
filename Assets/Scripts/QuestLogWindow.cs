@@ -81,7 +81,7 @@ namespace ZenoniaProto
             int rows = 0;
             foreach (QuestState state in ShowOrder)
                 foreach (QuestDef q in QuestCatalog.All)
-                    if (log.StateOf(q) == state) AddRow(rows++, q, state, log.ProgressOf(q));
+                    if (log.StateOf(q) == state && log.Unlocked(q)) AddRow(rows++, q, state, log.ProgressOf(q));
             content.sizeDelta = new Vector2(ListW, rows * (RowH + RowGap));
         }
 
@@ -122,8 +122,8 @@ namespace ZenoniaProto
             switch (state)
             {
                 case QuestState.ReadyToTurnIn: return "Return to " + q.GiverName;
-                case QuestState.Active: return "Defeat " + q.MonsterName + "  " + progress + " / " + q.Count;
-                case QuestState.Done: return "Defeat " + q.MonsterName + "  " + q.Count + " / " + q.Count;
+                case QuestState.Active: return q.Objective + "  " + progress + " / " + q.Count;
+                case QuestState.Done: return q.Objective + "  " + q.Count + " / " + q.Count;
                 default: return "Talk to " + q.GiverName;
             }
         }

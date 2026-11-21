@@ -30,6 +30,7 @@ namespace ZenoniaProto
                 else MapPortalHaze.Build(parent, map);
             }
             if (ShowsVillagers) TownNpc.CreateAll(parent, map);
+            if (ShowsVillagers) DungeonPointView.Build(parent, map); // Rootburrow V5 chests + warp crystals: per-character state, drawn like the villagers
         }
 
         public const float FlatDecorMaxTiles = 3f; // sprite height up to which a walk-through prop counts as ground decoration

@@ -64,6 +64,9 @@ namespace ZenoniaProto
             // Thatchwick pet keeper (Pet Companion + pet gacha, 16/11/2026): talking opens the pet gacha (PetGachaWindow, also key G). Reuses Mia's look, no new art.
             { "petKeeperLumi", DefArt("petKeeperLumi", "Lumi", "villagerMia", Down, false,
                 "Every companion here was found on the road, never sold for real coin.", "Bring me Pet Tickets and see who answers your call.") },
+            // Bramblewood Forest, outside Rootburrow's gate (Rootburrow V5, 21/11/2026): the "Secrets Beneath Rootburrow" quest chain (RootburrowQuests). Reuses Hunter Lena's look.
+            { "caveResearcherElara", DefArt("caveResearcherElara", "Elara", "hunterLena", Down, true,
+                "Rootburrow goes deeper than anyone thinks. Three floors, at least.") },
             // Oakhaven's blacksmith (world-map-2 step 1): same look as the carpenter, a hammer at the forge.
             { "smithBram", DefArt("smithBram", "Bram", "carpenterBrol", Down, false,
                 "Steel and leather, nothing fancy, but it holds an edge.", "Oakhaven forges plain gear. Good enough until you see higher country.") },

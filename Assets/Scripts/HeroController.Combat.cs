@@ -108,6 +108,12 @@ namespace ZenoniaProto
         }
 
         /// <summary>Called by monsters when a strike connects. Green Slime takes its % off first; a hit fully soaked by a shield does not wake the pet (no real HP lost).</summary>
+        /// <summary>Zone time (ms) of the last hit or tick that took HP; far in the past until then.</summary>
+        public float LastHurtAtMs = -1e9f;
+
+        /// <summary>Ms since that hit on this hero's zone clock.</summary>
+        public float MsSinceHurt { get { return (HomeZone != null ? HomeZone.TimeMs : Time.time * 1000f) - LastHurtAtMs; } }
+
         public void TakeDamage(int dmg) { TakeDamage(dmg, false); }
 
         /// <summary>`dot` = a damage-over-time tick (wanted boss poison): no invuln window, no hurt pose, no cast break. A poison tick every
@@ -120,6 +126,7 @@ namespace ZenoniaProto
             dmg = HeroBuffs.Absorb(this, dmg); // Mana Shield / Guardian Spirit soak first
             if (dmg <= 0) { if (!dot) invuln = InvulnMs; return; } // fully absorbed: no HP loss, no hurt reaction
             hp -= dmg;
+            LastHurtAtMs = HomeZone != null ? HomeZone.TimeMs : Time.time * 1000f; // warp crystals refuse a hero hit in the last 5 s (DungeonPoints.WarpCombatMs)
             if (!dot)
             {
                 invuln = InvulnMs;

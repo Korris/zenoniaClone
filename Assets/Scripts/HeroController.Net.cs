@@ -129,6 +129,7 @@ namespace ZenoniaProto
         public void ProxyPlayHurt(int dmg)
         {
             hurt = Mathf.Max(hurt, HurtMs * 0.5f);
+            LastHurtAtMs = HomeZone != null ? HomeZone.TimeMs : Time.time * 1000f; // the warp crystal's combat check on this side (the server checks again)
             HeroFx.Hurt(new Vector2(x, y), dmg, this == LocalPlayer.Hero);
         }
 

@@ -21,16 +21,18 @@ namespace ZenoniaProto
                 return;
             }
             if (m.Op == InvOp.Appearance) { ApplyAppearance(p, m.ItemUid); return; }
+            if (m.Op == InvOp.WaypointWarp) { ServerDungeonActions.Warp(repl, p, HeroMap(p), m); return; } // Rootburrow V5 warp crystal: moves the hero
+            bool dungeonOp = m.Op == InvOp.ChestOpen || m.Op == InvOp.WaypointTouch;
             bool questOp = m.Op == InvOp.QuestAccept || m.Op == InvOp.QuestTurnIn;
             bool shopOp = m.Op == InvOp.PotionBuy || m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || m.Op == InvOp.BallBuy;
-            string refusal = TradeService.IsTrading(p) && TradeBook.BlocksInventoryOp(m.Op) ? "Not while trading" : shopOp ? ShopRefusal(p, m) : questOp ? QuestRefusal(p, m) : null;
+            string refusal = TradeService.IsTrading(p) && TradeBook.BlocksInventoryOp(m.Op) ? "Not while trading" : shopOp ? ShopRefusal(p, m) : questOp ? QuestRefusal(p, m) : dungeonOp ? ServerDungeonActions.Refusal(p, HeroMap(p), m) : null;
             if (refusal == null && m.Op == InvOp.Enhance && ZonePersistence.Active != null) { ZonePersistence.Active.Enhance(repl, p, m); return; } // with real characters only the API rolls an enhance: the answer comes later
             if (refusal == null && InvOpInfo.IsAccountOp(m.Op)) { AccountAction(repl, p, m); return; } // pet unlock / growth / gacha / balls: answered once the account is stored
             if (refusal == null && m.Op == InvOp.PetCapture) { Capture(repl, p, m); return; }
             string before = LookKey(p);
             ActionResult r = refusal != null ? ActionResult.Fail(refusal) : p.Rpg.ApplyInvAction(m.Op, m.ItemUid, m.Slot);
             if (LookKey(p) != before) LookChanged(p);
-            if ((m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || questOp) && r.Ok && ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p); // a large sum of gold, a quest reward: written now, not at the next interval
+            if ((m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || questOp || dungeonOp) && r.Ok && ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p); // a large sum of gold, a quest reward: written now, not at the next interval
             repl.SendRpgState(p, m.ReqId, r.Ok, r.Text);
             p.RpgDirty = false;
         }

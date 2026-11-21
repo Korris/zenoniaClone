@@ -71,6 +71,10 @@ namespace ZenoniaProto
         public override bool Hostile { get { return true; } }
         public override Vector2 PlayerStart { get { return FrostHollowMap.TileFeet(PlayerStartTile.x, PlayerStartTile.y, 2f); } }
         public override MapPortal[] Portals { get { return PortalList; } }
+
+        /// <summary>Elara the cave researcher (Rootburrow V5, 21/11/2026), on the grass above the road two tiles before the cave mouth: the "Secrets Beneath Rootburrow" quests (RootburrowQuests).</summary>
+        static readonly MapNpc[] NpcList = { new MapNpc("caveResearcherElara", 9, 10) };
+        public override MapNpc[] Npcs { get { return NpcList; } }
         public override MapProp[] Props { get { return BramblewoodForestProps.All; } }
     }
 }

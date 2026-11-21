@@ -1,6 +1,6 @@
 """Cuts the two ChatGPT prop sheets of a dark 2.5D dungeon (first: Rootburrow, 21/11/2026) and sizes every prop to its PropDef width.
 
-    python Tools/cut-map-25d-dungeon-props.py rootburrow
+    python Tools/cut-map-25d-dungeon-props.py rootburrow [sheet-name-substring]   (e.g. "chest-warp" re-cuts only that sheet)
 
 1. Tools/cut-magenta-prop-sheet.py keys each sheet (#FF00FF) into one PNG per prop (names in the order the prompt listed them) in a temp folder;
 2. each PNG is scaled so its drawn width (or height, for a negative number) is the size wanted below (tiles x 64 px at 4 px per world unit, MapScenery), keeping the bottom-centre foot;
@@ -18,6 +18,8 @@ SHEETS = {
         ("rootburrow-dark-props-low-chatgpt-2.png", "2x3", [("rbCaveBoulder", 2.25), ("rbStoneCluster", 1.5), ("rbGlowShrooms", 1.0), ("rbPebbles", 1.5),
                                                      ("rbStoneSlab", 2.5), ("rbRuneSeal", 3.0)]),
         ("rootburrow-dark-props-stairs-chatgpt-1.png", "1x2", [("rbStairsDown", 3.6), ("rbStairsUp", 3.6)]),   # V4 floor stairs (21/11/2026)
+        ("rootburrow-chest-warp-props-58-chatgpt-1.png", "1x5", [("rbChest", 1.3), ("rbChestOpen", 1.3), ("rbChestRare", 1.5), ("rbChestRareOpen", 1.5),
+                                                               ("rbWarpCrystal", -2.4)]),   # V5 alcove chests + warp crystal (DungeonPoints, 21/11/2026)
     ],
 }
 
@@ -26,7 +28,9 @@ def main():
     key = sys.argv[1] if len(sys.argv) > 1 else "rootburrow"
     src = os.path.join(ROOT, "Assets", "ArtLibrary", "maps", key, "dark-25d")
     out = os.path.join(ROOT, "Assets", "Resources", "Sprites", "village", "props")
+    only = sys.argv[2] if len(sys.argv) > 2 else None
     for sheet, grid, items in SHEETS[key]:
+        if only and only not in sheet: continue
         path = os.path.join(src, sheet)
         if not os.path.exists(path): print("missing", sheet); continue
         tmp = tempfile.mkdtemp()  # V2 violet sheets on #00FF00 (the cutter reads the key colour from the corner)

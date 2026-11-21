@@ -19,6 +19,8 @@ namespace ZenoniaProto
         };
 
         GameObject talkPrompt;
+        Text talkLabel;
+        string talkText;
         Transform root;
         bool pausedByUs;
 
@@ -55,13 +57,21 @@ namespace ZenoniaProto
             // RO Soft Fantasy (default look, UiStyle): light menus over the classic builders; nothing happens with --ui-style classic
             foreach (string layer in MenuLayers) RoSoftSkin.Light(canvas.Find(layer));
             RectTransform t = UiWinKit.Anchored(canvas, "TalkPrompt", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), 0f, 76f, 150f, 42f);
-            UiWinKit.ArtButton(t, "Talk", "btn-gold", 0f, 0f, 150f, 42f, Application.isMobilePlatform ? "Talk" : "Talk  [E]", 19, new Color(0.25f, 0.12f, 0.02f), TownNpc.Talk);
+            UiWinKit.ArtButton(t, "Talk", "btn-gold", 0f, 0f, 150f, 42f, Application.isMobilePlatform ? "Talk" : "Talk  [E]", 19, new Color(0.25f, 0.12f, 0.02f), Interact);
             RoSoftSkin.Light(t); // mint Talk button in the RO Soft Fantasy look
             talkPrompt = t.gameObject;
+            talkLabel = talkPrompt.GetComponentInChildren<Text>(true);
             talkPrompt.SetActive(false);
         }
 
         void OnDestroy() { SetPaused(false); }
+
+        /// <summary>The Talk button / E: the nearest villager, else the chest or warp crystal in reach.</summary>
+        static void Interact()
+        {
+            if (TownNpc.InRange) TownNpc.Talk();
+            else DungeonInteract.Use();
+        }
 
         void SetPaused(bool on)
         {
@@ -83,7 +93,10 @@ namespace ZenoniaProto
                 return;
             }
             bool menuOpen = InventoryPanel.IsOpen || HeroChangeScreen.IsOpen;
-            bool inRange = TownNpc.InRange && !menuOpen;
+            bool npc = TownNpc.InRange, dungeon = !npc && DungeonInteract.InRange; // a villager first; else a dungeon chest / warp crystal (Rootburrow V5)
+            bool inRange = (npc || dungeon) && !menuOpen;
+            string text = dungeon ? DungeonInteract.Prompt : Application.isMobilePlatform ? "Talk" : "Talk  [E]";
+            if (talkLabel != null && text != talkText) { talkText = text; talkLabel.text = text; }
             UiWindows.InteractPrompt = inRange;
             talkPrompt.SetActive(inRange && !modal && !ChatWindow.RecentlyTyping);
             SetPaused(modal);
@@ -103,7 +116,7 @@ namespace ZenoniaProto
             if (!interact && !enter) return;
             if (QuestOfferWindow.IsOpen) QuestOfferWindow.Accept();
             else if (NpcDialogueBox.IsOpen) NpcDialogueBox.Advance();
-            else if (inRange && !ChatWindow.RecentlyTyping) TownNpc.Talk();
+            else if (inRange && !ChatWindow.RecentlyTyping) Interact();
             else if (enter && !menuOpen) ChatWindow.FocusFromKey();
         }
     }

@@ -59,7 +59,7 @@ namespace ZenoniaProto
                         ChatHub.System("Quest accepted: " + q.Title);
                         NotificationToast.Show("Quest Accepted", q.Title, icon);
                     }
-                    else NotificationToast.Show(q.Title, "Defeat " + q.MonsterName + "  " + now.Progress + " / " + q.Count, icon);
+                    else NotificationToast.Show(q.Title, q.Objective + "  " + now.Progress + " / " + q.Count, icon);
                     break;
                 case QuestState.ReadyToTurnIn:
                     ChatHub.System(q.ReadyNotice ?? "Objective complete: return to " + q.GiverName);

@@ -32,6 +32,7 @@ Boss nấm 7 (concept + 6 sheet), nền + prop V1 nâu 4 (bỏ), nền + prop V2
 - [x] Wanted cú: dữ liệu, skill, FX code, art (đang vẽ / cắt)
 - [x] dotnet test 2 project
 - [x] V4 ba tầng: rows, prop, nền, minimap, cầu thang, quái 2F-3F, bảng spawn; `PROBLEM` không có; đi qua cầu thang 1F -> 2F chạy; ảnh `docs/reference/rootburrow-dark-25d/ingame-v4-*.jpg`, `worldmap-v4-*.jpg`
+- [x] V5 (21/11 18:25): 9 rương, 3 pha lê dịch chuyển, chuỗi quest Elara, giữ 72 x 48 (`docs/reference/rootburrow-dark-25d/floors-purpose-chatgpt.md`, `Rpg/DungeonPoints.cs`)
 - [ ] Người dùng xem trong game
 - [ ] BUILD LẠI ZONE SERVER: MonsterDef (2 boss mới, thêm cuối `All`), bảng skill, `MapSpawnTable`, rows / prop / cổng Rootburrow + 2 map mới `rootburrow2` / `rootburrow3`, 4 quái mới, `WantedBoss.Rotation` (vòng ngày đổi từ 3 sang 4 boss), Bramblewood / Thornheart trỏ cổng mới
 

@@ -18,10 +18,25 @@ namespace ZenoniaProto
         /// <summary>False with --no-portals (load tests keep every bot on one zone) and on a host with a single zone. Clients are told, so they draw no dead portals.</summary>
         public bool PortalsLive { get; private set; }
 
+        /// <summary>The running server's service (null offline / on a client): warp crystals teleport through it (ServerDungeonActions).</summary>
+        public static ZoneTransferService Active { get; private set; }
+
         public ZoneTransferService(ZoneHost zoneHost, ServerReplication replication, NetStats netStats)
         {
             host = zoneHost; repl = replication; stats = netStats;
             PortalsLive = host.MultiZone && !NetLaunchArgs.NoPortals;
+            Active = this;
+        }
+
+        /// <summary>
+        /// A warp crystal (Rootburrow V5): moves the hero to a tile of any map, its own included, exactly like walking through a portal (new NetId, ZoneChanged,
+        /// the client fades and rebuilds). The caller validated the request. False when the map is not hosted.
+        /// </summary>
+        public bool Teleport(NetPlayer p, string mapId, int tx, int ty)
+        {
+            if (p.Hero == null || p.Hero.HomeZone == null || host.ZoneOf(mapId) == null) return false;
+            Move(p, p.Hero.HomeZone, new MapPortal(0, 0, mapId, tx, ty), true);
+            return true;
         }
 
         /// <summary>Once per tick, after the sim: moves every hero that walked onto a portal it may use.</summary>
@@ -48,10 +63,10 @@ namespace ZenoniaProto
             }
         }
 
-        void Move(NetPlayer p, Zone from, MapPortal portal)
+        void Move(NetPlayer p, Zone from, MapPortal portal, bool sameZoneOk = false)
         {
             Zone to = host.ZoneOf(portal.TargetMapId);
-            if (to == null || to == from) { p.Portals.Disarm(); return; } // ZoneHost already logged a portal to nowhere
+            if (to == null || (to == from && !sameZoneOk)) { p.Portals.Disarm(); return; } // ZoneHost already logged a portal to nowhere
             HeroController hero = p.Hero;
 
             Zone.Enter(from);

@@ -22,12 +22,17 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPS_DIR = os.path.join(ROOT, "Assets", "Scripts", "Maps")
 MAPS = {  # V4 three-floor Rootburrow (21/11/2026): stairs mouths are fixed props on the solid tile north of a tunnel's end
     "rootburrow": dict(cls="Rootburrow", rows_file="RootburrowMap.cs", size=(72, 48), start=(68, 23), boss=None, hud_rows=45,
-                       portals=[(71, 22), (71, 23), (71, 24), (4, 32), (5, 32), (6, 32)], fixed=[("rbStairsDown", 4, 31)]),
+                       portals=[(71, 22), (71, 23), (71, 24), (4, 32), (5, 32), (6, 32)], fixed=[("rbStairsDown", 4, 31)],
+                       reserved=[(57, 43), (38, 2), (15, 5), (68, 21)]),
     "rootburrow2": dict(cls="RootburrowB2", rows_file="RootburrowB2Map.cs", size=(72, 48), start=(66, 8), boss=None, hud_rows=45,
-                        portals=[(65, 5), (66, 5), (67, 5), (5, 5), (6, 5), (7, 5)], fixed=[("rbStairsUp", 65, 4), ("rbStairsDown", 5, 4)]),
+                        portals=[(65, 5), (66, 5), (67, 5), (5, 5), (6, 5), (7, 5)], fixed=[("rbStairsUp", 65, 4), ("rbStairsDown", 5, 4)],
+                        reserved=[(55, 42), (33, 6), (23, 5), (68, 9)]),
     "rootburrow3": dict(cls="RootburrowB3", rows_file="RootburrowB3Map.cs", size=(72, 48), start=(67, 36), boss=(38, 21), hud_rows=45, arena=(12, 22),
-                        portals=[(66, 33), (67, 33), (68, 33), (1, 22), (1, 23), (1, 24)], fixed=[("rbStairsUp", 66, 32)]),
+                        portals=[(66, 33), (67, 33), (68, 33), (1, 22), (1, 23), (1, 24)], fixed=[("rbStairsUp", 66, 32)],
+                        reserved=[(54, 40), (45, 6), (24, 40), (69, 37)]),
 }
+# reserved = the solid tiles of the V5 chests + warp crystal (Assets/Scripts/Rpg/DungeonPoints.cs, drawn at run time by DungeonPointView): no prop on or
+# right next to them, no floor decor in front of them. Keep in step with DungeonPoints.
 TALL_N = ["rbCaveWall", "rbCaveWallB", "rbStonePillar", "rbCaveWall", "rbHangingRoots", "rbCaveWallB"]
 TALL_SIDE = ["rbStonePillar", "rbStonePillar", "rbCrystalNest", "rbCaveBoulder"]
 LOW = ["rbCaveBoulder", "rbStoneCluster", "rbGlowShrooms", "rbStoneCluster", "rbPebbles"]
@@ -69,6 +74,8 @@ def main():
     props = []
     for t, x, y in cfg.get("fixed", []):                               # stairs first: nothing else may stand on or next to them
         props.append((t, x, y)); used[max(0, y - 2):y + 2, max(0, x - 2):x + 5] = True
+    for x, y in cfg.get("reserved", []):                              # V5 chests / warp crystal: their tile + one tile of air all round
+        used[max(0, y - 1):y + 3, max(0, x - 1):x + 2] = True   # 2 rows south too: a tall piece there would stand in front of it
     lights = dict(rbRuneOrb=[], rbRuneObelisk=[], rbPurpleCrystal=[], rbPinkCrystal=[])
 
     def free(x, y, fw):
@@ -113,7 +120,7 @@ def main():
         if d[y, x] < 2 or floor_north(x, y, 3) or rng.random() > (0.30 if d[y, x] <= 4 else 0.12): continue  # thinner deep in the mass
         put(rng.choice(DEEP), x, y, block=rng.random() < 0.85)
     # 4) floor decor along the walls (walk-through), clear of portals / start / boss
-    keep = [(px, py, 2) for px, py in cfg["portals"]] + [(cfg["start"][0], cfg["start"][1], 2)]
+    keep = [(px, py, 2) for px, py in cfg["portals"]] + [(cfg["start"][0], cfg["start"][1], 2)] + [(x, y, 2) for x, y in cfg.get("reserved", [])]
     if cfg["boss"]: keep.append((cfg["boss"][0], cfg["boss"][1], 3))
     if "arena" in cfg: keep.append((cfg["arena"][0], cfg["arena"][1], 6))   # the 40-player arena floor stays clear
     for y in range(h):
