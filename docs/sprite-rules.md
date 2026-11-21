@@ -6,6 +6,21 @@
 
 **Hướng VFX từ 2026-11-20 (người dùng chốt): KHÔNG làm hiệu ứng skill / đòn đánh dạng sprite (frame vẽ sẵn) nữa.** Làm như RO Mobile / RO3: tia lửa, khói bụi, luồng gió, vụ nổ, luồng phép bằng Particle System; vệt chém bằng Mesh Trail (dải lụa 3D uốn theo đường kiếm trong không gian) và shader (biến dạng không gian / distortion, phát sáng Bloom, hoà tan Dissolve). Texture nhỏ cho hạt / dải trail (noise, gradient, mask) vẫn dùng được; ChatGPT vẫn là nơi lấy hướng nhìn (màu, hình dáng, nhịp), nhưng không vẽ frame VFX để cắt sheet. VFX sprite đang có (ví dụ `WarriorLockSlashFx` / `fx/attack/lock-slash.png`, các `*Fx.cs` theo sheet) giữ tạm, khi sửa thì chuyển sang cách mới. Thời gian hiệu ứng vẫn phải khớp `SkillTable` / `ComboConfigs`. Quy tắc này chỉ áp cho hiệu ứng; sprite nhân vật, quái, vũ khí, đồ vẫn là sprite.
 
+**Phong cách skill MỌI class từ 2026-11-21 (người dùng chốt): "RO3 Soft Fantasy V1", theo clip RO3 Acolyte → Archbishop https://www.youtube.com/watch?v=Uxz52wBS16Y.** Màu theo đúng RO3 (pastel, không đẩy đậm kiểu Midgard Senki). Phân tích đầy đủ + ánh xạ skill: `docs/reference/ro3-skill-style/ro3-acolyte-priest-skill-style-chatgpt.md`. H = chiều cao nhân vật trên màn hình. 12 quy tắc:
+1. Một skill một hình chủ đạo (heal = quầng hồi máu, buff = thánh ấn / biểu tượng, khiên = vòng bảo vệ, đòn holy = tia + chớp trúng, AoE = ma pháp trận dưới đất). Skill thường 3-4 lớp, skill mạnh 5-6.
+2. Hình học hơn hạt: vòng phép / thánh ấn / tia 55-65 %, glow + chuyển động 20-30 %, hạt 10-20 %.
+3. Buff / heal / debuff đơn mục tiêu gói trong 0,8-1,8H; đạn 0,3-0,7H; khiên 1,2-1,8H; AoE nhỏ 2,5-4H, Sanctuary / AoE lớn 4-6H, ultimate 5-7H (cỡ FX, không phải tầm gameplay: vòng ranh giới đúng tầm, sáng tập trung ở tâm / mục tiêu).
+4. Đỉnh sáng ngắn: lấy đà 0,1-0,25 s (25-45 %), bùng 0,15-0,3 s (85-100 %), giữ / trúng 0,1-0,3 s (45-70 %), tan 0,15-0,35 s. Không giữ Bloom đỉnh suốt skill.
+5. Không dùng Bloom thay hình dạng: chỉ lõi phát sáng mạnh, glow phụ nhẹ hơn lõi 50-75 %, không tăng Bloom cả camera vì một skill.
+6. Vòng đất đọc được trên mọi map: nét rune chính alpha 65-85 %, nền phép 10-20 %, lõi sáng có viền hơi tối; nét chính 2-4 px, rune phụ 1-2 px (1280x720). Không vàng quá nhạt trên cát, cyan quá nhạt trên tuyết.
+7. Tách lớp: FX mặt đất (dưới chân) / FX quanh người / FX trước người (chỉ khi cần) / UI (tên skill, số, icon buff). Vòng phép nằm trên mặt đất theo góc camera, không dựng đứng.
+8. Màu cố định theo chức năng: Holy vàng ngà + trắng (#FFF4C9, #F3D16B), Heal xanh lá dịu (#91DB76, #B6E9B7), Bảo vệ xanh lam nhạt + vàng (#9DDAEC), Buff ATK vàng kim, Thanh tẩy trắng xanh (#D7F4F3), Debuff đỏ san hô (#E65A52) hoặc tím nhạt (#BCA3E4), Ultimate = màu holy + 1 màu nhấn, không cầu vồng. Mỗi skill tối đa 2 màu chính + 1 lõi sáng.
+9. Mesh Trail mềm, ngắn: rộng 0,08-0,22H, đuôi tắt 0,12-0,25 s, đầu sáng nhất; AoE dùng ring / line mesh thay trail.
+10. Skill duy trì còn 15-30 % độ sáng sau khi kích hoạt, chỉ giữ biểu tượng / quầng nhỏ; loé lại khi có sự kiện (hồi máu, bị đánh, giải hiệu ứng).
+11. Số: hồi máu #8CDD74, sát thương thường #FFF5DC, holy #F5D16C, chí mạng vàng đậm hơn + to 15-20 %; mỗi mục tiêu một cụm số; số ở lớp UI, không bị Bloom, hạt không che số. Tên skill hiện 0,5-0,8 s trên đầu người cast (không hiện khi buff tự làm mới).
+12. LOD 40 người: hạt mình 100 % / đồng đội gần 40-60 % / người xa 10-25 %; rune chính người xa bản đơn giản; glow phụ đồng đội 50 %, người xa 0-20 %; distortion tắt cho người khác; cảnh báo boss luôn ưu tiên hơn FX người chơi.
+Không chép từ RO3 3D: cột sáng quá cao, distortion mạnh, vòng phép dựng đứng / méo phối cảnh, bóng 3D cho hạt.
+
 Áp dụng mỗi khi vẽ lại, cắt lại, thêm sprite nhân vật hoặc vũ khí. Lập ngày 2026-10-31, sau các lỗi Warrior phát hiện khi chơi thử.
 
 ## Cách hero được vẽ
