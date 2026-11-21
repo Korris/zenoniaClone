@@ -17,7 +17,7 @@ namespace ZenoniaProto
     public sealed class ClericBuffStatusFx : MonoBehaviour
     {
         /// <summary>Hold a status created by a cast until its receive burst has played (stream lands at 460 ms + most of the burst).</summary>
-        public const float HoldForCastMs = 1000f, HoldAfterReceiveMs = 550f;
+        public const float HoldForCastMs = 1000f, HoldAfterReceiveMs = 800f; // receive burst 950 / 1050 ms: the small emblem fades in as it fades out
         /// <summary>Resting brightness of a maintained sign (RO3 rule 10: 15-30 % of the cast).</summary>
         public const float Rest = 0.28f;
         const float FadeInMs = 250f, DissolveMs = 300f, GraceMs = 1500f, HitFlashMs = 150f;

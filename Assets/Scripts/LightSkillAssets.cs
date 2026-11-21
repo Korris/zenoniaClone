@@ -134,7 +134,17 @@ namespace ZenoniaProto
             fadeId = Shader.PropertyToID("_Fade"); dissolveId = Shader.PropertyToID("_Dissolve"); ringId = Shader.PropertyToID("_Ring"); arcId = Shader.PropertyToID("_Arc");
         }
 
-        static int arcId = -1;
+        static int arcId = -1, revealId = -1;
+
+        /// <summary>LightBlob reveal sweep for this renderer: 0 = nothing drawn yet .. 1 = whole (a ring drawing itself in clockwise from its top).</summary>
+        public static void SetReveal(Renderer r, float reveal)
+        {
+            Block();
+            if (revealId < 0) revealId = Shader.PropertyToID("_Reveal");
+            r.GetPropertyBlock(block);
+            block.SetFloat(revealId, Mathf.Clamp01(reveal));
+            r.SetPropertyBlock(block);
+        }
 
         /// <summary>LightBlob bright arc for this renderer: centre angle (rad), half width (rad), glow floor outside it, arcs around the circle (see the shader).</summary>
         public static void SetArc(Renderer r, float angle, float halfWidth, float floor, float count)

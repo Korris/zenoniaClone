@@ -14,6 +14,9 @@
 // Optional (default 0 changes nothing), added 2026-11-21 for the Cleric RO3 Purification (bad status breaking apart):
 //  _Dissolve (0 whole .. 1 gone, per renderer): procedural value noise over the quad, pixels whose noise is under the threshold vanish,
 //         so a blob crumbles into specks instead of fading evenly.
+// Optional (default 1 changes nothing), added 2026-11-21 for the richer Cleric buff receive FX (rune circle drawing itself in):
+//  _Reveal (0 nothing .. 1 whole, per renderer): only the part of the quad within that fraction of a turn (clockwise from the top of the quad)
+//         shows, with a brighter head on the sweep front, so a ring / sigil draws itself in.
 Shader "ZenoniaProto/LightBlob"
 {
     Properties
@@ -34,6 +37,7 @@ Shader "ZenoniaProto/LightBlob"
         _HiStart ("Mask where the highlight starts", Float) = 0.8
         _GlowPow ("Glow narrowing power", Float) = 1
         _Dissolve ("Dissolve", Range(0, 1)) = 0
+        _Reveal ("Reveal sweep", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -43,7 +47,7 @@ Shader "ZenoniaProto/LightBlob"
         CGINCLUDE
         #include "UnityCG.cginc"
         sampler2D _MainTex;
-        float _Falloff, _CoreWhite, _Fade, _Hollow, _Solid, _RimEnd, _HiStart, _GlowPow, _Dissolve;
+        float _Falloff, _CoreWhite, _Fade, _Hollow, _Solid, _RimEnd, _HiStart, _GlowPow, _Dissolve, _Reveal;
         float4 _EmissionColor, _BodyColor, _Arc, _ArcTint, _RimColor, _HiColor;
 
         struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; };
@@ -88,6 +92,17 @@ Shader "ZenoniaProto/LightBlob"
             return smoothstep(_Dissolve * 1.08 - 0.04, _Dissolve * 1.08 + 0.04, n);
         }
 
+        // Reveal sweep: x = 1 on the drawn part (soft 0.015-turn edge), y = brightness of the sweep head (0 once whole).
+        float2 RevealMask(float2 uv)
+        {
+            if (_Reveal >= 0.999) return float2(1.0, 0.0);
+            float2 p = uv * 2.0 - 1.0;
+            float a = frac((1.5707963 - atan2(p.y, p.x)) / 6.2831853); // 0 at the top, growing clockwise
+            float k = 1.0 - smoothstep(_Reveal - 0.015, _Reveal, a);
+            float d = (_Reveal - a) / 0.05;
+            return float2(k, k * exp(-d * d));
+        }
+
         // 1 inside the bright arc(s), 0 outside (soft edge over the outer 55 % of the half width).
         float ArcMask(float2 uv)
         {
@@ -112,7 +127,9 @@ Shader "ZenoniaProto/LightBlob"
                 if (_RimColor.a > 0.0) c = lerp(c, _RimColor.rgb, (1.0 - smoothstep(_RimEnd * 0.35, _RimEnd, raw)) * _RimColor.a);
                 if (_HiColor.a > 0.0) c = lerp(c, _HiColor.rgb, smoothstep(_HiStart, min(1.0, _HiStart + 0.15), raw) * _HiColor.a);
                 if (_ArcTint.a > 0.0) c = lerp(c, _ArcTint.rgb, ArcMask(i.uv) * _ArcTint.a);
-                return half4(c, saturate(raw * _Solid) * _Fade * _BodyColor.a * Keep(i.uv));
+                float2 rv = RevealMask(i.uv);
+                if (_HiColor.a > 0.0) c = lerp(c, _HiColor.rgb, rv.y * 0.8);
+                return half4(c, saturate(raw * _Solid) * _Fade * _BodyColor.a * Keep(i.uv) * rv.x);
             }
             ENDCG
         }
@@ -127,7 +144,8 @@ Shader "ZenoniaProto/LightBlob"
                 float raw = RawMask(i.uv), m = raw * _Fade;
                 float g = (_GlowPow != 1.0 ? pow(raw, _GlowPow) : raw) * _Fade;
                 if (_Arc.z < 0.999) { float k = lerp(_Arc.z, 1.0, ArcMask(i.uv)); m *= k; g *= k; }
-                float keep = Keep(i.uv); m *= keep; g *= keep;
+                float2 rv = RevealMask(i.uv);
+                float keep = Keep(i.uv) * (rv.x + rv.y * 1.5); m *= keep; g *= keep;
                 return half4(_EmissionColor.rgb * g + _CoreWhite * m * m * m, 1.0);
             }
             ENDCG

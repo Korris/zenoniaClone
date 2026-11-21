@@ -11,7 +11,8 @@ namespace ZenoniaProto
     ///  - caster: a faint gold pool + a thin gold ring 1.3 H under the feet with a bright arc running round, a small ivory light over the raised
     ///    hand, 6 gold motes / sparks spiralling up (no light column: RO3 keeps none for the +ATK time);
     ///  - one stream per ally (ivory head + gold ribbon, mesh trail), landing at StreamToMs; the caster receives at StreamFromMs;
-    ///  - receive burst: ClericBuffReceiveFx (star over the head, ring, two light lines up the body); then ClericBuffStatusFx keeps the dim ring.
+    ///  - receive burst: ClericBuffReceiveFx (star rune circle drawing in, rays, column, sword badge + arrows, two ribbons); then ClericBuffStatusFx
+    ///    keeps the small dim star emblem. The cast ring stops at 340 ms, where the caster's own receive sigil (from 180 ms) takes over.
     /// Crowd tiers: ClericLightFx.DimFor / ClericLightFxLod.
     /// </summary>
     public static class ClericBlessingLightFx
@@ -25,7 +26,7 @@ namespace ZenoniaProto
             ClericLightLook.Pal p = ClericLightLook.Holy;
             var fx = ClericLightFx.Create("Blessing", caster.Position, caster, CastMs, ClericLightFx.DimFor(caster, null));
             fx.Ground(ClericLightLook.M(ClericLightLook.Band, p, ClericLightLook.Role.Fill), 0f, 560f, 16f, 28f, 1f).Kind(LayerKind.Glow)
-              .Ground(ClericLightLook.M(ClericLightLook.RuneRing, p, ClericLightLook.Role.Arc), 0f, CastMs, 18f / 0.955f, 27f / 0.955f, 0.9f, ClericLightFx.Squash, 0f, 5).Arc(5f, 0f, 2).Env(60f, 260f)
+              .Ground(ClericLightLook.M(ClericLightLook.RuneRing, p, ClericLightLook.Role.Arc), 0f, 340f, 18f / 0.955f, 27f / 0.955f, 0.9f, ClericLightFx.Squash, 0f, 5).Arc(5f, 0f, 2).Env(60f, 150f) // hands over to the caster's own receive sigil (from 180 ms)
               .Upright(ClericLightLook.M(ClericLightLook.Core, p, ClericLightLook.Role.Flash), ClericLightFx.Band.Over, false, RaiseMs, 480f, 4f, 8f, 4f, 8f, 0.65f, new Vector2(0f, HandLift));
             for (int i = 0; i < 6; i++)
             {

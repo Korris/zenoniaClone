@@ -44,8 +44,10 @@ namespace ZenoniaProto
         // Mask names (Resources/Sprites/fx/light-skill)
         public const string Band = "burst-ring", RuneRing = "holy-rune-ring", Rune = "holy-rune", Compass = "buff-compass", Hexagon = "holy-hexagon", Grid = "holy-grid",
             Star = "holy-star4", Diamond = "holy-diamond", Latin = "holy-cross-latin", Wings = "holy-wings", Streak = "holy-streak", Core = "meteor-core",
-            Mote = "portal-mote", Shield = "buff-emblem-shield", Sparkle = "holy-cross";
-        static readonly string[] Masks = { Band, RuneRing, Rune, Compass, Hexagon, Grid, Star, Diamond, Latin, Wings, Streak, Core, Mote, Shield, Sparkle };
+            Mote = "portal-mote", Shield = "buff-emblem-shield", Sparkle = "holy-cross",
+            SigilStar = "holy-sigil-star", SigilHex = "holy-sigil-hex", Sword = "buff-emblem-sword", Arrow = "buff-arrow", Dome = "buff-dome", DomeRim = "buff-dome-rim";
+        static readonly string[] Masks = { Band, RuneRing, Rune, Compass, Hexagon, Grid, Star, Diamond, Latin, Wings, Streak, Core, Mote, Shield, Sparkle,
+            SigilStar, SigilHex, Sword, Arrow, Dome, DomeRim };
 
         /// <summary>Half width (rad) of a ring's bright arc: 2 x 0.94 rad = 30 % of the circle.</summary>
         public const float ArcHalfWidth = 0.94f;
