@@ -3,8 +3,10 @@
 Grey masks on black like every light-skill texture (the LightBlob shader reads the red channel, colour comes from the material), used by
 `Tools/build-light-skill-textures.py gen buff-compass buff-dome buff-emblem-sword buff-emblem-shield buff-arrow`:
   buff-compass        ground rune circle: outer double ring, 8-point compass star (4 long points to the rim, 4 short), inner rings, rune dots
-  buff-dome           see-through dome drawn on an upright quad (W x 1.06 W): base ellipse centre at v = 0.28, brighter towards the silhouette,
-                      white rim line, front base arc, highlight streak upper left; the centre (where the face is) stays faint
+  buff-dome           see-through dome FACE on an upright quad (W x 1.06 W): base ellipse centre at v = 0.28, brighter towards the silhouette,
+                      highlight streak upper left; the centre (where the face is) stays faint
+  buff-dome-rim       the dome's rim lines only (fresnel rim drawn brighter than the face); buff-dome-side = only the two flanks of that rim
+  buff-emblem-*-outline  thin outline round the emblem glyph / badge (drawn behind it in a dark tone so the emblem stays crisp on snow)
   buff-emblem-sword   round badge: ring + faint disc + diagonal sword (tip up-right)
   buff-emblem-shield  heater shield outline + faint fill + cross
   buff-arrow          small up arrow
@@ -66,8 +68,9 @@ def buff_compass(s=512, seed=41):
     return np.clip(rings + star_line + fill + spokes + runes + diam + glow, 0, 1) * (r < 1)
 
 
-def buff_dome(s=256):
-    """u, v in 0..1 (v up). Dome: upper half of the ellipse centre (0.5, 0.28), radii (0.47, 0.68); front base arc: lower half of radii (0.47, 0.235)."""
+def _dome_parts(s=256):
+    """u, v in 0..1 (v up). Dome: upper half of the ellipse centre (0.5, 0.28), radii (0.47, 0.68); front base arc: lower half of radii (0.47, 0.235).
+    Returns (face, rim, side): face = fresnel fill + highlight streak, rim = silhouette + base lines, side = rim kept only on the two flanks."""
     yy, xx = np.mgrid[0:s, 0:s] / (s - 1)
     u, v = xx, 1 - yy
     cx, cv, rx, rv, rb = 0.5, 0.28, 0.47, 0.68, 0.235
@@ -77,11 +80,30 @@ def buff_dome(s=256):
     inside = ((v >= cv) & (top < 1)) | ((v < cv) & (base < 1))
     e = np.where(v >= cv, top, base)                    # 0 centre .. 1 silhouette
     fill = (0.1 + 0.55 * np.clip(e, 0, 1) ** 4) * inside  # fresnel: faint in the middle, brighter at the edge
+    hl = np.exp(-((np.hypot((u - 0.52) / 0.36, (v - 0.36) / 0.5) - 1) / 0.035) ** 2) * np.clip((0.46 - u) / 0.12, 0, 1) * np.clip((v - 0.5) / 0.12, 0, 1) * 0.7  # highlight streak, upper left
     rim = np.exp(-((top - 1) / 0.022) ** 2) * (v >= cv - 0.01)
     front = np.exp(-((base - 1) / 0.03) ** 2) * (v < cv + 0.005) * 0.85
     back = np.exp(-((base - 1) / 0.025) ** 2) * (v >= cv) * 0.3    # base line behind the hero (mostly hidden)
-    hl = np.exp(-((np.hypot((u - 0.52) / 0.36, (v - 0.36) / 0.5) - 1) / 0.035) ** 2) * np.clip((0.46 - u) / 0.12, 0, 1) * np.clip((v - 0.5) / 0.12, 0, 1) * 0.7  # highlight streak, upper left
-    return np.clip(fill + rim + front + back + hl, 0, 1)
+    rims = np.clip(rim + front + back, 0, 1)
+    side = np.clip(rim * np.clip((np.abs(u - 0.5) - 0.2) / 0.15, 0, 1) * np.clip((0.82 - v) / 0.18, 0, 1), 0, 1)  # flanks only: no cap over the head
+    return np.clip(fill + hl, 0, 1), rims, side
+
+
+def buff_dome(s=256): return _dome_parts(s)[0]
+def buff_dome_rim(s=256): return _dome_parts(s)[1]
+def buff_dome_side(s=256): return _dome_parts(s)[2]
+
+
+def _outline(mask, px):
+    """Thin outline round the bright parts of a mask (glyph + badge lines): dilated shape minus the shape, soft edged."""
+    hard = mask > 0.55
+    d = hard.copy()
+    for _ in range(px):
+        p = np.pad(d, 1)
+        d = p[1:-1, 1:-1] | p[:-2, 1:-1] | p[2:, 1:-1] | p[1:-1, :-2] | p[1:-1, 2:]
+    o = (d & ~hard).astype(float)
+    p = np.pad(o, 1)
+    return np.clip(sum(p[1 + dy:1 + dy + o.shape[0], 1 + dx:1 + dx + o.shape[1]] for dy in (-1, 0, 1) for dx in (-1, 0, 1)) / 9 * 1.6, 0, 1)
 
 
 def buff_emblem_sword(s=256):
@@ -129,6 +151,12 @@ def buff_arrow(s=128):
     return np.clip(sum(p[1 + dy:1 + dy + s, 1 + dx:1 + dx + s] for dy in (-1, 0, 1) for dx in (-1, 0, 1)) / 9, 0, 1)
 
 
-MAKERS = {"buff-compass": buff_compass, "buff-dome": buff_dome, "buff-emblem-sword": buff_emblem_sword,
+def buff_emblem_sword_outline(s=256): return _outline(buff_emblem_sword(s), 7)
+def buff_emblem_shield_outline(s=256): return _outline(buff_emblem_shield(s), 7)
+
+
+MAKERS = {"buff-compass": buff_compass, "buff-dome": buff_dome, "buff-dome-rim": buff_dome_rim, "buff-dome-side": buff_dome_side,
+          "buff-emblem-sword-outline": buff_emblem_sword_outline, "buff-emblem-shield-outline": buff_emblem_shield_outline, "buff-emblem-sword": buff_emblem_sword,
           "buff-emblem-shield": buff_emblem_shield, "buff-arrow": buff_arrow}
-GAME_SIZE = {"buff-compass": (256, 256), "buff-dome": (128, 128), "buff-emblem-sword": (128, 128), "buff-emblem-shield": (128, 128), "buff-arrow": (64, 64)}
+GAME_SIZE = {"buff-compass": (256, 256), "buff-dome": (128, 128), "buff-dome-rim": (128, 128), "buff-dome-side": (128, 128),
+             "buff-emblem-sword-outline": (128, 128), "buff-emblem-shield-outline": (128, 128), "buff-emblem-sword": (128, 128), "buff-emblem-shield": (128, 128), "buff-arrow": (64, 64)}

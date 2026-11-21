@@ -75,7 +75,7 @@ namespace ZenoniaProto
                 var g = new Gradient();
                 g.SetKeys(
                     new[] { new GradientColorKey(headColor, 0f), new GradientColorKey(tailColor, 0.4f), new GradientColorKey(tailColor, 1f) },
-                    new[] { new GradientAlphaKey(k, 0f), new GradientAlphaKey(0.65f * k, 0.4f), new GradientAlphaKey(0f, 1f) });
+                    new[] { new GradientAlphaKey(k, 0f), new GradientAlphaKey(0.78f * k, 0.4f), new GradientAlphaKey(0f, 1f) });
                 trail.colorGradient = g;
             }
         }

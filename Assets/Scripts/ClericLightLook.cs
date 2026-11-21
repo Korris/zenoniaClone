@@ -27,6 +27,9 @@ namespace ZenoniaProto
         /// the first light pass was mint / white, the snow's own colour family, and burned the Cleric's face white. Now: saturated teal shape, mint halo,
         /// cream-gold warm accents (they read on cool snow; teal reads on yellow-green grass), a deep teal band near the ground instead of a dark outline.
         /// </summary>
+        /// <summary>Heal (21/11 review): main green, light green, warm white core; a deeper green for the ring line so it reads on snow.</summary>
+        public static readonly Color HealMain = Hex(0x66D98A), HealLight = Hex(0xB8F5C7), HealCore = Hex(0xF5FFF0), HealDeep = Hex(0x3FB866);
+
         public static readonly Color Teal = Hex(0x35B69F), Teal2 = Hex(0x48C9AE), DeepTeal = Hex(0x299C91), Halo = Hex(0xB3FFE5), Gold = Hex(0xFFE6A0);
 
         /// <summary>
@@ -118,16 +121,18 @@ namespace ZenoniaProto
         /// <summary>The buff set (see BuffHalo). Emission is linear HDR, kept low on the shape layers (snow ~0.9 plus a little stays coloured).</summary>
         static void BuildBuff(Shader particle, Texture2D veil, Texture2D mote, Texture2D core, Texture2D cross, Texture2D rune, Texture2D band)
         {
-            Color tealGlow = new Color(0.03f, 0.24f, 0.19f), haloGlow = new Color(0.05f, 0.16f, 0.13f), goldGlow = new Color(0.32f, 0.25f, 0.1f);
+            // Heal-only since 21/11 (Blessing / Aegis use ClericBuffStatusLook): green after the in-game review (#66D98A / #B8F5C7 / #F5FFF0),
+            // additive 12 % lower than the teal pass so the costume keeps its detail.
+            Color tealGlow = new Color(0.05f, 0.21f, 0.1f), haloGlow = new Color(0.06f, 0.14f, 0.08f), goldGlow = new Color(0.2f, 0.26f, 0.18f);
 
-            BuffHalo = Blob("ClericBuff_Halo", Texture2D.whiteTexture, 2.4f, haloGlow, 0f, A(Halo, 0.22f));
-            BuffRing = Blob("ClericBuff_Ring", band, 0f, tealGlow * 1.6f, 0f, A(DeepTeal, 0.78f));
-            ArcOn(BuffRing, A(Halo, 0.6f), 0.22f);
-            BuffRune = Blob("ClericBuff_Rune", rune, 0f, tealGlow * 1.3f, 0f, A(Teal, 0.7f));
-            ArcOn(BuffRune, A(Gold, 0.45f), 0.3f);
-            BuffCross = Blob("ClericBuff_Cross", cross, 0f, goldGlow, 0.05f, A(Gold, 0.72f));
-            BuffFlash = Blob("ClericBuff_Flash", core, 0f, goldGlow * 0.8f, 0.08f, A(Gold, 0.55f)); // short, small, cream: never a white sheet over the face
-            BuffHead = Blob("ClericBuff_Head", core, 0f, goldGlow * 1.2f, 0.3f, A(Gold, 0.9f));
+            BuffHalo = Blob("ClericBuff_Halo", Texture2D.whiteTexture, 2.4f, haloGlow, 0f, A(HealLight, 0.22f));
+            BuffRing = Blob("ClericBuff_Ring", band, 0f, tealGlow * 1.6f, 0f, A(HealDeep, 0.78f));
+            ArcOn(BuffRing, A(HealLight, 0.6f), 0.22f);
+            BuffRune = Blob("ClericBuff_Rune", rune, 0f, tealGlow * 1.3f, 0f, A(HealMain, 0.7f));
+            ArcOn(BuffRune, A(HealLight, 0.45f), 0.3f);
+            BuffCross = Blob("ClericBuff_Cross", cross, 0f, goldGlow, 0.05f, A(HealLight, 0.72f));
+            BuffFlash = Blob("ClericBuff_Flash", core, 0f, goldGlow * 0.8f, 0.08f, A(HealLight, 0.55f)); // short, small, cream: never a white sheet over the face
+            BuffHead = Blob("ClericBuff_Head", core, 0f, goldGlow * 1.2f, 0.3f, A(HealLight, 0.9f));
 
             // Cream-gold shaft rising BEHIND the healed / blessed hero: the hero stays in front of it, so hair and face are never covered.
             BuffColumn = new Material(LightSkillAssets.Beam) { name = "ClericBuff_Column" };
@@ -140,8 +145,8 @@ namespace ZenoniaProto
             BuffColumn.SetFloat("_TopFade", 0.6f);
             BuffColumn.SetColor("_EmissionColor", goldGlow * 0.9f);
             BuffColumn.SetFloat("_CoreWhite", 0.05f);
-            BuffColumn.SetColor("_BodyColor", A(Gold, 0.45f));
-            BuffColumn.SetColor("_EdgeColor", A(Teal2 * 0.6f, 1f));
+            BuffColumn.SetColor("_BodyColor", A(HealLight, 0.45f));
+            BuffColumn.SetColor("_EdgeColor", A(HealMain * 0.6f, 1f));
 
             BuffSpark = Particle("ClericBuff_Spark", particle, cross, new Color(0.5f, 0.42f, 0.22f), 0.35f, 1f); // the only white-hot bits, and tiny
             BuffMote = Particle("ClericBuff_Mote", particle, mote, new Color(0.06f, 0.28f, 0.22f), 0.04f, 0.9f);
@@ -149,7 +154,7 @@ namespace ZenoniaProto
             BuffTrail = new Material(LightSkillAssets.Trail) { name = "ClericBuff_Trail" };
             BuffTrail.SetColor("_EmissionColor", new Color(0.12f, 0.5f, 0.4f, 1f));
             BuffTrail.SetFloat("_CoreWhite", 0.15f);
-            BuffTrail.SetColor("_BodyColor", A(Teal, 0.7f));
+            BuffTrail.SetColor("_BodyColor", A(HealMain, 0.7f));
         }
 
         static void ArcOn(Material m, Color tint, float glowFloor)
