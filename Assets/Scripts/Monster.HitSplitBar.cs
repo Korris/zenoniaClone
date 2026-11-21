@@ -5,7 +5,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Cosmetic HP bar of the multi-hit numbers (SkillHitSplit, 21/11): while the parts of your last split hit are still popping, the bar shows
     /// the HP as if only the parts already shown had landed, so it steps down with each number. The real hp, the kill and the server are not
-    /// touched; a newer split hit replaces the pending one (the bar catches up at once). Wanted / boss bars read the real hp.
+    /// touched; a newer split hit replaces the pending one (the bar catches up at once), a single-number hit leaves it. Wanted / boss bars read the real hp.
     /// </summary>
     public partial class Monster
     {
@@ -14,6 +14,7 @@ namespace ZenoniaProto
 
         void ShowBarParts(int[] parts, float delayMs, float intervalMs)
         {
+            if (parts == null) return; // a single number (or a burn chip) lands at once: the parts still pending keep stepping (21/11)
             barParts = parts;
             barPartsFromMs = Time.unscaledTime * 1000f;
             barPartsDelayMs = delayMs;

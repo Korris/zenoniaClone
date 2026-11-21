@@ -48,8 +48,8 @@ namespace ZenoniaProto
             for (int i = 0; i < Capacity; i++)
             {
                 if (!Pool[i].Active || Pool[i].Kind == DamageNumberKind.Crit) continue;
-                DamageNumberMotion m = DamageNumberMotion.Of(Pool[i].Kind);
-                Vector2 q = GuiPoint(c, Pool[i].X, Pool[i].Y) + new Vector2(Pool[i].OffX, -(Pool[i].OffY + m.Rise(Mathf.Max(0f, Pool[i].AgeMs)))) * px;
+                DamageNumberMotion m = MotionOf(ref Pool[i]);
+                Vector2 q = GuiPoint(c, Pool[i].X, Pool[i].Y) + new Vector2(Pool[i].OffX, -(Pool[i].OffY + Pool[i].Lift + m.Rise(Mathf.Max(0f, Pool[i].AgeMs)))) * px;
                 Vector2 o = BoxSize(ref Pool[i]) * px;
                 if (Mathf.Abs(q.x - p.x) * 2f >= o.x + size.x || Mathf.Abs(q.y - p.y) * 2f >= o.y + size.y) continue;
                 float side = q.x < p.x ? -1f : 1f, need = (o.x + size.x) * 0.5f + Gap * px - Mathf.Abs(q.x - p.x);
@@ -77,8 +77,8 @@ namespace ZenoniaProto
             for (int i = 0; i < Capacity; i++)
             {
                 if (!Pool[i].Active || (critsOnly && Pool[i].Kind != DamageNumberKind.Crit)) continue;
-                DamageNumberMotion m = DamageNumberMotion.Of(Pool[i].Kind);
-                Vector2 q = GuiPoint(c, Pool[i].X, Pool[i].Y) + new Vector2(Pool[i].OffX, -(Pool[i].OffY + m.Rise(Mathf.Max(0f, Pool[i].AgeMs)))) * px;
+                DamageNumberMotion m = MotionOf(ref Pool[i]);
+                Vector2 q = GuiPoint(c, Pool[i].X, Pool[i].Y) + new Vector2(Pool[i].OffX, -(Pool[i].OffY + Pool[i].Lift + m.Rise(Mathf.Max(0f, Pool[i].AgeMs)))) * px;
                 if ((q - p).sqrMagnitude > (NearPx + size.x) * (NearPx + size.x) * px * px) continue;
                 Vector2 o = BoxSize(ref Pool[i]) * px;
                 if (Mathf.Abs(q.x - p.x) * 2f < o.x + size.x && Mathf.Abs(q.y - p.y) * 2f < o.y + size.y) return true;

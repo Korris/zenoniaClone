@@ -13,6 +13,7 @@ namespace ZenoniaProto
     public partial class DamageNumber : MonoBehaviour
     {
         const float TopMarginPx = 96f; // 720p px kept clear at the top (status bar, minimap, boss bar)
+        const float OlderScale = 0.8f; // a number pushed up its monster's ladder (DamageNumber.Stream.cs) shrinks to this
         const int Capacity = 256; // Multi-Hit Barrage: 10 monsters in an 18-hit skill peak near 90 live numbers (ChatGPT V3)
 
         struct Entry
@@ -27,6 +28,10 @@ namespace ZenoniaProto
             public object Key;         // the monster your own hit landed on (same-spot stack, DamageNumber.Stream.cs), else null
             public DamageNumberKind Kind;
             public float SizeMul, PopMul; // multi-hit parts (DamageNumber.MultiHit.cs): the last part a bit bigger, a harder pop; 0 = 1
+            public float LifeMs, RisePx;  // per-number motion override (stream numbers, DamageNumber.Stream.cs); 0 = the kind's value
+            public float Lift;            // push-up of an older number in its monster's ladder (720p px, eased; DamageNumber.Stream.cs)
+            public bool Chip;             // small running total of tiny / damage-over-time hits beside the ladder (DamageNumber.MultiHit.cs)
+            public int ChipValue;
         }
 
         static DamageNumber instance;
@@ -68,8 +73,22 @@ namespace ZenoniaProto
             {
                 if (!Pool[i].Active) continue;
                 Pool[i].AgeMs += dtMs;
-                if (Pool[i].AgeMs >= DamageNumberMotion.Of(Pool[i].Kind).LifeMs) Pool[i].Active = false;
+                if (Pool[i].AgeMs >= MotionOf(ref Pool[i]).LifeMs) Pool[i].Active = false;
             }
+            UpdateLadders(dtMs);
+        }
+
+        /// <summary>The kind's motion with the number's own life / rise override (stream numbers fade faster, rise less).</summary>
+        static DamageNumberMotion MotionOf(ref Entry e)
+        {
+            DamageNumberMotion m = DamageNumberMotion.Of(e.Kind);
+            if (e.LifeMs > 0f && e.LifeMs != m.LifeMs)
+            {
+                float k = e.LifeMs / m.LifeMs;
+                m.FadeFromMs *= k; m.RiseDelayMs *= k; m.LifeMs = e.LifeMs;
+            }
+            if (e.RisePx > 0f) m.RisePx = e.RisePx;
+            return m;
         }
 
         void OnGUI()
@@ -92,21 +111,22 @@ namespace ZenoniaProto
 
         void DrawEntry(ref Entry e, float sx, float sy, float px)
         {
-            DamageNumberMotion m = DamageNumberMotion.Of(e.Kind);
+            DamageNumberMotion m = MotionOf(ref e);
             float t = e.AgeMs, alpha = m.Fade(t);
             if (alpha <= 0.01f) return;
             float height = m.HeightPx * (e.SizeMul > 0f ? e.SizeMul : 1f);
             float scale = m.Scale(t);
             if (e.PopMul > 0f) scale = 1f + (scale - 1f) * e.PopMul; // multi-hit part: harder punch
+            if (e.Lift > 0f) scale *= Mathf.Lerp(1f, OlderScale, Mathf.Clamp01(e.Lift / (height * StepMul))); // older ladder numbers step back
             float cap = height * scale * px;
             Vector2 shake = m.Shake(t);
             float cx = sx + (e.OffX + shake.x) * px;
-            float cy = sy - (e.OffY + m.Rise(t) + shake.y) * px;
+            float cy = sy - (e.OffY + e.Lift + m.Rise(t) + shake.y) * px;
             cy = Mathf.Max(cy, TopMarginPx * px); // never under the top HUD or off the screen
             float baseY = cy + cap * 0.5f; // the number is centred on its anchor, baseline half a cap below
             float textW = height * px * 0.62f * e.Text.Length; // rough run width for the crit frame sizes
             if (e.Kind == DamageNumberKind.Finisher) DrawFinisherBehind(cx, cy, t, height * px, e.Seed); // a crit is just its yellow number (user 20/11: no burst / CRITICAL banner)
-            if (!DamageNumberFont.Draw(e.Text, m.Style, cx, baseY, cap, alpha, e.Kind == DamageNumberKind.Pet ? e.Color : Color.white)) // only a pet's number is tinted
+            if (!DamageNumberFont.Draw(e.Text, m.Style, cx, baseY, cap, alpha, e.Kind == DamageNumberKind.Pet || e.Chip ? e.Color : Color.white)) // only a pet's number and a burn chip are tinted
                 DrawPlainText(e.Text, e.Color, cx, cy, height * scale * px, alpha);
             if (e.Kind == DamageNumberKind.Crit) DrawCritFront(cx, cy, t, height * px, textW, e.Seed, alpha);
             else if (e.Kind == DamageNumberKind.Heal) DrawSparks(cx, cy, t, height * px, e.Seed, alpha, 2, 0.7f);
