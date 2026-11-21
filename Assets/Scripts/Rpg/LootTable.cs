@@ -48,6 +48,7 @@ namespace ZenoniaProto.Rpg
             { "rimeclawTyrant", new MonsterLootDef { Type = "rimeclawTyrant", Exp = 280, GoldMin = 20, GoldMax = 50, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "glacialColossus", new MonsterLootDef { Type = "glacialColossus", Exp = 1865, GoldMin = 133, GoldMax = 273, ItemLevel = 25, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "mireHydraQueen", new MonsterLootDef { Type = "mireHydraQueen", Exp = 3270, GoldMin = 233, GoldMax = 473, ItemLevel = 40, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            { "aetherglyphOwl", new MonsterLootDef { Type = "aetherglyphOwl", Exp = 2240, GoldMin = 133, GoldMax = 273, ItemLevel = 20, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 3 } }, // 21/11/2026 Rootburrow Wanted boss, Lv20
             // Willowbrook meadow monsters: EXP 14L x role factor, gold L..2L+1 x role factor. World Map 2.1: Willowbrook Lv 1-5 (slime 1, rabbit 3, boar 5); mantis 6 and treant 8 are Bramblewood Forest (Lv 6-10).
             { "hornRabbit", new MonsterLootDef { Type = "hornRabbit", Exp = 39, GoldMin = 2, GoldMax = 6, ItemLevel = 3 } },
             { "thornBoar", new MonsterLootDef { Type = "thornBoar", Exp = 84, GoldMin = 6, GoldMax = 13, ItemLevel = 5 } },

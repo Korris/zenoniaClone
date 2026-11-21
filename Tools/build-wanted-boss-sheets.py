@@ -36,18 +36,19 @@ TARGET_H = 330      # median walk body height in the 384 cell (px). Hero body = 
 CASTS = {"rimeclawTyrant": ("cast-chain-slam-stomp", "cast-blizzard-defeat"),
          "glacialColossus": ("cast-slam-crystal-fall", "cast-overload-defeat"),
          "mireHydraQueen": ("cast-breath-tail", "cast-reign-defeat"),
-         "ambercapWarden": ("cast-spore-slam", "cast-bloom-defeat")}   # rows: 0 spore puff (fan), 1 root slam (pulse, rootline), 2 cap bloom (enrage), 3 defeat   # two 2 x 4 strips -> the 4 rows of <id>-cast
+         "ambercapWarden": ("cast-spore-slam", "cast-bloom-defeat"),
+         "aetherglyphOwl": ("cast-starfall-wingstorm", "cast-eclipse-defeat")}   # two 2 x 4 strips -> the 4 rows of <id>-cast (Warden: spore, slam, bloom, defeat; Owl: starfall, wingstorm, eclipse, defeat)
 SKILLS = f"{ROOT}/Assets/ArtLibrary/custom/wanted-boss/skills"
 FX_OUT = f"{ROOT}/Assets/Resources/Sprites/fx/wanted"
 FX_W, FX_H = 384, 256
 WARNING = ["circle", "cone", "line", "safe", "alert", "enraged", "slow", "poison", "castbar-frame", "castbar-fill"]   # reading order on the sheet
 BOSSES = {"rimeclawTyrant": "rimeclaw-tyrant", "glacialColossus": "glacial-colossus", "mireHydraQueen": "mire-hydra-queen-v2",
-          "ambercapWarden": "ambercap-warden"}   # 2026-11-21: Rootburrow's dungeon boss (MonsterDef.SkillBoss, not a Wanted boss) uses the same 384 / 512 layout
+          "ambercapWarden": "ambercap-warden", "aetherglyphOwl": "aetherglyph-owl"}   # 2026-11-21: Rootburrow's map boss (MonsterDef.SkillBoss) and Wanted boss, same 384 / 512 layout
 # 2026-11-19: the Mire Hydra Queen v2 (purple queen + serpent tail + 3 snake heads, RO Soft Fantasy) is drawn on #00FF00 (a purple boss on magenta
 # leaves dark-purple fringes, sprite-rules.md Sổ lỗi 2026-11-13), is a little bigger than the v1 hydra (the arena is 4x since 11-19) and has an
 # idle loop: <stem>-idle-{down-up,left-right}-chatgpt-1.png -> <id>-idle.png (same 4x4 cells of 384 as the walk sheet, drawn while standing).
-GREEN_KEY = {"mireHydraQueen", "ambercapWarden"}
-GREEN_STEMS = {"mire-hydra-queen-v2", "ambercap-warden"}   # strips drawn on #00FF00 (the Warden's cap is terracotta / its spots cyan: no magenta key)
+GREEN_KEY = {"mireHydraQueen", "ambercapWarden", "aetherglyphOwl"}
+GREEN_STEMS = {"mire-hydra-queen-v2", "ambercap-warden", "aetherglyph-owl"}   # strips drawn on #00FF00 (the Warden's cap is terracotta / its spots cyan: no magenta key)
 TARGET_H_OF = {"mireHydraQueen": 350, "rimeclawTyrant": 350, "ambercapWarden": 330}   # 2026-11-20: the wolf Tyrant as big as the queen (also drawMul 2 in MonsterDef)
 
 _spec = importlib.util.spec_from_file_location("meadow", f"{ROOT}/Tools/build-meadow-monsters.py")

@@ -12,7 +12,7 @@ standing prop (Tools/place-map-25d-dungeon-props.py):
      3+ tiles from the floor (the mass between the halls);
   3. transition: an irregular mask edge 0.35-0.55 m wide (noise), plus a fake AO band 0.25-0.45 m wide on the floor along the walls (x0.72);
   4. water tiles ('w', the old pond) become root mass like any solid tile: the old painted pond kept as pixels read as a bright square in the dark.
-Old ground saved once as Assets/ArtLibrary/maps/<map>/dark-25d/<map>-before-ground.jpg (q95). Sources: the same folder, *-floor-chatgpt-N.png,
+Big maps write chunks <ground>-r0c{c}.png side by side (MAPS chunks). Sources: the same folder, *-floor-chatgpt-N.png,
 *-solid-chatgpt-N.png (highest N wins). To convert another dungeon: add an entry to MAPS.
 """
 import os, re, sys, glob
@@ -22,7 +22,7 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "Assets", "Resources", "Sprites")
 T = 64
-MAPS = {"rootburrow": dict(size=(36, 24), ground="village/tiles/rootburrow-ground.png", rows_file="Assets/Scripts/Maps/RootburrowMap.cs")}
+MAPS = {"rootburrow": dict(size=(60, 24), ground="village/tiles/rootburrow-ground.png", chunks=2, rows_file="Assets/Scripts/Maps/RootburrowMap.cs")}  # V3 60x24, 2 chunks
 FLOOR, SOLID, VOID = (0x7C, 0x6E, 0xA2), (0x52, 0x48, 0x76), (0x17, 0x15, 0x2F)   # V2 violet cave (user 21/11: purple like the RO3 clip, not brown)
 TEX_TILE = 768       # px one swatch covers (12 tiles)
 EDGE = 30            # px: half width of the irregular floor / solid edge (~0.45 m)
@@ -93,12 +93,7 @@ def main():
     if "border" in sys.argv[2:]: border(key, cfg); return
     tw, th = cfg["size"]; W, H = tw * T, th * T
     os.makedirs(lib(key), exist_ok=True)
-    before = os.path.join(lib(key), key + "-before-ground.jpg")
     gpath = os.path.join(RES, cfg["ground"])
-    if not os.path.exists(before):
-        Image.open(gpath).convert("RGB").save(before, quality=95); print("saved the old ground:", before)
-    old = np.asarray(Image.open(before).convert("RGB")).astype(np.float32)
-    assert old.shape[:2] == (H, W), old.shape
     rows = rows_of(cfg)
     floor_t = np.array([[c in "dg" for c in r] for r in rows], np.uint8)
 
@@ -123,7 +118,12 @@ def main():
     out = floor * fm[..., None] + solid * (1 - fm[..., None])
 
     img = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
-    img.save(gpath, optimize=True); print("wrote", gpath)
+    n = cfg.get("chunks", 1)
+    if n == 1: img.save(gpath, optimize=True); print("wrote", gpath)
+    else:                                                              # <ground>-r0c{c}.png, side by side (WorldBuilder's chunk names)
+        cw = W // n
+        for c in range(n):
+            out = gpath.replace(".png", "-r0c%d.png" % c); img.crop((c * cw, 0, (c + 1) * cw, H)).save(out, optimize=True); print("wrote", out)
     if "--preview" in sys.argv:
         img.resize((1152, 768), Image.LANCZOS).save(os.path.join(lib(key), key + "-ground-preview.jpg"), quality=88)
 

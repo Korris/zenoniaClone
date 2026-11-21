@@ -46,13 +46,14 @@ namespace ZenoniaProto
             }
         }
 
-        /// <summary>Hand-placed lights per map: (tile x, tile y (y down, centre of the tile), kind). Rootburrow: the boss hall (Ambercap Warden at 19,4).</summary>
+        /// <summary>Hand-placed lights per map: (tile x, tile y (y down, centre of the tile), kind). Rootburrow V3: the map boss's cave and the Wanted arena.</summary>
         static IEnumerable<KeyValuePair<Vector2, Kind>> Extra(string mapId)
         {
             if (mapId != RootburrowMap.MapId) yield break;
-            yield return new KeyValuePair<Vector2, Kind>(new Vector2(19.5f, 5.0f), BossSeal);
-            yield return new KeyValuePair<Vector2, Kind>(new Vector2(15.0f, 5.5f), BossOrb);
-            yield return new KeyValuePair<Vector2, Kind>(new Vector2(23.5f, 5.5f), BossOrb);
+            yield return new KeyValuePair<Vector2, Kind>(new Vector2(26.5f, 7.5f), BossSeal);  // Ambercap Warden's cave (boss tile 26,6)
+            yield return new KeyValuePair<Vector2, Kind>(new Vector2(9.0f, 12.0f), BossSeal);  // the Wanted arena rune seal (Aetherglyph Owl at 9,10)
+            yield return new KeyValuePair<Vector2, Kind>(new Vector2(3.5f, 11.5f), BossOrb);
+            yield return new KeyValuePair<Vector2, Kind>(new Vector2(15.5f, 11.5f), BossOrb);
         }
 
         static readonly List<Source> Sources = new List<Source>();
@@ -74,6 +75,7 @@ namespace ZenoniaProto
         static readonly List<float> Dist = new List<float>(64);
         static readonly int[] Picked = new int[MaxLights];
         static int pickedCount;
+        static float depthMul = 1f;
         static Material poolMat;
         static MaterialPropertyBlock block;
         static bool globalsSet;
@@ -180,7 +182,10 @@ namespace ZenoniaProto
             Shader.SetGlobalVectorArray(PosId, Pos);
             Shader.SetGlobalVectorArray(ColId, Col);
             Shader.SetGlobalFloat(CountId, pickedCount);
-            Color a = p.AmbientColor * p.AmbientLevel / Mathf.Max(0.01f, Luma(p.AmbientColor)); // the level is the ambient's brightness (luma), the colour its hue
+            // deeper = darker (ChatGPT layout V3: ambient 0.30 at the gate down to 0.17-0.18 in the last tunnel / arena): by the local hero's depth
+            depthMul = 1f;
+            if (p.DepthWestward && me != null) depthMul = Mathf.Lerp(p.DeepAmbientMul, p.GateAmbientMul, Mathf.Clamp01(me.Position.x / Mathf.Max(1f, GameConfig.MapW)));
+            Color a = p.AmbientColor * p.AmbientLevel * depthMul / Mathf.Max(0.01f, Luma(p.AmbientColor)); // the level is the ambient's brightness (luma), the colour its hue
             Shader.SetGlobalVector(AmbId, new Vector4(a.r, a.g, a.b, 1f));
             globalsSet = true;
             // pools breathe with their light (only the visible-ish ones matter; all are cheap)
@@ -200,7 +205,7 @@ namespace ZenoniaProto
         public static Color UnitLight(Vector2 feet, bool boss)
         {
             View25DProfile p = View25D.Profile;
-            float level = boss ? p.BossAmbient : p.UnitAmbient;
+            float level = (boss ? p.BossAmbient : p.UnitAmbient) * Mathf.Lerp(1f, depthMul, 0.5f); // units follow the depth only half way (must stay readable)
             Color sum = p.AmbientColor * level / Mathf.Max(0.01f, Luma(p.AmbientColor));
             sum = Color.Lerp(new Color(level, level, level), sum, 0.55f); // units keep their own colours better than the floor (RO Soft Fantasy art must stay readable)
             for (int i = 0; i < pickedCount; i++)

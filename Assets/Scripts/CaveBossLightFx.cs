@@ -5,7 +5,8 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Skill FX of the Ambercap Warden (Rootburrow's dungeon boss, 21/11/2026), "RO3 Soft Fantasy V1" (docs/sprite-rules.md lines 9-22, ChatGPT spec
+    /// Skill FX of the two Rootburrow cave bosses (21/11/2026): the Ambercap Warden (map boss, AmbercapLightCasts) and the Aetherglyph Owl (Wanted boss,
+    /// AetherglyphOwlLightCasts), "RO3 Soft Fantasy V1" (docs/sprite-rules.md lines 9-22, ChatGPT spec
     /// docs/reference/rootburrow-dark-25d/rootburrow-dark-dungeon-art-direction-chatgpt.md section E): shaders, meshes and particles only, no sprite
     /// frames. Built on the Cleric light toolkit: ClericLightFx (timeline of LightBlob quads, particles, reveal / pop / turn shaping), ClericLightLook.M
     /// (mask x palette x role materials, masks in Resources/Sprites/fx/light-skill) with the boss's own four palettes (at most 2 main colours + 1 core each).
@@ -16,15 +17,15 @@ namespace ZenoniaProto
     /// Every ground circle is round (squash 1): the 2.5D camera foreshortens the ground itself. Telegraph / FX of a boss always draw at full strength
     /// (RO3 rule 12: boss warnings come before player FX). ClearAll on a map change (WantedSkillTelegraphFx.ClearAll).
     /// </summary>
-    public sealed class AmbercapLightFx : MonoBehaviour
+    public sealed class CaveBossLightFx : MonoBehaviour
     {
-        public const string Boss = "ambercapWarden";
+        public const string Warden = "ambercapWarden", Owl = "aetherglyphOwl";
         static readonly ClericLightLook.Pal Amber = new ClericLightLook.Pal("WardenAmber", 0xF3BA70, 0xFFE0A0, 0xFFF0C8, 0xA8673E, new Color(0.17f, 0.10f, 0.03f));
         static readonly ClericLightLook.Pal Spore = new ClericLightLook.Pal("WardenSpore", 0xB7D995, 0xE6C781, 0xFFF2C9, 0x5F8549, new Color(0.08f, 0.13f, 0.04f));
         static readonly ClericLightLook.Pal Root = new ClericLightLook.Pal("WardenRoot", 0xC99A70, 0x77DAD2, 0xFFF0CF, 0x6E4B32, new Color(0.05f, 0.13f, 0.12f));
         static readonly ClericLightLook.Pal Bloom = new ClericLightLook.Pal("WardenBloom", 0x8CDDD6, 0xF4BC7C, 0xFFF5D5, 0x3E8C86, new Color(0.06f, 0.15f, 0.14f));
         static readonly Color Fill = new Color(0.914f, 0.663f, 0.431f, 0.24f), Rim = new Color(1f, 0.878f, 0.627f, 0.8f), SafeTeal = new Color(0.365f, 0.878f, 0.773f, 0.3f);
-        static readonly List<AmbercapLightFx> Live = new List<AmbercapLightFx>(8);
+        static readonly List<CaveBossLightFx> Live = new List<CaveBossLightFx>(8);
         static Material warnMat, stripMat;
 
         WantedSkillDef skill;
@@ -34,7 +35,7 @@ namespace ZenoniaProto
         readonly List<MeshRenderer> warns = new List<MeshRenderer>(3);
         MaterialPropertyBlock block;
 
-        public static bool ActiveFor(string bossId) { return bossId == Boss && NetMode.RendersFx && FeelConfig.FxOn && ClericLightLook.Drawable && Ready(); }
+        public static bool ActiveFor(string bossId) { return (bossId == Warden || bossId == Owl) && NetMode.RendersFx && FeelConfig.FxOn && ClericLightLook.Drawable && Ready(); }
 
         static bool Ready()
         {
@@ -54,17 +55,18 @@ namespace ZenoniaProto
             return true;
         }
 
-        public static void Spawn(WantedSkillDef skill, Vector2 origin, float dirDeg, uint atMs)
+        public static void Spawn(string bossId, WantedSkillDef skill, Vector2 origin, float dirDeg, uint atMs)
         {
             if (Zone.Main == null) return;
-            var go = new GameObject("AmbercapLightFx_" + skill.Id);
+            var go = new GameObject("CaveBossLightFx_" + bossId + "_" + skill.Id);
             go.transform.SetParent(Zone.Main.Root, false);
             go.transform.position = new Vector3(origin.x, origin.y, 0f);
-            var fx = go.AddComponent<AmbercapLightFx>();
+            var fx = go.AddComponent<CaveBossLightFx>();
             fx.skill = skill; fx.origin = origin; fx.dirDeg = dirDeg; fx.atMs = atMs; fx.block = new MaterialPropertyBlock();
             fx.BuildWarning();
             float strike = Mathf.Max(200f, (float)(atMs - WantedSkillTelegraphFx.ClockMs)); // local ms to the server's strike instant
-            AmbercapLightCasts.Play(skill, origin, dirDeg, strike);
+            if (bossId == Owl) AetherglyphOwlLightCasts.Play(skill, origin, dirDeg, strike);
+            else AmbercapLightCasts.Play(skill, origin, dirDeg, strike);
             Live.Add(fx);
         }
 
@@ -151,5 +153,9 @@ namespace ZenoniaProto
         void OnDestroy() { Live.Remove(this); }
 
         internal static ClericLightLook.Pal PalOf(int skillId) { return skillId == 0 ? Amber : skillId == 1 ? Spore : skillId == 2 ? Root : Bloom; }
+
+        // Aetherglyph Owl (ChatGPT: rune cyan #60DDF5 / #75DDF5, crystal violet #A77DE5 / #A884EA, lavender core): one palette per skill, max 2 main colours + 1 core.
+        internal static readonly ClericLightLook.Pal OwlRune = new ClericLightLook.Pal("OwlRune", 0x75DDF5, 0xC9F6FF, 0xF4FDFF, 0x2F7F9A, new Color(0.05f, 0.16f, 0.22f));
+        internal static readonly ClericLightLook.Pal OwlCrystal = new ClericLightLook.Pal("OwlCrystal", 0xA884EA, 0xE2D2FF, 0xFAF4FF, 0x5B4596, new Color(0.13f, 0.07f, 0.22f));
     }
 }

@@ -1,7 +1,7 @@
 """Preview of a dark 2.5D dungeon: ground + props (as MapScenery draws them in 2D, pivot bottom-centre on the footprint), the solid tiles in red,
 the lights as rings, the boss tile and portals; prints PROBLEM lines (first: Rootburrow, 21/11/2026).
 
-    python Tools/preview-map-25d-dungeon.py rootburrow [OUT.jpg]
+    python Tools/preview-map-25d-dungeon.py rootburrow [OUT.jpg] [--minimap]    (--minimap also writes <ground>-minimap.png)
 
 Checks: a blocking prop (FootH > 0) on a walkable tile (it would change collision: the server rows), a prop over a portal or the start, a tile the
 start cannot reach (flood fill on the rows + prop footprints).
@@ -12,8 +12,8 @@ from PIL import Image, ImageDraw
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 T = 64
-MAPS = {"rootburrow": dict(cls="Rootburrow", size=(36, 24), ground="village/tiles/rootburrow-ground.png", start=(32, 13), boss=(19, 4),
-                           portals=[(35, 12), (35, 13), (4, 3), (5, 3)])}
+MAPS = {"rootburrow": dict(cls="Rootburrow", size=(60, 24), ground="village/tiles/rootburrow-ground-r0c{c}.png", chunks=2, start=(56, 12), boss=(26, 6),
+                           portals=[(59, 11), (59, 12), (59, 13), (4, 2), (5, 2)], minimap="village/tiles/rootburrow-ground-minimap.png")}
 LIGHTS = {"rbRuneOrb": ((255, 196, 122), 3.2), "rbRuneObelisk": ((115, 221, 229), 3.8), "rbPurpleCrystal": ((181, 231, 194), 2.0),
           "rbGlowShrooms": ((181, 231, 194), 1.4), "rbPinkCrystal": ((245, 189, 103), 2.4), "rbCrystalNest": ((245, 189, 103), 2.4), "rbRuneSeal": ((174, 144, 226), 3.0)}
 
@@ -21,14 +21,17 @@ LIGHTS = {"rbRuneOrb": ((255, 196, 122), 3.2), "rbRuneObelisk": ((115, 221, 229)
 def main():
     key = sys.argv[1] if len(sys.argv) > 1 else "rootburrow"
     cfg = MAPS[key]
-    out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(ROOT, "Assets", "ArtLibrary", "maps", key, "dark-25d", key + "-composite.jpg")
+    out = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else os.path.join(ROOT, "Assets", "ArtLibrary", "maps", key, "dark-25d", key + "-composite.jpg")
     w, h = cfg["size"]
     maps = os.path.join(ROOT, "Assets", "Scripts", "Maps")
     rows = re.findall(r'"([TgwBd]{%d})"' % w, open(os.path.join(maps, cfg["cls"] + "Map.cs"), encoding="utf8").read())
     props = [(m[0], int(m[1]), int(m[2])) for m in re.findall(r'P\("(\w+)", (\d+), (\d+)\)', open(os.path.join(maps, cfg["cls"] + "Props.cs"), encoding="utf8").read())]
     defs = {m[0]: (float(m[1]), float(m[2]), int(m[3]), int(m[4])) for m in re.findall(r'"(\w+)", new PropDef\(([\d.]+)f, ([\d.]+)f, (\d+), (\d+)\)', open(os.path.join(maps, "VillagePropDefs.cs"), encoding="utf8").read())}
     solid = np.array([[c in "TwB" for c in r] for r in rows])
-    img = Image.open(os.path.join(ROOT, "Assets", "Resources", "Sprites", cfg["ground"])).convert("RGBA")
+    res = os.path.join(ROOT, "Assets", "Resources", "Sprites")
+    parts = [Image.open(os.path.join(res, cfg["ground"].format(c=c))).convert("RGBA") for c in range(cfg.get("chunks", 1))]
+    img = Image.new("RGBA", (sum(p.width for p in parts), parts[0].height))
+    for i, p in enumerate(parts): img.paste(p, (sum(q.width for q in parts[:i]), 0))
     problems = []
     blocked = solid.copy()
     for t, x, y in sorted(props, key=lambda p: p[2]):
@@ -46,6 +49,8 @@ def main():
         s = Image.open(p).convert("RGBA")
         cx, by = int((x + fw / 2.0) * T), (y + 1) * T
         img.alpha_composite(s, (cx - s.width // 2, by - s.height))
+    if "--minimap" in sys.argv and "minimap" in cfg:                    # ground + props, 6 px per tile (the chunked map has no single ground image)
+        mm = img.convert("RGB").resize((w * 6, h * 6), Image.LANCZOS); mm.save(os.path.join(res, cfg["minimap"])); print("minimap", cfg["minimap"])
     # flood fill from the start on the blocked grid
     seen = np.zeros_like(blocked); sx, sy = cfg["start"]; stack = [(sx, sy)]
     while stack:

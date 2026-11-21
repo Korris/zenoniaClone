@@ -51,7 +51,7 @@ namespace ZenoniaProto
         static readonly MapPortal[] PortalList =
         {
             new MapPortal(17, 0, WillowbrookMeadowsMap.MapId, 47, 42), new MapPortal(18, 0, WillowbrookMeadowsMap.MapId, 47, 42),
-            new MapPortal(2, 13, RootburrowMap.MapId, 32, 13),
+            new MapPortal(2, 13, RootburrowMap.MapId, RootburrowMap.EntranceArrivalTx, RootburrowMap.EntranceArrivalTy),
         };
 
         public BramblewoodForestMap() : base(Rows, "Tw")

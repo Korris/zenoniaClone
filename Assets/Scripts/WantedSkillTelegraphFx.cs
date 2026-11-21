@@ -51,9 +51,9 @@ namespace ZenoniaProto
             fx.skill = table[skillId];
             fx.shape = new WantedShapeInstance { OriginX = origin.x, OriginY = origin.y, DirDeg = dirDeg };
             fx.atMs = atMs;
-            bool warden = AmbercapLightFx.ActiveFor(bossId); // Rootburrow's dungeon boss: shader / particle FX, no sprites (21/11/2026)
+            bool warden = CaveBossLightFx.ActiveFor(bossId); // Rootburrow's two cave bosses: shader / particle FX, no sprites (21/11/2026)
             fx.lightFx = warden || MireHydraLightFx.ActiveFor(bossId);
-            if (warden) AmbercapLightFx.Spawn(fx.skill, origin, dirDeg, atMs);
+            if (warden) CaveBossLightFx.Spawn(bossId, fx.skill, origin, dirDeg, atMs);
             else if (fx.lightFx) MireHydraLightFx.Spawn(fx.skill, origin, dirDeg, atMs);
             else fx.Build();
             Active.Add(fx);
@@ -92,7 +92,7 @@ namespace ZenoniaProto
             for (int i = Active.Count - 1; i >= 0; i--) if (Active[i] != null) Destroy(Active[i].gameObject);
             Active.Clear();
             MireHydraLightFx.ClearAll();
-            AmbercapLightFx.ClearAll();
+            CaveBossLightFx.ClearAll();
         }
 
         void Build()

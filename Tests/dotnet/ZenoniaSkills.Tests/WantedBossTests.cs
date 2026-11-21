@@ -32,13 +32,15 @@ public class WantedBossTests
     }
 
     [Fact]
-    public void RotationCoversAllBossesOverThreeDaysAndMatchesTheTable()
+    public void RotationCoversAllBossesOverOneCycleAndMatchesTheTable()
     {
         long t = Utc(2026, 11, 12, 12, 0, 0);
+        int n = WantedBoss.Rotation.Length; // 4 since 21/11/2026 (Aetherglyph Owl, Rootburrow)
+        Assert.Equal(4, n);
         var seen = new System.Collections.Generic.HashSet<string>();
-        for (int i = 0; i < 3; i++) seen.Add(WantedBoss.Today(t + i * WantedBoss.DayMs).BossType);
-        Assert.Equal(3, seen.Count);
-        Assert.Equal(WantedBoss.Today(t).BossType, WantedBoss.Today(t + 3 * WantedBoss.DayMs).BossType);
+        for (int i = 0; i < n; i++) seen.Add(WantedBoss.Today(t + i * WantedBoss.DayMs).BossType);
+        Assert.Equal(n, seen.Count);
+        Assert.Equal(WantedBoss.Today(t).BossType, WantedBoss.Today(t + n * WantedBoss.DayMs).BossType);
         foreach (WantedBossDef d in WantedBoss.Rotation) Assert.Same(d, WantedBoss.Find(d.BossType));
         Assert.Null(WantedBoss.Find("goblin"));
     }

@@ -16,7 +16,7 @@ namespace ZenoniaProto
         public ClericLightFx Reveal(float ms) { if (layers.Count > 0) Last.RevealMs = Mathf.Max(1f, ms); return this; }
 
         /// <summary>Fixed rotation (degrees, around the view axis) of the last added layer instead of its random start angle: a streak or petal laid
-        /// along a direction (boss skills, AmbercapLightFx, 21/11/2026). Spin, if any, still adds on top.</summary>
+        /// along a direction (boss skills, CaveBossLightFx, 21/11/2026). Spin, if any, still adds on top.</summary>
         public ClericLightFx Turn(float deg) { if (layers.Count > 0) { Last.Rot = deg; Last.Turned = true; } return this; }
 
         public ClericLightFx Pop(float ms) { if (layers.Count > 0) Last.PopMs = Mathf.Max(1f, ms); return this; }

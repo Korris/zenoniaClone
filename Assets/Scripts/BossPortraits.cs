@@ -29,6 +29,7 @@ namespace ZenoniaProto
             { "rimeclawTyrant", new Face(0.51f, 0.48f, 0.40f) },   // crowned ice wolf, 2026-11-20
             { "glacialColossus", new Face(0.52f, 0.44f, 0.38f) },
             { "mireHydraQueen", new Face(0.50f, 0.33f, 0.36f) },
+            { "aetherglyphOwl", new Face(0.50f, 0.36f, 0.34f) },
         };
 
         static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();

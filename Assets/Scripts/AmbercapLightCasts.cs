@@ -5,7 +5,7 @@ using L = ZenoniaProto.ClericLightLook;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The four Ambercap Warden skill timelines (AmbercapLightFx; ChatGPT spec section E). `strike` = local ms from now to the server's strike
+    /// The four Ambercap Warden skill timelines (CaveBossLightFx; ChatGPT spec section E). `strike` = local ms from now to the server's strike
     /// instant: the cast pieces run up to it, the impact peaks right after it (RO3 rule 4: peak 100-180 ms, then a short fade).
     /// Proportions follow RO3 rule 2 (rune rings / glyphs / streaks carry the shape, glow and particles stay lighter), and the user's 21/11 rule that a
     /// boss skill must still be GRAND without sprites: every impact also lights the dark cave for a moment (DungeonLights.Flash), throws a second
@@ -39,7 +39,7 @@ namespace ZenoniaProto
         /// thick shockwave ring and a second, wider echo run out past the rim, the cave flashes amber, sparks fly up.</summary>
         static void Pulse(Vector2 at, float r, float s)
         {
-            L.Pal p = AmbercapLightFx.PalOf(0);
+            L.Pal p = CaveBossLightFx.PalOf(0);
             ClericLightFx fx = ClericLightFx.Create("WardenPulse", at, null, s + 900f, 1f);
             fx.Ground(L.M(L.RuneRing, p, L.Role.Arc), 0f, s + 120f, r * 0.5f, r * 2.05f, 0.85f, Round, 35f).Reveal(500f).Arc(2.4f, 0f, 2).Env(120f, 160f);
             fx.Ground(L.M(L.Compass, p, L.Role.Line), s * 0.3f, s + 80f, r * 0.6f, r * 1.0f, 0.7f, Round, -50f).Env(200f, 120f);
@@ -56,7 +56,7 @@ namespace ZenoniaProto
         /// a soft pool washes the cone, the cave flashes spring-green and a cloud of round spores drifts out low.</summary>
         static void Fan(Vector2 at, float r, float dir, float angle, float s)
         {
-            L.Pal p = AmbercapLightFx.PalOf(1);
+            L.Pal p = CaveBossLightFx.PalOf(1);
             ClericLightFx fx = ClericLightFx.Create("WardenFan", at, null, s + 900f, 1f);
             Vector2 fwd = new Vector2(Mathf.Cos(dir * Mathf.Deg2Rad), Mathf.Sin(dir * Mathf.Deg2Rad));
             for (int i = 0; i < 5; i++)
@@ -85,7 +85,7 @@ namespace ZenoniaProto
         /// spikes pop up one after another, each with a burst of debris, the whole line flashes teal.</summary>
         static void Rootline(Vector2 at, float len, float wid, float dir, float s)
         {
-            L.Pal p = AmbercapLightFx.PalOf(2);
+            L.Pal p = CaveBossLightFx.PalOf(2);
             ClericLightFx fx = ClericLightFx.Create("WardenRootline", at, null, s + 900f, 1f);
             float rad = dir * Mathf.Deg2Rad;
             Vector2 d = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
@@ -111,7 +111,7 @@ namespace ZenoniaProto
         /// petal arcs burst out (never into the safe lane), a double shockwave runs past the rim, the cave flashes bright and the camera kicks.</summary>
         static void BloomOf(Vector2 at, float r, float dir, float safeDeg, float s)
         {
-            L.Pal p = AmbercapLightFx.PalOf(3), amber = AmbercapLightFx.PalOf(0);
+            L.Pal p = CaveBossLightFx.PalOf(3), amber = CaveBossLightFx.PalOf(0);
             ClericLightFx fx = ClericLightFx.Create("WardenBloom", at, null, s + 1100f, 1f);
             fx.Ground(L.M(L.RuneRing, p, L.Role.Arc), 0f, s + 200f, r * 1.6f, r * 2.05f, 0.85f, Round, 25f).Reveal(600f).Arc(2f, 0f, 3).Env(150f, 150f);
             fx.Ground(L.M(L.RuneRing, p, L.Role.Line), 100f, s + 200f, r * 0.9f, r * 1.25f, 0.7f, Round, -40f).Reveal(500f).Env(150f, 150f);

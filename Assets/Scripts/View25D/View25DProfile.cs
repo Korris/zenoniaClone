@@ -80,6 +80,9 @@ namespace ZenoniaProto
         public Color MoteColorA = new Color(1f, 0.96f, 0.84f, 0.85f), MoteColorB = new Color(0.95f, 1f, 0.78f, 0.8f);
         /// <summary>Render-only border props past the map edges (View25DGroundApron): tall ones and low ones. Null = the Willowbrook forest set.</summary>
         public string[] ApronTall, ApronSmall;
+        /// <summary>Dungeon laid out east (gate) to west (deepest): the ambient follows the local hero's x from GateAmbientMul at the east edge to DeepAmbientMul at the west.</summary>
+        public bool DepthWestward;
+        public float GateAmbientMul = 1f, DeepAmbientMul = 1f;
 
         /// <summary>Rootburrow, dark violet RO3 cave (21/11/2026, ChatGPT V2 "Dark Violet Cave" after the user's correction: purple like the RO3 Irmo clip at 12:25,
         /// "giống ở trong hang"; docs/reference/rootburrow-dark-25d/rootburrow-dark-dungeon-art-direction-chatgpt.md): the RO3 camera, no sun, ambient #414064 at 0.22
@@ -89,6 +92,7 @@ namespace ZenoniaProto
         public static readonly View25DProfile DarkDungeon = new View25DProfile
         {
             TiltDeg = 32f, FovDeg = 27f, HeroPx = 69f, FeetY = 389f, Ro3Look = true,
+            DepthWestward = true, GateAmbientMul = 1.35f, DeepAmbientMul = 0.8f, // V3 layout: 0.30 at the gate -> 0.18 in the arena (ChatGPT)
             Dungeon = true, AmbientColor = Hex(0x41, 0x40, 0x64), AmbientLevel = 0.22f, UnitAmbient = 0.45f, BossAmbient = 0.48f,
             SunElevationDeg = 78f, CastShorten = 0.35f, SunStrength = 0f, UnitSunStrength = 0f,
             ShadeColor = Hex(0x26, 0x23, 0x45), CrownShadeColor = Hex(0x30, 0x2C, 0x4D), UnitShadeStrength = 0.15f,

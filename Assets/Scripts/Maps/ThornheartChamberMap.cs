@@ -34,10 +34,10 @@ namespace ZenoniaProto
 
         static readonly Vector2Int PlayerStartTile = new Vector2Int(12, 9);   // two rows above the exit: the portal reach (MapPortals.ReachUnits) covers the row right above it
 
-        /// <summary>Corridor mouth at the bottom of the arena: back to Rootburrow, two tiles below its root arch. Always open.</summary>
+        /// <summary>Corridor mouth at the bottom of the arena: back to Rootburrow, two tiles below the arch at the north-west of its Wanted arena (V3, 21/11/2026). Always open.</summary>
         static readonly MapPortal[] PortalList =
         {
-            new MapPortal(11, 11, RootburrowMap.MapId, 4, 5), new MapPortal(12, 11, RootburrowMap.MapId, 5, 5),
+            new MapPortal(11, 11, RootburrowMap.MapId, RootburrowMap.ArchArrivalTx, RootburrowMap.ArchArrivalTy), new MapPortal(12, 11, RootburrowMap.MapId, RootburrowMap.ArchArrivalTx + 1, RootburrowMap.ArchArrivalTy),
         };
 
         public ThornheartChamberMap() : base(Rows, "Tw") { }

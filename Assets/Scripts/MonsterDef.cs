@@ -126,7 +126,7 @@ namespace ZenoniaProto
         /// <summary>--wanted-render-scale test hook (NetLaunchArgs): every Wanted Boss drawn `factor` x WantedRenderScale. Sets, never multiplies, so a second parse cannot compound it.</summary>
         public static void ApplyWantedRenderScale(float factor)
         {
-            foreach (MonsterDef d in new[] { RimeclawTyrant, GlacialColossus, MireHydraQueen }) d.RenderScale = WantedRenderScale * d.WantedDrawMul * factor;
+            foreach (MonsterDef d in new[] { RimeclawTyrant, GlacialColossus, MireHydraQueen, AetherglyphOwl }) d.RenderScale = WantedRenderScale * d.WantedDrawMul * factor;
         }
 
         // Frozen basis (hp, atk, def, speed): Frostfang King Lv3 (580/33/3/36) and Mirefang Hydra Lv35 (5500/215/27/36) as they stood before the step 1 level rebalance; Glacier Warden did not change.
@@ -136,6 +136,9 @@ namespace ZenoniaProto
         public static readonly MonsterDef GlacialColossus = Wanted("Glacial Colossus", "glacialColossus", 3200f, 125f, 16f, 36f, 25, new Color(0.4f, 0.65f, 1f));
         // 2026-11-19: the v2 queen (RO Soft Fantasy) is drawn twice the other wanted bosses (user: "to gấp 2 lần, còn nhỏ quá"; the arena is 4x since the same day). Picture only.
         public static readonly MonsterDef MireHydraQueen = Wanted("Mire Hydra Queen", "mireHydraQueen", 5500f, 215f, 27f, 36f, 40, new Color(0.45f, 0.95f, 0.5f), drawMul: 2f);
+        // 2026-11-21: Rootburrow's Wanted boss in the arena at the bottom of the dark violet cave (user: the mushroom stays the map boss, "design thêm 1 con wanted
+        // boss khác ở đó"). Basis between the Lv12 Ambercap Warden and the Lv20 bosses (2400 / 100 / 13 / 32), Lv20; drawn 1.4 x the Wanted scale (wings wide, the arena is 17 x 17).
+        public static readonly MonsterDef AetherglyphOwl = Wanted("Aetherglyph Owl", "aetherglyphOwl", 2400f, 100f, 13f, 32f, 20, new Color(0.7f, 0.6f, 1f), drawMul: 1.4f);
 
         // World Map 2.1 (13/11/2026) new monsters, sheets cut by Tools/build-meadow-monsters.py. Same line HP 14+22L, Atk 3+4L, Def 1+L and the role factors already used above.
         // Bramblewood Forest (Lv 6-10, with Meadow Mantis 6 and Bramble Treant 8). Forest Wolf (Lv 7): Spectral Wolf's role (HP x0.83, Atk x0.9, low Def, fast, short cooldown).
@@ -181,7 +184,7 @@ namespace ZenoniaProto
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
         public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear, RimeclawTyrant, GlacialColossus, MireHydraQueen,
             ForestWolf, ThornSprite, ThornfangAlpha, ThornheartTreant, HighlandIbex, DustscaleLizard, CliffHarpy, StonebackGuardian, RidgehornBehemoth,
-            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer, AmbercapWarden };
+            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer, AmbercapWarden, AetherglyphOwl };
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -231,6 +234,7 @@ namespace ZenoniaProto
                 case "duneGolem": return DuneGolem;
                 case "duneDevourer": return DuneDevourer;
                 case "ambercapWarden": return AmbercapWarden;
+                case "aetherglyphOwl": return AetherglyphOwl;
                 default: return null;
             }
         }

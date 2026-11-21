@@ -21,8 +21,8 @@ import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPS_DIR = os.path.join(ROOT, "Assets", "Scripts", "Maps")
 MAPS = {
-    "rootburrow": dict(cls="Rootburrow", rows_file="RootburrowMap.cs", size=(36, 24), start=(32, 13), boss=(19, 4),
-                       portals=[(35, 12), (35, 13), (4, 3), (5, 3)], hud_rows=17),
+    "rootburrow": dict(cls="Rootburrow", rows_file="RootburrowMap.cs", size=(60, 24), start=(56, 12), boss=(26, 6),
+                       portals=[(59, 11), (59, 12), (59, 13), (4, 2), (5, 2)], hud_rows=21, arena=(9, 10)),  # V3 delve-deeper cave (21/11/2026)
 }
 TALL_N = ["rbCaveWall", "rbCaveWallB", "rbStonePillar", "rbCaveWall", "rbHangingRoots", "rbCaveWallB"]
 TALL_SIDE = ["rbStonePillar", "rbStonePillar", "rbCrystalNest", "rbCaveBoulder"]
@@ -108,6 +108,7 @@ def main():
         put(rng.choice(DEEP), x, y, block=rng.random() < 0.85)
     # 4) floor decor along the walls (walk-through), clear of portals / start / boss
     keep = [(px, py, 2) for px, py in cfg["portals"]] + [(cfg["start"][0], cfg["start"][1], 2), (cfg["boss"][0], cfg["boss"][1], 3)]
+    if "arena" in cfg: keep.append((cfg["arena"][0], cfg["arena"][1], 6))   # the 40-player arena floor stays clear
     for y in range(h):
         for x in range(w):
             if not floor[y, x] or rng.random() > 0.10: continue
@@ -116,6 +117,9 @@ def main():
             put(rng.choice(FLOOR_DECOR), x, y, block=False)
     bx, by = cfg["boss"]
     props.append(("rbRuneSeal", bx - 1, by + 2))                       # under the boss's reach, in front of it (flat, walk-through)
+    if "arena" in cfg:                                                   # the Wanted arena: a rune seal under the event boss
+        ax, ay = cfg["arena"]
+        props.append(("rbRuneSeal", ax - 1, ay + 1))
     write(cfg, props)
     print("props", len(props), {k: len(v) for k, v in lights.items()})
 

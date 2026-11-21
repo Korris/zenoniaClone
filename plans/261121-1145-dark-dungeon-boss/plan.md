@@ -1,42 +1,42 @@
-# Rootburrow thành dungeon 2.5D tối kiểu RO3 + boss mới Ambercap Warden (21/11/2026)
+# Rootburrow thành hang tím tối 2.5D kiểu RO3 (đi sâu dần) + boss map Ambercap Warden + Wanted boss Aetherglyph Owl (21/11/2026)
 
-Người dùng: "hiện có map nào đang là dungeon không, làm cho nó có phong cách tối tối giống ragnarok 3 (https://www.youtube.com/watch?v=X87Xt--Plj8), làm 1 con boss trong dungeon luôn". Đã đọc `CLAUDE.md`, `docs/map-design-rules.md` (cả mục Map 2.5D 1-18), `docs/sprite-rules.md` (quy tắc đầu file, VFX, art ChatGPT, thiết kế quái, Sổ lỗi phần quái / boss), `docs/monster-redesign-bible.md` (A1-A7, B2 Forest / Rootburrow, Thornheart, mục 7-8), báo cáo Rimeclaw, memory.
+Người dùng: "hiện có map nào đang là dungeon không, làm cho nó có phong cách tối tối giống ragnarok 3 (https://www.youtube.com/watch?v=X87Xt--Plj8), làm 1 con boss trong dungeon luôn". Bổ sung trong lúc làm: "giống ở trong hang", "clip này (t=745s) hang động tối tối màu TÍM mà sao vẽ ra đất NÂU", skill không sprite nhưng phải hoành tráng, "con nấm này cute quá, cho làm boss map thôi, design thêm 1 con wanted boss khác ở đó", "map dungeon thì làm kiểu đi vào sâu, không dàn trải".
 
-ChatGPT (Tay, "Tân Korris"): https://chatgpt.com/c/6b01232b-687c-83ec-a5a3-a2575a5d4a3c . Định hướng: `docs/reference/rootburrow-dark-25d/rootburrow-dark-dungeon-art-direction-chatgpt.md`.
+Đã đọc `CLAUDE.md`, `docs/map-design-rules.md` (cả Map 2.5D 1-18), `docs/sprite-rules.md` (quy tắc đầu, VFX, art ChatGPT, thiết kế quái, Sổ lỗi quái / boss), `docs/monster-redesign-bible.md` (A1-A7, B2, Thornheart, mục 7-8), báo cáo Rimeclaw, memory.
+
+ChatGPT (Tay "Tân Korris"), một chat cho cả việc: https://chatgpt.com/c/6b01232b-687c-83ec-a5a3-a2575a5d4a3c . Định hướng + số: `docs/reference/rootburrow-dark-25d/rootburrow-dark-dungeon-art-direction-chatgpt.md`.
 
 ## Chọn map: Rootburrow
-| Ứng viên | Vì sao không / có |
-|---|---|
-| **Rootburrow** (36x24, Lv6-10) | CHỌN: hầm kín thật (vòng lặp hành lang quanh đảo vách, sảnh bắc / đông / tây, cổng vào hầm Thornheart), vách là gờ đá + rễ thấp nên thay bằng prop đứng dễ, chưa có boss riêng (boss nằm ở phòng Thornheart) nên thêm boss không đè ai. |
-| Frostfang Den | vách băng cao vẽ liền trong nền (điều 8 Map 2.5D: phải tách vách thành sprite, chưa làm), đã có Glacier Warden. |
-| Thornheart Chamber | chỉ là phòng boss 24x16 đã có Treant. |
-| Sunken Reliquary | sân Hydra, không lấy. |
+Hầm kín thật (Lv6-10 dưới rừng Bramblewood, nối Thornheart Chamber), vách thấp nên đổi sang prop đứng dễ, chưa có boss riêng. Không chọn Frostfang Den (vách băng cao vẽ liền, điều 8 Map 2.5D chưa giải), Thornheart Chamber (phòng boss nhỏ đã có Treant), Sunken Reliquary (sân Hydra).
 
 ## Quyết định
 | Phần | Cách làm |
 |---|---|
-| Phong cách | "Enchanted Root Catacomb": giữ rễ / nấm / hổ phách của Rootburrow, thêm ánh sáng cyan / tím và hình học phép của Irmo (RO3). Art giữ màu gốc RO Soft Fantasy, tối là do ÁNH SÁNG. |
-| Profile | `View25DProfile.DarkDungeon` (camera V3 58° / FOV 27 / hero 69 px như Ro3Feel): ambient #53516F 0,34 (unit 0,48, boss 0,52), không nắng, bóng rất ngắn từ trên xuống màu tím tối, fog #5B506F từ 5 m sau hero tối đa 0,32, vignette #211C35 0,22, không đốm nắng / gió / lá, hạt bào tử hổ phách + wisp cyan. |
-| Đèn | `DungeonLights`: đèn từ prop theo tên (rbLantern hổ phách 3,2 m, rbCyanCrystal cyan 3,8 m, rbGiantShroom bạc hà 2 m, rbAmberCrystal hổ phách dịu, rbSmallShrooms, rbRuneSeal tím) + 3 đèn boss tay (lõi hổ phách 4,2 m, 2 ấn cyan); 16 đèn gần tâm camera vào shader `Sprite25DLit` (nền + prop), CPU cho hero / quái / pet; quầng additive dưới đất; nhấp nháy theo spec. |
-| Nền | `Tools/build-map-25d-dungeon-ground.py`: 2 texture ChatGPT (sàn đất nén, khối đất rễ) theo rows, mép không đều ~0,45 m, AO chân vách, khối đặc sâu ngả màu vực #262235; ao giữ ảnh cũ. Viền ngoài `border`. |
-| Vách / prop | `Tools/place-map-25d-dungeon-props.py`: mọi prop chặn đứng trên ô đã chặn (rows KHÔNG đổi): vách bắc cao (rễ tường 3 ô, cột rễ, màn rễ), hai bên cột, phía nam lối chỉ đồ thấp nằm phẳng (đứng ở đó sẽ che hero), khối đặc có rễ / cột thưa, đồ trang trí đi xuyên trên sàn sát vách. 15 loại `rb*` (`VillagePropDefs`). |
-| Boss | Ambercap Warden (`ambercapWarden`): nấm khổng lồ mũ chuông hổ phách, 3 đốm cyan, mắt hổ phách con ngươi đen, miệng W; Lv12, 1946 HP (x2 farm), Atk 76, Def 10, đứng yên, RenderScale 1,8, ô 384 / 512 như boss truy nã; `MonsterDef.SkillBoss` = dùng hệ skill boss truy nã nhưng là boss map (không Wanted). Ở sảnh bắc (19,4), hồi sinh 5 phút; 5 thornSprite sảnh bắc dời sang sảnh đông nam. |
-| Skill | `WantedSkillTable.AmbercapWarden`: Amber Pulse (vòng 3 ô quanh boss, 1,3 s, 1,25x + Slow), Spore Fan (nón 90° 4,5 ô, 1,5 s, 1,4x + Poison), Rootline Burst (đường 7 x 1,5 ô về mục tiêu, 1,7 s, 1,65x + Knockback 1 ô), Bloom of the Hollow (cuồng nộ < 30 %: vòng 5,5 ô chừa 1 làn 90°, 2,3 s, 2,2x + Freeze 1,2 s). |
-| FX skill | `AmbercapLightFx` + `AmbercapLightCasts`: KHÔNG sprite; cảnh báo bằng shader `WantedWarningDisc` / dải LightBlob, cast + impact bằng bộ Cleric (`ClericLightFx` timeline, `ClericLightLook.M` mask x palette, thêm `Turn`), 4 palette riêng, đỉnh sáng 120-180 ms, rung camera nhẹ chỉ ở chiêu cuồng nộ. |
+| Bố cục V3 | 60 x 24 (rộng ra, cao giữ 24 nên toạ độ y save không lệch), từ cổng ĐÔNG đi dần về TÂY: cổng -> hầm hẹp -> hang quái I (Lv6-7) -> hầm uốn -> hang quái II (Lv8-9) -> hầm sâu -> hang boss nấm -> hầm cuối -> đấu trường Wanted 17 x 17 (sâu nhất) có vòm sang Thornheart. Hầm 2-3 ô, 4 hốc phụ. `Tools/build-rootburrow-delve-rows.py`. |
+| Màu V2 | "Dark Violet Cave" theo khung 12:25 của clip: đá lát tím oải hương, khối đá tím tối, khe chàm, mạch cyan, pha lê tím / hồng, quả cầu rune cyan, rễ hoá đá ít. Bản V1 nâu (đất + rễ hổ phách) bị người dùng bác. |
+| Profile | `View25DProfile.DarkDungeon`: camera V3 như Ro3Feel, KHÔNG nắng, ambient #414064 x 0,22 (unit 0,45, boss 0,48) nhân theo độ sâu (x1,35 ở cổng -> x0,8 ở đấu trường), bóng ngắn tím tối, fog chàm #292544 tối đa 0,40, vignette #100E25 0,32, hạt cyan / tím, giọt nước rơi. |
+| Đèn | `DungeonLights`: theo tên prop (rune orb cyan 4 m, obelisk cyan, pha lê tím 3,2 m, pha lê hồng 2,8 m, nấm, ổ pha lê, ấn rune) + đèn tay ở 2 hang boss; 16 đèn gần tâm camera vào `Sprite25DLit`, CPU cho unit, quầng additive, hero mình mang đèn mềm, đòn boss loé sáng (`Flash`). |
+| Nền / prop | 2 texture tím (`Tools/build-map-25d-dungeon-ground.py`, 2 mảnh 1920x1536 + minimap + border), 15 prop `rb*` vẽ cho góc 58° (`Tools/cut-map-25d-dungeon-props.py`), đặt bằng `Tools/place-map-25d-dungeon-props.py` (prop chặn chỉ trên ô đã chặn; phía nam lối chỉ đồ thấp), kiểm `Tools/preview-map-25d-dungeon.py`. |
+| Boss map | Ambercap Warden (`ambercapWarden`): nấm khổng lồ mũ chuông hổ phách 3 đốm cyan, Lv12, `MonsterDef.SkillBoss` (hệ skill boss truy nã nhưng là boss map), ô (26,6), hồi 5 phút. Skill: Amber Pulse (vòng 3,5 ô), Spore Fan (nón 90° 5,5 ô, độc), Rootline Burst (đường 8 x 1,8 ô, đẩy lùi), Bloom of the Hollow (cuồng nộ, vòng 6,5 ô chừa 90°, đóng băng). |
+| Wanted boss | Aetherglyph Owl (`aetherglyphOwl`): cú vua phù văn tím, vương miện rune cyan, giáp vai vàng, cánh pha lê; Lv20, `Wanted(...)` basis 2400/100/13/32, drawMul 1,4, đấu trường ô (9,10), thứ 4 trong `WantedBoss.Rotation` (400 G, 4 đá, 3+3 bình Medium). Skill: Rune Starfall (5 vòng 2 ô lên 5 người, chậm), Astral Wingstorm (nón 110° 7 ô, đẩy lùi), Crystal Judgment (đường 10 x 1,8 ô, đóng băng), Eclipse of Runes (cuồng nộ, vòng 8 ô chừa 150°). |
+| FX skill | Không sprite: cảnh báo shader `WantedWarningDisc` / dải LightBlob (`CaveBossLightFx`), cast + impact bằng bộ Cleric (`ClericLightFx`, `ClericLightLook.M`, thêm `Turn`): `AmbercapLightCasts`, `AetherglyphOwlLightCasts`. Hoành tráng: vòng rune lớn, cột sáng, gai pha lê, sóng xung kích đôi, loé sáng cả hang, rung camera nhẹ cho người đứng trong. |
+| Offline | Cảnh báo / FX skill boss trước đây chỉ hiện online; nay offline tự vẽ (`WantedSkillTelegraphFx.ClockMs`). |
 
-## Lượng ảnh ChatGPT
-1 concept boss, 4 sheet đi / đánh, 2 sheet niệm, 2 texture nền, 2 tấm prop = 11.
+## Ảnh ChatGPT (Tay): ~24
+Boss nấm 7 (concept + 6 sheet), nền + prop V1 nâu 4 (bỏ), nền + prop V2 tím 4, Wanted cú 7 (concept + 6 sheet).
 
 ## Trạng thái
-- [x] Khung hình clip (ngoài git `D:\temp\ro3-dungeon-frames`), hỏi ChatGPT, định hướng
-- [x] Boss: concept + 6 sheet, cắt `Tools/build-wanted-boss-sheets.py write ambercapWarden --boss-only`
-- [x] Code: profile, DungeonLights, shader, apron, boss def / skill / spawn / loot, FX
-- [ ] Nền + prop (ảnh ChatGPT, cắt), ô chặn rà trên ảnh tô đỏ
-- [ ] dotnet test 2 project, build từ bản sao, vài ảnh chụp, đánh thử boss `--god`
+- [x] Khung hình clip (ngoài git `D:\temp\ro3-dungeon-frames`), định hướng V1 -> V2 tím -> bố cục V3
+- [x] Boss nấm: art + code + skill + FX; chạy offline: 4 skill có cảnh báo + FX, hero Lv40 `--god --bot fight-boss` hạ được boss
+- [x] Hang tím V2 + bố cục V3 (rows, prop, nền, minimap), `PROBLEM` không có
+- [x] Wanted cú: dữ liệu, skill, FX code, art (đang vẽ / cắt)
+- [x] dotnet test 2 project
+- [ ] Build + ảnh chụp V3 (`docs/reference/rootburrow-dark-25d/`)
 - [ ] Người dùng xem trong game
-- [ ] Build lại zone server (MonsterDef, bảng skill, MapSpawnTable, prop map đổi)
+- [ ] BUILD LẠI ZONE SERVER: MonsterDef (2 boss mới, thêm cuối `All`), bảng skill, `MapSpawnTable`, rows / prop / cổng Rootburrow, `WantedBoss.Rotation` (vòng ngày đổi từ 3 sang 4 boss), Bramblewood / Thornheart trỏ cổng mới
 
 ## Rủi ro
-- Server dùng chung MonsterDef / WantedSkillTable / MapSpawnTable: phải build lại zone server, phát hành cùng client.
-- Shader 16 đèn x mọi sprite nền / prop: chưa đo FPS điện thoại.
-- Ảnh nền mới nằm thẳng ở `Resources`; `Tools/bake-map-ro-soft-tone.py apply` sẽ ghi đè bằng bản gốc cũ trong `ro-soft-originals~`.
+- Hero đã lưu ở Rootburrow toạ độ cũ có thể đứng trong vách mới (bề ngang đổi 36 -> 60, cao giữ 24).
+- Thêm boss vào `Rotation` đổi lịch boss mỗi ngày (ngày nay rơi vào boss khác).
+- Shader 16 đèn chưa đo FPS điện thoại; nền 2 mảnh 1920 px (Android nhập tối đa 2048, đủ).
+- Ảnh nền mới ghi thẳng `Resources`; `Tools/bake-map-ro-soft-tone.py apply` sẽ ghi đè bằng bản gốc cũ trong `ro-soft-originals~`.

@@ -56,7 +56,7 @@ namespace ZenoniaProto.Rpg
         /// (docs/reference/rootburrow-dark-25d/rootburrow-dark-dungeon-art-direction-chatgpt.md section D) with the reach scaled to the boss's own body
         /// (1.8 heroes: ChatGPT's 1.8 m pulse would sit under its cap), the hall (12 x 5 tiles + corridors) and the user's 21/11 rule that boss skills stay GRAND
         /// (sizes at the top of their band, docs/sprite-rules.md rule 3). Rootline Burst is one line toward the
-        /// target (the line shape is anchored at the boss here, not on players). Light FX: AmbercapLightFx (particles / meshes / shaders, no sprites).
+        /// target (the line shape is anchored at the boss here, not on players). Light FX: CaveBossLightFx + AmbercapLightCasts (particles / meshes / shaders, no sprites).
         /// Cast rows of ambercapWarden-cast.png: 0 spore puff (fan), 1 root slam (pulse + rootline), 2 cap bloom (enrage), 3 defeat.
         /// </summary>
         public static readonly WantedSkillDef[] AmbercapWarden =
@@ -71,6 +71,24 @@ namespace ZenoniaProto.Rpg
                 TelegraphMs = 2300, CooldownMs = 22000, DamageMult = 2.2f, StatusKind = StatusKind.Freeze, StatusMs = 1200, CastRow = 2, Enrage = true },
         };
 
+        /// <summary>
+        /// Aetherglyph Owl, Rootburrow's Wanted boss (21/11/2026, ChatGPT section B, docs/reference/rootburrow-dark-25d/): the reach at the top of its band
+        /// (user: grand) and the 17 x 17 arena. Crystal Judgment is one line toward the target (lines are anchored at the boss here). Light FX:
+        /// CaveBossLightFx + AetherglyphOwlLightCasts. Cast rows of aetherglyphOwl-cast.png: 0 wings folded focus (starfall), 1 wings spread (wingstorm,
+        /// judgment), 2 wings arched + crown blazing (eclipse), 3 defeat.
+        /// </summary>
+        public static readonly WantedSkillDef[] AetherglyphOwl =
+        {
+            new WantedSkillDef { Id = 0, Name = "Rune Starfall", Hint = "Light falls on five hunters. Leave the red circles.", Shape = WantedAreaShape.Circle, OnPlayers = true, RadiusTiles = 2f, Count = 5,
+                TelegraphMs = 1600, CooldownMs = 9000, DamageMult = 1.35f, StatusKind = StatusKind.Slow, StatusValue = 25f, StatusMs = 2000, CastRow = 0 },
+            new WantedSkillDef { Id = 1, Name = "Astral Wingstorm", Hint = "A storm of wings in front. Get behind the owl.", Shape = WantedAreaShape.Cone, RadiusTiles = 7f, AngleDeg = 110f,
+                TelegraphMs = 1800, CooldownMs = 13000, DamageMult = 1.65f, KnockbackTiles = 1.2f, CastRow = 1 },
+            new WantedSkillDef { Id = 2, Name = "Crystal Judgment", Hint = "Crystals burst along a line. Step out of it.", Shape = WantedAreaShape.Line, LengthTiles = 10f, WidthTiles = 1.8f,
+                TelegraphMs = 2000, CooldownMs = 16000, DamageMult = 1.85f, StatusKind = StatusKind.Freeze, StatusMs = 1000, CastRow = 1 },
+            new WantedSkillDef { Id = 3, Name = "Eclipse of Runes", Hint = "The whole arena erupts. Stand in the safe lane.", Shape = WantedAreaShape.Circle, RadiusTiles = 8f, SafeArcDeg = 150f, SafeArcCount = 1,
+                TelegraphMs = 2800, CooldownMs = 28000, DamageMult = 2.5f, StatusKind = StatusKind.Slow, StatusValue = 40f, StatusMs = 3000, CastRow = 2, Enrage = true },
+        };
+
         /// <summary>The skill table (4 skills; Mire Hydra Queen 5) of a wanted boss type, or null when it has none (every other monster).</summary>
         public static WantedSkillDef[] For(string bossType)
         {
@@ -80,6 +98,7 @@ namespace ZenoniaProto.Rpg
                 case "glacialColossus": return GlacialColossus;
                 case "mireHydraQueen": return MireHydraQueen;
                 case "ambercapWarden": return AmbercapWarden;
+                case "aetherglyphOwl": return AetherglyphOwl;
                 default: return null;
             }
         }

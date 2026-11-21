@@ -98,7 +98,7 @@ namespace ZenoniaProto
         {
             string type = NetLaunchArgs.WantedBossType;
             if (string.IsNullOrEmpty(type)) return;
-            if (WantedBoss.Find(type) == null) { Debug.LogError("[ZenoniaProto] net: --wanted-boss '" + type + "' is not a wanted boss (rimeclawTyrant, glacialColossus, mireHydraQueen): ignored"); return; }
+            if (WantedBoss.Find(type) == null) { Debug.LogError("[ZenoniaProto] net: --wanted-boss '" + type + "' is not a wanted boss (rimeclawTyrant, glacialColossus, mireHydraQueen, aetherglyphOwl): ignored"); return; }
             WantedBoss.Override = type;
             Debug.LogWarning("[ZenoniaProto] net: WANTED BOSS PINNED to " + type + " (--wanted-boss): the daily rotation is off. Never set this on a public server.");
             if (string.IsNullOrEmpty(NetLaunchArgs.WantedGodBotsPrefix)) return;

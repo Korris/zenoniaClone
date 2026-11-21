@@ -12,7 +12,7 @@ namespace ZenoniaProto
     {
         public const string AmberDunesId = "amberDunes", FrostfangDenId = "frostfangDen", EmberfenMarshId = "emberfenMarsh", SunkenReliquaryId = "sunkenReliquary", WillowbrookMeadowsId = "willowbrookMeadows";
         public const string BramblewoodForestId = "bramblewoodForest", RootburrowId = "rootburrow", ThornheartChamberId = "thornheartChamber";
-        static readonly Vector2Int BramblewoodForestBossTile = new Vector2Int(24, 18), ThornheartChamberBossTile = new Vector2Int(12, 5), RootburrowBossTile = new Vector2Int(19, 4);
+        static readonly Vector2Int BramblewoodForestBossTile = new Vector2Int(24, 18), ThornheartChamberBossTile = new Vector2Int(12, 5), RootburrowBossTile = new Vector2Int(26, 6);
         const float EntranceClearance = 80f; // units; just over the default aggro range, so nothing wakes up as the hero walks in
         static readonly Vector2Int FrostfangDenBossTile = new Vector2Int(26, 11), SunkenReliquaryBossTile = new Vector2Int(45, 12);
 
@@ -101,17 +101,19 @@ namespace ZenoniaProto
         };
 
         /// <summary>
-        /// Rootburrow (Lv10 dungeon): 16 guards from the hard end of Bramblewood's list, respawning every DungeonRespawnMs like Frostfang Den's (no instances yet): wolves and treants in the east hall behind the
-        /// entrance crack, sprites in the south-east hall and in the west hall in front of the arch to Thornheart Chamber (whose own boss is the Treant). Since 21/11/2026 (dark 2.5D dungeon) the north hall
-        /// is the hall of Rootburrow's own boss, the Ambercap Warden (BossFor, RootburrowBossTile), and holds nothing else: its sprites moved to the south-east hall.
+        /// Rootburrow V3 (21/11/2026, the "delve deeper" dark cave, RootburrowMap): 16 guards from the hard end of Bramblewood's list, the level climbing with
+        /// the depth (east to west), respawning every DungeonRespawnMs like Frostfang Den's (no instances yet): mantises + wolves in cave I (Lv6-7), wolves in
+        /// the winding tunnel (Lv7), treants + sprites in cave II (Lv8-9), sprites in the deep tunnel (Lv9). The Ambercap Warden's cave holds only the map boss
+        /// (BossFor, RootburrowBossTile) and the Wanted arena only the Aetherglyph Owl on its days.
         /// </summary>
         static readonly FrostHollowMap.Zone[] Rootburrow =
         {
-            new FrostHollowMap.Zone("forestWolf", 2, 18, 12, 8, 5, 25000f),    // 1  east hall
-            new FrostHollowMap.Zone("brambleTreant", 3, 18, 12, 8, 5, 25000f),
-            new FrostHollowMap.Zone("thornSprite", 5, 18, 14, 8, 3, 25000f),   // 2  south-east hall (the north hall is the Ambercap Warden's since 21/11)
-            new FrostHollowMap.Zone("thornSprite", 3, 6, 12, 7, 5, 25000f),    // 3  west hall
-            new FrostHollowMap.Zone("brambleTreant", 3, 6, 12, 7, 5, 25000f),
+            new FrostHollowMap.Zone("meadowMantis", 3, 45, 3, 7, 6, 25000f),   // 1  cave I
+            new FrostHollowMap.Zone("forestWolf", 3, 45, 3, 7, 6, 25000f),
+            new FrostHollowMap.Zone("forestWolf", 2, 43, 8, 3, 6, 25000f),     // 2  winding tunnel
+            new FrostHollowMap.Zone("brambleTreant", 3, 35, 12, 8, 6, 25000f), // 3  cave II
+            new FrostHollowMap.Zone("thornSprite", 3, 35, 12, 8, 6, 25000f),
+            new FrostHollowMap.Zone("thornSprite", 2, 32, 10, 3, 6, 25000f),   // 4  deep tunnel
         };
 
         public const string SunbreakFoothillsId = "sunbreakFoothills";
