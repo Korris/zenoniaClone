@@ -5,7 +5,10 @@
 //   _Mode 2 tree     : + crown shadow on the trunk (lower middle darker) and wind sway (upper part only, phase by world position, outer leaves more).
 // Props use the whole texture (MapScenery: FullRect sprite, pivot bottom centre), so uv is the position inside the prop. Globals (View25DLighting):
 // _Sun25D (sun tint), _CrownShade25D (rgb shade side, a = strength), _Fog25D (start, 1/(end-start), max, desaturation), _Fog25DColor, _Wind25D (amplitude, speed).
-// Premultiplied alpha like Sprites/Default; the vertex colour (SpriteRenderer.color, the tree fade) multiplies as usual.
+// Premultiplied alpha like Sprites/Default; the vertex colour multiplies as usual, except the vertex alpha of a standing prop (modes 1, 2): it is the
+// occlusion fade of View25DPropFade and only applies inside the screen ellipse round the local hero (_Hole25D: centre x, y in 0..1 of the screen,
+// radii x, y in screen heights; 0 = whole sprite), soft rim, a tree's trunk stays opaque (ChatGPT camera loop round 3, 21/11/2026).
+// Trees: CrownContrast adds light / shade depth to the crown (sun side lighter, shade side darker, same hue).
 Shader "ZenoniaProto/Sprite25DLit"
 {
     Properties
@@ -33,9 +36,11 @@ Shader "ZenoniaProto/Sprite25DLit"
             fixed4 _Color;
             float _Mode;
             float4 _Sun25D, _CrownShade25D, _Fog25D, _Fog25DColor, _Wind25D;
+            float4 _Hole25D;
+            static const float CrownContrast = 0.09; // ChatGPT round 3: +8-10 % value between the crown's sun side and its shade side
 
             struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 uv : TEXCOORD0; };
-            struct v2f { float4 pos : SV_POSITION; fixed4 color : COLOR; float2 uv : TEXCOORD0; float fog : TEXCOORD1; };
+            struct v2f { float4 pos : SV_POSITION; fixed4 color : COLOR; float2 uv : TEXCOORD0; float fog : TEXCOORD1; float4 scr : TEXCOORD3; };
 
             v2f vert(appdata v)
             {
@@ -50,6 +55,7 @@ Shader "ZenoniaProto/Sprite25DLit"
                     w.x += sway * _Wind25D.x * bend * outer;
                 }
                 o.pos = mul(UNITY_MATRIX_VP, w);
+                o.scr = ComputeScreenPos(o.pos);
                 o.uv = v.uv;
                 o.color = v.color * _Color;
                 float d = distance(w.xyz, _WorldSpaceCameraPos);
@@ -62,6 +68,7 @@ Shader "ZenoniaProto/Sprite25DLit"
                 fixed4 c = tex2D(_MainTex, i.uv) * i.color;
                 if (_Mode > 0.5)
                 {
+                    c.a = tex2D(_MainTex, i.uv).a; // the vertex alpha (occlusion fade) is applied below, round the hero only
                     // sun from the upper left: lit side up to +6 %, shade side down to the crown-shade colour (strength in _CrownShade25D.a)
                     float lit = saturate(0.55 - (i.uv.x - 0.5) * 0.9 + (i.uv.y - 0.55) * 0.5);
                     float3 shade = lerp(float3(1, 1, 1), _CrownShade25D.rgb * 1.25, _CrownShade25D.a);
@@ -73,7 +80,18 @@ Shader "ZenoniaProto/Sprite25DLit"
                         // crown shadow on the trunk: lower middle of a tree, under the crown
                         float trunk = (1.0 - smoothstep(0.08, 0.2, abs(i.uv.x - 0.5))) * smoothstep(0.05, 0.15, i.uv.y) * (1.0 - smoothstep(0.3, 0.45, i.uv.y));
                         c.rgb *= 1.0 - 0.14 * trunk;
+                        // crown depth: sun-facing leaves lighter, the shaded side darker (+-CrownContrast / 2)
+                        c.rgb *= 1.0 + CrownContrast * (lit - 0.5) * (1.0 - trunk);
                     }
+                    // occlusion fade only inside an ellipse round the hero: full fade within half of it, opaque again at its rim; a trunk never fades
+                    float hole = 1.0;
+                    if (_Hole25D.z > 0.0)
+                    {
+                        float2 d = (i.scr.xy / i.scr.w - _Hole25D.xy) * float2(_ScreenParams.x / _ScreenParams.y, 1.0);
+                        hole = 1.0 - smoothstep(0.5, 1.0, length(d / _Hole25D.zw));
+                    }
+                    if (_Mode > 1.5) hole *= smoothstep(0.06, 0.11, abs(i.uv.x - 0.5)) + smoothstep(0.18, 0.28, i.uv.y); // trunk: centre ~12 % wide, lowest ~20 %
+                    c.a *= lerp(1.0, i.color.a, saturate(hole));
                 }
                 c.rgb *= _Sun25D.rgb;
                 float g = dot(c.rgb, float3(0.299, 0.587, 0.114));

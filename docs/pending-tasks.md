@@ -4,6 +4,11 @@
 > Người dùng chốt 21/11: TƯƠNG LAI MỌI MAP chuyển sang 2.5D (bắt đầu từ Willowbrook, làm lại hình ảnh thành khu rừng kiểu RO3 / Midgard Senki); skill mọi class theo "RO3 Soft Fantasy V1" (đầu `docs/sprite-rules.md`), màu theo đúng RO3.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 21/11 12:13 Map 2.5D: cây trước hero chỉ mờ phần tán che hero + tán cây tăng chênh sáng / tối (agent, XONG code, CHỜ người dùng thử trong game)
+- Làm 2 việc CÒN của ChatGPT vòng 3 (mục 21/11 11:25), không hỏi lại ChatGPT. `View25DPropFade`: cây che hero vẫn chọn như cũ (hộp hero chồng rect cây), nhưng mức mờ (alpha đỉnh 0,26) chỉ áp trong elip màn hình quanh giữa hero (0,95 x 1,1 chiều cao hero, mờ hết trong nửa trong, viền mềm) qua global `_Hole25D`; thân cây (giữa ~12 % bề ngang, ~20 % dưới sprite) giữ rõ; phần tán còn lại không đổi. `Sprite25DLit`: `CrownContrast` 0,09 (mặt nắng +4,5 %, mặt khuất -4,5 %, chỉ cây, không đổi màu / texture). Không sửa `View25DProfile` (agent dungeon đang sửa). Quy tắc: `docs/map-design-rules.md` Map 2.5D điều 6 + Sổ lỗi.
+- Ảnh trước / sau (tp 24,42 và 56,42, `--no-hud`, 1280x720): `docs/reference/willowbrook-25d/camera-loop/tree-fade-hole-before-after.jpg`. Exe `D:/temp/player-tree-fade/Zenonia.exe` (build từ HEAD + 2 file này, không gồm việc dungeon đang dở).
+- CHƯA xem: lúc đi bộ (elip chạy theo hero, mờ vào 0,18 s / ra 0,3 s), zoom bánh xe, 1920x1080, quái / hero khác đứng sau cây (chỉ hero mình có lỗ).
+
 ### 21/11 11:25 Willowbrook 2.5D: lặp góc nhìn với ChatGPT 3 vòng, preset camera 2.5D V3 nghiệm thu (agent, XONG, CHỜ người dùng thử trong game)
 - Người dùng: "bạn cứ làm việc với chatgpt về phần góc nhìn này, đừng hỏi tui". Chat (Tay "Tân Korris") https://chatgpt.com/c/6b00f9a0-2b20-83ec-a0d4-361ae7da98ee ; câu trả lời + ảnh mỗi vòng: `docs/reference/willowbrook-25d/camera-loop/` (round-1..3-chatgpt.md, round-0 = trước, round-3 = sau).
 - Vòng 1 (ChatGPT 8/10): giữ 58° / FOV 27 / hero 69 px cho cả bản phát hành; bỏ clamp 4 mép (hero luôn giữa); thay lật gương bằng dải rừng viền riêng; follow 0,12 s; zoom 85..55; thử 2 cây 3D + đá / gỗ 3D thấp.
@@ -12,7 +17,7 @@
 - Code: `View25DProfile` (`HeroPx` 69 / `FeetY` 389 -> ViewScale theo heroScale), `View25DCamera.Clamp` (map RO3 không clamp), `CameraFollow` (0,12 s trên map RO3), `CameraWheelZoom` (map 2.5D 0,86x..1,15x), `View25DGroundApron` + `View25DApronMesh` (rừng viền), `Tools/build-map-25d-ground.py <map> border` -> `willowbrook-large-ground-border.png`. Sân Hydra không đổi. Quy tắc: `docs/map-design-rules.md` Map 2.5D điều 11, 17, 18 + Sổ lỗi.
 - Exe `D:/temp/player-cam-loop/Zenonia.exe` (bản sao `D:/temp/zu-copy-map`). `dotnet test` 2 project qua (cần SDK .NET 10 ở `~/.dotnet`).
 - Ghi chú tông: PNG mới đã vẽ sẵn tông RO Soft, chỉ ghi vào `Resources`; chạy `Tools/bake-map-ro-soft-tone.py apply` sẽ ghi đè bằng bản gốc cũ trong `ro-soft-originals~` (giống các prop wbx của a5a26212).
-- CÒN (ChatGPT vòng 3, không phải camera): cây trước hero mờ quá nhiều (ảnh mép nam), nên chỉ dither phần tán che hero; tán cây tăng chênh sáng / tối 8-10 % value. Bản phát hành heroScale 1 chưa chụp thật (chỉ tính). CHƯA xem: đi bộ / zoom bánh xe thật, 1920x1080, khung Wanted boss khi không clamp.
+- CÒN (ChatGPT vòng 3, không phải camera): cây trước hero mờ quá nhiều, tán cây tăng chênh sáng / tối: ĐÃ LÀM ở mục 21/11 12:13. Bản phát hành heroScale 1 chưa chụp thật (chỉ tính). CHƯA xem: đi bộ / zoom bánh xe thật, 1920x1080, khung Wanted boss khi không clamp.
 
 ### 21/11 10:38 Willowbrook 2.5D: góc camera giống RO3 hơn (pitch 58°) + bỏ mép đất lộ phía xa (agent, XONG code, CHỜ người dùng thử trong game)
 - Người dùng: "sao hiện tại cái góc nhìn của game không giống ragnarok lắm". Phân tích ChatGPT: `docs/reference/willowbrook-25d/willowbrook-25d-camera-vs-ro3-chatgpt.md` (pitch 43° quá thấp, lộ mép đất phía xa như đường chân trời, hero hơi to, cây là billboard phẳng).
