@@ -149,7 +149,7 @@ namespace ZenoniaProto
             bool big = h.Bolt.ExplodeRadius > 0f;
             switch (h.Bolt.Style)
             {
-                case BoltStyle.Arcane: RuneFx.CastFlash(tip, big, pal); break;
+                case BoltStyle.Arcane: if (WizardAttackLightFx.Active) WizardAttackLightFx.Muzzle(tip, big, shooter); else RuneFx.CastFlash(tip, big, pal); break;
                 case BoltStyle.HolyArrow:
                     if (ClericLightLook.Active) { ClericAttackLightFx.Muzzle(tip, big, shooter); break; }
                     RuneFx.CastFlash(tip, big, pal);

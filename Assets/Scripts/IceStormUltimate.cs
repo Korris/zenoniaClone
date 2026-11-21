@@ -64,7 +64,7 @@ namespace ZenoniaProto
             center = caster + DirVec[owner.Facing] * Range + new Vector2(0f, -6f);
             atk = owner.AtkStat * damageScale;
             if (!NetMode.RendersFx) return; // headless server: damage waves only, no art / layers
-            if (IceStormLightFx.Active) { lightArt = true; IceStormLightFx.Begin(transform, center, Radius); return; } // `--light-fx off` keeps the painted sheet
+            if (IceStormLightFx.Active) { lightArt = true; IceStormLightFx.Begin(transform, center, Radius, owner); return; } // `--light-fx off` keeps the painted sheet
             cast = Rows(0, CirclePpu); meteor = Rows(1, SpearPpu); impact = Rows(2, HitPpu); fade = Rows(3, HitPpu);
             int g = UltimateFx.GroundFxOrder;
             circle = UltimateFx.Layer(transform, "Circle", out circleGlow);

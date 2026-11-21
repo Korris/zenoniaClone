@@ -20,6 +20,7 @@ namespace ZenoniaProto
         Monster seek;
         readonly List<Monster> pierced = new List<Monster>(8);
         SkillFxAnim body;
+        ISkillBoltArt light; // class light FX picture (SkillBoltArt, RO3 Soft Fantasy V1) instead of the painted loop
         SpriteRenderer dot;
 
         public static void Launch(SkillContext ctx, SkillEffect e)
@@ -56,6 +57,7 @@ namespace ZenoniaProto
 
         void StartArt()
         {
+            if (ctx.View && (light = SkillBoltArt.Begin(ctx, fx, pos, dir, transform)) != null) return;
             if (!ctx.View || SkillChoreo.DrawsBody(ctx.Def.Class, ctx.Def.Id)) return; // the choreography draws the flight (no tinted dot fallback)
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg, width = Mathf.Max(1.2f * ctx.Units, radius * 2.4f);
             body = SkillVfx.Loop(ctx, pos, angle, width, left / Mathf.Max(1f, speed) + 0.2f);
@@ -87,6 +89,7 @@ namespace ZenoniaProto
             left -= dist;
             if (left <= 0.01f) { End(false); return; }
             if (body != null) body.MoveTo(pos, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+            if (light != null) light.Tick(pos, dir);
             if (dot != null) dot.transform.position = pos;
         }
 
@@ -103,6 +106,7 @@ namespace ZenoniaProto
                 if (fx.ImpactRadius > 0f) return true; // the blast does the damage
                 if (ctx.Authority) SkillDamage.Single(ctx.Dmg, fx, m, pos - dir * 8f, dir);
                 if (ctx.View) SkillVfx.Play(ctx, SkillVfxSet.Impact, new Vector2(m.Center.x, pos.y), 0f, 1.8f * ctx.Units);
+                if (light != null) light.Hit(new Vector2(m.Center.x, pos.y));
                 if (!fx.Pierce) return true;
                 pierced.Add(m);
             }
@@ -124,6 +128,7 @@ namespace ZenoniaProto
                 }
             }
             else if (ctx.View && !hit && !fx.Pierce) SkillVfx.Play(ctx, SkillVfxSet.Impact, pos, 0f, 1.4f * ctx.Units);
+            if (light != null) light.End(pos, hit, fx.ImpactRadius > 0f);
             if (body != null) body.Stop();
             Destroy(gameObject);
         }

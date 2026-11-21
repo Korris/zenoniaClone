@@ -35,7 +35,7 @@ namespace ZenoniaProto
             switch (style)
             {
                 case BoltStyle.HolyArrow: return null;         // painted cleric-v2 set removed 2026-11-20: the light FX draws it (ClericAttackLightFx; legacy = procedural StreakBoltRig + HolySmite)
-                case BoltStyle.Arcane: return "wizard-v4";    // combo board 2026-11-10 (ice bolt, frost crescent, glacier spikes, ice orb, blizzard nova; Tools/build-wizard-attack-fx-v4.py)
+                case BoltStyle.Arcane: return WizardAttackLightFx.Active ? null : "wizard-v4"; // light FX since 2026-11-21 (WizardAttackLightFx); no shaders = the painted combo board 2026-11-10 set (Tools/build-wizard-attack-fx-v4.py)
                 case BoltStyle.Plasma: return "mechanic-v3";  // class colour yellow (electric / brass, Tools/build-mechanic-attack-fx-v3.py, 2026-11-08)
                 default: return null;
             }
@@ -56,7 +56,7 @@ namespace ZenoniaProto
         /// <summary>Loads the class's art ahead of its first cast (mechanic: both colours) so the first shot does not hitch.</summary>
         public static void Preload(HeroClass id)
         {
-            if (id == HeroClass.Wizard) Get("wizard-v4");
+            if (id == HeroClass.Wizard) { if (!WizardAttackLightFx.Active) Get("wizard-v4"); }
             else if (id == HeroClass.Mechanic) { Get("mechanic-v3"); MechanicCannonBlastFx.Preload(); }
         }
 

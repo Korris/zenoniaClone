@@ -27,6 +27,7 @@ namespace ZenoniaProto
         ArcaneBoltRig arcane;   // wizard layered missile (null until first needed)
         StreakBoltRig streak;   // cleric light arrow (legacy) / mechanic plasma bolt
         ClericAttackLightFx.Rig holy; // cleric light FX bolt (ClericLightLook.Active)
+        WizardAttackLightFx.Rig ice;    // wizard light FX bolt (ElementLightLook.Active, RO3 Soft Fantasy V1 2026-11-21)
         VfxSet vfx;             // painted projectile sheet (null = procedural rig / sprite fallback)
         float animT;
         Zone homeZone;          // the pool is shared; a bolt flies in the zone that fired it
@@ -83,6 +84,7 @@ namespace ZenoniaProto
             if (p.arcane != null) p.arcane.End();
             if (p.streak != null) p.streak.End();
             if (p.holy != null) p.holy.End();
+            if (p.ice != null) p.ice.End();
             p.vfx = bolt.Style == BoltStyle.Sprite ? null : VfxSprites.For(bolt.Style);
             if (p.vfx != null) { p.BeginPainted(angleDeg, finisher); return p; }
             if (bolt.Style != BoltStyle.Sprite)
@@ -92,7 +94,12 @@ namespace ZenoniaProto
                 p.transform.rotation = Quaternion.identity;
                 p.gameObject.SetActive(true);
                 var at = new Vector2(pos.x, pos.y + VisualLift);
-                if (bolt.Style == BoltStyle.Arcane)
+                if (bolt.Style == BoltStyle.Arcane && WizardAttackLightFx.Active)
+                {
+                    if (p.ice == null) p.ice = new WizardAttackLightFx.Rig(p.transform);
+                    p.ice.Begin(at, WizardAttackLightFx.ShotFor(bolt), src == null || src == LocalPlayer.Hero);
+                }
+                else if (bolt.Style == BoltStyle.Arcane)
                 {
                     if (p.arcane == null) p.arcane = new ArcaneBoltRig(p.transform);
                     p.arcane.Begin(at, angleDeg, bolt.Scale, palette);
@@ -123,10 +130,14 @@ namespace ZenoniaProto
             if (arcane != null) arcane.End();
             if (streak != null) streak.End();
             if (holy != null) holy.End();
+            if (ice != null) ice.End();
         }
 
         /// <summary>Cleric bolt drawn by the light FX (ClericAttackLightFx) instead of the legacy streak rig.</summary>
         bool HolyLight { get { return def.Style == BoltStyle.HolyArrow && ClericLightLook.Active; } }
+
+        /// <summary>Wizard bolt drawn by the light FX (WizardAttackLightFx, 2026-11-21) instead of the painted wizard-v4 frames / ArcaneBoltRig.</summary>
+        bool IceLight { get { return def.Style == BoltStyle.Arcane && WizardAttackLightFx.Active; } }
 
         void Update()
         {
@@ -159,7 +170,7 @@ namespace ZenoniaProto
             if (def.Style != BoltStyle.Sprite)
             {
                 var at = new Vector2(pos.x, pos.y + VisualLift);
-                if (def.Style == BoltStyle.Arcane) arcane.Tick(at, dt); else if (HolyLight && holy != null) holy.Tick(at); else streak.Tick(at, dt);
+                if (def.Style == BoltStyle.Arcane) { if (ice != null && IceLight) ice.Tick(at, dt); else arcane.Tick(at, dt); } else if (HolyLight && holy != null) holy.Tick(at); else streak.Tick(at, dt);
                 return;
             }
             transform.position = new Vector3(pos.x, pos.y + VisualLift, 0f);
@@ -195,7 +206,7 @@ namespace ZenoniaProto
             if (vfx != null) { PaintedHitFx(at, blast); return; }
             switch (def.Style)
             {
-                case BoltStyle.Arcane: if (blast) RuneFx.FinisherBurst(at, def.ExplodeRadius, pal); else RuneFx.Impact(at, pal); break;
+                case BoltStyle.Arcane: if (IceLight) WizardAttackLightFx.Impact(pos, blast, def.ExplodeRadius, src); else if (blast) RuneFx.FinisherBurst(at, def.ExplodeRadius, pal); else RuneFx.Impact(at, pal); break;
                 case BoltStyle.HolyArrow: if (ClericLightLook.Active) ClericAttackLightFx.Impact(pos, blast, def.ExplodeRadius, src); else HolySmite.Impact(pos, blast); break;
                 case BoltStyle.Plasma: MechanicFx.Impact(at, blast, pal); break;
             }
@@ -209,7 +220,7 @@ namespace ZenoniaProto
         {
             bool crit = Random.value < CritChance + critBonus;
             int dmg = CombatMath.Damage(atk, mult * (crit ? 1.6f : 1f), m.Def);
-            m.TakeHit(dmg, knock, crit, blast, vfx != null || def.Style == BoltStyle.HolyArrow, src); // a crit no longer doubles the push (2026-11-15)
+            m.TakeHit(dmg, knock, crit, blast, vfx != null || def.Style == BoltStyle.HolyArrow || def.Style == BoltStyle.Arcane, src); // a crit no longer doubles the push (2026-11-15)
             if (!blast) { HitFx(false); NetEventBus.BoltEnd(netId, pos, false); }
             if (Mine) GameClock.HitStop(FeelConfig.BoltHitStopMs(blast));
             if (!blast && Mine) CameraFollow.AddTrauma(crit ? FeelConfig.TraumaCrit : FeelConfig.TraumaBolt); // a blast shakes once in Explode; only the shooter's screen
@@ -237,7 +248,7 @@ namespace ZenoniaProto
         void ExplodeVisuals()
         {
             HitFx(true);
-            if (vfx == null && def.ExplodeFx != null && (def.Style == BoltStyle.Sprite || def.Style == BoltStyle.Arcane))
+            if (vfx == null && def.ExplodeFx != null && (def.Style == BoltStyle.Sprite || def.Style == BoltStyle.Arcane && !IceLight))
                 BurstFx.Spawn(fxFolder, def.ExplodeFx, pos + new Vector2(0f, VisualLift), Random.value * 360f, 2f * def.ExplodeRadius / 40f, 0.32f, true, tint); // burst art spans 40 units
         }
 
