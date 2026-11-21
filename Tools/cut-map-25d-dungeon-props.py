@@ -17,6 +17,7 @@ SHEETS = {
                                                       ("rbPurpleCrystal", -2.4), ("rbPinkCrystal", 1.8), ("rbRuneObelisk", -2.2), ("rbRuneOrb", -2.3), ("rbCrystalNest", 1.5)]),
         ("rootburrow-dark-props-low-chatgpt-2.png", "2x3", [("rbCaveBoulder", 2.25), ("rbStoneCluster", 1.5), ("rbGlowShrooms", 1.0), ("rbPebbles", 1.5),
                                                      ("rbStoneSlab", 2.5), ("rbRuneSeal", 3.0)]),
+        ("rootburrow-dark-props-stairs-chatgpt-1.png", "1x2", [("rbStairsDown", 3.6), ("rbStairsUp", 3.6)]),   # V4 floor stairs (21/11/2026)
     ],
 }
 

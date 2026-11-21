@@ -11,8 +11,8 @@ namespace ZenoniaProto
     public static class MapSpawnTable
     {
         public const string AmberDunesId = "amberDunes", FrostfangDenId = "frostfangDen", EmberfenMarshId = "emberfenMarsh", SunkenReliquaryId = "sunkenReliquary", WillowbrookMeadowsId = "willowbrookMeadows";
-        public const string BramblewoodForestId = "bramblewoodForest", RootburrowId = "rootburrow", ThornheartChamberId = "thornheartChamber";
-        static readonly Vector2Int BramblewoodForestBossTile = new Vector2Int(24, 18), ThornheartChamberBossTile = new Vector2Int(12, 5), RootburrowBossTile = new Vector2Int(26, 6);
+        public const string BramblewoodForestId = "bramblewoodForest", RootburrowId = "rootburrow", Rootburrow2Id = "rootburrow2", Rootburrow3Id = "rootburrow3", ThornheartChamberId = "thornheartChamber";
+        static readonly Vector2Int BramblewoodForestBossTile = new Vector2Int(24, 18), ThornheartChamberBossTile = new Vector2Int(12, 5), RootburrowBossTile = new Vector2Int(38, 21);
         const float EntranceClearance = 80f; // units; just over the default aggro range, so nothing wakes up as the hero walks in
         static readonly Vector2Int FrostfangDenBossTile = new Vector2Int(26, 11), SunkenReliquaryBossTile = new Vector2Int(45, 12);
 
@@ -33,7 +33,7 @@ namespace ZenoniaProto
         public const float DungeonRespawnMs = 25000f, DungeonBossRespawnMs = 5f * 60f * 1000f;
 
         /// <summary>How long after its death the map's boss returns online.</summary>
-        public static float BossRespawnMs(string mapId) { return mapId == FrostfangDenId || mapId == ThornheartChamberId || mapId == RootburrowId ? DungeonBossRespawnMs : BossRespawnTimer.DefaultRespawnMs; }
+        public static float BossRespawnMs(string mapId) { return mapId == FrostfangDenId || mapId == ThornheartChamberId || mapId == Rootburrow3Id ? DungeonBossRespawnMs : BossRespawnTimer.DefaultRespawnMs; }
 
         /// <summary>A few guards on the way to the boss: Lv16 goblins in the north cave, Lv18 wolves in the south cave (World Map 2.0 step 1, 13/11/2026 moved both from Lv2 to fill the Lv16-20
         /// band; Glacier Warden stays Lv20). The arena itself only holds the boss.</summary>
@@ -101,19 +101,41 @@ namespace ZenoniaProto
         };
 
         /// <summary>
-        /// Rootburrow V3 (21/11/2026, the "delve deeper" dark cave, RootburrowMap): 16 guards from the hard end of Bramblewood's list, the level climbing with
-        /// the depth (east to west), respawning every DungeonRespawnMs like Frostfang Den's (no instances yet): mantises + wolves in cave I (Lv6-7), wolves in
-        /// the winding tunnel (Lv7), treants + sprites in cave II (Lv8-9), sprites in the deep tunnel (Lv9). The Ambercap Warden's cave holds only the map boss
-        /// (BossFor, RootburrowBossTile) and the Wanted arena only the Aetherglyph Owl on its days.
+        /// Rootburrow V4 (21/11/2026, three 72 x 48 floors, RootburrowFloorMap), every cave its own camp, the level climbing with the depth; dungeon respawn
+        /// (DungeonRespawnMs, no instances yet). 1F Lv6-8: mantises in the Entrance Grotto, mantises + wolves in the Crystal Burrow, wolves in the Rootstone Den,
+        /// wolves + treants in the Violet Nest, treants in the Deep Passage. 2F Lv9-11: sprites, cave mantises, the Crystal Camp, gloom wolves. 3F Lv12-13:
+        /// crystal sprites and hollow treants; the Ambercap Warden's chamber holds only the map boss (Lv14, BossFor) and the Wanted arena only the event boss.
         /// </summary>
         static readonly FrostHollowMap.Zone[] Rootburrow =
         {
-            new FrostHollowMap.Zone("meadowMantis", 3, 45, 3, 7, 6, 25000f),   // 1  cave I
-            new FrostHollowMap.Zone("forestWolf", 3, 45, 3, 7, 6, 25000f),
-            new FrostHollowMap.Zone("forestWolf", 2, 43, 8, 3, 6, 25000f),     // 2  winding tunnel
-            new FrostHollowMap.Zone("brambleTreant", 3, 35, 12, 8, 6, 25000f), // 3  cave II
-            new FrostHollowMap.Zone("thornSprite", 3, 35, 12, 8, 6, 25000f),
-            new FrostHollowMap.Zone("thornSprite", 2, 32, 10, 3, 6, 25000f),   // 4  deep tunnel
+            new FrostHollowMap.Zone("meadowMantis", 4, 59, 18, 5, 10, 25000f),   // 1  Entrance Grotto
+            new FrostHollowMap.Zone("meadowMantis", 3, 50, 15, 7, 11, 25000f),   // 2  Crystal Burrow
+            new FrostHollowMap.Zone("forestWolf", 3, 50, 15, 7, 11, 25000f),
+            new FrostHollowMap.Zone("forestWolf", 5, 39, 30, 9, 9, 25000f),      // 3  Rootstone Den
+            new FrostHollowMap.Zone("forestWolf", 3, 29, 19, 9, 13, 25000f),     // 4  Violet Nest
+            new FrostHollowMap.Zone("brambleTreant", 3, 29, 19, 9, 13, 25000f),
+            new FrostHollowMap.Zone("brambleTreant", 4, 18, 14, 9, 9, 25000f),   // 5  Deep Passage
+        };
+
+        static readonly FrostHollowMap.Zone[] Rootburrow2 =
+        {
+            new FrostHollowMap.Zone("thornSprite", 4, 59, 17, 7, 11, 25000f),    // 1  Fallen Vault
+            new FrostHollowMap.Zone("thornSprite", 3, 49, 20, 7, 11, 25000f),    // 2  Amethyst Hollow
+            new FrostHollowMap.Zone("caveMantis", 3, 49, 20, 7, 11, 25000f),
+            new FrostHollowMap.Zone("caveMantis", 4, 40, 20, 7, 13, 25000f),     // 3  Crystal Camp
+            new FrostHollowMap.Zone("gloomWolf", 3, 40, 20, 7, 13, 25000f),
+            new FrostHollowMap.Zone("gloomWolf", 5, 30, 20, 7, 11, 25000f),      // 4  Rune Chamber
+            new FrostHollowMap.Zone("gloomWolf", 5, 21, 20, 7, 11, 25000f),      // 5  Echo Nest
+            new FrostHollowMap.Zone("gloomWolf", 3, 12, 16, 7, 11, 25000f),      // 6  Hidden Vault
+        };
+
+        static readonly FrostHollowMap.Zone[] Rootburrow3 =
+        {
+            new FrostHollowMap.Zone("crystalSprite", 5, 58, 18, 7, 11, 25000f),  // 1  Crystal Approach
+            new FrostHollowMap.Zone("hollowTreant", 3, 50, 20, 7, 11, 25000f),   // 2  Rune Guard Camp
+            new FrostHollowMap.Zone("crystalSprite", 2, 50, 20, 7, 11, 25000f),
+            new FrostHollowMap.Zone("crystalSprite", 3, 45, 16, 3, 16, 25000f),  // 3  tunnel to the boss
+            new FrostHollowMap.Zone("hollowTreant", 3, 27, 34, 7, 7, 25000f),    // 4  Forgotten Alcove
         };
 
         public const string SunbreakFoothillsId = "sunbreakFoothills";
@@ -203,6 +225,8 @@ namespace ZenoniaProto
                 case WillowbrookMeadowsId: return WillowbrookMeadows;
                 case BramblewoodForestId: return BramblewoodForest;
                 case RootburrowId: return Rootburrow;
+                case Rootburrow2Id: return Rootburrow2;
+                case Rootburrow3Id: return Rootburrow3;
                 case ThornheartChamberId: return NoZones; // only the boss
                 case SunbreakFoothillsId: return SunbreakFoothills;
                 case ScorpionGorgeId: return ScorpionGorge;
@@ -220,7 +244,8 @@ namespace ZenoniaProto
                 case AmberDunesId: case EmberfenMarshId: case WillowbrookMeadowsId: return null;
                 case FrostfangDenId: return MonsterDef.GlacierWarden;
                 case SunkenReliquaryId: return MonsterDef.MirefangHydra;
-                case RootburrowId: return MonsterDef.AmbercapWarden; // dark dungeon boss hall (north)
+                case RootburrowId: case Rootburrow2Id: return null;
+                case Rootburrow3Id: return MonsterDef.AmbercapWarden; // V4: the map boss's chamber mid-3F
                 case BramblewoodForestId: return MonsterDef.ThornfangAlpha;
                 case ThornheartChamberId: return MonsterDef.ThornheartTreant;
                 case SunbreakFoothillsId: return MonsterDef.RidgehornBehemoth;
@@ -238,7 +263,7 @@ namespace ZenoniaProto
                 case SunkenReliquaryId: return SunkenReliquaryBossTile;
                 case BramblewoodForestId: return BramblewoodForestBossTile;
                 case ThornheartChamberId: return ThornheartChamberBossTile;
-                case RootburrowId: return RootburrowBossTile;
+                case Rootburrow3Id: return RootburrowBossTile;
                 case SunbreakFoothillsId: return SunbreakFoothillsBossTile;
                 case ScorpionGorgeId: return ScorpionGorgeBossTile;
                 default: return FrostHollowMap.BossTile;

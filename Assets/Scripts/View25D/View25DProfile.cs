@@ -92,7 +92,6 @@ namespace ZenoniaProto
         public static readonly View25DProfile DarkDungeon = new View25DProfile
         {
             TiltDeg = 32f, FovDeg = 27f, HeroPx = 69f, FeetY = 389f, Ro3Look = true,
-            DepthWestward = true, GateAmbientMul = 1.35f, DeepAmbientMul = 0.8f, // V3 layout: 0.30 at the gate -> 0.18 in the arena (ChatGPT)
             Dungeon = true, AmbientColor = Hex(0x41, 0x40, 0x64), AmbientLevel = 0.22f, UnitAmbient = 0.45f, BossAmbient = 0.48f,
             SunElevationDeg = 78f, CastShorten = 0.35f, SunStrength = 0f, UnitSunStrength = 0f,
             ShadeColor = Hex(0x26, 0x23, 0x45), CrownShadeColor = Hex(0x30, 0x2C, 0x4D), UnitShadeStrength = 0.15f,
@@ -104,6 +103,19 @@ namespace ZenoniaProto
             ApronSmall = new[] { "rbCaveBoulder", "rbStoneCluster", "rbStoneCluster", "rbGlowShrooms", "rbCaveBoulder", "rbPebbles" },
         };
 
+        /// <summary>Rootburrow V4 floors (21/11/2026): darker every floor down (ChatGPT layout V4: ambient 0.30 at the gate -> 0.23 on 2F -> 0.18 on 3F), the
+        /// units only half as much (they must stay readable).</summary>
+        public static readonly View25DProfile DarkDungeon1F = DarkDungeon.Floor(1.25f), DarkDungeon2F = DarkDungeon.Floor(1.0f), DarkDungeon3F = DarkDungeon.Floor(0.82f);
+
+        View25DProfile Floor(float ambientMul)
+        {
+            var p = (View25DProfile)MemberwiseClone();
+            p.AmbientLevel = AmbientLevel * ambientMul;
+            p.UnitAmbient = UnitAmbient * Mathf.Lerp(1f, ambientMul, 0.5f);
+            p.BossAmbient = BossAmbient * Mathf.Lerp(1f, ambientMul, 0.5f);
+            return p;
+        }
+
         /// <summary>The --view25d Hydra arena prototype keeps the first 2.5D camera (38 / 22, painted walls not converted) and none of the RO3 pass.</summary>
         public static readonly View25DProfile Prototype = new View25DProfile
         {
@@ -114,7 +126,9 @@ namespace ZenoniaProto
         public static View25DProfile For(string mapId)
         {
             if (mapId == SunkenReliquaryMap.MapId) return Prototype;
-            return mapId == RootburrowMap.MapId ? DarkDungeon : Ro3Feel;
+            if (mapId == RootburrowMap.MapId) return DarkDungeon1F;
+            if (mapId == RootburrowB2Map.MapId) return DarkDungeon2F;
+            return mapId == RootburrowB3Map.MapId ? DarkDungeon3F : Ro3Feel;
         }
 
         static Color Hex(int r, int g, int b) { return new Color(r / 255f, g / 255f, b / 255f, 1f); }

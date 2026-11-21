@@ -103,6 +103,7 @@ namespace ZenoniaProto
             { "rbRuneObelisk", new PropDef(2.25f, 2.5f, 1, 1) }, { "rbRuneOrb", new PropDef(2.25f, 2.5f, 1, 1) }, { "rbCrystalNest", new PropDef(1.75f, 1f, 1, 0) },
             { "rbCaveBoulder", new PropDef(2.25f, 1.5f, 2, 0) }, { "rbStoneCluster", new PropDef(1.75f, 1f, 1, 0) }, { "rbGlowShrooms", new PropDef(1.25f, 0.75f, 1, 0) },
             { "rbPebbles", new PropDef(1.75f, 0.75f, 1, 0) }, { "rbStoneSlab", new PropDef(2.75f, 1f, 2, 0) }, { "rbRuneSeal", new PropDef(3.25f, 1.75f, 3, 0) },
+            { "rbStairsDown", new PropDef(3.75f, 3.5f, 3, 1) }, { "rbStairsUp", new PropDef(3.75f, 3.5f, 3, 1) }, // V4 floor stairs mouths (portal tiles = the floor row under them)
         };
 
         public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def) || FrostHollowPropDefs.TryGet(type, out def) || BramblewoodForestPropDefs.TryGet(type, out def) || SunbreakFoothillsPropDefs.TryGet(type, out def) || ScorpionGorgePropDefs.TryGet(type, out def); }

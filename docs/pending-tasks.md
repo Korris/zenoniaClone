@@ -4,6 +4,13 @@
 > Người dùng chốt 21/11: TƯƠNG LAI MỌI MAP chuyển sang 2.5D (bắt đầu từ Willowbrook, làm lại hình ảnh thành khu rừng kiểu RO3 / Midgard Senki); skill mọi class theo "RO3 Soft Fantasy V1" (đầu `docs/sprite-rules.md`), màu theo đúng RO3.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
 
+### 21/11 17:40 Rootburrow V4: dungeon 3 tầng 72x48 đi sâu (agent, XONG, CHỜ người dùng thử trong game)
+- Người dùng chơi V3: "Rootburrow vẫn chưa đủ độ sâu, đi có tí là hết". Layout ChatGPT V4 (cùng chat https://chatgpt.com/c/6b01232b-687c-83ec-a5a3-a2575a5d4a3c, + 1 ảnh prop cầu thang lên / xuống). Chi tiết: `plans/261121-1145-dark-dungeon-boss/plan.md` (Bố cục V4), `docs/reference/rootburrow-dark-25d/rootburrow-dark-dungeon-art-direction-chatgpt.md` (V4), map rules Map 2.5D điều 21.
+- 1F `rootburrow` (Rootburrow 1F, Lv6-8, cổng đông từ Bramblewood) -> thang xuống -> 2F `rootburrow2` (Lv9-11, Crystal Camp) -> thang xuống -> 3F `rootburrow3` (Lv12-13 + boss nấm Lv14 ô 38,21 + đấu trường Wanted cú ô 12,22 + vòm Thornheart). Đường chính 202 / 220 / 164 ô ≈ 40 / 44 / 33 s đi thuần (V3 ~14 s). Quái mới tô tím (chưa art riêng): Cave Mantis, Gloom Wolf, Crystal Sprite, Hollow Treant.
+- Exe `D:/temp/player-dungeon/Zenonia.exe`. Ảnh `docs/reference/rootburrow-dark-25d/ingame-v4-*.jpg`, bản đồ thế giới `worldmap-v4-1f/2f/3f.jpg` (M). dotnet test 2 project qua.
+- PHẢI build lại zone server: 2 map mới + Rootburrow 72x48, 4 quái mới (cuối `MonsterDef.All`), MapSpawnTable, Wanted cú sang `rootburrow3`, cổng Bramblewood / Thornheart.
+- CHƯA: art riêng cho 4 quái hang; rương trong hốc cụt (chỉ có hốc trống + đồ trang trí); xem online / 40 người; FPS (~400 prop / tầng).
+
 ### 21/11 17:10 Warrior: FX skill làm lại HOÀNH TRÁNG (lượt Grand) có vòng xem ảnh + ChatGPT chấm (agent, XONG code, CHỜ người dùng thử trong game)
 - Người dùng: "sao làm skill mới nhìn chán vậy, tao kêu mày làm hoành tráng hơn mà chơi warrior vẫn thấy chán, không có hiệu ứng gì mạnh mẽ"; rồi "kêu chatgpt gen thử hình rồi làm theo".
 - LỖI GỐC lớn nhất: `ArcRibbonFx` trừ anchor 2 lần nên MỌI dải chém Warrior vẽ gần gốc toạ độ (ngoài màn hình) từ d1cb6ec1: trong game không hề có vệt chém. Đã sửa. Thêm: màu pastel + vật liệu Cleric phần cộng thấp, vòng sóng nét chỉ. Sổ lỗi + quy tắc màu skill tấn công: `docs/sprite-rules.md` (quy tắc 3, Sổ lỗi 21/11).

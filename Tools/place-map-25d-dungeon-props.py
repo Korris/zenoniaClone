@@ -20,16 +20,20 @@ import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPS_DIR = os.path.join(ROOT, "Assets", "Scripts", "Maps")
-MAPS = {
-    "rootburrow": dict(cls="Rootburrow", rows_file="RootburrowMap.cs", size=(60, 24), start=(56, 12), boss=(26, 6),
-                       portals=[(59, 11), (59, 12), (59, 13), (4, 2), (5, 2)], hud_rows=21, arena=(9, 10)),  # V3 delve-deeper cave (21/11/2026)
+MAPS = {  # V4 three-floor Rootburrow (21/11/2026): stairs mouths are fixed props on the solid tile north of a tunnel's end
+    "rootburrow": dict(cls="Rootburrow", rows_file="RootburrowMap.cs", size=(72, 48), start=(68, 23), boss=None, hud_rows=45,
+                       portals=[(71, 22), (71, 23), (71, 24), (4, 32), (5, 32), (6, 32)], fixed=[("rbStairsDown", 4, 31)]),
+    "rootburrow2": dict(cls="RootburrowB2", rows_file="RootburrowB2Map.cs", size=(72, 48), start=(66, 8), boss=None, hud_rows=45,
+                        portals=[(65, 5), (66, 5), (67, 5), (5, 5), (6, 5), (7, 5)], fixed=[("rbStairsUp", 65, 4), ("rbStairsDown", 5, 4)]),
+    "rootburrow3": dict(cls="RootburrowB3", rows_file="RootburrowB3Map.cs", size=(72, 48), start=(67, 36), boss=(38, 21), hud_rows=45, arena=(12, 22),
+                        portals=[(66, 33), (67, 33), (68, 33), (1, 22), (1, 23), (1, 24)], fixed=[("rbStairsUp", 66, 32)]),
 }
 TALL_N = ["rbCaveWall", "rbCaveWallB", "rbStonePillar", "rbCaveWall", "rbHangingRoots", "rbCaveWallB"]
 TALL_SIDE = ["rbStonePillar", "rbStonePillar", "rbCrystalNest", "rbCaveBoulder"]
 LOW = ["rbCaveBoulder", "rbStoneCluster", "rbGlowShrooms", "rbStoneCluster", "rbPebbles"]
 DEEP = ["rbStonePillar", "rbCaveWall", "rbCaveWallB", "rbCaveBoulder", "rbHangingRoots"]
 FLOOR_DECOR = ["rbGlowShrooms", "rbPebbles", "rbPebbles", "rbStoneSlab", "rbGlowShrooms"]
-FOOT_W = {"rbCaveWall": 3, "rbCaveWallB": 3, "rbHangingRoots": 2, "rbCaveBoulder": 2, "rbStoneSlab": 2, "rbRuneSeal": 3}
+FOOT_W = {"rbStairsDown": 3, "rbStairsUp": 3, "rbCaveWall": 3, "rbCaveWallB": 3, "rbHangingRoots": 2, "rbCaveBoulder": 2, "rbStoneSlab": 2, "rbRuneSeal": 3}
 
 
 def load(cfg):
@@ -63,6 +67,8 @@ def main():
     floor = ~solid
     used = np.zeros_like(solid)
     props = []
+    for t, x, y in cfg.get("fixed", []):                               # stairs first: nothing else may stand on or next to them
+        props.append((t, x, y)); used[max(0, y - 2):y + 2, max(0, x - 2):x + 5] = True
     lights = dict(rbRuneOrb=[], rbRuneObelisk=[], rbPurpleCrystal=[], rbPinkCrystal=[])
 
     def free(x, y, fw):
@@ -84,7 +90,7 @@ def main():
 
     near_floor_s = lambda x, y: y + 1 < h and floor[y + 1, x]           # floor just south: this is a north wall tile
     floor_north = lambda x, y, k: any(y - j >= 0 and floor[y - j, x] for j in range(1, k + 1))
-    tiles = [(x, y) for y in range(h) for x in range(w) if solid[y, x] and y < cfg["hud_rows"] + 2]
+    tiles = [(x, y) for y in range(h) for x in range(w) if solid[y, x] and y < cfg["hud_rows"]]
     rng.shuffle(tiles)
     # 1) light sources first, on wall tiles that face the floor from the north or the sides
     for x, y in tiles:
@@ -96,7 +102,7 @@ def main():
     # 2) the wall line
     for y in range(h):
         for x in range(w):
-            if not solid[y, x] or d[y, x] != 1 or y >= cfg["hud_rows"] + 1: continue
+            if not solid[y, x] or d[y, x] != 1 or y >= cfg["hud_rows"]: continue
             if floor_north(x, y, 2):                                    # south of the floor: low flat pieces only
                 if rng.random() < 0.45: put(rng.choice(LOW), x, y, block=False)
             elif near_floor_s(x, y):
@@ -104,10 +110,11 @@ def main():
             elif rng.random() < 0.55: put(rng.choice(TALL_SIDE), x, y)
     # 3) the solid mass between and around the halls
     for x, y in tiles:
-        if d[y, x] < 2 or floor_north(x, y, 3) or rng.random() > 0.30: continue
+        if d[y, x] < 2 or floor_north(x, y, 3) or rng.random() > (0.30 if d[y, x] <= 4 else 0.12): continue  # thinner deep in the mass
         put(rng.choice(DEEP), x, y, block=rng.random() < 0.85)
     # 4) floor decor along the walls (walk-through), clear of portals / start / boss
-    keep = [(px, py, 2) for px, py in cfg["portals"]] + [(cfg["start"][0], cfg["start"][1], 2), (cfg["boss"][0], cfg["boss"][1], 3)]
+    keep = [(px, py, 2) for px, py in cfg["portals"]] + [(cfg["start"][0], cfg["start"][1], 2)]
+    if cfg["boss"]: keep.append((cfg["boss"][0], cfg["boss"][1], 3))
     if "arena" in cfg: keep.append((cfg["arena"][0], cfg["arena"][1], 6))   # the 40-player arena floor stays clear
     for y in range(h):
         for x in range(w):
@@ -115,8 +122,9 @@ def main():
             if not solid[max(0, y - 1):y + 2, max(0, x - 1):x + 2].any(): continue
             if any(abs(x - a) <= r and abs(y - b) <= r for a, b, r in keep): continue
             put(rng.choice(FLOOR_DECOR), x, y, block=False)
-    bx, by = cfg["boss"]
-    props.append(("rbRuneSeal", bx - 1, by + 2))                       # under the boss's reach, in front of it (flat, walk-through)
+    if cfg["boss"]:
+        bx, by = cfg["boss"]
+        props.append(("rbRuneSeal", bx - 1, by + 2))                   # under the boss's reach, in front of it (flat, walk-through)
     if "arena" in cfg:                                                   # the Wanted arena: a rune seal under the event boss
         ax, ay = cfg["arena"]
         props.append(("rbRuneSeal", ax - 1, ay + 1))

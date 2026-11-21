@@ -13,6 +13,8 @@ public class BramblewoodRootburrowMapTests
     static IGameMap Map(string id) { IGameMap m = MapRegistry.Get(id); Assert.True(m != null, id + " is not registered"); return m; }
     static IGameMap Bramble { get { return Map(BramblewoodForestMap.MapId); } }
     static IGameMap Burrow { get { return Map(RootburrowMap.MapId); } }
+    static IGameMap Burrow2 { get { return Map(RootburrowB2Map.MapId); } }
+    static IGameMap Burrow3 { get { return Map(RootburrowB3Map.MapId); } }
     static IGameMap Chamber { get { return Map(ThornheartChamberMap.MapId); } }
 
     static string RepoFile(string relative)
@@ -27,12 +29,12 @@ public class BramblewoodRootburrowMapTests
     public void IdsNamesAndSizes()
     {
         Assert.Equal("bramblewoodForest", Bramble.Id); Assert.Equal("Bramblewood Forest", Bramble.Name);
-        Assert.Equal("rootburrow", Burrow.Id); Assert.Equal("Rootburrow", Burrow.Name);
+        Assert.Equal("rootburrow", Burrow.Id); Assert.Equal("Rootburrow 1F", Burrow.Name);
         Assert.Equal("thornheartChamber", Chamber.Id); Assert.Equal("Thornheart Chamber", Chamber.Name);
         Assert.Equal(36, Bramble.Width); Assert.Equal(24, Bramble.Height);
-        Assert.Equal(60, Burrow.Width); Assert.Equal(24, Burrow.Height); // V3 "delve deeper" cave (21/11/2026)
+        foreach (IGameMap f in new[] { Burrow, Burrow2, Burrow3 }) { Assert.Equal(72, f.Width); Assert.Equal(48, f.Height); } // V4 three-floor cave (21/11/2026)
         Assert.Equal(24, Chamber.Width); Assert.Equal(16, Chamber.Height);
-        foreach (IGameMap m in new[] { Bramble, Burrow, Chamber }) Assert.True(m.Hostile, m.Id);
+        foreach (IGameMap m in new[] { Bramble, Burrow, Burrow2, Burrow3, Chamber }) Assert.True(m.Hostile, m.Id);
     }
 
     static void AssertLink(IGameMap from, int tx, int ty, IGameMap to, int ax, int ay)
@@ -46,11 +48,13 @@ public class BramblewoodRootburrowMapTests
         IGameMap willow = Map(WillowbrookMeadowsMap.MapId);
         AssertLink(willow, 46, 44, Bramble, 17, 2); AssertLink(willow, 47, 44, Bramble, 18, 2);
         AssertLink(Bramble, 17, 0, willow, 47, 42); AssertLink(Bramble, 18, 0, willow, 47, 42);
-        AssertLink(Bramble, 2, 13, Burrow, 56, 12);
-        AssertLink(Burrow, 59, 11, Bramble, 4, 13); AssertLink(Burrow, 59, 12, Bramble, 4, 13); AssertLink(Burrow, 59, 13, Bramble, 4, 13);
-        AssertLink(Burrow, 4, 2, Chamber, 11, 9); AssertLink(Burrow, 5, 2, Chamber, 12, 9);
-        AssertLink(Chamber, 11, 11, Burrow, 4, 4); AssertLink(Chamber, 12, 11, Burrow, 5, 4);
-        Assert.Equal(3, Bramble.Portals.Length); Assert.Equal(5, Burrow.Portals.Length); Assert.Equal(2, Chamber.Portals.Length);
+        AssertLink(Bramble, 2, 13, Burrow, 68, 23);
+        AssertLink(Burrow, 71, 22, Bramble, 4, 13); AssertLink(Burrow, 71, 23, Bramble, 4, 13); AssertLink(Burrow, 71, 24, Bramble, 4, 13);
+        AssertLink(Burrow, 5, 32, Burrow2, 66, 8); AssertLink(Burrow2, 66, 5, Burrow, 5, 35);
+        AssertLink(Burrow2, 6, 5, Burrow3, 67, 36); AssertLink(Burrow3, 67, 33, Burrow2, 6, 8);
+        AssertLink(Burrow3, 1, 23, Chamber, 11, 9); AssertLink(Burrow3, 1, 24, Chamber, 12, 9);
+        AssertLink(Chamber, 11, 11, Burrow3, 3, 23); AssertLink(Chamber, 12, 11, Burrow3, 3, 24);
+        Assert.Equal(3, Bramble.Portals.Length); Assert.Equal(6, Burrow.Portals.Length); Assert.Equal(6, Burrow2.Portals.Length); Assert.Equal(6, Burrow3.Portals.Length); Assert.Equal(2, Chamber.Portals.Length);
     }
 
     static HashSet<int> Reach(IGameMap m, int sx, int sy)
@@ -73,7 +77,7 @@ public class BramblewoodRootburrowMapTests
     [Fact]
     public void HudRowsAreSolidAndEveryOpenTileIsReachableFromEveryPortal()
     {
-        foreach (IGameMap m in new[] { Bramble, Burrow, Chamber })
+        foreach (IGameMap m in new[] { Bramble, Burrow, Burrow2, Burrow3, Chamber })
         {
             for (int x = 0; x < m.Width; x++)
                 for (int y = m.Height - 3; y < m.Height; y++) Assert.True(m.IsSolidTile(x, y), m.Id + " HUD row " + y + " col " + x);
@@ -115,7 +119,9 @@ public class BramblewoodRootburrowMapTests
 
     [Theory]
     [InlineData("bramblewoodForest", "BramblewoodForest", 30, 17, 3)]
-    [InlineData("rootburrow", "Rootburrow", 16, 56, 12)]
+    [InlineData("rootburrow", "Rootburrow", 25, 68, 23)]
+    [InlineData("rootburrow2", "Rootburrow2", 30, 66, 8)]
+    [InlineData("rootburrow3", "Rootburrow3", 16, 67, 36)]
     public void SpawnRectsHaveRoomAndKeepFiveTilesFromStartPortalsAndArrivals(string mapId, string table, int total, int startTx, int startTy)
     {
         IGameMap map = Map(mapId);

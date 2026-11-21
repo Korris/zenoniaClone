@@ -22,7 +22,12 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "Assets", "Resources", "Sprites")
 T = 64
-MAPS = {"rootburrow": dict(size=(60, 24), ground="village/tiles/rootburrow-ground.png", chunks=2, rows_file="Assets/Scripts/Maps/RootburrowMap.cs")}  # V3 60x24, 2 chunks
+MAPS = {  # V4 three 72 x 48 floors in 2 x 2 chunks; each floor a little darker in albedo too (the lights do most of it)
+    "rootburrow": dict(size=(72, 48), ground="village/tiles/rootburrow-ground.png", chunks=(2, 2), rows_file="Assets/Scripts/Maps/RootburrowMap.cs", tone=1.0),
+    "rootburrow2": dict(size=(72, 48), ground="village/tiles/rootburrow2-ground.png", chunks=(2, 2), rows_file="Assets/Scripts/Maps/RootburrowB2Map.cs", tone=0.95),
+    "rootburrow3": dict(size=(72, 48), ground="village/tiles/rootburrow3-ground.png", chunks=(2, 2), rows_file="Assets/Scripts/Maps/RootburrowB3Map.cs", tone=0.9),
+}
+SWATCH_KEY = "rootburrow"   # every floor uses the 1F swatches (Assets/ArtLibrary/maps/rootburrow/dark-25d)
 FLOOR, SOLID, VOID = (0x7C, 0x6E, 0xA2), (0x52, 0x48, 0x76), (0x17, 0x15, 0x2F)   # V2 violet cave (user 21/11: purple like the RO3 clip, not brown)
 TEX_TILE = 768       # px one swatch covers (12 tiles)
 EDGE = 30            # px: half width of the irregular floor / solid edge (~0.45 m)
@@ -53,7 +58,7 @@ def grade(tex, target, keep_std=0.9):
 
 
 def swatch(key, kind, target, size):
-    sw = np.asarray(Image.open(latest(key, kind)).convert("RGB")).astype(np.float32)
+    sw = np.asarray(Image.open(latest(SWATCH_KEY, kind)).convert("RGB")).astype(np.float32)
     s = min(sw.shape[:2]); sw = sw[:s, :s]                       # square middle of the swatch image
     return cv2.resize(grade(seamless(sw), target), (size, size), interpolation=cv2.INTER_AREA)
 
@@ -92,7 +97,6 @@ def main():
     cfg = MAPS[key]
     if "border" in sys.argv[2:]: border(key, cfg); return
     tw, th = cfg["size"]; W, H = tw * T, th * T
-    os.makedirs(lib(key), exist_ok=True)
     gpath = os.path.join(RES, cfg["ground"])
     rows = rows_of(cfg)
     floor_t = np.array([[c in "dg" for c in r] for r in rows], np.uint8)
@@ -115,17 +119,16 @@ def main():
     solid = solid * (1 - deep) + np.array(VOID, float) * deep
     ao = (1 - np.clip(dist_in / AO, 0, 1)) * 0.28                                     # floor side: darker right at the wall foot
     floor *= (1 - ao)[..., None]
-    out = floor * fm[..., None] + solid * (1 - fm[..., None])
+    out = (floor * fm[..., None] + solid * (1 - fm[..., None])) * cfg.get("tone", 1.0)
 
     img = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
-    n = cfg.get("chunks", 1)
-    if n == 1: img.save(gpath, optimize=True); print("wrote", gpath)
-    else:                                                              # <ground>-r0c{c}.png, side by side (WorldBuilder's chunk names)
-        cw = W // n
-        for c in range(n):
-            out = gpath.replace(".png", "-r0c%d.png" % c); img.crop((c * cw, 0, (c + 1) * cw, H)).save(out, optimize=True); print("wrote", out)
+    nr, nc = cfg["chunks"]                                             # <ground>-r{r}c{c}.png (WorldBuilder's chunk names)
+    cw, ch = W // nc, H // nr
+    for r in range(nr):
+        for c in range(nc):
+            out = gpath.replace(".png", "-r%dc%d.png" % (r, c)); img.crop((c * cw, r * ch, (c + 1) * cw, (r + 1) * ch)).save(out, optimize=True); print("wrote", out)
     if "--preview" in sys.argv:
-        img.resize((1152, 768), Image.LANCZOS).save(os.path.join(lib(key), key + "-ground-preview.jpg"), quality=88)
+        img.resize((1152, 768), Image.LANCZOS).save(os.path.join(lib(SWATCH_KEY), key + "-ground-preview.jpg"), quality=88)
 
 
 if __name__ == "__main__":

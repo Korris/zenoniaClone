@@ -12,8 +12,14 @@ from PIL import Image, ImageDraw
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 T = 64
-MAPS = {"rootburrow": dict(cls="Rootburrow", size=(60, 24), ground="village/tiles/rootburrow-ground-r0c{c}.png", chunks=2, start=(56, 12), boss=(26, 6),
-                           portals=[(59, 11), (59, 12), (59, 13), (4, 2), (5, 2)], minimap="village/tiles/rootburrow-ground-minimap.png")}
+def _floor(cls, key, start, boss, portals):
+    return dict(cls=cls, size=(72, 48), ground="village/tiles/" + key + "-ground-r{r}c{c}.png", chunks=(2, 2), start=start, boss=boss, portals=portals,
+                minimap="village/tiles/" + key + "-ground-minimap.png", out=key)
+MAPS = {  # V4 three floors (21/11/2026)
+    "rootburrow": _floor("Rootburrow", "rootburrow", (68, 23), None, [(71, 22), (71, 23), (71, 24), (4, 32), (5, 32), (6, 32)]),
+    "rootburrow2": _floor("RootburrowB2", "rootburrow2", (66, 8), None, [(65, 5), (66, 5), (67, 5), (5, 5), (6, 5), (7, 5)]),
+    "rootburrow3": _floor("RootburrowB3", "rootburrow3", (67, 36), (38, 21), [(66, 33), (67, 33), (68, 33), (1, 22), (1, 23), (1, 24)]),
+}
 LIGHTS = {"rbRuneOrb": ((255, 196, 122), 3.2), "rbRuneObelisk": ((115, 221, 229), 3.8), "rbPurpleCrystal": ((181, 231, 194), 2.0),
           "rbGlowShrooms": ((181, 231, 194), 1.4), "rbPinkCrystal": ((245, 189, 103), 2.4), "rbCrystalNest": ((245, 189, 103), 2.4), "rbRuneSeal": ((174, 144, 226), 3.0)}
 
@@ -21,7 +27,7 @@ LIGHTS = {"rbRuneOrb": ((255, 196, 122), 3.2), "rbRuneObelisk": ((115, 221, 229)
 def main():
     key = sys.argv[1] if len(sys.argv) > 1 else "rootburrow"
     cfg = MAPS[key]
-    out = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else os.path.join(ROOT, "Assets", "ArtLibrary", "maps", key, "dark-25d", key + "-composite.jpg")
+    out = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else os.path.join(ROOT, "Assets", "ArtLibrary", "maps", "rootburrow", "dark-25d", key + "-composite.jpg")
     w, h = cfg["size"]
     maps = os.path.join(ROOT, "Assets", "Scripts", "Maps")
     rows = re.findall(r'"([TgwBd]{%d})"' % w, open(os.path.join(maps, cfg["cls"] + "Map.cs"), encoding="utf8").read())
@@ -29,9 +35,11 @@ def main():
     defs = {m[0]: (float(m[1]), float(m[2]), int(m[3]), int(m[4])) for m in re.findall(r'"(\w+)", new PropDef\(([\d.]+)f, ([\d.]+)f, (\d+), (\d+)\)', open(os.path.join(maps, "VillagePropDefs.cs"), encoding="utf8").read())}
     solid = np.array([[c in "TwB" for c in r] for r in rows])
     res = os.path.join(ROOT, "Assets", "Resources", "Sprites")
-    parts = [Image.open(os.path.join(res, cfg["ground"].format(c=c))).convert("RGBA") for c in range(cfg.get("chunks", 1))]
-    img = Image.new("RGBA", (sum(p.width for p in parts), parts[0].height))
-    for i, p in enumerate(parts): img.paste(p, (sum(q.width for q in parts[:i]), 0))
+    nr, nc = cfg["chunks"]
+    img = Image.new("RGBA", (w * T, h * T))
+    for r in range(nr):
+        for c in range(nc):
+            part = Image.open(os.path.join(res, cfg["ground"].format(r=r, c=c))).convert("RGBA"); img.paste(part, (c * part.width, r * part.height))
     problems = []
     blocked = solid.copy()
     for t, x, y in sorted(props, key=lambda p: p[2]):
@@ -67,7 +75,7 @@ def main():
         if t in LIGHTS:
             c, r = LIGHTS[t]; fw = defs[t][2]; cx, cy = (x + fw / 2.0) * T, (y + 0.4) * T
             d.ellipse([cx - r * T, cy - r * T, cx + r * T, cy + r * T], outline=c + (255,), width=3)
-    bx, by = cfg["boss"]; d.rectangle([bx * T, by * T, bx * T + T, by * T + T], outline=(255, 220, 80, 255), width=6)
+    bx, by = cfg["boss"] or (-5, -5); d.rectangle([bx * T, by * T, bx * T + T, by * T + T], outline=(255, 220, 80, 255), width=6)
     for px, py in cfg["portals"]: d.rectangle([px * T, py * T, px * T + T, py * T + T], outline=(80, 255, 255, 255), width=5)
     img.alpha_composite(over)
     img.convert("RGB").resize((w * 32, h * 32), Image.LANCZOS).save(out, quality=88)

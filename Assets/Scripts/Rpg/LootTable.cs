@@ -69,7 +69,12 @@ namespace ZenoniaProto.Rpg
             { "thornfangAlpha", new MonsterLootDef { Type = "thornfangAlpha", Exp = 934, GoldMin = 67, GoldMax = 140, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             { "thornheartTreant", new MonsterLootDef { Type = "thornheartTreant", Exp = 934, GoldMin = 67, GoldMax = 140, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
             // Rootburrow dark dungeon boss (21/11/2026): Lv12 on the same boss line (EXP 14L x6.67, gold L..2L+1 x6.67) with the sure drops.
-            { "ambercapWarden", new MonsterLootDef { Type = "ambercapWarden", Exp = 1120, GoldMin = 80, GoldMax = 167, ItemLevel = 12, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            { "ambercapWarden", new MonsterLootDef { Type = "ambercapWarden", Exp = 1307, GoldMin = 93, GoldMax = 193, ItemLevel = 14, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            // Rootburrow 2F-3F cave dwellers (V4): the line (EXP 14L, gold L..2L+1) at their level.
+            { "caveMantis", new MonsterLootDef { Type = "caveMantis", Exp = 140, GoldMin = 10, GoldMax = 21, ItemLevel = 10 } },
+            { "gloomWolf", new MonsterLootDef { Type = "gloomWolf", Exp = 154, GoldMin = 11, GoldMax = 23, ItemLevel = 11 } },
+            { "crystalSprite", new MonsterLootDef { Type = "crystalSprite", Exp = 168, GoldMin = 12, GoldMax = 25, ItemLevel = 12 } },
+            { "hollowTreant", new MonsterLootDef { Type = "hollowTreant", Exp = 182, GoldMin = 13, GoldMax = 27, ItemLevel = 13 } },
             { "highlandIbex", new MonsterLootDef { Type = "highlandIbex", Exp = 224, GoldMin = 16, GoldMax = 33, ItemLevel = 16 } },
             { "dustscaleLizard", new MonsterLootDef { Type = "dustscaleLizard", Exp = 238, GoldMin = 17, GoldMax = 35, ItemLevel = 17 } },
             { "cliffHarpy", new MonsterLootDef { Type = "cliffHarpy", Exp = 252, GoldMin = 18, GoldMax = 37, ItemLevel = 18 } },

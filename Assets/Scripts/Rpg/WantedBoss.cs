@@ -33,7 +33,7 @@ namespace ZenoniaProto.Rpg
             new WantedBossDef("rimeclawTyrant", "Rimeclaw Tyrant", "frostHollow", 10, 150, 3, 3, 3, PotionCatalog.Small, 64, 29),
             new WantedBossDef("glacialColossus", "Glacial Colossus", "frostfangDen", 25, 600, 5, 3, 3, PotionCatalog.Medium, 27, 12),
             new WantedBossDef("mireHydraQueen", "Mire Hydra Queen", "sunkenReliquary", 40, 1000, 8, 3, 3, PotionCatalog.Large, 45, 12),
-            new WantedBossDef("aetherglyphOwl", "Aetherglyph Owl", "rootburrow", 20, 400, 4, 3, 3, PotionCatalog.Medium, 9, 10), // 21/11/2026: the arena at the bottom of Rootburrow
+            new WantedBossDef("aetherglyphOwl", "Aetherglyph Owl", "rootburrow3", 20, 400, 4, 3, 3, PotionCatalog.Medium, 12, 22), // 21/11/2026: the arena at the bottom of Rootburrow 3F
         };
 
         /// <summary>Launch-arg test hook (--wanted-boss): when set, this boss is wanted every day. Null in production.</summary>

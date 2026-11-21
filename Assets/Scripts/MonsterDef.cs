@@ -177,14 +177,27 @@ namespace ZenoniaProto
         // Rootburrow dark dungeon boss (21/11/2026, ChatGPT "Ambercap Warden": a giant amber-capped mushroom guarding its nest, docs/reference/rootburrow-dark-25d/):
         // Lv12 on the boss rule (line HP 14+22L = 278 x7, Atk 3+4L = 51 x1.5, Def 1+L = 13 x0.75), slow tank with Thornheart's reach. Drawn from 384 / 512 cells
         // like the event bosses (twice the pixels per unit; RenderScale 2.4 reads as ~1.8 heroes in the 2.5D view, 1.8 looked hardly bigger than the hero, 21/11) and casts the four skills of WantedSkillTable.AmbercapWarden.
-        public static readonly MonsterDef AmbercapWarden = new MonsterDef("Ambercap Warden", "ambercapWarden", 1946f, 76f, 10f, 28f, 12, aggro: 95f, leash: 130f,
+        // 21/11/2026 V4 (three floors): the Warden guards 3F, Lv14 (line HP 322 x7, Atk 59 x1.5, Def 15 x0.75).
+        public static readonly MonsterDef AmbercapWarden = new MonsterDef("Ambercap Warden", "ambercapWarden", 2254f, 88f, 11f, 28f, 14, aggro: 95f, leash: 130f,
             attackRange: 24f, windupMs: 700f, cooldownMs: 1600f, hitW: 28f, hitH: 16f, bodyHeightPx: 164f)
             { RenderScale = 2.4f, Stationary = true, IsBoss = true, SkillBoss = true, WalkCellPx = 384, AttackCellPx = 512, FallbackSheet = "thornheartTreant", FallbackTint = new Color(1f, 0.8f, 0.6f) };
+
+        // Rootburrow 2F-3F cave dwellers (V4, 21/11/2026): the forest monsters grown in the dark, same role factors at their deeper level (line HP 14+22L,
+        // Atk 3+4L, Def 1+L): Cave Mantis Lv10 (mantis role), Gloom Wolf Lv11 (wolf role), Crystal Sprite Lv12 (sprite role), Hollow Treant Lv13 (treant
+        // role). No own sheets yet: the forest sheet drawn with a violet tint (FallbackSheet), the RO Soft cave look until their art lands.
+        public static readonly MonsterDef CaveMantis = new MonsterDef("Cave Mantis", "caveMantis", 187f, 56f, 3f, 68f, 10, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 12f, hitH: 8f, bodyHeightPx: 178f)
+            { FallbackSheet = "meadowMantis", FallbackTint = new Color(0.78f, 0.7f, 1f) };
+        public static readonly MonsterDef GloomWolf = new MonsterDef("Gloom Wolf", "gloomWolf", 212f, 42f, 4f, 62f, 11, aggro: 95f, cooldownMs: 900f, hitW: 14f, hitH: 8f, bodyHeightPx: 150f)
+            { RenderScale = 1.1f, FallbackSheet = "forestWolf", FallbackTint = new Color(0.72f, 0.66f, 0.95f) };
+        public static readonly MonsterDef CrystalSprite = new MonsterDef("Crystal Sprite", "crystalSprite", 222f, 61f, 4f, 66f, 12, aggro: 100f, cooldownMs: 900f, windupMs: 300f, hitW: 12f, hitH: 8f, bodyHeightPx: 142f)
+            { FallbackSheet = "thornSprite", FallbackTint = new Color(0.8f, 0.72f, 1f) };
+        public static readonly MonsterDef HollowTreant = new MonsterDef("Hollow Treant", "hollowTreant", 540f, 72f, 20f, 28f, 13, aggro: 55f, attackRange: 18f, windupMs: 650f, cooldownMs: 1700f, hitW: 22f, hitH: 14f, bodyHeightPx: 172f)
+            { RenderScale = 1.25f, FallbackSheet = "brambleTreant", FallbackTint = new Color(0.74f, 0.68f, 0.96f) };
 
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
         public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear, RimeclawTyrant, GlacialColossus, MireHydraQueen,
             ForestWolf, ThornSprite, ThornfangAlpha, ThornheartTreant, HighlandIbex, DustscaleLizard, CliffHarpy, StonebackGuardian, RidgehornBehemoth,
-            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer, AmbercapWarden, AetherglyphOwl };
+            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer, AmbercapWarden, AetherglyphOwl, CaveMantis, GloomWolf, CrystalSprite, HollowTreant };
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -235,6 +248,10 @@ namespace ZenoniaProto
                 case "duneDevourer": return DuneDevourer;
                 case "ambercapWarden": return AmbercapWarden;
                 case "aetherglyphOwl": return AetherglyphOwl;
+                case "caveMantis": return CaveMantis;
+                case "gloomWolf": return GloomWolf;
+                case "crystalSprite": return CrystalSprite;
+                case "hollowTreant": return HollowTreant;
                 default: return null;
             }
         }
