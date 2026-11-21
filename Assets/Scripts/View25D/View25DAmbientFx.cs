@@ -33,6 +33,33 @@ namespace ZenoniaProto
             TickMotes(g, lod, ro3);
             if (ro3 && View25D.Profile.LeavesMax > 0) TickLeaves(cam, lod); // no leaves underground
             if (ro3 && View25D.Profile.Dungeon) { TickDrips(g, lod); TickSplashes(); } // cave: water drips from the dark ceiling
+            if (ro3 && View25D.Profile.Snowfall > 0) TickSnow(g, lod);
+        }
+
+        float snowDebt;
+
+        /// <summary>Light snowfall (snow maps, ChatGPT snow art direction 21/11/2026 section 7: sparse, slow, small, alpha 0.10-0.25, never a white haze):
+        /// flakes fall from 60-110 units above the visible ground at ~14 units/s with a slow sideways drift. Uses the mote system (no extra material).</summary>
+        void TickSnow(Vector3 g, float lod)
+        {
+            if (motes == null) return;
+            const float Fall = 14f;
+            snowDebt += View25D.Profile.Snowfall * Fall / 85f * lod * Time.deltaTime; // visible ~= Snowfall (life = height / fall speed)
+            while (snowDebt >= 1f)
+            {
+                snowDebt -= 1f;
+                float h = Random.Range(60f, 110f);
+                var p = new ParticleSystem.EmitParams
+                {
+                    position = new Vector3(g.x + Random.Range(-0.55f, 0.55f) * MoteAreaW, g.y + Random.Range(-0.4f, 0.6f) * MoteAreaD, -h),
+                    velocity = new Vector3(Random.Range(-4f, -1f), Random.Range(-1f, 1f), Fall * Random.Range(0.8f, 1.2f)),
+                    startSize = Random.Range(1.2f, 2.4f),
+                    startColor = new Color(0.93f, 0.96f, 1f, Random.Range(0.18f, 0.32f)),
+                    startLifetime = h / Fall,
+                    applyShapeToPosition = false,
+                };
+                motes.Emit(p, 1);
+            }
         }
 
         public void Destroy()

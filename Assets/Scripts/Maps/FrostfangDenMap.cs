@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 namespace ZenoniaProto
@@ -85,6 +86,8 @@ namespace ZenoniaProto
         public override bool Hostile { get { return true; } }
         public override Vector2 PlayerStart { get { return FrostHollowMap.TileFeet(PlayerStartTile.x, PlayerStartTile.y, 2f); } }
         public override MapPortal[] Portals { get { return PortalList; } }
-        public override MapProp[] Props { get { return PropList; } }
+        static MapProp[] all;
+        /// <summary>The hand-placed props + the 2.5D ice walls, light crystals and floor decor (FrostfangDenProps, 21/11/2026; all on tiles the rows already block or walk-through).</summary>
+        public override MapProp[] Props { get { return all ?? (all = PropList.Concat(FrostfangDenProps.All).ToArray()); } }
     }
 }

@@ -26,6 +26,11 @@ MAPS = {  # V4 three 72 x 48 floors in 2 x 2 chunks; each floor a little darker 
     "rootburrow": dict(size=(72, 48), ground="village/tiles/rootburrow-ground.png", chunks=(2, 2), rows_file="Assets/Scripts/Maps/RootburrowMap.cs", tone=1.0),
     "rootburrow2": dict(size=(72, 48), ground="village/tiles/rootburrow2-ground.png", chunks=(2, 2), rows_file="Assets/Scripts/Maps/RootburrowB2Map.cs", tone=0.95),
     "rootburrow3": dict(size=(72, 48), ground="village/tiles/rootburrow3-ground.png", chunks=(2, 2), rows_file="Assets/Scripts/Maps/RootburrowB3Map.cs", tone=0.9),
+    # Frostfang Den, dim glacial cave (21/11/2026, docs/reference/frost-hollow-25d/snow-25d-art-direction-chatgpt.md "Frostfang Den"): one 2x2 atlas
+    # (TL slate ice floor, TR light smooth ice, BL solid cave rock, BR grey-blue boss arena); the arena ('p' tiles) gets its own neutral floor.
+    "frostfang-den": dict(size=(36, 24), ground="village/tiles/frostfang-den-ground.png", chunks=(1, 1), rows_file="Assets/Scripts/Maps/FrostfangDenMap.cs", tone=1.0,
+                          atlas="Assets/ArtLibrary/maps/frostfang-den/ice-25d/fd25d-ground-atlas-chatgpt-1.png",
+                          floor=(0x53, 0x69, 0x7D), floor_light=(0x72, 0x89, 0x9E), solid=(0x33, 0x4B, 0x66), void=(0x19, 0x2B, 0x40), arena=(0x66, 0x78, 0x8E)),
 }
 SWATCH_KEY = "rootburrow"   # every floor uses the 1F swatches (Assets/ArtLibrary/maps/rootburrow/dark-25d)
 FLOOR, SOLID, VOID = (0x7C, 0x6E, 0xA2), (0x52, 0x48, 0x76), (0x17, 0x15, 0x2F)   # V2 violet cave (user 21/11: purple like the RO3 clip, not brown)
@@ -73,9 +78,21 @@ def value_noise(W, H, cell, seed):
     return cv2.resize(g, (W + 2 * cell, H + 2 * cell), interpolation=cv2.INTER_CUBIC)[cell:cell + H, cell:cell + W]
 
 
+def atlas_swatch(cfg, qi, target, size):
+    """Square middle of quadrant qi (0 TL, 1 TR, 2 BL, 3 BR) of the map's 2x2 ChatGPT atlas, tileable, graded to `target`."""
+    a = np.asarray(Image.open(os.path.join(ROOT, cfg["atlas"])).convert("RGB")).astype(np.float32)
+    h, w = a.shape[:2]; qh, qw = h // 2, w // 2; y0, x0 = (qi // 2) * qh, (qi % 2) * qw; n = min(qh, qw) - 40
+    q = a[y0 + (qh - n) // 2:y0 + (qh + n) // 2, x0 + (qw - n) // 2:x0 + (qw + n) // 2]
+    wx = np.clip(np.minimum(np.arange(n), n - 1 - np.arange(n)) / (n * 0.5) / 0.4, 0, 1)
+    wx, wy = wx[None, :, None], wx[:, None, None]                     # 4-copy blend: no half-tile seam (see build-map-25d-snow-ground.py)
+    rx, ry = np.roll(q, n // 2, 1), np.roll(q, n // 2, 0)
+    q = q * wx * wy + rx * (1 - wx) * wy + ry * wx * (1 - wy) + np.roll(rx, n // 2, 0) * (1 - wx) * (1 - wy)
+    return cv2.resize(grade(q, target), (size, size), interpolation=cv2.INTER_AREA)
+
+
 def rows_of(cfg):
     w, h = cfg["size"]
-    rows = re.findall(r'"([TgwBd]{%d})"' % w, open(os.path.join(ROOT, cfg["rows_file"]), encoding="utf8").read())
+    rows = re.findall(r'"([TgwBdp]{%d})"' % w, open(os.path.join(ROOT, cfg["rows_file"]), encoding="utf8").read())
     assert len(rows) == h, len(rows)
     return rows
 
@@ -83,11 +100,12 @@ def rows_of(cfg):
 def border(key, cfg):
     """Seamless 1024 px tile of the solid ground, a bit darker, with darker pools: the band past the map edges (View25DGroundApron)."""
     n = 1024
-    tex = swatch(key, "solid", tuple(int(c * 0.82) for c in SOLID), n)
+    SOLID_, VOID_ = cfg.get("solid", SOLID), cfg.get("void", VOID)
+    tex = atlas_swatch(cfg, 2, tuple(int(c * 0.82) for c in SOLID_), n) if "atlas" in cfg else swatch(key, "solid", tuple(int(c * 0.82) for c in SOLID_), n)
     g = np.random.RandomState(9).rand(4, 4).astype(np.float32)
     pool = cv2.resize(np.tile(g, (3, 3)), (3 * n, 3 * n), interpolation=cv2.INTER_CUBIC)[n:2 * n, n:2 * n]
     k = np.clip((pool - 0.55) * 3, 0, 1)[..., None]
-    tex = tex * (1 - k * 0.45) + np.array(VOID, float) * k * 0.45
+    tex = tex * (1 - k * 0.45) + np.array(VOID_, float) * k * 0.45
     out = os.path.join(RES, cfg["ground"].replace(".png", "-border.png"))
     Image.fromarray(np.clip(tex, 0, 255).astype(np.uint8)).save(out, optimize=True); print(out)
 
@@ -99,7 +117,8 @@ def main():
     tw, th = cfg["size"]; W, H = tw * T, th * T
     gpath = os.path.join(RES, cfg["ground"])
     rows = rows_of(cfg)
-    floor_t = np.array([[c in "dg" for c in r] for r in rows], np.uint8)
+    floor_t = np.array([[c in "dgp" for c in r] for r in rows], np.uint8)
+    FLOOR_, SOLID_, VOID_ = cfg.get("floor", FLOOR), cfg.get("solid", SOLID), cfg.get("void", VOID)
 
     # floor mask: tiles -> px, an irregular edge (noise around the 0.5 level), soft over a few px
     f = cv2.resize(floor_t.astype(np.float32), (W, H), interpolation=cv2.INTER_NEAREST)
@@ -111,12 +130,25 @@ def main():
     dist_out = cv2.distanceTransform((1 - hard).astype(np.uint8), cv2.DIST_L2, 5)   # solid px: distance to the floor
     dist_in = cv2.distanceTransform(hard.astype(np.uint8), cv2.DIST_L2, 5)          # floor px: distance to the wall
 
-    floor = tile(swatch(key, "floor", FLOOR, TEX_TILE), W, H)
+    if "atlas" in cfg:                                                   # snow / ice cave: atlas quadrants, light ice patches, arena floor
+        floor = tile(atlas_swatch(cfg, 0, FLOOR_, TEX_TILE), W, H)
+        light = tile(atlas_swatch(cfg, 1, cfg["floor_light"], TEX_TILE), W, H)
+        kl = np.clip((value_noise(W, H, 3 * T, 17) - 0.6) / 0.2, 0, 1)[..., None] * 0.7
+        floor = floor * (1 - kl) + light * kl
+        arena_t = np.array([[c == "p" for c in r] for r in rows], np.float32)
+        am = np.clip(cv2.GaussianBlur(cv2.resize(arena_t, (W, H), interpolation=cv2.INTER_NEAREST), (0, 0), 20) * 1.4 - 0.2, 0, 1)[..., None]
+        floor = floor * (1 - am) + tile(atlas_swatch(cfg, 3, cfg["arena"], TEX_TILE), W, H) * am
+        ah = (cv2.resize(arena_t, (W, H), interpolation=cv2.INTER_NEAREST) > 0.5).astype(np.uint8)   # ChatGPT review: perimeter band #405970 ~0.3 tile, a 0.3
+        band = (1 - np.clip(cv2.distanceTransform(ah, cv2.DIST_L2, 5) / 20.0, 0, 1)) * ah
+        band = cv2.GaussianBlur(band.astype(np.float32), (0, 0), 3)[..., None] * 0.3
+        floor = floor * (1 - band) + np.array((0x40, 0x59, 0x70), float) * band
+    else:
+        floor = tile(swatch(key, "floor", FLOOR_, TEX_TILE), W, H)
     floor *= (1 + (value_noise(W, H, 5 * T, 7) - 0.5) * 0.10)[..., None]            # +-5 % over ~5 tiles: hides the repeat
-    solid = tile(swatch(key, "solid", SOLID, TEX_TILE), W, H)
+    solid = tile(atlas_swatch(cfg, 2, SOLID_, TEX_TILE) if "atlas" in cfg else swatch(key, "solid", SOLID_, TEX_TILE), W, H)
     solid *= (1 + (value_noise(W, H, 4 * T, 8) - 0.5) * 0.12)[..., None]
     deep = np.clip((dist_out - 1.5 * T) / (2.5 * T), 0, 1)[..., None] * 0.65         # 1.5 -> 4 tiles into the mass: toward the void colour
-    solid = solid * (1 - deep) + np.array(VOID, float) * deep
+    solid = solid * (1 - deep) + np.array(VOID_, float) * deep
     ao = (1 - np.clip(dist_in / AO, 0, 1)) * 0.28                                     # floor side: darker right at the wall foot
     floor *= (1 - ao)[..., None]
     out = (floor * fm[..., None] + solid * (1 - fm[..., None])) * cfg.get("tone", 1.0)
@@ -124,6 +156,12 @@ def main():
     img = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
     nr, nc = cfg["chunks"]                                             # <ground>-r{r}c{c}.png (WorldBuilder's chunk names)
     cw, ch = W // nc, H // nr
+    if (nr, nc) == (1, 1):                                             # one-texture map (Frostfang Den): the ground file itself
+        before = os.path.join(os.path.dirname(os.path.join(ROOT, cfg["atlas"])), key + "-before-ground.jpg") if "atlas" in cfg else None
+        if before and not os.path.exists(before): Image.open(gpath).convert("RGB").save(before, quality=95); print("saved the old ground:", before)
+        img.save(gpath, optimize=True); print("wrote", gpath)
+        if "--preview" in sys.argv: img.resize((W // 4, H // 4), Image.LANCZOS).save(before.replace("-before-ground", "-ground-preview"), quality=88)
+        return
     for r in range(nr):
         for c in range(nc):
             out = gpath.replace(".png", "-r%dc%d.png" % (r, c)); img.crop((c * cw, r * ch, (c + 1) * cw, (r + 1) * ch)).save(out, optimize=True); print("wrote", out)

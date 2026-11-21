@@ -22,7 +22,8 @@ namespace ZenoniaProto
         static bool parsed, requested, forcedOff, atmosphere = true, lookOff;
 
         /// <summary>Maps drawn in 2.5D for every player (data: one id per converted map).</summary>
-        static readonly string[] Maps = { WillowbrookMeadowsMap.MapId, RootburrowMap.MapId, RootburrowB2Map.MapId, RootburrowB3Map.MapId }; // Rootburrow 1F-3F: dark dungeon profiles (21/11/2026)
+        static readonly string[] Maps = { WillowbrookMeadowsMap.MapId, RootburrowMap.MapId, RootburrowB2Map.MapId, RootburrowB3Map.MapId, // Rootburrow 1F-3F: dark dungeon profiles (21/11/2026)
+            FrostHollowLayout.MapId, FrostfangDenMap.MapId }; // snow field + ice cave (21/11/2026, plans/261121-1930-frost-hollow-25d)
         /// <summary>Maps 2.5D only with `--view25d` (test builds): the Mire Hydra arena prototype, whose painted walls are not converted yet.</summary>
         static readonly string[] PrototypeMaps = { SunkenReliquaryMap.MapId };
         static float tiltArg = -1f, fovArg = -1f, scaleComp = 0.6f;

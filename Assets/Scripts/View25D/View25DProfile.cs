@@ -57,6 +57,8 @@ namespace ZenoniaProto
         public float LeafBurstMin = 10f, LeafBurstMax = 18f;
         /// <summary>Tree sway amplitude, world units at the crown top (ChatGPT: 1-2 % of the crown height), and the dapple strength under canopies.</summary>
         public float WindSway = 1.3f, Dapple = 1f;
+        /// <summary>Snow maps: snowflakes visible at once (View25DAmbientFx.TickSnow), 0 = none.</summary>
+        public int Snowfall;
 
         /// <summary>Every listed 2.5D map: the RO3 Feel V2 preset with the RO3 camera of 21/11 (A/B shots docs/reference/willowbrook-25d/camera-ab/,
         /// ChatGPT docs/reference/willowbrook-25d/willowbrook-25d-camera-vs-ro3-chatgpt.md preset B, kept by the camera loop docs/reference/willowbrook-25d/camera-loop/):
@@ -103,6 +105,38 @@ namespace ZenoniaProto
             ApronSmall = new[] { "rbCaveBoulder", "rbStoneCluster", "rbStoneCluster", "rbGlowShrooms", "rbCaveBoulder", "rbPebbles" },
         };
 
+        /// <summary>Frost Hollow 2.5D (21/11/2026, ChatGPT snow art direction docs/reference/frost-hollow-25d/snow-25d-art-direction-chatgpt.md section 7):
+        /// overcast winter day on MID-VALUE snow (the ground itself is #8999AF, not white: the translucent RO-trailer skill FX must read on it), weak warm
+        /// sun #FFF0D7 (~0.7 of Willowbrook's strength), snow shade #667B8E, blue-grey fog #8799AE (light, distance only), vignette 0.07, sparse slow
+        /// snowfall instead of dust / leaves, pines sway a little, no canopy dapple. Border: snowy pines, dead trees, ice rocks.</summary>
+        public static readonly View25DProfile SnowField = new View25DProfile
+        {
+            TiltDeg = 32f, FovDeg = 27f, HeroPx = 69f, FeetY = 389f, Ro3Look = true, ScreenHaze = 0.03f, Vignette = 0.07f,
+            SunColor = Hex(0xFF, 0xF0, 0xD7), SunStrength = 0.25f, UnitSunStrength = 0.18f,
+            ShadeColor = Hex(0x66, 0x7B, 0x8E), CrownShadeColor = Hex(0x4E, 0x65, 0x72), UnitShadeStrength = 0.25f,
+            FogColor = Hex(0x87, 0x99, 0xAE), FogStart = 4f * GameConfig.TileUnits, FogEnd = 18f * GameConfig.TileUnits, FogMax = 0.16f, FogDesaturate = 0.2f,
+            Motes = 0, LeavesMax = 0, WindSway = 0.7f, Dapple = 0f, Snowfall = 28,
+            ApronTall = new[] { "fhPineBig", "fhPineMid", "fhPineBig", "fhPineSlim", "fhDeadTree", "fhPineMid" },
+            ApronSmall = new[] { "fhRock", "fhRockSmall", "fhBushSnow", "fhRockSlab", "fhRock", "fhCrystalSmall" },
+        };
+
+        /// <summary>Frostfang Den 2.5D (21/11/2026, same art direction section 8): dim glacial cave. DungeonLights like Rootburrow but ice: ambient #344F69
+        /// (ChatGPT 0.28-0.34 on its scale; our violet cave reads right at 0.22 x 1.25 on the gate floor, so 0.30), crystal light pools #79C6D9 / teal #58B9B5,
+        /// fog #263E56, vignette #0E1C2C 0.16, blue motes + ice dust, drips. The boss arena stays slate grey (lights on its rim, not in its middle).</summary>
+        public static readonly View25DProfile IceDungeon = new View25DProfile
+        {
+            TiltDeg = 32f, FovDeg = 27f, HeroPx = 69f, FeetY = 389f, Ro3Look = true,
+            Dungeon = true, AmbientColor = Hex(0x34, 0x4F, 0x69), AmbientLevel = 0.34f, UnitAmbient = 0.52f, BossAmbient = 0.56f, // 0.30 -> 0.34: ChatGPT review, corridors too dark
+            SunElevationDeg = 78f, CastShorten = 0.35f, SunStrength = 0f, UnitSunStrength = 0f,
+            ShadeColor = Hex(0x1C, 0x2C, 0x40), CrownShadeColor = Hex(0x26, 0x38, 0x4D), UnitShadeStrength = 0.15f,
+            FogColor = Hex(0x26, 0x3E, 0x56), FogStart = 5f * GameConfig.TileUnits, FogEnd = 15f * GameConfig.TileUnits, FogMax = 0.14f, FogDesaturate = 0.1f,
+            ScreenHaze = 0.02f, Vignette = 0.16f, VignetteColor = Hex(0x0E, 0x1C, 0x2C),
+            Motes = 14, LeavesMax = 0, WindSway = 0f, Dapple = 0f,
+            MoteColorA = new Color(0.62f, 0.9f, 1f, 0.7f), MoteColorB = new Color(0.85f, 0.95f, 1f, 0.6f),
+            ApronTall = new[] { "fdIceWallA", "fdIceWallB", "fdIcePillar", "fdCrystalWall", "fdIceWallA", "fdIcicleWall" },
+            ApronSmall = new[] { "fhRock", "fhRockSmall", "fhRockSlab", "fhRock" },
+        };
+
         /// <summary>Rootburrow V4 floors (21/11/2026): darker every floor down (ChatGPT layout V4: ambient 0.30 at the gate -> 0.23 on 2F -> 0.18 on 3F), the
         /// units only half as much (they must stay readable).</summary>
         public static readonly View25DProfile DarkDungeon1F = DarkDungeon.Floor(1.25f), DarkDungeon2F = DarkDungeon.Floor(1.0f), DarkDungeon3F = DarkDungeon.Floor(0.82f);
@@ -128,6 +162,8 @@ namespace ZenoniaProto
             if (mapId == SunkenReliquaryMap.MapId) return Prototype;
             if (mapId == RootburrowMap.MapId) return DarkDungeon1F;
             if (mapId == RootburrowB2Map.MapId) return DarkDungeon2F;
+            if (mapId == FrostHollowLayout.MapId) return SnowField;
+            if (mapId == FrostfangDenMap.MapId) return IceDungeon;
             return mapId == RootburrowB3Map.MapId ? DarkDungeon3F : Ro3Feel;
         }
 

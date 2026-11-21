@@ -39,8 +39,8 @@ namespace ZenoniaProto
             { "bleachedBones", new PropDef(2f, 1.25f, 1, 1) }, { "cactusCluster", new PropDef(1.75f, 2f, 1, 1) },
             { "brokenWagon", new PropDef(3.75f, 2.5f, 3, 1) }, { "ruinPillar", new PropDef(2.5f, 3.25f, 1, 1) },
             // Frostfang Den
-            { "icePillar", new PropDef(2.25f, 3.5f, 1, 1) }, { "frozenStalagmite", new PropDef(2f, 2.5f, 1, 1) },
-            { "frostCrystal", new PropDef(2f, 2.25f, 1, 1) }, { "frozenBones", new PropDef(2.5f, 1.75f, 1, 1) },
+            { "icePillar", new PropDef(2.25f, 3.5f, 1, 1) }, { "frozenStalagmite", new PropDef(1.75f, 2.25f, 1, 1) },   // Frostfang Den, redrawn for 58 deg 21/11/2026
+            { "frostCrystal", new PropDef(2.25f, 2f, 1, 1) }, { "frozenBones", new PropDef(2.25f, 2f, 1, 1) },
             // Emberfen Marsh
             { "swampTree", new PropDef(3.5f, 4.25f, 1, 1) }, { "mangroveRoots", new PropDef(2.5f, 3f, 2, 1) },
             { "giantMushroom", new PropDef(2.25f, 3f, 1, 1) }, { "reedPatch", new PropDef(1.75f, 2.25f, 1, 1) },

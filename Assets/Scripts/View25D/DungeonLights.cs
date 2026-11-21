@@ -27,6 +27,11 @@ namespace ZenoniaProto
             PinkCrystal = new Kind(0xED91D6, 2.8f, 0.65f, 0.05f, 2.8f), Obelisk = new Kind(0x56D6F5, 3.0f, 0.70f, 0.03f, 4.0f, 0.9f),
             Shrooms = new Kind(0xA9E9DF, 1.6f, 0.32f, 0.07f, 3.2f, 0.2f), Nest = new Kind(0xA277F0, 2.0f, 0.40f, 0.05f, 3.4f, 0.3f),
             Seal = new Kind(0x72E7FF, 3.0f, 0.55f, 0.08f, 2.0f, 0.2f), Stairs = new Kind(0x65DBFF, 3.6f, 0.8f, 0.06f, 2.2f, 0.4f), StairsUp = new Kind(0xA277F0, 3.6f, 0.8f, 0.06f, 2.6f, 0.4f), BossSeal = new Kind(0x72E7FF, 4.5f, 1.05f, 0.08f, 2.0f), BossOrb = new Kind(0x65DBFF, 3.2f, 0.7f, 0.05f, 2.5f);
+        /// <summary>Frostfang Den ice cave (21/11/2026, ChatGPT snow art direction section 8): ice-blue crystal #79C6D9, teal #58B9B5, small shards; the arena rim
+        /// lights stand by the four corner pillars (Extra), never in the middle of the boss floor.</summary>
+        static readonly Kind IceCrystal = new Kind(0x79C6D9, 3.6f, 0.68f, 0.04f, 3.2f, 1.0f), TealCrystal = new Kind(0x58B9B5, 3.0f, 0.56f, 0.04f, 3.6f, 0.6f), // review: -20 %
+            IceWall = new Kind(0x79C6D9, 2.4f, 0.40f, 0.03f, 4.0f, 1.2f), IceShards = new Kind(0xBAF2EF, 1.4f, 0.30f, 0.06f, 2.8f, 0.2f),
+            ArenaRim = new Kind(0x79C6D9, 3.4f, 0.75f, 0.04f, 3.0f, 1.4f);
         /// <summary>Soft light carried with the local hero (user 21/11: "giống ở trong hang", the cave stays dark but the own hero must read):
         /// always one of the 16 lights, no floor pool, no flicker.</summary>
         static readonly Kind HeroGlow = new Kind(0xD8E2FF, 3.4f, 0.40f, 0f, 3f);
@@ -47,6 +52,10 @@ namespace ZenoniaProto
                 case "rbRuneSeal": k = Seal; return true;
                 case "rbStairsDown": k = Stairs; return true;   // V4 floor stairs: the mouth glows (cyan runes down, violet up)
                 case "rbStairsUp": k = StairsUp; return true;
+                case "fdCrystalTall": k = IceCrystal; return true;
+                case "fdCrystalTeal": k = TealCrystal; return true;
+                case "fdCrystalWall": k = IceWall; return true;
+                case "fdCrystalShards": k = IceShards; return true;
                 default: k = default(Kind); return false;
             }
         }
@@ -54,6 +63,12 @@ namespace ZenoniaProto
         /// <summary>Hand-placed lights per map: (tile x, tile y (y down, centre of the tile), kind). Rootburrow 3F: the map boss's chamber and the Wanted arena.</summary>
         static IEnumerable<KeyValuePair<Vector2, Kind>> Extra(string mapId)
         {
+            if (mapId == FrostfangDenMap.MapId)                                                     // Glacier Warden arena: rim lights at the corner pillars
+            {
+                foreach (Vector2 c in new[] { new Vector2(23.5f, 7.5f), new Vector2(32.5f, 7.5f), new Vector2(23.5f, 16.5f), new Vector2(32.5f, 16.5f) })
+                    yield return new KeyValuePair<Vector2, Kind>(c, ArenaRim);
+                yield break;
+            }
             if (mapId != RootburrowB3Map.MapId) yield break;                                       // V4: both bosses live on 3F
             yield return new KeyValuePair<Vector2, Kind>(new Vector2(38.5f, 22.5f), BossSeal);  // Ambercap Warden's chamber (boss tile 38,21)
             yield return new KeyValuePair<Vector2, Kind>(new Vector2(12.0f, 23.5f), BossSeal);  // the Wanted arena rune seal (Aetherglyph Owl at 12,22)

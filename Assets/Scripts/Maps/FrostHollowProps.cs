@@ -39,7 +39,9 @@ namespace ZenoniaProto
         };
 
         static MapProp[] all;
-        /// <summary>Every prop of the map. Built on first use: static fields of a partial class initialise file by file in no fixed order.</summary>
-        public static MapProp[] All { get { return all ?? (all = OldSection.Concat(Frame).Concat(Scatter).ToArray()); } }
+        /// <summary>Every prop of the map. Built on first use: static fields of a partial class initialise file by file in no fixed order.
+        /// 2.5D (21/11/2026): + FrostHollowCliffProps, the standing ice-rock cliff line, ice-cave mouth and plateau pines (Tools/place-map-25d-dungeon-props.py frost-hollow),
+        /// all on tiles the rows already block.</summary>
+        public static MapProp[] All { get { return all ?? (all = OldSection.Concat(Frame).Concat(Scatter).Concat(FrostHollowCliffProps.All).ToArray()); } }
     }
 }

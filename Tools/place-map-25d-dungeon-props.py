@@ -41,13 +41,49 @@ FLOOR_DECOR = ["rbGlowShrooms", "rbPebbles", "rbPebbles", "rbStoneSlab", "rbGlow
 FOOT_W = {"rbStairsDown": 3, "rbStairsUp": 3, "rbCaveWall": 3, "rbCaveWallB": 3, "rbHangingRoots": 2, "rbCaveBoulder": 2, "rbStoneSlab": 2, "rbRuneSeal": 3}
 
 
+# Snow / ice maps (21/11/2026, docs/reference/frost-hollow-25d/snow-25d-art-direction-chatgpt.md): same rules, their own pieces. Frost Hollow keeps its
+# hand-placed tables (OldSection / Frame / Scatter: forest, camp, towers...) and only gets the standing cliff line + sparse pines on the plateau mass,
+# written as FrostHollowCliffProps (the `existing` tables are read so nothing lands on or next to their props).
+MAPS["frost-hollow"] = dict(cls="FrostHollowCliff", rows_file="FrostHollowLayout.cs", size=(72, 48), start=(4, 21), boss=None, hud_rows=45,
+                            row_chars="CTwBs", solid_chars="CTw", water_chars="w",
+                            portals=[(2, 21), (67, 20), (68, 20), (69, 20)], fixed=[("fhIceCave", 67, 17)], reserved=[(7, 5)],
+                            existing=["FrostHollowProps.cs", "FrostHollowFrameProps.cs", "FrostHollowScatterProps.cs"],
+                            tall_n=["fhCliffA", "fhCliffB", "fhCliffWide", "fhCliffA", "fhCliffB", "fhCliffTall"], tall_n_fallback="fhCliffPillar",
+                            tall_side=["fhCliffPillar", "fhCliffEndL", "fhCliffEndR", "fhPineSlim"],
+                            low=["fhCliffLow", "fhRock", "fhRockSmall", "fhRock"], deep=["fhPineBig", "fhPineMid", "fhPineSlim", "fhDeadTree", "fhCliffPillar", "fhPineMid"],
+                            runs=(["fhCliffWide", "fhCliffWide", "fhCliffTall"], ["fhCliffA", "fhCliffB"], "fhCliffEndL", "fhCliffEndR", "fhCliffPillar"),
+                            floor_decor=[], lights=[], deep_rate=(0.22, 0.10), summary="Standing ice-rock cliffs and plateau pines of the 2.5D Frost Hollow")
+# Frostfang Den (dim glacial cave): continuous standing ice walls north of the corridors, ice crystals as DungeonLights, the boss arena (Glacier Warden,
+# MapSpawnTable FrostfangDenBossTile 26,11) kept clear of floor decor; the map's own hand-placed pillars / stalagmites / crystals / bones stay (existing).
+MAPS["frostfang-den"] = dict(cls="FrostfangDen", rows_file="FrostfangDenMap.cs", size=(36, 24), start=(3, 10), boss=None, hud_rows=21, arena=(27, 12),
+                             row_chars="TgdpwB", solid_chars="Tw", water_chars="w",
+                             portals=[(0, 9), (0, 10), (0, 11), (34, 10)], fixed=[], reserved=[], existing=["FrostfangDenMap.cs"],
+                             runs=(["fdIceWallA", "fdIceWallB", "fdCrystalWall"], ["fdIcicleWall"], "fdIceWallEnd", "fdIcePillar", "fdIcePillar"),
+                             tall_n=["fdIcePillar"], tall_n_fallback="fdIcePillar", tall_side=["fdIcePillar", "fdCrystalTall", "fdIceWallEnd", "fdIcePillar"],
+                             low=["fdIceBoulder", "fdRockCluster", "fdCrystalShards", "fdRockCluster"], deep=["fdIcePillar", "fdCrystalTall", "fdIceBoulder", "fdIceWallA", "fdCrystalTeal"],
+                             floor_decor=["fdCrystalShards", "fdRockCluster", "fhRockSmall", "fhRockSlab", "fdRockCluster"],
+                             lights=[("fdCrystalTall", 9, False), ("fdCrystalTeal", 9, False)], deep_rate=(0.35, 0.18), arena_seal=False,
+                             summary="Standing ice walls, light crystals and floor decor of the dim 2.5D Frostfang Den")
+FOOT_W.update({"fdIceWallA": 3, "fdIceWallB": 3, "fdCrystalWall": 3, "fdIcicleWall": 2, "fdIceBoulder": 2})
+FOOT_W.update({"fhCliffA": 2, "fhCliffB": 2, "fhCliffWide": 3, "fhCliffTall": 3, "fhCliffLow": 3, "fhIceCave": 3})
+ROOTBURROW_LIGHTS = [("rbRuneOrb", 9, True), ("rbRuneObelisk", 13, False), ("rbPurpleCrystal", 9, False), ("rbPinkCrystal", 11, False)]
+
+
 def load(cfg):
     w, h = cfg["size"]
-    rows = re.findall(r'"([TgwBd]{%d})"' % w, open(os.path.join(MAPS_DIR, cfg["rows_file"]), encoding="utf8").read())
+    rows = re.findall(r'"([%s]{%d})"' % (cfg.get("row_chars", "TgwBd"), w), open(os.path.join(MAPS_DIR, cfg["rows_file"]), encoding="utf8").read())
     assert len(rows) == h, len(rows)
-    solid = np.array([[c in "TwB" for c in r] for r in rows])
-    water = np.array([[c in "wB" for c in r] for r in rows])
+    solid = np.array([[c in cfg.get("solid_chars", "TwB") for c in r] for r in rows])
+    water = np.array([[c in cfg.get("water_chars", "wB") for c in r] for r in rows])
     return solid, water
+
+
+def existing_props(cfg):
+    """(type, x, y) of the map's hand-placed tables (Frost Hollow), so generated pieces keep clear of them."""
+    out = []
+    for f in cfg.get("existing", []):
+        out += [(t, int(x), int(y)) for t, x, y in re.findall(r'(?:P|new MapProp)\("(\w+)", (\d+), (\d+)\)', open(os.path.join(MAPS_DIR, f), encoding="utf8").read())]
+    return out
 
 
 def dist_to_floor(solid):
@@ -76,7 +112,13 @@ def main():
         props.append((t, x, y)); used[max(0, y - 2):y + 2, max(0, x - 2):x + 5] = True
     for x, y in cfg.get("reserved", []):                              # V5 chests / warp crystal: their tile + one tile of air all round
         used[max(0, y - 1):y + 3, max(0, x - 1):x + 2] = True   # 2 rows south too: a tall piece there would stand in front of it
-    lights = dict(rbRuneOrb=[], rbRuneObelisk=[], rbPurpleCrystal=[], rbPinkCrystal=[])
+    hard = used.copy()                                                 # fixed / reserved only (the cliff line may touch the hand-placed props)
+    for t, x, y in existing_props(cfg):                                # hand-placed tables: their tile + one tile of air
+        used[max(0, y - 1):y + 2, max(0, x - 1):x + 3] = True
+    light_rules = cfg.get("lights", ROOTBURROW_LIGHTS)
+    lights = {n: [] for n, _, _ in light_rules}
+    TALL_N_, TALL_SIDE_, LOW_, DEEP_ = cfg.get("tall_n", TALL_N), cfg.get("tall_side", TALL_SIDE), cfg.get("low", LOW), cfg.get("deep", DEEP)
+    FLOOR_DECOR_ = cfg.get("floor_decor", FLOOR_DECOR)
 
     def free(x, y, fw):
         return x >= 0 and x + fw <= w and 0 <= y < h and not used[y, x:x + fw].any()
@@ -99,40 +141,66 @@ def main():
     floor_north = lambda x, y, k: any(y - j >= 0 and floor[y - j, x] for j in range(1, k + 1))
     tiles = [(x, y) for y in range(h) for x in range(w) if solid[y, x] and y < cfg["hud_rows"]]
     rng.shuffle(tiles)
-    # 1) light sources first, on wall tiles that face the floor from the north or the sides
-    for x, y in tiles:
-        if d[y, x] != 1 or floor_north(x, y, 2): continue
-        if far("rbRuneOrb", x, y, 9) and near_floor_s(x, y): put("rbRuneOrb", x, y)
-        elif far("rbRuneObelisk", x, y, 13): put("rbRuneObelisk", x, y)
-        elif far("rbPurpleCrystal", x, y, 9): put("rbPurpleCrystal", x, y)
-        elif far("rbPinkCrystal", x, y, 11): put("rbPinkCrystal", x, y)
+    def place_lights():
+        # 1) light sources, on wall tiles that face the floor from the north or the sides
+        for x, y in tiles:
+            if not light_rules or d[y, x] != 1 or floor_north(x, y, 2): continue
+            for name, gap, south in light_rules:                        # first rule that fits (same order as the Rootburrow if / elif chain)
+                if far(name, x, y, gap) and (not south or near_floor_s(x, y)):
+                    put(name, x, y); break
+    if "runs" not in cfg: place_lights()                                 # Rootburrow: lights first; snow / ice maps: after the continuous wall line
+    # 1b) continuous cliff line (snow maps, cfg "runs"): every solid tile with floor just south gets a standing piece, pieces side by side with
+    # no air between them (a broken line of separate rocks does not read as a cliff), 3 / 2-wide pieces, a 1-wide end or pillar for the remainder
+    if "runs" in cfg:
+        occ = np.zeros_like(solid)
+        for t, x, y in existing_props(cfg): occ[y, x] = True
+        wall = lambda x, y: solid[y, x] and not water[y, x] and near_floor_s(x, y) and not occ[y, x] and not hard[y, x] and y < cfg["hud_rows"]
+        r3, r2, r1l, r1r, r1 = cfg["runs"]
+        for y in range(h):
+            x = 0
+            while x < w:
+                if not wall(x, y): x += 1; continue
+                x1 = x
+                while x1 < w and wall(x1, y): x1 += 1
+                pos = x
+                while pos < x1:
+                    left = x1 - pos
+                    if left >= 3 and (left == 3 or rng.random() < 0.35): t, fw = rng.choice(r3), 3
+                    elif left >= 2: t, fw = rng.choice(r2), 2
+                    else: t, fw = (r1l if pos == x and x1 - x > 1 else r1r if x1 - x > 1 else r1), 1
+                    props.append((t, pos, y)); used[y, pos:pos + fw] = True
+                    if y > 0: used[y - 1, pos:pos + fw] = True
+                    pos += fw
+                x = x1
+        place_lights()
     # 2) the wall line
     for y in range(h):
         for x in range(w):
             if not solid[y, x] or d[y, x] != 1 or y >= cfg["hud_rows"]: continue
             if floor_north(x, y, 2):                                    # south of the floor: low flat pieces only
-                if rng.random() < 0.45: put(rng.choice(LOW), x, y, block=False)
+                if rng.random() < 0.45: put(rng.choice(LOW_), x, y, block=False)
             elif near_floor_s(x, y):
-                if rng.random() < 0.8: put(rng.choice(TALL_N), x, y) or put("rbStonePillar", x, y)
-            elif rng.random() < 0.55: put(rng.choice(TALL_SIDE), x, y)
+                if rng.random() < 0.8: put(rng.choice(TALL_N_), x, y) or put(cfg.get("tall_n_fallback", "rbStonePillar"), x, y)
+            elif rng.random() < 0.55: put(rng.choice(TALL_SIDE_), x, y)
     # 3) the solid mass between and around the halls
     for x, y in tiles:
-        if d[y, x] < 2 or floor_north(x, y, 3) or rng.random() > (0.30 if d[y, x] <= 4 else 0.12): continue  # thinner deep in the mass
-        put(rng.choice(DEEP), x, y, block=rng.random() < 0.85)
+        near_rate, deep_rate = cfg.get("deep_rate", (0.30, 0.12))
+        if d[y, x] < 2 or floor_north(x, y, 3) or rng.random() > (near_rate if d[y, x] <= 4 else deep_rate): continue  # thinner deep in the mass
+        put(rng.choice(DEEP_), x, y, block=rng.random() < 0.85)
     # 4) floor decor along the walls (walk-through), clear of portals / start / boss
     keep = [(px, py, 2) for px, py in cfg["portals"]] + [(cfg["start"][0], cfg["start"][1], 2)] + [(x, y, 2) for x, y in cfg.get("reserved", [])]
     if cfg["boss"]: keep.append((cfg["boss"][0], cfg["boss"][1], 3))
     if "arena" in cfg: keep.append((cfg["arena"][0], cfg["arena"][1], 6))   # the 40-player arena floor stays clear
     for y in range(h):
         for x in range(w):
-            if not floor[y, x] or rng.random() > 0.10: continue
+            if not FLOOR_DECOR_ or not floor[y, x] or rng.random() > 0.10: continue
             if not solid[max(0, y - 1):y + 2, max(0, x - 1):x + 2].any(): continue
             if any(abs(x - a) <= r and abs(y - b) <= r for a, b, r in keep): continue
-            put(rng.choice(FLOOR_DECOR), x, y, block=False)
+            put(rng.choice(FLOOR_DECOR_), x, y, block=False)
     if cfg["boss"]:
         bx, by = cfg["boss"]
         props.append(("rbRuneSeal", bx - 1, by + 2))                   # under the boss's reach, in front of it (flat, walk-through)
-    if "arena" in cfg:                                                   # the Wanted arena: a rune seal under the event boss
+    if "arena" in cfg and cfg.get("arena_seal", True):                  # the Wanted arena: a rune seal under the event boss
         ax, ay = cfg["arena"]
         props.append(("rbRuneSeal", ax - 1, ay + 1))
     write(cfg, props)
@@ -147,7 +215,7 @@ def write(cfg, props):
     src = '''namespace ZenoniaProto
 {
     /// <summary>
-    /// Standing walls, crystals, lanterns and floor decor of the dark 2.5D %(cls)s (21/11/2026), generated by Tools/place-map-25d-dungeon-props.py %(key)s (seed 21).
+    /// %(summary)s (21/11/2026), generated by Tools/place-map-25d-dungeon-props.py %(key)s (seed 21).
     /// Every blocking prop stands on a tile the rows already block, so collision is unchanged; low pieces south of the floor and the floor decor are walk-through.
     /// The lanterns, crystals and glow mushrooms are the dungeon's lights (DungeonLights, by name). Re-run the tool rather than editing by hand.
     /// </summary>
@@ -161,7 +229,7 @@ def write(cfg, props):
         };
     }
 }
-''' % dict(cls=cfg["cls"], key=[k for k, v in MAPS.items() if v is cfg][0], body="\n".join(lines))
+''' % dict(cls=cfg["cls"], summary=cfg.get("summary", "Standing walls, crystals, lanterns and floor decor of the dark 2.5D " + cfg["cls"]), key=[k for k, v in MAPS.items() if v is cfg][0], body="\n".join(lines))
     out = os.path.join(MAPS_DIR, cfg["cls"] + "Props.cs")
     open(out, "w", encoding="utf8", newline="\n").write(src)
     print("wrote", out)
