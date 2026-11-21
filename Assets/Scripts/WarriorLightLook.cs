@@ -42,7 +42,7 @@ namespace ZenoniaProto
         public static bool Ready { get { return NetMode.RendersFx && Build(); } }
 
         /// <summary>Loads masks / shaders ahead of the first cast (class spawn) so the cast itself never hitches.</summary>
-        public static void Load() { if (NetMode.RendersFx) Build(); }
+        public static void Load() { if (!NetMode.RendersFx) return; Build(); WarriorPaintedSword.Preload(); }
 
         static bool Build()
         {

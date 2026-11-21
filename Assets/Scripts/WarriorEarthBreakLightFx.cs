@@ -10,7 +10,8 @@ namespace ZenoniaProto
     ///  - 0-620 at the caster: a war seal draws itself in under him, a hot glow gathers on the blade (anticipation), motes drawn in;
     ///  - 450 / 600: two thick gold sword sweeps in front of him;
     ///  - 400-1450 at the target: the seal at the real radius draws itself in (telegraph), a warm pool grows;
-    ///  - 850-1450: a HUGE blazing great sword (3 H tall, blade ~0.55 H wide, aura behind it, a light streak above it) drops onto the centre;
+    ///  - 850-1450: a HUGE great sword (3 H tall; since 21/11 the ChatGPT-painted sprite of WarriorPaintedSword with pulsing runes, a hot halo,
+    ///    a white compression flash at contact, flame tongues + embers along the blade, burning away 2100-2500) drops onto the centre;
     ///  - 1450 slam: white-hot impact 2.6 H, thick shockwave to 1.2 R, scorch + glowing cracks that linger to the end, 6 flame pillars round the
     ///    blade, rocks / dust / sparks; small hits: sparks, a shock every third; 1850: shock; 2000 finisher: the largest impact (3.2 H), two
     ///    shocks to 1.45 R, 8 tall pillars, a fireball at the blade, rocks; 2150-2450 burns: the cracks flare, small pillars + embers.
@@ -49,12 +50,15 @@ namespace ZenoniaProto
               .Ground(WarriorLightLook.Line(WarriorLightLook.Sigil, p), 400f, 1750f, seal, seal, 0.95f, sq, 12f, 4)
                 .Reveal(600f).Phases(slamMs - 400f, slamMs - 300f, 0.55f, 0.7f).Env(0f, 260f)
               .Upright(WarriorLightLook.Fill(p), ClericLightFx.Band.Over, true, 850f, finishMs + 250f, swordW * 2.2f, swordW * 2.4f, swordH * 1.1f, swordH * 1.15f, 1f, new Vector2(0f, -10f), 1)
-                .Drop(dropFrom, dropMs).Env(90f, 260f).Kind(LayerKind.Glow)                                       // blazing aura behind the blade
-              .Upright(WarriorLightLook.Glyph(WarriorLightLook.GreatSword, p), ClericLightFx.Band.Over, true, 850f, finishMs + 250f, swordW * 1.14f, swordW * 1.14f, swordH * 1.05f, swordH * 1.05f, 0.9f, new Vector2(0f, -8f), 1)
-                .Drop(dropFrom, dropMs).Env(90f, 260f)                                                            // hot orange outline round the crimson blade
-              .Upright(WarriorLightLook.Glyph(WarriorLightLook.GreatSword, Sword), ClericLightFx.Band.Over, true, // crimson blade, white-hot fuller, gold aura (concept)
-                850f, finishMs + 250f, swordW, swordW, swordH, swordH, 1f, new Vector2(0f, -6f), 2)
-                .Drop(dropFrom, dropMs).Env(90f, 260f);
+                .Drop(dropFrom, dropMs).Env(90f, 260f).Kind(LayerKind.Glow);                                      // blazing aura behind the blade
+            // The sword itself: the ChatGPT-painted greatsword (21/11, WarriorPaintedSword) standing through the hits and burning away with the
+            // burns; the procedural mask sword only when that art / shader is missing.
+            if (!WarriorPaintedSword.Lay(fx, 850f, totalMs, swordH, 8f, dropFrom, dropMs, slamMs, totalMs - finishMs - 100f, fire))
+                fx.Upright(WarriorLightLook.Glyph(WarriorLightLook.GreatSword, p), ClericLightFx.Band.Over, true, 850f, finishMs + 250f, swordW * 1.14f, swordW * 1.14f, swordH * 1.05f, swordH * 1.05f, 0.9f, new Vector2(0f, -8f), 1)
+                    .Drop(dropFrom, dropMs).Env(90f, 260f)                                                        // hot orange outline round the crimson blade
+                  .Upright(WarriorLightLook.Glyph(WarriorLightLook.GreatSword, Sword), ClericLightFx.Band.Over, true, // crimson blade, white-hot fuller, gold aura (concept)
+                    850f, finishMs + 250f, swordW, swordW, swordH, swordH, 1f, new Vector2(0f, -6f), 2)
+                    .Drop(dropFrom, dropMs).Env(90f, 260f);
             WarriorLightSkills.Slash(fx, ArcRibbonFx.Line(new Vector2(0f, dropFrom + swordH + 40f), new Vector2(0f, swordH * 0.6f)), slamMs - 200f, 200f, 160f, 0.35f * H, p, 0.9f, RibbonSort.Over, 0);
 
             // Slam
@@ -62,7 +66,7 @@ namespace ZenoniaProto
             WarriorGrandFx.Shock(fx, slamMs, 380f, Vector2.zero, radius * 0.3f, radius * 1.2f, p);
             WarriorGrandFx.Scorch(fx, slamMs, totalMs - slamMs, Vector2.zero, radius * 0.85f, fire);
             for (int k = 0; k < 6; k++)
-                WarriorGrandFx.Pillar(fx, slamMs + k * 20f, 520f, Ground(k * 60f + 30f, radius * 0.45f), 0.6f * H, 1.4f * H, fire, ClericLightFx.Band.Over, 3, k % 2 == 0 ? LayerKind.Main : LayerKind.Detail);
+                WarriorGrandFx.Pillar(fx, slamMs + k * 20f, 520f, Ground(k * 60f, radius * 0.45f), 0.6f * H, 1.4f * H, fire, ClericLightFx.Band.Over, 3, k % 2 == 0 ? LayerKind.Main : LayerKind.Detail);
             fx.At(slamMs, f =>
             {
                 UltimateFx.Debris(f.Anchor, f.Own ? 30 : 7, radius * 0.6f, 120f);
@@ -82,7 +86,7 @@ namespace ZenoniaProto
             WarriorGrandFx.Shock(fx, finishMs + 50f, 380f, Vector2.zero, radius * 0.2f, radius * 0.95f, fire, 0.85f, 6);
             WarriorGrandFx.Fireball(fx, finishMs, new Vector2(0f, 10f), 0.9f * H, fire);
             for (int k = 0; k < 8; k++)
-                WarriorGrandFx.Pillar(fx, finishMs + k * 15f, 560f, Ground(k * 45f, radius * 0.6f), 0.7f * H, (k % 2 == 0 ? 2f : 1.5f) * H, fire, ClericLightFx.Band.Over, 3, k % 2 == 0 ? LayerKind.Main : LayerKind.Detail);
+                WarriorGrandFx.Pillar(fx, finishMs + k * 15f, 560f, Ground(k * 45f + 22.5f, radius * 0.6f), 0.7f * H, (k % 2 == 0 ? 2f : 1.5f) * H, fire, ClericLightFx.Band.Over, 3, k % 2 == 0 ? LayerKind.Main : LayerKind.Detail);
             WarriorLightSkills.SplitPulses(fx, "warrior.earth-break", finishMs, true, new Vector2(0f, 8f), p, 16f); // the finisher's extra damage numbers
             fx.At(finishMs, f =>
             {

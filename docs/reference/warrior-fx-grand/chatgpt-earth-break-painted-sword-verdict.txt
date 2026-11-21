@@ -1,0 +1,38 @@
+ChatGPT (Tay "Tân Korris", chat https://chatgpt.com/c/6b014c29-1754-83ec-8942-c5b45a3ac5da), 21/11/2026.
+Input: earth-break-painted-sword-before-vs-after-snow.jpg, -cave.jpg (top = Round 3, bottom = painted sword), earth-break-painted-sword-snow-closeups.jpg.
+
+Earth Break — Painted Sword Review
+
+Verdict: BETTER than Round 3. The painted sword is an upgrade, but the implementation still needs minor polish.
+
+New score: 8.8/10 — up from 8.5/10 (+0.3).
+
+The new version is closer to the approved concept and RO3's visual quality.
+
+The biggest improvement is weapon identity. The previous procedural sword looked like a glowing red geometric shape. The painted sword has an ornate gold crossguard, crimson blade, recognizable pommel, and decorative runes. It now reads as a legendary summoned greatsword rather than a generic magical marker.
+
+The improvements are especially apparent in the snow close-ups at 1100–1520 ms:
+1100 ms: The crossguard and blade silhouette immediately establish the sword's identity.
+1450–1520 ms: The sword retains recognizable details during impact. The gold-red palette fits the Warrior and contrasts well against the snow.
+1700–2000 ms: The upper sword and lower fire/debris combination produces a more substantial, layered attack.
+2300 ms: The finisher has strong visual intensity, although the bright fire and damage numbers partially obscure the weapon.
+
+In the purple cave, the ornate gold edges are even easier to distinguish, giving the attack a premium fantasy appearance.
+
+Top 3 remaining issues
+
+1. HIGH — The sword is too bright during its main impact phase.
+At 1450–1520 ms, the gold and white emission washes out some of the blade's crimson body and decorative runes.
+Exact changes: reduce sword-body emissive intensity by 20–25% during impact; restrict the strongest rune glow to the carved glyphs and central fuller; keep the crimson blade sides near #B92F32 to #D94330; reduce the orange halo behind the sword by 15–20%; preserve the white-hot contact flash at its current duration and size. The goal is to make the sword look solid and powerful, not translucent or made entirely of light.
+
+2. MEDIUM — The burning dissolve weakens the sword silhouette too abruptly.
+Exact changes: keep the sword at 90–100% silhouette opacity until approximately 1750 ms; begin the main dissolve around 1800 ms; complete it around 2100–2200 ms; dissolve from the blade tip upward toward the pommel, irregular ember-shaped erosion; thin orange burning edge (0.025–0.04H) only along the active dissolve boundary.
+
+3. MEDIUM — The final shockwave and flame pillars compete with the sword.
+Exact changes: reduce the outer shockwave's peak opacity by 15–20%; reduce secondary flame-pillar brightness by 10–15%; keep the main sword and its contact point as the brightest focal area until the dissolve begins; offset the three most prominent flame pillars away from the sword's centerline. Do not add more particles or enlarge the overall AoE.
+
+Final decision: APPROVED — Keep the painted sword. Do not revert to the procedural version. Freeze the sword's design, scale, crossguard, and colors. Remaining work is emission control, dissolve timing, and visual hierarchy.
+
+DIEM: 8.8/10
+
+--- Applied after this verdict (not re-scored): halo -20 %, flash weaker, under-light lower, dissolve now from the tip upward. Dissolve timing kept at 2100-2500 ms (the sword stays whole through the 2000 ms finisher and burns away with the 2150-2450 burns); issue 3: flame pillars moved off the line in front of the sword (no pillar at 270 deg); shockwave opacity not changed (shared WarriorGrandFx).

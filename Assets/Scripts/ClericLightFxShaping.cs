@@ -19,6 +19,10 @@ namespace ZenoniaProto
         /// along a direction (boss skills, CaveBossLightFx, 21/11/2026). Spin, if any, still adds on top.</summary>
         public ClericLightFx Turn(float deg) { if (layers.Count > 0) { Last.Rot = deg; Last.Turned = true; } return this; }
 
+        /// <summary>The last added layer burns away (shader _Dissolve 0 -> 1) over its last `ms` instead of the default second-half dissolve:
+        /// a summoned object that stays whole through the hits and crumbles at the end (Earth Break painted sword, 21/11/2026).</summary>
+        public ClericLightFx DissolveOut(float ms) { if (layers.Count > 0) Last.DissolveMs = Mathf.Max(1f, ms); return this; }
+
         public ClericLightFx Pop(float ms) { if (layers.Count > 0) Last.PopMs = Mathf.Max(1f, ms); return this; }
 
         public ClericLightFx Drop(float dy, float ms)
