@@ -108,9 +108,11 @@ namespace ZenoniaProto
             if (headless) return; // server: no sprite sheets, shadow, body or HP bar
             LoadSheets();
             shadow = ProceduralSprites.Child(transform, "Shadow", ProceduralSprites.Shadow());
-            float sw = def.HitW + 2f;
+            bool big = def.IsBoss || def.IsWanted;
+            float sw = big && FakeSun.Enabled ? FootRadius * 2.1f : def.HitW + 2f; // FakeSun: a boss blob follows its foot core, not the painted width (spec 2.4)
             shadow.transform.localScale = new Vector3(sw, sw, 1f);
             body = ProceduralSprites.Child(transform, "Body", null);
+            GroundShadowBlobs.Attach(shadow, big ? ShadowKind.Boss : ShadowKind.Monster, body.transform); // body y = Earth Break lift
             body.sharedMaterial = FeelMaterials.SpriteFlash; // white-flash capable sprite shader
             body.transform.localScale = new Vector3(def.RenderScale, def.RenderScale, 1f);
             barBack = ProceduralSprites.Child(transform, "BarBack", ProceduralSprites.White(true));

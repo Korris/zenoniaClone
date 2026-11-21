@@ -37,6 +37,7 @@
 - **Engine:** mỗi map khai `Width`, `Height` theo rows; ảnh nền chia mảnh qua `GroundChunkCols/Rows`, tên `<GroundTexture>-r{r}c{c}` + `-minimap`.
 - **Đổi kích thước map đang có người chơi:** toạ độ save là toạ độ thế giới, map cao thêm thì save cũ lệch. Phải tăng `SaveSerializer.SaveVersion` cùng commit với map mới và dịch toạ độ khi đọc (đã làm cho Frost Hollow). Assembly `Rpg` không thấy class map: truyền số hàng qua `SaveStore.FrostHollowRows` (gán ở `Bootstrap`).
 - **Đổi bảng quái, map, protocol:** client, server, server-api phát hành cùng lúc; build lại server.
+- **Bóng đổ (FakeSun, 21/11/2026):** bóng prop sinh tự động lúc vào map từ bảng prop theo TÊN loại (`Assets/Scripts/Shadows/StaticPropShadows.cs` `Classify`: oak / pine / tree / palm... = cây; house / cottage / tent / stall... = nhà; còn lại = đá; `FootH` 0 và thấp ≤ 3 ô = đồ trang trí; bridge / palisade / flower... = không bóng). Prop mới đặt tên theo các từ khoá đó hoặc thêm vào `Classify`. Hướng, màu, alpha chỉ sửa trong `FakeSun.cs`, không chỉnh tay từng map. Vách vẽ trong ảnh nền chưa có bóng.
 
 ## Kiểm tra trước khi báo xong
 
@@ -44,3 +45,9 @@
 - Build từ bản sao (`Tools/build-from-copy.ps1`), chụp trong game bằng `--map <id> --tp x,y --solids --shots`: cổng, điểm xuất hiện, từng cầu thang, cầu, bãi quái, đi qua cổng sang map kề.
 - **Chụp gần bãi quái cấp cao (map Lv20+) phải thêm `--god`**: hero mặc định Lv1 110 HP, quái bãi mới (vd Lv26-30) đánh một đòn là chết, hero hồi sinh về cổng khiến ảnh chụp sau đó trông như `--tp` không chạy (đã gặp khi làm Scorpion Gorge: toạ độ xa cổng > ~20 ô luôn ra lại ảnh cổng, hoá ra do chết chứ không phải lỗi dịch chuyển). Xem khung HP ở góc trái ảnh trước khi kết luận `--tp` sai.
 - `dotnet test` cả hai project.
+
+## Sổ lỗi
+
+| Ngày | Việc | Lỗi | Nguyên nhân | Cách sửa |
+|---|---|---|---|---|
+| 2026-11-21 | Bóng đổ FakeSun, Willowbrook | Lần chụp đầu gần như không thấy bóng cây, đá, hero (mask đã đúng, dump mask có đủ blob) | Quad phủ trộn alpha thường màu bóng #536B69 (xám xanh, độ sáng gần bằng cỏ) ở alpha 0,18-0,34 lên cỏ sáng: cỏ chỉ tối đi ~5-8 % | Đổi sang nhân: nền x lerp(1, màu bóng, a) (`Blend DstColor Zero`), cỏ tối ~12-18 %, vẫn không đen, màu bóng vẫn ngả lạnh; giữ alpha theo spec |

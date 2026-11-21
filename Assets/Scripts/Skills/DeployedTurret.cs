@@ -103,6 +103,7 @@ namespace ZenoniaProto
             shadow.transform.localPosition = new Vector3(0f, 1.2f, 0f);
             shadow.sortingOrder = order - 1;
             shadow.color = new Color(1f, 1f, 1f, 0.3f);
+            GroundShadowBlobs.Attach(shadow, ShadowKind.Turret);
             body = ProceduralSprites.Child(transform, "Body", Art());
             body.sortingOrder = order;
             Draw(0f);

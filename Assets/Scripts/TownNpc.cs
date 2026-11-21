@@ -46,6 +46,7 @@ namespace ZenoniaProto
             shadow.transform.localScale = new Vector3(14f, 14f, 1f);
             shadow.color = new Color(0f, 0f, 0f, 0.45f);
             shadow.sortingOrder = order;
+            GroundShadowBlobs.Attach(shadow, ShadowKind.Npc, null, 0.45f);
             Sprite[][] sheet = SpriteSheet.Grid("Sprites/village/npcs/" + def.Art, GameConfig.FramePx, GameConfig.FramePx, GameConfig.FramePpu, new Vector2(0.5f, 0f));
             if (sheet != null && sheet.Length > 0)
             {

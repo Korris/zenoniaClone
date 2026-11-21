@@ -106,6 +106,7 @@ namespace ZenoniaProto
             var parts0 = new List<Part>();
             lean = new GameObject("Lean").transform; // pivots on the feet; the shadow stays out of it
             lean.SetParent(transform, false);
+            GroundShadowBlobs.Attach(shadow, ShadowKind.Hero, lean); // FakeSun blob (the sprite above only draws with `--shadows off`)
             foreach (GearPartSpec spec in cls.Parts)
                 parts0.Add(new Part { Spec = spec, Sr = ProceduralSprites.Child(lean, spec.Id, null) });
             body = ProceduralSprites.Child(lean, "Body", null);

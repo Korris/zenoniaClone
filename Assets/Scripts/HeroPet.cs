@@ -41,6 +41,7 @@ namespace ZenoniaProto
             r.sr = go.AddComponent<SpriteRenderer>();
             r.sr.sharedMaterial = FeelMaterials.SpriteFlash;
             r.shadow = ProceduralSprites.Child(go.transform, "Shadow", ProceduralSprites.Shadow());
+            GroundShadowBlobs.Attach(r.shadow, ShadowKind.Pet); // hovering pets push this sprite down by their bob: lighter, wider blob
             r.pos = owner.Position;
             ByHero[owner] = r;
             return r;

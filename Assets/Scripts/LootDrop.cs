@@ -95,6 +95,7 @@ namespace ZenoniaProto
             bool gear = entry.Kind == LootKind.Equipment;
             shadow.transform.localScale = new Vector3(gear ? 9f : 6f, gear ? 9f : 6f, 1f);
             shadow.color = new Color(1f, 1f, 1f, 0.35f);
+            GroundShadowBlobs.Attach(shadow, ShadowKind.Loot, null, 0.35f);
             glow = ProceduralSprites.Child(transform, "Glow", LootSprites.Glow());
             Color rc = gear ? LootSprites.RarityColor(entry.Item) : entry.Kind == LootKind.UpgradeStone ? new Color(0.45f, 0.95f, 1f) : Color.white;
             glowOn = gear || entry.Kind == LootKind.UpgradeStone;
