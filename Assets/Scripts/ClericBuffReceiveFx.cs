@@ -10,29 +10,21 @@ namespace ZenoniaProto
     ///    the body (mesh trails), a round gold sword emblem with up-arrows over the head, cream sparks;
     ///  - DEF: blue light column, blue compass circle, a see-through blue dome dropping over the hero (front half rim only: the face stays
     ///    clear), a shield emblem with up-arrows, ice motes;
-    ///  - receiving one while the other already runs = the combined image: gold + blue columns side by side, both emblems, dome + gold circle.
+    ///  - receiving one while the other already runs plays only the received buff's burst; the combined picture is the maintained look.
     /// Columns sit behind the hero, emblems in the FX band above the name. Crowd tiers come in as `dim` (ClericLightFx.DimFor).
     /// </summary>
     public static class ClericBuffReceiveFx
     {
         public const float Ms = 850f;
         const float Squash = 0.6f, EmblemY = 40f, DomeW = 44f, DomeH = 46f, DomeBaseV = 0.28f;
-        static readonly Dictionary<HeroController, float> LastBoth = new Dictionary<HeroController, float>();
 
         /// <summary>`hero` just received the `atk` (else def) buff; `otherRuns` = the other Cleric buff is already on them (combined look).</summary>
         public static void Receive(HeroController hero, bool atk, float dim)
         {
             if (hero == null || !ClericBuffStatusLook.Ready) return;
-            bool otherRuns = ClericBuffStatusSource.LeftMs(hero, atk ? ClericBuffStatusSource.Def : ClericBuffStatusSource.Atk) > 0f;
-            bool both = otherRuns;
-            float last;
-            if (both)
-            {
-                // Both buffs landing in the same instant (dev key, two Clerics) would play the combined burst twice: once is enough.
-                if (LastBoth.TryGetValue(hero, out last) && Time.time - last < 0.3f) { ClericBuffStatusFx.Ensure(hero, ClericBuffStatusFx.HoldAfterReceiveMs); return; }
-                LastBoth[hero] = Time.time;
-            }
-            Play(hero, atk || both, !atk || both, dim);
+            // The burst shows only the buff just received (user 21/11: Aegis on a hero that still had Blessing showed the sword emblem too);
+            // the combined picture is left to the maintained look (ClericBuffStatusFx) while both run.
+            Play(hero, atk, !atk, dim);
             ClericBuffStatusFx.Ensure(hero, ClericBuffStatusFx.HoldAfterReceiveMs);
         }
 
@@ -114,6 +106,6 @@ namespace ZenoniaProto
         }
 
         /// <summary>Map change: drop the de-dup times (heroes of the old map).</summary>
-        public static void Clear() { LastBoth.Clear(); }
+        public static void Clear() { }
     }
 }
