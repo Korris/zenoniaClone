@@ -17,7 +17,7 @@ namespace ZenoniaProto
     /// [--view25d-scalecomp 0..1 (default 0.6)] [--view25d-look off] (RO3 lighting pass off, for A/B)
     /// [--cam25d pitch,fov,heroPx[,feetY]] (camera A/B in RO3 terms, View25DCameraOverride; wins over --view25d-tilt / -fov).
     /// </summary>
-    public static class View25D
+    public static partial class View25D
     {
         static bool parsed, requested, forcedOff, atmosphere = true, lookOff;
 
@@ -121,18 +121,18 @@ namespace ZenoniaProto
             return d <= 1f ? 1f : Mathf.Lerp(1f, d / refDist, ScaleComp);
         }
         /// <summary>Camera pitch away from straight down, degrees (0 = the old top-down view).</summary>
-        public static float TiltDeg { get { Parse(); return View25DCameraOverride.On ? View25DCameraOverride.TiltDeg : tiltArg > 0f ? tiltArg : Profile.TiltDeg; } }
+        public static float TiltDeg { get { Parse(); return View25DCameraControl.TiltFor(View25DCameraOverride.On ? View25DCameraOverride.TiltDeg : tiltArg > 0f ? tiltArg : Profile.TiltDeg); } }
         public static float FovDeg { get { Parse(); return View25DCameraOverride.On ? View25DCameraOverride.FovDeg : fovArg > 0f ? fovArg : Profile.FovDeg; } }
 
-        /// <summary>Rotation that stands a sprite drawn on the x/y plane up toward the camera, pivoting on its feet (local +y becomes "up").</summary>
-        public static Quaternion Tilt { get { return Quaternion.Euler(-TiltDeg, 0f, 0f); } }
+        /// <summary>Rotation that stands a sprite drawn on the x/y plane up toward the camera, pivoting on its feet (local +y becomes "up"), turned round
+        /// the world vertical by the player's camera yaw (View25DCameraControl): a cylindrical billboard. The camera uses the same rotation.</summary>
+        public static Quaternion Tilt { get { return Quaternion.AngleAxis(YawDeg, Vector3.forward) * Quaternion.Euler(-TiltDeg, 0f, 0f); } }
 
         /// <summary>World point `h` units above the ground point `feet` along a billboard (2D view: simply feet + h on y).</summary>
         public static Vector3 Above(float x, float y, float h)
         {
             if (!Active) return new Vector3(x, y + h, 0f);
-            float r = TiltDeg * Mathf.Deg2Rad;
-            return new Vector3(x, y + h * Mathf.Cos(r), -h * Mathf.Sin(r));
+            return new Vector3(x, y, 0f) + Tilt * new Vector3(0f, h, 0f);
         }
 
         /// <summary>Screen-space label anchor (damage numbers) given as a point already lifted on y: treated as ~20 units above a ground point,
@@ -171,6 +171,7 @@ namespace ZenoniaProto
         public static void StandProp(SpriteRenderer sr)
         {
             sr.transform.rotation = Tilt;
+            RegisterStanding(sr.transform); // turned again when the player tilts / rotates the camera (View25D.CameraYaw.cs)
             View25DPropFade.Register(sr); // fades while it stands in front of the local hero
             View25DLighting.ApplyProp(sr); // RO3 pass: sun-side crown shading, base AO, wind sway, fog
             if (UsesFakeSun) return; // the baked FakeSun prop shadow lies under it already (StaticPropShadows)

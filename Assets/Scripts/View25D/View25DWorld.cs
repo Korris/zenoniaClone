@@ -30,6 +30,7 @@ namespace ZenoniaProto
             {
                 w.atmosphere = cam.GetComponent<View25DAtmosphere>() ?? cam.gameObject.AddComponent<View25DAtmosphere>();
                 w.atmosphere.enabled = false; // only while a 2.5D map is on screen: no full-screen blit on 2D maps
+                if (cam.GetComponent<View25DCameraInput>() == null) cam.gameObject.AddComponent<View25DCameraInput>(); // player tilt / yaw (idle off the RO3 maps)
             }
             if (View25D.Requested) Debug.Log("[ZenoniaProto] View25D prototype requested: tilt " + View25D.TiltDeg + " deg, fov " + View25D.FovDeg + " deg");
         }
@@ -42,6 +43,7 @@ namespace ZenoniaProto
             HideHudIfAsked();
             if (!on) { if (wasOn) TurnOff(); return; }
             wasOn = true;
+            View25D.TickStanding(); // player camera tilt / yaw (View25DCameraControl): standing props turn with it
             Quaternion tilt = View25D.Tilt, untilt = Quaternion.Inverse(tilt);
             cam = Camera.main;
             seen.Clear();
@@ -88,6 +90,7 @@ namespace ZenoniaProto
             units.Clear();
             View25DPropFade.Reset();
             View25DLighting.Reset();
+            View25D.ClearStanding();
             if (ambient != null) { ambient.Destroy(); ambient = null; }
         }
 

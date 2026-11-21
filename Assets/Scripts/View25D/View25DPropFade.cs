@@ -14,7 +14,7 @@ namespace ZenoniaProto
     /// </summary>
     public static class View25DPropFade
     {
-        sealed class Entry { public SpriteRenderer Sr; public float BaseY; public float Alpha = 1f; }
+        sealed class Entry { public SpriteRenderer Sr; public Vector2 Base; public float Alpha = 1f; }
 
         const float MinHeight = 40f;          // world units (2.5 tiles): lower props never hide a hero
         const float NearRange = 220f;         // only props whose base is this close to the hero are tested
@@ -29,7 +29,7 @@ namespace ZenoniaProto
         public static void Register(SpriteRenderer sr)
         {
             if (sr == null || sr.sprite == null || sr.sprite.bounds.size.y < MinHeight) return;
-            Props.Add(new Entry { Sr = sr, BaseY = sr.transform.position.y });
+            Props.Add(new Entry { Sr = sr, Base = sr.transform.position });
         }
 
         /// <summary>Per frame from View25DWorld while a 2.5D map is on screen.</summary>
@@ -45,11 +45,14 @@ namespace ZenoniaProto
                 Shader.SetGlobalVector(HoleId, new Vector4(mid.x / cam.pixelWidth, mid.y / cam.pixelHeight, heroPx * HoleRadiusX / cam.pixelHeight, heroPx * HoleRadiusY / cam.pixelHeight));
             else Shader.SetGlobalVector(HoleId, Vector4.zero);
             float dt = Time.unscaledDeltaTime;
+            Vector2 fwd = View25D.GroundForward, right = View25D.GroundRight, hero2 = hp; // "in front of the hero" = nearer the camera along the screen's up direction (player yaw)
             for (int i = Props.Count - 1; i >= 0; i--)
             {
                 Entry e = Props[i];
                 if (e.Sr == null) { Props.RemoveAt(i); continue; } // map rebuilt
-                bool hide = hero != null && e.BaseY < hp.y && Mathf.Abs(e.Sr.transform.position.x - hp.x) < NearRange && hp.y - e.BaseY < NearRange && Covers(cam, e.Sr, mid, halfW, halfH);
+                Vector2 rel = e.Base - hero2;
+                float depth = -Vector2.Dot(rel, fwd); // > 0: the prop's base is in front of (below on screen) the hero
+                bool hide = hero != null && depth > 0f && depth < NearRange && Mathf.Abs(Vector2.Dot(rel, right)) < NearRange && Covers(cam, e.Sr, mid, halfW, halfH);
                 float target = hide ? FadedAlpha : 1f;
                 if (Mathf.Approximately(e.Alpha, target)) continue;
                 e.Alpha = Mathf.MoveTowards(e.Alpha, target, (hide ? FadeOutPerSec : FadeInPerSec) * dt);
@@ -62,9 +65,15 @@ namespace ZenoniaProto
         /// <summary>The hero's screen box (centre p, half sizes) overlaps the prop's screen rect (from its 3D bounds, narrowed on both sides).</summary>
         static bool Covers(Camera cam, SpriteRenderer sr, Vector3 p, float halfW, float halfH)
         {
-            Bounds b = sr.bounds;
-            Vector3 lo = cam.WorldToScreenPoint(new Vector3(b.min.x, b.min.y, b.max.z)), hi = cam.WorldToScreenPoint(new Vector3(b.max.x, b.max.y, b.min.z));
-            float x0 = Mathf.Min(lo.x, hi.x), x1 = Mathf.Max(lo.x, hi.x), y0 = Mathf.Min(lo.y, hi.y), y1 = Mathf.Max(lo.y, hi.y);
+            Bounds b = sr.sprite.bounds; // the 4 corners of the sprite on its billboard plane (turned by the camera yaw, so not the world box)
+            Matrix4x4 m = sr.transform.localToWorldMatrix;
+            float fx = sr.flipX ? -1f : 1f;
+            float x0 = float.MaxValue, x1 = float.MinValue, y0 = float.MaxValue, y1 = float.MinValue;
+            for (int i = 0; i < 4; i++)
+            {
+                Vector3 c = cam.WorldToScreenPoint(m.MultiplyPoint3x4(new Vector3(((i & 1) == 0 ? b.min.x : b.max.x) * fx, (i & 2) == 0 ? b.min.y : b.max.y, 0f)));
+                x0 = Mathf.Min(x0, c.x); x1 = Mathf.Max(x1, c.x); y0 = Mathf.Min(y0, c.y); y1 = Mathf.Max(y1, c.y);
+            }
             float shrink = (x1 - x0) * RectShrinkX;
             return p.x + halfW > x0 + shrink && p.x - halfW < x1 - shrink && p.y + halfH > y0 && p.y - halfH < y1;
         }

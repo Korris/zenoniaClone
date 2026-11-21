@@ -180,7 +180,8 @@ namespace ZenoniaProto
         public void Lean(bool walking, int dir, float dt)
         {
             float wantAngle = !walking ? 0f : dir == 2 ? LeanDegrees : dir == 3 ? -LeanDegrees : 0f;
-            if (IsSoft && walking && Dir8 >= 0 && Dir8 % 4 != 0) wantAngle = (Dir8 < 4 ? -LeanDegrees : LeanDegrees) * (Dir8 % 2 == 1 ? 0.7f : 1f); // soft diagonals tip toward their side
+            int sd = ScreenDir8; // the row drawn (camera yaw applied)
+            if (IsSoft && walking && sd >= 0 && sd % 4 != 0) wantAngle = (sd < 4 ? -LeanDegrees : LeanDegrees) * (sd % 2 == 1 ? 0.7f : 1f); // soft diagonals tip toward their side
             float wantDip = !walking ? 0f : dir == 2 || dir == 3 ? LeanSideDip : LeanFrontDip;
             float k = 1f - Mathf.Exp(-dt / (walking ? LeanInSeconds : LeanOutSeconds));
             leanAngle += (wantAngle - leanAngle) * k;

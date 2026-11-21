@@ -42,8 +42,8 @@ namespace ZenoniaProto
         /// <summary>PC build only, and only when nothing else (capture --zoom, dev-start.json cameraViewHeight) owns the camera size.</summary>
         public static bool Allowed()
         {
-#if UNITY_STANDALONE || UNITY_EDITOR
-            if (HudLayout.IsWeb || Application.isMobilePlatform) return false;
+#if UNITY_STANDALONE || UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
+            if (HudLayout.IsWeb) return false; // mobile: the 2.5D pinch zoom (View25DCameraInput) drives it; no wheel there, so nothing changes elsewhere
             string[] args = Environment.GetCommandLineArgs();
             if (InteractiveTest(args)) return true;
             if (DebugCapture.Requested(args) || Array.IndexOf(args, "--zoom") >= 0) return false;
@@ -81,8 +81,12 @@ namespace ZenoniaProto
 
         void OnDestroy() { Current = 1f; }
 
+        static float pinch = 1f;
+        /// <summary>Two-finger pinch on a 2.5D map (View25DCameraInput): multiplies the view size by `factor` (&lt; 1 = closer), same limits as the wheel.</summary>
+        public static void ZoomByFactor(float factor) { if (factor > 0f) pinch *= factor; }
+
         /// <summary>A panel scrolls its own list or owns the keyboard: the wheel is theirs (same gates as InputAdapter / TouchControls).</summary>
-        static bool WindowOwnsPointer()
+        internal static bool WindowOwnsPointer()
         {
             return GameSession.Hero == null || UiWindows.BlocksGameplay || InventoryPanel.IsOpen || HeroChangeScreen.IsOpen || AccountScreenGui.MenuOpen
                 || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
@@ -92,9 +96,11 @@ namespace ZenoniaProto
         {
             if (cam == null) return;
             float notches = WindowOwnsPointer() ? 0f : InputAdapter.MouseScrollDelta();
-            if (notches != 0f)
+            float pinched = pinch;
+            pinch = 1f;
+            if (notches != 0f || pinched != 1f)
             {
-                target = Mathf.Clamp(target * Mathf.Pow(1f - NotchStep, notches), Ro3Map ? Ro3MinFactor : minimum, Ro3Map ? Ro3MaxFactor : MaxFactor); // wheel up = smaller view = closer
+                target = Mathf.Clamp(target * Mathf.Pow(1f - NotchStep, notches) * pinched, Ro3Map ? Ro3MinFactor : minimum, Ro3Map ? Ro3MaxFactor : MaxFactor); // wheel up = smaller view = closer
                 if (savePreference)
                     try { PlayerPrefs.SetFloat(PrefKey, target); PlayerPrefs.Save(); } catch (Exception) { /* prefs are a convenience */ }
             }

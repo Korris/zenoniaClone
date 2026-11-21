@@ -68,6 +68,11 @@ namespace ZenoniaProto
 
         /// <summary>View-only 8-way facing (sheet row, Dir8 order); -1 = draw the cardinal of the facing passed to Show.</summary>
         public int Dir8 { get; set; } = -1;
+        /// <summary>2.5D player camera yaw (View25D.YawDeg, set by HeroController): the world Dir8 is drawn as the row that points the same way on screen.
+        /// 0 for previews and 2D maps.</summary>
+        public float ViewYaw { get; set; }
+        /// <summary>Dir8 as seen on screen (ViewYaw applied); -1 when unset.</summary>
+        public int ScreenDir8 { get { return View25D.ScreenDir8(Dir8, ViewYaw); } }
 
         void InitSoft()
         {
@@ -114,7 +119,7 @@ namespace ZenoniaProto
         int SoftRow(int dir)
         {
             int d = Dir8;
-            return d >= 0 && Dir8Util.Matches(d, dir) ? d : Dir8Util.FromCardinal(dir);
+            return View25D.ScreenDir8(d >= 0 && Dir8Util.Matches(d, dir) ? d : Dir8Util.FromCardinal(dir), ViewYaw); // world facing -> screen row (camera yaw)
         }
 
         void ShowSoft(string anim, int dir, int frame, int orderBase, float alpha)

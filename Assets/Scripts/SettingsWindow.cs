@@ -6,13 +6,14 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Settings window behind the gear button under the minimap: background music on / off, sound effects on / off (AudioPrefs, per device), other players' pets on / off (PetViewPrefs),
+    /// the 2.5D camera switches (rotate, invert drag, spring back: View25DCameraControl),
     /// and "Change hero", which closes the window and takes the same path the gear button used to take (HeroChangeScreen.Open: the hero select
     /// offline, the account menu online with an account, a hint on a dev connection). Same win-panel frame and gold / navy art as the quest windows.
     /// Modal (UiWindows.ModalOpen: hero frozen, touch controls hidden); Esc / X close it.
     /// </summary>
     public sealed class SettingsWindow : MonoBehaviour
     {
-        const float W = 400f, H = 370f, Pad = 30f, RowH = 62f;
+        const float W = 400f, H = 580f, Pad = 30f, RowH = 62f; // 6 rows: music, sound, other pets, 3 camera switches (2.5D maps, 22/11)
         static readonly Color TitleColor = new Color(1f, 0.93f, 0.7f), DarkText = new Color(0.25f, 0.12f, 0.02f);
         static readonly Color RowFill = new Color(0.035f, 0.065f, 0.13f, 1f) /* opaque: the Outline copies lie behind it */, RowLine = new Color(0.85f, 0.65f, 0.25f, 0.6f);
         static SettingsWindow instance;
@@ -20,7 +21,7 @@ namespace ZenoniaProto
         public static bool IsOpen { get { return instance != null && instance.open; } }
 
         RectTransform root;
-        SettingsToggle music, sfx, otherPets;
+        SettingsToggle music, sfx, otherPets, camRotate, camInvert, camSpring;
         bool open, changeHeroNextFrame;
 
         public static void Create(Transform canvas)
@@ -38,6 +39,9 @@ namespace ZenoniaProto
             instance.music.Set(AudioPrefs.MusicOn);
             instance.sfx.Set(AudioPrefs.SfxOn);
             instance.otherPets.Set(PetViewPrefs.ShowOthers);
+            instance.camRotate.Set(View25DCameraControl.RotateOn);
+            instance.camInvert.Set(View25DCameraControl.Invert);
+            instance.camSpring.Set(View25DCameraControl.SpringBack);
             instance.open = true;
             instance.root.gameObject.SetActive(true);
         }
@@ -71,6 +75,10 @@ namespace ZenoniaProto
             music = Row("Music", 76f, "Music", "settings-music", on => AudioPrefs.MusicOn = on);
             sfx = Row("Sound", 76f + RowH + 8f, "Sound effects", "settings-sound", on => AudioPrefs.SfxOn = on);
             otherPets = Row("OtherPets", 76f + (RowH + 8f) * 2f, "Other players' pets", null, on => PetViewPrefs.ShowOthers = on, PetArt.Icon(Rpg.PetConfig.All[0]));
+            // 2.5D player camera (View25DCameraControl): tilt / zoom always on; rotation, drag direction and spring back are switches
+            camRotate = Row("CamRotate", 76f + (RowH + 8f) * 3f, "Rotate camera", null, on => View25DCameraControl.RotateOn = on, UiArt.Get("hud-settings"));
+            camInvert = Row("CamInvert", 76f + (RowH + 8f) * 4f, "Invert camera drag", null, on => View25DCameraControl.Invert = on, UiArt.Get("hud-settings"));
+            camSpring = Row("CamSpring", 76f + (RowH + 8f) * 5f, "Camera springs back", null, on => View25DCameraControl.SpringBack = on, UiArt.Get("hud-settings"));
 
             UiWinKit.ArtButton(root, "ChangeHero", "btn-gold", Pad, H - 26f - 46f, W - Pad * 2f, 46f, "Change hero", 20, DarkText, ChangeHero);
             root.gameObject.SetActive(false);
