@@ -16,6 +16,8 @@ Tools/ui-paper-sheets/<sheet>.json:
               "box": [x0, y0, x1, y1] (source px: cut this box instead of a found blob), "skip": true (drawn but not wanted),
               "hole": name (also write the piece's largest enclosed window as a white plate of the same canvas: the
               backing and mask of a portrait drawn behind a hollow frame, tinted in code)}
+  body_alpha [alpha, rim] (per piece): everything further than `rim` output px inside the piece's outer edge gets `alpha`
+             (a see-through tray that keeps its crisp opaque rim)
   hard_edge  px (sheet-wide, or per piece): removes a soft glow painted around a piece, keeping only pixels within that
              distance of its opaque body (alpha above hard_alpha, default 235); hard_glow_yellow: true when
              a yellow glow on #00FF00 keys out nearly opaque (pixels at least as green as red do not count as body)
@@ -174,6 +176,12 @@ def pieces(cfg, boxes_png=None):
                     soft = ~solid
                     cut[..., :3][soft] = cut[iy[soft], ix[soft], :3]
             if p.get("skip"): continue
+            if "body_alpha" in p:                                    # see-through body, crisp rim: [alpha 0-1, rim width in output px]
+                ba, rim_out = p["body_alpha"]
+                rim = rim_out * cut.shape[0] / p["height"] if "height" in p else rim_out
+                dist = ndi.distance_transform_edt(cut[..., 3] > 128)  # px from the piece's outer edge
+                ramp = np.clip((dist - rim) / 2.0, 0, 1)               # 2 px soft step from rim to body
+                cut[..., 3] = (cut[..., 3] * (1 - ramp * (1 - ba))).astype(np.uint8)
             if "glyph_inset" in p:                                   # dark line icon painted on a light tile: keep only the icon, as white + alpha (tinted in code)
                 g = int(p["glyph_inset"])
                 lum = cut[..., :3].astype(np.float32).mean(-1)

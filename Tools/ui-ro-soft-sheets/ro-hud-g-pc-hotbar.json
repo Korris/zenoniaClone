@@ -8,7 +8,7 @@
  "rim_from_body": 2,
  "flatten_edges": 6,
  "rows": [
-  [{"name": "hotbar-tray", "height": 100, "border": [50, 0, 50, 0]},
+  [{"name": "hotbar-tray", "height": 100, "border": [50, 0, 50, 0], "body_alpha": [0.78, 10]},
    {"name": "hotbar-divider", "height": 40}],
   [{"name": "hotbar-slot-ring", "height": 82, "hole": "hotbar-slot-mask"},
    {"name": "hotbar-slot-empty", "height": 82},

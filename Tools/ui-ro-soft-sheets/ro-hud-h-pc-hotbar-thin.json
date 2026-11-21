@@ -1,0 +1,20 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-hud/src/ro-hud-h-hotbar-thin-chatgpt-2.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-hud/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [{"name": "hotbar-ring-thin", "height": 82, "hole": "hotbar-ring-thin-mask"},
+   {"name": "hotbar-ring-selected", "height": 82},
+   {"name": "hotbar-slot-empty-thin", "height": 82},
+   {"name": "hotbar-potion-ring", "height": 82, "hole": "hotbar-potion-ring-mask"}],
+  [{"name": "hotbar-lock", "height": 40},
+   {"name": "hotbar-mp-crossed", "height": 40},
+   {"name": "hotbar-key-corner", "height": 28, "border": [10, 10, 10, 10]},
+   {"name": "hotbar-dot", "height": 20}]
+ ]
+}

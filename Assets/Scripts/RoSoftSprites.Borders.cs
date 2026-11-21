@@ -47,6 +47,7 @@ namespace ZenoniaProto
             { "ro-soft/gacha-pill-ssr", new Vector4(30f, 26f, 30f, 26f) },
             { "ro-soft/gacha-pill-ur", new Vector4(30f, 26f, 30f, 26f) },
             { "ro-soft/hotbar-key", new Vector4(14f, 0f, 14f, 0f) },
+            { "ro-soft/hotbar-key-corner", new Vector4(10f, 10f, 10f, 10f) },
             { "ro-soft/hotbar-key-wide", new Vector4(14f, 0f, 14f, 0f) },
             { "ro-soft/hotbar-tray", new Vector4(50f, 0f, 50f, 0f) },
             { "ro-soft/hud-bar-blue", new Vector4(15f, 0f, 15f, 0f) },

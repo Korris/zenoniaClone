@@ -18,6 +18,9 @@ namespace ZenoniaProto
         /// <summary>Capture runs: the loadout slot whose digit counts as pressed this frame (-1 = none), as a real key would.</summary>
         internal static int TestDigitSlot = -1;
 
+        /// <summary>Unscaled time of the last digit press per loadout slot: the PC hotbar flashes that slot's gold ring (RoHudHotbar).</summary>
+        internal static readonly float[] RoDigitPressedAt = { -1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f };
+
         /// <summary>The digit of loadout slot `slot` (0-7) went down this frame.</summary>
         static bool DigitPressed(int slot)
         {
@@ -42,7 +45,7 @@ namespace ZenoniaProto
             for (int s = 0; s < Rpg.SkillLoadout.Slots && s < 8; s++)
             {
                 int skill = p.Loadout[s];
-                if (skill >= 0 && p.Skills[skill] > 0 && target == GameKey.Skill1 + skill && DigitPressed(s)) return true;
+                if (skill >= 0 && p.Skills[skill] > 0 && target == GameKey.Skill1 + skill && DigitPressed(s)) { RoDigitPressedAt[s] = Time.unscaledTime; return true; }
             }
             return false;
         }
