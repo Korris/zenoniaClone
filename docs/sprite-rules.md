@@ -16,7 +16,7 @@
 7. Tách lớp: FX mặt đất (dưới chân) / FX quanh người / FX trước người (chỉ khi cần) / UI (tên skill, số, icon buff). Vòng phép nằm trên mặt đất theo góc camera, không dựng đứng.
 8. Màu cố định theo chức năng: Holy vàng ngà + trắng (#FFF4C9, #F3D16B), Heal xanh lá dịu (#91DB76, #B6E9B7), Bảo vệ xanh lam nhạt + vàng (#9DDAEC), Buff ATK vàng kim, Thanh tẩy trắng xanh (#D7F4F3), Debuff đỏ san hô (#E65A52) hoặc tím nhạt (#BCA3E4), Ultimate = màu holy + 1 màu nhấn, không cầu vồng. Mỗi skill tối đa 2 màu chính + 1 lõi sáng.
 9. Mesh Trail mềm, ngắn: rộng 0,08-0,22H, đuôi tắt 0,12-0,25 s, đầu sáng nhất; AoE dùng ring / line mesh thay trail.
-10. Skill duy trì còn 15-30 % độ sáng sau khi kích hoạt, chỉ giữ biểu tượng / quầng nhỏ; loé lại khi có sự kiện (hồi máu, bị đánh, giải hiệu ứng).
+10. Skill duy trì còn 15-30 % độ sáng sau khi kích hoạt, chỉ giữ biểu tượng / quầng nhỏ; loé lại khi có sự kiện (hồi máu, bị đánh, giải hiệu ứng). Ngoại lệ (người dùng chốt 21/11): buff dam / defense đang mang hiện bằng VÒNG bao quanh thân nhân vật, không dùng icon trên đầu; vòng phải thấy rõ (không mờ 15-30 %).
 11. Số: hồi máu #8CDD74, sát thương thường #FFF5DC, holy #F5D16C, chí mạng vàng đậm hơn + to 15-20 %; mỗi mục tiêu một cụm số; số ở lớp UI, không bị Bloom, hạt không che số. KHÔNG hiện tên skill trên đầu người cast (người dùng chốt 21/11).
 12. LOD 40 người: hạt mình 100 % / đồng đội gần 40-60 % / người xa 10-25 %; rune chính người xa bản đơn giản; glow phụ đồng đội 50 %, người xa 0-20 %; distortion tắt cho người khác; cảnh báo boss luôn ưu tiên hơn FX người chơi.
 Không chép từ RO3 3D: cột sáng quá cao, distortion mạnh, vòng phép dựng đứng / méo phối cảnh, bóng 3D cho hạt.
