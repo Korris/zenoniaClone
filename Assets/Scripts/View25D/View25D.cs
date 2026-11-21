@@ -12,9 +12,10 @@ namespace ZenoniaProto
     /// Which maps: every map listed in <see cref="Maps"/> is 2.5D for everyone (release builds too); `--view25d` (test builds) adds the prototype maps
     /// in <see cref="PrototypeMaps"/>; `--view25d off` turns 2.5D off everywhere (2D comparison). Converting another map = add its id to Maps
     /// (rules: docs/map-design-rules.md "Map 2.5D").
-    /// Camera, sun, fog and ambient look per map: <see cref="View25DProfile"/> (RO3 Feel V2 on listed maps: tilt 47 / FOV 25; Hydra prototype 38 / 22).
+    /// Camera, sun, fog and ambient look per map: <see cref="View25DProfile"/> (RO3 Feel V2 on listed maps: tilt 32 = pitch 58 / FOV 27; Hydra prototype 38 / 22).
     /// Flags: --view25d [on|off] [--view25d-tilt deg] [--view25d-fov deg] (override the profile) [--view25d-atmos off]
-    /// [--view25d-scalecomp 0..1 (default 0.6)] [--view25d-look off] (RO3 lighting pass off, for A/B).
+    /// [--view25d-scalecomp 0..1 (default 0.6)] [--view25d-look off] (RO3 lighting pass off, for A/B)
+    /// [--cam25d pitch,fov,heroPx[,feetY]] (camera A/B in RO3 terms, View25DCameraOverride; wins over --view25d-tilt / -fov).
     /// </summary>
     public static class View25D
     {
@@ -82,7 +83,13 @@ namespace ZenoniaProto
 
         /// <summary>Ground offset north of the feet that puts the screen centre on the hero's chest (LookAtHeight up the billboard):
         /// the view ray through a point h up a billboard tilted t meets the ground h / cos t north of the feet. 0 on a profile without it.</summary>
-        public static float LookAtGroundOffset { get { float h = Profile.LookAtHeight; return h > 0f ? h / Mathf.Cos(TiltDeg * Mathf.Deg2Rad) : 0f; } }
+        public static float LookAtGroundOffset { get { float h = LookAtHeight; return h > 0f ? h / Mathf.Cos(TiltDeg * Mathf.Deg2Rad) : 0f; } }
+
+        /// <summary>Profile look-at height, or the test override (`--cam25d`, View25DCameraOverride).</summary>
+        public static float LookAtHeight { get { return View25DCameraOverride.On ? View25DCameraOverride.LookAtHeight : Profile.LookAtHeight; } }
+
+        /// <summary>Profile camera distance multiplier, or the test override (`--cam25d` hero pixel height).</summary>
+        public static float ViewScale { get { return View25DCameraOverride.On ? View25DCameraOverride.ViewScale : Profile.ViewScale; } }
 
         /// <summary>How much of the perspective size change units undo (0 = full perspective, 1 = every unit as tall as at the screen centre).
         /// 40-player readability: far heroes must not shrink much (ChatGPT: keep the size spread within ~10 %).</summary>
@@ -97,8 +104,8 @@ namespace ZenoniaProto
             return d <= 1f ? 1f : Mathf.Lerp(1f, d / refDist, ScaleComp);
         }
         /// <summary>Camera pitch away from straight down, degrees (0 = the old top-down view).</summary>
-        public static float TiltDeg { get { Parse(); return tiltArg > 0f ? tiltArg : Profile.TiltDeg; } }
-        public static float FovDeg { get { Parse(); return fovArg > 0f ? fovArg : Profile.FovDeg; } }
+        public static float TiltDeg { get { Parse(); return View25DCameraOverride.On ? View25DCameraOverride.TiltDeg : tiltArg > 0f ? tiltArg : Profile.TiltDeg; } }
+        public static float FovDeg { get { Parse(); return View25DCameraOverride.On ? View25DCameraOverride.FovDeg : fovArg > 0f ? fovArg : Profile.FovDeg; } }
 
         /// <summary>Rotation that stands a sprite drawn on the x/y plane up toward the camera, pivoting on its feet (local +y becomes "up").</summary>
         public static Quaternion Tilt { get { return Quaternion.Euler(-TiltDeg, 0f, 0f); } }

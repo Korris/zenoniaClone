@@ -5,12 +5,14 @@ namespace ZenoniaProto
     /// <summary>
     /// Perspective placement for the 2.5D prototype (View25D), used by CameraFollow instead of its orthographic path. The camera keeps reading
     /// orthographicSize as its zoom knob (dev-start, wheel zoom, ultimate punch, captures): a billboard standing at the focus point shows exactly
-    /// as tall as it did in the orthographic view (divided by the profile's ViewScale: RO3 Feel pulls the camera back so the hero is ~82 px instead of ~96 at 720p,
+    /// as tall as it did in the orthographic view (divided by the profile's ViewScale: RO3 Feel pulls the camera back so the hero is ~69 px at 720p,
     /// without scaling the hero), the ground around it is foreshortened by cos(tilt), and things farther north shrink with distance.
     /// </summary>
     public static class View25DCamera
     {
-        const float TopOvershootV = 0.88f;
+        /// <summary>Viewport height whose ground point may reach the north border: 0.5 = the screen centre on RO3 maps (the ground continues past the edge,
+        /// View25DGroundApron); 0.88 (before 21/11, it showed the ground's end as a horizon line) stays on the Hydra prototype, which has no apron.</summary>
+        static float TopOvershootV { get { return View25D.Profile.Ro3Look ? 0.5f : 0.88f; } }
         /// <summary>Background beyond the map's north edge: the profile's fog colour (View25DAtmosphere haze uses it too), so the far edge reads as distance fog.</summary>
         public static Color FogColor { get { return View25D.Profile.FogColor; } }
 
@@ -41,7 +43,7 @@ namespace ZenoniaProto
         /// <summary>Camera distance to the focus point: orthographic-equivalent (a billboard at the focus as tall as on the 2D camera) x the profile's ViewScale.</summary>
         public static float Distance(Camera cam)
         {
-            return cam.orthographicSize / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * View25D.Profile.ViewScale;
+            return cam.orthographicSize / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * View25D.ViewScale;
         }
 
         /// <summary>Looks at the ground point `focus` along the tilted view direction.</summary>
@@ -83,8 +85,9 @@ namespace ZenoniaProto
         /// <summary>Keeps the visible ground trapezoid inside the map (wider far edge sets the x limit); a map smaller than the view is centred.</summary>
         public static Vector2 Clamp(Camera cam, Vector2 p)
         {
-            // The far edge may run past the north border by the top ~12 % of the screen: it fades into the haze-coloured background there
-            // (View25DAtmosphere top band), so a hero near the north wall is not pushed up under the HUD as a hard clamp would do.
+            // North: the screen centre may reach the north border (the hero stays centred like RO3); the view past it shows the ground and forest mirrored
+            // beyond the edge (View25DGroundApron), never the end of the ground. South stays hard-clamped to the map.
+            // Sides: the near (bottom) corners and the screen centre line stay inside the map; the wider upper corners may run onto the mirrored ground / trees.
             Vector2 bottom = GroundHit(cam, 1f, 0f), top = GroundHit(cam, 1f, TopOvershootV);
             float halfW = Mathf.Max(top.x, bottom.x);
             float mapW = GameConfig.MapW, mapH = GameConfig.MapH;

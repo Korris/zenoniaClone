@@ -32,6 +32,7 @@ namespace ZenoniaProto
             mapRoot.SetParent(parent, false);
             BuildGround(map);
             MapScenery.Build(mapRoot, map);
+            View25DGroundApron.MirrorBorderTrees(mapRoot, map); // 2.5D map: forest continues past the edges (no visible end of the ground)
             BuildSolidOverlay(map);
         }
 
@@ -71,7 +72,11 @@ namespace ZenoniaProto
                         sr.transform.localScale = new Vector3(chunkW, chunkH, 1f);
                         sr.transform.position = new Vector3(origin.x + chunkW * 0.5f, origin.y + chunkH * 0.5f, 0f);
                     }
-                    else sr.transform.position = new Vector3(origin.x, origin.y, 0f);
+                    else
+                    {
+                        sr.transform.position = new Vector3(origin.x, origin.y, 0f);
+                        View25DGroundApron.MirrorGroundChunk(mapRoot, sprite, origin, chunkW, chunkH, r, c, rows, cols); // 2.5D map: ground mirrored past the edges
+                    }
                 }
         }
 

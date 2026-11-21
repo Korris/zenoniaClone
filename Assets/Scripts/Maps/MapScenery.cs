@@ -58,7 +58,8 @@ namespace ZenoniaProto
             sr.transform.position = new Vector3(x, y + footH * GameConfig.TileUnits * 0.5f, 0f);
         }
 
-        static Sprite PropSprite(string type)
+        /// <summary>Cached sprite of a prop type (pivot bottom-centre), or null when its PNG is missing.</summary>
+        public static Sprite PropSprite(string type)
         {
             Sprite s;
             if (PropSprites.TryGetValue(type, out s) && s != null) return s;

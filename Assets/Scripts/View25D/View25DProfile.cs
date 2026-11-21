@@ -5,13 +5,12 @@ namespace ZenoniaProto
     /// <summary>
     /// Look of a 2.5D map, as data (one profile per kind of map; every map listed in View25D.Maps gets <see cref="Ro3Feel"/> unless it names its own).
     /// RO3 Feel V2 follows the ChatGPT comparison of Willowbrook with Ragnarok Online 3 (21/11/2026,
-    /// docs/reference/willowbrook-25d/willowbrook-25d-vs-ro3-feel-chatgpt.md sections 2-9, 13): camera pitch 43 deg from the horizontal
-    /// (= 47 deg away from straight down, our tilt convention), vertical FOV 25 deg, hero on screen ~85 % of the 38 / 22 camera (ChatGPT: 96 -> 82 px at
-    /// 1280x720; measured Cleric body ~78 -> ~66 px, the staff top adds ~5) by a farther camera (ViewScale 1.11: the FOV / look-at change already shrinks ~5 %),
-    /// look-at on the chest; sun from the upper left at 45 deg elevation; warm sun #FFF0CD on lit things, cool shade #596F61 in shadow;
+    /// docs/reference/willowbrook-25d/willowbrook-25d-vs-ro3-feel-chatgpt.md sections 2-9, 13); camera re-done 21/11 after the camera-vs-RO3 pass
+    /// (see <see cref="Ro3Feel"/>: pitch 58 deg from the horizontal = 32 deg away from straight down, our tilt convention, FOV 27, hero 69 px at 720p);
+    /// sun from the upper left at 45 deg elevation; warm sun #FFF0CD on lit things, cool shade #596F61 in shadow;
     /// fog #C6D9C0 by distance beyond the hero; dappled light, motes, a few leaves, wind sway on trees.
-    /// Scene scale: 1 m = 1 tile = 16 world units (the chibi hero is ~28 units, ~1.7 m). With FOV 25 deg and the RO3 zoom the camera is ~36 m from
-    /// the hero and only -9..+15 m of ground around it is on screen, so ChatGPT's camera-distance fog 18 / 50 m (which would fog the hero itself, its own
+    /// Scene scale: 1 m = 1 tile = 16 world units (the chibi hero is ~28 units, ~1.7 m). With FOV 27 deg and the RO3 zoom the camera is ~32 m from
+    /// the hero and only about -8..+11 m of ground around it is on screen, so ChatGPT's camera-distance fog 18 / 50 m (which would fog the hero itself, its own
     /// warning) is applied as distance BEYOND the hero: clear around the play area, haze growing toward the far top edge.
     /// </summary>
     public sealed class View25DProfile
@@ -54,10 +53,14 @@ namespace ZenoniaProto
         /// <summary>Tree sway amplitude, world units at the crown top (ChatGPT: 1-2 % of the crown height), and the dapple strength under canopies.</summary>
         public float WindSway = 1.3f, Dapple = 1f;
 
-        /// <summary>Every listed 2.5D map: the RO3 Feel V2 preset.</summary>
+        /// <summary>Every listed 2.5D map: the RO3 Feel V2 preset with the RO3 camera of 21/11 (A/B shots docs/reference/willowbrook-25d/camera-ab/,
+        /// ChatGPT docs/reference/willowbrook-25d/willowbrook-25d-camera-vs-ro3-chatgpt.md preset B): pitch 58 deg from the horizontal (tilt 32), vertical FOV 27,
+        /// hero 69 px tall at 720p in a test build with dev-start heroScale 1.15 (~60 px at heroScale 1), feet 389 px from the top.
+        /// ViewScale = HeroUnits x heroScale x 720 / (216 x heroPx), LookAtHeight = (feetY - 360) x 216 x ViewScale / 720 (View25DCameraOverride; try others with --cam25d).
+        /// Was pitch 43 / FOV 25 / ViewScale 1.11 / look-at 15 (hero 70 px, feet 406): too low, the ground ran off toward a visible far edge.</summary>
         public static readonly View25DProfile Ro3Feel = new View25DProfile
         {
-            TiltDeg = 47f, FovDeg = 25f, ViewScale = 1.11f, LookAtHeight = 15f, Ro3Look = true, ScreenHaze = 0.04f, Vignette = 0.04f,
+            TiltDeg = 32f, FovDeg = 27f, ViewScale = 1.13f, LookAtHeight = 9.8f, Ro3Look = true, ScreenHaze = 0.04f, Vignette = 0.04f,
         };
 
         /// <summary>The --view25d Hydra arena prototype keeps the first 2.5D camera (38 / 22, painted walls not converted) and none of the RO3 pass.</summary>
