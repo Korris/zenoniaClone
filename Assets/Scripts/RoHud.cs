@@ -15,7 +15,8 @@ namespace ZenoniaProto
     ///   RoHudMapPanel   map name + connection pills, the round minimap's ring and "+" (the minimap itself: Minimap.RoRound.cs)
     ///   RoHudWanted     the WANTED card under the minimap
     ///   RoHudControls   joystick, potions, Attack + 4 skills on an arc, Auto, Run (built by TouchControls.RoSoft.cs)
-    ///   RoHudHotbar     PC profile instead of the joystick / arc cluster: the RO3-style tray at the bottom centre (potions, 1-8, Attack, Auto, Run)
+    ///   RoHudHotbar     PC profile instead of the joystick / arc cluster: the RO3-style tray at the bottom centre (potions, 1-8, Attack, Auto, Run),
+    ///                   ChatGPT sheet G (ro-hud-g-pc-hotbar, pieces hotbar-*)
     ///   RoHudChatBar    the chat button + one-line chat bar (ChatWindow)
     /// Layout numbers are canvas units (640 high, so 1 mockup px of the 1672x941 board = 0.68 units), anchored to the safe area corners.
     /// </summary>
@@ -62,9 +63,13 @@ namespace ZenoniaProto
         // bottom-left
         public const float JoyX = 122f, JoyY = 178f, JoySize = 164f, KnobSize = 70f, KnobTravel = 48f;
         public const float ChatY = 54f, ChatBubbleSize = 48f, ChatBarW = 360f, ChatBarH = 42f; // the group is centred by RoHudChatBar
-        // PC bottom row (RoHudHotbar): one tray at the bottom centre = potions | skills 1-8 | Attack, Auto, Run. Slots 40, pitch 44.
-        public const float HotSlot = 40f, HotPitch = 44f, HotAttack = 52f, HotGroupGap = 10f, HotPadX = 8f, HotH = 54f, HotBottom = 8f;
-        public const float HotW = HotPadX * 2f + (HotPitch + HotSlot) + HotGroupGap + (7f * HotPitch + HotSlot) + HotGroupGap + HotAttack + 6f + (HotPitch + HotSlot);
+        // PC bottom row (RoHudHotbar), ChatGPT mockup docs/reference/ro3-pc-hud/pc-hotbar-mockup-chatgpt.png (px at 1280x720 x 0.889 =
+        // canvas units): tray 740x56 px, padding 14 / 5, round slots 46 gap 6, potions 46 gap 8, groups 16 / 18 (divider 2x22 in the
+        // middle), Attack 58, Auto / Run 44 gap 10.
+        public const float HotSlot = 41f, HotGap = 5.3f, HotPotionGap = 7.1f, HotPadX = 12.4f, HotH = 50f, HotBottom = 8f;
+        public const float HotGapPotions = 14.2f, HotGapActions = 16f, HotAttack = 51.6f, HotSmall = 39f, HotSmallGap = 8.9f;
+        public const float HotW = HotPadX * 2f + (HotSlot * 2f + HotPotionGap) + HotGapPotions + (HotSlot * 8f + HotGap * 7f) + HotGapActions
+                                + HotAttack + (HotSmallGap + HotSmall) * 2f;
         /// <summary>PC: the chat group's centre height (level with the hotbar), its widest bar, and the gap kept between the two.</summary>
         public const float PcChatY = HotBottom + HotH * 0.5f, PcChatBarW = 260f, PcChatMinBarW = 170f, PcChatGap = 8f;
 

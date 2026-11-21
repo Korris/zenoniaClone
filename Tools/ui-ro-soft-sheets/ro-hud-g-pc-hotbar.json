@@ -1,0 +1,24 @@
+{
+ "source": "Assets/ArtLibrary/ui/ro-soft-hud/src/ro-hud-g-pc-hotbar-chatgpt-1.png",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/ro-soft/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/ro-soft-hud/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [{"name": "hotbar-tray", "height": 100, "border": [50, 0, 50, 0]},
+   {"name": "hotbar-divider", "height": 40}],
+  [{"name": "hotbar-slot-ring", "height": 82, "hole": "hotbar-slot-mask"},
+   {"name": "hotbar-slot-empty", "height": 82},
+   {"name": "hotbar-potion-plate", "height": 82}],
+  [{"name": "hotbar-attack", "height": 104},
+   {"name": "hotbar-attack-pressed", "height": 104},
+   {"name": "hotbar-auto", "height": 78},
+   {"name": "hotbar-auto-on", "height": 78},
+   {"name": "hotbar-run", "height": 78}],
+  [{"name": "hotbar-key", "height": 28, "border": [14, 0, 14, 0]},
+   {"name": "hotbar-key-wide", "height": 28, "border": [14, 0, 14, 0]}]
+ ]
+}
