@@ -2,6 +2,12 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 22/11 23:50 Hỏi ChatGPT hệ thống card RO3 (CHỜ người dùng quyết có làm không)
+- Chat Tay: https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0
+- RO3: card rớt từ quái/boss, gắn vào trang bị theo vị trí (vũ khí, khiên, giáp, áo choàng, giày, phụ kiện, đầu, mặt nạ, miệng), phẩm chất 5 màu (xanh lá→đỏ), ~242 card, có loại Collection/Standard. Nâng level card: bản Pioneer 2025 có, tháng 9/2025 nhà phát triển tuyên bố BỎ; nâng sao / ghép card chưa xác nhận ở bản hiện tại. Album cộng chỉ số vĩnh viễn: chưa chắc.
+- RO gốc: card gắn slot, không nâng cấp, rơi ~0,01 %. Eternal Love: gắn (inlay) + mở Handbook + deposit cộng chỉ số vĩnh viễn (lợi thế người chơi lâu năm).
+- ChatGPT đề xuất V1 cho mình: 30-40 card, N/R/SR/SSR, slot vũ khí 2 / giáp 1 / phụ kiện 1, KHÔNG nâng cấp / ghép, tháo card tốn Gold, Album thưởng theo mốc (5/10/20/30 loại), card giao dịch ở chợ, server quản lý instanceId; phí chợ ~5 %.
+
 ### 22/11 21:00 Bản build gộp + dọn D:\temp (XONG)
 - Bản gộp mọi việc 22/11 (HEAD dd871712: tối ưu FPS, Level Up, ẩn nhãn quái, cổng 3D, số sát thương RO): `C:\temp\player-all-261122\Zenonia.exe` (thêm `--map3d` cho map 3D).
 - Người dùng cho xoá hết `D:\temp` (kể cả mọi bản sao `zu-copy-*` và worktree `D:\temp\wt-unity` của nhánh unity, đã sạch). Lần build sau phải robocopy lại project vào bản sao mới: `robocopy D:\zenoniaClone D:\temp\zu-copy /E /XD Temp Logs Build` (~17 GB, lần đầu import lâu).
