@@ -8,7 +8,7 @@ Cập nhật mỗi lần có việc tối ưu mới (thêm mục, thêm dòng v�
 - Game nghẽn ở **tô pixel (fill-bound)**, không phải CPU hay draw call: map 3D ở 640x360 chạy gấp 3 lần 1280x720. Đắt nhất: lá cây (nhiều lớp card alpha-test chồng nhau) và bóng realtime.
 - Đã làm: bóng FakeSun nửa độ phân giải, Graphics Low / Medium / High, bóng nướng 1 lần (Medium), depth pre-pass cho lá, terrain vẽ sau lá, bớt vật đổ bóng, LOD FX theo đám đông, giới hạn số damage, **render scale, dynamic resolution, impostor cây xa (22/11 tối)**.
 - Chỉnh trong game: Settings > **Graphics** (Low / Medium / High), **Resolution** (Auto / 100 / 85 / 70 %), **Dynamic resolution** (bật / tắt). F12 = bảng FPS (có % render scale).
-- Cờ test: `--gfx low|medium|high`, `--render-scale 0.85`, `--dynres off|on`, `--fps-log`, `--map3d`, `--view25d off`, `--map3d-test noimpostor|noshadow|nobake|noprepass|noleaves|nograss|noborder`, `--impostor-dist M`, `--impostor-dump`.
+- Cờ test: `--gfx low|medium|high`, `--render-scale 0.85`, `--dynres off|on`, `--fps-log`, `--map3d`, `--view25d off`, `--map3d-test useimpostor|noshadow|nobake|noprepass|noleaves|nograss|noborder`, `--impostor-dist M`, `--impostor-dump`.
 
 ## 1. Các việc đã làm
 
@@ -75,6 +75,7 @@ Cập nhật mỗi lần có việc tối ưu mới (thêm mục, thêm dòng v�
 - Màu / ánh sáng: impostor dùng đúng công thức lá (`M3DShade` wrap 0,35, ánh qua lá, viền), xoay normal theo góc cây, bóng nướng lấy mẫu tại vị trí bề mặt thật (độ sâu trong atlas) ở Medium và **High** (`_M3DBakedImp`; ở High bóng nướng chạy thêm chỉ cho impostor), sương như mesh.
 - **Bóng lá không đổi**: shadow map của mặt trời (ortho) và bản nướng vẫn vẽ đủ mọi cây mesh; chỉ depth texture camera (perspective) theo LOD (`M3DImpFadeCaster`). Impostor không đổ bóng.
 - Giới hạn: impostor hơi mờ / phẳng hơn mesh ở cùng cỡ (khung 224 px); không đặt gần hơn hero được vì phối cảnh nhìn cây gần từ góc quá khác (thử `--impostor-dist -8`: FPS gần bằng tắt lá nhưng cây trước mặt sai hình). Atlas ~70 MB VRAM (PC ổn; mobile nên giảm khung / số góc / nén).
+- **TẮT mặc định từ 22/11 22:45** (người dùng: xoay camera thì cây "thoát ẩn thoát hiện"). Lý do: mốc đổi tính theo khoảng cách **camera** tới cây, xoay camera quanh hero thì một bên cây vượt mốc → đổi mesh ↔ billboard liên tục; lợi FPS lại nằm trong sai số. Bật lại để thử: `--map3d-test useimpostor`. Muốn dùng lại phải đổi mốc theo khoảng cách tới hero (không đổi khi xoay) và chỉ áp cho cây ngoài vùng nhìn thấy gần.
 - Chỉnh: `Map3DImpostors.StartAhead`, `SwapSeconds`, `Hysteresis`, `RebakeDeg`; `Map3DImpostorBaker.TreePx / BushPx / Frames`. Test: `--map3d-test noimpostor`, `--impostor-dist M` (mét sau hero), `--impostor-dump` (ghi `impostor-atlas.png` ở persistentDataPath).
 
 ### 1.11 Nhãn quái (thanh máu + tên) chỉ hiện khi đánh (22/11) — `MonsterLabelPrefs.cs`, `Monster.Visuals.cs`, `Monster.RoFootLabel.cs`

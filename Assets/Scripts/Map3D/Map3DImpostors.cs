@@ -16,7 +16,7 @@ namespace ZenoniaProto
     /// and re-baked when that moves more than 4 deg; nearer than the hero the perspective sees trees from too many angles for one bake, so the start
     /// stays at or past the hero. Leaf shadows are unchanged: the sun's shadow map
     /// and the shadow bake still draw every mesh tree; the impostors never cast.
-    /// Test flags: `--map3d-test noimpostor` (old behaviour), `--impostor-dist M` (start, metres past the hero), `--impostor-dump` (atlas PNG).
+    /// Test flags: `--map3d-test useimpostor` (turns them on; off by default, see Enabled), `--impostor-dist M` (start, metres past the hero), `--impostor-dump` (atlas PNG).
     /// </summary>
     public sealed class Map3DImpostors : MonoBehaviour
     {
@@ -46,7 +46,9 @@ namespace ZenoniaProto
         /// <summary>Impostors are on for the 3D map on screen (Map3DBakedShadow bakes the prop shadow for them at High too).</summary>
         public static bool Active { get { return current != null && current.enabled; } }
 
-        static bool Enabled { get { return !disabled && !Map3D.Test("noimpostor"); } }
+        /// <summary>Off by default since 22/11 22:45: the swap is keyed on the camera distance, so turning the camera swapped trees between mesh and
+        /// billboard on one side (user: trees pop in and out while rotating), and the measured gain was within noise. Opt in with `--map3d-test useimpostor`.</summary>
+        static bool Enabled { get { return !disabled && Map3D.Test("useimpostor"); } }
 
         /// <summary>New map (Map3D.Build): forget the last map's queue.</summary>
         public static void Clear() { Insts.Clear(); Keys.Clear(); disabled = false; }
