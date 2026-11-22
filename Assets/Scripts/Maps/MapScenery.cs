@@ -26,7 +26,9 @@ namespace ZenoniaProto
             if (ShowsPortals)
             {
                 // shader + particle + bloom light (user, 19/11/2026); `--portal-fx off` or missing shaders: edge exits fade into bright haze, inner ones keep the light column (13/11/2026)
-                if (MapPortalLightFx.Active) MapPortalLightFx.Build(parent, map);
+                // `--map3d`: real 3D warp gates (stone ring, vortex, light column, point light); the flat quads skewed under the turning camera (22/11/2026)
+                if (Map3D.Active && Map3DPortals.Build(parent, map)) { }
+                else if (MapPortalLightFx.Active) MapPortalLightFx.Build(parent, map);
                 else MapPortalHaze.Build(parent, map);
             }
             if (ShowsVillagers) TownNpc.CreateAll(parent, map);
