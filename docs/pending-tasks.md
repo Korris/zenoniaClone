@@ -1,5 +1,10 @@
 # Việc đang dở
 
+### 22/11 14:55 5 class kiểu HIỆN ĐẠI (súng, pháo, đồ hiện đại): concept ChatGPT 2 tông Fantasy / Adventure (agent, XONG concept, CHỜ người dùng xem; KHÔNG cài vào game)
+- Người dùng (22/11): làm 5 class kiểu hiện đại; sau đổi "không cần gắn vào idle down, để bạn vẽ ở ChatGPT tui coi cũng được", "vẽ cho tui 2 style luôn: RO Fantasy Soft và Adventure". Chat Tay ("Tân Korris") https://chatgpt.com/c/6b029d27-3cc8-83ec-874b-6f2365b267ce
+- Vanguard (Knight: giáp chiến thuật, kiếm năng lượng + khiên chống bạo động), Arcanist (Wizard: hoodie + áo khoác công nghệ, trượng pha lê + bảng hologram), Artillerist (Mechanic: pháo vác vai + cờ lê), Phantom (Assassin nữ: 2 SMG + dao), Lifeline (Cleric nữ: cứu thương, trượng hồi phục + hộp cứu thương + súng ngắn).
+- Ảnh + ghi chú: `docs/reference/modern-heroes/` (`notes.md`, hàng 5 người mỗi tông, ảnh ghép so 2 tông, từng class idle xuống trái Fantasy / phải Adventure). Nếu duyệt để cài: vẽ lại thân tay không + vũ khí rời, đo đầu theo điều 8.
+
 ### 22/11 10:15 Warrior V2 Adventure 2,65 đầu: idle / đi / chém nặng 8 hướng vẽ lại + lực đòn trong engine (agent, XONG art + code, CHỜ người dùng thử trong game)
 - Người dùng (22/11): "ok duyệt V2, làm luôn cả 3, làm cho warrior chém trước, khoan design tất cả". Chỉ Warrior; class khác, menu chưa đụng.
 - Art (ChatGPT Tay "Tân Korris", chat Adventure https://chatgpt.com/c/6b0243dc-91b8-83ec-afe6-bec308abaf1d): idle 5 hướng (ChatGPT ra 2,87 đầu, tool rút thân-chân dưới khăn x0,88 -> 2,67 đầu = `src/body-warrior-idle-5dir-chatgpt-2.png`), đi 3 ảnh (`walk-*-chatgpt-2/3`), chém 8 hướng x 8 frame vòng 2 có lực (`attack-<hướng>-8f-chatgpt-3`; xuống-trái + lên-trái vẽ lại vì sai tay). Prompt + câu từng hướng: `ArtLibrary/ro-fantasy-heroes/prompts/warrior-v2-attack-8dir-prompt.txt`; idle mẫu từng hướng `ref/warrior-v2/idle/`.
