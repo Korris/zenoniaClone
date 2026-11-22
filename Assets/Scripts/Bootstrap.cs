@@ -101,6 +101,7 @@ namespace ZenoniaProto
             root.AddComponent<FeelHotkeys>().Init(bloom);
             GroundShadowRenderer.Attach(cam); // FakeSun soft shadows: unit blobs + baked prop shadows, max-opacity mask (`--shadows off` = old unit ellipses)
             View25DWorld.AttachIfRequested(root, cam); // 2.5D maps (View25D.Maps, + Hydra arena with --view25d); after bloom: the atmosphere pass runs last
+            RenderScaleCamera.Attach(cam);            // world camera at RenderScale.Current (Settings > Resolution / Dynamic resolution), HUD stays native
             FpsOverlay.Attach(root);                  // test / dev builds: FPS + ms readout under the status block (F12 hides)
             FpsLog.AttachIfRequested(root);           // --fps-log: uncapped frame rate, average logged every 5 s
 

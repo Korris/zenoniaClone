@@ -8,6 +8,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Small FPS readout (user 22/11: "show thêm FPS trong game"): frames per second averaged over 0.5 s + the mean frame time in ms, drawn with a dark
     /// outline under the top-left status block; green at 55+, yellow 30-55, red below 30. On by default in test / dev builds, never in a release build.
+    /// Then the world render scale in % (RenderScale; "auto" while dynamic resolution holds it under the Settings ceiling).
     /// F12 shows / hides it (F3 is the offline class switch to Mechanic). Works the same on 2D, 2.5D and `--map3d` maps (IMGUI over everything).
     /// Hidden in clean capture runs (Hud.CaptureClean, `--no-hud`) so screenshots stay unchanged.
     /// </summary>
@@ -49,7 +50,8 @@ namespace ZenoniaProto
             time += Time.unscaledDeltaTime; // real frame time: hit-stop / slow motion do not change it
             if (time < Window) return;
             fps = Mathf.RoundToInt(frames / time);
-            text = fps + " FPS  " + (time * 1000f / frames).ToString("F1") + " ms";
+            text = fps + " FPS  " + (time * 1000f / frames).ToString("F1") + " ms  " + Mathf.RoundToInt(RenderScale.Current * 100f) + "%" // render scale (dynamic resolution moves it)
+                + (RenderScale.Dynamic && RenderScale.Current < RenderScale.Ceiling - 0.001f ? " auto" : "");
             frames = 0; time = 0f;
         }
 

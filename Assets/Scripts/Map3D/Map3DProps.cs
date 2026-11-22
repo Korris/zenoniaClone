@@ -30,8 +30,9 @@ namespace ZenoniaProto
         /// <summary>Generated object for a prop kind at tile coords (tx, ty) (also the border forest: Map3DBorderForest).</summary>
         public static void PlaceKind(Transform parent, string name, Map3DTreeBuilder.Kind kind, float tx, float ty, Map3DHeightField f, int hash, bool cast = true)
         {
-            Build(parent, name, Map3DTreeBuilder.Get(kind, (hash >> 3) % Map3DTreeBuilder.Variants), Map3DAssets.Bark, Map3DAssets.Leaves(Map3DTreeBuilder.Look(kind)),
-                tx, ty, f, hash, 0.92f + (hash % 17) / 100f, cast);
+            int variant = (hash >> 3) % Map3DTreeBuilder.Variants;
+            Build(parent, name, Map3DTreeBuilder.Get(kind, variant), Map3DAssets.Bark, Map3DAssets.Leaves(Map3DTreeBuilder.Look(kind)),
+                tx, ty, f, hash, 0.92f + (hash % 17) / 100f, cast, Map3DTreeBuilder.Key(kind, variant)); // distant ones swap to impostors (Map3DImpostors)
         }
 
         static void Place(Transform parent, string type, Solid s, Map3DTreeBuilder.Kind kind, PropDef d, float tx, float ty, Map3DHeightField f, int hash)
@@ -103,11 +104,11 @@ namespace ZenoniaProto
             Map3DBatcher.Add(m, Map3DAssets.Wood, Map3DAssets.Wood, pos, Quaternion.identity, 1f);
         }
 
-        static void Build(Transform parent, string name, Mesh mesh, Material m0, Material m1, float tx, float ty, Map3DHeightField f, int hash, float scale, bool cast = true)
+        static void Build(Transform parent, string name, Mesh mesh, Material m0, Material m1, float tx, float ty, Map3DHeightField f, int hash, float scale, bool cast = true, int impostor = -1)
         {
             Vector3 pos = Map3D.World(tx, ty, f.HeightAt(tx, ty));
             pos.z += Map3DTerrain.Sink;
-            Map3DBatcher.Add(mesh, m0, m1, pos, Quaternion.AngleAxis(hash % 360, Vector3.forward), scale, cast); // merged per cell after the map is built
+            Map3DBatcher.Add(mesh, m0, m1, pos, Quaternion.AngleAxis(hash % 360, Vector3.forward), scale, cast, 0, impostor); // merged per cell after the map is built
         }
 
         static Solid Classify(string type, out Map3DTreeBuilder.Kind kind)

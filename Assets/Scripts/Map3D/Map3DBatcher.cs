@@ -13,11 +13,14 @@ namespace ZenoniaProto
     /// Map3DBakedShadow, BakeCasters), tiers 0-2 show at High, 0-1 at Medium, 0 at Low.
     /// Leaf cards come in two submeshes (Map3DMeshKit): 1 = cards that never cast, 2 = the ~3/8 that do (dappled canopy shadows), so the shadow
     /// pass only rasterises the casting cards instead of clipping 2/3 of every crown per pixel.
+    /// Tree impostors (22/11 perf pass 2): a generated tree / bush queued with its impostor key gets its root position written into every merged
+    /// vertex through the combine's lightmap offsets (scale 0, offset = data: uv2 = root x, y; uv3 = root z, tree index + 1), which the Map3D shaders read for
+    /// the distance cross-fade (Map3DCommon M3DImpFade), and is queued for its billboard (Map3DImpostors).
     /// </summary>
     public static class Map3DBatcher
     {
         const float Cell = 16f * Map3D.M;
-        struct Item { public Mesh Mesh; public int Sub; public Matrix4x4 M; }
+        struct Item { public Mesh Mesh; public int Sub; public Matrix4x4 M; public Vector4 Root, RootZ; }
         struct Tagged { public Renderer R; public bool Cast; public int Tier; public Material Mat; }
         static readonly Dictionary<long, List<Item>> Groups = new Dictionary<long, List<Item>>();
         static readonly List<Material> MatIndex = new List<Material>();
@@ -27,10 +30,18 @@ namespace ZenoniaProto
         public static void Clear() { Groups.Clear(); MatIndex.Clear(); Live.RemoveAll(t => t.R == null); } // + renderers of maps already left
 
         /// <summary>Queue a generated mesh (submesh 0 with m0, leaf submeshes 1 / 2 with m1 when they have triangles) at this transform.
-        /// tier: grass density tier (0 always shown, 1 hidden at Low, 2 shown at High only).</summary>
-        public static void Add(Mesh mesh, Material m0, Material m1, Vector3 pos, Quaternion rot, float scale, bool castShadow = true, int tier = 0)
+        /// tier: grass density tier (0 always shown, 1 hidden at Low, 2 shown at High only); impostor: Map3DTreeBuilder key of a tree / bush that
+        /// swaps to an impostor billboard in the distance (-1 = never).</summary>
+        public static void Add(Mesh mesh, Material m0, Material m1, Vector3 pos, Quaternion rot, float scale, bool castShadow = true, int tier = 0, int impostor = -1)
         {
             Matrix4x4 m = Matrix4x4.TRS(pos, rot, Vector3.one * scale);
+            Vector4 root = Vector4.zero, rootZ = Vector4.zero;
+            int tree = impostor >= 0 ? Map3DImpostors.Queue(impostor, mesh, m0, m1, pos, rot, scale) : -1;
+            if (tree >= 0)
+            {
+                root = new Vector4(0f, 0f, pos.x, pos.y);  // uv * 0 + offset: the same value on every vertex of this tree
+                rootZ = new Vector4(0f, 0f, pos.z, tree + 1f);
+            }
             long cx = Mathf.FloorToInt(pos.x / Cell) + 1000, cy = Mathf.FloorToInt(pos.y / Cell) + 1000;
             for (int s = 0; s < 3 && s < mesh.subMeshCount; s++)
             {
@@ -43,7 +54,7 @@ namespace ZenoniaProto
                 long key = ((long)mi << 44) | ((long)tier << 42) | ((c ? 1L : 0L) << 40) | (cx << 20) | cy;
                 List<Item> l;
                 if (!Groups.TryGetValue(key, out l)) Groups[key] = l = new List<Item>();
-                l.Add(new Item { Mesh = mesh, Sub = s, M = m });
+                l.Add(new Item { Mesh = mesh, Sub = s, M = m, Root = root, RootZ = rootZ });
             }
         }
 
@@ -62,9 +73,11 @@ namespace ZenoniaProto
                 if (Map3D.Test("noleaves") && mat.shader.name.Contains("Foliage")) continue;
                 List<Item> items = kv.Value;
                 var ci = new CombineInstance[items.Count];
-                for (int i = 0; i < items.Count; i++) ci[i] = new CombineInstance { mesh = items[i].Mesh, subMeshIndex = items[i].Sub, transform = items[i].M };
+                for (int i = 0; i < items.Count; i++)
+                    ci[i] = new CombineInstance { mesh = items[i].Mesh, subMeshIndex = items[i].Sub, transform = items[i].M, lightmapScaleOffset = items[i].Root, realtimeLightmapScaleOffset = items[i].RootZ };
                 var mesh = new Mesh { name = "Map3DBatch", hideFlags = HideFlags.DontSave, indexFormat = IndexFormat.UInt32 };
-                mesh.CombineMeshes(ci, true, true);
+                mesh.CombineMeshes(ci, true, true, true); // hasLightmapData: uv2 / uv3 = the tree-root offsets above
+                if (!rootChecked && items[0].Root.z != 0f) CheckRoots(mesh, items[0]);
                 var go = new GameObject("Batch_" + mat.name);
                 go.transform.SetParent(root, false);
                 go.AddComponent<MeshFilter>().sharedMesh = mesh;
@@ -81,6 +94,20 @@ namespace ZenoniaProto
                 Debug.Log("[ZenoniaProto] Map3D batch " + kv.Key + ": " + kv.Value.x + " renderers, " + kv.Value.y + " verts, " + kv.Value.z + " tris");
             Debug.Log("[ZenoniaProto] Map3D props merged into " + n + " renderers (quality " + GraphicsQuality.Name(GraphicsQuality.Current) + ")");
             Clear();
+        }
+
+        static bool rootChecked;
+
+        /// <summary>Logs once whether the combine wrote the tree root into uv2 / uv3 as expected (the impostor cross-fade depends on it).</summary>
+        static void CheckRoots(Mesh merged, Item first)
+        {
+            rootChecked = true;
+            var a = new List<Vector2>(); var b = new List<Vector2>();
+            merged.GetUVs(1, a); merged.GetUVs(2, b);
+            bool ok = a.Count > 0 && b.Count > 0 && Mathf.Abs(a[0].x - first.Root.z) < 0.01f && Mathf.Abs(a[0].y - first.Root.w) < 0.01f && Mathf.Abs(b[0].y - first.RootZ.w) < 0.01f;
+            Debug.Log("[ZenoniaProto] Map3D tree-root uv " + (ok ? "OK" : "WRONG (impostor fade off for this map)") + ": uv2 " + (a.Count > 0 ? a[0].ToString() : "none")
+                + " uv3 " + (b.Count > 0 ? b[0].ToString() : "none") + " expected (" + first.Root.z + ", " + first.Root.w + ") (" + first.RootZ.z + ", " + first.RootZ.w + ")");
+            if (!ok) Map3DImpostors.Disable();
         }
 
         /// <summary>Puts a renderer of the 3D map under the quality switch (merged batches, terrain chunks, cutout sprites) and applies it now.</summary>

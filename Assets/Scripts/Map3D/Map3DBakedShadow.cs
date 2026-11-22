@@ -11,12 +11,14 @@ namespace ZenoniaProto
     /// pre-pass and the screen-space collect: Medium runs at about the speed of no shadows at all. Lost against High: leaves swaying in the
     /// shadow and the hero / monsters never cast (they do not cast at High either: blob shadows). Released with the map.
     /// `--map3d-test nobake`: Medium without it (no sun shadows) for A/B runs.
+    /// Tree impostors (22/11 perf pass 2, Map3DImpostors) read the same bake at Medium AND High (_M3DBakedImp; billboards have no realtime shadow),
+    /// so with impostors on it is baked at High too; the mesh receivers still read it at Medium only (_M3DBaked).
     /// </summary>
     public sealed class Map3DBakedShadow : MonoBehaviour
     {
         const int Size = 4096;
         const int BakeLayer = 31;           // unused layer: only the casters sit on it during the bake
-        static readonly int TexId = Shader.PropertyToID("_M3DBakedShadow"), VpId = Shader.PropertyToID("_M3DBakedVP"), ParamId = Shader.PropertyToID("_M3DBaked");
+        static readonly int TexId = Shader.PropertyToID("_M3DBakedShadow"), VpId = Shader.PropertyToID("_M3DBakedVP"), ParamId = Shader.PropertyToID("_M3DBaked"), ImpParamId = Shader.PropertyToID("_M3DBakedImp");
         RenderTexture rt;
 
         /// <summary>After the props are merged (Map3D.Finish): bakes now when Medium is on, else when the player picks Medium.</summary>
@@ -33,16 +35,21 @@ namespace ZenoniaProto
         {
             GraphicsQuality.Changed -= Apply;
             Shader.SetGlobalVector(ParamId, Vector4.zero);
+            Shader.SetGlobalVector(ImpParamId, Vector4.zero);
             if (rt != null) { rt.Release(); Destroy(rt); }
         }
 
         void Apply()
         {
-            bool on = GraphicsQuality.Current == GraphicsQuality.Level.Medium && !Map3D.Test("nobake");
-            if (on && rt == null) Bake();
+            GraphicsQuality.Level q = GraphicsQuality.Current;
+            bool on = q == GraphicsQuality.Level.Medium && !Map3D.Test("nobake");
+            bool imp = q != GraphicsQuality.Level.Low && Map3DImpostors.Active && !Map3D.Test("nobake");
+            if ((on || imp) && rt == null) Bake();
             Light sun = RenderSettings.sun;
             float floor = 1f - (sun != null ? sun.shadowStrength : 0.46f); // same darkness as the realtime shadow
-            Shader.SetGlobalVector(ParamId, on && rt != null ? new Vector4(1f, 1.1f / Size, 0.07f * Map3D.M, floor) : Vector4.zero);
+            Vector4 prm = rt != null ? new Vector4(1f, 1.1f / Size, 0.07f * Map3D.M, floor) : Vector4.zero;
+            Shader.SetGlobalVector(ParamId, on ? prm : Vector4.zero);
+            Shader.SetGlobalVector(ImpParamId, imp ? prm : Vector4.zero);
         }
 
         void Bake()

@@ -29,7 +29,7 @@ namespace ZenoniaProto
             requested = i >= 0 && !ReleaseBuild.IsRelease && !(i + 1 < a.Length && a[i + 1] == "off");
         }
 
-        /// <summary>Perf A/B test flags: `--map3d-test noshadow,noborder,lowshadow,noleaves`.</summary>
+        /// <summary>Perf A/B test flags: `--map3d-test noshadow,noborder,lowshadow,noleaves,noimpostor`.</summary>
         public static bool Test(string what)
         {
             string[] a = Environment.GetCommandLineArgs();
@@ -63,6 +63,7 @@ namespace ZenoniaProto
         {
             float t0 = Time.realtimeSinceStartup;
             Map3DBatcher.Clear();
+            Map3DImpostors.Clear();
             Map3DHeightField field = Map3DHeightField.For(map);
             Map3DTerrain.Build(mapRoot, map, field);
             Map3DWater.Build(mapRoot, map, field);
@@ -73,6 +74,11 @@ namespace ZenoniaProto
         }
     
         /// <summary>After MapScenery queued the prop meshes: merge them (Map3DBatcher).</summary>
-        public static void Finish(Transform mapRoot) { Map3DBatcher.Flush(mapRoot); Map3DBakedShadow.Attach(mapRoot); } // + the sun shadow baked once (Medium)
+        public static void Finish(Transform mapRoot)
+        {
+            Map3DBatcher.Flush(mapRoot);
+            Map3DImpostors.Build(mapRoot);     // distant trees as baked billboards (22/11 perf pass 2)
+            Map3DBakedShadow.Attach(mapRoot);  // + the sun shadow baked once (Medium; High too for the impostors)
+        }
     }
 }

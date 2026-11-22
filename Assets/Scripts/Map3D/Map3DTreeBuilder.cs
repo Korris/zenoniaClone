@@ -37,9 +37,14 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Cache key of a kind + variant (also the impostor key: Map3DImpostors bakes one set of views per key).</summary>
+        public static int Key(Kind k, int variant) { return (int)k * 16 + variant; }
+
+        public static bool IsBush(int key) { Kind k = (Kind)(key / 16); return k == Kind.Bush || k == Kind.BushLilac || k == Kind.BushWhite; }
+
         public static Mesh Get(Kind k, int variant)
         {
-            int key = (int)k * 16 + variant;
+            int key = Key(k, variant);
             Mesh m;
             if (Cache.TryGetValue(key, out m) && m != null) return m;
             var rng = new System.Random(9173 + key * 31);

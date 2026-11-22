@@ -94,17 +94,45 @@ sampler2D _M3DBakedShadow;
 float4x4 _M3DBakedVP;
 float4 _M3DBaked;
 
-float M3DBakedSun(float3 wp, float3 n)
+float M3DBakedSunP(float3 wp, float3 n, float4 prm)
 {
-    if (_M3DBaked.x < 0.5) return 1.0;
-    float3 p = wp + (n + normalize(_WorldSpaceLightPos0.xyz) * 1.3) * _M3DBaked.z;
+    if (prm.x < 0.5) return 1.0;
+    float3 p = wp + (n + normalize(_WorldSpaceLightPos0.xyz) * 1.3) * prm.z;
     float3 c = mul(_M3DBakedVP, float4(p, 1.0)).xyz;
     if (any(c.xy < 0.0) || any(c.xy > 1.0)) return 1.0;
-    float o = _M3DBaked.y;
+    float o = prm.y;
     float4 d = float4(tex2Dlod(_M3DBakedShadow, float4(c.xy + float2(-o, -o), 0, 0)).r, tex2Dlod(_M3DBakedShadow, float4(c.xy + float2(o, -o), 0, 0)).r,
                       tex2Dlod(_M3DBakedShadow, float4(c.xy + float2(-o, o), 0, 0)).r, tex2Dlod(_M3DBakedShadow, float4(c.xy + float2(o, o), 0, 0)).r);
     float s = dot(step(c.zzzz, d), 0.25.xxxx); // lit where nothing nearer to the sun was baked
-    return lerp(_M3DBaked.w, 1.0, s);
+    return lerp(prm.w, 1.0, s);
 }
+float M3DBakedSun(float3 wp, float3 n) { return M3DBakedSunP(wp, n, _M3DBaked); }
+// Same bake for the tree impostors (Map3DImpostors): on at Medium AND High (they have no realtime shadow of their own), off at Low.
+float4 _M3DBakedImp;
+
+// Tree impostor LOD (22/11 perf pass 2, Map3DImpostors): every vertex of a generated tree / bush carries its tree's root (TEXCOORD1 = world x, y;
+// TEXCOORD2 = world z, tree index + 1; written by Map3DBatcher through the combine's lightmap offsets; 0 = not a tree). The CPU decides per tree
+// (distance from the camera to the root past hero + StartAhead, with hysteresis) and animates its fade 0 = mesh .. 1 = impostor over ~0.35 s into
+// _M3DImpFade (one texel per tree, _M3DImp = (texture width, 1 / width, on, 1 / height)). Fade 1: the mesh tree collapses in the vertex shader
+// (no pixels at all) and the impostor billboard draws; during the short swap both draw with complementary 4x4 dither (mesh keeps dither > fade,
+// impostor dither <= fade), so it never pops and no tree stays half-dithered while the camera rests.
+float4 _M3DImp;
+sampler2D _M3DImpFade;
+#define M3D_CULLED_POS float4(4.0, 4.0, 4.0, 1.0)
+float M3DImpFade(float2 rootXY, float2 rootZFlag)
+{
+    if (_M3DImp.z < 0.5 || rootZFlag.y < 0.5) return 0.0;
+    float i = rootZFlag.y - 1.0;
+    float row = floor(i * _M3DImp.y + 1e-4);
+    float2 uv = float2((i - row * _M3DImp.x + 0.5) * _M3DImp.y, (row + 0.5) * _M3DImp.w);
+    return tex2Dlod(_M3DImpFade, float4(uv, 0, 0)).r;
+}
+// Shadow-caster passes: the camera depth texture (perspective) follows the LOD, the sun's shadow map (orthographic) keeps every tree.
+float M3DImpFadeCaster(float2 rootXY, float2 rootZFlag) { return UNITY_MATRIX_P[3][3] < 0.5 ? M3DImpFade(rootXY, rootZFlag) : 0.0; }
+float2 M3DPixel(float4 screenPos) { return screenPos.xy / screenPos.w * _ScreenParams.xy; }
+// mesh side of the cross-fade
+void M3DImpClipMesh(float4 screenPos, float fade) { if (fade > 0.0) clip(M3DBayer(M3DPixel(screenPos)) - fade); }
+// same with the impostor LOD: a tree past the fade band collapses off screen (both depth-sharing passes must call this one)
+float4 M3DLeafClipLod(float3 wp, float fade) { return fade >= 1.0 ? M3D_CULLED_POS : M3DLeafClip(wp); }
 
 #endif

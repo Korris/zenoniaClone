@@ -42,3 +42,16 @@ Máy: AMD Radeon(TM) Graphics tích hợp (D3D11), 1280x720 cửa sổ, `--fps-l
 - `bridge-yaw0-{high,medium,low}.jpg`, `west-gate-yaw0-{high,medium,low}.jpg`: cùng chỗ, `--no-hud`. Bản trước (High cũ) cùng chỗ cầu: `../props-3d/bridge-yaw0-pitch52.jpg`.
 - `bridge-crop-high-top-medium-bottom.jpg`: phóng to, trên High realtime, dưới Medium nướng (bóng đá, biển, rừng viền khớp; biển chỉ đường nhạt hơn chút).
 - `settings-graphics-row.jpg`: hàng Graphics trong Settings. `live-switch-low-medium-high.jpg`: bấm nút đổi ngay trong game.
+
+## Đợt 2 (22/11 tối): render scale, dynamic resolution, impostor cây xa, CHỈ 1 game mở
+
+Exe `D:\temp\player-perf2\Zenonia.exe`, `--dynres off`. Bảng đầy đủ + cách đọc: `docs/optimization-notes.md` mục 2. Tóm tắt (trung vị / lần tốt nhất):
+
+| Chỗ | Mức | Trước (3b7e94d3) | Sau, tắt cả 2 | + impostor | + impostor + 85 % |
+|---|---|---|---|---|---|
+| Cầu (27,21) | Medium | 176 / 208 | 213 / 222 | 187 / 229 | 224 / 237 |
+| Ao (38,36) | Medium | 149 / 172 | 170 / 172 | 152 / 181 | 207 / 209 |
+| Cầu (27,21) | High | 73 / 98 | 97 / 97 | 75 / 78 | 91 / 94 |
+| Ao (38,36) | High | 63 / 67 | 70 / 70 | 69 / 69 | 79 / 80 |
+
+Máy rảnh (1 game): Medium 150-230 FPS, High 65-100 (gấp ~2 số buổi chiều, đúng ước lượng). 2.5D 250-350 FPS, render scale không lợi rõ ở đó.

@@ -4,6 +4,7 @@
 // Moss on up-facing surfaces (normal up 0.55 -> 0.85, broken by noise, spec 3.2) from the moss texture, vertex colour r = AO (crevices, the
 // ground contact 0.72-0.88), g = wind weight (trunk tops sway a little with the crown), b = moss amount (0 none .. 1 the rule above).
 // Wrap 0.25 + the shared soft ramp, receives / casts real shadows, hero occlusion dither like the leaves (trunks keep more coverage).
+// Tree impostor LOD on trunks (TEXCOORD1 / 2 = tree root, Map3DCommon M3DImpFade; rocks / wood carry flag 0 and never fade).
 Shader "ZenoniaProto/Map3DPainted"
 {
     Properties
@@ -38,11 +39,11 @@ Shader "ZenoniaProto/Map3DPainted"
             fixed4 _Tint, _MossTint;
             float _Mode, _TriScale, _WindMul;
 
-            struct appdata { float4 vertex : POSITION; float3 normal : NORMAL; float2 uv : TEXCOORD0; float4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct appdata { float4 vertex : POSITION; float3 normal : NORMAL; float2 uv : TEXCOORD0; float2 root : TEXCOORD1; float2 rootZ : TEXCOORD2; float4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct v2f
             {
                 float4 pos : SV_POSITION; float2 uv : TEXCOORD0; float3 n : TEXCOORD1; float3 wp : TEXCOORD2; float4 col : TEXCOORD3;
-                float4 scr : TEXCOORD4; float eye : TEXCOORD5; float3 op : TEXCOORD8; SHADOW_COORDS(6) UNITY_FOG_COORDS(7)
+                float4 scr : TEXCOORD4; float eye : TEXCOORD5; float3 op : TEXCOORD8; SHADOW_COORDS(6) UNITY_FOG_COORDS(7) float fade : TEXCOORD9;
             };
 
             v2f vert(appdata v)
@@ -51,7 +52,8 @@ Shader "ZenoniaProto/Map3DPainted"
                 v2f o;
                 float3 wp = mul(unity_ObjectToWorld, v.vertex).xyz;
                 wp += M3DWind(wp, v.color.g) * _WindMul;
-                o.pos = mul(UNITY_MATRIX_VP, float4(wp, 1.0));
+                o.fade = M3DImpFade(v.root, v.rootZ);
+                o.pos = o.fade >= 1.0 ? M3D_CULLED_POS : mul(UNITY_MATRIX_VP, float4(wp, 1.0));
                 o.wp = wp;
                 o.op = v.vertex.xyz; // triplanar in object space: the rock texture does not swim when instances share a mesh
                 o.uv = v.uv;
@@ -73,6 +75,7 @@ Shader "ZenoniaProto/Map3DPainted"
             fixed4 frag(v2f i) : SV_Target
             {
                 M3DHeroFade(i.scr, i.eye, 0.55);
+                M3DImpClipMesh(i.scr, i.fade);
                 float3 n = normalize(i.n);
                 float3 L = normalize(_WorldSpaceLightPos0.xyz);
                 float3 objN = normalize(mul((float3x3)unity_WorldToObject, n));
@@ -108,12 +111,13 @@ Shader "ZenoniaProto/Map3DPainted"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_shadowcaster
+            #pragma target 3.0
             #pragma multi_compile_instancing
             #include "UnityCG.cginc"
             #include "Map3DCommon.cginc"
             float _WindMul;
-            struct appdata { float4 vertex : POSITION; float3 normal : NORMAL; float4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
-            struct v2f { V2F_SHADOW_CASTER; };
+            struct appdata { float4 vertex : POSITION; float3 normal : NORMAL; float2 root : TEXCOORD1; float2 rootZ : TEXCOORD2; float4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct v2f { V2F_SHADOW_CASTER; float4 scr : TEXCOORD1; float fade : TEXCOORD2; };
             v2f vert(appdata v)
             {
                 UNITY_SETUP_INSTANCE_ID(v);
@@ -122,9 +126,12 @@ Shader "ZenoniaProto/Map3DPainted"
                 wp += M3DWind(wp, v.color.g) * _WindMul;
                 v.vertex = mul(unity_WorldToObject, float4(wp, 1.0));
                 TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+                o.fade = M3DImpFadeCaster(v.root, v.rootZ);
+                if (o.fade >= 1.0) o.pos = M3D_CULLED_POS;
+                o.scr = ComputeScreenPos(o.pos);
                 return o;
             }
-            float4 frag(v2f i) : SV_Target { SHADOW_CASTER_FRAGMENT(i) }
+            float4 frag(v2f i) : SV_Target { M3DImpClipMesh(i.scr, i.fade); SHADOW_CASTER_FRAGMENT(i) }
             ENDCG
         }
     }

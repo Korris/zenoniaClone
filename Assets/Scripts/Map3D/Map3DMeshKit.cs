@@ -121,6 +121,8 @@ namespace ZenoniaProto
             mesh.vertices = p;
             mesh.normals = n;
             mesh.SetUVs(0, uv);
+            var zero = new Vector2[p.Length];
+            mesh.uv2 = zero; mesh.uv3 = zero; // tree-root channels (TEXCOORD1 / 2), filled per instance by Map3DBatcher (impostor LOD)
             mesh.SetColors(col);
             mesh.subMeshCount = 3;
             mesh.SetTriangles(FlipWinding(solid), 0); // shapes are written counter-clockwise from outside (easier to reason about); Unity's front face is clockwise

@@ -1,5 +1,25 @@
 # Việc đang dở
 
+**Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
+
+### 22/11 20:15 LEVEL UP thành light FX + chữ phát sáng; nhãn quái chỉ hiện khi đánh (+68 % FPS giữa đám đông) (agent, XONG, CHỜ người dùng thử)
+- Người dùng (22/11): "cái chữ Level Up làm giống như sprite skill đi, không xài hình nữa; ví dụ cái ống máu và tên quái không hiện trước mặt lính nữa mà khi nào ấn vào mới hiện thì có tăng FPS được không".
+- LEVEL UP: cột sáng vàng ~5H sau lưng + lõi, ma pháp trận sao 3H dưới chân vẽ dần rồi loé, vòng rune bay lên quanh người, hạt sáng bay lên theo cột (`LevelUpLightFx`, palette Ascend); chữ "LEVEL UP" là TextMesh thật trên đầu (glow + viền nâu + gradient + vệt sáng quét, shader `LevelUpText`, `LevelUpWordFx`), chỉ hero của mình. Bỏ banner UGUI + `LevelUpWordmark.cs` (ảnh `levelup-wordmark*.png` vẫn còn trong Resources, không dùng nữa). Người khác lên cấp: chỉ light FX mờ theo đám đông.
+- Nhãn quái thường: chỉ quái đang nhắm (vòng vàng) + quái vừa đánh trúng 2 s; Settings > "All monster names / HP" (mặc định tắt) bật lại. FPS 140 quái (70 trong khung hình): 186 -> 311. Viền 8 bản chữ chỉ ~5 %. Chi tiết `docs/optimization-notes.md` mục 1.11.
+- Đã xem ảnh: chữ + cột + trận trên 2.5D Willowbrook, nhãn chỉ hiện ở con bị đánh, hàng Settings mới (`docs/reference/levelup-light-fx/`). CHƯA xem: map 2D phẳng, `--map3d`, online (người khác lên cấp).
+- `SettingsWindow.cs` (hàng toggle) CHƯA commit vì file đang lẫn thay đổi chưa commit của agent render scale (Resolution / Dynamic resolution); commit cùng lúc với phần đó. Code còn lại commit 9d6815fc + commit docs.
+- Exe: `D:	emp\player-lvlup\Zenonia.exe` (bản sao `D:	emp\zu-copy-dmg2`). Ổ D: đầy (còn ~200 MB) khi đo.
+
+- Exe: `D:\temp\player-perf2\Zenonia.exe` (thêm `--map3d`).
+### 22/11 20:12 Tối ưu FPS đợt 2: render scale, dynamic resolution, impostor cây xa (agent, XONG, CHỜ người dùng thử)
+- Người dùng (22/11): "ok làm 1 2 3 đi và note lại các cái bạn đã làm để sau này tui hỏi lại còn biết". Ghi chép đầy đủ: `docs/optimization-notes.md`.
+- 1) Render scale cho mọi map (2D, 2.5D, `--map3d`): camera thế giới vẽ nhỏ rồi phóng + làm nét nhẹ; HUD và chữ IMGUI giữ độ phân giải gốc. Settings > Resolution: Auto (High 100 / Medium 85 / Low 75 %) / 100 / 85 / 70 %. Code `RenderScale.cs`, `RenderScaleCamera.cs`, `RenderScaleBlit.cs`, shader `RenderScaleUpscale`.
+- 2) Dynamic resolution (Settings, mặc định bật): FPS < 55 (mobile 30) thì hạ 5 %/bước tới 60 %, dư sức thì nâng lại, có trễ chống nhấp nháy; F12 hiện `95% auto`. Code `RenderScaleDynamic.cs`. Đã thấy trong game: High ở ao, vsync 60 -> giữ 95 % auto.
+- 3) Impostor cây xa trên map 3D: 35 loại cây nướng 8 góc khi vào map (~15 ms), cây xa hơn hero + 3 m (Medium; High 6, Low 0) chuyển sang billboard trong 0,35 s, cùng màu / ánh sáng / bóng nướng; bóng lá ở High không đổi. Code `Map3D/Map3DImpostors.cs`, `Map3DImpostorBaker.cs`, shader `Map3DImpostor`, `Map3DImpostorBake`; sửa `Map3DCommon` / `Map3DFoliage` / `Map3DPainted`, `Map3DBatcher` (gốc cây qua lightmap offset).
+- FPS chỉ 1 game (1280x720, trung vị / lần tốt nhất), map 3D: Medium ao 149/172 -> 207/209, cầu 176/208 -> 224/237; High ao 63/67 -> 79/80, cầu 73/98 -> 91/94. Phần lợi chủ yếu từ render scale 85 %; impostor trong sai số (lá cây GẦN camera mới đắt). 2.5D 250-350 FPS, render scale không lợi rõ. Số đo nhiễu vì agent khác build cùng máy.
+- Settings giờ 10 hàng (RowH 44): thêm Resolution, Dynamic resolution; hàng "All monster names / HP" của agent khác cùng file. Đã xem ảnh Settings (9 hàng, bản build trước khi có hàng nhãn quái) và overlay F12. CHƯA xem: cửa sổ 10 hàng trong game, mobile.
+- Exe: `D:	emp\player-perf2\Zenonia.exe` (thêm `--map3d`).
+
 ### 22/11 17:54 Map 3D lag: tối ưu FPS + Settings > Graphics Low / Medium / High (agent, XONG, CHỜ người dùng thử)
 - Người dùng (22/11): "có cách nào cải thiện FPS không, lag quá". Chỉ phần hình, không đụng FX skill / server.
 - Settings có hàng "Graphics" (Low / Medium / High, lưu PlayerPrefs, mặc định Medium PC / Low mobile, đổi ngay không cần vào lại map; `--gfx` cho bản test). High = y bản đã duyệt (bóng realtime 2 cascade, MSAA 2x). Medium = bóng mặt trời của prop tĩnh NƯỚNG 1 lần khi vào map (RFloat 4096, `Map3DBakedShadow`; mất lá lay trong bóng), MSAA tắt, cỏ 70 %. Low = không bóng mặt trời (bóng silhouette 2.5D, nhạt), cỏ 40 %, MSAA tắt. Mọi mức: depth pre-pass lá, terrain vẽ sau lá, lá không đổ bóng bỏ pass ShadowCaster. 2.5D: Medium/Low tắt MSAA (+~19 %), hình không đổi.
