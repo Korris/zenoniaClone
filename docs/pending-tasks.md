@@ -7,7 +7,7 @@
 - LEVEL UP: cột sáng vàng ~5H sau lưng + lõi, ma pháp trận sao 3H dưới chân vẽ dần rồi loé, vòng rune bay lên quanh người, hạt sáng bay lên theo cột (`LevelUpLightFx`, palette Ascend); chữ "LEVEL UP" là TextMesh thật trên đầu (glow + viền nâu + gradient + vệt sáng quét, shader `LevelUpText`, `LevelUpWordFx`), chỉ hero của mình. Bỏ banner UGUI + `LevelUpWordmark.cs` (ảnh `levelup-wordmark*.png` vẫn còn trong Resources, không dùng nữa). Người khác lên cấp: chỉ light FX mờ theo đám đông.
 - Nhãn quái thường: chỉ quái đang nhắm (vòng vàng) + quái vừa đánh trúng 2 s; Settings > "All monster names / HP" (mặc định tắt) bật lại. FPS 140 quái (70 trong khung hình): 186 -> 311. Viền 8 bản chữ chỉ ~5 %. Chi tiết `docs/optimization-notes.md` mục 1.11.
 - Đã xem ảnh: chữ + cột + trận trên 2.5D Willowbrook, nhãn chỉ hiện ở con bị đánh, hàng Settings mới (`docs/reference/levelup-light-fx/`). CHƯA xem: map 2D phẳng, `--map3d`, online (người khác lên cấp).
-- `SettingsWindow.cs` (hàng toggle) CHƯA commit vì file đang lẫn thay đổi chưa commit của agent render scale (Resolution / Dynamic resolution); commit cùng lúc với phần đó. Code còn lại commit 9d6815fc + commit docs.
+- Commit: 9d6815fc, f8d5696e; hàng Settings + mục 1.11 optimization-notes nằm trong commit 85f15b20 của agent render scale (file chung).
 - Exe: `D:\temp\player-lvlup\Zenonia.exe` (bản sao `D:\temp\zu-copy-dmg2`). Ổ D: đầy (còn ~200 MB) khi đo.
 
 - Exe: `D:\temp\player-perf2\Zenonia.exe` (thêm `--map3d`).
