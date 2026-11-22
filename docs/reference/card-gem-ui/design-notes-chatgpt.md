@@ -12,8 +12,10 @@
 | `01-card-menu.png` | Monster Cards (kho card): menu trái My Cards / Album / Convert / Socket / Remove Gem / Card Duel; lưới card + lọc N/R/SR/SSR, tìm, sort; badge xN, "In Deck", "On Market"; chi tiết card: 4 chỉ số hướng đấu bài, hiệu ứng Power Gem / Guard Gem; nút Add to Deck / Sell / Convert |
 | `02-card-album.png` | Monster Album: tiến độ 24/40 + rương mốc 10/20/30/40, Claim Reward; tab vùng All / Meadow / Frost / Marsh / Ruins / Boss; card chưa có = bóng đen "?"; chi tiết nguồn + trạng thái Collected |
 | `03-card-to-gem.png` | Convert to Soul Gem: chọn card → chọn Power / Guard → kết quả ngọc; hiệu ứng, phí (1 card + 500 G), nút Convert. Nhãn "Conversion Result" do mình vá chữ (ChatGPT vẽ 3 lần đều sai "Converstion") |
-| `04-gem-socket.png` | Gem Socketing: chọn Weapon / Armor / Accessory, trang bị, 2 ô ngọc, kho ngọc lọc Power / Guard, Gem Info, so chỉ số trước / sau, phí 0 G, cảnh báo khoá giao dịch, nút Socket Gem |
-| `05-gem-remove.png` | Remove Gem: chọn ô ngọc, xem trước chỉ số sau tháo, ngọc về túi (vẫn khoá giao dịch, 100 %), phí 3.000 G (SR), Cancel / Remove Gem |
+| `04-gem-socket.png` | (vẽ lại 23/11 theo góp ý người dùng) Gem Socketing: trang bị + danh sách ô ngọc (1 đã khảm, ô trống), kho ngọc lọc All / ATK / DEF / HP / Utility, ô Gem Info riêng ghi Type + Option; KHÔNG còn bảng Current / After; nút Socket Gem |
+| `05-gem-remove.png` | (vẽ lại 23/11 cho khớp màn 4) Gem Removal: trang bị + ô ngọc đang khảm, ngọc chọn tháo (Type + Option), Removal Result (gỡ khỏi trang bị, về túi, vẫn khoá giao dịch), phí 5.000 G, nút Remove Gem; không còn bảng Current / After Removal |
+
+Góp ý người dùng 23/11 về màn khảm (nguyên văn): "cái màn hình khảm ngọc ko cần hiển thị current với after vì nó ko + thẳng vào vũ khí trực tiếp mà chỉ là option thêm thôi nó sẽ hiện ở 1 ô riêng chứ". ChatGPT: bỏ bảng Current / After, hiệu ứng ngọc hiện ở ô "Gem Info → Option" riêng; màn tháo ngọc cũng nên đổi như vậy (đã vẽ lại). Bản 04 / 05 cũ nằm trong commit f1340e40.
 | `06a-card-duel-deck.png` | Card Duel lobby: PvE (NPC) / Ranked (PvP) / Friend Duel / Room Match; đối thủ NPC + thưởng thắng lần đầu; deck 8/8, Edit Deck; thông tin card 4 chỉ số hướng; Start Duel |
 | `06b-card-duel-battle.png` | Bàn đấu 4×4: 2 người chơi trên cùng (8/8), "Turn 7/16 – Your Move", luật bên trái, card đang chọn + battle log bên phải, tay bài dưới, Place Card / Cancel |
 
@@ -40,7 +42,8 @@
 - Tông là RO Soft **Fantasy** (theo lời người dùng), trong khi nhánh `ro-soft-adventure` đã đổi UI sang RO Soft **Adventure** (giấy kem / gỗ nâu): làm thật thì phải đổi da.
 - Tên quái / địa danh lấy từ RO (Poring, Fabre, Lunatic, Prontera Field ở màn 1), không phải quái của game mình (màn 6a ghi đúng Willowbrook Meadows).
 - Màn 1-2 có menu trái chuyển màn; màn 3 không có menu đó; màn 4-5 dùng menu trái là loại trang bị. Tiêu đề màn 6a nằm ngoài khung cửa sổ, các màn khác nằm trong.
-- Màn 4 có "Lv. 3 / Lv. 2" cạnh ngọc dù V1 không nâng cấp ngọc; ô 2 đã có ngọc nhưng vẫn hiện như đang khảm.
+- Màn 4 bản mới vẽ 3 ô ngọc cho vũ khí (luật chốt 2 ô, ChatGPT tự nhận); lọc ngọc đổi thành ATK / DEF / HP / Utility thay cho Power / Guard. Màn 5 bản mới ghi phí 5.000 G trong khi luật SR là 3.000 G.
+- Màn 4-5 bản mới có menu trái mới (Card Collection / Card Growth / Card Conversion / Gem Socketing / Gem Removal / Card Duel), khác menu màn 1-2; "Card Growth" chưa có trong luật (V1 không nâng cấp card).
 - Màn 6b: card đang chọn (Horn Rabbit) không có trong tay bài; bộ đếm 8/8 không giảm khi đã đặt 3 lá.
 - Màn 1 ghi Guard Gem của Poring là "giảm sát thương từ Poring": hiệu ứng ngọc còn chung chung, chưa có bảng hiệu ứng theo từng quái.
 
