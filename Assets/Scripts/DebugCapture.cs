@@ -22,6 +22,7 @@ namespace ZenoniaProto
     ///   --solids                          start with the collision tint on
     ///   --skill-at 1.5,9                  press the class skill (L) at those seconds after start
     ///   --dummies N                       spawn N frost slimes in front of the hero (skill / AoE targets)
+    ///   --dummy-grid                      lay the dummies out as a 10-wide grid round the hero, all on screen (FPS runs with 70 monsters in view)
     ///   --nobloom                         disable the bloom post effect (A/B for blown-out FX)
     ///   --run-seconds N                   quit after N seconds (no screenshots); with --perf logs every frame slower than 16 ms
     ///   --dummy-dist N                    distance of the first dummy in front of the hero (default 30)
@@ -155,6 +156,7 @@ namespace ZenoniaProto
             string dm = Arg(a, "--dummies");
             if (dm != null) dummies = int.Parse(dm);
             dummyOnce = Array.IndexOf(a, "--dummy-once") >= 0;
+            dummyGrid = Array.IndexOf(a, "--dummy-grid") >= 0;
             string dt = Arg(a, "--dummy-types");
             if (dt != null) dummyTypes = dt.Split(',');
             shotTimes = Times(Arg(a, "--shots"));
@@ -280,6 +282,7 @@ namespace ZenoniaProto
             for (int i = 0; i < dummies; i++)
             {
                 Vector2 p = hero.Position + fwd * (dummyDist + (i % 3) * 9f) + side * ((i - dummies * 0.5f) * 9f);
+                if (dummyGrid) p = hero.Position + new Vector2((i % 10 - 4.5f) * 26f, (i / 10 - 3f) * 18f + 6f); // 10 x 7: ~260 x 120 units round the hero
                 MonsterDef def = dummyTypes != null ? MonsterDef.ByType(dummyTypes[i % dummyTypes.Length]) : null;
                 Monster.Create(root, def ?? (i % 3 == 2 ? MonsterDef.IceGoblin : MonsterDef.FrostSlime), p, -1);
             }

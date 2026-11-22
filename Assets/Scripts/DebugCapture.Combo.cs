@@ -7,7 +7,7 @@ namespace ZenoniaProto
     public partial class DebugCapture
     {
         string comboArg, walkArg;
-        bool dummyOnce;
+        bool dummyOnce, dummyGrid;
 
         /// <summary>Fixed 60 fps scripted scene for the walk cycle (--record-walk CLASS --face DIR): the hero holds the move key of that
         /// facing from frame 30 for 3 s, one PNG per frame (Tools/wizard-combo-ingame-frame-strip.py style strips; the camera keeps the hero centred).</summary>

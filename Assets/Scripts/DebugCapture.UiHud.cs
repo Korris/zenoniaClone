@@ -45,7 +45,7 @@ namespace ZenoniaProto
         {
             float start = Time.realtimeSinceStartup; // about the clock of --shots: both start once the hero has spawned
             while (Time.realtimeSinceStartup - start < seconds) yield return null;
-            if (hero != null) HeroFx.LevelUp(hero.Position, hero.Rpg.Level);
+            if (hero != null) HeroFx.LevelUp(hero, hero.Rpg.Level);
         }
 
         /// <summary>The first skill of any class that gives a shield, so the buff row shows a real shield icon.</summary>
@@ -86,7 +86,7 @@ namespace ZenoniaProto
         {
             while (true)
             {
-                if (kind == "levelup") RpgHud.LevelUp(p.Level);
+                if (kind == "levelup") HeroFx.LevelUp(GameSession.Hero, p.Level);
                 else if (kind == "item") RpgHud.Toast("Obtained: Enhance Stone x1", "", LootSprites.Stone());
                 else if (kind == "full") RpgHud.Toast("Item Obtained!", "Small HP Potion x1", LootSprites.Potion(true));
                 else RpgHud.Toast("Inventory full", new Color(1f, 0.55f, 0.45f));

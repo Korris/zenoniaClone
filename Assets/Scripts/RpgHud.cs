@@ -6,10 +6,10 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// UGUI player HUD (top-left): round portrait of the current hero, level, HP / MP bars with the numbers at the right, a thin EXP bar, the icons of the buffs on the hero
-    /// (HudBuffRow); a "LEVEL UP" banner and a one-line toast for pickups / warnings. Texts are rebuilt only when their value
-    /// changes. The IMGUI Hud draws the rest (skill, FPS, help).
-    /// With UiScreens.UseNew(UiScreen.Hud) the block is replaced by the compact status (PlayerStatusBadge) and LEVEL UP is the gold word in
-    /// the middle of the screen (LevelUpWordmark); the switch is read every frame, so capture flags and a later settings toggle both work. The
+    /// (HudBuffRow) and a one-line toast for pickups / warnings. Texts are rebuilt only when their value
+    /// changes. The IMGUI Hud draws the rest (skill, FPS, help). LEVEL UP is no longer a HUD banner / painted wordmark (22/11): HeroFx.LevelUp
+    /// plays it in the world (LevelUpLightFx + the glowing word LevelUpWordFx).
+    /// With UiScreens.UseNew(UiScreen.Hud) the block is replaced by the compact status (PlayerStatusBadge); the switch is read every frame, so capture flags and a later settings toggle both work. The
     /// new HUD lives in one safe-area root ("PaperHud") created here, which also holds the boss bar (BossBarView, its own switch UiScreen.Boss).
     /// </summary>
     public class RpgHud : MonoBehaviour
@@ -20,21 +20,17 @@ namespace ZenoniaProto
         /// <summary>Top-centre notice area of the new HUD, units below the top of the safe area: under the boss bar when one shows (the PC
         /// toast pill and the Wanted banners start here).</summary>
         public static float ToastTop { get { return Mathf.Max(46f, BossBarView.Bottom + 6f); } }
-        const float BannerSeconds = 2.4f;
         static RpgHud instance;
 
-        RectTransform block, banner;
+        RectTransform block;
         PaperLayout paper;
         PlayerStatusBadge badge;
         RoHudStatus roStatus; // RO Soft HUD (RoHud.Active): status + party instead of the classic block
         RoHudParty roParty;
-        LevelUpWordmark wordmark;
-        Text title, bannerTitle, bannerSub, hpValue, mpValue;
+        Text title, hpValue, mpValue;
         UiKit.Bar hpBar, mpBar, expBar;
         Image face;
         HudBuffRow buffRow;
-        CanvasGroup bannerGroup;
-        float bannerLeft;
         int lastHp = -1, lastMaxHp, lastMp = -1, lastMaxMp, lastLevel, lastExp = -1;
         string lastClass;
 
@@ -83,12 +79,6 @@ namespace ZenoniaProto
             paper = PaperLayout.CreateSafeArea(canvas, "PaperHud"); // here in the sibling order: under the touch layer and every window
             BossBarView.Create(paper.Safe);
 
-            banner = UiKit.Rect(canvas, "LevelUp", 0f, -150f, 420f, 90f, true);
-            bannerGroup = banner.gameObject.AddComponent<CanvasGroup>();
-            bannerGroup.blocksRaycasts = false;
-            bannerTitle = UiKit.Label(banner, "Title", 0f, 0f, 420f, 54f, "LEVEL UP!", 40, new Color(1f, 0.88f, 0.35f), TextAnchor.MiddleCenter, true);
-            bannerSub = UiKit.Label(banner, "Sub", 0f, 52f, 420f, 30f, "", 18, Color.white, TextAnchor.MiddleCenter, true);
-            banner.gameObject.SetActive(false);
             NotificationToast.Create(canvas); // top-centre banner for Toast(...)
             WantedHud.Create(canvas);          // phase 11: Wanted card, notices and guide (only shown with the HUD switch on, online)
             MapNameBanner.Create(canvas);      // the area title each time the hero enters a map
@@ -114,29 +104,6 @@ namespace ZenoniaProto
         /// <summary>Full banner with an icon slot, a title and a sub line (win-toast).</summary>
         public static void Toast(string title, string sub, Sprite icon) { NotificationToast.Show(title, sub, icon); }
 
-        public static void LevelUp(int level)
-        {
-            if (instance != null) instance.ShowLevelUp(level);
-        }
-
-        void ShowLevelUp(int level)
-        {
-            // the look may have been switched since the last one: never both
-            bannerLeft = 0f;
-            banner.gameObject.SetActive(false);
-            if (wordmark != null) wordmark.Hide();
-            if (UiScreens.UseNew(UiScreen.Hud))
-            {
-                // only the word: no level number, no "+1 skill point" line (user, 16/11/2026)
-                if (wordmark == null) wordmark = new LevelUpWordmark(paper.Safe);
-                wordmark.Show();
-                return;
-            }
-            bannerSub.text = "Level " + level; // no "+1 skill point" text (user, 16/11/2026)
-            bannerLeft = BannerSeconds;
-            banner.gameObject.SetActive(true);
-        }
-
         void Update()
         {
             HeroController hero = GameSession.Hero;
@@ -149,16 +116,6 @@ namespace ZenoniaProto
             if (useNew && p != null && badge == null) badge = new PlayerStatusBadge(paper.Safe);
             if (badge != null) badge.SetActive(useNew && p != null);
             float dt = Time.unscaledDeltaTime;
-            if (bannerLeft > 0f)
-            {
-                bannerLeft -= dt;
-                float age = BannerSeconds - bannerLeft;
-                float pop = age < 0.18f ? Mathf.Lerp(0.6f, 1.12f, age / 0.18f) : Mathf.Lerp(1.12f, 1f, Mathf.Clamp01((age - 0.18f) / 0.2f));
-                banner.localScale = new Vector3(pop, pop, 1f);
-                bannerGroup.alpha = Mathf.Clamp01(bannerLeft / 0.6f);
-                if (bannerLeft <= 0f) banner.gameObject.SetActive(false);
-            }
-            if (wordmark != null && wordmark.Showing) wordmark.Tick(dt);
             if (p == null) return;
             if (useNew) badge.Refresh(hero, p, dt); else if (ro) roStatus.Refresh(hero, p); else Refresh(hero, p);
             DevBuffKey.Tick(hero);

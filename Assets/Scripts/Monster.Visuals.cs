@@ -105,7 +105,12 @@ namespace ZenoniaProto
             bool showBar = state != State.Dying && hp < def.Hp;
             if (UiScreens.UseNew(UiScreen.Boss)) { SetRoFootLabel(false); RenderPaperBar(order, showBar); return; } // Adventure Paper frames, boss name and cast tab: Monster.PaperOverheadBar.cs
             if (paperBar) ClearPaperBar();
-            if (UiStyle.Ro && !def.IsBoss && !def.IsWanted) { barBack.enabled = barFill.enabled = false; RenderRoFootLabel(); return; } // RO Soft HP bar + "Lv.N Name" under the feet: Monster.RoFootLabel.cs
+            if (UiStyle.Ro && !def.IsBoss && !def.IsWanted) // RO Soft HP bar + "Lv.N Name" under the feet (Monster.RoFootLabel.cs): only the target / a monster you just hit, unless Settings shows all (MonsterLabelPrefs, 22/11)
+            {
+                barBack.enabled = barFill.enabled = false;
+                if (MonsterLabelPrefs.Shows(this, hitByMeAt)) RenderRoFootLabel(); else SetRoFootLabel(false);
+                return;
+            }
             SetRoFootLabel(false);
             barBack.enabled = showBar; barFill.enabled = showBar;
             if (def.UsesSkills && state != State.Dying)
@@ -145,6 +150,7 @@ namespace ZenoniaProto
         /// <summary>The monster your own hero hit last, and when (Time.time); read by TargetMarker.</summary>
         public static Monster LastHitByMe;
         public static float LastHitByMeAt;
+        float hitByMeAt = -99f; // Time.time of this monster's last hit by your own hero: MonsterLabelPrefs shows its label for a moment
 
         /// <summary>Hit presentation shared by the real hit (authority) and the replayed MonsterHit event (client): white flash, damage number, sparks.</summary>
         /// <summary>petKind: 0 = the hero's own hit, 1 = a pet's basic attack (teal #66D5D0, small), 2 = a pet's skill (pale gold #FFD77A); pet hits never shake, stop or mark the target (ChatGPT Lần 8).</summary>
@@ -169,7 +175,7 @@ namespace ZenoniaProto
             if (otherPlayer) DamageNumber.Spawn(x, y + bodyH + 4f, dmg.ToString(), Color.white, false, false, true); // another player's hit: small, white, half alpha
             else
             {
-                LastHitByMe = this; LastHitByMeAt = Time.time; // TargetMarker: the monster you are fighting
+                LastHitByMe = this; LastHitByMeAt = hitByMeAt = Time.time; // TargetMarker: the monster you are fighting
                 // Multi-hit numbers (SkillHitSplit, 21/11): a skill hit pops as several numbers summing to dmg; the HP bar steps down with them.
                 float partDelay, partInterval;
                 int[] parts = DamageNumber.SpawnOwnHit(x, y + bodyH + 4f, dmg, crit, finisher, quietFx, hp <= 0f, this, out partDelay, out partInterval);

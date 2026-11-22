@@ -236,15 +236,12 @@ namespace ZenoniaProto
             UltimateFx.Embers(feet + new Vector2(0f, 6f), 10, 6f, 30f, hp ? new Color(1f, 0.45f, 0.45f, 1f) : new Color(0.45f, 0.65f, 1f, 1f));
         }
 
-        /// <summary>Level-up: HUD banner, gold rings, embers and a flash.</summary>
-        public static void LevelUp(Vector2 feet, int level, bool banner = true)
+        /// <summary>Level-up: light column, rune sigil, rising sparkles (LevelUpLightFx) and, for your own hero, the glowing "LEVEL UP" word
+        /// over the head (LevelUpWordFx). No HUD banner / painted wordmark since 22/11.</summary>
+        public static void LevelUp(HeroController hero, int level, bool own = true)
         {
             if (!NetMode.RendersFx) return;
-            if (banner) RpgHud.LevelUp(level);
-            ShockRing.Spawn(feet, 26f, 0.6f, new Color(1f, 0.85f, 0.35f, 0.95f), UltimateFx.GroundFxOrder + 6, 0.72f, 0.25f);
-            ShockRing.Spawn(feet, 16f, 0.45f, new Color(1f, 1f, 0.7f, 0.85f), UltimateFx.GroundFxOrder + 7, 0.72f, 0.2f, true);
-            UltimateFx.Embers(feet + new Vector2(0f, 6f), 36, 12f, 60f, new Color(1f, 0.9f, 0.45f, 1f));
-            ScreenFlash.Trigger(new Color(1f, 0.95f, 0.6f, 0.08f), 0.3f);
+            LevelUpLightFx.Play(hero, own);
         }
     }
 }

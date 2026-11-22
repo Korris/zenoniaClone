@@ -46,9 +46,14 @@ namespace ZenoniaProto
             return (m.Feet - hero.Position).sqrMagnitude < MaxDistance * MaxDistance ? m : null;
         }
 
+        /// <summary>The target the ring was last drawn for (this frame's LateUpdate, or the previous frame's): MonsterLabelPrefs shows its foot label
+        /// without re-running the target pick in the middle of the frame.</summary>
+        public static Monster Shown { get; private set; }
+
         void LateUpdate()
         {
             Monster m = Target();
+            Shown = m;
             ring.Visible = m != null;
             arrow.Visible = m != null && m.IsWanted;
             if (m == null) return;

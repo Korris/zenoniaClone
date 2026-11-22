@@ -110,7 +110,7 @@ namespace ZenoniaProto
                 case NetEventType.LevelUp:
                     HeroController lv = HeroOf(e.Id);
                     stats.Add("levelUpsSeen", 1);
-                    if (fx && lv != null) HeroFx.LevelUp(lv.Position, e.Step, lv == LocalPlayer.Hero);
+                    if (fx && lv != null) HeroFx.LevelUp(lv, e.Step, lv == LocalPlayer.Hero);
                     break;
                 case NetEventType.PotionUsed:
                     HeroController dr = HeroOf(e.Id);

@@ -206,7 +206,7 @@ namespace ZenoniaProto
             DamageNumber.Spawn(at.x + 6f, at.y + 20f, "+" + exp + " EXP", ExpColor, false);
             if (levels <= 0) return;
             HeroController hero = GameSession.Hero;
-            if (hero != null) { HeroFx.LevelUp(hero.Position, player.Level); NetEventBus.LevelUp(hero, player.Level); }
+            if (hero != null) { HeroFx.LevelUp(hero, player.Level); NetEventBus.LevelUp(hero, player.Level); }
             SaveNow();
         }
 

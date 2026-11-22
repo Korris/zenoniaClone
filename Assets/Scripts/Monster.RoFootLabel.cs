@@ -5,8 +5,9 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// RO Soft foot label of a normal monster: a small rounded HP bar and "Lv.N Name" text UNDER ITS FEET, always shown while it is alive
-    /// (Ragnarok-style, user 17/11 "hiện máu và tên quái, level ở dưới chân giống Ragnarok"; gold level, white name). The text has no backing
+    /// RO Soft foot label of a normal monster: a small rounded HP bar and "Lv.N Name" text UNDER ITS FEET (Ragnarok-style, user 17/11 "hiện máu
+    /// và tên quái, level ở dưới chân giống Ragnarok"; gold level, white name). Since 22/11 only for your target and a monster you hit in the last
+    /// 2 s (MonsterLabelPrefs; Settings "All monster names / HP" = always while alive); built on first show, so unseen monsters cost nothing. The text has no backing
     /// pill (user 20/11 "bỏ cái background màu xanh đi, chỉ hiện chữ thôi"): a thin dark outline keeps it readable on snow and dark maps. The Adventure Paper look
     /// draws the same label with its own art (Monster.PaperOverheadBar.cs); before this file the RO look (the default since 19/11) only had the
     /// plain red quad over the head once hurt, so name and level were gone. Bosses keep nothing here: the top boss bar shows them.
