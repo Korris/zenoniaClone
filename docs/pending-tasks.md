@@ -1,5 +1,11 @@
 # Việc đang dở
 
+### 22/11 07:10 TẠM DỪNG DỰ ÁN (người dùng: "push luôn đi, tạm dừng dự án tại đây") - đọc mục này trước khi làm tiếp
+- Đã push toàn bộ lên `origin/ro-fantasy-heroes` dù còn **2 test lỗi** (ZenoniaNet `FrostHollowLargeMapTests`): `fhCliffPillar` đè cầu thang đài canh ô 48,7 và `fhCliffA` ở 48,0 chặn ô đường 49,0 (map Frost Hollow 2.5D, commit 68457d6f). Việc đầu tiên khi làm tiếp: sửa tool đặt vách (`FrostHollowCliffProps`, xem `plans/261121-1930-frost-hollow-25d/plan.md`) để tôn trọng path/stair/bridge, chạy lại test bằng `%USERPROFILE%\.dotnet\dotnet.exe test` (dotnet mặc định SDK 9 không build được net10).
+- Chờ người dùng quyết: camera xoay thử (commit 39b88700: nghiêng 45-70°, xoay ±28°) giữ hay bỏ, W theo màn hình (cần đổi giao thức + build server); map thường để 2D hay 2.5D (người dùng thấy 2D dễ chơi hơn, đề xuất: map thường 2D + giữ nền/bóng/ánh sáng mới, 2.5D cho hầm ngục / boss); tối ưu FPS 2.5D; Assassin / Fighter chốt màu skill với ChatGPT trước khi làm; Wizard / Mechanic / Cleric chưa đổi sang "RO trailer style" như Warrior.
+- PHẢI build lại zone server + cập nhật server-api trước khi chơi online (nhiều thay đổi: Rootburrow 3 tầng, 2 boss + 4 quái mới, rương / pha lê / quest, quietFx, buff 60 s, Heal tự hồi, AllyBuff…). Máy KorrisPC thiếu module Unity Linux Dedicated Server.
+- Exe mới nhất: `D:\temp\player-cam-rotate\Zenonia.exe` (có hết, chỉ trên KorrisPC).
+
 > Người dùng chốt 19/11 15:50: MỌI việc merge thẳng vào nhánh `ro-fantasy-heroes`, không để nhánh riêng chờ duyệt. 20/11 15:25: KHÔNG tách nhánh / worktree nữa, mọi code (kể cả agent) làm và commit thẳng trên nhánh hiện tại.
 > Người dùng chốt 21/11: TƯƠNG LAI MỌI MAP chuyển sang 2.5D (bắt đầu từ Willowbrook, làm lại hình ảnh thành khu rừng kiểu RO3 / Midgard Senki); skill mọi class theo "RO3 Soft Fantasy V1" (đầu `docs/sprite-rules.md`), màu theo đúng RO3.
 > Người dùng chốt 20/11 15:15: hiệu ứng skill / đòn đánh làm bằng Particle System + Mesh Trail + shader (distortion, Bloom, Dissolve), KHÔNG làm VFX dạng sprite nữa (chi tiết đầu `docs/sprite-rules.md`).
