@@ -15,6 +15,7 @@ namespace ZenoniaProto
     {
         Monster lockTarget;      // the monster the current / last slash is locked on (null = none in reach: the slash whiffs)
         bool lockAcquired;       // this swing's windup already picked its target
+        bool slashConnected;     // this swing's blow found a monster: the picture holds the impact frame (WarriorSlashFeel.HoldMs)
 
         static readonly List<float> LockDist = new List<float>();
         static readonly List<bool> LockAlive = new List<bool>();
@@ -76,6 +77,7 @@ namespace ZenoniaProto
             if (!combo.IsAttacking || combo.Phase != ComboPhase.Windup) { lockAcquired = false; return; }
             if (lockAcquired) return;
             lockAcquired = true;
+            slashConnected = false;
             ComboHit h = combo.CurrentHit;
             if (h == null) return;
             lockTarget = PickLockTarget(LockFrom, lockTarget, LockRange(h), -1);
@@ -114,7 +116,8 @@ namespace ZenoniaProto
         {
             // The target can die or step out between the windup and the blow: pick again (keeps the lock when still valid).
             lockTarget = PickLockTarget(LockFrom, lockTarget, LockRange(h), -1);
-            if (predicted) { if (!replaying) PlayLockSlashFx(step, lockTarget); return; } // online: picture now, the server decides the hit
+            slashConnected = lockTarget != null;
+            if (predicted) { if (!replaying) { PlayLockSlashFx(step, lockTarget); if (slashConnected) LockImpactShake(false); } return; } // online: picture now, the server decides the hit
             PlayLockSlashFx(step, lockTarget);
             NetEventBus.AttackStep(this, step, false);
             if (lockTarget == null) return; // whiff: nothing in reach
@@ -123,8 +126,17 @@ namespace ZenoniaProto
             int dmg = CombatMath.Damage(AtkStat, mult * (crit ? 1.6f : 1f), lockTarget.Def);
             Vector2 v = DirVec[facing];
             lockTarget.TakeHit(dmg, v * h.Knockback, crit, false, false, this); // finisher false: no finisher flash / shake on every slash
-            HeroFx.MeleeLanded(cls, crit, false);
-            GameClock.HitStop(FeelConfig.HitStopMs(crit)); // the heavy hit-stop only on a crit, so a steady 2.5 slashes / s does not stutter
+            if (NetMode.RendersFx) ClassSfx.MeleeHit(cls.Id, crit);
+            LockImpactShake(crit);
+            // 22/11 V2: no global GameClock freeze (it lengthened the 400 ms swing offline); the hit-stop is the picture holding the impact frame
+            // WarriorSlashFeel.HoldMs inside the cycle (HeroController.Animation.cs), the monster flashes WarriorSlashFeel.FlashMs (Monster.Visuals.cs).
+        }
+
+        /// <summary>Camera kick on this player's own connecting slash (1.8-2.2 px, 75-85 ms; was trauma 0.05, invisible).</summary>
+        void LockImpactShake(bool crit)
+        {
+            if (!NetMode.RendersFx || (object)this != (object)LocalPlayer.Hero) return;
+            CameraFollow.Kick(crit ? WarriorSlashFeel.CritShakePx : WarriorSlashFeel.ShakePx, crit ? WarriorSlashFeel.CritShakeMs : WarriorSlashFeel.ShakeMs);
         }
 
         /// <summary>Slash picture of this hero's lock slash toward `target` (null = straight along the facing).</summary>

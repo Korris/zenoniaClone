@@ -24,7 +24,8 @@ _D = 0.7071
 FACING = {"down": (0, 1), "down-right": (_D, _D), "right": (1, 0), "up-right": (_D, -_D), "up": (0, -1), "up-left": (-_D, -_D),
           "left": (-1, 0), "down-left": (-_D, _D)}
 HEAD_TOL = 0.04
-TRAVEL = [-4, -8, 6, 12, 10, 6, 2, 0]  # cell px along the facing per frame (body ~188 px tall)
+TRAVEL = [0, 0, 0, 0, 0, 0, 0, 0]  # cell px along the facing per frame. 22/11 V2: 0, the lunge is done in the engine (WarriorSlashFeel.Lunge, figure +
+# shadow slide 13-19 px on screen) so art travel and root travel never stack. Was [-4, -8, 6, 12, 10, 6, 2, 0].
 
 
 def frames(path):

@@ -173,8 +173,12 @@ namespace ZenoniaProto
         /// <summary>Leaves and fades the dash afterimages; call after the figure is drawn.</summary>
         public void TickDashTrail(bool dashing, float dtMs) { dashTrail.Tick(dashing, dtMs); }
 
-        /// <summary>Raises the whole figure (body + gear) off the ground, or steps it sideways; the shadow stays down.</summary>
-        public void Lift(float units, float sideways = 0f) { lean.localPosition = new Vector3(sideways, units, 0f); }
+        /// <summary>Raises the whole figure (body + gear) off the ground, or steps it sideways; the shadow stays down. `ground` = view-only slide on the ground (figure + shadow).</summary>
+        public void Lift(float units, float sideways = 0f, Vector2 ground = default(Vector2))
+        {
+            lean.localPosition = new Vector3(sideways + ground.x, units + ground.y, 0f);
+            shadow.transform.localPosition = new Vector3(ground.x, ground.y, 0f); // a ground slide (Warrior lunge) takes the shadow along; the lift does not
+        }
 
         /// <summary>Eases the whole figure (body + gear) into its walking lean, or back upright: tips toward the side it walks to, dips when walking to or from the camera.</summary>
         public void Lean(bool walking, int dir, float dt)

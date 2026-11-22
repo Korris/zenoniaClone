@@ -20,6 +20,14 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "Assets/ArtLibrary/ro-fantasy-heroes/src"
 CW, CH, FEET, BALD_PX, PAINTED = 320, 256, 244, 188, 5
+# V2 proportions (user approved 22/11, RO Soft Adventure): Warrior 2.65 heads, same head size, body taller -> skull top to feet 208 px
+# (head height kept within 2 %; on screen ~76 px instead of 69 with the 2.5D camera unchanged). Other classes keep 188 until redrawn.
+BALD_PX_OF = {"warrior": 208}
+
+
+def bald_px(cls):
+    return BALD_PX_OF.get(cls, BALD_PX)
+
 DRAWN = ["down", "down-right", "right", "up-right", "up"]
 # attack painted for all 8 Dir8 dirs (Warrior 20/11: the left dirs keep the sword in the right hand, a mirrored right row swaps the hands);
 # sources may pair any two of them (e.g. body-warrior-attack-left--up-left-chatgpt-1.png). Rows then follow Dir8 order.
@@ -107,7 +115,7 @@ def idle(cls):
     src = newest(f"body-{cls}-idle-5dir-chatgpt-*.png")
     out = []
     for fig, x0, y0 in pilot.figures_with_pos(keyed(src), 5):
-        cell, (ox, oy, sc) = place(fig, BALD_PX / fig.height)
+        cell, (ox, oy, sc) = place(fig, bald_px(cls) / fig.height)
         out.append((cell, (x0, y0, sc, ox, oy)))
     return out, src.name
 
@@ -157,7 +165,7 @@ def motion_rows(cls, idle_figs):
             dirs = [d for d in (da, db) if d != "none"]
             if n == 8:  # one direction, frames 0-7, designed lunge travel (Tools/ro_fantasy_attack8_cut.py, 22/11)
                 fig_i = idle_figs[MIRROR_OF[DRAWN8.index(dirs[0])]]
-                by_dir[dirs[0]] = attack8_cut.cut(path, skull_w(fig_i), place, skull_w, despeck, BALD_PX, f"{cls} {anim} {dirs[0]}", dirs[0])
+                by_dir[dirs[0]] = attack8_cut.cut(path, skull_w(fig_i), place, skull_w, despeck, bald_px(cls), f"{cls} {anim} {dirs[0]}", dirs[0])
                 continue
             else:
                 rows = [[despeck(f) for f in row] for row in sheets_tool.rows_of(path, n, len(dirs))]
@@ -166,7 +174,7 @@ def motion_rows(cls, idle_figs):
                 # idle_figs are the cropped idle cells (already at game scale): attacks keep the idle skull width, walks the idle height
                 fix = (cls, anim, d) in head_fix.HEAD_FIX
                 if anim == "walk" or fix:  # head-fix rows: body on the idle height, then the head alone to the idle skull width
-                    s = BALD_PX / float(np.median([f.height for f in row]))
+                    s = bald_px(cls) / float(np.median([f.height for f in row]))
                 else:
                     s = skull_w(fig_i) / float(np.median([skull_w(f) for f in row]))
                 cells = [despeck(place(f, s)[0]) for f in row]  # again at game scale: LANCZOS leaves olive fringes of bigger source blobs

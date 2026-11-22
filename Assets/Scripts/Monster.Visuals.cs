@@ -56,12 +56,14 @@ namespace ZenoniaProto
         /// Hit reaction: with effects on the sprite flashes pure white via the SpriteFlash shader (held through the hit-stop freeze)
         /// and jitters a little; off = the old red tint.
         /// </summary>
+        float flashLen = FeelConfig.FlashMs, flashCap = FeelConfig.FlashMaxAmount; // set per hit (HitFx)
+
         void ApplyHitReaction(float alpha)
         {
             bool fx = FeelConfig.FxOn && flash > 0f;
             Color tint = StatusTint * artTint;
             body.color = !fx && flash > 0f ? new Color(1f, 0.55f, 0.55f, alpha) : new Color(tint.r, tint.g, tint.b, alpha);
-            FeelMaterials.SetFlash(body, fx ? Mathf.Clamp01(flash / (FeelConfig.FlashMs * 0.6f)) : 0f);
+            FeelMaterials.SetFlash(body, fx ? Mathf.Clamp01(flash / (flashLen * 0.6f)) : 0f, flashCap);
             float jitter = fx && !def.IsBoss ? (Time.frameCount % 2 == 0 ? FeelConfig.HitJitterUnits : -FeelConfig.HitJitterUnits) : 0f; // a boss is too heavy to jitter (it is not shoved either)
             body.transform.localPosition = new Vector3(jitter, AirLift(), 0f);
         }
@@ -150,7 +152,14 @@ namespace ZenoniaProto
         {
             bool fx = FeelConfig.FxOn;
             // Only your own hits flash / jitter the monster (2026-11-17): with 40 players on a boss, everyone's hits kept it white and shaking non-stop.
-            if (!otherPlayer && petKind == 0) flash = fx ? FeelConfig.FlashMs : HitFlashMs;
+            if (!otherPlayer && petKind == 0)
+            {
+                // Warrior player (lock-target slash, 22/11 V2): a short, whiter flash (65 ms, up to 0.7) reads as the impact without a white blob
+                bool sharp = fx && LocalPlayer.Hero != null && LocalPlayer.Hero.LocksTarget;
+                flashLen = sharp ? WarriorSlashFeel.FlashMs : FeelConfig.FlashMs;
+                flashCap = sharp ? WarriorSlashFeel.FlashCap : FeelConfig.FlashMaxAmount;
+                flash = fx ? flashLen : HitFlashMs;
+            }
             float bodyH = def.BodyHeightUnits * def.RenderScale;
             // Numbers sit above a normal monster's head, but a big boss (Wanted: 4.5 hero bodies) would push them off the top of the screen:
             // cap the lift at NumberLiftCap so they pop around its chest, near the hero hitting it (how ARPGs show damage on huge bosses).

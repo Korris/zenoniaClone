@@ -29,12 +29,8 @@ HAND_R = 9  # hand layer disc radius (cell px) around a fist
 # (class, anim, painted row, frame) -> {hand: [x, y, visible]}, read on the marked sheets (2x)
 T, F = True, False
 OVERRIDES = {
+    # warrior idle: V2 redraw 22/11 -> Tools/ro_fantasy_motion_fists.py WARRIOR_V2
     # idle: down / down-right R = screen-left fist; right: R = the near fist, the far one hidden at the hip; up-right / up: R = screen-right
-    ("warrior", "idle", 0, 0): {"R": [112, 175, T], "L": [206, 175, T]},
-    ("warrior", "idle", 1, 0): {"R": [125, 178, T], "L": [191, 175, T]},
-    ("warrior", "idle", 2, 0): {"R": [151, 178, T], "L": [168, 172, F]},
-    ("warrior", "idle", 3, 0): {"R": [189, 178, T], "L": [121, 178, T]},
-    ("warrior", "idle", 4, 0): {"R": [202, 178, T], "L": [118, 178, T]},
     ("wizard", "idle", 0, 0): {"R": [112, 177, T], "L": [205, 177, T]},
     ("wizard", "idle", 1, 0): {"R": [122, 179, T], "L": [194, 175, T]},
     ("wizard", "idle", 2, 0): {"R": [150, 179, T], "L": [168, 174, F]},

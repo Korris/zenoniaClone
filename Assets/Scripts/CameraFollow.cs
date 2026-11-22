@@ -50,7 +50,26 @@ namespace ZenoniaProto
         public static void SkillPunch(float amount) { if (FeelConfig.SkillCameraShake) Punch(amount); }
         public static void SkillZoomPulse(float zoomFraction, float ms) { if (FeelConfig.SkillCameraShake) ZoomPulse(zoomFraction, ms); }
 
-        public static void ResetState() { trauma = 0f; punch = 0f; punchDecay = PunchDecayPerSecond; }
+        static float kickPx, kickLeft, kickTotal;
+
+        /// <summary>Short, exact screen kick: `px` screen pixels (at 720p) easing to 0 over `ms` (Warrior own slash 22/11: 1.8-2.2 px, 75-85 ms).
+        /// Separate from the trauma model, whose small values were invisible. No-op when effects are off.</summary>
+        public static void Kick(float px, float ms)
+        {
+            if (!NetMode.RendersFx || !FeelConfig.FxOn || px <= 0f || ms <= 0f) return;
+            kickPx = Mathf.Max(kickLeft > 0f ? kickPx * (kickLeft / kickTotal) : 0f, px);
+            kickTotal = kickLeft = ms / 1000f;
+        }
+
+        /// <summary>World units per 720p screen pixel at the follow target (ortho: view height; 2.5D perspective: at the target's distance).</summary>
+        float UnitsPerPx()
+        {
+            if (cam.orthographic) return cam.orthographicSize * 2f / 720f;
+            float d = Target != null ? Vector3.Distance(cam.transform.position, Target.position) : 30f;
+            return 2f * d * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) / 720f;
+        }
+
+        public static void ResetState() { trauma = 0f; punch = 0f; punchDecay = PunchDecayPerSecond; kickLeft = 0f; }
 
         public void Configure()
         {
@@ -139,6 +158,14 @@ namespace ZenoniaProto
                 float t = Time.unscaledTime * FeelConfig.ShakeFrequency;
                 var noise = new Vector2(Mathf.PerlinNoise(t, 0.37f) * 2f - 1f, Mathf.PerlinNoise(7.91f, t) * 2f - 1f);
                 shown += noise * (trauma * trauma * FeelConfig.MaxShakeUnits);
+            }
+            if (kickLeft > 0f)
+            {
+                kickLeft = Mathf.Max(0f, kickLeft - dt);
+                float t = Time.unscaledTime * FeelConfig.ShakeFrequency * 1.6f, k = kickLeft / kickTotal;
+                var n = new Vector2(Mathf.PerlinNoise(t, 3.1f) * 2f - 1f, Mathf.PerlinNoise(5.3f, t) * 2f - 1f);
+                if (n.sqrMagnitude > 1e-4f) n.Normalize(); // full amplitude every frame, direction from the noise
+                shown += n * (kickPx * k * UnitsPerPx());
             }
             Apply(shown);
         }

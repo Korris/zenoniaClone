@@ -112,12 +112,15 @@ namespace ZenoniaProto
         }
 
         /// <summary>Sets the white-flash amount (0..1) on one renderer without allocating or breaking batching of others.</summary>
-        public static void SetFlash(Renderer r, float amount)
+        public static void SetFlash(Renderer r, float amount) { SetFlash(r, amount, FeelConfig.FlashMaxAmount); }
+
+        /// <summary>Same with a per-hit cap (Warrior own hits 0.7, WarriorSlashFeel.FlashCap).</summary>
+        public static void SetFlash(Renderer r, float amount, float cap)
         {
             if (block == null) block = new MaterialPropertyBlock();
             if (flashAmountId < 0) flashAmountId = Shader.PropertyToID("_FlashAmount");
             r.GetPropertyBlock(block);
-            block.SetFloat(flashAmountId, Mathf.Min(amount, FeelConfig.FlashMaxAmount));
+            block.SetFloat(flashAmountId, Mathf.Min(amount, cap));
             r.SetPropertyBlock(block);
         }
 

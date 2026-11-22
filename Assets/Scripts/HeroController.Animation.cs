@@ -35,6 +35,7 @@ namespace ZenoniaProto
             if (view == null) return; // headless server hero: nothing to draw
             string anim;
             int frame, drawFacing = facing;
+            Vector2 lunge = Vector2.zero;
             if (spinLeftMs > 0f) spinLeftMs -= GameClock.Dt * 1000f;
             // A client proxy has no combo state machine: pose / step / progress come from the server snapshot.
             bool attacking = proxy ? proxyPose == HeroPose.Attack : combo.IsAttacking;
@@ -77,7 +78,18 @@ namespace ZenoniaProto
                 string[] steps = cls.ComboAnims;
                 anim = steps != null && comboStep >= 1 && comboStep <= steps.Length ? steps[comboStep - 1]
                     : finisherStep ? "attack3" : (((comboStep - 1) % 2) + 1 == 1 ? "attack1" : "attack2");
-                frame = ByProgress(Mathf.Max(1, view.FrameCount(anim, facing)), phase);
+                int n = Mathf.Max(1, view.FrameCount(anim, facing));
+                ComboHit swing = proxy ? (cls.Hits.Length > 0 ? cls.Hits[0] : null) : combo.CurrentHit;
+                if (cls.LockTargetMelee && swing != null)
+                {
+                    // Warrior heavy slash (WarriorSlashFeel): impact frame on the blow, visual hit-stop, lunge toward the locked monster (else the facing)
+                    float total = swing.TotalMs, vis = WarriorSlashFeel.VisualMs(phase * total, total, !proxy && slashConnected);
+                    frame = WarriorSlashFeel.Frame(n, vis, total);
+                    Vector2 toward = DirVec[drawFacing];
+                    if (!proxy && lockTarget != null) { Vector2 d = lockTarget.Feet - new Vector2(x, y); if (d.sqrMagnitude > 1f) toward = d.normalized; }
+                    lunge = toward * WarriorSlashFeel.Lunge(vis, total);
+                }
+                else frame = ByProgress(n, phase);
             }
             else if (moving)
             {
@@ -94,7 +106,7 @@ namespace ZenoniaProto
             // Raised over whatever stands in front of the landing line while in the air.
             view.Show(anim, drawFacing, frame, GameConfig.OrderBase(y - skillPoseLift), (skillPoseAnim != null && anim == skillPoseAnim ? skillPoseAlpha : 1f) * CrowdFadeAlpha());
             view.Lean(anim == "walk", facing, GameClock.Dt);
-            view.Lift(skillPoseLift, skillPoseSideways);
+            view.Lift(skillPoseLift, skillPoseSideways, lunge);
             view.TickDashTrail(!dead && dashLeft > 0f, GameClock.Dt * 1000f);
             UpdateFrozenFx();
             UpdatePoisonFx();
