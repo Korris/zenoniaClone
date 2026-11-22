@@ -47,6 +47,11 @@ Cập nhật mỗi lần có việc tối ưu mới (thêm mục, thêm dòng v�
 ### 1.7 Giới hạn số damage — `DamageNumber.cs`, `DamageNumber.Stream.cs`
 - Pool cố định 256 số (không cấp phát mỗi đòn), vẽ IMGUI. Mỗi quái tối đa 3 số đang hiện (`MaxVisible`, số cũ bị đẩy ra mờ trong 80 ms), tối đa 3 làn cạnh nhau, quái thứ 4 cùng chỗ dùng chung làn.
 
+### 1.7b Số sát thương: pool + vẽ gộp (22/11 tối) — `DamageNumber.cs`, `DamageNumberBatch.cs`, `Shaders/DamageNumberQuad.shader`
+- Pool: mảng 256 struct cấp 1 lần (prewarm), vòng tròn đè số cũ nhất khi đầy (trần số đang sống); không GameObject, không Instantiate / Destroy mỗi hit (từ trước, nay ghi rõ).
+- Vẽ gộp (mới): trước đây mỗi glyph / hạt / vòng là 1 lệnh IMGUI `DrawTexture` = 1 draw call (~360 lệnh khi 90 số đang sống). Nay mọi quad gom theo (lớp, atlas) rồi vẽ bằng GL 1 lần mỗi nhóm trong lượt Repaint: thường 3-8 draw call cho mọi số. Viền nằm sẵn trong atlas nên không tốn thêm (không như `RoTextOutline` 8 bản chữ). Thiếu shader thì tự về IMGUI.
+- Chưa đo FPS riêng (cần cảnh đông số: `--dummies 10 --dummy-grid` + skill nhiều hit).
+
 ### 1.8 Render scale (22/11 tối) — `RenderScale.cs`, `RenderScaleCamera.cs`, `RenderScaleBlit.cs`, `Shaders/RenderScaleUpscale.shader`
 - Camera thế giới vẽ vào texture nhỏ hơn màn hình rồi phóng lên bằng bilinear + làm nét nhẹ (unsharp 4 điểm, `_Sharpen` 0 ở 100 %, ~0,1 ở 85 %, ~0,25 ở 60 %). Đúng cho 2D, 2.5D và `--map3d`.
 - **HUD (canvas overlay) và chữ IMGUI (tên, số damage, bảng FPS) vẫn vẽ ở độ phân giải gốc.** Nhãn quái dưới chân (sprite thế giới) thuộc thế giới nên mờ theo scale.

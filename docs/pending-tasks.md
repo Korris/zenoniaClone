@@ -2,6 +2,13 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 22/11 20:25 Số sát thương kiểu RO: 1 hit trắng, nhiều hit + TỔNG vàng, crit đỏ cam trên bong bóng gai, vẽ gộp (agent, XONG, CHỜ người dùng thử)
+- Người dùng dán spec 22/11 (số kiểu Ragnarok). Làm trên hệ số cũ (`DamageNumber*.cs`), luật + cách gắn: `docs/ui-layout-rules.md` mục 4.
+- 1 hit = 1 số trắng; nhiều hit (`SkillHitSplit`, hit thật sát nhau < 320 ms, double attack) = số trắng nhỏ + TỔNG vàng 150 % viền đen dày trên cụm (`DamageNumber.Total.cs`); crit = đỏ cam trên `fx-crit-burst.png` + pop mạnh; chuỗi có crit thì tổng lấy kiểu crit. Atlas mới `crit.png` (đỏ cam), `total.png` (`Tools/build-damage-number-font.py cut`, `OWN_SETS`).
+- Hiệu năng: pool 256 struct sẵn có; vẽ gộp GL theo atlas (`DamageNumberBatch.cs`, `Shaders/DamageNumberQuad.shader`), `docs/optimization-notes.md` 1.7b. Server / dam / tổng không đổi, không cần build server.
+- Exe: `C:/temp/player-dmgtext/Zenonia.exe` (ổ D: đầy, ~0,9 GB; bản sao `D:/temp/zu-copy-warrior2`, gồm cả code dở của agent khác trong repo lúc build). Chụp: `--class warrior --damage-numbers-demo ro --zoom 60`. Ảnh `docs/reference/damage-numbers-ro/single-multi-crit-strip.jpg`.
+- Đã xem: ảnh demo 3 quái giả (1 hit, 5 hit + tổng, crit). CHƯA xem: skill thật vào nhiều quái, online, đông số (FPS), điện thoại; tổng dài khi Power Slash 18 hit.
+
 ### 22/11 20:16 Map 3D: cổng dịch chuyển 3D thật thay quad sáng phẳng (agent, XONG, CHỜ người dùng thử)
 - Người dùng (22/11): "làm cổng dịch chuyển 3D luôn đi". Chỉ phần hình: ô portal / trigger / đích / vị trí không đổi, không cần build server.
 - `--map3d`: mỗi lối ra (`MapPortalExits`) = vòng đá vỡ 13 khối + đá đỉnh, rune phát sáng xanh khắc 2 mặt, 2 bệ + đá vụn (texture đá lát ChatGPT vẽ tay cũ, triplanar, rêu), xoáy noise trong vòng (mắt sáng, viền sáng, mép mềm), cột sáng hình trụ mờ theo N.V (nhìn góc nào cũng thấy), vòng rune xoay dưới đất, hạt bay xoắn lên, đèn point xanh thật chiếu đá (pass ForwardAdd). Lối ra mép trái / phải xoay 90° cho vòng đá đối diện đường ra. Không có cờ / map 2.5D: giữ đèn cột cũ (`MapPortalLightFx`). Không dùng ChatGPT lần này (rune sinh bằng code). Tinh thể warp chỉ có ở Rootburrow (không phải map 3D) nên chưa đổi.
