@@ -1,5 +1,14 @@
 # Quy tắc UI: nút, tab, pill (làm như HTML/CSS)
 
+**RO SOFT ADVENTURE, HƯỚNG RO3 (nhánh `ro-soft-adventure`, người dùng chốt 22/11/2026; thay tông RO Soft Fantasy ở mục 3 trên nhánh này).** Người dùng: "đổi design tất cả qua menu ... qua kiểu RO Soft Adventure", lý do "Adventure này có vẻ giống style Ragnarok 3 hơn kiểu Fantasy". Mẫu: `docs/reference/ui-style-ro-soft-adventure/01..14` (cùng bố cục bộ Fantasy, chỉ đổi da), master túi đồ `docs/reference/ro-soft-adventure-redesign/bag-adventure-chatgpt-1.png`; style guide `docs/reference/ro-soft-adventure-redesign/style-guide-chatgpt.md`; kế hoạch `plans/261122-0715-ro-soft-adventure-redesign/`.
+- "Sách phiêu lưu chế tác tinh tế": giấy kem #F4EBDD (nổi #FFF8ED, lõm #DFD0BA), viền gỗ nâu #75523C + viền sáng trong 1 px, góc đồng cổ #B88A4B nhỏ 12-24 px; KHÔNG bảng gỗ dày kiểu Adventure Paper cũ, KHÔNG kính / glow xanh, KHÔNG cyan / tím pastel chiếm diện tích (≥ 70 % diện tích trung tính giấy / nâu).
+- Chữ: tiêu đề Noto Serif (SemiBold / Bold), thân + số Be Vietnam Pro; chữ chính #342F2B, phụ #776C60, không đen tuyệt đối; tối đa 2 họ font. Cỡ ở 1280x720: tiêu đề cửa sổ 28-32, nhóm 20-23, nội dung 16-18, tab / nút 16-18, phụ 14-16.
+- Nút: teal #328C81 = hành động chính (mỗi panel 1 nút chính), vàng #C8923D = nâng cấp / thưởng, đỏ #B85D50 = nguy hiểm, xanh #527E9C = điều hướng, disabled #B8B0A5; chữ trên nút #FFF8ED + bóng nâu mảnh; không gradient mạnh / bóng dày.
+- Bo góc: khung lớn 12-16, hộp thoại 10-12, toast 8, ô item 6-8; bóng khung nâu đen 18-25 % lệch Y 3-5 blur 8-12; ô chọn viền vàng 2-3 px không glow lan.
+- 3 cấp trang trí: màn lớn (túi, tạo nhân vật, skill, pet) được góc + tiêu đề cầu kỳ; panel thường 1 hoạ tiết nhỏ; HUD chiến đấu gần như không hoa văn (tấm HUD nâu đen ấm, không xanh đen).
+- Độ hiếm: Common #8D8980, Uncommon #648D56, Rare #4F83B4, Epic #8F65B0, Legendary #CB9437, Mythic #BF665B (không cầu vồng); HP #C95C55, MP #4B85B4, EXP #C8A04C.
+- Luật padding / gap / 9-slice / đo trước khi báo xong (mục 1-2 dưới đây) giữ nguyên.
+
 **Trước mọi việc làm hoặc sửa UI (HUD, túi đồ, menu), kể cả khi giao agent: đọc hết file này.** Ghi rõ yêu cầu này trong brief.
 
 Người dùng, 2026-11-19, khi xem túi đồ RO Soft: các nút All, Weapon dính sát đáy, icon cách chữ quá xa, không giống `03-bag.png`; nút "Common" (pill độ hiếm) xấu. Yêu cầu: "làm như html ấy padding đầy đủ rồi border-radius".
@@ -34,7 +43,7 @@ Số mặc định (đơn vị tham chiếu 1280x720, scale theo `CanvasScaler`)
 
 - Ưu tiên: cắt khung nút/tab/pill từ ChatGPT thành sprite **9-slice** (góc bo nằm trong vùng border), rồi bố cục bằng LayoutGroup như mục 1. Không nướng chữ hay icon vào hình nút.
 - Được phép làm nút bằng code nếu đạt chất lượng như HTML/CSS: bo góc mượt (khử răng cưa), viền 1-2 px màu nâu đậm mềm, nền gradient dọc nhẹ, bóng đổ mềm 2-3 px, trạng thái normal / hover / pressed / selected / disabled. Không được ra hình chữ nhật phẳng hay góc vuông răng cưa (lần trước người dùng chê "nút xấu quá" là vì thế).
-- Màu theo tông RO Soft Fantasy (`docs/sprite-rules.md` điều 0) và lấy mẫu màu từ mockup (`docs/reference/ui-style-ro-soft-fantasy/`).
+- Màu theo tông RO Soft Fantasy (`docs/sprite-rules.md` điều 0) và lấy mẫu màu từ mockup (`docs/reference/ui-style-ro-soft-fantasy/`). **Nhánh `ro-soft-adventure`: theo khối Adventure đầu file và mockup `docs/reference/ui-style-ro-soft-adventure/`.**
 
 ## Sổ lỗi
 

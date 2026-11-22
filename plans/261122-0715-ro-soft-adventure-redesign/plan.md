@@ -1,0 +1,40 @@
+# Đổi toàn bộ hình ảnh sang "RO Soft Adventure" (hướng RO3)
+
+Nhánh `ro-soft-adventure` (tách từ `ro-fantasy-heroes` 22/11, commit thẳng, không push khi chưa được bảo).
+Người dùng 22/11: "tạo nhánh mới từ nhánh này, đổi design tất cả qua menu, nhân vật qua kiểu RO Soft Adventure"; lý do: "tui thấy Adventure này có vẻ giống style Ragnarok 3 hơn kiểu Fantasy". **Sao Bắc Đẩu = cảm giác RO3**; Adventure là cách diễn giải.
+
+Luật style: khối "RO Soft Adventure" đầu `docs/sprite-rules.md` + `docs/ui-layout-rules.md`. Style guide đầy đủ + palette hex: `docs/reference/ro-soft-adventure-redesign/style-guide-chatgpt.md`. Chat ChatGPT (Tay): https://chatgpt.com/c/6b0243dc-91b8-83ec-afe6-bec308abaf1d
+
+## Phát hiện chính
+
+- Bộ mẫu Adventure (`docs/reference/ui-style-ro-soft-adventure/01..14`) dùng **CÙNG bố cục** với bộ RO Soft Fantasy đang chạy (`so-sanh-fantasy-vs-adventure/`): đổi là đổi DA (sprite + màu + font), code bố cục giữ gần hết.
+- Mọi sprite UI RO Soft nạp qua MỘT hằng `RoSoftSprites.Folder = "Sprites/ui/ro-soft/"` (544 file, 272 mảnh) và mọi màu qua `RoSoftTheme` => thêm thư mục `Sprites/ui/ro-adventure/` cùng tên mảnh, nạp ưu tiên Adventure rồi rơi về ro-soft (mảnh chưa vẽ vẫn chạy), + bộ token Adventure. Cờ `--ui-skin fantasy|adventure` để so A/B.
+- Bộ "Adventure Paper" cũ (`Sprites/ui/paper/`, 426 file, `--ui new`) là gỗ dày + nút bão hoà + Baloo kiểu cartoon, KHÁC Adventure mới (giấy ngà, viền nâu mảnh, chữ có chân): chỉ tái dùng ý tưởng / vài texture giấy, không dùng thẳng.
+- Thử đổi tông bằng tool (giảm bão hoà, ấm, tối nhẹ): `ro-soft-adventure-redesign/warrior-idle-regrade-tool-test.png` => ấm hơn nhưng vẫn là thiết kế Fantasy (vàng bóng, miệng cười to). Tool chỉ dùng tạm cho walk / attack khi chờ vẽ lại; idle + chân dung phải ChatGPT vẽ lại.
+- Test ChatGPT: Warrior idle xuống Adventure đạt (cùng tỷ lệ chibi, thép mờ + da + đồng, mặt nghiêm nhẹ): `warrior-idle-fantasy-vs-adventure.png` (+ `-game-size.png` ở cỡ game 200 px vẫn đọc rõ). Túi đồ: `bag-adventure-chatgpt-1.png`, so sánh `bag-fantasy-vs-adventure.jpg`.
+
+## Phase
+
+| # | Phase | Trạng thái | Công (phiên agent ~2-4 h) |
+|---|---|---|---|
+| 01 | [Nền style: luật, token, font, skin switch](phase-01-style-foundation-tokens-fonts-skin-switch.md) | Luật + style guide XONG; code chưa | 1 |
+| 02 | [UI kit Adventure (sheet ChatGPT -> 9-slice)](phase-02-adventure-ui-kit-sheets.md) | Chưa | 3-4 |
+| 03 | [Menu từng màn (31 màn)](phase-03-menus-reskin-per-screen.md) | Chưa | 6-8 |
+| 04 | [HUD mobile + PC hotbar + chữ thế giới](phase-04-hud-pc-hotbar-world-text.md) | Chưa | 2-3 |
+| 05 | [Nhân vật 6 class](phase-05-heroes-six-classes-redraw.md) | Test Warrior idle XONG | 10-14 |
+| 06 | [Icon item / trang bị / skill](phase-06-item-gear-skill-icons.md) | Chưa | 3-4 |
+| 07 | [Map, quái, FX: đối chiếu + build](phase-07-maps-monsters-fx-alignment-build.md) | Chưa | 2 (+ map tuỳ quyết định) |
+
+Tổng ~27-36 phiên. Thứ tự: 01 -> 02 -> (03 túi đồ làm mẫu, người dùng duyệt) -> 05 Warrior đủ bộ (duyệt) -> 03/04 còn lại song song 05 các class khác -> 06 -> 07.
+
+## Rủi ro
+
+- ChatGPT lệch tông giữa các lần vẽ (về pastel hoặc quá tối): mọi prompt dán khối luật + gửi kèm `adv-warrior-idle-down-chatgpt-1.png` + `02-bag.png`; chấm checklist 10 điểm.
+- Vẽ lại nhân vật phá anchor / nắm tay / tóc nhuộm đã cài (sổ lỗi sprite-rules: đổi tay, to đầu, vũ khí đè tay): giữ ô 320x256, feetY 244, bodyPx 200, chạy lại `build-ro-fantasy-hero-game-assets.py` `fists` / `grips` / `check`.
+- Font mới (Noto Serif + Be Vietnam Pro) đổi độ rộng chữ => tràn nút; đo lại theo `docs/ui-layout-rules.md` mục 2.
+- Ổ D: còn ~2,7 GB: build chỉ từ `D:\temp\zu-copy-*` có sẵn, xoá exe `D:\temp\player-*` cũ trước.
+- 2 test Frost Hollow đang lỗi từ nhánh cũ (không liên quan, sửa riêng).
+
+## Câu hỏi mở
+
+Xem cuối `phase-05` và `phase-07` (map giữ nguyên hay ấm lên; Fighter có đưa vào hệ nhân vật nhiều lớp; tiếng Việt hay tiếng Anh cho UI; giữ cờ chuyển Fantasy hay xoá hẳn).
