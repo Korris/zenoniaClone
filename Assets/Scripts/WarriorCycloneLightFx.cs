@@ -62,7 +62,7 @@ namespace ZenoniaProto
                 if (i % 4 == 3)
                 {
                     Vector2 spot = ring + WarriorGrandFx.OnGround(Random.value * 360f, r * Random.Range(0.55f, 0.95f));
-                    WarriorGrandFx.Impact(fx, t, spot + new Vector2(0f, 6f), 0.6f * H, p, 2);
+                    WarriorGrandFx.Impact(fx, t, spot + new Vector2(0f, 6f), 0.6f * H, p, 2, ClericLightFx.Band.Over, Lift + 6f);
                 }
                 else fx.At(t, f => MechanicLightBursts.Sparks(f, f.Anchor + ring, 3, 130f, 90f, 360f, p.Light, 0.26f, 1.6f));
             }
@@ -84,7 +84,7 @@ namespace ZenoniaProto
             ArcRibbonFx.PathFn path = u =>
             {
                 float a = Mathf.Lerp(a0, a0 - span, u) * Mathf.Deg2Rad;
-                return centre + new Vector2(Mathf.Cos(a) * rx, Mathf.Sin(a) * rx * sq + Mathf.Cos(a) * tilt);
+                return ArcRibbonFx.P(new Vector2(centre.x + Mathf.Cos(a) * rx, Mathf.Sin(a) * rx), sq, centre.y + Mathf.Cos(a) * tilt); // tilted ring round the hero
             };
             WarriorLightSkills.Slash(fx, path, from, to - from, tailMs, width, p, alpha, RibbonSort.Split, 0, hero, centre.y, true);
             return a0 - span;

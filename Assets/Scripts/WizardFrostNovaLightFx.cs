@@ -42,9 +42,9 @@ namespace ZenoniaProto
             for (int i = 0; i < Crystals; i++)
             {
                 float a = a0 + i * Mathf.PI * 2f / Crystals, rr = r * (i % 2 == 0 ? 0.62f : 0.82f), t0 = 20f * i, h = i % 2 == 0 ? 19f : 15f;
-                Vector2 off = new Vector2(Mathf.Cos(a) * rr, Mathf.Sin(a) * rr * ClericLightFx.Squash);
+                Vector2 off = ClericLightFx.GroundRing(a, rr);
                 ClericLightFx.Band band = off.y > 0f ? ClericLightFx.Band.Behind : ClericLightFx.Band.Front; // far crystals behind the caster, near ones in front
-                body.Upright(shard, band, true, t0, Ms - 60f, 4.8f, 6.4f, h * 0.2f, h, 0.92f, off, -1).Pop(140f).Env(20f, 300f).Dissolve()
+                body.Upright(shard, band, true, t0, Ms - 60f, 4.8f, 6.4f, h * 0.2f, h, 0.92f, off, -1).Floor().Pop(140f).Env(20f, 300f).Dissolve()
                   .Kind(i % 2 == 0 ? LayerKind.Main : LayerKind.Detail);
             }
 

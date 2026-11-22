@@ -101,8 +101,8 @@ namespace ZenoniaProto
             if (host == null) return;
             Vector2 muzzle = caster + new Vector2(0f, MuzzleHeight);
             MechanicLightBursts.Muzzle(muzzle, 90f, 32f, dim, MechanicLightLook.Honey, 14);
-            host.Upright(MechanicLightLook.SmokeMat, ClericLightFx.Band.Over, false, host.AgeMs, host.AgeMs + 700f, 8f, 20f, 8f, 20f, 0.75f, caster + new Vector2(-6f, 4f) - center, -3).Rise(10f).Dissolve()
-                .Upright(MechanicLightLook.SmokeMat, ClericLightFx.Band.Over, false, host.AgeMs + 40f, host.AgeMs + 760f, 7f, 18f, 7f, 18f, 0.7f, caster + new Vector2(7f, 2f) - center, -3).Rise(10f).Dissolve();
+            host.Upright(MechanicLightLook.SmokeMat, ClericLightFx.Band.Over, false, host.AgeMs, host.AgeMs + 700f, 8f, 20f, 8f, 20f, 0.75f, caster + new Vector2(-6f, 4f) - center, -3).Floor(4f).Rise(10f).Dissolve()
+                .Upright(MechanicLightLook.SmokeMat, ClericLightFx.Band.Over, false, host.AgeMs + 40f, host.AgeMs + 760f, 7f, 18f, 7f, 18f, 0.7f, caster + new Vector2(7f, 2f) - center, -3).Floor(2f).Rise(10f).Dissolve();
             if (hero == LocalPlayer.Hero) CameraFollow.SkillShake(0.25f);
             for (int i = 0; i < Rockets; i++)
             {

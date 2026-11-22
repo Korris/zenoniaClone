@@ -22,7 +22,8 @@ namespace ZenoniaProto
             public MeshRenderer R; public Band Band; public int Order; public LayerKind Kind;
             public float T0, T1, W0, W1, H0, H1, Alpha, Spin, Rot, InMs = -1f, OutMs = -1f;
             public Vector2 Offset, Move;
-            public bool Arc, Dissolve, WasOn, Turned; public float ArcPhase, ArcSpeed, ArcFloor, ArcCount;
+            public bool Arc, Dissolve, WasOn, Turned, Floor; public float ArcPhase, ArcSpeed, ArcFloor, ArcCount;
+            public float Up0, UpMove; // vertical part of the offset (Rise / Drop): up the billboard on the 2.5D maps, + y on the flat 2D view
             public float RevealMs, PopMs, DropMs, DissolveMs, PhBurst = -1f, PhPeakEnd, PhLead, PhHold; // ClericLightFxShaping: reveal, pop, drop, 4-phase brightness
             public TrailRenderer Trail;
         }
@@ -83,8 +84,9 @@ namespace ZenoniaProto
 
         Layer Last { get { return layers[layers.Count - 1]; } }
 
-        /// <summary>The last added layer drifts up `dy` units over its life (same ease-out as its size): emblems, rings rising round the body.</summary>
-        public ClericLightFx Rise(float dy) { return Move(new Vector2(0f, dy)); }
+        /// <summary>The last added layer drifts up `dy` units over its life (same ease-out as its size): emblems, rings rising round the body.
+        /// Vertical: up the standing picture on the 2.5D / 3D maps (ClericLightFxView25D), + y on the flat 2D view.</summary>
+        public ClericLightFx Rise(float dy) { if (layers.Count > 0) Last.UpMove = dy; return this; }
 
         /// <summary>The last added layer's offset moves by `d` units over its life (ease-out): flying specks, a bolt from the hand to the target.</summary>
         public ClericLightFx Move(Vector2 d) { if (layers.Count > 0) Last.Move = d; return this; }
@@ -110,7 +112,8 @@ namespace ZenoniaProto
             return this;
         }
 
-        /// <summary>A quad flat on the ground: diameter d0 -> d1 (units), squash = height / width of the ellipse (ClericLightFxLod.Squash by default).</summary>
+        /// <summary>A quad flat on the ground: diameter d0 -> d1 (units), squash = height / width of the ellipse (ClericLightFxLod.Squash by default).
+        /// On the 2.5D / 3D maps an unturned flat ellipse becomes the real circle on the ground (the camera foreshortens it; ClericLightFxView25D).</summary>
         public ClericLightFx Ground(Material m, float t0, float t1, float d0, float d1, float alpha, float squash = Squash, float spinDegPerSec = 0f, int order = 4, Vector2 offset = default(Vector2))
         {
             return Add(m, Band.Ground, false, t0, t1, d0, d1, d0 * squash, d1 * squash, alpha, offset, order, spinDegPerSec);
@@ -143,7 +146,7 @@ namespace ZenoniaProto
                 ps = WantedFxParticles.Create(transform, sparkle ? "Sparkles" : "Motes", sparkle ? ClericLightLook.SparkMat : ClericLightLook.DotMat, FeelConfig.FxOrder - 19, 96, 0f);
                 if (sparkle) sparkles = ps; else motes = ps;
             }
-            WantedFxParticles.Emit(ps, pos, vel, size, new Color(c.r, c.g, c.b, c.a * ParticleAlpha(Lod)), life);
+            WantedFxParticles.Emit(ps, ParticlePos(pos), ParticleVel(vel), size, new Color(c.r, c.g, c.b, c.a * ParticleAlpha(Lod)), life);
         }
 
         /// <summary>`n` particles spread in a disc of radius `spread` around `at`, drifting up `rise` units / s (+- jitter).</summary>
@@ -192,6 +195,8 @@ namespace ZenoniaProto
         {
             Vector2 at = Anchor;
             FxTier tier = Lod;
+            bool deep = ClericLightFx.Deep;
+            Quaternion tilt = deep ? View25D.Tilt : Quaternion.identity;
             int behind = follow != null ? GameConfig.OrderBase(follow.Position.y) - 2 : 0, front = follow != null ? behind + 10 : FeelConfig.FxOrder - 20;
             for (int i = 0; i < layers.Count; i++)
             {
@@ -201,7 +206,7 @@ namespace ZenoniaProto
                 bool on = u >= 0f && u < 1f && FeelConfig.FxOn && kind > 0f;
                 float grow = 1f - (1f - Mathf.Clamp01(u)) * (1f - Mathf.Clamp01(u)) * (1f - Mathf.Clamp01(u)); // ease-out cubic
                 float moved = l.DropMs > 0f ? PopCurve((age - l.T0) / l.DropMs) : grow;
-                l.R.transform.position = new Vector3(at.x + l.Offset.x + l.Move.x * moved, at.y + l.Offset.y + l.Move.y * moved, 0f);
+                Place(l, at, moved, deep, tilt);
                 if (l.Trail != null)
                 {
                     if (on && !l.WasOn) l.Trail.Clear(); // placed first: the ribbon must not streak in from where the quad sat before
@@ -225,9 +230,11 @@ namespace ZenoniaProto
                     fadeOut = 1f - k * k * (3f - 2f * k);
                 }
                 float size = l.PopMs > 0f ? PopCurve(local / l.PopMs) : grow;
-                l.R.transform.localScale = new Vector3(Mathf.LerpUnclamped(l.W0, l.W1, size), Mathf.LerpUnclamped(l.H0, l.H1, size), 1f);
+                float w = Mathf.LerpUnclamped(l.W0, l.W1, size), h = Mathf.LerpUnclamped(l.H0, l.H1, size);
+                if (deep) h = DeepHeight(l, w, h);
+                l.R.transform.localScale = new Vector3(w, h, 1f);
                 if (l.RevealMs > 0f) LightSkillAssets.SetReveal(l.R, local / l.RevealMs);
-                if (l.Spin != 0f || l.Turned) l.R.transform.localRotation = Quaternion.Euler(0f, 0f, l.Rot + l.Spin * age / 1000f);
+                Turn(l, deep, tilt);
                 l.R.sortingOrder = l.Band == Band.Ground ? UltimateFx.GroundFxOrder + l.Order : l.Band == Band.Over ? FeelConfig.FxOrder - 20 + l.Order : l.Band == Band.Front ? front + l.Order : behind + l.Order;
                 LightSkillAssets.Set(l.R, l.Alpha * fadeIn * fadeOut * kind * PhaseGain(l, local), l.DissolveMs > 0f ? Mathf.Clamp01((local - (span - l.DissolveMs)) / l.DissolveMs) : l.Dissolve ? Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((u - 0.35f) / 0.65f)) : -1f);
                 if (l.Arc)

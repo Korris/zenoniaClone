@@ -9,13 +9,16 @@ namespace ZenoniaProto
     /// this lays the matching shapes once at the cast. Earth Break palette (#887C5A / #C6B37D / #F3E1A8 / #FFFFFF) + Knight gold:
     ///  - 0-620 at the caster: a gold seal draws itself in under him, a soft glow gathers on the blade, two translucent gold sweeps (450 / 600);
     ///  - 400-1450 at the target: a thin golden rune circle on the REAL radius draws itself in (telegraph), a faint gold ground light;
-    ///  - 850-1450: the ChatGPT-painted giant sword (WarriorPaintedSword, regraded steel-ivory blade + gold runes) drops onto the centre with a
-    ///    light streak ahead of it, lands EXACTLY at 1450 ms;
+    ///  - 850-1450: the giant 3D greatsword (EarthBreakGreatsword3D: procedural blade / fuller / guard / grip / pommel / gem wearing the
+    ///    ChatGPT-painted steel-ivory + gold art, pulsing runes, lit by the scene on a 3D map) hovers, then plunges with a light streak ahead of it,
+    ///    the point hits the ground EXACTLY at 1450 ms;
     ///  - 1450 slam: ivory contact flash, a 1.8 H star, a tall translucent golden light column round the sword (5 H), a thin shock ring to the
     ///    radius, short earth cracks with gold cores (fade by the end); small hits: sparkles, a thin ring every third; 1850: ring;
     ///  - 2000 finisher: a 2.2 H white-gold star, thin rings to 1.2 R, 4 low gold-white light columns round the circle, the rune circle flares;
     ///  - 2150-2450 burns: the cracks pulse gold; the sword dissolves into golden light over the end.
     /// No fire pillars, fireball, embers, scorch or red. Shake / hit-stop stay in EarthBreakUltimate (local caster only).
+    /// 2.5D / 3D maps (22/11): every ground layer lies on the real ground as a circle and the columns / sword stand as camera-facing billboards
+    /// (ClericLightFxView25D), so turning the camera no longer bends the skill.
     /// </summary>
     public static class WarriorEarthBreakLightFx
     {
@@ -41,14 +44,14 @@ namespace ZenoniaProto
 
             // Target: rune circle + faint ground light, the falling sword
             var fx = ClericLightFx.Create("EarthBreak", center, null, totalMs, dim);
-            float swordH = 2.7f * H, dropFrom = 95f, dropMs = (slamMs - 850f) / 0.37f; // PopCurve first reaches the ground at 37 % of the drop
+            float swordH = 2.7f * H, dropFrom = 95f, dropMs = (slamMs - 850f) / 0.37f; // mask fallback: PopCurve first reaches the ground at 37 % of the drop
             fx.Ground(WarriorLightLook.Line(WarriorLightLook.Sigil, p), 400f, totalMs, seal, seal, 0.68f, sq, 10f, 4)
                 .Reveal(600f).Phases(slamMs - 400f, slamMs + 120f, 0.6f, 0.75f).Env(0f, 320f);
             WarriorGrandFx.Sector(fx, 400f, 600f, totalMs - 400f, 360f, Vector2.zero, 90f, 360f, radius, p, 0.12f, 0.3f, false, 0.2f, 2);
-            if (!WarriorPaintedSword.Lay(fx, 850f, totalMs, swordH, 8f, dropFrom, dropMs, slamMs, totalMs - finishMs + 50f, gold)) // V3 review: dissolve from ~1950 (60-75 % by 2350)
+            if (!EarthBreakGreatsword3D.Lay(fx, 850f, totalMs, swordH, 8f, dropFrom, slamMs, totalMs - finishMs + 50f, gold)) // V3 review: dissolve from ~1950 (60-75 % by 2350)
                 fx.Upright(WarriorLightLook.Glyph(WarriorLightLook.GreatSword, p), ClericLightFx.Band.Over, true, 850f, finishMs + 250f, 1.4f * H, 1.4f * H, swordH, swordH, 0.9f, new Vector2(0f, -8f), 2)
                     .Drop(dropFrom, dropMs).Env(90f, 260f);
-            WarriorLightSkills.Slash(fx, ArcRibbonFx.Line(new Vector2(0f, dropFrom + swordH + 40f), new Vector2(0f, swordH * 0.6f)), slamMs - 200f, 200f, 160f, 0.3f * H, gold, 0.8f, RibbonSort.Over, 0);
+            WarriorLightSkills.Slash(fx, ArcRibbonFx.Fall(Vector2.zero, dropFrom + swordH + 40f, swordH * 0.6f), slamMs - 200f, 200f, 160f, 0.3f * H, gold, 0.8f, RibbonSort.Over, 0);
 
             // Slam (exactly at slamMs = 1450)
             WarriorGrandFx.Impact(fx, slamMs, new Vector2(0f, 6f), 1.8f * H, p, 14);

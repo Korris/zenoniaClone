@@ -32,7 +32,7 @@ namespace ZenoniaProto
             for (int k = 0; k < 3; k++)                                                                    // 3 ivory-gold ribbons rising round the body
             {
                 float a0 = k * 120f;
-                WarriorLightSkills.Slash(fx, u => new Vector2(Mathf.Cos((a0 + u * 540f) * Mathf.Deg2Rad) * 0.55f * H, Mathf.Sin((a0 + u * 540f) * Mathf.Deg2Rad) * 0.55f * H * sq + u * 1.6f * H),
+                WarriorLightSkills.Slash(fx, u => ArcRibbonFx.P(WarriorLightSkills.Dir(a0 + u * 540f) * 0.55f * H, sq, u * 1.6f * H), // spiral up round the body
                     roarMs + k * 30f, 340f, 200f, 0.18f * H, p, 0.9f, RibbonSort.Behind, 3, hero, 6f, true);
             }
             for (int k = 0; k < 3; k++)                                                                    // the only coral: 3 short diagonal streaks

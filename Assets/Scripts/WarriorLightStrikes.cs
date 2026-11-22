@@ -38,7 +38,7 @@ namespace ZenoniaProto
                 Vector2 at = WarriorGrandFx.OnGround(ang, r * Random.Range(0.62f, 0.85f));
                 WarriorGrandFx.Lick(fx, t0, 220f, at, 0.42f * H, (i == 2 ? 0.75f : 0.55f) * H, ClericLightFx.Band.Over, 1, i == 2 ? LayerKind.Main : LayerKind.Detail);
             }
-            WarriorGrandFx.Impact(fx, t, chest + ctx.Dir * r * 0.55f, 1.3f * H, p, 10);
+            WarriorGrandFx.Impact(fx, t, chest + ctx.Dir * r * 0.55f, 1.3f * H, p, 10, ClericLightFx.Band.Over, chest.y);
             WarriorGrandFx.Shock(fx, t, 340f, ctx.Dir * r * 0.1f, r * 0.25f, r, p, 0.5f);
             fx.At(t, f =>
             {
@@ -84,7 +84,7 @@ namespace ZenoniaProto
             Vector2 lift = new Vector2(0f, 8f), tip = dir * 10f + lift;
             var fx = ClericLightFx.Create("ChargeHit", at, null, 900f, dim);
             WarriorLightSkills.SplitPulses(fx, skillId, 0f, finisher, tip - dir * 14f, p, 14f);
-            ArcRibbonFx.PathFn path = ArcRibbonFx.Line(from - at + lift * 0.4f, tip + dir * 8f);
+            ArcRibbonFx.PathFn path = ArcRibbonFx.Line3(ArcRibbonFx.P(from - at, 1f, lift.y * 0.4f), ArcRibbonFx.P(dir * 18f, 1f, lift.y)); // from the start to just past the tip, rising to chest height
             // V4 review (78): the beam read as a projectile. The 5 x 2 corridor is a faint ground band (#D5C378 ~0.15), the force is a tapered
             // steel-ivory spearhead at the tip with two broken trailing streaks; only the spearhead tip is ivory.
             Vector2 back = from - at;
@@ -97,8 +97,8 @@ namespace ZenoniaProto
                 WarriorLightSkills.Slash(fx, ArcRibbonFx.Line(a0, a1), 20f + (s + 1) * 15f, 60f, 140f, 0.1f * H, steel, 0.8f, RibbonSort.Over, 2);
             }
             float aimDeg = WarriorLightSkills.AngleOf(dir);
-            fx.Upright(WarriorLightLook.Glyph(MechanicLightLook.Flare, steel), ClericLightFx.Band.Over, false, 20f, 230f, 0.8f * H, 1.15f * H, 0.45f * H, 0.65f * H, 0.75f, tip + dir * 0.45f * H, 4).Turn(aimDeg)
-              .Upright(WarriorLightLook.Flash(WarriorGrandFx.Hot), ClericLightFx.Band.Over, false, 20f, 110f, 0.2f * H, 0.3f * H, 0.2f * H, 0.3f * H, 0.7f, tip + dir * 0.9f * H, 5);
+            fx.Upright(WarriorLightLook.Glyph(MechanicLightLook.Flare, steel), ClericLightFx.Band.Over, false, 20f, 230f, 0.8f * H, 1.15f * H, 0.45f * H, 0.65f * H, 0.75f, tip + dir * 0.45f * H, 4).Turn(aimDeg).Floor(lift.y)
+              .Upright(WarriorLightLook.Flash(WarriorGrandFx.Hot), ClericLightFx.Band.Over, false, 20f, 110f, 0.2f * H, 0.3f * H, 0.2f * H, 0.3f * H, 0.7f, tip + dir * 0.9f * H, 5).Floor(lift.y);
             WarriorGrandFx.Impact(fx, 30f, tip, 1.5f * H, p, 0);
             WarriorGrandFx.Shock(fx, 30f, 360f, dir * 10f, 6f, Mathf.Max(halfW + 8f, 1.4f * H), steel, 0.55f);
             fx.At(40f, f =>

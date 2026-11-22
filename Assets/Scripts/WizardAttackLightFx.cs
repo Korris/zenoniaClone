@@ -89,7 +89,7 @@ namespace ZenoniaProto
                 Vector2 off = at - new Vector2(0f, Lift) - spikes.Anchor;
                 float t = spikes.AgeMs, h = Random.Range(8f, 12f);
                 spikes.Upright(ElementLightLook.M(ElementLightLook.IceShard, P, ClericLightLook.Role.Glyph), ClericLightFx.Band.Over, true, t, t + 340f, 3.4f, 4f, h * 0.3f, h, 0.85f, off + new Vector2(Random.Range(-2f, 2f), -1f), -4)
-                      .Pop(90f).Env(0f, 180f).Dissolve();
+                      .Floor().Pop(90f).Env(0f, 180f).Dissolve();
             }
 
             public void End() { trail.emitting = false; root.gameObject.SetActive(false); spikes = null; }

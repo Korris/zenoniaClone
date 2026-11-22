@@ -30,14 +30,14 @@ namespace ZenoniaProto
             WarriorGrandFx.Shock(up, 0f, 260f, Vector2.zero, 4f, 1.2f * H, p, 0.7f);
             up.At(0f, f => UltimateFx.Dust(takeOff, f.Own ? 6 : 2, 8f));
             Vector2 span = landing - takeOff;
-            WarriorLightSkills.Slash(up, u => span * u + new Vector2(0f, 10f + Mathf.Sin(u * Mathf.PI) * liftUnits), 40f, landMs - 40f, 230f, 0.36f * H, p, 0.9f, RibbonSort.Over, 1, null, 6f, true);
+            WarriorLightSkills.Slash(up, u => ArcRibbonFx.P(span * u, 1f, 10f + Mathf.Sin(u * Mathf.PI) * liftUnits), 40f, landMs - 40f, 230f, 0.36f * H, p, 0.9f, RibbonSort.Over, 1, null, 6f, true);
 
             // Landing / crater (offsets from the landing spot)
             float end = Mathf.Max(totalMs, 1700f);
             var fx = ClericLightFx.Create("InfernoCrater", landing, null, end, dim);
             Vector2 ring = new Vector2(0f, Lift);
             float side = dir.x < -0.1f ? 1f : -1f;
-            WarriorLightSkills.Slash(fx, ArcRibbonFx.Line(new Vector2(side * 14f, 56f), ring + new Vector2(0f, 2f)), landMs - 110f, 110f, 180f, 0.36f * H, p, 0.9f, RibbonSort.Over, 2);
+            WarriorLightSkills.Slash(fx, ArcRibbonFx.Line3(ArcRibbonFx.P(new Vector2(side * 14f, 0f), 1f, 56f), ArcRibbonFx.P(Vector2.zero, 1f, ring.y + 2f)), landMs - 110f, 110f, 180f, 0.36f * H, p, 0.9f, RibbonSort.Over, 2);
             float seal = 2f * r / WarriorLightLook.SigilBand;
             fx.Ground(WarriorLightLook.Line(WarriorLightLook.Sigil, gold), landMs, totalMs, seal * 0.9f, seal, 0.7f, sq, 20f, 4).Reveal(150f).Env(0f, 320f);
             WarriorGrandFx.Sector(fx, landMs, 1f, end - landMs - 100f, 420f, Vector2.zero, 90f, 360f, r, p, 0.18f, 0.36f, false, 0.15f, 2); // V4 review: circumference -30 %

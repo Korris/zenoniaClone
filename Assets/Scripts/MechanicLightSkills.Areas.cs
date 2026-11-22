@@ -111,7 +111,7 @@ namespace ZenoniaProto
                 if (at >= 100f) MechanicLightBursts.Reticle(spot, blast * 1.4f, at, at + 60f, dim, honey, 9);
                 f.At(at, h =>
                 {
-                    h.Upright(ClericLightLook.Column(honey), ClericLightFx.Band.Over, true, h.AgeMs, h.AgeMs + 240f, 14f, 24f, 96f, 80f, 0.95f, spot - h.Anchor, 3);
+                    h.Upright(ClericLightLook.Column(honey), ClericLightFx.Band.Over, true, h.AgeMs, h.AgeMs + 240f, 14f, 24f, 96f, 80f, 0.95f, spot - h.Anchor, 3).Floor();
                     MechanicLightBursts.Explosion(spot, blast * (final ? 1.25f : 1f), dim, final);
                     MechanicLightBursts.SplitPulses(ctx.Def.Id, spot + new Vector2(0f, 6f), blast, dim, honey);
                     if (Local(ctx)) { CameraFollow.SkillShake(final ? 0.55f : 0.18f); if (final) { GameClock.HitStop(60f); CameraFollow.SkillPunch(0.5f); } }

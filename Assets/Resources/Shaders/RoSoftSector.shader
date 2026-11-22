@@ -1,5 +1,6 @@
 // "RO trailer style" ground sector (21/11/2026, docs/reference/ro-trailer-skill-style/prompt-templates.md): the big pale Bash / Spiral Pierce fan
-// lying flat on the ground, drawn on a quad whose mesh is already turned toward the aim and squashed onto the ground plane (ClericLightFx.Aim).
+// lying flat on the ground, drawn on a quad whose mesh is already turned toward the aim and squashed onto the ground plane (ClericLightFx.Aim;
+// on the 2.5D / 3D maps the quad lies unsquashed on the real ground and the camera foreshortens it, ClericLightFxView25D).
 // Quad uv -> p = uv*2-1; the fan points along +x and spans +-_Half rad; a full ring when _Half >= PI.
 //  - body (Alpha Blend): Outer colour near the centre -> Body colour outward, alpha _BodyColor.a (0.18-0.40), uneven soft streaks (not a flat wedge),
 //    transparent hole up to _Inner, soft side edges, soft outer fringe;

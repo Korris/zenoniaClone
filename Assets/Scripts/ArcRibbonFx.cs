@@ -15,11 +15,16 @@ namespace ZenoniaProto
     /// Shader LightTrail (alpha body + low additive core) with ClericLightLook.Trail(palette). It lives under a ClericLightFx host and runs on its
     /// clock (AgeMs, anchor, crowd LOD), so it ends / clears with it (ClericLightFx.ClearAll on a map change). Paths are offsets from the host's
     /// anchor (a hero's feet when the host follows one). Generic: any class may use it.
+    /// Path points are Vector3: x, y = ground offset (world units), z = height above it. Flat 2D view: drawn at (x, y + z) as always (a Vector2
+    /// path simply has z = 0). 2.5D / 3D maps (22/11/2026, the slashes bent when the camera turned): x, y lie on the real ground, z goes up the
+    /// standing picture (ClericLightFx.PictureRise, so the default camera looks as before), and Arc() becomes the real circle on the ground at its
+    /// height instead of the pre-squashed ellipse; the ribbon's width lies flat (horizontal), so it reads like before from above.
     /// </summary>
     public sealed class ArcRibbonFx : MonoBehaviour
     {
-        /// <summary>Point of the path at u (0 = start .. 1 = end), as an offset from the host anchor in world units.</summary>
-        public delegate Vector2 PathFn(float u);
+        /// <summary>Point of the path at u (0 = start .. 1 = end), as an offset from the host anchor in world units: x, y on the ground, z = height
+        /// (a lambda returning a Vector2 is a flat path; see the class summary).</summary>
+        public delegate Vector3 PathFn(float u);
 
         static readonly List<Vector3> V = new List<Vector3>(256), V2 = new List<Vector3>(256);
         static readonly List<Color> C = new List<Color>(256), C2 = new List<Color>(256);
@@ -58,21 +63,51 @@ namespace ZenoniaProto
         }
 
         /// <summary>An arc of the ellipse centred at `centre` (half width rx, height rx x squash), from parameter angle a0 to a1 (deg, anticlockwise
-        /// when a1 &gt; a0; several turns allowed).</summary>
+        /// when a1 &gt; a0; several turns allowed).
+        /// 2.5D / 3D maps: `centre`.y is the HEIGHT of the arc (chest, hip) and the arc is the real circle on the ground round centre.x: radius rx for
+        /// a spin (&gt;= 300 deg), else the ellipse's reach at the middle of the arc (what the callers aim at the hit range); each point keeps the ground
+        /// direction it had on the ellipse.</summary>
         public static PathFn Arc(Vector2 centre, float rx, float squash, float a0Deg, float a1Deg)
         {
+            if (!ClericLightFx.Deep)
+                return u =>
+                {
+                    float a = Mathf.Lerp(a0Deg, a1Deg, u) * Mathf.Deg2Rad;
+                    return centre + new Vector2(Mathf.Cos(a) * rx, Mathf.Sin(a) * rx * squash);
+                };
+            float mid = (a0Deg + a1Deg) * 0.5f * Mathf.Deg2Rad;
+            float reach = Mathf.Abs(a1Deg - a0Deg) >= 300f ? rx : rx * Mathf.Sqrt(Mathf.Cos(mid) * Mathf.Cos(mid) + squash * squash * Mathf.Sin(mid) * Mathf.Sin(mid));
             return u =>
             {
-                float a = Mathf.Lerp(a0Deg, a1Deg, u) * Mathf.Deg2Rad;
-                return centre + new Vector2(Mathf.Cos(a) * rx, Mathf.Sin(a) * rx * squash);
+                float a = Mathf.Lerp(a0Deg, a1Deg, u) * Mathf.Deg2Rad, g = Mathf.Atan2(Mathf.Sin(a) * squash, Mathf.Cos(a));
+                return new Vector3(centre.x + Mathf.Cos(g) * reach, Mathf.Sin(g) * reach, centre.y);
             };
         }
+
+        /// <summary>A path point from a ground offset (unsquashed world units) and a height: on the flat 2D view the ground y is squashed by `squash`
+        /// (the old look) and the height added on y; on the 2.5D / 3D maps the ground point stays real and the height goes up (see the class summary).</summary>
+        public static Vector3 P(Vector2 ground, float squash, float height)
+        {
+            return ClericLightFx.Deep ? new Vector3(ground.x, ground.y, height) : new Vector3(ground.x, ground.y * squash + height, 0f);
+        }
+
+        /// <summary>A straight ribbon between two path points (ground x, y + height z), e.g. a dive from the air onto a spot.</summary>
+        public static PathFn Line3(Vector3 a, Vector3 b) { return u => Vector3.Lerp(a, b, u); }
+
+        /// <summary>A vertical ribbon at ground offset `at`, from height h0 to h1 (a fall from the sky).</summary>
+        public static PathFn Fall(Vector2 at, float h0, float h1) { return Line3(P(at, 1f, h0), P(at, 1f, h1)); }
 
         /// <summary>The head runs at a constant speed instead of easing out (a spin round the hero, a leap).</summary>
         public ArcRibbonFx Linear() { linear = true; return this; }
 
         /// <summary>A straight ribbon from a to b.</summary>
         public static PathFn Line(Vector2 a, Vector2 b) { return u => Vector2.Lerp(a, b, u); }
+
+        /// <summary>Path point -> local vertex (the ribbon object sits on the anchor): see the class summary.</summary>
+        static Vector3 Local(Vector3 p, bool deep, Vector3 up)
+        {
+            return deep ? new Vector3(p.x, p.y, 0f) + up * (p.z * ClericLightFx.PictureRise) : new Vector3(p.x, p.y + p.z, 0f);
+        }
 
         MeshRenderer Part(string name, Material m, out Mesh mesh)
         {
@@ -105,18 +140,22 @@ namespace ZenoniaProto
             float fade = t <= sweepMs ? 1f : Mathf.Clamp01(1f - (t - sweepMs) / tailMs) * 0.5f + 0.5f;
             int n = Mathf.Clamp(Mathf.CeilToInt((head - tail) * 56f), 4, 56);
             V.Clear(); C.Clear(); U.Clear(); T.Clear(); V2.Clear(); C2.Clear(); U2.Clear(); T2.Clear();
-            Vector2 prevL = Vector2.zero, prevR = Vector2.zero; Color prevC = Color.clear; float prevS = 0f;
+            Vector3 prevL = Vector3.zero, prevR = Vector3.zero; Color prevC = Color.clear; float prevS = 0f;
+            bool deep = ClericLightFx.Deep;
+            Vector3 up = deep ? View25D.Tilt * Vector3.up : Vector3.up, worldUp = new Vector3(0f, 0f, -1f);
+            Vector2 fwd = deep ? View25D.GroundForward : Vector2.up, gr = deep ? View25D.GroundRight : Vector2.right;
             for (int i = 0; i <= n; i++)
             {
                 float s = i / (float)n, u = Mathf.Lerp(tail, head, s);           // s: 0 tail .. 1 head
-                Vector2 p = path(u), q = path(Mathf.Min(1f, u + 0.01f)), q0 = path(Mathf.Max(0f, u - 0.01f));
-                Vector2 d = q - q0;
-                Vector2 nrm = d.sqrMagnitude > 1e-6f ? new Vector2(-d.y, d.x).normalized : Vector2.up;
+                Vector3 raw = path(u);
+                Vector3 p = Local(raw, deep, up), d = Local(path(Mathf.Min(1f, u + 0.01f)), deep, up) - Local(path(Mathf.Max(0f, u - 0.01f)), deep, up);
+                Vector3 nrm = Vector3.Cross(d, worldUp); // the width lies flat: (-d.y, d.x) on the flat view, horizontal on the 2.5D maps
+                nrm = nrm.sqrMagnitude > 1e-6f ? nrm.normalized : new Vector3(gr.x, gr.y, 0f);
                 float w = width * Mathf.Pow(s, 0.7f) * (s > 0.9f ? Mathf.Lerp(1f, 0.6f, (s - 0.9f) / 0.1f) : 1f) * 0.5f;
-                Vector2 l = p + nrm * w, r = p - nrm * w;
+                Vector3 l = p + nrm * w, r = p - nrm * w;
                 Color c = s > 0.85f ? Color.Lerp(pal.Light, pal.Core, (s - 0.85f) / 0.15f) : Color.Lerp(pal.Main, pal.Light, Mathf.Pow(s / 0.85f, 1.6f)); // body colour over most of the length, hot only at the head
                 c.a = alpha * fade * Mathf.SmoothStep(0f, 1f, s / 0.35f);
-                bool isBack = sort == RibbonSort.Split && p.y > splitY;
+                bool isBack = sort == RibbonSort.Split && (deep ? raw.x * fwd.x + raw.y * fwd.y > 0f : raw.y + raw.z > splitY); // 2.5D: the far half round the hero
                 if (i > 0) Quad(isBack, prevL, prevR, l, r, prevC, c, prevS, s);
                 prevL = l; prevR = r; prevC = c; prevS = s;
             }
@@ -135,7 +174,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>One segment: into the back list (the far half of a Split ribbon) or the front list (Behind uses the front renderer, sorted behind).</summary>
-        void Quad(bool b, Vector2 l0, Vector2 r0, Vector2 l1, Vector2 r1, Color c0, Color c1, float s0, float s1)
+        void Quad(bool b, Vector3 l0, Vector3 r0, Vector3 l1, Vector3 r1, Color c0, Color c1, float s0, float s1)
         {
             List<Vector3> v = b ? V2 : V; List<Color> c = b ? C2 : C; List<Vector2> uv = b ? U2 : U; List<int> t = b ? T2 : T;
             // Path points are offsets from the host anchor and the mesh object sits ON the anchor, so they are already local vertices.

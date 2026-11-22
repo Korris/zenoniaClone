@@ -42,8 +42,8 @@ namespace ZenoniaProto
             for (int i = 0; i < 6; i++)
             {
                 float a = i * Mathf.PI / 3f + 0.4f, t0 = 15f * i;
-                Vector2 off = new Vector2(Mathf.Cos(a) * r * 0.55f, Mathf.Sin(a) * r * 0.55f * ClericLightFx.Squash);
-                fx.Upright(shard, ClericLightFx.Band.Over, true, t0, 760f, 4.4f, 6f, 3f, 17f, 0.9f, off, -1).Pop(130f).Env(20f, 280f).Dissolve().Kind(LayerKind.Detail);
+                Vector2 off = ClericLightFx.GroundRing(a, r * 0.55f);
+                fx.Upright(shard, ClericLightFx.Band.Over, true, t0, 760f, 4.4f, 6f, 3f, 17f, 0.9f, off, -1).Floor().Pop(130f).Env(20f, 280f).Dissolve().Kind(LayerKind.Detail);
             }
 
             WizardLightSkills.Pulses(fx, ctx.Def.Id, 30f, ElementLightLook.M(ClericLightLook.Core, fire, ClericLightLook.Role.Flash), 10f, 24f, lift, 0.6f);

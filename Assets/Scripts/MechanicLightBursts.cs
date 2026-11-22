@@ -30,7 +30,7 @@ namespace ZenoniaProto
             {
                 float a = (angleDeg + (arcDeg >= 360f ? i * 360f / n + Random.Range(-15f, 15f) : Random.Range(-arcDeg, arcDeg) * 0.5f)) * Mathf.Deg2Rad;
                 Vector2 d = new Vector2(Mathf.Cos(a), Mathf.Sin(a) * 0.8f);
-                WantedFxParticles.Emit(ps, at + d * 1.5f, d * speed * Random.Range(0.6f, 1.15f), size * Random.Range(0.8f, 1.2f), new Color(c.r, c.g, c.b, c.a * alpha), life * Random.Range(0.75f, 1.15f));
+                WantedFxParticles.Emit(ps, f.ParticlePos(at + d * 1.5f), f.ParticleVel(d * speed * Random.Range(0.6f, 1.15f)), size * Random.Range(0.8f, 1.2f), new Color(c.r, c.g, c.b, c.a * alpha), life * Random.Range(0.75f, 1.15f));
             }
         }
 

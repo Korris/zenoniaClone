@@ -34,6 +34,7 @@ namespace ZenoniaProto
         public ClericLightFx Aim(float deg, float squash, bool mirror = false)
         {
             if (layers.Count == 0) return this;
+            if (ClericLightFx.Deep) squash = 1f; // 2.5D / 3D maps: the fan lies on the real ground, the camera foreshortens it (no pre-squash to distort when it turns)
             int d = Mathf.RoundToInt(Mathf.Repeat(deg, 360f)), key = d * 4000 + Mathf.RoundToInt(squash * 1000f) * 2 + (mirror ? 1 : 0);
             Mesh m;
             if (!AimMeshes.TryGetValue(key, out m) || m == null)
@@ -63,7 +64,7 @@ namespace ZenoniaProto
         {
             if (layers.Count == 0) return this;
             Layer l = Last;
-            l.Offset += new Vector2(0f, dy); l.Move = new Vector2(0f, -dy); l.DropMs = Mathf.Max(1f, ms);
+            l.Up0 += dy; l.UpMove = -dy; l.DropMs = Mathf.Max(1f, ms); // vertical: falls through the air on the 2.5D / 3D maps
             return this;
         }
 

@@ -33,8 +33,9 @@ namespace ZenoniaProto
             bool up = Mathf.Sin(angleDeg * Mathf.Deg2Rad) > 0.35f;
             ArcRibbonFx.PathFn path = ArcRibbonFx.Arc(chest, rx, Squash, a0, a1);
             WarriorLightSkills.Slash(fx, path, 0f, SweepMs, TailMs, Width * k, p, 0.95f, up ? RibbonSort.Behind : RibbonSort.Over, 0, owner);
-            Vector2 hit = path(0.5f);
-            fx.Upright(WarriorLightLook.Spark(p), ClericLightFx.Band.Over, false, 35f, 180f, 6f * k, 13f * k, 6f * k, 13f * k, 0.95f, hit, 2);
+            Vector3 hp = path(0.5f); // 2.5D / 3D maps: ground point (x, y) + height (z) of the arc's middle
+            Vector2 hit = new Vector2(hp.x, hp.y + hp.z);
+            fx.Upright(WarriorLightLook.Spark(p), ClericLightFx.Band.Over, false, 35f, 180f, 6f * k, 13f * k, 6f * k, 13f * k, 0.95f, hit, 2).Floor(hp.z);
             fx.At(40f, f => { if (f.Own) f.Ring(true, f.Anchor + hit, 3, 30f, 1.4f, 2.2f, p.Light, 0.22f); });
         }
     }

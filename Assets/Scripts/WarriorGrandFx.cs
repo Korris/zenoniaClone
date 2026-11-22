@@ -71,11 +71,14 @@ namespace ZenoniaProto
         }
 
         /// <summary>Impact at `at` (offset from the host anchor) at `t`, `size` units across (RO: 0.8-1.8 H, ultimate 1.5-2.5 H): a short ivory flash,
-        /// a translucent star, `sparks` ivory sparkles. `band` Behind keeps the hero visible for a hit on himself.</summary>
-        public static void Impact(ClericLightFx fx, float t, Vector2 at, float size, ClericLightLook.Pal p, int sparks, ClericLightFx.Band band = ClericLightFx.Band.Over)
+        /// a translucent star, `sparks` ivory sparkles. `band` Behind keeps the hero visible for a hit on himself. `floorH` >= 0: `at` is a real ground
+        /// point (from a world direction) plus (0, floorH) of height (ClericLightFx.Floor), else a picture offset round the anchor.</summary>
+        public static void Impact(ClericLightFx fx, float t, Vector2 at, float size, ClericLightLook.Pal p, int sparks, ClericLightFx.Band band = ClericLightFx.Band.Over, float floorH = -1f)
         {
-            fx.Upright(WarriorLightLook.Spark(p), band, false, t, t + 200f, size * 0.45f, size * 1.0f, size * 0.45f, size * 1.0f, 0.75f, at, 6).Turn(Random.value * 30f)
-              .Upright(WarriorLightLook.Flash(Hot), band, false, t, t + 60f, size * 0.16f, size * 0.26f, size * 0.16f, size * 0.26f, 0.65f, at, 7).Env(0f, 35f); // V3 review: core -25-30 %
+            fx.Upright(WarriorLightLook.Spark(p), band, false, t, t + 200f, size * 0.45f, size * 1.0f, size * 0.45f, size * 1.0f, 0.75f, at, 6).Turn(Random.value * 30f);
+            if (floorH >= 0f) fx.Floor(floorH);
+            fx.Upright(WarriorLightLook.Flash(Hot), band, false, t, t + 60f, size * 0.16f, size * 0.26f, size * 0.16f, size * 0.26f, 0.65f, at, 7).Env(0f, 35f); // V3 review: core -25-30 %
+            if (floorH >= 0f) fx.Floor(floorH);
             if (sparks <= 0) return;
             fx.At(t, f =>
             {
@@ -94,14 +97,14 @@ namespace ZenoniaProto
         public static void Column(ClericLightFx fx, float t, float life, Vector2 at, float w, float h, ClericLightLook.Pal p, ClericLightFx.Band band = ClericLightFx.Band.Over,
             int order = 3, LayerKind kind = LayerKind.Main, float alpha = 0.75f)
         {
-            fx.Upright(ClericLightLook.Column(p), band, true, t, t + life, w * 0.6f, w, h * 0.35f, h, alpha, at, order).Pop(140f).Env(0f, life * 0.45f).Kind(kind)
-              .Upright(WarriorLightLook.Glyph(ClericLightLook.Streak, Hot), band, true, t, t + life * 0.55f, w * 0.18f, w * 0.28f, h * 0.3f, h * 0.85f, 0.7f, at, order + 1).Pop(120f).Dissolve().Kind(LayerKind.Detail);
+            fx.Upright(ClericLightLook.Column(p), band, true, t, t + life, w * 0.6f, w, h * 0.35f, h, alpha, at, order).Floor().Pop(140f).Env(0f, life * 0.45f).Kind(kind)
+              .Upright(WarriorLightLook.Glyph(ClericLightLook.Streak, Hot), band, true, t, t + life * 0.55f, w * 0.18f, w * 0.28f, h * 0.3f, h * 0.85f, 0.7f, at, order + 1).Floor().Pop(120f).Dissolve().Kind(LayerKind.Detail);
         }
 
         /// <summary>Small honey flame tongue (Fire skills only): `w` x `h`, quick pop, gone in `life` (&lt;= ~250 ms for Flame Cleave).</summary>
         public static void Lick(ClericLightFx fx, float t, float life, Vector2 at, float w, float h, ClericLightFx.Band band = ClericLightFx.Band.Over, int order = 3, LayerKind kind = LayerKind.Detail, float alpha = 0.78f)
         {
-            fx.Upright(WarriorLightLook.Glyph(WarriorLightLook.FlameTongue, WarriorLightLook.Flame), band, true, t, t + life, w * 0.5f, w * 0.85f, h * 0.3f, h, alpha, at, order).Pop(110f).Dissolve().Kind(kind);
+            fx.Upright(WarriorLightLook.Glyph(WarriorLightLook.FlameTongue, WarriorLightLook.Flame), band, true, t, t + life, w * 0.5f, w * 0.85f, h * 0.3f, h, alpha, at, order).Floor().Pop(110f).Dissolve().Kind(kind);
         }
 
         /// <summary>Honey fire burst at `at` (radius r, Fire skills only): 3 translucent honey puffs rising + an ivory core, no smoke.</summary>
@@ -141,11 +144,11 @@ namespace ZenoniaProto
             f.Puff(false, at, n, spread, 34f, 1.3f, 2.2f, p.Light, 0.6f);
         }
 
-        /// <summary>A point on the ground ellipse at `deg`, `dist` units from the centre.</summary>
+        /// <summary>A point on the ground ellipse at `deg`, `dist` units from the centre (2.5D / 3D maps: on the real circle, the camera foreshortens it).</summary>
         public static Vector2 OnGround(float deg, float dist)
         {
             Vector2 d = WarriorLightSkills.Dir(deg) * dist;
-            d.y *= Sq;
+            if (!ClericLightFx.Deep) d.y *= Sq;
             return d;
         }
     }

@@ -56,10 +56,16 @@ namespace ZenoniaProto
         /// <summary>One particle at world `pos` moving at `vel` (units / s).</summary>
         public static void Emit(ParticleSystem ps, Vector2 pos, Vector2 vel, float size, Color color, float life)
         {
+            Emit(ps, new Vector3(pos.x, pos.y, 0f), new Vector3(vel.x, vel.y, 0f), size, color, life);
+        }
+
+        /// <summary>Same in world 3D (2.5D / 3D maps: ClericLightFx.ParticlePos / ParticleVel put the point on the standing picture).</summary>
+        public static void Emit(ParticleSystem ps, Vector3 pos, Vector3 vel, float size, Color color, float life)
+        {
             if (ps == null) return;
             var p = new ParticleSystem.EmitParams
             {
-                position = new Vector3(pos.x, pos.y, 0f), velocity = new Vector3(vel.x, vel.y, 0f),
+                position = pos, velocity = vel,
                 startSize = size, startColor = color, startLifetime = life, applyShapeToPosition = false,
             };
             ps.Emit(p, 1);

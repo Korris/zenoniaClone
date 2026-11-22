@@ -134,7 +134,7 @@ namespace ZenoniaProto
             if (host.Lod == FxTier.Far) return;
             float s = puffSize * UnityEngine.Random.Range(0.8f, 1.2f);
             host.Upright(MechanicLightLook.SmokeMat, ClericLightFx.Band.Over, false, host.AgeMs, host.AgeMs + UnityEngine.Random.Range(380f, 560f), s, s * 2f, s, s * 2f, 0.7f, p - host.Anchor + UnityEngine.Random.insideUnitCircle, -3)
-                .Rise(5f).Dissolve();
+                .Floor().Rise(5f).Dissolve();
         }
 
         void Place(float t)
