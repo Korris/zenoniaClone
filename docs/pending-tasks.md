@@ -5,7 +5,7 @@
 - Toolkit light-FX (mọi class): trên map 2.5D / `--map3d` lớp Ground thành vòng tròn thật trên mặt đất (bỏ ép 0,7 / 0,6), lớp khác đứng trên mặt phẳng hướng camera (cao x0,848 để camera mặc định giống cũ), Rise / Drop theo chiều đứng, `.Floor()` cho lớp đặt ở điểm đất thật (cột sáng, lưỡi lửa, mũi đâm, khói đạn, gai băng); `ArcRibbonFx` path Vector3 (cung chém = vòng tròn ngang ở ngực). Code `ClericLightFxView25D.cs`, `ArcRibbonFx.cs`. Map 2D không đổi. `--fx-flat` (bản test) = bố cục cũ để so.
 - Kiếm Earth Break: model 3D dựng bằng code (`EarthBreakGreatswordMesh`: lưỡi 8 mặt cắt + rãnh vàng, chuôi, quả đấm, cán chắn theo viền art, đá quý), texture = art ChatGPT vẽ tay cũ chiếu phẳng, shader `GreatswordModel` (rune vàng nhịp, halo, loé chạm đất, tan thành ánh vàng, `--map3d` nhận nắng scene). Lơ lửng rồi lao xuống, mũi chạm đất đúng 1450 ms. Bỏ `WarriorPaintedSword` / `PaintedFxObject`. Không dùng ChatGPT lần này.
 - Đã xem: Earth Break 2.5D yaw 0 pitch 58 trước / sau, yaw ±28 pitch 45 / 70; `--map3d` yaw 0 / 90 / 180 x pitch 45 / 58 / 70; Sanctuary 2.5D + map3d yaw 90 (`docs/reference/earth-break-3d/`). CHƯA xem: Frost Nova (Wizard) và các skill khác dưới camera xoay; bản 2D thường; online.
-- Exe: `D:	emp\player-eb3d\Zenonia.exe` (thêm `--map3d` để vào Willowbrook 3D).
+- Exe: `D:/temp/player-eb3d/Zenonia.exe` (thêm `--map3d` để vào Willowbrook 3D).
 
 ### 22/11 16:13 Map 3D: cầu / nhà kho / rào / biển / rào chắn / rơm / sậy thành mesh 3D thật + bảng FPS trong game (agent, XONG, CHỜ người dùng thử)
 - Người dùng (22/11): "cây cầu khi tôi xoay ở nhiều góc độ thì nó bị méo"; thêm "show thêm FPS trong game giúp tui".
