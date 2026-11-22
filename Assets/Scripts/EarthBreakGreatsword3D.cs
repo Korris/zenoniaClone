@@ -8,9 +8,11 @@ namespace ZenoniaProto
     /// (blade, fuller, crossguard, grip, pommel, gem) wearing the ChatGPT-painted front view (steel-ivory blade + gold, RO trailer Warrior palette) as
     /// its hand-painted texture; shader Shaders/GreatswordModel (halo, painted body, pulsing gold runes, gem glow, contact flash, golden dissolve).
     /// Lives under a ClericLightFx host (its clock, anchor = impact centre, crowd LOD; ends / clears with it). Timeline (ms of the host):
-    ///  - t0: appears high above the centre (fade in 120 ms), hovers and drifts down while the runes gather light, turning from 75 to 28 deg;
-    ///  - then falls faster and faster and the point hits the ground EXACTLY at `contactMs` (EarthBreakUltimate's slam, 650 since 22/11; was 1450), sinks a few units
-    ///    with a short recoil, ivory flash 60 ms, runes flare;
+    ///  - t0 (~100 ms since 22/11 evening, user: "rơi quá nhanh làm không thể thấy cây kiếm đẹp"): summoned high above the centre out of an ivory
+    ///    flash (fade 120 ms, shader flash 150 ms), hovers ~440 ms drifting slowly down with a gentle bob while it turns from 160 to 28 deg and
+    ///    settles (ease-out-back), the runes gathering light;
+    ///  - a short lift (anticipation), then the last `plungeMs` (~110) a fast plunge, the point hits the ground EXACTLY at `contactMs`
+    ///    (EarthBreakUltimate's slam, 650), sinks a few units with a short recoil, soft ivory flash 50 ms (kept low so the shape stays readable), runes flare;
     ///  - stands stuck in the ground through the hits, burns away into golden light over the last `dissolveMs` before t1.
     /// View: flat 2D maps = the front view turned 28 deg on its long axis (bevels, guard depth and lighting show); 2.5D / 3D maps = the same, stood
     /// on the camera-facing plane like the heroes (View25D.Tilt), so any camera yaw / pitch sees it upright, at the old on-screen size
@@ -20,7 +22,7 @@ namespace ZenoniaProto
     public sealed class EarthBreakGreatsword3D : MonoBehaviour
     {
         const string Folder = "Sprites/classes/warrior/fx/earth-break/";
-        const float RestTwist = 28f, StartTwist = 75f;
+        const float RestTwist = 28f, StartTwist = 160f, HoverLow = 0.72f, LiftUp = 4f; // hover ends at 72 % of dropFrom, +4 units wind-up before the plunge
 
         static Material material;
         static bool tried;
@@ -29,7 +31,7 @@ namespace ZenoniaProto
 
         ClericLightFx host;
         MeshRenderer r;
-        float t0, contact, t1, dissolveMs, height, sink, dropFrom;
+        float t0, contact, t1, dissolveMs, height, sink, dropFrom, plunge;
 
         /// <summary>True when the shader and both textures are present (else Earth Break keeps the procedural mask sword).</summary>
         public static bool Ready { get { return Material != null; } }
@@ -64,10 +66,12 @@ namespace ZenoniaProto
 
         /// <summary>
         /// Lays the sword on `fx` (anchored on the impact centre): visible from `t0` to `t1`, starts `dropFrom` units up, point in the ground at
-        /// `contactMs`, burns away over the last `dissolveMs`. `height` = sword height in units on the flat view; the point sinks `sink` units.
+        /// `contactMs` after a `plungeMs` final plunge, burns away over the last `dissolveMs`. `height` = sword height in units on the flat view;
+        /// the point sinks `sink` units.
         /// Gold motes rise off the blade while it stands. Returns false when the shader or art is missing.
         /// </summary>
-        public static bool Lay(ClericLightFx fx, float t0, float t1, float height, float sink, float dropFrom, float contactMs, float dissolveMs, ClericLightLook.Pal glow)
+        public static bool Lay(ClericLightFx fx, float t0, float t1, float height, float sink, float dropFrom, float contactMs, float dissolveMs, ClericLightLook.Pal glow,
+            float plungeMs = 110f)
         {
             if (!Ready || fx == null) return false;
             var go = new GameObject("EarthBreakSword3D");
@@ -81,6 +85,7 @@ namespace ZenoniaProto
             s.r.enabled = false;
             s.host = fx; s.t0 = t0; s.t1 = t1; s.contact = contactMs; s.dissolveMs = Mathf.Max(1f, dissolveMs);
             s.height = height; s.sink = sink; s.dropFrom = dropFrom;
+            s.plunge = Mathf.Clamp(plungeMs, 40f, Mathf.Max(40f, contactMs - t0 - 60f));
 
             float w = height * 0.42f; // golden motes rising off the blade's edges while it stands in the ground (no flames, RO trailer style)
             for (float t = contactMs + 60f; t < t1 - 60f; t += 140f)
@@ -97,6 +102,22 @@ namespace ZenoniaProto
             return true;
         }
 
+        /// <summary>Lift (units above the ground) of the point at hover / plunge time `age` (&lt; contact): see the class summary.</summary>
+        public static float LiftAt(float age, float t0, float contact, float plunge, float dropFrom)
+        {
+            float plungeAt = contact - plunge, low = dropFrom * HoverLow;
+            if (age < plungeAt)
+            {
+                float u = Mathf.Clamp01((age - t0) / Mathf.Max(1f, plungeAt - t0));
+                float ease = 1f - (1f - u) * (1f - u);                                   // slow drift down, easing out
+                float bob = Mathf.Sin(u * Mathf.PI * 2f) * 1.6f * (1f - u);             // gentle float
+                float wind = LiftUp * Mathf.SmoothStep(0f, 1f, (u - 0.8f) / 0.2f);      // rises a little just before the plunge
+                return Mathf.Lerp(dropFrom, low, ease) + bob + wind;
+            }
+            float k = Mathf.Clamp01((age - plungeAt) / plunge);
+            return (low + LiftUp) * (1f - k * k);                                        // accelerating plunge, 0 at contact
+        }
+
         void LateUpdate()
         {
             if (host == null) return;
@@ -105,14 +126,14 @@ namespace ZenoniaProto
             r.enabled = on;
             if (!on) return;
 
-            float lift, twist;
+            float lift, twist, hover = 0f;
             if (age < contact)
             {
-                float u = Mathf.Clamp01((age - t0) / Mathf.Max(1f, contact - t0));
-                float fall = Mathf.Max(0f, (u - 0.45f) / 0.55f);
-                float e = 0.15f * Mathf.SmoothStep(0f, 1f, u / 0.55f) + 0.85f * fall * fall; // hover + drift, then an accelerating plunge; 1 at contact
-                lift = dropFrom * (1f - e);
-                twist = Mathf.Lerp(StartTwist, RestTwist, Mathf.SmoothStep(0f, 1f, u));
+                lift = LiftAt(age, t0, contact, plunge, dropFrom);
+                float u = Mathf.Clamp01((age - t0) / Mathf.Max(1f, contact - plunge - t0)), v = u - 1f;
+                float back = 1f + 2.2f * v * v * v + 1.2f * v * v;                     // ease-out-back: turns in, overshoots a little, settles
+                twist = Mathf.LerpUnclamped(StartTwist, RestTwist, back);
+                hover = u;
             }
             else
             {
@@ -132,15 +153,17 @@ namespace ZenoniaProto
 
             Camera cam = Camera.main;
             Vector3 key = cam != null ? cam.transform.TransformDirection(new Vector3(-0.55f, 0.62f, -0.56f)).normalized : new Vector3(-0.55f, 0.62f, -0.56f);
-            float flash = age >= contact && age < contact + 60f ? 1f - (age - contact) / 60f : 0f;
+            // summon flash (born out of light) and a soft contact flash (0.45: the blade must stay readable through the slam)
+            float flash = age < t0 + 150f ? 1f - (age - t0) / 150f : age >= contact && age < contact + 50f ? 0.45f * (1f - (age - contact) / 50f) : 0f;
             r.GetPropertyBlock(block);
             block.SetFloat(fadeId, Mathf.Clamp01((age - t0) / 120f));
             block.SetFloat(dissolveId, Mathf.Clamp01((age - (t1 - dissolveMs)) / dissolveMs));
             block.SetFloat(flashId, flash);
-            block.SetFloat(boostId, age >= contact ? Mathf.Max(0f, 1f - (age - contact) / 450f) * 0.9f : Mathf.Clamp01((age - t0) / Mathf.Max(1f, contact - t0)) * 0.25f);
+            block.SetFloat(boostId, age >= contact ? Mathf.Max(0f, 1f - (age - contact) / 450f) * 0.9f : 0.3f + 0.45f * hover); // runes gather light while it hovers
             block.SetFloat(sceneId, Map3D.Active ? 1f : 0f);
             block.SetVector(keyId, key);
-            block.SetFloat(haloId, host.Lod == FxTier.Own ? 1f : host.Lod == FxTier.Near ? 0.5f : 0.15f); // the halo is soft glow: crowd LOD
+            float halo = age < contact ? 1.35f : 1f; // a brighter rim while it hovers so it reads on snow
+            block.SetFloat(haloId, halo * (host.Lod == FxTier.Own ? 1f : host.Lod == FxTier.Near ? 0.5f : 0.15f)); // the halo is soft glow: crowd LOD
             r.SetPropertyBlock(block);
         }
     }

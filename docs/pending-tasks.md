@@ -1,5 +1,11 @@
 # Việc đang dở
 
+### 22/11 17:30 Earth Break: kiếm hiện sớm, lơ lửng lâu cho thấy rõ, vẫn cắm đất 650 ms (agent, XONG code, CHỜ người dùng tự thử)
+- Người dùng (22/11): "thời điểm kiếm rơi nhanh rồi nhưng nó rơi quá nhanh làm không thể thấy cây kiếm đẹp".
+- Chỉ đổi FX (`WarriorEarthBreakLightFx`, `EarthBreakGreatsword3D`; hằng FX `SwordInMs 100 / PlungeMs 110 / SwordDissolveMs 230` trong file FX). `SkillTable` / sát thương / `LegacySkillNumbers` KHÔNG đổi, không cần build server.
+- Kiếm: 100 ms hiện trên cao mục tiêu từ loé ngà + sao vàng + tia sáng; 100-540 lơ lửng, trôi xuống chậm, nhấp nhô nhẹ, xoay 160 -> 28 độ có lố nhẹ rồi đứng yên, rune sáng dần, halo x1,35; 540-650 nâng nhẹ rồi lao nhanh (vệt sáng), mũi cắm đất đúng 650; cắm yên tới 1170 rồi tan thành ánh vàng tới 1400. Loé chạm đất của kiếm 0,45 / 50 ms (trước 1 / 60), sao trúng 1,2H (trước 1,8H), đòn cuối 1,4H (trước 1,8H), bụi bớt ~40 %.
+- CHƯA xem trong game (người dùng tự thử). Exe: `D:/temp/player-eb3d/Zenonia.exe`.
+
 ### 22/11 17:23 Earth Break nhanh hơn: kiếm cắm đất lúc 650 ms (trước 1450) (agent, XONG code, CHỜ người dùng tự thử)
 - Người dùng (22/11): "thời gian khi triển skill cho cây kiếm rớt xuống hơi lâu, gần như 2 s mới rớt kiếm từ lúc ấn xài skill".
 - Mốc mới (`LegacySkillNumbers.EarthBreak*Ms`, dùng cho `EarthBreakUltimate`, `SkillTable` lockMs, `HeroClassDef`, `SkillHitSplit.ActiveMs`): gồng 0-225, quét 200 / 270, kiếm hiện 350, cắm đất 650 (hit-stop 55), 8 hit nhỏ mỗi 30 ms (trước 45), 100 % ở 930, đòn cuối 300 % ở 1030 (hit-stop 80), bỏng 1130 / 1200 / 1270 / 1340, hết 1400 (trước 2500). Phần trước cú cắm x0,45, phần sau x0,7 để số dam không dồn 1 frame. Tổng dam / MP / hồi chiêu giữ nguyên. FX `WarriorEarthBreakLightFx` + kiếm 3D theo mốc mới.

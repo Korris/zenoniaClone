@@ -10,13 +10,16 @@ namespace ZenoniaProto
     /// slam / finisher / burn times it is given. Earth Break palette (#887C5A / #C6B37D / #F3E1A8 / #FFFFFF) + Knight gold:
     ///  - 0-300 at the caster: a gold seal draws itself in under him, a soft glow gathers on the blade, two translucent gold sweeps (200 / 270);
     ///  - 180-650 at the target: a thin golden rune circle on the REAL radius draws itself in (telegraph), a faint gold ground light;
-    ///  - 350-650: the giant 3D greatsword (EarthBreakGreatsword3D: procedural blade / fuller / guard / grip / pommel / gem wearing the
-    ///    ChatGPT-painted steel-ivory + gold art, pulsing runes, lit by the scene on a 3D map) hovers, then plunges with a light streak ahead of it,
-    ///    the point hits the ground EXACTLY at the slam (650 ms);
-    ///  - 650 slam: ivory contact flash, a 1.8 H star, a tall translucent golden light column round the sword (5 H), a thin shock ring to the
-    ///    radius, short earth cracks with gold cores (fade by the end); small hits: sparkles, a thin ring every third; 930: ring;
-    ///  - 1030 finisher: a 2.2 H white-gold star, thin rings to 1.2 R, 4 low gold-white light columns round the circle, the rune circle flares;
-    ///  - 1130-1340 burns: the cracks pulse gold; the sword dissolves into golden light over the end.
+    ///  - 100-650: the giant 3D greatsword (EarthBreakGreatsword3D: procedural blade / fuller / guard / grip / pommel / gem wearing the
+    ///    ChatGPT-painted steel-ivory + gold art, pulsing runes, lit by the scene on a 3D map). 22/11 evening (user: "rơi quá nhanh làm không thể
+    ///    thấy cây kiếm đẹp"; was 350-650): summoned at 100 out of an ivory flash + gold star high above the target, hovers ~440 ms drifting
+    ///    slowly down, turning and settling while the runes gather light, then the last 110 ms a fast plunge with a light streak, the point hits
+    ///    the ground EXACTLY at the slam (650 ms, SkillTable unchanged);
+    ///  - 650 slam: soft ivory contact flash, a 1.2 H star, a translucent golden light column behind the sword (5 H), a thin shock ring to the
+    ///    radius, short earth cracks with gold cores (fade by the end), light dust; small hits: sparkles, a thin ring every third; 930: ring.
+    ///    Flash / star / dust kept low round the blade so the planted sword stays readable;
+    ///  - 1030 finisher: a 1.4 H white-gold star, thin rings to 1.2 R, 4 low gold-white light columns round the circle, the rune circle flares;
+    ///  - 1130-1340 burns: the cracks pulse gold; the sword stays planted and dissolves into golden light over the last ~230 ms (1170-1400).
     /// No fire pillars, fireball, embers, scorch or red. Shake / hit-stop stay in EarthBreakUltimate (local caster only).
     /// 2.5D / 3D maps (22/11): every ground layer lies on the real ground as a circle and the columns / sword stand as camera-facing billboards
     /// (ClericLightFxView25D), so turning the camera no longer bends the skill.
@@ -24,6 +27,8 @@ namespace ZenoniaProto
     public static class WarriorEarthBreakLightFx
     {
         const float H = WarriorLightLook.H;
+        // FX-only sword timing (the slam / damage time stays EarthBreakSlamMs): summoned at SwordInMs, final plunge PlungeMs, dissolve over the last SwordDissolveMs
+        const float SwordInMs = 100f, PlungeMs = 110f, SwordDissolveMs = 230f;
 
         public static void Build(HeroController hero, Vector2 caster, Vector2 center, Vector2 dir, float radius, float slamMs, float smallStepMs, int smalls,
             float penultMs, float finishMs, float[] burnAt, float totalMs)
@@ -46,26 +51,31 @@ namespace ZenoniaProto
 
             // Target: rune circle + faint ground light, the falling sword
             var fx = ClericLightFx.Create("EarthBreak", center, null, totalMs, dim);
-            // sword visible 300 ms before the slam (hover ~45 %, then the accelerating plunge); was 850-1450
-            float swordH = 2.7f * H, dropFrom = 95f, swordFrom = slamMs - 300f, dropMs = (slamMs - swordFrom) / 0.37f; // mask fallback: PopCurve first reaches the ground at 37 % of the drop
+            // sword from SwordInMs (hover ~440 ms, then a PlungeMs plunge to the slam); was 350-650, too fast to see the sword
+            float swordH = 2.7f * H, dropFrom = 100f, swordFrom = Mathf.Min(SwordInMs, slamMs - PlungeMs - 120f), dropMs = (slamMs - swordFrom) / 0.37f; // mask fallback: PopCurve first reaches the ground at 37 % of the drop
             float telegraph = slamMs * 0.28f; // rune circle from ~180 (was 400 with the 1450 slam)
             fx.Ground(WarriorLightLook.Line(WarriorLightLook.Sigil, p), telegraph, totalMs, seal, seal, 0.68f, sq, 10f, 4)
                 .Reveal(270f).Phases(slamMs - 180f, slamMs + 90f, 0.6f, 0.75f).Env(0f, 240f);
             WarriorGrandFx.Sector(fx, telegraph, 270f, totalMs - telegraph, 260f, Vector2.zero, 90f, 360f, radius, p, 0.12f, 0.3f, false, 0.2f, 2);
-            if (!EarthBreakGreatsword3D.Lay(fx, swordFrom, totalMs, swordH, 8f, dropFrom, slamMs, totalMs - finishMs + 40f, gold)) // V3 review: dissolves over the burns
+            // summon: ivory flash in front of the sword, a gold star behind it, a burst of sparkles, where it appears high above the target
+            Vector2 sky = new Vector2(0f, dropFrom + swordH * 0.45f);
+            fx.Upright(WarriorLightLook.Flash(WarriorGrandFx.Hot), ClericLightFx.Band.Over, false, swordFrom, swordFrom + 170f, 0.9f * H, 1.7f * H, 0.9f * H, 1.7f * H, 0.6f, sky, 7).Env(0f, 120f)
+              .Upright(WarriorLightLook.Spark(p), ClericLightFx.Band.Over, false, swordFrom, swordFrom + 280f, 1f * H, 2f * H, 1f * H, 2f * H, 0.7f, sky, 1).Turn(20f).Env(0f, 180f);
+            fx.At(swordFrom, f => MechanicLightBursts.Sparks(f, f.Anchor + sky, f.Own ? 12 : 4, 140f, 90f, 360f, p.Light, 0.3f, 1.8f));
+            if (!EarthBreakGreatsword3D.Lay(fx, swordFrom, totalMs, swordH, 8f, dropFrom, slamMs, SwordDissolveMs, gold, PlungeMs)) // planted until it dissolves at the end
                 fx.Upright(WarriorLightLook.Glyph(WarriorLightLook.GreatSword, p), ClericLightFx.Band.Over, true, swordFrom, finishMs + 180f, 1.4f * H, 1.4f * H, swordH, swordH, 0.9f, new Vector2(0f, -8f), 2)
                     .Drop(dropFrom, dropMs).Env(70f, 190f);
-            WarriorLightSkills.Slash(fx, ArcRibbonFx.Fall(Vector2.zero, dropFrom + swordH + 40f, swordH * 0.6f), slamMs - 130f, 130f, 120f, 0.3f * H, gold, 0.8f, RibbonSort.Over, 0);
+            WarriorLightSkills.Slash(fx, ArcRibbonFx.Fall(Vector2.zero, dropFrom * 0.72f + swordH + 20f, swordH * 0.6f), slamMs - PlungeMs - 10f, PlungeMs, 120f, 0.3f * H, gold, 0.8f, RibbonSort.Over, 0);
 
             // Slam (exactly at slamMs = 650)
-            WarriorGrandFx.Impact(fx, slamMs, new Vector2(0f, 6f), 1.8f * H, p, 14);
+            WarriorGrandFx.Impact(fx, slamMs, new Vector2(0f, 3f), 1.2f * H, p, 12); // 22/11: was 1.8 H, the star covered the planted blade
             WarriorGrandFx.Column(fx, slamMs, finishMs - slamMs + 180f, new Vector2(0f, -4f), 1.1f * H, 5f * H, gold, ClericLightFx.Band.Over, 1, LayerKind.Main, 0.2f); // r1: 0.5 / 1.5 H washed the slam white
             WarriorGrandFx.Shock(fx, slamMs, 290f, Vector2.zero, radius * 0.3f, radius, p, 0.75f);
             fx.Ground(WarriorLightLook.Line(WarriorLightLook.Crack, p), slamMs, totalMs, radius * 1.3f, radius * 1.4f, 0.85f, sq, 0f, 3).Env(40f, 280f).Kind(LayerKind.Main);
             fx.At(slamMs, f =>
             {
                 UltimateFx.Debris(f.Anchor, f.Own ? 14 : 4, radius * 0.5f, 110f);
-                UltimateFx.Dust(f.Anchor, f.Own ? 12 : 4, radius * 0.7f);
+                UltimateFx.Dust(f.Anchor, f.Own ? 7 : 3, radius * 0.7f); // light dust: the blade stays readable
             });
             for (int i = 0; i < smalls; i++)
             {
@@ -76,7 +86,7 @@ namespace ZenoniaProto
             WarriorGrandFx.Shock(fx, penultMs, 220f, Vector2.zero, radius * 0.5f, radius, p, 0.65f, 6);
 
             // Finisher (1030)
-            WarriorGrandFx.Impact(fx, finishMs, new Vector2(0f, 8f), 1.8f * H, p, 16);
+            WarriorGrandFx.Impact(fx, finishMs, new Vector2(0f, 4f), 1.4f * H, p, 16);
             WarriorGrandFx.Shock(fx, finishMs, 340f, Vector2.zero, radius * 0.4f, radius * 1.2f, p, 0.8f);
             WarriorGrandFx.Shock(fx, finishMs + 35f, 280f, Vector2.zero, radius * 0.2f, radius * 0.9f, gold, 0.6f, 6);
             WarriorGrandFx.Sector(fx, finishMs - 10f, 1f, 300f, 260f, Vector2.zero, 90f, 360f, radius, p, 0.14f, 0.8f, false, 0.3f, 3);
@@ -87,7 +97,7 @@ namespace ZenoniaProto
             fx.At(finishMs, f =>
             {
                 UltimateFx.Debris(f.Anchor, f.Own ? 16 : 4, radius * 0.6f, 130f);
-                UltimateFx.Dust(f.Anchor, f.Own ? 14 : 4, radius * 0.8f);
+                UltimateFx.Dust(f.Anchor, f.Own ? 8 : 3, radius * 0.8f);
             });
 
             // Burns: the cracks pulse gold, a few sparkles
