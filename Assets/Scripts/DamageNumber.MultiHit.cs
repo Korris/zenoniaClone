@@ -6,14 +6,18 @@ namespace ZenoniaProto
     /// <summary>
     /// RO-style multi-hit numbers (user 21/11: "dam khi xài skill sẽ nhảy lên nhiều lần ... cảm giác rất phê"): one real hit of your own on a
     /// monster is drawn as N numbers whose sum is the real damage exactly (SkillHitSplit.Split, +-10 % per part), IntervalMs apart, each with a
-    /// harder pop, on the monster's ladder (DamageNumber.Stream.cs). Parts before the last fade fast (PartLifeMs); the last one is 30 % bigger and
-    /// keeps the full life, so a burst ends on one big number. A crit makes every part gold. Presentation only: the server, the damage and the kill do not wait.
+    /// harder pop, on the monster's ladder (DamageNumber.Stream.cs). 22/11 RO spec: every part is a small white number (100 %, a few px of
+    /// sideways jitter so the cluster does not read as one column); parts before the last fade fast (PartLifeMs); right after the last one the
+    /// yellow TOTAL pops above the cluster (DamageNumber.Total.cs). A crit makes the parts red-orange (normal size, no burst) and the TOTAL the
+    /// crit look. Before 22/11 the last part was 30 % bigger and crits were gold. Presentation only: the server, the damage and the kill do not wait.
     /// Each part is at least MinPartDmg (no "1 1 1 1" split of a small hit). Tiny hits (damage over time, or 1/8 of the monster's biggest live hit
     /// and less, like burn ticks of 1 after a 110 finisher) do not get their own number: they add into one small chip beside the ladder.
     /// </summary>
     public partial class DamageNumber
     {
-        const float PartPop = 1.6f, LastPartSize = 1.3f, LethalIntervalMul = 0.6f, PartLifeMs = 500f, LastRisePx = 30f;
+        const float PartPop = 1.6f, LethalIntervalMul = 0.6f, PartLifeMs = 500f, PartJitterPx = 5f;
+        /// <summary>Capture demo only: split every own hit into this many parts (0 = the skill table).</summary>
+        public static int DebugForceParts;
         const int MinPartDmg = 4, TinyRatio = 8;
         const float ChipSize = 0.68f, ChipOffY = -34f, ChipLifeMs = 700f; // just under the ladder's base number (a gap, so "30" + "2" never reads "302")
         static readonly Color ChipTint = new Color(1f, 0.66f, 0.36f); // warm burn orange: a chip never reads as a digit of the white numbers
@@ -27,30 +31,35 @@ namespace ZenoniaProto
             bool fx = FeelConfig.FxOn;
             if (!crit && !finisher && dmg > 0 && (quiet || dmg * TinyRatio <= PeakFor(target))) { SpawnChip(x, y, dmg, target); return null; }
             HitSplit split = SkillHitContext.ForLocalHit(quiet);
+            if (DebugForceParts > 0) split = new HitSplit(DebugForceParts, 80); // --damage-numbers-demo ro (DebugCapture.DamageNumbers.cs)
             int parts = fx ? SkillHitSplit.CrowdParts(split.PartsFor(finisher), CountOwnLive()) : 1;
             parts = Mathf.Min(parts, Mathf.Max(1, dmg / MinPartDmg));
             Color c = crit ? new Color(1f, 0.85f, 0.2f) : finisher ? new Color(1f, 0.69f, 0.23f) : Color.white;
             if (parts <= 1)
             {
-                Spawn(x, y, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit, false, target);
+                // One number: white (finisher: ring + slash, crit: red-orange on the burst). It still joins the ladder's chain: two quick
+                // single hits (a double attack, a skill's real hits) get the TOTAL too (DamageNumber.Total.cs).
+                if (Spawn(x, y, crit && fx ? dmg + "!" : dmg.ToString(), c, crit || finisher, crit, false, target)) { Pool[cursor].Value = dmg; Pool[cursor].Last = true; }
                 NotePeak(target, dmg);
                 return null;
             }
             int[] values = SkillHitSplit.Split(dmg, parts, Random.Range(int.MinValue, int.MaxValue));
             float interval = split.IntervalMs * (lethal ? LethalIntervalMul : 1f);
+            float partScale = DamageNumberMotion.Of(DamageNumberKind.Normal).HeightPx / DamageNumberMotion.Of(DamageNumberKind.Crit).HeightPx;
             for (int i = 0; i < values.Length; i++)
             {
                 bool last = i == values.Length - 1;
                 string text = crit ? values[i] + "!" : values[i].ToString();
-                // Only the closing part of a finisher keeps the finisher look (ring + slash); the others are plain white (or gold crits).
-                DamageNumberKind kind = crit ? DamageNumberKind.Crit : finisher && last ? DamageNumberKind.Finisher : DamageNumberKind.Normal;
+                // Every part is a small number: white, or red-orange crit digits at the normal size without the burst (the TOTAL carries it).
+                DamageNumberKind kind = crit ? DamageNumberKind.Crit : DamageNumberKind.Normal;
                 var e = new Entry
                 {
-                    Active = true, Text = text, Color = c, X = x, Y = y, Kind = kind, Seed = Random.value,
-                    AgeMs = -(split.StartDelayMs + i * interval), PopMul = PartPop, SizeMul = last && kind != DamageNumberKind.Finisher ? LastPartSize : 1f,
-                    LifeMs = last ? 0f : PartLifeMs, RisePx = last ? LastRisePx : 0f,
+                    Active = true, Text = text, Color = c, X = x, Y = y, Kind = kind, Seed = Random.value, Value = values[i], Last = last,
+                    AgeMs = -(split.StartDelayMs + i * interval), PopMul = crit ? 0.6f : PartPop, SizeMul = crit ? partScale : 1f,
+                    LifeMs = last ? 0f : PartLifeMs,
                 };
                 StreamPlace(ref e, target);
+                if (!last) e.OffX += (i % 2 == 0 ? -PartJitterPx : PartJitterPx); // a loose cluster, not one rigid column
                 cursor = (cursor + 1) % Capacity;
                 Pool[cursor] = e;
             }

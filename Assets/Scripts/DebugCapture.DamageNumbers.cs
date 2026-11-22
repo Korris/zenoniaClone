@@ -16,8 +16,40 @@ namespace ZenoniaProto
             return Array.IndexOf(Environment.GetCommandLineArgs(), "--damage-numbers-demo") >= 0;
         }
 
+        /// <summary>--damage-numbers-demo ro: the 22/11 RO spec cases through the real own-hit path (DamageNumber.SpawnOwnHit) on three
+        /// fake monsters left / centre / right of the hero: a single white hit, a 5-part multi-hit (white cluster + yellow TOTAL), a crit.</summary>
+        static bool RoDemo()
+        {
+            int i = Array.IndexOf(Environment.GetCommandLineArgs(), "--damage-numbers-demo");
+            string[] a = Environment.GetCommandLineArgs();
+            return i >= 0 && i + 1 < a.Length && a[i + 1] == "ro";
+        }
+
+        IEnumerator DamageNumbersRoDemo()
+        {
+            object left = new object(), mid = new object(), right = new object();
+            float d, iv;
+            while (true)
+            {
+                HeroController hero = GameSession.Hero;
+                if (hero != null)
+                {
+                    Vector2 f = hero.Position + new Vector2(0f, 30f);
+                    DamageNumber.DebugForceParts = 1;
+                    DamageNumber.SpawnOwnHit(f.x - 55f, f.y, 128, false, false, false, false, left, out d, out iv);   // single hit: one white number
+                    DamageNumber.DebugForceParts = 5;
+                    DamageNumber.SpawnOwnHit(f.x, f.y, 1240, false, false, false, false, mid, out d, out iv);         // multi-hit: 5 white + TOTAL 1240
+                    DamageNumber.DebugForceParts = 1;
+                    DamageNumber.SpawnOwnHit(f.x + 55f, f.y, 2873, true, false, false, false, right, out d, out iv);  // crit: red-orange on the burst
+                    DamageNumber.DebugForceParts = 0;
+                }
+                yield return new WaitForSeconds(2f);
+            }
+        }
+
         IEnumerator DamageNumbersDemo()
         {
+            if (RoDemo()) { yield return DamageNumbersRoDemo(); yield break; }
             int wave = 0;
             while (true)
             {

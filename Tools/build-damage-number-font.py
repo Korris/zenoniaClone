@@ -9,6 +9,9 @@ A drop shadow (offset + opacity of the spec) is baked into every glyph. Writes
   Assets/Resources/Sprites/ui/damage-font/base-<style>.png (same layout for all styles), crit.png
   Assets/Resources/Data/ui/damage-font-glyphs.json
   damage-font-sigil-sheet-chatgpt-1.png  Arcane Sigil theme, same rows as sheet A -> Sprites/ui/damage-font-sigil/, crit = gold recolour
+22/11 RO spec (docs/ui-layout-rules.md, damage numbers): the comic crit is sheet A recoloured RED-ORANGE (sheet B gold set retired) and a new
+"total" set (bright yellow, thicker near-black outline) is the multi-hit TOTAL. Styles with a 7th field (outline growth px) are thicker than
+sheet A, so their glyph boxes differ: each gets its own json set and atlas <name>.png (OWN_SETS) instead of the shared base layout.
 Usage: python Tools/build-damage-number-font.py cut [comic|sigil]
 """
 import json, sys
@@ -36,6 +39,11 @@ STYLES = {
     "exp":       ("F7E8FF", "B56CFF", "4A2C73", "241A40", (0.05, 0.08), 0.65),  # spec V2
 }
 CRIT_SHADOW = ("2A1018", (0.05, 0.07), 0.85)
+# Own-layout sets (7th field = extra outline px at CAP, grown with a distance field under the recoloured glyph).
+OWN_SETS = {
+    "crit":  ("FFC64A", "FF4A1E", "3A0906", "1E0606", (0.05, 0.08), 0.8, 4),   # red-orange crit (22/11, replaces gold)
+    "total": ("FFFCB0", "FFD21C", "120C05", "0A0703", (0.05, 0.08), 0.8, 7),   # bright yellow multi-hit TOTAL, thick black outline
+}
 
 
 def rgb(h): return np.array([int(h[i:i + 2], 16) for i in (0, 2, 4)], np.float32)
@@ -95,6 +103,20 @@ def with_shadow(img, colour, off, opacity):
     return out, dx, dy
 
 
+def thicken(img, grow, colour):
+    """Pads the glyph by `grow` px and puts an outline-coloured ring (anti-aliased distance field) under it: a thicker outline."""
+    if not grow: return img
+    h, w = img.shape[:2]
+    out = np.zeros((h + 2 * grow, w + 2 * grow, 4), np.float32)
+    out[grow:grow + h, grow:grow + w] = img
+    dist = ndi.distance_transform_edt(out[..., 3] < 128)
+    ring = np.clip(grow + 0.5 - dist, 0, 1)
+    fa = out[..., 3:4] / 255
+    out[..., :3] = out[..., :3] * fa + rgb(colour) * (1 - fa)
+    out[..., 3] = np.maximum(out[..., 3], ring * 255)
+    return out
+
+
 def scaled(arr, k):
     im = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "RGBA")
     return np.asarray(im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS), np.float32)
@@ -125,8 +147,9 @@ def build(sheet, rows, styles, grow):
         else: bottom = 0.0
         for name, st in styles.items():
             img = recolour(crop, st) if st[0] else crop
-            img, _, dy = with_shadow(scaled(img, k), st[3], st[4], st[5])
-            top_px = (bottom + h) * k
+            grow = st[6] if len(st) > 6 else 0
+            img, _, dy = with_shadow(thicken(scaled(img, k), grow, st[2]), st[3], st[4], st[5])
+            top_px = (bottom + h) * k + grow
             res[name].append((c, img, top_px, top_px - img.shape[0]))
     return res, CAP
 
@@ -174,8 +197,9 @@ THEMES = {  # theme: (output folder, glyph json)
 def cut(theme):
     out_tex, out_json = THEMES[theme]
     if theme == "comic":
-        base, cap = build("damage-font-sheet-a-chatgpt-1.png", ROWS_A, STYLES, 9)
-        crit, _ = build("damage-font-sheet-b-chatgpt-1.png", ROWS_B, {"crit": (None, None, None) + CRIT_SHADOW}, 0)
+        both, cap = build("damage-font-sheet-a-chatgpt-1.png", ROWS_A, dict(STYLES, **OWN_SETS), 9)
+        crit = {n: both.pop(n) for n in OWN_SETS}
+        base = both
     else:
         styles = dict(SIGIL_STYLES, crit=SIGIL_CRIT)
         both, cap = build("damage-font-sigil-sheet-chatgpt-1.png", ROWS_A, styles, 9)
@@ -185,13 +209,16 @@ def cut(theme):
     for name, glyphs in list(base.items()) + list(crit.items()):
         atlas, rects = pack(glyphs)
         atlas_h = max(atlas_h, atlas.shape[0])
-        path = out_tex / ("crit.png" if name == "crit" else f"base-{name}.png")
+        own = name in crit  # crit / total: own layout and atlas <name>.png
+        path = out_tex / (f"{name}.png" if own else f"base-{name}.png")
         save(atlas, path); written.append(path)
-        if name in ("normal", "crit"):
-            sets.append({"name": "crit" if name == "crit" else "base", "capHeight": cap,
+        if name == "normal" or own:
+            sets.append({"name": name if own else "base", "capHeight": cap, "atlasH": int(atlas.shape[0]) if own else 0,
                          "glyphs": [{"c": c, "x": x, "y": y, "w": w, "h": h, "top": round(t, 2), "bottom": round(b, 2)} for c, x, y, w, h, t, b in rects]})
         print(name, atlas.shape[1], "x", atlas.shape[0])
-    for p in written:  # all glyph atlases one height so the json UVs (atlasH) fit every style (only these files: fx-*.png keep their size)
+    atlas_h = max(Image.open(p).height for p in written if p.name.startswith("base-"))  # own sets keep their height (json "atlasH")
+    written = [p for p in written if p.name.startswith("base-")]
+    for p in written:  # all base glyph atlases one height so the json UVs (atlasH) fit every style (only these files: fx-*.png keep their size)
         im = Image.open(p)
         if im.height != atlas_h:
             canvas = Image.new("RGBA", (im.width, atlas_h)); canvas.paste(im, (0, 0)); canvas.save(p)

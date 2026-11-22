@@ -125,22 +125,31 @@ namespace ZenoniaProto
             float ease = 1f - Mathf.Exp(-dtMs / LiftEaseMs);
             for (int i = 0; i < Capacity; i++)
             {
-                if (!Pool[i].Active || Pool[i].Key == null || Pool[i].Chip || Pool[i].AgeMs < 0f) continue;
+                if (!Pool[i].Active || Pool[i].Key == null || Pool[i].Chip || Pool[i].Total || Pool[i].AgeMs < 0f) continue;
                 float target = 0f;
                 int newer = 0;
                 for (int j = 0; j < Capacity; j++)
                 {
-                    if (j == i || !Pool[j].Active || Pool[j].Chip || Pool[j].AgeMs < 0f || !ReferenceEquals(Pool[j].Key, Pool[i].Key)) continue;
+                    if (j == i || !Pool[j].Active || Pool[j].Chip || Pool[j].Total || Pool[j].AgeMs < 0f || !ReferenceEquals(Pool[j].Key, Pool[i].Key)) continue;
                     if (Pool[j].AgeMs > Pool[i].AgeMs || (Pool[j].AgeMs == Pool[i].AgeMs && Order(j) < Order(i))) continue;
                     newer++;
-                    target += DamageNumberMotion.Of(Pool[j].Kind).HeightPx * (Pool[j].SizeMul > 0f ? Pool[j].SizeMul : 1f) * StepMul;
+                    target += StepOf(ref Pool[j]);
                 }
                 Pool[i].Lift += (target - Pool[i].Lift) * ease;
-                if (newer < MaxVisible) continue;
+                if (newer < MaxVisible)
+                {
+                    DamageNumberMotion m = MotionOf(ref Pool[i]);
+                    NoteClusterTop(Pool[i].Key, Pool[i].Lift + StepOf(ref Pool[i]) + m.Rise(Pool[i].AgeMs)); // the TOTAL stands above this
+                    continue;
+                }
                 float life = MotionOf(ref Pool[i]).LifeMs;
                 if (Pool[i].AgeMs < life - CullFadeMs) Pool[i].AgeMs = life - CullFadeMs; // fade out fast instead of popping away
             }
+            UpdateTotals(ease);
         }
+
+        /// <summary>Ladder step of a number: its height x StepMul (720p px).</summary>
+        static float StepOf(ref Entry e) { return DamageNumberMotion.Of(e.Kind).HeightPx * (e.SizeMul > 0f ? e.SizeMul : 1f) * StepMul; }
 
         /// <summary>Spawn order of a pool slot (bigger = newer), for numbers that appear on the same frame.</summary>
         static int Order(int i) { return (i - cursor - 1 + Capacity) % Capacity; }

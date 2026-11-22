@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace ZenoniaProto
 {
-    /// <summary>The look a floating number gets (one baked colour atlas per kind, crit has its own hand-coloured set).</summary>
-    public enum DamageNumberKind { Normal, Finisher, Crit, Other, Hurt, OtherHurt, Heal, PotionHp, PotionMp, Exp, Pet }
+    /// <summary>The look a floating number gets (one baked colour atlas per kind; crit red-orange and the multi-hit Total yellow have own sets).</summary>
+    public enum DamageNumberKind { Normal, Finisher, Crit, Other, Hurt, OtherHurt, Heal, PotionHp, PotionMp, Exp, Pet, Total }
 
     /// <summary>
     /// Motion / size table of the floating numbers, ChatGPT V3 "Comic Impact" (docs/reference/damage-numbers-chatgpt-spec.md).
@@ -25,7 +25,7 @@ namespace ZenoniaProto
 
         static DamageNumberMotion[] BuildTable()
         {
-            var t = new DamageNumberMotion[11];
+            var t = new DamageNumberMotion[12];
             float[] pop = { 0f, 90f, 180f };
             // Normal / Finisher / Crit: Multi-Hit Barrage values (ChatGPT V3, docs/reference/warrior-skill-redesign-v2-chatgpt.md): short life and a
             // 95 ms pop so a hit every 35-65 ms does not leave a crowd of numbers all scaling at once. Sizes 30 / 42 / 52 px and ~1 s of life
@@ -36,8 +36,9 @@ namespace ZenoniaProto
             // Size stays 30 px (user OK 17/11, Midgard Senki size) instead of ChatGPT's 24 px.
             t[(int)DamageNumberKind.Normal] = Make("normal", 650f, 350f, 48f, 30f, new[] { 0f, 60f, 120f }, new[] { 0.8f, 1.15f, 1f });
             t[(int)DamageNumberKind.Finisher] = Make("normal", 750f, 420f, 52f, 42f, new[] { 0f, 70f, 135f }, new[] { 0.65f, 1.3f, 1f }); // white like normal hits (user 15/11), still bigger with ring + slash
-            // crit: 0.55 -> 1.45 in 70 ms, back to 1.0 by 160 ms with a +-3 px shake, short read hold, then rise 60 px; 850 ms life (ChatGPT 20/11)
-            t[(int)DamageNumberKind.Crit] = Make(null, 850f, 600f, 60f, 52f, new[] { 0f, 70f, 160f }, new[] { 0.55f, 1.45f, 1f });
+            // crit (22/11 RO spec): red-orange set on the spiky burst, a stronger pop 0.4 -> 1.75 in 65 ms, back to 1.0 by 160 ms with a +-3 px
+            // shake, short read hold, then rise; 850 ms life. 46 px (~150 % of a normal hit; was 52 px gold with a softer 1.45 pop).
+            t[(int)DamageNumberKind.Crit] = Make(null, 850f, 600f, 60f, 46f, new[] { 0f, 65f, 160f }, new[] { 0.4f, 1.75f, 1f });
             t[(int)DamageNumberKind.Crit].RiseDelayMs = 120f;
             t[(int)DamageNumberKind.Crit].ShakeXPx = 3f; t[(int)DamageNumberKind.Crit].ShakeYPx = 2f; t[(int)DamageNumberKind.Crit].ShakeMs = 170f;
             t[(int)DamageNumberKind.Other] = Make("other", 500f, 300f, 22f, 21f, new[] { 0f, 120f }, new[] { 0.9f, 1f });
@@ -52,6 +53,9 @@ namespace ZenoniaProto
             t[(int)DamageNumberKind.PotionMp] = Make("potion-mp", 850f, 600f, 44f, 24f, pop, soft);
             t[(int)DamageNumberKind.Exp] = Make("exp", 650f, 450f, 24f, 20f, new[] { 0f, 120f }, new[] { 0.88f, 1f });
             t[(int)DamageNumberKind.Pet] = Make("normal", 650f, 420f, 28f, 30f, pop, new[] { 0.6f, 1.3f, 1f }); // a pet's hit: the owner's size, its own colour (teal basic / gold skill), pops harder, to the right (DamageNumber.Layout)
+            // multi-hit TOTAL (22/11 RO spec, DamageNumber.Total.cs): bright yellow, thick black outline, 150 % of a normal hit, above the white
+            // cluster (it follows the cluster, so almost no own rise); pops in after the last hit and bumps again when the chain grows.
+            t[(int)DamageNumberKind.Total] = Make("total", 1100f, 760f, 0.01f, 45f, new[] { 0f, 80f, 170f }, new[] { 0.55f, 1.3f, 1f });
             return t;
         }
 
