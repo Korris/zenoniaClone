@@ -23,7 +23,7 @@ namespace ZenoniaProto
         static readonly string[] Smalls = { "wbxBush", "wbxBush", "wbxBushWhite", "wbxBushLilac", "wbxRock", "wbxRocks", "wbxRockTiny", "wfBushWide" }; // no stumps: 4 tiles wide, a field of them looked logged
 
         /// <summary>Real 2.5D maps (RO3 profile); the Hydra arena prototype keeps its own camera and painted walls, no apron.</summary>
-        public static bool Wanted { get { return View25D.Active && View25D.Profile.Ro3Look; } }
+        public static bool Wanted { get { return View25D.Active && View25D.Profile.Ro3Look && !Map3D.Active; } } // a 3D map has its own terrain + border forest
 
         /// <summary>Border ground + border forest of the map being built.</summary>
         public static void Build(Transform parent, IGameMap map)

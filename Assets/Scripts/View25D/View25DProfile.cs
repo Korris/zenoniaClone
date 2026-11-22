@@ -157,8 +157,16 @@ namespace ZenoniaProto
         };
 
         /// <summary>Profile of a map id (a map that wants its own look adds a case here).</summary>
+        /// <summary>3D map prototype (Map3D, `--map3d`; ChatGPT spec section 6): pitch 52 (tilt 38) shows more trunk height and rock sides than 58,
+        /// FOV 32 (spec 35; a little narrower keeps far trees from shrinking too fast with the hero still 69 px), lighting from Map3DLighting.</summary>
+        public static readonly View25DProfile Map3DFeel = new View25DProfile
+        {
+            TiltDeg = 38f, FovDeg = 32f, HeroPx = 69f, FeetY = 389f, Ro3Look = true, ScreenHaze = 0.03f, Vignette = 0.06f, Dapple = 0f, UnitSunStrength = 0.30f, // round 2: units take a bit more scene light
+        };
+
         public static View25DProfile For(string mapId)
         {
+            if (Map3D.IsMap3D(mapId)) return Map3DFeel;
             if (mapId == SunkenReliquaryMap.MapId) return Prototype;
             if (mapId == RootburrowMap.MapId) return DarkDungeon1F;
             if (mapId == RootburrowB2Map.MapId) return DarkDungeon2F;

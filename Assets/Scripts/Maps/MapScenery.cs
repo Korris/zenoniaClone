@@ -41,6 +41,7 @@ namespace ZenoniaProto
             if (!VillagePropDefs.TryGet(p.Type, out d)) return;
             // Horizontal centre of the footprint, bottom edge of its lowest row (web y-down row ty -> y-up MapH - (ty+1)*16).
             float x = (p.Tx + d.FootW * 0.5f) * GameConfig.TileUnits, y = GameConfig.MapH - (p.Ty + 1) * GameConfig.TileUnits;
+            if (Map3D.Active && Map3DProps.TryBuild(parent, p, d)) return; // `--map3d`: trees, bushes, rocks, logs as generated meshes
             Sprite s = PropSprite(p.Type);
             SpriteRenderer sr = ProceduralSprites.Child(parent, p.Type, s != null ? s : ProceduralSprites.White(false));
             // Low walk-through decoration (bushes, small rocks, stumps, bones...) lies on the ground: under every hero and monster, never y-sorted over them.
@@ -49,8 +50,16 @@ namespace ZenoniaProto
             if (s != null)
             {
                 sr.transform.position = new Vector3(x, y, 0f);
-                if (View25D.Active && sr.sortingOrder != GameConfig.GroundOrder + 4) View25D.StandProp(sr); // --view25d: tall props stand up at their foot line
-                else View25DLighting.ApplyGround(sr); // flat decor on a RO3 2.5D map: lit like the ground
+                if (View25D.Active && sr.sortingOrder != GameConfig.GroundOrder + 4)
+                {
+                    View25D.StandProp(sr); // --view25d: tall props stand up at their foot line
+                    if (Map3D.Active) Map3DProps.MakeCutout(sr); // 3D map: cutout, real shadows in and out
+                }
+                else
+                {
+                    View25DLighting.ApplyGround(sr); // flat decor on a RO3 2.5D map: lit like the ground
+                    if (Map3D.Active) Map3DProps.LiftFlat(sr);
+                }
                 return;
             }
             sr.color = MissingPropTint;

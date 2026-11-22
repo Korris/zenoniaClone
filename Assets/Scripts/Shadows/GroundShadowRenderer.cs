@@ -110,7 +110,7 @@ namespace ZenoniaProto
             cb.SetRenderTarget(rt);
             cb.ClearRenderTarget(false, true, Color.clear);
             cb.SetViewProjectionMatrices(Matrix4x4.identity, Matrix4x4.Ortho(view.xMin, view.xMax, view.yMin, view.yMax, -100f, 100f));
-            if (propTex != null || propCast != null) cb.DrawMesh(staticQuad, Matrix4x4.identity, staticMat, 0, 1);
+            if ((propTex != null || propCast != null) && !Map3D.Active) cb.DrawMesh(staticQuad, Matrix4x4.identity, staticMat, 0, 1);
             if (blobs > 0) cb.DrawMesh(GroundShadowBlobs.Mesh, Matrix4x4.identity, maskMat, 0, 0);
             Graphics.ExecuteCommandBuffer(cb);
 

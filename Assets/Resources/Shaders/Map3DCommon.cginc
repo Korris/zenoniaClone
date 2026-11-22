@@ -1,0 +1,68 @@
+// Shared lighting of the 3D map prototype (Map3D, 22/11/2026; ChatGPT tech-art spec docs/reference/willowbrook-3d-proto/map-3d-ro3-spec-chatgpt.md
+// sections 2.4, 4, 5.5). Built-in pipeline, gamma space. One sun (the scene's directional light: direction from _WorldSpaceLightPos0, shadow
+// attenuation from AutoLight, strength from the light), our own painterly ambient instead of Unity's (never added twice):
+//   light = lerp(_M3DShade, _M3DSun, soft 3-step ramp of wrap(N.L) x shadow), sky tint on up-facing normals.
+// Globals (Map3DLighting): _M3DSun / _M3DShade (rgb), _M3DSky (rgb, a = how much up-facing normals take it),
+// _M3DHero (viewport x, y of the local hero's chest, radius x, radius y in viewport heights), _M3DHeroDepth (x = eye depth of the hero, y = on/off):
+// leaves / trunks between the camera and the hero dissolve with a 4x4 ordered dither inside that ellipse (spec 5.5, no alpha blending).
+// World "up" is -z (View25D convention).
+
+#ifndef MAP3D_COMMON_INCLUDED
+#define MAP3D_COMMON_INCLUDED
+
+float4 _M3DSun, _M3DShade, _M3DSky, _M3DHero, _M3DHeroDepth, _M3DWind;
+
+// soft 3-step ramp (spec: shadow 0.72, mid 0.92, high 1.08, soft blends ~0.15 wide) on a 0..1 lit value
+float M3DRamp(float lit)
+{
+    float r = lerp(0.0, 0.62, smoothstep(0.18, 0.40, lit));
+    r = lerp(r, 1.0, smoothstep(0.55, 0.80, lit));
+    return lerp(r, lit, 0.30); // keep some of the continuous gradient: painted, not banded
+}
+
+// Lit colour of an albedo with normal N (world), light dir L (toward the light), shadow attenuation atten (0..1), wrap amount
+float3 M3DShade(float3 albedo, float3 N, float3 L, float atten, float wrap)
+{
+    float w = saturate((dot(N, L) + wrap) / (1.0 + wrap));
+    float lit = M3DRamp(w * atten);
+    float3 light = lerp(_M3DShade.rgb, _M3DSun.rgb, lit);
+    float up = saturate(-N.z); // up = -z
+    light *= lerp(1.0.xxx, _M3DSky.rgb, up * _M3DSky.a);
+    return albedo * light;
+}
+
+// 4x4 ordered dither threshold at a screen pixel (0..1)
+static const float M3DBayerM[16] = { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 };
+float M3DBayer(float2 px)
+{
+    int2 p = int2(fmod(floor(px), 4.0));
+    return (M3DBayerM[p.y * 4 + p.x] + 0.5) / 16.0;
+}
+
+// Occlusion dissolve round the local hero: clip() pixels nearer the camera than the hero inside the screen ellipse. minCover = coverage left in the
+// ellipse centre (spec: 30-45 %), screenPos from ComputeScreenPos, eyeDepth = view-space depth of the fragment.
+void M3DHeroFade(float4 screenPos, float eyeDepth, float minCover)
+{
+    if (_M3DHeroDepth.y < 0.5) return;
+    if (eyeDepth > _M3DHeroDepth.x - 6.0) return; // behind (or level with) the hero: never hides
+    float2 uv = screenPos.xy / screenPos.w;
+    float aspect = _ScreenParams.x / _ScreenParams.y;
+    float2 d = (uv - _M3DHero.xy) * float2(aspect, 1.0) / max(_M3DHero.zw, 1e-3);
+    float e = length(d);
+    float cover = lerp(minCover, 1.0, smoothstep(0.55, 1.0, e));
+    if (cover >= 1.0) return;
+    float2 px = uv * _ScreenParams.xy;
+    clip(cover - M3DBayer(px));
+}
+
+// Wind sway offset (world units) for a vertex at world position wp with weight w (0 = rooted, 1 = free leaf tip); _M3DWind = (amplitude units, speed, dir x, dir y)
+float3 M3DWind(float3 wp, float w)
+{
+    float t = _Time.y * _M3DWind.y;
+    float ph = dot(wp.xy, float2(0.021, 0.017));
+    float s = sin(t * 1.1 + ph) * 0.6 + sin(t * 2.3 + ph * 2.7) * 0.3 + sin(t * 4.7 + ph * 5.1 + wp.z * 0.2) * 0.15 * w;
+    float2 dir = _M3DWind.zw;
+    return float3(dir * s * _M3DWind.x * w, 0.0);
+}
+
+#endif

@@ -30,8 +30,10 @@ namespace ZenoniaProto
             builtMap = map;
             mapRoot = new GameObject("Map_" + map.Id).transform;
             mapRoot.SetParent(parent, false);
-            BuildGround(map);
+            if (Map3D.Active) Map3D.Build(mapRoot, map); // `--map3d`: terrain mesh, water, sun, border forest instead of the painted ground
+            else BuildGround(map);
             MapScenery.Build(mapRoot, map);
+            if (Map3D.Active) Map3D.Finish(mapRoot); // merge the generated props per cell
             DungeonLights.Build(mapRoot, map); // dark 2.5D dungeon: point lights from the props + floor light pools (no-op elsewhere)
             View25DGroundApron.Build(mapRoot, map); // 2.5D map: render-only forest border past every edge (no visible end of the ground)
             BuildSolidOverlay(map);

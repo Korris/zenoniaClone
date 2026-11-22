@@ -35,7 +35,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Yaw of the camera round the world vertical, degrees (+ = the view turns counter-clockwise on the ground); 0 when rotation is off.</summary>
-        public static float Yaw { get { Load(); return rotateOn && Applies ? yaw : 0f; } }
+        public static float Yaw { get { Load(); return rotateOn && Applies ? (Map3D.Active ? yaw : Mathf.Clamp(yaw, -MaxYaw, MaxYaw)) : 0f; } }
 
         /// <summary>Pitch now (from the horizontal), for the HUD / log.</summary>
         public static float PitchNow { get { return 90f - View25D.TiltDeg; } }
@@ -45,14 +45,19 @@ namespace ZenoniaProto
             Load();
             if (deg == 0f) return;
             float now = pitch < 0f ? 90f - View25D.TiltDeg : pitch;
-            pitch = Mathf.Clamp(now + deg, MinPitch, MaxPitch);
+            pitch = Mathf.Clamp(now + deg, Map3D.Active ? Min3DPitch : MinPitch, MaxPitch);
         }
+
+        /// <summary>3D map (Map3D): the camera turns all the way round and may tilt lower (real trunks / rock sides to look at).</summary>
+        public const float Min3DPitch = 38f;
+
+        static float WrapOrClamp(float y) { return Map3D.Active ? Mathf.Repeat(y + 180f, 360f) - 180f : Mathf.Clamp(y, -MaxYaw, MaxYaw); }
 
         public static void AddYaw(float deg)
         {
             Load();
             if (!rotateOn || deg == 0f) return;
-            yaw = Mathf.Clamp(yaw + deg, -MaxYaw, MaxYaw);
+            yaw = WrapOrClamp(yaw + deg);
             yawVel = 0f;
         }
 
@@ -93,8 +98,8 @@ namespace ZenoniaProto
             if (ReleaseBuild.IsRelease) return;
             string[] a = Environment.GetCommandLineArgs();
             float v;
-            if (ArgFloat(a, "--cam-yaw", out v)) { rotateOn = true; springBack = false; yaw = Mathf.Clamp(v, -MaxYaw, MaxYaw); } // capture runs: nothing saved
-            if (ArgFloat(a, "--cam-pitch", out v)) pitch = Mathf.Clamp(v, MinPitch, MaxPitch);
+            if (ArgFloat(a, "--cam-yaw", out v)) { rotateOn = true; springBack = false; yaw = Map3D.Requested ? Mathf.Repeat(v + 180f, 360f) - 180f : Mathf.Clamp(v, -MaxYaw, MaxYaw); } // capture runs: nothing saved
+            if (ArgFloat(a, "--cam-pitch", out v)) pitch = Mathf.Clamp(v, Map3D.Requested ? Min3DPitch : MinPitch, MaxPitch);
         }
 
         static bool ArgFloat(string[] a, string key, out float v)

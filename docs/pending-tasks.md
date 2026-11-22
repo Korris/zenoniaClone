@@ -1,5 +1,13 @@
 # Việc đang dở
 
+### 22/11 15:36 Map 3D THẬT kiểu RO3: prototype Willowbrook Meadows sau cờ `--map3d` (agent, XONG prototype, ChatGPT 8,0/10, CHỜ người dùng thử + quyết có làm tiếp không)
+- Người dùng (22/11, nhánh `ro-soft-adventure`): "thử làm cho tui map 3D giống Ragnarok 3 luôn đi, hỏi ChatGPT". Chat Tay ("Tân Korris") https://chatgpt.com/c/6b029c3a-4a48-83ec-affb-a9e9bf71b449 (spec + 7 texture + 3 vòng chấm).
+- Làm: terrain mesh có độ cao (ô đi được giữ 0 m, bờ rừng nâng, đồi ngoài mép, lòng suối hạ theo nước vẽ), splat 4 lớp từ nền 2.5D, cây sinh bằng code (thân + leaf card ChatGPT + spherical normal + ramp mềm + gió + làm mờ lá che hero), thông / bạch dương / liễu / bụi, đá + gỗ + cột / tường phế tích 3D, ~1300 cụm cỏ, nước đọc độ sâu từng pixel, mặt trời thật + bóng mềm + fog, camera xoay 360° (pitch 52, FOV 32). Rows / ô chặn / server không đổi. Không có cờ thì game y như cũ.
+- Chạy: `D:	emp\player-map3d\Zenonia.exe --map3d` (vào Willowbrook). Kéo chuột phải xoay 360°.
+- ChatGPT: vòng 1 6,9 -> vòng 2 7,73 -> vòng 3 8,0 (đạt ngưỡng, "không còn nhựa, còn chút prototype"); KHÔNG duyệt chuyển mọi map sang 3D lúc này, giữ 2.5D làm bản chính tới khi benchmark 40 người đạt 60 FPS PC / 30 FPS mobile.
+- FPS (GPU tích hợp AMD, 720p, 70 quái): 3D 54-64, 2.5D ~200. Bóng là phần đắt nhất.
+- Tài liệu: `docs/reference/willowbrook-3d-proto/` (spec, bài chấm, ảnh 4 hướng + HUD + so 2.5D), kế hoạch + công sức mở rộng `plans/261122-1100-map-3d-proto/plan.md` (~6-9 tuần cho ~16 map). Code `Assets/Scripts/Map3D/`, shader `Assets/Resources/Shaders/Map3D*`, tool `Tools/build-map-3d-*.py`.
+
 ### 22/11 14:55 5 class kiểu HIỆN ĐẠI (súng, pháo, đồ hiện đại): concept ChatGPT 2 tông Fantasy / Adventure (agent, XONG concept, CHỜ người dùng xem; KHÔNG cài vào game)
 - Người dùng (22/11): làm 5 class kiểu hiện đại; sau đổi "không cần gắn vào idle down, để bạn vẽ ở ChatGPT tui coi cũng được", "vẽ cho tui 2 style luôn: RO Fantasy Soft và Adventure". Chat Tay ("Tân Korris") https://chatgpt.com/c/6b029d27-3cc8-83ec-874b-6f2365b267ce
 - Vanguard (Knight: giáp chiến thuật, kiếm năng lượng + khiên chống bạo động), Arcanist (Wizard: hoodie + áo khoác công nghệ, trượng pha lê + bảng hologram), Artillerist (Mechanic: pháo vác vai + cờ lê), Phantom (Assassin nữ: 2 SMG + dao), Lifeline (Cleric nữ: cứu thương, trượng hồi phục + hộp cứu thương + súng ngắn).

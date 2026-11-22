@@ -70,6 +70,8 @@ Người dùng: sau này mọi map thành 2.5D. Cách làm và kế hoạch: `pl
 
 23. **Camera người chơi (prototype 22/11):** trên map RO3 người chơi nghiêng pitch 45..70° (mặc định vẫn 58 của điều 11) và xoay yaw ±28° quanh hero (`View25DCameraControl`, `View25DCameraInput`). Mọi vật đứng phải dựng bằng `View25D.StandProp` / `View25D.Tilt` (không tự `Quaternion.Euler(-tilt, 0, 0)`), không thì không xoay theo camera; toạ độ trên billboard dùng `View25D.Above`. Hướng sprite 8 hướng = hướng thế giới trừ yaw (`View25D.ScreenDir8`). Map mới kiểm bằng `--cam-yaw ±28 --cam-pitch 45` ở 4 mép: rừng viền phải phủ kín.
 
+24. **Map 3D thật (prototype 22/11, chỉ Willowbrook, cờ `--map3d`, `plans/261122-1100-map-3d-proto/plan.md`):** chỉ phần hình, rows / ô chặn không đổi. Ô đi được phải giữ độ cao 0 (unit đi trên mặt phẳng 2D); terrain hạ 1,5 cm dưới z = 0 để decal / FX mặt đất không z-fight. Prop thành mesh theo TÊN (`Map3DProps.Classify`: oak / pine / birch / willow / bush / rock / boulder / cliff / log / stump / pillar / wall), còn lại giữ sprite cutout. Bật map khác: thêm id vào `Map3D.Maps`, chạy `Tools/build-map-3d-splat.py <map>` (thêm cấu hình), kiểm 4 hướng yaw. Không dùng mesh không texture (sổ lỗi 21/11): mọi bề mặt phải có texture ChatGPT vẽ tay.
+
 ## Kiểm tra trước khi báo xong
 
 - Xem ảnh ghép có prop và ảnh tô ô chặn (đỏ) của cả map.
