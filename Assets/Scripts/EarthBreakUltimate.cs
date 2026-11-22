@@ -5,18 +5,21 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Warrior ultimate EARTH BREAK (web bladeStorm / UltimateEffect earthBreak, rank 3: radius 54, 380% ATK, range 36).
-    /// Timeline (ms): charge 0-500, forward golden sweep 450-950 (picture only), giant light sword descends 850-1450. Every hit lands once the sword is in the
-    /// ground (user 17/11: the numbers must burst when the sword stabs down, not while it falls): the SLAM at 1450 opens 8 small hits (60 % every 45 ms,
-    /// Multi-Hit Barrage, ChatGPT V3), 100 % at 1850, the 300 % finisher at 2000 (non-boss monsters launched for 1.5 s), fissure burns of 20 % at
-    /// 2150/2250/2350/2450. DEF is subtracted once per cast, split by each hit's share of the 880 % chain.
+    /// Timeline (ms, LegacySkillNumbers.EarthBreak*Ms; 22/11 user: "gần như 2 s mới rớt kiếm" -> sped up from slam 1450 / total 2500): charge 0-225,
+    /// forward golden sweep 200-430 (picture only), giant light sword descends 350-650. Every hit lands once the sword is in the ground (user 17/11: the
+    /// numbers must burst when the sword stabs down, not while it falls): the SLAM at 650 opens 8 small hits (60 % every 30 ms, Multi-Hit Barrage,
+    /// ChatGPT V3), 100 % at 930, the 300 % finisher at 1030 (non-boss monsters launched for 1.5 s), fissure burns of 20 % at 1130/1200/1270/1340, end
+    /// 1400. DEF is subtracted once per cast, split by each hit's share of the 880 % chain.
     /// Picture: WarriorEarthBreakLightFx (RO3 Soft Fantasy V1 shader FX, 2026-11-21; the painted fx/earthbreak frames are gone), laid once at the cast
     /// on these same times. Hit-stop, trauma shake, camera punch and the soft screen flash stay here, for the local caster only.
     /// </summary>
     public class EarthBreakUltimate : MonoBehaviour
     {
-        public const float Radius = Rpg.LegacySkillNumbers.EarthBreakRadius, Range = Rpg.LegacySkillNumbers.EarthBreakRange, TotalMs = 2500f, SlamMs = 1450f;
-        static readonly float[] BurnAt = { 2150f, 2250f, 2350f, 2450f };
-        const float SmallStepMs = 45f, PenultMs = 1850f, FinishMs = 2000f; // small hits start at SlamMs
+        public const float Radius = Rpg.LegacySkillNumbers.EarthBreakRadius, Range = Rpg.LegacySkillNumbers.EarthBreakRange, TotalMs = Rpg.LegacySkillNumbers.EarthBreakTotalMs,
+            SlamMs = Rpg.LegacySkillNumbers.EarthBreakSlamMs;
+        static readonly float[] BurnAt = BurnTimes();
+        const float SmallStepMs = Rpg.LegacySkillNumbers.EarthBreakStepMs, PenultMs = Rpg.LegacySkillNumbers.EarthBreakPenultMs,
+            FinishMs = Rpg.LegacySkillNumbers.EarthBreakFinishMs; // small hits start at SlamMs
         static readonly Vector2[] DirVec = { new Vector2(0f, -1f), new Vector2(0f, 1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
 
         HeroController hero;
@@ -27,8 +30,15 @@ namespace ZenoniaProto
         int smalls, burns;
         const string SwingAnim = "melee1"; // the combo's horizontal slash
         const int CutFrame = 4; // frames before it hold the sword back; it and the next are forward
-        const float SwingFromMs = 450f, SwingFollowMs = 600f;
+        const float SwingFromMs = 200f, SwingFollowMs = 270f; // windup over the charge, the cut with the sweep (was 450 / 600 with the 1450 slam)
         bool poseDone;
+
+        static float[] BurnTimes()
+        {
+            var t = new float[Rpg.LegacySkillNumbers.EarthBreakBurns];
+            for (int i = 0; i < t.Length; i++) t[i] = Rpg.LegacySkillNumbers.EarthBreakBurnMs + i * Rpg.LegacySkillNumbers.EarthBreakBurnStepMs;
+            return t;
+        }
 
         public static void Cast(HeroController owner) { Cast(owner, 1f); }
 

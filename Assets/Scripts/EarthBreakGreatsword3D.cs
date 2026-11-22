@@ -9,7 +9,7 @@ namespace ZenoniaProto
     /// its hand-painted texture; shader Shaders/GreatswordModel (halo, painted body, pulsing gold runes, gem glow, contact flash, golden dissolve).
     /// Lives under a ClericLightFx host (its clock, anchor = impact centre, crowd LOD; ends / clears with it). Timeline (ms of the host):
     ///  - t0: appears high above the centre (fade in 120 ms), hovers and drifts down while the runes gather light, turning from 75 to 28 deg;
-    ///  - then falls faster and faster and the point hits the ground EXACTLY at `contactMs` (1450 = EarthBreakUltimate's slam), sinks a few units
+    ///  - then falls faster and faster and the point hits the ground EXACTLY at `contactMs` (EarthBreakUltimate's slam, 650 since 22/11; was 1450), sinks a few units
     ///    with a short recoil, ivory flash 60 ms, runes flare;
     ///  - stands stuck in the ground through the hits, burns away into golden light over the last `dissolveMs` before t1.
     /// View: flat 2D maps = the front view turned 28 deg on its long axis (bevels, guard depth and lighting show); 2.5D / 3D maps = the same, stood

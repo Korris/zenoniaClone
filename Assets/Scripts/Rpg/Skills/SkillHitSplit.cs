@@ -114,7 +114,7 @@ namespace ZenoniaProto.Rpg
             if (def == null) return 0;
             switch (def.Legacy)
             {
-                case LegacySkill.EarthBreak: return 2500;
+                case LegacySkill.EarthBreak: return (int)LegacySkillNumbers.EarthBreakTotalMs;
                 case LegacySkill.BladeCyclone: return 2750;
                 case LegacySkill.IceStorm: return (int)(LegacySkillNumbers.IceStormCastMs + LegacySkillNumbers.IceStormWaves * LegacySkillNumbers.IceStormWaveMs + LegacySkillNumbers.IceStormTailMs);
                 case LegacySkill.RocketBarrage: return 1800;

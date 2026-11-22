@@ -120,7 +120,7 @@ public class SkillTableTests
                 Assert.True(s.CastLockMs <= System.Math.Max(SkillTable.MaxCastLockMs, moveEnd), s.Id);
                 Assert.True(s.CastLockMs >= System.Math.Min(s.BaseCastLockMs, moveEnd), s.Id);
             }
-        Assert.Equal(1450, SkillTable.Get("warrior", 2).BaseCastLockMs);
+        Assert.Equal(650, SkillTable.Get("warrior", 2).BaseCastLockMs);
         Assert.Equal(SkillTable.MaxCastLockMs, SkillTable.Get("warrior", 2).CastLockMs);
     }
 }

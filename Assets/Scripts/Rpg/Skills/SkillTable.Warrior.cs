@@ -15,7 +15,7 @@ namespace ZenoniaProto.Rpg
                        SlashArc(55f, 135, hits: 5, intervalMs: 45), SlashArc(100f, 365), SlashArc(180f, 440, finisher: true))),
                 Def(C, 1, "Whirlwind", 8, 18, 8f, SkillTargeting.AroundSelf, Fx(Strike(AreaShape.Circle, 100f, radius: 2.5f, hits: 3, intervalMs: 250)), Req(0, 3), lockMs: 750),
                 // Hand-made timeline: EarthBreakUltimate (Multi-Hit Barrage: 8 sweep hits + 100 % + the 300 % slam = 880 %, then 4 burns of 20 %; LegacySkillNumbers).
-                Def(C, 2, "Earth Break", 15, 26, 12f, SkillTargeting.Facing, NoFx(), Req(0, 5), lockMs: 1450, legacy: LegacySkill.EarthBreak),
+                Def(C, 2, "Earth Break", 15, 26, 12f, SkillTargeting.Facing, NoFx(), Req(0, 5), lockMs: (int)LegacySkillNumbers.EarthBreakSlamMs, legacy: LegacySkill.EarthBreak),
                 Def(C, 3, "Flame Cleave", 20, 22, 10f, SkillTargeting.Facing, Fx(Strike(AreaShape.Arc, 300f, radius: 3f, angle: 140f, status: burn)), Req(1, 3), lockMs: 450),
                 Def(C, 4, "Charging Strike", 26, 24, 12f, SkillTargeting.Facing,
                     Fx(Move(MotionKind.Dash, 5f, 250), Strike(AreaShape.Line, 300f, length: 5f, width: 2f, atMs: 250)), Req(2, 3)),

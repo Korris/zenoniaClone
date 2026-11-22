@@ -1,5 +1,11 @@
 # Việc đang dở
 
+### 22/11 17:23 Earth Break nhanh hơn: kiếm cắm đất lúc 650 ms (trước 1450) (agent, XONG code, CHỜ người dùng tự thử)
+- Người dùng (22/11): "thời gian khi triển skill cho cây kiếm rớt xuống hơi lâu, gần như 2 s mới rớt kiếm từ lúc ấn xài skill".
+- Mốc mới (`LegacySkillNumbers.EarthBreak*Ms`, dùng cho `EarthBreakUltimate`, `SkillTable` lockMs, `HeroClassDef`, `SkillHitSplit.ActiveMs`): gồng 0-225, quét 200 / 270, kiếm hiện 350, cắm đất 650 (hit-stop 55), 8 hit nhỏ mỗi 30 ms (trước 45), 100 % ở 930, đòn cuối 300 % ở 1030 (hit-stop 80), bỏng 1130 / 1200 / 1270 / 1340, hết 1400 (trước 2500). Phần trước cú cắm x0,45, phần sau x0,7 để số dam không dồn 1 frame. Tổng dam / MP / hồi chiêu giữ nguyên. FX `WarriorEarthBreakLightFx` + kiếm 3D theo mốc mới.
+- **Phải build lại zone server** (bảng skill dùng chung, server kiểm cửa sổ hit theo `ActiveMs`).
+- CHƯA xem trong game (người dùng tự thử). Exe: `D:/temp/player-eb3d/Zenonia.exe`.
+
 ### 22/11 17:15 Earth Break không méo khi xoay camera + kiếm 3D thật (agent, XONG code, CHỜ người dùng tự thử)
 - Người dùng (22/11): "sửa Earth Break đi, làm model kiếm 3D"; sau đó "thôi mày đừng test skill Earth Break đi, tao test cho lẹ" (agent dừng chụp giữa chừng).
 - Toolkit light-FX (mọi class): trên map 2.5D / `--map3d` lớp Ground thành vòng tròn thật trên mặt đất (bỏ ép 0,7 / 0,6), lớp khác đứng trên mặt phẳng hướng camera (cao x0,848 để camera mặc định giống cũ), Rise / Drop theo chiều đứng, `.Floor()` cho lớp đặt ở điểm đất thật (cột sáng, lưỡi lửa, mũi đâm, khói đạn, gai băng); `ArcRibbonFx` path Vector3 (cung chém = vòng tròn ngang ở ngực). Code `ClericLightFxView25D.cs`, `ArcRibbonFx.cs`. Map 2D không đổi. `--fx-flat` (bản test) = bố cục cũ để so.

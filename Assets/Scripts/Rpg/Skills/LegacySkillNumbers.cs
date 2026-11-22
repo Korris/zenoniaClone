@@ -17,6 +17,10 @@ namespace ZenoniaProto.Rpg
         public const float EarthBreakRadius = 54f, EarthBreakRange = 36f, EarthBreakSmallMult = 0.6f, EarthBreakPenultMult = 1.0f, EarthBreakFinishMult = 3.0f, EarthBreakBurn = 0.2f;
         public const int EarthBreakSmallHits = 8, EarthBreakHits = EarthBreakSmallHits + 2, EarthBreakBurns = 4;
         public const float EarthBreakTotalMult = EarthBreakSmallHits * EarthBreakSmallMult + EarthBreakPenultMult + EarthBreakFinishMult;
+        // Timeline (ms after the cast; user 22/11: "gần như 2 s mới rớt kiếm" -> the sword lands at 650, was 1450): small hits every StepMs from the slam,
+        // 100 % at Penult, the 300 % finisher, burns from BurnMs every BurnStepMs. Cast lock = SlamMs (SkillTable). Server: rebuild after changing these.
+        public const float EarthBreakSlamMs = 650f, EarthBreakStepMs = 30f, EarthBreakPenultMs = 930f, EarthBreakFinishMs = 1030f, EarthBreakBurnMs = 1130f,
+            EarthBreakBurnStepMs = 70f, EarthBreakTotalMs = 1400f;
 
         // Rockets land at Range x (Near + (i % 3) x Step) in a forward fan, so the farthest one is at RocketBarrageReach.
         public const float RocketBarrageRadius = 18f, RocketBarrageMult = 4f, RocketBarrageRange = 70f, RocketBarrageFanDeg = 60f, RocketBarrageNear = 0.65f, RocketBarrageStep = 0.16f, RocketBarrageKnockback = 35f;

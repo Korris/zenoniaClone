@@ -69,7 +69,7 @@ namespace ZenoniaProto
             ExtraAnims = new[] { InfernoCrashUltimate.PoseAnim, BerserkerAwakeningFx.PoseAnim, "melee1", "melee3" }, // melee1: Earth Break swing, melee3: Blade Cyclone spin (no longer combo hits)
             MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f, LockTargetMelee = true, WalkCycleMs = 640f, // 4 pose walk sheet, slowed so each pose reads; the feet slide a little at Speed 80
             Parts = new[] { new GearPartSpec("shield", "classes/warrior/weapons/shield", 0.8f), new GearPartSpec("sword", "classes/warrior/weapons/sword", 2f, 0.85f, true) },
-            SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = 1450f, SkillIcon = 4, DashIcon = 7, // bladeStorm, dashStrike
+            SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = Rpg.LegacySkillNumbers.EarthBreakSlamMs, SkillIcon = 4, DashIcon = 7, // bladeStorm, dashStrike
         };
 
         public static readonly HeroClassDef Wizard = new HeroClassDef
