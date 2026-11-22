@@ -49,6 +49,17 @@ namespace ZenoniaProto
 
         static void Stop() { target = null; sx = sy = 0; }
 
+        /// <summary>A left click on this monster (ClickMove, PC): walk to it and slash until it dies, as one attack press does for the nearest one.</summary>
+        public static void Engage(Monster m)
+        {
+            HeroController hero = LocalPlayer.Hero;
+            if (hero == null || m == null || m.IsDying || m.Hp <= 0f || !hero.LocksTarget) return;
+            target = m;
+            startedAt = movedAt = Time.time;
+            lastPos = hero.SimPosition;
+            thoughtFrame = -1; // decide again this frame with the new target
+        }
+
         /// <summary>Decided once per frame, so every reader of the frame (hero, online input sampler) sees the same keys.</summary>
         static void Think()
         {
@@ -118,18 +129,7 @@ namespace ZenoniaProto
             return steps >= 0 && steps <= MaxSteps;
         }
 
-        /// <summary>The hero's feet box (10 x 8, as FrostHollowMap.Move) can slide straight from a to b: no post, fence or wall in between (else TileNav walks around).</summary>
-        static bool ClearPath(Vector2 a, Vector2 b)
-        {
-            IGameMap map = MapRegistry.Current;
-            if (map == null) return true;
-            int n = Mathf.CeilToInt(Vector2.Distance(a, b) / 4f);
-            for (int i = 1; i < n; i++)
-            {
-                Vector2 p = Vector2.Lerp(a, b, i / (float)n);
-                if (map.RectBlocked(p.x - 5f, p.y, 10f, 8f)) return false;
-            }
-            return true;
-        }
+        /// <summary>The hero's feet box can slide straight from a to b (else TileNav walks around).</summary>
+        static bool ClearPath(Vector2 a, Vector2 b) { return TileNav.ClearPath(a, b); }
     }
 }

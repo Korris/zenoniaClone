@@ -192,8 +192,11 @@ namespace ZenoniaProto
             return UiWindows.BlocksGameplay && k != GameKey.Close && k != GameKey.Interact && k != GameKey.Chat;
         }
 
-        /// <summary>The player moves by hand (keys, D-pad / joystick): Auto-battle hands control back (AutoBattle).</summary>
-        public static bool ManualMoveHeld()
+        /// <summary>The player moves by hand (keys, D-pad / joystick, or a click-to-move walk): Auto-battle and the lock walk hand control back (AutoBattle, AttackChase).</summary>
+        public static bool ManualMoveHeld() { return KeyMoveHeld() || ClickMove.Walking; }
+
+        /// <summary>A move key or the D-pad / joystick is held (cancels a click-to-move walk).</summary>
+        public static bool KeyMoveHeld()
         {
             for (GameKey k = GameKey.Up; k <= GameKey.Right; k++) if (TouchControls.Held(k) || KeyHeld(k)) return true;
             return false;
@@ -202,7 +205,7 @@ namespace ZenoniaProto
         public static bool Held(GameKey k)
         {
             if (Gated(k) || WebKeyBlocked(k)) return false;
-            return (BotHeld != null && BotHeld(k)) || AutoBattle.Held(k) || AttackChase.Held(k) || TouchControls.Held(k) || KeyHeld(k) || (k == GameKey.Attack && MouseAttack());
+            return (BotHeld != null && BotHeld(k)) || AutoBattle.Held(k) || AttackChase.Held(k) || ClickMove.Held(k) || TouchControls.Held(k) || KeyHeld(k);
         }
 
         public static bool Pressed(GameKey k)
@@ -215,8 +218,8 @@ namespace ZenoniaProto
         public static bool PressedNoChase(GameKey k)
         {
             if (Gated(k) || WebKeyBlocked(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
-            return (BotPressed != null && BotPressed(k)) || AutoBattle.Pressed(k) || TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k)
-                || (k == GameKey.Attack && (MouseAttack() || KeyHeld(k) || FarmSkillHeld(GameKey.Skill1)))
+            return (BotPressed != null && BotPressed(k)) || AutoBattle.Pressed(k) || ClickMove.Pressed(k) || TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k)
+                || (k == GameKey.Attack && (KeyHeld(k) || FarmSkillHeld(GameKey.Skill1)))
                 || FarmSkillHeld(k); // repeated requests still go through cooldown / MP checks and the network input sampler
         }
     }

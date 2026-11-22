@@ -5,8 +5,9 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// Player input for the 2.5D camera (View25DCameraControl, prototype 22/11/2026), on the gameplay camera; idle off the RO3 2.5D maps.
-    /// PC: hold the RIGHT or MIDDLE mouse button and drag: up / down = tilt (pitch 45..70 deg), left / right = rotate (yaw ±28 deg, when Settings "Rotate camera" is on);
-    /// wheel = zoom (CameraWheelZoom); PageUp / PageDown = tilt; comma / period = rotate; Home or a double-click of the middle button = reset (58 deg, yaw 0).
+    /// PC: hold the RIGHT mouse button and drag: up / down = tilt (pitch 45..70 deg), left / right = rotate (yaw ±28 deg, 360 on --map3d, when Settings "Rotate camera" is on);
+    /// the left button is click-to-move (ClickMove, 22/11/2026). Wheel = zoom (CameraWheelZoom); PageUp / PageDown = tilt; comma / period = rotate; Home or a
+    /// double-click of the middle button = reset (58 deg, yaw 0).
     /// Touch: two fingers on the world (not on the joystick / buttons): drag up / down = tilt, left / right = rotate, pinch = zoom.
     /// Mouse up tilts the view toward the horizon and mouse right turns it right, like a third-person camera (touch: the ground follows the fingers sideways);
     /// Settings "Invert camera drag" flips both axes.
@@ -53,24 +54,18 @@ namespace ZenoniaProto
         /// <summary>The keyboard belongs to a window (chat typing, modal windows, inventory, hero change); the mouse being over the HUD does not count.</summary>
         static bool KeysBlocked() { return GameSession.Hero == null || UiWindows.BlocksGameplay || InventoryPanel.IsOpen || HeroChangeScreen.IsOpen || AccountScreenGui.MenuOpen; }
 
-        /// <summary>Right / middle drag; returns true while the yaw is being turned.</summary>
+        /// <summary>Right drag (middle: double-click reset only); returns true while the yaw is being turned.</summary>
         bool Mouse(bool blocked, float s, float inv)
         {
             if (dragButton >= 0 && !Input.GetMouseButton(dragButton)) dragButton = -1;
             if (dragButton < 0 && !blocked)
             {
-                for (int b = 1; b <= 2; b++)
+                if (Input.GetMouseButtonDown(2))
                 {
-                    if (!Input.GetMouseButtonDown(b)) continue;
-                    if (b == 2)
-                    {
-                        if (lastMiddleDown >= 0f && Time.unscaledTime - lastMiddleDown < DoubleClickSec) { View25DCameraControl.Reset(); lastMiddleDown = -1f; break; }
-                        lastMiddleDown = Time.unscaledTime;
-                    }
-                    dragButton = b;
-                    lastMouse = Input.mousePosition;
-                    break;
+                    if (lastMiddleDown >= 0f && Time.unscaledTime - lastMiddleDown < DoubleClickSec) { View25DCameraControl.Reset(); lastMiddleDown = -1f; }
+                    else lastMiddleDown = Time.unscaledTime;
                 }
+                if (Input.GetMouseButtonDown(1)) { dragButton = 1; lastMouse = Input.mousePosition; }
             }
             if (dragButton < 0) return false;
             Vector3 m = Input.mousePosition, d = m - lastMouse;

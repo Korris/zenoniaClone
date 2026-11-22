@@ -1,5 +1,14 @@
 # Việc đang dở
 
+### 22/11 17:32 PC: chuột trái bấm để đi / đánh, chuột phải xoay camera; joystick mobile theo hướng màn hình (agent, XONG code, CHỜ người dùng tự thử)
+- Người dùng (22/11): "trên bản PC cho chuột trái ấn để di chuyển, chuột phải xoay camera"; sau đổi ý: KHÔNG sửa WASD (giữ trục map như cũ), chỉ cần chuột trái đi đúng hướng và joystick mobile đi đúng hướng.
+- Chuột trái (PC + web, không mobile): bấm đất -> đi tới đó, vòng qua vách / prop (`TileNav.Waypoint`), giữ chuột thì đi theo con trỏ, vòng nhỏ đánh dấu điểm đến (`ClickMoveMarker`). Bấm quái: Warrior giao cho `AttackChase.Engage` (đi tới + chém tới chết), class khác đi vào tầm (24 / 80 như Auto) rồi đánh liên tục. Bấm NPC / rương / tinh thể warp -> đi tới rồi tự bấm Interact. Bấm lên HUD / cửa sổ, bấm người chơi khác (menu party) thì không đi. Phím di chuyển, mở cửa sổ, chết, đổi map huỷ lệnh. Chuột trái KHÔNG còn giữ để chém như trước. Code `Assets/Scripts/ClickMove.cs`, `ClickMove.Mouse.cs`, `ClickMoveMarker.cs`.
+- Điểm bấm = tia camera cắt mặt phẳng đi z = 0, nên đúng ở 2D, 2.5D (xoay ±28°) và `--map3d` (360°). Hướng đi vẫn là 4 bit phím cũ (8 hướng, chọn hướng gần đường thẳng nhất có trễ 10°, 10 đơn vị cuối đi theo trục để dừng đúng điểm): **không đổi giao thức, không phải build lại server**.
+- Chuột phải kéo = xoay / nghiêng camera; chuột giữa chỉ còn nhấp đúp để reset (bỏ kéo chuột giữa). Lăn = zoom như cũ.
+- Joystick mobile: vector cần gạt xoay theo yaw camera trước khi đổi thành 8 hướng (`TouchJoystick`), đẩy lên = lên màn hình; camera xoay khi ngón giữ yên cũng cập nhật.
+- Test: `ZenoniaSkills.Tests` 498/498; `ZenoniaNet.Tests` 487/489, 2 bài `FrostHollowLargeMapTests` (prop vách trên đường cầu thang 48,7 / 49,0) đỏ sẵn, không liên quan (không đụng map). CHƯA xem trong game (người dùng tự thử); chạy thử exe 25 s không lỗi.
+- Exe: `D:/temp/player-clickmove/Zenonia.exe` (thêm `--map3d` để thử Willowbrook 3D).
+
 ### 22/11 17:30 Earth Break: kiếm hiện sớm, lơ lửng lâu cho thấy rõ, vẫn cắm đất 650 ms (agent, XONG code, CHỜ người dùng tự thử)
 - Người dùng (22/11): "thời điểm kiếm rơi nhanh rồi nhưng nó rơi quá nhanh làm không thể thấy cây kiếm đẹp".
 - Chỉ đổi FX (`WarriorEarthBreakLightFx`, `EarthBreakGreatsword3D`; hằng FX `SwordInMs 100 / PlungeMs 110 / SwordDissolveMs 230` trong file FX). `SkillTable` / sát thương / `LegacySkillNumbers` KHÔNG đổi, không cần build server.

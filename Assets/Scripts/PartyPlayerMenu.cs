@@ -140,7 +140,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>The player under a screen point, by body or name tag; generous on small screens, the nearest body or tag wins an overlap.</summary>
-        static HeroController HeroAt(Vector2 screen)
+        internal static HeroController HeroAt(Vector2 screen)
         {
             Camera cam = Camera.main;
             Zone zone = Zone.Main;

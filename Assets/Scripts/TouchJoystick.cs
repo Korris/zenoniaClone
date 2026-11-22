@@ -9,7 +9,9 @@ namespace ZenoniaProto
     /// drives Up / Down / Left / Right (8-way). The finger may leave the zone while it holds. Released, the knob recentres.
     /// Smoothness: the drag is read from the first pixel (no EventSystem drag threshold), the dead zone and the 8 sector edges both have hysteresis,
     /// so a thumb resting near the centre or sliding along a sector edge does not flicker the direction on and off.
-    /// Feeds the same keys as the keyboard, so gameplay code is unchanged.
+    /// Feeds the same keys as the keyboard, so gameplay code is unchanged. Under a turned 2.5D / 3D camera (View25D.YawDeg) the stick is screen-relative:
+    /// its vector is turned onto the ground first (View25D.GroundRight / GroundForward, user 22/11/2026), so pushing up walks up the screen; the 8-way keys
+    /// are then picked in map axes, and again whenever the camera turns under a thumb that holds still.
     /// </summary>
     public sealed class TouchJoystick : MonoBehaviour, IPointerDownHandler, IInitializePotentialDragHandler, IDragHandler, IPointerUpHandler
     {
@@ -20,7 +22,9 @@ namespace ZenoniaProto
         CanvasGroup group;
         float radius;
         int pointer = int.MinValue;
-        int sector = -1; // 0 = right, counter-clockwise by 45 degrees; -1 = centred
+        int sector = -1; // 0 = map east, counter-clockwise by 45 degrees; -1 = centred
+        Vector2 held;    // knob offset / radius on screen while a thumb holds it
+        float heldYaw;
         System.Action<bool, bool, bool, bool> output;
 
         /// <summary>This component sits on the invisible raycast area around the base; stick = base (child of that area); knob = child of stick.</summary>
@@ -56,7 +60,20 @@ namespace ZenoniaProto
             Vector2 v = Vector2.ClampMagnitude(local, radius);
             knob.anchoredPosition = v;
             v /= radius;
-            sector = PickSector(v, sector);
+            held = v;
+            Pick();
+        }
+
+        /// <summary>The camera turned under a thumb held still: the same screen push now points elsewhere on the map.</summary>
+        void Update() { if (pointer != int.MinValue && View25D.YawDeg != heldYaw) Pick(); }
+
+        void Pick()
+        {
+            heldYaw = View25D.YawDeg;
+            Vector2 ground = heldYaw == 0f ? held : View25D.GroundRight * held.x + View25D.GroundForward * held.y; // same length: only the angle turns
+            int s = PickSector(ground, sector);
+            if (s == sector) return;
+            sector = s;
             Emit(sector);
         }
 

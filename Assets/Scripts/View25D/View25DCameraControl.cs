@@ -9,7 +9,7 @@ namespace ZenoniaProto
     /// Level 1: pitch (from the HORIZONTAL) between <see cref="MinPitch"/> and <see cref="MaxPitch"/>, default = the profile's 58 deg; zoom stays CameraWheelZoom.
     /// Level 2: yaw around the hero within ±<see cref="MaxYaw"/> (Settings "Rotate camera"), optional spring back to 0 (Settings "Camera springs back").
     /// View only: View25D.TiltDeg / YawDeg read this, View25D.Tilt turns every billboard round the world vertical, the sim, server and movement keys stay on
-    /// the world axes (online input is 4 key bits; a camera-relative move would need an analog move in the protocol). Off on 2D maps and on the Hydra prototype
+    /// the world axes (online input is 4 key bits; WASD stays map-axis, user 22/11: the touch joystick turns its push by the yaw first (TouchJoystick) and click-to-move steers to the clicked ground point (ClickMove)). Off on 2D maps and on the Hydra prototype
     /// (its profile has no RO3 look): there View25D keeps the profile camera. Input: View25DCameraInput. Test flags (not in release): `--cam-yaw deg`,
     /// `--cam-pitch deg` (from the horizontal).
     /// </summary>

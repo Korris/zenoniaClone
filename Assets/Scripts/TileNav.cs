@@ -6,7 +6,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Tile-grid walking for bots: a 4-neighbour BFS distance field to a goal tile around cliffs, water and props (IGameMap.IsSolidTile), refreshed
     /// when the goal tile or the map changes (or every 3 s), and the one-tile step toward it. Used by the online capture bots (DebugCapture.NetNav)
-    /// and by AutoBattle, which both drive the hero through InputAdapter keys.
+    /// and by AutoBattle, which both drive the hero through InputAdapter keys, and by click-to-move (ClickMove), which steers along Waypoint.
     /// </summary>
     public sealed class TileNav
     {
@@ -48,7 +48,7 @@ namespace ZenoniaProto
             distGoal = goal;
         }
 
-        static Vector2Int NearestOpenTile(Vector2Int t)
+        public static Vector2Int NearestOpenTile(Vector2Int t)
         {
             for (int r = 1; r < 6; r++)
                 for (int y = -r; y <= r; y++)
@@ -69,6 +69,58 @@ namespace ZenoniaProto
         {
             Vector2Int goal = TileOf(goalWorld);
             if (goal != distGoal || distMap != MapRegistry.Current || Time.time - distStamp > 3f) { ComputeDistanceField(goal); distStamp = Time.time; distMap = MapRegistry.Current; }
+        }
+
+        /// <summary>The hero's feet box (10 x 8, as FrostHollowMap.Move) can slide straight from a to b: no post, fence or wall in between.</summary>
+        public static bool ClearPath(Vector2 a, Vector2 b)
+        {
+            IGameMap map = MapRegistry.Current;
+            if (map == null) return true;
+            int n = Mathf.CeilToInt(Vector2.Distance(a, b) / 4f);
+            for (int i = 1; i < n; i++)
+            {
+                Vector2 p = Vector2.Lerp(a, b, i / (float)n);
+                if (map.RectBlocked(p.x - 5f, p.y, 10f, 8f)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Where to steer toward `goalWorld` from `from` (click-to-move): the goal itself when the straight line is clear, else the furthest tile centre down
+        /// the BFS path (up to `look` tiles ahead) that can be reached in a straight line, so the walk cuts corners smoothly instead of zig-zagging tile by tile.
+        /// Unreachable goal: the goal itself (the caller stops when the hero stops making progress).
+        /// </summary>
+        public Vector2 Waypoint(Vector2 from, Vector2 goalWorld, int look = 8)
+        {
+            if (ClearPath(from, goalWorld)) return goalWorld;
+            Ensure(goalWorld);
+            Vector2Int here = TileOf(from);
+            int d = dist[here.y * TW + here.x];
+            if (d < 0) return goalWorld;
+            int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
+            Vector2 best = Vector2.zero;
+            bool found = false;
+            Vector2Int cur = here;
+            for (int step = 0; step < look && d > 0; step++)
+            {
+                Vector2Int next = cur;
+                for (int k = 0; k < 4; k++)
+                {
+                    int nx = cur.x + dx[k], ny = cur.y + dy[k];
+                    if (nx < 0 || ny < 0 || nx >= TW || ny >= TH) continue;
+                    int nd = dist[ny * TW + nx];
+                    if (nd >= 0 && nd < d) { d = nd; next = new Vector2Int(nx, ny); }
+                }
+                if (next == cur) break;
+                cur = next;
+                Vector2 c = TileCenter(cur);
+                if (d == 0) c = goalWorld; // the goal's own tile: the goal point
+                if (ClearPath(from, c)) { best = c; found = true; }
+                else if (found) break; // the line is cut beyond the last clear one: steer there first
+            }
+            if (found) return best;
+            Vector2 axis = StepToward(from, goalWorld); // hugging a corner: the old one-tile axis step gets it free
+            return axis == Vector2.zero ? goalWorld : from + axis * GameConfig.TileUnits;
         }
 
         /// <summary>Direction (-1 / 0 / 1 per axis) toward the next tile on the way to `goalWorld`; zero when there or unreachable.</summary>

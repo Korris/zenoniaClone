@@ -39,6 +39,7 @@ namespace ZenoniaProto
             HeroController hero = LocalPlayer.Hero;
             if (hero == null || hero.IsDead) return null;
             Monster m = AttackChase.Target;
+            if (m == null) m = ClickMove.Target; // PC: the monster a ranged / non-lock hero was clicked onto
             if (m == null) m = hero.RecentLockTarget(HoldSeconds);
             if (m == null && !NetMode.IsOffline && Time.time - Monster.LastHitByMeAt <= HoldSeconds) m = Monster.LastHitByMe;
             if (m == null || m.IsDying || m.Hp <= 0f) return null;
