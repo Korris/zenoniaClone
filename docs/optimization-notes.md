@@ -87,6 +87,9 @@ Cập nhật mỗi lần có việc tối ưu mới (thêm mục, thêm dòng v�
 - Viền 8 bản chữ (`RoTextOutline`) chỉ ~5 % (~0,3 ms); phần đắt là chính số renderer / draw call của 140 nhãn. `MonsterFootLabelCrowd` (sắp xếp + chiếu ra màn hình + kiểm chồng) tốn 0,36-0,48 ms CPU / khung ở 140 nhãn (log `LabelCrowd` khi `--fps-log`), 0 khi không có nhãn. Nếu sau này cần "luôn hiện" rẻ hơn: gộp nhãn vào 1 mesh (mục 4 "nameplate batching"), viền bằng shader thay 8 bản.
 - Ảnh: `docs/reference/levelup-light-fx/labels-all-70.jpg`, `labels-focus-70.jpg`, `labels-only-hit.jpg`.
 
+### 1.12 Cổng dịch chuyển 3D (22/11 tối) — `Map3D/Map3DPortals.cs`, `Map3DPortalMesh.cs`, `Shaders/Map3DPortalStone.shader`, `Map3DPortalGlow.shader`
+- Mỗi cổng trên map 3D: ~700 đỉnh đá (1 renderer, không gộp batch vì cần pass ForwardAdd), vortex + cột sáng + vòng rune đất (3 draw trong suốt, 1 shader), 1 particle system tối đa 24 hạt, 1 đèn point ForcePixel không bóng. Shader Map3D khác không có ForwardAdd nên đèn chỉ tốn thêm 1 pass cho mesh đá của chính cổng (ánh sáng trên đất là vòng glow cộng thêm, không phải đèn). Willowbrook 2 cổng ~ 10-12 draw khi cả 2 trong khung hình; chưa đo FPS riêng (ước < 0,1 ms).
+
 ## 2. Số đo FPS
 
 Máy: AMD Radeon(TM) Graphics tích hợp (D3D11), cửa sổ 1280x720, `--fps-log` (tắt vsync), warrior, 70 quái, 1 hero, `--no-hud`, `--dynres off`. **Chỉ 1 game mở** (số buổi chiều trong `docs/reference/willowbrook-3d-proto/perf/fps-numbers.md` bị một cửa sổ game khác tranh GPU). Dao động giữa các lần chạy rất lớn (GPU tích hợp đổi xung, lúc đo có agent khác build cùng máy), nên ghi **trung vị / lần tốt nhất**; chênh dưới ~15 % coi như bằng nhau.
