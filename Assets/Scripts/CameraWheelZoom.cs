@@ -47,7 +47,8 @@ namespace ZenoniaProto
         public static bool Allowed()
         {
 #if UNITY_STANDALONE || UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
-            if (HudLayout.IsWeb) return false; // mobile: the 2.5D pinch zoom (View25DCameraInput) drives it; no wheel there, so nothing changes elsewhere
+            // No HudLayout.IsWeb check: the desktop exe uses the "web" HUD, so that check switched the wheel off on PC (user 22/11: "scroll ko thay zoom").
+            // WebGL is outside the #if; on phones there is no wheel, the 2.5D pinch (View25DCameraInput) drives ZoomByFactor through this component.
             string[] args = Environment.GetCommandLineArgs();
             if (InteractiveTest(args)) return true;
             if (DebugCapture.Requested(args) || Array.IndexOf(args, "--zoom") >= 0) return false;
