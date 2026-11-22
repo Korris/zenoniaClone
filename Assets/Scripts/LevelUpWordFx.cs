@@ -14,7 +14,7 @@ namespace ZenoniaProto
     {
         const string Word = "LEVEL UP";
         const float Em = 11f;           // text em height, world units (caps ~7.5 units = ~37 px at 1080p, default zoom)
-        const float BaseY = 40f, RiseY = 7f; // over the head (name tag ~30)
+        const float BaseY = 54f, RiseY = 7f; // over the head, clear of the name tag + HP line (~30-36 on the 2.5D maps)
         const float PopMs = 280f, HoldMs = 1500f, FadeMs = 450f, TotalMs = HoldMs + FadeMs;
         const float RimW = 0.38f, GlowW = 1.1f;
         const int FontPx = 64;

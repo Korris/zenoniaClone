@@ -64,7 +64,10 @@ namespace ZenoniaProto
             string plain = "Lv." + def.ItemLevel + " " + def.Name;
             // Outline first (8 dark copies, plain text so the rich-text gold does not tint them), then the coloured name on top.
             for (int i = 0; i < roOutlineMr.Length; i++)
+            {
                 roOutlineMr[i] = RoText("RoNameOutline", plain, RoTextOutline.Color).GetComponent<MeshRenderer>();
+                if (MonsterLabelPrefs.NoOutline) roOutlineMr[i].gameObject.SetActive(false); // FPS test: outline cost
+            }
             roName = RoText("RoName", "<color=#FDC04E>Lv." + def.ItemLevel + "</color> " + def.Name, Color.white); // gold level, white name (user 17/11: one colour read as one blur)
             roNameMr = roName.GetComponent<MeshRenderer>();
             if (roTrack.drawMode == SpriteDrawMode.Sliced) roTrack.size = new Vector2(RoBarW, RoBarH);

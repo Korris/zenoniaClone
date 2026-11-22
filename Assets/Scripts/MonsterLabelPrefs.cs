@@ -8,13 +8,17 @@ namespace ZenoniaProto
     ///  - the monster you target (TargetMarker.Target: locked / walked to / clicked on / hit last online), and
     ///  - any monster your own hero damaged in the last <see cref="RecentHitSeconds"/> s.
     /// Settings "All monster names / HP" (PlayerPrefs, default off) brings back the always-on labels. Bosses / Wanted keep their own bars.
-    /// `--monster-labels all|focus` (test runs, not saved) forces either mode.
+    /// `--monster-labels all|focus` (test runs, not saved) forces either mode; `all-nooutline` = all without the 8 RoTextOutline copies (FPS runs).
     /// </summary>
     public static class MonsterLabelPrefs
     {
         public const float RecentHitSeconds = 2f;
         const string Key = "zenonia.view.monsterLabelsAll";
         static bool loaded, showAll;
+
+        /// <summary>Test only (`--monster-labels all-nooutline`): labels built without their 8 dark outline copies, to measure what the outline costs.</summary>
+        public static bool NoOutline { get { Load(); return noOutline; } }
+        static bool noOutline;
 
         public static bool ShowAll
         {
@@ -44,7 +48,7 @@ namespace ZenoniaProto
             catch (System.Exception e) { Debug.LogWarning("[ZenoniaProto] could not read the monster label setting: " + e.Message); }
             string[] args = System.Environment.GetCommandLineArgs();
             int i = System.Array.IndexOf(args, "--monster-labels");
-            if (i >= 0 && i + 1 < args.Length) showAll = args[i + 1] == "all";
+            if (i >= 0 && i + 1 < args.Length) { showAll = args[i + 1].StartsWith("all"); noOutline = args[i + 1] == "all-nooutline"; }
         }
     }
 }

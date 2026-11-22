@@ -33,9 +33,9 @@ namespace ZenoniaProto
               .Arc(3.2f, 0f, 2).Env(90f, 420f);
 
             // Burst: light column behind the hero (+ a slim brighter core), chest flash
-            fx.Upright(ClericLightLook.Column(p), ClericLightFx.Band.Behind, true, BurstMs - 60f, EndMs - 250f, 24f, 18f, ColumnH * 0.55f, ColumnH, 0.9f, new Vector2(0f, -1f), -3)
+            fx.Upright(ClericLightLook.Column(p), ClericLightFx.Band.Behind, true, BurstMs - 60f, EndMs - 250f, 36f, 28f, ColumnH * 0.55f, ColumnH, 1f, new Vector2(0f, -1f), -3)
                   .Kind(LayerKind.Glow).Env(80f, 480f)
-              .Upright(ClericLightLook.Column(p), ClericLightFx.Band.Behind, true, BurstMs, EndMs - 400f, 9f, 7f, ColumnH * 0.7f, ColumnH * 1.08f, 0.8f, new Vector2(0f, -1f), -2)
+              .Upright(ClericLightLook.Column(p), ClericLightFx.Band.Behind, true, BurstMs, EndMs - 400f, 14f, 10f, ColumnH * 0.7f, ColumnH * 1.08f, 0.9f, new Vector2(0f, -1f), -2)
                   .Env(60f, 420f)
               .Upright(ClericLightLook.M(ClericLightLook.Core, p, ClericLightLook.Role.Flash), ClericLightFx.Band.Behind, false, BurstMs, BurstMs + 260f, 10f, 30f, 10f, 30f, 0.75f, new Vector2(0f, 11f), 1);
 

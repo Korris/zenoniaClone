@@ -28,7 +28,24 @@ namespace ZenoniaProto
             labelled.Add(m);
         }
 
+        static readonly System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+        static readonly bool timed = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "--fps-log") >= 0;
+        static int timedFrames, timedLabels;
+        static float timedNext;
+
         void LateUpdate()
+        {
+            if (!timed) { Pass(); return; }
+            int n = labelled.Count;
+            watch.Start(); Pass(); watch.Stop();
+            timedFrames++; timedLabels += n;
+            if (Time.unscaledTime < timedNext) return;
+            timedNext = Time.unscaledTime + 5f;
+            Debug.Log("[ZenoniaProto] LabelCrowd " + (watch.Elapsed.TotalMilliseconds / Mathf.Max(1, timedFrames)).ToString("F3") + " ms/frame, " + (timedLabels / Mathf.Max(1, timedFrames)) + " labels");
+            watch.Reset(); timedFrames = timedLabels = 0;
+        }
+
+        void Pass()
         {
             Camera cam = Camera.main;
             if (cam == null || labelled.Count == 0) { labelled.Clear(); return; }
