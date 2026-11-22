@@ -196,6 +196,47 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Bridge, shed, fences, signpost, barricade, haystack, barrels (Map3DWoodBuilder / Map3DShedBuilder): the ChatGPT wood atlas
+        /// (2x2: planks, beam grain, shingles, thatch), cell per vertex, uv tiling inside the cell (Map3DPainted _Mode 2), moss only where the mesh asks.</summary>
+        public static Material Wood
+        {
+            get
+            {
+                return Get("wood", () =>
+                {
+                    var m = new Material(Find("Map3DPainted"));
+                    m.SetTexture("_MainTex", Tex("wood"));
+                    m.SetTexture("_MossTex", Tex("ground-grass"));
+                    m.SetFloat("_Mode", 2f);
+                    m.SetFloat("_WindMul", 0f);
+                    m.SetColor("_Tint", new Color(1.04f, 1.02f, 1.0f));
+                    m.SetColor("_MossTint", new Color(0.66f, 0.70f, 0.50f));
+                    return m;
+                });
+            }
+        }
+
+        /// <summary>Reed clumps: crossed cards of the painted 2.5D reed sprite (Resources/Sprites/village/props/wbxReeds), foliage shading + wind; null without the art.</summary>
+        public static Material Reeds
+        {
+            get
+            {
+                var tex = Resources.Load<Texture2D>("Sprites/village/props/wbxReeds");
+                if (tex == null) return null;
+                return Get("reeds", () =>
+                {
+                    var m = new Material(Find("Map3DFoliage"));
+                    m.SetTexture("_MainTex", tex);
+                    m.SetColor("_Tint", new Color(0.95f, 0.97f, 0.92f));
+                    m.SetColor("_Tint2", new Color(0.95f, 0.97f, 0.92f));
+                    m.SetFloat("_Cutoff", 0.4f);
+                    m.SetFloat("_Sss", 0.1f);
+                    m.SetFloat("_WindMul", 0.8f);
+                    return m;
+                });
+            }
+        }
+
         public static Material Water
         {
             get

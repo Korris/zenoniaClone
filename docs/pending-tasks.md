@@ -1,5 +1,13 @@
 # Việc đang dở
 
+### 22/11 16:13 Map 3D: cầu / nhà kho / rào / biển / rào chắn / rơm / sậy thành mesh 3D thật + bảng FPS trong game (agent, XONG, CHỜ người dùng thử)
+- Người dùng (22/11): "cây cầu khi tôi xoay ở nhiều góc độ thì nó bị méo"; thêm "show thêm FPS trong game giúp tui".
+- Prop Willowbrook còn là sprite 2D (méo khi xoay) đổi thành mesh ghép từng tấm gỗ: cầu ván 5 ô qua suối (mặt ván cao độ 0 đúng hàng ô `B` 22, dầm, cọc xuống lòng suối, lan can 2 bên đoạn qua nước), nhà kho mở mặt nam (cột, vách ván, mái ngói gỗ, thùng, ván dựa), 3 hàng rào (1 gãy), biển chỉ đường, rào chắn cuối đường đông, đống rơm; sậy = 3 card chéo của sprite sậy. Rows / ô chặn / server không đổi. Code `Assets/Scripts/Map3D/Map3DWoodBuilder.cs`, `Map3DShedBuilder.cs`, `Map3DProps.cs`; shader `Map3DPainted` _Mode 2 (atlas 2x2 lặp trong ô).
+- Texture: ChatGPT Tay ("Tân Korris"), cùng chat map 3D https://chatgpt.com/c/6b029c3a-4a48-83ec-affb-a9e9bf71b449 : atlas gỗ 2x2 (ván, thớ cột, ngói gỗ, rơm) `Assets/ArtLibrary/maps/willowbrook-meadows/map3d/map3d-wood-atlas-chatgpt-1.png` -> `Tools/build-map-3d-textures.py` -> `Resources/Map3D/wood.png`.
+- Đã xem: cầu + nhà kho 4 yaw (0/90/180/270) x 3 pitch (38/52/70), rào / biển / rào chắn / sậy 3 yaw: `docs/reference/willowbrook-3d-proto/props-3d/` (ảnh nhà kho chụp với `--map3d-test noleaves` vì nhà nằm giữa rừng). CHƯA: chấm lại với ChatGPT, đo FPS sau khi thêm mesh (~56-60 FPS như cũ ở ảnh HUD).
+- FPS: `Assets/Scripts/FpsOverlay.cs`, góc trái dưới khung HP/MP: "56 FPS 17.9 ms" (trung bình 0,5 s), xanh ≥ 55 / vàng 30-55 / đỏ < 30; bật sẵn ở bản test / dev, KHÔNG có ở bản phát hành; ẩn khi `--no-hud`. Phím bật / tắt **F12** (F3 đã là phím đổi class Mechanic khi chơi offline). Dòng FPS cũ trong HUD F8 ẩn khi bảng mới đang hiện.
+- Exe: `D:\temp\player-map3d\Zenonia.exe --map3d` (bản sao `D:\temp\zu-copy-warrior2`).
+
 ### 22/11 15:36 Map 3D THẬT kiểu RO3: prototype Willowbrook Meadows sau cờ `--map3d` (agent, XONG prototype, ChatGPT 8,0/10, CHỜ người dùng thử + quyết có làm tiếp không)
 - Người dùng (22/11, nhánh `ro-soft-adventure`): "thử làm cho tui map 3D giống Ragnarok 3 luôn đi, hỏi ChatGPT". Chat Tay ("Tân Korris") https://chatgpt.com/c/6b029c3a-4a48-83ec-affb-a9e9bf71b449 (spec + 7 texture + 3 vòng chấm).
 - Làm: terrain mesh có độ cao (ô đi được giữ 0 m, bờ rừng nâng, đồi ngoài mép, lòng suối hạ theo nước vẽ), splat 4 lớp từ nền 2.5D, cây sinh bằng code (thân + leaf card ChatGPT + spherical normal + ramp mềm + gió + làm mờ lá che hero), thông / bạch dương / liễu / bụi, đá + gỗ + cột / tường phế tích 3D, ~1300 cụm cỏ, nước đọc độ sâu từng pixel, mặt trời thật + bóng mềm + fog, camera xoay 360° (pitch 52, FOV 32). Rows / ô chặn / server không đổi. Không có cờ thì game y như cũ.

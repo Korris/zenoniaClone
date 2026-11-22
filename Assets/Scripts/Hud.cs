@@ -80,9 +80,12 @@ namespace ZenoniaProto
 
             // FPS (green near 60+, amber when dipping, red when laggy)
             Color fpsColor = shownFps >= 55 ? new Color(0.49f, 1f, 0.6f) : shownFps >= 40 ? new Color(1f, 0.84f, 0.42f) : new Color(1f, 0.42f, 0.42f);
-            Fill(new Rect(x - 2f, y + h + 8f * s, 190f * s, 20f * s), new Color(0.03f, 0.07f, 0.12f, 0.8f));
-            label.normal.textColor = fpsColor;
-            GUI.Label(new Rect(x + 6f * s, y + h + 8f * s, 190f * s, 20f * s), fpsText, label);
+            if (!FpsOverlay.Visible) // the always-on FpsOverlay already shows it
+            {
+                Fill(new Rect(x - 2f, y + h + 8f * s, 190f * s, 20f * s), new Color(0.03f, 0.07f, 0.12f, 0.8f));
+                label.normal.textColor = fpsColor;
+                GUI.Label(new Rect(x + 6f * s, y + h + 8f * s, 190f * s, 20f * s), fpsText, label);
+            }
 
             small.normal.textColor = new Color(1f, 1f, 1f, 0.9f);
             float ly = y + h + 34f * s;

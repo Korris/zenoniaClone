@@ -1,5 +1,6 @@
 // Solid hand-painted meshes of the 3D map (Map3DTreeBuilder trunks / branches, Map3DRockBuilder rocks, logs, stumps; ChatGPT spec section 3):
-// _Mode 0 = UV mapped (bark atlas strips: u round the trunk, v up it), _Mode 1 = triplanar (procedural rocks have no UVs worth painting on).
+// _Mode 0 = UV mapped (bark atlas strips: u round the trunk, v up it), _Mode 1 = triplanar (procedural rocks have no UVs worth painting on),
+// _Mode 2 = tiling 2x2 atlas, cell picked by vertex alpha (Map3DWoodBuilder: planks, beam grain, shingles, thatch).
 // Moss on up-facing surfaces (normal up 0.55 -> 0.85, broken by noise, spec 3.2) from the moss texture, vertex colour r = AO (crevices, the
 // ground contact 0.72-0.88), g = wind weight (trunk tops sway a little with the crown), b = moss amount (0 none .. 1 the rule above).
 // Wrap 0.25 + the shared soft ramp, receives / casts real shadows, hero occlusion dither like the leaves (trunks keep more coverage).
@@ -11,7 +12,7 @@ Shader "ZenoniaProto/Map3DPainted"
         _MossTex ("Moss", 2D) = "white" {}
         _Tint ("Tint", Color) = (1,1,1,1)
         _MossTint ("Moss tint", Color) = (0.62,0.75,0.40,1)
-        _Mode ("0 uv, 1 triplanar", Float) = 0
+        _Mode ("0 uv, 1 triplanar, 2 atlas 2x2 tiled", Float) = 0
         _TriScale ("Triplanar texels per unit", Float) = 0.02
         _WindMul ("Wind", Float) = 1
     }
@@ -75,7 +76,16 @@ Shader "ZenoniaProto/Map3DPainted"
                 float3 n = normalize(i.n);
                 float3 L = normalize(_WorldSpaceLightPos0.xyz);
                 float3 objN = normalize(mul((float3x3)unity_WorldToObject, n));
-                float3 albedo = _Mode < 0.5 ? tex2D(_MainTex, i.uv).rgb : Tri(_MainTex, i.op * _TriScale, objN);
+                float3 albedo;
+                if (_Mode > 1.5)
+                {
+                    // 2x2 atlas, the cell from vertex alpha (0, 1/3, 2/3, 1 = top-left, top-right, bottom-left, bottom-right), uv tiles inside the cell
+                    float cell = floor(i.col.a * 3.0 + 0.5);
+                    float2 off = float2(fmod(cell, 2.0), 1.0 - floor(cell * 0.5)) * 0.5;
+                    float2 cuv = off + (frac(i.uv) * 0.97 + 0.015) * 0.5;
+                    albedo = tex2Dgrad(_MainTex, cuv, ddx(i.uv * 0.5), ddy(i.uv * 0.5)).rgb;
+                }
+                else albedo = _Mode < 0.5 ? tex2D(_MainTex, i.uv).rgb : Tri(_MainTex, i.op * _TriScale, objN);
                 albedo *= _Tint.rgb;
                 float up = saturate(-n.z);
                 float breakup = Tri(_MossTex, i.wp * 0.011, n).g;               // painted moss texture also breaks the edge of the moss

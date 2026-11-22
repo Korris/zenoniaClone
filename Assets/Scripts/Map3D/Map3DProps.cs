@@ -6,12 +6,13 @@ namespace ZenoniaProto
     /// <summary>
     /// Map props on a 3D map (Map3D), called by MapScenery for every prop of the table: trees, bushes, rocks, logs and stumps become generated meshes
     /// (Map3DTreeBuilder / Map3DRockBuilder) standing on the terrain at their footprint, turned and scaled a little per tile (seeded: same map every
-    /// visit); everything else (ruins, shed, fence, reeds, signpost, bridge...) stays a sprite: standing ones go alpha-cutout (MakeCutout) so they take
+    /// visit); ruins (Map3DRuinBuilder); bridge, fences, signpost, barricade (Map3DWoodBuilder), shed, haystack, reeds (Map3DShedBuilder) since 22/11
+    /// (the flat sprites skewed under the turning camera). Anything unnamed stays a sprite: standing ones go alpha-cutout (MakeCutout) so they take
     /// and cast the real shadow. Rows, solid tiles and positions do not change: only the drawing.
     /// </summary>
     public static class Map3DProps
     {
-        enum Solid { None, Tree, Rock, RockCluster, Log, Stump, PillarTall, PillarShort, Wall, WallCorner }
+        enum Solid { None, Tree, Rock, RockCluster, Log, Stump, PillarTall, PillarShort, Wall, WallCorner, Bridge, Shed, Fence, FenceBroken, Haystack, Signpost, Barricade, Reeds }
 
         /// <summary>Builds the 3D version of the prop when its type has one; false = draw the sprite as usual.</summary>
         public static bool TryBuild(Transform parent, MapProp p, PropDef d)
@@ -22,6 +23,7 @@ namespace ZenoniaProto
             Map3DHeightField f = Map3DHeightField.For(MapRegistry.Current);
             float tx = p.Tx + d.FootW * 0.5f, ty = p.Ty + 1f - Mathf.Max(1, d.FootH) * 0.5f; // footprint centre (tile coords, y down)
             int hash = Hash(p.Tx, p.Ty, p.Type);
+            if (s == Solid.Bridge) { PlaceBridge(p, d, tx, hash); return true; }
             Place(parent, p.Type, s, kind, d, tx, ty, f, hash);
             return true;
         }
@@ -61,10 +63,45 @@ namespace ZenoniaProto
                 case Solid.Wall: case Solid.WallCorner:
                     Build(parent, type, Map3DRuinBuilder.Wall(Mathf.Max(1.6f, d.W * 0.62f), s == Solid.WallCorner, seed % 3), Map3DAssets.Ruin, Map3DAssets.Ruin, tx, ty, f, hash - hash % 360, 1f);
                     break;
+                case Solid.Shed:
+                    Build(parent, type, Map3DShedBuilder.Shed(d.FootW + 0.4f, Mathf.Max(1, d.FootH) + 0.6f, seed % 3), Map3DAssets.Wood, Map3DAssets.Wood, tx, ty, f, 0, 1f);
+                    break;
+                case Solid.Fence: case Solid.FenceBroken:
+                    Build(parent, type, Map3DWoodBuilder.Fence(d.FootW + 0.3f, s == Solid.FenceBroken, seed % 3), Map3DAssets.Wood, Map3DAssets.Wood, tx, ty, f, (hash % 13 + 354) % 360, 1f);
+                    break;
+                case Solid.Haystack:
+                    Build(parent, type, Map3DShedBuilder.Haystack(d.FootW * 0.5f, 2.0f, seed % 3), Map3DAssets.Wood, Map3DAssets.Wood, tx, ty, f, hash, 1f);
+                    break;
+                case Solid.Signpost:
+                    Build(parent, type, Map3DWoodBuilder.Signpost(seed % 3), Map3DAssets.Wood, Map3DAssets.Wood, tx, ty, f, hash, 1f);
+                    break;
+                case Solid.Barricade: // the road runs east-west: the barricade spans it north-south
+                    Build(parent, type, Map3DWoodBuilder.Barricade(Mathf.Max(1, d.FootH) + 0.4f, seed % 3), Map3DAssets.Wood, Map3DAssets.Wood, tx, ty, f, 90, 1f);
+                    break;
+                case Solid.Reeds:
+                    Build(parent, type, Map3DShedBuilder.Reeds(1.8f, 2.2f, seed % 4), Map3DAssets.Reeds, Map3DAssets.Reeds, tx, ty, f, hash, 0.9f + (hash % 21) / 100f, true);
+                    break;
                 case Solid.Stump:
                     Build(parent, type, Map3DRockBuilder.Wood(0.55f, 0.36f, false, seed % 3), Map3DAssets.Bark, Map3DAssets.Bark, tx, ty, f, hash, 1f);
                     break;
             }
+        }
+
+        /// <summary>Plank bridge over the stream on the row of the map's bridge tiles ('B'; the 2D sprite was anchored a row lower), spanning all of them,
+        /// deck top exactly at the walkable plane (height 0), not at the terrain height (the stream bed sinks under it).</summary>
+        static void PlaceBridge(MapProp p, PropDef d, float tx, int hash)
+        {
+            var tm = MapRegistry.Current as TileMapBase;
+            int cx = p.Tx + d.FootW / 2, row = p.Ty;
+            for (int y = p.Ty; y >= p.Ty - 2 && tm != null; y--) if (tm.CharAt(cx, y) == 'B') { row = y; break; }
+            int x0 = cx, x1 = cx;
+            while (tm != null && tm.CharAt(x0 - 1, row) == 'B') x0--;
+            while (tm != null && tm.CharAt(x1 + 1, row) == 'B') x1++;
+            float span = x1 - x0 + 1;
+            Vector3 pos = Map3D.World(x0 + span * 0.5f, row + 0.5f, 0f);
+            pos.z += Map3DTerrain.Sink;
+            Mesh m = Map3DWoodBuilder.Bridge(span + 0.8f, 1.8f, span - 1f, hash % 3);
+            Map3DBatcher.Add(m, Map3DAssets.Wood, Map3DAssets.Wood, pos, Quaternion.identity, 1f);
         }
 
         static void Build(Transform parent, string name, Mesh mesh, Material m0, Material m1, float tx, float ty, Map3DHeightField f, int hash, float scale, bool cast = true)
@@ -82,8 +119,15 @@ namespace ZenoniaProto
             if (t.Contains("pillarshort")) return Solid.PillarShort;
             if (t.Contains("wallcorner")) return Solid.WallCorner;
             if (t.Contains("walllow")) return Solid.Wall;
-            if (t.Contains("bridge") || t.Contains("palisade") || t.Contains("fence") || t.Contains("reed") || t.Contains("pillar") || t.Contains("wall")
-                || t.Contains("shed") || t.Contains("hay") || t.Contains("sign") || t.Contains("barricade")) return Solid.None;
+            if (t.Contains("bridge")) return Solid.Bridge;
+            if (t.Contains("shed")) return Solid.Shed;
+            if (t.Contains("fencehay")) return Solid.FenceBroken;
+            if (t.Contains("fence")) return Solid.Fence;
+            if (t.Contains("haystack")) return Solid.Haystack;
+            if (t.Contains("signpost")) return Solid.Signpost;
+            if (t.Contains("barricade")) return Solid.Barricade;
+            if (t.Contains("reed")) return Map3DAssets.Reeds != null ? Solid.Reeds : Solid.None;
+            if (t.Contains("palisade") || t.Contains("pillar") || t.Contains("wall") || t.Contains("hay") || t.Contains("sign")) return Solid.None;
             if (t.Contains("pine")) { kind = Map3DTreeBuilder.Kind.Pine; return Solid.Tree; }
             if (t.Contains("birch")) { kind = Map3DTreeBuilder.Kind.Birch; return Solid.Tree; }
             if (t.Contains("willow")) { kind = Map3DTreeBuilder.Kind.Willow; return Solid.Tree; }

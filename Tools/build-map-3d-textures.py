@@ -6,6 +6,7 @@ Leaf / needle atlases (map3d-leaf-<kind>-atlas-chatgpt-N.png, 4x4 clusters on #F
 (soft edge + despill), every cluster is found as a blob, sorted by row / column and packed into an exact 4x4 1024 px RGBA atlas (12 px padding,
 pine sprays left-aligned so the spray's base sits on the cell's left edge = the branch, grass tufts bottom-aligned on the cell's lower edge), transparent texels get the colour of the nearest leaf
 (edge bleed, no pink fringe in the mips).
+Wood atlas (map3d-wood-atlas-chatgpt-N.png, 2x2 swatches: planks, beam grain, shingles, thatch) -> wood.png, each quadrant seamless.
 Seamless swatches (grass, dirt, rock, bark, paving...): the swatch blended with its x / y / xy half-rolls, each weighted to 0 on its own seam
 (the 4-roll trick of build-map-25d-snow-ground.py), resized to 1024 (bark strips keep their aspect).
 Outputs go to Assets/Resources/Map3D/ (PNG, loaded with Resources.Load; the build imports them with default settings: mipmaps, repeat wrap).
@@ -134,6 +135,18 @@ def main():
         im = (im * wy + np.roll(im, h // 2, 0) * (1 - wy))
         Image.fromarray(np.clip(im, 0, 255).astype(np.uint8)).save(os.path.join(OUT, "bark.png")); done.append(im.astype(np.uint8))
         print("  bark atlas from", os.path.basename(p))
+    p = latest(d, "map3d-wood-atlas")
+    if p:  # 2x2 swatches (planks, beam grain, shingles, thatch): each made seamless on its own, re-packed into an exact 1024 atlas (Map3DPainted _Mode 2)
+        im = np.asarray(Image.open(p).convert("RGB")).astype(np.float32)
+        h2, w2 = im.shape[0] // 2, im.shape[1] // 2
+        out = np.zeros((1024, 1024, 3), np.float32)
+        for k in range(4):
+            q = im[(k // 2) * h2:(k // 2 + 1) * h2, (k % 2) * w2:(k % 2 + 1) * w2]
+            q = q[4:-4, 4:-4]  # the painted grid line between swatches
+            q = cv2.resize(seamless(q), (512, 512), interpolation=cv2.INTER_AREA)
+            out[(k // 2) * 512:(k // 2 + 1) * 512, (k % 2) * 512:(k % 2 + 1) * 512] = q
+        Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(os.path.join(OUT, "wood.png")); done.append(out.astype(np.uint8))
+        print("  wood atlas from", os.path.basename(p))
     if "--sheet" in sys.argv and done:
         tiles = []
         for t in done:
