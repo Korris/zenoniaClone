@@ -19,7 +19,11 @@ namespace ZenoniaProto
         /// <summary>RO3 2.5D maps (camera loop, ChatGPT round 2: 85..55 px narrowed to 80..60): hero 80 px closest .. 60 px widest around the default 69 px,
         /// by camera distance only (pitch / FOV fixed). The only place the view may be wider than the default: the forest border (View25DGroundApron) fills it.</summary>
         const float Ro3MinFactor = 69f / 80f, Ro3MaxFactor = 69f / 60f;
+        /// <summary>--map3d (22/11 user: "scroll ko thay zoom"): the 60..80 px band read as no zoom on a real 3D map, so hero 115 px closest .. 48 px widest there.</summary>
+        const float Map3DMinFactor = 69f / 115f, Map3DMaxFactor = 69f / 48f;
         static bool Ro3Map { get { return View25D.Active && View25D.Profile.Ro3Look; } }
+        static float RangeMin(float flat) { return Map3D.Active ? Map3DMinFactor : Ro3Map ? Ro3MinFactor : flat; }
+        static float RangeMax(float flat) { return Map3D.Active ? Map3DMaxFactor : Ro3Map ? Ro3MaxFactor : flat; }
 
         /// <summary>Zoom multiplier of the default half-height (1 = default). CameraFollow.Configure applies it, so a map change keeps the zoom.</summary>
         public static float Current { get; private set; } = 1f;
@@ -63,7 +67,7 @@ namespace ZenoniaProto
         void Awake()
         {
             cam = GetComponent<Camera>();
-            try { target = Mathf.Clamp(PlayerPrefs.GetFloat(PrefKey, 1f), MinFactor, Ro3MaxFactor); } catch (Exception) { target = 1f; }
+            try { target = Mathf.Clamp(PlayerPrefs.GetFloat(PrefKey, 1f), Map3DMinFactor, Map3DMaxFactor); } catch (Exception) { target = 1f; }
             Current = target;
             string[] args = Environment.GetCommandLineArgs();
             int zoomIndex = Array.IndexOf(args, "--zoom");
@@ -100,12 +104,12 @@ namespace ZenoniaProto
             pinch = 1f;
             if (notches != 0f || pinched != 1f)
             {
-                target = Mathf.Clamp(target * Mathf.Pow(1f - NotchStep, notches) * pinched, Ro3Map ? Ro3MinFactor : minimum, Ro3Map ? Ro3MaxFactor : MaxFactor); // wheel up = smaller view = closer
+                target = Mathf.Clamp(target * Mathf.Pow(1f - NotchStep, notches) * pinched, RangeMin(minimum), RangeMax(MaxFactor)); // wheel up = smaller view = closer
                 if (savePreference)
                     try { PlayerPrefs.SetFloat(PrefKey, target); PlayerPrefs.Save(); } catch (Exception) { /* prefs are a convenience */ }
             }
             float defaultHalf = DevStartConfig.CameraViewHeight() * 0.5f;
-            float want = Ro3Map ? Mathf.Clamp(target, Ro3MinFactor, Ro3MaxFactor) : Mathf.Min(target, MaxFactorForMap(defaultHalf));
+            float want = Map3D.Active || Ro3Map ? Mathf.Clamp(target, RangeMin(minimum), RangeMax(MaxFactor)) : Mathf.Min(target, MaxFactorForMap(defaultHalf));
             Current = Mathf.SmoothDamp(Current, want, ref velocity, EaseSeconds, Mathf.Infinity, Time.unscaledDeltaTime); // unscaled: hit-stop / pause
             if (Mathf.Abs(Current - want) < 0.0005f) { Current = want; velocity = 0f; }
             cam.orthographicSize = defaultHalf * Current;
