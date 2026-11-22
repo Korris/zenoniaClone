@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace ZenoniaProto
 {
@@ -157,8 +156,8 @@ namespace ZenoniaProto
         public static void MakeCutout(SpriteRenderer sr)
         {
             sr.sharedMaterial = Map3DAssets.SpriteCutout;
-            sr.shadowCastingMode = ShadowCastingMode.On;
             sr.receiveShadows = true;
+            Map3DBatcher.Register(sr, true); // casts at High (realtime) and into the Medium bake (GraphicsQuality)
         }
 
         /// <summary>Flat decor kept as a sprite: lifted 2 cm above the walkable plane (the terrain sits 1.5 cm below z = 0) so it never z-fights.</summary>

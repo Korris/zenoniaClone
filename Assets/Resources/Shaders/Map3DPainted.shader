@@ -93,7 +93,7 @@ Shader "ZenoniaProto/Map3DPainted"
                 float3 mossCol = Tri(_MossTex, i.wp * 0.018, n) * _MossTint.rgb;
                 albedo = lerp(albedo, mossCol, moss);
                 albedo *= lerp(0.72, 1.0, i.col.r);
-                float atten = SHADOW_ATTENUATION(i);
+                float atten = SHADOW_ATTENUATION(i) * M3DBakedSun(i.wp, n);
                 float3 c = M3DShade(albedo, n, L, atten, 0.25);
                 UNITY_APPLY_FOG(i.fogCoord, c);
                 return fixed4(c, 1.0);

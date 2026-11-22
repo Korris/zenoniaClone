@@ -7,7 +7,7 @@ namespace ZenoniaProto
     /// Terrain mesh of a 3D map (Map3D): the height field (Map3DHeightField, 0.5 m vertices, map + 30 m apron) cut into chunks of 32 x 32 m so the
     /// camera culls what is behind it, normals from the height differences, one shared material (Map3DTerrain shader: 4 painted layers + slope rock).
     /// The surface sits <see cref="Sink"/> units below its height so the flat decor, telegraphs, rings and ground FX still drawn at z = 0 on the walkable
-    /// tiles never z-fight with it (feet float ~1.5 cm, invisible). Receives and casts real shadows (hills shade the valley edges at low sun).
+    /// tiles never z-fight with it (feet float ~1.5 cm, invisible). Receives real shadows; casts them at High (hills shade the valley edges at low sun).
     /// </summary>
     public static class Map3DTerrain
     {
@@ -28,8 +28,8 @@ namespace ZenoniaProto
                     go.AddComponent<MeshFilter>().sharedMesh = Chunk(f, cx, cy, w, h);
                     var mr = go.AddComponent<MeshRenderer>();
                     mr.sharedMaterial = mat;
-                    mr.shadowCastingMode = ShadowCastingMode.On;
                     mr.receiveShadows = true;
+                    Map3DBatcher.Register(mr, true); // hills shading the valley: realtime at High, baked at Medium (GraphicsQuality)
                 }
         }
 

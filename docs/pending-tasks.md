@@ -1,5 +1,12 @@
 # Việc đang dở
 
+### 22/11 17:54 Map 3D lag: tối ưu FPS + Settings > Graphics Low / Medium / High (agent, XONG, CHỜ người dùng thử)
+- Người dùng (22/11): "có cách nào cải thiện FPS không, lag quá". Chỉ phần hình, không đụng FX skill / server.
+- Settings có hàng "Graphics" (Low / Medium / High, lưu PlayerPrefs, mặc định Medium PC / Low mobile, đổi ngay không cần vào lại map; `--gfx` cho bản test). High = y bản đã duyệt (bóng realtime 2 cascade, MSAA 2x). Medium = bóng mặt trời của prop tĩnh NƯỚNG 1 lần khi vào map (RFloat 4096, `Map3DBakedShadow`; mất lá lay trong bóng), MSAA tắt, cỏ 70 %. Low = không bóng mặt trời (bóng silhouette 2.5D, nhạt), cỏ 40 %, MSAA tắt. Mọi mức: depth pre-pass lá, terrain vẽ sau lá, lá không đổ bóng bỏ pass ShadowCaster. 2.5D: Medium/Low tắt MSAA (+~19 %), hình không đổi.
+- FPS (luôn có 1 game khác mở cùng GPU nên số ~1/2 máy rảnh): bản cũ 27,7 -> High 36-44, Medium 67-80 (lần ít tranh 81-95), Low 97-111. Ước máy rảnh: Medium ~130+. CHƯA đo khi chỉ mở 1 game; CHƯA có số 40 người (crowd test chỉ có map 2.5D, bot net10 không build được với SDK 9).
+- Số + ảnh: `docs/reference/willowbrook-3d-proto/perf/` (`fps-numbers.md`). Code: `Assets/Scripts/GraphicsQuality.cs`, `SettingsGraphicsRow.cs`, `SettingsWindow.cs`, `Map3D/Map3DBakedShadow.cs`, `Map3DBatcher.cs`, `Map3DLighting.cs`, shader `Map3DFoliage`, `Map3DCommon.cginc`, `Map3DShadowBake`. Luật: map-design-rules điều 24.
+- Exe: `D:\temp\player-map3d-fast\Zenonia.exe --map3d` (bản sao `D:\temp\zu-copy-warrior2`).
+
 ### 22/11 17:32 PC: chuột trái bấm để đi / đánh, chuột phải xoay camera; joystick mobile theo hướng màn hình (agent, XONG code, CHỜ người dùng tự thử)
 - Người dùng (22/11): "trên bản PC cho chuột trái ấn để di chuyển, chuột phải xoay camera"; sau đổi ý: KHÔNG sửa WASD (giữ trục map như cũ), chỉ cần chuột trái đi đúng hướng và joystick mobile đi đúng hướng.
 - Chuột trái (PC + web, không mobile): bấm đất -> đi tới đó, vòng qua vách / prop (`TileNav.Waypoint`), giữ chuột thì đi theo con trỏ, vòng nhỏ đánh dấu điểm đến (`ClickMoveMarker`). Bấm quái: Warrior giao cho `AttackChase.Engage` (đi tới + chém tới chết), class khác đi vào tầm (24 / 80 như Auto) rồi đánh liên tục. Bấm NPC / rương / tinh thể warp -> đi tới rồi tự bấm Interact. Bấm lên HUD / cửa sổ, bấm người chơi khác (menu party) thì không đi. Phím di chuyển, mở cửa sổ, chết, đổi map huỷ lệnh. Chuột trái KHÔNG còn giữ để chém như trước. Code `Assets/Scripts/ClickMove.cs`, `ClickMove.Mouse.cs`, `ClickMoveMarker.cs`.

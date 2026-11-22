@@ -11,6 +11,7 @@ Spec ChatGPT: `docs/reference/willowbrook-3d-proto/map-3d-ro3-spec-chatgpt.md`; 
 | 7 texture ChatGPT (lá sồi, lá thông, vỏ cây, đá, sân lát, cụm cỏ) + dùng lại cỏ / đất 2.5D | XONG |
 | Code prototype sau cờ `--map3d` | XONG |
 | 3 vòng chấm: 6,9 -> 7,73 -> 8,0 / 10 | XONG (đạt ngưỡng 8) |
+| Hiệu năng: Settings > Graphics Low / Medium / High (Medium = bóng nướng 1 lần, pre-pass lá, cỏ theo mức), 22/11 | XONG, số đo `docs/reference/willowbrook-3d-proto/perf/` |
 | Benchmark 40 người thật, LOD mobile | CHƯA |
 
 ## Cách chạy
@@ -20,6 +21,7 @@ Chuột phải / giữa kéo = xoay 360° + nghiêng 38-70°, `,` / `.` xoay, Pa
 
 ## Kiến trúc (chỉ phần hình; rows, ô chặn, server, toạ độ không đổi)
 
+- Chất lượng hình (22/11): `GraphicsQuality` (PlayerPrefs, mặc định Medium PC / Low mobile, `--gfx`), hàng "Graphics" trong Settings (`SettingsGraphicsRow`). `Map3DLighting` bật bóng realtime chỉ ở High; `Map3DBakedShadow` nướng bóng prop tĩnh vào RFloat 4096 cho Medium; `Map3DBatcher` giữ danh sách renderer (cờ đổ bóng, bậc cỏ 40/30/30 %) để đổi mức không cần dựng lại map; lá tách submesh lá đổ bóng / không đổ bóng (6/16 ô atlas, `Map3DMeshKit.CastsShadow`), lá không đổ bóng bỏ pass ShadowCaster; shader lá có `LEAFDEPTH` pre-pass; terrain vẽ sau lá (queue AlphaTest+20).
 - `Assets/Scripts/Map3D/Map3D.cs`: cờ, `IsMap3D`, `Build` (gọi từ `WorldBuilder` thay ảnh nền), `Finish` (gộp mesh sau `MapScenery`).
 - `Map3DHeightField`: lưới đỉnh 0,5 m, map + 30 m viền; ô đi được = 0 m, bờ ô `T` 0,3-1,2 m, ngoài map đồi tới ~3 m, lòng suối / ao -0,55 m theo kênh nước của nền 2.5D, hành lang phẳng ra ngoài ở cổng mép; texture điều khiển (đất, rừng, sân lát, nước) + texture độ cao cho nước.
 - `Map3DTerrain` (chunk 32 m, hạ 1,5 cm dưới z = 0 để decal / vòng / FX mặt đất không z-fight), `Map3DWater` (độ sâu từng pixel), `Map3DLighting` (mặt trời 48° cố định theo thế giới, bóng mềm 2 cascade 2048, fog linear, trả lại cài đặt khi rời map).
@@ -44,7 +46,7 @@ Tổng cho ~16 map: khoảng 6-9 tuần, chưa tính QA mobile.
 
 ## Rủi ro
 
-- Hiệu năng: 3D tốn gấp ~3-4 lần thời gian khung hình so với 2.5D trên GPU tích hợp (54-64 so với ~200 FPS); bóng là phần đắt nhất. Mobile chưa đo.
+- Hiệu năng: bản đầu 3D tốn gấp ~3-4 lần 2.5D trên GPU tích hợp (54-64 so với ~200 FPS), bóng realtime là phần đắt nhất; 22/11 thêm Settings > Graphics: Medium (bóng nướng) ~2 lần High, số ở `docs/reference/willowbrook-3d-proto/perf/fps-numbers.md`. Mobile chưa đo.
 - Hero 2D trong cảnh 3D: ChatGPT vẫn chấm 7,6 (hơi giống sticker); xoay 360° làm sprite 8 hướng đổi frame theo yaw.
 - Che khuất: cây gần camera rất to khi xoay; đang dùng dither quanh hero, tên quái vẫn vẽ xuyên tán.
 - Bảo trì 2 bản hình cho cùng một map nếu giữ cả 2.5D và 3D.

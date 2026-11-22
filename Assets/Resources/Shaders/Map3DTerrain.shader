@@ -22,7 +22,8 @@ Shader "ZenoniaProto/Map3DTerrain"
     }
     SubShader
     {
-        Tags { "Queue"="Geometry-10" "RenderType"="Opaque" }
+        Tags { "Queue"="AlphaTest+20" "RenderType"="Opaque" } // 22/11 perf: drawn AFTER trunks, rocks and leaf cards so the depth test
+                                                              // skips the 9-sample splat wherever a crown, trunk or rock already covers it
 
         Pass
         {
@@ -88,7 +89,7 @@ Shader "ZenoniaProto/Map3DTerrain"
                 c = lerp(c, _BedColor.rgb * (0.8 + 0.4 * fine), smoothstep(0.2, 0.75, ctl.a) * 0.85);
 
                 float3 L = normalize(_WorldSpaceLightPos0.xyz);
-                float atten = SHADOW_ATTENUATION(i);
+                float atten = SHADOW_ATTENUATION(i) * M3DBakedSun(i.wp, n);
                 float3 col = M3DShade(c, n, L, atten, 0.2);
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return fixed4(col, 1.0);

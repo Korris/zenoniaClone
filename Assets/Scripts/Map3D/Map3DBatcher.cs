@@ -5,31 +5,42 @@ using UnityEngine.Rendering;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Merges the generated props of a 3D map (Map3DProps, Map3DBorderForest) into one mesh per material per 16 x 16 m cell, built once after the map:
-    /// the first build drew ~1000 separate two-material renderers (x2 for the shadow pass) and ran at 28 fps where the 2.5D map runs at 90.
+    /// Merges the generated props of a 3D map (Map3DProps, Map3DBorderForest, Map3DGrass) into one mesh per material per 16 x 16 m cell, built once
+    /// after the map: the first build drew ~1000 separate two-material renderers (x2 for the shadow pass) and ran at 28 fps where the 2.5D map runs at 90.
     /// Wind, lighting and the hero dissolve work in world space, so nothing changes on screen; the camera still culls by cell.
+    /// Each queued piece says whether it casts and its grass density tier, so the graphics quality (GraphicsQuality, 22/11 perf pass) can switch
+    /// shadow casting and grass density per renderer without a rebuild: casters cast in realtime at High only (Medium bakes them once:
+    /// Map3DBakedShadow, BakeCasters), tiers 0-2 show at High, 0-1 at Medium, 0 at Low.
+    /// Leaf cards come in two submeshes (Map3DMeshKit): 1 = cards that never cast, 2 = the ~3/8 that do (dappled canopy shadows), so the shadow
+    /// pass only rasterises the casting cards instead of clipping 2/3 of every crown per pixel.
     /// </summary>
     public static class Map3DBatcher
     {
         const float Cell = 16f * Map3D.M;
         struct Item { public Mesh Mesh; public int Sub; public Matrix4x4 M; }
+        struct Tagged { public Renderer R; public bool Cast; public int Tier; public Material Mat; }
         static readonly Dictionary<long, List<Item>> Groups = new Dictionary<long, List<Item>>();
         static readonly List<Material> MatIndex = new List<Material>();
+        static readonly List<Tagged> Live = new List<Tagged>();
+        static bool hooked;
 
-        public static void Clear() { Groups.Clear(); MatIndex.Clear(); }
+        public static void Clear() { Groups.Clear(); MatIndex.Clear(); Live.RemoveAll(t => t.R == null); } // + renderers of maps already left
 
-        /// <summary>Queue a generated mesh (submesh 0 with m0, submesh 1 with m1 when it has triangles) at this transform.</summary>
-        public static void Add(Mesh mesh, Material m0, Material m1, Vector3 pos, Quaternion rot, float scale, bool castShadow = true)
+        /// <summary>Queue a generated mesh (submesh 0 with m0, leaf submeshes 1 / 2 with m1 when they have triangles) at this transform.
+        /// tier: grass density tier (0 always shown, 1 hidden at Low, 2 shown at High only).</summary>
+        public static void Add(Mesh mesh, Material m0, Material m1, Vector3 pos, Quaternion rot, float scale, bool castShadow = true, int tier = 0)
         {
             Matrix4x4 m = Matrix4x4.TRS(pos, rot, Vector3.one * scale);
             long cx = Mathf.FloorToInt(pos.x / Cell) + 1000, cy = Mathf.FloorToInt(pos.y / Cell) + 1000;
-            for (int s = 0; s < 2 && s < mesh.subMeshCount; s++)
+            for (int s = 0; s < 3 && s < mesh.subMeshCount; s++)
             {
                 if (mesh.GetIndexCount(s) == 0) continue;
                 Material mat = s == 0 ? m0 : m1;
+                bool c = s != 1 && castShadow; // submesh 1 = leaf cards that never cast (the shadow pass clipped them anyway)
+                if (!c) mat = Map3DAssets.NoShadowPass(mat); // foliage: out of the shadow maps and the depth pre-pass too
                 int mi = MatIndex.IndexOf(mat);
                 if (mi < 0) { MatIndex.Add(mat); mi = MatIndex.Count - 1; }
-                long key = ((long)mi << 41) | ((castShadow ? 1L : 0L) << 40) | (cx << 20) | cy;
+                long key = ((long)mi << 44) | ((long)tier << 42) | ((c ? 1L : 0L) << 40) | (cx << 20) | cy;
                 List<Item> l;
                 if (!Groups.TryGetValue(key, out l)) Groups[key] = l = new List<Item>();
                 l.Add(new Item { Mesh = mesh, Sub = s, M = m });
@@ -42,9 +53,11 @@ namespace ZenoniaProto
             var root = new GameObject("Map3DProps").transform;
             root.SetParent(parent, false);
             int n = 0;
+            var stats = new Dictionary<string, Vector3Int>(); // per shader: renderers, vertices, triangles (perf log)
             foreach (KeyValuePair<long, List<Item>> kv in Groups)
             {
-                Material mat = MatIndex[(int)(kv.Key >> 41)];
+                Material mat = MatIndex[(int)(kv.Key >> 44)];
+                int tier = (int)((kv.Key >> 42) & 3);
                 bool cast = ((kv.Key >> 40) & 1) != 0;
                 if (Map3D.Test("noleaves") && mat.shader.name.Contains("Foliage")) continue;
                 List<Item> items = kv.Value;
@@ -57,12 +70,64 @@ namespace ZenoniaProto
                 go.AddComponent<MeshFilter>().sharedMesh = mesh;
                 var mr = go.AddComponent<MeshRenderer>();
                 mr.sharedMaterial = mat;
-                mr.shadowCastingMode = cast ? ShadowCastingMode.On : ShadowCastingMode.Off; // the border forest casts none: shadows were 60 % of the frame
                 mr.receiveShadows = true;
+                Register(mr, cast, tier);
+                n++;
+                string sk = mat.shader.name.Replace("ZenoniaProto/Map3D", "") + (cast ? "-cast" : "-nocast");
+                Vector3Int st; stats.TryGetValue(sk, out st);
+                stats[sk] = st + new Vector3Int(1, mesh.vertexCount, (int)(mesh.GetIndexCount(0) / 3));
+            }
+            foreach (KeyValuePair<string, Vector3Int> kv in stats)
+                Debug.Log("[ZenoniaProto] Map3D batch " + kv.Key + ": " + kv.Value.x + " renderers, " + kv.Value.y + " verts, " + kv.Value.z + " tris");
+            Debug.Log("[ZenoniaProto] Map3D props merged into " + n + " renderers (quality " + GraphicsQuality.Name(GraphicsQuality.Current) + ")");
+            Clear();
+        }
+
+        /// <summary>Puts a renderer of the 3D map under the quality switch (merged batches, terrain chunks, cutout sprites) and applies it now.</summary>
+        public static void Register(Renderer r, bool cast, int tier = 0)
+        {
+            if (!hooked) { hooked = true; GraphicsQuality.Changed += ApplyAll; }
+            var t = new Tagged { R = r, Cast = cast, Tier = tier, Mat = r is MeshRenderer ? r.sharedMaterial : null };
+            Live.Add(t);
+            Apply(t, GraphicsQuality.Current);
+        }
+
+        static void Apply(Tagged t, GraphicsQuality.Level q)
+        {
+            bool casts = t.Cast && q == GraphicsQuality.Level.High;
+            t.R.shadowCastingMode = casts ? ShadowCastingMode.On : ShadowCastingMode.Off;
+            if (t.Mat != null && t.Cast) t.R.sharedMaterial = casts ? t.Mat : Map3DAssets.NoShadowPass(t.Mat); // no realtime shadows: out of the depth pre-pass too
+            t.R.enabled = t.Tier <= (q == GraphicsQuality.Level.High ? 2 : q == GraphicsQuality.Level.Medium ? 1 : 0);
+        }
+
+        static readonly List<int> bakeLayers = new List<int>();
+
+        /// <summary>Map3DBakedShadow: on = every renderer that casts at High goes on `layer` and shows (the bake camera sees only that layer);
+        /// off = back to its own layer and the current quality. Returns how many renderers took part.</summary>
+        public static int BakeCasters(int layer, bool on)
+        {
+            int n = 0;
+            if (on) bakeLayers.Clear();
+            for (int i = 0; i < Live.Count; i++)
+            {
+                Tagged t = Live[i];
+                if (t.R == null || !t.Cast) { if (on) bakeLayers.Add(-1); continue; }
+                if (on) { bakeLayers.Add(t.R.gameObject.layer); t.R.gameObject.layer = layer; t.R.enabled = true; }
+                else if (i < bakeLayers.Count && bakeLayers[i] >= 0) t.R.gameObject.layer = bakeLayers[i];
                 n++;
             }
-            Debug.Log("[ZenoniaProto] Map3D props merged into " + n + " renderers");
-            Clear();
+            if (!on) ApplyAll();
+            return n;
+        }
+
+        static void ApplyAll()
+        {
+            GraphicsQuality.Level q = GraphicsQuality.Current;
+            for (int i = Live.Count - 1; i >= 0; i--)
+            {
+                if (Live[i].R == null) { Live.RemoveAt(i); continue; } // the map was left
+                Apply(Live[i], q);
+            }
         }
     }
 }

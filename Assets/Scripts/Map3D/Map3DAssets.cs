@@ -28,6 +28,28 @@ namespace ZenoniaProto
             return t;
         }
 
+        /// <summary>Copy of a foliage material without its ShadowCaster pass (22/11 perf pass): leaf cards / grass that never cast drop out of the shadow
+        /// maps AND of the camera depth pre-pass the screen-space sun shadow needs (built-in forward draws it with the ShadowCaster pass), where the
+        /// shader clipped them anyway. Other materials come back unchanged.</summary>
+        public static Material NoShadowPass(Material m)
+        {
+            if (m == null || !m.shader.name.Contains("Foliage")) return m;
+            return Get(m.name + "_nocast", () =>
+            {
+                var c = new Material(m);
+                c.SetShaderPassEnabled("ShadowCaster", false);
+                return c;
+            });
+        }
+
+        /// <summary>`--map3d-test noprepass`: foliage without the LEAFDEPTH depth pre-pass (the lit pass clips and tests LEqual again), for A/B FPS runs.</summary>
+        static void NoLeafPrepass(Material m)
+        {
+            m.SetShaderPassEnabled("Always", false);
+            m.SetFloat("_LeafZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
+            m.EnableKeyword("M3D_LEAF_NOPREPASS");
+        }
+
         static Shader Find(string name)
         {
             Shader s = Resources.Load<Shader>("Shaders/" + name);
@@ -134,6 +156,7 @@ namespace ZenoniaProto
                 m.SetColor("_Tint2", t2);
                 m.SetFloat("_Sss", pine ? 0.08f : 0.12f);
                 m.SetFloat("_WindMul", look.StartsWith("bush") ? 0.5f : look == "willow" ? 1.6f : 1f);
+                if (Map3D.Test("noprepass")) NoLeafPrepass(m);
                 return m;
             });
         }
@@ -232,6 +255,7 @@ namespace ZenoniaProto
                     m.SetFloat("_Cutoff", 0.4f);
                     m.SetFloat("_Sss", 0.1f);
                     m.SetFloat("_WindMul", 0.8f);
+                    if (Map3D.Test("noprepass")) NoLeafPrepass(m);
                     return m;
                 });
             }

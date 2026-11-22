@@ -7,7 +7,8 @@ namespace ZenoniaProto
     /// <summary>
     /// Small mesh writer for the generated 3D props (Map3DTreeBuilder, Map3DRockBuilder). Shapes are written in METRES in a y-up frame
     /// (x east, y up, z north) and converted on output to the game's object space (x, z north -> world y, up -> -z, x16 units).
-    /// Two submeshes: 0 = solid (bark / stone / wood, Map3DPainted), 1 = leaf cards (Map3DFoliage). Vertex colour channels follow those shaders.
+    /// Three submeshes: 0 = solid (bark / stone / wood, Map3DPainted), 1 = leaf cards that never cast, 2 = leaf cards that cast (Map3DFoliage, same
+    /// material: <see cref="CastsShadow"/> picks the atlas cells, the shader's shadow pass clips the same cells). Vertex colour channels follow those shaders.
     /// </summary>
     public sealed class Map3DMeshKit
     {
@@ -15,7 +16,7 @@ namespace ZenoniaProto
         readonly List<Vector3> nrm = new List<Vector3>(1024);
         readonly List<Vector2> uv = new List<Vector2>(1024);
         readonly List<Color> col = new List<Color>(1024);
-        readonly List<int> solid = new List<int>(2048), leaves = new List<int>(2048);
+        readonly List<int> solid = new List<int>(2048), leaves = new List<int>(2048), leavesCast = new List<int>(1024);
 
         public int Count { get { return pos.Count; } }
 
@@ -89,7 +90,18 @@ namespace ZenoniaProto
             int b = Vert(c + right - up, normals[1], new Vector2(uvRect.z, uvRect.y), colors[1]);
             int d = Vert(c + right + up, normals[2], new Vector2(uvRect.z, uvRect.w), colors[2]);
             int e = Vert(c - right + up, normals[3], new Vector2(uvRect.x, uvRect.w), colors[3]);
-            Tri(true, a, d, b); Tri(true, a, e, d); // double-sided material (Cull Off): one winding is enough
+            List<int> l = CastsShadow(uvRect) ? leavesCast : leaves;
+            l.Add(a); l.Add(d); l.Add(b); l.Add(a); l.Add(e); l.Add(d); // double-sided material (Cull Off): one winding is enough
+        }
+
+        /// <summary>The card's atlas cell is one of the ~3/8 that cast the dappled canopy shadow: cell index k = row-from-bottom x 4 + column, cast when
+        /// frac(k x 0.618034) &lt; 0.3 (cells 0, 2, 5, 10, 13, 15). Must match M3DLeafCasts in Map3DFoliage.shader.</summary>
+        public static bool CastsShadow(Vector4 uvRect)
+        {
+            float cu = (uvRect.x + uvRect.z) * 0.5f, cv = (uvRect.y + uvRect.w) * 0.5f;
+            int k = Mathf.FloorToInt(cv * 4f) * 4 + Mathf.FloorToInt(cu * 4f);
+            float h = k * 0.618034f;
+            return h - Mathf.Floor(h) < 0.3f;
         }
 
         /// <summary>Mesh in game object space: (x, y, z) metres y-up -> (x, z, -y) x 16 units.</summary>
@@ -110,9 +122,10 @@ namespace ZenoniaProto
             mesh.normals = n;
             mesh.SetUVs(0, uv);
             mesh.SetColors(col);
-            mesh.subMeshCount = 2;
+            mesh.subMeshCount = 3;
             mesh.SetTriangles(FlipWinding(solid), 0); // shapes are written counter-clockwise from outside (easier to reason about); Unity's front face is clockwise
             mesh.SetTriangles(leaves, 1);
+            mesh.SetTriangles(leavesCast, 2);
             mesh.RecalculateBounds();
             return mesh;
         }

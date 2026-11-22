@@ -7,6 +7,8 @@ namespace ZenoniaProto
     /// Two crossed upright cards per clump (0.5-0.65 m wide, 0.3-0.42 m tall) from the ChatGPT grass-tuft atlas (Resources/Map3D/leaf-grass.png),
     /// normals pointing up so they light like the ground, base rooted (vertex g = 0) and tips swaying. On grass only (not on roads, paving, water),
     /// half as dense on the raised banks, a 6 m band past the map edge; seeded per map. Merged per cell (Map3DBatcher), no shadow casting.
+    /// Graphics quality (22/11 perf pass): each clump falls in a density tier (40 % tier 0, 30 % tier 1, 30 % tier 2), one merged piece per tier,
+    /// so Low shows ~40 %, Medium ~70 %, High all of it, switched live without a rebuild (Map3DBatcher).
     /// </summary>
     public static class Map3DGrass
     {
@@ -17,13 +19,14 @@ namespace ZenoniaProto
             if (Resources.Load<Texture2D>("Map3D/leaf-grass") == null) return;
             var rng = new System.Random((map.Id.GetHashCode() & 0x7fffffff) ^ 0x5151);
             Material mat = Map3DAssets.Leaves("grass");
-            var kit = new Map3DMeshKit();
+            var tierRng = new System.Random(0x7123); // own stream: High keeps the exact clumps of the reviewed build
+            var kits = new Map3DMeshKit[3];
             int clumps = 0;
             const float Chunk = 8f; // metres: one merged-cell piece per 8 x 8 m keeps culling useful
             for (float cy = -6f; cy < f.MapH + 6f; cy += Chunk)
                 for (float cx = -6f; cx < f.MapW + 6f; cx += Chunk)
                 {
-                    kit = new Map3DMeshKit();
+                    for (int k = 0; k < 3; k++) kits[k] = new Map3DMeshKit();
                     int n = Mathf.RoundToInt(Chunk * Chunk * PerM2);
                     for (int i = 0; i < n; i++)
                     {
@@ -36,13 +39,13 @@ namespace ZenoniaProto
                         if (road > 0.01f && rng.NextDouble() > 0.5) continue;
                         float d = f.DistanceToOpenAt(tx, ty);
                         if (d > 0.5f && rng.NextDouble() < 0.5) continue;
-                        Clump(kit, rng, new Vector3(tx - cx, f.HeightAt(tx, ty), -(ty - cy)));
+                        double tier = tierRng.NextDouble();
+                        Clump(kits[tier < 0.4 ? 0 : tier < 0.7 ? 1 : 2], rng, new Vector3(tx - cx, f.HeightAt(tx, ty), -(ty - cy)));
                         clumps++;
                     }
-                    if (kit.Count == 0) continue;
-                    Mesh m = kit.Build("Map3DGrass");
                     Vector3 o = Map3D.World(cx, cy, 0f); o.z += Map3DTerrain.Sink;
-                    Map3DBatcher.Add(m, mat, mat, o, Quaternion.identity, 1f, false);
+                    for (int k = 0; k < 3; k++)
+                        if (kits[k].Count > 0) Map3DBatcher.Add(kits[k].Build("Map3DGrass"), mat, mat, o, Quaternion.identity, 1f, false, k);
                 }
             Debug.Log("[ZenoniaProto] Map3D grass: " + clumps + " clumps");
         }

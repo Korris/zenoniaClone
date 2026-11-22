@@ -65,4 +65,46 @@ float3 M3DWind(float3 wp, float w)
     return float3(dir * s * _M3DWind.x * w, 0.0);
 }
 
+// Leaf card vertex: world position with the wind sway, and its clip position. Both foliage passes that share depth (LEAFDEPTH and the lit pass
+// with ZTest Equal) must call exactly these so the GPU computes bit-identical depths.
+float3 M3DLeafWorld(float4 vertex, float windW, float windMul)
+{
+    float3 wp = mul(unity_ObjectToWorld, vertex).xyz;
+    wp += M3DWind(wp, windW) * windMul;
+    return wp;
+}
+float4 M3DLeafClip(float3 wp)
+{
+    float4 p = mul(UNITY_MATRIX_VP, float4(wp, 1.0));
+    return p;
+}
+
+// Mip level a texture of size texSize (pixels) is sampled at: alpha-tested cards widen their alpha in the small mips by it
+float M3DMipLevel(float2 uv, float2 texSize)
+{
+    float2 d = max(abs(ddx(uv)), abs(ddy(uv))) * texSize;
+    return max(0.0, log2(max(d.x, d.y)));
+}
+
+// Baked sun shadow (Map3DBakedShadow, graphics quality Medium, 22/11 perf pass): the static props' depth from the fixed sun, rendered ONCE when the
+// map loads into a 4096 float depth map over the whole terrain. Receivers compare 4 taps against it instead of the realtime cascades
+// (no per-frame shadow maps, depth pre-pass or screen-space collect). _M3DBakedVP: world -> (u, v, depth 0..1) of that map;
+// _M3DBaked: x = on, y = tap offset (uv), z = receiver offset toward the light / along the normal (world units), w = lit value in full shadow (1 - strength).
+sampler2D _M3DBakedShadow;
+float4x4 _M3DBakedVP;
+float4 _M3DBaked;
+
+float M3DBakedSun(float3 wp, float3 n)
+{
+    if (_M3DBaked.x < 0.5) return 1.0;
+    float3 p = wp + (n + normalize(_WorldSpaceLightPos0.xyz) * 1.3) * _M3DBaked.z;
+    float3 c = mul(_M3DBakedVP, float4(p, 1.0)).xyz;
+    if (any(c.xy < 0.0) || any(c.xy > 1.0)) return 1.0;
+    float o = _M3DBaked.y;
+    float4 d = float4(tex2Dlod(_M3DBakedShadow, float4(c.xy + float2(-o, -o), 0, 0)).r, tex2Dlod(_M3DBakedShadow, float4(c.xy + float2(o, -o), 0, 0)).r,
+                      tex2Dlod(_M3DBakedShadow, float4(c.xy + float2(-o, o), 0, 0)).r, tex2Dlod(_M3DBakedShadow, float4(c.xy + float2(o, o), 0, 0)).r);
+    float s = dot(step(c.zzzz, d), 0.25.xxxx); // lit where nothing nearer to the sun was baked
+    return lerp(_M3DBaked.w, 1.0, s);
+}
+
 #endif

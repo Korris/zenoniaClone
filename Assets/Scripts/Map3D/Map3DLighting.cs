@@ -9,6 +9,10 @@ namespace ZenoniaProto
     /// the camera turns), trilight ambient for any stock shader, linear fog #D1DEC5 that starts just past the hero, shadow distance / cascades fitted to
     /// the far camera (~32 m away), and the globals of the Map3D shaders (sun / shade / sky colours, wind, the hero occlusion ellipse).
     /// Lives on a child of the map root: built with a 3D map, its OnDestroy puts the render / quality settings back for the next (2D / 2.5D) map.
+    /// Shadows follow the graphics quality (GraphicsQuality, 22/11 perf pass: 54-64 FPS here against ~200 on the 2.5D map, 156 with shadows off):
+    /// High = 2 soft cascades at 2048 to hero + 20 m (the reviewed look); Medium = no realtime shadows, the static props' shadow baked once
+    /// (Map3DBakedShadow: realtime with 1 cascade and only the big props casting still ran at half the speed of no shadows); Low = no sun shadow,
+    /// GroundShadowRenderer draws the baked prop silhouettes of the 2.5D map instead.
     /// </summary>
     public sealed class Map3DLighting : MonoBehaviour
     {
@@ -26,6 +30,10 @@ namespace ZenoniaProto
         AmbientMode savedAmbMode; Color savedSky, savedEq, savedGround, savedAmb;
         float savedShadowDist, savedSplit; int savedCascades; ShadowResolution savedRes; ShadowQuality savedQuality;
         Light sun;
+
+        /// <summary>The 3D map on screen draws its own sun shadows (realtime at High, baked at Medium); false at Low, where GroundShadowRenderer
+        /// draws the baked prop silhouettes of the 2.5D map instead.</summary>
+        public static bool OwnShadows { get { return current != null && GraphicsQuality.Current != GraphicsQuality.Level.Low; } }
 
         public static void Build(Transform parent)
         {
@@ -45,7 +53,6 @@ namespace ZenoniaProto
             sun.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
             sun.color = SunColor;
             sun.intensity = 0.9f;
-            sun.shadows = Map3D.Test("noshadow") ? LightShadows.None : LightShadows.Soft;
             sun.shadowStrength = 0.46f; // round 1: 0.42-0.46, some shade read too dark
             sun.shadowBias = 0.06f;
             sun.shadowNormalBias = 0.5f;
@@ -59,10 +66,9 @@ namespace ZenoniaProto
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogColor = FogColor;
-            QualitySettings.shadows = ShadowQuality.All;
-            QualitySettings.shadowResolution = Map3D.Test("lowshadow") ? ShadowResolution.Medium : ShadowResolution.High; // round 2: 2048
-            QualitySettings.shadowCascades = 2; // round 2 (ChatGPT): 2 cascades at 2048, distance hero + 20 m
-            QualitySettings.shadowCascade2Split = 0.72f; // near cascade ends just past the hero (camera ~34 m away, distance hero + 20 m)
+            ApplyQuality();
+            GraphicsQuality.Changed -= ApplyQuality;
+            GraphicsQuality.Changed += ApplyQuality;
             Shader.SetGlobalColor(SunId, new Color(1.18f, 1.12f, 0.97f)); // round 2: brighter, the scene read dull next to the 2.5D map
             Shader.SetGlobalColor(ShadeId, new Color(0.64f, 0.70f, 0.72f));
             Shader.SetGlobalColor(SkyId, new Color(0.97f, 1.0f, 1.04f, 0.35f));
@@ -88,8 +94,21 @@ namespace ZenoniaProto
             Shader.SetGlobalVector(HeroDepthId, new Vector4(vp.z, vp.z > 0f ? 1f : 0f, 0f, 0f));
         }
 
+        /// <summary>Shadow settings of the graphics level: realtime sun shadows at High only (Medium bakes them once: Map3DBakedShadow).</summary>
+        void ApplyQuality()
+        {
+            if (sun == null) return;
+            bool off = GraphicsQuality.Current != GraphicsQuality.Level.High || Map3D.Test("noshadow");
+            sun.shadows = off ? LightShadows.None : LightShadows.Soft;
+            QualitySettings.shadows = off ? ShadowQuality.Disable : ShadowQuality.All;
+            QualitySettings.shadowResolution = Map3D.Test("lowshadow") ? ShadowResolution.Medium : ShadowResolution.High; // round 2: 2048
+            QualitySettings.shadowCascades = 2;          // round 2 (ChatGPT): 2 cascades at 2048, distance hero + 20 m
+            QualitySettings.shadowCascade2Split = 0.72f; // near cascade ends just past the hero (camera ~34 m away, distance hero + 20 m)
+        }
+
         void OnDestroy()
         {
+            GraphicsQuality.Changed -= ApplyQuality;
             if (current != this) return; // a newer 3D map already took over
             current = null;
             Shader.SetGlobalVector(HeroDepthId, Vector4.zero);

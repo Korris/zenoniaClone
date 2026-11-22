@@ -31,6 +31,7 @@ namespace ZenoniaProto
             Application.targetFrameRate = paced ? NetLaunchArgs.TickRate : Application.isMobilePlatform ? 60 : -1; // phones ignore vSyncCount and default to 30 fps
             if (Application.isMobilePlatform) Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Application.runInBackground = true;
+            GraphicsQuality.Apply(); // Settings > Graphics (Low / Medium / High): MSAA, anisotropic; 3D maps read it for shadows / grass
 
             // Static state survives play sessions when Domain Reload is disabled in Editor settings.
             Monster.ResetStatics();

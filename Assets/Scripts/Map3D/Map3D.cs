@@ -73,6 +73,6 @@ namespace ZenoniaProto
         }
     
         /// <summary>After MapScenery queued the prop meshes: merge them (Map3DBatcher).</summary>
-        public static void Finish(Transform mapRoot) { Map3DBatcher.Flush(mapRoot); }
+        public static void Finish(Transform mapRoot) { Map3DBatcher.Flush(mapRoot); Map3DBakedShadow.Attach(mapRoot); } // + the sun shadow baked once (Medium)
     }
 }
