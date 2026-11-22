@@ -2,6 +2,11 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 06:45 Card + ngọc UI design (ChatGPT) (XONG mockup, CHỜ người dùng xem)
+- Chat Tay: https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0 (cùng chat card RO3 bên dưới; người dùng đã chốt trong chat: Card → Soul Gem Power/Guard → khảm, tháo giữ ngọc; đấu card 4×4 kiểu FF8/FF9, 8 lá mỗi bên).
+- ChatGPT tự quyết flow + bố cục, vẽ 7 màn RO Soft Fantasy: `docs/reference/card-gem-ui/01-card-menu.png`, `02-card-album.png`, `03-card-to-gem.png`, `04-gem-socket.png`, `05-gem-remove.png`, `06a-card-duel-deck.png`, `06b-card-duel-battle.png`. Luật, điểm yếu, câu hỏi mở: `docs/reference/card-gem-ui/design-notes-chatgpt.md`.
+- Chưa có code. Chờ người dùng: giữ Fantasy hay đổi sang Adventure (nhánh hiện tại), duyệt số phí / mốc / thưởng.
+
 ### 22/11 23:50 Hỏi ChatGPT hệ thống card RO3 (CHỜ người dùng quyết có làm không)
 - Chat Tay: https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0
 - RO3: card rớt từ quái/boss, gắn vào trang bị theo vị trí (vũ khí, khiên, giáp, áo choàng, giày, phụ kiện, đầu, mặt nạ, miệng), phẩm chất 5 màu (xanh lá→đỏ), ~242 card, có loại Collection/Standard. Nâng level card: bản Pioneer 2025 có, tháng 9/2025 nhà phát triển tuyên bố BỎ; nâng sao / ghép card chưa xác nhận ở bản hiện tại. Album cộng chỉ số vĩnh viễn: chưa chắc.
