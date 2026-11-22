@@ -2,6 +2,10 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 22/11 21:00 Bản build gộp + dọn D:\temp (XONG)
+- Bản gộp mọi việc 22/11 (HEAD dd871712: tối ưu FPS, Level Up, ẩn nhãn quái, cổng 3D, số sát thương RO): `C:\temp\player-all-261122\Zenonia.exe` (thêm `--map3d` cho map 3D).
+- Người dùng cho xoá hết `D:\temp` (kể cả mọi bản sao `zu-copy-*` và worktree `D:\temp\wt-unity` của nhánh unity, đã sạch). Lần build sau phải robocopy lại project vào bản sao mới: `robocopy D:\zenoniaClone D:\temp\zu-copy /E /XD Temp Logs Build` (~17 GB, lần đầu import lâu).
+
 ### 22/11 20:25 Số sát thương kiểu RO: 1 hit trắng, nhiều hit + TỔNG vàng, crit đỏ cam trên bong bóng gai, vẽ gộp (agent, XONG, CHỜ người dùng thử)
 - Người dùng dán spec 22/11 (số kiểu Ragnarok). Làm trên hệ số cũ (`DamageNumber*.cs`), luật + cách gắn: `docs/ui-layout-rules.md` mục 4.
 - 1 hit = 1 số trắng; nhiều hit (`SkillHitSplit`, hit thật sát nhau < 320 ms, double attack) = số trắng nhỏ + TỔNG vàng 150 % viền đen dày trên cụm (`DamageNumber.Total.cs`); crit = đỏ cam trên `fx-crit-burst.png` + pop mạnh; chuỗi có crit thì tổng lấy kiểu crit. Atlas mới `crit.png` (đỏ cam), `total.png` (`Tools/build-damage-number-font.py cut`, `OWN_SETS`).
