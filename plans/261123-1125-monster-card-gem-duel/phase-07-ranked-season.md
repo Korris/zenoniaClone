@@ -79,3 +79,11 @@ Kết quả và LP chỉ tính ở server; client không gửi số. Ranked khô
 
 ## Next Steps
 Phase 08 (lối vào ở NPC + menu). Cosmetic cuối mùa: chờ câu hỏi 9.
+
+## Sửa lỗi review 23/11 (report `code-reviewer-261123-1536-phase-07.md`)
+- H1 kết quả cho người offline: `RankedPending` (Rpg/Cards, thuần) giữ rank thật theo charKey khi trận kết thúc lúc họ offline; `DuelService.OnJoin -> ApplyPendingRank` áp trước PushState + RequestSave. Hết hạn sau 24 h (thua tạm giữ nguyên); mất khi zone khởi động lại (thua tạm giữ nguyên). Cả hai offline: mỗi người nhận kết quả thật khi quay lại.
+- H2 cùng tài khoản: server-api `/internal/tickets/redeem` trả thêm `userId`; zone đọc vào `LoadedCharacter.UserId` -> `NetPlayer.UserId` (dev server không có tài khoản: mỗi tên là một tài khoản). `RankedQueue.Waiter.Account`: không ghép cùng tài khoản, cooldown gặp lại tính theo cặp tài khoản; ledger cặp/ngày theo cặp tài khoản. Forfeit trước 3 nước đánh tay (auto-đặt 20 s không tính, `RankedRules.MinMovesForForfeit`): trận không tính cho cả hai (không đổi LP/MMR, không tính vào giới hạn cặp), banner "Same opponent too often, or it ended too early". Wire không đổi.
+- M1 `RankedRules.HideRating` đặt `mmr = 0` trong bản save gửi client (`ServerReplication.SendRpgState`); state server giữ nguyên; client chỉ đọc, không gửi state lên.
+- M2 chỉ `season == 0` là "chưa chơi"; MMR kẹp >= 1 (Apply và EnsureSeason). M3 `PairLedger(RankedRules.MaxMatchesPerPairPerDay)`.
+- Low: `--no-ranked` (NetLaunchArgs -> `RankedRules.Enabled = false`, TickRanked không ghép); `BeginRanked` mã lỗi riêng từng bên; `counted` tính một lần lúc bắt đầu (`PvpRun.Counted`, thua tạm và kết quả cuối dùng chung); thanh LP ẩn khi tiến độ 0; `prevBest` = best của mùa vừa xong (0 nếu bỏ mùa); MMR của người đang chờ làm mới mỗi giây (và đổi mùa).
+- Test: `RankedReviewFixesTests` (17), vitest `redeem-user-id`. Scenario `Tools/net-duel-test.ps1 -Scenario rankeddc` (cả hai rớt mạng, người offline thắng nhận kết quả khi quay lại).

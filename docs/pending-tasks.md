@@ -2,6 +2,10 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 chiều Card Monster phase 07 sửa review Ranked (XONG code + test, CHƯA deploy)
+- Sửa H1/H2/M1-M3/Low của `reports/code-reviewer-261123-1536-phase-07.md`: kết quả cho người offline (`RankedPending`), chặn cùng tài khoản (redeem trả `userId`), forfeit < 3 nước không tính, MMR không gửi client, `--no-ranked`. Chi tiết: phase-07 mục "Sửa lỗi review 23/11".
+- CẦN: deploy server-api (redeem thêm `userId`) cùng zone. `-Scenario rankeddc` thêm vào `Tools/net-duel-test.ps1`.
+
 ### 23/11 chiều Card Monster phase 06 sửa review: mất / nhân card khi mạng lỗi (XONG code + test, CHƯA deploy, CHƯA chạy lại net-duel-test với player mới)
 - Sửa 3 Critical + 2 High + Medium + Low của `plans/261123-1125-monster-card-gem-duel/reports/code-reviewer-261123-1517-phase-06.md`. Thiết kế + bất biến: phase-06 mục "Sửa lỗi review 23/11". Chốt: hàng đợi chặn mọi ghi khác của nhân vật khi wager chưa rõ kết quả (`WagerHold`), không bỏ lời gọi chưa rõ kết quả, áp escrow / payout lên `run.Owner` đúng 1 lần (`StakeMatch`).
 - Code: `CharacterSaveQueue(.Wager).cs`, `StakeMatch.cs` (mới), `WagerApiClient.cs`, `ZoneApiReplyParser.cs` (`ErrorSide`), `DuelService.Wager.cs` (mỏng, `TickStakes`), `ZonePersistence.Queue`, `CardCollection.ReturnCards`; API `card-wager-service.js`, `card-wager-move.js`, `character-service.js`, `app.js` (sweep), `config.js` (`CARD_WAGER_SWEEP_SEC`), `indexes.js`.
