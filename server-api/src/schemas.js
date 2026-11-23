@@ -54,10 +54,10 @@ const tradeSide = z.object({
   giveGold: z.number().int().min(0).max(MAX_INT),
 });
 export const tradeCommitSchema = z.object({ tradeId: reqId, a: tradeSide, b: tradeSide });
-const wagerSide = z.object({ characterId: z.string().length(24), sessionId, rev, state: stateSchema, cardId: z.enum(CARD_IDS) });
+const wagerSide = z.object({ characterId: z.string().length(24), sessionId, rev, state: stateSchema }); // state.cardDeck = the 8 staked cards
 export const wagerEscrowSchema = z.object({ matchId: reqId, a: wagerSide, b: wagerSide });
 const wagerReceiver = z.object({ sessionId, rev, state: stateSchema }); // a receiver that is online on the zone
-export const wagerSettleSchema = z.object({ result: z.enum(['a', 'b', 'draw']), a: wagerReceiver.optional(), b: wagerReceiver.optional() });
+export const wagerSettleSchema = z.object({ result: z.enum(['a', 'b', 'draw']), pick: z.enum(CARD_IDS).optional(), a: wagerReceiver.optional(), b: wagerReceiver.optional() }); // pick = the card the winner takes from the loser deck
 export const wagerMatchParamsSchema = z.object({ matchId: reqId });
 export const endSessionSchema = z.object({ characterId: z.string().length(24) });
 

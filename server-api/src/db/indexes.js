@@ -13,7 +13,7 @@
  *    one per user, not per character; _id is already the only lookup key, no extra index needed
  *  ledger{characterId, reqId, type, ...} audit trail of economy ops; a trade entry carries a unique tradeId, which is what makes a commit idempotent
  *    (an 'account' entry additionally carries userId and before/after currency snapshots, see services/account-service.js)
- *  card_wagers{_id=matchId, status held|settled|refunded, zoneId, createdAt, expiresAt, a/b{characterId,userId,cardId}, result, settledAt, refundedAt, credited}
+ *  card_wagers{_id=matchId, status held|settled|refunded, zoneId, createdAt, expiresAt, a/b{characterId,userId,deck[8],lockedIds}, result, pick, settledAt, refundedAt, credited}
  *    escrow of a Card Wager (services/card-wager-service.js); every move also writes a ledger row {type:'card_wager', action: escrow|settle|refund, matchId}
  */
 export async function ensureIndexes(db) {

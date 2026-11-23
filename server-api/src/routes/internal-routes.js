@@ -39,17 +39,17 @@ export function internalRoutes(app, { cfg, characters, accounts, tickets, guards
     return characters.commitTrade(tradeId, a, b, stateGuard);
   });
 
-  // Card Wager escrow: the wagered card leaves both characters before the duel. Retrying a matchId is safe. 403 wager_disabled when switched off.
+  // Card Wager v2 escrow: the whole 8-card deck of both characters leaves them before the duel. Retrying a matchId is safe. 403 wager_disabled when switched off.
   app.post('/internal/card-wagers/escrow', opts, async (req) => {
     const { matchId, a, b } = parse(wagerEscrowSchema, req.body);
     return wagers.escrow(matchId, a, b, stateGuard);
   });
 
-  // End of a wagered duel: the winner takes both cards, a draw gives each its own back. Idempotent per matchId (also works with the switch off).
+  // End of a duel: the winner takes ONE picked card of the loser deck, a draw gives everything back. Idempotent per matchId (also works with the switch off).
   app.post('/internal/card-wagers/:matchId/settle', opts, async (req) => {
     const { matchId } = parse(wagerMatchParamsSchema, req.params);
-    const { result, a, b } = parse(wagerSettleSchema, req.body);
-    return wagers.settle(matchId, result, { a, b }, stateGuard);
+    const { result, pick, a, b } = parse(wagerSettleSchema, req.body);
+    return wagers.settle(matchId, result, pick, { a, b }, stateGuard);
   });
 
   // Atomic batch of inventory / equipment / currency changes (e.g. rare drop pickup, potion purchase).
