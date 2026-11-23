@@ -18,6 +18,7 @@ namespace ZenoniaProto.Net
             if (r.Ok || status == 0) return r;
             r.Code = TextAfter(text, "\"code\":\"");
             r.CurrentRev = IntAfter(text, "\"currentRev\":");
+            r.ErrorSide = TextAfter(text, "\"side\":\"");
             r.Message = text == null ? "" : text.Length > MaxErrorText ? text.Substring(0, MaxErrorText) : text;
             return r;
         }

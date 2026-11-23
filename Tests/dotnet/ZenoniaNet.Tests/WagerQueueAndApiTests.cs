@@ -172,18 +172,34 @@ public class WagerQueueAndApiTests
     }
 
     [Fact]
-    public void AnEscrowThatNeverGetsAnAnswerGivesUpAndSaysItMayHaveLanded()
+    public void AnEscrowWithAnUnknownOutcomeIsNeverGivenUpButOneThatCertainlyChangedNothingIs()
     {
         SavedCharacter a = Char("a", 5), b = Char("b", 7);
         ZoneApiReply got = default(ZoneApiReply);
         q.EscrowWager("m1", a, b, r => got = r);
-        for (int i = 0; i < 40 && got.Code == null; i++)
+        for (int i = 0; i < 60; i++)
         {
             Tick(5000);
-            if (api.Calls.Count > 0 && api.Last.Done != null && q.WagerJobCount > 0) { var c = api.Last; if (c.Kind == "escrow" && !called.Contains(c)) { called.Add(c); c.Done(NoAnswer()); } }
+            if (api.Calls.Count > 0 && q.WagerJobCount > 0) { var c = api.Last; if (c.Kind == "escrow" && !called.Contains(c)) { called.Add(c); c.Done(NoAnswer()); } }
         }
-        Assert.Equal("timeout", got.Code);
-        Assert.True(got.MayHaveLanded); // the owner settles it as a draw so no card is stuck
+        Assert.Null(got.Code); // 5 minutes of no answer: the API may have taken the decks, so the job keeps asking
+        Assert.Equal(1, q.WagerJobCount);
+        Assert.True(api.Calls.Count > 6);
+        Tick(60000);
+        api.Last.Done(Ok(6, 8));
+        Assert.True(got.Ok); Assert.Equal(6, a.Rev); Assert.Equal(8, b.Rev);
+
+        var q2 = new CharacterSaveQueue(api, 30000, "u"); q2.Tick(now);
+        SavedCharacter c1 = q2.Register("c", "sc", 1, () => "s"), c2 = q2.Register("d", "sd", 1, () => "s");
+        ZoneApiReply refused = default(ZoneApiReply);
+        q2.EscrowWager("m2", c1, c2, r => refused = r);
+        for (int i = 0; i < 40 && refused.Code == null; i++)
+        {
+            q2.Tick(now += 5000);
+            var c = api.Last; if (c.MatchId == "m2" && !called.Contains(c)) { called.Add(c); c.Done(Refused(429, "rate_limited")); } // the API said no, loudly: nothing happened
+        }
+        Assert.Equal("timeout", refused.Code);
+        Assert.False(refused.MayHaveLanded);
     }
 
     readonly HashSet<Call> called = new HashSet<Call>();
@@ -204,15 +220,17 @@ public class WagerQueueAndApiTests
     }
 
     [Fact]
-    public void AReplayedPayoutAtAnOlderOrEqualRevIsNotAppliedTwice()
+    public void APayoutIsAppliedOnlyForACharacterWhoseStateWentWithTheCallAndTakesTheApisRev()
     {
         SavedCharacter a = Char("a", 9);
         ZoneApiReply got = default(ZoneApiReply);
-        q.SettleWager("m1", "draw", null, "a", null, r => got = r);
+        q.SettleWager("m1", "draw", null, "a", "b", r => got = r); // b is not on this zone
         Tick();
-        api.Last.Done(new ZoneApiReply { Status = 200, Rev = -1, RevB = -1, CurrentRev = -1, Replayed = true, Credits = new[] { new WagerCredit { Side = 0, CharacterId = "a", Cards = new[] { "k1" }, Rev = 9 } } });
-        Assert.False(got.Credits[0].Apply);
-        Assert.Equal(9, a.Rev);
+        Assert.True(api.Last.HasA); Assert.False(api.Last.HasB);
+        api.Last.Done(new ZoneApiReply { Status = 200, Rev = -1, RevB = -1, CurrentRev = -1, Replayed = true, Credits = new[] {
+            new WagerCredit { Side = 0, CharacterId = "a", Cards = new[] { "k1" }, Rev = 12 }, new WagerCredit { Side = 1, CharacterId = "b", Cards = new[] { "k2" }, Rev = 3 } } });
+        Assert.True(got.Credits[0].Apply); Assert.False(got.Credits[1].Apply); // a replay is applied too: the zone's copy never got it (the rev is not the judge)
+        Assert.Equal(12, a.Rev);
     }
 
     [Fact]

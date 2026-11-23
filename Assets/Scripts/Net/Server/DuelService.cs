@@ -144,7 +144,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Once per tick: the lobby clocks, turn timeouts, the 60 s reconnect, the winner's 30 s pick, and the forfeit of a player who can no longer duel.</summary>
-        public void Tick(long now) { TickPvp(now); TickRanked(now); }
+        public void Tick(long now) { TickPvp(now); TickRanked(now); TickStakes(now); }
 
         static bool CanKeepDueling(HeroController h) { return h != null && !h.IsDead && h.HomeZone != null && h.HomeZone.Map != null && !h.HomeZone.Map.Hostile; }
 

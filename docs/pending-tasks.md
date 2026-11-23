@@ -2,6 +2,12 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 chiều Card Monster phase 06 sửa review: mất / nhân card khi mạng lỗi (XONG code + test, CHƯA deploy, CHƯA chạy lại net-duel-test với player mới)
+- Sửa 3 Critical + 2 High + Medium + Low của `plans/261123-1125-monster-card-gem-duel/reports/code-reviewer-261123-1517-phase-06.md`. Thiết kế + bất biến: phase-06 mục "Sửa lỗi review 23/11". Chốt: hàng đợi chặn mọi ghi khác của nhân vật khi wager chưa rõ kết quả (`WagerHold`), không bỏ lời gọi chưa rõ kết quả, áp escrow / payout lên `run.Owner` đúng 1 lần (`StakeMatch`).
+- Code: `CharacterSaveQueue(.Wager).cs`, `StakeMatch.cs` (mới), `WagerApiClient.cs`, `ZoneApiReplyParser.cs` (`ErrorSide`), `DuelService.Wager.cs` (mỏng, `TickStakes`), `ZonePersistence.Queue`, `CardCollection.ReturnCards`; API `card-wager-service.js`, `card-wager-move.js`, `character-service.js`, `app.js` (sweep), `config.js` (`CARD_WAGER_SWEEP_SEC`), `indexes.js`.
+- CẦN: deploy server-api TRƯỚC (zone mới đọc `details.side`, `status` của replay escrow). Chưa thử: API + Mongo thật nhiều zone, sweep chạy timer thật (chỉ gọi hàm), 2 client với player build mới (không build vì dùng chung C:	empzu-copy với agent khác; kiểm biên dịch bằng csproj tạm: 0 lỗi).
+- Rủi ro còn: session hết hạn (90 s) khi nhân vật bị chặn ghi lâu vì API chập chờn; `CharKey` đổi khi nhân vật Lost giữa trận; .meta mp3 để Unity tự tạo.
+
 ### 23/11 chiều Card Monster phase 07: Ranked (XONG code + UI + thử 2 client dev server, CHƯA deploy, CHƯA thử với API + Mongo thật)
 - Luật: hàng chờ trong bộ nhớ zone (`RankedQueue`, ghép mỗi 1 s theo MMR ẩn, cửa sổ 150 +100 / 30 s chờ, không cùng party, không gặp lại đối thủ vừa đấu trong 10 phút), Lv20+, deck 8 lá hợp lệ, map an toàn. Điểm `RankedRules`: LP thắng +20..30 / thua -15..25 / hoà 0 (cân bằng +25 / -20), MMR Elo K32, LP không âm, 5 bậc Bronze 0 / Silver 300 / Gold 700 / Platinum 1200 / Diamond 1800, mùa 30 ngày từ 2026-11-01 UTC (mùa mới: mmr = 1000 + (mmr-1000)/2, lp / 2, `prevBest` + cờ `rewards` bit theo bậc). Ranked KHÔNG lấy card, không escrow, không Gold.
 - Chống dàn xếp: cùng cặp tính LP tối đa 2 trận / ngày, trận 3+ vẫn đấu nhưng không đổi LP (banner nói rõ), log cảnh báo cặp lặp + trận kết thúc < 60 s. Rớt mạng giữa trận: lưu thua tạm lúc rời (nhân vật được save ngay sau đó), nối lại và đấu xong thì kết quả thật thay thế (luôn tính từ rank lúc bắt đầu trận).

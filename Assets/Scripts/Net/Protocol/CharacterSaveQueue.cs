@@ -18,6 +18,8 @@ namespace ZenoniaProto.Net
         /// <summary>Wager calls only: the settle's payouts (null otherwise) and whether the API said it had already done this matchId.</summary>
         public WagerCredit[] Credits;
         public bool Replayed;
+        /// <summary>A wager refusal about one character of a call that names two: "a" or "b" (null when the API did not say).</summary>
+        public string ErrorSide;
         /// <summary>A wager request this zone gave up on (or could not send) after an earlier attempt got no answer: the API may have applied it, so the owner must settle it as a draw.</summary>
         public bool MayHaveLanded;
 
@@ -57,6 +59,8 @@ namespace ZenoniaProto.Net
         internal readonly Func<string> Capture;
         internal readonly List<CharacterSaveQueue.Job> Jobs = new List<CharacterSaveQueue.Job>();
         internal bool Busy, Uncertain;
+        /// <summary>> 0 while a Card Wager call that may have changed this character at the API has no definite answer yet: nothing else is written for it (CharacterSaveQueue.Wager.cs).</summary>
+        internal int WagerHold;
         internal long NextPeriodicMs;
 
         internal SavedCharacter(string id, string sessionId, int rev, Func<string> capture) { Id = id; SessionId = sessionId; Rev = rev; Capture = capture; }
@@ -187,10 +191,10 @@ namespace ZenoniaProto.Net
             {
                 SavedCharacter c = characters[i];
                 if (!c.Leaving && c.Jobs.Count == 0 && now >= c.NextPeriodicMs) AddSave(c);
-                if (c.Busy || c.Jobs.Count == 0) continue;
+                if (c.Busy || c.WagerHold > 0 || c.Jobs.Count == 0) continue; // a wager call with no definite answer yet: no save, enhance, trade or end goes out meanwhile
                 Job job = c.Jobs[0];
                 if (now < job.NextAttemptMs) continue;
-                if (job.Kind == JobKind.Trade && !(job.A.Jobs[0] == job && job.B.Jobs[0] == job && !job.A.Busy && !job.B.Busy)) continue; // first in line on both sides
+                if (job.Kind == JobKind.Trade && !(job.A.Jobs[0] == job && job.B.Jobs[0] == job && !job.A.Busy && !job.B.Busy && job.A.WagerHold == 0 && job.B.WagerHold == 0)) continue; // first in line on both sides
                 Send(job);
                 if (i >= characters.Count) break;
             }

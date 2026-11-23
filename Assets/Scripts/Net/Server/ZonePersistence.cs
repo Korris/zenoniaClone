@@ -27,7 +27,7 @@ namespace ZenoniaProto
             public bool Ok;
             public RejectReason Refusal;
             public string Text;
-            public string CharacterId, SessionId, Name;
+            public string CharacterId, SessionId, Name, UserId;
             /// <summary>This character was loaded from a file a stopping zone left, not from the API's copy.</summary>
             public string KeptPath;
             public int Rev;
@@ -40,7 +40,7 @@ namespace ZenoniaProto
         }
 
         [Serializable] class AccountDto { public int rev; public AccountState state; }
-        [Serializable] class RedeemDto { public string sessionId; public CharacterDetail character; public AccountDto account; }
+        [Serializable] class RedeemDto { public string sessionId, userId; public CharacterDetail character; public AccountDto account; }
         [Serializable] class KeptDto { public string characterId; public int rev; public string why; public SaveData state; }
 
         /// <summary>A kept state that was loaded instead of what the API had: its file goes away once the API has it.</summary>
@@ -223,7 +223,7 @@ namespace ZenoniaProto
             return new LoadedCharacter
             {
                 KeptPath = keptPath,
-                Ok = true, CharacterId = dto.character.id, SessionId = dto.sessionId, Rev = dto.character.rev, Name = DevLoginStub.SanitizeName(dto.character.name),
+                Ok = true, CharacterId = dto.character.id, SessionId = dto.sessionId, UserId = dto.userId, Rev = dto.character.rev, Name = DevLoginStub.SanitizeName(dto.character.name),
                 Def = def, Save = save, State = SaveSerializer.Restore(save),
                 Account = AccountState.Sanitize(dto.account != null ? dto.account.state : null), AccountRev = dto.account != null ? dto.account.rev : 0, // an older API without accounts: a fresh one, rev 0
             };
@@ -303,17 +303,8 @@ namespace ZenoniaProto
             queue.CommitTrade(a.Saved, b.Saved, c.AGaveUids, c.AGaveGold, c.BGaveUids, c.BGaveGold, done);
         }
 
-        /// <summary>Card stakes (phase 06 v2): the API takes the whole staked deck out of both characters before the match; the queue sends it when both are idle and online and answers once, definitely.</summary>
-        public void EscrowWager(NetPlayer a, NetPlayer b, string matchId, Action<ZoneApiReply> done)
-        {
-            queue.EscrowWager(matchId, a.Saved, b.Saved, done);
-        }
-
-        /// <summary>Settles a held match (`result` a / b / draw, `pick` = the card the winner takes). `receiverA` / `receiverB` = the character ids of both sides; the queue retries until the API answers.</summary>
-        public void SettleWager(string matchId, string result, string pick, string receiverA, string receiverB, Action<ZoneApiReply> done)
-        {
-            queue.SettleWager(matchId, result, pick, receiverA, receiverB, done);
-        }
+        /// <summary>The write queue, for the Card Wager calls (StakeMatch: escrow of both decks before a PvP match, settle after it). They go through the same queue as every other write, so a save can never slip in between.</summary>
+        public CharacterSaveQueue Queue { get { return queue; } }
 
         /// <summary>The API rolls it; the answer changes the item here and goes to the client, which is simply waiting for its request to be answered. The player leaving meanwhile changes nothing: the last save comes after it.</summary>
         public void Enhance(ServerReplication repl, NetPlayer p, InvActionMsg m)

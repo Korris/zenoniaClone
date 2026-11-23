@@ -132,12 +132,12 @@ namespace ZenoniaProto
                 validMark[c] = GemUiArt.Img(slot, "Valid", 0f, 0f, cr.width, cr.height, null);
                 slotRt[c] = slot;
                 cardShadow[c] = UiKit.Rect(slot, "Shadow", card.x - cr.x, card.y - cr.y, card.width, card.height).gameObject.AddComponent<Image>(); // under the card: the soft shadow of a card that is lifted
-                cardShadow[c].color = Color.clear; cardShadow[c].raycastTarget = false;
+                cardShadow[c].sprite = SoftGlow; cardShadow[c].color = Color.clear; cardShadow[c].raycastTarget = false; // the soft radial glow of the UI kit, tinted black: no rectangle drawn in code
                 cell[c] = new GemCardView(slot, "Card", card.x - cr.x, card.y - cr.y, card.width, card.height, null, false, false, EdgePx);
                 ownerOverlay[c] = GemUiArt.Img(cell[c].Root, "Owner", -3f, -3f, card.width + 6f, card.height + 6f, null);
                 lastMark[c] = GemUiArt.Img(cell[c].Root, "Last", -5f, -5f, card.width + 10f, card.height + 10f, null);
                 cardFlash[c] = UiKit.Rect(cell[c].Root, "Flash", 0f, 0f, card.width, card.height).gameObject.AddComponent<Image>(); // the light on the edge-on card at 90 degrees
-                cardFlash[c].color = Color.clear; cardFlash[c].raycastTarget = false;
+                cardFlash[c].sprite = SoftGlow; cardFlash[c].color = Color.clear; cardFlash[c].raycastTarget = false;
                 CenterPivot(cell[c].Root); cellHome[c] = cell[c].Root.localPosition;
                 cell[c].NumbersOnTop();
                 cell[c].Root.gameObject.SetActive(false);

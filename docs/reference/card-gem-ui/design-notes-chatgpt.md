@@ -80,7 +80,7 @@ Người dùng: giữ style RO Soft **Fantasy**; duyệt bộ phí chuyển hoá
 3. **Escrow cả deck 8 lá của HAI bên** ở server-api trước ván (một transaction Mongo). Kết thúc: người thắng nhận lại 8 lá của mình + lá đã chọn, người thua nhận lại 7 lá, hoà trả đủ; idempotent theo matchId; quá hạn hoàn như cũ; ghi ledger.
 4. **Zone:** thắng xong người thắng thấy màn chọn với 8 lá của người thua (ngửa), 30 s, hết giờ server chọn ngẫu nhiên; người thua thấy "waiting for opponent to pick", sau đó lá nào bị lấy. Rớt mạng: 60 s nối lại rồi xử thua, người thắng vẫn chọn.
 5. **Chống lạm dụng:** Lv30+, tài khoản ≥ 7 ngày, không tự đấu chính tài khoản mình, cùng 1 cặp tối đa 2 trận / ngày, tối đa 10 trận PvP / tài khoản / ngày (API chốt, zone kiểm sớm để tắt nút). Công tắc khẩn `CARD_WAGER_ENABLED`: tắt thì PvP vẫn chơi nhưng không lấy card.
-6. **Nhạc kết quả:** thắng `duel-victory-spark`, thua `duel-defeat-try-again-tomorrow`, hoà dùng bản nhẹ `duel-defeat-try-again-gently` (quyết định của dev); nhạc nền map hạ xuống trong lúc phát rồi trở lại; bảng thay bản ở `DuelMusic.cs` (bản thay: `duel-victory-heros-prize`, `duel-defeat-try-again-gently`).
+6. **Nhạc kết quả:** thắng `duel-victory-cozy-win-sparkle` (người dùng chốt, thay `spark`), thua `duel-defeat-try-again-tomorrow`, hoà dùng bản nhẹ `duel-defeat-try-again-gently` (quyết định của dev); nhạc nền map hạ xuống trong lúc phát rồi trở lại; bảng thay bản ở `DuelMusic.cs` (bản thay: `duel-victory-heros-prize`, `duel-defeat-try-again-gently`).
 7. **Ranked (phase 07, sau): KHÔNG lấy card.**
 
 Ngoài ra ChatGPT vẽ thêm 1 bản 6b "logic fixed" (tỉ số 3-3 đúng, nhưng nó tự nhận mỹ thuật đơn giản hơn), chưa tải về.

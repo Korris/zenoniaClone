@@ -18,10 +18,10 @@ namespace ZenoniaProto.Net
     {
         None = 0, Busy = 1, NotSafe = 2, Combat = 3, Dead = 4, Trading = 5, DeckInvalid = 6, NoMatch = 7, NotYourTurn = 8, BadMove = 9, Disabled = 10, InDuel = 11,
         NoTarget = 12, TargetBusy = 13, InviteCooldown = 14, NoInvite = 15, NoLobby = 16, Declined = 17, Cancelled = 18, Expired = 19, OpponentLeft = 20,
-        WagerLevel = 21, WagerDaily = 22, ApiBusy = 23, WagerRefused = 24, StaleMove = 25, SelfInvite = 26, TargetNotReady = 27, NoPick = 28, AccountAge = 29, SameAccount = 30, RankedLevel = 31
+        WagerLevel = 21, WagerDaily = 22, ApiBusy = 23, WagerRefused = 24, StaleMove = 25, SelfInvite = 26, TargetNotReady = 27, NoPick = 28, AccountAge = 29, SameAccount = 30, RankedLevel = 31, NoStakes = 32
     }
 
-    public static class DuelFailInfo { public const DuelFail Last = DuelFail.RankedLevel; }
+    public static class DuelFailInfo { public const DuelFail Last = DuelFail.NoStakes; }
 
     public struct DuelRequestMsg
     {

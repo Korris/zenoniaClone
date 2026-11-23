@@ -39,7 +39,7 @@ namespace ZenoniaProto
             StepPresentation(v);
             if (pick.Visible) pick.Tick();
             if (v.Finished && v.WagerState == DuelView.WagerPicking && !v.MustPick) RefreshWaitingLine(v); // the loser sees the winner's 30 s counting down
-            if (v.Finished) { timerText.text = ""; timerFill.fillAmount = 0f; return; }
+            if (v.Finished) { if (shownSecs != -1) { shownSecs = -1; timerText.text = ""; timerFill.fillAmount = 0f; } return; } // cleared once, not every frame
             float left = DuelClient.SecondsLeft;
             timerFill.fillAmount = Mathf.Clamp01(left / (DuelMatch.TurnMs / 1000f));
             int secs = Mathf.CeilToInt(left);

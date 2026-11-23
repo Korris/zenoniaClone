@@ -185,6 +185,10 @@ namespace ZenoniaProto
             sparkDiamond = SpriteOf("Sprites/ui/ro-soft/wanted-sparkle");
         }
 
+        static Sprite softGlow;
+        /// <summary>The kit's soft round glow (ui/ro-soft/pet-glow): the shadow under a lifted card (tinted black) and the light on the edge-on card.</summary>
+        static Sprite SoftGlow { get { return softGlow != null ? softGlow : (softGlow = SpriteOf("Sprites/ui/ro-soft/pet-glow")); } }
+
         static Sprite SpriteOf(string path)
         {
             Texture2D t = Resources.Load<Texture2D>(path);

@@ -61,7 +61,10 @@ namespace ZenoniaProto.Net
             return "{" + (withCharacter ? "\"characterId\":" + ZoneApiReplyParser.Str(s.CharacterId) + "," : "") + "\"sessionId\":" + ZoneApiReplyParser.Str(s.SessionId) + ",\"rev\":" + s.Rev + ",\"state\":" + s.StateJson + "}";
         }
 
-        /// <summary>200: Rev = side a's rev, RevB = side b's (the cards are already out of both characters). Otherwise the standard refusal fields.</summary>
+        /// <summary>
+    /// 200 and status "held": Rev = side a's rev, RevB = side b's (the cards are already out of both characters). A replay that finds the match already settled / refunded is NOT a success (nothing is to be taken out
+    /// of the zone's copy): it is the refusal wager_not_held, with the API's current revs. Otherwise the standard refusal fields.
+    /// </summary>
         public static ZoneApiReply EscrowReply(int status, string text)
         {
             ZoneApiReply r = ZoneApiReplyParser.Reply(status, text);
@@ -69,6 +72,9 @@ namespace ZenoniaProto.Net
             Dictionary<string, string> top = ZoneApiReplyParser.Members(text);
             if (top == null || !Rev(top, "a", out r.Rev) || !Rev(top, "b", out r.RevB)) return Garbled(r);
             r.Replayed = top.ContainsKey("replayed") && top["replayed"] == "true";
+            string held;
+            if (!top.TryGetValue("status", out held)) return Garbled(r);
+            if (ZoneApiReplyParser.Unquote(held) != "held") { r.Status = 409; r.Code = "wager_not_held"; r.Message = "The match is already " + ZoneApiReplyParser.Unquote(held); }
             return r;
         }
 

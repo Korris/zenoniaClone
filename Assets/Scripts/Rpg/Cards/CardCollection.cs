@@ -20,6 +20,9 @@ namespace ZenoniaProto.Rpg
         public CardDailyData Daily = new CardDailyData();
         public int NpcFirstWins;                    // bit per duel NPC already beaten once (phase 05)
         public CardRankData Rank = new CardRankData();
+        /// <summary>Bit per first-time hint already shown (phase 08). Bit 0 = the guided tour of More > Cards (CardTutorial).</summary>
+        public int Help;
+        public const int HelpTutorial = 1, HelpMask = 1;
 
         public int Count(string id) { int n; return id != null && cards.TryGetValue(id, out n) ? n : 0; }
         /// <summary>Lock Card is on for this kind: none of its copies can be sold or converted (they can still go in the duel deck).</summary>
@@ -84,14 +87,13 @@ namespace ZenoniaProto.Rpg
             return lockedBack;
         }
 
-        /// <summary>Gives cards back / adds the card taken from the loser (one copy per id in the list). A kind that comes back after its last copy left gets its Lock flag again when it is in `lockedKinds`. Then the deck is cut to the copies owned.</summary>
+        /// <summary>Gives cards back / adds the card taken from the loser (one copy per id in the list). A kind that was Locked before its last copy left gets its Lock flag again when it is in `lockedKinds` (also when a new copy dropped meanwhile: the flag belongs to the kind). Then the deck is cut to the copies owned.</summary>
         public void ReturnCards(IList<string> ids, IList<string> lockedKinds)
         {
             foreach (string id in ids)
             {
-                bool existed = Count(id) > 0;
                 Add(id);
-                if (!existed && lockedKinds != null && lockedKinds.Contains(id)) locked.Add(id);
+                if (lockedKinds != null && lockedKinds.Contains(id)) locked.Add(id);
             }
             TrimDeck();
         }
@@ -157,6 +159,7 @@ namespace ZenoniaProto.Rpg
             d.cardDaily = new CardDailyData { day = Daily.day, npcWins = Daily.npcWins, pvpRewards = Daily.pvpRewards, wagers = Daily.wagers };
             d.cardNpcFirstWins = NpcFirstWins;
             d.cardRank = RankedRules.Copy(Rank);
+            d.cardHelp = Help;
         }
 
         /// <summary>Reads the card fields of a (parsed) save, dropping anything unknown or out of range. Missing fields (old saves) = nothing owned. Returns this.</summary>
@@ -186,6 +189,7 @@ namespace ZenoniaProto.Rpg
             NpcFirstWins = RpgMath.Clamp(d.cardNpcFirstWins, 0, MaxNpcFirstWins);
             CardRankData r = d.cardRank ?? new CardRankData();
             Rank = new CardRankData { season = Math.Max(0, r.season), mmr = Math.Max(0, r.mmr), lp = Math.Max(0, r.lp), wins = Math.Max(0, r.wins), losses = Math.Max(0, r.losses), draws = Math.Max(0, r.draws), best = Math.Max(0, r.best), prevBest = Math.Max(0, r.prevBest), rewards = RpgMath.Clamp(r.rewards, 0, RankedRules.RewardMask) };
+            Help = d.cardHelp & HelpMask;
             return this;
         }
     }

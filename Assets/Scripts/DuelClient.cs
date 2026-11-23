@@ -176,6 +176,7 @@ namespace ZenoniaProto
                 case DuelFail.AccountAge: return "Card duels with cards at stake need an account at least 7 days old";
                 case DuelFail.SameAccount: return "You cannot duel your own other character";
                 case DuelFail.RankedLevel: return RankedRules.Text(RankedError.Level);
+                case DuelFail.NoStakes: return "Card Wager is switched off: this duel has no cards at stake";
                 default: return "";
             }
         }

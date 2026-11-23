@@ -91,6 +91,19 @@ public class WagerRulesTests
     }
 
     [Fact]
+    public void ALockedKindStaysLockedWhenACopyDroppedWhileItsLastCopyWasStaked()
+    {
+        PlayerState p = WithDeck(DuelTestDecks.A);
+        p.Cards.SetLocked("caveMantis", true);
+        List<string> lockedKinds = p.Cards.EscrowDeck();
+        p.Cards.Add("caveMantis"); // a new copy dropped during the match: it came without the flag
+        Assert.False(p.Cards.IsLocked("caveMantis"));
+        p.Cards.ReturnCards(DuelTestDecks.A, lockedKinds);
+        Assert.Equal(2, p.Cards.Count("caveMantis"));
+        Assert.True(p.Cards.IsLocked("caveMantis")); // the flag belongs to the kind (the API does the same: card-wager-move.js giveWagerCards)
+    }
+
+    [Fact]
     public void TheWinnerGetsItsEightPlusTheTakenCardAndTheLoserSevenWithADeckOfSeven()
     {
         PlayerState win = WithDeck(DuelTestDecks.A), lose = WithDeck(DuelTestDecks.B);
