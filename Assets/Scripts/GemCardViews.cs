@@ -24,8 +24,8 @@ namespace ZenoniaProto
             this.w = w; this.h = h; this.barName = barName;
             Root = UiKit.Rect(parent, name, x, y, w, h + (showName ? 20f : 0f));
             RectTransform card = UiKit.Rect(Root, "Card", 0f, 0f, w, h);
-            portrait = Piece(card, "Portrait", w * 0.12f, h * 0.17f, w * 0.76f, h * 0.55f);
             frame = Piece(card, "Frame", 0f, 0f, w, h);
+            portrait = Piece(card, "Portrait", w * 0.13f, h * 0.17f, w * 0.74f, h * 0.55f); // the frame's cream window is opaque: the portrait is drawn over it
             badge = Piece(card, "Badge", w * 0.03f, h * 0.02f, w * 0.34f, w * 0.18f);
             int s = Mathf.Max(11, Mathf.RoundToInt(h * 0.1f));
             top = Num(card, w * 0.5f, h * 0.075f, s); right = Num(card, w * 0.93f, h * 0.47f, s);
@@ -61,7 +61,7 @@ namespace ZenoniaProto
             Root.gameObject.SetActive(c != null);
             if (c == null) return;
             Sprite p = GemUiArt.Portrait(c);
-            portrait.sprite = p; portrait.preserveAspect = false; portrait.color = p != null ? (dim ? new Color(1f, 1f, 1f, 0.45f) : Color.white) : Color.clear;
+            portrait.sprite = p; portrait.preserveAspect = true; portrait.color = p != null ? (dim ? new Color(1f, 1f, 1f, 0.45f) : Color.white) : Color.clear;
             GemUiArt.SetPiece(frame, GemUiArt.CardFrame(c));
             GemUiArt.SetPiece(badge, GemUiArt.RarityBadge(c));
             top.text = c.Top.ToString(); right.text = c.Right.ToString(); bottom.text = c.Bottom.ToString(); left.text = c.Left.ToString();
@@ -85,8 +85,8 @@ namespace ZenoniaProto
         {
             Root = UiKit.Rect(parent, name, x, y, size, size + (showName ? 30f : 0f));
             select = Mk(Root, "Select", -3f, -3f, size + 6f);
-            portrait = Mk(Root, "Portrait", size * 0.27f, size * 0.27f, size * 0.46f);
             shell = Mk(Root, "Shell", 0f, 0f, size);
+            portrait = Mk(Root, "Portrait", size * 0.27f, size * 0.27f, size * 0.46f); // over the shell: its round window is opaque
             tag = Mk(Root, "Tag", size * 0.45f, size * 0.68f, size * 0.55f); tag.rectTransform.sizeDelta = new Vector2(size * 0.55f, size * 0.27f);
             count = U.Txt(Root, "Count", size * 0.45f, size * 0.68f, size * 0.55f, size * 0.27f, "", Mathf.Max(11, Mathf.RoundToInt(size * 0.18f)), Color.white, TextAnchor.MiddleCenter);
             locked = Mk(Root, "Locked", size * 0.02f, size * 0.66f, size * 0.28f);
@@ -108,7 +108,7 @@ namespace ZenoniaProto
             Root.gameObject.SetActive(c != null);
             if (c == null) return;
             Sprite p = GemUiArt.Portrait(c);
-            portrait.sprite = p; portrait.color = p != null ? Color.white : Color.clear;
+            portrait.sprite = p; portrait.preserveAspect = true; portrait.color = p != null ? Color.white : Color.clear;
             GemUiArt.SetPiece(shell, GemUiArt.GemShell(kind, c.Rarity));
             GemUiArt.SetPiece(select, selected ? "cards/card/select-frame-gold" : null);
             GemUiArt.SetPiece(tag, total > 0 ? GemUiArt.Icon("tag-count") : null);

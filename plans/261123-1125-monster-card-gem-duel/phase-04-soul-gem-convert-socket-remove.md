@@ -53,6 +53,7 @@ Sửa: `Rpg/PlayerState.cs` (RecomputeStats), `Rpg/ItemInfo.cs` (dòng Gem Optio
 - [x] 3 trang UI (`GemConvertPage` / `GemSocketPage` / `GemRemovePage`, host tạm `GemWindow`, phím thử F8)   - [x] ItemInfo Gem Option (`ItemInfo.GemOptionLine`, chi tiết đồ trong `ArmoryWindow`)
 - [x] zod (`GEM_SLOTS`) + build player từ bản sao OK   - [ ] Build zone + deploy API (người dùng; API trước, zone sau)
 - [x] Ảnh chụp so mockup: `docs/reference/card-gem-ui/phase-04-shots/{convert,socket,remove}.png` (offline, 1280x720)
+- [x] Chân dung hiện trong card / ngọc (chụp lại)
 - [ ] Nối 3 trang vào `CardWindow` (phase 03 làm vỏ + menu trái, host các `GemPage`, xoá `GemWindow` + phím F8)
 - [ ] Kiểm online (client + zone thật): đổi / khảm / tháo, relog giữ ngọc, thử trade món có ngọc
 
@@ -66,7 +67,7 @@ Sửa: `Rpg/PlayerState.cs` (RecomputeStats), `Rpg/ItemInfo.cs` (dòng Gem Optio
 - Fix chung: `PaperArt.Get` tìm border cho mảnh `cards/...` bằng khoá không có tiền tố `cards/` (tool cắt ghi borders kiểu `frame/btn-teal`); `PaperArt.Borders.cs` sinh lại từ `paper-borders.json`.
 
 ## UI còn chờ art (phase 02)
-- Chân dung 40 quái `Sprites/monsters/card-portraits/<id>.png`: chưa có, cửa sổ chân dung của card / ngọc đang trống (code tự hiện khi file xuất hiện).
+- Chân dung 40 quái `Sprites/monsters/card-portraits/<id>.png`: đã có (phase 02 giao 23/11), ảnh chụp mới đã hiện chân dung (vẽ ĐÈ LÊN khung vì cửa sổ chân dung của khung / vỏ ngọc là màu kem đặc).
 - Icon element "Poison" (Bog Slime, Mire Toad, ... hệ Poison) chưa có trong kit: hiện không icon. Hệ "Shadow" dùng `element-dark`.
 - Icon HUD "Cards" ở cột More (`hud-icon-cards.png`) thuộc phase 03.
 
