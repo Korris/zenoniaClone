@@ -168,8 +168,8 @@ namespace ZenoniaProto
                     r = GemSockets.TryDecode(slot, out remCard, out remKind) ? CardOps.RemoveGem(State, itemUid, remCard, remKind) : ActionResult.Fail("No such gem");
                     break;
                 case InvOp.AlbumClaim: r = AlbumRules.Claim(State, slot); break; // Slot = milestone 0-3
-                case InvOp.CardSell: r = CardOps.Sell(State, itemUid, slot); break; // ItemUid = card id, Slot = copies
-                case InvOp.CardLock: r = CardOps.SetLock(State, itemUid, slot == 1); break; // ItemUid = card id, Slot 1 lock / 0 unlock
+                case InvOp.CardSell: r = CardOps.SellBySlot(State, itemUid, slot); break; // ItemUid = card id, Slot = copies; 0 = every spare copy (Sell all spare)
+                case InvOp.CardLock: r = CardOps.LockBySlot(State, itemUid, slot); break; // ItemUid = card id, Slot 1 lock / 0 unlock
                 default: r = ActionResult.Fail("Unknown action"); break;
             }
             Touch();

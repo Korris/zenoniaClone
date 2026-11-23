@@ -21,6 +21,7 @@ namespace ZenoniaProto.Rpg
             if (!Valid(milestone)) return ActionResult.Fail("No such milestone");
             if (Claimed(c, milestone)) return ActionResult.Fail("Already claimed");
             if (!Reached(c, milestone)) return ActionResult.Fail("Collect " + Milestones[milestone] + " different cards first");
+            if (milestone == 0 && (long)p.Gold + Gold10 > PlayerState.GoldCap) return ActionResult.Fail("Your Gold is full"); // refused before the bit is set, like Sell: the reward is never cut
             c.AlbumClaimed |= 1 << milestone;
             if (milestone == 0) { p.AddGoldCapped(Gold10); return ActionResult.Success("Album reward: +" + Gold10 + " G"); }
             return ActionResult.Success(milestone == CardHunter ? "Title unlocked: Card Hunter" : milestone == PortraitFrame ? "Portrait frame unlocked" : "Monster Master!");

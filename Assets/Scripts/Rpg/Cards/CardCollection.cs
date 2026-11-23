@@ -12,7 +12,7 @@ namespace ZenoniaProto.Rpg
         public const int MaxGemRows = 160, MaxDeck = 8, MaxNpcFirstWins = 0xFFFF;
 
         readonly Dictionary<string, int> cards = new Dictionary<string, int>();
-        readonly Dictionary<string, int> locks = new Dictionary<string, int>(); // copies per card id the player locked (always <= the count owned)
+        readonly HashSet<string> locked = new HashSet<string>(); // card ids the player locked (Lock Card): the flag belongs to the KIND, so copies that drop later are locked too
         readonly List<GemEntry> gems = new List<GemEntry>();
         readonly bool[] album = new bool[CardTable.Count];
         public int AlbumClaimed;                    // bit i = milestone i claimed (AlbumRules)
@@ -22,19 +22,19 @@ namespace ZenoniaProto.Rpg
         public CardRankData Rank = new CardRankData();
 
         public int Count(string id) { int n; return id != null && cards.TryGetValue(id, out n) ? n : 0; }
-        /// <summary>Copies of this card the player locked (Lock Card).</summary>
-        public int Locked(string id) { int n; return id != null && locks.TryGetValue(id, out n) ? n : 0; }
+        /// <summary>Lock Card is on for this kind: none of its copies can be sold or converted (they can still go in the duel deck).</summary>
+        public bool IsLocked(string id) { return id != null && locked.Contains(id); }
         /// <summary>Copies sitting in the duel deck.</summary>
         public int InDeck(string id) { int n = 0; for (int i = 0; i < Deck.Count; i++) if (Deck[i] == id) n++; return n; }
-        /// <summary>Copies that may be sold, converted or wagered: owned minus locked minus in the deck (locks and the deck never share a copy).</summary>
-        public int Spare(string id) { return Math.Max(0, Count(id) - Locked(id) - InDeck(id)); }
+        /// <summary>Copies that may be sold, converted or wagered: none when the kind is locked, else owned minus the copies in the duel deck.</summary>
+        public int Spare(string id) { return IsLocked(id) ? 0 : Math.Max(0, Count(id) - InDeck(id)); }
         public bool IsFull(string id) { return Count(id) >= CardTable.MaxStack; }
 
-        /// <summary>Locks `n` copies of an owned card (0 unlocks). Cannot lock copies that are in the deck or that are not owned. False (nothing changes) then.</summary>
-        public bool SetLocked(string id, int n)
+        /// <summary>Turns Lock Card on or off for an owned card. False (nothing changes) when the card is not owned.</summary>
+        public bool SetLocked(string id, bool on)
         {
-            if (n < 0 || n > Count(id) - InDeck(id)) return false;
-            if (n == 0) locks.Remove(id); else locks[id] = n;
+            if (Count(id) < 1) return false;
+            if (on) locked.Add(id); else locked.Remove(id);
             return true;
         }
 
@@ -104,7 +104,7 @@ namespace ZenoniaProto.Rpg
         public void ToSave(SaveData d)
         {
             d.cards = new List<CardEntry>();
-            foreach (KeyValuePair<string, int> kv in cards) d.cards.Add(new CardEntry { id = kv.Key, n = kv.Value, locked = Locked(kv.Key) });
+            foreach (KeyValuePair<string, int> kv in cards) d.cards.Add(new CardEntry { id = kv.Key, n = kv.Value, locked = IsLocked(kv.Key) ? 1 : 0 });
             d.gems = new List<GemEntry>();
             foreach (GemEntry g in gems) d.gems.Add(new GemEntry { id = g.id, kind = g.kind, locked = g.locked, n = g.n });
             d.album = new List<int>();
@@ -119,10 +119,9 @@ namespace ZenoniaProto.Rpg
         /// <summary>Reads the card fields of a (parsed) save, dropping anything unknown or out of range. Missing fields (old saves) = nothing owned. Returns this.</summary>
         public CardCollection Load(SaveData d)
         {
-            cards.Clear(); locks.Clear(); gems.Clear(); Deck.Clear(); Array.Clear(album, 0, album.Length);
+            cards.Clear(); locked.Clear(); gems.Clear(); Deck.Clear(); Array.Clear(album, 0, album.Length);
             foreach (CardEntry e in d.cards ?? new List<CardEntry>())
-                if (e != null && CardTable.IsCardId(e.id) && e.n > 0) { cards[e.id] = Math.Min(CardTable.MaxStack, Count(e.id) + e.n); locks[e.id] = Locked(e.id) + Math.Max(0, e.locked); }
-            foreach (string id in new List<string>(locks.Keys)) { int k = Math.Min(locks[id], Count(id)); if (k > 0) locks[id] = k; else locks.Remove(id); } // never more locked than owned
+                if (e != null && CardTable.IsCardId(e.id) && e.n > 0) { cards[e.id] = Math.Min(CardTable.MaxStack, Count(e.id) + e.n); if (e.locked > 0) locked.Add(e.id); }
             foreach (GemEntry g in d.gems ?? new List<GemEntry>())
                 if (g != null && g.n > 0 && (g.kind == 0 || g.kind == 1)) // a stack over 999 (forged / merged rows) is cut at 999
                 {
@@ -137,7 +136,7 @@ namespace ZenoniaProto.Rpg
             foreach (string id in d.cardDeck ?? new List<string>())
             {
                 int u; used.TryGetValue(id ?? "", out u);
-                if (Deck.Count < MaxDeck && u < Count(id) - Locked(id)) { Deck.Add(id); used[id] = u + 1; } // only cards still owned, as many as owned and not locked
+                if (Deck.Count < MaxDeck && u < Count(id)) { Deck.Add(id); used[id] = u + 1; } // only cards still owned, as many copies as owned (a locked card may be in the deck)
             }
             CardDailyData dy = d.cardDaily ?? new CardDailyData();
             Daily = new CardDailyData { day = Math.Max(0, dy.day), npcWins = Math.Max(0, dy.npcWins), pvpRewards = Math.Max(0, dy.pvpRewards), wagers = Math.Max(0, dy.wagers) };

@@ -78,10 +78,10 @@ describe('escrow', () => {
     expect((await load(a)).rev).toBe(a.rev);
   });
 
-  it('refuses locked, deck and unowned copies (spare only)', async () => {
-    const a = await hero([entry('meadowSlime', 2, 1), entry('thornBoar', 1), entry('forestWolf', 1)], { deck: ['meadowSlime', 'thornBoar'] });
+  it('refuses a locked kind, deck copies and unowned cards (spare only)', async () => {
+    const a = await hero([entry('meadowSlime', 3, 1), entry('thornBoar', 1), entry('forestWolf', 1), entry('snowFox', 2)], { deck: ['meadowSlime', 'thornBoar', 'snowFox'] });
     const b = await hero([entry('hornRabbit', 3)]);
-    expect(code(await escrow(a, 'meadowSlime', b, 'hornRabbit'))).toBe('wager_no_spare'); // 2 owned: 1 locked + 1 in the deck
+    expect(code(await escrow(a, 'meadowSlime', b, 'hornRabbit'))).toBe('wager_no_spare'); // the kind is locked: no copy is spare, deck or not
     expect(code(await escrow(a, 'thornBoar', b, 'hornRabbit'))).toBe('wager_no_spare'); // the only copy is in the deck
     expect(code(await escrow(a, 'caveMantis', b, 'hornRabbit'))).toBe('wager_no_spare'); // not owned
     expect((await escrow(a, 'forestWolf', b, 'hornRabbit')).status).toBe(200);

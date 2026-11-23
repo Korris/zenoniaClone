@@ -13,11 +13,12 @@ const WAGERABLE = new Set(['N', 'R']);
 const refuse = (code, message) => new ApiError(422, code, message);
 const info = new Map(cardTable.map((c, i) => [c.id, { ...c, index: i }]));
 
-/** Copies that may be wagered: owned - locked - copies in the deck (CardCollection.Spare). */
+/** Copies that may be wagered: none when the card kind is locked (Lock Card is a flag per card id), else owned - copies in the deck (CardCollection.Spare). */
 export function spareCopies(state, cardId) {
   const e = state.cards.find((c) => c.id === cardId);
   if (!e) return 0;
-  return Math.max(0, e.n - e.locked - state.cardDeck.filter((d) => d === cardId).length);
+  if (e.locked > 0) return 0;
+  return Math.max(0, e.n - state.cardDeck.filter((d) => d === cardId).length);
 }
 
 /** Rarity ('N' / 'R') of a wagerable card. Throws 422 for an unknown card, a boss, SR or SSR. */

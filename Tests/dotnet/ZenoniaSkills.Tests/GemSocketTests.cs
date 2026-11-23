@@ -76,9 +76,9 @@ public class GemSocketTests
         Assert.False(CardOps.Convert(p, id, GemKind.Power).Ok);          // 499 G < 500
         Assert.Equal(1, p.Cards.Count(id)); Assert.Equal(499, p.Gold);   // nothing was taken
         p.Gold = 5000;
-        p.Cards.SetLocked(id, 1);
+        p.Cards.SetLocked(id, true);
         Assert.False(CardOps.Convert(p, id, GemKind.Power).Ok);          // locked copy
-        p.Cards.SetLocked(id, 0);
+        p.Cards.SetLocked(id, false);
         p.Cards.Deck.Add(id);
         Assert.False(CardOps.Convert(p, id, GemKind.Power).Ok);          // the only copy is in the deck
         Assert.Equal(5000, p.Gold);

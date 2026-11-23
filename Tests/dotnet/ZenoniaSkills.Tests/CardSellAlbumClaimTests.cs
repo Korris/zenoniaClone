@@ -29,21 +29,20 @@ public class CardSellAlbumClaimTests
     }
 
     [Fact]
-    public void LockedAndDeckCopiesCannotBeSold()
+    public void ALockedKindAndCopiesInTheDeckCannotBeSold()
     {
         PlayerState p = Hero();
         p.Cards.Add("thornBoar", 3);
-        Assert.True(p.Cards.SetLocked("thornBoar", 2));
+        Assert.True(p.Cards.SetLocked("thornBoar", true));
         int gold = p.Gold;
-        Assert.False(CardOps.Sell(p, "thornBoar", 2).Ok); // 1 spare only
-        Assert.True(CardOps.Sell(p, "thornBoar", 1).Ok);
-        Assert.False(CardOps.Sell(p, "thornBoar", 1).Ok);
-        Assert.Equal(gold + 50, p.Gold);
-        Assert.Equal(2, p.Cards.Count("thornBoar"));
-        p.Cards.SetLocked("thornBoar", 0);
+        Assert.False(CardOps.Sell(p, "thornBoar", 1).Ok); // locked: nothing is for sale
+        Assert.Equal(gold, p.Gold);
+        p.Cards.SetLocked("thornBoar", false);
         p.Cards.Deck.Add("thornBoar");
-        Assert.False(CardOps.Sell(p, "thornBoar", 2).Ok); // one is in the deck
-        Assert.True(CardOps.Sell(p, "thornBoar", 1).Ok);
+        Assert.False(CardOps.Sell(p, "thornBoar", 3).Ok); // one is in the deck
+        Assert.True(CardOps.Sell(p, "thornBoar", 2).Ok);
+        Assert.Equal(gold + 100, p.Gold);
+        Assert.Equal(1, p.Cards.Count("thornBoar"));
     }
 
     [Fact]
@@ -71,18 +70,33 @@ public class CardSellAlbumClaimTests
     }
 
     [Fact]
-    public void LockCardLocksEveryCopyOutsideTheDeckAndUnlocks()
+    public void LockCardLocksTheKindAndUnlocks()
     {
         PlayerState p = Hero();
         p.Cards.Add("forestWolf", 4);
         p.Cards.Deck.Add("forestWolf");
         Assert.True(CardOps.SetLock(p, "forestWolf", true).Ok);
-        Assert.Equal(3, p.Cards.Locked("forestWolf"));
+        Assert.True(p.Cards.IsLocked("forestWolf"));
         Assert.Equal(0, p.Cards.Spare("forestWolf"));
+        Assert.True(CardOps.SetLock(p, "forestWolf", true).Ok); // idempotent
         Assert.True(CardOps.SetLock(p, "forestWolf", false).Ok);
-        Assert.Equal(0, p.Cards.Locked("forestWolf"));
+        Assert.False(p.Cards.IsLocked("forestWolf"));
+        Assert.Equal(3, p.Cards.Spare("forestWolf")); // 4 owned, 1 in the deck
         Assert.False(CardOps.SetLock(p, "meadowSlime", true).Ok); // not owned
         Assert.False(CardOps.SetLock(p, "nosuchcard", true).Ok);
+    }
+
+    [Fact]
+    public void AlbumClaimIsRefusedWhenTheGoldWouldBeCutAndTheBitStaysFree()
+    {
+        PlayerState p = Hero();
+        foreach (CardDef c in CardTable.All.Take(10)) p.Cards.Add(c.Id, 1);
+        p.Gold = PlayerState.GoldCap - 100;
+        Assert.False(AlbumRules.Claim(p, 0).Ok);
+        Assert.Equal(0, p.Cards.AlbumClaimed);
+        Assert.Equal(PlayerState.GoldCap - 100, p.Gold);
+        p.Gold = 0;
+        Assert.True(AlbumRules.Claim(p, 0).Ok);
     }
 
     [Fact]
@@ -108,5 +122,62 @@ public class CardSellAlbumClaimTests
         foreach (CardDef c in CardTable.All.Take(10)) { p.Cards.Add(c.Id, 1); CardOps.Sell(p, c.Id, 1); }
         Assert.Equal(0, p.Cards.OwnedKinds);
         Assert.True(AlbumRules.Claim(p, 0).Ok);
+    }
+
+    [Fact]
+    public void SellAllSpareTakesEveryCopyOutsideTheLockAndTheDeckAndPaysTheTotal()
+    {
+        PlayerState p = Hero();
+        p.Cards.Add("meadowSlime", 12);
+        p.Cards.Deck.Add("meadowSlime"); p.Cards.Deck.Add("meadowSlime");
+        int gold = p.Gold, spare = p.Cards.Spare("meadowSlime");
+        Assert.Equal(10, spare);
+        // PlayerRpg maps Slot 0 of InvOp.CardSell to Spare(): the sale below is exactly that call
+        ActionResult r = CardOps.Sell(p, "meadowSlime", spare);
+        Assert.True(r.Ok);
+        Assert.Equal(gold + 10 * CardFees.Sell(CardTable.Get("meadowSlime")), p.Gold);
+        Assert.Equal(2, p.Cards.Count("meadowSlime")); // the 2 in the deck stay
+        Assert.Equal(0, p.Cards.Spare("meadowSlime"));
+        Assert.False(CardOps.Sell(p, "meadowSlime", p.Cards.Spare("meadowSlime")).Ok); // nothing left to sell: refused, not a no-op sale
+    }
+
+    // the three card ops as PlayerRpg.ApplyInvAction dispatches them (Slot -> copies / milestone / lock flag)
+    [Fact]
+    public void SlotZeroOfCardSellMeansEverySpareCopyAndASlotNumberMeansThatMany()
+    {
+        PlayerState p = Hero();
+        p.Cards.Add("hornRabbit", 300); // more than a byte holds
+        p.Cards.Deck.Add("hornRabbit");
+        Assert.True(CardOps.SellBySlot(p, "hornRabbit", 5).Ok);
+        Assert.Equal(295, p.Cards.Count("hornRabbit"));
+        Assert.False(CardOps.SellBySlot(p, "hornRabbit", 295).Ok); // one is in the deck: refused as a whole
+        Assert.Equal(295, p.Cards.Count("hornRabbit"));
+        Assert.True(CardOps.SellBySlot(p, "hornRabbit", 0).Ok);
+        Assert.Equal(1, p.Cards.Count("hornRabbit"));
+        Assert.False(CardOps.SellBySlot(p, "hornRabbit", 0).Ok); // nothing spare: refused, not a free "sale"
+    }
+
+    [Fact]
+    public void CardLockSlotOneLocksAndZeroUnlocks()
+    {
+        PlayerState p = Hero();
+        p.Cards.Add("hornRabbit", 2);
+        Assert.True(CardOps.LockBySlot(p, "hornRabbit", 1).Ok);
+        Assert.True(p.Cards.IsLocked("hornRabbit"));
+        Assert.False(CardOps.SellBySlot(p, "hornRabbit", 0).Ok);
+        Assert.True(CardOps.LockBySlot(p, "hornRabbit", 0).Ok);
+        Assert.False(p.Cards.IsLocked("hornRabbit"));
+        Assert.True(CardOps.SellBySlot(p, "hornRabbit", 0).Ok);
+    }
+
+    [Fact]
+    public void AlbumClaimSlotIsTheMilestoneIndex()
+    {
+        PlayerState p = Hero();
+        foreach (CardDef c in CardTable.All.Take(20)) p.Cards.Add(c.Id, 1);
+        Assert.True(AlbumRules.Claim(p, 1).Ok);   // 20 cards: Card Hunter
+        Assert.False(AlbumRules.Claim(p, 1).Ok);
+        Assert.True(AlbumRules.Claim(p, 0).Ok);
+        Assert.False(AlbumRules.Claim(p, 2).Ok);  // 30 not reached
     }
 }

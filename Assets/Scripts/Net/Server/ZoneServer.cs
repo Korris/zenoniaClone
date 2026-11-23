@@ -31,6 +31,7 @@ namespace ZenoniaProto
         ZoneTransferService transfers;
         PartyService party;
         TradeService trade;
+        DuelService duel;
         WantedStatusService wanted;
         ZonePersistence persistence;
         NetStats stats;
@@ -82,6 +83,7 @@ namespace ZenoniaProto
             transfers = new ZoneTransferService(host, repl, stats);
             party = new PartyService(stats);
             trade = new TradeService(repl, stats, persistence);
+            duel = new DuelService(repl, stats);
             wanted = new WantedStatusService(host, stats);
             if (persistence != null) { persistence.Start(stats, OnCharacterLost); Application.wantsToQuit += OnWantsToQuit; }
             else Debug.LogWarning("[ZenoniaProto] net: DEV LOGIN: no accounts, nothing is saved, every join is a new character" + (NetLaunchArgs.DevLevel + NetLaunchArgs.DevGold + NetLaunchArgs.DevItems + NetLaunchArgs.DevHurtPct > 0 ? ", dev cheats on" : "") + ". Start with --api-url for real accounts.");
@@ -137,6 +139,7 @@ namespace ZenoniaProto
             if (p == null) return;
             RecordClientStats(p);
             party.OnLeave(p);
+            duel.OnLeave(p); // a duel in the middle is lost, nothing paid
             trade.OnLeave(p);
             if (persistence != null) persistence.OnLeave(p); // while the hero is still here to say where it stood; a trade being written goes first
             players.Remove(p);
@@ -179,7 +182,12 @@ namespace ZenoniaProto
                 case NetOp.TradeRequest:
                     TradeRequestMsg tr;
                     if (p == null || !TradeRequestMsg.TryRead(reader, out tr)) { Kick(peer, "bad trade request"); break; }
-                    trade.OnRequest(p, tr, host.ClockMs);
+                    if (!DuelService.IsDueling(p)) trade.OnRequest(p, tr, host.ClockMs); // no trade while a card duel runs
+                    break;
+                case NetOp.DuelRequest:
+                    DuelRequestMsg dr;
+                    if (p == null || !DuelRequestMsg.TryRead(reader, out dr)) { Kick(peer, "bad duel request"); break; }
+                    duel.OnRequest(p, dr, host.ClockMs);
                     break;
                 default: Kick(peer, "unknown opcode " + op); break;
             }
@@ -259,6 +267,7 @@ namespace ZenoniaProto
             zone.Players.Add(p);
             party.OnJoin(p);
             trade.OnJoin(p);
+            duel.OnJoin(p);
             nextSnapMs[p] = host.ClockMs + (p.PlayerId % snapDiv) * (1000f / tickRate);
             stats.Max("playersPeak", players.Count);
             repl.SendWelcome(p, zone.Map.Id, transfers.PortalsLive, ServerMs, tickRate, snapDiv);
@@ -371,6 +380,7 @@ namespace ZenoniaProto
             Zone.Enter(host.Start);
             party.Tick(host.ClockMs);
             trade.Tick(host.ClockMs);
+            duel.Tick(host.ClockMs);
             wanted.Tick(players);
             tickWatch.Stop();
             stats.Sample("tickMs", (float)tickWatch.Elapsed.TotalMilliseconds);
@@ -506,6 +516,7 @@ namespace ZenoniaProto
             }
             if (party != null) party.Stop();
             if (trade != null) trade.Stop();
+            if (duel != null) duel.Stop();
             if (host != null)
             {
                 for (int i = 0; i < host.Zones.Count; i++) host.Zones[i].BossDied -= OnBossDied;

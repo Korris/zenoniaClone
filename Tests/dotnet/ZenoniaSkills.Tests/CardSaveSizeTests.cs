@@ -29,7 +29,7 @@ public class CardSaveSizeTests
             it.sockets = new List<string>(twoLong);
             p.SetEquippedRaw(Slots.Generated[s], it);
         }
-        foreach (CardDef c in CardTable.All) { p.Cards.Add(c.Id, 999); p.Cards.SetLocked(c.Id, 999); }
+        foreach (CardDef c in CardTable.All) { p.Cards.Add(c.Id, 999); p.Cards.SetLocked(c.Id, true); }
         int rows = 0;
         foreach (CardDef c in CardTable.All)
             foreach (GemKind k in new[] { GemKind.Power, GemKind.Guard })

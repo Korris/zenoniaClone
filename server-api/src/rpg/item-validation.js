@@ -80,7 +80,7 @@ export const stateSchema = z
       equippedHeadgearId: z.number().int().min(0).max(HEADGEAR_COUNT).default(0), // HeadgearCatalog id of the worn hat; the C# side rebuilds it from the headgear slot on load
     }).optional(),
     // Monster cards (SaveData.cards ... cardRank, CardCollection). Absent in old saves = nothing owned. Listed so the strip keeps them: without them every relog loses the collection.
-    cards: z.array(z.object({ id: cardId, n: z.number().int().min(1).max(CARD_MAX_STACK), locked: z.number().int().min(0).max(CARD_MAX_STACK).default(0) }).refine((c) => c.locked <= c.n, { message: 'more copies locked than owned' })).max(CARD_COUNT).default([]),
+    cards: z.array(z.object({ id: cardId, n: z.number().int().min(1).max(CARD_MAX_STACK), locked: z.number().int().min(0).max(1).default(0) })).max(CARD_COUNT).default([]),
     gems: z.array(z.object({ id: cardId, kind: z.number().int().min(0).max(1), locked: z.boolean().default(false), n: z.number().int().min(1).max(CARD_MAX_STACK) })).max(GEM_MAX_ROWS).default([]),
     album: z.array(z.number().int().min(0).max(CARD_COUNT - 1)).max(CARD_COUNT).default([]), // CardTable indexes ever owned
     albumClaimed: z.number().int().min(0).max((1 << ALBUM_MILESTONES) - 1).default(0), // bit per claimed Album milestone

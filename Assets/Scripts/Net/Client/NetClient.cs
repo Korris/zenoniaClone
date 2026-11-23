@@ -99,6 +99,7 @@ namespace ZenoniaProto
             transferring = false; heldSpawns.Clear();
             Party.Clear();
             Trade.Clear();
+            DuelClient.Reset();
             WantedBossTracker.ClearStatus();
             if (State != ClientState.Failed) State = ClientState.Idle;
         }
@@ -148,6 +149,7 @@ namespace ZenoniaProto
             transferring = false; heldSpawns.Clear();
             Party.Clear();
             Trade.Clear();
+            DuelClient.Reset();
             WantedBossTracker.ClearStatus();
             if (wasJoined) { spawner = null; events = null; if (GameSession.Instance != null) GameSession.Instance.OnConnectionLost(); }
         }
@@ -223,6 +225,14 @@ namespace ZenoniaProto
                 case NetOp.TradeState:
                     TradeStateMsg ts;
                     if (ok = TradeStateMsg.TryRead(r, out ts)) Trade.Apply(ts);
+                    break;
+                case NetOp.DuelState:
+                    DuelStateMsg ds;
+                    if (ok = DuelStateMsg.TryRead(r, out ds)) DuelClient.Apply(DuelWire.ToView(ds));
+                    break;
+                case NetOp.DuelNotice:
+                    DuelNoticeMsg dn;
+                    if (ok = DuelNoticeMsg.TryRead(r, out dn)) DuelClient.OnNotice(dn);
                     break;
                 case NetOp.WantedStatus:
                     WantedStatusMsg ws;

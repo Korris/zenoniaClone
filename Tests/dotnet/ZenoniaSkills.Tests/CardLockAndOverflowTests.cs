@@ -16,62 +16,72 @@ public class CardLockAndOverflowTests
     }
 
     [Fact]
-    public void LockedCopiesSurviveSaveAndLoad()
+    public void TheLockFlagSurvivesSaveAndLoad()
     {
         var p = Hero();
         p.Cards.Add("meadowSlime", 5);
-        Assert.True(p.Cards.SetLocked("meadowSlime", 3));
+        Assert.True(p.Cards.SetLocked("meadowSlime", true));
         PlayerState q = RoundTrip(p);
-        Assert.Equal(3, q.Cards.Locked("meadowSlime"));
-        Assert.Equal(2, q.Cards.Spare("meadowSlime"));
+        Assert.True(q.Cards.IsLocked("meadowSlime"));
+        Assert.Equal(0, q.Cards.Spare("meadowSlime"));
     }
 
     [Fact]
-    public void LockedCopiesCannotBeTakenOut()
+    public void ALockedKindCannotBeTakenOutAndNewCopiesAreLockedToo()
     {
         var c = Hero().Cards;
-        c.Add("thornBoar", 3); c.SetLocked("thornBoar", 2);
-        Assert.False(c.Remove("thornBoar", 2));   // only 1 spare
-        Assert.Equal(3, c.Count("thornBoar"));
-        Assert.True(c.Remove("thornBoar", 1));
+        c.Add("thornBoar", 3); c.SetLocked("thornBoar", true);
         Assert.False(c.Remove("thornBoar", 1));
-        Assert.Equal(2, c.Count("thornBoar"));
-        Assert.True(c.SetLocked("thornBoar", 0));
-        Assert.True(c.Remove("thornBoar", 2));
+        c.Add("thornBoar", 2); // a copy that drops later is locked at once: the flag belongs to the kind
+        Assert.Equal(5, c.Count("thornBoar"));
+        Assert.Equal(0, c.Spare("thornBoar"));
+        Assert.False(c.Remove("thornBoar", 1));
+        Assert.True(c.SetLocked("thornBoar", false));
+        Assert.Equal(5, c.Spare("thornBoar"));
+        Assert.True(c.Remove("thornBoar", 5));
     }
 
     [Fact]
-    public void LockIsCappedByWhatIsOwnedAndNotInTheDeck()
+    public void LockNeedsAnOwnedCardAndTheDeckDoesNotBlockIt()
     {
         var c = Hero().Cards;
         c.Add("snowFox", 2);
-        Assert.False(c.SetLocked("snowFox", 3));
-        Assert.False(c.SetLocked("snowFox", -1));
         c.Deck.Add("snowFox");
-        Assert.False(c.SetLocked("snowFox", 2));  // one copy is in the deck
-        Assert.True(c.SetLocked("snowFox", 1));
+        Assert.True(c.SetLocked("snowFox", true)); // a card in the deck can be locked too
         Assert.Equal(0, c.Spare("snowFox"));
-        Assert.False(c.SetLocked("ghost", 1));
+        Assert.False(c.SetLocked("ghost", true));
+        Assert.False(c.SetLocked("hornRabbit", true)); // not owned
     }
 
     [Fact]
-    public void AForgedLockIsClampedOnLoad()
+    public void ALockedCardMayStillBeInTheDeck()
+    {
+        var p = Hero();
+        p.Cards.Add("meadowSlime", 2);
+        p.Cards.SetLocked("meadowSlime", true);
+        Assert.Equal(DeckError.None, DeckRules.Save(p, new[] { "meadowSlime", "meadowSlime" }));
+        Assert.Equal(2, p.Cards.InDeck("meadowSlime"));
+        Assert.False(CardOps.Sell(p, "meadowSlime", 1).Ok); // locked: not for sale, deck or not
+    }
+
+    [Fact]
+    public void AnyPositiveLockValueInASaveMeansLockedAndNegativeMeansOpen()
     {
         SaveData d = SaveSerializer.Capture(Hero(), false, 0f, 0f, false, 1);
         d.cards = new List<CardEntry> { new CardEntry { id = "meadowSlime", n = 2, locked = 50 }, new CardEntry { id = "snowFox", n = 4, locked = -3 } };
         PlayerState p = SaveSerializer.Restore(SaveSerializer.Parse(SaveSerializer.ToJson(d)));
-        Assert.Equal(2, p.Cards.Locked("meadowSlime"));
-        Assert.Equal(0, p.Cards.Locked("snowFox"));
+        Assert.True(p.Cards.IsLocked("meadowSlime"));
+        Assert.False(p.Cards.IsLocked("snowFox"));
     }
 
     [Fact]
-    public void ALockedCopyCannotFillTheDeckOnLoad()
+    public void ALockedCardCanFillTheDeckOnLoadUpToTheCopiesOwned()
     {
         SaveData d = SaveSerializer.Capture(Hero(), false, 0f, 0f, false, 1);
         d.cards = new List<CardEntry> { new CardEntry { id = "meadowSlime", n = 2, locked = 1 } };
-        d.cardDeck = new List<string> { "meadowSlime", "meadowSlime" };
+        d.cardDeck = new List<string> { "meadowSlime", "meadowSlime", "meadowSlime" };
         PlayerState p = SaveSerializer.Restore(SaveSerializer.Parse(SaveSerializer.ToJson(d)));
-        Assert.Single(p.Cards.Deck);
+        Assert.Equal(2, p.Cards.Deck.Count);
     }
 
     [Fact]
@@ -115,8 +125,9 @@ public class CardLockAndOverflowTests
         var p = Hero();
         for (int i = 0; i < 10; i++) p.AddCard(CardTable.All[i].Id);
         p.Gold = PlayerState.GoldCap - 100;
-        Assert.True(AlbumRules.Claim(p, 0).Ok);
-        Assert.Equal(PlayerState.GoldCap, p.Gold);
+        Assert.False(AlbumRules.Claim(p, 0).Ok); // refused, like Sell: the reward is not cut and the milestone stays claimable
+        Assert.Equal(PlayerState.GoldCap - 100, p.Gold);
+        Assert.Equal(0, p.Cards.AlbumClaimed);
     }
 
     [Fact]

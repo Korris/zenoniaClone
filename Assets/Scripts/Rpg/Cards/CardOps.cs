@@ -42,7 +42,7 @@ namespace ZenoniaProto.Rpg
             CardDef card = CardTable.Get(cardId);
             if (card == null) return ActionResult.Fail("No such card");
             if (p.Cards.Count(cardId) < 1) return ActionResult.Fail("You do not own this card");
-            if (p.Cards.Spare(cardId) < 1) return ActionResult.Fail("This card is locked or in your deck");
+            if (p.Cards.Spare(cardId) < 1) return ActionResult.Fail(p.Cards.IsLocked(cardId) ? "This card is locked" : "All copies are in your deck");
             int fee = CardFees.Convert(card);
             if (p.Gold < fee) return ActionResult.Fail("Need " + fee + " G");
             if (!p.Cards.CanAddGem(cardId, kind, false)) return ActionResult.Fail("No room for another Soul Gem of this kind");
@@ -109,7 +109,7 @@ namespace ZenoniaProto.Rpg
             if (card == null) return ActionResult.Fail("No such card");
             if (n < 1) return ActionResult.Fail("Nothing to sell");
             if (p.Cards.Count(cardId) < 1) return ActionResult.Fail("You do not own this card");
-            if (p.Cards.Spare(cardId) < n) return ActionResult.Fail("Locked or in-deck copies cannot be sold");
+            if (p.Cards.Spare(cardId) < n) return ActionResult.Fail(p.Cards.IsLocked(cardId) ? "This card is locked" : "Copies in your deck cannot be sold");
             long gold = (long)CardFees.Sell(card) * n;
             if ((long)p.Gold + gold > PlayerState.GoldCap) return ActionResult.Fail("Your Gold is full");
             p.Cards.Remove(cardId, n);
@@ -117,14 +117,18 @@ namespace ZenoniaProto.Rpg
             return ActionResult.Success("Sold " + n + " x " + card.Name + " (+" + gold + " G)");
         }
 
-        /// <summary>Lock Card: locks every copy that is not in the deck (it cannot be sold, converted or wagered), or unlocks them all. Copies earned later start unlocked.</summary>
+        /// <summary>The wire form of InvOp.CardSell: Slot = copies, and 0 = every spare copy (a byte cannot carry a stack of 999). PlayerRpg calls exactly this.</summary>
+        public static ActionResult SellBySlot(PlayerState p, string cardId, int slot) { return Sell(p, cardId, slot == 0 ? p.Cards.Spare(cardId) : slot); }
+
+        /// <summary>The wire form of InvOp.CardLock: Slot 1 locks the kind, anything else unlocks it.</summary>
+        public static ActionResult LockBySlot(PlayerState p, string cardId, int slot) { return SetLock(p, cardId, slot == 1); }
+
+        /// <summary>Lock Card: locks the KIND (flag per card id, so copies earned later are locked too) or unlocks it. A locked kind cannot be sold, converted or wagered; the duel deck may still use it.</summary>
         public static ActionResult SetLock(PlayerState p, string cardId, bool locked)
         {
             CardDef card = CardTable.Get(cardId);
             if (card == null) return ActionResult.Fail("No such card");
-            int owned = p.Cards.Count(cardId);
-            if (owned < 1) return ActionResult.Fail("You do not own this card");
-            if (!p.Cards.SetLocked(cardId, locked ? owned - p.Cards.InDeck(cardId) : 0)) return ActionResult.Fail("Cannot lock this card");
+            if (!p.Cards.SetLocked(cardId, locked)) return ActionResult.Fail("You do not own this card");
             return ActionResult.Success(locked ? card.Name + " locked" : card.Name + " unlocked");
         }
     }

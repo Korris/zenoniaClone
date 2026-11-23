@@ -5,7 +5,7 @@ import { makeCtx, weapon } from './helpers.js';
 
 // Monster cards (save v6): every new SaveData field must survive the zod strip, in the schema and through the save API.
 const base = () => newCharacterState('warrior');
-const cards = [{ id: 'meadowSlime', n: 3, locked: 2 }, { id: 'frostfangKing', n: 1, locked: 0 }];
+const cards = [{ id: 'meadowSlime', n: 3, locked: 1 }, { id: 'frostfangKing', n: 1, locked: 0 }];
 const full = () => ({
   cards,
   gems: [{ id: 'snowFox', kind: 1, locked: true, n: 2 }, { id: 'meadowSlime', kind: 0, locked: false, n: 1 }],
@@ -54,7 +54,7 @@ describe('state schema: card fields', () => {
   it.each([
     ['an unknown card', { cards: [{ id: 'ghost', n: 1 }] }],
     ['a zero stack', { cards: [{ id: 'meadowSlime', n: 0 }] }],
-    ['more copies locked than owned', { cards: [{ id: 'meadowSlime', n: 2, locked: 3 }] }],
+    ['a lock value above 1 (the lock is a flag per card kind)', { cards: [{ id: 'meadowSlime', n: 2, locked: 2 }] }],
     ['a negative lock', { cards: [{ id: 'meadowSlime', n: 2, locked: -1 }] }],
     ['a stack over 999', { cards: [{ id: 'meadowSlime', n: 1000 }] }],
     ['more than 40 card rows', { cards: Array.from({ length: 41 }, () => ({ id: 'meadowSlime', n: 1 })) }],
