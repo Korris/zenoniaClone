@@ -38,6 +38,8 @@ namespace ZenoniaProto
         public static bool DevNoCooldowns;
         /// <summary>Server test hook (--dev-gold N): every new hero starts with this much gold; 0 = off. Never set on a public server.</summary>
         public static int DevGold;
+        /// <summary>--dev-cards (test servers only): every new hero gets 3 copies of 8 cards and them as a saved duel deck, to play Card Duels without grinding drops.</summary>
+        public static bool DevCards;
         /// <summary>Server test hook (--dev-items N, at most a full bag): every new hero starts with this many bag items, the first an enhanced weapon of its class; 0 = off. Never set on a public server.</summary>
         public static int DevItems;
         /// <summary>Server: --map, the zone new heroes begin in (null = the default map, Frost Hollow).</summary>
@@ -96,6 +98,7 @@ namespace ZenoniaProto
             DevHurtPct = Math.Max(0, Math.Min(100, Int(a, "--dev-hurt", 0)));
             DevNoCooldowns = HasFlag("--dev-no-cooldowns");
             DevGold = Math.Max(0, Int(a, "--dev-gold", 0));
+            DevCards = HasFlag("--dev-cards");
             DevItems = Math.Max(0, Math.Min(Rpg.PlayerState.InventorySize, Int(a, "--dev-items", 0)));
             float pa;
             PredictAfter = float.TryParse(Arg(a, "--predict-after"), NumberStyles.Float, CultureInfo.InvariantCulture, out pa) ? pa : 0f;

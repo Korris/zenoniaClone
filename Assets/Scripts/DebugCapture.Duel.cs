@@ -22,6 +22,8 @@ namespace ZenoniaProto
                 SeedGems(p);
                 DeckRules.Save(p, new[] { "frostfangKing", "duneScarab", "sandRaider", "crystalGolem", "iceGoblin", "frostSlime", "thornBoar", "meadowSlime" });
             }
+            string pvp = Arg(args, "--duel-pvp");
+            if (pvp != null) { DebugDuelPvp(pvp); return; } // PvP / wager screens without a second client (DebugCapture.DuelPvp.cs)
             string open = Arg(args, "--duel-open");
             if (open == null) return;
             CardWindow.Open(CardWindow.Page.Duel);
@@ -50,7 +52,7 @@ namespace ZenoniaProto
                         int flips = DuelNpcAi.PopCount(b.PreviewFlips(DuelView.Me, v.Hand[h], c));
                         if (flips > bestFlips || (flips == bestFlips && rng.Next(3) == 0)) { bestFlips = flips; bestHand = h; bestCell = c; }
                     }
-                if (bestCell >= 0) DuelClient.Place(bestHand, bestCell);
+                if (bestCell >= 0 && DuelClient.Place(bestHand, bestCell)) nextAt = Time.unscaledTime + 1.6f;
             }
         }
     }

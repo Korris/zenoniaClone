@@ -72,6 +72,12 @@ namespace ZenoniaProto
         static void GrantDevGoods(PlayerState state)
         {
             state.Gold += NetLaunchArgs.DevGold;
+            if (NetLaunchArgs.DevCards)
+            {
+                string[] deck = { "meadowSlime", "hornRabbit", "thornBoar", "meadowMantis", "forestWolf", "brambleTreant", "thornSprite", "caveMantis" };
+                foreach (string id in deck) state.Cards.Add(id, 3);
+                DeckRules.Save(state, deck);
+            }
             string[] rarities = ItemDefs.RarityOrder;
             for (int i = 0; i < NetLaunchArgs.DevItems; i++)
             {

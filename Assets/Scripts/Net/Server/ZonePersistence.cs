@@ -303,6 +303,18 @@ namespace ZenoniaProto
             queue.CommitTrade(a.Saved, b.Saved, c.AGaveUids, c.AGaveGold, c.BGaveUids, c.BGaveGold, done);
         }
 
+        /// <summary>Card Wager (phase 06): the API takes the card out of both characters before the match; the queue sends it when both are idle and online and answers once, definitely.</summary>
+        public void EscrowWager(NetPlayer a, NetPlayer b, string cardA, string cardB, string matchId, Action<ZoneApiReply> done)
+        {
+            queue.EscrowWager(matchId, a.Saved, b.Saved, cardA, cardB, done);
+        }
+
+        /// <summary>Pays a held wager (`result` a / b / draw). `receiverA` / `receiverB` = character ids that get a card (null = none); the queue retries until the API answers.</summary>
+        public void SettleWager(string matchId, string result, string receiverA, string receiverB, Action<ZoneApiReply> done)
+        {
+            queue.SettleWager(matchId, result, receiverA, receiverB, done);
+        }
+
         /// <summary>The API rolls it; the answer changes the item here and goes to the client, which is simply waiting for its request to be answered. The player leaving meanwhile changes nothing: the last save comes after it.</summary>
         public void Enhance(ServerReplication repl, NetPlayer p, InvActionMsg m)
         {

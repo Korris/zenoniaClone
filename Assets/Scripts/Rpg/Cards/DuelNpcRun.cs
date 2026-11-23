@@ -3,7 +3,7 @@ using System;
 namespace ZenoniaProto.Rpg
 {
     /// <summary>
-    /// A practice duel bound to the character playing it: the deck check at the start (full 8 cards, owned and unlocked, boss / SR+ limits), the session, and the one-time payment of the result.
+    /// A practice duel bound to the character playing it: the deck check at the start (full 8 cards, copies owned, boss / SR+ limits; Lock Card does not matter for the deck), the session, and the one-time payment of the result.
     /// Used by the zone server (DuelService, per connected player) and the offline host (LocalDuelHost), so both pay and refuse identically. A duel that did not finish normally is never paid.
     /// </summary>
     public sealed class DuelNpcRun

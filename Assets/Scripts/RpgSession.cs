@@ -176,6 +176,7 @@ namespace ZenoniaProto
             }
             if (Time.frameCount == beganFrame) return;
             if (InputAdapter.Pressed(GameKey.Inventory) || (UiScreens.IsOpen(UiScreen.Bag) && InputAdapter.Pressed(GameKey.Close))) UiScreens.Toggle(UiScreen.Bag); // old bag or its rebuild (UiScreens)
+            DuelClient.Tick(); // offline Card Duel: the NPC and the turn clock run even with the window closed
             AutoBattle.Tick(hero); // V toggles Auto-battle; it stops itself on manual moves, death and map changes
             if (!hero.IsDead && NetMode.IsAuthority) // online clients send the potion keys to the server instead (NetInputSender)
             {

@@ -17,30 +17,37 @@ namespace ZenoniaProto
         readonly Image portrait, frame, badge, select, tag, unknown;
         readonly Text top, right, bottom, left, count, name;
         readonly float w, h;
-        readonly bool barName;
+        readonly bool barName, fill;
 
-        public GemCardView(Transform parent, string name, float x, float y, float w, float h, Action onClick, bool showName, bool barName = true)
+        /// <summary>`edgePx` > 0 = a duel card: the four numbers are drawn that big (px) in bold white with a dark rim, centred on each edge, so they stay readable on a small card (board, hand).</summary>
+        public GemCardView(Transform parent, string name, float x, float y, float w, float h, Action onClick, bool showName, bool barName = true, int edgePx = 0)
         {
-            this.w = w; this.h = h; this.barName = barName;
+            this.w = w; this.h = h; this.barName = barName; fill = edgePx > 0; // a duel card fills its box: the frame art is stretched a little (0.82 -> 0.9) instead of leaving gaps in the cell
             Root = UiKit.Rect(parent, name, x, y, w, h + (showName ? 20f : 0f));
             RectTransform card = UiKit.Rect(Root, "Card", 0f, 0f, w, h);
             frame = Piece(card, "Frame", 0f, 0f, w, h);
             portrait = Piece(card, "Portrait", w * 0.13f, h * 0.17f, w * 0.74f, h * 0.55f); // the frame's cream window is opaque: the portrait is drawn over it
             badge = Piece(card, "Badge", w * 0.03f, h * 0.02f, w * 0.34f, w * 0.18f);
-            int s = Mathf.Max(11, Mathf.RoundToInt(h * 0.1f));
-            top = Num(card, w * 0.5f, h * 0.075f, s); right = Num(card, w * 0.93f, h * 0.47f, s);
-            bottom = Num(card, w * 0.5f, h * 0.775f, s); left = Num(card, w * 0.07f, h * 0.47f, s);
-            this.name = U.Txt(card, "Name", w * 0.06f, h * 0.835f, w * 0.88f, h * 0.11f, "", Mathf.Max(10, s - 1), U.Ink, TextAnchor.MiddleCenter);
+            int sBase = Mathf.Max(11, Mathf.RoundToInt(h * 0.1f)), s = edgePx > 0 ? edgePx : sBase;
+            bool big = edgePx > 0; // the slots are drawn small in the frame: a big number sits a little further in so it stays on the card
+            Transform numbers = big ? Root : card; // a big number lives on the root so NumbersOnTop can lift it over the owner / last-move rings the board adds later
+            top = Num(numbers, w * 0.5f, h * (big ? 0.14f : 0.075f), s, big); right = Num(numbers, w * (big ? 0.9f : 0.93f), h * 0.47f, s, big);
+            bottom = Num(numbers, w * 0.5f, h * (big ? 0.8f : 0.775f), s, big); left = Num(numbers, w * (big ? 0.1f : 0.07f), h * 0.47f, s, big);
+            this.name = U.Txt(card, "Name", w * 0.06f, h * 0.835f, w * 0.88f, h * 0.11f, "", Mathf.Max(10, sBase - 1), U.Ink, TextAnchor.MiddleCenter);
             tag = Piece(card, "CountTag", w * 0.55f, h * 0.60f, w * 0.4f, w * 0.19f);
-            count = U.Txt(card, "Count", w * 0.55f, h * 0.60f, w * 0.4f, w * 0.19f, "", Mathf.Max(11, s), Color.white, TextAnchor.MiddleCenter);
+            count = U.Txt(card, "Count", w * 0.55f, h * 0.60f, w * 0.4f, w * 0.19f, "", sBase, Color.white, TextAnchor.MiddleCenter);
             unknown = Piece(card, "Unknown", w * 0.3f, h * 0.27f, w * 0.4f, h * 0.3f);
             select = Piece(Root, "Select", -4f, -4f, w + 8f, h + 8f);
             // the caption is wider than the card so a long name (Frostfang King) stays on one line
             if (showName) { Text n = U.Txt(Root, "Caption", -10f, h + 1f, w + 20f, 18f, "", U.TextSmall, U.Ink, TextAnchor.MiddleCenter); caption = n; }
             if (onClick != null) { UiWinKit.MakeButton(frame, onClick); frame.raycastTarget = true; }
+            if (big) NumbersOnTop();
         }
 
         Text caption;
+
+        /// <summary>Draws the four numbers above every overlay added to this card after it was built (a ring must never cover a digit).</summary>
+        public void NumbersOnTop() { top.transform.SetAsLastSibling(); right.transform.SetAsLastSibling(); bottom.transform.SetAsLastSibling(); left.transform.SetAsLastSibling(); }
 
         Image Piece(Transform parent, string name, float x, float y, float w, float h)
         {
@@ -50,10 +57,13 @@ namespace ZenoniaProto
             return img;
         }
 
-        Text Num(Transform parent, float cx, float cy, int size)
+        Text Num(Transform parent, float cx, float cy, int size, bool big)
         {
             float bw = size * 1.6f;
-            Text t = U.Txt(parent, "Edge", cx - bw * 0.5f, cy - size * 0.8f, bw, size * 1.6f, "", size, U.Ink, TextAnchor.MiddleCenter);
+            Text t = U.Txt(parent, "Edge", cx - bw * 0.5f, cy - size * 0.8f, bw, size * 1.6f, "", size, big ? Color.white : U.Ink, TextAnchor.MiddleCenter);
+            if (!big) return t;
+            t.resizeTextForBestFit = false; t.fontSize = size; t.fontStyle = FontStyle.Bold; t.alignByGeometry = true; t.horizontalOverflow = HorizontalWrapMode.Overflow; t.verticalOverflow = VerticalWrapMode.Overflow;
+            var rim = t.gameObject.AddComponent<Outline>(); rim.effectColor = new Color(0.12f, 0.08f, 0.04f, 1f); rim.effectDistance = new Vector2(1.6f, -1.6f); // high contrast on any frame colour
             return t;
         }
 
@@ -65,6 +75,7 @@ namespace ZenoniaProto
             Sprite p = GemUiArt.Portrait(c);
             portrait.sprite = p; portrait.preserveAspect = true; portrait.color = p != null ? (dim ? new Color(1f, 1f, 1f, 0.45f) : Color.white) : Color.clear;
             GemUiArt.SetPiece(frame, GemUiArt.CardFrame(c));
+            if (fill) frame.preserveAspect = false;
             GemUiArt.SetPiece(badge, GemUiArt.RarityBadge(c));
             top.text = c.Top.ToString(); right.text = c.Right.ToString(); bottom.text = c.Bottom.ToString(); left.text = c.Left.ToString();
             name.text = caption == null && barName ? c.Name : ""; // the frame has a name bar: a card with no caption under it writes the name there
@@ -72,6 +83,7 @@ namespace ZenoniaProto
             GemUiArt.SetPiece(tag, owned > 0 ? GemUiArt.Icon("tag-count") : null);
             count.text = owned > 0 ? "x" + owned : "";
             GemUiArt.SetPiece(select, selected ? "cards/card/select-frame-gold" : null);
+            if (fill) select.preserveAspect = false;
             frame.color = dim ? new Color(1f, 1f, 1f, 0.55f) : Color.white;
             unknown.color = Color.clear;
         }

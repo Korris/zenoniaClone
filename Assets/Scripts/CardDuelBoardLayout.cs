@@ -14,7 +14,7 @@ namespace ZenoniaProto
         // cells: first cell's top-left, size, and the gap between cells (measured on the cell borders)
         const float CellX = 63f, CellY = 46f, CellW = 111f, CellH = 103f, GapX = 6f, GapY = 7f;
         // padding between a cell's border and the card drawn in it
-        public const float CellPadding = 6f;
+        public const float CellPadding = 4f, CardAspect = 0.9f;
         // label tabs: column tabs are as wide as a cell and share the strip y .. y + h; row tabs are one strip x .. x + w, each centred on the tab drawn in the art
         const float ColTabY = 18f, ColTabW = 66f, ColTabH = 20f;
         const float RowTabX = 22f, RowTabW = 36f, RowTabH = 36f;
@@ -24,11 +24,11 @@ namespace ZenoniaProto
 
         public static Rect Cell(int col, int row) { return new Rect(CellX + col * (CellW + GapX), CellY + row * (CellH + GapY), CellW, CellH); }
 
-        /// <summary>The box a card occupies inside its cell: the cell minus its padding, with the card's 3:4 shape fitted and centred.</summary>
+        /// <summary>The box a card occupies inside its cell: the cell minus its padding (like CSS padding), the card filling it as far as its 0.9 shape allows (the frame art is 0.82, a duel card is a little wider so the edge numbers fit) and centred.</summary>
         public static Rect CardIn(Rect cell)
         {
-            float h = cell.height - 2f * CellPadding, w = Mathf.Min(cell.width - 2f * CellPadding, h * 0.75f);
-            h = w / 0.75f;
+            float h = cell.height - 2f * CellPadding, w = Mathf.Min(cell.width - 2f * CellPadding, h * CardAspect);
+            h = w / CardAspect;
             return new Rect(cell.x + (cell.width - w) * 0.5f, cell.y + (cell.height - h) * 0.5f, w, h);
         }
 

@@ -34,9 +34,9 @@ public class DuelMessageRoundTripTests
         new DuelRequestMsg { Op = DuelOp.PlayNpc, A = 2 }.Write(w);
         Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
         Assert.Equal(DuelOp.PlayNpc, m.Op); Assert.Equal(2, m.A); Assert.Empty(m.Cards);
-        new DuelRequestMsg { Op = DuelOp.Place, A = 4, B = 15 }.Write(w);
+        new DuelRequestMsg { Op = DuelOp.Place, A = 4, B = 15, Turn = 11, Card = 39 }.Write(w);
         Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
-        Assert.Equal(DuelOp.Place, m.Op); Assert.Equal(4, m.A); Assert.Equal(15, m.B);
+        Assert.Equal(DuelOp.Place, m.Op); Assert.Equal(4, m.A); Assert.Equal(15, m.B); Assert.Equal(11, m.Turn); Assert.Equal(39, m.Card);
         new DuelRequestMsg { Op = DuelOp.Forfeit }.Write(w);
         Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
         Assert.Equal(DuelOp.Forfeit, m.Op);
@@ -47,11 +47,11 @@ public class DuelMessageRoundTripTests
     {
         var w = new NetDataWriter();
         DuelRequestMsg m;
-        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)9); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0);
+        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)99); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((ushort)0); w.Put((byte)0);
         Assert.False(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
-        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)DuelOp.SaveDeck); w.Put((byte)0); w.Put((byte)0); w.Put((byte)9); for (int i = 0; i < 9; i++) w.Put((byte)i);
+        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)DuelOp.SaveDeck); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((ushort)0); w.Put((byte)9); for (int i = 0; i < 9; i++) w.Put((byte)i);
         Assert.False(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
-        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)DuelOp.Forfeit); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((byte)77);
+        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)DuelOp.Forfeit); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((ushort)0); w.Put((byte)0); w.Put((byte)77);
         Assert.False(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
         w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)DuelOp.SaveDeck); // truncated
         Assert.False(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));

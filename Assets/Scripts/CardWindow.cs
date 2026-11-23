@@ -30,6 +30,7 @@ namespace ZenoniaProto
         readonly Image[] navSkin = new Image[6];
         Text goldText;
         string shownKey = "";
+        int shownGold = -2;
         Page page;
         CardConfirmBox confirm;
         CardDuelBattleView battle;
@@ -176,14 +177,16 @@ namespace ZenoniaProto
         void RefreshGold()
         {
             PlayerState p = PetActions.Me;
-            goldText.text = p != null ? p.Gold.ToString("N0", CultureInfo.InvariantCulture) + " G" : "";
+            int gold = p != null ? p.Gold : -1;
+            if (gold == shownGold) return; // a new string and a Text rebuild only when the number changes (this runs every frame during a duel)
+            shownGold = gold;
+            goldText.text = p != null ? gold.ToString("N0", CultureInfo.InvariantCulture) + " G" : "";
         }
 
         void Update()
         {
             PlayerState p = PetActions.Me;
             if (p == null) { Close(); return; }
-            DuelClient.Tick(); // offline: the NPC moves and the turn clock run here
             bool duel = DuelClient.View != null;
             if (duel != battle.Visible) ShowBattle(duel);
             if (duel) { battle.Tick(); RefreshGold(); return; }

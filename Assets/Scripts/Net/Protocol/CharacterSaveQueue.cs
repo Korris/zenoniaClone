@@ -15,6 +15,11 @@ namespace ZenoniaProto.Net
         /// <summary>Enhance only: Attempted = a stone was spent. Level = the item's level afterwards.</summary>
         public bool Attempted, Success;
         public int Level;
+        /// <summary>Wager calls only: the settle's payouts (null otherwise) and whether the API said it had already done this matchId.</summary>
+        public WagerCredit[] Credits;
+        public bool Replayed;
+        /// <summary>A wager request this zone gave up on (or could not send) after an earlier attempt got no answer: the API may have applied it, so the owner must settle it as a draw.</summary>
+        public bool MayHaveLanded;
 
         public bool Ok { get { return Status >= 200 && Status < 300; } }
         /// <summary>Worth trying again as it is: nothing about the request itself was refused. Includes 401 / 403, a wrong service key is a bad config that gets fixed, not a reason to drop a character.</summary>
@@ -38,6 +43,8 @@ namespace ZenoniaProto.Net
         void CommitTrade(string tradeId, TradeCommitSide a, TradeCommitSide b, Action<ZoneApiReply> done);
         void Enhance(string characterId, string sessionId, int rev, string reqId, string itemUid, Action<ZoneApiReply> done);
         void EndSession(string characterId, string sessionId, Action<ZoneApiReply> done);
+        void EscrowWager(string matchId, WagerSide a, WagerSide b, Action<ZoneApiReply> done);
+        void SettleWager(string matchId, string result, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done);
     }
 
     /// <summary>One character the zone holds the lock of. Capture is asked for the state at the moment a write leaves, so a write is never older than it has to be.</summary>
@@ -66,7 +73,7 @@ namespace ZenoniaProto.Net
     /// any other refusal of a save = Rejected, loudly, because the data itself is wrong and a retry would not help.
     /// A trade waits until it is first in line for both characters, and only a real answer ends it: after a lost answer it is retried under the same id, which the API can never apply twice.
     /// </summary>
-    public sealed class CharacterSaveQueue
+    public sealed partial class CharacterSaveQueue
     {
         public const int MaxInFlight = 16;
         const long BackoffBaseMs = 500, BackoffMaxMs = 30000;
@@ -175,6 +182,7 @@ namespace ZenoniaProto.Net
         public void Tick(long nowMs)
         {
             now = nowMs;
+            TickWagers();
             for (int i = 0; i < characters.Count && inFlight < MaxInFlight; i++)
             {
                 SavedCharacter c = characters[i];
@@ -319,6 +327,7 @@ namespace ZenoniaProto.Net
         {
             foreach (SavedCharacter c in characters) c.Jobs.Clear();
             characters.Clear();
+            wagerJobs.Clear();
         }
     }
 }

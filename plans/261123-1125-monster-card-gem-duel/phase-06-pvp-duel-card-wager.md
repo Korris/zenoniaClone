@@ -53,9 +53,21 @@ Sửa: `server-api/src/schemas.js` (schema 2 route), `server-api/src/config.js` 
 
 ## Todo List
 - [x] API escrow / settle / refund + vitest (23/11, server-api xong, 248 vitest pass, chưa deploy)   - [x] ~~redeem createdAt~~ KHÔNG cần: API tự kiểm tuổi tài khoản (`users.createdAt`) khi escrow
-- [ ] WagerRules + test   - [ ] DuelService.Pvp / Wager + messages
-- [ ] UI mời + panel cược   - [ ] Thưởng PvP / ngày   - [ ] Build + deploy + thử 3 kịch bản lỗi
+- [x] WagerRules + test (`WagerRulesTests`)   - [x] DuelLobby / DuelPvpMatch / DuelService.Pvp / DuelService.Wager + messages (Version 31)
+- [x] UI mời (`CardDuelLobbyWindow`) + panel cược (`CardWagerPanel`) + mục menu người chơi + nút Challenge Player   - [x] Thưởng PvP / ngày (300 / 100 / 150, 5 trận)
+- [x] Thử 2 client trên dev server (plain / wager / drop 60 s)   - [ ] Build + deploy (API trước, zone sau) + thử với server-api thật: escrow / settle qua HTTP, zone sập giữa ván, nối lại trong 60 s
 
+## Trạng thái 23/11 (zone + client xong, CHƯA deploy)
+Làm khác kế hoạch:
+- Lời mời / bảng cược là **`DuelLobby`** (thuần, `Net/Protocol`, test ở ZenoniaNet.Tests) thay vì nhét vào `DuelService`; trận là **`DuelPvpMatch`** (thuần, `Rpg/Cards`, nối lại 60 s theo nhân vật). `DuelService` tách 3 file: `.cs` (NPC + chung), `.Pvp.cs`, `.Wager.cs`.
+- Gọi API không qua `TradeBook.FinishCommit` mà qua hàng đợi ghi: `CharacterSaveQueue.Wager.cs` (escrow chờ cả 2 nhân vật rảnh + online, thử lại cùng matchId, bỏ cuộc sau 25 s và báo `MayHaveLanded` để zone settle hoà; settle thử lại tới khi API trả lời dứt khoát, chờ `receiver_online`). `WagerApiClient` + `ZoneApiReplyParser` (thuần) dựng JSON / đọc câu trả lời, test bằng `post` giả.
+- Zone KHÔNG ghi đè state bằng `state` API trả về: áp `rev` (hàng đợi) và bớt / cộng card theo delta trên bản đang giữ, để card rơi trong lúc chờ không mất (settle replay chỉ áp khi rev API lớn hơn rev zone: `WagerCredit.Apply`).
+- Thua do rớt mạng / bỏ trận: KHÔNG có thưởng Gold PvP (như đấu NPC); thắng vì đối thủ bỏ vẫn nhận 300 G. Panel cược hết hạn sau 60 s (lời mời 15 s).
+- `Place` mang thêm `Turn` + `Card` (review phase 05): server từ chối `StaleMove`; client khoá đặt khi còn < 0,5 s.
+- Điều kiện mở trận: không bị đánh VÀ không tấn công trong 5 s (`HeroController.MsSinceAttack`).
+- Animation lật bài FF8 (yêu cầu người dùng 23/11, áp cả NPC và PvP): `CardDuelBattleView.Flip.cs`, ghi trong Sổ lỗi `docs/ui-layout-rules.md`; chưa có âm thanh (kit không có sfx card).
+- Đã sửa kèm review phase 05 (low 1-10 trừ ClockMs float, giữ nguyên).
+- Chỉ thử trên dev server (không tài khoản, cược chuyển trong bộ nhớ): `Tools/net-duel-test.ps1 -Scenario plain|wager|drop`, cờ server `--dev-cards`. Chưa thử escrow / settle qua HTTP với server-api thật (có unit test), chưa thử nối lại trong 60 s.
 
 ## Hợp đồng HTTP server-api (xong 23/11, cho zone gọi qua ZonePersistence / ZoneApiHttp)
 Header `x-service-key`. Mã code ở `src/rpg/card-wager-move.js`, `src/services/card-wager-service.js`. **Deploy server-api TRƯỚC zone.**

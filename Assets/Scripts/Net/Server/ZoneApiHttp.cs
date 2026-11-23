@@ -26,7 +26,11 @@ namespace ZenoniaProto
             baseUrl = url.TrimEnd('/');
             serviceKey = key;
             http = new HttpClient { Timeout = TimeSpan.FromSeconds(TimeoutSeconds) };
+            Wagers = new WagerApiClient(Post);
         }
+
+        /// <summary>The Card Wager calls (escrow / settle) on this connection.</summary>
+        public readonly WagerApiClient Wagers;
 
         public void Dispose() { http.Dispose(); }
 
@@ -68,6 +72,10 @@ namespace ZenoniaProto
                 done(r);
             });
         }
+
+        public void EscrowWager(string matchId, WagerSide a, WagerSide b, Action<ZoneApiReply> done) { Wagers.Escrow(matchId, a, b, done); }
+
+        public void SettleWager(string matchId, string result, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done) { Wagers.Settle(matchId, result, a, b, done); }
 
         public void EndSession(string characterId, string sessionId, Action<ZoneApiReply> done)
         {
@@ -129,37 +137,8 @@ namespace ZenoniaProto
             answers.Enqueue(() => done(status, text));
         }
 
-        /// <summary>The fields every caller needs. Errors are read by hand: `details` is an object on one error and a list on another, which JsonUtility cannot take.</summary>
-        public static ZoneApiReply Reply(int status, string text)
-        {
-            var r = new ZoneApiReply { Status = status, CurrentRev = -1, Rev = -1, RevB = -1 };
-            if (r.Ok || status == 0) return r;
-            r.Code = TextAfter(text, "\"code\":\"");
-            r.CurrentRev = IntAfter(text, "\"currentRev\":");
-            r.Message = text == null ? "" : text.Length > MaxErrorText ? text.Substring(0, MaxErrorText) : text;
-            return r;
-        }
-
-        static string TextAfter(string text, string key)
-        {
-            if (text == null) return null;
-            int i = text.IndexOf(key, StringComparison.Ordinal);
-            if (i < 0) return null;
-            i += key.Length;
-            int end = text.IndexOf('"', i);
-            return end < 0 ? null : text.Substring(i, end - i);
-        }
-
-        static int IntAfter(string text, string key)
-        {
-            if (text == null) return -1;
-            int i = text.IndexOf(key, StringComparison.Ordinal);
-            if (i < 0) return -1;
-            i += key.Length;
-            int v = 0, n = 0;
-            while (i < text.Length && text[i] >= '0' && text[i] <= '9' && n++ < 9) v = v * 10 + (text[i++] - '0');
-            return n > 0 ? v : -1;
-        }
+        /// <summary>The fields every caller needs (ZoneApiReplyParser: errors are read by hand).</summary>
+        public static ZoneApiReply Reply(int status, string text) { return ZoneApiReplyParser.Reply(status, text); }
 
         static T Parsed<T>(string text) where T : new()
         {
@@ -167,17 +146,7 @@ namespace ZenoniaProto
             catch (Exception) { return new T(); }
         }
 
-        static string Str(string s)
-        {
-            var b = new StringBuilder("\"");
-            foreach (char c in s ?? "")
-            {
-                if (c == '"' || c == '\\') b.Append('\\').Append(c);
-                else if (c < 32) b.Append("\\u").Append(((int)c).ToString("x4"));
-                else b.Append(c);
-            }
-            return b.Append('"').ToString();
-        }
+        static string Str(string s) { return ZoneApiReplyParser.Str(s); }
 
         [Serializable] class RevDto { public int rev = -1; }
         [Serializable] class TradeDto { public RevDto a = new RevDto(), b = new RevDto(); }

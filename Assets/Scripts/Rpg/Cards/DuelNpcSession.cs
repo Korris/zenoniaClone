@@ -41,9 +41,9 @@ namespace ZenoniaProto.Rpg
         }
 
         /// <summary>The player places a hand card. Refused (nothing changes) like DuelMatch.Place.</summary>
-        public DuelPlay PlayerPlace(int handIndex, int cell, long nowMs)
+        public DuelPlay PlayerPlace(int handIndex, int cell, long nowMs, int expectTurn = 0, int expectCard = -1)
         {
-            DuelPlay p = Match.Place(Player, handIndex, cell, nowMs);
+            DuelPlay p = Match.Place(Player, handIndex, cell, nowMs, expectTurn, expectCard);
             if (p.Ok) ScheduleNpc(nowMs);
             return p;
         }

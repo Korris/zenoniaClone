@@ -12,7 +12,9 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public sealed class DuelView
     {
-        public const int Me = 0, Them = 1;
+        public const int Me = 0, Them = 1, PlayerOpponent = 255, NoCard = 255;
+        /// <summary>0 no wager, 1 held, 2 settling, 3 paid, 4 failed (PvP Card Wager).</summary>
+        public const int WagerNone = 0, WagerHeld = 1, WagerSettling = 2, WagerPaid = 3, WagerFailed = 4;
 
         public int Npc;
         public string OppName = "";
@@ -23,18 +25,26 @@ namespace ZenoniaProto.Rpg
         /// <summary>Milliseconds left of the turn at the moment this view was made (the receiver adds its own clock).</summary>
         public int MsLeft;
         public int RewardFirst, RewardDaily;
+        /// <summary>PvP Card Wager: the card index each side put in (NoCard = none) and the payout state. OppAwayMs = how long the opponent has been disconnected.</summary>
+        public int WagerMine = NoCard, WagerTheirs = NoCard, WagerState, OppAwayMs;
         public readonly List<DuelMove> Moves = new List<DuelMove>();
         public readonly List<int> Hand = new List<int>();
 
+        public bool IsPvp { get { return Npc == PlayerOpponent; } }
+        public bool HasWager { get { return WagerMine != NoCard; } }
         public bool Finished { get { return Result != DuelResult.Playing; } }
         public int Turn { get { return System.Math.Min(DuelMatch.Turns, Moves.Count + 1); } }
 
         /// <summary>The board rebuilt from the moves (owner 0 = viewer, 1 = opponent).</summary>
-        public DuelBoard Board()
+        public DuelBoard Board() { return Board(Moves.Count); }
+
+        /// <summary>The board after the first `count` moves only: what the screen shows while the last placement is still being played as an animation.</summary>
+        public DuelBoard Board(int count)
         {
             var b = new DuelBoard();
-            foreach (DuelMove m in Moves)
+            for (int i = 0; i < count && i < Moves.Count; i++)
             {
+                DuelMove m = Moves[i];
                 b.Set(m.Cell, m.Card, m.Side);
                 for (int c = 0; c < DuelBoard.Cells; c++) if ((m.FlipMask & (1 << c)) != 0) b.SetOwner(c, m.Side);
             }
@@ -43,10 +53,12 @@ namespace ZenoniaProto.Rpg
 
         public int Score(int side) { return Board().Score(side); }
 
-        public int CardsLeft(int side)
+        public int CardsLeft(int side) { return CardsLeft(side, Moves.Count); }
+
+        public int CardsLeft(int side, int count)
         {
             int placed = 0;
-            foreach (DuelMove m in Moves) if (m.Side == side) placed++;
+            for (int i = 0; i < count && i < Moves.Count; i++) if (Moves[i].Side == side) placed++;
             return DuelMatch.DeckSize - placed;
         }
 

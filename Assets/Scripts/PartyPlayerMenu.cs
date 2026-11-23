@@ -14,13 +14,13 @@ namespace ZenoniaProto
     /// </summary>
     public sealed class PartyPlayerMenu : MonoBehaviour
     {
-        const float AboveHead = 38f, W = 226f, H = 60f, ButtonW = 110f, ButtonGap = 6f, TapSeconds = 0.35f, TapMovePixels = 24f, OpenSeconds = 6f, MinHitPixels = 48f;
+        const float AboveHead = 38f, W = 226f, H = 102f, RowGap = 42f, ButtonW = 110f, ButtonGap = 6f, TapSeconds = 0.35f, TapMovePixels = 24f, OpenSeconds = 6f, MinHitPixels = 48f;
         const int MouseFinger = -100, NoFinger = -1;
         static PartyPlayerMenu instance;
 
         readonly List<RaycastResult> uiHits = new List<RaycastResult>(8);
         RectTransform layer, box, tradeButton;
-        GameObject inviteButton;
+        GameObject inviteButton, wagerButton;
         Text nameLabel;
         HeroController target;
         float closeAt, downAt;
@@ -47,7 +47,16 @@ namespace ZenoniaProto
             nameLabel = UiKit.Label(box, "Name", 0f, 0f, W, 22f, "", 15, Color.white, TextAnchor.MiddleCenter, true);
             inviteButton = PartyArt.ArtButton(box, "Invite", "btn-invite", 0f, 24f, ButtonW, 36f, "Invite", 15, UiWinKit.Cream, Invite).gameObject;
             tradeButton = (RectTransform)PartyArt.ArtButton(box, "Trade", "btn-invite", ButtonW + ButtonGap, 24f, ButtonW, 36f, "Trade", 15, UiWinKit.Cream, Trade).transform;
+            // second row: a plain Card Duel or a Card Wager (the inviter picks per match; the wager button is only shown to a player who may wager)
+            PartyArt.ArtButton(box, "Duel", "btn-invite", 0f, 24f + RowGap, ButtonW, 36f, "Card Duel", 15, UiWinKit.Cream, () => Duel(false));
+            wagerButton = PartyArt.ArtButton(box, "Wager", "btn-invite", ButtonW + ButtonGap, 24f + RowGap, ButtonW, 36f, "Card Wager", 15, UiWinKit.Cream, () => Duel(true)).gameObject;
             box.gameObject.SetActive(false);
+        }
+
+        void Duel(bool wager)
+        {
+            if (target != null) DuelClient.Challenge(target.PlayerId, wager);
+            Close();
         }
 
         void Invite()
@@ -73,6 +82,7 @@ namespace ZenoniaProto
             instance.nameLabel.text = hero.PlayerName;
             bool member = NetClient.Party.Contains(hero.PlayerId); // nothing to invite a member to, but you can trade with one
             instance.inviteButton.SetActive(!member);
+            instance.wagerButton.SetActive(CardWagerPanel.EntryProblem().Length == 0); // Lv30+, the switch, today's limit, a spare N / R card: the server checks again
             instance.tradeButton.anchoredPosition = new Vector2(member ? (W - ButtonW) * 0.5f : ButtonW + ButtonGap, instance.tradeButton.anchoredPosition.y);
             Vector2 local;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(instance.layer, screen, null, out local);

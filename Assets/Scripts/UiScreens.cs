@@ -72,7 +72,7 @@ namespace ZenoniaProto
                 case UiScreen.Skill: SkillTreeWindow.Close(); break;
                 case UiScreen.Pet: PetWindow.Close(); PetRoWindow.Close(); break;
                 case UiScreen.Gacha: PetGachaWindow.Close(); break;
-                case UiScreen.Card: CardWindow.Close(); break;
+                case UiScreen.Card: CardWindow.RequestClose(); break; // a running duel asks first (leaving = a loss)
                 case UiScreen.Wanted: RoWantedBoard.Close(); break;
             }
         }

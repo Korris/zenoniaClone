@@ -73,6 +73,7 @@ namespace ZenoniaProto
             if (HomeZone != null && HomeZone.Pump != null) HomeZone.Pump.Adopt();
             NetEventBus.SkillCast(this, index, rank, salt);
             if (!replaying) mp -= cost;
+            StampAttack();
             cds.Start(index, SkillCooldowns.DevNone ? 0f : def.CooldownMs);
             castLeft = castTotal = Mathf.Max(1f, def.CastLockMs);
             castSkill = index;

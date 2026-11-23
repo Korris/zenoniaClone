@@ -44,7 +44,7 @@ namespace ZenoniaProto
         public void ClearPending() { pendingUntil = 0f; wasPending = false; }
 
         /// <summary>Per frame from the window: redraws once the wait ran out.</summary>
-        public void Tick() { if (wasPending && !Pending) { wasPending = false; Refresh(); } }
+        public virtual void Tick() { if (wasPending && !Pending) { wasPending = false; Refresh(); } }
 
         /// <summary>Opens the "sure?" box (CardConfirmBox) and runs `go` only on Yes.</summary>
         protected static void Confirm(string text, string yes, Action go) { CardConfirmBox.Ask(text, yes, go); }

@@ -22,7 +22,7 @@ namespace ZenoniaProto.Rpg
             CardCollection c = p.Cards;
             if (c.Daily.day != dayKey) c.Daily = new CardDailyData { day = dayKey };
             int bit = DuelNpcTable.FirstWinBit(npc);
-            if ((c.NpcFirstWins & bit) == 0)
+            if ((c.NpcFirstWins & bit) == 0 && (long)p.Gold + def.FirstWinGold <= PlayerState.GoldCap) // near the Gold cap the reward is held, bit unset, and paid by a later win (like Album / Sell: never cut)
             {
                 reward.TutorialDone = c.NpcFirstWins == 0;
                 c.NpcFirstWins |= bit;
@@ -31,6 +31,26 @@ namespace ZenoniaProto.Rpg
             c.Daily.npcWins++;
             if (c.Daily.npcWins == DuelNpcTable.DailyWinsNeeded) reward.DailyGold = DuelNpcTable.DailyBonusGold;
             p.AddGoldCapped(reward.Total);
+            return reward;
+        }
+
+        public const int PvpWinGold = 300, PvpLoseGold = 100, PvpDrawGold = 150, PvpRewardedPerDay = 5;
+
+        /// <summary>
+        /// Pays a finished PvP duel: win 300 / lose 100 / draw 150 G, but only 5 matches a day pay at all (the counter is CardDailyData.pvpRewards, restarted with the day key). A side that gave up or was dropped
+        /// (`left`) gets nothing and does not use up a paid match. Gold stops at the cap. Returns the gold paid (DailyGold of the reward).
+        /// </summary>
+        public static DuelReward ApplyPvpResult(PlayerState p, DuelResult result, bool left, int dayKey)
+        {
+            var reward = new DuelReward();
+            if (left || result == DuelResult.Playing) return reward;
+            CardCollection c = p.Cards;
+            if (c.Daily.day != dayKey) c.Daily = new CardDailyData { day = dayKey };
+            if (c.Daily.pvpRewards >= PvpRewardedPerDay) return reward;
+            int gold = result == DuelResult.Win ? PvpWinGold : result == DuelResult.Draw ? PvpDrawGold : PvpLoseGold;
+            c.Daily.pvpRewards++;
+            reward.DailyGold = gold;
+            p.AddGoldCapped(gold);
             return reward;
         }
     }

@@ -29,7 +29,7 @@ Spec: `docs/reference/card-gem-ui/design-notes-chatgpt.md` (mục "Đã chốt" 
 | 03 | [UI My Cards + Monster Album](phase-03-card-ui-my-cards-album.md) | 8h | 01, 02 | Zone (InvOp mới) | code + UI xong 23/11 (chưa deploy, chưa kiểm online) |
 | 04 | [Chuyển hoá, khảm, tháo ngọc + chỉ số](phase-04-soul-gem-convert-socket-remove.md) | 9h | 03 | Zone + API | code + UI xong 23/11, nối CardWindow xong + sửa review 23/11 (chưa deploy, chưa kiểm online) |
 | 05 | [Duel core + đấu NPC + UI deck/bàn](phase-05-duel-core-npc-duel.md) | 13h | 03 | Zone | code + UI xong 23/11 (offline chụp đủ ván, chưa deploy, chưa kiểm online) |
-| 06 | [PvP thách đấu + cược card (escrow)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | pending |
+| 06 | [PvP thách đấu + cược card (escrow)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | zone + client xong 23/11 (thử 2 client dev server; chưa deploy, chưa thử API thật) |
 | 07 | [Ranked mùa 30 ngày](phase-07-ranked-season.md) | 8h | 06 | Zone (state đã có từ 01) | pending |
 | 08 | [NPC Card Master, lối vào, hoàn thiện, docs](phase-08-card-master-npc-entry-polish.md) | 5h | 05 (07 cho nút Ranked) | Zone | pending |
 

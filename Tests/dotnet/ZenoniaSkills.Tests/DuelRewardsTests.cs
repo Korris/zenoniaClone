@@ -80,11 +80,15 @@ public class DuelRewardsTests
     }
 
     [Fact]
-    public void GoldStopsAtTheCap()
+    public void GoldNeverPassesTheCapAndAFirstWinThatDoesNotFitIsHeldNotLost()
     {
         PlayerState p = Hero(); p.Gold = PlayerState.GoldCap - 100;
         DuelRewards.ApplyNpcResult(p, 2, DuelResult.Win, 1);
-        Assert.Equal(PlayerState.GoldCap, p.Gold);
+        Assert.Equal(PlayerState.GoldCap - 100, p.Gold); // 5,000 does not fit: held, the bit stays unset for a later win
+        Assert.Equal(0, p.Cards.NpcFirstWins);
+        PlayerState q = Hero(); q.Gold = PlayerState.GoldCap - 100; q.Cards.Daily = new CardDailyData { day = 1, npcWins = 2 };
+        DuelRewards.ApplyNpcResult(q, 0, DuelResult.Win, 1); // the third win of the day: the 500 daily bonus is cut by AddGoldCapped, never past the cap
+        Assert.True(q.Gold <= PlayerState.GoldCap);
     }
 
     [Fact]

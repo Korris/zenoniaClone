@@ -83,7 +83,7 @@ namespace ZenoniaProto
             transfers = new ZoneTransferService(host, repl, stats);
             party = new PartyService(stats);
             trade = new TradeService(repl, stats, persistence);
-            duel = new DuelService(repl, stats);
+            duel = new DuelService(repl, stats, persistence);
             wanted = new WantedStatusService(host, stats);
             if (persistence != null) { persistence.Start(stats, OnCharacterLost); Application.wantsToQuit += OnWantsToQuit; }
             else Debug.LogWarning("[ZenoniaProto] net: DEV LOGIN: no accounts, nothing is saved, every join is a new character" + (NetLaunchArgs.DevLevel + NetLaunchArgs.DevGold + NetLaunchArgs.DevItems + NetLaunchArgs.DevHurtPct > 0 ? ", dev cheats on" : "") + ". Start with --api-url for real accounts.");
@@ -139,7 +139,7 @@ namespace ZenoniaProto
             if (p == null) return;
             RecordClientStats(p);
             party.OnLeave(p);
-            duel.OnLeave(p); // a duel in the middle is lost, nothing paid
+            duel.OnLeave(p, host.ClockMs); // a duel in the middle is lost, nothing paid
             trade.OnLeave(p);
             if (persistence != null) persistence.OnLeave(p); // while the hero is still here to say where it stood; a trade being written goes first
             players.Remove(p);
@@ -182,7 +182,7 @@ namespace ZenoniaProto
                 case NetOp.TradeRequest:
                     TradeRequestMsg tr;
                     if (p == null || !TradeRequestMsg.TryRead(reader, out tr)) { Kick(peer, "bad trade request"); break; }
-                    if (!DuelService.IsDueling(p)) trade.OnRequest(p, tr, host.ClockMs); // no trade while a card duel runs
+                    trade.OnRequest(p, tr, host.ClockMs); // no trade while a card duel runs (TradeService answers a refusal)
                     break;
                 case NetOp.DuelRequest:
                     DuelRequestMsg dr;

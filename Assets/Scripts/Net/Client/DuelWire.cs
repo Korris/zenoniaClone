@@ -13,6 +13,7 @@ namespace ZenoniaProto
             {
                 Npc = (byte)v.Npc, Result = (byte)v.Result, EndReason = (byte)v.EndReason, YourTurn = v.YourTurn, MsLeft = (ushort)System.Math.Min(60000, v.MsLeft),
                 RewardFirst = v.RewardFirst, RewardDaily = v.RewardDaily, OppName = v.OppName,
+                WagerMine = (byte)v.WagerMine, WagerTheirs = (byte)v.WagerTheirs, WagerState = (byte)v.WagerState, OppAwayMs = (ushort)System.Math.Min(60000, v.OppAwayMs),
                 MoveCard = new byte[n], MoveCell = new byte[n], MoveSide = new byte[n], MoveAuto = new byte[n], MoveFlips = new ushort[n], Hand = new byte[v.Hand.Count],
             };
             for (int i = 0; i < n; i++)
@@ -29,6 +30,7 @@ namespace ZenoniaProto
             var v = new DuelView
             {
                 Npc = m.Npc, Result = (DuelResult)m.Result, EndReason = m.EndReason, YourTurn = m.YourTurn, MsLeft = m.MsLeft, RewardFirst = m.RewardFirst, RewardDaily = m.RewardDaily, OppName = m.OppName ?? "",
+                WagerMine = m.WagerMine, WagerTheirs = m.WagerTheirs, WagerState = m.WagerState, OppAwayMs = m.OppAwayMs,
             };
             for (int i = 0; i < m.MoveCount; i++)
                 v.Moves.Add(new DuelMove { Turn = i + 1, Side = m.MoveSide[i], Card = m.MoveCard[i], Cell = m.MoveCell[i], FlipMask = m.MoveFlips[i], Auto = m.MoveAuto[i] != 0 });

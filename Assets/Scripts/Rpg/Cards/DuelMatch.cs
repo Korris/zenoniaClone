@@ -12,12 +12,16 @@ namespace ZenoniaProto.Rpg
 
     public enum DuelOutcome { Playing = 0, Side0Wins = 1, Side1Wins = 2, Draw = 3 }
 
+    /// <summary>Why a placement was refused (callers switch on this, never on the message). Stale = the player's picture of the turn or of the hand was out of date.</summary>
+    public enum DuelPlayError { None = 0, Over = 1, NotYourTurn = 2, NoSuchCard = 3, CellTaken = 4, Stale = 5, NotYet = 6 }
+
     public struct DuelPlay
     {
         public bool Ok;
         public string Error;
+        public DuelPlayError Code;
         public DuelMove Move;
-        public static DuelPlay Fail(string why) { return new DuelPlay { Error = why }; }
+        public static DuelPlay Fail(DuelPlayError code, string why) { return new DuelPlay { Code = code, Error = why }; }
     }
 
     /// <summary>
@@ -76,20 +80,22 @@ namespace ZenoniaProto.Rpg
             for (int i = 0; i < cards.Count; i++) { if (i < HandSize) hand[side].Add(cards[i]); else draw[side].Enqueue(cards[i]); }
         }
 
-        /// <summary>`side` places the card at `handIndex` of its hand on `cell`. Refused (nothing changes) when the match is over, it is not that side's turn, the hand index is out of range or the cell is taken. A placement restarts the 20 s clock for the other side.</summary>
-        public DuelPlay Place(int side, int handIndex, int cell, long nowMs)
+        /// <summary>`side` places the card at `handIndex` of its hand on `cell`. `expectTurn` (> 0) and `expectCard` (>= 0) are what the player saw when they tapped: a different current turn or hand card refuses it as Stale. Refused (nothing changes) when the match is over, it is not that side's turn, the hand index is out of range or the cell is taken. A placement restarts the 20 s clock for the other side.</summary>
+        public DuelPlay Place(int side, int handIndex, int cell, long nowMs, int expectTurn = 0, int expectCard = -1)
         {
-            DuelPlay p = Play(side, handIndex, cell, false);
+            DuelPlay p = Play(side, handIndex, cell, false, expectTurn, expectCard);
             if (p.Ok && !Finished) DeadlineMs = nowMs + TurnMs;
             return p;
         }
 
-        DuelPlay Play(int side, int handIndex, int cell, bool auto)
+        DuelPlay Play(int side, int handIndex, int cell, bool auto, int expectTurn = 0, int expectCard = -1)
         {
-            if (Finished) return DuelPlay.Fail("The duel is over");
-            if (side != ToMove) return DuelPlay.Fail("Not your turn");
-            if (handIndex < 0 || handIndex >= hand[side].Count) return DuelPlay.Fail("No such card in your hand");
-            if (cell < 0 || cell >= DuelBoard.Cells || !Board.IsEmpty(cell)) return DuelPlay.Fail("That cell is taken");
+            if (Finished) return DuelPlay.Fail(DuelPlayError.Over, "The duel is over");
+            if (side != ToMove) return DuelPlay.Fail(DuelPlayError.NotYourTurn, "Not your turn");
+            if (expectTurn > 0 && expectTurn != moves.Count + 1) return DuelPlay.Fail(DuelPlayError.Stale, "The turn has moved on");
+            if (handIndex < 0 || handIndex >= hand[side].Count) return DuelPlay.Fail(DuelPlayError.NoSuchCard, "No such card in your hand");
+            if (expectCard >= 0 && hand[side][handIndex] != expectCard) return DuelPlay.Fail(DuelPlayError.Stale, "Your hand has changed");
+            if (cell < 0 || cell >= DuelBoard.Cells || !Board.IsEmpty(cell)) return DuelPlay.Fail(DuelPlayError.CellTaken, "That cell is taken");
             int card = hand[side][handIndex];
             hand[side].RemoveAt(handIndex);
             if (draw[side].Count > 0) hand[side].Add(draw[side].Dequeue()); // refill: the new card goes to the end of the hand
@@ -104,7 +110,7 @@ namespace ZenoniaProto.Rpg
         /// <summary>When the turn's deadline passed, places a random hand card on a random empty cell for the side to move (drawn from the match's own generator, so a replay agrees). A failed play when the time has not run out.</summary>
         public DuelPlay Tick(long nowMs)
         {
-            if (Finished || nowMs < DeadlineMs) return DuelPlay.Fail("Not yet");
+            if (Finished || nowMs < DeadlineMs) return DuelPlay.Fail(DuelPlayError.NotYet, "Not yet");
             int side = ToMove;
             var free = new List<int>(DuelBoard.Cells);
             for (int c = 0; c < DuelBoard.Cells; c++) if (Board.IsEmpty(c)) free.Add(c);

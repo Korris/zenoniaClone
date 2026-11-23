@@ -230,6 +230,10 @@ namespace ZenoniaProto
                     DuelStateMsg ds;
                     if (ok = DuelStateMsg.TryRead(r, out ds)) DuelClient.Apply(DuelWire.ToView(ds));
                     break;
+                case NetOp.DuelLobby:
+                    DuelLobbyMsg dl;
+                    if (ok = DuelLobbyMsg.TryRead(r, out dl)) DuelClient.ApplyLobby(dl);
+                    break;
                 case NetOp.DuelNotice:
                     DuelNoticeMsg dn;
                     if (ok = DuelNoticeMsg.TryRead(r, out dn)) DuelClient.OnNotice(dn);

@@ -53,6 +53,17 @@ namespace ZenoniaProto
         public void OnRequest(NetPlayer p, TradeRequestMsg m, float nowMs)
         {
             stats.Add("tradeRequests", 1);
+            NetPlayer target;
+            bool dueling = DuelService.IsDueling(p) || (m.Op == TradeOp.Request && online.TryGetValue(m.Target, out target) && DuelService.IsDueling(target));
+            if (dueling) // a card duel runs on one side: say so (a silent drop left the request hanging)
+            {
+                if (m.Op == TradeOp.Request && p.Peer != null)
+                {
+                    new TradeNoticeMsg { Kind = TradeNoticeKind.Failed, Detail = (byte)TradeFail.TargetBusy, Name = online.TryGetValue(m.Target, out target) ? target.Name : "" }.Write(w);
+                    p.Peer.Send(w, NetProtocol.ChannelReliable, DeliveryMethod.ReliableOrdered);
+                }
+                return;
+            }
             TradeFail fail = Book.Apply(p.PlayerId, m, (long)nowMs);
             if (fail != TradeFail.None) NoteRefusal(p, m, fail);
             Flush();

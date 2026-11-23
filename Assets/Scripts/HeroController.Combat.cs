@@ -11,6 +11,7 @@ namespace ZenoniaProto
         {
             ComboHit h = combo.CurrentHit;
             if (h == null) return;
+            StampAttack();
             if (h.Bolt != null) { FireBolt(h, step); return; }
             if (cls.LockTargetMelee) { LockStrike(h, step); return; } // Warrior: one locked monster, no cleave box (HeroController.LockTarget.cs)
             MeleeStrike(h, step, false);
@@ -110,6 +111,14 @@ namespace ZenoniaProto
         /// <summary>Called by monsters when a strike connects. Green Slime takes its % off first; a hit fully soaked by a shield does not wake the pet (no real HP lost).</summary>
         /// <summary>Zone time (ms) of the last hit or tick that took HP; far in the past until then.</summary>
         public float LastHurtAtMs = -1e9f;
+
+        /// <summary>Zone time (ms) of this hero's last attack (basic hit or skill cast); the Card Duel refuses to open within 5 s of it, like a hit taken.</summary>
+        public float LastAttackAtMs = -1e9f;
+
+        void StampAttack() { LastAttackAtMs = HomeZone != null ? HomeZone.TimeMs : Time.time * 1000f; }
+
+        /// <summary>Ms since the last attack on this hero's zone clock.</summary>
+        public float MsSinceAttack { get { return (HomeZone != null ? HomeZone.TimeMs : Time.time * 1000f) - LastAttackAtMs; } }
 
         /// <summary>Ms since that hit on this hero's zone clock.</summary>
         public float MsSinceHurt { get { return (HomeZone != null ? HomeZone.TimeMs : Time.time * 1000f) - LastHurtAtMs; } }

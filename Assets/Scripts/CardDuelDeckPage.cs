@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
+using ZenoniaProto.Net;
 using ZenoniaProto.Rpg;
 using U = ZenoniaProto.GemUiWidgets;
 using P = ZenoniaProto.CardPageWidgets;
@@ -31,6 +32,14 @@ namespace ZenoniaProto
         readonly Text[] npcName = new Text[3], npcSub = new Text[3];
         readonly U.PieceButton[] npcGo = new U.PieceButton[3];
         int rarity = -1, area = -1, page;
+        // "Challenge Player": the players nearby, each with a plain Card Duel and a Card Wager button (the inviter picks per match)
+        const int PvpRows = 5;
+        RectTransform pvpRoot;
+        readonly Text[] pvpName = new Text[PvpRows];
+        readonly U.PieceButton[] pvpDuel = new U.PieceButton[PvpRows], pvpWager = new U.PieceButton[PvpRows];
+        readonly ushort[] pvpId = new ushort[PvpRows];
+        Text pvpEmpty, pvpNote;
+        float nextPvpAt;
 
         public override void Build(RectTransform parent)
         {
@@ -74,10 +83,11 @@ namespace ZenoniaProto
                 info[i] = U.Txt(Root, "InfoValue" + i, InfoX + InfoW - 110f, y, 90f, 30f, "", U.TextNormal, U.Ink, TextAnchor.MiddleRight);
             }
             playNpc = new U.PieceButton(Root, "PlayNpc", InfoX + 14f, 262f, InfoW - 28f, U.ButtonH, GemUiArt.Frame("btn-blue"), "Play NPC", OpenNpcList);
-            challenge = new U.PieceButton(Root, "Challenge", InfoX + 14f, 318f, InfoW - 28f, U.ButtonH, GemUiArt.Frame("btn-blue"), "Challenge Player", () => { });
+            challenge = new U.PieceButton(Root, "Challenge", InfoX + 14f, 318f, InfoW - 28f, U.ButtonH, GemUiArt.Frame("btn-blue"), "Challenge Player", OpenPvpList);
             clear = new U.PieceButton(Root, "Clear", InfoX + 14f, 374f, InfoW - 28f, U.ButtonH, GemUiArt.Frame("btn-red"), "Clear Deck", OnClear);
-            U.Txt(Root, "PvpNote", InfoX + 14f, 428f, InfoW - 28f, 60f, "Player duels and Ranked come later.", U.TextSmall, U.InkSoft, TextAnchor.UpperCenter);
+            U.Txt(Root, "PvpNote", InfoX + 14f, 428f, InfoW - 28f, 60f, "Challenge a player nearby: a plain duel, or a Card Wager (1 card each, Lv30+). Ranked comes later.", U.TextSmall, U.InkSoft, TextAnchor.UpperCenter);
             BuildNpcList();
+            BuildPvpList();
         }
 
         void BuildNpcList()
@@ -101,7 +111,73 @@ namespace ZenoniaProto
             npcRoot.gameObject.SetActive(false);
         }
 
-        public override void OnShow() { npcRoot.gameObject.SetActive(false); Refresh(); }
+        void BuildPvpList()
+        {
+            float w = DeckW + InfoW + 10f;
+            pvpRoot = UiKit.Rect(Root, "PvpList", DeckX, 0f, w, PageH);
+            U.Panel(pvpRoot, "Box", 0f, 0f, w, PageH, true);
+            U.Txt(pvpRoot, "Title", 16f, 8f, 360f, 36f, "Challenge a Player", 24, U.Ink);
+            for (int i = 0; i < PvpRows; i++)
+            {
+                int row = i;
+                RectTransform r = UiKit.Rect(pvpRoot, "Player" + i, 16f, 54f + i * 76f, w - 32f, 68f);
+                U.Panel(r, "Bg", 0f, 0f, w - 32f, 68f);
+                pvpName[i] = U.Txt(r, "Name", 18f, 10f, w - 32f - 18f - 330f, 48f, "", 20, U.Ink);
+                pvpDuel[i] = new U.PieceButton(r, "Duel", w - 32f - 322f, 10f, 150f, U.ButtonH, GemUiArt.Frame("btn-teal"), "Card Duel", () => Challenge(row, false));
+                pvpWager[i] = new U.PieceButton(r, "Wager", w - 32f - 162f, 10f, 150f, U.ButtonH, GemUiArt.Frame("btn-gold"), "Card Wager", () => Challenge(row, true));
+            }
+            pvpEmpty = U.Txt(pvpRoot, "Empty", 16f, 150f, w - 32f, 60f, "No other player is nearby.", U.TextNormal + 2, U.InkSoft, TextAnchor.MiddleCenter);
+            pvpNote = U.Txt(pvpRoot, "Note", 16f, PageH - 118f, w - 32f, 48f, "", U.TextSmall, U.InkSoft, TextAnchor.UpperCenter);
+            new U.PieceButton(pvpRoot, "Back", (w - 190f) * 0.5f, PageH - 62f, 190f, U.ButtonH, GemUiArt.Frame("btn-blue"), "Back", () => { pvpRoot.gameObject.SetActive(false); Refresh(); });
+            pvpRoot.gameObject.SetActive(false);
+        }
+
+        void OpenPvpList() { pvpRoot.gameObject.SetActive(true); RefreshPvp(); }
+
+        void Challenge(int row, bool wager)
+        {
+            if (Pending || DuelClient.InLobby || DuelClient.Running || pvpId[row] == 0) return;
+            Hold();
+            DuelClient.Challenge(pvpId[row], wager);
+            pvpRoot.gameObject.SetActive(false);
+        }
+
+        /// <summary>The players in this zone, nearest first (the server only accepts a target on the same map). Offline there is nobody to challenge.</summary>
+        void RefreshPvp()
+        {
+            nextPvpAt = Time.unscaledTime + 0.5f;
+            var near = new List<HeroController>();
+            Zone zone = Zone.Main;
+            HeroController me = LocalPlayer.Hero;
+            if (NetMode.IsClient && zone != null && me != null)
+                foreach (HeroController h in zone.Heroes.All)
+                    if (h != null && h != me && h.PlayerId != 0 && !h.IsDead) near.Add(h);
+            near.Sort((a, b) => (a.Position - me.Position).sqrMagnitude.CompareTo((b.Position - me.Position).sqrMagnitude));
+            string problem = CardWagerPanel.EntryProblem();
+            DeckError full = Me == null ? DeckError.NotFull : DeckRules.Validate(Me.Cards.Deck, Me.Cards, true);
+            bool ready = full == DeckError.None && !DuelClient.InLobby && !DuelClient.Running;
+            for (int i = 0; i < PvpRows; i++)
+            {
+                HeroController h = i < near.Count ? near[i] : null;
+                pvpId[i] = h != null ? h.PlayerId : (ushort)0;
+                pvpName[i].transform.parent.gameObject.SetActive(h != null);
+                if (h == null) continue;
+                pvpName[i].text = h.PlayerName;
+                pvpDuel[i].Set("Card Duel", ready);
+                pvpWager[i].Set("Card Wager", ready && problem.Length == 0);
+            }
+            pvpEmpty.gameObject.SetActive(near.Count == 0);
+            pvpEmpty.text = NetMode.IsClient ? "No other player is nearby." : "Player duels need an online game.";
+            pvpNote.text = full != DeckError.None ? DeckRules.Text(full) + "." : problem.Length > 0 ? "Card Wager: " + problem + "." : "The opponent sees whether it is a Card Wager before they accept.";
+        }
+
+        public override void Tick()
+        {
+            base.Tick();
+            if (pvpRoot != null && pvpRoot.gameObject.activeSelf && Time.unscaledTime >= nextPvpAt) RefreshPvp();
+        }
+
+        public override void OnShow() { npcRoot.gameObject.SetActive(false); pvpRoot.gameObject.SetActive(false); Refresh(); }
 
         void OpenNpcList() { npcRoot.gameObject.SetActive(true); Refresh(); }
 
@@ -177,7 +253,7 @@ namespace ZenoniaProto
             info[0].text = deck.Count + " / " + DeckRules.Size; info[1].text = bosses + " / " + DeckRules.MaxBoss; info[2].text = sr + " / " + DeckRules.MaxSrPlus; info[3].text = AreaText(deck);
             DeckError full = DeckRules.Validate(deck, p.Cards, true);
             playNpc.Set("Play NPC", full == DeckError.None && !locked);
-            challenge.Set("Challenge Player", false);
+            challenge.Set("Challenge Player", NetMode.IsClient && full == DeckError.None && !locked && !DuelClient.InLobby);
             clear.Set("Clear Deck", deck.Count > 0 && !locked);
             reason.text = DuelClient.Running ? "A duel is running." : full == DeckError.None ? "Tap a deck card to take it out. Tap a card on the left to add it." : DeckRules.Text(full) + ". Tap a card on the left to add it.";
             reason.color = U.InkSoft;
