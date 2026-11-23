@@ -246,6 +246,7 @@ namespace ZenoniaProto.Net
             TradeItemView view;
             if (!holder.TryGetBagItem(uid, out view)) return TradeFail.NotOwned;
             if (uid.StartsWith(StarterUidPrefix, StringComparison.Ordinal)) return TradeFail.Starter;
+            if (view.Sockets > 0) return TradeFail.Socketed; // Soul Gems inside: trade-locked for good
             if (view.Slot == "pet") return TradeFail.NotOwned; // an old durability pet waiting for its migration: pets belong to the account now and are never traded
             me.Items.Add(view);
             OfferChanged(s, id);
@@ -357,6 +358,7 @@ namespace ZenoniaProto.Net
                 TradeItemView now;
                 if (!from.TryGetBagItem(v.Uid, out now)) return TradeFail.ItemGone;
                 if (v.Uid.StartsWith(StarterUidPrefix, StringComparison.Ordinal)) return TradeFail.Starter;
+                if (now.Sockets > 0) return TradeFail.Socketed; // socketed after it was offered
             }
             who = taker.Id;
             if (to.BagCount - taker.Items.Count + giver.Items.Count > to.BagSize) return TradeFail.NoRoom;

@@ -32,7 +32,9 @@ namespace ZenoniaProto
             string before = LookKey(p);
             ActionResult r = refusal != null ? ActionResult.Fail(refusal) : p.Rpg.ApplyInvAction(m.Op, m.ItemUid, m.Slot);
             if (LookKey(p) != before) LookChanged(p);
-            if ((m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || questOp || dungeonOp) && r.Ok && ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p); // a large sum of gold, a quest reward: written now, not at the next interval
+            bool gemOp = m.Op == InvOp.GemConvert || m.Op == InvOp.GemSocket || m.Op == InvOp.GemRemove;
+            if (gemOp) UnityEngine.Debug.Log("[ZenoniaProto] gem: " + m.Op + " " + (r.Ok ? "ok" : "refused") + " char " + (p.Saved != null ? p.Saved.Id : p.Name) + " arg " + m.ItemUid + "/" + m.Slot + ": " + r.Text); // ledger-style trail against RMT (convert / socket / remove)
+            if ((m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || questOp || dungeonOp || gemOp) && r.Ok && ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p); // a large sum of gold, a quest reward: written now, not at the next interval
             repl.SendRpgState(p, m.ReqId, r.Ok, r.Text);
             p.RpgDirty = false;
         }

@@ -152,20 +152,21 @@ namespace ZenoniaProto.Rpg
             return item;
         }
 
-        /// <summary>Socketed Soul Gems ("meadowSlime:p"): known card id, p / g, at most 2, never on a hat or an old pet item. Anything else is dropped (the gem is lost with the junk entry).</summary>
+        /// <summary>Socketed Soul Gems ("meadowSlime:p"): known card id, p / g, at most 2, at most the slot allows (GemSockets.SlotCount: none on a hat, a pet, gloves, boots or an off-hand). Anything else is dropped (the gem is lost with the junk entry).</summary>
         public static List<string> SanitizeSockets(List<string> raw, string slot)
         {
             var result = new List<string>();
-            if (raw == null || slot == Slots.Headgear || slot == Slots.Pet) return result;
+            int room = Math.Min(MaxSockets, GemSockets.SlotCount(slot)); // weapon 2, armor 2, necklace 1, everything else none
+            if (raw == null || room == 0) return result;
             foreach (string s in raw)
             {
-                if (result.Count >= MaxSockets) break;
+                if (result.Count >= room) break;
                 int colon = s == null ? -1 : s.IndexOf(':');
                 if (colon <= 0 || colon != s.Length - 2 || (s[colon + 1] != 'p' && s[colon + 1] != 'g') || !CardTable.IsCardId(s.Substring(0, colon))) continue;
                 result.Add(s);
             }
             return result;
         }
-        public const int MaxSockets = 2; // most gems one item can hold; phase 04 narrows it per slot
+        public const int MaxSockets = 2; // most gems any item can hold; GemSockets.SlotCount narrows it per slot
     }
 }

@@ -82,6 +82,7 @@ namespace ZenoniaProto
         /// <summary>Throws a bag item away for good. The view asks "sure?" first.</summary>
         public static BagResult Discard(PlayerState p, Item item)
         {
+            if (item.sockets != null && item.sockets.Count > 0) return BagResult.Done(false, "Remove its Soul Gems first"); // the server refuses too (PlayerState.Discard)
             if (NetMode.IsClient) { NetClient.SendInvAction(InvOp.Discard, item.uid, 0); return BagResult.Sent(); }
             p.RemoveFromInventory(item.uid);
             return BagResult.Done(true, "Discarded " + item.name);

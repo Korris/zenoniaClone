@@ -22,7 +22,7 @@ namespace ZenoniaProto.Rpg
             if (Claimed(c, milestone)) return ActionResult.Fail("Already claimed");
             if (!Reached(c, milestone)) return ActionResult.Fail("Collect " + Milestones[milestone] + " different cards first");
             c.AlbumClaimed |= 1 << milestone;
-            if (milestone == 0) { p.Gold += Gold10; return ActionResult.Success("Album reward: +" + Gold10 + " G"); }
+            if (milestone == 0) { p.AddGoldCapped(Gold10); return ActionResult.Success("Album reward: +" + Gold10 + " G"); }
             return ActionResult.Success(milestone == CardHunter ? "Title unlocked: Card Hunter" : milestone == PortraitFrame ? "Portrait frame unlocked" : "Monster Master!");
         }
     }

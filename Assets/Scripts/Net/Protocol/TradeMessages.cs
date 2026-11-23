@@ -37,7 +37,7 @@ namespace ZenoniaProto.Net
     {
         None = 0, NoSuchPlayer = 1, Self = 2, TargetBusy = 3, AlreadyTrading = 4, AlreadyPending = 5, AnswerFirst = 6, NoRequest = 7, TooFar = 8, OtherMap = 9, Dead = 10, NotTrading = 11,
         NotOwned = 12, Equipped = 13, Starter = 14, DuplicateItem = 15, OfferFull = 16, NotOffered = 17, BadGold = 18, NotEnoughGold = 19, GoldOverflow = 20, NoRoom = 21, ItemGone = 22, UidClash = 23,
-        AlreadyLocked = 24, NotLocked = 25, NotBothLocked = 26, AlreadyConfirmed = 27, StaleOffer = 28, EmptyTrade = 29, Committing = 30, SaveFailed = 31,
+        AlreadyLocked = 24, NotLocked = 25, NotBothLocked = 26, AlreadyConfirmed = 27, StaleOffer = 28, EmptyTrade = 29, Committing = 30, SaveFailed = 31, Socketed = 32,
     }
 
     /// <summary>Client -> server: one trade request. Only ids and amounts: a client never describes an item. A semantic refusal comes back as a notice; only an unreadable packet costs the connection.</summary>
@@ -109,6 +109,7 @@ namespace ZenoniaProto.Net
     {
         public string Uid, TemplateId, Slot, Name, Rarity, ClassId;
         public int ItemLevel, Enhance, Atk, Def, MaxHp, MaxMp, Durability;
+        public int Sockets; // Soul Gems socketed in it: an item with any is trade-locked for good (TradeFail.Socketed)
         public float CritChance, SpeedMult;
 
         const int MaxShortText = 16, MaxNameText = 40;
@@ -116,7 +117,7 @@ namespace ZenoniaProto.Net
         public void Write(NetDataWriter w)
         {
             w.Put(Uid ?? "", NetProtocol.MaxItemUidLength); w.Put(TemplateId ?? "", NetProtocol.MaxItemUidLength); w.Put(Slot ?? "", MaxShortText); w.Put(Name ?? "", MaxNameText); w.Put(Rarity ?? "", MaxShortText); w.Put(ClassId ?? "", MaxShortText);
-            w.Put(ItemLevel); w.Put(Enhance); w.Put(Atk); w.Put(Def); w.Put(MaxHp); w.Put(MaxMp); w.Put(CritChance); w.Put(SpeedMult); w.Put(Durability);
+            w.Put(ItemLevel); w.Put(Enhance); w.Put(Atk); w.Put(Def); w.Put(MaxHp); w.Put(MaxMp); w.Put(CritChance); w.Put(SpeedMult); w.Put(Durability); w.Put((byte)Math.Min(Math.Max(Sockets, 0), 255));
         }
 
         public static TradeItemView Read(NetDataReader r)
@@ -124,7 +125,7 @@ namespace ZenoniaProto.Net
             return new TradeItemView
             {
                 Uid = r.GetString(NetProtocol.MaxItemUidLength), TemplateId = r.GetString(NetProtocol.MaxItemUidLength), Slot = r.GetString(MaxShortText), Name = r.GetString(MaxNameText), Rarity = r.GetString(MaxShortText), ClassId = r.GetString(MaxShortText),
-                ItemLevel = r.GetInt(), Enhance = r.GetInt(), Atk = r.GetInt(), Def = r.GetInt(), MaxHp = r.GetInt(), MaxMp = r.GetInt(), CritChance = r.GetFloat(), SpeedMult = r.GetFloat(), Durability = r.GetInt(),
+                ItemLevel = r.GetInt(), Enhance = r.GetInt(), Atk = r.GetInt(), Def = r.GetInt(), MaxHp = r.GetInt(), MaxMp = r.GetInt(), CritChance = r.GetFloat(), SpeedMult = r.GetFloat(), Durability = r.GetInt(), Sockets = r.GetByte(),
             };
         }
     }

@@ -135,7 +135,7 @@ namespace ZenoniaProto
                     r = HeadgearCatalog.TryShopHat(slot, out hat) ? State.BuyHeadgear(hat.Id) : GearShops.Decode(slot, out gearTier, out gearSlot) ? State.BuyGear(gearTier, gearSlot) : ActionResult.Fail("Not sold here");
                     break;
                 case InvOp.Discard:
-                    r = State.RemoveFromInventory(itemUid) ? ActionResult.Success("Discarded") : ActionResult.Fail("No such item");
+                    r = State.Discard(itemUid); // refused for an item that holds Soul Gems
                     break;
                 case InvOp.Sort:
                     State.Inventory.Sort((a, b) => a.slot != b.slot ? Slots.Index(a.slot).CompareTo(Slots.Index(b.slot)) : b.itemLevel.CompareTo(a.itemLevel));
@@ -158,6 +158,12 @@ namespace ZenoniaProto
                     r = fresh || State.HasWaypoint(itemUid) ? ActionResult.Success() : ActionResult.Fail("No such crystal");
                     if (fresh) QuestStep(r);
                     break;
+                case InvOp.GemConvert: r = CardOps.Convert(State, itemUid, slot == 1 ? GemKind.Guard : GemKind.Power); break; // ItemUid = card id, Slot 0 Power / 1 Guard
+                case InvOp.GemSocket: // ItemUid = item uid, Slot = GemSockets.Code of the gem; it goes into the next free socket
+                    string sockCard; GemKind sockKind;
+                    r = GemSockets.TryDecode(slot, out sockCard, out sockKind) ? CardOps.Socket(State, itemUid, sockCard, sockKind) : ActionResult.Fail("No such gem");
+                    break;
+                case InvOp.GemRemove: r = CardOps.Remove(State, itemUid, slot); break; // ItemUid = item uid, Slot = socket
                 default: r = ActionResult.Fail("Unknown action"); break;
             }
             Touch();

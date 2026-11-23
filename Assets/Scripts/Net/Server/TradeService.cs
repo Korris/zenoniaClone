@@ -191,7 +191,7 @@ namespace ZenoniaProto
                 ItemStats s = i.stats ?? new ItemStats();
                 return new TradeItemView
                 {
-                    Uid = i.uid, TemplateId = i.templateId, Slot = i.slot, Name = i.name, Rarity = i.rarity, ClassId = i.classId, ItemLevel = i.itemLevel, Enhance = i.enhance, Durability = i.durability,
+                    Uid = i.uid, TemplateId = i.templateId, Slot = i.slot, Name = i.name, Rarity = i.rarity, ClassId = i.classId, ItemLevel = i.itemLevel, Enhance = i.enhance, Durability = i.durability, Sockets = i.sockets != null ? i.sockets.Count : 0,
                     Atk = s.atk, Def = s.def, MaxHp = s.maxHp, MaxMp = s.maxMp, CritChance = s.critChance, SpeedMult = s.speedMult,
                 };
             }

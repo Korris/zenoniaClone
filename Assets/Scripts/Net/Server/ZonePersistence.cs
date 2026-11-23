@@ -362,7 +362,12 @@ namespace ZenoniaProto
         {
             Keep(c, code, state);
             Debug.LogError("[ZenoniaProto] save: the API refused the state of character " + c.Id + " (" + code + "): " + message);
+            int refusals = rejectWatch.Note(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            if (SaveRejectWatch.IsRepeated(refusals))
+                Debug.LogError("[ZenoniaProto] save: the API refused " + refusals + " saves within 10 minutes: it is probably OLDER than this zone (save version / card ids). Deploy server-api first, then the zone (docs/deploy.md). Progress stays in " + spool);
         }
+
+        readonly SaveRejectWatch rejectWatch = new SaveRejectWatch();
 
         /// <summary>Whatever could not be written before the process goes down goes to disk, with an error per character.</summary>
         public void KeepWhatIsLeft(string why)

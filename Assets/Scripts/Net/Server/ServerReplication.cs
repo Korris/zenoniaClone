@@ -219,7 +219,9 @@ namespace ZenoniaProto
             string mapId = h.HomeZone != null && h.HomeZone.Map != null ? h.HomeZone.Map.Id : null;
             var save = ZenoniaProto.Rpg.SaveSerializer.Capture(h.Rpg, true, h.Position.x, h.Position.y, p.Bosses.KingDefeated, 0, mapId, p.Bosses.OwnBossMaps);
             string account = p.Rpg != null && p.Rpg.Account != null ? JsonUtility.ToJson(p.Rpg.Account.Live) : "";
-            NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = reqId, Result = (byte)(ok ? 1 : 0), Text = text, SaveJson = JsonUtility.ToJson(save), AccountJson = account });
+            string saveJson = JsonUtility.ToJson(save);
+            if (saveJson.Length > NetProtocol.MaxSaveJsonLength) Debug.LogError("[ZenoniaProto] RpgState: save JSON of " + p.Name + " is " + saveJson.Length + " chars, over " + NetProtocol.MaxSaveJsonLength + ": the network cuts it and the client mirror breaks"); // never expected: CardSaveSizeTests keeps the worst case under 45000
+            NetMessageWriter.RpgState(w, new RpgStateMsg { ReqId = reqId, Result = (byte)(ok ? 1 : 0), Text = text, SaveJson = saveJson, AccountJson = account });
             Send(p, true);
         }
 

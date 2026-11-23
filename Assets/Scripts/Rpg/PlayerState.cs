@@ -76,7 +76,8 @@ namespace ZenoniaProto.Rpg
             {
                 if (item == null) continue;
                 ItemStats s = EnhanceStats.Effective(item);
-                atkAdd += s.atk; defAdd += s.def; hpAdd += s.maxHp; mpAdd += s.maxMp; speedMult += s.speedMult; crit += s.critChance;
+                ItemStats g = GemSockets.Sum(item); // socketed Soul Gems: flat, after (never multiplied by) the enhance bonus
+                atkAdd += s.atk + g.atk; defAdd += s.def + g.def; hpAdd += s.maxHp + g.maxHp; mpAdd += s.maxMp + g.maxMp; speedMult += s.speedMult; crit += s.critChance + g.critChance;
             }
             Item off = GetEquipped(Slots.Offhand);
             Second = off != null ? SecondWeapon.For(ClassId, EnhanceStats.Level(off)) : SecondWeaponStats.Zero;

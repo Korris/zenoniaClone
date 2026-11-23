@@ -49,7 +49,7 @@ Sửa: `server-api/src/schemas.js` (schema 2 route), `server-api/src/config.js` 
 4. Mở rộng `DuelMessages` + round-trip; `DuelService.Pvp` (mời, nối lại 60 s), `DuelService.Wager`.
 5. UI: mục menu người chơi, cửa sổ mời, panel cược (Lock / Confirm, hiện card địch).
 6. Thưởng PvP + giới hạn ngày.
-7. Build zone + deploy API; thử 2 client: thắng / thua / hoà có cược, rút dây mạng người thua 70 s, tắt zone giữa ván rồi vào lại (card được hoàn).
+7. Build zone + deploy API (**server-api TRƯỚC, zone SAU**); thử 2 client: thắng / thua / hoà có cược, rút dây mạng người thua 70 s, tắt zone giữa ván rồi vào lại (card được hoàn).
 
 ## Todo List
 - [ ] API escrow / settle / refund + vitest   - [ ] redeem createdAt

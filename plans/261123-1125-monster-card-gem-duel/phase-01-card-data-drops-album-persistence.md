@@ -50,7 +50,7 @@ Sửa: `Assets/Scripts/Rpg/Item.cs` (sockets), `SaveSerializer.cs`, `SaveStore.M
 5. Event CardDrop (`NetEventType`), client hiện toast; offline đi cùng đường.
 6. server-api: zod cho mọi field mới (default rỗng), `sockets` trong `itemSchema` (max 2, regex `^[a-zA-Z]+:[pg]$`), id card phải thuộc `card-ids.json`.
 7. `CardIdsExportTests`: so `CardTable` với `server-api/src/rpg/card-ids.json` (id + rarity + isBoss); lệch thì fail kèm lệnh ghi lại.
-8. Build lại zone server (bản sao) + deploy server-api (`docs/deploy.md`).
+8. Build lại zone server (bản sao) + deploy server-api (`docs/deploy.md`). **Thứ tự: server-api TRƯỚC, zone SAU** (API cũ từ chối save v6 hoặc card id lạ, tiến độ chỉ còn trong file kept; zone log lỗi khi API từ chối 3 save trong 10 phút).
 
 ## Todo List
 - [x] Bảng 40 card + region
@@ -59,7 +59,8 @@ Sửa: `Assets/Scripts/Rpg/Item.cs` (sockets), `SaveSerializer.cs`, `SaveStore.M
 - [x] KillRewards roll + event toast
 - [x] zod schema + card-ids.json + vitest
 - [x] dotnet tests (bảng, rơi, đếm, album, export)
-- [ ] Build zone + deploy API (người dùng deploy; chưa làm)
+- [ ] Build zone + deploy API (người dùng deploy; chưa làm; **API trước, zone sau**)
+- [x] Sửa theo review (23/11, `reports/code-reviewer-261123-1150-phase-01.md`): thứ tự deploy + log `SaveRejectWatch`; khoá card trong save v6 (`CardEntry.locked`, zod, vitest); test save tệ nhất (`CardSaveSizeTests`, 26 KB < 45 KB) + log khi RpgState vượt 60 KB; kẹp vàng Album (`GoldCap`); card đầy 999 đổi sang vàng giá bán NPC (`CardOps.Receive`, toast riêng, cờ bit1 của event CardDrop); test mỗi card có LootTable; `AddGem` trả false khi đầy (không kẹp im lặng). Turret đã ghi vào `DamageBy` (qua `SkillDamage` -> `ctx.Hero`); pet CỐ Ý không (luật pet: không quyết chia EXP / chủ loot / phần boss hợp lệ), giữ nguyên.
 
 ## Success Criteria
 - 40 id duy nhất, mỗi id có `MonsterDef` thật, 4 số 1-9, tổng đúng dải rarity (test).

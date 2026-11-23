@@ -103,6 +103,16 @@ namespace ZenoniaProto.Rpg
             return l.Percent ? l.Label + " +" + RpgMath.Round(l.Value * 100.0) + "%" : l.Label + " " + RpgMath.Round(l.Value);
         }
 
+        /// <summary>"Gem Option: ATK +6, DEF +4" for the Soul Gems socketed in the item (flat bonuses, kept apart from the item stats), or null when it holds none.</summary>
+        public static string GemOptionLine(Item item)
+        {
+            if (item == null || item.sockets == null || item.sockets.Count == 0) return null;
+            var parts = new List<string>();
+            int n = Math.Min(item.sockets.Count, GemSockets.SlotCount(item.slot));
+            for (int i = 0; i < n; i++) { GemOption o; if (GemSockets.TryOption(item.sockets[i], out o)) parts.Add(GemSockets.OptionText(o)); }
+            return parts.Count == 0 ? null : "Gem Option: " + string.Join(", ", parts.ToArray());
+        }
+
         /// <summary>"(+3)" / "(-2)" / "" for a comparison delta.</summary>
         public static string FormatDelta(StatLine l)
         {

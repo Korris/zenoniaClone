@@ -152,11 +152,17 @@ public class MessageRoundTripTests
             InvActionMsg d; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out d));
             Assert.Equal(op, d.Op); Assert.Equal("rootburrow3>rootburrow-exit", d.ItemUid);
         }
-        Assert.Equal(InvOp.WaypointWarp, InvOpInfo.Last);
+        foreach (InvOp op in new[] { InvOp.GemConvert, InvOp.GemSocket, InvOp.GemRemove }) // Soul Gems (28): item uid fits, the gem rides in Slot as GemSockets.Code (0..79)
+        {
+            NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 11, Op = op, ItemUid = "weapon-zzzzzz1234", Slot = 79 });
+            InvActionMsg g; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out g));
+            Assert.Equal(op, g.Op); Assert.Equal("weapon-zzzzzz1234", g.ItemUid); Assert.Equal((byte)79, g.Slot);
+        }
+        Assert.Equal(InvOp.GemRemove, InvOpInfo.Last);
         Assert.True(InvOpInfo.IsAccountOp(InvOp.GachaPull) && InvOpInfo.IsAccountOp(InvOp.PetBuy) && InvOpInfo.IsAccountOp(InvOp.BallBuy) && InvOpInfo.IsAccountOp(InvOp.PetLevelUp) && !InvOpInfo.IsAccountOp(InvOp.PetEquip) && !InvOpInfo.IsAccountOp(InvOp.PetCapture));
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOpInfo.Last + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(27, NetProtocol.Version); // 27: NetEventType.CardDrop (monster cards). 26: InvOp ChestOpen / WaypointTouch / WaypointWarp (Rootburrow V5). 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
+        Assert.Equal(28, NetProtocol.Version); // 28: InvOp GemConvert / GemSocket / GemRemove, TradeItemView.Sockets + TradeFail.Socketed, CardDrop flag bit1. 27: NetEventType.CardDrop (monster cards). 26: InvOp ChestOpen / WaypointTouch / WaypointWarp (Rootburrow V5). 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
     }
 
     [Fact]

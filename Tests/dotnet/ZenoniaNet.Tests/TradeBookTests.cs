@@ -10,7 +10,7 @@ public class TradeBookTests
     const ushort A = 1, B = 2, C = 3;
     const int BagSlots = 50; // PlayerState.InventorySize (TradeService.BagSize), not compiled into this project
 
-    sealed class FakeItem { public string Uid; public int Enhance; }
+    sealed class FakeItem { public string Uid; public int Enhance, Sockets; }
 
     sealed class Holder : ITradeHolder
     {
@@ -30,7 +30,7 @@ public class TradeBookTests
         public bool TryGetBagItem(string uid, out TradeItemView view)
         {
             FakeItem f = Bag.Find(i => i.Uid == uid);
-            view = f == null ? default(TradeItemView) : new TradeItemView { Uid = f.Uid, Name = "item " + f.Uid, Enhance = f.Enhance };
+            view = f == null ? default(TradeItemView) : new TradeItemView { Uid = f.Uid, Name = "item " + f.Uid, Enhance = f.Enhance, Sockets = f.Sockets };
             return f != null;
         }
 
@@ -284,6 +284,43 @@ public class TradeBookTests
         Assert.Equal(7, w.Mine(A).Items[0].Enhance);
         Assert.Equal(7, w.Theirs(B).Items[0].Enhance);
         Assert.Equal("item a1", w.Theirs(B).Items[0].Name);
+    }
+
+    [Fact]
+    public void AnItemHoldingSoulGemsCannotBeOffered()
+    {
+        World w = Trading();
+        w[A].With("a1", "gemmed");
+        w[A].Bag.Find(i => i.Uid == "gemmed").Sockets = 1;
+        Assert.Equal(TradeFail.Socketed, w.Do(A, TradeOp.AddItem, 0, "gemmed"));
+        Assert.Equal(TradeFail.None, w.Do(A, TradeOp.AddItem, 0, "a1"));
+        Assert.Single(w.Mine(A).Items);
+        Assert.Equal("Remove its Soul Gems first: gems are locked to you", TradeText.Of(new TradeNoticeMsg { Kind = TradeNoticeKind.Failed, Detail = (byte)TradeFail.Socketed }));
+    }
+
+    [Fact]
+    public void AnItemSocketedAfterItWasOfferedStopsTheTradeAndNothingMoves()
+    {
+        World w = Trading();
+        w[A].With("a1"); w[B].With("b1");
+        w.Add(A, "a1"); w.Add(B, "b1");
+        w.LockBoth();
+        w[A].Bag[0].Sockets = 1; // a gem went in between the lock and the confirm
+        w.ConfirmBoth();
+        Assert.Empty(w.Book.Completed);
+        Assert.Single(w[A].Bag); Assert.Single(w[B].Bag);
+        Assert.True(w.Heard(A, TradeNoticeKind.Failed, (byte)TradeFail.Socketed));
+    }
+
+    [Fact]
+    public void SocketCountGoesOverTheWire()
+    {
+        var msg = new TradeStateMsg { Mine = new TradeOfferView { Items = new[] { new TradeItemView { Uid = "w1", Slot = "weapon", Name = "Sword", Rarity = "rare", ClassId = "", ItemLevel = 1, Sockets = 2 } } }, Theirs = new TradeOfferView { Items = new TradeItemView[0] }, Name = "x" };
+        var w = new NetDataWriter();
+        msg.Write(w);
+        TradeStateMsg m;
+        Assert.True(TradeStateMsg.TryRead(Reader(w, NetOp.TradeState), out m));
+        Assert.Equal(2, m.Mine.Items[0].Sockets);
     }
 
     [Fact]
@@ -673,7 +710,7 @@ public class TradeBookTests
     [Fact]
     public void ThereIsARefusalForTheFixedInventoryRequests()
     {
-        foreach (InvOp op in new[] { InvOp.Equip, InvOp.Unequip, InvOp.Use, InvOp.Discard, InvOp.Sort, InvOp.Enhance, InvOp.SkillRespec, InvOp.PotionBuy, InvOp.PetBuy, InvOp.GearBuy, InvOp.QuestAccept, InvOp.QuestTurnIn })
+        foreach (InvOp op in new[] { InvOp.Equip, InvOp.Unequip, InvOp.Use, InvOp.Discard, InvOp.Sort, InvOp.Enhance, InvOp.SkillRespec, InvOp.PotionBuy, InvOp.PetBuy, InvOp.GearBuy, InvOp.QuestAccept, InvOp.QuestTurnIn, InvOp.GemConvert, InvOp.GemSocket, InvOp.GemRemove })
             Assert.True(TradeBook.BlocksInventoryOp(op), op.ToString());
         Assert.False(TradeBook.BlocksInventoryOp(InvOp.SkillLearn));
         Assert.False(TradeBook.BlocksInventoryOp(InvOp.SkillAssign));

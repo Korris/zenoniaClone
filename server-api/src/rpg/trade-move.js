@@ -12,6 +12,7 @@ function takeItems(state, uids) {
     if (uid.startsWith(STARTER_PREFIX)) throw refuse('trade_starter', 'Starter gear cannot be traded');
     const i = state.inventory.findIndex((it) => it.uid === uid);
     if (i < 0) throw refuse('trade_item_missing', `Item ${uid} is not in the bag`);
+    if (state.inventory[i].sockets?.length > 0) throw refuse('trade_socketed', 'An item with Soul Gems cannot be traded'); // socketed gems are trade-locked for good (GemSockets)
     return state.inventory.splice(i, 1)[0];
   });
 }

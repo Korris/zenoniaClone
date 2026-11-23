@@ -481,6 +481,8 @@ Client phải trỏ API vào `https://pocketvalor.luckyday.io.vn`. Sau khi đăn
 
 ## Cập nhật
 
+**Thứ tự bắt buộc: server-api TRƯỚC, zone SAU.** Zone mới có thể gửi một save mà API cũ từ chối (đổi `SaveVersion`, thêm id card, `sockets`, trường mới). API cũ từ chối thì mọi lần lưu của zone bị 400 / 422, tiến độ người chơi chỉ còn nằm trong file `save-failed` trên đĩa zone, và phải có người chép lại. Đảo thứ tự một lần là mất tiến độ cả server. Làm xong API (kiểm `curl /health`), rồi mới build và chạy lại zone. Nếu lỡ đảo: dừng zone, đưa API lên bản mới, bật zone lại (zone nạp lại file kept khi nhân vật vào lại). Zone ghi log lỗi `save: the API refused N saves within 10 minutes: it is probably OLDER than this zone` khi gặp ba lần từ chối liên tiếp: thấy dòng đó thì làm ngay bước trên.
+
 **API** (làm bước 1c và lệnh `scp` gói `.tgz` trên Windows trước):
 
 ```bash

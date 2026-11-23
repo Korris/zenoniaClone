@@ -127,7 +127,7 @@ namespace ZenoniaProto
                     break;
                 case NetEventType.CardDrop:
                     stats.Add("cardDropsSeen", 1);
-                    if (fx) CardToast.Show(e.Step, (e.Flags & 1) != 0);
+                    if (fx) CardToast.Show(e.Step, (e.Flags & 1) != 0, (e.Flags & 2) != 0);
                     break;
                 case NetEventType.BossSpawned:
                     stats.Add("bossSpawnedSeen", 1);

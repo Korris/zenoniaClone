@@ -5,7 +5,7 @@ import { makeCtx, weapon } from './helpers.js';
 
 // Monster cards (save v6): every new SaveData field must survive the zod strip, in the schema and through the save API.
 const base = () => newCharacterState('warrior');
-const cards = [{ id: 'meadowSlime', n: 3 }, { id: 'frostfangKing', n: 1 }];
+const cards = [{ id: 'meadowSlime', n: 3, locked: 2 }, { id: 'frostfangKing', n: 1, locked: 0 }];
 const full = () => ({
   cards,
   gems: [{ id: 'snowFox', kind: 1, locked: true, n: 2 }, { id: 'meadowSlime', kind: 0, locked: false, n: 1 }],
@@ -41,6 +41,11 @@ describe('state schema: card fields', () => {
     expect(s.cardRank).toEqual({ season: 0, mmr: 0, lp: 0, wins: 0, losses: 0, draws: 0, best: 0 });
   });
 
+  it('a card row without locked (older v6 save) means none locked', () => {
+    const s = stateSchema.parse({ ...base(), version: 6, cards: [{ id: 'meadowSlime', n: 3 }] });
+    expect(s.cards).toEqual([{ id: 'meadowSlime', n: 3, locked: 0 }]);
+  });
+
   it('accepts save version 6 and rejects 7', () => {
     expect(stateSchema.safeParse({ ...base(), version: 6 }).success).toBe(true);
     expect(stateSchema.safeParse({ ...base(), version: 7 }).success).toBe(false);
@@ -49,6 +54,8 @@ describe('state schema: card fields', () => {
   it.each([
     ['an unknown card', { cards: [{ id: 'ghost', n: 1 }] }],
     ['a zero stack', { cards: [{ id: 'meadowSlime', n: 0 }] }],
+    ['more copies locked than owned', { cards: [{ id: 'meadowSlime', n: 2, locked: 3 }] }],
+    ['a negative lock', { cards: [{ id: 'meadowSlime', n: 2, locked: -1 }] }],
     ['a stack over 999', { cards: [{ id: 'meadowSlime', n: 1000 }] }],
     ['more than 40 card rows', { cards: Array.from({ length: 41 }, () => ({ id: 'meadowSlime', n: 1 })) }],
     ['an unknown gem card', { gems: [{ id: 'ghost', kind: 0, locked: false, n: 1 }] }],

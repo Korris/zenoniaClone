@@ -49,3 +49,4 @@ export const GEM_MAX_ROWS = 80; // CardCollection.MaxGemRows
 export const CARD_DECK_MAX = 8; // CardCollection.MaxDeck
 export const ALBUM_MILESTONES = 4; // AlbumRules.Milestones: albumClaimed is a 4-bit mask
 export const MAX_ITEM_SOCKETS = 2; // ItemFactory.MaxSockets
+export const GEM_SLOTS = { weapon: 2, armor: 2, helmet: 1 }; // GemSockets.SlotCount: sockets per item slot, every other slot has none

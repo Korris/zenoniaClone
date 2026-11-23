@@ -94,6 +94,7 @@ namespace ZenoniaProto.Net
                 case TradeFail.NotOwned: return "That item is not in your bag";
                 case TradeFail.Equipped: return "Take that item off before you trade it";
                 case TradeFail.Starter: return "Starter gear cannot be traded";
+                case TradeFail.Socketed: return "Remove its Soul Gems first: gems are locked to you";
                 case TradeFail.DuplicateItem: return "That item is already in your offer";
                 case TradeFail.OfferFull: return "An offer holds at most " + TradeBook.MaxItems + " items";
                 case TradeFail.NotOffered: return "That item is not in your offer";

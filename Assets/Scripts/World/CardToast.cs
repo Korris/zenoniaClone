@@ -19,10 +19,16 @@ namespace ZenoniaProto
             }
         }
 
-        public static void Show(int cardIndex, bool first)
+        /// <summary>The stack is full (999): the card was sold at the NPC price instead (CardOps.Receive).</summary>
+        public static string FullText(CardDef card) { return "Card: " + card.Name + " (999 held) sold +" + CardFees.Sell(card) + " G"; }
+
+        public static void Show(int cardIndex, bool first, bool full = false)
         {
             CardDef card = CardTable.ByIndex(cardIndex);
-            if (card != null) RpgHud.Toast(Text(card, first), ColorOf(card));
+            if (card == null) return;
+            RpgHud.Toast(full ? FullText(card) : Text(card, first), ColorOf(card));
         }
+
+        public static void ShowFull(int cardIndex) { Show(cardIndex, false, true); }
     }
 }

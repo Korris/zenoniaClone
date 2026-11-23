@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ALBUM_MILESTONES, APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CARD_COUNT, CARD_DECK_MAX, CARD_IDS, CARD_MAX_STACK, CLASS_IDS, GEM_MAX_ROWS, HEADGEAR_COUNT, HEADGEAR_TEMPLATE_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_ITEM_SOCKETS, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
+import { ALBUM_MILESTONES, APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CARD_COUNT, CARD_DECK_MAX, CARD_IDS, CARD_MAX_STACK, CLASS_IDS, GEM_MAX_ROWS, GEM_SLOTS, HEADGEAR_COUNT, HEADGEAR_TEMPLATE_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_ITEM_SOCKETS, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
 
 // Field names match Assets/Scripts/Rpg/Item.cs (Item, ItemStats) and SaveSerializer.cs (SaveData) so Unity's JsonUtility reads them as-is.
 
@@ -22,9 +22,9 @@ export const itemSchema = z.object({
   enhance: z.number().int().min(0).max(MAX_ENHANCE).default(0),
   stats: itemStatsSchema.default({}),
   durability: z.number().int().min(0).max(PET_MAX_DURABILITY).optional(), // pets; a pet without it is an old one, at the maximum
-  // Socketed Soul Gems "<cardId>:p|g" (Power / Guard), Item.sockets. Absent in old saves = none. The per-slot limit arrives with the gem phase (GemSockets.SlotCount).
+  // Socketed Soul Gems "<cardId>:p|g" (Power / Guard), Item.sockets. Absent in old saves = none. The per-slot limit (GEM_SLOTS = GemSockets.SlotCount) is checked right below.
   sockets: z.array(z.string().max(40).regex(/^[a-zA-Z]+:[pg]$/).refine((g) => CARD_IDS.includes(g.split(':')[0]), 'unknown card id')).max(MAX_ITEM_SOCKETS).default([]),
-}).transform((i) => ({ ...i, durability: i.durability ?? (i.slot === 'pet' ? PET_MAX_DURABILITY : 0) }));
+}).refine((i) => i.sockets.length <= (GEM_SLOTS[i.slot] ?? 0), { message: 'more Soul Gem sockets than this slot has' }).transform((i) => ({ ...i, durability: i.durability ?? (i.slot === 'pet' ? PET_MAX_DURABILITY : 0) }));
 
 const int0 = z.number().int().min(0).max(MAX_INT);
 const f0 = z.number().finite().min(0).max(1e9);
@@ -80,7 +80,7 @@ export const stateSchema = z
       equippedHeadgearId: z.number().int().min(0).max(HEADGEAR_COUNT).default(0), // HeadgearCatalog id of the worn hat; the C# side rebuilds it from the headgear slot on load
     }).optional(),
     // Monster cards (SaveData.cards ... cardRank, CardCollection). Absent in old saves = nothing owned. Listed so the strip keeps them: without them every relog loses the collection.
-    cards: z.array(z.object({ id: cardId, n: z.number().int().min(1).max(CARD_MAX_STACK) })).max(CARD_COUNT).default([]),
+    cards: z.array(z.object({ id: cardId, n: z.number().int().min(1).max(CARD_MAX_STACK), locked: z.number().int().min(0).max(CARD_MAX_STACK).default(0) }).refine((c) => c.locked <= c.n, { message: 'more copies locked than owned' })).max(CARD_COUNT).default([]),
     gems: z.array(z.object({ id: cardId, kind: z.number().int().min(0).max(1), locked: z.boolean().default(false), n: z.number().int().min(1).max(CARD_MAX_STACK) })).max(GEM_MAX_ROWS).default([]),
     album: z.array(z.number().int().min(0).max(CARD_COUNT - 1)).max(CARD_COUNT).default([]), // CardTable indexes ever owned
     albumClaimed: z.number().int().min(0).max((1 << ALBUM_MILESTONES) - 1).default(0), // bit per claimed Album milestone
