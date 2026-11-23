@@ -156,7 +156,7 @@ namespace ZenoniaProto.Rpg
             d.cardDeck = new List<string>(Deck);
             d.cardDaily = new CardDailyData { day = Daily.day, npcWins = Daily.npcWins, pvpRewards = Daily.pvpRewards, wagers = Daily.wagers };
             d.cardNpcFirstWins = NpcFirstWins;
-            d.cardRank = new CardRankData { season = Rank.season, mmr = Rank.mmr, lp = Rank.lp, wins = Rank.wins, losses = Rank.losses, draws = Rank.draws, best = Rank.best };
+            d.cardRank = RankedRules.Copy(Rank);
         }
 
         /// <summary>Reads the card fields of a (parsed) save, dropping anything unknown or out of range. Missing fields (old saves) = nothing owned. Returns this.</summary>
@@ -185,7 +185,7 @@ namespace ZenoniaProto.Rpg
             Daily = new CardDailyData { day = Math.Max(0, dy.day), npcWins = Math.Max(0, dy.npcWins), pvpRewards = Math.Max(0, dy.pvpRewards), wagers = Math.Max(0, dy.wagers) };
             NpcFirstWins = RpgMath.Clamp(d.cardNpcFirstWins, 0, MaxNpcFirstWins);
             CardRankData r = d.cardRank ?? new CardRankData();
-            Rank = new CardRankData { season = Math.Max(0, r.season), mmr = Math.Max(0, r.mmr), lp = Math.Max(0, r.lp), wins = Math.Max(0, r.wins), losses = Math.Max(0, r.losses), draws = Math.Max(0, r.draws), best = Math.Max(0, r.best) };
+            Rank = new CardRankData { season = Math.Max(0, r.season), mmr = Math.Max(0, r.mmr), lp = Math.Max(0, r.lp), wins = Math.Max(0, r.wins), losses = Math.Max(0, r.losses), draws = Math.Max(0, r.draws), best = Math.Max(0, r.best), prevBest = Math.Max(0, r.prevBest), rewards = RpgMath.Clamp(r.rewards, 0, RankedRules.RewardMask) };
             return this;
         }
     }

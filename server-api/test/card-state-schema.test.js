@@ -14,7 +14,7 @@ const full = () => ({
   cardDeck: ['meadowSlime', 'meadowSlime', 'frostfangKing'],
   cardDaily: { day: 20000, npcWins: 2, pvpRewards: 3, wagers: 1 },
   cardNpcFirstWins: 5,
-  cardRank: { season: 2, mmr: 1500, lp: 40, wins: 7, losses: 3, draws: 1, best: 1610 },
+  cardRank: { season: 2, mmr: 1500, lp: 40, wins: 7, losses: 3, draws: 1, best: 1610, prevBest: 820, rewards: 6 },
 });
 
 describe('card ids', () => {
@@ -38,7 +38,12 @@ describe('state schema: card fields', () => {
     const s = stateSchema.parse({ ...base(), version: 5 });
     expect(s).toMatchObject({ cards: [], gems: [], album: [], albumClaimed: 0, cardDeck: [], cardNpcFirstWins: 0 });
     expect(s.cardDaily).toEqual({ day: 0, npcWins: 0, pvpRewards: 0, wagers: 0 });
-    expect(s.cardRank).toEqual({ season: 0, mmr: 0, lp: 0, wins: 0, losses: 0, draws: 0, best: 0 });
+    expect(s.cardRank).toEqual({ season: 0, mmr: 0, lp: 0, wins: 0, losses: 0, draws: 0, best: 0, prevBest: 0, rewards: 0 });
+  });
+
+  it('an older cardRank without the season-end fields gets them as 0', () => {
+    const s = stateSchema.parse({ ...base(), version: 6, cardRank: { season: 1, mmr: 1100, lp: 50 } });
+    expect(s.cardRank).toEqual({ season: 1, mmr: 1100, lp: 50, wins: 0, losses: 0, draws: 0, best: 0, prevBest: 0, rewards: 0 });
   });
 
   it('a card row without locked (older v6 save) means none locked', () => {
@@ -67,6 +72,8 @@ describe('state schema: card fields', () => {
     ['an unknown deck card', { cardDeck: ['ghost'] }],
     ['a negative daily counter', { cardDaily: { day: 1, npcWins: -1 } }],
     ['a negative rank value', { cardRank: { mmr: -5 } }],
+    ['season rewards past the 5 tier bits', { cardRank: { rewards: 32 } }],
+    ['a negative previous-season best', { cardRank: { prevBest: -1 } }],
     ['an NPC bit field over 16 bits', { cardNpcFirstWins: 0x10000 }],
   ])('rejects %s', (_name, patch) => {
     expect(stateSchema.safeParse({ ...base(), version: 6, ...patch }).success).toBe(false);

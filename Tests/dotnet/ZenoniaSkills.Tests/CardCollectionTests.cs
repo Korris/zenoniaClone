@@ -79,7 +79,7 @@ public class CardCollectionTests
         p.Cards.Deck.AddRange(new[] { "meadowSlime", "meadowSlime", "frostfangKing" });
         p.Cards.Daily = new CardDailyData { day = 20000, npcWins = 2, pvpRewards = 3, wagers = 1 };
         p.Cards.NpcFirstWins = 5;
-        p.Cards.Rank = new CardRankData { season = 2, mmr = 1500, lp = 40, wins = 7, losses = 3, draws = 1, best = 1610 };
+        p.Cards.Rank = new CardRankData { season = 2, mmr = 1500, lp = 40, wins = 7, losses = 3, draws = 1, best = 1610, prevBest = 820, rewards = 6 };
 
         PlayerState q = RoundTrip(p);
         Assert.Equal(3, q.Cards.Count("meadowSlime"));
@@ -92,7 +92,7 @@ public class CardCollectionTests
         Assert.Equal(20000, q.Cards.Daily.day); Assert.Equal(2, q.Cards.Daily.npcWins); Assert.Equal(3, q.Cards.Daily.pvpRewards); Assert.Equal(1, q.Cards.Daily.wagers);
         Assert.Equal(5, q.Cards.NpcFirstWins);
         Assert.Equal(2, q.Cards.Rank.season); Assert.Equal(1500, q.Cards.Rank.mmr); Assert.Equal(40, q.Cards.Rank.lp);
-        Assert.Equal(7, q.Cards.Rank.wins); Assert.Equal(3, q.Cards.Rank.losses); Assert.Equal(1, q.Cards.Rank.draws); Assert.Equal(1610, q.Cards.Rank.best);
+        Assert.Equal(7, q.Cards.Rank.wins); Assert.Equal(3, q.Cards.Rank.losses); Assert.Equal(1, q.Cards.Rank.draws); Assert.Equal(1610, q.Cards.Rank.best); Assert.Equal(820, q.Cards.Rank.prevBest); Assert.Equal(6, q.Cards.Rank.rewards);
     }
 
     [Fact]

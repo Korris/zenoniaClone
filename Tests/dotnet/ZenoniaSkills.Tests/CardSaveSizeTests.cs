@@ -38,7 +38,7 @@ public class CardSaveSizeTests
         Assert.Equal(CardCollection.MaxGemRows, rows);
         p.Cards.AlbumClaimed = 15; p.Cards.NpcFirstWins = 0xFFFF;
         p.Cards.Daily = new CardDailyData { day = 99999, npcWins = 99999, pvpRewards = 99999, wagers = 99999 };
-        p.Cards.Rank = new CardRankData { season = 99999, mmr = 99999, lp = 99999, wins = 99999, losses = 99999, draws = 99999, best = 99999 };
+        p.Cards.Rank = new CardRankData { season = 99999, mmr = 99999, lp = 99999, wins = 99999, losses = 99999, draws = 99999, best = 99999, prevBest = 99999, rewards = 31 };
         string json = JsonUtility.ToJson(SaveSerializer.Capture(p, true, 1234.5f, 678.25f, true, 0, "frostHollow", new List<string> { "frostHollow", "amberDunes", "willowbrookMeadows" }));
         System.Console.WriteLine("[CardSaveSizeTests] worst card save JSON: " + json.Length + " chars");
         Assert.True(json.Length < Budget, "save JSON " + json.Length + " chars, budget " + Budget + ", hard cap " + MaxSaveJsonLength);

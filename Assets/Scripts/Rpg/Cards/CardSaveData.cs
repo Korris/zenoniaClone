@@ -11,6 +11,6 @@ namespace ZenoniaProto.Rpg
     /// <summary>Daily card counters; day = WantedBoss.DayKey, the counters restart when it changes. wagers is for the card-wager phase.</summary>
     [Serializable] public class CardDailyData { public int day, npcWins, pvpRewards, wagers; }
 
-    /// <summary>Ranked season state (phase 07): season number, rating, league points and the win / loss record.</summary>
-    [Serializable] public class CardRankData { public int season, mmr, lp, wins, losses, draws, best; }
+    /// <summary>Ranked season state (phase 07, RankedRules): season number, hidden rating, league points, this season's record, best LP this season, best LP of the last finished season, and a bit per tier reached at a season end (season-end rewards are only this flag for now).</summary>
+    [Serializable] public class CardRankData { public int season, mmr, lp, wins, losses, draws, best, prevBest, rewards; }
 }
