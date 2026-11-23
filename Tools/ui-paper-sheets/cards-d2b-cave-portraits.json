@@ -1,0 +1,30 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/d-portraits/cards-d2b-cave-portraits-chatgpt-1.png",
+ "note": "redraw 23/11 of the 4 cave monster portraits in their in-game colours (sheet of the tinted FallbackSheet frames); replaces the purple versions of cards-d2-portraits (those 4 are skip there)",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/monsters/card-portraits",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [
+  [
+   {
+    "name": "caveMantis",
+    "height": 256
+   },
+   {
+    "name": "gloomWolf",
+    "height": 256
+   },
+   {
+    "name": "crystalSprite",
+    "height": 256
+   },
+   {
+    "name": "hollowTreant",
+    "height": 256
+   }
+  ]
+ ]
+}

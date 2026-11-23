@@ -1,6 +1,6 @@
 {
  "source": "Assets/ArtLibrary/ui/cards/d-portraits/cards-d2-portraits-chatgpt-1.png",
- "note": "monster card portraits (phase 02 sheet D), drawn by ChatGPT from the in-game idle frame; longest side 256 px, draw with preserveAspect",
+ "note": "monster card portraits (phase 02 sheet D), drawn by ChatGPT from the in-game idle frame; longest side 256 px, draw with preserveAspect; caveMantis, gloomWolf, crystalSprite, hollowTreant skipped (purple, replaced by cards-d2b-cave-portraits)",
  "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
  "key": "#00FF00",
  "out": "Assets/Resources/Sprites/monsters/card-portraits",
@@ -11,19 +11,23 @@
   [
    {
     "name": "caveMantis",
-    "height": 256
+    "height": 256,
+    "skip": true
    },
    {
     "name": "gloomWolf",
-    "height": 256
+    "height": 256,
+    "skip": true
    },
    {
     "name": "crystalSprite",
-    "width": 256
+    "width": 256,
+    "skip": true
    },
    {
     "name": "hollowTreant",
-    "width": 256
+    "width": 256,
+    "skip": true
    }
   ],
   [

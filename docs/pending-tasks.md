@@ -5,7 +5,7 @@
 ### 23/11 12:30 Card Monster phase 02: asset ChatGPT (XONG, CHỜ người dùng xem)
 - Chat Tay ("Tân Korris", Chrome "Browser 3"): https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617 (22 ảnh, chưa hết lượt).
 - Xong đủ bảng phase 02: khung + nút 9-slice, icon menu / lọc / hệ / tag / mũi tên, khung card N/R/SR/SSR/boss + mặt sau + huy hiệu + viền phủ, 40 chân dung quái (`Sprites/monsters/card-portraits/`), 8 vỏ ngọc + 3 ô ngọc, bàn đấu + HUD trận + 3 NPC đấu, huy hiệu Ranked + ô cược, toast, icon HUD `hud-icon-cards`, NPC `cardMaster` (sheet + mặt). Danh sách + ghi chú cỡ: todo của `plans/261123-1125-monster-card-gem-duel/phase-02-chatgpt-asset-request.md`; ảnh xem: `docs/reference/card-gem-ui/art-contact/`.
-- Chờ người dùng: 4 quái hang (Cave Mantis, Gloom Wolf, Crystal Sprite, Hollow Treant) chân dung ra TÍM, trong game chỉ là sheet gốc tô xỉn (`portraits-vs-ingame-2.png`): giữ hay vẽ lại. Card Master chỉ có 1 frame mỗi hướng (4 frame giống nhau, không thở).
+- 23/11 người dùng chốt: 4 quái hang (Cave Mantis, Gloom Wolf, Crystal Sprite, Hollow Treant) đã vẽ lại khớp màu game (`cards-d2b-cave-portraits`, cùng tên file); Card Master thở để phase 08 (việc sau).
 - Chưa xem trong Unity (chưa có UI dùng); `.meta` của ảnh ArtLibrary + NPC cut do Unity sinh khi mở project.
 
 ### 23/11 Card Monster phase 04: ngọc Soul Gem (đổi / khảm / tháo) + sửa review phase 01 (XONG code + UI offline, CHƯA deploy, CHƯA kiểm online)

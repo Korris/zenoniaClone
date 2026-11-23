@@ -63,3 +63,4 @@ Rollback: bỏ dòng NPC khỏi map; lối vào qua menu vẫn còn.
 
 ## Next Steps
 Sau V1: chợ thật (nếu duyệt), cosmetic danh hiệu / khung / hiệu ứng, bảng xếp hạng Ranked, giới hạn đăng bán cho tài khoản mới.
+- Việc sau (người dùng chốt 23/11 bỏ ở V1): nhịp thở idle cho NPC `cardMaster`. Sheet hiện có `Sprites/village/npcs/cardMaster.png` 4 frame mỗi hàng giống hệt nhau (ChatGPT vẽ 1 dáng / hướng, phase 02 H); muốn thở thì xin ChatGPT thêm frame hoặc co giãn nhẹ trên art có sẵn.

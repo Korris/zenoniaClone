@@ -77,7 +77,7 @@ Ghi chú cho phase 03-08:
 - Cỡ xuất: khung / nút 9-slice xuất gấp 2 cỡ tham chiếu 1280x720 (như kit ro-soft: `pixelsPerUnitMultiplier` 2); border trong `Tools/ui-paper-sheets/paper-borders.json` (khoá `frame/...`, `card/...`, `icons/...`, `board/...`). Card, viền phủ, ô cược: cỡ cố định ~192-215 x 256 (không 9-slice vì có hoạ tiết giữa cạnh). `card-frame-boss` cao 290: thân card là 256 px dưới, vương miện nhô lên.
 - Chân dung: cạnh dài 256, không vuông, vẽ `preserveAspect`. Cửa sổ chân dung của card / ngọc là ô kem đặc (không rỗng): vẽ chân dung đè lên, ngọc cần mask tròn.
 - Huy hiệu độ hiếm có chữ N / R / SR / SSR làm logo (spec cho phép). Tag Trade Locked / In Deck / xN, banner Win / Lose / Draw, nhãn A-D / 1-4 không chữ: game ghi chữ.
-- 4 quái hang (caveMantis, gloomWolf, crystalSprite, hollowTreant) chân dung màu tím, khác tint trong game: chờ người dùng (Sổ lỗi).
+- 4 quái hang (caveMantis, gloomWolf, crystalSprite, hollowTreant): bản tím đã thay bằng bản khớp màu game (`cards-d2b-cave-portraits`, 23/11). Card Master thở: để phase 08 (việc sau).
 
 ## Success Criteria
 - Đủ mọi dòng trong bảng, PNG trong suốt sạch (không còn viền hồng/xanh, không caro), đúng cỡ và tên.
