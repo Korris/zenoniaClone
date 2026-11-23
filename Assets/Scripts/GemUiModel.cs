@@ -69,12 +69,19 @@ namespace ZenoniaProto
             if (p == null) return "";
             var sb = new StringBuilder(128);
             sb.Append(p.Gold);
-            foreach (KeyValuePair<string, int> kv in p.Cards.Cards) sb.Append('|').Append(kv.Key).Append(kv.Value).Append('/').Append(p.Cards.Locked(kv.Key));
+            foreach (KeyValuePair<string, int> kv in p.Cards.Cards) sb.Append('|').Append(kv.Key).Append(kv.Value).Append(p.Cards.IsLocked(kv.Key) ? 'L' : 'o');
             foreach (GemEntry g in p.Cards.Gems) sb.Append('#').Append(g.id).Append(g.kind).Append(g.locked ? 'l' : 'f').Append(g.n);
             foreach (Item i in p.Inventory) if (i.sockets != null && i.sockets.Count > 0) sb.Append('@').Append(i.uid).Append(string.Join(",", i.sockets));
             foreach (string slot in Slots.All) { Item e = p.GetEquipped(slot); if (e != null) { sb.Append('^').Append(e.uid); if (e.sockets != null && e.sockets.Count > 0) sb.Append(string.Join(",", e.sockets)); } }
-            sb.Append(p.Inventory.Count).Append('~').Append(p.Cards.AlbumClaimed).Append('/').Append(p.Cards.AlbumCount).Append('/').Append(p.Cards.Deck.Count);
+            sb.Append(p.Inventory.Count).Append('~').Append(p.Cards.AlbumClaimed).Append('/').Append(p.Cards.AlbumCount).Append('/').Append(p.Cards.Deck.Count).Append(':').Append(string.Join(",", p.Cards.Deck.ToArray())).Append(':').Append(p.Cards.NpcFirstWins);
             return sb.ToString();
+        }
+
+        /// <summary>Rarity as the detail panel says it: N Normal, R Rare, SR Super Rare, SSR Ultra Rare; a boss card adds "Boss" (the crown is a flag, not a fifth tier).</summary>
+        public static string RarityName(CardDef c)
+        {
+            string[] names = { "Normal", "Rare", "Super Rare", "Ultra Rare" };
+            return names[(int)c.Rarity] + (c.IsBoss ? " - Boss" : "");
         }
 
         /// <summary>Map name of a card's region ("Willowbrook Meadows"), else the id.</summary>

@@ -17,6 +17,9 @@ namespace ZenoniaProto
         public abstract void Refresh();
         public virtual void OnShow() { Refresh(); }
 
+        /// <summary>Capture only (--card-press main): taps the page's main button through its real handler.</summary>
+        public virtual void DebugPressMain() { }
+
         // ---- shared by every card / gem page: wait for the server's answer, ask "sure?" ----
 
         const float WaitSeconds = 1.5f;
@@ -29,10 +32,13 @@ namespace ZenoniaProto
         /// <summary>Sends an op and locks the page's buttons until the answer shows.</summary>
         protected void Send(InvOp op, byte slot, string uid = "")
         {
-            pendingUntil = Time.unscaledTime + WaitSeconds; wasPending = true;
+            Hold();
             PetActions.Send(op, slot, uid);
             Refresh();
         }
+
+        /// <summary>Locks the buttons like Send, for a request that is not an InvOp (the Card Duel deck save).</summary>
+        protected void Hold() { pendingUntil = Time.unscaledTime + WaitSeconds; wasPending = true; }
 
         /// <summary>The state changed (the server answered): buttons may work again.</summary>
         public void ClearPending() { pendingUntil = 0f; wasPending = false; }

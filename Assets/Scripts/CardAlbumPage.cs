@@ -16,7 +16,7 @@ namespace ZenoniaProto
     public sealed class CardAlbumPage : GemPage
     {
         const int Cols = 6, Rows = 2, PerPage = Cols * Rows, TabsPerRow = 6;
-        const float MainW = 640f, DetailX = 648f, DetailW = 303f, CardW = 81f, CardH = 108f, PitchX = 100f, PitchY = 130f, GridX = 28f, GridY = 190f;
+        const float MainW = 640f, DetailX = 648f, DetailW = 303f, CardW = 81f, CardH = 108f, PitchX = 100f, PitchY = 130f, GridX = 28f, GridY = 202f; // GridY: 12 below the second tab row (it ends at 190), so the gold selection ring never touches a tab
         const float BarX = 176f, BarW = 330f, BarY = 14f;
         static readonly string[] Reward = { "5,000 G", "Title", "Frame", "Master" };
 
@@ -45,7 +45,7 @@ namespace ZenoniaProto
                 float cx = BarX + BarW * (AlbumRules.Milestones[m] / (float)CardTable.Count);
                 milestone[m] = GemUiArt.Img(Root, "Milestone" + m, cx - 19f, 46f, 38f, 38f, GemUiArt.Frame("milestone-locked"));
                 U.Txt(Root, "MilestoneNum" + m, cx - 41f, 84f, 82f, 18f, AlbumRules.Milestones[m] + " cards", U.TextSmall, U.Ink, TextAnchor.MiddleCenter);
-                U.Txt(Root, "MilestoneReward" + m, cx - 41f, 101f, 82f, 18f, Reward[m], U.TextSmall - 1, U.InkSoft, TextAnchor.MiddleCenter);
+                U.Txt(Root, "MilestoneReward" + m, cx - 41f, 101f, 82f, 18f, Reward[m], U.TextSmall, U.InkSoft, TextAnchor.MiddleCenter);
             }
             claim = new U.PieceButton(Root, "Claim", 16f, 50f, 124f, U.ButtonH, GemUiArt.Frame("btn-gold"), "Claim", OnClaim);
             BuildTabs();

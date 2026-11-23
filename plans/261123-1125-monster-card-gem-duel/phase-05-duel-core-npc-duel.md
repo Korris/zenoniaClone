@@ -81,3 +81,16 @@ Client chỉ gửi chỉ số tay + ô; server kiểm lượt, sở hữu, deadl
 
 ## Next Steps
 Phase 06 PvP + cược dùng lại `DuelMatch` / `DuelService`. Phase 08 gắn NPC Card Master mở trang Duel.
+
+## Trạng thái 23/11: XONG code + UI offline (chưa deploy zone, chưa kiểm online 2 client)
+Todo: [x] DuelBoard / DuelMatch / DeckRules / NpcAi + test  [x] DuelMessages + round-trip  [x] DuelService + LocalDuelHost  [x] Trang deck 06a  [x] Bàn đấu 06b  [x] Thưởng lần đầu + nhiệm vụ ngày  [ ] Build zone + thử online (chưa)  [x] Ảnh (`docs/reference/card-gem-ui/phase-05-shots/`)
+
+## Làm khác kế hoạch
+- Thêm `DuelView` (Rpg): board, tỉ số, số lá còn, log ĐỀU suy ra từ danh sách nước đi (FlipMask do server quyết); wire chỉ gửi nước đi + tay của mình, không gửi ô / tỉ số / log. Thêm `DuelNpcSession` + `DuelNpcRun` (Rpg, dùng chung zone và offline: kiểm deck, NPC nghĩ 0,6-1,2 s, timeout, trả thưởng một lần). Thêm `DuelClient` (cửa chung online / offline), `DuelWire`, `CardDuelBoardLayout`.
+- Bàn đấu là một màn của CardWindow (che menu trái), không phải cửa sổ riêng: dùng chung khung, vàng, hộp xác nhận, Esc. Esc / X khi đang đấu hỏi "Leave the duel?" (= thua, không thưởng).
+- Deck lưu ngay mỗi lần thêm / bớt (`SaveDeck` cả deck, server kiểm `DeckRules`); không có nút Save Deck / Ready (Ready để PvP). Thêm = bấm card bên trái hoặc nút Add to Deck ở My Cards; bớt = bấm card trong deck. Clear Deck thay Save Deck. Challenge Player xám (phase 06).
+- Bàn: bấm card trong tay rồi bấm ô trống để đặt (không có nút Place Card). Lật là animation scale X 0,4 s, đổi viền xanh / đỏ lúc card nằm cạnh.
+- Mở trận ở map an toàn, không chết, không trade, không trúng đòn 5 s; zone ép thua nếu đang đấu mà chết / sang map có quái; trade bị bỏ qua khi đang đấu. `DuelService.Enabled` là công tắc.
+- Wire: `NetOp.DuelRequest = 7`, `DuelNotice = 26`, `DuelState = 27`, `NetProtocol.Version` 30 (gộp "Sell all spare": `CardSell` Slot 0 = mọi lá thừa).
+- Khoá card đổi nghĩa (người dùng chốt 23/11): cờ THEO LOẠI card, chỉ chặn Sell / Convert / cược; card khoá VẪN vào deck. `CardEntry.locked` = 0 / 1 (zod max 1, `card-wager-move.js` spare = 0 nếu khoá, else n - deck). `Spare` = 0 nếu khoá, else Count - InDeck.
+- Chân dung người chơi (vòng avatar) không có: kit không có mặt hero; chỉ có chân dung NPC.

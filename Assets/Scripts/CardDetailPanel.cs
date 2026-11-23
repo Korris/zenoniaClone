@@ -24,7 +24,7 @@ namespace ZenoniaProto
             root = UiKit.Rect(parent, "CardDetail", x, y, w, Height);
             U.Panel(root, "Box", 0f, 0f, w, Height, true);
             title = U.Txt(root, "Title", 16f, 8f, w - 32f, 30f, "", U.TextTitle, U.Ink, TextAnchor.MiddleCenter);
-            big = new GemCardView(root, "Big", 14f, 46f, 112f, 149f, null, false);
+            big = new GemCardView(root, "Big", 14f, 46f, 112f, 149f, null, false, false); // no name on the frame: the title above says it, and the frame's bottom number slot sits where the name would go
             float tx = 138f, tw = w - tx - 12f;
             badge = GemUiArt.Img(root, "Badge", tx, 48f, 48f, 24f, null);
             type = U.Txt(root, "Type", tx + 54f, 46f, tw - 54f, 28f, "", U.TextNormal, U.Ink);
@@ -76,9 +76,9 @@ namespace ZenoniaProto
             title.text = c.Name;
             big.Set(c, 0, false);
             GemUiArt.SetPiece(badge, GemUiArt.RarityBadge(c));
-            type.text = c.IsBoss ? "Boss" : "Normal";
+            type.text = GemUiModel.RarityName(c);
             element.text = c.Element;
-            owned.text = "Owned: x" + p.Cards.Count(c.Id) + (p.Cards.Locked(c.Id) > 0 ? "\nLocked: " + p.Cards.Locked(c.Id) : "") + (p.Cards.InDeck(c.Id) > 0 ? "\nIn deck: " + p.Cards.InDeck(c.Id) : "");
+            owned.text = "Owned: x" + p.Cards.Count(c.Id) + (p.Cards.IsLocked(c.Id) || p.Cards.InDeck(c.Id) > 0 ? "\n" + (p.Cards.IsLocked(c.Id) ? "Locked" : "") + (p.Cards.IsLocked(c.Id) && p.Cards.InDeck(c.Id) > 0 ? ", " : "") + (p.Cards.InDeck(c.Id) > 0 ? "in deck x" + p.Cards.InDeck(c.Id) : "") : "");
             stat[0].text = c.Top.ToString(); stat[1].text = c.Right.ToString(); stat[2].text = c.Bottom.ToString(); stat[3].text = c.Left.ToString();
             effect.text = "Power Gem: " + GemSockets.OptionText(c.Option(GemKind.Power)) + "\nGuard Gem: " + GemSockets.OptionText(c.Option(GemKind.Guard));
             description.text = c.Description;

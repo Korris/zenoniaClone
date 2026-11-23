@@ -252,6 +252,7 @@ namespace ZenoniaProto
             DebugDungeonPoints(hero); // --attune-all / --open-chest <id> / --open-waypoints (Rootburrow V5 chests + warp crystals)
             DebugPetWindows(); // --open-pets / --open-gacha / --gacha-pull (DebugCapture.Pets.cs)
             DebugGemWindow(); // --gem-seed / --open-gems / --gem-press (DebugCapture.GemUi.cs)
+            DebugDuel(); // --duel-seed / --duel-open / --duel-bot (DebugCapture.Duel.cs)
             DebugUiRedesign(); // --kit-sheet and the capture hooks of the rebuilt screens (DebugCapture.UiRedesign.cs)
         }
 

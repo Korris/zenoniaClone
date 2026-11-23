@@ -16,7 +16,7 @@ namespace ZenoniaProto
     public sealed class CardMyCardsPage : GemPage
     {
         const int Cols = 4, Rows = 3, PerPage = Cols * Rows;
-        const float GridW = 598f, CardW = 88f, CardH = 117f, PitchX = 146f, PitchY = 136f, GridX = 26f, GridY = 86f, DetailX = 606f, DetailW = 345f;
+        const float GridW = 598f, CardW = 83f, CardH = 110f, PitchX = 146f, PitchY = 140f, GridX = 26f, GridY = 86f, DetailX = 606f, DetailW = 345f;
 
         readonly GemCardView[] cells = new GemCardView[PerPage];
         readonly Image[] lockMark = new Image[PerPage], deckMark = new Image[PerPage];
@@ -25,7 +25,7 @@ namespace ZenoniaProto
         P.CyclePill rarityPill, areaPill;
         P.Pager pager;
         CardDetailPanel detail;
-        U.PieceButton addToDeck, sell, lockButton, viewAlbum;
+        U.PieceButton addToDeck, sell, sellAll, lockButton, viewAlbum;
         Text collection, reason;
         GemFilter filter = GemFilter.All;
         int rarity = -1, area = -1, page; // -1 = all
@@ -49,12 +49,14 @@ namespace ZenoniaProto
             }
             pager = new P.Pager(Root, GridW * 0.5f, PageH - 38f, d => { page += d; Refresh(); });
             detail = new CardDetailPanel(Root, DetailX, 0f, DetailW);
-            float bw = 156f, by = CardDetailPanel.ButtonsY, by2 = by + 52f, x0 = 14f, x1 = DetailW - 14f - bw;
-            addToDeck = new U.PieceButton(detail.Root, "AddToDeck", x0, by, bw, U.ButtonH, GemUiArt.Frame("btn-teal"), "Add to Deck", () => { });
-            sell = new U.PieceButton(detail.Root, "Sell", x1, by, bw, U.ButtonH, GemUiArt.Frame("btn-red"), "Sell", OnSell);
-            lockButton = new U.PieceButton(detail.Root, "Lock", x0, by2, bw, U.ButtonH, GemUiArt.Frame("btn-blue"), "Lock Card", OnLock);
-            viewAlbum = new U.PieceButton(detail.Root, "ViewAlbum", x1, by2, bw, U.ButtonH, GemUiArt.Frame("btn-blue"), "View in Album", () => { if (selectedId != null) CardWindow.Show(CardWindow.Page.Album, selectedId); });
-            reason = U.Txt(detail.Root, "Reason", 14f, by2 + 50f, DetailW - 28f, 22f, "", U.TextSmall, U.Bad, TextAnchor.MiddleCenter);
+            // three rows of 40 high buttons (the Sell all spare row made the old 48 high rows not fit), then a 14 high reason line
+            float bw = 156f, bh = 40f, by = CardDetailPanel.ButtonsY, by2 = by + 42f, by3 = by + 84f, x0 = 14f, x1 = DetailW - 14f - bw;
+            addToDeck = new U.PieceButton(detail.Root, "AddToDeck", x0, by, bw, bh, GemUiArt.Frame("btn-teal"), "Add to Deck", OnAddToDeck);
+            sell = new U.PieceButton(detail.Root, "Sell", x1, by, bw, bh, GemUiArt.Frame("btn-red"), "Sell", OnSell);
+            lockButton = new U.PieceButton(detail.Root, "Lock", x0, by2, bw, bh, GemUiArt.Frame("btn-blue"), "Lock Card", OnLock);
+            viewAlbum = new U.PieceButton(detail.Root, "ViewAlbum", x1, by2, bw, bh, GemUiArt.Frame("btn-blue"), "View in Album", () => { if (selectedId != null) CardWindow.Show(CardWindow.Page.Album, selectedId); });
+            sellAll = new U.PieceButton(detail.Root, "SellAll", x0, by3, DetailW - 28f, bh, GemUiArt.Frame("btn-red"), "Sell all spare", OnSellAll);
+            reason = U.Txt(detail.Root, "Reason", 14f, by3 + bh + 1f, DetailW - 28f, 15f, "", U.TextSmall, U.Bad, TextAnchor.MiddleCenter);
         }
 
         public void Focus(string cardId)
@@ -72,14 +74,41 @@ namespace ZenoniaProto
             CardDef c = CardTable.Get(selectedId);
             if (p == null || c == null || p.Cards.Spare(c.Id) < 1) return;
             string id = c.Id;
-            Confirm("Sell 1 x " + c.Name + " [" + c.Rarity + "] to the shop for " + CardFees.Sell(c).ToString("N0") + " G?\nLocked and in-deck copies stay.", "Sell", () => Send(InvOp.CardSell, 1, id));
+            Confirm("Sell 1 x " + c.Name + " [" + c.Rarity + "] to the shop for " + CardFees.Sell(c).ToString("N0") + " G?\nCopies in the deck stay.", "Sell", () => Send(InvOp.CardSell, 1, id));
+        }
+
+        /// <summary>Sells every spare copy (not locked, not in the deck) after showing the count and the total. Slot 0 on the wire means "all spare", so a stack over 255 still fits a byte.</summary>
+        public void PressSellAll() { OnSellAll(); }
+
+        void OnSellAll()
+        {
+            PlayerState p = Me;
+            CardDef c = CardTable.Get(selectedId);
+            if (p == null || c == null) return;
+            int spare = p.Cards.Spare(c.Id);
+            if (spare < 1) return;
+            string id = c.Id;
+            long total = (long)CardFees.Sell(c) * spare;
+            Confirm("Sell all " + spare + " spare x " + c.Name + " [" + c.Rarity + "] to the shop for " + total.ToString("N0") + " G?\nCopies in the deck stay.", "Sell all", () => Send(InvOp.CardSell, 0, id));
+        }
+
+        void OnAddToDeck()
+        {
+            PlayerState p = Me;
+            if (p == null || selectedId == null) return;
+            string why = DeckRules.WhyNotAdd(p.Cards.Deck, selectedId, p.Cards);
+            if (why.Length > 0) { DuelClient.Notify(why, false); return; }
+            var next = new List<string>(p.Cards.Deck) { selectedId };
+            Hold();
+            DuelClient.SaveDeck(next);
+            Refresh();
         }
 
         void OnLock()
         {
             PlayerState p = Me;
             if (p == null || selectedId == null) return;
-            Send(InvOp.CardLock, (byte)(p.Cards.Locked(selectedId) > 0 ? 0 : 1), selectedId);
+            Send(InvOp.CardLock, (byte)(p.Cards.IsLocked(selectedId) ? 0 : 1), selectedId);
         }
 
         List<CardDef> Visible(PlayerState p)
@@ -111,7 +140,7 @@ namespace ZenoniaProto
                 cellCard[i] = c;
                 if (c == null) { cells[i].Root.gameObject.SetActive(false); continue; }
                 cells[i].Set(c, p.Cards.Count(c.Id), c.Id == selectedId);
-                lockMark[i].gameObject.SetActive(p.Cards.Locked(c.Id) > 0);
+                lockMark[i].gameObject.SetActive(p.Cards.IsLocked(c.Id));
                 deckMark[i].gameObject.SetActive(p.Cards.InDeck(c.Id) > 0);
             }
             DrawDetail(p, CardTable.Get(selectedId));
@@ -122,16 +151,18 @@ namespace ZenoniaProto
             detail.Set(c, p, true);
             if (c == null)
             {
-                addToDeck.Set("Add to Deck", false); sell.Set("Sell", false); lockButton.Set("Lock Card", false); viewAlbum.Set("View in Album", false);
+                addToDeck.Set("Add to Deck", false); sell.Set("Sell", false); sellAll.Set("Sell all spare", false); lockButton.Set("Lock Card", false); viewAlbum.Set("View in Album", false);
                 reason.text = list0Hint(p);
                 return;
             }
             int spare = p.Cards.Spare(c.Id), price = CardFees.Sell(c);
-            addToDeck.Set("Add to Deck", false); // the duel deck arrives with Card Duel
+            bool dueling = DuelClient.Running;
+            addToDeck.Set(p.Cards.Deck.Count >= DeckRules.Size ? "Deck full" : "Add to Deck", !Pending && !dueling && p.Cards.Deck.Count < DeckRules.Size);
             sell.Set("Sell", spare > 0 && !Pending);
-            lockButton.Set(p.Cards.Locked(c.Id) > 0 ? "Unlock Card" : "Lock Card", !Pending);
+            sellAll.Set(spare > 1 ? "Sell all spare (" + spare + ")" : "Sell all spare", spare > 1 && !Pending);
+            lockButton.Set(p.Cards.IsLocked(c.Id) ? "Unlock Card" : "Lock Card", !Pending);
             viewAlbum.Set("View in Album", true);
-            reason.text = spare < 1 ? "Locked or in-deck copies cannot be sold" : "Sell price: " + price.ToString("N0") + " G each";
+            reason.text = p.Cards.IsLocked(c.Id) ? "Locked: unlock the card to sell or convert it" : spare < 1 ? "Copies in the deck cannot be sold" : "Sell price: " + price.ToString("N0") + " G each" + (p.Cards.InDeck(c.Id) > 0 ? " (" + p.Cards.InDeck(c.Id) + " in deck)" : "");
             reason.color = spare < 1 ? U.Bad : U.InkSoft;
         }
 

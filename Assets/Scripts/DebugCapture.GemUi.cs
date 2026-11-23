@@ -31,6 +31,8 @@ namespace ZenoniaProto
             else if (press == "claim") PetActions.Send(Net.InvOp.AlbumClaim, 0);
             else if (press == "sell") PetActions.Send(Net.InvOp.CardSell, 1, "meadowSlime");
             else if (press == "lock") PetActions.Send(Net.InvOp.CardLock, 1, "meadowSlime");
+            else if (press == "main") CardWindow.DebugPressMain(); // the open page's main button: shows its "Sure?" box for SR+ convert, socket, remove
+            else if (press == "sellall") CardWindow.DebugPressSellAll(); // the real button: shows the "Sure?" box with the count and total
             else if (Arg(args, "--card-confirm") != null) CardConfirmBox.Ask("Sell 1 x Meadow Slime [N] to the shop for 50 G?\nLocked and in-deck copies stay.", "Sell", () => { });
             else if (press == "remove" && p != null) PetActions.Send(Net.InvOp.GemRemove, GemSockets.Code("thornBoar", GemKind.Guard), p.GetEquipped(Slots.Weapon).uid);
         }
@@ -41,7 +43,7 @@ namespace ZenoniaProto
             string[] ids = { "meadowSlime", "hornRabbit", "meadowMantis", "thornBoar", "forestWolf", "brambleTreant", "frostSlime", "iceGoblin", "crystalGolem", "duneScarab", "sandRaider", "frostfangKing" };
             int n = 12;
             foreach (string id in ids) { p.Cards.Add(id, n); n = Mathf.Max(1, n - 2); }
-            p.Cards.SetLocked("hornRabbit", 1);
+            p.Cards.SetLocked("hornRabbit", true);
             foreach (string id in ids) { p.Cards.AddGem(id, GemKind.Power, false, 3); p.Cards.AddGem(id, GemKind.Guard, id == "thornBoar", 2); }
             for (int s = 0; s < 3; s++)
             {

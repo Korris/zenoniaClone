@@ -18,7 +18,7 @@ namespace ZenoniaProto
         public enum Page { MyCards, Album, Convert, Socket, Remove, Duel }
 
         /// <summary>The Card Duel phase flips this when its page exists; until then the menu entry is greyed and says "coming soon".</summary>
-        public static bool DuelReady = false;
+        public static bool DuelReady = true;
 
         const float WinW = 1124f, WinH = 626f, NavX = 8f, NavW = 152f, ContentX = 166f, ContentY = 72f;
         static CardWindow instance;
@@ -32,10 +32,14 @@ namespace ZenoniaProto
         string shownKey = "";
         Page page;
         CardConfirmBox confirm;
+        CardDuelBattleView battle;
+        PlayerState shownMe;
+        float nextKeyAt, fitW, fitH;
+        readonly System.Collections.Generic.List<GameObject> navObjects = new System.Collections.Generic.List<GameObject>();
 
         public static bool IsOpen { get { return instance != null && instance.overlay != null && instance.overlay.gameObject.activeSelf; } }
 
-        static CardWindow() { UiWindows.RegisterModal(() => IsOpen, Close); }
+        static CardWindow() { UiWindows.RegisterModal(() => IsOpen, RequestClose); }
 
         public static void Open(Page start = Page.MyCards)
         {
@@ -52,6 +56,24 @@ namespace ZenoniaProto
             NotificationToast toasts = FindFirstObjectByType<NotificationToast>(); // "Sold 1 x ..." shows over this window
             if (toasts != null && toasts.transform.parent == instance.overlay.parent) toasts.transform.SetAsLastSibling();
             instance.SetPage(start);
+        }
+
+        /// <summary>Capture only (--card-press sellall): taps the Sell all spare button of the My Cards page.</summary>
+        public static void DebugPressSellAll() { if (IsOpen) instance.myCards.PressSellAll(); }
+        public static void DebugPressMain() { if (IsOpen) instance.pages[(int)instance.page].DebugPressMain(); }
+
+        /// <summary>Esc and the X: with a duel running it asks first (leaving counts as a loss); otherwise it closes.</summary>
+        public static void RequestClose()
+        {
+            if (!IsOpen) return;
+            if (CardConfirmBox.IsOpen) { CardConfirmBox.Close(); return; } // Esc with a question open only cancels the question
+            if (DuelClient.Running)
+            {
+                CardConfirmBox.Ask("Leave the duel?\nIt counts as a loss and pays nothing.", "Leave", () => { DuelClient.Forfeit(); });
+                return;
+            }
+            if (DuelClient.View != null) DuelClient.Reset();
+            Close();
         }
 
         public static void Close()
@@ -82,14 +104,16 @@ namespace ZenoniaProto
             GemUiArt.Img(window, "GoldPill", WinW - 330f, 14f, 240f, 44f, GemUiArt.Frame("gold-pill"));
             GemUiArt.Img(window, "GoldIcon", WinW - 322f, 18f, 36f, 36f, GemUiArt.Icon("icon-gold"));
             goldText = U.Txt(window, "Gold", WinW - 280f, 14f, 180f, 44f, "", 22, U.Ink, TextAnchor.MiddleRight);
-            UiWinKit.MakeButton(GemUiArt.Img(window, "Close", WinW - 74f, 12f, 48f, 50f, GemUiArt.Frame("btn-close"), true), Close);
+            UiWinKit.MakeButton(GemUiArt.Img(window, "Close", WinW - 74f, 12f, 48f, 50f, GemUiArt.Frame("btn-close"), true), RequestClose);
             string[] names = { "My Cards", "Monster Album", "Convert to Soul Gem", "Gem Socketing", "Gem Removal", "Card Duel" };
             string[] icons = { "menu-my-cards", "menu-album", "menu-convert", "menu-socket", "menu-remove", "menu-duel" };
             for (int i = 0; i < 6; i++) BuildNav(i, names[i], icons[i]);
             myCards = new CardMyCardsPage(); album = new CardAlbumPage();
-            pages = new GemPage[] { myCards, album, new GemConvertPage(), new GemSocketPage(), new GemRemovePage(), null };
+            pages = new GemPage[] { myCards, album, new GemConvertPage(), new GemSocketPage(), new GemRemovePage(), new CardDuelDeckPage() };
             RectTransform content = UiKit.Rect(window, "Content", ContentX, ContentY, GemPage.PageW, GemPage.PageH);
             foreach (GemPage g in pages) if (g != null) g.Build(content);
+            battle = new CardDuelBattleView(RequestClose);
+            battle.Build(window, 14f, 66f);
             confirm = new CardConfirmBox(UiKit.Fill(window, "ConfirmLayer"), WinW, WinH);
             overlay.gameObject.SetActive(false);
         }
@@ -99,6 +123,7 @@ namespace ZenoniaProto
             const float H = 68f, Pitch = 76f, PadL = 12f, Gap = 6f, IconS = 36f;
             bool off = i == (int)Page.Duel && !DuelReady;
             RectTransform root = UiKit.Rect(window, "Nav" + i, NavX, ContentY + 10f + i * Pitch, NavW, H);
+            navObjects.Add(root.gameObject);
             navSkin[i] = root.gameObject.AddComponent<Image>();
             int index = i;
             UiWinKit.MakeButton(navSkin[i], () => OnNav((Page)index));
@@ -127,12 +152,23 @@ namespace ZenoniaProto
             FitWindow();
             pages[(int)p].ClearPending();
             pages[(int)p].OnShow();
-            shownKey = GemUiModel.StateKey(PetActions.Me);
+            shownKey = GemUiModel.StateKey(PetActions.Me); shownMe = PetActions.Me;
             RefreshGold();
+        }
+
+        /// <summary>The battle screen takes the window below the title (the left menu and the page hide); closing the result brings the deck page back, redrawn.</summary>
+        void ShowBattle(bool on)
+        {
+            CardConfirmBox.Close();
+            battle.Show(on);
+            foreach (GameObject n in navObjects) n.SetActive(!on);
+            pages[(int)page].Root.gameObject.SetActive(!on);
+            if (!on) { pages[(int)page].ClearPending(); pages[(int)page].Refresh(); }
         }
 
         void FitWindow()
         {
+            fitW = overlay.rect.width; fitH = overlay.rect.height;
             float scale = Mathf.Min(1f, (overlay.rect.width * 0.96f) / WinW, (overlay.rect.height - 8f) / WinH);
             window.localScale = Vector3.one * Mathf.Max(0.1f, scale);
         }
@@ -147,14 +183,25 @@ namespace ZenoniaProto
         {
             PlayerState p = PetActions.Me;
             if (p == null) { Close(); return; }
+            DuelClient.Tick(); // offline: the NPC moves and the turn clock run here
+            bool duel = DuelClient.View != null;
+            if (duel != battle.Visible) ShowBattle(duel);
+            if (duel) { battle.Tick(); RefreshGold(); return; }
             GemPage current = pages[(int)page];
-            string key = GemUiModel.StateKey(p);
-            if (key != shownKey)
+            if (overlay.rect.width != fitW || overlay.rect.height != fitH) FitWindow(); // the screen changed size while the window was open
+            // Online the mirror is replaced by a new PlayerState object on every server answer (also a refusal): that is what clears a page's pending lock. The state key (a string) is only built 5 times a second.
+            bool answered = !ReferenceEquals(p, shownMe);
+            if (answered || Time.unscaledTime >= nextKeyAt)
             {
-                shownKey = key; // the server answered, a card dropped, gold changed ...
-                RefreshGold();
-                current.ClearPending();
-                current.Refresh();
+                nextKeyAt = Time.unscaledTime + 0.2f;
+                string key = GemUiModel.StateKey(p);
+                if (answered || key != shownKey)
+                {
+                    shownKey = key; shownMe = p; // the server answered, a card dropped, gold changed ...
+                    RefreshGold();
+                    if (answered || !NetMode.IsClient) current.ClearPending(); // offline an op answers on the spot: the state change is the answer
+                    current.Refresh();
+                }
             }
             current.Tick();
         }

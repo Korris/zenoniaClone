@@ -41,12 +41,21 @@ namespace ZenoniaProto
             removeButton = new U.PieceButton(Root, "RemoveButton", RightX + (RightW - 220f) * 0.5f, PageH - 52f, 220f, U.ButtonH, GemUiArt.Frame("btn-gold"), "Remove Gem", OnRemove);
         }
 
+        public override void DebugPressMain() { OnRemove(); }
+
         void OnRemove()
         {
             Item item = gear.Selected;
             string id; GemKind kind;
             if (item == null || item.sockets == null || socket >= item.sockets.Count || !GemSockets.TryParse(item.sockets[socket], out id, out kind)) return;
-            Send(InvOp.GemRemove, GemSockets.Code(id, kind), item.uid); // the gem itself, not its socket index: a repeated press finds no gem
+            string uid = item.uid; byte code = GemSockets.Code(id, kind);
+            CardDef card = CardTable.Get(id);
+            if (card != null && card.Rarity >= CardRarity.SR) // an expensive step (3,000 G and more): ask first, like Sell does
+            {
+                Confirm("Remove " + card.Name + " " + kind + " Gem from " + item.name + "?\nIt costs " + CardFees.Remove(card).ToString("N0") + " G. The gem returns to you, Trade Locked for good.", "Remove", () => Send(InvOp.GemRemove, code, uid));
+                return;
+            }
+            Send(InvOp.GemRemove, code, uid); // the gem itself, not its socket index: a repeated press finds no gem
         }
 
         public override void Refresh()

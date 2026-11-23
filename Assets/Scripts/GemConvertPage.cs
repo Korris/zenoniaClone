@@ -56,7 +56,7 @@ namespace ZenoniaProto
             RectTransform d = UiKit.Rect(Root, "Detail", DetailX, 0f, DetailW, PageH);
             U.Panel(d, "DetailBox", 0f, 0f, DetailW, PageH, true);
             title = U.Txt(d, "Title", 16f, 10f, DetailW - 32f, 30f, "Pick a card", U.TextTitle, U.Ink, TextAnchor.MiddleCenter);
-            big = new GemCardView(d, "BigCard", 18f, 48f, 118f, 145f, null, false);
+            big = new GemCardView(d, "BigCard", 18f, 48f, 118f, 145f, null, false, false); // no name on the frame (the heading says it): the frame's bottom number slot sits where it would go
             element = U.Txt(d, "Element", 176f, 56f, DetailW - 190f, 24f, "", U.TextNormal, U.Ink);
             elementIcon = UiKit.Rect(d, "ElementIcon", 150f, 57f, 22f, 22f).gameObject.AddComponent<Image>();
             elementIcon.raycastTarget = false;
@@ -91,6 +91,8 @@ namespace ZenoniaProto
         GemTileView result;
 
         void Select(CardDef c) { if (c == null) return; selectedId = c.Id; Refresh(); }
+
+        public override void DebugPressMain() { OnConvert(); }
 
         void OnConvert()
         {
@@ -137,7 +139,7 @@ namespace ZenoniaProto
             element.text = c.Element;
             GemUiArt.SetPiece(elementIcon, GemUiArt.ElementIcon(c));
             area.text = "Area: " + GemUiModel.RegionName(c.Region);
-            owned.text = "Owned: " + p.Cards.Count(c.Id) + "   Free: " + p.Cards.Spare(c.Id) + (p.Cards.Locked(c.Id) > 0 ? "\nLocked: " + p.Cards.Locked(c.Id) : "");
+            owned.text = "Owned: " + p.Cards.Count(c.Id) + "   Free: " + p.Cards.Spare(c.Id) + (p.Cards.IsLocked(c.Id) ? "\nLocked" : "");
             kindTiles[0].Set(c, GemKind.Power, 0, false, false); kindTiles[1].Set(c, GemKind.Guard, 0, false, false);
             optionPower.text = GemSockets.OptionText(c.Option(GemKind.Power)); optionGuard.text = GemSockets.OptionText(c.Option(GemKind.Guard));
             GemUiArt.SetPiece(kindRing[0], kind == GemKind.Power ? "cards/card/select-frame-gold" : null);

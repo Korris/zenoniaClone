@@ -56,6 +56,8 @@ namespace ZenoniaProto
 
         void Pick(GemStock s) { if (s == null) return; selectedGem = GemSockets.Encode(s.Card.Id, s.Kind); Refresh(); }
 
+        public override void DebugPressMain() { OnSocket(); }
+
         void OnSocket()
         {
             Item item = gear.Selected;

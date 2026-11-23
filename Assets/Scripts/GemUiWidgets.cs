@@ -23,7 +23,7 @@ namespace ZenoniaProto
         {
             Text t = W.Txt(parent, name, x, y, w, h, text, size, color, align);
             t.horizontalOverflow = HorizontalWrapMode.Wrap; // long names wrap inside their box; nothing leaves it
-            t.resizeTextForBestFit = true; t.resizeTextMinSize = Mathf.Max(10, size - 5); t.resizeTextMaxSize = size;
+            t.resizeTextForBestFit = true; t.resizeTextMinSize = Mathf.Min(size, Mathf.Max(12, size - 2)); t.resizeTextMaxSize = size; // shrinks a little for a long name, never below 12 (14 is the design size of small text)
             return t;
         }
 

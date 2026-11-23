@@ -41,7 +41,7 @@ namespace ZenoniaProto
                 Root = UiKit.Rect(parent, name, x, y, w, U.ChipH);
                 skin = Root.gameObject.AddComponent<Image>();
                 UiWinKit.MakeButton(skin, onTap);
-                label = U.Txt(Root, "Label", 4f, 0f, w - 8f, U.ChipH, text, U.TextSmall - 1, U.Ink, TextAnchor.MiddleCenter);
+                label = U.Txt(Root, "Label", 4f, 0f, w - 8f, U.ChipH, text, U.TextSmall, U.Ink, TextAnchor.MiddleCenter);
                 Set(false);
             }
 
