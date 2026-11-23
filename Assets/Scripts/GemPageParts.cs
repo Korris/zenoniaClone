@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using ZenoniaProto.Net;
 using UnityEngine.UI;
 using ZenoniaProto.Rpg;
 using U = ZenoniaProto.GemUiWidgets;
@@ -15,6 +16,32 @@ namespace ZenoniaProto
         public abstract void Build(RectTransform parent);
         public abstract void Refresh();
         public virtual void OnShow() { Refresh(); }
+
+        // ---- shared by every card / gem page: wait for the server's answer, ask "sure?" ----
+
+        const float WaitSeconds = 1.5f;
+        float pendingUntil;
+        bool wasPending;
+
+        /// <summary>True from sending an op until the new state arrives (ClearPending) or 1.5 s pass (a refusal brings no state change): buttons stay locked so a double tap cannot send twice.</summary>
+        protected bool Pending { get { return Time.unscaledTime < pendingUntil; } }
+
+        /// <summary>Sends an op and locks the page's buttons until the answer shows.</summary>
+        protected void Send(InvOp op, byte slot, string uid = "")
+        {
+            pendingUntil = Time.unscaledTime + WaitSeconds; wasPending = true;
+            PetActions.Send(op, slot, uid);
+            Refresh();
+        }
+
+        /// <summary>The state changed (the server answered): buttons may work again.</summary>
+        public void ClearPending() { pendingUntil = 0f; wasPending = false; }
+
+        /// <summary>Per frame from the window: redraws once the wait ran out.</summary>
+        public void Tick() { if (wasPending && !Pending) { wasPending = false; Refresh(); } }
+
+        /// <summary>Opens the "sure?" box (CardConfirmBox) and runs `go` only on Yes.</summary>
+        protected static void Confirm(string text, string yes, Action go) { CardConfirmBox.Ask(text, yes, go); }
     }
 
     /// <summary>Gem info box (Gem Info / Selected Gem): the gem picture and name, the Rarity / Type / Element / Source rows, then the "Gem Option" box with the stat line and an optional red lock note under it.</summary>

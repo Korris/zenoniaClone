@@ -94,8 +94,12 @@ namespace ZenoniaProto
 
         void OnConvert()
         {
-            if (selectedId == null) return;
-            PetActions.Send(InvOp.GemConvert, (byte)(kind == GemKind.Guard ? 1 : 0), selectedId);
+            CardDef c = CardTable.Get(selectedId);
+            if (c == null) return;
+            byte k = (byte)(kind == GemKind.Guard ? 1 : 0);
+            string id = selectedId;
+            if (c.Rarity < CardRarity.SR) { Send(InvOp.GemConvert, k, id); return; }
+            Confirm("Convert " + c.Name + " [" + c.Rarity + "] into a " + kind + " Gem?\nIt costs 1 card and " + CardFees.Convert(c).ToString("N0") + " G. The Album keeps the card.", "Convert", () => Send(InvOp.GemConvert, k, id));
         }
 
         public override void Refresh()
@@ -144,7 +148,7 @@ namespace ZenoniaProto
             result.Set(c, kind, 1, false, false);
             string why = !CardOps.GemsEnabled ? "Soul Gems are not available" : p.Cards.Spare(c.Id) < 1 ? "This card is locked or in your deck" : p.Gold < fee ? "Need " + fee.ToString("N0") + " G" : !p.Cards.CanAddGem(c.Id, kind, false) ? "No room for another gem of this kind" : null;
             reason.text = why ?? "";
-            convert.Set("Convert", why == null);
+            convert.Set("Convert", why == null && !Pending);
         }
     }
 }

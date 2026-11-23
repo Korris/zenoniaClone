@@ -22,11 +22,14 @@ namespace ZenoniaProto
         /// <summary>The stack is full (999): the card was sold at the NPC price instead (CardOps.Receive).</summary>
         public static string FullText(CardDef card) { return "Card: " + card.Name + " (999 held) sold +" + CardFees.Sell(card) + " G"; }
 
-        public static void Show(int cardIndex, bool first, bool full = false)
+        /// <summary>The stack is full and the Gold cap holds the sale back: the copy is skipped, nothing is paid.</summary>
+        public static string SkippedText(CardDef card) { return "Card: " + card.Name + " (999 held, Gold full) skipped"; }
+
+        public static void Show(int cardIndex, bool first, bool full = false, bool skipped = false)
         {
             CardDef card = CardTable.ByIndex(cardIndex);
             if (card == null) return;
-            RpgHud.Toast(full ? FullText(card) : Text(card, first), ColorOf(card));
+            RpgHud.Toast(skipped ? SkippedText(card) : full ? FullText(card) : Text(card, first), ColorOf(card));
         }
 
         public static void ShowFull(int cardIndex) { Show(cardIndex, false, true); }

@@ -111,4 +111,39 @@ public class GemStatTests
         Assert.Contains("ATK +6", line);
         Assert.Contains(atk.Name, line);
     }
+
+    [Theory]
+    [InlineData("warrior")] [InlineData("wizard")] [InlineData("mechanic")] [InlineData("assassin")] [InlineData("cleric")]
+    public void GemOptionIsFlatEvenWithASecondWeaponPercentBonus(string cls)
+    {
+        PlayerState p = PlayerState.NewGame(cls);
+        Item off = ItemFactory.Generate(() => 0.4, 1, Slots.Offhand, "rare", cls);
+        off.uid = "off1"; off.enhance = 15;
+        p.AddToInventory(off); p.Equip(off);
+        Item armor = ItemFactory.Generate(() => 0.4, 1, Slots.Armor, "rare", cls);
+        armor.uid = "ar9"; p.AddToInventory(armor); p.Equip(armor);
+        Assert.True(p.Second.HpPct > 0 || p.Second.DefPct > 0 || p.Second.MpPct > 0 || cls != "warrior", "the second weapon should add a percent bonus");
+        int hp = p.MaxHp, def = p.Def, atk = p.Atk; float dmg = p.DamageAtk;
+        CardDef hpCard = Card(CardCategory.Hp, CardRarity.SR);
+        p.Cards.AddGem(hpCard.Id, GemKind.Power, false);
+        Assert.True(CardOps.Socket(p, "ar9", hpCard.Id, GemKind.Power).Ok);
+        Assert.Equal(hp + 140, p.MaxHp);                       // SR HP gem = +140 exactly, not 140 x (1 + HpPct)
+        CardDef guard = Card(CardCategory.Atk, CardRarity.SR);
+        p.Cards.AddGem(guard.Id, GemKind.Guard, false);
+        Assert.True(CardOps.Socket(p, "ar9", guard.Id, GemKind.Guard).Ok);
+        Assert.Equal(def + 14, p.Def);                         // SR guard = Def 14 exactly
+        Assert.Equal(atk, p.Atk);
+        Assert.Equal(dmg, p.DamageAtk);
+    }
+
+    [Fact]
+    public void AtkGemAddsExactlyToDamageAtk()
+    {
+        PlayerState p = Hero();
+        float before = p.DamageAtk;
+        CardDef card = Card(CardCategory.Atk, CardRarity.SR);
+        p.Cards.AddGem(card.Id, GemKind.Power, false);
+        Assert.True(CardOps.Socket(p, p.GetEquipped(Slots.Weapon).uid, card.Id, GemKind.Power).Ok);
+        Assert.Equal(before + 20f, p.DamageAtk, 3);
+    }
 }

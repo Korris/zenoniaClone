@@ -54,7 +54,7 @@ Sửa: `Rpg/PlayerState.cs` (RecomputeStats), `Rpg/ItemInfo.cs` (dòng Gem Optio
 - [x] zod (`GEM_SLOTS`) + build player từ bản sao OK   - [ ] Build zone + deploy API (người dùng; API trước, zone sau)
 - [x] Ảnh chụp so mockup: `docs/reference/card-gem-ui/phase-04-shots/{convert,socket,remove}.png` (offline, 1280x720)
 - [x] Chân dung hiện trong card / ngọc (chụp lại)
-- [ ] Nối 3 trang vào `CardWindow` (phase 03 làm vỏ + menu trái, host các `GemPage`, xoá `GemWindow` + phím F8)
+- [x] Nối 3 trang vào `CardWindow` (host các `GemPage`, đã xoá `GemWindow` + phím F8)
 - [ ] Kiểm online (client + zone thật): đổi / khảm / tháo, relog giữ ngọc, thử trade món có ngọc
 
 ## Làm khác kế hoạch
@@ -65,6 +65,10 @@ Sửa: `Rpg/PlayerState.cs` (RecomputeStats), `Rpg/ItemInfo.cs` (dòng Gem Optio
 - Card đang khoá (`CardEntry.locked`) hoặc nằm trong deck không đổi được (`CardCollection.Spare`).
 - UI: lọc chip ATK / DEF / HP / Utility; 3 dropdown Rarity / Element / Area của mockup 03 CHƯA làm (My Cards phase 03 làm chung). Tab Bag chỉ liệt kê món có ô (vũ khí, giáp, dây chuyền).
 - Fix chung: `PaperArt.Get` tìm border cho mảnh `cards/...` bằng khoá không có tiền tố `cards/` (tool cắt ghi borders kiểu `frame/btn-teal`); `PaperArt.Borders.cs` sinh lại từ `paper-borders.json`.
+
+## Sửa theo review 23/11 (`reports/code-reviewer-261123-1225-phase-04.md`)
+- M1: `GemRemove` Slot = `GemSockets.Code` của ngọc (không phải chỉ số ô), server `CardOps.RemoveGem`; nút 3 trang khoá tới khi RpgState về (`GemPage.Send` / `Pending`).
+- M2: hộp xác nhận `CardConfirmBox` cho Convert SR+ và Socket. Low 1: GemConvert từ chối slot > 1. Low 2: trần dòng ngọc 160 (C# `MaxGemRows` + zod `GEM_MAX_ROWS`). Low 3: log gem chỉ khi ok, lọc ký tự điều khiển. Low 4: `addItem` ép `sockets: []`. Low 6: Gold ở trần thì lá thừa bị bỏ + toast. Low 7: option ngọc phẳng, không nhân Second.*Pct / pet passive (test `GemStatTests`). Low 5 (offline SaveNow) chưa làm.
 
 ## UI còn chờ art (phase 02)
 - Chân dung 40 quái `Sprites/monsters/card-portraits/<id>.png`: đã có (phase 02 giao 23/11), ảnh chụp mới đã hiện chân dung (vẽ ĐÈ LÊN khung vì cửa sổ chân dung của khung / vỏ ngọc là màu kem đặc).

@@ -71,20 +71,21 @@ namespace ZenoniaProto.Rpg
         {
             BaseStats b = Leveling.StatsForLevel(Level, ClassId);
             int atkAdd = 0, defAdd = 0, hpAdd = 0, mpAdd = 0;
+            int gemAtk = 0, gemDef = 0, gemHp = 0, gemMp = 0; // Soul Gem options: added AFTER every multiplier (Second weapon, pet passives), so the UI's "+X" is exactly X
             double speedMult = 1, crit = 0;
             foreach (Item item in equipment)
             {
                 if (item == null) continue;
                 ItemStats s = EnhanceStats.Effective(item);
                 ItemStats g = GemSockets.Sum(item); // socketed Soul Gems: flat, after (never multiplied by) the enhance bonus
-                atkAdd += s.atk + g.atk; defAdd += s.def + g.def; hpAdd += s.maxHp + g.maxHp; mpAdd += s.maxMp + g.maxMp; speedMult += s.speedMult; crit += s.critChance + g.critChance;
+                atkAdd += s.atk; defAdd += s.def; hpAdd += s.maxHp; mpAdd += s.maxMp; gemAtk += g.atk; gemDef += g.def; gemHp += g.maxHp; gemMp += g.maxMp; speedMult += s.speedMult; crit += s.critChance + g.critChance;
             }
             Item off = GetEquipped(Slots.Offhand);
             Second = off != null ? SecondWeapon.For(ClassId, EnhanceStats.Level(off)) : SecondWeaponStats.Zero;
             RecomputePetBonus(); // the pet team (PetTeam: slots, stars, Bond, caps)
-            MaxHp = RpgMath.Round((b.MaxHp + hpAdd) * (1 + Second.HpPct) * (1 + PetPassive(Rpg.PetPassive.MaxHp))); MaxMp = RpgMath.Round((b.MaxMp + mpAdd) * (1 + Second.MpPct));
-            Atk = b.Atk + atkAdd; Def = RpgMath.Round((b.Def + defAdd) * (1 + Second.DefPct));
-            DamageAtk = (float)(Atk * (1 + PetPassive(Rpg.PetPassive.Damage)));
+            MaxHp = RpgMath.Round((b.MaxHp + hpAdd) * (1 + Second.HpPct) * (1 + PetPassive(Rpg.PetPassive.MaxHp))) + gemHp; MaxMp = RpgMath.Round((b.MaxMp + mpAdd) * (1 + Second.MpPct)) + gemMp;
+            Atk = b.Atk + atkAdd + gemAtk; Def = RpgMath.Round((b.Def + defAdd) * (1 + Second.DefPct)) + gemDef;
+            DamageAtk = (float)((Atk - gemAtk) * (1 + PetPassive(Rpg.PetPassive.Damage)) + gemAtk);
             speedMult += PetPassive(Rpg.PetPassive.MoveSpeed); // Horn Rabbit, still under the speed cap
             Speed = (float)(b.Speed * Math.Min(speedMult, 1 + ItemDefs.MaxSpeedBonus));
             CritBonus = (float)(crit + RpgClasses.Get(ClassId).CritBonus + Second.CritRate);

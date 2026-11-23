@@ -32,8 +32,8 @@ namespace ZenoniaProto
             string before = LookKey(p);
             ActionResult r = refusal != null ? ActionResult.Fail(refusal) : p.Rpg.ApplyInvAction(m.Op, m.ItemUid, m.Slot);
             if (LookKey(p) != before) LookChanged(p);
-            bool gemOp = m.Op == InvOp.GemConvert || m.Op == InvOp.GemSocket || m.Op == InvOp.GemRemove;
-            if (gemOp) UnityEngine.Debug.Log("[ZenoniaProto] gem: " + m.Op + " " + (r.Ok ? "ok" : "refused") + " char " + (p.Saved != null ? p.Saved.Id : p.Name) + " arg " + m.ItemUid + "/" + m.Slot + ": " + r.Text); // ledger-style trail against RMT (convert / socket / remove)
+            bool gemOp = m.Op == InvOp.GemConvert || m.Op == InvOp.GemSocket || m.Op == InvOp.GemRemove || m.Op == InvOp.CardSell || m.Op == InvOp.AlbumClaim || m.Op == InvOp.CardLock; // card economy ops: logged and saved at once
+            if (gemOp && r.Ok) UnityEngine.Debug.Log("[ZenoniaProto] gem: " + m.Op + " " + "ok" + " char " + (p.Saved != null ? p.Saved.Id : p.Name) + " arg " + LogSafe(m.ItemUid) + "/" + m.Slot + ": " + r.Text); // ledger-style trail against RMT (convert / socket / remove)
             if ((m.Op == InvOp.PetBuy || m.Op == InvOp.GearBuy || questOp || dungeonOp || gemOp) && r.Ok && ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p); // a large sum of gold, a quest reward: written now, not at the next interval
             repl.SendRpgState(p, m.ReqId, r.Ok, r.Text);
             p.RpgDirty = false;
@@ -52,6 +52,15 @@ namespace ZenoniaProto
             NetEventBus.Appearance(p.Hero);
             p.RpgDirty = true;
             if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p);
+        }
+
+        /// <summary>A client string for a log line: control characters (newlines that could fake a ledger line) become "?", at most 40 characters.</summary>
+        static string LogSafe(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            var sb = new System.Text.StringBuilder(System.Math.Min(text.Length, 40));
+            for (int i = 0; i < text.Length && i < 40; i++) sb.Append(char.IsControl(text[i]) ? '?' : text[i]);
+            return sb.ToString();
         }
 
         /// <summary>Pet buy / star up / gacha pull / UR exchange: PlayerRpg runs it through the account queue; the answer (state + text) goes out when it is stored or refused.</summary>

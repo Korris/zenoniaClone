@@ -19,7 +19,7 @@ namespace ZenoniaProto
             CardGain gain = CardOps.Receive(State, cardId);
             Touch();
             if (gain.Stored) { if (CardDropped != null) CardDropped(cardId, gain.First); }
-            else if (CardOverflowed != null) CardOverflowed(cardId, gain.Gold);
+            else if (CardOverflowed != null) CardOverflowed(cardId, gain.Gold); // Gold 0 = the Gold cap held the sale back: the copy was skipped
             return true;
         }
     }

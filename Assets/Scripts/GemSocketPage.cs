@@ -61,7 +61,9 @@ namespace ZenoniaProto
             Item item = gear.Selected;
             string id; GemKind kind;
             if (item == null || !GemSockets.TryParse(selectedGem, out id, out kind)) return;
-            PetActions.Send(InvOp.GemSocket, GemSockets.Code(id, kind), item.uid);
+            CardDef card = CardTable.Get(id);
+            Confirm("Socket " + card.Name + " " + kind + " Gem into " + item.name + "?\nThe gem becomes <color=#B33A3A><b>Trade Locked</b></color> for good, even after you remove it, and so does the item while it holds a gem.", "Socket",
+                () => Send(InvOp.GemSocket, GemSockets.Code(id, kind), item.uid));
         }
 
         public override void Refresh()
@@ -90,7 +92,7 @@ namespace ZenoniaProto
             info.Set(have ? CardTable.Get(id) : null, kind, true, "Once socketed, this gem is locked to you for good: it cannot be traded, even after you remove it.");
             string why = !CardOps.GemsEnabled ? "Soul Gems are not available" : item == null ? "Pick an item with sockets" : !have ? "Pick a gem (convert a card first)" : GemUiModel.Filled(item) >= GemSockets.SlotCount(item.slot) ? "All sockets of this item are full" : item.sockets != null && item.sockets.Contains(selectedGem) ? "This item already holds that gem" : null;
             reason.text = why ?? "";
-            socketButton.Set("Socket Gem", why == null);
+            socketButton.Set("Socket Gem", why == null && !Pending);
         }
     }
 }

@@ -136,4 +136,19 @@ public class CardLockAndOverflowTests
         // KillRewards.Resolve returns early for a monster without a loot def: its card would never fall
         foreach (CardDef card in CardTable.All) Assert.True(LootTable.For(card.MonsterId) != null, card.Id + " has no LootTable entry");
     }
+
+    [Fact]
+    public void FullStackWithGoldAtTheCapSkipsTheCardInsteadOfSellingItForNothing()
+    {
+        var p = Hero();
+        p.Cards.Add("thornBoar", CardTable.MaxStack);
+        p.Gold = PlayerState.GoldCap - 10;
+        CardGain g = CardOps.Receive(p, "thornBoar");
+        Assert.False(g.Stored); Assert.True(g.GoldFull); Assert.Equal(0, g.Gold);
+        Assert.Equal(PlayerState.GoldCap - 10, p.Gold);
+        Assert.Equal(CardTable.MaxStack, p.Cards.Count("thornBoar"));
+        p.Gold = 0;
+        g = CardOps.Receive(p, "thornBoar");
+        Assert.False(g.GoldFull); Assert.Equal(CardFees.Sell(CardTable.Get("thornBoar")), g.Gold);
+    }
 }

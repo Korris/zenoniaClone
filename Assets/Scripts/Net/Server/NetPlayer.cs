@@ -86,7 +86,7 @@ namespace ZenoniaProto
             };
             Rpg.Revived += lost => { if (lost > 0) NetEventBus.Toast(Hero, "You were defeated: -" + lost + " EXP", new Color(1f, 0.5f, 0.45f)); };
             Rpg.CardDropped += (id, first) => { if (Hero != null) NetEventBus.CardDrop(Hero, CardTable.Index(id), first); };
-            Rpg.CardOverflowed += (id, gold) => { if (Hero != null) NetEventBus.CardDrop(Hero, CardTable.Index(id), false, true); };
+            Rpg.CardOverflowed += (id, gold) => { if (Hero != null) NetEventBus.CardDrop(Hero, CardTable.Index(id), false, true, gold == 0); };
             Rpg.BossKilled += OnBossKilled;
             Rpg.WantedClaimed += OnWantedClaimed;
             Rpg.AccountNews += (text, good) => { if (Hero == null) return; Zone.Enter(Hero.HomeZone); NetEventBus.Toast(Hero, text, good ? new Color(0.75f, 1f, 0.6f) : new Color(1f, 0.7f, 0.5f)); }; // account answers arrive from the API pump, outside any zone

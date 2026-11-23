@@ -60,7 +60,7 @@ describe('state schema: card fields', () => {
     ['more than 40 card rows', { cards: Array.from({ length: 41 }, () => ({ id: 'meadowSlime', n: 1 })) }],
     ['an unknown gem card', { gems: [{ id: 'ghost', kind: 0, locked: false, n: 1 }] }],
     ['a gem kind 2', { gems: [{ id: 'snowFox', kind: 2, locked: false, n: 1 }] }],
-    ['more than 80 gem rows', { gems: Array.from({ length: GEM_MAX_ROWS + 1 }, () => ({ id: 'snowFox', kind: 0, locked: false, n: 1 })) }],
+    ['more than the gem row limit', { gems: Array.from({ length: GEM_MAX_ROWS + 1 }, () => ({ id: 'snowFox', kind: 0, locked: false, n: 1 })) }],
     ['an album index of 40', { album: [40] }],
     ['an album claim bit past the 4 milestones', { albumClaimed: 1 << ALBUM_MILESTONES }],
     ['a 9-card deck', { cardDeck: Array.from({ length: 9 }, () => 'meadowSlime') }],

@@ -8,6 +8,7 @@ namespace ZenoniaProto.Rpg
         public bool Stored;   // the card went into the collection
         public bool First;    // ... and it is new to the Album
         public int Gold;      // > 0: the stack was full (999), the card was sold at the NPC price instead
+        public bool GoldFull; // the stack was full and Gold at the cap: the card was skipped, nothing paid
     }
 
     /// <summary>
@@ -27,6 +28,7 @@ namespace ZenoniaProto.Rpg
             if (p.Cards.IsFull(cardId))
             {
                 int gold = CardFees.Sell(card);
+                if ((long)p.Gold + gold > PlayerState.GoldCap) return new CardGain { GoldFull = true }; // Gold is at the cap: the surplus copy is skipped, the stack stays at 999 (never "sold" for nothing)
                 p.AddGoldCapped(gold);
                 return new CardGain { Gold = gold };
             }
@@ -70,6 +72,16 @@ namespace ZenoniaProto.Rpg
             return ActionResult.Success("Socketed " + CardTable.Get(cardId).Name + " " + kind + " Gem");
         }
 
+        /// <summary>Takes the gem `cardId` / `kind` out of an item (the wire form of InvOp.GemRemove: a repeated request finds no gem and is refused, it never takes the neighbour). Same fee and rules as Remove.</summary>
+        public static ActionResult RemoveGem(PlayerState p, string itemUid, string cardId, GemKind kind)
+        {
+            Item item = p.FindItem(itemUid);
+            if (item == null) return ActionResult.Fail("No such item");
+            int socket = item.sockets == null ? -1 : item.sockets.IndexOf(GemSockets.Encode(cardId, kind));
+            if (socket < 0) return ActionResult.Fail("No gem in that socket");
+            return Remove(p, itemUid, socket);
+        }
+
         /// <summary>Takes the gem out of socket `socket` of an item. Costs the fee of the gem's rarity; the gem goes back to the collection, locked for good. Refused (nothing taken) when the collection could not hold it.</summary>
         public static ActionResult Remove(PlayerState p, string itemUid, int socket)
         {
@@ -88,6 +100,32 @@ namespace ZenoniaProto.Rpg
             item.sockets.RemoveAt(socket);
             if (p.GetEquipped(item.slot) == item) p.RecomputeStats();
             return ActionResult.Success("Removed " + card.Name + " " + kind + " Gem (-" + fee + " G)");
+        }
+
+        /// <summary>Sells `n` spare copies of a card to an NPC at the fixed price of its rarity (CardFees.Sell). Locked copies and copies in the deck are never sold. Refused (nothing taken) when the Gold would pass the cap.</summary>
+        public static ActionResult Sell(PlayerState p, string cardId, int n)
+        {
+            CardDef card = CardTable.Get(cardId);
+            if (card == null) return ActionResult.Fail("No such card");
+            if (n < 1) return ActionResult.Fail("Nothing to sell");
+            if (p.Cards.Count(cardId) < 1) return ActionResult.Fail("You do not own this card");
+            if (p.Cards.Spare(cardId) < n) return ActionResult.Fail("Locked or in-deck copies cannot be sold");
+            long gold = (long)CardFees.Sell(card) * n;
+            if ((long)p.Gold + gold > PlayerState.GoldCap) return ActionResult.Fail("Your Gold is full");
+            p.Cards.Remove(cardId, n);
+            p.AddGoldCapped((int)gold);
+            return ActionResult.Success("Sold " + n + " x " + card.Name + " (+" + gold + " G)");
+        }
+
+        /// <summary>Lock Card: locks every copy that is not in the deck (it cannot be sold, converted or wagered), or unlocks them all. Copies earned later start unlocked.</summary>
+        public static ActionResult SetLock(PlayerState p, string cardId, bool locked)
+        {
+            CardDef card = CardTable.Get(cardId);
+            if (card == null) return ActionResult.Fail("No such card");
+            int owned = p.Cards.Count(cardId);
+            if (owned < 1) return ActionResult.Fail("You do not own this card");
+            if (!p.Cards.SetLocked(cardId, locked ? owned - p.Cards.InDeck(cardId) : 0)) return ActionResult.Fail("Cannot lock this card");
+            return ActionResult.Success(locked ? card.Name + " locked" : card.Name + " unlocked");
         }
     }
 }

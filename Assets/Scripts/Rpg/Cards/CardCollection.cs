@@ -9,7 +9,7 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public sealed class CardCollection
     {
-        public const int MaxGemRows = 80, MaxDeck = 8, MaxNpcFirstWins = 0xFFFF;
+        public const int MaxGemRows = 160, MaxDeck = 8, MaxNpcFirstWins = 0xFFFF;
 
         readonly Dictionary<string, int> cards = new Dictionary<string, int>();
         readonly Dictionary<string, int> locks = new Dictionary<string, int>(); // copies per card id the player locked (always <= the count owned)

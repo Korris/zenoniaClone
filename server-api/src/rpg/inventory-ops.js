@@ -24,7 +24,7 @@ const handlers = {
     if (op.item.slot === 'pet' && op.item.durability !== PET_MAX_DURABILITY) throw reject('durability_not_allowed', 'A new pet starts at full durability');
     if (hasUid(s, op.item.uid)) throw reject('duplicate_item', `Item ${op.item.uid} already exists`);
     if (s.inventory.length >= INVENTORY_SIZE) throw reject('inventory_full', 'Inventory full');
-    s.inventory.push(op.item);
+    s.inventory.push({ ...op.item, sockets: [] }); // gems only come from the zone's own save, never from a granted item
   },
   removeItem(s, op) {
     const idx = s.inventory.findIndex((i) => i.uid === op.uid);

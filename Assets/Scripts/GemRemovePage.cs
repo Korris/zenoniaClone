@@ -9,7 +9,7 @@ namespace ZenoniaProto
     /// <summary>
     /// "Gem Removal" (mockup 05): items with sockets on the left, the chosen item with its gems in the middle (tap one to pick it), the removal cost under it and the red
     /// "Trade Locked" note, and on the right the picked gem's info and option plus the Remove Gem button. The gem returns to the collection LOCKED (never tradable again).
-    /// The server checks gold and room for the gem before it takes anything (InvOp.GemRemove: ItemUid = item uid, Slot = socket).
+    /// The server checks gold and room for the gem before it takes anything (InvOp.GemRemove: ItemUid = item uid, Slot = GemSockets.Code of the gem).
     /// </summary>
     public sealed class GemRemovePage : GemPage
     {
@@ -44,8 +44,9 @@ namespace ZenoniaProto
         void OnRemove()
         {
             Item item = gear.Selected;
-            if (item == null || item.sockets == null || socket >= item.sockets.Count) return;
-            PetActions.Send(InvOp.GemRemove, (byte)socket, item.uid);
+            string id; GemKind kind;
+            if (item == null || item.sockets == null || socket >= item.sockets.Count || !GemSockets.TryParse(item.sockets[socket], out id, out kind)) return;
+            Send(InvOp.GemRemove, GemSockets.Code(id, kind), item.uid); // the gem itself, not its socket index: a repeated press finds no gem
         }
 
         public override void Refresh()
@@ -66,7 +67,7 @@ namespace ZenoniaProto
             costText.text = have ? fee.ToString("N0") + " G / per gem" : "-";
             string why = !CardOps.GemsEnabled ? "Soul Gems are not available" : item == null ? "Pick an item" : !have ? "This item holds no gem" : p.Gold < fee ? "Need " + fee.ToString("N0") + " G" : !p.Cards.CanAddGem(id, kind, true) ? "No room to keep this gem" : null;
             reason.text = why ?? "";
-            removeButton.Set("Remove Gem", why == null);
+            removeButton.Set("Remove Gem", why == null && !Pending);
         }
     }
 }

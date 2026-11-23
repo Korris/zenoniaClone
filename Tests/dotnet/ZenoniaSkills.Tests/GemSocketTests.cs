@@ -94,17 +94,15 @@ public class GemSocketTests
         ActionResult r = CardOps.Convert(p, id, GemKind.Power);
         Assert.False(r.Ok);
         Assert.Equal(3, p.Cards.Count(id)); Assert.Equal(100000, p.Gold); Assert.Equal(999, p.Cards.GemCount(id, GemKind.Power, false));
-        // row limit: 80 other rows
+        // row limit (160 = every card x kind x locked, so it only guards forged saves): all 160 combinations fit
         PlayerState q = Hero();
-        q.Cards.Add(id, 1);
         int rows = 0;
-        foreach (CardDef c in CardTable.All.Where(c => c.Id != id))
+        foreach (CardDef c in CardTable.All)
             foreach (GemKind k in new[] { GemKind.Power, GemKind.Guard })
                 foreach (bool locked in new[] { false, true })
-                    if (rows < CardCollection.MaxGemRows && q.Cards.AddGem(c.Id, k, locked)) rows++;
+                    if (q.Cards.AddGem(c.Id, k, locked)) rows++;
         Assert.Equal(CardCollection.MaxGemRows, rows);
-        Assert.False(CardOps.Convert(q, id, GemKind.Power).Ok);
-        Assert.Equal(1, q.Cards.Count(id)); Assert.Equal(100000, q.Gold);
+        Assert.Equal(CardTable.Count * 4, CardCollection.MaxGemRows);
     }
 
     // ---- socket ----
@@ -302,5 +300,25 @@ public class GemSwitchTests
         finally { CardOps.GemsEnabled = true; }
         Assert.Equal(1, p.Cards.Count(id));
         Assert.Equal(100000, p.Gold);
+    }
+
+    [Fact]
+    public void RemoveByGemTakesThatGemOnceAndARepeatFindsNothing()
+    {
+        PlayerState p = PlayerState.NewGame("warrior");
+        p.Gold = 100000;
+        Item w = p.GetEquipped(Slots.Weapon);
+        CardDef a = CardTable.Get("meadowSlime"), b = CardTable.Get("hornRabbit");
+        p.Cards.AddGem(a.Id, GemKind.Power, false); p.Cards.AddGem(b.Id, GemKind.Power, false);
+        Assert.True(CardOps.Socket(p, w.uid, a.Id, GemKind.Power).Ok);
+        Assert.True(CardOps.Socket(p, w.uid, b.Id, GemKind.Power).Ok);
+        int gold = p.Gold;
+        Assert.True(CardOps.RemoveGem(p, w.uid, a.Id, GemKind.Power).Ok);
+        int afterFirst = p.Gold;
+        Assert.Equal(gold - CardFees.Remove(a), afterFirst);
+        Assert.False(CardOps.RemoveGem(p, w.uid, a.Id, GemKind.Power).Ok);   // the repeat finds no gem ...
+        Assert.Equal(afterFirst, p.Gold);                                    // ... and costs nothing
+        Assert.Equal(new[] { "hornRabbit:p" }, w.sockets.ToArray());         // the neighbour stays
+        Assert.False(CardOps.RemoveGem(p, w.uid, a.Id, GemKind.Guard).Ok);   // another kind is another gem
     }
 }

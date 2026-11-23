@@ -158,12 +158,18 @@ namespace ZenoniaProto
                     r = fresh || State.HasWaypoint(itemUid) ? ActionResult.Success() : ActionResult.Fail("No such crystal");
                     if (fresh) QuestStep(r);
                     break;
-                case InvOp.GemConvert: r = CardOps.Convert(State, itemUid, slot == 1 ? GemKind.Guard : GemKind.Power); break; // ItemUid = card id, Slot 0 Power / 1 Guard
+                case InvOp.GemConvert: r = slot > 1 ? ActionResult.Fail("No such gem kind") : CardOps.Convert(State, itemUid, slot == 1 ? GemKind.Guard : GemKind.Power); break; // ItemUid = card id, Slot 0 Power / 1 Guard
                 case InvOp.GemSocket: // ItemUid = item uid, Slot = GemSockets.Code of the gem; it goes into the next free socket
                     string sockCard; GemKind sockKind;
                     r = GemSockets.TryDecode(slot, out sockCard, out sockKind) ? CardOps.Socket(State, itemUid, sockCard, sockKind) : ActionResult.Fail("No such gem");
                     break;
-                case InvOp.GemRemove: r = CardOps.Remove(State, itemUid, slot); break; // ItemUid = item uid, Slot = socket
+                case InvOp.GemRemove: // ItemUid = item uid, Slot = GemSockets.Code of the gem to take out (not the socket index: a repeated request cannot take the neighbour)
+                    string remCard; GemKind remKind;
+                    r = GemSockets.TryDecode(slot, out remCard, out remKind) ? CardOps.RemoveGem(State, itemUid, remCard, remKind) : ActionResult.Fail("No such gem");
+                    break;
+                case InvOp.AlbumClaim: r = AlbumRules.Claim(State, slot); break; // Slot = milestone 0-3
+                case InvOp.CardSell: r = CardOps.Sell(State, itemUid, slot); break; // ItemUid = card id, Slot = copies
+                case InvOp.CardLock: r = CardOps.SetLock(State, itemUid, slot == 1); break; // ItemUid = card id, Slot 1 lock / 0 unlock
                 default: r = ActionResult.Fail("Unknown action"); break;
             }
             Touch();

@@ -87,7 +87,7 @@ namespace ZenoniaProto
             QuestTracker.Observe(player.Quests, false);
             owner.QuestChanged += () => QuestTracker.Observe(player.Quests, true);
             owner.CardDropped += (id, first) => { CardToast.Show(CardTable.Index(id), first); CardDef cd = CardTable.Get(id); if (cd != null && cd.Rarity >= CardRarity.SR) SaveNow(); };
-            owner.CardOverflowed += (id, gold) => CardToast.ShowFull(CardTable.Index(id));
+            owner.CardOverflowed += (id, gold) => CardToast.Show(CardTable.Index(id), false, true, gold == 0);
             owner.AccountNews += (text, good) => RpgHud.Toast(text, good ? new Color(0.75f, 1f, 0.6f) : new Color(1f, 0.7f, 0.5f));
             owner.AccountChanged += () => { SyncGear(); InventoryPanel.RefreshIfOpen(); SaveNow(); };
             if (NetMode.IsAuthority) owner.AttachAccount(AccountLink.Local(NetMode.IsOffline)); // offline: zenonia-account.json, shared by every class save (pets, tickets, pity); host: RAM. A client mirrors the server's

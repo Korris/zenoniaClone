@@ -64,9 +64,8 @@ public class CardCollectionTests
         Assert.False(c.RemoveGem("snowFox", GemKind.Power, false));
         Assert.False(c.AddGem("nope", GemKind.Power, false));
         var big = Hero().Cards;
-        for (int i = 0; i < CardTable.Count; i++) { big.AddGem(CardTable.All[i].Id, GemKind.Power, false); big.AddGem(CardTable.All[i].Id, GemKind.Guard, false); }
-        Assert.Equal(CardCollection.MaxGemRows, big.Gems.Count);
-        Assert.False(big.AddGem("meadowSlime", GemKind.Power, true)); // a new row past 80
+        for (int i = 0; i < CardTable.Count; i++) foreach (GemKind k in new[] { GemKind.Power, GemKind.Guard }) { big.AddGem(CardTable.All[i].Id, k, false); big.AddGem(CardTable.All[i].Id, k, true); }
+        Assert.Equal(CardCollection.MaxGemRows, big.Gems.Count);       // 160: every card x kind x locked
         Assert.True(big.AddGem("meadowSlime", GemKind.Power, false)); // an existing stack still grows
     }
 

@@ -151,11 +151,11 @@ namespace ZenoniaProto
             Add(new NetEvent { Type = NetEventType.Toast, Text = text, Value = ((uint)c.r << 24) | ((uint)c.g << 16) | ((uint)c.b << 8) | c.a }, h.Position, h.NetId);
         }
 
-        /// <summary>A monster card dropped for this hero (owner only); `first` = new in the Album; `full` = 999 copies were held, it was sold for gold instead.</summary>
-        public static void CardDrop(HeroController h, int cardIndex, bool first, bool full = false)
+        /// <summary>A monster card dropped for this hero (owner only); `first` = new in the Album; `full` = 999 copies were held, it was sold for gold instead; `skipped` = ... and the Gold cap held the sale back, the copy was dropped.</summary>
+        public static void CardDrop(HeroController h, int cardIndex, bool first, bool full = false, bool skipped = false)
         {
             if (!Active || h == null) return;
-            Add(new NetEvent { Type = NetEventType.CardDrop, Step = (byte)cardIndex, Flags = (byte)((first ? 1 : 0) | (full ? 2 : 0)) }, h.Position, h.NetId);
+            Add(new NetEvent { Type = NetEventType.CardDrop, Step = (byte)cardIndex, Flags = (byte)((first ? 1 : 0) | (full ? 2 : 0) | (skipped ? 4 : 0)) }, h.Position, h.NetId);
         }
 
         /// <summary>One locked shape of a wanted boss skill's telegraph: `center` + `dirDeg` already resolved (origin / facing, or the first safe

@@ -45,7 +45,7 @@ import cardTable from './card-ids.json' with { type: 'json' };
 export const CARD_IDS = cardTable.map((c) => c.id); // album index = position, append only
 export const CARD_COUNT = CARD_IDS.length; // CardTable.Count (40)
 export const CARD_MAX_STACK = 999; // CardTable.MaxStack: copies of one card / of one gem stack
-export const GEM_MAX_ROWS = 80; // CardCollection.MaxGemRows
+export const GEM_MAX_ROWS = 160; // CardCollection.MaxGemRows
 export const CARD_DECK_MAX = 8; // CardCollection.MaxDeck
 export const ALBUM_MILESTONES = 4; // AlbumRules.Milestones: albumClaimed is a 4-bit mask
 export const MAX_ITEM_SOCKETS = 2; // ItemFactory.MaxSockets

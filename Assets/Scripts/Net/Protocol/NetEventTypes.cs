@@ -7,7 +7,7 @@ namespace ZenoniaProto.Net
         AttackStep = 1, BoltFired = 2, BoltEnd = 3, MonsterHit = 4, HeroHit = 5, SkillCast = 6, HeroDied = 7, HeroRespawned = 8,
         ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16, TurretShot = 17,
         WantedSkillTelegraph = 18, MonsterShot = 19, PetSkill = 20, PetCapturable = 21, HeroStatus = 22,
-        CardDrop = 23, // owner only: a monster card dropped (Step = CardTable index, Flags bit0 = new in the Album, bit1 = stack full: sold for gold); the client shows the toast
+        CardDrop = 23, // owner only: a monster card dropped (Step = CardTable index, Flags bit0 = new in the Album, bit1 = stack full: sold for gold, bit2 = stack full and Gold at the cap: the copy was skipped); the client shows the toast
     }
 
     /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band, flag bits (1 = mechanic blue), the pet
