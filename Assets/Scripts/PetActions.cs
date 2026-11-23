@@ -22,7 +22,9 @@ namespace ZenoniaProto
             if (owner == null) return;
             if (op == InvOp.PetCapture) { ushort id; ushort.TryParse(uid, out id); PetCaptureService.Request(GameSession.Hero, Zone.Main, id, slot == 1, Answered); return; }
             if (InvOpInfo.IsAccountOp(op)) { owner.ApplyAccountAction(op, slot, uid ?? "", Answered); return; }
-            Answered(owner.ApplyInvAction(op, uid ?? "", slot));
+            ActionResult r = owner.ApplyInvAction(op, uid ?? "", slot);
+            if (r.Ok && InvOpInfo.IsCardOp(op) && RpgSession.Instance != null) RpgSession.Instance.SaveNow(); // offline: a card / gem op is written at once, not at the next interval (the zone does the same with RequestSave)
+            Answered(r);
         }
 
         static void Answered(ActionResult r)

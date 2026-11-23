@@ -29,7 +29,8 @@ namespace ZenoniaProto
         {
             CardDef card = CardTable.ByIndex(cardIndex);
             if (card == null) return;
-            RpgHud.Toast(skipped ? SkippedText(card) : full ? FullText(card) : Text(card, first), ColorOf(card));
+            NotificationToast.ShowCard(skipped ? SkippedText(card) : full ? FullText(card) : Text(card, first), ColorOf(card)); // winged toast-card plate on the RO HUD (phase 03 leftover)
+            if (!skipped) CardTutorial.OfferAfterDrop(); // the first card ever: the guided hint (once per character)
         }
 
         public static void ShowFull(int cardIndex) { Show(cardIndex, false, true); }

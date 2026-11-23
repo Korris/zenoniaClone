@@ -48,7 +48,7 @@ Sửa: `UiScreens.cs` (enum Card), `RoHudMenu.cs` (mục Cards trong More), `Net
 - [x] CardPageWidgets / CardDetailPanel (dùng lại `GemCardView`, `GemUiArt`, `GemUiWidgets`)   - [x] CardWindow + menu trái (host 3 trang ngọc, xoá GemWindow + F8)   - [x] My Cards   - [x] Album + Claim
 - [x] InvOp AlbumClaim 30 / CardSell 31 / CardLock 35 + test (`CardSellAlbumClaimTests`, `MessageRoundTripTests`)   - [x] Hộp xác nhận (Sell / Convert SR+ / Socket)
 - [x] Mục Cards ở cột More (`UiScreen.Card`)   - [x] Ảnh so mockup: `docs/reference/card-gem-ui/phase-03-shots/`
-- [ ] Kiểm online (claim / sell / lock qua zone thật)   - [ ] Toast nhận card dùng khung `toast-card` (toast hiện giữ nguyên `RpgHud.Toast`)
+- [ ] Kiểm online (claim / sell / lock qua zone thật)   - [x] Toast nhận card dùng khung `toast-card` (phase 08: `NotificationToast.ShowCard`, HUD RO)
 
 ## Làm khác kế hoạch
 - Không tách `CardWindow.MyCards.cs` / `.Album.cs`: là các lớp `CardMyCardsPage` / `CardAlbumPage` (cùng gốc `GemPage` với 3 trang ngọc để vỏ host chung). `CardDetailPanel` dùng chung hai trang; `CardArt` không cần (đã có `GemUiArt`).

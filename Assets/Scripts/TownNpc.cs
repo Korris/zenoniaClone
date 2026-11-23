@@ -91,7 +91,7 @@ namespace ZenoniaProto
             if (n.Def.QuestGiver && ElderNpc.Talk(n.Def.Id)) return;
             if (PotionShops.IsSeller(n.Def.Id)) { PotionShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }
             if (GearShops.IsSeller(n.Def.Id)) { GearShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }
-            if (UiScreens.OpenForNpc(n.Def.Id)) return; // a screen NPC: Lumi, Thatchwick's pet keeper, opens the pet gacha
+            if (UiScreens.OpenForNpc(n.Def.Id, n.Def.Name, Portrait(n.Def.Art), n.Def.Lines)) return; // a screen NPC: Lumi, Thatchwick's pet keeper, opens the pet gacha
             if (WantedBossBoard.TryOpen(n.Def.Id, n.Def.Name, Portrait(n.Def.Art), n.Def.Lines)) return;
             NpcDialogueBox.Open(n.Def.Name, Portrait(n.Def.Art), n.Def.Lines, null);
         }

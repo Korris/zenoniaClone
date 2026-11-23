@@ -36,6 +36,7 @@ namespace ZenoniaProto.Rpg
         public CardDailyData cardDaily = new CardDailyData(); // daily duel counters (phase 05 / 06)
         public int cardNpcFirstWins;                          // bit per duel NPC beaten once (phase 05)
         public CardRankData cardRank = new CardRankData();    // Ranked season (phase 07)
+        public int cardHelp;                                  // bit per card hint already shown (CardCollection.HelpTutorial): the first-time guided hint (phase 08)
         public CharacterAppearanceData appearance; // look (hair style / colours / headgear); missing or stored = false in older saves = not chosen (no version bump needed)
     }
 

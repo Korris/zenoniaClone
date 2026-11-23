@@ -27,7 +27,7 @@ namespace ZenoniaProto
         GemPage[] pages;
         CardMyCardsPage myCards;
         CardAlbumPage album;
-        readonly Image[] navSkin = new Image[6];
+        readonly Image[] navSkin = new Image[6], navMark = new Image[6];
         Text goldText;
         string shownKey = "";
         int shownGold = -2;
@@ -57,6 +57,24 @@ namespace ZenoniaProto
             NotificationToast toasts = FindFirstObjectByType<NotificationToast>(); // "Sold 1 x ..." shows over this window
             if (toasts != null && toasts.transform.parent == instance.overlay.parent) toasts.transform.SetAsLastSibling();
             instance.SetPage(start);
+            CardTutorial.OfferOnWindowOpen(); // first time only: the 3-step hint above the window
+        }
+
+        /// <summary>The tutorial points an arrow at a menu entry (My Cards = 0, Monster Album = 1); -1 clears it. Ignored while the window is closed.</summary>
+        public static void Highlight(int navIndex)
+        {
+            if (instance == null) return;
+            for (int i = 0; i < instance.navMark.Length; i++)
+            {
+                if (instance.navMark[i] == null)
+                {
+                    if (i != navIndex) continue;
+                    RectTransform navRoot = (RectTransform)instance.navObjects[i].transform;
+                    Image m = GemUiArt.Img(navRoot, "TutorialArrow", NavW - 36f, 16f, 36f, 36f, GemUiArt.Icon("arrow-left")); // the kit's arrow on the entry's right edge, pointing at it
+                    instance.navMark[i] = m;
+                }
+                instance.navMark[i].gameObject.SetActive(i == navIndex);
+            }
         }
 
         /// <summary>Capture only (--card-press sellall): taps the Sell all spare button of the My Cards page.</summary>

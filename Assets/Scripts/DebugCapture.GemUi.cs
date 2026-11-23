@@ -18,12 +18,27 @@ namespace ZenoniaProto
             string[] args = Environment.GetCommandLineArgs();
             PlayerState p = RpgSession.Player;
             if (p != null && Array.IndexOf(args, "--gem-seed") >= 0) SeedGems(p);
+            string toast = Arg(args, "--card-toast"); // a card drop toast for that card id (the real CardToast path)
+            if (toast != null) for (int t = 0; t < 3; t++) CardToast.Show(CardTable.Index(toast), t == 0); // 3 in a row: the 3rd shows after the map-name banner is gone (--card-toast <id>)
+            string talk = Arg(args, "--talk-npc"); // the dialogue of a villager by id, as TownNpc.Talk starts it (Card Master: pages, then the Card window)
+            if (talk != null)
+            {
+                NpcDef def = NpcDefs.Get(talk);
+                if (def != null)
+                {
+                    Texture2D face = Resources.Load<Texture2D>("Sprites/village/npcs/" + def.Art + "_face");
+                    Sprite portrait = face != null ? Sprite.Create(face, new Rect(0, 0, face.width, face.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect) : null;
+                    UiScreens.OpenForNpc(def.Id, def.Name, portrait, def.Lines);
+                }
+            }
             string open = Arg(args, "--open-gems");
-            if (open == null) return;
+            string tutorial = Arg(args, "--card-tutorial"); // step 0-2 of the first-time hint (shown whatever the saved flag says); with --open-gems it rings the menu entry
+            if (open == null) { if (tutorial != null) CardTutorial.DebugShow(Mathf.Max(0, int.Parse(tutorial))); return; }
             CardWindow.Page page = open == "socket" ? CardWindow.Page.Socket : open == "remove" ? CardWindow.Page.Remove : open == "convert" ? CardWindow.Page.Convert : open == "album" ? CardWindow.Page.Album : CardWindow.Page.MyCards;
             string pick = Arg(args, "--card-pick");
             CardWindow.Open(page);
             if (pick != null) CardWindow.Show(page, pick);
+            if (tutorial != null) CardTutorial.DebugShow(Mathf.Max(0, int.Parse(tutorial)));
             Canvas.ForceUpdateCanvases();
             string press = Arg(args, "--gem-press") ?? Arg(args, "--card-press");
             if (press == "convert") PetActions.Send(Net.InvOp.GemConvert, 0, CardTable.All[0].Id);

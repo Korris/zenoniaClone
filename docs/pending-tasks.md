@@ -2,6 +2,13 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 chiều Card Monster phase 08: NPC Card Master Orin, hướng dẫn lần đầu, hoàn thiện (XONG code, CHƯA deploy, chưa kiểm online)
+- NPC "Card Master Orin" ở Oakhaven ô (16,21), mép cỏ phải đường cổng nam (cách cổng 2 ô, đường giữ 4 ô trống; test `OakhavenCardMasterTests`; ảnh tô ô chặn `docs/reference/card-gem-ui/phase-08-shots/`). Nói chuyện = 5 trang thoại (card rơi, My Cards + Album, Soul Gem, luật Card Duel v2 "winner takes 1 card from the loser's deck" + Lv30 + online, Ranked không lấy card), hết trang thì mở cửa sổ Card (Esc thì thôi). KHÔNG đấu NPC. Code: `CardMasterTalk.cs`, `UiScreens.OpenForNpc` (BindNpc Card), `NpcDefs`, `OakhavenVillageMap`.
+- Hướng dẫn lần đầu 3 bước (`CardTutorial.cs`): lần đầu card rơi hoặc lần đầu mở cửa sổ Card; bước 2 / 3 có mũi tên chỉ My Cards / Album. Cờ `cardHelp` (SaveData + zod + `InvOp.CardHelp` 36 + vitest + C# round-trip). Xong hoặc Skip thì lưu, không hiện lại.
+- Wire Version 34 (CardHelp + DuelFail.NoStakes của agent cược). Toast card dùng khung `toast-card` (`NotificationToast.ShowCard`). Offline SaveNow sau mọi op card / gem (`InvOpInfo.IsCardOp`, review L5 phase 04).
+- Chưa làm: ẩn MMR khỏi RpgState (agent Ranked), icon Element Poison (CẦN ChatGPT vẽ `element-poison`, kit không có, KHÔNG vẽ bằng code: thẻ Poison hiện không có icon), nhịp thở Card Master (bỏ V1). Chưa kiểm online: hướng dẫn + CardHelp qua zone thật, NPC trên zone.
+- CẦN: deploy server-api TRƯỚC (zod `cardHelp`), zone SAU (map NPC + InvOp). Test: ZenoniaSkills 698, ZenoniaNet 557 + 2 FrostHollowLargeMapTests fail sẵn có, vitest 264. Player `C:/temp/player-cards-p8/Zenonia.exe` (`--talk-npc cardMaster`, `--card-toast <id>`, `--card-tutorial N [--open-gems album]`).
+
 ### 23/11 chiều Card Monster phase 07 sửa review Ranked (XONG code + test, CHƯA deploy)
 - Sửa H1/H2/M1-M3/Low của `reports/code-reviewer-261123-1536-phase-07.md`: kết quả cho người offline (`RankedPending`), chặn cùng tài khoản (redeem trả `userId`), forfeit < 3 nước không tính, MMR không gửi client, `--no-ranked`. Chi tiết: phase-07 mục "Sửa lỗi review 23/11".
 - CẦN: deploy server-api (redeem thêm `userId`) cùng zone. `-Scenario rankeddc` thêm vào `Tools/net-duel-test.ps1`.

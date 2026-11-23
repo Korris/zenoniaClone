@@ -152,17 +152,17 @@ public class MessageRoundTripTests
             InvActionMsg d; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out d));
             Assert.Equal(op, d.Op); Assert.Equal("rootburrow3>rootburrow-exit", d.ItemUid);
         }
-        foreach (InvOp op in new[] { InvOp.GemConvert, InvOp.GemSocket, InvOp.GemRemove, InvOp.AlbumClaim, InvOp.CardSell, InvOp.CardLock }) // Soul Gems (28), card window ops (29): item uid fits, the gem rides in Slot as GemSockets.Code (0..79)
+        foreach (InvOp op in new[] { InvOp.GemConvert, InvOp.GemSocket, InvOp.GemRemove, InvOp.AlbumClaim, InvOp.CardSell, InvOp.CardLock, InvOp.CardHelp }) // Soul Gems (28), card window ops (29): item uid fits, the gem rides in Slot as GemSockets.Code (0..79)
         {
             NetMessageWriter.InvAction(w, new InvActionMsg { ReqId = 11, Op = op, ItemUid = "weapon-zzzzzz1234", Slot = 79 });
             InvActionMsg g; Assert.True(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out g));
             Assert.Equal(op, g.Op); Assert.Equal("weapon-zzzzzz1234", g.ItemUid); Assert.Equal((byte)79, g.Slot);
         }
-        Assert.Equal(InvOp.CardLock, InvOpInfo.Last);
+        Assert.Equal(InvOp.CardHelp, InvOpInfo.Last); Assert.Equal((byte)35, (byte)InvOp.CardLock); Assert.Equal((byte)36, (byte)InvOp.CardHelp); // CardHelp is appended, CardLock keeps its number
         Assert.True(InvOpInfo.IsAccountOp(InvOp.GachaPull) && InvOpInfo.IsAccountOp(InvOp.PetBuy) && InvOpInfo.IsAccountOp(InvOp.BallBuy) && InvOpInfo.IsAccountOp(InvOp.PetLevelUp) && !InvOpInfo.IsAccountOp(InvOp.PetEquip) && !InvOpInfo.IsAccountOp(InvOp.PetCapture));
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOpInfo.Last + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(33, NetProtocol.Version); // 33: Ranked (DuelOp QueueRanked / LeaveQueue, NetOp.DuelRanked, DuelStateMsg Ranked flags + LpChange). 32: Card Duel v2 (no NPC, stakes + winner picks 1 card, DuelOp renumbered). 31: Card Duel PvP + Card Wager (DuelOp Challenge..LeaveLobby, DuelLobbyMsg, Place Turn / Card). 30: NetOp.DuelRequest / DuelNotice / DuelState (Card Duel), CardSell Slot 0 = all spare. 29: InvOp AlbumClaim / CardSell / CardLock. 28: InvOp GemConvert / GemSocket / GemRemove, TradeItemView.Sockets + TradeFail.Socketed, CardDrop flag bit1. 27: NetEventType.CardDrop (monster cards). 26: InvOp ChestOpen / WaypointTouch / WaypointWarp (Rootburrow V5). 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
+        Assert.Equal(34, NetProtocol.Version); // 34: InvOp.CardHelp (Card Master first-time hint), DuelFail.NoStakes. 33: Ranked (DuelOp QueueRanked / LeaveQueue, NetOp.DuelRanked, DuelStateMsg Ranked flags + LpChange). 32: Card Duel v2 (no NPC, stakes + winner picks 1 card, DuelOp renumbered). 31: Card Duel PvP + Card Wager (DuelOp Challenge..LeaveLobby, DuelLobbyMsg, Place Turn / Card). 30: NetOp.DuelRequest / DuelNotice / DuelState (Card Duel), CardSell Slot 0 = all spare. 29: InvOp AlbumClaim / CardSell / CardLock. 28: InvOp GemConvert / GemSocket / GemRemove, TradeItemView.Sockets + TradeFail.Socketed, CardDrop flag bit1. 27: NetEventType.CardDrop (monster cards). 26: InvOp ChestOpen / WaypointTouch / WaypointWarp (Rootburrow V5). 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
     }
 
     [Fact]

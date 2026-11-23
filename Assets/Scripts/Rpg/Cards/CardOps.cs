@@ -120,6 +120,14 @@ namespace ZenoniaProto.Rpg
         /// <summary>The wire form of InvOp.CardSell: Slot = copies, and 0 = every spare copy (a byte cannot carry a stack of 999). PlayerRpg calls exactly this.</summary>
         public static ActionResult SellBySlot(PlayerState p, string cardId, int slot) { return Sell(p, cardId, slot == 0 ? p.Cards.Spare(cardId) : slot); }
 
+        /// <summary>InvOp.CardHelp: the first-time hint `bit` (CardCollection.HelpTutorial) has been shown; kept with the character so it never shows again. Silent (no toast). A bit that is not a known hint is refused.</summary>
+        public static ActionResult MarkHelp(PlayerState p, int bit)
+        {
+            if (bit <= 0 || (bit & ~CardCollection.HelpMask) != 0) return ActionResult.Fail("No such hint");
+            p.Cards.Help |= bit;
+            return ActionResult.Success();
+        }
+
         /// <summary>The wire form of InvOp.CardLock: Slot 1 locks the kind, anything else unlocks it.</summary>
         public static ActionResult LockBySlot(PlayerState p, string cardId, int slot) { return SetLock(p, cardId, slot == 1); }
 

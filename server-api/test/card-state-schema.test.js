@@ -15,6 +15,7 @@ const full = () => ({
   cardDaily: { day: 20000, npcWins: 2, pvpRewards: 3, wagers: 1 },
   cardNpcFirstWins: 5,
   cardRank: { season: 2, mmr: 1500, lp: 40, wins: 7, losses: 3, draws: 1, best: 1610, prevBest: 820, rewards: 6 },
+  cardHelp: 1,
 });
 
 describe('card ids', () => {
@@ -32,6 +33,12 @@ describe('state schema: card fields', () => {
   it('keeps every card field', () => {
     const s = stateSchema.parse({ ...base(), version: 6, ...full() });
     expect(s).toMatchObject(full());
+  });
+
+  it('cardHelp (first-time hint flag) defaults to 0 and refuses values beyond the known bit', () => {
+    expect(stateSchema.parse({ ...base(), version: 5 }).cardHelp).toBe(0);
+    expect(stateSchema.parse({ ...base(), version: 6, cardHelp: 1 }).cardHelp).toBe(1);
+    expect(() => stateSchema.parse({ ...base(), version: 6, cardHelp: 2 })).toThrow();
   });
 
   it('defaults an old save to nothing owned', () => {

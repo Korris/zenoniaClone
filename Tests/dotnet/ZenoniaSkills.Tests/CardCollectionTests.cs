@@ -96,6 +96,22 @@ public class CardCollectionTests
     }
 
     [Fact]
+    public void TheFirstTimeHintFlagIsMarkedOnceSavedAndLoaded()
+    {
+        var p = Hero();
+        Assert.Equal(0, p.Cards.Help);
+        Assert.False(CardOps.MarkHelp(p, 2).Ok);                    // not a known hint bit
+        Assert.False(CardOps.MarkHelp(p, 0).Ok);
+        Assert.Equal(0, p.Cards.Help);
+        Assert.True(CardOps.MarkHelp(p, CardCollection.HelpTutorial).Ok);
+        Assert.True(CardOps.MarkHelp(p, CardCollection.HelpTutorial).Ok); // repeating is harmless
+        Assert.Equal(CardCollection.HelpTutorial, RoundTrip(p).Cards.Help);
+        SaveData d = SaveSerializer.Capture(Hero(), false, 0f, 0f, false, 1);
+        d.cardHelp = 0x7F;                                             // a forged value keeps only the known bit
+        Assert.Equal(CardCollection.HelpTutorial, SaveSerializer.Restore(d).Cards.Help);
+    }
+
+    [Fact]
     public void SocketsSurviveSaveAndLoadAndJunkIsDropped()
     {
         var p = Hero();

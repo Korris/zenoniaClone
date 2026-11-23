@@ -55,6 +55,7 @@ namespace ZenoniaProto
             new MapNpc("healerNina", 5, 7), new MapNpc("merchantDale", 9, 11),
             new MapNpc("smithBram", 27, 9),
             new MapNpc("villagerMia", 22, 11), new MapNpc("childTim", 12, 12),
+            new MapNpc("cardMaster", 16, 21), // Card Master Orin: grass edge of the south gate road (east end of row 21, two tiles from the gate), the 4-tile road stays open
         };
 
         static readonly Vector2Int PlayerStartTile = new Vector2Int(20, 12);

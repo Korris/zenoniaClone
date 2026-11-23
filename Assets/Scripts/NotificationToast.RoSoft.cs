@@ -52,6 +52,17 @@ namespace ZenoniaProto
             Enqueue(new Entry { Title = text, Plate = plate, Icon = RoHud.Piece(iconPiece), TitleColor = Color.white });
         }
 
+        /// <summary>The Plate value of a card toast: the ChatGPT winged `toast-card` frame (Monster Card kit), 9-sliced on its wings.</summary>
+        const string CardPlate = "toast-card";
+        const float CardH = 46f, CardPad = 44f; // the wings of the 413 x 128 art take ~40 units at this height
+
+        /// <summary>A card drop toast: on the RO HUD the winged toast-card plate with ink text, else the plain coloured line.</summary>
+        public static void ShowCard(string text, Color fallback)
+        {
+            if (!RoHud.Active) { ShowLine(text, fallback); return; }
+            Enqueue(new Entry { Title = text, Plate = CardPlate, TitleColor = RoHud.Ink });
+        }
+
         static bool IsWarning(Color c) { return c.r > 0.75f && c.g < 0.55f && c.b < 0.55f; }
 
         void BeginRo(Entry e)
@@ -68,16 +79,19 @@ namespace ZenoniaProto
             title.fontSize = full ? 15 : 14;
             sub.fontSize = 13;
 
-            bool styled = !full && e.Plate != null;
-            roPlate.sprite = RoHud.Piece(styled ? e.Plate : full ? "hud-toast-full" : warn ? "hud-toast-warn" : "hud-toast-line");
+            bool cardPlate = !full && e.Plate == CardPlate;
+            bool styled = !full && e.Plate != null && !cardPlate;
+            Sprite cardArt = cardPlate ? PaperArt.Get(GemUiArt.Frame(CardPlate)) : null;
+            cardPlate = cardArt != null; // the kit piece missing: the ordinary pill
+            roPlate.sprite = cardPlate ? cardArt : RoHud.Piece(styled ? e.Plate : full ? "hud-toast-full" : warn ? "hud-toast-warn" : "hud-toast-line");
             roRing.enabled = !styled; // a styled pill shows its icon bare (no gold ring)
             Outline ol = title.GetComponent<Outline>();
             if (ol == null) ol = title.gameObject.AddComponent<Outline>();
             if (styled) title.color = Color.white;
             ol.enabled = styled; ol.effectColor = new Color(0.1f, 0.15f, 0.3f, 0.8f); ol.effectDistance = new Vector2(1f, -1f);
             roPlate.type = Image.Type.Sliced;
-            float h = full ? RoFullH : styled ? RoLineH + 6f : RoLineH;
-            roPlate.pixelsPerUnitMultiplier = full ? 1.4f : 56f / h; // pill: the art's height = the pill's, round ends; card: corners ~20 units
+            float h = full ? RoFullH : cardPlate ? CardH : styled ? RoLineH + 6f : RoLineH;
+            roPlate.pixelsPerUnitMultiplier = full ? 1.4f : cardPlate ? 128f / h : 56f / h; // card plate: art height 128 = the toast's height, so the wings keep their shape // pill: the art's height = the pill's, round ends; card: corners ~20 units
             roRing.gameObject.SetActive(hasIcon);
             roIcon.sprite = e.Icon;
 
@@ -96,8 +110,8 @@ namespace ZenoniaProto
             else
             {
                 textW = title.preferredWidth + 2f;
-                float pad = warn || styled ? RoPadX + 6f : RoStarPad, ring = h - 4f, lead = hasIcon ? ring + 4f : 0f; // the star pill keeps its stars clear of the text
-                w = Mathf.Clamp(textW + lead + pad * 2f, RoMinW, RoMaxW);
+                float pad = cardPlate ? CardPad : warn || styled ? RoPadX + 6f : RoStarPad, ring = h - 4f, lead = hasIcon ? ring + 4f : 0f; // the star pill keeps its stars clear of the text
+                w = Mathf.Clamp(textW + lead + pad * 2f, cardPlate ? 260f : RoMinW, cardPlate ? RoMaxW + 80f : RoMaxW);
                 RectTransform rr = (RectTransform)roRing.transform;
                 rr.sizeDelta = new Vector2(ring, ring);
                 rr.anchoredPosition = new Vector2(pad - 6f, -2f);

@@ -170,6 +170,7 @@ namespace ZenoniaProto
                 case InvOp.AlbumClaim: r = AlbumRules.Claim(State, slot); break; // Slot = milestone 0-3
                 case InvOp.CardSell: r = CardOps.SellBySlot(State, itemUid, slot); break; // ItemUid = card id, Slot = copies; 0 = every spare copy (Sell all spare)
                 case InvOp.CardLock: r = CardOps.LockBySlot(State, itemUid, slot); break; // ItemUid = card id, Slot 1 lock / 0 unlock
+                case InvOp.CardHelp: r = CardOps.MarkHelp(State, slot); break; // Slot = hint bit (CardCollection.HelpTutorial)
                 default: r = ActionResult.Fail("Unknown action"); break;
             }
             Touch();

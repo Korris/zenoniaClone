@@ -571,3 +571,9 @@ Sửa `.env.prod`, rồi `pv --profile zone up -d` (chưa có zone thì bỏ `--
 - Mạng di động thường cho nhiều người chung một IP. Giới hạn `REGISTER_IP_MAX=5` tài khoản/giờ và `LOGIN_IP_MAX=30` lần/phút theo IP có thể chặn nhầm. Tăng trong `.env.prod` nếu có người kêu.
 - Đã thử khôi phục backup một lần, và có chỗ chép backup ra ngoài VPS.
 - Mongo không đặt mật khẩu. Nó chỉ nối được từ các container `api` và `backup` của stack này. Đừng bao giờ thêm `ports` cho `mongo`.
+
+## Monster Card (23/11/2026)
+
+- Thứ tự: **server-api TRƯỚC, zone SAU** (zod `stateSchema` có thêm `cards`, `gems`, `album`, `cardDeck`, `cardRank`, `cardHelp`...; zone mới gửi save mà API cũ từ chối thì tiến độ chỉ còn trong file kept). Mỗi lần đổi `NetProtocol.Version` (hiện 34+) phát hành client cùng lúc.
+- Công tắc khẩn `CARD_WAGER_ENABLED` (env của server-api, mặc định `true`): `false` = Card Duel PvP vẫn chơi nhưng KHÔNG lấy card của người thua, escrow deck không dùng. Đổi env rồi `pv up -d api`.
+- Card Master Orin đặt trong `OakhavenVillageMap.cs` (ô 16,21): đổi map => build lại zone server.

@@ -25,7 +25,7 @@ namespace ZenoniaProto
         static readonly bool[] useNew = new bool[Count]; // defaults: all old
         static readonly View[] views = new View[Count];
         // Villagers whose talk opens a screen: Lumi, the pet keeper, opens the gacha. A rebuilt screen adds its own with BindNpc.
-        static readonly Dictionary<string, UiScreen> npcScreens = new Dictionary<string, UiScreen> { { PetGachaWindow.KeeperNpcId, UiScreen.Gacha } };
+        static readonly Dictionary<string, UiScreen> npcScreens = new Dictionary<string, UiScreen> { { PetGachaWindow.KeeperNpcId, UiScreen.Gacha }, { CardMasterTalk.NpcId, UiScreen.Card } };
 
         /// <summary>The game root (parent of the lazily built old windows); set by WindowsHost.Create on every scene start.</summary>
         public static Transform Root;
@@ -98,10 +98,11 @@ namespace ZenoniaProto
         /// The screen a villager opens, if any. False = not a screen NPC, or its screen has no window to show yet
         /// (the old Wanted board is a dialogue, WantedBossBoard.TryOpen: the caller goes on to it).
         /// </summary>
-        public static bool OpenForNpc(string npcId)
+        public static bool OpenForNpc(string npcId, string npcName = null, Sprite portrait = null, string[] lines = null)
         {
             UiScreen s;
             if (!npcScreens.TryGetValue(npcId, out s)) return false;
+            if (s == UiScreen.Card) { CardMasterTalk.Open(npcName, portrait, lines); return true; } // the Card Master explains first, then opens the window
             if (NewView(s) == null && s != UiScreen.Gacha) return false;
             Open(s);
             return true;

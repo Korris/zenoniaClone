@@ -9,7 +9,7 @@
 - Deploy: `docs/deploy.md`; việc dở: `docs/pending-tasks.md`
 
 ## Overview
-P2, pending. Card Master: hướng dẫn luật, mở trang Card Duel (đấu NPC), nhận thưởng album / đấu; menu tính năng "Cards" ở mọi map an toàn (đã có từ phase 03); dọn điểm yếu mockup; cập nhật docs.
+P2, **xong code 23/11 chiều** (chưa deploy, chưa kiểm online). Card Master: hướng dẫn luật, mở trang Card Duel (đấu NPC), nhận thưởng album / đấu; menu tính năng "Cards" ở mọi map an toàn (đã có từ phase 03); dọn điểm yếu mockup; cập nhật docs.
 
 ## Key Insights
 - Willowbrook Meadows là map săn (`Hostile`), luật cấm đấu ở map có quái -> mặc định đặt Card Master ở Oakhaven, cạnh cổng nam sang Willowbrook (câu hỏi 1 plan.md). Đổi chỗ chỉ là sửa toạ độ + map.
@@ -40,9 +40,18 @@ Test: thêm vào `Tests/dotnet/ZenoniaNet.Tests` một test ô NPC không chặn
 5. Lý do từ chối chi tiết; polish màu menu.
 6. Build zone (bản sao), thử đường đi tới NPC + đấu NPC từ NPC; cập nhật docs.
 
+## Làm khác kế hoạch (23/11 chiều, luật v2)
+- KHÔNG đấu NPC: nói chuyện = 5 trang thoại (card rơi từ quái, My Cards + Album, Soul Gem, luật Card Duel "winner takes 1 card from the loser's deck" + Lv30 + online, Ranked không lấy card), trang cuối mời mở cửa sổ Card (hết trang thì `CardWindow.Open`, Esc thì thôi). Không có hộp 3 lựa chọn Luật / Đấu NPC / Album (không còn gì để chọn).
+- Ô NPC (16,21): cỏ mép phải đường cổng nam, 2 ô cạnh cổng; đường giữ 4 ô trống; test `OakhavenCardMasterTests`.
+- Hướng dẫn lần đầu = 3 bước (`CardTutorial`), không phải 4 bước luật ván: mở lần đầu cửa sổ Card hoặc card đầu tiên rơi. Cờ `cardHelp` bit 0 (SaveData + zod + `InvOp.CardHelp` 36, Version 34).
+- Lý do từ chối mở trận (đang đánh, Wanted, dungeon, map có quái) đã do `DuelService` phase 06 lo; không làm thêm.
+- Ẩn MMR khỏi RpgState: bỏ khỏi phase này (agent Ranked làm). Poison icon: kit không có, KHÔNG vẽ: cần ChatGPT vẽ `element-poison` (xem `GemUiArt.ElementIcon`), hiện thẻ Poison không có icon nguyên tố.
+- Offline SaveNow sau mọi op card / gem (`InvOpInfo.IsCardOp`, `PetActions.Send`). Toast card dùng khung `toast-card` (`NotificationToast.ShowCard`).
+- Nhịp thở idle Card Master: bỏ ở V1.
+
 ## Todo List
-- [ ] Đọc luật map / sprite / UI   - [ ] Ô NPC + test   - [ ] Sprite NPC đã xem trong game
-- [ ] BindNpc + hướng dẫn   - [ ] Lý do từ chối   - [ ] Docs + pending-tasks
+- [x] Đọc luật map / sprite / UI   - [x] Ô NPC + test   - [x] Sprite NPC đã xem trong game
+- [x] BindNpc + hướng dẫn   - [x] Lý do từ chối (có từ phase 06)   - [x] Docs + pending-tasks
 
 ## Success Criteria
 - Đi tới Card Master, nói chuyện -> mở thẳng trang Duel; đấu NPC trọn ván.

@@ -67,6 +67,13 @@ namespace ZenoniaProto
             // Bramblewood Forest, outside Rootburrow's gate (Rootburrow V5, 21/11/2026): the "Secrets Beneath Rootburrow" quest chain (RootburrowQuests). Reuses Hunter Lena's look.
             { "caveResearcherElara", DefArt("caveResearcherElara", "Elara", "hunterLena", Down, true,
                 "Rootburrow goes deeper than anyone thinks. Three floors, at least.") },
+            // Oakhaven's Card Master (Monster Card phase 08, 23/11/2026): by the south gate. Talking runs these pages, then opens the Card window (CardMasterTalk, UiScreens.BindNpc). No duels with him: Card Duel is player vs player only.
+            { "cardMaster", Def("cardMaster", "Card Master Orin", Down, false,
+                "Welcome, traveller. I am Orin, keeper of Monster Cards. Defeat monsters and they may leave a card of their kind behind.",
+                "Open More > Cards. My Cards holds every copy you own. The Monster Album marks each monster the first time you hold its card, and its milestones pay rewards.",
+                "Spare cards turn into Soul Gems at the Convert page. Socket a gem into your gear for bonus stats, or take it out again for a small fee.",
+                "Card Duel is a 4x4 board with an 8-card deck: place a card, flip the rival cards it beats. It needs another player online, level 30 or higher. In a casual duel the winner takes 1 card from the loser's deck. A draw costs nobody anything.",
+                "Ranked duels take no cards: win to climb the leagues of a 30-day season. Ready? Tap to open the Card window, or press Esc to just leave.") },
             // Oakhaven's blacksmith (world-map-2 step 1): same look as the carpenter, a hammer at the forge.
             { "smithBram", DefArt("smithBram", "Bram", "carpenterBrol", Down, false,
                 "Steel and leather, nothing fancy, but it holds an edge.", "Oakhaven forges plain gear. Good enough until you see higher country.") },

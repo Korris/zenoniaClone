@@ -1,7 +1,7 @@
 ---
 title: "Monster Card: rơi card + Album, Soul Gem (chuyển hoá / khảm / tháo), Card Duel 4x4 (NPC / PvP / Ranked / cược)"
 description: "Hệ card quái V1 theo spec design-notes-chatgpt.md, server quyết hết, luật chung C# có unit test"
-status: pending
+status: in-progress (01-08 xong code, chờ deploy + thử API thật)
 priority: P2
 effort: 70h
 branch: ro-soft-adventure
@@ -32,7 +32,7 @@ Spec: `docs/reference/card-gem-ui/design-notes-chatgpt.md` (mục "Đã chốt" 
 | 05 | [Duel core + UI deck/bàn (đấu NPC đã BỎ 23/11 chiều)](phase-05-duel-core-npc-duel.md) | 13h | 03 | Zone | code + UI xong 23/11; NPC + thưởng NPC xoá ở v2 (chưa deploy) |
 | 06 | [PvP thách đấu, "thắng lấy 1 card", escrow cả deck (v2)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | **v2 xong 23/11 chiều** (API 250 vitest, 2 client dev server win / lose / draw / drop / rejoin / nopick; CHƯA deploy, chưa thử API + Mongo thật) |
 | 07 | [Ranked mùa 30 ngày](phase-07-ranked-season.md) | 8h | 06 | Zone (+ API: zod cardRank 2 field) | **xong code + UI 23/11 chiều** (2 client dev server ranked / ranked3; CHƯA deploy, chưa thử API thật) |
-| 08 | [NPC Card Master, lối vào, hoàn thiện, docs](phase-08-card-master-npc-entry-polish.md) | 5h | 05 (07 cho nút Ranked) | Zone | pending |
+| 08 | [NPC Card Master, lối vào, hoàn thiện, docs](phase-08-card-master-npc-entry-polish.md) | 5h | 05 (07 cho nút Ranked) | Zone | **xong code 23/11 chiều** (NPC Card Master Orin ở Oakhaven + hướng dẫn lần đầu `cardHelp` + toast-card + SaveNow offline; CHƯA deploy; Poison icon chờ ChatGPT) |
 
 Thứ tự phát hành được: 01+03 (sưu tầm) -> 04 (ngọc) -> 05 (đấu NPC) -> 06 -> 07. 08 làm sau 05, nút Ranked bật sau 07.
 

@@ -61,6 +61,15 @@ client side; most only chat, quest givers run their quests on the zone (QuestAcc
 Launch arg `--map frost-hollow|oakhaven-village` picks the start map (capture / bot runs default to Frost Hollow; on a server, the zone new heroes begin in). Village art: `Resources/Sprites/village/`
 (ground + portal in `tiles/`, props, NPC idle sheets + faces), copied from the web `Assets/hd/`.
 
+## Monster Cards (phases 01-08, branch ro-soft-adventure)
+
+Monsters drop one of 40 collectible cards (35 normal, 5 boss; `Rpg/Cards/CardTableData.cs`, mirrored by `server-api/src/rpg/card-ids.json`). The zone decides drops, converts, sockets and duels; the
+client only asks (`InvOp` / `NetOp.DuelRequest`). The window (More > Cards, `CardWindow`): My Cards, Monster Album (milestone rewards), Convert to Soul Gem, Gem Socketing, Gem Removal, Card Duel.
+Card Duel is a 4x4 flip board with an 8-card deck, online only (PvP): a casual duel makes the winner take 1 card from the loser's deck (draw = nothing), Ranked (30-day season) takes no cards. No NPC duels.
+Card Master Orin (Oakhaven, beside the south gate) explains it and opens the window (`CardMasterTalk`); the first time a card drops or the window opens, a 3-step hint shows once per character
+(`CardTutorial`, save field `cardHelp`). State lives in the character save (`SaveData.cards ... cardRank, cardHelp`, zod `stateSchema`). Plan: `plans/261123-1125-monster-card-gem-duel/plan.md`.
+Emergency switch for taking cards: `CARD_WAGER_ENABLED` (`docs/deploy.md`).
+
 ## Controls
 
 | Key | Action |
