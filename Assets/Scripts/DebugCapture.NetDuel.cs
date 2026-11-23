@@ -24,6 +24,8 @@ namespace ZenoniaProto
             int drop;
             if (!int.TryParse(NetLaunchArgs.Arg(a, "--duel-drop"), out drop)) drop = 0;
             string pick = NetLaunchArgs.Arg(a, "--duel-pick") ?? "caveMantis";
+            int ranked;
+            if (int.TryParse(NetLaunchArgs.Arg(a, "--duel-ranked"), out ranked) && ranked > 0) { StartCoroutine(RankedScript(ranked)); return; }
             StartCoroutine(DuelScript(role == "challenger", NetLaunchArgs.HasFlag("--duel-resume"), NetLaunchArgs.HasFlag("--duel-nopick"), pick, drop));
         }
 
@@ -88,6 +90,41 @@ namespace ZenoniaProto
             end = DuelClient.View;
             if (end != null)
                 DuelE2e("RESULT " + end.Result + " score " + end.Score(0) + "-" + end.Score(1) + " reason " + end.EndReason + " wagerState " + end.WagerState + " picked " + (end.PickedCard == DuelView.NoCard ? "none" : CardTable.ByIndex(end.PickedCard).Id) + (end.PickedAtRandom ? " (random)" : "") + " | " + CardLine(pick));
+            Application.Quit();
+        }
+
+        static string RankLine()
+        {
+            CardRankData r = GameSession.Hero.Rpg.Cards.Rank;
+            return "season " + r.season + " lp " + r.lp + " (" + RankedRules.TierName(RankedRules.Tier(r.lp)) + ") W/L/D " + r.wins + "/" + r.losses + "/" + r.draws + " best " + r.best + " mmr " + r.mmr;
+        }
+
+        /// <summary>--duel-ranked N: queues for Ranked, plays the match with the greedy pick, logs the LP the server gave, and does it again until N matches are done (the third match of one pair in a day does not count).</summary>
+        IEnumerator RankedScript(int matches)
+        {
+            yield return DuelUntil(() => DuelClient.RankedSeason > 0, 30f, "the server sent the season (season " + DuelClient.RankedSeason + ", " + DuelClient.RankedMinutesLeft + " min left)");
+            yield return new WaitForSeconds(1.5f);
+            DuelE2e("before: " + RankLine());
+            for (int m = 1; m <= matches; m++)
+            {
+                DuelClient.Reset();
+                yield return new WaitForSeconds(1f);
+                DuelClient.QueueRanked();
+                yield return DuelUntil(() => DuelClient.RankedQueued, 5f, "in the line");
+                yield return DuelUntil(() => DuelClient.Running, 90f, "ranked match " + m + " starts");
+                if (DuelClient.View == null) { Application.Quit(); yield break; }
+                DuelE2e("match " + m + " start: ranked " + DuelClient.View.Ranked + ", wagerState " + DuelClient.View.WagerState + ", opponent " + DuelClient.View.OppName + ", cards " + CardTotal());
+                while (DuelClient.View != null && !DuelClient.View.Finished)
+                {
+                    DuelView v = DuelClient.View;
+                    if (v.YourTurn && DuelClient.SecondsLeft > DuelClient.MinPlaceSeconds + 0.3f) DuelBotPick(v);
+                    yield return new WaitForSeconds(0.7f);
+                }
+                yield return new WaitForSeconds(2f); // the pushed state with the new rank arrives
+                DuelView end = DuelClient.View;
+                if (end == null) { Application.Quit(); yield break; }
+                DuelE2e("match " + m + " over: " + end.Result + " score " + end.Score(0) + "-" + end.Score(1) + " ranked " + end.Ranked + " lpChange " + end.LpChange + " notCounted " + end.RankNotCounted + " | " + RankLine() + " | cards " + CardTotal());
+            }
             Application.Quit();
         }
 

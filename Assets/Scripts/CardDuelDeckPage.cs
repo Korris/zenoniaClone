@@ -27,7 +27,10 @@ namespace ZenoniaProto
         P.CyclePill rarityPill, areaPill;
         P.Pager pager;
         Text deckSize, reason, power;
-        U.PieceButton challenge, clear;
+        U.PieceButton challenge, clear, ranked;
+        Image rankedBadge;
+        CardDuelRankedPanel rankedPanel;
+        int rankedShown = -1;
         RectTransform offlineRoot;
         Text stakesNote;
         int rarity = -1, area = -1, page;
@@ -82,13 +85,16 @@ namespace ZenoniaProto
                 info[i] = U.Txt(Root, "InfoValue" + i, InfoX + InfoW - 110f, y, 90f, 30f, "", U.TextNormal, U.Ink, TextAnchor.MiddleRight);
             }
             challenge = new U.PieceButton(Root, "Challenge", InfoX + 14f, 252f, InfoW - 28f, U.ButtonH, GemUiArt.Frame("btn-blue"), "Challenge Player", OpenPvpList);
-            clear = new U.PieceButton(Root, "Clear", InfoX + 14f, 308f, InfoW - 28f, U.ButtonH, GemUiArt.Frame("btn-red"), "Clear Deck", OnClear);
+            ranked = new U.PieceButton(Root, "Ranked", InfoX + 14f, 308f, InfoW - 28f, U.ButtonH, GemUiArt.Frame("btn-gold"), "Ranked", OpenRanked);
+            rankedBadge = GemUiArt.Img(ranked.Root, "Badge", 10f, 7f, 36f, 34f, null);
+            clear = new U.PieceButton(Root, "Clear", InfoX + 14f, 364f, InfoW - 28f, U.ButtonH, GemUiArt.Frame("btn-red"), "Clear Deck", OnClear);
             BuildStakesWarning();
             BuildPvpList();
+            rankedPanel = new CardDuelRankedPanel(Root, DeckX, 0f, () => Me != null && DeckRules.Validate(Me.Cards.Deck, Me.Cards, true) == DeckError.None, CloseRanked);
             BuildOfflineNotice();
         }
 
-        const float WarnY = 366f, WarnH = 170f, WarnPad = 12f;
+        const float WarnY = 422f, WarnH = 114f, WarnPad = 12f;
 
         // the stakes warning under the buttons: a box with a heading and the rule in plain words (the ChatGPT panel frame, text only)
         void BuildStakesWarning()
@@ -97,7 +103,7 @@ namespace ZenoniaProto
             U.Panel(box, "Box", 0f, 0f, InfoW - 28f, WarnH);
             U.Txt(box, "Title", WarnPad, 8f, InfoW - 28f - 2f * WarnPad, 26f, "Cards at stake", U.TextTitle, U.Bad);
             stakesNote = U.Txt(box, "Note", WarnPad, 36f, InfoW - 28f - 2f * WarnPad, WarnH - 44f,
-                "Every duel puts your whole deck at risk. The winner takes 1 card of the loser's deck: any card, Locked, SR, SSR and Boss cards too. A draw takes nothing.",
+                "Winner takes 1 card of the loser's deck (Locked too). A draw takes nothing. Ranked takes none.",
                 U.TextSmall, U.Ink, TextAnchor.UpperLeft);
         }
 
@@ -131,6 +137,11 @@ namespace ZenoniaProto
             new U.PieceButton(pvpRoot, "Back", (w - 190f) * 0.5f, PageH - 62f, 190f, U.ButtonH, GemUiArt.Frame("btn-blue"), "Back", () => { pvpRoot.gameObject.SetActive(false); Refresh(); });
             pvpRoot.gameObject.SetActive(false);
         }
+
+        public override void DebugPressMain() { OpenRanked(); }
+
+        void OpenRanked() { rankedPanel.Show(true); }
+        void CloseRanked() { rankedPanel.Show(false); Refresh(); }
 
         void OpenPvpList() { pvpRoot.gameObject.SetActive(true); RefreshPvp(); }
 
@@ -174,9 +185,11 @@ namespace ZenoniaProto
         {
             base.Tick();
             if (pvpRoot != null && pvpRoot.gameObject.activeSelf && Time.unscaledTime >= nextPvpAt) RefreshPvp();
+            if (rankedPanel != null) rankedPanel.Tick();
+            if (rankedShown != DuelClient.RankedVersion && Root != null && Root.gameObject.activeInHierarchy) Refresh(); // the Ranked button shows the tier and the searching state
         }
 
-        public override void OnShow() { pvpRoot.gameObject.SetActive(false); Refresh(); }
+        public override void OnShow() { pvpRoot.gameObject.SetActive(false); rankedPanel.Show(false); Refresh(); }
 
         void OnAdd(CardDef c)
         {
@@ -216,7 +229,7 @@ namespace ZenoniaProto
             int pages = Mathf.Max(1, Mathf.CeilToInt(cards.Count / (float)PerPage));
             page = Mathf.Clamp(page, 0, pages - 1);
             pager.Set(page, pages);
-            bool locked = Pending || DuelClient.Running;
+            bool locked = Pending || DuelClient.Running || DuelClient.RankedQueued;
             for (int i = 0; i < PerPage; i++)
             {
                 int index = page * PerPage + i;
@@ -243,6 +256,10 @@ namespace ZenoniaProto
             offlineRoot.gameObject.SetActive(!DuelClient.Online);
             challenge.Set("Challenge Player", DuelClient.Online && full == DeckError.None && !locked && !DuelClient.InLobby);
             clear.Set("Clear Deck", deck.Count > 0 && !locked);
+            rankedShown = DuelClient.RankedVersion;
+            ranked.Set(DuelClient.RankedQueued ? "Searching..." : "Ranked", DuelClient.Online);
+            GemUiArt.SetPiece(rankedBadge, "cards/ranked/rank-" + RankedRules.TierName(RankedRules.Tier(DuelClient.DisplayRank(p).lp)).ToLowerInvariant());
+            if (rankedPanel.Visible) rankedPanel.Refresh();
             reason.text = DuelClient.Running ? "A duel is running." : full == DeckError.None ? "Tap a deck card to take it out. Tap a card on the left to add it." : DeckRules.Text(full) + ". Tap a card on the left to add it.";
             reason.color = U.InkSoft;
         }

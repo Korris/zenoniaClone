@@ -118,4 +118,48 @@ public class DuelPvpMessageTests
         DuelRequestMsg m; Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
         Assert.Equal(7, m.Turn); Assert.Equal(33, m.Card);
     }
+
+    [Fact]
+    public void TheRankedFlagsAndTheLpChangeSurviveTheStateAndAnImpossibleFlagIsRefused()
+    {
+        var w = new NetDataWriter();
+        DuelStateMsg s = Picking(); s.WagerState = 0; s.Ranked = true; s.RankNotCounted = true; s.LpChange = -22; s.PickCards = new byte[0];
+        s.Write(w);
+        DuelStateMsg m; Assert.True(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
+        Assert.True(m.Ranked); Assert.True(m.RankNotCounted); Assert.Equal(-22, m.LpChange);
+        s.Ranked = false; s.RankNotCounted = false; s.LpChange = 27; s.Write(w);
+        Assert.True(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
+        Assert.False(m.Ranked); Assert.False(m.RankNotCounted); Assert.Equal(27, m.LpChange);
+        // a hand-built flag byte with bit 16 set is not a state
+        s.Write(w);
+        var raw = w.CopyData(); raw[1 + 1 + 1] |= 16; // op, result, end reason, flags
+        var r = new NetDataReader(); r.SetSource(raw);
+        byte op; Assert.True(NetMessageReader.ReadOpcode(r, out op));
+        Assert.False(DuelStateMsg.TryRead(r, out m));
+    }
+
+    [Fact]
+    public void QueueRankedAndLeaveQueueAreRequestsAndThePlayerNeverSendsARating()
+    {
+        var w = new NetDataWriter();
+        foreach (DuelOp op in new[] { DuelOp.QueueRanked, DuelOp.LeaveQueue })
+        {
+            new DuelRequestMsg { Op = op }.Write(w);
+            DuelRequestMsg m; Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
+            Assert.Equal(op, m.Op);
+        }
+        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)11); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((ushort)0); w.Put((byte)0);
+        DuelRequestMsg bad; Assert.False(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out bad)); // the op after LeaveQueue does not exist
+    }
+
+    [Fact]
+    public void TheRankedMessageRoundTripsAndRefusesTrailingBytes()
+    {
+        var w = new NetDataWriter();
+        new DuelRankedMsg { Queued = true, WaitSec = 42, Season = 3, MinutesLeft = 43199 }.Write(w);
+        DuelRankedMsg m; Assert.True(DuelRankedMsg.TryRead(Reader(w, NetOp.DuelRanked), out m));
+        Assert.True(m.Queued); Assert.Equal(42, m.WaitSec); Assert.Equal(3, m.Season); Assert.Equal(43199, m.MinutesLeft);
+        w.Put((byte)1);
+        Assert.False(DuelRankedMsg.TryRead(Reader(w, NetOp.DuelRanked), out m));
+    }
 }

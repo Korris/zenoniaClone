@@ -10,7 +10,7 @@
 - PvP thường không còn thưởng Gold (300 / 100 / 150, 5 trận / ngày bị bỏ); dòng "thưởng Gold dùng chung bộ đếm PvP" bên dưới KHÔNG còn đúng: Ranked cần bảng thưởng Gold riêng nếu muốn có.
 
 ## Overview
-P2, pending. Hàng chờ Ranked trong zone process, ghép theo MMR ẩn, điểm hiện (LP) theo bậc Bronze -> Diamond, thưởng Gold như PvP, mùa 30 ngày reset một phần. Không cược.
+P2, **xong code + UI 23/11 chiều (chưa deploy)**. Hàng chờ Ranked trong zone process, ghép theo MMR ẩn, điểm hiện (LP) theo bậc Bronze -> Diamond, thưởng Gold như PvP, mùa 30 ngày reset một phần. Không cược.
 
 ## Key Insights
 - Một zone process host mọi map -> hàng chờ trong bộ nhớ `DuelService` là đủ cho V1, không cần dịch vụ ghép riêng.
@@ -49,7 +49,16 @@ Sửa: `Net/Server/DuelService.cs` (tick hàng chờ, gỡ khỏi hàng khi rờ
 4. Build zone; thử 2-3 client (bot `Tests/dotnet/ZenoniaSwarm` nếu dùng được) chờ ghép, nới sau 30 s, rớt mạng giữa trận Ranked.
 
 ## Todo List
-- [ ] RankedRules + test   - [ ] Hàng chờ + ghép   - [ ] Message + UI   - [ ] Build + thử nhiều client
+- [x] RankedRules + test (`RankedRulesTests`, 25 test)   - [x] Hàng chờ + ghép (`RankedQueue`, `DuelService.Ranked.cs`)   - [x] Message (Version 33) + UI (`CardDuelRankedPanel`, banner LP)   - [x] Build + thử 2 client dev server (`net-duel-test.ps1 -Scenario ranked | ranked3`)
+- [ ] Deploy (API trước) + thử với API / Mongo thật, rớt mạng giữa trận Ranked, nhiều client (nới sau 30 s)
+
+## Làm khác kế hoạch (23/11 chiều)
+- Không có thưởng Gold, không "xong tutorial" (đấu NPC đã bỏ). Thưởng cuối mùa = cờ `cardRank.rewards` (bit theo bậc) + `prevBest`; chưa có cosmetic.
+- Không cần sửa `DuelMatch` / lobby: Ranked dùng `StartMatch(..., ranked: true)` của `DuelService.Pvp.cs` (`PvpRun.Ranked`, không stakes). Hàng chờ ghép theo MMR + party + gặp lại 10 phút (`RankedQueue`, thuần, test ở `RankedRulesTests`).
+- Kết quả luôn tính từ rank lúc bắt đầu trận (`PvpRun.RankBefore`): rớt mạng lưu thua tạm lúc rời, nối lại xong thì thay bằng kết quả thật. Người thua offline sau 60 s giữ thua tạm; người thắng online nhận thắng.
+- Cùng cặp > 2 trận / ngày: vẫn ghép và đấu nhưng không đổi LP (cờ `RankNotCounted`, banner báo); bộ đếm ở bộ nhớ zone (mất khi zone khởi động lại).
+- `--dev-cards`: cooldown gặp lại = 0 để thử nhiều trận cùng cặp.
+- Sửa kèm `CardCollection.ToSave / Load` (chỉ 2 dòng `Rank`) cho 2 field mới.
 
 ## Success Criteria
 - Test: thắng đối thủ MMR bằng -> +25 LP; thua -> -20; hoà 0; reset mùa đúng công thức.

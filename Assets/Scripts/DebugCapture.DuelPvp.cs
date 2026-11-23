@@ -8,7 +8,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Capture flags of the PvP duel screens (phase 06 v2) when two real clients are not at hand. They feed DuelClient the same messages the server would send (DuelLobbyMsg, a PvP DuelView built by the real
     /// DuelPvpMatch), so what is drawn is the real window code. Use with --duel-seed (cards + deck) and --map oakhaven-village:
-    ///   --duel-pvp invite | invite-off | waiting | battle | pick | lose-waiting | won-taken | lost-taken | draw | flip-demo
+    ///   --duel-pvp invite | invite-off | waiting | battle | pick | lose-waiting | won-taken | lost-taken | draw | flip-demo | ranked-panel | ranked-searching | ranked-won | ranked-lost | ranked-draw | ranked-notcounted
     /// </summary>
     public partial class DebugCapture
     {
@@ -33,7 +33,25 @@ namespace ZenoniaProto
                 case "won-taken": Match(16, DuelView.WagerPaid, true, taken, 0); break;
                 case "lost-taken": Match(16, DuelView.WagerPaid, false, taken, 0); break;
                 case "draw": Match(16, DuelView.WagerPaid, null, DuelView.NoCard, 0); break;
+                case "ranked-panel": RankedPanelDemo(false); break;
+                case "ranked-searching": RankedPanelDemo(true); break;
+                case "ranked-won": p.Cards.Rank = DemoRank(437); Match(16, DuelView.WagerNone, true, DuelView.NoCard, 0, v => { v.Ranked = true; v.LpChange = 25; }); break;
+                case "ranked-lost": p.Cards.Rank = DemoRank(392); Match(16, DuelView.WagerNone, false, DuelView.NoCard, 0, v => { v.Ranked = true; v.LpChange = -20; }); break;
+                case "ranked-draw": p.Cards.Rank = DemoRank(412); Match(16, DuelView.WagerNone, null, DuelView.NoCard, 0, v => { v.Ranked = true; v.LpChange = 0; }); break;
+                case "ranked-notcounted": p.Cards.Rank = DemoRank(412); Match(16, DuelView.WagerNone, true, DuelView.NoCard, 0, v => { v.Ranked = true; v.RankNotCounted = true; }); break;
             }
+        }
+
+        static CardRankData DemoRank(int lp) { return new CardRankData { season = 1, mmr = 1120, lp = lp, wins = 12, losses = 7, draws = 1, best = 455, prevBest = 0 }; }
+
+        // the Ranked box of the deck page (tier Silver, 412 LP), idle or searching 34 s in
+        static void RankedPanelDemo(bool searching)
+        {
+            PlayerState p = RpgSession.Player;
+            p.Cards.Rank = DemoRank(412);
+            DuelClient.ApplyRanked(new DuelRankedMsg { Queued = searching, WaitSec = 34, Season = 1, MinutesLeft = 22 * 1440 + 3 * 60 });
+            CardWindow.Open(CardWindow.Page.Duel);
+            CardWindow.DebugPressMain(); // the Ranked button, through its real handler
         }
 
         static void Lobby(int phase, bool stakes, int msLeft)
@@ -43,7 +61,7 @@ namespace ZenoniaProto
 
         // plays the real PvP match with a greedy pick for both sides until `moves` placements are made; `wantWin` true / false / null (draw) searches a seed with that result when it is played out.
         // The stakes fields are filled the way the zone does: `state` = DuelView.Wager*, `picked` = the card taken, `pickMs` = the winner's time left; the winner gets the loser's 8 deck cards to choose from.
-        static void Match(int moves, int state, bool? wantWin, int picked, int pickMs)
+        static void Match(int moves, int state, bool? wantWin, int picked, int pickMs, Action<DuelView> tweak = null)
         {
             PlayerState p = RpgSession.Player;
             CardWindow.Open(CardWindow.Page.Duel);
@@ -56,6 +74,7 @@ namespace ZenoniaProto
                     DuelView v = m.View(0, m.Match.DeadlineMs - 17000);
                     v.WagerState = state; v.PickedCard = picked; v.PickMsLeft = pickMs;
                     if (state == DuelView.WagerPicking && wantWin == true) foreach (string id in RivalDeck) v.PickCards.Add(CardTable.Index(id));
+                    if (tweak != null) tweak(v);
                     DuelClient.Apply(v);
                     return;
                 }

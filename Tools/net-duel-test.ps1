@@ -9,6 +9,8 @@
     drop    the rival quits after 3 placements; the server waits 60 s, forfeits it, the challenger wins and picks
     rejoin  the rival quits after 3 placements and comes back after 12 s: it is put back into the same match
     nopick  the challenger wins and does not pick: the server takes a random card of the rival's deck at 30 s
+    ranked  two clients queue for Ranked (no cards, no escrow), play one match, and log the LP; the server matches them by MMR
+    ranked3 the same pair plays three Ranked matches: the third does not count for LP (anti-collusion); the server logs it
   Prints every "duel-e2e:" line of both clients and every duel line of the server. Needs a player built from a copy (Tools/build-from-copy.ps1).
 .EXAMPLE
   .\Tools\net-duel-test.ps1 -Exe C:\temp\player-cards-p6b\Zenonia.exe -OutDir C:\temp\duel-test -Scenario win
@@ -16,7 +18,7 @@
 param(
   [Parameter(Mandatory = $true)][string]$Exe,
   [string]$OutDir = "duel-test-out",
-  [ValidateSet("win", "lose", "draw", "drop", "rejoin", "nopick")][string]$Scenario = "win",
+  [ValidateSet("win", "lose", "draw", "drop", "rejoin", "nopick", "ranked", "ranked3")][string]$Scenario = "win",
   [int]$Port = 7792,
   [string]$DevKey = "k",
   [int]$TimeoutSeconds = 240
@@ -40,6 +42,7 @@ while ((Get-Date) -lt $deadline -and -not ((Test-Path "$OutDir\server.log") -and
 $rivalExtra = @(); if ($Scenario -eq "drop") { $rivalExtra = @("--duel-drop", 3) }; if ($Scenario -eq "rejoin") { $rivalExtra = @("--duel-drop", 3) }
 $challengerExtra = @(); if ($Scenario -eq "nopick") { $challengerExtra = @("--duel-nopick") }
 if ($Scenario -eq "lose") { $rivalExtra = @("--duel-pick", "caveMantis") }
+if ($Scenario -like "ranked*") { $n = if ($Scenario -eq "ranked3") { 3 } else { 1 }; $rivalExtra = @("--duel-ranked", $n); $challengerExtra = @("--duel-ranked", $n) }
 $rival = Start-Client "Rival" "wizard" "rival" "Rival" $rivalExtra
 Start-Sleep -Seconds 2
 $challenger = Start-Client "Challenger" "warrior" "challenger" "Challenger" $challengerExtra
@@ -54,4 +57,4 @@ while ((Get-Date) -lt $end) {
 Start-Sleep -Seconds 2
 foreach ($p in @($challenger, $rival, $rival2, $server)) { if ($null -ne $p -and -not $p.HasExited) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue } }
 foreach ($n in "Challenger", "Rival", "Rival2") { if (Test-Path "$OutDir\$n.log") { Write-Host "== $n"; Select-String -Path "$OutDir\$n.log" -Pattern "duel-e2e:" | ForEach-Object { $_.Line -replace '^.*duel-e2e: ', '  ' } } }
-Write-Host "== server"; Select-String -Path "$OutDir\server.log" -Pattern "\] duel:" | ForEach-Object { $_.Line }
+Write-Host "== server"; Select-String -Path "$OutDir\server.log" -Pattern "\] (duel|ranked):" | ForEach-Object { $_.Line }

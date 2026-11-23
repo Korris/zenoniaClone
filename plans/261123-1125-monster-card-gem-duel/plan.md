@@ -31,7 +31,7 @@ Spec: `docs/reference/card-gem-ui/design-notes-chatgpt.md` (mục "Đã chốt" 
 | 04 | [Chuyển hoá, khảm, tháo ngọc + chỉ số](phase-04-soul-gem-convert-socket-remove.md) | 9h | 03 | Zone + API | code + UI xong 23/11, nối CardWindow xong + sửa review 23/11 (chưa deploy, chưa kiểm online) |
 | 05 | [Duel core + UI deck/bàn (đấu NPC đã BỎ 23/11 chiều)](phase-05-duel-core-npc-duel.md) | 13h | 03 | Zone | code + UI xong 23/11; NPC + thưởng NPC xoá ở v2 (chưa deploy) |
 | 06 | [PvP thách đấu, "thắng lấy 1 card", escrow cả deck (v2)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | **v2 xong 23/11 chiều** (API 250 vitest, 2 client dev server win / lose / draw / drop / rejoin / nopick; CHƯA deploy, chưa thử API + Mongo thật) |
-| 07 | [Ranked mùa 30 ngày](phase-07-ranked-season.md) | 8h | 06 | Zone (state đã có từ 01) | pending |
+| 07 | [Ranked mùa 30 ngày](phase-07-ranked-season.md) | 8h | 06 | Zone (+ API: zod cardRank 2 field) | **xong code + UI 23/11 chiều** (2 client dev server ranked / ranked3; CHƯA deploy, chưa thử API thật) |
 | 08 | [NPC Card Master, lối vào, hoàn thiện, docs](phase-08-card-master-npc-entry-polish.md) | 5h | 05 (07 cho nút Ranked) | Zone | pending |
 
 Thứ tự phát hành được: 01+03 (sưu tầm) -> 04 (ngọc) -> 05 (đấu NPC) -> 06 -> 07. 08 làm sau 05, nút Ranked bật sau 07.

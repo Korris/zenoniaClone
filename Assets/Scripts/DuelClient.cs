@@ -53,6 +53,40 @@ namespace ZenoniaProto
         /// <summary>Seconds the opponent has been disconnected (0 = connected); counts up between server views.</summary>
         public static float OppAwaySeconds { get { return View != null && View.OppAwayMs > 0 && !View.Finished ? Mathf.Max(0f, Time.unscaledTime - awayAt) : 0f; } }
 
+        // ---- Ranked ----
+
+        /// <summary>Where the player stands in the Ranked line and the season clock, as the server last said it.</summary>
+        public static DuelRankedMsg Ranked { get; private set; }
+        public static int RankedVersion { get; private set; }
+        static float rankedAt;
+
+        public static bool RankedQueued { get { return Ranked.Queued; } }
+        /// <summary>Seconds in the line (counts on between server messages).</summary>
+        public static float RankedWaitSeconds { get { return Ranked.Queued ? Ranked.WaitSec + (Time.unscaledTime - rankedAt) : 0f; } }
+        /// <summary>Season number and the time left of it; 0 until the server has said.</summary>
+        public static int RankedSeason { get { return Ranked.Season; } }
+        public static int RankedMinutesLeft { get { return Mathf.Max(0, Ranked.MinutesLeft - Mathf.FloorToInt((Time.unscaledTime - rankedAt) / 60f)); } }
+
+        public static void ApplyRanked(DuelRankedMsg m) { Ranked = m; rankedAt = Time.unscaledTime; RankedVersion++; }
+
+        public static void QueueRanked() { Send(new DuelRequestMsg { Op = DuelOp.QueueRanked }); }
+        public static void LeaveQueue() { Send(new DuelRequestMsg { Op = DuelOp.LeaveQueue }); }
+
+        /// <summary>The player's rank as the screen shows it: the saved one, brought to the server's season (a character from an older season sees the halved LP it will queue with). Never null.</summary>
+        public static CardRankData DisplayRank(PlayerState p)
+        {
+            CardRankData r = RankedRules.Copy(p.Cards.Rank);
+            if (r.season > 0 && Ranked.Season > r.season) RankedRules.EnsureSeason(r, RankedRules.SeasonEndMs(Ranked.Season) - 1L);
+            return r;
+        }
+
+        /// <summary>Why this character cannot queue for Ranked (empty = it can; the server still checks): offline, level. The deck is checked by the page that has the deck.</summary>
+        public static string RankedProblem(PlayerState p)
+        {
+            if (!Online) return OfflineReason;
+            return p == null ? "" : RankedRules.Text(RankedRules.CanQueue(p));
+        }
+
         public static void ApplyLobby(DuelLobbyMsg m) { Lobby = m; lobbyDeadlineAt = Time.unscaledTime + m.MsLeft / 1000f; LobbyVersion++; CardDuelLobbyWindow.Sync(); }
 
         static void ClearLobby() { if (Lobby.Phase == 0) return; Lobby = default(DuelLobbyMsg); LobbyVersion++; CardDuelLobbyWindow.Sync(); }
@@ -141,6 +175,7 @@ namespace ZenoniaProto
                 case DuelFail.NoPick: return "That card cannot be taken";
                 case DuelFail.AccountAge: return "Card duels with cards at stake need an account at least 7 days old";
                 case DuelFail.SameAccount: return "You cannot duel your own other character";
+                case DuelFail.RankedLevel: return RankedRules.Text(RankedError.Level);
                 default: return "";
             }
         }

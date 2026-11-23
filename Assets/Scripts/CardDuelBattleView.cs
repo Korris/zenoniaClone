@@ -169,7 +169,7 @@ namespace ZenoniaProto
         static string CardName(int index) { CardDef c = CardTable.ByIndex(index); return c != null ? c.Name : "?"; }
 
         /// <summary>The stakes of this duel while it plays (empty without stakes).</summary>
-        static string WagerLine(DuelView v) { return v.HasWager && !v.Finished ? "Cards at stake: the winner takes 1 card of the loser's deck." : ""; }
+        static string WagerLine(DuelView v) { if (v.Ranked && !v.Finished) return "Ranked match: no cards at stake."; return v.HasWager && !v.Finished ? "Cards at stake: the winner takes 1 card of the loser's deck." : ""; }
 
         /// <summary>What happened to the cards once the match is over, in words (the banner's second paragraph). Empty without stakes.</summary>
         static string StakesResult(DuelView v)
@@ -221,10 +221,11 @@ namespace ZenoniaProto
             bool taken = v.PickedCard != DuelView.NoCard && v.WagerState >= DuelView.WagerSettling;
             bannerCard.Set(taken ? CardTable.ByIndex(v.PickedCard) : null, 0, false); // the card that changed hands, face up beside the words
             bannerSub.text = why + StakesResult(v);
+            DrawRankRow(v);
             bannerSub.alignment = taken ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter;
             float textX = taken ? 34f + BannerCardW + 12f : 34f; // the text makes room for the card
             bannerSubText.anchoredPosition = new Vector2(textX, bannerSubText.anchoredPosition.y);
-            bannerSubText.sizeDelta = new Vector2(MidW - 108f - (textX - 34f), bannerSubText.sizeDelta.y);
+            bannerSubText.sizeDelta = new Vector2(MidW - 108f - (textX - 34f), v.Ranked ? 50f : 86f); // a ranked result has no card text: the LP row sits under the score
             bool wait = v.WagerState == DuelView.WagerPicking; // the loser waits for the winner's pick: Continue stays grey meanwhile
             bannerButton.Set(wait ? "Please wait..." : "Continue", !wait);
         }

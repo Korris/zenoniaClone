@@ -234,6 +234,10 @@ namespace ZenoniaProto
                     DuelLobbyMsg dl;
                     if (ok = DuelLobbyMsg.TryRead(r, out dl)) DuelClient.ApplyLobby(dl);
                     break;
+                case NetOp.DuelRanked:
+                    DuelRankedMsg dr;
+                    if (ok = DuelRankedMsg.TryRead(r, out dr)) DuelClient.ApplyRanked(dr);
+                    break;
                 case NetOp.DuelNotice:
                     DuelNoticeMsg dn;
                     if (ok = DuelNoticeMsg.TryRead(r, out dn)) DuelClient.OnNotice(dn);

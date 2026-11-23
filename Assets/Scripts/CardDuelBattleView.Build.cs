@@ -208,6 +208,7 @@ namespace ZenoniaProto
             bannerSub = U.Txt(bannerRoot, "Sub", 34f, 176f, MidW - 108f, 86f, "", 16, U.Ink, TextAnchor.MiddleCenter);
             bannerSubText = bannerSub.rectTransform;
             bannerButton = new U.PieceButton(bannerRoot, "Continue", (MidW - 40f - 190f) * 0.5f, 292f, 190f, U.ButtonH, GemUiArt.Frame("btn-teal"), "Continue", () => DuelClient.Reset());
+            BuildRankRow();
             bannerRoot.gameObject.SetActive(false);
         }
     }

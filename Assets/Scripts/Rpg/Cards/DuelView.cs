@@ -28,6 +28,9 @@ namespace ZenoniaProto.Rpg
         public int WagerState, OppAwayMs, PickedCard = NoCard, PickMsLeft;
         /// <summary>True when the card was taken at random because the winner ran out of the 30 s.</summary>
         public bool PickedAtRandom;
+        /// <summary>A Ranked match (no cards at stake). Once it is over: LpChange = league points gained / lost, RankNotCounted = it did not count (the same pair too often today).</summary>
+        public bool Ranked, RankNotCounted;
+        public int LpChange;
         public readonly List<int> PickCards = new List<int>();
         public readonly List<DuelMove> Moves = new List<DuelMove>();
         public readonly List<int> Hand = new List<int>();

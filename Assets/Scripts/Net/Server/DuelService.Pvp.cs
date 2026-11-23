@@ -24,6 +24,11 @@ namespace ZenoniaProto
             public readonly string[][] Deck = new string[2][];      // the 8 staked cards of each side
             public readonly List<string>[] LockedKinds = { new List<string>(), new List<string>() };
             public bool Stakes, Ended, Closed;
+            // Ranked (DuelService.Ranked.cs): no stakes; the rank each side had when the match began and the LP each gained / lost, so the final result is always played from the same start
+            public bool Ranked, RankNotCounted;
+            public long StartedMs;
+            public readonly CardRankData[] RankBefore = new CardRankData[2];
+            public readonly int[] OppMmr = new int[2], LpChange = new int[2];
             public int StakeState;
             public DuelPickRound Pick;
             public DuelRng PickRng;
@@ -32,6 +37,7 @@ namespace ZenoniaProto
             {
                 DuelView v = Match.View(side, now);
                 v.WagerState = Stakes ? StakeState : DuelView.WagerNone;
+                v.Ranked = Ranked; v.LpChange = LpChange[side]; v.RankNotCounted = RankNotCounted;
                 if (Pick == null) return v;
                 v.PickMsLeft = Pick.MsLeft(now);
                 if (Pick.Done) { v.PickedCard = CardTable.Index(Pick.Picked); v.PickedAtRandom = Pick.AtRandom; }
@@ -50,7 +56,7 @@ namespace ZenoniaProto
 
         public void OnJoin(NetPlayer p)
         {
-            var e = new Entry { Player = p };
+            var e = new Entry { Player = p, RankDue = true };
             entries[p.PlayerId] = e;
             PvpRun run;
             if (!runByChar.TryGetValue(CharKey(p), out run) || run.Closed) return;
@@ -67,9 +73,11 @@ namespace ZenoniaProto
         {
             ushort id = e.Player.PlayerId;
             if (lobby.PhaseOf(id) != LobbyPhase.None && lobby.PhaseOf(id) != LobbyPhase.Starting) { lobby.Leave(id); Flush(now); }
+            queue.Remove(id);
             if (e.Pvp == null || e.Pvp.Closed) return;
             e.Pvp.Player[e.PvpSide] = null;
             if (e.Pvp.Match.Finished) return; // the match is decided: the pick timer and the settle go on without them
+            if (e.Pvp.Ranked) ProvisionalRankLoss(e.Pvp, e.PvpSide, e.Player); // the character is saved right after this call: a ranked player who never comes back has lost
             e.Pvp.Match.SetAway(e.PvpSide, now);
             Debug.Log("[ZenoniaProto] duel: " + e.Player.Name + " dropped out of a duel: " + (DuelPvpMatch.ReconnectMs / 1000) + " s to come back");
             SendBoth(e.Pvp, now);
@@ -108,6 +116,7 @@ namespace ZenoniaProto
         {
             deck = DeckError.None;
             if (Running(p.PlayerId)) return DuelFail.InDuel;
+            if (queue.Contains(p.PlayerId)) return DuelFail.Busy; // waiting in the Ranked line
             return EligibleToStart(p, out deck);
         }
 
@@ -238,7 +247,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Creates the match. `stakes` = both decks are in escrow (EscrowDeck already applied to each Owner). A side that is not online any more starts as dropped (60 s to come back).</summary>
-        void StartMatch(PvpSeat[] side, bool stakes, string matchId, long now)
+        void StartMatch(PvpSeat[] side, bool stakes, string matchId, long now, bool ranked = false)
         {
             var run = new PvpRun { MatchId = matchId ?? NewMatchId(), Stakes = stakes, StakeState = stakes ? DuelView.WagerHeld : DuelView.WagerNone, PickRng = new DuelRng(NewSeed()) };
             run.Match = DuelPvpMatch.Start(NetLaunchArgs.DevDuelSeed != 0UL ? NetLaunchArgs.DevDuelSeed : NewSeed(), side[0].Deck, side[1].Deck, side[0].Name, side[1].Name, now);
@@ -251,9 +260,10 @@ namespace ZenoniaProto
                 else run.Match.SetAway(s, now);
                 runByChar[run.Key[s]] = run;
             }
+            if (ranked) BeginRankedRun(run, side, now);
             runs.Add(run);
             stats.Add("pvpStarted", 1);
-            Debug.Log("[ZenoniaProto] duel: PvP " + side[0].Name + " vs " + side[1].Name + (stakes ? " (winner takes 1 card, " + run.MatchId + ")" : " (no cards at stake)"));
+            Debug.Log("[ZenoniaProto] duel: PvP " + side[0].Name + " vs " + side[1].Name + (stakes ? " (winner takes 1 card, " + run.MatchId + ")" : ranked ? " (RANKED, no cards at stake)" : " (no cards at stake)"));
             for (int s = 0; s < 2; s++) if (side[s].Player != null) lobby.Finish(side[s].Player.PlayerId);
             SendBoth(run, now);
             Flush(now);
@@ -314,6 +324,7 @@ namespace ZenoniaProto
             run.Ended = true;
             stats.Add("pvpFinished", 1);
             string result = run.Match.WagerResult;
+            if (run.Ranked) SettleRanked(run, result, now);
             if (!run.Stakes) { SendBoth(run, now); Close(run); return; }
             if (result == "draw") { SettleStakes(run, result, now); return; }
             int winner = result == "a" ? 0 : 1;

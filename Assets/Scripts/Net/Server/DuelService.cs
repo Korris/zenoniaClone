@@ -27,6 +27,7 @@ namespace ZenoniaProto
             public PvpRun Pvp;
             public int PvpSide;
             public long WindowStartMs; public int InWindow;
+            public bool RankDue; // the Ranked season message has not been sent yet (it goes out on the first tick, after the Welcome)
         }
 
         readonly Dictionary<ushort, Entry> entries = new Dictionary<ushort, Entry>();
@@ -73,6 +74,8 @@ namespace ZenoniaProto
                 case DuelOp.Forfeit: Forfeit(e, nowMs); break;
                 case DuelOp.Challenge: Challenge(e, m.Other, nowMs); break;
                 case DuelOp.TakeCard: TakeCard(e, m.A, nowMs); break;
+                case DuelOp.QueueRanked: QueueRanked(e, nowMs); break;
+                case DuelOp.LeaveQueue: LeaveRankedQueue(e, nowMs); break;
                 default: LobbyRequest(e, m, nowMs); break;
             }
         }
@@ -88,7 +91,7 @@ namespace ZenoniaProto
         {
             NetPlayer p = e.Player;
             if (Running(p.PlayerId)) { Refuse(p, DuelFail.InDuel); return; }
-            if (lobby.IsBusy(p.PlayerId)) { Refuse(p, DuelFail.Busy); return; }
+            if (lobby.IsBusy(p.PlayerId) || queue.Contains(p.PlayerId)) { Refuse(p, DuelFail.Busy); return; }
             var ids = new List<string>(m.Cards.Length);
             foreach (byte i in m.Cards)
             {
@@ -141,7 +144,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Once per tick: the lobby clocks, turn timeouts, the 60 s reconnect, the winner's 30 s pick, and the forfeit of a player who can no longer duel.</summary>
-        public void Tick(long now) { TickPvp(now); }
+        public void Tick(long now) { TickPvp(now); TickRanked(now); }
 
         static bool CanKeepDueling(HeroController h) { return h != null && !h.IsDead && h.HomeZone != null && h.HomeZone.Map != null && !h.HomeZone.Map.Hostile; }
 
