@@ -13,6 +13,8 @@
  *    one per user, not per character; _id is already the only lookup key, no extra index needed
  *  ledger{characterId, reqId, type, ...} audit trail of economy ops; a trade entry carries a unique tradeId, which is what makes a commit idempotent
  *    (an 'account' entry additionally carries userId and before/after currency snapshots, see services/account-service.js)
+ *  card_wagers{_id=matchId, status held|settled|refunded, zoneId, createdAt, expiresAt, a/b{characterId,userId,cardId}, result, settledAt, refundedAt, credited}
+ *    escrow of a Card Wager (services/card-wager-service.js); every move also writes a ledger row {type:'card_wager', action: escrow|settle|refund, matchId}
  */
 export async function ensureIndexes(db) {
   await db.collection('users').createIndex({ usernameLower: 1 }, { unique: true });
@@ -29,4 +31,10 @@ export async function ensureIndexes(db) {
   await db.collection('tickets').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
   await db.collection('ledger').createIndex({ characterId: 1, at: -1 });
   await db.collection('ledger').createIndex({ tradeId: 1 }, { unique: true, partialFilterExpression: { tradeId: { $type: 'string' } } });
+  await db.collection('card_wagers').createIndex({ status: 1, expiresAt: 1 });
+  await db.collection('card_wagers').createIndex({ status: 1, zoneId: 1 });
+  await db.collection('card_wagers').createIndex({ 'a.characterId': 1 });
+  await db.collection('card_wagers').createIndex({ 'b.characterId': 1 });
+  await db.collection('card_wagers').createIndex({ 'a.userId': 1, createdAt: -1 }); // daily limits count per account
+  await db.collection('card_wagers').createIndex({ 'b.userId': 1, createdAt: -1 });
 }

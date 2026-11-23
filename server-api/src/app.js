@@ -13,6 +13,7 @@ import { internalRoutes } from './routes/internal-routes.js';
 import { resetPageRoutes } from './routes/reset-page.js';
 import { createMailer } from './mail/mailer.js';
 import { createAccountService } from './services/account-service.js';
+import { createCardWagerService } from './services/card-wager-service.js';
 import { createCharacterService } from './services/character-service.js';
 
 /** Uniform [0,1) with 48 bits from the OS CSPRNG (enhance rolls must not be predictable). randomInt's range stops just short of 2^48, so the bytes are read directly. */
@@ -34,7 +35,9 @@ export function buildApp({ db, cfg, now = Date.now, rand = secureRandom, mailer,
     register: new RateLimiter({ max: cfg.REGISTER_IP_MAX, windowMs: cfg.REGISTER_IP_WINDOW_SEC * 1000, now }),
   };
   const characters = createCharacterService({ db, now, sessionLockSec: cfg.SESSION_LOCK_SEC, maxCharacters: cfg.MAX_CHARACTERS });
+  const wagers = createCardWagerService({ db, cfg, now, characters });
   const deps = {
+    wagers,
     db, cfg, now, rand, jwt, guards, limiters, characters,
     passwords: createPasswordService(cfg.BCRYPT_COST),
     refreshTokens: createRefreshTokenService({ db, ttlSec: cfg.REFRESH_TTL_SEC, now }),

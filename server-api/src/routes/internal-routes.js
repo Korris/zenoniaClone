@@ -2,10 +2,10 @@ import { ApiError, parse } from '../errors.js';
 import { applyOps } from '../rpg/inventory-ops.js';
 import { attemptEnhance, findDurabilityTamper, findEnhanceTamper } from '../rpg/enhance-logic.js';
 import { keepWantedDay } from '../rpg/wanted-day.js';
-import { accountGetSchema, accountWriteSchema, endSessionSchema, enhanceSchema, opsRequestSchema, redeemSchema, saveSchema, tradeCommitSchema } from '../schemas.js';
+import { accountGetSchema, accountWriteSchema, endSessionSchema, enhanceSchema, opsRequestSchema, redeemSchema, saveSchema, tradeCommitSchema, wagerEscrowSchema, wagerMatchParamsSchema, wagerSettleSchema } from '../schemas.js';
 
 /** Zone-server routes, guarded by the shared service key (x-service-key). Every write needs the session lock + the current rev. */
-export function internalRoutes(app, { cfg, characters, accounts, tickets, guards, rand }) {
+export function internalRoutes(app, { cfg, characters, accounts, tickets, guards, rand, wagers }) {
   const opts = { preHandler: guards.requireService };
   const noEnhanceTamper = (oldState, newState) => {
     const uid = findEnhanceTamper(oldState, newState);
@@ -20,6 +20,8 @@ export function internalRoutes(app, { cfg, characters, accounts, tickets, guards
   app.post('/internal/tickets/redeem', opts, async (req) => {
     const { ticket } = parse(redeemSchema, req.body);
     const { characterId } = await tickets.redeem(ticket);
+    // A card wager whose hold ran out (zone crash) gives the card back BEFORE the lock, so the state loaded below already has it. Never blocks the login.
+    await wagers.refundExpiredFor(characterId).catch((e) => req.log.error({ err: e, characterId }, 'card wager refund failed'));
     const { sessionId, doc } = await characters.lockSession(characterId, cfg.ZONE_ID);
     const account = await accounts.getOrCreate(doc.userId);
     return { sessionId, character: characters.full(doc), account: { rev: account.rev, state: account.state } };
@@ -35,6 +37,19 @@ export function internalRoutes(app, { cfg, characters, accounts, tickets, guards
   app.post('/internal/trades/commit', opts, async (req) => {
     const { tradeId, a, b } = parse(tradeCommitSchema, req.body);
     return characters.commitTrade(tradeId, a, b, stateGuard);
+  });
+
+  // Card Wager escrow: the wagered card leaves both characters before the duel. Retrying a matchId is safe. 403 wager_disabled when switched off.
+  app.post('/internal/card-wagers/escrow', opts, async (req) => {
+    const { matchId, a, b } = parse(wagerEscrowSchema, req.body);
+    return wagers.escrow(matchId, a, b, stateGuard);
+  });
+
+  // End of a wagered duel: the winner takes both cards, a draw gives each its own back. Idempotent per matchId (also works with the switch off).
+  app.post('/internal/card-wagers/:matchId/settle', opts, async (req) => {
+    const { matchId } = parse(wagerMatchParamsSchema, req.params);
+    const { result, a, b } = parse(wagerSettleSchema, req.body);
+    return wagers.settle(matchId, result, { a, b }, stateGuard);
   });
 
   // Atomic batch of inventory / equipment / currency changes (e.g. rare drop pickup, potion purchase).
@@ -78,7 +93,10 @@ export function internalRoutes(app, { cfg, characters, accounts, tickets, guards
   // A zone process just started: nobody can be online on it any more, whatever the locks say.
   app.post('/internal/zones/:zoneId/reset-sessions', opts, async (req) => {
     if (req.params.zoneId !== cfg.ZONE_ID) throw new ApiError(404, 'not_found', 'No such zone');
-    return { released: await characters.releaseZoneSessions(cfg.ZONE_ID) };
+    const released = await characters.releaseZoneSessions(cfg.ZONE_ID);
+    // Its duels are gone with it: held card wagers go back to their owners (the locks above are free now).
+    const refunded = await wagers.refundZone(cfg.ZONE_ID).catch((e) => { req.log.error({ err: e }, 'card wager zone refund failed'); return 0; });
+    return { released, refunded };
   });
 
   // Zone registry stub (phase 4 fills it).

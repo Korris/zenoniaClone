@@ -52,9 +52,31 @@ Sửa: `server-api/src/schemas.js` (schema 2 route), `server-api/src/config.js` 
 7. Build zone + deploy API (**server-api TRƯỚC, zone SAU**); thử 2 client: thắng / thua / hoà có cược, rút dây mạng người thua 70 s, tắt zone giữa ván rồi vào lại (card được hoàn).
 
 ## Todo List
-- [ ] API escrow / settle / refund + vitest   - [ ] redeem createdAt
+- [x] API escrow / settle / refund + vitest (23/11, server-api xong, 248 vitest pass, chưa deploy)   - [x] ~~redeem createdAt~~ KHÔNG cần: API tự kiểm tuổi tài khoản (`users.createdAt`) khi escrow
 - [ ] WagerRules + test   - [ ] DuelService.Pvp / Wager + messages
 - [ ] UI mời + panel cược   - [ ] Thưởng PvP / ngày   - [ ] Build + deploy + thử 3 kịch bản lỗi
+
+
+## Hợp đồng HTTP server-api (xong 23/11, cho zone gọi qua ZonePersistence / ZoneApiHttp)
+Header `x-service-key`. Mã code ở `src/rpg/card-wager-move.js`, `src/services/card-wager-service.js`. **Deploy server-api TRƯỚC zone.**
+`state` = SaveData đầy đủ giống `/save` (zod `stateSchema`); `sessionId` 32 hex; `matchId` 8-64 ký tự `[A-Za-z0-9._-]`; `cardId` thuộc 40 id card.
+
+**`POST /internal/card-wagers/escrow`** `{ matchId, a:{characterId, sessionId, rev, state, cardId}, b:{...} }` (state = đang giữ ở zone, như `trades/commit`)
+- 200 `{ replayed, status:'held', a:{rev, state}, b:{rev, state} }`: zone ÁP ngay rev + state mới (card đã bị bớt, rev+1) trước khi bắt đầu ván. Gửi lại cùng matchId -> `replayed:true` (rev/state hiện tại, không bớt lần 2; `status` có thể là settled / refunded).
+- 403 `wager_disabled` (`CARD_WAGER_ENABLED=false`). 409 `rev_conflict` (`details.currentRev`), `session_mismatch`, `wager_match_conflict` (matchId của trận khác). 400 `validation_error`.
+- 422: `wager_self` (cùng nhân vật hoặc cùng tài khoản), `wager_unknown_card`, `wager_boss_card`, `wager_rarity` (không phải N/R), `wager_rarity_mismatch`, `wager_level` (<30), `wager_no_spare` (không có lá thừa: khoá / trong deck / không sở hữu), `wager_account_age` (<7 ngày), `wager_daily_limit` (3 trận cược / ngày / tài khoản), `wager_pair_limit` (2 / ngày / cặp tài khoản), `wager_stack_full`, `wager_invalid`, `enhance_tamper`... Lỗi = không đổi gì ở cả 2 bên.
+- "Ngày" = ngày UTC, đếm từ chính các dòng `card_wagers` (held + settled; refunded không tính). Zone vẫn nên tự kiểm sớm (WagerRules) để ẩn nút, nhưng API là chốt cuối.
+
+**`POST /internal/card-wagers/:matchId/settle`** `{ result:'a'|'b'|'draw', a?:{sessionId, rev, state}, b?:{...} }`
+- `result` 'a'/'b' = bên đó thắng và nhận CẢ 2 lá; 'draw' = mỗi bên nhận lại lá của mình. Huỷ trận chưa bắt đầu = settle 'draw'.
+- Người nhận ĐANG ONLINE trên zone: gửi `a`/`b` (state hiện tại, rev hiện tại). Người nhận không gửi mà còn session sống -> 409 `receiver_online` (zone thử lại); không gửi và offline -> API tự ghi thẳng doc nhân vật. Bên thua không cần gửi gì.
+- 200 `{ replayed, status:'settled', result, credited:[{ side, characterId, cards:[cardId], rev, state }] }`: zone áp `rev` + `state` cho người nhận đang online. Replay (mất câu trả lời) trả `credited` với rev + state HIỆN TẠI trong DB: chỉ áp khi rev lớn hơn rev của zone.
+- 404 `not_found` (matchId lạ), 409 `wager_already_settled` (đã settle kết quả khác), `wager_refunded` (đã hoàn do quá hạn / zone reset), `rev_conflict`, `session_mismatch`, `receiver_online`. Vẫn chạy khi công tắc TẮT (card đang giữ phải về).
+- Card thừa 999 (stack đầy) bị cắt + ghi `overflow` vào ledger (escrow đã chặn trước bằng `wager_stack_full`).
+
+**Hoàn tự động** (không có route riêng): wager `held` quá `CARD_WAGER_HOLD_SEC` (mặc định 1800 s) được hoàn cho cả 2 bên ở lần `tickets/redeem` kế của MỘT trong hai nhân vật (trước khi khoá session, nên state trả về đã có card); `POST /internal/zones/:zoneId/reset-sessions` hoàn mọi wager `held` của zone đó (response thêm `refunded`). Hoàn chờ nếu một bên còn session sống. Hợp lệ giữ ván: hold 1800 s lớn hơn ván dài nhất + 60 s nối lại; zone không cần gia hạn.
+
+Dữ liệu: collection `card_wagers` `{_id=matchId, status, zoneId, createdAt, expiresAt, a/b:{characterId,userId,cardId}, result, settledAt, refundedAt, credited}`; ledger `{type:'card_wager', action:'escrow'|'settle'|'refund', matchId, characterId, userId, otherCharacterId, otherUserId, cardId, otherCardId, rev}`. Công tắc: env `CARD_WAGER_ENABLED` (mặc định true), `CARD_WAGER_HOLD_SEC`. Test: `server-api/test/card-wager.test.js` (16 test, gồm bất biến tổng card).
 
 ## Success Criteria
 - Tổng số card của 2 nhân vật + escrow không đổi qua mọi kịch bản (vitest kiểm bất biến).

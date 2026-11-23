@@ -2,6 +2,12 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 13:20 Card Monster phase 06 (phần server-api): cược card escrow (XONG code + 16 vitest, CHƯA deploy, zone chưa nối)
+- Làm xong: `POST /internal/card-wagers/escrow` + `POST /internal/card-wagers/:matchId/settle` (server-api), collection `card_wagers` + 6 index, ledger `type:'card_wager'`, công tắc `CARD_WAGER_ENABLED` (mặc định bật; tắt thì escrow 403 `wager_disabled`, settle vẫn chạy), `CARD_WAGER_HOLD_SEC` 1800. Hoàn quá hạn ở `tickets/redeem` (trước khoá session) và `reset-sessions` (trả thêm `refunded`). Luật: chỉ N/R cùng rarity, không boss/SR/SSR, lá thừa (không khoá / không trong deck), Lv30+, tài khoản >= 7 ngày, 3 trận cược / ngày / tài khoản, 2 / ngày / cặp (ngày UTC). Hợp đồng HTTP đầy đủ trong `plans/261123-1125-monster-card-gem-duel/phase-06-pvp-duel-card-wager.md` mục "Hợp đồng HTTP server-api".
+- Test: vitest 248 pass (16 mới: `server-api/test/card-wager.test.js`, gồm bất biến tổng card). Không đụng C# / Unity.
+- **CẦN DEPLOY server-api TRƯỚC khi dựng zone phase 06** (zone gọi 2 route mới).
+- Chưa làm (zone, sau phase 05): `WagerRules.cs`, `ZonePersistence` / `ZoneApiHttp` 2 call mới, `DuelService.Wager`, UI mời + panel cược, thưởng PvP / ngày. Zone cần áp `rev + state` trả về từ escrow / settle (như `TradeBook.FinishCommit`) và thử lại settle khi 409 `receiver_online` / lỗi mạng.
+
 ### 23/11 12:50 Card Monster phase 03: cửa sổ Card (My Cards + Monster Album + host 3 trang ngọc) + sửa review phase 04 (XONG code + UI offline, CHƯA deploy, CHƯA kiểm online)
 - Làm xong: `CardWindow` (menu trái 6 mục, host `GemPage`; xoá `GemWindow` + phím F8), `CardMyCardsPage` (lọc Rarity / Area dạng nút bấm đổi giá trị + chip ATK/DEF/HP/Utility, lưới 4x3, khoá / In Deck, chi tiết, Add to Deck tắt tới phase 05, Sell có hộp xác nhận, Lock Card, View in Album), `CardAlbumPage` (thanh x / 40, 4 mốc + Claim, 11 tab vùng chia 2 hàng 6 + 5, lưới 6x2 x 4 trang, quái chưa có = bóng đen + "?"), `CardDetailPanel` / `CardPageWidgets` / `CardConfirmBox` dùng chung. Mục Cards trong cột More của HUD (`UiScreen.Card`). Card Duel: hiện xám "(coming soon)", bấm chỉ ra toast (`CardWindow.DuelReady` = false, phase 05 bật).
 - Op mới: `InvOp.AlbumClaim = 30` (Slot = mốc), `CardSell = 31` (ItemUid = card id, Slot = số lá; chỉ lá thừa, giá `CardFees.Sell`, từ chối khi Gold chạm trần), `CardLock = 35` (Slot 1 khoá mọi lá ngoài deck / 0 mở khoá). `InvOpInfo.Last` = CardLock. **`NetProtocol.Version` 29** (client cũ bị từ chối).

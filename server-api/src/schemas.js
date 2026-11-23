@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CLASS_IDS, MAX_INT } from './rpg/rpg-constants.js';
+import { APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CARD_IDS, CLASS_IDS, MAX_INT } from './rpg/rpg-constants.js';
 import { opsSchema } from './rpg/inventory-ops.js';
 import { stateSchema } from './rpg/item-validation.js';
 import { accountStateSchema } from './rpg/account-validation.js';
@@ -54,6 +54,11 @@ const tradeSide = z.object({
   giveGold: z.number().int().min(0).max(MAX_INT),
 });
 export const tradeCommitSchema = z.object({ tradeId: reqId, a: tradeSide, b: tradeSide });
+const wagerSide = z.object({ characterId: z.string().length(24), sessionId, rev, state: stateSchema, cardId: z.enum(CARD_IDS) });
+export const wagerEscrowSchema = z.object({ matchId: reqId, a: wagerSide, b: wagerSide });
+const wagerReceiver = z.object({ sessionId, rev, state: stateSchema }); // a receiver that is online on the zone
+export const wagerSettleSchema = z.object({ result: z.enum(['a', 'b', 'draw']), a: wagerReceiver.optional(), b: wagerReceiver.optional() });
+export const wagerMatchParamsSchema = z.object({ matchId: reqId });
 export const endSessionSchema = z.object({ characterId: z.string().length(24) });
 
 export const accountGetSchema = z.object({ sessionId });
