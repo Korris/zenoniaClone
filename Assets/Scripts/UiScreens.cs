@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>The screens of the Adventure Paper rebuild. Bag, Skill, Pet, Gacha and Wanted (the board) open as windows; Chat, Hud and Boss only have a look to pick.</summary>
-    public enum UiScreen { Bag, Skill, Pet, Gacha, Chat, Hud, Boss, Wanted }
+    public enum UiScreen { Bag, Skill, Pet, Gacha, Chat, Hud, Boss, Wanted, Card }
 
     /// <summary>
     /// One switch per screen between the old window and its Adventure Paper rebuild, and the only place that opens / closes those windows:
@@ -56,6 +56,7 @@ namespace ZenoniaProto
                 case UiScreen.Skill: SkillTreeWindow.Open(Root); break;
                 case UiScreen.Pet: if (PetRoWindow.Wanted) PetRoWindow.Open(); else PetWindow.Open(); break; // RO Soft (default) or the classic window
                 case UiScreen.Gacha: PetGachaWindow.Open(); break;
+                case UiScreen.Card: CardWindow.Open(); break; // the Monster Card window (My Cards, Album, Soul Gems)
                 case UiScreen.Wanted: if (RoHud.Active) WantedBoardWindow.Open(); break; // RO Soft HUD: its compact board (RoWantedBoard) without the paper switch
             }
         }
@@ -71,6 +72,7 @@ namespace ZenoniaProto
                 case UiScreen.Skill: SkillTreeWindow.Close(); break;
                 case UiScreen.Pet: PetWindow.Close(); PetRoWindow.Close(); break;
                 case UiScreen.Gacha: PetGachaWindow.Close(); break;
+                case UiScreen.Card: CardWindow.Close(); break;
                 case UiScreen.Wanted: RoWantedBoard.Close(); break;
             }
         }
@@ -85,6 +87,7 @@ namespace ZenoniaProto
                 case UiScreen.Skill: return SkillTreeWindow.IsOpen;
                 case UiScreen.Pet: return PetWindow.IsOpen || PetRoWindow.IsOpen;
                 case UiScreen.Gacha: return PetGachaWindow.IsOpen;
+                case UiScreen.Card: return CardWindow.IsOpen;
                 default: return false;
             }
         }

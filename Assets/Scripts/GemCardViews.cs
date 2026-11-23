@@ -14,7 +14,7 @@ namespace ZenoniaProto
     public sealed class GemCardView
     {
         public readonly RectTransform Root;
-        readonly Image portrait, frame, badge, select, tag;
+        readonly Image portrait, frame, badge, select, tag, unknown;
         readonly Text top, right, bottom, left, count, name;
         readonly float w, h;
         readonly bool barName;
@@ -33,8 +33,10 @@ namespace ZenoniaProto
             this.name = U.Txt(card, "Name", w * 0.06f, h * 0.835f, w * 0.88f, h * 0.11f, "", Mathf.Max(10, s - 1), U.Ink, TextAnchor.MiddleCenter);
             tag = Piece(card, "CountTag", w * 0.55f, h * 0.60f, w * 0.4f, w * 0.19f);
             count = U.Txt(card, "Count", w * 0.55f, h * 0.60f, w * 0.4f, w * 0.19f, "", Mathf.Max(11, s), Color.white, TextAnchor.MiddleCenter);
+            unknown = Piece(card, "Unknown", w * 0.3f, h * 0.27f, w * 0.4f, h * 0.3f);
             select = Piece(Root, "Select", -4f, -4f, w + 8f, h + 8f);
-            if (showName) { Text n = U.Txt(Root, "Caption", 0f, h + 1f, w, 18f, "", U.TextSmall, U.Ink, TextAnchor.MiddleCenter); caption = n; }
+            // the caption is wider than the card so a long name (Frostfang King) stays on one line
+            if (showName) { Text n = U.Txt(Root, "Caption", -10f, h + 1f, w + 20f, 18f, "", U.TextSmall, U.Ink, TextAnchor.MiddleCenter); caption = n; }
             if (onClick != null) { UiWinKit.MakeButton(frame, onClick); frame.raycastTarget = true; }
         }
 
@@ -71,6 +73,24 @@ namespace ZenoniaProto
             count.text = owned > 0 ? "x" + owned : "";
             GemUiArt.SetPiece(select, selected ? "cards/card/select-frame-gold" : null);
             frame.color = dim ? new Color(1f, 1f, 1f, 0.55f) : Color.white;
+            unknown.color = Color.clear;
+        }
+
+        /// <summary>A card the character never owned (Album): grey frame, the portrait as a dark silhouette with the "?" piece over it, no numbers, no name.</summary>
+        public void SetUnknown(CardDef c, bool selected)
+        {
+            Root.gameObject.SetActive(c != null);
+            if (c == null) return;
+            Sprite p = GemUiArt.Portrait(c);
+            portrait.sprite = p; portrait.preserveAspect = true; portrait.color = p != null ? new Color(0.13f, 0.14f, 0.18f, 0.92f) : Color.clear;
+            GemUiArt.SetPiece(frame, "cards/card/card-frame-n");
+            frame.color = new Color(0.62f, 0.64f, 0.7f, 1f);
+            GemUiArt.SetPiece(badge, null);
+            top.text = right.text = bottom.text = left.text = "";
+            name.text = caption == null && barName ? "???" : ""; if (caption != null) caption.text = "???";
+            GemUiArt.SetPiece(tag, null); count.text = "";
+            GemUiArt.SetPiece(unknown, GemUiArt.Icon("icon-unknown"));
+            GemUiArt.SetPiece(select, selected ? "cards/card/select-frame-gold" : null);
         }
     }
 

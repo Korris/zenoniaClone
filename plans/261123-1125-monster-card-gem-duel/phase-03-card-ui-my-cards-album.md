@@ -7,7 +7,7 @@
 - Dữ liệu: phase 01 (`CardTable`, `CardCollection`)
 
 ## Overview
-P1, pending. Cửa sổ Card có menu trái chung 6 mục (My Cards / Monster Album / Convert to Soul Gem / Gem Socketing / Gem Removal / Card Duel); phase này làm 2 trang đầu, 4 mục kia hiện nhưng mở trang "sắp có" cho tới phase 04/05. Thêm nút Claim mốc album, bán card cho NPC (câu hỏi 2 plan.md).
+P1, **code + UI xong 23/11 (offline); chưa deploy, chưa kiểm online**. Cửa sổ Card có menu trái chung 6 mục (My Cards / Monster Album / Convert to Soul Gem / Gem Socketing / Gem Removal / Card Duel); phase này làm 2 trang đầu, 4 mục kia hiện nhưng mở trang "sắp có" cho tới phase 04/05. Thêm nút Claim mốc album, bán card cho NPC (câu hỏi 2 plan.md).
 
 ## Key Insights
 - Đã có hệ mở cửa sổ duy nhất `UiScreens`: thêm `UiScreen.Card`, cửa sổ tự Register; mở từ cột More của `RoHudMenu` (không thêm nút thường trực HUD, theo "Đã chốt").
@@ -45,8 +45,19 @@ Sửa: `UiScreens.cs` (enum Card), `RoHudMenu.cs` (mục Cards trong More), `Net
 7. Chụp 1280x720 + mobile, so mockup, đo padding (mục 2 ui-layout-rules).
 
 ## Todo List
-- [ ] CardArt / CardWidgets   - [ ] CardWindow + menu trái   - [ ] My Cards   - [ ] Album + Claim
-- [ ] InvOp AlbumClaim / CardSell + test   - [ ] Toast   - [ ] Ảnh so mockup
+- [x] CardPageWidgets / CardDetailPanel (dùng lại `GemCardView`, `GemUiArt`, `GemUiWidgets`)   - [x] CardWindow + menu trái (host 3 trang ngọc, xoá GemWindow + F8)   - [x] My Cards   - [x] Album + Claim
+- [x] InvOp AlbumClaim 30 / CardSell 31 / CardLock 35 + test (`CardSellAlbumClaimTests`, `MessageRoundTripTests`)   - [x] Hộp xác nhận (Sell / Convert SR+ / Socket)
+- [x] Mục Cards ở cột More (`UiScreen.Card`)   - [x] Ảnh so mockup: `docs/reference/card-gem-ui/phase-03-shots/`
+- [ ] Kiểm online (claim / sell / lock qua zone thật)   - [ ] Toast nhận card dùng khung `toast-card` (toast hiện giữ nguyên `RpgHud.Toast`)
+
+## Làm khác kế hoạch
+- Không tách `CardWindow.MyCards.cs` / `.Album.cs`: là các lớp `CardMyCardsPage` / `CardAlbumPage` (cùng gốc `GemPage` với 3 trang ngọc để vỏ host chung). `CardDetailPanel` dùng chung hai trang; `CardArt` không cần (đã có `GemUiArt`).
+- Thêm `InvOp.CardLock = 35` (Lock Card cần server quyết). Bán mỗi lần 1 lá, có hộp xác nhận. Version 29.
+- Dropdown Rarity / Area của mockup thành nút bấm đổi giá trị (kit không có art dropdown). Nhãn "On Market" bỏ. Không có ô Gems.
+- Vùng: game có 10 id map (Rootburrow đã gộp 3 tầng): Album có tab All + 10 vùng chia 2 hàng (6 + 5) thay vì cuộn; My Cards lọc vùng bằng nút đổi giá trị.
+- Mốc Album: nhãn thưởng ngắn (5,000 G / Title / Frame / Master); nút Claim chung nhận mốc đạt đầu tiên chưa nhận.
+- Card Duel: mục menu xám "(coming soon)", `CardWindow.DuelReady` phase 05 bật.
+- Còn dùng `RpgHud.Toast` cho toast nhận card (khung `toast-card` chưa gắn).
 
 ## Success Criteria
 - Mở từ HUD More -> Cards; Esc đóng; hero đứng yên khi mở (modal như cửa sổ khác).

@@ -73,7 +73,7 @@ namespace ZenoniaProto
             foreach (GemEntry g in p.Cards.Gems) sb.Append('#').Append(g.id).Append(g.kind).Append(g.locked ? 'l' : 'f').Append(g.n);
             foreach (Item i in p.Inventory) if (i.sockets != null && i.sockets.Count > 0) sb.Append('@').Append(i.uid).Append(string.Join(",", i.sockets));
             foreach (string slot in Slots.All) { Item e = p.GetEquipped(slot); if (e != null) { sb.Append('^').Append(e.uid); if (e.sockets != null && e.sockets.Count > 0) sb.Append(string.Join(",", e.sockets)); } }
-            sb.Append(p.Inventory.Count);
+            sb.Append(p.Inventory.Count).Append('~').Append(p.Cards.AlbumClaimed).Append('/').Append(p.Cards.AlbumCount).Append('/').Append(p.Cards.Deck.Count);
             return sb.ToString();
         }
 

@@ -9,7 +9,7 @@ namespace ZenoniaProto
     /// Round menu buttons of the RO Soft HUD (02-hud.png), top centre-right left of the minimap: Bag, Skills, Pet, Quest, More, each an
     /// ivory plate with its painted icon and the English caption under it. Badges: a red dot-badge on Bag for an unseen item
     /// (NewItemFlags), the free skill points on Skills, the red "!" on Quest when a quest waits to be handed in. More opens a small column
-    /// under it with Gacha and Settings. Bag / Skills / Pet press their GameKey, so they open exactly what the keys open (UiScreens: the
+    /// under it with Gacha, Cards (the Monster Card window) and Settings. Bag / Skills / Pet press their GameKey, so they open exactly what the keys open (UiScreens: the
     /// current Bag window, whichever look it has); Quest and Settings open their windows.
     /// </summary>
     public sealed class RoHudMenu
@@ -38,12 +38,13 @@ namespace ZenoniaProto
             skillCount = RoHud.Label(UiKit.Fill(skillBadge.transform, "Count"), "", 11, Color.white, TextAnchor.MiddleCenter);
             itemBadge.SetActive(false); questBadge.SetActive(false); skillBadge.SetActive(false);
 
-            // More: a short column under the More button (Gacha, Settings), closed by a second tap or after a choice.
-            more = RoHud.Box(root, "MoreColumn", RoHud.TopRight, 0f, 0f, 104f, 66f);
+            // More: a short column under the More button (Gacha, Cards, Settings), closed by a second tap or after a choice.
+            more = RoHud.Box(root, "MoreColumn", RoHud.TopRight, 0f, 0f, 104f, 100f);
             more.pivot = RoHud.TopRight;
             more.anchoredPosition = new Vector2(0f, -(RoHud.MenuTop + Plate + CaptionH + 6f)); // right-aligned under More
             MoreItem("Gacha", 0, "hud-icon-gacha", () => { CloseMore(); TouchControls.Press(GameKey.PetGacha); }); // G on PC
-            MoreItem("Settings", 1, "hud-icon-settings", () => { CloseMore(); SettingsWindow.Open(); });
+            MoreItem("Cards", 1, "hud-icon-cards", () => { CloseMore(); UiScreens.Toggle(UiScreen.Card); });
+            MoreItem("Settings", 2, "hud-icon-settings", () => { CloseMore(); SettingsWindow.Open(); });
             more.gameObject.SetActive(false);
             moreBtn.SetAsLastSibling();
         }
