@@ -2,6 +2,12 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 08:10 TẠM DỪNG (người dùng tắt máy) — card + ngọc UI đang vẽ lại dở
+- Agent vẽ UI card/ngọc (ChatGPT tài khoản Tay, chat https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0) bị dừng giữa chừng. Đang làm vòng sửa thứ 4 theo người dùng: (a) trả lại phần bị mất: nút Add to Deck / Sell ở màn card, thanh mốc thưởng + Claim ở album và tổng về 40 loại, 4 số hướng trên mặt card ở màn 1-3, dòng "ngọc vẫn khoá giao dịch" ở màn tháo, độ hiếm Poring thống nhất; (b) giữ bộ lọc ngọc ATK / DEF / HP / Utility và menu trái chung; (c) ĐỔI TÊN QUÁI + TÊN VÙNG RO sang quái/map của game mình ở cả 7 màn (kể cả 6a/6b), dùng `docs/reference/card-gem-ui/our-monsters-contact-sheet.png`.
+- Trạng thái file lúc dừng: 01, 02, 04 đã ghi đè bằng bản mới của vòng này (CHƯA rõ đã đủ (a)+(c) chưa, phải mở xem); 03, 05, 06a, 06b chưa vẽ lại. design-notes-chatgpt.md chưa cập nhật vòng này. Làm tiếp: xem 01/02/04, rồi vẽ tiếp 03 → 05 → 06a → 06b theo (a)-(c); để ChatGPT tự quyết bố cục (memory: đừng ra lệnh cách vẽ).
+- Câu hỏi còn mở cho người dùng (từ các vòng trước): giữ style Fantasy hay đổi Adventure cho khớp nhánh; duyệt phí chuyển hoá / tháo, mốc album, thưởng PvP; ngọc đã khảm khoá giao dịch vĩnh viễn; đấu card có Ranked / cược card không; mở đấu card ở NPC làng hay nút HUD.
+- Cũng dở từ 22/11: bản build gộp mới nhất `C:\temp\player-all-261122d\Zenonia-3D.bat` (zoom con lăn PC đã sửa, chưa ai xác nhận trong game); cột sáng cổng 3D có cần sáng hơn không; map 3D có bật mặc định không (`--map2d`); 2 test FrostHollowLargeMapTests vẫn fail; server cần build lại. Bản sao build ở `D:\temp\zu-copy` (giữ để build nhanh).
+
 ### 23/11 06:45 Card + ngọc UI design (ChatGPT) (XONG mockup, CHỜ người dùng xem)
 - Chat Tay: https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0 (cùng chat card RO3 bên dưới; người dùng đã chốt trong chat: Card → Soul Gem Power/Guard → khảm, tháo giữ ngọc; đấu card 4×4 kiểu FF8/FF9, 8 lá mỗi bên).
 - ChatGPT tự quyết flow + bố cục, vẽ 7 màn RO Soft Fantasy: `docs/reference/card-gem-ui/01-card-menu.png`, `02-card-album.png`, `03-card-to-gem.png`, `04-gem-socket.png`, `05-gem-remove.png`, `06a-card-duel-deck.png`, `06b-card-duel-battle.png`. Luật, điểm yếu, câu hỏi mở: `docs/reference/card-gem-ui/design-notes-chatgpt.md`.
