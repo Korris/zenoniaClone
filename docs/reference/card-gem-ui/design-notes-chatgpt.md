@@ -61,10 +61,16 @@ Vòng 4 (23/11, người dùng): trả lại phần bị mất (Add to Deck / Se
 - Lọc ngọc ATK / DEF / HP / Utility thay cho Power / Guard.
 - Màn 6b: card đang chọn (Horn Rabbit) không có trong tay bài; bộ đếm 8/8 không giảm khi đã đặt 3 lá.
 
-## Câu hỏi mở cho người dùng
+## Đã chốt (23/11 11:20)
 
-1. Giữ style Fantasy như ảnh hay vẽ lại sang Adventure cho khớp nhánh hiện tại?
-2. Đồng ý bộ phí / mốc album / thưởng PvP của ChatGPT không (chỉ là số đề xuất)?
-3. Ngọc khảm khoá giao dịch vĩnh viễn: được không?
-4. Đấu card có Ranked (V2) và cược card không?
-5. Card Duel mở ở đâu: NPC trong làng hay nút trên HUD?
+Người dùng: giữ style RO Soft **Fantasy**; duyệt bộ phí chuyển hoá / tháo, mốc album, thưởng PvP ở trên; đấu card CÓ Ranked và CÓ cược card. Câu 3 và 5 để ChatGPT quyết:
+
+**Khoá giao dịch ngọc (ChatGPT):** giữ khoá vĩnh viễn sau lần khảm đầu, kể cả khi tháo; card chưa chuyển hoá và ngọc chưa khảm bán tự do; không có vật phẩm mở khoá (kể cả nạp). Lý do: giữ nhu cầu săn card, ngọc không lưu thông vô hạn, khó chuyển ngọc giữa tài khoản để bán ngoài game. Khoá không tự chặn bot / RMT: cần thêm giới hạn đăng bán cho tài khoản mới, log chuyển hoá / khảm / tháo, phát hiện giao dịch bất thường.
+
+**Chỗ mở đấu card (ChatGPT):** kết hợp. NPC Card Master ở Willowbrook: hướng dẫn, đấu NPC, luật, nhận thưởng album / đấu. Menu tính năng "Card Duel": deck, lịch sử, thách bạn, Ranked ở mọi map an toàn. Không thêm nút thường trực trên HUD. Không mở trận khi đang đánh, ở Wanted Boss hay trong dungeon.
+
+**Ranked (ChatGPT):** mùa 30 ngày, reset một phần điểm; 5 bậc Bronze → Silver → Gold → Platinum → Diamond; cần xong tutorial, Lv20+, deck 8 lá hợp lệ; ghép theo MMR ẩn ±150, sau 30 s nới dần, không ghép bạn bè; thắng +20..30, thua −15..25, hoà 0, bỏ trận = thua; thưởng Gold như PvP (300 / 100 / 150, tối đa 5 trận / ngày), cuối mùa thưởng danh hiệu, khung avatar, hiệu ứng card, đồ trang trí (không tăng sức mạnh); trận dàn xếp không tính điểm, theo dõi cặp đấu lặp / cố tình thua.
+
+**Cược card (Card Wager, ChatGPT):** chỉ PvP thường, KHÔNG trong Ranked. Mỗi bên cược đúng 1 card, chỉ N hoặc R, hai lá cùng độ hiếm; không cược Gold / ngọc / pet / SR / SSR / boss / card khoá / card đang trên chợ; card cược không cần nằm trong deck. Hai bên xem card, Lock rồi Confirm, đổi card thì huỷ xác nhận cả hai. Thắng lấy cả 2, thua mất, hoà trả lại. Server giữ 2 card (escrow) trước trận, chuyển chủ bằng transaction nguyên tử. Rớt mạng có 60 s nối lại rồi xử thua. Chống chuyển đồ: Lv30+, tài khoản ≥ 7 ngày, tối đa 3 trận cược / ngày, log mọi lần chuyển, cảnh báo cặp cố tình thua; có công tắc tắt tính năng. ChatGPT lưu ý kiểm tra luật pháp từng thị trường về cược vật phẩm có giá trị.
+
+Ngoài ra ChatGPT vẽ thêm 1 bản 6b "logic fixed" (tỉ số 3-3 đúng, nhưng nó tự nhận mỹ thuật đơn giản hơn), chưa tải về.

@@ -8,7 +8,7 @@
 
 ### 23/11 11:15 Card + ngọc UI vòng 4 (XONG, CHỜ người dùng xem)
 - Chat Tay https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0 (Chrome "Browser 3"; Browser 1 là xaochai, Browser 2 là Tan Pham). Đã vẽ lại đủ 7 màn `docs/reference/card-gem-ui/` theo (a) trả phần bị mất, (b) giữ lọc ATK/DEF/HP/Utility + menu chung, (c) quái / vùng của game. Mô tả + điểm yếu còn lại: `design-notes-chatgpt.md` (menu xanh ở 01/06 vs vàng ở 02-05; số hướng lệch giữa màn; 6b log / tỉ số sai).
-- Câu hỏi còn mở cho người dùng (từ các vòng trước): giữ style Fantasy hay đổi Adventure cho khớp nhánh; duyệt phí chuyển hoá / tháo, mốc album, thưởng PvP; ngọc đã khảm khoá giao dịch vĩnh viễn; đấu card có Ranked / cược card không; mở đấu card ở NPC làng hay nút HUD.
+- 23/11 11:20 người dùng + ChatGPT đã chốt hết câu hỏi mở (Fantasy, duyệt số, ngọc khảm khoá vĩnh viễn, có Ranked + cược card N/R ngoài Ranked, mở đấu ở NPC Card Master Willowbrook + menu tính năng): xem mục "Đã chốt" trong `design-notes-chatgpt.md`. Bước tiếp: lên plan code (server + client) khi người dùng bảo làm.
 - Cũng dở từ 22/11: bản build gộp mới nhất `C:\temp\player-all-261122d\Zenonia-3D.bat` (zoom con lăn PC đã sửa, chưa ai xác nhận trong game); cột sáng cổng 3D có cần sáng hơn không; map 3D có bật mặc định không (`--map2d`); 2 test FrostHollowLargeMapTests vẫn fail; server cần build lại. Bản sao build ở `D:\temp\zu-copy` (giữ để build nhanh).
 
 ### 23/11 06:45 Card + ngọc UI design (ChatGPT) (XONG mockup, CHỜ người dùng xem)
