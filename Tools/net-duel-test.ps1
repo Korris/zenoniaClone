@@ -11,6 +11,8 @@
     nopick  the challenger wins and does not pick: the server takes a random card of the rival's deck at 30 s
     ranked  two clients queue for Ranked (no cards, no escrow), play one match, and log the LP; the server matches them by MMR
     ranked3 the same pair plays three Ranked matches: the third does not count for LP (anti-collusion); the server logs it
+    rankeddc both drop out of one Ranked match (the rival after 3 placements, the challenger after 4): the rival loses first at 60 s, so the OFFLINE challenger wins; both log in again and "peek" at their rank:
+            the challenger must show the win (+LP, W 1), the rival the loss (phase 07 fix H1: a result parked while offline is applied at login)
   Prints every "duel-e2e:" line of both clients and every duel line of the server. Needs a player built from a copy (Tools/build-from-copy.ps1).
 .EXAMPLE
   .\Tools\net-duel-test.ps1 -Exe C:\temp\player-cards-p6b\Zenonia.exe -OutDir C:\temp\duel-test -Scenario win
@@ -18,7 +20,7 @@
 param(
   [Parameter(Mandatory = $true)][string]$Exe,
   [string]$OutDir = "duel-test-out",
-  [ValidateSet("win", "lose", "draw", "drop", "rejoin", "nopick", "ranked", "ranked3")][string]$Scenario = "win",
+  [ValidateSet("win", "lose", "draw", "drop", "rejoin", "nopick", "ranked", "ranked3", "rankeddc")][string]$Scenario = "win",
   [int]$Port = 7792,
   [string]$DevKey = "k",
   [int]$TimeoutSeconds = 240
@@ -43,18 +45,25 @@ $rivalExtra = @(); if ($Scenario -eq "drop") { $rivalExtra = @("--duel-drop", 3)
 $challengerExtra = @(); if ($Scenario -eq "nopick") { $challengerExtra = @("--duel-nopick") }
 if ($Scenario -eq "lose") { $rivalExtra = @("--duel-pick", "caveMantis") }
 if ($Scenario -like "ranked*") { $n = if ($Scenario -eq "ranked3") { 3 } else { 1 }; $rivalExtra = @("--duel-ranked", $n); $challengerExtra = @("--duel-ranked", $n) }
+if ($Scenario -eq "rankeddc") { $rivalExtra = @("--duel-ranked", 1, "--duel-drop", 3); $challengerExtra = @("--duel-ranked", 1, "--duel-drop", 4) }
 $rival = Start-Client "Rival" "wizard" "rival" "Rival" $rivalExtra
 Start-Sleep -Seconds 2
 $challenger = Start-Client "Challenger" "warrior" "challenger" "Challenger" $challengerExtra
-$rival2 = $null
+$rival2 = $null; $challenger2 = $null
 $end = (Get-Date).AddSeconds($TimeoutSeconds)
 while ((Get-Date) -lt $end) {
   if ($Scenario -eq "rejoin" -and $null -eq $rival2 -and $rival.HasExited) { Start-Sleep -Seconds 12; $rival2 = Start-Client "Rival" "wizard" "rival" "Rival2" @("--duel-resume") }
   $rivalDone = if ($Scenario -eq "rejoin") { ($null -ne $rival2) -and $rival2.HasExited } else { $rival.HasExited }
+  if ($Scenario -eq "rankeddc") {
+    # both clients dropped: the rival (away first) forfeits at 60 s, the offline challenger wins. Both come back and only look at their rank.
+    if ($null -eq $rival2 -and $rival.HasExited -and $challenger.HasExited) { Start-Sleep -Seconds 75; $rival2 = Start-Client "Rival" "wizard" "rival" "Rival2" @("--duel-rank-peek"); $challenger2 = Start-Client "Challenger" "warrior" "challenger" "Challenger2" @("--duel-rank-peek") }
+    if ($null -ne $rival2 -and $rival2.HasExited -and $challenger2.HasExited) { break }
+    Start-Sleep -Seconds 1; continue
+  }
   if ($challenger.HasExited -and $rivalDone) { break }
   Start-Sleep -Seconds 1
 }
 Start-Sleep -Seconds 2
-foreach ($p in @($challenger, $rival, $rival2, $server)) { if ($null -ne $p -and -not $p.HasExited) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue } }
-foreach ($n in "Challenger", "Rival", "Rival2") { if (Test-Path "$OutDir\$n.log") { Write-Host "== $n"; Select-String -Path "$OutDir\$n.log" -Pattern "duel-e2e:" | ForEach-Object { $_.Line -replace '^.*duel-e2e: ', '  ' } } }
+foreach ($p in @($challenger, $rival, $rival2, $challenger2, $server)) { if ($null -ne $p -and -not $p.HasExited) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue } }
+foreach ($n in "Challenger", "Rival", "Rival2", "Challenger2") { if (Test-Path "$OutDir\$n.log") { Write-Host "== $n"; Select-String -Path "$OutDir\$n.log" -Pattern "duel-e2e:" | ForEach-Object { $_.Line -replace '^.*duel-e2e: ', '  ' } } }
 Write-Host "== server"; Select-String -Path "$OutDir\server.log" -Pattern "\] (duel|ranked):" | ForEach-Object { $_.Line }

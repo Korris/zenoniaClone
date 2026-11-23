@@ -40,6 +40,8 @@ namespace ZenoniaProto
         public static int DevGold;
         /// <summary>--dev-cards (test servers only): every new hero gets 3 copies of 8 cards and them as a saved duel deck, to play Card Duels without grinding drops.</summary>
         public static bool DevCards;
+        /// <summary>Server switch (--no-ranked): Ranked is off, nobody can queue (the saved ranks stay). RankedRules.Enabled is set from it.</summary>
+        public static bool NoRanked;
         /// <summary>Server test hook (--dev-duel-seed N): every PvP duel is dealt from this seed, so a test can replay a known result (a draw). 0 = random. Never set on a public server.</summary>
         public static ulong DevDuelSeed;
         /// <summary>Server test hook (--dev-items N, at most a full bag): every new hero starts with this many bag items, the first an enhanced weapon of its class; 0 = off. Never set on a public server.</summary>
@@ -101,6 +103,8 @@ namespace ZenoniaProto
             DevNoCooldowns = HasFlag("--dev-no-cooldowns");
             DevGold = Math.Max(0, Int(a, "--dev-gold", 0));
             DevCards = HasFlag("--dev-cards");
+            NoRanked = HasFlag("--no-ranked");
+            if (NoRanked) Rpg.RankedRules.Enabled = false;
             ulong ds; DevDuelSeed = ulong.TryParse(Arg(a, "--dev-duel-seed"), out ds) ? ds : 0UL;
             DevItems = Math.Max(0, Math.Min(Rpg.PlayerState.InventorySize, Int(a, "--dev-items", 0)));
             float pa;

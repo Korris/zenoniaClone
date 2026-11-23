@@ -253,9 +253,9 @@ public class RankedRulesTests
     public void ForgettingAPairLetsThemMeetAtOnce()
     {
         var q = new RankedQueue();
-        Wait(q, 1, 1000); Wait(q, 2, 1000);
+        RankedQueue.Waiter a = Wait(q, 1, 1000), b = Wait(q, 2, 1000);
         q.Match(0);
-        q.ForgetPair("c1", "c2");
+        q.ForgetPair(a, b);
         q.Add(1, "c1", 1000, 0, 5); q.Add(2, "c2", 1000, 0, 5);
         Assert.Single(q.Match(5));
     }

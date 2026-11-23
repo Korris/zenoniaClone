@@ -19,6 +19,8 @@ namespace ZenoniaProto.Rpg
         {
             public ushort Id;
             public string Key;
+            /// <summary>The account behind the character (the key itself when the server has no accounts): two characters of one account never meet, and the rematch cooldown is per account pair.</summary>
+            public string Account;
             public int Mmr, Party;
             public long Since;
             public bool Ready = true;
@@ -36,10 +38,10 @@ namespace ZenoniaProto.Rpg
         public Waiter Find(ushort id) { foreach (Waiter w in line) if (w.Id == id) return w; return null; }
 
         /// <summary>Adds a player at `nowMs`. False when already in the line.</summary>
-        public bool Add(ushort id, string key, int mmr, int party, long nowMs)
+        public bool Add(ushort id, string key, int mmr, int party, long nowMs, string account = null)
         {
             if (Find(id) != null) return false;
-            line.Add(new Waiter { Id = id, Key = key ?? "", Mmr = mmr, Party = party, Since = nowMs });
+            line.Add(new Waiter { Id = id, Key = key ?? "", Account = string.IsNullOrEmpty(account) ? key ?? "" : account, Mmr = mmr, Party = party, Since = nowMs });
             return true;
         }
 
@@ -60,10 +62,10 @@ namespace ZenoniaProto.Rpg
 
         bool Allowed(Waiter a, Waiter b, long nowMs)
         {
-            if (a.Key == b.Key) return false; // the same character twice is never a match
+            if (a.Key == b.Key || a.Account == b.Account) return false; // never the same character, nor two characters of one account
             if (a.Party != 0 && a.Party == b.Party) return false;
             long met;
-            if (recent.TryGetValue(PairKey(a.Key, b.Key), out met) && nowMs - met < RematchCooldownMs) return false;
+            if (recent.TryGetValue(PairKey(a.Account, b.Account), out met) && nowMs - met < RematchCooldownMs) return false;
             int window = Math.Max(Window(nowMs - a.Since), Window(nowMs - b.Since));
             return Math.Abs(a.Mmr - b.Mmr) <= window;
         }
@@ -87,7 +89,7 @@ namespace ZenoniaProto.Rpg
                 if (best == null) continue;
                 used.Add(a); used.Add(best);
                 made.Add(new Pair { A = a, B = best });
-                recent[PairKey(a.Key, best.Key)] = nowMs;
+                recent[PairKey(a.Account, best.Account)] = nowMs;
             }
             foreach (Pair p in made) { line.Remove(p.A); line.Remove(p.B); }
             if (recent.Count > 256) Forget(nowMs);
@@ -95,7 +97,7 @@ namespace ZenoniaProto.Rpg
         }
 
         /// <summary>The pair was not played after all (a player was no longer eligible): they may be matched again at once.</summary>
-        public void ForgetPair(string keyA, string keyB) { recent.Remove(PairKey(keyA, keyB)); }
+        public void ForgetPair(Waiter a, Waiter b) { recent.Remove(PairKey(a.Account, b.Account)); }
 
         void Forget(long nowMs)
         {

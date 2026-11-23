@@ -24,7 +24,7 @@ export function internalRoutes(app, { cfg, characters, accounts, tickets, guards
     await wagers.refundExpiredFor(characterId).catch((e) => req.log.error({ err: e, characterId }, 'card wager refund failed'));
     const { sessionId, doc } = await characters.lockSession(characterId, cfg.ZONE_ID);
     const account = await accounts.getOrCreate(doc.userId);
-    return { sessionId, character: characters.full(doc), account: { rev: account.rev, state: account.state } };
+    return { sessionId, userId: String(doc.userId), character: characters.full(doc), account: { rev: account.rev, state: account.state } };
   });
 
   // Periodic / event snapshot (level-up, rare drop, zone change, logout). Returns the new rev.

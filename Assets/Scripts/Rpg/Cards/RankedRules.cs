@@ -15,7 +15,7 @@ namespace ZenoniaProto.Rpg
     public static class RankedRules
     {
         public const int MinLevel = 20, StartMmr = 1000, K = 32, SeasonDays = 30;
-        /// <summary>Rollback switch: false = nobody can queue (the data stays).</summary>
+        /// <summary>Rollback switch: false = nobody can queue (the data stays). A server sets it from `--no-ranked` (NetLaunchArgs).</summary>
         public static bool Enabled = true;
         /// <summary>Season 1 starts here (2026-11-01 00:00 UTC); every SeasonDays days after it is the next season.</summary>
         public const long SeasonEpochMs = 1793491200000L;
@@ -23,6 +23,8 @@ namespace ZenoniaProto.Rpg
         /// <summary>LP needed for each tier (Bronze, Silver, Gold, Platinum, Diamond).</summary>
         public static readonly int[] TierLp = { 0, 300, 700, 1200, 1800 };
         public const int WinLpMin = 20, WinLpMax = 30, LossLpMin = 15, LossLpMax = 25, MaxMatchesPerPairPerDay = 2;
+        /// <summary>A match that ends by a forfeit before this many moves were placed by the players (the server's auto-placements do not count) changes nothing for either side: nobody farms LP with a second character that gives up at once.</summary>
+        public const int MinMovesForForfeit = 3;
         const int MaxSkippedSeasons = 10;
         /// <summary>The 5 tier bits of CardRankData.rewards.</summary>
         public const int RewardMask = 31;
@@ -99,6 +101,9 @@ namespace ZenoniaProto.Rpg
             return c;
         }
 
+        /// <summary>True when a match that ended by a forfeit (`forfeitedSide` >= 0) had fewer than MinMovesForForfeit placed by hand: it does not count for either side.</summary>
+        public static bool EarlyForfeit(int forfeitedSide, int movesByHand) { return forfeitedSide >= 0 && movesByHand < MinMovesForForfeit; }
+
         /// <summary>Plays one result into a copy of `before` (the rank as the match started): MMR and LP move (LP stays >= 0), the record and `best` update. `counted` false = the match does not count: the copy equals `before`.
         /// Returns the new rank; `lpChange` is the LP actually gained or lost (a loss at 10 LP is -10, not -20).</summary>
         public static CardRankData Apply(CardRankData before, DuelResult result, int oppMmr, bool counted, out int lpChange)
@@ -108,7 +113,7 @@ namespace ZenoniaProto.Rpg
             if (!counted || result == DuelResult.Playing) return r;
             if (r.mmr <= 0) r.mmr = StartMmr;
             Change c = ChangeFor(result, r.mmr, oppMmr <= 0 ? StartMmr : oppMmr);
-            r.mmr = Math.Max(0, r.mmr + c.Mmr);
+            r.mmr = Math.Max(1, r.mmr + c.Mmr); // never 0: only season == 0 means "never played"
             int lp = Math.Max(0, r.lp + c.Lp);
             lpChange = lp - r.lp;
             r.lp = lp;
@@ -120,19 +125,25 @@ namespace ZenoniaProto.Rpg
         // ---- season rollover ----
 
         /// <summary>Brings `r` to the season of `utcMs`. A character that never played gets the start rating; one from an older season keeps a half of its distance from 1000 MMR and half its LP (per skipped season, at most 10),
-        /// the finished season's best LP goes to prevBest and its tier into the rewards flags (only if it played that season). Returns true when something changed.</summary>
+        /// the best LP of the season that just ended goes to prevBest (0 when seasons were skipped) and its tier into the rewards flags (only if it played that season); a never-played character is season == 0 and nothing else. Returns true when something changed.</summary>
         public static bool EnsureSeason(CardRankData r, long utcMs)
         {
             int now = Season(utcMs);
-            if (r.season == now && r.mmr > 0) return false;
-            if (r.season == 0 || r.mmr <= 0) { r.season = now; r.mmr = StartMmr; r.lp = 0; r.best = 0; return true; }
-            if (r.season > now) return false; // a clock that went back: leave the data alone
-            if (r.wins + r.losses + r.draws > 0) { r.rewards |= 1 << (int)Tier(r.best); r.prevBest = r.best; }
+            if (r.season == 0) { r.season = now; r.mmr = StartMmr; r.lp = 0; r.best = 0; return true; } // the only sign of "never played"
+            bool changed = false;
+            if (r.mmr < 1) { r.mmr = 1; changed = true; } // a rating is never 0 (an old save, or a state that was stripped)
+            if (r.season >= now) return changed; // same season, or a clock that went back: leave the rest alone
+            bool played = r.wins + r.losses + r.draws > 0;
+            if (played) r.rewards |= 1 << (int)Tier(r.best);
+            r.prevBest = played && now - r.season == 1 ? r.best : 0; // the season that just ended; a skipped one has no best
             int gap = Math.Min(MaxSkippedSeasons, now - r.season);
             for (int i = 0; i < gap; i++) { r.mmr = StartMmr + (r.mmr - StartMmr) / 2; r.lp /= 2; }
             r.season = now; r.wins = r.losses = r.draws = 0; r.best = r.lp;
             return true;
         }
+
+        /// <summary>Strips the hidden rating (mmr = 0) from a save that is about to be sent to a client. `d` must be a capture (SaveSerializer.Capture copies the rank), so the server's own state keeps its MMR.</summary>
+        public static void HideRating(SaveData d) { if (d != null && d.cardRank != null) d.cardRank.mmr = 0; }
 
         public static CardRankData Copy(CardRankData r)
         {

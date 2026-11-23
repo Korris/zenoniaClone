@@ -25,7 +25,9 @@ namespace ZenoniaProto
             public readonly List<string>[] LockedKinds = { new List<string>(), new List<string>() };
             public bool Stakes, Ended, Closed;
             // Ranked (DuelService.Ranked.cs): no stakes; the rank each side had when the match began and the LP each gained / lost, so the final result is always played from the same start
-            public bool Ranked, RankNotCounted;
+            public bool Ranked, RankNotCounted, Counted;
+            public int DayKey;
+            public readonly string[] Account = new string[2];   // the account of each side (Ranked pair limit)
             public long StartedMs;
             public readonly CardRankData[] RankBefore = new CardRankData[2];
             public readonly int[] OppMmr = new int[2], LpChange = new int[2];
@@ -58,6 +60,7 @@ namespace ZenoniaProto
         {
             var e = new Entry { Player = p, RankDue = true };
             entries[p.PlayerId] = e;
+            ApplyPendingRank(p);
             PvpRun run;
             if (!runByChar.TryGetValue(CharKey(p), out run) || run.Closed) return;
             int side = run.Key[0] == CharKey(p) ? 0 : 1;
@@ -239,11 +242,11 @@ namespace ZenoniaProto
         struct PvpSeat
         {
             public NetPlayer Player, Owner;
-            public string Key, Name;
+            public string Key, Name, Account;
             public string[] Deck;
             public List<string> LockedKinds;
 
-            public PvpSeat(NetPlayer p) { Player = p; Owner = p; Key = CharKey(p); Name = p.Name; Deck = p.Rpg.State.Cards.Deck.ToArray(); LockedKinds = new List<string>(); }
+            public PvpSeat(NetPlayer p) { Player = p; Owner = p; Key = CharKey(p); Account = AccountKey(p); Name = p.Name; Deck = p.Rpg.State.Cards.Deck.ToArray(); LockedKinds = new List<string>(); }
         }
 
         /// <summary>Creates the match. `stakes` = both decks are in escrow (EscrowDeck already applied to each Owner). A side that is not online any more starts as dropped (60 s to come back).</summary>
@@ -253,7 +256,7 @@ namespace ZenoniaProto
             run.Match = DuelPvpMatch.Start(NetLaunchArgs.DevDuelSeed != 0UL ? NetLaunchArgs.DevDuelSeed : NewSeed(), side[0].Deck, side[1].Deck, side[0].Name, side[1].Name, now);
             for (int s = 0; s < 2; s++)
             {
-                run.Key[s] = side[s].Key; run.Deck[s] = side[s].Deck; run.LockedKinds[s] = side[s].LockedKinds; run.Owner[s] = side[s].Owner;
+                run.Key[s] = side[s].Key; run.Account[s] = side[s].Account; run.Deck[s] = side[s].Deck; run.LockedKinds[s] = side[s].LockedKinds; run.Owner[s] = side[s].Owner;
                 Entry e;
                 NetPlayer p = side[s].Player;
                 if (p != null && entries.TryGetValue(p.PlayerId, out e)) { run.Player[s] = p; e.Pvp = run; e.PvpSide = s; }

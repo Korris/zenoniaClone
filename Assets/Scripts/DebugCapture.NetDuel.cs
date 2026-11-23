@@ -25,7 +25,8 @@ namespace ZenoniaProto
             if (!int.TryParse(NetLaunchArgs.Arg(a, "--duel-drop"), out drop)) drop = 0;
             string pick = NetLaunchArgs.Arg(a, "--duel-pick") ?? "caveMantis";
             int ranked;
-            if (int.TryParse(NetLaunchArgs.Arg(a, "--duel-ranked"), out ranked) && ranked > 0) { StartCoroutine(RankedScript(ranked)); return; }
+            if (NetLaunchArgs.HasFlag("--duel-rank-peek")) { StartCoroutine(RankPeek()); return; }
+            if (int.TryParse(NetLaunchArgs.Arg(a, "--duel-ranked"), out ranked) && ranked > 0) { StartCoroutine(RankedScript(ranked, drop)); return; }
             StartCoroutine(DuelScript(role == "challenger", NetLaunchArgs.HasFlag("--duel-resume"), NetLaunchArgs.HasFlag("--duel-nopick"), pick, drop));
         }
 
@@ -100,8 +101,9 @@ namespace ZenoniaProto
         }
 
         /// <summary>--duel-ranked N: queues for Ranked, plays the match with the greedy pick, logs the LP the server gave, and does it again until N matches are done (the third match of one pair in a day does not count).</summary>
-        IEnumerator RankedScript(int matches)
+        IEnumerator RankedScript(int matches, int dropAfter = 0)
         {
+            int placed = 0;
             yield return DuelUntil(() => DuelClient.RankedSeason > 0, 30f, "the server sent the season (season " + DuelClient.RankedSeason + ", " + DuelClient.RankedMinutesLeft + " min left)");
             yield return new WaitForSeconds(1.5f);
             DuelE2e("before: " + RankLine());
@@ -117,7 +119,8 @@ namespace ZenoniaProto
                 while (DuelClient.View != null && !DuelClient.View.Finished)
                 {
                     DuelView v = DuelClient.View;
-                    if (v.YourTurn && DuelClient.SecondsLeft > DuelClient.MinPlaceSeconds + 0.3f) DuelBotPick(v);
+                    if (v.YourTurn && DuelClient.SecondsLeft > DuelClient.MinPlaceSeconds + 0.3f && DuelBotPick(v)) placed++;
+                    if (dropAfter > 0 && placed >= dropAfter) { DuelE2e("dropping after " + placed + " placements: " + RankLine()); Application.Quit(); yield break; } // --duel-drop N: the connection goes away mid-match
                     yield return new WaitForSeconds(0.7f);
                 }
                 yield return new WaitForSeconds(2f); // the pushed state with the new rank arrives
@@ -125,6 +128,15 @@ namespace ZenoniaProto
                 if (end == null) { Application.Quit(); yield break; }
                 DuelE2e("match " + m + " over: " + end.Result + " score " + end.Score(0) + "-" + end.Score(1) + " ranked " + end.Ranked + " lpChange " + end.LpChange + " notCounted " + end.RankNotCounted + " | " + RankLine() + " | cards " + CardTotal());
             }
+            Application.Quit();
+        }
+
+        /// <summary>--duel-rank-peek: logs in, waits for the first pushed state and logs the rank (a result parked while this character was offline is applied at login), then quits.</summary>
+        IEnumerator RankPeek()
+        {
+            yield return DuelUntil(() => DuelClient.RankedSeason > 0, 30f, "the server sent the season");
+            yield return new WaitForSeconds(2f);
+            DuelE2e("peek: " + RankLine());
             Application.Quit();
         }
 

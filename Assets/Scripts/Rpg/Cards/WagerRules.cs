@@ -42,7 +42,11 @@ namespace ZenoniaProto.Rpg
         public sealed class PairLedger
         {
             readonly Dictionary<string, int> counts = new Dictionary<string, int>();
+            readonly int max;
             int day = int.MinValue;
+
+            /// <summary>`maxPerDay` = how many times one pair may count per day (default: the Card Wager limit; Ranked passes RankedRules.MaxMatchesPerPairPerDay).</summary>
+            public PairLedger(int maxPerDay = MaxPerPairPerDay) { max = maxPerDay; }
 
             static string Key(string a, string b) { return string.CompareOrdinal(a, b) <= 0 ? a + "|" + b : b + "|" + a; }
 
@@ -52,7 +56,7 @@ namespace ZenoniaProto.Rpg
             {
                 Roll(dayKey);
                 int n; counts.TryGetValue(Key(a, b), out n);
-                return n < MaxPerPairPerDay;
+                return n < max;
             }
 
             public void Note(string a, string b, int dayKey)

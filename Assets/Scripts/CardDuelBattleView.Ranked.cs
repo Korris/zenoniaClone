@@ -42,7 +42,7 @@ namespace ZenoniaProto
             RankTier tier = RankedRules.Tier(r.lp);
             GemUiArt.SetPiece(rankBadge, "cards/ranked/rank-" + RankedRules.TierName(tier).ToLowerInvariant());
             string lp = r.lp.ToString(CultureInfo.InvariantCulture);
-            if (v.RankNotCounted) { rankLine1.text = "No LP change"; rankLine1.color = U.InkSoft; rankLine2.text = "Same opponent too often today"; return; }
+            if (v.RankNotCounted) { rankLine1.text = "No LP change"; rankLine1.color = U.InkSoft; rankLine2.text = "Same opponent too often, or it ended too early"; return; }
             int d = v.LpChange;
             rankLine1.text = (d > 0 ? "+" : d < 0 ? "-" : "+") + Mathf.Abs(d).ToString(CultureInfo.InvariantCulture) + " LP";
             rankLine1.color = d > 0 ? U.Good : d < 0 ? U.Bad : U.Ink;

@@ -37,6 +37,8 @@ namespace ZenoniaProto
         public float ConnectedAtRealtime;
         /// <summary>The persisted character behind this player; null on a dev server.</summary>
         public SavedCharacter Saved;
+        /// <summary>The server-api account (userId) that owns this character; null on a dev server (no accounts).</summary>
+        public string UserId;
         /// <summary>One enhance at a time goes to the API.</summary>
         public bool EnhancePending;
         /// <summary>Where the hero stood when it left the world: the last write of the character happens after the hero is gone.</summary>

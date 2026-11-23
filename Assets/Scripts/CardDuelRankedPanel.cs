@@ -109,7 +109,7 @@ namespace ZenoniaProto
             toNext.text = next < 0 ? "Top tier reached" : (next - r.lp).ToString(CultureInfo.InvariantCulture) + " LP to " + RankedRules.TierName((RankTier)((int)tier + 1));
             float prog = RankedRules.TierProgress(r.lp);
             fill.rectTransform.sizeDelta = new Vector2(Mathf.Max(48f, BarW * prog), BarH);
-            fill.gameObject.SetActive(prog > 0f || r.lp > 0);
+            fill.gameObject.SetActive(prog > 0f); // exactly at a tier line there is no progress to show (the minimum width would fake some)
             statValue[0].text = r.wins.ToString(CultureInfo.InvariantCulture); statValue[1].text = r.losses.ToString(CultureInfo.InvariantCulture);
             statValue[2].text = r.draws.ToString(CultureInfo.InvariantCulture); statValue[3].text = r.best.ToString(CultureInfo.InvariantCulture);
             prevBest.text = r.prevBest > 0 ? "Last season's best: " + r.prevBest + " LP (" + RankedRules.TierName(RankedRules.Tier(r.prevBest)) + ")" : "";

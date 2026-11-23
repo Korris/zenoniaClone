@@ -248,6 +248,7 @@ namespace ZenoniaProto
             NetPlayer p = NewPlayer(peer);
             ServerHeroFactory.CreateLoaded(p, c.Def, c.Name, c.State, c.Save);
             persistence.Attach(p, c);
+            p.UserId = c.UserId; // the account behind the character (Ranked: no two characters of one account meet)
             FinishJoin(p, zone, c.Def);
         }
 
