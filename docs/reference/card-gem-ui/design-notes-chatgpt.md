@@ -11,13 +11,13 @@ Menu trái chung (ChatGPT chốt 23/11, sau khi người dùng bảo bỏ "Card 
 
 | File | Màn |
 |---|---|
-| `01-card-menu.png` | (vẽ lại 23/11) My Cards: lọc All / N / R / SR / SSR, sort theo độ hiếm, lưới card có badge độ hiếm + xN, phân trang; chi tiết card: nguồn, số đang có, "Card Option (4 Directional Stats)"; nút Convert to Soul Gem / Lock Card. ChatGPT ra 4 bản; mình lấy bản này, bỏ bản có Lv. + Enhance (nâng cấp card) và bản có bậc UR |
-| `02-card-album.png` | (vẽ lại 23/11) Monster Album: tiến độ 36/60, tab vùng All / Meadow / Frost / Marsh / Ruins, quái chưa có = bóng đen "?", chi tiết quái (Element, Size, Race, Area) + card và Option + mô tả |
-| `03-card-to-gem.png` | (vẽ lại 23/11) Convert to Soul Gem: lưới card lọc độ hiếm, card chọn → Power / Guard → kết quả ngọc, Gem Effect, phí 1 card + 500 G, nút Convert (chữ "Conversion Result" lần này đúng chính tả) |
-| `04-gem-socket.png` | (vẽ lại 23/11) Gem Socketing: Training Sword (vũ khí) đúng 2 ô ngọc (1 đã khảm, 1 trống), kho ngọc lọc All / ATK / DEF / HP / Utility, ô Gem Info riêng (Type + Option), không có bảng Current / After; nút Socket Gem. Lần vẽ đầu ChatGPT đặt "Poring Card" vào khung trang bị, phải vẽ lại |
-| `05-gem-remove.png` | (vẽ lại 23/11) Gem Removal: trang bị + 2 ô, ngọc chọn tháo (Type + Option), Removal Result (gỡ khỏi trang bị, về túi, ô trống lại), phí 3.000 G (SR, đúng luật), nút Remove Gem |
-| `06a-card-duel-deck.png` | Card Duel lobby: PvE (NPC) / Ranked (PvP) / Friend Duel / Room Match; đối thủ NPC + thưởng thắng lần đầu; deck 8/8, Edit Deck; thông tin card 4 chỉ số hướng; Start Duel |
-| `06b-card-duel-battle.png` | Bàn đấu 4×4: 2 người chơi trên cùng (8/8), "Turn 7/16 – Your Move", luật bên trái, card đang chọn + battle log bên phải, tay bài dưới, Place Card / Cancel |
+| `01-card-menu.png` | (vòng 4) My Cards: lọc độ hiếm / vùng + ATK / DEF / HP / Utility, "Card Collection 12/40", lưới card có 4 số hướng + xN, nhãn On Market / In Deck; chi tiết: Element, Source, Owned, Duel Stats 4 hướng, Card Effect, mô tả; nút Add to Deck / Sell / View in Album |
+| `02-card-album.png` | (vòng 4) Monster Album: tiến độ 24/40, thanh mốc 10/20/30/40 + Claim, tab 7 vùng của game, quái chưa có = bóng "?", chi tiết quái + Duel Stats + Card Effect, Add to Deck / Sell |
+| `03-card-to-gem.png` | (vòng 4) Convert to Soul Gem: lưới card có số hướng, chọn Power Gem (ATK) / Guard Gem (DEF), phí 1 card + 500 G (card N) → 1 ngọc, nút Convert |
+| `04-gem-socket.png` | (vòng 4) Gem Socketing: danh sách trang bị Equip / Bag, mỗi món 2 ô, ô Gem Info + Gem Option riêng, kho ngọc lọc All / ATK / DEF / HP / Utility, ngọc là viên ngọc mang hình quái, nút Socket Gem |
+| `05-gem-remove.png` | (vòng 4) Gem Removal: cùng khung màn 4, ngọc chọn (Meadow Slime Gem N, ATK +6), phí 200 G (N, đúng luật), ô đỏ "Trade Locked" (ngọc tháo vẫn khoá giao dịch), nút Remove Gem |
+| `06a-card-duel-deck.png` | (vòng 4) Card Duel deck: lọc vùng / độ hiếm, My Deck 8/8 (Boss 1/1, SR+ 2/2), Deck Rules, Deck Power, Play NPC / Challenge Player / Save Deck / Ready. Dùng menu trái chung (không còn lobby PvE / Ranked / Room) |
+| `06b-card-duel-battle.png` | (vòng 4) Bàn đấu 4×4 A-D × 1-4, tỉ số Player / NPC, Turn 7/16, battle log, NPC "Frost Scout Nia", card chọn + Directional Stats, tay bài 5 lá, Place Card |
 
 Góp ý người dùng 23/11:
 - Màn khảm (nguyên văn): "cái màn hình khảm ngọc ko cần hiển thị current với after vì nó ko + thẳng vào vũ khí trực tiếp mà chỉ là option thêm thôi nó sẽ hiện ở 1 ô riêng chứ". ChatGPT bỏ bảng Current / After, hiệu ứng ngọc nằm ở ô "Gem Info → Option"; màn tháo đổi theo.
@@ -41,7 +41,16 @@ Góp ý người dùng 23/11:
 - Chế độ: NPC (luyện, thưởng lần đầu + nhiệm vụ ngày), PvP thách đấu trực tiếp; Ranked để V2. PvP: thắng 300 G, thua 100, hoà 150, tối đa 5 trận có thưởng / ngày. Không cược mất card.
 - Server quản lý deck, lượt, lật, đồng hồ, thưởng; card đang trong trận bị khoá bán / chuyển hoá.
 
-## Điểm yếu thấy khi xem ảnh
+Vòng 4 (23/11, người dùng): trả lại phần bị mất (Add to Deck / Sell, mốc album + Claim, tổng 40, số hướng trên card, dòng khoá giao dịch), giữ lọc ATK / DEF / HP / Utility + menu trái chung, đổi hết quái / vùng RO sang quái / map của game (`our-monsters-contact-sheet.png`). Đã vẽ lại cả 7 màn.
+
+## Điểm yếu thấy khi xem ảnh (sau vòng 4)
+
+- Màn 1 và 6a/6b dùng menu trái nền xanh lá, màn 2-5 dùng nút vàng: chưa đồng bộ hẳn.
+- Số 4 hướng của cùng một quái lệch giữa các màn (VD Meadow Slime 6/3/5/4 ở màn 1 và 6a, 6/5/5/4 ở màn 2-3); Element Meadow Slime ghi Nature (màn 1) và Earth (màn 2-5). Làm thật thì lấy số từ bảng dữ liệu, không lấy từ ảnh.
+- Màn 6b: log ghi Mire Toad bị lật nhưng trên bàn vẫn xanh (tỉ số 4-2 sai, đúng ra 3-3); tay bài có 4 SR/SSR và không khớp deck 6a. Đã nhờ sửa 1 lần nhưng bản sửa tệ hơn (tỉ số 7-8, tay 8 lá) nên giữ bản này; logic ván lấy từ luật, không từ ảnh.
+- Thú cưng góc trái tiêu đề vẫn giống Poring có cánh (logo), chưa đổi.
+
+## Điểm yếu vòng trước (đã sửa ở vòng 4)
 
 - Tông là RO Soft **Fantasy** (theo lời người dùng), trong khi nhánh `ro-soft-adventure` đã đổi UI sang RO Soft **Adventure** (giấy kem / gỗ nâu): làm thật thì phải đổi da.
 - Tên quái vẫn có Poring (của RO); địa danh đã đổi sang Willowbrook Meadows.

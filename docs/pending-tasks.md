@@ -2,9 +2,12 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
-### 23/11 08:10 TẠM DỪNG (người dùng tắt máy) — card + ngọc UI đang vẽ lại dở
-- Agent vẽ UI card/ngọc (ChatGPT tài khoản Tay, chat https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0) bị dừng giữa chừng. Đang làm vòng sửa thứ 4 theo người dùng: (a) trả lại phần bị mất: nút Add to Deck / Sell ở màn card, thanh mốc thưởng + Claim ở album và tổng về 40 loại, 4 số hướng trên mặt card ở màn 1-3, dòng "ngọc vẫn khoá giao dịch" ở màn tháo, độ hiếm Poring thống nhất; (b) giữ bộ lọc ngọc ATK / DEF / HP / Utility và menu trái chung; (c) ĐỔI TÊN QUÁI + TÊN VÙNG RO sang quái/map của game mình ở cả 7 màn (kể cả 6a/6b), dùng `docs/reference/card-gem-ui/our-monsters-contact-sheet.png`.
-- Trạng thái file lúc dừng: 01, 02, 04 đã ghi đè bằng bản mới của vòng này (CHƯA rõ đã đủ (a)+(c) chưa, phải mở xem); 03, 05, 06a, 06b chưa vẽ lại. design-notes-chatgpt.md chưa cập nhật vòng này. Làm tiếp: xem 01/02/04, rồi vẽ tiếp 03 → 05 → 06a → 06b theo (a)-(c); để ChatGPT tự quyết bố cục (memory: đừng ra lệnh cách vẽ).
+### 23/11 10:57 Bản build test mới (HEAD c79b54f8)
+- Exe: `C:\temp\player-261123\Zenonia.exe` (bản test thường, có cheat dev-start); map 3D: `C:\temp\player-261123\Zenonia-3D.bat` (`--map3d`). Build OK, 0 lỗi.
+- Bản sao build: `C:\temp\zu-copy` (máy này không có ổ D:, bản `D:\temp\zu-copy` và `player-all-261122d` ghi bên dưới không còn ở đây).
+
+### 23/11 11:15 Card + ngọc UI vòng 4 (XONG, CHỜ người dùng xem)
+- Chat Tay https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0 (Chrome "Browser 3"; Browser 1 là xaochai, Browser 2 là Tan Pham). Đã vẽ lại đủ 7 màn `docs/reference/card-gem-ui/` theo (a) trả phần bị mất, (b) giữ lọc ATK/DEF/HP/Utility + menu chung, (c) quái / vùng của game. Mô tả + điểm yếu còn lại: `design-notes-chatgpt.md` (menu xanh ở 01/06 vs vàng ở 02-05; số hướng lệch giữa màn; 6b log / tỉ số sai).
 - Câu hỏi còn mở cho người dùng (từ các vòng trước): giữ style Fantasy hay đổi Adventure cho khớp nhánh; duyệt phí chuyển hoá / tháo, mốc album, thưởng PvP; ngọc đã khảm khoá giao dịch vĩnh viễn; đấu card có Ranked / cược card không; mở đấu card ở NPC làng hay nút HUD.
 - Cũng dở từ 22/11: bản build gộp mới nhất `C:\temp\player-all-261122d\Zenonia-3D.bat` (zoom con lăn PC đã sửa, chưa ai xác nhận trong game); cột sáng cổng 3D có cần sáng hơn không; map 3D có bật mặc định không (`--map2d`); 2 test FrostHollowLargeMapTests vẫn fail; server cần build lại. Bản sao build ở `D:\temp\zu-copy` (giữ để build nhanh).
 
