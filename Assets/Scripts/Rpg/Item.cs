@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ZenoniaProto.Rpg
 {
@@ -34,6 +35,7 @@ namespace ZenoniaProto.Rpg
         public int itemLevel, enhance;
         public int durability; // OLD pet items only (ItemFactory.LegacyPetDurability), read from saves before Pet Companion; 0 on everything else
         public ItemStats stats = new ItemStats();
+        public List<string> sockets = new List<string>(); // socketed Soul Gems "<cardId>:p|g" (Power / Guard); missing in old saves = none (CardCollection, ItemFactory.SanitizeSockets)
     }
 
     public static class Slots

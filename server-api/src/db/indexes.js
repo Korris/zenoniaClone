@@ -6,6 +6,7 @@
  *  characters{userId, slot (uniq per user), classId, nameLower uniq, rev, state(SaveData shape), session, recentOps}; slot = place on the character select screen
  *    (0..MAX_CHARACTERS-1, older heroes get one on the next list); an account may hold several heroes of one
  *    class (2026-11-12: the old unique (userId, classId) index is dropped at boot), the count is capped in character-service (MAX_CHARACTERS)
+ *    state.cards / gems / album / albumClaimed / cardDeck / cardDaily / cardNpcFirstWins / cardRank: monster card collection (save v6, rpg/item-validation.js); item.sockets: socketed Soul Gems; no index
  *    state.wantedDay: WantedBoss.DayKey of the last daily Wanted Boss claim (0 = never); kept from going backwards by rpg/wanted-day.js, no index
  *  tickets{_id=sha256(ticket), characterId, userId, expiresAt(TTL)}
  *  accounts{_id=userId, rev, state(AccountState shape: gacha pets/pity/daily-weekly rewards), recentOps, createdAt}

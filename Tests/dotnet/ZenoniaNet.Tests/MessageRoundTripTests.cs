@@ -156,7 +156,7 @@ public class MessageRoundTripTests
         Assert.True(InvOpInfo.IsAccountOp(InvOp.GachaPull) && InvOpInfo.IsAccountOp(InvOp.PetBuy) && InvOpInfo.IsAccountOp(InvOp.BallBuy) && InvOpInfo.IsAccountOp(InvOp.PetLevelUp) && !InvOpInfo.IsAccountOp(InvOp.PetEquip) && !InvOpInfo.IsAccountOp(InvOp.PetCapture));
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOpInfo.Last + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(26, NetProtocol.Version); // 26: InvOp ChestOpen / WaypointTouch / WaypointWarp (Rootburrow V5). 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
+        Assert.Equal(27, NetProtocol.Version); // 27: NetEventType.CardDrop (monster cards). 26: InvOp ChestOpen / WaypointTouch / WaypointWarp (Rootburrow V5). 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
     }
 
     [Fact]

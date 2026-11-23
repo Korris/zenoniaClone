@@ -7,6 +7,7 @@ namespace ZenoniaProto.Net
         AttackStep = 1, BoltFired = 2, BoltEnd = 3, MonsterHit = 4, HeroHit = 5, SkillCast = 6, HeroDied = 7, HeroRespawned = 8,
         ExpGain = 9, LevelUp = 10, PotionUsed = 11, AppearanceChanged = 12, Toast = 13, BossSpawned = 14, BossDied = 15, AllyBuff = 16, TurretShot = 17,
         WantedSkillTelegraph = 18, MonsterShot = 19, PetSkill = 20, PetCapturable = 21, HeroStatus = 22,
+        CardDrop = 23, // owner only: a monster card dropped (Step = CardTable index, Flags bit0 = new in the Album); the client shows the toast
     }
 
     /// <summary>Hero paper-doll data replicated to every viewer: weapon / offhand tier, enhance glow band, flag bits (1 = mechanic blue), the pet
@@ -91,6 +92,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.MonsterShot: w.Put(Id); w.Put(X); w.Put(Y); w.Put(Angle); break;
                 case NetEventType.PetSkill: w.Put(Id); w.Put(Other); w.Put(Step); break;
                 case NetEventType.PetCapturable: w.Put(Id); w.Put(X); w.Put(Y); w.Put(Step); w.Put(Value); break; // a fallen boss may be caught: Id = its NetId, Value = ms left, Step = 1 Wanted
+                case NetEventType.CardDrop: w.Put(Step); w.Put(Flags); break;
                 case NetEventType.HeroStatus: w.Put(Id); w.Put(Step); w.Put(Value); break; // wanted boss status on a hero: Step = HeroStatusCode, Value = ms left (0 = gone)
             }
         }
@@ -123,6 +125,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.PetSkill: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.Step = r.GetByte(); break;
                 case NetEventType.PetCapturable: e.Id = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Step = r.GetByte(); e.Value = r.GetUInt(); break;
                 case NetEventType.HeroStatus: e.Id = r.GetUShort(); e.Step = r.GetByte(); e.Value = r.GetUInt(); break;
+                case NetEventType.CardDrop: e.Step = r.GetByte(); e.Flags = r.GetByte(); break;
                 default: return false;
             }
             return true;

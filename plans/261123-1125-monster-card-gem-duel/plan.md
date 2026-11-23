@@ -24,12 +24,12 @@ Spec: `docs/reference/card-gem-ui/design-notes-chatgpt.md` (mục "Đã chốt" 
 ## Phase
 | # | Phase | Effort | Phụ thuộc | Build lại server | Trạng thái |
 |---|---|---|---|---|---|
-| 01 | [Dữ liệu card, rơi card, Album, lưu](phase-01-card-data-drops-album-persistence.md) | 7h | - | Zone + API | pending |
+| 01 | [Dữ liệu card, rơi card, Album, lưu](phase-01-card-data-drops-album-persistence.md) | 7h | - | Zone + API | code xong 23/11 (chưa deploy) |
 | 02 | [Xin asset ChatGPT (card, ngọc, nút, bàn đấu)](phase-02-chatgpt-asset-request.md) | 10h | - (song song 01) | Không | pending |
 | 03 | [UI My Cards + Monster Album](phase-03-card-ui-my-cards-album.md) | 8h | 01, 02 | Zone (InvOp mới) | pending |
-| 04 | [Chuyển hoá, khảm, tháo ngọc + chỉ số](phase-04-soul-gem-convert-socket-remove.md) | 9h | 03 | Zone + API | pending |
+| 04 | [Chuyển hoá, khảm, tháo ngọc + chỉ số](phase-04-soul-gem-convert-socket-remove.md) | 9h | 03 | Zone + API | code xong 23/11 (chưa deploy) |
 | 05 | [Duel core + đấu NPC + UI deck/bàn](phase-05-duel-core-npc-duel.md) | 13h | 03 | Zone | pending |
-| 06 | [PvP thách đấu + cược card (escrow)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | pending |
+| 06 | [PvP thách đấu + cược card (escrow)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | code xong 23/11 (chưa deploy) |
 | 07 | [Ranked mùa 30 ngày](phase-07-ranked-season.md) | 8h | 06 | Zone (state đã có từ 01) | pending |
 | 08 | [NPC Card Master, lối vào, hoàn thiện, docs](phase-08-card-master-npc-entry-polish.md) | 5h | 05 (07 cho nút Ranked) | Zone | pending |
 

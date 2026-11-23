@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CLASS_IDS, HEADGEAR_COUNT, HEADGEAR_TEMPLATE_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
+import { ALBUM_MILESTONES, APPEARANCE_HAIR_COLORS, APPEARANCE_OUTFIT_COLORS, CARD_COUNT, CARD_DECK_MAX, CARD_IDS, CARD_MAX_STACK, CLASS_IDS, GEM_MAX_ROWS, HEADGEAR_COUNT, HEADGEAR_TEMPLATE_IDS, INVENTORY_SIZE, MAX_ENHANCE, MAX_INT, MAX_ITEM_SOCKETS, MAX_LEVEL, MAX_STONES, PET_IDS, PET_MAX_DURABILITY, PET_TEAM_SIZE, PET_TEMPLATE_IDS, RARITIES, SKILL_COUNT, SKILL_MAX_RANK, SLOTS } from './rpg-constants.js';
 
 // Field names match Assets/Scripts/Rpg/Item.cs (Item, ItemStats) and SaveSerializer.cs (SaveData) so Unity's JsonUtility reads them as-is.
 
@@ -22,17 +22,20 @@ export const itemSchema = z.object({
   enhance: z.number().int().min(0).max(MAX_ENHANCE).default(0),
   stats: itemStatsSchema.default({}),
   durability: z.number().int().min(0).max(PET_MAX_DURABILITY).optional(), // pets; a pet without it is an old one, at the maximum
+  // Socketed Soul Gems "<cardId>:p|g" (Power / Guard), Item.sockets. Absent in old saves = none. The per-slot limit arrives with the gem phase (GemSockets.SlotCount).
+  sockets: z.array(z.string().max(40).regex(/^[a-zA-Z]+:[pg]$/).refine((g) => CARD_IDS.includes(g.split(':')[0]), 'unknown card id')).max(MAX_ITEM_SOCKETS).default([]),
 }).transform((i) => ({ ...i, durability: i.durability ?? (i.slot === 'pet' ? PET_MAX_DURABILITY : 0) }));
 
 const int0 = z.number().int().min(0).max(MAX_INT);
 const f0 = z.number().finite().min(0).max(1e9);
 const coord = z.number().finite().min(-1e6).max(1e6);
+const cardId = z.enum(CARD_IDS);
 const petIdField = z.union([z.enum(PET_IDS), z.literal('')]).default('');
 
 /** SaveData: the whole persisted character state. Unknown keys are stripped. */
 export const stateSchema = z
   .object({
-    version: z.number().int().min(0).max(5).default(1), // SaveSerializer.SaveVersion; 2: pets carry durability; 3: Frost Hollow 72x48, old section y +384; 4: gacha pets moved to the account, character keeps only petId (which one is worn); 5: petTeam (up to 5 account pet ids), petId still accepted
+    version: z.number().int().min(0).max(6).default(1), // SaveSerializer.SaveVersion; 6: monster cards (cards / gems / album / cardDeck / cardDaily / cardNpcFirstWins / cardRank) + item sockets; 2: pets carry durability; 3: Frost Hollow 72x48, old section y +384; 4: gacha pets moved to the account, character keeps only petId (which one is worn); 5: petTeam (up to 5 account pet ids), petId still accepted
     savedAt: z.number().int().min(0).default(0),
     classId: z.enum(CLASS_IDS),
     mapId: z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/).default('frostHollow'),
@@ -76,6 +79,15 @@ export const stateSchema = z
       outfitColorIndex: z.number().int().min(-1).max(APPEARANCE_OUTFIT_COLORS - 1).default(-1),
       equippedHeadgearId: z.number().int().min(0).max(HEADGEAR_COUNT).default(0), // HeadgearCatalog id of the worn hat; the C# side rebuilds it from the headgear slot on load
     }).optional(),
+    // Monster cards (SaveData.cards ... cardRank, CardCollection). Absent in old saves = nothing owned. Listed so the strip keeps them: without them every relog loses the collection.
+    cards: z.array(z.object({ id: cardId, n: z.number().int().min(1).max(CARD_MAX_STACK) })).max(CARD_COUNT).default([]),
+    gems: z.array(z.object({ id: cardId, kind: z.number().int().min(0).max(1), locked: z.boolean().default(false), n: z.number().int().min(1).max(CARD_MAX_STACK) })).max(GEM_MAX_ROWS).default([]),
+    album: z.array(z.number().int().min(0).max(CARD_COUNT - 1)).max(CARD_COUNT).default([]), // CardTable indexes ever owned
+    albumClaimed: z.number().int().min(0).max((1 << ALBUM_MILESTONES) - 1).default(0), // bit per claimed Album milestone
+    cardDeck: z.array(cardId).max(CARD_DECK_MAX).default([]),
+    cardDaily: z.object({ day: int0.default(0), npcWins: int0.default(0), pvpRewards: int0.default(0), wagers: int0.default(0) }).default({}),
+    cardNpcFirstWins: z.number().int().min(0).max(0xffff).default(0), // bit per duel NPC beaten once
+    cardRank: z.object({ season: int0.default(0), mmr: int0.default(0), lp: int0.default(0), wins: int0.default(0), losses: int0.default(0), draws: int0.default(0), best: int0.default(0) }).default({}),
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
     // Skill tree (SaveData.skillRanks / skillSlots): ranks by tree index, magazine slot -> tree index or -1. Absent in old saves = nothing learned.

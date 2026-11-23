@@ -145,7 +145,7 @@ public class PetTests
         p.TakePet("spectralWolf");
         string json = SaveSerializer.ToJson(SaveSerializer.Capture(p, true, 1f, 2f, false));
         SaveData d = SaveSerializer.Parse(json);
-        Assert.Equal(5, d.version);
+        Assert.Equal(SaveSerializer.SaveVersion, d.version);
         Assert.Equal("spectralWolf", SaveSerializer.Restore(d).PetId);
         Assert.Equal("", SaveSerializer.Parse(json.Replace("spectralWolf", "godPet")).petId);
     }

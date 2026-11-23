@@ -7,7 +7,7 @@
 - Lưu: `Assets/Scripts/Rpg/SaveSerializer.cs` (`SaveVersion = 5`), `SaveStore.Migration.cs`, `server-api/src/rpg/item-validation.js` (`stateSchema`), `server-api/src/rpg/rpg-constants.js`
 
 ## Overview
-P1, pending. Bảng 40 card thuần C#, rơi card khi giết quái (zone quyết), Album ghi lần đầu sở hữu + 4 mốc Claim, lưu trong state nhân vật client + API.
+P1, code xong 23/11 (chưa deploy, chưa kiểm trong game). Bảng 40 card thuần C#, rơi card khi giết quái (zone quyết), Album ghi lần đầu sở hữu + 4 mốc Claim, lưu trong state nhân vật client + API.
 
 ## Key Insights
 - `MonsterDef` nằm ngoài asm Rpg, nên bảng card chỉ tham chiếu id chuỗi (`meadowSlime`...), có test map id <-> `MonsterDef` ở phía Unity (debug check lúc khởi động) và test thuần trong `ZenoniaSkills.Tests` với danh sách id cứng.
@@ -53,13 +53,13 @@ Sửa: `Assets/Scripts/Rpg/Item.cs` (sockets), `SaveSerializer.cs`, `SaveStore.M
 8. Build lại zone server (bản sao) + deploy server-api (`docs/deploy.md`).
 
 ## Todo List
-- [ ] Bảng 40 card + region
-- [ ] CardDef / CardTable / CardDrops / CardCollection / AlbumRules
-- [ ] PlayerState.Cards + SaveSerializer v6 + migration
-- [ ] KillRewards roll + event toast
-- [ ] zod schema + card-ids.json + vitest
-- [ ] dotnet tests (bảng, rơi, đếm, album, export)
-- [ ] Build zone + deploy API
+- [x] Bảng 40 card + region
+- [x] CardDef / CardTable / CardDrops / CardCollection / AlbumRules
+- [x] PlayerState.Cards + SaveSerializer v6 + migration
+- [x] KillRewards roll + event toast
+- [x] zod schema + card-ids.json + vitest
+- [x] dotnet tests (bảng, rơi, đếm, album, export)
+- [ ] Build zone + deploy API (người dùng deploy; chưa làm)
 
 ## Success Criteria
 - 40 id duy nhất, mỗi id có `MonsterDef` thật, 4 số 1-9, tổng đúng dải rarity (test).

@@ -85,6 +85,7 @@ namespace ZenoniaProto
                 if (!string.IsNullOrEmpty(r.Text)) NetEventBus.Toast(Hero, r.Text, e.Kind == LootKind.Equipment ? LootSprites.RarityColor(e.Item) : new Color(1f, 0.9f, 0.5f));
             };
             Rpg.Revived += lost => { if (lost > 0) NetEventBus.Toast(Hero, "You were defeated: -" + lost + " EXP", new Color(1f, 0.5f, 0.45f)); };
+            Rpg.CardDropped += (id, first) => { if (Hero != null) NetEventBus.CardDrop(Hero, CardTable.Index(id), first); };
             Rpg.BossKilled += OnBossKilled;
             Rpg.WantedClaimed += OnWantedClaimed;
             Rpg.AccountNews += (text, good) => { if (Hero == null) return; Zone.Enter(Hero.HomeZone); NetEventBus.Toast(Hero, text, good ? new Color(0.75f, 1f, 0.6f) : new Color(1f, 0.7f, 0.5f)); }; // account answers arrive from the API pump, outside any zone

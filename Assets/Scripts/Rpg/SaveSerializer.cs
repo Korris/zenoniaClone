@@ -27,6 +27,15 @@ namespace ZenoniaProto.Rpg
         public string name; // offline hero name (HeroNameRules); missing / empty in older saves = the class name (SaveStore.DisplayName). Online the server keeps the name, this stays empty
         public List<ChestCooldown> chests = new List<ChestCooldown>(); // dungeon chests still empty for this character, refill time in unix ms (PlayerState.Dungeon); missing in old saves = all full
         public List<string> waypoints = new List<string>(); // attuned dungeon warp crystals (DungeonPoints); missing in old saves = none
+        // v6: monster cards (CardCollection). All missing in old saves = nothing owned.
+        public List<CardEntry> cards = new List<CardEntry>(); // copies per card id
+        public List<GemEntry> gems = new List<GemEntry>();    // Soul Gem stacks
+        public List<int> album = new List<int>();             // CardTable indexes ever owned
+        public int albumClaimed;                              // bit per Album milestone claimed
+        public List<string> cardDeck = new List<string>();    // duel deck (phase 05)
+        public CardDailyData cardDaily = new CardDailyData(); // daily duel counters (phase 05 / 06)
+        public int cardNpcFirstWins;                          // bit per duel NPC beaten once (phase 05)
+        public CardRankData cardRank = new CardRankData();    // Ranked season (phase 07)
         public CharacterAppearanceData appearance; // look (hair style / colours / headgear); missing or stored = false in older saves = not chosen (no version bump needed)
     }
 
@@ -36,7 +45,7 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public static class SaveSerializer
     {
-        public const int SaveVersion = 5; // 5: the pet team (petTeam, 5 slots). 4: pets belong to the account (petId). 2: pets carry durability. 3: Frost Hollow grew to 48 rows, so older frostHollow positions are shifted by Parse (= FrostHollowGrownVersion).
+        public const int SaveVersion = 6; // 6: monster cards, Soul Gems, Album, deck, item sockets (an older save simply owns no cards). 5: the pet team (petTeam, 5 slots). 4: pets belong to the account (petId). 2: pets carry durability. 3: Frost Hollow grew to 48 rows, so older frostHollow positions are shifted by Parse (= FrostHollowGrownVersion).
         /// <summary>Saves older than this hold Frost Hollow positions measured on the 24-row map; Parse moves them up by the rows the map has gained since.</summary>
         public const int FrostHollowGrownVersion = 3;
         /// <summary>Frost Hollow's row count before it grew (36x24). Callers pass FrostHollowLayout.RowCount; the default means "not grown", so a caller that forgets never shifts.</summary>
@@ -65,6 +74,7 @@ namespace ZenoniaProto.Rpg
             d.appearance = CharacterAppearanceData.Sanitize(p.Appearance, p.ClassId);
             d.chests = p.ChestCooldownsToList(d.savedAt);
             d.waypoints = new List<string>(p.Waypoints);
+            p.Cards.ToSave(d);
             return d;
         }
 
@@ -119,6 +129,7 @@ namespace ZenoniaProto.Rpg
             d.appearance = CharacterAppearanceData.Sanitize(raw.appearance, d.classId);
             d.chests = PlayerState.SanitizeChests(raw.chests);
             d.waypoints = PlayerState.SanitizeWaypoints(raw.waypoints);
+            new CardCollection().Load(raw).ToSave(d); // sanitised copy of every card field
             return d;
         }
 
@@ -151,6 +162,7 @@ namespace ZenoniaProto.Rpg
             p.WantedDay = d.wantedDay;
             p.LoadDungeon(d.chests, d.waypoints); // after the quests: nothing here moves a quest
             p.Appearance = CharacterAppearanceData.Sanitize(d.appearance, p.ClassId);
+            p.Cards.Load(d);
             for (int i = 0; i < p.Team.Length; i++) p.Team[i] = d.petTeam != null && i < d.petTeam.Count && d.petTeam[i] != null ? d.petTeam[i] : i == 0 ? d.petId ?? "" : "";
             p.RecomputeStats();
             p.Hp = Math.Min(p.MaxHp, d.hp > 0f ? d.hp : p.MaxHp); // never load a dead hero

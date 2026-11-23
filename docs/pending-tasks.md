@@ -2,6 +2,13 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 11:50 Card Monster phase 01: dữ liệu card + rơi + Album + lưu (XONG code, CHƯA kiểm trong game)
+- Làm xong: bảng 40 card (`Assets/Scripts/Rpg/Cards/`: CardDef, CardTable + CardTableData, CardDrops, CardCollection, AlbumRules, CardSaveData; `PlayerState.Cards.cs`). Rơi: `KillRewards.RollCards` (mỗi người góp >= 1 % máu roll riêng; N 1 %, R 0,5 %, SR 0,2 %, boss 3 %; Rimeclaw Tyrant chỉ khi là Wanted Boss của ngày) -> `PlayerRpg.CardDrop` -> toast `CardToast` (event mới `NetEventType.CardDrop`, `NetProtocol.Version` 27) + lưu ngay với card SR+. Lưu `SaveVersion` 6: cards / gems / album / albumClaimed / cardDeck / cardDaily / cardNpcFirstWins / cardRank + `Item.sockets`. server-api: zod + `src/rpg/card-ids.json` (sinh từ C#: `ZENONIA_WRITE_CARD_IDS=1 dotnet test Tests/dotnet/ZenoniaSkills.Tests --filter CardIdsExportTests`).
+- Test: ZenoniaSkills 532 pass, ZenoniaNet 487 pass + 2 FrostHollowLargeMapTests fail sẵn có, vitest 220 pass (26 test card mới). Bản player dựng từ bản sao OK 0 lỗi: `C:\temp\player-cards-p1\Zenonia.exe`.
+- CẦN DỰNG LẠI: zone server + deploy server-api (zod mới; chưa deploy thì save v6 bị API từ chối vì version > 5). Client cũ bị từ chối (Version 27).
+- Chưa kiểm trong game: giết quái thấy toast "Card: ..." (đặt `CardDrops.ChanceN` tạm cao để thử), relog còn card, online API giữ card. Chưa có UI card (phase 03). Region / element / số hướng của 40 card do mình đặt, người dùng duyệt sau.
+- Chưa làm: phân tab vùng trong UI (có 10 map id trong `CardTable.Regions`, mockup 7 tab).
+
 ### 23/11 10:57 Bản build test mới (HEAD c79b54f8)
 - Exe: `C:\temp\player-261123\Zenonia.exe` (bản test thường, có cheat dev-start); map 3D: `C:\temp\player-261123\Zenonia-3D.bat` (`--map3d`). Build OK, 0 lỗi.
 - Bản sao build: `C:\temp\zu-copy` (máy này không có ổ D:, bản `D:\temp\zu-copy` và `player-all-261122d` ghi bên dưới không còn ở đây).

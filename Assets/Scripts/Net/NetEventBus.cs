@@ -151,6 +151,13 @@ namespace ZenoniaProto
             Add(new NetEvent { Type = NetEventType.Toast, Text = text, Value = ((uint)c.r << 24) | ((uint)c.g << 16) | ((uint)c.b << 8) | c.a }, h.Position, h.NetId);
         }
 
+        /// <summary>A monster card dropped for this hero (owner only); `first` = new in the Album.</summary>
+        public static void CardDrop(HeroController h, int cardIndex, bool first)
+        {
+            if (!Active || h == null) return;
+            Add(new NetEvent { Type = NetEventType.CardDrop, Step = (byte)cardIndex, Flags = (byte)(first ? 1 : 0) }, h.Position, h.NetId);
+        }
+
         /// <summary>One locked shape of a wanted boss skill's telegraph: `center` + `dirDeg` already resolved (origin / facing, or the first safe
         /// lane's centre), `atMs` the server-clock moment it strikes (same clock as ServerTimeMs / NetClient.ServerNowMs). A multi-circle skill
         /// (Crystal Fall, Poison Bloom ...) calls this once per locked circle.</summary>

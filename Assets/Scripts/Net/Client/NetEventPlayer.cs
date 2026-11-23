@@ -125,6 +125,10 @@ namespace ZenoniaProto
                     stats.Add("toastsSeen", 1);
                     if (fx) RpgHud.Toast(e.Text ?? "", new Color32((byte)(e.Value >> 24), (byte)(e.Value >> 16), (byte)(e.Value >> 8), (byte)e.Value));
                     break;
+                case NetEventType.CardDrop:
+                    stats.Add("cardDropsSeen", 1);
+                    if (fx) CardToast.Show(e.Step, (e.Flags & 1) != 0);
+                    break;
                 case NetEventType.BossSpawned:
                     stats.Add("bossSpawnedSeen", 1);
                     stats.Mark("bossSpawnedSeenUtcMs", NetStats.UtcMs.ToString());

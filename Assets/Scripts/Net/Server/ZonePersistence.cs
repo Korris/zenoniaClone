@@ -258,6 +258,13 @@ namespace ZenoniaProto
             p.Rpg.AttachAccount(new AccountLink(c.Account, new ZoneAccountQueue(http, c.CharacterId, c.SessionId, c.AccountRev)));
             p.Rpg.ExpGained += (exp, levels, at) => { if (levels > 0) RequestSave(p); };
             p.Rpg.BossKilled += () => RequestSave(p);
+            p.Rpg.CardDropped += (id, first) => // SR+ and boss cards are written at once (and logged); common ones ride the next interval save
+            {
+                CardDef card = CardTable.Get(id);
+                if (card == null || card.Rarity < CardRarity.SR) return;
+                Debug.Log("[ZenoniaProto] card drop: " + card.Rarity + " " + id + " for " + c.CharacterId);
+                RequestSave(p);
+            };
             p.Rpg.WantedClaimed += (r, def, day) => { if (r.Ok) RequestSave(p); }; // the claim day and the reward are written together, at once
             p.Rpg.LootPicked += (e, r) => { if (r.Ok && e.Kind == LootKind.Equipment && e.Item != null && e.Item.rarity == "epic") RequestSave(p); };
             if (c.KeptPath != null)

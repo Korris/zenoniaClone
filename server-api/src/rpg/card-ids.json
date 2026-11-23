@@ -1,0 +1,202 @@
+[
+  {
+    "id": "meadowSlime",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "hornRabbit",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "thornBoar",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "meadowMantis",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "forestWolf",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "brambleTreant",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "thornSprite",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "thornfangAlpha",
+    "rarity": "SSR",
+    "isBoss": true
+  },
+  {
+    "id": "caveMantis",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "gloomWolf",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "crystalSprite",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "hollowTreant",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "ambercapWarden",
+    "rarity": "SSR",
+    "isBoss": true
+  },
+  {
+    "id": "frostSlime",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "snowFox",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "iceImp",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "iceWraith",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "frostBear",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "frostbiteYeti",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "crystalGolem",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "frostfangKing",
+    "rarity": "SSR",
+    "isBoss": true
+  },
+  {
+    "id": "rimeclawTyrant",
+    "rarity": "SSR",
+    "isBoss": true
+  },
+  {
+    "id": "iceGoblin",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "spectralWolf",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "duneScarab",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "sandRaider",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "amberWisp",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "bogSlime",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "mireToad",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "marshStalker",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "ruinWisp",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "mirefangHydra",
+    "rarity": "SSR",
+    "isBoss": true
+  },
+  {
+    "id": "highlandIbex",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "dustscaleLizard",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "cliffHarpy",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "stonebackGuardian",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "giantScorpion",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "sandWraith",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "rockBasilisk",
+    "rarity": "SR",
+    "isBoss": false
+  },
+  {
+    "id": "duneGolem",
+    "rarity": "SR",
+    "isBoss": false
+  }
+]

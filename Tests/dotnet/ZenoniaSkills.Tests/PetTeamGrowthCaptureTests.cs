@@ -76,7 +76,7 @@ public class PetTeamGrowthCaptureTests
         p.AttachAccount(Owning("imp", "frostSlime", "iceGoblin"));
         p.SetTeamSlot(0, "imp"); p.SetTeamSlot(2, "iceGoblin"); p.SetTeamSlot(4, "frostSlime");
         SaveData d = SaveSerializer.Parse(SaveSerializer.ToJson(SaveSerializer.Capture(p, true, 1f, 2f, false)));
-        Assert.Equal(5, d.version);
+        Assert.Equal(SaveSerializer.SaveVersion, d.version);
         Assert.Equal(new[] { "imp", "", "iceGoblin", "", "frostSlime" }, SaveSerializer.Restore(d).Team);
         const string v4 = "{\"version\":4,\"classId\":\"warrior\",\"level\":5,\"petId\":\"imp\",\"inventory\":[],\"equipment\":[]}";
         Assert.Equal(new[] { "imp", "", "", "", "" }, SaveSerializer.Restore(SaveSerializer.Parse(v4)).Team);

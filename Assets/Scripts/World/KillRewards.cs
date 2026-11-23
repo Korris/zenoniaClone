@@ -43,9 +43,24 @@ namespace ZenoniaProto
             if (m.IsBoss && !m.IsWanted) // pet rewards: food, the 5th valid map boss of the week pays Pet Crystals, 10 % a Pet Ball (>= 1 % of its max HP by the hero itself; pet hits are not in DamageBy)
                 for (int i = 0; i < Winners.Count; i++) if (AccountRewards.IsValidBossShare(Damage[i], m.MaxHp)) Winners[i].Owner.AccountMapBossKilled(RpgRandom.Default() < PetRules.BossBallChance);
             if (!m.IsBoss) for (int i = 0; i < Winners.Count; i++) if (RpgRandom.Default() < PetRules.MonsterFoodChance) Winners[i].Owner.AccountFoodDrop(); // Pet Food, 8 % per contributor
+            RollCards(m); // monster card: every contributor with a valid share rolls its own
             if (m.IsBoss) PetCaptureService.OpenCorpse(zone, m, Winners, Damage); // 30 / 45 s to throw a ball at it
             if (m.IsWanted) WantedBossCredit.Pay(zone, m, Winners); // daily Wanted Boss: no-op unless this is today's boss, online
             if (m.IsWanted) DropWantedHats(zone, m);
+        }
+
+        /// <summary>Monster card drop (CardDrops): each winner whose damage reached the valid share (>= 1 % of the monster's max HP, like the pet boss rewards) rolls once; the card goes
+        /// straight into its collection (nothing lies on the ground, so NetLootCodec is untouched). A Wanted Boss only drops its card when it is today's boss.</summary>
+        static void RollCards(Monster m)
+        {
+            if (!CardDrops.Enabled || CardTable.Get(m.Type) == null) return;
+            if (m.IsWanted && WantedBoss.Today(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).BossType != m.Type) return;
+            for (int i = 0; i < Winners.Count; i++)
+            {
+                if (!AccountRewards.IsValidBossShare(Damage[i], m.MaxHp)) continue;
+                string card = CardDrops.Roll(m.Type, RpgRandom.Default);
+                if (card != null) Winners[i].Owner.CardDrop(card);
+            }
         }
 
         /// <summary>Wanted Boss (MVP) hats: every contributor rolls its own (HeadgearCatalog.RollWantedDrops: the boss's crown, the rare ultimate wizard hat);
