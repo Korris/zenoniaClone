@@ -1,0 +1,16 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/b-icons/cards-b1-menu-filter-icons-chatgpt-1.png",
+ "note": "Monster Card left-menu icons + ATK / DEF / HP / Utility filter icons (phase 02 sheet B1); the HUD 'Cards' icon of the same sheet is cut by cards-b1b-hud-icon-cards",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#00FF00",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/icons",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "close": 12,
+ "rows": [
+  [{"name": "menu-my-cards", "height": 96}, {"name": "menu-album", "height": 96}, {"name": "menu-convert", "height": 96}, {"name": "menu-socket", "height": 96}, {"name": "menu-remove", "height": 96}, {"name": "menu-duel", "height": 96}],
+  [{"name": "filter-all", "height": 64}, {"name": "filter-atk", "height": 64}, {"name": "filter-def", "height": 64}, {"name": "filter-hp", "height": 64}, {"name": "filter-utility", "height": 64}],
+  [{"name": "hud-icon-cards-src", "skip": true}]
+ ]
+}

@@ -1,0 +1,116 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/a-frame/cards-a1-frames-chatgpt-1.png",
+ "note": "Monster Card window frames + nav buttons (phase 02 sheet A1). 9-slice pieces exported at 2x of 1280x720 reference (like ro-soft kit); set pixelsPerUnitMultiplier 2 in code",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/frame",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [
+   {
+    "name": "window-frame",
+    "border": [
+     140,
+     100,
+     140,
+     100
+    ]
+   },
+   {
+    "name": "panel-inner",
+    "border": [
+     40,
+     40,
+     40,
+     40
+    ]
+   },
+   {
+    "name": "panel-detail",
+    "border": [
+     40,
+     40,
+     40,
+     40
+    ]
+   }
+  ],
+  [
+   {
+    "name": "grid-cell-empty",
+    "height": 256,
+    "border": [
+     36,
+     36,
+     36,
+     36
+    ]
+   },
+   {
+    "name": "menu-btn",
+    "height": 104,
+    "border": [
+     76,
+     30,
+     30,
+     30
+    ]
+   },
+   {
+    "name": "menu-btn-selected",
+    "height": 104,
+    "border": [
+     76,
+     30,
+     30,
+     30
+    ]
+   }
+  ],
+  [
+   {
+    "name": "region-tab",
+    "height": 80,
+    "border": [
+     40,
+     0,
+     40,
+     0
+    ]
+   },
+   {
+    "name": "region-tab-selected",
+    "height": 80,
+    "border": [
+     40,
+     0,
+     40,
+     0
+    ]
+   },
+   {
+    "name": "filter-pill",
+    "height": 56,
+    "border": [
+     28,
+     0,
+     28,
+     0
+    ]
+   },
+   {
+    "name": "filter-pill-selected",
+    "height": 56,
+    "border": [
+     28,
+     0,
+     28,
+     0
+    ]
+   }
+  ]
+ ]
+}

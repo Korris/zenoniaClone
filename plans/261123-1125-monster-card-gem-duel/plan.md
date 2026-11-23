@@ -25,7 +25,7 @@ Spec: `docs/reference/card-gem-ui/design-notes-chatgpt.md` (mục "Đã chốt" 
 | # | Phase | Effort | Phụ thuộc | Build lại server | Trạng thái |
 |---|---|---|---|---|---|
 | 01 | [Dữ liệu card, rơi card, Album, lưu](phase-01-card-data-drops-album-persistence.md) | 7h | - | Zone + API | code xong 23/11 + sửa review (chưa deploy) |
-| 02 | [Xin asset ChatGPT (card, ngọc, nút, bàn đấu)](phase-02-chatgpt-asset-request.md) | 10h | - (song song 01) | Không | pending |
+| 02 | [Xin asset ChatGPT (card, ngọc, nút, bàn đấu)](phase-02-chatgpt-asset-request.md) | 10h | - (song song 01) | Không | done (chờ duyệt) |
 | 03 | [UI My Cards + Monster Album](phase-03-card-ui-my-cards-album.md) | 8h | 01, 02 | Zone (InvOp mới) | pending |
 | 04 | [Chuyển hoá, khảm, tháo ngọc + chỉ số](phase-04-soul-gem-convert-socket-remove.md) | 9h | 03 | Zone + API | code + UI xong 23/11 (chưa deploy, chưa nối CardWindow, chưa kiểm online) |
 | 05 | [Duel core + đấu NPC + UI deck/bàn](phase-05-duel-core-npc-duel.md) | 13h | 03 | Zone | pending |

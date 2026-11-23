@@ -1,0 +1,23 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/f-board/cards-f2-duel-hud-chatgpt-1.png",
+ "note": "Card Duel HUD: score plates mine / enemy, VS crossed swords, turn plate, turn timer ring track + fill (radial fill in code), avatar rings mine / NPC (portrait drawn under, round mask = ring size), result banners win / lose / draw without text (phase 02 sheet F2)",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#00FF00",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/board",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "hard_glow_yellow": true,
+ "box_hides_blobs": true,
+ "rows": [
+  [{"name": "score-plate-mine", "height": 88, "border": [96, 0, 32, 0]},
+   {"name": "score-plate-enemy", "height": 88, "border": [96, 0, 32, 0]},
+   {"name": "icon-vs", "height": 72},
+   {"name": "turn-plate", "height": 80, "border": [96, 0, 96, 0]}],
+  [{"name": "timer-ring-track", "height": 96}, {"name": "timer-ring-fill", "height": 96},
+   {"name": "avatar-ring-mine", "height": 128}, {"name": "avatar-ring-enemy", "height": 128}],
+  [{"name": "banner-win", "width": 480, "box": [35, 590, 605, 845], "hard_edge": 2},
+   {"name": "banner-lose", "width": 440, "box": [620, 620, 1170, 835]},
+   {"name": "banner-draw", "width": 440, "box": [1195, 615, 1750, 835]}]
+ ]
+}

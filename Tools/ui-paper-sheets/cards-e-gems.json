@@ -1,0 +1,65 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/e-gems/cards-e-gems-chatgpt-1.png",
+ "note": "Soul Gem shells Power (red) / Guard (blue) x N R SR SSR, one scale for all (N = 96 px tall; SR / SSR bigger because of wings / rays). The window is a cream disc: draw the monster portrait over it with a round mask. + equipment socket empty / filled / locked",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#00FF00",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/gems",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "hard_glow_yellow": true,
+ "rows": [
+  [
+   {
+    "name": "gem-power-n",
+    "height": 96
+   },
+   {
+    "name": "gem-power-r",
+    "height": 98
+   },
+   {
+    "name": "gem-power-sr",
+    "height": 102
+   },
+   {
+    "name": "gem-power-ssr",
+    "height": 113,
+    "hard_edge": 2
+   }
+  ],
+  [
+   {
+    "name": "gem-guard-n",
+    "height": 96
+   },
+   {
+    "name": "gem-guard-r",
+    "height": 98
+   },
+   {
+    "name": "gem-guard-sr",
+    "height": 102
+   },
+   {
+    "name": "gem-guard-ssr",
+    "height": 113,
+    "hard_edge": 2
+   }
+  ],
+  [
+   {
+    "name": "socket-empty",
+    "height": 56
+   },
+   {
+    "name": "socket-filled",
+    "height": 56
+   },
+   {
+    "name": "socket-locked",
+    "height": 56
+   }
+  ]
+ ]
+}

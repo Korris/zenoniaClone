@@ -1,0 +1,14 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/g-ranked/cards-g-ranked-wager-chatgpt-1.png",
+ "note": "Ranked tier badges Bronze / Silver / Gold / Platinum / Diamond, card wager slot (fixed size like a card), wager marks locked / confirmed / waiting (phase 02 sheet G)",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/ranked",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [
+  [{"name": "rank-bronze", "height": 96}, {"name": "rank-silver", "height": 96}, {"name": "rank-gold", "height": 100}, {"name": "rank-platinum", "height": 100}, {"name": "rank-diamond", "height": 108}],
+  [{"name": "wager-slot", "height": 256}, {"name": "wager-locked", "height": 72}, {"name": "wager-confirmed", "height": 72}, {"name": "wager-waiting", "height": 72}]
+ ]
+}

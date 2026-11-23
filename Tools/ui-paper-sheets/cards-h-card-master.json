@@ -1,0 +1,13 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/h-npc/cards-h-card-master-chatgpt-1.png",
+ "note": "Card Master Orin village NPC: 3 standing poses (front, facing left, facing right) 164 px tall like bountyLeila + dialogue face. Cut pieces land in ArtLibrary/ui/cards/h-npc/cut; Sprites/village/npcs/cardMaster.png (768x576, 4 equal idle frames per row: down / left / right, feet on the cell bottom, centred) and cardMaster_face.png (152x152, bottom aligned like the other _face files) are laid out from them",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/ArtLibrary/ui/cards/h-npc/cut",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "rim_from_body": 2,
+ "rows": [
+  [{"name": "card-master-down", "height": 164}, {"name": "card-master-left", "height": 164}, {"name": "card-master-right", "height": 164}],
+  [{"name": "card-master-face", "height": 140}]
+ ]
+}

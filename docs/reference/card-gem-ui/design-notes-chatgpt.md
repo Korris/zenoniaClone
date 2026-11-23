@@ -74,3 +74,9 @@ Người dùng: giữ style RO Soft **Fantasy**; duyệt bộ phí chuyển hoá
 **Cược card (Card Wager, ChatGPT):** chỉ PvP thường, KHÔNG trong Ranked. Mỗi bên cược đúng 1 card, chỉ N hoặc R, hai lá cùng độ hiếm; không cược Gold / ngọc / pet / SR / SSR / boss / card khoá / card đang trên chợ; card cược không cần nằm trong deck. Hai bên xem card, Lock rồi Confirm, đổi card thì huỷ xác nhận cả hai. Thắng lấy cả 2, thua mất, hoà trả lại. Server giữ 2 card (escrow) trước trận, chuyển chủ bằng transaction nguyên tử. Rớt mạng có 60 s nối lại rồi xử thua. Chống chuyển đồ: Lv30+, tài khoản ≥ 7 ngày, tối đa 3 trận cược / ngày, log mọi lần chuyển, cảnh báo cặp cố tình thua; có công tắc tắt tính năng. ChatGPT lưu ý kiểm tra luật pháp từng thị trường về cược vật phẩm có giá trị.
 
 Ngoài ra ChatGPT vẽ thêm 1 bản 6b "logic fixed" (tỉ số 3-3 đúng, nhưng nó tự nhận mỹ thuật đơn giản hơn), chưa tải về.
+
+## Asset thật (phase 02, 23/11 12:30)
+
+- Chat mới cùng tài khoản Tay: https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617 . Mỗi tin gửi kèm mockup liên quan (+ `ui-style-ro-soft-fantasy/01-style-board.png` ở tin đầu), danh sách mảnh theo hàng, nền phẳng #FF00FF hoặc #00FF00 (theo màu của sheet), không chữ, cách nhau >= 24-48 px; để ChatGPT tự quyết cách vẽ.
+- Chân dung quái: mỗi sheet 8 con, gửi ảnh ghép frame idle trong game phóng nearest có đánh số (`Sprites/monsters/<id>.png` ô 0,0; 4 quái hang dùng sheet gốc nhân `FallbackTint`) + `our-monsters-contact-sheet.png` làm mẫu phong cách.
+- Ảnh gốc: `Assets/ArtLibrary/ui/cards/<a-frame|b-icons|c-card|d-portraits|e-gems|f-board|g-ranked|h-npc>/`; config cắt `Tools/ui-paper-sheets/cards-*.json`; contact sheet + ảnh so `docs/reference/card-gem-ui/art-contact/`.

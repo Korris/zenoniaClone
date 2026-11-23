@@ -7,7 +7,7 @@
 - Công cụ cắt: `Tools/cut-ui-paper-sheet.py` + config `Tools/ui-paper-sheets/<sheet>.json`
 
 ## Overview
-P1, pending, chạy song song phase 01 (không đụng code). Yêu cầu người dùng 23/11: MỌI icon, khung card, nút, nền, hình quái trên card, viên ngọc, badge độ hiếm... phải do ChatGPT vẽ, cắt thành file riêng nền trong suốt theo mockup RO Soft Fantasy. KHÔNG tự vẽ bằng code / script / shape.
+P1, XONG 23/11 12:30 (chờ người dùng xem), chạy song song phase 01 (không đụng code). Yêu cầu người dùng 23/11: MỌI icon, khung card, nút, nền, hình quái trên card, viên ngọc, badge độ hiếm... phải do ChatGPT vẽ, cắt thành file riêng nền trong suốt theo mockup RO Soft Fantasy. KHÔNG tự vẽ bằng code / script / shape.
 
 ## Key Insights
 - Bắt buộc đọc hết `docs/sprite-rules.md` và `docs/ui-layout-rules.md` trước khi làm; ghi lỗi mới vào "Sổ lỗi".
@@ -62,10 +62,22 @@ Không đụng code game.
 7. Commit ảnh + config (kèm `.meta` do Unity sinh khi mở project).
 
 ## Todo List
-- [ ] A khung + nút (9s)   - [ ] B icon   - [ ] C khung card + badge
-- [ ] D chân dung 1-8 / 9-16 / 17-24 / 25-32 / 33-40
-- [ ] E ngọc   - [ ] F bàn đấu + NPC đấu   - [ ] G Ranked + cược + toast   - [ ] H NPC Card Master
-- [ ] Contact sheet đã xem, ghi Sổ lỗi nếu có
+Chat (Tay "Tân Korris"): https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617 . 22 ảnh, config `Tools/ui-paper-sheets/cards-*.json`, contact `docs/reference/card-gem-ui/art-contact/`.
+- [x] A khung + nút (9s): `cards-a1-frames`, `cards-a2-buttons` (25 mảnh `cards/frame/`, gồm toast-card)
+- [x] B icon: `cards-b1-menu-filter-icons`, `cards-b2-small-icons`, `cards-c3b-green-element-icons` (30 mảnh `cards/icons/`), `cards-b1b-hud-icon-cards` -> `ro-soft/hud-icon-cards.png`
+- [x] C khung card + badge: `cards-c1-card-frames`, `cards-c2-badges-overlays`, `cards-c3-green-fixes` (13 mảnh `cards/card/`)
+- [x] D chân dung 1-8 / 9-16 / 17-24 / 25-32 / 33-40: `cards-d1..d5-portraits` (40 png `Sprites/monsters/card-portraits/<monsterId>.png`, đủ 40 id của `CardTableData`; so frame game: `portraits-vs-ingame-1..5.png`)
+- [x] E ngọc: `cards-e-gems` (8 vỏ + 3 ô, `cards/gems/`)
+- [x] F bàn đấu + NPC đấu: `cards-f1-board`, `cards-f2-duel-hud`, `cards-f3-npc-portraits` (21 mảnh `cards/board/`)
+- [x] G Ranked + cược + toast: `cards-g-ranked-wager` (9 mảnh `cards/ranked/`), toast ở A2
+- [x] H NPC Card Master: `cards-h-card-master` -> `Sprites/village/npcs/cardMaster.png` (768x576, 4 frame giống nhau mỗi hàng, không thở) + `cardMaster_face.png`; ảnh so `card-master-vs-village-npc.png`
+- [x] Contact sheet đã xem, ghi Sổ lỗi (3 mục 23/11)
+
+Ghi chú cho phase 03-08:
+- Cỡ xuất: khung / nút 9-slice xuất gấp 2 cỡ tham chiếu 1280x720 (như kit ro-soft: `pixelsPerUnitMultiplier` 2); border trong `Tools/ui-paper-sheets/paper-borders.json` (khoá `frame/...`, `card/...`, `icons/...`, `board/...`). Card, viền phủ, ô cược: cỡ cố định ~192-215 x 256 (không 9-slice vì có hoạ tiết giữa cạnh). `card-frame-boss` cao 290: thân card là 256 px dưới, vương miện nhô lên.
+- Chân dung: cạnh dài 256, không vuông, vẽ `preserveAspect`. Cửa sổ chân dung của card / ngọc là ô kem đặc (không rỗng): vẽ chân dung đè lên, ngọc cần mask tròn.
+- Huy hiệu độ hiếm có chữ N / R / SR / SSR làm logo (spec cho phép). Tag Trade Locked / In Deck / xN, banner Win / Lose / Draw, nhãn A-D / 1-4 không chữ: game ghi chữ.
+- 4 quái hang (caveMantis, gloomWolf, crystalSprite, hollowTreant) chân dung màu tím, khác tint trong game: chờ người dùng (Sổ lỗi).
 
 ## Success Criteria
 - Đủ mọi dòng trong bảng, PNG trong suốt sạch (không còn viền hồng/xanh, không caro), đúng cỡ và tên.

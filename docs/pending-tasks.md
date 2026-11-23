@@ -2,6 +2,12 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 12:30 Card Monster phase 02: asset ChatGPT (XONG, CHỜ người dùng xem)
+- Chat Tay ("Tân Korris", Chrome "Browser 3"): https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617 (22 ảnh, chưa hết lượt).
+- Xong đủ bảng phase 02: khung + nút 9-slice, icon menu / lọc / hệ / tag / mũi tên, khung card N/R/SR/SSR/boss + mặt sau + huy hiệu + viền phủ, 40 chân dung quái (`Sprites/monsters/card-portraits/`), 8 vỏ ngọc + 3 ô ngọc, bàn đấu + HUD trận + 3 NPC đấu, huy hiệu Ranked + ô cược, toast, icon HUD `hud-icon-cards`, NPC `cardMaster` (sheet + mặt). Danh sách + ghi chú cỡ: todo của `plans/261123-1125-monster-card-gem-duel/phase-02-chatgpt-asset-request.md`; ảnh xem: `docs/reference/card-gem-ui/art-contact/`.
+- Chờ người dùng: 4 quái hang (Cave Mantis, Gloom Wolf, Crystal Sprite, Hollow Treant) chân dung ra TÍM, trong game chỉ là sheet gốc tô xỉn (`portraits-vs-ingame-2.png`): giữ hay vẽ lại. Card Master chỉ có 1 frame mỗi hướng (4 frame giống nhau, không thở).
+- Chưa xem trong Unity (chưa có UI dùng); `.meta` của ảnh ArtLibrary + NPC cut do Unity sinh khi mở project.
+
 ### 23/11 Card Monster phase 04: ngọc Soul Gem (đổi / khảm / tháo) + sửa review phase 01 (XONG code + UI offline, CHƯA deploy, CHƯA kiểm online)
 - Làm xong: `CardFees`, `GemSockets`, `CardOps` (Convert / Socket / Remove / Receive) ở `Assets/Scripts/Rpg/Cards/`; `RecomputeStats` cộng option ngọc (phẳng, không nhân enhance); `InvOp` GemConvert 32 / GemSocket 33 / GemRemove 34; món có ngọc không trade (zone `TradeBook` + API `trade_socketed`) và không bỏ (`PlayerState.Discard`). UI: `GemWindow` (vỏ tạm, phím **F8** trong bản test) + `GemConvertPage` / `GemSocketPage` / `GemRemovePage`, dựng bằng asset ChatGPT `Sprites/ui/paper/cards/*`; ảnh `docs/reference/card-gem-ui/phase-04-shots/`. Sửa review phase 01: khoá card trong save v6 (`CardEntry.locked`), card đầy 999 đổi sang vàng, kẹp vàng, thứ tự deploy (`docs/deploy.md`), log API từ chối save lặp lại, test save tệ nhất. Chi tiết: `plans/261123-1125-monster-card-gem-duel/phase-04-*.md`.
 - Test: ZenoniaSkills 568 pass, ZenoniaNet 492 pass + 2 FrostHollowLargeMapTests fail sẵn có, vitest 230 pass. Player từ bản sao: `C:\temp\player-cards-p4\Zenonia.exe` (`--gem-seed --open-gems convert|socket|remove --gem-press ...`).

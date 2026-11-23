@@ -1,0 +1,106 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/f-board/cards-f1-board-chatgpt-1.png",
+ "note": "Card Duel board 4x4 with empty column / row label tabs (game writes A-D / 1-4), hand tray, battle log frame + log line, single board cells empty / hover / valid (phase 02 sheet F1)",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/board",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [
+   {
+    "name": "board-4x4",
+    "width": 560,
+    "box": [
+     72,
+     22,
+     778,
+     672
+    ]
+   },
+   {
+    "name": "log-frame",
+    "width": 400,
+    "border": [
+     110,
+     48,
+     110,
+     96
+    ],
+    "box": [
+     802,
+     342,
+     1242,
+     912
+    ]
+   },
+   {
+    "name": "hand-tray",
+    "height": 160,
+    "border": [
+     64,
+     48,
+     64,
+     48
+    ],
+    "box": [
+     818,
+     102,
+     1618,
+     282
+    ]
+   },
+   {
+    "name": "log-line",
+    "height": 40,
+    "border": [
+     20,
+     0,
+     20,
+     0
+    ],
+    "box": [
+     1258,
+     392,
+     1622,
+     454
+    ]
+   }
+  ],
+  [
+   {
+    "name": "cell-empty",
+    "height": 192,
+    "box": [
+     106,
+     683,
+     294,
+     912
+    ]
+   },
+   {
+    "name": "cell-hover",
+    "height": 192,
+    "box": [
+     326,
+     683,
+     512,
+     912
+    ]
+   },
+   {
+    "name": "cell-valid",
+    "height": 192,
+    "box": [
+     543,
+     683,
+     734,
+     912
+    ]
+   }
+  ]
+ ],
+ "box_hides_blobs": true
+}

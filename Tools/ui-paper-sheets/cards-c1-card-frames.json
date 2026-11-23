@@ -1,0 +1,53 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/c-card/cards-c1-card-frames-chatgpt-1.png",
+ "note": "Monster Card frames N / R / SR / SSR / boss (crown) + card back (phase 02 sheet C1). One scale for all (card body 256 px tall); portrait goes over the cream window, rarity badge over the top-left orb, numbers on the 4 plates. card-frame-boss is 290 tall: its card body is the bottom 256 px, the crown sticks out above. card-frame-boss is 290 tall: its card body is the bottom ~256 px, the crown sticks out above",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/card",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [
+  [
+   {
+    "name": "card-frame-n",
+    "height": 256
+   },
+   {
+    "name": "card-frame-r",
+    "height": 256,
+    "box": [
+     580,
+     22,
+     955,
+     468
+    ]
+   },
+   {
+    "name": "card-frame-sr-magenta",
+    "skip": true
+   }
+  ],
+  [
+   {
+    "name": "card-frame-ssr",
+    "height": 256
+   },
+   {
+    "name": "card-frame-boss",
+    "box": [
+     566,
+     468,
+     972,
+     978
+    ],
+    "height": 290
+   },
+   {
+    "name": "card-back",
+    "height": 256
+   }
+  ]
+ ],
+ "box_hides_blobs": true
+}

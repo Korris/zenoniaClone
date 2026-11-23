@@ -47,6 +47,42 @@
   50,
   0
  ],
+ "board/hand-tray": [
+  64,
+  48,
+  64,
+  48
+ ],
+ "board/log-frame": [
+  110,
+  48,
+  110,
+  96
+ ],
+ "board/log-line": [
+  20,
+  0,
+  20,
+  0
+ ],
+ "board/score-plate-enemy": [
+  96,
+  0,
+  32,
+  0
+ ],
+ "board/score-plate-mine": [
+  96,
+  0,
+  32,
+  0
+ ],
+ "board/turn-plate": [
+  96,
+  0,
+  96,
+  0
+ ],
  "boss/boss-bar-frame": [
   40,
   0,
@@ -148,6 +184,120 @@
   0,
   44,
   0
+ ],
+ "frame/btn-blue": [
+  34,
+  32,
+  34,
+  32
+ ],
+ "frame/btn-disabled": [
+  34,
+  32,
+  34,
+  32
+ ],
+ "frame/btn-gold": [
+  34,
+  32,
+  34,
+  32
+ ],
+ "frame/btn-red": [
+  34,
+  32,
+  34,
+  32
+ ],
+ "frame/btn-teal": [
+  34,
+  32,
+  34,
+  32
+ ],
+ "frame/filter-pill": [
+  28,
+  0,
+  28,
+  0
+ ],
+ "frame/filter-pill-selected": [
+  28,
+  0,
+  28,
+  0
+ ],
+ "frame/gold-pill": [
+  64,
+  0,
+  32,
+  0
+ ],
+ "frame/grid-cell-empty": [
+  36,
+  36,
+  36,
+  36
+ ],
+ "frame/menu-btn": [
+  76,
+  30,
+  30,
+  30
+ ],
+ "frame/menu-btn-selected": [
+  76,
+  30,
+  30,
+  30
+ ],
+ "frame/panel-detail": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "frame/panel-inner": [
+  40,
+  40,
+  40,
+  40
+ ],
+ "frame/progress-fill": [
+  22,
+  0,
+  22,
+  0
+ ],
+ "frame/progress-track": [
+  22,
+  0,
+  22,
+  0
+ ],
+ "frame/region-tab": [
+  40,
+  0,
+  40,
+  0
+ ],
+ "frame/region-tab-selected": [
+  40,
+  0,
+  40,
+  0
+ ],
+ "frame/toast-card": [
+  96,
+  0,
+  96,
+  0
+ ],
+ "frame/window-frame": [
+  140,
+  100,
+  140,
+  100
  ],
  "gacha/btn-buy-gold": [
   56,
@@ -399,6 +549,24 @@
   40,
   0,
   40,
+  0
+ ],
+ "icons/tag-count": [
+  18,
+  0,
+  18,
+  0
+ ],
+ "icons/tag-in-deck": [
+  20,
+  0,
+  20,
+  0
+ ],
+ "icons/tag-trade-locked": [
+  48,
+  0,
+  24,
   0
  ],
  "kit/bar-fill-white": [

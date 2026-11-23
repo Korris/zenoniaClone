@@ -1,0 +1,48 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/d-portraits/cards-d5-portraits-chatgpt-1.png",
+ "note": "monster card portraits (phase 02 sheet D), drawn by ChatGPT from the in-game idle frame; longest side 256 px, draw with preserveAspect",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/monsters/card-portraits",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [
+  [
+   {
+    "name": "frostBear",
+    "height": 256
+   },
+   {
+    "name": "rockBasilisk",
+    "height": 256
+   },
+   {
+    "name": "duneGolem",
+    "height": 256
+   },
+   {
+    "name": "bogSlime",
+    "width": 256
+   }
+  ],
+  [
+   {
+    "name": "mireToad",
+    "width": 256
+   },
+   {
+    "name": "marshStalker",
+    "height": 256
+   },
+   {
+    "name": "ruinWisp",
+    "height": 256
+   },
+   {
+    "name": "mirefangHydra",
+    "height": 256
+   }
+  ]
+ ]
+}

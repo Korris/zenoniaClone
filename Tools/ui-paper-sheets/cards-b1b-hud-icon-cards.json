@@ -1,0 +1,17 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/b-icons/cards-b1-menu-filter-icons-chatgpt-1.png",
+ "note": "HUD 'Cards' entry icon (same look as hud-icon-bag / pet / quest, 80 px tall) from sheet B1; other pieces cut by cards-b1-menu-filter-icons",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#00FF00",
+ "out": "Assets/Resources/Sprites/ui/ro-soft",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "close": 12,
+ "rows": [
+  [{"name": "a", "skip": true}, {"name": "b", "skip": true}, {"name": "c", "skip": true}, {"name": "d", "skip": true}, {"name": "e", "skip": true}, {"name": "f", "skip": true}],
+  [{"name": "g", "skip": true}, {"name": "h", "skip": true}, {"name": "i", "skip": true}, {"name": "j", "skip": true}, {"name": "k", "skip": true}],
+  [{"name": "hud-icon-cards", "height": 80}]
+ ]
+}

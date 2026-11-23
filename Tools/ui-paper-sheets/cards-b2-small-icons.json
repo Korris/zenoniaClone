@@ -1,0 +1,17 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/b-icons/cards-b2-small-icons-chatgpt-1.png",
+ "note": "element icons (Earth, Nature, Water, Ice, Fire, Wind; Dark + Holy in cards-c3b), boss crown, lock, Trade Locked / In Deck / xN tag plates (text drawn by the game), '?' for unknown, gold coin, 4 direction arrows (phase 02 sheet B2)",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/icons",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "close": 8,
+ "flatten_edges": 4,
+ "rows": [
+  [{"name": "element-earth", "height": 48}, {"name": "element-nature", "height": 48}, {"name": "element-water", "height": 48}, {"name": "element-ice", "height": 48}, {"name": "element-fire", "height": 48}, {"name": "element-wind", "height": 48}],
+  [{"name": "icon-crown", "height": 40}, {"name": "icon-lock", "height": 40}, {"name": "tag-trade-locked", "height": 48, "border": [48, 0, 24, 0]}, {"name": "tag-in-deck", "height": 40, "border": [20, 0, 20, 0]}, {"name": "tag-count", "height": 36, "border": [18, 0, 18, 0]}],
+  [{"name": "icon-unknown", "height": 64}, {"name": "icon-gold", "height": 40}, {"name": "arrow-up", "height": 32}, {"name": "arrow-right", "width": 32}, {"name": "arrow-down", "height": 32}, {"name": "arrow-left", "width": 32}]
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/f-board/cards-f3-npc-portraits-chatgpt-1.png",
+ "note": "practice duel NPC portraits (easy Meadow Apprentice, medium Frost Scout Nia, hard Ember Veteran), head + shoulders, drawn under avatar-ring-enemy with a round mask; 192 px tall",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/board",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [[{"name": "npc-meadow-apprentice", "height": 192}, {"name": "npc-frost-scout-nia", "height": 192}, {"name": "npc-ember-veteran", "height": 192}]]
+}

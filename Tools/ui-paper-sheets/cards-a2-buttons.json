@@ -1,0 +1,28 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/a-frame/cards-a2-buttons-chatgpt-1.png",
+ "note": "Monster Card buttons, close / page arrows, progress bar, album milestones, gold pill, card toast (phase 02 sheet A2 + G toast). 2x of 1280x720 reference",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/frame",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [{"name": "btn-teal", "height": 96, "border": [34, 32, 34, 32]},
+   {"name": "btn-gold", "height": 96, "border": [34, 32, 34, 32]},
+   {"name": "btn-red", "height": 96, "border": [34, 32, 34, 32]},
+   {"name": "btn-blue", "height": 96, "border": [34, 32, 34, 32]},
+   {"name": "btn-disabled", "height": 96, "border": [34, 32, 34, 32]}],
+  [{"name": "btn-close", "height": 88},
+   {"name": "btn-page-left", "height": 80},
+   {"name": "btn-page-right", "height": 80},
+   {"name": "progress-track", "height": 44, "border": [22, 0, 22, 0]},
+   {"name": "progress-fill", "height": 44, "border": [22, 0, 22, 0]}],
+  [{"name": "milestone-locked", "height": 96},
+   {"name": "milestone-ready", "height": 96},
+   {"name": "milestone-claimed", "height": 96},
+   {"name": "gold-pill", "height": 64, "border": [64, 0, 32, 0]},
+   {"name": "toast-card", "height": 128, "border": [96, 0, 96, 0]}]
+ ]
+}

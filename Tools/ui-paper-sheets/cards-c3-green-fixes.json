@@ -1,0 +1,15 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/c-card/cards-c3-green-fixes-chatgpt-1.png",
+ "note": "purple / pink pieces redrawn on #00FF00 (they key out badly on magenta): SR card frame, enemy owner frame, SR badge, Dark + Holy element icons",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#00FF00",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/card",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "hard_glow_yellow": true,
+ "rows": [
+  [{"name": "card-frame-sr", "height": 256}, {"name": "owner-frame-enemy", "height": 256}],
+  [{"name": "badge-sr", "height": 36}, {"name": "element-dark-src", "skip": true}, {"name": "element-holy-src", "skip": true}]
+ ]
+}

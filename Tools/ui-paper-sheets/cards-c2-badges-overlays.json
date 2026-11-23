@@ -1,0 +1,45 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/c-card/cards-c2-badges-overlays-chatgpt-1.png",
+ "note": "rarity badges N / R / SSR (letters are the badge logo) + board owner frame (mine, blue) + selection frame (gold); SR badge and enemy frame come from cards-c3-green-fixes (purple / pink key out badly on magenta). Overlay frames are fixed-size (mid-edge plates would stretch in 9-slice); same size as the card frames",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#FF00FF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/card",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 6,
+ "rows": [
+  [
+   {
+    "name": "badge-n",
+    "height": 36
+   },
+   {
+    "name": "badge-r",
+    "height": 36
+   },
+   {
+    "name": "badge-sr-magenta",
+    "skip": true
+   },
+   {
+    "name": "badge-ssr",
+    "height": 48
+   }
+  ],
+  [
+   {
+    "name": "owner-frame-mine",
+    "height": 256
+   },
+   {
+    "name": "owner-frame-enemy-magenta",
+    "skip": true
+   },
+   {
+    "name": "select-frame-gold",
+    "height": 264,
+    "hard_edge": 1
+   }
+  ]
+ ]
+}
