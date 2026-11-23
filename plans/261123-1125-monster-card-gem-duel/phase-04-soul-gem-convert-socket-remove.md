@@ -8,7 +8,7 @@
 - Bán / bỏ đồ: `Assets/Scripts/BagActions.cs`, `World/PlayerRpg.cs` (`Discard`)
 
 ## Overview
-P1, pending. 3 trang của `CardWindow`: Convert, Gem Socketing, Gem Removal; option ngọc cộng vào chỉ số nhân vật; khoá giao dịch vĩnh viễn sau lần khảm đầu.
+P1, **code + test xong 23/11; UI 3 trang dựng bằng asset ChatGPT phase 02, đã chụp trong game (offline); CHƯA kiểm online, CHƯA nối vào CardWindow (phase 03)**. 3 trang của `CardWindow`: Convert, Gem Socketing, Gem Removal; option ngọc cộng vào chỉ số nhân vật; khoá giao dịch vĩnh viễn sau lần khảm đầu.
 
 ## Key Insights
 - Phí đổi N 500 / R 2.000 / SR 8.000 / SSR 25.000 G, 100 %, mất 1 card; phí tháo N 200 / R 800 / SR 3.000 / SSR 10.000 G, giữ ngọc (vẫn khoá). Khảm miễn phí 100 %.
@@ -44,13 +44,31 @@ Sửa: `Rpg/PlayerState.cs` (RecomputeStats), `Rpg/ItemInfo.cs` (dòng Gem Optio
 3. `RecomputeStats` cộng option + test chỉ số (enhance không nhân option).
 4. Chặn trade / discard / bán món có ngọc (C# + node) + test.
 5. 3 trang UI; chi tiết đồ trong túi hiện "Gem Option".
-6. zod: `sockets` theo slot. Build zone + deploy API.
+6. zod: `sockets` theo slot. Build zone + deploy API (**server-api TRƯỚC, zone SAU**, `docs/deploy.md`).
 7. Chụp so mockup 03/04/05.
 
 ## Todo List
-- [ ] CardFees / GemSockets / CardOps + test   - [ ] RecomputeStats + test
-- [ ] Chặn trade / discard món có ngọc (C# + node)   - [ ] 3 trang UI   - [ ] ItemInfo Gem Option
-- [ ] zod + build zone + deploy API   - [ ] Ảnh so mockup
+- [x] CardFees / GemSockets / CardOps + test (`GemSocketTests`, `GemStatTests`, `CardLockAndOverflowTests`)   - [x] RecomputeStats + test
+- [x] Chặn trade / discard món có ngọc (C# `TradeBook` + `TradeFail.Socketed`, node `trade_socketed`, `PlayerState.Discard`) + test
+- [x] 3 trang UI (`GemConvertPage` / `GemSocketPage` / `GemRemovePage`, host tạm `GemWindow`, phím thử F8)   - [x] ItemInfo Gem Option (`ItemInfo.GemOptionLine`, chi tiết đồ trong `ArmoryWindow`)
+- [x] zod (`GEM_SLOTS`) + build player từ bản sao OK   - [ ] Build zone + deploy API (người dùng; API trước, zone sau)
+- [x] Ảnh chụp so mockup: `docs/reference/card-gem-ui/phase-04-shots/{convert,socket,remove}.png` (offline, 1280x720)
+- [ ] Nối 3 trang vào `CardWindow` (phase 03 làm vỏ + menu trái, host các `GemPage`, xoá `GemWindow` + phím F8)
+- [ ] Kiểm online (client + zone thật): đổi / khảm / tháo, relog giữ ngọc, thử trade món có ngọc
+
+## Làm khác kế hoạch
+- `InvOp.GemSocket`: ItemUid = uid món, Slot = `GemSockets.Code` (chỉ số card x 2 + kind, 0-79); ngọc vào ô trống kế tiếp. Lý do: cột uid trên dây tối đa 40 ký tự, "itemUid>gemId:p" có thể vượt. `GemConvert` ItemUid = card id, Slot 0 Power / 1 Guard; `GemRemove` ItemUid = uid, Slot = ô. Số 30 / 31 giữ cho `AlbumClaim` / `CardSell` (phase 03). `InvOpInfo.Last` = `GemRemove`. `NetProtocol.Version` 28.
+- Ngọc đã tháo (locked) khảm lại được, dùng stack locked trước. Không cho 2 ngọc cùng card + kind trên 1 món (đề xuất giữ lại).
+- Trade: `TradeItemView.Sockets` (1 byte trên dây) + `TradeFail.Socketed = 32`; chặn lúc thêm vào offer và lúc chốt. Node `takeItems` trả 422 `trade_socketed`.
+- Quá giới hạn ô theo slot bị cắt ở `ItemFactory.SanitizeSockets` (C#) và từ chối ở zod (`GEM_SLOTS`: weapon 2, armor 2, helmet 1, còn lại 0).
+- Card đang khoá (`CardEntry.locked`) hoặc nằm trong deck không đổi được (`CardCollection.Spare`).
+- UI: lọc chip ATK / DEF / HP / Utility; 3 dropdown Rarity / Element / Area của mockup 03 CHƯA làm (My Cards phase 03 làm chung). Tab Bag chỉ liệt kê món có ô (vũ khí, giáp, dây chuyền).
+- Fix chung: `PaperArt.Get` tìm border cho mảnh `cards/...` bằng khoá không có tiền tố `cards/` (tool cắt ghi borders kiểu `frame/btn-teal`); `PaperArt.Borders.cs` sinh lại từ `paper-borders.json`.
+
+## UI còn chờ art (phase 02)
+- Chân dung 40 quái `Sprites/monsters/card-portraits/<id>.png`: chưa có, cửa sổ chân dung của card / ngọc đang trống (code tự hiện khi file xuất hiện).
+- Icon element "Poison" (Bog Slime, Mire Toad, ... hệ Poison) chưa có trong kit: hiện không icon. Hệ "Shadow" dùng `element-dark`.
+- Icon HUD "Cards" ở cột More (`hud-icon-cards.png`) thuộc phase 03.
 
 ## Success Criteria
 - Đổi N trừ đúng 500 G + 1 card, thêm 1 ngọc; tháo trừ 200 G, ngọc về `locked` (test).

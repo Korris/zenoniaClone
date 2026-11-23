@@ -24,10 +24,10 @@ Spec: `docs/reference/card-gem-ui/design-notes-chatgpt.md` (mục "Đã chốt" 
 ## Phase
 | # | Phase | Effort | Phụ thuộc | Build lại server | Trạng thái |
 |---|---|---|---|---|---|
-| 01 | [Dữ liệu card, rơi card, Album, lưu](phase-01-card-data-drops-album-persistence.md) | 7h | - | Zone + API | code xong 23/11 (chưa deploy) |
+| 01 | [Dữ liệu card, rơi card, Album, lưu](phase-01-card-data-drops-album-persistence.md) | 7h | - | Zone + API | code xong 23/11 + sửa review (chưa deploy) |
 | 02 | [Xin asset ChatGPT (card, ngọc, nút, bàn đấu)](phase-02-chatgpt-asset-request.md) | 10h | - (song song 01) | Không | pending |
 | 03 | [UI My Cards + Monster Album](phase-03-card-ui-my-cards-album.md) | 8h | 01, 02 | Zone (InvOp mới) | pending |
-| 04 | [Chuyển hoá, khảm, tháo ngọc + chỉ số](phase-04-soul-gem-convert-socket-remove.md) | 9h | 03 | Zone + API | pending |
+| 04 | [Chuyển hoá, khảm, tháo ngọc + chỉ số](phase-04-soul-gem-convert-socket-remove.md) | 9h | 03 | Zone + API | code + UI xong 23/11 (chưa deploy, chưa nối CardWindow, chưa kiểm online) |
 | 05 | [Duel core + đấu NPC + UI deck/bàn](phase-05-duel-core-npc-duel.md) | 13h | 03 | Zone | pending |
 | 06 | [PvP thách đấu + cược card (escrow)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | pending |
 | 07 | [Ranked mùa 30 ngày](phase-07-ranked-season.md) | 8h | 06 | Zone (state đã có từ 01) | pending |
@@ -46,6 +46,9 @@ Quái chết -> `KillRewards.Resolve` -> `CardDrops.Roll` mỗi người góp s�
 3. Lệch bảng card C# và node: test dotnet so `server-api/src/rpg/card-ids.json`.
 4. Đổi `NetProtocol.Version` nhiều lần: gộp mỗi phase một lần bump, client cũ bị từ chối.
 5. Art ChatGPT 40 chân dung + ngọc tốn lượt: chia đợt, dùng tài khoản theo CLAUDE.md.
+
+## Thứ tự deploy (bắt buộc)
+Mọi phase có cột "Zone + API": **deploy server-api TRƯỚC, zone SAU** (`docs/deploy.md`, mục Cập nhật). Zone mới gửi save mà API cũ từ chối thì tiến độ chỉ còn trong file kept. Zone log lỗi khi API từ chối 3 save trong 10 phút (`SaveRejectWatch`).
 
 ## Kiểm tra chung
 `dotnet test Tests/dotnet/ZenoniaSkills.Tests`, `dotnet test Tests/dotnet/ZenoniaNet.Tests`, `cd server-api && npx vitest run`. Build từ bản sao `Tools/build-from-copy.ps1`, không build vào project đang mở.

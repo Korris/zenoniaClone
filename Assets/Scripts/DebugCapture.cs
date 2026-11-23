@@ -251,6 +251,7 @@ namespace ZenoniaProto
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "--open-world-map") >= 0) WorldMapWindow.Open(); // what M / a tap on the minimap does
             DebugDungeonPoints(hero); // --attune-all / --open-chest <id> / --open-waypoints (Rootburrow V5 chests + warp crystals)
             DebugPetWindows(); // --open-pets / --open-gacha / --gacha-pull (DebugCapture.Pets.cs)
+            DebugGemWindow(); // --gem-seed / --open-gems / --gem-press (DebugCapture.GemUi.cs)
             DebugUiRedesign(); // --kit-sheet and the capture hooks of the rebuilt screens (DebugCapture.UiRedesign.cs)
         }
 

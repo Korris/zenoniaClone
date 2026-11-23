@@ -119,6 +119,7 @@ namespace ZenoniaProto
             if (p == null) return;
             if (useNew) badge.Refresh(hero, p, dt); else if (ro) roStatus.Refresh(hero, p); else Refresh(hero, p);
             DevBuffKey.Tick(hero);
+            GemWindow.DevKeyTick(); // F8 test key until the Card window (phase 03) opens the Soul Gem screens
         }
 
         void Refresh(HeroController hero, PlayerState p)

@@ -34,7 +34,7 @@ namespace ZenoniaProto
                 return null;
             }
             Vector4 border;
-            Borders.TryGetValue(piece, out border);
+            if (!Borders.TryGetValue(piece, out border) && piece.StartsWith("cards/")) Borders.TryGetValue(piece.Substring(6), out border); // the card kit (Sprites/ui/paper/cards/) is cut with borders keyed without the "cards/" folder
             s = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
             Cache[piece] = s;
             return s;

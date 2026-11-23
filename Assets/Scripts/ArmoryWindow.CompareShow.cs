@@ -94,6 +94,8 @@ namespace ZenoniaProto
                     : e.Max ? "Enhance " + e.Reason + "."
                     : "Enhance +" + e.From + " to +" + e.To + ": success " + e.Chance + "%, " + e.StatLabel + " " + e.StatFrom + " to " + e.StatTo + ". Costs 1 Upgrade Stone (have " + e.Owned + ").";
             }
+            string gemLine = ItemInfo.GemOptionLine(item);
+            if (gemLine != null && !confirmDiscard) noteText.text = (string.IsNullOrEmpty(noteText.text) ? "" : noteText.text + "\n") + gemLine; // the socketed Soul Gems, apart from the item stats
             if (confirmDiscard) LayoutActions("Cancel", false, "Discard");
             else LayoutActions(usable ? "Equip" : "Class only", enhanceable, "Discard");
             mainButton.SetEnabled(confirmDiscard || usable);
@@ -105,7 +107,8 @@ namespace ZenoniaProto
             var lines = ItemInfo.Lines(item);
             string stats = "";
             foreach (StatLine l in lines) stats += (stats == "" ? "" : "      ") + l.Label.ToUpperInvariant() + "  " + BagText.TableValue(l.Value, l.Percent);
-            wornStatsText.text = stats;
+            string wornGem = ItemInfo.GemOptionLine(item);
+            wornStatsText.text = wornGem != null ? stats + "\n" + wornGem : stats;
             bool enhanceable = EnhanceStats.IsEnhanceable(item);
             enhanceBlock.SetActive(enhanceable);
             wornNoteText.text = enhanceable || ItemInfo.ChangesAppearance(item.slot) ? "" : ItemInfo.NoAppearanceLine + ".";
