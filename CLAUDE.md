@@ -31,6 +31,7 @@ Trả lời người dùng bằng tiếng Việt.
 **Trước mọi việc làm hoặc sửa UI (HUD, túi đồ, menu, nút), kể cả khi giao agent: đọc hết `docs/ui-layout-rules.md`.** Ghi rõ yêu cầu này trong brief.
 
 - Nút, tab, pill bố cục như HTML/CSS: padding đủ, gap icon-chữ, căn giữa dọc, bo góc đều. Chụp trong game so với mockup trước khi báo xong.
+- Icon, khung, nút, nền, ảnh trên card, ngọc, badge: nhờ ChatGPT vẽ hoặc cắt từ mockup ra PNG nền trong suốt rồi dùng. KHÔNG tự vẽ bằng code / script / shape (người dùng chốt 23/11: tự vẽ xấu).
 
 ## Asset để đúng chỗ, không thả lung tung
 
