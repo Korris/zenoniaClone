@@ -2,6 +2,18 @@
 
 **Sổ tối ưu FPS (mọi việc đã làm, cách chỉnh, số đo, ý tưởng chưa làm): `docs/optimization-notes.md`.**
 
+### 23/11 16:10 TẠM DỪNG (người dùng tắt máy) — hệ thống Monster Card V1 xong code 8 phase, CHƯA deploy
+- Plan: `plans/261123-1125-monster-card-gem-duel/plan.md` (8 phase, chi tiết + "Làm khác kế hoạch" trong từng phase file). Luật chốt cuối: `docs/reference/card-gem-ui/design-notes-chatgpt.md` mục "Luật đấu card v2" (KHÔNG đấu NPC; PvP thường: thắng chọn 1 lá bất kỳ trong 8 lá deck người thua, server escrow cả 2 deck; Ranked không lấy lá, không Gold; khoá card theo loại, chỉ chặn bán / chuyển hoá). Review từng phase: `plans/261123-1125-monster-card-gem-duel/reports/`.
+- VIỆC DỞ, làm tiếp theo thứ tự:
+  1. Review cuối (pre-push) bị ngắt khi tắt máy: chạy lại code-reviewer cho các commit e32e606e, 9901ed99 (sửa nhân đôi / mất card khi cược), 0bb2f661 (sửa Ranked), f7a6de9b (phase 08) — kiểm Critical / High của `code-reviewer-261123-1517-phase-06.md` và `code-reviewer-261123-1536-phase-07.md` đã thật sự hết, cho kết luận GO / NO-GO deploy. Ghi report `reports/code-reviewer-*-final.md`.
+  2. Deploy: server-api TRƯỚC (zod save v6 card / cardRank / cardHelp, wager escrow 8 lá, sweep 120 s, redeem trả userId, chặn xoá nhân vật khi có wager), zone SAU (protocol 34, NPC Oakhaven, Duel / Ranked). Xem `docs/deploy.md`.
+  3. Thử online thật với API + Mongo: rơi card, relog giữ card / ngọc, trade món có ngọc bị chặn, 2 client đấu PvP (thắng chọn lá, hoà, rớt mạng, zone sập giữa ván → hoàn card), Ranked (rớt mạng rồi vào lại).
+  4. Build exe mới cho người dùng test từ HEAD (3D Willowbrook mặc định, `--map2d` để tắt). Bản gần nhất có card: `C:/temp/player-cards-p8/Zenonia.exe` (phase 08, chưa có icon Poison); `C:/temp/player-261123-3d/Zenonia.exe` là bản cũ (còn đấu NPC).
+  5. Người dùng chưa nghe nhạc trong game: thắng `Audio/music/card-duel/duel-victory-cozy-win-sparkle.mp3` (người dùng chọn), thua `duel-defeat-try-again-tomorrow.mp3`, hoà `duel-defeat-try-again-gently.mp3` (agent chọn). Mp3 chưa có .meta (Unity tự tạo khi mở, rồi commit .meta).
+- Còn lại sau V1: âm thanh lật bài (whoosh / chime / tap — chưa có file sfx), nhịp thở NPC Card Master, thưởng cuối mùa Ranked chỉ là cờ (chưa có hệ cosmetic), session có thể hết hạn khi nhân vật bị khoá ghi lâu lúc API chập chờn (rủi ro ghi trong phase-06), giới hạn cặp Ranked đếm trong bộ nhớ zone (mất khi zone khởi động lại).
+- Element / mô tả / 4 số hướng của 40 card do agent đặt, người dùng chưa duyệt. SSR hiển thị là "Ultra Rare".
+- Chat ChatGPT (tài khoản Tay): card UI https://chatgpt.com/c/6b031e60-ffa0-83ec-903d-9449063ac0e0 ; asset card https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617 . Nhạc: ElevenLabs Music (Generations).
+
 ### 23/11 chiều Card Monster phase 08: NPC Card Master Orin, hướng dẫn lần đầu, hoàn thiện (XONG code, CHƯA deploy, chưa kiểm online)
 - NPC "Card Master Orin" ở Oakhaven ô (16,21), mép cỏ phải đường cổng nam (cách cổng 2 ô, đường giữ 4 ô trống; test `OakhavenCardMasterTests`; ảnh tô ô chặn `docs/reference/card-gem-ui/phase-08-shots/`). Nói chuyện = 5 trang thoại (card rơi, My Cards + Album, Soul Gem, luật Card Duel v2 "winner takes 1 card from the loser's deck" + Lv30 + online, Ranked không lấy card), hết trang thì mở cửa sổ Card (Esc thì thôi). KHÔNG đấu NPC. Code: `CardMasterTalk.cs`, `UiScreens.OpenForNpc` (BindNpc Card), `NpcDefs`, `OakhavenVillageMap`.
 - Hướng dẫn lần đầu 3 bước (`CardTutorial.cs`): lần đầu card rơi hoặc lần đầu mở cửa sổ Card; bước 2 / 3 có mũi tên chỉ My Cards / Album. Cờ `cardHelp` (SaveData + zod + `InvOp.CardHelp` 36 + vitest + C# round-trip). Xong hoặc Skip thì lưu, không hiện lại.
