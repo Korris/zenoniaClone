@@ -36,7 +36,8 @@ const schema = z.object({
   SMTP_FROM: z.string().default(''),
   // Card Wager (monster card duel stakes). Emergency kill switch: false = escrow refused with 403 wager_disabled; settle / refund keep working so held cards come back.
   CARD_WAGER_ENABLED: bool('true'),
-  CARD_WAGER_HOLD_SEC: num(1800), // a held wager older than this is refunded at the next redeem of either character
+  CARD_WAGER_HOLD_SEC: num(1800), // a held wager older than this is refunded by the sweep below, or at the next redeem of either character
+  CARD_WAGER_SWEEP_SEC: z.coerce.number().int().min(0).default(120), // how often the sweep looks for expired held wagers (0 = no sweep)
   BCRYPT_COST: z.coerce.number().int().min(4).max(15).default(11),
   LOGIN_MAX_FAILURES: num(5),
   LOGIN_LOCKOUT_SEC: num(900),

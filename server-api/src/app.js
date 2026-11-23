@@ -36,6 +36,24 @@ export function buildApp({ db, cfg, now = Date.now, rand = secureRandom, mailer,
   };
   const characters = createCharacterService({ db, now, sessionLockSec: cfg.SESSION_LOCK_SEC, maxCharacters: cfg.MAX_CHARACTERS });
   const wagers = createCardWagerService({ db, cfg, now, characters });
+  app.decorate('cardWagers', wagers); // tests (and later tools) reach the wager service through the app
+  // Held matches whose hold ran out are refunded here, not only when somebody next logs in: a settle that failed for good must not wait for a redeem.
+  if (cfg.CARD_WAGER_SWEEP_SEC > 0) {
+    let timer = null;
+    let sweeping = false;
+    app.addHook('onReady', async () => {
+      timer = setInterval(async () => {
+        if (sweeping) return;
+        sweeping = true;
+        try {
+          const r = await wagers.sweepExpired((err, matchId) => app.log.error({ err, matchId }, 'card wager sweep: refund failed'));
+          if (r.refunded > 0) app.log.info(r, 'card wager sweep: expired matches refunded');
+        } catch (err) { app.log.error({ err }, 'card wager sweep failed'); } finally { sweeping = false; }
+      }, cfg.CARD_WAGER_SWEEP_SEC * 1000);
+      timer.unref();
+    });
+    app.addHook('onClose', async () => { if (timer) clearInterval(timer); });
+  }
   const deps = {
     wagers,
     db, cfg, now, rand, jwt, guards, limiters, characters,

@@ -98,6 +98,9 @@ export function createCharacterService({ db, now, sessionLockSec, maxCharacters 
     async remove(userId, id) {
       const doc = await getOwned(userId, id);
       if (live(doc)) throw conflict('character_online', 'Character is online');
+      // A card duel of this character is still held (its 8 cards, and the other side's 8, sit in the escrow row until the match is settled or refunded): deleting now would strand them.
+      const held = await db.collection('card_wagers').findOne({ status: 'held', $or: [{ 'a.characterId': String(doc._id) }, { 'b.characterId': String(doc._id) }] }, { projection: { _id: 1 } });
+      if (held) throw conflict('wager_held', 'A card duel of this character is still being settled: try again later');
       await col.deleteOne({ _id: doc._id, rev: doc.rev });
     },
 

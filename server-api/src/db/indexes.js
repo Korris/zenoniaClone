@@ -15,6 +15,8 @@
  *    (an 'account' entry additionally carries userId and before/after currency snapshots, see services/account-service.js)
  *  card_wagers{_id=matchId, status held|settled|refunded, zoneId, createdAt, expiresAt, a/b{characterId,userId,deck[8],lockedIds}, result, pick, settledAt, refundedAt, credited}
  *    escrow of a Card Wager (services/card-wager-service.js); every move also writes a ledger row {type:'card_wager', action: escrow|settle|refund, matchId}
+ *  card_wager_counters{_id='u:<userId>:<utcDay>' | 'p:<userA>:<userB>:<utcDay>', n, at(TTL 3 d)}
+ *    the daily limits of Card Wager: $inc inside the escrow transaction (two escrows of one account write the same document, so they cannot both pass); a refund gives the slot back
  */
 export async function ensureIndexes(db) {
   await db.collection('users').createIndex({ usernameLower: 1 }, { unique: true });
@@ -37,4 +39,5 @@ export async function ensureIndexes(db) {
   await db.collection('card_wagers').createIndex({ 'b.characterId': 1 });
   await db.collection('card_wagers').createIndex({ 'a.userId': 1, createdAt: -1 }); // daily limits count per account
   await db.collection('card_wagers').createIndex({ 'b.userId': 1, createdAt: -1 });
+  await db.collection('card_wager_counters').createIndex({ at: 1 }, { expireAfterSeconds: 3 * 86400 }); // a day counter is only read on its own day
 }

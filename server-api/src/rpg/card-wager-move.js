@@ -55,7 +55,7 @@ export function takeDeck(state) {
 }
 
 /**
- * Adds one copy of each id in `cardIds`; a kind that comes back after its last copy left gets its Lock flag again when it is in `lockedIds`.
+ * Adds one copy of each id in `cardIds`; a kind that was Locked before its copies left gets its Lock flag back when it is in `lockedIds` (also when a new copy dropped meanwhile).
  * The deck is then trimmed to the copies owned (the loser's deck loses the card that was taken). Clone; the Album learns new cards. Reports copies lost to the 999 cap.
  */
 export function giveWagerCards(state, cardIds, lockedIds = []) {
@@ -64,8 +64,11 @@ export function giveWagerCards(state, cardIds, lockedIds = []) {
   for (const id of cardIds) {
     const e = next.cards.find((c) => c.id === id);
     if (!e) next.cards.push({ id, n: 1, locked: lockedIds.includes(id) ? 1 : 0 });
-    else if (e.n >= CARD_MAX_STACK) overflow += 1;
-    else e.n += 1;
+    else {
+      if (e.n >= CARD_MAX_STACK) overflow += 1;
+      else e.n += 1;
+      if (lockedIds.includes(id)) e.locked = 1; // the Lock flag belongs to the kind: a copy that dropped meanwhile does not make it lose the lock
+    }
     const idx = info.get(id).index;
     if (!next.album.includes(idx)) next.album.push(idx);
   }
