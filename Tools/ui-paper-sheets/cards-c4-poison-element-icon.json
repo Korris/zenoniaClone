@@ -1,0 +1,13 @@
+{
+ "source": "Assets/ArtLibrary/ui/cards/c-card/cards-c4-poison-element-chatgpt-1.png",
+ "note": "Poison element icon (lime disc, violet drop), cyan key because the icon is purple + green",
+ "chat": "https://chatgpt.com/c/6b03c3de-7f2c-83ec-b6f2-0b27b06a2617",
+ "key": "#00FFFF",
+ "out": "Assets/Resources/Sprites/ui/paper/cards/icons",
+ "contact_dir": "docs/reference/card-gem-ui/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [
+  [{"name": "element-poison", "height": 48}]
+ ]
+}

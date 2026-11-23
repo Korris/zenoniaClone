@@ -30,12 +30,12 @@ namespace ZenoniaProto
             switch (f) { case GemFilter.Atk: return Icon("filter-atk"); case GemFilter.Def: return Icon("filter-def"); case GemFilter.Hp: return Icon("filter-hp"); case GemFilter.Utility: return Icon("filter-utility"); default: return Icon("filter-all"); }
         }
 
-        /// <summary>Element icon of a card: Shadow uses the "dark" piece; Poison has no piece in the kit yet (asked from ChatGPT: it shows nothing meanwhile).</summary>
+        /// <summary>Element icon of a card: Shadow uses the "dark" piece; every other element has its own "element-&lt;name&gt;" piece.</summary>
         public static string ElementIcon(CardDef c)
         {
             string e = (c.Element ?? "").ToLowerInvariant();
             if (e == "shadow") e = "dark";
-            return e == "poison" ? null : Icon("element-" + e);
+            return Icon("element-" + e);
         }
 
         /// <summary>The ChatGPT portrait of a card's monster, cached; null until it is delivered.</summary>
