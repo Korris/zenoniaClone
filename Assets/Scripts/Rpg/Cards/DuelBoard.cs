@@ -14,6 +14,9 @@ namespace ZenoniaProto.Rpg
 
         public DuelBoard() { for (int i = 0; i < Cells; i++) { card[i] = Empty; owner[i] = Empty; } }
 
+        /// <summary>How many bits are set in a flip mask (the number of cards a placement flips).</summary>
+        public static int PopCount(int mask) { int n = 0; while (mask != 0) { mask &= mask - 1; n++; } return n; }
+
         public static string Coord(int cell) { return cell < 0 || cell >= Cells ? "??" : ((char)('A' + cell / Size)).ToString() + (cell % Size + 1); }
 
         /// <summary>"B3" -> 6; -1 for anything else.</summary>

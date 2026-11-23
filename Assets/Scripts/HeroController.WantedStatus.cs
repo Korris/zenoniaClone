@@ -56,7 +56,7 @@ namespace ZenoniaProto
             get
             {
                 if (NetMode.IsOffline) return Time.time * 1000f;
-                if (NetMode.IsServerSide) return ZoneHost.Active != null ? ZoneHost.Active.ClockMs : 0f;
+                if (NetMode.IsServerSide) return ZoneHost.Active != null ? (float)ZoneHost.Active.ClockMs : 0f;
                 return NetClient.ServerNowMs;
             }
         }

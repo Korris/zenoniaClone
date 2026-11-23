@@ -23,7 +23,7 @@ public class CharacterSaveQueueTests
         public void Enhance(string c, string s, int rev, string reqId, string uid, Action<ZoneApiReply> done) { Calls.Add(new Call { Kind = "enhance", Id = reqId, CharacterId = c, Rev = rev, Done = done }); }
         public void EndSession(string c, string s, Action<ZoneApiReply> done) { Calls.Add(new Call { Kind = "end", CharacterId = c, Done = done }); }
         public void EscrowWager(string id, WagerSide a, WagerSide b, Action<ZoneApiReply> done) { Calls.Add(new Call { Kind = "escrow", Id = id, CharacterId = a.CharacterId, Other = b.CharacterId, Rev = a.Rev, RevB = b.Rev, State = a.StateJson + "|" + b.StateJson, Done = done }); }
-        public void SettleWager(string id, string result, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done) { Calls.Add(new Call { Kind = "settle", Id = id, Other = result, CharacterId = a.HasValue ? a.Value.CharacterId : null, Rev = a.HasValue ? a.Value.Rev : -1, RevB = b.HasValue ? b.Value.Rev : -1, State = (a.HasValue ? a.Value.StateJson : "-") + "|" + (b.HasValue ? b.Value.StateJson : "-"), Done = done }); }
+        public void SettleWager(string id, string result, string pick, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done) { Calls.Add(new Call { Kind = "settle", Id = id, Other = result, CharacterId = a.HasValue ? a.Value.CharacterId : null, Rev = a.HasValue ? a.Value.Rev : -1, RevB = b.HasValue ? b.Value.Rev : -1, State = (a.HasValue ? a.Value.StateJson : "-") + "|" + (b.HasValue ? b.Value.StateJson : "-"), Done = done }); }
     }
 
     const long Period = 30000;

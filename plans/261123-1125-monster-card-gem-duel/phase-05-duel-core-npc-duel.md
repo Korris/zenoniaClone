@@ -6,6 +6,9 @@
 - Mẫu wire + sổ thuần: `Net/Protocol/TradeBook.cs`, `TradeMessages.cs`, `Net/Server/TradeService.cs`, `Net/Client/NetClient.Trade.cs`, `TradeWindow.cs`
 - Opcode: `Net/Protocol/NetOpcodes.cs`; tick: `Net/Server/ZoneServer.cs`
 
+## CẬP NHẬT 23/11 chiều (v2)
+Đấu NPC BỎ HẲN theo quyết định người dùng: xoá `DuelNpcAi / DuelNpcRun / DuelNpcSession / DuelNpcTable / DuelRewards / LocalDuelHost`, thưởng thắng lần đầu + nhiệm vụ 500 G, nút Play NPC, test liên quan (chân dung NPC giữ làm asset, chưa dùng). Card Duel chỉ chạy online; offline trang Card Duel hiện "Card Duel is offline" kèm lý do. Các mục "NPC", "offline đấu NPC", "thưởng" bên dưới là LỊCH SỬ. Luật ván 4x4, deck, đồng hồ vẫn nguyên (`DuelMatch`, `DeckRules`). Trường lưu `cardNpcFirstWins`, `cardDaily.npcWins / pvpRewards` giữ trong save cho tương thích (không còn dùng).
+
 ## Overview
 P1, pending. Toàn bộ luật ván đấu thuần C#, server chạy ván + đồng hồ; NPC luyện (3 NPC), thưởng thắng lần đầu + nhiệm vụ ngày; trang Card Duel (deck) trong `CardWindow` và cửa sổ bàn đấu riêng.
 

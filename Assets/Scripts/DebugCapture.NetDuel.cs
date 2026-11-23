@@ -7,9 +7,11 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// --net-bot duel --duel-role challenger|rival [--duel-wager] [--duel-drop N]: the end-to-end PvP script behind Tools/net-duel-test.ps1. The challenger invites the hero named "Rival" (the wager if --duel-wager),
-    /// the rival accepts; with a wager both pick the same card, Lock, Confirm; then both play with a greedy pick until the result. --duel-drop N makes the rival quit after N of its own placements (the 60 s
-    /// reconnect window, then the forfeit). Everything goes through DuelClient, the same calls the buttons make; what comes back is logged as "duel-e2e:" lines. Server flags: --dev-cards --dev-level 60 --map oakhaven-village.
+    /// --net-bot duel --duel-role challenger|rival [--duel-drop N] [--duel-resume] [--duel-nopick] [--duel-pick CARD]: the end-to-end PvP script behind Tools/net-duel-test.ps1 (phase 06 v2: every duel stakes both decks,
+    /// the winner takes 1 card). The challenger invites the hero named "Rival", the rival accepts; both play with a greedy pick until the result; the winner picks CARD from the loser's deck (default caveMantis) or, with
+    /// --duel-nopick, waits for the server's random pick after 30 s. --duel-drop N makes the rival quit after N of its own placements (the 60 s reconnect window, then the forfeit); --duel-resume makes a rival that
+    /// comes back wait for the match it left instead of an invite. Everything goes through DuelClient, the same calls the buttons make; what comes back is logged as "duel-e2e:" lines.
+    /// Server flags: --dev-cards --dev-level 60 --map oakhaven-village [--dev-duel-seed N for a known result].
     /// </summary>
     public partial class DebugCapture
     {
@@ -21,7 +23,8 @@ namespace ZenoniaProto
             string role = NetLaunchArgs.Arg(a, "--duel-role");
             int drop;
             if (!int.TryParse(NetLaunchArgs.Arg(a, "--duel-drop"), out drop)) drop = 0;
-            StartCoroutine(DuelScript(role == "challenger", NetLaunchArgs.HasFlag("--duel-wager"), drop));
+            string pick = NetLaunchArgs.Arg(a, "--duel-pick") ?? "caveMantis";
+            StartCoroutine(DuelScript(role == "challenger", NetLaunchArgs.HasFlag("--duel-resume"), NetLaunchArgs.HasFlag("--duel-nopick"), pick, drop));
         }
 
         IEnumerator DuelUntil(Func<bool> done, float timeout, string what)
@@ -31,7 +34,15 @@ namespace ZenoniaProto
             DuelE2e((done() ? "OK " : "TIMEOUT ") + what + " after " + (Time.realtimeSinceStartup - start).ToString("F1") + " s");
         }
 
-        IEnumerator DuelScript(bool challenger, bool wager, int dropAfter)
+        static int CardTotal() { int n = 0; foreach (var kv in GameSession.Hero.Rpg.Cards.Cards) n += kv.Value; return n; }
+
+        static string CardLine(string pick)
+        {
+            CardCollection c = GameSession.Hero.Rpg.Cards;
+            return "cards total " + CardTotal() + ", deck " + c.Deck.Count + ", " + pick + " x" + c.Count(pick) + ", meadowSlime x" + c.Count("meadowSlime");
+        }
+
+        IEnumerator DuelScript(bool challenger, bool resume, bool noPick, string pick, int dropAfter)
         {
             string me = NetLaunchArgs.Name;
             if (challenger)
@@ -40,30 +51,20 @@ namespace ZenoniaProto
                 HeroController rival = HeroNamed("Rival");
                 if (rival == null) { Application.Quit(); yield break; }
                 yield return new WaitForSeconds(2f);
-                DuelClient.Challenge(rival.PlayerId, wager);
-                yield return DuelUntil(() => DuelClient.Lobby.Phase == 2, 5f, "my invite is pending (wager " + wager + ")");
+                DuelClient.Challenge(rival.PlayerId);
+                yield return DuelUntil(() => DuelClient.Lobby.Phase == 2, 5f, "my invite is pending");
             }
-            else
+            else if (!resume)
             {
                 yield return DuelUntil(() => DuelClient.Lobby.Phase == 1, 60f, "an invite shows");
-                DuelE2e("invite says wager=" + DuelClient.Lobby.Wager + " from " + DuelClient.Lobby.OtherName);
+                DuelE2e("invite says stakes=" + DuelClient.Lobby.Stakes + " from " + DuelClient.Lobby.OtherName);
                 yield return new WaitForSeconds(1f);
                 DuelClient.Accept();
             }
-            if (wager)
-            {
-                yield return DuelUntil(() => DuelClient.Lobby.Phase == 3, 15f, "wager panel open");
-                int card = CardTable.Index("meadowSlime");
-                DuelClient.WagerPick(card);
-                yield return DuelUntil(() => DuelClient.Lobby.MyCard == card && DuelClient.Lobby.TheirCard != DuelLobby.NoCard, 10f, "both cards picked");
-                DuelClient.WagerLock();
-                yield return DuelUntil(() => DuelClient.Lobby.MyLocked && DuelClient.Lobby.TheirLocked, 10f, "both locked");
-                DuelClient.WagerConfirm();
-            }
-            yield return DuelUntil(() => DuelClient.Running, 30f, "the match runs (wager " + (DuelClient.View != null && DuelClient.View.HasWager) + ")");
+            yield return DuelUntil(() => DuelClient.Running, 30f, "the match runs");
             if (DuelClient.View == null) { DuelE2e("no match, " + me + " done"); Application.Quit(); yield break; }
-            int cardsBefore = GameSession.Hero.Rpg.Cards.Count("meadowSlime"), placed = 0;
-            DuelE2e("start: meadowSlime x" + cardsBefore + ", gold " + GameSession.Hero.Rpg.Gold + ", opponent " + DuelClient.View.OppName);
+            DuelE2e("start: " + CardLine(pick) + ", opponent " + DuelClient.View.OppName + ", wagerState " + DuelClient.View.WagerState + ", moves so far " + DuelClient.View.Moves.Count);
+            int placed = 0;
             float lastLog = 0f;
             while (DuelClient.View != null && !DuelClient.View.Finished)
             {
@@ -72,10 +73,21 @@ namespace ZenoniaProto
                 if (Time.realtimeSinceStartup - lastLog > 10f) { lastLog = Time.realtimeSinceStartup; DuelE2e("turn " + v.Turn + " score " + v.Score(0) + "-" + v.Score(1) + " oppAway " + v.OppAwayMs); }
                 yield return new WaitForSeconds(0.7f);
             }
-            yield return new WaitForSeconds(4f); // the payout settles (wager) and the final state arrives
             DuelView end = DuelClient.View;
+            if (end == null) { Application.Quit(); yield break; }
+            DuelE2e("match over: " + end.Result + " score " + end.Score(0) + "-" + end.Score(1) + " reason " + end.EndReason + " wagerState " + end.WagerState + " | during escrow " + CardLine(pick));
+            if (end.MustPick)
+            {
+                DuelE2e("PICK SCREEN: " + end.PickCards.Count + " cards of the loser, " + end.PickMsLeft + " ms left");
+                if (noPick) DuelE2e("not picking: the server takes a random card at 30 s");
+                else { yield return new WaitForSeconds(1.5f); DuelClient.TakeCard(CardTable.Index(pick)); DuelE2e("took " + pick); }
+            }
+            else if (end.Result == DuelResult.Lose) DuelE2e("waiting for the winner to pick (wagerState " + end.WagerState + ")");
+            yield return DuelUntil(() => DuelClient.View != null && DuelClient.View.WagerState >= DuelView.WagerPaid, 60f, "stakes settled");
+            yield return new WaitForSeconds(2f); // the pushed state with the cards arrives
+            end = DuelClient.View;
             if (end != null)
-                DuelE2e("RESULT " + end.Result + " score " + end.Score(0) + "-" + end.Score(1) + " reason " + end.EndReason + " reward " + end.RewardDaily + " wagerState " + end.WagerState + " | meadowSlime x" + GameSession.Hero.Rpg.Cards.Count("meadowSlime") + " (was " + cardsBefore + "), gold " + GameSession.Hero.Rpg.Gold);
+                DuelE2e("RESULT " + end.Result + " score " + end.Score(0) + "-" + end.Score(1) + " reason " + end.EndReason + " wagerState " + end.WagerState + " picked " + (end.PickedCard == DuelView.NoCard ? "none" : CardTable.ByIndex(end.PickedCard).Id) + (end.PickedAtRandom ? " (random)" : "") + " | " + CardLine(pick));
             Application.Quit();
         }
 
@@ -87,7 +99,7 @@ namespace ZenoniaProto
                 for (int c = 0; c < DuelBoard.Cells; c++)
                 {
                     if (!b.IsEmpty(c)) continue;
-                    int flips = DuelNpcAi.PopCount(b.PreviewFlips(DuelView.Me, v.Hand[h], c));
+                    int flips = DuelBoard.PopCount(b.PreviewFlips(DuelView.Me, v.Hand[h], c));
                     if (flips > bestFlips) { bestFlips = flips; bestHand = h; bestCell = c; }
                 }
             return bestCell >= 0 && DuelClient.Place(bestHand, bestCell);

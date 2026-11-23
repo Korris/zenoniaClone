@@ -44,7 +44,7 @@ namespace ZenoniaProto.Net
         void Enhance(string characterId, string sessionId, int rev, string reqId, string itemUid, Action<ZoneApiReply> done);
         void EndSession(string characterId, string sessionId, Action<ZoneApiReply> done);
         void EscrowWager(string matchId, WagerSide a, WagerSide b, Action<ZoneApiReply> done);
-        void SettleWager(string matchId, string result, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done);
+        void SettleWager(string matchId, string result, string pick, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done);
     }
 
     /// <summary>One character the zone holds the lock of. Capture is asked for the state at the moment a write leaves, so a write is never older than it has to be.</summary>

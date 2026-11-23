@@ -95,10 +95,10 @@ public class DeckRulesTests
     }
 
     [Fact]
-    public void EveryNpcDeckFollowsTheRules()
+    public void TheTestDecksFollowTheRules()
     {
-        for (int i = 0; i < DuelNpcTable.Count; i++)
-            Assert.Equal(DeckError.None, DeckRules.Validate(DuelNpcTable.Get(i).Deck, null, true));
+        Assert.Equal(DeckError.None, DeckRules.Validate(DuelTestDecks.A, null, true));
+        Assert.Equal(DeckError.None, DeckRules.Validate(DuelTestDecks.B, null, true));
     }
 
     [Fact]

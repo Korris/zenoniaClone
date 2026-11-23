@@ -20,7 +20,8 @@ namespace ZenoniaProto
         public IReadOnlyList<Zone> Zones { get { return zones; } }
         /// <summary>Where new heroes begin: Oakhaven (World Map 2.0 step 1, 13/11/2026) unless the server was started with --map.</summary>
         public Zone Start { get; private set; }
-        public float ClockMs { get; private set; }
+        /// <summary>Server clock in ms, shared by every zone. double: a float loses whole milliseconds after a few hours of uptime, and the duel clocks (turn 20 s, reconnect 60 s, pick 30 s) are compared in ms.</summary>
+        public double ClockMs { get; private set; }
         public int ZonesAwake { get { int n = 0; for (int i = 0; i < zones.Count; i++) if (!zones[i].Paused) n++; return n; } }
         /// <summary>False on a dev host: one zone and it is the root of everything on screen.</summary>
         public bool MultiZone { get { return zones.Count > 1; } }
@@ -87,7 +88,7 @@ namespace ZenoniaProto
         /// <summary>Called first every frame (GameClock): one clock, every awake zone advanced with its own map current.</summary>
         public void Advance(float dt)
         {
-            ClockMs += dt * 1000f;
+            ClockMs += dt * 1000.0;
             for (int i = 0; i < zones.Count; i++)
             {
                 if (zones[i].Paused) continue;
@@ -112,10 +113,10 @@ namespace ZenoniaProto
         public void Wake(Zone z)
         {
             bool wasPaused = z.Paused;
-            float slept = z.Idle.Wake(ClockMs);
+            float slept = z.Idle.Wake((float)ClockMs);
             if (wasPaused) z.Root.gameObject.SetActive(true);
             Zone.Enter(z);
-            if (wasPaused) z.FastForward(slept, ClockMs);
+            if (wasPaused) z.FastForward(slept, (float)ClockMs);
         }
 
         /// <summary>Once per tick: pauses the zones whose grace ran out. Returns how many paused.</summary>
@@ -130,7 +131,7 @@ namespace ZenoniaProto
                 Zone.Enter(z);
                 z.Pump.Adopt(); // moves the buff ticker out if this zone holds it: it serves the other zones too
                 ComboProjectile.RetireIn(z);
-                z.Idle.MarkPaused(ClockMs);
+                z.Idle.MarkPaused((float)ClockMs);
                 z.Root.gameObject.SetActive(false);
                 paused++;
             }

@@ -75,7 +75,7 @@ namespace ZenoniaProto
 
         public void EscrowWager(string matchId, WagerSide a, WagerSide b, Action<ZoneApiReply> done) { Wagers.Escrow(matchId, a, b, done); }
 
-        public void SettleWager(string matchId, string result, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done) { Wagers.Settle(matchId, result, a, b, done); }
+        public void SettleWager(string matchId, string result, string pick, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done) { Wagers.Settle(matchId, result, pick, a, b, done); }
 
         public void EndSession(string characterId, string sessionId, Action<ZoneApiReply> done)
         {

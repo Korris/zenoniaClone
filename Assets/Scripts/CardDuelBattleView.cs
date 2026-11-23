@@ -18,6 +18,7 @@ namespace ZenoniaProto
         int shownVersion = -1, selected;
         float waitUntil;
         int lastCell = -1, shownSecs = -1;
+        bool resultSounded;
 
         public bool Visible { get { return root != null && root.gameObject.activeSelf; } }
 
@@ -25,7 +26,8 @@ namespace ZenoniaProto
         {
             if (root == null || root.gameObject.activeSelf == on) return;
             root.gameObject.SetActive(on);
-            if (on) { shownVersion = -1; selected = 0; lastCell = -1; ResetPresentation(); }
+            if (on) { shownVersion = -1; selected = 0; lastCell = -1; resultSounded = false; ResetPresentation(); }
+            else pick.Hide();
         }
 
         /// <summary>Per frame while visible: redraw on a new view, run the flip animation and the timer.</summary>
@@ -35,6 +37,8 @@ namespace ZenoniaProto
             if (v == null) return;
             if (shownVersion != DuelClient.Version) { OnNewView(v); shownVersion = DuelClient.Version; }
             StepPresentation(v);
+            if (pick.Visible) pick.Tick();
+            if (v.Finished && v.WagerState == DuelView.WagerPicking && !v.MustPick) RefreshWaitingLine(v); // the loser sees the winner's 30 s counting down
             if (v.Finished) { timerText.text = ""; timerFill.fillAmount = 0f; return; }
             float left = DuelClient.SecondsLeft;
             timerFill.fillAmount = Mathf.Clamp01(left / (DuelMatch.TurnMs / 1000f));
@@ -83,16 +87,15 @@ namespace ZenoniaProto
             if (waitUntil > 0f && shownVersion != DuelClient.Version) waitUntil = 0f; // a new view = the answer arrived
             if (selected >= v.Hand.Count) selected = Mathf.Max(0, v.Hand.Count - 1);
             DuelBoard b = v.Board(presented); // what is on screen: moves still being played are not in the score yet
-            DuelNpcDef npc = DuelNpcTable.Get(v.Npc);
             string opp = string.IsNullOrEmpty(v.OppName) ? "Opponent" : v.OppName;
             mineScore.text = b.Score(DuelView.Me).ToString(CultureInfo.InvariantCulture);
             theirScore.text = b.Score(DuelView.Them).ToString(CultureInfo.InvariantCulture);
-            theirLabel.text = v.IsPvp ? "Player" : "NPC";
+            theirLabel.text = "Player";
             bool over = v.Finished && !Animating(v);
             turnText.text = over ? "Final" : "Turn " + Mathf.Min(DuelMatch.Turns, presented + 1) + " / " + DuelMatch.Turns;
             GemUiArt.SetPiece(statePill, GemUiArt.Frame(v.Finished ? "btn-blue" : v.YourTurn ? "btn-teal" : "btn-blue"));
             stateText.text = v.Finished ? "Duel over" : v.YourTurn ? "Your Turn" : "Waiting...";
-            GemUiArt.SetPiece(oppPortrait, npc != null ? npc.Portrait : v.IsPvp ? GemUiArt.Icon("menu-duel") : null); // a player has no portrait art: the duel icon stands in
+            GemUiArt.SetPiece(oppPortrait, GemUiArt.Icon("menu-duel")); // a player has no portrait art: the duel icon stands in
             oppName.text = opp;
             shownAway = -1;
             oppLeft.text = v.OppAwayMs > 0 && !v.Finished ? "Disconnected" : "Cards left: " + v.CardsLeft(DuelView.Them, presented);
@@ -165,39 +168,65 @@ namespace ZenoniaProto
 
         static string CardName(int index) { CardDef c = CardTable.ByIndex(index); return c != null ? c.Name : "?"; }
 
-        /// <summary>"Wager: your A vs their B" while it plays (empty without a Card Wager).</summary>
-        static string WagerLine(DuelView v)
+        /// <summary>The stakes of this duel while it plays (empty without stakes).</summary>
+        static string WagerLine(DuelView v) { return v.HasWager && !v.Finished ? "Cards at stake: the winner takes 1 card of the loser's deck." : ""; }
+
+        /// <summary>What happened to the cards once the match is over, in words (the banner's second paragraph). Empty without stakes.</summary>
+        static string StakesResult(DuelView v)
         {
             if (!v.HasWager) return "";
-            return "Card Wager: your " + CardName(v.WagerMine) + " vs " + CardName(v.WagerTheirs);
+            string opp = string.IsNullOrEmpty(v.OppName) ? "Your opponent" : v.OppName;
+            if (v.Result == DuelResult.Draw) return v.WagerState == DuelView.WagerFailed ? "\nDraw: your deck comes back automatically." : v.WagerState == DuelView.WagerPaid ? "\nDraw: nobody loses a card." : "\nDraw: returning your deck...";
+            switch (v.WagerState)
+            {
+                case DuelView.WagerPicking: return v.Result == DuelResult.Win ? "" : "\nWaiting for " + opp + " to pick a card from your deck... " + Mathf.CeilToInt(DuelClient.PickSecondsLeft) + " s";
+                case DuelView.WagerSettling: return v.PickedCard != DuelView.NoCard ? "\n" + TakenText(v) + "\nMoving the cards..." : "\nMoving the cards...";
+                case DuelView.WagerFailed: return "\nThe card move is delayed: the server finishes it by itself.";
+                case DuelView.WagerPaid: return v.PickedCard != DuelView.NoCard ? "\n" + TakenText(v) : "";
+                default: return "";
+            }
         }
 
-        /// <summary>The wager's outcome in words once the match is over (the payout may still be settling).</summary>
-        static string WagerResult(DuelView v)
+        static string TakenText(DuelView v)
         {
-            if (!v.HasWager) return "";
-            if (v.WagerState == DuelView.WagerSettling) return "\nSettling the cards...";
-            if (v.WagerState == DuelView.WagerFailed) return "\nCard payout delayed: it is sorted out automatically.";
-            string mine = CardName(v.WagerMine), theirs = CardName(v.WagerTheirs);
-            return v.Result == DuelResult.Win ? "\nWager won: +" + theirs : v.Result == DuelResult.Lose ? "\nWager lost: " + mine : "\nWager draw: cards returned";
+            string opp = string.IsNullOrEmpty(v.OppName) ? "Your opponent" : v.OppName;
+            string how = v.PickedAtRandom ? " (picked at random)" : "";
+            return v.Result == DuelResult.Win ? "You took " + CardName(v.PickedCard) + how + "." : opp + " took your " + CardName(v.PickedCard) + how + ".";
+        }
+
+        // the banner of a lost duel counts the winner's pick down without a redraw of the whole screen
+        int shownPickSecs = -1;
+        void RefreshWaitingLine(DuelView v)
+        {
+            int s = Mathf.CeilToInt(DuelClient.PickSecondsLeft);
+            if (s == shownPickSecs || !bannerRoot.gameObject.activeSelf) return;
+            shownPickSecs = s;
+            DrawBanner(v);
         }
 
         void DrawBanner(DuelView v)
         {
             bool over = v.Finished && !Animating(v); // the result waits for the last card to turn
-            bannerRoot.gameObject.SetActive(over);
+            bool picking = over && v.MustPick;       // the winner chooses a card on the pick screen instead of the banner
+            bannerRoot.gameObject.SetActive(over && !picking);
             forfeit.Root.gameObject.SetActive(!v.Finished); // nothing left to give up once the result is shown
-            if (!over) return;
+            if (over && !resultSounded) { resultSounded = true; DuelMusic.OnResult(v.Result); } // the winner / loser jingle: once per duel, as the result first shows
+            if (picking) pick.Show(v); else pick.Hide();
+            if (!over || picking) return;
             string piece = v.Result == DuelResult.Win ? "banner-win" : v.Result == DuelResult.Draw ? "banner-draw" : "banner-lose";
             GemUiArt.SetPiece(bannerArt, B(piece));
             bannerTitle.text = v.Result == DuelResult.Win ? "Victory!" : v.Result == DuelResult.Draw ? "Draw" : "Defeat";
             int mine = v.Score(DuelView.Me), theirs = v.Score(DuelView.Them);
             string why = v.EndReason == 1 ? "You left the duel." : v.EndReason == 2 ? "The opponent left." : mine + " - " + theirs;
-            string reward = "";
-            if (v.IsPvp) reward = v.RewardDaily > 0 ? "\nReward +" + v.RewardDaily.ToString("N0", CultureInfo.InvariantCulture) + " G" : v.EndReason == 1 ? "" : "\nNo reward (5 paid matches a day)";
-            else if (v.RewardFirst + v.RewardDaily > 0) reward = "\nFirst win +" + v.RewardFirst.ToString("N0", CultureInfo.InvariantCulture) + " G" + (v.RewardDaily > 0 ? "   Daily task +" + v.RewardDaily + " G" : "");
-            bannerSub.text = why + reward + WagerResult(v);
-            bannerButton.Set("Continue", true);
+            bool taken = v.PickedCard != DuelView.NoCard && v.WagerState >= DuelView.WagerSettling;
+            bannerCard.Set(taken ? CardTable.ByIndex(v.PickedCard) : null, 0, false); // the card that changed hands, face up beside the words
+            bannerSub.text = why + StakesResult(v);
+            bannerSub.alignment = taken ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter;
+            float textX = taken ? 34f + BannerCardW + 12f : 34f; // the text makes room for the card
+            bannerSubText.anchoredPosition = new Vector2(textX, bannerSubText.anchoredPosition.y);
+            bannerSubText.sizeDelta = new Vector2(MidW - 108f - (textX - 34f), bannerSubText.sizeDelta.y);
+            bool wait = v.WagerState == DuelView.WagerPicking; // the loser waits for the winner's pick: Continue stays grey meanwhile
+            bannerButton.Set(wait ? "Please wait..." : "Continue", !wait);
         }
     }
 }

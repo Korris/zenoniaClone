@@ -64,6 +64,49 @@ namespace ZenoniaProto.Rpg
             return true;
         }
 
+        // ---- card stakes of a PvP duel (the zone copies what server-api does to the stored character: services/card-wager-service.js) ----
+
+        /// <summary>Takes the whole duel deck out of the collection (one copy per deck slot; the deck list itself stays so the cards can come back). Returns the kinds whose Lock flag went with their last copy.</summary>
+        public List<string> EscrowDeck()
+        {
+            var lockedBack = new List<string>();
+            foreach (string id in new List<string>(Deck))
+            {
+                int have = Count(id);
+                if (have < 1) continue;
+                if (have == 1)
+                {
+                    cards.Remove(id);
+                    if (locked.Remove(id) && !lockedBack.Contains(id)) lockedBack.Add(id);
+                }
+                else cards[id] = have - 1;
+            }
+            return lockedBack;
+        }
+
+        /// <summary>Gives cards back / adds the card taken from the loser (one copy per id in the list). A kind that comes back after its last copy left gets its Lock flag again when it is in `lockedKinds`. Then the deck is cut to the copies owned.</summary>
+        public void ReturnCards(IList<string> ids, IList<string> lockedKinds)
+        {
+            foreach (string id in ids)
+            {
+                bool existed = Count(id) > 0;
+                Add(id);
+                if (!existed && lockedKinds != null && lockedKinds.Contains(id)) locked.Add(id);
+            }
+            TrimDeck();
+        }
+
+        /// <summary>Drops deck slots that have no copy behind them (the card the winner took leaves the loser's deck; the deck page then shows 7 / 8).</summary>
+        public void TrimDeck()
+        {
+            var left = new Dictionary<string, int>(cards);
+            for (int i = 0; i < Deck.Count; i++)
+            {
+                int n; left.TryGetValue(Deck[i], out n);
+                if (n < 1) { Deck.RemoveAt(i); i--; } else left[Deck[i]] = n - 1;
+            }
+        }
+
         public int GemCount(string id, GemKind kind, bool locked) { GemEntry g = FindGem(id, (int)kind, locked); return g == null ? 0 : g.n; }
 
         /// <summary>True when AddGem would store all `n` gems: known card, the 80-row limit not passed, the stack would not pass 999. Callers (convert, remove) ask this BEFORE they take anything away.</summary>

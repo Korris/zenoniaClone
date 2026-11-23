@@ -6,34 +6,43 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// What the Card Duel UI talks to, online or offline. Requests go to the zone server (NetClient.SendDuel) or to the local host (LocalDuelHost, same DuelNpcRun rules); answers come back as a DuelView
-    /// (Apply) or a refusal (Notify). The window only draws View and sends ids / cells; it never decides a flip, a score or a result.
+    /// What the Card Duel UI talks to. Card Duel is ONLINE ONLY (player vs player on the zone server): requests go out through NetClient.SendDuel, answers come back as a DuelView (Apply) or a refusal (Notify).
+    /// Offline nothing is sent and the Card Duel page shows why it is disabled (OfflineReason). The window only draws View and sends ids / cells; it never decides a flip, a score, a result or which card is taken.
     /// </summary>
     public static class DuelClient
     {
         public static DuelView View { get; private set; }
         /// <summary>Goes up with every new view: the battle screen redraws only then.</summary>
         public static int Version { get; private set; }
-        static float deadlineAt;
+        static float deadlineAt, pickDeadlineAt;
+
+        public const string OfflineReason = "Card Duel needs an online game: connect to a server to challenge other players.";
+
+        /// <summary>True while connected to a zone server: the only place a duel can happen.</summary>
+        public static bool Online { get { return NetMode.IsClient || DebugPretendOnline; } }
+        /// <summary>Captures only (DebugCapture --duel-online / --duel-pvp): draw the online UI with no connection. Nothing is ever sent.</summary>
+        public static bool DebugPretendOnline;
 
         public static bool Running { get { return View != null && !View.Finished; } }
         public static float SecondsLeft { get { return View == null || View.Finished ? 0f : Mathf.Max(0f, deadlineAt - Time.unscaledTime); } }
+        /// <summary>Seconds the winner has left to pick a card (0 when not picking).</summary>
+        public static float PickSecondsLeft { get { return View == null || View.WagerState != DuelView.WagerPicking ? 0f : Mathf.Max(0f, pickDeadlineAt - Time.unscaledTime); } }
 
         /// <summary>A placement must be sent with at least this long left on the turn clock (the server's clock is ahead by about the ping): the battle screen greys the board below it.</summary>
         public const float MinPlaceSeconds = 0.5f;
 
         public static void Apply(DuelView v)
         {
-            View = v; deadlineAt = Time.unscaledTime + v.MsLeft / 1000f; awayAt = Time.unscaledTime - v.OppAwayMs / 1000f; Version++;
-            if (!v.Finished && !CardWindow.IsOpen) CardWindow.Open(CardWindow.Page.Duel); // a challenge was accepted from the world: the board opens by itself
+            View = v; deadlineAt = Time.unscaledTime + v.MsLeft / 1000f; pickDeadlineAt = Time.unscaledTime + v.PickMsLeft / 1000f; awayAt = Time.unscaledTime - v.OppAwayMs / 1000f; Version++;
+            if ((!v.Finished || v.MustPick) && !CardWindow.IsOpen) CardWindow.Open(CardWindow.Page.Duel); // a challenge was accepted from the world (or the winner must pick): the board opens by itself
         }
 
-        /// <summary>The player closed the result (or the connection dropped): back to the deck page.</summary>
+        /// <summary>The player closed the result (or the connection dropped): back to the deck page. A match that is still being picked / settled on the server comes back with the next view.</summary>
         public static void Reset() { View = null; Version++; ClearLobby(); }
 
-        // ---- challenge lobby (PvP) ----
+        // ---- challenge lobby ----
 
-        /// <summary>The player's invite / wager panel as the server last sent it; Phase 0 = none.</summary>
+        /// <summary>The player's invite as the server last sent it; Phase 0 = none.</summary>
         public static DuelLobbyMsg Lobby { get; private set; }
         public static int LobbyVersion { get; private set; }
         static float lobbyDeadlineAt;
@@ -48,14 +57,13 @@ namespace ZenoniaProto
 
         static void ClearLobby() { if (Lobby.Phase == 0) return; Lobby = default(DuelLobbyMsg); LobbyVersion++; CardDuelLobbyWindow.Sync(); }
 
-        public static void Challenge(ushort player, bool wager) { Send(new DuelRequestMsg { Op = DuelOp.Challenge, Other = player, A = (byte)(wager ? 1 : 0) }); }
+        public static void Challenge(ushort player) { Send(new DuelRequestMsg { Op = DuelOp.Challenge, Other = player }); }
         public static void CancelInvite() { Send(new DuelRequestMsg { Op = DuelOp.CancelInvite }); }
         public static void Accept() { Send(new DuelRequestMsg { Op = DuelOp.Accept }); }
         public static void Decline() { Send(new DuelRequestMsg { Op = DuelOp.Decline }); }
-        public static void WagerPick(int cardIndex) { Send(new DuelRequestMsg { Op = DuelOp.WagerPick, A = (byte)cardIndex }); }
-        public static void WagerLock() { Send(new DuelRequestMsg { Op = DuelOp.WagerLock }); }
-        public static void WagerConfirm() { Send(new DuelRequestMsg { Op = DuelOp.WagerConfirm }); }
         public static void LeaveLobby() { Send(new DuelRequestMsg { Op = DuelOp.LeaveLobby }); }
+        /// <summary>The winner takes this card (a CardTable index) from the loser's deck. The server checks it is in that deck.</summary>
+        public static void TakeCard(int cardIndex) { Send(new DuelRequestMsg { Op = DuelOp.TakeCard, A = (byte)cardIndex }); }
 
         public static void SaveDeck(IList<string> ids)
         {
@@ -64,7 +72,6 @@ namespace ZenoniaProto
             Send(new DuelRequestMsg { Op = DuelOp.SaveDeck, Cards = cards });
         }
 
-        public static void PlayNpc(int npc) { Send(new DuelRequestMsg { Op = DuelOp.PlayNpc, A = (byte)npc }); }
         /// <summary>Sends a placement stamped with what this client is looking at (the turn and the card in that hand slot): the server refuses it when either has moved on. False = not sent (no duel, or too little time left).</summary>
         public static bool Place(int handIndex, int cell)
         {
@@ -77,11 +84,18 @@ namespace ZenoniaProto
 
         static void Send(DuelRequestMsg m)
         {
-            if (NetMode.IsClient) NetClient.SendDuel(m); else LocalDuelHost.Handle(m);
+            if (NetMode.IsClient) NetClient.SendDuel(m); else Notify(OfflineReason, false);
         }
 
-        /// <summary>Per frame while the window is open: the offline host runs the NPC and the turn clock (online the server does).</summary>
-        public static void Tick() { if (!NetMode.IsClient) LocalDuelHost.Tick(); }
+        /// <summary>Why this character cannot start a duel right now (empty = it can; the server still checks): offline, level, today's limit. The deck is checked by the page that has the deck.</summary>
+        public static string EntryProblem()
+        {
+            if (!Online) return OfflineReason;
+            PlayerState p = PetActions.Me;
+            if (p == null) return "";
+            WagerError e = WagerRules.CanEnter(p, WagerRules.DayKeyNow());
+            return e == WagerError.None ? "" : WagerRules.Text(e);
+        }
 
         public static void OnNotice(DuelNoticeMsg m)
         {
@@ -103,7 +117,6 @@ namespace ZenoniaProto
                 case DuelFail.Dead: return "You cannot duel while down";
                 case DuelFail.Trading: return "Finish your trade first";
                 case DuelFail.DeckInvalid: return DeckRules.Text((DeckError)extra);
-                case DuelFail.NoSuchNpc: return "No such opponent";
                 case DuelFail.NoMatch: return "No duel is running";
                 case DuelFail.NotYourTurn: return "Not your turn";
                 case DuelFail.BadMove: return "That move is not allowed";
@@ -114,22 +127,20 @@ namespace ZenoniaProto
                 case DuelFail.InviteCooldown: return "Wait 30 seconds before challenging them again";
                 case DuelFail.NoInvite: return "That challenge is gone";
                 case DuelFail.NoLobby: return "No challenge is open";
-                case DuelFail.NoPick: return "Pick a card first";
-                case DuelFail.NotLocked: return "Both players must lock a card first";
-                case DuelFail.CardMismatch: return "Both cards must have the same rarity";
                 case DuelFail.Declined: return "Challenge declined";
                 case DuelFail.Cancelled: return "Challenge cancelled";
                 case DuelFail.Expired: return "The challenge ran out of time";
                 case DuelFail.OpponentLeft: return "The other player left";
-                case DuelFail.WagerOff: return "Card Wager is switched off";
-                case DuelFail.WagerLevel: return "Card Wager needs Lv 30";
-                case DuelFail.WagerCard: return "That card cannot be wagered";
-                case DuelFail.WagerDaily: return "Wager limit reached for today";
+                case DuelFail.WagerLevel: return "Card Duel needs Lv 30";
+                case DuelFail.WagerDaily: return "Card duel limit reached for today (10 a day, 2 per player)";
                 case DuelFail.ApiBusy: return "Cards are busy, try again in a moment";
-                case DuelFail.WagerRefused: return "The wager was refused, nothing moved";
+                case DuelFail.WagerRefused: return "The duel was refused, no card moved";
                 case DuelFail.StaleMove: return "The board changed, tap again";
                 case DuelFail.SelfInvite: return "You cannot challenge yourself";
                 case DuelFail.TargetNotReady: return "That player cannot duel right now";
+                case DuelFail.NoPick: return "That card cannot be taken";
+                case DuelFail.AccountAge: return "Card duels with cards at stake need an account at least 7 days old";
+                case DuelFail.SameAccount: return "You cannot duel your own other character";
                 default: return "";
             }
         }

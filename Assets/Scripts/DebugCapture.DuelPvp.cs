@@ -6,56 +6,57 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Capture flags of the PvP duel and the Card Wager screens (phase 06) when two real clients are not at hand. They feed DuelClient the same messages the server would send (DuelLobbyMsg, a PvP DuelView built by
-    /// the real DuelPvpMatch), so what is drawn is the real window code. Use with --duel-seed (cards + deck) and --map oakhaven-village:
-    ///   --duel-pvp invite-wager | invite-plain | waiting | wager-pick | wager-locked | wager-confirm | battle | result | result-lost | result-draw
+    /// Capture flags of the PvP duel screens (phase 06 v2) when two real clients are not at hand. They feed DuelClient the same messages the server would send (DuelLobbyMsg, a PvP DuelView built by the real
+    /// DuelPvpMatch), so what is drawn is the real window code. Use with --duel-seed (cards + deck) and --map oakhaven-village:
+    ///   --duel-pvp invite | invite-off | waiting | battle | pick | lose-waiting | won-taken | lost-taken | draw | flip-demo
     /// </summary>
     public partial class DebugCapture
     {
+        static readonly string[] RivalDeck = { "gloomWolf", "snowFox", "frostBear", "frostSlime", "iceGoblin", "spectralWolf", "hollowTreant", "sandRaider" };
+
         static void DebugDuelPvp(string mode)
         {
             PlayerState p = RpgSession.Player;
             if (p == null) return;
             p.Level = Mathf.Max(p.Level, 30);
-            int mine = CardTable.Index("meadowSlime"), theirs = CardTable.Index("meadowMantis");
+            DuelClient.DebugPretendOnline = true;
+            int taken = CardTable.Index("frostBear");
             switch (mode)
             {
-                case "invite-wager": Lobby(1, true, DuelLobby.NoCard, DuelLobby.NoCard, false, false, false, false, 11000); break;
-                case "invite-plain": Lobby(1, false, DuelLobby.NoCard, DuelLobby.NoCard, false, false, false, false, 11000); break;
-                case "waiting": Lobby(2, true, DuelLobby.NoCard, DuelLobby.NoCard, false, false, false, false, 9000); break;
-                case "wager-pick": Lobby(3, true, mine, DuelLobby.NoCard, false, false, false, false, 96000); break;
-                case "wager-locked": Lobby(3, true, mine, theirs, true, true, false, false, 80000); break;
-                case "wager-confirm": Lobby(3, true, mine, theirs, true, true, true, false, 70000); break;
+                case "invite": Lobby(1, true, 11000); break;
+                case "invite-off": Lobby(1, false, 11000); break;
+                case "waiting": Lobby(2, true, 9000); break;
                 case "flip-demo": FlipDemo(); break;
-                case "battle": Match(10, mine, theirs, DuelView.WagerHeld, false); break;
-                case "result": Match(16, mine, theirs, DuelView.WagerPaid, true); break;
-                case "result-lost": Match(16, mine, theirs, DuelView.WagerPaid, false); break;
-                case "result-draw": Match(16, mine, theirs, DuelView.WagerPaid, null); break;
+                case "battle": Match(10, DuelView.WagerHeld, true, DuelView.NoCard, 0); break;
+                case "pick": Match(16, DuelView.WagerPicking, true, DuelView.NoCard, 24000); break;
+                case "lose-waiting": Match(16, DuelView.WagerPicking, false, DuelView.NoCard, 21000); break;
+                case "won-taken": Match(16, DuelView.WagerPaid, true, taken, 0); break;
+                case "lost-taken": Match(16, DuelView.WagerPaid, false, taken, 0); break;
+                case "draw": Match(16, DuelView.WagerPaid, null, DuelView.NoCard, 0); break;
             }
         }
 
-        static void Lobby(int phase, bool wager, int myCard, int theirCard, bool myLock, bool theirLock, bool myConf, bool theirConf, int msLeft)
+        static void Lobby(int phase, bool stakes, int msLeft)
         {
-            DuelClient.ApplyLobby(new DuelLobbyMsg
-            {
-                Phase = (byte)phase, Other = 2, OtherName = "Rival Knight", Wager = wager, MyCard = (byte)myCard, TheirCard = (byte)theirCard,
-                MyLocked = myLock, TheirLocked = theirLock, MyConfirmed = myConf, TheirConfirmed = theirConf, MsLeft = (ushort)msLeft,
-            });
+            DuelClient.ApplyLobby(new DuelLobbyMsg { Phase = (byte)phase, Other = 2, OtherName = "Rival Knight", Stakes = stakes, MsLeft = (ushort)msLeft });
         }
 
-        // plays the real PvP match with a greedy pick for both sides until `moves` placements are made; `wantWin` true / false / null (draw) searches a seed with that result when it is played out
-        static void Match(int moves, int mine, int theirs, int wagerState, bool? wantWin)
+        // plays the real PvP match with a greedy pick for both sides until `moves` placements are made; `wantWin` true / false / null (draw) searches a seed with that result when it is played out.
+        // The stakes fields are filled the way the zone does: `state` = DuelView.Wager*, `picked` = the card taken, `pickMs` = the winner's time left; the winner gets the loser's 8 deck cards to choose from.
+        static void Match(int moves, int state, bool? wantWin, int picked, int pickMs)
         {
             PlayerState p = RpgSession.Player;
             CardWindow.Open(CardWindow.Page.Duel);
             for (ulong seed = 1; seed < 3000; seed++)
             {
-                DuelPvpMatch m = DuelPvpMatch.Start(seed, p.Cards.Deck, DuelNpcTable.Get(1).Deck, "You", "Rival Knight", 0);
+                DuelPvpMatch m = DuelPvpMatch.Start(seed, p.Cards.Deck, RivalDeck, "You", "Rival Knight", 0);
                 while (m.Match.Moves.Count < moves && !m.Finished) Greedy(m);
                 if (moves < DuelMatch.Turns || !wantWin.HasValue && m.Match.Outcome == DuelOutcome.Draw || wantWin.HasValue && (wantWin.Value ? m.Match.Outcome == DuelOutcome.Side0Wins : m.Match.Outcome == DuelOutcome.Side1Wins))
                 {
-                    var reward = new DuelReward { DailyGold = wantWin == true ? 300 : wantWin == false ? 100 : 150 };
-                    DuelClient.Apply(m.View(0, m.Match.DeadlineMs - 17000, mine, theirs, wagerState, reward));
+                    DuelView v = m.View(0, m.Match.DeadlineMs - 17000);
+                    v.WagerState = state; v.PickedCard = picked; v.PickMsLeft = pickMs;
+                    if (state == DuelView.WagerPicking && wantWin == true) foreach (string id in RivalDeck) v.PickCards.Add(CardTable.Index(id));
+                    DuelClient.Apply(v);
                     return;
                 }
             }
@@ -69,20 +70,20 @@ namespace ZenoniaProto
             CardWindow.Open(CardWindow.Page.Duel);
             for (ulong seed = 1; seed < 3000; seed++)
             {
-                DuelPvpMatch m = DuelPvpMatch.Start(seed, p.Cards.Deck, DuelNpcTable.Get(1).Deck, "You", "Rival Knight", 0);
+                DuelPvpMatch m = DuelPvpMatch.Start(seed, p.Cards.Deck, RivalDeck, "You", "Rival Knight", 0);
                 while (m.Match.Moves.Count < 8 && !m.Finished) Greedy(m);
                 int side = m.Match.ToMove, bestHand = 0, bestCell = -1, bestFlips = -1;
                 for (int h = 0; h < m.Match.Hand(side).Count; h++)
                     for (int c = 0; c < DuelBoard.Cells; c++)
                     {
                         if (!m.Match.Board.IsEmpty(c)) continue;
-                        int flips = DuelNpcAi.PopCount(m.Match.Board.PreviewFlips(side, m.Match.Hand(side)[h], c));
+                        int flips = DuelBoard.PopCount(m.Match.Board.PreviewFlips(side, m.Match.Hand(side)[h], c));
                         if (flips > bestFlips) { bestFlips = flips; bestHand = h; bestCell = c; }
                     }
                 if (bestFlips < 2) continue;
-                DuelView before = m.View(0, m.Match.DeadlineMs - 17000, -1, -1, 0);
+                DuelView before = m.View(0, m.Match.DeadlineMs - 17000);
                 m.Place(side, bestHand, bestCell, 0);
-                DuelView after = m.View(0, m.Match.DeadlineMs - 17000, -1, -1, 0);
+                DuelView after = m.View(0, m.Match.DeadlineMs - 17000);
                 DuelClient.Apply(before);
                 new GameObject("FlipDemoTimer").AddComponent<FlipDemoTimer>().Arm(after, Time.realtimeSinceStartup + 3f);
                 Debug.Log("[ZenoniaProto] flip-demo: seed " + seed + ", " + (side == 0 ? "you place" : "the rival places") + " " + DuelBoard.Coord(bestCell) + " and flips " + bestFlips + " cards at t=3 s");
@@ -104,7 +105,7 @@ namespace ZenoniaProto
                 for (int c = 0; c < DuelBoard.Cells; c++)
                 {
                     if (!m.Match.Board.IsEmpty(c)) continue;
-                    int flips = DuelNpcAi.PopCount(m.Match.Board.PreviewFlips(side, m.Match.Hand(side)[h], c));
+                    int flips = DuelBoard.PopCount(m.Match.Board.PreviewFlips(side, m.Match.Hand(side)[h], c));
                     if (flips > bestFlips) { bestFlips = flips; bestHand = h; bestCell = c; }
                 }
             m.Place(side, bestHand, bestCell, 0);

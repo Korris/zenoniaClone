@@ -97,7 +97,7 @@ namespace ZenoniaProto
         /// Same clock as ServerTimeMs / NetClient.ServerNowMs (ZoneHost.ClockMs, shared by every zone so a portal does not jump it).</summary>
         void BroadcastWantedTelegraph(WantedSkillDef skill)
         {
-            float nowMs = ZoneHost.Active != null ? ZoneHost.Active.ClockMs : homeZone.TimeMs;
+            float nowMs = ZoneHost.Active != null ? (float)ZoneHost.Active.ClockMs : homeZone.TimeMs;
             uint atMs = (uint)nowMs + (uint)skill.TelegraphMs;
             for (int i = 0; i < pendingShapes.Count; i++)
             {

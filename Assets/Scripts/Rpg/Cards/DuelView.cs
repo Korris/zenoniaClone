@@ -6,17 +6,16 @@ namespace ZenoniaProto.Rpg
     public enum DuelResult { Playing = 0, Win = 1, Lose = 2, Draw = 3 }
 
     /// <summary>
-    /// What one player sees of a duel: the move list (side 0 = the viewer), their own hand, whose turn, the time left, the result and the rewards. The BOARD, the SCORE, the cards left and the
+    /// What one player sees of a duel: the move list (side 0 = the viewer), their own hand, whose turn, the time left, the result and the card stakes. The BOARD, the SCORE, the cards left and the
     /// BATTLE LOG are all derived from the move list here, and from nothing else, so they can never disagree (the mockup's log said a card was flipped while the board still showed it
-    /// unflipped). Flips come from each move's FlipMask as the server decided them: a viewer never re-applies the rule. Built by DuelView.From (server, offline host) or read off the wire.
+    /// unflipped). Flips come from each move's FlipMask as the server decided them: a viewer never re-applies the rule. Built by DuelView.From (server) or read off the wire.
     /// </summary>
     public sealed class DuelView
     {
-        public const int Me = 0, Them = 1, PlayerOpponent = 255, NoCard = 255;
-        /// <summary>0 no wager, 1 held, 2 settling, 3 paid, 4 failed (PvP Card Wager).</summary>
-        public const int WagerNone = 0, WagerHeld = 1, WagerSettling = 2, WagerPaid = 3, WagerFailed = 4;
+        public const int Me = 0, Them = 1, NoCard = 255;
+        /// <summary>Where the card stakes of a PvP duel stand: 0 no stakes, 1 both decks held (the match plays), 2 the winner is picking a card, 3 settling at the API, 4 paid (done), 5 failed (the API sorts it out later).</summary>
+        public const int WagerNone = 0, WagerHeld = 1, WagerPicking = 2, WagerSettling = 3, WagerPaid = 4, WagerFailed = 5;
 
-        public int Npc;
         public string OppName = "";
         public DuelResult Result;
         /// <summary>0 = played out, 1 = the viewer gave up / was dropped, 2 = the opponent did.</summary>
@@ -24,14 +23,19 @@ namespace ZenoniaProto.Rpg
         public bool YourTurn;
         /// <summary>Milliseconds left of the turn at the moment this view was made (the receiver adds its own clock).</summary>
         public int MsLeft;
-        public int RewardFirst, RewardDaily;
-        /// <summary>PvP Card Wager: the card index each side put in (NoCard = none) and the payout state. OppAwayMs = how long the opponent has been disconnected.</summary>
-        public int WagerMine = NoCard, WagerTheirs = NoCard, WagerState, OppAwayMs;
+        /// <summary>Card stakes (WagerState, see the constants), OppAwayMs = how long the opponent has been disconnected. PickedCard = the card index the winner took from the loser's deck (NoCard = none yet / a draw / no stakes);
+        /// PickMsLeft = time the winner has left to pick; PickCards = the loser's 8 staked cards, only sent to the winner while WagerState is Picking.</summary>
+        public int WagerState, OppAwayMs, PickedCard = NoCard, PickMsLeft;
+        /// <summary>True when the card was taken at random because the winner ran out of the 30 s.</summary>
+        public bool PickedAtRandom;
+        public readonly List<int> PickCards = new List<int>();
         public readonly List<DuelMove> Moves = new List<DuelMove>();
         public readonly List<int> Hand = new List<int>();
 
-        public bool IsPvp { get { return Npc == PlayerOpponent; } }
-        public bool HasWager { get { return WagerMine != NoCard; } }
+        /// <summary>Cards of both decks are at stake in this duel.</summary>
+        public bool HasWager { get { return WagerState != WagerNone; } }
+        /// <summary>The viewer won and has to choose a card now.</summary>
+        public bool MustPick { get { return Result == DuelResult.Win && WagerState == WagerPicking; } }
         public bool Finished { get { return Result != DuelResult.Playing; } }
         public int Turn { get { return System.Math.Min(DuelMatch.Turns, Moves.Count + 1); } }
 
@@ -88,9 +92,9 @@ namespace ZenoniaProto.Rpg
         }
 
         /// <summary>One side's view of a match. `mySide` is the DuelMatch side of the viewer; moves are re-labelled so 0 = viewer. The opponent's hand is never copied.</summary>
-        public static DuelView From(DuelMatch match, int mySide, int npc, string oppName, long nowMs, int rewardFirst = 0, int rewardDaily = 0)
+        public static DuelView From(DuelMatch match, int mySide, string oppName, long nowMs)
         {
-            var v = new DuelView { Npc = npc, OppName = oppName ?? "", RewardFirst = rewardFirst, RewardDaily = rewardDaily };
+            var v = new DuelView { OppName = oppName ?? "" };
             foreach (DuelMove m in match.Moves) { DuelMove r = m; r.Side = m.Side == mySide ? Me : Them; v.Moves.Add(r); }
             foreach (int c in match.Hand(mySide)) v.Hand.Add(c);
             v.YourTurn = !match.Finished && match.ToMove == mySide;

@@ -33,7 +33,7 @@ namespace ZenoniaProto
             get
             {
                 if (NetClient.Active != null) return NetClient.ServerNowMs;
-                return ZoneHost.Active != null ? ZoneHost.Active.ClockMs : Zone.Main != null ? Zone.Main.TimeMs : 0f;
+                return ZoneHost.Active != null ? (float)ZoneHost.Active.ClockMs : Zone.Main != null ? Zone.Main.TimeMs : 0f;
             }
         }
 

@@ -139,7 +139,7 @@ namespace ZenoniaProto
             if (p == null) return;
             RecordClientStats(p);
             party.OnLeave(p);
-            duel.OnLeave(p, host.ClockMs); // a duel in the middle is lost, nothing paid
+            duel.OnLeave(p, (long)host.ClockMs); // a duel in the middle is lost, nothing paid
             trade.OnLeave(p);
             if (persistence != null) persistence.OnLeave(p); // while the hero is still here to say where it stood; a trade being written goes first
             players.Remove(p);
@@ -177,17 +177,17 @@ namespace ZenoniaProto
                 case NetOp.PartyRequest:
                     PartyRequestMsg pr;
                     if (p == null || !PartyRequestMsg.TryRead(reader, out pr)) { Kick(peer, "bad party request"); break; }
-                    party.OnRequest(p, pr, host.ClockMs);
+                    party.OnRequest(p, pr, (float)host.ClockMs);
                     break;
                 case NetOp.TradeRequest:
                     TradeRequestMsg tr;
                     if (p == null || !TradeRequestMsg.TryRead(reader, out tr)) { Kick(peer, "bad trade request"); break; }
-                    trade.OnRequest(p, tr, host.ClockMs); // no trade while a card duel runs (TradeService answers a refusal)
+                    trade.OnRequest(p, tr, (float)host.ClockMs); // no trade while a card duel runs (TradeService answers a refusal)
                     break;
                 case NetOp.DuelRequest:
                     DuelRequestMsg dr;
                     if (p == null || !DuelRequestMsg.TryRead(reader, out dr)) { Kick(peer, "bad duel request"); break; }
-                    duel.OnRequest(p, dr, host.ClockMs);
+                    duel.OnRequest(p, dr, (long)host.ClockMs);
                     break;
                 default: Kick(peer, "unknown opcode " + op); break;
             }
@@ -268,7 +268,7 @@ namespace ZenoniaProto
             party.OnJoin(p);
             trade.OnJoin(p);
             duel.OnJoin(p);
-            nextSnapMs[p] = host.ClockMs + (p.PlayerId % snapDiv) * (1000f / tickRate);
+            nextSnapMs[p] = (float)host.ClockMs + (p.PlayerId % snapDiv) * (1000f / tickRate);
             stats.Max("playersPeak", players.Count);
             repl.SendWelcome(p, zone.Map.Id, transfers.PortalsLive, ServerMs, tickRate, snapDiv);
             wanted.SendTo(p); // today's Wanted Boss, alive or when it returns, whatever map this hero is on; before the first RpgState so the client reads its claim against the server's day
@@ -378,9 +378,9 @@ namespace ZenoniaProto
             if (paused > 0) stats.Add("zonePauses", paused);
             stats.Sample("zonesAwake", host.ZonesAwake);
             Zone.Enter(host.Start);
-            party.Tick(host.ClockMs);
-            trade.Tick(host.ClockMs);
-            duel.Tick(host.ClockMs);
+            party.Tick((float)host.ClockMs);
+            trade.Tick((float)host.ClockMs);
+            duel.Tick((long)host.ClockMs);
             wanted.Tick(players);
             tickWatch.Stop();
             stats.Sample("tickMs", (float)tickWatch.Elapsed.TotalMilliseconds);

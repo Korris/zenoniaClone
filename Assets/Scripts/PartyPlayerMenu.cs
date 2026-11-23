@@ -20,7 +20,7 @@ namespace ZenoniaProto
 
         readonly List<RaycastResult> uiHits = new List<RaycastResult>(8);
         RectTransform layer, box, tradeButton;
-        GameObject inviteButton, wagerButton;
+        GameObject inviteButton, duelButton;
         Text nameLabel;
         HeroController target;
         float closeAt, downAt;
@@ -47,15 +47,14 @@ namespace ZenoniaProto
             nameLabel = UiKit.Label(box, "Name", 0f, 0f, W, 22f, "", 15, Color.white, TextAnchor.MiddleCenter, true);
             inviteButton = PartyArt.ArtButton(box, "Invite", "btn-invite", 0f, 24f, ButtonW, 36f, "Invite", 15, UiWinKit.Cream, Invite).gameObject;
             tradeButton = (RectTransform)PartyArt.ArtButton(box, "Trade", "btn-invite", ButtonW + ButtonGap, 24f, ButtonW, 36f, "Trade", 15, UiWinKit.Cream, Trade).transform;
-            // second row: a plain Card Duel or a Card Wager (the inviter picks per match; the wager button is only shown to a player who may wager)
-            PartyArt.ArtButton(box, "Duel", "btn-invite", 0f, 24f + RowGap, ButtonW, 36f, "Card Duel", 15, UiWinKit.Cream, () => Duel(false));
-            wagerButton = PartyArt.ArtButton(box, "Wager", "btn-invite", ButtonW + ButtonGap, 24f + RowGap, ButtonW, 36f, "Card Wager", 15, UiWinKit.Cream, () => Duel(true)).gameObject;
+            // second row: Card Duel (every duel stakes both decks, the winner takes 1 card; the button is only shown to a player who may duel: online, Lv30+, today's limit)
+            duelButton = PartyArt.ArtButton(box, "Duel", "btn-invite", 0f, 24f + RowGap, W, 36f, "Card Duel", 15, UiWinKit.Cream, Duel).gameObject;
             box.gameObject.SetActive(false);
         }
 
-        void Duel(bool wager)
+        void Duel()
         {
-            if (target != null) DuelClient.Challenge(target.PlayerId, wager);
+            if (target != null) DuelClient.Challenge(target.PlayerId);
             Close();
         }
 
@@ -82,7 +81,7 @@ namespace ZenoniaProto
             instance.nameLabel.text = hero.PlayerName;
             bool member = NetClient.Party.Contains(hero.PlayerId); // nothing to invite a member to, but you can trade with one
             instance.inviteButton.SetActive(!member);
-            instance.wagerButton.SetActive(CardWagerPanel.EntryProblem().Length == 0); // Lv30+, the switch, today's limit, a spare N / R card: the server checks again
+            instance.duelButton.SetActive(DuelClient.EntryProblem().Length == 0); // online, Lv30+, today's limit: the server checks again
             instance.tradeButton.anchoredPosition = new Vector2(member ? (W - ButtonW) * 0.5f : ButtonW + ButtonGap, instance.tradeButton.anchoredPosition.y);
             Vector2 local;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(instance.layer, screen, null, out local);

@@ -13,21 +13,21 @@ public class WagerQueueAndApiTests
 {
     // ---- the request / answer bodies ----
 
-    static WagerSide Side(string id, int rev, string card = null) { return new WagerSide { CharacterId = id, SessionId = new string('a', 32), Rev = rev, StateJson = "{\"v\":1}", CardId = card }; }
+    static WagerSide Side(string id, int rev) { return new WagerSide { CharacterId = id, SessionId = new string('a', 32), Rev = rev, StateJson = "{\"v\":1}" }; }
 
     [Fact]
     public void EscrowRequestHasTheContractFields()
     {
-        string json = WagerApiClient.EscrowJson("duel-1", Side("c1", 4, "meadowSlime"), Side("c2", 9, "hornRabbit"));
-        Assert.Equal("{\"matchId\":\"duel-1\",\"a\":{\"characterId\":\"c1\",\"sessionId\":\"" + new string('a', 32) + "\",\"rev\":4,\"state\":{\"v\":1},\"cardId\":\"meadowSlime\"},\"b\":{\"characterId\":\"c2\",\"sessionId\":\"" + new string('a', 32) + "\",\"rev\":9,\"state\":{\"v\":1},\"cardId\":\"hornRabbit\"}}", json);
+        string json = WagerApiClient.EscrowJson("duel-1", Side("c1", 4), Side("c2", 9));
+        Assert.Equal("{\"matchId\":\"duel-1\",\"a\":{\"characterId\":\"c1\",\"sessionId\":\"" + new string('a', 32) + "\",\"rev\":4,\"state\":{\"v\":1}},\"b\":{\"characterId\":\"c2\",\"sessionId\":\"" + new string('a', 32) + "\",\"rev\":9,\"state\":{\"v\":1}}}", json);
     }
 
     [Fact]
     public void SettleRequestSendsOnlyTheReceiversThatAreOnline()
     {
-        Assert.Equal("{\"result\":\"draw\"}", WagerApiClient.SettleJson("draw", null, null));
-        string one = WagerApiClient.SettleJson("a", Side("c1", 4), null);
-        Assert.Contains("\"result\":\"a\"", one); Assert.Contains("\"a\":{\"sessionId\"", one); Assert.DoesNotContain("\"b\":", one); Assert.DoesNotContain("characterId", one); Assert.DoesNotContain("cardId", one);
+        Assert.Equal("{\"result\":\"draw\"}", WagerApiClient.SettleJson("draw", null, null, null));
+        string one = WagerApiClient.SettleJson("a", "iceWraith", Side("c1", 4), null);
+        Assert.Contains("\"result\":\"a\"", one); Assert.Contains("\"a\":{\"sessionId\"", one); Assert.DoesNotContain("\"b\":", one); Assert.DoesNotContain("characterId", one); Assert.Contains("\"pick\":\"iceWraith\"", one);
     }
 
     [Fact]
@@ -35,9 +35,9 @@ public class WagerQueueAndApiTests
     {
         string path = null, body = null;
         var client = new WagerApiClient((p, j, done) => { path = p; body = j; });
-        client.Settle("a b/\"c", "b", null, Side("c2", 1), r => { });
+        client.Settle("a b/\"c", "b", "iceWraith", null, Side("c2", 1), r => { });
         Assert.Equal("/internal/card-wagers/a%20b%2F%22c/settle", path);
-        client.Escrow("x\"y", Side("c1", 1, "k"), Side("c2", 1, "k"), r => { });
+        client.Escrow("x\"y", Side("c1", 1), Side("c2", 1), r => { });
         Assert.StartsWith("{\"matchId\":\"x\\\"y\"", body);
     }
 
@@ -73,7 +73,7 @@ public class WagerQueueAndApiTests
 
     // ---- the queue ----
 
-    sealed class Call { public string Kind, MatchId, Result; public WagerSide A, B; public bool HasA, HasB; public Action<ZoneApiReply> Done; }
+    sealed class Call { public string Kind, MatchId, Result, Pick; public WagerSide A, B; public bool HasA, HasB; public Action<ZoneApiReply> Done; }
 
     sealed class Api : IZoneApi
     {
@@ -84,9 +84,9 @@ public class WagerQueueAndApiTests
         public void Enhance(string c, string s, int rev, string reqId, string uid, Action<ZoneApiReply> done) { }
         public void EndSession(string c, string s, Action<ZoneApiReply> done) { }
         public void EscrowWager(string id, WagerSide a, WagerSide b, Action<ZoneApiReply> done) { Calls.Add(new Call { Kind = "escrow", MatchId = id, A = a, B = b, HasA = true, HasB = true, Done = done }); }
-        public void SettleWager(string id, string result, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done)
+        public void SettleWager(string id, string result, string pick, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done)
         {
-            Calls.Add(new Call { Kind = "settle", MatchId = id, Result = result, HasA = a.HasValue, HasB = b.HasValue, A = a ?? default(WagerSide), B = b ?? default(WagerSide), Done = done });
+            Calls.Add(new Call { Kind = "settle", MatchId = id, Result = result, Pick = pick, HasA = a.HasValue, HasB = b.HasValue, A = a ?? default(WagerSide), B = b ?? default(WagerSide), Done = done });
         }
     }
 
@@ -107,11 +107,11 @@ public class WagerQueueAndApiTests
     {
         SavedCharacter a = Char("a", 5), b = Char("b", 7);
         ZoneApiReply got = default(ZoneApiReply); int answers = 0;
-        q.EscrowWager("m1", a, b, "meadowSlime", "hornRabbit", r => { got = r; answers++; });
+        q.EscrowWager("m1", a, b, r => { got = r; answers++; });
         Tick();
         Assert.Equal("escrow", api.Last.Kind); Assert.Equal("m1", api.Last.MatchId);
-        Assert.Equal(5, api.Last.A.Rev); Assert.Equal("state-a", api.Last.A.StateJson); Assert.Equal("meadowSlime", api.Last.A.CardId);
-        Assert.Equal(7, api.Last.B.Rev); Assert.Equal("hornRabbit", api.Last.B.CardId);
+        Assert.Equal(5, api.Last.A.Rev); Assert.Equal("state-a", api.Last.A.StateJson);
+        Assert.Equal(7, api.Last.B.Rev);
         api.Last.Done(Ok(6, 8));
         Assert.Equal(1, answers); Assert.True(got.Ok);
         Assert.Equal(6, a.Rev); Assert.Equal(8, b.Rev);
@@ -124,7 +124,7 @@ public class WagerQueueAndApiTests
         SavedCharacter a = Char("a", 5), b = Char("b", 7);
         q.RequestSave(a); Tick(); // a save of A is in flight
         int saves = 0;
-        q.EscrowWager("m1", a, b, "k1", "k2", r => saves++);
+        q.EscrowWager("m1", a, b, r => saves++);
         Tick(100);
         Assert.DoesNotContain(api.Calls, c => c.Kind == "escrow");
     }
@@ -134,7 +134,7 @@ public class WagerQueueAndApiTests
     {
         SavedCharacter a = Char("a", 5), b = Char("b", 7);
         ZoneApiReply got = default(ZoneApiReply);
-        q.EscrowWager("m1", a, b, "k1", "k2", r => got = r);
+        q.EscrowWager("m1", a, b, r => got = r);
         Tick();
         api.Last.Done(NoAnswer());
         Tick(100);
@@ -151,7 +151,7 @@ public class WagerQueueAndApiTests
     {
         SavedCharacter a = Char("a", 5), b = Char("b", 7);
         ZoneApiReply got = default(ZoneApiReply);
-        q.EscrowWager("m1", a, b, "k1", "k2", r => got = r);
+        q.EscrowWager("m1", a, b, r => got = r);
         Tick();
         api.Last.Done(Refused(422, "wager_level"));
         Assert.Equal("wager_level", got.Code); Assert.False(got.MayHaveLanded);
@@ -165,7 +165,7 @@ public class WagerQueueAndApiTests
         SavedCharacter a = Char("a", 5), b = Char("b", 7);
         q.Leave(b); // B is leaving: its lock goes after the last write
         ZoneApiReply got = default(ZoneApiReply);
-        q.EscrowWager("m1", a, b, "k1", "k2", r => got = r);
+        q.EscrowWager("m1", a, b, r => got = r);
         Tick();
         Assert.Equal("not_online", got.Code);
         Assert.DoesNotContain(api.Calls, c => c.Kind == "escrow");
@@ -176,7 +176,7 @@ public class WagerQueueAndApiTests
     {
         SavedCharacter a = Char("a", 5), b = Char("b", 7);
         ZoneApiReply got = default(ZoneApiReply);
-        q.EscrowWager("m1", a, b, "k1", "k2", r => got = r);
+        q.EscrowWager("m1", a, b, r => got = r);
         for (int i = 0; i < 40 && got.Code == null; i++)
         {
             Tick(5000);
@@ -193,7 +193,7 @@ public class WagerQueueAndApiTests
     {
         SavedCharacter a = Char("a", 6); // B left or never was here
         ZoneApiReply got = default(ZoneApiReply);
-        q.SettleWager("m1", "a", "a", null, r => got = r);
+        q.SettleWager("m1", "a", "iceWraith", "a", null, r => got = r);
         Tick();
         Assert.Equal("settle", api.Last.Kind); Assert.Equal("a", api.Last.Result);
         Assert.True(api.Last.HasA); Assert.False(api.Last.HasB);
@@ -208,7 +208,7 @@ public class WagerQueueAndApiTests
     {
         SavedCharacter a = Char("a", 9);
         ZoneApiReply got = default(ZoneApiReply);
-        q.SettleWager("m1", "draw", "a", null, r => got = r);
+        q.SettleWager("m1", "draw", null, "a", null, r => got = r);
         Tick();
         api.Last.Done(new ZoneApiReply { Status = 200, Rev = -1, RevB = -1, CurrentRev = -1, Replayed = true, Credits = new[] { new WagerCredit { Side = 0, CharacterId = "a", Cards = new[] { "k1" }, Rev = 9 } } });
         Assert.False(got.Credits[0].Apply);
@@ -220,7 +220,7 @@ public class WagerQueueAndApiTests
     {
         SavedCharacter a = Char("a", 6);
         ZoneApiReply got = default(ZoneApiReply); int answers = 0;
-        q.SettleWager("m1", "b", null, "b", r => { got = r; answers++; }); // the winner B is not on this zone yet: no state goes along
+        q.SettleWager("m1", "b", "hornRabbit", null, "b", r => { got = r; answers++; }); // the winner B is not on this zone yet: no state goes along
         Tick();
         Assert.False(api.Last.HasB);
         api.Last.Done(Refused(409, "receiver_online")); // their session is alive elsewhere
@@ -242,7 +242,7 @@ public class WagerQueueAndApiTests
     public void ASettleThatIsAlreadySettledOrRefundedEndsWithoutRetry()
     {
         ZoneApiReply got = default(ZoneApiReply);
-        q.SettleWager("m1", "a", "a", null, r => got = r);
+        q.SettleWager("m1", "a", "iceWraith", "a", null, r => got = r);
         Tick();
         api.Last.Done(Refused(409, "wager_refunded"));
         Assert.Equal("wager_refunded", got.Code);
@@ -255,7 +255,7 @@ public class WagerQueueAndApiTests
     public void ASettleReceiverThatBecameOnlineBetweenTriesIsSentWithItsState()
     {
         ZoneApiReply got = default(ZoneApiReply);
-        q.SettleWager("m1", "a", "a", null, r => got = r);
+        q.SettleWager("m1", "a", "iceWraith", "a", null, r => got = r);
         Tick();
         Assert.False(api.Last.HasA); // nobody online yet
         api.Last.Done(Refused(409, "receiver_online"));
@@ -269,7 +269,7 @@ public class WagerQueueAndApiTests
     {
         SavedCharacter a = Char("a", 6);
         q.RequestSave(a); Tick(); // save in flight
-        q.SettleWager("m1", "a", "a", null, r => { });
+        q.SettleWager("m1", "a", "iceWraith", "a", null, r => { });
         Tick(100);
         Assert.DoesNotContain(api.Calls, c => c.Kind == "settle");
     }

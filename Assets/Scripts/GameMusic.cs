@@ -5,13 +5,15 @@ namespace ZenoniaProto
     /// <summary>
     /// Looping background music from Resources/Audio/music (frost-hollow, oakhaven-village). Play() fades the new track in and the old one
     /// out (two sources), so a map change never cuts the music abruptly. Unscaled time: hit-stop and the paused inventory do not affect it.
+    /// PlayJingle plays a short one-shot track (the Card Duel result music) on a third source: the background music ducks to silence while it plays and fades back in after it,
+    /// and the same Settings switch (AudioPrefs.MusicOn) mutes it.
     /// </summary>
     public class GameMusic : MonoBehaviour
     {
         public const float Volume = 0.55f;
-        const float FadeSeconds = 1.2f;
+        const float FadeSeconds = 1.2f, DuckFadeSeconds = 0.25f;
         static GameMusic instance;
-        AudioSource current, previous;
+        AudioSource current, previous, jingle;
         string playing;
 
         public static void Init(Transform parent)
@@ -21,6 +23,20 @@ namespace ZenoniaProto
             instance = go.AddComponent<GameMusic>();
             instance.current = instance.NewSource();
             instance.previous = instance.NewSource();
+            instance.jingle = instance.NewSource();
+            instance.jingle.loop = false;
+        }
+
+        /// <summary>Plays Resources/Audio/music/&lt;track&gt; once on top of the silenced background music (it comes back when the jingle ends). Music off in Settings = nothing plays. A missing file logs once.</summary>
+        public static void PlayJingle(string track)
+        {
+            if (instance == null || !AudioPrefs.MusicOn) return;
+            var clip = Resources.Load<AudioClip>("Audio/music/" + track);
+            if (clip == null) { Debug.LogWarning("[ZenoniaProto] Missing jingle Resources/Audio/music/" + track); return; }
+            instance.jingle.Stop();
+            instance.jingle.clip = clip;
+            instance.jingle.volume = Volume;
+            instance.jingle.Play();
         }
 
         AudioSource NewSource()
@@ -51,7 +67,9 @@ namespace ZenoniaProto
         void Update()
         {
             float step = Time.unscaledDeltaTime / FadeSeconds * Volume;
-            current.volume = Mathf.MoveTowards(current.volume, AudioPrefs.MusicOn ? Volume : 0f, step); // Settings switch: fades out / back in, the track keeps its place
+            bool ducked = jingle.isPlaying; // a jingle owns the speakers: the map music keeps its place but goes quiet, then fades back in
+            jingle.volume = AudioPrefs.MusicOn ? Volume : 0f;
+            current.volume = Mathf.MoveTowards(current.volume, AudioPrefs.MusicOn && !ducked ? Volume : 0f, ducked ? Time.unscaledDeltaTime / DuckFadeSeconds * Volume : step); // Settings switch: fades out / back in, the track keeps its place
             previous.volume = Mathf.MoveTowards(previous.volume, 0f, step);
             if (previous.isPlaying && previous.volume <= 0f) previous.Stop();
         }

@@ -8,7 +8,7 @@ namespace ZenoniaProto
     /// <summary>
     /// Battle screen of the Card Duel (mockup 06b), construction. Everything is a piece of the ChatGPT card kit (cards/board/*, cards/card/*): the board art with its 16 cells, score plates, turn plate, timer ring,
     /// log frame, hand tray, NPC portrait, result banner. Only text and the position of pieces are made here; geometry constants are fractions of the art (the board's cells measured on board-4x4.png).
-    /// Layout (window units, region 1096 x 546): left column 300 (score, turn, timer, log), board + hand 570 in the middle, opponent + selected card 206 on the right.
+    /// Layout (window units, region 1096 x 546; the winner's pick screen is CardDuelPickPanel): left column 300 (score, turn, timer, log), board + hand 570 in the middle, opponent + selected card 206 on the right.
     /// </summary>
     public sealed partial class CardDuelBattleView
     {
@@ -31,6 +31,10 @@ namespace ZenoniaProto
         Text[] logTurn = new Text[LogRows], logText = new Text[LogRows];
         Image[] logTag = new Image[LogRows];
         Text wagerLine;
+        RectTransform bannerSubText;
+        GemCardView bannerCard;
+        CardDuelPickPanel pick;
+        const float BannerCardW = 62f, BannerCardH = 82f;
         Text[] statNum = new Text[4];
         GemCardView big;
         U.PieceButton bannerButton, forfeit;
@@ -48,6 +52,7 @@ namespace ZenoniaProto
             BuildHand();
             BuildRight();
             BuildBanner();
+            pick = new CardDuelPickPanel(root, MidX, 0f); // the winner's pick screen: over the board while the winner chooses a card of the loser's deck
             root.gameObject.SetActive(false);
         }
 
@@ -193,14 +198,16 @@ namespace ZenoniaProto
 
         void BuildBanner()
         {
-            bannerRoot = UiKit.Rect(root, "Banner", MidX + 20f, 60f, MidW - 40f, 290f);
+            bannerRoot = UiKit.Rect(root, "Banner", MidX + 20f, 60f, MidW - 40f, 350f);
             Image veil = bannerRoot.gameObject.AddComponent<Image>(); veil.color = new Color(0.16f, 0.22f, 0.3f, 0.0f); veil.raycastTarget = true; // taps stop here (not art)
             bannerArt = GemUiArt.Img(bannerRoot, "Art", (MidW - 40f - 400f) * 0.5f, 0f, 400f, 180f, B("banner-win"));
             bannerTitle = U.Txt(bannerRoot, "Title", (MidW - 40f - 220f) * 0.5f, 62f, 220f, 54f, "Victory!", 30, Color.white, TextAnchor.MiddleCenter);
             var rim = bannerTitle.gameObject.AddComponent<Outline>(); rim.effectColor = new Color(0.4f, 0.2f, 0.05f, 0.9f); rim.effectDistance = new Vector2(1.5f, -1.5f);
-            U.Panel(bannerRoot, "SubBox", 24f, 172f, MidW - 88f, 118f, true); // plain panel under the result text and the button: the board behind is busy
-            bannerSub = U.Txt(bannerRoot, "Sub", 34f, 176f, MidW - 108f, 60f, "", 16, U.Ink, TextAnchor.MiddleCenter);
-            bannerButton = new U.PieceButton(bannerRoot, "Continue", (MidW - 40f - 190f) * 0.5f, 238f, 190f, U.ButtonH, GemUiArt.Frame("btn-teal"), "Continue", () => DuelClient.Reset());
+            U.Panel(bannerRoot, "SubBox", 24f, 172f, MidW - 88f, 176f, true); // plain panel under the result text and the button: the board behind is busy
+            bannerCard = new GemCardView(bannerRoot, "TakenCard", 34f, 178f, BannerCardW, BannerCardH, null, false, true, 14);
+            bannerSub = U.Txt(bannerRoot, "Sub", 34f, 176f, MidW - 108f, 86f, "", 16, U.Ink, TextAnchor.MiddleCenter);
+            bannerSubText = bannerSub.rectTransform;
+            bannerButton = new U.PieceButton(bannerRoot, "Continue", (MidW - 40f - 190f) * 0.5f, 292f, 190f, U.ButtonH, GemUiArt.Frame("btn-teal"), "Continue", () => DuelClient.Reset());
             bannerRoot.gameObject.SetActive(false);
         }
     }

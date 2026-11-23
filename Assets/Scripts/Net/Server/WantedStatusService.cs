@@ -33,7 +33,7 @@ namespace ZenoniaProto
             Monster boss = zone.Wanted;
             bool standing = boss != null && !boss.IsDying && boss.Type == today.BossType;
             m = WantedStatusRules.Build(today.BossType, WantedBoss.DayKey(now), standing, zone.WantedTimer.Active, zone.WantedTimer.LeftMs,
-                zone.Idle.SleptMs(host.ClockMs), WantedBoss.NextResetUtcMs(now) - now);
+                zone.Idle.SleptMs((float)host.ClockMs), WantedBoss.NextResetUtcMs(now) - now);
             return true;
         }
 

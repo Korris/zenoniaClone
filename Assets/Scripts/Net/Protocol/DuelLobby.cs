@@ -3,46 +3,41 @@ using System.Collections.Generic;
 
 namespace ZenoniaProto.Net
 {
-    public enum LobbyPhase : byte { None = 0, Incoming = 1, Outgoing = 2, Pick = 3, Starting = 4 }
+    public enum LobbyPhase : byte { None = 0, Incoming = 1, Outgoing = 2, Starting = 3 }
 
-    /// <summary>Why a lobby step was refused, or why a lobby ended (sent to the player as DuelFail.Lobby* codes by the zone).</summary>
-    public enum LobbyFail : byte { None = 0, Self = 1, Busy = 2, Cooldown = 3, NoInvite = 4, NoLobby = 5, NoPick = 6, NotLocked = 7, Mismatch = 8, Declined = 9, Cancelled = 10, Expired = 11, Left = 12 }
+    /// <summary>Why a lobby step was refused, or why a lobby ended (sent to the player as DuelFail.* codes by the zone).</summary>
+    public enum LobbyFail : byte { None = 0, Self = 1, Busy = 2, Cooldown = 3, NoInvite = 4, NoLobby = 5, Declined = 6, Cancelled = 7, Expired = 8, Left = 9 }
 
-    /// <summary>What one player sees of their lobby (invite or wager panel). Cards are card indices, NoCard = none yet.</summary>
+    /// <summary>What one player sees of their lobby (the invite they got or sent). Stakes = cards are at stake in this duel.</summary>
     public struct LobbyView
     {
         public LobbyPhase Phase;
         public ushort Other;
-        public bool Wager, MyLocked, TheirLocked, MyConfirmed, TheirConfirmed;
-        public byte MyCard, TheirCard;
+        public bool Stakes;
         public int MsLeft;
     }
 
-    /// <summary>Both players are ready: A is the inviter. For a wager the two picked cards are final (confirmed by both).</summary>
-    public struct LobbyStart { public ushort A, B; public bool Wager; public byte CardA, CardB; }
+    /// <summary>Both players are ready: A is the inviter.</summary>
+    public struct LobbyStart { public ushort A, B; public bool Stakes; }
 
     /// <summary>A lobby ended without a match (to = the player to tell, `Other` = the other one).</summary>
     public struct LobbyEnd { public ushort To, Other; public LobbyFail Why; }
 
     /// <summary>
-    /// The challenge flow of the card duel between two players, no networking, no clock of its own (`nowMs` is passed in): invite (15 s, one open invite or lobby per player, 30 s before inviting the same player again),
-    /// accept / decline / cancel, and for a Card Wager the pick panel: each side picks ONE card, Lock, then Confirm once both are locked. A pick clears the picker's own lock and BOTH confirmations, so nobody
-    /// confirms a card they did not see. What a card is worth (rarity, ownership) is the zone's business and checked before Pick; the lobby only compares the two picks through `CardsMatch` at Confirm.
-    /// Results are collected in Changed (players whose view changed), Starts and Ends for the service to flush.
+    /// The challenge flow of the card duel between two players, no networking, no clock of its own (`nowMs` is passed in): invite (15 s, one open invite or lobby per player, 30 s before inviting the same player again)
+    /// and accept / decline / cancel. Accept starts the match at once (there is no card picking before a duel any more: the stakes are the whole decks and the winner picks AFTER the match). `Stakes` is only
+    /// carried so both players read the same rule on the invite. Results are collected in Changed (players whose view changed), Starts and Ends for the service to flush.
     /// </summary>
     public sealed class DuelLobby
     {
-        public const long InviteMs = 15000, PairCooldownMs = 30000, PickMs = 60000;
-        public const byte NoCard = 255;
+        public const long InviteMs = 15000, PairCooldownMs = 30000;
 
         sealed class Room
         {
             public ushort A, B;
-            public bool Wager;
+            public bool Stakes;
             public LobbyPhase Phase;
             public long ExpiresAt;
-            public byte CardA = NoCard, CardB = NoCard;
-            public bool LockA, LockB, ConfA, ConfB;
         }
 
         readonly Dictionary<ushort, Room> byPlayer = new Dictionary<ushort, Room>();
@@ -51,22 +46,20 @@ namespace ZenoniaProto.Net
         public readonly List<ushort> Changed = new List<ushort>();
         public readonly List<LobbyStart> Starts = new List<LobbyStart>();
         public readonly List<LobbyEnd> Ends = new List<LobbyEnd>();
-        /// <summary>True when the two picked cards may be wagered against each other (same rarity). Null = always.</summary>
-        public Func<byte, byte, bool> CardsMatch;
 
         public bool IsBusy(ushort id) { return byPlayer.ContainsKey(id); }
         public LobbyPhase PhaseOf(ushort id) { Room r; return byPlayer.TryGetValue(id, out r) ? r.Phase : LobbyPhase.None; }
 
         static uint Key(ushort from, ushort to) { return ((uint)from << 16) | to; }
 
-        public LobbyFail Invite(ushort from, ushort to, bool wager, long now)
+        public LobbyFail Invite(ushort from, ushort to, bool stakes, long now)
         {
             if (from == to) return LobbyFail.Self;
             if (byPlayer.ContainsKey(from) || byPlayer.ContainsKey(to)) return LobbyFail.Busy;
             long last;
             if (lastInvite.TryGetValue(Key(from, to), out last) && now - last < PairCooldownMs) return LobbyFail.Cooldown;
             lastInvite[Key(from, to)] = now;
-            var r = new Room { A = from, B = to, Wager = wager, Phase = LobbyPhase.Incoming, ExpiresAt = now + InviteMs };
+            var r = new Room { A = from, B = to, Stakes = stakes, Phase = LobbyPhase.Incoming, ExpiresAt = now + InviteMs };
             byPlayer[from] = r; byPlayer[to] = r;
             Changed.Add(from); Changed.Add(to);
             return LobbyFail.None;
@@ -90,49 +83,17 @@ namespace ZenoniaProto.Net
             return LobbyFail.None;
         }
 
-        public LobbyFail Accept(ushort by, long now)
+        public LobbyFail Accept(ushort by)
         {
             Room r;
             if (!byPlayer.TryGetValue(by, out r) || r.Phase != LobbyPhase.Incoming || r.B != by) return LobbyFail.NoInvite;
-            if (r.Wager) { r.Phase = LobbyPhase.Pick; r.ExpiresAt = now + PickMs; Changed.Add(r.A); Changed.Add(r.B); }
-            else Begin(r);
-            return LobbyFail.None;
-        }
-
-        public LobbyFail Pick(ushort by, byte card)
-        {
-            Room r = PickRoom(by);
-            if (r == null) return LobbyFail.NoLobby;
-            if (card == NoCard) return LobbyFail.NoPick;
-            if (by == r.A) { r.CardA = card; r.LockA = false; } else { r.CardB = card; r.LockB = false; }
-            r.ConfA = r.ConfB = false;
+            r.Phase = LobbyPhase.Starting;
+            Starts.Add(new LobbyStart { A = r.A, B = r.B, Stakes = r.Stakes });
             Changed.Add(r.A); Changed.Add(r.B);
             return LobbyFail.None;
         }
 
-        public LobbyFail Lock(ushort by)
-        {
-            Room r = PickRoom(by);
-            if (r == null) return LobbyFail.NoLobby;
-            if ((by == r.A ? r.CardA : r.CardB) == NoCard) return LobbyFail.NoPick;
-            if (by == r.A) r.LockA = true; else r.LockB = true;
-            Changed.Add(r.A); Changed.Add(r.B);
-            return LobbyFail.None;
-        }
-
-        public LobbyFail Confirm(ushort by)
-        {
-            Room r = PickRoom(by);
-            if (r == null) return LobbyFail.NoLobby;
-            if (!r.LockA || !r.LockB) return LobbyFail.NotLocked;
-            if (CardsMatch != null && !CardsMatch(r.CardA, r.CardB)) return LobbyFail.Mismatch;
-            if (by == r.A) r.ConfA = true; else r.ConfB = true;
-            if (r.ConfA && r.ConfB) Begin(r);
-            else { Changed.Add(r.A); Changed.Add(r.B); }
-            return LobbyFail.None;
-        }
-
-        /// <summary>Either player backs out of the panel (or the other player left the game).</summary>
+        /// <summary>Either player backs out (or the other player left the game).</summary>
         public LobbyFail Leave(ushort by, LobbyFail why = LobbyFail.Left)
         {
             Room r;
@@ -167,15 +128,6 @@ namespace ZenoniaProto.Net
             foreach (uint k in old) lastInvite.Remove(k);
         }
 
-        Room PickRoom(ushort by) { Room r; return byPlayer.TryGetValue(by, out r) && r.Phase == LobbyPhase.Pick ? r : null; }
-
-        void Begin(Room r)
-        {
-            r.Phase = LobbyPhase.Starting;
-            Starts.Add(new LobbyStart { A = r.A, B = r.B, Wager = r.Wager, CardA = r.CardA, CardB = r.CardB });
-            Changed.Add(r.A); Changed.Add(r.B);
-        }
-
         void End(Room r, LobbyFail why, ushort actor)
         {
             byPlayer.Remove(r.A); byPlayer.Remove(r.B);
@@ -184,7 +136,7 @@ namespace ZenoniaProto.Net
             Changed.Add(r.A); Changed.Add(r.B);
         }
 
-        /// <summary>The view of `id` (Phase None when they have no lobby). The other player's pick is shown as it is: both look at both cards.</summary>
+        /// <summary>The view of `id` (Phase None when they have no lobby).</summary>
         public LobbyView ViewOf(ushort id, long now)
         {
             Room r;
@@ -193,10 +145,7 @@ namespace ZenoniaProto.Net
             LobbyPhase phase = r.Phase == LobbyPhase.Incoming ? (a ? LobbyPhase.Outgoing : LobbyPhase.Incoming) : r.Phase;
             return new LobbyView
             {
-                Phase = phase, Other = a ? r.B : r.A, Wager = r.Wager,
-                MyCard = a ? r.CardA : r.CardB, TheirCard = a ? r.CardB : r.CardA,
-                MyLocked = a ? r.LockA : r.LockB, TheirLocked = a ? r.LockB : r.LockA,
-                MyConfirmed = a ? r.ConfA : r.ConfB, TheirConfirmed = a ? r.ConfB : r.ConfA,
+                Phase = phase, Other = a ? r.B : r.A, Stakes = r.Stakes,
                 MsLeft = r.Phase == LobbyPhase.Starting ? 0 : (int)Math.Max(0L, Math.Min(int.MaxValue, r.ExpiresAt - now)),
             };
         }

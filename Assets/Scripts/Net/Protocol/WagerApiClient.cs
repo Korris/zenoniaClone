@@ -4,10 +4,10 @@ using System.Text;
 
 namespace ZenoniaProto.Net
 {
-    /// <summary>One side of a wager call: the character as the zone holds it now (state = full save JSON, as for a trade) and the card it puts in.</summary>
+    /// <summary>One side of a wager call: the character as the zone holds it now (state = full save JSON, as for a trade; its cardDeck is the deck that is staked).</summary>
     public struct WagerSide
     {
-        public string CharacterId, SessionId, StateJson, CardId;
+        public string CharacterId, SessionId, StateJson;
         public int Rev;
     }
 
@@ -35,10 +35,10 @@ namespace ZenoniaProto.Net
             post("/internal/card-wagers/escrow", EscrowJson(matchId, a, b), (s, t) => done(EscrowReply(s, t)));
         }
 
-        /// <summary>`result` = "a" / "b" / "draw". `a` / `b` = the receivers that are online on this zone (null = not online here: the API writes the card straight to the character).</summary>
-        public void Settle(string matchId, string result, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done)
+        /// <summary>`result` = "a" / "b" / "draw"; `pick` = the card id the winner takes from the loser's staked deck (null on a draw). `a` / `b` = the characters that are online on this zone (null = not online here: the API writes the cards straight to the character).</summary>
+        public void Settle(string matchId, string result, string pick, WagerSide? a, WagerSide? b, Action<ZoneApiReply> done)
         {
-            post("/internal/card-wagers/" + Uri.EscapeDataString(matchId) + "/settle", SettleJson(result, a, b), (s, t) => done(SettleReply(s, t)));
+            post("/internal/card-wagers/" + Uri.EscapeDataString(matchId) + "/settle", SettleJson(result, pick, a, b), (s, t) => done(SettleReply(s, t)));
         }
 
         public static string EscrowJson(string matchId, WagerSide a, WagerSide b)
@@ -46,19 +46,19 @@ namespace ZenoniaProto.Net
             return "{\"matchId\":" + ZoneApiReplyParser.Str(matchId) + ",\"a\":" + Side(a, true) + ",\"b\":" + Side(b, true) + "}";
         }
 
-        public static string SettleJson(string result, WagerSide? a, WagerSide? b)
+        public static string SettleJson(string result, string pick, WagerSide? a, WagerSide? b)
         {
             var sb = new StringBuilder("{\"result\":" + ZoneApiReplyParser.Str(result));
+            if (pick != null) sb.Append(",\"pick\":").Append(ZoneApiReplyParser.Str(pick));
             if (a.HasValue) sb.Append(",\"a\":").Append(Side(a.Value, false));
             if (b.HasValue) sb.Append(",\"b\":").Append(Side(b.Value, false));
             return sb.Append('}').ToString();
         }
 
-        static string Side(WagerSide s, bool withCard)
+        // escrow names the character; a settle receiver is named by the match itself
+        static string Side(WagerSide s, bool withCharacter)
         {
-            string json = "{" + (withCard ? "\"characterId\":" + ZoneApiReplyParser.Str(s.CharacterId) + "," : "") + "\"sessionId\":" + ZoneApiReplyParser.Str(s.SessionId) + ",\"rev\":" + s.Rev + ",\"state\":" + s.StateJson;
-            if (withCard) json += ",\"cardId\":" + ZoneApiReplyParser.Str(s.CardId);
-            return json + "}";
+            return "{" + (withCharacter ? "\"characterId\":" + ZoneApiReplyParser.Str(s.CharacterId) + "," : "") + "\"sessionId\":" + ZoneApiReplyParser.Str(s.SessionId) + ",\"rev\":" + s.Rev + ",\"state\":" + s.StateJson + "}";
         }
 
         /// <summary>200: Rev = side a's rev, RevB = side b's (the cards are already out of both characters). Otherwise the standard refusal fields.</summary>

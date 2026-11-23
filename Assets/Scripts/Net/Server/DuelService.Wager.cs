@@ -5,10 +5,11 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The Card Wager on the zone (phase 06): before the match the two cards are put in escrow at server-api (both characters, one transaction, rev + 1 each, ZonePersistence.EscrowWager) and only then does the
-    /// match start; after it the winner is paid (or both get their own back on a draw) with SettleWager, retried by the queue under the same matchId until the API answers. The card is taken from the player's copy
-    /// here the same way the API took it (the API's own rev is adopted by the queue), so a card that dropped while waiting is not lost. A player who leaves while the cards are held still has a side in the match
-    /// and may come back; a failed escrow after a lost answer is settled as a draw, so a card is never stuck. On a dev server (no accounts) the move happens in memory only.
+    /// The card stakes on the zone (phase 06 v2). Before the match BOTH 8-card decks are put in escrow at server-api (both characters, one transaction, rev + 1 each, ZonePersistence.EscrowWager) and only then does the
+    /// match start. After it the winner picks one card of the loser's deck (DuelService.Pvp.cs) and SettleStakes gives both decks back, the winner plus the picked card and the loser minus it (a draw gives everything back),
+    /// retried by the queue under the same matchId until the API answers. The decks leave the player's copy here the same way the API took them (the API's own rev is adopted by the queue), so a card that dropped while
+    /// waiting is not lost. A player who leaves while the decks are held still has a side in the match and may come back; a failed escrow after a lost answer is settled as a draw, so a card is never stuck.
+    /// On a dev server (no accounts) the move happens in memory only. API switch off (403 wager_disabled): the match is played with nothing at stake.
     /// </summary>
     public sealed partial class DuelService
     {
@@ -16,13 +17,12 @@ namespace ZenoniaProto
         {
             switch (r.Code)
             {
-                case "wager_disabled": return DuelFail.WagerOff;
                 case "wager_level": return DuelFail.WagerLevel;
                 case "wager_daily_limit": case "wager_pair_limit": return DuelFail.WagerDaily;
-                case "wager_rarity_mismatch": return DuelFail.CardMismatch;
-                case "wager_unknown_card": case "wager_boss_card": case "wager_rarity": case "wager_no_spare": return DuelFail.WagerCard;
+                case "wager_account_age": return DuelFail.AccountAge;
+                case "wager_self": return DuelFail.SameAccount;
                 case "not_online": return DuelFail.OpponentLeft;
-                case "wager_account_age": case "wager_self": case "wager_stack_full": return DuelFail.WagerRefused;
+                case "wager_deck": case "wager_unknown_card": case "wager_invalid": return DuelFail.WagerRefused;
                 default: return r.Status == 0 || r.Status >= 500 || r.Transient ? DuelFail.ApiBusy : DuelFail.WagerRefused;
             }
         }
@@ -40,61 +40,63 @@ namespace ZenoniaProto
             Flush(now);
         }
 
-        void BeginWager(PvpSeat[] seat, LobbyStart s, long now)
+        void BeginStakes(PvpSeat[] seat, LobbyStart s, long now)
         {
             NetPlayer a = seat[0].Player, b = seat[1].Player;
-            int day = DuelNpcRun.DayKeyNow();
-            CardDef ca = CardTable.ByIndex(s.CardA), cb = CardTable.ByIndex(s.CardB);
+            int day = WagerRules.DayKeyNow();
             WagerError err = WagerRules.CanEnter(a.Rpg.State, day);
             if (err == WagerError.None) err = WagerRules.CanEnter(b.Rpg.State, day);
-            if (err == WagerError.None) err = ca == null ? WagerError.UnknownCard : WagerRules.CheckCard(a.Rpg.State, ca.Id);
-            if (err == WagerError.None) err = cb == null ? WagerError.UnknownCard : WagerRules.CheckCard(b.Rpg.State, cb.Id);
-            if (err == WagerError.None && !WagerRules.Matches(ca, cb)) err = WagerError.Mismatch;
             if (err == WagerError.None && !pairs.Allowed(seat[0].Key, seat[1].Key, day)) err = WagerError.PairLimit;
             if (err != WagerError.None) { FailStart(seat, s, FailOf(err), now); return; }
-            string[] cards = { ca.Id, cb.Id };
             string matchId = NewMatchId();
             if (persistence == null) // dev server: the cards move in memory only
             {
-                TakeCards(seat, cards, day);
+                TakeDecks(seat, day);
                 lobby.Finish(s.A);
-                StartMatch(seat, cards, matchId, now);
+                StartMatch(seat, true, matchId, now);
                 return;
             }
             if (!persistence.ApiHealthy || a.Saved == null || b.Saved == null) { FailStart(seat, s, DuelFail.ApiBusy, now); return; }
-            persistence.EscrowWager(a, b, ca.Id, cb.Id, matchId, r => OnEscrow(r, seat, cards, matchId, s, day));
+            persistence.EscrowWager(a, b, matchId, r => OnEscrow(r, seat, matchId, s, day));
         }
 
-        void OnEscrow(ZoneApiReply r, PvpSeat[] seat, string[] cards, string matchId, LobbyStart s, int day)
+        void OnEscrow(ZoneApiReply r, PvpSeat[] seat, string matchId, LobbyStart s, int day)
         {
             long now = Now();
+            for (int i = 0; i < 2; i++) seat[i].Player = OnlineByKey(seat[i].Key); // a player may have come back on a new connection, or gone
             if (!r.Ok)
             {
-                Debug.LogWarning("[ZenoniaProto] duel: wager escrow " + matchId + " not made: " + r.Code + " (status " + r.Status + ")" + (r.MayHaveLanded ? ", may have landed: settling as a draw" : ""));
+                if (r.Code == "wager_disabled") // the emergency switch is off at the API: PvP still plays, no card is taken
+                {
+                    Debug.LogWarning("[ZenoniaProto] duel: server-api has Card Wager switched off: this duel is played with nothing at stake");
+                    lobby.Finish(s.A);
+                    StartMatch(seat, false, null, now);
+                    return;
+                }
+                Debug.LogWarning("[ZenoniaProto] duel: escrow " + matchId + " not made: " + r.Code + " (status " + r.Status + ")" + (r.MayHaveLanded ? ", may have landed: settling as a draw" : ""));
                 if (r.MayHaveLanded) SettleLoose(matchId, seat[0].Key, seat[1].Key);
                 lobby.Finish(s.A);
                 DuelFail why = FailOf(r);
-                for (int i = 0; i < 2; i++) Refuse(OnlineByKey(seat[i].Key), why);
+                for (int i = 0; i < 2; i++) Refuse(seat[i].Player, why);
                 Flush(now);
                 return;
             }
-            for (int i = 0; i < 2; i++) seat[i].Player = OnlineByKey(seat[i].Key); // a player may have come back on a new connection, or gone
-            TakeCards(seat, cards, day);
+            TakeDecks(seat, day);
             lobby.Finish(s.A);
             if (seat[0].Player == null && seat[1].Player == null) { SettleLoose(matchId, seat[0].Key, seat[1].Key); Flush(now); return; } // nobody is left to play it
-            StartMatch(seat, cards, matchId, now);
+            StartMatch(seat, true, matchId, now);
         }
 
-        // the card each player put in leaves their copy here (the API took it from the stored one), and the day's wager count and the pair count go up
-        void TakeCards(PvpSeat[] seat, string[] cards, int day)
+        // the deck each player staked leaves their copy here (the API took it from the stored one), and the day's duel count and the pair count go up
+        void TakeDecks(PvpSeat[] seat, int day)
         {
             pairs.Note(seat[0].Key, seat[1].Key, day);
             for (int i = 0; i < 2; i++)
             {
-                NetPlayer p = seat[i].Player;
+                NetPlayer p = seat[i].Owner;
                 if (p == null || p.Hero == null) continue;
                 CardCollection c = p.Rpg.State.Cards;
-                c.Remove(cards[i]);
+                seat[i].LockedKinds = c.EscrowDeck();
                 if (c.Daily.day != day) c.Daily = new CardDailyData { day = day };
                 c.Daily.wagers++;
                 Zone.Enter(p.Hero.HomeZone);
@@ -102,26 +104,38 @@ namespace ZenoniaProto
             }
         }
 
-        /// <summary>A settle with nobody to wait for (the escrow may exist but no match will be played): both get their own card back.</summary>
+        /// <summary>A settle with nobody to wait for (the escrow may exist but no match will be played): both get their own deck back.</summary>
         void SettleLoose(string matchId, string keyA, string keyB)
         {
             if (persistence == null) return;
-            persistence.SettleWager(matchId, "draw", keyA, keyB, r => Debug.Log("[ZenoniaProto] duel: wager " + matchId + " returned as a draw: " + (r.Ok ? "ok" : r.Code + " (status " + r.Status + ")")));
+            persistence.SettleWager(matchId, "draw", null, keyA, keyB, r => Debug.Log("[ZenoniaProto] duel: " + matchId + " returned as a draw: " + (r.Ok ? "ok" : r.Code + " (status " + r.Status + ")")));
         }
 
-        void SettleWager(PvpRun run, long now)
+        /// <summary>The cards a side gets at the end: its own deck, plus the picked card for the winner, minus it for the loser. A draw gives every deck back.</summary>
+        static string[] Payout(PvpRun run, int side, string result, string pick)
         {
-            string result = run.Match.WagerResult;
-            string toA = result == "a" || result == "draw" ? run.Key[0] : null, toB = result == "b" || result == "draw" ? run.Key[1] : null;
-            run.WagerState = DuelView.WagerSettling;
-            if (persistence == null) // dev server: in memory
+            var cards = new System.Collections.Generic.List<string>(run.Deck[side]);
+            if (result == "draw" || pick == null) return cards.ToArray();
+            bool winner = (result == "a") == (side == 0);
+            if (winner) cards.Add(pick); else cards.Remove(pick); // List.Remove drops the first copy only
+            return cards.ToArray();
+        }
+
+        /// <summary>The result is known (and the winner's card chosen): give both decks back. Dev server: in memory; else server-api, retried by the queue under the same matchId.</summary>
+        void SettleStakes(PvpRun run, string result, long now)
+        {
+            string pick = run.Pick != null ? run.Pick.Picked : null;
+            run.StakeState = DuelView.WagerSettling;
+            if (persistence == null)
             {
-                if (result == "draw") { Give(toA, run.CardIdx[0]); Give(toB, run.CardIdx[1]); }
-                else { string winner = toA ?? toB; Give(winner, run.CardIdx[0]); Give(winner, run.CardIdx[1]); }
-                run.WagerState = DuelView.WagerPaid;
+                for (int s = 0; s < 2; s++) Give(run, s, Payout(run, s, result, pick));
+                run.StakeState = DuelView.WagerPaid;
+                SendBoth(run, now);
+                Close(run);
                 return;
             }
-            persistence.SettleWager(run.MatchId, result, toA, toB, r => OnSettled(run, r));
+            persistence.SettleWager(run.MatchId, result, pick, run.Key[0], run.Key[1], r => OnSettled(run, r));
+            SendBoth(run, now);
         }
 
         void OnSettled(PvpRun run, ZoneApiReply r)
@@ -132,28 +146,31 @@ namespace ZenoniaProto
                 if (r.Credits != null)
                     foreach (WagerCredit c in r.Credits)
                     {
-                        Debug.Log("[ZenoniaProto] duel: wager " + run.MatchId + " paid to " + c.CharacterId + ": " + string.Join(",", c.Cards) + (c.Apply ? "" : " (not applied here: the API's copy is newer)"));
-                        if (c.Apply) foreach (string card in c.Cards) Give(c.CharacterId, CardTable.Index(card));
+                        Debug.Log("[ZenoniaProto] duel: " + run.MatchId + " settled for " + c.CharacterId + ": " + c.Cards.Length + " cards" + (c.Apply ? "" : " (not applied here: the API's copy is newer)"));
+                        if (c.Apply) Give(run, c.Side, c.Cards);
                     }
-                run.WagerState = DuelView.WagerPaid;
+                run.StakeState = DuelView.WagerPaid;
             }
             else
             {
-                Debug.LogError("[ZenoniaProto] duel: wager " + run.MatchId + " NOT settled: " + r.Code + " (status " + r.Status + "); server-api returns held cards when they expire");
-                run.WagerState = DuelView.WagerFailed;
+                Debug.LogError("[ZenoniaProto] duel: " + run.MatchId + " NOT settled: " + r.Code + " (status " + r.Status + "); server-api returns held decks when they expire");
+                run.StakeState = DuelView.WagerFailed;
             }
             SendBoth(run, Now());
+            Close(run);
         }
 
-        // adds one card to the character here (when they are online) and tells them
-        void Give(string key, int cardIndex)
+        // gives the cards back to the side's character here (when they are online) and tells them; the deck list is put back and cut to the copies owned
+        void Give(PvpRun run, int side, string[] cards)
         {
-            CardDef card = CardTable.ByIndex(cardIndex);
-            NetPlayer p = key == null || card == null ? null : OnlineByKey(key);
+            NetPlayer p = OnlineByKey(run.Key[side]);
             if (p == null || p.Hero == null) return;
-            p.Rpg.State.Cards.Add(card.Id);
+            CardCollection c = p.Rpg.State.Cards;
+            c.ReturnCards(cards, run.LockedKinds[side]);
+            c.Deck.Clear(); c.Deck.AddRange(run.Deck[side]); c.TrimDeck(); // a relogged player loaded without the held cards, hence without a deck
             Zone.Enter(p.Hero.HomeZone);
             PushState(p);
+            if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p);
         }
     }
 }

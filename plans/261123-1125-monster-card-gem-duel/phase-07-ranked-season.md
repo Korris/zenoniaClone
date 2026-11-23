@@ -5,6 +5,10 @@
 - Nền: phase 05 (`DuelMatch`, `DuelService`), phase 06 (PvP, reconnect 60 s)
 - Luật UI: `docs/ui-layout-rules.md` (đọc hết); asset phase 02 (G huy hiệu bậc)
 
+## GHI CHÚ 23/11 chiều (luật đấu card v2)
+- **Ranked KHÔNG lấy card**: không escrow deck, không `DuelPickRound`; PvP thường mới "thắng lấy 1 card". Ranked dùng lại `DuelPvpMatch` nhưng `DuelService` phải tạo `PvpRun` với `Stakes = false` và không gọi API wager.
+- PvP thường không còn thưởng Gold (300 / 100 / 150, 5 trận / ngày bị bỏ); dòng "thưởng Gold dùng chung bộ đếm PvP" bên dưới KHÔNG còn đúng: Ranked cần bảng thưởng Gold riêng nếu muốn có.
+
 ## Overview
 P2, pending. Hàng chờ Ranked trong zone process, ghép theo MMR ẩn, điểm hiện (LP) theo bậc Bronze -> Diamond, thưởng Gold như PvP, mùa 30 ngày reset một phần. Không cược.
 

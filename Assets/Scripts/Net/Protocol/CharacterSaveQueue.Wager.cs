@@ -4,8 +4,8 @@ using System.Collections.Generic;
 namespace ZenoniaProto.Net
 {
     /// <summary>
-    /// The Card Wager calls of the write queue (phase 06). Escrow needs both characters idle and online (it takes the card out of both, rev + 1 each); settle pays the winner, and the winner may no longer be here,
-    /// in which case the API writes the card straight to the character. A wager call does not sit in a character's job line: it goes out when every character it touches is idle (so the rev it carries is the
+    /// The Card Wager calls of the write queue (phase 06 v2). Escrow needs both characters idle and online (it takes the whole staked deck out of both, rev + 1 each); settle gives both decks back (the winner plus the picked card), and a side may no longer be here,
+    /// in which case the API writes the cards straight to the character. A wager call does not sit in a character's job line: it goes out when every character it touches is idle (so the rev it carries is the
     /// current one) and marks them busy until the answer, like any other write. Both are retried under the same matchId, which the API applies at most once:
     /// escrow gives up after EscrowGiveUpMs (the owner then settles it as a draw, because the card may be gone), settle keeps trying (receiver_online = the winner's session is still alive somewhere: wait for it).
     /// </summary>
@@ -17,7 +17,7 @@ namespace ZenoniaProto.Net
         sealed class WagerJob
         {
             public bool Settle;
-            public string MatchId, Result, CardA, CardB, IdA, IdB;
+            public string MatchId, Result, Pick, IdA, IdB;
             public SavedCharacter A, B, SentA, SentB;
             public Action<ZoneApiReply> Done;
             public int Attempts;
@@ -29,19 +29,19 @@ namespace ZenoniaProto.Net
 
         public int WagerJobCount { get { return wagerJobs.Count; } }
 
-        /// <summary>Takes one card out of each character at the API. `done` gets the definite answer (Ok: both revs moved on, apply the removal now); a refusal changed nothing.</summary>
-        public void EscrowWager(string matchId, SavedCharacter a, SavedCharacter b, string cardA, string cardB, Action<ZoneApiReply> done)
+        /// <summary>Takes the whole staked deck (state.cardDeck) out of each character at the API. `done` gets the definite answer (Ok: both revs moved on, apply the removal now); a refusal changed nothing.</summary>
+        public void EscrowWager(string matchId, SavedCharacter a, SavedCharacter b, Action<ZoneApiReply> done)
         {
-            wagerJobs.Add(new WagerJob { MatchId = matchId, A = a, B = b, CardA = cardA, CardB = cardB, Done = done, StartedMs = now });
+            wagerJobs.Add(new WagerJob { MatchId = matchId, A = a, B = b, Done = done, StartedMs = now });
         }
 
         /// <summary>
-        /// Pays a held wager: `result` "a" / "b" / "draw"; `receiverA` / `receiverB` = the character ids that should get a card back (the winner, or both on a draw; null = that side gets nothing).
+        /// Settles a held match: `result` "a" / "b" / "draw", `pick` = the card id the winner takes (null on a draw); `receiverA` / `receiverB` = the character ids of both sides (each gets its own deck back; null = that side is not part of it).
         /// Receivers still online here are sent with their state. `done` gets the definite answer, Credits marked Apply = add these cards to your copy of the character.
         /// </summary>
-        public void SettleWager(string matchId, string result, string receiverA, string receiverB, Action<ZoneApiReply> done)
+        public void SettleWager(string matchId, string result, string pick, string receiverA, string receiverB, Action<ZoneApiReply> done)
         {
-            wagerJobs.Add(new WagerJob { Settle = true, MatchId = matchId, Result = result, IdA = receiverA, IdB = receiverB, Done = done, StartedMs = now });
+            wagerJobs.Add(new WagerJob { Settle = true, MatchId = matchId, Result = result, Pick = pick, IdA = receiverA, IdB = receiverB, Done = done, StartedMs = now });
         }
 
         void TickWagers()
@@ -64,7 +64,7 @@ namespace ZenoniaProto.Net
 
         bool Here(SavedCharacter c) { return c != null && !c.Leaving && characters.Contains(c); }
 
-        static WagerSide Side(SavedCharacter c, string card) { return new WagerSide { CharacterId = c.Id, SessionId = c.SessionId, Rev = c.Rev, StateJson = c.Capture(), CardId = card }; }
+        static WagerSide Side(SavedCharacter c) { return new WagerSide { CharacterId = c.Id, SessionId = c.SessionId, Rev = c.Rev, StateJson = c.Capture() }; }
 
         void EndWager(WagerJob j, ZoneApiReply r)
         {
@@ -84,7 +84,7 @@ namespace ZenoniaProto.Net
             if (j.A.Busy || j.B.Busy) { j.NextAttemptMs = now + 50; return; }
             j.A.Busy = j.B.Busy = true;
             j.InFlight = true;
-            api.EscrowWager(j.MatchId, Side(j.A, j.CardA), Side(j.B, j.CardB), r => OnEscrowReply(j, r));
+            api.EscrowWager(j.MatchId, Side(j.A), Side(j.B), r => OnEscrowReply(j, r));
         }
 
         void OnEscrowReply(WagerJob j, ZoneApiReply r)
@@ -108,7 +108,7 @@ namespace ZenoniaProto.Net
             if (ra != null) ra.Busy = true;
             if (rb != null) rb.Busy = true;
             j.InFlight = true;
-            api.SettleWager(j.MatchId, j.Result, ra != null ? Side(ra, null) : (WagerSide?)null, rb != null ? Side(rb, null) : (WagerSide?)null, r => OnSettleReply(j, r));
+            api.SettleWager(j.MatchId, j.Result, j.Pick, ra != null ? Side(ra) : (WagerSide?)null, rb != null ? Side(rb) : (WagerSide?)null, r => OnSettleReply(j, r));
         }
 
         void OnSettleReply(WagerJob j, ZoneApiReply r)

@@ -7,27 +7,22 @@ using U = ZenoniaProto.GemUiWidgets;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The player-vs-player challenge boxes of the Card Duel (phase 06), drawn over the world (the Card window need not be open): the invite you RECEIVED (who, a plain "Card Wager" or "Friendly Duel" tag so the
-    /// stakes are clear BEFORE Accept, the seconds left, Accept / Decline), the invite you SENT (Waiting, Cancel), and the wager panel (CardWagerPanel) once a wager is accepted. It only draws what the server last
-    /// said (DuelClient.Lobby) and sends requests; the server decides every step. Created the first time a lobby message arrives.
+    /// The player-vs-player challenge boxes of the Card Duel (phase 06 v2), drawn over the world (the Card window need not be open): the invite you RECEIVED (who, the stakes in plain words BEFORE Accept:
+    /// "Winner takes 1 card from the loser's deck", the seconds left, Accept / Decline) and the invite you SENT (Waiting, Cancel). It only draws what the server last said (DuelClient.Lobby) and sends requests;
+    /// the server decides every step. There is no card picking before the duel any more: the winner picks AFTER the match (CardDuelPickPanel). Created the first time a lobby message arrives.
     /// </summary>
     public sealed class CardDuelLobbyWindow : MonoBehaviour
     {
-        const float InviteW = 480f, InviteH = 268f, WaitW = 480f, WaitH = 188f, Pad = 24f;
+        const float InviteW = 480f, InviteH = 316f, WaitW = 480f, WaitH = 188f, Pad = 24f;
         static CardDuelLobbyWindow instance;
 
         RectTransform overlay, invite, wait;
-        CardWagerPanel panel;
         Text inviteTitle, inviteLine, inviteRule, inviteWarn, inviteSecs, waitLine, waitSecs;
         Image invitePill, waitPill;
         Text invitePillText, waitPillText;
         U.PieceButton accept;
         int shownVersion = -1;
         float fitW, fitH;
-
-        public static bool WagerPanelOpen { get { return instance != null && instance.panel != null && instance.panel.Visible; } }
-
-        static CardDuelLobbyWindow() { UiWindows.RegisterModal(() => WagerPanelOpen, DuelClient.LeaveLobby); }
 
         /// <summary>A lobby message arrived: make sure the window exists and redraw.</summary>
         public static void Sync()
@@ -56,11 +51,11 @@ namespace ZenoniaProto
             inviteLine = U.Txt(invite, "Line", Pad, 52f, InviteW - 2f * Pad, 30f, "", 20, U.Ink);
             invitePill = GemUiArt.Img(invite, "Tag", Pad, 92f, 190f, 38f, GemUiArt.Frame("btn-gold"));
             invitePillText = TagText(invite, Pad, 92f, 190f, 38f);
-            inviteRule = U.Txt(invite, "Rule", Pad, 136f, InviteW - 2f * Pad, 56f, "", U.TextNormal, U.InkSoft, TextAnchor.UpperLeft);
-            inviteWarn = U.Txt(invite, "Warn", Pad, 134f, InviteW - 2f * Pad, 24f, "", U.TextSmall, U.Bad, TextAnchor.UpperLeft);
+            inviteRule = U.Txt(invite, "Rule", Pad, 138f, InviteW - 2f * Pad, 30f, "", U.TextNormal + 2, U.Ink, TextAnchor.UpperLeft);
+            inviteWarn = U.Txt(invite, "Warn", Pad, 172f, InviteW - 2f * Pad, 56f, "", U.TextNormal, U.Bad, TextAnchor.UpperLeft);
             float bw = 196f, gap = 20f, x = (InviteW - 2f * bw - gap) * 0.5f;
-            accept = new U.PieceButton(invite, "Accept", x, InviteH - 66f, bw, U.ButtonH, GemUiArt.Frame("btn-teal"), "Accept", DuelClient.Accept);
-            new U.PieceButton(invite, "Decline", x + bw + gap, InviteH - 66f, bw, U.ButtonH, GemUiArt.Frame("btn-blue"), "Decline", DuelClient.Decline);
+            accept = new U.PieceButton(invite, "Accept", x, InviteH - 68f, bw, U.ButtonH, GemUiArt.Frame("btn-teal"), "Accept", DuelClient.Accept);
+            new U.PieceButton(invite, "Decline", x + bw + gap, InviteH - 68f, bw, U.ButtonH, GemUiArt.Frame("btn-blue"), "Decline", DuelClient.Decline);
 
             wait = UiWinKit.Anchored(overlay, "Wait", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), 0f, 70f, WaitW, WaitH);
             U.Panel(wait, "Frame", 0f, 0f, WaitW, WaitH, true).raycastTarget = true;
@@ -73,7 +68,6 @@ namespace ZenoniaProto
             new U.PieceButton(wait, "Cancel", (WaitW - 196f) * 0.5f, WaitH - 62f, 196f, 46f, GemUiArt.Frame("btn-red"), "Cancel", DuelClient.CancelInvite);
 
             NameTags.Occlude(invite); NameTags.Occlude(wait); // IMGUI name tags would draw over these boxes
-            panel = new CardWagerPanel(overlay);
             invite.gameObject.SetActive(false); wait.gameObject.SetActive(false);
         }
 
@@ -89,40 +83,35 @@ namespace ZenoniaProto
             return t;
         }
 
-        static void SetTag(Image skin, Text text, bool wager)
+        static void SetTag(Image skin, Text text, bool stakes)
         {
-            GemUiArt.SetPiece(skin, GemUiArt.Frame(wager ? "btn-gold" : "btn-blue"));
-            text.text = wager ? "Card Wager" : "Friendly Duel";
+            GemUiArt.SetPiece(skin, GemUiArt.Frame(stakes ? "btn-gold" : "btn-blue"));
+            text.text = stakes ? "Cards at stake" : "No cards at stake";
         }
 
         void Apply()
         {
             DuelLobbyMsg m = DuelClient.Lobby;
-            bool incoming = m.Phase == 1, outgoing = m.Phase == 2, pick = m.Phase == 3 || m.Phase == 4;
+            bool incoming = m.Phase == 1, outgoing = m.Phase == 2;
             string other = string.IsNullOrEmpty(m.OtherName) ? "A player" : m.OtherName;
             if (incoming)
             {
                 inviteLine.text = other + " challenges you to a Card Duel!";
-                SetTag(invitePill, invitePillText, m.Wager);
-                string need = m.Wager ? CardWagerPanel.EntryProblem() : "";
-                inviteRule.text = m.Wager
-                    ? "Each of you puts in 1 spare N or R card of the same rarity. The winner takes both cards. Nothing moves until you both confirm."
-                    : "No cards at stake. Win, lose or draw you still earn Gold (5 paid matches a day).";
-                inviteWarn.text = need;
-                inviteRule.gameObject.SetActive(need.Length == 0);
+                SetTag(invitePill, invitePillText, m.Stakes);
+                string need = m.Stakes ? DuelClient.EntryProblem() : "";
+                inviteRule.text = m.Stakes ? "Winner takes 1 card from the loser's deck." : "Nothing is at stake in this duel.";
+                inviteWarn.text = need.Length > 0 ? need : m.Stakes ? "Your whole 8-card deck is at risk: the winner may take any of its cards, even Locked, SR, SSR or Boss ones. A draw takes nothing." : "";
                 accept.Set("Accept", need.Length == 0);
             }
             if (outgoing)
             {
                 waitLine.text = "Waiting for " + other + " to answer...";
-                SetTag(waitPill, waitPillText, m.Wager);
+                SetTag(waitPill, waitPillText, m.Stakes);
             }
             invite.gameObject.SetActive(incoming);
             wait.gameObject.SetActive(outgoing);
-            panel.Show(pick);
-            if (incoming || outgoing || pick) overlay.SetAsLastSibling();
+            if (incoming || outgoing) overlay.SetAsLastSibling();
             shownVersion = DuelClient.LobbyVersion;
-            if (pick) panel.Refresh();
         }
 
         void Update()
@@ -131,12 +120,11 @@ namespace ZenoniaProto
             if (overlay.rect.width != fitW || overlay.rect.height != fitH)
             {
                 fitW = overlay.rect.width; fitH = overlay.rect.height;
-                Fit(invite, InviteW, InviteH); Fit(wait, WaitW, WaitH); panel.Fit(fitW, fitH);
+                Fit(invite, InviteW, InviteH); Fit(wait, WaitW, WaitH);
             }
             string secs = Mathf.CeilToInt(DuelClient.LobbySecondsLeft).ToString(System.Globalization.CultureInfo.InvariantCulture);
             if (invite.gameObject.activeSelf && inviteSecs.text != secs) inviteSecs.text = secs;
             if (wait.gameObject.activeSelf && waitSecs.text != secs) waitSecs.text = secs;
-            if (panel.Visible) panel.Tick();
         }
 
         void Fit(RectTransform box, float w, float h)

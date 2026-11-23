@@ -5,7 +5,7 @@ namespace ZenoniaProto.Rpg
     /// <summary>
     /// One duel between two players (phase 06), no networking and no clock of its own: side 0 is the inviter, side 1 the receiver, the rules are DuelMatch's. On top of it: a player who drops off the
     /// connection has ReconnectMs (60 s) to come back and loses when it runs out (the turn clock keeps running meanwhile: DuelMatch places for the side to move when its 20 s are up, connected or not);
-    /// leaving or giving up loses at once. If both are away the one who left first loses first. The result is also the Card Wager's outcome ("a" / "b" / "draw" = side 0 wins / side 1 wins / draw).
+    /// leaving or giving up loses at once. If both are away the one who left first loses first. The result is also the card stakes' outcome ("a" / "b" / "draw" = side 0 wins / side 1 wins / draw).
     /// </summary>
     public sealed class DuelPvpMatch
     {
@@ -68,11 +68,10 @@ namespace ZenoniaProto.Rpg
             }
         }
 
-        /// <summary>What `side` sees: moves re-labelled so 0 = them, their own hand, the clock, the opponent's away time. `wagerState` / the cards are the Card Wager's (DuelView.Wager*).</summary>
-        public DuelView View(int side, long nowMs, int wagerMine = DuelView.NoCard, int wagerTheirs = DuelView.NoCard, int wagerState = 0, DuelReward reward = default(DuelReward))
+        /// <summary>What `side` sees: moves re-labelled so 0 = them, their own hand, the clock, the opponent's away time. The card-stakes fields (DuelView.WagerState, Pick*) are filled in by the zone from its DuelPickRound.</summary>
+        public DuelView View(int side, long nowMs)
         {
-            DuelView v = DuelView.From(Match, side, DuelView.PlayerOpponent, Names[1 - side], nowMs, 0, reward.DailyGold);
-            v.WagerMine = wagerMine; v.WagerTheirs = wagerTheirs; v.WagerState = wagerState;
+            DuelView v = DuelView.From(Match, side, Names[1 - side], nowMs);
             v.OppAwayMs = (int)System.Math.Min(60000L, AwayMs(1 - side, nowMs));
             return v;
         }

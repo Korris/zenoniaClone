@@ -8,8 +8,9 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Player vs player duels on the zone (phase 06): the challenge lobby (DuelLobby: invite, accept / decline, the Card Wager panel), starting the match (DuelPvpMatch: both decks checked again, both heroes still on a safe
-    /// map), playing it, the 60 s reconnect window (the match lives by character, so a player who comes back is put into it), and paying the result (PvP gold, then the wager). The inviter decides wager or not.
+    /// Player vs player duels on the zone (phase 06 v2): the challenge lobby (DuelLobby: invite, accept / decline), starting the match (DuelPvpMatch: both decks checked again, both heroes still on a safe map, both
+    /// decks in escrow at server-api first), playing it, the 60 s reconnect window (the match lives by character, so a player who comes back is put into it), and the end: the WINNER picks any 1 card of the loser's deck
+    /// within 30 s (a random one after that), then the stakes are settled once (DuelService.Wager.cs). A draw takes nothing. The run stays open until the settle is answered, so nobody edits a deck or starts another duel meanwhile.
     /// </summary>
     public sealed partial class DuelService
     {
@@ -18,15 +19,24 @@ namespace ZenoniaProto
             public DuelPvpMatch Match;
             public string MatchId;
             public readonly string[] Key = new string[2];
-            public readonly NetPlayer[] Player = new NetPlayer[2];
-            public readonly int[] CardIdx = { DuelView.NoCard, DuelView.NoCard };
-            public readonly DuelReward[] Reward = new DuelReward[2];
-            public bool Wager, Done;
-            public int WagerState;
+            public readonly NetPlayer[] Player = new NetPlayer[2];  // the live connection of each side (null while it is away)
+            public readonly NetPlayer[] Owner = new NetPlayer[2];   // the NetPlayer that holds the character's state here: the escrow / payout is applied to it even after the connection dropped
+            public readonly string[][] Deck = new string[2][];      // the 8 staked cards of each side
+            public readonly List<string>[] LockedKinds = { new List<string>(), new List<string>() };
+            public bool Stakes, Ended, Closed;
+            public int StakeState;
+            public DuelPickRound Pick;
+            public DuelRng PickRng;
 
             public DuelView ViewFor(int side, long now)
             {
-                return Match.View(side, now, Wager ? CardIdx[side] : DuelView.NoCard, Wager ? CardIdx[1 - side] : DuelView.NoCard, Wager ? WagerState : DuelView.WagerNone, Reward[side]);
+                DuelView v = Match.View(side, now);
+                v.WagerState = Stakes ? StakeState : DuelView.WagerNone;
+                if (Pick == null) return v;
+                v.PickMsLeft = Pick.MsLeft(now);
+                if (Pick.Done) { v.PickedCard = CardTable.Index(Pick.Picked); v.PickedAtRandom = Pick.AtRandom; }
+                else if (StakeState == DuelView.WagerPicking && side == Pick.Winner) foreach (string id in Pick.LoserDeck) v.PickCards.Add(CardTable.Index(id));
+                return v;
             }
         }
 
@@ -43,22 +53,23 @@ namespace ZenoniaProto
             var e = new Entry { Player = p };
             entries[p.PlayerId] = e;
             PvpRun run;
-            if (!runByChar.TryGetValue(CharKey(p), out run) || run.Match.Finished) return;
+            if (!runByChar.TryGetValue(CharKey(p), out run) || run.Closed) return;
             int side = run.Key[0] == CharKey(p) ? 0 : 1;
-            run.Player[side] = p; e.Pvp = run; e.PvpSide = side;
-            run.Match.SetBack(side);
+            run.Player[side] = p; run.Owner[side] = p; e.Pvp = run; e.PvpSide = side;
+            if (!run.Match.Finished) run.Match.SetBack(side);
             Debug.Log("[ZenoniaProto] duel: " + p.Name + " is back in the duel");
             SendBoth(run, Now());
         }
 
-        static long Now() { return (long)(ZoneHost.Active != null ? ZoneHost.Active.ClockMs : Time.realtimeSinceStartup * 1000f); }
+        static long Now() { return (long)(ZoneHost.Active != null ? ZoneHost.Active.ClockMs : Time.realtimeSinceStartupAsDouble * 1000.0); }
 
         void LeavePvp(Entry e, long now)
         {
             ushort id = e.Player.PlayerId;
             if (lobby.PhaseOf(id) != LobbyPhase.None && lobby.PhaseOf(id) != LobbyPhase.Starting) { lobby.Leave(id); Flush(now); }
-            if (e.Pvp == null || e.Pvp.Match.Finished) return;
+            if (e.Pvp == null || e.Pvp.Closed) return;
             e.Pvp.Player[e.PvpSide] = null;
+            if (e.Pvp.Match.Finished) return; // the match is decided: the pick timer and the settle go on without them
             e.Pvp.Match.SetAway(e.PvpSide, now);
             Debug.Log("[ZenoniaProto] duel: " + e.Player.Name + " dropped out of a duel: " + (DuelPvpMatch.ReconnectMs / 1000) + " s to come back");
             SendBoth(e.Pvp, now);
@@ -75,13 +86,20 @@ namespace ZenoniaProto
                 case LobbyFail.Cooldown: return DuelFail.InviteCooldown;
                 case LobbyFail.NoInvite: return DuelFail.NoInvite;
                 case LobbyFail.NoLobby: return DuelFail.NoLobby;
-                case LobbyFail.NoPick: return DuelFail.NoPick;
-                case LobbyFail.NotLocked: return DuelFail.NotLocked;
-                case LobbyFail.Mismatch: return DuelFail.CardMismatch;
                 case LobbyFail.Declined: return DuelFail.Declined;
                 case LobbyFail.Cancelled: return DuelFail.Cancelled;
                 case LobbyFail.Expired: return DuelFail.Expired;
                 default: return DuelFail.OpponentLeft;
+            }
+        }
+
+        static DuelFail FailOf(WagerError e)
+        {
+            switch (e)
+            {
+                case WagerError.Level: return DuelFail.WagerLevel;
+                case WagerError.DailyLimit: case WagerError.PairLimit: return DuelFail.WagerDaily;
+                default: return DuelFail.WagerRefused;
             }
         }
 
@@ -90,25 +108,20 @@ namespace ZenoniaProto
         {
             deck = DeckError.None;
             if (Running(p.PlayerId)) return DuelFail.InDuel;
+            return EligibleToStart(p, out deck);
+        }
+
+        // at the moment of starting nobody is "in a duel" yet, but the lobby itself counts as busy: only the map / fight / deck checks apply
+        DuelFail EligibleToStart(NetPlayer p, out DeckError deck)
+        {
+            deck = DeckError.None;
             DuelFail why = StartRefusal(p);
             if (why != DuelFail.None) return why;
             deck = DeckRules.Validate(p.Rpg.State.Cards.Deck, p.Rpg.State.Cards, true);
             return deck != DeckError.None ? DuelFail.DeckInvalid : DuelFail.None;
         }
 
-        static DuelFail FailOf(WagerError e)
-        {
-            switch (e)
-            {
-                case WagerError.Disabled: return DuelFail.WagerOff;
-                case WagerError.Level: return DuelFail.WagerLevel;
-                case WagerError.DailyLimit: case WagerError.PairLimit: return DuelFail.WagerDaily;
-                case WagerError.Mismatch: return DuelFail.CardMismatch;
-                default: return DuelFail.WagerCard;
-            }
-        }
-
-        void Challenge(Entry e, ushort otherId, bool wager, long now)
+        void Challenge(Entry e, ushort otherId, long now)
         {
             NetPlayer p = e.Player;
             Entry t;
@@ -119,15 +132,16 @@ namespace ZenoniaProto
             if (mine != DuelFail.None) { Refuse(p, mine, (byte)err); return; }
             DuelFail theirs = Eligible(t.Player, out err);
             if (theirs != DuelFail.None) { Refuse(p, theirs == DuelFail.InDuel ? DuelFail.TargetBusy : DuelFail.TargetNotReady); return; }
-            if (wager)
+            bool stakes = WagerRules.Enabled;
+            if (stakes)
             {
-                int day = DuelNpcRun.DayKeyNow();
+                int day = WagerRules.DayKeyNow();
                 WagerError we = WagerRules.CanEnter(p.Rpg.State, day);
                 if (we != WagerError.None) { Refuse(p, FailOf(we)); return; }
                 if (WagerRules.CanEnter(t.Player.Rpg.State, day) != WagerError.None) { Refuse(p, DuelFail.TargetNotReady); return; }
                 if (!pairs.Allowed(CharKey(p), CharKey(t.Player), day)) { Refuse(p, DuelFail.WagerDaily); return; }
             }
-            LobbyFail f = lobby.Invite(p.PlayerId, otherId, wager, now);
+            LobbyFail f = lobby.Invite(p.PlayerId, otherId, stakes, now);
             if (f != LobbyFail.None) Refuse(p, FailOf(f));
             Flush(now);
         }
@@ -145,23 +159,12 @@ namespace ZenoniaProto
                     DeckError err;
                     DuelFail why = Eligible(p, out err);
                     if (why != DuelFail.None) { lobby.Decline(id); Refuse(p, why, (byte)err); break; }
-                    f = lobby.Accept(id, now);
+                    f = lobby.Accept(id);
                     break;
-                case DuelOp.WagerPick: f = PickCard(p, m.A); break;
-                case DuelOp.WagerLock: f = lobby.Lock(id); break;
-                case DuelOp.WagerConfirm: f = lobby.Confirm(id); break;
                 case DuelOp.LeaveLobby: f = lobby.Leave(id, LobbyFail.Left); break;
             }
             if (f != LobbyFail.None) Refuse(p, FailOf(f));
             Flush(now);
-        }
-
-        LobbyFail PickCard(NetPlayer p, byte cardIndex)
-        {
-            CardDef c = CardTable.ByIndex(cardIndex);
-            WagerError we = c == null ? WagerError.UnknownCard : WagerRules.CheckCard(p.Rpg.State, c.Id);
-            if (we != WagerError.None) { Refuse(p, FailOf(we)); return LobbyFail.None; }
-            return lobby.Pick(p.PlayerId, cardIndex);
         }
 
         /// <summary>Everything the lobby produced since the last call: matches to start, end notices, and the new view of every player it touched.</summary>
@@ -196,8 +199,7 @@ namespace ZenoniaProto
             Entry other;
             var msg = new DuelLobbyMsg
             {
-                Phase = (byte)v.Phase, Other = v.Other, Wager = v.Wager, MyCard = v.MyCard, TheirCard = v.TheirCard, MyLocked = v.MyLocked, TheirLocked = v.TheirLocked,
-                MyConfirmed = v.MyConfirmed, TheirConfirmed = v.TheirConfirmed, MsLeft = (ushort)System.Math.Min(60000, v.MsLeft),
+                Phase = (byte)v.Phase, Other = v.Other, Stakes = v.Stakes, MsLeft = (ushort)System.Math.Min(60000, v.MsLeft),
                 OtherName = v.Phase != LobbyPhase.None && entries.TryGetValue(v.Other, out other) ? other.Player.Name : "",
             };
             msg.Write(w);
@@ -221,47 +223,37 @@ namespace ZenoniaProto
                 return;
             }
             var side = new[] { new PvpSeat(a.Player), new PvpSeat(b.Player) };
-            if (s.Wager) BeginWager(side, s, now); else StartMatch(side, null, null, now);
+            if (s.Stakes && WagerRules.Enabled) BeginStakes(side, s, now); else StartMatch(side, false, null, now);
         }
 
-        /// <summary>Who plays one side, captured when the match is agreed: the connection (null once it drops), the character, the name and a copy of the deck (a player who leaves while the cards are being held still has a side).</summary>
+        /// <summary>Who plays one side, captured when the match is agreed: the connection (null once it drops), the character's NetPlayer, the name and a copy of the deck (a player who leaves while the decks are being held still has a side).</summary>
         struct PvpSeat
         {
-            public NetPlayer Player;
+            public NetPlayer Player, Owner;
             public string Key, Name;
             public string[] Deck;
+            public List<string> LockedKinds;
 
-            public PvpSeat(NetPlayer p) { Player = p; Key = CharKey(p); Name = p.Name; Deck = p.Rpg.State.Cards.Deck.ToArray(); }
+            public PvpSeat(NetPlayer p) { Player = p; Owner = p; Key = CharKey(p); Name = p.Name; Deck = p.Rpg.State.Cards.Deck.ToArray(); LockedKinds = new List<string>(); }
         }
 
-        // at the moment of starting nobody is "in a duel" yet, but the lobby itself counts as busy: only the map / fight / deck checks apply
-        DuelFail EligibleToStart(NetPlayer p, out DeckError deck)
+        /// <summary>Creates the match. `stakes` = both decks are in escrow (EscrowDeck already applied to each Owner). A side that is not online any more starts as dropped (60 s to come back).</summary>
+        void StartMatch(PvpSeat[] side, bool stakes, string matchId, long now)
         {
-            deck = DeckError.None;
-            DuelFail why = StartRefusal(p);
-            if (why != DuelFail.None) return why;
-            deck = DeckRules.Validate(p.Rpg.State.Cards.Deck, p.Rpg.State.Cards, true);
-            return deck != DeckError.None ? DuelFail.DeckInvalid : DuelFail.None;
-        }
-
-        /// <summary>Creates the match. `wagerCards` = the card ids that were put in escrow (null = no wager). A side that is not online any more starts as dropped (60 s to come back).</summary>
-        void StartMatch(PvpSeat[] side, string[] wagerCards, string matchId, long now)
-        {
-            var run = new PvpRun { MatchId = matchId ?? NewMatchId(), Wager = wagerCards != null, WagerState = wagerCards != null ? DuelView.WagerHeld : 0 };
-            run.Match = DuelPvpMatch.Start(NewSeed(), side[0].Deck, side[1].Deck, side[0].Name, side[1].Name, now);
-            if (wagerCards != null) { run.CardIdx[0] = CardTable.Index(wagerCards[0]); run.CardIdx[1] = CardTable.Index(wagerCards[1]); }
+            var run = new PvpRun { MatchId = matchId ?? NewMatchId(), Stakes = stakes, StakeState = stakes ? DuelView.WagerHeld : DuelView.WagerNone, PickRng = new DuelRng(NewSeed()) };
+            run.Match = DuelPvpMatch.Start(NetLaunchArgs.DevDuelSeed != 0UL ? NetLaunchArgs.DevDuelSeed : NewSeed(), side[0].Deck, side[1].Deck, side[0].Name, side[1].Name, now);
             for (int s = 0; s < 2; s++)
             {
-                run.Key[s] = side[s].Key;
+                run.Key[s] = side[s].Key; run.Deck[s] = side[s].Deck; run.LockedKinds[s] = side[s].LockedKinds; run.Owner[s] = side[s].Owner;
                 Entry e;
                 NetPlayer p = side[s].Player;
-                if (p != null && entries.TryGetValue(p.PlayerId, out e)) { run.Player[s] = p; e.Pvp = run; e.PvpSide = s; e.Run = null; }
+                if (p != null && entries.TryGetValue(p.PlayerId, out e)) { run.Player[s] = p; e.Pvp = run; e.PvpSide = s; }
                 else run.Match.SetAway(s, now);
                 runByChar[run.Key[s]] = run;
             }
             runs.Add(run);
             stats.Add("pvpStarted", 1);
-            Debug.Log("[ZenoniaProto] duel: PvP " + side[0].Name + " vs " + side[1].Name + (run.Wager ? " (Card Wager " + wagerCards[0] + " / " + wagerCards[1] + ", " + run.MatchId + ")" : ""));
+            Debug.Log("[ZenoniaProto] duel: PvP " + side[0].Name + " vs " + side[1].Name + (stakes ? " (winner takes 1 card, " + run.MatchId + ")" : " (no cards at stake)"));
             for (int s = 0; s < 2; s++) if (side[s].Player != null) lobby.Finish(side[s].Player.PlayerId);
             SendBoth(run, now);
             Flush(now);
@@ -279,7 +271,7 @@ namespace ZenoniaProto
             PvpRun run = e.Pvp;
             DuelPlay r = run.Match.Place(e.PvpSide, m.A, m.B, now, m.Turn, m.Card);
             if (!r.Ok) { Refuse(e.Player, PlayFailure(r)); SendView(e.Player, run.ViewFor(e.PvpSide, now)); return; }
-            if (run.Match.Finished) FinishPvp(run, now); else SendBoth(run, now);
+            if (run.Match.Finished) EndMatch(run, now); else SendBoth(run, now);
         }
 
         void TickPvp(long now)
@@ -288,38 +280,62 @@ namespace ZenoniaProto
             Flush(now);
             foreach (PvpRun run in runs.ToArray())
             {
-                if (run.Done) continue;
-                for (int s = 0; s < 2; s++)
-                    if (run.Player[s] != null && !CanKeepDueling(run.Player[s].Hero)) run.Match.Forfeit(s);
-                bool changed = run.Match.Finished || run.Match.Tick(now);
-                if (run.Match.Finished) FinishPvp(run, now); else if (changed) SendBoth(run, now);
+                if (run.Closed) continue;
+                if (!run.Match.Finished)
+                {
+                    for (int s = 0; s < 2; s++)
+                        if (run.Player[s] != null && !CanKeepDueling(run.Player[s].Hero)) run.Match.Forfeit(s);
+                    bool changed = run.Match.Finished || run.Match.Tick(now);
+                    if (run.Match.Finished) EndMatch(run, now); else if (changed) SendBoth(run, now);
+                }
+                else if (run.Pick != null && run.StakeState == DuelView.WagerPicking && run.Pick.Tick(now, run.PickRng))
+                {
+                    Debug.Log("[ZenoniaProto] duel: " + run.MatchId + " the winner did not pick in time: " + run.Pick.Picked + " is taken at random");
+                    SettleStakes(run, run.Match.WagerResult, now);
+                }
             }
         }
 
-        /// <summary>The match is over: PvP gold to each side that is here, then the wager is paid (DuelService.Wager.cs), then the final views go out.</summary>
-        void FinishPvp(PvpRun run, long now)
+        /// <summary>The winner chose the card to take (the "Take" button of the pick screen).</summary>
+        void TakeCard(Entry e, byte cardIndex, long now)
         {
-            if (run.Done) return;
-            run.Done = true;
-            runs.Remove(run);
-            for (int s = 0; s < 2; s++) if (runByChar.TryGetValue(run.Key[s], out PvpRun mine) && mine == run) runByChar.Remove(run.Key[s]);
+            PvpRun run = e.Pvp;
+            if (run == null || run.Pick == null || run.StakeState != DuelView.WagerPicking || e.PvpSide != run.Pick.Winner) { Refuse(e.Player, DuelFail.NoPick); return; }
+            CardDef c = CardTable.ByIndex(cardIndex);
+            if (c == null || !run.Pick.Take(c.Id)) { Refuse(e.Player, DuelFail.NoPick); return; }
+            Debug.Log("[ZenoniaProto] duel: " + e.Player.Name + " takes " + c.Id + " (" + run.MatchId + ")");
+            SettleStakes(run, run.Match.WagerResult, now);
+        }
+
+        /// <summary>The match is over. No stakes: the final views go out and the run closes. Stakes: a draw settles at once, a win opens the winner's pick (30 s).</summary>
+        void EndMatch(PvpRun run, long now)
+        {
+            if (run.Ended) return;
+            run.Ended = true;
             stats.Add("pvpFinished", 1);
+            string result = run.Match.WagerResult;
+            if (!run.Stakes) { SendBoth(run, now); Close(run); return; }
+            if (result == "draw") { SettleStakes(run, result, now); return; }
+            int winner = result == "a" ? 0 : 1;
+            run.Pick = new DuelPickRound(winner, run.Deck[1 - winner], now);
+            run.StakeState = DuelView.WagerPicking;
+            Debug.Log("[ZenoniaProto] duel: " + run.MatchId + " won by " + run.Match.Names[winner] + ", picking from " + string.Join(",", run.Pick.LoserDeck));
+            SendBoth(run, now);
+        }
+
+        /// <summary>The run is fully done (nothing left to pick or settle): the players are free again.</summary>
+        void Close(PvpRun run)
+        {
+            if (run.Closed) return;
+            run.Closed = true;
+            runs.Remove(run);
             for (int s = 0; s < 2; s++)
             {
-                NetPlayer p = run.Player[s];
-                if (p == null || p.Hero == null) continue;
-                DuelView v = run.Match.View(s, now);
-                run.Reward[s] = DuelRewards.ApplyPvpResult(p.Rpg.State, v.Result, v.EndReason == 1, DuelNpcRun.DayKeyNow());
-                Debug.Log("[ZenoniaProto] duel: PvP result for " + p.Name + ": " + v.Result + ", " + run.Reward[s].DailyGold + " G");
-                if (run.Reward[s].DailyGold > 0)
-                {
-                    Zone.Enter(p.Hero.HomeZone);
-                    if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p);
-                    PushState(p);
-                }
+                PvpRun mine;
+                if (runByChar.TryGetValue(run.Key[s], out mine) && mine == run) runByChar.Remove(run.Key[s]);
+                Entry e;
+                if (run.Player[s] != null && entries.TryGetValue(run.Player[s].PlayerId, out e) && e.Pvp == run) e.Pvp = null;
             }
-            if (run.Wager) SettleWager(run, now);
-            SendBoth(run, now);
         }
     }
 }

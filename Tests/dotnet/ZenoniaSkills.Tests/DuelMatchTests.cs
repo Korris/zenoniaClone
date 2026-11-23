@@ -6,7 +6,7 @@ using ZenoniaProto.Rpg;
 // Phase 05: one duel from seed and moves: turn order, refusals, hands, the 20 s auto placement, the 9+ / 8-8 result, and that board, score and log always agree.
 public class DuelMatchTests
 {
-    static readonly string[] DeckA = DuelNpcTable.Get(0).Deck, DeckB = DuelNpcTable.Get(1).Deck;
+    static readonly string[] DeckA = DuelTestDecks.A, DeckB = DuelTestDecks.B;
 
     static DuelMatch New(ulong seed, long now = 0) { return DuelMatch.Create(seed, DeckA, DeckB, now); }
 
@@ -191,7 +191,7 @@ public class DuelMatchTests
                 if (m.Moves.Count % 3 == 2) Assert.True(m.Tick(m.DeadlineMs).Ok); else Assert.True(m.Place(m.ToMove, System.Math.Min(m.Moves.Count % 2, m.Hand(m.ToMove).Count - 1), cell, now).Ok);
                 for (int mySide = 0; mySide < 2; mySide++)
                 {
-                    DuelView v = DuelView.From(m, mySide, 0, "Opp", now);
+                    DuelView v = DuelView.From(m, mySide, "Opp", now);
                     DuelBoard rebuilt = v.Board();
                     for (int c = 0; c < 16; c++)
                     {
@@ -207,7 +207,7 @@ public class DuelMatchTests
                     {
                         string line = v.LogLine(i);
                         Assert.Contains(DuelBoard.Coord(v.Moves[i].Cell), line);
-                        int flips = DuelNpcAi.PopCount(v.Moves[i].FlipMask);
+                        int flips = DuelBoard.PopCount(v.Moves[i].FlipMask);
                         if (flips == 0) { Assert.DoesNotContain("flipping", line); continue; }
                         // "X placed Y at B2, flipping Z (B3), W (C2).": every flipped cell is named once with its coordinate, after "flipping"
                         string tail = line.Substring(line.IndexOf("flipping ") + 9);
@@ -216,7 +216,7 @@ public class DuelMatchTests
                     }
                 }
             }
-            DuelView end = DuelView.From(m, 0, 0, "Opp", 0);
+            DuelView end = DuelView.From(m, 0, "Opp", 0);
             Assert.NotEqual(DuelResult.Playing, end.Result);
             Assert.Equal(16, end.Score(0) + end.Score(1));
         }
@@ -226,7 +226,7 @@ public class DuelMatchTests
     public void TheViewNeverCarriesTheOpponentsHand()
     {
         DuelMatch m = New(5);
-        DuelView v = DuelView.From(m, 0, 0, "Opp", 0);
+        DuelView v = DuelView.From(m, 0, "Opp", 0);
         Assert.Equal(m.Hand(0).ToArray(), v.Hand.ToArray());
         Assert.Equal(5, v.Hand.Count);
         Assert.Equal(m.ToMove == 0, v.YourTurn);

@@ -1,12 +1,10 @@
-using System.Linq;
+using System.Collections.Generic;
 using Xunit;
 using ZenoniaProto.Rpg;
 
-// Phase 06: the zone-side Card Wager checks (they only hide / grey the UI and refuse early; server-api checks again).
+// Phase 06 v2: the zone-side card stakes checks (they only hide / grey the UI and refuse early; server-api checks again) and what staking a deck does to the collection.
 public class WagerRulesTests
 {
-    static CardDef First(CardRarity r, bool boss = false) { return CardTable.All.First(c => c.Rarity == r && c.IsBoss == boss); }
-
     static PlayerState Hero(int level = 30)
     {
         PlayerState p = PlayerState.NewGame("warrior");
@@ -14,68 +12,40 @@ public class WagerRulesTests
         return p;
     }
 
+    static PlayerState WithDeck(string[] deck, params string[] spare)
+    {
+        PlayerState p = Hero();
+        foreach (string id in deck) p.Cards.Add(id);
+        foreach (string id in spare) p.Cards.Add(id);
+        Assert.Equal(DeckError.None, DeckRules.Save(p, deck));
+        return p;
+    }
+
+    static int Total(PlayerState p) { int n = 0; foreach (var kv in p.Cards.Cards) n += kv.Value; return n; }
+
     [Fact]
-    public void NeedsLevelThirtyAndTheSwitchOn()
+    public void NeedsLevelThirtyAndTheLimitsApplyOnlyWhileTheSwitchIsOn()
     {
         Assert.Equal(WagerError.Level, WagerRules.CanEnter(Hero(29), 10));
         Assert.Equal(WagerError.None, WagerRules.CanEnter(Hero(30), 10));
         WagerRules.Enabled = false;
-        try { Assert.Equal(WagerError.Disabled, WagerRules.CanEnter(Hero(60), 10)); }
+        try { Assert.Equal(WagerError.None, WagerRules.CanEnter(Hero(1), 10)); } // switched off: PvP plays, nothing is staked, no level needed
         finally { WagerRules.Enabled = true; }
     }
 
     [Fact]
-    public void ThreeWagersADayIsTheLimitAndANewDayResetsIt()
+    public void TenDuelsADayIsTheLimitAndANewDayResetsIt()
     {
         PlayerState p = Hero();
-        p.Cards.Daily = new CardDailyData { day = 10, wagers = 2 };
+        p.Cards.Daily = new CardDailyData { day = 10, wagers = 9 };
         Assert.Equal(WagerError.None, WagerRules.CanEnter(p, 10));
-        p.Cards.Daily.wagers = 3;
+        p.Cards.Daily.wagers = 10;
         Assert.Equal(WagerError.DailyLimit, WagerRules.CanEnter(p, 10));
         Assert.Equal(WagerError.None, WagerRules.CanEnter(p, 11));
     }
 
     [Fact]
-    public void OnlyASpareNormalOrRareNonBossCardCanBePut()
-    {
-        PlayerState p = Hero();
-        CardDef n = First(CardRarity.N), r = First(CardRarity.R), sr = First(CardRarity.SR), boss = First(CardRarity.SSR, true);
-        foreach (CardDef c in new[] { n, r, sr, boss }) p.Cards.Add(c.Id);
-        Assert.Equal(WagerError.None, WagerRules.CheckCard(p, n.Id));
-        Assert.Equal(WagerError.None, WagerRules.CheckCard(p, r.Id));
-        Assert.Equal(WagerError.Rarity, WagerRules.CheckCard(p, sr.Id));
-        Assert.Equal(WagerError.BossCard, WagerRules.CheckCard(p, boss.Id));
-        Assert.Equal(WagerError.UnknownCard, WagerRules.CheckCard(p, "noSuchCard"));
-        Assert.Equal(WagerError.UnknownCard, WagerRules.CheckCard(p, null));
-    }
-
-    [Fact]
-    public void ALockedCardOrACardTheDeckNeedsIsNotSpare()
-    {
-        PlayerState p = Hero();
-        CardDef n = First(CardRarity.N);
-        Assert.Equal(WagerError.NotSpare, WagerRules.CheckCard(p, n.Id)); // not owned
-        p.Cards.Add(n.Id);
-        p.Cards.Deck.Add(n.Id); // the only copy is in the deck
-        Assert.Equal(WagerError.NotSpare, WagerRules.CheckCard(p, n.Id));
-        p.Cards.Add(n.Id); // a second copy is spare
-        Assert.Equal(WagerError.None, WagerRules.CheckCard(p, n.Id));
-        p.Cards.SetLocked(n.Id, true);
-        Assert.Equal(WagerError.NotSpare, WagerRules.CheckCard(p, n.Id));
-    }
-
-    [Fact]
-    public void TheTwoCardsMustShareARarityAndNeitherMayBeABoss()
-    {
-        CardDef n1 = First(CardRarity.N), n2 = CardTable.All.Where(c => c.Rarity == CardRarity.N && !c.IsBoss).Skip(1).First(), r = First(CardRarity.R), boss = First(CardRarity.SSR, true);
-        Assert.True(WagerRules.Matches(n1, n2));
-        Assert.False(WagerRules.Matches(n1, r));
-        Assert.False(WagerRules.Matches(boss, boss));
-        Assert.False(WagerRules.Matches(n1, null));
-    }
-
-    [Fact]
-    public void ASamePairWagersTwiceADayThenWaitsForTheNextDayAndTheOrderOfTheNamesDoesNotMatter()
+    public void ASamePairDuelsTwiceADayThenWaitsForTheNextDayAndTheOrderOfTheNamesDoesNotMatter()
     {
         var ledger = new WagerRules.PairLedger();
         Assert.True(ledger.Allowed("a", "b", 5));
@@ -92,5 +62,61 @@ public class WagerRulesTests
     {
         foreach (WagerError e in System.Enum.GetValues(typeof(WagerError)))
             Assert.Equal(e == WagerError.None, WagerRules.Text(e).Length == 0);
+    }
+
+    [Fact]
+    public void StakingTheDeckTakesEveryDeckCopyAndLeavesTheSpareOnes()
+    {
+        PlayerState p = WithDeck(DuelTestDecks.A, "meadowSlime", "frostBear");
+        Assert.Equal(10, Total(p));
+        p.Cards.EscrowDeck();
+        Assert.Equal(2, Total(p));
+        Assert.Equal(1, p.Cards.Count("meadowSlime")); Assert.Equal(1, p.Cards.Count("frostBear")); Assert.Equal(0, p.Cards.Count("hornRabbit"));
+        Assert.Equal(8, p.Cards.Deck.Count); // the deck list stays so the cards can come back
+        Assert.True(p.Cards.InAlbum("hornRabbit")); // the Album keeps the card
+    }
+
+    [Fact]
+    public void ADrawGivesAllEightBackAndTheLockFlagOfAKindThatFullyLeftComesBack()
+    {
+        PlayerState p = WithDeck(DuelTestDecks.A);
+        p.Cards.SetLocked("caveMantis", true); p.Cards.SetLocked("meadowSlime", true);
+        List<string> lockedKinds = p.Cards.EscrowDeck();
+        Assert.Contains("caveMantis", lockedKinds);
+        Assert.False(p.Cards.IsLocked("caveMantis"));
+        p.Cards.ReturnCards(DuelTestDecks.A, lockedKinds);
+        Assert.Equal(8, Total(p)); Assert.True(p.Cards.IsLocked("caveMantis")); Assert.True(p.Cards.IsLocked("meadowSlime"));
+        Assert.False(p.Cards.IsLocked("hornRabbit"));
+        Assert.Equal(8, p.Cards.Deck.Count);
+    }
+
+    [Fact]
+    public void TheWinnerGetsItsEightPlusTheTakenCardAndTheLoserSevenWithADeckOfSeven()
+    {
+        PlayerState win = WithDeck(DuelTestDecks.A), lose = WithDeck(DuelTestDecks.B);
+        List<string> wl = win.Cards.EscrowDeck(), ll = lose.Cards.EscrowDeck();
+        string taken = "iceGoblin";
+        var winCards = new List<string>(DuelTestDecks.A) { taken };
+        var loseCards = new List<string>(DuelTestDecks.B); loseCards.Remove(taken);
+        win.Cards.ReturnCards(winCards, wl); lose.Cards.ReturnCards(loseCards, ll);
+        Assert.Equal(9, Total(win)); Assert.Equal(7, Total(lose));
+        Assert.Equal(1, win.Cards.Count(taken)); Assert.Equal(0, lose.Cards.Count(taken));
+        Assert.Equal(8, win.Cards.Deck.Count); Assert.Equal(7, lose.Cards.Deck.Count);
+        Assert.DoesNotContain(taken, lose.Cards.Deck);
+        Assert.True(win.Cards.InAlbum(taken));
+    }
+
+    [Fact]
+    public void AReloggedPlayerWithoutADeckGetsItBackAndATwoCopyCardLeavesOneInTheDeck()
+    {
+        string[] dup = { "frostBear", "frostBear", "gloomWolf", "snowFox", "frostSlime", "iceGoblin", "spectralWolf", "hollowTreant" };
+        PlayerState p = WithDeck(dup);
+        p.Cards.EscrowDeck();
+        p.Cards.Deck.Clear(); // what a character loaded while its cards were held looks like (the deck is cut to the copies owned)
+        var back = new List<string>(dup); back.Remove("frostBear"); // the winner took one frostBear
+        p.Cards.ReturnCards(back, null);
+        p.Cards.Deck.Clear(); p.Cards.Deck.AddRange(dup); p.Cards.TrimDeck();
+        Assert.Equal(7, p.Cards.Deck.Count);
+        Assert.Equal(1, p.Cards.Count("frostBear")); Assert.Equal(1, p.Cards.InDeck("frostBear"));
     }
 }

@@ -2,10 +2,10 @@ using System.Linq;
 using Xunit;
 using ZenoniaProto.Rpg;
 
-// Phase 06 (+ the phase 05 review): the player-vs-player match with its 60 s reconnect window, PvP gold and its daily limit, and a placement stamped with a stale turn or hand card.
+// Phase 06 (+ the phase 05 review): the player-vs-player match with its 60 s reconnect window, the winner's pick of 1 card (DuelPickRound), and a placement stamped with a stale turn or hand card.
 public class DuelPvpTests
 {
-    static readonly string[] DeckA = DuelNpcTable.Get(0).Deck, DeckB = DuelNpcTable.Get(1).Deck;
+    static readonly string[] DeckA = DuelTestDecks.A, DeckB = DuelTestDecks.B;
 
     static DuelPvpMatch New(long now = 0, ulong seed = 7) { return DuelPvpMatch.Start(seed, DeckA, DeckB, "Ann", "Bob", now); }
 
@@ -21,7 +21,7 @@ public class DuelPvpTests
         DuelPvpMatch m = New();
         DuelView a = m.View(0, 0), b = m.View(1, 0);
         Assert.Equal("Bob", a.OppName); Assert.Equal("Ann", b.OppName);
-        Assert.True(a.IsPvp); Assert.Equal(5, a.Hand.Count); Assert.Equal(5, b.Hand.Count);
+        Assert.Equal(5, a.Hand.Count); Assert.Equal(5, b.Hand.Count);
         Assert.NotEqual(a.YourTurn, b.YourTurn);
     }
 
@@ -50,7 +50,7 @@ public class DuelPvpTests
         Assert.True(m.Tick(DuelPvpMatch.ReconnectMs));
         Assert.True(m.Finished);
         Assert.Equal(1, m.Match.Forfeited);
-        Assert.Equal("a", m.WagerResult); // the inviter wins and takes both cards
+        Assert.Equal("a", m.WagerResult); // the inviter wins and picks a card
         DuelView win = m.View(0, DuelPvpMatch.ReconnectMs), lose = m.View(1, DuelPvpMatch.ReconnectMs);
         Assert.Equal(DuelResult.Win, win.Result); Assert.Equal(DuelResult.Lose, lose.Result);
         Assert.Equal(2, win.EndReason); Assert.Equal(1, lose.EndReason);
@@ -102,74 +102,6 @@ public class DuelPvpTests
     }
 
     [Fact]
-    public void AViewKeepsTheWagerCardsAndTheAwayTime()
-    {
-        DuelPvpMatch m = New(0);
-        m.SetAway(1, 1000);
-        DuelView v = m.View(0, 4000, 5, 9, DuelView.WagerHeld);
-        Assert.True(v.HasWager); Assert.Equal(5, v.WagerMine); Assert.Equal(9, v.WagerTheirs); Assert.Equal(DuelView.WagerHeld, v.WagerState); Assert.Equal(3000, v.OppAwayMs);
-        Assert.False(m.View(0, 0).HasWager);
-    }
-
-    // ---- PvP gold ----
-
-    static PlayerState Hero() { return PlayerState.NewGame("warrior"); }
-
-    [Fact]
-    public void WinLoseDrawPayThreeHundredOneHundredOneHundredFifty()
-    {
-        PlayerState p = Hero(); int gold = p.Gold;
-        Assert.Equal(300, DuelRewards.ApplyPvpResult(p, DuelResult.Win, false, 50).DailyGold);
-        Assert.Equal(100, DuelRewards.ApplyPvpResult(p, DuelResult.Lose, false, 50).DailyGold);
-        Assert.Equal(150, DuelRewards.ApplyPvpResult(p, DuelResult.Draw, false, 50).DailyGold);
-        Assert.Equal(gold + 550, p.Gold);
-        Assert.Equal(3, p.Cards.Daily.pvpRewards);
-    }
-
-    [Fact]
-    public void OnlyFiveMatchesADayPayAndTheNextDayStartsOver()
-    {
-        PlayerState p = Hero();
-        for (int i = 0; i < 5; i++) Assert.Equal(300, DuelRewards.ApplyPvpResult(p, DuelResult.Win, false, 7).DailyGold);
-        int gold = p.Gold;
-        Assert.Equal(0, DuelRewards.ApplyPvpResult(p, DuelResult.Win, false, 7).DailyGold);
-        Assert.Equal(gold, p.Gold);
-        Assert.Equal(300, DuelRewards.ApplyPvpResult(p, DuelResult.Win, false, 8).DailyGold);
-    }
-
-    [Fact]
-    public void ASideThatLeftOrADuelStillPlayingPaysNothingAndUsesNoPaidMatch()
-    {
-        PlayerState p = Hero(); int gold = p.Gold;
-        Assert.Equal(0, DuelRewards.ApplyPvpResult(p, DuelResult.Lose, true, 7).DailyGold);
-        Assert.Equal(0, DuelRewards.ApplyPvpResult(p, DuelResult.Playing, false, 7).DailyGold);
-        Assert.Equal(gold, p.Gold);
-        Assert.Equal(0, p.Cards.Daily.pvpRewards);
-    }
-
-    [Fact]
-    public void PvpGoldStopsAtTheGoldCap()
-    {
-        PlayerState p = Hero(); p.Gold = PlayerState.GoldCap - 100;
-        DuelRewards.ApplyPvpResult(p, DuelResult.Win, false, 7);
-        Assert.Equal(PlayerState.GoldCap, p.Gold);
-    }
-
-    [Fact]
-    public void TheFirstNpcWinIsHeldNearTheGoldCapAndPaidByALaterWin()
-    {
-        PlayerState p = Hero(); p.Gold = PlayerState.GoldCap - 10;
-        DuelReward r = DuelRewards.ApplyNpcResult(p, 0, DuelResult.Win, 1);
-        Assert.Equal(0, r.FirstWinGold);
-        Assert.Equal(0, p.Cards.NpcFirstWins & DuelNpcTable.FirstWinBit(0)); // the bit is not set: nothing is lost
-        p.Gold = 0;
-        Assert.Equal(1000, DuelRewards.ApplyNpcResult(p, 0, DuelResult.Win, 1).FirstWinGold);
-        Assert.Equal(1000, p.Gold);
-    }
-
-    // ---- the placement stamp (phase 05 review, medium) ----
-
-    [Fact]
     public void APlacementStampedWithAStaleTurnIsRefusedAndNothingChanges()
     {
         DuelMatch m = DuelMatch.Create(3, DeckA, DeckB, 0);
@@ -201,15 +133,5 @@ public class DuelPvpTests
         Assert.Equal(DuelPlayError.CellTaken, m.Place(side, 0, 99, 0).Code);
         Assert.True(m.Place(side, 0, 0, 0).Ok);
         Assert.Equal(DuelPlayError.CellTaken, m.Place(1 - side, 0, 0, 0).Code);
-    }
-
-    [Fact]
-    public void TheNpcSessionPassesTheStampThrough()
-    {
-        DuelNpcSession s = DuelNpcSession.Start(11, DeckA, 0, 0);
-        if (s.Match.ToMove != DuelNpcSession.Player) { Assert.True(s.Tick(5000)); }
-        int turn = s.Match.Moves.Count + 1, card = s.Match.Hand(DuelNpcSession.Player)[0];
-        Assert.Equal(DuelPlayError.Stale, s.PlayerPlace(0, 0, 5000, turn + 1, card).Code);
-        Assert.True(s.PlayerPlace(0, 0, 5000, turn, card).Ok);
     }
 }

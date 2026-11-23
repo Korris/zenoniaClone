@@ -1,4 +1,4 @@
-# Phase 06: PvP thách đấu + cược card (Card Wager, escrow ở server-api)
+# Phase 06: PvP thách đấu + Card Wager v2 ("thắng lấy 1 card", escrow cả deck ở server-api)
 
 ## Context Links
 - Spec: `design-notes-chatgpt.md` mục "Cược card (Card Wager)" + thưởng PvP
@@ -6,7 +6,17 @@
 - Menu bấm người chơi: `Assets/Scripts/PartyPlayerMenu.cs`; lời mời: `TradeRequestWindow.cs`
 - Luật UI: `docs/ui-layout-rules.md` (đọc hết); asset phase 02 (G cược)
 
-## Overview
+## PHASE 06 v2 (người dùng chốt 23/11 chiều: THAY MỌI LUẬT CƯỢC / THƯỞNG BÊN DƯỚI)
+Bản v1 (cược 1 card N/R chọn trước, nút Wager của người mời, Lock / Confirm, thưởng Gold PvP 300 / 100 / 150, đấu NPC) đã làm rồi BỎ. Luật hiện hành (spec đầy đủ: `design-notes-chatgpt.md` mục "Luật đấu card v2"):
+- Mọi trận PvP thường: người thắng chọn BẤT KỲ 1 lá trong deck 8 lá người thua đã dùng ở trận (kể cả SR / SSR / boss / card Lock). Hoà: không ai mất gì. Không thưởng Gold. Không còn đấu NPC, offline Card Duel bị tắt có lý do.
+- **API:** `escrow` giữ cả deck 8 lá của HAI bên (một transaction); `settle` `{result, pick}`: người thắng nhận lại 8 lá + lá chọn, người thua 7 lá, hoà đủ; idempotent theo matchId (pick sai / chọn lần 2 khác -> 409 `wager_already_settled`); quá hạn hoàn đủ; ledger. Chống lạm dụng: Lv30+, tài khoản ≥ 7 ngày, không cùng tài khoản, cùng cặp 2 trận / ngày, 10 trận / tài khoản / ngày. Hợp đồng chi tiết ở mục "Hợp đồng HTTP v2" cuối file.
+- **Zone:** `DuelService.Pvp.cs` / `.Wager.cs`: escrow 2 deck -> ván -> `DuelPickRound` (30 s, hết giờ server chọn ngẫu nhiên) -> settle. `PvpRun` mở tới khi settle xong (khoá sửa deck / mời trận khác). Rớt mạng 60 s rồi xử thua, người thắng vẫn chọn; nối lại vào đúng ván (kể cả đang chọn). API tắt cược (403 `wager_disabled`) hoặc `WagerRules.Enabled=false`: vẫn chơi, không lấy card.
+- **Client:** hộp mời ghi "Winner takes 1 card from the loser's deck" + cảnh báo deck (kể cả Lock) có thể mất; trang deck có hộp "Cards at stake"; màn chọn `CardDuelPickPanel` (8 lá ngửa, 30 s); người thua thấy "Waiting for X to pick..." rồi lá bị lấy; nhạc kết quả `DuelMusic` + `GameMusic.PlayJingle`. `CardWagerPanel`, nút Wager, `LocalDuelHost`, `DuelNpc*`, `DuelRewards` đã xoá.
+- Wire: `NetProtocol.Version` 32 (DuelOp đánh số lại: `TakeCard`; lobby chỉ còn cờ `Stakes`; state có `WagerState` 0..5 + `PickedCard` + `PickCards`).
+- Sửa kèm: `ZoneHost.ClockMs` float -> double (float mất ms sau vài giờ chạy; đồng hồ ván so bằng ms).
+- Ranked (phase 07): KHÔNG lấy card.
+
+## Overview (v1, đã bị v2 thay thế ở các điểm trên)
 P1, pending. Thách người chơi gần mình đấu PvP (có hoặc không cược); thưởng Gold PvP; cược: mỗi bên 1 card N/R cùng rarity, server giữ (escrow) trước trận, chuyển chủ nguyên tử sau trận.
 
 ## Key Insights
@@ -56,6 +66,7 @@ Sửa: `server-api/src/schemas.js` (schema 2 route), `server-api/src/config.js` 
 - [x] WagerRules + test (`WagerRulesTests`)   - [x] DuelLobby / DuelPvpMatch / DuelService.Pvp / DuelService.Wager + messages (Version 31)
 - [x] UI mời (`CardDuelLobbyWindow`) + panel cược (`CardWagerPanel`) + mục menu người chơi + nút Challenge Player   - [x] Thưởng PvP / ngày (300 / 100 / 150, 5 trận)
 - [x] Thử 2 client trên dev server (plain / wager / drop 60 s)   - [ ] Build + deploy (API trước, zone sau) + thử với server-api thật: escrow / settle qua HTTP, zone sập giữa ván, nối lại trong 60 s
+- [x] **v2 (23/11 chiều):** API escrow cả deck + settle có pick + vitest card-wager viết lại (250 pass cả bộ); zone `DuelPickRound` + `DuelService` v2; UI mời / cảnh báo deck / màn chọn / banner thua; nhạc kết quả; xoá NPC + thưởng Gold + panel cược; thử 2 client dev server (win / lose / draw / drop / rejoin / nopick); CHƯA thử qua API + Mongo thật, chưa deploy
 
 ## Trạng thái 23/11 (zone + client xong, CHƯA deploy)
 Làm khác kế hoạch:
@@ -69,7 +80,16 @@ Làm khác kế hoạch:
 - Đã sửa kèm review phase 05 (low 1-10 trừ ClockMs float, giữ nguyên).
 - Chỉ thử trên dev server (không tài khoản, cược chuyển trong bộ nhớ): `Tools/net-duel-test.ps1 -Scenario plain|wager|drop`, cờ server `--dev-cards`. Chưa thử escrow / settle qua HTTP với server-api thật (có unit test), chưa thử nối lại trong 60 s.
 
-## Hợp đồng HTTP server-api (xong 23/11, cho zone gọi qua ZonePersistence / ZoneApiHttp)
+## Hợp đồng HTTP v2 (23/11 chiều; thay mục "Hợp đồng HTTP" v1 ngay dưới)
+Header `x-service-key`. **Deploy server-api TRƯỚC zone** (zone v2 gửi `state` không có `cardId` và `pick`; API cũ từ chối). Code: `src/rpg/card-wager-move.js`, `src/services/card-wager-service.js`, test `server-api/test/card-wager.test.js`.
+
+**`POST /internal/card-wagers/escrow`** `{ matchId, a:{characterId, sessionId, rev, state}, b:{...} }`: `state.cardDeck` = deck bị cược (đúng 8 lá, luật 1 boss + 2 SR+, mỗi lá phải sở hữu đủ bản). 200 `{ replayed, status:'held', a:{rev,state}, b:{rev,state} }`: cả 8 lá của mỗi bên đã rời nhân vật (`cards` giảm, `cardDeck` giữ nguyên, rev + 1); zone ÁP ngay. Lỗi 422: `wager_self` (cùng nhân vật / cùng tài khoản), `wager_level`, `wager_deck` (thiếu lá / luật deck / lá không sở hữu), `wager_unknown_card`, `wager_account_age`, `wager_daily_limit` (10 / tài khoản / ngày UTC), `wager_pair_limit` (2 / cặp / ngày), `wager_invalid`. 403 `wager_disabled`. 409 `rev_conflict` / `session_mismatch` / `wager_match_conflict`. Lỗi = không đổi gì.
+
+**`POST /internal/card-wagers/:matchId/settle`** `{ result:'a'|'b'|'draw', pick?:cardId, a?:{sessionId,rev,state}, b?:{...} }`: `pick` BẮT BUỘC khi có người thắng (phải nằm trong deck bị cược của người THUA), cấm khi hoà. Người thắng nhận lại 8 lá + pick, người thua 7 lá (bỏ 1 bản pick), hoà đủ 2 bên; lá nào quay về sau khi hết bản cuối thì giữ cờ Lock; `cardDeck` cắt theo số bản đang có (người thua còn 7). Cả hai bên đều cần credit: bên online gửi `a`/`b` (state + rev hiện tại), bên không gửi mà còn session -> 409 `receiver_online`, offline -> API ghi thẳng. 200 `{ replayed, status:'settled', result, pick, credited:[{side, characterId, cards, rev, state}] }`. 422 `wager_pick_required` / `wager_pick_invalid`; 409 `wager_already_settled` (đã settle kết quả / pick khác = chọn lần 2), `wager_refunded`; 404. Vẫn chạy khi công tắc TẮT.
+
+**Hoàn tự động** như v1 (hết `CARD_WAGER_HOLD_SEC` 1800 s ở lần redeem kế, hoặc reset-sessions của zone): trả đủ deck 8 lá cho cả hai bên. Dữ liệu `card_wagers`: `a/b:{characterId,userId,deck[8],lockedIds}`, `result`, `pick`; ledger `escrow` / `settle` / `refund` có `deck`, `pick`, `gave`.
+
+## Hợp đồng HTTP server-api v1 (xong 23/11 trưa; ĐÃ THAY bằng v2 ngay trên, giữ để tham khảo)
 Header `x-service-key`. Mã code ở `src/rpg/card-wager-move.js`, `src/services/card-wager-service.js`. **Deploy server-api TRƯỚC zone.**
 `state` = SaveData đầy đủ giống `/save` (zod `stateSchema`); `sessionId` 32 hex; `matchId` 8-64 ký tự `[A-Za-z0-9._-]`; `cardId` thuộc 40 id card.
 

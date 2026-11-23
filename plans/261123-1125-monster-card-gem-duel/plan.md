@@ -17,7 +17,8 @@ Spec: `docs/reference/card-gem-ui/design-notes-chatgpt.md` (mục "Đã chốt" 
 - Luật thuần C# ở `Assets/Scripts/Rpg/Cards/` (bảng card, phí, deck, bàn 4x4, NPC AI, Ranked, cược): client offline, zone server, `ZenoniaSkills.Tests` dùng chung.
 - Zone server quyết mọi thứ (rơi, đổi, khảm, lượt, đồng hồ, thưởng); client chỉ gửi yêu cầu (`InvOp` mới + `NetOp.DuelRequest`), nhận `RpgState` / `DuelState`.
 - Lưu trong state nhân vật (Mongo `characters.state`, zod `stateSchema`): đếm card / ngọc theo id (card V1 không có thuộc tính riêng: KHÔNG dùng uid từng lá, tránh phình JSON 60 KB). Ngọc đã khảm nằm trong `item.sockets`.
-- Cược card: escrow thật ở server-api (collection `card_wagers`, transaction 2 nhân vật như `commitTrade`).
+- Luật v2 (23/11 chiều): KHÔNG đấu NPC, KHÔNG thưởng Gold PvP; mọi trận PvP thường thắng lấy 1 card của deck người thua (hoà không mất). Ranked: không lấy card.
+- Cược card: escrow thật ở server-api (cả deck 8 lá của hai bên) (collection `card_wagers`, transaction 2 nhân vật như `commitTrade`).
 - Mọi icon, khung, nút, nền, chân dung quái, ngọc, badge do ChatGPT vẽ rồi cắt nền trong suốt (phase 02); phase UI 03-08 chỉ dựng bằng các asset đó, KHÔNG vẽ bằng code / script / shape.
 - DB: Mongo không có migration script; field mới có default trong zod + `SaveVersion` 6. Mới: collection `card_wagers` (phase 06).
 
@@ -28,8 +29,8 @@ Spec: `docs/reference/card-gem-ui/design-notes-chatgpt.md` (mục "Đã chốt" 
 | 02 | [Xin asset ChatGPT (card, ngọc, nút, bàn đấu)](phase-02-chatgpt-asset-request.md) | 10h | - (song song 01) | Không | done (chờ duyệt) |
 | 03 | [UI My Cards + Monster Album](phase-03-card-ui-my-cards-album.md) | 8h | 01, 02 | Zone (InvOp mới) | code + UI xong 23/11 (chưa deploy, chưa kiểm online) |
 | 04 | [Chuyển hoá, khảm, tháo ngọc + chỉ số](phase-04-soul-gem-convert-socket-remove.md) | 9h | 03 | Zone + API | code + UI xong 23/11, nối CardWindow xong + sửa review 23/11 (chưa deploy, chưa kiểm online) |
-| 05 | [Duel core + đấu NPC + UI deck/bàn](phase-05-duel-core-npc-duel.md) | 13h | 03 | Zone | code + UI xong 23/11 (offline chụp đủ ván, chưa deploy, chưa kiểm online) |
-| 06 | [PvP thách đấu + cược card (escrow)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | zone + client xong 23/11 (thử 2 client dev server; chưa deploy, chưa thử API thật) |
+| 05 | [Duel core + UI deck/bàn (đấu NPC đã BỎ 23/11 chiều)](phase-05-duel-core-npc-duel.md) | 13h | 03 | Zone | code + UI xong 23/11; NPC + thưởng NPC xoá ở v2 (chưa deploy) |
+| 06 | [PvP thách đấu, "thắng lấy 1 card", escrow cả deck (v2)](phase-06-pvp-duel-card-wager.md) | 10h | 05 | Zone + API | **v2 xong 23/11 chiều** (API 250 vitest, 2 client dev server win / lose / draw / drop / rejoin / nopick; CHƯA deploy, chưa thử API + Mongo thật) |
 | 07 | [Ranked mùa 30 ngày](phase-07-ranked-season.md) | 8h | 06 | Zone (state đã có từ 01) | pending |
 | 08 | [NPC Card Master, lối vào, hoàn thiện, docs](phase-08-card-master-npc-entry-polish.md) | 5h | 05 (07 cho nút Ranked) | Zone | pending |
 
@@ -64,4 +65,4 @@ Mọi phase có cột "Zone + API": **deploy server-api TRƯỚC, zone SAU** (`d
 8. Tay bài 5 lá rút từ deck 8 (theo mockup 06b) hay hiện cả 8? Mặc định 5 + rút bù.
 9. Thưởng cosmetic (danh hiệu Card Hunter, khung chân dung, hiệu ứng Monster Master, thưởng mùa Ranked): game chưa có hệ khung / hiệu ứng. V1 chỉ lưu cờ + hiện danh hiệu dưới tên?
 10. ~~Style~~ ĐÃ CHỐT 23/11: người dùng giữ RO Soft Fantasy cho bộ card.
-11. ~~Ai bật cược~~ ĐÃ CHỐT 23/11: người MỜI đấu chọn có cược hay không cho từng trận (người nhận thấy rõ trước khi Accept). `CARD_WAGER_ENABLED` chỉ là công tắc khẩn cấp, mặc định BẬT.
+11. ~~Ai bật cược~~ THAY THẾ 23/11 chiều: không còn lựa chọn cược; mọi trận PvP thường thắng lấy 1 card. `CARD_WAGER_ENABLED` là công tắc khẩn cấp (tắt = PvP vẫn chơi, không lấy card), mặc định BẬT.

@@ -31,9 +31,9 @@ public class DuelMessageRoundTripTests
         new DuelRequestMsg { Op = DuelOp.SaveDeck, Cards = new byte[] { 0, 5, 9, 39, 1, 2, 3, 4 } }.Write(w);
         DuelRequestMsg m; Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
         Assert.Equal(DuelOp.SaveDeck, m.Op); Assert.Equal(new byte[] { 0, 5, 9, 39, 1, 2, 3, 4 }, m.Cards);
-        new DuelRequestMsg { Op = DuelOp.PlayNpc, A = 2 }.Write(w);
+        new DuelRequestMsg { Op = DuelOp.TakeCard, A = 2 }.Write(w);
         Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
-        Assert.Equal(DuelOp.PlayNpc, m.Op); Assert.Equal(2, m.A); Assert.Empty(m.Cards);
+        Assert.Equal(DuelOp.TakeCard, m.Op); Assert.Equal(2, m.A); Assert.Empty(m.Cards);
         new DuelRequestMsg { Op = DuelOp.Place, A = 4, B = 15, Turn = 11, Card = 39 }.Write(w);
         Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
         Assert.Equal(DuelOp.Place, m.Op); Assert.Equal(4, m.A); Assert.Equal(15, m.B); Assert.Equal(11, m.Turn); Assert.Equal(39, m.Card);
@@ -77,9 +77,9 @@ public class DuelMessageRoundTripTests
     {
         return new DuelStateMsg
         {
-            Npc = 1, Result = 1, EndReason = 2, YourTurn = true, MsLeft = 17250, RewardFirst = 2500, RewardDaily = 500, OppName = "Frost Scout Nia",
+            Result = 1, EndReason = 2, YourTurn = true, MsLeft = 17250, OppName = "Frost Scout Nia", WagerState = 2, PickedCard = 9, PickMsLeft = 21000, PickAtRandom = true,
             MoveCard = new byte[] { 3, 12, 39 }, MoveCell = new byte[] { 0, 15, 7 }, MoveSide = new byte[] { 0, 1, 0 }, MoveAuto = new byte[] { 0, 1, 0 }, MoveFlips = new ushort[] { 0, 0x8001, 0x0040 },
-            Hand = new byte[] { 4, 8, 15 },
+            Hand = new byte[] { 4, 8, 15 }, PickCards = new byte[] { 0, 1, 2, 3, 4, 5, 6, 39 },
         };
     }
 
@@ -90,8 +90,9 @@ public class DuelMessageRoundTripTests
         Sample().Write(w);
         DuelStateMsg m; Assert.True(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
         DuelStateMsg s = Sample();
-        Assert.Equal(s.Npc, m.Npc); Assert.Equal(s.Result, m.Result); Assert.Equal(s.EndReason, m.EndReason); Assert.True(m.YourTurn);
-        Assert.Equal(s.MsLeft, m.MsLeft); Assert.Equal(s.RewardFirst, m.RewardFirst); Assert.Equal(s.RewardDaily, m.RewardDaily); Assert.Equal(s.OppName, m.OppName);
+        Assert.Equal(s.Result, m.Result); Assert.Equal(s.EndReason, m.EndReason); Assert.True(m.YourTurn); Assert.True(m.PickAtRandom);
+        Assert.Equal(s.WagerState, m.WagerState); Assert.Equal(s.PickedCard, m.PickedCard); Assert.Equal(s.PickMsLeft, m.PickMsLeft); Assert.Equal(s.PickCards, m.PickCards);
+        Assert.Equal(s.MsLeft, m.MsLeft); Assert.Equal(s.OppName, m.OppName);
         Assert.Equal(s.MoveCard, m.MoveCard); Assert.Equal(s.MoveCell, m.MoveCell); Assert.Equal(s.MoveSide, m.MoveSide); Assert.Equal(s.MoveAuto, m.MoveAuto); Assert.Equal(s.MoveFlips, m.MoveFlips);
         Assert.Equal(s.Hand, m.Hand);
     }
@@ -100,10 +101,10 @@ public class DuelMessageRoundTripTests
     public void EmptyStateAndTheLargestStateFitOnePacket()
     {
         var w = new NetDataWriter();
-        new DuelStateMsg { OppName = "", MoveCard = new byte[0], MoveCell = new byte[0], MoveSide = new byte[0], MoveAuto = new byte[0], MoveFlips = new ushort[0], Hand = new byte[0] }.Write(w);
+        new DuelStateMsg { OppName = "", MoveCard = new byte[0], MoveCell = new byte[0], MoveSide = new byte[0], MoveAuto = new byte[0], MoveFlips = new ushort[0], Hand = new byte[0], PickCards = new byte[0] }.Write(w);
         DuelStateMsg m; Assert.True(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
         Assert.Equal(0, m.MoveCount);
-        var full = new DuelStateMsg { OppName = new string('x', 16), MoveCard = new byte[16], MoveCell = new byte[16], MoveSide = new byte[16], MoveAuto = new byte[16], MoveFlips = new ushort[16], Hand = new byte[5] };
+        var full = new DuelStateMsg { OppName = new string('x', 16), MoveCard = new byte[16], MoveCell = new byte[16], MoveSide = new byte[16], MoveAuto = new byte[16], MoveFlips = new ushort[16], Hand = new byte[5], PickCards = new byte[8] };
         full.Write(w);
         Assert.True(w.Length < 200, "a full duel state is " + w.Length + " bytes");
         Assert.True(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
@@ -123,7 +124,9 @@ public class DuelMessageRoundTripTests
         Assert.False(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
         s = Sample(); s.Hand[0] = 200; s.Write(w);
         Assert.False(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
-        s = Sample(); s.RewardFirst = -1; s.Write(w);
+        s = Sample(); s.WagerState = 6; s.Write(w);
+        Assert.False(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
+        s = Sample(); s.PickCards[3] = 200; s.Write(w);
         Assert.False(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
         w.Reset(); w.Put(NetOp.DuelState); w.Put((byte)1); // truncated
         Assert.False(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
