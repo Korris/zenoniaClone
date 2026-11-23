@@ -61,4 +61,4 @@ Quái chết -> `KillRewards.Resolve` -> `CardDrops.Roll` mỗi người góp s�
 8. Tay bài 5 lá rút từ deck 8 (theo mockup 06b) hay hiện cả 8? Mặc định 5 + rút bù.
 9. Thưởng cosmetic (danh hiệu Card Hunter, khung chân dung, hiệu ứng Monster Master, thưởng mùa Ranked): game chưa có hệ khung / hiệu ứng. V1 chỉ lưu cờ + hiện danh hiệu dưới tên?
 10. ~~Style~~ ĐÃ CHỐT 23/11: người dùng giữ RO Soft Fantasy cho bộ card.
-11. Kiểm tra luật pháp cược vật phẩm (ChatGPT lưu ý) và công tắc tắt cược: ai quyết bật khi phát hành?
+11. ~~Ai bật cược~~ ĐÃ CHỐT 23/11: người MỜI đấu chọn có cược hay không cho từng trận (người nhận thấy rõ trước khi Accept). `CARD_WAGER_ENABLED` chỉ là công tắc khẩn cấp, mặc định BẬT.

@@ -19,7 +19,8 @@ P1, pending. Thách người chơi gần mình đấu PvP (có hoặc không cư
 - Thách đấu: `PartyPlayerMenu` thêm "Card Duel" (người chơi khác cùng map an toàn). Lời mời 15 s, 1 lời mời chờ / người, 30 s giữa 2 lần mời cùng người. Cả 2 có deck hợp lệ.
 - Thưởng PvP: thắng 300 / thua 100 / hoà 150 G, tối đa 5 trận có thưởng / ngày (`cardDaily.pvpRewards`).
 - Cược (chỉ PvP thường): mỗi bên đúng 1 card N hoặc R, 2 lá cùng rarity, không boss, không lá bị Reserved bởi deck nếu làm thiếu deck; không Gold / ngọc / pet. Hai bên xem card nhau, Lock rồi Confirm; đổi card -> huỷ xác nhận cả hai. Thắng lấy cả 2, thua mất, hoà trả lại.
-- Chống chuyển đồ: Lv30+, tài khoản >= 7 ngày, tối đa 3 trận cược / ngày, cùng 1 cặp tối đa 2 trận cược / ngày, log mọi lần chuyển (ledger `card_wager`), công tắc tắt (`CARD_WAGER_ENABLED` ở API + hằng số zone).
+- Chống chuyển đồ: Lv30+, tài khoản >= 7 ngày, tối đa 3 trận cược / ngày, cùng 1 cặp tối đa 2 trận cược / ngày, log mọi lần chuyển (ledger `card_wager`), công tắc khẩn cấp (`CARD_WAGER_ENABLED` ở API + hằng số zone, mặc định BẬT).
+- Có cược hay không: NGƯỜI MỜI chọn khi gửi lời mời (ô "Wager" bật / tắt, người dùng chốt 23/11); lời mời hiện rõ "Card Wager" cho người nhận trước khi Accept; không cược thì đấu PvP thường như cũ.
 - Rớt mạng: giữ ván 60 s chờ nối lại (theo characterId); quá hạn -> xử thua. Đồng hồ lượt của người rớt vẫn chạy (server đặt ngẫu nhiên).
 - Bỏ trận (Forfeit) = thua.
 
@@ -67,7 +68,7 @@ Sửa: `server-api/src/schemas.js` (schema 2 route), `server-api/src/config.js` 
 | Mất / nhân đôi card khi lỗi mạng giữa settle | TB x Cao | settle idempotent theo matchId + status, transaction, test bất biến |
 | Zone ghi save cũ đè escrow (rev cũ) | TB x Cao | zone áp rev+1 ngay sau escrow như trade; save rev cũ bị 409 |
 | Chuyển đồ / RMT qua thua cố ý | Cao x TB | Lv30, 7 ngày, 3/ngày, cặp 2/ngày, chỉ N/R, ledger |
-| Pháp lý cược vật phẩm | Thấp x Cao | công tắc tắt, mặc định TẮT khi phát hành tới khi người dùng quyết (câu 11) |
+| Pháp lý cược vật phẩm | Thấp x Cao | người mời chọn cược từng trận (đã chốt); công tắc khẩn cấp để tắt toàn server nếu luật thị trường yêu cầu |
 
 Rollback: `CARD_WAGER_ENABLED=false` (API + zone) -> PvP vẫn chạy không cược; wager `held` còn lại tự hoàn khi hết hạn.
 
