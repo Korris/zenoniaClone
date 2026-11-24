@@ -53,7 +53,15 @@ namespace ZenoniaProto
             Touch();
         }
 
-        /// <summary>Authority only: the tutorial duel with Card Master Orin ended (played out or given up). Moves the card-duel quest to hand-in; nothing happens when it is not active.</summary>
+        /// <summary>Authority only: a weapon / off-hand enhance just succeeded. Moves an active enhance quest to hand-in; nothing happens when none is active.</summary>
+        public void QuestEnhance()
+        {
+            if (!State.Quests.CountEnhance()) return;
+            if (QuestChanged != null) QuestChanged();
+            Touch();
+        }
+
+        /// <summary>Authority only: the tutorial duel with Card Master Orin was WON. Called on a WIN only: moves the card-duel quest to hand-in; nothing happens when it is not active.</summary>
         public void QuestCardDuel()
         {
             if (!State.Quests.CountCardDuel()) return;
@@ -153,13 +161,14 @@ namespace ZenoniaProto
                     Item target = Find(itemUid) ?? EquippedByUid(itemUid);
                     if (target == null || !EnhanceStats.IsEnhanceable(target)) { r = ActionResult.Fail("Weapons only"); break; }
                     EnhanceResult er = EnhanceSystem.Attempt(State, target);
+                    if (er.Ok && er.Success) QuestEnhance();
                     r = er.Ok ? (er.Success ? ActionResult.Success("Enhanced to +" + er.Level) : ActionResult.Fail("Enhance failed (+" + er.Level + " kept)")) : ActionResult.Fail("Cannot enhance");
                     break;
                 case InvOp.SkillLearn: r = LearnSkill(slot); break;
                 case InvOp.SkillAssign: r = AssignSkill(slot, itemUid); break;
                 case InvOp.SkillRespec: r = SkillRespec.Apply(State); break;
                 case InvOp.QuestAccept: r = QuestStep(State.AcceptQuest(itemUid)); break;
-                case InvOp.QuestTurnIn: r = QuestStep(State.TurnInQuest(itemUid)); break;
+                case InvOp.QuestTurnIn: r = QuestStep(State.TurnInQuest(itemUid, slot)); break; // Slot = the picked reward card (QuestDef.RewardPickCards), 0 for other quests
                 case InvOp.ChestOpen: r = State.OpenChest(itemUid, PlayerState.UnixNowMs, RpgRandom.Default); break; // distance: the caller (ServerDungeonActions / DungeonInteract)
                 case InvOp.WaypointTouch:
                     bool fresh = State.UnlockWaypoint(itemUid); // may complete a "reach" quest

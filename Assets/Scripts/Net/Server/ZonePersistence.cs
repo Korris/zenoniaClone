@@ -331,6 +331,7 @@ namespace ZenoniaProto
                 if (item != null) item.enhance = r.Level;
                 state.RecomputeStats();
                 ok = r.Success;
+                if (ok) p.Rpg.QuestEnhance(); // Taurus Q03A: counted only on the API's success
                 text = r.Success ? "Enhanced to +" + r.Level : "Enhance failed (+" + r.Level + " kept)";
             }
             if (p.Hero == null) return;

@@ -13,6 +13,9 @@ public class QuestTests
         QuestDef first = QuestCatalog.Get("first-hunt"); // AutoStart: already counting
         for (int i = 0; i < first.Count; i++) p.Quests.CountKill("hornRabbit");
         Assert.True(p.TurnInQuest(first.Id).Ok);
+        p.AcceptQuest(TaurusQuests.TrialId); // Taurus: Rowan's trial shares this giver; with both worlds on in the tests it is done first so only Q is left
+        for (int i = 0; i < TaurusQuests.Trial.Count; i++) p.Quests.CountKill("tauCloverSlime");
+        Assert.True(p.TurnInQuest(TaurusQuests.TrialId).Ok);
         return p;
     }
 
@@ -37,11 +40,11 @@ public class QuestTests
         Assert.Equal(QuestMarker.Available, p.Quests.MarkerFor(Q.GiverNpcId));
         Assert.Equal(QuestMarker.None, p.Quests.MarkerFor("villagerMia"));
         Assert.True(p.AcceptQuest(Q.Id).Ok);
-        Assert.Equal(QuestMarker.None, p.Quests.MarkerFor(Q.GiverNpcId));
+        Assert.NotEqual(QuestMarker.Ready, p.Quests.MarkerFor(Q.GiverNpcId)); // Taurus phase 05: Rowan's next meadow quest (Reed Frogs) may show its own "?" here
         KillAll(p);
         Assert.Equal(QuestMarker.Ready, p.Quests.MarkerFor(Q.GiverNpcId));
         Assert.True(p.TurnInQuest(Q.Id).Ok);
-        Assert.Equal(QuestMarker.None, p.Quests.MarkerFor(Q.GiverNpcId));
+        Assert.NotEqual(QuestMarker.Ready, p.Quests.MarkerFor(Q.GiverNpcId));
     }
 
     [Fact]

@@ -106,6 +106,6 @@ namespace ZenoniaProto
             { "rbStairsDown", new PropDef(3.75f, 3.5f, 3, 1) }, { "rbStairsUp", new PropDef(3.75f, 3.5f, 3, 1) }, // V4 floor stairs mouths (portal tiles = the floor row under them)
         };
 
-        public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def) || FrostHollowPropDefs.TryGet(type, out def) || BramblewoodForestPropDefs.TryGet(type, out def) || SunbreakFoothillsPropDefs.TryGet(type, out def) || ScorpionGorgePropDefs.TryGet(type, out def); }
+        public static bool TryGet(string type, out PropDef def) { return Defs.TryGetValue(type, out def) || FrostHollowPropDefs.TryGet(type, out def) || BramblewoodForestPropDefs.TryGet(type, out def) || SunbreakFoothillsPropDefs.TryGet(type, out def) || ScorpionGorgePropDefs.TryGet(type, out def) || TauPropDefs.TryGet(type, out def); }
     }
 }

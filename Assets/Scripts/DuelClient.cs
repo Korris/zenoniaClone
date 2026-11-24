@@ -31,9 +31,12 @@ namespace ZenoniaProto
         /// <summary>A placement must be sent with at least this long left on the turn clock (the server's clock is ahead by about the ping): the battle screen greys the board below it.</summary>
         public const float MinPlaceSeconds = 0.5f;
 
+        static bool npcResultCounted; // the final view of a duel with Orin counts once for his Guidance streak (a fresh running view re-arms it)
+
         public static void Apply(DuelView v)
         {
             View = v; deadlineAt = Time.unscaledTime + v.MsLeft / 1000f; pickDeadlineAt = Time.unscaledTime + v.PickMsLeft / 1000f; awayAt = Time.unscaledTime - v.OppAwayMs / 1000f; Version++;
+            if (v.Npc) { if (!v.Finished) npcResultCounted = false; else if (!npcResultCounted) { npcResultCounted = true; OrinGuidance.Record(PetActions.Me != null ? PetActions.Me.Cards : null, v.Result); } }
             if ((!v.Finished || v.MustPick) && !CardWindow.IsOpen) CardWindow.Open(CardWindow.Page.Duel); // a challenge was accepted from the world (or the winner must pick): the board opens by itself
         }
 

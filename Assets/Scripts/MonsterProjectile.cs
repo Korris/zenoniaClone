@@ -23,6 +23,7 @@ namespace ZenoniaProto
         Func<float, float, bool> hitAt;
         HeroController touched;
         SpriteRenderer body, shadow;
+        MonsterShotParticles comet;
 
         public static void Fire(Transform parent, Zone zone, MonsterRangedProfile profile, Vector2 from, float angleDeg, float atk)
         {
@@ -36,10 +37,15 @@ namespace ZenoniaProto
             Live.Add(p);
             if (!NetMode.RendersFx) return; // headless server: a moving hit box only
             Color32 c = new Color32((byte)(profile.ColorRgb >> 16), (byte)(profile.ColorRgb >> 8), (byte)profile.ColorRgb, 255);
-            bool painted = SpriteSheet.TryLoad(ArtFolder + profile.Sprite) != null;
+            bool painted = profile.Sprite != null && SpriteSheet.TryLoad(ArtFolder + profile.Sprite) != null;
             p.shadow = ProceduralSprites.Child(go.transform, "Shadow", ProceduralSprites.Shadow());
             p.shadow.transform.localScale = new Vector3(6f, 6f, 1f);
             p.shadow.color = new Color(1f, 1f, 1f, 0.3f);
+            if (profile.Sprite == null) // no painted picture (Taurus spore / thorn seed): a particle comet, the quill only when the light toolkit is unusable
+            {
+                p.comet = MonsterShotParticles.Create(go, profile, angleDeg, GameConfig.OrderBase(from.y) + 4);
+                if (p.comet != null) { p.Place(); return; }
+            }
             p.body = ProceduralSprites.Child(go.transform, "Body", painted ? SpriteSheet.Whole(ArtFolder + profile.Sprite, GameConfig.FramePpu, new Vector2(0.5f, 0.5f)) : Quill());
             p.body.color = painted ? Color.white : (Color)c; // painted art carries its own colours
             p.body.transform.localPosition = new Vector3(0f, VisualLift, 0f);
@@ -88,8 +94,9 @@ namespace ZenoniaProto
         void Place()
         {
             transform.position = new Vector3(x, y, 0f);
-            if (body == null) return;
             int order = GameConfig.OrderBase(y);
+            if (comet != null) { comet.SetOrder(order + 4); shadow.sortingOrder = order; return; }
+            if (body == null) return;
             body.sortingOrder = order + 4;
             shadow.sortingOrder = order;
         }

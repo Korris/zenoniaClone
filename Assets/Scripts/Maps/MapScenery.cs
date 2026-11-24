@@ -37,6 +37,13 @@ namespace ZenoniaProto
 
         public const float FlatDecorMaxTiles = 3f; // sprite height up to which a walk-through prop counts as ground decoration
 
+        /// <summary>A walk-through prop drawn on the ground (under heroes): low decoration, and every walk-through bridge whatever its height
+        /// (a 4-wide bridge over a 3-row stream is drawn deeper than 3 tiles, Taurus 24/11/2026).</summary>
+        public static bool LiesFlat(string type, PropDef d)
+        {
+            return d.FootH == 0 && (d.H <= FlatDecorMaxTiles || type.IndexOf("Bridge", System.StringComparison.Ordinal) >= 0);
+        }
+
         static void BuildProp(Transform parent, MapProp p)
         {
             PropDef d;
@@ -48,7 +55,7 @@ namespace ZenoniaProto
             SpriteRenderer sr = ProceduralSprites.Child(parent, p.Type, s != null ? s : ProceduralSprites.White(false));
             // Low walk-through decoration (bushes, small rocks, stumps, bones...) lies on the ground: under every hero and monster, never y-sorted over them.
             // Tall walk-through art (the Willowbrook palisade, reeds) keeps the y-sort so the hero can pass behind it.
-            sr.sortingOrder = d.FootH == 0 && d.H <= FlatDecorMaxTiles ? GameConfig.GroundOrder + 4 : GameConfig.OrderBase(y);
+            sr.sortingOrder = LiesFlat(p.Type, d) ? GameConfig.GroundOrder + 4 : GameConfig.OrderBase(y);
             if (s != null)
             {
                 sr.transform.position = new Vector3(x, y, 0f);

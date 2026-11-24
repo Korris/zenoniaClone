@@ -21,13 +21,14 @@ namespace ZenoniaProto
         public static QuestLog Log { get { HeroController h = GameSession.Hero; return h != null && h.Rpg != null ? h.Rpg.Quests : null; } }
 
         public static void Accept(QuestDef q) { Send(InvOp.QuestAccept, q); }
-        public static void TurnIn(QuestDef q) { Send(InvOp.QuestTurnIn, q); }
+        /// <summary>`pick` = the reward card chosen from QuestDef.RewardPickCards (the zone checks the index against its own list).</summary>
+        public static void TurnIn(QuestDef q, byte pick = 0) { Send(InvOp.QuestTurnIn, q, pick); }
 
-        static void Send(InvOp op, QuestDef q)
+        static void Send(InvOp op, QuestDef q, byte slot = 0)
         {
-            if (NetMode.IsClient) { NetClient.SendInvAction(op, q.Id, 0); return; } // the answer's RpgState brings the change
+            if (NetMode.IsClient) { NetClient.SendInvAction(op, q.Id, slot); return; } // the answer's RpgState brings the change
             PlayerRpg rpg = LocalPlayer.Rpg;
-            if (rpg != null) rpg.ApplyInvAction(op, q.Id, 0);
+            if (rpg != null) rpg.ApplyInvAction(op, q.Id, slot);
         }
 
         /// <summary>
@@ -67,7 +68,8 @@ namespace ZenoniaProto
                     break;
                 case QuestState.Done:
                     ChatHub.System("Quest complete: " + q.Title + " (" + q.RewardText(RpgSession.Player != null ? RpgSession.Player.ClassId : RpgClasses.Default) + ")");
-                    NotificationToast.Show("Quest Complete!", q.Title + "  +" + q.RewardGold + " G", icon);
+                    NotificationToast.Show("Quest Complete!", q.Title + (q.RewardGold > 0 ? "  +" + q.RewardGold + " G" : ""), icon);
+                    if (q.Id == TaurusQuests.FirstDeckId) CardTutorial.OfferAfterDeck(); // the 5 starter cards just arrived: My Cards / Album walkthrough
                     break;
             }
         }

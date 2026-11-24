@@ -141,6 +141,20 @@ namespace ZenoniaProto
         /// units only half as much (they must stay readable).</summary>
         public static readonly View25DProfile DarkDungeon1F = DarkDungeon.Floor(1.25f), DarkDungeon2F = DarkDungeon.Floor(1.0f), DarkDungeon3F = DarkDungeon.Floor(0.82f);
 
+        /// <summary>Ancient Root Shrine (Taurus phase 06, ChatGPT part2 I.1: "ancient and mysterious, not a horror dungeon, not too dark"): the dungeon pass with a warm amber ambient (#8A734A) clearly brighter than Rootburrow,
+        /// moss fog #485744, light pools from the Memory Amber / boss core / rune neck (DungeonLights.Extra) and the two warp crystals, amber + teal motes. GREYBOX: the border still uses Rootburrow's wall props until the shrine art lands.</summary>
+        public static readonly View25DProfile RootShrine = MakeRootShrine();
+
+        static View25DProfile MakeRootShrine()
+        {
+            View25DProfile p = DarkDungeon.Floor(1f);
+            p.AmbientColor = Hex(0x8A, 0x73, 0x4A); p.AmbientLevel = 0.55f; p.UnitAmbient = 0.7f; p.BossAmbient = 0.7f;
+            p.ShadeColor = Hex(0x3A, 0x33, 0x24); p.CrownShadeColor = Hex(0x42, 0x3A, 0x2A);
+            p.FogColor = Hex(0x48, 0x57, 0x44); p.FogMax = 0.22f; p.Vignette = 0.18f; p.VignetteColor = Hex(0x1E, 0x24, 0x1A);
+            p.MoteColorA = new Color(1f, 0.84f, 0.45f, 0.7f); p.MoteColorB = new Color(0.44f, 0.83f, 0.77f, 0.6f);
+            return p;
+        }
+
         View25DProfile Floor(float ambientMul)
         {
             var p = (View25DProfile)MemberwiseClone();
@@ -164,14 +178,27 @@ namespace ZenoniaProto
             TiltDeg = 38f, FovDeg = 32f, HeroPx = 69f, FeetY = 389f, Ro3Look = true, ScreenHaze = 0.03f, Vignette = 0.06f, Dapple = 0f, UnitSunStrength = 0.30f, // round 2: units take a bit more scene light
         };
 
+        /// <summary>Taurus village / meadows (phase 04, 24/11/2026): Ro3Feel with the apron forest drawn from the maps' own golden Taurus trees and bushes, not the green wf* set.</summary>
+        public static readonly View25DProfile TaurusField = MakeTaurusField();
+
+        static View25DProfile MakeTaurusField()
+        {
+            var p = (View25DProfile)Ro3Feel.MemberwiseClone();
+            p.ApronTall = new[] { "tauMeadowOakTree", "tauMeadowOakMediumTree", "tauYoungTree", "tauMeadowOakTree", "tauElderwoodOakTree", "tauMeadowOakMediumTree" };
+            p.ApronSmall = new[] { "tauLowBush", "tauWideBush", "tauRockCluster", "tauLowBush", "tauFern", "tauPebbles" };
+            return p;
+        }
+
         public static View25DProfile For(string mapId)
         {
+            if (mapId == TauWillowbrookVillageMap.MapId || mapId == TauCloverMeadowsMap.MapId) return TaurusField;
             if (Map3D.IsMap3D(mapId)) return Map3DFeel;
             if (mapId == SunkenReliquaryMap.MapId) return Prototype;
             if (mapId == RootburrowMap.MapId) return DarkDungeon1F;
             if (mapId == RootburrowB2Map.MapId) return DarkDungeon2F;
             if (mapId == FrostHollowLayout.MapId) return SnowField;
             if (mapId == FrostfangDenMap.MapId) return IceDungeon;
+            if (mapId == TauAncientRootShrineMap.MapId) return RootShrine;
             return mapId == RootburrowB3Map.MapId ? DarkDungeon3F : Ro3Feel;
         }
 

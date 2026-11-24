@@ -30,6 +30,9 @@ namespace ZenoniaProto
         MonsterDef def;
         Vector2 home, wanderDir, knock;
         int zone;                                  // spawn zone index, -1 = boss (never respawns)
+        /// <summary>Only fights back (Taurus C01, set by MonsterSpawner from Zone.Passive): ignores heroes until it is hit, calms down again at home. See Monster.Ai.cs.</summary>
+        public bool Passive;
+        bool provoked;                             // a passive monster that was hit: acts like a normal one until it is back home
         float x, y, hp, timer, animTimer, flash, knockLeft, knockTotal, deathTimer;
         Vector2 pullTarget;
         float pullLeft;
@@ -188,7 +191,7 @@ namespace ZenoniaProto
             }
             if (dx == 0f && dy == 0f) return;
             if (state == State.Chase && !pulling) { Vector2 sep = Separation(); dx += sep.x * dt; dy += sep.y * dt; }
-            ClipAgainstHeroes(ref dx, ref dy); // soft collision: stops at a hero's feet, never shoves (Monster.BodyCollision.cs)
+            if (!Charging) ClipAgainstHeroes(ref dx, ref dy); // soft collision: stops at a hero's feet, never shoves (Monster.BodyCollision.cs); a charge runs through
             if (dx == 0f && dy == 0f) return;
             bool bx, by;
             Vector2 p = FrostHollowMap.Move(new Vector2(x, y), dx, dy, def.HitW, def.HitH, out bx, out by);
@@ -232,6 +235,7 @@ namespace ZenoniaProto
         public void TakeHit(int dmg, Vector2 knockVel, bool crit, bool finisher, bool quietFx = false, HeroController src = null)
         {
             if (IsDying || proxy) return;
+            if (state == State.Return && def.ResetOnReturn) return; // walking home to reset: no damage in between (BIBLE XII leash rule)
             if (src == null) src = LocalPlayer.Hero;
             if (src != null && !dotTick) src.PetAttackLanded(this); // the owner's pet marks this monster (HeroController.Pet.cs)
             dmg = SkillHitHooks.Modify(src, this, dmg, quietFx); // mark multiplier, Death Mark charges, next-hit buffs
@@ -249,6 +253,7 @@ namespace ZenoniaProto
                 // recovery only counts down once the slide ends (Think does not run while sliding). Hits that do not push leave the windup alone.
                 if (state == State.Windup) Enter(State.Cooldown, Rpg.StatusRules.KnockInterruptRecoverMs);
             }
+            provoked = true;
             if (state == State.Idle || state == State.Wander || state == State.Return) { state = State.Chase; timer = 0f; }
             HitFx(dmg, knockVel, crit, finisher, quietFx, !NetMode.IsOffline && src != LocalPlayer.Hero);
             NetEventBus.MonsterHit(this, src, dmg, knockVel, crit, finisher, quietFx);

@@ -1,6 +1,6 @@
 namespace ZenoniaProto.Rpg
 {
-    /// <summary>The 40 card rows. Edge numbers (top, right, bottom, left) sum inside the rarity band and each card has one clearly strongest edge.</summary>
+    /// <summary>The 40 pre-Taurus card rows (hidden from the Album since Taurus V4, still owned / droppable with --legacy-maps) + the 12 Taurus rows (CardTableTaurus.cs, appended). Edge numbers (top, right, bottom, left) sum inside the rarity band and each card has one clearly strongest edge.</summary>
     public static partial class CardTable
     {
         const CardRarity N = CardRarity.N, R = CardRarity.R, SR = CardRarity.SR, SSR = CardRarity.SSR;
@@ -63,6 +63,22 @@ namespace ZenoniaProto.Rpg
             C("sandWraith", "Sand Wraith", "scorpionGorge", SR, "Shadow", Util, 5, 3, 8, 7, "A wraith that rises out of the sandstorm."),
             C("rockBasilisk", "Rock Basilisk", "scorpionGorge", SR, "Earth", Hp, 6, 4, 9, 5, "A stone-scaled basilisk, patient and strong."),
             C("duneGolem", "Dune Golem", "scorpionGorge", SR, "Earth", Def, 3, 6, 9, 6, "A golem packed from the gorge's red sand."),
+            // Taurus V4 (24/11/2026, BIBLE part 3 X.2): the live collection. Ids = the Taurus monster ids (phase 05 / 06 add the monsters; a card without its monster just never drops yet).
+            // Shapes follow BIBLE X.3 (Slime balanced, Rabbit strong right, Frog top, Mushroom bottom, Mantis right) on this table's 14-18 band, one strongest edge each.
+            C("tauCloverSlime", "Clover Slime", "tauCloverMeadows", N, "Nature", Hp, 5, 3, 4, 3, "A soft green slime that bounces along the meadow road."),
+            C("tauHornRabbit", "Horn Rabbit", "tauCloverMeadows", N, "Wind", Atk, 3, 7, 2, 3, "A quick rabbit whose little horn always leads the charge."),
+            C("tauReedFrog", "Reed Frog", "tauCloverMeadows", N, "Nature", Atk, 6, 3, 3, 3, "A brook frog that leaps first and thinks later."),
+            C("tauMossMushroom", "Moss Mushroom", "tauCloverMeadows", N, "Nature", Def, 3, 3, 6, 3, "A mossy cap that plants its roots and does not budge."),
+            C("tauBrambleBoar", "Bramble Boar", "tauCloverMeadows", N, "Earth", Atk, 6, 5, 3, 3, "A bristly boar that rushes anything in its thicket."),
+            C("tauLeafMantis", "Leaf Mantis", "tauCloverMeadows", N, "Wind", Atk, 3, 6, 3, 4, "A leaf-green mantis that strikes hard from one side."),
+            C("tauRootling", "Rootling", "tauAncientRootShrine", N, "Earth", Def, 4, 3, 5, 4, "A knot of living roots that woke inside the old shrine."),
+            C("tauAmberSporeling", "Amber Sporeling", "tauAncientRootShrine", N, "Nature", Util, 3, 4, 3, 6, "A small amber cap that drifts spores toward its left.", mp: true),
+            C("tauThornSprite", "Thorn Sprite", "tauCloverMeadows", R, "Nature", Util, 4, 7, 3, 6, "A tiny sprite that throws thorns and hums to the forest.", mp: true),
+            C("tauAncientBarkling", "Ancient Barkling", "tauCloverMeadows", R, "Nature", Def, 3, 5, 8, 4, "A barked-over sapling older than the village oak."),
+            C("tauRuneBarkGuardian", "Rune Bark Guardian", "tauAncientRootShrine", R, "Earth", Def, 5, 4, 8, 5, "A shrine guard whose bark glows with old runes."),
+            C("tauElderRootGuardian", "Elder Root Guardian", "tauAncientRootShrine", SR, "Nature", Hp, 6, 5, 9, 6, "The root-bound keeper of the Ancient Root Shrine.", boss: true),
+            // Field Boss card (24/11, ChatGPT taurus-field-boss-chatgpt.txt IV.2): Rare, one strong edge, own region = not in the Album (12 stays 12), drops 2 % from the Clover Meadows boss only.
+            C("tauBramblebackMatriarch", "Brambleback Matriarch", CardTable.FieldBossRegion, R, "Earth", Atk, 7, 5, 3, 4, "The thorn-backed matriarch of the Bramble Thicket, rare prize of the meadow hunters.", boss: true),
         };
     }
 }

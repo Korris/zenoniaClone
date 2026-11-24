@@ -61,7 +61,7 @@ namespace ZenoniaProto
 
         string SpriteName(bool on)
         {
-            if (Crystal != null) return "rbWarpCrystal";
+            if (Crystal != null) return Crystal.QuestOnly ? "tauQuestTouch" : "rbWarpCrystal"; // tauQuestTouch has no art yet (phase 04): the greybox marker is drawn
             return Chest.Rare ? (on ? "rbChestRareOpen" : "rbChestRare") : (on ? "rbChestOpen" : "rbChest");
         }
 
@@ -71,6 +71,7 @@ namespace ZenoniaProto
             shownOn = StateOn;
             sr = ProceduralSprites.Child(transform, "Body", MapScenery.PropSprite(SpriteName(shownOn)) ?? ProceduralSprites.White(false));
             sr.transform.position = new Vector3(Foot.x, Foot.y, 0f);
+            if (Crystal != null && Crystal.QuestOnly) { sr.transform.localScale = new Vector3(9f, 15f, 1f); sr.transform.position = new Vector3(Foot.x, Foot.y + 7.5f, 0f); } // TEMP greybox marker of a Taurus quest touch point (no prop art yet, phase 04)
             sr.sortingOrder = GameConfig.OrderBase(Foot.y);
             if (View25D.Active) View25D.StandProp(sr);
             ApplyLook();

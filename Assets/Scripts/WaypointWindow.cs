@@ -73,10 +73,12 @@ namespace ZenoniaProto
             int n = 0;
             foreach (WaypointDef w in DungeonPoints.Waypoints)
             {
+                if (w.QuestOnly || !DungeonPoints.SameDungeon(w, from)) continue; // a quest touch point is not a warp destination; one dungeon lists only its own crystals
                 bool here = w == from, open = me != null && me.HasWaypoint(w.Id);
                 Row(n++, open || here ? w.Name : "??? (not attuned)", here ? "Here" : open ? "" : "Locked", open && !here ? w.Id : null);
             }
-            Row(n++, DungeonPoints.ExitName, "", DungeonPoints.ExitId);
+            string exit = DungeonPoints.ExitFor(from);
+            Row(n++, DungeonPoints.ExitNameFor(exit), "", exit);
             float h = TitleTop + SubH + RowGap + n * (RowH + RowGap) - RowGap + PadBottom;
             window.sizeDelta = new Vector2(WindowW, h);
             window.anchoredPosition = new Vector2(0f, -HeaderRise * 0.5f);
@@ -93,7 +95,7 @@ namespace ZenoniaProto
             h.padding = new RectOffset(14, 14, 8, 8); h.spacing = 10f; h.childAlignment = TextAnchor.MiddleLeft;
             h.childControlWidth = h.childControlHeight = true; h.childForceExpandWidth = h.childForceExpandHeight = false;
             RectTransform icon = UiKit.Rect(rt, "Icon", 0f, 0f, IconSize, IconSize);
-            Image ic = RoHud.Art(icon, toId == DungeonPoints.ExitId ? "hud-icon-pin" : "wm-portal");
+            Image ic = RoHud.Art(icon, toId == DungeonPoints.ExitId || toId == DungeonPoints.ShrineExitId ? "hud-icon-pin" : "wm-portal");
             if (toId == null) ic.color = new Color(1f, 1f, 1f, 0.55f);
             Size(icon, IconSize, IconSize, 0f);
             Text label = RoHud.Label(UiKit.Rect(rt, "Name", 0f, 0f, 10f, RowH - 16f), name, 16, toId != null ? RoHud.Navy : Muted, TextAnchor.MiddleLeft, true);

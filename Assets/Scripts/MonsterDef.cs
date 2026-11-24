@@ -5,7 +5,10 @@ namespace ZenoniaProto
     /// <summary>Stat block copied from the web monster-definitions (speed px/s, ranges px, times ms).</summary>
     public sealed class MonsterDef
     {
-        public readonly string Sheet;       // Resources/Sprites/monsters/<Sheet>.png (+ "-attack")
+        public readonly string Sheet;       // Resources/Sprites/monsters/<Sheet>.png (+ "-attack"); also the monster TYPE id (loot, quests, cards)
+        /// <summary>Path under Resources/Sprites/monsters/ when the art sits in a sub-folder (Taurus: "taurus/tauCloverSlime/tauCloverSlime"); null = Sheet.</summary>
+        public string SheetFile;
+        public string File { get { return SheetFile ?? Sheet; } }
         public readonly string Name;
         public readonly float Atk, Def, Speed;
         readonly float hpBase;
@@ -19,6 +22,8 @@ namespace ZenoniaProto
         public float RenderScale = 1f;         // boss draws larger (web renderScale)
         public bool Stationary;                // web stationaryUntilAggro: waits at its post until the hero comes close
         public bool IsBoss;
+        /// <summary>Taurus rule (BIBLE XII): after losing the target past its leash it walks home taking no damage and is at full HP on arrival (set for every `tau*` sheet).</summary>
+        public readonly bool ResetOnReturn;
         public bool IsWanted;                  // daily Wanted Boss (event raid boss): behaves like a boss (HP bar, stationary, no shoving) but is not the map boss: no boss flags, own respawn clock (WantedBossSpawn)
         /// <summary>A map / dungeon boss with telegraphed skills (Rpg.WantedSkillTable.For(Sheet)) like the event bosses: same Telegraph / Execute states,
         /// cast bar and enraged badge, but it stays the map's own boss (no Wanted credit, board or route). First: Ambercap Warden, Rootburrow (21/11/2026).</summary>
@@ -34,7 +39,7 @@ namespace ZenoniaProto
             float attackRange = 12f, float windupMs = 350f, float cooldownMs = 1200f, float hitW = 12f, float hitH = 10f, float bodyHeightPx = 152f)
         {
             // Farm balance: double health for every monster, including bosses, on both authority and client.
-            Name = name; Sheet = sheet; hpBase = hp * 2f; Atk = atk; Def = def; Speed = speed; ItemLevel = itemLevel;
+            Name = name; Sheet = sheet; ResetOnReturn = sheet.StartsWith("tau"); hpBase = hp * 2f; Atk = atk; Def = def; Speed = speed; ItemLevel = itemLevel;
             AggroRange = aggro; LeashRange = leash; AttackRange = attackRange; WindupMs = windupMs; CooldownMs = cooldownMs;
             HitW = hitW; HitH = hitH;
             BodyHeightUnits = bodyHeightPx / GameConfig.FramePpu;
@@ -194,10 +199,63 @@ namespace ZenoniaProto
         public static readonly MonsterDef HollowTreant = new MonsterDef("Hollow Treant", "hollowTreant", 540f, 72f, 20f, 28f, 13, aggro: 55f, attackRange: 18f, windupMs: 650f, cooldownMs: 1700f, hitW: 22f, hitH: 14f, bodyHeightPx: 172f)
             { RenderScale = 1.25f, FallbackSheet = "brambleTreant", FallbackTint = new Color(0.74f, 0.68f, 0.96f) };
 
+        // Taurus V4 (24/11/2026, phase 02): Clover Slime Lv1 (BIBLE MON-T01): tutorial monster, 0.65x speed, melee, strike every 2 s, aggro 2 m, leash 4.5 m. Line HP 14+22L / Atk 3+4L / Def 1+L
+        // at Lv1 then x0.9 like Meadow Slime (weak). Its C01 camp is passive (Zone.Passive). Sheet from ChatGPT (Tools/build-taurus-monsters.py), 0.55 H body already drawn into the cells.
+        public static readonly MonsterDef TauCloverSlime = new MonsterDef("Clover Slime", "tauCloverSlime", 64f, 6f, 1f, 20f, 1, aggro: 32f, leash: 72f, windupMs: 450f, cooldownMs: 1550f, hitH: 8f, bodyHeightPx: 90f)
+            { SheetFile = "taurus/tauCloverSlime/tauCloverSlime", FallbackSheet = "frostSlime", FallbackTint = new Color(0.6f, 1f, 0.55f) };
+
+        // Taurus V4 phase 05 (24/11/2026): the other 8 species of Clover Meadows + the field boss (BIBLE part1 VI, part3 XII). Line HP 14+22L / Atk 3+4L / Def 1+L at each species level, then a role factor; HP then tuned so a Lv-appropriate Warrior / Wizard / Cleric with the starter weapon kills in the BIBLE time-to-kill band (TaurusMeadowMonsterSpecTests, 24/11).
+        // Speed = BIBLE factor x 30.8 (Slime 20 = 0.65x); aggro = metres x 16; leash by family (Slime / Rabbit / Frog 4.5 m, Mushroom / Boar / Mantis 5.5 m, Rootling / Sprite / Barkling 6.5 m);
+        // windup + cooldown = the BIBLE attack interval; hit boxes per the hitbox table (feet ellipse, no ears / blades / wings). bodyHeightPx = the species share of H (164 px) already drawn into
+        // the cells by Tools/build-taurus-monsters.py. Sheets live in Sprites/monsters/taurus/<id>/. Mushroom + Sprite shoot (MonsterRangedProfile.SporeShot / ThornSeed, drawn as particles).
+        const string TauSheets = "taurus/";
+        public static readonly MonsterDef TauHornRabbit = new MonsterDef("Horn Rabbit", "tauHornRabbit", 116f, 15f, 3f, 34f, 3, aggro: 40f, leash: 72f, windupMs: 350f, cooldownMs: 1350f, hitW: 11f, hitH: 8f, bodyHeightPx: 118f)
+            { SheetFile = TauSheets + "tauHornRabbit/tauHornRabbit", FallbackSheet = "frostSlime", FallbackTint = new Color(1f, 0.92f, 0.75f) };
+        public static readonly MonsterDef TauReedFrog = new MonsterDef("Reed Frog", "tauReedFrog", 127f, 18f, 4f, 28f, 4, aggro: 37f, leash: 72f, windupMs: 400f, cooldownMs: 1500f, hitW: 13f, hitH: 7f, bodyHeightPx: 98f)
+            { SheetFile = TauSheets + "tauReedFrog/tauReedFrog", FallbackSheet = "frostSlime", FallbackTint = new Color(0.7f, 0.85f, 0.4f) };
+        public static readonly MonsterDef TauMossMushroom = new MonsterDef("Moss Mushroom", "tauMossMushroom", 180f, 21f, 3f, 20f, 5, aggro: 64f, leash: 88f, windupMs: 600f, cooldownMs: 1800f, hitW: 12f, hitH: 9f, bodyHeightPx: 123f)
+            { SheetFile = TauSheets + "tauMossMushroom/tauMossMushroom", FallbackSheet = "frostSlime", FallbackTint = new Color(0.75f, 0.55f, 0.4f), Ranged = Rpg.MonsterRangedProfile.SporeShot };
+        public static readonly MonsterDef TauBrambleBoar = new MonsterDef("Bramble Boar", "tauBrambleBoar", 249f, 27f, 7f, 26f, 6, aggro: 48f, leash: 88f, attackRange: 16f, windupMs: 550f, cooldownMs: 1650f, hitW: 20f, hitH: 10f, bodyHeightPx: 148f)
+            { SheetFile = TauSheets + "tauBrambleBoar/tauBrambleBoar", FallbackSheet = "frostSlime", FallbackTint = new Color(0.7f, 0.45f, 0.35f) };
+        public static readonly MonsterDef TauLeafMantis = new MonsterDef("Leaf Mantis", "tauLeafMantis", 207f, 36f, 4f, 32f, 7, aggro: 48f, leash: 88f, attackRange: 16f, windupMs: 300f, cooldownMs: 1200f, hitW: 11f, hitH: 8f, bodyHeightPx: 139f)
+            { SheetFile = TauSheets + "tauLeafMantis/tauLeafMantis", FallbackSheet = "frostSlime", FallbackTint = new Color(0.5f, 0.9f, 0.4f) };
+        public static readonly MonsterDef TauRootling = new MonsterDef("Rootling", "tauRootling", 320f, 35f, 11f, 18f, 8, aggro: 40f, leash: 104f, attackRange: 16f, windupMs: 700f, cooldownMs: 1900f, hitW: 14f, hitH: 10f, bodyHeightPx: 139f)
+            { SheetFile = TauSheets + "tauRootling/tauRootling", FallbackSheet = "frostSlime", FallbackTint = new Color(0.65f, 0.5f, 0.35f) };
+        public static readonly MonsterDef TauThornSprite = new MonsterDef("Thorn Sprite", "tauThornSprite", 296f, 45f, 4f, 29f, 9, aggro: 72f, leash: 104f, windupMs: 450f, cooldownMs: 1650f, hitW: 10f, hitH: 8f, bodyHeightPx: 123f)
+            { SheetFile = TauSheets + "tauThornSprite/tauThornSprite", FallbackSheet = "frostSlime", FallbackTint = new Color(0.4f, 0.95f, 0.75f), Ranged = Rpg.MonsterRangedProfile.ThornSeed };
+        // Ancient Barkling 1.20H = 197 px does not fit the 192 cell: the sheet holds ~186 px, RenderScale 1.06 gives 1.20H for walk AND attack alike (ChatGPT review 24/11, no redraw).
+        public static readonly MonsterDef TauAncientBarkling = new MonsterDef("Ancient Barkling", "tauAncientBarkling", 471f, 47f, 16f, 17f, 10, aggro: 48f, leash: 104f, attackRange: 22f, windupMs: 800f, cooldownMs: 2000f, hitW: 22f, hitH: 14f, bodyHeightPx: 186f)
+            { SheetFile = TauSheets + "tauAncientBarkling/tauAncientBarkling", RenderScale = 1.06f, FallbackSheet = "frostSlime", FallbackTint = new Color(0.6f, 0.5f, 0.35f) };
+        // TAU-FB01 Brambleback Matriarch (docs/reference/world-design/taurus-field-boss-chatgpt.txt): HP 1413 (ctor; shown 2826 after the farm x2 of the ctor, the old 1500 showed "3000 / 3000") = exactly 3x the toughest common monster of the map (Ancient Barkling 471 / 942 shown; the user spec 24/11), ~3.9x a Bramble Boar at Lv9; a Lv10 solo hero needs
+        // ~25 s of pure hitting (30-60 s with the dodging) per ChatGPT; Atk x1.25 of the Lv9 boar, Def x1.1, 0.9 speed, 0.9 attack rate; 2.1H tall.
+        // Art (ChatGPT, landed 24/11): walk 192 + attack 256 cells in taurus/tauBramblebackMatriarch/, RenderScale 2.21 reads 2.1H (art note in docs/pending-tasks.md); the -charge / -stomp sheets are not played yet (the skill poses stay on the walk frame).
+        // Skills: Bramble Charge + Thorn Stomp (WantedSkillTable.BramblebackMatriarch).
+        public static readonly MonsterDef TauBramblebackMatriarch = new MonsterDef("Brambleback Matriarch", "tauBramblebackMatriarch", 1413f, 49f, 11f, 23.5f, 9, aggro: 80f, leash: 104f,
+            attackRange: 30f, windupMs: 400f, cooldownMs: 2040f, hitW: 40f, hitH: 20f, bodyHeightPx: 156f)
+            { SheetFile = TauSheets + "tauBramblebackMatriarch/tauBramblebackMatriarch", RenderScale = 2.21f, Stationary = true, IsBoss = true, SkillBoss = true, FallbackSheet = "frostSlime", FallbackTint = new Color(0.7f, 0.45f, 0.35f) };
+
+        // Taurus V4 phase 06 (24/11/2026): the Ancient Root Shrine (BIBLE part2 II-III). Same line (HP 14+22L / Atk 3+4L / Def 1+L) at the dungeon level, then a role factor; the ctor doubles HP (farm rule).
+        // Amber Sporeling Lv9 0.75H ranged (profile AmberSpore: a slow glowing spore, plain bolt); Rune Bark Guardian Lv10 1.30H slow tanky melee (3 stand at the gate of the sanctuary); sheets 192 / 256 cells,
+        // RenderScale lifts the guardian from the cell-capped body (184 px) to 1.30H. Elder Root Guardian: below.
+        public static readonly MonsterDef TauAmberSporeling = new MonsterDef("Amber Sporeling", "tauAmberSporeling", 135f, 40f, 6f, 24f, 9, aggro: 72f, leash: 104f, windupMs: 500f, cooldownMs: 1900f, hitW: 10f, hitH: 8f, bodyHeightPx: 123f)
+            { SheetFile = TauSheets + "tauAmberSporeling/tauAmberSporeling", FallbackSheet = "frostSlime", FallbackTint = new Color(1f, 0.8f, 0.3f), Ranged = Rpg.MonsterRangedProfile.AmberSpore };
+        public static readonly MonsterDef TauRuneBarkGuardian = new MonsterDef("Rune Bark Guardian", "tauRuneBarkGuardian", 560f, 47f, 18f, 17f, 10, aggro: 48f, leash: 112f, attackRange: 24f, windupMs: 800f, cooldownMs: 2100f, hitW: 24f, hitH: 14f, bodyHeightPx: 184f)
+            { SheetFile = TauSheets + "tauRuneBarkGuardian/tauRuneBarkGuardian", RenderScale = 1.16f, FallbackSheet = "frostSlime", FallbackTint = new Color(0.55f, 0.75f, 0.65f) };
+        // Elder Root Guardian (story boss Lv10, 3.75H): 384 / 512 cells re-cut from the ChatGPT originals (Tools/build-taurus-monsters.py CELL_MUL) so the 3.34x draw stays sharp. Root Slam = its plain attack (windup 0.5 s),
+        // Ancient Sweep + Amber Pulse + Awakening (below 30 % HP, EnrageRate 0.87 = 13 % shorter gaps) in WantedSkillTable.ElderRootGuardian. HP: solo Lv10 90-150 s (TaurusShrineMonsterSpecTests), very slow walker.
+        public static readonly MonsterDef TauElderRootGuardian = new MonsterDef("Elder Root Guardian", "tauElderRootGuardian", 6200f, 52f, 14f, 15f, 10, aggro: 112f, leash: 288f,
+            attackRange: 56f, windupMs: 500f, cooldownMs: 2100f, hitW: 64f, hitH: 30f, bodyHeightPx: 184f)
+            { SheetFile = TauSheets + "tauElderRootGuardian/tauElderRootGuardian", RenderScale = 3.34f, Stationary = true, IsBoss = true, SkillBoss = true, WalkCellPx = 384, AttackCellPx = 512, EnrageRate = 0.87f,
+              FallbackSheet = "thornheartTreant", FallbackTint = new Color(0.8f, 0.7f, 0.4f) };
+        /// <summary>Awakening: once below 30 % HP (WantedSkillClock.EnrageHpFraction) the gaps and cooldowns of this skill boss shrink to this fraction (1 = unchanged, every other boss).</summary>
+        public float EnrageRate = 1f;
+
         /// <summary>Wire index of a definition (Spawn message Type byte): append only, existing indices must not move.</summary>
         public static readonly MonsterDef[] All = { FrostSlime, IceGoblin, SpectralWolf, FrostfangKing, DuneScarab, SandRaider, AmberWisp, GlacierWarden, BogSlime, MireToad, MarshStalker, RuinWisp, MirefangHydra, HornRabbit, ThornBoar, MeadowSlime, MeadowMantis, BrambleTreant, IceWraith, FrostbiteYeti, CrystalGolem, SnowFox, IceImp, FrostBear, RimeclawTyrant, GlacialColossus, MireHydraQueen,
             ForestWolf, ThornSprite, ThornfangAlpha, ThornheartTreant, HighlandIbex, DustscaleLizard, CliffHarpy, StonebackGuardian, RidgehornBehemoth,
-            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer, AmbercapWarden, AetherglyphOwl, CaveMantis, GloomWolf, CrystalSprite, HollowTreant };
+            GiantScorpion, SandWraith, RockBasilisk, DuneGolem, DuneDevourer, AmbercapWarden, AetherglyphOwl, CaveMantis, GloomWolf, CrystalSprite, HollowTreant,
+            TauCloverSlime, TauHornRabbit, TauReedFrog, TauMossMushroom, TauBrambleBoar, TauLeafMantis, TauRootling, TauThornSprite, TauAncientBarkling, TauBramblebackMatriarch,
+            TauAmberSporeling, TauRuneBarkGuardian, TauElderRootGuardian }; // Taurus: append only (phase 06 appended the last three)
         public static int IndexOf(MonsterDef d) { return System.Array.IndexOf(All, d); }
         public static MonsterDef ByIndex(int i) { return i >= 0 && i < All.Length ? All[i] : null; }
 
@@ -252,6 +310,19 @@ namespace ZenoniaProto
                 case "gloomWolf": return GloomWolf;
                 case "crystalSprite": return CrystalSprite;
                 case "hollowTreant": return HollowTreant;
+                case "tauCloverSlime": return TauCloverSlime;
+                case "tauHornRabbit": return TauHornRabbit;
+                case "tauReedFrog": return TauReedFrog;
+                case "tauMossMushroom": return TauMossMushroom;
+                case "tauBrambleBoar": return TauBrambleBoar;
+                case "tauLeafMantis": return TauLeafMantis;
+                case "tauRootling": return TauRootling;
+                case "tauThornSprite": return TauThornSprite;
+                case "tauAncientBarkling": return TauAncientBarkling;
+                case "tauBramblebackMatriarch": return TauBramblebackMatriarch;
+                case "tauAmberSporeling": return TauAmberSporeling;
+                case "tauRuneBarkGuardian": return TauRuneBarkGuardian;
+                case "tauElderRootGuardian": return TauElderRootGuardian;
                 default: return null;
             }
         }

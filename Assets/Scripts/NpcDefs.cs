@@ -25,7 +25,7 @@ namespace ZenoniaProto
 
         static readonly Dictionary<string, NpcDef> Defs = new Dictionary<string, NpcDef>
         {
-            { "elderRowan", Def("elderRowan", "Elder Thomas", Down, true, "Welcome to Oakhaven Village, young one.") },
+            { "elderRowan", Def("elderRowan", "Elder Rowan", Down, true, "Welcome to Willowbrook, young one.") }, // Taurus: the village elder, quest giver (art TEMP: the old elder, phase 04)
             { "villagerMia", Def("villagerMia", "Mia", Down, false,
                 "Did you know? Spending skill points raises your power a lot.", "Press TAB to open the skill tree.") },
             { "hunterLena", Def("hunterLena", "Hunter Lena", Left, false,
@@ -74,6 +74,16 @@ namespace ZenoniaProto
                 "Spare cards turn into Soul Gems at the Convert page. Socket a gem into your gear for bonus stats, or take it out again for a small fee.",
                 "Card Duel is a 4x4 board with an 8-card deck: place a card, flip the rival cards it beats. It needs another player online, level 30 or higher. In a casual duel the winner takes 1 card from the loser's deck. A draw costs nobody anything.",
                 "Ranked duels take no cards: win to climb the leagues of a 30-day season. Ready? Tap to go on, or press Esc to just leave.") },
+            // Willowbrook Village (Taurus V4, phase 02). TEMP art: old villagers' sheets, phase 04 draws the real ones. Bram: gear shop + the First Upgrade quest; Lumi: dialogue only until the
+            // Taurus pet pool exists (phase 08, the gacha is closed); Mira: potion shop; Finn: directions. Elder Rowan and Card Master Orin keep their old ids.
+            { "tauBram", DefArt("tauBram", "Bram the Smith", "carpenterBrol", Down, true,
+                "Steel and leather, nothing fancy, but it holds an edge.", "Bring me stones and gold and I will show you how to strengthen your gear.") },
+            { "tauLumi", DefArt("tauLumi", "Lumi", "villagerMia", Down, false,
+                "Welcome to the Pet Garden! Companions will join your adventures soon.", "Come back when you are a little stronger, and I will introduce you to the little ones.") },
+            { "tauMira", DefArt("tauMira", "Mira the Merchant", "merchantDale", Down, false,
+                "Potions for the road, freshly stocked every morning.", "Gold from the meadow slimes spends just fine here.") },
+            { "tauFinn", DefArt("tauFinn", "Gatekeeper Finn", "guardRook", Down, false,
+                "The south gate leads to Clover Meadows. Stay on the road and you will meet the Clover Slimes first.", "Beyond the meadows the forest grows thick and old. Do not go there before you are ready.") },
             // Oakhaven's blacksmith (world-map-2 step 1): same look as the carpenter, a hammer at the forge.
             { "smithBram", DefArt("smithBram", "Bram", "carpenterBrol", Down, false,
                 "Steel and leather, nothing fancy, but it holds an edge.", "Oakhaven forges plain gear. Good enough until you see higher country.") },

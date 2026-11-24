@@ -36,7 +36,8 @@ namespace ZenoniaProto
             ushort ownerId = 0;
             float freeAt = 0f;
             if (!NetMode.IsOffline && top != null) { ownerId = top.NetId; freeAt = LootOwnership.FreeAtMs(zone.TimeMs, false); }
-            LootDrop.SpawnAll(zone.Root, LootTable.RollAll(def, RpgRandom.Default), m.Feet, ownerId, freeAt);
+            if (def.PersonalLoot) SpawnPersonalLoot(zone, m, def); // field boss (Taurus): every real contributor rolls its own pile
+            else LootDrop.SpawnAll(zone.Root, LootTable.RollAll(def, RpgRandom.Default), m.Feet, ownerId, freeAt);
 
             for (int i = 0; i < Winners.Count; i++) Winners[i].Owner.QuestKill(m.Type); // every hero that hit it, each on its own quests
             if (m.IsBoss && !m.IsWanted) for (int i = 0; i < Winners.Count; i++) Winners[i].Owner.RaiseBossKilled(); // map boss flags: the event boss opens no gate
@@ -47,6 +48,18 @@ namespace ZenoniaProto
             if (m.IsBoss) PetCaptureService.OpenCorpse(zone, m, Winners, Damage); // 30 / 45 s to throw a ball at it
             if (m.IsWanted) WantedBossCredit.Pay(zone, m, Winners); // daily Wanted Boss: no-op unless this is today's boss, online
             if (m.IsWanted) DropWantedHats(zone, m);
+        }
+
+        /// <summary>Field boss loot (MonsterLootDef.PersonalLoot): each winner whose own damage reached the valid share (1 % of the boss's max HP, the pet / card rule) gets its own roll, owned by that hero for the usual
+        /// head start online, so nobody fights over the pile and a tap-and-leave earns nothing. No last hit needed. Offline the single player owns everything (owner 0).</summary>
+        static void SpawnPersonalLoot(Zone zone, Monster m, MonsterLootDef def)
+        {
+            bool owned = !NetMode.IsOffline;
+            for (int i = 0; i < Winners.Count; i++)
+            {
+                if (owned && !AccountRewards.IsValidBossShare(Damage[i], m.MaxHp)) continue;
+                LootDrop.SpawnAll(zone.Root, LootTable.RollAll(def, RpgRandom.Default), m.Feet, owned ? Winners[i].NetId : (ushort)0, owned ? LootOwnership.FreeAtMs(zone.TimeMs, false) : 0f);
+            }
         }
 
         /// <summary>Monster card drop (CardDrops): each winner whose damage reached the valid share (>= 1 % of the monster's max HP, like the pet boss rewards) rolls once; the card goes

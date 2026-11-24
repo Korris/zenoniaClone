@@ -18,7 +18,7 @@ namespace ZenoniaProto
         const int Cols = 6, Rows = 2, PerPage = Cols * Rows, TabsPerRow = 6;
         const float MainW = 640f, DetailX = 648f, DetailW = 303f, CardW = 81f, CardH = 108f, PitchX = 100f, PitchY = 130f, GridX = 28f, GridY = 202f; // GridY: 12 below the second tab row (it ends at 190), so the gold selection ring never touches a tab
         const float BarX = 176f, BarW = 330f, BarY = 14f;
-        static readonly string[] Reward = { "5,000 G", "Title", "Frame", "Master" };
+        static readonly string[] Reward = { "150G +2", "300G +3", "500G +5", "1000G +5" }; // gold + Upgrade Stones (AlbumRules); the last also (no room to say so here) sets the Taurus Card Collector title flag
 
         readonly GemCardView[] cells = new GemCardView[PerPage];
         readonly CardDef[] cellCard = new CardDef[PerPage];
@@ -42,7 +42,7 @@ namespace ZenoniaProto
             progress = U.Txt(Root, "Progress", BarX + BarW + 10f, 8f, MainW - BarX - BarW - 20f, 34f, "", U.TextNormal, U.Ink);
             for (int m = 0; m < 4; m++)
             {
-                float cx = BarX + BarW * (AlbumRules.Milestones[m] / (float)CardTable.Count);
+                float cx = BarX + BarW * (AlbumRules.Milestones[m] / (float)CardTable.LiveCount);
                 milestone[m] = GemUiArt.Img(Root, "Milestone" + m, cx - 19f, 46f, 38f, 38f, GemUiArt.Frame("milestone-locked"));
                 U.Txt(Root, "MilestoneNum" + m, cx - 41f, 84f, 82f, 18f, AlbumRules.Milestones[m] + " cards", U.TextSmall, U.Ink, TextAnchor.MiddleCenter);
                 U.Txt(Root, "MilestoneReward" + m, cx - 41f, 101f, 82f, 18f, Reward[m], U.TextSmall, U.InkSoft, TextAnchor.MiddleCenter);
@@ -60,7 +60,7 @@ namespace ZenoniaProto
             hint = U.Txt(detail.Root, "Hint", 14f, CardDetailPanel.ButtonsY + 84f, DetailW - 28f, 22f, "", U.TextSmall, U.InkSoft, TextAnchor.MiddleCenter);
         }
 
-        /// <summary>All + the 10 map regions: 6 + 5 tabs on two rows (the mockup has 7 regions; the game has 10, so the tabs wrap instead of scrolling).</summary>
+        /// <summary>All + the live regions (Taurus: 2), tabs wrap onto a second row when there are more.</summary>
         void BuildTabs()
         {
             int n = CardTable.Regions.Length + 1;
@@ -90,7 +90,7 @@ namespace ZenoniaProto
         List<CardDef> Visible()
         {
             var list = new List<CardDef>();
-            foreach (CardDef c in CardTable.All) if (region < 0 || c.Region == CardTable.Regions[region]) list.Add(c);
+            foreach (CardDef c in CardTable.All) if (region < 0 ? CardTable.IsLive(c) : c.Region == CardTable.Regions[region]) list.Add(c); // the Album lists the Taurus cards only
             return list;
         }
 
@@ -100,8 +100,8 @@ namespace ZenoniaProto
             if (Root == null || p == null) return;
             CardCollection cc = p.Cards;
             int have = cc.AlbumCount;
-            progress.text = have + " / " + CardTable.Count + " (" + (have * 100 / CardTable.Count) + "%)";
-            fill.sizeDelta = new Vector2(Mathf.Max(48f, BarW * have / CardTable.Count), 24f);
+            progress.text = have + " / " + CardTable.LiveCount + " (" + (have * 100 / CardTable.LiveCount) + "%)";
+            fill.sizeDelta = new Vector2(Mathf.Max(48f, BarW * have / CardTable.LiveCount), 24f);
             fill.gameObject.SetActive(have > 0);
             bool anyReady = false;
             for (int m = 0; m < 4; m++)

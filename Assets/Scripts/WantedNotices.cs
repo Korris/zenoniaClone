@@ -114,6 +114,7 @@ namespace ZenoniaProto
         {
             var s = WantedBossTracker.Status;
             WantedBossDef today = WantedBossTracker.Today;
+            if (today == null) return; // Wanted Boss is off in the Taurus world (WantedBoss.Enabled)
             bool claimed = PaperWanted.Claimed;
             float now = Time.unscaledTime;
             if (!known || s.BossType != lastBoss || s.DayKey != lastDay)

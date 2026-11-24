@@ -46,7 +46,7 @@ namespace ZenoniaProto
             WantedSkillDef skill = wantedTable[pick];
             if (!LockWantedShapes(skill)) return false;
             pendingSkill = skill;
-            wantedClock.OnSkillUsed(skill);
+            wantedClock.OnSkillUsed(skill, WantedEnraged ? def.EnrageRate : 1f); // Awakening: below 30 % the gaps are shorter (MonsterDef.EnrageRate, 1 for every other boss)
             Enter(State.Telegraph, skill.TelegraphMs);
             BroadcastWantedTelegraph(skill);
             return true;
@@ -88,7 +88,11 @@ namespace ZenoniaProto
                 FaceTowards(dir, true); // the cone / line aims exactly here: turn now, whatever the hold says
                 dirDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             }
-            else dirDeg = skill.SafeArcCount > 0 ? Random.Range(0f, 360f) : 0f; // the enrage circle's safe lane(s): a fresh random direction each cast
+            else
+            {
+                dirDeg = skill.SafeArcCount > 0 ? Random.Range(0f, 360f) : 0f;
+                if (skill.PoseSheetSuffix != null && target != null && !target.IsDead && (target.Position - origin).sqrMagnitude > 1f) FaceTowards((target.Position - origin).normalized, true); // a circle has no aim, but its pose sheet must not show the boss's back to the hero
+            } // the enrage circle's safe lane(s): a fresh random direction each cast
             pendingShapes.Add(new WantedShapeInstance { OriginX = origin.x, OriginY = origin.y, DirDeg = dirDeg });
             return true;
         }
@@ -117,7 +121,7 @@ namespace ZenoniaProto
         {
             WantedSkillDef skill = pendingSkill;
             pendingSkill = null;
-            if (skill == null || homeZone == null) return;
+            if (skill == null || homeZone == null || skill.Transition) return; // a phase change hits nobody
             IReadOnlyList<HeroController> all = homeZone.Heroes.All;
             float drained = 0f;
             int victims = 0;

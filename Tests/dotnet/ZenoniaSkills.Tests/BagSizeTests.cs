@@ -56,7 +56,7 @@ public class BagSizeTests
         p.Inventory.Clear();
         for (int i = 0; i < 20; i++) p.AddToInventory(Gear(i));
         SaveData d = SaveSerializer.Capture(p, false, 0f, 0f, false);
-        d.version = 2; // a save written before the bag grew
+        // a 20-slot bag (the size before it grew) loads whole; saves older than SaveSerializer.MinSupportedVersion are dropped instead (SaveResetTests)
         SaveData back = SaveSerializer.Parse(JsonUtility.ToJson(d));
         Assert.Equal(20, back.inventory.Count);
         Assert.Equal(20, SaveSerializer.Restore(back).Inventory.Count);

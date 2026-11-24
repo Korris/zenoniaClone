@@ -22,11 +22,15 @@ namespace ZenoniaProto.Rpg
             GapLeft = System.Math.Max(0f, GapLeft - dtMs);
         }
 
-        public void OnSkillUsed(WantedSkillDef skill)
+        /// <summary>rate &lt; 1 = the boss is awakened (MonsterDef.EnrageRate): the skill's cooldown and the shared gap shrink to that fraction.</summary>
+        public void OnSkillUsed(WantedSkillDef skill, float rate = 1f)
         {
-            CooldownLeft[skill.Id] = skill.CooldownMs;
-            GapLeft = SkillGapMs;
+            CooldownLeft[skill.Id] = skill.CooldownMs * rate;
+            GapLeft = SkillGapMs * rate;
         }
+
+        /// <summary>A boss that walked home and healed starts its fight again: every cooldown is ready (the once-only Awakening too).</summary>
+        public void Reset() { System.Array.Clear(CooldownLeft, 0, CooldownLeft.Length); GapLeft = 0f; }
     }
 
     /// <summary>Picks the next skill off cooldown (pure function: `roll` in [0,1) selects among several ready skills, for repeatable tests).</summary>

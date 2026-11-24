@@ -19,6 +19,7 @@ namespace ZenoniaProto.Rpg
             switch (npcId)
             {
                 case "smithBram": return PotionShops.Oakhaven;
+                case "tauBram": return PotionShops.TauWillowbrook;
                 case "smithHolt": return PotionShops.Thatchwick;
                 case "blacksmithKhaled": return PotionShops.Sunspire;
                 default: return null;
@@ -34,6 +35,7 @@ namespace ZenoniaProto.Rpg
             switch (npcId)
             {
                 case "smithBram": minTier = 0; maxTier = 1; return true;
+                case "tauBram": minTier = 0; maxTier = 1; return true; // Taurus: Willowbrook sells what Lv 1-10 can wear
                 case "smithHolt": minTier = 1; maxTier = 2; return true;        // Thatchwick, region Lv 11-20: T1 Lv 10, T2 Lv 20
                 case "blacksmithKhaled": minTier = 2; maxTier = 3; return true; // Sunspire, region Lv 21-30: T2 Lv 20, T3 Lv 30
                 default: minTier = maxTier = 0; return false;

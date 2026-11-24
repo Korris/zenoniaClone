@@ -31,7 +31,14 @@ namespace ZenoniaProto.Rpg
         public int StatusMs;
         public float KnockbackTiles;
         public int CastRow = -1;
+        /// <summary>Own pose sheet of this skill ("&lt;sheet&gt;" + suffix, 4x4 cells like the attack sheet: rows down / up / left / right, 4 poses). null = use CastRow / the attack pose.
+        /// Poses follow ChatGPT's animation spec: F1-F2 while the warning runs, F3 at the impact / launch, F4 for the rest (WantedSkillPose).</summary>
+        public string PoseSheetSuffix;
+        /// <summary>&gt; 0 = a CHARGE: the shape (a Line) is only the warning; when the telegraph ends the boss dashes along it for this many ms and hits each hero it reaches once (Monster.WantedCharge.cs, WantedChargeRules).</summary>
+        public int ChargeMs;
         public bool Enrage;
+        /// <summary>A phase change, not an attack (Elder Root Guardian's Awakening): it takes its warning time and plays its pose, but no shape is drawn and nobody is hit.</summary>
+        public bool Transition;
         /// <summary>Venom Drain (WantedVenomDrain): only POISONED heroes inside the shape are hit, their poison is removed, and the boss heals
         /// DrainHealShare of the HP really taken, at most DrainHealCap x its max HP per cast. Not picked while no poisoned hero is inside.</summary>
         public bool DrainPoisoned;

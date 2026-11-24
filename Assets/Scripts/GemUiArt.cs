@@ -45,9 +45,22 @@ namespace ZenoniaProto
             Sprite s;
             if (Portraits.TryGetValue(c.Id, out s) && s != null) return s;
             var tex = Resources.Load<Texture2D>(PortraitFolder + c.Id);
-            s = tex != null ? Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect) : null;
+            s = tex != null ? Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect) : TaurusSheetFace(c);
             Portraits[c.Id] = s;
             return s;
+        }
+
+        /// <summary>
+        /// TEMP until the ChatGPT card portraits of the Taurus cards are drawn (phase 04): the first frame (down-facing, top-left 192 px cell) of the Taurus monster sheet. Null when the card has no
+        /// monster sheet yet or Unity has not imported the sheet. TODO: delete when Resources/Sprites/monsters/card-portraits/tau*.png exist.
+        /// </summary>
+        static Sprite TaurusSheetFace(CardDef c)
+        {
+            if (!c.Id.StartsWith("tau")) return null;
+            MonsterDef def = MonsterDef.ByType(c.MonsterId); // monsters of phase 05 / 06 have no def yet: their sheet sits at taurus/<id>/<id> by the same convention
+            var tex = Resources.Load<Texture2D>("Sprites/monsters/" + (def != null && def.SheetFile != null ? def.SheetFile : "taurus/" + c.Id + "/" + c.Id));
+            if (tex == null || tex.width < 192 || tex.height < 192) return null;
+            return Sprite.Create(tex, new Rect(0, tex.height - 192, 192, 192), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
         }
 
         /// <summary>Puts a piece on an image (9-sliced by its borders, else whole with its aspect). A missing piece clears the image.</summary>

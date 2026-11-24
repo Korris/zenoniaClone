@@ -28,7 +28,7 @@ namespace ZenoniaProto
             MonsterDef m = d.MonsterType != null ? MonsterDef.ByType(d.MonsterType) : null;
             if (m != null)
             {
-                string sheet = Monster.SheetUsable(m.Sheet, WalkCell) ? m.Sheet : m.FallbackSheet;
+                string sheet = Monster.SheetUsable(m.File, WalkCell) ? m.File : m.FallbackSheet;
                 walk = SpriteSheet.Grid("Sprites/monsters/" + sheet, WalkCell, WalkCell, GameConfig.FramePpu, new Vector2(0.5f, 0f));
                 attack = SpriteSheet.Grid("Sprites/monsters/" + sheet + "-attack", AttackCell, AttackCell, GameConfig.FramePpu, new Vector2(0.5f, 32f / AttackCell));
                 scale = d.HeightUnits / Mathf.Max(1f, m.BodyHeightUnits); // the monster's body at scale 1 is BodyHeightUnits tall

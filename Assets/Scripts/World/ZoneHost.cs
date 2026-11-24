@@ -18,7 +18,7 @@ namespace ZenoniaProto
         readonly Dictionary<string, Zone> byMap = new Dictionary<string, Zone>();
 
         public IReadOnlyList<Zone> Zones { get { return zones; } }
-        /// <summary>Where new heroes begin: Oakhaven (World Map 2.0 step 1, 13/11/2026) unless the server was started with --map.</summary>
+        /// <summary>Where new heroes begin: MapRegistry.StartMapId (Taurus V4; Oakhaven before 24/11/2026) unless the server was started with --map.</summary>
         public Zone Start { get; private set; }
         /// <summary>Server clock in ms, shared by every zone. double: a float loses whole milliseconds after a few hours of uptime, and the duel clocks (turn 20 s, reconnect 60 s, pick 30 s) are compared in ms.</summary>
         public double ClockMs { get; private set; }
@@ -32,9 +32,8 @@ namespace ZenoniaProto
         public static ZoneHost CreateDedicated(Transform world, string startMapName)
         {
             var host = new ZoneHost();
-            // World Map 2.0 step 1 (13/11/2026): new heroes begin at Oakhaven, not MapRegistry's own default (Frost Hollow, which the headless bench / Editor tests still rely on
-            // for MapRegistry.Current elsewhere), unless --map overrides it below.
-            IGameMap start = MapRegistry.Get(OakhavenVillageMap.MapId) ?? MapRegistry.Current;
+            // Taurus V4: new heroes begin on MapRegistry.StartMapId, not MapRegistry's own default (Frost Hollow with --legacy-maps), unless --map overrides it below.
+            IGameMap start = MapRegistry.Get(MapRegistry.StartMapId) ?? MapRegistry.Current;
             if (!string.IsNullOrEmpty(startMapName))
             {
                 IGameMap named = MapRegistry.FindLaunch(startMapName);

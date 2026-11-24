@@ -109,13 +109,12 @@ namespace ZenoniaProto
         }
 
         /// <summary>
-        /// Offline: a saved hero resumes on the map it was saved on (older saves have no village and were in Frost Hollow), a new character starts in the
-        /// village; `--map` and online play keep the current map. The saved spot is used only on its own map and only while still walkable.
+        /// Offline: a saved hero resumes on the map it was saved on (an unknown / switched-off map = no saved spot), a new character starts on MapRegistry.StartMapId; `--map` and online play keep the current map. The saved spot is used only on its own map and only while still walkable.
         /// </summary>
         void RestoreMapAndPosition(HeroController hero, SaveData save)
         {
-            string savedMap = save != null && save.hasPosition ? (string.IsNullOrEmpty(save.mapId) ? FrostHollowLayout.MapId : save.mapId) : null;
-            string want = NetMode.IsOffline && !MapRegistry.Forced ? (savedMap ?? OakhavenVillageMap.MapId) : MapRegistry.Current.Id;
+            string savedMap = save != null && save.hasPosition && MapRegistry.Get(save.mapId) != null ? save.mapId : null; // a map that is off (pre-Taurus) counts as no saved spot
+            string want = NetMode.IsOffline && !MapRegistry.Forced ? (savedMap ?? MapRegistry.StartMapId) : MapRegistry.Current.Id;
             bool switched = want != MapRegistry.Current.Id;
             if (switched) MapTransfer.Instant(want);
             if (savedMap == MapRegistry.Current.Id && !FrostHollowMap.RectBlocked(save.x - 5f, save.y, 10f, 8f)) hero.Teleport(new Vector2(save.x, save.y), 0);

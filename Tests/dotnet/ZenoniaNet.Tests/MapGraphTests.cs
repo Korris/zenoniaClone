@@ -57,7 +57,21 @@ public class MapGraphTests
     }
 
     [Fact]
-    public void EveryMapIsReachableFromTheDefaultStart()
+    public void EveryLiveMapIsReachableFromTheStartMap_AndOnlyLiveMapsAreWhenLegacyIsOff()
+    {
+        var seen = new HashSet<string> { MapRegistry.StartMapId };
+        var open = new Queue<IGameMap>();
+        open.Enqueue(MapRegistry.Get(MapRegistry.StartMapId));
+        while (open.Count > 0)
+            foreach (MapPortal p in open.Dequeue().PortalsFor(true))
+                if (seen.Add(p.TargetMapId)) open.Enqueue(MapRegistry.Get(p.TargetMapId));
+        foreach (IGameMap map in MapRegistry.Live) Assert.True(seen.Contains(map.Id), map.Id + " cannot be reached from the start map");
+        foreach (IGameMap map in MapRegistry.Live) Assert.DoesNotContain(map.Id, System.Linq.Enumerable.Select(MapRegistry.Legacy, m => m.Id)); // no id shared with a pre-Taurus map
+        foreach (IGameMap map in MapRegistry.Live) Assert.All(map.Portals, p => Assert.Contains(MapRegistry.Live, m => m.Id == p.TargetMapId)); // a live map never leads into the old world
+    }
+
+    [Fact]
+    public void EveryLegacyMapIsReachableFromFrostHollow()
     {
         var seen = new HashSet<string>();
         var open = new Queue<IGameMap>();
@@ -66,7 +80,7 @@ public class MapGraphTests
         while (open.Count > 0)
             foreach (MapPortal p in open.Dequeue().PortalsFor(true))
                 if (seen.Add(p.TargetMapId)) open.Enqueue(MapRegistry.Get(p.TargetMapId));
-        foreach (IGameMap map in MapRegistry.All) Assert.True(seen.Contains(map.Id), map.Id + " cannot be reached through any portal");
+        foreach (IGameMap map in MapRegistry.Legacy) Assert.True(seen.Contains(map.Id), map.Id + " cannot be reached through any portal");
     }
 
     [Fact]

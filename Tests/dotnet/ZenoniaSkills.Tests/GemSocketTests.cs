@@ -102,7 +102,7 @@ public class GemSocketTests
                 foreach (bool locked in new[] { false, true })
                     if (q.Cards.AddGem(c.Id, k, locked)) rows++;
         Assert.Equal(CardCollection.MaxGemRows, rows);
-        Assert.Equal(CardTable.Count * 4, CardCollection.MaxGemRows);
+        Assert.True(CardTable.LiveCount * 4 <= CardCollection.MaxGemRows); // the live game never reaches it; 160 = the 40 pre-Taurus cards x 4 (server-api GEM_MAX_ROWS is the same number)
     }
 
     // ---- socket ----

@@ -198,5 +198,70 @@
     "id": "duneGolem",
     "rarity": "SR",
     "isBoss": false
+  },
+  {
+    "id": "tauCloverSlime",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "tauHornRabbit",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "tauReedFrog",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "tauMossMushroom",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "tauBrambleBoar",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "tauLeafMantis",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "tauRootling",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "tauAmberSporeling",
+    "rarity": "N",
+    "isBoss": false
+  },
+  {
+    "id": "tauThornSprite",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "tauAncientBarkling",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "tauRuneBarkGuardian",
+    "rarity": "R",
+    "isBoss": false
+  },
+  {
+    "id": "tauElderRootGuardian",
+    "rarity": "SR",
+    "isBoss": true
+  },
+  {
+    "id": "tauBramblebackMatriarch",
+    "rarity": "R",
+    "isBoss": true
   }
 ]

@@ -17,6 +17,14 @@ namespace ZenoniaProto.Rpg
     {
         public static readonly double[] Rates = PetRules.GachaRates;
 
+        /// <summary>
+        /// Taurus V4 (24/11/2026): the old 8-pet pool is OFF in the live game (Pull / ExchangeUr refuse), only WorldFlags.LegacyEnabled opens it.
+        /// TODO phase 08: replace the pool with the two Taurus pets only (Horn Rabbit N, Bramble Boar R: new `tau` ids, PetConfig defs + art) and drop this gate.
+        /// Class companions (Spirit / Imp, PetDef.Legacy) are not part of the gacha and stay as they are.
+        /// </summary>
+        public static bool Open { get { return WorldFlags.LegacyEnabled; } }
+        public const string ClosedText = "The pet gacha is closed until the Taurus pets arrive";
+
         /// <summary>The rarity of the next pull from the pity counters and one roll in [0, 1); null = the shard result.</summary>
         public static PetRarity? RollRarity(int pitySSR, int pityUR, double roll, out bool byPity)
         {
@@ -86,6 +94,7 @@ namespace ZenoniaProto.Rpg
         /// <summary>x1 or x10: spends the coins, then pulls one by one (pity per pull). Fails and changes nothing without enough coins.</summary>
         public static ActionResult Pull(AccountState a, int count, Rand rng, long nowMs, List<PullResult> results)
         {
+            if (!Open) return ActionResult.Fail(ClosedText);
             if (count != 1 && count != PetRules.MaxPullsAtOnce) return ActionResult.Fail("Pull 1 or 10");
             if (a.tickets < count) return ActionResult.Fail("Not enough gacha coins");
             a.tickets -= count;
@@ -118,6 +127,7 @@ namespace ZenoniaProto.Rpg
         /// <summary>120 UR shards for Frostfang King, when the account does not own it.</summary>
         public static ActionResult ExchangeUr(AccountState a)
         {
+            if (!Open) return ActionResult.Fail(ClosedText);
             PetDef d = PetConfig.Get(PetRules.UrExchangePet);
             if (a.OwnsPet(d.Id)) return ActionResult.Fail("Already owned");
             if (a.urShards < PetRules.UrExchangeCost) return ActionResult.Fail("Needs " + PetRules.UrExchangeCost + " UR shards");

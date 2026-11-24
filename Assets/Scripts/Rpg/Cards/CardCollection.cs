@@ -22,7 +22,8 @@ namespace ZenoniaProto.Rpg
         public CardRankData Rank = new CardRankData();
         /// <summary>Bit per first-time hint already shown (phase 08). Bit 0 = the guided tour of More > Cards (CardTutorial).</summary>
         public int Help;
-        public const int HelpTutorial = 1, HelpPvpRisk = 2, HelpMask = 3; // bit 1 = the first PvP duel's risk box was confirmed
+        public const int HelpTutorial = 1, HelpPvpRisk = 2, HelpGuidance = 4, HelpMask = 7; // bit 1 = the first PvP risk box was confirmed, bit 2 = Orin's Guidance accepted (auto Hint in his duels)
+        public int OrinLosses;                      // consecutive duels with Orin not won this session (not saved, OrinGuidance)
 
         public int Count(string id) { int n; return id != null && cards.TryGetValue(id, out n) ? n : 0; }
         /// <summary>Lock Card is on for this kind: none of its copies can be sold or converted (they can still go in the duel deck).</summary>
@@ -43,7 +44,8 @@ namespace ZenoniaProto.Rpg
 
         public int OwnedKinds { get { return cards.Count; } }
         public bool InAlbum(string id) { int i = CardTable.Index(id); return i >= 0 && album[i]; }
-        public int AlbumCount { get { int n = 0; for (int i = 0; i < album.Length; i++) if (album[i]) n++; return n; } }
+        /// <summary>Different Taurus cards ever owned (the 40 pre-Taurus cards are hidden from the Album and do not count; their marks stay in the save).</summary>
+        public int AlbumCount { get { int n = 0; for (int i = 0; i < album.Length; i++) if (album[i] && CardTable.IsLive(CardTable.All[i])) n++; return n; } }
         public IEnumerable<KeyValuePair<string, int>> Cards { get { return cards; } }
         public IList<GemEntry> Gems { get { return gems; } }
 

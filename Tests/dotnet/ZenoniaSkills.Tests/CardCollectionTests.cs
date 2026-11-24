@@ -16,15 +16,17 @@ public class CardCollectionTests
         return SaveSerializer.Restore(d);
     }
 
-    static void FillAlbum(PlayerState p, int n) { for (int i = 0; i < n; i++) p.AddCard(CardTable.All[i].Id); }
+    static void FillAlbum(PlayerState p, int n) { for (int i = 0; i < n; i++) p.AddCard(CardTable.All[CardTable.LiveStart + i].Id); } // the Taurus cards, in table order
 
     [Fact]
     public void AddCountsCopiesAndMarksTheAlbumOnce()
     {
         var p = Hero();
-        Assert.True(p.AddCard("meadowSlime"));   // first time in the Album
-        Assert.False(p.AddCard("meadowSlime"));
-        Assert.Equal(2, p.Cards.Count("meadowSlime"));
+        Assert.True(p.AddCard("tauCloverSlime"));   // first time in the Album
+        Assert.False(p.AddCard("tauCloverSlime"));
+        Assert.Equal(2, p.Cards.Count("tauCloverSlime"));
+        Assert.Equal(1, p.Cards.AlbumCount);
+        Assert.True(p.AddCard("meadowSlime"));      // a pre-Taurus card is owned but hidden from the Album: it does not count
         Assert.Equal(1, p.Cards.AlbumCount);
         Assert.False(p.AddCard("notACard"));
         Assert.Equal(0, p.Cards.Count("notACard"));
@@ -65,7 +67,7 @@ public class CardCollectionTests
         Assert.False(c.AddGem("nope", GemKind.Power, false));
         var big = Hero().Cards;
         for (int i = 0; i < CardTable.Count; i++) foreach (GemKind k in new[] { GemKind.Power, GemKind.Guard }) { big.AddGem(CardTable.All[i].Id, k, false); big.AddGem(CardTable.All[i].Id, k, true); }
-        Assert.Equal(CardCollection.MaxGemRows, big.Gems.Count);       // 160: every card x kind x locked
+        Assert.Equal(CardCollection.MaxGemRows, big.Gems.Count);       // every card x kind x locked
         Assert.True(big.AddGem("meadowSlime", GemKind.Power, false)); // an existing stack still grows
     }
 
@@ -73,22 +75,22 @@ public class CardCollectionTests
     public void EveryCardFieldSurvivesSaveAndLoad()
     {
         var p = Hero();
-        p.Cards.Add("meadowSlime", 3); p.Cards.Add("frostfangKing"); p.Cards.Add("duneGolem", 2);
-        p.Cards.Remove("duneGolem", 2);                       // gone from the bag, still in the Album
+        p.Cards.Add("tauCloverSlime", 3); p.Cards.Add("tauElderRootGuardian"); p.Cards.Add("tauRootling", 2);
+        p.Cards.Remove("tauRootling", 2);                       // gone from the bag, still in the Album
         p.Cards.AddGem("snowFox", GemKind.Guard, true, 2);
-        p.Cards.Deck.AddRange(new[] { "meadowSlime", "meadowSlime", "frostfangKing" });
+        p.Cards.Deck.AddRange(new[] { "tauCloverSlime", "tauCloverSlime", "tauElderRootGuardian" });
         p.Cards.Daily = new CardDailyData { day = 20000, npcWins = 2, pvpRewards = 3, wagers = 1 };
         p.Cards.NpcFirstWins = 5;
         p.Cards.Rank = new CardRankData { season = 2, mmr = 1500, lp = 40, wins = 7, losses = 3, draws = 1, best = 1610, prevBest = 820, rewards = 6 };
 
         PlayerState q = RoundTrip(p);
-        Assert.Equal(3, q.Cards.Count("meadowSlime"));
-        Assert.Equal(1, q.Cards.Count("frostfangKing"));
-        Assert.Equal(0, q.Cards.Count("duneGolem"));
-        Assert.True(q.Cards.InAlbum("duneGolem"));
+        Assert.Equal(3, q.Cards.Count("tauCloverSlime"));
+        Assert.Equal(1, q.Cards.Count("tauElderRootGuardian"));
+        Assert.Equal(0, q.Cards.Count("tauRootling"));
+        Assert.True(q.Cards.InAlbum("tauRootling"));
         Assert.Equal(3, q.Cards.AlbumCount);
         Assert.Equal(2, q.Cards.GemCount("snowFox", GemKind.Guard, true));
-        Assert.Equal(new[] { "meadowSlime", "meadowSlime", "frostfangKing" }, q.Cards.Deck.ToArray());
+        Assert.Equal(new[] { "tauCloverSlime", "tauCloverSlime", "tauElderRootGuardian" }, q.Cards.Deck.ToArray());
         Assert.Equal(20000, q.Cards.Daily.day); Assert.Equal(2, q.Cards.Daily.npcWins); Assert.Equal(3, q.Cards.Daily.pvpRewards); Assert.Equal(1, q.Cards.Daily.wagers);
         Assert.Equal(5, q.Cards.NpcFirstWins);
         Assert.Equal(2, q.Cards.Rank.season); Assert.Equal(1500, q.Cards.Rank.mmr); Assert.Equal(40, q.Cards.Rank.lp);
@@ -100,7 +102,7 @@ public class CardCollectionTests
     {
         var p = Hero();
         Assert.Equal(0, p.Cards.Help);
-        Assert.False(CardOps.MarkHelp(p, 4).Ok);                    // not a known hint bit (bit 1 = PvP risk is known since the Orin tutorial)
+        Assert.False(CardOps.MarkHelp(p, 8).Ok);                    // not a known hint bit (bit 1 = PvP risk is known since the Orin tutorial)
         Assert.False(CardOps.MarkHelp(p, 0).Ok);
         Assert.Equal(0, p.Cards.Help);
         Assert.True(CardOps.MarkHelp(p, CardCollection.HelpTutorial).Ok);
@@ -144,20 +146,20 @@ public class CardCollectionTests
     public void LoadDropsUnknownAndForgedData()
     {
         SaveData d = SaveSerializer.Capture(Hero(), false, 0f, 0f, false, 1);
-        d.cards = new List<CardEntry> { new CardEntry { id = "ghost", n = 5 }, new CardEntry { id = "meadowSlime", n = 5000 }, new CardEntry { id = "thornBoar", n = -2 } };
+        d.cards = new List<CardEntry> { new CardEntry { id = "ghost", n = 5 }, new CardEntry { id = "tauCloverSlime", n = 5000 }, new CardEntry { id = "thornBoar", n = -2 } };
         d.gems = new List<GemEntry> { new GemEntry { id = "ghost", kind = 0, n = 1 }, new GemEntry { id = "snowFox", kind = 7, n = 1 } };
-        d.album = new List<int> { -1, 99, 3 };
+        d.album = new List<int> { -1, 99, 43 };
         d.albumClaimed = 0xFF;                       // claims with no cards behind them
-        d.cardDeck = new List<string> { "meadowSlime", "frostfangKing", "meadowSlime" };
+        d.cardDeck = new List<string> { "tauCloverSlime", "tauElderRootGuardian", "tauCloverSlime" };
         d.cardDaily = null; d.cardRank = null;
         PlayerState p = SaveSerializer.Restore(SaveSerializer.Parse(SaveSerializer.ToJson(d)));
-        Assert.Equal(CardTable.MaxStack, p.Cards.Count("meadowSlime"));
+        Assert.Equal(CardTable.MaxStack, p.Cards.Count("tauCloverSlime"));
         Assert.Equal(0, p.Cards.Count("thornBoar"));
         Assert.Empty(p.Cards.Gems);
-        Assert.Equal(2, p.Cards.AlbumCount);          // index 3 (from the list) + meadowSlime (owned)
+        Assert.Equal(2, p.Cards.AlbumCount);          // index 43 = tauMossMushroom (from the list) + meadowSlime (owned)
         Assert.Equal(0, p.Cards.AlbumClaimed);
-        Assert.Equal(new[] { "meadowSlime", "meadowSlime" }.Length, p.Cards.Deck.Count);  // frostfangKing is not owned, so out of the deck
-        Assert.DoesNotContain("frostfangKing", p.Cards.Deck);
+        Assert.Equal(new[] { "tauCloverSlime", "tauCloverSlime" }.Length, p.Cards.Deck.Count);  // frostfangKing is not owned, so out of the deck
+        Assert.DoesNotContain("tauElderRootGuardian", p.Cards.Deck);
         Assert.Equal(0, p.Cards.Daily.day); Assert.Equal(0, p.Cards.Rank.mmr);
     }
 
@@ -167,20 +169,20 @@ public class CardCollectionTests
         var p = Hero();
         int gold = p.Gold;
         Assert.False(AlbumRules.Claim(p, 0).Ok);       // 0 cards
-        FillAlbum(p, 9);
+        FillAlbum(p, 2);
         Assert.False(AlbumRules.Claim(p, 0).Ok);
-        FillAlbum(p, 10);
+        FillAlbum(p, 3);
         ActionResult r = AlbumRules.Claim(p, 0);
         Assert.True(r.Ok);
-        Assert.Equal(gold + AlbumRules.Gold10, p.Gold);
+        Assert.Equal(gold + AlbumRules.Gold[0], p.Gold);
         Assert.False(AlbumRules.Claim(p, 0).Ok);       // once only
-        Assert.Equal(gold + AlbumRules.Gold10, p.Gold);
-        Assert.False(AlbumRules.Claim(p, 1).Ok);       // 20 needs 20
+        Assert.Equal(gold + AlbumRules.Gold[0], p.Gold);
+        Assert.False(AlbumRules.Claim(p, 1).Ok);       // 6 needs 6
         Assert.False(AlbumRules.Claim(p, 4).Ok);
         Assert.False(AlbumRules.Claim(p, -1).Ok);
-        FillAlbum(p, 40);
+        FillAlbum(p, CardTable.LiveCount);
         for (int m = 1; m < 4; m++) { Assert.True(AlbumRules.Claim(p, m).Ok); Assert.True(AlbumRules.Claimed(p.Cards, m)); }
-        Assert.Equal(gold + AlbumRules.Gold10, p.Gold);  // 20 / 30 / 40 are flags only
+        Assert.Equal(gold + AlbumRules.Gold[0] + AlbumRules.Gold[1] + AlbumRules.Gold[2] + AlbumRules.Gold[3], p.Gold);
         Assert.Equal(0xF, RoundTrip(p).Cards.AlbumClaimed);
     }
 
@@ -188,11 +190,11 @@ public class CardCollectionTests
     public void SellingEveryCopyNeverTakesTheAlbumOrAClaimAway()
     {
         var p = Hero();
-        FillAlbum(p, 10);
+        FillAlbum(p, 3);
         Assert.True(AlbumRules.Claim(p, 0).Ok);
-        foreach (CardDef c in CardTable.All.Take(10)) p.Cards.Remove(c.Id);
+        foreach (CardDef c in CardTable.All.Skip(CardTable.LiveStart).Take(3)) p.Cards.Remove(c.Id);
         PlayerState q = RoundTrip(p);
-        Assert.Equal(10, q.Cards.AlbumCount);
+        Assert.Equal(3, q.Cards.AlbumCount);
         Assert.True(AlbumRules.Claimed(q.Cards, 0));
     }
 }

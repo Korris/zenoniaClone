@@ -10,7 +10,7 @@ namespace ZenoniaProto
     /// The duel with Card Master Orin on the battle screen (tutorial and practice), everything the shared board adds for it. No turn clock and no stakes (DuelView.Npc): the timer ring is hidden, the state pill
     /// shares its row with a Hint button. While the scripted tutorial runs (View.ScriptStep > 0) a lesson panel takes the Battle Log's place (title and text from DuelTutorialScript, one source), a gold ring marks
     /// the card to pick and the cell to tap, and any other card / cell is refused here (the server refuses too). Free play: Hint asks DuelNpcAi (the same brain as Orin, careful mode) for one move and rings it.
-    /// The result adds one line (return the deck to Orin / practice only) and a "Talk to Orin" button after the tutorial. Only pieces of the card kit; the board and hand are the shared ones.
+    /// The result adds one line (won: choose your reward at Orin / not won: try again, nothing lost / practice only) and a "Talk to Orin" (won) or "Try again" (not won) button after the tutorial. Only pieces of the card kit; the board and hand are the shared ones.
     /// </summary>
     public sealed partial class CardDuelBattleView
     {
@@ -64,6 +64,7 @@ namespace ZenoniaProto
                 markHand = v.Hand.IndexOf(CardTable.Index(s.CardId)); markCell = s.Cell; lessonLock = markHand >= 0;
                 if (lessonLock) selected = markHand; // the lesson's card is the selected one (no other card can be picked)
             }
+            else if (s == null && hintVersion != DuelClient.Version && OrinGuidance.Accepted(PetActions.Me != null ? PetActions.Me.Cards : null)) { if (AskHint(v)) { markHand = hintHand; markCell = hintCell; } } // Orin's Guidance: the Hint shows by itself each free turn
             else if (s == null && hintVersion == DuelClient.Version) { markHand = hintHand; markCell = hintCell; }
         }
 
@@ -76,12 +77,17 @@ namespace ZenoniaProto
 
         void OnHint()
         {
-            DuelView v = DuelClient.View;
+            if (AskHint(DuelClient.View)) Redraw(DuelClient.View);
+        }
+
+        /// <summary>The Hint's move for this turn (the Hint button, or Orin's Guidance on its own): stores it for the rings and the words. False when there is nothing to hint now.</summary>
+        bool AskHint(DuelView v)
+        {
             int h, c;
-            if (v == null || !v.Npc || !v.YourTurn || v.Finished || Animating(v) || !DuelNpcAi.Best(v.Board(), v.Hand, DuelView.Me, null, true, out h, out c)) return;
+            if (v == null || !v.Npc || !v.YourTurn || v.Finished || Animating(v) || !DuelNpcAi.Best(v.Board(), v.Hand, DuelView.Me, null, true, out h, out c)) return false;
             hintVersion = DuelClient.Version; hintHand = h; hintCell = c; selected = h;
             hintFlips = DuelBoard.PopCount(v.Board().PreviewFlips(DuelView.Me, v.Hand[h], c));
-            Redraw(v);
+            return true;
         }
 
         /// <summary>Capture only (--duel-npc hint): taps Hint.</summary>
@@ -91,7 +97,7 @@ namespace ZenoniaProto
         string HintLine(DuelView v)
         {
             if (!v.Npc || hintVersion != DuelClient.Version || !v.YourTurn || hintHand >= v.Hand.Count) return null;
-            return "Hint: " + CardName(v.Hand[hintHand]) + " at " + DuelBoard.Coord(hintCell) + (hintFlips > 0 ? ", flips " + hintFlips : ", no flips yet");
+            return (OrinGuidance.Accepted(PetActions.Me != null ? PetActions.Me.Cards : null) ? "Orin's guidance: " : "Hint: ") + CardName(v.Hand[hintHand]) + " at " + DuelBoard.Coord(hintCell) + (hintFlips > 0 ? ", flips " + hintFlips : ", no flips yet");
         }
 
         void DrawLesson(DuelView v, DuelScriptStep s)
@@ -142,14 +148,14 @@ namespace ZenoniaProto
 
         // ---- the result ----
 
-        /// <summary>What the quest says now (the quest state reaches the client before the final view): hand the deck back, cut short (play again), or practice.</summary>
+        /// <summary>What the quest says now (the quest state reaches the client before the final view): won (hand in), not won (play again), or practice.</summary>
         static CardDuelQuest.EndNote NpcEnd()
         {
             QuestLog log = QuestTracker.Log;
             return log == null ? CardDuelQuest.EndNote.Practice : CardDuelQuest.NoteFor(log.StateOf(CardDuelQuest.First));
         }
 
-        /// <summary>A tutorial that ended without the quest moving (death, hostile map, idle): not "You left the duel".</summary>
+        /// <summary>A tutorial that was left by a forced drop (death, hostile map, idle), not by the player (the quest did not move either way): not "You left the duel".</summary>
         static bool NpcCutShort(DuelView v) { return v.Npc && v.EndReason == 1 && NpcEnd() == CardDuelQuest.EndNote.CutShort; }
 
         /// <summary>The quest line of the result of a duel with Orin. Empty for any other duel.</summary>
@@ -158,8 +164,8 @@ namespace ZenoniaProto
             if (!v.Npc) return "";
             switch (NpcEnd())
             {
-                case CardDuelQuest.EndNote.HandIn: return "\nReturn the borrowed deck to Orin for your reward.";
-                case CardDuelQuest.EndNote.CutShort: return "\nTalk to Orin to play it again.";
+                case CardDuelQuest.EndNote.HandIn: return "\nTalk to Orin and choose your reward card.";
+                case CardDuelQuest.EndNote.CutShort: return "\nTry again! Nothing was lost, the borrowed cards are Orin's.";
                 default: return "\nPractice only, nothing won or lost.";
             }
         }
@@ -167,8 +173,10 @@ namespace ZenoniaProto
         /// <summary>Tutorial result: Continue (back to the deck page) and Talk to Orin side by side; every other result keeps the single centred Continue.</summary>
         void LayoutBannerButtons(DuelView v)
         {
-            bool two = v.Npc && NpcEnd() == CardDuelQuest.EndNote.HandIn;
+            CardDuelQuest.EndNote note = v.Npc ? NpcEnd() : CardDuelQuest.EndNote.Practice;
+            bool two = note != CardDuelQuest.EndNote.Practice; // won: choose the reward; not won: play again (the same conversation, his Duel question)
             talkOrin.Root.gameObject.SetActive(two);
+            if (two) talkOrin.Set(note == CardDuelQuest.EndNote.HandIn ? "Talk to Orin" : "Try again", true);
             bannerButton.Root.anchoredPosition = new Vector2(two ? 65f : (MidW - 40f - 190f) * 0.5f, bannerButton.Root.anchoredPosition.y);
         }
 

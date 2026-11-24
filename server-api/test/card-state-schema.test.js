@@ -19,13 +19,16 @@ const full = () => ({
 });
 
 describe('card ids', () => {
-  it('mirror the C# table: 40 unique ids, bosses SSR', async () => {
-    expect(CARD_COUNT).toBe(40);
-    expect(new Set(CARD_IDS).size).toBe(40);
+  it('mirror the C# table: 53 unique ids (40 pre-Taurus + 12 Taurus + the Matriarch field boss card, appended), old bosses SSR, the Taurus boss SR', async () => {
+    expect(CARD_COUNT).toBe(53);
+    expect(new Set(CARD_IDS).size).toBe(53);
     expect(CARD_IDS[0]).toBe('meadowSlime');
+    expect(CARD_IDS.slice(40, 46)).toEqual(['tauCloverSlime', 'tauHornRabbit', 'tauReedFrog', 'tauMossMushroom', 'tauBrambleBoar', 'tauLeafMantis']); // Orin's starter cards + Boar; append-only indexes
     const table = (await import('../src/rpg/card-ids.json', { with: { type: 'json' } })).default;
-    expect(table.filter((c) => c.isBoss).map((c) => c.id).sort()).toEqual(['ambercapWarden', 'frostfangKing', 'mirefangHydra', 'rimeclawTyrant', 'thornfangAlpha']);
-    for (const c of table) expect(c.isBoss).toBe(c.rarity === 'SSR');
+    expect(table.filter((c) => c.isBoss).map((c) => c.id).sort()).toEqual(['ambercapWarden', 'frostfangKing', 'mirefangHydra', 'rimeclawTyrant', 'tauBramblebackMatriarch', 'tauElderRootGuardian', 'thornfangAlpha']);
+    for (const c of table.slice(0, 40)) expect(c.isBoss).toBe(c.rarity === 'SSR');
+    expect(table.find((c) => c.id === 'tauElderRootGuardian').rarity).toBe('SR');
+    expect(table[52]).toEqual({ id: 'tauBramblebackMatriarch', rarity: 'R', isBoss: true });
   });
 });
 
@@ -40,7 +43,8 @@ describe('state schema: card fields', () => {
     expect(stateSchema.parse({ ...base(), version: 6, cardHelp: 1 }).cardHelp).toBe(1);
     expect(stateSchema.parse({ ...base(), version: 6, cardHelp: 2 }).cardHelp).toBe(2); // bit 1 = first PvP risk box confirmed
     expect(stateSchema.parse({ ...base(), version: 6, cardHelp: 3 }).cardHelp).toBe(3);
-    expect(() => stateSchema.parse({ ...base(), version: 6, cardHelp: 4 })).toThrow();
+    expect(stateSchema.parse({ ...base(), version: 7, cardHelp: 7 }).cardHelp).toBe(7); // bit 2 = Orin Guidance accepted
+    expect(() => stateSchema.parse({ ...base(), version: 6, cardHelp: 8 })).toThrow();
   });
 
   it('keeps the first-card-duel quest in every state (free-form quest id)', () => {
@@ -67,9 +71,9 @@ describe('state schema: card fields', () => {
     expect(s.cards).toEqual([{ id: 'meadowSlime', n: 3, locked: 0 }]);
   });
 
-  it('accepts save version 6 and rejects 7', () => {
-    expect(stateSchema.safeParse({ ...base(), version: 6 }).success).toBe(true);
-    expect(stateSchema.safeParse({ ...base(), version: 7 }).success).toBe(false);
+  it('accepts save version 7 and rejects 8', () => {
+    expect(stateSchema.safeParse({ ...base(), version: 7 }).success).toBe(true);
+    expect(stateSchema.safeParse({ ...base(), version: 8 }).success).toBe(false);
   });
 
   it.each([
@@ -78,11 +82,11 @@ describe('state schema: card fields', () => {
     ['a lock value above 1 (the lock is a flag per card kind)', { cards: [{ id: 'meadowSlime', n: 2, locked: 2 }] }],
     ['a negative lock', { cards: [{ id: 'meadowSlime', n: 2, locked: -1 }] }],
     ['a stack over 999', { cards: [{ id: 'meadowSlime', n: 1000 }] }],
-    ['more than 40 card rows', { cards: Array.from({ length: 41 }, () => ({ id: 'meadowSlime', n: 1 })) }],
+    ['more than 53 card rows', { cards: Array.from({ length: 54 }, () => ({ id: 'meadowSlime', n: 1 })) }],
     ['an unknown gem card', { gems: [{ id: 'ghost', kind: 0, locked: false, n: 1 }] }],
     ['a gem kind 2', { gems: [{ id: 'snowFox', kind: 2, locked: false, n: 1 }] }],
     ['more than the gem row limit', { gems: Array.from({ length: GEM_MAX_ROWS + 1 }, () => ({ id: 'snowFox', kind: 0, locked: false, n: 1 })) }],
-    ['an album index of 40', { album: [40] }],
+    ['an album index of 53', { album: [53] }],
     ['an album claim bit past the 4 milestones', { albumClaimed: 1 << ALBUM_MILESTONES }],
     ['a 9-card deck', { cardDeck: Array.from({ length: 9 }, () => 'meadowSlime') }],
     ['an unknown deck card', { cardDeck: ['ghost'] }],

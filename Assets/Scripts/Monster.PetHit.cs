@@ -14,6 +14,7 @@ namespace ZenoniaProto
             if (IsDying || proxy || dmg <= 0) return;
             if (owner != null && !owner.IsDead) target = owner;
             hp -= dmg;
+            provoked = true;
             if (state == State.Idle || state == State.Wander || state == State.Return) { state = State.Chase; timer = 0f; }
             HitFx(dmg, Vector2.zero, false, false, false, !NetMode.IsOffline && owner != LocalPlayer.Hero, petKind);
             NetEventBus.MonsterHit(this, owner, dmg, Vector2.zero, false, false, false, petKind);

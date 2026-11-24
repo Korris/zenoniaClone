@@ -123,7 +123,7 @@ public class CardLockAndOverflowTests
     public void TheAlbumGoldRewardNeverPassesTheGoldCap()
     {
         var p = Hero();
-        for (int i = 0; i < 10; i++) p.AddCard(CardTable.All[i].Id);
+        for (int i = 0; i < 3; i++) p.AddCard(CardTable.All[CardTable.LiveStart + i].Id);
         p.Gold = PlayerState.GoldCap - 100;
         Assert.False(AlbumRules.Claim(p, 0).Ok); // refused, like Sell: the reward is not cut and the milestone stays claimable
         Assert.Equal(PlayerState.GoldCap - 100, p.Gold);
@@ -146,6 +146,7 @@ public class CardLockAndOverflowTests
     {
         // KillRewards.Resolve returns early for a monster without a loot def: its card would never fall
         foreach (CardDef card in CardTable.All) Assert.True(LootTable.For(card.MonsterId) != null, card.Id + " has no LootTable entry");
+        Assert.NotNull(LootTable.For("tauCloverSlime"));
     }
 
     [Fact]

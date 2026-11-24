@@ -32,6 +32,8 @@ namespace ZenoniaProto
         static readonly Kind IceCrystal = new Kind(0x79C6D9, 3.6f, 0.68f, 0.04f, 3.2f, 1.0f), TealCrystal = new Kind(0x58B9B5, 3.0f, 0.56f, 0.04f, 3.6f, 0.6f), // review: -20 %
             IceWall = new Kind(0x79C6D9, 2.4f, 0.40f, 0.03f, 4.0f, 1.2f), IceShards = new Kind(0xBAF2EF, 1.4f, 0.30f, 0.06f, 2.8f, 0.2f),
             ArenaRim = new Kind(0x79C6D9, 3.4f, 0.75f, 0.04f, 3.0f, 1.4f);
+        /// <summary>Ancient Root Shrine (phase 06): the Memory Amber glows warm gold #E4B76A, the sanctuary core the same but wider, the rune neck before the boss arena teal #70D3C4 (ChatGPT part2 I.1 palette).</summary>
+        static readonly Kind MemoryAmber = new Kind(0xE4B76A, 5.0f, 0.85f, 0.05f, 3.0f, 0.6f), SanctuaryCore = new Kind(0xE4B76A, 7.0f, 0.7f, 0.04f, 3.4f, 1.0f), RuneNeck = new Kind(0x70D3C4, 3.6f, 0.6f, 0.05f, 3.0f, 0.3f);
         /// <summary>Soft light carried with the local hero (user 21/11: "giống ở trong hang", the cave stays dark but the own hero must read):
         /// always one of the 16 lights, no floor pool, no flicker.</summary>
         static readonly Kind HeroGlow = new Kind(0xD8E2FF, 3.4f, 0.40f, 0f, 3f);
@@ -67,6 +69,13 @@ namespace ZenoniaProto
             {
                 foreach (Vector2 c in new[] { new Vector2(23.5f, 7.5f), new Vector2(32.5f, 7.5f), new Vector2(23.5f, 16.5f), new Vector2(32.5f, 16.5f) })
                     yield return new KeyValuePair<Vector2, Kind>(c, ArenaRim);
+                yield break;
+            }
+            if (mapId == TauAncientRootShrineMap.MapId)                                            // the amber, the neck rune, the sanctuary core (Elder Root Guardian's home)
+            {
+                yield return new KeyValuePair<Vector2, Kind>(new Vector2(44.0f, 48.0f), MemoryAmber);
+                yield return new KeyValuePair<Vector2, Kind>(new Vector2(76.0f, 31.5f), RuneNeck);
+                yield return new KeyValuePair<Vector2, Kind>(new Vector2(76.0f, 8.0f), SanctuaryCore);
                 yield break;
             }
             if (mapId != RootburrowB3Map.MapId) yield break;                                       // V4: both bosses live on 3F

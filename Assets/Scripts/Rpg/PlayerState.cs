@@ -38,7 +38,6 @@ namespace ZenoniaProto.Rpg
         {
             ClassId = RpgClasses.Get(classId).Id;
             Skills = new SkillRanks(ClassId); Loadout = new SkillLoadout();
-            Quests.HasCards = () => Cards.AlbumCount > 0; // QuestDef.NeedsCard: the Album remembers the first card for good
             Appearance = CharacterAppearanceData.Unset(ClassId);
             RecomputeStats();
             Hp = MaxHp; Mp = MaxMp;

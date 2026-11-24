@@ -29,6 +29,20 @@ namespace ZenoniaProto.Rpg
         /// <summary>Sand Wraith (Lv 27): throws a sand orb with a turquoise core (its art, cut from the attack sheet); a little slower and heavier than the feather.</summary>
         public static readonly MonsterRangedProfile SandWraithOrb = new MonsterRangedProfile
             { Range = 100f, ProjectileSpeed = 115f, MaxTravel = 150f, HitSize = 8f, ColorRgb = 0xE8C77A, Sprite = "sand-wraith-orb" };
+
+        /// <summary>Taurus Moss Mushroom (Lv 5, C05): a pale green spore, slow enough to step aside (the hero walks about 60 units / s), 4 tiles of reach, a single bolt that leaves nothing on the ground.
+        /// Sprite null = drawn as a particle comet (MonsterShotParticles), no painted picture (CLAUDE.md: skill / attack FX are particles, not sprites).</summary>
+        public static readonly MonsterRangedProfile SporeShot = new MonsterRangedProfile
+            { Range = 60f, ProjectileSpeed = 85f, MaxTravel = 96f, HitSize = 6f, ColorRgb = 0xB8E6A0, Sprite = null };
+
+        /// <summary>Taurus Thorn Sprite (Lv 9, C09): a bright thorn seed, straight, not homing; a little faster than the spore and a longer reach (5 tiles).</summary>
+        public static readonly MonsterRangedProfile ThornSeed = new MonsterRangedProfile
+            { Range = 84f, ProjectileSpeed = 120f, MaxTravel = 124f, HitSize = 6f, ColorRgb = 0xC8F07A, Sprite = null };
+
+        /// <summary>Taurus Amber Sporeling (Lv 9, Ancient Root Shrine Area 02): a pale gold glowing spore (part2 II: "bào tử phát sáng màu vàng nhạt"), straight, slow enough to sidestep, 4.5 tiles of reach.
+        /// Sprite null = particle comet (MonsterShotParticles).</summary>
+        public static readonly MonsterRangedProfile AmberSpore = new MonsterRangedProfile
+            { Range = 72f, ProjectileSpeed = 95f, MaxTravel = 110f, HitSize = 6f, ColorRgb = 0xF6DE8A, Sprite = null };
     }
 
     public enum MonsterShotEnd { Flying, Hit, Wall, Expired }

@@ -6,8 +6,8 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// The offline stand-in for DuelService.Npc: ONLY the duel with Card Master Orin (tutorial / practice; PvP and Ranked stay online-only). The same checks (safe map, alive, no hit in the last 5 s, Orin in reach,
-    /// the quest in the right state) and the same DuelNpcSession as the zone, for the one local hero; answers go straight to DuelClient. When the tutorial ends (played out or given up) the quest moves to hand-in
-    /// and the character file is written (RpgSession.SaveNow). A hero who dies, walks onto a hostile map or is swapped for another character drops the duel without moving the quest.
+    /// the quest in the right state) and the same DuelNpcSession as the zone, for the one local hero; answers go straight to DuelClient. When the tutorial is WON the quest moves to hand-in
+    /// and the character file is written (RpgSession.SaveNow); a loss, draw or give-up leaves it Active (play again). A hero who dies, walks onto a hostile map or is swapped for another character drops the duel without moving the quest.
     /// </summary>
     public static class LocalDuelHost
     {
@@ -42,7 +42,7 @@ namespace ZenoniaProto
                     break;
                 case DuelOp.Forfeit:
                     if (!Running) { Refuse(DuelFail.NoMatch); break; }
-                    run.Forfeit(); // giving up the tutorial counts like a loss: the quest still moves
+                    run.Forfeit(); // giving up counts like a loss: the quest stays Active
                     Publish();
                     break;
             }
@@ -61,7 +61,7 @@ namespace ZenoniaProto
             QuestState quest = p.Quests.StateOf(CardDuelQuest.First);
             if (mode == 0 ? quest != QuestState.Active : quest != QuestState.Done) { Refuse(DuelFail.NoQuest); return; }
             ulong seed = (ulong)System.DateTime.UtcNow.Ticks ^ ((ulong)Random.Range(1, int.MaxValue) << 20);
-            run = mode == 0 ? DuelNpcSession.Tutorial(NowMs) : DuelNpcSession.Practice(seed, DuelNpcSession.PracticeDeck(p.Cards), NowMs);
+            run = mode == 0 ? DuelNpcSession.Tutorial(NowMs, seed) : DuelNpcSession.Practice(seed, DuelNpcSession.PracticeDeck(p.Cards), NowMs);
             owner = p;
             DuelClient.Apply(run.View(NowMs));
         }
@@ -88,7 +88,7 @@ namespace ZenoniaProto
             if (run == null) return;
             DuelView v = run.View(NowMs);
             // the quest moves BEFORE the final view is shown (as on the zone): the result banner reads the quest state
-            if (run.Mode == DuelNpcMode.Tutorial && run.TakeResult() != null)
+            if (run.Mode == DuelNpcMode.Tutorial && run.TakeResult() == DuelResult.Win)
             {
                 if (RpgSession.Owner != null) RpgSession.Owner.QuestCardDuel(); // QuestChanged -> the quest tracker + hand-in banner
                 if (RpgSession.Instance != null) RpgSession.Instance.SaveNow();

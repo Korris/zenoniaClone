@@ -20,19 +20,21 @@ namespace ZenoniaProto.Rpg
         public string WaypointId;
         /// <summary>A card-duel quest (the first duel with Card Master Orin): done when the server / offline host finishes that duel (QuestLog.CountCardDuel). MonsterType stays null, Count 1.</summary>
         public bool CardDuel;
-        /// <summary>Only offered once the character owns its first card (the Album has an entry). A quest already taken stays reachable.</summary>
-        public bool NeedsCard;
+        /// <summary>An enhance quest (Taurus Q03A, Bram): done by the first successful weapon / off-hand enhance after taking it (QuestLog.CountEnhance), or at once when the character already holds a +1 piece. MonsterType stays null, Count 1.</summary>
+        public bool Enhance;
         /// <summary>Card ids handed out at the turn-in, one copy each.</summary>
         public string[] RewardCards;
+        /// <summary>The player picks ONE of these cards at the turn-in (InvOp.QuestTurnIn Slot = index; the authority checks the index against this list, never a card id from the client).</summary>
+        public string[] RewardPickCards;
         public string[] OfferLines, ActiveLines, ReadyLines, DoneLines;
 
         /// <summary>MonsterType of a quest that counts every monster kill.</summary>
         public const string AnyMonster = "*";
 
         /// <summary>"Defeat Frost Slime", or the reach objective's own text.</summary>
-        public string Objective { get { return WaypointId != null || CardDuel ? MonsterName : "Defeat " + MonsterName; } }
+        public string Objective { get { return WaypointId != null || CardDuel || Enhance ? MonsterName : "Defeat " + MonsterName; } }
 
-        public bool Counts(string monsterType) { return WaypointId == null && !CardDuel && (MonsterType == AnyMonster || MonsterType == monsterType); }
+        public bool Counts(string monsterType) { return WaypointId == null && !CardDuel && !Enhance && (MonsterType == AnyMonster || MonsterType == monsterType); }
 
         /// <summary>"+30 G, Small Iron Helmet" for this class: chat line, quest list, completion toast.</summary>
         public string RewardText(string classId)
@@ -43,6 +45,7 @@ namespace ZenoniaProto.Rpg
             if (RewardHpPotions > 0) parts.Add("+" + RewardHpPotions + " HP potions");
             if (RewardStarterHat) parts.Add(HeadgearCatalog.StarterFor(classId).Name);
             if (RewardCards != null) foreach (string id in RewardCards) { CardDef c = CardTable.Get(id); if (c != null) parts.Add(c.Name + " card"); }
+            if (RewardPickCards != null) parts.Add("1 card of your choice");
             return string.Join(", ", parts);
         }
     }
@@ -52,13 +55,33 @@ namespace ZenoniaProto.Rpg
     /// <summary>What a quest giver shows above its head and on the minimap: "?" = a quest to take, "!" = a quest to hand in.</summary>
     public enum QuestMarker { None, Available, Ready }
 
-    /// <summary>Every quest in the game. The zone server checks a request against this and the distance to the giver.</summary>
+    /// <summary>
+    /// Every quest in the game. The zone server checks a request against this and the distance to the giver.
+    /// Taurus V4 (24/11/2026): <see cref="Live"/> holds the Taurus quests (phase 02 on); the pre-Taurus quests sit in <see cref="Legacy"/> and are only in <see cref="All"/>
+    /// when WorldFlags.LegacyEnabled is set, so their AutoStart / kill counting / givers are off in the live game.
+    /// </summary>
     public static class QuestCatalog
     {
         /// <summary>World units a player may stand from the giver: the talk range plus some slack for movement the server saw last (same as PotionShops).</summary>
         public const float ReachUnits = 44f;
 
-        public static readonly QuestDef[] All =
+        /// <summary>The Taurus quests (TaurusQuests: Elder Rowan's meadow trial, Bram's first upgrade, Orin's first deck, Orin's first duel).</summary>
+        public static readonly QuestDef[] Live = TaurusQuests.All;
+
+        static QuestDef[] allWithLegacy;
+        /// <summary>The quests in play: Live, plus Legacy when WorldFlags.LegacyEnabled.</summary>
+        public static QuestDef[] All
+        {
+            get
+            {
+                if (!WorldFlags.LegacyEnabled) return Live;
+                if (allWithLegacy == null) { var l = new List<QuestDef>(Live); l.AddRange(Legacy); allWithLegacy = l.ToArray(); }
+                return allWithLegacy;
+            }
+        }
+
+        /// <summary>The pre-Taurus quests: compiled and tested, not offered in the live game.</summary>
+        public static readonly QuestDef[] Legacy =
         {
             // Newbie quest (user decision 19/11/2026, hat sources): the first 5 kills of any monster, the class starter hat as the gift.
             // AutoStart (user decision 19/11/2026): counts from a new character's very first kill, no talk with the Elder first; he only takes the hand-in.
@@ -92,7 +115,6 @@ namespace ZenoniaProto.Rpg
                 ReadyLines = new[] { "You did it! The mines are quiet again.", "Please take this as thanks. Use the stones well, traveller." },
                 DoneLines = new[] { "Thank you again. The hollow is safer thanks to you." },
             },
-            CardDuelQuest.First, // appended last: Card Master Orin's tutorial duel (only offered after the first card)
         };
 
         public static QuestDef Get(string id)
@@ -125,9 +147,6 @@ namespace ZenoniaProto.Rpg
     public sealed class QuestLog
     {
         readonly List<QuestEntry> entries = new List<QuestEntry>();
-
-        /// <summary>Set by PlayerState: true once the character owns / has owned any card (QuestDef.NeedsCard). Null (a bare log) = never.</summary>
-        public Func<bool> HasCards;
 
         public QuestLog() { StartAutoQuests(); }
 
@@ -163,7 +182,6 @@ namespace ZenoniaProto.Rpg
         public bool Unlocked(QuestDef q)
         {
             if (q == null) return false;
-            if (q.NeedsCard && StateOf(q) == QuestState.Available && (HasCards == null || !HasCards())) return false;
             if (q.Requires == null) return true;
             QuestDef before = QuestCatalog.Get(q.Requires);
             return before != null && StateOf(before) == QuestState.Done;
@@ -207,7 +225,20 @@ namespace ZenoniaProto.Rpg
             return moved;
         }
 
-        /// <summary>The first duel with Card Master Orin ended: an active card-duel quest is complete. True when any quest moved.</summary>
+        /// <summary>A weapon / off-hand enhance succeeded (the authority confirmed it): an active enhance quest is complete. True when any quest moved.</summary>
+        public bool CountEnhance()
+        {
+            bool moved = false;
+            foreach (QuestEntry e in entries)
+            {
+                QuestDef q = QuestCatalog.Get(e.id);
+                if (e.state != (int)QuestState.Active || q == null || !q.Enhance) continue;
+                e.progress = q.Count; e.state = (int)QuestState.ReadyToTurnIn; moved = true;
+            }
+            return moved;
+        }
+
+        /// <summary>The first duel with Card Master Orin was WON (a loss, draw or give-up never calls this): an active card-duel quest is complete. True when any quest moved.</summary>
         public bool CountCardDuel()
         {
             bool moved = false;

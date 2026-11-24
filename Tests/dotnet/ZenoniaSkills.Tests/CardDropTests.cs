@@ -19,6 +19,7 @@ public class CardDropTests
     [InlineData("frostSlime", 50)]       // R 0.5 %
     [InlineData("duneGolem", 20)]        // SR 0.2 %
     [InlineData("frostfangKing", 300)]   // boss 3 %
+    [InlineData("tauBramblebackMatriarch", 200)] // Field Boss card 2 % (ChatGPT)
     public void TenThousandRollsHitTheTargetRate(string monster, int expected)
     {
         Assert.Equal(expected, Drops(monster, 10000, Even(10000)));

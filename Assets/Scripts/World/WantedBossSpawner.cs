@@ -21,7 +21,7 @@ namespace ZenoniaProto
 
         public static void Attach(GameObject spawnerObject, Zone zone, string mapId)
         {
-            if (zone == null || NetMode.IsOffline || !NetMode.IsAuthority) return;
+            if (zone == null || !WantedBoss.Enabled || NetMode.IsOffline || !NetMode.IsAuthority) return;
             WantedBossSpawner w = spawnerObject.AddComponent<WantedBossSpawner>();
             w.homeZone = zone; w.mapId = mapId;
             zone.WantedSpawner = w;

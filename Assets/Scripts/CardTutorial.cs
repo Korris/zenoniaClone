@@ -7,7 +7,7 @@ namespace ZenoniaProto
 {
     /// <summary>
     /// The first-time guided hint of the Monster Card system (phase 08): 4 short steps (cards drop from monsters; More > Cards and My Cards; the Album; the first duel with Orin) in a small panel at the top
-    /// centre. Offered once per character: after the first card drop (CardToast) or the first time the Card window opens (CardWindow), whichever comes first. While the window is open
+    /// centre. Offered once per character, once Orin's first-deck quest is Done: when the 5 starter cards arrive (QuestTracker), else after a card drop (CardToast) or the next time the Card window opens (CardWindow). While the window is open
     /// steps 2 and 3 also point an arrow at the My Cards / Monster Album menu entry. Finishing or skipping stores the flag with the character (InvOp.CardHelp -> CardCollection.Help), so it
     /// never shows again, on any device; a session guard stops it popping up again before the server answered.
     /// </summary>
@@ -20,7 +20,7 @@ namespace ZenoniaProto
             "Monsters can drop a card of their own kind when they fall. Every card you get is kept for your character.",
             "Open the More column of the HUD and tap Cards. My Cards lists every copy you hold: pick one to see its numbers, lock it or sell spares.",
             "The Monster Album marks each monster the first time you hold its card. Fill it to claim milestone rewards. Spare cards become Soul Gems.",
-            "Card Master Orin, by Oakhaven's south gate, lends you a deck for a first practice duel. Talk to him when you are ready."
+            "Card Master Orin, at the Card Corner of Willowbrook, lends you 3 cards to fill a deck of 8 for a first practice duel. Win it and pick a card of his as your reward."
         };
 
         const float ClosedTop = 160f, OpenTop = 6f; // below the toast / menu row over the HUD; over the window's title row when the Card window is open
@@ -36,11 +36,21 @@ namespace ZenoniaProto
         static bool Pending()
         {
             PlayerState p = PetActions.Me;
-            return p != null && (p.Cards.Help & CardCollection.HelpTutorial) == 0 && !offeredThisSession;
+            return p != null && (p.Cards.Help & CardCollection.HelpTutorial) == 0 && !offeredThisSession && DeckQuestDone(p);
         }
 
-        /// <summary>A card just dropped: the first time ever, show the hint.</summary>
+        /// <summary>Taurus V4: the walkthrough belongs to Orin's first-deck quest, it never shows before the 5 starter cards were handed over.</summary>
+        static bool DeckQuestDone(PlayerState p)
+        {
+            QuestDef q = QuestCatalog.Get(TaurusQuests.FirstDeckId);
+            return q != null && p.Quests.StateOf(q) == QuestState.Done;
+        }
+
+        /// <summary>A card just dropped: show the hint if the character has not seen it and already holds Orin's deck.</summary>
         public static void OfferAfterDrop() { if (Pending()) Show(); }
+
+        /// <summary>Orin just handed over the 5 starter cards (quest Done): the walkthrough starts now.</summary>
+        public static void OfferAfterDeck() { if (Pending()) Show(); }
 
         /// <summary>The Card window just opened (called after it is raised over the HUD).</summary>
         public static void OfferOnWindowOpen()

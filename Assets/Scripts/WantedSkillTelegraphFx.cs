@@ -42,7 +42,7 @@ namespace ZenoniaProto
         {
             if (!NetMode.RendersFx || Zone.Main == null) return;
             WantedSkillDef[] table = WantedSkillTable.For(bossId);
-            if (table == null || skillId < 0 || skillId >= table.Length) return;
+            if (table == null || skillId < 0 || skillId >= table.Length || table[skillId].Transition) return; // a phase change draws no danger shape
             var go = new GameObject("WantedTelegraph");
             go.transform.SetParent(Zone.Main.Root, false);
             go.transform.position = new Vector3(origin.x, origin.y, 0f);

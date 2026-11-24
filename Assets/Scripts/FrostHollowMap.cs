@@ -15,8 +15,10 @@ namespace ZenoniaProto
         public struct Zone
         {
             public string Type; public int Count, Tx, Ty, W, H; public float RespawnMs;
-            public Zone(string type, int count, int tx, int ty, int w, int h, float respawnMs)
-            { Type = type; Count = count; Tx = tx; Ty = ty; W = w; H = h; RespawnMs = respawnMs; }
+            /// <summary>Taurus C01: its monsters only fight back (Monster.Passive): no aggro until hit.</summary>
+            public bool Passive;
+            public Zone(string type, int count, int tx, int ty, int w, int h, float respawnMs, bool passive = false)
+            { Type = type; Count = count; Tx = tx; Ty = ty; W = w; H = h; RespawnMs = respawnMs; Passive = passive; }
         }
 
         /// <summary>Spawn zones of the web map (tile rect, count, respawn delay): the old valley in the north-west corner of the 72x48 map. The clusters of the rest are MapSpawnTable.FrostHollowOuter.</summary>

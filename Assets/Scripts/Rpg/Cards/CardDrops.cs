@@ -9,12 +9,13 @@ namespace ZenoniaProto.Rpg
         /// <summary>Rollback switch: false = no card ever drops (cards already owned stay).</summary>
         public static bool Enabled = true;
 
-        public const double ChanceN = 0.01, ChanceR = 0.005, ChanceSR = 0.002, ChanceBoss = 0.03;
+        public const double ChanceN = 0.01, ChanceR = 0.005, ChanceSR = 0.002, ChanceBoss = 0.03, ChanceFieldBoss = 0.02;
 
         /// <summary>Drop chance of a card per kill of its monster.</summary>
         public static double Chance(CardDef card)
         {
             if (card == null) return 0.0;
+            if (card.Region == CardTable.FieldBossRegion) return ChanceFieldBoss; // Matriarch: 2 % (ChatGPT field boss sheet)
             if (card.IsBoss) return ChanceBoss;
             switch (card.Rarity)
             {

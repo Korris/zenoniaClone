@@ -89,6 +89,35 @@ namespace ZenoniaProto.Rpg
                 TelegraphMs = 2800, CooldownMs = 28000, DamageMult = 2.5f, StatusKind = StatusKind.Slow, StatusValue = 40f, StatusMs = 3000, CastRow = 2, Enrage = true },
         };
 
+        /// <summary>
+        /// Brambleback Matriarch, Clover Meadows field boss TAU-FB01 (ChatGPT docs/reference/world-design/taurus-field-boss-chatgpt.txt; numbers = H 20.5 units, 16 units per tile): Bramble Charge (rectangle 1.4H wide, 4H long, 1.1 s
+        /// warning, locked direction, 0.5 s dash, 12 s) and Thorn Stomp (circle 1.8H round the boss, 1.4 s, 16 s). The plain melee (Heavy Tusk, 0.4 s windup) is the monster's ordinary attack. No enrage skill: Bramble Fury is a
+        /// look only (the badge below 30 % HP). Cast row -1: no dedicated cast picture yet (temporary boar stand-in sheet).
+        /// </summary>
+        public static readonly WantedSkillDef[] BramblebackMatriarch =
+        {
+            new WantedSkillDef { Id = 0, Name = "Bramble Charge", Hint = "She paws the ground, then rushes in a straight line. Step to the side.", Shape = WantedAreaShape.Line, LengthTiles = 5.1f, WidthTiles = 1.8f,
+                TelegraphMs = 1100, CooldownMs = 12000, DamageMult = 1.5f, KnockbackTiles = 1f, ChargeMs = 500, CastRow = -1, PoseSheetSuffix = "-charge" },
+            new WantedSkillDef { Id = 1, Name = "Thorn Stomp", Hint = "She stomps and thorns burst around her. Back out of the circle.", Shape = WantedAreaShape.Circle, RadiusTiles = 2.3f,
+                TelegraphMs = 1400, CooldownMs = 16000, DamageMult = 1.3f, KnockbackTiles = 1f, CastRow = -1, PoseSheetSuffix = "-stomp" },
+        };
+
+        /// <summary>
+        /// Elder Root Guardian, the Ancient Root Shrine boss (ChatGPT part2 III + part3 XIII + the animation spec): Root Slam is its plain attack (MonsterDef windup 0.5 s). Ancient Sweep: cone 120 degrees, 1.2 s warning,
+        /// about 10 s (9-12). Amber Pulse: circle round the body, 1.5 s, about 16 s (14-18). Awakening: once, below 30 % HP, a 1.0 s phase change (the boss stands still, the core flares, nobody is hit) after which
+        /// every gap and cooldown is 13 % shorter (MonsterDef.EnrageRate 0.87, "10-15 %", damage does not grow). Radii in tiles: the boss is 3.75H tall (77 units), its arms reach 5 tiles, the pulse spans 5.5 tiles.
+        /// Pose sheets: -sweep / -pulse / -awaken (F1-F2 warning, F3 impact, F4 hold).
+        /// </summary>
+        public static readonly WantedSkillDef[] ElderRootGuardian =
+        {
+            new WantedSkillDef { Id = 0, Name = "Ancient Sweep", Hint = "He spreads his huge arms and sweeps a wide fan in front of him. Slip behind or beside him.", Shape = WantedAreaShape.Cone, RadiusTiles = 5f, AngleDeg = 120f,
+                TelegraphMs = 1200, CooldownMs = 10000, DamageMult = 1.5f, KnockbackTiles = 1.2f, CastRow = -1, PoseSheetSuffix = "-sweep" },
+            new WantedSkillDef { Id = 1, Name = "Amber Pulse", Hint = "The amber core flares and a ring of energy bursts round his body. Run out of the circle.", Shape = WantedAreaShape.Circle, RadiusTiles = 5.5f,
+                TelegraphMs = 1500, CooldownMs = 16000, DamageMult = 1.4f, KnockbackTiles = 1f, CastRow = -1, PoseSheetSuffix = "-pulse" },
+            new WantedSkillDef { Id = 2, Name = "Awakening", Hint = "Below 30% HP the core blazes and he fights faster. Hold on.", Shape = WantedAreaShape.Circle, RadiusTiles = 1f,
+                TelegraphMs = 1000, CooldownMs = 3600000, DamageMult = 0f, CastRow = -1, PoseSheetSuffix = "-awaken", Enrage = true, Transition = true },
+        };
+
         /// <summary>The skill table (4 skills; Mire Hydra Queen 5) of a wanted boss type, or null when it has none (every other monster).</summary>
         public static WantedSkillDef[] For(string bossType)
         {
@@ -99,6 +128,8 @@ namespace ZenoniaProto.Rpg
                 case "mireHydraQueen": return MireHydraQueen;
                 case "ambercapWarden": return AmbercapWarden;
                 case "aetherglyphOwl": return AetherglyphOwl;
+                case "tauBramblebackMatriarch": return BramblebackMatriarch;
+                case "tauElderRootGuardian": return ElderRootGuardian;
                 default: return null;
             }
         }

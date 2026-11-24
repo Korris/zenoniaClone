@@ -74,6 +74,8 @@ namespace ZenoniaProto
         {
             switch (id)
             {
+                case "tauCloverMeadows": return "Meadows"; // tab width: "Clover Meadows" wrapped to two lines
+                case "tauAncientRootShrine": return "Root Shrine";
                 case "willowbrookMeadows": return "Willowbrook";
                 case "bramblewoodForest": return "Bramblewood";
                 case "rootburrow": return "Rootburrow";

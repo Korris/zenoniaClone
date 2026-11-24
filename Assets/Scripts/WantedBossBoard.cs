@@ -27,7 +27,7 @@ namespace ZenoniaProto
         public static WantedBoardData? Current()
         {
             HeroController h = GameSession.Hero;
-            if (NetMode.IsOffline || h == null || h.Rpg == null) return null;
+            if (!WantedBoss.Enabled || NetMode.IsOffline || h == null || h.Rpg == null) return null;
             WantedBossDef d = WantedBoss.Today(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             return new WantedBoardData
             {

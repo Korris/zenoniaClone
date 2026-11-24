@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using ZenoniaProto.Rpg;
 
@@ -13,6 +14,15 @@ public class DuelTutorialScriptTests
             Assert.Equal(DeckError.None, DeckRules.Validate(deck, null, true));
             foreach (string id in deck) Assert.Equal(CardRarity.N, CardTable.Get(id).Rarity);
         }
+    }
+
+    [Fact]
+    public void PlayerDeckIsTheFiveStarterCardsPlusThreeBorrowedAndOrinsDeckIsTheRewardList()
+    {
+        Assert.Equal(TaurusQuests.StarterCards.Concat(DuelTutorialScript.Borrowed).OrderBy(x => x), DuelTutorialScript.PlayerDeck.OrderBy(x => x));
+        Assert.Equal(3, DuelTutorialScript.Borrowed.Length);
+        Assert.Empty(DuelTutorialScript.Borrowed.Intersect(TaurusQuests.StarterCards)); // the borrowed 3 are the cards the player does NOT get at the first quest
+        Assert.Equal(DuelTutorialScript.OrinDeck.OrderBy(x => x), CardDuelQuest.First.RewardPickCards.OrderBy(x => x));
     }
 
     [Fact]

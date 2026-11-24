@@ -11,6 +11,7 @@ namespace ZenoniaProto
     public static class MapSpawnTable
     {
         public const string AmberDunesId = "amberDunes", FrostfangDenId = "frostfangDen", EmberfenMarshId = "emberfenMarsh", SunkenReliquaryId = "sunkenReliquary", WillowbrookMeadowsId = "willowbrookMeadows";
+        public const string TauWillowbrookVillageId = "tauWillowbrookVillage", TauCloverMeadowsId = "tauCloverMeadows", TauAncientRootShrineId = "tauAncientRootShrine";
         public const string BramblewoodForestId = "bramblewoodForest", RootburrowId = "rootburrow", Rootburrow2Id = "rootburrow2", Rootburrow3Id = "rootburrow3", ThornheartChamberId = "thornheartChamber";
         static readonly Vector2Int BramblewoodForestBossTile = new Vector2Int(24, 18), ThornheartChamberBossTile = new Vector2Int(12, 5), RootburrowBossTile = new Vector2Int(38, 21);
         const float EntranceClearance = 80f; // units; just over the default aggro range, so nothing wakes up as the hero walks in
@@ -33,7 +34,7 @@ namespace ZenoniaProto
         public const float DungeonRespawnMs = 25000f, DungeonBossRespawnMs = 5f * 60f * 1000f;
 
         /// <summary>How long after its death the map's boss returns online.</summary>
-        public static float BossRespawnMs(string mapId) { return mapId == FrostfangDenId || mapId == ThornheartChamberId || mapId == Rootburrow3Id ? DungeonBossRespawnMs : BossRespawnTimer.DefaultRespawnMs; }
+        public static float BossRespawnMs(string mapId) { return mapId == FrostfangDenId || mapId == ThornheartChamberId || mapId == Rootburrow3Id || mapId == TauAncientRootShrineId ? DungeonBossRespawnMs : BossRespawnTimer.DefaultRespawnMs; }
 
         /// <summary>A few guards on the way to the boss: Lv16 goblins in the north cave, Lv18 wolves in the south cave (World Map 2.0 step 1, 13/11/2026 moved both from Lv2 to fill the Lv16-20
         /// band; Glacier Warden stays Lv20). The arena itself only holds the boss.</summary>
@@ -214,10 +215,58 @@ namespace ZenoniaProto
             return all;
         }
 
+        /// <summary>
+        /// Taurus V4 Clover Meadows, the 10 camps of BIBLE part1 V.3 (68 monsters, no boss among them), the level climbing from the gate in the south to the Ancient Roots in the north (rects: Tools/build-tau-greybox-rows.py
+        /// checks them against the rows: all open ground, off the road by at least the aggro range, 5+ tiles from the gate, twice as many free tiles as monsters, buffer by level step). C01 Cloverfield A: 9 Slimes that only fight
+        /// back (passive); C02 Cloverfield B 7 Slimes; C03 Rabbit Hills 8 Horn Rabbits; C04 Brookside 4 Reed Frogs + 2 Slimes (one rect, two entries); C05 Mushroom Grove 8 Moss Mushrooms; C06 / C07 Bramble Thicket A / B (8 Boars;
+        /// 3 Boars + 3 Mantises); C08 Elderwood Edge 3 Mantises + 3 Rootlings; C09 / C10 Ancient Roots A / B (5 Thorn Sprites, 5 Ancient Barklings). Respawn per BIBLE: 12 / 12 / 16 / 18 / 20 / 24 / 25 / 26 / 28 / 30 s.
+        /// Leash is per species (MonsterDef: 4.5 / 5.5 / 6.5 tiles). The Brambleback Nest (boss) is in the north-west corner, no common monster inside.
+        /// </summary>
+        public static readonly FrostHollowMap.Zone[] TauCloverMeadows =
+        {
+            new FrostHollowMap.Zone("tauCloverSlime", 9, 37, 44, 11, 8, 12000f, true),  // C01
+            new FrostHollowMap.Zone("tauCloverSlime", 7, 59, 40, 12, 8, 12000f),        // C02
+            new FrostHollowMap.Zone("tauHornRabbit", 8, 58, 28, 12, 7, 16000f),         // C03 Rabbit Hills
+            new FrostHollowMap.Zone("tauReedFrog", 4, 29, 28, 12, 5, 18000f),           // C04 Brookside (frogs + slimes share the rect)
+            new FrostHollowMap.Zone("tauCloverSlime", 2, 29, 28, 12, 5, 18000f),
+            new FrostHollowMap.Zone("tauMossMushroom", 8, 55, 19, 12, 5, 20000f),       // C05 Mushroom Grove
+            new FrostHollowMap.Zone("tauBrambleBoar", 8, 14, 18, 12, 6, 24000f),        // C06 Bramble Thicket A
+            new FrostHollowMap.Zone("tauBrambleBoar", 3, 18, 5, 8, 5, 25000f),          // C07 Bramble Thicket B
+            new FrostHollowMap.Zone("tauLeafMantis", 3, 18, 5, 8, 5, 25000f),
+            new FrostHollowMap.Zone("tauLeafMantis", 3, 30, 5, 8, 5, 26000f),           // C08 Elderwood Edge
+            new FrostHollowMap.Zone("tauRootling", 3, 30, 5, 8, 5, 26000f),
+            new FrostHollowMap.Zone("tauThornSprite", 5, 42, 2, 8, 4, 28000f),          // C09 Ancient Roots A
+            new FrostHollowMap.Zone("tauAncientBarkling", 5, 64, 2, 9, 4, 30000f),      // C10 Ancient Roots B
+        };
+
+        /// <summary>Brambleback Nest, the Matriarch's home: the middle of the 12 x 10 clearing in the north-west corner (Tools/build-tau-greybox-rows.py NEST).</summary>
+        static readonly Vector2Int TauBramblebackNestTile = new Vector2Int(8, 5);
+
+        /// <summary>
+        /// Taurus V4 Ancient Root Shrine, 18 common monsters (BIBLE part2 II.1: Area 01 Rootling x3 + Ancient Barkling x3; Area 02 Amber Sporeling x4 + Thorn Sprite x3 + Rune Bark Guardian x2; the antechamber of Area 03
+        /// Rune Bark Guardian x3) + the Elder Root Guardian (BossFor). A public map, no instances: guards come back after 2 minutes (the plan's slow respawn), the boss after DungeonBossRespawnMs. Rects are checked against
+        /// the rows by Tools/build-tau-ancient-root-shrine-rows.py (open ground, twice as many tiles as monsters, 5+ tiles from the entrance).
+        /// </summary>
+        public static readonly FrostHollowMap.Zone[] TauAncientRootShrine =
+        {
+            new FrostHollowMap.Zone("tauRootling", 3, 11, 43, 6, 14, 120000f),             // Area 01 Tangled Root Passage
+            new FrostHollowMap.Zone("tauAncientBarkling", 3, 18, 45, 7, 12, 120000f),
+            new FrostHollowMap.Zone("tauAmberSporeling", 4, 46, 38, 10, 8, 120000f),       // Area 02 Amber Memory Hall
+            new FrostHollowMap.Zone("tauThornSprite", 3, 34, 50, 9, 7, 120000f),
+            new FrostHollowMap.Zone("tauRuneBarkGuardian", 2, 46, 51, 10, 8, 120000f),
+            new FrostHollowMap.Zone("tauRuneBarkGuardian", 3, 68, 34, 14, 4, 120000f),     // the antechamber in front of the sanctuary
+        };
+
+        /// <summary>The Elder Root Guardian's home: north half of the sanctuary ellipse (Tools/build-tau-ancient-root-shrine-rows.py BOSS); heroes come in from the south.</summary>
+        static readonly Vector2Int TauElderRootGuardianTile = new Vector2Int(75, 10);
+
         public static FrostHollowMap.Zone[] ZonesFor(string mapId)
         {
             switch (mapId)
             {
+                case TauWillowbrookVillageId: return NoZones;
+                case TauCloverMeadowsId: return TauCloverMeadows;
+                case TauAncientRootShrineId: return TauAncientRootShrine;
                 case AmberDunesId: return AmberDunes;
                 case FrostfangDenId: return FrostfangDen;
                 case EmberfenMarshId: return EmberfenMarsh;
@@ -241,7 +290,9 @@ namespace ZenoniaProto
         {
             switch (mapId)
             {
-                case AmberDunesId: case EmberfenMarshId: case WillowbrookMeadowsId: return null;
+                case AmberDunesId: case EmberfenMarshId: case WillowbrookMeadowsId: case TauWillowbrookVillageId: return null;
+                case TauAncientRootShrineId: return MonsterDef.TauElderRootGuardian; // story boss, back after DungeonBossRespawnMs
+                case TauCloverMeadowsId: return MonsterDef.TauBramblebackMatriarch; // TAU-FB01, the field boss (30 min respawn: BossRespawnMs default)
                 case FrostfangDenId: return MonsterDef.GlacierWarden;
                 case SunkenReliquaryId: return MonsterDef.MirefangHydra;
                 case RootburrowId: case Rootburrow2Id: return null;
@@ -260,6 +311,8 @@ namespace ZenoniaProto
             switch (mapId)
             {
                 case FrostfangDenId: return FrostfangDenBossTile;
+                case TauCloverMeadowsId: return TauBramblebackNestTile;
+                case TauAncientRootShrineId: return TauElderRootGuardianTile;
                 case SunkenReliquaryId: return SunkenReliquaryBossTile;
                 case BramblewoodForestId: return BramblewoodForestBossTile;
                 case ThornheartChamberId: return ThornheartChamberBossTile;
@@ -271,7 +324,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>True for a map with a boss of its own, whose kill is saved in SaveData.defeatedBossMaps; the king's kill stays in SaveData.bossDefeated.</summary>
-        public static bool HasOwnBoss(string mapId) { return mapId == FrostfangDenId || mapId == SunkenReliquaryId || mapId == BramblewoodForestId || mapId == ThornheartChamberId || mapId == SunbreakFoothillsId || mapId == ScorpionGorgeId; }
+        public static bool HasOwnBoss(string mapId) { return mapId == FrostfangDenId || mapId == SunkenReliquaryId || mapId == BramblewoodForestId || mapId == ThornheartChamberId || mapId == SunbreakFoothillsId || mapId == ScorpionGorgeId || mapId == TauCloverMeadowsId || mapId == TauAncientRootShrineId; }
 
         /// <summary>
         /// True when a spot of a table-driven map is too close to where heroes arrive (its portals, its start tile). Monsters are placed before the

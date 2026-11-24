@@ -58,6 +58,7 @@ namespace ZenoniaProto
         {
             if (!On || !hudShown || hero.IsDead) { SetVisible(false); return; }
             WantedBossDef boss = WantedBossTracker.Today;
+            if (boss == null) { SetVisible(false); return; }
             string map = MapRegistry.Current.Id;
             routeLeft -= Time.unscaledDeltaTime;
             if (map != routeFrom || boss.BossType != routeBoss || routeLeft <= 0f) FindTarget(hero, boss, map);

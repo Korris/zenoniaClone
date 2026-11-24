@@ -18,6 +18,11 @@ namespace ZenoniaProto.Rpg
         public double HpPotion = 0.15, MpPotion = 0.10, UpgradeStone = 0.05;
         public int StoneCount = 1;
         public bool IsBoss;
+        /// <summary>Field boss rule (Taurus Brambleback Matriarch): the equipment roll is `GearChance` of a `GearRarity` piece (not the normal 12 % random rarity); negative = the normal rule.</summary>
+        public double GearChance = -1;
+        public string GearRarity;
+        /// <summary>Field boss: every contributor with a valid damage share rolls and owns its own drop (KillRewards), instead of one pile owned by the top damage dealer.</summary>
+        public bool PersonalLoot;
     }
 
     /// <summary>Drop rolls on monster death (web systems/loot-system.js rollDrops + equipment-system rollEquipmentDrop). Pure, RNG injected.</summary>
@@ -86,6 +91,24 @@ namespace ZenoniaProto.Rpg
             { "rockBasilisk", new MonsterLootDef { Type = "rockBasilisk", Exp = 392, GoldMin = 28, GoldMax = 57, ItemLevel = 28 } },
             { "duneGolem", new MonsterLootDef { Type = "duneGolem", Exp = 406, GoldMin = 29, GoldMax = 59, ItemLevel = 29 } },
             { "duneDevourer", new MonsterLootDef { Type = "duneDevourer", Exp = 2801, GoldMin = 200, GoldMax = 407, ItemLevel = 30, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
+            // Taurus V4 (24/11/2026): Clover Slime Lv1, the same line (EXP 14L, gold L..2L+1), stone 5 % (default).
+            { "tauCloverSlime", new MonsterLootDef { Type = "tauCloverSlime", Exp = 14, GoldMin = 1, GoldMax = 3, ItemLevel = 1 } },
+            // Taurus V4 phase 05 (24/11/2026): the same line (EXP 14L, gold L..2L+1) x a role factor per species; the field boss (TAU-FB01) pays 3x the Lv9 boar's EXP, 2-3x its gold, an Upgrade Stone 35 %,
+            // an Uncommon piece 30 % of itemLevel 10 (one step above the map) and every contributor rolls its own pile (PersonalLoot). Bramble Hide / Matriarch Tusk materials and the Matriarch card: not in the item / card tables yet.
+            { "tauHornRabbit", new MonsterLootDef { Type = "tauHornRabbit", Exp = 42, GoldMin = 3, GoldMax = 7, ItemLevel = 3 } },
+            { "tauReedFrog", new MonsterLootDef { Type = "tauReedFrog", Exp = 56, GoldMin = 4, GoldMax = 9, ItemLevel = 4 } },
+            { "tauMossMushroom", new MonsterLootDef { Type = "tauMossMushroom", Exp = 70, GoldMin = 5, GoldMax = 11, ItemLevel = 5 } },
+            { "tauBrambleBoar", new MonsterLootDef { Type = "tauBrambleBoar", Exp = 101, GoldMin = 7, GoldMax = 15, ItemLevel = 6 } },
+            { "tauLeafMantis", new MonsterLootDef { Type = "tauLeafMantis", Exp = 113, GoldMin = 7, GoldMax = 15, ItemLevel = 7 } },
+            { "tauRootling", new MonsterLootDef { Type = "tauRootling", Exp = 146, GoldMin = 10, GoldMax = 21, ItemLevel = 8 } },
+            { "tauThornSprite", new MonsterLootDef { Type = "tauThornSprite", Exp = 139, GoldMin = 9, GoldMax = 19, ItemLevel = 9 } },
+            { "tauAncientBarkling", new MonsterLootDef { Type = "tauAncientBarkling", Exp = 224, GoldMin = 14, GoldMax = 30, ItemLevel = 10, UpgradeStone = 0.08 } },
+            { "tauBramblebackMatriarch", new MonsterLootDef { Type = "tauBramblebackMatriarch", Exp = 453, GoldMin = 28, GoldMax = 58, ItemLevel = 10, HpPotion = 0.6, MpPotion = 0.4, UpgradeStone = 0.35, StoneCount = 1,
+                GearChance = 0.30, GearRarity = "uncommon", PersonalLoot = true } },
+            // Ancient Root Shrine (phase 06): two dungeon mobs on the Lv9-10 line, and the story boss (a little stone, gold = dungeon reward; the Memory Amber Fragment is a quest flag, not an item)
+            { "tauAmberSporeling", new MonsterLootDef { Type = "tauAmberSporeling", Exp = 150, GoldMin = 10, GoldMax = 21, ItemLevel = 9, UpgradeStone = 0.05 } },
+            { "tauRuneBarkGuardian", new MonsterLootDef { Type = "tauRuneBarkGuardian", Exp = 246, GoldMin = 16, GoldMax = 33, ItemLevel = 10, UpgradeStone = 0.10 } },
+            { "tauElderRootGuardian", new MonsterLootDef { Type = "tauElderRootGuardian", Exp = 900, GoldMin = 90, GoldMax = 160, ItemLevel = 10, IsBoss = true, HpPotion = 1, MpPotion = 1, UpgradeStone = 1, StoneCount = 2 } },
         };
 
         public static MonsterLootDef For(string type) { MonsterLootDef d; return type != null && Table.TryGetValue(type, out d) ? d : null; }
@@ -106,11 +129,19 @@ namespace ZenoniaProto.Rpg
         public static List<LootEntry> RollAll(MonsterLootDef def, Rand rand)
         {
             List<LootEntry> drops = RollDrops(def, rand);
-            Item gear = ItemFactory.RollEquipmentDrop(def.ItemLevel, def.IsBoss, rand);
+            Item gear = def.GearChance >= 0 ? RollFieldBossGear(def, rand) : ItemFactory.RollEquipmentDrop(def.ItemLevel, def.IsBoss, rand);
             if (gear != null) drops.Add(new LootEntry { Kind = LootKind.Equipment, Item = gear });
             Item hat = HeadgearCatalog.RollMonsterDrop(def.Type, rand); // the species' signature hat (1-5 %); drawn last so the rolls above keep their order
             if (hat != null) drops.Add(new LootEntry { Kind = LootKind.Equipment, Item = hat });
             return drops;
+        }
+
+        /// <summary>Field boss gear: `GearChance` of one piece of `GearRarity` at the boss's itemLevel for a random class (null otherwise).</summary>
+        static Item RollFieldBossGear(MonsterLootDef def, Rand rand)
+        {
+            if (rand() >= def.GearChance) return null;
+            string dropClass = RpgClasses.Ids[(int)Math.Floor(rand() * RpgClasses.Ids.Length)];
+            return ItemFactory.Generate(rand, Math.Max(1, def.ItemLevel), null, def.GearRarity, dropClass);
         }
     }
 }

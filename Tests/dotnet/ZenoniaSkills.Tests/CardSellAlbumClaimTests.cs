@@ -90,7 +90,7 @@ public class CardSellAlbumClaimTests
     public void AlbumClaimIsRefusedWhenTheGoldWouldBeCutAndTheBitStaysFree()
     {
         PlayerState p = Hero();
-        foreach (CardDef c in CardTable.All.Take(10)) p.Cards.Add(c.Id, 1);
+        foreach (CardDef c in CardTable.All.Skip(CardTable.LiveStart).Take(3)) p.Cards.Add(c.Id, 1);
         p.Gold = PlayerState.GoldCap - 100;
         Assert.False(AlbumRules.Claim(p, 0).Ok);
         Assert.Equal(0, p.Cards.AlbumClaimed);
@@ -103,15 +103,15 @@ public class CardSellAlbumClaimTests
     public void AlbumClaimThroughTheOpPaysOnceAndChecksTheMilestone()
     {
         PlayerState p = Hero();
-        foreach (CardDef c in CardTable.All.Take(9)) p.Cards.Add(c.Id, 1);
-        Assert.False(AlbumRules.Claim(p, 0).Ok);   // 9 of 10
-        p.Cards.Add(CardTable.All[9].Id, 1);
+        foreach (CardDef c in CardTable.All.Skip(CardTable.LiveStart).Take(2)) p.Cards.Add(c.Id, 1);
+        Assert.False(AlbumRules.Claim(p, 0).Ok);   // 2 of 3
+        p.Cards.Add(CardTable.All[CardTable.LiveStart + 2].Id, 1);
         int gold = p.Gold;
         Assert.True(AlbumRules.Claim(p, 0).Ok);
-        Assert.Equal(gold + AlbumRules.Gold10, p.Gold);
+        Assert.Equal(gold + AlbumRules.Gold[0], p.Gold);
         Assert.False(AlbumRules.Claim(p, 0).Ok);   // once
-        Assert.Equal(gold + AlbumRules.Gold10, p.Gold);
-        Assert.False(AlbumRules.Claim(p, 1).Ok);   // 20 not reached
+        Assert.Equal(gold + AlbumRules.Gold[0], p.Gold);
+        Assert.False(AlbumRules.Claim(p, 1).Ok);   // 6 not reached
         Assert.False(AlbumRules.Claim(p, 9).Ok);   // no such milestone
     }
 
@@ -119,7 +119,7 @@ public class CardSellAlbumClaimTests
     public void SoldCardsStillCountForTheAlbumMilestone()
     {
         PlayerState p = Hero();
-        foreach (CardDef c in CardTable.All.Take(10)) { p.Cards.Add(c.Id, 1); CardOps.Sell(p, c.Id, 1); }
+        foreach (CardDef c in CardTable.All.Skip(CardTable.LiveStart).Take(3)) { p.Cards.Add(c.Id, 1); CardOps.Sell(p, c.Id, 1); }
         Assert.Equal(0, p.Cards.OwnedKinds);
         Assert.True(AlbumRules.Claim(p, 0).Ok);
     }
@@ -174,10 +174,10 @@ public class CardSellAlbumClaimTests
     public void AlbumClaimSlotIsTheMilestoneIndex()
     {
         PlayerState p = Hero();
-        foreach (CardDef c in CardTable.All.Take(20)) p.Cards.Add(c.Id, 1);
-        Assert.True(AlbumRules.Claim(p, 1).Ok);   // 20 cards: Card Hunter
+        foreach (CardDef c in CardTable.All.Skip(CardTable.LiveStart).Take(6)) p.Cards.Add(c.Id, 1);
+        Assert.True(AlbumRules.Claim(p, 1).Ok);   // 6 cards: Card Hunter
         Assert.False(AlbumRules.Claim(p, 1).Ok);
         Assert.True(AlbumRules.Claim(p, 0).Ok);
-        Assert.False(AlbumRules.Claim(p, 2).Ok);  // 30 not reached
+        Assert.False(AlbumRules.Claim(p, 2).Ok);  // 9 not reached
     }
 }

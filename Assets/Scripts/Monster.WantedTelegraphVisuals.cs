@@ -45,6 +45,7 @@ namespace ZenoniaProto
         {
             s = null;
             WantedSkillDef skill = CurrentWantedSkill();
+            if (skill != null && skill.PoseSheetSuffix != null) return TryPoseSheetFrame(skill, out s);
             if (skill == null || skill.CastRow < 0) return false;
             int cell = def.AttackCellPx;
             Sprite[][] cast = SpriteSheet.Grid(SheetFolder + def.Sheet + "-cast", cell, cell, GameConfig.FramePpu * cell / AttackCell, new Vector2(0.5f, 0.125f));
@@ -52,6 +53,25 @@ namespace ZenoniaProto
             if (row == null || row.Length == 0) return false;
             float progress = state == State.Telegraph ? 1f - Mathf.Clamp01(timer / Mathf.Max(1, skill.TelegraphMs)) : 1f;
             s = row[Mathf.Clamp(Mathf.FloorToInt(progress * row.Length), 0, row.Length - 1)];
+            return true;
+        }
+
+        State poseState = State.Idle;
+        float poseStartedAt;
+
+        /// <summary>The skill's OWN pose sheet (Matriarch -charge / -stomp, Elder -sweep / -pulse / -awaken): facing row, pose by WantedSkillPose (F1-F2 warning, F3 impact / launch, F4 held).
+        /// Execute elapsed time is measured here from the first frame this state is drawn, so the server's own view and a proxy agree without a timer on the wire.</summary>
+        bool TryPoseSheetFrame(WantedSkillDef skill, out Sprite s)
+        {
+            s = null;
+            if (state != poseState) { poseState = state; poseStartedAt = Time.time; }
+            string path = SheetFolder + def.File + skill.PoseSheetSuffix;
+            if (SpriteSheet.TryLoad(path) == null) return false;
+            int cell = def.AttackCellPx;
+            Sprite[] row = SpriteSheet.Row(SpriteSheet.Grid(path, cell, cell, GameConfig.FramePpu * cell / AttackCell, new Vector2(0.5f, 32f / AttackCell)), facing);
+            if (row == null || row.Length < 4) return false;
+            float progress = state == State.Telegraph ? 1f - Mathf.Clamp01(timer / Mathf.Max(1, skill.TelegraphMs)) : 1f;
+            s = row[WantedSkillPose.Frame(state == State.Telegraph, progress, (Time.time - poseStartedAt) * 1000f)];
             return true;
         }
 

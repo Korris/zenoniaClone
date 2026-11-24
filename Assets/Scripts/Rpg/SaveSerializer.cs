@@ -46,13 +46,13 @@ namespace ZenoniaProto.Rpg
     /// </summary>
     public static class SaveSerializer
     {
-        public const int SaveVersion = 6; // 6: monster cards, Soul Gems, Album, deck, item sockets (an older save simply owns no cards). 5: the pet team (petTeam, 5 slots). 4: pets belong to the account (petId). 2: pets carry durability. 3: Frost Hollow grew to 48 rows, so older frostHollow positions are shifted by Parse (= FrostHollowGrownVersion).
-        /// <summary>Saves older than this hold Frost Hollow positions measured on the 24-row map; Parse moves them up by the rows the map has gained since.</summary>
-        public const int FrostHollowGrownVersion = 3;
-        /// <summary>Frost Hollow's row count before it grew (36x24). Callers pass FrostHollowLayout.RowCount; the default means "not grown", so a caller that forgets never shifts.</summary>
+        public const int SaveVersion = 7; // 7: Taurus V4 world (24/11/2026): saves below this are NOT migrated, Parse turns them into a brand-new character (class, name, look kept). 6: monster cards, Soul Gems, Album, deck, item sockets. 5: the pet team. 4: pets belong to the account. 2: pets carry durability.
+        /// <summary>The oldest save version Parse still reads as it is; anything older becomes a new character on the Taurus start map (no migration, user decision 24/11/2026).</summary>
+        public const int MinSupportedVersion = 7;
+        /// <summary>Frost Hollow's row count before it grew (36x24). Kept for callers that still pass FrostHollowLayout.RowCount; no save older than MinSupportedVersion is shifted any more.</summary>
         public const int LegacyFrostHollowRows = 24;
         const float TileUnits = 16f;
-        public const string MapId = "frostHollow";
+        public const string MapId = WorldFlags.StartMapId; // the map a save without one is on: the Taurus start map
         const int MaxBossMaps = 32, MaxMapIdLength = 32, MaxWantedDay = 1_000_000; // same limits as the server-api schema, which rejects the whole save otherwise
 
         public static SaveData Capture(PlayerState p, bool hasPosition, float x, float y, bool bossDefeated, long savedAt = 0, string mapId = null, List<string> defeatedBossMaps = null)
@@ -81,8 +81,19 @@ namespace ZenoniaProto.Rpg
 
         public static string ToJson(SaveData d) { return JsonUtility.ToJson(d, true); }
 
+        /// <summary>A pre-Taurus save (version below MinSupportedVersion): the character is kept as a NEW game: same class, name and look, level 1, no position (it starts on the Taurus start map), nothing else carried over.</summary>
+        static SaveData Fresh(SaveData raw)
+        {
+            string classId = RpgClasses.IsValid(raw.classId) ? raw.classId : RpgClasses.Default;
+            PlayerState p = PlayerState.NewGame(classId);
+            SaveData d = Capture(p, false, 0f, 0f, false, raw.savedAt, MapId);
+            d.name = HeroNameRules.Problem(raw.name) == null ? raw.name.Trim() : "";
+            d.appearance = CharacterAppearanceData.Sanitize(raw.appearance, classId);
+            return d;
+        }
+
         /// <summary>Parses + validates a save. Null for garbage, unreadable JSON, or a version newer than this build; missing fields default.</summary>
-        /// <param name="frostHollowRows">Row count of this build's Frost Hollow. A frostHollow save older than FrostHollowGrownVersion moves up (rows - 24) * 16 units (y points up and the map grew downward in the painting), so the hero keeps the same tile. A 24-row build moves nothing.</param>
+        /// <param name="frostHollowRows">Unused since SaveVersion 7 (the Frost Hollow position shift only applied to saves below version 3, which are now dropped); kept so callers need no change.</param>
         public static SaveData Parse(string json, int frostHollowRows = LegacyFrostHollowRows)
         {
             if (string.IsNullOrWhiteSpace(json)) return null;
@@ -90,6 +101,7 @@ namespace ZenoniaProto.Rpg
             try { raw = JsonUtility.FromJson<SaveData>(json); }
             catch (Exception) { return null; }
             if (raw == null || raw.version < 0 || raw.version > SaveVersion || raw.level < 1) return null;
+            if (raw.version < MinSupportedVersion) return Fresh(raw);
             var d = new SaveData
             {
                 version = SaveVersion, savedAt = raw.savedAt, classId = RpgClasses.IsValid(raw.classId) ? raw.classId : RpgClasses.Default, mapId = string.IsNullOrEmpty(raw.mapId) ? MapId : raw.mapId,
@@ -101,8 +113,6 @@ namespace ZenoniaProto.Rpg
                 hp = Finite(raw.hp), mp = Finite(raw.mp), x = Finite(raw.x), y = Finite(raw.y), hasPosition = raw.hasPosition, bossDefeated = raw.bossDefeated,
                 name = HeroNameRules.Problem(raw.name) == null ? raw.name.Trim() : "", // a broken name falls back to the class name
             };
-            if (raw.version < FrostHollowGrownVersion && d.mapId == MapId && d.hasPosition && frostHollowRows > LegacyFrostHollowRows)
-                d.y += (frostHollowRows - LegacyFrostHollowRows) * TileUnits;
             foreach (Item i in raw.inventory ?? new List<Item>())
             {
                 Item s = ItemFactory.Sanitize(i, raw.version < 2);

@@ -5,8 +5,8 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The duel with Card Master Orin, the ONLY NPC duel (card tutorial quest). PlayNpc A = 0: the scripted tutorial duel with the borrowed deck, only while quest first-card-duel is Active; when it ends (played out, or given up
-    /// by the player) the quest moves to ReadyToTurnIn, once. A = 1: a practice duel, only once the quest is Done; no reward, no stakes, nothing saved. No turn clock, but 10 minutes without a player action drops the duel. A player who dies, leaves the safe map, idles out or the zone drops the duel
+    /// The duel with Card Master Orin, the ONLY NPC duel (card tutorial quest). PlayNpc A = 0: the scripted tutorial duel with the borrowed deck, only while quest first-card-duel is Active; only a WIN moves the quest to
+    /// ReadyToTurnIn (a loss, draw or give-up leaves it Active: replay for free, nothing is lost or duplicated). A = 1: a practice duel, only once the quest is Done; no reward, no stakes, nothing saved. No turn clock, but 10 minutes without a player action drops the duel. A player who dies, leaves the safe map, idles out or the zone drops the duel
     /// WITHOUT moving the quest (the deck is borrowed, nothing to give back): they play it again. The reward itself is paid at the quest turn-in, never here.
     /// </summary>
     public sealed partial class DuelService
@@ -24,7 +24,7 @@ namespace ZenoniaProto
             if (ServerInventoryActions.DistanceToNpc(p, ServerInventoryActions.HeroMap(p), CardDuelQuest.GiverId) > QuestCatalog.ReachUnits) { Refuse(p, DuelFail.TooFar); return; }
             QuestState quest = p.Rpg.State.Quests.StateOf(CardDuelQuest.First);
             if (mode == 0 ? quest != QuestState.Active : quest != QuestState.Done) { Refuse(p, DuelFail.NoQuest); return; }
-            e.Npc = mode == 0 ? DuelNpcSession.Tutorial(now) : DuelNpcSession.Practice(NewSeed(), DuelNpcSession.PracticeDeck(p.Rpg.State.Cards), now);
+            e.Npc = mode == 0 ? DuelNpcSession.Tutorial(now, NewSeed()) : DuelNpcSession.Practice(NewSeed(), DuelNpcSession.PracticeDeck(p.Rpg.State.Cards), now);
             stats.Add(mode == 0 ? "duelTutorialStarted" : "duelPracticeStarted", 1);
             SendView(p, e.Npc.View(now));
         }
@@ -38,7 +38,7 @@ namespace ZenoniaProto
 
         void ForfeitNpc(Entry e, long now)
         {
-            e.Npc.Forfeit(); // giving up the tutorial counts like a loss: the quest still moves
+            e.Npc.Forfeit(); // giving up counts like a loss: the quest stays Active
             FinishNpc(e, now);
         }
 
@@ -47,19 +47,24 @@ namespace ZenoniaProto
             if (e.Npc.SkipScript(now)) SendView(e.Player, e.Npc.View(now)); else Refuse(e.Player, DuelFail.BadMove);
         }
 
-        /// <summary>The duel is over by play or by the player giving up: the final view goes out and a tutorial moves the quest, exactly once (TakeResult).</summary>
+        /// <summary>The duel is over by play or by the player giving up: the final view goes out and a tutorial WIN moves the quest, exactly once (TakeResult).</summary>
         void FinishNpc(Entry e, long now)
         {
             NetPlayer p = e.Player;
             DuelNpcSession s = e.Npc;
             // the quest moves and its state goes out BEFORE the final view: the result banner reads the quest state (hand-in or cut short)
-            if (s.Mode == DuelNpcMode.Tutorial && p.Hero != null && s.TakeResult() != null)
+            if (s.Mode == DuelNpcMode.Tutorial && p.Hero != null)
             {
-                Zone.Enter(p.Hero.HomeZone);
-                p.Rpg.QuestCardDuel();
-                PushState(p);
-                if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p);
-                Debug.Log("[ZenoniaProto] duel: " + p.Name + " finished the tutorial duel with Orin");
+                DuelResult? result = s.TakeResult(); // once: a loss / draw / give-up leaves the quest Active (play again for free), only a win moves it
+                if (result == DuelResult.Win)
+                {
+                    Zone.Enter(p.Hero.HomeZone);
+                    p.Rpg.QuestCardDuel();
+                    PushState(p);
+                    if (ZonePersistence.Active != null) ZonePersistence.Active.RequestSave(p);
+                    stats.Add("duelTutorialWon", 1);
+                }
+                Debug.Log("[ZenoniaProto] duel: " + p.Name + " finished the tutorial duel with Orin: " + result);
             }
             SendView(p, s.View(now));
         }

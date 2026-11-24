@@ -35,10 +35,10 @@ const petIdField = z.union([z.enum(PET_IDS), z.literal('')]).default('');
 /** SaveData: the whole persisted character state. Unknown keys are stripped. */
 export const stateSchema = z
   .object({
-    version: z.number().int().min(0).max(6).default(1), // SaveSerializer.SaveVersion; 6: monster cards (cards / gems / album / cardDeck / cardDaily / cardNpcFirstWins / cardRank) + item sockets; 2: pets carry durability; 3: Frost Hollow 72x48, old section y +384; 4: gacha pets moved to the account, character keeps only petId (which one is worn); 5: petTeam (up to 5 account pet ids), petId still accepted
+    version: z.number().int().min(0).max(7).default(1), // SaveSerializer.SaveVersion; 7: Taurus V4 world, older saves are not migrated (the zone turns them into a new character); 6: monster cards (cards / gems / album / cardDeck / cardDaily / cardNpcFirstWins / cardRank) + item sockets; 2: pets carry durability; 3: Frost Hollow 72x48, old section y +384; 4: gacha pets moved to the account, character keeps only petId (which one is worn); 5: petTeam (up to 5 account pet ids), petId still accepted
     savedAt: z.number().int().min(0).default(0),
     classId: z.enum(CLASS_IDS),
-    mapId: z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/).default('frostHollow'),
+    mapId: z.string().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/).default('tauWillowbrookVillage'),
     level: z.number().int().min(1).max(MAX_LEVEL),
     exp: int0, gold: int0, hpPotion: int0, mpPotion: int0,
     // Larger potions and the size on the quick buttons (PotionCatalog). hpPotion / mpPotion stay the Small stacks; absent in old saves = none, Small.
@@ -87,7 +87,7 @@ export const stateSchema = z
     cardDeck: z.array(cardId).max(CARD_DECK_MAX).default([]),
     cardDaily: z.object({ day: int0.default(0), npcWins: int0.default(0), pvpRewards: int0.default(0), wagers: int0.default(0) }).default({}),
     cardNpcFirstWins: z.number().int().min(0).max(0xffff).default(0), // bit per duel NPC beaten once
-    cardHelp: z.number().int().min(0).max(3).default(0), // bit per first-time card hint shown (bit 0 = guided tour of More > Cards, bit 1 = first PvP risk box confirmed); older saves = 0 = not shown yet
+    cardHelp: z.number().int().min(0).max(7).default(0), // bit per first-time card hint shown (bit 0 = guided tour of More > Cards, bit 1 = first PvP risk box confirmed, bit 2 = Orin Guidance accepted); older saves = 0 = not shown yet
     cardRank: z.object({ season: int0.default(0), mmr: int0.default(0), lp: int0.default(0), wins: int0.default(0), losses: int0.default(0), draws: int0.default(0), best: int0.default(0), prevBest: int0.default(0), rewards: z.number().int().min(0).max(31).default(0) }).default({}), // rewards = bit per tier (Bronze..Diamond) reached at a season end
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),
@@ -127,10 +127,10 @@ export const stateSchema = z
   });
 
 /**
- * Brand-new level-1 character; empty equipment (the Unity SaveSerializer.Restore refills starter gear, hp/mp 0 => full). Begins in Oakhaven, like an offline hero.
- * Only a new character gets this: stored characters keep their mapId, and the schema's 'frostHollow' default above stays for old saves that have none.
+ * Brand-new level-1 character; empty equipment (the Unity SaveSerializer.Restore refills starter gear, hp/mp 0 => full). Begins on the Taurus start map (Willowbrook Village), like an offline hero.
+ * Only a new character gets this: stored characters keep their mapId, and the schema's 'tauWillowbrookVillage' default above covers a save that has none.
  */
-export function newCharacterState(classId, mapId = 'oakhavenVillage') {
+export function newCharacterState(classId, mapId = 'tauWillowbrookVillage') {
   return stateSchema.parse({
     version: 1, savedAt: 0, classId, mapId, level: 1, exp: 0, gold: 0, hpPotion: 0, mpPotion: 0, upgradeStone: 0,
     hp: 0, mp: 0, x: 0, y: 0, hasPosition: false, bossDefeated: false, inventory: [], equipment: [],

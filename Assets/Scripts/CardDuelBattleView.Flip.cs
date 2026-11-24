@@ -28,13 +28,14 @@ namespace ZenoniaProto
         readonly float[] flipStart = new float[16];
         readonly bool[] flipHoriz = new bool[16], flipSwapped = new bool[16], flipRaised = new bool[16];
         readonly int[] flipTo = new int[16], homeSibling = new int[16];
-        bool dustDone;
+        bool dustDone, captureExplained; // captureExplained: this move shows the two numbers first and says CAPTURE! after (CardDuelBattleView.Capture.cs)
 
         bool Animating(DuelView v) { return curMove >= 0 || (presented >= 0 && presented < v.Moves.Count); }
 
         void ResetPresentation()
         {
             presented = -1; curMove = -1; curPlace = -1;
+            ResetCapture();
             for (int c = 0; c < 16; c++) { dispCard[c] = DuelBoard.Empty; dispOwner[c] = DuelBoard.Empty; ClearCell(c); }
         }
 
@@ -67,6 +68,7 @@ namespace ZenoniaProto
         void StepPresentation(DuelView v)
         {
             UpdateParticles();
+            TickCaptured();
             for (int guard = 0; guard < 6; guard++) // a move that ends this frame lets the next one start in the same frame
             {
                 if (curMove < 0)
@@ -76,6 +78,7 @@ namespace ZenoniaProto
                 }
                 float t = (Time.unscaledTime - curStart) * 1000f;
                 for (int c = 0; c < 16; c++) AnimateCell(c, t);
+                TickCapture(t);
                 if (t < curEnd) return;
                 EndMove(v);
             }
@@ -86,17 +89,26 @@ namespace ZenoniaProto
             DuelMove m = v.Moves[index];
             curMove = index; curStart = Time.unscaledTime; curPlace = m.Cell; dustDone = false;
             dispCard[m.Cell] = m.Card; dispOwner[m.Cell] = m.Side;
-            int k = 0;
+            int k = 0, victim = -1, victimDir = 0;
+            for (int d = 0; d < 4; d++) // the first neighbour that turns: its two edges are what the first explained capture shows
+            {
+                int cellAt = m.Cell + DirOffset[d];
+                bool across = d == 1 || d == 3;
+                if (cellAt < 0 || cellAt > 15 || (across && cellAt / 4 != m.Cell / 4) || (m.FlipMask & (1 << cellAt)) == 0) continue;
+                victim = cellAt; victimDir = d; break;
+            }
+            float lead = CaptureLead(v, m, victim, victimDir); // 0, or the pause that shows the two numbers before the cards turn
+            captureExplained = lead > 0f;
             for (int d = 0; d < 4; d++)
             {
                 int target = m.Cell + DirOffset[d];
                 bool sideStep = d == 1 || d == 3;
                 if (target < 0 || target > 15 || (sideStep && target / 4 != m.Cell / 4) || (m.FlipMask & (1 << target)) == 0) continue;
-                flipStart[target] = PlaceMs + PlaceGapMs + k * FlipStaggerMs;
+                flipStart[target] = PlaceMs + PlaceGapMs + lead + k * FlipStaggerMs;
                 flipHoriz[target] = sideStep; flipTo[target] = m.Side; flipSwapped[target] = false;
                 k++;
             }
-            curEnd = k == 0 ? PlaceMs : PlaceMs + PlaceGapMs + (k - 1) * FlipStaggerMs + FlipMs;
+            curEnd = k == 0 ? PlaceMs : PlaceMs + PlaceGapMs + lead + (k - 1) * FlipStaggerMs + FlipMs;
             Redraw(v); // the placed card appears (its flips are still the old owner)
             Debug.Log("[ZenoniaProto] duel-anim: move " + (index + 1) + " places " + DuelBoard.Coord(m.Cell) + ", flips " + k);
         }
@@ -109,6 +121,7 @@ namespace ZenoniaProto
                 ClearCell(c);
             }
             presented++; curMove = -1; curPlace = -1;
+            CaptureLanded(captureExplained); captureExplained = false;
             Redraw(v); // score, log, cards left, valid cells and the turn unlock now
         }
 
@@ -181,6 +194,7 @@ namespace ZenoniaProto
         void BuildFxLayer(float boardW)
         {
             fxLayer = UiKit.Rect(boardRoot, "FlipFx", 0f, 0f, boardW, BoardH);
+            BuildCapture();
             sparkStar = PaperArt.Get("kit/star-full"); // the kit's own gold star and the HUD sparkle (both have alpha, so they show on the cream board)
             sparkDiamond = SpriteOf("Sprites/ui/ro-soft/wanted-sparkle");
         }

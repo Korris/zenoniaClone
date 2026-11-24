@@ -30,7 +30,7 @@ namespace ZenoniaProto
         public static int TodayKey { get { return Status.Known ? Status.DayKey : WantedBoss.DayKey(NowMs); } }
 
         /// <summary>Today's wanted boss: the one the server named (it may be pinned by --wanted-boss), else the rotation by the device clock. MapId + SpawnTx / SpawnTy = where it stands.</summary>
-        public static WantedBossDef Today { get { return (Status.Known ? WantedBoss.Find(Status.BossType) : null) ?? WantedBoss.Today(NowMs); } }
+        public static WantedBossDef Today { get { if (!WantedBoss.Enabled) return null; return (Status.Known ? WantedBoss.Find(Status.BossType) : null) ?? WantedBoss.Today(NowMs); } }
 
         /// <summary>Yesterday, today, tomorrow for the board. A server that pins one boss shows it on all three.</summary>
         public static WantedBossDef[] Schedule()

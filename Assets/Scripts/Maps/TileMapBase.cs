@@ -61,6 +61,16 @@ namespace ZenoniaProto
                     if (x >= 0 && y >= 0 && x < w && y < h) solid[y * w + x] = true;
         }
 
+        /// <summary>Blocks the solid footprint of every prop (PropDef FootW x FootH, anchored on its bottom-left tile); walk-through props (FootH 0) block nothing.</summary>
+        protected void BlockPropFootprints(MapProp[] props)
+        {
+            foreach (MapProp p in props)
+            {
+                PropDef d;
+                if (VillagePropDefs.TryGet(p.Type, out d)) BlockTiles(p.Tx, p.Ty - d.FootH + 1, d.FootW, d.FootH);
+            }
+        }
+
         public bool IsSolidTile(int tx, int ty)
         {
             if (tx < 0 || ty < 0 || tx >= w || ty >= h) return true;

@@ -69,6 +69,7 @@ namespace ZenoniaProto
             QuestLog log = QuestTracker.Log;
             QuestDef q = log != null ? log.TalkAbout(npcId) : null;
             if (q == null) return false;
+            if (log.StateOf(q) == QuestState.Done && GearShops.IsSeller(npcId)) return false; // a finished smith quest: the shop is what he is for
             switch (log.StateOf(q))
             {
                 case QuestState.Available:

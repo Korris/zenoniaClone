@@ -71,7 +71,7 @@ namespace ZenoniaProto
             WipeWorld();
             NetMode.Current = RunMode.Offline;
             SaveStore.Enabled = true;
-            MapRegistry.SetCurrent(OakhavenVillageMap.MapId); // a client may have left on any map; the class select picks up from Oakhaven, offline's own start map (World Map 2.0 step 1)
+            MapRegistry.SetCurrent(MapRegistry.StartMapId); // a client may have left on any map; the class select picks up from the start map (MapRegistry.StartMapId)
             WorldBuilder.Rebuild(); // offline again: the portal lights come back
             MonsterSpawner.SpawnAll(root);
         }
@@ -86,7 +86,7 @@ namespace ZenoniaProto
             localName = DevLoginStub.SanitizeName(name);
             if (!wasOffline) return;
             WipeWorld();
-            MapTransfer.Instant(OakhavenVillageMap.MapId); // a host runs Oakhaven alone; a client starts here until the server's Welcome names the hero's map (World Map 2.0 step 1)
+            MapTransfer.Instant(MapRegistry.StartMapId); // a host runs the start map alone; a client starts here until the server's Welcome names the hero's map
             if (mode == RunMode.Host) MonsterSpawner.SpawnAll(root);
         }
 

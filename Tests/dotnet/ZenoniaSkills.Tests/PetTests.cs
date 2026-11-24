@@ -210,7 +210,7 @@ public class PetTests
     [Fact]
     public void AnOldSaveStillLoadsItsPetItemsCleanly_ForTheMigration()
     {
-        const string hacked = "{\"version\":3,\"classId\":\"warrior\",\"level\":5,\"inventory\":[{\"uid\":\"b\",\"templateId\":\"pet-spirit\",\"slot\":\"pet\",\"name\":\"Spirit\",\"rarity\":\"rare\",\"durability\":40}],\"equipment\":[{\"uid\":\"p\",\"templateId\":\"pet-imp\",\"slot\":\"pet\",\"name\":\"Imp\",\"rarity\":\"rare\",\"classId\":\"wizard\",\"itemLevel\":1,\"enhance\":9,\"durability\":900,\"stats\":{\"atk\":500}}]}";
+        const string hacked = "{\"version\":7,\"classId\":\"warrior\",\"level\":5,\"inventory\":[{\"uid\":\"b\",\"templateId\":\"pet-spirit\",\"slot\":\"pet\",\"name\":\"Spirit\",\"rarity\":\"rare\",\"durability\":40}],\"equipment\":[{\"uid\":\"p\",\"templateId\":\"pet-imp\",\"slot\":\"pet\",\"name\":\"Imp\",\"rarity\":\"rare\",\"classId\":\"wizard\",\"itemLevel\":1,\"enhance\":9,\"durability\":900,\"stats\":{\"atk\":500}}]}";
         PlayerState p = SaveSerializer.Restore(SaveSerializer.Parse(hacked));
         Assert.Equal(2, p.LegacyPets().Count);
         Assert.Equal("imp", p.LegacyWornPet.Id);

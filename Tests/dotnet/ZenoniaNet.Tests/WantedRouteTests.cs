@@ -37,7 +37,7 @@ public class WantedRouteTests
     public void FromEveryMapTheRouteReachesEveryBossMapByTheFewestMapChanges()
     {
         foreach (string boss in BossMaps)
-            foreach (IGameMap start in MapRegistry.All)
+            foreach (IGameMap start in MapRegistry.Legacy)
             {
                 if (start.Id == boss) continue;
                 int expected = Hops(start.Id)[boss];

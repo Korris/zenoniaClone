@@ -130,14 +130,25 @@ namespace ZenoniaProto
             ps.Play();
         }
 
-        /// <summary>The ground light and the column swing slowly between 80 % and 100 % brightness.</summary>
+        /// <summary>The ground light and the column swing slowly between 80 % and 100 % brightness; 30 % dimmer while your own hero stands in the exit
+        /// so the column does not hide them (Taurus design review 24/11/2026: "giảm opacity/Bloom portal cyan khoảng 25–35% khi người chơi đứng trong vùng cổng").</summary>
         sealed class Breathe : MonoBehaviour
         {
             public Renderer[] Parts;
             public float Phase;
+            float near; // 0..1, eased
+            const float NearDim = 0.3f, NearX = 34f, NearY = 30f; // world units: about 2 tiles either side of the column, 2 tiles deep
             void Update()
             {
-                float k = MapPortalExits.Breath(Time.time, Phase);
+                HeroController me = LocalPlayer.Hero;
+                bool inside = false;
+                if (me != null)
+                {
+                    Vector3 d = me.transform.position - transform.position;
+                    inside = Mathf.Abs(d.x) < NearX && Mathf.Abs(d.y) < NearY;
+                }
+                near = Mathf.MoveTowards(near, inside ? 1f : 0f, Time.deltaTime * 3f);
+                float k = MapPortalExits.Breath(Time.time, Phase) * (1f - NearDim * near);
                 for (int i = 0; i < Parts.Length; i++) LightSkillAssets.Set(Parts[i], k);
             }
         }

@@ -112,6 +112,7 @@ namespace ZenoniaProto
             Predict = Array.IndexOf(a, "--no-predict") < 0 && PredictAfter <= 0f;
             NoDelta = Array.IndexOf(a, "--net-no-delta") >= 0;
             StartMap = Arg(a, "--map");
+            Rpg.WorldFlags.LegacyEnabled = HasFlag("--legacy-maps"); // Taurus V4: the pre-Taurus maps / quests / Wanted Boss are off unless asked for (test builds, old captures)
             NoPortals = Array.IndexOf(a, "--no-portals") >= 0;
             ApiUrl = Arg(a, "--api-url");
             WantedBossType = Arg(a, "--wanted-boss");

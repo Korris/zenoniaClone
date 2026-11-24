@@ -39,6 +39,9 @@ namespace ZenoniaProto
             return target;
         }
 
+        /// <summary>Aggro range now: a passive (Taurus C01) monster has none until a hero hits it.</summary>
+        float AggroRange { get { return Passive && !provoked ? 0f : def.AggroRange; } }
+
         Vector2 Think(float dtMs, HeroController hero, out bool strike)
         {
             strike = false;
@@ -60,14 +63,14 @@ namespace ZenoniaProto
             switch (state)
             {
                 case State.Idle:
-                    if (dist < def.AggroRange) { Enter(State.Chase, 0f); break; }
+                    if (dist < AggroRange) { Enter(State.Chase, 0f); break; }
                     if (def.Stationary || timer > 0f) break;
                     float angle = Random.value * Mathf.PI * 2f;
                     wanderDir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
                     Enter(State.Wander, 500f + Random.value * 900f);
                     break;
                 case State.Wander:
-                    if (dist < def.AggroRange) { Enter(State.Chase, 0f); break; }
+                    if (dist < AggroRange) { Enter(State.Chase, 0f); break; }
                     if (timer <= 0f) { Enter(State.Idle, 600f + Random.value * 1200f); break; }
                     dir = wanderDir; factor = WanderSpeedFactor;
                     break;
@@ -86,21 +89,26 @@ namespace ZenoniaProto
                     if (timer <= 0f) Enter(State.Chase, 0f);
                     break;
                 case State.Return:
-                    if (homeDist < 6f) { Enter(State.Idle, 800f); break; }
-                    if (dist < def.AggroRange * 0.6f) { Enter(State.Chase, 0f); break; }
+                    if (homeDist < 6f) { provoked = false; if (def.ResetOnReturn) { hp = def.Hp; wantedClock.Reset(); } Enter(State.Idle, 800f); break; } // Taurus: back home = full HP (nobody farms by kiting to the leash edge)
+                    if (dist < AggroRange * 0.6f) { Enter(State.Chase, 0f); break; }
                     dir = toHome / homeDist;
                     break;
                 // Wanted Boss skill (NORMAL/Chase above -> Telegraph -> Execute -> back to Chase; Monster.WantedSkills.cs): the boss stands still
                 // through both (dir stays zero) -- the shape and its strike instant were locked when the telegraph began.
                 case State.Telegraph:
-                    if (timer <= 0f) { FireWantedSkill(); Enter(State.Execute, ExecuteMs); }
+                    if (timer <= 0f)
+                    {
+                        if (pendingSkill != null && pendingSkill.ChargeMs > 0) BeginCharge(); // a charge dashes first, hitting as it reaches each hero (Monster.WantedCharge.cs)
+                        else { FireWantedSkill(); Enter(State.Execute, ExecuteMs); }
+                    }
                     break;
                 case State.Execute:
+                    if (Charging) return ChargeStep(dtMs);
                     if (timer <= 0f) Enter(State.Chase, 0f);
                     break;
             }
             if (dir == Vector2.zero) return Vector2.zero;
-            FaceTowards(dir);
+            FaceTowards(dir, false, 0f); // dir is a unit vector: the 4-unit "tiny offset" guard is for raw hero offsets and would freeze the facing while moving
             return dir * (def.Speed * factor * SpeedScale);
         }
 
@@ -114,13 +122,14 @@ namespace ZenoniaProto
 
         /// <summary>Turns toward `d` with hysteresis (Rpg/MonsterFacingRule.cs): tiny vectors and near-diagonal jitter keep the current facing, and
         /// a wanted boss holds a new facing for a moment. `force` (a cone skill locking its aim) turns at once by plain axis dominance.</summary>
-        void FaceTowards(Vector2 d, bool force = false)
+        /// `minLen`: below this length the vector is ignored (default: a hero standing on the monster's feet); pass 0 for unit move directions.
+        void FaceTowards(Vector2 d, bool force = false, float minLen = MonsterFacingRule.MinVectorUnits)
         {
             if (d == Vector2.zero) return;
             int next;
             if (BossFacingLog.Legacy || force) next = MonsterFacingRule.Plain(d.x, d.y);
             else if (def.UsesSkills && facingHoldMs > 0f) return;
-            else next = MonsterFacingRule.Sticky(facing, d.x, d.y);
+            else next = MonsterFacingRule.Sticky(facing, d.x, d.y, minLen);
             if (next == facing) return;
             facing = next;
             if (!def.UsesSkills) return;

@@ -81,7 +81,8 @@ namespace ZenoniaProto
                 found = !MapSpawnTable.NearEntrance(MapRegistry.Current, feet) && (minDist <= 0f || Zone.Main == null || !Zone.Main.Heroes.AnyWithin(feet, minDist));
             }
             if (!found) return false;
-            Monster.Create(transform.parent, MonsterDef.ByType(zone.Type), feet, z);
+            Monster m = Monster.Create(transform.parent, MonsterDef.ByType(zone.Type), feet, z);
+            if (m != null) m.Passive = zone.Passive;
             return true;
         }
 

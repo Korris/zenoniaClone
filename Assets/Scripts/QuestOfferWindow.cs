@@ -97,6 +97,7 @@ namespace ZenoniaProto
             AddSlot(n++, LootSprites.Stone(), q.RewardStones > 0 ? "x" + q.RewardStones : null);
             AddSlot(n++, LootSprites.Potion(true), q.RewardHpPotions > 0 ? "x" + q.RewardHpPotions : null);
             if (q.RewardCards != null && q.RewardCards.Length > 0) AddSlot(n++, PaperArt.Get(GemUiArt.Icon("menu-my-cards")), q.RewardCards.Length + " cards");
+            if (q.RewardPickCards != null) AddSlot(n++, PaperArt.Get(GemUiArt.Icon("menu-my-cards")), "Pick 1"); // the winner chooses one card of Orin's (CardRewardPickPanel)
             if (q.RewardStarterHat) AddSlot(n++, HeadgearArt.Icon(HeadgearCatalog.StarterFor(RpgSession.Player != null ? RpgSession.Player.ClassId : RpgClasses.Default).Id), "Hat"); // the class starter hat
             for (; n < 5; n++) AddSlot(n, null, null); // empty slots, like the mockup
         }

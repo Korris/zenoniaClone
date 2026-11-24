@@ -20,7 +20,9 @@ namespace ZenoniaProto
             NetMode.Current = NetMode.ParseMode(cmd);
             NetLaunchArgs.Parse(cmd);
             ZenoniaProto.Rpg.SaveStore.FrostHollowRows = FrostHollowLayout.RowCount; // old Frost Hollow saves shift when the map has grown
-            MapRegistry.ParseLaunch(cmd, DebugCapture.Requested(cmd)); // --map frost-hollow|oakhaven-village; offline normal start = the village
+            bool captureRun = DebugCapture.Requested(cmd);
+            if (captureRun) ZenoniaProto.Rpg.WorldFlags.LegacyEnabled = true; // the debug captures and bots were written for the pre-Taurus maps (Frost Hollow's tiles)
+            MapRegistry.ParseLaunch(cmd, captureRun); // --map <id>; offline normal start = MapRegistry.StartMapId (Taurus), --legacy-maps brings the old maps back
             bool headless = NetMode.IsHeadless;
             bool paced = headless || (Application.isBatchMode && !NetMode.IsOffline); // dedicated server and unattended bot clients run at 30 fps, no vsync
             if (!NetMode.IsOffline) ZenoniaProto.Rpg.SaveStore.Enabled = false; // online play never touches the offline saves

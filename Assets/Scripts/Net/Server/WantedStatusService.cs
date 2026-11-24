@@ -26,6 +26,7 @@ namespace ZenoniaProto
         /// <summary>The status right now, from the zone of today's boss; false when this server does not run that map.</summary>
         bool TryCurrent(out WantedStatusMsg m)
         {
+            if (!WantedBoss.Enabled) { m = default(WantedStatusMsg); return false; }
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             WantedBossDef today = WantedBoss.Today(now);
             Zone zone = host.ZoneOf(today.MapId);

@@ -7,7 +7,7 @@ namespace ZenoniaProto.Rpg
     /// <summary>
     /// One duel against Card Master Orin: the player is side 0, Orin side 1. Shared by the zone server (DuelService.Npc) and the offline host (LocalDuelHost), so both play the same rules and pace.
     /// Tutorial = the scripted first duel with the borrowed deck (DuelTutorialScript: fixed order, player first, the first 5 turns follow the script). Practice = a normal shuffled duel, the player's saved deck if
-    /// it is valid, else the borrowed one. Never a clock, never stakes, never a reward: the owner only reads TakeResult once (Tutorial -> the quest). Orin thinks 0.6 - 1.2 s so the reply does not feel instant.
+    /// it is valid, else the borrowed one. Never a clock, never stakes, never a reward: the owner only reads TakeResult once (Tutorial + Win -> the quest). Orin thinks 0.6 - 1.2 s so the reply does not feel instant.
     /// Time comes only from the `nowMs` given.
     /// </summary>
     public sealed class DuelNpcSession
@@ -38,10 +38,10 @@ namespace ZenoniaProto.Rpg
         }
 
         /// <summary>The scripted first duel (fixed decks, the player moves first).</summary>
-        public static DuelNpcSession Tutorial(long nowMs)
+        public static DuelNpcSession Tutorial(long nowMs, ulong seed = 1UL)
         {
             var m = DuelMatch.CreateFixed(DuelTutorialScript.PlayerDeck, DuelTutorialScript.OrinDeck, Player, nowMs);
-            var s = new DuelNpcSession(m, DuelNpcMode.Tutorial, 1UL, true);
+            var s = new DuelNpcSession(m, DuelNpcMode.Tutorial, seed, true);
             s.lastActionMs = nowMs;
             return s;
         }
@@ -104,6 +104,7 @@ namespace ZenoniaProto.Rpg
                 h = Match.Hand(Orin).IndexOf(CardTable.Index(step.CardId));
                 cell = step.Cell;
             }
+            if (h < 0 && Mode == DuelNpcMode.Tutorial && aiRng.Next(100) < EasyMistakePct) RandomMove(out h, out cell); // BIBLE Q04: the first duel must be easy, most newcomers win in 1-2 tries
             if (h < 0 && !DuelNpcAi.Best(Match.Board, Match.Hand(Orin), Orin, aiRng, false, out h, out cell)) { Match.Forfeit(Orin); return true; } // cannot happen in a running match; never hang
             DuelPlay p = Match.Place(Orin, h, cell, nowMs);
             if (!p.Ok) { Match.Forfeit(Orin); return true; }
@@ -112,10 +113,21 @@ namespace ZenoniaProto.Rpg
             return true;
         }
 
+        /// <summary>Tutorial only, free play (after the script): this share of Orin's moves is a random legal card on a random empty cell instead of the best move.</summary>
+        public const int EasyMistakePct = 35;
+
+        void RandomMove(out int h, out int cell)
+        {
+            var empty = new List<int>(DuelBoard.Cells);
+            for (int c = 0; c < DuelBoard.Cells; c++) if (Match.Board.IsEmpty(c)) empty.Add(c);
+            h = empty.Count == 0 ? -1 : aiRng.Next(Match.Hand(Orin).Count);
+            cell = empty.Count == 0 ? -1 : empty[aiRng.Next(empty.Count)];
+        }
+
         /// <summary>No player action for IdleLimitMs: the owner drops the duel (Forfeit, the quest does NOT move).</summary>
         public bool Idle(long nowMs) { return !Match.Finished && nowMs - lastActionMs > IdleLimitMs; }
 
-        /// <summary>The player gives up: Orin wins. For a tutorial the quest still counts (the owner decides, TakeResult).</summary>
+        /// <summary>The player gives up: Orin wins (a loss: the quest stays Active, the owner moves it only on a Win from TakeResult).</summary>
         public void Forfeit() { Match.Forfeit(Player); }
 
         /// <summary>The finished match's result from the player's side, handed out once (null while it runs or after it was taken).</summary>

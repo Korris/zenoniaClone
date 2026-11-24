@@ -1,15 +1,16 @@
 <#
 .SYNOPSIS
-  End-to-end check of the card tutorial quest (Card Master Orin, "The First Card Duel") on real accounts, localhost: a real mongod (server-api's dev-mongo, no Docker), the real server-api, a headless zone server
-  and scripted clients (DebugCapture.NetOrin.cs, --net-bot orin) that log in with the real flow. What it judges comes from the API (the stored character), not from the clients.
-  Characters (each is registered with ONE card, so the quest is offered):
-    full     accept at Orin, the scripted duel (a move off the script is refused), hand in: +300 G and hornRabbit / thornBoar / forestWolf exactly once; a second client run (Done) changes nothing,
-             a tutorial duel is refused, a practice duel changes nothing
-    drop     the client is KILLED after the first lesson move: the quest stays Active in the API, nothing paid; the character logs in again, plays the whole duel and is paid once
-    forfeit  gives up at once: the quest still moves (decision: a duel given up counts), hand in pays once
+  End-to-end check of Card Master Orin's "The First Card Duel" (Taurus V4: must WIN, a loss / draw / give-up replays for free, the winner picks ONE of Orin's 8 cards once) on real accounts, localhost: a real mongod
+  (server-api's dev-mongo, no Docker), the real server-api, a headless zone server and scripted clients (DebugCapture.NetOrin.cs, --net-bot orin) that log in with the real flow. What it judges comes from the API (the
+  stored character), not from the clients. Every character is seeded (dev-seed.mjs) as one that finished Rowan's trial and Orin's first-deck quest: the 5 starter cards in the collection, the duel quest never taken.
+  Characters:
+    full     accept at Orin (accept + duel request back to back), the scripted duel (a move off the script is refused), replays until a win, a bad pick index is refused, the pick pays exactly 1 chosen card and
+             closes the quest; a second client run (Done) changes nothing, a tutorial duel is refused, a practice duel changes nothing
+    drop     the client is KILLED after the first lesson move: the quest stays Active in the API, nothing paid; the character logs in again, plays until it wins and is paid once
+    forfeit  gives up at once: the quest stays Active (a give-up is not a win), nothing paid; the bot replays, wins and is paid once
   Prints PASS / FAIL lines and a count. Needs a player built from a copy (Tools/build-from-copy.ps1). Secrets are made up for this run and die with it.
 .EXAMPLE
-  .\Tools\net-orin-test.ps1 -Exe C:\temp\player-card-tutorial\Zenonia.exe -OutDir C:\temp\orin-test
+  .\Tools\net-orin-test.ps1 -Exe C:\temp\player-taurus\Zenonia.exe -OutDir C:\temp\orin-test
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Exe,
@@ -36,7 +37,8 @@ $mongoUri = "mongodb://127.0.0.1:$MongoPort/?replicaSet=rs0"
 $dbName = "orin_e2e"
 $suffix = Get-Random -Maximum 99999
 $script:passed = 0; $script:failed = 0; $script:apiProc = $null; $script:zoneProc = $null; $script:mongoProc = $null; $script:clients = @()
-$rewardCards = @("hornRabbit", "thornBoar", "forestWolf")
+$starterCards = @("tauCloverSlime", "tauHornRabbit", "tauReedFrog", "tauMossMushroom", "tauLeafMantis")
+$orinCards = @("tauCloverSlime", "tauBrambleBoar", "tauHornRabbit", "tauReedFrog", "tauMossMushroom", "tauLeafMantis", "tauRootling", "tauAmberSporeling") # the 8 the winner picks from (the bot picks tauBrambleBoar)
 
 function Ok([string]$what, [bool]$cond, [string]$detail = "") { if ($cond) { $script:passed++; Write-Host "PASS $what" } else { $script:failed++; Write-Host "FAIL $what  $detail" } }
 function Section([string]$s) { Write-Host ""; Write-Host "=== $s" }
@@ -89,14 +91,15 @@ function Wait-Offline([string]$name, [int]$seconds) {
   return $false
 }
 function Seed([string[]]$a) { & node (Join-Path $apiDir "scripts\dev-seed.mjs") --uri $mongoUri --db $dbName @a | Out-Null }
-# What the API stores: gold, the reward cards and the quest state (0 = never taken, 1 Active, 2 ReadyToTurnIn, 3 Done).
+# What the API stores: gold, the count of each of Orin's 8 cards and the duel quest state (0 = never taken, 1 Active, 2 ReadyToTurnIn, 3 Done).
 function Facts([string]$name) {
   $s = (Read-Character $name).state
   $q = @($s.quests | Where-Object { $_.id -eq "first-card-duel" })
-  $n = @{}; foreach ($id in $rewardCards) { $n[$id] = [int](@($s.cards | Where-Object { $_.id -eq $id } | ForEach-Object { $_.n }) | Measure-Object -Sum).Sum }
+  $n = @{}; foreach ($id in $orinCards) { $n[$id] = [int](@($s.cards | Where-Object { $_.id -eq $id } | ForEach-Object { $_.n }) | Measure-Object -Sum).Sum }
   return @{ Gold = [int]$s.gold; Quest = $(if ($q.Count -gt 0) { [int]$q[0].state } else { 0 }); Cards = $n; Help = [int]$s.cardHelp }
 }
-function Show([hashtable]$f) { return "gold=$($f.Gold) quest=$($f.Quest) hornRabbit=$($f.Cards.hornRabbit) thornBoar=$($f.Cards.thornBoar) forestWolf=$($f.Cards.forestWolf)" }
+function Total([hashtable]$f) { return [int](($f.Cards.Values | Measure-Object -Sum).Sum) }
+function Show([hashtable]$f) { return "gold=$($f.Gold) quest=$($f.Quest) boar=$($f.Cards.tauBrambleBoar) rootling=$($f.Cards.tauRootling) sporeling=$($f.Cards.tauAmberSporeling) total=$(Total $f)" }
 function Start-Orin([string]$tag, [string]$account, [string[]]$more = @()) {
   $log = "$OutDir\$tag.log"
   $env:ZENONIA_TEST_PASSWORD = $password
@@ -112,11 +115,13 @@ function Lines([hashtable]$c) {
 }
 function Setup-Hero([string]$name, [string]$class) {
   Register-Account $name $class
-  Seed @("--name", $name, "--card", "meadowSlime:1")
+  Seed @("--name", $name, "--card", (($starterCards | ForEach-Object { "$($_):1" }) -join ","), "--quest", "tau-meadow-trial:3:5,tau-orin-first-deck:3:5") # Rowan's trial and Orin's first deck done, the 5 starter cards held
 }
 function Expect-Paid([string]$who, [hashtable]$before, [hashtable]$after) {
-  Ok "$who paid exactly 300 G" ($after.Gold -eq $before.Gold + 300) "$(Show $before) -> $(Show $after)"
-  foreach ($id in $rewardCards) { Ok "$who got exactly 1 $id" ($after.Cards[$id] -eq $before.Cards[$id] + 1) "$(Show $before) -> $(Show $after)" }
+  Ok "$who got exactly 1 tauBrambleBoar (the picked card)" ($after.Cards.tauBrambleBoar -eq $before.Cards.tauBrambleBoar + 1) "$(Show $before) -> $(Show $after)"
+  Ok "$who got no other card (total +1)" ((Total $after) -eq (Total $before) + 1) "$(Show $before) -> $(Show $after)"
+  Ok "$who rootling / sporeling (the other borrowed cards) were not given" ($after.Cards.tauRootling -eq 0 -and $after.Cards.tauAmberSporeling -eq 0) (Show $after)
+  Ok "$who gold unchanged (this reward is a card only)" ($after.Gold -eq $before.Gold) "$(Show $before) -> $(Show $after)"
   Ok "$who quest is Done in the API" ($after.Quest -eq 3) (Show $after)
 }
 
@@ -130,7 +135,7 @@ try {
   $full = "orf$suffix"
   Setup-Hero $full "warrior"
   $before = Facts $full
-  Ok "start: the quest was never taken, no reward cards" ($before.Quest -eq 0 -and $before.Cards.hornRabbit -eq 0) (Show $before)
+  Ok "start: the quest was never taken, the 5 starter cards held, no borrowed card" ($before.Quest -eq 0 -and $before.Cards.tauBrambleBoar -eq 0 -and (Total $before) -eq 5) (Show $before)
   $c = Start-Orin "full-1" $full
   Ok "the bot finished" (Finish $c 150)
   Lines $c
@@ -143,7 +148,7 @@ try {
   Lines $c
   Ok "the second run is gone" (Wait-Offline $full 30)
   $again = Facts $full
-  Ok "a second run (quest Done, practice duel) pays nothing" ($again.Gold -eq $after.Gold -and $again.Cards.hornRabbit -eq $after.Cards.hornRabbit -and $again.Cards.thornBoar -eq $after.Cards.thornBoar -and $again.Cards.forestWolf -eq $after.Cards.forestWolf -and $again.Quest -eq 3) "$(Show $after) -> $(Show $again)"
+  Ok "a second run (quest Done, practice duel) pays nothing" ($again.Gold -eq $after.Gold -and (Total $again) -eq (Total $after) -and $again.Cards.tauBrambleBoar -eq $after.Cards.tauBrambleBoar -and $again.Quest -eq 3) "$(Show $after) -> $(Show $again)"
 
   Section "drop: the client dies mid-duel, the quest stays Active, the character plays it again and is paid once"
   $drop = "ord$suffix"
@@ -155,7 +160,7 @@ try {
   Ok "the zone let the character go" (Wait-Offline $drop 40)
   Start-Sleep -Seconds 5
   $mid = Facts $drop
-  Ok "after the kill: the quest is Active, nothing paid" ($mid.Quest -eq 1 -and $mid.Gold -eq $before.Gold -and $mid.Cards.hornRabbit -eq 0) (Show $mid)
+  Ok "after the kill: the quest is Active, nothing paid, no card gained or lost" ($mid.Quest -eq 1 -and $mid.Gold -eq $before.Gold -and (Total $mid) -eq (Total $before)) (Show $mid)
   Ok "no zone exception for the dropped duel" (-not (Select-String -Path $script:zoneLog -Pattern "NullReference|Exception" -Quiet))
   $c = Start-Orin "drop-2" $drop
   Ok "the second login finished" (Finish $c 150)
@@ -163,7 +168,7 @@ try {
   Ok "the second login is gone" (Wait-Offline $drop 30)
   Expect-Paid "drop" $before (Facts $drop)
 
-  Section "forfeit: giving up counts, paid once"
+  Section "forfeit: giving up is not a win (the quest stays Active), the replay wins and is paid once"
   $ff = "orq$suffix"
   Setup-Hero $ff "warrior"
   $before = Facts $ff
@@ -171,15 +176,18 @@ try {
   Ok "the bot finished" (Finish $c 150)
   Lines $c
   Ok "the bot is gone" (Wait-Offline $ff 30)
-  Expect-Paid "forfeit" $before (Facts $ff)
+  $mid = Facts $ff
+  Ok "the give-up and the replays ended with the quest Done, one card" ($mid.Quest -eq 3 -and (Total $mid) -eq (Total $before) + 1) "$(Show $before) -> $(Show $mid)"
+  Ok "the bot saw the give-up leave the quest Active" (Select-String -Path $c.Log -Pattern "orin-e2e: OK attempt 1 was not won" -Quiet)
+  Expect-Paid "forfeit" $before $mid
 
-  Section "no first card: Orin does not hand out the quest"
+  Section "before Rowan's trial and Orin's deck: the duel quest cannot be taken"
   $nc = "orn$suffix"
   Register-Account $nc "warrior"
   $c = Start-Orin "nocard-1" $nc @("--orin-peek")
   Ok "peek finished" (Finish $c 90)
   Lines $c
-  Ok "no card, no quest in the API" ((Facts $nc).Quest -eq 0)
+  Ok "no first deck, no quest in the API" ((Facts $nc).Quest -eq 0)
   Ok "no exception in the zone log" (-not (Select-String -Path $script:zoneLog -Pattern "NullReference|Exception" -Quiet))
 
   if ($ShotDir -ne "") {
@@ -194,7 +202,7 @@ try {
     $script:clients += $p
     Ok "the window run finished" (Finish @{ Proc = $p; Log = $log } 200)
     Lines @{ Proc = $p; Log = $log }
-    Ok "paid once in the window run too" ((Facts $sh).Gold -eq 300)
+    Ok "the window run ended with the quest Done and one card" ((Facts $sh).Quest -eq 3)
   }
 }
 finally {

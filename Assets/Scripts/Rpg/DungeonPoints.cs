@@ -25,7 +25,9 @@ namespace ZenoniaProto.Rpg
         public readonly int Tx, Ty;
         /// <summary>The floor tile a warp to this crystal lands on (next to it).</summary>
         public readonly int ArriveTx, ArriveTy;
-        public WaypointDef(string id, string mapId, string name, int tx, int ty, int arriveTx, int arriveTy) { Id = id; MapId = mapId; Name = name; Tx = tx; Ty = ty; ArriveTx = arriveTx; ArriveTy = arriveTy; }
+        /// <summary>A touch point for a quest only (Taurus rune stone / Ancient Roots, phase 05): walking up to it attunes it like a crystal and counts for a WaypointId quest, but it is no warp destination (WaypointWindow skips it).</summary>
+        public readonly bool QuestOnly;
+        public WaypointDef(string id, string mapId, string name, int tx, int ty, int arriveTx, int arriveTy, bool questOnly = false) { Id = id; MapId = mapId; Name = name; Tx = tx; Ty = ty; ArriveTx = arriveTx; ArriveTy = arriveTy; QuestOnly = questOnly; }
     }
 
     /// <summary>
@@ -63,7 +65,27 @@ namespace ZenoniaProto.Rpg
             new WaypointDef("rootburrow1", "rootburrow", "Rootburrow 1F (Entrance)", 68, 21, 67, 23),
             new WaypointDef("rootburrow2", "rootburrow2", "Rootburrow 2F", 68, 9, 66, 9),
             new WaypointDef("rootburrow3", "rootburrow3", "Rootburrow 3F", 69, 37, 67, 37),
+            // Taurus quest touch points (T-M03 / T-M04): solid greybox tiles of Clover Meadows (Tools/build-tau-greybox-rows.py RUNESTONE / ANCIENT_ROOTS), reached from the free tile beside them.
+            new WaypointDef(TauRunestoneId, "tauCloverMeadows", "Brook Runestone", 38, 23, 38, 22, true),
+            new WaypointDef(TauAncientRootsId, "tauCloverMeadows", "Ancient Roots", 53, 9, 55, 9, true),
+            // Ancient Root Shrine (phase 06): the entrance crystal and the checkpoint crystal in front of the boss hall (a hero who falls wakes at the entrance and warps back in one touch), plus the Memory Amber (quest touch point).
+            new WaypointDef(TauShrineGateId, "tauAncientRootShrine", "Ancient Root Shrine (Entrance)", 2, 41, 3, 41),
+            new WaypointDef(TauShrineDeepId, "tauAncientRootShrine", "Ancient Root Shrine (Boss Hall)", 62, 45, 62, 46),
+            new WaypointDef(TauMemoryAmberId, "tauAncientRootShrine", "Memory Amber", 43, 48, 43, 49, true),
         };
+        public const string TauRunestoneId = "tauBrookRunestone", TauAncientRootsId = "tauAncientRoots", TauShrineGateId = "tauShrineGate", TauShrineDeepId = "tauShrineDeep", TauMemoryAmberId = "tauMemoryAmber";
+
+        /// <summary>"Return to Clover Meadows": the exit row of the shrine crystals, always allowed, lands on the corridor of the dungeon door (Clover Meadows DoorArrival).</summary>
+        public const string ShrineExitId = "shrine-exit", ShrineExitMapId = "tauCloverMeadows", ShrineExitName = "Clover Meadows (outside)";
+        public const int ShrineExitTx = 57, ShrineExitTy = 6;
+        public const string ShrineMapId = "tauAncientRootShrine";
+
+        /// <summary>The exit row id of a crystal: the shrine's own, or Rootburrow's.</summary>
+        public static string ExitFor(WaypointDef from) { return from != null && from.MapId == ShrineMapId ? ShrineExitId : ExitId; }
+        public static string ExitNameFor(string exitId) { return exitId == ShrineExitId ? ShrineExitName : ExitName; }
+
+        /// <summary>Crystals listed in the warp window of crystal `from`: the same dungeon only (a shrine crystal never offers Rootburrow's, nor the reverse).</summary>
+        public static bool SameDungeon(WaypointDef a, WaypointDef b) { return a != null && b != null && (a.MapId == ShrineMapId) == (b.MapId == ShrineMapId); }
 
         public static ChestDef Chest(string id)
         {
@@ -93,9 +115,9 @@ namespace ZenoniaProto.Rpg
         /// </summary>
         public static string WarpRefusal(PlayerState p, string fromId, string toId, float msSinceHurt)
         {
-            if (Waypoint(fromId) == null || !p.HasWaypoint(fromId)) return "Touch the crystal first";
+            if (Waypoint(fromId) == null || Waypoint(fromId).QuestOnly || !p.HasWaypoint(fromId)) return "Touch the crystal first";
             if (toId == fromId) return "You are already here";
-            if (toId != ExitId && (Waypoint(toId) == null || !p.HasWaypoint(toId))) return "That crystal is not attuned yet";
+            if (toId != ExitId && toId != ShrineExitId && (Waypoint(toId) == null || Waypoint(toId).QuestOnly || !p.HasWaypoint(toId))) return "That crystal is not attuned yet";
             if (msSinceHurt < WarpCombatMs) return "Cannot warp during combat";
             return null;
         }
@@ -104,6 +126,7 @@ namespace ZenoniaProto.Rpg
         public static bool Target(string toId, out string mapId, out int tx, out int ty)
         {
             if (toId == ExitId) { mapId = ExitMapId; tx = ExitTx; ty = ExitTy; return true; }
+            if (toId == ShrineExitId) { mapId = ShrineExitMapId; tx = ShrineExitTx; ty = ShrineExitTy; return true; }
             WaypointDef w = Waypoint(toId);
             if (w == null) { mapId = null; tx = ty = 0; return false; }
             mapId = w.MapId; tx = w.ArriveTx; ty = w.ArriveTy;

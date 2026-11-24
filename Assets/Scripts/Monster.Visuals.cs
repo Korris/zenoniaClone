@@ -17,10 +17,10 @@ namespace ZenoniaProto
         /// </summary>
         void LoadSheets()
         {
-            string sheet = def.Sheet;
+            string sheet = def.File;
             bool hasFallback = def.FallbackSheet != null;
             int walkCell = def.WalkCellPx, attackCell = def.AttackCellPx; // own art: the def's cell sizes (event bosses: 384 / 512 cells at doubled pixels per unit, so a cell covers the same world size)
-            if (hasFallback && !SheetUsable(def.Sheet, walkCell)) { sheet = def.FallbackSheet; artTint = def.FallbackTint; walkCell = WalkCell; attackCell = AttackCell; }
+            if (hasFallback && !SheetUsable(def.File, walkCell)) { sheet = def.FallbackSheet; artTint = def.FallbackTint; walkCell = WalkCell; attackCell = AttackCell; }
             walk = SpriteSheet.Grid(SheetFolder + sheet, walkCell, walkCell, GameConfig.FramePpu * walkCell / WalkCell, new Vector2(0.5f, 0f));
             // Optional standing loop in the walk layout (Mire Hydra Queen v2, 2026-11-19): drawn while the monster stands, the walk sheet only while it moves.
             if (Resources.Load<Texture2D>(SheetFolder + sheet + "-idle") != null)

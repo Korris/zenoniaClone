@@ -24,6 +24,8 @@ namespace ZenoniaProto.Rpg
     public static class WantedBoss
     {
         public const long DayMs = 86_400_000L;
+        /// <summary>Taurus V4 (24/11/2026): all four bosses live on pre-Taurus maps, so the Wanted Boss is OFF in the live game (no spawn, no status, no board, no HUD) until a Taurus boss joins the rotation (Verdant Horn, outside V4). WorldFlags.LegacyEnabled turns it back on.</summary>
+        public static bool Enabled { get { return WorldFlags.LegacyEnabled; } }
         /// <summary>The day turns at 05:00 Vietnam time (UTC+7) = 22:00 UTC: shifting the clock by 7h - 5h = 2h makes that instant a multiple of DayMs. The one place to change the reset hour.</summary>
         public const long ResetShiftMs = 2L * 3_600_000L;
 
