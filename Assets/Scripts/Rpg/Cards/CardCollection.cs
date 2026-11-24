@@ -22,7 +22,7 @@ namespace ZenoniaProto.Rpg
         public CardRankData Rank = new CardRankData();
         /// <summary>Bit per first-time hint already shown (phase 08). Bit 0 = the guided tour of More > Cards (CardTutorial).</summary>
         public int Help;
-        public const int HelpTutorial = 1, HelpMask = 1;
+        public const int HelpTutorial = 1, HelpPvpRisk = 2, HelpMask = 3; // bit 1 = the first PvP duel's risk box was confirmed
 
         public int Count(string id) { int n; return id != null && cards.TryGetValue(id, out n) ? n : 0; }
         /// <summary>Lock Card is on for this kind: none of its copies can be sold or converted (they can still go in the duel deck).</summary>

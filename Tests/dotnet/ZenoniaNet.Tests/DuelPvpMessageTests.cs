@@ -130,9 +130,9 @@ public class DuelPvpMessageTests
         s.Ranked = false; s.RankNotCounted = false; s.LpChange = 27; s.Write(w);
         Assert.True(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
         Assert.False(m.Ranked); Assert.False(m.RankNotCounted); Assert.Equal(27, m.LpChange);
-        // a hand-built flag byte with bit 16 set is not a state
+        // a hand-built flag byte with bit 32 set is not a state
         s.Write(w);
-        var raw = w.CopyData(); raw[1 + 1 + 1] |= 16; // op, result, end reason, flags
+        var raw = w.CopyData(); raw[1 + 1 + 1] |= 32; // op, result, end reason, flags
         var r = new NetDataReader(); r.SetSource(raw);
         byte op; Assert.True(NetMessageReader.ReadOpcode(r, out op));
         Assert.False(DuelStateMsg.TryRead(r, out m));
@@ -148,8 +148,8 @@ public class DuelPvpMessageTests
             DuelRequestMsg m; Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
             Assert.Equal(op, m.Op);
         }
-        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)11); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((ushort)0); w.Put((byte)0);
-        DuelRequestMsg bad; Assert.False(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out bad)); // the op after LeaveQueue does not exist
+        w.Reset(); w.Put(NetOp.DuelRequest); w.Put((byte)13); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((byte)0); w.Put((ushort)0); w.Put((byte)0);
+        DuelRequestMsg bad; Assert.False(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out bad)); // the op after SkipScript does not exist
     }
 
     [Fact]

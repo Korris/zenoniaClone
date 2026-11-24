@@ -1,0 +1,117 @@
+
+=== stack
+mongod up
+server-api up
+zone up
+
+=== full: accept + immediate duel request, scripted duel, hand in once, nothing more on a second run, practice free
+PASS start: the quest was never taken, no reward cards
+PASS the bot finished
+  [bot] start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+  [bot] OK stands 42 units from Orin on oakhavenVillage
+  [bot] OK accept + duel request sent back to back: duel started, quest=Active
+  [bot] OK a move off the script (cell 5) was refused, moves 0 -> 0
+  [bot] lesson move 1: thornBoar at cell 0, lesson 1
+  [bot] lesson move 3: hornRabbit at cell 4, lesson 2
+  [bot] lesson move 5: meadowMantis at cell 1, lesson 3
+  [bot] duel over: Lose score 7-9 reason 0 | at the final view: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0 (must be ReadyToTurnIn: the quest state arrives before the view)
+  [bot] hand in, before: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+  [bot] OK after turn-in: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK second turn-in changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK a second tutorial duel is refused
+  [bot] OK practice duel started, scripted step 0
+  [bot] OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+PASS the bot is gone
+PASS full paid exactly 300 G
+PASS full got exactly 1 hornRabbit
+PASS full got exactly 1 thornBoar
+PASS full got exactly 1 forestWolf
+PASS full quest is Done in the API
+PASS the first-time card hint bits are intact
+PASS second run finished
+  [bot] start: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK stands 42 units from Orin on oakhavenVillage
+  [bot] OK a second tutorial duel is refused
+  [bot] OK practice duel started, scripted step 0
+  [bot] OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+PASS the second run is gone
+PASS a second run (quest Done, practice duel) pays nothing
+
+=== drop: the client dies mid-duel, the quest stays Active, the character plays it again and is paid once
+PASS the bot reached the drop point
+PASS the zone let the character go
+PASS after the kill: the quest is Active, nothing paid
+PASS no zone exception for the dropped duel
+PASS the second login finished
+  [bot] start: quest=Active gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+  [bot] OK stands 42 units from Orin on oakhavenVillage
+  [bot] OK tutorial duel started from Active
+  [bot] OK a move off the script (cell 5) was refused, moves 0 -> 0
+  [bot] lesson move 1: thornBoar at cell 0, lesson 1
+  [bot] lesson move 3: hornRabbit at cell 4, lesson 2
+  [bot] lesson move 5: meadowMantis at cell 1, lesson 3
+  [bot] duel over: Lose score 7-9 reason 0 | at the final view: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0 (must be ReadyToTurnIn: the quest state arrives before the view)
+  [bot] hand in, before: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+  [bot] OK after turn-in: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK second turn-in changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK a second tutorial duel is refused
+  [bot] OK practice duel started, scripted step 0
+  [bot] OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+PASS the second login is gone
+PASS drop paid exactly 300 G
+PASS drop got exactly 1 hornRabbit
+PASS drop got exactly 1 thornBoar
+PASS drop got exactly 1 forestWolf
+PASS drop quest is Done in the API
+
+=== forfeit: giving up counts, paid once
+PASS the bot finished
+  [bot] start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+  [bot] OK stands 41 units from Orin on oakhavenVillage
+  [bot] OK accept + duel request sent back to back: duel started, quest=Active
+  [bot] gave up at once
+  [bot] OK a move off the script (cell 5) was refused, moves 0 -> 0
+  [bot] duel over: Lose score 0-0 reason 1 | at the final view: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0 (must be ReadyToTurnIn: the quest state arrives before the view)
+  [bot] hand in, before: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+  [bot] OK after turn-in: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK second turn-in changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK a second tutorial duel is refused
+  [bot] OK practice duel started, scripted step 0
+  [bot] OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+PASS the bot is gone
+PASS forfeit paid exactly 300 G
+PASS forfeit got exactly 1 hornRabbit
+PASS forfeit got exactly 1 thornBoar
+PASS forfeit got exactly 1 forestWolf
+PASS forfeit quest is Done in the API
+
+=== no first card: Orin does not hand out the quest
+PASS peek finished
+  [bot] start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=0 help=0
+PASS no card, no quest in the API
+PASS no exception in the zone log
+
+=== screens: a real window, online (PNGs in D:/zenoniaClone/docs/reference/card-gem-ui/card-tutorial-shots/online)
+PASS the window run finished
+  [bot] start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+  [bot] OK stands 41 units from Orin on oakhavenVillage
+  [bot] OK accept + duel request sent back to back: duel started, quest=Active
+  [bot] OK a move off the script (cell 5) was refused, moves 0 -> 0
+  [bot] lesson move 1: thornBoar at cell 0, lesson 1
+  [bot] lesson move 3: hornRabbit at cell 4, lesson 2
+  [bot] lesson move 5: meadowMantis at cell 1, lesson 3
+  [bot] duel over: Lose score 7-9 reason 0 | at the final view: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0 (must be ReadyToTurnIn: the quest state arrives before the view)
+  [bot] hand in, before: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+  [bot] OK after turn-in: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK second turn-in changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] OK a second tutorial duel is refused
+  [bot] OK practice duel started, scripted step 0
+  [bot] OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+  [bot] end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+PASS paid once in the window run too
+
+RESULT: 71 passed, 0 failed

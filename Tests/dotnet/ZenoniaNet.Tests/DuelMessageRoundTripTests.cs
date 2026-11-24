@@ -98,6 +98,36 @@ public class DuelMessageRoundTripTests
     }
 
     [Fact]
+    public void NpcFlagAndScriptStepRoundTripWithoutDisturbingTheOtherFlags()
+    {
+        var w = new NetDataWriter();
+        DuelStateMsg s = Sample(); s.Npc = true; s.ScriptStep = 3; s.Ranked = true; s.Write(w);
+        DuelStateMsg m; Assert.True(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
+        Assert.True(m.Npc); Assert.Equal(3, m.ScriptStep); Assert.True(m.Ranked); Assert.True(m.YourTurn); Assert.True(m.PickAtRandom); Assert.False(m.RankNotCounted);
+        Sample().Write(w);
+        Assert.True(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
+        Assert.False(m.Npc); Assert.Equal(0, m.ScriptStep);
+        s = Sample(); s.ScriptStep = DuelStateMsg.MaxScriptStep + 1; s.Write(w);
+        Assert.False(DuelStateMsg.TryRead(Reader(w, NetOp.DuelState), out m));
+    }
+
+    [Fact]
+    public void NpcRequestsRoundTripAndNewOpsAreAppended()
+    {
+        Assert.Equal((byte)10, (byte)DuelOp.LeaveQueue); Assert.Equal((byte)11, (byte)DuelOp.PlayNpc); Assert.Equal((byte)12, (byte)DuelOp.SkipScript);
+        Assert.Equal((byte)32, (byte)DuelFail.NoStakes); Assert.Equal((byte)33, (byte)DuelFail.NoQuest); Assert.Equal((byte)35, (byte)DuelFail.ScriptMove);
+        var w = new NetDataWriter(); DuelRequestMsg m;
+        new DuelRequestMsg { Op = DuelOp.PlayNpc, A = 1 }.Write(w);
+        Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
+        Assert.Equal(DuelOp.PlayNpc, m.Op); Assert.Equal(1, m.A);
+        new DuelRequestMsg { Op = DuelOp.SkipScript }.Write(w);
+        Assert.True(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
+        Assert.Equal(DuelOp.SkipScript, m.Op);
+        new DuelRequestMsg { Op = (DuelOp)13 }.Write(w);
+        Assert.False(DuelRequestMsg.TryRead(Reader(w, NetOp.DuelRequest), out m));
+    }
+
+    [Fact]
     public void EmptyStateAndTheLargestStateFitOnePacket()
     {
         var w = new NetDataWriter();

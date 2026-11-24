@@ -16,8 +16,8 @@ namespace ZenoniaProto
 
         readonly RectTransform veil;
         readonly Text message;
-        readonly U.PieceButton yes;
-        Action onYes;
+        readonly U.PieceButton yes, no;
+        Action onYes, onNo;
 
         public static bool IsOpen { get { return instance != null && instance.veil.gameObject.activeSelf; } }
 
@@ -31,16 +31,18 @@ namespace ZenoniaProto
             message = U.Txt(box, "Message", PadX, 22f, W - PadX * 2f, H - 108f, "", U.TextNormal + 2, U.Ink, TextAnchor.MiddleCenter);
             float bw = 190f, gap = 20f, x = (W - bw * 2f - gap) * 0.5f;
             yes = new U.PieceButton(box, "Yes", x, H - 70f, bw, U.ButtonH, GemUiArt.Frame("btn-teal"), "Yes", () => { Action go = onYes; Close(); if (go != null) go(); });
-            new U.PieceButton(box, "Cancel", x + bw + gap, H - 70f, bw, U.ButtonH, GemUiArt.Frame("btn-blue"), "Cancel", Close);
+            no = new U.PieceButton(box, "Cancel", x + bw + gap, H - 70f, bw, U.ButtonH, GemUiArt.Frame("btn-blue"), "Cancel", () => { Action alt = onNo; Close(); if (alt != null) alt(); });
             veil.gameObject.SetActive(false);
         }
 
-        public static void Ask(string text, string yesLabel, Action go)
+        /// <summary>`cancelLabel` / `onCancel`: the second button's text and what it does besides closing the box (Orin's "Duel / Later", "Practice / Open Cards"). Esc only closes the box.</summary>
+        public static void Ask(string text, string yesLabel, Action go, string cancelLabel = "Cancel", Action onCancel = null)
         {
             if (instance == null || go == null) return; // without the box there is no safe way to confirm: nothing is sent
             instance.message.text = text;
             instance.yes.Set(yesLabel, true);
-            instance.onYes = go;
+            instance.no.Set(cancelLabel, true);
+            instance.onYes = go; instance.onNo = onCancel;
             instance.veil.SetAsLastSibling();
             instance.veil.gameObject.SetActive(true);
         }
@@ -48,7 +50,7 @@ namespace ZenoniaProto
         public static void Close()
         {
             if (instance == null) return;
-            instance.onYes = null;
+            instance.onYes = null; instance.onNo = null;
             instance.veil.gameObject.SetActive(false);
         }
 

@@ -9,7 +9,7 @@ namespace ZenoniaProto.Rpg
         {
             QuestDef q = QuestCatalog.Get(questId);
             if (q == null) return ActionResult.Fail("No such quest");
-            if (!Quests.Unlocked(q)) return ActionResult.Fail("Finish the quest before it first");
+            if (!Quests.Unlocked(q)) return ActionResult.Fail(q.NeedsCard && Cards.AlbumCount == 0 ? "Find your first monster card first" : "Finish the quest before it first");
             if (!Quests.Accept(q)) return ActionResult.Fail("Quest already taken");
             if (q.WaypointId != null && HasWaypoint(q.WaypointId)) Quests.CountReach(q.WaypointId); // the crystal was attuned before the quest was taken
             return ActionResult.Success();
@@ -25,6 +25,7 @@ namespace ZenoniaProto.Rpg
             if (q.RewardGold > 0) ApplyPickup(new LootEntry { Kind = LootKind.Coin, Value = q.RewardGold });
             if (q.RewardStones > 0) ApplyPickup(new LootEntry { Kind = LootKind.UpgradeStone, Value = q.RewardStones }); // a 0 entry would still pay 1 stone
             for (int i = 0; i < q.RewardHpPotions; i++) ApplyPickup(new LootEntry { Kind = LootKind.HpPotion, Value = 1 });
+            if (q.RewardCards != null) foreach (string id in q.RewardCards) AddCard(id); // a stack at the cap just stays there; Add makes the Album mark
             if (q.RewardStarterHat) // fixed uid: the quest pays once, so it never collides
             {
                 HeadgearDef hat = HeadgearCatalog.StarterFor(ClassId);

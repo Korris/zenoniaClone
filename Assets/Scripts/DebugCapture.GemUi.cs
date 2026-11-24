@@ -18,6 +18,8 @@ namespace ZenoniaProto
             string[] args = Environment.GetCommandLineArgs();
             PlayerState p = RpgSession.Player;
             if (p != null && Array.IndexOf(args, "--gem-seed") >= 0) SeedGems(p);
+            string questState = Arg(args, "--quest-state"); // The First Card Duel: available | active | ready | done (needs --gem-seed: the quest opens after the first card), DebugCapture.DuelNpc.cs
+            if (p != null && questState != null) SetQuestState(p, questState);
             string toast = Arg(args, "--card-toast"); // a card drop toast for that card id (the real CardToast path)
             if (toast != null) for (int t = 0; t < 3; t++) CardToast.Show(CardTable.Index(toast), t == 0); // 3 in a row: the 3rd shows after the map-name banner is gone (--card-toast <id>)
             string talk = Arg(args, "--talk-npc"); // the dialogue of a villager by id, as TownNpc.Talk starts it (Card Master: pages, then the Card window)

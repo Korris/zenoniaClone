@@ -12,8 +12,8 @@ namespace ZenoniaProto.Rpg
 
     public enum DuelOutcome { Playing = 0, Side0Wins = 1, Side1Wins = 2, Draw = 3 }
 
-    /// <summary>Why a placement was refused (callers switch on this, never on the message). Stale = the player's picture of the turn or of the hand was out of date.</summary>
-    public enum DuelPlayError { None = 0, Over = 1, NotYourTurn = 2, NoSuchCard = 3, CellTaken = 4, Stale = 5, NotYet = 6 }
+    /// <summary>Why a placement was refused (callers switch on this, never on the message). Stale = the player's picture of the turn or of the hand was out of date. Script = the tutorial duel expects another card / cell (DuelNpcSession).</summary>
+    public enum DuelPlayError { None = 0, Over = 1, NotYourTurn = 2, NoSuchCard = 3, CellTaken = 4, Stale = 5, NotYet = 6, Script = 7 }
 
     public struct DuelPlay
     {
@@ -53,20 +53,38 @@ namespace ZenoniaProto.Rpg
         /// <summary>Cards a side still has to place (hand + undrawn).</summary>
         public int CardsLeft(int side) { return hand[side].Count + draw[side].Count; }
 
-        DuelMatch(ulong seed) { rng = new DuelRng(seed); Forfeited = -1; }
+        readonly int turnMs;
+        /// <summary>False for the NPC duels (tutorial / practice with Orin): nobody is hurried, Tick never places anything.</summary>
+        public bool HasClock { get { return turnMs > 0; } }
+
+        DuelMatch(ulong seed, int turnMs) { rng = new DuelRng(seed); Forfeited = -1; this.turnMs = turnMs; }
+
+        long NextDeadline(long nowMs) { return turnMs > 0 ? nowMs + turnMs : long.MaxValue; }
 
         /// <summary>Starts a match. Both decks must be 8 known card ids (DeckRules checks ownership and limits before). The first side to move is chosen by the seed.</summary>
-        public static DuelMatch Create(ulong seed, IList<string> deck0, IList<string> deck1, long nowMs)
+        /// <param name="turnMs">Clock per turn; 0 or less = no clock (NPC duels).</param>
+        public static DuelMatch Create(ulong seed, IList<string> deck0, IList<string> deck1, long nowMs, int turnMs = TurnMs)
         {
-            var m = new DuelMatch(seed);
-            m.Deal(0, deck0);
-            m.Deal(1, deck1);
+            var m = new DuelMatch(seed, turnMs);
+            m.Deal(0, deck0, true);
+            m.Deal(1, deck1, true);
             m.ToMove = m.rng.Next(2);
-            m.DeadlineMs = nowMs + TurnMs;
+            m.DeadlineMs = m.NextDeadline(nowMs);
             return m;
         }
 
-        void Deal(int side, IList<string> deck)
+        /// <summary>A match with NO shuffle and NO clock: each hand is the first 5 cards of its deck, the rest are drawn in order, `firstSide` moves first. Only the scripted tutorial uses it.</summary>
+        public static DuelMatch CreateFixed(IList<string> deck0, IList<string> deck1, int firstSide, long nowMs)
+        {
+            var m = new DuelMatch(1UL, 0);
+            m.Deal(0, deck0, false);
+            m.Deal(1, deck1, false);
+            m.ToMove = firstSide == 1 ? 1 : 0;
+            m.DeadlineMs = m.NextDeadline(nowMs);
+            return m;
+        }
+
+        void Deal(int side, IList<string> deck, bool shuffle)
         {
             if (deck == null || deck.Count != DeckSize) throw new ArgumentException("a duel deck has exactly " + DeckSize + " cards");
             var cards = new List<int>(DeckSize);
@@ -76,7 +94,7 @@ namespace ZenoniaProto.Rpg
                 if (i < 0) throw new ArgumentException("unknown card " + id);
                 cards.Add(i);
             }
-            for (int i = cards.Count - 1; i > 0; i--) { int j = rng.Next(i + 1); int t = cards[i]; cards[i] = cards[j]; cards[j] = t; }
+            if (shuffle) for (int i = cards.Count - 1; i > 0; i--) { int j = rng.Next(i + 1); int t = cards[i]; cards[i] = cards[j]; cards[j] = t; }
             for (int i = 0; i < cards.Count; i++) { if (i < HandSize) hand[side].Add(cards[i]); else draw[side].Enqueue(cards[i]); }
         }
 
@@ -84,7 +102,7 @@ namespace ZenoniaProto.Rpg
         public DuelPlay Place(int side, int handIndex, int cell, long nowMs, int expectTurn = 0, int expectCard = -1)
         {
             DuelPlay p = Play(side, handIndex, cell, false, expectTurn, expectCard);
-            if (p.Ok && !Finished) DeadlineMs = nowMs + TurnMs;
+            if (p.Ok && !Finished) DeadlineMs = NextDeadline(nowMs);
             return p;
         }
 
@@ -116,7 +134,7 @@ namespace ZenoniaProto.Rpg
             for (int c = 0; c < DuelBoard.Cells; c++) if (Board.IsEmpty(c)) free.Add(c);
             int cell = free[rng.Next(free.Count)], handIndex = rng.Next(hand[side].Count);
             DuelPlay p = Play(side, handIndex, cell, true);
-            if (p.Ok && !Finished) DeadlineMs = nowMs + TurnMs;
+            if (p.Ok && !Finished) DeadlineMs = NextDeadline(nowMs);
             return p;
         }
 

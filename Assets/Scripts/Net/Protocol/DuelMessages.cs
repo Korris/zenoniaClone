@@ -8,8 +8,9 @@ namespace ZenoniaProto.Net
     /// Turn = the turn the client is looking at (moves so far + 1), Card = the card index it believes sits at that hand index: the server refuses the placement when either is stale (a timeout placement or a quick
     /// opponent changed the hand under the tap). Forfeit: leaves the running duel (the opponent wins). Challenge: Other = the player id (the stakes are the server's rule: every casual PvP duel stakes both decks);
     /// CancelInvite (inviter), Accept, Decline (receiver); LeaveLobby: backs out of the invite. QueueRanked / LeaveQueue: join / leave the Ranked waiting line (the server checks level, deck and map; a client never says its rating). TakeCard: A = card index, the winner's pick from the loser's deck. A client never describes a card, a hand or a result.
+    /// PlayNpc: A = 0 the scripted tutorial duel with Card Master Orin (quest first-card-duel), 1 a practice duel (quest done); the server checks quest, distance and safety. SkipScript: drops the rest of the tutorial script. Place / Forfeit also drive an NPC duel.
     /// </summary>
-    public enum DuelOp : byte { SaveDeck = 0, Place = 1, Forfeit = 2, Challenge = 3, CancelInvite = 4, Accept = 5, Decline = 6, TakeCard = 7, LeaveLobby = 8, QueueRanked = 9, LeaveQueue = 10 }
+    public enum DuelOp : byte { SaveDeck = 0, Place = 1, Forfeit = 2, Challenge = 3, CancelInvite = 4, Accept = 5, Decline = 6, TakeCard = 7, LeaveLobby = 8, QueueRanked = 9, LeaveQueue = 10, PlayNpc = 11, SkipScript = 12 }
 
     public enum DuelNoticeKind : byte { Refused = 0, DeckSaved = 1 }
 
@@ -18,10 +19,11 @@ namespace ZenoniaProto.Net
     {
         None = 0, Busy = 1, NotSafe = 2, Combat = 3, Dead = 4, Trading = 5, DeckInvalid = 6, NoMatch = 7, NotYourTurn = 8, BadMove = 9, Disabled = 10, InDuel = 11,
         NoTarget = 12, TargetBusy = 13, InviteCooldown = 14, NoInvite = 15, NoLobby = 16, Declined = 17, Cancelled = 18, Expired = 19, OpponentLeft = 20,
-        WagerLevel = 21, WagerDaily = 22, ApiBusy = 23, WagerRefused = 24, StaleMove = 25, SelfInvite = 26, TargetNotReady = 27, NoPick = 28, AccountAge = 29, SameAccount = 30, RankedLevel = 31, NoStakes = 32
+        WagerLevel = 21, WagerDaily = 22, ApiBusy = 23, WagerRefused = 24, StaleMove = 25, SelfInvite = 26, TargetNotReady = 27, NoPick = 28, AccountAge = 29, SameAccount = 30, RankedLevel = 31, NoStakes = 32,
+        NoQuest = 33, TooFar = 34, ScriptMove = 35 // NPC duel: quest not in the right state / too far from Orin / the move is not the lesson's
     }
 
-    public static class DuelFailInfo { public const DuelFail Last = DuelFail.NoStakes; }
+    public static class DuelFailInfo { public const DuelFail Last = DuelFail.ScriptMove; }
 
     public struct DuelRequestMsg
     {
@@ -46,7 +48,7 @@ namespace ZenoniaProto.Net
             {
                 byte op = r.GetByte(); m.A = r.GetByte(); m.B = r.GetByte(); m.Turn = r.GetByte(); m.Card = r.GetByte(); m.Other = r.GetUShort();
                 int n = r.GetByte();
-                if (op > (byte)DuelOp.LeaveQueue || n > MaxDeck) return false;
+                if (op > (byte)DuelOp.SkipScript || n > MaxDeck) return false;
                 m.Op = (DuelOp)op;
                 m.Cards = new byte[n];
                 for (int i = 0; i < n; i++) m.Cards[i] = r.GetByte();
@@ -83,14 +85,16 @@ namespace ZenoniaProto.Net
     /// the client (DuelView), so there is no second copy of any of them to disagree. MsLeft = time left of the turn when sent; Result 0 playing / 1 win / 2 lose / 3 draw; EndReason 0 played out / 1 you left / 2 they left.
     /// WagerState = the card stakes: 0 none, 1 both decks held, 2 the winner is picking, 3 settling, 4 paid, 5 failed. PickedCard = the card the winner took (NoCard = none yet / a draw), PickAtRandom = the 30 s ran out,
     /// PickMsLeft = the winner's time left, PickCards = the loser's 8 staked cards, sent only to the winner while picking. OppAwayMs = how long the opponent has been disconnected (0 = connected); at 60 s they forfeit.
+    /// Npc = a duel with Card Master Orin (flag 16; no clock, no stakes) and ScriptStep (last byte) = the lesson the player is on, 0 = free play.
     /// Ranked = a Ranked match (no cards at stake); once it is over LpChange = the league points gained / lost and RankNotCounted = this match did not count (the same pair too often today, so LpChange is 0).
     /// </summary>
     public struct DuelStateMsg
     {
-        public const int MaxMoves = 16, MaxHand = 5, MaxCardIndex = 63, MaxPick = 8;
+        public const int MaxMoves = 16, MaxHand = 5, MaxCardIndex = 63, MaxPick = 8, MaxScriptStep = 5;
         public const byte NoCard = 255;
         public byte Result, EndReason, WagerState, PickedCard;
-        public bool YourTurn, PickAtRandom, Ranked, RankNotCounted;
+        public bool YourTurn, PickAtRandom, Ranked, RankNotCounted, Npc;
+        public byte ScriptStep;
         public short LpChange;
         public ushort MsLeft, OppAwayMs, PickMsLeft;
         public string OppName;
@@ -103,7 +107,7 @@ namespace ZenoniaProto.Net
         public void Write(NetDataWriter w)
         {
             w.Reset(); w.Put(NetOp.DuelState);
-            w.Put(Result); w.Put(EndReason); w.Put((byte)((YourTurn ? 1 : 0) | (PickAtRandom ? 2 : 0) | (Ranked ? 4 : 0) | (RankNotCounted ? 8 : 0))); w.Put(MsLeft); w.Put(LpChange);
+            w.Put(Result); w.Put(EndReason); w.Put((byte)((YourTurn ? 1 : 0) | (PickAtRandom ? 2 : 0) | (Ranked ? 4 : 0) | (RankNotCounted ? 8 : 0) | (Npc ? 16 : 0))); w.Put(MsLeft); w.Put(LpChange);
             w.Put(WagerState); w.Put(PickedCard); w.Put(PickMsLeft); w.Put(OppAwayMs);
             w.Put(OppName ?? "", NetProtocol.MaxNameLength);
             int n = Math.Min(MoveCount, MaxMoves);
@@ -115,6 +119,7 @@ namespace ZenoniaProto.Net
             int k = PickCards == null ? 0 : Math.Min(PickCards.Length, MaxPick);
             w.Put((byte)k);
             for (int i = 0; i < k; i++) w.Put(PickCards[i]);
+            w.Put(ScriptStep);
         }
 
         public static bool TryRead(NetDataReader r, out DuelStateMsg m)
@@ -126,9 +131,9 @@ namespace ZenoniaProto.Net
                 m.WagerState = r.GetByte(); m.PickedCard = r.GetByte(); m.PickMsLeft = r.GetUShort(); m.OppAwayMs = r.GetUShort();
                 m.OppName = r.GetString(NetProtocol.MaxNameLength);
                 int n = r.GetByte();
-                if (m.Result > 3 || m.EndReason > 2 || m.WagerState > 5 || flags > 15 || n > MaxMoves) return false;
+                if (m.Result > 3 || m.EndReason > 2 || m.WagerState > 5 || flags > 31 || n > MaxMoves) return false;
                 if (m.PickedCard != NoCard && m.PickedCard > MaxCardIndex) return false;
-                m.YourTurn = (flags & 1) != 0; m.PickAtRandom = (flags & 2) != 0; m.Ranked = (flags & 4) != 0; m.RankNotCounted = (flags & 8) != 0;
+                m.YourTurn = (flags & 1) != 0; m.PickAtRandom = (flags & 2) != 0; m.Ranked = (flags & 4) != 0; m.RankNotCounted = (flags & 8) != 0; m.Npc = (flags & 16) != 0;
                 m.MoveCard = new byte[n]; m.MoveCell = new byte[n]; m.MoveSide = new byte[n]; m.MoveAuto = new byte[n]; m.MoveFlips = new ushort[n];
                 for (int i = 0; i < n; i++)
                 {
@@ -144,6 +149,8 @@ namespace ZenoniaProto.Net
                 if (k > MaxPick) return false;
                 m.PickCards = new byte[k];
                 for (int i = 0; i < k; i++) { m.PickCards[i] = r.GetByte(); if (m.PickCards[i] > MaxCardIndex) return false; }
+                m.ScriptStep = r.GetByte();
+                if (m.ScriptStep > MaxScriptStep) return false;
                 return r.AvailableBytes == 0;
             }
             catch (Exception) { return false; }

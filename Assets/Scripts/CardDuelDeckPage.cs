@@ -114,7 +114,7 @@ namespace ZenoniaProto
             U.Panel(offlineRoot, "Box", 0f, 0f, PageW, PageH, true).raycastTarget = true; // taps stop here
             U.Txt(offlineRoot, "Title", 40f, 150f, PageW - 80f, 44f, "Card Duel is offline", 30, U.Ink, TextAnchor.MiddleCenter);
             U.Txt(offlineRoot, "Reason", 80f, 206f, PageW - 160f, 70f, DuelClient.OfflineReason, 20, U.InkSoft, TextAnchor.UpperCenter);
-            U.Txt(offlineRoot, "Hint", 80f, 290f, PageW - 160f, 60f, "Your cards, album and gems still work in the other tabs.", U.TextNormal, U.InkSoft, TextAnchor.UpperCenter);
+            U.Txt(offlineRoot, "Hint", 80f, 290f, PageW - 160f, 90f, "Your cards, album and gems still work in the other tabs.\nPractice with Card Master Orin works offline too: talk to him in Oakhaven.", U.TextNormal, U.InkSoft, TextAnchor.UpperCenter);
             offlineRoot.gameObject.SetActive(false);
         }
 
@@ -148,9 +148,14 @@ namespace ZenoniaProto
         void Challenge(int row)
         {
             if (Pending || DuelClient.InLobby || DuelClient.Running || pvpId[row] == 0) return;
-            Hold();
-            DuelClient.Challenge(pvpId[row]);
-            pvpRoot.gameObject.SetActive(false);
+            ushort target = pvpId[row];
+            CardDuelPvpRiskConfirm.Ask(() => // the first PvP duel of a character shows the 8 cards at risk first
+            {
+                if (Pending || DuelClient.InLobby || DuelClient.Running) return;
+                Hold();
+                DuelClient.Challenge(target);
+                pvpRoot.gameObject.SetActive(false);
+            });
         }
 
         /// <summary>The players in this zone, nearest first (the server only accepts a target on the same map). Offline there is nobody to challenge.</summary>

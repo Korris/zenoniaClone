@@ -35,10 +35,19 @@ describe('state schema: card fields', () => {
     expect(s).toMatchObject(full());
   });
 
-  it('cardHelp (first-time hint flag) defaults to 0 and refuses values beyond the known bit', () => {
+  it('cardHelp (first-time hint flag) defaults to 0 and refuses values beyond the known bits', () => {
     expect(stateSchema.parse({ ...base(), version: 5 }).cardHelp).toBe(0);
     expect(stateSchema.parse({ ...base(), version: 6, cardHelp: 1 }).cardHelp).toBe(1);
-    expect(() => stateSchema.parse({ ...base(), version: 6, cardHelp: 2 })).toThrow();
+    expect(stateSchema.parse({ ...base(), version: 6, cardHelp: 2 }).cardHelp).toBe(2); // bit 1 = first PvP risk box confirmed
+    expect(stateSchema.parse({ ...base(), version: 6, cardHelp: 3 }).cardHelp).toBe(3);
+    expect(() => stateSchema.parse({ ...base(), version: 6, cardHelp: 4 })).toThrow();
+  });
+
+  it('keeps the first-card-duel quest in every state (free-form quest id)', () => {
+    for (const state of [1, 2, 3]) {
+      const s = stateSchema.parse({ ...base(), version: 6, quests: [{ id: 'first-card-duel', state, progress: state === 1 ? 0 : 1 }] });
+      expect(s.quests).toEqual([{ id: 'first-card-duel', state, progress: state === 1 ? 0 : 1 }]);
+    }
   });
 
   it('defaults an old save to nothing owned', () => {

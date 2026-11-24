@@ -6,7 +6,7 @@ using U = ZenoniaProto.GemUiWidgets;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The first-time guided hint of the Monster Card system (phase 08): 3 short steps (cards drop from monsters; More > Cards and My Cards; the Album) in a small panel at the top
+    /// The first-time guided hint of the Monster Card system (phase 08): 4 short steps (cards drop from monsters; More > Cards and My Cards; the Album; the first duel with Orin) in a small panel at the top
     /// centre. Offered once per character: after the first card drop (CardToast) or the first time the Card window opens (CardWindow), whichever comes first. While the window is open
     /// steps 2 and 3 also point an arrow at the My Cards / Monster Album menu entry. Finishing or skipping stores the flag with the character (InvOp.CardHelp -> CardCollection.Help), so it
     /// never shows again, on any device; a session guard stops it popping up again before the server answered.
@@ -14,12 +14,13 @@ namespace ZenoniaProto
     public static class CardTutorial
     {
         const float W = 480f, H = 214f, PadX = 26f;
-        static readonly string[] Titles = { "Monster Cards", "More > Cards > My Cards", "Monster Album" };
+        static readonly string[] Titles = { "Monster Cards", "More > Cards > My Cards", "Monster Album", "First Card Duel" };
         static readonly string[] Bodies =
         {
             "Monsters can drop a card of their own kind when they fall. Every card you get is kept for your character.",
             "Open the More column of the HUD and tap Cards. My Cards lists every copy you hold: pick one to see its numbers, lock it or sell spares.",
-            "The Monster Album marks each monster the first time you hold its card. Fill it to claim milestone rewards. Spare cards become Soul Gems."
+            "The Monster Album marks each monster the first time you hold its card. Fill it to claim milestone rewards. Spare cards become Soul Gems.",
+            "Card Master Orin, by Oakhaven's south gate, lends you a deck for a first practice duel. Talk to him when you are ready."
         };
 
         const float ClosedTop = 160f, OpenTop = 6f; // below the toast / menu row over the HUD; over the window's title row when the Card window is open

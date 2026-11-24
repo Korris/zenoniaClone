@@ -182,6 +182,7 @@ namespace ZenoniaProto
                 if (InputAdapter.Pressed(GameKey.HpPotion)) Drink(hero, true);
                 if (InputAdapter.Pressed(GameKey.MpPotion)) Drink(hero, false);
             }
+            LocalDuelHost.Tick(); // offline: Orin's reply in the tutorial / practice duel (does nothing online)
             saveTimer += Time.unscaledDeltaTime;
             if (saveTimer >= AutosaveSeconds) SaveNow();
         }

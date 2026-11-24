@@ -40,11 +40,15 @@ namespace ZenoniaProto
             if (pick.Visible) pick.Tick();
             if (v.Finished && v.WagerState == DuelView.WagerPicking && !v.MustPick) RefreshWaitingLine(v); // the loser sees the winner's 30 s counting down
             if (v.Finished) { if (shownSecs != -1) { shownSecs = -1; timerText.text = ""; timerFill.fillAmount = 0f; } return; } // cleared once, not every frame
-            float left = DuelClient.SecondsLeft;
-            timerFill.fillAmount = Mathf.Clamp01(left / (DuelMatch.TurnMs / 1000f));
-            int secs = Mathf.CeilToInt(left);
-            if (secs != shownSecs) { shownSecs = secs; timerText.text = secs.ToString(CultureInfo.InvariantCulture); } // a new string only when the number changes
-            if ((left < DuelClient.MinPlaceSeconds) != lockedByClock) { lockedByClock = left < DuelClient.MinPlaceSeconds; Redraw(v); }
+            if (v.Npc) TickTutorial(v); // a duel with Orin has no turn clock: the lesson rings pulse instead
+            else
+            {
+                float left = DuelClient.SecondsLeft;
+                timerFill.fillAmount = Mathf.Clamp01(left / (DuelMatch.TurnMs / 1000f));
+                int secs = Mathf.CeilToInt(left);
+                if (secs != shownSecs) { shownSecs = secs; timerText.text = secs.ToString(CultureInfo.InvariantCulture); } // a new string only when the number changes
+                if ((left < DuelClient.MinPlaceSeconds) != lockedByClock) { lockedByClock = left < DuelClient.MinPlaceSeconds; Redraw(v); }
+            }
             if (v.OppAwayMs > 0) UpdateAway(v);
             if (waitUntil > 0f && Time.unscaledTime > waitUntil) { waitUntil = 0f; Redraw(v); } // the server refused: buttons work again
         }
@@ -63,12 +67,12 @@ namespace ZenoniaProto
         }
 
         // the placement is refused client-side when under half a second is left: the server's clock is a ping ahead, and the answer would be "turn over"
-        bool CanPlace(DuelView v) { return v.YourTurn && !v.Finished && !Animating(v) && waitUntil <= 0f && DuelClient.SecondsLeft >= DuelClient.MinPlaceSeconds; }
+        bool CanPlace(DuelView v) { return v.YourTurn && !v.Finished && !Animating(v) && waitUntil <= 0f && (v.Npc || DuelClient.SecondsLeft >= DuelClient.MinPlaceSeconds); }
 
         void OnHand(int i)
         {
             DuelView v = DuelClient.View;
-            if (v == null || i >= v.Hand.Count) return;
+            if (v == null || i >= v.Hand.Count || LessonBlocks(i, -1)) return;
             selected = i;
             Redraw(v);
         }
@@ -76,7 +80,9 @@ namespace ZenoniaProto
         void OnCell(int c)
         {
             DuelView v = DuelClient.View;
-            if (v == null || !CanPlace(v) || selected >= v.Hand.Count || dispCard[c] != DuelBoard.Empty) return;
+            if (v == null || !CanPlace(v) || dispCard[c] != DuelBoard.Empty || LessonBlocks(-1, c)) return;
+            if (lessonLock) selected = markHand; // the lesson's card goes on the lesson's cell whichever card was selected
+            if (selected >= v.Hand.Count) return;
             if (!DuelClient.Place(selected, c)) return;
             waitUntil = Time.unscaledTime + WaitSeconds;
             Redraw(v);
@@ -90,7 +96,7 @@ namespace ZenoniaProto
             string opp = string.IsNullOrEmpty(v.OppName) ? "Opponent" : v.OppName;
             mineScore.text = b.Score(DuelView.Me).ToString(CultureInfo.InvariantCulture);
             theirScore.text = b.Score(DuelView.Them).ToString(CultureInfo.InvariantCulture);
-            theirLabel.text = "Player";
+            theirLabel.text = v.Npc ? "Orin" : "Player";
             bool over = v.Finished && !Animating(v);
             turnText.text = over ? "Final" : "Turn " + Mathf.Min(DuelMatch.Turns, presented + 1) + " / " + DuelMatch.Turns;
             GemUiArt.SetPiece(statePill, GemUiArt.Frame(v.Finished ? "btn-blue" : v.YourTurn ? "btn-teal" : "btn-blue"));
@@ -103,10 +109,12 @@ namespace ZenoniaProto
             myLeft.text = "Your cards left: " + v.CardsLeft(DuelView.Me, presented);
             handHeader.text = "My Hand (" + v.Hand.Count + ")";
             DrawLog(v);
+            UpdateLesson(v);
             DrawCells(v, b);
             DrawHand(v);
             DrawSelected(v);
             DrawBanner(v);
+            DrawNpcPanels(v);
         }
 
         void DrawLog(DuelView v)
@@ -130,7 +138,7 @@ namespace ZenoniaProto
             {
                 int card = dispCard[c];
                 bool empty = card == DuelBoard.Empty;
-                GemUiArt.SetPiece(validMark[c], empty && canPlace ? B("cell-valid") : null);
+                GemUiArt.SetPiece(validMark[c], empty && canPlace && (!lessonLock || c == markCell) ? B("cell-valid") : null);
                 cell[c].Root.gameObject.SetActive(!empty);
                 if (empty) continue;
                 cell[c].Set(CardTable.ByIndex(card), 0, false);
@@ -151,7 +159,7 @@ namespace ZenoniaProto
             for (int i = 0; i < 5; i++)
             {
                 CardDef c = i < v.Hand.Count ? CardTable.ByIndex(v.Hand[i]) : null;
-                hand[i].Set(c, 0, c != null && i == selected, !CanPlace(v) && !v.Finished);
+                hand[i].Set(c, 0, c != null && i == selected, (!CanPlace(v) && !v.Finished) || (lessonLock && i != markHand));
             }
         }
 
@@ -163,7 +171,7 @@ namespace ZenoniaProto
             int[] e = c == null ? new int[4] : new[] { c.Top, c.Right, c.Bottom, c.Left };
             for (int i = 0; i < 4; i++) statNum[i].text = c == null ? "" : e[i].ToString(CultureInfo.InvariantCulture);
             wagerLine.text = WagerLine(v);
-            hint.text = v.Finished ? "" : v.YourTurn ? "Tap a hand card, then an empty cell." : "The opponent is thinking.";
+            hint.text = v.Finished ? "" : HintLine(v) ?? (v.YourTurn ? "Tap a hand card, then an empty cell." : v.Npc ? "Orin is thinking." : "The opponent is thinking.");
         }
 
         static string CardName(int index) { CardDef c = CardTable.ByIndex(index); return c != null ? c.Name : "?"; }
@@ -217,10 +225,10 @@ namespace ZenoniaProto
             GemUiArt.SetPiece(bannerArt, B(piece));
             bannerTitle.text = v.Result == DuelResult.Win ? "Victory!" : v.Result == DuelResult.Draw ? "Draw" : "Defeat";
             int mine = v.Score(DuelView.Me), theirs = v.Score(DuelView.Them);
-            string why = v.EndReason == 1 ? "You left the duel." : v.EndReason == 2 ? "The opponent left." : mine + " - " + theirs;
+            string why = NpcCutShort(v) ? "The duel was cut short." : v.EndReason == 1 ? "You left the duel." : v.EndReason == 2 ? "The opponent left." : mine + " - " + theirs;
             bool taken = v.PickedCard != DuelView.NoCard && v.WagerState >= DuelView.WagerSettling;
             bannerCard.Set(taken ? CardTable.ByIndex(v.PickedCard) : null, 0, false); // the card that changed hands, face up beside the words
-            bannerSub.text = why + StakesResult(v);
+            bannerSub.text = why + StakesResult(v) + NpcBannerLine(v);
             DrawRankRow(v);
             bannerSub.alignment = taken ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter;
             float textX = taken ? 34f + BannerCardW + 12f : 34f; // the text makes room for the card
@@ -228,6 +236,7 @@ namespace ZenoniaProto
             bannerSubText.sizeDelta = new Vector2(MidW - 108f - (textX - 34f), v.Ranked ? 50f : 86f); // a ranked result has no card text: the LP row sits under the score
             bool wait = v.WagerState == DuelView.WagerPicking; // the loser waits for the winner's pick: Continue stays grey meanwhile
             bannerButton.Set(wait ? "Please wait..." : "Continue", !wait);
+            LayoutBannerButtons(v);
         }
     }
 }

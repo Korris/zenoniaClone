@@ -106,13 +106,14 @@ namespace ZenoniaProto
         static string QuestRefusal(NetPlayer p, InvActionMsg m)
         {
             QuestDef q = QuestCatalog.Get(m.ItemUid);
+            if (m.Op == InvOp.QuestAccept && q != null && q.CardDuel && !DuelService.Enabled) return "Card Duel is switched off"; // the quest would sit Active with no duel to play
             return QuestCatalog.Refusal(m.ItemUid, q != null ? DistanceToNpc(p, HeroMap(p), q.GiverNpcId) : float.MaxValue);
         }
 
-        static IGameMap HeroMap(NetPlayer p) { return p.Hero.HomeZone != null && p.Hero.HomeZone.Map != null ? p.Hero.HomeZone.Map : MapRegistry.Current; }
+        internal static IGameMap HeroMap(NetPlayer p) { return p.Hero.HomeZone != null && p.Hero.HomeZone.Map != null ? p.Hero.HomeZone.Map : MapRegistry.Current; }
 
         /// <summary>From where the server has the hero to this villager; MaxValue when he is not on this map.</summary>
-        static float DistanceToNpc(NetPlayer p, IGameMap map, string npcId)
+        internal static float DistanceToNpc(NetPlayer p, IGameMap map, string npcId)
         {
             float distance = float.MaxValue;
             foreach (MapNpc n in map.Npcs)

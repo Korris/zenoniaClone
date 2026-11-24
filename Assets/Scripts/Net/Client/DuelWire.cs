@@ -14,7 +14,7 @@ namespace ZenoniaProto
                 Result = (byte)v.Result, EndReason = (byte)v.EndReason, YourTurn = v.YourTurn, MsLeft = (ushort)System.Math.Min(60000, v.MsLeft),
                 OppName = v.OppName, WagerState = (byte)v.WagerState, OppAwayMs = (ushort)System.Math.Min(60000, v.OppAwayMs),
                 PickedCard = (byte)v.PickedCard, PickMsLeft = (ushort)System.Math.Min(60000, v.PickMsLeft), PickAtRandom = v.PickedAtRandom,
-                Ranked = v.Ranked, RankNotCounted = v.RankNotCounted, LpChange = (short)System.Math.Max(-999, System.Math.Min(999, v.LpChange)),
+                Ranked = v.Ranked, RankNotCounted = v.RankNotCounted, Npc = v.Npc, ScriptStep = (byte)System.Math.Max(0, System.Math.Min(DuelStateMsg.MaxScriptStep, v.ScriptStep)), LpChange = (short)System.Math.Max(-999, System.Math.Min(999, v.LpChange)),
                 MoveCard = new byte[n], MoveCell = new byte[n], MoveSide = new byte[n], MoveAuto = new byte[n], MoveFlips = new ushort[n], Hand = new byte[v.Hand.Count], PickCards = new byte[v.PickCards.Count],
             };
             for (int i = 0; i < n; i++)
@@ -33,7 +33,7 @@ namespace ZenoniaProto
             {
                 Result = (DuelResult)m.Result, EndReason = m.EndReason, YourTurn = m.YourTurn, MsLeft = m.MsLeft, OppName = m.OppName ?? "",
                 WagerState = m.WagerState, OppAwayMs = m.OppAwayMs, PickedCard = m.PickedCard, PickMsLeft = m.PickMsLeft, PickedAtRandom = m.PickAtRandom,
-                Ranked = m.Ranked, RankNotCounted = m.RankNotCounted, LpChange = m.LpChange,
+                Ranked = m.Ranked, RankNotCounted = m.RankNotCounted, Npc = m.Npc, ScriptStep = m.ScriptStep, LpChange = m.LpChange,
             };
             for (int i = 0; i < m.MoveCount; i++)
                 v.Moves.Add(new DuelMove { Turn = i + 1, Side = m.MoveSide[i], Card = m.MoveCard[i], Cell = m.MoveCell[i], FlipMask = m.MoveFlips[i], Auto = m.MoveAuto[i] != 0 });

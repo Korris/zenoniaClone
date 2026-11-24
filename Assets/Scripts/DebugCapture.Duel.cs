@@ -24,6 +24,7 @@ namespace ZenoniaProto
                 DeckRules.Save(p, new[] { "frostfangKing", "duneScarab", "sandRaider", "crystalGolem", "iceGoblin", "frostSlime", "thornBoar", "meadowSlime" });
             }
             if (Array.IndexOf(args, "--duel-online") >= 0) DuelClient.DebugPretendOnline = true;
+            DebugDuelNpc(args, p); // --quest-offer / --orin-ask / --duel-risk / --duel-npc (DebugCapture.DuelNpc.cs)
             string pvp = Arg(args, "--duel-pvp");
             if (pvp != null) { DebugDuelPvp(pvp); return; } // PvP / pick screens without a second client (DebugCapture.DuelPvp.cs)
             string open = Arg(args, "--duel-open");

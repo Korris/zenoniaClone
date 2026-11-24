@@ -54,7 +54,7 @@ namespace ZenoniaProto
             inviteRule = U.Txt(invite, "Rule", Pad, 138f, InviteW - 2f * Pad, 30f, "", U.TextNormal + 2, U.Ink, TextAnchor.UpperLeft);
             inviteWarn = U.Txt(invite, "Warn", Pad, 172f, InviteW - 2f * Pad, 56f, "", U.TextNormal, U.Bad, TextAnchor.UpperLeft);
             float bw = 196f, gap = 20f, x = (InviteW - 2f * bw - gap) * 0.5f;
-            accept = new U.PieceButton(invite, "Accept", x, InviteH - 68f, bw, U.ButtonH, GemUiArt.Frame("btn-teal"), "Accept", DuelClient.Accept);
+            accept = new U.PieceButton(invite, "Accept", x, InviteH - 68f, bw, U.ButtonH, GemUiArt.Frame("btn-teal"), "Accept", OnAccept);
             new U.PieceButton(invite, "Decline", x + bw + gap, InviteH - 68f, bw, U.ButtonH, GemUiArt.Frame("btn-blue"), "Decline", DuelClient.Decline);
 
             wait = UiWinKit.Anchored(overlay, "Wait", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), 0f, 70f, WaitW, WaitH);
@@ -112,6 +112,12 @@ namespace ZenoniaProto
             wait.gameObject.SetActive(outgoing);
             if (incoming || outgoing) overlay.SetAsLastSibling();
             shownVersion = DuelClient.LobbyVersion;
+        }
+
+        // an invite with cards at stake asks the first-time risk question before it is accepted (nothing is sent until "I understand")
+        static void OnAccept()
+        {
+            if (DuelClient.Lobby.Stakes) CardDuelPvpRiskConfirm.Ask(DuelClient.Accept); else DuelClient.Accept();
         }
 
         void Update()

@@ -54,7 +54,7 @@ namespace ZenoniaProto
 
         void Duel()
         {
-            if (target != null) DuelClient.Challenge(target.PlayerId);
+            if (target != null) { ushort id = target.PlayerId; CardDuelPvpRiskConfirm.Ask(() => DuelClient.Challenge(id)); } // first PvP duel: the 8 cards at risk are shown first
             Close();
         }
 

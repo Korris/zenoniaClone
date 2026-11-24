@@ -42,7 +42,8 @@ namespace ZenoniaProto
 
         static CardWindow() { UiWindows.RegisterModal(() => IsOpen, RequestClose); }
 
-        public static void Open(Page start = Page.MyCards)
+        /// <param name="offerHint">false when the window only sits behind an Orin question box (CardMasterTalk): the first-time hint would stack on top of his question, so it waits for the next open.</param>
+        public static void Open(Page start = Page.MyCards, bool offerHint = true)
         {
             if (PetActions.Me == null || UiScreens.Root == null) return;
             if (instance == null)
@@ -57,7 +58,7 @@ namespace ZenoniaProto
             NotificationToast toasts = FindFirstObjectByType<NotificationToast>(); // "Sold 1 x ..." shows over this window
             if (toasts != null && toasts.transform.parent == instance.overlay.parent) toasts.transform.SetAsLastSibling();
             instance.SetPage(start);
-            CardTutorial.OfferOnWindowOpen(); // first time only: the 3-step hint above the window
+            if (offerHint) CardTutorial.OfferOnWindowOpen(); // first time only: the 3-step hint above the window
         }
 
         /// <summary>The tutorial points an arrow at a menu entry (My Cards = 0, Monster Album = 1); -1 clears it. Ignored while the window is closed.</summary>
@@ -79,6 +80,7 @@ namespace ZenoniaProto
 
         /// <summary>Capture only (--card-press sellall): taps the Sell all spare button of the My Cards page.</summary>
         public static void DebugPressSellAll() { if (IsOpen) instance.myCards.PressSellAll(); }
+        public static void DebugPressHint() { if (IsOpen) instance.battle.PressHint(); }
         public static void DebugPressMain() { if (IsOpen) instance.pages[(int)instance.page].DebugPressMain(); }
 
         /// <summary>Esc and the X: with a duel running it asks first (leaving counts as a loss); otherwise it closes.</summary>
@@ -88,7 +90,7 @@ namespace ZenoniaProto
             if (CardConfirmBox.IsOpen) { CardConfirmBox.Close(); return; } // Esc with a question open only cancels the question
             if (DuelClient.Running)
             {
-                CardConfirmBox.Ask("Leave the duel?\nIt counts as a loss and pays nothing.", "Leave", () => { DuelClient.Forfeit(); });
+                CardConfirmBox.Ask(DuelClient.View != null && DuelClient.View.Npc ? "Leave the duel with Orin?\nIt counts as a loss." : "Leave the duel?\nIt counts as a loss and pays nothing.", "Leave", () => { DuelClient.Forfeit(); });
                 return;
             }
             if (DuelClient.View != null) DuelClient.Reset();

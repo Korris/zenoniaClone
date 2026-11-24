@@ -110,15 +110,19 @@ namespace ZenoniaProto
         public static bool Place(int handIndex, int cell)
         {
             DuelView v = View;
-            if (v == null || v.Finished || handIndex < 0 || handIndex >= v.Hand.Count || SecondsLeft < MinPlaceSeconds) return false;
+            if (v == null || v.Finished || handIndex < 0 || handIndex >= v.Hand.Count || (!v.Npc && SecondsLeft < MinPlaceSeconds)) return false; // a duel with Orin has no clock
             Send(new DuelRequestMsg { Op = DuelOp.Place, A = (byte)handIndex, B = (byte)cell, Turn = (byte)v.Turn, Card = (byte)v.Hand[handIndex] });
             return true;
         }
         public static void Forfeit() { Send(new DuelRequestMsg { Op = DuelOp.Forfeit }); }
+        /// <summary>Asks Card Master Orin for a duel: tutorial = the scripted first duel (quest first-card-duel is active), else a practice duel (quest done). Works offline too (LocalDuelHost).</summary>
+        public static void PlayNpc(bool tutorial) { Send(new DuelRequestMsg { Op = DuelOp.PlayNpc, A = (byte)(tutorial ? 0 : 1) }); }
+        /// <summary>Drops the rest of the tutorial script (free play from the next turn).</summary>
+        public static void SkipScript() { Send(new DuelRequestMsg { Op = DuelOp.SkipScript }); }
 
         static void Send(DuelRequestMsg m)
         {
-            if (NetMode.IsClient) NetClient.SendDuel(m); else Notify(OfflineReason, false);
+            if (NetMode.IsClient) NetClient.SendDuel(m); else if (LocalDuelHost.Accepts(m.Op)) LocalDuelHost.Handle(m); else Notify(OfflineReason, false); // offline only the duel with Orin works
         }
 
         /// <summary>Why this character cannot start a duel right now (empty = it can; the server still checks): offline, level, today's limit. The deck is checked by the page that has the deck.</summary>
@@ -177,6 +181,9 @@ namespace ZenoniaProto
                 case DuelFail.SameAccount: return "You cannot duel your own other character";
                 case DuelFail.RankedLevel: return RankedRules.Text(RankedError.Level);
                 case DuelFail.NoStakes: return "Card Wager is switched off: this duel has no cards at stake";
+                case DuelFail.NoQuest: return "Orin has no duel for you right now";
+                case DuelFail.TooFar: return "Too far from Card Master Orin";
+                case DuelFail.ScriptMove: return "Follow the lesson: place the highlighted card on the highlighted cell";
                 default: return "";
             }
         }

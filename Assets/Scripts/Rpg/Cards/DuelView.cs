@@ -30,6 +30,9 @@ namespace ZenoniaProto.Rpg
         public bool PickedAtRandom;
         /// <summary>A Ranked match (no cards at stake). Once it is over: LpChange = league points gained / lost, RankNotCounted = it did not count (the same pair too often today).</summary>
         public bool Ranked, RankNotCounted;
+        /// <summary>A duel against Card Master Orin (tutorial / practice, no clock, no stakes). ScriptStep = the lesson (1 ..) the player is on in the scripted tutorial, 0 = free play (practice, skipped, or the script is done).</summary>
+        public bool Npc;
+        public int ScriptStep;
         public int LpChange;
         public readonly List<int> PickCards = new List<int>();
         public readonly List<DuelMove> Moves = new List<DuelMove>();
@@ -101,7 +104,7 @@ namespace ZenoniaProto.Rpg
             foreach (DuelMove m in match.Moves) { DuelMove r = m; r.Side = m.Side == mySide ? Me : Them; v.Moves.Add(r); }
             foreach (int c in match.Hand(mySide)) v.Hand.Add(c);
             v.YourTurn = !match.Finished && match.ToMove == mySide;
-            v.MsLeft = match.Finished ? 0 : (int)System.Math.Max(0L, System.Math.Min(60000L, match.DeadlineMs - nowMs));
+            v.MsLeft = match.Finished || !match.HasClock ? 0 : (int)System.Math.Max(0L, System.Math.Min(60000L, match.DeadlineMs - nowMs));
             if (match.Finished)
             {
                 v.Result = match.Outcome == DuelOutcome.Draw ? DuelResult.Draw : (match.Outcome == DuelOutcome.Side0Wins) == (mySide == 0) ? DuelResult.Win : DuelResult.Lose;

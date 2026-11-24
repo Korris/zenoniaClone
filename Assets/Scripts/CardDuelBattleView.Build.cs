@@ -22,7 +22,7 @@ namespace ZenoniaProto
         readonly Action requestClose;
         RectTransform root, boardRoot, bannerRoot;
         Text mineScore, theirScore, mineLabel, theirLabel, turnText, stateText, timerText, logHeader, handHeader, oppName, oppLeft, myLeft, hint, bannerTitle, bannerSub;
-        Image statePill, timerFill, oppPortrait, bannerArt;
+        Image statePill, timerTrack, timerFill, oppPortrait, bannerArt;
         Image[] ownerOverlay = new Image[16], validMark = new Image[16], lastMark = new Image[16], cardShadow = new Image[16], cardFlash = new Image[16];
         RectTransform[] slotRt = new RectTransform[16];
         Vector3[] cellHome = new Vector3[16];
@@ -52,6 +52,7 @@ namespace ZenoniaProto
             BuildHand();
             BuildRight();
             BuildBanner();
+            BuildTutorial(); // Orin's lesson panel, Hint, rings, the result's second button (CardDuelBattleView.Tutorial.cs)
             pick = new CardDuelPickPanel(root, MidX, 0f); // the winner's pick screen: over the board while the winner chooses a card of the loser's deck
             root.gameObject.SetActive(false);
         }
@@ -76,7 +77,7 @@ namespace ZenoniaProto
             statePill = GemUiArt.Img(root, "StatePill", 0f, 110f, 236f, 44f, GemUiArt.Frame("btn-teal"));
             stateText = U.Txt(root, "State", 10f, 110f, 216f, 40f, "", 20, U.OnButton, TextAnchor.MiddleCenter);
             var rim = stateText.gameObject.AddComponent<Outline>(); rim.effectColor = new Color(0.45f, 0.28f, 0.1f, 0.85f); rim.effectDistance = new Vector2(1.2f, -1.2f);
-            GemUiArt.Img(root, "TimerTrack", 242f, 106f, 52f, 52f, B("timer-ring-track"));
+            timerTrack = GemUiArt.Img(root, "TimerTrack", 242f, 106f, 52f, 52f, B("timer-ring-track"));
             timerFill = GemUiArt.Img(root, "TimerFill", 242f, 106f, 52f, 52f, B("timer-ring-fill"));
             timerFill.type = Image.Type.Filled; timerFill.fillMethod = Image.FillMethod.Radial360; timerFill.fillOrigin = (int)Image.Origin360.Top; timerFill.fillClockwise = false;
             timerText = U.Txt(root, "Seconds", 242f, 106f, 52f, 52f, "", 17, U.Ink, TextAnchor.MiddleCenter);
@@ -164,13 +165,15 @@ namespace ZenoniaProto
         {
             GemUiArt.Img(root, "HandTray", MidX, HandY, MidW, HandH, B("hand-tray"));
             handHeader = U.Txt(root, "HandHeader", MidX + 44f, HandY + 2f, 200f, 22f, "My Hand", U.TextNormal, U.Ink, TextAnchor.MiddleLeft);
-            float gap = 12f, total = 5 * HandCardW + 4 * gap, x0 = MidX + (MidW - total) * 0.5f;
             for (int i = 0; i < 5; i++)
             {
                 int index = i;
-                hand[i] = new GemCardView(root, "Hand" + i, x0 + i * (HandCardW + gap), HandY + 20f, HandCardW, HandCardH, () => OnHand(index), false, false, EdgePx);
+                hand[i] = new GemCardView(root, "Hand" + i, HandX(i), HandY + 20f, HandCardW, HandCardH, () => OnHand(index), false, false, EdgePx);
             }
         }
+
+        /// <summary>Left edge of hand card i (5 cards, gap 12, centred under the board).</summary>
+        static float HandX(int i) { const float gap = 12f; return MidX + (MidW - (5 * HandCardW + 4 * gap)) * 0.5f + i * (HandCardW + gap); }
 
         void BuildRight()
         {

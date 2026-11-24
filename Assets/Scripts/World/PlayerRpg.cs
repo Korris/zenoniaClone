@@ -53,6 +53,14 @@ namespace ZenoniaProto
             Touch();
         }
 
+        /// <summary>Authority only: the tutorial duel with Card Master Orin ended (played out or given up). Moves the card-duel quest to hand-in; nothing happens when it is not active.</summary>
+        public void QuestCardDuel()
+        {
+            if (!State.Quests.CountCardDuel()) return;
+            if (QuestChanged != null) QuestChanged();
+            Touch();
+        }
+
         /// <summary>Authority only: pays today's Wanted Boss reward once per day (PlayerState.ClaimWanted) and tells the listeners.</summary>
         public ActionResult ClaimWanted(WantedBossDef def, int dayKey)
         {

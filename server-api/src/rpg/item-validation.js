@@ -87,7 +87,7 @@ export const stateSchema = z
     cardDeck: z.array(cardId).max(CARD_DECK_MAX).default([]),
     cardDaily: z.object({ day: int0.default(0), npcWins: int0.default(0), pvpRewards: int0.default(0), wagers: int0.default(0) }).default({}),
     cardNpcFirstWins: z.number().int().min(0).max(0xffff).default(0), // bit per duel NPC beaten once
-    cardHelp: z.number().int().min(0).max(1).default(0), // bit per first-time card hint shown (bit 0 = guided tour of More > Cards); older saves = 0 = not shown yet
+    cardHelp: z.number().int().min(0).max(3).default(0), // bit per first-time card hint shown (bit 0 = guided tour of More > Cards, bit 1 = first PvP risk box confirmed); older saves = 0 = not shown yet
     cardRank: z.object({ season: int0.default(0), mmr: int0.default(0), lp: int0.default(0), wins: int0.default(0), losses: int0.default(0), draws: int0.default(0), best: int0.default(0), prevBest: int0.default(0), rewards: z.number().int().min(0).max(31).default(0) }).default({}), // rewards = bit per tier (Bronze..Diamond) reached at a season end
     inventory: z.array(itemSchema).max(INVENTORY_SIZE).default([]),
     equipment: z.array(itemSchema).max(SLOTS.length).default([]),

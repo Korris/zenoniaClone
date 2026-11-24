@@ -18,15 +18,21 @@ namespace ZenoniaProto.Rpg
         public string Requires;
         /// <summary>A "reach" quest (Rootburrow V5): done by attuning this warp crystal (DungeonPoints) instead of kills; MonsterType stays null, Count 1.</summary>
         public string WaypointId;
+        /// <summary>A card-duel quest (the first duel with Card Master Orin): done when the server / offline host finishes that duel (QuestLog.CountCardDuel). MonsterType stays null, Count 1.</summary>
+        public bool CardDuel;
+        /// <summary>Only offered once the character owns its first card (the Album has an entry). A quest already taken stays reachable.</summary>
+        public bool NeedsCard;
+        /// <summary>Card ids handed out at the turn-in, one copy each.</summary>
+        public string[] RewardCards;
         public string[] OfferLines, ActiveLines, ReadyLines, DoneLines;
 
         /// <summary>MonsterType of a quest that counts every monster kill.</summary>
         public const string AnyMonster = "*";
 
         /// <summary>"Defeat Frost Slime", or the reach objective's own text.</summary>
-        public string Objective { get { return WaypointId != null ? MonsterName : "Defeat " + MonsterName; } }
+        public string Objective { get { return WaypointId != null || CardDuel ? MonsterName : "Defeat " + MonsterName; } }
 
-        public bool Counts(string monsterType) { return WaypointId == null && (MonsterType == AnyMonster || MonsterType == monsterType); }
+        public bool Counts(string monsterType) { return WaypointId == null && !CardDuel && (MonsterType == AnyMonster || MonsterType == monsterType); }
 
         /// <summary>"+30 G, Small Iron Helmet" for this class: chat line, quest list, completion toast.</summary>
         public string RewardText(string classId)
@@ -36,6 +42,7 @@ namespace ZenoniaProto.Rpg
             if (RewardStones > 0) parts.Add("+" + RewardStones + " stones");
             if (RewardHpPotions > 0) parts.Add("+" + RewardHpPotions + " HP potions");
             if (RewardStarterHat) parts.Add(HeadgearCatalog.StarterFor(classId).Name);
+            if (RewardCards != null) foreach (string id in RewardCards) { CardDef c = CardTable.Get(id); if (c != null) parts.Add(c.Name + " card"); }
             return string.Join(", ", parts);
         }
     }
@@ -85,6 +92,7 @@ namespace ZenoniaProto.Rpg
                 ReadyLines = new[] { "You did it! The mines are quiet again.", "Please take this as thanks. Use the stones well, traveller." },
                 DoneLines = new[] { "Thank you again. The hollow is safer thanks to you." },
             },
+            CardDuelQuest.First, // appended last: Card Master Orin's tutorial duel (only offered after the first card)
         };
 
         public static QuestDef Get(string id)
@@ -117,6 +125,9 @@ namespace ZenoniaProto.Rpg
     public sealed class QuestLog
     {
         readonly List<QuestEntry> entries = new List<QuestEntry>();
+
+        /// <summary>Set by PlayerState: true once the character owns / has owned any card (QuestDef.NeedsCard). Null (a bare log) = never.</summary>
+        public Func<bool> HasCards;
 
         public QuestLog() { StartAutoQuests(); }
 
@@ -151,7 +162,9 @@ namespace ZenoniaProto.Rpg
         /// <summary>The quest before this one in its chain is finished (or there is none): only then is it offered, shown, accepted.</summary>
         public bool Unlocked(QuestDef q)
         {
-            if (q == null || q.Requires == null) return q != null;
+            if (q == null) return false;
+            if (q.NeedsCard && StateOf(q) == QuestState.Available && (HasCards == null || !HasCards())) return false;
+            if (q.Requires == null) return true;
             QuestDef before = QuestCatalog.Get(q.Requires);
             return before != null && StateOf(before) == QuestState.Done;
         }
@@ -189,6 +202,19 @@ namespace ZenoniaProto.Rpg
             {
                 QuestDef q = QuestCatalog.Get(e.id);
                 if (e.state != (int)QuestState.Active || q == null || q.WaypointId != waypointId) continue;
+                e.progress = q.Count; e.state = (int)QuestState.ReadyToTurnIn; moved = true;
+            }
+            return moved;
+        }
+
+        /// <summary>The first duel with Card Master Orin ended: an active card-duel quest is complete. True when any quest moved.</summary>
+        public bool CountCardDuel()
+        {
+            bool moved = false;
+            foreach (QuestEntry e in entries)
+            {
+                QuestDef q = QuestCatalog.Get(e.id);
+                if (e.state != (int)QuestState.Active || q == null || !q.CardDuel) continue;
                 e.progress = q.Count; e.state = (int)QuestState.ReadyToTurnIn; moved = true;
             }
             return moved;

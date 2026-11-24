@@ -88,6 +88,7 @@ namespace ZenoniaProto
         {
             TownNpc n = Nearest();
             if (n == null) return;
+            if (n.Def.Id == CardMasterTalk.NpcId && UiScreens.OpenForNpc(n.Def.Id, n.Def.Name, Portrait(n.Def.Art), n.Def.Lines)) return; // Orin: CardMasterTalk reads the quest itself, before the elder's generic quest dialogue
             if (n.Def.QuestGiver && ElderNpc.Talk(n.Def.Id)) return;
             if (PotionShops.IsSeller(n.Def.Id)) { PotionShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }
             if (GearShops.IsSeller(n.Def.Id)) { GearShopWindow.Open(n.Def.Id, n.Def.Name, n.Def.Lines[0]); return; }

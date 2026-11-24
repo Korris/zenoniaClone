@@ -8,23 +8,24 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// The card duel on the zone server (phase 06 v2: player vs player only, there are no NPC duels). The server decides everything: it checks where and when a duel may start, validates the deck, shuffles and deals
+    /// The card duel on the zone server (phase 06 v2: player vs player; the ONLY NPC duel is the tutorial / practice with Card Master Orin, DuelService.Npc.cs). The server decides everything: it checks where and when a duel may start, validates the deck, shuffles and deals
     /// (DuelMatch), keeps the 20 s clock, and runs the card stakes. A client sends ids and cells only, and gets back its own DuelView (moves + its hand; never the opponent's hand).
     /// One instance per zone process, like TradeService. This file: requests, deck saving and what every duel shares; DuelService.Pvp.cs: challenges, the match, the 60 s reconnect and the winner's pick;
-    /// DuelService.Wager.cs: escrow of both decks and settle with server-api. A player who dies or ends up on a hostile map forfeits.
+    /// DuelService.Wager.cs: escrow of both decks and settle with server-api; DuelService.Npc.cs: the Orin duel. A player who dies or ends up on a hostile map forfeits.
     /// </summary>
     public sealed partial class DuelService
     {
         public static DuelService Active { get; private set; }
         /// <summary>Rollback switch: false = every duel request is refused.</summary>
         public static bool Enabled = true;
-        const long CombatBlockMs = 5000;
+        internal const long CombatBlockMs = 5000; // also LocalDuelHost's
         const int RequestsPerSecond = 10;
 
         sealed class Entry
         {
             public NetPlayer Player;
             public PvpRun Pvp;
+            public DuelNpcSession Npc; // the tutorial / practice duel with Orin (null = none)
             public int PvpSide;
             public long WindowStartMs; public int InWindow;
             public bool RankDue; // the Ranked season message has not been sent yet (it goes out on the first tick, after the Welcome)
@@ -49,7 +50,7 @@ namespace ZenoniaProto
         bool Running(ushort id)
         {
             Entry e;
-            return entries.TryGetValue(id, out e) && e.Pvp != null && !e.Pvp.Closed;
+            return entries.TryGetValue(id, out e) && ((e.Pvp != null && !e.Pvp.Closed) || NpcRunning(e));
         }
 
         public void OnLeave(NetPlayer p, long nowMs)
@@ -76,6 +77,8 @@ namespace ZenoniaProto
                 case DuelOp.TakeCard: TakeCard(e, m.A, nowMs); break;
                 case DuelOp.QueueRanked: QueueRanked(e, nowMs); break;
                 case DuelOp.LeaveQueue: LeaveRankedQueue(e, nowMs); break;
+                case DuelOp.PlayNpc: PlayNpc(e, m.A, nowMs); break;
+                case DuelOp.SkipScript: if (NpcRunning(e)) SkipScriptNpc(e, nowMs); else Refuse(p, DuelFail.NoMatch); break;
                 default: LobbyRequest(e, m, nowMs); break;
             }
         }
@@ -128,23 +131,25 @@ namespace ZenoniaProto
             return DuelFail.None;
         }
 
-        static DuelFail PlayFailure(DuelPlay r) { return r.Code == DuelPlayError.NotYourTurn ? DuelFail.NotYourTurn : r.Code == DuelPlayError.Stale ? DuelFail.StaleMove : r.Code == DuelPlayError.Over ? DuelFail.NoMatch : DuelFail.BadMove; }
+        internal static DuelFail PlayFailure(DuelPlay r) { return r.Code == DuelPlayError.NotYourTurn ? DuelFail.NotYourTurn : r.Code == DuelPlayError.Stale ? DuelFail.StaleMove : r.Code == DuelPlayError.Over ? DuelFail.NoMatch : r.Code == DuelPlayError.Script ? DuelFail.ScriptMove : DuelFail.BadMove; }
 
         void Place(Entry e, DuelRequestMsg m, long now)
         {
+            if (NpcRunning(e)) { PlaceNpc(e, m, now); return; }
             if (e.Pvp != null && !e.Pvp.Match.Finished) { PlacePvp(e, m, now); return; }
             Refuse(e.Player, DuelFail.NoMatch);
         }
 
         void Forfeit(Entry e, long now)
         {
+            if (NpcRunning(e)) { ForfeitNpc(e, now); return; }
             if (e.Pvp == null || e.Pvp.Match.Finished) { Refuse(e.Player, DuelFail.NoMatch); return; }
             e.Pvp.Match.Forfeit(e.PvpSide);
             EndMatch(e.Pvp, now);
         }
 
         /// <summary>Once per tick: the lobby clocks, turn timeouts, the 60 s reconnect, the winner's 30 s pick, and the forfeit of a player who can no longer duel.</summary>
-        public void Tick(long now) { TickPvp(now); TickRanked(now); TickStakes(now); }
+        public void Tick(long now) { TickNpc(now); TickPvp(now); TickRanked(now); TickStakes(now); }
 
         static bool CanKeepDueling(HeroController h) { return h != null && !h.IsDead && h.HomeZone != null && h.HomeZone.Map != null && !h.HomeZone.Map.Hostile; }
 

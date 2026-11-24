@@ -53,6 +53,7 @@ namespace ZenoniaProto
                 case "persist": StartPersistBot(); break;
                 case "turret": StartTurretBot(); break;
                 case "duel": StartDuelBot(); break;
+                case "orin": StartOrinBot(); break;
             }
             Debug.Log("[ZenoniaProto] net bot: " + (bot ?? "off") + " as " + GameSession.Hero.PlayerName + " (hero " + GameSession.Hero.NetId + ")");
             if (shotTimes != null) StartCoroutine(NetShots()); // joined: --shots times count from joining (crowd captures, Tools/net-hair-crowd-shots.ps1), then quit

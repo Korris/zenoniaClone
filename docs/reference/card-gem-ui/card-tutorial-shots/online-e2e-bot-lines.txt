@@ -1,0 +1,71 @@
+[ZenoniaProto] orin-e2e: start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK stands 42 units from Orin on oakhavenVillage
+[ZenoniaProto] orin-e2e: OK accept + duel request sent back to back: duel started, quest=Active
+[ZenoniaProto] orin-e2e: OK a move off the script (cell 5) was refused, moves 0 -> 0
+[ZenoniaProto] orin-e2e: lesson move 1: thornBoar at cell 0, lesson 1
+[ZenoniaProto] orin-e2e: DROP: quest=Active (the script kills this client now)
+[ZenoniaProto] orin-e2e: start: quest=Active gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK stands 42 units from Orin on oakhavenVillage
+[ZenoniaProto] orin-e2e: OK tutorial duel started from Active
+[ZenoniaProto] orin-e2e: OK a move off the script (cell 5) was refused, moves 0 -> 0
+[ZenoniaProto] orin-e2e: lesson move 1: thornBoar at cell 0, lesson 1
+[ZenoniaProto] orin-e2e: lesson move 3: hornRabbit at cell 4, lesson 2
+[ZenoniaProto] orin-e2e: lesson move 5: meadowMantis at cell 1, lesson 3
+[ZenoniaProto] orin-e2e: duel over: Lose score 7-9 reason 0 | at the final view: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0 (must be ReadyToTurnIn: the quest state arrives before the view)
+[ZenoniaProto] orin-e2e: hand in, before: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK after turn-in: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK second turn-in changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK a second tutorial duel is refused
+[ZenoniaProto] orin-e2e: OK practice duel started, scripted step 0
+[ZenoniaProto] orin-e2e: OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK stands 41 units from Orin on oakhavenVillage
+[ZenoniaProto] orin-e2e: OK accept + duel request sent back to back: duel started, quest=Active
+[ZenoniaProto] orin-e2e: gave up at once
+[ZenoniaProto] orin-e2e: OK a move off the script (cell 5) was refused, moves 0 -> 0
+[ZenoniaProto] orin-e2e: duel over: Lose score 0-0 reason 1 | at the final view: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0 (must be ReadyToTurnIn: the quest state arrives before the view)
+[ZenoniaProto] orin-e2e: hand in, before: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK after turn-in: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK second turn-in changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK a second tutorial duel is refused
+[ZenoniaProto] orin-e2e: OK practice duel started, scripted step 0
+[ZenoniaProto] orin-e2e: OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK stands 42 units from Orin on oakhavenVillage
+[ZenoniaProto] orin-e2e: OK accept + duel request sent back to back: duel started, quest=Active
+[ZenoniaProto] orin-e2e: OK a move off the script (cell 5) was refused, moves 0 -> 0
+[ZenoniaProto] orin-e2e: lesson move 1: thornBoar at cell 0, lesson 1
+[ZenoniaProto] orin-e2e: lesson move 3: hornRabbit at cell 4, lesson 2
+[ZenoniaProto] orin-e2e: lesson move 5: meadowMantis at cell 1, lesson 3
+[ZenoniaProto] orin-e2e: duel over: Lose score 7-9 reason 0 | at the final view: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0 (must be ReadyToTurnIn: the quest state arrives before the view)
+[ZenoniaProto] orin-e2e: hand in, before: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK after turn-in: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK second turn-in changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK a second tutorial duel is refused
+[ZenoniaProto] orin-e2e: OK practice duel started, scripted step 0
+[ZenoniaProto] orin-e2e: OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: start: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK stands 42 units from Orin on oakhavenVillage
+[ZenoniaProto] orin-e2e: OK a second tutorial duel is refused
+[ZenoniaProto] orin-e2e: OK practice duel started, scripted step 0
+[ZenoniaProto] orin-e2e: OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=0 help=0
+[ZenoniaProto] orin-e2e: start: quest=Available gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK stands 41 units from Orin on oakhavenVillage
+[ZenoniaProto] orin-e2e: OK accept + duel request sent back to back: duel started, quest=Active
+[ZenoniaProto] orin-e2e: OK a move off the script (cell 5) was refused, moves 0 -> 0
+[ZenoniaProto] orin-e2e: lesson move 1: thornBoar at cell 0, lesson 1
+[ZenoniaProto] orin-e2e: lesson move 3: hornRabbit at cell 4, lesson 2
+[ZenoniaProto] orin-e2e: lesson move 5: meadowMantis at cell 1, lesson 3
+[ZenoniaProto] orin-e2e: duel over: Lose score 7-9 reason 0 | at the final view: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0 (must be ReadyToTurnIn: the quest state arrives before the view)
+[ZenoniaProto] orin-e2e: hand in, before: quest=ReadyToTurnIn gold=0 hornRabbit=0 thornBoar=0 forestWolf=0 cards=1 help=0
+[ZenoniaProto] orin-e2e: OK after turn-in: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK second turn-in changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: OK a second tutorial duel is refused
+[ZenoniaProto] orin-e2e: OK practice duel started, scripted step 0
+[ZenoniaProto] orin-e2e: OK practice changed nothing: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
+[ZenoniaProto] orin-e2e: end: quest=Done gold=300 hornRabbit=1 thornBoar=1 forestWolf=1 cards=4 help=0
