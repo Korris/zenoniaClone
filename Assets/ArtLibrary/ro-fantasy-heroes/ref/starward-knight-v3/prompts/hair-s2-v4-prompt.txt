@@ -1,0 +1,35 @@
+VẼ LẠI STARWARD V3 KNIGHT — HAIR S2 V4 (GAME-READY)
+
+Ảnh tham chiếu:
+Knight concept gốc tóc vàng — chuẩn ART cần theo.
+Năm đầu trọc Starward V3 có mắt xanh — chuẩn vị trí và tỷ lệ kỹ thuật.
+Hair s2 xám cũ — chỉ dùng để thấy lỗi cần tránh, KHÔNG sao chép kiểu lọn cũ.
+
+Vẽ mới hoàn toàn từ đầu kiểu tóc Knight lên đúng năm đầu trọc theo thứ tự: xuống, chéo xuống-phải, phải, chéo lên-phải, lên.
+
+Mục tiêu: Khôi phục cảm giác tóc vàng Knight gốc: bồng, mềm, dày, có những khối tóc lớn đan và chồng lên nhau, thay vì những lọn nhọn nhỏ trông cứng.
+
+Thiết kế bắt buộc:
+Giữ mái bất đối xứng, ba lọn lớn cong mềm ôm trán, không che mắt.
+Giữ chỏm tóc cong đặc trưng trên đỉnh.
+Phần trên và hai bên đầu đầy đặn hơn tóc xám cũ khoảng 4–6%, không làm to mặt hoặc sọ.
+Giảm khoảng 20–25% lọn nhỏ rời rạc ở hai bên.
+Các lọn sau đầu xếp lớp mềm theo hướng xoáy, không thành các gai nhọn.
+Highlight thành 2–3 vùng lớn chạy theo độ cong của tóc, không vẽ các vệt trắng ngắn vụn.
+Phần gáy gọn, không che khăn cổ hoặc giáp vai.
+Đúng năm góc nhìn, nhất quán silhouette, chân tóc và hướng lọn.
+
+Quy tắc màu:
+CHỈ phần tóc dùng xám trung tính R=G=B, gồm:
+Viền: #1F1F1F
+Bóng sâu: #474747
+Bóng: #696969
+Mảng chính: #A6A6A6
+Highlight: #DBDBDB
+Các vùng xám phải đủ diện tích để shader Unity phân biệt rõ, đặc biệt highlight cần chiếm khoảng 15–20% diện tích tóc.
+
+Da, mắt xanh, tai, lông mày, khuôn mặt và khăn cổ giữ nguyên màu, hình dạng, kích thước và vị trí như ảnh đầu trọc. KHÔNG biến toàn bộ đầu sang màu xám.
+
+Nền #00FF00 phẳng tuyệt đối. Một hàng 5 đầu, khoảng cách đều, không chữ, không bóng đổ, không viền trắng, không chạm mép ảnh.
+
+Tiêu chuẩn duyệt: Khi nhuộm vàng Starlight Blonde, tóc phải giống kiểu tóc mềm, bồng, sáng của Knight concept gốc ngay cả khi thu nhỏ về kích thước trong game.

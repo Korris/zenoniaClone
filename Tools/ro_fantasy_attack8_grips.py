@@ -30,13 +30,25 @@ SWORD = {  # (d8, f): angle. V2 heavy slash 22/11 (impact frame f4 lands on the 
     (1, 0): -60, (1, 1): -30, (1, 2): 20, (1, 3): 70, (1, 4): 120, (1, 5): 172, (1, 6): -150,
     (2, 0): -60, (2, 1): -25, (2, 2): 30, (2, 3): 80, (2, 4): 110, (2, 5): 162, (2, 6): 135,
     (3, 0): 70, (3, 1): 0, (3, 2): 30, (3, 3): 60, (3, 4): 90, (3, 5): 147, (3, 6): 130,
-    (4, 0): 30, (4, 1): 10, (4, 2): 0, (4, 3): -40, (4, 4): -95, (4, 5): -137, (4, 6): 125,  # up: blade behind the body, impact / overshoot reach past the head / body on the left so they read
+    (4, 0): 30, (4, 1): 10, (4, 2): 0, (4, 3): 20, (4, 4): 75, (4, 5): 120, (4, 6): 125,  # up: Knight art 24/11 lowers the sword fist on the RIGHT side
+    # (fists 230,100 -> 225,152), so the blade sweeps clockwise on the right and stays visible (V2: -40 / -95 / -137 across the back, hidden by the
+    # Knight's body); the slash ribbon (WarriorSlashLightFx) still sweeps counter-clockwise behind the body for up
     (5, 0): 20, (5, 1): 0, (5, 2): -30, (5, 3): -60, (5, 4): -90, (5, 5): -147, (5, 6): 125,
     (6, 0): 60, (6, 1): 25, (6, 2): -30, (6, 3): -80, (6, 4): -110, (6, 5): -162, (6, 6): -135,
     (7, 0): 60, (7, 1): 30, (7, 2): -20, (7, 3): -70, (7, 4): -120, (7, 5): -172, (7, 6): -150,
 }
-SWORD_BEHIND = {(2, 0): True, (2, 1): True, (6, 0): True, (6, 1): True, (7, 0): True, (7, 1): True}  # (d8, f): bool; f0-f1 wind-up: the sword fist is pulled back behind the head / the far shoulder
+SWORD_BEHIND = {(2, 0): True, (2, 1): True, (6, 0): True, (6, 1): True, (7, 0): True, (7, 1): True,
+                (1, 2): True, (2, 2): True}  # Knight 24/11: f2 raised sword over the head (down-right, right) -> behind the head  # (d8, f): bool; f0-f1 wind-up: the sword fist is pulled back behind the head / the far shoulder
+import ro_fantasy_variant as _variant  # noqa: E402
+if _variant.VARIANT == "golden-paladin":  # test look: its own sword angles / depth fixes for its attack art
+    import ro_fantasy_golden_paladin_fists as _gp  # noqa: E402
+    SWORD, SWORD_BEHIND, SHIELD_MIN_Y_GP = {**SWORD, **_gp.SWORD}, {**SWORD_BEHIND, **_gp.SWORD_BEHIND}, _gp.SHIELD_MIN_Y
 SHIELD = {}        # (d8, f): angle (default: the idle shield angle of that dir)
+# Knight 24/11: the strike frames raise the shield fist to the chest (down f3-f5 at row 125-130); the 91 px shield centred there covered
+# the face -> facing down / down-right / down-left the shield centre stays at or under this cell row
+SHIELD_MIN_Y = {0: 160, 1: 168, 7: 158}
+if _variant.VARIANT == "golden-paladin":
+    SHIELD_MIN_Y = SHIELD_MIN_Y_GP
 
 
 def sword_angle(fx, fy, h):
@@ -48,6 +60,7 @@ def sword_angle(fx, fy, h):
 def apply(cj, rows, heads, cells, poses):
     """Replace the attack grips in class.json `cj` (rows = fists table of the attack, 8 rows)."""
     gy = next(w["gy"] for w in cj["weapons"] if w["part"] == "weapon")
+    off_gy = next((w["gy"] for w in cj["weapons"] if w["part"] == "offhand"), 45.5)
     idle_shield = {g["dir"]: g for g in cj["grips"] if g["part"] == "offhand" and g["anim"] == "idle" and g["f"] == 0}
     idle_sword = {g["dir"]: g for g in cj["grips"] if g["part"] == "weapon" and g["anim"] == "idle" and g["f"] == 0}
     grips = [g for g in cj["grips"] if g["anim"] != "attack"]
@@ -70,6 +83,8 @@ def apply(cj, rows, heads, cells, poses):
             i = idle_shield.get(d8)
             sa = SHIELD.get((d8, f), i["angle"] if i else 0.0)
             scover = hf.ring_cover(cell, lx, ly)
+            # a taller shield (Golden tower shield 108 px vs Knight 91, 24/11) sits lower by half the extra height so its top stays under the chin
+            ly = max(ly, SHIELD_MIN_Y.get(d8, -1) + max(0.0, off_gy - 45.5) if d8 in SHIELD_MIN_Y else -1)
             grips.append({"part": "offhand", "anim": "attack", "dir": d8, "f": f, "x": round(lx, 1), "y": round(ly, 1),
                           "angle": round(sa, 1), "behind": bool(poses.behind_of(d8, "off", lvis, scover)),
                           "flip": bool(i["flip"]) if i else d8 >= 5})

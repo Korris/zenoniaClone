@@ -16,7 +16,7 @@ namespace ZenoniaProto
         static readonly int[] PaintedRow = { 0, 1, 2, 3, 4, 3, 2, 1 }; // Dir8 -> painted row (5-7 mirror 3-1)
         static Material material;
         static MaterialPropertyBlock block;
-        static int maskId, hairColorId, outfitColorId, hairAllId;
+        static int maskId, hairColorId, outfitColorId, hairAllId, hairRampId, hairDeepId, hairShadowId, hairLightId, hairLineId;
 
         readonly HeroLayeredSet set;
         readonly Transform root;
@@ -38,6 +38,8 @@ namespace ZenoniaProto
                 block = new MaterialPropertyBlock();
                 maskId = Shader.PropertyToID("_MaskTex"); hairColorId = Shader.PropertyToID("_HairColor");
                 outfitColorId = Shader.PropertyToID("_OutfitColor"); hairAllId = Shader.PropertyToID("_HairAll");
+                hairRampId = Shader.PropertyToID("_HairRamp"); hairDeepId = Shader.PropertyToID("_HairDeep"); hairShadowId = Shader.PropertyToID("_HairShadow");
+                hairLightId = Shader.PropertyToID("_HairLight"); hairLineId = Shader.PropertyToID("_HairLine");
             }
             root = new GameObject("L_Root").transform; // pivots on the feet: the stand-in motion of a set without walk / attack art moves it
             root.SetParent(parent, false);
@@ -61,11 +63,14 @@ namespace ZenoniaProto
         }
 
         /// <summary>Palette colours, hairstyle and headgear (0 = none) of this hero.</summary>
-        public void SetLook(Color hairC, Color outfitC, int style, int headgearIdValue)
+        /// <param name="ramp">Hair tones deep, shadow, base, light, outline (HeroPalettes.HairRamp); null = HeroRecolor derives them from hairC.</param>
+        public void SetLook(Color hairC, Color outfitC, int style, int headgearIdValue, Color32[] ramp = null)
         {
-            if (hairC != hairColor || outfitC != outfitColor) colorsDirty = true;
-            hairColor = hairC; outfitColor = outfitC; hairStyle = style; headgearId = headgearIdValue;
+            if (hairC != hairColor || outfitC != outfitColor || ramp != hairRamp) colorsDirty = true;
+            hairColor = hairC; outfitColor = outfitC; hairStyle = style; headgearId = headgearIdValue; hairRamp = ramp;
         }
+
+        Color32[] hairRamp;
 
         /// <summary>The layers that can rise above the skull: hair, hair accessory, headgear (the HUD portrait fits its crop to them).</summary>
         public SpriteRenderer Hair { get { return hair; } }
@@ -138,6 +143,12 @@ namespace ZenoniaProto
             block.SetColor(hairColorId, hairColor);
             block.SetColor(outfitColorId, outfitColor);
             block.SetFloat(hairAllId, hairAll);
+            block.SetFloat(hairRampId, hairRamp != null ? 1f : 0f);
+            if (hairRamp != null)
+            {
+                block.SetColor(hairDeepId, hairRamp[0]); block.SetColor(hairShadowId, hairRamp[1]);
+                block.SetColor(hairLightId, hairRamp[3]); block.SetColor(hairLineId, hairRamp[4]); // [2] = base = hairColor
+            }
             r.SetPropertyBlock(block);
         }
 

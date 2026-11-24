@@ -1,0 +1,253 @@
+STARWARD — HAIR ART REVIEW V2.0
+
+Kết luận: Đúng, vấn đề lớn nhất nằm ở cách vẽ khối tóc và các lọn tóc. Nhưng shader nhuộm màu cũng đang làm tóc kém đẹp hơn.
+
+Sau khi xem hai ảnh trong game, mình quyết định giữ nguyên khuôn mặt, đầu, tỷ lệ nhân vật và outfit Starward; làm lại cả hai kiểu tóc, đồng thời chỉnh hệ thống nhuộm màu.
+
+Không cần làm lại toàn bộ nhân vật.
+
+1. Chấm điểm hai kiểu tóc hiện tại
+
+Tiêu chí
+
+	
+
+Tóc kiểu 1 (trái)
+
+	
+
+Tóc kiểu 2 (phải)
+
+
+
+
+Silhouette tổng thể
+
+	
+
+7.5
+
+	
+
+6.5
+
+
+
+
+Thiết kế lọn tóc
+
+	
+
+6.5
+
+	
+
+5.5
+
+
+
+
+Khối sáng/tối
+
+	
+
+6.0
+
+	
+
+5.5
+
+
+
+
+Hài hòa với khuôn mặt
+
+	
+
+7.5
+
+	
+
+6.5
+
+
+
+
+Màu lavender trong game
+
+	
+
+6.0
+
+	
+
+6.0
+
+
+
+
+Tổng thể
+
+	
+
+6.7/10
+
+	
+
+6.0/10
+
+Kiểu 1 có cá tính hơn, nhưng lọn tóc nhọn, nhiều lớp và hơi giống những mảnh giấy xếp chồng. Kiểu 2 có phần mái lớn, tròn, nhưng các lọn không kết nối thành một khối rõ nên trông như tóc được ghép thêm lên đầu.
+
+Ở camera mặc định, các nhược điểm này dễ thấy hơn: tóc chiếm diện tích thị giác lớn nhưng các khối chưa tạo được cảm giác mềm, dày và tự nhiên.
+
+2. Vì sao tóc Midgard Senki có cảm giác đẹp hơn?
+
+Phong cách Midgard Senki được giới thiệu là 2D hand-drawn/paper-cut, với tạo hình chibi gọn và màu sắc tươi sáng. 
+Thisisgame Southeast Asia
++2
+
+Điều mình muốn học từ hướng thiết kế đó là đơn giản hóa hình khối ở kích thước hiển thị nhỏ, thay vì cố tăng số lượng nét tóc.
+
+Trong Starward hiện tại, một vùng tóc nhỏ có nhiều đường viền tối, các lọn ngắn và khoảng sáng bị chia vụn. Khi xuống khoảng 50–65 px chiều cao nhân vật, những nét này cạnh tranh với mắt, giáp và phụ kiện.
+
+Tóc đẹp ở concept phóng lớn chưa chắc đẹp khi đưa vào MMORPG nhìn từ xa. Vì vậy, từ đây phải lấy camera gameplay mặc định làm tiêu chuẩn duyệt chính, không phải ảnh cận cảnh.
+
+3. Sáu lỗi cụ thể và cách sửa
+
+Vấn đề hiện tại
+
+	
+
+Quyết định sửa
+
+
+
+
+1. Quá nhiều lọn nhỏ
+
+	
+
+Giảm khoảng 30–40% số lọn và nét chia tóc; giữ 5–7 khối tóc chính nhìn từ trước
+
+
+
+
+2. Lọn tóc đều nhau
+
+	
+
+Tạo nhịp lớn – vừa – nhỏ. Một mái chính, hai khối hai bên, một cụm sau gáy; lọn nhỏ chỉ để tạo điểm nhấn
+
+
+
+
+3. Thiếu khối tóc tổng thể
+
+	
+
+Vẽ một khối tóc lớn bao quanh hộp sọ trước, sau đó mới tách thành các cụm. Không vẽ từng lọn độc lập
+
+
+
+
+4. Viền trong quá đậm
+
+	
+
+Viền ngoài giữ rõ; viền ngăn lọn giảm khoảng 35–50% độ tương phản, dùng đường nâu tím hoặc xám tím thay vì đen
+
+
+
+
+5. Ánh sáng bị chia vụn
+
+	
+
+Gom highlight thành 2–3 vùng lớn trên các khối chính; tránh mỗi lọn đều có một vệt sáng
+
+
+
+
+6. Tóc chưa ăn vào đầu
+
+	
+
+Hạ chân tóc và mái trước khoảng 3–5% chiều cao sọ ở vùng trán; kiểm tra không che mắt, không tạo khoảng hở ở thái dương
+
+Các tỷ lệ trên là mục tiêu art direction đề xuất để thử và kiểm trong game, không phải số đo pixel trực tiếp từ sprite gốc.
+
+Tỷ lệ tóc so với đầu
+
+Mình không đề xuất phóng to hoặc thu nhỏ toàn bộ đầu trọc. Tỷ lệ nhân vật hiện tại đã ổn.
+
+Chỉ chỉnh silhouette tóc: kiểu 1 có thể giữ chiều cao tổng thể gần như cũ nhưng bớt các lọn nhọn ở đỉnh và hai bên. Kiểu 2 cần giảm cảm giác phồng tròn ở phần trên, tăng một khối mái lệch có hướng chảy rõ.
+
+4. Phải sửa cả cách nhuộm màu
+
+Màu lavender #B49CE2 không sai. Vấn đề là hệ nhuộm dùng bốn mức xám #484848, #858585, #B8B8B8, #E4E4E4 có thể cho kết quả quá phẳng hoặc quá tím nếu shader chỉ nhân trực tiếp RGB với màu nhuộm.
+
+Mình chọn chuyển sang bảng màu bốn mức theo màu tóc, giữ luminance và tương phản được kiểm soát. Với màu lavender hiện tại, đề xuất:
+
+Bóng sâu
+
+#514266
+
+Bóng chính
+
+#8270A6
+
+Màu chính
+
+#B49CE2
+
+Highlight
+
+#D9C8F0
+
+Không cần vẽ sẵn mọi màu tóc. Họa sĩ vẫn xuất bốn tông xám trung tính, nhưng Unity chuyển từng tông sang bốn màu tương ứng thông qua palette ramp.
+
+Một số quy tắc shader mình chốt:
+
+Các vùng bóng sâu phải giữ được sắc tối, không chuyển thành tím bão hòa mạnh.
+
+Highlight chỉ xuất hiện ở mặt trên-trái và những khối tóc chính, không sáng đều toàn bộ.
+
+Không áp màu nhuộm cho viền tóc như áp cho phần thân tóc. Viền nên có màu tối tương ứng với hue, nhưng ít bão hòa hơn.
+
+Dùng mask riêng cho tóc để không nhuộm nhầm da, tai, mắt hoặc cổ áo.
+
+Sprite tóc vẫn giữ Bilinear, Mipmap Off, không thêm Bloom hoặc Sharpen cục bộ.
+
+Lưu ý: Chưa có ảnh sprite xám trước và sau khi qua shader để xác nhận shader hiện tại thật sự làm mất tương phản bao nhiêu. Cần chạy một thử nghiệm A/B với palette ramp này trước khi kết luận toàn bộ lỗi màu là do code.
+
+5. Brief vẽ lại hai kiểu tóc
+
+Hair 01 — Starward Signature / Heroic Windswept
+
+Giữ tinh thần tóc phiêu lưu bồng bềnh của kiểu 1, nhưng thiết kế lại thành các khối lớn có hướng chảy từ đỉnh về hai bên. Một lọn mái chủ đạo chéo qua trán, hai cụm thái dương bất đối xứng trong hướng chính diện, phần sau đầu có nhịp tóc mềm thay vì gai nhọn đều nhau.
+
+Ưu tiên silhouette anh hùng trẻ tuổi, tự tin, premium chibi.
+
+Hair 02 — Soft Side-Swept / Noble Adventurer
+
+Làm khác rõ kiểu 1: một mái dài nghiêng sang một bên, phần đỉnh tròn gọn, tóc hai bên ôm sát thái dương và sau gáy. Ít lọn hơn, mềm mại, thanh lịch, phù hợp Starward mặc giáp xanh-vàng.
+
+Tránh cảm giác tóc dựng quá cao hoặc đội một chiếc mũ bằng tóc.
+
+Cả hai kiểu vẫn phải cung cấp đủ năm hướng: xuống, chéo xuống-phải, phải, chéo lên-phải, lên. Hướng trái lật ngang từ hướng phải, nên các điểm đặc trưng phải được xử lý để khi lật không tạo lỗi rõ ràng. Trong các frame đi bộ, tóc di chuyển cùng đầu; không thay đổi kiểu lọn giữa từng frame.
+
+6. Thứ tự mình quyết định
+
+Không sản xuất tiếp kiểu tóc 3 ngay. Mình chọn làm lần lượt:
+
+Vẽ lại Hair 01 và Hair 02 theo brief mới, trước mắt dùng màu lavender thật để duyệt thẩm mỹ.
+
+Đưa cả hai vào ảnh thử trong game tại zoom mặc định, cạnh màu tóc nâu hạt dẻ.
+
+Sau khi khóa hình khối, chuyển sang bản xám bốn tông và triển khai palette ramp.
+
+Kiểm tra ở zoom mặc định và zoom xa nhất; chỉ khi hai kiểu đạt mới sản xuất kiểu 3 và các kiểu tóc của bốn class còn lại.
+
+Tiêu chuẩn nghiệm thu: tóc phải đẹp và nhận diện được ở camera gameplay, mái không che mắt, không lẫn với viền khuôn mặt, có cảm giác là tóc mềm có thể tích thay vì nhiều lọn hình tam giác ghép vào đầu.
+
+Phán quyết cuối: vẽ lại thiết kế tóc là việc chính; cải thiện shader nhuộm là việc bắt buộc đi kèm. Nếu chỉ đổi màu hoặc tăng highlight, Starward vẫn chưa đạt chất lượng tóc mà mình muốn cho phong cách Storybook Heroes.

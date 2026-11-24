@@ -58,7 +58,7 @@ public class CharacterAppearanceTests
     [Fact]
     public void SanitizeDropsOutOfRange()
     {
-        CharacterAppearanceData a = CharacterAppearanceData.Sanitize(Chosen(999, 8, 6, 300), "assassin");
+        CharacterAppearanceData a = CharacterAppearanceData.Sanitize(Chosen(999, 9, 6, 300), "assassin");
         Assert.Equal(0, a.hairStyle);
         Assert.Equal(-1, a.hairColorIndex);
         Assert.Equal(-1, a.outfitColorIndex);
@@ -131,7 +131,7 @@ public class CharacterAppearanceTests
         CharacterAppearanceData next;
         Assert.True(CharacterAppearanceData.TryApplyOpText(Chosen(4, 6, 1).ToOpText(), cur, out next));
         Assert.True(next.SameLook(Chosen(4, 6, 1, 9))); // the client never sets a headgear
-        Assert.False(CharacterAppearanceData.TryApplyOpText("4,8,1", cur, out next));
+        Assert.False(CharacterAppearanceData.TryApplyOpText("4,9,1", cur, out next));
         Assert.False(CharacterAppearanceData.TryApplyOpText("4,1,6", cur, out next));
         Assert.False(CharacterAppearanceData.TryApplyOpText("x,1,1", cur, out next));
         Assert.False(CharacterAppearanceData.TryApplyOpText("", cur, out next));

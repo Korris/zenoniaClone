@@ -10,7 +10,7 @@ from scipy import ndimage
 # (class, anim, painted direction): rows cut on the body height + head rescaled (factor measured: idle skull width / row skull width)
 HEAD_FIX = {("wizard", "attack", "up"), ("mechanic", "walk", "right"), ("mechanic", "attack", "down-right"),
             ("assassin", "attack", "down-right"), ("cleric", "attack", "right"),
-            ("warrior", "walk", "up")}  # warrior V2 22/11: walk-up head drawn ~12 % big
+            }  # ("warrior", "walk", "up") removed 24/11: the Starward walk-up redraw has the idle head size
 BAND = 14  # blend rows above the chin (head scale fades to 1 at the chin)
 
 

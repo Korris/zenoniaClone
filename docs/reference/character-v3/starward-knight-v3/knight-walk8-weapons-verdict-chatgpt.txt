@@ -1,0 +1,10 @@
+Design chat (Tay), 24/11 ~19:35, verdict on Knight sword + shield + walk 8 frames (in-game shots). Key lines (verbatim):
+Phán quyết: ĐẠT để sử dụng trong game. ... chưa khóa animation ở mức hoàn thiện cuối vì hướng ngang vẫn có một lỗi chuyển vị trí tay giữa F4–F5.
+(a) Kiếm + khiên Knight mới 9,2/10 Đạt | (b) Cầm nắm, khớp tay idle + walk 8,7/10 Đạt, cần tinh chỉnh | (c) Walk 8 frame 8,8/10 Đạt | (d) Tốc độ 75 ms/frame 9,0/10 Giữ | (e) Tổng thể 8,9/10 APPROVE
+Kiếm: 140/216 ≈ 64,8% H. Khiên: 91/216 ≈ 42,1% H. Tôi chốt giữ nguyên kích thước cả hai, không phóng to thêm.
+Quyết định giữ kiếm chéo xuống-trước và chỉ dao động nhẹ là đúng.
+Vấn đề chính là F4–F5: cánh tay gần camera đổi thứ tự trước/sau khá đột ngột. ... Sửa ưu tiên: Trước tiên thử chỉnh thứ tự hiển thị tay/vũ khí và nội suy điểm neo tại F4–F5. Nếu lỗi nằm ngay trong hình vẽ, cần sửa hai frame này ở hướng phải và trái, không cần vẽ lại toàn bộ 8 frame.
+Hướng chéo lên và lên: cho đỉnh chuyển động áo choàng trễ so với bước chân khoảng một frame để tạo cảm giác vải có trọng lượng. Không cần thêm frame thứ 9 hoặc thứ 10.
+Giữ 75 ms/frame làm mặc định. Nếu sau này có tốc độ chạy nhanh hơn, nên tăng tốc phát theo tốc độ di chuyển thực tế.
+Quyết định sản xuất: Thiết kế kiếm Khóa | Thiết kế khiên Khóa | Kích thước 140/91 px Khóa | Walk 8 frame Giữ | 75 ms/frame Giữ | Lỗi tay F4–F5 hướng ngang Cần sửa | Quán tính áo choàng Tinh chỉnh tùy chọn | Vẽ lại toàn bộ walk Không
+Kết luận: ... Tôi ưu tiên xử lý lỗi tay F4–F5 trước khi sản xuất attack, vì cùng một vấn đề thứ tự lớp và điểm neo có thể gây lỗi rõ hơn khi kiếm vung nhanh.

@@ -15,7 +15,7 @@ namespace ZenoniaProto
         const float HeroX = 585f, FeetY = 440f, HeroViewH = 440f, PedestalW = 270f, PedestalAspect = 448f / 208f, FeetOnPedestal = 0.22f, BannerW = 128f, BannerH = 188f, BannerBottom = 300f;
         const float HeroColumnW = 33f; // world units: the whole 320 px body cell, so the down idle sword tip and shield edge are never cut
         const float PlateX = 28f, PlateY = 84f, PlateW = 360f, PlateH = 528f;
-        const float SlotSize = 64f, SlotStepX = 76f, SlotStepY = 72f, DiscInset = 13f, SwatchesPerRow = 4;
+        const float SlotSize = 58f, SlotStepX = 68f, SlotStepY = 72f, DiscInset = 12f; // 5 slots (330 px) fit the 360 px plate
         const float RightX = 790f, RightY = 190f, RightW = 320f, RightH = 176f;
 
         sealed class Swatch { public Image Frame, Disc; }
@@ -90,16 +90,17 @@ namespace ZenoniaProto
             CharacterFlowKit.RoButton(styleRow.transform, "StyleNext", RoSoftSprites.Shape.Secondary, RightW - 52f, 4f, 52f, 52f, ">", 26, () => OnStyle(1), out unused);
         }
 
-        /// <summary>Rows of four swatches from y (a short last row is centred); tap = pick that palette index.</summary>
+        /// <summary>Rows of four swatches (five when more than 8) from y (a short last row is centred); tap = pick that palette index.</summary>
         Swatch[] Swatches(RectTransform plate, string name, int count, float y, System.Action<int> pick)
         {
             var list = new Swatch[count];
-            float rowW = (SwatchesPerRow - 1) * SlotStepX + SlotSize;
+            int perRow = count > 8 ? 5 : 4; // 9 hair colours (Starlight Blonde, 24/11): 5 + 4 keeps two rows above the colour name
+            float rowW = (perRow - 1) * SlotStepX + SlotSize;
             for (int i = 0; i < count; i++)
             {
-                int row = i / (int)SwatchesPerRow, col = i % (int)SwatchesPerRow;
-                int inRow = Mathf.Min((int)SwatchesPerRow, count - row * (int)SwatchesPerRow);
-                float x0 = (PlateW - rowW) * 0.5f + (SwatchesPerRow - inRow) * SlotStepX * 0.5f;
+                int row = i / perRow, col = i % perRow;
+                int inRow = Mathf.Min(perRow, count - row * perRow);
+                float x0 = (PlateW - rowW) * 0.5f + (perRow - inRow) * SlotStepX * 0.5f;
                 var s = new Swatch();
                 s.Frame = CharacterFlowKit.RoPiece(plate, name + i, RoSoftSprites.Shape.Cell, x0 + col * SlotStepX, y + row * SlotStepY, SlotSize, SlotSize);
                 s.Disc = CharacterFlowKit.Pic(s.Frame.rectTransform, "Disc", CharacterFlowKit.Art("swatch"), DiscInset, DiscInset, SlotSize - 2f * DiscInset, SlotSize - 2f * DiscInset);

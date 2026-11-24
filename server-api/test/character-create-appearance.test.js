@@ -40,7 +40,7 @@ describe('create with appearance', () => {
   });
 
   it.each([
-    ['hair colour past the palette', { hairColorIndex: 8, outfitColorIndex: 0 }],
+    ['hair colour past the palette', { hairColorIndex: 9, outfitColorIndex: 0 }],
     ['outfit colour past the palette', { hairColorIndex: 0, outfitColorIndex: 6 }],
     ['hair colour not chosen', { hairColorIndex: -1, outfitColorIndex: 0 }],
     ['outfit colour missing', { hairColorIndex: 1 }],

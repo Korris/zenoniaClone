@@ -67,7 +67,7 @@ namespace ZenoniaProto
             BareAnims = AllBare, MirrorLeft = new HashSet<string>(),
             ComboAnims = new[] { "melee1lr", "melee2rl", "melee3up", "melee4" }, RisingStep = 3, // slash left -> right, slash right -> left, rising slash, jump cleave (Tools/build-warrior-combo-directions.py; old melee1-3 kept, Earth Break borrows melee1)
             ExtraAnims = new[] { InfernoCrashUltimate.PoseAnim, BerserkerAwakeningFx.PoseAnim, "melee1", "melee3" }, // melee1: Earth Break swing, melee3: Blade Cyclone spin (no longer combo hits)
-            MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f, LockTargetMelee = true, WalkCycleMs = 640f, // 4 pose walk sheet, slowed so each pose reads; the feet slide a little at Speed 80
+            MaxHp = 100f, Atk = 12f, Def = 4f, Speed = 80f, Hits = ComboConfigs.WarriorHits, ChainMs = 400f, LockTargetMelee = true, WalkCycleMs = 600f, // Starward Knight V3 8-frame walk (24/11): 75 ms per frame = 13.3 fps (design chat: 10-12 fps, check 14-16, match the move speed); was 640 for the 4 pose sheet
             Parts = new[] { new GearPartSpec("shield", "classes/warrior/weapons/shield", 0.8f), new GearPartSpec("sword", "classes/warrior/weapons/sword", 2f, 0.85f, true) },
             SkillName = "Earth Break", SkillMp = 29f, SkillCooldownMs = 8000f, SkillLockMs = Rpg.LegacySkillNumbers.EarthBreakSlamMs, SkillIcon = 4, DashIcon = 7, // bladeStorm, dashStrike
         };

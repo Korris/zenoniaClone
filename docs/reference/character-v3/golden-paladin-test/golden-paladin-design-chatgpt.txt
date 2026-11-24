@@ -1,0 +1,11 @@
+ChatGPT (Tan Pham Plus, chat "Thiết kế Golden Paladin" https://chatgpt.com/c/6b059a29-7a04-83ec-8f0d-734789cb829e), 24/11 ~21:30, tóm tắt thiết kế:
+Golden Paladin — Thánh Kỵ Sĩ Bình Minh. Thánh kỵ sĩ hoàng gia, thanh lịch, mạnh mẽ; ít chi tiết nhỏ để đọc được ở 76 px.
+- Tính cách: điềm tĩnh, chính trực, ánh mắt nghiêm nghị nhưng nhân hậu.
+- Biểu tượng: mặt trời tám tia bao quanh một hình thoi (ánh sáng bảo hộ).
+- Giáp: mảng giáp trắng ngà bo cong, viền vàng kim, giáp vai nhiều lớp, găng tay nâu sẫm.
+- Tóc: vàng bạch kim, bồng mềm, mái lệch, hai lọn ôm má tới cằm; phần dài sau vai tới giữa lưng; không vương miện.
+- Kiếm: trường kiếm bản rộng, lõi thép trắng ngà, viền vàng, chắn tay hình tia mặt trời.
+- Khiên: khiên tháp lớn, đỉnh bo cong, đáy thuôn nhọn, mặt trời nổi giữa.
+- Áo choàng: xanh lam hoàng gia, viền vàng đơn giản, dài tới bắp chân.
+Bảng màu: trắng ngà giáp #F5EAD4, vàng kim viền #D8A344, vàng bạch kim tóc #F6DFA4, lam hoàng gia #263E70 (đủ bảng trong chat).
+Nguồn cảm hứng: chỉ mood của ảnh người dùng (user-ref-golden-paladin-mood.jpg); không tiara / đá quý, không cánh trên khiên.

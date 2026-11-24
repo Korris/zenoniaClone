@@ -337,6 +337,13 @@ namespace ZenoniaProto
                 HeroController hero = GameSession.Hero;
                 if (tpTile.x >= 0) hero.Teleport(FrostHollowMap.TileFeet(tpTile.x, tpTile.y, 2f), faceArg == "up" ? 1 : faceArg == "left" ? 2 : faceArg == "right" ? 3 : 0);
                 if (tier >= 0 || enhanced) hero.View.SetGear(Mathf.Max(tier, 0), enhanced);
+                if (hero.View.IsLayered && (hairStyle >= 0 || hairDye >= 0)) // layered / RO Fantasy sets read the look, not the head layer: --hair-dye N = palettes.json hair index
+                {
+                    CharacterAppearanceData look = hero.View.Appearance != null ? hero.View.Appearance.Clone() : CharacterAppearanceData.Unset(c.ToString().ToLowerInvariant());
+                    if (hairStyle >= 0) look.hairStyle = hairStyle;
+                    if (hairDye >= 0) look.hairColorIndex = hairDye;
+                    hero.View.SetAppearance(look, "capture", true, false);
+                }
                 if (hairStyle >= 0) hero.View.HairStyle = hairStyle;
                 if (hairDye >= 0) hero.View.HairDye = hairDye; // --hair-dye N: preset N of hair-dyes.json (layered heads)
                 Color customHair;

@@ -19,7 +19,7 @@ describe('appearance', () => {
     expect(stateSchema.parse({ ...base(), appearance: look({ classId: 'wizard' }) }).appearance.classId).toBeUndefined();
   });
   it.each([
-    ['a hair colour past the palette', { hairColorIndex: 8 }],
+    ['a hair colour past the palette', { hairColorIndex: 9 }],
     ['an outfit colour past the palette', { outfitColorIndex: 6 }],
     ['a negative style', { hairStyle: -1 }],
     ['a headgear id above one byte', { equippedHeadgearId: 256 }],

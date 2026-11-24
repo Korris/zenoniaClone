@@ -1,0 +1,315 @@
+STARWARD — Hair Color Palette V3.0 (FINAL)
+
+Dựa trên hai ảnh Willowbrook Village và Clover Meadows, mình chốt 8 màu tóc, giữ số lượng cũ nhưng thiết kế lại toàn bộ bảng màu theo hướng Storybook Heroes / Premium Fantasy Chibi.
+
+Môi trường Taurus có cỏ xanh vàng sáng, đường đất beige ấm, đá kem, cây xanh olive và kiến trúc nâu vàng. Vì vậy, tóc cần có bóng đủ sâu, màu chính hơi trầm, highlight ấm và mềm để không bị cảm giác neon hoặc tóc nhựa.
+
+Mình quyết định giữ đủ nhóm màu tự nhiên và màu fantasy, nhưng giảm độ lạnh, độ tím gắt của một số màu hiện tại.
+
+1. Bảng màu chính thức — 8 màu × 5 mã HEX
+
+01
+
+Story Chestnut
+
+Nâu hạt dẻ · Màu mặc định đề xuất
+Mặc định
+
+Deep
+
+#493026
+
+Shadow
+
+#704532
+
+Base
+
+#A36B46
+
+Light
+
+#D8A078
+
+Outline
+
+#382921
+
+02
+
+Soft Charcoal
+
+Đen than nâu · Trung tính
+
+Deep
+
+#282B32
+
+Shadow
+
+#414249
+
+Base
+
+#66646C
+
+Light
+
+#A29AA0
+
+Outline
+
+#27262C
+
+03
+
+Golden Honey
+
+Vàng mật ong · Tươi ấm
+
+Deep
+
+#75502D
+
+Shadow
+
+#A8783D
+
+Base
+
+#DCAC59
+
+Light
+
+#F6D78F
+
+Outline
+
+#59402B
+
+04
+
+Moon Silver
+
+Bạc ánh ngọc · Dịu và sang
+
+Deep
+
+#59606F
+
+Shadow
+
+#858A9A
+
+Base
+
+#BEC1CB
+
+Light
+
+#F1EDE8
+
+Outline
+
+#474C58
+
+05
+
+Autumn Coral
+
+Đỏ san hô · Năng động
+
+Deep
+
+#703B35
+
+Shadow
+
+#A55448
+
+Base
+
+#D77E65
+
+Light
+
+#F3AF8A
+
+Outline
+
+#51312E
+
+06
+
+Misty Azure
+
+Xanh trời khói · Fantasy
+
+Deep
+
+#35506A
+
+Shadow
+
+#587C9A
+
+Base
+
+#83B4CF
+
+Light
+
+#CAE1E8
+
+Outline
+
+#303D50
+
+07
+
+Twilight Lavender
+
+Tím oải hương · Fantasy
+
+Deep
+
+#514266
+
+Shadow
+
+#8270A6
+
+Base
+
+#AD98CB
+
+Light
+
+#D9C8E9
+
+Outline
+
+#3E344F
+
+08
+
+Sakura Rose
+
+Hồng hoa anh đào · Mềm mại
+
+Deep
+
+#784C59
+
+Shadow
+
+#AB7288
+
+Base
+
+#D99DB0
+
+Light
+
+#F3CDD3
+
+Outline
+
+#5A3C49
+
+2. Bảng dữ liệu để đưa vào Unity
+
+Thứ tự màu: DeepShadow, Shadow, Base, Highlight, Outline.
+
+HairPaletteV3.csv
+
+Copy CSV
+
+Đã thống nhất đủ 8 bảng màu cho cùng hệ thống nhuộm.
+
+3. Quy tắc shader Unity
+
+Tông xám nguồn
+
+	
+
+Thay bằng
+
+
+
+
+#484848
+
+	
+
+DeepShadow
+
+
+
+
+#858585
+
+	
+
+Shadow
+
+
+
+
+#B8B8B8
+
+	
+
+Base
+
+
+
+
+#E4E4E4
+
+	
+
+Highlight
+
+
+
+
+Viền tóc riêng
+
+	
+
+Outline
+
+Quan trọng: Nếu tranh tóc có các giá trị xám trung gian do anti-aliasing hoặc vẽ mềm, cần nội suy giữa các mốc grayscale, không kiểm tra màu bằng phép so sánh RGB tuyệt đối.
+
+Với viền, nên có mask viền riêng. Nếu không có mask, có thể dùng màu tối nhất để xử lý viền tạm thời, nhưng sẽ không giữ được DeepShadow và Outline độc lập.
+
+Thiết lập hiển thị:
+
+Shader Unlit cho tóc sprite, nhưng nhận tint bóng môi trường rất nhẹ nếu cần đồng bộ cảnh.
+
+Không cho ánh sáng vàng của môi trường làm đổi hue tóc quá mạnh.
+
+Giữ Bilinear, Mipmap Off như bản đã duyệt.
+
+Không Bloom trên tóc.
+
+Đánh giá màu ở camera mặc định và camera zoom xa nhất, không chỉ trong cửa sổ tạo nhân vật.
+
+4. Các màu mình thay đổi nhiều nhất
+
+Lavender: từ #B49CE2 sang #AD98CB. Giảm cảm giác tím sáng giả, chuyển sang lavender xám ngọc, hợp outfit xanh lam-vàng của Starward.
+
+Sky Blue: từ #7DB6E6 sang #83B4CF. Ít cyan rực hơn, tạo cảm giác xanh khói có chất liệu.
+
+Silver: từ #DCD8E4 sang #BEC1CB ở Base, giữ #F1EDE8 cho highlight. Nhờ đó tóc bạc có chiều sâu, không bị gần trắng toàn bộ.
+
+Soft Charcoal: làm ấm nhẹ ánh xám, tránh tóc đen bị lạnh hoặc tím quá mức giữa môi trường Taurus.
+
+5. Phán quyết
+
+Mình duyệt Hair Color Palette V3.0 làm palette chuẩn cho cả năm class, không chỉ Starward. Khi sang Moonweaver, Gearling, Duskrunner và Bloomkeeper, nên dùng cùng bảng màu này để người chơi có trải nghiệm tùy biến nhất quán.
+
+Ở bước duyệt kỹ thuật, ưu tiên test Story Chestnut, Moon Silver, Twilight Lavender và Sakura Rose vì bốn màu này bộc lộ rõ nhất lỗi chuyển tông, mất khối hoặc highlight quá sáng.
+
+Palette này là màu mục tiêu để triển khai; cần kiểm tra trực tiếp trong Unity trước khi khóa kết quả cuối cùng, vì Linear/Gamma, texture import và xử lý anti-alias có thể làm HEX hiển thị khác bảng màu.

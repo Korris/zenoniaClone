@@ -29,6 +29,11 @@ DARK_FACE = False  # set for Assassin (black face mask is a shared face feature,
 
 
 def newest(pattern):
+    import ro_fantasy_variant as variant  # RO_FANTASY_VARIANT test look: its src/<variant>/ first, then src/
+    if variant.VARIANT and '/src/' in pattern and f'/src/{variant.VARIANT}/' not in pattern:
+        got = newest(pattern.replace('/src/', f'/src/{variant.VARIANT}/'))
+        if got:
+            return got
     files = glob.glob(pattern)
     if not files:
         return None
@@ -87,7 +92,10 @@ def head_box(rgba, span):
     al = rgba[y0:y1, x0:x1, 3] > 0
     w = al.sum(1)
     h = y1 - y0
-    top_half = w[: int(h * 0.36)]
+    import ro_fantasy_variant as variant
+    # Golden Paladin test look (24/11): its big round gold pauldrons start at ~32 % of the figure height and were taken as the widest
+    # "head" row -> look for the widest skull row in the top 29 % only
+    top_half = w[: int(h * (0.29 if variant.VARIANT == "golden-paladin" else 0.36))]
     hm = int(np.argmax(top_half))
     lo, hi = hm + 5, int(h * 0.62)
     neck = lo + int(np.argmin(w[lo:hi]))
@@ -124,7 +132,8 @@ def cmd_heads(cls):
         im = Image.fromarray(part, 'RGBA')
         out.paste(im, (i * cw + (cw - (x1 - x0)) // 2, ch - (y1 - y0) - int(ch * 0.08)), im)
     out = out.resize((out.width * 3, out.height * 3), Image.NEAREST)
-    path = ART + f'ref/bald-head-{cls}-5dir.png'
+    import ro_fantasy_variant as variant
+    path = str(variant.bald_head_ref(cls))  # variant test look: ref/<variant>-test/
     out.save(path)
     print(src, '->', path, out.size)
 

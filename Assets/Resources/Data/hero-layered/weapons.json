@@ -1,13 +1,13 @@
 {
- "note": "Upright weapon sprites from weapons-5-classes-chatgpt-1.png (Tools/build-hero-layered-weapons.py): grip px (x, y down).",
+ "note": "Upright weapon sprites from weapons-5-classes-chatgpt-1.png (Tools/build-hero-layered-weapons.py): grip px (x, y down). Starward Knight V3 24/11: sword + warrior-shield from Tools/build-starward-knight-weapons.py.",
  "grips": {
   "sword": [
-   31.0,
-   117.5
+   26.0,
+   118.0
   ],
   "warrior-shield": [
-   31.0,
-   40.0
+   38.0,
+   54.0
   ],
   "wizard-staff": [
    34.0,

@@ -1,0 +1,18 @@
+Design chat (Tay), 24/11 ~20:10. A) Attack 8 frames Knight (in-game shots) + B) hair complaint. Key lines verbatim:
+A. Phán quyết sơ bộ: ĐẠT để tiếp tục sản xuất, nhưng chưa khóa animation đánh ở mức hoàn thiện cuối.
+(a) Art đánh so với Knight 9,1/10 Đạt | (b) Lực chân – hông – vai – tay 8,3/10 Cần tinh chỉnh | (c) Khớp kiếm/khiên và đường chém 8,6/10 Đạt, có lỗi nhỏ | (d) Tổng thể 8,7/10 APPROVE có điều kiện
+Ưu tiên 1: damage 120 ms trước F4 (giả định 50 ms/frame đều). "Tôi chọn: AttackDuration = 400 ms, DamageTime = 165 ms, ImpactFXTime = 165 ms, HitStop = 35 ms ... Nếu muốn giữ damage ở 120 ms vì cân bằng gameplay, phải điều chỉnh timing của các frame để F4 đến sớm hơn; không nên để animation và sát thương lệch nhau."
+  -> ĐÃ CÓ SẴN trong engine: WarriorSlashFeel.FrameStartMs {0,30,70,95,120,175,245,320}: frame strike (0-based 3) 95-120 ms, frame impact (0-based 4) bắt đầu đúng 120 ms = damage + hit-stop 35 ms. Giữ damage 120 ms (server). Không đổi.
+Ưu tiên 2: down F2->F3->F4 "Sửa art F3 để lưỡi kiếm có vị trí trung gian rõ ràng".
+Ưu tiên 3: right/left F3–F4 xoay vai 5–8°, hông ngược, chân sau đạp; up-right/up-left F4–F5 áo choàng kéo trễ; up F3–F4 giữ hướng kiếm và vai liên tục. "Không cần vẽ lại cả 64 frame."
+B. Tóc: "Lỗi không chỉ do shader nhuộm. Bản tóc xám dùng để sản xuất đã bị mất một phần ngôn ngữ tạo hình của concept gốc." Chọn VẼ LẠI ART tóc xám V4 + thử Starlight Blonde ramp V4.
+Palette Starlight Blonde V4: Deep #95652F | Shadow #C28F48 | Base #F0C676 | Light #FFF0C9 | Outline #73502F
+Mapping xám: <0,22 Outline | 0,22–0,38 Deep | 0,38–0,54 Shadow | 0,54–0,76 Base | >0,76 Light, nội suy mềm 0,02–0,04.
+Prompt "VẼ LẠI STARWARD V3 KNIGHT — HAIR S2 V4 (GAME-READY)": saved in Assets/ArtLibrary/ro-fantasy-heroes/ref/starward-knight-v3/prompts/hair-s2-v4-prompt.txt
+
+Design chat, 24/11 ~20:35, Hair s2 V4 in game (verbatim key lines):
+Phán quyết: ĐẠT — APPROVE Hair s2 V4 để giữ trong game.
+(a) Hình tóc V4 so với Knight concept 9,0/10 | (b) Màu Starlight Blonde V4 trong game 8,8/10 | (c) Mức cải thiện so với s2 cũ 9,2/10 | (d) Kiểu 0/1 với palette mới 8,6/10 Không bị xấu đi đáng kể | (e) Tổng thể 8,9/10 APPROVE
+Tôi giữ nguyên cả 5 mã hex. ... Không nên tăng saturation thêm.
+Giảm viền tối nội bộ: Chỉ thử giảm opacity 5–8% nếu có mask viền riêng | Kiểm tra màu khác: Nên làm trước khi khóa toàn bộ 9 màu
+Không nên tiếp tục tiêu tốn lượt vẽ vào tóc s2; ưu tiên kiểm tra các màu nhuộm khác và hoàn thiện tổng thể animation Knight.

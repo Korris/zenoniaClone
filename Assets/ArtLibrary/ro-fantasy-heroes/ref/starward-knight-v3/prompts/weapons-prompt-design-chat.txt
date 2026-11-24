@@ -1,0 +1,6 @@
+Kiếm + khiên Starward V3 (thay kiếm, khiên đang dùng trong game).
+Ảnh 1 = turnaround Starward V3, ảnh 2 = bảng Knight. Vẽ mới hoàn toàn MỘT ảnh có đúng 2 món, nhìn thẳng phía trước, đặt cạnh nhau, cách nhau rộng:
+- TRÁI: kiếm DỰNG ĐỨNG, mũi lên trên, chuôi xuống dưới, không nghiêng. Theo sửa bạn đã chốt: "chuyển thành kiếm bản rộng, có sống kiếm xanh lam và viền bạc rõ; giảm cảm giác mũi kiếm dài quá mức". Chuôi + đốc kiếm rõ (game gắn nắm tay vào giữa chuôi).
+- PHẢI: khiên dựng đứng nhìn thẳng mặt trước. Theo sửa bạn đã chốt: "giữ ngôi sao vàng và nền xanh lam, mở rộng phần dưới khoảng 5% để silhouette đầy đặn hơn".
+Kích thước bạn đã chốt: kiếm dài 65 % chiều cao nhân vật, khiên cao 42 %: vẽ kiếm cao hơn khiên đúng tỉ lệ đó (kiếm ≈ 1,55 lần khiên).
+Không tay, không người, không hiệu ứng / glow / tia sáng, không chữ, không bóng đổ; viền nâu đậm rõ; nền phẳng #00FF00 kín ảnh, không viền trắng; hai món không chạm mép ảnh.

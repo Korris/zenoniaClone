@@ -47,17 +47,21 @@ public class RoFantasyHairStyleAppearanceTests
         Assert.All(seen, Assert.True);
     }
 
-    /// <summary>The class sets the game loads: 3 hairstyles 0-2 each, fixed outfit, a body of its own (not the common gender body).</summary>
+    /// <summary>Hairstyles each class set offers: 3, warrior 4 (24/11: 2 Starward styles + the Knight V3 hair + the Golden Paladin hair).</summary>
+    static int StylesOf(string cls) => cls == "warrior" ? 4 : 3;
+
+    /// <summary>The class sets the game loads: hairstyles 0..n-1 each (3, warrior 4), fixed outfit, a body of its own (not the common gender body).</summary>
     [Fact]
-    public void EveryClassHasAnRoFantasySetWithThreeStyles()
+    public void EveryClassHasAnRoFantasySetWithItsHairStyles()
     {
         foreach (string cls in Classes)
         {
             string text = File.ReadAllText(Path.Combine("..", "..", "..", "..", "..", "..", "Assets", "Resources", "Data", "hero-layered", "ro-fantasy", cls, "class.json"));
             Assert.Matches("\"fixedOutfit\":\\s*true", text);
             Assert.Contains("\"body\": \"Data/hero-layered/ro-fantasy/" + cls + "/body\"", text);
-            for (int s = 0; s < 3; s++) Assert.Matches("\"style\":\\s*" + s + ",", text);
-            Assert.Equal(3, Regex.Matches(text, "\"style\":").Count);
+            int n = StylesOf(cls);
+            for (int s = 0; s < n; s++) Assert.Matches("\"style\":\\s*" + s + ",", text);
+            Assert.Equal(n, Regex.Matches(text, "\"style\":").Count);
         }
     }
 }

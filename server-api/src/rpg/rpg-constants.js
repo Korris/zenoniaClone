@@ -23,7 +23,7 @@ export const MAX_LEVEL = 90; // Leveling.MaxLevel (60 until 16/11/2026)
 export const SKILL_COUNT = 8; // SkillDef.PerClass: skills per class tree
 export const SKILL_MAX_RANK = 10; // SkillDef.MaxRank
 export const INVENTORY_SIZE = 50; // PlayerState.InventorySize (was 20 until 2026-11-08)
-export const APPEARANCE_HAIR_COLORS = 8, APPEARANCE_OUTFIT_COLORS = 6; // CharacterAppearanceData.HairColorCount / OutfitColorCount (Data/hero-layered/palettes.json)
+export const APPEARANCE_HAIR_COLORS = 9, APPEARANCE_OUTFIT_COLORS = 6; // CharacterAppearanceData.HairColorCount / OutfitColorCount (Data/hero-layered/palettes.json)
 export const MAX_STONES = 9999; // PlayerState.MaxStones
 export const MAX_INT = 2_000_000_000; // C# int fields (gold, exp, potions) must stay inside Int32
 

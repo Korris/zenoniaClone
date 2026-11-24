@@ -21,8 +21,8 @@ import ro_fantasy_motion_fists as mf
 ROOT = bc.ROOT
 SPR = ROOT / "Assets/Resources/Sprites/hero-layered/ro-fantasy"
 DATA = ROOT / "Assets/Resources/Data/hero-layered/ro-fantasy"
-FISTS = ROOT / "Assets/ArtLibrary/ro-fantasy-heroes/sheets"
-REF = ROOT / "docs/reference/ro-fantasy-heroes-ingame"
+FISTS = bc.variant.SHEETS  # variant test look: its own fists json (sheets/<variant>/)
+REF = bc.variant.review_dir(ROOT / "docs/reference/ro-fantasy-heroes-ingame")
 CW, CH, PAINTED = bc.CW, bc.CH, bc.PAINTED
 HAND_R = 9  # hand layer disc radius (cell px) around a fist
 
@@ -58,6 +58,7 @@ CLERIC_STAFF_AHEAD, CLERIC_STAFF_LIFT = 36, -8  # Cleric walk right / left: staf
 CLERIC_STAFF_ATTACK = {(0, 2): -110, (1, 1): -45}  # (painted row, frame): staff angle, read on the 8-dir sheet (mirrored on the left)
 STAFF_HEAD_FLOOR = 226  # staff point (grip -> art top) floor: the crystal head is ~25 px wide, its rim then stays above the feet (244)
 PUNCH_Y = 160  # Mechanic attack: a fist above this row is the shooting hand, its pistol points along the arm
+SIDE_WALK_SWAY = 0.3  # Warrior side walk: sword angle change (deg) per cell px the fist swings from its idle spot
 SWORD_TIP_Y = 240  # Warrior idle / walk facing down / down-right: sword points down-outward, tip just above the feet line (244)
 
 
@@ -191,10 +192,24 @@ def sword_down(cj, poses):
     """Warrior idle / walk / attack recover, facing down / down-right / down-left: the generic rest pose leaves the 150 px sword nearly flat (fist low, tip kept above
     the ground), user 19/11: point it down-outward as far as the tip stays above the feet line."""
     gy = next(w["gy"] for w in cj["weapons"] if w["part"] == "weapon")  # grip -> tip, art px (tip at the top of the art)
+    idle_sw = {g["dir"]: g for g in cj["grips"] if g["part"] == "weapon" and g["anim"] == "idle"}
     for g in cj["grips"]:
+        # side walk (Knight 8-frame walk 24/11): the far fist swings forward past the chest on half the cycle and the generic depth test
+        # then drew its item over the body; facing right the shield (left hand) is always far, facing left the sword (painted left row
+        # = mirrored right row, the far fist holds it) -> always behind the body
+        if g["anim"] == "walk" and ((g["dir"] == 2 and g["part"] == "offhand") or (g["dir"] == 6 and g["part"] == "weapon")):
+            g["behind"] = True
         rest = g["anim"] in ("idle", "walk") or (g["anim"] == "attack" and g["f"] == 3)
-        back = g["anim"] == "walk" and ((g["dir"] == 2 and g["x"] < 140) or (g["dir"] == 6 and g["x"] > CW - 140))
-        if g["part"] == "weapon" and (rest and g["dir"] in (0, 1, 7) or back):  # back: side walk, sword arm swung back -> blade trails
+        if g["part"] == "weapon" and g["anim"] == "walk" and g["dir"] in (2, 6):
+            # side walk, 8 frames (24/11): the blade used to trail backward while the arm swung back, flipping ~110 degrees between
+            # two frames (75 ms) = a jitter. Now it keeps the idle down-forward angle, tilted by a damped arm swing (fist behind the
+            # idle fist -> steeper), never past vertical, tip above the feet line.
+            s = 1 if g["dir"] == 2 else -1
+            i = idle_sw[g["dir"]]
+            a = max(95.0, min(150.0, abs(i["angle"]) - SIDE_WALK_SWAY * s * (g["x"] - i["x"])))
+            g["angle"] = round(s * poses.keep_tip_above_ground(a, g["y"], gy, 1, ground=SWORD_TIP_Y + 4), 1)
+            continue
+        if g["part"] == "weapon" and rest and g["dir"] in (0, 1, 7):
             a = math.degrees(math.acos(max(-1.0, min(1.0, (g["y"] - SWORD_TIP_Y) / gy))))
             g["angle"] = round(-a if g["x"] < CW / 2 else a, 1)
         elif g["part"] == "weapon":  # every other frame: the tip may not cross the feet line either (generic limit is row 250)

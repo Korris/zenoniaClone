@@ -1,0 +1,85 @@
+vẽ concept lineup các class mới ngay trong chat này.
+Worked for 5m 1s
+Edit
+ChatGPT said:
+ASTERIA — CHARACTER ART DIRECTION V2.0
+Full Character Reboot · Premium Storybook Chibi Fantasy
+Mình quyết định thiết kế lại hoàn toàn dàn nhân vật chính của Asteria. Không giữ tóc, khuôn mặt, trang phục, màu sắc hay silhouette của năm nhân vật cũ.
+Lần này mình muốn nhân vật đẹp ngay từ concept, trước khi nghĩ đến sprite animation. Mục tiêu là cảm giác đáng yêu, thời trang và có cá tính như những game chibi fantasy cao cấp, lấy cảm hứng từ sức hút của Trickster M nhưng tạo nhận diện riêng cho Asteria.
+I. Quyết định nền tảng
+Mình chọn giữ 5 class gameplay, nhưng thay toàn bộ thiết kế nhân vật và tên thể hiện. Việc này giúp không phải bỏ các hệ kỹ năng, trang bị, Monster Card và Pet đang phát triển.
+Phong cách mới có tên Asteria — Storybook Heroes.
+Tiêu chí
+	
+Quy chuẩn mới
+Tỷ lệ
+	
+2,7 đầu, cho phép dao động 2,6–2,75
+Gương mặt
+	
+Má mềm, cằm tròn nhẹ, mắt có thần thái riêng
+Tóc
+	
+4–6 khối lớn, lọn phụ tiết chế, phồng tự nhiên
+Cơ thể
+	
+Vai và eo rõ, chân có độ dài, bàn chân vững
+Trang phục
+	
+Fantasy thời trang, nhiều lớp vải mềm, giáp có chọn lọc
+Màu sắc
+	
+Một màu chính, một màu phụ, một màu nhấn
+Shading
+	
+Painterly cel shading 2–3 cấp, highlight có kiểm soát
+Viền
+	
+Nâu đậm mềm, thay đổi theo vật liệu
+Hình ảnh
+	
+Cute 8/10, Heroic 7/10, Realism 2/10
+Khác biệt quan trọng nhất: Không mặc định rằng class chiến binh phải là một bộ giáp đỏ với kiếm to, pháp sư phải mặc áo choàng xanh và sát thủ phải đeo khăn che mặt. Mình muốn mỗi class giống một nhân vật có câu chuyện, chứ không phải một bộ trang bị có khuôn mặt.
+II. Năm class mới mình chọn
+1. Starward — Vệ Binh Tinh Tú
+Vai trò: cận chiến, chống chịu, tiên phong.
+Một hiệp sĩ trẻ với tóc nâu hạt dẻ, đôi mắt màu hổ phách, áo khoác xanh teal đậm, giáp ngà và vàng cổ. Kiếm ngắn bản rộng và khiên hình ngôi sao.
+Nhận diện: Áo choàng bất đối xứng nhẹ khi nhìn chính diện, vai giáp tròn, silhouette vững vàng. Bản sprite phải có biến thể đối xứng để lật hướng.
+2. Moonweaver — Người Dệt Nguyệt Quang
+Vai trò: pháp thuật, tấn công diện rộng.
+Pháp sư nữ có tóc tím lavender mềm, mắt xanh ngọc, mũ beret nhỏ trang trí trăng khuyết, áo choàng kem-tím dài ngang gối. Vũ khí là trượng với vòng thiên văn lơ lửng.
+Nhận diện: Tóc bồng mềm, mũ tròn, tay áo hình chuông và biểu tượng mặt trăng.
+3. Gearling — Nhà Phát Minh
+Vai trò: tấn công tầm xa, thiết bị hỗ trợ.
+Nhà phát minh nam tóc màu mật ong, mắt xanh biển, kính bảo hộ tròn trên đầu. Áo khoác phiêu lưu màu xanh lá xô thơm và kem, túi dụng cụ da, súng cơ khí nhỏ mang lõi pha lê.
+Nhận diện: Kính tròn, ba-lô nhỏ, ống tay áo xắn và vũ khí cơ khí tròn, thân thiện.
+4. Duskrunner — Lữ Khách Hoàng Hôn
+Vai trò: tốc độ, né tránh, sát thương chí mạng.
+Nữ kiếm khách có tóc xanh đen ánh mận, buộc đuôi ngựa thấp, mắt vàng đồng. Áo khoác ngắn màu rượu vang và xám than, khăn choàng mềm, hai đoản đao cong mảnh.
+Nhận diện: Dáng năng động, tóc đuôi ngựa, hai lưỡi đao cân xứng. Không dùng mặt nạ che gần hết khuôn mặt.
+5. Bloomkeeper — Người Giữ Mầm Sống
+Vai trò: hồi phục, bảo vệ và buff đồng đội.
+Nữ pháp sư trị liệu tóc vàng kem pha hồng đào, mắt xanh lá non. Trang phục trắng ngà, xanh bạc hà và vàng champagne; trượng đèn hoa phát sáng, túi thuốc nhỏ bên hông.
+Nhận diện: Mũ trùm nhỏ dạng cánh hoa, áo choàng mềm, trượng đèn hoa và nét mặt dịu dàng.
+III. Quy tắc thiết kế để cả năm class thật sự đẹp
+Mình khóa ba yêu cầu mà dàn nhân vật cũ chưa làm tốt.
+Thứ nhất — Khuôn mặt phải là trung tâm cảm xúc. Không được phủ mặt bằng tóc, kính, mũ quá to hoặc giáp cổ. Mỗi nhân vật phải có đôi mắt, độ cong miệng và biểu cảm riêng; mắt không nhất thiết có kích thước giống hệt nhau.
+Thứ hai — Quần áo phải có thiết kế thời trang. Giảm mật độ giáp kim loại, tăng tương phản giữa chất vải, da, gỗ, kim loại và pha lê. Mỗi class chỉ có hai đến ba chi tiết nhận diện lớn, tránh phủ trang trí vàng lên mọi bộ phận.
+Thứ ba — Phải đẹp cả khi bỏ vũ khí và tóc. Bởi hệ thống game thay tóc, vũ khí và trang bị theo cấp, form thân và cấu trúc trang phục cần có sức hút độc lập.
+IV. Quy định kỹ thuật
+Mình không thay đổi ô sprite 192 px, không thay pipeline đầu-tóc riêng và không thay cơ chế flip hướng trái.
+Head Base và Hair là hai lớp độc lập; sáu kiểu tóc đổi được, tóc nguồn xám bốn tông để nhuộm màu.
+Body/Armor độc lập với Weapon và Off-hand, cầm theo anchor cố định.
+Tất cả trang bị T1–T9 phát triển trên cùng tỷ lệ body, không cần vẽ lại anatomy mỗi tier.
+Tay không che khuôn mặt trong idle; vũ khí tránh đè lên vùng đầu khi hướng xuống.
+Concept có thể dùng màu tóc đặc trưng, nhưng sprite nguồn dùng tóc tách lớp theo hệ nhuộm.
+Hướng phải thiết kế sao cho lật ngang dùng được cho hướng trái; các họa tiết có ký hiệu định hướng cần được xử lý phù hợp.
+Tỷ lệ tối đa 2,75 đầu giữ nguyên. Không cần kéo nhân vật lên 3 đầu để tạo cảm giác trưởng thành.
+Mình sẽ vẽ lineup với năm class ngang chiều cao, cùng baseline, cùng chất lượng mỹ thuật, nền trình bày đơn giản. Đây là concept tuyển chọn nhân vật, chưa phải sprite sheet nguồn.
+Mình chốt Character Art Direction mới theo hướng Storybook Heroes, với năm class: Starward, Moonweaver, Gearling, Duskrunner và Bloomkeeper.
+Phần quan trọng nhất cần khóa trước khi sản xuất sprite là tỷ lệ 2,7 đầu, khuôn mặt có cá tính, trang phục ít chi tiết vụn, chất liệu mềm và silhouette nhận diện được ở kích thước gameplay. Giữ hệ đầu/tóc riêng, sáu kiểu tóc nhuộm màu, vũ khí và khiên tách lớp, cùng hệ trang bị T1–T9.
+Lưu ý về bản concept vừa vẽ: Đây mới là bản khám phá phong cách premium chibi, chưa phải lineup cuối được mình duyệt. Hình vẫn còn mang nhiều đặc điểm của dàn class cũ và chưa thể hiện đúng năm thiết kế mới trong brief. Mình không muốn bạn sản xuất sprite từ hình này rồi lại phải làm lại.
+Hướng mình chọn vẫn là thiết kế mới hoàn toàn, đáng yêu và có thần thái hơn, nhưng phải đẹp ở kích thước thực trong Willowbrook, chứ không chỉ đẹp khi phóng to trên bảng concept.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

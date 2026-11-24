@@ -1,0 +1,14 @@
+ChatGPT (Tan Pham, chat "Thiết kế Golden Paladin"), 24/11 tối, chấm bản thử trong game (tóc v2 hair-...-chatgpt-5 theo turnaround người dùng, mặt idle chatgpt-4):
+1. Tóc 8.8: khá sát mẫu gốc cả 5 hướng; lọn hơi nhọn cứng, nên làm mềm đuôi tóc, giảm độ xòe ngang.
+2. Mặt 9.0: đúng thần thái nghiêm nghị; mắt mềm hơn chút.
+3. Thân/giáp 9.2: đẹp, đúng chất; vàng hơi bão hòa so với mẫu.
+4. Kiếm khiên + chỗ cầm 8.5: chỉnh góc cầm kiếm ở các hướng sau.
+5. Đi 8.5: chân hợp lý; tóc dài cứng, thiếu chuyển động theo nhịp.
+6. Đánh 8.7: rõ lấy đà / chém / thu; tăng xoay thân + vung áo choàng.
+7. Tổng 8.8: đạt để đưa vào game; camera mặc định vẫn nổi, nhận diện class rõ.
+
+Vòng 2 (giáp + kiếm khiên Knight V3, chỉ tóc Golden kiểu 2, màu 8 chỉnh theo nana.png):
+1. Tóc giống ảnh gốc 9.3: dáng rất sát, vàng kem óng đẹp hơn; bóng vàng ấm hơi nhạt.
+2. Tóc khớp đầu Knight 9.2: 5 hướng + đi / đánh không lệch rõ.
+3. Hợp giáp Knight 9.5: hài hoà hơn bộ Golden.
+4. Tổng 9.3: nên tăng nhẹ tương phản sáng / bóng của tóc để lọn rõ ở camera mặc định.

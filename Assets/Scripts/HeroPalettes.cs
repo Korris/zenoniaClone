@@ -9,9 +9,10 @@ namespace ZenoniaProto
     /// </summary>
     public static class HeroPalettes
     {
-        [Serializable] class PaletteFile { public string[] hair, outfit, hairNames, outfitNames; }
+        [Serializable] class PaletteFile { public string[] hair, outfit, hairNames, outfitNames, hairRamps; }
 
         static Color32[] hair, outfit;
+        static Color32[][] hairRamps = new Color32[0][]; // per hair colour: deep, shadow, base, light, outline (Hair Color Palette V3.0)
         static string[] hairNames = new string[0], outfitNames = new string[0];
         static readonly Color32 Fallback = new Color32(153, 153, 153, 255);
 
@@ -28,6 +29,7 @@ namespace ZenoniaProto
                 if (f != null && f.hair != null) hair = Array.ConvertAll(f.hair, Parse);
                 if (f != null && f.outfit != null) outfit = Array.ConvertAll(f.outfit, Parse);
                 if (f != null && f.hairNames != null) hairNames = f.hairNames;
+                if (f != null && f.hairRamps != null) hairRamps = Array.ConvertAll(f.hairRamps, ParseRamp);
                 if (f != null && f.outfitNames != null) outfitNames = f.outfitNames;
             }
             catch (Exception e) { Debug.LogError("[ZenoniaProto] palettes.json: " + e.Message); }
@@ -37,6 +39,23 @@ namespace ZenoniaProto
         {
             Color c;
             return hex != null && ColorUtility.TryParseHtmlString(hex, out c) ? (Color32)c : Fallback;
+        }
+
+        /// <summary>"#deep,#shadow,#base,#light,#outline" -> 5 colours; null when the entry is not exactly five.</summary>
+        static Color32[] ParseRamp(string list)
+        {
+            string[] part = list != null ? list.Split(',') : new string[0];
+            return part.Length == 5 ? Array.ConvertAll(part, h => Parse(h.Trim())) : null;
+        }
+
+        /// <summary>The five hair tones of colour i (deep, shadow, base, light, outline), or null when palettes.json has no ramp for it (the shader then derives them from the base).</summary>
+        public static Color32[] HairRamp(int i)
+        {
+            Load();
+            int n = hair.Length;
+            if (n == 0) return null;
+            int k = ((i % n) + n) % n;
+            return k < hairRamps.Length ? hairRamps[k] : null;
         }
 
         public static int HairCount { get { Load(); return hair.Length; } }

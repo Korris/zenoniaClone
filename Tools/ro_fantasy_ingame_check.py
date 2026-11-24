@@ -13,7 +13,7 @@ import hero_layered_weapons_compose as wf
 import ro_fantasy_body_cut as bc
 
 DATA = bc.ROOT / "Assets/Resources"
-OUT = bc.ROOT / "docs/reference/ro-fantasy-heroes-ingame"
+OUT = bc.variant.review_dir(bc.ROOT / "docs/reference/ro-fantasy-heroes-ingame")
 CROP = (0, 0, 320, 256)  # the whole cell: the sword tip pointing down-outward reaches x ~15
 HAIR_PICKS = [0, 3, 6]  # soft chestnut, silver, lavender
 DIR8 = wf.DIR8
@@ -76,7 +76,7 @@ def every_dir(cls, anim, n, ctxs, pal):
     for d8 in range(8):
         s = d8 % len(ctxs)
         for f in range(n):
-            img.alpha_composite(wf.frame(bc.ROOT, ctxs[s], anim, d8, f, pal["hair"][HAIR_PICKS[s]], None, None).crop(CROP), (f * cw, d8 * ch))
+            img.alpha_composite(wf.frame(bc.ROOT, ctxs[s], anim, d8, f, pal["hair"][HAIR_PICKS[s % len(HAIR_PICKS)]], None, None).crop(CROP), (f * cw, d8 * ch))
             dr.text((f * cw + 3, d8 * ch + 3), f"{DIR8[d8]} f{f}", fill=(30, 30, 30, 255))
         dr.line((0, d8 * ch + bc.FEET - CROP[1], cw * n, d8 * ch + bc.FEET - CROP[1]), fill=(200, 60, 60, 255))
     dst = OUT / f"{cls}-{anim}-8dir.png"

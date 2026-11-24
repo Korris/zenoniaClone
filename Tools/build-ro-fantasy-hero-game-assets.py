@@ -28,6 +28,25 @@ game_assets = import_module("build-hero-layered-game-assets")  # meta(), mkdirs(
 ROOT = bc.ROOT
 SPR = ROOT / "Assets/Resources/Sprites/hero-layered/ro-fantasy"
 DATA = ROOT / "Assets/Resources/Data/hero-layered/ro-fantasy"
+# Starward (Warrior look, 24/11): 2 hairstyles, then (Knight V3, 24/11) the Knight hair as style 3 (hair-warrior-style3-5dir-chatgpt-2)
+# + (Golden test 24/11, user: 4 styles) style 4 = the Golden Paladin hair (RO_FANTASY_HAIR_FROM=4=golden-paladin, src/golden-paladin/hair-warrior-style4-*)
+HAIR_STYLES_OF = {"warrior": 4}
+
+
+# Face skin lighter on chosen idle rows (24/11, user: "chỉnh mặt ở idle down trắng lên"): skin pixels of the head (skin mask of the art
+# check, top 45 % of the figure) blended FACE_WHITEN_K toward a pale warm tone; line art, eyes, brows keep their colour (not skin).
+# Only idle row 0 (down) for now; walk / attack down keep the painted skin.
+FACE_WHITEN = {"warrior": {"idle": [0]}}
+FACE_WHITEN_K, FACE_WHITEN_TO = 0.28, np.array([0xFF, 0xF1, 0xE8], np.float32)
+
+
+def whiten_face(cell):
+    a = np.asarray(cell).astype(np.float32)
+    ys = np.nonzero((a[..., 3] > 0).any(1))[0]
+    sk = bc.art_check.skin_mask(a / 255.0)
+    sk[int(ys[0] + 0.45 * (ys[-1] - ys[0])):] = False
+    a[sk, :3] = a[sk, :3] * (1 - FACE_WHITEN_K) + FACE_WHITEN_TO * FACE_WHITEN_K
+    return Image.fromarray(a.round().clip(0, 255).astype(np.uint8), "RGBA")
 
 
 def res(p):
@@ -40,6 +59,9 @@ def write_class(cls):
     frames = {"idle": [[c] for c in idle_cells]}
     frames.update(bc.motion_rows(cls, [c.crop(c.getbbox()) for c in idle_cells]))
     bc.recentre_walk(frames, idle_cells)
+    for anim, rows in FACE_WHITEN.get(cls, {}).items():
+        for r in rows:
+            frames[anim][r] = [whiten_face(c) for c in frames[anim][r]]
     body_dir = SPR / cls / "body"
     game_assets.mkdirs(body_dir)
     for anim, rows in frames.items():
@@ -60,7 +82,7 @@ def write_class(cls):
     hair_dir = SPR / cls / "hair"
     game_assets.mkdirs(hair_dir)
     entries, names = [], []
-    for k in (1, 2, 3):
+    for k in range(1, HAIR_STYLES_OF.get(cls, 3) + 1):
         got = hc.style_strips(cls, k, idle)
         if got is None:
             continue

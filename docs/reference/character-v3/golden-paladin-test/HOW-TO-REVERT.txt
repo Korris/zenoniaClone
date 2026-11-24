@@ -1,0 +1,58 @@
+GOLDEN PALADIN TEST -> trở lại KNIGHT V3 (Starward hiện tại)
+=============================================================
+TRẠNG THÁI MỚI NHẤT (24/11 ~23:30, người dùng: 4 kiểu tóc, kiếm khiên golden, màu vàng khác): game = Knight V3 (thân / đi / đánh / điểm nắm tay)
++ 4 kiểu tóc warrior: 0 Heroic, 1 Side-Swept, 2 tóc Knight (style3-chatgpt-3), 3 tóc Golden (src/golden-paladin/hair-warrior-style4-5dir-chatgpt-5.png = bản sao style3-chatgpt-5)
++ kiếm + khiên tháp Golden (RO_FANTASY_VARIANT=golden-paladin python Toolsuild-starward-knight-weapons.py write; 151 / 108 px), điểm cầm tính lại bằng bảng nắm tay Knight;
++ màu tóc 8: #F5CE49, ramp #A87622,#D7A52F,#F5CE49,#E8DD94,#68481F (ChatGPT chat thiết kế; light #FFF29A hạ 9 % sáng + bão hoà theo lời chấm).
+Dựng lại: KHÔNG đặt RO_FANTASY_VARIANT; $env:RO_FANTASY_HAIR_FROM = "4=golden-paladin"; write / fists / grips / check warrior.
+Code đổi thêm: HAIR_STYLES_OF warrior 4 (build-ro-fantasy-hero-game-assets.py), Tests RoFantasyHairStyleAppearanceTests (warrior 4), DebugCapture.Appearance.cs (warrior 4), ro_fantasy_attack8_grips.py (khiên cao hơn 91 px hạ thấp nửa phần dư), ro_fantasy_ingame_check.py (HAIR_PICKS vòng).
+Trả Knight V3 hoàn toàn: mục 1 (copy bản sao lưu) + đặt lại HAIR_STYLES_OF warrior 3, test StylesOf 3, DebugCapture n == 3.
+
+TRẠNG THÁI TRƯỚC (24/11 khuya, người dùng: "mặc giáp giống bộ Knight, bộ golden xấu quá"): game = thân / đi / đánh / kiếm / khiên / điểm cầm
+của KNIGHT V3 (giống hệt bản sao lưu) + CHỈ tóc kiểu 2 = tóc Golden (hair/2.png, nguồn src/golden-paladin/hair-warrior-style3-5dir-chatgpt-5.png)
++ màu tóc 8 "starlight blonde" chỉnh theo nana.png (palettes.json: hair[8] #FDE8BC, ramp #C08446,#E1AC6E,#FDE8BC,#FFF4D6,#704A2F).
+Dựng lại đúng trạng thái này: KHÔNG đặt RO_FANTASY_VARIANT, đặt $env:RO_FANTASY_HAIR_FROM = "3=golden-paladin", rồi chạy write / fists / grips / check
+của build-ro-fantasy-hero-game-assets.py warrior. Trả về Knight V3 hoàn toàn: mục 1 bên dưới (copy bản sao lưu, gồm cả palettes.json).
+Thêm (khuya): mặt idle xuống sáng hơn (FACE_WHITEN trong build-ro-fantasy-hero-game-assets.py, áp cho mọi lần write warrior — muốn bỏ: FACE_WHITEN = {}), tóc warrior làm sạch (clean_strip / seal_gaps trong ro_fantasy_hair_cells.py; kiểu 0-1 chỉ đổi viền / xám trung tính). Bản sao lưu ở mục 1 trả về Knight V3 gốc hoàn toàn.
+Bản Golden đầy đủ (giáp + kiếm khiên golden) vẫn dựng lại được bằng mục 4 (RO_FANTASY_VARIANT=golden-paladin).
+
+Bản thử Golden Paladin (24/11) ghi đè đúng các file game của Warrior / Starward. Bản sao Knight V3 nằm ở D:\temp\starward-knight-v3-backup\
+(exe Knight V3 còn nguyên: D:\temp\player-knight-v3-keep\Zenonia.exe; exe bản thử: D:\temp\player-goldtest\Zenonia.exe).
+
+1) TRẢ HÌNH GAME VỀ KNIGHT V3 (bắt buộc) — chạy trong PowerShell:
+
+$B = "D:\temp\starward-knight-v3-backup"
+$R = "D:\zenoniaClone\Assets\Resources"
+Remove-Item -Recurse -Force "$R\Sprites\hero-layered\ro-fantasy\warrior"
+Copy-Item -Recurse -Force "$B\Sprites-warrior" "$R\Sprites\hero-layered\ro-fantasy\warrior"
+Remove-Item -Recurse -Force "$R\Data\hero-layered\ro-fantasy\warrior"
+Copy-Item -Recurse -Force "$B\Data-hero-layered\ro-fantasy\warrior" "$R\Data\hero-layered\ro-fantasy\warrior"
+Copy-Item -Force "$B\Data-hero-layered\weapons.json" "$R\Data\hero-layered\weapons.json"
+Copy-Item -Force "$B\weapons\sword.png", "$B\weapons\sword.png.meta", "$B\weapons\warrior-shield.png", "$B\weapons\warrior-shield.png.meta" "$R\Sprites\hero-layered\weapons\"
+Copy-Item -Force "$B\Data-hero-layered\palettes.json" "$R\Data\hero-layered\palettes.json"   # màu tóc 8 Starlight Blonde cũ
+
+(Có thể làm từng phần: chỉ trả vũ khí = dòng weapons.json + dòng cuối; chỉ trả tóc = copy "$B\Sprites-warrior\hair\*" vào
+"$R\Sprites\hero-layered\ro-fantasy\warrior\hair\" VÀ trả class.json; thân / đi / đánh = thư mục body + body.json + class.json.
+class.json giữ cả tóc lẫn điểm cầm vũ khí, nên trả phần nào cũng nên trả class.json rồi chạy lại `grips` nếu trộn.)
+
+2) TOOLS (không bắt buộc): mọi thay đổi trong Tools chỉ có tác dụng khi đặt biến môi trường RO_FANTASY_VARIANT=golden-paladin;
+không đặt biến thì pipeline Knight V3 chạy y như cũ. Muốn xoá hẳn:
+
+$T = "D:\zenoniaClone\Tools"
+Copy-Item -Force "$B\Tools\*.py" "$T\"
+Copy-Item -Force "$B\extra-golden-test\build-ro-fantasy-hero-art-check.py" "$T\"
+Remove-Item "$T\ro_fantasy_variant.py", "$T\ro_fantasy_golden_paladin_fists.py", "$T\golden-paladin-glove-fist-detect.py"
+
+3) Nguồn art của bản thử (giữ lại được, không ảnh hưởng Knight V3):
+Assets\ArtLibrary\ro-fantasy-heroes\src\golden-paladin\ (ảnh ChatGPT gốc trong incoming\), ref\golden-paladin-test\,
+sheets\golden-paladin\, docs\reference\character-v3\golden-paladin-test\.
+
+4) Dựng lại bản thử: đặt biến rồi chạy như Knight V3:
+$env:RO_FANTASY_VARIANT = "golden-paladin"
+python Tools\build-starward-knight-weapons.py write
+python Tools\build-ro-fantasy-hero-game-assets.py write warrior
+python Tools\golden-paladin-glove-fist-detect.py
+python Tools\build-ro-fantasy-hero-game-assets.py fists warrior
+python Tools\build-ro-fantasy-hero-game-assets.py grips warrior
+python Tools\build-ro-fantasy-hero-game-assets.py check warrior
+Remove-Item Env:RO_FANTASY_VARIANT

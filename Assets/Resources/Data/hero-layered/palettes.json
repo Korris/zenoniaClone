@@ -1,39 +1,52 @@
 {
-  "note": "Layered hero colours (docs/character-appearance-layered-spec.md). Index = CharacterAppearanceData.hairColorIndex / outfitColorIndex: never reorder, only append (saved characters keep their index; CharacterAppearanceData.HairColorCount / OutfitColorCount must match). Each colour is the BASE tone (#999999 grey of the art); HeroRecolor.shader and Tools/hero_recolor_core.py build the dark and light tones from it. RO Soft Fantasy tones (user 19/11): warm, light, softly saturated, from the style board (mint #48B6A5, sky #78B7F0, coral #E46C77, gold #F4C66A); no pure black, no neon.",
-  "hairNames": [
-    "soft chestnut",
-    "warm charcoal",
-    "honey blonde",
-    "silver",
-    "coral red",
-    "sky blue",
-    "lavender",
-    "sakura pink"
-  ],
-  "hair": [
-    "#A8693F",
-    "#4E4654",
-    "#F0C46A",
-    "#DCD8E4",
-    "#E2735F",
-    "#7DB6E6",
-    "#B49CE2",
-    "#F2A7C2"
-  ],
-  "outfitNames": [
-    "coral red",
-    "sky blue",
-    "sage green",
-    "warm gold",
-    "mint teal",
-    "lilac plum"
-  ],
-  "outfit": [
-    "#DE6A62",
-    "#6A93D4",
-    "#86AC62",
-    "#E8B852",
-    "#4DB7A6",
-    "#A27AC0"
-  ]
+ "note": "Layered hero colours (docs/character-appearance-layered-spec.md). Index = CharacterAppearanceData.hairColorIndex / outfitColorIndex: never reorder, only append (saved characters keep their index; CharacterAppearanceData.HairColorCount / OutfitColorCount must match). Each colour is the BASE tone (#999999 grey of the art); HeroRecolor.shader and Tools/hero_recolor_core.py build the dark and light tones from it. RO Soft Fantasy tones (user 19/11): warm, light, softly saturated, from the style board (mint #48B6A5, sky #78B7F0, coral #E46C77, gold #F4C66A); no pure black, no neon. Hair Color Palette V3.0 (ChatGPT 24/11, docs/reference/character-v3/hair-ingame/hair-palette-v2-chatgpt.txt): each hair colour also has hairRamps[i] = deep, shadow, base, light, outline; HeroRecolor.shader maps the hair greys onto those five tones instead of deriving them from the base. Index 8 starlight blonde (ChatGPT 24/11, Starward Knight V3; light #FFF0B7 -> #F5DEAB after the in-game review, starward-knight-v3-ingame-verdict-chatgpt.txt; docs/reference/character-v3/starward-knight-v3/starward-knight-v3-design-answers-chatgpt.txt).",
+ "hairNames": [
+  "story chestnut",
+  "soft charcoal",
+  "golden honey",
+  "moon silver",
+  "autumn coral",
+  "misty azure",
+  "twilight lavender",
+  "sakura rose",
+  "starlight blonde"
+ ],
+ "hair": [
+  "#A36B46",
+  "#66646C",
+  "#DCAC59",
+  "#BEC1CB",
+  "#D77E65",
+  "#83B4CF",
+  "#AD98CB",
+  "#D99DB0",
+  "#F5CE49"
+ ],
+ "hairRamps": [
+  "#493026,#704532,#A36B46,#D8A078,#382921",
+  "#282B32,#414249,#66646C,#A29AA0,#27262C",
+  "#75502D,#A8783D,#DCAC59,#F6D78F,#59402B",
+  "#59606F,#858A9A,#BEC1CB,#F1EDE8,#474C58",
+  "#703B35,#A55448,#D77E65,#F3AF8A,#51312E",
+  "#35506A,#587C9A,#83B4CF,#CAE1E8,#303D50",
+  "#514266,#8270A6,#AD98CB,#D9C8E9,#3E344F",
+  "#784C59,#AB7288,#D99DB0,#F3CDD3,#5A3C49",
+  "#A87622,#D7A52F,#F5CE49,#E8DD94,#68481F"
+ ],
+ "outfitNames": [
+  "coral red",
+  "sky blue",
+  "sage green",
+  "warm gold",
+  "mint teal",
+  "lilac plum"
+ ],
+ "outfit": [
+  "#DE6A62",
+  "#6A93D4",
+  "#86AC62",
+  "#E8B852",
+  "#4DB7A6",
+  "#A27AC0"
+ ]
 }

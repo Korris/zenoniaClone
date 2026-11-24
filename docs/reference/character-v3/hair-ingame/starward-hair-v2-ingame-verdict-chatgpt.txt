@@ -1,0 +1,178 @@
+Hair Art Review V2.0 — Đánh giá trong game
+
+Phán quyết: DUYỆT CẢ HAI KIỂU TÓC MỚI. Không cần vẽ lại. So với tóc cũ, cả Heroic Windswept và Soft Side-Swept đều cải thiện rõ hình khối, độ tự nhiên và sự phù hợp với Starward.
+
+1. Bảng điểm
+
+Điểm đánh giá nghệ thuật ước lượng từ ảnh chụp, thang 10.
+
+Tiêu chí
+
+	
+
+Hair 01 cũ → mới
+
+	
+
+Hair 02 cũ → mới
+
+
+
+
+Silhouette / dáng tóc
+
+	
+
+7,0 → 8,8
+
+	
+
+7,2 → 9,0
+
+
+
+
+Khối tóc và hướng lọn
+
+	
+
+6,5 → 8,7
+
+	
+
+6,8 → 9,2
+
+
+
+
+Sáng tối / highlight
+
+	
+
+6,8 → 8,5
+
+	
+
+7,0 → 8,8
+
+
+
+
+Hợp mặt và tỷ lệ đầu
+
+	
+
+7,5 → 8,9
+
+	
+
+7,6 → 9,2
+
+
+
+
+Đẹp ở cả 5 hướng
+
+	
+
+7,0 → 8,6
+
+	
+
+7,2 → 8,9
+
+
+
+
+Màu nhuộm / hòa hợp trang phục
+
+	
+
+7,0 → 8,4
+
+	
+
+7,2 → 8,6
+
+
+
+
+Đọc được ở camera mặc định
+
+	
+
+7,0 → 8,3
+
+	
+
+7,0 → 8,5
+
+
+
+
+Tổng thể
+
+	
+
+7,0 → 8,6
+
+	
+
+7,1 → 8,9
+
+2. Hair 01 — Heroic Windswept
+
+8,6/10 — ĐẠT
+
+Giữ
+
+Tóc mới có lọn lớn và hướng vuốt rõ ràng hơn, phần đỉnh có lực, không còn cảm giác nhiều gai nhỏ chĩa ngẫu nhiên như bản cũ. Hướng xuống và chéo xuống-phải đặc biệt tốt, hợp với ngoại hình một chiến binh trẻ.
+
+Điểm còn lại: ở hướng lên và chéo lên-phải, phần sau tóc vẫn có hơi nhiều rãnh chia lọn. Khi thu nhỏ xuống camera mặc định, các rãnh nhập thành một vùng tím tương đối bận.
+
+Không cần sửa art. Nếu sau này tinh chỉnh, chỉ cần giảm tương phản các rãnh bên trong tóc khoảng 10–15%, giữ nguyên viền ngoài và silhouette.
+
+3. Hair 02 — Soft Side-Swept
+
+8,9/10 — ĐẠT
+
+Giữ làm kiểu chuẩn
+
+Đây là kiểu tôi thích hơn cho Starward.
+
+Các lọn cong lớn, mái lệch và khối tóc ôm hai bên mặt giúp nhân vật có cảm giác được thiết kế như một nhân vật RPG cao cấp hơn. Tóc không còn quá nhọn hoặc quá dựng; ở hướng ngang vẫn giữ được đường cong đẹp, còn hướng lưng có cấu trúc nhiều lớp khá tự nhiên.
+
+Bản màu nâu hạt dẻ cũng hợp với giáp xanh, vàng và trắng của Starward.
+
+Điểm còn lại: phần mái phía trước khá dày; ở góc xuống có thể che bớt trán, nhưng hiện tại mắt và biểu cảm vẫn đọc tốt. Tôi không đề nghị sửa.
+
+4. Có cần sửa cách nhuộm màu không?
+
+Không cần thay palette ramp V3.0. Ảnh game cho thấy lavender đã có phân cấp sáng tối và màu nâu hạt dẻ không bị bệt.
+
+Tuy nhiên, tôi đề nghị kiểm tra hai điều nhỏ trong Unity:
+
+Viền tóc: giữ màu tối trung tính pha sắc tím/nâu nhẹ theo từng màu nhuộm, đừng để viền sáng lên quá nhiều khi đổi màu.
+
+Highlight: giữ highlight sáng hơn màu chính nhưng giảm độ bão hòa khoảng 15–20% so với màu chính, để tóc có cảm giác mềm và hơi bóng lụa thay vì bóng nhựa. Đây là thông số tinh chỉnh đề xuất, không phải lỗi chắc chắn từ ảnh.
+
+Không nên tăng saturation hoặc nâng độ sáng toàn bộ tóc thêm nữa.
+
+5. Điểm quan trọng khi nhìn camera mặc định
+
+Ở hai cột cuối, tóc mới vẫn tạo được silhouette tương đối rõ, nhưng chi tiết lọn gần như không còn đọc được riêng lẻ vì nhân vật quá nhỏ. Đó là giới hạn hiển thị, không phải lý do để quay lại kiểu tóc cũ hoặc thêm nhiều đường highlight.
+
+Lỗi dễ thấy hơn ở cảnh đánh là thanh HP, tên Warrior và tên quái có thể chồng vào vùng đầu. Vấn đề này nên sửa bằng UI, không sửa tóc.
+
+Quyết định cuối
+
+Hair 01 Heroic Windswept: khóa art V1, dùng làm kiểu tóc năng động.
+
+Hair 02 Soft Side-Swept: khóa art V1, tôi chọn làm kiểu tóc mặc định của Starward.
+
+Palette Ramp V3.0: giữ, chỉ tinh chỉnh nhẹ highlight nếu cần.
+
+Không vẽ lại hai sheet tóc.
+
+Tôi đánh giá phần tóc hiện tại đã đạt mức đủ tốt để chuyển sang sản xuất những phần khác. Việc nên ưu tiên tiếp theo là kiếm và khiên Starward đúng concept, sau đó mới đến animation đánh thường, vì hiện tại vũ khí cũ đang làm thiết kế tổng thể kém đồng bộ hơn chính mái tóc.
+

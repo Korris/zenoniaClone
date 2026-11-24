@@ -18,11 +18,14 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "Assets/ArtLibrary/ro-fantasy-heroes/src"
+import ro_fantasy_variant as variant  # noqa: E402  (RO_FANTASY_VARIANT=golden-paladin: test look sources in src/golden-paladin/)
+SRC = variant.SRC
 CW, CH, FEET, BALD_PX, PAINTED = 320, 256, 244, 188, 5
 # V2 proportions (user approved 22/11, RO Soft Adventure): Warrior 2.65 heads, same head size, body taller -> skull top to feet 208 px
 # (head height kept within 2 %; on screen ~76 px instead of 69 with the 2.5D camera unchanged). Other classes keep 188 until redrawn.
-BALD_PX_OF = {"warrior": 208}
+# Starward (24/11, Character Art Direction V2.0 "Storybook Heroes", replaces the Warrior look): the design chat chose its own proportions and
+# ~15 % taller than the old 69 px standard on screen -> 188 * 1.15 = 216 px skull top to feet.
+BALD_PX_OF = {"warrior": 216}
 
 
 def bald_px(cls):
@@ -37,6 +40,8 @@ MOTIONS = [("walk", 4), ("attack", 4)]  # one lock-target attack per class (user
 CLASSES = ["warrior", "wizard", "mechanic", "assassin", "cleric"]
 # 8-frame attack (20/11, smooth chop: 4 key poses + in-betweens over the same 400 ms): ONE direction per image, 2 rows x 4 = frames 0-3, 4-7
 ATTACK8F_RE = re.compile(r"^body-(?P<c>[a-z]+)-attack-(?P<d>[a-z-]+?)-8f-chatgpt-(?P<n>\d+)\.png$")
+# 8-frame walk (Starward Knight V3 24/11, user: "8 frame đi"): ONE painted direction per image, 2 rows x 4 = frames 0-7, real in-betweens
+WALK8F_RE = re.compile(r"^body-(?P<c>[a-z]+)-walk-(?P<d>[a-z-]+?)-8f-chatgpt-(?P<n>\d+)\.png$")
 MOTION_RE = re.compile(r"^body-(?P<c>[a-z]+)-(?P<anim>walk|attack)-(?P<a>[a-z-]+)--(?P<b>[a-z-]+)-chatgpt-(?P<n>\d+)\.png$")
 
 art_check = import_module("build-ro-fantasy-hero-art-check")  # load_rgba: green key + white letterbox + green iris refill
@@ -47,8 +52,12 @@ attack8_cut = import_module("ro_fantasy_attack8_cut")          # 8-frame one-dir
 
 
 def newest(pattern):
-    files = sorted(SRC.glob(pattern), key=lambda p: int(re.search(r"chatgpt-(\d+)", p.name).group(1)))
-    return files[-1] if files else None
+    """Newest -chatgpt-N source; a variant looks in its own folder first, then falls back to src/ (e.g. older hairstyles)."""
+    for folder in dict.fromkeys([SRC, variant.SRC_MAIN]):
+        files = sorted(folder.glob(pattern), key=lambda p: int(re.search(r"chatgpt-(\d+)", p.name).group(1)))
+        if files:
+            return files[-1]
+    return None
 
 
 def keyed(path):
@@ -154,7 +163,12 @@ def motion_rows(cls, idle_figs):
         if m and m["c"] == cls and m["d"] in DRAWN8 and (m["d"] not in found8 or int(m["n"]) > found8[m["d"]][0]):
             found8[m["d"]] = (int(m["n"]), path)
     out = {}
+    walk8 = walk8_rows(cls, idle_figs)
+    if walk8:
+        out["walk"] = walk8
     for anim, n in MOTIONS:
+        if anim in out:
+            continue
         by_dir = {}
         if anim == "attack" and found8:  # 8-frame sources win over the 4-frame pairs
             found = {("attack", d, "none"): v for d, v in found8.items()}
@@ -192,6 +206,47 @@ def motion_rows(cls, idle_figs):
         elif by_dir:
             print(f"{cls} {anim}: only {sorted(by_dir)} painted, idle stand-in until all 5 directions exist")
     return out
+
+
+def grid_frames(path, n=8, cols=4):
+    """Figures of frames 0..n-1 of a cols x (n / cols) grid source, ordered by the grid cell their centre falls in (grid = image size)."""
+    img = pilot.key_green(Image.open(path))
+    gw, gh = img.width / cols, img.height / (n // cols)
+    got = sorted((int((y + f.height / 2) // gh) * cols + int((x + f.width / 2) // gw), f) for f, x, y in pilot.figures_with_pos(img, n))
+    if [k for k, _ in got] != list(range(n)):
+        raise SystemExit(f"{path.name}: figures not on a {cols} x {n // cols} grid ({[k for k, _ in got]})")
+    return [f for _, f in got]
+
+
+WALK8_HEAD_TOL = 0.03
+
+
+def walk8_rows(cls, idle_figs):
+    """[row][8 cells] for the 5 painted dirs when every body-<cls>-walk-<dir>-8f source exists (newest N each), else None.
+    Scale: the row median height -> the idle height (the bob of the art is kept), feet centred like the 4-frame walk. A row whose
+    painted skull is more than WALK8_HEAD_TOL off the idle skull width of the same view gets the head alone rescaled
+    (ro_fantasy_head_fix.scale_head, as the 8-frame attack): the hair layer is sized on the idle skull."""
+    found = {}
+    for path in SRC.glob(f"body-{cls}-walk-*-8f-chatgpt-*.png"):
+        m = WALK8F_RE.match(path.name)
+        if m and m["c"] == cls and m["d"] in DRAWN and (m["d"] not in found or int(m["n"]) > found[m["d"]][0]):
+            found[m["d"]] = (int(m["n"]), path)
+    if not found:
+        return None
+    if any(d not in found for d in DRAWN):
+        print(f"{cls} walk 8f: only {sorted(found)} painted, keeping the 4-frame walk until all 5 exist")
+        return None
+    rows = []
+    for d in DRAWN:
+        figs = [despeck(f) for f in grid_frames(found[d][1])]
+        s = bald_px(cls) / float(np.median([f.height for f in figs]))
+        cells = [despeck(place(f, s)[0]) for f in figs]
+        k = skull_w(idle_figs[DRAWN.index(d)]) / float(np.median([skull_w(f) * s for f in figs]))
+        if abs(k - 1.0) > WALK8_HEAD_TOL:
+            cells = [head_fix.scale_head(c, k, *sheets_tool.head_anchor(c)[1:3]) for c in cells]
+        rows.append(cells)
+        print(f"{cls} walk {d}: 8f from {found[d][1].name}, scale {s:.3f}, head x{k:.3f}{'' if abs(k - 1) > WALK8_HEAD_TOL else ' (kept)'}")
+    return rows
 
 
 def recentre_walk(rows, idle_cells):

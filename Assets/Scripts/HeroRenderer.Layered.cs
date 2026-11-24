@@ -100,7 +100,7 @@ namespace ZenoniaProto
         void ApplyLookToLayers()
         {
             if (layered == null || Appearance == null) return;
-            layered.SetLook(HeroPalettes.Hair(Appearance.hairColorIndex), HeroPalettes.Outfit(Appearance.outfitColorIndex), Appearance.hairStyle, Appearance.equippedHeadgearId);
+            layered.SetLook(HeroPalettes.Hair(Appearance.hairColorIndex), HeroPalettes.Outfit(Appearance.outfitColorIndex), Appearance.hairStyle, Appearance.equippedHeadgearId, HeroPalettes.HairRamp(Appearance.hairColorIndex));
         }
 
         /// <summary>Figure scale with the crowd variation (layered heroes only: the other paths keep their exact size).</summary>

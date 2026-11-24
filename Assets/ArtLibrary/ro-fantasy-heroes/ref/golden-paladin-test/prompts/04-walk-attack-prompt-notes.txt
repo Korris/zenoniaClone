@@ -1,0 +1,8 @@
+Golden Paladin TEST — walk 8f / attack 8f prompts (24/11, Tan Pham chat "Thiết kế Golden Paladin").
+Walk (5 ảnh, mỗi hướng 1 ảnh 1536x1024, lưới 2x4): đính kèm idle/golden-idle-<dir>.png; prompt = mẫu walk8 của Knight V3
+(ref/starward-knight-v3/prompts/walk8-prompt.txt) đổi tên nhân vật, sọ ~32 % chiều cao, "tay vung có frame trung gian, không nhảy",
+ghi chú hướng (phải: tay phải là tay gần camera; chéo lên / lên: "giữ giáp VÀNG KIM, không nhạt sang trắng").
+Attack (8 ảnh): đính kèm idle/golden-idle-<dir>.png (hướng trái = idle phải lật) + attack-pose-guides/knight-v3-attack-<dir>-pose-guide-only.png
+ghi rõ "SHEET CŨ CỦA NHÂN VẬT KHÁC, CHỈ ĐỂ THAM KHẢO KỸ THUẬT"; mở đầu "KHÔNG kiếm, KHÔNG khiên, chỉ nắm tay không"; khiên ở hông (không giơ ngang mặt);
+hướng trái: "KIẾM VẪN Ở TAY PHẢI = tay xa camera / bên trái màn hình (xuống-trái) / bên phải màn hình (lên-trái), KHÔNG lật ảnh".
+Kết quả: 13/13 dùng được ngay, 1 lần "lỗi hệ thống" (bấm Create image). Lên-trái f4-f7 ChatGPT vẫn vung tay khiên (giống Knight V3).

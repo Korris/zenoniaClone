@@ -1,0 +1,269 @@
+khiên 80 px so với người ~216 px.
+ChatGPT said:
+1. Tự duyệt Starward V3 — Knight Turnaround
+
+Phán quyết: ĐẠT về hướng thiết kế, nhưng CHƯA ĐẠT để khóa làm sprite game-ready. Tôi chấm 8,3/10 so với Knight trong ảnh tham chiếu.
+
+Bản mới đã đi đúng hướng: hiệp sĩ trẻ, tóc vàng, giáp trắng–vàng–xanh lam, áo choàng sao và khiên đồng bộ. Tuy nhiên, vẫn có vài khác biệt cần sửa trước khi sản xuất hàng loạt animation.
+
+Tiêu chí
+
+	
+
+Điểm
+
+	
+
+Nhận xét
+
+
+
+
+Giáp
+
+	
+
+8,5/10
+
+	
+
+Đúng bảng màu Knight, ngực và chân khá đẹp. Nhưng giáp hơi dày, nhiều viền vàng, khiến dáng hơi nặng
+
+
+
+
+Áo choàng sau lưng
+
+	
+
+9/10
+
+	
+
+Ngôi sao vàng lớn, viền hoa văn và màu xanh đẹp; hướng lưng rõ. Có thể giữ
+
+
+
+
+Kiếm
+
+	
+
+8/10
+
+	
+
+Đúng kiểu hiệp sĩ fantasy, nhưng lưỡi còn hơi dài và nhọn, chưa hoàn toàn giống kiếm bản rộng trong brief Knight
+
+
+
+
+Khiên
+
+	
+
+8,5/10
+
+	
+
+Khiên xanh–vàng có ngôi sao nổi bật, nhận diện tốt. Hình hơi hẹp ở đáy
+
+
+
+
+Tóc vàng
+
+	
+
+8,5/10
+
+	
+
+Màu đẹp, mềm, hợp Knight. Nhưng phần đỉnh và đuôi tóc hơi xòe, khiến đầu nhìn lớn hơn
+
+
+
+
+Tỷ lệ và chiều cao
+
+	
+
+7,5/10
+
+	
+
+Năm hướng khá đồng đều về chiều cao tổng thể, nhưng đầu tính cả tóc vẫn lớn, chân tương đối ngắn so với cảm giác Knight mục tiêu
+
+Những điểm cần sửa ở sheet game-ready
+
+Giữ chiều cao tổng thể Starward hiện tại, không quay lại kích thước Warrior cũ. Khi thêm tóc, đỉnh tóc phải nằm trong chiều cao mục tiêu; không được cộng chiều cao tóc lên trên rồi làm nhân vật cao thêm.
+
+Giáp: thu nhỏ độ dày giáp vai và giáp đùi khoảng 8–10%; giữ mảng trắng bạc lớn, vàng là viền nhấn, xanh lam là màu phụ.
+
+Tóc: giảm độ xòe ngang hai bên khoảng 5–8%; giữ lọn mái bất đối xứng và chỏm tóc đặc trưng. Phần sau đầu phải gọn để không che cổ giáp.
+
+Kiếm: chuyển thành kiếm bản rộng, có sống kiếm xanh lam và viền bạc rõ; giảm cảm giác mũi kiếm dài quá mức.
+
+Khiên: giữ ngôi sao vàng và nền xanh lam, mở rộng phần dưới khoảng 5% để silhouette đầy đặn hơn.
+
+Hướng nghiêng và hướng lưng: giữ rõ lớp áo choàng, dây thắt lưng và giáp vai. Khi vẽ thân trọc không có vũ khí, phải thấy được hai nắm tay và điểm neo.
+
+Không cần vẽ lại toàn bộ concept. Sửa các tỷ lệ này ngay trong bước sản xuất sprite là hợp lý.
+
+2. Màu tóc vàng Knight — bổ sung vào Hair Color Palette V3.0
+
+Tôi chọn tên Starlight Blonde — Vàng Ánh Sao. Khác Golden Honey ở chỗ màu này sáng hơn, vàng kem lạnh hơn, ít cam và ít nâu mật ong.
+
+Starlight Blonde
+
+Màu số 9
+
+Deep
+
+#766042
+
+Shadow
+
+#B18A52
+
+Base
+
+#F0C979
+
+Light
+
+#FFF0B7
+
+Outline
+
+#5B483A
+
+Màu tóc
+
+	
+
+Deep
+
+	
+
+Shadow
+
+	
+
+Base
+
+	
+
+Light
+
+	
+
+Outline
+
+
+
+
+Golden Honey (cũ)
+
+	
+
+#75502D
+
+	
+
+#A8783D
+
+	
+
+#DCAC59
+
+	
+
+#F6D78F
+
+	
+
+#59402B
+
+
+
+
+Starlight Blonde (mới)
+
+	
+
+#766042
+
+	
+
+#B18A52
+
+	
+
+#F0C979
+
+	
+
+#FFF0B7
+
+	
+
+#5B483A
+
+Chốt: thêm Starlight Blonde làm màu thứ 9, giữ Golden Honey. Khi nhuộm, dùng cả năm màu theo từng vùng xám, không nhân trực tiếp một màu vàng lên texture tóc.
+
+3. Chốt kích thước kiếm và khiên mới
+
+Hiện tại nhân vật cao khoảng 216 px trong sprite nguồn, kiếm 150 px và khiên 80 px.
+
+Thành phần
+
+	
+
+Hiện tại
+
+	
+
+Starward V3 đề xuất
+
+
+
+
+Kiếm (đỉnh mũi đến đáy chuôi)
+
+	
+
+150 px = 69,4% H
+
+	
+
+140 px = 65% H
+
+
+
+
+Khiên (đỉnh đến đáy)
+
+	
+
+80 px = 37% H
+
+	
+
+91 px = 42% H
+
+Tỷ lệ này cho thanh kiếm vẫn đủ uy lực nhưng bớt cảm giác quá dài so với thân; khiên lớn hơn để ngôi sao vàng đọc rõ ở camera mặc định.
+
+Lưu ý: đây là kích thước asset nguồn, không phải chiều cao vũ khí xuất hiện theo phương thẳng đứng trong mọi frame. Khi kiếm chĩa xuống hoặc xoay ngang, chiều dài hiển thị sẽ thay đổi theo tư thế.
+
+Chốt cuối: dùng Knight V3 làm thiết kế thay thế Starward hiện tại, tóc Starlight Blonde làm màu thứ 9, kiếm dài 65% H, khiên cao 42% H. Sửa nhẹ giáp, tóc và hình kiếm ngay ở bước vẽ game-ready, không cần một vòng concept mới.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+6 Medium
+Response complete
+0.35H

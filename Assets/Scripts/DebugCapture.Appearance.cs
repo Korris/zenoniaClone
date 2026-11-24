@@ -104,14 +104,14 @@ namespace ZenoniaProto
             if (shot != null) yield return Shot(shot);
         }
 
-        /// <summary>RO Fantasy bodies: the outfit colours are hidden, the hairstyle row offers 3 styles and `>` steps through them (one shot each).</summary>
+        /// <summary>RO Fantasy bodies: the outfit colours are hidden, the hairstyle row offers 3 styles (warrior 4: 2 Starward + Knight V3 + Golden Paladin hair) and `>` steps through them (one shot each).</summary>
         IEnumerator HairStyleShots(HeroClass id)
         {
             string cls = HeroClassDef.Get(id).Name.ToLowerInvariant();
             bool roFantasy = HeroRenderer.LayeredSetFor(HeroClassDef.Get(id)) == HeroRenderer.RoFantasyRoot + cls + "/class";
             A((CharacterCustomizeScreen.TestOutfitHidden == roFantasy ? "PASS" : "FAIL") + " " + cls + ": outfit colours " + (roFantasy ? "hidden (fixed RO Fantasy outfit)" : "offered"));
             int n = CharacterCustomizeScreen.TestStyleCount;
-            A((!roFantasy || n == 3 ? "PASS" : "FAIL") + " " + cls + ": " + n + " hairstyles offered");
+            A((!roFantasy || n == (id == HeroClass.Warrior ? 4 : 3) ? "PASS" : "FAIL") + " " + cls + ": " + n + " hairstyles offered");
             for (int i = 0; i < n; i++)
             {
                 int before = CharacterCustomizeScreen.TestLook.hairStyle;

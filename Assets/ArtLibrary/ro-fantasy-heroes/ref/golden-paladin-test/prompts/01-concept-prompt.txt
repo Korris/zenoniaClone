@@ -1,0 +1,10 @@
+Chào bạn. Mình làm game RPG 2D chibi (camera 2.5D nhìn chéo từ trên, nhân vật ~76 px trên màn hình). Mình muốn THỬ một thiết kế nhân vật mới cho class Warrior (kiếm tay phải + khiên tay trái).
+
+Ảnh 1 = fan art người dùng thích, CHỈ lấy MOOD: thánh kỵ sĩ vàng (holy paladin), tóc dài vàng nhạt bạch kim, khiên tháp vàng lớn, kiếm vàng trang trí, áo choàng / khăn cổ xanh lam đậm, ánh sáng ấm + lấp lánh. Đây là nhân vật của một game khác: KHÔNG chép các chi tiết nhận diện của nó (vương miện / tiara có đá quý, hoạ tiết cánh trên khiên, khuôn mặt và dáng tóc y hệt). Hãy tự thiết kế một nhân vật GỐC, tên tạm "Golden Paladin", có bản sắc riêng (biểu tượng riêng của bạn trên khiên / ngực, ví dụ mặt trời, sao, chữ thập ánh sáng... bạn chọn).
+
+Ảnh 2 = nhân vật đang có trong game (Knight V3), CHỈ để xem phong cách vẽ (nét viền nâu đậm, shading mềm 3 cấp, chibi) và tỷ lệ (~2,65 đầu, sọ rộng ~35 % chiều cao người, chân chạm đất). KHÔNG dùng lại giáp / áo choàng / hoa văn của nó.
+
+Yêu cầu:
+1) Viết ngắn gọn ý tưởng thiết kế (tính cách, bảng màu hex chính, biểu tượng, kiếm, khiên, tóc).
+2) Vẽ một ảnh turnaround toàn thân 5 góc trên nền trắng phẳng: trước, chéo trước-phải, phải, chéo sau-phải, sau. Có tóc, cầm kiếm tay phải + khiên tay trái; bên cạnh vẽ riêng kiếm và khiên nhìn thẳng.
+Ràng buộc cho game: tóc dài nhưng ở góc trước / chéo trước, tóc rơi SAU vai (không phủ lên vai / ngực / tay), chỉ mái + 2 lọn ôm má tới cằm; dài tới giữa lưng ở góc sau. Giáp trắng ngà + vàng là chính, xanh lam đậm là màu phụ (áo choàng, khăn cổ). Găng tay rõ màu, khác màu giáp (để dễ thấy nắm tay). Mặt nghiêm nhưng hiền, mắt xanh. Không chữ, không hiệu ứng nền tròn.

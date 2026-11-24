@@ -1,0 +1,7 @@
+Bước 3: TÓC (lớp riêng, game nhuộm màu). Ảnh đính kèm = năm đầu trọc của sheet vừa duyệt (xuống, chéo xuống-phải, phải, chéo lên-phải, lên), phía dưới để trống nền xanh.
+Vẽ mới hoàn toàn kiểu tóc dài Golden Paladin của turnaround lên ĐÚNG năm đầu trọc này, giữ nguyên khung ảnh, vị trí và cỡ từng đầu (không dời, không phóng to đầu).
+- Tóc bồng mềm, mái lệch, hai lọn ôm má tới cằm, không che mắt; khối tóc lớn, ít lọn vụn nhọn.
+- Hướng xuống / chéo xuống-phải: phần tóc dài xoã hai bên cổ, chạm vai rồi đi ra SAU vai (không phủ ngực / mặt). Hướng phải / chéo lên-phải / lên: tóc dài rủ xuống sau gáy tới giữa lưng, được phép vẽ xuống vùng nền xanh trống phía dưới đầu (dài khoảng 1 lần chiều cao đầu dưới cằm).
+- Không vương miện, không phụ kiện.
+Màu: CHỈ phần tóc dùng xám trung tính R=G=B: viền #1F1F1F, bóng sâu #474747, bóng #696969, mảng chính #A6A6A6, highlight #DBDBDB (highlight 15-20 % diện tích, 2-3 vùng lớn theo độ cong tóc). Da, tai, mắt xanh, lông mày, miệng, giáp / khăn cổ giữ NGUYÊN màu như ảnh đầu trọc; KHÔNG biến cả đầu sang xám.
+Nền #00FF00 phẳng tuyệt đối, một hàng 5 đầu như ảnh, không chữ, không bóng đổ, không viền trắng, không chạm mép ảnh.

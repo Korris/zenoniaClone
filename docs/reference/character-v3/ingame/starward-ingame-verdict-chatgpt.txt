@@ -1,0 +1,104 @@
+
+ChatGPT said:
+ASTERIA — STARWARD IN-GAME REVIEW V1.0
+Character Art Direction V2.0 · Idle / Walk / Hair · Willowbrook Village
+1. Phán quyết tổng thể
+91/100
+Đánh giá tạo hình và hiển thị trong game
+ĐẠT — CHO PHÉP LÀM TIẾP
+Mình duyệt Starward V1 về thiết kế nhân vật, idle, walk và hệ tóc. Không cần vẽ lại toàn bộ nhân vật. So với Warrior cũ, Starward có cảm giác cao cấp hơn: hình khối gọn, giáp trắng-ngà và xanh lam có nhận diện, đôi mắt hổ phách có thần thái, áo choàng sao tạo dấu ấn riêng.
+Tuy nhiên, mình chưa khóa hoàn toàn bộ nhân vật, bởi hai thành phần quan trọng nhất để hoàn thiện silhouette chiến đấu — kiếm bản rộng và khiên sao — vẫn là đồ Warrior cũ.
+2. Chấm theo từng tiêu chí
+Tiêu chí
+Điểm
+Đánh giá
+Tỷ lệ cơ thể, cỡ đầu
+94
+Đạt
+Khuôn mặt, biểu cảm
+93
+Đạt
+Form giáp, trang phục
+94
+Đạt
+Màu sắc, chất liệu
+93
+Đạt
+Idle bốn hướng
+94
+Đạt
+Walk bốn hướng
+89
+Đạt, cần tinh chỉnh nhẹ
+Kiểu tóc và nhuộm màu
+93
+Đạt
+Độ nổi bật tại camera mặc định
+84
+Cần cải thiện
+Đồng bộ vũ khí, khiên
+78
+Chưa hoàn thiện
+Các điểm này dựa trên ảnh tĩnh, không thay cho kiểm thử animation đang chạy ở FPS thật.
+3. Đánh giá cụ thể
+A. Idle bốn hướng — 94/100
+Ở hàng đầu ảnh 1, Starward có dáng đứng tốt:
+Hướng xuống: Khuôn mặt rõ, thân cân đối, màu xanh-vàng-trắng đẹp. Bộ giáp có nhiều chi tiết nhưng vẫn đọc được.
+Hướng phải: Nhìn ra dáng hiệp sĩ, không bị quá mập hoặc quá thấp.
+Hướng lên: Áo choàng sao vàng nổi bật, đây là điểm nhận diện rất tốt.
+Hướng trái: Flip hoạt động hợp lý, không thấy lỗi lớn về hình dáng.
+Không sửa idle.
+Mình cũng không muốn tăng kích thước đầu hoặc kéo dài chân thêm. Tỷ lệ hiện tại đã có bản sắc riêng, khác Warrior cũ.
+B. Hệ tóc và nhuộm màu — 93/100
+Hàng thứ hai cho thấy việc đổi màu và kiểu tóc đã hoạt động.
+Tóc nâu hạt dẻ hợp với Starward nhất. Tóc đen tạo cảm giác mạnh mẽ, tóc xám bạc thanh lịch, tím tạo chất fantasy.
+Điểm mình thích là tóc không còn giống một khối dán lên sọ; form tóc tương đối ăn khớp với gương mặt.
+Không cần vẽ lại kiểu tóc 1 hoặc 2.
+Chỉ nên kiểm tra thêm xem khi đổi sang màu tóc rất sáng, như trắng bạc, đường viền và các vùng sáng có bị hòa vào nhau không.
+C. Walk bốn hướng — 89/100
+Chu kỳ bước nhìn qua các frame đã có sự thay đổi chân và tay. Áo choàng cũng có chuyển động, đặc biệt ở hướng phải và hướng lên.
+Tuy nhiên, có một điểm cần lưu ý:
+Các frame bước chân có độ khác biệt khá lớn ở chiều dài chân và vị trí bàn chân. Điều này có thể khiến Starward hơi nảy hoặc trượt chân khi phát animation.
+Mình không yêu cầu vẽ lại. Hãy kiểm tra khi phát liên tục:
+Pivot cố định tại tâm hai chân.
+Không thay đổi RenderScale giữa các frame.
+Không để sprite nhảy ngang do từng frame có bounding box khác nhau.
+Tốc độ đi trong Unity phải ăn với chiều dài bước chân.
+Áo choàng không giật khi vòng animation quay từ F4 về F1.
+Nếu nhìn trong game thấy bước đều, giữ nguyên toàn bộ walk.
+D. Camera mặc định — 84/100
+Ở ảnh 2, Starward vẫn hơi nhỏ so với kích thước quảng trường và cây sồi, dù đã lớn hơn Warrior cũ.
+Điều này khác với vấn đề hồi trước: khi phóng gần, nhân vật đã đẹp hơn rõ, nhưng ở camera mặc định, những chi tiết đẹp trên bộ giáp trở nên khó nhận diện.
+Mình chưa muốn tăng RenderScale thêm lần nữa. Trước tiên hãy hoàn thiện kiếm và khiên mới, vì vũ khí đúng tỷ lệ sẽ thay đổi silhouette khá nhiều.
+Giữ scale hiện tại +15% so với Warrior cũ.
+Sau khi gắn kiếm và khiên mới, nếu Starward vẫn bị chìm trong môi trường mới cân nhắc tăng thêm 3–5%, không điều chỉnh ngay.
+4. Ba việc nên làm trước khi sản xuất animation đánh
+1. Khóa body và hệ tóc hiện tại
+Dùng sprite idle/walk đã có làm chuẩn chiều cao, vị trí đầu, điểm neo hai bàn tay và vị trí chân. Không tiếp tục redesign bộ giáp hoặc khuôn mặt.
+2. Vẽ kiếm Starward mới
+Kiếm một tay bản rộng vừa phải, thân thép trắng bạc, rãnh xanh lam nhạt, chuôi vàng cổ, thiết kế hình ngôi sao nhỏ ở chắn tay.
+Chiều dài hình ảnh đề xuất: khoảng 0,85–1,0H so với chiều cao Starward, gồm cả chuôi. Không làm đại kiếm quá dài như Warrior cũ.
+3. Vẽ khiên Starward mới
+Khiên hình cánh diều bo tròn, nền xanh navy, viền vàng cổ, ngôi sao tám cánh ở giữa. Kích thước khoảng 0,42–0,48H chiều cao, không che đầu và không lấn quá nhiều phần ngực.
+5. Một vấn đề cần quyết định trước khi vẽ đòn đánh
+Vì game dùng vũ khí và khiên là layer riêng, không nên vẽ kiếm/khiên cố định vào animation body.
+Đòn đánh cần thể hiện lực từ chân → hông → vai → tay, còn kiếm và khiên bám theo điểm neo của từng frame.
+Đề xuất giữ bốn frame cho đòn đánh cơ bản:
+Frame
+Động tác
+F1
+Chuyển trọng tâm, chuẩn bị
+F2
+Xoay hông, kéo tay lấy đà
+F3
+Chém mạnh, duỗi tay, frame va chạm
+F4
+Thu lực, trở về tư thế chuẩn bị
+Với hệ thống combat có bốn nhát combo, nên thiết kế riêng pose cho từng nhát thay vì chỉ đảo chiều một animation.
+6. Kết luận Art Director
+Starward đã đạt chuẩn Character Art Direction V2.0 ở giai đoạn idle/walk/hair — 91/100.
+Mình đặc biệt muốn giữ lại tỷ lệ cơ thể và khuôn mặt hiện tại. Việc vẽ lại nhân vật từ đầu đã có giá trị, không nên quay lại form Warrior cũ.
+Quyết định sản xuất: Khóa Starward body, idle, walk và hair. Tiếp theo vẽ kiếm + khiên Starward rồi mới sản xuất animation đánh. Sau khi hoàn thiện combat, đánh giá lại một lần ở camera mặc định để chốt toàn bộ class Warrior.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

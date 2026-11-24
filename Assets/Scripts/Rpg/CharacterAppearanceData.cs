@@ -12,7 +12,7 @@ namespace ZenoniaProto.Rpg
     [Serializable]
     public class CharacterAppearanceData
     {
-        public const int HairColorCount = 8, OutfitColorCount = 6; // palettes.json "hair" / "outfit" lengths (a test checks the file)
+        public const int HairColorCount = 9, OutfitColorCount = 6; // palettes.json "hair" / "outfit" lengths (a test checks the file)
         public const int MaxHairStyle = 255, MaxHeadgear = 255;    // one byte each on the wire
         public const byte WireNone = 255;                          // NetAppearance colour byte: not chosen
 

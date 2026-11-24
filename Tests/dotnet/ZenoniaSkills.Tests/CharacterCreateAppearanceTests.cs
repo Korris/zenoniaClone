@@ -22,7 +22,7 @@ public class CharacterCreateAppearanceTests
     }
 
     [Theory]
-    [InlineData(0, 8, 0)]    // past the 8 hair colours
+    [InlineData(0, 9, 0)]    // past the 9 hair colours
     [InlineData(0, -1, 0)]   // creation always picks a hair colour
     [InlineData(0, 0, 6)]    // past the 6 outfit colours
     [InlineData(0, 0, -1)]
