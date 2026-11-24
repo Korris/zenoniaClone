@@ -48,6 +48,7 @@ namespace ZenoniaProto
             {
                 Zone zone = zones[z];
                 if (zone.Paused || zone.Players.Count == 0) continue;
+                Zone.Enter(zone); // TryFind below reads the map height off MapRegistry.Current: without this, every zone but the last-entered one gets the wrong height and its portals never trigger
                 IGameMap map = zone.Map;
                 bool ownBoss = MapSpawnTable.HasOwnBoss(map.Id);
                 for (int i = zone.Players.Count - 1; i >= 0; i--) // backward: a transfer takes the player out of this list
