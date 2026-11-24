@@ -1,0 +1,1223 @@
+You said:
+tiếp
+ChatGPT said:
+ASTERIA — TAURUS PRODUCTION BIBLE V4.0
+PART 3/3 · CARD, PET, AI, COMBAT, ART PIPELINE & PRODUCTION PLAN
+Phần cuối này sẽ hoàn thiện Taurus thành một bộ tài liệu có thể dùng để phân công cho game designer, Unity programmer, 2D artist, UI artist và QA.
+Mình giữ nguyên thiết kế ở Phần 1 và 2:
+♉ Taurus — Verdant Meadows
+Khu dân cư
+Willowbrook Village
+44×32 tile
+Map săn
+Clover Meadows
+96×64 tile
+Dungeon
+Ancient Root Shrine
+3 khu vực · Lv 8–10
+Boss chính
+Elder Root Guardian
+Story Boss · Lv 10
+10
+Camp săn
+68
+Quái ngoài trời
+11
+Loài quái thường, kể cả dungeon
+Có một nguyên tắc quan trọng trước khi đi vào chi tiết: đây là thiết kế sản xuất mới của Asteria, không phải kế hoạch đổi tên hay tái sử dụng asset từ thế giới cũ. Những thông số chưa đo thực tế sẽ được đánh dấu là giá trị tuning đề xuất.
+X. Monster Card Production Rules
+1. Vai trò của Monster Card trong Taurus
+Monster Card phải có ba giá trị đối với người chơi:
+Sưu tập: Đánh quái có cơ hội nhận lá bài mang hình ảnh chính sinh vật đó.
+Đấu trí: Dùng bốn chỉ số hướng để chiếm bài đối thủ trên bàn 4×4.
+Cốt truyện: Mỗi lá bài là một ký ức ma thuật của sinh vật, liên quan đến bí mật lịch sử Asteria.
+Mình đề xuất dùng một nguyên tắc thế giới học thống nhất:
+Pet là linh thú sống, Monster Card là tiếng vọng ký ức của một loài.
+Vì vậy, người chơi không cần bắt được Pet Horn Rabbit mới sở hữu Horn Rabbit Card, và việc sử dụng Horn Rabbit Card không triệu hồi một con thỏ để chiến đấu ngoài map.
+Hai hệ thống được liên kết bằng thế giới và bộ sưu tập, không bị gộp thành một cơ chế.
+2. Taurus Card Collection
+Mình đề xuất một bộ 12 lá Card Taurus ở giai đoạn nội dung hoàn chỉnh: 11 lá gắn với quái thường và một lá boss.
+Card ID đề xuất
+	
+Tên
+	
+Rarity
+	
+Nguồn chính
+T-C001
+	
+Clover Slime
+	
+N
+	
+Quest Orin, quái
+T-C002
+	
+Horn Rabbit
+	
+N
+	
+Quest Orin, quái
+T-C003
+	
+Reed Frog
+	
+N
+	
+Quest Orin, quái
+T-C004
+	
+Moss Mushroom
+	
+N
+	
+Quest Orin, quái
+T-C005
+	
+Bramble Boar
+	
+N
+	
+Quái
+T-C006
+	
+Leaf Mantis
+	
+N
+	
+Quest Orin, quái
+T-C007
+	
+Rootling
+	
+N
+	
+Quái, dungeon
+T-C008
+	
+Thorn Sprite
+	
+R
+	
+Quái, dungeon
+T-C009
+	
+Ancient Barkling
+	
+R
+	
+Quái
+T-C010
+	
+Amber Sporeling
+	
+N
+	
+Dungeon
+T-C011
+	
+Rune Bark Guardian
+	
+R
+	
+Dungeon
+T-C012
+	
+Elder Root Guardian
+	
+SR
+	
+Boss, phần thưởng hiếm
+Mình không đề xuất UR Card ở Taurus khi ra mắt. Những lá hiếm nhất nên gắn với các khám phá lớn hơn sau này.
+Lưu ý: Rarity Card ở bảng này là đề xuất mới. Nó không bắt buộc dùng chung mức độ hiếm hoặc tỉ lệ với Pet Gacha.
+3. Bộ Card tân thủ của Orin
+Giữ đúng năm lá đã thiết kế ở Phần 2:
+Lá bài
+	
+Trên
+	
+Phải
+	
+Dưới
+	
+Trái
+Clover Slime
+	
+3
+	
+2
+	
+3
+	
+2
+Horn Rabbit
+	
+2
+	
+5
+	
+1
+	
+2
+Reed Frog
+	
+4
+	
+2
+	
+2
+	
+2
+Moss Mushroom
+	
+2
+	
+2
+	
+4
+	
+2
+Leaf Mantis
+	
+2
+	
+4
+	
+2
+	
+3
+Bộ chỉ số này được chọn để người mới thấy rõ rằng một lá bài có thể mạnh theo một hướng nhưng yếu theo hướng khác.
+Tuy nhiên, cần làm thêm một bước cân bằng trước khi phát hành: thống nhất khoảng giá trị bốn cạnh của toàn bộ Monster Card, tổng sức mạnh theo rarity và vai trò của các lá bài giai đoạn đầu. Không nên khóa các con số trên nếu chúng mâu thuẫn với công thức Card toàn game.
+Cần phân biệt hai loại deck
+Collection
+Nơi lưu tất cả Monster Card người chơi sở hữu, bao gồm các bản sao.
+Duel Deck
+Những lá thực sự được chọn để tham gia trận Card Duel.
+Nếu luật bàn 4×4 dùng cả 16 ô và hai bên mỗi người đặt tám lá, deck cần tám lá hợp lệ.
+Orin trao năm lá vĩnh viễn rồi cho người chơi mượn ba lá riêng trong trận tutorial. Không cho bộ bài mượn xuất hiện như tài sản thật trong Collection, inventory hoặc hệ giao dịch.
+4. Orin NPC Duel — Những tính năng cần triển khai
+Đây là tính năng gameplay mới bắt buộc cho tuyến Monster Card tân thủ.
+Chế độ đấu
+DuelMode = TutorialNPC
+Khác với PvP, chế độ này có các đặc điểm:
+Hạng mục
+	
+Tutorial NPC
+Đối thủ
+	
+Card Master Orin
+Đặt cược
+	
+Không
+Có thể mất Card
+	
+Không
+Có bài mượn
+	
+Có
+AI
+	
+Tutorial Easy
+Lượt hướng dẫn
+	
+Có
+Thưởng
+	
+Một lần
+Thua hoặc hòa
+	
+Đấu lại miễn phí
+Server lưu kết quả
+	
+Có
+AI của Orin
+Mình không làm AI ngẫu nhiên hoàn toàn. Nó nên chơi dễ nhưng có vẻ hợp lý.
+Đề xuất cách chấm nước đi:
+𝑆
+𝑐
+𝑜
+𝑟
+𝑒
+=
+𝐶
+𝑎
+𝑝
+𝑡
+𝑢
+𝑟
+𝑒
+𝑉
+𝑎
+𝑙
+𝑢
+𝑒
++
+𝐷
+𝑒
+𝑓
+𝑒
+𝑛
+𝑠
+𝑒
+𝑉
+𝑎
+𝑙
+𝑢
+𝑒
+−
+𝐸
+𝑥
+𝑝
+𝑜
+𝑠
+𝑢
+𝑟
+𝑒
+𝑅
+𝑖
+𝑠
+𝑘
+Score=CaptureValue+DefenseValue−ExposureRisk
+Trong đó:
+CaptureValue: Điểm cộng nếu nước đi chiếm được bài.
+DefenseValue: Điểm cộng nếu các cạnh yếu được che chắn.
+ExposureRisk: Điểm trừ khi để cạnh yếu đối diện ô trống dễ bị đối thủ khai thác.
+Đây là công thức định hướng. Có thể cài đặt bằng một thuật toán đánh giá nước đi một lượt, chưa cần minimax sâu.
+Script tutorial không được làm sai luật
+Ở lượt dạy chiếm bài, cần tạo trạng thái bàn hợp lệ sao cho Horn Rabbit thực sự có thể chiếm lá Orin bằng cạnh phải 5.
+Không nên hiển thị một diễn biến được dựng sẵn nhưng hệ thống tính toán thực tế lại cho kết quả khác.
+Sau khi kết thúc lượt hướng dẫn, tất cả nước đi phải được xử lý bằng chính luật 4×4 của trận đấu.
+5. Card Reward — Chọn bài của Orin
+Mình đề xuất bộ bài thưởng Orin có tám lá Common, trong đó các lá khác nhau về phân bố cạnh.
+Người chơi có thể chọn một lá bất kỳ trong tám lá hợp lệ, không phải chỉ chọn trong ba lá do UI chỉ định.
+Nhưng có một quyết định về UX cần lưu ý:
+Nếu năm lá thưởng ban đầu và tám lá deck Orin trùng nhau quá nhiều, phần thưởng thắng trận sẽ kém hấp dẫn.
+Vì vậy, mình muốn có ít nhất ba lá trong deck Orin mà người chơi chưa được nhận từ quest.
+Ví dụ: Bramble Boar, Rootling và Amber Sporeling. Đây vẫn là Card Common, nhưng cho người chơi cảm giác mở rộng bộ sưu tập.
+Bảo vệ kinh tế Card
+Vì PvP có cơ chế thắng lấy Card của người thua, mình đề xuất một cơ chế cứu trợ tối thiểu:
+Novice Recovery Deck: Nếu người chơi không còn đủ Card để lập deck hợp lệ, có thể sử dụng các lá huấn luyện không thể giao dịch hoặc đem cược để tiếp tục chơi.
+Đây không phải phần thưởng farm miễn phí và không làm mất giá trị các Card sưu tập.
+Nó ngăn tình huống người chơi mới thua vài trận PvP rồi không còn khả năng tham gia Monster Card.
+XI. Pet Production Rules
+1. Taurus Pet Roster
+Mình chỉ phát hành hai Pet đại diện cho Taurus trong đợt đầu, để không làm pool Gacha quá lớn.
+Horn Rabbit
+N · Starter Pet
+Pet có ngoại hình dễ thương, phù hợp làm linh thú đầu tiên.
+Bramble Boar
+R · Starter Pet
+Pet có thân hình chắc, dáng chạy nặng, dễ nhận diện khi theo sau nhân vật.
+Quy tắc sở hữu
+Không thể bắt hai loài Pet này trực tiếp ngoài Clover Meadows.
+Người chơi sở hữu chúng thông qua Gacha Pet.
+Quái ngoài map và Pet cùng loài có thể chia sẻ thiết kế nhân vật về nhận diện, nhưng art animation có thể điều chỉnh cho vai trò đồng hành.
+Không cần tạo thêm hệ thống bắt Pet chỉ để phục vụ Taurus.
+2. Pet xuất hiện ở thời điểm nào?
+Mình chọn Level 5 là thời điểm giới thiệu Pet.
+Lý do: Ở Lv 1–3, người chơi đã phải học đánh quái, cường hóa và Monster Card. Nếu thêm Gacha quá sớm, số hệ thống mới sẽ bị dồn vào một thời điểm.
+Mini quest — Lumi's Little Companion
+NPC: Lumi tại Pet Garden.
+Hội thoại:
+"Cậu đã đi xa khỏi làng rồi nhỉ? Những nhà thám hiểm ở Asteria thường có một linh thú đồng hành."
+"Chúng có thể giúp cậu trong những chuyến phiêu lưu. Để mình chỉ cậu cách triệu hồi nhé!"
+Mục tiêu:
+Gặp Lumi.
+Mở giao diện Pet.
+Nhận một lượt triệu hồi hướng dẫn miễn phí.
+Triệu hồi Pet đầu tiên.
+Đưa Pet vào Combat Slot.
+Quyết định đề xuất: Lượt tutorial đầu tiên bảo đảm ra Horn Rabbit N.
+Đây là phần thưởng onboarding riêng, không nên tính vào pity hoặc làm thay đổi tỉ lệ Gacha thông thường một cách âm thầm. UI phải ghi rõ đó là lượt triệu hồi hướng dẫn có kết quả cố định.
+Nếu muốn bảo đảm người chơi cảm thấy Pet có ích ngay, Horn Rabbit có thể được cấp ở Level 1, Star 1, rồi tăng cấp theo hệ thống Pet hiện có.
+3. Combat role của Pet Taurus
+Mình sẽ không tạo cơ chế chiến đấu độc quyền cho hai Pet này.
+Pet
+	
+Xu hướng
+	
+Vai trò
+Horn Rabbit
+	
+Tốc độ, hoạt bát
+	
+Combat Pet cơ bản
+Bramble Boar
+	
+Nặng, chắc chắn
+	
+Combat Pet thiên sức mạnh
+Hai con đều theo đúng hệ thống Pet Combat đã có: tấn công hỗ trợ theo chủ, không vượt trần DPS Pet quy định.
+Nếu sau này cho chúng vào các Support/Stat Slot, hiệu quả vẫn phải tuân theo hệ số giảm hiệu lực của từng slot.
+4. Pet và Card không khóa lẫn nhau
+Người chơi có thể:
+Có Horn Rabbit Pet nhưng chưa sở hữu Horn Rabbit Card.
+Có Horn Rabbit Card nhưng chưa từng triệu hồi Horn Rabbit Pet.
+Sưu tập cả hai để hoàn thành Collection.
+Bỏ qua PvP Monster Card mà vẫn dùng Pet trong chiến đấu RPG.
+Điều này rất quan trọng để hai hệ thống không trở thành một chuỗi điều kiện bắt buộc quá dài.
+XII. AI & Combat Production Specifications
+Mình chia phần này thành quái thường, boss, spawn và đồng bộ online. Đây là nơi cần phân biệt rõ tính năng đơn giản đủ dùng cho Taurus với các hệ thống phức tạp chỉ nên triển khai ở những Tinh Vực sau.
+1. Hệ AI quái thường
+Taurus chỉ cần ba trạng thái chiến đấu chính và hai loại đòn đánh.
+Sơ đồ logic rút gọn. Return to Spawn cũng có thể được kích hoạt trực tiếp từ Chase hoặc Attack.
+AI thường — Bảng thông số đề xuất
+Quái
+	
+Loại AI
+	
+Aggro radius
+	
+Attack interval
+	
+Speed
+Clover Slime
+	
+Melee
+	
+0–2,0 m
+	
+2,0s
+	
+0,65×
+Horn Rabbit
+	
+Melee
+	
+2,5 m
+	
+1,7s
+	
+1,10×
+Reed Frog
+	
+Melee
+	
+2,3 m
+	
+1,9s
+	
+0,90×
+Moss Mushroom
+	
+Ranged
+	
+4,0 m
+	
+2,4s
+	
+0,65×
+Bramble Boar
+	
+Melee
+	
+3,0 m
+	
+2,2s
+	
+0,85×
+Leaf Mantis
+	
+Melee
+	
+3,0 m
+	
+1,5s
+	
+1,05×
+Rootling
+	
+Melee
+	
+2,5 m
+	
+2,6s
+	
+0,60×
+Thorn Sprite
+	
+Ranged
+	
+4,5 m
+	
+2,1s
+	
+0,95×
+Ancient Barkling
+	
+Melee
+	
+3,0 m
+	
+2,8s
+	
+0,55×
+Amber Sporeling
+	
+Ranged
+	
+4,0 m
+	
+2,5s
+	
+0,65×
+Rune Bark Guardian
+	
+Melee
+	
+3,0 m
+	
+2,6s
+	
+0,55×
+Đơn vị m chỉ áp dụng nếu Unity project quy đổi 1 unit = 1 m. Các giá trị phải chuyển đổi theo kích thước nhân vật và collision thực tế. Speed là hệ số tương đối so với tốc độ chuẩn của quái, không phải so với hero.
+Quy tắc đặc biệt cho camp đầu
+Clover Slime tại C01 nên chỉ phản công khi bị đánh, không tự động tấn công người mới đứng gần.
+Từ C02 trở đi, một số Slime có thể chủ động tấn công ở bán kính nhỏ.
+Điều này giúp người chơi mới có thời gian quan sát quái, bấm mục tiêu và thử kỹ năng trước khi bị nhiều kẻ địch đuổi theo.
+2. Leash và chống kéo quái xuyên camp
+Mình sẽ thiết kế leash dựa trên vị trí spawn và ranh giới camp, không để quái đuổi vô hạn.
+Thông số khởi điểm đề xuất:
+Loại
+	
+Leash radius
+Slime, Rabbit, Frog
+	
+4–5 m
+Mushroom, Boar, Mantis
+	
+5–6 m
+Rootling, Sprite, Barkling
+	
+6–7 m
+Quái dungeon
+	
+Theo phòng và cửa
+Boss
+	
+Theo ranh giới arena
+Nên có thêm ReturnToSpawn và trạng thái không nhận sát thương trong một khoảng ngắn khi đang reset, nếu thiết kế combat yêu cầu chống kéo quái để khai thác. Việc reset HP cần được thống nhất để tránh người chơi kéo boss ra mép rồi đánh từ vị trí an toàn.
+Quy tắc: Quái tại Ancient Roots không được kéo về tận Willowbrook Gate.
+3. Hitbox và va chạm
+Đối với game online chibi, mình không khuyên sử dụng đúng toàn bộ silhouette của sprite làm hitbox.
+Nên sử dụng một vùng va chạm đơn giản ở chân, đồng thời tách vùng có thể bị tấn công với vùng cản di chuyển nếu cần.
+Loài
+	
+Dạng hitbox đề xuất
+	
+Đặc điểm
+Slime
+	
+Tròn nhỏ
+	
+Gần trung tâm thân
+Rabbit
+	
+Tròn nhỏ
+	
+Tai và sừng không tính vào collider
+Frog
+	
+Tròn dẹt
+	
+Không tính toàn bộ chân khi nhảy
+Mushroom
+	
+Tròn
+	
+Không tính mũ nấm mở rộng
+Boar
+	
+Elip ngang
+	
+Thân dài, bốn chân
+Mantis
+	
+Tròn / elip nhỏ
+	
+Tay lưỡi liềm không cản đường
+Rootling
+	
+Tròn trung bình
+	
+Gốc chân rễ
+Sprite
+	
+Tròn nhỏ
+	
+Cánh không tính va chạm
+Barkling
+	
+Tròn lớn
+	
+Thân gỗ
+Đề xuất quan trọng
+Không cần body blocking cứng giữa mọi quái và mọi người chơi trong các camp đông.
+Nếu áp dụng collision cứng toàn bộ, 8–9 quái đứng gần nhau có thể chặn người chơi, gây kẹt auto-path và tạo cảm giác khó chịu trên mobile.
+Có thể dùng collision nhẹ giữa quái với địa hình, còn giữa quái và người chơi ưu tiên hệ thống khoảng cách đánh hợp lý, tránh xuyên sâu vào thân mục tiêu bằng logic vị trí.
+4. Damage và cảm giác chiến đấu
+Mình không muốn khóa chỉ số HP/ATK tuyệt đối khi chưa có công thức damage và thông số trang bị Level 1–10 của cả năm class.
+Thay vào đó, mình chọn mục tiêu thời gian tiêu diệt để cân bằng.
+Quái
+	
+Time-to-kill mục tiêu
+Clover Slime
+	
+2–4 giây
+Horn Rabbit
+	
+3–5 giây
+Reed Frog
+	
+3–5 giây
+Moss Mushroom
+	
+4–6 giây
+Bramble Boar
+	
+5–8 giây
+Leaf Mantis
+	
+4–6 giây
+Rootling
+	
+6–9 giây
+Thorn Sprite
+	
+5–7 giây
+Ancient Barkling
+	
+8–12 giây
+TTK mục tiêu cho người chơi solo đúng Level, dùng trang bị T0/tân thủ tương ứng và bộ kỹ năng cơ bản. Đây là giả thuyết cân bằng cần đo bằng combat simulation và playtest cho từng class.
+Mình đề xuất dùng Warrior làm một mốc kiểm thử melee, Wizard làm mốc kiểm thử ranged và Cleric để kiểm tra khả năng solo của class thiên hỗ trợ. Sau đó xác nhận Mechanic và Assassin không bị quá mạnh hoặc quá yếu khi săn cùng camp.
+Không cân bằng toàn bộ map chỉ dựa vào DPS Warrior.
+XIII. Elder Root Guardian — Combat Technical Sheet
+Story Boss Lv 10 · Ancient Root Shrine · Solo/Party PvE
+abrakam.com
+1. Kích thước và đấu trường
+Thuộc tính
+	
+Spec
+Chiều cao boss
+	
+3,5–4,0H
+Chiều rộng silhouette
+	
+2,5–3,0H
+Tỷ lệ đầu
+	
+Đầu lớn, đọc rõ từ camera top-down
+Arena
+	
+Khoảng 30×28 tile theo layout ban đầu
+Hình dạng arena
+	
+Tròn hoặc gần tròn
+Chướng ngại
+	
+Chỉ trang trí sát rìa
+Spawn người chơi
+	
+Phía nam arena
+Spawn boss
+	
+Khu trung tâm phía bắc
+Cửa thoát
+	
+Không bị boss hoặc hitbox che
+Mình muốn giữ ít nhất khoảng 2H không gian di chuyển hữu dụng quanh vùng đánh của boss, sau khi trừ collider và vật cản. Nếu tile scale khiến arena 30×28 quá nhỏ, cần tăng kích thước arena thay vì thu nhỏ kỹ năng đến mức thiếu hoành tráng.
+2. Bộ kỹ năng chính thức
+Skill 01 — Root Slam
+Đòn cơ bản · Single target
+Boss giơ tay trong 0,45–0,65 giây rồi đập xuống mục tiêu gần nhất.
+Đánh một lần, không có vùng AoE riêng. Đòn này tạo cơ hội cho người chơi học nhịp tấn công.
+Skill 02 — Ancient Sweep
+Hình quạt · Ranged telegraph
+Boss mở rộng hai tay, quét một khu vực hình quạt 120° ở phía trước.
+Cảnh báo 1,2 giây, có thể sử dụng vòng cung nâu đỏ trong suốt trên nền đất.
+Tạo khoảng trống phía sau hoặc bên hông boss cho người chơi né.
+Skill 03 — Amber Pulse
+AoE tròn quanh boss
+Lõi hổ phách sáng lên, một vòng tròn báo nguy xuất hiện quanh thân.
+Cảnh báo 1,5 giây, sau đó tạo xung năng lượng.
+Người chơi cần chạy ra khỏi vòng để tránh sát thương.
+Phase Change — Awakening
+Khi HP dưới 30%
+Boss ngừng di chuyển ngắn, lõi sáng hơn, lá và hạt hổ phách bay quanh thân.
+Giảm thời gian giữa các kỹ năng khoảng 10–15%, nhưng không tăng quá mạnh sát thương. Đây vẫn là boss đầu tiên.
+3. Timing đề xuất
+Thành phần
+	
+Thời lượng
+Root Slam wind-up
+	
+0,5s
+Root Slam recovery
+	
+0,45s
+Ancient Sweep warning
+	
+1,2s
+Ancient Sweep impact
+	
+0,15s
+Ancient Sweep recovery
+	
+0,65s
+Amber Pulse warning
+	
+1,5s
+Amber Pulse impact
+	
+0,20s
+Amber Pulse recovery
+	
+0,80s
+Awakening transition
+	
+1,0s
+Các con số trên là timing mục tiêu, không phải animation frame cố định. Animation và sát thương phải được đồng bộ qua sự kiện combat server, tránh việc máy khách có FPS thấp làm lệch thời điểm trúng đòn.
+4. Yêu cầu telegraph
+Đây là hạng mục gameplay mới cần sản xuất cho boss, khác với quái thường.
+Cảnh báo phải đáp ứng:
+Hình dạng và kích thước đúng vùng sát thương server.
+Luôn nằm dưới nhân vật nhưng trên nền địa hình.
+Màu tương phản với đất nâu, rễ cây và ánh rune.
+Có viền đủ rõ, không chỉ dùng hạt sáng.
+Có nhịp sáng mạnh ở 0,2 giây cuối trước khi gây damage.
+Không phụ thuộc Bloom để người chơi nhìn được.
+Mình khuyên dùng shader hoặc mesh decal/procedural shape cho hình tròn và hình quạt, thay vì phải vẽ nhiều sprite cảnh báo độc lập.
+5. Độ khó boss
+Đối với một người chơi solo Lv 10, có trang bị T0 đã nâng cấp một vài lần, mình đặt mục tiêu thử nghiệm:
+90–150s
+Thời gian đánh solo mục tiêu
+30%
+Ngưỡng chuyển pha
+2
+Đòn AoE cần né
+Đây là mục tiêu ban đầu cho trận boss solo; thời gian thực tế cần đo với năm class và công thức chỉ số thật.
+Mình không khuyến khích người chơi mới phải đánh boss 5–8 phút để hoàn thành chương đầu, trừ khi game có hệ party bắt buộc. Một trận ngắn nhưng có đủ giai đoạn sẽ tạo ấn tượng tốt hơn.
+6. Chính sách khi chết hoặc thoát dungeon
+Mình đề xuất:
+Nếu chết trong boss fight, người chơi có thể hồi sinh tại checkpoint gần phòng boss.
+Không phải đánh lại toàn bộ 18 quái từ đầu cho mỗi lần thử.
+Có tùy chọn thử lại trận boss, reset HP và trạng thái boss.
+Không trừ Monster Card hoặc Pet khi chết.
+Nếu mất kết nối, server lưu tiến độ nhiệm vụ; phiên dungeon có thể kết thúc theo chính sách timeout, nhưng nhiệm vụ không được nhận thưởng lặp.
+Điều này quan trọng vì Taurus là dungeon đầu tiên, người chơi đang học cơ chế né boss.
+XIV. Online Spawn, Performance & Server Rules
+1. Nguyên tắc số lượng quái
+Clover Meadows có 68 quái thường tối đa đồng thời phân bổ trong 10 camp.
+Tổng này không bao gồm:
+Boss hoặc Wanted Boss.
+Pet của người chơi.
+NPC.
+Summon hoặc đạn kỹ năng.
+Những quái chỉ xuất hiện trong nhiệm vụ đặc biệt.
+Mỗi camp cần có giới hạn riêng để tránh toàn bộ quái bị dồn về một vị trí.
+2. Cấu trúc dữ liệu SpawnCamp
+Ví dụ dữ liệu cấu hình, không ràng buộc tên class hoặc format file của project:
+JSON
+{
+  "campId": "TAU_C01",
+  "region": "Taurus",
+  "map": "CloverMeadows",
+  "zone": "Cloverfield",
+  "monsters": [
+    {
+      "monsterId": "clover_slime",
+      "level": 1,
+      "maxAlive": 9
+    }
+  ],
+  "respawnSeconds": 12,
+  "aggroProfile": "PassiveUntilAttacked",
+  "spawnAreaId": "TAU_C01_AREA",
+  "safePathExclusion": true
+}
+3. Quy tắc spawn bắt buộc
+Server authority: Server quyết định quái được sinh ra, chết, gây sát thương, hồi sinh và trao reward.
+Spawn validity: Không tạo quái trong vật cản, trên cầu hẹp, quá sát điểm chuyển map, hoặc đè lên vị trí nhân vật.
+Spawn cooldown: Bắt đầu đếm sau khi quái chết. Nếu chưa có điểm spawn an toàn, hoãn spawn ngắn thay vì ép tạo ở điểm bị chiếm.
+Leash: Khi vượt phạm vi, quái reset về camp. Không cho người chơi kéo quái Lv 10 xuống cổng làng.
+Kill credit: Quest đếm dựa trên đóng góp hợp lệ. Không dựa riêng vào last hit nếu hệ thống có chia credit.
+Multiplayer: Quái chết chỉ trao phần thưởng theo đúng quy tắc loot của game; không cho nhiều người nhận một vật phẩm hiếm ngoài ý muốn.
+4. Performance budget mục tiêu
+Mình chọn ngân sách hiệu năng theo hành vi chứ không đặt số draw call tuyệt đối khi chưa biết cấu hình thiết bị.
+Hạng mục
+	
+Yêu cầu
+Monster AI
+	
+Chỉ cập nhật đầy đủ cho đối tượng cần mô phỏng; server vẫn bảo toàn trạng thái
+Rendering
+	
+Culling quái và prop ngoài vùng camera
+Projectile
+	
+Pooling, không tạo/hủy liên tục
+Damage number
+	
+Pooling, giới hạn hiệu ứng trùng lặp
+Monster VFX
+	
+Ít hạt, kích thước rõ
+Boss Telegraph
+	
+GPU-friendly, không cần hàng trăm particle
+Networking
+	
+Đồng bộ vị trí, trạng thái và sự kiện combat
+Spawn
+	
+Không quét toàn bộ bản đồ mỗi frame
+Với game PC + mobile, thử nghiệm nên có cả tình huống đông người ở C01 và một nhóm người đánh boss.
+Taurus không được chỉ đạt FPS tốt khi một người chơi đứng một mình trong map.
+XV. Art Production Sheet — Quy chuẩn sprite toàn Taurus
+Đây là tiêu chuẩn mình muốn dùng xuyên suốt Asteria, không chỉ riêng Taurus.
+1. Phong cách mỹ thuật
+10
+Art Style: RO Soft Adventure.
+Chibi, đầu tương đối lớn, hình thể dễ đọc.
+Viền nâu đậm #49372E, tránh viền đen tuyệt đối.
+Cel shading 2–3 cấp, không dùng gradient quá phức tạp.
+Highlight mềm từ phía trên-trái.
+Màu sắc ấm và tách khỏi nền địa hình.
+Hạn chế chi tiết nhỏ khó nhìn khi game zoom xa.
+Không vẽ bóng đổ dưới chân vào sprite.
+Không chứa text hoặc khung ô trong ảnh nguồn.
+2. Sprite sheet chuẩn
+Hạng mục
+	
+Walk
+	
+Attack
+Số ô
+	
+4×4
+	
+4×4
+Kích thước ô
+	
+192×192 px
+	
+256×256 px
+Kích thước sheet
+	
+768×768 px
+	
+1024×1024 px
+Số hướng
+	
+4
+	
+4
+Số frame/hướng
+	
+4
+	
+4
+Nền
+	
+#FF00FF
+	
+#FF00FF
+Shadow
+	
+Không vẽ
+	
+Không vẽ
+Chi tiết ngoài ô
+	
+Không cho phép
+	
+Không cho phép
+Quy ước bốn hướng
+Mình đề xuất hàng sprite như sau:
+Row
+	
+Hướng
+1
+	
+Front / nhìn xuống
+2
+	
+Right / nhìn phải
+3
+	
+Back / nhìn lên
+4
+	
+Left / nhìn trái, flip từ Right
+Vì trái là ảnh lật từ phải, không tạo chi tiết bất đối xứng làm thay đổi nhận diện của quái.
+Cũng cần lưu ý: nếu dùng bốn frame được vẽ sẵn cho hướng phải, hàng Left có thể được tạo tự động trong pipeline bằng phép flip, không bắt họa sĩ vẽ lại từ đầu. Tuy nhiên, importer/runtime phải thống nhất thứ tự frame.
+3. Kích thước và vị trí nhân vật trong ô
+Mình muốn tất cả sprite có cùng quy tắc anchor:
+Pivot đặt ở tâm chân hoặc tâm vùng tiếp xúc với mặt đất.
+Frame idle và walk có cùng baseline chân.
+Không để đầu, tai, sừng, cánh hoặc hiệu ứng chạm mép ô.
+Không tự ý thay đổi scale giữa bốn hướng.
+Nếu nhân vật nhảy, pivot vẫn ổn định; chuyển động lên xuống nằm trong animation.
+Hitbox không tự động lấy theo alpha của sprite.
+Monster size chart
+0H
+1H
+2H
+3H
+4H
+Clover Slime
+Horn Rabbit
+Reed Frog
+Moss Mushroom
+Bramble Boar
+Leaf Mantis
+Rootling
+Thorn Sprite
+Ancient Barkling
+Amber Sporeling
+Rune Bark Guardian
+Elder Root Guardian
+Clover Slime: Chiều cao tương đối 0.6H
+Horn Rabbit: Chiều cao tương đối 0.7H
+Reed Frog: Chiều cao tương đối 0.6H
+Moss Mushroom: Chiều cao tương đối 0.8H
+Bramble Boar: Chiều cao tương đối 0.9H
+Leaf Mantis: Chiều cao tương đối 0.9H
+Rootling: Chiều cao tương đối 0.9H
+Thorn Sprite: Chiều cao tương đối 0.8H
+Ancient Barkling: Chiều cao tương đối 1.2H
+Amber Sporeling: Chiều cao tương đối 0.8H
+Rune Bark Guardian: Chiều cao tương đối 1.3H
+Elder Root Guardian: Chiều cao tương đối 3.8H
+H là chiều cao hero khi hiển thị trong game. Tỷ lệ này dùng cho layout và scale trong Unity, không bắt buộc nhân vật chiếm cùng phần trăm chiều cao ô nguồn.
+4. Ngoại lệ dành cho boss
+Với Elder Root Guardian cao gần 4H, mình không khuyến khích ép boss vào ô 256×256 rồi phóng lớn quá mức.
+Đề xuất:
+Loại asset
+	
+Ô nguồn đề xuất
+Quái thường
+	
+Walk 192, Attack 256
+Quái lớn như Bark Guardian
+	
+Walk 192 hoặc 256 tùy độ nét
+Elder Root Guardian
+	
+Walk 384 hoặc 512; Attack 512
+Boss VFX
+	
+Asset riêng hoặc hệ particle/mesh
+Đây là ngoại lệ có chủ đích để bảo vệ chất lượng hiển thị.
+Nếu bạn muốn tuyệt đối giữ chuẩn cell 256 cho boss, cần kiểm tra độ phân giải thực tế ở zoom gần nhất trước khi chốt.
+5. Asset checklist theo từng loài
+Mình đề xuất gói tối thiểu cho mỗi quái thường gồm:
+Concept front và side, kiểm tra silhouette.
+Idle 4 hướng × 4 frame.
+Walk 4 hướng × 4 frame.
+Attack 4 hướng × 4 frame.
+Hit reaction nếu cần; có thể dùng shader flash.
+Death 4 frame hoặc dissolve dùng chung.
+Projectile riêng nếu là ranged.
+Icon Monster Card.
+Chân dung Collection nếu có Card.
+Shadow runtime hoặc decal riêng, không nằm trong sprite.
+Với 11 loài quái thường, đây đã là một khối lượng art đáng kể. Không nên tạo đầy đủ animation đặc biệt cho từng loài trước khi kiểm thử camera và kích thước in-game.
+6. Boss asset list
+Elder Root Guardian cần nhiều hơn một bộ walk/attack cơ bản.
+Asset
+	
+Mục đích
+Boss concept đa góc
+	
+Khóa hình thể và tỷ lệ
+Idle 4 hướng
+	
+Đứng, thở, lõi phát sáng
+Walk 4 hướng
+	
+Di chuyển nặng
+Root Slam
+	
+Đòn cơ bản
+Ancient Sweep
+	
+Đòn quét hình quạt
+Amber Pulse
+	
+AoE tròn
+Awakening
+	
+Chuyển pha dưới 30% HP
+Hit reaction
+	
+Nhận đòn
+Death / Defeat
+	
+Kết thúc trận
+Boss portrait
+	
+HUD
+Telegraph circle
+	
+Vùng cảnh báo
+Telegraph cone
+	
+Vùng cảnh báo
+Amber VFX
+	
+Lõi sáng, hạt ký ức
+Defeat VFX
+	
+Ánh sáng và mảnh Memory Amber
+7. Các nguyên tắc nghiệm thu art
+Một sprite chỉ được duyệt khi:
+Đọc được hình dáng ở kích thước game thực tế.
+Không có chi tiết bất đối xứng gây lỗi khi flip.
+Bốn hướng nhất quán về màu, tỷ lệ và vật liệu.
+Frame chuyển động không làm chân trượt rõ rệt.
+Không có magenta lẫn bên trong quái nếu dùng chroma key.
+Không có bóng vẽ sẵn.
+Không chạm biên ô.
+Import vào Unity không có viền tím hoặc alpha fringe.
+Màu quái phân biệt được với nền Clover Meadows.
+Animation đánh khớp timing gây sát thương.
+Đặc biệt: Hãy kiểm tra sprite trên cả nền đồng cỏ sáng và nền rừng tối. Một quái nhìn đẹp trên nền magenta chưa chắc nổi bật trong game.
+XVI. World Props & Environment Asset List
+Để Taurus có cảm giác là một vùng đất hoàn chỉnh, chúng ta cần asset môi trường chứ không chỉ quái.
+1. Willowbrook Village
+Nhóm
+	
+Asset
+Nhà
+	
+Nhà dân, Hội Thám Hiểm, tiệm rèn, cửa hàng
+Đặc trưng
+	
+Cây sồi quảng trường, giếng nước, cối xay gió
+Giao thông
+	
+Đường đất, hàng rào, cổng làng, cầu nhỏ
+Đồ trang trí
+	
+Thùng gỗ, sọt, đèn, biển hiệu, bàn ghế
+Thiên nhiên
+	
+Hoa, bụi thấp, cây ăn quả, chậu cây
+NPC
+	
+Elder Rowan, Orin, Bram, Lumi, Mira, Finn
+2. Clover Meadows
+Nhóm
+	
+Asset
+Ground
+	
+Cỏ chính, cỏ sáng, đường đất, đất rừng
+Nước
+	
+Suối, hồ, bờ nước, lau sậy
+Cây
+	
+Cây sồi lớn, cây vừa, cây bụi
+Rừng
+	
+Rễ cây, khúc gỗ, bụi gai, nấm
+Đá
+	
+Đá nhỏ, cụm đá, phiến đá cổ
+Landmark
+	
+Cầu gỗ, đồi thỏ, di tích Ancient Roots
+Dungeon Entrance
+	
+Cổng đá dưới gốc cây cổ
+3. Ancient Root Shrine
+Nhóm
+	
+Asset
+Địa hình
+	
+Sàn đá cổ, đất hang, mép vách
+Rễ cây
+	
+Rễ lớn, rễ treo, rễ đan qua tường
+Kiến trúc
+	
+Cột đá, tường vỡ, cầu thang, cổng
+Ánh sáng
+	
+Nấm hổ phách, rune cổ
+Interactive
+	
+Memory Amber, phiến đá, công tắc/cổng
+Boss arena
+	
+Bệ đá tròn, lõi cây cổ, viền đấu trường
+Quy tắc môi trường
+Mình sẽ sử dụng ánh sáng và mật độ vật thể để thể hiện mức độ nguy hiểm:
+Đồng cỏ: sáng, thoáng, ít vật cản.
+Rừng trung gian: nhiều thân cây và bụi, nhưng đường đi rõ.
+Ancient Roots: rễ cây lớn, rune và di tích.
+Dungeon: không gian khép kín hơn, ánh sáng tập trung vào vật thể quan trọng.
+Với camera top-down, props ở tiền cảnh không được che người chơi quá nhiều. Có thể sử dụng cơ chế fade hoặc dither vật cản khi cần, nhưng cần thử nghiệm trước khi làm hàng loạt.
+XVII. Thứ tự sản xuất Taurus
+Mình sẽ không giao đội art làm cả 11 loài quái và 3 khu dungeon cùng lúc.
+Thay vào đó, mình chia thành các giai đoạn có thể kiểm thử độc lập.
+P0 — Gameplay Foundation
+Khóa tile scale, kích thước hero, camera, collision, hệ spawn, quest và item reward.
+Làm greybox Willowbrook, C01–C02 và đường từ làng ra đồng cỏ.
+Kiểm tra đánh 5 Slime, nhận đá, nâng cấp T0.
+P1 — Monster Card Tutorial
+Xây NPC Card Master Orin, AI dễ, chế độ duel không cược, deck mượn, hệ hướng dẫn và thưởng chọn Card.
+Kiểm tra cả trường hợp thắng, hòa, thua và ngắt kết nối.
+P2 — Taurus Art Style Lock
+Vẽ concept Willowbrook, Clover Meadows, Clover Slime, Horn Rabbit và Moss Mushroom.
+Đưa vào Unity, kiểm tra màu, kích thước, viền, animation, readability.
+Chỉ sau khi đạt chất lượng mới sản xuất các quái còn lại.
+P3 — Complete Clover Meadows
+Dựng đủ bảy tiểu khu, mười camp, 68 quái.
+Hoàn thành chín loài quái ngoài trời, địa hình, đường đi, cảnh quan, spawn và quest Level 1–9.
+P4 — Ancient Root Shrine
+Dựng ba khu dungeon, hai quái mới, Memory Amber và Elder Root Guardian.
+Triển khai kỹ năng boss, telegraph, quest kết thúc và cutscene 13 chòm sao.
+P5 — Online Playtest
+Kiểm thử nhiều người cùng săn quái, spawn cạnh người chơi, party kill credit, DPS các class, Card Duel, Pet và dungeon.
+Tối ưu mobile, network và hiệu ứng.
+P6 — Taurus Content Lock
+Hoàn thiện NPC, lời thoại, reward, minimap, World Map, audio, UI, hướng dẫn và cân bằng Level 1–10.
+Chỉ chuyển sang sản xuất Gemini khi Taurus đạt các tiêu chí nghiệm thu cốt lõi.
+Phân công theo nhóm
+Nhóm
+	
+Deliverable chính
+Game Design
+	
+Map camp, quái, chỉ số, quest, Card, Pet, boss
+Unity Gameplay
+	
+AI, combat, spawn, quest, dungeon
+Backend
+	
+Reward, kill credit, Card Duel, trạng thái quest
+2D Character Art
+	
+Quái, NPC, boss, animation
+Environment Art
+	
+Làng, đồng cỏ, dungeon, props
+UI/UX
+	
+Quest guide, Card Duel, NPC interaction
+VFX
+	
+Đòn đánh, boss telegraph, Memory Amber
+QA
+	
+Test Level 1–10, multiplayer, exploit
+XVIII. Checklist nghiệm thu Taurus V4.0 — Toàn bộ
+Đây là checklist cuối cùng, gộp cả ba phần World, Monster, Dungeon, Card, Pet, Art và kỹ thuật.
+Taurus Final Acceptance
+0/44
+World & Map
+Willowbrook Village có đủ NPC và hoạt động cơ bản
+Clover Meadows là một map liên tục, không loading giữa các camp
+Có đủ 7 tiểu khu với địa hình phân biệt rõ
+10 camp spawn đúng tổng 68 quái thường
+Đường tân thủ không đi qua camp quái mạnh
+Lối vào Ancient Root Shrine dễ tìm và không bị chắn
+Monster & Combat
+11 loài quái thường có silhouette riêng
+Quái melee và ranged có animation khớp damage
+Leash ngăn kéo quái xuyên nhiều camp
+C01 có Slime phù hợp người chơi Level 1
+TTK các class được kiểm thử, không chỉ Warrior
+Quái và Pet không gây kẹt đường đi quá mức
+Dungeon & Boss
+Ancient Root Shrine có đủ 3 khu
+Quái dungeon spawn đúng theo phiên
+Memory Amber hoạt động và lưu quest flag
+Elder Root Guardian có đầy đủ kỹ năng và telegraph
+Boss được kiểm thử solo với các class
+Chết hoặc ngắt kết nối không làm mất tiến độ bất hợp lý
+New Player Quests
+Người mới có vũ khí và off-hand T0 sẵn
+Đánh 5 Clover Slime nhận đủ Upgrade Stone
+Lần cường hóa hướng dẫn thành công 100%
+Orin giao quest đánh 5 quái hợp lệ
+Orin thưởng đúng 5 Card Common một lần
+Hướng dẫn My Cards / Deck / Album hoạt động
+Card Duel NPC dùng luật 4x4 thật
+Thua Orin được đấu lại không mất bài
+Thắng Orin chọn đúng một Card trong deck thưởng
+Không thể lấy thêm bài bằng reconnect hoặc replay
+Cảnh báo cược Card xuất hiện trước PvP
+Pet & Art
+Lumi giới thiệu Pet ở Level 5
+Horn Rabbit N và Bramble Boar R có nguồn Gacha
+Không tạo yêu cầu bắt Pet ngoài đồng
+Sprite walk và attack đúng ô nguồn
+Nền sprite #FF00FF phẳng tuyệt đối
+Hướng trái flip đúng, không có chi tiết bất đối xứng
+Không vẽ bóng đổ trong sprite
+Boss giữ được độ nét và đúng tỷ lệ
+VFX quái và boss không che nhân vật quá nhiều
+Performance & Release
+Server kiểm soát spawn, damage và reward
+Quest reward chống nhận trùng
+Đông người tại C01 không làm nghẽn tiến độ quest
+Projectile và combat VFX dùng pooling
+Đạt ngưỡng FPS mục tiêu trên thiết bị mobile thử nghiệm
+Hoàn thành main story Taurus và mở tuyến Gemini
+Sao chép checklist
+XIX. Kết luận thiết kế Taurus V4.0
+Mình sẽ coi bản Taurus Production Bible này là đề xuất nền tảng hoàn chỉnh để bắt đầu sản xuất World 01, gồm:
+Hạng mục
+	
+Quy mô
+Khu dân cư
+	
+1 — Willowbrook Village
+Map săn
+	
+1 — Clover Meadows
+Dungeon
+	
+1 — Ancient Root Shrine
+Tiểu khu map săn
+	
+7
+Camp
+	
+10
+Quái thường ngoài map
+	
+68
+Loài quái thường
+	
+11, gồm 2 loài dungeon
+Boss cốt truyện
+	
+1 — Elder Root Guardian
+Monster Card Taurus
+	
+12 lá đề xuất
+Pet phát hành đầu
+	
+Horn Rabbit N, Bramble Boar R
+Hướng dẫn tân thủ
+	
+Chiến đấu, nâng cấp, Card Duel, Pet
+Tuyến truyện
+	
+Willowbrook → Ancient Root Shrine → Gemini
+Có một hạng mục mình chưa đưa vào phạm vi sản xuất bắt buộc: Wanted Boss Verdant Horn. Nó đã có vị trí trong World Bible, nhưng mình muốn làm sau khi boss cốt truyện, hệ combat và bản đồ cộng đồng đã ổn định. Khi triển khai, Verdant Horn sẽ là một sự kiện độc lập, không thay thế Elder Root Guardian.
+Ba điều mình muốn giữ khi bắt đầu làm thật
+Thứ nhất — Chất lượng tân thủ quan trọng hơn số lượng quái. Nếu phải lựa chọn giữa 11 loài có animation trung bình và 7 loài được vẽ đẹp, đánh có lực, AI ổn định, mình sẽ chọn 7 loài tốt trước rồi bổ sung số còn lại.
+Thứ hai — Monster Card phải tạo ra cảm giác chiến thắng ngay trong làng. Chuỗi Orin cần được làm hoàn chỉnh, từ nhận năm lá tới trận đấu đầu tiên và phần thưởng chọn một lá. Đây là điểm khác biệt của Asteria so với những MMORPG chỉ có săn quái, lên cấp và nâng đồ.
+Thứ ba — Ancient Root Shrine phải gieo được bí ẩn cốt truyện. Khi người chơi đánh bại Elder Root Guardian và nhìn thấy ký ức về ngôi sao thứ 13, họ phải cảm thấy thế giới phía trước còn rất nhiều điều cần khám phá.
+Phán quyết cuối cùng: Taurus không cần thật khổng lồ. Nó cần là một vùng đất dễ yêu thích, có hướng dẫn rõ ràng, quái vật có bản sắc, một dungeon đáng nhớ và một kết thúc đủ hấp dẫn để người chơi muốn bước sang Gemini.
+Đến đây, TAURUS PRODUCTION BIBLE V4.0 đã hoàn thành cả 3 phần: World & Monster, Dungeon & Quests, Systems & Production. Đây có thể được sử dụng làm mẫu cấu trúc tài liệu khi thiết kế lần lượt 11 Tinh Vực tiếp theo của Asteria.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

@@ -1,0 +1,493 @@
+ghi rõ quy tắc để mình áp dụng khi vẽ.
+ChatGPT said:
+ASTERIA — GLOBAL ART DIRECTION V1.0
+Quy chuẩn hình ảnh quái vật và môi trường cho 12 Tinh Vực + Forgotten Realm
+I. Quyết định cuối cùng của mình
+Mình chọn phương án: TOÀN GAME GIỮ MỘT PHONG CÁCH CHIBI FANTASY THỐNG NHẤT, nhưng độ dễ thương giảm dần, độ nguy hiểm và mức độ hùng vĩ tăng dần theo hành trình.
+Mình không chọn phương án chỉ Taurus cute, còn các Tinh Vực sau chuyển hẳn sang phong cách quái vật trưởng thành, chân thực hoặc dark fantasy.
+Lý do rất quan trọng: nhân vật của bạn là chibi sprite. Nếu Taurus có Slime đáng yêu, nhưng đến Scorpio quái được vẽ theo tỷ lệ realistic, nhiều chi tiết cơ bắp và texture chân thực, người chơi sẽ có cảm giác hai thế giới được lấy từ hai game khác nhau.
+Ngược lại, nếu cả 13 Tinh Vực đều cute như Taurus thì game sẽ thiếu cảm giác nguy hiểm và trưởng thành. Đến cuối game, người chơi vẫn đánh những con thú tròn trịa mắt to chỉ khác màu, khiến hành trình Level 1–90 kém ấn tượng.
+Giải pháp mình chốt:
+Một ngôn ngữ mỹ thuật xuyên suốt — 13 bản sắc vùng miền — độ nguy hiểm tăng theo tiến trình.
+Mình đặt tên định hướng này là ASTERIA — Soft Adventure to Epic Fantasy.
+Hành trình cảm xúc thị giác
+Early Game
+Cute Adventure
+Taurus → Cancer
+Mid Game
+Heroic Fantasy
+Capricorn → Libra
+Late Game
+Epic Fantasy
+Sagittarius → XIII
+Hình tham khảo về mức độ nguy hiểm và cảm xúc, không phải mẫu thiết kế bắt buộc cho từng con quái.
+Có một điểm mình muốn sửa trong suy nghĩ ban đầu: Không nên chỉ tăng độ gai góc theo Level.
+Quái cuối game không nhất thiết lúc nào cũng có nanh, sừng, gai và khuôn mặt dữ tợn. Một sinh vật ở Pisces có thể rất thanh thoát, đẹp và buồn, nhưng vẫn khiến người chơi cảm thấy nó mạnh hơn quái Taurus rất nhiều.
+Sự trưởng thành về mỹ thuật nên đến từ hình thể, quy mô, vật liệu, sức nặng và tính huyền bí, không chỉ từ vẻ hung dữ.
+II. Sáu quy tắc mỹ thuật bất biến toàn game
+Các quy tắc này mình muốn áp dụng cho toàn bộ 13 Tinh Vực.
+Thành phần
+	
+Quy chuẩn toàn Asteria
+Phong cách
+	
+2D hand-painted, stylized fantasy, chibi-compatible
+Đường viền
+	
+Nâu đậm hoặc màu tối cùng họ với vật liệu; không viền đen gắt
+Đổ bóng
+	
+Cel shading mềm, 2–3 vùng sáng tối chính
+Tỷ lệ
+	
+Cách điệu, khối lớn, silhouette rõ; không chuyển sang anatomy realistic
+Góc nhìn
+	
+Top-down 3/4 thống nhất với camera game
+Khả năng đọc
+	
+Quái, nhân vật, kỹ năng phải nổi bật trên nền map ở kích thước chơi thật
+Quy tắc về đầu và mắt
+Mình không khóa tất cả quái ở tỷ lệ 2,5 đầu như nhân vật chibi. Một con Slime, sói, rắn hoặc Golem có cấu trúc giải phẫu hoàn toàn khác nhau.
+Thay vào đó:
+Quái cute: đầu hoặc vùng mặt lớn, mắt tròn, chi ngắn.
+Quái trung cấp: đầu nhỏ tương đối, cơ thể chắc hơn, mắt ít chiếm diện tích mặt.
+Quái nguy hiểm: đầu và mắt nhỏ hơn về tỷ lệ, vai hoặc thân lớn, chi hoặc vũ khí có hình dáng rõ rệt.
+Boss cuối game: có thể sở hữu thân hình đồ sộ, đầu nhỏ, cánh hoặc sừng lớn, nhưng vẫn giữ hình khối cách điệu.
+Đầu nhỏ hơn không có nghĩa là phải realistic. Đây là ranh giới mình muốn giữ.
+Quy tắc về chi tiết
+Quái càng cao cấp có thể có nhiều chi tiết hơn, nhưng không có nghĩa càng lên Level càng vẽ nhiều đường nét nhỏ.
+Ở kích thước game thật, một quái Lv 90 vẫn phải có thể nhận diện qua khoảng ba đặc điểm lớn: hình thể, màu chủ đạo và một chi tiết biểu tượng.
+III. Bảng phong cách chính thức cho 13 Tinh Vực
+Mình dùng hai thang để kiểm soát cảm xúc mỹ thuật:
+Cute: 10 = rất đáng yêu như Clover Slime; 1 = gần như không đáng yêu.
+Threat: 10 = cực kỳ đáng sợ/hùng vĩ; 1 = vô hại.
+Đây là điểm định hướng art, không phải chỉ số gameplay.
+Tinh Vực
+	
+Cute /10
+	
+Threat /10
+	
+Art direction quái
+♉ Taurus
+	
+9
+	
+2
+	
+Tròn, mềm, đáng yêu
+♊ Gemini
+	
+8
+	
+4
+	
+Đẹp, lạ, huyền bí
+♋ Cancer
+	
+7
+	
+4
+	
+Sinh vật biển dễ thương, giáp cứng
+♑ Capricorn
+	
+6
+	
+6
+	
+Lạnh, sắc, chắc khỏe
+♍ Virgo
+	
+7
+	
+5
+	
+Thanh lịch, thiên nhiên thần bí
+♎ Libra
+	
+5
+	
+6
+	
+Máy móc, giáp, trang nghiêm
+♐ Sagittarius
+	
+5
+	
+7
+	
+Hoang dã, nhanh, mạnh mẽ
+♏ Scorpio
+	
+3
+	
+8
+	
+Nguy hiểm, gai, độc, u ám
+♈ Aries
+	
+3
+	
+9
+	
+Hung mãnh, chiến tranh, dung nham
+♌ Leo
+	
+4
+	
+9
+	
+Uy nghi, hoàng gia, quyền lực
+♒ Aquarius
+	
+5
+	
+8
+	
+Siêu nhiên, cơ khí cổ, thiên giới
+♓ Pisces
+	
+5
+	
+8
+	
+Đẹp kỳ ảo, linh hồn, bí ẩn
+✦ XIII
+	
+2
+	
+10
+	
+Siêu thực, cổ xưa, vượt hiểu biết
+Xu hướng cảm xúc qua 13 Tinh Vực
+Cute
+Threat
+0
+2.5
+5
+7.5
+10
+Taurus
+Gemini
+Capricorn
+Virgo
+Libra
+Scorpio
+Aries
+Leo
+Pisces
+XIII
+Taurus: Cute 9, Threat 2
+Gemini: Cute 8, Threat 4
+Cancer: Cute 7, Threat 4
+Capricorn: Cute 6, Threat 6
+Virgo: Cute 7, Threat 5
+Libra: Cute 5, Threat 6
+Sagittarius: Cute 5, Threat 7
+Scorpio: Cute 3, Threat 8
+Aries: Cute 3, Threat 9
+Leo: Cute 4, Threat 9
+Aquarius: Cute 5, Threat 8
+Pisces: Cute 5, Threat 8
+XIII: Cute 2, Threat 10
+Điểm định hướng art, không phải dữ liệu đo lường
+Đường này không tăng giảm đều tuyệt đối là có chủ đích.
+Virgo sẽ mềm mại, dịu dàng hơn Capricorn dù là vùng cấp cao hơn. Pisces sẽ đẹp và mộng mị chứ không kinh dị như Scorpio. Leo tạo cảm giác quyền lực hơn là hung ác.
+Nhờ vậy, mỗi Tinh Vực có cảm xúc riêng thay vì cả game chỉ chuyển dần từ đáng yêu sang đáng sợ.
+IV. Art Direction từng Tinh Vực
+Giai đoạn 1 — Cute Adventure
+♉ 01. Taurus — Verdant Meadows
+Cute 9/10 · Threat 2/10
+Quái: Thân tròn, má phúng phính, mắt lớn, chân nhỏ. Các loài như Clover Slime, Horn Rabbit, Moss Mushroom phải cực kỳ dễ thương.
+Map: Đồng cỏ xanh ô-liu, nhà gỗ mật ong, hoa trắng, suối xanh nhạt, rừng thưa. Màu sáng, ấm.
+Boss: Brambleback Matriarch to và dữ hơn, nhưng vẫn là thú rừng chibi. Elder Root Guardian hùng vĩ hơn nhưng không kinh dị.
+♊ 02. Gemini — Mirrorwood
+Cute 8/10 · Threat 4/10
+Quái: Vẫn đáng yêu, nhưng bắt đầu có những hình dạng bất thường: đôi mắt phát sáng, cánh thủy tinh, đuôi phản chiếu, những bộ phận trong suốt.
+Map: Rừng xanh lam, tím oải hương, nước hồ như gương, cây mọc đối xứng.
+Boss: Mirrorfang có thân sói khỏe, mặt nghiêm và các mảnh phản chiếu quanh cơ thể. Không biến thành sói realistic.
+♋ 03. Cancer — Moonlit Coast
+Cute 7/10 · Threat 4/10
+Quái: Vỏ sò, mai cua, san hô và sinh vật biển mềm. Dáng vẫn tròn nhưng lớp vỏ cứng tạo sự chắc chắn.
+Map: Biển xanh ngọc, cát vàng kem, san hô hồng, ánh trăng bạc, làng cảng ấm áp.
+Boss: Mooncarapace có mai lớn, giáp dày và càng khỏe. Cảm giác cổ đại, kiên cố hơn là hung dữ.
+Giai đoạn 2 — Heroic Fantasy
+♑ 04. Capricorn — Frostbound Peaks
+Cute 6/10 · Threat 6/10
+Quái: Bắt đầu sắc hơn rõ rệt. Sói có lông nhọn thành mảng lớn; Golem có khối tinh thể góc cạnh; Goblin mặc giáp lông thú.
+Map: Tuyết xanh xám, thông đậm, vách băng, tinh thể cyan. Giảm cảm giác pastel so với Taurus.
+Boss: Glacial Colossus cao lớn, vai rộng và tay băng nặng. Rimeclaw Tyrant trông như thú săn mồi mạnh mẽ, không phải thú cưng.
+♍ 05. Virgo — Sacred Grove
+Cute 7/10 · Threat 5/10
+Quái: Thanh lịch, tinh khiết, mang nét đẹp thần thoại. Hươu sừng lá, linh hồn hoa, Treant cổ đại. Mắt hiền hơn nhưng thần thái trang nghiêm.
+Map: Xanh ngọc rừng sâu, ánh vàng xuyên tán cây, hoa trắng, suối trong và gỗ cổ.
+Boss: Weeping Dryad đẹp và buồn, sử dụng những cánh rễ lớn, không cần mặt dữ hoặc nhiều gai.
+♎ 06. Libra — Luminous Citadel
+Cute 5/10 · Threat 6/10
+Quái: Dáng chắc, khớp máy lớn, kim loại, rune. Ít biểu cảm đáng yêu; thay bằng cảm giác nghiêm nghị và chính xác.
+Map: Đá ngà, đồng vàng cổ, thép xám ấm, kính màu, cơ khí, thư viện lớn.
+Boss: Aegis Arbiter có giáp lớn và cấu trúc cân xứng, mang hình ảnh một phán quan chứ không phải robot khoa học viễn tưởng hiện đại.
+Giai đoạn 3 — Wild & Epic Fantasy
+♐ 07. Sagittarius — Skywind Plains
+Cute 5/10 · Threat 7/10
+Quái: Thân thon, chân dài, cơ bắp cách điệu, lông hoặc cánh hướng theo gió. Tạo cảm giác tốc độ.
+Map: Cỏ vàng ô-liu, vách đá đỏ nâu, trời xanh lớn, đường mòn và cầu treo.
+Boss: Stormhoof Centaur có chân khỏe, vai rộng, cung lớn và bờm tung gió. Phong cách anh hùng, không kinh dị.
+♏ 08. Scorpio — Umbral Depths
+Cute 3/10 · Threat 8/10
+Quái: Nhiều khớp, gai độc, chân nhọn, giáp côn trùng. Mắt nhỏ phát sáng, răng và nọc rõ.
+Map: Xanh rêu sẫm, tím mận, nước độc olive, sương tím nhạt và di tích mục nát.
+Boss: Mire Hydra Queen có nhiều cổ rắn lớn, đầu sắc nhưng vẫn cách điệu, không sử dụng kinh dị máu me hoặc texture sinh học chân thực.
+♈ 09. Aries — Ember Highlands
+Cute 3/10 · Threat 9/10
+Quái: Thân nặng, sừng lớn, giáp nham thạch, móng vuốt hoặc tay đá. Silhouette có sức mạnh và lực va chạm.
+Map: Đá đen nâu, tro xám, dung nham cam đỏ, kiến trúc chiến binh cổ.
+Boss: Infernal Ram phải có cảm giác cực nặng và hung mãnh, nhưng chất liệu dung nham vẫn vẽ thành những khối lớn, không giống hiệu ứng ảnh thực.
+♌ 10. Leo — Suncrest Kingdom
+Cute 4/10 · Threat 9/10
+Quái: Hoàng gia, cân đối, kiêu hãnh. Giáp vàng, sừng hoặc bờm tạo hình vương miện.
+Map: Cát vàng đất, đá sa thạch, vàng cổ, xanh ngọc của ốc đảo; cung điện sáng chứ không tối tăm.
+Boss: Solarius là Sư Vương uy nghi. Khuôn mặt nghiêm và tự tin, không cần trông như quái vật độc ác.
+Giai đoạn 4 — Mythic Fantasy
+♒ 11. Aquarius — Astral Isles
+Cute 5/10 · Threat 8/10
+Quái: Pha trộn sinh vật với cơ khí cổ, pha lê và năng lượng thiên giới. Hình thể thanh thoát, không nhất thiết dữ.
+Map: Mây ngà, xanh trời, cyan dịu, pha lê và đồng cổ. Giữ cảm giác sáng, kỳ diệu.
+Boss: Aether Leviathan có cơ thể lớn, những vây hoặc cánh như công trình kiến trúc bay. Tạo sự choáng ngợp bằng quy mô.
+♓ 12. Pisces — Dreamsea
+Cute 5/10 · Threat 8/10
+Quái: Đẹp, buồn, phát sáng, hình thể giống sinh vật biển hòa cùng linh hồn. Có thể có mắt rất nhỏ hoặc khuôn mặt như mặt nạ.
+Map: Xanh lam đêm, tím oải hương, bạc, cyan phát sáng và biển phản chiếu sao.
+Boss: Noctilume Seraph phải đẹp và linh thiêng hơn là hung dữ. Cảm giác đối mặt với một thực thể cổ đại.
+✦ XIII — The Forgotten Realm
+Cute 2/10 · Threat 10/10
+Quái: Thực thể bị xóa khỏi ký ức. Giáp và cơ thể bị chia thành những khối lơ lửng; hình thể không tự nhiên nhưng silhouette vẫn đọc được.
+Map: Đá ngà vỡ, vàng cổ nhạt, tím không gian, đen xanh và ánh sao.
+Final Boss Aurelion: Không chuyển sang một phong cách realistic khác. Thiết kế phải đủ hùng vĩ, siêu thực nhưng vẫn thuộc Asteria.
+Quy tắc mình muốn giữ: Mỗi Tinh Vực có thể thay đổi hình khối, màu sắc, vật liệu và mức độ nguy hiểm, nhưng không được thay đổi cách vẽ nền tảng.
+Ví dụ, đường viền và chất liệu của quái Scorpio vẫn phải tương thích với Clover Slime Taurus, dù hai con có cảm xúc rất khác nhau.
+V. Quy tắc riêng cho quái thường, Field Boss, Dungeon Boss và Wanted Boss
+Không nên dùng cùng một tỷ lệ cute/threat cho mọi sinh vật trong một vùng.
+Một vùng có thể có quái bé dễ thương và boss cực kỳ nguy hiểm. Chính sự tương phản đó giúp thế giới sống động.
+Loại
+	
+Hình thể
+	
+Mức độ nguy hiểm so với vùng
+Quái thường nhỏ
+	
+Đơn giản, có thể cute
+	
+Chuẩn của vùng
+Quái thường mạnh
+	
+Thân chắc, chi tiết mạnh hơn
+	
++1 Threat
+Field Boss
+	
+Hình thể lớn, đặc điểm đầu đàn
+	
++2 Threat
+Dungeon Boss
+	
+Mang dấu hiệu kiến trúc, sức mạnh cổ
+	
++2 đến +3 Threat
+Wanted Boss
+	
+Hoành tráng, nhiều đặc điểm độc đáo
+	
++3 Threat, tối đa 10
+Đây là hướng dẫn diễn đạt cảm xúc; không cần cộng điểm máy móc cho tất cả boss.
+Ví dụ trong Taurus:
+Clover Slime
+Threat 1–2
+Brambleback Matriarch
+Threat 5–6
+Elder Root Guardian
+Threat 7
+Vậy Taurus vẫn là Tinh Vực cute, nhưng boss của nó không nhất thiết cute như quái thường.
+Tương tự, Scorpio có thể có một con Poison Slime hơi đáng yêu giữa đầm lầy nguy hiểm. Pisces có Dream Jelly đẹp và hiền hòa. Những sinh vật như vậy còn rất có giá trị để làm Pet và Monster Card.
+VI. Quy tắc sản xuất sprite thống nhất toàn game
+1. Bộ quy chuẩn không thay đổi theo Tinh Vực
+Hạng mục
+	
+Quy định
+View
+	
+Top-down 3/4
+Walk
+	
+4×4, ô 192×192 px
+Attack
+	
+4×4, ô 256×256 px
+Hướng
+	
+Front, Back, Right, Left bằng flip
+Nền nguồn
+	
+#FF00FF phẳng, không gradient
+Shadow
+	
+Không vẽ vào sprite
+Viền
+	
+Nâu đậm mềm, thay sắc độ theo vật liệu
+Cel shading
+	
+2–3 cấp chính
+Highlight
+	
+Ánh sáng cơ bản từ trên-trái
+Pivot
+	
+Giữa chân, nhất quán giữa frame
+Frame spacing
+	
+Không chạm biên ô hay mép ảnh
+Bất đối xứng
+	
+Không có đặc điểm quan trọng chỉ nằm một bên
+Quan trọng: Không vẽ quái Taurus theo góc top-down 3/4 rồi đến Scorpio đổi sang góc ngang hoặc chính diện nhiều hơn. Camera và cách biểu diễn khối phải nhất quán.
+Đối với quái bay, sử dụng pivot tại vị trí chiếu xuống mặt đất và render shadow riêng dưới vật thể, không đưa bóng vào sheet.
+Boss quá lớn được phép sử dụng cell nguồn lớn hơn để giữ độ nét, nhưng giữ cùng cách vẽ và góc nhìn.
+2. Tỷ lệ thân và độ chi tiết
+Mình đề xuất ba nhóm hình thái:
+Nhóm
+	
+Tỷ lệ thị giác
+	
+Ví dụ
+Soft Chibi
+	
+Đầu/mặt lớn, thân tròn, chân ngắn
+	
+Clover Slime, Horn Rabbit
+Adventure Stylized
+	
+Thân cân đối hơn, mắt nhỏ, chi rõ
+	
+Rime Wolf, Prairie Wolf
+Epic Stylized
+	
+Cơ thể lớn, khối mạnh, chi tiết cổ đại
+	
+Infernal Ram, Aether Leviathan
+Đây là ba mức trong cùng một phong cách, không phải ba bộ style riêng.
+Quy tắc silhouette
+Mỗi quái nên có:
+Một hình khối tổng thể dễ nhận ra.
+Một đặc điểm nhận diện lớn: sừng, mũ nấm, vỏ giáp, cánh, đuôi hoặc lõi năng lượng.
+Tối đa vài cụm chi tiết phụ đáng chú ý, không phủ đầy hoa văn nhỏ.
+Điểm yếu hoặc vị trí mặt vẫn đọc được khi thu nhỏ.
+Với quái cuối game, mình ưu tiên tăng độ mạnh của silhouette, không tăng số lượng nét vẽ vô hạn.
+3. Màu sắc và tương phản với map
+Đây là quy tắc mình muốn kiểm soát đặc biệt nghiêm ngặt.
+Ví dụ:
+Clover Slime xanh lá phải sáng hoặc khác sắc độ rõ so với cỏ Taurus.
+Frost Slime xanh lam cần có viền và vùng tối khác biệt trên nền băng Capricorn.
+Poison Slime tím/xanh độc không được chìm vào đầm lầy Scorpio.
+Ember Imp đỏ cam phải có viền tối và vùng thân đủ rõ trước dung nham Aries.
+Dream Jelly phát sáng phải có vùng lõi rõ trên mặt biển mộng Pisces.
+Không giải quyết việc quái bị chìm bằng cách tăng saturation và Bloom liên tục.
+Thứ tự ưu tiên của mình là: silhouette → tương phản sáng tối → màu sắc → viền → hiệu ứng.
+Kiểm thử bắt buộc
+Đưa từng quái vào map thật, chụp ở mức zoom mặc định và zoom xa nhất. Sau đó kiểm tra ba điều:
+Có nhìn ra quái ngay khi không thấy thanh HP không?
+Có phân biệt được loài quái với Pet và nhân vật không?
+Khi có kỹ năng Warrior hoặc Wizard che một phần màn hình, có còn đọc được vị trí và hướng đòn đánh không?
+Nếu không đạt, sửa hình khối hoặc tương phản trước khi thêm VFX.
+VII. Art Prompt chuẩn để áp dụng cho mọi lần vẽ
+Mình đề xuất dùng một phần cố định cho tất cả yêu cầu vẽ quái, sau đó thêm phần riêng của từng Tinh Vực.
+GLOBAL MONSTER ART LOCK
+Sao chép
+Stylized hand-painted chibi-compatible fantasy RPG monster, RO Soft Adventure visual language, bold readable silhouette, soft dark-brown outlines, 2–3 step cel shading, simplified anatomy, clear features at small in-game scale, consistent top-down 3/4 view, no photorealism, no gritty texture, no excessive microdetail, symmetrical left/right design for sprite mirroring.
+Sprite constraints: Flat solid #FF00FF background, no shadow, no text, no checkerboard, nothing touches cell or image borders.
+Sau đoạn này, thêm hướng riêng, chẳng hạn:
+Taurus:
+Cute 9/10, soft rounded anatomy, large gentle eyes, warm meadow palette, short limbs, friendly expression, simple details.
+Scorpio:
+Cute 3/10, Threat 8/10, angular stylized anatomy, sharp thorn and venom shapes, small glowing eyes, deep olive and violet palette, ominous but not realistic.
+Pisces:
+Cute 5/10, Threat 8/10, elegant flowing silhouette, dreamlike aquatic spirit anatomy, soft violet and teal materials, ancient mysterious expression, translucent magical accents, not horror.
+Forgotten Realm:
+Cute 2/10, Threat 10/10, mythic stylized celestial anatomy, fragmented floating armor, restrained ivory and antique gold, dark cosmic void accents, powerful readable silhouette, no realistic anatomy or hyper-detailed textures.
+Khi vẽ sprite sheet, thêm chính xác số hàng, số cột, ô nguồn, thứ tự hướng và hành động. Đoạn Global Art Lock không thay thế production spec của từng loài.
+VIII. Quy tắc map phải đi cùng quái
+Một lỗi mình muốn tránh là quái cuối game tối và nhiều chi tiết, map cuối game cũng tối và nhiều chi tiết, khiến người chơi không nhìn thấy gì khi combat.
+Vì vậy mình chia map thành ba lớp thị giác:
+Lớp
+	
+Vai trò
+	
+Mức độ chi tiết
+Ground
+	
+Nền để đọc nhân vật, quái, VFX
+	
+Thấp nhất
+Props & Architecture
+	
+Tạo bản sắc thế giới
+	
+Trung bình
+Characters, Monsters & Combat
+	
+Chủ thể gameplay
+	
+Rõ nhất
+Đây là quy tắc xuyên suốt, từ Taurus đến XIII.
+Map cuối game có thể phức tạp về kiến trúc, ánh sáng và hình dáng vật thể, nhưng vùng mặt đất nơi diễn ra chiến đấu luôn phải được làm sạch thị giác.
+Mình cũng muốn giữ các nguyên tắc về bóng: ánh sáng môi trường có định hướng tương đối nhất quán trong một map; bóng nhân vật, quái và cây được Unity xử lý, không được vẽ sẵn vào sprite quái. Với map đêm hoặc dungeon, vẫn cần ánh sáng phụ đủ để đọc combat.
+IX. Art Approval — Chấm điểm trước khi đưa vào game
+Mình đề xuất mỗi quái mới được chấm trên thang 100, theo cùng một bộ tiêu chí, bất kể thuộc Tinh Vực nào.
+Tiêu chí
+	
+Điểm tối đa
+Đúng phong cách Asteria, không bị lạc style
+	
+25
+Silhouette rõ ở kích thước in-game
+	
+20
+Đúng bản sắc Tinh Vực
+	
+15
+Tương phản với map và VFX
+	
+15
+Chuyển động, anatomy, bốn hướng nhất quán
+	
+15
+Đúng yêu cầu kỹ thuật sprite
+	
+10
+Tổng
+	
+100
+Ngưỡng duyệt đề xuất: 85/100, đồng thời không được có lỗi nghiêm trọng về nền magenta, lật trái/phải, kích thước hoặc clipping. Một sprite đẹp 92 điểm nhưng chạm biên frame vẫn phải sửa trước khi import.
+Quy trình duyệt
+Khóa concept: Front + Right + Back, silhouette và palette.
+Đặt thử trong map: Kiểm tra kích thước thật, màu sắc và tương phản với hero.
+Vẽ walk sheet: Kiểm tra cả bốn hướng, pivot, chu kỳ đi và flip.
+Vẽ attack sheet: Kiểm tra lực, timing, hướng đánh, hit moment.
+Kiểm thử combat: Đặt cùng nhiều quái, người chơi, Pet và VFX.
+Approve: Mới đưa vào bộ asset chính thức của Tinh Vực.
+X. Kết luận — Phong cách mình chốt cho Asteria
+Toàn bộ 13 Tinh Vực dùng một art style duy nhất: ASTERIA Soft Adventure → Epic Fantasy.
+Taurus cực kỳ cute, giữ nguyên hướng Clover Slime, Horn Rabbit, Moss Mushroom đang vẽ.
+Gemini và Cancer vẫn đáng yêu nhưng bắt đầu kỳ ảo hơn.
+Capricorn, Virgo, Libra chuyển sang fantasy trưởng thành, sinh vật chắc khỏe hoặc trang nghiêm.
+Sagittarius, Scorpio, Aries và Leo tăng độ mạnh, sức nặng và sự nguy hiểm.
+Aquarius và Pisces chuyển sang cảm giác thần thoại, đẹp và siêu nhiên.
+The Forgotten Realm đạt mức Epic Fantasy cao nhất, siêu thực nhưng vẫn thống nhất với nhân vật chibi của game.
+Quy tắc quan trọng nhất mình muốn bạn áp dụng khi vẽ là:
+Quái vật có thể ngày càng hung dữ, hùng vĩ, cổ đại hoặc siêu thực, nhưng tuyệt đối không được trở nên realistic hơn. Chúng phải giống những sinh vật nguy hiểm trong cùng một thế giới chibi fantasy, chứ không giống quái vật từ một game khác.
+Đây sẽ là Global Art Direction V1.0 của Asteria, dùng làm tiêu chuẩn cho toàn bộ map, quái thường, Field Boss, Dungeon Boss, Wanted Boss và cả Pet sau này.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

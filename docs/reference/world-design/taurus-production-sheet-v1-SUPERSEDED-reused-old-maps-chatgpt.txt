@@ -1,0 +1,1148 @@
+thì ghi rõ là tính năng mới.
+…
+Show more
+ChatGPT said:
+TAURUS — MONSTER & MAP PRODUCTION SHEET V1.0
+Asteria · Tinh Vực Kim Ngưu · Level 1–14 · Unity 2D Online RPG
+Đề xuất sản xuất V1
+Mình sẽ giữ nguyên cấu trúc map thực tế của bạn, nhưng thiết kế lại hệ sinh thái quái vật, phân bố camp, phần thưởng, chuỗi nhiệm vụ và hướng mỹ thuật để Taurus trở thành một vùng mở đầu hoàn chỉnh.
+Quyết định lớn: Không thêm map mới, không thay đổi vũ khí T0 khởi đầu, không bắt người chơi thu phục Pet ngoài đồng, không biến quái thường thành những mini-boss có hàng loạt cơ chế phức tạp.
+Thay vào đó, mình sẽ tập trung vào ba cảm giác mà Taurus cần mang lại:
+Lv 1–5: Đồng cỏ ấm áp, quái đáng yêu, học chiến đấu và Monster Card.
+Lv 6–10: Rừng trở nên nguy hiểm, bắt đầu có quái phối hợp cận chiến và tầm xa.
+Lv 10–14: Khám phá Rootburrow, gặp những sinh vật cổ đại, lần đầu tiếp xúc với bí mật ký ức thế giới.
+I. Cấu trúc Taurus chính thức
+Oakhaven Village
+36×24 ô · Safe Zone · Elder Thomas · Card Master Orin
+Cổng Nam
+Cổng Đông → Thatchwick → Frost Hollow
+Willowbrook Meadows
+72×48 ô · Lv 1–5 · 11 camp · 70 quái
+Bramblewood Forest
+36×24 ô · Lv 6–10 · Thornfang Alpha
+Rootburrow Dungeon
+3 tầng · Lv 6–14 · Ambercap Warden
+Nhánh Thornheart Chamber · Thornheart Treant Lv 10
+Sơ đồ giữ đúng kết nối hiện có. Các con số dưới đây là mục tiêu thiết kế và cần được kiểm thử, không phải thông số đã có sẵn trong build.
+Những gì giữ và những gì thay đổi
+Hạng mục
+	
+Quyết định
+Oakhaven Village
+	
+Giữ tên, kích thước và hai cổng
+Willowbrook Meadows
+	
+Giữ tên, 72×48, suối, hồ, cầu, di tích
+Bramblewood Forest
+	
+Giữ tên, 36×24, bốn loài quái
+Rootburrow
+	
+Giữ 3 tầng và hai boss
+meadowSlime, hornRabbit, thornBoar
+	
+Giữ ID quái, vẽ lại art
+meadowMantis, forestWolf, brambleTreant, thornSprite
+	
+Giữ ID, điều chỉnh vai trò chiến đấu
+AI cận chiến và bắn đạn
+	
+Ưu tiên tái sử dụng
+Pet Gacha
+	
+Giữ hornRabbit N và thornBoar R
+Monster Card
+	
+Giữ bộ 40 lá, luật 4×4
+Quái mới
+	
+Không thêm quái thường bắt buộc cho V1
+Elite
+	
+Chưa triển khai trong V1
+Đòn lao, telegraph thường
+	
+Không bắt buộc trong V1
+Có một điểm dữ liệu cần sửa: bạn ghi Willowbrook có 11 cụm, nhưng số cụm từng loài là 2 + 4 + 6 = 12. Mình sẽ lấy tổng 11 cụm làm giới hạn đã chốt, giữ 2 cụm Slime, 4 cụm Rabbit và giảm Boar xuống 5 cụm. Tổng quái vẫn là 70.
+II. Willowbrook Meadows — Main Hunting Map
+72×48 ô · 11 camp · 70 quái Lv 1–5
+1. Art direction
+7
+Mình đề xuất giữ tinh thần RO Soft Adventure: cỏ xanh ô-liu sáng vừa, đường đất vàng kem, đá xám ấm, cây xanh nhiều sắc độ và các điểm nhấn hoa nhỏ.
+Ba phân khu môi trường chính:
+Đồng cỏ phía nam: thoáng, sáng, ít vật cản, dành cho Lv 1–3.
+Ven suối và hồ trung tâm: cầu gỗ, bụi cây, các bãi Rabbit, tạo điểm khám phá.
+Rìa rừng và di tích phía bắc/đông bắc: bóng cây dày hơn, bụi gai, Boar Lv 5, cảm giác nguy hiểm tăng dần.
+Giữ suối chéo, hồ, cầu gỗ và di tích đông bắc làm các mốc định vị. Không cần thêm nhiều landmark khiến map bị rối.
+2. Phân bố 11 camp
+Đây là cấu hình mình đề xuất để đúng 70 quái tồn tại tối đa cùng lúc.
+Camp
+	
+Vị trí đề xuất
+	
+Quái
+	
+Lv
+	
+Số con
+	
+Respawn
+S1
+	
+Ngay ngoài cổng bắc của Willowbrook, tức phía giáp Oakhaven
+	
+meadowSlime
+	
+1
+	
+7
+	
+12 giây
+S2
+	
+Đồng cỏ tây nam
+	
+meadowSlime
+	
+1
+	
+7
+	
+12 giây
+R1
+	
+Đồng cỏ gần Slime
+	
+hornRabbit
+	
+3
+	
+7
+	
+18 giây
+R2
+	
+Ven suối phía tây
+	
+hornRabbit
+	
+3
+	
+7
+	
+18 giây
+R3
+	
+Khu hồ và cầu gỗ
+	
+hornRabbit
+	
+3
+	
+7
+	
+18 giây
+R4
+	
+Đồng cỏ phía đông
+	
+hornRabbit
+	
+3
+	
+7
+	
+18 giây
+B1
+	
+Rìa rừng tây
+	
+thornBoar
+	
+5
+	
+6
+	
+25 giây
+B2
+	
+Bụi gai tây bắc
+	
+thornBoar
+	
+5
+	
+6
+	
+25 giây
+B3
+	
+Đồi đông
+	
+thornBoar
+	
+5
+	
+6
+	
+25 giây
+B4
+	
+Gần di tích đông bắc
+	
+thornBoar
+	
+5
+	
+5
+	
+25 giây
+B5
+	
+Rìa rừng phía nam, gần hướng Bramblewood nhưng tránh trục đường chính
+	
+thornBoar
+	
+5
+	
+5
+	
+25 giây
+Tổng
+				
+70
+	
+Respawn tính từ khi quái chết; các mốc là số đề xuất ban đầu. Với bản đồ 70 quái, cần kiểm thử tốc độ tiêu diệt và mật độ người chơi trước khi chốt.
+Cơ cấu quái Willowbrook
+Slime 14
+Rabbit 28
+Boar 28
+Bố trí Boar ở ngoại vi để người chơi mới không bị tấn công bất ngờ trên đường làm nhiệm vụ. Nếu đây là map PK hoặc có nhiều người farm, cần giữ hành lang từ Oakhaven tới camp S1 đủ an toàn.
+3. Sơ đồ vị trí camp — Willowbrook
+S: Slime
+R: Rabbit
+B: Boar
+Sơ đồ top-down biểu diễn phân vùng tương đối, không thay thế bản đồ tile thực tế. Khi đặt spawn cần căn lại theo đường đi, suối và vị trí công trình trong scene hiện có.
+Mình ưu tiên an toàn ở trục đường chính, còn Boar mạnh nằm ở mép bản đồ. S1 là nơi trả nhiệm vụ đánh quái đầu tiên nên phải dễ tìm, đủ chỗ cho nhiều nhân vật cùng săn và không có vật cản gây kẹt auto-attack.
+III. Monster Production Sheet — Willowbrook
+1. meadowSlime — Clover Slime
+MON-W01 · LV 1
+Clover Slime
+Quái hướng dẫn
+Giữ ID meadowSlime. Thiết kế mới thân thạch xanh cỏ, dáng tròn dẹt, hai mắt lớn và một mầm cỏ nhỏ nằm chính giữa đỉnh đầu.
+Màu gợi ý: xanh #83BD75, highlight #C5E4A5, viền nâu #594B3B.
+Thuộc tính
+	
+Spec
+Chiều cao hiển thị
+	
+0,55H
+Phân loại
+	
+Quái thường
+AI
+	
+Cận chiến, aggro và leash hiện có
+Đòn đánh
+	
+Nảy người về phía trước, tiếp xúc mục tiêu
+Tốc độ đánh mục tiêu
+	
+2,0 giây/lần
+Sát thương
+	
+Thấp nhất vùng
+Card
+	
+N / Common
+Pet
+	
+Không thêm Pet mới ở V1
+Camp
+	
+S1, S2
+Respawn
+	
+12 giây
+H là chiều cao nhân vật người chơi trong game.
+Animation: idle 4 frame, walk 4 frame mỗi hướng, attack 4 frame, hit flash dùng shader hiện có. Không cần kỹ năng đặc biệt.
+Đặc điểm: Không chủ động đuổi người chơi từ quá xa. Quái đầu tiên phải giúp người chơi tập trung vào cảm giác đánh trúng mục tiêu, không cần né phức tạp.
+2. hornRabbit — Horn Rabbit
+MON-W02 · LV 3
+Horn Rabbit
+Pet N hiện có
+Thỏ màu kem, tai lớn cân đối, một sừng ngắn ở chính giữa trán. Hai chân sau khỏe, thân tròn dễ thương.
+Màu: kem #E9D2A8, nâu tai #B88C73, sừng #D9BC76.
+Thuộc tính
+	
+Spec
+Chiều cao
+	
+0,72H, tính cả tai
+AI
+	
+Cận chiến hiện có
+Đòn đánh
+	
+Nhảy tại chỗ và húc sừng
+Tốc độ đánh
+	
+1,7 giây/lần
+Sát thương
+	
+Thấp
+Card
+	
+N / Common
+Pet
+	
+Horn Rabbit N, giữ trong Gacha
+Camp
+	
+R1–R4
+Respawn
+	
+18 giây
+Không làm đòn lao thực sự ở V1. Animation có thể tạo cảm giác húc bằng squash/stretch và dịch chuyển hình ảnh rất ngắn, nhưng hitbox cùng xử lý server vẫn theo đòn đánh cận chiến hiện có.
+Không làm sừng cong một bên hoặc có phụ kiện một bên tai, vì hướng trái cần lật từ hướng phải.
+3. thornBoar — Thorn Boar
+MON-W03 · LV 5
+Thorn Boar
+Pet R hiện có
+Heo rừng nâu đỏ, lông gáy mọc như gai lá, hai nanh lớn cân xứng, dáng thấp và nặng.
+Màu: nâu #9B6D50, gai xanh #66864D, bụng #C3A07A.
+Thuộc tính
+	
+Spec
+Chiều cao
+	
+0,85H
+Chiều rộng
+	
+1,05H
+AI
+	
+Cận chiến hiện có
+Đòn đánh
+	
+Hạ đầu, húc tại khoảng đánh
+Tốc độ đánh
+	
+2,2 giây/lần
+Sát thương
+	
+Trung bình của Willowbrook
+Card
+	
+R / Rare đề xuất
+Pet
+	
+Thorn Boar R, giữ Gacha
+Camp
+	
+B1–B5
+Respawn
+	
+25 giây
+Không cần Elite hay Charge Attack. Chỉ cần nhịp chuẩn bị húc khoảng 0,25 giây trong animation để người chơi đọc được đòn.
+Các bụi gai trên lưng chỉ làm hiệu ứng thị giác, không gây sát thương tiếp xúc bổ sung.
+Lưu ý Monster Card
+Ba loại Card trên là đề xuất phân loại trong bộ sưu tập. Nếu trong 40 lá hiện có đã có rarity và bốn chỉ số riêng, giữ nguyên dữ liệu thật, không tự ý đổi thornBoar thành Rare hoặc tăng sức mạnh Card chỉ vì quái có Level 5.
+IV. Bramblewood Forest — Monster & Camp Sheet
+36×24 ô · Lv 6–10 · 4 loài quái + 1 boss map
+12
+Ở Bramblewood, mình muốn tạo cảm giác người chơi đã thực sự rời khỏi vùng an toàn.
+Rừng sẽ rậm hơn Willowbrook, nền đất nâu xanh, cây to hơn, ít hoa và có những gốc cây mục. Nhưng giữ đủ sáng để quái, nhân vật và VFX không chìm vào nền.
+1. Cấu trúc camp
+Mình đề xuất 6 camp quái thường, cộng một khu boss riêng. Số lượng mục tiêu là 34 quái thường + 1 boss, không phải dữ liệu đang có sẵn.
+Camp
+	
+Vị trí tương đối
+	
+Quái
+	
+Lv
+	
+Số con
+	
+Respawn
+F1
+	
+Gần cửa từ Willowbrook
+	
+meadowMantis
+	
+6
+	
+6
+	
+20 giây
+F2
+	
+Bờ rừng phía tây
+	
+meadowMantis + forestWolf
+	
+6–7
+	
+6 (3+3)
+	
+22 giây
+F3
+	
+Lối mòn giữa rừng
+	
+forestWolf
+	
+7
+	
+6
+	
+25 giây
+F4
+	
+Rừng sâu phía đông
+	
+brambleTreant
+	
+8
+	
+5
+	
+30 giây
+F5
+	
+Gần rễ cổ và cửa hang
+	
+thornSprite
+	
+9
+	
+6
+	
+25 giây
+F6
+	
+Mép ngoài đấu trường boss
+	
+brambleTreant + thornSprite
+	
+8–9
+	
+5 (3+2)
+	
+30 giây
+Boss
+	
+Đấu trường Thornfang
+	
+Thornfang Alpha
+	
+10
+	
+1
+	
+Theo cấu hình boss map
+Tổng: 9 Mantis, 9 Wolf, 8 Treant, 8 Sprite = 34 quái thường.
+Mình cố tình không đặt quá nhiều quái trong 36×24 ô, để giữ khoảng trống di chuyển, đường né, lối đi vào Rootburrow và khu vực boss.
+2. Thiết kế bốn loài quái rừng
+meadowMantis — Leafblade Mantis
+Lv 6 · 0,85H · Cận chiến
+Bọ ngựa xanh lá có hai tay lưỡi liềm đối xứng. Đòn đánh vung cả hai tay về trước.
+AI: Cận chiến hiện có, không cần AI mới.
+Card: Common. Pet: Không thêm.
+Vai trò: Dạy người chơi đọc animation tấn công nhanh.
+forestWolf — Bramble Wolf
+Lv 7 · 0,95H · Cận chiến
+Sói rừng xám nâu, mắt hổ phách, hai tai cân xứng, lưng có chùm lông rậm.
+AI: Cận chiến hiện có. Có thể tăng tốc di chuyển tương đối so với Mantis nhưng không thêm AI săn bầy.
+Card: Common. Pet: Chưa có trong Gacha V1.
+Vai trò: Gây áp lực khi hai con tiến đến cùng lúc.
+brambleTreant — Bramble Treant
+Lv 8 · 1,25H · Cận chiến
+Sinh vật gỗ có thân cây ngắn, cánh tay cành lớn và chân rễ. Đầu tán lá cân đối.
+AI: Cận chiến, di chuyển chậm hơn nhưng HP và sát thương cao hơn Wolf.
+Card: Rare đề xuất. Pet: Không thêm.
+Vai trò: Quái đỡ đòn, dạy người chơi xử lý mục tiêu có HP cao.
+thornSprite — Thorn Sprite
+Lv 9 · 0,75H · Tầm xa
+Tinh linh gai nhỏ, có đôi cánh lá và phát sáng xanh nhạt. Không mang vũ khí ở một bên tay.
+AI: AI bắn đạn hiện có. Đạn là hạt gai phát sáng, bay thẳng, không cần dẫn đường.
+Card: Rare đề xuất. Pet: Không thêm.
+Vai trò: Buộc Warrior và các class cận chiến tiếp cận mục tiêu tầm xa.
+Thiết kế quái phối hợp
+Camp F6 là nơi đầu tiên người chơi gặp một nhóm quái kết hợp Treant cận chiến chậm + Sprite tầm xa.
+Không cần viết AI phối hợp đội hình. Chỉ cần spawn đủ gần để hai loài cùng tham gia chiến đấu nếu người chơi tiến sâu vào camp.
+Đây là cách tăng độ khó bằng bố trí quái thay vì thêm nhiều kỹ năng mới.
+3. Thornfang Alpha — Boss Map Lv 10
+Vai trò: Boss đầu tiên đánh dấu việc người chơi đã đủ mạnh để rời khu vực tân thủ.
+Kích thước: khoảng 2,5–2,8H.
+Tạo hình: Sói đầu đàn có bộ lông nâu sẫm, gai cây lớn mọc dọc lưng và hai bên vai, hai mắt hổ phách.
+Không dùng hai sừng khác hình hoặc giáp vai lệch, để thuận lợi lật sprite trái/phải.
+Bộ kỹ năng đề xuất
+Đòn
+	
+Cơ chế
+	
+Yêu cầu
+Claw Swipe
+	
+Đánh cận chiến mạnh, một mục tiêu
+	
+Dùng AI hiện có
+Thorn Howl
+	
+Gầm, tạo hiệu ứng thị giác và âm thanh
+	
+Có thể làm cosmetic V1
+Alpha Rush
+	
+Lao thẳng theo một hướng
+	
+AI mới, để V2
+Thorn Burst
+	
+Vùng gai cảnh báo dưới chân
+	
+Telegraph mới, để V2
+V1: Chỉ cần Claw Swipe và Thorn Howl. Nếu hệ boss hiện tại đã có kỹ năng AoE thì có thể tận dụng; nếu chưa, không cần phát triển hệ thống mới chỉ cho boss này.
+Respawn boss: đề xuất 10 phút nếu boss nằm trong map công cộng; nếu dùng instance truyện riêng thì spawn theo phiên. Không áp dụng quy tắc Wanted Boss 30 phút mặc định lên tất cả boss.
+Boss này là Field Boss / Story Boss, không phải Wanted Boss hàng ngày.
+V. Rootburrow Dungeon Production Sheet
+3 tầng chính Lv 6–14 + Thornheart Chamber Lv 10
+12
+Mình sẽ giữ Rootburrow là dungeon rễ cây và nấm, nhưng tạo hai tuyến boss có vai trò khác nhau:
+Thornheart Treant Lv 10: boss kết thúc câu chuyện vùng Bramblewood, có thể vào từ một nhánh ngắn.
+Ambercap Warden Lv 14: boss sâu trong dungeon, dành cho người chơi đã có kinh nghiệm và trang bị tốt hơn.
+Cách này tránh việc người chơi Lv 10 buộc phải vượt qua toàn bộ dungeon Lv 14 mới đánh được boss Lv 10.
+1. Cấu trúc ba tầng
+Khu vực
+	
+Level
+	
+Quái vật
+	
+Vai trò
+Rootburrow F1 — Tangled Roots
+	
+6–8
+	
+Leafblade Mantis, Bramble Treant, Rootling
+	
+Làm quen dungeon, mở nhánh Thornheart
+Thornheart Chamber
+	
+10
+	
+Thornheart Treant
+	
+Boss cốt truyện phụ nhánh
+Rootburrow F2 — Spore Hollows
+	
+9–11
+	
+Thorn Sprite, Sporeling, Amber Beetle
+	
+Không gian nấm phát sáng, quái tầm xa
+Rootburrow F3 — Amber Sanctum
+	
+12–14
+	
+Amber Beetle, Root Sentinel, Spore Shaman
+	
+Quái mạnh, chuẩn bị đánh boss
+F3 Boss Arena
+	
+14
+	
+Ambercap Warden
+	
+Boss cuối dungeon
+Quái mới được đề xuất: Rootling, Sporeling, Amber Beetle, Root Sentinel và Spore Shaman.
+Để tiết kiệm asset, mình không khuyên làm cả năm ngay. Dưới đây là cấu hình hai giai đoạn.
+Rootburrow V1 — Tối ưu sản xuất
+Chỉ vẽ thêm hai quái mới:
+Rootling
+Lv 7–9 · 0,65H · Cận chiến
+Sinh vật rễ cây nhỏ. Di chuyển chậm, tấn công bằng hai cánh rễ. Dùng AI melee hiện tại.
+Amber Sporeling
+Lv 10–13 · 0,75H · Tầm xa
+Nấm màu hổ phách, bắn bào tử sáng. Dùng AI projectile hiện tại.
+Các tầng vẫn có thể dùng lại Bramble Treant và Thorn Sprite ở những vị trí phù hợp. Nếu cần quái Lv 12–13, nên tạo biến thể có khác biệt hình thái rõ ràng, thay vì chỉ tăng Level.
+Rootburrow V2 — Mở rộng sau
+Bổ sung Amber Beetle, Root Sentinel và Spore Shaman để làm dungeon đa dạng hơn về hành vi và bộ sưu tập Monster Card.
+2. Thornheart Treant — Story Boss Lv 10
+Kích thước: 3,0–3,5H.
+Thiết kế: Thân cây to, hai tay gỗ cân xứng, rễ lớn thành chân. Giữa ngực có lõi năng lượng xanh lục.
+Mục tiêu nghệ thuật: Người chơi phải nhìn thấy lõi năng lượng ngay cả ở góc camera top-down.
+Đòn
+	
+Cơ chế
+	
+Giai đoạn
+Root Slam
+	
+Đánh cận chiến mạnh
+	
+V1
+Heart Pulse
+	
+Lõi sáng lên, phát hiệu ứng khi HP thấp
+	
+Cosmetic V1
+Vine Snare
+	
+Trói mục tiêu
+	
+V2 — cơ chế status mới nếu chưa có
+Root Quake
+	
+AoE có telegraph
+	
+V2 nếu chưa có hệ boss AoE
+Cốt truyện: Thornheart Treant từng bảo vệ rễ cổ của Taurus. Lõi ký ức của nó bị kích động khi một phong ấn dưới Rootburrow yếu đi.
+Khi người chơi đánh bại nó, một mảnh ký ức xuất hiện, cho thấy biểu tượng một ngôi sao không thuộc 12 chòm sao.
+3. Ambercap Warden — Dungeon Boss Lv 14
+Kích thước: 3,0H.
+Tạo hình: Nấm khổng lồ với mũ vàng hổ phách, thân gỗ, hai tay rễ và các đường phát sáng cam dịu.
+Đây là boss mang hình ảnh đặc trưng cho Rootburrow, khác rõ Thornheart Treant.
+Đòn
+	
+Cơ chế
+	
+Giai đoạn
+Warden Strike
+	
+Đòn melee nặng
+	
+V1
+Amber Bolt
+	
+Bắn đạn ma thuật
+	
+V1, nếu boss có thể dùng AI projectile
+Spore Rain
+	
+Rơi bào tử theo vùng
+	
+V2 — telegraph mới
+Amber Prison
+	
+Giam mục tiêu trong tinh thể
+	
+V2 — cơ chế khống chế mới
+Cốt truyện: Ambercap Warden bảo vệ một kho lưu trữ ký ức sinh vật rất cổ xưa. Đây là lý do Rootburrow liên quan đến bí mật Monster Card, chứ không chỉ là dungeon để farm kinh nghiệm.
+Khi đánh bại Ambercap, người chơi tìm thấy một phiến đá có hình dạng tương tự mặt sau của một số lá bài cổ.
+VI. Chuỗi nhiệm vụ tân thủ chính thức — Oakhaven
+Đây là phần mình ưu tiên nhất trong toàn bộ production sheet.
+Mục tiêu: Người chơi học chiến đấu, nhận Đá Nâng Cấp, học tự cường hóa, nhận bộ Monster Card đầu tiên và thắng một trận đấu với Orin.
+Quan trọng: Hệ thống Pet chỉ giới thiệu khi tới mốc mở khóa phù hợp, không ép người chơi học tất cả ngay trong những phút đầu.
+1. Quest flow
+Q00
+Chào Mừng Đến Oakhaven
+Gặp Elder Thomas, nhận hướng dẫn chung
+Q01
+Bài Học Trên Đồng Cỏ
+Đánh 5 meadowSlime ở camp S1 → 5 Upgrade Stone
+Q02A — Tự Cường Hóa
+Sử dụng đá để nâng cấp trang bị T0
+Q02B — Bộ Bài Đầu Tiên
+Orin → Đánh 5 quái → Nhận 5 Card
+Q03 — Trận Đấu Với Orin
+Đấu 4×4 → Thắng → Chọn 1 Card trong deck huấn luyện
+Mình chọn hai chuỗi đánh 5 quái khác nhau ở phiên bản này:
+5 Slime đầu tiên để học chiến đấu và nhận đá.
+5 quái bất kỳ hợp lệ sau khi nhận quest Orin để học ý nghĩa của Monster Card.
+Như vậy Quest Orin vẫn có hành trình riêng đúng như bạn muốn. Tuy nhiên, người chơi không phải đánh thêm 10–20 con hoặc chờ Card rơi ngẫu nhiên.
+Nếu sau khi test thấy quá chậm, có thể cho nhận Q01 và Q02B song song, để cùng 5 quái hợp lệ tăng tiến độ cho cả hai. Nhưng bản mặc định mình chọn là tuần tự để người chơi không bị hai hệ thống hướng dẫn cùng lúc.
+2. Q00 — Chào Mừng Đến Oakhaven
+NPC: Elder Thomas.
+Trạng thái ban đầu:
+Nhân vật đã có vũ khí + off-hand T0 đúng class.
+Không tặng thêm trang bị.
+Cổng nam tới Willowbrook mở cho khu vực tân thủ.
+Cổng đông tới Thatchwick có thể hiển thị thông tin định hướng Level nếu cần, nhưng không khóa người chơi chỉ vì chưa nhận quest Monster Card.
+Hội thoại đề xuất:
+Elder Thomas: "Chào mừng đến Oakhaven, nhà thám hiểm trẻ! Vũ khí của con đã sẵn sàng rồi đấy. Nhưng trước khi đi xa, hãy thử sức với vài con Slime trên đồng cỏ."
+Nhận Q01.
+3. Q01 — Bài Học Trên Đồng Cỏ
+Trường
+	
+Spec
+NPC giao/trả
+	
+Elder Thomas
+Mục tiêu
+	
+Tiêu diệt 5 meadowSlime
+Camp
+	
+S1, gần cổng Oakhaven
+Điều kiện
+	
+Kill được server xác nhận
+Phần thưởng
+	
+5 Upgrade Stone + 300 Gold + EXP
+Giới hạn
+	
+1 lần / nhân vật
+Tự hoàn thành
+	
+Không; quay về NPC nhận thưởng
+Tại sao thưởng 5 đá?
+Mình muốn người chơi đủ tài nguyên để trải nghiệm một vài lần cường hóa cơ bản, nhưng 5 đá phải được đối chiếu với công thức nâng cấp T0 thực tế. Không nên chốt lượng đá trước khi biết chi phí từ +0 lên +1 và +2.
+Nếu một lần nâng cấp ban đầu đã tiêu tốn 5 đá, hãy thưởng nhiều hơn hoặc giảm chi phí tutorial. Mục tiêu là người chơi được nâng cấp thành công ít nhất một lần.
+4. Q02A — Sức Mạnh Từ Trang Bị
+Quest tự động mở sau Q01.
+Mục tiêu: Tìm thợ rèn, nâng cấp một món T0 khởi đầu ít nhất một lần.
+Phần thưởng: EXP nhỏ và 100 Gold.
+Chú ý kỹ thuật:
+Chỉ cần nâng cấp vũ khí chính hoặc off-hand.
+Không bắt người chơi nâng cả hai.
+Lần nâng cấp đầu tiên trong hướng dẫn nên bảo đảm thành công 100%, không mất trang bị.
+Không tiêu hao nhiều vàng hơn phần thưởng từ Q01.
+Nếu người chơi đã nâng cấp trước khi nhận Q02A, quest phải ghi nhận trạng thái phù hợp, tránh bắt ép nâng lần nữa.
+Quest này là hướng dẫn trang bị riêng, không phải điều kiện để mở đấu Card với Orin.
+5. Q02B — Bộ Bài Đầu Tiên
+NPC: Card Master Orin.
+Orin bắt đầu có dấu nhiệm vụ sau khi người chơi hoàn thành Q01. Người chơi có thể gặp ông trước đó, nhưng ông chỉ giải thích sơ lược về Monster Card.
+Hội thoại:
+Orin: "Ta nghe nói con đã đánh bại những con Slime ngoài đồng cỏ. Khá lắm! Nhưng một nhà thám hiểm giỏi không chỉ cần sức mạnh."
+"Con có biết mỗi loài quái vật đều để lại một dấu ấn riêng? Ta gọi chúng là Monster Card."
+"Hãy đánh bại thêm 5 sinh vật. Ta sẽ tặng con một bộ bài để học cách sử dụng."
+Mục tiêu quest
+Tiêu diệt 5 quái vật thuộc một trong ba loài:
+meadowSlime, hornRabbit, thornBoar.
+Không cần đánh đủ cả ba loài. Người chơi có thể tiếp tục đánh Slime nếu còn yếu.
+Không yêu cầu Card rơi từ quái. Sau khi kill đủ 5, quay về Orin và nhận chính xác 5 Card, không phải năm lần roll tỷ lệ rơi.
+Bộ 5 Card khởi đầu
+Mình đề xuất sử dụng năm mẫu hướng dẫn sau, gắn với các Card Common sẵn có trong bộ 40 lá hoặc tạo entry nếu chúng chưa tồn tại.
+Card
+	
+Số lượng
+	
+Mục đích
+Meadow Slime
+	
+1
+	
+Cạnh tương đối cân bằng
+Horn Rabbit
+	
+1
+	
+Một cạnh mạnh, một cạnh yếu
+Meadow Mantis
+	
+1
+	
+Dễ dùng để tấn công
+Forest Wolf
+	
+1
+	
+Chỉ số thiên về hai cạnh
+Bramble Treant
+	
+1
+	
+Lá phòng thủ, HP không liên quan tới luật Card
+Các lá này nên được cố định, không random. Nhờ đó tutorial có thể đảm bảo người chơi luôn có lá cần thiết để thực hiện bài học.
+Nếu một trong năm Card đã được xếp Rare hoặc có chỉ số mạnh trong dữ liệu hiện tại, dùng một Card Common khác phù hợp thay thế. Không nên tạo ngoại lệ rarity mạnh chỉ để hoàn thiện tutorial.
+Hướng dẫn My Cards
+Sau khi nhận bài:
+Highlight nút My Cards.
+Mở bộ sưu tập và chọn Meadow Slime.
+Highlight bốn chỉ số hướng, rồi hướng dẫn vào Deck.
+Cho người chơi xem Album một lần; không bắt họ đọc toàn bộ mô tả.
+Trở về Orin để bắt đầu trận tập sự.
+Vấn đề 4×4: Bàn có 16 ô, nên nếu luật là hai bên lần lượt lấp đầy toàn bộ bàn và mỗi bên đặt 8 lá, thì năm Card chưa đủ cho một trận hoàn chỉnh.
+Vì vậy, mình đề xuất Orin cho mượn thêm 3 lá Common trong trận hướng dẫn. Ba lá chỉ tồn tại trong deck tutorial, được thu hồi sau trận. Nếu luật deck thực tế của bạn khác 8 lá, điều chỉnh số bài mượn cho đúng luật hiện có.
+6. Q03 — Trận Đấu Đầu Tiên Với Orin
+Card Duel Tutorial · PvE duy nhất bắt buộc cho phần hướng dẫn Card
+Mình đề xuất người chơi phải thắng Orin để được chọn Card, nhưng đây phải là một trận dễ, có hướng dẫn và không mất bài khi thua.
+Thông số
+	
+Thiết kế
+Bàn đấu
+	
+4×4 hiện có
+Deck người chơi
+	
+5 lá thưởng + 3 lá mượn, nếu luật yêu cầu 8
+Deck Orin
+	
+8 lá tập sự
+Cấp AI
+	
+Tutorial Easy
+Cược bài
+	
+Tắt
+Thắng
+	
+Hoàn thành quest, chọn 1 lá của Orin
+Thua / hòa
+	
+Đấu lại miễn phí, không mất Card
+Phần thưởng lặp lại
+	
+Không
+Giới hạn thưởng
+	
+1 lần / nhân vật
+Kịch bản trong trận
+Lượt hướng dẫn 1: Orin đặt một lá Slime yếu. Hệ thống highlight một vị trí cạnh lá đó và yêu cầu người chơi đặt lá có chỉ số thắng.
+Lượt hướng dẫn 2: Animation lật bài từ đỏ sang xanh. Hiển thị chỉ số hai cạnh và giải thích kết quả. Không cần hiện tooltip quá dài.
+Lượt hướng dẫn 3: Orin đặt thêm một lá, giới thiệu việc bảo vệ cạnh yếu. Sau đó trận chuyển sang chế độ tự do.
+Phần còn lại: AI dễ, ưu tiên hành động có thể hiểu được, không tìm kiếm nhiều lượt sâu. Có nút gợi ý nước đi khi người chơi gặp khó.
+Để không phá luật Card Duel hiện có, phần gợi ý phải dựa trên chính logic so cạnh và kết quả capture của game, không viết một thuật toán thắng/thua khác cho tutorial.
+Phần thưởng chọn bài của Orin
+Sau khi thắng, hiển thị deck huấn luyện của Orin. Người chơi chọn một lá bất kỳ trong những lá hợp lệ của deck đó, đúng như ý tưởng của bạn.
+Mình đề xuất có các lựa chọn khác nhau về cấu hình chỉ số, thay vì một lá hiển nhiên mạnh nhất.
+Nếu trong deck có Card hiếm, hãy loại khỏi deck huấn luyện từ đầu thay vì cho người chơi nhìn thấy rồi báo rằng không được chọn.
+Quan trọng về chống khai thác: Card được chọn là phần thưởng do server cấp từ mẫu deck tutorial, không thực sự chuyển một vật phẩm trong kho NPC. Phải đánh dấu đã nhận thưởng để không thể thoát game, đấu lại rồi nhận nhiều Card.
+VII. Card & Pet Production Rules
+1. Monster Card
+Game đã có 40 lá. Mình sẽ không tự động mở rộng lên 60–80 lá chỉ vì thiết kế thêm quái.
+Trong V1, ưu tiên dùng Card hiện có:
+Nhóm quái
+	
+Card mục tiêu
+	
+Vai trò
+Meadow Slime
+	
+Common
+	
+Card dễ dùng
+Horn Rabbit
+	
+Common
+	
+Card có một cạnh mạnh
+Thorn Boar
+	
+Common/Rare theo dữ liệu thật
+	
+Card tấn công
+Meadow Mantis
+	
+Common
+	
+Card lệch hướng
+Forest Wolf
+	
+Common
+	
+Card đa dụng
+Bramble Treant
+	
+Common/Rare
+	
+Card phòng thủ
+Thorn Sprite
+	
+Common/Rare
+	
+Card chiến thuật
+Thornfang Alpha
+	
+Rare/SR nếu đã có
+	
+Card boss
+Thornheart Treant
+	
+Rare/SR nếu đã có
+	
+Card boss
+Ambercap Warden
+	
+SR nếu đã có
+	
+Card dungeon
+Các rarity chỉ là vị trí đề xuất trong hệ sưu tập, không thay thế bảng cân bằng 40 lá thực tế.
+Nếu quái không có Card tương ứng, có thể để quái đó chưa rơi Card ở V1. Không cần ép mỗi loài phải có một lá.
+Mình cũng không thêm hiệu ứng kỹ năng như độc, hồi máu hay phân thân cho Card, vì game hiện đang vận hành theo luật so bốn cạnh.
+2. Pet
+Giữ đúng Pet Gacha hiện tại.
+Pet
+	
+Rarity
+	
+Nguồn
+	
+Quyết định
+Horn Rabbit
+	
+N
+	
+Gacha
+	
+Giữ
+Thorn Boar
+	
+R
+	
+Gacha
+	
+Giữ
+Các loài quái Taurus khác
+	
+—
+	
+Chưa phát hành Pet
+	
+Không thêm V1
+Không bổ sung tính năng bắt Pet ngoài đồng. Người chơi gặp Horn Rabbit và Thorn Boar trong tự nhiên, rồi có thể sở hữu phiên bản Pet thông qua Gacha.
+Về cốt truyện, giải thích đơn giản rằng các linh thú triệu hồi từ Gacha có khả năng cộng hưởng với người chơi, còn những con hoang dã chưa được thuần hóa.
+Khi mở khóa Pet ở Level 5, mình đề xuất Elder Thomas hoặc NPC phụ trách linh thú giới thiệu một nhiệm vụ ngắn. Không nên đặt thêm một chuỗi tutorial dài ngay giữa quest Orin.
+VIII. AI & Combat Implementation
+Mình tách rõ tính năng hiện có và tính năng mới để tránh scope creep.
+Tính năng
+	
+Trạng thái
+	
+Quyết định V1
+Melee aggro
+	
+Đã có
+	
+Tái sử dụng
+Leash 150 đơn vị
+	
+Đã có
+	
+Giữ, kiểm tra đơn vị tọa độ Unity
+Ranged projectile
+	
+Đã có
+	
+Dùng Thorn Sprite, Amber Sporeling
+Quái lao tới
+	
+Chưa có
+	
+Không bắt buộc
+Telegraph cho quái thường
+	
+Chưa có
+	
+Không bắt buộc
+Elite system
+	
+Chưa có
+	
+Không làm V1
+AI đánh theo bầy
+	
+Chưa xác nhận
+	
+Không bắt buộc
+AI NPC Card Duel
+	
+Chưa có
+	
+Cần làm mới
+Trận Card không cược
+	
+Chưa có
+	
+Cần thêm chế độ Tutorial
+Bài mượn trong trận
+	
+Chưa có
+	
+Cần thêm
+Bảo đảm quest reward một lần
+	
+Cần xác nhận
+	
+Bắt buộc phía server
+Một lưu ý về leash
+Bạn ghi leash 150 đơn vị quanh điểm sinh. Mình sẽ không tự coi 150 đơn vị đó là 150 ô tile hay 150 mét.
+Trước khi triển khai cần kiểm tra nó là world units, pixel units hay đơn vị logic của hệ AI. Nếu 150 world units lớn hơn cả chiều rộng map, quái sẽ có nguy cơ đuổi xuyên qua nhiều camp.
+Về gameplay, mình đề xuất quái thường chỉ được kéo đi một khoảng tương đối ngắn so với kích thước bãi săn, khoảng 2–4 lần tầm phát hiện của chính nó. Đây là mục tiêu hành vi, không phải yêu cầu đổi mọi quái sang một giá trị leash cố định.
+Thông số AI tham khảo
+Quái
+	
+Tầm phát hiện
+	
+Tốc độ tương đối
+	
+Loại đánh
+Slime
+	
+2,0 m
+	
+0,7×
+	
+Melee
+Rabbit
+	
+2,5 m
+	
+1,1×
+	
+Melee
+Boar
+	
+3,0 m
+	
+0,9×
+	
+Melee
+Mantis
+	
+3,0 m
+	
+1,0×
+	
+Melee
+Wolf
+	
+3,5 m
+	
+1,2×
+	
+Melee
+Treant
+	
+2,5 m
+	
+0,65×
+	
+Melee
+Sprite
+	
+4,0 m
+	
+0,9×
+	
+Ranged
+Các khoảng cách tính bằng world meters giả định 1 Unity unit = 1 m. Nếu project dùng hệ quy đổi khác, cần chuyển đổi tương ứng. Tốc độ tương đối so với tốc độ quái chuẩn của game.
+Không nên cho Slime chủ động lao vào người mới ngay khi họ vừa bước qua cổng. Camp S1 có thể sử dụng aggro thấp hoặc trạng thái chỉ phản công để đảm bảo trải nghiệm tân thủ.
+IX. Art Production Sheet — Quy chuẩn sprite
+1. Quy cách bắt buộc
+Thành phần
+	
+Quy chuẩn
+Góc nhìn
+	
+Top-down 3/4 theo camera game
+Sprite sheet đi
+	
+4×4, mỗi ô 192×192 px
+Kích thước sheet đi
+	
+768×768 px
+Sprite sheet đánh
+	
+4×4, mỗi ô 256×256 px
+Kích thước sheet đánh
+	
+1024×1024 px
+Hướng
+	
+Front, Back, Right, Left từ Right flip
+Bối cảnh
+	
+Nền phẳng #FF00FF
+Bóng đổ
+	
+Không vẽ vào sprite
+Đường viền
+	
+Nâu đậm, mềm, phù hợp RO Soft Adventure
+Đổ bóng
+	
+Cel shading mềm 2–3 cấp
+Khoảng cách
+	
+Không để nhân vật, vũ khí hay hiệu ứng chạm biên ô
+2. Thiết kế tương thích flip trái/phải
+Tất cả quái Taurus phải tuân thủ:
+Không có sừng chỉ mọc một bên.
+Không đeo giáp vai lệch trái/phải.
+Không có một mắt bị che hoặc vết sẹo chỉ nằm một bên mặt.
+Vũ khí hoặc cánh tay phải cân xứng, trừ khi bạn muốn tạo bộ animation trái riêng sau này.
+Các chi tiết như bụi gai, mũ nấm, chân côn trùng cần rõ silhouette khi thu nhỏ.
+Đây là điều đặc biệt quan trọng với Thornfang Alpha và hai boss Treant. Boss có hình dáng bất đối xứng sẽ khiến flip trái/phải rất dễ lộ lỗi.
+3. Tỷ lệ kích thước quái
+So sánh chiều cao tương đối
+0H
+0.9H
+1.8H
+2.7H
+3.6H
+Slime
+Rabbit
+Boar
+Mantis
+Wolf
+Treant
+Thornfang
+Thornheart
+Ambercap
+Slime: Chiều cao (H) 0.6H
+Rabbit: Chiều cao (H) 0.7H
+Boar: Chiều cao (H) 0.9H
+Mantis: Chiều cao (H) 0.9H
+Wolf: Chiều cao (H) 1H
+Treant: Chiều cao (H) 1.3H
+Thornfang: Chiều cao (H) 2.7H
+Thornheart: Chiều cao (H) 3.3H
+Ambercap: Chiều cao (H) 3H
+H = chiều cao hero. Kích thước hiển thị đề xuất, chưa phải pixel height của nguồn sprite.
+Một vấn đề cần lưu ý: boss cao 3,3H có thể không vừa trong ô attack 256×256 nếu muốn giữ cùng độ phân giải thế giới với quái thường.
+Mình đề xuất giữ 256 px là chuẩn cho quái thường, còn boss dùng sheet riêng với cell lớn hơn khi cần. Nếu bắt buộc mọi boss cũng phải dùng cell 256, sẽ phải giảm độ phân giải chi tiết hoặc dùng nhiều phần sprite.
+Không nên ép boss khổng lồ vào ô nhỏ rồi phóng to quá mức trong Unity khiến hình bị mờ.
+X. Thứ tự sản xuất asset và lập trình
+P0
+Hoàn thiện trải nghiệm tân thủ
+Q00, Q01, Q02A, Q02B, Q03; đánh 5 Slime, thưởng đá, 5 Card, trận Orin, thưởng chọn bài. Đây là ưu tiên cao nhất.
+P1
+Vẽ lại quái Willowbrook
+Slime, Rabbit, Boar. Cố định kích thước, bảng màu, hitbox, animation và camp.
+P2
+Vẽ lại quái Bramblewood và Thornfang Alpha
+Mantis, Wolf, Treant, Sprite, Thornfang. Kiểm tra combat ở camp hỗn hợp.
+P3
+Rootburrow
+Hai quái mới Rootling và Amber Sporeling, hai boss Thornheart và Ambercap, hoàn thiện 3 tầng và phòng boss.
+P4
+Đánh bóng và mở rộng
+Đòn lao, telegraph thường, Elite, quái phụ dungeon, Card hiếm mới. Chỉ làm sau khi vòng lặp cốt lõi đạt yêu cầu.
+XI. Checklist nghiệm thu Taurus
+Production Acceptance
+0/13
+Người chơi tạo nhân vật có đúng vũ khí và off-hand T0
+Q01 đánh 5 Slime ở camp S1 hoạt động đúng
+5 Upgrade Stone đủ cho ít nhất một lần nâng cấp thành công
+11 camp Willowbrook có tổng 70 quái, không spawn đè người chơi
+AI leash không kéo quái qua nhiều camp
+Quest Orin nhận đủ 5 kill hợp lệ và thưởng đúng 5 Card
+My Cards và Album hướng dẫn được lần đầu
+Trận Orin dùng đúng luật 4×4, bài mượn không được giữ lại
+Thua Orin không mất Card, thắng chọn đúng 1 Card và không thể nhận lặp
+Pet Horn Rabbit N và Thorn Boar R vẫn chỉ đến từ Gacha
+Thornfang Alpha và Thornheart Treant đều có trận boss rõ ràng
+Rootburrow có tuyến tới Thornheart Lv10 và Ambercap Lv14
+Tất cả sprite mới đúng nền #FF00FF, hướng flip và không có bóng vẽ sẵn
+Sao chép checklist
+Kết luận thiết kế
+Mình đề xuất giữ nguyên toàn bộ tên map và ID quái chính của Taurus, chỉ nâng cấp art, phân bố camp và trải nghiệm người chơi.
+Trong phiên bản này, Taurus có:
+1 làng: Oakhaven Village.
+2 map săn: Willowbrook Meadows (70 quái / 11 camp) và Bramblewood Forest (34 quái thường / 6 camp + boss).
+1 dungeon: Rootburrow 3 tầng, có nhánh Thornheart Chamber.
+7 loài quái thường hiện có, 2 quái mới ưu tiên cho dungeon, 3 boss.
+2 Pet hiện có: Horn Rabbit N và Thorn Boar R, không thay đổi nguồn Gacha.
+Chuỗi quest tân thủ: 5 Slime → Upgrade Stone → cường hóa → 5 quái cho Orin → 5 Card → đấu Orin → chọn 1 Card.
+Điều mình muốn làm nổi bật nhất là Oakhaven phải thật sự giống một ngôi làng đáng sống, Willowbrook là nơi người chơi yêu thích việc đánh quái và sưu tập, còn Bramblewood và Rootburrow là bước ngoặt đưa họ vào bí ẩn lớn của Asteria.
+Nếu hoàn thiện được Taurus theo tiêu chuẩn này, nó sẽ trở thành mẫu thiết kế để phát triển 11 Tinh Vực tiếp theo mà không cần viết lại hệ thống game mỗi lần mở vùng mới.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

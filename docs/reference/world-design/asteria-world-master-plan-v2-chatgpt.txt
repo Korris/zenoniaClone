@@ -1,0 +1,978 @@
+(c) thứ tự nên làm.
+ChatGPT said:
+ASTERIA — WORLD DESIGN BIBLE V3.0
+Bản tái thiết kế hoàn toàn · 12 Tinh Vực + Tinh Vực XIII · Level 1–90
+Lần này mình sẽ thiết kế Asteria như một game hoàn toàn mới về thế giới, địa hình, quái vật, tên gọi và mỹ thuật. Không lấy map cũ làm nền, không cố giữ quái cũ và không điều chỉnh cốt truyện để phù hợp những asset đã làm.
+Mình chỉ giữ những cơ chế gameplay quan trọng bạn muốn: chiến đấu RPG chibi, hệ thống Pet, Monster Card đấu 4×4, trang bị và cường hóa, cùng khả năng tổ chức Wanted Boss.
+Về định hướng sáng tạo, mình chọn một thế giới fantasy tươi sáng ở giai đoạn đầu, ngày càng kỳ bí và hùng vĩ khi người chơi tiến sâu, với bí mật 12 chòm sao và Ngôi Sao Thứ Mười Ba làm sợi dây cốt truyện.
+I. Kiến trúc thế giới chính thức
+ASTERIA
+Thế giới của 12 chòm sao và ký ức bị lãng quên
+12 Tinh Vực
+12 lãnh thổ lớn, mỗi vùng có văn hóa và sinh thái riêng
+1 khu dân cư
+Safe hub, NPC, thương mại
+1 map săn lớn
+5–8 camp sinh thái
+1 dungeon
+Boss, thử thách, thánh tích
+Tinh Vực XIII — The Forgotten Realm
+Khu vực bí mật, kết thúc cốt truyện và raid cuối
+Một nguyên tắc cần chốt: Tinh Vực là vùng đất lớn, không phải một map. Làng và map săn có thể là hai scene riêng, còn các camp bên trong map săn phải liền mạch, không loading khi đi từ camp này sang camp khác.
+Dungeon có thể có nhiều tầng nội bộ, nhưng vẫn là một dungeon của vùng đó.
+II. Hành trình Level 1–90
+Mình sắp xếp theo nhịp cảm xúc, độ khó và sự phát triển của câu chuyện, không theo thứ tự hoàng đạo truyền thống.
+Thứ tự
+	
+Tinh Vực
+	
+Level
+	
+Chủ đề
+1
+	
+♉ Taurus
+	
+1–10
+	
+Đồng cỏ, cuộc sống, khởi đầu
+2
+	
+♊ Gemini
+	
+11–18
+	
+Rừng gương, ảo ảnh
+3
+	
+♋ Cancer
+	
+19–26
+	
+Biển, thủy triều, mái ấm
+4
+	
+♑ Capricorn
+	
+27–34
+	
+Núi tuyết, ý chí
+5
+	
+♍ Virgo
+	
+35–42
+	
+Rừng thiêng, sinh mệnh
+6
+	
+♎ Libra
+	
+43–50
+	
+Thủ đô, tri thức, công lý
+7
+	
+♐ Sagittarius
+	
+51–57
+	
+Thảo nguyên, tự do
+8
+	
+♏ Scorpio
+	
+58–64
+	
+Đầm lầy, bí mật
+9
+	
+♈ Aries
+	
+65–71
+	
+Núi lửa, chiến tranh
+10
+	
+♌ Leo
+	
+72–78
+	
+Sa mạc, hoàng quyền
+11
+	
+♒ Aquarius
+	
+79–84
+	
+Đảo bay, công nghệ cổ
+12
+	
+♓ Pisces
+	
+85–90
+	
+Biển mộng, linh hồn
+13
+	
+✦ Forgotten Realm
+	
+Endgame 90
+	
+Ký ức và thế giới bị xóa
+Các mức Level là dải tiến trình chính. Quái hiếm, Wanted Boss và dungeon nâng cao có thể có Level vượt khỏi dải này. Không cần làm tất cả Tinh Vực có kích thước bằng nhau.
+PHẦN A — THIẾT KẾ TOÀN BỘ 13 TINH VỰC
+Mỗi vùng dưới đây có tên khu dân cư, map săn, các camp, danh sách quái, dungeon, boss và vai trò trong cốt truyện. Đây là bộ tên mới mình đề xuất thống nhất cho Asteria.
+01. ♉ TAURUS — VERDANT MEADOWS
+Level 1–10 · Đồng Cỏ Trù Phú
+12
+Khu dân cư: Willowbrook Village. Một ngôi làng nông nghiệp có quảng trường, Hội Thám Hiểm, nhà thợ rèn, quầy Pet và Card Master Orin. Đây là nơi người chơi bắt đầu cuộc phiêu lưu.
+Map săn: Clover Meadows. Đồng cỏ rộng, bờ suối, đồi thỏ, vườn nấm, rừng gai và một gốc cây cổ đại.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Cloverfield
+	
+Clover Slime
+	
+1–2
+Rabbit Hills
+	
+Horn Rabbit
+	
+3
+Brookside
+	
+Reed Frog, Clover Slime
+	
+3–4
+Mushroom Grove
+	
+Moss Mushroom
+	
+4–5
+Bramble Thicket
+	
+Bramble Boar
+	
+6–7
+Elderwood Edge
+	
+Leaf Mantis, Rootling
+	
+8–9
+Ancient Roots
+	
+Thorn Sprite, Ancient Barkling
+	
+9–10
+Dungeon: Ancient Root Shrine. Một thánh tích nằm dưới bộ rễ của Cây Ngàn Tuổi, gồm các đường hầm rễ cây và khu điện thờ.
+Boss dungeon: Elder Root Guardian Lv 10, một hộ vệ gỗ khổng lồ có lõi hổ phách.
+Wanted Boss mùa đầu: Verdant Horn, một linh thú ngưu cổ đại. Đây là boss cộng đồng riêng, không phải Tinh Vệ Taurus.
+Card/Pet: Clover Slime, Horn Rabbit, Moss Mushroom là những Card khởi đầu phù hợp. Horn Rabbit có thể là Pet N của vùng, còn Bramble Boar là Pet R trong Gacha.
+Vai trò cốt truyện: Những con quái hiền lành bắt đầu hung dữ. Một mảnh ký ức được phát hiện trong Ancient Root Shrine mang hình ảnh một ngôi sao không có trong truyền thuyết.
+02. ♊ GEMINI — MIRRORWOOD
+Level 11–18 · Rừng Song Ảnh
+10
+Khu dân cư: Twinleaf Haven. Một thị trấn trên cây được xây thành hai khu đối xứng hai bên hồ.
+Map săn: Whispermirror Forest. Rừng có hồ phản chiếu, những rặng cây song sinh, đá thủy tinh và các khoảng sương mù.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Whisperleaf Trail
+	
+Whisper Sprite
+	
+11–12
+Twinbloom Glade
+	
+Twinwing Moth
+	
+12–13
+Mirrorlake Bank
+	
+Mirror Slime
+	
+13–14
+Glassroot Woods
+	
+Glass Beetle
+	
+14–15
+Echofox Hollow
+	
+Echo Fox
+	
+15–16
+Phantom Crossing
+	
+Reflection Wisp, Echo Fox
+	
+16–17
+Twinspire Clearing
+	
+Mirror Sentinel
+	
+17–18
+Dungeon: Hall of Reflections. Một ngôi đền với những căn phòng phản chiếu và hai lối đi song song.
+Boss: Mirrorfang — Song Lang Ảo Ảnh Lv 18.
+Card/Pet: Echo Fox là Pet SR tiềm năng; Monster Card vùng này có những cặp chỉ số đối xứng.
+Cốt truyện: Người chơi gặp những sinh vật có ký ức về sự kiện chưa từng xảy ra. Lần đầu xuất hiện nghi vấn rằng lịch sử thế giới đã bị thay đổi.
+03. ♋ CANCER — MOONLIT COAST
+Level 19–26 · Vịnh Trăng Bạc
+9
+Khu dân cư: Pearlharbor. Thành phố cảng có chợ hải sản, xưởng thuyền, hải đăng và các nhà thám hiểm biển.
+Map săn: Silvermoon Shores. Bãi biển, vách đá, đầm thủy triều, tàu đắm và vịnh san hô.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Shellsand Beach
+	
+Shell Crab
+	
+19–20
+Foaming Pools
+	
+Foam Slime
+	
+20–21
+Moonpearl Cove
+	
+Tide Turtle
+	
+21–22
+Coral Gardens
+	
+Coral Sprite
+	
+22–23
+Lantern Reef
+	
+Lantern Jelly
+	
+23–24
+Wrecked Bay
+	
+Ghost Sailor
+	
+24–25
+Lunar Tide Basin
+	
+Moon Eel, Pearl Guardian
+	
+25–26
+Dungeon: Lunar Reef Temple. Thánh điện dưới rạn san hô, nơi thủy triều được điều khiển bằng những viên ngọc cổ.
+Boss: Mooncarapace — Cự Giáp Nguyệt Hải Lv 26.
+Card/Pet: Tide Turtle và Lantern Jelly. Các Card phòng thủ có cạnh nổi bật.
+Cốt truyện: Một con tàu mất tích nhiều thế kỷ bất ngờ trở về, mang theo một tấm hải đồ thể hiện vùng biển không tồn tại.
+04. ♑ CAPRICORN — FROSTBOUND PEAKS
+Level 27–34 · Đỉnh Núi Vĩnh Đông
+11
+Khu dân cư: Snowrest Village. Thị trấn thợ săn vùng núi, với lò sưởi và những con đường đá phủ tuyết.
+Map săn: Rimepine Highlands. Rừng thông, vách băng, hồ đóng băng, hẻm núi và khu tinh thể cổ.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Snowdrop Trail
+	
+Frost Slime
+	
+27–28
+Whitepine Hollow
+	
+Snow Hare
+	
+28–29
+Frozen Brook
+	
+Ice Goblin
+	
+29–30
+Rimewolf Ridge
+	
+Rime Wolf
+	
+30–31
+Crystal Pass
+	
+Crystal Golem
+	
+31–32
+Winterfall Cliffs
+	
+Frost Bat, Ice Sentinel
+	
+32–33
+Glacier Gate
+	
+Ice Sentinel
+	
+33–34
+Dungeon: Glacial Crown Cavern. Hang băng dẫn tới một pháo đài cổ nằm sâu trong núi.
+Boss: Glacial Colossus Lv 34.
+Wanted Boss: Rimeclaw Tyrant.
+Card/Pet: Ice Goblin, Rime Wolf, Crystal Golem và Frostfang King là các sinh vật thích hợp cho bộ sưu tập băng.
+Cốt truyện: Người chơi khám phá ghi chép về một cuộc chiến xảy ra trước thời đại được ghi nhận trong sách sử.
+05. ♍ VIRGO — SACRED GROVE
+Level 35–42 · Thánh Lâm Sinh Mệnh
+12
+Khu dân cư: Sylvan Sanctuary. Thánh địa dưới tán Cây Thế Giới, nơi các tu sĩ chữa lành và những người chăm sóc linh thú sinh sống.
+Map săn: Everroot Wilds. Vườn hoa, rừng rậm, rễ cây khổng lồ, suối linh thiêng và rừng cổ bị tha hóa.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Blossom Path
+	
+Flower Sprite
+	
+35–36
+Leafsong Garden
+	
+Leafling
+	
+36–37
+Verdant Canopy
+	
+Thorn Deer
+	
+37–38
+Vineroot Trail
+	
+Vine Serpent
+	
+38–39
+Spiritglow Grove
+	
+Spirit Moth
+	
+39–40
+Worldroot Basin
+	
+Ancient Treant
+	
+40–41
+Withered Sanctuary
+	
+Fallen Dryad
+	
+41–42
+Dungeon: Sanctuary of Renewal. Một ngôi đền cổ nơi năng lượng tái sinh đang dần biến mất.
+Boss: Weeping Dryad Lv 42.
+Card/Pet: Leafling và Spirit Moth là những sinh vật dễ tạo thiện cảm; Pet hỗ trợ có thể lấy cảm hứng từ chúng.
+Cốt truyện: Cây Thế Giới lưu giữ ký ức về thời kỳ bầu trời có 13 nguồn ánh sáng.
+06. ♎ LIBRA — LUMINOUS CITADEL
+Level 43–50 · Kinh Đô Cân Bằng
+12
+Khu dân cư: Aurelith Capital. Thủ đô lớn của Asteria, trung tâm thương mại, công hội, thánh điện, nghiên cứu Monster Card và công nghệ Tinh Thạch.
+Map săn: Clockwork Outskirts. Khu ngoại ô với những cỗ máy hỏng, vườn cơ khí và di tích dưới lòng đất.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Copperfield Yard
+	
+Gear Rat
+	
+43–44
+Broken Aqueduct
+	
+Rogue Automaton
+	
+44–45
+Gearworks Passage
+	
+Clockwork Soldier
+	
+45–46
+Inkstone Archives
+	
+Ink Wraith
+	
+46–47
+Paper Sanctum
+	
+Paper Golem
+	
+47–48
+Sealed Repository
+	
+Archive Wisp
+	
+48–49
+Judgement Approach
+	
+Aegis Knight
+	
+49–50
+Dungeon: Hall of Judgement. Một thánh đường cổ đại với tượng thiên bình, cơ chế phán xét và các vệ binh ma thuật.
+Boss: Aegis Arbiter Lv 50.
+Card/Pet: Gear Rat, Mini Automaton, Archive Wisp. Vùng này có một Card Arena xã hội lớn.
+Cốt truyện: Người chơi phát hiện nhiều tài liệu lịch sử đã bị chỉnh sửa có chủ đích. Aurelion bắt đầu lộ diện.
+07. ♐ SAGITTARIUS — SKYWIND PLAINS
+Level 51–57 · Thảo Nguyên Thiên Phong
+8
+Khu dân cư: Windrunner Camp. Trại du mục với chuồng thú cưỡi, thương nhân và những cung thủ nổi tiếng.
+Map săn: Galecrest Frontier. Thảo nguyên, hẻm núi, cầu treo, mỏm đá và những cơn gió mạnh.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Swiftgrass Field
+	
+Swift Hare
+	
+51
+Wanderer's Trail
+	
+Prairie Wolf
+	
+52
+Falconwatch Cliffs
+	
+Rock Falcon
+	
+53
+Redstone Gorge
+	
+Canyon Lizard
+	
+54
+Windcaller Stones
+	
+Wind Sprite
+	
+55
+Thunderhorn Basin
+	
+Thunderhorn
+	
+56
+Skyarrow Ruins
+	
+Storm Centaur
+	
+57
+Dungeon: Celestial Archery Grounds. Đấu trường thử thách khả năng chọn vị trí, né đạn và di chuyển.
+Boss: Stormhoof Centaur Lv 57.
+Card/Pet: Rock Falcon, Wind Sprite, Prairie Wolf.
+Cốt truyện: Một đài quan sát cổ cho thấy có một khoảng trống bất thường giữa 12 chòm sao.
+08. ♏ SCORPIO — UMBRAL DEPTHS
+Level 58–64 · Đầm Lầy U Ảnh
+12
+Khu dân cư: Duskmire Refuge. Khu trú ẩn dựng trên cọc gỗ cao, được bao quanh bởi đèn và những bùa bảo vệ.
+Map săn: Venomfen Expanse. Đầm nước độc, hang rễ cây, rừng sương mù và phế tích chìm.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Murkwater Pools
+	
+Poison Slime
+	
+58
+Leechwater Bank
+	
+Bog Leech
+	
+59
+Hollowroot Trail
+	
+Root Crawler
+	
+60
+Venomweb Grove
+	
+Venom Spider
+	
+61
+Phantom Marsh
+	
+Marsh Stalker
+	
+62
+Drowned Court
+	
+Mire Lurker
+	
+63
+Serpent's Hollow
+	
+Shadow Serpent
+	
+64
+Dungeon: Drowned Reliquary. Một kho lưu trữ cổ chìm dưới đầm nước, chứa những tài liệu không được phép công bố.
+Boss: Mire Hydra Queen Lv 64.
+Wanted Boss mùa mở rộng: Venomtail Sovereign.
+Card/Pet: Venom Spider, Marsh Stalker, Shadow Serpent.
+Cốt truyện: Tại đây có bằng chứng về người đã phản đối quyết định xóa ký ức của 12 Tinh Vệ.
+09. ♈ ARIES — EMBER HIGHLANDS
+Level 65–71 · Cao Nguyên Chiến Hỏa
+12
+Khu dân cư: Ashenhold Fortress. Pháo đài chiến binh và thợ rèn, nơi người dân xem lòng dũng cảm là đức tính cao quý nhất.
+Map săn: Cinderfall Highlands. Cao nguyên tro, núi lửa, khe dung nham, chiến địa cổ và lò rèn bỏ hoang.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Emberfall Trail
+	
+Ember Imp
+	
+65
+Ashfang Ridge
+	
+Ash Hound
+	
+66
+Magma Crossing
+	
+Magma Boar
+	
+67
+Cinderstone Field
+	
+Cinder Beetle
+	
+68
+Warfire Ruins
+	
+Flame Knight
+	
+69
+Obsidian Quarry
+	
+Volcanic Golem
+	
+70
+Molten Gate
+	
+Lava Serpent
+	
+71
+Dungeon: Infernal Forge. Lò rèn cổ nơi từng chế tạo vũ khí cho Đại Chiến Hoàng Hôn.
+Boss: Infernal Ram Lv 71.
+Card/Pet: Ember Imp, Ash Hound, Magma Boar.
+Cốt truyện: Một cuộc chiến sắp nổ ra giữa những người vẫn trung thành với các Tinh Vệ và những người tin rằng cần giải phóng ký ức bị phong ấn.
+10. ♌ LEO — SUNCREST KINGDOM
+Level 72–78 · Vương Quốc Mặt Trời
+11
+Khu dân cư: Solara Oasis. Kinh đô sa mạc với quảng trường, hoàng cung, khu chợ và những lễ hội Mặt Trời.
+Map săn: Gilded Dunes. Biển cát vàng, ốc đảo, lăng mộ, di tích và đồng bằng đá.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Sunwarm Sands
+	
+Sand Beetle
+	
+72
+Dunefox Burrows
+	
+Dune Fox
+	
+73
+Golden Oasis
+	
+Desert Lynx
+	
+74
+Solar Springs
+	
+Solar Sprite
+	
+75
+Ancient Scarab Tomb
+	
+Golden Scarab
+	
+76
+Royal Necropolis
+	
+Sun Mummy
+	
+77
+Lion's Approach
+	
+Lion Knight
+	
+78
+Dungeon: Eclipse Palace. Cung điện chỉ mở khi xảy ra hiện tượng nhật thực, nơi lưu giữ một bí mật của Tinh Vệ Leo.
+Boss: Solarius — Sư Vương Nhật Thực Lv 78.
+Card/Pet: Dune Fox, Golden Scarab, Solar Cub.
+Cốt truyện: Aurelion tiết lộ lý do các Tinh Vệ từng đồng ý xóa lịch sử, khiến người chơi phải nghi ngờ cả hai phe.
+11. ♒ AQUARIUS — ASTRAL ISLES
+Level 79–84 · Quần Đảo Thiên Không
+11
+Khu dân cư: Aetherhaven. Thành phố nổi được duy trì bằng những lõi Tinh Thạch cổ đại.
+Map săn: Skydrift Archipelago. Một map liền mạch theo gameplay, gồm nhiều đảo nối bằng cầu, dòng khí và cổng dịch chuyển nội bộ.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Cloudfall Garden
+	
+Cloud Slime
+	
+79
+Aetherblossom Terrace
+	
+Aether Butterfly
+	
+80
+Skywater Channels
+	
+Water Sprite
+	
+81
+Manta Crossing
+	
+Sky Manta
+	
+82
+Crystal Workshop
+	
+Crystal Drone
+	
+82–83
+Astral Mechanism
+	
+Clockwork Soldier
+	
+83
+Observatory Gate
+	
+Astral Construct
+	
+84
+Dungeon: Starfall Observatory. Đài thiên văn cổ có khả năng quan sát ký ức từ các thời đại trước.
+Boss: Aether Leviathan Lv 84.
+Card/Pet: Cloud Slime, Aether Butterfly, Crystal Drone.
+Cốt truyện: Người chơi tận mắt thấy bằng chứng Asteria từng trải qua nhiều chu kỳ bị xóa và tái tạo.
+12. ♓ PISCES — DREAMSEA
+Level 85–90 · Biển Mộng Linh Hồn
+10
+Khu dân cư: Moontide Haven. Một thánh cảng nằm giữa biển mộng, nơi người dân nghiên cứu giấc mơ và ký ức.
+Map săn: Starlit Tides. Mặt biển phản chiếu bầu trời, những con đường đá nổi, vườn san hô phát sáng và tàn tích linh hồn.
+Camp
+	
+Quái chủ đạo
+	
+Lv
+Moonglow Shore
+	
+Dream Jelly
+	
+85
+Silvercurrent
+	
+Moonfish Spirit
+	
+86
+Memory Reef
+	
+Memory Eel
+	
+87
+Phantom Tidepool
+	
+Phantom Crab
+	
+88
+Siren's Garden
+	
+Soul Siren
+	
+89
+Dream Palace Ruins
+	
+Dream Knight
+	
+89
+Abyssal Reflection
+	
+Ancient Echo
+	
+90
+Dungeon: Abyss of Remembrance. Di tích nơi những ký ức bị lãng quên hòa thành một đại dương ánh sáng.
+Boss: Noctilume Seraph Lv 90.
+Card/Pet: Dream Jelly, Moonfish Spirit, Memory Eel.
+Cốt truyện: Người chơi khám phá vị trí của Tinh Vực XIII và tìm ra con đường ngăn Aurelion mà không xóa đi ký ức của sinh vật sống.
+13. ✦ THE FORGOTTEN REALM
+Endgame Level 90 · Tinh Vực Thứ Mười Ba
+10
+Tinh Vực thứ 13 vẫn tuân thủ ba lớp nội dung nhưng không mang cảm giác một lãnh thổ thông thường.
+Khu an toàn: Nameless Sanctuary. Điểm tập kết của các nhà thám hiểm, do những linh hồn ký ức bảo hộ.
+Map khám phá: Ruins of the First World. Một không gian liên tục gồm bốn phân khu:
+Khu vực
+	
+Quái đặc trưng
+Shattered Boulevard
+	
+Forgotten Soldier
+Mirror of Lost Ages
+	
+Memory Devourer
+Eternal Monument
+	
+Eternal Watcher
+Nameless Garden
+	
+Nameless Beast, Chronicle Guardian
+Dungeon/Raid: Throne of Oblivion.
+Final Boss: Aurelion — Người Giữ Lịch Sử, hai giai đoạn từ pháp sư ký ức tới thực thể hợp nhất với Ngôi Sao Thứ Mười Ba.
+Không có Wanted Boss hằng ngày ở vùng XIII. Đây là nơi dành cho cốt truyện cuối, nội dung raid và phần thưởng mang giá trị biểu tượng.
+PHẦN B — TAURUS MONSTER & MAP PRODUCTION SHEET V3.0
+Thiết kế mới hoàn toàn · World 01 · Level 1–10
+Đây là Tinh Vực mình muốn đầu tư kỹ nhất. Không chỉ vì đây là vùng đầu tiên, mà vì Taurus sẽ định nghĩa chất lượng mỹ thuật, nhịp chiến đấu, mật độ map và cách hướng dẫn người chơi cho toàn bộ Asteria.
+I. Taurus — Bản sắc và môi trường
+Willowbrook Village
+Làng mở đầu, ấm áp và thân thiện
+Clover Meadows
+Đồng cỏ lớn, nhiều môi trường nhỏ
+Elderwood Edge
+Khu rừng nguy hiểm nằm trong Clover Meadows
+Ancient Root Shrine
+Dungeon đầu tiên và bí mật lịch sử
+Bảng màu art direction
+Thành phần
+	
+Màu chủ đạo
+Cỏ nền chính
+	
+#88A85D
+Cỏ sáng
+	
+#A8C57A
+Đường đất
+	
+#CBA679
+Đất rừng
+	
+#806D50
+Nước suối
+	
+#79B8C2
+Đá
+	
+#A5A397
+Bóng tán cây qua ánh sáng môi trường
+	
+Xanh ô-liu dịu
+Tinh thể và rune cổ
+	
+#70D3C4
+Điểm nhấn hoa
+	
+Kem, vàng nhạt, hồng pastel
+Đây là palette khởi điểm để thử trong Unity, không phải màu bắt buộc áp lên mọi texture.
+Định hướng: 75–80% bản đồ có cảm giác an toàn, đầy sức sống; phần còn lại ở rừng sâu và thánh tích có màu sắc trầm hơn, gợi bí ẩn.
+II. Willowbrook Village — Production Layout
+Kích thước đề xuất mới: 44×32 tile · Safe Zone
+Mình chọn 44×32 ô thay vì bê nguyên 36×24 của làng cũ, vì cần đủ chỗ cho quảng trường, NPC tân thủ, Card Master và hoạt động xã hội. Đây là kích thước mục tiêu ban đầu, có thể điều chỉnh sau khi đặt sprite thật.
+Willowbrook Village — Concept Layout
+Sơ đồ mặt bằng định hướng: quảng trường ở trung tâm, các NPC quan trọng nằm gần đường chính, cổng nam dẫn ra Clover Meadows. Không phải tọa độ cuối cùng của scene.
+NPC chính
+NPC
+	
+Vị trí
+	
+Chức năng
+Elder Rowan
+	
+Hội Thám Hiểm
+	
+Main Quest, hướng dẫn chiến đấu
+Card Master Orin
+	
+Góc đông quảng trường
+	
+Monster Card, trận NPC
+Bram the Smith
+	
+Phía tây quảng trường
+	
+Cường hóa trang bị
+Lumi
+	
+Gần vườn linh thú
+	
+Giới thiệu Pet Gacha
+Mira the Merchant
+	
+Dãy cửa hàng
+	
+Vật phẩm cơ bản
+Gatekeeper Finn
+	
+Cổng nam
+	
+Chỉ đường, thông báo nguy hiểm
+Mình đặt Orin ở nơi dễ nhìn thấy khi đi qua quảng trường, nhưng không chặn đường đi của người chơi.
+Hành vi NPC và cổng làng
+Cổng nam mở sau hướng dẫn di chuyển, không phụ thuộc vào việc nhận quest Orin. Trước khi hoàn thành hướng dẫn chiến đấu, Elder Rowan có thể chủ động nhắc người chơi tới camp đầu.
+Orin có dấu ! khi nhiệm vụ có thể nhận, dấu ? khi có thể trả nhiệm vụ. Nếu game đang dùng dấu ? làm ký hiệu quest mới thì vẫn dùng được, miễn hệ thống marker nhất quán.
+III. Clover Meadows — Bố cục map săn chính
+Kích thước mục tiêu: 96×64 tile · 7 khu sinh thái · 10 cụm spawn
+Mình chọn 96×64 để có không gian cho nhiều khu địa hình, đường đi, hồ nước và camp quái. Tuy nhiên, đây là kích thước layout thử nghiệm, chưa phải ràng buộc kỹ thuật; nếu một ô tile trong project có kích thước thế giới lớn, phải kiểm thử thời gian di chuyển trước khi khóa.
+Clover Meadows — Map zoning
+Định hướng top-down: người chơi xuất phát từ phía nam, tiến dần về rừng và di tích phía bắc. Bố cục đường, suối và camp cần kiểm thử bằng tốc độ chạy thực tế của nhân vật.
+Phân bố quái và hồi sinh
+Mình không giữ con số 70 quái của bản cũ như một ràng buộc. Sau khi thiết kế lại, mình đề xuất 68 quái thường tồn tại tối đa ở 10 cụm spawn, chia thành 7 khu sinh thái.
+Camp
+	
+Quái
+	
+Lv
+	
+Số con tối đa
+	
+Respawn
+C01 — Cloverfield A
+	
+Clover Slime
+	
+1
+	
+9
+	
+12s
+C02 — Cloverfield B
+	
+Clover Slime
+	
+2
+	
+7
+	
+12s
+C03 — Rabbit Hills
+	
+Horn Rabbit
+	
+3
+	
+8
+	
+16s
+C04 — Brookside
+	
+Reed Frog, Clover Slime
+	
+3–4
+	
+6 (4+2)
+	
+18s
+C05 — Mushroom Grove
+	
+Moss Mushroom
+	
+4–5
+	
+8
+	
+20s
+C06 — Bramble Thicket A
+	
+Bramble Boar
+	
+6
+	
+8
+	
+24s
+C07 — Bramble Thicket B
+	
+Bramble Boar, Leaf Mantis
+	
+6–8
+	
+6 (3+3)
+	
+25s
+C08 — Elderwood Edge
+	
+Leaf Mantis, Rootling
+	
+8–9
+	
+6 (3+3)
+	
+26s
+C09 — Ancient Roots A
+	
+Thorn Sprite
+	
+9
+	
+5
+	
+28s
+C10 — Ancient Roots B
+	
+Ancient Barkling
+	
+10
+	
+5
+	
+30s
+Tổng
+			
+68
+	
+Các thời gian respawn là điểm bắt đầu để tuning, không phải giá trị đã được kiểm chứng trên server.
+Yêu cầu về mật độ
+Gần cổng làng, mỗi quái có khoảng di chuyển đủ rộng để không đè lên các nhóm người chơi đang làm quest.
+Camp Lv 1–3 nên có nhiều mục tiêu xuất hiện, thời gian respawn ngắn.
+Quái Lv 6+ không đứng trên con đường bắt buộc về làng.
+Khu Ancient Roots có cảm giác nguy hiểm nhưng vẫn có hành lang đi vào dungeon.
+Boss cộng đồng và boss cốt truyện phải ở vị trí riêng, không spawn chồng lên camp thường.
+IV. Taurus Monster Roster — Thiết kế chi tiết
+01. Clover Slime
+Lv 1–2 · 0,55H · Melee
+Thạch xanh tròn, trên đầu có mầm cỏ nhỏ chính giữa. Chậm, hiền, dễ nhận biết đòn đánh. Quái hướng dẫn đầu tiên.
+02. Horn Rabbit
+Lv 3 · 0,72H · Melee
+Thỏ kem tai lớn, một sừng ngắn giữa trán. Tấn công bằng động tác húc ngắn tại chỗ, không có cơ chế lao xa.
+03. Reed Frog
+Lv 3–4 · 0,60H · Melee
+Ếch xanh lá nhạt, hai mắt cao, chân sau khỏe. Tấn công bằng cú bật nhỏ tại khoảng đánh, không cần AI nhảy đặc biệt.
+04. Moss Mushroom
+Lv 4–5 · 0,75H · Ranged
+Nấm có mũ màu nâu kem phủ rêu, thân ngắn, mắt nhỏ. Phóng bào tử xanh nhạt thẳng về mục tiêu, dùng AI đạn tầm xa.
+05. Bramble Boar
+Lv 6–7 · 0,90H · Melee
+Heo rừng nâu có bờm gai xanh. HP cao hơn Rabbit, đòn đánh chậm và mạnh. Không có phản sát thương từ gai trong V1.
+06. Leaf Mantis
+Lv 7–8 · 0,85H · Melee
+Bọ ngựa thân lá với hai tay lưỡi liềm cân đối, nhịp tấn công nhanh nhưng HP tương đối thấp.
+07. Rootling
+Lv 8–9 · 0,85H · Melee
+Một mẩu rễ cây biết đi, có hai cánh tay bằng cành và đôi chân rễ. HP khá cao, tốc độ di chuyển chậm.
+08. Thorn Sprite
+Lv 9 · 0,75H · Ranged
+Tinh linh lá gai, cơ thể nhỏ, đôi cánh cân xứng. Bắn hạt sáng xanh ngọc. Hình ảnh phải dễ phân biệt với Pet.
+09. Ancient Barkling
+Lv 10 · 1,20H · Melee
+Hộ vệ vỏ cây, có hình thể
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

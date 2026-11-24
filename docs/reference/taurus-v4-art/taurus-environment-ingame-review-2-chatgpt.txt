@@ -1,0 +1,422 @@
+Nguồn: ChatGPT (Tay), chat thiết kế "Ragnarok Và Đạo Chúa" https://chatgpt.com/c/6b03f69b-a4f8-83ec-af99-547d92463f83 , 24/11/2026. Nguyên văn duyệt vòng 2 (sau khi sửa cổng / khu Card / rìa rừng).
+
+ChatGPT said:
+TAURUS — P2 ENVIRONMENT FINAL APPROVAL V3.0
+APPROVED — KHÓA P2
+
+Mình chốt DUYỆT CUỐI môi trường Willowbrook Village và Clover Meadows. Không cần sửa hoặc vẽ lại asset nào nữa.
+
+Bốn ảnh mới cho thấy ba vấn đề từ vòng review trước đã được xử lý đúng hướng. Quan trọng nhất, các thay đổi không phá vỡ bố cục greybox, không làm tăng mật độ trang trí và vẫn giữ được phong cách RO Soft Adventure — Taurus Cute 9 / Threat 2.
+
+I. Chấm điểm sau khi sửa
+
+Hạng mục
+
+	
+
+Trước
+
+	
+
+Sau
+
+	
+
+Phán quyết
+
+
+
+
+South Gate / Hero visibility
+
+	
+
+87
+
+	
+
+95
+
+	
+
+Duyệt
+
+
+
+
+Card / Market / Pet Corner
+
+	
+
+89
+
+	
+
+95
+
+	
+
+Duyệt
+
+
+
+
+Clover Meadows Forest Border
+
+	
+
+84
+
+	
+
+93
+
+	
+
+Duyệt
+
+
+
+
+Clover Meadows toàn cảnh
+
+	
+
+88
+
+	
+
+93
+
+	
+
+Duyệt
+
+
+
+
+Tổng thể P2
+
+	
+
+91
+
+	
+
+95
+
+	
+
+Khóa
+
+Điểm /100 là đánh giá mỹ thuật trên ảnh chụp, không phải kết quả đo collision hoặc hiệu năng toàn bộ thiết bị.
+
+II. Đánh giá từng hạng mục
+1. South Gate — 95/100
+
+Đã sửa đúng.
+
+Ảnh 1 cho thấy Warrior đứng trong lối cổng, không còn bị phần vòm và huy hiệu che như phiên bản trước. Hai trụ, banner và vòm đá vẫn giữ được cảm giác một cổng làng lớn.
+
+Việc tách sprite cổng thành ba mảnh là quyết định hợp lý hơn việc vẽ lại toàn bộ kiến trúc.
+
+Portal xanh sau khi giảm 30% vẫn đủ nổi bật để người chơi hiểu đây là điểm chuyển map, đồng thời nhân vật dễ nhận diện hơn.
+
+Kết luận:
+
+Giữ nguyên ba mảnh South Gate.
+
+Giữ quy tắc giảm portal 30% khi hero đứng trong vùng chuyển map.
+
+Không cần chỉnh thêm layer hay độ sáng từ những gì thấy trong ảnh.
+
+2. Card / Market / Pet Corner — 95/100
+
+Đã sửa đúng.
+
+Ảnh 2 cho thấy:
+
+Lối giữa Orin và Card Tent thông thoáng hơn.
+
+Bàn bài đã nằm lệch về phía trái, không còn gây cảm giác chắn lối tương tác.
+
+Hai quầy Market có khoảng trống phía trước.
+
+Thùng gỗ chuyển ra khu ít người đi, hợp lý hơn.
+
+Pet Pen vẫn giữ bảng dấu chân và hướng mở phía tây.
+
+Cây ở rìa phải tạo chiều sâu nhưng không chiếm phần trung tâm tương tác.
+
+Khu này hiện đạt được hai mục tiêu: đẹp như một khu sinh hoạt nhỏ và đủ rõ để người chơi biết NPC nào phục vụ chức năng gì.
+
+Mình không yêu cầu giảm thêm props. Nếu tiếp tục bỏ đồ trang trí, khu chợ có nguy cơ trở nên quá trống.
+
+Kết luận: Giữ nguyên placement hiện tại.
+
+3. Clover Meadows — Forest Border — 93/100
+
+Đã cải thiện rõ.
+
+Trong ảnh 3, các cây lớn và nhỏ có sự thay đổi về chiều cao, độ rộng tán và khoảng cách, nên không còn cảm giác một hàng cây cùng loại đặt đều như trước.
+
+Ảnh 4 toàn cảnh cũng cho thấy viền rừng phía nam và phía tây tự nhiên hơn. Các khoảng trống quanh cổng làng giúp người chơi xác định lối ra dễ dàng.
+
+Những điểm đạt:
+
+Meadow Oak Large và Medium không còn lặp cùng một nhịp quá dài.
+
+Young Tree giúp chia nhỏ các khối tán lớn.
+
+Một số cây được lật gương, làm đường viền bớt giống nhau.
+
+Vẫn giữ sự liên tục của rừng và không tạo khoảng hở giả trên vùng blocker.
+
+C01 và các khu săn gần đường chính không bị thêm vật cản.
+
+Một quan sát nhỏ: Ở ảnh 3, Warrior đang bị tán cây che một phần. Điều này không phải lỗi asset, vì cây lớn cần có chiều sâu. Tuy nhiên, cần xác nhận cơ chế fade hoạt động trong đúng tình huống này khi người chơi di chuyển.
+
+Nếu fade đã chạy đúng, không cần thay đổi cây hoặc vị trí.
+
+4. Clover Meadows toàn cảnh — 93/100
+
+Bố cục hiện tại đã đạt các yêu cầu quan trọng:
+
+Có trục đường chính từ làng tới cầu.
+
+Suối chia vùng phía nam và phía bắc.
+
+C01 vẫn rộng, thoáng.
+
+Camp phía bắc có mật độ rừng và đất khác biệt.
+
+Ancient Root Shrine nằm cuối tuyến khám phá.
+
+Rìa rừng tạo giới hạn tự nhiên thay vì chỉ có tường vô hình.
+
+Ảnh toàn cảnh vẫn cho thấy một số cây lặp cùng bảng màu vàng-lục, nhưng đó là sự thống nhất của hệ sinh thái Taurus, không còn là lỗi lặp asset nghiêm trọng.
+
+Mình không khuyến khích thêm cây mới chỉ để làm toàn cảnh phức tạp hơn.
+
+III. Màu nền và mật độ — Có cần chỉnh tiếp không?
+
+Thành phần
+
+	
+
+Phán quyết
+
+
+
+
+Meadow Grass Main / Light
+
+	
+
+Giữ nguyên
+
+
+
+
+Shaded Grass / Forest Floor
+
+	
+
+Giữ nguyên
+
+
+
+
+Packed Dirt Path
+
+	
+
+Giữ nguyên
+
+
+
+
+Plaza Stone
+
+	
+
+Giữ nguyên
+
+
+
+
+Stream Water
+
+	
+
+Giữ nguyên
+
+
+
+
+Ancient Roots Ground
+
+	
+
+Giữ nguyên
+
+
+
+
+Độ sáng Taurus
+
+	
+
+Đạt
+
+
+
+
+Độ bão hòa
+
+	
+
+Đạt
+
+
+
+
+Mật độ làng
+
+	
+
+Đạt
+
+
+
+
+Mật độ camp combat
+
+	
+
+Đạt
+
+
+
+
+Mật độ viền rừng
+
+	
+
+Đạt sau sửa
+
+Không chỉnh palette toàn map. Không tăng contrast hoặc saturation thêm. Không giảm độ sáng rừng.
+
+Taurus hiện có cảm giác sáng, ấm và dễ thương, nhưng vẫn phân biệt được các vùng sinh thái.
+
+Đặc biệt, cỏ không quá chói, đường đất đủ sáng, tán cây vàng tạo điểm nhấn và quái vẫn dễ nhận diện. Đây chính là hướng hình ảnh mình muốn giữ làm chuẩn cho World 01.
+
+IV. Còn gì cần làm trước khi xem P2 hoàn tất?
+
+Không còn yêu cầu sửa art. Chỉ còn một số bước QA kỹ thuật mà ảnh tĩnh không thể chứng minh.
+
+QA kỹ thuật
+
+	
+
+Điều kiện đạt
+
+
+
+
+Tree occlusion
+
+	
+
+Hero tự fade hoặc dither đúng khi bị tán cây che
+
+
+
+
+Gate sorting
+
+	
+
+Hero hiển thị đúng trước/sau từng phần cổng
+
+
+
+
+Portal transition
+
+	
+
+Không che hero quá mức, chuyển map đúng
+
+
+
+
+Collision
+
+	
+
+Không có khối chặn vô hình mới hoặc lối đi giả
+
+
+
+
+Bridge pathfinding
+
+	
+
+Hero và Pet đi qua được cầu
+
+
+
+
+Mobile performance
+
+	
+
+FPS ổn định khi nhiều người và quái cùng xuất hiện
+
+Các mục này không phải lý do để vẽ lại môi trường. Chỉ cần kiểm thử trực tiếp trên build.
+
+V. Quyết định khóa P2
+
+TAURUS P2 — ENVIRONMENT ART LOCK
+
+9 Ground Materials	
+
+LOCKED
+
+
+5 Willowbrook Prop Sheets	
+
+LOCKED
+
+
+7 Clover Meadows Prop Sheets	
+
+LOCKED
+
+
+South Gate Sorting	
+
+APPROVED
+
+
+Card / Market Layout	
+
+APPROVED
+
+
+Forest Border Placement	
+
+APPROVED
+
+Kết luận cuối của Art Director
+
+Taurus P2 đạt khoảng 95/100 về hình ảnh và đủ điều kiện khóa môi trường.
+
+Mình không muốn đội sản xuất tiếp tục mất thời gian chỉnh cây, đá, lều, nhà hoặc texture khi kết quả đã đạt chất lượng mục tiêu.
+
+Bước tiếp theo nên chuyển sang P3 — Gameplay & World Integration: quest tân thủ, NPC interaction, Monster Card với Orin, combat ở 10 camp, Field Boss Brambleback Matriarch và dungeon Ancient Root Shrine.
+
+Chốt: Không vẽ lại gì. Khóa P2.
+

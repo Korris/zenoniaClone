@@ -1,0 +1,690 @@
+You said:
+tiếp
+ChatGPT said:
+ASTERIA — TAURUS PRODUCTION BIBLE V4.0
+PART 2/3 · DUNGEON, BOSSES, MAIN STORY & NEW PLAYER QUESTS
+Tiếp nối Phần 1, mình sẽ giữ nguyên các quyết định đã thiết kế:
+Willowbrook Village: làng khởi đầu, 44×32 tile.
+Clover Meadows: map săn 96×64 tile, 7 tiểu khu, 10 camp, 68 quái thường.
+Ancient Root Shrine: dungeon đầu tiên của Taurus.
+Elder Rowan: NPC hướng dẫn chiến đấu và nhiệm vụ chính.
+Card Master Orin: NPC hướng dẫn Monster Card.
+Bram the Smith: NPC hướng dẫn cường hóa.
+Lumi: NPC Pet.
+Phần này tập trung vào ba mục tiêu: tạo dungeon đầu tiên đáng nhớ, hoàn thiện tuyến truyện Taurus Level 1–10 và thiết kế hướng dẫn Monster Card đủ cụ thể để lập trình viên triển khai.
+I. Ancient Root Shrine — Dungeon Production Sheet
+World 01 · Taurus · Dungeon Lv 8–10
+13
+1. Ý tưởng nghệ thuật
+Ancient Root Shrine là một ngôi đền nằm bên dưới bộ rễ của cây cổ thụ lớn nhất Taurus.
+Người dân Willowbrook tin rằng cây cổ này đã bảo vệ vùng đồng cỏ hàng trăm năm. Nhưng trên thực tế, nó còn tồn tại từ trước khi ngôi làng được thành lập.
+Dưới bộ rễ cây có một công trình đá cổ. Trên tường là những biểu tượng không giống chữ viết của con người hiện tại.
+Cảm giác cần đạt: Người chơi bước từ một thế giới dễ thương, sáng sủa vào một nơi cổ kính và bí ẩn, nhưng chưa phải dungeon kinh dị hay quá tối.
+Bảng màu dungeon
+Đất và rễ cây
+#806747
+Đá cổ
+#908B77
+Rêu xanh
+#68865D
+Ánh sáng hổ phách
+#E4B76A
+Rune cổ
+#70D3C4
+Vùng tối
+#485744
+Không dùng ánh sáng tím hoặc đỏ mạnh làm màu chủ đạo ở dungeon này. Taurus vẫn nên có màu xanh thiên nhiên và vàng ấm. Ánh rune xanh ngọc chỉ xuất hiện tại các thánh tích liên quan cốt truyện.
+2. Cấu trúc dungeon
+Mình đề xuất Ancient Root Shrine có 3 khu vực nối tiếp trong cùng một dungeon, không cần ba tầng sâu độc lập.
+AREA 01 · LV 8
+Tangled Root Passage
+Đường hầm rễ cây · Quái cơ bản · Học cách đánh nhóm nhỏ
+AREA 02 · LV 9
+Amber Memory Hall
+Đại sảnh nấm hổ phách · Ranged + Melee · Thánh tích ký ức
+AREA 03 · LV 10
+Heartroot Sanctuary
+Thánh điện cổ · Boss Elder Root Guardian
+Ba khu này có thể được xây dựng thành một scene dungeon với ba phòng lớn, nối bằng hành lang và lối mở. Với dungeon đầu tiên, mình ưu tiên đường đi dễ hiểu hơn là mê cung phức tạp.
+Diện tích đề xuất
+Khu vực
+	
+Kích thước mục tiêu
+	
+Vai trò
+Tangled Root Passage
+	
+24×22 tile
+	
+Combat mở đầu
+Amber Memory Hall
+	
+28×24 tile
+	
+Combat hỗn hợp, tương tác cổ vật
+Heartroot Sanctuary
+	
+30×28 tile
+	
+Boss arena
+Hành lang
+	
+Rộng 3–5 tile
+	
+Chuyển tiếp
+Đây là kích thước thiết kế sơ bộ; cần xác nhận kích thước hitbox quái, chiều cao nhân vật, góc camera và độ rộng thực tế của các đòn đánh.
+3. Sơ đồ dungeon
+Sơ đồ khái niệm, không phải bản vẽ tile. Lối đi tuyến tính để người chơi mới ít bị lạc; ba khu vực được phân biệt bằng kiến trúc và ánh sáng.
+II. Monster Roster — Ancient Root Shrine
+Dungeon sử dụng một số loài ở Clover Meadows, nhưng bổ sung sinh vật mới để người chơi có lý do khám phá.
+1. Quái mới
+Amber Sporeling
+Lv 8–9 · 0,75H · Ranged
+Nấm nhỏ màu hổ phách có các chấm vàng kem trên mũ. Bắn những bào tử phát sáng màu vàng nhạt.
+AI: Projectile tầm xa hiện có.
+Card: Common hoặc Rare tùy cân bằng.
+Pet: Chưa phát hành.
+Rune Bark Guardian
+Lv 9–10 · 1,30H · Melee
+Hộ vệ gỗ nhỏ có mảng đá cổ trên thân và lõi rune xanh ngọc giữa ngực.
+AI: Cận chiến chậm, HP cao.
+Card: Rare đề xuất.
+Pet: Không phát hành V1.
+Tổng quái trong dungeon
+Mình đề xuất 18 quái thường xuất hiện đồng thời, chia theo phòng:
+Khu vực
+	
+Quái vật
+	
+Số lượng
+	
+Respawn
+Tangled Root Passage
+	
+Rootling ×3, Ancient Barkling ×3
+	
+6
+	
+Theo lượt dungeon
+Amber Memory Hall
+	
+Amber Sporeling ×4, Thorn Sprite ×3, Rune Bark Guardian ×2
+	
+9
+	
+Theo lượt dungeon
+Heartroot Sanctuary, lối vào
+	
+Rune Bark Guardian ×3
+	
+3
+	
+Theo lượt dungeon
+Boss Arena
+	
+Elder Root Guardian ×1
+	
+1
+	
+Theo lượt dungeon
+Tổng: 18 quái thường + 1 boss.
+Mình khuyên dungeon cốt truyện ban đầu sử dụng cơ chế spawn theo phiên và không tự hồi sinh quái đã bị tiêu diệt trong cùng lượt. Điều này giúp người chơi cảm nhận được tiến độ dọn dungeon, không bị kẹt trong vòng lặp respawn.
+Nếu hệ thống dungeon của bạn là map công cộng thay vì instance, vẫn có thể dùng thiết kế này nhưng cần đổi chính sách spawn phù hợp.
+2. Gameplay theo từng khu vực
+Area 01 — Tangled Root Passage
+Đây là khu chiến đấu dễ nhất.
+Rootling tiến đến chậm.
+Ancient Barkling có HP cao hơn, đòn đánh nặng.
+Người chơi làm quen với việc xử lý hai quái cận chiến có tốc độ khác nhau.
+Không dùng bẫy, đòn độc hoặc telegraph phức tạp.
+Area 02 — Amber Memory Hall
+Đây là nơi tăng độ khó.
+Amber Sporeling và Thorn Sprite bắn đạn.
+Rune Bark Guardian đi chậm nhưng áp sát.
+Người chơi phải lựa chọn đánh quái tầm xa trước hoặc xử lý con quái đang chắn đường.
+Tương tác cốt truyện: Ở giữa phòng có một viên Memory Amber lớn. Khi người chơi chạm vào, hiển thị một đoạn ký ức ngắn.
+Không thêm minigame puzzle phức tạp trong dungeon đầu tiên.
+Area 03 — Heartroot Sanctuary
+Khu vực cuối, có khoảng trống rộng để chiến đấu với boss.
+Trước khi vào arena, người chơi gặp ba Rune Bark Guardian. Sau khi đánh bại chúng, cổng đá mở.
+Bên trong là một cây cổ khổng lồ có lõi sáng màu hổ phách.
+Lõi phát sáng mạnh hơn khi người chơi bước tới.
+Sau đó, Elder Root Guardian thức tỉnh.
+III. Elder Root Guardian — Boss Production Sheet
+Story Boss · Taurus · Level 10
+spellmongershall.com
+1. Vai trò trong cốt truyện
+Elder Root Guardian không phải quái vật ác.
+Nó là hộ vệ được tạo ra để bảo vệ Memory Amber nằm bên dưới Taurus.
+Khi ký ức bên trong Memory Amber bắt đầu bất ổn, Elder Root Guardian mất khả năng phân biệt người đến giúp và kẻ xâm nhập.
+Người chơi phải đánh bại nó để tiếp cận viên ký ức.
+Đây là lần đầu người chơi chiến đấu với một sinh vật có liên quan trực tiếp đến bí mật chòm sao thứ 13.
+2. Thiết kế ngoại hình
+Thành phần
+	
+Art direction
+Tỷ lệ
+	
+3,5–4,0H
+Thân
+	
+Gỗ cổ, dáng rộng, hơi hình thang
+Tay
+	
+Hai cánh tay rễ cây to, cân xứng
+Chân
+	
+Hai chân rễ lớn, bám đất
+Đầu
+	
+Khối gỗ có khuôn mặt, mắt vàng
+Ngực
+	
+Lõi Memory Amber phát sáng
+Tán lá
+	
+Xanh ô-liu pha vàng cổ
+VFX
+	
+Bào tử vàng, hạt rêu, ánh rune xanh
+Boss cần có ba điểm nhận diện: hai cánh tay rất lớn, lõi hổ phách ở giữa ngực và tán lá cổ thụ.
+Không tạo các nhánh cây dài bất đối xứng ở một bên, vì sprite hướng trái dùng flip từ phải.
+3. Bộ kỹ năng
+Mình đề xuất một boss tutorial có ba kỹ năng chính, cộng một cơ chế chuyển trạng thái khi HP thấp.
+Kỹ năng
+	
+Cơ chế
+	
+Mục tiêu
+Root Slam
+	
+Đập một tay xuống trước mặt
+	
+Dạy đọc animation
+Ancient Sweep
+	
+Quét hai tay theo hình quạt
+	
+Dạy né vùng nguy hiểm
+Amber Pulse
+	
+Phát xung năng lượng quanh thân
+	
+Dạy đứng ngoài vùng tròn
+Awakening
+	
+Khi HP dưới 30%, lõi sáng mạnh và tăng nhịp tấn công
+	
+Tạo cao trào
+Thông số đề xuất
+Kỹ năng
+	
+Thời gian cảnh báo
+	
+Tần suất
+Root Slam
+	
+0,65 giây bằng animation
+	
+Đòn cơ bản
+Ancient Sweep
+	
+1,2 giây, quạt 120°
+	
+Khoảng 9–12 giây
+Amber Pulse
+	
+1,5 giây, vòng tròn
+	
+Khoảng 14–18 giây
+Awakening
+	
+1,0 giây chuyển pha
+	
+Một lần dưới 30% HP
+Các số liệu này là điểm bắt đầu để thử nghiệm.
+Yêu cầu tính năng mới: Ancient Sweep và Amber Pulse cần hệ thống telegraph hoặc vùng nguy hiểm nếu code boss chưa có. Nếu bạn muốn giới hạn phạm vi V1, có thể sử dụng Root Slam và một đòn AoE đã có, nhưng không nên làm boss đầu tiên chỉ đứng yên đánh thường.
+4. Cảm giác chiến đấu
+Mình muốn Elder Root Guardian có nhịp chiến đấu tương đối chậm, rõ ràng và dễ học.
+Quạt đánh phải nhìn được từ góc camera 3/4.
+Vòng cảnh báo không dùng màu quá giống nền cỏ xanh.
+Boss không nên có đòn một hit hạ người chơi đủ Level và trang bị phù hợp.
+Kỹ năng không tạo quá nhiều hạt che nhân vật.
+Khi boss còn 30% HP, lõi sáng lên và phát âm thanh trầm, khiến người chơi cảm thấy trận đấu đang đến cao trào.
+Boss cần hoành tráng về kích thước và hiệu ứng, nhưng dễ đọc cơ chế.
+5. Phần thưởng boss
+Phần thưởng
+	
+Quy tắc
+EXP cốt truyện
+	
+Khi hoàn thành nhiệm vụ liên quan
+Gold
+	
+Thưởng dungeon
+Upgrade Stone
+	
+Một lượng nhỏ
+Memory Amber Fragment
+	
+Vật phẩm cốt truyện, không giao dịch
+Elder Root Guardian Card
+	
+Có thể làm Card Rare/SR về sau
+Pet
+	
+Không rơi Pet trực tiếp
+Vật phẩm Memory Amber Fragment được dùng để mở đoạn ký ức và hoàn thành nhiệm vụ.
+Không cần thưởng vũ khí mạnh ở đây, vì người chơi đã học cường hóa trang bị từ đầu.
+IV. Taurus Main Story — Quest Line Level 1–10
+Mình chia thành 8 nhiệm vụ chính, trong đó Monster Card và cường hóa là hai nhánh hướng dẫn liên kết.
+1. Tổng quan
+Quest
+	
+Level mục tiêu
+	
+NPC
+	
+Nội dung
+T-M01 — Welcome to Willowbrook
+	
+1
+	
+Elder Rowan
+	
+Nhập môn, giới thiệu làng
+T-M02 — A Trial in the Meadows
+	
+1–2
+	
+Elder Rowan
+	
+Đánh 5 Clover Slime, nhận đá
+T-S01 — First Upgrade
+	
+2
+	
+Bram
+	
+Cường hóa trang bị T0
+T-C01 — Orin's First Deck
+	
+2–3
+	
+Orin
+	
+Đánh 5 quái, nhận 5 Card
+T-C02 — The First Card Duel
+	
+3
+	
+Orin
+	
+Đấu bài, thắng chọn 1 Card
+T-M03 — Trouble by the Brook
+	
+3–5
+	
+Elder Rowan
+	
+Điều tra quái bên suối
+T-M04 — The Restless Forest
+	
+6–8
+	
+Elder Rowan
+	
+Điều tra rừng cổ
+T-M05 — Memory Beneath the Roots
+	
+9–10
+	
+Elder Rowan
+	
+Dungeon và boss cuối Taurus
+Ở Level 5, thêm nhiệm vụ Pet riêng do Lumi hướng dẫn, nhưng không bắt buộc phải hoàn thành trước khi đi tiếp cốt truyện.
+V. Quest hướng dẫn tân thủ chi tiết
+Q01 — Welcome to Willowbrook
+NPC Elder Rowan · Level 1
+Điều kiện bắt đầu
+Người chơi vừa tạo nhân vật, đã có vũ khí chính và off-hand T0 tự trang bị theo class.
+Không tặng thêm vũ khí trong quest.
+Hội thoại
+Elder Rowan: "Chào mừng đến Willowbrook, nhà thám hiểm trẻ! Đây là ngôi làng nhỏ của chúng ta, nằm dưới sự bảo hộ của Taurus."
+"Ta thấy con đã có vũ khí rồi. Nhưng trước khi lên đường khám phá Asteria, con nên thử sức với những sinh vật ngoài đồng cỏ."
+"Đừng lo, những con Clover Slime gần làng khá hiền. Chúng là đối thủ thích hợp cho người mới."
+Mục tiêu: Đến Clover Meadows qua cổng nam.
+Khi người chơi đi qua cổng, quest tự hoàn thành và chuyển sang nhiệm vụ đánh quái.
+Q02 — A Trial in the Meadows
+Elder Rowan · Level 1–2
+Nhiệm vụ: Bài Học Trên Đồng Cỏ
+Mục tiêu: Tiêu diệt 5 Clover Slime tại camp C01 hoặc C02.
+Upgrade Stone
+×5
+Gold
+300 G
+EXP
+Theo bảng quest Lv 1
+Quy tắc gameplay
+Chỉ đếm kill Clover Slime khi quest đang hoạt động.
+Không yêu cầu Slime rơi vật phẩm nhiệm vụ.
+Người chơi được phép dùng kỹ năng hoặc đánh thường.
+Kill credit nên dựa trên quy tắc đóng góp của server, không bắt buộc phải là người gây last hit nếu có hệ chia đóng góp.
+Khi đủ 5/5, hiện thông báo quay về Elder Rowan.
+Khi trả nhiệm vụ
+Elder Rowan: "Tốt lắm! Con đã làm quen với cách chiến đấu rồi."
+"Đây là vài viên Đá Nâng Cấp. Hãy đem chúng tới Bram. Một nhà thám hiểm giỏi phải biết chăm sóc trang bị của mình."
+Phần thưởng chốt thử nghiệm: 5 Upgrade Stone và 300 Gold.
+Số đá phải được đối chiếu với công thức cường hóa T0 thực tế để đủ cho ít nhất một lần nâng cấp thành công.
+Q03A — First Upgrade
+Bram the Smith · Level 2
+Đây là nhiệm vụ phụ hướng dẫn, không chặn quest Monster Card.
+Hội thoại
+Bram: "Ồ, đá nâng cấp! Rowan đã đưa chúng cho con à?"
+"Đưa ta xem trang bị của con. Với một chút đá và vàng, con có thể làm nó mạnh hơn."
+Mục tiêu
+Mở giao diện cường hóa.
+Chọn vũ khí chính hoặc off-hand T0.
+Nâng cấp thành công ít nhất một lần.
+Quy tắc
+Lần nâng cấp hướng dẫn đầu tiên bảo đảm thành công.
+Không được phá hủy vũ khí hoặc off-hand.
+Không bắt nâng cả hai.
+Nếu người chơi đã nâng cấp thành công trước khi nhận nhiệm vụ, hệ thống cần ghi nhận.
+Hoàn thành nhận EXP nhỏ, có thể thêm 100 Gold.
+Sau đó người chơi được tự do sử dụng số đá còn lại.
+Q03B — Orin's First Deck
+Card Master Orin · Level 2–3
+Đây là chuỗi nhiệm vụ Monster Card mà mình muốn giữ đúng tinh thần bạn đã chốt.
+odin-soft.com
+Giai đoạn 1 — Nhận nhiệm vụ
+Khi người chơi hoàn thành Q02, Orin bắt đầu có dấu ! trên đầu.
+Hội thoại:
+Orin: "Ta nghe Rowan kể rằng con vừa đánh bại những con Slime trên đồng cỏ."
+"Khá lắm! Nhưng sức mạnh không phải thứ duy nhất giúp một nhà thám hiểm chiến thắng."
+"Con đã từng nghe đến Monster Card chưa?"
+"Mỗi lá bài ghi lại hình dạng và sức mạnh của một sinh vật. Khi đặt chúng lên bàn đấu, bốn con số trên bài sẽ quyết định kết quả."
+"Hãy đánh bại thêm 5 sinh vật ở Clover Meadows. Sau đó ta sẽ tặng con một bộ bài tập sự."
+Mục tiêu
+Tiêu diệt 5 quái vật bất kỳ hợp lệ tại Clover Meadows.
+Cho phép Clover Slime, Horn Rabbit, Reed Frog hoặc Moss Mushroom.
+Không bắt người chơi đánh Bramble Boar Level 6 để hoàn thành nhiệm vụ Level 2–3.
+Giai đoạn 2 — Trả quest, nhận 5 lá
+Sau khi đủ 5 kill, quay về Orin.
+Orin: "Tốt lắm. Những sinh vật ngoài đồng cỏ đều có điểm mạnh và điểm yếu riêng. Những lá bài này cũng vậy."
+"Ta tặng con năm lá bài. Hãy thử xem chúng trong bộ sưu tập."
+Phần thưởng: 5 Card Common cố định, một lần duy nhất.
+Lá bài
+	
+Chỉ số hướng mẫu: Trên / Phải / Dưới / Trái
+	
+Vai trò
+Clover Slime
+	
+3 / 2 / 3 / 2
+	
+Cân bằng
+Horn Rabbit
+	
+2 / 5 / 1 / 2
+	
+Cạnh phải mạnh
+Reed Frog
+	
+4 / 2 / 2 / 2
+	
+Cạnh trên mạnh
+Moss Mushroom
+	
+2 / 2 / 4 / 2
+	
+Cạnh dưới mạnh
+Leaf Mantis
+	
+2 / 4 / 2 / 3
+	
+Tấn công lệch hướng
+Các chỉ số trên là bộ số tutorial đề xuất, cần đối chiếu với cấu trúc giá trị Card 40 lá và bảng rarity chính thức. Nếu chỉ số hiện tại khác, nên chọn các lá có phân bố tương đương để kịch bản hướng dẫn vẫn hoạt động.
+Giai đoạn 3 — Hướng dẫn My Cards / Album
+Giữ màn hướng dẫn ba bước hiện có, nhưng gắn vào chuỗi nhiệm vụ.
+Bước 1: Mở My Cards.
+Bước 2: Chọn Clover Slime, xem bốn chỉ số.
+Bước 3: Mở Deck, thêm bài được nhận và xem Album.
+Không bắt người chơi đọc toàn bộ mô tả Card.
+Sau khi hoàn thành, quest chuyển sang READY_FOR_DUEL.
+Q04 — The First Card Duel
+Card Master Orin · Level 3
+Giai đoạn 1 — Nhận lời thách đấu
+Orin: "Con đã có bộ bài đầu tiên rồi đấy!"
+"Nhưng sở hữu những lá bài tốt chưa đủ. Quan trọng là biết đặt chúng đúng vị trí."
+"Chúng ta thử một trận nhé? Đây chỉ là luyện tập, nên con sẽ không mất bài dù thua."
+Người chơi chọn Bắt đầu đấu tập.
+Giai đoạn 2 — Chuẩn bị deck
+Bàn đấu dùng đúng luật Card Duel 4×4 của game.
+Nếu game yêu cầu 8 lá cho mỗi bên, người chơi hiện có 5 lá; Orin cho mượn 3 lá Common.
+Những lá mượn:
+Chỉ tồn tại trong trận hướng dẫn.
+Không được thêm vào Album.
+Không thể đem đấu PvP hoặc giao dịch.
+Không được giữ lại sau trận, kể cả khi mất kết nối.
+Giai đoạn 3 — Kịch bản hướng dẫn
+Mình đề xuất hai lượt đầu có điều khiển, sau đó AI dễ.
+Giai đoạn
+	
+Diễn biến
+	
+Người chơi học được
+1
+	
+Orin đặt lá bài có cạnh trái yếu
+	
+Nhìn chỉ số hướng
+2
+	
+Hệ thống gợi ý đặt Horn Rabbit bên trái
+	
+So sánh 5 với chỉ số nhỏ hơn
+3
+	
+Lá Orin lật đỏ → xanh
+	
+Cơ chế chiếm bài
+4
+	
+Orin đặt lá mới không ăn được bài người chơi
+	
+Đặt cạnh không luôn thắng
+5
+	
+Tiếp tục trận tự do
+	
+Tự suy nghĩ chiến thuật
+Giao diện lật bài
+Mình giữ hiệu ứng lật nguyên lá mà bạn đã thiết kế trước đó.
+Ở lượt hướng dẫn đầu tiên, hiển thị hai con số cạnh nhau trong khoảng 0,3–0,4 giây trước khi thực hiện animation lật.
+Sau khi lật xong, hiện ngắn:
+CAPTURE!
+Không cần thêm popup dài giữa trận.
+Giai đoạn 4 — Điều kiện thắng
+Thắng: hoàn thành quest, mở màn chọn Card.
+Thua: được đấu lại, không mất Card.
+Hòa: đấu lại, không mất Card.
+AI ở mức dễ và có thể cho gợi ý nước đi.
+Vì bạn muốn người chơi thắng Orin rồi mới chọn lá bài, mình giữ nguyên điều kiện này.
+Tuy nhiên, trận đầu tiên phải dễ đến mức phần lớn người mới có thể thắng sau một hoặc hai lần thử. Không nên để nhiệm vụ khởi đầu biến thành rào cản kỹ năng.
+Giai đoạn 5 — Chọn một lá bài từ deck Orin
+Choose Your Reward Card
+Chọn 1 lá trong bộ bài tập sự của Orin
+Clover Slime
+3 / 2 / 3 / 2
+Bài cân bằng
+Horn Rabbit
+2 / 5 / 1 / 2
+Tấn công bên phải
+Reed Frog
+4 / 2 / 2 / 2
+Cạnh trên mạnh
+Moss Mushroom
+2 / 2 / 4 / 2
+Cạnh dưới mạnh
+Leaf Mantis
+2 / 4 / 2 / 3
+Hai cạnh tấn công
+Đã chọn: Horn Rabbit
+Trong game, nút xác nhận trao một lá thật từ danh sách phần thưởng được server cho phép. Đây chỉ là bản mẫu lựa chọn.
+Sao chép lựa chọn
+Trong game thật, màn hình cần hiển thị toàn bộ các lá hợp lệ trong deck huấn luyện của Orin, không chỉ năm lá ở ví dụ trên nếu deck có tám lá.
+Phán quyết về độ hiếm: Deck thưởng của Orin chỉ dùng Card Common được kiểm soát. Nếu có một lá Rare, người chơi gần như chắc chắn sẽ chọn nó; việc lựa chọn sẽ mất ý nghĩa.
+Sau khi nhận thưởng
+Orin nói:
+Orin: "Giỏi lắm! Con đã hiểu cách đặt bài và giành chiến thắng."
+"Hãy giữ lấy lá bài đó. Một Card Master giỏi luôn biết trân trọng bộ bài của mình."
+"Nhưng nhớ nhé: khi đấu với nhà thám hiểm khác, người thắng có quyền lấy một lá bài trong deck người thua. Hãy cân nhắc thật kỹ trước khi thách đấu!"
+Sau đó hiển thị cảnh báo quy tắc PvP mất bài, yêu cầu người chơi xác nhận đã hiểu trước khi tham gia trận PvP có cược.
+Quy tắc chống khai thác
+Card thưởng chỉ nhận một lần trên mỗi nhân vật.
+Phần thưởng được xác nhận phía server.
+Không sinh thêm Card khi người chơi đấu lại.
+Bài cho mượn bị xóa khỏi phiên tutorial.
+Nếu ngắt kết nối trong trận, người chơi có thể chơi lại mà không mất Card.
+Nếu ngắt kết nối sau khi chọn Card nhưng trước khi nhận thông báo, server phải bảo đảm không trao hai lần.
+VI. Các nhiệm vụ chính còn lại của Taurus
+T-M03 — Trouble by the Brook
+Level 3–5 · Elder Rowan
+Nội dung
+Người dân báo rằng nhiều sinh vật ở Brookside và Mushroom Grove bắt đầu cư xử bất thường.
+Người chơi được giao kiểm tra dòng suối và khu vườn nấm.
+Mục tiêu
+Tiêu diệt 4 Reed Frog.
+Tiêu diệt 4 Moss Mushroom.
+Kiểm tra một phiến đá có rune ở bên suối.
+Trở về báo Elder Rowan.
+Phát hiện
+Phiến đá có dấu hiệu phát sáng khi người chơi đưa Monster Card lại gần.
+Không cần dùng Card như vật phẩm tương tác bắt buộc. Có thể để sự kiện diễn ra bằng cutscene ngắn hoặc hiệu ứng tự động, nhằm không chặn những người chưa hoàn thành toàn bộ nhánh Card.
+Phần thưởng: EXP, Gold và một ít vật liệu thường.
+T-M04 — The Restless Forest
+Level 6–8 · Elder Rowan
+Nội dung
+Các thương nhân báo rằng Bramble Boar trở nên hung dữ, còn những Rootling bắt đầu xuất hiện gần đường đi.
+Elder Rowan nghi rằng nguồn năng lượng dưới cây cổ đang bị mất cân bằng.
+Mục tiêu
+Tiêu diệt 5 Bramble Boar.
+Tiêu diệt 4 Leaf Mantis.
+Tiêu diệt 3 Rootling.
+Tìm đường tới Ancient Roots.
+Cảm giác
+Đây là nhiệm vụ đầu tiên yêu cầu người chơi đi sâu vào map săn.
+Không đặt toàn bộ mục tiêu quá xa nhau một cách vô lý. Người chơi nên đi theo một tuyến khám phá tự nhiên, mỗi camp là một điểm dừng.
+Phần thưởng: EXP, Gold và Upgrade Stone tùy cân bằng kinh tế.
+T-M05 — Memory Beneath the Roots
+Level 9–10 · Elder Rowan
+Nội dung
+Một cánh cổng đá dưới gốc cây cổ đã mở sau nhiều năm bị phong ấn.
+Elder Rowan nhờ người chơi điều tra vì các sinh vật quanh đó đang mất kiểm soát.
+Mục tiêu
+Đi vào Ancient Root Shrine.
+Vượt qua Tangled Root Passage.
+Tương tác với Memory Amber tại Amber Memory Hall.
+Đánh bại Elder Root Guardian.
+Nhận Memory Amber Fragment.
+Quay về Willowbrook báo cáo.
+Cảnh kết thúc Taurus
+Sau khi đánh bại Elder Root Guardian, viên Memory Amber phát sáng.
+Trong ánh sáng, người chơi nhìn thấy một bầu trời cổ đại.
+Có mười hai chòm sao quen thuộc.
+Rồi một ngôi sao thứ mười ba xuất hiện ở vị trí trung tâm.
+Ngay khi người chơi định nhìn rõ hình dạng của nó, ký ức vỡ thành những mảnh sáng.
+CUTSCENE — MEMORY AMBER
+"Khi ngôi sao cuối cùng bị lãng quên... thế giới sẽ lại bắt đầu từ đầu."
+Elder Rowan: "Mười ba ngôi sao? Nhưng từ khi ta còn nhỏ, bầu trời luôn chỉ có mười hai chòm sao..."
+Card Master Orin nhận ra ký hiệu trên mảnh Memory Amber giống một dấu hiệu trên những lá bài cổ ông từng nghiên cứu.
+Ông giới thiệu người chơi tới những học giả tại Gemini — Mirrorwood, nơi có những hồ nước được cho là phản chiếu cả ký ức đã mất.
+Kết thúc chương:
+CHAPTER I COMPLETE
+The Whisper Beneath the Roots
+Tiếng Thì Thầm Dưới Rễ Cây
+Next: Gemini — Mirrorwood
+VII. Các quyết định gameplay cần khóa từ Phần 2
+Hạng mục
+	
+Quyết định
+Ancient Root Shrine
+	
+3 khu vực trong 1 dungeon
+Dungeon mobs
+	
+18 quái thường + 1 boss
+Respawn dungeon
+	
+Theo phiên, không hồi sinh liên tục trong lượt
+Story Boss
+	
+Elder Root Guardian Lv 10
+Boss telegraph
+	
+Hai kỹ năng vùng cần hệ boss AoE/telegraph
+Trang bị tân thủ
+	
+Vũ khí và off-hand T0 có sẵn
+Quest chiến đấu đầu
+	
+Đánh 5 Clover Slime
+Thưởng chiến đấu
+	
+5 Upgrade Stone + 300 Gold
+Quest cường hóa
+	
+Nâng cấp một món T0, 100% thành công lần hướng dẫn
+Quest Orin
+	
+Đánh 5 quái → nhận 5 Card
+Card Tutorial
+	
+Đấu 4×4, có hướng dẫn hai lượt đầu
+Điều kiện chọn Card
+	
+Phải thắng Orin
+Thua Orin
+	
+Đấu lại miễn phí, không mất bài
+Card thưởng
+	
+Chọn một lá trong deck huấn luyện
+Pet
+	
+Giới thiệu tại Level 5, không bắt ngoài đồng
+Kết thúc Taurus
+	
+Memory Amber và hình ảnh 13 chòm sao
+VIII. Checklist nghiệm thu Phần 2
+Dungeon & Quest Acceptance
+0/17
+Dungeon có 3 khu rõ ràng, dễ điều hướng
+Quái trong dungeon không hồi sinh khi đã bị dọn trong cùng phiên
+Amber Sporeling và Rune Bark Guardian đúng vai trò AI
+Boss Elder Root Guardian có hitbox và arena phù hợp kích thước
+Ancient Sweep và Amber Pulse có cảnh báo rõ ràng
+Người chơi đủ Level và trang bị T0 nâng cấp có thể đánh boss
+Quest 5 Clover Slime chỉ nhận thưởng một lần
+5 Upgrade Stone đủ nâng cấp ít nhất một lần
+Quest cường hóa không bắt buộc để chơi Monster Card
+Orin trao đúng 5 Card Common cố định sau 5 kill hợp lệ
+My Cards / Album / Deck tutorial hoạt động
+Card Duel NPC dùng đúng luật 4×4 hiện có
+Thua hoặc hòa không mất Card và có thể đấu lại
+Thắng Orin chọn đúng một Card thưởng
+Deck mượn không thể chuyển sang PvP hoặc inventory
+Cảnh báo PvP mất Card hiện trước trận cược đầu tiên
+Cutscene cuối Taurus dẫn hợp lý tới Gemini
+Sao chép checklist
+Kết luận Phần 2/3
+Taurus bây giờ có một tuyến trải nghiệm tương đối hoàn chỉnh:
+Willowbrook → học chiến đấu → nhận đá nâng cấp → học Monster Card với Orin → khám phá Clover Meadows → điều tra rừng cổ → Ancient Root Shrine → đánh Elder Root Guardian → khám phá ký ức về ngôi sao thứ 13 → lên đường tới Gemini.
+Mình đặc biệt giữ cho nhiệm vụ Monster Card và nâng cấp trang bị không khóa lẫn nhau, bởi vì game của bạn là action RPG online, không phải game Card Duel thuần túy.
+Phần Orin có đủ động lực: người chơi nhận 5 lá, được thực hành trên bàn 4×4 và sau khi thắng có quyền chọn một lá trong deck huấn luyện. Nó cũng dạy rõ rủi ro mất bài của PvP mà không bắt người mới phải đặt cược thật ngay lần đầu.
+Phần 3/3 tiếp theo sẽ hoàn thiện các mục còn thiếu của Taurus Production Bible V4.0: Card & Pet production rules chi tiết, AI/combat specifications, hệ thống spawn, thông số boss và an toàn server, art sprite production sheet đúng chuẩn 4×4, danh sách asset, thứ tự sản xuất, checklist nghiệm thu tổng thể và kết luận thiết kế cuối cùng.
+Bạn có thể nhắn “tiếp” để mình hoàn thành Phần 3/3.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

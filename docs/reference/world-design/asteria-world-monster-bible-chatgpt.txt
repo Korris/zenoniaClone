@@ -1,0 +1,801 @@
+đã đề xuất trước đó nhé.
+ChatGPT said:
+ASTERIA — WORLD & MONSTER DESIGN BIBLE V1
+Thiết kế 12 Tinh Vực, 1 thế giới bí mật, hệ sinh thái quái vật và hành trình Level 1–90
+Mình muốn thiết kế Asteria theo cách của một MMORPG fantasy thực thụ: mỗi vùng đất phải giống một thế giới nhỏ có đời sống riêng, chứ không đơn thuần là thay màu nền và đổi loại quái.
+Điểm quan trọng nhất là người chơi phải cảm nhận được sự trưởng thành qua từng chuyến phiêu lưu. Bắt đầu từ những con Slime đáng yêu trên đồng cỏ Taurus, rồi dần gặp những sinh vật huyền bí, những nền văn minh đã biến mất và cuối cùng là các thực thể vượt ngoài hiểu biết của con người.
+Mình giữ bốn nguyên tắc:
+12 Tinh Vực = 12 nền văn hóa, khí hậu và hệ sinh thái khác nhau. Không bắt buộc mỗi vùng chỉ có một nguyên tố.
+Mỗi vùng có quái thường, quái tinh anh, boss và linh thú đặc trưng. Chúng phải có quan hệ sinh thái và lịch sử với nhau.
+Pet và Monster Card liên quan trực tiếp đến các sinh vật trong thế giới. Không tạo một hệ quái riêng chỉ để phục vụ Pet hoặc Card.
+Cốt truyện đi từ cuộc sống bình thường đến bí mật Chòm Sao Thứ Mười Ba. Không tiết lộ toàn bộ thần thoại ngay tại Taurus.
+I. Bản đồ tổng thể Asteria
+12 Tinh Vực + 1 Vùng Bị Lãng Quên
+Sơ đồ chủ đề, chưa phải địa lý chính thức
+♉
+Taurus
+Đồng cỏ
+♊
+Gemini
+Rừng ảo ảnh
+♋
+Cancer
+Vịnh trăng
+♑
+Capricorn
+Núi tuyết
+♍
+Virgo
+Thánh lâm
+♎
+Libra
+Kinh đô
+♐
+Sagittarius
+Thảo nguyên
+♏
+Scorpio
+Đầm độc
+♈
+Aries
+Núi lửa
+♌
+Leo
+Sa mạc vàng
+♒
+Aquarius
+Đảo bay
+♓
+Pisces
+Biển mộng
+✦ XIII — The Forgotten Realm
+Vùng đất thứ 13 bị xóa khỏi lịch sử
+Mình đề xuất mỗi Tinh Vực có một cụm gồm thị trấn hoặc trạm dừng, 2–4 map hoang dã và một dungeon chủ đề khi được phát triển hoàn chỉnh. Tuy nhiên, chúng không nhất thiết có quy mô ngang nhau.
+Các cấp độ dưới đây là dải Level nội dung chính, không phải yêu cầu Level tuyệt đối để vào map. Vùng cũ vẫn có thể chứa dungeon cao cấp hoặc boss dành cho người chơi mạnh.
+Thứ tự hành trình
+	
+Tinh Vực
+	
+Level chính
+	
+Chủ đề cảm xúc
+1
+	
+♉ Taurus
+	
+1–10
+	
+Yên bình, làm quen
+2
+	
+♊ Gemini
+	
+11–18
+	
+Tò mò, ảo ảnh
+3
+	
+♋ Cancer
+	
+19–26
+	
+Phiêu lưu biển cả
+4
+	
+♑ Capricorn
+	
+27–34
+	
+Nguy hiểm, sinh tồn
+5
+	
+♍ Virgo
+	
+35–42
+	
+Thiêng liêng, chữa lành
+6
+	
+♎ Libra
+	
+43–50
+	
+Văn minh, bí mật
+7
+	
+♐ Sagittarius
+	
+51–57
+	
+Tự do, khám phá
+8
+	
+♏ Scorpio
+	
+58–64
+	
+Âm mưu, kinh dị nhẹ
+9
+	
+♈ Aries
+	
+65–71
+	
+Chiến tranh, dũng cảm
+10
+	
+♌ Leo
+	
+72–78
+	
+Quyền lực, lòng kiêu hãnh
+11
+	
+♒ Aquarius
+	
+79–84
+	
+Công nghệ cổ, thiên giới
+12
+	
+♓ Pisces
+	
+85–90
+	
+Ký ức, giấc mơ
+Bí mật
+	
+✦ XIII
+	
+Endgame 90
+	
+Sự thật, lựa chọn cuối
+Mình cố tình không sắp thứ tự theo vòng hoàng đạo, vì nhịp trải nghiệm quan trọng hơn thứ tự chiêm tinh.
+II. Thiết kế từng Tinh Vực
+1. ♉ Taurus — Đồng Cỏ Trù Phú
+Vùng khởi đầu · Level 1–10
+10
+Bản sắc: Đồng cỏ xanh, làng nông nghiệp, cối xay gió, dòng suối, rừng thưa. Màu xanh lá ấm, kem và vàng mật ong.
+Truyền thuyết: Taurus là Tinh Vệ tượng trưng cho sự nuôi dưỡng và lòng kiên trì. Những cánh đồng ở đây được cho là màu mỡ nhờ lời chúc phúc của Ngưu Thần.
+Chuỗi map
+Willowbrook Village: Làng đầu tiên, Hội Thám Hiểm, Card Master Orin, khu huấn luyện và các NPC cơ bản.
+Clover Meadows: Đồng cỏ, bụi cây, chuồng nông trại, nơi đánh những con quái đầu tiên và làm quen với Pet.
+Honeybrook Orchard: Vườn cây ăn quả và dòng suối. Quái bắt đầu có kỹ năng gây hiệu ứng hoặc tấn công theo nhóm.
+Ancient Root Shrine: Dungeon đầu tiên nằm dưới gốc cây cổ thụ, nơi một ký hiệu chòm sao bị hư hỏng được phát hiện.
+Quái vật
+Clover Slime
+Quái thường · Lv 1–3
+Nhảy chậm, tấn công đơn giản, dạy người chơi khóa mục tiêu.
+Horn Rabbit
+Quái thường · Lv 3–5
+Chạy nhanh và lao thẳng một đoạn ngắn, phù hợp dạy né đòn.
+Moss Mushroom
+Quái thường · Lv 5–7
+Phun bào tử chậm, có vòng cảnh báo nhỏ.
+Bramble Boar
+Quái tinh anh · Lv 8–10
+Lao tới theo đường thẳng, tạo thử thách định vị.
+Boss cốt truyện: Elder Root Guardian — một hộ vệ bằng gỗ và rễ cây, bị năng lượng ký ức cổ kích động.
+Pet tiêu biểu: Clover Slime, Horn Rabbit, Bramble Boar.
+Monster Card: Những lá Common đầu tiên có số cạnh dễ hiểu, sức mạnh phân bổ khác nhau để dạy luật đặt bài.
+Cốt truyện vùng: Người chơi giúp dân làng xử lý những sinh vật trở nên hung dữ. Tại Ancient Root Shrine, họ tìm thấy dấu vết của một biểu tượng không thuộc 12 chòm sao được biết đến.
+Mình muốn Taurus có khoảng 80% cảm giác vui vẻ, 20% bí ẩn. Đây không phải vùng đất tận thế. Nó phải khiến người chơi muốn quay về sau này.
+2. ♊ Gemini — Rừng Song Ảnh
+Level 11–18
+12
+Bản sắc: Rừng có những hồ nước phản chiếu bầu trời khác thường, cây mọc thành cặp, hai tòa tháp đối xứng và những đường mòn khiến du khách mất phương hướng.
+Truyền thuyết: Gemini là cặp song sinh canh giữ ranh giới giữa sự thật và hình ảnh phản chiếu.
+Map và quái vật
+Map
+	
+Quái vật
+	
+Gameplay nổi bật
+Whisperleaf Trail
+	
+Whisper Sprite, Twin Moth
+	
+Quái di chuyển theo cặp
+Mirrorlake Woods
+	
+Mirror Slime, Echo Fox
+	
+Quái tạo ảo ảnh ngắn
+Twinspire Ruins
+	
+Glass Beetle, Reflection Wisp
+	
+Phản đòn theo hướng
+Hall of Reflections
+	
+Mirror Sentinel, Twin Phantom
+	
+Dungeon với hai nhóm quái đối xứng
+Boss: Mirrorfang — Song Lang Ảo Ảnh, một sinh vật có hai hình thể, tạo phân thân nhưng chỉ một bản thể nhận sát thương đầy đủ.
+Pet đặc trưng: Echo Fox, Reflection Wisp.
+Monster Card đặc trưng: Lá có cạnh trái và phải mạnh, thể hiện chủ đề đối xứng; không cần tạo luật mới.
+Cốt truyện: Người chơi gặp một người dẫn đường nói rằng có một ngôi làng đã biến mất khỏi ký ức mọi người, dù những ngôi nhà vẫn còn. Đây là manh mối đầu tiên cho thấy ký ức có thể bị can thiệp.
+3. ♋ Cancer — Vịnh Trăng Bạc
+Level 19–26
+10
+Bản sắc: Làng chài, biển xanh, những chiếc cầu gỗ, hang san hô, đền mặt trăng và thủy triều biến đổi bất thường.
+Truyền thuyết: Cancer là Tinh Vệ gìn giữ mái ấm và sự che chở. Vỏ giáp của nó tượng trưng cho nơi trú ẩn.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Moonshore Beach
+	
+Shell Crab, Foam Slime
+	
+Giáp cứng, tấn công chậm
+Pearlreef Cove
+	
+Coral Sprite, Tide Turtle
+	
+Khiên, hồi phục nhẹ
+Shipwreck Lagoon
+	
+Ghost Sailor, Lantern Jelly
+	
+Tấn công theo vùng
+Lunar Reef Temple
+	
+Pearl Guardian, Moon Eel
+	
+Dungeon thủy triều
+Boss: Mooncarapace — Cự Giáp Nguyệt Hải. Boss càng bị tấn công trực diện càng tăng phòng thủ, cần xử lý cửa sổ phá giáp.
+Pet: Shell Crab, Tide Turtle, Lantern Jelly.
+Card: Thiên về số phòng thủ lớn ở 1–2 cạnh. Người chơi học rằng bài có chỉ số cân bằng không phải lúc nào cũng tốt nhất.
+Cốt truyện: Một con tàu được phát hiện trôi dạt vào bờ, chở theo những lá bài cổ mô tả một vùng biển không tồn tại trên bản đồ ngày nay.
+4. ♑ Capricorn — Đỉnh Núi Vĩnh Đông
+Level 27–34
+13
+Bản sắc: Rừng thông phủ tuyết, vực băng, thung lũng lạnh, hang tinh thể và thành trì bị tuyết chôn vùi.
+Truyền thuyết: Capricorn từng là Tinh Vệ dẫn đường cho những người băng qua núi hiểm trở, biểu tượng của ý chí và sự chịu đựng.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Snowpine Trail
+	
+Frost Slime, Snow Hare
+	
+Làm chậm nhẹ
+Frost Hollow
+	
+Ice Goblin, Rime Wolf
+	
+Đánh theo đàn
+Crystal Pass
+	
+Crystal Golem, Frost Bat
+	
+Quái có giáp và đòn xuyên thẳng
+Frostfang Den
+	
+Ice Sentinel, Glacier Warden
+	
+Dungeon băng nguy hiểm
+Boss: Glacial Colossus — một tượng hộ vệ khổng lồ từng bảo vệ lối vào thánh tích Capricorn.
+Wanted Boss: Rimeclaw Tyrant có thể trở thành boss truy nã luân phiên tại vùng này.
+Pet: Ice Goblin, Rime Wolf, Crystal Golem, Frostfang King (UR).
+Card: Đặc trưng của các sinh vật chịu đựng, phân bố số mạnh ở cạnh trên/dưới hoặc một cạnh phòng thủ nổi bật.
+Cốt truyện: Bên trong Frostfang Den, người chơi tìm thấy những bản khắc kể về một cuộc chiến đã diễn ra trước thời đại mà sách lịch sử ghi nhận. Ký ức ở đây không trùng khớp với truyền thuyết chính thức.
+5. ♍ Virgo — Thánh Lâm Sinh Mệnh
+Level 35–42
+12
+Bản sắc: Rừng cổ thụ, đền hồi phục, cây phát sáng, vườn linh thảo và những dòng suối trong lành.
+Truyền thuyết: Virgo bảo vệ vòng đời và sự tái sinh. Không phải mọi quái vật trong rừng đều hung dữ; một số chỉ chiến đấu khi nơi trú ẩn bị xâm phạm.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Blooming Path
+	
+Flower Sprite, Leafling
+	
+Chữa lành đồng minh
+Emerald Canopy
+	
+Thorn Deer, Vine Serpent
+	
+Trói và áp sát
+Worldroot Basin
+	
+Ancient Treant, Spirit Moth
+	
+Quái hỗ trợ lẫn nhau
+Sanctuary of Renewal
+	
+Fallen Dryad, Root Keeper
+	
+Dungeon sinh mệnh bị tha hóa
+Boss: Weeping Dryad — Nữ Thần Rừng Khóc, một linh hồn cây cổ đại đang cố giữ ký ức của những sinh vật đã mất.
+Pet: Leafling, Thorn Deer, Spirit Moth.
+Card: Bộ bài sinh mệnh có nhiều cạnh cân bằng và lá thiên về kiểm soát vị trí.
+Cốt truyện: Một cây cổ thụ lưu giữ ký ức về thời kỳ có 13 nguồn ánh sáng trên bầu trời. Người chơi lần đầu có bằng chứng trực tiếp về chòm sao thứ 13.
+6. ♎ Libra — Kinh Đô Cân Bằng
+Level 43–50
+11
+Bản sắc: Thủ đô náo nhiệt, học viện pháp thuật, thương hội, nhà thờ, khu phố công nghệ Tinh Thạch và tòa án cổ đại.
+Libra sẽ là nơi có đời sống xã hội phong phú nhất, không phải một map toàn quái.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Luminous Capital
+	
+Không có quái thường
+	
+Thành phố, giao dịch, đấu Card
+Clockwork District
+	
+Rogue Automaton, Gear Rat
+	
+Robot mất kiểm soát
+Archive Underground
+	
+Ink Wraith, Paper Golem
+	
+Phép thuật và hiệu ứng vùng
+Hall of Judgement
+	
+Balance Sentinel, Aegis Knight
+	
+Dungeon thử thách
+Boss: Aegis Arbiter — Phán Quan Thiên Bình.
+Pet: Gear Rat, Mini Automaton, Archive Wisp.
+Card: Chủ đề hai mặt, chỉ số hai cạnh đối diện cân bằng nhau.
+Cốt truyện: Người chơi phát hiện các tài liệu về lịch sử cổ đã bị chỉnh sửa. Card Master Orin có liên hệ với một tổ chức từng bảo vệ những lá bài nguyên thủy.
+Đây là thời điểm câu chuyện chuyển từ khám phá điều bất thường sang điều tra một bí mật bị cố tình che giấu.
+7. ♐ Sagittarius — Thảo Nguyên Thiên Phong
+Level 51–57
+9
+Bản sắc: Thảo nguyên rộng lớn, hẻm núi, lều du mục, những cây cầu treo và tàn tích quan sát sao.
+Truyền thuyết: Sagittarius là Tinh Vệ của tự do và khám phá. Người dân ở đây tin rằng chân lý chỉ được tìm thấy khi con người dám vượt khỏi những con đường quen thuộc.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Windrunner Plains
+	
+Swift Hare, Prairie Wolf
+	
+Di chuyển nhanh
+Featherstone Canyon
+	
+Rock Falcon, Canyon Lizard
+	
+Lao từ xa, tấn công đường thẳng
+Nomad's Frontier
+	
+Thunder Horn, Wind Sprite
+	
+Đánh theo nhóm và đẩy lùi
+Celestial Archery Grounds
+	
+Sky Archer Spirit, Storm Centaur
+	
+Dungeon thử thách định vị
+Boss: Stormhoof Centaur — Nhân Mã Lôi Phong, sử dụng cung, lao tới và tạo các đường cảnh báo hình quạt.
+Pet: Prairie Wolf, Rock Falcon, Wind Sprite.
+Monster Card: Bộ bài đặc trưng có các cạnh mạnh lệch hướng, khuyến khích đặt vào vị trí chiến thuật.
+Cốt truyện: Người chơi được dẫn tới một đài quan sát cổ. Tại đây, có thể nhìn thấy khoảng trống giữa 12 chòm sao, đúng nơi mà Ngôi Sao Thứ Mười Ba từng tồn tại.
+8. ♏ Scorpio — Đầm Lầy U Ảnh
+Level 58–64
+10
+Bản sắc: Đầm lầy phủ sương, cây cổ rỗng ruột, hang ngầm, tinh thể tím và phế tích của một nền văn minh từng biến mất.
+Truyền thuyết: Scorpio không phải vị thần của cái ác. Nó bảo vệ những bí mật nguy hiểm mà thế giới chưa sẵn sàng đối mặt.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Murkfen Marsh
+	
+Poison Slime, Bog Leech
+	
+Độc theo thời gian
+Thornroot Hollow
+	
+Root Crawler, Venom Spider
+	
+Bẫy và trói
+Sunken Reliquary
+	
+Mire Lurker, Spectral Warden
+	
+Phục kích, quái tinh anh
+Venomheart Crypt
+	
+Scorpion Knight, Shadow Serpent
+	
+Dungeon độc và bóng tối
+Boss: Mire Hydra Queen — Nữ Vương Thủy Xà Đầm Lầy.
+Wanted Boss: Venomtail Sovereign — Bọ Cạp Đế Vương, có thể là boss truy nã riêng nếu muốn Mire Hydra Queen đóng vai trò boss cốt truyện.
+Pet: Venom Spider, Marsh Stalker, Spectral Wolf.
+Card: Các lá có chỉ số bất đối xứng mạnh, phù hợp những chiến thuật dụ đối thủ đặt bài vào cạnh yếu.
+Cốt truyện: Tại hầm mộ cổ, người chơi tìm thấy bằng chứng cho thấy có một người từng chống lại việc 12 vị thần xóa ký ức thế giới. Những dấu tích đầu tiên dẫn tới Aurelion.
+9. ♈ Aries — Cao Nguyên Chiến Hỏa
+Level 65–71
+10
+Bản sắc: Cao nguyên núi lửa, thành trì chiến binh, lò rèn khổng lồ, những cánh đồng tro và chiến trường cổ.
+Truyền thuyết: Aries tượng trưng cho tinh thần dũng cảm. Người dân của vùng tin rằng sức mạnh chỉ có ý nghĩa khi dùng để bảo vệ người khác.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Ashen Highlands
+	
+Ember Imp, Ash Hound
+	
+Sát thương lửa
+Crimson Barrens
+	
+Magma Boar, Cinder Beetle
+	
+Lao tới và nổ vùng nhỏ
+Warrior's Crucible
+	
+Flame Knight, Volcanic Golem
+	
+Phòng thủ cao
+Infernal Forge
+	
+Lava Serpent, Ember Guardian
+	
+Dungeon dung nham
+Boss: Infernal Ram — Chiến Thú Dung Nham, với cặp sừng lớn, giáp đá nóng và các đòn húc mạnh.
+Pet: Ember Imp, Ash Hound, Mini Magma Golem.
+Card: Các lá có một cạnh rất mạnh nhưng đi kèm những cạnh yếu, thể hiện lối chơi tấn công quyết liệt.
+Cốt truyện: Aries đang chuẩn bị chiến tranh bởi họ tin rằng các vị thần sắp trừng phạt nhân loại. Người chơi phải ngăn một cuộc xung đột dựa trên sự hiểu lầm, đồng thời đối phó với những sinh vật bị Tinh Mạch kích động.
+Mình muốn Aries là vùng đầu tiên có cảm giác chiến tranh thật sự, chứ không chỉ núi lửa và quái hệ lửa.
+10. ♌ Leo — Vương Quốc Mặt Trời
+Level 72–78
+12
+Bản sắc: Sa mạc vàng, ốc đảo, kinh đô hoàng gia, kim tự tháp, đấu trường và những đền thờ Mặt Trời.
+Truyền thuyết: Leo được tôn thờ như một vị vua thiên giới. Nhưng trong lịch sử, lòng kiêu hãnh của nó từng khiến một cuộc chiến suýt xảy ra.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Golden Dunes
+	
+Sand Beetle, Dune Fox
+	
+Ẩn dưới cát
+Suncrest Oasis
+	
+Solar Sprite, Desert Lynx
+	
+Tấn công nhanh
+Royal Necropolis
+	
+Sun Mummy, Golden Scarab
+	
+Quái cổ đại
+Eclipse Palace
+	
+Solar Guardian, Lion Knight
+	
+Dungeon hoàng gia
+Boss: Solarius — Sư Vương Nhật Thực.
+Pet: Dune Fox, Golden Scarab, Solar Cub.
+Card: Những lá hiếm mang biểu tượng mặt trời, mạnh ở cạnh trên hoặc có chỉ số cao nhưng không đồng đều.
+Cốt truyện: Hoàng tộc Leo giữ một vật chứng quan trọng từ thời đại trước. Aurelion xuất hiện và tiết lộ một phần sự thật: 12 vị thần đã chọn che giấu quá khứ để duy trì sự ổn định của thế giới.
+Đến cuối Leo, người chơi phải bắt đầu tự hỏi liệu các vị thần có thực sự luôn đúng.
+11. ♒ Aquarius — Quần Đảo Thiên Không
+Level 79–84
+12
+Bản sắc: Đảo nổi, cầu pha lê, thác nước chảy giữa mây, thành phố kỹ sư và máy móc cổ đại.
+Truyền thuyết: Aquarius đại diện cho tri thức và sự đổi mới. Người dân vùng này nghiên cứu công nghệ có thể thay thế sự phụ thuộc vào Tinh Mạch.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Skyfall Gardens
+	
+Cloud Slime, Aether Butterfly
+	
+Tấn công phép
+Floating Aqueduct
+	
+Water Sprite, Sky Manta
+	
+Kỹ năng đường thẳng
+Aether Workshop
+	
+Clockwork Soldier, Crystal Drone
+	
+Quái máy móc
+Starfall Observatory
+	
+Astral Construct, Time Warden
+	
+Dungeon công nghệ cổ
+Boss: Aether Leviathan — một sinh vật khổng lồ bơi giữa những dòng năng lượng trên mây.
+Pet: Cloud Slime, Aether Butterfly, Mini Crystal Drone.
+Card: Thiết kế ngoại hình tinh thể và máy móc; chỉ số tập trung vào lựa chọn vị trí và cách chiếm cạnh.
+Cốt truyện: Người chơi phát hiện một cỗ máy cổ có khả năng quan sát ký ức từ những thời đại trước. Trong đó, hình ảnh thế giới từng bị tái tạo nhiều lần hiện ra.
+Aquarius là vùng của cú tiết lộ khoa học – thần thoại, nơi người chơi không còn có thể phủ nhận lịch sử bị xóa bỏ.
+12. ♓ Pisces — Biển Mộng Linh Hồn
+Level 85–90
+13
+Bản sắc: Biển đêm phản chiếu các vì sao, những con đường trên mặt nước, cung điện chìm, sứa phát sáng và tàn tích thuộc nhiều thời đại.
+Truyền thuyết: Pisces canh giữ ranh giới giữa ký ức và giấc mơ. Đây là nơi những sinh vật đã mất để lại tiếng vọng trước khi trở về Dòng Ký Ức.
+Map
+	
+Quái vật
+	
+Đặc điểm
+Starlit Shore
+	
+Dream Jelly, Moonfish Spirit
+	
+Ma thuật, làm chậm
+Echoing Tides
+	
+Memory Eel, Phantom Crab
+	
+Ẩn hiện, phân thân
+Sunken Dream Palace
+	
+Dream Knight, Soul Siren
+	
+Tấn công hỗn hợp
+Abyss of Remembrance
+	
+Ancient Echo, Forgotten Watcher
+	
+Dungeon ký ức
+Boss: Noctilume Seraph — Linh Ngư Mộng Giới, một thực thể nửa cá, nửa linh hồn, mang đôi cánh ánh sáng.
+Pet: Dream Jelly, Moonfish Spirit, Memory Eel.
+Card: Các lá có hình ảnh ký ức hoặc sinh vật cổ, có thể trở thành phần thưởng sưu tập danh giá. Vẫn sử dụng luật 4×4 thông thường.
+Cốt truyện: Người chơi gặp lại những hình ảnh của NPC, pet và những cuộc phiêu lưu trước đây dưới dạng tiếng vọng. Tại đây, họ khám phá ra con đường dẫn tới Tinh Vực Thứ Mười Ba.
+Đây phải là vùng tạo cảm giác đẹp, buồn và bí ẩn, không đơn giản là một dungeon tối cuối game.
+13. ✦ The Forgotten Realm — Tinh Vực Bị Lãng Quên
+Vùng bí mật · Endgame Level 90
+12
+Đây không phải một vùng đất có nền văn hóa bình thường như 12 Tinh Vực kia.
+Nó là phần còn lại của thế giới đã bị xóa khỏi lịch sử.
+Mình muốn người chơi có cảm giác đang bước vào một nơi không tuân theo quy luật không gian và thời gian.
+Map
+	
+Nội dung
+Gate of the Nameless
+	
+Cánh cổng xuất hiện khi ký ức cổ được đánh thức
+Ruins of the First World
+	
+Những thành phố từ các thời đại đã mất
+Eternal Archive
+	
+Thư viện lưu giữ ký ức của mọi sinh vật
+Throne of Oblivion
+	
+Đấu trường trận chiến cuối với Aurelion
+Quái vật vùng 13
+Không nên chỉ đưa những con quái thường lên Level 90 rồi đổi màu tím.
+Mình muốn tạo một nhóm quái khác hẳn về hình thái:
+Forgotten Soldier: chiến binh có thân thể rạn vỡ, bên trong là ánh sao.
+Memory Devourer: sinh vật ăn ký ức, mang mặt nạ và nhiều tay bằng mảnh gương.
+Eternal Watcher: tượng đá thiên giới khổng lồ với những con mắt lơ lửng.
+Nameless Beast: linh thú không có hình dạng ổn định, biến đổi giữa nhiều loài.
+Chronicle Guardian: vệ thần bảo vệ những lá bài nguyên thủy.
+Final Boss: Aurelion — Người Giữ Lịch Sử.
+Mình muốn ông có hai giai đoạn: dạng con người sử dụng ma thuật ký ức, sau đó hợp nhất với năng lượng của Ngôi Sao Thứ Mười Ba.
+Vùng này không có Wanted Boss hằng ngày, đúng với ý tưởng trước đó của bạn. Nó dành cho raid, cốt truyện cuối và những thử thách đặc biệt.
+III. Thiết kế quái vật theo từng hệ sinh thái
+Đây là phần mình xem là quan trọng nhất khi chuyển World Bible thành asset thực tế.
+Mình không muốn bạn phải tạo hàng trăm loài quái hoàn toàn độc lập. Với game chibi top-down, mỗi vùng nên có một gia đình sinh vật, trong đó các con quái có quan hệ hình thái và gameplay rõ ràng.
+1. Cấu trúc quái vật mỗi Tinh Vực
+4–6
+Quái thường
+Tạo hệ sinh thái
+1–2
+Quái tinh anh
+Thử thách kỹ năng
+1
+Boss cốt truyện
+Kết thúc tuyến vùng
+1–3
+Pet tiêu biểu
+Sưu tập, đồng hành
+Số lượng gợi ý khi mỗi Tinh Vực được phát triển đầy đủ. Wanted Boss chỉ bổ sung ở những vùng được chọn, không bắt buộc mỗi vùng có một con riêng.
+Mỗi vùng nên có ít nhất bốn nhóm hành vi:
+Nhóm
+	
+Vai trò trong chiến đấu
+	
+Ví dụ
+Melee
+	
+Tiếp cận, đánh gần
+	
+Boar, Wolf, Knight
+Ranged
+	
+Bắn đạn hoặc phép
+	
+Sprite, Archer, Wisp
+Defensive
+	
+Giáp cao, chắn đường
+	
+Crab, Golem, Sentinel
+Special
+	
+Gây hiệu ứng hoặc hỗ trợ
+	
+Mushroom, Siren, Healer
+Như vậy, mỗi map có thể phối hợp quái để tạo trải nghiệm mới, không cần mọi loài có hệ thống AI riêng hoàn toàn.
+2. Một loài quái nên xuất hiện dưới nhiều vai trò
+Ví dụ với dòng Slime:
+Clover Slime
+Taurus · Cơ bản
+Frost Slime
+Capricorn · Làm chậm
+Cloud Slime
+Aquarius · Phép thuật
+Ba biến thể có thể dùng chung một số nền tảng AI, chuyển động và cấu trúc animation; thay đổi hình vẽ, hiệu ứng, hành vi đặc biệt và thông số.
+Tuy nhiên, mình không khuyến khích chỉ đổi màu. Ít nhất hình dạng hoặc chi tiết đặc trưng phải đủ khác để người chơi nhận diện ngay.
+3. Thiết kế Pet gắn với quái vật
+Pet nên là một phần của hệ sinh thái, nhưng không phải quái nào cũng bắt được.
+Mình đề xuất các nguyên tắc:
+Quái thường có thể trở thành Pet nếu nằm trong danh sách catchable.
+Quái tinh anh có thể có phiên bản Pet hiếm, nhưng không bắt buộc.
+Boss lớn không bị bắt trực tiếp như quái thường. Pet huyền thoại liên quan đến boss có thể đến từ Gacha, mảnh ghép hoặc nhiệm vụ đặc biệt.
+Pet và Monster Card của cùng một loài sử dụng chung nhận diện hình ảnh, nhưng là hai vật phẩm độc lập.
+Giữ nguyên hệ Pet hiện tại của bạn: Combat, Support và Stat, không cần thêm slot theo Tinh Vực.
+Ví dụ với Frostfang King UR, nó có thể là một linh thú hậu duệ của Rimeclaw Tyrant. Như vậy sự hiện diện của nó trong Pet Collection có ý nghĩa truyền thuyết, không phải ngẫu nhiên.
+4. Thiết kế Monster Card theo từng vùng
+Mình sẽ dùng các vùng đất để tạo bản sắc bộ sưu tập, nhưng không làm phức tạp luật đấu bài.
+Tinh Vực
+	
+Đặc trưng lá bài về chỉ số
+Taurus
+	
+Cân bằng, dễ dùng
+Gemini
+	
+Mạnh ở các cạnh đối xứng
+Cancer
+	
+Một hoặc hai cạnh phòng thủ nổi bật
+Capricorn
+	
+Chỉ số chịu đựng, phân bố ổn định
+Virgo
+	
+Cân bằng, dễ kết hợp
+Libra
+	
+Hai cạnh đối diện tương đương
+Sagittarius
+	
+Cạnh tấn công mạnh nhưng lệch
+Scorpio
+	
+Cạnh rất mạnh đi kèm điểm yếu
+Aries
+	
+Chỉ số tấn công tập trung
+Leo
+	
+Các lá hiếm có tổng chỉ số cao hơn
+Aquarius
+	
+Bố cục cạnh khác lạ, linh hoạt
+Pisces
+	
+Có nhiều cấu hình chiến thuật
+Forgotten Realm
+	
+Bộ sưu tập huyền thoại, ký ức cổ
+Đây là định hướng cho cách phân bố bốn con số, không phải thêm kỹ năng hay hiệu ứng đặc biệt vào Monster Card.
+Nếu luật hiện tại của bạn chỉ so sánh bốn cạnh, cứ giữ nó. Đừng tạo 12 luật riêng cho 12 Tinh Vực.
+Một điểm cân bằng quan trọng: Card Leo không được mặc nhiên mạnh hơn mọi Card Taurus chỉ vì Leo mở ở Level cao hơn. Rarity và sức mạnh phải được kiểm soát trên toàn game, để những bộ bài từ vùng đầu vẫn có giá trị.
+IV. Wanted Boss trong hệ thống 13 Tinh Vực
+Mình sẽ giữ lịch 7 Wanted Boss mỗi tuần, nhưng nó là hoạt động cộng đồng khác với các boss cốt truyện.
+Ví dụ lịch mùa đầu:
+Ngày
+	
+Tinh Vực
+	
+Wanted Boss
+	
+Vai trò chiến đấu
+Thứ Hai
+	
+Taurus
+	
+Verdant Horn
+	
+Boss nhập môn, quét hình quạt
+Thứ Ba
+	
+Gemini
+	
+Mirrorfang
+	
+Phân thân, nhận diện mục tiêu
+Thứ Tư
+	
+Cancer
+	
+Mooncarapace
+	
+Phá giáp, né thủy triều
+Thứ Năm
+	
+Capricorn
+	
+Rimeclaw Tyrant
+	
+Băng, khống chế khu vực
+Thứ Sáu
+	
+Libra
+	
+Aegis Arbiter
+	
+Phán xét, an toàn theo vị trí
+Thứ Bảy
+	
+Aries
+	
+Infernal Ram
+	
+Lao tới, dung nham
+Chủ Nhật
+	
+Leo
+	
+Solarius
+	
+Nhật thực, nhiều giai đoạn
+Lịch này là đề xuất cho một mùa, không phải danh sách vĩnh viễn. Vùng Scorpio, Virgo, Pisces và các vùng khác vẫn có thể có Wanted riêng trong mùa sau.
+Mình sẽ giữ chính sách của Wanted hiện tại: boss có thể hồi sinh mỗi 30 phút, đổi lịch lúc 05:00 và mỗi nhân vật nhận thưởng tham gia một lần/ngày. Những boss quá cao cấp cần có ngưỡng tham gia hoặc cơ chế đồng bộ hợp lý để không loại người mới khỏi sự kiện.
+Tinh Vực 13 chỉ dành cho raid và cốt truyện đặc biệt.
+V. Cách tổ chức mỗi map trong Unity
+Vì game của bạn là RPG online top-down chibi, mình sẽ không thiết kế map theo kiểu bản đồ rộng nhưng trống trải.
+Một map tốt phải có mục đích gameplay cụ thể.
+Ví dụ map Clover Meadows của Taurus:
+Clover Meadows — Map Layout
+Sơ đồ khái niệm, không phải tỷ lệ thực tế
+Các cụm quái tách biệt bằng địa hình và đường đi. Người mới có thể chủ động tiến từ Slime tới quái mạnh hơn.
+Quy tắc mình đề xuất cho thiết kế map
+Vùng gần cổng vào có quái dễ, ít đòn diện rộng.
+Quái mạnh và Elite tập trung ở những khu vực có dấu hiệu thị giác rõ ràng, không trộn ngẫu nhiên với quái tân thủ.
+Mỗi map có 1–2 địa điểm đáng nhớ: cây cổ thụ, đài quan sát, cầu đá, tháp canh, tàu đắm...
+Mỗi map có ít nhất một lý do để quay lại sau khi đã vượt Level: săn Card, tìm Pet, nguyên liệu hoặc sự kiện.
+Quái phải dễ phân biệt với nền và hiệu ứng kỹ năng. Vùng có nền quá rối hoặc ánh sáng quá chói sẽ làm giảm khả năng đọc combat.
+VI. Mình sẽ ưu tiên sản xuất những gì?
+Dù World Bible có 13 Tinh Vực, mình không khuyên triển khai tất cả ngay. Mình sẽ làm một vertical slice hoàn chỉnh ở Taurus, sau đó mở rộng tới Gemini.
+Giai đoạn 1 — Taurus
+Hoàn thành 1 làng, 2 map ngoài trời, 1 dungeon nhỏ, 4 loài quái, 1 Elite, 1 boss cốt truyện. Tích hợp hướng dẫn Pet, Monster Card với Orin và tuyến nhiệm vụ đầu tiên.
+Giai đoạn 2 — Gemini
+Tạo một vùng hoàn toàn khác về hình ảnh và chiến đấu. Kiểm tra xem người chơi có thực sự cảm thấy chuyển sang một thế giới mới hay không.
+Giai đoạn 3 — Wanted Boss và vòng lặp dài hạn
+Thử boss đông người, việc quay lại map cũ, săn Card, thu phục Pet và nhận thưởng hằng ngày. Chỉ mở rộng số lượng vùng khi vòng lặp này hoạt động tốt.
+VII. Định hướng sáng tạo mình muốn chốt
+Mình muốn khi nhìn vào bất kỳ con quái nào, người chơi có thể đoán được nó đến từ vùng nào, ngay cả khi bỏ tên và thanh máu.
+Một con thỏ ở Taurus phải có dáng tròn, đáng yêu, màu kem và xanh cỏ. Một con sinh vật ở Scorpio phải có đường nét gai, màu tím đầm lầy và hành vi nguy hiểm. Quái ở Aquarius sẽ có hình dạng pha lê hoặc cơ khí cổ. Còn sinh vật vùng 13 phải có cảm giác như những ký ức bị xé rách và ghép lại.
+Và quan trọng hơn, mỗi quái vật cần có ba ý nghĩa:
+Trong thế giới: Nó sống ở đâu và tại sao tồn tại?
+Trong chiến đấu: Nó dạy hoặc thử thách kỹ năng nào?
+Trong bộ sưu tập: Nó có giá trị gì đối với Pet hoặc Monster Card?
+Nếu giải quyết được ba câu hỏi đó cho từng loài, Asteria sẽ có hệ sinh thái rất nhất quán.
+Bản thiết kế này là nền tảng sáng tạo V1 cho cả 13 Tinh Vực. Việc mình ưu tiên tiếp theo là làm một bộ Taurus Monster & Map Production Sheet chi tiết: danh sách quái, tỷ lệ kích thước so với nhân vật, hành vi AI, đòn đánh, cấp độ, độ hiếm Card, Pet có thể bắt và vị trí spawn. Đó sẽ là bước chuyển từ ý tưởng thế giới sang tài liệu lập trình và sản xuất asset thực tế.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

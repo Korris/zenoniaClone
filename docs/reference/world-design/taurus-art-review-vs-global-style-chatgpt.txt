@@ -1,0 +1,283 @@
+(quái nào, map nào).
+ChatGPT said:
+TAURUS — ART REVIEW V1.0
+Đánh giá 5 ảnh đã vẽ theo Asteria Global Art Direction V1.0
+Phán quyết tổng thể
+Mình KHÔNG yêu cầu vẽ lại toàn bộ Taurus. Hướng hình ảnh hiện tại đã phù hợp với quyết định Taurus Cute 9/10 — Threat 2/10 và phong cách RO Soft Adventure mà chúng ta vừa thống nhất.
+Điều quan trọng là phân biệt quái thường với quái mạnh và boss. Cute 9/10 là cảm xúc chủ đạo của vùng Taurus, không phải yêu cầu mọi sinh vật đều phải mỉm cười hoặc có đôi mắt tròn thật lớn.
+Trong năm ảnh bạn gửi, mình thấy:
+Hai concept map đã có sự nhất quán về màu sắc, vật liệu và nét vẽ.
+Clover Slime, Horn Rabbit, Moss Mushroom có phong cách đúng với nhân vật Warrior chibi.
+Ba bộ sprite sheet có sự chuyển động và phân biệt hướng; chưa có lý do phải bỏ toàn bộ để vẽ lại.
+Lineup sáu quái còn lại có hướng phát triển độ nguy hiểm hợp lý, nhưng một vài con cần chỉnh biểu cảm, tỷ lệ và chi tiết trước khi sản xuất sprite.
+Mình sẽ giữ phần lớn art hiện tại, chỉnh có chọn lọc, không làm lại chỉ vì chúng ta vừa đặt tên cho Global Art Direction.
+I. Đánh giá hai concept map
+1. Willowbrook Village
+93/100
+Giữ
+Concept làng rất đúng hướng: trung tâm cây sồi lớn, nhà gỗ và đá màu mật ong, mái xanh xám, quảng trường có các NPC và khu Card, dòng suối với cầu gỗ. Bản sắc Taurus thể hiện rõ.
+Ba điểm cần xử lý khi chuyển concept thành map chơi thật:
+Cây sồi ở trung tâm quá lớn nếu giữ nguyên tỷ lệ concept. Tán cây chiếm diện tích đáng kể phía trên quảng trường. Giữ thân và tán lớn để làm landmark, nhưng dùng occlusion/dither khi che nhân vật, đồng thời bảo đảm vòng tương tác NPC không bị khuất.
+Mặt đất khá nhiều hoa và chi tiết lát đá. Giảm khoảng 25–35% chi tiết nhỏ ở những nơi người chơi tập trung, đặc biệt quanh bảng nhiệm vụ và khu Card.
+Dùng phối cảnh concept làm tham khảo, không dùng nguyên hình làm bản đồ. Nhà, cây, cầu và các công trình phải được dựng lại đúng góc camera game, với collider và thứ tự che khuất phù hợp.
+Không đổi bảng màu, không đổi kiến trúc và không cần vẽ lại tổng thể làng.
+2. Clover Meadows
+90/100
+Giữ, chỉnh gameplay layout
+Concept đã có phân vùng sinh thái rất tốt: thỏ bên trái, Slime ở đồng cỏ phía dưới, ếch ven suối, nấm bên phải, Boar và Mantis ở rừng sâu, di tích ở phía xa.
+Điểm cần sửa quan trọng nhất là mật độ môi trường.
+Bãi săn trong ảnh đang khá nhiều hoa nhỏ, bụi cây, đá, hàng rào và các vật thể sát đường. Hình rất đẹp khi làm concept, nhưng khi có nhiều quái, Pet, người chơi và VFX thì khả năng đọc combat sẽ giảm.
+Mình đề xuất:
+Thành phần
+	
+Quyết định
+Màu cỏ
+	
+Giữ
+Suối và cầu gỗ
+	
+Giữ
+Cây tán vàng
+	
+Giữ, là đặc trưng Taurus
+Hang thỏ và vườn nấm
+	
+Giữ
+Đá, hoa ở bãi combat
+	
+Giảm khoảng 30–40%
+Hàng rào
+	
+Giữ gần đường, bỏ bớt ở trung tâm camp
+Đường chính
+	
+Mở rộng ở các điểm giao nhau
+Khu Ancient Roots
+	
+Tăng nhẹ cảm giác cổ kính, giảm hoa, thêm rễ và phiến đá cổ
+Không cần làm map tối hơn để biểu đạt nguy hiểm. Taurus vẫn phải sáng và dễ chịu; sự nguy hiểm nên đến từ cách bố trí quái, rễ cây, di tích và mật độ rừng.
+II. Ba quái đầu — Giữ thiết kế
+Clover Slime
+96/100
+Cute 10 · Threat 1
+Duyệt thiết kế. Thân xanh tròn, mầm lá, mặt nhỏ dễ thương. Đây nên là chuẩn tham chiếu cho quái tân thủ.
+Không cần vẽ lại concept. Chỉ kiểm tra vùng highlight thân thạch và outline khi import lên nền cỏ xanh để không bị hòa vào môi trường.
+Horn Rabbit
+95/100
+Cute 10 · Threat 2
+Duyệt thiết kế. Tai lớn, sừng giữa trán và thân kem rất dễ nhận diện.
+Chỉ lưu ý phần tai và sừng ở animation đánh không được chạm biên ô. Không cần giảm độ cute hay tăng vẻ hung dữ.
+Moss Mushroom
+94/100
+Cute 10 · Threat 2
+Duyệt thiết kế. Mũ nấm nâu đỏ, đốm kem, rêu xanh và mặt tròn tạo cá tính rõ, đẹp và nhất quán với Slime/Rabbit.
+Chỉ kiểm tra kích thước và độ ổn định của mũ trong sprite đánh Spore Shot; đạn bào tử vẫn nên do Unity vẽ riêng.
+Ba quái đầu này không cần thay đổi tỷ lệ mặt, mắt, chân hoặc cấu trúc cơ thể. Mình cũng không muốn tăng chi tiết shading cho chúng, bởi phong cách hiện tại đã phù hợp với yêu cầu art.
+III. Sprite sheet đi và đánh của ba quái
+Đánh giá qua contact sheet bạn gửi, chưa phải kiểm tra trực tiếp từng file sprite nguồn
+Mình thấy các frame có phân biệt chuyển động, hướng trước/sau/nghiêng; phần động tác của Slime sử dụng nén/phồng, Rabbit dùng chân và tai, Mushroom dùng thân và mũ nấm. Đó là cách diễn đạt animation rất phù hợp cho quái chibi.
+Không yêu cầu vẽ lại toàn bộ sprite sheet.
+Tuy nhiên có ba điểm kỹ thuật cần kiểm tra:
+Hạng mục
+	
+Kết luận
+Tỷ lệ thân nhất quán qua các frame
+	
+Nhìn chung ổn, cần kiểm tra bằng overlay tại cùng baseline
+Sprite không bị chạm biên
+	
+Cần kiểm tra từng frame nguồn, đặc biệt tai Rabbit và mũ Mushroom
+Nền sprite
+	
+Contact sheet đang sử dụng nền xanh sáng/tối để trình bày; file sprite xuất cuối vẫn phải là #FF00FF phẳng
+Contact sheet này có nhân vật so tỷ lệ, ô lưới và hai nền thử. Những thứ đó hoàn toàn hợp lý trong bảng kiểm tra, nhưng không được nằm trong các sheet asset cuối cùng.
+Mình không thể kết luận chính xác pixel nền và margin của từng sheet từ contact tổng hợp. Nếu các file nguồn đã đúng 192×192/256×256, không có bóng và nền magenta thì không cần sửa gì chỉ vì màu nền của contact sheet.
+IV. Sáu quái còn lại — Con nào cần sửa?
+Đây là phần mình muốn can thiệp rõ nhất trước khi bạn sản xuất hàng loạt sprite.
+Reed Frog
+94/100
+Cute 9 · Threat 1
+Giữ nguyên. Ếch tròn, mắt to, bụng kem và biểu cảm vui vẻ đúng Taurus. Không chỉnh.
+Bramble Boar
+90/100
+Cute 6 · Threat 5
+Giữ thiết kế chính, nhưng giảm cảm giác dữ một chút: mềm nhẹ phần lông nhọn ở má và gáy; giảm độ sắc của gai trên lưng khoảng 10–15%. Giữ nanh lớn và ánh mắt cảnh giác.
+Đây là quái Lv 6–7, được phép nguy hiểm hơn Slime. Không cần biến nó thành heo con dễ thương.
+Leaf Mantis
+92/100
+Cute 6 · Threat 5
+Giữ. Đôi tay lưỡi liềm lớn và đôi mắt vàng tạo silhouette rất dễ đọc.
+Khi làm sprite walk, cần giữ hai lưỡi tay không chồng kín thân; trong sprite attack, chừa khoảng trống đủ cho chuyển động chém.
+Rootling
+90/100
+Cute 7 · Threat 4
+Giữ, sửa rất nhẹ biểu cảm. Con trong ảnh có lông mày khá dữ. Mình muốn Rootling trông như một sinh vật rừng đang khó chịu chứ không phải quái vật hung ác.
+Làm mắt bớt cau khoảng 10–15%, giữ toàn bộ dáng thân cây, chân rễ và tán lá.
+Thorn Sprite
+88/100
+Cute 6 · Threat 5
+Giữ concept, nhưng nên chỉnh biểu cảm. Thorn Sprite hiện có đôi mắt sắc và lông mày tạo cảm giác hơi giống một chiến binh tí hon.
+Giảm nét cau, làm mắt tròn hơn một chút, nhưng giữ mũ gai, cánh lá và sắc xanh sáng. Quái này vẫn cần thể hiện sự tinh nghịch và nguy hiểm nhẹ ở Lv 9.
+Ancient Barkling
+86/100
+Cute 4 · Threat 7
+Nên chỉnh nhiều nhất trong sáu con. Bản hiện tại có hình dạng như một Golem hoặc chiến binh mặc giáp đá rất mạnh, với phần đầu cao kiểu vương miện, giáp vai lớn và nắm tay nặng.
+Mình muốn đây vẫn là hộ vệ vỏ cây nhỏ Lv 10, không cạnh tranh mức độ hoành tráng với Elder Root Guardian.
+Giảm chiều cao phần mũ/vương miện khoảng 15–20%, thu nhỏ hai nắm tay khoảng 10–15%, làm phần ngực bớt giống áo giáp chiến binh và tăng cảm giác gỗ cổ, rễ cây. Giữ rune hổ phách làm điểm nhấn.
+V. Một vấn đề quan trọng: Lineup có cần tất cả cute 9/10 không?
+Không. Mình muốn điều chỉnh cách áp dụng thang Cute 9/10 của Taurus cho chính xác hơn.
+Quái
+	
+Cute mục tiêu
+	
+Threat mục tiêu
+Clover Slime
+	
+10
+	
+1
+Horn Rabbit
+	
+10
+	
+2
+Reed Frog
+	
+9
+	
+1
+Moss Mushroom
+	
+10
+	
+2
+Bramble Boar
+	
+6
+	
+5
+Leaf Mantis
+	
+6
+	
+5
+Rootling
+	
+7
+	
+4
+Thorn Sprite
+	
+7
+	
+4
+Ancient Barkling
+	
+5
+	
+6
+Brambleback Matriarch
+	
+4
+	
+6
+Elder Root Guardian
+	
+3
+	
+7
+Đây là phân bổ hợp lý hơn cho toàn bộ vùng Taurus. Cute 9/10 của Taurus là bản sắc tổng thể, nổi bật ở giai đoạn đầu, NPC và môi trường; không phải mức cute tối thiểu của từng con quái.
+Nếu bắt cả Bramble Boar, Ancient Barkling và boss đều Cute 9/10, người chơi sẽ không còn cảm giác tiến dần vào rừng nguy hiểm.
+VI. Kiểm tra sáu quy tắc bất biến của Global Art Direction
+Quy tắc
+	
+Đánh giá các ảnh hiện tại
+Hand-painted, chibi-compatible
+	
+Đạt, nhất quán giữa quái và nhân vật
+Viền nâu đậm, mềm
+	
+Đạt, có thể hơi đậm ở vài quái nhưng hợp style
+Cel shading 2–3 cấp
+	
+Đạt về hướng, một số điểm sáng chi tiết hơn nhưng không đến mức lạc style
+Silhouette dễ đọc
+	
+Đạt, đặc biệt Slime, Rabbit, Mushroom, Mantis
+Góc nhìn 3/4
+	
+Concept đạt về tinh thần, sprite sheet cần kiểm tra đúng góc camera và hướng di chuyển
+Nhìn rõ trong gameplay
+	
+Cần kiểm thử, do hai map có mật độ chi tiết môi trường khá cao
+Về art production, mình sẽ không coi các ảnh lineup có nền kem là sai. Concept sheet được phép có nền trình bày. Quy tắc #FF00FF áp dụng cho sprite xuất vào game, không áp dụng cho concept.
+VII. Quyết định cuối cùng cho đội art
+Asset
+	
+Có vẽ lại từ đầu?
+	
+Việc cần làm
+Willowbrook Village
+	
+Không
+	
+Giảm nhiễu khu đi lại, xử lý tán cây che khuất khi dựng map
+Clover Meadows
+	
+Không
+	
+Giảm chi tiết tại camp, giữ nền và bố cục sinh thái
+Clover Slime
+	
+Không
+	
+Khóa concept, kiểm tra sprite source
+Horn Rabbit
+	
+Không
+	
+Khóa concept, kiểm tra tai và pivot
+Moss Mushroom
+	
+Không
+	
+Khóa concept, kiểm tra kích thước mũ trong attack
+Reed Frog
+	
+Không
+	
+Duyệt concept
+Bramble Boar
+	
+Không
+	
+Làm mềm nhẹ gai và lông
+Leaf Mantis
+	
+Không
+	
+Duyệt concept
+Rootling
+	
+Không
+	
+Làm dịu biểu cảm
+Thorn Sprite
+	
+Không
+	
+Làm mắt bớt sắc
+Ancient Barkling
+	
+Không, nhưng chỉnh concept
+	
+Giảm vẻ giáp chiến binh, tăng cảm giác hộ vệ cây
+Mình sẽ không sửa ba quái đã có sprite sheet. Chúng đang là nền tảng tốt để khóa hình ảnh Taurus.
+Với sáu quái còn lại, nên sửa trước khi vẽ walk/attack. Đặc biệt Ancient Barkling, vì khi đã có nhiều animation, việc thay đổi tỷ lệ đầu, tay và giáp sẽ tốn công hơn.
+Phán quyết
+Taurus đã đúng Global Art Direction V1.0 khoảng 90–95% về hướng mỹ thuật. Đây là đánh giá chủ quan về độ phù hợp phong cách, không phải phép đo chất lượng asset kỹ thuật.
+Mình chốt giữ hai concept map, giữ ba quái đầu và sprite sheet đã vẽ; chỉ chỉnh có chọn lọc một vài quái rừng, ưu tiên Ancient Barkling và Thorn Sprite.
+Điều mình đánh giá cao nhất là các ảnh hiện tại đã có cảm giác một thế giới thống nhất: từ nhà cửa, cây cối, quái, NPC đến Warrior đều dùng ngôn ngữ hình khối và màu sắc tương thích. Đó chính là nền móng cần có trước khi mở rộng Asteria sang Gemini, Cancer và những Tinh Vực nguy hiểm hơn.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

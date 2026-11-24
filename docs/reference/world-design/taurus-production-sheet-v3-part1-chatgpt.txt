@@ -1,0 +1,1142 @@
+để bạn viết phần sau.
+ChatGPT said:
+Chưa đầy đủ. Bản Taurus V3.0 trước đó mới hoàn thành phần cấu trúc vùng, thiết kế làng, bố cục map săn, danh sách camp và một phần quái vật. Nó chưa đạt độ chi tiết của bản TAURUS — MONSTER & MAP PRODUCTION SHEET V1.0, đặc biệt ở dungeon, thông số chiến đấu, nhiệm vụ tân thủ, sản xuất sprite và nghiệm thu.
+Mình sẽ viết lại thành Production Bible V4.0, hoàn toàn theo thế giới Asteria mới. Không sử dụng tên, bản đồ, quái vật hoặc art cũ làm cơ sở.
+Mình chia thành 3 phần để tài liệu đủ chi tiết cho đội Unity, gameplay và art:
+Phần
+	
+Nội dung
+Phần 1 — World & Monster
+	
+Cấu trúc Taurus, art direction, Willowbrook Village, Clover Meadows, sơ đồ camp, phân bố spawn, production sheet từng quái
+Phần 2 — Dungeon & Quests
+	
+Ancient Root Shrine, boss, cốt truyện vùng, chuỗi tân thủ Elder Rowan và Card Master Orin, phần thưởng
+Phần 3 — Systems & Production
+	
+Card & Pet rules, AI combat, quy chuẩn sprite, thứ tự sản xuất, checklist nghiệm thu và kết luận
+Dưới đây là Phần 1/3, bản thiết kế dùng làm nền tảng chính thức cho Taurus.
+ASTERIA — TAURUS PRODUCTION BIBLE V4.0
+PART 1/3 · WORLD, MAP & MONSTER DESIGN
+WORLD 01
+STARTER REGION
+♉ TAURUS — VERDANT MEADOWS
+Đồng Cỏ Trù Phú · Level 1–10
+Khu dân cư
+Willowbrook Village
+Map săn
+Clover Meadows
+Dungeon
+Ancient Root Shrine
+Boss cốt truyện
+Elder Root Guardian
+12
+I. Mục tiêu thiết kế Taurus
+Taurus không chỉ là vùng Level 1–10. Đây là nơi người chơi hình thành ấn tượng đầu tiên về toàn bộ Asteria.
+Mình muốn Taurus đạt năm mục tiêu.
+1. Một thế giới đáng yêu, dễ nhớ. Người chơi phải nhớ Willowbrook là nơi có quảng trường dưới cây sồi lớn, cây cầu gỗ bắc qua suối, cánh đồng Clover và khu rừng chứa Ancient Root Shrine.
+2. Độ khó tăng dần tự nhiên. Từ Slime chậm, Rabbit nhanh hơn, Mushroom bắn đạn đến những sinh vật rừng nguy hiểm. Người chơi học chiến đấu bằng trải nghiệm, không qua hàng loạt popup.
+3. Pet và Monster Card có mặt từ đầu. Người chơi gặp những loài vật sau này xuất hiện trong Pet Collection, học đấu Monster Card với Orin và biết rằng các lá bài chứa ký ức sinh vật.
+4. Có lý do quay lại Taurus. Người chơi cấp cao vẫn có thể quay về để sưu tập Card, gặp bạn bè, tham gia các hoạt động cộng đồng hoặc săn Wanted Boss khi Taurus nằm trong lịch.
+5. Kết thúc bằng một bí ẩn. Người chơi khám phá dấu vết của một chòm sao bị xóa khỏi lịch sử, tạo động lực tới Gemini.
+Target experience
+Giai đoạn
+	
+Cảm xúc
+	
+Gameplay
+Lv 1–3
+	
+Vui vẻ, an toàn
+	
+Đánh thường, kỹ năng, nâng cấp
+Lv 3–5
+	
+Tò mò, khám phá
+	
+Monster Card, Pet, các loài quái mới
+Lv 5–7
+	
+Bắt đầu thử thách
+	
+Quái tầm xa, HP cao, camp hỗn hợp
+Lv 7–9
+	
+Nguy hiểm vừa phải
+	
+Rừng rậm, quái mạnh, tiếp cận dungeon
+Lv 9–10
+	
+Bí ẩn, chiến thắng
+	
+Ancient Root Shrine, boss, mở tuyến Gemini
+II. Cấu trúc vùng Taurus
+1. Sơ đồ kết nối chính thức
+WILLOWBROOK VILLAGE
+44×32 tile · Safe Zone · NPC / Market / Card / Upgrade / Pet
+CLOVER MEADOWS
+96×64 tile · 7 tiểu khu địa hình · 10 camp · 68 quái
+ANCIENT ROOT SHRINE
+Dungeon 3 khu vực chính · Elder Root Guardian Lv 10
+GEMINI — MIRRORWOOD
+Điểm đến tiếp theo · Level 11–18
+Lối sang Gemini sẽ nằm ở rìa phía đông bắc Clover Meadows và được mở theo tiến trình câu chuyện chính. Người chơi không phải đi xuyên qua dungeon mỗi lần muốn sang vùng mới.
+Quyết định kỹ thuật: Willowbrook là scene an toàn riêng; Clover Meadows là một scene săn lớn duy nhất, không chia scene theo camp; Ancient Root Shrine là scene dungeon riêng.
+2. Kích thước map
+Map
+	
+Kích thước mục tiêu
+	
+Vai trò
+Willowbrook Village
+	
+44×32 tile
+	
+Làng chính
+Clover Meadows
+	
+96×64 tile
+	
+Map săn liên tục
+Ancient Root Shrine
+	
+Thiết kế theo từng khu dungeon
+	
+Dungeon
+Elder Root Guardian Arena
+	
+Tích hợp cuối dungeon
+	
+Boss cốt truyện
+Các kích thước này là mục tiêu bố cục. Cần kiểm thử với chiều cao nhân vật, tốc độ chạy, camera và mật độ hiển thị thực tế trước khi khóa tile count.
+III. Taurus Art Direction
+1. Phong cách tổng thể
+12
+Style: RO Soft Adventure.
+Màu sáng, ấm, dễ thương nhưng không quá pastel.
+Chất liệu có cảm giác hand-painted.
+Viền nâu dịu, không đen gắt.
+Mặt đất ít chi tiết nhỏ để kỹ năng combat nổi bật.
+Cây, đá, bụi và nhà cửa có khối rõ ràng.
+Không sử dụng hiệu ứng neon mạnh cho môi trường bình thường.
+Bảng màu chuẩn đề xuất
+Grass Main
+#88A85D
+Grass Light
+#A8C57A
+Forest Ground
+#806D50
+Dirt Road
+#CBA679
+Brook Water
+#79B8C2
+Warm Stone
+#A5A397
+Ancient Rune
+#70D3C4
+Outline
+#49372E
+Palette này không có nghĩa mọi vật thể đều phải dùng chính xác những màu đó. Đây là bảng màu tham chiếu để tránh việc art quái, cây và địa hình không cùng phong cách.
+2. Phân cấp ánh sáng và cảm xúc
+Khu vực
+	
+Độ sáng tương đối
+	
+Môi trường
+Willowbrook Village
+	
+100%
+	
+Sáng ấm, thân thiện
+Cloverfield
+	
+98%
+	
+Đồng cỏ rộng, ánh nắng
+Rabbit Hills
+	
+95%
+	
+Đồi cỏ và bụi cây
+Brookside
+	
+92%
+	
+Suối, cầu, lau sậy
+Mushroom Grove
+	
+85%
+	
+Rừng thưa, ánh sáng lọc qua cây
+Bramble Thicket
+	
+80%
+	
+Rậm hơn, đất nâu
+Elderwood Edge
+	
+75%
+	
+Rừng cổ, rễ cây
+Ancient Roots
+	
+70%
+	
+Di tích, ánh rune
+Đây là tỷ lệ mục tiêu về cảm giác thị giác, không phải hệ số exposure bắt buộc. Mình không muốn Ancient Roots tối đến mức người chơi khó nhìn quái hoặc VFX.
+3. Quy tắc trang trí
+Mình sẽ dùng ba mức độ chi tiết:
+Khu an toàn: Hoa nhỏ, cỏ ngắn, hàng rào, lối đi thông thoáng.
+Khu trung gian: Cây, bụi, đá và khúc gỗ xuất hiện nhiều hơn nhưng không che người chơi.
+Khu nguy hiểm: Rễ cây, bụi gai, thân cây lớn và phiến đá cổ tạo silhouette rõ.
+Không dùng mật độ hoa quá dày trên toàn map. Nền phải hỗ trợ đọc combat, đặc biệt vì Warrior có các kỹ năng VFX lớn.
+IV. Willowbrook Village — Village Production Sheet
+Safe Zone · 44×32 tile
+gnn.gamer.com.tw
+1. Cấu trúc làng
+Willowbrook là làng nông nghiệp nhỏ nằm giữa những cánh đồng Taurus.
+Trung tâm là một cây sồi cổ lớn. Người dân xem nó như biểu tượng bảo hộ của Taurus.
+Mình muốn làng có 5 khu chức năng, bố trí xung quanh quảng trường.
+Khu vực
+	
+Nội dung
+Town Square
+	
+Cây sồi, quảng trường, điểm tập trung người chơi
+Adventurer's Hall
+	
+Elder Rowan, nhiệm vụ chính
+Card Corner
+	
+Card Master Orin, bàn đấu Card
+Smithy Lane
+	
+Thợ rèn, cường hóa, cửa hàng trang bị
+Pet Garden & Market
+	
+Lumi, Pet Gacha, thương nhân
+2. Sơ đồ mặt bằng
+Sơ đồ bố trí chức năng, không phải tọa độ tile. Quảng trường nằm giữa làng; các NPC tân thủ được đặt gần đường chính.
+3. NPC Production Sheet
+NPC
+	
+Vai trò
+	
+Thiết kế nhân vật
+Elder Rowan
+	
+Main Quest
+	
+Ông lão râu bạc ngắn, áo xanh lá, áo choàng nâu, gậy gỗ
+Card Master Orin
+	
+Monster Card
+	
+Pháp sư trung niên, kính tròn, áo khoác xanh lam, túi bài bên hông
+Bram the Smith
+	
+Cường hóa
+	
+Thợ rèn thân hình chắc, tạp dề da, búa lớn
+Lumi
+	
+Pet Gacha
+	
+Cô gái trẻ mặc áo kem xanh, mang túi tinh thể, phong cách thân thiện
+Mira the Merchant
+	
+Shop
+	
+Thương nhân với giỏ hàng và quầy vật phẩm
+Gatekeeper Finn
+	
+Hướng dẫn di chuyển
+	
+Người gác cổng mặc áo da nhẹ, cầm giáo ngắn
+Các quy tắc tương tác
+Elder Rowan có dấu nhiệm vụ chính ngay từ khi tạo nhân vật.
+Orin có thể đối thoại ngay từ đầu, nhưng chỉ mở chuỗi Card sau khi hoàn thành nhiệm vụ chiến đấu cơ bản. Không chặn cổng làng chỉ vì người chơi chưa nhận quest Card.
+Bram hướng dẫn lần cường hóa đầu tiên bằng số Upgrade Stone người chơi nhận từ nhiệm vụ.
+Lumi giới thiệu hệ Pet ở mốc mở khóa thích hợp, không buộc người chơi học Gacha và Card Duel cùng một lúc.
+Quy tắc an toàn trong làng
+Không spawn quái thường.
+Không có PvP chiến đấu nhân vật.
+Không cho hiệu ứng kỹ năng gây sát thương.
+Có các vùng trống đủ rộng cho người chơi tụ tập.
+Bàn đấu Card với Orin là giao diện riêng, không cần dựng một đấu trường vật lý lớn.
+V. Clover Meadows — Main Hunting Map Production
+96×64 tile · 7 tiểu khu · 10 camp · 68 quái thường
+1. Nguyên tắc bố cục
+Mình muốn Clover Meadows có cảm giác một cánh đồng thực sự kéo dài tới khu rừng cổ, không phải các bãi quái đặt thành những ô vuông riêng biệt.
+Người chơi bắt đầu ở phía nam, gần cổng làng. Càng đi lên phía bắc, cây cối càng rậm, quái càng nguy hiểm và dấu vết lịch sử càng xuất hiện nhiều.
+Bảy tiểu khu
+Mã
+	
+Khu vực
+	
+Địa hình
+	
+Level
+Z1
+	
+Cloverfield
+	
+Đồng cỏ thoáng, hàng rào gỗ
+	
+1–2
+Z2
+	
+Rabbit Hills
+	
+Đồi thấp, hang thỏ, bụi cây
+	
+3
+Z3
+	
+Brookside
+	
+Suối, cầu gỗ, lau sậy
+	
+3–4
+Z4
+	
+Mushroom Grove
+	
+Rừng thưa, nấm và khúc gỗ
+	
+4–5
+Z5
+	
+Bramble Thicket
+	
+Bụi gai, đất nâu, rễ cây
+	
+6–7
+Z6
+	
+Elderwood Edge
+	
+Rừng cổ, cây lớn, mỏm đá
+	
+8–9
+Z7
+	
+Ancient Roots
+	
+Gốc cây cổ, di tích, cửa dungeon
+	
+9–10
+2. Sơ đồ zoning
+Sơ đồ vùng địa hình, không phải bản đồ tile chính thức. Các tiểu khu chuyển tiếp bằng địa hình tự nhiên, không có cổng loading.
+3. Camp Spawn Production Sheet
+Mình đề xuất có 10 camp với 68 quái thường tồn tại tối đa. Điều này cho phép dùng nhiều quái ở vùng đầu nhưng không khiến khu rừng phía bắc trở nên quá đông.
+Camp
+	
+Khu vực
+	
+Quái
+	
+Lv
+	
+Số lượng
+	
+Respawn
+C01
+	
+Cloverfield A
+	
+Clover Slime
+	
+1
+	
+9
+	
+12s
+C02
+	
+Cloverfield B
+	
+Clover Slime
+	
+2
+	
+7
+	
+12s
+C03
+	
+Rabbit Hills
+	
+Horn Rabbit
+	
+3
+	
+8
+	
+16s
+C04
+	
+Brookside
+	
+Reed Frog ×4, Clover Slime ×2
+	
+3–4
+	
+6
+	
+18s
+C05
+	
+Mushroom Grove
+	
+Moss Mushroom
+	
+4–5
+	
+8
+	
+20s
+C06
+	
+Bramble Thicket A
+	
+Bramble Boar
+	
+6
+	
+8
+	
+24s
+C07
+	
+Bramble Thicket B
+	
+Bramble Boar ×3, Leaf Mantis ×3
+	
+6–8
+	
+6
+	
+25s
+C08
+	
+Elderwood Edge
+	
+Leaf Mantis ×3, Rootling ×3
+	
+8–9
+	
+6
+	
+26s
+C09
+	
+Ancient Roots A
+	
+Thorn Sprite
+	
+9
+	
+5
+	
+28s
+C10
+	
+Ancient Roots B
+	
+Ancient Barkling
+	
+10
+	
+5
+	
+30s
+Tổng
+				
+68
+	
+Số lượng và thời gian hồi sinh là các thông số thiết kế ban đầu. Boss, summon và NPC không nằm trong tổng 68 quái thường.
+Cơ cấu quái theo camp
+Phân bổ 68 quái
+0
+5
+10
+15
+20
+Clover Slime
+Horn Rabbit
+Reed Frog
+Moss Mushroom
+Bramble Boar
+Leaf Mantis
+Rootling
+Thorn Sprite
+Ancient Barkling
+Clover Slime: Số quái 18
+Horn Rabbit: Số quái 8
+Reed Frog: Số quái 4
+Moss Mushroom: Số quái 8
+Bramble Boar: Số quái 11
+Leaf Mantis: Số quái 6
+Rootling: Số quái 3
+Thorn Sprite: Số quái 5
+Ancient Barkling: Số quái 5
+Phân bố camp theo nguyên tắc nguy hiểm
+Camp C01–C02: Cạnh đường chính từ Willowbrook. Quái chậm, số lượng đông, thuận tiện cho người chơi mới.
+Camp C03–C05: Bắt đầu có quái nhanh và quái bắn đạn. Người chơi phải thay đổi mục tiêu và chọn vị trí.
+Camp C06–C08: Quái cận chiến mạnh hơn, có những camp hỗn hợp. Người chơi cần dùng kỹ năng hiệu quả hơn.
+Camp C09–C10: Không gian rừng cổ, số quái ít hơn nhưng nguy hiểm hơn. Đây là khu vực chuyển tiếp tới dungeon.
+4. Sơ đồ vị trí 10 camp
+Sơ đồ camp phục vụ việc bố trí gameplay. Các vị trí cần tinh chỉnh theo địa hình, lối đi và vùng cản va chạm khi dựng map thực tế.
+Quy định khoảng cách giữa camp
+Mình không áp dụng khoảng cách cố định theo tile cho tất cả camp, vì khu vực đồng cỏ cần thoáng hơn rừng.
+Đề xuất ban đầu:
+Loại camp
+	
+Khoảng chuyển tiếp mục tiêu
+Camp Slime ↔ Slime
+	
+3–5 tile
+Slime ↔ Rabbit
+	
+5–7 tile
+Rabbit ↔ Mushroom
+	
+5–8 tile
+Mushroom ↔ Boar
+	
+6–9 tile
+Boar ↔ Quái rừng
+	
+7–10 tile
+Quái rừng ↔ Dungeon
+	
+Có hành lang an toàn rõ ràng
+Đây là khoảng đệm giữa vùng spawn hoạt động, không phải khoảng cách tâm camp. Cần kiểm tra quy đổi tile sang world units và bán kính aggro thực tế.
+Đặc biệt, không được để quái Lv 8–10 đuổi vào khu người mới Lv 1–3.
+VI. Monster Production Sheet — Chín loài Taurus
+Mình chọn 9 loài quái thường, chia làm ba nhóm. Tất cả đều dùng silhouette phù hợp chibi, dễ đọc ở góc 3/4 và có thể thiết kế đối xứng để lật sprite khi quay trái.
+Quy ước: H = chiều cao hiển thị của nhân vật người chơi. Mọi tốc độ, damage và phát hiện là thông số tuning khởi điểm, chưa phải số cân bằng đã kiểm chứng.
+Nhóm A — Quái đồng cỏ
+MON-T01 — Clover Slime
+Clover Slime
+Lv 1–2 · 0,55H · Melee
+Ngoại hình: Thạch xanh cỏ, hình tròn dẹt, mầm cỏ mọc giữa đầu. Hai mắt lớn cân xứng, không có phụ kiện.
+Silhouette: Một khối tròn và hai lá nhỏ, dễ nhận diện khi thu nhỏ.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C01, C02, C04
+AI
+	
+Melee
+Aggro
+	
+Chỉ phản công ở khu quest đầu
+Tốc độ
+	
+0,65× tốc độ quái chuẩn
+Khoảng đòn
+	
+Cận chiến ngắn
+Nhịp đánh
+	
+2,0 giây
+Đòn
+	
+Jelly Bump — dồn thân rồi nảy về trước
+Card
+	
+Common
+Pet
+	
+Chưa có trong pool phát hành đầu
+Vai trò
+	
+Quái hướng dẫn
+Animation: Idle 4 frame, Walk 4 frame/hướng, Attack 4 frame/hướng. Hit Flash và Death dùng hiệu ứng chung nếu hệ thống hỗ trợ.
+Điểm cần lưu ý: Không vẽ bóng elip dưới thân vào sprite, để game xử lý shadow sau này.
+MON-T02 — Horn Rabbit
+Horn Rabbit
+Lv 3 · 0,72H · Melee
+Ngoại hình: Thỏ màu kem, tai dài, một sừng vàng nhỏ chính giữa trán, chân sau khỏe.
+Silhouette: Hai tai dài và sừng đơn, không dùng phụ kiện lệch bên.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C03
+AI
+	
+Melee
+Aggro
+	
+Chủ động ở khoảng ngắn
+Tốc độ
+	
+1,10×
+Nhịp đánh
+	
+1,7 giây
+Đòn
+	
+Horn Jab — húc tại chỗ
+Card
+	
+Common
+Pet
+	
+N, qua Gacha
+Vai trò
+	
+Dạy xử lý quái nhanh
+Không sử dụng cơ chế lao xa. Chỉ cần animation nén người rồi húc ngắn, hitbox vẫn theo melee hiện có.
+MON-T03 — Reed Frog
+Reed Frog
+Lv 3–4 · 0,60H · Melee
+Ngoại hình: Ếch xanh ô-liu nhạt, mắt vàng, hai chân sau lớn và bụng kem.
+Silhouette: Thân thấp, hai mắt tròn nổi cao.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C04
+AI
+	
+Melee
+Aggro
+	
+Phát hiện trung bình
+Tốc độ
+	
+0,90×
+Nhịp đánh
+	
+1,9 giây
+Đòn
+	
+Spring Strike — bật ngắn tại vị trí
+Card
+	
+Common
+Pet
+	
+Không ở V1
+Vai trò
+	
+Đa dạng sinh vật ven suối
+Không cần hệ nhảy định vị mới. Animation bật có thể chạy tại chỗ với dịch chuyển hình ảnh nhẹ nhưng vị trí server không thay đổi bất thường.
+Nhóm B — Quái vùng trung gian
+MON-T04 — Moss Mushroom
+Moss Mushroom
+Lv 4–5 · 0,75H · Ranged
+Ngoại hình: Nấm có mũ nâu hạt dẻ, các đốm kem, rêu mọc cân đối hai bên, thân ngắn.
+Silhouette: Mũ nấm rộng, chân nhỏ, dáng tròn.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C05
+AI
+	
+Ranged projectile
+Aggro
+	
+Trung bình
+Tốc độ
+	
+0,65×
+Khoảng bắn
+	
+Trung bình
+Nhịp đánh
+	
+2,4 giây
+Đòn
+	
+Spore Shot — bắn bào tử xanh nhạt
+Card
+	
+Common
+Pet
+	
+Chưa phát hành
+Vai trò
+	
+Dạy đánh quái tầm xa
+Bào tử là projectile đơn, không gây độc hoặc để lại vùng sát thương trong V1.
+Điểm mỹ thuật: Không dùng hạt sáng quá nhiều, vì camp có tám con Moss Mushroom, hiệu ứng đạn phải dễ nhìn nhưng không gây rối.
+MON-T05 — Bramble Boar
+Bramble Boar
+Lv 6–7 · 0,90H · Melee
+Ngoại hình: Heo rừng thân nặng, màu nâu đỏ, hai nanh trắng ngà, bờm gai xanh trên lưng.
+Silhouette: Thân dài và thấp, đầu lớn, hai nanh rõ.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C06, C07
+AI
+	
+Melee
+Aggro
+	
+Chủ động
+Tốc độ
+	
+0,85×
+Nhịp đánh
+	
+2,2 giây
+Đòn
+	
+Bramble Headbutt — húc mạnh tại chỗ
+HP
+	
+Cao hơn Rabbit cùng dải tiến trình
+Card
+	
+Common hoặc Rare theo cân bằng
+Pet
+	
+R, qua Gacha
+Vai trò
+	
+Quái cận chiến chịu đòn
+Không thêm phản sát thương từ gai trong V1. Gai là chi tiết hình ảnh để tăng bản sắc và không tạo sát thương tiếp xúc.
+MON-T06 — Leaf Mantis
+Leaf Mantis
+Lv 7–8 · 0,85H · Melee
+Ngoại hình: Bọ ngựa thân lá, mắt vàng nhỏ, hai tay lưỡi liềm lớn, cánh lá gấp sau lưng.
+Silhouette: Hai lưỡi tay cong, chân côn trùng rõ.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C07, C08
+AI
+	
+Melee
+Aggro
+	
+Trung bình
+Tốc độ
+	
+1,05×
+Nhịp đánh
+	
+1,5 giây
+Đòn
+	
+Twin Leaf Cut — chém hai tay
+HP
+	
+Thấp hơn Boar
+Card
+	
+Common
+Pet
+	
+Không ở V1
+Vai trò
+	
+Quái đánh nhanh
+Đòn Twin Leaf Cut chỉ là một lần gây sát thương với animation hai tay, không cần hai hitbox riêng.
+Nhóm C — Quái rừng cổ
+MON-T07 — Rootling
+Rootling
+Lv 8–9 · 0,85H · Melee
+Ngoại hình: Rễ cây sống có khuôn mặt gỗ, hai tay là cành ngắn, chân rễ to.
+Silhouette: Thân gỗ đứng, tay cành đối xứng, chân rễ bè.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C08
+AI
+	
+Melee
+Tốc độ
+	
+0,60×
+Nhịp đánh
+	
+2,6 giây
+Đòn
+	
+Root Hammer — giáng cả hai tay
+HP
+	
+Cao
+Card
+	
+Common/Rare tùy tổng chỉ số
+Pet
+	
+Không ở V1
+Vai trò
+	
+Quái tank nhỏ
+Không tạo kỹ năng trói rễ ở V1. Chỉ cần HP cao và tốc độ chậm để tạo sự khác biệt.
+MON-T08 — Thorn Sprite
+Thorn Sprite
+Lv 9 · 0,75H · Ranged
+Ngoại hình: Tinh linh lá gai, thân xanh ngọc, đầu lá, hai cánh nhỏ và những hạt sáng.
+Silhouette: Sinh vật bay nhỏ có hai cánh đối xứng.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C09
+AI
+	
+Ranged projectile
+Aggro
+	
+Trung bình–cao
+Tốc độ
+	
+0,95×
+Nhịp đánh
+	
+2,1 giây
+Đòn
+	
+Thorn Seed — bắn hạt gai sáng
+Card
+	
+Rare đề xuất
+Pet
+	
+Không ở V1
+Vai trò
+	
+Ranged cuối map
+Hạt gai bắn thẳng, không homing và không để lại vùng độc.
+Điểm mỹ thuật: Thorn Sprite không được quá giống Pet Spirit hiện có về silhouette, dù lần này toàn bộ art sẽ được vẽ mới. Nó phải đọc rõ là quái rừng gai.
+MON-T09 — Ancient Barkling
+Ancient Barkling
+Lv 10 · 1,20H · Melee
+Ngoại hình: Hộ vệ bằng vỏ cây dày, mặt có rune cổ phát sáng, hai cánh tay gỗ lớn, chân rễ cứng.
+Silhouette: Golem gỗ nhỏ, vai rộng, đầu vuông, lõi sáng giữa ngực.
+Thuộc tính
+	
+Spec V1
+Camp
+	
+C10
+AI
+	
+Melee
+Aggro
+	
+Trung bình
+Tốc độ
+	
+0,55×
+Nhịp đánh
+	
+2,8 giây
+Đòn
+	
+Bark Slam — đập tay gỗ
+HP
+	
+Cao nhất trong quái thường Taurus
+Card
+	
+Rare đề xuất
+Pet
+	
+Không ở V1
+Vai trò
+	
+Tiền đề boss Ancient Root Shrine
+Ancient Barkling là mẫu quái đầu tiên cho thấy ảnh hưởng của văn minh cổ: những đường rune trên thân nó không giống dấu hiệu tự nhiên.
+Đây là quái dẫn dắt thẩm mỹ từ Taurus sang dungeon và bí mật về Ngôi Sao Thứ Mười Ba.
+VII. Combat Difficulty & Spawn Rules
+1. Độ khó tương đối của từng loài
+Mức nguy hiểm mục tiêu so với quái tân thủ
+Ancient Barkling
+Chỉ số nguy hiểm tương đối
+7
+0
+2
+4
+6
+8
+Clover Slime
+Horn Rabbit
+Reed Frog
+Moss Mushroom
+Bramble Boar
+Leaf Mantis
+Rootling
+Thorn Sprite
+Ancient Barkling
+Clover Slime: Chỉ số nguy hiểm tương đối 1
+Horn Rabbit: Chỉ số nguy hiểm tương đối 2
+Reed Frog: Chỉ số nguy hiểm tương đối 2
+Moss Mushroom: Chỉ số nguy hiểm tương đối 3
+Bramble Boar: Chỉ số nguy hiểm tương đối 4
+Leaf Mantis: Chỉ số nguy hiểm tương đối 5
+Rootling: Chỉ số nguy hiểm tương đối 5
+Thorn Sprite: Chỉ số nguy hiểm tương đối 6
+Ancient Barkling: Chỉ số nguy hiểm tương đối 7
+Thang nội bộ 1–10 để định hướng tuning, không phải điểm sát thương hay hệ số nhân chỉ số.
+Mình không đề xuất quái Level 10 phải có damage gấp nhiều lần quái Level 1. Chúng nên nguy hiểm hơn nhờ kết hợp HP, nhịp đánh, tốc độ, khoảng tấn công và địa hình.
+2. AI tối thiểu cho Taurus
+Loài
+	
+AI sử dụng
+	
+AI mới bắt buộc?
+Clover Slime
+	
+Melee
+	
+Không
+Horn Rabbit
+	
+Melee
+	
+Không
+Reed Frog
+	
+Melee
+	
+Không
+Moss Mushroom
+	
+Ranged
+	
+Không
+Bramble Boar
+	
+Melee
+	
+Không
+Leaf Mantis
+	
+Melee
+	
+Không
+Rootling
+	
+Melee
+	
+Không
+Thorn Sprite
+	
+Ranged
+	
+Không
+Ancient Barkling
+	
+Melee
+	
+Không
+Mình không thêm cơ chế lao, quái đánh theo đội hình, trói chân hay Elite cho Taurus V1.
+Taurus cần chất lượng animation, VFX đòn đánh và cảm giác combat thật tốt trước khi mở rộng hệ AI.
+3. Quy định SpawnZone
+Mỗi camp phải có dữ liệu riêng:
+C#
+CampId
+RegionId
+SpawnArea
+MonsterTypes
+MaxAlive
+RespawnSeconds
+AggroRadius
+LeashRadius
+SpawnPointSet
+SafePathExclusion
+Đây là danh sách trường thiết kế, không phải yêu cầu phải triển khai đúng class C# này.
+Các quy tắc nên được server xác nhận:
+Mỗi quái thuộc một camp cụ thể.
+Respawn sau khi chết tại một spawn point hợp lệ.
+Không respawn chồng lên người chơi ở ngay điểm xuất hiện.
+Khi mất aggro hoặc vượt leash, quái trở lại vùng spawn.
+Không kéo quái từ camp khó sang khu Lv 1.
+Các vùng đường chính và điểm dịch chuyển phải có khoảng trống an toàn.
+4. Quy tắc mật độ combat
+Mình đề xuất:
+Ở khu Lv 1–3, người chơi chủ yếu đối đầu 1 quái/lần.
+Ở khu Lv 4–6, có thể gặp 2 quái gần nhau.
+Ở khu Lv 7–10, thỉnh thoảng phải xử lý 2–3 quái nếu đi sâu vào camp.
+Không đặt hơn 3 quái chủ động sát nhau trên đường tiến tới dungeon.
+Hành lang tới Ancient Root Shrine phải có khoảng trống để người chơi đi mà không liên tục bị kéo aggro.
+Với game online, cần kiểm thử khi có nhiều người cùng làm nhiệm vụ tại C01. Nếu 9 Slime ở một camp không đủ cho số người chơi thực tế, có thể tăng spawn theo channel hoặc lượng người, nhưng phải kiểm soát mật độ trên màn hình.
+VIII. Monster Card & Pet — Gắn với quái Taurus
+Ở phần 1, mình chốt vai trò phân bổ nội dung. Luật, phần thưởng và cách triển khai chi tiết sẽ nằm ở Phần 2–3.
+1. Card roster dự kiến
+Quái
+	
+Card
+	
+Vai trò trong deck
+Clover Slime
+	
+Common
+	
+Cân bằng
+Horn Rabbit
+	
+Common
+	
+Cạnh phải mạnh
+Reed Frog
+	
+Common
+	
+Cạnh trên mạnh
+Moss Mushroom
+	
+Common
+	
+Cạnh dưới mạnh
+Bramble Boar
+	
+Common
+	
+Cạnh tấn công cao
+Leaf Mantis
+	
+Common
+	
+Hai cạnh lệch
+Rootling
+	
+Common
+	
+Thiên phòng thủ
+Thorn Sprite
+	
+Rare
+	
+Hai cạnh mạnh
+Ancient Barkling
+	
+Rare
+	
+Cạnh phòng thủ cao
+Trong bộ Card 4×4, không bổ sung kỹ năng nguyên tố hay chỉ số HP vào luật đấu. Những đặc trưng ở bảng này chỉ được thể hiện qua phân bố bốn con số.
+Card ở Taurus không nhất thiết phải yếu tuyệt đối so với mọi Card vùng sau. Rarity và tổng sức mạnh cần được cân bằng xuyên suốt trò chơi.
+2. Pet roster dự kiến
+Loài
+	
+Có Pet không?
+	
+Rarity
+	
+Nguồn
+Horn Rabbit
+	
+Có
+	
+N
+	
+Gacha
+Bramble Boar
+	
+Có
+	
+R
+	
+Gacha
+Các loài còn lại
+	
+Chưa phát hành
+	
+—
+	
+—
+Không bắt Pet ngoài đồng trong Taurus.
+Khi thấy Horn Rabbit trong map săn, người chơi có thể nhận ra đây chính là loài Pet xuất hiện trong Gacha. Điều đó tạo liên kết giữa hệ sinh thái và hệ sưu tập mà không cần cơ chế capture mới.
+IX. Những quyết định khóa ở Phần 1
+Hạng mục
+	
+Kết luận
+Làng
+	
+Willowbrook Village
+Kích thước làng mục tiêu
+	
+44×32 tile
+Map săn
+	
+Clover Meadows
+Kích thước map săn mục tiêu
+	
+96×64 tile
+Cấu trúc
+	
+7 tiểu khu địa hình, không chia scene
+Số camp
+	
+10
+Số quái thường tối đa
+	
+68
+Loài quái thường
+	
+9
+Khoảng Level quái
+	
+1–10
+Dungeon
+	
+Ancient Root Shrine
+Main NPC
+	
+Elder Rowan
+Card NPC
+	
+Card Master Orin
+Pet
+	
+Horn Rabbit N, Bramble Boar R
+AI quái thường
+	
+Melee + ranged
+AI mới cho quái thường
+	
+Không bắt buộc
+Art
+	
+RO Soft Adventure, vẽ mới hoàn toàn
+Checklist duyệt Phần 1
+World & Monster Acceptance
+0/12
+Tên Willowbrook Village, Clover Meadows và Ancient Root Shrine nhất quán
+Willowbrook có đủ các khu NPC chính
+Map săn gồm 7 tiểu khu liền mạch, không loading
+10 camp có tổng 68 quái
+Camp C01 đủ an toàn và dễ tìm cho người mới
+Các loài quái khác silhouette khi nhìn ở kích thước in-game
+Quái Lv cao không xuất hiện trên đường tân thủ
+AI melee/ranged đủ để vận hành cả 9 loài
+Các spawn không chắn đường tới dungeon
+Pet Horn Rabbit và Bramble Boar được giữ ở Gacha
+Card chỉ dùng bốn cạnh, không thêm cơ chế mới
+Map chạy được với nhiều người cùng săn quái
+Sao chép checklist
+Kết luận Phần 1
+Taurus V4.0 được thiết kế mới từ đầu với một làng thân thiện, một đồng cỏ rộng chia camp theo địa hình và một tuyến rừng cổ dẫn đến dungeon.
+Điều mình muốn đạt được không chỉ là một map có 68 quái, mà là một hành trình có cảm xúc rõ ràng:
+Người chơi bước ra khỏi Willowbrook, đánh những con Clover Slime đáng yêu, gặp thỏ sừng ở đồi cỏ, khám phá nấm và suối, rồi tiến sâu vào rừng nơi những sinh vật cổ đại đang trở nên bất thường.
+Đến lúc gặp Ancient Barkling trước cửa thánh tích, họ sẽ nhận ra Taurus không chỉ là vùng đồng cỏ bình yên, mà đang che giấu một bí mật của thế giới Asteria.
+Phần 2/3 tiếp theo sẽ viết chi tiết Ancient Root Shrine và boss Elder Root Guardian, thiết kế các tầng dungeon, cốt truyện Taurus và chuỗi quest tân thủ hoàn chỉnh: Elder Rowan → đánh Slime nhận đá → tự cường hóa → Orin giao đánh 5 quái → nhận đúng 5 Card → đấu 4×4 → thắng chọn một lá trong deck của Orin. Mình cũng sẽ xác định rõ điều kiện quest, hội thoại, phần thưởng và cách ngăn người chơi khai thác nhận Card lặp.
+Bạn chỉ cần nhắn “tiếp” để mình viết Phần 2/3.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

@@ -1,0 +1,132 @@
+hay giữ vậy là đủ?
+ChatGPT said:
+ASTERIA — Taurus Monster Card Balance V1.0
+Mình chốt hai quyết định:
+Bỏ thưởng 5.000 Gold ở mốc 3 Card. Thay bằng phần thưởng nhỏ, tăng dần; phần thưởng lớn nhất của Album nên là vật phẩm sưu tập, không phải lượng Gold khổng lồ.
+Giữ AI Orin dễ và nút Hint luôn có, nhưng bổ sung hỗ trợ sau hai lần thua liên tiếp. Không tự động cho thắng, không sửa luật đấu bài.
+1. Phần thưởng Album Taurus — 3/6/9/12 Card
+Taurus Album Rewards
+3/12 Card
+150 Gold
+2 Upgrade Stones
+Thưởng nhập môn
+6/12 Card
+300 Gold
+3 Upgrade Stones
+Thưởng phát triển
+9/12 Card
+500 Gold
+5 Upgrade Stones
+Thưởng khám phá
+12/12 Card
+1.000 Gold
+5 Upgrade Stones + danh hiệu Taurus Card Collector
+Hoàn thành bộ sưu tập
+Tổng thưởng khi hoàn thành 12/12: 1.950 Gold + 15 Upgrade Stones + 1 danh hiệu.
+Đây là mức cân bằng thử nghiệm dựa trên phần thưởng quest đầu tiên 300 Gold + 5 đá. Vì mình chưa có bảng thu nhập Gold/giờ và chi phí cường hóa thực tế của bạn, mình không coi đây là tỷ lệ kinh tế đã được xác nhận.
+Vì sao mình chọn như vậy?
+Mốc 3 Card: Người chơi gần như đạt ngay sau nhiệm vụ Orin nhận 5 lá. Vì vậy mốc này không nên tặng quá nhiều tiền. 150 Gold + 2 đá tạo cảm giác được thưởng mà không làm mất ý nghĩa của việc đánh quái và làm quest.
+Mốc 6 Card: Khuyến khích người chơi kiếm thêm ít nhất một loài mới sau bộ bài của Orin.
+Mốc 9 Card: Đây là lúc người chơi đã khám phá phần lớn Taurus, nên thưởng đá đủ có ý nghĩa cho quá trình cường hóa.
+Mốc 12 Card: Có thể yêu cầu sở hữu cả Card hiếm từ boss hoặc dungeon. Mình muốn thành tựu này có một danh hiệu vĩnh viễn thay vì phần thưởng Gold quá lớn.
+Nếu Elder Root Guardian Card SR có tỷ lệ rơi thấp, người chơi có thể chưa hoàn thành 12/12 ở Level 10 — điều đó hoàn toàn ổn. Album là hoạt động sưu tập dài hạn, không phải điều kiện mở Gemini.
+Quy tắc chống farm thưởng
+Album tính số loài Card khác nhau, không tính bản sao.
+Card được nhận từ quest Orin vẫn được tính.
+Mỗi mốc chỉ nhận thưởng một lần trên mỗi nhân vật.
+Mất hoặc giao dịch Card đã từng đăng ký không làm mất tiến độ Album.
+Không yêu cầu sở hữu đồng thời cả 12 lá.
+Không cho nhận lại phần thưởng khi người chơi thu thập lại Card đã mất.
+Một lưu ý về độ hiếm: nếu Brambleback Matriarch Field Boss có Card riêng, cần quyết định nó có nằm trong 12 lá Taurus hay là Card bổ sung. Mình chọn giữ Album cơ bản đúng 12 lá như đã thiết kế, Field Boss Card là lá sưu tập đặc biệt ngoài Album. Như vậy không làm thay đổi mốc 12/12 đã chốt.
+2. Trận đấu với Orin — Có cần hỗ trợ sau hai lần thua?
+Có, nhưng chỉ một cơ chế nhỏ.
+Với tỷ lệ thắng mục tiêu khoảng 80% và Hint luôn hiện, phần lớn người chơi sẽ hoàn thành ngay. Tuy nhiên, một người mới chưa hiểu luật so bốn cạnh vẫn có thể thua nhiều lần liên tiếp dù nhìn thấy nút Hint.
+Mình không muốn hệ thống đột ngột cho họ thắng ở lần thứ ba. Điều đó khiến trận tutorial mất ý nghĩa.
+Cơ chế mới: Orin's Guidance
+Sau 2 trận thua liên tiếp
+Orin chủ động đề nghị hướng dẫn thêm. Người chơi có thể nhận hoặc từ chối.
+Card Master Orin
+"Con đã hiểu cách chiếm bài rồi đấy, nhưng vẫn còn vài vị trí dễ bị phản công. Muốn ta chỉ cho con cách bảo vệ cạnh yếu không?"
+Nhận hướng dẫn
+Tự thử lại
+Đây là bản minh họa giao diện và hành vi; không thực hiện một trận Card Duel thực tế.
+Spec chính thức
+Điều kiện
+	
+Hành vi
+Trận đầu tiên
+	
+Hint luôn có trong lượt tự do
+Thua lần 1
+	
+Đấu lại bình thường
+Thua lần 2 liên tiếp
+	
+Orin đề nghị Guidance Mode
+Đồng ý
+	
+Tự highlight một nước đi có lợi mỗi lượt
+Từ chối
+	
+Đấu lại bình thường
+Thắng
+	
+Hoàn thành quest, chọn 1 Card
+Thua thêm
+	
+Tiếp tục được dùng Guidance Mode
+Cược bài
+	
+Luôn tắt
+Không thay đổi luật 4×4, chỉ số Card hoặc âm thầm giảm sức mạnh deck Orin.
+Nước đi gợi ý phải được tính từ trạng thái bàn thật. Nếu không có nước đi chiếm bài ngay, hệ thống nên gợi ý vị trí phòng thủ tốt hơn và giải thích ngắn gọn.
+Một điểm rất quan trọng
+Không nhất thiết phải làm một thuật toán Hint mới. Nếu nút Hint hiện tại đã xác định được nước đi hợp lý, Guidance Mode chỉ cần tự gọi và hiển thị kết quả gợi ý đó, thay vì bắt người chơi bấm.
+Do đó đây chủ yếu là một thay đổi nhỏ về UX, không cần phát triển hệ AI mới.
+3. Các quyết định mình chốt để đưa vào Taurus Bible
+Hạng mục
+	
+Quyết định
+Album Taurus
+	
+12 Card cơ bản
+Mốc thưởng
+	
+3 / 6 / 9 / 12
+Tổng Gold
+	
+1.950
+Tổng Upgrade Stone
+	
+15
+Thưởng 12/12
+	
+Danh hiệu vĩnh viễn
+Field Boss Card
+	
+Ngoài 12 Card Album cơ bản
+Hint trận Orin
+	
+Luôn có ở lượt tự do
+Mục tiêu thắng lần đầu
+	
+Khoảng 80%
+Sau 2 lần thua
+	
+Đề nghị Guidance Mode
+Guidance Mode
+	
+Tự hiện nước đi gợi ý
+Tự động thắng
+	
+Không
+Thay luật Card Duel
+	
+Không
+Mất bài khi thua Orin
+	
+Không
+Phán quyết: Mình chọn phần thưởng Album tăng dần nhưng không bơm nhiều Gold, còn Orin có thêm hỗ trợ tự động sau hai trận thua liên tiếp. Đây là cách vừa bảo vệ kinh tế giai đoạn Level 1–10, vừa giữ trải nghiệm tân thủ thân thiện mà không làm Monster Card trở thành một minigame quá dễ hoặc quá nhiều hướng dẫn.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

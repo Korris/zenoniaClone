@@ -1,0 +1,997 @@
+ASTERIA — TAURUS ART APPROVAL & ANIMATION SPEC V1.0
+
+4 quái cuối Taurus · Bản concept số 2 · Quy chuẩn sprite 4 cột × 3 hàng
+
+1. Phán quyết duyệt concept số 2
+
+Mình CHỐT DUYỆT cả 4 thiết kế trong ảnh thứ 2. Không cần vẽ lại concept. Có thể chuyển sang sản xuất sprite đi, đánh thường và kỹ năng.
+
+Brambleback Matriarch
+
+Duyệt · 94/100
+
+Field Boss Lv 9 · 2,10H · Cute 4 / Threat 6
+
+Thân heo rừng to, dáng thấp và nặng, cặp nanh nổi bật, lớp gai lá làm rõ vai trò đầu đàn. Bản bỏ hoa trên lưng tốt hơn vì bớt trang trí, trông đúng sinh vật hoang dã.
+
+Không sửa hình thể. Khi làm sprite, giữ các gai lớn trên sống lưng và không để chúng thay đổi vị trí tùy hướng.
+
+Amber Sporeling
+
+Duyệt · 96/100
+
+Dungeon Mob Lv 8–9 · 0,75H · Cute 9 / Threat 2
+
+Mũ nấm hổ phách, thân kem và các chấm bào tử vàng tạo được nhận diện riêng. Nó đủ khác Moss Mushroom ngoài đồng cỏ, đồng thời vẫn cùng phong cách.
+
+Không sửa. Hạt bào tử nên là Particle System riêng trong Unity, không vẽ cố định vào mọi frame.
+
+Rune Bark Guardian
+
+Duyệt · 93/100
+
+Dungeon Mob Lv 9–10 · 1,30H · Cute 4 / Threat 6
+
+Giáp đá cổ, lõi rune cyan và thân gỗ chắc khỏe tạo cảm giác hộ vệ của Ancient Root Shrine. Phân biệt được với Ancient Barkling nhờ chất liệu đá và màu lõi.
+
+Không sửa. Khi thu nhỏ trong game, giữ rune ngực đủ sáng nhưng tránh Bloom che mất hoa văn.
+
+Elder Root Guardian
+
+Duyệt · 95/100
+
+Dungeon Boss Lv 10 · 3,5–4,0H · Cute 3 / Threat 7
+
+Tán cây lớn như vương miện, đôi sừng cành đối xứng, hai tay gỗ khổng lồ, lõi hổ phách và chân rễ tạo được cảm giác boss chính của Taurus.
+
+Không sửa. Nên khóa cứng hình dáng sừng, tán cây và vị trí lõi ngực để các hướng animation không bị biến dạng.
+
+Về tỷ lệ bạn đã đo
+
+Mình đồng ý không vẽ lại chỉ để ép lineup đạt số H. Unity sẽ quyết định kích thước cuối cùng.
+
+Nhân vật
+
+	
+
+Tỷ lệ phải đặt trong game
+
+
+
+
+Warrior
+
+	
+
+1,00H
+
+
+
+
+Amber Sporeling
+
+	
+
+0,75H
+
+
+
+
+Rune Bark Guardian
+
+	
+
+1,30H
+
+
+
+
+Brambleback Matriarch
+
+	
+
+2,10H
+
+
+
+
+Elder Root Guardian
+
+	
+
+3,75H — chọn chính giữa dải 3,5–4,0H
+
+Điều kiện là mỗi sprite nguồn phải đủ độ phân giải để scale lên mà không mờ. Nếu phải dùng ô lớn hơn cho boss, hãy dùng ô nguồn lớn hơn, không thay đổi tỷ lệ thiết kế.
+
+Một lưu ý duy nhất về tính đối xứng: Matriarch có vài dây leo và cụm lá không hoàn toàn giống nhau hai bên, Elder Root Guardian có các nhánh tán cây phức tạp. Chấp nhận sự bất đối xứng tự nhiên ở mức nhỏ; tuyệt đối không tạo sừng, giáp, ký hiệu hoặc vết thương đặc trưng chỉ có ở một bên. Lật hướng phải sang trái vẫn phải hợp lý.
+
+2. Sheet kỹ năng bổ sung cho hai boss
+
+Mình chốt pipeline theo đúng cách bạn đang làm:
+
+4 cột: F1, F2, F3, F4.
+
+3 hàng: Xuống (Down), Lên (Up), Phải (Right).
+
+Trái (Left): Unity flip từ Right.
+
+Mỗi sheet là 12 frame, cùng một hành động ở ba hướng.
+
+Đòn đánh thường và animation đi vẫn là sheet riêng.
+
+Phần cảnh báo mặt đất, projectile, bụi, hạt sáng và sát thương xử lý riêng bằng Unity.
+
+Brambleback Matriarch — 2 sheet kỹ năng mới
+
+Sheet
+
+	
+
+Số frame
+
+	
+
+Hướng
+
+	
+
+Chức năng
+
+
+
+
+Matriarch_Charge
+
+	
+
+4×3 = 12
+
+	
+
+Down / Up / Right
+
+	
+
+Cào đất, lấy đà, lao tới
+
+
+
+
+Matriarch_ThornStomp
+
+	
+
+4×3 = 12
+
+	
+
+Down / Up / Right
+
+	
+
+Nhấc chân, giậm đất, hồi tư thế
+
+Charge: F1 hạ đầu, F2 cào đất và nén thân, F3 phóng mạnh về trước, F4 giữ tư thế húc để Unity dịch chuyển theo đường lao. Đầu boss không được tự xoay theo mục tiêu khi đã khóa hướng.
+
+Thorn Stomp: F1 lấy đà, F2 nhấc hai chân trước, F3 giậm mạnh xuống, F4 phục hồi. Sát thương tại F3; lá và bụi tung lên là VFX riêng.
+
+Không cần sheet Bramble Fury cho V1: dưới 30% HP chỉ cần gầm bằng pose hiện có, tint/glow nhẹ và âm thanh. Nếu muốn gầm riêng đẹp hơn có thể bổ sung sau, nhưng chưa phải asset bắt buộc.
+
+Elder Root Guardian — 3 sheet kỹ năng mới
+
+Sheet
+
+	
+
+Số frame
+
+	
+
+Hướng
+
+	
+
+Chức năng
+
+
+
+
+Elder_AncientSweep
+
+	
+
+4×3 = 12
+
+	
+
+Down / Up / Right
+
+	
+
+Quét cánh tay lớn theo hình quạt
+
+
+
+
+Elder_AmberPulse
+
+	
+
+4×3 = 12
+
+	
+
+Down / Up / Right
+
+	
+
+Tích năng lượng ở lõi ngực, phát xung
+
+
+
+
+Elder_Awakening
+
+	
+
+4×3 = 12
+
+	
+
+Down / Up / Right
+
+	
+
+Chuyển pha khi HP dưới 30%
+
+Ancient Sweep: F1 xoay thân chuẩn bị, F2 kéo hai tay ngược chiều quét, F3 quét mạnh qua phía trước, F4 hạ tay về tư thế chiến đấu. Sát thương ở F3.
+
+Amber Pulse: F1 ngẩng đầu và mở vai, F2 đưa hai tay gần lõi ngực, F3 mở rộng hai tay để phát xung, F4 hạ tay. Vòng sáng và sóng năng lượng là Unity VFX, không nằm trong sprite.
+
+Awakening: F1 cúi đầu, F2 hai cánh tay kéo vào thân, F3 mở rộng tay/ngẩng đầu khi lõi hổ phách sáng lên, F4 trở về tư thế chiến đấu với lõi sáng hơn. Animation chỉ phát một lần khi chuyển pha.
+
+Tổng số sheet
+
+Nhân vật
+
+	
+
+Đi
+
+	
+
+Đánh thường
+
+	
+
+Kỹ năng riêng
+
+	
+
+Tổng
+
+
+
+
+Brambleback Matriarch
+
+	
+
+1
+
+	
+
+1
+
+	
+
+2
+
+	
+
+4 sheet
+
+
+
+
+Amber Sporeling
+
+	
+
+1
+
+	
+
+1
+
+	
+
+0
+
+	
+
+2 sheet
+
+
+
+
+Rune Bark Guardian
+
+	
+
+1
+
+	
+
+1
+
+	
+
+0
+
+	
+
+2 sheet
+
+
+
+
+Elder Root Guardian
+
+	
+
+1
+
+	
+
+1
+
+	
+
+3
+
+	
+
+5 sheet
+
+
+
+
+Tổng
+
+	
+
+4
+
+	
+
+4
+
+	
+
+5
+
+	
+
+13 sheet
+
+Các sheet này chưa bao gồm Idle, Hit, Death và portrait. Hai quái dungeon thường chưa cần sheet kỹ năng đặc biệt vì đòn của chúng có thể dùng attack 4 frame cộng VFX Unity.
+
+3. Mô tả animation hoàn chỉnh để gửi họa sĩ
+
+Dưới đây là nội dung có thể sao chép nguyên văn. Mình quy định rõ từng frame để tránh tình trạng bốn frame chỉ thay đổi vị trí toàn thân mà thiếu chuyển động có lực.
+
+Writing
+ASTERIA — TAURUS SPRITE ANIMATION BRIEF
+
+Áp dụng cho: Brambleback Matriarch, Amber Sporeling, Rune Bark Guardian, Elder Root Guardian.
+
+A. Quy chuẩn chung
+
+Vẽ đúng thiết kế, màu sắc, hình thể và biểu cảm trong concept lineup Taurus đã duyệt. Không sáng tác lại nhân vật.
+
+Mỗi sheet gồm 4 cột × 3 hàng, tổng cộng 12 frame:
+
+Hàng 1: DOWN — nhìn về phía người xem, góc 3/4 từ trên xuống.
+
+Hàng 2: UP — nhìn lên, thấy lưng và phần sau của cơ thể.
+
+Hàng 3: RIGHT — quay sang phải, thấy góc nghiêng 3/4.
+
+Hướng LEFT được Unity lật ngang từ RIGHT, không vẽ riêng.
+
+Nền phẳng tuyệt đối #FF00FF, không gradient, không bóng đổ, không caro, không chữ, không khung. Không để bất kỳ bộ phận nào chạm hoặc vượt mép ô.
+
+Walk và Attack phải dùng cùng tỷ lệ nhân vật, cùng vị trí pivot tại vùng chân. Không thay đổi kích thước đầu hoặc thân giữa các frame. Không vẽ hiệu ứng sát thương, vòng cảnh báo hoặc bóng đất vào sprite.
+
+Sheet đi: Ưu tiên 192×192 px/ô cho quái thường.
+Sheet đánh: Ưu tiên 256×256 px/ô cho quái thường.
+Boss: Dùng 384 hoặc 512 px/ô khi cần đủ khoảng trống và độ nét, vẫn giữ lưới 4×3.
+
+Các chuyển động chân phải thể hiện trọng lượng, tránh chỉ di chuyển cả nhân vật lên xuống như một hình dán.
+
+B. BRAMBLEBACK MATRIARCH — FIELD BOSS
+
+Thiết kế: Heo rừng cái khổng lồ, thân nâu hạt dẻ, bờm lá gai xanh, hai nanh lớn cân xứng, thân chắc và nặng. Kích thước ingame 2,10H. Biểu cảm bảo vệ lãnh thổ, dữ vừa phải. Không biến thành thú hung ác kiểu realistic.
+
+WALK — 4 frame/hướng
+
+Nhịp đi chậm, nặng, bốn chân đạp đất rõ. Thân hơi lắc qua lại vì trọng lượng lớn; bờm lá và gai dao động trễ nhẹ.
+
+Hàng DOWN:
+
+F1: Chân trước bên phải bước lên, chân trước còn lại chống đất; đầu và vai hơi hạ.
+
+F2: Trọng tâm đi qua giữa, thân nhô lên nhẹ; hai nanh giữ cân đối, bờm lá hơi trễ về sau.
+
+F3: Chân trước đối diện bước lên; vai bên đó hạ, mõm lắc rất nhẹ theo nhịp.
+
+F4: Trọng tâm trở về giữa, thân ổn định, chuẩn bị lặp lại F1.
+
+Hàng UP:
+
+F1: Thấy rõ lưng phủ lá gai, chân sau bên phải đẩy thân về trước.
+
+F2: Hông nhô lên nhẹ; bờm gai nghiêng theo chuyển động.
+
+F3: Chân sau đối diện đẩy người, phần mông chuyển trọng lượng sang bên kia.
+
+F4: Trở về tư thế trung gian, lá và đuôi ổn định.
+
+Hàng RIGHT:
+
+F1: Chân trước gần camera đưa lên, chân sau đẩy.
+
+F2: Chân trước đặt xuống, đầu hạ nhẹ, thân tiến về trước.
+
+F3: Chân trước phía xa chuyển bước, vai gần camera nâng lên.
+
+F4: Trọng tâm trở về giữa, chuẩn bị chu kỳ mới.
+
+Cảm giác tổng thể: mỗi bước có sức nặng, không chạy nhún nhảy như Horn Rabbit.
+
+BASIC ATTACK — HEAVY TUSK
+
+Đòn húc cận chiến tại chỗ, không phải Charge. Một lần gây sát thương.
+
+DOWN:
+
+F1: Hai chân trước bám đất, đầu hạ xuống.
+
+F2: Vai và cổ nén mạnh, nanh hướng xuống trước mặt, mắt nheo lại.
+
+F3: Đầu húc bật mạnh về phía người xem, hai nanh vươn ra, miệng gầm. Frame impact.
+
+F4: Đầu thu lại, cơ thể hơi lùi vì phản lực, phục hồi tư thế.
+
+UP:
+
+F1: Hạ đầu và vai, lưng phủ lá hơi nâng.
+
+F2: Dồn trọng tâm về hai chân sau, gai lưng nhô lên.
+
+F3: Húc mạnh về hướng lên bản đồ, thân đẩy về trước. Frame impact.
+
+F4: Thu thân về, bờm lá dao động và ổn định.
+
+RIGHT:
+
+F1: Hạ đầu, hai chân gần camera bám đất.
+
+F2: Kéo đầu hơi về sau, nén cổ và vai.
+
+F3: Húc mạnh sang phải, nanh vươn rõ theo hướng đánh. Frame impact.
+
+F4: Thu đầu, chân trước chỉnh lại vị trí, trở về idle.
+
+Không vẽ vệt chém, hiệu ứng va chạm hoặc bụi trong sheet.
+
+SKILL — BRAMBLE CHARGE
+
+Sheet 4 frame/hướng, dùng để chuẩn bị và giữ tư thế lao.
+
+F1: Hạ thấp đầu, khóa ánh mắt vào hướng lao.
+
+F2: Cào chân xuống đất, vai nén, thân dồn về sau.
+
+F3: Phóng thân về trước, đầu thấp, nanh hướng thẳng, chân sau duỗi mạnh.
+
+F4: Tư thế đang lao, bốn chân thu gọn theo chuyển động, đầu và vai vững chắc.
+
+Ở mỗi hướng DOWN/UP/RIGHT, giữ nguyên thứ tự động tác và chỉ thay đổi góc nhìn.
+
+Quan trọng: Sprite chỉ thể hiện tư thế, Unity điều khiển di chuyển thực tế. Không tự vẽ nhân vật chạy từ đầu ô sang cuối ô, không tạo vệt bụi cố định.
+
+SKILL — THORN STOMP
+
+F1: Dừng lại, hạ trọng tâm, mắt nghiêm.
+
+F2: Nhấc mạnh phần thân trước và hai chân trước lên.
+
+F3: Giậm mạnh hai chân xuống đất, đầu cúi theo lực, gai và lá rung mạnh. Frame impact.
+
+F4: Cơ thể nảy lên rất nhẹ rồi hạ xuống, trở lại tư thế đứng.
+
+Cả ba hướng phải thể hiện rõ khoảnh khắc giậm đất. Không vẽ vòng AoE hay đất nứt trong sprite; VFX và telegraph làm riêng bằng Unity.
+
+C. AMBER SPORELING — DUNGEON MOB
+
+Thiết kế: Nấm nhỏ thân kem, mũ vàng hổ phách có chấm kem, đôi mắt to, miệng vui vẻ, chân và tay ngắn. Kích thước 0,75H. Cute 9/10.
+
+WALK — 4 frame/hướng
+
+Kiểu di chuyển nhún nhẹ, mũ nấm có độ đàn hồi, hai chân bước ngắn.
+
+DOWN:
+
+F1: Chân phải bước lên, thân nghiêng phải nhẹ, mũ nấm nghiêng trễ.
+
+F2: Thân nhô lên, hai chân gần về giữa, mũ nấm trở lại cân bằng.
+
+F3: Chân trái bước lên, thân nghiêng trái nhẹ.
+
+F4: Thân hạ xuống, mũ nấm nảy nhẹ về vị trí trung tâm.
+
+UP:
+
+F1: Thấy mặt sau mũ nấm, chân phải bước.
+
+F2: Cơ thể nâng nhẹ, mũ nấm nhún theo.
+
+F3: Chân trái bước, thân nghiêng đối diện.
+
+F4: Trở về tư thế cân bằng; không làm các đốm trên mũ thay đổi vị trí.
+
+RIGHT:
+
+F1: Chân gần camera bước về trước, thân hơi nghiêng.
+
+F2: Thân nảy lên, mũ hơi trễ về phía sau.
+
+F3: Chân phía xa bước lên, mũ nghiêng ngược lại.
+
+F4: Thân hạ xuống và phục hồi.
+
+Chuyển động phải dễ thương, nhẹ và có trọng lượng mềm. Không biến thành Slime nảy bằng cả thân.
+
+BASIC ATTACK — AMBER SPORE SHOT
+
+Một lần phóng bào tử về hướng mục tiêu, sử dụng AI projectile.
+
+DOWN:
+
+F1: Mắt tập trung, hai tay nhỏ khép về thân.
+
+F2: Cơ thể nén xuống, mũ nấm hơi phồng, chấm trên mũ sáng nhẹ.
+
+F3: Thân bật lên, hai tay dang ra, miệng mở, mũ rung. Frame spawn projectile.
+
+F4: Mũ nấm hạ xuống, cơ thể trở lại trạng thái vui vẻ.
+
+UP:
+
+F1: Thân đứng lại, mũ nấm nghiêng về sau.
+
+F2: Mũ phồng lên, chân co nhẹ.
+
+F3: Bật thân hướng lên, phóng bào tử từ phía trước mũ. Frame spawn projectile.
+
+F4: Mũ và thân trở về vị trí ban đầu.
+
+RIGHT:
+
+F1: Hướng mắt sang phải, hai tay thu lại.
+
+F2: Nén thân về sau, mũ nghiêng ngược hướng bắn.
+
+F3: Đẩy thân về phải, mũ nấm bật về trước, miệng mở. Frame spawn projectile.
+
+F4: Thân trở về giữa, mũ nấm dao động nhẹ.
+
+Hiệu ứng: Bào tử vàng và những hạt sáng nhỏ làm bằng Particle System trong Unity. Không vẽ projectile bay ra ngoài ô. Có thể cho chấm mũ nấm sáng hơn ở F2–F3 nhưng không thêm quầng Bloom lớn.
+
+D. RUNE BARK GUARDIAN — DUNGEON MOB
+
+Thiết kế: Hộ vệ gỗ và đá cổ, đầu có rune cyan, ngực có lõi rune cyan, tay và chân gỗ chắc khỏe, giáp đá sáng màu, lá xanh quanh vai. Kích thước 1,30H. Biểu cảm nghiêm nghị, không cười.
+
+WALK — 4 frame/hướng
+
+Dáng bước nặng, vững, giống một pho tượng gỗ đá bắt đầu chuyển động. Không nhảy.
+
+DOWN:
+
+F1: Chân phải bước lên, vai đối diện đưa về trước rất nhẹ.
+
+F2: Trọng tâm dồn lên chân trước, thân hạ xuống một chút.
+
+F3: Chân trái bước lên, vai bên kia chuyển động ngược.
+
+F4: Thân nâng nhẹ và trở lại giữa, lá vai rung trễ.
+
+UP:
+
+F1: Chân phải bước, thấy mảng gỗ và giáp lưng.
+
+F2: Trọng lượng đè xuống, hai vai hơi lắc.
+
+F3: Chân trái bước, tay đối diện đung đưa nhẹ.
+
+F4: Thân trở về trung tâm, không làm rune trên đầu lệch vị trí.
+
+RIGHT:
+
+F1: Chân gần camera nhấc lên, tay đối diện đưa ra trước.
+
+F2: Chân đặt xuống, thân đổ nhẹ về phía trước.
+
+F3: Chân phía xa bước lên, tay còn lại chuyển động.
+
+F4: Thân ổn định và quay về nhịp F1.
+
+Cảm giác tổng thể: bước chậm, nặng hơn Ancient Barkling, nhưng không lắc mạnh như boss.
+
+BASIC ATTACK — RUNE HAMMER
+
+Đòn đập bằng một nắm tay gỗ bọc đá, một lần gây sát thương.
+
+DOWN:
+
+F1: Chân chống vững, tay đánh bắt đầu nâng lên.
+
+F2: Kéo nắm tay về cao và ra sau vai, thân xoay để lấy lực, mắt nghiêm.
+
+F3: Đập tay mạnh xuống phía trước, thân hạ, vai đổ theo lực. Frame impact.
+
+F4: Thu tay về, dựng thân trở lại.
+
+UP:
+
+F1: Tay đánh nâng lên, nhìn thấy phần giáp sau vai.
+
+F2: Tay kéo ra sau, thân xoay, chân trụ giữ chắc.
+
+F3: Đập tay hướng lên bản đồ, vai và thân đẩy theo. Frame impact.
+
+F4: Rút tay và phục hồi.
+
+RIGHT:
+
+F1: Chuyển chân trụ và nâng tay phía gần camera.
+
+F2: Nắm tay kéo lên cạnh đầu, thân xoay về sau.
+
+F3: Đập nắm tay về phía phải theo cung chéo xuống. Frame impact.
+
+F4: Thu tay, chân và vai về tư thế đứng.
+
+Hiệu ứng: Rune ngực sáng nhẹ ở F2–F3, nhưng không phát tia sét, sóng xung kích hoặc vùng AoE. Đòn này chỉ gây melee damage.
+
+Giữ mảng đá giáp và lá vai nhất quán giữa ba hướng.
+
+E. ELDER ROOT GUARDIAN — DUNGEON BOSS
+
+Thiết kế: Cây hộ vệ cổ đại khổng lồ, thân gỗ cao, hai tay lớn, chân rễ dài, tán lá như vương miện, sừng cành đối xứng, lõi Memory Amber vàng cam giữa ngực. Kích thước 3,75H. Uy nghi, bảo vệ thánh tích, không phải quái ác.
+
+WALK — 4 frame/hướng
+
+Bước đi cực kỳ nặng và chậm. Mỗi bước chân rễ tạo cảm giác trọng lượng lớn. Tán lá và cành cây rung nhẹ theo quán tính, không vung vẩy quá mạnh.
+
+DOWN:
+
+F1: Chân rễ phải nhấc lên một chút, vai bên trái nghiêng theo trọng tâm.
+
+F2: Chân phải đặt xuống, thân nén rất nhẹ, tán lá trễ về sau.
+
+F3: Chân rễ trái nhấc lên, vai đổi bên, hai tay giữ thế cân bằng.
+
+F4: Chân trái đặt xuống, thân trở lại tư thế thẳng, tán lá ổn định.
+
+UP:
+
+F1: Chân rễ phải nâng lên, thấy rõ các rễ lớn ở phía sau.
+
+F2: Chân đặt xuống, thân cây hạ nhẹ, cành và tán rung theo.
+
+F3: Chân trái nâng lên, phần thân xoay rất nhẹ theo bước.
+
+F4: Chân đặt xuống, thân đứng vững, không thay đổi hình dạng tán cây.
+
+RIGHT:
+
+F1: Chân rễ gần camera nhấc lên, thân nghiêng về trước.
+
+F2: Chân đặt xuống, cánh tay đối diện dao động nhẹ.
+
+F3: Chân rễ phía xa nhấc lên, thân chuyển trọng lượng.
+
+F4: Chân đặt xuống, toàn thân ổn định, trở về nhịp đầu.
+
+Không để boss trượt chân trên mặt đất. Pivot và vị trí chân trụ phải ổn định trong mỗi frame.
+
+BASIC ATTACK — ROOT SLAM
+
+Đòn cận chiến nặng bằng một cánh tay gỗ. Một lần gây sát thương.
+
+DOWN:
+
+F1: Boss hơi xoay vai, nâng một tay.
+
+F2: Tay gỗ giơ cao, thân ngả về sau, lõi ngực lộ rõ, mắt nghiêm.
+
+F3: Đập tay mạnh xuống trước mặt, vai và thân dồn theo lực. Frame impact.
+
+F4: Tay nhấc trở lại, thân hạ rồi phục hồi.
+
+UP:
+
+F1: Tay bắt đầu nâng, thân xoay về hướng đánh.
+
+F2: Tay giơ cao, nhìn thấy phần giáp cổ và tán cây từ phía sau.
+
+F3: Đập mạnh về hướng lên bản đồ, thân dồn tới. Frame impact.
+
+F4: Thu tay về, chân rễ giữ vững trọng tâm.
+
+RIGHT:
+
+F1: Tay gần camera bắt đầu nâng, vai xoay.
+
+F2: Nắm tay gỗ kéo lên cạnh đầu, thân ngả về sau.
+
+F3: Đập mạnh theo cung xuống-phải, tay và vai tạo đường lực lớn. Frame impact.
+
+F4: Thu tay, thân trở lại vị trí chuẩn.
+
+Đòn phải có sức nặng rõ ràng, không chỉ nhấc và hạ cánh tay mà thân hoàn toàn đứng yên.
+
+SKILL — ANCIENT SWEEP
+
+Quét một vùng hình quạt 120° phía trước boss.
+
+F1: Xoay phần thân và hai vai, bắt đầu mở tay theo hướng ngược đòn quét.
+
+F2: Dồn trọng lượng về chân trụ, hai tay lớn kéo ngược về sau, chuẩn bị quét.
+
+F3: Quét mạnh hai cánh tay qua phía trước, thân xoay theo lực, tán lá nghiêng trễ. Frame impact.
+
+F4: Hai tay đi hết quán tính, hạ xuống và phục hồi.
+
+Vẽ đủ DOWN/UP/RIGHT; đường quét phải phù hợp với hướng tấn công. Không vẽ cung sáng hoặc telegraph vào sprite.
+
+SKILL — AMBER PULSE
+
+Phát xung năng lượng hình tròn từ lõi Memory Amber.
+
+F1: Boss ngừng chuyển động, hai tay mở nhẹ, mắt và lõi ngực bắt đầu sáng.
+
+F2: Co hai tay về gần ngực, vai nâng, thân căng như đang tích năng lượng.
+
+F3: Hai tay mở rộng ra hai bên, ngực hướng về phía trước, lõi phát sáng mạnh. Frame phát xung.
+
+F4: Hạ hai tay, ánh lõi giảm trở về bình thường, thân phục hồi.
+
+Ở hướng UP phải vẫn đọc được động tác tích năng lượng qua vai, hai tay và chuyển động thân dù lõi ngực bị che bởi cơ thể. Vòng xung hình tròn được tạo trong Unity.
+
+SKILL — AWAKENING
+
+Chuyển pha một lần duy nhất khi HP boss dưới 30%.
+
+F1: Boss dừng lại, cúi đầu, hai tay hạ thấp, tán cây gần như đứng yên.
+
+F2: Hai tay kéo vào gần thân, vai co, lõi ngực bắt đầu sáng mạnh.
+
+F3: Boss ngẩng đầu, mở rộng hai tay, nâng ngực, biểu cảm uy nghi hơn; lõi hổ phách đạt độ sáng cao nhất.
+
+F4: Hai tay hạ về vị trí chiến đấu, đầu vẫn ngẩng, lõi giữ mức sáng tăng nhẹ.
+
+Không thay đổi hình thể hoặc mọc thêm cành mới trong Awakening. Đây là trạng thái tăng sức mạnh, không phải biến hình thành boss khác.
+
+Hiệu ứng ánh sáng, lá bay và âm thanh gầm làm bằng Unity.
+
+F. Kiểm tra bắt buộc trước khi bàn giao
+
+Đúng thiết kế concept của từng loài.
+
+Mọi sheet cùng một tỷ lệ nhân vật.
+
+Ba hướng DOWN/UP/RIGHT cùng hình thể, vật liệu, rune, gai và lá.
+
+Hướng trái có thể flip từ RIGHT mà không sai chi tiết.
+
+Bốn frame WALK tạo chu kỳ liên tục F1 → F2 → F3 → F4 → F1.
+
+Bốn frame ATTACK có chuẩn bị, lấy lực, va chạm và phục hồi rõ ràng.
+
+Không có bóng đổ, hiệu ứng mặt đất, projectile hoặc telegraph trong sprite.
+
+Nền #FF00FF phẳng tuyệt đối, không có viền màu magenta lẫn trong nhân vật.
+
+Nhân vật không chạm mép ô.
+
+Chân, pivot và scale ổn định, không bị giật khi chuyển từ idle sang walk, attack hoặc skill.
+
+Ưu tiên cuối cùng: Độ rõ chuyển động và lực đánh quan trọng hơn việc thêm nhiều chi tiết trang trí vào từng frame.
+
+4. Timing đề xuất để Unity lập trình đúng
+
+Có một điểm quan trọng: 4 frame không có nghĩa là mỗi kỹ năng phải phát ở 4 FPS. Cần cho phép giữ frame F1/F2 trong thời gian cảnh báo, sau đó mới chuyển nhanh sang F3 để khớp thời điểm sát thương.
+
+Kỹ năng
+
+	
+
+Cảnh báo
+
+	
+
+Thời điểm gây sát thương
+
+	
+
+Cách triển khai
+
+
+
+
+Matriarch Heavy Tusk
+
+	
+
+Wind-up 0,4s
+
+	
+
+F3
+
+	
+
+Melee
+
+
+
+
+Matriarch Charge
+
+	
+
+1,1s
+
+	
+
+Khi collider lao chạm mục tiêu
+
+	
+
+F3–F4 là pose lao, Unity di chuyển
+
+
+
+
+Matriarch Thorn Stomp
+
+	
+
+1,4s
+
+	
+
+F3
+
+	
+
+AoE tròn
+
+
+
+
+Rune Bark Guardian Attack
+
+	
+
+0,5–0,7s
+
+	
+
+F3
+
+	
+
+Melee
+
+
+
+
+Amber Sporeling Attack
+
+	
+
+0,5s
+
+	
+
+Spawn projectile ở F3
+
+	
+
+Ranged
+
+
+
+
+Elder Root Slam
+
+	
+
+0,5s
+
+	
+
+F3
+
+	
+
+Melee
+
+
+
+
+Elder Ancient Sweep
+
+	
+
+1,2s
+
+	
+
+F3
+
+	
+
+AoE quạt
+
+
+
+
+Elder Amber Pulse
+
+	
+
+1,5s
+
+	
+
+F3
+
+	
+
+AoE tròn
+
+
+
+
+Elder Awakening
+
+	
+
+1,0s
+
+	
+
+Không gây sát thương
+
+	
+
+Chuyển pha
+
+Đối với Charge, đừng chạy F1→F4 rồi mới bắt đầu di chuyển. Nên dùng F1–F2 cho giai đoạn cảnh báo, F3 vào lúc phát động lao, và giữ hoặc lặp tư thế F4 trong thời gian di chuyển. Kết thúc Charge có thể dùng đoạn recovery ngắn bằng animation hiện có.
+
+Đối với Elder Awakening, animator có thể giữ F3 khoảng 0,2–0,3 giây để tạo cao trào.
+
+5. Ưu tiên sản xuất
+
+Mình đề xuất làm theo thứ tự: Amber Sporeling → Rune Bark Guardian → Brambleback Matriarch → Elder Root Guardian.
+
+Hai quái dungeon thường dùng để kiểm tra chuẩn đi/đánh và chốt quy trình. Sau đó sản xuất Field Boss có Charge và Stomp, cuối cùng là Elder Root Guardian với bộ animation lớn nhất.
+
+Kết luận: Concept thứ 2 của cả bốn con được duyệt về thiết kế. Không cần sửa hình khối, mặt hay màu nữa. Khóa các tỷ lệ trong Unity, rồi sản xuất 13 sheet nền tảng và kỹ năng theo bảng trên. Sau đó bổ sung Idle/Death phù hợp trước khi nghiệm thu trong game.
+

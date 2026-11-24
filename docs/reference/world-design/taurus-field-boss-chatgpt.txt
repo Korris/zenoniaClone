@@ -1,0 +1,583 @@
+quy tắc chung cho boss map của các Tinh Vực sau.
+ChatGPT said:
+ASTERIA — FIELD BOSS PRODUCTION SHEET V1.0
+Bổ sung cho Taurus Production Bible V4.0 · Boss map hồi sinh 30 phút
+Mình đồng ý bổ sung mỗi map săn một Field Boss (Boss Map). Đây là cách rất tốt để khiến người chơi có thêm mục tiêu khi đi săn quái, tạo hoạt động cộng đồng và giúp những bãi quái cũ vẫn đáng quay lại.
+Tuy nhiên, mình muốn phân biệt rõ ba cấp boss trong Asteria:
+Loại
+	
+Vai trò
+	
+Hồi sinh
+Field Boss
+	
+Boss xuất hiện ngay trên map săn, mạnh hơn quái thường khoảng 3 lần
+	
+30 phút
+Dungeon Boss
+	
+Boss kết thúc dungeon, có cơ chế và cốt truyện riêng
+	
+Theo lượt dungeon
+Wanted Boss
+	
+Boss sự kiện cộng đồng, lớn và nguy hiểm hơn nhiều
+	
+Theo lịch sự kiện, có thể hồi sinh mỗi 30 phút
+Field Boss không nên mạnh ngang Wanted Boss. Người chơi solo đúng cấp, trang bị hợp lý phải có khả năng đánh thắng, còn party sẽ đánh nhanh hơn.
+I. TAURUS FIELD BOSS — BRAMBLEBACK MATRIARCH
+Nữ Chúa Heo Gai · Level 9 · Clover Meadows
+steamcommunity.com
+Mình chọn Brambleback Matriarch, một con heo rừng cái khổng lồ sống ở Bramble Thicket.
+Lý do mình chọn loài này thay vì tạo thêm một vị thần, bò thần hoặc Treant: Field Boss đầu tiên nên là một sinh vật tự nhiên mạnh bất thường, chứ không phải boss mang tầm vóc thần thoại. Nó phải phù hợp với hệ sinh thái đồng cỏ, dễ hiểu và đủ khác Elder Root Guardian.
+1. Truyền thuyết và vai trò
+Brambleback Matriarch là con đầu đàn đã sống nhiều năm trong khu rừng gai. Nó bảo vệ những con Bramble Boar nhỏ hơn và lãnh thổ xung quanh tổ.
+Khi năng lượng bên dưới Ancient Root Shrine bắt đầu mất cân bằng, các bụi gai trên lưng nó mọc dày và cứng bất thường. Nó trở nên hung dữ hơn, đặc biệt khi người lạ tiến gần tổ.
+Nó không phải quái ác. Đây là một sinh vật đang bảo vệ lãnh thổ trong khi chịu ảnh hưởng của Tinh Mạch.
+Điều này cũng tạo liên hệ nhẹ với cốt truyện Taurus mà không tiết lộ bí mật Ngôi Sao Thứ Mười Ba quá sớm.
+2. Monster Production Sheet
+Brambleback Matriarch
+Field Boss
+Boss ID
+TAU-FB01
+Level
+9
+Chiều cao
+2,1H
+Chiều rộng
+2,5H
+Respawn
+30 phút
+Loại tấn công
+Melee + Charge + AoE
+Ngoại hình
+Thân: To, tròn nhưng chắc nịch, phần vai cao, bụng thấp, bốn chân ngắn khỏe.
+Màu: Nâu hạt dẻ #96684C, bụng nâu kem #C7A37C.
+Bờm gai: Các lá gai xanh ô-liu #6B874D mọc thành một đường trên lưng, có đầu gai màu vàng lá.
+Nanh: Hai chiếc nanh ngà lớn, cong đều ở hai bên.
+Mắt: Hổ phách, biểu cảm cảnh giác và hung dữ vừa phải, không kinh dị.
+Dấu hiệu đặc biệt: Một cụm rêu hình vương miện nằm chính giữa trán.
+Khác với Bramble Boar thường, Matriarch có phần vai lớn hơn, cặp nanh nổi bật và một lớp gai dày như áo giáp tự nhiên.
+Tỷ lệ so với hero
+Tỷ lệ chiều cao hiển thị
+0H
+1H
+2H
+3H
+4H
+Hero
+Bramble Boar thường
+Brambleback Matriarch
+Elder Root Guardian
+Hero: Chiều cao 1H
+Bramble Boar thường: Chiều cao 0.9H
+Brambleback Matriarch: Chiều cao 2.1H
+Elder Root Guardian: Chiều cao 3.8H
+H = chiều cao hero. Field Boss rõ ràng lớn hơn quái thường nhưng nhỏ hơn boss dungeon chính.
+Mình chọn 2,1H vì Field Boss cần đủ nổi bật nhưng không được quá lớn làm che khu vực chiến đấu trong một map săn công cộng.
+II. Vị trí spawn trong Clover Meadows
+Mình chọn Z5 — Bramble Thicket, phía tây bắc map, gần camp C07 nhưng tách khỏi đường chính.
+Đây là khu sinh thái của Bramble Boar, rất hợp lý để con đầu đàn xuất hiện.
+Brambleback Nest — Boss Spawn Area
+Sơ đồ vị trí tương đối: đấu trường boss nằm ở nhánh phụ phía tây bắc, không chặn đường chính dẫn tới Ancient Root Shrine.
+Thiết kế đấu trường
+Thành phần
+	
+Đề xuất
+Tên khu
+	
+Brambleback Nest
+Vị trí
+	
+Z5, tây bắc Clover Meadows
+Kích thước khoảng trống
+	
+12×12 tile, kiểm thử theo kích thước boss và tầm Charge
+Địa hình
+	
+Đất nâu, bụi gai, rễ cây, vài tảng đá thấp
+Lối vào
+	
+Một đường rẽ khỏi trục chính
+Vùng hồi sinh
+	
+Ở trung tâm tổ
+Quái thường quanh tổ
+	
+Giữ ở rìa, không spawn trong vùng giao chiến chính
+Không đặt boss ngay đường người chơi phải đi qua. Người chơi Lv 1–3 không nên vô tình gặp con boss Lv 9 khi đang làm nhiệm vụ đầu tiên.
+Spawn rules
+Boss tồn tại tối đa 1 con trên mỗi channel/map instance.
+Hồi sinh sau 1.800 giây tính từ thời điểm bị tiêu diệt.
+Không respawn ngay khi đang có người đứng ở vị trí xuất hiện; có thể trì hoãn ngắn hoặc chọn điểm spawn an toàn trong arena.
+Boss không đuổi ra khỏi Brambleback Nest.
+Khi rời arena quá lâu, boss trở về vị trí và hồi đầy HP.
+Boss không tính vào 68 quái thường và 10 camp đã chốt trong Production Bible.
+Nếu game có nhiều channel, mỗi channel phải có lịch respawn riêng hoặc lịch chung tùy chính sách server; mình đề xuất riêng từng channel, nhưng cần giới hạn khả năng nhảy channel liên tục để farm boss.
+III. AI & Combat — Brambleback Matriarch
+1. Mục tiêu độ khó
+Bạn muốn boss map mạnh hơn quái thường khoảng 3 lần. Mình sẽ diễn giải thành độ bền và thời gian chiến đấu khoảng 3 lần, chứ không nhân ba mọi chỉ số.
+Nếu nhân 3 HP, ATK, Defense và tốc độ cùng lúc, boss thực tế sẽ mạnh hơn rất nhiều lần.
+Mình đề xuất so với một quái Bramble Boar cùng Level được quy chuẩn lên Lv 9:
+Thuộc tính
+	
+Hệ số Field Boss
+HP
+	
+3,0×
+ATK cơ bản
+	
+1,25×
+Defense
+	
+1,1×
+Tốc độ chạy
+	
+0,9×
+Tốc độ đánh
+	
+0,9× số lần đánh/giây
+EXP
+	
+3,0×
+Độ khó
+	
+Khoảng 3×, cần playtest
+Với kỹ năng Charge và AoE, dù HP chỉ gấp ba, boss vẫn có thể nguy hiểm hơn quái thường đáng kể. Bảng này là mốc tuning ban đầu, không phải bảo đảm độ khó chính xác 3×.
+Mục tiêu: Một người chơi Lv 9–10 đúng trang bị có thể solo trong khoảng 30–60 giây, nếu tránh kỹ năng tốt.
+2. Bộ kỹ năng boss
+Mình đề xuất ba đòn và một biểu hiện đặc biệt khi HP thấp.
+Skill 01 — Heavy Tusk
+Đòn cận chiến cơ bản
+Matriarch cúi thấp đầu rồi húc bằng hai nanh.
+Wind-up: 0,4 giây.
+Một lần gây sát thương.
+Không có AoE.
+Không cần cảnh báo mặt đất riêng.
+Đòn này dùng logic melee thông thường và animation riêng.
+Skill 02 — Bramble Charge
+Lao thẳng · Cảnh báo hình chữ nhật
+Matriarch cào chân xuống đất, hướng về mục tiêu, sau đó lao thẳng.
+Cảnh báo: 1,1 giây.
+Hành lang rộng khoảng 1,4H.
+Tầm lao khoảng 4H.
+Thời gian lao khoảng 0,5 giây.
+Cooldown mục tiêu: 12 giây.
+Gây sát thương một lần trên mỗi mục tiêu trong mỗi lần lao.
+Người chơi né sang hai bên là tránh được.
+Tính năng mới cần làm: Boss Charge AI và telegraph hình chữ nhật.
+Skill 03 — Thorn Stomp
+AoE tròn · Cảnh báo quanh boss
+Matriarch giậm mạnh hai chân trước, làm gai lá và đất bật lên.
+Cảnh báo: 1,4 giây.
+Bán kính khoảng 1,8H.
+Cooldown mục tiêu: 16 giây.
+Gây một lần sát thương.
+Hạt bụi và lá chỉ là VFX, không tạo sát thương kéo dài.
+Người chơi cần ra khỏi vòng cảnh báo.
+Tính năng mới cần làm: Boss Circle Telegraph nếu chưa có hệ AoE.
+Passive Visual — Bramble Fury
+Dưới 30% HP
+Gai trên lưng hơi phát sáng xanh vàng, Matriarch gầm lớn.
+Mình không tăng mạnh chỉ số hay thêm một kỹ năng mới. Chỉ giảm nhẹ khoảng nghỉ giữa hai đòn đánh thường, tối đa 10%, nếu playtest cho thấy boss quá dễ.
+Cơ chế này tạo cao trào mà không biến Field Boss thành Dungeon Boss.
+Quy tắc cảnh báo
+Cảnh báo Charge và Stomp phải dùng đúng logic vùng sát thương server.
+Màu cảnh báo: cam đất hoặc đỏ nâu nhạt, không dùng xanh lá giống nền cỏ.
+Viền rõ, thân vùng trong suốt để vẫn nhìn thấy nhân vật.
+Khóa hướng Charge khi bắt đầu giai đoạn cảnh báo; không xoay đuổi theo người chơi đến sát thời điểm lao.
+Thời gian cảnh báo đủ để người chơi mobile phản ứng.
+Sát thương được tính ở server, không phụ thuộc vào FPS client.
+Nếu hai cơ chế Charge và Telegraph chưa có, mình xem đây là hạng mục code mới của Field Boss Framework, không được nhầm là AI quái thường đã hỗ trợ.
+IV. EXP, Loot, Monster Card & Pet
+1. Chính sách phần thưởng
+Bạn muốn Field Boss rơi đồ tốt hơn quái thường một chút. Mình đồng ý và sẽ không cho Field Boss rơi trang bị quá mạnh hoặc vật phẩm độc quyền bắt buộc.
+Ví dụ bảng reward Taurus:
+Phần thưởng
+	
+Đề xuất
+EXP
+	
+3× EXP của quái thường Lv 9 chuẩn
+Gold
+	
+2–3× Gold của quái thường
+Upgrade Stone
+	
+1–2 viên, có xác suất
+Bramble Hide
+	
+Nguyên liệu thường, số lượng cao hơn quái
+Matriarch Tusk
+	
+Nguyên liệu Uncommon, tỷ lệ thấp
+Trang bị
+	
+Xác suất nhận T0/T1 thông thường chất lượng tốt hơn, nếu hệ loot có trang bị
+Monster Card
+	
+Brambleback Matriarch Card, tỷ lệ hiếm
+Pet
+	
+Không rơi Pet trực tiếp
+Mình không đưa vũ khí đặc biệt có chỉ số vượt trội vào boss map đầu tiên, vì nó có thể khiến người chơi Lv 9 bắt buộc phải canh boss mới đủ mạnh.
+Drop rate thử nghiệm
+Vật phẩm
+	
+Tỷ lệ gợi ý
+Bramble Hide
+	
+100%
+1 Upgrade Stone
+	
+35%
+Matriarch Tusk
+	
+15%
+Trang bị Uncommon
+	
+8%
+Brambleback Matriarch Card
+	
+2%
+Các tỷ lệ là đề xuất ban đầu theo mỗi lượt thưởng hợp lệ, chưa được cân đối với nguồn cung Gold, đá nâng cấp, kinh tế Card hoặc tần suất người chơi săn boss. Nếu dùng hệ drop có các bảng roll độc lập, một lần tiêu diệt có thể nhận nhiều vật phẩm; cần ghi rõ cách roll trong loot configuration.
+2. Monster Card
+Tên: Brambleback Matriarch Card.
+Rarity đề xuất: Rare (R), không nên là UR hoặc SSR.
+Phong cách chỉ số: Một cạnh mạnh, hai cạnh trung bình và một cạnh yếu. Ví dụ:
+Trên
+	
+Phải
+	
+Dưới
+	
+Trái
+5
+	
+3
+	
+2
+	
+4
+Các chỉ số chỉ là ví dụ và phải cân bằng với bộ Monster Card toàn game.
+Card có chân dung riêng của Matriarch, không dùng chung hình với Bramble Boar thường.
+Quan trọng: Card này không bắt buộc để hoàn thành Album Taurus hoặc mở cốt truyện Gemini. Nó là phần thưởng sưu tập đáng săn, không phải chìa khóa tiến trình.
+3. Pet
+Mình đề xuất không đưa Brambleback Matriarch vào Pet Gacha ở phiên bản đầu.
+Lý do: Taurus đã có Horn Rabbit N và Bramble Boar R. Một phiên bản Pet Matriarch sẽ dễ bị lẫn với Bramble Boar, làm giảm sự khác biệt của boss.
+Sau này, nếu muốn phát hành Pet SR hình Matriarch, có thể thiết kế một biến thể linh thú riêng, nhưng không phải drop trực tiếp từ Field Boss.
+4. Quy tắc chia thưởng online
+Vì Field Boss xuất hiện công khai trên map săn, mình đề xuất:
+Người chơi đóng góp đủ điều kiện được nhận EXP và loot cá nhân.
+Không cần last hit.
+Loot cá nhân để tránh tranh giành đồ rơi.
+Một người chơi không được nhận nhiều lần phần thưởng từ cùng một boss do reconnect hoặc chuyển party.
+Có ngưỡng đóng góp tối thiểu để chống đứng gần boss nhận thưởng miễn phí.
+EXP tính theo đóng góp và chênh lệch Level theo chính sách game, tránh người chơi Lv 90 farm boss Taurus để lấy EXP vô lý.
+Mình không đề xuất giới hạn nhận loot một lần/ngày cho Field Boss, vì nó đã có respawn 30 phút và không mang vai trò Wanted Daily.
+Tuy nhiên, nếu xuất hiện tình trạng farm bằng nhiều tài khoản hoặc channel hopping, có thể thêm giới hạn thưởng hiếm theo tài khoản hoặc cooldown chung cho các channel.
+V. Art Production Sheet — Brambleback Matriarch
+1. Sprite specification
+Giữ toàn bộ quy chuẩn RO Soft Adventure của Taurus.
+Thành phần
+	
+Yêu cầu
+Góc nhìn
+	
+Top-down 3/4
+Phong cách
+	
+Chibi, hand-painted, viền nâu
+Walk
+	
+4×4, nhưng đề xuất cell 384 hoặc 512 cho boss
+Attack
+	
+4×4, cell 512 nếu cần độ nét
+Hướng
+	
+Front, Right, Back, Left flip
+Nền
+	
+#FF00FF phẳng tuyệt đối
+Bóng
+	
+Không vẽ
+Chi tiết bất đối xứng
+	
+Không
+Pivot
+	
+Giữa vùng chân tiếp xúc đất
+Hitbox
+	
+Elip dưới thân, không lấy theo gai và nanh
+Đối với Matriarch cao 2,1H và rộng 2,5H, nếu bạn muốn giữ chính xác cell Walk 192 và Attack 256, có thể làm được với việc scale trong Unity nhưng cần kiểm tra độ nét. Mình nghiêng về nguồn sprite lớn hơn để giữ chất lượng.
+2. Animation cần sản xuất
+Animation
+	
+Số hướng
+	
+Frame tối thiểu
+Idle
+	
+4
+	
+4/hướng
+Walk
+	
+4
+	
+4/hướng
+Heavy Tusk
+	
+4
+	
+4/hướng
+Bramble Charge chuẩn bị
+	
+4
+	
+4/hướng
+Bramble Charge lao
+	
+4
+	
+4/hướng
+Thorn Stomp
+	
+4
+	
+4/hướng
+Hit
+	
+4
+	
+Có thể dùng flash/shader
+Death
+	
+1 hướng hoặc 4 hướng
+	
+6 frame đề xuất
+Đặc biệt khi vẽ Charge
+Boss lao bằng cả thân, không vẽ một luồng FX dài cố định vào sprite. Vệt bụi và lá được tạo bằng Particle System hoặc Mesh Trail trong Unity.
+Nhờ vậy, cùng một animation có thể lao theo các hướng mà không bị lệch kích thước hoặc hiệu ứng.
+VFX riêng
+Hai vệt bụi nhỏ khi cào chân chuẩn bị Charge.
+Một dải bụi nâu nhạt khi lao.
+Lá gai bật lên khi Thorn Stomp.
+Flash nhẹ trên cơ thể khi bị đánh.
+Hạt lá bay khi chết, không có vụ nổ quá lớn.
+VI. Quy tắc chung Field Boss cho tất cả Tinh Vực
+Đây là bộ nguyên tắc mình đề xuất đưa vào ASTERIA WORLD DESIGN BIBLE, áp dụng cho cả 12 map săn.
+1. Cấu trúc bắt buộc
+Hạng mục
+	
+Quy chuẩn
+Số Field Boss
+	
+1 con / map săn chính
+Tần suất
+	
+Hồi sinh 30 phút sau khi chết
+Vị trí
+	
+Khu riêng trong map săn, không chặn tuyến quest
+Số lượng đồng thời
+	
+1 boss / channel hoặc instance
+Level
+	
+Gần mức Level cao nhất của map
+Kích thước
+	
+1,8–2,5H, có ngoại lệ theo hình thể
+HP
+	
+Khoảng 3× quái cùng cấp
+ATK
+	
+Khoảng 1,2–1,5×
+Kỹ năng
+	
+2 kỹ năng đặc trưng, ít nhất 1 đòn có telegraph
+Độ khó
+	
+Solo đúng Level có thể đánh thắng
+Phần thưởng
+	
+EXP và loot nhỉnh hơn quái thường
+Monster Card
+	
+Có thể có Card Rare riêng
+Pet
+	
+Không bắt buộc, không rơi trực tiếp
+Cốt truyện
+	
+Liên quan sinh thái hoặc tình trạng bất ổn của Tinh Vực
+Wanted
+	
+Hệ thống riêng, không thay thế
+2. Danh sách Field Boss gợi ý cho 12 Tinh Vực
+Các boss này là loài đầu đàn hoặc sinh vật thống trị một khu sinh thái, không trùng với dungeon boss hoặc Wanted Boss.
+Tinh Vực
+	
+Field Boss
+	
+Level
+	
+Ý tưởng
+♉ Taurus
+	
+Brambleback Matriarch
+	
+9
+	
+Heo rừng đầu đàn, gai lá
+♊ Gemini
+	
+Echohorn Stag
+	
+17
+	
+Hươu gương tạo ảo ảnh
+♋ Cancer
+	
+Pearlshell Monarch
+	
+25
+	
+Rùa biển vỏ ngọc trai
+♑ Capricorn
+	
+Rimefang Direwolf
+	
+33
+	
+Sói tuyết đầu đàn
+♍ Virgo
+	
+Bloomheart Treant
+	
+41
+	
+Cây cổ sinh mệnh
+♎ Libra
+	
+Clockwork Juggernaut
+	
+49
+	
+Máy canh gác khổng lồ
+♐ Sagittarius
+	
+Thunderhoof Alpha
+	
+56
+	
+Linh thú thảo nguyên
+♏ Scorpio
+	
+Venomweb Broodmother
+	
+63
+	
+Nhện độc chúa
+♈ Aries
+	
+Magmahide Behemoth
+	
+70
+	
+Thú đá dung nham
+♌ Leo
+	
+Goldenmane Guardian
+	
+77
+	
+Sư tử vàng bảo hộ
+♒ Aquarius
+	
+Aetherwing Manta
+	
+83
+	
+Cá đuối bay khổng lồ
+♓ Pisces
+	
+Dreamtide Leviathan
+	
+89
+	
+Hải thú mộng nhỏ, không phải final boss
+3. Cấu trúc dữ liệu boss chuẩn
+JSON
+{
+  "bossId": "TAU-FB01",
+  "displayName": "Brambleback Matriarch",
+  "world": "Taurus",
+  "map": "CloverMeadows",
+  "spawnZone": "BramblebackNest",
+  "level": 9,
+  "type": "FieldBoss",
+  "maxAlivePerChannel": 1,
+  "respawnSeconds": 1800,
+  "healthMultiplier": 3.0,
+  "attackMultiplier": 1.25,
+  "experienceMultiplier": 3.0,
+  "skills": [
+    "HeavyTusk",
+    "BrambleCharge",
+    "ThornStomp"
+  ],
+  "lootTableId": "TAU_FB01_LOOT",
+  "cardId": "TAU_CARD_MATRIARCH",
+  "petDropEnabled": false
+}
+Boss HUD
+Mình khuyên dùng một thanh HP boss riêng khi người chơi chọn mục tiêu, nhưng không cần giao diện hoành tráng như Wanted Boss.
+Hiển thị:
+Brambleback Matriarch · Lv 9
+Thanh HP lớn hơn quái thường, có biểu tượng Field Boss nhỏ và tên kỹ năng khi bắt đầu cảnh báo.
+Khi boss chết, có thể hiện toast ngắn thông báo nhận EXP và vật phẩm.
+Không cần thông báo toàn server cho mỗi lần Field Boss hồi sinh. Nếu muốn, chỉ hiển thị thông báo trong map hiện tại để tránh spam.
+VII. Checklist nghiệm thu Field Boss
+Field Boss Acceptance
+0/18
+Brambleback Matriarch có silhouette khác rõ Bramble Boar thường
+Kích thước khoảng 2,1H và không che quá nhiều khu chiến đấu
+Boss spawn trong Brambleback Nest, không trên đường quest
+Respawn 1.800 giây từ lúc chết, server kiểm soát
+Mỗi channel tối đa một boss
+Boss không bị kéo ra khỏi arena
+HP và damage được tuning theo mục tiêu solo đúng Level
+Heavy Tusk đồng bộ animation và hit
+Charge telegraph đúng hành lang sát thương
+Charge khóa hướng trước khi lao
+Thorn Stomp có vòng cảnh báo đủ rõ trên nền đất
+Boss dưới 30% HP có hiệu ứng Bramble Fury
+EXP và loot tốt hơn quái thường nhưng không phá kinh tế
+Không có last-hit stealing, loot cá nhân được xử lý đúng
+Card Rare drop đúng tỷ lệ và chống cấp thưởng lặp
+Không rơi Pet trực tiếp
+Sprite đúng nền magenta, không bóng, flip trái/phải
+Boss HUD và cảnh báo hoạt động tốt trên mobile
+Sao chép checklist
+Kết luận thiết kế
+Mình chốt đề xuất Brambleback Matriarch làm Field Boss đầu tiên của Taurus, với các điểm chính:
+Lv 9, kích thước 2,1H, rộng 2,5H.
+Xuất hiện ở Brambleback Nest trong Bramble Thicket, tách khỏi đường chính.
+Hồi sinh mỗi 30 phút sau khi bị tiêu diệt.
+HP khoảng 3× quái thường cùng Level, sát thương cơ bản cao hơn 25%.
+Có đòn húc, lao theo đường thẳng và giậm gai AoE, với hai vùng cảnh báo rõ.
+Thưởng EXP, Gold, Upgrade Stone và loot tốt hơn quái thường một chút.
+Có Monster Card Rare riêng, không rơi Pet.
+Không tính vào số 68 quái thường.
+Không trùng Elder Root Guardian của dungeon hay Verdant Horn của Wanted.
+Đặc biệt, mình muốn người chơi đi qua Clover Meadows và nhìn thấy con heo rừng đầu đàn to lớn đang bảo vệ tổ của mình, rồi tự nghĩ: “Mình mạnh lên một chút nữa sẽ quay lại đánh nó.”
+Đó chính là cảm giác mà Field Boss nên tạo ra trong tất cả 12 Tinh Vực: một thử thách tự nhiên trong thế giới mở, đủ đáng săn nhưng không trở thành rào cản tiến trình chính.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

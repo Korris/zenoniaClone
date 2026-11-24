@@ -1,0 +1,783 @@
+TAURUS — FINAL SPRITE REVIEW
+
+13 sprite sheet · 4 quái · Walk / Attack / Boss Skills
+
+1. Phán quyết cuối
+
+Mình duyệt 11/13 sheet, đề nghị chỉnh 2 sheet của Brambleback Matriarch trước khi khóa sản xuất. Không cần vẽ lại từ đầu bất kỳ con nào.
+
+Về thiết kế, cả bốn con đã đạt phong cách Asteria RO Soft Adventure. Điểm đáng mừng là sau khi chuyển sang sprite nhỏ, các đặc điểm nhận diện chính vẫn rất rõ: mũ nấm hổ phách, rune cyan, gai lá của Matriarch và lõi vàng của Elder Root Guardian.
+
+Quái
+
+	
+
+Walk
+
+	
+
+Attack
+
+	
+
+Skill
+
+
+Amber Sporeling	
+	
+	—
+Rune Bark Guardian	
+	
+	—
+Brambleback Matriarch	
+	
+	
+
+Chỉnh 2
+
+
+Elder Root Guardian	
+	
+	
+
+×3
+
+2. Những sheet cần chỉnh
+A. Brambleback Matriarch — Charge
+Chỉnh nhẹ trước khi duyệt
+
+Lỗi: Trong contact sheet, F3–F4 có động tác hạ đầu và nén thân, nhưng khoảng cách hình thể giữa tư thế lấy đà và tư thế lao chưa đủ mạnh. Đặc biệt ở hướng DOWN, người chơi có thể đọc đây là một cú húc tại chỗ thay vì kỹ năng Charge.
+
+Hướng
+
+	
+
+Frame
+
+	
+
+Sửa cụ thể
+
+
+
+
+DOWN
+
+	
+
+F3
+
+	
+
+Đầu hạ rõ hơn, hai nanh hướng thẳng tới mục tiêu, vai đẩy tới
+
+
+
+
+DOWN
+
+	
+
+F4
+
+	
+
+Thân duỗi về trước hơn F3, chân sau tạo tư thế đạp mạnh
+
+
+
+
+UP
+
+	
+
+F3–F4
+
+	
+
+Thể hiện rõ chân sau đẩy thân về hướng lên; lưng không chỉ nhún lên xuống
+
+
+
+
+RIGHT
+
+	
+
+F3–F4
+
+	
+
+Kéo dài tư thế lao theo phương ngang, đầu thấp, chân sau duỗi rõ
+
+Không sửa F1–F2. Hai frame chuẩn bị đã hợp lý.
+
+Lưu ý Unity vẫn xử lý toàn bộ quãng di chuyển. Không dịch hình nhân vật ra khỏi trung tâm ô để giả lập lao.
+
+B. Brambleback Matriarch — Thorn Stomp
+Chỉnh F2
+
+F2 hiện nhấc cả thân khỏi mặt đất một chút. Với kỹ năng Thorn Stomp, mình muốn đây là động tác nhấc phần thân trước và hai chân trước để lấy lực giậm, không phải nhảy cả bốn chân.
+
+Hướng
+
+	
+
+Frame
+
+	
+
+Sửa cụ thể
+
+
+
+
+DOWN
+
+	
+
+F2
+
+	
+
+Hai chân sau giữ tiếp xúc đất; phần ngực và chân trước nâng lên
+
+
+
+
+UP
+
+	
+
+F2
+
+	
+
+Hông và hai chân sau giữ nền; phần vai nâng lên, tránh cảm giác bay
+
+
+
+
+RIGHT
+
+	
+
+F2
+
+	
+
+Chân sau làm trụ, đầu-ngực nâng lên rõ, hai chân trước rời đất
+
+
+
+
+Tất cả
+
+	
+
+F3
+
+	
+
+Giữ khoảnh khắc giậm mạnh, chân trước chạm đất, đầu và vai nén xuống
+
+F1 và F4 giữ nguyên. F3 nhìn chung đủ tốt, không cần vẽ lại nếu timing impact chính xác.
+
+Không thêm bụi, lá hoặc shockwave vào sprite. Phần đó do Unity xử lý.
+
+3. Đánh giá các sheet còn lại
+
+Quái / sheet
+
+	
+
+Điểm
+
+	
+
+Kết luận
+
+
+
+
+Amber Sporeling — Walk
+
+	
+
+95/100
+
+	
+
+Duyệt
+
+
+
+
+Amber Sporeling — Attack
+
+	
+
+94/100
+
+	
+
+Duyệt
+
+
+
+
+Rune Bark Guardian — Walk
+
+	
+
+94/100
+
+	
+
+Duyệt
+
+
+
+
+Rune Bark Guardian — Attack
+
+	
+
+95/100
+
+	
+
+Duyệt
+
+
+
+
+Matriarch — Walk
+
+	
+
+94/100
+
+	
+
+Duyệt
+
+
+
+
+Matriarch — Attack
+
+	
+
+93/100
+
+	
+
+Duyệt
+
+
+
+
+Matriarch — Charge
+
+	
+
+86/100
+
+	
+
+Chỉnh nhẹ
+
+
+
+
+Matriarch — Thorn Stomp
+
+	
+
+87/100
+
+	
+
+Chỉnh F2
+
+
+
+
+Elder — Walk
+
+	
+
+93/100
+
+	
+
+Duyệt
+
+
+
+
+Elder — Attack
+
+	
+
+94/100
+
+	
+
+Duyệt
+
+
+
+
+Elder — Ancient Sweep
+
+	
+
+92/100
+
+	
+
+Duyệt
+
+
+
+
+Elder — Amber Pulse
+
+	
+
+94/100
+
+	
+
+Duyệt
+
+
+
+
+Elder — Awakening
+
+	
+
+93/100
+
+	
+
+Duyệt
+
+Các điểm là đánh giá mỹ thuật và độ rõ tư thế trên contact sheet, chưa phải điểm nghiệm thu animation chạy liên tục trong Unity.
+
+Amber Sporeling
+
+Walk có nhịp nảy dễ thương, mũ nấm ổn định giữa các hướng. Attack F3 tạo cảm giác bật thân để phóng bào tử. Việc bỏ hạt bào tử vẽ sẵn là đúng.
+
+Không sửa. Gắn projectile và Particle System tại thời điểm F3.
+
+Rune Bark Guardian
+
+Walk thể hiện thân gỗ đá có trọng lượng. Attack F2 kéo tay lên và F3 đập xuống đọc được lực. Rune cyan vẫn nhận diện được ở cỡ nhỏ.
+
+Không sửa. Khi kiểm thử, cho impact xảy ra tại F3; đừng thêm AoE vì đây là đòn cận chiến.
+
+Elder Root Guardian
+
+Cả ba kỹ năng đều đủ rõ:
+
+Ancient Sweep: F2 lấy lực, F3 mở tay rộng, có sự xoay thân phù hợp. Duyệt.
+
+Amber Pulse: F2 co tay về lõi, F3 mở rộng hai tay. Duyệt; vòng năng lượng làm bằng Unity.
+
+Awakening: Tư thế co thân rồi mở tay tạo cao trào. Duyệt; hiệu ứng lõi sáng tăng khi HP xuống dưới 30%.
+
+Ở hướng UP, lõi ngực bị che là bình thường. Không cần vẽ rune xuyên qua lưng để người chơi nhìn thấy nó.
+
+4. Vấn đề RenderScale — đặc biệt Elder Root Guardian
+
+Đây mới là điểm kỹ thuật mình quan tâm nhất.
+
+Quái
+
+	
+
+RenderScale hiện tại
+
+	
+
+Đánh giá
+
+
+
+
+Amber Sporeling
+
+	
+
+1,00
+
+	
+
+Tốt
+
+
+
+
+Rune Bark Guardian
+
+	
+
+1,16
+
+	
+
+Tốt
+
+
+
+
+Brambleback Matriarch
+
+	
+
+2,21
+
+	
+
+Cần xem độ nét in-game
+
+
+
+
+Elder Root Guardian
+
+	
+
+3,38
+
+	
+
+Rủi ro mờ đáng kể
+
+Mình không yêu cầu vẽ lại animation Elder. Nhưng nếu phóng một sprite ô nguồn 192 px lên 3,38 lần, chi tiết mắt, lõi ngực, viền gỗ và lá có thể mềm đi rõ rệt.
+
+Mình đề xuất:
+
+Giữ toàn bộ thiết kế và pose Elder hiện tại.
+
+Nếu game cho phép, tạo nguồn sprite có độ phân giải cao hơn, mục tiêu cell Walk 384–512 px và Attack/Skill 512 px.
+
+Không chỉ resize file 192 lên 512 bằng nội suy thông thường rồi xem như đã có asset độ phân giải cao. Cần render hoặc vẽ lại từ nguồn đủ nét.
+
+Nếu pipeline bắt buộc giữ cell 192/256, không cần phá pipeline ngay. Hãy kiểm tra Elder ở mức zoom gần nhất và zoom mặc định trong Unity trước khi quyết định nâng độ phân giải.
+
+Ở mức scale 2,21 của Matriarch cũng cần kiểm thử, nhưng Elder là ưu tiên cao hơn.
+
+5. Hai lưu ý kỹ thuật trước khi khóa
+
+Thứ nhất — Thứ tự hướng. Contact sheet hiện có bốn hàng: DOWN, UP, LEFT, RIGHT. Đây là dạng kiểm tra hợp lý dù pipeline vẽ ban đầu chỉ có ba hướng và LEFT được flip từ RIGHT. Khi import, cần bảo đảm hàng LEFT thực sự được lật từ RIGHT và không bị đảo thứ tự animation.
+
+Thứ hai — Contact sheet chưa chứng minh nền nguồn đạt #FF00FF. Nền xanh sáng/tối đang dùng để kiểm tra. File xuất cuối vẫn phải có nền magenta phẳng, không bóng, không viền tím và không chạm cell. Cần kiểm tra trực tiếp sprite gốc.
+
+6. Đoạn sửa có thể gửi ngay cho họa sĩ
+Writing
+
+TAURUS — FINAL ANIMATION CORRECTIONS
+
+Giữ nguyên toàn bộ thiết kế, màu sắc, nét vẽ, tỷ lệ và các sheet đã duyệt của Amber Sporeling, Rune Bark Guardian và Elder Root Guardian. Không vẽ lại ba con này.
+
+Chỉ chỉnh hai sheet của Brambleback Matriarch:
+
+1. Charge (4 frame × 3 hướng DOWN/UP/RIGHT)
+
+Giữ F1–F2. Làm F3–F4 khác biệt rõ với tư thế chuẩn bị: đầu cúi thấp, vai đẩy mạnh tới, chân sau duỗi tạo lực lao. Ở DOWN, hai nanh phải hướng thẳng về phía người xem; ở UP, hai chân sau đẩy người về trước; ở RIGHT, thân kéo dài về phía phải, đầu thấp và chân sau duỗi. Nhân vật vẫn nằm gọn giữa từng ô. Không vẽ bụi hoặc chuyển vị trí cả nhân vật qua các ô.
+
+2. Thorn Stomp (4 frame × 3 hướng DOWN/UP/RIGHT)
+
+Chỉnh F2: boss phải nhấc phần thân trước và hai chân trước lên, trong khi hai chân sau vẫn chống đất làm trụ. Không nhảy cả bốn chân khỏi mặt đất. Giữ F1, F3, F4; F3 vẫn là frame giậm xuống gây sát thương.
+
+Tất cả: Giữ đúng phong cách RO Soft Adventure, đối xứng trái/phải, không bóng dưới chân, nền xuất game phẳng #FF00FF, không để sprite chạm biên ô. Không thay đổi kích thước nhân vật giữa walk, attack và skill.
+
+Kết luận
+
+Duyệt cuối 11 sheet; chỉ sửa Matriarch Charge F3–F4 và Thorn Stomp F2. Không cần tiếp tục chỉnh concept của bốn quái.
+
+Sau khi sửa hai sheet này, mình sẽ coi bộ animation V1 của bốn con đã đạt yêu cầu mỹ thuật để tích hợp combat. Phần còn lại cần nghiệm thu bằng bản chạy trong Unity, đặc biệt là thời điểm sát thương, chuyển động liên tục và độ nét của Elder ở RenderScale 3,38.
+
+Ưu tiên trước khi chốt hoàn toàn: kiểm tra Elder ở zoom gần nhất. Nếu bị mờ rõ, nâng chất lượng nguồn boss sẽ có giá trị hơn việc vẽ lại thêm động tác.
+
+
+
+===== Lượt 2 (sau khi sửa Matriarch Charge + Thorn Stomp) =====
+
+TAURUS — MATRIARCH FINAL ANIMATION APPROVAL
+APPROVED — 2/2 SHEET
+
+Mình chốt DUYỆT CUỐI cả Charge và Thorn Stomp của Brambleback Matriarch. Không cần vẽ lại hoặc sửa thêm frame nào.
+
+1. Đánh giá từng sheet
+
+Tiêu chí
+
+	
+
+Charge
+
+	
+
+Thorn Stomp
+
+
+
+
+Đúng thiết kế Matriarch
+
+	
+
+95
+
+	
+
+95
+
+
+
+
+Chuyển động có lực
+
+	
+
+94
+
+	
+
+95
+
+
+
+
+Đọc rõ tư thế
+
+	
+
+94
+
+	
+
+96
+
+
+
+
+Nhất quán các hướng
+
+	
+
+95
+
+	
+
+95
+
+
+
+
+Điểm tổng thể
+
+	
+
+94/100
+
+	
+
+95/100
+
+
+
+
+Phán quyết
+
+	
+
+DUYỆT
+
+	
+
+DUYỆT
+
+Charge — 94/100
+
+F1–F2: Tư thế đứng và chuẩn bị ổn định, đọc được quá trình lấy đà.
+
+F3: Đầu cúi thấp, vai và thân nén xuống. Đặc biệt hướng RIGHT có tư thế lấy lực rõ.
+
+F4: Thân duỗi dài về trước, chân sau đẩy mạnh, thể hiện đúng động tác lao.
+
+DOWN/UP: Hình thể vẫn nhất quán, không bị biến thành một con heo khác.
+
+LEFT/RIGHT: Tư thế thấp và kéo dài thân đủ rõ để Unity dùng làm animation lao.
+
+Không còn lỗi cần chỉnh.
+
+Thorn Stomp — 95/100
+
+F1: Tư thế chuẩn bị rõ.
+
+F2: Đã sửa đúng yêu cầu. Phần thân trước nâng lên, hai chân trước nhấc khỏi đất, chân sau làm trụ. Ở hướng RIGHT, động tác này đặc biệt dễ đọc.
+
+F3: Đầu và vai hạ thấp, hai chân trước giậm xuống, tạo cảm giác va chạm mạnh.
+
+F4: Trở về tư thế chiến đấu, đủ để nối với idle hoặc đòn tiếp theo.
+
+Đã khắc phục lỗi nhảy cả thân của phiên bản trước.
+
+2. Kiểm tra theo từng hướng
+
+Hướng
+
+	
+
+Charge
+
+	
+
+Thorn Stomp
+
+
+
+
+DOWN
+
+	
+
+Đạt
+
+	
+
+Đạt
+
+
+
+
+UP
+
+	
+
+Đạt
+
+	
+
+Đạt
+
+
+
+
+LEFT (flip)
+
+	
+
+Đạt
+
+	
+
+Đạt
+
+
+
+
+RIGHT
+
+	
+
+Đạt
+
+	
+
+Đạt
+
+Không thấy lỗi hình thể nghiêm trọng, thay đổi kích thước bất thường hay chi tiết bất đối xứng làm hỏng hướng lật trong contact sheet.
+
+Mình cũng chấp nhận thông tin bạn đã kiểm tra ở sprite gốc: nền #FF00FF, halo 0 và LEFT được flip từ RIGHT. Ảnh contact nền xanh không phải lỗi asset.
+
+3. Hai lưu ý khi đưa vào Unity
+
+Đây là lưu ý lập trình, không phải yêu cầu sửa sprite.
+
+Charge: Giữ F1–F2 trong giai đoạn cảnh báo 1,1 giây; chuyển F3 khi bắt đầu lao và giữ F4 trong quá trình di chuyển nếu cần. Di chuyển và va chạm phải do server điều khiển, không phụ thuộc root motion của sprite.
+
+Thorn Stomp: F2 là lúc boss nâng người, F3 là lúc chân chạm đất gây sát thương. Đồng bộ vòng cảnh báo 1,4 giây để biến mất đúng thời điểm F3. Bụi, lá và shockwave xuất hiện ở F3 bằng Particle System.
+
+4. Trạng thái cuối của Matriarch
+
+Asset
+
+	
+
+Trạng thái
+
+
+
+
+Concept
+
+	
+
+Duyệt
+
+
+
+
+Walk 4 hướng
+
+	
+
+Duyệt
+
+
+
+
+Basic Attack
+
+	
+
+Duyệt
+
+
+
+
+Bramble Charge
+
+	
+
+Duyệt cuối
+
+
+
+
+Thorn Stomp
+
+	
+
+Duyệt cuối
+
+
+
+
+VFX cảnh báo và va chạm
+
+	
+
+Cần tích hợp trong Unity
+
+
+
+
+Chạy animation liên tục trong game
+
+	
+
+Chưa nghiệm thu
+
+Kết luận: Brambleback Matriarch đã hoàn thành bộ sprite animation V1 về mặt mỹ thuật. Mình khóa thiết kế và hai sheet kỹ năng tại đây.
+
+Không cần chỉnh thêm art. Bước tiếp theo là kiểm tra Charge và Thorn Stomp chạy thực tế trong Unity với đúng RenderScale 2,21, thời điểm gây sát thương và hiệu ứng cảnh báo.
+

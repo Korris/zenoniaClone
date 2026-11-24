@@ -1,0 +1,750 @@
+Nguồn: ChatGPT (Tay), chat thiết kế "Ragnarok Và Đạo Chúa" https://chatgpt.com/c/6b03f69b-a4f8-83ec-af99-547d92463f83 , 24/11/2026. Nguyên văn trả lời brief môi trường P2.
+
+Rồi, mình chốt P2 Environment Production Brief cho Taurus theo đúng pipeline của bạn.
+Mình không vẽ thêm tấm mẫu ở tin này, vì với tình trạng hiện tại, brief chữ dưới đây đã đủ chi tiết để chat sản xuất làm NGUYÊN VĂN. Nếu sau đó bạn vẫn muốn “khóa nét” bằng 1 sheet mẫu, mình có thể vẽ riêng 1 prop sheet thử ở lượt sau. Nhưng để triển khai production hàng loạt, cái bạn cần nhất bây giờ là danh sách asset + quy tắc vẽ + vị trí đặt, và mình chốt luôn ở đây.
+
+TAURUS P2 — ENVIRONMENT PRODUCTION BRIEF V1.0
+
+Áp dụng cho:
+
+Willowbrook Village — 44×32
+Clover Meadows — 96×64
+
+Mục tiêu:
+
+thay toàn bộ greybox nền phẳng bằng art thật;
+giữ 100% gameplay layout, ô chặn, đường đi, cầu, camp như bản dựng hiện tại;
+đúng Taurus Cute 9 / Threat 2, sáng, ấm, pastoral fantasy;
+không làm map tối đi, không làm combat rối.
+I. ART DIRECTION KHÓA CỨNG
+1) Phong cách tổng thể
+
+Taurus environment = RO Soft Adventure / bright pastoral fantasy
+
+Cảm giác mong muốn:
+
+tươi sáng, an toàn, ấm áp, dễ thương;
+đồng cỏ trù phú, làng gỗ đá hiền hòa;
+rừng không tối, chỉ “đậm hơn” và cổ hơn khi vào Elderwood / Ancient Roots;
+mọi thứ đều mềm, tròn, thân thiện, không góc cạnh hung dữ.
+2) Quy tắc vẽ nền vật liệu (material tile)
+
+Mỗi material là:
+
+1 ô vuông 64×64 px
+tile seamless
+nhìn top-down phẳng
+không có vật đứng
+không bóng đổ
+không perspective
+chỉ là bề mặt để code ghép
+
+Material phải đủ sạch để:
+
+nhìn rõ hero, quái, VFX;
+không “ồn” hơn prop;
+không có hoa / sỏi quá dày trong camp combat.
+3) Quy tắc vẽ prop đứng
+
+Mỗi prop:
+
+nền #FF00FF phẳng tuyệt đối
+góc nhìn 3/4, khớp camera nghiêng 58°
+ánh sáng từ trên-trái
+không vẽ bóng đổ
+neo tại giữa đáy
+billboard quay về camera
+phải phủ đúng greybox chặn của map
+không để “khối chặn vô hình” bị lòi ra ngoài sprite
+4) Quy tắc mật độ chi tiết
+Willowbrook Village
+giảm 25–35% chi tiết nhỏ ở nơi đông người:
+quảng trường giữa
+quanh guild
+quanh khu card / chợ
+chi tiết dày hơn ở mép map, bồn cây, ven suối
+Clover Meadows
+giảm 30–40% đá/hoa nhỏ trong bãi combat
+prop dày ở rìa camp, ven suối, mép rừng, boss nest, Ancient Roots
+trung tâm camp phải trống để combat
+II. THƯ VIỆN MATERIAL NỀN CHUNG CHO TAURUS
+
+Mình chốt dùng 1 library chung cho cả làng và đồng cỏ, để đồng bộ màu.
+
+T-MAT01 — Meadow Grass Main
+công dụng: nền cỏ chính
+màu: xanh táo dịu hơi olive
+chi tiết: vệt cỏ mềm, loang sáng nhẹ, rất ít hạt nhỏ
+không hoa lớn
+dùng cho phần lớn Willowbrook + Clover
+T-MAT02 — Meadow Grass Light
+công dụng: mảng cỏ sáng, chuyển sắc khu thoáng nắng
+sáng hơn T-MAT01 khoảng 10–15%
+dùng để code trộn mảng, chống phẳng
+T-MAT03 — Shaded Grass / Forest Grass
+công dụng: vùng cỏ rậm hơn, mép rừng, Elderwood
+xanh trầm hơn T-MAT01
+không tối quá
+dùng ở mép rừng / Bramble Thicket / Elderwood
+T-MAT04 — Packed Dirt Path
+công dụng: đường đất
+màu nâu be ấm
+bề mặt mịn, có vệt nén đất nhẹ
+ít sỏi nhỏ, không nhiều
+phải đủ sáng để không chìm vào nền
+T-MAT05 — Plaza Stone / Village Paving
+công dụng: quảng trường Willowbrook
+màu kem-be sáng
+lát đá lớn mềm cạnh, hơi không đều, rất sạch
+cảm giác quảng trường hiền hòa, không medieval nặng
+T-MAT06 — Stream Water
+công dụng: suối
+xanh lam trong sáng
+chỉ là mặt nước nhìn từ trên
+có gợn rất nhẹ, không bọt lớn, không đá nổi
+code sẽ ghép mảng nên texture phải tile được
+T-MAT07 — Wet Bank / Damp Soil
+công dụng: mép nước, chỗ ẩm
+giữa cỏ và nước, hoặc sát suối
+xanh-nâu ẩm, mềm
+rất hữu ích để làm Brookside tự nhiên hơn
+T-MAT08 — Forest Floor
+công dụng: nền rừng / Mushroom Grove / Bramble Thicket
+nâu-xanh rêu nhẹ
+ít lá rơi, ít vụn cành
+không tối, không horror
+T-MAT09 — Ancient Roots Sacred Ground
+công dụng: khu Ancient Roots và cửa dungeon
+nền sáng hơn Forest Floor một chút nhưng cổ hơn
+pha rêu nhạt + đất cổ + vệt rễ
+không quá nhiều hoa
+cảm giác “thiêng” chứ không “u ám”
+T-MAT10 — Brook Bridge Wood (optional)
+chỉ làm nếu code muốn bridge bằng nền ghép;
+nếu cầu là prop riêng thì không cần material này
+nếu làm: ván gỗ nhìn từ trên, sáng, ấm, không bóng
+III. WILLOWBROOK VILLAGE — DANH SÁCH PROP
+Tổng chiến lược làng
+
+Willowbrook là:
+
+quảng trường cây sồi ở giữa
+guild phía đông-bắc
+lò rèn phía tây
+cối xay gió phía bắc-tây-bắc
+lều Card ở phía đông
+chợ + pet pen phía đông-nam
+suối phía tây-nam
+tường nam có cổng
+
+Mình chốt làm 5 tấm prop cho làng.
+
+WV-SHEET-01 — MAJOR BUILDINGS
+
+1536×1024, nền #FF00FF, 5 món
+
+1. Adventure Guild Hall
+kích thước visual: khoảng 12w × 8h
+blocker phủ theo khối:
+x30–39, y2–6
+loại: chặn
+style:
+nhà đá-gỗ 2 tầng thấp
+mái lam-xanh đậm
+bảng hiệu kiếm khiên
+bậc thềm giữa
+cờ banner Taurus xanh-vàng
+lưu ý:
+thân nhà phủ kín greybox
+không kéo mái lấn quá xa xuống đường chính
+2. Blacksmith Forge
+visual: 8w × 6.5h
+phủ khối:
+x3–9, y5–9
+loại: chặn
+style:
+lò đá miệng lửa đỏ cam
+mái ngói nâu đỏ
+khu rèn gỗ đơn giản
+phụ kiện đứng gắn liền:
+ống khói
+đe có thể tách ra sheet khác nếu muốn, nhưng ở đây cho liền nhà cũng được
+3. Windmill House
+visual: 6w × 9h
+phủ khối:
+x12–15, y3–6
+loại: chặn
+style:
+tháp cối xay trắng kem
+mái nâu/đỏ ấm
+4 cánh quạt gỗ sáng
+lưu ý:
+cánh quạt không animate trong P2 asset tĩnh
+4. Card Tent
+visual: 6w × 5h
+phủ khối:
+x38–41, y15–17
+loại: chặn
+style:
+lều đỏ-vàng / đỏ-kem
+bảng biểu tượng lá bài
+cảm giác vui, social
+đây là landmark của Card Master
+5. Market Stall Double (2 quầy trên cùng 1 prop hoặc tách riêng)
+khối:
+x30–31, y21–22
+x34–35, y21–22
+loại: chặn
+style:
+quầy trái: trái cây / rau
+quầy phải: hàng hóa / vật dụng
+khuyến nghị:
+tách thành 2 prop riêng để dễ đặt:
+Fruit Stall
+Goods Stall
+WV-SHEET-02 — LANDMARK TREE & CORE PLAZA PROPS
+
+1536×1024, 6 món
+
+1. Great Oak of Willowbrook
+visual: khoảng 8w × 9h
+blocker gốc:
+x21–23, y12–14 (3×3)
+loại: chặn
+style:
+thân rất to, tán rộng vàng-lục
+rễ lộ nhẹ
+landmark làng
+lưu ý cực quan trọng:
+gốc nằm đúng 3×3
+tán được phép rộng hơn khối chặn
+phải hỗ trợ việc cây che hero thì fade
+không quá nhiều hoa quanh gốc
+2. Circular Tree Planter / Stone Ring
+visual thấp: 5w × 1.5h
+loại: đi xuyên / thấp
+đặt quanh Great Oak
+nếu code không tiện ghép, có thể vẽ chung với cây lớn luôn
+3. Wooden Bench A
+2w × 1.2h
+thấp / đi xuyên
+đặt quanh quảng trường
+4. Wooden Bench B
+2w × 1.2h
+biến thể khác hướng / lưng ghế
+5. Village Lamp Post
+1w × 2.2h
+chặn rất nhỏ / hoặc không chặn tùy code
+dùng dọc đường quảng trường
+6. Flower Barrel / Planter
+1w × 1.2h
+thấp / đi xuyên
+đặt gần guild, quầy chợ, card tent
+WV-SHEET-03 — TOWN SERVICE PROPS
+
+1536×1024, 8 món
+
+1. Bulletin Board
+2w × 2h
+chặn nhỏ
+đặt gần guild
+2. Quest Notice Board
+2w × 2h
+chặn nhỏ
+đặt gần trung tâm / cổng
+3. Anvil
+1.2w × 1h
+thấp / đi xuyên
+đặt trước forge
+4. Weapon Rack
+2w × 1.8h
+chặn nhỏ
+đặt trước forge
+5. Water Well
+2w × 1.8h
+chặn nhỏ
+đặt gần đông-nam quảng trường
+6. Barrel Cluster
+1.5w × 1.3h
+thấp / đi xuyên
+7. Crate Cluster
+1.5w × 1.3h
+thấp / đi xuyên
+8. Signpost
+1w × 1.8h
+thấp / chặn nhỏ
+dùng định hướng:
+ra Clover Meadows
+ra gate nam
+WV-SHEET-04 — PET PEN & SOCIAL CORNER
+
+1536×1024, 6 món
+
+1. Pet Pen Main Enclosure
+visual: 6w × 7h
+phủ khối:
+x38–42, y20–26
+loại: chặn
+style:
+hàng rào gỗ tròn / bầu dục
+mở phía tây đúng greybox
+có bảng dấu chân / pet sign
+rất quan trọng:
+phải phủ kín khối chặn đã dựng
+lối mở nhìn rõ phía tây
+2. Pet Pen Sign
+1.5w × 2h
+chặn nhỏ
+3. Feed Trough
+1.5w × 1h
+thấp / đi xuyên
+4. Hay Bale Pair
+1.8w × 1.2h
+thấp / đi xuyên
+5. Small Fence Decorative Segment
+1.5w × 1h
+thấp
+dùng thêm nếu cần fill quanh pet area
+6. Card Tent Side Table / Card Stand
+1.5w × 1.4h
+thấp / đi xuyên
+đặt gần card tent
+WV-SHEET-05 — BRIDGE, SOUTH GATE & WALL KIT
+
+1536×1024, 7 món
+
+1. Wooden Village Bridge
+visual: 3w × 2.5h
+phủ vị trí:
+x9–10 bắc qua suối y18–20
+loại: đi xuyên
+style:
+cầu gỗ cong nhẹ
+lan can thấp
+vì đây là lối qua suối chính nên nhìn phải rõ
+2. South Gate Arch
+visual: 6w × 4h
+phủ cổng:
+x20–23, y27–28
+loại: chặn
+style:
+đá sáng, banner Taurus, huy hiệu ở giữa
+3. South Wall Segment Left
+4w × 2.8h
+chặn
+phủ phần tường trái cổng
+4. South Wall Segment Right
+4w × 2.8h
+chặn
+phủ phần tường phải cổng
+5. Gate Pillar Left
+1.5w × 3h
+chặn
+6. Gate Pillar Right
+1.5w × 3h
+chặn
+7. River Rock Edge Cluster
+2.5w × 1.5h
+thấp / đi xuyên
+dùng rải ven suối làng, không đặt chặn lối đi
+IV. WILLOWBROOK — GỢI Ý ĐẶT PROP THEO BỐ CỤC
+Cố định theo greybox
+Guild: NE, đúng khối x30–39 y2–6
+Forge: W, x3–9 y5–9
+Windmill: x12–15 y3–6
+Great Oak: x21–23 y12–14
+Card Tent: x38–41 y15–17
+2 Market Stalls: x30–31 và x34–35 y21–22
+Pet Pen: x38–42 y20–26 mở tây
+South Gate + Wall: y27–28, gate x20–23
+Bridge: x9–10
+Soft placement
+Bench: 4–6 chiếc quanh quảng trường, không chặn đường
+Lamp posts: dọc plaza và đường chính
+Flower barrels: trước guild, card tent, chợ
+Notice boards: 1 gần guild, 1 gần cổng nam
+Weapon rack + anvil: trước forge
+Well: gần khu SE plaza, tránh chắn route NPC
+V. CLOVER MEADOWS — CHIẾN LƯỢC MÔI TRƯỜNG
+
+Clover Meadows phải đọc được 6 tiểu vùng:
+
+Rabbit Hills
+Brookside
+Mushroom Grove
+Bramble Thicket
+Elderwood
+Ancient Roots
+
+Map này không phải chỉ “1 nền cỏ + cây”.
+Nó phải có vùng sinh thái rõ nhưng vẫn thống nhất màu Taurus.
+
+Mình chốt 7 tấm prop cho Meadows.
+
+CM-SHEET-01 — TAURUS TREE SET
+
+1536×1024, 6 món
+
+1. Meadow Oak Large
+4w × 6.5h
+chặn ở gốc 1×1 hoặc 2×2 tùy đặt
+tán vàng-lục, thân nâu ấm
+dùng khắp map
+2. Meadow Oak Medium
+3w × 5.5h
+chặn
+3. Elderwood Twisted Oak
+4.5w × 7h
+chặn
+thân xoắn hơn, tán dày hơn
+dùng ở Elderwood / Ancient Roots
+4. Young Tree / Sapling Tree
+2w × 3.8h
+chặn nhỏ
+5. Tree Stump Rooted
+2w × 1.8h
+thấp / hoặc chặn nhỏ
+6. Hollow Log Upright / Broken Trunk
+2.5w × 2.4h
+thấp / đi xuyên hoặc chặn nhỏ tùy vị trí
+CM-SHEET-02 — LOW FLORA & MEADOW DECOR
+
+1536×1024, 9 món
+
+Tất cả đều đi xuyên.
+
+1. White Daisy Patch
+1.5w × 0.7h
+2. Yellow Flower Patch
+1.5w × 0.7h
+3. Clover Patch
+1.2w × 0.6h
+4. Tall Grass Clump
+1w × 0.8h
+5. Low Bush Round
+2w × 1.2h
+6. Wide Bush
+2.5w × 1.3h
+7. Fern Clump
+1.2w × 0.8h
+8. Small Mushroom Scatter
+1w × 0.6h
+9. Reeds Small
+1w × 1h
+
+Lưu ý:
+sheet này chủ yếu dùng ở mép đường, rìa camp, ven suối; không spam giữa camp.
+
+CM-SHEET-03 — ROCKS & RIVERBANK SET
+
+1536×1024, 8 món
+
+1. Large Mossy Boulder
+3w × 2.2h
+chặn nhỏ hoặc thấp tùy vị trí
+2. Medium Rock Cluster
+2w × 1.6h
+thấp
+3. Small Pebble Cluster
+1.2w × 0.6h
+thấp
+4. Riverbank Rock Strip
+3w × 1.2h
+thấp
+dùng viền mép nước
+5. Reeds Large
+1.2w × 1.5h
+thấp
+6. Lily Bank Clump
+1.5w × 0.8h
+thấp
+7. Drift Log
+2.2w × 0.8h
+thấp
+8. Brook Marker Stone
+1.5w × 1.5h
+chặn nhỏ
+dùng trang trí ven suối
+CM-SHEET-04 — RABBIT HILLS & BROOKSIDE SET
+
+1536×1024, 7 món
+
+1. Rabbit Burrow Mound A
+2w × 1.2h
+thấp / đi xuyên
+2. Rabbit Burrow Mound B
+2.2w × 1.3h
+biến thể
+3. Rabbit Burrow Entrance
+1.5w × 1h
+thấp
+4. Small Meadow Fence Segment
+2w × 1h
+thấp
+chỉ dùng rất tiết chế gần đường hoặc burrow zone
+5. Wooden Signpost
+1w × 1.8h
+chặn nhỏ
+đặt gần ngã rẽ
+6. Brook Wooden Bridge
+4w × 2.5h
+đi xuyên
+đặt đúng:
+x46–49 bắc qua suối
+7. Bank Flower Cluster
+1.8w × 0.8h
+thấp
+CM-SHEET-05 — MUSHROOM GROVE SET
+
+1536×1024, 8 món
+
+1. Big Red Mushroom Cluster
+2w × 2h
+thấp / hoặc chặn nhỏ tùy vị trí
+2. Amber Mushroom Cluster
+2w × 1.8h
+thấp
+3. Mushroom Ring
+2.5w × 1.2h
+thấp
+4. Fallen Log with Mushrooms
+3w × 1.3h
+thấp
+5. Mossy Stump with Mushrooms
+2w × 1.8h
+thấp / chặn nhỏ
+6. Spore Puff Patch (decor only)
+1.2w × 0.7h
+thấp
+7. Root Arch Small
+2.5w × 2h
+chặn nhỏ
+8. Shaded Bush
+2w × 1.3h
+thấp
+
+Dùng chủ yếu cho: Mushroom Grove và rìa Ancient Roots.
+
+CM-SHEET-06 — BRAMBLE THICKET & FIELD BOSS NEST
+
+1536×1024, 7 món
+
+1. Thorn Bramble Wall Large
+4w × 2.5h
+chặn
+dùng tạo mép boss nest và lane rừng gai
+2. Thorn Bramble Wall Medium
+3w × 2h
+chặn
+3. Bramble Bush Round
+2.5w × 1.8h
+chặn nhỏ
+4. Bramble Root Heap
+2w × 1.3h
+thấp
+5. Brambleback Nest Mound
+4w × 2.2h
+thấp / decor chính
+đặt trong:
+Brambleback Nest x3–14, y1–10
+6. Tusked Stone / Root Marker
+1.8w × 1.6h
+chặn nhỏ
+dùng tạo cảm giác lãnh thổ boss
+7. Thorny Fallen Trunk
+3w × 1.5h
+chặn nhỏ hoặc thấp
+
+Lưu ý:
+boss nest phải đọc được là “lãnh địa riêng” nhưng không biến thành dungeon.
+Không tối. Không nhiều máu me / gai hung ác.
+
+CM-SHEET-07 — ANCIENT ROOTS / SHRINE KIT
+
+1536×1024, 8 món
+
+1. Brook Runestone
+1.5w × 2h
+chặn nhỏ
+đặt đúng:
+(38,23)
+2. Ancient Roots Stone Pair
+2w × 2w
+chặn
+đặt đúng:
+(53,9) 2×2
+3. Ancient Root Shrine Entrance
+visual: 8w × 5h
+chặn
+phủ đúng:
+x54–61, y0–2
+style:
+cửa đá cổ ngà-xám
+rễ lớn ôm hai bên
+rune cyan nhẹ
+không u ám
+4. Ancient Standing Slab
+2w × 2.2h
+chặn
+5. Root Column
+2w × 3h
+chặn
+6. Sacred Root Cluster
+3w × 1.6h
+thấp
+7. Broken Stone with Runes
+2w × 1.2h
+thấp / chặn nhỏ
+8. Closed Gemini Gate Marker
+4w × 3h
+chặn
+đặt vùng:
+x88–91, y6–11
+chỉ là cổng bị phong ấn / đường bị chặn, chưa mở
+VI. CLOVER MEADOWS — GỢI Ý ĐẶT PROP THEO ZONE / CAMP
+C01 — Tutorial Camp
+vùng vàng
+chỉ dùng:
+1–2 bụi cỏ thấp
+1 cụm hoa nhỏ ở mép
+1 rock nhỏ ở rìa
+giữ trống nhất map
+Rabbit Hills
+burrow mounds
+signpost nhỏ
+vài bụi cỏ, rất ít đá
+cảm giác mềm, hiền
+Brookside
+reeds
+riverbank rocks
+1–2 bridge approach props
+tránh chèn giữa lối combat
+Mushroom Grove
+mushroom clusters ở rìa
+stump + mushroom
+log nhỏ
+không dựng kín camp
+Bramble Thicket
+thorn walls làm lane
+boss nest props
+bush gai rõ hơn vùng khác
+giữ đường đi vào nest dễ đọc
+Elderwood
+nhiều cây hơn
+twisted oak
+root arch nhỏ
+đá phủ rêu
+ít hoa hơn
+Ancient Roots
+sacred slabs
+root cluster
+runestones
+đất cổ T-MAT09
+ít hoa, ít bụi, nhiều dấu tích cổ
+VII. BẢNG CHẶN / ĐI XUYÊN TÓM TẮT
+Chặn
+Guild
+Forge
+Windmill
+Card Tent
+Market Stalls
+Pet Pen
+South Gate / Wall
+Great Oak (theo gốc)
+Meadow Oaks / Elderwood trees
+Thorn Bramble Walls
+Shrine Entrance
+Gemini Gate Marker
+Runestones lớn / standing slabs / root columns
+Đi xuyên / thấp
+benches
+flower barrels
+anvil nếu muốn
+barrels / crates
+low bushes
+flower patches
+clover patches
+reeds
+burrow mounds
+mushroom patches
+fallen logs thấp
+bridge
+planter ring
+VIII. NGUYÊN VĂN HƯỚNG DẪN VẼ CHO CHAT SẢN XUẤT
+
+Bạn có thể copy gần như nguyên khối sau:
+
+A. GLOBAL ENVIRONMENT LOCK
+
+Taurus environment asset production for a 2.5D top-down RPG with 58-degree camera.
+Style: bright pastoral fantasy, RO Soft Adventure, soft painterly rendering, cute and warm, clean readable silhouettes, dark-brown outlines, 2–3 step cel shading, sunlight from top-left, no cast shadow painted into assets.
+
+For material tiles:
+
+Create seamless 64×64 square top-down ground textures only. No upright objects, no perspective, no cast shadow, no text, no border. Keep them clean and readable for gameplay.
+
+For props:
+
+Create separate upright sprite props on a flat solid #FF00FF background.
+Billboard-facing 3/4 view matching a 58-degree camera.
+No cast shadow, no text, no frame, no checkerboard.
+Anchor at the bottom center.
+Assets must fit gameplay greybox footprints exactly; paths, plazas, camp interiors and bridge crossings must stay clear.
+
+Environment mood: Taurus = cute 9 / threat 2. Bright, warm, peaceful, pastoral, not dark, not gritty, not realistic.
+
+B. MATERIAL RENDER NOTES
+Grass = soft green, warm, slightly yellow, not neon.
+Path dirt = packed warm beige-brown.
+Village plaza = light cream stone.
+Stream water = clean blue with very subtle ripples.
+Forest floor = soft mossy brown-green.
+Ancient roots ground = sacred, slightly older, with soft moss and faint root traces.
+
+Do not over-detail materials. No heavy flowers, no strong pebbles, no noisy texture.
+
+C. PROP RENDER NOTES
+Trees: rounded canopies, warm bark, readable trunk bases, soft leaf masses.
+Houses: storybook wood-and-stone, blue-grey or warm red roofs, charming and clean.
+Market props: cozy, friendly, colorful but not saturated too hard.
+Shrine props: ancient but gentle, sacred rather than dark.
+Bramble props: thorny but still stylized and cute, not horror.
+Keep all left-right important forms reasonably symmetrical when assets may be mirrored.
+No prop may leave large empty areas over blocked greybox tiles.
+IX. THỨ TỰ SẢN XUẤT MÌNH KHUYÊN
+Giai đoạn 1 — khóa nền chung
+T-MAT01 đến T-MAT09
+test trong engine với greybox
+chỉnh brightness / saturation trước khi vẽ nhiều prop
+Giai đoạn 2 — Willowbrook
+WV-SHEET-01 Major Buildings
+WV-SHEET-02 Great Oak + plaza
+WV-SHEET-05 Gate / bridge / wall
+WV-SHEET-03 Service props
+WV-SHEET-04 Pet + social
+Giai đoạn 3 — Clover Meadows
+CM-SHEET-01 Trees
+CM-SHEET-03 Rocks & riverbank
+CM-SHEET-02 Low flora
+CM-SHEET-04 Rabbit Hills & Brookside
+CM-SHEET-05 Mushroom Grove
+CM-SHEET-06 Bramble Thicket
+CM-SHEET-07 Ancient Roots / Shrine
+X. PHÁN QUYẾT CUỐI CỦA ART DIRECTOR TAURUS
+
+Mình chốt như sau:
+
+không cần thay đổi greybox layout
+không cần vẽ concept map lớn mới
+bắt đầu production theo 1 library material chung + 12 sheet prop là hợp lý nhất
+mật độ chi tiết phải ưu tiên gameplay:
+làng sạch và dễ đọc
+camp combat trống
+chi tiết dày hơn ở mép, landmark, boss nest, shrine
+Danh sách khóa cuối:
+Material tiles: 9 loại chính
+Willowbrook props: 5 sheet
+Clover Meadows props: 7 sheet
+
+Nếu bạn muốn, tin tiếp theo mình có thể làm luôn bản “asset manifest siêu ngắn gọn” dạng checklist từng sheet / từng món / kích thước / blocker để bạn copy nguyên xi qua chat sản xuất cho đỡ dài.
+
