@@ -28,6 +28,7 @@ namespace ZenoniaProto
             if (tex == null) { Missing.Add(resourcePath); return null; }
             tex.wrapMode = TextureWrapMode.Clamp;
             tex.filterMode = tex.mipmapCount > 1 ? FilterMode.Trilinear : FilterMode.Bilinear;
+            SpriteSharpness.Apply(resourcePath, tex); // character sheets: sharper mip choice (Sharpness V1.0)
             Textures[resourcePath] = tex;
             return tex;
         }

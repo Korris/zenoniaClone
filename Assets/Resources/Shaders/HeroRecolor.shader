@@ -14,6 +14,11 @@ Shader "ZenoniaProto/HeroRecolor"
         [PerRendererData] _HairColor ("Hair Colour", Color) = (0.6,0.6,0.6,1)
         [PerRendererData] _OutfitColor ("Outfit Colour", Color) = (0.6,0.6,0.6,1)
         [PerRendererData] _HairAll ("Whole sprite is hair", Float) = 0
+        [PerRendererData] _HairRamp ("Hair uses the 5 palette tones", Float) = 0
+        [PerRendererData] _HairDeep ("Hair deep shadow", Color) = (0.2,0.2,0.2,1)
+        [PerRendererData] _HairShadow ("Hair shadow", Color) = (0.4,0.4,0.4,1)
+        [PerRendererData] _HairLight ("Hair highlight", Color) = (0.9,0.9,0.9,1)
+        [PerRendererData] _HairLine ("Hair outline", Color) = (0.15,0.15,0.15,1)
         _Color ("Tint", Color) = (1,1,1,1)
     }
     SubShader
@@ -34,7 +39,8 @@ Shader "ZenoniaProto/HeroRecolor"
             sampler2D _MainTex;
             sampler2D _MaskTex;
             fixed4 _Color, _HairColor, _OutfitColor;
-            float _HairAll;
+            float _HairAll, _HairRamp;
+            fixed4 _HairDeep, _HairShadow, _HairLight, _HairLine;
 
             struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 uv : TEXCOORD0; };
             struct v2f { float4 pos : SV_POSITION; fixed4 color : COLOR; float2 uv : TEXCOORD0; };
@@ -63,6 +69,19 @@ Shader "ZenoniaProto/HeroRecolor"
                 return lerp(k4, k5, saturate((l - 0.88) / 0.12));
             }
 
+            // Hair Color Palette V3.0 (palettes.json hairRamps, ChatGPT 24/11): the grey lightness picks between five painted tones. Knots sit on the
+            // peaks of the RO Fantasy hair art (outline ~0.12, dark mass ~0.41, main ~0.65, highlight ~0.86; deep at 0.28 between outline and shadow),
+            // so the main painted tone shows exactly the palette Base. Soft / anti-aliased greys interpolate between knots.
+            float3 Ramp5(float l, float3 ln, float3 deep, float3 shadow, float3 base, float3 light)
+            {
+                if (l < 0.12) return ln;
+                if (l < 0.28) return lerp(ln, deep, (l - 0.12) / 0.16);
+                if (l < 0.41) return lerp(deep, shadow, (l - 0.28) / 0.13);
+                if (l < 0.65) return lerp(shadow, base, (l - 0.41) / 0.24);
+                if (l < 0.86) return lerp(base, light, (l - 0.65) / 0.21);
+                return light;
+            }
+
             fixed4 frag(v2f i) : SV_Target
             {
                 fixed4 src = tex2D(_MainTex, i.uv);
@@ -77,7 +96,16 @@ Shader "ZenoniaProto/HeroRecolor"
                 float outW = _HairAll > 0.5 ? 0 : m.g;
                 float l = dot(rgb, float3(0.299, 0.587, 0.114));
                 rgb = lerp(rgb, Ramp(l, outC), outW);
-                rgb = lerp(rgb, Ramp(l, hairC), hairW);
+                float3 hairRgb = Ramp(l, hairC);
+                if (_HairRamp > 0.5)
+                {
+                    float3 dp = _HairDeep.rgb, sh = _HairShadow.rgb, lt = _HairLight.rgb, ln = _HairLine.rgb;
+                #if !defined(UNITY_COLORSPACE_GAMMA)
+                    dp = LinearToGammaSpace(dp); sh = LinearToGammaSpace(sh); lt = LinearToGammaSpace(lt); ln = LinearToGammaSpace(ln);
+                #endif
+                    hairRgb = Ramp5(l, ln, dp, sh, hairC, lt);
+                }
+                rgb = lerp(rgb, hairRgb, hairW);
             #if !defined(UNITY_COLORSPACE_GAMMA)
                 rgb = GammaToLinearSpace(rgb);
             #endif

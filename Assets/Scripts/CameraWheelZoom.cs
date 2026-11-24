@@ -19,8 +19,9 @@ namespace ZenoniaProto
         /// <summary>RO3 2.5D maps (camera loop, ChatGPT round 2: 85..55 px narrowed to 80..60): hero 80 px closest .. 60 px widest around the default 69 px,
         /// by camera distance only (pitch / FOV fixed). The only place the view may be wider than the default: the forest border (View25DGroundApron) fills it.</summary>
         const float Ro3MinFactor = 69f / 80f, Ro3MaxFactor = 69f / 60f;
-        /// <summary>--map3d (22/11 user: "scroll ko thay zoom"): the 60..80 px band read as no zoom on a real 3D map, so hero 115 px closest .. 48 px widest there.</summary>
-        const float Map3DMinFactor = 69f / 115f, Map3DMaxFactor = 69f / 48f;
+        /// <summary>--map3d (22/11 user: "scroll ko thay zoom"): the 60..80 px band read as no zoom on a real 3D map, so hero 115 px closest there; widest
+        /// 1.22x the default (RO3 loop round 1, ChatGPT: "giới hạn để hero còn >= 50-52 px tại 720p": field 65 -> 53 px, village 62 -> 51 px; was 48 px).</summary>
+        const float Map3DMinFactor = 69f / 115f, Map3DMaxFactor = 1.22f;
         static bool Ro3Map { get { return View25D.Active && View25D.Profile.Ro3Look; } }
         static float RangeMin(float flat) { return Map3D.Active ? Map3DMinFactor : Ro3Map ? Ro3MinFactor : flat; }
         static float RangeMax(float flat) { return Map3D.Active ? Map3DMaxFactor : Ro3Map ? Ro3MaxFactor : flat; }

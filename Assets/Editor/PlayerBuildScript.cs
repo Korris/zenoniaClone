@@ -146,7 +146,8 @@ namespace ZenoniaProto.EditorTools
             }
 
             Directory.CreateDirectory(Path.GetDirectoryName(output));
-            if (target == BuildTarget.Android) { ConfigureAndroid(); ResourceTextureAudit.Run(); } // ASTC overrides before the APK packs textures
+            if (target == BuildTarget.Android) ConfigureAndroid();
+            ResourceTextureAudit.Run(); // drifted import settings (ASTC overrides for the APK, Map3D swatch preset) before the player packs textures
             string companyBefore = PlayerSettings.companyName, productBefore = PlayerSettings.productName;
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             EditorSceneManager.SaveScene(scene, TempScene);

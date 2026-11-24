@@ -30,6 +30,7 @@ namespace ZenoniaProto
         AmbientMode savedAmbMode; Color savedSky, savedEq, savedGround, savedAmb;
         float savedShadowDist, savedSplit; int savedCascades; ShadowResolution savedRes; ShadowQuality savedQuality;
         Light sun;
+        float fogEndM = 260f;
 
         /// <summary>The 3D map on screen draws its own sun shadows (realtime at High, baked at Medium); false at Low, where GroundShadowRenderer
         /// draws the baked prop silhouettes of the 2.5D map instead.</summary>
@@ -49,28 +50,32 @@ namespace ZenoniaProto
             sun = new GameObject("Map3DSun").AddComponent<Light>();
             sun.transform.SetParent(transform, false);
             sun.type = LightType.Directional;
-            Vector3 dir = new Vector3(SunGround.x * Mathf.Cos(SunElevation * Mathf.Deg2Rad), SunGround.y * Mathf.Cos(SunElevation * Mathf.Deg2Rad), Mathf.Sin(SunElevation * Mathf.Deg2Rad)); // +z = down
+            float el = Map3DPalette.Taurus ? Map3DPalette.SunElevation : SunElevation;
+            Vector3 dir = new Vector3(SunGround.x * Mathf.Cos(el * Mathf.Deg2Rad), SunGround.y * Mathf.Cos(el * Mathf.Deg2Rad), Mathf.Sin(el * Mathf.Deg2Rad)); // +z = down
             sun.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
-            sun.color = SunColor;
-            sun.intensity = 0.9f;
-            sun.shadowStrength = 0.46f; // round 1: 0.42-0.46, some shade read too dark
+            bool tau = Map3DPalette.Taurus; // Taurus V2 "Golden Adventure Daylight" (Map3DPalette)
+            fogEndM = tau ? Map3DPalette.FogEndMetres : 260f;
+            sun.color = tau ? Map3DPalette.SunColor : SunColor;
+            sun.intensity = tau ? Map3DPalette.SunIntensity : 0.9f;
+            sun.shadowStrength = Map3DPalette.Taurus ? Map3DPalette.ShadowStrength : 0.46f; // round 1: 0.42-0.46, some shade read too dark
             sun.shadowBias = 0.06f;
             sun.shadowNormalBias = 0.5f;
             sun.shadowResolution = LightShadowResolution.FromQualitySettings;
             sun.renderMode = LightRenderMode.ForcePixel;
             RenderSettings.sun = sun;
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.87f, 0.91f, 0.82f) * 0.65f;     // #DDE8D2
-            RenderSettings.ambientEquatorColor = new Color(0.68f, 0.74f, 0.64f) * 0.65f; // #AEBDA2
-            RenderSettings.ambientGroundColor = new Color(0.51f, 0.57f, 0.45f) * 0.65f;  // #819274
-            RenderSettings.fog = true;
+            float am = tau ? Map3DPalette.AmbientMul * (MapRegistry.Current != null && MapRegistry.Current.Id == TauWillowbrookVillageMap.MapId ? 0.94f : 1f) : 0.65f; // RO3 loop round 3: village ambient fill -6 %
+            RenderSettings.ambientSkyColor = (tau ? Map3DPalette.AmbientSky : new Color(0.87f, 0.91f, 0.82f)) * am;      // #DDE8D2 (Taurus #DCE5D4)
+            RenderSettings.ambientEquatorColor = (tau ? new Color(0.70f, 0.76f, 0.64f) : new Color(0.68f, 0.74f, 0.64f)) * am; // #AEBDA2
+            RenderSettings.ambientGroundColor = new Color(0.51f, 0.57f, 0.45f) * am;                                     // #819274
+            RenderSettings.fog = !tau; // Taurus V2.1: fog off (village / C01), the grove stays clear too
             RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogColor = FogColor;
+            RenderSettings.fogColor = tau ? Map3DPalette.FogColor : FogColor;
             ApplyQuality();
             GraphicsQuality.Changed -= ApplyQuality;
             GraphicsQuality.Changed += ApplyQuality;
-            Shader.SetGlobalColor(SunId, new Color(1.18f, 1.12f, 0.97f)); // round 2: brighter, the scene read dull next to the 2.5D map
-            Shader.SetGlobalColor(ShadeId, new Color(0.64f, 0.70f, 0.72f));
+            Shader.SetGlobalColor(SunId, tau ? Map3DPalette.SunGlobal : new Color(1.18f, 1.12f, 0.97f)); // round 2: brighter, the scene read dull next to the 2.5D map
+            Shader.SetGlobalColor(ShadeId, tau ? Map3DPalette.ShadeGlobal : new Color(0.64f, 0.70f, 0.72f));
             Shader.SetGlobalColor(SkyId, new Color(0.97f, 1.0f, 1.04f, 0.35f));
             Shader.SetGlobalVector(WindId, new Vector4(0.9f, 1.2f, 0.8f, 0.6f));
         }
@@ -81,7 +86,7 @@ namespace ZenoniaProto
             if (cam == null || cam.orthographic) return;
             float d = View25DCamera.Distance(cam);
             RenderSettings.fogStartDistance = d + 4f * Map3D.M;
-            RenderSettings.fogEndDistance = d + 260f * Map3D.M;   // ~9 % fog 25 m past the hero (first pass 150 m read hazy)
+            RenderSettings.fogEndDistance = d + fogEndM * Map3D.M;   // ~9 % fog 25 m past the hero (first pass 150 m read hazy)
             QualitySettings.shadowDistance = d + 20f * Map3D.M;
             Shader.SetGlobalVector(WindId, new Vector4(FeelConfig.FxOn ? 0.9f : 0f, 1.2f, 0.8f, 0.6f));
             HeroController h = GameSession.Hero;
@@ -89,7 +94,7 @@ namespace ZenoniaProto
             Vector3 p = h.transform.position;
             Vector3 chest = View25D.Above(p.x, p.y, 15f);
             Vector3 vp = cam.WorldToViewportPoint(chest);
-            const float px = 69f / 720f; // hero height in viewport heights (View25DProfile.HeroPx)
+            float px = View25D.Profile.HeroPx / 720f * DevStartConfig.CameraViewHeight() * 0.5f / Mathf.Max(1f, cam.orthographicSize * View25DBossZoom.Factor); // hero height in viewport heights at this zoom
             Shader.SetGlobalVector(HeroId, new Vector4(vp.x, vp.y, px * 0.80f, px * 1.15f));
             Shader.SetGlobalVector(HeroDepthId, new Vector4(vp.z, vp.z > 0f ? 1f : 0f, 0f, 0f));
         }

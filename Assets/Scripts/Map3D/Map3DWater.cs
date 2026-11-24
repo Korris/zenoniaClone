@@ -11,7 +11,7 @@ namespace ZenoniaProto
     /// </summary>
     public static class Map3DWater
     {
-        public const float Level = -0.12f; // metres
+        public const float Level = -0.12f; // metres (default; a map with a sunken creek sets its own: Map3DHeightField.WaterLevel)
         static readonly Vector2 Flow = new Vector2(0.35f, -0.75f); // the stream runs south-east to the pond
 
         public static void Build(Transform parent, IGameMap map, Map3DHeightField f)
@@ -45,7 +45,7 @@ namespace ZenoniaProto
             wm.SetTexture("_Height", f.HeightTex);
             wm.SetVector("_HRect", f.HeightRect);
             wm.SetVector("_HSize", f.HeightSize);
-            wm.SetFloat("_Level", Level);
+            wm.SetFloat("_Level", f.WaterLevel);
             mr.sharedMaterial = wm;
             mr.shadowCastingMode = ShadowCastingMode.Off;
             mr.receiveShadows = false;
@@ -66,8 +66,8 @@ namespace ZenoniaProto
             int key = j * f.Nx + i, k;
             if (index.TryGetValue(key, out k)) return k;
             float tx = f.MinTx + i * Map3DHeightField.Step, ty = f.MinTy + j * Map3DHeightField.Step;
-            verts.Add(Map3D.World(tx, ty, Level));
-            float depth = Mathf.Clamp01((Level - f.H[key]) / 0.45f);
+            verts.Add(Map3D.World(tx, ty, f.WaterLevel));
+            float depth = Mathf.Clamp01((f.WaterLevel - f.H[key]) / 0.45f);
             cols.Add(new Color(0.5f + Flow.x * 0.5f, 0.5f + Flow.y * 0.5f, 0f, depth));
             k = verts.Count - 1;
             index[key] = k;

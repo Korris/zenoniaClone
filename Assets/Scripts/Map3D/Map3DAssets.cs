@@ -16,7 +16,10 @@ namespace ZenoniaProto
         /// <summary>Asset folder key of a map (Resources/Map3D/&lt;key&gt;-splat.bytes, ArtLibrary/maps/&lt;key&gt;).</summary>
         public static string Key(IGameMap map)
         {
-            return map.Id == WillowbrookMeadowsMap.MapId ? "willowbrook-meadows" : map.Id;
+            if (map.Id == WillowbrookMeadowsMap.MapId) return "willowbrook-meadows";
+            if (map.Id == TauWillowbrookVillageMap.MapId) return "tau-willowbrook-village";
+            if (map.Id == TauCloverMeadowsMap.MapId) return "tau-clover-meadows";
+            return map.Id;
         }
 
         public static Texture2D Tex(string name)
@@ -24,7 +27,8 @@ namespace ZenoniaProto
             var t = Resources.Load<Texture2D>("Map3D/" + name);
             if (t == null) { Debug.LogWarning("[ZenoniaProto] Map3D texture missing: Resources/Map3D/" + name + ".png"); return Texture2D.whiteTexture; }
             t.wrapMode = TextureWrapMode.Repeat;
-            t.anisoLevel = 4;
+            t.anisoLevel = Application.isMobilePlatform ? 4 : 8; // Sharpness V1.0 preset B: ground seen at a slant, 8x on PC, 2-4x on phones
+            t.filterMode = FilterMode.Trilinear;
             return t;
         }
 
@@ -109,7 +113,8 @@ namespace ZenoniaProto
 
         public static Material Terrain(Map3DHeightField f)
         {
-            Material m = Get("terrain", () =>
+            bool tau = Map3DPalette.Taurus; // Taurus V2 palette: own material (the shared "terrain" keeps Willowbrook Meadows' look)
+            Material m = Get(tau ? "terrain-tau" : "terrain", () =>
             {
                 var t = new Material(Find("Map3DTerrain"));
                 t.SetTexture("_Grass", Tex("ground-grass"));
@@ -123,9 +128,21 @@ namespace ZenoniaProto
                 t.SetColor("_DirtTint", new Color(0.89f, 1.00f, 1.53f));    // -> #CDA477 (round 2)    // orange swatch (230,164,78) -> warm beige road #D3B17B
                 t.SetColor("_RockTint", new Color(1.02f, 1.10f, 1.20f));
                 t.SetColor("_BedColor", Hex(0x4E6A5A));
+                if (tau)
+                {
+                    t.SetColor("_GrassTint", Map3DPalette.GrassTint);
+                    t.SetColor("_ForestTint", Map3DPalette.ForestTint);
+                    t.SetColor("_DirtTint", Map3DPalette.DirtTint);
+                    t.SetColor("_PavingTint", Map3DPalette.PavingTint);
+                    t.SetFloat("_PavingContrast", Map3DPalette.PavingContrast);
+                }
                 return t;
             });
             m.SetTexture("_Control", f.Control);
+            m.SetTexture("_Tone", f.Tone != null ? (Texture)f.Tone : Texture2D.blackTexture);
+            m.SetVector("_MapRect", new Vector4(0f, 0f, GameConfig.MapW, GameConfig.MapH));
+            m.SetColor("_FarHaze", Map3DPalette.FogColor);
+            m.SetFloat("_Detail", tau ? 1f : 0f); // RO3 loop round 1 ground detail (road edge / wear, plaza variants, cliff bands + moss), Taurus only
             float a = Map3DHeightField.Apron * Map3D.M;
             m.SetVector("_CtrlRect", new Vector4(-a, -a, 1f / (GameConfig.MapW + 2f * a), 1f / (GameConfig.MapH + 2f * a)));
             return m;
@@ -134,7 +151,8 @@ namespace ZenoniaProto
         /// <summary>Leaf cards of a look: "oak", "oakYoung", "birch", "willow", "pine", "bush", "bushLilac", "bushWhite".</summary>
         public static Material Leaves(string look)
         {
-            return Get("leaves_" + look, () =>
+            bool tau = Map3DPalette.Taurus;
+            return Get((tau ? "leavesTau_" : "leaves_") + look, () =>
             {
                 bool pine = look == "pine", grass = look == "grass";
                 var m = new Material(Find("Map3DFoliage"));
@@ -150,8 +168,9 @@ namespace ZenoniaProto
                     case "bush": t1 = new Color(0.78f, 0.86f, 0.72f); t2 = new Color(0.92f, 0.95f, 0.72f); break;
                     case "bushLilac": t1 = new Color(0.78f, 0.86f, 0.72f); t2 = new Color(1.25f, 0.82f, 1.45f); break;   // lilac blossom clusters
                     case "bushWhite": t1 = new Color(0.78f, 0.86f, 0.72f); t2 = new Color(1.45f, 1.40f, 1.35f); break;
-                    case "grass": t1 = new Color(1.05f, 1.05f, 0.98f); t2 = t1; break;
+                    case "grass": t1 = tau ? Map3DPalette.GrassTuftTint : new Color(1.05f, 1.05f, 0.98f); t2 = t1; break;
                 }
+                if (tau && !pine && look != "grass") { t1 *= Map3DPalette.LeafT1Mul; t2 *= Map3DPalette.LeafT2Mul; }
                 m.SetColor("_Tint", t1);
                 m.SetColor("_Tint2", t2);
                 m.SetFloat("_Sss", pine ? 0.08f : 0.12f);
@@ -166,13 +185,14 @@ namespace ZenoniaProto
         {
             get
             {
-                return Get("bark", () =>
+                bool tau = Map3DPalette.Taurus;
+                return Get(tau ? "barkTau" : "bark", () =>
                 {
                     var m = new Material(Find("Map3DPainted"));
                     m.SetTexture("_MainTex", Tex("bark"));
                     m.SetTexture("_MossTex", Tex("ground-grass"));
                     m.SetFloat("_Mode", 0f);
-                    m.SetColor("_Tint", new Color(0.92f, 0.90f, 0.88f));
+                    m.SetColor("_Tint", tau ? Map3DPalette.BarkTint : new Color(0.92f, 0.90f, 0.88f));
                     return m;
                 });
             }
@@ -239,6 +259,87 @@ namespace ZenoniaProto
             }
         }
 
+        /// <summary>Guild Hall structure: ChatGPT atlas A (2x2 seamless plaster / stone / timber / slate roof) through Map3DPainted's tiled-atlas mode.</summary>
+        public static Material GuildA
+        {
+            get
+            {
+                return Get("guildA", () =>
+                {
+                    var m = new Material(Find("Map3DPainted"));
+                    m.SetTexture("_MainTex", Tex("guild-atlas-a"));
+                    m.SetTexture("_MossTex", Tex("ground-grass"));
+                    m.SetFloat("_Mode", 2f);
+                    m.SetFloat("_WindMul", 0f);
+                    m.SetColor("_Tint", Color.white);
+                    return m;
+                });
+            }
+        }
+
+        /// <summary>Village town wall / gate stone and timber (Map3DTownWallBuilder, Map3DGateBuilder): Guild atlas A warmed toward the wall sprite's cream ashlar.</summary>
+        public static Material TownStone
+        {
+            get
+            {
+                return Get("townStone", () =>
+                {
+                    var m = new Material(GuildA);
+                    m.SetColor("_Tint", new Color(1.14f, 1.17f, 1.13f)); // atlas stone avg #B7988A -> the sprite's cream #D5C2B0 before light
+                    m.SetColor("_MossTint", new Color(0.66f, 0.70f, 0.50f));
+                    return m;
+                });
+            }
+        }
+
+        /// <summary>Gate turret cone roofs: the wood atlas shingles tinted to the gate sprite's terracotta (#BB6931).</summary>
+        public static Material TownRoof
+        {
+            get
+            {
+                return Get("townRoof", () =>
+                {
+                    var m = new Material(Wood);
+                    m.SetColor("_Tint", new Color(1.48f, 0.96f, 0.52f)); // round 1: "mái đỏ nâu" -> brighter orange like the sprite
+                    return m;
+                });
+            }
+        }
+
+        /// <summary>Painted details cut from a prop's own sprite (Resources/Sprites/village/props/&lt;type&gt;) on fixed 3D cards, alpha-cut like GuildB
+        /// (Map3DShrineGateBuilder: rune panels, keystone emblem, door face). Null without the sprite.</summary>
+        public static Material SpriteCard(string type)
+        {
+            Texture2D t = Resources.Load<Texture2D>("Sprites/village/props/" + type);
+            if (t == null) return null;
+            return Get("spriteCard_" + type, () =>
+            {
+                var m = new Material(Find("Map3DSpriteCutout"));
+                m.SetTexture("_MainTex", t);
+                m.SetFloat("_Cutoff", 0.5f);
+                m.SetFloat("_SceneLight", 0.6f);
+                return m;
+            });
+        }
+
+        /// <summary>Guild Hall details: ChatGPT atlas B (door, windows, crest, banners, lanterns, carpet), uv-mapped cards, alpha-cut.</summary>
+        public static Material GuildB
+        {
+            get
+            {
+                return Get("guildB", () =>
+                {
+                    var m = new Material(Find("Map3DSpriteCutout"));
+                    Texture2D t = Resources.Load<Texture2D>("Map3D/guild-atlas-b");
+                    if (t != null) { t.wrapMode = TextureWrapMode.Clamp; t.anisoLevel = 4; }
+                    m.SetTexture("_MainTex", t);
+                    m.SetFloat("_Cutoff", 0.5f);
+                    m.SetFloat("_SceneLight", 0.6f);
+                    return m;
+                });
+            }
+        }
+
         /// <summary>Reed clumps: crossed cards of the painted 2.5D reed sprite (Resources/Sprites/village/props/wbxReeds), foliage shading + wind; null without the art.</summary>
         public static Material Reeds
         {
@@ -265,10 +366,12 @@ namespace ZenoniaProto
         {
             get
             {
-                return Get("water", () =>
+                bool tau = Map3DPalette.Taurus;
+                return Get(tau ? "waterTau" : "water", () =>
                 {
                     var m = new Material(Find("Map3DWater"));
                     m.SetTexture("_Noise", Noise);
+                    if (tau) { m.SetColor("_Shallow", Map3DPalette.WaterShallow); m.SetColor("_Deep", Map3DPalette.WaterDeep); m.SetFloat("_Calm", Map3DPalette.WaterCalm); }
                     return m;
                 });
             }

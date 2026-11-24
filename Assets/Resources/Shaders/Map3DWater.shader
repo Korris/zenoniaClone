@@ -33,6 +33,7 @@ Shader "ZenoniaProto/Map3DWater"
             float4 _HRect, _HSize;
             float _Level;
             fixed4 _Shallow, _Deep, _Foam;
+            float _Calm;
             struct appdata { float4 vertex : POSITION; float4 color : COLOR; };
             struct v2f { float4 pos : SV_POSITION; float3 wp : TEXCOORD0; float4 col : TEXCOORD1; UNITY_FOG_COORDS(2) };
             v2f vert(appdata v)
@@ -58,14 +59,14 @@ Shader "ZenoniaProto/Map3DWater"
                 float n1 = tex2D(_Noise, w / 70.0 + flow * t * 0.012 * 16.0 / 70.0 * 4.0).g;
                 float n2 = tex2D(_Noise, w / 37.0 - flow.yx * t * 0.018 * 16.0 / 37.0 * 4.0 + 0.37).r;
                 float n3 = tex2D(_Noise, w / 22.0 + t * 0.01).b;
-                float rip = smoothstep(0.60, 0.68, n1 * 0.6 + n2 * 0.4);
-                float glint = smoothstep(0.79, 0.82, n2 * 0.5 + n1 * 0.5);
+                float rip = smoothstep(0.60 + 0.05 * _Calm, 0.68 + 0.05 * _Calm, n1 * 0.6 + n2 * 0.4);
+                float glint = smoothstep(0.79 + 0.04 * _Calm, 0.82 + 0.04 * _Calm, n2 * 0.5 + n1 * 0.5);
                 fixed4 c = lerp(_Shallow, _Deep, smoothstep(0.05, 0.9, depth));
                 c.rgb *= _M3DSun.rgb * 0.95;
-                c.rgb = lerp(c.rgb, _Foam.rgb, rip * 0.30 + glint * 0.55);
+                c.rgb = lerp(c.rgb, _Foam.rgb, (rip * 0.30 + glint * 0.55) * (1.0 - 0.22 * _Calm));
                 float foamBand = 1.0 - smoothstep(0.03, 0.12 + n3 * 0.05, dm);             // 0.08-0.16 m at the shore, broken by noise
                 float foam = foamBand * smoothstep(0.35, 0.6, n3 + n1 * 0.4);
-                c.rgb = lerp(c.rgb, _Foam.rgb, foam * 0.85);
+                c.rgb = lerp(c.rgb, _Foam.rgb, foam * (0.85 - 0.45 * _Calm));
                 c.a = saturate(c.a + rip * 0.15 + glint * 0.3 + foam * 0.3) * smoothstep(0.0, 0.05, dm);
                 UNITY_APPLY_FOG(i.fogCoord, c);
                 return c;

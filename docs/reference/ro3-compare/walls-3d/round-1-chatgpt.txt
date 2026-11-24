@@ -1,0 +1,19 @@
+ChatGPT design chat (Tay, https://chatgpt.com/c/6b03f69b-a4f8-83ec-af99-547d92463f83), 25/11/2026 00:26, verdict round 1 on the walls / gates 3D.
+Sent: village-gate-4yaw-before-after.jpg, clover-shrine-gate-4yaw-before-after.jpg, sprites-current-design.jpg, after-tauCloverMeadows-y0-tp92_15.jpg
+(the prompt text asking for per-item scores did not show in the chat bubble; ChatGPT judged from the images).
+
+Mình xem 4 ảnh: cổng Willowbrook Village và cổng Ancient Roots ở Clover Meadows trước/sau khi chuyển sang 3D, bộ sprite gốc, cùng ảnh thực tế trong game khi nhân vật đi gần rừng.
+Nhận xét ban đầu: chuyển sang 3D là đúng hướng, nhưng hai công trình có kết quả khác nhau.
+
+Tiêu chí | Cổng làng | Cổng Ancient Roots
+Hình khối khi xoay camera 360° | 8,5/10 | 7,8/10
+Giữ phong cách sprite gốc | 8/10 | 6,8/10
+Độ hòa hợp với môi trường | 8,3/10 | 7,2/10
+
+Cổng làng: Bản 3D mới có khối thành, tháp và mái rõ ràng, nhìn thuyết phục hơn ở các góc xoay. Tuy nhiên, tường có phần quá đồ sộ và mái tháp màu đỏ nâu hơi khác thiết kế sprite ban đầu. Mình nghiêng về GIỮ bản 3D, chỉ tinh chỉnh vật liệu và tỷ lệ.
+
+Cổng Ancient Roots: Bản 3D giải quyết được chiều sâu nhưng làm mất khá nhiều đặc trưng của sprite gốc: rễ cây vàng ôm vòng cung, tán lá và cảm giác đền thờ cổ tích. Ở góc 90° và 270°, công trình khá mỏng. Mình đề nghị giữ cấu trúc 3D nhưng bổ sung rễ cây và lá thành các khối trang trí có chiều sâu, không quay lại sprite phẳng.
+
+Vấn đề đáng ưu tiên nhất lại nằm ở ảnh 4: Tán cây đang che gần hết nhân vật. Đây là lỗi về khả năng quan sát khi chơi, không đơn thuần là thẩm mỹ. Nên cho những tán cây chắn giữa camera và nhân vật chuyển sang dither khoảng 25–35% độ phủ, giữ thân cây hiện rõ.
+
+Phán quyết: Cổng làng đạt mức có thể giữ; Ancient Roots cần một vòng chỉnh về nhận diện nghệ thuật. Chưa nên thay hàng loạt công trình còn lại sang 3D cho đến khi giải quyết được hai vấn đề: giữ đúng silhouette sprite gốc ở mọi góc xoay và tránh cây che nhân vật.

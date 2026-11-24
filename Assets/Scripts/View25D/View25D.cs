@@ -105,7 +105,7 @@ namespace ZenoniaProto
             {
                 if (View25DCameraOverride.On) return View25DCameraOverride.ViewScale;
                 View25DProfile p = Profile;
-                return p.HeroPx > 0f ? View25DCameraOverride.ViewScaleFor(p.HeroPx) : p.ViewScale;
+                return (p.HeroPx > 0f ? View25DCameraOverride.ViewScaleFor(p.HeroPx) : p.ViewScale) * View25DBossZoom.Factor; // Camera V3.1 boss zoom (3D maps)
             }
         }
 

@@ -17,7 +17,7 @@ namespace ZenoniaProto
     public static class Map3D
     {
         /// <summary>Maps that have a 3D version (data: one id per converted map).</summary>
-        static readonly string[] Maps = { WillowbrookMeadowsMap.MapId };
+        static readonly string[] Maps = { WillowbrookMeadowsMap.MapId, TauWillowbrookVillageMap.MapId, TauCloverMeadowsMap.MapId }; // + Taurus village / meadows (24/11/2026 try, phase-09)
         static bool parsed, requested;
 
         static void Parse()
@@ -69,6 +69,7 @@ namespace ZenoniaProto
             Map3DHeightField field = Map3DHeightField.For(map);
             Map3DTerrain.Build(mapRoot, map, field);
             Map3DWater.Build(mapRoot, map, field);
+            Map3DCreekDressing.Build(mapRoot, map, field); // Clover sunken creek: bank rocks + reeds (RO3 loop round 2)
             Map3DLighting.Build(mapRoot);
             if (!Test("noborder")) Map3DBorderForest.Build(mapRoot, map, field);
             if (!Test("nograss")) Map3DGrass.Build(map, field);

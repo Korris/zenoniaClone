@@ -27,10 +27,12 @@ namespace ZenoniaProto
                 for (float cx = -6f; cx < f.MapW + 6f; cx += Chunk)
                 {
                     for (int k = 0; k < 3; k++) kits[k] = new Map3DMeshKit();
-                    int n = Mathf.RoundToInt(Chunk * Chunk * PerM2);
+                    bool patches = Map3DPalette.Taurus; // RO3 loop round 1: -35..45 % tufts, 60-70 % of the rest gathered in patches, clean grass between
+                    int n = Mathf.RoundToInt(Chunk * Chunk * PerM2 * (patches ? Map3DPalette.GrassDensity * PatchCandidates : 1f));
                     for (int i = 0; i < n; i++)
                     {
                         float tx = cx + (float)rng.NextDouble() * Chunk, ty = cy + (float)rng.NextDouble() * Chunk;
+                        if (patches && rng.NextDouble() > PatchKeep(tx, ty)) continue;
                         bool inside = tx >= 0f && ty >= 0f && tx < f.MapW && ty < f.MapH;
                         if (inside && (f.Splat(tx, ty, 0) > 0.25f || f.Splat(tx, ty, 2) > 0.2f)) continue;
                         if (f.Splat(tx, ty, 3) > 0.03f) continue;
@@ -48,6 +50,19 @@ namespace ZenoniaProto
                         if (kits[k].Count > 0) Map3DBatcher.Add(kits[k].Build("Map3DGrass"), mat, mat, o, Quaternion.identity, 1f, false, k);
                 }
             Debug.Log("[ZenoniaProto] Map3D grass: " + clumps + " clumps");
+        }
+
+        /// <summary>Candidates per tuft of the old density in patch mode, and the keep chance: 0.14 everywhere (~35 % of what stays: the scattered
+        /// share) + up to 0.93 inside the 6-12 m patches (~28 % of the area) = ~0.6 of the old count, ~65 % of it in patches.</summary>
+        const float PatchCandidates = 1.5f;
+        static readonly Vector2[] C01Clumps = { new Vector2(37.5f, 45f), new Vector2(48f, 49.5f), new Vector2(38.5f, 51.5f) };
+        static float PatchKeep(float tx, float ty)
+        {
+            float p = Mathf.PerlinNoise(tx * 0.11f + 37.1f, ty * 0.11f + 12.7f) * 0.7f + Mathf.PerlinNoise(tx * 0.27f + 3.9f, ty * 0.27f + 51.3f) * 0.3f;
+            float m = Mathf.Clamp01((p - 0.49f) / 0.12f); // round 2: patches ~22 % larger
+            float c01 = 0f; // round 3: 3 low clumps of 1.5-3 m2 near C01's edges
+            foreach (Vector2 c in C01Clumps) c01 = Mathf.Max(c01, 1f - Mathf.Clamp01((new Vector2(tx, ty) - c).magnitude / 0.9f));
+            return Mathf.Max(0.10f + 1.0f * m * m * (3f - 2f * m), c01 > 0f ? 0.6f + 0.4f * c01 : 0f); // round 2: patches denser; round 3: scattered -10 %
         }
 
         static readonly int[] Flowers = { 2, 7, 8, 14 }, Plain = { 0, 1, 3, 4, 5, 6, 9, 10, 11, 12, 13, 15 }; // cells of the ChatGPT tuft atlas

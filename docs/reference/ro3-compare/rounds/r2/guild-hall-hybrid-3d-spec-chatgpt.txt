@@ -1,0 +1,517 @@
+Trả lời bằng CHỮ, chưa vẽ.
+Worked for 59s
+ChatGPT said:
+
+Dưới đây là Guild Hall Hybrid 3D Production Spec theo đúng ràng buộc bạn đưa: 1 m = 1 ô, blocker 10 m ngang × 5 m sâu, cửa quay về phía nam, camera 54° xoay 360°, mesh dựng bằng code từ hộp / lăng trụ / mái 2 dốc / hốc lõm, 2 atlas texture để giảm công vẽ.
+
+Guild Hall Hybrid 3D Production Spec
+Mục tiêu
+
+Làm Guild Hall kiểu hybrid 3D để thay sprite nhà hội hiện tại bằng một công trình có:
+
+khối 3D thật,
+bóng đổ thật từ Unity,
+vẫn giữ cảm giác RO Soft Adventure / Storybook,
+vẫn khớp gameplay hiện tại (không đổi blocker 10×5).
+
+Mục tiêu hình ảnh:
+
+đọc tốt ở camera gameplay 54°,
+đủ đẹp khi xoay 360°,
+mặt trước giàu chi tiết nhất,
+mặt bên / mặt sau đơn giản hơn nhưng không được trống.
+1) Kích thước tổng thể và nguyên tắc đặt khối
+1.1. Blocker gameplay
+Hard blocker cố định: 10.0 m (W) × 5.0 m (D)
+Trục:
+X = ngang trái-phải
+Z = sâu bắc-nam
+Y = cao
+Cửa quay về phía nam = mặt tiền nhìn về camera.
+1.2. Footprint hình ảnh
+
+Để nhà trông “to” hơn sprite cũ mà vẫn không đụng gameplay, chia như sau:
+
+Khối cứng bên trong blocker
+Plinth / móng cứng: 9.6 W × 4.6 D
+Chừa mép trong blocker khoảng 0.2 m mỗi bên để không sát biên quá.
+Phần được phép thò ra ngoài blocker bằng hình ảnh
+
+Được thò ra nhưng không tạo collision:
+
+mái đua,
+bậc đá thấp,
+thảm đỏ,
+banner,
+đèn lồng.
+Silhouette thị giác cuối
+Rộng thị giác tối đa: khoảng 11.0–11.3 m
+Sâu thị giác tối đa: khoảng 6.0–6.4 m
+Cao đến đỉnh mái: khoảng 5.8–6.2 m
+
+Như vậy khi nhìn ở camera 54°, công trình sẽ đọc gần cảm giác của sprite cũ 11.75 × 9 ô, nhưng gameplay vẫn giữ blocker 10 × 5.
+
+2) Tỷ lệ đứng tổng thể
+2.1. Chiều cao
+Móng đá / plinth: 0.55 m
+Tường đến mép mái: 3.15 m
+Đỉnh mái cao thêm: 2.35–2.55 m
+Tổng cao đỉnh mái: 5.9–6.2 m
+2.2. Đọc hình ở camera 54°
+
+Mục tiêu là:
+
+móng đủ dày để có “sức nặng”,
+tường không quá cao làm nhà bị “nhà hộp”,
+mái phải là khối chính vì sprite gốc của bạn đọc mạnh ở mái.
+
+Tỷ lệ chốt:
+
+móng 9% tổng cao
+tường 52–54% tổng cao
+mái 37–39% tổng cao
+3) Mesh breakdown từng phần
+
+Mình đề xuất dựng nhà bằng các phần con (child objects).
+Chỉ cần primitive + custom mesh rất nhẹ, không cần Blender.
+
+Material slot tổng
+
+Chỉ dùng 2 material slot toàn công trình:
+
+Slot A = MAT_GuildHall_AtlasA_Structure
+dùng cho tất cả bề mặt lớn: tường, đá chân, khung gỗ, mái.
+Slot B = MAT_GuildHall_AtlasB_Detail
+dùng cho cửa, cửa sổ, biểu tượng, banner, bậc, thảm đỏ, đèn lồng, dirt/moss decal.
+
+Như vậy:
+
+ít draw call,
+dễ quản lý,
+chỉ cần 2 ảnh atlas.
+3.1. Danh sách phần khối chính
+P01 — Foundation / Plinth
+Loại mesh: box
+Kích thước: 9.6 W × 4.6 D × 0.55 H
+Material: Slot A
+UV: Atlas A / ô đá chân tường
+Ghi chú: đây là khối “nặng”, nên nhìn rõ từ mọi hướng.
+P02 — Main Hall Body
+Loại mesh: box
+Kích thước: 8.8 W × 3.55 D × 3.15 H
+Đặt trên plinth
+Material: Slot A
+UV:
+mặt tường chính = Atlas A / ô tường kem
+các nẹp / khung có thể làm bằng mesh phụ dùng cùng Atlas A / ô gỗ
+Ghi chú: đây là thân nhà chính.
+P03 — Front Wall Split for Entrance Recess
+
+Để giả “hốc cửa lõm”, không dùng boolean, mà chia mặt tiền thành 5 phần.
+
+P03a — Left Front Pier
+box 2.75 W × 0.35 D × 3.15 H
+P03b — Right Front Pier
+box 2.75 W × 0.35 D × 3.15 H
+P03c — Top Lintel Band
+box 3.30 W × 0.35 D × 0.55 H
+P03d — Recess Side Left
+box 0.20 W × 0.45 D × 2.45 H
+P03e — Recess Side Right
+box 0.20 W × 0.45 D × 2.45 H
+P03f — Recess Back Wall
+
+box 2.90 W × 0.12 D × 2.70 H
+
+Material: chủ yếu Slot A, riêng mặt cửa dùng Slot B
+
+Chiều sâu hốc cửa: 0.45 m
+
+Ghi chú: đây là cách rẻ nhất để có cảm giác cửa lõm thật ở camera 54°.
+
+P04 — Door Frame / Arch Overlay
+Loại mesh: khung hộp mỏng hoặc 1 plane cứng
+Kích thước phủ ngoài: 3.10 W × 0.08 D × 3.10 H
+Material: Slot B
+UV: Atlas B / ô “door + arch frame”
+Ghi chú:
+Không cần model vòm thật phức tạp; chỉ cần opening chữ nhật + texture vòm giả là đủ đọc như cửa vòm ở cự ly game.
+P05 — Main Door
+Loại mesh: 1 box mỏng
+Kích thước: 2.10 W × 0.10 D × 2.45 H
+Material: Slot B
+UV: Atlas B / ô cửa gỗ
+Ghi chú: cửa đóng, gỗ đậm hơn tường, có viền và bản lề vẽ trong texture.
+P06 — Roof Left Slope
+Loại mesh: mái dốc / prism
+Kích thước footprint phủ mái: nửa mái bên trái của khối 10.9 W × 2.95 D
+Độ đua mái:
+ngang mỗi bên: 0.75 m
+trước/sau: 0.65–0.75 m
+Material: Slot A
+UV: Atlas A / ô ngói xanh lam đá
+P07 — Roof Right Slope
+cùng thông số P06
+P08 — Ridge Cap
+Loại mesh: box dài hoặc prism nhỏ
+Kích thước: 8.7 W × 0.25 D × 0.22 H
+Material: Slot B
+UV: Atlas B / ô ridge strip
+Ghi chú: giúp đỉnh mái đọc gọn.
+P09 — Front Gable Face
+Loại mesh: tam giác / plane cứng hoặc box nông
+Kích thước: phủ tam giác đầu hồi phía nam
+Material: Slot A hoặc B
+Ưu tiên:
+nền tam giác dùng tường kem (Slot A)
+chi tiết phù điêu / crest dùng Slot B
+Ghi chú: đây là chỗ đặt khiên-kiếm vàng.
+P10 — Rear Gable Face
+giống P09 nhưng đơn giản hơn
+không cần crest lớn
+có thể chỉ có khung gỗ + một cửa sổ nhỏ
+P11 — Front Steps
+
+Đề xuất 3 bậc.
+
+Step 1
+3.10 W × 0.55 D × 0.18 H
+Step 2
+2.80 W × 0.45 D × 0.18 H
+Step 3
+
+2.50 W × 0.35 D × 0.16 H
+
+Tổng cao: khoảng 0.52 m
+
+Material: Slot B
+
+UV: Atlas B / ô step/threshold stone
+
+Ghi chú:
+Vì blocker gameplay giữ nguyên, các bậc có thể là visual only.
+Nếu sợ nhân vật xuyên chân nhìn khó chịu, chỉ để bậc thò ra khỏi blocker tối đa 0.55–0.65 m.
+
+P12 — Threshold / Door Landing
+Loại mesh: box
+Kích thước: 2.40 W × 0.80 D × 0.08 H
+Material: Slot B
+UV: cùng ô bậc đá
+P13 — Red Carpet
+Loại mesh: plane rất mỏng
+Kích thước: 1.70 W × 1.95 D
+Material: Slot B
+UV: Atlas B / ô thảm đỏ
+Ghi chú:
+Có thể kéo từ cửa xuống hết bậc 1.
+Nếu cần “ngầu” hơn, cho phần dưới chạm mặt đất thêm 0.4–0.6 m.
+P14 — Left Banner Pole
+Loại mesh: box
+Kích thước: 0.08 W × 0.08 D × 2.10 H
+P15 — Right Banner Pole
+như P14
+P16 — Left Banner Cloth
+Loại mesh: plane hoặc box mỏng
+Kích thước: 0.70 W × 0.03 D × 1.45 H
+P17 — Right Banner Cloth
+
+như P16
+
+Material: poles có thể Slot A (gỗ) hoặc B; cloth dùng Slot B
+
+UV: Atlas B / ô banner xanh lily
+
+Đặt: 2 bên cửa, tâm banner cách tâm nhà khoảng ±2.65 m
+
+Ghi chú:
+banner chỉ nên rủ thẳng hoặc lệch nhẹ, không cần simulate.
+
+P18 — Front Lantern Left
+Loại mesh: 2–3 box đơn giản
+Tổng kích thước: khoảng 0.30 W × 0.30 D × 0.52 H
+P19 — Front Lantern Right
+
+như P18
+
+Material: Slot B
+
+UV: Atlas B / ô “lantern”
+
+Đặt: hai bên cửa, hơi thấp hơn đầu người, gắn vào khung cửa hoặc tường.
+
+Ghi chú:
+Ánh sáng thật dùng Unity point light rất nhẹ, không cần emissive texture.
+
+P20 — Front Crest (Shield + Sword Emblem)
+Loại mesh: plane cứng hoặc box nông
+Kích thước phủ: khoảng 1.55 W × 0.12 D × 0.95 H
+Material: Slot B
+UV: Atlas B / ô emblem
+Đặt: giữa đầu hồi trước
+Ghi chú:
+Đây là điểm nhận diện rất quan trọng. Dù đơn giản vẫn phải đọc rõ từ camera gameplay.
+P21 — Side Windows (optional but nên có)
+
+Mỗi bên 1 cửa sổ nhỏ.
+
+Kích thước mỗi cái: 0.85 W × 0.08 D × 1.10 H
+Material: Slot B
+UV: Atlas B / ô window
+Ghi chú:
+Rất nên có để xoay 360° không bị “mặt bên chết”.
+P22 — Rear Small Window / Plaque
+Kích thước: 0.75 W × 0.08 D × 0.95 H
+Material: Slot B
+UV: Atlas B / ô window hoặc plaque
+3.2. Phần trim phụ trợ
+
+Có thể dựng sau nếu còn thời gian:
+
+P23 — Timber Corner Trims
+box mỏng dọc 4 góc
+0.18 × 0.10 × 3.15 m
+Slot A / ô gỗ
+P24 — Horizontal Belt Trim
+box mỏng chạy ngang mặt tiền
+cao khoảng 0.18 m
+Slot B hoặc A
+P25 — Stone Side Apron
+nền đá nhỏ hai bên bậc / chân cột
+để bớt cảm giác “nhà đặt lên cỏ”
+4) Bố cục chi tiết công trình (khuyến nghị chốt)
+4.1. Mặt bằng
+Plinth: 9.6 × 4.6
+Wall body: 8.8 × 3.55
+Recess cửa nằm giữa mặt nam
+Bậc / thảm đỏ nằm trục giữa
+4.2. Mặt trước
+
+Nhịp nhìn từ trái sang phải:
+
+banner trái
+cột tường trái
+cửa vòm lõm + thảm đỏ + đèn lồng
+cột tường phải
+banner phải
+
+Bên trên:
+
+đầu hồi tam giác
+crest khiên-kiếm vàng
+mái ngói xanh lam đá
+4.3. Mặt bên
+không cần cầu kỳ như mặt trước
+giữ:
+1 cửa sổ nhỏ,
+khung gỗ dọc góc,
+mái đua rõ,
+chân đá đọc tốt.
+4.4. Mặt sau
+đơn giản nhất
+1 cửa sổ hoặc plaque nhỏ ở giữa là đủ
+không cần banner, không cần thảm đỏ
+5) Texture atlas plan
+
+Mình chọn phương án 2 atlas 1024×1024, mỗi atlas chia 2×2 ô 512×512.
+Đây là phương án ít công vẽ nhất và dễ UV nhất.
+
+ATLAS A — GuildHall_AtlasA_Structure_1024
+Dùng cho tất cả mặt lớn
+
+Mỗi ô 512×512.
+
+A1 (ô trên-trái) — Wall Plaster Cream
+Nội dung: tường trát kem ấm, brush mềm, có loang rất nhẹ, không quá bẩn
+Dùng cho: tất cả mảng tường chính
+Yêu cầu: SEAMLESS
+Độ tương phản: nhẹ, không nhiều noise
+A2 (ô trên-phải) — Stone Foundation Beige Grey
+Nội dung: đá chân tường / móng màu xám-beige, block vừa, khe nhìn được, hơi mòn
+Dùng cho: plinth, cạnh bậc nếu cần
+Yêu cầu: SEAMLESS
+A3 (ô dưới-trái) — Timber / Golden Brown Trim
+Nội dung: gỗ vàng nâu ấm, thớ dọc, có thể trong cùng ô chứa:
+vùng gỗ phẳng,
+1–2 dải nẹp đậm hơn ở mép
+Dùng cho: khung gỗ, cột góc, viền
+Yêu cầu: SEAMLESS
+A4 (ô dưới-phải) — Slate Blue Roof Tile
+Nội dung: ngói xanh lam đá, hàng ngói chồng lớp rõ vừa phải
+Dùng cho: 2 mái dốc
+Yêu cầu: SEAMLESS
+Ghi chú Atlas A
+Cả 4 ô Atlas A đều nên vẽ seamless.
+Đây là atlas sống lâu nhất, dùng được cho nhiều công trình khác trong làng.
+ATLAS B — GuildHall_AtlasB_Detail_1024
+Dùng cho tất cả chi tiết riêng
+
+Mỗi ô 512×512.
+
+B1 (ô trên-trái) — Door + Window Kit
+Nội dung:
+cửa gỗ vòm giả / cửa gỗ chính,
+1–2 cửa sổ nhỏ,
+plaque nhỏ hoặc shutter
+Dùng cho: P04, P05, P21, P22
+Yêu cầu: KHÔNG cần seamless
+Gợi ý bố cục trong ô B1
+nửa dưới: cửa chính
+góc trên trái/phải: 2 cửa sổ nhỏ
+một góc nhỏ còn lại: plaque / vent
+B2 (ô trên-phải) — Crest + Banner + Trim Decorative
+Nội dung:
+emblem khiên-kiếm vàng
+2 banner xanh lily
+các dải trim xanh-vàng để gắn ở viền đầu hồi / viền cửa
+Dùng cho: P16, P17, P20, một số nẹp trang trí
+Yêu cầu:
+emblem và banner: không seamless
+dải trim: nên vẽ sao cho lặp ngang được trong phạm vi ngắn
+B3 (ô dưới-trái) — Steps / Threshold / Red Carpet / Roof Ridge
+Nội dung:
+đá mặt bậc / nosing
+viền bậu cửa
+thảm đỏ
+ridge cap strip cho đỉnh mái
+Dùng cho: P08, P11, P12, P13
+Yêu cầu:
+phần thảm đỏ không cần seamless toàn ô
+strip ridge / step edge nên lặp ngang được
+B4 (ô dưới-phải) — Dirt / Moss / AO / Small Decals
+Nội dung:
+mảng dirt chân tường
+rêu chân đá
+vệt tối AO giả
+stain dưới mép mái
+vài patch tối để dán ở góc / chân cột
+Dùng cho: plane decal hoặc các mảng nhỏ chèn thêm
+Yêu cầu: không seamless
+Ghi chú Atlas B
+Atlas B là atlas “gia vị”.
+Không cần seamless tổng thể.
+Nếu thiếu chỗ, ưu tiên giữ:
+cửa,
+banner,
+crest,
+thảm đỏ.
+6) Material / UV rule
+6.1. Số material
+
+Chỉ dùng:
+
+Material 0: Atlas A
+Material 1: Atlas B
+6.2. Quy tắc UV
+Với các khối lớn
+UV kiểu box projection thủ công đơn giản
+Tường, đá, gỗ, mái đều lấy từ Atlas A
+Không cần texel density tuyệt đối, chỉ cần tương đối đồng đều
+Gợi ý scale lặp
+A1 plaster: lặp khoảng 1 ô texture / 3.0–3.5 m
+A2 stone base: 1 ô / 2.0–2.5 m
+A3 timber: theo chiều dài thanh
+A4 roof: để mỗi hàng ngói đọc vừa phải; đừng quá dày
+Với chi tiết
+Door/window/banner/crest/step/carpet dùng Atlas B
+Mỗi chi tiết UV vào vùng riêng tương ứng trong ô B1/B2/B3/B4
+7) Quy tắc silhouette và gameplay
+7.1. Những gì được vượt blocker
+
+Được vượt nhưng chỉ là visual:
+
+mái đua 0.65–0.75 m
+banner 0.15–0.25 m
+thảm đỏ 0.5–0.8 m
+bậc dưới cùng tối đa 0.55–0.65 m
+7.2. Những gì không được vượt blocker
+
+Các khối “cứng” gây cảm giác va chạm:
+
+plinth chính
+thân tường
+cột lớn
+khối cửa lõm sâu
+
+Những phần này nên nằm gọn trong footprint 9.6 × 4.6.
+
+8) Cách dựng bằng code — thứ tự production
+Phase 1 — Blockout
+
+Dựng ngay bằng box/prism:
+
+Plinth
+Main hall body
+Front wall split + recess
+Door
+Roof 2 dốc
+Ridge
+Steps
+Carpet plane
+
+Mục tiêu: kiểm silhouette ở camera 54°.
+
+Phase 2 — Front detail
+Crest
+Banners
+Lanterns
+Side windows
+Rear window
+Phase 3 — Texture pass
+gắn Atlas A
+gắn Atlas B
+chỉnh UV cho đúng ô
+Phase 4 — Scene integration
+point light ấm nhẹ ở lantern
+contact shadow / real shadow từ Unity
+decal B4 ở chân tường nếu cần
+9) Mức chi tiết nên giữ
+
+Vì đây là hybrid 3D cho game đang có nhiều prop 2D / 2.5D, không nên làm quá nhiều mesh con nhỏ.
+Mức chi tiết hợp lý là:
+
+Khối lớn rõ
+chi tiết mặt trước vừa đủ
+màu / vật liệu đọc rõ
+silhouette đẹp hơn sprite, không cần thành nhà 3D thực thụ quá phức tạp.
+10) Chốt spec ngắn gọn để bạn build
+Kích thước chốt
+Hard blocker: 10 × 5 m
+Plinth: 9.6 × 4.6 × 0.55 m
+Main wall body: 8.8 × 3.55 × 3.15 m
+Roof overall visual: khoảng 10.9 × 5.9 m
+Total height: 5.9–6.2 m
+Door recess depth: 0.45 m
+Door size: 2.1 × 2.45 m
+Steps: 3 bậc, tổng cao ~`0.52 m`
+Banner cloth: 0.70 × 1.45 m
+Crest: 1.55 × 0.95 m
+Material slot
+Slot A = Structure Atlas
+Slot B = Detail Atlas
+Atlas A 1024 (2×2, mỗi ô 512)
+A1 plaster — seamless
+A2 stone foundation — seamless
+A3 timber — seamless
+A4 roof tile — seamless
+Atlas B 1024 (2×2, mỗi ô 512)
+B1 door + windows — non-seamless
+B2 crest + banner + trim — mostly non-seamless
+B3 steps + threshold + carpet + ridge strip — strip parts nên lặp ngang được
+B4 dirt + moss + AO decals — non-seamless
+
+Nếu bạn muốn, ở lượt sau mình có thể viết tiếp “Unity implementation checklist” cho Guild Hall này:
+
+hierarchy GameObject,
+pivot từng phần,
+cách đặt shadow caster,
+sorting/overlap với nhân vật,
+và pseudo-code dựng mesh bằng C# từ các box/prism.
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+6 Medium
+Response complete
+0.35H

@@ -18,9 +18,16 @@ namespace ZenoniaProto
         public const int SplatPx = 8;      // control texels per metre
 
         public int MapW, MapH;             // tiles
+        /// <summary>World Depth V3.1 relief (Clover Meadows): cliffs on the thick border masses, mounds on the inner blockers, far hills (DepthHeight).</summary>
+        bool depth;
+        /// <summary>Water sheet height (m): Map3DWater.Level, or -0.6 for Clover Meadows' sunken creek (RO3 loop round 2, "Outdoor Depth Solution V4.0" A).</summary>
+        public float WaterLevel = Map3DWater.Level;
+        bool[] dry;                        // extended tile grid: walkable ground that is not water (the creek banks never sink into it)
+        float[] dDry;                      // metres from the nearest dry walkable cell, vertex grid (creek profile)
         public int Nx, Ny;                 // vertices
         public float[] H;                  // metres, up positive, Nx * Ny, row 0 = north (ty = -Apron)
         public Texture2D Control;          // RGBA: dirt, forest, paving, water over the whole terrain (linear)
+        public Texture2D Tone;             // R8 darkness (contact AO, cliff foot, nest), Map3DGroundDetail
         public Texture2D HeightTex;        // RFloat heights (metres) on the vertex grid: the water shader reads the depth per pixel (smooth shore)
         byte[] mapSplat;                   // the map's own splat (RGBA, SplatPx per tile, rows top-down)
         int splatW, splatH;
@@ -45,13 +52,17 @@ namespace ZenoniaProto
         Map3DHeightField(IGameMap map)
         {
             MapW = map.Width; MapH = map.Height;
+            depth = map.Id == TauCloverMeadowsMap.MapId && !Map3D.Test("nodepth");
+            if (depth) WaterLevel = CreekLevel;
             LoadSplat(map);
             BuildOpen(map);
             Nx = Mathf.RoundToInt((MapW + 2f * Apron) / Step) + 1;
             Ny = Mathf.RoundToInt((MapH + 2f * Apron) / Step) + 1;
             DistanceToOpen();
+            if (depth) dDry = Chamfer(DryAt);
             BuildHeights();
-            BuildControl();
+            BuildControl(map);
+            Tone = Map3DGroundDetail.Tone(map, this);
             HeightTex = new Texture2D(Nx, Ny, TextureFormat.RFloat, false, true) { name = "Map3DHeight", wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, hideFlags = HideFlags.DontSave };
             HeightTex.SetPixelData(H, 0);
             HeightTex.Apply(false, false);
@@ -95,14 +106,33 @@ namespace ZenoniaProto
             int a = Mathf.RoundToInt(Apron);
             tw = MapW + 2 * a; th = MapH + 2 * a;
             open = new bool[tw * th];
+            dry = new bool[tw * th];
             var tm = map as TileMapBase;
             for (int ty = 0; ty < MapH; ty++)
                 for (int tx = 0; tx < MapW; tx++)
                 {
                     char c = tm != null ? tm.CharAt(tx, ty) : (map.IsSolidTile(tx, ty) ? 'T' : 'g');
-                    if (c != 'T') open[(ty + a) * tw + tx + a] = true; // water tiles are not a bank: the bed sinks from the painted water channel instead
+                    if (c != 'T' && !(tm != null && IsForestMass(tm, tx, ty))) open[(ty + a) * tw + tx + a] = true; // water tiles are not a bank: the bed sinks from the painted water channel instead
+                    if (open[(ty + a) * tw + tx + a] && c != 'w' && c != 'B') dry[(ty + a) * tw + tx + a] = true;
                 }
             foreach (MapPortal p in map.Portals) Corridor(p.Tx, p.Ty, a);
+        }
+
+        /// <summary>Taurus maps: a 't' tile inside a thick solid mass (5+ of its 8 neighbours are 'T' / 't', the map edge counts) is a forest bank like 'T'; lone trunks stay flat ground.</summary>
+        static bool IsForestMass(TileMapBase tm, int tx, int ty)
+        {
+            if (tm.CharAt(tx, ty) != 't' || !tm.Id.StartsWith("tau")) return false;
+            int n = 0;
+            for (int dy = -1; dy <= 1; dy++)
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    if (dx == 0 && dy == 0) continue;
+                    int x = tx + dx, y = ty + dy;
+                    if (x < 0 || y < 0 || x >= tm.Width || y >= tm.Height) { n++; continue; }
+                    char c = tm.CharAt(x, y);
+                    if (c == 'T' || c == 't') n++;
+                }
+            return n >= 5;
         }
 
         /// <summary>Flat corridor from an edge portal tile straight out of the map (3 tiles wide), across the solid border rows too.</summary>
@@ -198,21 +228,112 @@ namespace ZenoniaProto
                     float n1 = Mathf.PerlinNoise(tx * 0.13f + 11.3f, ty * 0.13f + 5.1f), n2 = Mathf.PerlinNoise(tx * 0.06f + 41.7f, ty * 0.06f + 23.9f);
                     float n3 = Mathf.PerlinNoise(tx * 0.35f + 3.3f, ty * 0.35f + 71.2f);
                     float h = 0f;
-                    if (d > 0f)
+                    if (d > 0f && depth) h = DepthHeight(tx, ty, d, outside, n1, n2, n3);
+                    else if (d > 0f)
                     {
                         h += Smooth(0.25f, 3.0f, d) * (0.35f + 0.85f * n1);                 // forest bank on the solid border
                         h += Smooth(2f, 16f, Mathf.Min(d, outside + 2f)) * (1.1f + 1.9f * n2); // hills past the edge (never next to a corridor)
                         h += (n3 - 0.5f) * 0.25f * Smooth(0.5f, 2f, d);                       // small lumps on the bank
                     }
                     float w = Splat(tx, ty, 3);
-                    if (w > 0.02f) h -= 0.55f * Smooth(0.1f, 0.8f, w) + Mathf.Max(0f, h) * Smooth(0.1f, 0.6f, w); // stream / pond bed follows the painted water, not the tile rows
-                    if (d <= 0f && w <= 0.02f)
+                    if (depth && dDry != null && d <= 0f && dDry[k] > 0f && outside <= 0f) h = CreekHeight(tx, ty, dDry[k]);   // sunken creek: rock banks inside the water tiles only
+                    else if (w > 0.02f) h -= 0.55f * Smooth(0.1f, 0.8f, w) + Mathf.Max(0f, h) * Smooth(0.1f, 0.6f, w); // stream / pond bed follows the painted water, not the tile rows
+                    if (d <= 0f && w <= 0.02f && !(depth && dDry != null && dDry[k] > 0f && outside <= 0f))
                     {
                         float dirt = Mathf.Max(Splat(tx, ty, 0), Splat(tx, ty, 2));
                         h = -0.06f * n3 * (1f - dirt);                                      // open grass: shallow dips only
                     }
                     H[k] = h;
                 }
+        }
+
+        const float CreekLevel = -0.6f;
+
+        /// <summary>
+        /// Clover Meadows' sunken creek / stone gully (ChatGPT RO3 loop round 2, "Outdoor Depth Solution V4.0" A, docs/reference/ro3-compare/rounds/r2/round-2-chatgpt.txt):
+        /// the water tiles drop from the walkable bank (height 0, untouched) to a water sheet at -0.6 m and a bed at about -1.15 m. The steep upper bank
+        /// (~40-60 deg, rock by the terrain shader's slope rule) sits within the first 0.75 m of the water tiles, then the bed; the distance is warped
+        /// +-0.3 m along the creek so the banks bulge in and out instead of running straight like a ditch.
+        /// </summary>
+        float CreekHeight(float tx, float ty, float dd)
+        {
+            dd += (Mathf.PerlinNoise(tx * 0.21f + 5.7f, ty * 0.21f + 9.1f) - 0.5f) * 0.6f;
+            if (dd <= 0f) return 0f;
+            float bank = Smooth(0f, 0.75f, dd) * (1f - Smooth(0.75f, 1.6f, dd));
+            float vary = (Mathf.PerlinNoise(tx * 0.33f + 61f, ty * 0.33f + 3f) - 0.5f) * 0.26f; // round 3: the visible bank face varies +-0.13 m stretch by stretch
+            return -0.66f * Smooth(0f, 0.75f, dd) - 0.5f * Smooth(0.75f, 1.6f, dd) + vary * bank;
+        }
+
+        bool DryAt(int ti, int tj) { return ti >= 0 && tj >= 0 && ti < tw && tj < th && dry[tj * tw + ti]; }
+
+        /// <summary>Two-pass chamfer distance (metres) from every vertex to the nearest vertex touching a cell where `src` holds (extended tile grid coords).</summary>
+        float[] Chamfer(System.Func<int, int, bool> src)
+        {
+            int n = Nx * Ny, a = Mathf.RoundToInt(Apron);
+            var g = new float[n];
+            const float Big = 1e6f, D1 = Step, D2 = Step * 1.41421f;
+            for (int j = 0; j < Ny; j++)
+                for (int i = 0; i < Nx; i++)
+                {
+                    float tx = MinTx + i * Step, ty = MinTy + j * Step;
+                    int x0 = Mathf.FloorToInt(tx - 0.01f) + a, x1 = Mathf.FloorToInt(tx + 0.01f) + a, y0 = Mathf.FloorToInt(ty - 0.01f) + a, y1 = Mathf.FloorToInt(ty + 0.01f) + a;
+                    bool any = src(x0, y0) || src(x1, y0) || src(x0, y1) || src(x1, y1);
+                    g[j * Nx + i] = any ? 0f : Big;
+                }
+            for (int j = 0; j < Ny; j++)
+                for (int i = 0; i < Nx; i++)
+                {
+                    int k = j * Nx + i; float v = g[k];
+                    if (i > 0) v = Mathf.Min(v, g[k - 1] + D1);
+                    if (j > 0) v = Mathf.Min(v, g[k - Nx] + D1);
+                    if (i > 0 && j > 0) v = Mathf.Min(v, g[k - Nx - 1] + D2);
+                    if (i < Nx - 1 && j > 0) v = Mathf.Min(v, g[k - Nx + 1] + D2);
+                    g[k] = v;
+                }
+            for (int j = Ny - 1; j >= 0; j--)
+                for (int i = Nx - 1; i >= 0; i--)
+                {
+                    int k = j * Nx + i; float v = g[k];
+                    if (i < Nx - 1) v = Mathf.Min(v, g[k + 1] + D1);
+                    if (j < Ny - 1) v = Mathf.Min(v, g[k + Nx] + D1);
+                    if (i < Nx - 1 && j < Ny - 1) v = Mathf.Min(v, g[k + Nx + 1] + D2);
+                    if (i > 0 && j < Ny - 1) v = Mathf.Min(v, g[k + Nx - 1] + D2);
+                    g[k] = v;
+                }
+            return g;
+        }
+
+        /// <summary>Metres from the nearest dry walkable cell at tile coords (the sunken creek of Clover), -1 on maps without one (Map3DCreekDressing).</summary>
+        public float CreekDistance(float tx, float ty)
+        {
+            if (dDry == null) return -1f;
+            int i = Mathf.Clamp(Mathf.RoundToInt((tx - MinTx) / Step), 0, Nx - 1), j = Mathf.Clamp(Mathf.RoundToInt((ty - MinTy) / Step), 0, Ny - 1);
+            return dDry[j * Nx + i];
+        }
+
+        /// <summary>
+        /// Clover Meadows relief, ChatGPT "Camera & World Depth V3.1" section V (docs/reference/ro3-compare/ro3-camera-terrain-analysis-v2-chatgpt.txt):
+        /// walkable tiles stay at 0 (phase 1: only blockers and the ground past the map rise, no collision / navigation change); thin inner blockers
+        /// become soft mounds +0.3..0.8 m (Brambleback Nest rim +0.5..1.2, Elderwood / Ancient Roots edge +0.8..1.5); the thick border masses rise
+        /// as rock cliffs +2.5..5 m (the terrain shader paints steep faces with the rock swatch); the ground well past the edge becomes far hills
+        /// +5..9 m. The south border stays low (mound + far hills only): a cliff there would stand between the camera and the hero.
+        /// </summary>
+        float DepthHeight(float tx, float ty, float d, float outside, float n1, float n2, float n3)
+        {
+            float moundLo = 0.6f, moundHi = 1.2f;                                 // round 2: low knolls that read 0.6-1.2 m
+            if (ty < 13f && tx < 27f) { moundLo = 0.5f; moundHi = 1.2f; }        // Brambleback Nest rim (north-west, Z5)
+            else if (ty < 13f) { moundLo = 0.8f; moundHi = 1.5f; }               // Elderwood Edge / Ancient Roots (north, Z6 / Z7)
+            float rise = 1.6f;
+            if (tx > 60f && ty > 10f && ty < 21f) { moundLo = 1.2f; moundHi = 2.0f; rise = 0.9f; } // Mushroom Grove rim: low rock cliff 1.5-2.5 m (round 1 P0)
+            else if (tx > 66f && ty > 25f && ty < 35f) { moundLo = 0.6f; moundHi = 1.2f; }        // Rabbit Hills: soft grass knolls
+            float mound = Smooth(0.2f, rise, d) * Mathf.Lerp(moundLo, moundHi, n1);
+            float south = Smooth(MapH - 6f, MapH - 1f, ty) * (1f - Smooth(6f, 12f, outside)); // low near the south edge, hills come back far out
+            float cliffH = Mathf.Lerp(2.5f, 5f, n2) * (1f - south);
+            float cliff = Smooth(1.6f, 3.6f, d) * cliffH;                          // ~2 m run: steep enough for the rock faces
+            float hills = Smooth(8f, 24f, outside) * Mathf.Lerp(5f, 9f, Mathf.PerlinNoise(tx * 0.035f + 91f, ty * 0.035f + 17f));
+            float h = Mathf.Max(mound, Mathf.Max(cliff, hills));
+            h += (n3 - 0.5f) * 0.35f * Smooth(0.5f, 2f, d);                        // lumps / ledges on the faces
+            return h;
         }
 
         static float Smooth(float a, float b, float x) { float t = Mathf.Clamp01((x - a) / (b - a)); return t * t * (3f - 2f * t); }
@@ -228,9 +349,10 @@ namespace ZenoniaProto
         }
 
         /// <summary>Layer control of the whole terrain: inside the map the map splat, outside forest floor with patches, corridors dirt.</summary>
-        void BuildControl()
+        void BuildControl(IGameMap map)
         {
             int w = Mathf.RoundToInt((MapW + 2f * Apron) * SplatPx), h = Mathf.RoundToInt((MapH + 2f * Apron) * SplatPx);
+            float[] packed = Map3DGroundDetail.DirtPatches(map, this, w, h, SplatPx); // faint packed earth under trees / camps / nest (round 1)
             var px = new Color32[w * h];
             for (int y = 0; y < h; y++)
                 for (int x = 0; x < w; x++)
@@ -247,6 +369,8 @@ namespace ZenoniaProto
                     }
                     else { r = 0; g = (byte)(forestOut * 255f); b = 0; a = 0; }
                     if (!inside && IsCorridor(Mathf.FloorToInt(tx), Mathf.FloorToInt(ty))) r = 230;
+                    float pk = packed[y * w + x];
+                    if (pk > 0f && a < 20 && b < 60) r = (byte)Mathf.Max(r, Mathf.Min(255f, r + pk * 255f));
                     // walkable tiles inside the border rows that the corridor crosses (south gate) keep the map's own road
                     px[(h - 1 - y) * w + x] = new Color32(r, g, b, a); // texture row 0 = south (world y up)
                 }

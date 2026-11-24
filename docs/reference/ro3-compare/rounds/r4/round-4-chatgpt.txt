@@ -1,0 +1,266 @@
+liệt kê ngắn việc còn lại cho sau. Trả lời bằng CHỮ, không vẽ ảnh.
+ChatGPT said:
+TAURUS — ROUND 4 FINAL ART REVIEW
+
+PHÁN QUYẾT: ĐẠT. CHỐT KHÓA MÔI TRƯỜNG TAURUS V1.0.
+
+Sau khi so sánh ảnh Round 4 với bản cũ (ảnh 3) và hai ảnh tham chiếu Ragnarok 3 (ảnh 1–2), mình quyết định không yêu cầu Round 5.
+
+Game đã đạt hai mục tiêu chính: môi trường có chiều sâu 3D rõ ràng và zoom xa không còn bị mờ nghiêm trọng. Tuy nhiên, độ hoàn thiện mỹ thuật tổng thể vẫn chưa ngang RO3, đặc biệt ở địa hình ngoài map và sự đồng nhất giữa các công trình 2D/3D.
+
+1. Bảng điểm cuối
+
+Tiêu chí
+
+	
+
+Round 3
+
+	
+
+Round 4
+
+	
+
+Phán quyết
+
+
+
+
+Willowbrook Village
+
+	
+
+7.9
+
+	
+
+8.2/10
+
+	
+
+Đạt
+
+
+
+
+Clover Meadows
+
+	
+
+7.5
+
+	
+
+7.9/10
+
+	
+
+Đạt mục tiêu V1
+
+
+
+
+Độ nét nhân vật và môi trường
+
+	
+
+9.0
+
+	
+
+9.0/10
+
+	
+
+Đạt
+
+
+
+
+Zoom xa
+
+	
+
+8.0
+
+	
+
+8.5/10
+
+	
+
+Đạt
+
+Điểm là đánh giá thị giác tương đối so với RO3, không phải phép đo khách quan hay mức giống nhau tính bằng phần trăm.
+
+2. Duyệt từng hạng mục
+Guild Hall Hybrid 3D — 8.4/10
+
+Ảnh 4–5 cho thấy bản sửa đã cải thiện rõ tỷ lệ mái và mặt tiền.
+
+Duyệt. Những thay đổi đúng hướng:
+
+Mái giảm 14% giúp tường và khu cửa hiện rõ hơn.
+
+Cửa vòm lớn hơn, có má hốc và vùng tối phía trong nên đọc được chiều sâu.
+
+Banner và khiên-kiếm có độ nổi bật tốt hơn.
+
+Khi xoay camera 0°/90°/180°/270°, công trình vẫn giữ được hình khối, không còn phụ thuộc một góc nhìn cố định.
+
+Điểm còn thiếu là trang trí mặt tiền chưa phong phú bằng concept 2D gốc, chủ yếu do chưa có hai đèn lồng. Đây không phải lỗi bắt buộc sửa trước khi duyệt.
+
+Chốt: Giữ nguyên mesh và Atlas A/B. Hai đèn lồng có thể bổ sung ở giai đoạn polish.
+
+Willowbrook Village — 8.2/10
+
+Ảnh 6–7 cho thấy bố cục làng vẫn đọc tốt ở cả zoom mặc định và zoom xa.
+
+Đá lát quảng trường và đường đất có sự phân biệt vật liệu rõ.
+
+Cây sồi trung tâm vẫn là landmark.
+
+Mức ambient fill giảm 6% giúp các vật thể có thêm độ nổi.
+
+Bóng ở chân công trình và vật thể khiến chúng bớt cảm giác đặt nổi trên mặt đất.
+
+Điểm hạn chế là Guild Hall 3D có ánh sáng và khối tích rõ hơn các công trình billboard khác. Tuy nhiên, điều này chưa nghiêm trọng đến mức phải dựng lại cả làng.
+
+Chốt: Không chỉnh lại màu nền, ánh sáng tổng thể hoặc camera.
+
+Clover Meadows — 7.9/10
+
+Ảnh 8–11 cho thấy những điều chỉnh cuối đã đưa map tới mức có thể sản xuất và chơi chính thức.
+
+C01: giảm cỏ lẻ và bổ sung các cụm thấp giúp bãi quái bớt cảm giác rải vật trang trí ngẫu nhiên. Không cần thêm cây, đá lớn hay vật cản.
+
+Suối Rabbit Hills: phần bờ trũng, các cụm lau được gom và những viên đá dẹt khiến dòng suối tự nhiên hơn. Mức giảm lau 28% là hợp lý. Duyệt, không chỉnh thêm.
+
+Brambleback Nest: nền đất bị quần, thảm gai và cây ven khu vực tạo được không khí riêng. Boss nổi bật đủ tốt. Khúc gỗ đi xuyên không cần vẽ lại, miễn không gây nhầm lẫn khi né kỹ năng.
+
+Clover Meadows vẫn chưa có chiều sâu địa hình mạnh như khu rừng RO3 tham chiếu, nhưng đây là bãi săn tân thủ Taurus: cần thoáng, sáng, dễ đọc quái và vùng chiến đấu. Không nên hy sinh điều đó để tăng độ phức tạp môi trường.
+
+Độ nét và zoom xa — ĐẠT
+
+Ảnh 7 và 9 chứng minh ở zoom xa, nhân vật Starward, quái và props vẫn có silhouette rõ. Ảnh 12 cũng cho thấy nhân vật trong tư thế đi bộ không bị nhòe toàn thân như bản dùng render scale thấp trước đây.
+
+Giữ cấu hình hiện tại:
+
+Thông số
+
+	
+
+Giá trị khóa
+
+
+
+
+Camera Pitch
+
+	
+
+54°
+
+
+
+
+Camera FOV
+
+	
+
+38°
+
+
+
+
+Hero ở zoom xa nhất
+
+	
+
+51–53 px trên màn 720p
+
+
+
+
+PC Render Scale
+
+	
+
+100% native
+
+
+
+
+Dynamic Resolution PC
+
+	
+
+Off
+
+
+
+
+Sprite Filter
+
+	
+
+Bilinear
+
+
+
+
+Sprite Mipmap
+
+	
+
+Off
+
+
+
+
+Ground Texture
+
+	
+
+Trilinear, Aniso 8×
+
+Không cần tăng sharpen, không cần dùng Point Filter và không cần lùi camera xa hơn.
+
+3. Những việc để lại sau, không chặn nghiệm thu
+
+Guild Hall: thêm hai đèn lồng vàng ấm ở hai bên cửa, giữ nguồn sáng cục bộ nhẹ.
+
+Hybrid 3D: nếu tiếp tục mở rộng phong cách kiến trúc, thử dựng lò rèn trước thay vì chuyển tất cả nhà sang 3D cùng lúc.
+
+Clover Meadows: sau này có thể thêm biến thể môi trường theo thời gian trong ngày, nhưng không thay đổi vị trí quái, camp hay collider.
+
+Hiệu năng: ảnh có những thời điểm 41–50 FPS, vì vậy cần profiling khi có nhiều người chơi, quái, Pet và VFX cùng xuất hiện. Không nên mặc định rằng các con số này chỉ do môi trường.
+
+Gameplay visibility: kiểm tra thêm tình huống nhân vật bị cây che, boss Charge qua props và nameplate chồng nhau lúc nhiều quái tụ tập.
+
+4. Kết luận cuối cùng
+
+Môi trường có hình khối 3D
+
+Camera và zoom gần với cảm giác RO3
+
+Zoom xa không mờ nghiêm trọng
+
+Đạt chất lượng mỹ thuật ngang RO3
+
+Mình chính thức duyệt khóa Round 4 cho Willowbrook Village và Clover Meadows.
+
+Điểm quan trọng là giờ đây game đã có nền tảng môi trường 3D đủ tốt để phát triển tiếp, thay vì tiếp tục chạy vòng quanh giữa các bản chỉnh màu, cây và camera.
+
+Bước tiếp theo mình chọn: hoàn thiện Ancient Root Shrine và chuyển trọng tâm sang combat/VFX, tương tác nhân vật và trải nghiệm gameplay. Những phần đó sẽ tạo ra khác biệt lớn hơn đối với chất lượng tổng thể của game ở giai đoạn này.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+6 Medium
+Response complete
+0.35H

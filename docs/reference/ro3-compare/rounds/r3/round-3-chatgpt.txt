@@ -1,0 +1,560 @@
+thì nói rõ ĐẠT. Trả lời bằng CHỮ, không vẽ ảnh.
+ChatGPT said:
+ASTERIA — ROUND 3 FINAL REVIEW
+
+Phán quyết: ĐẠT mục tiêu kỹ thuật “khung cảnh 3D, zoom xa không mờ”. Chưa đạt hoàn toàn mức hoàn thiện mỹ thuật của Ragnarok 3.
+
+Vòng 3 là bước tiến quan trọng vì bạn đã xử lý được ba vấn đề cốt lõi: công trình có hình khối 3D thật, địa hình bắt đầu có độ sâu và nhân vật giữ được độ nét khi zoom xa.
+
+Mình không đề xuất làm lại toàn bộ môi trường nữa. Từ đây nên chuyển sang giai đoạn polish có chọn lọc, đặc biệt là Guild Hall, độ liền mạch giữa vật liệu 2D/3D và cách địa hình hiện lên trong camera gameplay.
+
+1. Điểm Vòng 3
+
+Tiêu chí
+
+	
+
+Vòng 1
+
+	
+
+Vòng 2
+
+	
+
+Vòng 3
+
+
+
+
+Làng Willowbrook
+
+	
+
+6.5
+
+	
+
+7.4
+
+	
+
+7.9
+
+
+
+
+Map săn Clover Meadows
+
+	
+
+5.8
+
+	
+
+6.9
+
+	
+
+7.5
+
+
+
+
+Độ nét
+
+	
+
+8.5
+
+	
+
+8.9
+
+	
+
+9.0
+
+
+
+
+Zoom xa
+
+	
+
+5.5
+
+	
+
+6.8
+
+	
+
+8.0
+
+Các điểm là đánh giá mức gần với hình ảnh tham chiếu RO3, riêng độ nét là đánh giá chất lượng hiển thị kỹ thuật từ ảnh chụp.
+
+Điều đã thay đổi thực sự: game không còn chủ yếu tạo cảm giác một tấm bản đồ phẳng có vật thể đặt lên. Ở những khu có công trình, bờ suối và vách đá, cảnh đã bắt đầu có chiều sâu không gian.
+
+2. Guild Hall Hybrid 3D — 7.6/10
+
+Ảnh 4–5: góc mặc định và xoay 40°
+
+Duyệt kỹ thuật dựng mesh. Chưa khóa mỹ thuật mặt tiền.
+
+Đây là phần mình muốn sửa rõ nhất trước khi đưa Guild Hall vào sản xuất hàng loạt.
+
+Những điểm đạt
+
+Mái xanh slate khớp màu nhận diện Guild Hall ban đầu.
+
+Mái chính và mái hồi tạo được khối nổi, đặc biệt khi xoay 40°.
+
+Móng đá và bậc thềm có thể tích, không còn là hình vẽ giả 3D.
+
+Bóng đổ từ công trình đã giúp nhà có trọng lượng hơn.
+
+Những điểm cần chỉnh
+
+Ưu tiên
+
+	
+
+Hạng mục
+
+	
+
+Điều chỉnh
+
+
+
+
+P0
+
+	
+
+Mái đang lấn át mặt tiền
+
+	
+
+Giảm chiều cao phần mái khoảng 10–12%, hoặc tăng chiều cao tường lộ ra thêm 0.3–0.4 m, giữ tổng chiều cao gần hiện tại
+
+
+
+
+P0
+
+	
+
+Hốc cửa chưa đủ sâu
+
+	
+
+Giữ cửa lõm 0.45 m nhưng làm rõ hai má hốc và mặt trong vòm, tạo vùng tối ở sâu bên trong
+
+
+
+
+P0
+
+	
+
+Mặt tiền thiếu điểm nhấn
+
+	
+
+Đưa 2 banner xanh lily ra phía trước trụ, tăng kích thước hiển thị khoảng 10–15%; làm rõ khung vòm gỗ và đèn hai bên
+
+
+
+
+P1
+
+	
+
+Crest hơi nhỏ so với mái
+
+	
+
+Tăng crest khiên-kiếm khoảng 15–20%, giữ nó trên đầu hồi, không để mái che
+
+
+
+
+P1
+
+	
+
+Bậc thềm và thảm đỏ
+
+	
+
+Làm thảm đỏ liền từ cửa qua các bậc; viền vàng mảnh, không để bậc đá trông như một khối xám đồng nhất
+
+
+
+
+P1
+
+	
+
+Chân công trình
+
+	
+
+Giữ AO hiện tại, thêm dải tiếp xúc tối nhẹ khoảng 0.1–0.15 m quanh chân móng, tránh halo đen
+
+Với góc mặc định ở ảnh 4, điểm yếu lớn nhất không phải texture atlas mà là hình khối mái che mất quá nhiều diện tích của tường và cửa. Trong sprite Guild Hall ban đầu, người chơi nhìn được ngay cửa vòm, phù điêu, đèn và banner. Bản mesh hiện tại làm mái đẹp hơn nhưng giảm sức hút của mặt tiền.
+
+Mình muốn đạt tỷ lệ nhìn thấy trong góc camera gameplay như sau:
+
+Mái: khoảng 40–45% silhouette hữu ích.
+
+Tường, cửa, đầu hồi và trang trí: khoảng 45–50%.
+
+Móng và bậc: khoảng 10–15%.
+
+Đây là tỷ lệ mục tiêu trong ảnh chiếu, không phải chia lại kích thước vật lý.
+
+Quan trọng: không mở rộng blocker 10 × 5 m, không sửa hệ UV và không cần vẽ lại Atlas A/B. Đây chủ yếu là sửa mesh placement, scale và cách bố trí chi tiết.
+
+3. Willowbrook Village — 7.9/10
+
+Ảnh 3 và 6
+
+Làng đã có bố cục khá hoàn chỉnh. Khi zoom xa, người chơi vẫn phân biệt được quảng trường trung tâm, cổng, lò rèn, khu Card và Guild Hall.
+
+Những điểm nên giữ nguyên
+
+Camera 54°, FOV 38°.
+
+Kích thước Starward hiện tại.
+
+Đá lát quảng trường sau Round 2.
+
+Cây sồi trung tâm và vòng đá.
+
+Đường đất, giếng, cột đèn, cầu.
+
+Màu xanh-vàng ấm chủ đạo Taurus.
+
+Hai điều còn thiếu so với RO3
+
+Thứ nhất: kiến trúc chưa đồng bộ hình khối. Guild Hall là 3D thật, trong khi nhiều công trình và props khác vẫn có cảm giác billboard. Sự khác biệt lộ rõ khi xoay camera.
+
+Mình chưa muốn chuyển toàn bộ làng thành 3D ngay. Sau khi Guild Hall được duyệt cuối, hãy thử một công trình nhỏ hơn — lò rèn — bằng cùng shader và quy tắc ánh sáng, rồi đánh giá.
+
+Thứ hai: ánh sáng đang khá đều. RO3 trong ảnh tham chiếu có độ tương phản rõ giữa quảng trường ngoài nắng, phần tối sát nhà và bóng công trình. Willowbrook vẫn sáng đều trên diện rộng.
+
+Thiết lập thử:
+
+Giữ exposure tổng thể.
+
+Giảm ambient fill khoảng 5–8%.
+
+Giữ sun direction hiện tại.
+
+Bóng công trình vẫn mềm, nhưng tăng độ rõ vùng tối sát nền khoảng 5–10%, tránh đổ bóng đen cứng.
+
+Không tăng Bloom.
+
+Không nên đồng thời hạ sáng cỏ và chỉnh lại tất cả màu vật liệu, vì sẽ khó xác định cải thiện đến từ đâu.
+
+4. Clover Meadows — 7.5/10
+
+Ảnh 7–12
+
+C01 — 7.2/10
+
+C01 vẫn là khu kém giống RO3 nhất, nhưng đã tốt hơn đáng kể.
+
+Cỏ bớt rải đều, đường đất có cạnh tự nhiên hơn, các nhóm quái nhìn rõ. Tuy nhiên, nền vẫn là một mặt cỏ khá lớn với ít cấu trúc địa hình trong tầm nhìn.
+
+Mình quyết định không sửa rows hay thêm blocker ở C01. Đây là bãi tân thủ, cần thông thoáng cho combat và di chuyển.
+
+Chỉ cần bổ sung 2–3 cụm cỏ thấp khác hình, diện tích mỗi cụm khoảng 1.5–3 m², và ưu tiên phân bố gần rìa bãi; giảm các chấm cỏ nhỏ còn lẻ tẻ khoảng 10% nếu thấy vẫn dày. Giữ trống khu đánh quái.
+
+Rabbit Hills / Mushroom Grove — 7.7/10
+
+Ảnh 9–10
+
+Khe suối âm cốt là quyết định đúng.
+
+Trong ảnh 9–10, suối không còn chỉ giống một dải texture xanh chạy qua mặt đất. Bờ tối và các đoạn nước trũng đã giúp phân biệt mặt đất khô, bờ và mặt nước.
+
+Nhưng mép bờ đang hơi giống một đường viền liên tục và các cụm lau khá đều. Chỉnh nhẹ:
+
+Giữ mặt nước ở Y = -0.6 m, đáy khe khoảng -1.15 m.
+
+Tăng biến thiên mặt bờ nhìn thấy theo từng đoạn khoảng ±0.10–0.15 m, không vượt phạm vi ô nước.
+
+Gom lau thành nhóm 2–4 cụm, chừa các đoạn bờ trống dài khoảng 3–5 m.
+
+Giảm khoảng 15–20% cụm lau nếu chúng đang được đặt sát đều ở cả hai bờ.
+
+Đổi khoảng 20–25% đá bờ sang các kích thước hoặc góc xoay khác nhau.
+
+Không cần hạ suối sâu thêm. Quá sâu sẽ biến suối hiền của Taurus thành hào phòng thủ.
+
+Bramble Thicket — 7.7/10
+
+Ảnh 11
+
+Khu này đã có chất lượng tốt hơn C01 nhờ viền rừng và sự chuyển màu giữa nền cỏ với đất nén.
+
+Giữ chiều cao các gò và mật độ cây hiện tại. Chỉ kiểm tra một việc: khi xoay camera, cây phải che bớt phần vách một cách tự nhiên, nhưng không tạo thành một bức tường lá kín hoàn toàn.
+
+Brambleback Nest — 8.0/10
+
+Ảnh 12
+
+Đạt về bố cục và nhận diện khu boss.
+
+Brambleback Matriarch có silhouette nổi bật. Nền đất bị quần, gai, cây và vách tạo được một khu vực riêng.
+
+Mình không yêu cầu thêm props hoặc tăng kích thước boss.
+
+Điểm đáng kiểm tra khi chạy game là khúc gỗ phía trước boss: nếu nó là vật trang trí đi xuyên, hãy đảm bảo lớp hiển thị và bóng không khiến người chơi tưởng đây là vật cản trong lúc né Charge. Nếu có xung đột, dời nó khỏi vùng chiến đấu trung tâm thay vì vẽ lại.
+
+5. Độ nét — 9.0/10
+
+ĐẠT. Khóa Sharpness V1.0.
+
+Ở ảnh 3–12, Starward và các quái vẫn có viền rõ khi hiển thị trong thế giới 3D. Không thấy hiện tượng mờ toàn cảnh nghiêm trọng như các vòng đầu.
+
+Thiết lập
+
+	
+
+Quyết định
+
+
+
+
+PC Render Scale
+
+	
+
+100%, giữ nguyên
+
+
+
+
+Character Sprite Filter
+
+	
+
+Bilinear
+
+
+
+
+Sprite Mipmap
+
+	
+
+Off
+
+
+
+
+Dynamic Resolution PC
+
+	
+
+Off
+
+
+
+
+Camera Pitch/FOV
+
+	
+
+54° / 38°
+
+
+
+
+Sprite RenderScale
+
+	
+
+Giữ nguyên
+
+
+
+
+Bloom
+
+	
+
+Không tăng
+
+
+
+
+Ground Texture
+
+	
+
+Trilinear + Aniso 8×
+
+Không cần tiếp tục thử Point Filtering hoặc tăng độ nét bằng shader sharpen.
+
+Lưu ý: 9.0/10 là điểm qua ảnh tĩnh. Vẫn cần kiểm tra chuyển động để phát hiện răng cưa hoặc rung cạnh khi camera xoay.
+
+6. Zoom xa — 8.0/10
+
+ĐẠT mục tiêu zoom xa không mờ.
+
+Ảnh làng zoom xa cho thấy nhiều công trình mà nhân vật vẫn nhận diện được. Ở Clover Meadows, quái và đường đất vẫn rõ khi camera lùi.
+
+Tuy nhiên, zoom xa không đồng nghĩa mọi vật phải giữ nhiều chi tiết như lúc zoom gần. Ở cỡ nhân vật khoảng 51–53 px trên màn hình 720p, những chi tiết nhỏ trên áo giáp, tóc và vũ khí sẽ tự nhiên bị giảm khả năng đọc.
+
+Chốt giữ nguyên:
+
+Hero tại zoom xa nhất: khoảng 51–53 px.
+
+Không mở rộng zoom thêm.
+
+Không tăng RenderScale riêng cho nhân vật khi zoom xa.
+
+Giữ độ phân giải render native PC.
+
+Nếu sau này kiểm thử trên màn hình độ phân giải thấp thấy tên quái chồng nhau, ưu tiên giảm mật độ nameplate hoặc chỉ hiện tên khi chọn mục tiêu/ở gần. Không cần phóng to mọi quái.
+
+7. Round 4 — Danh sách sửa cuối trước khi khóa Taurus
+
+Ưu tiên
+
+	
+
+Công việc
+
+	
+
+Mức sửa
+
+
+
+
+P0
+
+	
+
+Guild Hall: giảm độ áp đảo của mái, làm rõ cửa vòm và banner
+
+	
+
+Mesh/placement, không vẽ lại
+
+
+
+
+P0
+
+	
+
+Kiểm tra Guild Hall từ 0°, 90°, 180°, 270°
+
+	
+
+4 góc camera
+
+
+
+
+P1
+
+	
+
+Suối: phá nhịp lau và đá bờ quá đều
+
+	
+
+Giảm lau tối đa 15–20%
+
+
+
+
+P1
+
+	
+
+C01: hoàn thiện các cụm cỏ thấp
+
+	
+
+Giảm cỏ nhỏ lẻ khoảng 10% nếu cần
+
+
+
+
+P1
+
+	
+
+Lighting làng: thử giảm ambient fill
+
+	
+
+5–8%
+
+
+
+
+P1
+
+	
+
+Kiểm tra sprite khi di chuyển và xoay camera
+
+	
+
+Xác nhận không rung/mờ
+
+
+
+
+P2
+
+	
+
+Lò rèn hybrid 3D thử nghiệm
+
+	
+
+Sau khi khóa Guild Hall
+
+Đây đều là chỉnh sửa giới hạn. Không cần Round 4 kiểu đại tu môi trường.
+
+8. Phán quyết cuối
+
+Khung cảnh 3D có chiều sâu
+
+ĐẠT
+
+Zoom xa không bị mờ toàn cảnh
+
+ĐẠT
+
+Môi trường đạt mức mỹ thuật RO3
+
+CHƯA HOÀN TOÀN
+
+Mình đặt mục tiêu 8/10 mức tương đồng RO3 cho môi trường Taurus, không yêu cầu sao chép RO3 1:1 vì game của bạn vẫn giữ nhân vật sprite Storybook Heroes và quái dễ thương hơn.
+
+Hiện tại làng đã gần mốc đó, map săn còn khoảng cách nhỏ hơn trước nhưng vẫn thiếu một chút độ phong phú vật liệu, cấu trúc không gian và độ tự nhiên của hệ cây/địa hình.
+
+Quyết định art director: Khóa camera, zoom, sharpness, cấu trúc Clover Meadows và hệ suối 3D. Chỉ giữ Guild Hall ở trạng thái cần polish mặt tiền. Sau khi sửa Guild Hall, nên chuyển nguồn lực sang dungeon Ancient Root Shrine và các hạng mục gameplay còn thiếu thay vì tiếp tục chỉnh màu cỏ, đường và đá của Taurus.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+6 Medium
+Response complete
+0.35H

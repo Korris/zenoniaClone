@@ -1,0 +1,370 @@
+để nhân vật và cảnh sắc nét như RO3.
+Worked for 51s
+ChatGPT said:
+ASTERIA — VISUAL SHARPNESS V1.0
+Unity Rendering Review · Starward + Clover Meadows + Willowbrook Village · Mục tiêu: sắc nét như Ragnarok 3
+I. Phán quyết: Phải sửa pipeline render trước khi vẽ lại nhân vật
+Mình đồng ý: game của bạn đang có cảm giác mềm, thiếu nét so với Ragnarok 3. Điều này làm Starward trông kém đẹp hơn so với concept gốc, đặc biệt ở camera mặc định.
+Nhưng mình không nghĩ nguyên nhân chính là sprite Starward vẽ không đủ đẹp.
+Nhìn những ảnh trong game bạn đã gửi:
+Starward khi phóng gần có mắt, tóc, đường viền giáp và trang trí vàng khá rõ.
+Khi trở về camera mặc định, mặt, tóc và các đường viền nhỏ gần như hòa vào nhau.
+Nền cỏ và đường đất khá mềm; các bụi cỏ nhỏ vẫn có cạnh tương đối rõ nên đôi chỗ trông như chúng được dán trên nền.
+Ảnh RO3 có mặt đất và công trình rõ khối hơn; nhân vật giữ được độ tương phản tốt ngay cả khi có bóng và ánh sáng môi trường.
+Điều này gợi ý có hai loại vấn đề khác nhau:
+Mờ kỹ thuật: Texture bị giảm độ phân giải, lọc quá mềm, render ở độ phân giải thấp rồi upscale, hoặc hậu kỳ làm nhòe.
+Mờ thị giác: Nhân vật có quá nhiều chi tiết nhỏ so với cỡ hiển thị; nền và nhân vật thiếu khác biệt về độ tương phản, khiến mắt cảm nhận là không sắc nét dù pixel không hẳn bị blur.
+Mình muốn xử lý mờ kỹ thuật trước, sau đó mới sửa độ rõ của artwork.
+II. Sáu nguyên nhân cần kiểm tra theo thứ tự ưu tiên
+Nguyên nhân
+	
+Mức nghi ngờ
+	
+Biểu hiện
+Render resolution / Dynamic Resolution
+	
+Rất cao
+	
+Cả nhân vật, cây và nền mềm đồng loạt
+Texture filtering / mipmaps
+	
+Cao
+	
+Tóc, mắt, viền giáp mất nét khi zoom xa
+Texture compression / Max Size
+	
+Trung bình–cao
+	
+Chi tiết nhỏ bị bệt, màu và nét bị nhòe
+Bloom / TAA / FXAA / blur hậu kỳ
+	
+Trung bình–cao
+	
+Viền sáng có quầng, chi tiết mảnh bị làm mềm
+Kích thước sprite hiển thị
+	
+Cao
+	
+Nhân vật nhỏ nên không đủ pixel để đọc mặt và giáp
+Chất lượng art nền
+	
+Cao
+	
+Cỏ/đường thiếu kết cấu, dù render ở độ phân giải cao
+Đây là thứ tự ưu tiên kiểm tra, không phải kết quả đã xác định từ Unity Profiler hay Texture Inspector. Chỉ ảnh chụp thì chưa thể biết chính xác setting nào đang bật.
+III. Sprite 192 px có đủ sắc nét không?
+Có thể đủ, nhưng phải hiểu đúng 192 px là kích thước ô, không nhất thiết là chiều cao phần nhân vật được vẽ.
+Trong pipeline của bạn, Starward đã được thiết kế lớn hơn Warrior cũ khoảng 15%. Trước đó Warrior hiển thị khoảng 69 px trên màn hình 720p, nên mục tiêu Starward khoảng 79–80 px.
+Giả sử nhân vật thực sự chiếm 150–180 px chiều cao trong ô nguồn 192 px, khi hiển thị ở khoảng 80 px:
+150 px nguồn → 80 px màn hình: khoảng 1,88 pixel nguồn cho 1 pixel hiển thị.
+180 px nguồn → 80 px màn hình: khoảng 2,25 pixel nguồn cho 1 pixel hiển thị.
+Đây là mức downsample đáng kể. Không phải thiếu độ phân giải nguồn nghiêm trọng, nhưng những chi tiết chỉ rộng 1–2 px trong sprite gốc có thể biến mất khi thu nhỏ.
+Nếu render nội bộ chỉ ở 60–70% độ phân giải màn hình, chi tiết càng dễ mất trước khi upscale.
+Quyết định
+Giữ sprite nguồn hiện có, không bắt đầu bằng việc nâng ô 192 lên 384.
+Không phóng đại toàn bộ Starward chỉ để che lỗi render.
+Kiểm tra chất lượng downsample ở đúng cỡ gameplay.
+Với sprite sản xuất mới, thiết kế các nét quan trọng đủ lớn để còn đọc được khi hiển thị khoảng 80 px.
+Việc tăng 192 lên 384 bằng phép upscale ảnh cũ không tự tạo thêm chi tiết thật. Nếu sau khi sửa pipeline vẫn thiếu nét, ta mới cân nhắc vẽ nguồn lớn hơn cho những asset quan trọng.
+IV. Texture Import — Những setting mình muốn đổi ngay
+Unity cho phép điều khiển Filter Mode, mipmaps, Max Size và compression riêng cho từng texture. Point giữ nguyên texel nhưng có thể tạo răng cưa; Bilinear làm mượt lấy mẫu; Trilinear còn phối trộn giữa các cấp mipmap. 
+Unity Documentation
++2
+Preset A — Starward, quái và NPC dạng sprite
+Unity Setting
+	
+Giá trị thử chốt
+Texture Type
+	
+Sprite (2D and UI)
+Max Size
+	
+Không nhỏ hơn kích thước atlas nguồn
+Compression
+	
+None cho bản đối chứng
+Generate Mip Maps
+	
+Off cho bản đối chứng
+Filter Mode
+	
+Bilinear làm preset chính
+Filter Mode thử phụ
+	
+Point để xác định mức mềm do lọc
+Aniso Level
+	
+1 / không cần cho billboard
+Non Power of 2
+	
+None
+sRGB
+	
+On cho texture màu
+Texture Streaming / mip limit
+	
+Không để tự hạ độ phân giải sprite trong bản đối chứng
+Mình không chọn Point làm mặc định ngay.
+Starward là nhân vật chibi painterly, không phải pixel art. Point ở kích thước hiển thị không nguyên lần phóng có thể khiến tóc và mắt bị răng cưa hoặc giật pixel lúc đi bộ.
+Bilinear là điểm xuất phát hợp lý hơn, miễn là không bị cộng thêm các lớp làm mềm khác.
+Mình cũng không muốn tắt mipmaps cho toàn bộ texture 3D. Với texture nền nhìn xiên hoặc các vật thể xa, mipmaps và anisotropic filtering giúp giảm rung, moiré và aliasing. Tắt mipmaps chỉ nên là phép thử ưu tiên cho sprite nhân vật/các billboard cần độ rõ ở khoảng cách gần cố định.
+Preset B — Ground, đường đất, đá lát
+Unity Setting
+	
+Giá trị
+Compression
+	
+None để test, sau đó chọn định dạng chất lượng cao
+Filter Mode
+	
+Trilinear
+Generate Mip Maps
+	
+On
+Aniso Level
+	
+4–8 để thử
+Max Size
+	
+Không giảm so với texture gốc
+Texture Streaming
+	
+Bảo đảm mip level cần thiết được tải đầy đủ
+Ground texture 64 px/ô có giới hạn riêng: nếu bản gốc chỉ chứa ít kết cấu, nó vẫn trông mịn và phẳng ngay cả khi render chuẩn.
+Không dùng Point cho toàn bộ nền 3D chỉ để làm nó sắc hơn. Kết quả có thể là nền rung và lộ các ô vuông.
+Preset C — UI
+UI cần được xử lý riêng với game world:
+Giữ sprite UI ở độ phân giải phù hợp với Canvas scaling.
+Tránh render UI vào RenderTexture độ phân giải thấp rồi phóng lớn.
+Nếu có thể, render UI trực tiếp ở độ phân giải màn hình cuối.
+Không cho Bloom, TAA hoặc Color Grading của world tác động lên UI.
+Đây là một cách kiểm tra khá hữu ích: nếu chữ và icon HUD rất nét nhưng Starward/môi trường mờ, nhiều khả năng vấn đề nằm ở world render hoặc texture/material chứ không phải độ phân giải ảnh chụp cuối cùng.
+V. Render Scale — Ưu tiên kiểm tra số một
+Đây là yếu tố mình muốn lập trình viên kiểm tra đầu tiên.
+Ví dụ với màn hình 1280×720:
+Độ phân giải render nội bộ theo Render Scale
+60%
+70%
+85%
+100%
+Render thực tế
+1280 × 720
+Số pixel so với native
+100%
+60% Render Scale chỉ tạo ra 36% số pixel của ảnh native. Upscale không thể khôi phục hoàn toàn đường nét nhỏ đã mất.
+Nếu game đang dùng URP, kiểm tra trong URP Asset phần Render Scale, Upscaling Filter, và những thiết lập dynamic resolution. Một số phương pháp upscale còn thay đổi cơ chế anti-aliasing. 
+Unity Documentation
++1
+Nếu dùng Built-in RP, cần kiểm tra bất kỳ RenderTexture hoặc camera renderer trung gian nào, nhất là các hệ tự giảm resolution để tối ưu mobile.
+Quyết định: Trên PC, dùng render native 100% làm chuẩn kiểm tra chất lượng, không upscale từ 60–80%. Với mobile, tạo profile riêng sau khi đã xác định mức hao hiệu năng.
+Nếu Starward sắc nét rõ rệt khi chuyển render nội bộ từ 70% lên 100%, không cần vẽ lại nhân vật để khắc phục lỗi đó.
+VI. Post-processing — Tắt những hiệu ứng có thể làm mềm hình
+Mình đề xuất một preset kiểm thử hoàn toàn sạch:
+Hiệu ứng
+	
+Test đầu tiên
+TAA
+	
+Off
+FXAA
+	
+Off
+SMAA
+	
+Off để lấy baseline, thử sau
+Motion Blur
+	
+Off
+Depth of Field
+	
+Off
+Bloom
+	
+Off
+Chromatic Aberration
+	
+Off
+Film Grain
+	
+Off
+Sharpening
+	
+Off ban đầu
+Dynamic Resolution
+	
+Off
+Upscaling
+	
+Native / không upscale
+Sau khi có hình baseline, khôi phục hiệu ứng từng cái một.
+Anti-aliasing không nên bật tất cả cùng lúc.
+Nếu đang sử dụng URP, Unity có các lựa chọn FXAA, SMAA, TAA và MSAA tùy camera/pipeline; TAA có thêm cơ chế sharpening trong một số phiên bản. 
+Unity Documentation
++1
+Mình ưu tiên như sau:
+PC: Thử SMAA, sau đó so với MSAA nếu pipeline phù hợp. Chỉ dùng TAA nếu chuyển động và tán lá thật sự cần nó, đồng thời không gây nhòe sprite.
+Mobile: Thử FXAA hoặc MSAA mức phù hợp hiệu năng, không mặc định bật TAA.
+Sprite nhân vật: Nếu world đang cần TAA, có thể cân nhắc tách nhân vật ra một pass không chịu TAA, nhưng đây là thay đổi kỹ thuật phức tạp hơn, chỉ nên làm khi đã xác định TAA là nguyên nhân.
+Có nên thêm Sharpen shader?
+Có, nhưng chỉ như bước cuối.
+Mình đề xuất thử Contrast Adaptive Sharpening (CAS) mức nhẹ, ví dụ khoảng 0,15–0,25 trên thang chuẩn hóa 0–1 nếu implementation sử dụng thang đó.
+Đó là giá trị thử nghiệm, không phải setting tồn tại với cùng tên và cùng thang ở mọi phiên bản Unity.
+Không nên tăng sharpening quá cao vì sẽ tạo viền trắng/đen quanh tóc, giáp và các chi tiết vàng, làm Starward trông như bị viền kép.
+VII. Vấn đề riêng của Starward: đọc tốt ở 80 px hay chưa?
+Bản Starward mới có chất lượng concept tốt hơn Warrior cũ. Nhưng trong ảnh camera mặc định, những thành phần sau khá nhỏ:
+Đường viền mắt và lông mày.
+Các mảng giáp vàng quanh ngực.
+Khóa thắt lưng.
+Hoa văn vàng ở vạt áo.
+Các chi tiết nhỏ trên kiếm và khiên.
+Đây là vấn đề thiết kế theo kích thước sử dụng, không hoàn toàn là blur kỹ thuật.
+Mình muốn khóa quy tắc mới cho bộ Character Art Direction:
+Thành phần
+	
+Quy tắc khi thu nhỏ
+Đầu và tóc
+	
+Silhouette rõ, tránh quá nhiều lọn siêu nhỏ
+Mắt
+	
+Vẫn phân biệt được mắt và lông mày
+Màu giáp
+	
+Giữ khối xanh–trắng–vàng lớn
+Hoa văn ngực
+	
+Một biểu tượng chính nổi bật
+Hoa văn vạt áo
+	
+Giảm nét nhỏ nếu tạo nhiễu
+Kiếm
+	
+Lưỡi có bề rộng đủ rõ
+Khiên
+	
+Biểu tượng sao rõ ở camera mặc định
+Viền ngoài
+	
+Không bị mất khi downsample
+Đặc biệt, khi làm kiếm và khiên Starward mới, phải kiểm tra chúng ngay ở kích thước thật. Không chỉ duyệt khi zoom lên 400%.
+VIII. Kế hoạch kiểm thử sắc nét trong Unity
+Mình muốn đội code làm một bài A/B đơn giản tại cùng vị trí Willowbrook và Clover Meadows.
+SHARPNESS TEST — 6 ảnh chụp cần xuất
+Cùng độ phân giải 1280×720 hoặc native của thiết bị, cùng camera, Starward đứng yên, không đổi zoom. Lưu PNG trực tiếp từ framebuffer/game capture, tránh nén video.
+A — Current: Giữ toàn bộ setting hiện tại.
+B — Native: Chỉ đổi render nội bộ lên 100%, tắt dynamic resolution.
+C — Clean: Giữ B, tắt toàn bộ post-processing và AA.
+D — Sprite Quality: Giữ C, set Starward compression None, mipmaps Off, Bilinear.
+E — Filter Test: Giữ D, đổi riêng Starward sang Point để so mức nét/răng cưa.
+F — Final Candidate: Quay về Bilinear, khôi phục từng hiệu ứng cần thiết, thêm AA hoặc sharpening nhẹ.
+Cách đọc kết quả
+Kết quả
+	
+Nguyên nhân nhiều khả năng
+B nét hơn A rõ rệt
+	
+Render resolution / upscale
+C nét hơn B
+	
+Post-processing hoặc AA
+D nét hơn C
+	
+Import, mipmaps, compression
+E nét hơn D nhưng răng cưa
+	
+Bilinear/downsampling đang làm mềm
+A–F gần như giống nhau
+	
+Hạn chế từ art gốc, kích thước hiển thị hoặc chất lượng texture nền
+Nếu sprite nhập qua atlas, phải kiểm tra setting của atlas được build thực tế, không chỉ texture nguồn. Một atlas có platform override giảm Max Size vẫn có thể làm mất chi tiết dù file PNG gốc rất nét.
+Một nguyên nhân phụ cũng cần loại trừ là texture bị làm mềm do atlas padding/extrusion không đủ, alpha ở mép sprite hoặc do scale không nguyên pixel khi di chuyển. Những lỗi này thường thấy ở viền tóc, vai và áo choàng hơn là toàn bộ bề mặt.
+IX. Preset mình chốt cho Asteria
+Hạng mục
+	
+PC High Quality
+	
+Mobile Balanced
+Render resolution
+	
+100% native
+	
+Mục tiêu 100%, chỉ giảm khi cần
+Starward / NPC filter
+	
+Bilinear
+	
+Bilinear
+Sprite mipmaps
+	
+Off trong thử nghiệm, giữ nếu tốt
+	
+Tương tự
+Sprite compression
+	
+None khi QA, sau đó high-quality
+	
+ASTC chất lượng cao nếu hỗ trợ
+Ground filter
+	
+Trilinear
+	
+Trilinear
+Ground mipmaps
+	
+On
+	
+On
+Ground anisotropic
+	
+8× thử nghiệm
+	
+2–4× tùy GPU
+Motion Blur / DOF
+	
+Off
+	
+Off
+Bloom
+	
+Rất nhẹ
+	
+Rất nhẹ hoặc Off
+TAA
+	
+Off mặc định
+	
+Off
+AA ưu tiên thử
+	
+SMAA / MSAA
+	
+FXAA / MSAA
+Sharpen
+	
+CAS nhẹ nếu cần
+	
+Chỉ dùng nếu đủ hiệu năng
+Texture streaming
+	
+Không hạ mip gần camera
+	
+Quản lý theo bộ nhớ
+Đây là preset kiểm tra ưu tiên chất lượng, không phải cấu hình tối ưu hiệu năng đã xác nhận cho mọi điện thoại.
+X. Quyết định sản xuất: Asset nào cần vẽ lại?
+Mình chia rõ:
+Không vẽ lại ngay: Starward idle, walk, tóc, hệ Monster Card, quái Taurus, nhà Guild và props đã duyệt. Hãy bảo đảm chúng đang được Unity hiển thị đúng chất lượng nguồn trước.
+Có thể cần làm lại sau: Texture cỏ, đường đất, đá lát và nước nếu bản PNG nguồn đã quá mềm, thiếu chi tiết hoặc không có kết cấu vật liệu tốt. Các texture 64 px/ô hiện nay có thể là giới hạn chất lượng thực sự của nền, ngay cả khi render 100%.
+Với cây: Kiểm tra texture/filter/atlas và shader trước. Nếu vẫn thấy lá quá bệt hoặc silhouette vụn ở kích thước gameplay, lúc đó mới chỉnh lại texture tán cây.
+XI. Phán quyết cuối
+Mình quyết định không vẽ lại Starward vì lý do mờ trước khi chạy Sharpness Test.
+Thứ tự sửa chính thức là:
+Render native 100%, bỏ dynamic resolution/upscale không cần thiết.
+Tắt toàn bộ hậu kỳ để xác định có blur kỹ thuật hay không.
+Kiểm tra sprite import, mipmaps, texture atlas, compression và filtering.
+Chọn anti-aliasing phù hợp; chỉ thêm sharpening rất nhẹ.
+Sau đó mới đánh giá lại chất lượng texture nền và độ rõ của chi tiết Starward ở camera mặc định.
+Mục tiêu không phải làm mọi cạnh cứng như pixel art, mà là hình ảnh trong trẻo, sắc nét, có chi tiết vật liệu rõ, viền nhân vật sạch và không bị phủ một lớp mềm toàn cảnh.
+Đây là phần nên sửa trước cả Camera V3.1 và Terrain V3, vì nếu render đang mờ, những vách núi, cây và texture mới sản xuất cũng sẽ tiếp tục trông mờ.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

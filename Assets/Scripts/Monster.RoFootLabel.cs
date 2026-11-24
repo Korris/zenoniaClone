@@ -29,6 +29,8 @@ namespace ZenoniaProto
         static readonly Dictionary<string, Sprite> roPills = new Dictionary<string, Sprite>();
 
         SpriteRenderer roTrack, roFill;
+        /// <summary>Parent of the label pieces, scaled each frame by RoLabelZoom so the text keeps its 2D on-screen size on the 2.5D / 3D cameras.</summary>
+        Transform roRoot;
         TextMesh roName;
         MeshRenderer roNameMr;
         readonly MeshRenderer[] roOutlineMr = new MeshRenderer[8];
@@ -52,13 +54,32 @@ namespace ZenoniaProto
         {
             Sprite s = RoPill(piece, heightUnits, pivot);
             SpriteRenderer sr = ProceduralSprites.Child(transform, name, s != null ? s : ProceduralSprites.White(pivot.x == 0f));
+            sr.transform.SetParent(roRoot, false);
             if (s != null) sr.drawMode = SpriteDrawMode.Sliced;
+            Material m = RoBarMaterial();
+            if (m != null) sr.sharedMaterial = m;
             return sr;
+        }
+
+        static Material roBarMat;
+        static bool roBarMatTried;
+
+        /// <summary>No-depth sprite material for the HP bar: on the Map3D maps the terrain mesh hid the bar under the feet (the name text never depth-tests).</summary>
+        static Material RoBarMaterial()
+        {
+            if (roBarMatTried) return roBarMat;
+            roBarMatTried = true;
+            Shader s = Resources.Load<Shader>("Shaders/RoLabelOverlaySprite");
+            if (s != null && s.isSupported) roBarMat = new Material(s) { name = "RoLabelOverlaySprite" };
+            else Debug.LogWarning("[ZenoniaProto] monster foot label: no RoLabelOverlaySprite shader, HP bar may hide under 3D terrain");
+            return roBarMat;
         }
 
         void BuildRoFootLabel()
         {
             roBuilt = true;
+            roRoot = new GameObject("RoFootLabel").transform;
+            roRoot.SetParent(transform, false);
             roTrack = RoPart("RoBarTrack", "hud-name-hp-track", RoBarH, new Vector2(0.5f, 0.5f));
             roFill = RoPart("RoBarFill", "hud-bar-red", RoBarH - RoFillInset * 2f, new Vector2(0f, 0.5f));
             string plain = "Lv." + def.ItemLevel + " " + def.Name;
@@ -78,7 +99,7 @@ namespace ZenoniaProto
         TextMesh RoText(string name, string text, Color color)
         {
             var go = new GameObject(name);
-            go.transform.SetParent(transform, false);
+            go.transform.SetParent(roRoot != null ? roRoot : transform, false);
             TextMesh t = go.AddComponent<TextMesh>();
             t.font = RoSoftTheme.Bold;
             t.fontSize = 40; // glyphs rasterised above their on-screen size at 1080p, sharp at 1440p
@@ -99,6 +120,8 @@ namespace ZenoniaProto
             bool show = state != State.Dying;
             SetRoFootLabel(show);
             if (!show) return;
+            float k = RoLabelZoom();
+            roRoot.localScale = new Vector3(k, k, 1f);
             // Front-to-back by the map row of the feet: up to 48 rows x 4 layers stays under RoLabelBase + 200 (< WorldBuilder's debug overlay).
             int row = Mathf.Clamp(Mathf.RoundToInt((GameConfig.MapH - y) / GameConfig.TileUnits), 0, 49);
             int o = RoLabelBase + row * 4;
@@ -121,6 +144,19 @@ namespace ZenoniaProto
             roTrack.sortingOrder = o + 2;
             roFill.sortingOrder = o + 3;
             MonsterFootLabelCrowd.Register(this); // crowd / HUD pass after every monster has placed its label
+        }
+
+        /// <summary>
+        /// Label scale that undoes the perspective camera's pull-back (View25D.ViewScale) and the wheel zoom-out, so "Lv.N Name" stays ~11 px tall at 720p
+        /// like on the 2D map (24/11 RO3 look loop: on the 3D camera the text fell to 9 px at the default zoom and 6 px zoomed out, an unreadable smudge).
+        /// Never below 1 (zooming in does not shrink it), capped at 2.2.
+        /// </summary>
+        static float RoLabelZoom()
+        {
+            Camera cam = Camera.main;
+            if (cam == null || !View25D.Active) return 1f;
+            float zoom = cam.orthographicSize / Mathf.Max(1f, DevStartConfig.CameraViewHeight() * 0.5f);
+            return Mathf.Clamp(View25D.ViewScale * zoom, 1f, 2.2f);
         }
 
         static readonly Vector3[] roCorner = new Vector3[2];

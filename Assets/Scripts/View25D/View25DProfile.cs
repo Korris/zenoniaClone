@@ -178,6 +178,20 @@ namespace ZenoniaProto
             TiltDeg = 38f, FovDeg = 32f, HeroPx = 69f, FeetY = 389f, Ro3Look = true, ScreenHaze = 0.03f, Vignette = 0.06f, Dapple = 0f, UnitSunStrength = 0.30f, // round 2: units take a bit more scene light
         };
 
+        /// <summary>Camera V3.1 on the Taurus 3D maps (ChatGPT 24/11/2026, docs/reference/ro3-compare/ro3-camera-terrain-analysis-v2-chatgpt.txt section III):
+        /// pitch 54 deg from the horizontal (tilt 36; 50 is the second test), vertical FOV 38, hero 7-9 % of the screen height (65 px at 720p = 9 %),
+        /// feet 55 % from the top (396 px). Field = the standard; the village sits 5 % farther (hero 62 px); a boss near eases the camera back 10 %
+        /// (View25DBossZoom). Willowbrook Meadows' 3D prototype keeps <see cref="Map3DFeel"/>.</summary>
+        public static readonly View25DProfile Map3DTaurusField = MakeMap3DTaurus(65f);
+        public static readonly View25DProfile Map3DTaurusVillage = MakeMap3DTaurus(65f / 1.05f);
+
+        static View25DProfile MakeMap3DTaurus(float heroPx)
+        {
+            var p = (View25DProfile)Map3DFeel.MemberwiseClone();
+            p.TiltDeg = 36f; p.FovDeg = 38f; p.HeroPx = heroPx; p.FeetY = 396f;
+            return p;
+        }
+
         /// <summary>Taurus village / meadows (phase 04, 24/11/2026): Ro3Feel with the apron forest drawn from the maps' own golden Taurus trees and bushes, not the green wf* set.</summary>
         public static readonly View25DProfile TaurusField = MakeTaurusField();
 
@@ -186,13 +200,17 @@ namespace ZenoniaProto
             var p = (View25DProfile)Ro3Feel.MemberwiseClone();
             p.ApronTall = new[] { "tauMeadowOakTree", "tauMeadowOakMediumTree", "tauYoungTree", "tauMeadowOakTree", "tauElderwoodOakTree", "tauMeadowOakMediumTree" };
             p.ApronSmall = new[] { "tauLowBush", "tauWideBush", "tauRockCluster", "tauLowBush", "tauFern", "tauPebbles" };
+            // Taurus V2 "Golden Adventure Daylight" (ChatGPT, docs/reference/taurus-v4-art/palette): sun #FFF1CF, soft green shade #52694F, fog off in practice
+            p.SunColor = Hex(0xFF, 0xF0, 0xD0); p.SunStrength = 0.42f; p.ShadeColor = Hex(0x53, 0x6A, 0x4D); p.CrownShadeColor = Hex(0x5E, 0x8A, 0x36);
+            p.FogColor = Hex(0xDC, 0xE6, 0xC9); p.FogMax = 0.10f;
             return p;
         }
 
         public static View25DProfile For(string mapId)
         {
+            if (Map3D.IsMap3D(mapId))
+                return mapId == TauWillowbrookVillageMap.MapId ? Map3DTaurusVillage : mapId == TauCloverMeadowsMap.MapId ? Map3DTaurusField : Map3DFeel;
             if (mapId == TauWillowbrookVillageMap.MapId || mapId == TauCloverMeadowsMap.MapId) return TaurusField;
-            if (Map3D.IsMap3D(mapId)) return Map3DFeel;
             if (mapId == SunkenReliquaryMap.MapId) return Prototype;
             if (mapId == RootburrowMap.MapId) return DarkDungeon1F;
             if (mapId == RootburrowB2Map.MapId) return DarkDungeon2F;

@@ -1,0 +1,658 @@
+Trả lời bằng CHỮ, không vẽ ảnh.
+Worked for 38s
+ChatGPT said:
+ASTERIA — ROUND 1 REVIEW
+
+Camera & World Depth V3.1 + Sharpness V1.0 · So sánh trực tiếp với Ragnarok Online 3
+
+I. Phán quyết
+
+Vòng 1 ĐẠT về hướng kỹ thuật, nhưng CHƯA ĐẠT mục tiêu hình ảnh RO3. Mình duyệt camera mặc định 54°, render native 100% và hệ vách đá để tiếp tục phát triển. Không cần quay lại cấu hình cũ.
+
+Điều quan trọng nhất từ bộ ảnh này: lỗi mờ đã được cải thiện đáng kể, nhưng khoảng cách với RO3 hiện nằm chủ yếu ở vật liệu môi trường, cấu trúc địa hình và cách phân bố ánh sáng.
+
+Làng — giống RO3
+
+6.5/10
+
+Bố cục tốt, kiến trúc thiếu khối
+
+Map săn — giống RO3
+
+5.8/10
+
+Thiếu phân tầng địa hình trong cảnh chính
+
+Độ nét kỹ thuật
+
+8.5/10
+
+Tiến bộ lớn từ native rendering
+
+Zoom xa nhất — giống RO3
+
+5.5/10
+
+Rộng nhưng trống và nhân vật quá nhỏ
+
+Điểm đánh giá thị giác dựa trên ảnh tĩnh ở các góc chụp được cung cấp; không phải phép đo mức tương đồng ảnh tự động. Ảnh RO3 cũng có UI, video capture và nhân vật ở khoảng cách khác nhau.
+
+II. Sharpness Test A–F — Mình chọn D
+
+Đây là quyết định rõ nhất của vòng này.
+
+Phương án
+
+	
+
+Điểm nét
+
+	
+
+Nhận xét
+
+
+
+
+A — 70% Trilinear
+
+	
+
+5.5
+
+	
+
+Mờ, chi tiết tóc và giáp bị hòa
+
+
+
+
+B — Native Trilinear
+
+	
+
+7.0
+
+	
+
+Rõ hơn A, nhưng vẫn mềm
+
+
+
+
+C — Native, tắt Bloom/Haze
+
+	
+
+7.5
+
+	
+
+Tăng độ trong, cải thiện viền
+
+
+
+
+D — Bilinear, Mip Off
+
+	
+
+9.0
+
+	
+
+Cân bằng tốt nhất giữa nét và mượt
+
+
+
+
+E — Point
+
+	
+
+8.0
+
+	
+
+Nét cứng nhưng có răng cưa
+
+
+
+
+F — Trilinear, Bias −0.6
+
+	
+
+8.5
+
+	
+
+Nét hơn B nhưng hơi gắt và dễ rung khi chuyển động
+
+CHỐT D cho Starward, quái, NPC và các sprite nhân vật.
+
+Trong crop D, khuôn mặt, tóc bạc, các đường giáp và viền khiên tương đối sạch. E cho cảm giác sắc hơn ở vài đường nhưng cạnh pixel cứng; F tạo cảm giác nét song không đủ lợi ích để đánh đổi nguy cơ shimmering khi đi bộ.
+
+Preset sprite chính thức
+
+Thông số
+
+	
+
+Giá trị
+
+
+
+
+Filter Mode
+
+	
+
+Bilinear
+
+
+
+
+Mip Maps
+
+	
+
+Off
+
+
+
+
+Compression
+
+	
+
+None khi QA; bản phát hành dùng chất lượng cao đã kiểm tra
+
+
+
+
+Mip Bias
+
+	
+
+0
+
+
+
+
+Render Resolution PC
+
+	
+
+100% Native
+
+
+
+
+Dynamic Resolution PC
+
+	
+
+Off
+
+
+
+
+Bloom
+
+	
+
+Rất nhẹ, không làm mờ nhân vật
+
+
+
+
+TAA
+
+	
+
+Off mặc định
+
+
+
+
+Atlas
+
+	
+
+Không giảm Max Size, không phát sinh mipmaps ngoài ý muốn
+
+Không áp preset này lên ground và cliff 3D. Ground tiếp tục Trilinear, Mip On và Aniso 8×.
+
+Mình khóa Sharpness V1.0 cho PC tại đây. Trước khi release chỉ cần kiểm tra D khi nhân vật chạy liên tục và tại hai mức zoom.
+
+III. Camera và zoom — Giữ 54°, FOV 38
+
+Mình xem ảnh 4–7, quyết định:
+
+Camera mặc định hiện tại đã hợp lý hơn bản cũ. Không cần hạ tiếp xuống 50° hoặc zoom xa hơn.
+
+Thông số
+
+	
+
+Quyết định vòng 2
+
+
+
+
+Pitch
+
+	
+
+Giữ 54°
+
+
+
+
+FOV
+
+	
+
+Giữ 38° Perspective
+
+
+
+
+Hero mặc định
+
+	
+
+Giữ khoảng 65 px tại 720p
+
+
+
+
+Vị trí hero
+
+	
+
+Giữ chân tại khoảng 55% chiều cao
+
+
+
+
+Town zoom
+
+	
+
+Giữ xa hơn field 5%
+
+
+
+
+Boss zoom
+
+	
+
+Giữ lùi 10%
+
+
+
+
+Zoom xa thủ công
+
+	
+
+Giới hạn để hero còn ≥50–52 px tại 720p
+
+Ở ảnh 5 và 7, zoom xa nhất làm nhân vật quá nhỏ, còn các khoảng trống lại hiện ra nhiều hơn. RO3 không chỉ cho người chơi thấy diện tích lớn; họ dùng chính diện tích đó để trình bày vách núi, kiến trúc và các lớp vật thể.
+
+Vì vậy, mình muốn giảm độ zoom-out tối đa hiện tại nếu nó khiến hero thấp hơn khoảng 50 px, thay vì duy trì một mức xa chỉ để thấy nhiều ô đất.
+
+Không thay RenderScale của Starward. Nếu phóng Starward riêng trong lúc quái và kiến trúc không đổi, ta lại phá tỷ lệ đã thống nhất.
+
+IV. Willowbrook Village — 6.5/10
+
+Ảnh 4 có bố cục khá đẹp: quảng trường, cây sồi, giếng, ghế, lối đi và các công trình không bị rối. Ảnh 5 zoom xa cũng cho thấy làng có quy hoạch rõ.
+
+Nhưng so với RO3 trong thành, Willowbrook còn ba điểm yếu.
+
+1. Quảng trường thiếu vật liệu đá thật — P0
+
+RO3 có đá lát không đều, mỗi viên có sáng/tối và khe rõ. Willowbrook hiện tại vẫn hơi giống một lớp texture sáng trải trên mặt đất.
+
+Yêu cầu vòng 2:
+
+Giữ nguyên màu tổng thể đá lát.
+
+Tăng tương phản khe đá khoảng 10–15%.
+
+Thêm 3–4 biến thể đá lát khác nhau, phân bố theo seed cố định.
+
+Thêm dirt decal rất nhẹ ở chân cây, chân giếng, chân cột đèn.
+
+Giảm cảm giác các phiến đá lặp hoàn toàn giống nhau.
+
+Chưa cần thay công nghệ ground tile.
+
+2. Công trình chưa có đủ chiều sâu — P0
+
+Ở ảnh RO3, công trình bên phải có mái nhô, tường đứng, ô cửa lõm và bóng kiến trúc.
+
+Ở Willowbrook, Guild và lò rèn vẫn có cảm giác tranh vẽ đẹp đặt trên nền hơn là công trình có thể tích.
+
+Mình chọn Guild Hall làm thử nghiệm hybrid 3D đầu tiên:
+
+Nền móng cao khoảng 0,25–0,35 m.
+
+Tường bên có độ sâu thực.
+
+Mái nhô khỏi tường khoảng 0,35–0,5 m.
+
+Hốc cửa có chiều sâu khoảng 0,25–0,4 m.
+
+Bóng chân tường và bóng mái được tính từ cùng nguồn sáng.
+
+Đây là thông số mục tiêu hình học cho bản thử, không yêu cầu thay footprint và collision hiện tại.
+
+3. Cây trung tâm và bóng — P1
+
+Cây sồi hiện tại có hình khối khá tốt, nhưng tán lá hơi sắc, bóng mặt đất chưa giúp gốc cây hòa vào quảng trường.
+
+Không vẽ lại cây ngay. Hãy thêm contact AO sát gốc, chỉnh bóng tán và kiểm tra cây dưới ánh sáng trung tính.
+
+Kết luận Willowbrook: Có thể nâng từ 6.5 lên khoảng 7.5/10 mà không phải thay toàn bộ bộ art, nếu sửa tốt đá lát, Guild và bóng công trình.
+
+V. Clover Meadows — 5.8/10
+
+Đây là phần cần đầu tư nhiều hơn.
+
+Điểm tốt của vòng 1
+
+Ảnh 8 — Brambleback Nest — cho thấy vách đá đã tạo được một ranh giới không gian thật. Boss có kích thước tốt so với Starward; cây và vách giúp khu vực có cảm giác được bao quanh.
+
+Mình duyệt hệ cliff greybox làm nền tảng V3.1.
+
+Nhưng ở ảnh 6–7, nhìn từ camp C01, địa hình vẫn rất phẳng.
+
+Đây chính là vấn đề: bạn đã thêm đồi núi, nhưng người chơi ở các khu vực chính chưa cảm nhận được chúng.
+
+1. Cần đưa địa hình lớn vào bố cục camera — P0
+
+Mình không yêu cầu nâng toàn bộ mặt đất combat.
+
+Thay vào đó:
+
+Ở C01, Rabbit Hills và Mushroom Grove, bố trí để khi người chơi đứng giữa camp, một phần rìa khung hình có thể thấy đồi, vách thấp hoặc cụm rừng nhiều tầng.
+
+Tránh vách đá chỉ xuất hiện sát mép bản đồ.
+
+Giữ hành lang combat thoáng.
+
+Thử một vách đá thấp 1,5–2,5 m ở rìa Mushroom Grove, không chắn đường.
+
+Bổ sung một lớp đồi rừng phía xa ở phía bắc và đông bắc.
+
+Mục tiêu thử nghiệm là từ ít nhất 3/5 vị trí chụp đại diện của map, nhìn thấy một khối địa hình cao hơn mặt chiến đấu, thay vì chỉ thấy cỏ kéo dài.
+
+Không cần để vách chiếm quá nhiều khung hình. Chỉ cần đủ để người chơi nhận ra vùng đất có hình dạng.
+
+2. Cỏ đang quá đều và có quá nhiều chi tiết nhỏ — P0
+
+Đây là khác biệt lớn nhất với ảnh RO3 ngoài map.
+
+Trong RO3, cỏ mọc thành mảng không đều: dưới cây dày hơn, gần đường thưa hơn, vùng đất ẩm có màu khác.
+
+Trong Clover Meadows, rất nhiều cụm cỏ vàng nhỏ xuất hiện với khoảng cách tương tự nhau, tạo cảm giác procedural scattering.
+
+Yêu cầu vòng 2:
+
+Giảm 35–45% số cụm cỏ vàng nhỏ trong vùng combat thoáng.
+
+Gom khoảng 60–70% số cụm cỏ còn lại thành các patch, thay vì phân bố đều.
+
+Tạo ground macro variation ở thang 6–12 m.
+
+Bổ sung những vùng đất nén rất nhạt dưới cây và quanh camp.
+
+Giữ một số vùng cỏ sạch để telegraph/VFX dễ đọc.
+
+Không tăng mật độ cây một cách đồng loạt. RO3 có rừng dày ở rìa nhưng không phải mọi ô đất đều đầy cây.
+
+3. Đường đất đang quá sạch — P0
+
+Ảnh 6–7 có đường cong dễ nhìn nhưng mép đường và bề mặt vẫn đơn giản.
+
+Mình muốn:
+
+Vệt đất nén nhẹ ở giữa đường.
+
+Mép cỏ xen vào đường thành các đoạn không đều.
+
+Thêm một ít dấu mòn, đá vụn chìm, không thêm nhiều sỏi nổi.
+
+Tạo chuyển tiếp đất–cỏ rộng khoảng 0,3–0,5 m ở nơi phù hợp.
+
+Màu đường đang đủ ấm; không cần tăng saturation.
+
+4. Vách đá — P1
+
+Vách trong ảnh 8 là bước tiến tốt, nhưng chất liệu đá chưa thật sự đạt RO3. Mặt đá nhìn còn hơi đơn giản, phần nối với thảm cỏ chưa tự nhiên.
+
+Cần:
+
+Tăng các khối đá lớn và mặt phẳng sáng/tối.
+
+Bổ sung biến đổi rêu ở chân và khe vách.
+
+Tránh triplanar làm mất hướng vân đá hoặc khiến mặt đá quá đồng nhất.
+
+Có shadow/AO tại chân vách.
+
+Chân vách chuyển mềm sang đất, bụi, rễ cây.
+
+Không vẽ lại toàn bộ Cliff Mesh. Chỉnh material, normal và decal trước.
+
+VI. Boss Brambleback Nest — 7.2/10
+
+Đây là khu tốt nhất trong các ảnh Clover Meadows mới.
+
+Brambleback Matriarch có silhouette rõ; các cụm gai và cây bao quanh tạo cảm giác một khu vực có boss thật.
+
+Nhưng một số thân cây, khúc gỗ và bụi gai vẫn có cảm giác được đặt rời trên nền. Bóng và vùng tiếp xúc chưa đồng đều.
+
+Mình muốn sửa ba điểm:
+
+Đất quanh tổ boss tối hơn vùng C01 khoảng 8–12% về cảm giác sáng, thiên olive/nâu đất.
+
+Thêm 2–3 mảng đất nén hoặc rễ phẳng quanh các cụm gai, không tăng thêm collider.
+
+Giữ khoảng trống quanh Matriarch đủ rộng cho Charge và Thorn Stomp; không đặt thêm cây vào vùng telegraph.
+
+Giữ nguyên boss, kích thước, AI và các sheet animation.
+
+VII. Thứ tự sửa vòng 2 — Chốt theo hiệu quả
+
+Ưu tiên
+
+	
+
+Hạng mục
+
+	
+
+Việc cần làm
+
+
+
+
+P0
+
+	
+
+Sprite Sharpness
+
+	
+
+Chọn D, khóa render native 100%
+
+
+
+
+P0
+
+	
+
+Camera
+
+	
+
+Giữ 54° / FOV 38, giới hạn zoom xa nếu hero dưới 50 px
+
+
+
+
+P0
+
+	
+
+Clover Ground
+
+	
+
+Giảm 35–45% cỏ nhỏ, thêm macro variation 6–12 m
+
+
+
+
+P0
+
+	
+
+Clover World Depth
+
+	
+
+Đưa cliff/đồi vào các góc nhìn gameplay chính
+
+
+
+
+P0
+
+	
+
+Dirt Path
+
+	
+
+Chuyển tiếp mép 0,3–0,5 m, texture đất giàu chất liệu
+
+
+
+
+P0
+
+	
+
+Willowbrook Plaza
+
+	
+
+Thêm biến thể đá và làm rõ khe
+
+
+
+
+P1
+
+	
+
+Guild Hall
+
+	
+
+Thử hybrid 3D trên một công trình
+
+
+
+
+P1
+
+	
+
+Cliff Material
+
+	
+
+Thêm mặt khối, rêu, AO chân vách
+
+
+
+
+P1
+
+	
+
+Shadow
+
+	
+
+Cân lại bóng cây/công trình và contact AO
+
+
+
+
+P2
+
+	
+
+Repaint lớn
+
+	
+
+Chỉ thực hiện sau khi đánh giá lại vòng 2
+
+VIII. Những thứ mình không muốn thay đổi nữa
+
+Để không rơi vào vòng lặp liên tục chỉnh một hạng mục rồi lại làm hỏng hạng mục khác, mình khóa tạm thời:
+
+Camera mặc định 54°, FOV 38.
+
+Render native PC 100%.
+
+Starward RenderScale hiện tại.
+
+Sprite Bilinear + Mip Off.
+
+Mô hình 1 khu dân cư + 1 map săn lớn chia camp + 1 dungeon.
+
+Collision/camp layout Taurus.
+
+Các nhân vật và quái đã duyệt.
+
+Bộ màu Taurus V2.1 làm nền tạm thời, không tiếp tục tăng saturation toàn cảnh.
+
+Điều cần thay đổi bây giờ là chất lượng cấu trúc môi trường, không phải toàn bộ art direction hoặc thiết kế nhân vật.
+
+IX. Kết luận vòng 1
+
+Duyệt kỹ thuật, chưa duyệt mỹ thuật cuối.
+
+Làng 6.5/10: Bố cục tốt, cần nâng vật liệu đá và kiến trúc thành khối.
+
+Map săn 5.8/10: Đã có vách núi nhưng người chơi chưa thấy chiều sâu ở những camp chính.
+
+Sharpness 8.5/10: Cải thiện rõ. Chọn D để đạt mức sắc nét cao nhất mà vẫn giữ vẻ mềm mại painterly.
+
+Zoom xa 5.5/10: Chưa tạo được giá trị quan sát tương xứng; chỉ làm lộ thêm các vùng đất trống.
+
+Quyết định lớn nhất cho vòng 2: Không zoom xa hơn, không vẽ lại Starward và không vội làm lại mọi texture. Hãy đưa đồi/vách núi vào bố cục nhìn thấy được từ camp, cải thiện cỏ và đường đất, sau đó nâng một công trình Willowbrook sang hybrid 3D.
+
+Nếu làm tốt ba việc đó, khoảng cách hình ảnh với RO3 sẽ được rút ngắn rõ rệt hơn so với việc tiếp tục tăng độ nét hoặc chỉnh thêm bảng màu.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+6 Medium
+Response complete
+0.35H

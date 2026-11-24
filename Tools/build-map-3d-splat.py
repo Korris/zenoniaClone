@@ -10,7 +10,7 @@ Written as raw bytes (TextAsset), 8 texels per tile, rows top-down like the map 
 import compressed / sRGB / non-readable; Map3DTerrain builds a linear Texture2D from these bytes and reads the water channel on the CPU for the riverbed.
 Header: 4 bytes 'M3DS', uint16 width, uint16 height, then width * height * 4 bytes RGBA.
 """
-import os, sys, struct
+import os, re, sys, struct
 import numpy as np, cv2
 from PIL import Image
 
@@ -22,6 +22,57 @@ MAPS = {
                                 forest="Assets/ArtLibrary/maps/willowbrook-meadows/forest-25d/willowbrook-meadows-forest-mask.png",
                                 paving=[(43, 0, 27, 11)], crop=[(0, 38, 12, 8)], out="Map3D/willowbrook-meadows-splat.bytes"),
 }
+
+
+# Taurus maps (24/11/2026): the layout IS the rows (greybox), so the layers come from the tile chars, not from a painted ground:
+# d = dirt road, p = plaza paving, w / B = water (B = bridge deck, the stream bed still sinks under it), T / t = forest floor (feathered).
+TAU = {
+    "tau-willowbrook-village": dict(size=(44, 32), cls="TauWillowbrookVillageMap.cs", paving="p"),
+    "tau-clover-meadows": dict(size=(96, 64), cls="TauCloverMeadowsMap.cs", paving=""),
+}
+
+
+def tau_rows(cfg):
+    w, h = cfg["size"]
+    t = open(os.path.join(ROOT, "Assets", "Scripts", "Maps", cfg["cls"]), encoding="utf-8").read()
+    t = t[t.index("// BEGIN ROWS"):t.index("// END ROWS")]
+    rows = re.findall(r'"([A-Za-z]{%d})"' % w, t)
+    assert len(rows) == h, (len(rows), h)
+    return rows
+
+
+def tau_main(key):
+    cfg = TAU[key]
+    W, H = cfg["size"]
+    rows = tau_rows(cfg)
+    ch = np.array([[ord(c) for c in r] for r in rows], np.int32)
+    rng = np.random.RandomState(7)
+    lo = lambda: cv2.resize(rng.rand(H // 3 + 2, W // 3 + 2).astype(np.float32) - 0.5, (W * PX, H * PX), interpolation=cv2.INTER_CUBIC)
+    gx, gy = np.meshgrid(np.arange(W * PX, dtype=np.float32), np.arange(H * PX, dtype=np.float32))
+    mx, my = gx + lo() * 0.9 * PX, gy + lo() * 0.9 * PX   # edges wander up to ~0.45 tile: no tile staircase on road / plaza / forest borders
+    big = lambda m: cv2.remap(np.kron(m.astype(np.float32), np.ones((PX, PX), np.float32)), mx, my, cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    soft = lambda m, s: np.clip(cv2.GaussianBlur(m.astype(np.float32), (0, 0), s), 0, 1)
+    def round_edge(m, sg):  # blur wide then re-sharpen: tile corners become curves, the edge stays fairly crisp
+        b = soft(m, sg)
+        return soft(np.clip((b - 0.3) / 0.4, 0, 1) ** 2 * (3 - 2 * np.clip((b - 0.3) / 0.4, 0, 1)), 1.0)
+    dirt = round_edge(big(ch == ord("d")), 4.0)
+    pave = round_edge(big(np.isin(ch, [ord(c) for c in cfg["paving"]])), 6.0) if cfg["paving"] else np.zeros((H * PX, W * PX), np.float32)
+    water = big(np.isin(ch, [ord("w"), ord("B")]))
+    wsoft = soft(water, 3.0)
+    wsoft = np.clip((wsoft - 0.3) / 0.4, 0, 1); wsoft = soft(wsoft * wsoft * (3 - 2 * wsoft), 1.0)
+    forest = soft(big(np.isin(ch, [ord("T"), ord("t")])), PX * 0.9)
+    forest = np.clip(forest * (1 - dirt) * (1 - pave), 0, 1)
+    out = np.stack([dirt, forest, pave, wsoft], 2)
+    out8 = np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8)
+    path = os.path.join(RES, "Map3D", key + "-splat.bytes")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "wb") as f:
+        f.write(b"M3DS" + struct.pack("<HH", W * PX, H * PX) + out8.tobytes())
+    print("wrote", path, out8.shape, "dirt %.1f%% forest %.1f%% pave %.1f%% water %.1f%%" % tuple(100 * out[..., i].mean() for i in range(4)))
+    if "--preview" in sys.argv:
+        prev = os.path.join(ROOT, "plans", "261124-0930-taurus-v4-new-world", "reports", key + "-splat-preview.png")
+        Image.fromarray(out8[..., :3]).resize((W * PX * 2, H * PX * 2), Image.NEAREST).save(prev)
+        print("preview", prev)
 
 
 def read_ground(cfg):
@@ -40,6 +91,7 @@ def rect_mask(W, H, rects):
 
 def main():
     key = sys.argv[1] if len(sys.argv) > 1 else "willowbrook-meadows"
+    if key in TAU: return tau_main(key)
     cfg = MAPS[key]
     W, H = cfg["size"]
     g = read_ground(cfg)

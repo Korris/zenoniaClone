@@ -1,0 +1,13 @@
+ChatGPT design chat (Tay), 25/11/2026 ~00:50, verdict round 2. Sent: village-gate-4yaw-before-after-r2.jpg, clover-shrine-gate-4yaw-before-after-r2.jpg
+(fixes after round 1: wall 0.84 m thick / 2.25 m high, smaller merlons, brighter orange turret roofs, Ancient Roots gate: thick roots front and back, roots hugging the arch on both faces, deep leaf crowns).
+
+Phán quyết vòng 2: ĐẠT CẢ HAI. Có thể chốt bản 3D và chuyển sang hạng mục khác.
+Công trình | Vòng 1 | Vòng 2 | Phán quyết
+Cổng Willowbrook Village | 8,5/10 | 9,0/10 | ĐẠT
+Cổng Ancient Roots | 7,8/10 | 8,7/10 | ĐẠT
+Cổng làng — 9,0/10: Tường thấp và mỏng hơn giúp công trình cân đối với quy mô chibi. Mái cam mới gần sprite gốc hơn. Cả bốn góc yaw đều đọc rõ hình khối 3D, không còn cảm giác cổng phẳng.
+Ancient Roots — 8,7/10: Rễ ôm vòm và tán lá mới cải thiện đáng kể nhận diện cổ tích. Góc nghiêng có chiều sâu tốt hơn vòng 1, nhưng vẫn hơi rối khi công trình nằm cạnh tán cây lớn.
+Tối đa 2 chỉnh sửa nhỏ, không bắt buộc:
+Ancient Roots: Giảm khoảng 15% lá/rễ nhỏ ở vùng chính giữa vòm, giữ vùng ánh sáng portal thông thoáng.
+Cổng làng: Tăng nhẹ 5–8% tương phản sáng/tối ở mặt bên trụ tháp để khối đá đọc rõ hơn khi xoay 90°.
+CHỐT: Giữ thiết kế 3D hiện tại, không cần vẽ lại hay thay đổi kích thước nữa. Vấn đề cây che nhân vật để xử lý riêng như đã thống nhất.

@@ -33,7 +33,10 @@ MAPS = {
 }
 # The design chat's material library T-MAT01..09 (docs/reference/taurus-v4-art/taurus-environment-production-brief-chatgpt.txt), cut from the 3x3 sheet by `cut`.
 SHEET_ORDER = ["grass", "grassLight", "grassShade", "dirt", "plaza", "water", "bank", "forest", "ancient"]
-PALETTE = {"grass": (0x8E, 0xAE, 0x5A), "grassLight": (0xA4, 0xC0, 0x6E), "grassShade": (0x7A, 0x96, 0x50)}   # grade the grass family to the BIBLE III palette (#88A85D / #A8C57A), a touch less yellow than the swatches
+# Taurus Color & Lighting V2.0 "Golden Adventure Daylight" (ChatGPT design chat 24/11/2026, docs/reference/taurus-v4-art/palette/taurus-palette-spec-chatgpt.txt):
+# mean render colour per material T-MAT01..09. Grass family: offset grade (keeps the painted contrast); the others: per-channel gain toward the mean (no flat fill).
+PALETTE = {"grass": (0x88, 0xB6, 0x5A), "grassLight": (0xAB, 0xD3, 0x6C), "grassShade": (0x64, 0x8C, 0x49)}   # V2.1 (ChatGPT review of the in-game shots)
+GAIN_PALETTE = {"dirt": (0xCF, 0xA8, 0x72), "plaza": (0xD5, 0xBE, 0x98), "water": (0x4B, 0xA8, 0xCC), "bank": (0x8B, 0x9D, 0x67), "forest": (0x8B, 0x86, 0x57), "ancient": (0xA6, 0x9C, 0x73)}
 # zone tints over the same material (meadows): multiplier per char (BIBLE brightness ladder is feel, not exposure: keep it gentle)
 TINT = {"b": 0.97, "n": 0.98, "e": 0.98}
 ZONE_SOFT = {"grass", "grassLight", "grassShade", "forest", "ancient"}   # grass-family zone grounds blend wide; road / plaza / water keep a crisp ~0.35 m edge
@@ -67,6 +70,12 @@ def swatch(key):
     if tgt is not None:
         m = tex.reshape(-1, 3).mean(0)
         tex = np.clip((tex - m) * 0.95 + np.array(tgt, float), 0, 255)
+    g = GAIN_PALETTE.get(key)
+    if key == "plaza": tex = np.clip((tex - tex.reshape(-1, 3).mean(0)) * 1.12 + tex.reshape(-1, 3).mean(0), 0, 255)   # V2.1: grout 10-15 % clearer
+    if key == "dirt": tex = np.clip((tex - tex.reshape(-1, 3).mean(0)) * 1.09 + tex.reshape(-1, 3).mean(0), 0, 255)    # V2.1: light / dark of the road +8-10 %
+    if g is not None:
+        m = tex.reshape(-1, 3).mean(0)
+        tex = np.clip(tex * (np.array(g, float) / np.maximum(m, 1.0)), 0, 255)
     n = int(round(REPEAT.get(key, TEX_TILE / T) * T))
     return cv2.resize(tex, (n, n), interpolation=cv2.INTER_AREA if n < tex.shape[0] else cv2.INTER_CUBIC)
 

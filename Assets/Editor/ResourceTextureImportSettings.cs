@@ -13,18 +13,43 @@ namespace ZenoniaProto.EditorTools
     public class ResourceTextureImportSettings : AssetPostprocessor
     {
         const string Root = "Assets/Resources/Sprites/";
+        /// <summary>3D map material swatches (terrain layers, leaf / bark / rock / wood atlases): Sharpness V1.0 preset B (ChatGPT 24/11/2026,
+        /// docs/reference/ro3-compare/ro3-sharpness-analysis-chatgpt.txt): mipmaps + trilinear (seen at a slant), full size, high-quality compression
+        /// (BC7 on PC instead of the default DXT that smeared the grass / paving detail), ASTC 6x6 on Android. Anisotropy is set at load (Map3DAssets.Tex).</summary>
+        const string Map3DRoot = "Assets/Resources/Map3D/";
 
         void OnPreprocessTexture()
         {
-            if (!assetPath.StartsWith(Root)) return;
             var importer = assetImporter as TextureImporter;
             if (importer == null) return;
+            if (assetPath.StartsWith(Map3DRoot)) { ApplyMap3D(importer); return; }
+            if (!assetPath.StartsWith(Root)) return;
             Apply(importer, assetPath);
             DropMipsForAndroidNpot(importer);
         }
 
         // Bump when the in-memory (non-.meta) import logic changes so Unity re-imports cached artifacts.
-        public override uint GetVersion() { return 2; }
+        public override uint GetVersion() { return 2; } // Map3D swatches that drifted are re-imported by ResourceTextureAudit, no global re-import
+
+        internal static bool NeedsChangeMap3D(TextureImporter i)
+        {
+            return !i.mipmapEnabled || i.filterMode != FilterMode.Trilinear || i.maxTextureSize != 4096 || i.textureCompression != TextureImporterCompression.CompressedHQ || !AndroidOk(i);
+        }
+
+        internal static void ApplyMap3D(TextureImporter i)
+        {
+            i.mipmapEnabled = true;
+            i.filterMode = FilterMode.Trilinear;
+            i.maxTextureSize = 4096;
+            i.textureCompression = TextureImporterCompression.CompressedHQ;
+            TextureImporterPlatformSettings a = i.GetPlatformTextureSettings(Android);
+            a.overridden = true;
+            a.maxTextureSize = AndroidMaxSize;
+            a.format = AndroidFormat;
+            a.textureCompression = TextureImporterCompression.Compressed;
+            a.compressionQuality = 50;
+            i.SetPlatformTextureSettings(a);
+        }
 
         /// <summary>
         /// Unity silently refuses to compress a non-power-of-two texture that has mipmaps and npotScale None: whatever the platform
@@ -115,6 +140,14 @@ namespace ZenoniaProto.EditorTools
                 if (importer == null) continue;
                 if (!ResourceTextureImportSettings.NeedsChange(importer, path)) continue;
                 ResourceTextureImportSettings.Apply(importer, path);
+                importer.SaveAndReimport();
+                fixedCount++;
+            }
+            foreach (string guid in AssetDatabase.FindAssets("t:Texture2D", new[] { "Assets/Resources/Map3D" }))
+            {
+                var importer = AssetImporter.GetAtPath(AssetDatabase.GUIDToAssetPath(guid)) as TextureImporter;
+                if (importer == null || !ResourceTextureImportSettings.NeedsChangeMap3D(importer)) continue;
+                ResourceTextureImportSettings.ApplyMap3D(importer);
                 importer.SaveAndReimport();
                 fixedCount++;
             }

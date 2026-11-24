@@ -9,9 +9,12 @@ namespace ZenoniaProto
     /// The gameplay camera draws the world (2D, 2.5D and --map3d maps alike) into a smaller texture and RenderScaleCamera stretches it to the
     /// screen with a bilinear + light sharpen filter; the HUD (screen-space overlay canvas) and the IMGUI text (names, damage numbers, FPS) are
     /// drawn afterwards at the native resolution. World-space sprite labels (monster foot labels) are part of the world and follow the scale.
-    /// Settings > "Resolution": Auto (by graphics quality: High 100 %, Medium 85 %, Low 75 %) or a fixed 100 / 85 / 70 %; that value is the ceiling.
-    /// Settings > "Dynamic resolution" (default on): when the frame rate falls under <see cref="TargetFps"/> the scale steps down 5 % at a time
-    /// to <see cref="Floor"/> and climbs back when there is headroom (RenderScaleCamera, hysteresis + back-off so it does not flicker).
+    /// Settings > "Resolution": Auto or a fixed 100 / 85 / 70 %; that value is the ceiling. Auto = 100 % native on every graphics level
+    /// (ChatGPT "Visual Sharpness V1.0", 24/11/2026, docs/reference/ro3-compare/ro3-sharpness-analysis-chatgpt.txt section V / IX: the old Auto
+    /// Medium 85 % + dynamic resolution down to 60 % was the soft "60% auto" look; PC renders native, phones aim at 100 % and only drop when needed).
+    /// Settings > "Dynamic resolution" (default OFF on desktop, on on phones = the "Mobile Balanced" profile): when the frame rate falls under
+    /// <see cref="TargetFps"/> the scale steps down 5 % at a time to <see cref="Floor"/> and climbs back when there is headroom (RenderScaleCamera,
+    /// hysteresis + back-off so it does not flicker).
     /// Test builds: `--render-scale 0.85` fixes the ceiling for this run, `--dynres off|on` the dynamic switch (FPS runs), neither is saved.
     /// </summary>
     public static class RenderScale
@@ -21,10 +24,10 @@ namespace ZenoniaProto
         public static readonly float[] Steps = { 0f, 1f, 0.85f, 0.7f };
         public static readonly string[] Labels = { "Auto", "100%", "85%", "70%" };
 
-        const string StepKey = "zenonia.gfx.renderScale", DynKey = "zenonia.gfx.dynamicRes";
+        const string StepKey = "zenonia.gfx.renderScale.v2", DynKey = "zenonia.gfx.dynamicRes.v2"; // v2 (24/11 Sharpness V1.0): back to Auto = native and dynamic off once (old saved 70 % / dynamic on were the blur)
         static bool loaded;
         static int step;
-        static bool dynamicOn = true;
+        static bool dynamicOn;
         static float forcedCeiling = -1f;
         static int forcedDyn = -1;
 
@@ -37,8 +40,12 @@ namespace ZenoniaProto
         /// <summary>Frame rate dynamic resolution keeps: 55 on desktop (vsync 60), 30 on phones.</summary>
         public static float TargetFps { get { return Application.isMobilePlatform ? 30f : 55f; } }
 
-        /// <summary>Scale of the graphics level when the Resolution tab is Auto.</summary>
-        public static float ForQuality(GraphicsQuality.Level l) { return l == GraphicsQuality.Level.High ? 1f : l == GraphicsQuality.Level.Medium ? 0.85f : 0.75f; }
+        /// <summary>Scale of the graphics level when the Resolution tab is Auto: native on every level (Sharpness V1.0 preset; lower it by hand in Settings,
+        /// or let dynamic resolution drop it when the frame rate needs it).</summary>
+        public static float ForQuality(GraphicsQuality.Level l) { return 1f; }
+
+        /// <summary>Dynamic resolution when the player never chose: off on desktop (PC High Quality = 100 % native), on on phones (Mobile Balanced).</summary>
+        static bool DefaultDynamic { get { return Application.isMobilePlatform; } }
 
         public static int StepIndex { get { Load(); return step; } }
 
@@ -88,7 +95,7 @@ namespace ZenoniaProto
             try
             {
                 step = Mathf.Clamp(PlayerPrefs.GetInt(StepKey, 0), 0, Steps.Length - 1);
-                dynamicOn = PlayerPrefs.GetInt(DynKey, 1) != 0;
+                dynamicOn = PlayerPrefs.GetInt(DynKey, DefaultDynamic ? 1 : 0) != 0;
             }
             catch (Exception e) { Debug.LogWarning("[ZenoniaProto] could not read the render scale setting: " + e.Message); }
             if (ReleaseBuild.IsRelease) return;

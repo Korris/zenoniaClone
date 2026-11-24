@@ -1,0 +1,196 @@
+ASTERIA — TAURUS COLOR & LIGHTING V2.1
+Art Director Review · So sánh 4 ảnh 3D + 1 ảnh 2.5D với tông Golden Adventure Daylight đã đề xuất
+
+I. Phán quyết tổng thể
+Bản V2.0 đã đẹp hơn về độ tươi của cỏ và ánh sáng, nhưng CHƯA đạt tông màu của ảnh target mình đã vẽ. Mình chưa khóa Color & Lighting V2.0.
+
+Vấn đề không còn đơn thuần là thiếu saturation. Ảnh hiện tại đang có ba vấn đề:
+1. Màu nền hơi xanh chanh và sáng đều, thiếu lớp trung gian xanh olive tạo chiều sâu. Cỏ và mặt đất trông hơi phẳng.
+2. Các asset chưa thống nhất màu và chất liệu giữa 3D và 2.5D. Cây 3D xanh olive tương đối trầm, trong khi cây sprite 2.5D vàng rực; độ đậm của viền, thân và tán cũng khác nhau.
+3. Nắng và bóng chưa đủ định hướng. Bản 3D có bóng cây, nhưng một số bóng rộng và xám, còn bề mặt sáng thiếu cảm giác vàng ấm. Bản 2.5D có màu asset đẹp hơn nhưng vẫn thiếu bóng chiếu nghiêng.
+
+Chấm sơ bộ (3D hiện tại / 2.5D hiện tại / mục tiêu):
+- Bảng màu Taurus: 83 / 91 / >=90
+- Độ sâu màu sắc: 79 / 86 / >=90
+- Tương phản vật liệu: 82 / 90 / >=90
+- Đồng bộ cây / đất / đá: 80 / 91 / >=90
+- Ánh sáng và bóng: 80 / 78 / >=88
+- Tổng đánh giá: 81/100 / 88/100 / >=90
+Điểm là đánh giá thị giác chủ quan từ screenshot, không phải đo màu chuẩn trên framebuffer. Các mức tăng giảm dưới đây là thông số thử nghiệm khởi đầu.
+
+Quyết định quan trọng: Mình chọn màu và ngôn ngữ chất liệu của các asset 2.5D đã duyệt làm chuẩn mỹ thuật, nhưng kết hợp ánh sáng và bóng mềm có chiều sâu của hệ 3D. Không chuyển toàn bộ Taurus sang cây xanh thực tế hoặc texture cỏ quá chi tiết.
+
+II. Bảng sửa chính xác theo từng thành phần (Thành phần | Nhận xét | Cách chỉnh V2.1 | Vẽ lại?)
+- Cỏ chính | 3D hơi xanh chanh, sáng đều | trung gian #88B65A, highlight #ABD36C, bóng #689447 | Không, chỉnh màu material trước
+- Cỏ vùng râm | Bóng xám làm cỏ thiếu sức sống | xanh olive #648C49, giảm màu xám của bóng | Không
+- Đường đất | Hơi vàng nhạt, thiếu sắc nâu mật ong | Midtone #C9A06A, highlight #E1BA83, vùng tối #A97D4F | Không
+- Đá lát quảng trường | Khá trắng, ít phân tầng giữa phiến | Midtone #D5BE98, khe #A89578, sáng #E6D4B5 | Không, chỉ đổi texture nếu không chỉnh được độ sâu khe
+- Nước | Xanh cyan ổn nhưng vệt sáng to, viền thẳng | Midtone #4BA8CC, vùng sâu #3486AA, gợn #8CD6EA | Ưu tiên sửa shader/texture nước
+- Tán cây | 3D xanh đậm, 2.5D vàng quá mạnh ở highlight | Mid #90B651, sáng #C7D867, tối #567C3B | Không vẽ lại trước
+- Thân cây | 3D hơi xám, ít màu mật ong | Mid #92683F, sáng #C08B51, tối #63482F | Không
+- Mái nhà | Màu hiện tại tương đối tốt | Giữ mái đỏ nung và mái lam-xám, chỉ giảm highlight gắt | Không
+- Bóng | Có nhưng chưa đẹp, một số bóng xám rộng | Đổ về dưới-phải, xanh rêu lạnh, mềm, opacity 15–25% | Không, sửa lighting
+- Nắng | Chưa có chất nắng ấm | #FFF0D0, hướng trên-trái, ambient trung tính hơn | Không
+- Sương / Ambient | Hơi có lớp sáng nhạt phủ toàn cảnh | Giảm haze/fog, giữ không khí trong | Không
+Các mã màu là màu mục tiêu trên hình sau render, không nhất thiết là màu nhập trực tiếp vào Material.color.
+
+III. Cỏ — ưu tiên đầu tiên
+Clover Meadows 3D: cỏ đã tươi hơn bản trước, nhưng (1) cỏ chính hơi thiên xanh lá chanh; muốn kéo về xanh lá tự nhiên pha olive để Slime màu xanh sáng nổi bật hơn. (2) cỏ dại nhỏ xuất hiện quá nhiều và khá vàng, tạo hàng trăm nét nhỏ tương phản làm bãi combat nhiễu; nền cũng có các vùng sáng tối loang khá lớn.
+Chốt:
+- Giảm saturation của riêng cỏ ground 5–8% so với bản V2.0.
+- Dịch Hue cỏ về xanh lục hơi olive, tránh ngả vàng chanh.
+- Giảm độ sáng highlight cỏ khoảng 3–5%.
+- Giảm số cụm cỏ dại nhỏ trong các camp 30–40%.
+- Giảm saturation của cỏ dại vàng khoảng 15%.
+- Giữ khoảng trống dưới chân quái và nơi các kỹ năng xuất hiện.
+Không cần vẽ lại texture cỏ. Trước tiên sửa màu material, tần suất grass detail và lớp noise. Nếu texture ground có sẵn các hạt vàng không tách được thì mới sửa riêng texture đó.
+Willowbrook 3D: cỏ khá ổn nhưng vẫn hơi xanh đều. Dùng cỏ sáng ở vùng thoáng, cỏ râm nhiều hơn dưới tán cây và cạnh tường. Không thêm bụi cỏ vàng dày vào quảng trường.
+Willowbrook 2.5D: cỏ hợp phong cách Taurus hơn. Không vẽ lại T-MAT01/T-MAT02. Chỉ tinh chỉnh tint cục bộ để bớt vàng ở vùng sát đường đất.
+
+IV. Đường đất và quảng trường
+Đất 3 mức: sáng #E1BA83, chính #C9A06A, nén/râm #A97D4F. Đá lát: sáng #E6D4B5, chính #D5BE98, khe #A89578.
+Đường đất: giữ tông be mật ong, giảm phần màu vàng nhạt đồng nhất. Tăng độ chênh sáng tối của vệt đất khoảng 8–10%, không thêm sỏi hoặc vệt nứt dày.
+Quảng trường: đá lát 3D hơi sáng và ít tương phản giữa phiến với khe. Khe rõ hơn khoảng 10–15%, phiến vẫn màu kem.
+Ở 2.5D, quảng trường có cảm giác vẽ tay và đồng bộ với Great Oak hơn. Giữ texture đó làm tham chiếu.
+Phán quyết: Chưa cần vẽ lại đường hay đá lát. Chỉnh tint, contrast của material và chi tiết khe trước.
+
+V. Nước — thành phần muốn sửa rõ nhất
+Clover Meadows 3D: nước có sắc xanh tương đối đẹp nhưng các mảng sáng như những đốm oval lớn, phân bố khá đều. Ở ảnh làng, góc suối nhìn như một khối màu xanh có viền trắng sáng, chưa tự nhiên. Không đổi sang nước realistic; chỉ cần stylized tinh tế hơn.
+- Màu chính #4BA8CC
+- Vùng sâu #3486AA
+- Gợn sáng #8CD6EA
+- Diện tích đốm sáng: giảm khoảng 35–45%
+- Độ tương phản gợn nước: giảm khoảng 20–25%
+- Tốc độ ripple: chậm, khoảng 0,012–0,018 m/s làm mốc
+- Foam bờ: dải mỏng, alpha thấp
+- Viền nước: không có một đường trắng liên tục quanh bờ
+Đây là một trong hai asset cho phép làm lại nếu cần: T-MAT06 Stream Water. Nếu vệt sáng lớn nằm trong texture nguồn, vẽ lại riêng tile nước với gợn nhỏ, không đều và mềm hơn. Nếu do shader tạo ra, chỉ cần sửa shader. Không đổi bố cục suối, vị trí nước hoặc cầu.
+
+VI. Tán cây và thân cây
+Cây ở bốn ảnh 3D: tán có màu xanh olive tự nhiên hơn, nhưng hình khối nhỏ và các vùng lá chưa phân tầng mạnh như concept target. Một số cây có bóng râm xám khá lớn, trong khi lá phía trên không đủ vàng ấm. Kết quả: có độ sâu nhưng chưa cổ tích như Taurus.
+Muốn:
+- Tăng độ vàng-xanh của phần lá bắt nắng, không tăng vàng toàn bộ cây.
+- Vùng lõi tán giữ xanh lục trung tính.
+- Vùng dưới tán dùng xanh olive tối.
+- Giảm highlight trắng/xám trên lá.
+- Làm thân cây nâu ấm hơn khoảng 8–12% về cảm giác màu.
+Cây vàng trong ảnh 2.5D: CHỐT GIỮ cây vàng 2.5D. Không vẽ lại. Great Oak và cây nhỏ phía trước có tán lá thành cụm rõ, viền nâu hợp với Warrior, thân cây có khối, bảng màu vàng-xanh hợp Taurus, nhận diện tốt khi zoom xa. Đây là ngôn ngữ mỹ thuật làm chuẩn.
+Tuy nhiên ở 2.5D, highlight tán cây hơi vàng sáng hơn mức cần thiết. Có thể giảm saturation riêng vùng vàng khoảng 5–8% bằng tint hoặc palette mask mà vẫn giữ shading gốc. Không áp tint xanh tối lên toàn bộ cây vì mất vẻ tươi.
+Có nên vẽ lại cây 3D? Chưa. Trước hết sửa màu vật liệu lá, ánh sáng và tông vỏ cây. Nếu sau đó cây 3D vẫn có hình khối quá vụn hoặc thiếu nét painterly so với sprite 2.5D thì mới sửa texture lá hoặc model (vấn đề hình khối và vật liệu, không phải chỉ màu).
+
+VII. Mái nhà, đá, gỗ và props
+Mái ngói đỏ cam, tháp cổng, đèn, thùng gỗ, quầy hàng đều tương đối hài hòa. Không thay palette kiến trúc đã duyệt.
+- Mái ngói đỏ: giữ #C97943 làm midtone, hạn chế vùng sáng trắng
+- Mái lam-xám: giữ xanh slate, không chuyển xanh dương neon
+- Gỗ quầy và cầu: tăng chút ấm ở midtone, giữ viền nâu
+- Đá tường làng: giữ kem-be, vùng tối không xám lạnh quá
+- Cột đèn: giữ ánh vàng ấm, tránh Bloom lớn ban ngày
+- Đồ trang trí nhỏ: không tăng saturation đồng loạt
+Không có nhà, cầu, cổng hoặc prop kiến trúc nào cần vẽ lại vì màu.
+
+VIII. Bóng đổ và ánh sáng — sửa bằng Unity
+Ở 3D bóng cây khá xám, diện rộng, đôi chỗ như có mảng màu phủ lên nền cỏ. Ở 2.5D bóng cây còn ít rõ hơn. Muốn ánh sáng hoạt hình có chiều sâu: bóng hiện diện nhưng nhẹ và cùng một hướng.
+Preset ánh sáng V2.1:
+- Main light color #FFF0D0
+- Hướng nắng: trên-trái màn hình
+- Góc nâng 50°
+- Directional intensity 0,95–1,05
+- Ambient color #DDE5D5
+- Ambient intensity 0,70–0,80 tùy pipeline
+- Shadow tint tham khảo #536A4D
+- Bóng cây: opacity biểu kiến 15–22%
+- Bóng nhân vật/quái: 20–28%
+- Bóng nhà: 18–25%
+- AO: nhẹ, tập trung vùng tiếp xúc
+- Bloom 0,08–0,15 nếu cùng thang hiệu ứng hiện có
+- Exposure 0 EV
+- Fog Willowbrook / C01: tắt
+- Fog Elderwood: cực nhẹ, chỉ khi tạo được chiều sâu
+Những mức này cần kiểm tra lại vì Directional Light trên material 3D không tác động giống sprite đã vẽ sẵn ánh sáng.
+Sửa bóng cụ thể:
+- Không tăng thêm độ đậm bóng cây.
+- Giảm độ xám của bóng, chuyển về xanh rêu lạnh.
+- Bóng cây có một hướng lệch rõ, tránh chỉ là mảng tối dưới cả tán.
+- Với 2.5D, giữ bóng tiếp xúc dưới thân cây và thêm bóng nghiêng mềm nếu hệ chiếu bóng cho phép.
+- Không vẽ bóng cố định vào asset cây.
+- Không để AO làm đen viền chân props hoặc khe đá.
+Post-processing: không tăng thêm Saturation toàn cảnh. Nếu hiện đã áp +8 đến +12, thử giảm về khoảng +4 đến +6. Contrast giữ khoảng +8, sau đó tăng tương phản cục bộ qua vật liệu và ánh sáng. Lý do: cỏ và bụi vàng đã đủ nhiều màu; đẩy saturation toàn cảnh sẽ làm nền chiếm sự chú ý của quái và VFX.
+
+IX. Chính xác asset nào cần vẽ lại?
+- T-MAT01 Grass Main: Recolor (hình nền đủ dùng, dịu xanh chanh)
+- T-MAT02 Grass Light: Recolor (highlight hơi sáng)
+- T-MAT03 Shaded Grass: Recolor (cần xanh olive hơn)
+- T-MAT04 Packed Dirt Path: Recolor (cần đậm màu mật ong)
+- T-MAT05 Plaza Stone: Recolor + contrast (khe hơi nhạt)
+- T-MAT06 Stream Water: Có thể vẽ lại tile (mảng sáng quá lớn, hình học)
+- T-MAT07 Wet Bank: Recolor (hòa màu cỏ/nước)
+- T-MAT08 Forest Floor: Giữ, tinh chỉnh nhẹ
+- T-MAT09 Ancient Roots Ground: Giữ
+- Great Oak 2.5D: Giữ nguyên
+- Meadow Oak 2.5D: Giữ nguyên
+- Cây ở bản 3D: Recolor / chỉnh material (thống nhất màu với 2.5D)
+- Mái nhà, cầu, cổng: Giữ
+- Bóng và ánh sáng: Sửa Unity, không phải lỗi asset
+Chưa yêu cầu vẽ lại bất kỳ prop nào. Nếu phải giao việc ngay cho chat sản xuất, chỉ giao một bản cải tiến T-MAT06 Stream Water sau khi xác nhận các đốm sáng lớn thực sự nằm trong texture, không phải shader.
+Ngoài ra nên sửa cụm cỏ dại nhỏ: ưu tiên giảm mật độ và chỉnh tint trong Unity. Chỉ vẽ lại grass clump nếu hình gốc quá vàng, quá sắc mà tint không xử lý được.
+
+X. Đoạn hướng dẫn gửi cho lập trình viên và chat sản xuất
+ASTERIA TAURUS — COLOR & LIGHTING V2.1 CORRECTION
+Mục tiêu: Tái tạo tông Golden Adventure Daylight, sáng ấm và có chiều sâu như concept target; giữ nguyên bố cục map, toàn bộ gameplay blockers và art style RO Soft Adventure.
+
+GROUND MATERIAL
+- Grass Main: mục tiêu render #88B65A, highlight #ABD36C, shadow #689447. Giảm sắc xanh chanh, giảm saturation khoảng 5–8% của riêng ground grass.
+- Grass Light: vẫn sáng hơn Grass Main nhưng không neon.
+- Shaded Grass: xanh olive tự nhiên, không ngả xám.
+- Packed Dirt Path: mid #C9A06A, highlight #E1BA83, shadow #A97D4F.
+- Plaza Stone: mid #D5BE98, sáng #E6D4B5, khe #A89578.
+- Forest Floor: giữ nâu olive ấm.
+- Giảm 30–40% mật độ cụm cỏ dại nhỏ ở các camp combat, giảm saturation riêng cỏ dại vàng 15%.
+
+WATER
+- Mid #4BA8CC, deep #3486AA, highlight #8CD6EA.
+- Giảm diện tích các đốm sáng/gợn to 35–45%.
+- Giảm contrast các gợn sáng 20–25%.
+- Không có đường viền bờ nước trắng sáng chạy liên tục.
+- Nếu gợn lớn nằm trong texture T-MAT06, vẽ lại duy nhất texture nước. Nếu do shader, sửa shader.
+
+TREES
+- Foliage highlight #C7D867, mid #90B651, shadow #567C3B.
+- Bark mid #92683F, highlight #C08B51, shadow #63482F.
+- Giữ cây 2.5D hiện tại, không vẽ lại.
+- Chỉnh cây 3D theo màu cây 2.5D, không chuyển sang phong cách realistic.
+- Không tint vàng/xanh đồng loạt làm mất ba cấp cel shading.
+
+LIGHTING
+- Main sunlight #FFF0D0, hướng trên-trái, elevation khoảng 50°.
+- Directional intensity thử 0,95–1,05.
+- Ambient #DDE5D5, intensity thử 0,70–0,80 nếu pipeline hỗ trợ.
+- Shadow tint xanh rêu lạnh #536A4D.
+- Bóng cây mềm, khoảng 15–22% opacity biểu kiến.
+- Exposure 0 EV, Bloom thấp; không tạo sương trắng phủ toàn cảnh.
+- Village/C01 fog off, Elderwood fog chỉ rất nhẹ.
+
+COLOR GRADING
+- Không tăng saturation toàn cảnh thêm.
+- Thử saturation +4 đến +6 thay vì +8 đến +12 trên thang -100..100.
+- Contrast khoảng +8.
+- Giữ UI ngoài post-processing nếu có thể.
+
+KHÔNG VẼ LẠI
+- Great Oak, Meadow Oak và các cây 2.5D.
+- Các công trình Willowbrook, cổng, cầu, mái nhà, tường.
+- 8 ground material còn lại trước khi thử chỉnh tint/contrast.
+- Bố cục camp, suối, cổng, collider, gameplay layout.
+
+Ưu tiên kiểm tra kết quả ở cùng camera 58°, cùng zoom, cùng thời điểm ánh sáng, và chụp riêng từng chế độ 3D/2.5D để tránh grading cho chế độ này làm xấu chế độ kia.
+
+XI. Quyết định cuối cùng
+Chốt không vẽ lại toàn bộ Taurus và không thay cây vàng 2.5D.
+Hướng chỉnh V2.1:
+- Làm cỏ chính bớt xanh chanh, giảm cỏ dại vàng trong camp.
+- Làm đường đất ấm hơn, đá lát có khe rõ hơn.
+- Giảm kích thước và độ nổi của gợn nước.
+- Cân lại cây 3D để gần với màu tán vàng-xanh của cây 2.5D.
+- Sửa bóng đổ, ambient và grading trước khi đụng đến asset lớn.
+Nhận xét cuối: Bản 3D có lợi thế về ánh sáng và không gian; bản 2.5D có lợi thế về nét vẽ và bản sắc chibi fantasy. Hướng tốt nhất cho Asteria là giữ sự đáng yêu, dễ đọc của 2.5D và đưa độ sâu ánh sáng của 3D vào một cách tiết chế, chứ không làm mọi vật thể rực màu hơn.
+Từ ảnh hiện có, đó là đường chỉnh ngắn nhất để tiến gần target Golden Adventure Daylight mà không phải bỏ những asset Taurus đã được duyệt.

@@ -16,6 +16,8 @@ namespace ZenoniaProto
         /// <summary>Builds the 3D version of the prop when its type has one; false = draw the sprite as usual.</summary>
         public static bool TryBuild(Transform parent, MapProp p, PropDef d)
         {
+            if (p.Type == "tauGuildHallHouse" && Map3DGuildHallBuilder.HasArt && !Map3D.Test("noguild")) { PlaceGuildHall(p, d); return true; }
+            if (Map3DTownWallBuilder.HasArt && !Map3D.Test("nowalls") && PlaceTownWall(p, d)) return true;
             Map3DTreeBuilder.Kind kind;
             Solid s = Classify(p.Type, out kind);
             if (s == Solid.None) return false;
@@ -23,8 +25,111 @@ namespace ZenoniaProto
             float tx = p.Tx + d.FootW * 0.5f, ty = p.Ty + 1f - Mathf.Max(1, d.FootH) * 0.5f; // footprint centre (tile coords, y down)
             int hash = Hash(p.Tx, p.Ty, p.Type);
             if (s == Solid.Bridge) { PlaceBridge(p, d, tx, hash); return true; }
+            if (s == Solid.Tree && ExposeRidge(f, tx, ty, hash)) return true; // left out on purpose: the knoll under it shows
+
             Place(parent, p.Type, s, kind, d, tx, ty, f, hash);
             return true;
+        }
+
+        /// <summary>
+        /// "Exposed Low Blocker Ridges" (ChatGPT RO3 loop round 2, Outdoor Depth V4.0 B): on Clover Meadows' inner knolls (solid ground raised 0.6-2 m,
+        /// away from the map border) 35 % of the trees are not drawn in 3D so the knoll's silhouette reads instead of a canopy. Visual only: the rows,
+        /// the server and the 2.5D map keep every tree.
+        /// </summary>
+        static bool ExposeRidge(Map3DHeightField f, float tx, float ty, int hash)
+        {
+            if (MapRegistry.Current == null || MapRegistry.Current.Id != TauCloverMeadowsMap.MapId || Map3D.Test("nodepth")) return false;
+            float edge = Mathf.Min(Mathf.Min(tx, f.MapW - tx), Mathf.Min(ty, f.MapH - ty));
+            if (edge < 7f || f.HeightAt(tx, ty) < 0.4f) return false;
+            return (hash >> 5) % 100 < 35;
+        }
+
+        /// <summary>Guild Hall hybrid 3D (Map3DGuildHallBuilder): centred on the rows' 10 x 5 m solid block (footprint 10 wide, the block runs 5 rows up
+        /// from the prop's 2-row base), door to the south; real shadows, hero occlusion fade from Map3DPainted.</summary>
+        static void PlaceGuildHall(MapProp p, PropDef d)
+        {
+            Map3DHeightField f = Map3DHeightField.For(MapRegistry.Current);
+            float tx = p.Tx + d.FootW * 0.5f, ty = p.Ty + 1f - 2.5f;
+            Vector3 pos = Map3D.World(tx, ty, 0f);
+            pos.z += Map3DTerrain.Sink;
+            Map3DBatcher.Add(Map3DGuildHallBuilder.Structure, Map3DAssets.GuildA, Map3DAssets.GuildA, pos, Quaternion.identity, 1f);
+            Map3DBatcher.Add(Map3DGuildHallBuilder.Detail, Map3DAssets.GuildB, Map3DAssets.GuildB, pos, Quaternion.identity, 1f);
+        }
+
+        /// <summary>Village town wall, gate towers, gate arch and the Great Oak curb ring as fixed 3D (Map3DTownWallBuilder / Map3DGateBuilder; user 24/11:
+        /// the billboard walls turned with the camera). All stand on the line between the wall's two solid rows (rows 27-28: y = 28), ground height 0
+        /// (the footing runs 0.9 m into the bank). False = not one of these types.</summary>
+        static bool PlaceTownWall(MapProp p, PropDef d)
+        {
+            Vector3 pos;
+            switch (p.Type)
+            {
+                case "tauWallLeft": case "tauWallRight":
+                    pos = Ground(p.Tx + d.FootW * 0.5f, p.Ty + 1f - d.FootH * 0.5f);
+                    Map3DBatcher.Add(Map3DTownWallBuilder.Wall(d.FootW, (p.Tx / 4) % 3), Map3DAssets.TownStone, Map3DAssets.Leaves("oak"), pos, Quaternion.identity, 1f); // ivy: the trees' own leaf material, merged into their batches
+                    return true;
+                case "tauGateTowerL": case "tauGateTowerR": // 4 m block from the prop's west tile (L: 16-20 up to the road, R: 24-28 from the road)
+                {
+                    Map3DGateBuilder.Parts t = Map3DGateBuilder.Tower(p.Type == "tauGateTowerL");
+                    pos = Ground(p.Tx + Map3DGateBuilder.BlockWidth * 0.5f, p.Ty);
+                    Map3DBatcher.Add(t.Stone, Map3DAssets.TownStone, Map3DAssets.TownStone, pos, Quaternion.identity, 1f);
+                    Map3DBatcher.Add(t.Roof, Map3DAssets.TownRoof, Map3DAssets.TownRoof, pos, Quaternion.identity, 1f);
+                    Map3DBatcher.Add(t.Detail, Map3DAssets.GuildB, Map3DAssets.GuildB, pos, Quaternion.identity, 1f, false); // flat on the stone: no shadow pass
+                    return true;
+                }
+                case "tauGateArchBeam": // the sprite sits 2 rows north of the wall line (y-sort over heroes in the gate); the 3D arch spans the road on the line
+                {
+                    Mesh detail;
+                    Mesh a = Map3DGateBuilder.Arch(d.FootW, out detail);
+                    pos = Ground(p.Tx + d.FootW * 0.5f, p.Ty + 2f);
+                    Map3DBatcher.Add(a, Map3DAssets.TownStone, Map3DAssets.TownStone, pos, Quaternion.identity, 1f);
+                    Map3DBatcher.Add(detail, Map3DAssets.GuildB, Map3DAssets.GuildB, pos, Quaternion.identity, 1f, false);
+                    return true;
+                }
+                case "tauShrineEntrance": case "tauGeminiGateMarker": // Clover's stone gates (Map3DShrineGateBuilder)
+                {
+                    Material cards = Map3DAssets.SpriteCard(p.Type);
+                    if (cards == null) return false;
+                    bool shrine = p.Type == "tauShrineEntrance";
+                    Map3DShrineGateBuilder.Parts g = shrine ? Map3DShrineGateBuilder.Shrine() : Map3DShrineGateBuilder.Gemini();
+                    // shrine: over the portal road (4 tiles), 0.3 m into the portal row so the plinths stay off the walkable row south of it; gemini: centre of its 4 x 2 solid block
+                    pos = shrine ? Ground(p.Tx + d.FootW * 0.5f, p.Ty + 0.3f) : Ground(p.Tx + d.FootW * 0.5f, p.Ty + 1f - d.FootH * 0.5f);
+                    if (!shrine) // the gemini block is an inner blocker: Clover's relief raises it as a knoll (0.6-1.2 m), stand the gate on it
+                    {
+                        Map3DHeightField f = Map3DHeightField.For(MapRegistry.Current);
+                        float gx = p.Tx + d.FootW * 0.5f, gy = p.Ty + 1f - d.FootH * 0.5f;
+                        float h = Mathf.Min(f.HeightAt(gx - 1.6f, gy), f.HeightAt(gx + 1.6f, gy), f.HeightAt(gx, gy + 0.4f));
+                        pos.z -= Mathf.Max(0f, h - 0.1f) * Map3D.M;
+                    }
+                    Map3DBatcher.Add(g.Stone, Map3DAssets.TownStone, Map3DAssets.TownStone, pos, Quaternion.identity, 1f);
+                    Map3DBatcher.Add(g.Roots, Map3DAssets.Bark, Map3DAssets.Leaves("oak"), pos, Quaternion.identity, 1f);
+                    Map3DBatcher.Add(g.Cards, cards, cards, pos, Quaternion.identity, 1f, false);
+                    return true;
+                }
+                case "tauBrambleWallMedium": // bramble hedge: crossed cards of its sprite, standing on the terrain of its solid tile
+                {
+                    Material cards = Map3DAssets.SpriteCard(p.Type);
+                    if (cards == null) return false;
+                    Map3DHeightField f = Map3DHeightField.For(MapRegistry.Current);
+                    float tx = p.Tx + d.FootW * 0.5f, ty = p.Ty + 0.5f;
+                    pos = Map3D.World(tx, ty, f.HeightAt(tx, ty));
+                    pos.z += Map3DTerrain.Sink;
+                    Map3DBatcher.Add(Map3DShrineGateBuilder.CrossedCards(d.W, d.H), cards, cards, pos, Quaternion.AngleAxis(Hash(p.Tx, p.Ty, p.Type) % 40 - 20, Vector3.forward), 1f);
+                    return true;
+                }
+                case "tauOakPlanterRing": // round the Great Oak's 3 x 3 solid block (rows 12-14), its rim ~0.9 m onto the plaza (walk-through curb, as the 2.5D sprite)
+                    pos = Ground(p.Tx + d.FootW * 0.5f, p.Ty - 0.8f); // near the Great Oak trunk (ty 14.5)
+                    Map3DBatcher.Add(Map3DTownWallBuilder.Ring(1.7f, 16), Map3DAssets.TownStone, Map3DAssets.TownStone, pos, Quaternion.identity, 1f);
+                    return true;
+            }
+            return false;
+        }
+
+        static Vector3 Ground(float tx, float ty)
+        {
+            Vector3 pos = Map3D.World(tx, ty, 0f);
+            pos.z += Map3DTerrain.Sink;
+            return pos;
         }
 
         /// <summary>Generated object for a prop kind at tile coords (tx, ty) (also the border forest: Map3DBorderForest).</summary>
@@ -94,14 +199,18 @@ namespace ZenoniaProto
             var tm = MapRegistry.Current as TileMapBase;
             int cx = p.Tx + d.FootW / 2, row = p.Ty;
             for (int y = p.Ty; y >= p.Ty - 2 && tm != null; y--) if (tm.CharAt(cx, y) == 'B') { row = y; break; }
-            int x0 = cx, x1 = cx;
+            int x0 = cx, x1 = cx, y0 = row, y1 = row;
             while (tm != null && tm.CharAt(x0 - 1, row) == 'B') x0--;
             while (tm != null && tm.CharAt(x1 + 1, row) == 'B') x1++;
-            float span = x1 - x0 + 1;
-            Vector3 pos = Map3D.World(x0 + span * 0.5f, row + 0.5f, 0f);
+            while (tm != null && tm.CharAt(cx, y0 - 1) == 'B') y0--;   // Taurus: the deck may run north-south over an east-west stream
+            while (tm != null && tm.CharAt(cx, y1 + 1) == 'B') y1++;
+            bool northSouth = y1 - y0 > x1 - x0;
+            float spanX = x1 - x0 + 1, spanY = y1 - y0 + 1;
+            Vector3 pos = Map3D.World(x0 + spanX * 0.5f, y0 + spanY * 0.5f, 0f);
             pos.z += Map3DTerrain.Sink;
-            Mesh m = Map3DWoodBuilder.Bridge(span + 0.8f, 1.8f, span - 1f, hash % 3);
-            Map3DBatcher.Add(m, Map3DAssets.Wood, Map3DAssets.Wood, pos, Quaternion.identity, 1f);
+            Mesh m = northSouth ? Map3DWoodBuilder.Bridge(spanY + 0.8f, Mathf.Max(1.8f, spanX - 0.2f), spanY - 1f, hash % 3)
+                                : Map3DWoodBuilder.Bridge(spanX + 0.8f, 1.8f, spanX - 1f, hash % 3);
+            Map3DBatcher.Add(m, Map3DAssets.Wood, Map3DAssets.Wood, pos, northSouth ? Quaternion.AngleAxis(90f, Vector3.forward) : Quaternion.identity, 1f);
         }
 
         static void Build(Transform parent, string name, Mesh mesh, Material m0, Material m1, float tx, float ty, Map3DHeightField f, int hash, float scale, bool cast = true, int impostor = -1)
@@ -115,6 +224,7 @@ namespace ZenoniaProto
         {
             string t = type.ToLowerInvariant();
             kind = Map3DTreeBuilder.Kind.Oak;
+            if (t.Contains("planter")) return Solid.None; // tauOakPlanterRing: a flat stone ring, not a tree
             if (t.Contains("pillartall")) return Solid.PillarTall;
             if (t.Contains("pillarshort")) return Solid.PillarShort;
             if (t.Contains("wallcorner")) return Solid.WallCorner;
@@ -131,6 +241,8 @@ namespace ZenoniaProto
             if (t.Contains("pine")) { kind = Map3DTreeBuilder.Kind.Pine; return Solid.Tree; }
             if (t.Contains("birch")) { kind = Map3DTreeBuilder.Kind.Birch; return Solid.Tree; }
             if (t.Contains("willow")) { kind = Map3DTreeBuilder.Kind.Willow; return Solid.Tree; }
+            if (t.Contains("stones")) return Solid.RockCluster; // tauAncientRootsStones
+            if (t.Contains("elderwood") || t.Contains("great")) { kind = Map3DTreeBuilder.Kind.OakAncient; return Solid.Tree; } // Taurus elderwood / the village Great Oak
             if (t.Contains("ancient")) { kind = Map3DTreeBuilder.Kind.OakAncient; return Solid.Tree; }
             if (t.Contains("young") || t.Contains("oakslim") || t.Contains("oaksmall")) { kind = Map3DTreeBuilder.Kind.OakYoung; return Solid.Tree; }
             if (t.Contains("oak") || t.Contains("tree")) return Solid.Tree;
