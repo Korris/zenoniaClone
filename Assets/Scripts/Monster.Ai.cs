@@ -67,12 +67,13 @@ namespace ZenoniaProto
                     if (def.Stationary || timer > 0f) break;
                     float angle = Random.value * Mathf.PI * 2f;
                     wanderDir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                    if (homeDist > 0.001f && MonsterLeashRules.WanderTowardHome(homeDist, def.LeashRange)) wanderDir = toHome / homeDist; // never drift past the leash (Rpg/MonsterLeashRules.cs)
                     Enter(State.Wander, 500f + Random.value * 900f);
                     break;
                 case State.Wander:
                     if (dist < AggroRange) { Enter(State.Chase, 0f); break; }
                     if (timer <= 0f) { Enter(State.Idle, 600f + Random.value * 1200f); break; }
-                    dir = wanderDir; factor = WanderSpeedFactor;
+                    dir = homeDist > 0.001f && MonsterLeashRules.WanderTowardHome(homeDist, def.LeashRange) ? toHome / homeDist : wanderDir; factor = WanderSpeedFactor;
                     break;
                 case State.Chase:
                     if (homeDist > def.LeashRange) { Enter(State.Return, 0f); break; }
@@ -90,7 +91,7 @@ namespace ZenoniaProto
                     break;
                 case State.Return:
                     if (homeDist < 6f) { provoked = false; if (def.ResetOnReturn) { hp = def.Hp; wantedClock.Reset(); } Enter(State.Idle, 800f); break; } // Taurus: back home = full HP (nobody farms by kiting to the leash edge)
-                    if (dist < AggroRange * 0.6f) { Enter(State.Chase, 0f); break; }
+                    if (MonsterLeashRules.ReaggroOnReturn(def.ResetOnReturn, dist, AggroRange)) { Enter(State.Chase, 0f); break; } // Taurus: no turning back (it froze at the leash edge, hits dropped)
                     dir = toHome / homeDist;
                     break;
                 // Wanted Boss skill (NORMAL/Chase above -> Telegraph -> Execute -> back to Chase; Monster.WantedSkills.cs): the boss stands still
