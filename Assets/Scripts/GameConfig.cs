@@ -15,7 +15,7 @@ namespace ZenoniaProto
         public const float ViewHeightUnits = BaseViewHeightUnits * WorldZoomOut; // 216
         public const int TileUnits = 16;
         /// <summary>Largest map in tiles; sizes the interest grid of every zone (a smaller map just leaves cells unused).</summary>
-        public const int MaxTilesW = 96, MaxTilesH = 64; // Clover Meadows (Taurus) is 96x64
+        public const int MaxTilesW = 100, MaxTilesH = 100; // Willowbrook Village V2 (Taurus social hub, 25/11/2026) is 100x100
         /// <summary>Size of MapRegistry.Current, the map the running code belongs to (a zone server switches it in Zone.Enter).</summary>
         public static int TilesW { get { return MapRegistry.Current.Width; } }
         public static int TilesH { get { return MapRegistry.Current.Height; } }

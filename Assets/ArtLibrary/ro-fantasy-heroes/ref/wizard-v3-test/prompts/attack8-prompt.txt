@@ -1,0 +1,16 @@
+Wizard V3 attack 8 dirs x 8 frames (26/11). Engine: ComboConfigs.WizardHits 100 / 80 / 170 ms = 350 ms, frame = progress x 8 (~44 ms),
+bolt leaves at 100 ms = frame 2. One message per direction, attach ref/wizard-v3-test/idle/idle-<dir>.png (left dirs: the mirrored right idle, size only).
+Prompt (JS window.__atk(dir, note) in the chat tab):
+VẼ ẢNH: vẽ mới hoàn toàn từ đầu. Sprite sheet ngang 1536x1024, nền phẳng #00FF00, 2 hàng x 4 cột cách đều, mỗi hình giữa ô, không chạm mép ô.
+CẢ 8 Ô CÙNG MỘT HƯỚNG: <DIR>. Ô 1-8 = frame 0-7 của MỘT đòn PHÓNG PHÉP bằng trượng (đánh thường của Mage), cả người tham gia:
+F0 GOM PHÉP: hạ trọng tâm nhẹ, nắm tay phải (cầm trượng) kéo về sát vai phải, tay trái nắm trước ngực.
+F1 GIƠ TRƯỢNG: nắm tay phải giơ cao cạnh / trên vai phải (tách hẳn khỏi đầu), thân hơi ngả sau, chân trước nhấc gót.
+F2 PHÓNG (khung quan trọng nhất): bước ngắn về hướng phóng, nắm tay phải ĐẨY MẠNH về phía trước ngang vai (cánh tay gần duỗi, trượng chĩa vào mục tiêu), thân nghiêng tới 5-8 độ, vạt áo bung ra sau.
+F3 GIỮ: tay phải duỗi hết về hướng phóng, giữ thế, áo choàng bung nhất.
+F4 DƯ LỰC: tay phải còn duỗi nhưng hạ thấp hơn F3 một chút, vai hơi giật lùi (phản lực).
+F5 THU: tay phải rút về nửa đường, trọng tâm lùi về.
+F6 HỒI: chân trước lùi về, nắm tay phải về cạnh hông.
+F7 THỦ: giống hệt idle cùng hướng (ảnh đính kèm).
+<DIR NOTE>
+Nhân vật: đúng Mage V3 idle đính kèm (nữ, đầu TRỌC có mặt, áo choàng trắng-lam-vàng), CỠ ĐẦU như idle (sọ rộng ~35 % chiều cao người), F7 cao bằng idle.
+KHÔNG vẽ tóc, KHÔNG vẽ trượng, KHÔNG hiệu ứng phép: hai tay là nắm tay không khép chặt (game gắn trượng vào nắm tay PHẢI); nắm tay phải luôn thấy rõ, không bị đầu che. Tông RO Soft Adventure, viền nâu đậm, sáng trên-trái.

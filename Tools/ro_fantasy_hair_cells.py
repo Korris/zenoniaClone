@@ -22,7 +22,16 @@ L_PCT, L_OUT = [0, 3, 50, 97, 100], [0.10, 0.14, 0.60, 0.88, 0.95]  # grey perce
 # Starward hair V2 (24/11) is painted as masses (shadow + main) for the Ramp5 knots of HeroRecolor (outline 0.12, deep 0.28,
 # shadow 0.41, base 0.65, light 0.86). The median stretch above lifted the shadow masses into the base colour (flat hair), so these
 # classes map the two painted mass peaks onto the shadow / base knots instead (ends: outline, shine)
-PAINTED_ON_RAMP = ("warrior",)
+PAINTED_ON_RAMP = ("warrior", "cleric", "mechanic")  # cleric, mechanic V3 (26/11): painted on the same ramp hexes as Knight hair V4
+# Asteria V3 Assassin (26/11, RO_FANTASY_VARIANT=assassin-v3): no black face mask any more (bare face + red scarf), hair painted in grey
+# masses on the Ramp5 knots like the Knight, the bow keeps its painted colour (accessory)
+V3_ASSASSIN = bc.variant.VARIANT == "assassin-v3"
+if V3_ASSASSIN:
+    PAINTED_ON_RAMP += ("assassin",)
+
+
+def old_face_mask(cls):
+    return cls == "assassin" and not V3_ASSASSIN
 HIGHLIGHT_PCT = 90  # hair pixels above this percentile are the painted shine strands (-> Ramp5 Light)
 
 
@@ -51,7 +60,7 @@ ac = bc.art_check
 
 def fits(cls, body, hr, ref_path=None):
     """Per head i: (scale, fx, fy, span) mapping hair-image px (inside span) to body-source px: body = (fx, fy) + (hair - span origin) * scale."""
-    ac.DARK_FACE = cls == "assassin"
+    ac.DARK_FACE = old_face_mask(cls)
     spans = ac.figures(body)
     heads = [ac.head_box(body, s) for s in spans]
     body_skin, body_alpha = ac.face_mask(body), body[..., 3] > 0
@@ -82,10 +91,14 @@ def fits(cls, body, hr, ref_path=None):
 
 def layers(cls, hr):
     """(hair RGBA uint8, accessory RGBA uint8 or None) at source resolution: neutral ramp greys, accessories as painted."""
-    ac.DARK_FACE = cls == "assassin"
+    ac.DARK_FACE = old_face_mask(cls)
+    ac.HAIR_MIN_PX = 400 if cls == "mechanic" else None  # V3 ponytail / tufts split off by the strap or tie (art check HAIR_MIN_PX)
     keep, acc = ac.hair_layer(hr)
     acc &= cls in ACC_CLASSES
     acc &= ~(hr[..., 1] - np.maximum(hr[..., 0], hr[..., 2]) > 0.1)  # key-green specks are no accessory
+    if V3_ASSASSIN:  # small gold clips / earrings of the V3 styles (Tools/ro_fantasy_assassin_v3_hair.py)
+        from ro_fantasy_assassin_v3_hair import small_accessories
+        acc |= small_accessories(hr, keep, ac.skin_mask(hr))
     lab, n = ndimage.label(keep, structure=np.ones((3, 3), bool))
     if n > 1:  # dark specks around the outline (ChatGPT's broken outline strokes): drop pieces under 80 source px
         sizes = ndimage.sum(keep, lab, range(1, n + 1))
@@ -96,7 +109,7 @@ def layers(cls, hr):
     hsat = hr[..., :3].max(-1) - hr[..., :3].min(-1)
     outline = (hr[..., 3] > 0) & (lum < 0.36) & (hsat < 0.22) & ~acc & ~ac.skin_mask(hr)
     keep |= outline & ndimage.binary_dilation(keep, iterations=4)
-    if cls == "assassin":  # the black face mask redrawn on every head is a solid dark area (hair outlines are thin): not hair
+    if old_face_mask(cls):  # the black face mask redrawn on every head is a solid dark area (hair outlines are thin): not hair
         mask = ndimage.binary_opening((hr[..., 3] > 0) & (lum < 0.30), iterations=4)
         keep &= ~ndimage.binary_dilation(mask, iterations=3)
     if cls in PAINTED_ON_RAMP:
@@ -238,7 +251,7 @@ def _strips_from(cls, k, idle_cells, path, body, hr, ref):
     for i, (f, (cell, xf)) in enumerate(zip(fits(cls, body, hr, ref), idle_cells)):
         anchor = bc.sheets_tool.head_anchor(cell)
         c, lost = cell_of(hair, f, xf, anchor)
-        if cls == "assassin":
+        if old_face_mask(cls):
             c = face_cover(c, cell, anchor)
         c = behind_neck(c, cell, anchor, i, chin_scan=cls == "cleric")
         if "golden-paladin" in str(path):
@@ -251,7 +264,7 @@ def _strips_from(cls, k, idle_cells, path, body, hr, ref):
             accs.append(cell_of(acc, f, xf, anchor)[0])
     strip = np.concatenate(cells, 1)
     if cls in PAINTED_ON_RAMP:
-        strip = clean_strip(strip, soften="golden-paladin" in str(path))
+        strip = clean_strip(strip, soften="golden-paladin" in str(path), keep_colour=cls in ACC_CLASSES)
     return strip, (np.concatenate(accs, 1) if accs else None), path.name
 
 
@@ -277,7 +290,7 @@ def seal_gaps(c, cell, anchor, r=4):
     return out
 
 
-def clean_strip(strip, soften=False):
+def clean_strip(strip, soften=False, keep_colour=False):
     """Warrior hair cells (24/11, user: "tóc dơ dơ, vỡ nét"): every opaque pixel exactly neutral grey (the shader recolours only
     chroma < 0.08-0.14); `soften`: 1-2 px dark inner strand lines (away from the silhouette) pulled 35 % toward the local median so
     they stay lines at 3x shrink instead of noisy dark dots; then edge bleed: transparent texels take the nearest opaque grey, so
@@ -291,8 +304,12 @@ def clean_strip(strip, soften=False):
         thin = solid & (lum < med - 25) & (lum < 110)
         lum = np.where(thin, lum + 0.35 * (med - lum), lum)
     g = np.clip(lum.round(), 0, 255).astype(np.uint8)
+    neutral = op
+    if keep_colour:  # accessories (V3 Assassin bow + clasp) keep their painted colour; only near-grey hair is made exactly neutral
+        ch = out[..., :3].max(-1).astype(int) - out[..., :3].min(-1).astype(int)
+        neutral = op & (ch < 24)
     for c in range(3):
-        out[..., c] = np.where(op, g, out[..., c])
+        out[..., c] = np.where(neutral, g, out[..., c])
     if (~op).any() and op.any():
         idx = ndimage.distance_transform_edt(~op, return_distances=False, return_indices=True)
         for c in range(3):

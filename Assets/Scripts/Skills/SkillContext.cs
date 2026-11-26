@@ -14,6 +14,7 @@ namespace ZenoniaProto
         public Vector2? LineFrom;        // start of the last Dash / Leap: a Line strike right after it sweeps the travelled path
         public Monster Target;           // NearestEnemy
         public HeroController Ally;      // LowestAlly (may be the caster)
+        public Vector2? Ground;          // Ground skills: the chosen centre (range-clamped on the authority); null for every other targeting
         public int Seed;                 // deterministic scatter (rain)
         public bool Authority, View;     // damage / heal / status run on the authority, art + sound where RendersFx
         public SkillDamageCtx Dmg;
@@ -29,7 +30,9 @@ namespace ZenoniaProto
     {
         static readonly Vector2 HeroCenter = new Vector2(0f, 6f);
 
-        public static SkillContext Resolve(SkillDef def, int rank, ISkillBody body, int salt = 0)
+        /// <param name="ground">Ground skills: the point the player picked (null = auto pick). The authority clamps it to SkillDef.CastRange; a
+        /// replaying client takes it as it came (the server's own point).</param>
+        public static SkillContext Resolve(SkillDef def, int rank, ISkillBody body, int salt = 0, Vector2? ground = null)
         {
             if (def == null || body == null || body.IsDead) return null;
             Vector2 feet = body.Feet;
@@ -51,6 +54,13 @@ namespace ZenoniaProto
             {
                 ctx.Ally = LowestAlly(body, reach);
                 if (ctx.Ally == null) return null; // only a body without a hero (never a Cleric): nothing to heal
+            }
+            else if (def.Targeting == SkillTargeting.Ground)
+            {
+                ctx.Ground = SkillGroundAim.Point(def, body, ground, ctx.Authority);
+                Vector2 to = ctx.Ground.Value - feet;
+                if (to.sqrMagnitude > 1f) ctx.Dir = to.normalized;
+                if (ctx.Authority) body.Face(ctx.Dir); // turn toward the chosen spot (the cast pose and a leap read the facing)
             }
             ctx.Dmg = SkillDamageCtx.For(body.Hero, def.DamageMul(ctx.Rank), body.Palette);
             ctx.Dmg.Atk = body.Atk;
@@ -100,6 +110,20 @@ namespace ZenoniaProto
         {
             if (Zone.Main != null && Zone.Main.Heroes.Count > 0) return Zone.Main.Heroes.All;
             return new[] { body.Hero };
+        }
+
+        /// <summary>Centre of a Strike / Heal placed `e.Range` ahead: the chosen point of a Ground skill, else along the aim from `from`, stopped by walls.</summary>
+        public static Vector2 PlacedCentre(SkillContext ctx, SkillEffect e, Vector2 from)
+        {
+            if (ctx.Ground.HasValue && e.Range > 0f) return ctx.Ground.Value;
+            return e.Range > 0f ? ClampToWalls(from, from + ctx.Dir * e.Range * ctx.Units) : from;
+        }
+
+        /// <summary>Centre of a Rain's scatter disc: the chosen point of a Ground skill, else `Range` ahead of where the cast began (stopped by walls).</summary>
+        public static Vector2 RainCentre(SkillContext ctx, SkillEffect e)
+        {
+            if (ctx.Ground.HasValue) return ctx.Ground.Value;
+            return ClampToWalls(ctx.CastFrom, ctx.CastFrom + ctx.Dir * e.Range * ctx.Units);
         }
 
         /// <summary>Walks from `from` towards `to` and returns the last point the hero box fits (so aimed areas never land inside walls).</summary>

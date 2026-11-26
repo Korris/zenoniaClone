@@ -189,6 +189,12 @@ namespace ZenoniaProto
                     if (p == null || !DuelRequestMsg.TryRead(reader, out dr)) { Kick(peer, "bad duel request"); break; }
                     duel.OnRequest(p, dr, (long)host.ClockMs);
                     break;
+                case NetOp.AimHint:
+                    AimHintMsg ah;
+                    if (p == null || !AimHintMsg.TryRead(reader, out ah)) { Kick(peer, "bad aim hint"); break; }
+                    if (ah.Epoch != p.Epoch) break; // an id of the zone the hero just left
+                    if (p.Hero != null) p.Hero.AimPreferId = ah.MonsterId;
+                    break;
                 default: Kick(peer, "unknown opcode " + op); break;
             }
         }

@@ -154,12 +154,12 @@ namespace ZenoniaProto
             if (hero == null)
             {
                 if (ConnectScreenGui.Visible || HeroSelectScreen.Creating || CharacterListScreen.IsShown || CharacterCustomizeScreen.OfflineOpen || NetMode.IsClient) return; // typing a name / waiting for the server: the digit keys must not pick a class
-                for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(ClassKeys[i])) { Spawn((HeroClass)i); return; }
+                for (int i = 0; i < HeroClassDef.All.Length && i < ClassKeys.Length; i++) if (InputAdapter.Pressed(ClassKeys[i])) { Spawn((HeroClass)i); return; }
                 return;
             }
             if (InventoryPanel.IsOpen) return;
             if (NetMode.IsOffline)
-                for (int i = 0; i < HeroClassDef.All.Length; i++) if (InputAdapter.Pressed(SwitchKeys[i])) { Spawn((HeroClass)i); return; }
+                for (int i = 0; i < HeroClassDef.All.Length && i < SwitchKeys.Length; i++) if (InputAdapter.Pressed(SwitchKeys[i])) { Spawn((HeroClass)i); return; }
             if (InputAdapter.Pressed(GameKey.SolidDebug)) WorldBuilder.ToggleSolidOverlay();
         }
 

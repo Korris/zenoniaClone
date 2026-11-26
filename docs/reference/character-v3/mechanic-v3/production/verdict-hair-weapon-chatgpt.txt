@@ -1,0 +1,4 @@
+Chat Tay https://chatgpt.com/c/6b079286-ba30-83ec-818a-cfffc11d9b9e (26/11 phase 2)
+TÓC (ảnh 03-hair-3-styles-composed-like-game.png): kiểu 1 bồng xù 9,5 / kiểu 2 vuốt nhọn 9,4 / kiểu 3 buộc gáy 9,3; tổng 9,4 APPROVED, không vẽ lại. Kiểu 1 làm mặc định.
+Lỗi nhỏ: kiểu 2 góc lưng hơi giống kiểu 1; kiểu 3 mặt trước túm tóc chỉ đọc được một bên; túm tóc có thể nhảy khi lật sprite hướng trái.
+PHÁO TAY: ChatGPT chọn dài 55 % H (H = 216 px -> ~119 px). Nguồn src/mechanic-v3/weapon-mechanic-cannon-v3-chatgpt-1.png.

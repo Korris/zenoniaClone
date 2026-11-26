@@ -1,0 +1,18 @@
+{
+ "source": "Assets/ArtLibrary/ui/hero-select-ro/src/hero-select-ro-kit-b-icons-chatgpt-1.png",
+ "key": "#FF00FF",
+ "key_mode": "edge",
+ "out": "Assets/Resources/Sprites/ui/hero-select-ro/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/hero-select-ro-adventure/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [
+  [{"name": "class-warrior", "height": 96}, {"name": "class-wizard", "height": 96}, {"name": "class-mechanic", "height": 96},
+   {"name": "class-assassin", "height": 96}, {"name": "class-cleric", "height": 96}, {"name": "class-archer", "height": 96}],
+  [{"name": "stat-atk", "height": 64}, {"name": "stat-def", "height": 64}, {"name": "stat-hp", "height": 64}, {"name": "stat-mp", "height": 64}, {"name": "stat-crit", "height": 64}],
+  [{"name": "bar-track", "height": 48, "border": [24, 0, 24, 0]}, {"name": "bar-fill", "height": 48, "border": [24, 0, 24, 0]}],
+  [{"name": "arrow-left", "height": 64}, {"name": "arrow-right", "height": 64}, {"name": "dot-on", "height": 32}, {"name": "dot-off", "height": 32},
+   {"name": "play", "height": 80}, {"name": "chevron-right", "height": 56}, {"name": "back-arrow", "height": 56}]
+ ]
+}

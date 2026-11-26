@@ -48,7 +48,7 @@ namespace ZenoniaProto
         {
             Vector2 from = e.Shape == AreaShape.Line && ctx.LineFrom.HasValue ? ctx.LineFrom.Value : ctx.Feet; // a line right after a dash sweeps the path
             if (e.Shape == AreaShape.Single && ctx.Target != null && !ctx.Target.IsDying) return ctx.Target.Center;
-            return e.Range > 0f ? SkillAim.ClampToWalls(from, from + ctx.Dir * e.Range * ctx.Units) : from;
+            return SkillAim.PlacedCentre(ctx, e, from);
         }
 
         static void Strike(SkillContext ctx, SkillEffect e)
@@ -85,7 +85,7 @@ namespace ZenoniaProto
         static void Rain(SkillContext ctx, SkillEffect e, int drop)
         {
             float u = ctx.Units, dx, dy;
-            Vector2 mid = SkillAim.ClampToWalls(ctx.CastFrom, ctx.CastFrom + ctx.Dir * e.Range * u);
+            Vector2 mid = SkillAim.RainCentre(ctx, e);
             SkillScatter.InDisc(ctx.Seed, drop, e.Radius * u, out dx, out dy);
             Vector2 at = mid + new Vector2(dx, dy);
             SkillEffect blast = Derive(e, AreaShape.Circle, e.ImpactRadius);
@@ -112,8 +112,10 @@ namespace ZenoniaProto
                 return;
             }
             ctx.LineFrom = from;
-            if (ctx.Authority) ctx.Body.BeginForcedMove(ctx.Dir, e.MoveTiles * u, e.DurationMs);
-            if (ctx.View) ShockRing.Spawn(from, 10f, 0.25f, SkillVfx.Tint(ctx), FeelConfig.FxOrder - 8, 0.7f, 0.3f, true);
+            float move = e.MoveTiles * u;
+            if (ctx.Ground.HasValue) move = Mathf.Min(move, Vector2.Distance(from, ctx.Ground.Value)); // Ground leap: lands on the chosen point (never past MoveTiles)
+            if (ctx.Authority) ctx.Body.BeginForcedMove(ctx.Dir, move, e.DurationMs);
+            if (ctx.View && !ArcherLightSkills.Handles(ctx.Def.Id)) ShockRing.Spawn(from, 10f, 0.25f, SkillVfx.Tint(ctx), FeelConfig.FxOrder - 8, 0.7f, 0.3f, true); // Wind Step draws its own burst
             if (ctx.View) SkillSfx.Play(ctx, SkillSfx.Cast, 0.7f);
         }
 

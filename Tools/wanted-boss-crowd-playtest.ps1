@@ -120,7 +120,7 @@ try {
   $tag = Get-Random -Maximum 999
   $botPrefix = "c" + $tag + "b" # bot names c<tag>b<i>; the window's hero is play<tag>, outside the prefix
   $env:ZENONIA_SERVICE_KEY = $serviceKey
-  $procs += Start-Process $Exe -PassThru -WindowStyle Hidden -ArgumentList (@("-batchmode", "-nographics", "--mode", "server", "--port", $ZonePort, "--api-url", $api, "--zone-id", "wanted-crowd", "--wanted-boss", $Boss, "--wanted-respawn-sec", 20, "--wanted-hp-scale", $HpScale, "-logFile", "`"$OutDir\zone.log`"") + $(if ($GodBots -or $GodHero) { @("--wanted-god-bots", ((@($(if ($GodBots) { $botPrefix }), $(if ($GodHero) { "play" + $tag })) | Where-Object { $_ }) -join ",")) } else { @() }))
+  $procs += Start-Process $Exe -PassThru -WindowStyle Hidden -ArgumentList (@("-batchmode", "-nographics", "--mode", "server", "--port", $ZonePort, "--api-url", $api, "--zone-id", "wanted-crowd", "--legacy-maps", "--wanted-boss", $Boss, "--wanted-respawn-sec", 20, "--wanted-hp-scale", $HpScale, "-logFile", "`"$OutDir\zone.log`"") + $(if ($GodBots -or $GodHero) { @("--wanted-god-bots", ((@($(if ($GodBots) { $botPrefix }), $(if ($GodHero) { "play" + $tag })) | Where-Object { $_ }) -join ",")) } else { @() }))
   Remove-Item env:ZENONIA_SERVICE_KEY
   Save-Pids
   if (-not (Wait-Log "$OutDir\zone.log" "zone sessions reset" 40)) { throw "the zone never got ready, see $OutDir\zone.log" }
@@ -146,7 +146,7 @@ try {
   Write-Host "swarm started ($Bots bots)"
 
   $env:ZENONIA_TEST_PASSWORD = $password
-  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", $ScreenW, "-screen-height", $ScreenH, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero.Name, "--name", $hero.Name, "--wanted-boss", $Boss, "--wanted-hp-scale", $HpScale) + $(if ($Ui) { @("--ui", $Ui) } else { @() }) + $(if ($Party) { @("--net-bot", "party", "--party-role", "joiner") } elseif ($Role) { @("--net-bot", "persist", "--persist-role", $Role, "--wanted-shots", "`"$OutDir\shots`"") } else { @("--net-bot", "persist", "--persist-role", "idle") }) + $ExtraArgs)
+  $client = Start-Process $Exe -PassThru -ArgumentList (@("-screen-fullscreen", 0, "-screen-width", $ScreenW, "-screen-height", $ScreenH, "--mode", "client", "-logFile", "`"$OutDir\client.log`"", "--api-url", $api, "--account", $hero.Name, "--name", $hero.Name, "--legacy-maps", "--wanted-boss", $Boss, "--wanted-hp-scale", $HpScale) + $(if ($Ui) { @("--ui", $Ui) } else { @() }) + $(if ($Party) { @("--net-bot", "party", "--party-role", "joiner") } elseif ($Role) { @("--net-bot", "persist", "--persist-role", $Role, "--wanted-shots", "`"$OutDir\shots`"") } else { @("--net-bot", "persist", "--persist-role", "idle") }) + $ExtraArgs)
   Remove-Item env:ZENONIA_TEST_PASSWORD
   $procs += $client
   Save-Pids

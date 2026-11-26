@@ -76,15 +76,17 @@ namespace ZenoniaProto
         }
 
         /// <summary>Tree skill cast (see SkillCastCode): `salt` = the input step that pressed the key, shared by every side so rain drops land alike.</summary>
-        public static void SkillCast(HeroController h, int index, int rank, int salt)
+        public static void SkillCast(HeroController h, int index, int rank, int salt, Vector2? ground = null)
         {
             if (!Active) return;
             Vector2 at = h.Position;
-            Add(new NetEvent
+            var e = new NetEvent
             {
                 Type = NetEventType.SkillCast, Id = h.NetId, Step = SkillCastCode.Pack(index, rank), X = NetQuantize.Pos(at.x), Y = NetQuantize.Pos(at.y), Facing = (byte)h.Facing,
                 Other = (ushort)(salt & 0xFFFF),
-            }, at);
+            };
+            if (ground.HasValue) SkillCastCode.SetGround(ref e, ground.Value.x, ground.Value.y); // protocol 38: Ground skills carry the clamped centre
+            Add(e, at);
         }
 
         /// <summary>A Deploy Turret fired at `foe`, whose centre is at `aim` now. Heard by whoever has the turret in its area of interest; the hit itself is a MonsterHit when the shot arrives.</summary>

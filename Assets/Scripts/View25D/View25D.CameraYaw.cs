@@ -33,6 +33,9 @@ namespace ZenoniaProto
             return ((r % 8) + 8) % 8;
         }
 
+        /// <summary>Takes a prop off the camera-facing list (View25DDirectionalProps turns its own cards).</summary>
+        public static void UnregisterStanding(Transform t) { Standing.Remove(t); }
+
         static void RegisterStanding(Transform t)
         {
             Standing.Add(t);
@@ -51,9 +54,10 @@ namespace ZenoniaProto
                 if (t == null) { Standing.RemoveAt(i); continue; } // map rebuilt
                 t.rotation = q;
             }
+            View25DDirectionalProps.Tick(); // multi-view props: the view of the camera's side on its fixed card
         }
 
         /// <summary>2.5D off: forget the props (they are rebuilt flat with the next map).</summary>
-        public static void ClearStanding() { Standing.Clear(); standingApplied = Quaternion.identity; }
+        public static void ClearStanding() { Standing.Clear(); standingApplied = Quaternion.identity; View25DDirectionalProps.Clear(); }
     }
 }

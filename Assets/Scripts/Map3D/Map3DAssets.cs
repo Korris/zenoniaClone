@@ -135,6 +135,16 @@ namespace ZenoniaProto
                     t.SetColor("_DirtTint", Map3DPalette.DirtTint);
                     t.SetColor("_PavingTint", Map3DPalette.PavingTint);
                     t.SetFloat("_PavingContrast", Map3DPalette.PavingContrast);
+                    // Willowbrook Village V2 (25/11/2026): the cobbles of ChatGPT's lake concept (wv2-paving-tile-chatgpt-1.png), ~9 stones per repeat of 6 m
+                    if (Resources.Load<Texture2D>("Map3D/ground-paving-tau") != null)
+                    {
+                        t.SetTexture("_Paving", Tex("ground-paving-tau"));
+                        // user 25/11 "gạch sáng chói quá": ChatGPT (village chat) Paving V3 = a slightly cool tint that neutralises the texture's own yellow-orange
+                        // and the warm sun, ~15 % dimmer (V2 #D9C9B6 + contrast 1.12 read as orange terracotta: the texture's blue is already 0.68)
+                        t.SetColor("_PavingTint", new Color32(0xD9, 0xE0, 0xEA, 0xFF));
+                        t.SetFloat("_PavingContrast", 1f);
+                        t.SetFloat("_PavingScale", 96f);
+                    }
                 }
                 return t;
             });
@@ -304,6 +314,44 @@ namespace ZenoniaProto
                     return m;
                 });
             }
+        }
+
+        /// <summary>A 3D prop model under Resources/Map3D/models/&lt;dir&gt;/&lt;file&gt; (obj / fbx, metres, y up; readable: Map3DModelImportSettings) as a copy
+        /// with white vertex colours (the Map3D shaders multiply them in; imported models have none). Null when missing.</summary>
+        public static Mesh Model(string path)
+        {
+            Mesh cached;
+            if (models.TryGetValue(path, out cached)) return cached;
+            Mesh src = Resources.Load<Mesh>("Map3D/models/" + path);
+            if (src == null) { GameObject go = Resources.Load<GameObject>("Map3D/models/" + path); MeshFilter mf = go != null ? go.GetComponentInChildren<MeshFilter>() : null; src = mf != null ? mf.sharedMesh : null; }
+            Mesh m = null;
+            if (src != null && src.isReadable)
+            {
+                m = UnityEngine.Object.Instantiate(src);
+                m.hideFlags = HideFlags.DontSave;
+                var c = new Color[m.vertexCount];
+                for (int i = 0; i < c.Length; i++) c[i] = Color.white;
+                m.colors = c;
+            }
+            else if (src != null) Debug.LogWarning("[ZenoniaProto] Map3D model not readable (Map3DModelImportSettings): " + path);
+            models[path] = m;
+            return m;
+        }
+        static readonly System.Collections.Generic.Dictionary<string, Mesh> models = new System.Collections.Generic.Dictionary<string, Mesh>();
+
+        /// <summary>Lit material for a 3D prop model: its texture under Resources/Map3D/models/ on the sprite cutout shader (opaque art: alpha 1).</summary>
+        public static Material ModelMaterial(string texPath)
+        {
+            Texture2D t = Resources.Load<Texture2D>("Map3D/models/" + texPath);
+            if (t == null) return null;
+            return Get("model_" + texPath, () =>
+            {
+                var m = new Material(Find("Map3DSpriteCutout"));
+                m.SetTexture("_MainTex", t);
+                m.SetFloat("_Cutoff", 0.5f);
+                m.SetFloat("_SceneLight", 0.75f);
+                return m;
+            });
         }
 
         /// <summary>Painted details cut from a prop's own sprite (Resources/Sprites/village/props/&lt;type&gt;) on fixed 3D cards, alpha-cut like GuildB

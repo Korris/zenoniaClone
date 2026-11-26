@@ -19,6 +19,7 @@ Shader "ZenoniaProto/Map3DTerrain"
         _RockTint ("Rock tint", Color) = (1,1,1,1)
         _PavingTint ("Paving tint", Color) = (1,1,1,1)
         _PavingContrast ("Paving contrast", Float) = 1
+        _PavingScale ("Paving repeat (world units)", Float) = 40
         _BedColor ("Water bed", Color) = (0.30,0.38,0.33,1)
         _CtrlRect ("Control rect", Vector) = (0,0,1,1)
         _Tone ("Tone (darkness)", 2D) = "black" {}
@@ -45,7 +46,7 @@ Shader "ZenoniaProto/Map3DTerrain"
             #include "Map3DCommon.cginc"
 
             sampler2D _Control, _Grass, _Dirt, _Rock, _Paving, _Noise, _Tone;
-            float _PavingContrast, _Detail;
+            float _PavingContrast, _Detail, _PavingScale;
             float4 _MapRect; fixed4 _FarHaze;
             fixed4 _GrassTint, _ForestTint, _DirtTint, _RockTint, _PavingTint, _BedColor;
             float4 _CtrlRect;
@@ -80,11 +81,11 @@ Shader "ZenoniaProto/Map3DTerrain"
                 float3 nn = abs(normalize(i.n));                            // World Depth V3.1 cliffs: triplanar rock so steep faces are not stretched
                 nn = pow(nn, 4.0); nn /= (nn.x + nn.y + nn.z);
                 float3 rock = (tex2D(_Rock, w / 48.0).rgb * nn.z + tex2D(_Rock, i.wp.xz / 48.0).rgb * nn.y + tex2D(_Rock, i.wp.yz / 48.0).rgb * nn.x) * _RockTint.rgb;
-                float3 pave = tex2D(_Paving, w / 40.0).rgb;
+                float3 pave = tex2D(_Paving, w / _PavingScale).rgb;
                 if (_Detail > 0.5)
                 {
                     // RO3 loop round 1 (plaza): a second paving sample turned ~60 deg and shifted, mixed in 4-6 m patches, + per-stone value +-6 %, so the slabs stop repeating
-                    float2 pr = float2(dot(w, float2(0.5, 0.866)), dot(w, float2(-0.866, 0.5))) / 40.0 + 0.37;
+                    float2 pr = float2(dot(w, float2(0.5, 0.866)), dot(w, float2(-0.866, 0.5))) / _PavingScale + 0.37;
                     float pm = smoothstep(0.42, 0.58, tex2D(_Noise, w / 80.0 + 0.71).g);
                     pave = lerp(pave, tex2D(_Paving, pr).rgb, pm);
                     pave *= 0.94 + 0.12 * tex2D(_Noise, w / 11.0 + 0.13).b;

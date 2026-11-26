@@ -1,0 +1,11 @@
+{
+ "source": "Assets/ArtLibrary/ui/hero-select-ro/src/hero-select-ro-skill-ring-chatgpt-1.png",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/hero-select-ro/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/hero-select-ro-adventure/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [[{"name": "skill-ring", "height": 128, "hole": "skill-ring-hole"}, {"name": "skill-ring-selected", "height": 140}, {"name": "skill-lock", "height": 64}]]
+}

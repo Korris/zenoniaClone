@@ -1,0 +1,20 @@
+Wizard V3 (Asteria Mage) install, 26/11/2026 - how to go back to the previous Wizard (RO Fantasy 19/11 look)
+
+Backup of everything the V3 install overwrote: D:/temp/wizard-v2-backup/
+  Sprites/wizard/   -> Assets/Resources/Sprites/hero-layered/ro-fantasy/wizard/   (body sheets, hand layer, hair 0-2, .meta)
+  Data/wizard/      -> Assets/Resources/Data/hero-layered/ro-fantasy/wizard/      (body.json, class.json)
+  weapons/wizard-staff.png(.meta), wizard-book.png(.meta) -> Assets/Resources/Sprites/hero-layered/weapons/
+  weapons/weapons.json -> Assets/Resources/Data/hero-layered/weapons.json (only the "wizard-staff" grip and the note changed:
+                          restore just that key if other classes changed the file since)
+  wizard-fists.json -> Assets/ArtLibrary/ro-fantasy-heroes/sheets/wizard-fists.json (not touched by V3: V3 writes sheets/wizard-v3/)
+
+Revert (PowerShell, from D:\zenoniaClone):
+  Remove-Item -Recurse -Force Assets\Resources\Sprites\hero-layered\ro-fantasy\wizard
+  Copy-Item -Recurse D:\temp\wizard-v2-backup\Sprites\wizard Assets\Resources\Sprites\hero-layered\ro-fantasy\wizard
+  Copy-Item -Force D:\temp\wizard-v2-backup\Data\wizard\* Assets\Resources\Data\hero-layered\ro-fantasy\wizard\
+  Copy-Item -Force D:\temp\wizard-v2-backup\weapons\wizard-staff.png* Assets\Resources\Sprites\hero-layered\weapons\
+  then put the old "wizard-staff" grip [34.0, 117.0] back in Data/hero-layered/weapons.json.
+Or: git checkout the same paths (V3 is not committed).
+
+Re-install V3: python Tools/build-wizard-v3-game-assets.py write; staff; fists; grips; check
+Sources: Assets/ArtLibrary/ro-fantasy-heroes/src/wizard-v3/  (V3 tools: Tools/build-wizard-v3-game-assets.py, wizard_v3_*.py)

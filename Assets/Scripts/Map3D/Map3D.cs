@@ -12,7 +12,7 @@ namespace ZenoniaProto
     /// soft shadows, trilight ambient and linear fog light them (Map3DLighting), and the camera turns a full 360 deg. Heroes, monsters, pets and the props
     /// that stay sprites (ruins, shed, fence, reeds...) keep standing as billboards (View25D); the kept props become alpha-cutout so they take and cast shadows.
     /// Units on the 2D plane z = 0; world "up" is -z (View25D convention), 1 m = 1 tile = 16 units.
-    /// Test builds: on by default for the maps in <see cref="Maps"/>; `--map2d` (or `--map3d off`) turns it off. Release builds: off.
+    /// Test builds: only with `--map3d` (2.5D is the game since 26/11/2026; `--map3d-test ...` flags need `--map3d` too). Release builds: off.
     /// </summary>
     public static class Map3D
     {
@@ -25,10 +25,10 @@ namespace ZenoniaProto
             if (parsed) return;
             parsed = true;
             string[] a = Environment.GetCommandLineArgs();
-            // 3D is the default in test builds (user 23/11: "tui muốn 3d map willowbrook"); `--map2d` or `--map3d off` gives the 2.5D map back.
+            // 2.5D is the game (user 26/11: "chốt 2.5D": the 3D try was half-way, the art is 2D); the 3D map only with `--map3d` (was the default since 23/11).
             int i = Array.IndexOf(a, "--map3d");
-            bool off = Array.IndexOf(a, "--map2d") >= 0 || (i >= 0 && i + 1 < a.Length && a[i + 1] == "off");
-            requested = !ReleaseBuild.IsRelease && !off;
+            bool on = i >= 0 && !(i + 1 < a.Length && a[i + 1] == "off") && Array.IndexOf(a, "--map2d") < 0;
+            requested = !ReleaseBuild.IsRelease && on;
         }
 
         /// <summary>Perf A/B test flags: `--map3d-test noshadow,noborder,lowshadow,noleaves,noimpostor`.</summary>
@@ -39,7 +39,7 @@ namespace ZenoniaProto
             return i >= 0 && i + 1 < a.Length && a[i + 1].Contains(what);
         }
 
-        /// <summary>3D maps are on (test build without `--map2d`).</summary>
+        /// <summary>3D maps are on (test build with `--map3d`).</summary>
         public static bool Requested { get { Parse(); return requested; } }
 
         /// <summary>The map with this id is drawn in 3D (flag on, map converted, 2.5D view available).</summary>
@@ -70,6 +70,7 @@ namespace ZenoniaProto
             Map3DTerrain.Build(mapRoot, map, field);
             Map3DWater.Build(mapRoot, map, field);
             Map3DCreekDressing.Build(mapRoot, map, field); // Clover sunken creek: bank rocks + reeds (RO3 loop round 2)
+            Map3DLakeWall.Build(map, field);               // village lake: stone embankment into deep water (25/11)
             Map3DLighting.Build(mapRoot);
             if (!Test("noborder")) Map3DBorderForest.Build(mapRoot, map, field);
             if (!Test("nograss")) Map3DGrass.Build(map, field);

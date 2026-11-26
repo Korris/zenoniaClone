@@ -183,7 +183,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Another player's (or the server-confirmed own) skill cast: replays the skill with the server's rank and cast salt (view only, the server owns the effects).</summary>
-        public void PlaySkillFx(int index, int rank, int salt) { SkillExecutor.Cast(this, index, rank, salt); }
+        public void PlaySkillFx(int index, int rank, int salt, Vector2? ground = null) { Vector2? used; SkillExecutor.Cast(this, index, rank, salt, ground, out used); }
     }
 }
 

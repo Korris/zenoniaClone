@@ -42,7 +42,9 @@ namespace ZenoniaProto
             body = ctx.Body;
             local = body.IsLocal;
             Vector2 takeOff = hero.Position;
-            Vector2 landing = SkillAim.ClampToWalls(takeOff, takeOff + ctx.Dir * ctx.Def.Effects[0].MoveTiles * ctx.Units);
+            float leap = ctx.Def.Effects[0].MoveTiles * ctx.Units;
+            if (ctx.Ground.HasValue) leap = Mathf.Min(leap, Vector2.Distance(takeOff, ctx.Ground.Value)); // Ground (26/11): lands on the chosen point, like SkillEffects.Motion
+            Vector2 landing = SkillAim.ClampToWalls(takeOff, takeOff + ctx.Dir * leap);
             finishMs = Rpg.SkillSchedule.LastStepMs(Rpg.SkillSchedule.Build(ctx.Def.Effects));
             float crater = 3f * ctx.Units;
             foreach (Rpg.SkillEffect e in ctx.Def.Effects) if (e.Kind == Rpg.EffectKind.Strike) { crater = e.Radius * ctx.Units; break; }

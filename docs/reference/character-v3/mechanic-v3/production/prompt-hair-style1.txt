@@ -1,0 +1,10 @@
+[MECHANIC V3 - BƯỚC 1: LỚP TÓC NHUỘM ĐƯỢC, KIỂU 1] Tiếp tục thiết kế Engineer (nam) đã CHỐT ở chat này. Giờ cắt vào game: tóc là một lớp riêng màu XÁM để game nhuộm màu bất kỳ.
+Ảnh 1 = 5 đầu trọc của idle đã duyệt (xuống, chéo xuống-phải, phải, chéo lên-phải, lên), nền #00FF00. Ảnh 2 = bản duyệt đủ đồ (tóc bồng xù + kính bảo hộ đồng trên trán) chỉ để chép KIỂU TÓC + KÍNH.
+Vẽ mới hoàn toàn: TÓC KIỂU 1 = đúng kiểu tóc ở ảnh 2 (bồng, xù, lọn nhọn mềm, 1 sợi ahoge, mái lòa xòa trên trán) + kính bảo hộ đồng đeo trên trán, quai da nâu vòng ra sau đầu; KHÔNG mũ, KHÔNG nón.
+Yêu cầu bắt buộc:
+1. Vẽ tóc lên ĐÚNG 5 đầu của ảnh 1: giữ nguyên vị trí, cỡ, khoảng cách 5 đầu, hướng quay; mặt, da, tai, mắt, lông mày, khăn cổ GIỮ NGUYÊN màu như ảnh 1. Bố cục ảnh: 1 hàng ngang 5 đầu như ảnh 1, đầu không chạm mép ảnh.
+2. CHỈ TÓC là xám trung tính R=G=B (không ngả be/tím/xanh), vẽ thành mảng lớn theo 5 nấc: viền/khe sâu #1F1F1F, bóng sâu #474747, bóng #696969, mảng chính #A6A6A6, highlight #DBDBDB. Highlight là các vệt bóng mượt chiếm khoảng 15-20 % diện tích tóc (không chỉ vài chấm). Lọn to, bồng, ít sợi vụn, không nét 1 px lốm đốm.
+3. Kính + quai + khoá GIỮ MÀU THẬT (đồng thau, tròng kính xanh nhạt, da nâu) như ảnh 2.
+4. Tóc chỉ trùm sọ, mái che một phần trán / mép lông mày, tóc mai xuống ngang tai; KHÔNG che mắt, KHÔNG dài xuống dưới cằm. Hướng lên (đầu thứ 5) thấy gáy tóc + quai kính sau đầu.
+5. Cỡ khối tóc như ảnh 2 so với đầu (bồng vừa, không to hơn đầu quá 25 %).
+6. Nền #00FF00 phẳng, không caro, không bóng đổ, không chữ.

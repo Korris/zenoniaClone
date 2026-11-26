@@ -20,7 +20,7 @@ namespace ZenoniaProto
             if (!held) holding = false;
             Camera cam = Camera.main;
             if (cam == null) return;
-            if (down && !Input.GetMouseButton(1) && !CameraWheelZoom.WindowOwnsPointer()) Press(hero, cam, Input.mousePosition);
+            if (down && !Input.GetMouseButton(1) && !CameraWheelZoom.WindowOwnsPointer() && !GroundAimInput.OwnsMouse) Press(hero, cam, Input.mousePosition); // a Ground skill aim takes the click
             if (holding && mode == Mode.Ground)
             {
                 Vector2 p;

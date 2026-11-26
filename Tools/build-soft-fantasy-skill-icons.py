@@ -30,6 +30,8 @@ SLUGS = {
     "mechanic": ["power-shot", "plasma-barrage", "rocket-barrage", "target-lock", "rocket-punch", "deploy-turret", "emp-burst", "orbital-cannon"],
     "assassin": ["shadow-strike", "shadow-step", "blade-dance", "phantom-rush", "venom-daggers", "shadow-clone", "death-mark", "nightfall-execution"],
     "fighter": ["dash-punch", "iron-fist", "ground-slam", "rapid-jabs", "shockwave", "tiger-rush", "iron-body", "dragon-fist"],
+    # Archer (26/11/2026): slug = SkillDef.Id tail, so Hunter's Focus keeps its apostrophe
+    "archer": ["piercing-arrow", "multi-shot", "eagle-eye", "arrow-rain", "binding-shot", "wind-step", "hunter's-focus", "starfall-volley"],
 }
 KEY = np.array([255, 0, 255], dtype=np.float32)
 SIZE = 128

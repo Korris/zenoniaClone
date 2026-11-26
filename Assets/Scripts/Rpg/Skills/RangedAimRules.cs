@@ -133,8 +133,14 @@ namespace ZenoniaProto.Rpg
         /// Index of the monster to aim at, -1 for a straight shot. (hx, hy) = hero feet, (fx, fy) = unit facing, (ox, oy) = muzzle the bolt starts
         /// from: range is measured from the muzzle to the hit box (the bolt flies `range` units from there), the half-plane from the hero.
         /// </summary>
-        public static int Pick(float hx, float hy, float fx, float fy, float ox, float oy, float range, IList<AimCandidate> all)
+        public static int Pick(float hx, float hy, float fx, float fy, float ox, float oy, float range, IList<AimCandidate> all, int preferIndex = -1)
         {
+            // The monster the player picked (click) wins over a nearer one, as long as it could be shot at all (alive, in front, in range).
+            if (preferIndex >= 0 && preferIndex < all.Count)
+            {
+                AimCandidate p = all[preferIndex];
+                if (!p.Dying && (p.Cx - hx) * fx + (p.Cy - hy) * fy >= 0f && SkillGeometry.DistToBox(ox, oy, p.XMin, p.YMin, p.XMax, p.YMax) <= range) return preferIndex;
+            }
             int best = -1;
             float bestDist = 0f;
             for (int i = 0; i < all.Count; i++)

@@ -1,0 +1,15 @@
+Priest (cleric) idle V3 = src/cleric-v3/body-cleric-idle-5dir-v3-chatgpt-3.png (2170x725, nền #00FF00, đầu trọc, không vũ khí, thứ tự Front, 3/4 Front, Side, 3/4 Back, Back, 3 góc giữa quay phải như Knight).
+Chat: https://chatgpt.com/c/6b07949f-7050-83ec-b060-9de2e90a61c0 (Tay)
+
+Script (plans/reports/char-v3-tools/measure_v3.py + plans/261126-0900-asteria-class-redesign-v3/cleric-tools/skull_no_ears.py):
+- đỉnh sọ-cằm 34,6 % chiều cao người (Knight 34,7 %): -0,3 %
+- bề ngang sọ trên tai so Knight: Front -5,8 %, 3/4 Front -2,9 %, Side -1,5 %, 3/4 Back -2,6 %, Back -2,8 %
+- bề ngang kể cả tai: -7,4 % (tai Knight to hơn)
+- 2,89 đầu sọ (Knight 2,88); cao 68,1 % ảnh (Knight 74,4 %): tool co về cùng chiều cao khi cắt.
+Side-by-side: side-by-side-knight-vs-cleric-idle-v3-chatgpt-3.png
+
+ChatGPT chấm chính thức (text, không ảnh): AD 9,5, tỉ lệ Knight 9,4, production 9,5, TỔNG 9,5/10, "APPROVE — FINAL, Official Base Idle".
+- Sọ Front hẹp hơn 5,8 % (ngoài dung sai 3 %): ChatGPT cho là nét nữ, không sửa. Vai thanh hơn, chân / giày nhỏ hơn, vạt áo rộng: không sửa. Họa tiết vàng nhiều: kiểm tra trong game.
+- Bước sau: tóc lớp riêng bám sọ V3 từng hướng (không dùng cỡ tóc Knight), mũ lớp riêng bám pivot đầu, trượng lớp riêng pivot nắm tay; walk giữ cỡ đầu V3, vạt áo trễ 1-2 frame; attack chân->hông->vai->tay trượng, nhẹ hơn Knight; chú ý sorting tóc dài / vạt áo / trượng.
+
+Lịch sử: v1 đầu to (sọ-cằm +5,5 %, sọ +6-8 %), Side / 3/4 Back quay trái; v2 đầu nhỏ (-5,5 % / -5 %); v3 đạt.

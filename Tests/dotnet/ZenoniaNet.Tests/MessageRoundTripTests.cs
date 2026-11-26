@@ -22,6 +22,18 @@ public class MessageRoundTripTests
     }
 
     [Fact]
+    public void AimHintRoundTripsAndRejectsTruncated()
+    {
+        var w = new NetDataWriter();
+        new AimHintMsg { Epoch = 3, MonsterId = 513 }.Write(w);
+        AimHintMsg m; Assert.True(AimHintMsg.TryRead(Reader(w, NetOp.AimHint), out m));
+        Assert.Equal(3, m.Epoch); Assert.Equal(513, m.MonsterId);
+        Assert.Equal(4, w.Length); // opcode + epoch + id (2 B)
+        w.Reset(); w.Put(NetOp.AimHint); w.Put((byte)1);
+        Assert.False(AimHintMsg.TryRead(Reader(w, NetOp.AimHint), out m));
+    }
+
+    [Fact]
     public void InputPacketCarriesFramesAtTwoBytesEach()
     {
         var w = new NetDataWriter();
@@ -31,7 +43,7 @@ public class MessageRoundTripTests
             new InputFrame { Seq = 8 }, new InputFrame { Seq = 9, Bits = InputBits.Up | InputBits.Attack | InputBits.MpPotion },
         };
         NetMessageWriter.Input(w, 9, 41, frames, 3);
-        Assert.Equal(1 + 1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes, w.Length);
+        Assert.Equal(1 + 1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes + 1, w.Length); // + the aim mask byte (protocol 38, no aimed frame here)
         var buf = new InputFrame[NetProtocol.MaxInputFrames]; byte epoch; ushort ack; int n;
         Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out epoch, out ack, buf, out n));
         Assert.Equal(9, epoch); Assert.Equal(41, ack); Assert.Equal(3, n);
@@ -162,7 +174,7 @@ public class MessageRoundTripTests
         Assert.True(InvOpInfo.IsAccountOp(InvOp.GachaPull) && InvOpInfo.IsAccountOp(InvOp.PetBuy) && InvOpInfo.IsAccountOp(InvOp.BallBuy) && InvOpInfo.IsAccountOp(InvOp.PetLevelUp) && !InvOpInfo.IsAccountOp(InvOp.PetEquip) && !InvOpInfo.IsAccountOp(InvOp.PetCapture));
         w.Reset(); w.Put(NetOp.InvAction); w.Put(1u); w.Put((byte)InvOpInfo.Last + 1); w.Put("x"); w.Put((byte)0);
         InvActionMsg bad; Assert.False(NetMessageReader.TryInvAction(Reader(w, NetOp.InvAction), out bad));
-        Assert.Equal(36, NetProtocol.Version); // 36: Taurus V4 world (no layout change). 35: DuelOp PlayNpc / SkipScript, DuelStateMsg Npc + ScriptStep, DuelFail NoQuest / TooFar / ScriptMove, cardHelp bit 2. 34: InvOp.CardHelp (Card Master first-time hint), DuelFail.NoStakes. 33: Ranked (DuelOp QueueRanked / LeaveQueue, NetOp.DuelRanked, DuelStateMsg Ranked flags + LpChange). 32: Card Duel v2 (no NPC, stakes + winner picks 1 card, DuelOp renumbered). 31: Card Duel PvP + Card Wager (DuelOp Challenge..LeaveLobby, DuelLobbyMsg, Place Turn / Card). 30: NetOp.DuelRequest / DuelNotice / DuelState (Card Duel), CardSell Slot 0 = all spare. 29: InvOp AlbumClaim / CardSell / CardLock. 28: InvOp GemConvert / GemSocket / GemRemove, TradeItemView.Sockets + TradeFail.Socketed, CardDrop flag bit1. 27: NetEventType.CardDrop (monster cards). 26: InvOp ChestOpen / WaypointTouch / WaypointWarp (Rootburrow V5). 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
+        Assert.Equal(38, NetProtocol.Version); // 38: Ground skill aim in Input frames + SkillCast ground centre. 37: NetOp.AimHint (AimHintMsg). 36: Taurus V4 world (no layout change). 35: DuelOp PlayNpc / SkipScript, DuelStateMsg Npc + ScriptStep, DuelFail NoQuest / TooFar / ScriptMove, cardHelp bit 2. 34: InvOp.CardHelp (Card Master first-time hint), DuelFail.NoStakes. 33: Ranked (DuelOp QueueRanked / LeaveQueue, NetOp.DuelRanked, DuelStateMsg Ranked flags + LpChange). 32: Card Duel v2 (no NPC, stakes + winner picks 1 card, DuelOp renumbered). 31: Card Duel PvP + Card Wager (DuelOp Challenge..LeaveLobby, DuelLobbyMsg, Place Turn / Card). 30: NetOp.DuelRequest / DuelNotice / DuelState (Card Duel), CardSell Slot 0 = all spare. 29: InvOp AlbumClaim / CardSell / CardLock. 28: InvOp GemConvert / GemSocket / GemRemove, TradeItemView.Sockets + TradeFail.Socketed, CardDrop flag bit1. 27: NetEventType.CardDrop (monster cards). 26: InvOp ChestOpen / WaypointTouch / WaypointWarp (Rootburrow V5). 25: NetEventType.HeroStatus (wanted boss poison). 24: headgear slot + hat shop entries. 23: NetAppearance hair / outfit colour + headgear, InvOp.Appearance. 22: NetOp.WantedStatus (WantedStatusTests)
     }
 
     [Fact]
@@ -187,7 +199,7 @@ public class MessageRoundTripTests
             new InputFrame { Seq = 3, Bits = InputBits.Up },
         };
         NetMessageWriter.Input(w, 0, 0, frames, 3);
-        Assert.Equal(1 + 1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes, w.Length);
+        Assert.Equal(1 + 1 + 2 + 2 + 1 + 3 * InputFrame.WireBytes + 1, w.Length); // + the aim mask byte (protocol 38, no aimed frame here)
         var buf = new InputFrame[NetProtocol.MaxInputFrames]; byte epoch; ushort ack; int n;
         Assert.True(NetMessageReader.TryInput(Reader(w, NetOp.Input), out epoch, out ack, buf, out n));
         Assert.Equal(7, InputBits.SkillIndex(buf[0].Bits)); Assert.True((buf[0].Bits & InputBits.Right) != 0);

@@ -87,11 +87,12 @@ public class MechanicComboTests
         // Before 2026-11-08: bullets flew 70 and the cannon shell 65 from 12 units ahead of the hero; every shot now starts at the body
         // (HeroController.FireBolt: BoltOrigin(fromBody: Mechanic)), so each range carries those 12. Since the board repaint the pistol bolts leave the gun
         // muzzle and fly Range minus the muzzle's lead (RangedAimRules.MechanicBoltOrigin), still ending Range from the body point.
+        // Role split 2026-11-26: the ranges, still counted from the body, are now 6 m (bullets) and 5.5 m (cannon), 1 m = 16 units.
         ComboHit[] hits = ComboConfigs.MechanicHits;
-        Assert.Equal(70f + RangedAimRules.MuzzleAhead, hits[0].Bolt.Range);
-        Assert.Equal(70f + RangedAimRules.MuzzleAhead, hits[1].Bolt.Range);
-        Assert.Equal(70f + RangedAimRules.MuzzleAhead, hits[2].Bolt.Range);
-        Assert.Equal(65f + RangedAimRules.MuzzleAhead, hits[3].Bolt.Range);
+        Assert.Equal(96f, hits[0].Bolt.Range);
+        Assert.Equal(96f, hits[1].Bolt.Range);
+        Assert.Equal(96f, hits[2].Bolt.Range);
+        Assert.Equal(88f, hits[3].Bolt.Range);
         // The cannon's blast radius and speed are unchanged by the move.
         Assert.Equal(24f, hits[3].Bolt.ExplodeRadius);
         Assert.Equal(240f, hits[3].Bolt.Speed);

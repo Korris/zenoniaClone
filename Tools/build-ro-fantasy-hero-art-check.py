@@ -26,6 +26,9 @@ DYES = [(0xA8, 0x69, 0x3F), (0xB4, 0x9C, 0xE2)]
 # accessory colours kept as painted (headband red, goggle brass, lens blue)
 SAT_KEEP = 0.28
 DARK_FACE = False  # set for Assassin (black face mask is a shared face feature, not hair)
+# Mechanic V3 hair (26/11): a ponytail / side tuft cut off by the goggle strap or a hair tie is a separate grey blob far under 15 % of the
+# biggest head; blobs of at least HAIR_MIN_PX source px are kept too (eye whites stay under ~1000 px on a 2172 px wide strip). None = off
+HAIR_MIN_PX = None
 
 
 def newest(pattern):
@@ -158,7 +161,14 @@ def hair_layer(rgba):
     grey = (a > 0) & (s < 0.30) & (np.abs(r - b) < 0.13) & (np.abs(g - (r + b) / 2) < 0.08)
     lab, cnt = ndimage.label(ndimage.binary_closing(grey, iterations=2))
     sizes = ndimage.sum(grey, lab, range(1, cnt + 1))
-    keep = np.isin(lab, 1 + np.where(sizes > 0.15 * sizes.max())[0]) & grey  # drop eye whites
+    big = sizes > 0.15 * sizes.max()
+    if HAIR_MIN_PX:  # smaller blobs on the open background (tufts, ponytails); eye whites sit inside the face (ring mostly skin / opaque)
+        sk = skin_mask(rgba)
+        for i in np.nonzero(~big & (sizes >= HAIR_MIN_PX))[0]:
+            m = lab == i + 1
+            ring = ndimage.binary_dilation(m, iterations=4) & ~m
+            big[i] = (a[ring] == 0).mean() > 0.25 and sk[ring].mean() < 0.3
+    keep = np.isin(lab, 1 + np.where(big)[0]) & grey  # drop eye whites
     keep &= ~ndimage.binary_dilation(face_mask(rgba) & ~skin_mask(rgba), iterations=2)
     near = ndimage.binary_dilation(keep, iterations=6)
     cand = (a > 0) & (s > SAT_KEEP) & ~skin_mask(rgba) & ~keep

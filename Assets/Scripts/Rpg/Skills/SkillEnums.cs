@@ -2,8 +2,9 @@ namespace ZenoniaProto.Rpg
 {
     public enum SkillTier { Basic, Advanced, Ultimate }
 
-    /// <summary>How the cast resolves its aim / target on the authority (the client only sends "slot pressed").</summary>
-    public enum SkillTargeting { Facing, NearestEnemy, Self, LowestAlly, AroundSelf }
+    /// <summary>How the cast resolves its aim / target on the authority (the client sends "slot pressed", plus the chosen point for Ground).
+    /// Ground (26/11/2026, docs/reference/skill-targeting/): the skill lands on a point the player picks within SkillDef.CastRange (GroundTargetRules). Append only.</summary>
+    public enum SkillTargeting { Facing, NearestEnemy, Self, LowestAlly, AroundSelf, Ground }
 
     public enum AreaShape { Single, Circle, Cone, Arc, Line }
 

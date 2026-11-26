@@ -1,4 +1,4 @@
-"""Taurus V4 phase 04: props of the two 2.5D Taurus maps (Willowbrook Village 44x32, Clover Meadows 96x64): size, place, check, preview.
+"""Taurus V4 phase 04: props of the two 2.5D Taurus maps (Willowbrook Village V2 100x100, Clover Meadows 96x64): size, place, check, preview.
 
     python Tools/place-tau-25d-props.py village|meadows [--minimap]
 
@@ -26,11 +26,12 @@ MAPS = os.path.join(ROOT, "Assets", "Scripts", "Maps")
 REF = os.path.join(ROOT, "docs", "reference", "taurus-v4-art")
 T = 64
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from tau_25d_props_layout import SIZE, village_props, meadows_props, camp_rects   # noqa: E402  (layout data, kept apart so this file stays a tool)
+from tau_25d_props_layout import SIZE, meadows_props, camp_rects   # noqa: E402  (layout data, kept apart so this file stays a tool)
+from tau_village_props_layout import village_props   # noqa: E402  (Willowbrook Village V2 160x160)
 
 CFG = {
-    "village": dict(cls="TauWillowbrookVillage", rows="TauWillowbrookVillageMap.cs", size=(44, 32), ground="tau-willowbrook-village-ground", chunks=(2, 2),
-                    place=village_props, free_rows=(0, 29), camps=False),
+    "village": dict(cls="TauWillowbrookVillage", rows="TauWillowbrookVillageMap.cs", size=(100, 100), ground="tau-willowbrook-village-ground", chunks=(5, 5),
+                    place=village_props, free_rows=(0, 97), camps=False),
     "meadows": dict(cls="TauCloverMeadows", rows="TauCloverMeadowsMap.cs", size=(96, 64), ground="tau-clover-meadows-ground", chunks=(4, 4),
                     place=meadows_props, free_rows=(0, 61), camps=True),
 }
@@ -119,7 +120,7 @@ def check(cfg, rows, npcs, portals, props, defs):
                 if not (0 <= x < W and 0 <= y < H): print("PROBLEM %s (%d,%d) outside" % (name, tx, ty)); ok = False; continue
                 c = rows[y][x]
                 if c in SOLID: continue
-                if c in "dpB" or in_camp(x, y) or near(x, y, portals, 2) or near(x, y, npcs, 1):
+                if c in "dpBk" or in_camp(x, y) or near(x, y, portals, 2) or near(x, y, npcs, 1):
                     print("PROBLEM %s (%d,%d) blocks %s tile (%d,%d)" % (name, tx, ty, c, x, y)); ok = False
         if fh == 0 and (near(tx, ty, portals, 0) or near(tx, ty, npcs, 0)): print("PROBLEM %s on a portal / NPC tile" % name); ok = False
     a, b = cfg["free_rows"]

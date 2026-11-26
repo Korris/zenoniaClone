@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Taurus V4 phase 02 GREYBOX: rows + flat-colour ground for Willowbrook Village (44x32) and Clover Meadows (96x64).
+"""Taurus V4 GREYBOX: rows for Willowbrook Village (V2 100x100 since 25/11/2026, layout in Tools/tau_village_greybox_layout.py) and Clover Meadows (96x64).
 
   python Tools/build-tau-greybox-rows.py            # rows -> the two map classes, ground / border PNGs, preview + checks
   python Tools/build-tau-greybox-rows.py --check    # only checks (flood fill, road width, camps clear), writes nothing
 
 Row chars (the first group is solid): T building / wall / fence / rune stone / door lintel   t tree or forest wall   w water   x (unused since phase 05)
-                                       g grass   d road   p plaza   B bridge deck
+                                       g grass   d road   p plaza   B bridge deck   (village V2: x = solid meadow outside the wall)
 Meadows ground variants (all walkable, only the colour differs per zone, phase 05): h Rabbit Hills  m Mushroom Grove  b Bramble Thicket  e Elderwood Edge  r Ancient Roots  n Brambleback Nest.
 The ground is a TEMPORARY stand-in: one flat colour per tile class, 16 px per tile, one chunk (the game scales it to the map). Final art = phase 04 (ChatGPT).
 NPC / portal / camp coordinates live in the map classes and MapSpawnTable.cs; this script only reads them to draw the preview and run the checks.
@@ -13,6 +13,9 @@ NPC / portal / camp coordinates live in the map classes and MapSpawnTable.cs; th
 import math, os, re, sys
 from collections import deque
 from PIL import Image, ImageDraw
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import tau_village_greybox_layout as VL   # noqa: E402  (village V2 layout data)
+from tau_village_greybox_layout import village   # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPS = os.path.join(ROOT, "Assets", "Scripts", "Maps")
@@ -20,7 +23,7 @@ TILES = os.path.join(ROOT, "Assets", "Resources", "Sprites", "village", "tiles")
 SHOTS = os.path.join(ROOT, "docs", "reference", "world-design", "greybox-shots")
 PX = 16
 COL = {"g": (0x88, 0xA8, 0x5D), "d": (0xCB, 0xA6, 0x79), "p": (0xDD, 0xCB, 0xA0), "T": (0x8A, 0x84, 0x78), "t": (0x4F, 0x6B, 0x3A),
-       "w": (0x5B, 0x8F, 0xB5), "B": (0xA0, 0x7A, 0x4A), "x": (0x5E, 0x6B, 0x52),
+       "w": (0x5B, 0x8F, 0xB5), "B": (0xA0, 0x7A, 0x4A), "x": (0x5E, 0x6B, 0x52), "k": (0xB0, 0x6A, 0x3A),
        "h": (0x9C, 0xB4, 0x62), "m": (0x76, 0x9A, 0x58), "b": (0x8E, 0x8A, 0x58), "e": (0x5E, 0x84, 0x4A), "r": (0x7A, 0x88, 0x6E), "n": (0xA0, 0x84, 0x5C)}
 SOLID = "Ttwx"
 
@@ -33,37 +36,6 @@ def rect(g, x0, y0, x1, y1, c):  # inclusive
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             if 0 <= y < len(g) and 0 <= x < len(g[0]): g[y][x] = c
-
-
-def village():
-    W, H = 44, 32
-    g = grid(W, H)
-    rect(g, 0, 0, W - 1, 0, "T"); rect(g, 0, 0, 0, H - 1, "T"); rect(g, W - 1, 0, W - 1, H - 1, "T"); rect(g, 0, 29, W - 1, H - 1, "T")
-    # Town square: paved disc round the old oak (3x3 trunk), 4-wide roads out of it.
-    for y in range(H):
-        for x in range(W):
-            if math.hypot(x - 22, y - 13) <= 7.2: g[y][x] = "p"
-    rect(g, 21, 12, 23, 14, "t")
-    rect(g, 20, 20, 23, 28, "d")            # south road to the gate
-    rect(g, 28, 11, 35, 12, "d")            # east lane to the Hall
-    rect(g, 34, 7, 35, 10, "d")
-    rect(g, 29, 14, 36, 15, "d")            # lane to Card Corner
-    rect(g, 4, 11, 15, 12, "d")             # Smithy Lane
-    rect(g, 24, 23, 37, 24, "d")            # lane to the Pet Garden and market
-    rect(g, 9, 13, 10, 17, "d")             # path to the bridge
-    # Adventurer's Hall (NE), forge (W), windmill (NW), Card Corner tent (E), market stalls + pet pen (SE).
-    rect(g, 30, 2, 39, 6, "T"); rect(g, 3, 5, 9, 9, "T"); rect(g, 12, 3, 15, 6, "T")
-    rect(g, 33, 14 - 0, 42, 20, "p"); rect(g, 29, 14, 36, 15, "d"); rect(g, 38, 15, 41, 17, "T")
-    rect(g, 3, 10, 9, 10, "p")
-    rect(g, 30, 21, 31, 22, "T"); rect(g, 34, 21, 35, 22, "T")
-    rect(g, 38, 20, 42, 26, "T"); rect(g, 39, 21, 41, 25, "g"); rect(g, 38, 23, 38, 24, "g")   # pen ring, open on its west side
-    # Stream (SW) with the bridge; the farm field south of it.
-    rect(g, 1, 18, 16, 20, "w"); rect(g, 9, 18, 10, 20, "B")
-    # South wall: towers either side of the 4-wide gate road (rows 27-28), border rows 29-31.
-    rect(g, 1, 27, 19, 28, "T"); rect(g, 24, 27, 42, 28, "T")
-    # A few corner trees (2x2).
-    for tx, ty in ((2, 2), (41, 3), (41, 9), (2, 14), (2, 23), (14, 23)): rect(g, tx, ty, tx + 1, ty + 1, "t")
-    return g
 
 
 # Phase 05 layout (96x64). South to north: Z1 Cloverfield rows 38-60 (C01 C02), Z2 Rabbit Hills rows 27-37 (C03, east) + Z3 Brookside (C04, west bank; the stream is rows 24-26 with ONE
@@ -239,7 +211,7 @@ def check_meadows(rows):
     return not bad
 
 
-def paint(rows, path, npcs, portals, camp_list, scale=PX, labels=False):
+def paint(rows, path, npcs, portals, camp_list, scale=PX, labels=False, districts=()):
     H, W = len(rows), len(rows[0])
     im = Image.new("RGB", (W * scale, H * scale))
     d = ImageDraw.Draw(im)
@@ -250,6 +222,9 @@ def paint(rows, path, npcs, portals, camp_list, scale=PX, labels=False):
             d.rectangle([tx * scale, ty * scale, (tx + w) * scale - 1, (ty + h) * scale - 1], outline=(255, 255, 0) if passive else (255, 140, 0), width=2)
         for npc, x, y in npcs: d.ellipse([x * scale + 2, y * scale + 2, (x + 1) * scale - 3, (y + 1) * scale - 3], fill=(255, 0, 255)); d.text((x * scale + scale, y * scale), npc, fill=(0, 0, 0))
         for p in portals: d.rectangle([p[0] * scale, p[1] * scale, (p[0] + 1) * scale - 1, (p[1] + 1) * scale - 1], outline=(0, 0, 255), width=2)
+        for name, (x0, y0, x1, y1) in districts:   # village V2: district frames + names
+            d.rectangle([x0 * scale, y0 * scale, (x1 + 1) * scale - 1, (y1 + 1) * scale - 1], outline=(40, 40, 40), width=1)
+            d.text((x0 * scale + 3, y0 * scale + 2), name, fill=(0, 0, 0))
     im.save(path)
 
 
@@ -261,7 +236,7 @@ def main():
         patch(os.path.join(MAPS, "TauWillowbrookVillageMap.cs"), vr); patch(os.path.join(MAPS, "TauCloverMeadowsMap.cs"), mr)
     vn, vp = parse_map("TauWillowbrookVillageMap.cs"); mn, mp = parse_map("TauCloverMeadowsMap.cs")
     cl = camps()
-    ok = check("village", vr, (22, 17), vn, [p for p in vp])
+    ok = check("village", vr, VL.START, vn, [p for p in vp])
     ok &= check("meadows", mr, (48, 57), mn, mp, cl)
     ok &= check_meadows(mr)
     # a camp beside the road keeps at least 3 tiles of distance to any road tile (2 free tiles between)
@@ -273,7 +248,7 @@ def main():
     if only_check: return 0 if ok else 1
     os.makedirs(TILES, exist_ok=True); os.makedirs(SHOTS, exist_ok=True)
     # phase 04: the ground art is Tools/build-tau-25d-ground.py (chunks + border) and the props Tools/place-tau-25d-props.py: re-run both after changing rows.
-    paint(vr, os.path.join(SHOTS, "layout-willowbrook-village.png"), vn, vp, [], 24, True)
+    paint(vr, os.path.join(SHOTS, "layout-willowbrook-village.png"), vn, vp, [], 8, True, VL.DISTRICTS)
     paint(mr, os.path.join(SHOTS, "layout-clover-meadows.png"), mn, mp, cl, 12, True)
     return 0 if ok else 1
 

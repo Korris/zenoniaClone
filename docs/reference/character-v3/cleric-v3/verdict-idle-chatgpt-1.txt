@@ -1,0 +1,3 @@
+Idle v3 chatgpt-1 (cleric): đo measure_v3: sọ-cằm 36,6 % (Knight 34,7, +5,5 %), sọ rộng 36,6 % (Knight 36,4, +0,5 % nhưng Knight có tai to hơn: nhìn ảnh side-by-side sọ Priest to hơn rõ), 2,73 đầu sọ (Knight 2,88). Side quay TRÁI, 3/4 Back quay ngược.
+ChatGPT tự chấm: APPROVE trang phục / màu / mặt; REJECT tỉ lệ + hướng xoay (đầu dài quá ~11 %, chân hơi sát).
+=> vẽ lại.

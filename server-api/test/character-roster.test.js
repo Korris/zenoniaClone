@@ -14,7 +14,7 @@ describe('character roster: several heroes per account', () => {
   it('the default cap is 6', () => { expect(DEFAULT_MAX_CHARACTERS).toBe(6); });
 
   it('creates N heroes of mixed and repeated classes, listed oldest first, then refuses the next', async () => {
-    const classes = ['warrior', 'warrior', 'wizard', 'cleric', 'assassin', 'fighter'];
+    const classes = ['warrior', 'warrior', 'wizard', 'cleric', 'assassin', 'archer']; // archer (2026-11-26): the new class id is accepted
     for (let i = 0; i < classes.length; i++) {
       c.clock.t += 1000; // distinct createdAt: the list is sorted by it
       expect((await create(c, owner.accessToken, `Roster${i}`, classes[i])).status).toBe(201);

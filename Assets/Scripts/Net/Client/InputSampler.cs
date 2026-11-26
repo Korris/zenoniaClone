@@ -1,3 +1,4 @@
+using UnityEngine;
 using ZenoniaProto.Net;
 
 namespace ZenoniaProto
@@ -10,6 +11,11 @@ namespace ZenoniaProto
     public sealed class InputSampler
     {
         ushort latched;
+        bool aimLatched;   // the latched skill press is a Ground skill: its point rides in the same frame (protocol 38)
+        Vector2 aim;
+        /// <summary>Ground point of the frame Take() returned last (HasAim false = none).</summary>
+        public bool LastHasAim { get; private set; }
+        public Vector2 LastAim { get; private set; }
 
         public static bool Live { get { return LocalPlayer.Hero != null && !InventoryPanel.IsOpen; } }
 
@@ -20,15 +26,24 @@ namespace ZenoniaProto
         {
             if (InputBits.SkillIndex(latched) >= 0) return;
             for (int i = 0; i < 8; i++)
-                if (InputAdapter.Pressed(GameKey.Skill1 + i)) { latched = InputBits.WithSkill(latched, i); return; }
+                if (InputAdapter.Pressed(GameKey.Skill1 + i)) { latched = InputBits.WithSkill(latched, i); LatchAim(i); return; }
             HeroController hero = LocalPlayer.Hero;
-            if (hero != null && InputAdapter.Pressed(GameKey.Skill)) latched = InputBits.WithSkill(latched, hero.PrimarySkillIndex); // L / bots: the primary skill
+            if (hero != null && InputAdapter.Pressed(GameKey.Skill)) { latched = InputBits.WithSkill(latched, hero.PrimarySkillIndex); LatchAim(hero.PrimarySkillIndex); } // L / bots: the primary skill
+        }
+
+        /// <summary>A Ground skill press takes its point now: the aimed one (GroundAimInput), else the client's smart pick (Auto Battle, a mobile tap),
+        /// so the server lands it where this client would have.</summary>
+        void LatchAim(int index)
+        {
+            Vector2 p;
+            aimLatched = GroundAimInput.PointForFrame(LocalPlayer.Hero, index, out p);
+            aim = p;
         }
 
         /// <summary>Every render frame.</summary>
         public void Poll()
         {
-            if (!Live) { latched = 0; return; }
+            if (!Live) { latched = 0; aimLatched = false; return; }
             Latch(ref latched, GameKey.Attack, InputBits.Attack);
             Latch(ref latched, GameKey.Dash, InputBits.Dash);
             LatchSkill();
@@ -48,7 +63,9 @@ namespace ZenoniaProto
                 if (InputAdapter.Held(GameKey.Right)) bits |= InputBits.Right;
                 bits |= latched;
             }
-            latched = 0;
+            LastHasAim = Live && aimLatched && InputBits.SkillIndex(bits) >= 0;
+            LastAim = aim;
+            latched = 0; aimLatched = false;
             return bits;
         }
     }

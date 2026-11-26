@@ -19,6 +19,7 @@ namespace ZenoniaProto.Rpg
             { "assassin", new[] { "Nightfall Kunai", "Gilded Talons", "Amethyst Rapier", "Serpent's Tooth", "Glacier Twinblade", "Inferno Saber", "Stormring Blade", "Skull Sickle", "Crescent Moonblade", "Voidreaver Blade" } },
             { "cleric", new[] { "Acolyte Rod", "Blossom Scepter", "Dawnlight Staff", "Seraph Cross Staff", "Moonlit Crescent Staff", "Radiant Sun Staff", "Halo Wand", "Verdant Laurel Staff", "Celestial Orb Staff", "Archangel Staff" } },
             { "fighter", new[] { "Leather Gloves", "Iron Knuckles", "Bronze Fists", "Tiger Claws", "Flame Gauntlets", "Frost Gauntlets", "Thunder Fists", "Shadow Gauntlets", "Holy Gauntlets", "Dragon Gauntlets" } },
+            { "archer", new[] { "Hunter's Shortbow", "Willow Longbow", "Oakheart Bow", "Starward Recurve", "Ember Wingbow", "Frostfletch Bow", "Stormstring Bow", "Shadowleaf Bow", "Seraph Bow", "Dragonbone Bow" } },
         };
 
         public static readonly Dictionary<string, string[]> Offhands = new Dictionary<string, string[]>
@@ -29,6 +30,7 @@ namespace ZenoniaProto.Rpg
             { "assassin", new[] { "Nightfall Dirk", "Gilded Talon", "Amethyst Stiletto", "Serpent Fang", "Glacier Splinter", "Inferno Kukri", "Stormring Chakram", "Skull Scythe", "Moonlit Sickle", "Void Fang" } },
             { "cleric", new[] { "Acolyte Crest", "Blossom Bulwark", "Dawn Aegis", "Seraph Ward", "Moonlit Heartshield", "Radiant Sunshield", "Halo Buckler", "Verdant Laurel Shield", "Celestial Orbguard", "Archangel Aegis" } },
             { "fighter", new[] { "Leather Glove", "Iron Knuckle", "Bronze Fist", "Tiger Claw", "Flame Gauntlet", "Frost Gauntlet", "Thunder Fist", "Shadow Gauntlet", "Holy Gauntlet", "Dragon Gauntlet" } },
+            { "archer", new[] { "Hunter's Quiver", "Willow Quiver", "Oakheart Quiver", "Starward Quiver", "Ember Quiver", "Frostfletch Quiver", "Stormstring Quiver", "Shadowleaf Quiver", "Seraph Quiver", "Dragonbone Quiver" } },
         };
 
         /// <summary>Name of a weapon / offhand without rarity prefix; null for other slots or an unknown class.</summary>

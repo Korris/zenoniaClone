@@ -8,7 +8,7 @@ using Xunit;
 using ZenoniaProto;
 using ZenoniaProto.Rpg;
 
-/// <summary>Taurus V4 phase 02 greybox: Willowbrook Village 44x32 (safe, five zones, six NPCs, south gate) and Clover Meadows 96x64 (Z1 Cloverfield, camps C01 / C02 from MapSpawnTable.cs).</summary>
+/// <summary>Taurus V4 greybox: Willowbrook Village V2 100x100 (25/11/2026 social hub: central lake + cobbled ring where players gather and sell, six NPCs, south gate) and Clover Meadows 96x64 (Z1 Cloverfield, camps C01 / C02 from MapSpawnTable.cs).</summary>
 [Collection("MapRegistry")]
 public class TaurusMapTests
 {
@@ -65,7 +65,8 @@ public class TaurusMapTests
     [Fact]
     public void BothMapsAreLiveWithTheDesignedSizes()
     {
-        Assert.Equal(44, Village.Width); Assert.Equal(32, Village.Height); Assert.False(Village.Hostile);
+        Assert.Equal(100, Village.Width); Assert.Equal(100, Village.Height); Assert.False(Village.Hostile);
+        Assert.True(Village.Width <= GameConfig.MaxTilesW && Village.Height <= GameConfig.MaxTilesH); // TileNav / the zone interest grid are sized by the max
         Assert.Equal(96, Meadows.Width); Assert.Equal(64, Meadows.Height); Assert.True(Meadows.Hostile);
         Assert.True(Meadows.Width <= GameConfig.MaxTilesW && Meadows.Height <= GameConfig.MaxTilesH);
         Assert.Contains(MapRegistry.Live, m => m.Id == Village.Id);
@@ -128,8 +129,17 @@ public class TaurusMapTests
     [Fact]
     public void TheVillageRoadsStayOpenAndCardCornerIsClearOfSpawnsAndTheOakIsSolid()
     {
-        Assert.True(Village.IsSolidTile(22, 13)); // the old oak
-        for (int y = 20; y <= 28; y++) for (int x = 20; x <= 23; x++) Assert.False(Village.IsSolidTile(x, y), "gate road " + x + "," + y);
+        Assert.True(Village.IsSolidTile(49, 41)); // the old oak (trunk block 48-50 x 40-42) on its island in the central lake
+        for (int y = 59; y <= 89; y++) for (int x = 47; x <= 50; x++) Assert.False(Village.IsSolidTile(x, y), "main road / gate " + x + "," + y);
+        Assert.True(Village.IsSolidTile(51, 48), "the lake is water");
+        for (int x = 34; x <= 45; x++) Assert.False(Village.IsSolidTile(x, 39), "bridge to the island " + x);
+        for (int y = 54; y <= 57; y++) for (int x = 40; x <= 62; x += 4) Assert.False(Village.IsSolidTile(x, y), "plaza south of the lake " + x + "," + y); // where players gather and sell
+        // raised Guild terrace (26/11): retaining wall rows 25-26 x34-63 with the stairs x46-51 open, hedge flanks x32-33 / x64-65 up to the border
+        for (int y = 25; y <= 26; y++)
+            for (int x = 34; x <= 63; x++)
+                Assert.Equal(x < 46 || x > 51, Village.IsSolidTile(x, y));
+        for (int y = 3; y <= 26; y++) foreach (int x in new[] { 32, 33, 64, 65 }) Assert.True(Village.IsSolidTile(x, y), "terrace flank " + x + "," + y);
+        Assert.False(Village.IsSolidTile(48, 22), "terrace court in front of the Guild Hall");
         string spawn = File.ReadAllText(RepoFile("Assets/Scripts/MapSpawnTable.cs")); // MapSpawnTable needs Unity: read the source
         Assert.Contains("case TauWillowbrookVillageId: return NoZones;", spawn); // no monsters in the village
         Assert.Contains("case TauCloverMeadowsId: return TauCloverMeadows;", spawn);
@@ -193,16 +203,17 @@ public class TaurusMapTests
     [Fact]
     public void GroundChunksMinimapAndBorderExistForBothMaps()
     {
-        // phase 04 art: Tools/build-tau-25d-ground.py writes <ground>-r{r}c{c}.png at 64 px per tile, the border tile and the minimap (place-tau-25d-props.py --minimap)
+        // phase 04 art: Tools/build-tau-25d-ground.py writes <ground>-r{r}c{c}.png at 64 px per tile (also village V2 100x100), the border tile and the minimap (place-tau-25d-props.py --minimap)
         foreach (IGameMap m in new[] { Village, Meadows })
         {
+            const int tilePx = 64;
             Assert.True(m.GroundChunkCols > 1 && m.GroundChunkRows > 1);
             for (int r = 0; r < m.GroundChunkRows; r++)
                 for (int c = 0; c < m.GroundChunkCols; c++)
                 {
                     byte[] b = File.ReadAllBytes(RepoFile("Assets/Resources/" + m.GroundTexture + "-r" + r + "c" + c + ".png"));
                     int pw = (b[16] << 24) | (b[17] << 16) | (b[18] << 8) | b[19], ph = (b[20] << 24) | (b[21] << 16) | (b[22] << 8) | b[23];
-                    Assert.Equal(m.Width * 64 / m.GroundChunkCols, pw); Assert.Equal(m.Height * 64 / m.GroundChunkRows, ph);
+                    Assert.Equal(m.Width * tilePx / m.GroundChunkCols, pw); Assert.Equal(m.Height * tilePx / m.GroundChunkRows, ph);
                     Assert.True(pw <= 2048 && ph <= 2048);
                 }
             Assert.True(File.Exists(RepoFile("Assets/Resources/" + m.GroundTexture + "-border.png")));

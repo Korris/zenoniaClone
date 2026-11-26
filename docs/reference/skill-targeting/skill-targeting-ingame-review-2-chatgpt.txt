@@ -1,0 +1,36 @@
+Chỉ chữ.
+ChatGPT said:
+Vòng 2: 9,1/10 — ĐẠT, duyệt dùng trong game. So với V1 (8,5/10), indicator đã sạch hơn, phân cấp thị giác tốt hơn và hợp phong cách RO Soft Adventure / RO3. Không cần vẽ lại asset.
+Trường hợp
+ | 
+Điểm
+ | 
+Nhận xét
+Arrow Rain
+ | 
+9,2
+ | 
+Vòng tầm đã đủ mờ, AoE nổi bật đúng mức
+Starfall ngoài tầm
+ | 
+9,0
+ | 
+Vàng cảnh báo rõ, không quá chói
+Inferno Crash
+ | 
+9,3
+ | 
+Rune đẹp, vùng tiếp đất dễ nhận biết
+Ice Storm trên tuyết
+ | 
+8,9
+ | 
+Đọc được trên nền xám băng, nhưng bị cây và vách đá che một phần
+Còn 2 chỉnh sửa nhỏ
+Tâm ngắm: Hiện 0,6 ô hơi lớn so với vòng AoE nhỏ. Giảm còn 0,45–0,5 ô, giữ #FFF0B8, alpha 0,85. Không cần chỉnh các vòng khác.
+Ice Storm khi bị địa hình che: Cho phần vòng bị cây/vách che hiển thị bằng lớp overlay nét đứt alpha 0,30–0,35, chỉ khi đang ngắm; không cần đưa toàn bộ indicator lên trên vật thể vì sẽ mất cảm giác nằm trên mặt đất.
+Giữ nguyên: AoE 0,62–0,78; vòng tầm 0,24 → 0,16; vòng nổ tối đa 0,16; màu vàng/đỏ ngoài tầm; viền tối 0,35.
+Chốt: APPROVE V2 — 9,1/10. Hai sửa trên là polish tùy chọn, không phải lỗi cần chặn triển khai. Bộ indicator đã đủ tốt để áp dụng thống nhất cho các skill chọn vị trí của 7 class.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

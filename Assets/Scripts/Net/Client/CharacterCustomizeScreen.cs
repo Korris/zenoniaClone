@@ -115,7 +115,7 @@ namespace ZenoniaProto
             styleCount = HeroPreviewStage.HairStyleCount(id);
             fixedOutfit = HeroPreviewStage.FixedOutfit(id);
             if (Look == null) Look = CharacterAppearanceData.RandomNew(RpgSession.ClassId(id), styleCount, Dice);
-            banner.sprite = UiArt.Get("hero-select/banner-" + CharacterFlowKit.ClassArtName(id));
+            banner.sprite = UiArt.Get("hero-select-ro/banner-" + CharacterFlowKit.ClassArtName(id)) ?? UiArt.Get("hero-select/banner-" + CharacterFlowKit.ClassArtName(id)); // the class picker's RO Adventure banners (all six classes)
             titleText.text = Naming ? "CUSTOMIZE AND NAME" : "CHOOSE YOUR LOOK";
             createLabel.text = Naming ? "CREATE" : "CONFIRM";
             namePlate.SetActive(Naming);

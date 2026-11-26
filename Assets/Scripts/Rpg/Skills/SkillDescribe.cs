@@ -14,16 +14,22 @@ namespace ZenoniaProto.Rpg
     {
         const string StatusBad = "#FF9566", StatusCold = "#79D9FF", StatusPurple = "#C8A5FF", BossColor = "#FFCA70";
 
-        /// <summary>One to three sentences: what the skill does at this rank.</summary>
+        /// <summary>One to three sentences: what the skill does at this rank. Ground skills (26/11) add where they may be aimed.</summary>
         public static string Description(SkillDef d, int rank)
+        {
+            string text = Core(d, rank);
+            return GroundTargetRules.IsGround(d) && d.Legacy == LegacySkill.None && GroundTargetRules.IndicatorOf(d) != GroundIndicator.Placement ? text + " Aim it within " + Tiles(d.CastRange) + "." : text;
+        }
+
+        static string Core(SkillDef d, int rank)
         {
             rank = Math.Max(1, rank);
             if (d.Legacy == LegacySkill.EarthBreak)
-                return "Charge, sweep and slam " + Tiles(LegacySkillNumbers.EarthBreakRange / LegacySkillNumbers.TileUnits) + " ahead: " + LegacySkillNumbers.EarthBreakHits + " hits, "
+                return "Charge, sweep and slam " + Where(d, LegacySkillNumbers.EarthBreakRange) + ": " + LegacySkillNumbers.EarthBreakHits + " hits, "
                     + Atk(LegacySkillNumbers.EarthBreakTotalMult * 100f * d.DamageMul(rank)) + " in total within " + Tiles(LegacySkillNumbers.EarthBreakRadius / LegacySkillNumbers.TileUnits)
                     + ", then " + LegacySkillNumbers.EarthBreakBurns + " burns of " + Atk(LegacySkillNumbers.EarthBreakBurn * 100f * d.DamageMul(rank)) + ".";
             if (d.Legacy == LegacySkill.IceStorm)
-                return "Ice spears fall " + Tiles(LegacySkillNumbers.IceStormRange / LegacySkillNumbers.TileUnits) + " ahead: " + LegacySkillNumbers.IceStormWaves + " waves of "
+                return "Ice spears fall " + Where(d, LegacySkillNumbers.IceStormRange) + ": " + LegacySkillNumbers.IceStormWaves + " waves of "
                     + Atk(LegacySkillNumbers.IceStormMult * 100f * d.DamageMul(rank)) + " within " + Tiles(LegacySkillNumbers.IceStormRadius / LegacySkillNumbers.TileUnits) + ".";
             if (d.Legacy == LegacySkill.RocketBarrage)
                 return LegacySkillNumbers.RocketBarrageRockets + " rockets rain on a " + Num(LegacySkillNumbers.RocketBarrageFanDeg) + "-degree fan up to " + Tiles(LegacySkillNumbers.RocketBarrageReach / LegacySkillNumbers.TileUnits) + " ahead: "
@@ -138,7 +144,7 @@ namespace ZenoniaProto.Rpg
                 case EffectKind.Heal: return Heal(d, e, rank);
                 case EffectKind.Summon: return Summon(d, e, rank);
                 case EffectKind.Turret:
-                    return "Place a turret where you stand for " + Secs(e.DurationMs) + ": it shoots the nearest enemy within " + Tiles(e.Radius) + " for " + Atk(d.PctAt(e, rank)) + " every " + Secs(e.IntervalMs) + ". A new one replaces the old one";
+                    return "Place a turret " + (GroundTargetRules.IsGround(d) ? "up to " + Tiles(d.CastRange) + " away" : "where you stand") + " for " + Secs(e.DurationMs) + ": shoots the nearest enemy within " + Tiles(e.Radius) + " for " + Atk(d.PctAt(e, rank)) + " every " + Secs(e.IntervalMs) + ". A new one replaces the old one";
                 case EffectKind.Rain:
                     return e.Count + " strikes fall around a spot " + Tiles(e.Range) + " ahead, one every " + Secs(e.IntervalMs) + ": " + Atk(d.PctAt(e, rank)) + " each in a " + Num(e.ImpactRadius) + "-tile blast";
                 case EffectKind.Zone:
@@ -296,6 +302,12 @@ namespace ZenoniaProto.Rpg
         static string Tag(string name, string color) { return "<color=" + color + ">" + name + "</color>"; }
         static string Boss(string text) { return "<color=" + BossColor + ">Boss: " + text + "</color>"; }
         static string Atk(float pct) { return (int)Math.Round(pct) + "% ATK"; }
+        /// <summary>Where a hand-made ultimate lands: on the aimed spot (Ground, 26/11) or its old fixed distance ahead.</summary>
+        static string Where(SkillDef d, float rangeUnits)
+        {
+            return GroundTargetRules.IsGround(d) ? "on a spot within " + Tiles(d.CastRange) : Tiles(rangeUnits / LegacySkillNumbers.TileUnits) + " ahead";
+        }
+
         static string Tiles(float t) { return Num(t) + (t == 1f ? " tile" : " tiles"); }
         static string Secs(int ms) { return Num(ms / 1000f) + "s"; }
         static string Num(float v) { return v.ToString("0.#", CultureInfo.InvariantCulture); }

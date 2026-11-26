@@ -12,7 +12,8 @@ namespace ZenoniaProto
     /// with --ui-new skill, the Training Hall (TrainingHallWindow). Learn / assign go through the real window handlers (Tap*), so the UI path is exercised.
     /// Steps: auto (toggle Auto-battle) | open | close | level:N | learn:I[:times] | select:I | assign (= assign-mode) | slot:K (flat magazine slot 0-8, 0 = Dash)
     ///        | respec (first = arm / ask, second = confirm) | confirm-respec (the Respec question only) | gold:N | mp (refill HP / MP)
-    ///        | cast:I (hero.TryCastSkill) | face:D | page:D (touch magazine, window closed).
+    ///        | cast:I (hero.TryCastSkill) | face:D | page:D (touch magazine, window closed)
+    ///        | aim:I:DX:DY (Ground skill preview at the hero + DX, DY tenths of a tile) | aim-confirm (cast it there).
     /// Training Hall only: tier:T (plank 0-2) | drag:I:K (statue I dropped on slot K) | move:K:J (slot K dropped on slot J) | unslot:K (slot K dropped off the belt)
     ///        | drag-demo:I:K (statue I held on its way to slot K).
     /// </summary>
@@ -60,6 +61,11 @@ namespace ZenoniaProto
                 case "unslot": TrainingHallWindow.TestDragSlot(a, -1); break;
                 case "drag-demo": TrainingHallWindow.TestDragDemo(a, b); break;
                 case "cast": Debug.Log("[ZenoniaProto] cast " + a + " => " + hero.TryCastSkill(a)); break;
+                case "aim": // aim:I:DX:DY (tenths of a tile from the hero): the Ground skill preview as the mouse would leave it (GroundAimInput)
+                    float dx = p.Length > 2 ? float.Parse(p[2], CultureInfo.InvariantCulture) / 10f : 3f, dy = p.Length > 3 ? float.Parse(p[3], CultureInfo.InvariantCulture) / 10f : 0f;
+                    Debug.Log("[ZenoniaProto] aim " + a + " => " + GroundAimInput.TestAim(a, hero.Position + new Vector2(dx, dy) * GameConfig.TileUnits));
+                    break;
+                case "aim-confirm": GroundAimInput.TestConfirm(); break;
                 case "face": hero.Teleport(hero.Position, a); break;
                 case "auto": AutoBattle.Toggle(hero); break;
                 case "page": TouchControls.CycleMagazine(a); break;

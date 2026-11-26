@@ -53,6 +53,12 @@ OVERRIDES = {
     ("cleric", "idle", 4, 0): {"R": [205, 177, T], "L": [113, 177, T]},
 }
 OVERRIDES.update(mf.overrides())  # walk / attack fists of Warrior, Wizard, Mechanic
+OVERRIDES.update(import_module("ro_fantasy_mechanic_v3").FISTS)  # Mechanic V3 (26/11) fists: idle / walk 8f / attack 8f
+if bc.variant.VARIANT == "assassin-v3":  # Asteria V3 Rogue art (26/11): its own fist tables, Tools/ro_fantasy_assassin_v3_fists.py
+    import ro_fantasy_assassin_v3_fists as _av3
+    OVERRIDES = {k: v for k, v in OVERRIDES.items() if k[0] != "assassin"}
+    OVERRIDES.update(_av3.OVERRIDES)
+    import_module("ro_fantasy_attack8_grips").FISTS.update(_av3.ATTACK)
 STAFF_SIDE_AHEAD = 22  # Wizard walk right / left: staff head this far ahead of its idle spot
 CLERIC_STAFF_AHEAD, CLERIC_STAFF_LIFT = 36, -8  # Cleric walk right / left: staff head further ahead (and lower) than idle, wings clear of the chin
 CLERIC_STAFF_ATTACK = {(0, 2): -110, (1, 1): -45}  # (painted row, frame): staff angle, read on the 8-dir sheet (mirrored on the left)
@@ -75,6 +81,8 @@ def body(cls):
 
 
 def table_of(cls):
+    if cls == "cleric":  # V3 Priest (26/11): bare-hand fists, staff only -> Tools/ro_fantasy_cleric_v3_grips.py
+        return import_module("ro_fantasy_cleric_v3_grips").table_of(body)
     anims, heads, cells = body(cls)
     out = {}
     for anim, n in anims:
@@ -160,12 +168,18 @@ def hand_sheet(table, anims, cells, cls):
 def cmd_grips(cls):
     poses = import_module("hero_layered_grip_poses")
     path = FISTS / f"{cls}-fists.json"
+    if cls == "cleric":  # V3 Priest (26/11): star staff only, own grip rules
+        return import_module("ro_fantasy_cleric_v3_grips").cmd_grips(body, hand_sheet, path)
     table = json.loads(path.read_text(encoding="utf-8"))["anims"]
     anims, heads, cells = body(cls)
     hand_sheet(table, anims, cells, cls)
     cj_path = DATA / cls / "class.json"
     cj = json.loads(cj_path.read_text(encoding="utf-8"))
-    cj["weapons"], cj["grips"] = poses.class_grips(ROOT, cls, table, heads, cells)
+    if cls == "mechanic":  # V3 (26/11): one hand cannon in the right fist, no offhand (Tools/ro_fantasy_mechanic_v3.py)
+        with import_module("ro_fantasy_mechanic_v3").weapons_for_grips(poses):
+            cj["weapons"], cj["grips"] = poses.class_grips(ROOT, cls, table, heads, cells)
+    else:
+        cj["weapons"], cj["grips"] = poses.class_grips(ROOT, cls, table, heads, cells)
     if cls == "warrior":
         sword_down(cj, poses)
         if len(cells.get("attack", [])) == 8:
@@ -184,6 +198,11 @@ def cmd_grips(cls):
                     g["angle"] = -a if g["flip"] else a
     if cls == "mechanic":
         aim_raised(cj, table, heads, poses)
+        if len(cells.get("attack", [])) == 8:  # V3 8-dir attack art: cannon grips per painted row
+            import_module("ro_fantasy_mechanic_v3").attack8(cj, poses)
+        import_module("ro_fantasy_mechanic_v3").finish(cj, poses)
+    if cls == "assassin" and bc.variant.VARIANT == "assassin-v3":  # V3 Rogue: dagger poses + 8 painted attack dirs
+        _av3.apply(cj, table, heads, cells, poses)
     cj_path.write_text(json.dumps(cj, indent=1), encoding="utf-8")
     print(cls, len(cj["grips"]), "grips")
 

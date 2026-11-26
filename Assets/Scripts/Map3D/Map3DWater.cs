@@ -46,6 +46,8 @@ namespace ZenoniaProto
             wm.SetVector("_HRect", f.HeightRect);
             wm.SetVector("_HSize", f.HeightSize);
             wm.SetFloat("_Level", f.WaterLevel);
+            wm.SetFloat("_DepthRange", f.DeepLake ? 1.8f : 0.45f); // shared material: set again for every map
+            wm.SetFloat("_Waves", f.DeepLake ? 1f : 0f);
             mr.sharedMaterial = wm;
             mr.shadowCastingMode = ShadowCastingMode.Off;
             mr.receiveShadows = false;

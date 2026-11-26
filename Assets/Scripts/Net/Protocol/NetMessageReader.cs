@@ -44,6 +44,14 @@ namespace ZenoniaProto.Net
                 if (n < 1 || n > NetProtocol.MaxInputFrames || n > frames.Length || r.AvailableBytes < n * InputFrame.WireBytes) return false;
                 for (int i = 0; i < n; i++)
                     frames[i] = new InputFrame { Seq = (ushort)(newest - (n - 1 - i)), Bits = (ushort)(r.GetUShort() & InputBits.AllMask) };
+                int aims = r.GetByte();
+                if ((aims >> n) != 0) return false; // a point for a frame that is not there
+                for (int i = 0; i < n; i++)
+                {
+                    if ((aims & (1 << i)) == 0) continue;
+                    if (r.AvailableBytes < InputFrame.AimWireBytes) return false;
+                    frames[i].HasAim = true; frames[i].AimX = r.GetShort(); frames[i].AimY = r.GetShort();
+                }
                 count = n;
                 return true;
             }

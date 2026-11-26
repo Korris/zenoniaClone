@@ -8,8 +8,9 @@ namespace ZenoniaProto.Rpg
             var stun = new StatusSpec(StatusKind.Stun, 0f, 1500);
             return new[]
             {
-                Def(C, 0, "Power Shot", 1, 8, 3f, SkillTargeting.Facing, Fx(Proj(150f, 7f, 24f, pierce: true))),
+                Def(C, 0, "Power Shot", 1, 8, 3f, SkillTargeting.Facing, Fx(Proj(150f, 6.5f, 24f, pierce: true))), // 6.5 tiles (was 7): the Archer outranges him (role split 2026-11-26)
                 Def(C, 1, "Plasma Barrage", 8, 22, 9f, SkillTargeting.Facing, Fx(Proj(55f, 6f, 16f, width: 0.6f, count: 6, spread: 60f)), Req(0, 3)),
+                // Role split 2026-11-26: 10 rockets x 100 % (was 400 %, LegacySkillNumbers.RocketBarrageMult); on one target nearly all 10 landed (36x ATK per 28 MP).
                 // Kept signature: RocketBarrageUltimate (web carpetBomb, 10 rockets x 400% over a 60-degree fan). MP/CD in line with Ice Storm and Earth Break, not the web's 40 MP / 18 s.
                 Def(C, 2, "Rocket Barrage", 15, 28, 12f, SkillTargeting.Facing, NoFx(), Req(0, 5), lockMs: 850, legacy: LegacySkill.RocketBarrage),
                 Def(C, 3, "Target Lock", 20, 18, 15f, SkillTargeting.AroundSelf,
@@ -17,10 +18,10 @@ namespace ZenoniaProto.Rpg
                 Def(C, 4, "Rocket Punch", 26, 24, 11f, SkillTargeting.Facing,
                     Fx(Proj(280f, 4f, 14f, width: 2f, pierce: true, status: new StatusSpec(StatusKind.Knockback, 2f, 0))), Req(2, 3)),
                 // Replaced Robot Assault (drone pulsing an area beside the caster): same slot, level, MP, cooldown, prerequisite, cast lock and damage per hit. Numbers: TurretConfig.
-                Def(C, 5, "Deploy Turret", 32, 28, 18f, SkillTargeting.Self,
-                    Fx(new SkillEffect { Kind = EffectKind.Turret, DurationMs = TurretConfig.DurationMs, Pct = TurretConfig.ShotPct, Radius = TurretConfig.RangeTiles, IntervalMs = TurretConfig.FireIntervalMs }), Req(3, 3), lockMs: 450),
+                Def(C, 5, "Deploy Turret", 32, 28, 18f, SkillTargeting.Ground, // Ground (ChatGPT 26/11): placed on the chosen point
+                    Fx(new SkillEffect { Kind = EffectKind.Turret, DurationMs = TurretConfig.DurationMs, Pct = TurretConfig.ShotPct, Radius = TurretConfig.RangeTiles, IntervalMs = TurretConfig.FireIntervalMs }), Req(3, 3), lockMs: 450, castRange: 4f),
                 Def(C, 6, "EMP Burst", 40, 35, 20f, SkillTargeting.AroundSelf, Fx(Strike(AreaShape.Circle, 350f, radius: 3f, status: stun)), Req(4, 3), lockMs: 450),
-                Def(C, 7, "Orbital Cannon", 50, 80, 45f, SkillTargeting.Facing, Fx(Rain(140f, 6, 7f, 4f, 250, 1.5f)), Req(5, 5, 6, 5), lockMs: 900),
+                Def(C, 7, "Orbital Cannon", 50, 80, 45f, SkillTargeting.Ground, Fx(Rain(140f, 6, 7f, 4f, 250, 1.5f)), Req(5, 5, 6, 5), lockMs: 900, castRange: 7f),
             };
         }
     }

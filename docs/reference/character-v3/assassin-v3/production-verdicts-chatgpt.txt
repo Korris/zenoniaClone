@@ -1,0 +1,10 @@
+Rogue V3 production (phase 2), chat Tay "Tân Korris" https://chatgpt.com/c/6b0793cc-1c50-83ec-a7cc-437a611341b7 (26/11)
+Pipeline: RO_FANTASY_VARIANT=assassin-v3 python Tools/build-ro-fantasy-hero-game-assets.py write|fists|grips|check assassin
+Sources: Assets/ArtLibrary/ro-fantasy-heroes/src/assassin-v3/
+
+Hair (grey dye-able, no hat, drawn on ref/assassin-v3-test/bald-head-assassin-5dir-tall-canvas-for-hair.png):
+- style 0 (hair-assassin-style1-5dir-chatgpt-1): turnaround ponytail + dark bow (bow keeps colour). In-game (offline composite
+  hair-style1-offline-check-1.png) ChatGPT: giống turnaround 8,7 / khớp đầu 9,4 / nhuộm sakura 9,0 / silver 9,3 / đồng nhất 5 hướng 7,5 / TỔNG 8,8.
+  Note: Side view has no ponytail (ChatGPT: should redraw Side only).
+- style 1 (style2-...-chatgpt-1) "Shadow Bob" (ChatGPT's own design: short layered bob, braid + gold star clip + drop earring): self 9,1 DUYỆT.
+- style 2 (style3-...-chatgpt-1): long wavy half-up, braided crown, gold flower clip + red ribbons (ChatGPT's own design).

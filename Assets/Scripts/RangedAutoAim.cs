@@ -15,21 +15,23 @@ namespace ZenoniaProto
 
         /// <summary>
         /// Turns `dir` / `angleDeg` (the 4-way facing shot) toward the closest live monster within `range` of `muzzle` in the front half-plane of
-        /// `facingDir`. Leaves them untouched when nothing qualifies. Returns true when the shot was aimed.
+        /// `facingDir` (`preferred` = the player's picked monster wins when it qualifies). Leaves them untouched when nothing qualifies. Returns true when the shot was aimed.
         /// </summary>
-        public static bool Steer(Vector2 feet, Vector2 muzzle, Vector2 facingDir, float range, ref Vector2 dir, ref float angleDeg)
+        public static bool Steer(Vector2 feet, Vector2 muzzle, Vector2 facingDir, float range, ref Vector2 dir, ref float angleDeg, Monster preferred = null)
         {
             IReadOnlyList<Monster> monsters = Monster.All;
             if (monsters.Count == 0) return false;
             candidates.Clear();
+            int prefer = -1;
             for (int i = 0; i < monsters.Count; i++)
             {
                 Monster m = monsters[i];
+                if ((object)m == (object)preferred) prefer = i;
                 Rect box = m.Box;
                 Vector2 c = m.Center;
                 candidates.Add(new AimCandidate(c.x, c.y, box.xMin, box.yMin, box.xMax, box.yMax, m.NetId, m.IsDying));
             }
-            int pick = RangedAimRules.Pick(feet.x, feet.y, facingDir.x, facingDir.y, muzzle.x, muzzle.y, range, candidates);
+            int pick = RangedAimRules.Pick(feet.x, feet.y, facingDir.x, facingDir.y, muzzle.x, muzzle.y, range, candidates, prefer);
             if (pick < 0) return false;
             float dx, dy, a;
             if (!RangedAimRules.Direction(muzzle.x, muzzle.y, candidates[pick].Cx, candidates[pick].Cy, out dx, out dy, out a)) return false;

@@ -1,4 +1,58 @@
 {
+ "hero-select-ro/bar-fill": [
+  24,
+  0,
+  24,
+  0
+ ],
+ "hero-select-ro/bar-track": [
+  24,
+  0,
+  24,
+  0
+ ],
+ "hero-select-ro/btn-back": [
+  46,
+  44,
+  46,
+  44
+ ],
+ "hero-select-ro/btn-next": [
+  64,
+  24,
+  64,
+  24
+ ],
+ "hero-select-ro/info-panel": [
+  64,
+  64,
+  64,
+  64
+ ],
+ "hero-select-ro/name-plate": [
+  48,
+  12,
+  48,
+  12
+ ],
+ "hero-select-ro/name-plate-selected": [
+  56,
+  18,
+  56,
+  18
+ ],
+ "hero-select-ro/portrait-frame": [
+  44,
+  44,
+  44,
+  44
+ ],
+ "hero-select-ro/preview-frame": [
+  48,
+  48,
+  48,
+  48
+ ],
  "ro-soft/bag-detail-frame": [
   40,
   40,

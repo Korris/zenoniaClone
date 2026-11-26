@@ -45,7 +45,7 @@ namespace ZenoniaProto
             dim = ClericLightFx.DimFor(c.Body.Hero, null);
             float u = c.Units, scatter = rain.Radius * u;
             impactR = rain.ImpactRadius * u;
-            Vector2 mid = SkillAim.ClampToWalls(c.CastFrom, c.CastFrom + c.Dir * rain.Range * u); // SkillEffects.Rain
+            Vector2 mid = SkillAim.RainCentre(c, rain); // SkillEffects.Rain
             int n = Mathf.Max(1, rain.Count);
             spots = new Vector2[n]; landMs = new int[n]; stars = new ElementMeteor[n]; spawned = new bool[n]; landed = new bool[n];
             for (int i = 0; i < n; i++)

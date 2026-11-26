@@ -24,6 +24,7 @@ namespace ZenoniaProto
         {
             if (ctx == null || !ctx.View) return null;
             if (WizardLightSkills.Handles(ctx.Def.Id)) return WizardBoltLightFx.Begin(ctx, e, pos, dir, parent);
+            if (ctx.Def.Class == "archer") return new ArcherSkillArrowArt(ctx, e, pos, dir, parent);
             return null;
         }
     }

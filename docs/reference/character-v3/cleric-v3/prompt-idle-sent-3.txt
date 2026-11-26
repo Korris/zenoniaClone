@@ -1,0 +1,2 @@
+(kèm side-by-side-...-chatgpt-2.png + body-cleric-idle-5dir-v3-chatgpt-2.png)
+Script đo V2: hướng / chân / áo / mặt ĐẠT giữ nguyên; đầu NHỎ quá: sọ (trên tai) nhỏ hơn Knight 5 % (V1 to hơn 7 %), sọ-cằm 32,8 % vs 34,7 %. Vẽ mới V3: chép y nguyên V2, CHỈ phóng đầu +5 % ngang + dọc, giữ chiều cao toàn thân (cổ / thân rút), cằm đúng đường xanh, người 74,4 % ảnh (sọ 11,9 %, đế 86,2 %), đầu trọc, không tóc / mũ / vũ khí, nền #00FF00. Tự chấm /10.

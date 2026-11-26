@@ -1,0 +1,16 @@
+Chat Engineer (Tay): https://chatgpt.com/c/6b079286-ba30-83ec-818a-cfffc11d9b9e (tin đầu lỡ dính đoạn prompt Mage, tin 2 sửa lại; DỪNG 26/11 vì coordinator giao class này cho agent khác)
+ChatGPT chấm idle chatgpt-1: art direction 9,2 / trang phục 9,3 / màu 9,2 / đồng nhất 5 hướng 8,8 / tỉ lệ đầu 7,5 / thân-chân 8,0 / tổng 8,7 => duyệt thiết kế, chưa duyệt tỉ lệ; các góc nghiêng quay ngược Knight.
+ChatGPT chấm idle chatgpt-2 (thị giác): tổng 9,1 (tỉ lệ đầu 9,0, thân-chân 9,0); vẫn quay trái thay vì phải.
+Script (measure_v3.py, so Knight: skull-chin 34,7 %, skullW 36,4 %):
+- chatgpt-1: skullW +3,8 %, skull-chin +4,9 % (đầu to) -> vẽ lại
+- chatgpt-2: skullW -1,6 %, skull-chin -3,5 % (đạt ~3 %). Góc 3/4 + Side quay trái => file -dirfix lật 3 hình giữa (flip_side_views.py).
+
+--- 26/11 agent mechanic (tiếp chat trên) ---
+Prompt V3/V4/V5: prompt-idle-v3.txt (V3); V4 = "giữ V3, sọ hẹp ~4 %, tai nhỏ"; V5 = "giữ V4, tai cỡ Knight, sọ rộng 36,4 %, đích giữa V3 và V4".
+Script measure_v3.py (so Knight sọ-cằm 34,7 %, sọ rộng 36,4 %):
+- chatgpt-3: hướng ĐÚNG (quay phải), sọ rộng +5,2 %, sọ-cằm +2,9 %. ChatGPT 9,1 (rộng đầu 7,5).
+- chatgpt-4: sọ rộng -6,9 % (tai quá nhỏ), sọ-cằm -1,2 %. ChatGPT 9,1 (rộng đầu 7,0).
+- chatgpt-5: sọ rộng -2,2 %, sọ-cằm -0,3 %, 2,89 đầu sọ (Knight 2,88), hướng đúng. ChatGPT 9,6/10 "APPROVED - FINAL" (art direction 9,5, chiều cao đầu 9,9, rộng đầu 9,6, thân-chân 9,5, sẵn sàng cắt 9,6). Tồn nhỏ (ChatGPT): highlight sọ sáng hơn Knight; khoá đai lệch nhẹ giữa các góc.
+=> CHỐT idle: src/mechanic-v3/body-mechanic-idle-5dir-v3-chatgpt-5.png. Ảnh so: side-by-side-knight-vs-mechanic-idle-v3-chatgpt-5.png.
+Ảnh duyệt đủ đồ (tóc + kính + pháo tay phải + hộp năng lượng sau lưng, KHÔNG cắt vào game): review-mechanic-idle-5dir-v3-full-gear-chatgpt-1.png.
+Lưu ý: nền #FF00FF (Knight #00FF00; ro_fantasy_body_cut key xanh) => lúc cài phải key magenta hoặc đổi nền. Người cao 71,7 % ảnh (Knight 74,4 %): tool tự co về 216 px, không ảnh hưởng tỉ lệ.

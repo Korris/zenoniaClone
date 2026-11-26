@@ -24,6 +24,9 @@ _D = 0.7071
 FACING = {"down": (0, 1), "down-right": (_D, _D), "right": (1, 0), "up-right": (_D, -_D), "up": (0, -1), "up-left": (-_D, -_D),
           "left": (-1, 0), "down-left": (-_D, _D)}
 HEAD_TOL = 0.04
+# (class, direction) -> head factor forced on that 8f row (the skull band measure misses it): Cleric V3 up-right / up-left 26/11, the
+# painted skull is 6.8 % / 4 % narrower than the idle up-right skull (head anchors 69 / 71 vs 74 px) while skull_w reads only 3-4 %.
+HEAD_K_OF = {("cleric", "up-right"): 1.065, ("cleric", "up-left"): 1.035}
 TRAVEL = [0, 0, 0, 0, 0, 0, 0, 0]  # cell px along the facing per frame. 22/11 V2: 0, the lunge is done in the engine (WarriorSlashFeel.Lunge, figure +
 # shadow slide 13-19 px on screen) so art travel and root travel never stack. Was [-4, -8, 6, 12, 10, 6, 2, 0].
 
@@ -39,6 +42,29 @@ def frames(path):
     return [f for _, f in out]
 
 
+# Classes whose 8f attack cells get olive key wedges erased (Cleric V3 26/11: up-right F3-F5, a dark olive wedge (~#604508, key green
+# mixed with the dark outline) enclosed between the cheek and the raised arm, 14-60 px, that despeck keeps: it is not near enough to the
+# transparent edge and not green enough). Blob = g > 0.62 r, b < 0.25 g, r < 135, at least OLIVE_MIN px (lone outline pixels stay).
+OLIVE_WEDGE_CLASSES = {"cleric"}
+OLIVE_MIN = 8
+
+
+def erase_olive(cell):
+    import numpy as np
+    from scipy import ndimage
+    a = np.asarray(cell).copy()
+    r, g, b = (a[..., i].astype(int) for i in range(3))
+    m = (a[..., 3] > 0) & (g > 0.62 * r) & (b < 0.25 * g) & (r < 135) & (g > 30)
+    lab, n = ndimage.label(m)
+    if not n:
+        return cell
+    sizes = ndimage.sum(m, lab, range(1, n + 1))
+    big = np.isin(lab, 1 + np.nonzero(sizes >= OLIVE_MIN)[0])
+    if big.any():
+        a[ndimage.binary_dilation(big) & m | big, 3] = 0
+    return Image.fromarray(a, "RGBA")
+
+
 def shift(cell, dx, dy):
     out = Image.new("RGBA", cell.size)
     out.paste(cell, (dx, dy), cell)  # negative offsets crop at the cell edge
@@ -51,9 +77,11 @@ def cut(path, idle_skull_w, place, skull_w, despeck, bald_px, label, facing):
     guard = figs[7]
     s = bald_px / guard.height
     cells = [despeck(place(f, s)[0]) for f in figs]
-    k = idle_skull_w / (skull_w(guard) * s)
-    if abs(k - 1.0) > HEAD_TOL:
+    k = HEAD_K_OF.get((label.split()[0], facing), idle_skull_w / (skull_w(guard) * s))
+    if abs(k - 1.0) > HEAD_TOL or (label.split()[0], facing) in HEAD_K_OF:
         cells = [head_fix.scale_head(c, k, *sheets_tool.head_anchor(c)[1:3]) for c in cells]
+    if label.split()[0] in OLIVE_WEDGE_CLASSES:
+        cells = [erase_olive(c) for c in cells]
     ux, uy = FACING[facing]
     out = [shift(c, int(round(t * ux)), int(round(t * uy * 0.5))) for c, t in zip(cells, TRAVEL)]
     print(f"{label}: 8f scale {s:.3f} (guard on idle height), head x{k:.3f}{'' if abs(k - 1) > HEAD_TOL else ' (kept)'}")

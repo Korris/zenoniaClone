@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// --hero-select-test --shot-path P: the hero select (reached by CREATE NEW on the character list) through its real input path (FakeInput). Taps every hero with a shot of each (the Fighter included), picks the Cleric again, pages the skills, starts
+    /// --hero-select-test --shot-path P: the hero select (reached by CREATE NEW on the character list) through its real input path (FakeInput). Taps every offered class (HeroSelectScreen.PickerClasses: the Archer, no Fighter) with a shot of each, picks the Cleric again, pages the skills, starts
     /// the Cleric, opens the in-game change screen and backs out of it. Writes P_open.png, P_warrior.png ... P_ingame.png and PASS / FAIL lines with the E2e tag.
     /// </summary>
     public partial class DebugCapture
@@ -18,8 +18,9 @@ namespace ZenoniaProto
             yield return WaitSeconds(1f);
             yield return new WaitForEndOfFrame();
             Save(shotPath + "_open.png");
-            foreach (HeroClassDef c in HeroClassDef.All)
+            foreach (HeroClass id in HeroSelectScreen.PickerClasses)
             {
+                HeroClassDef c = HeroClassDef.Get(id);
                 yield return Press(CentreOf("Pick" + (int)c.Id), false, "hero " + c.Name);
                 for (int i = 0; i < 12; i++)
                 {
@@ -29,12 +30,12 @@ namespace ZenoniaProto
                 }
             }
 
-            // The loop above ends on the Fighter; the Cleric is picked again so the start below has to spawn her (the test used to tap the disabled Boxing slot here).
+            // The loop above ends on the Archer; the Cleric is picked again so the start below has to spawn her.
             string startArg = Arg(System.Environment.GetCommandLineArgs(), "--hero-select-start"); // --hero-select-start Fighter: start with that class instead
             HeroClass startClass = startArg != null ? ParseClass(startArg) : HeroClass.Cleric;
             yield return Press(CentreOf("Pick" + (int)startClass), false, "hero " + startClass + " again");
             yield return Press(CentreOf("SkillNext"), true, "next skills");
-            yield return Press(CentreOf("Skill4"), true, "last skill");
+            yield return Press(CentreOf("Skill0"), true, "first skill of the next page");
             yield return WaitSeconds(0.3f);
             yield return new WaitForEndOfFrame();
             Save(shotPath + "_skill.png");

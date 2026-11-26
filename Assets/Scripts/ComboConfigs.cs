@@ -45,9 +45,13 @@ namespace ZenoniaProto
         // other pistol; it is now one bullet, 1.8x on screen with a 14 unit hit box, and keeps the hit's 1.05 (the pair's total), so the DPS is unchanged.
         // Approved board (same day, later): every shot leaves the gun muzzle (RangedAimRules.MechanicBoltOrigin) and flies Range minus the muzzle's lead
         // over the body point, so these ranges still count from the body and end where they did.
-        static readonly BoltDef Bullet = new BoltDef(340f, 82f, "bullet", 1f, 8f, 8f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
-        static readonly BoltDef BigBullet = new BoltDef(340f, 82f, "bullet", 1.8f, 14f, 14f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
-        static readonly BoltDef Plasma = new BoltDef(240f, 77f, "plasmaShot", 1.2f, 12f, 12f, 24f, "explosion", "muzzleFlash", BoltStyle.Plasma);
+        // Role split 2026-11-26 (ChatGPT "Ragnarok Và Đạo Chúa", user approved): Mechanic = artillery / area control, basic range 5.5-6.5 m
+        // (1 tile = 1 m = 16 units, Map3D.M): bullets 6 m (82 -> 96), cannon 5.5 m (77 -> 88); the Archer outranges him (7-7.5 m).
+        // Damage split checked by Tests/dotnet/ZenoniaSkills.Tests/ArcherMechanicRoleBalanceTests.cs. Shared with the server: rebuild it.
+        public const float MechanicBulletRange = 6f * 16f, MechanicCannonRange = 5.5f * 16f;
+        static readonly BoltDef Bullet = new BoltDef(340f, MechanicBulletRange, "bullet", 1f, 8f, 8f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
+        static readonly BoltDef BigBullet = new BoltDef(340f, MechanicBulletRange, "bullet", 1.8f, 14f, 14f, 0f, null, "muzzleFlash", BoltStyle.Plasma);
+        static readonly BoltDef Plasma = new BoltDef(240f, MechanicCannonRange, "plasmaShot", 1.2f, 12f, 12f, 24f, "explosion", "muzzleFlash", BoltStyle.Plasma);
         public static readonly ComboHit[] MechanicHits =
         {
             new ComboHit(50f, 50f, 110f, 0.85f, 0f, 0f, 0f, 0f, 1f, Bullet),
@@ -92,6 +96,24 @@ namespace ZenoniaProto
             new ComboHit(70f, 60f, 130f, 1.0f, 0f, 0f, 0f, 0f, 1f, ClericOrb),
             new ComboHit(70f, 60f, 130f, 1.1f, 0f, 0f, 0f, 0f, 1f, ClericLance),
             new ComboHit(130f, 80f, 250f, 1.6f, 0f, 0f, 70f, 0f, 1f, ClericBurstOrb),
+        };
+
+        // Archer (Asteria Ranger V3, 2026-11-26): one bow shot per step on the 8-frame "attack" body (draw, hold, release, follow-through).
+        // The arrow leaves at the end of the windup = attack frame f5 (windup = 5/8 of the step), where the string hand opens (f3-f4 full draw;
+        // read on docs/reference/character-v3/archer-v3/check/archer-attack-8dir.png). Hits 1-2 are single arrows, hit 3 a heavier charged arrow with a push.
+        // Role split 2026-11-26 (ChatGPT "Ragnarok Và Đạo Chúa", user approved): Archer = mobile precision DPS. Faster steps, 480 -> 360 ms
+        // (45 ms per painted frame, windup 300 -> 225 so the release stays on f5), multipliers raised so one target / a boss takes ~10-15 % more
+        // than from the Mechanic; range 7 m (charged arrow 7.5 m) from the body (1 tile = 1 m = 16 units, Map3D.M; arrows leave
+        // RangedAimRules.MuzzleAhead in front, so Range = reach - MuzzleAhead). Checked by ArcherMechanicRoleBalanceTests. Shared with the server: rebuild it.
+        public const string ArrowSprite = "arrow";
+        public const float ArcherArrowReach = 7f * 16f, ArcherPowerArrowReach = 7.5f * 16f;
+        static readonly BoltDef Arrow = new BoltDef(380f, ArcherArrowReach - Rpg.RangedAimRules.MuzzleAhead, ArrowSprite, 1f, 8f, 8f, 0f, null, null, BoltStyle.Arrow);
+        static readonly BoltDef PowerArrow = new BoltDef(440f, ArcherPowerArrowReach - Rpg.RangedAimRules.MuzzleAhead, ArrowSprite, 1.35f, 12f, 12f, 0f, null, null, BoltStyle.Arrow);
+        public static readonly ComboHit[] ArcherHits =
+        {
+            new ComboHit(225f, 45f, 90f, 1.05f, 0f, 0f, 0f, 0f, 1f, Arrow),
+            new ComboHit(225f, 45f, 90f, 1.2f, 0f, 0f, 0f, 0f, 1f, Arrow),
+            new ComboHit(225f, 45f, 90f, 1.8f, 0f, 0f, 40f, 0f, 1f, PowerArrow),
         };
     }
 }

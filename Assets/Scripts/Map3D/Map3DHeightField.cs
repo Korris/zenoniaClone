@@ -22,6 +22,11 @@ namespace ZenoniaProto
         bool depth;
         /// <summary>Water sheet height (m): Map3DWater.Level, or -0.6 for Clover Meadows' sunken creek (RO3 loop round 2, "Outdoor Depth Solution V4.0" A).</summary>
         public float WaterLevel = Map3DWater.Level;
+        /// <summary>Willowbrook Village's central lake (user 25/11 "nước sâu hơn, hồ nhìn 3D hơn"): the bed keeps sinking away from the shore (to ~-2.3 m)
+        /// and the water shader grades its colour over 1.8 m with waves (Map3DWater _DepthRange / _Waves).</summary>
+        public readonly bool DeepLake;
+        /// <summary>The village lake's water sheet (m): low enough under the plaza for the stone embankment (Map3DLakeWall) to show its face.</summary>
+        public const float LakeLevel = -0.75f; // round 2: -0.45 showed only a thin face from the 54 deg camera
         bool[] dry;                        // extended tile grid: walkable ground that is not water (the creek banks never sink into it)
         float[] dDry;                      // metres from the nearest dry walkable cell, vertex grid (creek profile)
         public int Nx, Ny;                 // vertices
@@ -54,12 +59,14 @@ namespace ZenoniaProto
             MapW = map.Width; MapH = map.Height;
             depth = map.Id == TauCloverMeadowsMap.MapId && !Map3D.Test("nodepth");
             if (depth) WaterLevel = CreekLevel;
+            DeepLake = map.Id == TauWillowbrookVillageMap.MapId && Map3D.Test("deeplake"); // opt-in since 25/11 23:10 (user: "cho về như cũ, không làm thành hồ nữa, nhìn xấu quá")
+            if (DeepLake) WaterLevel = LakeLevel;
             LoadSplat(map);
             BuildOpen(map);
             Nx = Mathf.RoundToInt((MapW + 2f * Apron) / Step) + 1;
             Ny = Mathf.RoundToInt((MapH + 2f * Apron) / Step) + 1;
             DistanceToOpen();
-            if (depth) dDry = Chamfer(DryAt);
+            if (depth || DeepLake) dDry = Chamfer(DryAt); // creek profile / the village lake's distance from its shore
             BuildHeights();
             BuildControl(map);
             Tone = Map3DGroundDetail.Tone(map, this);
@@ -237,7 +244,12 @@ namespace ZenoniaProto
                     }
                     float w = Splat(tx, ty, 3);
                     if (depth && dDry != null && d <= 0f && dDry[k] > 0f && outside <= 0f) h = CreekHeight(tx, ty, dDry[k]);   // sunken creek: rock banks inside the water tiles only
-                    else if (w > 0.02f) h -= 0.55f * Smooth(0.1f, 0.8f, w) + Mathf.Max(0f, h) * Smooth(0.1f, 0.6f, w); // stream / pond bed follows the painted water, not the tile rows
+                    else if (w > 0.02f)
+                    {
+                        if (DeepLake) // flat plaza up to the painted edge (splat 0.5), then a walled drop (Map3DLakeWall) to -1.3 m, deepening to ~-2.6 m mid-lake
+                            h = w < 0.5f ? 0f : -1.6f - 1.2f * Smooth(0.6f, 8f, dDry[k]);
+                        else h -= 0.55f * Smooth(0.1f, 0.8f, w) + Mathf.Max(0f, h) * Smooth(0.1f, 0.6f, w); // stream / pond bed follows the painted water, not the tile rows    // the village lake deepens toward its middle
+                    }
                     if (d <= 0f && w <= 0.02f && !(depth && dDry != null && dDry[k] > 0f && outside <= 0f))
                     {
                         float dirt = Mathf.Max(Splat(tx, ty, 0), Splat(tx, ty, 2));
@@ -306,7 +318,7 @@ namespace ZenoniaProto
         /// <summary>Metres from the nearest dry walkable cell at tile coords (the sunken creek of Clover), -1 on maps without one (Map3DCreekDressing).</summary>
         public float CreekDistance(float tx, float ty)
         {
-            if (dDry == null) return -1f;
+            if (dDry == null || !depth) return -1f; // the village lake also has dDry (its depth), but no creek dressing
             int i = Mathf.Clamp(Mathf.RoundToInt((tx - MinTx) / Step), 0, Nx - 1), j = Mathf.Clamp(Mathf.RoundToInt((ty - MinTy) / Step), 0, Ny - 1);
             return dDry[j * Nx + i];
         }
@@ -366,6 +378,19 @@ namespace ZenoniaProto
                         r = (byte)(Splat(tx, ty, 0) * 255f); g = (byte)(Splat(tx, ty, 1) * 255f); b = (byte)(Splat(tx, ty, 2) * 255f); a = (byte)(Splat(tx, ty, 3) * 255f);
                         float edge = Mathf.Clamp01(Mathf.Min(Mathf.Min(tx, MapW - tx), Mathf.Min(ty, MapH - ty)) / 2f); // blend into the outside forest floor
                         g = (byte)Mathf.Lerp(forestOut * 255f, g, edge);
+                        if (DeepLake) // user 25/11 "thành tường với cái trên bờ không liên quan": no water-bed band on the dry side of the embankment
+                        {
+                            float wv = Splat(tx, ty, 3);
+                            if (wv < 0.5f)
+                            {
+                                float pmax = 0f; // the plaza paving runs right up to the coping (the island's grass stays grass)
+                                for (int dy = -1; dy <= 1; dy++)
+                                    for (int dx = -1; dx <= 1; dx++) pmax = Mathf.Max(pmax, Splat(tx + dx * 0.9f, ty + dy * 0.9f, 2));
+                                if (pmax > 0.4f) b = (byte)Mathf.Max(b, Mathf.Min(255f, pmax * 1.6f * 255f));
+                                a = 0;
+                            }
+                            else a = 255;
+                        }
                     }
                     else { r = 0; g = (byte)(forestOut * 255f); b = 0; a = 0; }
                     if (!inside && IsCorridor(Mathf.FloorToInt(tx), Mathf.FloorToInt(ty))) r = 230;

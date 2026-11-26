@@ -1,0 +1,23 @@
+WIZARD (Mage) V3 - design phase, 26/11/2026
+Chat (Tay, "Tân Korris" Plus): https://chatgpt.com/c/6b07926b-be78-83ec-acad-0f7985e479fe ("Phân tích thiết kế Mage")
+Ảnh gửi tin đầu: asteria-character-art-direction-v1-6-classes.png, 00-asteria-sheet-crop-wizard.png, shared-v3-refs/knight-proportion-silhouette-5dir.png (bóng xám Knight, không chi tiết thiết kế).
+KHÔNG gửi hero-idle-down-5-classes.png: sprite-rules điều 8 ngoại lệ 24/11 + Sổ lỗi Knight V3 (gửi sheet cũ => ChatGPT chép thiết kế cũ). Tỉ lệ Knight đưa bằng bóng xám + số đo.
+
+Nguồn (Assets/ArtLibrary/ro-fantasy-heroes/src/wizard-v3/):
+- turnaround-wizard-v3-chatgpt-1-with-hat-rejected.png : bản có mũ phù thủy (BỎ, người dùng 26/11 09:00 "wizard không vẽ nón")
+- turnaround-wizard-v3-chatgpt-2.png : turnaround KHÔNG mũ, tóc tím dài + hoa vàng cài tóc, áo choàng trắng-lam-vàng, trượng vòng vàng ngọc tím  => DUYỆT
+- body-wizard-idle-5dir-v3-chatgpt-1.png : idle đầu trọc lần 1 => FAIL
+- body-wizard-idle-5dir-v3-chatgpt-2.png : idle đầu trọc lần 2 => ĐẠT (bản chọn)
+
+Đo bằng script (plans/reports/char-v3-tools/measure_v3.py; Knight body-warrior-idle-5dir-chatgpt-6: sọ-cằm 34,7 % chiều cao người, sọ rộng kể cả tai 36,4 %, 2,88 "đầu sọ"):
+- idle-1: sọ-cằm 37,7 % (+8,6 %), sọ rộng 38,4 % (+5,5 %), 2,66 đầu sọ; 3 góc nghiêng quay TRÁI (Knight quay phải)
+- idle-2: sọ-cằm 33,9 % (-2,3 %), sọ rộng 34,8 % (-4,4 %, sọ + tai nữ hẹp hơn), 2,95 đầu sọ; quay PHẢI đúng Knight
+  (chiều cao tuyệt đối trong ảnh 490 px / 724 = 67,7 % so Knight 74,4 %: không quan trọng, tool cài co về BALD_PX)
+Ảnh so: side-by-side-knight-vs-wizard-idle-v3-chatgpt-1.png, -2.png (trên Knight, dưới Mage, cùng chiều cao người).
+
+ChatGPT chấm:
+- idle-1: art direction 9,0 / trang phục 9,0 / màu-nét 9,0 / tỉ lệ đầu 5,5 / thân-chân 6,5 / hướng 4,0 / cắt sprite 6,5 / tổng 7,1 FAIL
+- idle-2 (nó gọi V4): art direction 9,2 / trang phục 9,0 / màu-nét 9,2 / tỉ lệ đầu 8,5 / thân-chân 9,0 / hướng 10 / cắt sprite 8,5 / tổng 9,1 PASS (chờ script: script xác nhận sọ-cằm trong 3 %)
+- turnaround: không có điểm chữ (lượt vẽ ảnh không kèm lời).
+
+Còn lại: tóc (lớp riêng, xám nhuộm) + trượng (lớp riêng) chưa vẽ; idle hướng 3/4 front của bản turnaround quay trái (chỉ là tham chiếu thiết kế).

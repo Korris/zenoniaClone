@@ -1,0 +1,8 @@
+newmtl BenchMat
+Ka 1.000 1.000 1.000
+Kd 1.000 1.000 1.000
+Ks 0.000 0.000 0.000
+d 1.0
+illum 1
+map_Kd Willowbrook_Bench_SpriteBased_Atlas_1024.png
+map_d Willowbrook_Bench_SpriteBased_Atlas_1024.png

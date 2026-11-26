@@ -92,7 +92,7 @@ namespace ZenoniaProto
             float u = ctx.Units, dim = Dim(ctx), scatter = e.Radius * u, blast = e.ImpactRadius * u, zone = scatter + blast;
             int n = SkillSchedule.Repeats(e);
             float last = e.AtMs + (n - 1) * Mathf.Max(0, e.IntervalMs), end = last + 900f;
-            Vector2 mid = SkillAim.ClampToWalls(ctx.CastFrom, ctx.CastFrom + ctx.Dir * e.Range * u); // SkillEffects.Rain's scatter centre
+            Vector2 mid = SkillAim.RainCentre(ctx, e); // SkillEffects.Rain's scatter centre
             ClericLightLook.Pal tech = MechanicLightLook.Tech, honey = MechanicLightLook.Honey;
             // caster: uplink flash + a thin cyan streak to the sky + a small seal
             MechanicLightBursts.Host("OrbitalUplink", ctx.Feet, 520f, dim)

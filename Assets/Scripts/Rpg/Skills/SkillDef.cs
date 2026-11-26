@@ -25,6 +25,7 @@ namespace ZenoniaProto.Rpg
         public int BaseCastLockMs;               // cast lock as designed in the data files; CastLockMs is capped by SkillTable.MaxCastLockMs               // cooldown as designed in the data files, kept so it can be brought back
         public SkillTargeting Targeting;
         public float TargetRange;               // tiles: NearestEnemy / LowestAlly search radius or blink range
+        public float CastRange;                 // tiles, Ground skills: farthest the chosen centre may be from the caster (GroundTargetRules)
         public SkillEffect[] Effects = new SkillEffect[0];
         public LegacySkill Legacy;
         public float DamageGrowth = DefaultDamageGrowth; // +12% of the base value per rank above 1

@@ -26,6 +26,23 @@ namespace ZenoniaProto.Net
     /// </summary>
     public static class SkillCastCode
     {
+        /// <summary>Flags bit: Value carries the Ground skill's centre (protocol 38): X in the high 16 bits, Y in the low 16 (NetQuantize.Pos shorts).</summary>
+        public const byte HasGround = 1;
+
+        public static void SetGround(ref NetEvent e, float x, float y)
+        {
+            e.Flags |= HasGround;
+            e.Value = ((uint)(ushort)NetQuantize.Pos(x) << 16) | (ushort)NetQuantize.Pos(y);
+        }
+
+        public static bool TryGround(NetEvent e, out float x, out float y)
+        {
+            x = y = 0f;
+            if ((e.Flags & HasGround) == 0) return false;
+            x = NetQuantize.Pos((short)(e.Value >> 16)); y = NetQuantize.Pos((short)(e.Value & 0xFFFF));
+            return true;
+        }
+
         public static byte Pack(int index, int rank) { return (byte)((System.Math.Min(15, System.Math.Max(1, rank)) << 3) | (index & 7)); }
         public static int Index(byte step) { return step & 7; }
         public static int Rank(byte step) { return System.Math.Max(1, step >> 3); }
@@ -76,7 +93,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.BoltEnd: w.Put(Id); w.Put(X); w.Put(Y); w.Put(Flags); break;
                 case NetEventType.MonsterHit: w.Put(Id); w.Put(Other); w.Put(Dmg); w.Put(HpLeft); w.Put(Flags); w.Put(KnockX); w.Put(KnockY); break;
                 case NetEventType.HeroHit: w.Put(Id); w.Put(Dmg); w.Put(Other); break;
-                case NetEventType.SkillCast: w.Put(Id); w.Put(Step); w.Put(X); w.Put(Y); w.Put(Facing); w.Put(Other); break;
+                case NetEventType.SkillCast: w.Put(Id); w.Put(Step); w.Put(X); w.Put(Y); w.Put(Facing); w.Put(Other); w.Put(Flags); if ((Flags & SkillCastCode.HasGround) != 0) w.Put(Value); break;
                 case NetEventType.HeroDied:
                 case NetEventType.HeroRespawned: w.Put(Id); w.Put(X); w.Put(Y); break;
                 case NetEventType.ExpGain: w.Put(Value); w.Put(Step); break;
@@ -108,7 +125,7 @@ namespace ZenoniaProto.Net
                 case NetEventType.BoltEnd: e.Id = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Flags = r.GetByte(); break;
                 case NetEventType.MonsterHit: e.Id = r.GetUShort(); e.Other = r.GetUShort(); e.Dmg = r.GetUShort(); e.HpLeft = r.GetUShort(); e.Flags = r.GetByte(); e.KnockX = r.GetSByte(); e.KnockY = r.GetSByte(); break;
                 case NetEventType.HeroHit: e.Id = r.GetUShort(); e.Dmg = r.GetUShort(); e.Other = r.GetUShort(); break;
-                case NetEventType.SkillCast: e.Id = r.GetUShort(); e.Step = r.GetByte(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Facing = r.GetByte(); e.Other = r.GetUShort(); break;
+                case NetEventType.SkillCast: e.Id = r.GetUShort(); e.Step = r.GetByte(); e.X = r.GetShort(); e.Y = r.GetShort(); e.Facing = r.GetByte(); e.Other = r.GetUShort(); e.Flags = r.GetByte(); if ((e.Flags & SkillCastCode.HasGround) != 0) e.Value = r.GetUInt(); break;
                 case NetEventType.HeroDied:
                 case NetEventType.HeroRespawned: e.Id = r.GetUShort(); e.X = r.GetShort(); e.Y = r.GetShort(); break;
                 case NetEventType.ExpGain: e.Value = r.GetUInt(); e.Step = r.GetByte(); break;

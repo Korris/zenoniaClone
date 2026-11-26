@@ -87,7 +87,9 @@ namespace ZenoniaProto
                     stats.Add("skillCastsSeen", 1);
                     int skill = SkillCastCode.Index(e.Step);
                     if (caster != null && caster.IsPredicted && caster.PredictsSkillFx(skill)) break; // started locally at the key press
-                    if (fx && caster != null) caster.PlaySkillFx(skill, SkillCastCode.Rank(e.Step), e.Other);
+                    float gx, gy;
+                    Vector2? ground = SkillCastCode.TryGround(e, out gx, out gy) ? new Vector2(gx, gy) : (Vector2?)null;
+                    if (fx && caster != null) caster.PlaySkillFx(skill, SkillCastCode.Rank(e.Step), e.Other, ground);
                     break;
                 case NetEventType.PetSkill:
                     stats.Add("petSkillsSeen", 1);

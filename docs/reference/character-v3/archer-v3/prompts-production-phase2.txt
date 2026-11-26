@@ -1,0 +1,11 @@
+Archer V3 phase 2 (26/11) - prompts sent in chat Tay "Thiết kế Ranger Asteria" https://chatgpt.com/c/6b0794c9-1f18-83ec-ab80-b7e41e9ca172
+Refs uploaded: ref-send/idle-<dir>-x2.png (approved idle cell of that direction, x2 nearest), src/archer-v3/turnaround-archer-v3-chatgpt-1.png,
+ref-bald-heads-5dir-x3-magenta.png (bald heads the hair is painted on = ref/archer-v3/bald-head-archer-5dir.png recoloured magenta).
+
+1. weapons-archer-v3-chatgpt-1: 3 items, bow upright (string left, wrap centre), quiver upright with 5-6 arrows, one arrow flat pointing right;
+   bow 55 % / quiver 40 % / arrow 38 % of the figure height; #00FF00.
+2. hair-archer-style1-5dir-chatgpt-1: turnaround shaggy hair WITHOUT hat, on the 5 bald heads, grey ramp #1F/#47/#69/#A6/#DB, highlight 15-20 %, #FF00FF.
+3. hair-archer-style2-5dir-chatgpt-1: ChatGPT's own second style, silhouette different from style 1, no ahoge (Knight-like); small feather + cord allowed in real colour.
+4. walk 8f per direction: prompt-walk8-template.txt ({DIR} / {DIRNOTE} per direction; right: near hand = right hand, smooth in-betweens).
+5. attack 8f per Dir8 direction: bow shot, EMPTY fists (no bow / arrow / string), left hand = bow arm toward the target, right hand draws to
+   shoulder / under the chin without covering the face; left dirs: ref = right idle mirrored, hands NOT mirrored.

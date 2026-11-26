@@ -1,0 +1,12 @@
+{
+ "source": "Assets/ArtLibrary/ui/hero-select-ro/src/hero-select-ro-banners-chatgpt-2.png",
+ "key": "#00FFFF",
+ "key_mode": "edge",
+ "out": "Assets/Resources/Sprites/ui/hero-select-ro/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/hero-select-ro-adventure/art-contact",
+ "ui_meta": true,
+ "rim_from_body": 2,
+ "rows": [[{"name": "banner-warrior", "height": 300}, {"name": "banner-wizard", "height": 300}, {"name": "banner-mechanic", "height": 300},
+           {"name": "banner-assassin", "height": 300}, {"name": "banner-cleric", "height": 300}, {"name": "banner-archer", "height": 300}]]
+}

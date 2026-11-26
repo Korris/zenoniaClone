@@ -21,7 +21,7 @@ namespace ZenoniaProto
             SkillEffect strike = WizardLightSkills.Effect(ctx.Def, EffectKind.Strike);
             if (strike == null) return;
             float u = ctx.Units, r = strike.Radius * u, d = 2f * r;
-            Vector2 c = strike.Range > 0f ? SkillAim.ClampToWalls(ctx.Feet, ctx.Feet + ctx.Dir * strike.Range * u) : ctx.Feet; // SkillEffects.Center
+            Vector2 c = SkillAim.PlacedCentre(ctx, strike, ctx.Feet); // SkillEffects.Center
             ClericLightLook.Pal fire = ElementLightLook.Fire, ice = ElementLightLook.Ice;
             HeroController caster = ctx.Body.Hero;
             float dim = ClericLightFx.DimFor(caster, null);

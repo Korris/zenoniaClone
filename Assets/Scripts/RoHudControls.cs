@@ -70,6 +70,11 @@ namespace ZenoniaProto
                 var sw = s.Root.gameObject.AddComponent<SwipeDetector>();
                 sw.onSwipe = Cycle;
                 sw.onTap = () => { if (s.HasSkill) SkillMagazine.CastRequested(s.SkillIndex); };
+                // Ground skills (ChatGPT 26/11): tap = smart cast, hold 150 ms + drag = aim, release = cast, drag back onto the button = cancel
+                sw.onAimStart = p => s.HasSkill && GroundAimInput.TouchBegin(s.SkillIndex, p);
+                sw.onAimDrag = GroundAimInput.TouchDrag;
+                sw.onAimEnd = GroundAimInput.TouchEnd;
+                sw.onAimCancel = GroundAimInput.Cancel;
                 sw.onPress = () => s.Root.localScale = new Vector3(0.92f, 0.92f, 1f);
                 sw.onRelease = () => s.Root.localScale = Vector3.one;
                 GameObject cap = RoHud.KeyCap(s.Root, RoHud.TopLeft, 9f, -9f, (i + 1).ToString());

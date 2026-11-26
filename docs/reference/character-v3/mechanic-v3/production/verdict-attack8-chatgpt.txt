@@ -1,0 +1,20 @@
+Mechanic V3 attack 8f (đòn bắn pháo tay), chat Tay "Thiết kế Mage Engineer" https://chatgpt.com/c/6b079286-ba30-83ec-818a-cfffc11d9b9e (26/11)
+Prompt mẫu (5 hướng đầu, agent trước): xem tin "[MECHANIC V3 - BƯỚC 3: ĐÒN BẮN PHÁO TAY 8 FRAME ...]" trong chat; 3 hướng trái: prompts-attack8/prompt-attack8-<dir>.txt
+Script đo (scratchpad meas.py, sọ trọc rộng / chiều cao người, F7 so idle cùng hướng): đầu to hơn idle: xuống +10 %, chéo xuống-phải +10 %, phải +6 %, chéo lên-phải +10 %, lên +5 %; walk: xuống +2-4 %, chéo xuống-phải +6-8 %, phải +6 %, chéo lên-phải +5-7 %, lên +4-7 % (ro_fantasy_attack8_cut / walk8_rows tự co riêng đầu khi lệch > 4 % / 3 %).
+ChatGPT chấm 5 sheet cũ (ảnh 04-attack-5dirs-existing-contact.png): xuống 9,3 GIỮ / chéo xuống-phải 9,2 GIỮ / phải 9,4 GIỮ / chéo lên-phải 9,3 GIỮ / lên 9,3 nhưng VẼ LẠI (F1-F2 tay lệch sang phải quá nhiều thay vì bắn thẳng lên; F3-F4 giật chưa rõ; điểm nhịp 7,5).
+Tỉ lệ đầu (ChatGPT): 7,5 / 7,5 / 8,5 / 7,5 / 8,7 -> co đầu khi cắt x0,909 / 0,909 / 0,943 / 0,909 / 0,952. Gợi ý: F7 vài sheet dang chân rộng hơn idle, có thể dùng idle cho F7.
+
+--- 3 hướng trái + vẽ lại hướng lên (26/11 ~10:55-11:20, Tay hết lượt tới 10:53 nên chờ) ---
+Ảnh gửi: idle-ref/idle-<dir>-mirrored-size-only.png (lật gương, chỉ giữ cỡ) + shared-v3-refs/knight-proportion-silhouette-5dir.png; prompt ghi sọ-cằm 34,7 %, sọ rộng 36,4 %.
+Đo (sọ trọc / chiều cao, F7 so idle cùng hướng hoặc lật): trái chatgpt-1 +2 %; chéo xuống-trái chatgpt-1 +10 %; chéo lên-trái chatgpt-1/2 +7 %; lên chatgpt-2 +7 %.
+ChatGPT chấm (ảnh 05-attack-new-4-sheets-contact.png):
+- trái chatgpt-1: 9,7 GIỮ (tay xa đúng, đầu đạt chuẩn).
+- chéo xuống-trái chatgpt-1: 9,3 GIỮ (co đầu x0,909 khi cắt).
+- lên chatgpt-2 (vẽ lại): 9,4 GIỮ (bắn dốc lên hơn, giật + vạt áo tốt; co đầu x0,935). Bản chatgpt-1 thay bằng bản này.
+- chéo lên-trái chatgpt-1: KHÔNG gửi chấm, mình thấy F1-F2 + F5 duỗi cánh tay bên TRÁI tranh (tay trái), F3-F4 tay phải => đổi tay giữa đòn => vẽ lại.
+- chéo lên-trái chatgpt-2: 8,3 VẼ LẠI (đúng tay 6,0: F2, F5 vẫn như tay trái).
+- chéo lên-trái chatgpt-3 (prompt "VẼ LẠI LẦN 3": tay trái tranh luôn dưới thắt lưng, tay phải giơ từ vai phải tranh qua sau đầu, nắm tay trên-trái đỉnh đầu; kèm bản 2 làm ảnh sai): 9,2 (đầu +5 % 8,7; đúng tay 8,0). F0-F4, F6, F7 đúng tay; F5 vẫn duỗi cánh tay bên TRÁI tranh (nối vào vai giáp trái) = SAI.
+  ChatGPT: không cần vẽ lần 4; khi cắt thay F5 bằng bản sao F6, F7 dùng idle, co đầu x0,952; F4->F5 hơi đột ngột, có thể rút thời lượng F5/F6.
+  => file dùng để cắt: src/mechanic-v3/body-mechanic-attack-up-left-8f-v3-chatgpt-3-f5fix.png (= chatgpt-3, ô F5 chép từ ô F6; không vẽ thêm gì).
+CHỐT bộ attack 8 hướng: down-1, down-right-1, right-1, up-right-1, up-2, up-left-3-f5fix, left-1, down-left-1 (src/mechanic-v3/body-mechanic-attack-<dir>-8f-v3-chatgpt-N.png).
+Prompt: prompts-attack8/ (left, down-left, up-left lần 1, up-redo); up-left lần 2-3 = prompt-attack8-up-left-redo2-3.txt.

@@ -1,4 +1,4 @@
-"""Layout data for Tools/place-tau-25d-props.py (Taurus V4 phase 04): prop sizes and where every prop of Willowbrook Village / Clover Meadows goes.
+"""Layout data for Tools/place-tau-25d-props.py (Taurus V4 phase 04): prop sizes and where every prop of Clover Meadows goes (Willowbrook Village V2: Tools/tau_village_props_layout.py).
 
 SIZE: name -> (sprite width in tiles, FootW, FootH[, vertical stretch for flat bridges]). Buildings block their 2 bottom rows on their greybox block, trees their trunk row, small posts 1 tile;
 FootH 0 = walk-through. Names carry the StaticPropShadows.Classify keywords (house / forge / tower / tent / stall / tree / oak / bridge / fence...).
@@ -15,7 +15,10 @@ SIZE = {
     "tauGreatOakTree": (9.0, 3, 1), "tauOakPlanterRing": (5.4, 3, 0), "tauBenchA": (1.9, 2, 0), "tauBenchB": (1.9, 2, 0),
     "tauLampPost": (1.1, 1, 1), "tauFlowerBarrel": (1.0, 1, 0),
     # WV-SHEET-05 bridge, gate, wall
-    "tauVillageBridge": (3.2, 2, 0, 1.45), "tauGateArchTower": (11.0, 4, 0), "tauGateTowerL": (3.78, 5, 0), "tauGateTowerR": (3.74, 3, 0), "tauGateArchBeam": (3.48, 4, 0), "tauWallLeft": (4.3, 4, 2), "tauWallRight": (4.3, 4, 2),
+    "tauVillageBridge": (3.2, 2, 0, 1.45), "tauGateArchTower": (16.6, 4, 0),
+    # village V2 gate (sheet 5, 25/11): one painted gate split in 3 (towers 4.36 / arch 2.77 / 4.34 of 11.5 at sheet scale, arch scaled to the 4-wide road); L fw 2 / R fw 6 keep the
+    # sprites centred on x74 / x84 while the prop tiles stay where Map3DGateBuilder expects them (L block 73-76, R 81-84); the flower wall is one 8-tile segment
+    "tauGateTowerL": (6.3, 2, 0), "tauGateTowerR": (6.3, 6, 0), "tauGateArchBeam": (4.0, 4, 0), "tauWallLeft": (8.6, 8, 2), "tauWallRight": (8.6, 8, 2),
     "tauGatePillarL": (1.6, 1, 1), "tauGatePillarR": (1.6, 1, 1), "tauRiverRocks": (2.5, 2, 0),
     # WV-SHEET-03 service props
     "tauBulletinBoardSign": (2.0, 2, 1), "tauQuestBoardSign": (2.0, 2, 1), "tauAnvil": (1.2, 1, 0), "tauWeaponRack": (2.0, 2, 1),
@@ -46,44 +49,59 @@ SIZE = {
     # CM-SHEET-07 ancient roots / shrine
     "tauBrookRunestone": (1.5, 1, 1), "tauAncientRootsStones": (2.4, 2, 2), "tauShrineEntrance": (10.0, 8, 0), "tauAncientSlab": (2.0, 1, 1),
     "tauRootColumn": (2.0, 1, 1), "tauSacredRoots": (3.0, 2, 0), "tauRuneStoneBroken": (2.0, 2, 0), "tauGeminiGateMarker": (4.6, 4, 2),
+    # Willowbrook Village V2 (25/11/2026): ChatGPT prop sheets 1-5 cut from Assets/ArtLibrary/maps/taurus/village-v2/wv2-sheet*.png (layout Tools/tau_village_props_layout.py)
+    "tauInnHouse": (10.0, 8, 2), "tauCottageHouseA": (6.0, 5, 2), "tauCottageHouseB": (6.0, 5, 2), "tauCottageHouseC": (5.0, 4, 2), "tauCottageHouseD": (5.0, 4, 2),
+    "tauStoreHouse": (5.0, 4, 2), "tauCardShopHouse": (11.0, 9, 2), "tauPetHouse": (9.5, 8, 2), "tauLakeGazebo": (6.0, 5, 2),
+    "tauMarketStallA": (3.6, 3, 0), "tauMarketStallB": (3.6, 3, 0), "tauMarketTent": (6.0, 5, 0), "tauMarketBanner": (1.5, 1, 0), "tauFlowerPlanterBox": (2.4, 2, 0),
+    "tauBuntingPosts": (4.0, 3, 0), "tauCratesSacks": (2.4, 2, 0), "tauOakPlanterBed": (3.9, 3, 0), "tauParkBench": (2.2, 2, 0), "tauBannerLampPost": (1.4, 1, 0),
+    "tauLakeDock": (3.7, 3, 0), "tauFlowerArch": (4.5, 4, 0), "tauGatherPergola": (6.0, 5, 0), "tauLilyPads": (3.0, 2, 0), "tauFallsRocks": (5.0, 4, 2),
+    "tauPetGoodsStall": (4.2, 3, 0), "tauCardPlayTable": (3.6, 3, 0), "tauPetKennel": (3.4, 3, 1), "tauArrowSignpost": (1.8, 1, 1),
+    "tauWallEndPillar": (1.6, 1, 1), "tauYardFence": (6.4, 6, 1), "tauYardFenceSide": (2.2, 1, 1), "tauStoneStairs": (5.0, 4, 0),
+    # raised Guild terrace (26/11): retaining wall 4 x 2 rows (tiles seamlessly), grand stairs 6 wide lying on the stair tiles, lantern pillars on the wall ends
+    # round 2 (ChatGPT review "chưa liền mạch"): 3 wall variants with a visible coping top + a 2-tile filler; stairs v2 with a top landing and the wall
+    # jambs hugging the opening
+    "tauTerraceWall": (4.0, 4, 2), "tauTerraceWallB": (4.0, 4, 2), "tauTerraceWallC": (4.0, 4, 2), "tauTerraceWallShort": (2.0, 2, 2),
+    "tauTerraceStairs": (10.0, 6, 0), "tauTerracePillar": (1.3, 1, 2),   # 10 m: its jamb walls meet the runs ending 2 tiles from the opening
+    # sheets 6-7: trees / bushes / rocks (magenta) and garden pieces (green); the long bridge lies flat over the lake bridge tiles (squashed to their 3 rows)
+    "tauRoundTreeA": (5.5, 1, 1), "tauRoundTreeB": (5.0, 1, 1), "tauPineTree": (3.4, 1, 1), "tauPineTreeSmall": (2.3, 1, 1), "tauRoundBush": (2.4, 2, 0),
+    "tauFlowerBushSmall": (2.4, 2, 0), "tauMossRocks": (3.0, 2, 1), "tauCherryTree": (5.5, 1, 1), "tauCherryTreeSmall": (3.4, 1, 1),
+    "tauLakeBridgeLong": (12.4, 12, 0, 0.8), "tauGardenMonument": (3.6, 3, 2), "tauParasolTable": (3.6, 3, 0), "tauSheep": (2.2, 2, 0), "tauLamb": (1.5, 1, 0),
+    "tauFlowerBasket": (2.2, 2, 0),
 }
 
 
 def P(name, tx, ty): return (name, tx, ty)
 
 
-def village_props(rows):
-    out = [
-        # buildings on their greybox blocks (bottom-left footprint tile = left column, lowest row of the block)
-        P("tauGuildHallHouse", 30, 6), P("tauForgeHouse", 3, 9), P("tauWindmillTower", 12, 6), P("tauCardTent", 38, 17),
-        P("tauFruitStall", 30, 22), P("tauGoodsStall", 34, 22),
-        # town square: the great oak on its 3x3 trunk block, the stone ring round it (flat), benches on the plaza rim, lamps on the grass beside it
-        P("tauOakPlanterRing", 21, 15), P("tauGreatOakTree", 21, 14),
-        P("tauBenchA", 17, 8), P("tauBenchB", 26, 8), P("tauBenchB", 17, 18), P("tauBenchA", 26, 18),
-        P("tauLampPost", 16, 8), P("tauLampPost", 28, 8), P("tauLampPost", 16, 17), P("tauLampPost", 28, 18), P("tauLampPost", 19, 22), P("tauLampPost", 24, 22),
-        P("tauFlowerBarrel", 32, 7), P("tauFlowerBarrel", 37, 7), P("tauFlowerBarrel", 29, 22), 
-        # service props
-        P("tauBulletinBoardSign", 28, 6), P("tauQuestBoardSign", 16, 24), P("tauAnvil", 5, 10), P("tauWeaponRack", 11, 8), P("tauWell", 29, 16),
-        P("tauCrates", 2, 11), P("tauBarrels", 26, 21), P("tauSignpost", 25, 20),
-        # pet pen (fence ring on its block, open west) + social corner
-        P("tauPetPenFence", 38, 26), P("tauFenceSmall", 38, 20), P("tauFenceSmall", 40, 20), P("tauFenceSmall", 42, 20),   # the pen art is shallower than its 7-row block: low fence pieces close its north side
-        P("tauFeedTrough", 40, 23), P("tauHayBales", 39, 25), P("tauCardTable", 33, 16),
-        # stream: bridge over the B tiles, rocks on the banks
-        P("tauVillageBridge", 9, 21), P("tauRiverRocks", 3, 17), P("tauRiverRocks", 13, 17), P("tauRiverRocks", 5, 21), P("tauRiverRocks", 14, 21),
-        # south wall (rows 27-28) either side of the gate road x20-23, the arch over the road (walk-through), its two posts on the wall tiles
-        # gate = tauGateArchTower split in 3 (cut/tauGateTower{L,R}, tauGateArchBeam: columns either side of the passage, same pixels): the towers stand on the
-        # wall row 28, the beam sorts on row 26 so a hero in the gate rows 27-28 draws in front of it (design review 24/11: the arch hid the Warrior in the exit)
-        P("tauGateTowerL", 16, 28), P("tauGateTowerR", 24, 28), P("tauGateArchBeam", 20, 26),
-    ]
-    out += [P("tauWallLeft", x, 28) for x in (0, 4, 8, 12)] + [P("tauWallRight", x, 28) for x in (28, 32, 36, 40)]   # clear of the gate towers (the arch now sorts on row 26)
-    # corner tree clumps (2x2 't' blocks): one big oak each, trunk on the lower row
-    out += [P("tauMeadowOakTree", x, y + 1) for x, y in ((2, 2), (41, 3), (41, 9), (2, 14), (2, 23), (14, 23))]
-    # border rows / columns: a hedge of medium oaks and young trees so the solid edge reads as forest
-    kinds = ("tauMeadowOakMediumTree", "tauYoungTree")
-    out += [P(kinds[i % 2], x, 0) for i, x in enumerate(range(1, 43, 3))]
-    out += [P(kinds[(i + 1) % 2], 0, y) for i, y in enumerate(range(3, 27, 3))] + [P(kinds[i % 2], 43, y) for i, y in enumerate(range(2, 20, 3))]
-    return out
+def forest_kind(z, r):
+    """Prop name for a forest trunk in zone z ("old", "bramble", "meadow", "village") from the roll r."""
+    if z == "old": return "tauElderwoodOakTree" if r < 0.6 else ("tauMeadowOakTree" if r < 0.85 else "tauRootColumn")
+    if z == "bramble": return "tauMeadowOakMediumTree" if r < 0.45 else ("tauBrambleWallMedium" if r < 0.7 else ("tauMeadowOakTree" if r < 0.9 else "tauMossyBoulder"))
+    if z == "village": return "tauRoundTreeA" if r < 0.36 else ("tauRoundTreeB" if r < 0.66 else ("tauPineTree" if r < 0.84 else ("tauCherryTree" if r < 0.92 else "tauPineTreeSmall")))   # V2 sheet 6-7 trees, no boulders
+    return "tauMeadowOakTree" if r < 0.45 else ("tauMeadowOakMediumTree" if r < 0.8 else ("tauYoungTree" if r < 0.93 else "tauMossyBoulder"))
 
+
+def fill_forest(rows, rng, P, out, taken, zone_of, reach=3, filler="tauYoungTree"):
+    """Trunks on every solid 't' tile (above the 3 HUD rows): Poisson-like spacing, then a young tree on any tile no trunk covers.
+    Appends to out, returns the trunk list. Shared by Clover Meadows and Willowbrook Village V2."""
+    H, W = len(rows), len(rows[0])
+    trunks = []
+    cand = [(x, y) for y in range(H - 3) for x in range(W) if rows[y][x] == "t"]
+    rng.shuffle(cand)
+    for x, y in cand:
+        z = zone_of(x, y)
+        sp = 2.6 if z == "old" else 2.4
+        if (x, y) in taken or any((x - a) ** 2 + (y - b) ** 2 < sp * sp for a, b in trunks): continue
+        name = forest_kind(z, rng.random())
+        fw = SIZE[name][1]
+        if fw > 1 and not all(x + i < W and rows[y][x + i] == "t" for i in range(fw)): name = "tauMeadowOakMediumTree"   # wide solid props only where all their tiles are forest
+        trunks.append((x, y))
+        out.append(P(name, x, y))
+    # a tree covers its trunk row and ~3 rows above it, so a tile counts as covered by a trunk at most 1 column away and 0-3 rows BELOW it
+    for x, y in sorted(cand, key=lambda t: -t[1]):
+        if (x, y) not in taken and not any(abs(x - a) <= 1 and 0 <= b - y <= reach for a, b in trunks):
+            trunks.append((x, y)); out.append(P(filler, x, y))
+    return trunks
 
 def camp_rects():
     """(tx, ty, w, h) of every distinct Clover Meadows camp rect, read from MapSpawnTable.cs."""
@@ -143,26 +161,7 @@ def meadows_props(rows):
         if y <= 23 and x < 40: return "bramble"
         return "meadow"
     # 1) forest: trunks on solid 't' tiles with Poisson-like spacing, kind by area; boulders / bramble walls / root columns among them
-    trunks = []
-    cand = [(x, y) for y in range(H - 3) for x in range(W) if rows[y][x] == "t"]
-    rng.shuffle(cand)
-    for x, y in cand:
-        z = zone_of(x, y)
-        sp = 2.6 if z == "old" else 2.4
-        if (x, y) in taken or any((x - a) ** 2 + (y - b) ** 2 < sp * sp for a, b in trunks): continue
-        r = rng.random()
-        if z == "old": name = "tauElderwoodOakTree" if r < 0.6 else ("tauMeadowOakTree" if r < 0.85 else "tauRootColumn")
-        elif z == "bramble": name = "tauMeadowOakMediumTree" if r < 0.45 else ("tauBrambleWallMedium" if r < 0.7 else ("tauMeadowOakTree" if r < 0.9 else "tauMossyBoulder"))
-        else: name = "tauMeadowOakTree" if r < 0.45 else ("tauMeadowOakMediumTree" if r < 0.8 else ("tauYoungTree" if r < 0.93 else "tauMossyBoulder"))
-        fw = SIZE[name][1]
-        if fw > 1 and not all(x + i < W and rows[y][x + i] == "t" for i in range(fw)): name = "tauMeadowOakMediumTree"   # wide solid props only where all their tiles are forest
-        trunks.append((x, y))
-        out.append(P(name, x, y))
-    # 1a) any forest tile still bare (spacing skipped it): a young tree on it
-    #     a tree covers its trunk row and ~3 rows above it, so a tile counts as covered by a trunk at most 1 column away and 0-3 rows BELOW it
-    for x, y in sorted(cand, key=lambda t: -t[1]):
-        if (x, y) not in taken and not any(abs(x - a) <= 1 and 0 <= b - y <= 3 for a, b in trunks):
-            trunks.append((x, y)); out.append(P("tauYoungTree", x, y))
+    trunks = fill_forest(rows, rng, P, out, taken, zone_of)
     # 1b) groves inside the forest zones (Mushroom Grove, Bramble Thicket, Elderwood, Ancient Roots): the rows only have a few 't' there, so single trunks
     #     on walkable ground (trunk tile blocked by the map class): >= 3 tiles from any road / bridge, >= 2 outside every camp rect, spacing 3.4 (never closes a lane)
     grove_p = {"m": 0.16, "b": 0.14, "e": 0.25, "r": 0.14}

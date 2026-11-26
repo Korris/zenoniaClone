@@ -17,7 +17,7 @@ try {
   if (!doc) throw new Error(`no character ${arg('--name')}`);
   if (doc.session) throw new Error('the character holds a session lock: boost it while it is offline');
   const state = doc.state;
-  state.version = 3; state.level = level; state.exp = 0; state.hp = 0; state.mp = 0; // hp / mp 0 = full on load
+  state.version = Math.max(Number(state.version) || 0, 7); state.level = level; state.exp = 0; state.hp = 0; state.mp = 0; // version 7 = SaveSerializer.SaveVersion (a lower one becomes a new character on load); hp / mp 0 = full on load
   if (arg('--x')) { state.x = Number(arg('--x')); state.y = Number(arg('--y')); state.hasPosition = true; state.mapId = arg('--map') ?? state.mapId; }
   if (arg('--wanted-day')) state.wantedDay = Number(arg('--wanted-day'));
   if (arg('--large-potions')) { state.hpPotionLarge = Number(arg('--large-potions')); state.hpPotionPick = 2; } // the quick HP button drinks these first, so a lone hero lives through a raid boss and the Small potions of the reward stay countable

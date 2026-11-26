@@ -27,6 +27,8 @@ namespace ZenoniaProto
         public static readonly ClassPalette Arcane = Make(new Color(0.55f, 0.35f, 1f), new Color(0.95f, 0.92f, 1f), new Color(0.62f, 0.45f, 1f), new Color(0.32f, 0.2f, 0.95f), new Color(0.6f, 0.45f, 1f)); // wizard: violet-blue like the reference
         public static readonly ClassPalette Violet = Make(new Color(0.6f, 0.3f, 1f), new Color(0.95f, 0.9f, 1f), new Color(0.72f, 0.5f, 1f), new Color(0.38f, 0.12f, 0.8f), new Color(0.75f, 0.5f, 1f), new Color(0.2f, 0.08f, 0.35f));
         public static readonly ClassPalette Green = Make(new Color(0.22f, 0.92f, 0.45f), Color.white, new Color(0.55f, 1f, 0.5f), new Color(0.08f, 0.68f, 0.34f), new Color(0.6f, 1f, 0.55f));
+        /// <summary>Archer (2026-11-26): pale wind / leaf lime with a cream core, apart from the Cleric's jade and the Wizard's ice blue.</summary>
+        public static readonly ClassPalette Leaf = Make(new Color(0.78f, 0.93f, 0.45f), new Color(1f, 0.99f, 0.9f), new Color(0.86f, 0.96f, 0.62f), new Color(0.55f, 0.74f, 0.3f), new Color(0.85f, 0.97f, 0.6f));
 
         /// <summary>Palette of the hero being played (impact sparks read it); skills switch to Neutral while they deal damage.</summary>
         public static ClassPalette Current = Neutral;

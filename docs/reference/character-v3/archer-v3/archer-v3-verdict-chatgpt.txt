@@ -1,0 +1,34 @@
+Archer V3 (Ranger, Asteria Art Direction V1) - chat ChatGPT Tay "Thiết kế Ranger Asteria" https://chatgpt.com/c/6b0794c9-1f18-83ec-ab80-b7e41e9ca172 (26/11/2026)
+
+Turnaround (src/archer-v3/turnaround-archer-v3-chatgpt-1.png, vẽ bởi agent wizard lúc đầu):
+  ChatGPT: Art Direction V1 9/10; tỉ lệ so Knight 7,5/10 (đầu hơi lớn, Front và 3/4 Front ít khác nhau; sọ bị tóc + mũ che nên không đo được).
+
+Idle 5 hướng đầu trọc, tay không, không cung / ống tên (đo bằng plans/reports/char-v3-tools/measure_v3.py, Knight: sọ-cằm 34,7 %, sọ rộng 36,4 %, người 74,4 % ảnh):
+  chatgpt-1: sọ-cằm 37,0 % (+6,6 %), sọ rộng 38,4 % (+5,5 %), người 68,4 % ảnh -> vẽ lại
+  chatgpt-2: sọ-cằm 32,1 % (-7,5 %), sọ rộng 33,8 % (-7,1 %), người 71,0 % -> quá tay, vẽ lại
+  chatgpt-3: sọ-cằm 35,5 % (+2,3 %), sọ rộng 37,6 % (+3,3 %; hướng Side/3/4 ~35 % vs Knight 34,1-34,6 %), người 68,6 % -> ĐẠT.
+     ChatGPT tự chấm 8,9/10 (Art Direction 9,2; đầu 9,3; thân vai chân 9; nhất quán 5 hướng 8). Lỗi: 3/4 Back quay sang TRÁI.
+     -> chatgpt-3-flip34back.png = chatgpt-3 với ô 3/4 Back lật ngang (quay phải như Knight). Đai / túi bất đối xứng ở ô đó bị lật theo.
+Idle có vũ khí để duyệt (docs/reference/character-v3/archer-v3/body-archer-idle-5dir-armed-review-v3-chatgpt-1.png):
+  cung tay TRÁI buông dọc, ống tên chéo sau lưng. Đo: sọ-cằm -2,9 %, sọ rộng +2,5 %. ChatGPT 8,8/10 (AD 9,3; giữ idle 9,2; cung 9; ống tên 9,2; nhất quán 5 hướng 7,5).
+  "Phán quyết: Duyệt thiết kế cung và ống tên." 3/4 Back vẫn quay trái (không lật: lật sẽ đổi tay cầm cung).
+Prompt đã gửi: prompt-idle-sent-1..3.txt, prompt-idle-armed-sent-4.txt.
+
+=== Phase 2b (26/11 ~10:20-11:30, agent archer #2) ===
+Tay het luot luc 10:20 (mo lai 10:53). Thu chuyen Tan Pham (Browser 1) nhung select_browser la chung giua cac agent -> agent khac chuyen lai lien tuc, bo; doi Tay.
+Kiem tra sheet cu (do be ngang soj gom tai / chieu cao frame cuoi, script scratchpad headm.py; idle 3-flip34back: Front 37,2 / 3/4F 35,2 / Side 35,0 / 3/4B 35,2 / Back 38,0 %):
+  attack down 35,8 (-4 %), down-right 35,3 (0 %), right 35,3 (+1 %): dat, tay dung (tay trai = tay cung), nam tay khong, nen phang.
+  walk down 35,5 (-4,5 %), down-right 36,2 (+3 %), right 37,0 (+5,7 %, nhan + ghi lai, co the HEAD_FIX), up 36,9 (-3 %), up-right 34,7 (-1,5 %): dat.
+  hair style1 (khong mu, co ahoge) + style2 (long vu + day): dat, 5 huong dung chieu. weapons: dat.
+Attack moi (prompt: prompt-attack8-template.txt / prompts-attack8-sent.json):
+  up-right chatgpt-1: dep, dau 36,5 % (+3,7 %) nhung tay cung la tay PHAI (canh tay gan, ben phai tranh). Ve lai lan 2 (check/rejected-attack-up-right-8f-chatgpt-2.png): van dao tay + 3 canh tay o F1, F6; ChatGPT tu cham 2/10.
+     -> GIU chatgpt-1 tam (bow se gan vao nam tay duoi = tay phai giai phau o huong nay).
+  up-left chatgpt-1 = up-right chatgpt-1 LAT TUNG O (giu thu tu frame): huong len-trai tay gan (ben trai tranh) = tay TRAI -> DUNG tay. Dau 36,5 % (+3,7 %).
+  up chatgpt-1: ChatGPT 9/10 (tay dung 10, giai phau 10, chan 7,5). Dau F0 38,4 % (+1 %). Luu y: F1 tay keo chua dua len; F3-F5 nam tay keo cham mep duoi sau gay (toc se che mot phan).
+  left chatgpt-1: ChatGPT 8,5/10 (tay 8; F3-F4 tay keo hoi xa cam, F6 nam tay phai khuat sau than). Dau 34,7 % (-1 %). Tay dung.
+  down-left chatgpt-1: ChatGPT 8/10, F5 co ban tay thu 3 (nam tay o cam + ban tay xoe sau vai) -> ve lai.
+  down-left chatgpt-2: ChatGPT 9,2/10 (tay 10, giai phau 10, 16/16 ban tay dung). Dau 34,7 % (-1,4 %). DUYET.
+  up-right lan 3 (check/rejected-attack-up-right-8f-chatgpt-3.png, ta giai phau ro tung vai): VAN tay duoi moc tu vai ben PHAI tranh + 3 ban tay F1/F6, ChatGPT 6/10 "KHONG DAT". Dung lai, giu chatgpt-1.
+Hair style 3 (hair-archer-style3-5dir-chatgpt-1.png, 2172x724, nen #FF00FF): "Forest Wanderer" toc re ngoi, duoi ngua thap buoc day da + 2 la xanh + hat vang. ChatGPT 9/10 (khac kieu 1-2 9,5; tach layer 8,5). Xam do: p10/50/90 = 68/150/169 -> vet sang it (p90 ~0,66 < nut Light 0,86): tool cat phai keo highlight (HIGHLIGHT_PCT) nhu toc Knight s2. La xanh + day can giu mau khi tach.
+  up-right lan 4 (check/try-attack-up-right-8f-chatgpt-4.png): gui kem sheet UP da duyet + idle up-right, xin chep cach giuong cung cua huong len, chi xoay 3/4 lung -> DUNG tay, 2 canh tay, ChatGPT 8,7 nhung tay cung chia len-TRAI (huong 6/10) va nam tay de vien so.
+  up-right lan 5 = src/body-archer-attack-up-right-8f-chatgpt-4.png (THAY ban tam chatgpt-1): tay cung moc tu vai trai sau dau, chia len-PHAI tren dinh dau; tay keo canh gay phai; 2 canh tay moi frame; ChatGPT 8,8/10 (huong 10, tay dung). Con: co tay cung giao mep phai dau F1-F2, F5-F6 (canh tay sau dau, toc se che goc), nam tay keo cham mep duoi dau canh tai F2-F3. Up-left giu ban lat tung o cua up-right chatgpt-1 (dieu phoi chap nhan).

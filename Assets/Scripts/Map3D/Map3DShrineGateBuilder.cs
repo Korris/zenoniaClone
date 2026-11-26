@@ -67,7 +67,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Leaf clump: `count` Taurus leaf cards round `at`, spread sx x sz0 m, card size `size` .. size + 0.3.</summary>
-        static void Leaves(Map3DMeshKit k, System.Random rng, Vector3 at, int count, float size, float sx, float sz0)
+        internal static void Leaves(Map3DMeshKit k, System.Random rng, Vector3 at, int count, float size, float sx, float sz0)
         {
             Vector3 top = at;
             for (int c = 0; c < count; c++)

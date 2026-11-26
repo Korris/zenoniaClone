@@ -76,6 +76,21 @@ namespace ZenoniaProto
             HeroFx.CastWindup(cls, h, HeroFx.CastTipFor(cls, combo.Step, facing, new Vector2(x, y), CastTip, figure), DirAngle[facing], combo.IsFinisher, this);
         }
 
+        /// <summary>Zone server: NetId of the monster this player clicked (AimHintMsg), 0 = none. The server's bolts aim at it.</summary>
+        public ushort AimPreferId;
+
+        /// <summary>The monster a bolt should aim at in preference to the nearest: the server's hint for a network hero, else the own hero's click target.</summary>
+        Monster AimPreferred()
+        {
+            if (AimPreferId != 0)
+            {
+                IReadOnlyList<Monster> all = Monster.All;
+                for (int i = 0; i < all.Count; i++) if (all[i] != null && all[i].NetId == AimPreferId) return all[i];
+                return null;
+            }
+            return (object)this == (object)LocalPlayer.Hero ? ClickMove.Target : null;
+        }
+
         /// <summary>
         /// Web fireComboBolt: the shot leaves 12 units in front of the hero (the Mechanic's shots from the middle of his body), with a flash at the staff tip / gun barrel. A live monster within the
         /// bolt's range in front of the hero turns the shot toward it (RangedAutoAim); the hero keeps its 4-way facing and the muzzle stays put.
@@ -97,7 +112,9 @@ namespace ZenoniaProto
             else if (cls.Id != HeroClass.Mechanic || !RangedAimRules.MechanicBoltOrigin(step, facing, x, y, facingVec.x, facingVec.y, out ox, out oy, out cut))
                 RangedAimRules.BoltOrigin(cls.Id == HeroClass.Mechanic, x, y, facingVec.x, facingVec.y, out ox, out oy);
             Vector2 muzzle = new Vector2(ox, oy);
-            RangedAutoAim.Steer(new Vector2(x, y), muzzle, facingVec, h.Bolt.Range - cut, ref v, ref angle);
+            // A monster the player clicked (ClickMove) wins over a nearer one: after switching target the shots go to the new one, not on at the old one (2026-11-26).
+            Monster picked = AimPreferred();
+            RangedAutoAim.Steer(new Vector2(x, y), muzzle, facingVec, h.Bolt.Range - cut, ref v, ref angle, picked);
             ushort boltId = NetEventBus.BoltFired(this, step, muzzle, angle, finisher);
             ComboProjectile shot = ComboProjectile.Fire(muzzle, v, angle, h.Bolt, AtkStat, mult, h.Knockback, finisher, cls.FxFolder, pal, CritBonus, this, boltId, cut);
             if (predicted) RememberPredictedBolt(shot);

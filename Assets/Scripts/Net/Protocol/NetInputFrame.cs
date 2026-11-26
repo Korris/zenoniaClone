@@ -2,14 +2,23 @@ using System;
 
 namespace ZenoniaProto.Net
 {
-    /// <summary>One client input sample: the client's step sequence number and its bits. On the wire only the low 16 bits of Seq travel.</summary>
+    /// <summary>
+    /// One client input sample: the client's step sequence number and its bits. On the wire only the low 16 bits of Seq travel.
+    /// Protocol 38: a frame that presses a Ground skill also carries the chosen point (HasAim, AimX / AimY = NetQuantize.Pos shorts).
+    /// </summary>
     public struct InputFrame
     {
         public uint Seq;
         public ushort Bits;
+        public bool HasAim;
+        public short AimX, AimY;
 
-        public const int WireBytes = 2;
+        public const int WireBytes = 2, AimWireBytes = 4;
         public bool Has(ushort bit) { return (Bits & bit) != 0; }
+
+        /// <summary>The frame's aim point in world units (only meaningful when HasAim).</summary>
+        public float AimWorldX { get { return NetQuantize.Pos(AimX); } }
+        public float AimWorldY { get { return NetQuantize.Pos(AimY); } }
     }
 
     /// <summary>Client side: remembers the last 3 frames so every packet repeats them (input redundancy, no ack needed).</summary>
@@ -21,9 +30,14 @@ namespace ZenoniaProto.Net
         public uint NextSeq { get; private set; } = 1;
 
         /// <summary>Stamps a frame with the next sequence number and stores it.</summary>
-        public InputFrame Push(ushort bits)
+        public InputFrame Push(ushort bits) { return Push(bits, false, 0f, 0f); }
+
+        /// <summary>Same, with the Ground skill point of a skill press (`hasAim`; ignored when the frame presses no skill).</summary>
+        public InputFrame Push(ushort bits, bool hasAim, float aimX, float aimY)
         {
-            var frame = new InputFrame { Seq = NextSeq++, Bits = (ushort)(bits & InputBits.AllMask) };
+            bits = (ushort)(bits & InputBits.AllMask);
+            bool aim = hasAim && InputBits.SkillIndex(bits) >= 0;
+            var frame = new InputFrame { Seq = NextSeq++, Bits = bits, HasAim = aim, AimX = aim ? NetQuantize.Pos(aimX) : (short)0, AimY = aim ? NetQuantize.Pos(aimY) : (short)0 };
             head = (head + 1) % ring.Length;
             ring[head] = frame;
             if (count < ring.Length) count++;
@@ -61,6 +75,7 @@ namespace ZenoniaProto.Net
         bool hasNewest;
         uint lastRecvMs;
         ushort carry;              // press bits of dropped frames, delivered with the next applied frame
+        InputFrame carryAim;       // aim of the carried skill press (HasAim false = none)
         int potionHp, potionMp;
         int credit;                // frozen ticks not yet repaid with a catch-up step
         bool restarted;            // RestartStream ran: the next frame starts over, whatever its sequence number
@@ -69,6 +84,8 @@ namespace ZenoniaProto.Net
         public uint LastSeq { get; private set; }
         /// <summary>Bits of the frame being simulated this step (0 when the hero idles on a silent client).</summary>
         public ushort Current { get; private set; }
+        /// <summary>Ground skill point of the frame being simulated (HasAim false = none: the hero auto-picks).</summary>
+        public InputFrame CurrentAim { get; private set; }
         public bool HasInput { get { return hasNewest; } }
         public int Queued { get { return qCount; } }
         public int Dropped { get; private set; }
@@ -87,17 +104,18 @@ namespace ZenoniaProto.Net
                 uint seq = hasNewest ? Expand((ushort)frames[i].Seq, newest) : frames[i].Seq;
                 if (hasNewest && !NetQuantize.IsNewer(seq, newest)) continue;
                 ushort bits = (ushort)(frames[i].Bits & InputBits.AllMask);
+                InputFrame src = frames[i];
                 if (hasNewest && !restarted)
                 {
                     uint gap = seq - newest - 1;
-                    if (gap > MaxGapFill) { qCount = 0; carry = 0; }             // long outage: restart the stream, no catch-up
+                    if (gap > MaxGapFill) { qCount = 0; carry = 0; carryAim = default(InputFrame); } // long outage: restart the stream, no catch-up
                     else
                     {
                         ushort held = (ushort)(newestBits & InputBits.MoveMask);
-                        for (uint g = 0; g < gap; g++) Enqueue(newest + 1 + g, held); // lost frames repeat the last held direction, no presses
+                        for (uint g = 0; g < gap; g++) Enqueue(newest + 1 + g, held, default(InputFrame)); // lost frames repeat the last held direction, no presses
                     }
                 }
-                Enqueue(seq, bits);
+                Enqueue(seq, bits, src);
                 newest = seq; newestBits = bits; hasNewest = true; restarted = false;
                 applied++;
             }
@@ -105,11 +123,20 @@ namespace ZenoniaProto.Net
             return applied;
         }
 
-        void Enqueue(uint seq, ushort bits)
+        void Enqueue(uint seq, ushort bits, InputFrame aim)
         {
-            if (qCount == Capacity) { carry = InputBits.Merge(carry, (ushort)(queue[qHead].Bits & ~InputBits.MoveMask)); qHead = (qHead + 1) % Capacity; qCount--; Dropped++; }
-            queue[(qHead + qCount) % Capacity] = new InputFrame { Seq = seq, Bits = bits };
+            if (qCount == Capacity) { CarryDropped(queue[qHead]); qHead = (qHead + 1) % Capacity; qCount--; Dropped++; }
+            bool has = aim.HasAim && InputBits.SkillIndex(bits) >= 0;
+            queue[(qHead + qCount) % Capacity] = new InputFrame { Seq = seq, Bits = bits, HasAim = has, AimX = has ? aim.AimX : (short)0, AimY = has ? aim.AimY : (short)0 };
             qCount++;
+        }
+
+        /// <summary>A frame is cut: its presses (and the aim of its skill press) ride on the next applied frame.</summary>
+        void CarryDropped(InputFrame f)
+        {
+            ushort before = carry;
+            carry = InputBits.Merge(carry, (ushort)(f.Bits & ~InputBits.MoveMask));
+            if ((carry & (InputBits.Skill | InputBits.SkillIndexMask)) != (before & (InputBits.Skill | InputBits.SkillIndexMask))) carryAim = f; // the skill press now carried is this frame's
         }
 
         /// <summary>
@@ -118,11 +145,11 @@ namespace ZenoniaProto.Net
         /// </summary>
         public bool Advance(uint nowMs)
         {
-            Current = 0;
+            Current = 0; CurrentAim = default(InputFrame);
             if (qCount > MaxQueue)
                 while (qCount > KeepAfterDrop)
                 {
-                    carry = InputBits.Merge(carry, (ushort)(queue[qHead].Bits & ~InputBits.MoveMask));
+                    CarryDropped(queue[qHead]);
                     qHead = (qHead + 1) % Capacity; qCount--; Dropped++;
                 }
             if (qCount > 0) { Consume(); return true; }
@@ -137,7 +164,9 @@ namespace ZenoniaProto.Net
             InputFrame f = queue[qHead];
             qHead = (qHead + 1) % Capacity; qCount--;
             Current = InputBits.Merge(f.Bits, carry);
-            carry = 0;
+            CurrentAim = (f.Bits & InputBits.Skill) != 0 ? f : carryAim; // the frame's own skill press wins (InputBits.Merge), else the carried one's
+            if (InputBits.SkillIndex(Current) < 0) CurrentAim = default(InputFrame);
+            carry = 0; carryAim = default(InputFrame);
             LastSeq = f.Seq;
             if ((Current & InputBits.HpPotion) != 0) potionHp++;
             if ((Current & InputBits.MpPotion) != 0) potionMp++;
@@ -150,7 +179,7 @@ namespace ZenoniaProto.Net
         public void RestartStream()
         {
             qHead = qCount = 0;
-            carry = 0; newestBits = 0; Current = 0;
+            carry = 0; newestBits = 0; Current = 0; carryAim = default(InputFrame); CurrentAim = default(InputFrame);
             potionHp = potionMp = 0;
             credit = 0;
             lastRecvMs = 0;

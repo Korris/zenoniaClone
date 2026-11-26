@@ -1,0 +1,3 @@
+Idle v3 chatgpt-2 (cleric): measure_v3: sọ-cằm 32,8 % (Knight 34,7, -5,5 %), sọ rộng kể cả tai 32,8 % (-9,9 %, phần lớn do tai Knight to), sọ trên tai (skull_no_ears.py) -2..-7 % (TB ~-5 %). Hướng: 3 góc giữa quay phải ĐẠT. Chân tách ĐẠT.
+ChatGPT tự chấm: AD 9,4, tỉ lệ 9,0, hướng 10; APPROVE CÓ ĐIỀU KIỆN (chờ script xác nhận sọ).
+=> Đầu nhỏ ~5 %: xin V3 đầu +5 %.

@@ -1,5 +1,5 @@
 {
- "note": "Upright weapon sprites from weapons-5-classes-chatgpt-1.png (Tools/build-hero-layered-weapons.py): grip px (x, y down). Starward Knight V3 24/11: sword + warrior-shield from Tools/build-starward-knight-weapons.py.",
+ "note": "Upright weapon sprites from weapons-5-classes-chatgpt-1.png (Tools/build-hero-layered-weapons.py): grip px (x, y down). Starward Knight V3 24/11: sword + warrior-shield from Tools/build-starward-knight-weapons.py. Wizard V3 26/11: wizard-staff from Tools/wizard_v3_staff.py. Assassin V3 26/11: dagger from Tools/build-assassin-v3-daggers.py. Mechanic V3 26/11: mechanic-cannon from Tools/build-mechanic-v3-cannon.py. Archer V3 26/11: archer-bow, archer-quiver, archer-arrow from Tools/archer_v3_weapons.py.",
  "grips": {
   "sword": [
    26.0,
@@ -10,8 +10,8 @@
    54.0
   ],
   "wizard-staff": [
-   34.0,
-   117.0
+   36.5,
+   159.8
   ],
   "wizard-book": [
    18.5,
@@ -22,16 +22,32 @@
    54.1
   ],
   "dagger": [
-   15.5,
-   56.5
+   18.5,
+   77.5
   ],
   "cleric-staff": [
-   36.0,
-   117.0
+   27.0,
+   127.1
   ],
   "cleric-shield": [
    30.5,
    40.0
+  ],
+  "mechanic-cannon": [
+   21.0,
+   96.3
+  ],
+  "archer-bow": [
+   22.5,
+   59.0
+  ],
+  "archer-quiver": [
+   17.5,
+   47.3
+  ],
+  "archer-arrow": [
+   41.0,
+   8.5
   ]
  }
 }

@@ -39,6 +39,11 @@ namespace ZenoniaProto.Net
             if (count > NetProtocol.MaxInputFrames) count = NetProtocol.MaxInputFrames;
             w.Reset(); w.Put(NetOp.Input); w.Put(epoch); w.Put(ackSnapshotSeq); w.Put((ushort)frames[count - 1].Seq); w.Put((byte)count);
             for (int i = 0; i < count; i++) w.Put(frames[i].Bits);
+            // protocol 38: bit i = frame i carries a Ground skill point, then the points of those frames in order (4 B each)
+            byte aims = 0;
+            for (int i = 0; i < count; i++) if (frames[i].HasAim) aims |= (byte)(1 << i);
+            w.Put(aims);
+            for (int i = 0; i < count; i++) if (frames[i].HasAim) { w.Put(frames[i].AimX); w.Put(frames[i].AimY); }
         }
 
         public static void InvAction(NetDataWriter w, InvActionMsg m)

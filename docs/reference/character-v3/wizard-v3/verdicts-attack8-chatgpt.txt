@@ -1,0 +1,27 @@
+Wizard V3 attack 8f verdicts (ChatGPT, chat Tay "Phân tích thiết kế Mage", 26/11). Head size measured by script (skull skin width / figure height,
+F7 vs idle same dir; scratchpad headm.py): head-size score excluded from total because the attack8 cut tool rescales heads > 4 % off.
+
+Existing sheets (made by agent 1, scored 10:33):
+- attack-down-8f-chatgpt-1       : staff cast 9,0 / dir 10 / hand 10 / costume 9,5 / timing 8,5 / head 6,0 (+10 %)  => 9,4 PASS
+- attack-down-right-8f-chatgpt-1 : 9,0 / 9,5 / 9,5 / 9,5 / 9,0 / head 6,0 (+10 %)                                => 9,3 PASS
+- attack-right-8f-chatgpt-1      : 8,5 / 10 / HAND 4,0 / 9,5 / 9,0 / head 5,5 (+11 %)                            => 8,2 FAIL
+  First verdict was WRONG (my prompt primed it): I claimed "facing right => right hand is the FAR arm". Correct (sprite-rules
+  'Quy tắc tư thế cầm' 4): facing RIGHT the viewer sees the character's RIGHT side => right hand = NEAR arm; facing LEFT => FAR arm.
+  Re-scored after correction (11:35): bản 1 9,4 PASS, bản 2 9,5 PASS (both thrust with the near arm = right hand, F1 no hand swap).
+Walk sheets (not rescored): head vs idle down +2 %, down-right +11 %, right +9 %, up-right +1 %, up +4 % (walk8 cut tool rescales > 3 %).
+
+New sheets (agent 2, 26/11 ~10:55-11:40). Tay chat for right-2 / up-right / up; Tay ran out of image use after 3 images (no error text, just no
+reply, then "chưa thể gọi công cụ tạo ảnh"), so up-left / left / down-left were drawn in a NEW Tan Pham (Plus) chat
+"Vẽ sprite sheet mage" https://chatgpt.com/c/6b07b237-7738-83ec-8d03-45593e125251 (first message sent turnaround + idle + Knight silhouette).
+Scores by ChatGPT in the Tay chat (a staff cast / b direction / c hand / d costume / e timing / head; total a-e):
+- attack-right-8f-chatgpt-2    : 9,0 / 10 / 10 / 9,5 / 9,0 / head +7 %  => 9,5 PASS (KEEP; newest = what the tool picks)
+- attack-up-right-8f-chatgpt-1 : 9,0 / 10 / 10 / 9,5 / 9,0 / head +3 %  => 9,5 PASS
+- attack-up-8f-chatgpt-1       : 8,0 / 9,5 / 10 / 9,5 / 8,0 / head +10 % => 9,0 PASS (F0 both fists hidden behind body; push goes up-right)
+- attack-up-left-8f-chatgpt-1  : 9,0 / 10 / 9,0 / 9,5 / 9,0 / head +5 %  => 9,3 PASS (arm reaching over = screen-right arm, far)
+- attack-left-8f-chatgpt-1-rejected-trousers : REJECTED by me: legs drawn as long WHITE TROUSERS (idle = short white skirt, bare legs, socks), head +14 %.
+- attack-left-8f-chatgpt-2     : redraw; head +5 %, skirt/legs ok, far arm thrusts, near fist stays at chest (my check; see below for ChatGPT score)
+  ChatGPT (11:50): left-2 9,0 / 10 / 10 / costume 8,5 ("hơi giản lược") / 9,0 / head +5 % => 9,3 PASS; F3-F4 a bit similar.
+- attack-down-left-8f-chatgpt-1: 9,0 / 10 / 10 / 9,5 / 9,0 / head +4 % => 9,5 PASS
+FULL SET verdict (ChatGPT): 8/8 approved, mean 9,35. Check image (idle + 8 frames per row, F7 scaled to idle height):
+docs/reference/character-v3/wizard-v3/attack8-8dirs-check-idle-plus-8f.png
+Files the tool will pick (newest -chatgpt-N): down-1, down-right-1, right-2, up-right-1, up-1, up-left-1, left-2, down-left-1.

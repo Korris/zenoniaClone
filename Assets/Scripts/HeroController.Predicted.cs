@@ -33,6 +33,7 @@ namespace ZenoniaProto
             proxy = false;
             AiHeld = p.Held;
             AiPressed = p.Pressed;
+            InputGroundAim = p.CurrentAim; // Ground skills: the point the frame carries (same one the server gets)
         }
 
         void GatedSteps(float dt)

@@ -32,8 +32,8 @@ namespace ZenoniaProto.Rpg
                        Move(MotionKind.Dash, 2f, 160, 440), Strike(AreaShape.Line, 130f, length: 2f, width: 1.5f, atMs: 600)), Req(3, 3), lockMs: 660),
                 Def(C, 6, "Iron Body", 40, 35, 20f, SkillTargeting.Self, Fx(BuffFx(BuffKind.Shield, 60f, 8000), BuffFx(BuffKind.DefPct, 30f, 8000)), Req(1, 5), lockMs: 400),
                 // Ultimate: leap and drive the fist down, stunning everything in the crater.
-                Def(C, 7, "Dragon Fist", 50, 75, 45f, SkillTargeting.Facing,
-                    Fx(Move(MotionKind.Leap, 4f, 400), Strike(AreaShape.Circle, 600f, radius: 3f, atMs: 400, status: stun)), Req(5, 5, 6, 5), lockMs: 800),
+                Def(C, 7, "Dragon Fist", 50, 75, 45f, SkillTargeting.Ground, // Ground (ChatGPT 26/11): leaps onto the chosen point
+                    Fx(Move(MotionKind.Leap, 4f, 400), Strike(AreaShape.Circle, 600f, radius: 3f, atMs: 400, status: stun)), Req(5, 5, 6, 5), lockMs: 800, castRange: 4f),
             };
         }
     }

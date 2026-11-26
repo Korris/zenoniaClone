@@ -117,6 +117,32 @@ namespace ZenoniaProto
                     Map3DBatcher.Add(Map3DShrineGateBuilder.CrossedCards(d.W, d.H), cards, cards, pos, Quaternion.AngleAxis(Hash(p.Tx, p.Ty, p.Type) % 40 - 20, Vector3.forward), 1f);
                     return true;
                 }
+                case "tauGardenMonument": // east garden pillar in its round flower bed, centred on its 3 x 2 solid block (Map3DMonumentBuilder, user 25/11)
+                {
+                    Material cards = Map3DAssets.SpriteCard(p.Type);
+                    if (cards == null) return false;
+                    Map3DMonumentBuilder.Parts m = Map3DMonumentBuilder.Get();
+                    pos = Ground(p.Tx + d.FootW * 0.5f, p.Ty + 1f - d.FootH * 0.5f);
+                    Map3DBatcher.Add(m.Stone, Map3DAssets.TownStone, Map3DAssets.TownStone, pos, Quaternion.identity, 1f);
+                    Map3DBatcher.Add(m.Cards, cards, cards, pos, Quaternion.identity, 1f, false);
+                    Material flowers = Map3DAssets.SpriteCard(Map3DMonumentBuilder.FlowerSprite);
+                    if (flowers != null) Map3DBatcher.Add(m.Flowers, flowers, flowers, pos, Quaternion.identity, 1f, false);
+                    return true;
+                }
+                case "tauParkBench": // TEST 25/11: ChatGPT's bench model built on the approved bench sprite (front = the sprite on an alpha-cut plane, 3D frame, faces +Z);
+                {                    // --map3d-test benchsprite3d = this one, benchmodel = its first procedural box bench (user: "sao cái ghế xấu vậy")
+                    bool boxy = Map3D.Test("benchmodel");
+                    if (!boxy && !Map3D.Test("benchsprite3d")) return false; // both tries looked worse than the sprite (25/11): flat sprite by default
+                    string dir = boxy ? "willowbrook-bench/Willowbrook_Bench" : "willowbrook-bench-sprite/Willowbrook_Bench_SpriteBased";
+                    Mesh bench = Map3DAssets.Model(dir);
+                    Material bm = Map3DAssets.ModelMaterial(boxy ? "willowbrook-bench/Bench_Handpainted_Atlas_1024" : "willowbrook-bench-sprite/Willowbrook_Bench_SpriteBased_Atlas_1024");
+                    if (bench == null || bm == null) return false;
+                    pos = Ground(p.Tx + d.FootW * 0.5f, p.Ty + 0.5f);
+                    // model y up -> world -z (up), model +z -> world +y (north); turned 180 deg so the seat faces south like the sprite
+                    Quaternion q = Quaternion.AngleAxis(boxy ? 0f : 180f, Vector3.forward) * Quaternion.Euler(-90f, 0f, 0f);
+                    Map3DBatcher.Add(bench, bm, bm, pos, q, Map3D.M);
+                    return true;
+                }
                 case "tauOakPlanterRing": // round the Great Oak's 3 x 3 solid block (rows 12-14), its rim ~0.9 m onto the plaza (walk-through curb, as the 2.5D sprite)
                     pos = Ground(p.Tx + d.FootW * 0.5f, p.Ty - 0.8f); // near the Great Oak trunk (ty 14.5)
                     Map3DBatcher.Add(Map3DTownWallBuilder.Ring(1.7f, 16), Map3DAssets.TownStone, Map3DAssets.TownStone, pos, Quaternion.identity, 1f);
@@ -277,7 +303,13 @@ namespace ZenoniaProto
         public static void LiftFlat(SpriteRenderer sr)
         {
             Vector3 p = sr.transform.position;
-            sr.transform.position = new Vector3(p.x, p.y, -0.35f);
+            float z = -0.35f;
+            if (sr.sprite != null && sr.sprite.name.Contains("Lily") && MapRegistry.Current != null) // lily pads float on the village lake's lowered water (Map3DLakeWall)
+            {
+                Map3DHeightField f = Map3DHeightField.For(MapRegistry.Current);
+                if (f.DeepLake) z = -(f.WaterLevel + 0.03f) * Map3D.M;
+            }
+            sr.transform.position = new Vector3(p.x, p.y, z);
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZenoniaProto
 {
-    public enum HeroClass { Warrior, Wizard, Mechanic, Assassin, Cleric, Fighter } // append only: saves and net packets carry the int
+    public enum HeroClass { Warrior, Wizard, Mechanic, Assassin, Cleric, Fighter, Archer } // append only: saves and net packets carry the int
 
     /// <summary>One held-gear layer (web held-gear-specs `parts`): manifest key, overlay PNG folder and web drawScale / minSx.</summary>
     public sealed class GearPartSpec
@@ -143,7 +143,23 @@ namespace ZenoniaProto
             SkillName = "Dash Punch", SkillMp = 8f, SkillCooldownMs = 3000f, SkillLockMs = 320f, SkillIcon = 0, DashIcon = 10, // no fighter icon sheet yet: the touch button falls back to text
         };
 
-        public static readonly HeroClassDef[] All = { Warrior, Wizard, Mechanic, Assassin, Cleric, Fighter };
+
+        // Archer (Asteria Ranger V3, male, 2026-11-26): bow in the LEFT hand on every facing, quiver on the back, no hat. Drawn by the RO Fantasy
+        // layered set only (Data/hero-layered/ro-fantasy/archer, Tools/build-archer-v3-game-assets.py); the classic folders below have no art.
+        // Basic attack: 3 bow shots (arrow projectile, ComboConfigs.ArcherHits) on the one 8-frame attack body. Skill L: Piercing Arrow (SkillTable.Archer.cs).
+        public static readonly HeroClassDef Archer = new HeroClassDef
+        {
+            Id = HeroClass.Archer, Name = "Archer", Tagline = "Asteria Ranger. Swift bow shots from range, a rain of arrows.", ComboLabel = "2 arrows + charged shot",
+            SheetFolder = "classes/archer/body/armed", BareFolder = "classes/archer/body/bare", HandFolder = null, HandAnims = null, GearFile = null, FxFolder = null, Palette = ClassPalette.Leaf,
+            BareAnims = new[] { "idle", "walk", "dash", "hurt" },
+            ComboAnims = new[] { "attack1", "attack2", "attack3" },
+            MirrorLeft = new HashSet<string>(),
+            MaxHp = 82f, MaxMp = 60f, Atk = 13f, Def = 3f, Speed = 86f, CritBonus = 0.04f, Hits = ComboConfigs.ArcherHits, ChainMs = 420f,
+            Parts = new[] { new GearPartSpec("bow", "classes/archer/weapons/bow", 1f, 0f, true) },
+            SkillName = "Piercing Arrow", SkillMp = 8f, SkillCooldownMs = 3000f, SkillLockMs = 320f, SkillIcon = -1, DashIcon = -1,
+        };
+
+        public static readonly HeroClassDef[] All = { Warrior, Wizard, Mechanic, Assassin, Cleric, Fighter, Archer };
 
         public static HeroClassDef Get(HeroClass id) { return All[(int)id]; }
     }

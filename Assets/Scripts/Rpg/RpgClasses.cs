@@ -14,7 +14,7 @@ namespace ZenoniaProto.Rpg
     public static class RpgClasses
     {
         public const string Default = "warrior";
-        public static readonly string[] Ids = { "warrior", "wizard", "mechanic", "assassin", "cleric", "fighter" }; // append only: NetLootCodec / BuffSource pack the index
+        public static readonly string[] Ids = { "warrior", "wizard", "mechanic", "assassin", "cleric", "fighter", "archer" }; // append only: NetLootCodec / BuffSource pack the index
 
         static readonly Dictionary<string, ClassStatDef> Table = new Dictionary<string, ClassStatDef>
         {
@@ -24,6 +24,7 @@ namespace ZenoniaProto.Rpg
             { "cleric", new ClassStatDef { Id = "cleric", Name = "Cleric", BaseHp = 85, BaseMp = 75, BaseAtk = 11, BaseDef = 4, Speed = 80f, GrowHp = 10f, GrowMp = 8f, GrowAtk = 2.5f, GrowDef = 0.8f, OffhandType = "spirit", OffhandName = "Holy Shield", WeaponName = "Holy Staff" } },
             { "assassin", new ClassStatDef { Id = "assassin", Name = "Assassin", BaseHp = 88, BaseMp = 50, BaseAtk = 13, BaseDef = 3, Speed = 92f, CritBonus = 0.06f, GrowHp = 10f, GrowMp = 5f, GrowAtk = 2.7f, GrowDef = 0.7f, OffhandType = "dagger", OffhandName = "Off-hand Dagger", WeaponName = "Dagger" } },
             { "fighter", new ClassStatDef { Id = "fighter", Name = "Fighter", BaseHp = 95, BaseMp = 50, BaseAtk = 13, BaseDef = 4, Speed = 88f, CritBonus = 0.04f, GrowHp = 11f, GrowMp = 5f, GrowAtk = 2.7f, GrowDef = 0.9f, OffhandType = "glove", OffhandName = "Off-hand Glove", WeaponName = "Gloves" } }, // brawler: HP between Warrior and Assassin; the offhand is the second glove
+            { "archer", new ClassStatDef { Id = "archer", Name = "Archer", BaseHp = 82, BaseMp = 60, BaseAtk = 13, BaseDef = 3, Speed = 86f, CritBonus = 0.04f, GrowHp = 9f, GrowMp = 6f, GrowAtk = 2.7f, GrowDef = 0.75f, OffhandType = "quiver", OffhandName = "Quiver", WeaponName = "Bow" } }, // Asteria Ranger (2026-11-26): ranged DPS, a bit sturdier than the Wizard, ~10 % less HP and less DEF than the Mechanic (role split: squishy kiter); the offhand is the quiver on his back
         };
 
         public static bool IsValid(string id) { return id != null && Table.ContainsKey(id); }

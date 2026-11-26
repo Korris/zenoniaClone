@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace ZenoniaProto.Rpg
 {
     /// <summary>
-    /// Registry of the 48 skills (6 classes x 8). Data lives in the per-class partial files (SkillTable.Warrior.cs ...); values are rank 1 from
+    /// Registry of the 56 skills (7 classes x 8). Data lives in the per-class partial files (SkillTable.Warrior.cs ...); values are rank 1 from
     /// plans/261030-1508-skill-tree-design/skill-tree-chatgpt.md. Distances in tiles, times in ms.
     /// </summary>
     public static partial class SkillTable
@@ -11,7 +11,7 @@ namespace ZenoniaProto.Rpg
         static readonly Dictionary<string, SkillDef[]> byClass = new Dictionary<string, SkillDef[]>
         {
             { "warrior", WarriorSkills() }, { "wizard", WizardSkills() }, { "mechanic", MechanicSkills() },
-            { "cleric", ClericSkills() }, { "assassin", AssassinSkills() }, { "fighter", FighterSkills() },
+            { "cleric", ClericSkills() }, { "assassin", AssassinSkills() }, { "fighter", FighterSkills() }, { "archer", ArcherSkills() },
         };
         static readonly Dictionary<string, SkillDef> byId = BuildIndex();
         static readonly SkillDef[] none = new SkillDef[0];
@@ -54,13 +54,13 @@ namespace ZenoniaProto.Rpg
         static int MpPerRankFor(int unlock) { return unlock < 20 ? 1 : unlock < 32 ? 2 : unlock < 50 ? 3 : 5; }
 
         static SkillDef Def(string cls, int index, string name, int unlock, int mp, float cdSec, SkillTargeting targeting, SkillEffect[] fx,
-            SkillReq[] prereqs = null, float targetRange = 0f, int lockMs = 350, LegacySkill legacy = LegacySkill.None)
+            SkillReq[] prereqs = null, float targetRange = 0f, int lockMs = 350, LegacySkill legacy = LegacySkill.None, float castRange = 0f)
         {
             return new SkillDef
             {
                 Id = cls + "." + name.ToLowerInvariant().Replace(' ', '-'), Class = cls, Index = index, Name = name, UnlockLevel = unlock,
                 Prereqs = prereqs ?? new SkillReq[0], Mp = mp, MpPerRank = MpPerRankFor(unlock), BaseCooldownMs = (int)(cdSec * 1000f), CooldownMs = FarmSkillRules.CooldownMs(cls, index, (int)(cdSec * 1000f)), BaseCastLockMs = lockMs, CastLockMs = CappedLock(lockMs, fx),
-                Targeting = targeting, TargetRange = targetRange, Effects = fx, Legacy = legacy,
+                Targeting = targeting, TargetRange = targetRange, CastRange = castRange, Effects = fx, Legacy = legacy,
             };
         }
 

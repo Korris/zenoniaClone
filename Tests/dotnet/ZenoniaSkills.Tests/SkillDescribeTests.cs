@@ -62,6 +62,6 @@ public class SkillDescribeTests
         Assert.Contains("Boss: immune", SkillDescribe.StatusLines(SkillTable.ById("warrior.earth-break")));
         Assert.Contains("4 waves of 140% ATK", SkillDescribe.Description(SkillTable.ById("wizard.ice-storm"), 1));
         Assert.Contains("10 rockets", SkillDescribe.Description(SkillTable.ById("mechanic.rocket-barrage"), 1));
-        Assert.Contains("400% ATK each", SkillDescribe.Description(SkillTable.ById("mechanic.rocket-barrage"), 1));
+        Assert.Contains("100% ATK each", SkillDescribe.Description(SkillTable.ById("mechanic.rocket-barrage"), 1));
     }
 }

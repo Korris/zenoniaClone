@@ -18,6 +18,7 @@ namespace ZenoniaProto.Rpg
                 case "assassin": Add(l, "Crit rate", s.CritRate); Add(l, "Crit damage", s.CritDmg); break;
                 case "cleric": Add(l, "Healing", s.HealPower); Add(l, "Shield", s.ShieldPower); break;
                 case "fighter": Add(l, "Crit rate", s.CritRate); Add(l, "Max HP", s.HpPct); break;
+                case "archer": Add(l, "Crit rate", s.CritRate); Add(l, "Crit damage", s.CritDmg); break;
             }
             return l;
         }

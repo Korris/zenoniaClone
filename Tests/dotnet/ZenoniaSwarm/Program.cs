@@ -84,6 +84,7 @@ static partial class Program
 
     static int Main(string[] args)
     {
+        ZenoniaProto.Rpg.WorldFlags.LegacyEnabled = true; // the Wanted Boss maps (Frost Hollow, Sunken Reliquary) are pre-Taurus legacy maps
         if (FreeRing(args)) return 0;
         string host = Arg(args, "--host", "127.0.0.1"), key = Arg(args, "--key", "k");
         int port = int.Parse(Arg(args, "--port", "7790")), n = int.Parse(Arg(args, "--clients", "50")), stagger = int.Parse(Arg(args, "--stagger-ms", "40"));

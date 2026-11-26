@@ -1,4 +1,5 @@
 using UnityEngine;
+using ZenoniaProto.Net;
 using ZenoniaProto.Rpg;
 
 namespace ZenoniaProto
@@ -60,6 +61,7 @@ namespace ZenoniaProto
             hero.StepGate = p.Input.Advance;
             hero.ExtraStepGate = p.Input.AdvanceExtra;
             hero.InputSeq = () => p.Input.State.LastSeq;
+            hero.InputGroundAim = () => { InputFrame a = p.Input.State.CurrentAim; return a.HasAim ? new Vector2(a.AimWorldX, a.AimWorldY) : (Vector2?)null; }; // clamped by SkillGroundAim
             hero.Teleport(at, 0);
             p.Hero = hero;
             p.Rpg = hero.Owner;

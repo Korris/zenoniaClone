@@ -34,7 +34,7 @@ namespace ZenoniaProto
         }
 
         /// <summary>Impact colour of a skill hit without its own palette: Neutral, except the Warrior keeps his Knight gold (Neutral's crit ring is
-        /// red, which reads as a boss warning; RO trailer style 21/11).</summary>
-        public static ClassPalette SkillSparks(ClassPalette heroPalette) { return heroPalette == ClassPalette.Knight ? ClassPalette.Knight : ClassPalette.Neutral; }
+        /// red, which reads as a boss warning; RO trailer style 21/11). The Archer keeps his Leaf lime the same way (2026-11-26).</summary>
+        public static ClassPalette SkillSparks(ClassPalette heroPalette) { return heroPalette == ClassPalette.Knight || heroPalette == ClassPalette.Leaf ? heroPalette : ClassPalette.Neutral; }
     }
 }

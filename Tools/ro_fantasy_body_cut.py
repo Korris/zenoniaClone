@@ -25,7 +25,7 @@ CW, CH, FEET, BALD_PX, PAINTED = 320, 256, 244, 188, 5
 # (head height kept within 2 %; on screen ~76 px instead of 69 with the 2.5D camera unchanged). Other classes keep 188 until redrawn.
 # Starward (24/11, Character Art Direction V2.0 "Storybook Heroes", replaces the Warrior look): the design chat chose its own proportions and
 # ~15 % taller than the old 69 px standard on screen -> 188 * 1.15 = 216 px skull top to feet.
-BALD_PX_OF = {"warrior": 216}
+BALD_PX_OF = {"warrior": 216, "cleric": 216, "mechanic": 216, "assassin": 216, "wizard": 216}  # cleric, mechanic, assassin, wizard V3 (26/11): Knight V3 height
 
 
 def bald_px(cls):

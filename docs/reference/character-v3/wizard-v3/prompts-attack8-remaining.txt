@@ -1,0 +1,19 @@
+Wizard V3 attack 8f, remaining Dir8 rows (26/11, agent 2). Chat Tay "Phân tích thiết kế Mage" https://chatgpt.com/c/6b07926b-be78-83ec-acad-0f7985e479fe
+Base text = Assets/ArtLibrary/ro-fantasy-heroes/ref/wizard-v3-test/prompts/attack8-prompt.txt (same F0-F7 as down / down-right / right) + head-size block + direction note.
+Attach: image 1 = ref/wizard-v3-test/idle/idle-<dir>.png (left dirs: the mirrored right idle, SIZE ONLY), image 2 = docs/reference/character-v3/shared-v3-refs/knight-proportion-silhouette-5dir.png.
+
+HEAD block: CỠ ĐẦU như ảnh 1: sọ trọc rộng khoảng 35 % chiều cao người (kể cả tai), đỉnh sọ tới cằm khoảng 34 %. Ảnh 2 = bóng xám tỉ lệ Knight (chuẩn bộ V3: sọ tới cằm 34,7 % chiều cao người, sọ rộng 36,4 %; nữ hẹp hơn 34-36 %), chỉ để so tỉ lệ, KHÔNG chép thiết kế. Các sheet đòn đánh trước bị vẽ đầu TO hơn idle khoảng 10 %: lần này đầu KHÔNG được to hơn ảnh 1; F7 cao bằng idle, các frame khác thấp hơn vì khuỵu chứ không đổi cỡ đầu.
+
+DIR notes:
+up-right: CHÉO LÊN-PHẢI (3/4 LƯNG nhìn lên-phải như ảnh 1: thấy gáy, chữ thập vàng sau lưng, KHÔNG thấy mắt). Tay PHẢI của nhân vật ở bên PHẢI tranh. F1 nắm tay phải giơ cạnh vai phải, bên phải đầu, tách hẳn khỏi viền sọ (không bị đầu che); F2-F4 nắm tay phải đẩy về phía TRÊN-PHẢI tranh (ra xa người xem), nắm tay luôn ló ra ngoài viền thân. Tay trái giữ nắm tay trước ngực (bị thân che một phần cũng được).
+up: LÊN (LƯNG đối diện người xem như ảnh 1, thấy gáy và chữ thập vàng, KHÔNG thấy mặt). Tay PHẢI ở bên PHẢI tranh. F1 nắm tay phải giơ cao bên PHẢI đầu, tách hẳn khỏi viền sọ; F2-F4 tay phải đẩy thẳng LÊN phía trên tranh (ra xa người xem), nắm tay ló trên vai phải / cạnh đầu bên phải, KHÔNG nằm sau đầu. Hai vai cân đối, KHÔNG xoay người sang ngang, không bước sang ngang.
+up-left: CHÉO LÊN-TRÁI (3/4 LƯNG nhìn lên-trái như ảnh 1: thấy gáy, KHÔNG thấy mắt). Ảnh 1 là ảnh LẬT, chỉ để lấy cỡ và góc quay: KHÔNG lật tay. Trượng vẫn ở tay PHẢI = cánh tay ở bên PHẢI tranh (gần người xem). CHỈ cánh tay bên PHẢI tranh chuyển động: F1 giơ cạnh vai bên phải tranh (tách khỏi đầu), F2-F4 đẩy chéo về phía TRÊN-TRÁI tranh ngang vai; cánh tay bên TRÁI tranh giữ nắm tay trước ngực, không bao giờ duỗi.
+left: TRÁI (nhìn ngang sang TRÁI như ảnh 1: thấy 1 mắt, mũi và mũi giày về bên trái). Ảnh 1 là ảnh LẬT, chỉ để lấy cỡ: KHÔNG lật tay. Nhìn sang trái thì người xem thấy bên PHẢI của nhân vật: trượng ở tay PHẢI = cánh tay GẦN người xem (vẽ trước thân). CHỈ cánh tay gần chuyển động: F1 giơ cạnh vai (không che mặt), F2-F4 đẩy thẳng sang TRÁI tranh ngang vai; tay xa giữ trước ngực, phần lớn bị thân che.
+down-left: CHÉO XUỐNG-TRÁI (3/4 mặt trước nhìn xuống-trái như ảnh 1, thấy mặt). Ảnh 1 là ảnh LẬT, chỉ để lấy cỡ: KHÔNG lật tay. Tay PHẢI của nhân vật ở bên TRÁI tranh (gần người xem). CHỈ cánh tay bên TRÁI tranh chuyển động: F1 giơ cạnh vai bên trái tranh (tách khỏi đầu), F2-F4 đẩy chéo về phía DƯỚI-TRÁI tranh ngang vai; cánh tay bên PHẢI tranh giữ nắm tay trước ngực suốt 8 frame.
+
+CORRECTION (11:35, after sending): hand depth in my notes was wrong for up-left / left / down-left. Facing right the viewer sees the
+character's RIGHT side (right hand = NEAR); facing left / up-left / down-left the right hand is the FAR arm. Screen side used in the notes
+(up-left: right arm on screen right; down-left: on screen left) was right. Left was redrawn with "tay XA" (left-8f-chatgpt-2), down-left
+prompt already said "tay XA". The right redo prompt (right-8f-chatgpt-2) asked for the far arm, ChatGPT still drew the near arm = correct.
+Sent JS: window.__atk(dir, note) = base F0-F7 text + HEAD block + note (see this file). Left redo added: "chân: váy trắng ngắn, chân trần,
+tất trắng, ủng như ảnh 1, KHÔNG quần".

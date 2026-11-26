@@ -218,6 +218,14 @@ namespace ZenoniaProto
         public static bool PressedNoChase(GameKey k)
         {
             if (Gated(k) || WebKeyBlocked(k) || (k == GameKey.TierUp && UiWindows.InteractPrompt)) return false; // E talks to the NPC instead of changing the weapon tier
+            if (k >= GameKey.Skill1 && k <= GameKey.Skill8 && GroundAimInput.IsAimed(k - GameKey.Skill1))
+            {
+                // Ground skill (26/11): the player's own press (key, hotbar click) opens the aim instead; the confirmed aim presses it (GroundAimInput.Pressed).
+                // Auto Battle / bots / a mobile tap go straight through and get the smart point.
+                bool human = TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k);
+                if (human && !GroundAimInput.HumanPress(k - GameKey.Skill1)) return true;
+                return (BotPressed != null && BotPressed(k)) || AutoBattle.Pressed(k) || ClickMove.Pressed(k) || GroundAimInput.Pressed(k);
+            }
             return (BotPressed != null && BotPressed(k)) || AutoBattle.Pressed(k) || ClickMove.Pressed(k) || TouchControls.Pressed(k) || KeyPressed(k) || SlotKeyPressed(k)
                 || (k == GameKey.Attack && (KeyHeld(k) || FarmSkillHeld(GameKey.Skill1)))
                 || FarmSkillHeld(k); // repeated requests still go through cooldown / MP checks and the network input sampler

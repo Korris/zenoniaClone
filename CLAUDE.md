@@ -59,7 +59,7 @@ Assets/ArtLibrary/classes/<class>/       ảnh gốc: anim, frames, overlays, sk
 Dùng tài khoản Tay (Plus), viết tiếp trong các chat skill ở Recents. Không dùng tài khoản "xaochai" hay "Tieu Duy Phuong".
 Khi Tay hết lượt vẽ thì dùng tài khoản Tan Pham (Plus) (người dùng cho phép ngày 2026-11-01), mở chat mới và kiểm tra đúng tên tài khoản trước khi gửi.
 
-Vẽ sprite mới cho class nào cũng tải kèm hình mẫu `docs/reference/hero-idle-down-5-classes.png`.
+Vẽ sprite mới cho class nào cũng gửi kèm bóng xám tỉ lệ của Warrior `docs/reference/character-v3/shared-v3-refs/knight-proportion-silhouette-5dir.png` và số đo (sọ tới cằm 34,7 % chiều cao người, sọ rộng 36,4 %), không gửi sheet nhân vật cũ (người dùng chốt 26/11; ChatGPT hay chép thiết kế cũ).
 
 ## Unity
 

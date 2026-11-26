@@ -1,0 +1,7 @@
+newmtl WB_Bench_Painted
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.05 0.05 0.05
+Ns 8
+illum 2
+map_Kd Bench_Handpainted_Atlas_1024.png

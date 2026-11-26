@@ -36,6 +36,7 @@ namespace ZenoniaProto
             string anim;
             int frame, drawFacing = facing;
             Vector2 lunge = Vector2.zero;
+            float rigPhase = -1f; // continuous phase for the `--hero-rig` TEST rig (HeroRenderer.Rig.cs); -1 = frame / n
             if (spinLeftMs > 0f) spinLeftMs -= GameClock.Dt * 1000f;
             // A client proxy has no combo state machine: pose / step / progress come from the server snapshot.
             bool attacking = proxy ? proxyPose == HeroPose.Attack : combo.IsAttacking;
@@ -85,6 +86,7 @@ namespace ZenoniaProto
                     // Warrior heavy slash (WarriorSlashFeel): impact frame on the blow, visual hit-stop, lunge toward the locked monster (else the facing)
                     float total = swing.TotalMs, vis = WarriorSlashFeel.VisualMs(phase * total, total, !proxy && slashConnected);
                     frame = WarriorSlashFeel.Frame(n, vis, total);
+                    rigPhase = total > 0f ? vis / total : -1f;
                     Vector2 toward = DirVec[drawFacing];
                     if (!proxy && lockTarget != null) { Vector2 d = lockTarget.Feet - new Vector2(x, y); if (d.sqrMagnitude > 1f) toward = d.normalized; }
                     lunge = toward * WarriorSlashFeel.Lunge(vis, total);
@@ -96,12 +98,14 @@ namespace ZenoniaProto
                 anim = "walk";
                 int n = Mathf.Max(1, view.FrameCount(anim, facing));
                 frame = Mathf.FloorToInt(animTimer / (cls.WalkCycleMs / n)) % n; // one full step cycle per class, regardless of frame count
+                rigPhase = animTimer / cls.WalkCycleMs;
             }
             else
             {
                 anim = "idle";
                 frame = Mathf.FloorToInt(idleTimer / 200f) % Mathf.Max(1, view.FrameCount(anim, facing));
             }
+            view.RigPhase = rigPhase;
             if (view.IsSoft) { UpdateDir8(); view.Dir8 = dir8; view.ViewYaw = View25D.YawDeg; } // view-only 8-way facing (HeroController.Dir8.cs)
             // Raised over whatever stands in front of the landing line while in the air.
             view.Show(anim, drawFacing, frame, GameConfig.OrderBase(y - skillPoseLift), (skillPoseAnim != null && anim == skillPoseAnim ? skillPoseAlpha : 1f) * CrowdFadeAlpha());

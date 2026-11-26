@@ -8,8 +8,8 @@ namespace ZenoniaProto
     /// "Visual Sharpness V1.0" (24/11/2026, docs/reference/ro3-compare/ro3-sharpness-analysis-chatgpt.txt, preset A + test D / E / F).
     /// The sheets are cut in 192 px cells and drawn ~65-80 px tall (2.4-3x smaller; 4x at the widest zoom), so plain trilinear mipmapping
     /// blends toward a mip that is already 4x smaller and the face / hair / gold trim go soft. Modes (all keep the import's uncompressed RGBA):
-    /// - Bilinear (default since the RO3 loop round 1, ChatGPT picked test D 9/10 over F 8.5 and E 8): mip 0 only, bilinear;
-    /// - Bias: trilinear with a negative mip bias (test F, "hơi gắt và dễ rung khi chuyển động");
+    /// - Bias (default since 25/11/2026, bias -1.0): trilinear with a negative mip bias (test F at -0.6 read "hơi gắt và dễ rung khi chuyển động" at 1080p);
+    /// - Bilinear (default 24/11, ChatGPT picked test D 9/10 at 1080p): mip 0 only, bilinear: aliases (jagged sword / armour edges) in a 720p window or zoomed out;
     /// - Point: mip 0 only, point (test E, shows how much softness is the filter);
     /// - Trilinear: the old look (test A..C).
     /// Test builds: `--sprite-filter bias|bilinear|point|trilinear` and `--sprite-bias -0.6` pick the mode for this run (A/B shots).
@@ -20,13 +20,15 @@ namespace ZenoniaProto
         public enum Mode { Bias, Bilinear, Point, Trilinear }
 
         /// <summary>Mip bias of the default mode: -0.6 keeps the eyes / trim of a 192 px cell readable at 65-70 px without the sparkle of mip 0.</summary>
-        public const float DefaultBias = -0.6f;
+        public const float DefaultBias = -1.0f;
 
         static readonly string[] UnitRoots = { "Sprites/hero-layered/", "Sprites/monsters/", "Sprites/pets/", "Sprites/village/npcs/" };
         static readonly string[] ClassParts = { "/body/", "/weapons/", "/heads/", "/companion/" };
 
         static bool parsed;
-        static Mode mode = Mode.Bilinear; // ChatGPT RO3 loop round 1: "CHỐT D" (bilinear, mip 0, bias 0) for heroes, monsters, NPCs
+        // Bias since 25/11 (user: "răng cưa" in a 1280x720 window): mip 0 bilinear (ChatGPT "CHỐT D", judged at 1080p) aliases once a 192 px cell is drawn
+        // 4-5x smaller (small window / zoomed out); trilinear -1.0 stays as sharp as mip 0 at 1080p and smooths the edges as the hero gets smaller (A/B shots D:/temp/sharp-test, crops compare*.png).
+        static Mode mode = Mode.Bias;
         static float bias = DefaultBias;
 
         public static Mode Current { get { Parse(); return mode; } }

@@ -63,6 +63,7 @@ namespace ZenoniaProto
         public void OnZoneTransfer()
         {
             Epoch++;
+            if (Hero != null) Hero.AimPreferId = 0; // monster ids are per zone
             Interest.Clear();
             OutEvents.Clear();
             SentRing.Clear();

@@ -1,0 +1,2 @@
+(gửi kèm side-by-side-knight-vs-cleric-idle-v3-chatgpt-1.png + knight-proportion-silhouette-5dir.png)
+Thiết kế trang phục / mặt của sheet idle vừa rồi rất tốt, giữ nguyên. Nhưng tỉ lệ sai, vẽ mới hoàn toàn từ đầu lại sheet idle 5 hướng đầu trọc: 1) đỉnh sọ-cằm 36,6 % -> 34,7 %, sọ rộng nhỏ hơn ~5 % bằng sọ Knight, cằm trên đường xanh; 2) người cao 74,4 % ảnh, sọ 11,9 %, đế 86,2 %; 3) 3 góc giữa quay PHẢI như Knight; 4) chân tách tự nhiên, đầu trọc, không tóc / mũ / vũ khí, nền #00FF00. Tự chấm /10.

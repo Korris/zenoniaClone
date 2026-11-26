@@ -33,7 +33,7 @@ public class TurretTests
         Assert.Equal("Deploy Turret", d.Name);
         Assert.Equal("mechanic.deploy-turret", d.Id);
         Assert.Equal(32, d.UnlockLevel); Assert.Equal(28, d.Mp); Assert.Equal(18000, d.BaseCooldownMs); Assert.Equal(450, d.CastLockMs);
-        Assert.Equal(SkillTargeting.Self, d.Targeting);
+        Assert.Equal(SkillTargeting.Ground, d.Targeting); // placed on a chosen spot since 26/11 (GroundTargetRulesTests)
         Assert.Equal(3, d.Prereqs[0].Index);
         SkillEffect e = Assert.Single(d.Effects);
         Assert.Equal(EffectKind.Turret, e.Kind);

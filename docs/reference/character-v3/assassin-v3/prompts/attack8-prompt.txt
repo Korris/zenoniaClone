@@ -1,0 +1,11 @@
+VẼ ẢNH: vẽ mới hoàn toàn từ đầu. Sprite sheet ngang 1536x1024, nền một màu phẳng #00FF00 (không caro, không bóng dưới chân, không chữ, không khung, không hiệu ứng, không vệt sáng / vệt mờ chuyển động), 2 hàng x 4 cột cách đều, mỗi hình nằm giữa ô của nó, không chạm mép ô. CẢ 8 Ô CÙNG MỘT HƯỚNG: <HUONG>. Đọc theo hàng: ô 1-8 = frame 0-7 của MỘT đòn đánh thường của Rogue hai dao găm: chém nhanh tay phải rồi đâm tay trái, đánh bằng TOÀN THÂN (lao người, xoay hông), nhanh và sắc, KHÔNG phải đứng yên vung tay:
+F0 NÉN: hạ thấp trọng tâm, gối khuỵu, người thấp hơn idle 3-5 %, nắm tay phải kéo về sau / cạnh hông trái (bắt chéo trước bụng), nắm tay trái thủ trước ngực.
+F1 CHÉM (va chạm, khung quan trọng nhất): bước dài về hướng đánh, thân nghiêng trước 10 độ, tay phải quét mạnh ngang ra trước-thấp ngang ngực-bụng mục tiêu, cánh tay gần duỗi hết.
+F2 LỰC DƯ: tay phải vượt qua mục tiêu sang hông bên kia, vai hông còn xoay theo, vạt áo / khăn bung trễ một nhịp.
+F3 ĐÂM: tay trái đâm thẳng tới trước ngang ngực (duỗi), tay phải kéo về hông, chân sau đẩy.
+F4 ĐÂM SÂU: tay trái duỗi hết, người vươn xa nhất, tay phải ở hông.
+F5 HỒI: tay trái kéo về, chân sau bước theo, người đứng lên dần.
+F6 HỒI 2: hai nắm tay về cạnh hông.
+F7 THỦ: giống hệt idle cùng hướng (ảnh 1).
+F1, F2, F3, F4 phải khác nhau rõ (vị trí nắm tay, độ xoay vai). <MO_TA_HUONG>
+Nhân vật: đúng Rogue V3 idle cùng hướng (ảnh 1, bạn nữ lớp Assassin): đầu TRỌC có mặt (tóc là lớp riêng của game, KHÔNG vẽ tóc), trang phục / khăn đỏ / vạt áo y như ảnh 1; CỠ ĐẦU như idle: sọ trọc rộng khoảng <SKULL>% chiều cao người, F7 cao bằng idle, các frame khác thấp hơn do khuỵu chứ không đổi cỡ. KHÔNG dao, không vũ khí: hai tay là nắm đấm khép chặt như cầm chuôi (game gắn dao vào nắm tay PHẢI và nắm tay TRÁI); hai nắm tay luôn thấy rõ, không bị đầu che, không che mặt. Ảnh 2 = turnaround (chỉ để hiểu thiết kế). Sprite game RPG dễ thương cho mọi lứa tuổi. Ánh sáng từ trên-trái màn hình.

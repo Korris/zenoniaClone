@@ -6,8 +6,9 @@ using ZenoniaProto.Rpg;
 namespace ZenoniaProto
 {
     /// <summary>
-    /// Preview on the hero select: a looping clip of the hero fighting with real effects (Resources/Video/hero-select/<class>, recorded from the game by Tools/record-hero-previews.ps1).
-    /// Without a clip it falls back to the live paper-doll HeroRenderer in starter gear on a painted ground, filmed far off the map by its own camera.
+    /// Preview on the hero select: the live HeroRenderer in starter gear (the layered V3 body when the class has one, as in the world) idling, walking and attacking on a painted ground,
+    /// filmed far off the map by its own camera. The old recorded clips (Resources/Video/hero-select/<class>, Tools/record-hero-previews.ps1) show the pre-V3 art, so they are only
+    /// played when UseClips is on.
     /// </summary>
     public sealed class HeroSelectPreview : MonoBehaviour
     {
@@ -29,6 +30,9 @@ namespace ZenoniaProto
         float clock;
 
         VideoPlayer video;
+
+        /// <summary>Plays the recorded clips instead of the live hero (off: they still show the pre-V3 heroes; re-record them before turning this on).</summary>
+        public static bool UseClips = false;
 
         public void Init(RawImage image)
         {
@@ -55,7 +59,7 @@ namespace ZenoniaProto
             cam.farClipPlane = 30f;
             cam.enabled = false;
 
-            Sprite groundArt = UiArt.Get("hero-select/preview-ground");
+            Sprite groundArt = UiArt.Get("hero-select-ro/preview-ground") ?? UiArt.Get("hero-select/preview-ground"); // 12 % brighter copy (ChatGPT review), Tools/build-hero-select-ro-art.py ground
             if (groundArt == null) return;
             var ground = new GameObject("PreviewGround").AddComponent<SpriteRenderer>();
             ground.transform.SetParent(transform, false);
@@ -67,12 +71,12 @@ namespace ZenoniaProto
         }
 
         /// <summary>Switches to a class (built on first use, so the classes nobody looks at cost nothing).</summary>
-        public void Show(HeroClassDef def)
+        public void Show(HeroClassDef def, CharacterAppearanceData look = null)
         {
             if (view != null) view.gameObject.SetActive(false);
             view = null;
             steps.Clear();
-            VideoClip clip = Resources.Load<VideoClip>("Video/hero-select/" + def.Name.ToLowerInvariant());
+            VideoClip clip = UseClips ? Resources.Load<VideoClip>("Video/hero-select/" + def.Name.ToLowerInvariant()) : null;
             if (clip != null)
             {
                 cam.enabled = false;
@@ -92,8 +96,11 @@ namespace ZenoniaProto
                 views[i].Init(def, HeldGearData.Load(def));
                 PlayerState starter = PlayerState.NewGame(RpgSession.ClassId(def.Id));
                 views[i].SetEquipmentGear(starter.GetEquipped(Slots.Weapon), starter.GetEquipped(Slots.Offhand));
+                views[i].UseLayered(HeroRenderer.LayeredSetFor(def)); // the world's default V3 look; false (paper doll) for a class without layered art
             }
             view = views[i];
+            view.SetAppearance(look, "", false, true); // the picker's colours for the class, without touching the playing hero's look (as HeroPreviewStage)
+            if (look != null && look.stored) view.HairStyle = look.hairStyle;
             view.gameObject.SetActive(true);
             BuildSteps(def);
             Replay();

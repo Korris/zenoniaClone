@@ -26,6 +26,9 @@ namespace ZenoniaProto
         static readonly List<Entry> Props = new List<Entry>();
 
         /// <summary>Called for every standing prop of a 2.5D map when it is built.</summary>
+        /// <summary>Stops fading a prop (MapScenery: the terrace stairs, drawn under the units).</summary>
+        public static void Unregister(SpriteRenderer sr) { Props.RemoveAll(e => e.Sr == sr); }
+
         public static void Register(SpriteRenderer sr)
         {
             if (sr == null || sr.sprite == null || sr.sprite.bounds.size.y < MinHeight) return;

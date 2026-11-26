@@ -23,7 +23,9 @@ namespace ZenoniaProto.Rpg
             EarthBreakBurnStepMs = 70f, EarthBreakTotalMs = 1400f;
 
         // Rockets land at Range x (Near + (i % 3) x Step) in a forward fan, so the farthest one is at RocketBarrageReach.
-        public const float RocketBarrageRadius = 18f, RocketBarrageMult = 4f, RocketBarrageRange = 70f, RocketBarrageFanDeg = 60f, RocketBarrageNear = 0.65f, RocketBarrageStep = 0.16f, RocketBarrageKnockback = 35f;
+        // Mult 4 -> 1.0 (Archer / Mechanic role split 2026-11-26): the fan is tight, so one monster 3 tiles ahead takes nearly all 10 rockets; 4.0 was
+        // ~3600 % ATK on one target per 28 MP vs Earth Break 880 %. Now ~900 % on one target, ~3000 % over a pack of 5 (ArcherMechanicRoleBalanceTests).
+        public const float RocketBarrageRadius = 18f, RocketBarrageMult = 1.0f, RocketBarrageRange = 70f, RocketBarrageFanDeg = 60f, RocketBarrageNear = 0.65f, RocketBarrageStep = 0.16f, RocketBarrageKnockback = 35f;
         public const float RocketBarrageReach = RocketBarrageRange * (RocketBarrageNear + 2f * RocketBarrageStep);
         public const int RocketBarrageRockets = 10;
 

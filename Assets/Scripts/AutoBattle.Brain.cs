@@ -142,11 +142,20 @@ namespace ZenoniaProto
                     if (!SkillCooldowns.DevFreeMp && hero.Mp < def.MpAt(rank)) continue;
                     bool heal = HasEffect(def, EffectKind.Heal);
                     if (heal && hero.Hp >= hero.MaxHp * 0.5f) continue;
-                    if (def.BaseCooldownMs >= BigSkillCooldownMs && weakAlone && def.Targeting != SkillTargeting.Self) continue;
-                    float score = def.Targeting == SkillTargeting.Self || heal ? 1e6f : def.BaseCooldownMs;
+                    bool selfish = def.Targeting == SkillTargeting.Self || PlacedSupport(def); // Deploy Turret / Sanctuary became Ground skills (26/11): still cast first
+                    if (def.BaseCooldownMs >= BigSkillCooldownMs && weakAlone && !selfish) continue;
+                    float score = selfish || heal ? 1e6f : def.BaseCooldownMs;
                     if (score > bestScore) { bestScore = score; best = i; }
                 }
             return best;
+        }
+
+        /// <summary>A Ground skill that places a helper rather than hitting (turret, ally zone): Auto Battle keeps casting it first, like the self buffs it was.</summary>
+        static bool PlacedSupport(SkillDef def)
+        {
+            if (!GroundTargetRules.IsGround(def)) return false;
+            foreach (SkillEffect e in def.Effects) if (e.Kind == EffectKind.Turret || (e.Kind == EffectKind.Zone && e.Ally)) return true;
+            return false;
         }
 
         static bool HasEffect(SkillDef def, EffectKind kind)

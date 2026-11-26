@@ -1,0 +1,16 @@
+Warrior rig hướng XUỐNG (TEST 25/11) — tóm tắt lời chat thiết kế (Tay, https://chatgpt.com/c/6b03f69b-a4f8-83ec-af99-547d92463f83)
+
+Spec "Starward Knight V3 - Spine Rig Animation Spec V1.0" (rig H = 216 px; + = theo chiều kim đồng hồ; phải/trái theo thân Knight):
+- IDLE 1600 ms: ngực Y ±1,1 px (0 ms), hông ±0,3, đầu Y ±0,7 + xoay ±0,4° (+100 ms), vai Y ±0,5 mở ±0,6° (+60), cẳng tay X ±0,4 xoay ±0,7° (+120),
+  kiếm ±0,5° (+160), khiên ±0,4° (+140), áo choàng giữa ±0,8° (+180), hai bên ±1,3° (+220); key 0 / 400 cao nhất / 800 / 1200 thấp nhất; ngực scale Y <= 1,005; không scale cả người.
+- WALK 600 ms: 8 key 0/75/150/225/300/375/450/525 ms (contact, down, passing, up x 2): đùi ±16°, gối 5-25°, hông Down -2,4 / Up +2,0 px;
+  thân nghiêng ±1,5°, X ±1,5 px; đầu ngược thân ±0,8°; tay kiếm ±9°, tay khiên ±6°; khuỷu +4-8° / +3-5°; kiếm ±4°, khiên ±2°; áo choàng giữa ±3°, bên ±5-6°, trễ 60-85 ms.
+- CHÉM 400 ms, sát thương 120 ms: key 0 / 45 lấy đà / 85 giơ / 120 IMPACT / 175 theo đà / 240 hồi / 330 thủ / 400; easing ease-out lấy đà, ease-in mạnh 85-120,
+  ease-out 120-175, in-out 175-330, ease-out 330-400; thân -7/-11/+10/+15/+7/+1°; khiên +5/-8/-12/-6/0; áo choàng đạt biên trễ 40-60 ms sau impact.
+- Chống "búp bê giấy": mảnh chồng 6-10 px, translation 1-3 px kèm xoay, pivot kiếm giữa nắm tay, thân/hông xoay ngược, áo choàng 3 mảnh lệch pha.
+
+Vòng 1 (rig vs frame, ảnh docs/reference/character-v3/rig-down/compare-*.png): idle 8,7 ĐẠT, walk 7,7, chém 7,4 (mượt 9,0 vs 8,0; lực 6,8 vs 8,6; búp bê giấy 7,2 vs 9,0; khớp thiết kế 8,3 vs 9,2).
+  Sửa: đùi ±21°, gối bước 32°, hông -3,0/+2,5, thân ±2,5°; giơ kiếm cực đại 90 ms rồi chém 30 ms, thân +16° impact / +20° follow; kiếm không quay vòng, cổ tay -10..+15°, áo choàng biên 50 ms sau impact (bên ±8°, giữa ±4°).
+Vòng 2 (compare-*-r2.png): walk 8,2, chém 8,0. Sửa: đùi ±19°, hông dịch ngang ±2 px, khoá chân trụ 80-180 ms mỗi nửa chu kỳ; thân nghiêng trước 5° lúc 120 ms + vai kiếm dịch 4 px theo hướng chém, hồi trong 120 ms; giữ follow-through thêm 35 ms, hồi mạnh từ 275 ms.
+Vòng 3 cuối (compare-*-r3.png, compare-rig-vs-frames-30fps-r3.gif): walk 8,6 ĐẠT, chém 8,5 ĐẠT, idle 8,7 ĐẠT. "CHỐT thử nghiệm."
+Kết luận của chat: rig hợp Storybook Heroes ở idle / walk nhưng chưa vượt frame vẽ tay về lực chiến đấu => HYBRID: rig cho chuyển động thường + cưỡi pet, frame vẽ tay cho đòn đánh / skill quan trọng; chưa chuyển cả 5 hướng x 5 class.

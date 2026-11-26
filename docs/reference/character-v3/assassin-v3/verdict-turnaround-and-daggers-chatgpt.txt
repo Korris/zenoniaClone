@@ -1,0 +1,4 @@
+Chat Tay https://chatgpt.com/c/6b0793cc-1c50-83ec-a7cc-437a611341b7 (26/11 ~09:20)
+Turnaround chatgpt-1 (src/assassin-v3/turnaround-assassin-v3-chatgpt-1.png, prompt prompt-turn.json): art direction 9,3 / nhận diện class 9,5 / tỉ lệ so Knight (ước lượng mắt) 8,8 / TỔNG 9,2 DUYỆT.
+Dao găm chatgpt-1 (src/assassin-v3/weapons-assassin-daggers-v3-chatgpt-1.png; 2 dao rời, dựng đứng mũi lên, nền #00FF00; trái ảnh = dao tay phải): khớp turnaround 8,8 (lưỡi + chắn tay hơi khác) / tạo hình 9,2 / dùng làm lớp vũ khí 9,5 / TỔNG 9,2 DUYỆT. Gợi ý: tool scale dài dao ~45 % chiều cao Rogue, pivot giữa tay nắm chuôi.
+Prompt dao: "vẽ mới hoàn toàn từ đầu lớp VŨ KHÍ riêng ... đúng 2 dao găm của Rogue trong bản turnaround (giữ y thiết kế), mỗi dao RỜI, dựng thẳng MŨI LÊN, chuôi xuống, không tay, không người; dao tay phải bên trái ảnh ...; dài ~45 % chiều cao người; nền #00FF00, không chữ / bóng / caro, viền nâu đậm, sáng trên-trái."

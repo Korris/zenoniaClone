@@ -28,6 +28,8 @@ namespace ZenoniaProto.EditorTools
 
         public static void BuildWindows()
         {
+            // Resizable / maximisable window (user 25/11: blurry hero in windowed mode: test runs leave a 1280x720 window saved, which could not be enlarged).
+            PlayerSettings.resizableWindow = true;
             int code = Build(BuildTarget.StandaloneWindows64, OutputArg(Path.Combine("Build", "Zenonia.exe")));
             EditorApplication.Exit(code);
         }

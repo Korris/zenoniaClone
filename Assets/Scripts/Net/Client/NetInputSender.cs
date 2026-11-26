@@ -1,5 +1,6 @@
 using LiteNetLib;
 using LiteNetLib.Utils;
+using UnityEngine;
 using ZenoniaProto.Net;
 
 namespace ZenoniaProto
@@ -18,6 +19,8 @@ namespace ZenoniaProto
         readonly NetStats stats;
         readonly NetLinkSimulator link;
         float timer;
+        readonly NetDataWriter hintW = new NetDataWriter();
+        ushort hintSent;   // the aim hint the server has (0 = none)
         byte epoch;
         bool muted;
 
@@ -30,6 +33,7 @@ namespace ZenoniaProto
         {
             epoch = newEpoch;
             muted = true;
+            hintSent = 0; // the server clears its hint with the zone change
             timer = 0f;
             redundancy.Clear();
         }
@@ -44,17 +48,32 @@ namespace ZenoniaProto
         }
 
         /// <summary>Stamps the sim step's input bits with a sequence number and sends the packet. Returns the stamped frame.</summary>
-        public InputFrame Push(ushort bits)
+        public InputFrame Push(ushort bits) { return Push(bits, false, Vector2.zero); }
+
+        /// <summary>Same, with the Ground skill point of the frame's skill press (protocol 38).</summary>
+        public InputFrame Push(ushort bits, bool hasAim, Vector2 aim)
         {
             if (muted) return new InputFrame { Seq = redundancy.NextSeq, Bits = 0 }; // fading between maps: not a frame of either zone
-            InputFrame f = redundancy.Push(bits);
+            InputFrame f = redundancy.Push(bits, hasAim, aim.x, aim.y);
             if (Peer == null || Peer.ConnectionState != ConnectionState.Connected) return f;
+            SendAimHint();
             int n = redundancy.Fill(frames);
             NetMessageWriter.Input(w, epoch, (ushort)Ack, frames, n);
             if (link != null) link.Send(Peer, w, DeliveryMethod.Unreliable, NetClient.ClientMs);
             else Peer.Send(w, NetProtocol.ChannelUnreliable, DeliveryMethod.Unreliable);
             stats.Add("inputPacketsSent", 1);
             return f;
+        }
+
+        /// <summary>Tells the server which monster the player clicked (ClickMove) when that changes, so its bolts aim where the client's do (reliable, ~5 B per change).</summary>
+        void SendAimHint()
+        {
+            Monster m = ClickMove.Target;
+            ushort id = m != null && !m.IsDying ? m.NetId : (ushort)0;
+            if (id == hintSent) return;
+            hintSent = id;
+            new AimHintMsg { Epoch = epoch, MonsterId = id }.Write(hintW);
+            Peer.Send(hintW, NetProtocol.ChannelReliable, DeliveryMethod.ReliableOrdered);
         }
 
         /// <summary>Every frame: releases delayed packets (simulator) and, when the hero does not predict, produces the frames itself.</summary>
@@ -65,7 +84,7 @@ namespace ZenoniaProto
             sampler.Poll();
             timer += dt;
             int n = 0;
-            while (timer >= HeroController.FixedDt && n++ < 4) { timer -= HeroController.FixedDt; Push(sampler.Take()); }
+            while (timer >= HeroController.FixedDt && n++ < 4) { timer -= HeroController.FixedDt; ushort b = sampler.Take(); Push(b, sampler.LastHasAim, sampler.LastAim); }
             if (timer >= HeroController.FixedDt) timer = 0f;
         }
     }

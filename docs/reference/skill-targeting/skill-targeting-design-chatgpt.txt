@@ -1,0 +1,359 @@
+Tôi đề xuất Asteria dùng hệ thống Smart Ground Targeting kiểu Ragnarok Origin: những skill tạo vùng sát thương lớn, mưa tên, thiên thạch, hồi máu hoặc đặt công trình sẽ cho người chơi chọn vị trí. Skill chém, bắn đạn, combo cận chiến vẫn dùng ngay, không bắt chọn vòng.
+Mục tiêu là tăng chiều sâu chiến đấu mà không làm game chậm hoặc biến 8 nút skill thành 8 lần ngắm thủ công.
+Ảnh Arrow Rain hiện tại cho thấy vòng phép xanh đã khá hợp phong cách game, nhưng vòng này đang là hiệu ứng sau khi cast, chưa phải vùng xem trước để người chơi quyết định nơi thả kỹ năng. Tôi sẽ tách hai phần này thành hai lớp riêng biệt.
+A. Skill nào nên chuyển sang chọn vị trí?
+Tôi chọn 12 skill bắt buộc hỗ trợ chọn điểm, trong đó 10 skill chọn tâm vùng, một skill đặt trụ và một skill chọn điểm đáp xuống. Đồng thời có 3 skill chọn mục tiêu đồng minh/địch bằng smart-target, không cần vòng đất.
+1. Bảng 12 skill chọn vị trí
+Đơn vị: 1 ô = 16 px thế giới. R là bán kính vùng tác dụng; Range là khoảng cách tối đa từ nhân vật đến tâm được chọn, không phải mép ngoài.
+Class
+ | 
+Skill
+ | 
+Range tối đa
+ | 
+Vùng hiển thị
+ | 
+Cách hoạt động
+Warrior
+ | 
+Earth Break
+ | 
+3,0 ô
+ | 
+Tròn R3,4
+ | 
+Kiếm rơi vào tâm được chọn thay vì cố định trước mặt
+Warrior
+ | 
+Inferno Crash
+ | 
+4,0 ô
+ | 
+Tròn R3,0
+ | 
+Nhảy đến điểm chọn rồi nổ, kiểm tra điểm đáp hợp lệ
+Wizard
+ | 
+Ice Storm
+ | 
+5,5 ô
+ | 
+Tròn R2,75
+ | 
+Bốn đợt băng đánh vào vùng chỉ định
+Wizard
+ | 
+Elemental Burst
+ | 
+5,5 ô
+ | 
+Tròn R2,5
+ | 
+Nổ phép tại điểm chọn
+Wizard
+ | 
+Astral Cataclysm
+ | 
+6,5 ô
+ | 
+Tròn R4,0
+ | 
+Tám thiên thạch rải quanh tâm chọn
+Mechanic
+ | 
+Deploy Turret
+ | 
+4,0 ô
+ | 
+Vòng đặt trụ R0,65
+ | 
+Đặt tháp tại điểm chọn, không đặt dưới chân nữa
+Mechanic
+ | 
+Orbital Cannon
+ | 
+7,0 ô
+ | 
+Tròn R4,0
+ | 
+Sáu đợt pháo từ trên cao đánh quanh điểm chọn
+Cleric
+ | 
+Divine Light
+ | 
+5,0 ô
+ | 
+Tròn R2,0
+ | 
+Sát thương và hồi máu quanh tâm chọn
+Cleric
+ | 
+Sanctuary
+ | 
+5,0 ô
+ | 
+Tròn R3,0
+ | 
+Tạo vùng hồi máu tồn tại 8 giây
+Archer
+ | 
+Arrow Rain
+ | 
+7,0 ô
+ | 
+Tròn R2,5
+ | 
+Tám mũi tên rơi quanh tâm chọn
+Archer
+ | 
+Starfall Volley
+ | 
+7,5 ô
+ | 
+Tròn R3,5
+ | 
+Mười mũi tên thiên thể rơi quanh tâm chọn
+Fighter
+ | 
+Dragon Fist
+ | 
+4,0 ô
+ | 
+Tròn R3,0
+ | 
+Nhảy tới điểm chọn rồi gây choáng diện rộng
+Đây là thông số đề xuất cho bản thử nghiệm, không phải số liệu hiện hữu. Với Inferno Crash, Dragon Fist, nên giữ khoảng cách nhảy tối đa hiện tại 4 ô.
+Điểm đặc biệt: Earth Break, Arrow Rain và Starfall Volley phải có khả năng đánh vào vị trí không có quái, vì đó mới là lợi thế chiến thuật của Ground Targeting.
+2. Những skill KHÔNG cần chọn điểm
+Class
+ | 
+Giữ cách nhắm hiện tại
+ | 
+Ghi chú
+Warrior
+ | 
+Power Slash, Whirlwind, Flame Cleave, Charging Strike, Blade Cyclone, Berserker Awakening
+ | 
+Charging Strike có thể thêm chỉ thị đường lướt khi giữ nút, nhưng không bắt chọn điểm
+Wizard
+ | 
+Arcane Bolt, Fireball, Arcane Lance, Mana Shield, Frost Nova
+ | 
+Đạn tự ngắm mục tiêu; Frost Nova quanh người
+Mechanic
+ | 
+Power Shot, Plasma Barrage, Rocket Barrage, Target Lock, Rocket Punch, EMP Burst
+ | 
+Rocket Barrage vẫn là loạt tên lửa hình quạt, tránh trùng với Orbital Cannon
+Assassin
+ | 
+Shadow Strike, Shadow Step, Blade Dance, Phantom Rush, Venom Daggers, Shadow Clone, Death Mark, Nightfall Execution
+ | 
+Giữ combat nhanh, không mở vòng đất
+Cleric
+ | 
+Spirit Blessing, Divine Aegis, Guardian Spirit, Purification, Divine Ascension
+ | 
+Buff/hồi máu quanh người dùng ngay
+Fighter
+ | 
+Dash Punch, Iron Fist, Ground Slam, Rapid Jabs, Shockwave, Tiger Rush, Iron Body
+ | 
+Giữ nhịp cận chiến nhanh
+Archer
+ | 
+Piercing Arrow, Multi Shot, Eagle Eye, Binding Shot, Wind Step, Hunter's Focus
+ | 
+Giữ cảm giác bắn cung liên tục
+Ba kỹ năng chọn mục tiêu thay vì chọn mặt đất:
+Cleric Heal: tự chọn đồng minh thấp HP nhất trong 6 ô; cho phép click/tap đồng minh để ưu tiên một người.
+Assassin Shadow Step: chọn quái trong 6 ô; khi không khóa mục tiêu, tự chọn mục tiêu gần nhất hợp lệ.
+Assassin Death Mark: tương tự trong 6 ô; hỗ trợ khóa mục tiêu từ trước.
+Riêng Charging Strike, Dash Punch và Wind Step, tôi không đưa vào nhóm Ground Targeting để tránh làm mất cảm giác phản xạ nhanh.
+B. Cách sử dụng trên PC và mobile
+1. PC: một lần ngắm, một lần xác nhận
+Điều khiển mặc định:
+Thao tác
+ | 
+Kết quả
+Bấm 1–8 vào skill chọn vị trí
+ | 
+Hiện vòng preview và con trỏ
+Di chuyển chuột
+ | 
+Vòng đi theo vị trí trên mặt đất
+Click trái
+ | 
+Xác nhận cast
+Click phải hoặc Esc
+ | 
+Hủy, không tốn MP/cooldown
+Bấm lại cùng phím skill
+ | 
+Hủy ngắm
+Bấm phím skill khác
+ | 
+Chuyển sang skill mới, không tự cast skill cũ
+Khi vừa bấm skill, vòng không xuất hiện ở một vị trí ngẫu nhiên. Tôi đề xuất thứ tự chọn tâm ban đầu:
+Mục tiêu đang khóa, nếu trong tầm.
+Nếu chưa khóa: cụm quái tốt nhất trong tầm.
+Nếu không có quái: vị trí trước mặt theo khoảng cách cast mặc định cũ, giới hạn bởi Range mới.
+Như vậy người chơi có thể bấm skill, nhìn nhanh vị trí, rồi click xác nhận.
+2. Quick Cast trên PC
+Nên có tùy chọn riêng trong Settings:
+Chế độ
+ | 
+Hành vi
+Normal Cast — mặc định
+ | 
+Bấm skill → hiện vòng → click xác nhận
+Quick Cast
+ | 
+Bấm skill → hiện vòng tại vị trí chuột hợp lệ và cast ngay
+Release Cast
+ | 
+Giữ phím → hiện vòng; thả phím → cast
+Tôi khuyên để Normal Cast mặc định cho người mới, Quick Cast dành cho người chơi đã quen.
+Release Cast là tính năng tốt nhưng không bắt buộc làm trong bản đầu.
+3. Mobile: giữ và kéo trên nút skill
+Đây là phần quan trọng nhất vì Asteria có joystick trái và hàng skill bên phải.
+Chạm nhanh skill
+Smart Cast: lập tức thi triển vào mục tiêu hoặc cụm quái tốt nhất trong tầm. Không mở bước xác nhận.
+Giữ và kéo skill
+Giữ khoảng 150 ms để mở ngắm thủ công. Kéo ngón tay, vòng di chuyển tương ứng trên mặt đất. Thả tay để thi triển.
+Thông số UX mobile đề xuất:
+Giữ từ 150 ms: kích hoạt manual aiming.
+Drag tối thiểu 10–12 px màn hình: nhận diện kéo, kể cả chưa đủ 150 ms.
+Dùng relative drag: ngón tay kéo 1 hướng, vòng di chuyển tương ứng, không bắt người chơi kéo ngón tay tới đúng vị trí trên mặt đất.
+Hệ số kéo bắt đầu khoảng 1,0–1,3, sau đó hiệu chỉnh theo camera/zoom.
+Khi đang ngắm, xuất hiện nút X hủy phía trên hoặc cạnh cụm skill.
+Kéo ngón tay vào nút X rồi thả: hủy.
+Trong khi ngắm, joystick trái vẫn được điều khiển nếu người chơi dùng hai tay.
+Chốt: Mobile không nên bắt người chơi chạm skill rồi chạm thêm vào mặt đất mỗi lần. Chạm nhanh để cast, giữ-kéo để ngắm sẽ thuận tiện hơn.
+C. Thiết kế vòng chọn vị trí — RO Soft Adventure
+Tôi không muốn dùng vòng neon xanh lá dày như hiệu ứng Arrow Rain hiện nay để làm preview. Nó sẽ làm người chơi tưởng rằng kỹ năng đã được kích hoạt.
+Thiết kế mới nên là Magic Target Ring V1, nhẹ, trong suốt, viền fantasy ấm, phù hợp các vòng phép RO.
+Concept cấu trúc: viền đôi, tâm ngắm, 8 dấu rune nhẹ và nền trong suốt
+Có thể cast
+#69C9BF
+Sát giới hạn
+#E5BA5D
+Không hợp lệ
+#E76B67
+Các thành phần của vòng
+Thành phần
+ | 
+Thiết kế
+Viền ngoài
+ | 
+Teal nhạt #69C9BF, alpha 0,75, bề dày thế giới khoảng 0,045 ô
+Viền trong
+ | 
+Kem vàng #F3DFAD, alpha 0,40, nét mảnh
+Mặt vùng
+ | 
+Teal nhạt, alpha 0,07–0,11
+Rune
+ | 
+8 dấu nhỏ kiểu sao/cánh hoa, alpha 0,35
+Tâm ngắm
+ | 
+Ngôi sao 4 cánh kem sáng, rộng 0,4 ô
+Animation
+ | 
+Vòng thở alpha ±0,08 theo chu kỳ 1,2 s, rune xoay rất chậm
+Vòng không hợp lệ
+ | 
+Đỏ san hô, alpha 0,65, dấu X nhỏ tại tâm
+Quan trọng: hình trên chỉ minh họa cấu trúc. Trong Unity, vòng cần được chiếu lên mặt đất, không dùng nguyên hình elip cố định trên UI. Camera 2.5D ở 58° sẽ tự tạo hình elip trên màn hình; khi xoay camera, vòng vẫn đúng tâm và đúng bán kính thế giới.
+Cần 3 loại indicator, không phải 12 loại
+Area Circle
+AoE đặt vị trí
+Placement
+Đặt tháp, trụ
+Leap Impact
+Nhảy và đáp đất
+Area Circle: 9 skill vùng gồm Arrow Rain, Starfall Volley, Sanctuary, Ice Storm, Earth Break và các kỹ năng tương tự.
+Placement: Deploy Turret; hiển thị thêm bóng chân công trình.
+Leap Impact: Inferno Crash và Dragon Fist; thêm đường nét đứt từ nhân vật đến điểm đáp.
+Có thể dùng chung một texture vòng, điều chỉnh size và màu theo loại skill. Không cần vẽ 12 vòng riêng.
+D. Các quy tắc kỹ thuật phải chốt trước khi lập trình
+1. Tầm cast không phải bán kính AoE
+Ví dụ Arrow Rain:
+Arrow Rain
+Ví dụ
+Range chọn tâm
+7 ô
+112 px thế giới
+Bán kính mưa tên
+2,5 ô
+40 px thế giới
+Người chơi được chọn tâm trong phạm vi 7 ô, nhưng mưa tên vẫn đánh trúng mục tiêu ở rìa vòng. Tức là giới hạn xa nhất từ nhân vật tới mép vùng có thể đạt 9,5 ô, không có nghĩa được đặt tâm tận 9,5 ô.
+Với Astral Cataclysm, Orbital Cannon và Starfall Volley, vòng preview biểu thị vùng rải tâm các phát, không phải hình tròn bảo đảm mọi điểm đều trúng đòn. Mỗi phát còn có bán kính nổ riêng. Có thể thêm vùng ngoài mờ R1,5 để báo phạm vi nổ tối đa, nhưng không hiển thị như một vùng chắc chắn gây sát thương.
+2. Vòng không được tự nhảy vị trí khi đang ngắm
+Nếu con trỏ vượt Range: giới hạn tâm tại mép Range, vẽ đường mảnh từ nhân vật đến tâm.
+Nếu tâm nằm trong tường/nước hoặc vùng cấm: báo đỏ.
+Với mưa phép, có thể cho phép đặt lên vị trí không đi bộ được nếu vùng đó không chặn phép; đây là quy tắc riêng của từng skill.
+Với nhảy/đặt tháp: chỉ cho phép chọn vị trí hợp lệ trên navigation map.
+Khi người chơi đổi hướng hoặc camera xoay, tâm đã chọn không đổi tọa độ thế giới.
+Dùng collider/surface height hoặc mặt phẳng gameplay tương ứng; tuyệt đối không cho vòng trôi theo màn hình.
+3. Auto Battle
+Auto Battle không mở vòng preview và không chờ xác nhận.
+AI tự tính vị trí:
+Loại skill
+ | 
+Quy tắc Auto
+AoE sát thương
+ | 
+Chọn tâm đánh được nhiều quái nhất, có trọng số ưu tiên boss và mục tiêu đang đánh
+Sanctuary
+ | 
+Chọn tâm bao phủ nhiều đồng minh cần hồi máu; ưu tiên đồng minh ít HP
+Divine Light
+ | 
+Cân bằng cả sát thương địch và hồi máu đồng minh
+Deploy Turret
+ | 
+Chọn vị trí hợp lệ gần cụm quái nhưng tránh nơi chắn đường
+Leap Impact
+ | 
+Chọn điểm đáp hợp lệ, ưu tiên trúng nhiều quái và không lao vào nguy hiểm quá lớn
+Để tránh Auto Battle làm yếu các skill AoE, server nên xác nhận mục tiêu dựa trên dữ liệu combat hiện tại, còn client chỉ đề xuất điểm cast. Đừng tin hoàn toàn tọa độ do client gửi.
+4. Timing
+Sự kiện
+ | 
+Đề xuất
+Mở preview
+ | 
+0–80 ms, fade in
+Kéo vòng
+ | 
+Theo input mỗi frame; không nội suy trễ tâm ngắm
+Xác nhận cast
+ | 
+Vòng co về 92% trong 90 ms rồi biến mất
+Hiệu ứng skill
+ | 
+Bắt đầu theo animation hiện tại
+Hủy cast
+ | 
+Fade out 80 ms, không mất MP/cooldown
+Nếu bị choáng khi đang ngắm
+ | 
+Hủy preview
+Đứng ngắm quá lâu
+ | 
+Tự hủy sau 8 giây, tùy chỉnh được
+Không thay các mốc gây sát thương và animation đã có. Chỉ thêm bước chọn vị trí trước khi vào trạng thái cast.
+E. Quyết định cuối cùng
+Tôi chốt cho Asteria V1:
+12 skill hỗ trợ chọn vị trí theo bảng.
+PC: bấm skill → click chọn chỗ; tùy chọn Quick Cast.
+Mobile: chạm nhanh Smart Cast, giữ-kéo-thả để ngắm.
+Auto Battle: chọn vùng tốt nhất bằng AI, không hiện vòng.
+Chỉ cần 3 loại visual indicator: Area Circle, Placement và Leap Impact, dùng chung ngôn ngữ hình ảnh teal + kem vàng.
+Khi vẽ asset ở bước tiếp theo, tôi đề xuất làm một sheet gồm vòng AoE chính, vòng đặt công trình, tâm ngắm, dấu rune, vòng đỏ không hợp lệ, đường chỉ hướng nhảy trên nền #FF00FF. Phần bán kính, độ trong suốt và animation nên xử lý trong Unity, để một bộ asset dùng được cho tất cả class.
+Đây là thay đổi đáng làm: người chơi sẽ thực sự chọn chiến trường, đặc biệt với Arrow Rain, Sanctuary, Orbital Cannon và các ultimate, trong khi những đòn đánh nhanh vẫn giữ đúng nhịp hành động Zenonia/RO của Asteria.
+ChatGPT can make mistakes. Check important info.
+Latest response
+6 Medium

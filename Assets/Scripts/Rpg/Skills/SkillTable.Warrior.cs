@@ -15,7 +15,7 @@ namespace ZenoniaProto.Rpg
                        SlashArc(55f, 135, hits: 5, intervalMs: 45), SlashArc(100f, 365), SlashArc(180f, 440, finisher: true))),
                 Def(C, 1, "Whirlwind", 8, 18, 8f, SkillTargeting.AroundSelf, Fx(Strike(AreaShape.Circle, 100f, radius: 2.5f, hits: 3, intervalMs: 250)), Req(0, 3), lockMs: 750),
                 // Hand-made timeline: EarthBreakUltimate (Multi-Hit Barrage: 8 sweep hits + 100 % + the 300 % slam = 880 %, then 4 burns of 20 %; LegacySkillNumbers).
-                Def(C, 2, "Earth Break", 15, 26, 12f, SkillTargeting.Facing, NoFx(), Req(0, 5), lockMs: (int)LegacySkillNumbers.EarthBreakSlamMs, legacy: LegacySkill.EarthBreak),
+                Def(C, 2, "Earth Break", 15, 26, 12f, SkillTargeting.Ground, NoFx(), Req(0, 5), lockMs: (int)LegacySkillNumbers.EarthBreakSlamMs, legacy: LegacySkill.EarthBreak, castRange: 3f), // Ground (ChatGPT 26/11): the sword falls on the chosen point
                 Def(C, 3, "Flame Cleave", 20, 22, 10f, SkillTargeting.Facing, Fx(Strike(AreaShape.Arc, 300f, radius: 3f, angle: 140f, status: burn)), Req(1, 3), lockMs: 450),
                 Def(C, 4, "Charging Strike", 26, 24, 12f, SkillTargeting.Facing,
                     Fx(Move(MotionKind.Dash, 5f, 250), Strike(AreaShape.Line, 300f, length: 5f, width: 2f, atMs: 250)), Req(2, 3)),
@@ -23,9 +23,9 @@ namespace ZenoniaProto.Rpg
                 Def(C, 5, "Blade Cyclone", 32, 40, 12f, SkillTargeting.AroundSelf, NoFx(), Req(1, 5), lockMs: 450, legacy: LegacySkill.BladeCyclone),
                 // Multi-Hit Barrage (ChatGPT V3): lands at 400, 13 x 50 % every 35 ms from 450, 140 % at 940, the 350 % finisher at 1100 = 1140 %.
                 // Effect 0 stays the leap (InfernoCrashUltimate reads its MoveTiles); burn rides the small hits (re-applying only refreshes it).
-                Def(C, 6, "Inferno Crash", 40, 40, 22f, SkillTargeting.Facing,
+                Def(C, 6, "Inferno Crash", 40, 40, 22f, SkillTargeting.Ground, // Ground (ChatGPT 26/11): leaps onto the chosen point (at most MoveTiles = castRange)
                     Fx(Move(MotionKind.Leap, 4f, 400), Strike(AreaShape.Circle, 50f, radius: 3f, hits: 13, intervalMs: 35, atMs: 450, status: burn),
-                       CraterBlast(140f, 940), CraterBlast(350f, 1100, finisher: true)), Req(3, 3, 4, 3), lockMs: 700),
+                       CraterBlast(140f, 940), CraterBlast(350f, 1100, finisher: true)), Req(3, 3, 4, 3), lockMs: 700, castRange: 4f),
                 Def(C, 7, "Berserker Awakening", 50, 75, 50f, SkillTargeting.Self,
                     Fx(BuffFx(BuffKind.AtkPct, 25f, 12000), BuffFx(BuffKind.AtkSpeedPct, 15f, 12000)), Req(5, 5, 6, 5), lockMs: 600),
             };

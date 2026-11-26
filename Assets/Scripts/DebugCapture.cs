@@ -52,6 +52,7 @@ namespace ZenoniaProto
     ///                                     writes frame_00000.png... to --shot-path (a folder), then quits; encode with ffmpeg
     ///   --record-boss warrior|wizard|mechanic|assassin|cleric  12 s at 60 fps of the hero fighting the Frostfang King (god mode, skill every 4 s),
     ///                                     frames + audio.wav (game sound) to --shot-path
+    ///   --record-rig                      bone-rig TEST scene facing camera (idle, walk down, attack), frames to --shot-path; add --hero-rig (cut-out) or --hero-rig-mesh (skinned mesh) for the rig (DebugCapture.Rig.cs)
     ///   --record-party                    same, with all five classes fighting the King together (warrior is the player, the rest are AI)
     /// </summary>
     public partial class DebugCapture : MonoBehaviour
@@ -75,7 +76,7 @@ namespace ZenoniaProto
         public static bool Requested(string[] args)
         {
             if (ReleaseBuild.IsRelease) return false; // bots and captures are test tools: a player must not be able to start them from the command line
-            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-walk", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--login-shots", "--appearance-test", "--character-select-test" })
+            foreach (string flag in new[] { "--class", "--shots", "--record-ultimate", "--record-combo", "--record-walk", "--record-boss", "--record-party", "--record-choreo", "--net-bot", "--record-net", "--hero-select-test", "--record-compare", "--record-rig", "--login-shots", "--appearance-test", "--character-select-test" })
                 if (Array.IndexOf(args, flag) >= 0) return true;
             return false;
         }
@@ -324,6 +325,7 @@ namespace ZenoniaProto
             if (compareArg != null) { yield return RecordCompare(compareArg); yield break; }
             if (comboArg != null) { yield return RecordCombo(comboArg); yield break; }
             if (walkArg != null) { yield return RecordWalk(walkArg); yield break; }
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "--record-rig") >= 0) { yield return RecordRig(); yield break; } // DebugCapture.Rig.cs (bone rig TEST)
             if (bossArg != null) { yield return RecordBoss(bossArg); yield break; }
             if (choreoArg != null) { yield return RecordChoreo(choreoArg); yield break; }
             if (party) { yield return RecordParty(); yield break; }

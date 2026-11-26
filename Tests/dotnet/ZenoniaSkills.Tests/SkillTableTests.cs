@@ -7,8 +7,8 @@ public class SkillTableTests
     [Fact]
     public void EightSkillsPerClassWithUniqueIndicesAndIds()
     {
-        int expected = RpgClasses.Ids.Length * SkillDef.PerClass; // 6 classes x 8 since the Fighter (2026-11-04)
-        Assert.Equal(48, expected);
+        int expected = RpgClasses.Ids.Length * SkillDef.PerClass; // 7 classes x 8 since the Archer (2026-11-26)
+        Assert.Equal(56, expected);
         Assert.Equal(expected, SkillTable.All.Count);
         Assert.Equal(expected, SkillTable.All.Select(s => s.Id).Distinct().Count());
         foreach (string c in RpgClasses.Ids)
@@ -111,7 +111,7 @@ public class SkillTableTests
     [Fact]
     public void CastLockIsCappedButMovesFinish()
     {
-        foreach (string cls in new[] { "warrior", "wizard", "mechanic", "assassin", "cleric", "fighter" })
+        foreach (string cls in new[] { "warrior", "wizard", "mechanic", "assassin", "cleric", "fighter", "archer" })
             for (int i = 0; i < SkillDef.PerClass; i++)
             {
                 SkillDef s = SkillTable.Get(cls, i);

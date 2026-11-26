@@ -81,6 +81,12 @@ namespace ZenoniaProto.Rpg
             { "fighter.shockwave", new HitSplit(4, 75) },
             { "fighter.tiger-rush", new HitSplit(3, 60) },         // 3 hooks 160 ms apart
             { "fighter.dragon-fist", new HitSplit(7, 75) },
+            // Archer
+            { "archer.piercing-arrow", new HitSplit(3, 70) },
+            { "archer.multi-shot", new HitSplit(2, 70) },          // 5 arrows at once
+            { "archer.arrow-rain", new HitSplit(2, 60) },          // 8 arrows 120 ms apart
+            { "archer.binding-shot", new HitSplit(4, 80) },
+            { "archer.starfall-volley", new HitSplit(3, 60) },     // 10 arrows 150 ms apart
         };
 
         /// <summary>The split of a skill (DefaultSkill when the id is unknown, Basic for null).</summary>

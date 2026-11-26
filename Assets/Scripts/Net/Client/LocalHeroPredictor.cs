@@ -26,6 +26,7 @@ namespace ZenoniaProto
         readonly Rec[] history = new Rec[Ring];
         uint seq, firstSeq;       // last frame stepped / first frame this predictor ever stepped (older acks cannot be replayed)
         ushort bits;              // bits of the frame being simulated (Held / Pressed read them)
+        InputFrame current;       // the frame being simulated (its Ground skill point: CurrentAim)
         float acc, sinceStep;
         Vector2 prevSim, sim, error;
         bool started;
@@ -52,6 +53,9 @@ namespace ZenoniaProto
                 default: return false;
             }
         }
+
+        /// <summary>Ground point of the frame being simulated (null = none: the hero auto-picks, as the server will).</summary>
+        public Vector2? CurrentAim() { return current.HasAim ? new Vector2(current.AimWorldX, current.AimWorldY) : (Vector2?)null; }
 
         public bool Pressed(GameKey k)
         {
@@ -82,7 +86,8 @@ namespace ZenoniaProto
         void Step()
         {
             bits = sampler.Take();
-            InputFrame f = sender.Push(bits);
+            InputFrame f = sender.Push(bits, sampler.LastHasAim, sampler.LastAim);
+            current = f;
             seq = f.Seq;
             if (firstSeq == 0) firstSeq = seq;
             frames[seq % Ring] = f;
@@ -154,7 +159,7 @@ namespace ZenoniaProto
             {
                 for (uint f = last + 1; NetQuantize.IsNewer(seq + 1, f); f++)
                 {
-                    bits = frames[f % Ring].Bits;
+                    bits = frames[f % Ring].Bits; current = frames[f % Ring];
                     hero.PredictStep();
                     Vector2 p = hero.SimPosition;
                     history[f % Ring] = new Rec { Seq = f, X = p.x, Y = p.y, State = hero.DiscreteState() | (hero.Facing << 9) };

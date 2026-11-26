@@ -1,0 +1,22 @@
+Priest V3 (cleric) attack 8f verdicts, chat Tay https://chatgpt.com/c/6b07949f-7050-83ec-b060-9de2e90a61c0 (26/11)
+Sources: Assets/ArtLibrary/ro-fantasy-heroes/src/cleric-v3/body-cleric-attack-<dir>-8f-chatgpt-N.png
+
+ChatGPT scores (earlier agent, in chat): Down 9.2, Down-Right 9.3, Right 9.4, Up-Right 9.2 (APPROVE có điều kiện: F2-F7 mắt hơi lộ, F3 tay chưa đủ cao).
+Up (chatgpt-1): scored 10:27 by text from attached sheet: AD 9.5, animation 9.0, TỔNG 9.3 "APPROVE — KHÔNG CẦN REDO" (chân gần đứng tại chỗ, F3 tay ngang tai, F4-F5 tay hơi chếch phải: tia sáng phải bay thẳng lên trong code).
+Note: the up image is not in the visible chat thread (last visible up prompt hit the quota); file came from the earlier agent.
+
+My checks (head width / F7 height, headm.py, F2-F5 values with fist near head ignored):
+idle 3/4+Side 33.6 %, Front 33.0, Back 34.4
+attack down 31.8-32.5 (-2..-4 %), down-right 33.2-34.1 (ok), right 33.5-34.0 (ok), up-right 32.3-32.5 (-4 %), up 34.5-35.3 (ok)
+walk down 31.1-31.4 (-5 %), down-right 31.0-31.3 (-7 %), right 32.9-33.2 (ok), up-right 30.6-31.1 (-8.5 %), up 33.0-33.5 (ok)
+=> small heads are rescaled by the cut tools (WALK8_HEAD_TOL / attack8 HEAD_TOL, ro_fantasy_head_fix.scale_head, both directions); not redrawn.
+Visual: directions correct, costume consistent, flat #00FF00, no checkerboard, no weapon drawn, strike hand = character right hand.
+Minor: attack up-right F2-F6 a small dark-green smudge beside the ear/fist (despeck should take it; check after cut).
+
+LEFT DIRECTIONS (drawn 10:54-11:10, same chat, prompts in prompts-attack8-left-dirs.txt):
+- Up-Left chatgpt-1: REJECTED (mine): F3 raises screen-right arm, F4-F7 the screen-LEFT arm strikes (hand switch). Kept as rejected-attack-up-left-8f-chatgpt-1-hand-switch.png.
+- Up-Left chatgpt-2: ChatGPT 8.6 but REDO by itself: arm still reads as from left shoulder, F7 three arms. Kept as rejected-attack-up-left-8f-chatgpt-2-three-arms.png.
+- Up-Left chatgpt-3 (FINAL, src/cleric-v3/body-cleric-attack-up-left-8f-chatgpt-3.png): re-prompted "use the approved Up attack, only rotate to 3/4 Back left; striking arm = screen-right arm, thrust UP above the right side of the head, never across the back". ChatGPT AD 9.5 / anim 9.1 / TỔNG 9.3, hand consistency 10. My check: screen-right arm all F2-F7, screen-left fist low, two arms every frame.
+- Left chatgpt-1 (FINAL): ChatGPT 9.5 / 9.3 / TỔNG 9.4. My check: far arm (character right) strikes forward-left in front of chest, near fist at hip all 8 frames.
+- Down-Left chatgpt-1 (FINAL): ChatGPT 9.5 / 9.4 / TỔNG 9.5. My check: screen-left arm strikes, screen-right fist at hip all 8 frames.
+Head width / F7 height: up-left 32.3-32.8 %, left 32.6 %, down-left 31.6-32.5 % (idle 33.6 %: -3..-6 %, rescaled by the cut tool).

@@ -39,6 +39,13 @@ namespace ZenoniaProto
 
         /// <summary>A walk-through prop drawn on the ground (under heroes): low decoration, and every walk-through bridge whatever its height
         /// (a 4-wide bridge over a 3-row stream is drawn deeper than 3 tiles, Taurus 24/11/2026).</summary>
+        /// <summary>Segments that butt together into one long wall: drawn on fixed south-facing cards (View25DDirectionalProps with one view).</summary>
+        static bool IsWallRun(string type) { return type.StartsWith("tauTerraceWall", System.StringComparison.Ordinal) || type == "tauWallLeft" || type == "tauWallRight" || IsClimbStairs(type); }
+
+        /// <summary>Stairs up a raised terrace (26/11, user: "cầu thang nhìn không có độ dốc" when it lay flat): it stands on a fixed card leaning like the
+        /// wall, from the plaza up to the wall top, but draws UNDER every unit (ground band) so a hero climbing it is drawn on the steps, and never fades.</summary>
+        static bool IsClimbStairs(string type) { return type.IndexOf("TerraceStairs", System.StringComparison.Ordinal) >= 0; }
+
         public static bool LiesFlat(string type, PropDef d)
         {
             return d.FootH == 0 && (d.H <= FlatDecorMaxTiles || type.IndexOf("Bridge", System.StringComparison.Ordinal) >= 0);
@@ -55,7 +62,11 @@ namespace ZenoniaProto
             SpriteRenderer sr = ProceduralSprites.Child(parent, p.Type, s != null ? s : ProceduralSprites.White(false));
             // Low walk-through decoration (bushes, small rocks, stumps, bones...) lies on the ground: under every hero and monster, never y-sorted over them.
             // Tall walk-through art (the Willowbrook palisade, reeds) keeps the y-sort so the hero can pass behind it.
-            sr.sortingOrder = LiesFlat(p.Type, d) ? GameConfig.GroundOrder + 4 : GameConfig.OrderBase(y);
+            Sprite[] views = Map3D.Active && View25D.Active && s != null ? View25DDirectionalProps.Views(p.Type) : null; // multi-view art: stands and turns like a hero
+            // wall runs (the raised terrace's retaining wall, the town wall either side of the gate): one fixed card facing south instead of a billboard
+            // per segment, so a turned camera sees a straight wall, not a saw of separately turned pieces (26/11)
+            if (views == null && View25D.Active && s != null && IsWallRun(p.Type)) views = new[] { s };
+            sr.sortingOrder = IsClimbStairs(p.Type) && View25D.Active ? GameConfig.GroundOrder + 5 : LiesFlat(p.Type, d) && views == null ? GameConfig.GroundOrder + 4 : GameConfig.OrderBase(y);
             if (s != null)
             {
                 sr.transform.position = new Vector3(x, y, 0f);
@@ -63,6 +74,8 @@ namespace ZenoniaProto
                 {
                     View25D.StandProp(sr); // --view25d: tall props stand up at their foot line
                     if (Map3D.Active) Map3DProps.MakeCutout(sr); // 3D map: cutout, real shadows in and out
+                    if (views != null) View25DDirectionalProps.Register(sr, views);
+                    if (IsClimbStairs(p.Type)) View25DPropFade.Unregister(sr); // under the hero anyway: never thinned while he climbs
                 }
                 else
                 {

@@ -60,7 +60,7 @@ namespace ZenoniaProto
         {
             Zone zone = Zone.Main;
             if (!ctx.Authority || zone == null || ctx.Body.Hero == null) return;
-            DeployedTurret t = Create(ctx.Body.Hero.transform.parent, zone, ctx.Body.Hero.NetId, ctx.Feet, ctx.Dir.x > 0f, e.DurationMs);
+            DeployedTurret t = Create(ctx.Body.Hero.transform.parent, zone, ctx.Body.Hero.NetId, ctx.Ground ?? ctx.Feet, ctx.Dir.x > 0f, e.DurationMs);
             t.ctx = ctx; t.fx = e;
             t.clock = new TurretClock(e.DurationMs, e.IntervalMs, TurretConfig.FirstShotMs);
             t.NetId = zone.Ids.Alloc(t);

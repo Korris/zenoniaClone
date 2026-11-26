@@ -1,0 +1,96 @@
+{
+ "source": "docs/reference/skill-targeting/skill-target-indicator-sheet-chatgpt-1.png",
+ "pieces": {
+  "area-ring": {
+   "size": 424,
+   "w": 414,
+   "h": 401,
+   "bandPx": 191.0
+  },
+  "placement-ring": {
+   "size": 408,
+   "w": 395,
+   "h": 380,
+   "bandPx": 190.5
+  },
+  "invalid-ring": {
+   "size": 424,
+   "w": 412,
+   "h": 403,
+   "bandPx": 190.5
+  },
+  "range-ring": {
+   "size": 320,
+   "w": 313,
+   "h": 295,
+   "bandPx": 140.0
+  },
+  "leap-ring": {
+   "size": 360,
+   "w": 351,
+   "h": 319,
+   "bandPx": 140.5
+  },
+  "turret-ring": {
+   "size": 216,
+   "w": 203,
+   "h": 197,
+   "bandPx": 91.0
+  },
+  "reticle": {
+   "size": 216,
+   "w": 207,
+   "h": 199
+  },
+  "rune-flower": {
+   "size": 128,
+   "w": 119,
+   "h": 99
+  },
+  "rune-leaf": {
+   "size": 80,
+   "w": 71,
+   "h": 69
+  },
+  "rune-star": {
+   "size": 104,
+   "w": 92,
+   "h": 87
+  },
+  "rune-wind": {
+   "size": 112,
+   "w": 104,
+   "h": 78
+  },
+  "rune-diamond": {
+   "size": 144,
+   "w": 134,
+   "h": 85
+  },
+  "rune-sprout": {
+   "size": 104,
+   "w": 90,
+   "h": 67
+  },
+  "rune-sparkle": {
+   "size": 112,
+   "w": 103,
+   "h": 93
+  },
+  "rune-lotus": {
+   "size": 120,
+   "w": 110,
+   "h": 86
+  },
+  "leap-path": {
+   "size": 752,
+   "w": 741,
+   "h": 87
+  },
+  "direction-arrow": {
+   "size": 128,
+   "w": 108,
+   "h": 117
+  }
+ }
+}

@@ -1,0 +1,170 @@
+{
+ "source": "Assets/ArtLibrary/ui/hero-select-ro/src/hero-select-ro-kit-a-chatgpt-1.png",
+ "key": "#FF00FF",
+ "key_mode": "all",
+ "out": "Assets/Resources/Sprites/ui/hero-select-ro/",
+ "borders_file": "Tools/ui-ro-soft-sheets/ro-soft-borders.json",
+ "contact_dir": "docs/reference/hero-select-ro-adventure/art-contact",
+ "ui_meta": true,
+ "box_hides_blobs": true,
+ "rim_from_body": 2,
+ "flatten_edges": 6,
+ "rows": [
+  [
+   {
+    "name": "logo",
+    "box": [
+     62,
+     10,
+     562,
+     212
+    ]
+   },
+   {
+    "name": "title-banner",
+    "box": [
+     584,
+     26,
+     1478,
+     201
+    ]
+   }
+  ],
+  [
+   {
+    "name": "pedestal",
+    "box": [
+     62,
+     214,
+     562,
+     411
+    ]
+   },
+   {
+    "name": "name-plate",
+    "box": [
+     646,
+     223,
+     1064,
+     302
+    ],
+    "border": [
+     48,
+     12,
+     48,
+     12
+    ]
+   },
+   {
+    "name": "name-plate-selected",
+    "box": [
+     646,
+     308,
+     1064,
+     401
+    ],
+    "border": [
+     56,
+     18,
+     56,
+     18
+    ]
+   },
+   {
+    "name": "picked-ring",
+    "box": [
+     1172,
+     275,
+     1527,
+     412
+    ]
+   }
+  ],
+  [
+   {
+    "name": "info-panel",
+    "box": [
+     28,
+     436,
+     636,
+     907
+    ],
+    "border": [
+     64,
+     64,
+     64,
+     64
+    ]
+   },
+   {
+    "name": "portrait-frame",
+    "box": [
+     674,
+     433,
+     865,
+     619
+    ],
+    "border": [
+     44,
+     44,
+     44,
+     44
+    ]
+   },
+   {
+    "name": "skill-panel",
+    "box": [
+     923,
+     436,
+     1434,
+     614
+    ]
+   },
+   {
+    "name": "preview-frame",
+    "box": [
+     676,
+     635,
+     1180,
+     906
+    ],
+    "border": [
+     48,
+     48,
+     48,
+     48
+    ]
+   },
+   {
+    "name": "btn-next",
+    "box": [
+     1220,
+     661,
+     1648,
+     778
+    ],
+    "border": [
+     64,
+     24,
+     64,
+     24
+    ]
+   },
+   {
+    "name": "btn-back",
+    "box": [
+     1235,
+     802,
+     1633,
+     894
+    ],
+    "border": [
+     46,
+     44,
+     46,
+     44
+    ]
+   }
+  ]
+ ]
+}

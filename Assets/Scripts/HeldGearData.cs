@@ -30,6 +30,7 @@ namespace ZenoniaProto
         /// <summary>Loads Resources/Data/&lt;resource&gt;.json for a class; null (logged) when missing or malformed so the baked frames still play.</summary>
         public static HeldGearData Load(HeroClassDef cls)
         {
+            if (string.IsNullOrEmpty(cls.GearFile)) return null; // layered-only class (Archer): no paper-doll gear, nothing to log
             try
             {
                 var asset = Resources.Load<TextAsset>("Data/" + cls.GearFile);

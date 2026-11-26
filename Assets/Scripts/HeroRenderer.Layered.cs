@@ -176,6 +176,7 @@ namespace ZenoniaProto
             if (headLayer != null) headLayer.Hide();
             foreach (Part p in parts) { p.Sr.sprite = null; if (p.Fx != null) p.Fx.Hide(); }
             motion = anim == "idle" ? 0 : anim == "walk" ? 1 : 2;
+            if (TryShowRig(anim, dir, frame, orderBase, alpha)) return; // `--hero-rig` TEST (HeroRenderer.Rig.cs)
             string painted = LayeredAnim(anim);
             int n = layered.Set.Frames(painted);
             float a = alpha;

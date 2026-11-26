@@ -52,6 +52,15 @@ namespace ZenoniaProto
             new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Deploy Turret", Ahead = 0f, Spread = 50f, Count = 4, Hold = 4.0f },
             new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "EMP Burst", Ahead = 0f, Spread = 30f, Count = 6, Hold = 1.8f },
             new ChoreoShot { Cls = HeroClass.Mechanic, Skill = "Orbital Cannon", Ahead = 100f, Spread = 40f, Count = 6, Hold = 3.0f },
+            // Archer light FX (2026-11-26): --record-choreo piercing-arrow,multi-shot,eagle-eye,arrow-rain,binding-shot,wind-step,hunter's-focus,starfall-volley
+            new ChoreoShot { Cls = HeroClass.Archer, Skill = "Piercing Arrow", Ahead = 40f, Spread = 70f, Count = 4, Line = true, Hold = 1.4f },
+            new ChoreoShot { Cls = HeroClass.Archer, Skill = "Multi Shot", Ahead = 64f, Spread = 30f, Count = 5, Hold = 1.4f },
+            new ChoreoShot { Cls = HeroClass.Archer, Skill = "Eagle Eye", Ahead = 0f, Spread = 50f, Count = 2, Hold = 2.0f },
+            new ChoreoShot { Cls = HeroClass.Archer, Skill = "Arrow Rain", Ahead = 96f, Spread = 34f, Count = 6, Hold = 2.0f },
+            new ChoreoShot { Cls = HeroClass.Archer, Skill = "Binding Shot", Ahead = 60f, Spread = 4f, Count = 1, Hold = 1.8f },
+            new ChoreoShot { Cls = HeroClass.Archer, Skill = "Wind Step", Ahead = 90f, Spread = 10f, Count = 2, Hold = 1.6f },
+            new ChoreoShot { Cls = HeroClass.Archer, Skill = "Hunter's Focus", Ahead = 0f, Spread = 50f, Count = 2, Hold = 2.0f },
+            new ChoreoShot { Cls = HeroClass.Archer, Skill = "Starfall Volley", Ahead = 112f, Spread = 46f, Count = 7, Hold = 2.8f },
         };
 
         /// <summary>

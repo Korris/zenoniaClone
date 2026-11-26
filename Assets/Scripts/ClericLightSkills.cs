@@ -97,7 +97,7 @@ namespace ZenoniaProto
             if (strike == null) return;
             ClericLightLook.Pal p = ClericLightLook.Holy;
             float u = ctx.Units, r = strike.Radius * u;
-            Vector2 c = strike.Range > 0f ? SkillAim.ClampToWalls(ctx.CastFrom, ctx.CastFrom + ctx.Dir * strike.Range * u) : ctx.CastFrom; // the strike centre (SkillEffects.Center)
+            Vector2 c = SkillAim.PlacedCentre(ctx, strike, ctx.CastFrom); // the strike centre (SkillEffects.Center)
             Vector2 hand = ctx.Body.Hero.Position + new Vector2(ctx.Dir.x * 6f, 16f) - c, lift = new Vector2(0f, 8f);
             var fx = ClericLightFx.Create("DivineLight", c, null, DivineMs, ClericLightFx.DimFor(ctx.Body.Hero, null));
             fx.Upright(ClericLightLook.M(ClericLightLook.Core, p, ClericLightLook.Role.Flash), ClericLightFx.Band.Over, false, 0f, 160f, 3f, 8f, 3f, 8f, 0.8f, hand)

@@ -35,7 +35,7 @@ namespace ZenoniaProto
 
     public static class GameConfig
     {
-        public const int TileUnits = 16, MaxTilesW = 96, MaxTilesH = 64;
+        public const int TileUnits = 16, MaxTilesW = 100, MaxTilesH = 100; // = Assets/Scripts/GameConfig.cs
         public static int TilesW { get { return MapRegistry.Current.Width; } }
         public static int TilesH { get { return MapRegistry.Current.Height; } }
         public static float MapW { get { return TilesW * TileUnits; } }

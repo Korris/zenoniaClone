@@ -18,6 +18,9 @@ namespace ZenoniaProto
         int castSkill;
         /// <summary>Server: sequence of the input frame being simulated for a remote player (the cast salt every side agrees on).</summary>
         public System.Func<uint> InputSeq;
+        /// <summary>Ground skills: the point carried by the input frame being simulated (zone server: the client's frame; predicting client: its own
+        /// frame). Null func = the local offline hero, which asks GroundAimInput. A null point = auto pick (SkillGroundAim).</summary>
+        public System.Func<Vector2?> InputGroundAim;
         /// <summary>Successful casts since spawn (server stats).</summary>
         public int SkillCasts { get; private set; }
         float mp { get { return rpg.Mp; } set { rpg.Mp = value; } }
@@ -68,10 +71,11 @@ namespace ZenoniaProto
             if (mp < cost) { SkillCastFeedback.Refused(this, def, SkillCastFeedback.Reason.NoMp); return false; }
             if (predicted && !SkillPrediction.Predicts(def)) return false; // motion / targeted skills: the server decides, its SkillCast shows it
             int salt = CastSalt();
+            Vector2? ground = GroundTargetRules.IsGround(def) ? GroundAimFor(index) : null, used = null;
             // The executor decides first (a skill that needs a target refuses when none is in range) so a refused cast costs nothing.
-            if (!replaying && !SkillExecutor.Cast(this, index, rank, salt)) { SkillCastFeedback.Refused(this, def, SkillCastFeedback.Reason.NoTarget); return false; }
+            if (!replaying && !SkillExecutor.Cast(this, index, rank, salt, ground, out used)) { SkillCastFeedback.Refused(this, def, SkillCastFeedback.Reason.NoTarget); return false; }
             if (HomeZone != null && HomeZone.Pump != null) HomeZone.Pump.Adopt();
-            NetEventBus.SkillCast(this, index, rank, salt);
+            NetEventBus.SkillCast(this, index, rank, salt, used); // viewers replay a Ground skill on the authority's clamped point
             if (!replaying) mp -= cost;
             StampAttack();
             cds.Start(index, SkillCooldowns.DevNone ? 0f : def.CooldownMs);
@@ -81,6 +85,13 @@ namespace ZenoniaProto
             combo.Reset();
             animTimer = 0f;
             return true;
+        }
+
+        /// <summary>The point picked for Ground skill `index`: the input frame's (server / predicting client), else the local aim (offline). Null = auto.</summary>
+        Vector2? GroundAimFor(int index)
+        {
+            if (InputGroundAim != null) return InputGroundAim();
+            return this == LocalPlayer.Hero ? GroundAimInput.Take(index) : null;
         }
 
         /// <summary>The cast's identity on every side: the input step that pressed the key (low 16 bits), so rain drops land on the same points.</summary>

@@ -1,0 +1,3 @@
+Chat Rogue (Tay): https://chatgpt.com/c/6b0793cc-1c50-83ec-a7cc-437a611341b7 (DỪNG 26/11, class giao agent khác)
+ChatGPT tự chấm idle chatgpt-1: art direction 9,3 / trang phục 9,2 / tỉ lệ 9,0 / đồng nhất 9,2 / hướng xoay 6,5 / layer 9,5 / bố cục 8,5 / tổng 8,7. Duyệt thiết kế; chưa duyệt sheet kỹ thuật: 3/4 Front, Side, 3/4 Back quay TRÁI thay vì phải như Knight.
+Script so Knight: skull-chin -0,9 % (đạt), skullW -4,9 % (sọ hẹp hơn), người cao 70 % ảnh (Knight 74 %).

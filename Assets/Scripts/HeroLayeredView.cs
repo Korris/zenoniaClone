@@ -10,7 +10,7 @@ namespace ZenoniaProto
     /// on the left dirs by `flip`), so the sword stays in the right hand. Hair and headgear sit on the frame's head anchor (skull top x, y, width w,
     /// angle). Grips: Tools/build-hero-layered-grips.py.
     /// </summary>
-    public sealed class HeroLayeredView
+    public sealed partial class HeroLayeredView
     {
         const float HairZ = -0.001f, AccessoryZ = -0.0015f, HeadgearZ = -0.002f;
         static readonly int[] PaintedRow = { 0, 1, 2, 3, 4, 3, 2, 1 }; // Dir8 -> painted row (5-7 mirror 3-1)
@@ -110,7 +110,7 @@ namespace ZenoniaProto
             frame = Mathf.Clamp(frame, 0, set.Frames(anim) - 1);
             Sprite[] cells = SpriteSheet.Row(set.BodyGrid(anim), row);
             if (cells == null || frame >= cells.Length) { Hide(); return; }
-            Draw(body, cells[frame], mirror, tint, orderBase + 3);
+            Draw(body, cells[frame], mirror, tint, orderBase + 2); // one order BELOW the hair / headgear (+3): their ~0.001 z offset alone flips on the 2.5D / 3D camera (bald heads, 26/11)
             body.transform.localScale = new Vector3(1f, breathY, 1f);
             Texture2D mask = set.Mask(anim);
             if (mask != shownMask || colorsDirty) { ApplyBlock(body, mask, 0f); ApplyBlock(hair, null, 1f); shownMask = mask; colorsDirty = false; }
@@ -125,7 +125,7 @@ namespace ZenoniaProto
             PlaceOnHead(hairAcc, hat == null ? hairEntry : null, h, headRow, headFlip, mirror, tint, orderBase + 3, 0f, breathY, true); // goggles: only bare-headed
             PlaceOnHead(headgear, hat, h, headRow, headFlip, mirror, tint, orderBase + 3, 1f, breathY);
             PlaceWeapon("weapon", weaponOn, weaponBack, weaponFront, anim, dir8, frame, tint, orderBase + 1, orderBase + 4, breathY);
-            PlaceWeapon("offhand", offhandOn, offBack, offFront, anim, dir8, frame, tint, orderBase + 2, orderBase + 5, breathY);
+            PlaceWeapon("offhand", offhandOn, offBack, offFront, anim, dir8, frame, tint, orderBase + 1, orderBase + 5, breathY); // behind the body (+2), with the main weapon's back slot
         }
 
         static void Draw(SpriteRenderer r, Sprite s, bool flip, Color tint, int order)

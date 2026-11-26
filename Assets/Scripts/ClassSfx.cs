@@ -50,6 +50,11 @@ namespace ZenoniaProto
                 Shot = new[] { "cleric/cast-a", "cleric/cast-b" }, Shout = new[] { "cleric/shout4-a", "cleric/shout4-b" },
                 Burst = new[] { "cleric/burst-a", "cleric/burst-b" },
             };
+            s[(int)HeroClass.Archer] = new Set // no archer recordings yet: the assassin's quick whooshes as the bow release, the dagger hits as the arrow thud (TODO: own clips under Audio/sfx/archer)
+            {
+                Shot = new[] { "assassin/slash1", "assassin/slash2" }, Finisher = new[] { "assassin/slash4" }, Shout = new[] { "warrior/shout4-a" },
+                Impact = new[] { "assassin/hit-a", "assassin/hit-b" },
+            };
             return s;
         }
 

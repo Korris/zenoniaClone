@@ -27,7 +27,7 @@ MAPS = {
 # Taurus maps (24/11/2026): the layout IS the rows (greybox), so the layers come from the tile chars, not from a painted ground:
 # d = dirt road, p = plaza paving, w / B = water (B = bridge deck, the stream bed still sinks under it), T / t = forest floor (feathered).
 TAU = {
-    "tau-willowbrook-village": dict(size=(44, 32), cls="TauWillowbrookVillageMap.cs", paving="p"),
+    "tau-willowbrook-village": dict(size=(100, 100), cls="TauWillowbrookVillageMap.cs", paving="pk"),   # V2 25/11: k = market shop slot (dirt on paving)
     "tau-clover-meadows": dict(size=(96, 64), cls="TauCloverMeadowsMap.cs", paving=""),
 }
 
@@ -55,8 +55,9 @@ def tau_main(key):
     def round_edge(m, sg):  # blur wide then re-sharpen: tile corners become curves, the edge stays fairly crisp
         b = soft(m, sg)
         return soft(np.clip((b - 0.3) / 0.4, 0, 1) ** 2 * (3 - 2 * np.clip((b - 0.3) / 0.4, 0, 1)), 1.0)
-    dirt = round_edge(big(ch == ord("d")), 4.0)
+    dirt = round_edge(big(np.isin(ch, [ord("d"), ord("k")])), 4.0)   # k (village market slot) = a dirt square
     pave = round_edge(big(np.isin(ch, [ord(c) for c in cfg["paving"]])), 6.0) if cfg["paving"] else np.zeros((H * PX, W * PX), np.float32)
+    if "k" in cfg["paving"]: pave = pave * (1 - dirt)   # village market slots: the dirt square sits ON the paving (the terrain shader would draw paving over it)
     water = big(np.isin(ch, [ord("w"), ord("B")]))
     wsoft = soft(water, 3.0)
     wsoft = np.clip((wsoft - 0.3) / 0.4, 0, 1); wsoft = soft(wsoft * wsoft * (3 - 2 * wsoft), 1.0)

@@ -22,7 +22,7 @@ namespace ZenoniaProto
             var go = new GameObject("SkillZone");
             go.transform.SetParent(ctx.Body.Hero.transform.parent, false);
             SkillGroundZone z = go.AddComponent<SkillGroundZone>();
-            z.ctx = ctx; z.fx = e; z.center = ctx.Feet;
+            z.ctx = ctx; z.fx = e; z.center = ctx.Ground.HasValue && !e.Attached ? ctx.Ground.Value : ctx.Feet; // Sanctuary (Ground, 26/11): on the chosen point
             SkillCaps.Add(ctx.Body.Hero, SkillCaps.MaxZones, z);
             if (!ctx.View) return;
             SkillSfx.Play(ctx, SkillSfx.Cast);

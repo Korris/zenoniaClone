@@ -24,7 +24,8 @@ namespace ZenoniaProto
             float r = zone.Radius * ctx.Units, d = 2f * r, total = zone.DurationMs, ring = d / 0.955f;
             Material outer = ClericLightLook.M(ClericLightLook.RuneRing, p, ClericLightLook.Role.Arc), inner = ClericLightLook.M(ClericLightLook.RuneRing, p, ClericLightLook.Role.Line),
                 grid = ClericLightLook.M(ClericLightLook.Grid, p, ClericLightLook.Role.Line), pool = ClericLightLook.M(ClericLightLook.Band, p, ClericLightLook.Role.Fill);
-            var fx = ClericLightFx.Create("Sanctuary", ctx.Feet, null, total, ClericLightFx.DimFor(ctx.Body.Hero, null));
+            var fx = ClericLightFx.Create("Sanctuary", ctx.Ground ?? ctx.Feet, null, total, // Ground skill (26/11): the zone sits on the chosen point (SkillGroundZone)
+                ClericLightFx.DimFor(ctx.Body.Hero, null));
 
             // Opening (activation 85-100 %): ring grows to the radius, floor and inner ring come up, the pool spreads
             fx.Ground(outer, 0f, 900f, ring * 0.55f, ring, 1f, ClericLightFx.Squash, 0f, 6).Arc(3f, 0f, 2).Env(60f, 450f)

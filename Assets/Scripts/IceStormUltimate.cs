@@ -39,11 +39,14 @@ namespace ZenoniaProto
         public static void Cast(HeroController owner) { Cast(owner, 1f); }
 
         /// <summary>Skill-tree cast: `damageScale` is the rank multiplier (SkillDef.DamageMul) applied to the caster ATK of this cast.</summary>
-        public static void Cast(HeroController owner, float damageScale)
+        public static void Cast(HeroController owner, float damageScale) { Cast(owner, damageScale, null); }
+
+        /// <summary>`at` = the chosen centre (Ground skill since 26/11/2026); null = the old spot Range ahead of the facing.</summary>
+        public static void Cast(HeroController owner, float damageScale, Vector2? at)
         {
             var go = new GameObject("IceStorm");
             go.transform.SetParent(owner.transform.parent, false);
-            go.AddComponent<IceStormUltimate>().Begin(owner, damageScale);
+            go.AddComponent<IceStormUltimate>().Begin(owner, damageScale, at);
         }
 
         static Sprite[][] Rows(int row, float ppu)
@@ -57,11 +60,11 @@ namespace ZenoniaProto
         /// <summary>Loads and slices the ice storm sheet ahead of the first cast (class spawn) so the cast itself never hitches.</summary>
         public static void Preload() { Rows(0, CirclePpu); Rows(1, SpearPpu); Rows(2, HitPpu); Rows(3, HitPpu); }
 
-        void Begin(HeroController owner, float damageScale)
+        void Begin(HeroController owner, float damageScale, Vector2? at)
         {
             hero = owner;
             caster = owner.Position;
-            center = caster + DirVec[owner.Facing] * Range + new Vector2(0f, -6f);
+            center = at ?? caster + DirVec[owner.Facing] * Range + new Vector2(0f, -6f);
             atk = owner.AtkStat * damageScale;
             if (!NetMode.RendersFx) return; // headless server: damage waves only, no art / layers
             if (IceStormLightFx.Active) { lightArt = true; IceStormLightFx.Begin(transform, center, Radius, owner); return; } // `--light-fx off` keeps the painted sheet

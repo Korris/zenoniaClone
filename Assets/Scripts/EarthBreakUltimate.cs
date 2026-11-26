@@ -43,25 +43,30 @@ namespace ZenoniaProto
         public static void Cast(HeroController owner) { Cast(owner, 1f); }
 
         /// <summary>Skill-tree cast: `damageScale` is the rank multiplier (SkillDef.DamageMul) applied to the caster ATK of this cast.</summary>
-        public static void Cast(HeroController owner, float damageScale)
+        public static void Cast(HeroController owner, float damageScale) { Cast(owner, damageScale, null); }
+
+        /// <summary>`at` = the chosen centre (Ground skill since 26/11/2026); null = the old spot Range ahead of the facing.</summary>
+        public static void Cast(HeroController owner, float damageScale, Vector2? at)
         {
             var go = new GameObject("EarthBreak");
             go.transform.SetParent(owner.transform.parent, false);
-            go.AddComponent<EarthBreakUltimate>().Begin(owner, damageScale);
+            go.AddComponent<EarthBreakUltimate>().Begin(owner, damageScale, at);
         }
 
         /// <summary>Loads the light FX masks / shaders ahead of the first cast (class spawn) so the cast itself never hitches.</summary>
         public static void Preload() { WarriorLightLook.Load(); }
 
-        void Begin(HeroController owner, float damageScale)
+        void Begin(HeroController owner, float damageScale, Vector2? at)
         {
             hero = owner;
             caster = owner.Position;
             dir = owner.Facing;
-            center = caster + DirVec[dir] * Range + new Vector2(0f, -6f);
+            center = at ?? caster + DirVec[dir] * Range + new Vector2(0f, -6f);
+            Vector2 toward = center - caster;
+            toward = toward.sqrMagnitude > 1f ? toward.normalized : DirVec[dir]; // the sword flies from the hero toward the chosen spot
             atk = owner.AtkStat * damageScale;
             if (!NetMode.RendersFx) return; // headless server: damage timeline only, no picture
-            WarriorEarthBreakLightFx.Build(owner, caster, center, DirVec[dir], Radius, SlamMs, SmallStepMs, Rpg.LegacySkillNumbers.EarthBreakSmallHits, PenultMs, FinishMs, BurnAt, TotalMs);
+            WarriorEarthBreakLightFx.Build(owner, caster, center, toward, Radius, SlamMs, SmallStepMs, Rpg.LegacySkillNumbers.EarthBreakSmallHits, PenultMs, FinishMs, BurnAt, TotalMs);
             Pose();
         }
 

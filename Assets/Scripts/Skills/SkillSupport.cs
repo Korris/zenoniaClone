@@ -21,7 +21,7 @@ namespace ZenoniaProto
             if (!e.Ally) { Targets.Add(self); return Targets; }
             if (e.Shape == AreaShape.Circle && e.Radius > 0f)
             {
-                Vector2 c = e.Range > 0f ? SkillAim.ClampToWalls(ctx.Feet, ctx.Feet + ctx.Dir * e.Range * ctx.Units) : ctx.Feet;
+                Vector2 c = SkillAim.PlacedCentre(ctx, e, ctx.Feet);
                 float r = e.Radius * ctx.Units;
                 foreach (HeroController h in SkillAim.Heroes(ctx.Body))
                     if (h != null && !h.IsDead && PartyAllies.Are(self, h) && (h.Position - c).sqrMagnitude <= r * r) Targets.Add(h);

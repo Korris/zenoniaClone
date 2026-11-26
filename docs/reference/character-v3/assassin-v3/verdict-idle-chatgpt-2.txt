@@ -1,0 +1,9 @@
+Idle chatgpt-2 (src/assassin-v3/body-assassin-idle-5dir-v3-chatgpt-2.png), chat Tay https://chatgpt.com/c/6b0793cc-1c50-83ec-a7cc-437a611341b7 (26/11 ~09:20). Prompt: prompt-idle-2.txt.
+Script (plans/reports/char-v3-tools/measure_v3.py) vs Knight body-warrior-idle-5dir-chatgpt-6:
+  sọ-cằm 34,4 % (Knight 34,7 %): -0,9 % ĐẠT
+  sọ rộng kể cả tai 34,4 % (Knight 36,4 %): -5,5 % (vượt 3 %, sọ hẹp hơn)
+  số đầu (trọc) 2,90 (Knight 2,88)
+  người cao 70,2 % ảnh (Knight 74,4 %): tool scale theo sọ-đế nên không ảnh hưởng
+  5 hướng giờ quay đúng như Knight (3/4 Front, Side phải; 3/4 Back lên-phải). Ảnh so: side-by-side-knight-vs-assassin-idle-v3-chatgpt-2.png
+ChatGPT chấm: art direction 9,3 / giữ thiết kế 9,5 / tỉ lệ 9,2 / hướng xoay 10 / bố cục-kỹ thuật 9,0 / TỔNG 9,4 => DUYỆT.
+Về sọ hẹp -5,5 %: ChatGPT khuyên KHÔNG vẽ lại, KHÔNG nới bằng tool (nữ mặt thon, tóc hồng + đuôi ngựa tăng khối đầu; nới ngang làm mặt bè). Đề xuất chuẩn Asteria V1: nữ sọ rộng 34-36 %, nam 35,5-37,5 %; sọ-cằm 34-35,5 % cả hai; 2,8-2,95 đầu trọc. (Chờ lead / người dùng quyết.)

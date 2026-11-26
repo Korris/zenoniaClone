@@ -89,4 +89,16 @@ public class RangedAimRulesTests
         Assert.True(RangedAimRules.Direction(0f, 0f, -5f, 0f, out dx, out dy, out a));
         Assert.Equal(-1f, dx, 3); Assert.Equal(0f, dy, 3); Assert.Equal(180f, a, 3);
     }
+
+    [Fact]
+    public void PickedMonsterBeatsANearerOneWhenItQualifies()
+    {
+        var all = new List<AimCandidate> { Mon(120f, 100f, 1), Mon(180f, 100f, 2), Mon(0f, 100f, 3), Mon(400f, 100f, 4) };
+        Assert.Equal(0, RangedAimRules.Pick(Hx, Hy, Fx, Fy, Ox, Oy, Range, all));        // no preference: the nearest
+        Assert.Equal(1, RangedAimRules.Pick(Hx, Hy, Fx, Fy, Ox, Oy, Range, all, 1));     // clicked the farther one: it wins
+        Assert.Equal(0, RangedAimRules.Pick(Hx, Hy, Fx, Fy, Ox, Oy, Range, all, 2));     // clicked one behind the hero: falls back to the nearest
+        Assert.Equal(0, RangedAimRules.Pick(Hx, Hy, Fx, Fy, Ox, Oy, Range, all, 3));     // clicked one out of range: falls back
+        all[1] = Mon(180f, 100f, 2, true);
+        Assert.Equal(0, RangedAimRules.Pick(Hx, Hy, Fx, Fy, Ox, Oy, Range, all, 1));     // clicked one is dying: falls back
+    }
 }
